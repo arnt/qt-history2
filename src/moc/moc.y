@@ -327,12 +327,11 @@ class ArgList : public QList<Argument *> {	// member function arg list
     bool cloned;
     int defargs;
 public:
-    ArgList() : cloned(FALSE), defargs(0) { setAutoDelete(TRUE); }
-    ~ArgList() { clear(); }
-
+    ArgList() : cloned(FALSE), defargs(0) { }
+    ~ArgList() { while (!isEmpty()) delete takeFirst(); }
 
     /* the clone has one default argument less, the orignal has all default arguments removed */
-    ArgList* magicClone() {
+    ArgList *magicClone() {
 	Argument *firstDefault = 0;
 	for (int i = 0; i < size(); ++i) {
 	    if (at(i)->isDefault) {
@@ -349,7 +348,7 @@ public:
 	    }
 	}
 	cloned = TRUE;
-	ArgList* l = new ArgList;
+	ArgList*l = new ArgList;
 	l->defargs = defargs;
 	for (int i = 0; i < size(); ++i) {
 	    Argument *current = at(i);
@@ -381,13 +380,15 @@ struct Function					// member function meta data
     QByteArray tag;
     int lineNo;
     ArgList *args;
+
     Function() { args=0;}
-   ~Function() { delete args; }
+    ~Function() { delete args; }
 };
 
 class FuncList : public QList<Function *> {	// list of member functions
 public:
-    FuncList(bool autoDelete = FALSE) { setAutoDelete(autoDelete); }
+    FuncList(bool autoDel = false) { autoDelete = autoDel; }
+    ~FuncList() { while (autoDelete && !isEmpty()) delete takeFirst(); }
 
     FuncList find(const char* name)  {
 	FuncList result;
@@ -407,6 +408,9 @@ public:
 		break;
 	insert(i, f);
     }
+
+private:
+    bool autoDelete;
 };
 
 class Enum : public QStrList
@@ -418,7 +422,8 @@ public:
 
 class EnumList : public QList<Enum *> {		// list of property enums
 public:
-    EnumList() { setAutoDelete(TRUE); }
+    EnumList() { }
+    ~EnumList() { while (!isEmpty()) delete takeFirst(); }
 };
 
 
@@ -489,7 +494,8 @@ struct Property
 
 class PropList : public QList<Property *> {	// list of properties
 public:
-    PropList() { setAutoDelete(TRUE); }
+    PropList() { }
+    ~PropList() { while (!isEmpty()) delete takeFirst(); }
 };
 
 
@@ -504,7 +510,8 @@ struct ClassInfo
 
 class ClassInfoList : public QList<ClassInfo *> {	// list of class infos
 public:
-    ClassInfoList() { setAutoDelete(TRUE); }
+    ClassInfoList() { }
+    ~ClassInfoList() { while (!isEmpty()) delete takeFirst(); }
 };
 
 ArgList *addArg(Argument *);			// add arg to tmpArgList
@@ -1997,12 +2004,6 @@ QList<NamespaceInfo *> namespaces;
 
 void enterNameSpace(const char *name = 0)	 // prepare for new class
 {
-    static bool first = TRUE;
-    if (first) {
-	namespaces.setAutoDelete(TRUE);
-	first = FALSE;
-    }
-
     NamespaceInfo *tmp = new NamespaceInfo;
     if (name)
 	tmp->name = name;
@@ -2012,9 +2013,9 @@ void enterNameSpace(const char *name = 0)	 // prepare for new class
 
 void leaveNameSpace()				 // prepare for new class
 {
-    NamespaceInfo *tmp = namespaces.last();
+    NamespaceInfo *tmp = namespaces.takeLast();
     namespacePLevel = tmp->pLevelOnEntering;
-    namespaces.removeLast();
+    delete tmp;
 }
 
 QByteArray nameQualifier()
