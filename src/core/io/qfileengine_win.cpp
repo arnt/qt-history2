@@ -1,17 +1,5 @@
 /****************************************************************************
 **
-** Definition of QWidget class.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the kernel module of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************//****************************************************************************
-**
 ** Implementation of QFSDirEngine class for Windows
 **
 ** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -156,7 +144,7 @@ static QString currentDirOfDrive(char ch)
         if (_getdcwd(toupper((uchar) ch) - 'A' + 1, currentName, PATH_MAX) >= 0)
             ret = QString::fromLocal8Bit(currentName);
     });
-    return qt_fixToQtSlashes(ret);
+    return QFSFileEnginePrivate::fixToQtSlashes(ret);
 }
 
 QString QFSFileEnginePrivate::fixToQtSlashes(const QString &path)
@@ -180,7 +168,7 @@ QString QFSFileEnginePrivate::fixToQtSlashes(const QString &path)
 
 QByteArray QFSFileEnginePrivate::win95Name(const QString &path)
 {
-    QString ret(in);
+    QString ret(path);
     if (path[0] == '/' && path[1] == '/') {
         // Win95 cannot handle slash-slash needs slosh-slosh.
         ret[0] = '\\';
@@ -212,13 +200,18 @@ bool isValidFile(const QString& fileName)
         return fileName[0].isLetter();
 }
 
+void 
+QFSFileEnginePrivate::init()
+{
+}
+
 int
 QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 {
     QT_WA({
 	return ::_wopen((TCHAR*)fileName.utf16(), flags, 0666);
     } , {
-	return QT_OPEN(d->win95Name(fileName), flags, 0666);
+	return QT_OPEN(QFSFileEnginePrivate::win95Name(fileName), flags, 0666);
     });
 }
     
@@ -226,9 +219,9 @@ bool
 QFSFileEngine::remove()
 {
     QT_WA({
-        return ::_wremove((TCHAR*)d->path.utf16()) == 0;
+        return ::_wremove((TCHAR*)d->file.utf16()) == 0;
     } , {
-        return ::remove(d->win95Name(d->path)) == 0;
+        return ::remove(QFSFileEnginePrivate::win95Name(d->file)) == 0;
     });
 }
 
@@ -236,9 +229,10 @@ bool
 QFSFileEngine::rename(const QString &newName)
 {
     QT_WA({
-        return ::_wrename((TCHAR*)d->path.utf16(), (TCHAR*)newName.utf16()) == 0;
+        return ::_wrename((TCHAR*)d->file.utf16(), (TCHAR*)newName.utf16()) == 0;
     } , {
-        return ::rename(d->win95Name(d->path), d->win95Name(newName)) == 0;
+        return ::rename(QFSFileEnginePrivate::win95Name(d->file), 
+			QFSFileEnginePrivate::win95Name(newName)) == 0;
     });
 }
 
@@ -247,13 +241,13 @@ QFSFileEngine::size() const
 {
     QT_STATBUF st;
     int ret = 0;
-    if (isOpen()) {
+    if (d->fd != -1) {
         ret = QT_FSTAT(d->fd, &st);
     } else {
         QT_WA({
-            ret = QT_TSTAT((TCHAR*)d->path.utf16(), (QT_STATBUF4TSTAT*)&st);
+            ret = QT_TSTAT((TCHAR*)d->file.utf16(), (QT_STATBUF4TSTAT*)&st);
         } , {
-            ret = QT_STAT(d->win95Name(d->path), &st);
+            ret = QT_STAT(QFSFileEnginePrivate::win95Name(d->file), &st);
         });
     }
     if (ret == -1)
@@ -273,7 +267,7 @@ QFSFileEngine::mkdir(const QString &dirName, QDir::Recursivity /*recurse*/) cons
     QT_WA({
         return ::_wmkdir((TCHAR*)dirName.utf16()) == 0;
     }, {
-        return _mkdir(d->win95Name(dirName)) == 0;
+        return _mkdir(QFSFileEnginePrivate::win95Name(dirName)) == 0;
     });
 }
 
@@ -283,7 +277,7 @@ QFSFileEngine::rmdir(const QString &dirName, QDir::Recursivity /*recurse*/) cons
  QT_WA({
         return ::_wrmdir((TCHAR*)dirName.utf16()) == 0;
     } , {
-        return _rmdir(d->win95Name(dirName)) == 0;
+        return _rmdir(QFSFileEnginePrivate::win95Name(dirName)) == 0;
     });
 }
 
@@ -293,7 +287,8 @@ QFSFileEngine::rename(const QString &name, const QString &newName) const
     QT_WA({
         return ::_wrename((TCHAR*)name.utf16(), (TCHAR*)newName.utf16()) == 0;
     } , {
-        return ::rename(d->win95Name(name), d->win95Name(newName)) == 0;
+        return ::rename(QFSFileEnginePrivate::win95Name(name), 
+			QFSFileEnginePrivate::win95Name(newName)) == 0;
     });
 }
 
@@ -324,7 +319,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
     }
 
     bool first = true;
-    QString p = d->path;
+    QString p = d->file;
     const int plen = p.length();
     HANDLE ff;
     WIN32_FIND_DATA finfo;
@@ -356,7 +351,8 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         ff = FindFirstFile((TCHAR*)p.utf16(), &finfo);
     }, {
         // Cast is safe, since char is at end of WIN32_FIND_DATA
-        ff = FindFirstFileA(d->win95Name(p),(WIN32_FIND_DATAA*)&finfo);
+        ff = FindFirstFileA(QFSFileEnginePrivate::win95Name(p),
+			    (WIN32_FIND_DATAA*)&finfo);
     });
 
     if (ff == FF_ERROR)
@@ -407,7 +403,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         }
 #endif
         if  ((doDirs && isDir) || (doFiles && isFile)) {
-            QString name = qt_fixToQtSlashes(fname);
+            QString name = QFSFileEnginePrivate::fixToQtSlashes(fname);
             if (doExecable) {
                 QString ext = name.right(4).toLower();
                 if (ext == ".exe" || ext == ".com" || ext == ".bat" ||
@@ -451,8 +447,8 @@ QFSFileEngine::caseSensitive() const
 bool
 QFSFileEngine::isRoot() const
 {
-    return d->path == "/" || d->path == "//" ||
-		    (d->path[0].isLetter() && d->path.mid(1,d->path.length()) == ":/");
+    return d->file == "/" || d->file == "//" ||
+		    (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/");
 }
 
 bool
@@ -462,7 +458,7 @@ QFSFileEngine::setCurrentDirPath(const QString &path)
     QT_WA({
         r = ::_wchdir((TCHAR*)path.utf16());
     } , {
-        r = QT_CHDIR(d->win95Name(path));
+        r = QT_CHDIR(QFSFileEnginePrivate::win95Name(path));
     });
     return r >= 0;
 }
@@ -485,7 +481,7 @@ QFSFileEngine::currentDirPath(const QString &fileName)
                 ::_getdcwd(drv, buf, PATH_MAX);
                 ret = buf;
             });
-            return qt_fixToQtSlashes(ret);
+            return QFSFileEnginePrivate::fixToQtSlashes(ret);
         }
     }
     //just the pwd
@@ -500,7 +496,7 @@ QFSFileEngine::currentDirPath(const QString &fileName)
             ret = QString::fromLocal8Bit(currentName);
         }
     });
-    return qt_fixToQtSlashes(ret);
+    return QFSFileEnginePrivate::fixToQtSlashes(ret);
 }
 
 QString
@@ -515,7 +511,7 @@ QFSFileEngine::homeDirPath()
                 ret = rootDirPath();
         }
     }
-    return qt_fixToQtSlashes(ret);
+    return QFSFileEnginePrivate::fixToQtSlashes(ret);
 }
 
 QString
@@ -582,12 +578,12 @@ QFSFileEnginePrivate::doStat() const
 
         int r;
         if(d->fd != -1) {
-            could_stat = (QT_FSTAT(d->fd, &st) != 0)
+            could_stat = (QT_FSTAT(d->fd, &st) != 0);
         } else {
             QT_WA({
                 could_stat = (QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st) != 0);
             } , {
-                could_stat = (QT_STAT(d->win95Name(statName), &st) != 0);
+                could_stat = (QT_STAT(QFSFileEnginePrivate::win95Name(statName), &st) != 0);
             });
         }
 	if (could_stat) {
@@ -656,13 +652,13 @@ QFSFileEnginePrivate::getLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if (SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)d->path.utf16(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)d->file.utf16(), STGM_READ);
                 if (SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
 
                     if (SUCCEEDED(hres)) {
-                        memcpy(szGotPath, (TCHAR*)d->path.utf16(), (d->path.length()+1)*sizeof(QChar));
+                        memcpy(szGotPath, (TCHAR*)d->file.utf16(), (d->file.length()+1)*sizeof(QChar));
                         hres = psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
                         ret = QString::fromUtf16((ushort*)szGotPath);
                     }
@@ -695,13 +691,13 @@ QFSFileEnginePrivate::getLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if (SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)d->path.utf16(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)d->file.utf16(), STGM_READ);
                 if (SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
 
                     if (SUCCEEDED(hres)) {
-                        QByteArray lfn = d->path.toLocal8Bit();
+                        QByteArray lfn = d->file.toLocal8Bit();
                         memcpy(szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char));
                         hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
                         ret = QString::fromLocal8Bit(szGotPath);
@@ -746,33 +742,33 @@ QFSFileEnginePrivate::getPermissions() const
                     if (ptrGetEffectiveRightsFromAclW(pDacl, &currentUserTrusteeW, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileInfoEngine::ReadUser;
+			ret |= QFileEngine::ReadUser;
 		    if(access_mask & WriteMask)
-			ret |= QFileInfoEngine::WriteUser;
+			ret |= QFileEngine::WriteUser;
 		    if(access_mask & ExecMask)
-			ret |= QFileInfoEngine::ExeUser;
+			ret |= QFileEngine::ExeUser;
                 }
                 { //owner
                     ptrBuildTrusteeWithSidW(&trustee, pOwner);
                     if (ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileInfoEngine::ReadOwner;
+			ret |= QFileEngine::ReadOwner;
 		    if(access_mask & WriteMask)
-			ret |= QFileInfoEngine::WriteOwner;
+			ret |= QFileEngine::WriteOwner;
 		    if(access_mask & ExecMask)
-			ret |= QFileInfoEngine::ExeOwner;
+			ret |= QFileEngine::ExeOwner;
                 }
                 { //group
                     ptrBuildTrusteeWithSidW(&trustee, pGroup);
                     if (ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileInfoEngine::ReadGroup;
+			ret |= QFileEngine::ReadGroup;
 		    if(access_mask & WriteMask)
-			ret |= QFileInfoEngine::WriteGroup;
+			ret |= QFileEngine::WriteGroup;
 		    if(access_mask & ExecMask)
-			ret |= QFileInfoEngine::ExeGroup;
+			ret |= QFileEngine::ExeGroup;
                 }
                 { //other (world)
                     // Create SID for Everyone (World)
@@ -783,11 +779,11 @@ QFSFileEnginePrivate::getPermissions() const
                         if (ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                             access_mask = (ACCESS_MASK)-1; // ###
 			if(access_mask & ReadMask)
-			    ret |= QFileInfoEngine::ReadOther;
+			    ret |= QFileEngine::ReadOther;
 			if(access_mask & WriteMask)
-			    ret |= QFileInfoEngine::WriteOther;
+			    ret |= QFileEngine::WriteOther;
 			if(access_mask & ExecMask)
-			    ret |= QFileInfoEngine::ExeOther;
+			    ret |= QFileEngine::ExeOther;
                     }
                     ptrFreeSid(pWorld);
                 }
@@ -795,19 +791,19 @@ QFSFileEnginePrivate::getPermissions() const
             }
         }
     }
-    if(ret & (QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser |
-	      QFileInfoEngine::WriteGroup | QFileInfoEngine::WriteOther)) {
+    if(ret & (QFileEngine::WriteOwner | QFileEngine::WriteUser |
+	      QFileEngine::WriteGroup | QFileEngine::WriteOther)) {
 	QT_WA({
 	    DWORD attr = GetFileAttributes((TCHAR*)file.utf16());
 	    if(attr & FILE_ATTRIBUTE_READONLY)
 		if (attr & FILE_ATTRIBUTE_READONLY)
-		    ret &= ~(QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser |
-			      QFileInfoEngine::WriteGroup | QFileInfoEngine::WriteOther);
+		    ret &= ~(QFileEngine::WriteOwner | QFileEngine::WriteUser |
+			      QFileEngine::WriteGroup | QFileEngine::WriteOther);
 	} , {
 	    DWORD attr = GetFileAttributesA(file.local8Bit());
 	    if (attr & FILE_ATTRIBUTE_READONLY)
-		ret &= ~(QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser |
-			 QFileInfoEngine::WriteGroup | QFileInfoEngine::WriteOther);
+		ret &= ~(QFileEngine::WriteOwner | QFileEngine::WriteUser |
+			 QFileEngine::WriteGroup | QFileEngine::WriteOther);
 	});
     }
     return ret;
@@ -825,7 +821,7 @@ QFSFileEngine::fileFlags(uint type) const
 		ret |= File;
 	    if((d->st.st_mode & S_IFMT) == S_IFDIR)
 		ret |= Directory;
-	    if (d->path.endsWith(".lnk"))
+	    if (d->file.endsWith(".lnk"))
 		ret |= Link;
 	}
     }
@@ -834,10 +830,10 @@ QFSFileEngine::fileFlags(uint type) const
 	    ret |= Exists;
 	    if(fileName(BaseName)[0] == QChar('.')) {
 		QT_WA({
-		    if(GetFileAttributesW((TCHAR*)d->path.utf16()) & FILE_ATTRIBUTE_HIDDEN)
+		    if(GetFileAttributesW((TCHAR*)d->file.utf16()) & FILE_ATTRIBUTE_HIDDEN)
 			ret |= Hidden;
 		} , {
-		    if(GetFileAttributesA(d->path.local8Bit()) & FILE_ATTRIBUTE_HIDDEN)
+		    if(GetFileAttributesA(d->file.local8Bit()) & FILE_ATTRIBUTE_HIDDEN)
 			ret |= Hidden;
 		});
 	    }
@@ -850,39 +846,39 @@ QString
 QFSFileEngine::fileName(FileName file) const
 {
     if(file == BaseName) {
-	int slash = d->path.lastIndexOf('/');
+	int slash = d->file.lastIndexOf('/');
 	if (slash == -1) {
-	    int colon = d->path.lastIndexOf(':');
+	    int colon = d->file.lastIndexOf(':');
 	    if (colon != -1)
-		return d->path.mid(colon + 1);
-	    return d->path;
+		return d->file.mid(colon + 1);
+	    return d->file;
 	}
-	return d->path.mid(slash + 1);
+	return d->file.mid(slash + 1);
     } else if(file == DirPath) {
-        if (!d->path.size())
-            return d->path;
-	int slash = d->path.lastIndexOf('/');
+        if (!d->file.size())
+            return d->file;
+	int slash = d->file.lastIndexOf('/');
 	if (slash == -1) {
-	    if (d->path.at(1) == ':')
-		return d->path.left(2);
+	    if (d->file.at(1) == ':')
+		return d->file.left(2);
 	    return QString::fromLatin1(".");
 	} else {
 	    if (!slash)
 		return QString::fromLatin1("/");
-	    if (slash == 2 && d->path.at(1) == ':')
+	    if (slash == 2 && d->file.at(1) == ':')
 		slash++;
-	    return d->path.left(slash);
+	    return d->file.left(slash);
 	}
     } else if(file == AbsoluteName || file == AbsoluteDirPath) {
         QString ret;
-        if (d->path.isEmpty()
-            || (d->path.length() >=2 && d->path.at(0) != '/' && d->path.at(1) != ':')) {
+        if (d->file.isEmpty()
+            || (d->file.length() >=2 && d->file.at(0) != '/' && d->file.at(1) != ':')) {
             ret = QDir::currentDirPath();
         }
-        if(!d->path.isEmpty() && d->path != ".") {
+        if(!d->file.isEmpty() && d->file != ".") {
             if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
                 ret += '/';
-            ret += d->path;
+            ret += d->file;
         }
 	if (ret[1] != ':' && ret[1] != '/') {
 	    ret.prepend(":");
@@ -906,7 +902,7 @@ QFSFileEngine::fileName(FileName file) const
         QT_WA({
             TCHAR cur[PATH_MAX];
             ::_wgetcwd(cur, PATH_MAX);
-            if (::_wchdir((TCHAR*)d->path.utf16()) >= 0) {
+            if (::_wchdir((TCHAR*)d->file.utf16()) >= 0) {
                 TCHAR real[PATH_MAX];
                 if (::_wgetcwd(real, PATH_MAX))
                     ret = QString::fromUtf16((ushort*)real);
@@ -915,27 +911,27 @@ QFSFileEngine::fileName(FileName file) const
         } , {
             char cur[PATH_MAX];
             QT_GETCWD(cur, PATH_MAX);
-            if (QT_CHDIR(d->win95Name(d->path)) >= 0) {
+            if (QT_CHDIR(QFSFileEnginePrivate::win95Name(d->file)) >= 0) {
                 char real[PATH_MAX];
                 if (QT_GETCWD(real, PATH_MAX))
                     ret = QString::fromLocal8Bit(real);
             }
             QT_CHDIR(cur);
         });
-        return qt_fixToQtSlashes(ret);
+        return QFSFileEnginePrivate::fixToQtSlashes(ret);
     } else if(file == LinkName) {
-	return qt_fixToQtSlashes(d->getLink());
+	return QFSFileEnginePrivate::fixToQtSlashes(d->getLink());
     }
-    return d->path;
+    return d->file;
 }
 
 bool
 QFSFileEngine::isRelativePath() const
 {
-    if (d->path.length() >= 2) {
-        return !((d->path.at(0).isLetter() && d->path.at(1) == ':') ||
-                 (d->path.at(0) == '\\' && d->path.at(1) == '\\') ||
-                 (d->path.at(0) == '/' && d->path.at(1) == '/'));                // drive, e.g. a:
+    if (d->file.length() >= 2) {
+        return !((d->file.at(0).isLetter() && d->file.at(1) == ':') ||
+                 (d->file.at(0) == '\\' && d->file.at(1) == '\\') ||
+                 (d->file.at(0) == '/' && d->file.at(1) == '/'));                // drive, e.g. a:
     }
     return true;
 }
@@ -957,7 +953,7 @@ QFSFileEngine::owner(FileOwner own) const
 	resolveLibs();
 
 	if (ptrGetNamedSecurityInfoW && ptrLookupAccountSidW) {
-	    if (ptrGetNamedSecurityInfoW((wchar_t*)d->path.utf16(), SE_FILE_OBJECT,
+	    if (ptrGetNamedSecurityInfoW((wchar_t*)d->file.utf16(), SE_FILE_OBJECT,
 					 own == Group ? GROUP_SECURITY_INFORMATION : OWNER_SECURITY_INFORMATION,
 					 NULL, &pOwner, NULL, NULL, &pSD) == ERROR_SUCCESS) {
 		DWORD lowner = 0, ldomain = 0;

@@ -1183,7 +1183,7 @@ QDir::convertToAbs()
     d->detach();
     d->data->path = absPath;
     d->data->fileEngine->setFileName(absPath);
-    if(!d->data->fileEngine->fileFlags(QFileEngine::TypeMask) & QFileEngine::Directory)
+    if(!(d->data->fileEngine->fileFlags(QFileEngine::TypeMask) & QFileEngine::Directory))
         qWarning("Failure to convert to absolute!");
 }
 

@@ -92,7 +92,7 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QFileEnginePrivate()
 //**************** QFSFileEngine
 QFSFileEngine::QFSFileEngine(const QString &file) : QFileEngine(*new QFSFileEnginePrivate)
 {
-    d->file = d->fixToQtSlashes(file);    
+    d->file = QFSFileEnginePrivate::fixToQtSlashes(file);    
     d->resetErrors();
 }
 
@@ -103,7 +103,7 @@ QFSFileEngine::QFSFileEngine() : QFileEngine(*new QFSFileEnginePrivate)
 void
 QFSFileEngine::setFileName(const QString &file)
 {
-    d->file = d->fixToQtSlashes(file);
+    d->file = QFSFileEnginePrivate::fixToQtSlashes(file);
     d->tried_stat = false;
 }
 

@@ -32,17 +32,20 @@ class QFSFileEngine;
 class QFSFileEnginePrivate : public QFileEnginePrivate
 {
     Q_DECLARE_PUBLIC(QFSFileEngine)
+
+public:
+#ifdef Q_WS_WIN
+    static QString fixToQtSlashes(const QString &path);
+    static QByteArray win95Name(const QString &path);
+#else
+    static inline QString fixToQtSlashes(const QString &path) { return path; }
+#endif
+
 protected:
     QFSFileEnginePrivate();
 
     void init();
     int sysOpen(const QString &, int flags);
-#ifdef Q_WS_WIN
-    QString fixToQtSlashes(const QString &path);
-    QByteArray win95Name(const QString &path)
-#else
-    inline QString fixToQtSlashes(const QString &path) { return path; }
-#endif
 private:
     QString file;
 

@@ -404,8 +404,9 @@ Q_CORE_EXPORT QString qt_errorstr(int errorCode)
     case ENOSPC:
         ret = QT_TR_NOOP("No space left on device");
         break;
-    default:
+    default: {
 #ifdef Q_OS_WIN
+	unsigned short *string = 0;
         QT_WA({
             FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                           NULL,
@@ -429,6 +430,7 @@ Q_CORE_EXPORT QString qt_errorstr(int errorCode)
 #else
         ret = QString::fromLocal8Bit(strerror(errorCode));
 #endif
+	break; }
     }
     return ret;
 }

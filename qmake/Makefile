@@ -53,14 +53,11 @@ QTOBJS= \
 	qdatastream.obj \
 	qdatetime.obj \
 	qdir.obj \
-	qfsdirengine.obj \
-	qfsdirengine_win.obj \
 	qfile.obj \
-	qfsfileengine.obj \
-	qfsfileengine_win.obj \
+	qioengine.obj \
+	qfileengine.obj \
+	qfileengine_win.obj \
 	qfileinfo.obj \
-	qfsfileinfoengine.obj \
-	qfsfileinfoengine_win.obj \
 	qglobal.obj \
 	qhash.obj \
 	qiodevice.obj \
@@ -147,11 +144,14 @@ qlinkedlist.obj: ..\src\core\tools\qlinkedlist.cpp
 qfile.obj: ..\src\core\io\qfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile.cpp
 
-qfsfileengine_win.obj: ..\src\core\io\qfsfileengine_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine_win.cpp
+qfileengine_win.obj: ..\src\core\io\qfileengine_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine_win.cpp
 
-qfsfileengine.obj: ..\src\core\io\qfsfileengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine.cpp
+qfileengine.obj: ..\src\core\io\qfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine.cpp
+
+qioengine.obj: ..\src\core\io\qioengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qioengine.cpp
 
 qtextcodec.obj: ..\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp
@@ -173,18 +173,6 @@ qsettings.obj: ..\src\core\io\qsettings.cpp
 
 qsettings_win.obj: ..\src\core\io\qsettings_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings_win.cpp
-
-qfsfileinfoengine_win.obj: ..\src\core\io\qfsfileinfoengine_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileinfoengine_win.cpp
-
-qfsfileinfoengine.obj: ..\src\core\io\qfsfileinfoengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileinfoengine.cpp
-
-qfsdirengine_win.obj: ..\src\core\io\qfsdirengine_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsdirengine_win.cpp
-
-qfsdirengine.obj: ..\src\core\io\qfsdirengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsdirengine.cpp
 
 qfileinfo.obj: ..\src\core\io\qfileinfo.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileinfo.cpp
