@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#31 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#32 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -273,13 +273,11 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	QDomDocumentType docType = domImpl.createDocumentType( "svg",
 							       publicId,
 							       systemId );
-	doc = QDomDocumentType( docType );
-	QDomProcessingInstruction pi =
-	    doc.createProcessingInstruction( "xml", QString( piData ) );
-        QDomElement svg = doc.createElement( "svg" );
-	doc.appendChild( pi );
-	doc.appendChild( svg );
-	current = svg;
+	doc = domImpl.createDocument( "http://www.w3.org/2000/svg",
+				      "svg", docType );
+	doc.insertBefore( doc.createProcessingInstruction( "xml", piData ),
+			  doc.firstChild() );
+	current = doc.documentElement();
 	imageCount = 0;
 	dirtyTransform = dirtyStyle = FALSE; // ###
 	return TRUE;
