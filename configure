@@ -325,6 +325,8 @@ do
 		XPLATFORM=qws/linux-${CFG_EMBEDDED}-g++;
 		;;
 	    *)
+		echo "Qt/Embedded is not supported on this platform. Disabling."
+		;;
 	    esac
 	else
 	    echo "Qt/Embedded is not supported. Disabling."
