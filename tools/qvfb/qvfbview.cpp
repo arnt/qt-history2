@@ -344,8 +344,15 @@ void QVFbView::timeout()
 		animation->appendFrame(img,QPoint(r.x(),r.y()));
 	    }
     }
-    if ( hdr->dirty )
-        viewport()->repaint();
+
+    if ( hdr->dirty ) {
+            QRect r(hdr->update);
+            r = QRect(int(r.x()*zm),int(r.y()*zm),
+	    int(r.width()*zm)+1,int(r.height()*zm)+1);
+            r.moveBy( -contentsX(), -contentsY() );
+            viewport()->repaint(r);
+    }
+
     unlock();
 }
 
@@ -493,7 +500,7 @@ void QVFbView::drawScreen()
 	p.setPen( Qt::black );
 	p.setBrush( Qt::white );
 	p.drawPixmap( int(r.x()*zm), int(r.y()*zm), pm,
-			int(leading*zm), 0, pm.width(), pm.height() );
+			int(leading*zm), 0, pm.width()-leading*zm, pm.height() );
     } else {
 	unlock();
     }
