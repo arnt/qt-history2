@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#48 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#49 $
 **
 ** Definition of event classes
 **
@@ -215,6 +215,7 @@ public:
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
     const char * format( int n = 0 );
+    bool provides( const char * );
     const QByteArray data( const char * );
 protected:
     QPoint p;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#53 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#53 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -657,3 +657,25 @@ void QEvent::peErrMsg()				// posted event error message
   recommended to use custom events unless you are implementing Qt kernel
   enhancements.
 */
+
+
+/*!  Returns TRUE if this drag object provides format \a mimeType or
+  FALSE if it does not.
+  
+  This function is provided for drop sites that accept only one mime
+  types.  Drop sites that accept more than one mime type are probably
+  better off using format().
+*/
+
+bool QDragMoveEvent::provides( const char * mimeType )
+{
+    int n=0;
+    const char * p;
+    do {
+	p = format( n );
+	if ( !p )
+	    return FALSE;
+	n++;
+    } while( qstricmp( mimeType, p ) );
+    return TRUE;
+}
