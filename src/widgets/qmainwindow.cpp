@@ -1447,7 +1447,7 @@ QMenuBar * QMainWindow::menuBar() const
   that it is not automatically displayed.  If you call this function
   after show(), you probably also need to call \a
   newStatusBar->show().
-  
+
   \sa setMenuBar() statusBar()
 */
 
@@ -2328,6 +2328,7 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
 
     d->ubp = enable;
     emit pixmapSizeChanged( enable );
+    triggerLayout( FALSE );
 }
 
 /*!  Returns the state last set by setUsesTextLabel().  The initial
@@ -2360,6 +2361,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 
     d->utl = enable;
     emit usesTextLabelChanged( enable );
+    triggerLayout( FALSE );
 }
 
 
@@ -2441,6 +2443,7 @@ bool QMainWindow::rightJustification() const
 void QMainWindow::triggerLayout( bool deleteLayout )
 {
     if ( !deleteLayout && d->tll ) {
+	d->tll->invalidate();
 	if ( d->hidden && !d->hidden->isEmpty() ) {
 	    int visibles = 0;
 	    d->hideDock->show();
