@@ -145,6 +145,7 @@ public:
 
 protected slots:
     void projectChanged( const QString &project );
+    void itemChanged( QIconViewItem *item );
 
 private:
     QList<QIconViewItem> allItems;

@@ -147,10 +147,10 @@
         </widget>
         <widget class="QLabel" row="0" column="0">
             <property name="name">
-                <cstring>Label1</cstring>
+                <cstring>labelProject</cstring>
             </property>
             <property name="text">
-                <string>Current Project:</string>
+                <string>Insert into:</string>
             </property>
             <property name="buddy" stdset="0">
                 <cstring>templateView</cstring>
@@ -194,6 +194,18 @@
         <slot>reject()</slot>
     </connection>
     <connection>
+        <sender>projectCombo</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>NewFormBase</receiver>
+        <slot>projectChanged(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>templateView</sender>
+        <signal>currentChanged(QIconViewItem*)</signal>
+        <receiver>NewFormBase</receiver>
+        <slot>itemChanged(QIconViewItem*)</slot>
+    </connection>
+    <connection>
         <sender>templateView</sender>
         <signal>doubleClicked(QIconViewItem*)</signal>
         <receiver>NewFormBase</receiver>
@@ -204,12 +216,6 @@
         <signal>returnPressed(QIconViewItem*)</signal>
         <receiver>NewFormBase</receiver>
         <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>projectCombo</sender>
-        <signal>activated(const QString&amp;)</signal>
-        <receiver>NewFormBase</receiver>
-        <slot>projectChanged(const QString&amp;)</slot>
     </connection>
 </connections>
 <tabstops>
@@ -222,7 +228,8 @@
     <include location="local" impldecl="in declaration">newform.ui.h</include>
 </includes>
 <slots>
-    <slot access="protected">projectChanged( const QString &amp;project )</slot>
+    <slot access="protected">itemChanged( QIconViewItem * )</slot>
+    <slot access="protected">projectChanged( const QString &amp; )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

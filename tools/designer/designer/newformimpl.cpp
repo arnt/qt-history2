@@ -33,6 +33,7 @@
 #include "sourcefile.h"
 
 #include <qiconview.h>
+#include <qlabel.h>
 #include <qfileinfo.h>
 #include <qdir.h>
 #include <qregexp.h>
@@ -289,7 +290,7 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	QFileInfo *fi;
 	while ( ( fi = it.current() ) != 0 ) {
 	    ++it;
-	    if ( !fi->isFile() )
+	    if ( !fi->isFile() || fi->extension() != "ui" )
 		continue;
 	    QString name = fi->baseName();
 	    name = name.replace( QRegExp( "_" ), " " );
@@ -358,4 +359,10 @@ void NewForm::projectChanged( const QString &project )
 	( (NewItem*)i )->setProject( pro );
     templateView->setCurrentItem( templateView->firstItem() );
     templateView->arrangeItemsInGrid( TRUE );
+}
+
+void NewForm::itemChanged( QIconViewItem *item )
+{
+    labelProject->setEnabled( item->rtti() != NewItem::ProjectType );
+    projectCombo->setEnabled( item->rtti() != NewItem::ProjectType );
 }
