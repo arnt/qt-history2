@@ -40,9 +40,9 @@ enum MemberFlags {
     AccessPrivate = 0x00,
     AccessProtected = 0x01,
     AccessPublic = 0x02,
+    MemberMethod = 0x00,
     MemberSignal = 0x04,
     MemberSlot = 0x08,
-    MemberMethod = 0x0c,
     MemberCompatibility = 0x10,
     MemberCloned = 0x20,
     MemberScriptable = 0x40,
@@ -216,6 +216,11 @@ void Generator::generateCode()
     generateClassInfos();
 
 //
+// Build method array
+//
+    generateFunctions(cdef->methodList, "method", MemberMethod);
+
+//
 // Build signals array
 //
     generateFunctions(cdef->signalList, "signal", MemberSignal);
@@ -224,11 +229,6 @@ void Generator::generateCode()
 // Build slots array
 //
     generateFunctions(cdef->slotList, "slot", MemberSlot);
-
-//
-// Build method array
-//
-    generateFunctions(cdef->methodList, "method", MemberMethod);
 
 //
 // Build property array

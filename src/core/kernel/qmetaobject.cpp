@@ -119,9 +119,9 @@ enum MethodFlags  {
     AccessPublic = 0x02,
     AccessMask = 0x03, //mask
 
+    MemberMethod = 0x00,
     MemberSignal = 0x04,
     MemberSlot = 0x08,
-    MemberMethod = 0x0c,
     MemberTypeMask = 0x0c,
 
     MemberCompatibility = 0x10,
@@ -870,7 +870,7 @@ int QMetaMember::attributes() const
 {
     if (!mobj)
         return false;
-    return (QMetaMember::MemberType)((mobj->d.data[handle + 4])>>4);
+    return ((mobj->d.data[handle + 4])>>4);
 }
 
 /*!
@@ -893,7 +893,7 @@ QMetaMember::MemberType QMetaMember::memberType() const
 {
     if (!mobj)
         return QMetaMember::Method;
-    return (QMetaMember::MemberType)((mobj->d.data[handle + 4] & MemberTypeMask)>>3);
+    return (QMetaMember::MemberType)((mobj->d.data[handle + 4] & MemberTypeMask)>>2);
 }
 
 /*!
