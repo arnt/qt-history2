@@ -3000,19 +3000,17 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &expr, bool cs, boo
 		if ( !wo || ( ( res == 0 || s[ res - 1 ].isSpace() || s[ res - 1 ].isPunct() ) &&
 			      ( end == (int)s.length() || s[ end ].isSpace() || s[ end ].isPunct() ) ) ) {
 		    removeSelection( Standard );
-		    cursor.setIndex( res );
-		    setSelectionStart( Standard, cursor );
 		    cursor.setIndex( end );
 		    setSelectionEnd( Standard, cursor );
-		    if ( !forward )
-			cursor.setIndex( res );
+		    cursor.setIndex( res );
+		    setSelectionStart( Standard, cursor );
 		    return TRUE;
 		}
 		start = res + (forward ? 1 : -1);
 	    }
 	}
 	if ( forward ) {
-	    if ( cursor.paragraph() == lastParagraph() && cursor.atParagEnd () )
+	    if ( cursor.paragraph() == lastParagraph() && cursor.atParagEnd() )
 		 break;
 	    cursor.gotoNextLetter();
 	} else {
