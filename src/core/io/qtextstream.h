@@ -114,19 +114,24 @@ public:
     static const int floatfield;   // scientific | fixed
 
     int flags() const;
-    int flags(int f);
+    void setFlags(int f);
     int setf(int bits);
     int setf(int bits, int mask);
     int unsetf(int bits);
 
     void  reset();
 
-    int width()        const;
-    int width(int);
-    int fill()        const;
-    int fill(int);
-    int precision()        const;
-    int precision(int);
+    int width() const;
+    void setWidth(int w);
+    int fill() const;
+    void setFill(int f);
+    int precision() const;
+    void setPrecision(int p);
+
+    int flags(int f) { int old = flags(); setFlags(f); return old; }
+    int width(int w) { int old = width(); setWidth(w); return old; }
+    int fill(int f) { int old = fill(); setFill(f); return old; }
+    int precision(int p) { int old = precision(); setPrecision(p); return old; }
 
 private:
     Q_DISABLE_COPY(QTextStream)
