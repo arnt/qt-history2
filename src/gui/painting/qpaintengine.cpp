@@ -633,33 +633,43 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textF
 #endif
 
     if (!useFontEngine) {
-        // Fallback: rasterize into a pixmap and draw the pixmap
-        QPixmap pm(ti.width, ti.ascent + ti.descent);
-        pm.fill(Qt::white);
+        QPainterPath path;
+        ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path);
+        if (!path.isEmpty()) {
+            painter()->save();
+            painter()->setBrush(state->pen.color());
+            painter()->setPen(Qt::NoPen);
+            painter()->drawPath(path);
+            painter()->restore();
+        } else {
+            // Fallback: rasterize into a pixmap and draw the pixmap
+            QPixmap pm(ti.width, ti.ascent + ti.descent);
+            pm.fill(Qt::white);
 
-        QPainter painter;
-        painter.begin(&pm);
-        painter.setPen(Qt::black);
-        painter.drawTextItem(0, ti.ascent, ti, textFlags);
-        painter.end();
+            QPainter painter;
+            painter.begin(&pm);
+            painter.setPen(Qt::black);
+            painter.drawTextItem(0, ti.ascent, ti, textFlags);
+            painter.end();
 
-        QImage img = pm.toImage();
-        if (img.depth() != 32)
-            img = img.convertDepth(32);
-        img.setAlphaBuffer(true);
-        int i = 0;
-        while (i < img.height()) {
-            uint *p = (uint *) img.scanLine(i);
-            uint *end = p + img.width();
-            while (p < end) {
-                *p = ((0xff - qGray(*p)) << 24) | (state->pen.color().rgb() & 0x00ffffff);
-                ++p;
+            QImage img = pm.toImage();
+            if (img.depth() != 32)
+                img = img.convertDepth(32);
+            img.setAlphaBuffer(true);
+            int i = 0;
+            while (i < img.height()) {
+                uint *p = (uint *) img.scanLine(i);
+                uint *end = p + img.width();
+                while (p < end) {
+                    *p = ((0xff - qGray(*p)) << 24) | (state->pen.color().rgb() & 0x00ffffff);
+                    ++p;
+                }
+                ++i;
             }
-            ++i;
-        }
 
-        pm = img;
-        state->painter->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
+            pm = img;
+            state->painter->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
+        }
     }
 }
 
