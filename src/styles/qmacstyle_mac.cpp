@@ -2050,7 +2050,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	myRect.right  -= offw;
 	myRect.bottom -= offh;
 	GetThemeButtonContentBounds(&myRect, bkind, &info, &macRect);
-	ret.setCoords(macRect.left, macRect.top + w->fontMetrics().ascent(), macRect.right, macRect.bottom + w->fontMetrics().descent());
+	ret.setCoords(macRect.left, macRect.top + 2, macRect.right, macRect.bottom + 3);
 	break; }
     case SR_ProgressBarLabel:
     case SR_ProgressBarGroove:
