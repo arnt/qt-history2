@@ -2322,7 +2322,8 @@ QString RenameMenuCommand::makeLegal( const QString &str )
 	c = str.at(i).latin1();
 	if ( c == '-' || c == ' ' )
 	    d += '_';
-	else if ( ( c > 47 && c < 91 ) || c == 95 || ( c > 96 && c < 123 ) )
+	else if ( ( c >= '0' && c <= '9') || ( c >= 'A' && c <= 'Z' )
+                  || c == '_' || ( c >= 'a' && c <= 'z' ) )
 	    d += c;
 	++i;
     }
