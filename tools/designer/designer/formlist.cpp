@@ -436,7 +436,7 @@ void FormList::bufferChosen( const QString &buffer )
     LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
     if ( iface )
 	extension = iface->formCodeExtension();
-    bool formCode = buffer.right( extension.length() ) == extension;
+    bool formCode = buffer.right( extension.length() + 2 ) == QString( "ui" + extension );
     while ( it.current() ) {
 	if ( !formCode &&
 	     ( it.current()->text( 0 ) == buffer || it.current()->text( 1 ) == buffer ) ||
