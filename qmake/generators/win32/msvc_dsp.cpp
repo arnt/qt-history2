@@ -197,9 +197,10 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
     if (allSteps.buildSteps.at(0).isEmpty())
         return true;
 
+    int i;
     QStringList dependencyList;
     // remove dependencies that are also output
-    for (int i = 0; i < configurations.count(); ++i) {
+    for (i = 0; i < configurations.count(); ++i) {
         QString config = configurations.at(i);
         QStringList buildOutput(allSteps.buildOutputs.at(configurations.indexOf(config)));
 
