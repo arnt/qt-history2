@@ -917,4 +917,37 @@ bool QMetaProperty::stored( QObject* o ) const
   \internal
 */
 
+/*!
+  \class QMetaObjectCleanUp
+*/
+
+QMetaObjectCleanUp::QMetaObjectCleanUp()
+: metaObject( 0 )
+{
+}
+
+QMetaObjectCleanUp::~QMetaObjectCleanUp()
+{
+    if ( !metaObject )
+	return;
+
+    if ( objectDict ) {
+	objectDict->remove( metaObject->className() );
+	if ( !objectDict->count() ) {
+	    delete objectDict;
+	    objectDict = 0;
+	}
+    }
+    metaObject = 0;
+}
+
+void QMetaObjectCleanUp::setMetaObject( QMetaObject *mo )
+{
+#if defined(CHECK_RANGE)
+    if ( metaObject )
+	qWarning( "QMetaObjectCleanUp::setMetaObject: Double use of QMetaObjectCleanUp!" );
+#endif
+    metaObject = mo;
+}
+
 #endif // QT_NO_PROPERTIES

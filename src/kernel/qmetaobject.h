@@ -249,4 +249,16 @@ inline void QMetaProperty::clearFlags( uint f )
 { flags &= ~(uint)f; }
 #endif
 
+class Q_EXPORT QMetaObjectCleanUp
+{
+public:
+    QMetaObjectCleanUp();
+    ~QMetaObjectCleanUp();
+
+    void setMetaObject( QMetaObject *mo );
+
+private:
+    QMetaObject *metaObject;
+};
+
 #endif // QMETAOBJECT_H

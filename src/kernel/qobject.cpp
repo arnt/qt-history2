@@ -214,6 +214,7 @@ void  qRemovePostedEvents( QObject* );
 
 
 QMetaObject *QObject::metaObj = 0;
+static QMetaObjectCleanUp cleanUp_QObject = QMetaObjectCleanUp();
 
 
 static void removeObjFromList( QObjectList *objList, const QObject *obj,
@@ -1901,6 +1902,9 @@ QMetaObject* QObject::staticMetaObject()
 	enum_tbl, 3,
 #endif
         0, 0 );
+
+    cleanUp_QObject.setMetaObject( metaObj );
+
     return metaObj;
 }
 

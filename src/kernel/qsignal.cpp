@@ -102,7 +102,7 @@
 
 
 QMetaObject *QSignal::metaObj = 0;
-
+static QMetaObjectCleanUp cleanUp_QSignal = QMetaObjectCleanUp();
 
 /*!
   Constructs a signal object with the parent object \e parent and a \e name.
@@ -249,5 +249,6 @@ QMetaObject* QSignal::staticMetaObject()
 	0, 0,
 #endif // QT_NO_PROPERTIES
 	0, 0);
+    cleanUp_QSignal.setMetaObject( metaObj );
     return metaObj;
 }
