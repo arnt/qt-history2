@@ -294,7 +294,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   For many applications QTableItems are ideal for presenting and editing
   the contents of table cells. In situations where you need to create
   very large tables you may prefer an alternative approach to using
-  QTableItems: see the notes on \link #bigtables large tables\endlink.
+  QTableItems: see the notes on large tables.
 
     A QTableItem contains a cell's data, by default, a string and a
     pixmap. The table item also holds the cell's display size and how
@@ -1415,6 +1415,7 @@ int QCheckTableItem::rtti() const
     approach. The cell's widget (if there is one) can be removed with
     clearCellWidget().
 
+    \keyword notes on large tables
     \target bigtables
     \section2 Large tables
 
@@ -1590,11 +1591,10 @@ QTable::QTable( QWidget *parent, const char *name )
 /*! Constructs an empty table called \a name with \a numRows rows and \a
  numCols columns. The table is a child of \a parent.
 
-  If you're using QTableItems to populate the table's cells, you can
+  If you're using \l {QTableItem}s to populate the table's cells, you can
   create QTableItem, QComboTableItem and QCheckTableItem items and
-  insert them into the table using setItem(). (See the notes on
-  \link #bigtables large tables\endlink for an alternative to using
-  QTableItems.)
+  insert them into the table using setItem(). (See the \l {notes on
+  large tables} for an alternative to using QTableItems.)
 
   \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
@@ -1941,7 +1941,7 @@ bool QTable::rowMovingEnabled() const
 
   If you don't use QTableItems you should reimplement this as an empty
   method to avoid wasting memory.
-  See the notes on \link #bigtables large tables\endlink for further details.
+  See the \l {notes on large tables} for further details.
 */
 
 void QTable::resizeData( int len )
@@ -1957,7 +1957,7 @@ void QTable::resizeData( int len )
 
   If you don't use QTableItems and want your users to be able to swap
   rows, e.g. for sorting, you will need to reimplement this function.
-  (See the notes on \link #bigtables large tables\endlink.)
+  (See the \l {notes on large tables}.)
 
   If \a swapHeader is TRUE, also the header contents of the rows is
   swapped.
@@ -2052,13 +2052,13 @@ void QTable::setTopMargin( int m )
 
 /*! Exchanges \a col1 with \a col2.
 
-    This function is used to swap the positions of two columns. It is
-    called when the user changes the order of columns (see
-    setColumnMovingEnabled(), and when columns are sorted.
+  This function is used to swap the positions of two columns. It is
+  called when the user changes the order of columns (see
+  setColumnMovingEnabled(), and when columns are sorted.
 
-    If you don't use QTableItems and want your users to be able to swap
-    columns you will need to reimplement this function.
-  (See the notes on \link #bigtables large tables\endlink.)
+  If you don't use QTableItems and want your users to be able to swap
+  columns you will need to reimplement this function.
+  (See the \l {notes on large tables}.)
 
   If \a swapHeader is TRUE, also the header contents of the columns is
   swapped.
@@ -2126,11 +2126,11 @@ void QTable::swapColumns( int col1, int col2, bool swapHeader )
 /*! Swaps the contents of the cell at \a row1, \a col1 with
  the contents of the cell at \a row2, \a col2.
 
-    This function is also called when the table is sorted.
+  This function is also called when the table is sorted.
 
-    If you don't use QTableItems and want your users to be able to swap
-    cells, you will need to reimplement this function.
-  (See the notes on \link #bigtables large tables\endlink.)
+  If you don't use QTableItems and want your users to be able to swap
+  cells, you will need to reimplement this function.
+  (See the \l {notes on large tables}.)
 
   \sa swapColumns() swapRows()
 */
@@ -2332,8 +2332,8 @@ QRect QTable::cellRect( int row, int col ) const
     approach. For data you want to draw immediately, e.g. data retrieved
     from a database, it is probably best to reimplement paintCell().
     Note that if you reimplement paintCell, i.e. don't use QTableItems,
-    you will have to reimplement other functions: see the notes on
-    \link #bigtables large tables\endlink.
+    you will have to reimplement other functions: see the \l {notes on
+    large tables}.
 
     Note that the painter is not clipped by default in order to get maximum
     efficiency. If you want clipping, use code like this:
@@ -2449,10 +2449,10 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
   If \a row or \a col are out of range or no content has
   been set for this cell, item() returns 0.
 
-    If you don't use QTableItems you may need to reimplement this function:
-    see the notes on \link #bigtables large tables\endlink.
+  If you don't use QTableItems you may need to reimplement this function:
+  see the \l {notes on large tables}.
 
-    \sa setItem()
+  \sa setItem()
 */
 
 QTableItem *QTable::item( int row, int col ) const
@@ -2471,7 +2471,7 @@ QTableItem *QTable::item( int row, int col ) const
     takes ownership of the table item.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on \link #bigtables large tables\endlink.
+    see the \l {notes on large tables}.
 
   \sa item() takeItem()
 */
@@ -2498,7 +2498,7 @@ void QTable::setItem( int row, int col, QTableItem *item )
 /*! Removes the QTableItem at \a row, \a col.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on \link #bigtables large tables\endlink.
+    see the \l {notes on large tables}.
 */
 
 void QTable::clearCell( int row, int col )
@@ -4167,7 +4167,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 
   If you want to work without QTableItems, you will need to reimplement
   this function to save the data the user entered into your data
-  structure. (See the notes on \link #bigtables large tables\endlink.)
+  structure. (See the \l {notes on large tables}.)
 
   \sa QTableItem::setContentFromEditor() createEditor()
 */
@@ -4493,8 +4493,8 @@ static int cmpTableItems( const void *n1, const void *n2 )
   otherwise only cells in the column are sorted using swapCells().
 
   Note that if you are not using QTableItems you will need to
-  reimplement swapRows() and swapCells(). (See the notes on
-  \link #bigtables large tables\endlink.)
+  reimplement swapRows() and swapCells(). (See the \l {notes on
+  large tables}.)
 
   \sa swapRows()
 */
@@ -4758,7 +4758,7 @@ void QTable::takeItem( QTableItem *i )
     By default widgets are inserted into a vector with numRows() *
     numCols() elements. In very large tables you will probably want to
     store the widgets in a data structure that consumes less memory (see
-    the notes on \link #bigtables large tables\endlink). To support the
+    the \l {notes on large tables}). To support the
     use of your own data structure this function calls insertWidget() to
     add the widget to the internal data structure. To use your own data
     structure reimplement insertWidget(), cellWidget() and
@@ -4792,7 +4792,7 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
   documentation of setCellWidget() for further details.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on \link #bigtables large tables\endlink.
+    see the \l {notes on large tables}.
 */
 
 void QTable::insertWidget( int row, int col, QWidget *w )
@@ -4809,8 +4809,8 @@ void QTable::insertWidget( int row, int col, QWidget *w )
 /*! Returns the widget that has been set for the cell at \a row, \a col,
   or 0 if no widget has been set.
 
-    If you don't use QTableItems you may need to reimplement this function:
-    see the notes on \link #bigtables large tables\endlink.
+  If you don't use QTableItems you may need to reimplement this function:
+  see the \l {notes on large tables}.
 
   \sa clearCellWidget() setCellWidget()
 */
@@ -4829,7 +4829,7 @@ QWidget *QTable::cellWidget( int row, int col ) const
 /*! Removes the widget (if there is one) set for the cell at \a row, \a col.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on \link #bigtables large tables\endlink.
+    see the \l {notes on large tables}.
 
     This function deletes the widget at \a row, \a col. Note that the
     widget is not deleted immediately but QObject::deferredDelete() is
