@@ -39,6 +39,9 @@
 #include "qtextcodec.h"
 #include "qbuffer.h"
 #include "qregexp.h"
+#include "qstack.h"
+#include "qmap.h"
+#include "qvaluestack.h"
 
 #ifndef QT_NO_XML
 // NOT REVISED
@@ -272,9 +275,6 @@ static const signed char charLookupTable[256]={
 };
 
 
-class QXmlNamespaceSupportPrivate
-{
-};
 class QXmlAttributesPrivate
 {
 };
@@ -397,6 +397,26 @@ int QXmlLocator::lineNumber()
  *
  *********************************************/
 
+class QXmlNamespaceSupportPrivate
+{
+public:
+    QXmlNamespaceSupportPrivate()
+    {
+	ns = new QMap<QString, QString>;
+	ns->insert( "xml", "http://www.w3.org/XML/1998/namespace" ); // the XML namespace
+    }
+
+    ~QXmlNamespaceSupportPrivate()
+    {
+	nsStack.setAutoDelete( TRUE );
+	nsStack.clear();
+	delete ns;
+    }
+
+    QStack<QMap<QString, QString> > nsStack;
+    QMap<QString, QString> *ns;
+};
+
 /*!
   \class QXmlNamespaceSupport qxml.h
   \brief The QXmlNamespaceSupport class is a helper class for XML readers which
@@ -416,8 +436,7 @@ int QXmlLocator::lineNumber()
 */
 QXmlNamespaceSupport::QXmlNamespaceSupport()
 {
-    ns = 0;
-    reset();
+    d = new QXmlNamespaceSupportPrivate;
 }
 
 /*!
@@ -425,9 +444,7 @@ QXmlNamespaceSupport::QXmlNamespaceSupport()
 */
 QXmlNamespaceSupport::~QXmlNamespaceSupport()
 {
-    nsStack.setAutoDelete( TRUE );
-    nsStack.clear();
-    delete ns;
+    delete d;
 }
 
 /*!
@@ -444,9 +461,9 @@ QXmlNamespaceSupport::~QXmlNamespaceSupport()
 void QXmlNamespaceSupport::setPrefix( const QString& pre, const QString& uri )
 {
     if( pre.isNull() ) {
-	ns->insert( "", uri );
+	d->ns->insert( "", uri );
     } else {
-	ns->insert( pre, uri );
+	d->ns->insert( pre, uri );
     }
 }
 
@@ -462,8 +479,8 @@ void QXmlNamespaceSupport::setPrefix( const QString& pre, const QString& uri )
 */
 QString QXmlNamespaceSupport::prefix( const QString& uri ) const
 {
-    QMap<QString, QString>::ConstIterator itc, it = ns->begin();
-    while ( (itc=it) != ns->end() ) {
+    QMap<QString, QString>::ConstIterator itc, it = d->ns->begin();
+    while ( (itc=it) != d->ns->end() ) {
 	++it;
 	if ( itc.data() == uri && !itc.key().isEmpty() )
 	    return itc.key();
@@ -477,7 +494,7 @@ QString QXmlNamespaceSupport::prefix( const QString& uri ) const
 */
 QString QXmlNamespaceSupport::uri( const QString& prefix ) const
 {
-    const QString& returi = (*ns)[ prefix ];
+    const QString& returi = (*d->ns)[ prefix ];
     return returi;
 }
 
@@ -554,8 +571,8 @@ QStringList QXmlNamespaceSupport::prefixes() const
 {
     QStringList list;
 
-    QMap<QString, QString>::ConstIterator itc, it = ns->begin();
-    while ( (itc=it) != ns->end() ) {
+    QMap<QString, QString>::ConstIterator itc, it = d->ns->begin();
+    while ( (itc=it) != d->ns->end() ) {
 	++it;
 	if ( !itc.key().isEmpty() )
 	    list.append( itc.key() );
@@ -578,8 +595,8 @@ QStringList QXmlNamespaceSupport::prefixes( const QString& uri ) const
 {
     QStringList list;
 
-    QMap<QString, QString>::ConstIterator itc, it = ns->begin();
-    while ( (itc=it) != ns->end() ) {
+    QMap<QString, QString>::ConstIterator itc, it = d->ns->begin();
+    while ( (itc=it) != d->ns->end() ) {
 	++it;
 	if ( itc.data() == uri && !itc.key().isEmpty() )
 	    list.append( itc.key() );
@@ -597,7 +614,7 @@ QStringList QXmlNamespaceSupport::prefixes( const QString& uri ) const
 */
 void QXmlNamespaceSupport::pushContext()
 {
-    nsStack.push( new QMap<QString, QString>(*ns) );
+    d->nsStack.push( new QMap<QString, QString>(*d->ns) );
 }
 
 /*!
@@ -609,9 +626,9 @@ void QXmlNamespaceSupport::pushContext()
 */
 void QXmlNamespaceSupport::popContext()
 {
-    delete ns;
-    if( !nsStack.isEmpty() )
-	ns = nsStack.pop();
+    delete d->ns;
+    if( !d->nsStack.isEmpty() )
+	d->ns = d->nsStack.pop();
 }
 
 /*!
@@ -619,13 +636,8 @@ void QXmlNamespaceSupport::popContext()
 */
 void QXmlNamespaceSupport::reset()
 {
-    nsStack.setAutoDelete( TRUE );
-    nsStack.clear();
-    nsStack.setAutoDelete( FALSE );
-
-    delete ns;
-    ns = new QMap<QString, QString>;
-    ns->insert( "xml", "http://www.w3.org/XML/1998/namespace" ); // the XML namespace
+    delete d;
+    d = new QXmlNamespaceSupportPrivate;
 }
 
 
@@ -1730,6 +1742,8 @@ private:
     QXmlSimpleReaderPrivate()
     { }
 
+    // used to determine if elements are correctly nested
+    QValueStack<QString> tags;
 
     // used for entity declarations
     struct ExternParameterEntity
@@ -2202,7 +2216,7 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 	}
     }
     // is stack empty?
-    if ( !tags.isEmpty() ) {
+    if ( !d->tags.isEmpty() ) {
 	d->error = XMLERR_UNEXPECTEDEOF;
 	goto parseError;
     }
@@ -2220,7 +2234,7 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 
 parseError:
     reportParseError();
-    tags.clear();
+    d->tags.clear();
     return FALSE;
 }
 
@@ -2476,10 +2490,10 @@ bool QXmlSimpleReader::parseElement()
 		// call the handler
 		if ( contentHnd ) {
 		    if ( d->useNamespaces ) {
-			d->namespaceSupport.processName( tags.top(), FALSE, uri, lname );
-			t = contentHnd->startElement( uri, lname, tags.top(), d->attList );
+			d->namespaceSupport.processName( d->tags.top(), FALSE, uri, lname );
+			t = contentHnd->startElement( uri, lname, d->tags.top(), d->attList );
 		    } else {
-			t = contentHnd->startElement( "", "", tags.top(), d->attList );
+			t = contentHnd->startElement( "", "", d->tags.top(), d->attList );
 		    }
 		    if ( !t ) {
 			d->error = contentHnd->errorString();
@@ -2499,7 +2513,7 @@ bool QXmlSimpleReader::parseElement()
 		parseOk = parseName();
 		break;
 	    case EmptyTag:
-		if  ( tags.isEmpty() ) {
+		if  ( d->tags.isEmpty() ) {
 		    d->error = XMLERR_TAGMISMATCH;
 		    goto parseError;
 		}
@@ -2524,7 +2538,7 @@ bool QXmlSimpleReader::parseElement()
 		    goto parseError;
 		}
 		// store it on the stack
-		tags.push( name() );
+		d->tags.push( name() );
 		// empty the attributes
 		d->attList.qnameList.clear();
 		d->attList.uriList.clear();
@@ -2580,10 +2594,10 @@ bool QXmlSimpleReader::parseElementEmptyTag( bool &t, QString &uri, QString &lna
     if ( contentHnd ) {
 	// report startElement first...
 	if ( d->useNamespaces ) {
-	    d->namespaceSupport.processName( tags.top(), FALSE, uri, lname );
-	    t = contentHnd->startElement( uri, lname, tags.top(), d->attList );
+	    d->namespaceSupport.processName( d->tags.top(), FALSE, uri, lname );
+	    t = contentHnd->startElement( uri, lname, d->tags.top(), d->attList );
 	} else {
-	    t = contentHnd->startElement( "", "", tags.top(), d->attList );
+	    t = contentHnd->startElement( "", "", d->tags.top(), d->attList );
 	}
 	if ( !t ) {
 	    d->error = contentHnd->errorString();
@@ -2591,7 +2605,7 @@ bool QXmlSimpleReader::parseElementEmptyTag( bool &t, QString &uri, QString &lna
 	}
 	// ... followed by endElement
 	// ### missing namespace support!
-	if ( !contentHnd->endElement( "","",tags.pop() ) ) {
+	if ( !contentHnd->endElement( "","",d->tags.pop() ) ) {
 	    d->error = contentHnd->errorString();
 	    return FALSE;
 	}
@@ -2616,7 +2630,7 @@ bool QXmlSimpleReader::parseElementEmptyTag( bool &t, QString &uri, QString &lna
 	    }
 	}
     } else {
-	tags.pop();
+	d->tags.pop();
     }
     return TRUE;
 }
@@ -2628,7 +2642,7 @@ bool QXmlSimpleReader::parseElementETagBegin2()
 {
 
     // pop the stack and compare it with the name
-    if ( tags.pop() != name() ) {
+    if ( d->tags.pop() != name() ) {
 	d->error = XMLERR_TAGMISMATCH;
 	return FALSE;
     }
@@ -6060,7 +6074,7 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
     d->externEntities.clear();
     d->entities.clear();
 
-    tags.clear();
+    d->tags.clear();
 
     d->doctype = "";
     d->xmlVersion = "";

@@ -38,7 +38,7 @@
 #ifndef QXML_H
 #define QXML_H
 
-#include <qmodules.h>
+#include "qmodules.h"
 
 #if !defined(QT_MODULE_XML)
 #define QM_EXPORT
@@ -47,13 +47,10 @@
 #endif
 
 #ifndef QT_H
-#include <qtextstream.h>
-#include <qfile.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qstack.h>
-#include <qvaluestack.h>
-#include <qmap.h>
+#include "qtextstream.h"
+#include "qfile.h"
+#include "qstring.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_XML
@@ -88,14 +85,6 @@ class QXmlDefaultHandlerPrivate;
 // SAX Namespace Support
 //
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class QM_EXPORT QMap<QString, QString>;
-template class QM_EXPORT QStack<QMap<QString, QString> >;
-template class QM_EXPORT QValueStack<QString>;
-// MOC_SKIP_END
-#endif
-
 class QM_EXPORT QXmlNamespaceSupport
 {
 public:
@@ -114,10 +103,8 @@ public:
     void pushContext();
     void popContext();
     void reset();
-private:
-    QStack<QMap<QString, QString> > nsStack;
-    QMap<QString, QString> *ns;
 
+private:
     QXmlNamespaceSupportPrivate *d;
 };
 
@@ -291,8 +278,6 @@ private:
     QString xml;
     int xmlLength;
     QString xmlRef; // used for parsing of entity references
-
-    QValueStack<QString> tags;
 
     QXmlSimpleReaderPrivate* d;
 
