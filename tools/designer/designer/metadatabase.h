@@ -225,6 +225,9 @@ public:
     static void setBreakPoints( QObject *o, const QValueList<int> &l );
     static QValueList<int> breakPoints( QObject *o );
 
+    static void setExportMacro( QObject *o, const QString &macro );
+    static QString exportMacro( QObject *o );
+
 };
 
 #endif

@@ -84,6 +84,7 @@ void Uic::createFormDecl( const QDomElement &e )
     // at first the images, we need to ensure the names are unique
     QStringList forwardDecl;
     QStringList forwardDecl2;
+    QString exportMacro;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "images" ) {
 	    nl = n.elementsByTagName( "image" );
@@ -240,6 +241,9 @@ void Uic::createFormDecl( const QDomElement &e )
 	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
 	    localIncludes += s;
     }
+    nl = e.parentNode().toElement().elementsByTagName( "exportmacro" );
+    if ( nl.length() == 1 )
+	exportMacro = nl.item( 0 ).firstChild().toText().data();
 
     forwardDecl = unique( forwardDecl );
     for ( it = forwardDecl.begin(); it != forwardDecl.end(); ++it ) {
@@ -256,7 +260,8 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     out << endl;
-    out << "class " << nameOfClass << " : public " << objClass << endl;
+    out << "class " << ( !exportMacro.isEmpty() ? QString( exportMacro + " " ) : QString( "" ) ) <<
+	nameOfClass << " : public " << objClass << endl;
     out << "{ " << endl;
 
 /* tmake ignore Q_OBJECT */

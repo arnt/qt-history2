@@ -197,6 +197,8 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 		formwindow->setSavePixmapInline( FALSE );
 		formwindow->setSavePixmapInProject( TRUE );
 	    }
+	} else if ( firstWidget.tagName() == "exportmacro" ) {
+	    exportMacro = firstWidget.firstChild().toText().data();
 	}
 
 	firstWidget = firstWidget.nextSibling().toElement();
@@ -263,6 +265,7 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 	MetaDataBase::setVariables( formwindow, metaVariables );
 	metaInfo.classNameChanged = metaInfo.className != QString( formwindow->name() );
 	MetaDataBase::setMetaInfo( formwindow, metaInfo );
+	MetaDataBase::setExportMacro( formwindow->mainContainer(), exportMacro );
     }
 
     if ( formwindow && !filename.isEmpty() && keepname )
@@ -2013,6 +2016,8 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<pixmapinproject/>" << endl;
     else
 	ts << makeIndent( indent ) << "<pixmapfunction>" << formwindow->pixmapLoaderFunction() << "</pixmapfunction>" << endl;
+    if ( !( exportMacro = MetaDataBase::exportMacro( formwindow->mainContainer() ) ).isEmpty() )
+	ts << makeIndent( indent ) << "<exportmacro>" << exportMacro << "</exportmacro>" << endl;
 }
 
 QColorGroup Resource::loadColorGroup( const QDomElement &e )

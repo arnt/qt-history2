@@ -578,7 +578,11 @@ bool PropertyTextItem::hasSubItems() const
 
 void PropertyTextItem::childValueChanged( PropertyItem *child )
 {
-    MetaDataBase::setPropertyComment( listview->propertyEditor()->widget(), PropertyItem::name(), child->value().toString() );
+    if ( PropertyItem::name() != "name" )
+	MetaDataBase::setPropertyComment( listview->propertyEditor()->widget(),
+					  PropertyItem::name(), child->value().toString() );
+    else
+	MetaDataBase::setExportMacro( listview->propertyEditor()->widget(), child->value().toString() );
 }
 
 static QString to_string( const QVariant &v, bool accel )
@@ -611,7 +615,10 @@ void PropertyTextItem::showEditor()
 
 void PropertyTextItem::createChildren()
 {
-    PropertyTextItem *i = new PropertyTextItem( listview, this, this, tr( "comment" ), FALSE, FALSE );
+    PropertyTextItem *i = new PropertyTextItem( listview, this, this,
+						PropertyItem::name() == "name" ?
+						"export macro" : "comment", FALSE, FALSE,
+						PropertyItem::name() == "name" );
     i->lined()->setEnabled( isChanged() );
     addChild( i );
 }
@@ -621,8 +628,13 @@ void PropertyTextItem::initChildren()
     if ( !childCount() )
 	return;
     PropertyItem *item = PropertyItem::child( 0 );
-    if ( item )
-	item->setValue( MetaDataBase::propertyComment( listview->propertyEditor()->widget(), PropertyItem::name() ) );
+    if ( item ) {
+	if ( PropertyItem::name() != "name" )
+	    item->setValue( MetaDataBase::propertyComment( listview->propertyEditor()->widget(),
+							   PropertyItem::name() ) );
+	else
+	    item->setValue( MetaDataBase::exportMacro( listview->propertyEditor()->widget() ) );
+    }
 }
 
 void PropertyTextItem::hideEditor()
@@ -2540,7 +2552,10 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 				     editor->widget()->inherits( "QLabel" ) || editor->widget()->inherits( "QTextView" ) );
 	break;
     case QVariant::CString:
-	item = new PropertyTextItem( this, item, 0, name, FALSE, FALSE, TRUE );
+	item = new PropertyTextItem( this, item, 0,
+				     name, name == "name" &&
+				     editor->widget() == editor->formWindow()->mainContainer(),
+				     FALSE, TRUE );
 	break;
     case QVariant::Bool:
 	item = new PropertyBoolItem( this, item, 0, name );

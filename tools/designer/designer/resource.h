@@ -133,6 +133,7 @@ private:
     MetaDataBase::MetaInfo metaInfo;
     QMap<QString, QString> dbControls;
     QMap<QString, QStringList> dbTables;
+    QString exportMacro;
 
 };
 

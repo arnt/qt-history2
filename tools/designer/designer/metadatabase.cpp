@@ -59,6 +59,7 @@ public:
     QMap<QString, QStringList> eventFunctions;
     QMap<QString, QString> functionBodies;
     QValueList<int> breakPoints;
+    QString exportMacro;
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
@@ -1397,4 +1398,34 @@ bool MetaDataBase::hasEventFunctions( QObject *o )
     }
 
     return !r->eventFunctions.isEmpty();
+}
+
+void MetaDataBase::setExportMacro( QObject *o, const QString &macro )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->exportMacro = macro;
+}
+
+QString MetaDataBase::exportMacro( QObject *o )
+{
+    if ( !o )
+	return "";
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return "";
+    }
+
+    return r->exportMacro;
 }
