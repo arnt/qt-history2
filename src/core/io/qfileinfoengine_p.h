@@ -37,6 +37,7 @@ protected:
     QFSFileInfoEnginePrivate(QFSFileInfoEngine *qq);
 
     void init();
+    void slashify();
 private:
     QString file;
 

@@ -31,16 +31,43 @@ QFSFileInfoEnginePrivate::QFSFileInfoEnginePrivate(QFSFileInfoEngine *qq) : QFil
     init();
 }
 
+void QFSFileInfoEnginePrivate::slashify()
+{
+    // Filename cleanup
+    if (!file.length())
+        return;
+
+    // Standardize: turn all \ to /
+    for (int i=0; i<(int)file.length(); i++) {
+        if (file[i] == '\\')
+            file[i] = '/';
+    }
+
+    // Cleanup: remove trailing slash
+    if (file[(int)file.length() - 1] == '/' && file.length() > 3)
+        file.remove((int)file.length() - 1, 1);
+
+    // Cleanup: remove all "//" after 3 character
+    int index;
+    do {
+        index = file.indexOf("//", 3);
+        if (index != -1)
+            file.remove(index, 1);
+    } while (index != -1);
+}
+
 //**************** QFSFileInfoEngine
 QFSFileInfoEngine::QFSFileInfoEngine(const QString &file) : QFileInfoEngine(*new QFSFileInfoEnginePrivate(this))
 {
     d->file = file;
+    d->slashify();
 }
 
 void
 QFSFileInfoEngine::setFileName(const QString &file)
 {
     d->file = file;
+    d->slashify();
 }
 
 uint
