@@ -35,7 +35,7 @@ const char* _GUIDFormFiles             = "{99349809-55BA-4b9d-BF79-8FDBB0286EB3}
 const char* _GUIDExtraCompilerFiles    = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
 
 #ifdef Q_OS_WIN32
-#  include <qt_windows.h>
+#include <qt_windows.h>
 
 // Registry keys for .NET version detection -------------------------
 const char* _regNet2002                = "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
@@ -176,8 +176,8 @@ bool use_net2003_version()
 #else
     // Only search for the version once
     static int current_version = -1;
-    if(current_version!=-1)
-        return (current_version==71);
+    if(current_version != -1)
+        return (current_version == 71);
 
     // Fallback to .NET 2002
     current_version = 70;
@@ -366,11 +366,11 @@ QUuid VcprojGenerator::increaseUUID(const QUuid &id)
     result.data4[0] = uchar((dataFirst >> 24) & 0xff);
     result.data4[1] = uchar((dataFirst >> 16) & 0xff);
     result.data4[2] = uchar((dataFirst >>  8) & 0xff);
-    result.data4[3] = uchar(dataFirst        & 0xff);
+    result.data4[3] = uchar(dataFirst         & 0xff);
     result.data4[4] = uchar((dataLast  >> 24) & 0xff);
     result.data4[5] = uchar((dataLast  >> 16) & 0xff);
     result.data4[6] = uchar((dataLast  >>  8) & 0xff);
-    result.data4[7] = uchar(dataLast         & 0xff);
+    result.data4[7] = uchar(dataLast          & 0xff);
     return result;
 }
 
@@ -448,9 +448,22 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         if(newDep->target.endsWith(".dll"))
                             newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
 
-                        // All projects using Forms are dependent on uic.exe
-                        if(!tmp_proj.isEmpty("FORMS"))
-                            newDep->dependencies << "uic.exe";
+                        // All projects having mocable sourcefiles are dependent on moc.exe
+                        if(tmp_proj.variables()["CONFIG"].contains("moc"))
+                            newDep->dependencies << "moc.exe";
+
+                        // All extra compilers which has valid input are considered dependencies
+                        const QStringList &quc = tmp_proj.variables()["QMAKE_EXTRA_COMPILERS"];
+                        for(QStringList::ConstIterator it = quc.constBegin(); it != quc.constEnd(); ++it) {
+                            const QStringList &invar = tmp_proj.variables().value((*it) + ".input");
+                            for(QStringList::ConstIterator iit = invar.constBegin(); iit != invar.constEnd(); ++iit) {
+                                const QStringList fileList = tmp_proj.variables().value(*iit);
+                                if (!fileList.isEmpty()) {
+                                    QString dep = tmp_proj.first((*it) + ".commands");
+                                    newDep->dependencies << dep.section(Option::dir_sep, -1);
+                                }
+                            }
+                        }
 
                         // Add all unknown libs to the deps
                         QStringList where("QMAKE_LIBS");
