@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#73 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -77,6 +77,30 @@ static const char *ps_header[] = {
 "",
 "/nS 0 def",				// number of saved painter states
 "",
+"/LArr[",					// Pen styles:
+"    []		     []",			//   solid line
+"    [ 10 3 ]	     [ 3 10 ]",			//   dash line
+"    [ 3 3 ]	     [ 3 3 ]",			//   dot line
+"    [ 5 3 3 3 ]	     [ 3 5 3 3 ]",	//   dash dot line
+"    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]",		//   dash dot dot line
+"] def",
+"",
+"",//
+"",// Returns the line pattern (from pen style PSt).
+"",//
+"",// Argument:
+"",//   bool pattern
+"",//	true : draw pattern
+"",//	false: fill pattern
+"",//
+"",
+"/GPS {",
+"  PSt 1 ge PSt 5 le and",			// valid pen pattern?
+"    { { LArr PSt 1 sub 2 mul get }",		// draw pattern
+"      { LArr PSt 2 mul 1 sub get } ifelse",    // opaque pattern
+"    }",
+"    { [] } ifelse",				// out of range => solid line
+"} D",
 "",
 "/QS {",				// stroke command
 "    PSt 0 ne",				// != NO_PEN
@@ -451,59 +475,35 @@ static const char *ps_header[] = {
 "    } if",
 "} D",
 "",
-"/LArr[",					// Pen styles:
-"    []		     []",			//   solid line
-"    [ 10 3 ]	     [ 3 10 ]",			//   dash line
-"    [ 3 3 ]	     [ 3 3 ]",			//   dot line
-"    [ 5 3 3 3 ]	     [ 3 5 3 3 ]",	//   dash dot line
-"    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]",		//   dash dot dot line
-"] def",
-"",
-"",//
-"",// Returns the line pattern (from pen style PSt).
-"",//
-"",// Argument:
-"",//   bool pattern
-"",//	true : draw pattern
-"",//	false: fill pattern
-"",//
-"",
-"/GPS {",
-"  PSt 1 ge PSt 5 le and",			// valid pen pattern?
-"    { { LArr PSt 1 sub 2 mul get }",		// draw pattern
-"      { LArr PSt 2 mul 1 sub get } ifelse",    // opaque pattern
-"    }",
-"    { [] } ifelse",				// out of range => solid line
-"} D",
-"",
 "", // slower implementation than the old one, but strippable by stripHeader
 "/QCIDict 25 dict def",
-"/QCI {", // as colorimage but without the last three arguments
+"/QCI {", // as colorimage but without the last two arguments
 "  /colorimage where {",
 "    pop",
-"    {currentfile sl readhexstring pop} false 3 colorimage",
-"  } {", // the hard way, based on PD code by John Walker <kelvin@autodesk.com>
+"    false 3 colorimage",
+"  }{", // the hard way, based on PD code by John Walker <kelvin@autodesk.com>
 "    QCIDict begin",
+"      /Function ED",
 "      /Matrix ED",
 "      /Bcomp ED",
 "      /Height ED",
 "      /Width ED",
 "      /Bycomp Bcomp 7 add 8 idiv def",
 "      Width Height Bcomp Matrix",
-"      /Gstr Bycomp Width mul string def",
-"      { currentfile sl readhexstring pop",
-"	/Cstr ED",
-"	0 1 Width 1 sub {",
-"	  /I ED",
-"	  /X I 3 mul def",
-"	  Gstr I",
-"	  Cstr X       get 0.30 mul",
-"	  Cstr X 1 add get 0.59 mul",
-"	  Cstr X 2 add get 0.11 mul",
-"	  add add cvi",
-"	  put",
-"	} for",
-"	Gstr",
+"      /Gstr sl length 3 idiv string def",
+"      { Function exec",
+"	 /Cstr ED",
+"	 0 1 Cstr length 3 idiv 1 sub {",
+"	   /I ED",
+"	   /X I 3 mul def",
+"	   Gstr I",
+"	   Cstr X       get 0.30 mul",
+"	   Cstr X 1 add get 0.59 mul",
+"	   Cstr X 2 add get 0.11 mul",
+"	   add add cvi",
+"	   put",
+"	 } for",
+"	 Gstr",
 "      }",
 "      image",
 "    end",
@@ -1790,7 +1790,7 @@ static void cleanup()
 static QString wordwrap( QString s )
 {
     QString result;
-    
+
     int ip; // input pointer
     int oll; // output line length
     int cils, cols; // canidate input line start, -o-
@@ -1822,13 +1822,12 @@ static QString wordwrap( QString s )
 	    cols = result.length();
 	} else if ( s[ip] == '/'  || s[ip] == '{' || s[ip] == '}' ||
 		    s[ip] == '[' || s[ip] == ']' ) {
+	    havews = s[ip] != '/';
 	    needws = FALSE;
 	    cils = ip;
 	    cols = result.length();
 	    result += s[ip];
 	    oll++;
-	    if ( s[ip] != '/' )
-		havews = TRUE;
 	} else {
 	    if ( needws ) {
 		cols = result.length();
@@ -1913,7 +1912,7 @@ static void makeFixedStrings()
 
 struct QPSPrinterPrivate {
     QPSPrinterPrivate( int filedes )
-	: buffer( 0 ), realDevice( 0 ), fd( filedes )
+	: buffer( 0 ), realDevice( 0 ), fd( filedes ), savedImage( 0 )
     {
 	headerFontNames.setAutoDelete( TRUE );
 	pageFontNames.setAutoDelete( TRUE );
@@ -1936,6 +1935,7 @@ struct QPSPrinterPrivate {
     bool dirtyClipping;
     bool firstClipOnPage;
     QRect boundingBox;
+    QImage * savedImage;
 };
 
 
@@ -2497,14 +2497,15 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    d->dirtyClipping = TRUE;
 	    break;
 	case PDC_PRT_NEWPAGE:
-	    stream << "GR\n";
-	    stream << "QP\n";
 	    pageCount++;
-	    stream << "\n%%Page: " << pageCount << ' ' << pageCount << endl;
-	    stream << "QI\n";
+	    stream << "GR\nQP\n%%Page: "
+		   << pageCount << ' ' << pageCount
+		   << "\nQI\n";
 	    dirtyNewPage       = TRUE;
 	    d->dirtyClipping   = TRUE;
 	    d->firstClipOnPage = TRUE;
+	    delete d->savedImage;
+	    d->savedImage = 0;
 	    orientationSetup();
 	    stream << "GS\n";
 	    break;
@@ -2522,27 +2523,31 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 {
     stream << pnt.x() << " " << pnt.y() << " TR\n";
 
-    bool mask  = FALSE;
+    //bool mask  = FALSE;
     int width  = img.width();
     int height = img.height();
-
+    
     QColor fgCol = paint->pen().color();
     QColor bgCol = paint->backgroundColor();
-    if ( mask )
-	stream << COLOR(fgCol) << "CRGB SRGB\n";
-    stream << "/sl " << (mask ? (width + 7)/8 : width*3)
-	   << " string def\n";
-    stream << width << " " << height;
-    if ( !mask )
-	stream << " 8 ";
-    if ( mask ) {
-	// ### looks wrong.  imagemask needs 1-bit, not 8-bit
-	stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n"
-	       << "imagemask\n";
-	ps_dumpTransparentBitmapData( stream, img );
-    } else {
-	stream << "[1 0 0 1 0 0] QCI\n";
+
+    if ( width * height > 21844 ) {
+	delete d->savedImage;
+	d->savedImage = 0;
+	stream << "/sl " << width*3 << " string def\n"
+	       << width << ' ' << height << " 8[1 0 0 1 0 0]"
+	       << "{currentfile sl readhexstring pop}QCI\n";
 	ps_dumpPixmapData( stream, img, fgCol, bgCol );
+    } else if ( d->savedImage && img == *d->savedImage ) {
+	stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
+    } else {
+	stream << "/sl " << width*3*height
+	       << " string def\ncurrentfile sl readhexstring\n";
+	ps_dumpPixmapData( stream, img, fgCol, bgCol );
+	stream << "pop pop\n";
+	delete d->savedImage;
+	d->savedImage = new QImage( img );
+	d->savedImage->detach();
+	stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
     }
     stream << -pnt.x() << " " << -pnt.y() << " TR\n";
 }
@@ -2561,10 +2566,11 @@ void QPSPrinter::matrixSetup( QPainter *paint )
     if ( paint->hasWorldXForm() ) {
 	tmp = paint->worldMatrix() * tmp;
     }
-    stream << "[ "
+    stream << "["
 	   << tmp.m11() << ' ' << tmp.m12() << ' '
 	   << tmp.m21() << ' ' << tmp.m22() << ' '
-	   << tmp.dx()	<< ' ' << tmp.dy()  << " ] ST\n";
+	   << tmp.dx()	<< ' ' << tmp.dy()
+	   << "]ST\n";
     dirtyMatrix = FALSE;
 }
 
@@ -2670,9 +2676,9 @@ static QString stripHeader( QString header, const char * data, int len,
 	    i++;
 	}
     }
-    
+
     // second pass: mark the identifiers used in the document
-    
+
     // we know GR and QP are used
     used[(int)ids.take("GR")] = 0x10000000;
     used[(int)ids.take("QP")] = 0x10000000;
@@ -2791,7 +2797,7 @@ void QPSPrinter::emitHeader( bool finished )
 	makeFixedStrings();
 
     if ( finished ) {
-	QString r( stripHeader( *fixed_ps_header, 
+	QString r( stripHeader( *fixed_ps_header,
 				d->buffer->buffer().data(),
 				d->buffer->buffer().size(),
 				d->fontBuffer->buffer().size() > 0 ) );
