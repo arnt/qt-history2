@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#46 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#46 $");
 
 
 /*!
@@ -23,10 +23,25 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#45 $");
   \ingroup files
   \ingroup stream
 
-  QFile is an I/O device for reading and writing binary and text files.	 A
+  QFile is an I/O device for reading and writing binary and text files.	A
   QFile may be used by itself (readBlock and writeBlock) or by more
-  conveniently using QDataStream or QTextStream.  Most of its behavior is
-  inherited from QIODevice.
+  conveniently using QDataStream or QTextStream.
+
+  Here is a code fragment that uses QTextStream to read a text
+  file line by line. It prints each line with a line number.
+  \code
+    QFile f("file.txt");
+    if ( f.open(IO_ReadOnly) ) {    // file opened successfully
+	QTextStream t( &f );	    // use a text stream
+	QString s;
+	int n = 1;
+	while ( !t.eof() ) {	    // until end of file...
+	    s = t.readLine();	    // line of text excluding '\n'
+	    printf( "%3d: %s\n", n++, (const char *)s );
+	}
+	f.close();
+    }
+  \endcode
 
   The QFileInfo class holds detailed information about a file, such as
   access permissions, file dates and file types.
@@ -52,10 +67,11 @@ QFile::QFile()
 */
 
 QFile::QFile( const char *name )
+    : fn(name)
 {
     init();
-    fn = name;
 }
+
 
 /*!
   Destroys a QFile.  Calls close().
@@ -65,6 +81,7 @@ QFile::~QFile()
 {
     close();
 }
+
 
 /*!
   \internal
@@ -135,7 +152,7 @@ bool QFile::exists() const
 {
     if ( fn.isEmpty() )
 	return FALSE;
-    return ACCESS( fn.data(), F_OK ) == 0;
+    return ACCESS(fn.data(), F_OK) == 0;
 }
 
 /*!
@@ -166,22 +183,35 @@ bool QFile::exists( const char *fileName )
   Opens the file specified by the file name currently set, using the mode \e m.
   Returns TRUE if successful, otherwise FALSE.
 
-  The mode parameter \e m must be a combination of the following flags.
+  The mode parameter \e m must be a combination of the following flags:
   <ul>
-  <li>\c IO_Raw specified raw (unbuffered) file access.
-  <li>\c IO_ReadOnly opens a file in read-only mode.
-  <li>\c IO_WriteOnly opens a file in write-only mode.
-  <li>\c IO_ReadWrite opens a file in read/write mode.
-  <li>\c IO_Append sets the file index to the end of the file.
+  <li>\c IO_Raw specified raw (non-buffered) file access.
+  <li>\c IO_ReadOnly opens the file in read-only mode.
+  <li>\c IO_WriteOnly opens the file in write-only mode.
+  <li>\c IO_ReadWrite opens the file in read/write mode, equivalent to
+  \c (IO_ReadOnly|IO_WriteOnly).
+  <li>\c IO_Append opens the file in append mode. This mode is very useful
+  when you want to write something to a log file. The file index is set to
+  the end of the file. Note that the result is undefined if you position the
+  file index manually using at() in append mode.
   <li>\c IO_Truncate truncates the file.
   <li>\c IO_Translate enables carriage returns and linefeed translation
-  for text files under MS-DOS, Window, OS/2 and Macintosh.  Cannot be
-  combined with \c IO_Raw.
+  for text files under MS-DOS, Window, OS/2 and Macintosh.
   </ul>
 
   The raw access mode is best when I/O is block-operated using 4kB block size
-  or greater.  Buffered access works better when reading small portions of
+  or greater. Buffered access works better when reading small portions of
   data at a time.
+  
+  <strong>Important:</strong> When working with buffered files, data may
+  not be written to the file at once. Call \link flush() flush\endlink
+  to make sure the data is really written.
+  
+  \warning We have experienced problems with some C libraries when a buffered
+  file is opened for both reading and writing. If a read operation takes place
+  immediately after a write operation, the read buffer contains garbage data.
+  Worse, the same garbage is written to the file. Calling flush() before
+  readBlock() solved this problem.
 
   If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is
   specified, it is created.
@@ -194,7 +224,7 @@ bool QFile::exists( const char *fileName )
     f2.open( IO_ReadOnly | IO_Translate );
   \endcode
 
-  \sa name(), close(), isOpen()
+  \sa name(), close(), isOpen(), flush()
 */
 
 bool QFile::open( int m )
@@ -230,13 +260,19 @@ bool QFile::open( int m )
 	    else
 		oflags |= (OPEN_APPEND | OPEN_CREAT);
 	    setFlags( flags() | IO_WriteOnly ); // append implies write
-	} else if ( isWritable() )		// create/trunc if writable
-	    oflags |= (OPEN_CREAT | OPEN_TRUNC);//   but not append
+	} else if ( isWritable() ) {		// create/trunc if writable
+	    if ( flags() & IO_Truncate )
+		oflags |= (OPEN_CREAT | OPEN_TRUNC);
+	    else
+		oflags |= OPEN_CREAT;
+	}
 	if ( isWritable() )
-	    oflags |= isReadable() ? OPEN_WRONLY : OPEN_RDWR;
+	    oflags |= isReadable() ? OPEN_RDWR : OPEN_WRONLY;
 #if defined(HAS_TEXT_FILEMODE) && !defined(_OS_MAC_)
 	if ( isTranslated() )
 	    oflags |= OPEN_TEXT;
+	else
+	    oflags |= OPEN_BINARY;
 #endif
 #if defined(HAS_ASYNC_FILEMODE)
 	if ( isAsynchronous() )
@@ -244,12 +280,13 @@ bool QFile::open( int m )
 #endif
 	fd = OPEN( (const char *)fn, oflags, 0666 );
 	if ( fd != -1 ) {			// open successful
-	    length = LSEEK( fd, 0, SEEK_END );	// get size of file
-	    if ( !(flags() & IO_Append) )	// reset file position
-		LSEEK( fd, 0, SEEK_SET );
-	}
-	else
+	    STATBUF st;
+	    FSTAT( fd, &st );
+	    length = st.st_size;
+	    index  = (flags() & IO_Append) == 0 ? 0 : length;
+	} else {
 	    ok = FALSE;
+	}
     } else {					// buffered file I/O
 	const char *perm = 0;
 	char perm2[4];
@@ -259,9 +296,9 @@ bool QFile::open( int m )
 	    perm = isReadable() ? "a+" : "a";
 	} else {
 	    if ( isReadWrite() ) {
-		if ( flags() & IO_Truncate )
+		if ( flags() & IO_Truncate ) {
 		    perm = "w+";
-		else {
+		} else {
 		    perm = "r+";
 		    try_create = TRUE;		// try to create if not exists
 		}
@@ -303,6 +340,7 @@ bool QFile::open( int m )
     }
     return ok;
 }
+
 
 /*!
   Opens a file in the mode \e m using an existing file handle \e f.
@@ -346,20 +384,21 @@ bool QFile::open( int m, FILE *f )
     if ( fh == stdin || fh == stdout || fh == stderr ) {
 	length = INT_MAX;
     } else {
+	STATBUF st;
+	FSTAT( FILENO(fh), &st );
+	length = st.st_size;
 	index = ftell( fh );
-	fseek( fh, 0, SEEK_END );
-	length = ftell( fh );
-	fseek( fh, index, SEEK_SET );
     }
     return TRUE;
 }
+
 
 /*!
   Opens a file in the mode \e m using an existing file descriptor \e f.
   Returns TRUE if successful, otherwise FALSE.
 
   When a QFile is opened using this function, close() does not actually
-  close the file, only flushes it.
+  close the file.
 
   \warning If \e f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
   be able to seek. size() is set to \c INT_MAX (in limits.h).
@@ -385,11 +424,12 @@ bool QFile::open( int m, int f )
     } else {
 	STATBUF st;
 	FSTAT( fd, &st );
-	index  = st.st_size;
 	length = st.st_size;
+	index  = TELL(fd);
     }
     return TRUE;
 }
+
 
 /*!
   Closes an open file.
@@ -419,6 +459,7 @@ void QFile::close()
     init();					// restore internal state
 }
 
+
 /*!
   Flushes the file buffer to the disk.
 
@@ -439,20 +480,14 @@ void QFile::flush()
 
 uint QFile::size() const
 {
-    if ( isOpen() ) {
-	return length;
-    } else {
-	QFile f( fn );
-	uint s;
-	if ( f.open(IO_ReadOnly) ) {
-	    s = f.size();
-	    f.close();
-	} else {
-	    s = 0;
-	}
-	return s;
-    }
+    STATBUF st;
+    if ( isOpen() )
+	FSTAT( fh ? FILENO(fh) : fd, &st );
+    else
+	STAT( fn, &st );
+    return st.st_size;
 }
+
 
 /*!
   \fn int QFile::at() const
@@ -473,7 +508,10 @@ uint QFile::size() const
     f.close();
   \endcode
 
-  \sa size()
+  \warning The result is undefined if the file was \link open() opened\endlink
+  using the \c IO_Append specifier.
+
+  \sa size(), open()
 */
 
 bool QFile::at( int pos )
@@ -484,13 +522,12 @@ bool QFile::at( int pos )
 #endif
 	return FALSE;
     }
-    bool ok = TRUE;
+    bool ok;
     if ( isRaw() ) {				// raw file
-	if ( LSEEK(fd, pos, SEEK_SET) == -1 )
-	    ok = FALSE;
+	pos = LSEEK(fd, pos, SEEK_SET);
+	ok = pos != -1;
     } else {					// buffered file
-	if ( fseek(fh, pos, SEEK_SET) != 0 )
-	    ok = FALSE;
+	ok = fseek(fh, pos, SEEK_SET) == 0;
     }
     if ( ok )
 	index = pos;
@@ -500,6 +537,7 @@ bool QFile::at( int pos )
 #endif
     return ok;
 }
+
 
 /*!
   Returns TRUE if the end of file has been reached, otherwise FALSE.
@@ -530,6 +568,12 @@ bool QFile::atEnd() const
 
   Returns -1 if a serious error occurred.
 
+  \warning We have experienced problems with some C libraries when a buffered
+  file is opened for both reading and writing. If a read operation takes place
+  immediately after a write operation, the read buffer contains garbage data.
+  Worse, the same garbage is written to the file. Calling flush() before
+  readBlock() solved this problem.
+
   \sa writeBlock()
 */
 
@@ -555,11 +599,16 @@ int QFile::readBlock( char *p, uint len )
     return nread;
 }
 
+
 /*!
   Writes \e len bytes from \e p to the file and returns the number of
   bytes actually written.
 
   Returns -1 if a serious error occurred.
+
+  <strong>Important:<strong> When working with buffered files, data may
+  not be written to the file at once. Call \link flush() flush\endlink
+  to make sure the data is really written.
 
   \sa readBlock()
 */
