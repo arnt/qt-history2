@@ -152,8 +152,6 @@ public:
     QList<QWidget *> widgets(QWidget *widget) const;
 
     QWidget *createWidget(DomUI *ui, const QRect &rect, QWidget *target);
-    void insertWidget(QWidget *w, const QRect &rect, QWidget *target);
-    void resizeWidget(QWidget *widget, const QRect &geometry);
     void deleteWidgets(const QList<QWidget*> &widget_list);
 
     bool isManaged(QWidget *w) const;
@@ -193,6 +191,8 @@ public:
     void addResourceFile(const QString &path);
     void removeResourceFile(const QString &path);
 
+    void resizeWidget(QWidget *widget, const QRect &geometry);
+
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
 
@@ -223,6 +223,8 @@ public slots:
 protected:
     virtual QMenu *createPopupMenu(QWidget *w);
     virtual void resizeEvent(QResizeEvent *e);
+
+    void insertWidget(QWidget *w, const QRect &rect, QWidget *target);
 
 private slots:
     void selectionChangedTimerDone();

@@ -704,12 +704,8 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
     return !found;
 }
 
-void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *target)
+void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *container)
 {
-    QWidget *container = findContainer(target, false);
-    if (!container)
-        return;
-
     clearSelection(false);
 
     beginCommand(tr("Insert widget '%1").arg(w->metaObject()->className())); // ### use the WidgetDatabaseItem
@@ -1726,33 +1722,33 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
     if (container == 0 || core()->metaDataBase()->item(container) == 0)
         return;
 
-    if (container == mainContainer()) // skip the maincontainer
-        return;
+    if (ILayoutDecoration *g = qt_extension<ILayoutDecoration*>(core()->extensionManager(), container)) {
+        if (mode == Restore) {
+            g->adjustIndicator(QPoint(), -1);
+        } else {
+            QPoint pt = widget->mapTo(container, pos);
+            int index = g->findItemAt(pt);
+            g->adjustIndicator(pt, index);
+        }
+    }
 
+    if (container == mainContainer())
+        return; // no highlight for the main container;
+
+    // ### this code is broken
     if (mode == Restore) {
         container->setPalette(palettesBeforeHighlight.take(container));
-
-        if (ILayoutDecoration *g = qt_extension<ILayoutDecoration*>(core()->extensionManager(), container)) {
-            g->adjustIndicator(QPoint(), -1);
+    } else {
+        QPalette p = container->palette();
+        if (!palettesBeforeHighlight.contains(container)) {
+            if (container->testAttribute(Qt::WA_SetPalette))
+                palettesBeforeHighlight[container] = p;
+            else
+                palettesBeforeHighlight[container] = QPalette();
         }
 
-        return;
-    }
-
-    QPalette p = container->palette();
-    if (!palettesBeforeHighlight.contains(container)) {
-        if (container->testAttribute(Qt::WA_SetPalette))
-            palettesBeforeHighlight[container] = p;
-        else
-            palettesBeforeHighlight[container] = QPalette();
-    }
-    p.setColor(backgroundRole(), p.midlight().color());
-    container->setPalette(p);
-
-    if (ILayoutDecoration *g = qt_extension<ILayoutDecoration*>(core()->extensionManager(), container)) {
-        QPoint pt = widget->mapTo(container, pos);
-        int index = g->findItemAt(pt);
-        g->adjustIndicator(pt, index);
+        p.setColor(backgroundRole(), p.midlight().color());
+        container->setPalette(p);
     }
 }
 
