@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#33 $
 **
 ** Implementation of QFileDialog class
 **
@@ -148,7 +148,10 @@ struct QUrlPrivate
 	ErrReadDir
 	ErrCreateDir
 	ErrUnknownProtocol
-	ErrParseError
+	ErrParse
+	ErrLoginIncorrect
+	ErrHostNotFound
+	ErrValid
 */
 
 /*!
@@ -601,7 +604,7 @@ void QUrl::parse( const QString& url )
     d->isValid = TRUE;
     QString oldProtocol = d->protocol;
     d->protocol = QString::null;
-
+    
     const int Init 	= 0;
     const int Protocol 	= 1;
     const int Separator1= 2; // :
@@ -731,7 +734,6 @@ void QUrl::parse( const QString& url )
     // error
     if ( i < (int)url.length() - 1 ) {
 	emit error( ErrParse, QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
-	qWarning( QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
 	d->isValid = FALSE;
 	return;
     }
@@ -1286,6 +1288,9 @@ void QUrl::listEntries( int filterSpec,	int sortSpec )
 
 void QUrl::listEntries( const QString &nameFilter, int filterSpec, int sortSpec )
 {
+    if ( !checkValid() )
+	return;
+    
     clearEntries();
     if ( isLocalFile() ) {
 	d->dir = QDir( d->path );
@@ -1337,6 +1342,9 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec, int sortSpec 
 
 void QUrl::mkdir( const QString &dirname )
 {
+    if ( !checkValid() )
+	return;
+
     if ( isLocalFile() ) {
 	d->dir = QDir( d->path );
 	if ( d->dir.mkdir( dirname ) ) {
@@ -1368,6 +1376,9 @@ void QUrl::mkdir( const QString &dirname )
 
 void QUrl::remove( const QString &filename )
 {
+    if ( !checkValid() )
+	return;
+
     if ( isLocalFile() ) {
 	QDir dir( d->path );
 	if ( dir.remove( filename ) )
@@ -1394,6 +1405,9 @@ void QUrl::remove( const QString &filename )
 
 void QUrl::rename( const QString &oldname, const QString &newname )
 {
+    if ( !checkValid() )
+	return;
+
     if ( isLocalFile() ) {
 	QDir dir( d->path );
 	if ( dir.rename( oldname, newname ) )
@@ -1463,6 +1477,9 @@ void QUrl::copy( const QString &from, const QString &to )
 
 void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 {
+    if ( !checkValid() )
+	return;
+
     if ( isLocalFile() ) {
 	emit start( move ? ActMoveFiles : ActCopyFiles );
 	QString de = dest;
@@ -1647,4 +1664,16 @@ void QUrl::getNetworkProtocol()
 
     d->networkProtocol = (QNetworkProtocol *)p;
     d->networkProtocol->setUrl( this );
+}
+
+/*!
+ */
+
+bool QUrl::checkValid()
+{
+    if ( !d->isValid ) {
+	emit error( ErrValid, QUrl::tr( "The entered URL is not valid!" ) );
+	return FALSE;
+    } else
+	return TRUE;
 }

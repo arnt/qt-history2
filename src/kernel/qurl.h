@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#12 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#13 $
 **
 ** Implementation of QFileDialog class
 **
@@ -48,7 +48,8 @@ public:
 	ErrUnknownProtocol = -6,
 	ErrParse = -7,
 	ErrLoginIncorrect = -8,
-	ErrHostNotFound = -9
+	ErrHostNotFound = -9,
+	ErrValid = -10
     };
 
     enum Action {
@@ -104,7 +105,7 @@ public:
 
     QString fileName() const;
     QString dirPath() const;
-    
+
     QUrl& operator=( const QUrl& url );
     QUrl& operator=( const QString& url );
 
@@ -148,9 +149,9 @@ public:
     void emitPutSuccessful( const QCString &d );
     void emitCopyProgress( const QString &from, const QString &to,
 			   int step, int total );
-    
+
     static bool isRelativeUrl( const QString &url );
-    
+
 signals:
     void entry( const QUrlInfo & );
     void finished( int );
@@ -170,7 +171,8 @@ protected:
     virtual void addEntry( const QUrlInfo &i );
     virtual void clearEntries();
     void getNetworkProtocol();
-
+    bool checkValid();
+    
 private:
     QUrlPrivate *d;
 
