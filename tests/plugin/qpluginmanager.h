@@ -11,7 +11,7 @@ template<class Type>
 class QPlugInManager : private QObject
 {
 public:
-    QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::Default )
+    QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 )
 	: QObject( qApp, path ), defPol( pol )
     {
 	// Every library is unloaded on destruction of the manager
@@ -35,32 +35,12 @@ public:
 	}
     }
 
-    bool removeLibrary( const QString& file )
-    {
-	QPlugIn* plugin = libDict[ file ];
-	if ( !plugin )
-	    return FALSE;
-
-	{
-	    QStringList al = plugin->featureList();
-	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
-		plugDict.remove( *a );
-	}
-
-	if ( !libDict.remove( file ) ) {
-	    delete plugin;
-	    return FALSE;
-	}
-
-	return TRUE;
-    }
-
     Type* addLibrary( const QString& file )
     {
 	if ( libDict[file] )
 	    return 0;
 
-	Type* plugin = new Type( file, defPol );
+	Type* plugin = new Type( file, defPol, defFunction );
 
 	bool useful = FALSE;
 	QStringList al = ((QPlugIn*)plugin)->featureList();
@@ -86,6 +66,26 @@ public:
 	}
 
 	return plugin;
+    }
+
+    bool removeLibrary( const QString& file )
+    {
+	QPlugIn* plugin = libDict[ file ];
+	if ( !plugin )
+	    return FALSE;
+
+	{
+	    QStringList al = plugin->featureList();
+	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
+		plugDict.remove( *a );
+	}
+
+	if ( !libDict.remove( file ) ) {
+	    delete plugin;
+	    return FALSE;
+	}
+
+	return TRUE;
     }
 
     void setDefaultPolicy( QPlugIn::LibraryPolicy pol )
@@ -157,6 +157,7 @@ private:
     QPlugInDict libDict;	    // Dict to match library file with plugin
 
     QPlugIn::LibraryPolicy defPol;
+    QString defFunction;
 };
 
 #endif //QPLUGINMANAGER_H

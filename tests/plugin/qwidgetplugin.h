@@ -9,7 +9,7 @@
 class QWidgetPlugIn : public QWidgetInterface, public QPlugIn
 {
 public:
-    QWidgetPlugIn( const QString& filename, LibraryPolicy = Default );
+    QWidgetPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
 
     QCString queryPlugInInterface() const { return "QWidgetInterface"; }
 

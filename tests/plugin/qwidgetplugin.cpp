@@ -10,8 +10,8 @@
 /*!
   Constructs a default plugin with file \a file and policy \a pol.
 */
-QWidgetPlugIn::QWidgetPlugIn( const QString& file, LibraryPolicy pol )
-    : QPlugIn( file, pol )
+QWidgetPlugIn::QWidgetPlugIn( const QString& file, LibraryPolicy pol, const char* fn )
+    : QPlugIn( file, pol, fn )
 {
 }
 

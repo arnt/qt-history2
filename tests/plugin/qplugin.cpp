@@ -11,7 +11,7 @@
 /*!
   \class QPlugIn qplugin.h
 
-  \brief Abstract class for plugin implementation
+  \brief This class provides a wrapper for library loading and unloading.
 */
 
 /*!
@@ -21,18 +21,24 @@
   policy.
   Defined values are:
   <ul>
-  <li> \c DefaultPolicy - The library get's loaded on first need and never unloaded
+  <li> \c Default - The library get's loaded on first need and never unloaded
   <li> \c OptimizeSpeed - The library is loaded as soon as possible at the cost of memory
-  <li> \c ManualPolicy - The library has to be loaded and unloaded manually
+  <li> \c Manual - The library has to be loaded and unloaded manually
   </ul>
 */
 
 /*!
   Creates a plugin using the shared library \a filename.
-  The library get's loaded immediately if \a pol is OptimizeSpeed,
-  otherwise as soon as necessary.
 
-  \sa setPolicy()
+  The library get's loaded immediately if \a pol is OptimizeSpeed,
+  as soon as necessary if \a pol is Default, or not automatically
+  if \a pol is Manual.
+
+  When the library get's loaded, the function \a fn will be executed to
+  retrieve the interface object. If \a fn is not specified, the function
+  "loadInterface" will be used.
+
+  \sa setPolicy(), load()
 */
 QPlugIn::QPlugIn( const QString& filename, LibraryPolicy pol, const char* fn )
     : pHnd( 0 ), libfile( filename ), libPol( pol )
@@ -49,11 +55,14 @@ QPlugIn::QPlugIn( const QString& filename, LibraryPolicy pol, const char* fn )
 /*!
   Deletes the plugin.
 
-  Unloads the shared library as appropriate.
+  When the library policy is not Manual, the plugin will try to unload the library.
+
+  \sa unload()
 */
 QPlugIn::~QPlugIn()
 {
-    unload();
+    if ( libPol != Manual )
+	unload();
 }
 
 /*!
@@ -175,17 +184,6 @@ bool QPlugIn::use()
 	return FALSE;
     }
     return TRUE;
-}
-
-/*!
-  Tries to unloads the library if policy is ManualPolicy.
-
-  \sa setPolicy
-*
-void QPlugIn::unuse()
-{
-    if ( libPol == OptimizeMemory && !count )
-	unload();
 }
 
 /*!

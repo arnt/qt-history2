@@ -9,7 +9,7 @@
 class QActionPlugIn : public QActionInterface, public QPlugIn
 {
 public:
-    QActionPlugIn( const QString& filename, LibraryPolicy = Default );
+    QActionPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
 
     QCString queryPlugInInterface() const { return "QActionInterface"; }
 
