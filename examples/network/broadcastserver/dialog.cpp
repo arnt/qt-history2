@@ -43,6 +43,6 @@ void Dialog::broadcast()
     statusLabel->setText(QString(tr("Now broadcasting message #%1").arg(messageCount)));
     ++messageCount;
 
-    broadcastServer->sendDatagram(datagram.data(), datagram.size(),
-                                  QHostAddress::BroadcastAddress, 45454);
+    broadcastServer->writeDatagram(datagram.data(), datagram.size(),
+                                   QHostAddress::Broadcast, 45454);
 }

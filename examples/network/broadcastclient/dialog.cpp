@@ -23,7 +23,7 @@ void Dialog::processMessage()
     while (client->hasPendingDatagrams()) {
         QByteArray datagram;
         datagram.resize(client->pendingDatagramSize());
-        client->receiveDatagram(datagram.data(), datagram.size());
+        client->readDatagram(datagram.data(), datagram.size());
         statusLabel->setText(QString(tr("Received datagram: \"%1\"")).arg(datagram.data()));
     }
 }

@@ -59,7 +59,7 @@ void Dialog::start()
 
     serverStatusLabel->setText(tr("Listening"));
     clientStatusLabel->setText(tr("Connecting"));
-    tcpClient.connectToHost(QHostAddress::LocalHostAddress, tcpServer.serverPort());
+    tcpClient.connectToHost(QHostAddress::LocalHost, tcpServer.serverPort());
 }
 
 void Dialog::sendToServer()
