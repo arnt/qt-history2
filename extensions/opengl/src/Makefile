@@ -44,11 +44,13 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS) $(OBJMOC)
 	-rm -f $(TARGET)
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
-	-rm -f libqgl.so
-	-ln -s libql.so.$(VERSION) libqgl.so
-	-rm -f libqgl.so.$(VER_MAJ)
-	-ln -s libqgl.so.$(VERSION) libqgl.so.$(VER_MAJ)
-	-mv -f libqgl.so* $(QTDIR)/lib
+	-rm -f $(QTDIR)/lib/$(TARGET)
+	-mv $(TARGET)  $(QTDIR)/lib
+	( cd $(QTDIR)/lib ; \
+	  rm -f libqgl.so ; \
+	  ln -s libqgl.so.$(VERSION) libqgl.so ; \
+	  rm -f libqgl.so.$(VER_MAJ) ; \
+	  ln -s libqgl.so.$(VERSION) libqgl.so.$(VER_MAJ) )
 
 moc: $(SRCMOC)
 
