@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#110 $
 **
 ** Definition of QIconView widget class
 **
@@ -1730,7 +1730,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	    d->cachedW = QMAX( d->cachedW, item->x() + item->width() );
 	    d->cachedH= QMAX( d->cachedH, item->y() + item->height() );
 
-	    d->updateTimer->start( 1, TRUE );
+	    d->updateTimer->start( 100, TRUE );
 	} else {
 	    insertInGrid( item );
 	}
@@ -1755,27 +1755,28 @@ void QIconView::slotUpdate()
     // #### remove that ASA insertInGrid uses cached values and is efficient
     if ( d->resortItemsWhenInsert )
 	sortItems( d->sortOrder );
-    int y = d->spacing;
-    QIconViewItem *item = d->firstItem;
-    int w = 0, h = 0;
-    while ( item ) {
-	item = makeRowLayout( item, y );
+    else {
+	int y = d->spacing;
+	QIconViewItem *item = d->firstItem;
+	int w = 0, h = 0;
+	while ( item ) {
+	    item = makeRowLayout( item, y );
 
-	if ( !item || !item->next )
-	    break;
+	    if ( !item || !item->next )
+		break;
 
-	w = QMAX( w, item->x() + item->width() );
-	h = QMAX( h, item->y() + item->height() );
+	    w = QMAX( w, item->x() + item->width() );
+	    h = QMAX( h, item->y() + item->height() );
 	
-	item = item->next;
+	    item = item->next;
+	}
+
+	w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
+	h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
+
+	resizeContents( QMAX( contentsWidth(), w ),
+			QMAX( contentsHeight(), h ) );
     }
-
-    w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
-    h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
-
-    resizeContents( QMAX( contentsWidth(), w ),
-		    QMAX( contentsHeight(), h ) );
-
     viewport()->repaint( FALSE );
 
     d->cachedW = d->cachedH = 0;
@@ -2775,13 +2776,13 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	if ( d->highlightedItem != item ) {
 	    if ( item )
 		emit onItem( item );
-	    else 
+	    else
 		emit onViewport();
 	    d->highlightedItem = item;
 	}
     }
-    
-    
+
+
 
     if ( d->mousePressed && d->currentItem && d->currentItem->dragEnabled() ) {
 	if ( !d->startDrag ) {
