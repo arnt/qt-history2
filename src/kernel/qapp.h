@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#37 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#38 $
 **
 ** Definition of QApplication class
 **
@@ -29,54 +29,54 @@ public:
     int		    argc()	const;
     char	  **argv()	const;
 
-    static GUIStyle style();			// get/set GUI style
+    static GUIStyle style();
     static void	    setStyle( GUIStyle );
 
-    static QCursor *cursor();			// get/set application cursor
+    static QCursor *cursor();
     static void	    setCursor( const QCursor & );
     static void	    restoreCursor();
 
-    static QPalette *palette();			// get/set application palette
+    static QPalette *palette();
     static void	    setPalette( const QPalette &, bool updateAllWidgets=FALSE);
 
-    static QFont   *font();			// get/set application font
+    static QFont   *font();
     static void	    setFont( const QFont &, bool updateAllWidgets=FALSE );
     static QFontMetrics fontMetrics();
 
     QWidget	   *mainWidget()  const;
     void	    setMainWidget( QWidget * );
 
-    static QWidget *desktop();			// get desktop widget
+    static QWidget *desktop();
     QWidget	   *focusWidget() const;
 
     static QWidget *widgetAt( int x, int y, bool child=FALSE );
     static QWidget *widgetAt( const QPoint &, bool child=FALSE );
 
-    int		    exec();			// start event handling
+    int		    exec();
     int		    enter_loop();
     void	    exit_loop();
-    static void	    quit( int retcode=0 );	// quit application
+    static void	    exit( int retcode=0 );
 
     static bool	    sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
     static void	    postEvent( QObject *receiver, QEvent *event );
 
-    virtual bool    notify( QObject *, QEvent * ); // send event to object
+    virtual bool    notify( QObject *, QEvent * );
 
-    static bool	    startingUp();		// is application starting up?
-    static bool	    closingDown();		// is application closing down?
+    static bool	    startingUp();
+    static bool	    closingDown();
 
-    static void	    flushX();			// flush X output buffer
-    static void	    syncX();			// syncronize with X server
+    static void	    flushX();
+    static void	    syncX();
 
 #if defined(_WS_MAC_)
-    virtual bool    macEventFilter( MSG * );	// Macintosh event filter
+    virtual bool    macEventFilter( MSG * );
 #elif defined(_WS_WIN_)
-    virtual bool    winEventFilter( MSG * );	// Windows event filter
+    virtual bool    winEventFilter( MSG * );
 #elif defined(_WS_PM_)
-    virtual bool    pmEventFilter( QMSG * );	// OS/2 PM event filter
+    virtual bool    pmEventFilter( QMSG * );
 #elif defined(_WS_X11_)
-    virtual bool    x11EventFilter( XEvent * ); // X11 event filter
+    virtual bool    x11EventFilter( XEvent * );
 #endif
 
 #if defined(_WS_WIN_)
@@ -84,7 +84,7 @@ public:
 #endif
 
 public slots:
-    void	    quitApp();
+    void	    quit();
 
 private:
     int		    app_argc;

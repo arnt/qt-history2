@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#70 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#69 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#70 $")
 
 
 /*----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#69 $")
 	QPushButton  hello( "Hello, world!" );	// create a push button
 	app.setMainWidget( &hello );		// define as main widget
 	connect( &hello, SIGNAL(clicked()),	// clicking the button
-		 &app, SLOT(quitApp()) );	//   will quit the application
+		 &app, SLOT(quit()) );		//   quits the application
 	hello.show();				// show button
 	return a.exec();			// run main event loop
     }
@@ -367,19 +367,19 @@ QFontMetrics QApplication::fontMetrics()
 
 
 /*----------------------------------------------------------------------------
-  Tells the application to quit.
+  Tells the application to exit with a return code.
 
-  After quit has been called, the application leaves the main event
-  loop and returns from the call to exec(). The exec() function
+  After this function has been called, the application leaves the main
+  event loop and returns from the call to exec(). The exec() function
   returns \e retcode.
 
   By convention, \e retcode 0 means success, any non-zero value indicates
   an error.
 
-  \sa quitApp(), exec()
+  \sa quit(), exec()
  ----------------------------------------------------------------------------*/
 
-void QApplication::quit( int retcode )
+void QApplication::exit( int retcode )
 {
     if ( !qApp )				// no global app object
 	return;
@@ -391,24 +391,24 @@ void QApplication::quit( int retcode )
 
 
 /*----------------------------------------------------------------------------
-  Tells the application to quit with exit code 0 (success).
-  Equivalent to calling QApplication::quit(0).
+  Tells the application to exit with return code 0 (success).
+  Equivalent to calling QApplication::exit( 0 ).
 
   This function is a \link metaobjects.html slot\endlink, i.e. you
-  may connect any signal to activate quitApp().
+  may connect any signal to activate quit().
 
   Example:
   \code
     QPushButton *quitButton = new QPushButton( "Quit" );
-    connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+    connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quit()) );
   \endcode
 
-  \sa quit()
+  \sa exit()
  ----------------------------------------------------------------------------*/
 
-void QApplication::quitApp()
+void QApplication::quit()
 {
-    quit( 0 );
+    QApplication::exit( 0 );
 }
 
 
