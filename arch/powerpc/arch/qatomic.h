@@ -24,15 +24,16 @@
 inline int q_cas_32(int *volatile ptr, int expected, int newval)
 {
     int ret;
-    asm ("1:\tlwarx %0, 0, %2\n\t"
+    asm ("L..QCAS32_1:\t\n"
+	 "lwarx %0, 0, %2\n\t"
          "cmplw %3, %0\n\t"
-         "bne 2f\n\t"
+         "bne L..QCAS32_2f\n\t"
          "stwcx. %4, 0, %2\n\t"
-         "bne- 1b\n\t"
-         "b 3f\n\t"
-         "2:\n\t"
+         "bne- L..QCAS32_1b\n\t"
+         "b L..QCAS32_3f\n\t"
+         "L..QCAS32_2:\n\t"
          "stwcx. %0, 0, %2\n\t"
-         "3:\n\t"
+         "L..QCAS32_3:\n\t"
          : "=&r" (ret), "+m" (*ptr)
          : "r" (ptr), "r" (expected), "r" (newval)
          : "cc", "memory");
@@ -42,18 +43,37 @@ inline int q_cas_32(int *volatile ptr, int expected, int newval)
 inline void *q_cas_ptr(void *volatile *ptr, void *expected, void *newval)
 {
     void *ret;
-    asm ("1:\tlwarx %0, 0, %2\n\t"
-         "cmplw %3, %0\n\t"
-         "bne 2f\n\t"
-         "stwcx. %4, 0, %2\n\t"
-         "bne- 1b\n\t"
-         "b 3f\n\t"
-         "2:\n\t"
-         "stwcx. %0, 0, %2\n\t"
-         "3:\n\t"
+#ifdef __LP64
+    // 64-bit PowerPC
+    asm ("L..QCASPTR_1:\t\n"
+	 "ldarx %0, 0, %2\n\t"
+         "cmpld %3, %0\n\t"
+         "bne L..QCASPTR_2f\n\t"
+         "stdcx. %4, 0, %2\n\t"
+         "bne- L..QCASPTR_1b\n\t"
+         "b L..QCASPTR_3f\n\t"
+         "L..QCASPTR_2:\n\t"
+         "stdcx. %0, 0, %2\n\t"
+         "L..QCASPTR_3:\n\t"
          : "=&r" (ret), "+m" (*ptr)
          : "r" (ptr), "r" (expected), "r" (newval)
          : "cc", "memory");
+#else
+    // 32-bit PowerPC
+    asm ("L..QCASPTR_1:\t\n"
+	 "lwarx %0, 0, %2\n\t"
+         "cmplw %3, %0\n\t"
+         "bne L..QCASPTR_2f\n\t"
+         "stwcx. %4, 0, %2\n\t"
+         "bne- L..QCASPTR_1b\n\t"
+         "b L..QCASPTR_3f\n\t"
+         "L..QCASPTR_2:\n\t"
+         "stwcx. %0, 0, %2\n\t"
+         "L..QCASPTR_3:\n\t"
+         : "=&r" (ret), "+m" (*ptr)
+         : "r" (ptr), "r" (expected), "r" (newval)
+         : "cc", "memory");
+#endif
     return ret;
 }
 

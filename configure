@@ -1304,10 +1304,11 @@ if [ -z "$PLATFORM" ]; then
 	;;
      AIX:*)
 	#PLATFORM=aix-g++
+	#PLATFORM=aix-g++-64
 	PLATFORM=aix-xlc
 	#PLATFORM=aix-xlc-64
 	PLATFORM_NOTES="
-	    - Also available for AIX: aix-g++ aix-xlc-64
+	    - Also available for AIX: aix-g++ aix-g++-64 aix-xlc-64
 	"
 	;;
      QNX:*)
@@ -1573,6 +1574,22 @@ Darwin:*:Power?Macintosh)
 	echo "    32-bit Apple PowerPC (powerpc)"
     fi
     ARCH=powerpc
+    ;;
+AIX:*:00????????00)
+    case "$XPLATFORM" in
+    aix-*-64)
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    64-bit IBM PowerPC (powerpc64)"
+        fi
+        ARCH=powerpc64
+	;;
+    *)
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    32-bit IBM RS/6000 (rs6k)"
+        fi
+        ARCH=rs6k
+        ;;
+    esac
     ;;
 *:*:i?86)
     if [ "$OPT_VERBOSE" = "yes" ]; then
