@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#74 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#75 $
 #
 # this is a massive hack, written very quickly
 #
@@ -538,7 +538,7 @@ sub readfiles {
 Qt Toolkit - ", $filename, " include file
 </title></head><body>
 <p>This is the verbatim text of the ", $filename," include file.  It is 
-is provided only for illustration; the <a href=licence.html>copyright</a>
+is provided only for illustration; the <a href=license.html>copyright</a>
 remains with Troll Tech.
 <hr>
 <pre>
@@ -1019,7 +1019,7 @@ sub printclass {
     $documented{$url}++;
 
     $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
-    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=licence.html>copyright</a> 1995\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
+    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=license.html>copyright</a> 1995\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
     if (defined ($cfiles{$includefile{$url}})) {
 	my(%files);
 	$files{$includefile{$url}}++;
