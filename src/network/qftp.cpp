@@ -168,7 +168,9 @@ void QFtp::operationMkDir( QNetworkOperation *op )
 
 void QFtp::operationRemove( QNetworkOperation *op )
 {
-    op->setState( StInProgress );
+    // put the operation in StWaiting state first until the CWD command
+    // succeeds
+    op->setState( StWaiting );
     QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
     QString cmd = "CWD " + path + "\r\n";
 #if defined(QFTP_COMMANDSOCKET_DEBUG)
@@ -183,7 +185,9 @@ void QFtp::operationRemove( QNetworkOperation *op )
 
 void QFtp::operationRename( QNetworkOperation *op )
 {
-    op->setState( StInProgress );
+    // put the operation in StWaiting state first until the CWD command
+    // succeeds
+    op->setState( StWaiting );
     QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
     QString cmd = "CWD " + path + "\r\n";
 #if defined(QFTP_COMMANDSOCKET_DEBUG)
