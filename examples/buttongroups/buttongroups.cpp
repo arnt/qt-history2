@@ -85,9 +85,9 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     box2->addWidget( bgrp4 );
 
     // insert three pushbuttons...
-    (void)new QPushButton( "&Push Button", bgrp4 );
-    QPushButton *tb2 = new QPushButton( "&Toggle Button", bgrp4 );
-    QPushButton *tb3 = new QPushButton( "&Flat Button", bgrp4 );
+    (void)new QPushButton( "&Push Button", bgrp4, "push" );
+    QPushButton *tb2 = new QPushButton( "&Toggle Button", bgrp4, "toggle" );
+    QPushButton *tb3 = new QPushButton( "&Flat Button", bgrp4, "flat" );
 
     // ... and make the second one a toggle button
     tb2->setToggleButton( TRUE );
