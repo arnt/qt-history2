@@ -1484,16 +1484,16 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	break;
     }
     case inCollapseBox: {
-	widget->setWindowState(WindowMinimized);
+	widget->setWindowState(widget->windowState() | WindowMinimized);
 	//we send a hide to be like X11/Windows
 	QEvent e(QEvent::Hide);
 	QApplication::sendSpontaneousEvent(widget, &e);
 	break; }
     case inZoomIn:
-	widget->setWindowState(WindowNoState);
+	widget->setWindowState(widget->windowState() & ~WindowMaximized);
 	break;
     case inZoomOut:
-	widget->setWindowState(WindowMaximized);
+	widget->setWindowState(widget->windowState() | WindowMaximized);
 	break;
     default:
 	qDebug("Qt: internal: Unhandled case in mouse_down.. %d", windowPart);
@@ -2460,7 +2460,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowDispose) {
 	    qt_mac_unicode_cleanup(widget);
 	} else if(ekind == kEventWindowExpanded) {
-	    widget->setWindowState(WindowNoState);
+	    widget->setWindowState(widget->windowState() & ~WindowMinimized | WindowActive);
 	    QShowEvent qse;
 	    QApplication::sendSpontaneousEvent(widget, &qse);
 	} else if(ekind == kEventWindowBoundsChanged) {
