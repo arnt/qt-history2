@@ -865,6 +865,16 @@ void QTextEdit::init()
     horizontalScrollBar()->installEventFilter( this );
     verticalScrollBar()->installEventFilter( this );
     installEventFilter( this );
+
+    const QColorGroup &cg = colorGroup();
+    int h1, s1, v1;
+    int h2, s2, v2;
+    cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
+    cg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
+    doc->setSelectionColor( QTextDocument::IMCompositionText,
+			    QColor( h1, s1, ( v1 + v2 ) / 2, QColor::Hsv ) );
+    doc->setInvertSelectionText( QTextDocument::IMSelectionText, TRUE );
+    doc->setInvertSelectionText( QTextDocument::IMCompositionText, FALSE );
 }
 
 void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
@@ -1334,12 +1344,31 @@ void QTextEdit::imStartEvent( QIMEvent *e )
 /*! \reimp */
 void QTextEdit::imComposeEvent( QIMEvent *e )
 {
+    doc->removeSelection( QTextDocument::IMCompositionText );
+    doc->removeSelection( QTextDocument::IMSelectionText );
+
     if ( d->preeditLength > 0 && cursor->paragraph() )
 	cursor->paragraph()->remove( d->preeditStart, d->preeditLength );
     cursor->setIndex( d->preeditStart );
-    insert( e->text(), TRUE, FALSE );
+    insert( e->text() );
     d->preeditLength = e->text().length();
+
+    cursor->setIndex( d->preeditStart + d->preeditLength );
+    QTextCursor c = *cursor;
+    cursor->setIndex( d->preeditStart );
+    doc->setSelectionStart( QTextDocument::IMCompositionText, *cursor );
+    doc->setSelectionEnd( QTextDocument::IMCompositionText, c );
+
     cursor->setIndex( d->preeditStart + e->cursorPos() );
+
+    int sellen = e->selectionLength();
+    if ( sellen > 0 ) {
+	cursor->setIndex( d->preeditStart + e->cursorPos() + sellen );
+	QTextCursor c = *cursor;
+	cursor->setIndex( d->preeditStart + e->cursorPos() );
+	doc->setSelectionStart( QTextDocument::IMSelectionText, *cursor );
+	doc->setSelectionEnd( QTextDocument::IMSelectionText, c );
+    }
 
     repaintChanged();
 
@@ -1349,10 +1378,13 @@ void QTextEdit::imComposeEvent( QIMEvent *e )
 /*! \reimp */
 void QTextEdit::imEndEvent( QIMEvent *e )
 {
+    doc->removeSelection( QTextDocument::IMCompositionText );
+    doc->removeSelection( QTextDocument::IMSelectionText );
+
     if ( d->preeditLength > 0 && cursor->paragraph() )
 	cursor->paragraph()->remove( d->preeditStart, d->preeditLength );
     cursor->setIndex( d->preeditStart );
-    insert( e->text(), TRUE, FALSE );
+    insert( e->text() );
     d->preeditStart = d->preeditLength = -1;
 
     repaintChanged();
@@ -4333,7 +4365,7 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	    if ( lastFormatted->prev() )
 		lastFormatted = lastFormatted->prev();
 	    doc->setRichTextInternal( t, cursor );
-	
+
 	    if ( undoEnabled && !isReadOnly() ) {
 		doc->setSelectionStart( QTextDocument::Temp, oldC );
 		doc->setSelectionEnd( QTextDocument::Temp, *cursor );
@@ -4360,7 +4392,7 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 		undoRedoInfo.clear();
 		removeSelection( QTextDocument::Temp );
 	    }
-	
+
 	    formatMore();
 	    setModified();
 	    emit textChanged();
@@ -5300,7 +5332,7 @@ bool QTextEdit::checkOptimMode()
     } else {
 	d->optimMode = FALSE;
     }
-	
+
     // when changing mode - try to keep selections and text
     if ( oldMode != d->optimMode ) {
 	if ( d->optimMode ) {
@@ -5458,7 +5490,7 @@ void QTextEdit::optimParseTags( QString * line )
     for ( i = 0; i < len; i++ ) {
 	tagOpen = (*line)[i] == '<';
 	tagClose = (*line)[i] == '>';
-	
+
 	// handle '&lt;' and '&gt;' and '&amp;'
 	if ( (*line)[i] == '&' ) {
 	    escIndex = i;
@@ -5490,7 +5522,7 @@ void QTextEdit::optimParseTags( QString * line )
 	    if ( !tagStr.isEmpty() ) {
 		QTextEditOptimPrivate::Tag * tag, * cur, * tmp;
 		bool format = TRUE;
-		
+
 		if ( tagStr == "b" )
 		    bold++;
 		else if ( tagStr == "/b" )
@@ -5515,7 +5547,7 @@ void QTextEdit::optimParseTags( QString * line )
 		    // and possible parent tag
 		    cur = tag->prev;
 		    if ( !cur ) {
-#ifdef QT_CHECK_RANGE				
+#ifdef QT_CHECK_RANGE
 			qWarning( "QTextEdit::optimParseTags(): no left-tag for '<" + tag->tag + ">' in line %d.", tag->line + 1 );
 #endif
 			return; // something is wrong - give up
@@ -5538,7 +5570,7 @@ void QTextEdit::optimParseTags( QString * line )
 				    }
 				    break;
 				} else if ( !cur->leftTag ) {
-#ifdef QT_CHECK_RANGE				
+#ifdef QT_CHECK_RANGE
 				    qWarning( "QTextEdit::optimParseTags(): mismatching %s-tag for '<" + cur->tag + ">' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->line + 1 );
 #endif
 				    return; // something is amiss - give up
@@ -5572,7 +5604,7 @@ void QTextEdit::optimParseTags( QString * line )
 	    tagStr = "";
 	    continue;
 	}
-	
+
 	if ( state == 1 ) {
 	    tagStr += (*line)[i];
 	}
@@ -5775,7 +5807,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	    cur.setParagraph( cur.paragraph()->next() );
 	}
         // useful debug info
-	//	
+	//
 // 	tag = d->od->tags;
 // 	qWarning("###");
 // 	while ( tag ) {
@@ -5844,7 +5876,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	    }
 	    c2.setParagraph( td->lastParagraph() );
 	    c2.setIndex( td->lastParagraph()->string()->toString().length() - 1 );
-	
+
 	}
 	// previously selected?
 	if ( !td->hasSelection( QTextDocument::Standard ) ) {
@@ -5960,7 +5992,7 @@ void QTextEdit::optimDoAutoScroll()
 	} else if ( pos.y() > viewport()->height() ) {
 	    my = contentsY() + viewport()->height() + 1;
 	    yy = (my / fm.lineSpacing() + 1) * fm.lineSpacing() - 1;
-	}	
+	}
 	d->od->selEnd.line = my / fm.lineSpacing();
   	mousePos.setX( xx );
  	mousePos.setY( my );
@@ -5968,7 +6000,7 @@ void QTextEdit::optimDoAutoScroll()
     } else {
 	d->od->selEnd.line = mousePos.y() / fm.lineSpacing();
     }
-	
+
     if ( d->od->selEnd.line < 0 ) {
 	d->od->selEnd.line = 0;
     } else if ( d->od->selEnd.line > d->od->numLines-1 ) {
@@ -6132,8 +6164,8 @@ bool QTextEdit::optimFind( const QString & expr, bool cs, bool /*wo*/,
 	if ( para )
 	    *para = i;
 	d->od->search.index = idx;
-	d->od->search.line = i;	
-	optimSetSelection( i, idx, i, idx + expr.length() );	
+	d->od->search.line = i;
+	optimSetSelection( i, idx, i, idx + expr.length() );
 	QFontMetrics fm( QScrollView::font() );
 	int h = fm.lineSpacing();
 	int x = fm.width( d->od->lines[ i ].left( idx + expr.length()) ) + 4;
