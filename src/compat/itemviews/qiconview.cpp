@@ -2075,7 +2075,7 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
 */
 
 #ifndef QT_NO_DRAGANDDROP
-void QIconViewItem::dropped(QDropEvent *, const QLinkedList<QIconDragItem> &)
+void QIconViewItem::dropped(QDropEvent *, const QValueList<QIconDragItem> &)
 {
 }
 #endif
