@@ -58,8 +58,28 @@ QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const 
     widget->setMouseTracking( TRUE );
     range = widget->inherits( "QFrame" ) ? ((QFrame*)widget)->frameWidth() : RANGE;
     range = QMAX( RANGE, range );
-    active = TRUE;
+    activeForMove = activeForResize = TRUE;
     qApp->installEventFilter( this );
+}
+
+void QWidgetResizeHandler::setActive( Action ac, bool b )
+{
+    if ( ac & Move )
+	activeForMove = b;
+    if ( ac & Resize )
+	activeForResize = b; 
+
+    if ( !isActive() )
+	setMouseCursor( Nowhere );
+}
+
+bool QWidgetResizeHandler::isActive( Action ac ) const
+{
+    bool b = FALSE;
+    if ( ac & Move ) b = activeForMove;
+    if ( ac & Resize ) b |= activeForResize;
+
+    return b;
 }
 
 static QWidget *childOf( QWidget *w, QWidget *child )
@@ -76,7 +96,7 @@ static QWidget *childOf( QWidget *w, QWidget *child )
 
 bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 {
-    if ( !active || !o->isWidgetType() )
+    if ( !isActive() || !o->isWidgetType() )
 	return FALSE;
 
     if ( ee->type() != QEvent::MouseButtonPress &&
@@ -169,7 +189,7 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 	else
 	    mode = Center;
 
-	if ( widget->isMinimized() )
+	if ( widget->isMinimized() || !isActive(Resize) )
 	    mode = Center;
 #ifndef QT_NO_CURSOR
 	setMouseCursor( mode );
@@ -436,7 +456,7 @@ void QWidgetResizeHandler::keyPressEvent( QKeyEvent * e )
 
 void QWidgetResizeHandler::doResize()
 {
-    if ( !active )
+    if ( !activeForResize )
 	return;
 
     moveResizeMode = TRUE;
@@ -467,7 +487,7 @@ void QWidgetResizeHandler::doResize()
 
 void QWidgetResizeHandler::doMove()
 {
-    if ( !active )
+    if ( !activeForMove )
 	return;
 
     mode = Center;

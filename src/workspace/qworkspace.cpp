@@ -2099,7 +2099,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	widgetResizeHandler->setActive( FALSE );
     }
     if ( childWidget->minimumSize() == childWidget->maximumSize() )
-	widgetResizeHandler->setActive( FALSE );
+	widgetResizeHandler->setActive( QWidgetResizeHandler::Resize, FALSE );
     setBaseSize( baseSize() );
 }
 
