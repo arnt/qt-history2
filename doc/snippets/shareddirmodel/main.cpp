@@ -22,7 +22,6 @@
 #include <qitemselectionmodel.h>
 #include <qlistview.h>
 #include <qsplitter.h>
-#include <qtableview.h>
 #include <qtreeview.h>
 
 int main(int argc, char *argv[])
