@@ -63,7 +63,8 @@ public:
     }
 
     //item calculations
-    mutable uint itemsDirty : 1, maxIconWidth : 8, tabWidth : 8;
+    mutable uint itemsDirty : 1;
+    mutable uint maxIconWidth, tabWidth;
     QRect actionRect(QAction *) const;
     mutable QMap<QAction*, QRect> actionRects;
     mutable QList<QAction*> actionList;
