@@ -46,11 +46,11 @@ protected:
     IUnknown *controllingUnknown() const
     { return controlling_unknown; }
     QWidget *widget() const
-    { return the_widget; }
+    { return (QWidget*)the_widget->qt_cast("QWidget"); } // ###
 
 private:
     IUnknown *controlling_unknown;
-    QWidget *the_widget;
+    QObject *the_widget;
 };
 
 #define QAXAGG_IUNKNOWN \
