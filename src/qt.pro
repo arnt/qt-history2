@@ -64,6 +64,7 @@ win32 {
 	MOC_DIR	= tmp
 	OBJECTS_DIR = tmp
 	dll:DEFINES+=QT_MAKEDLL
+	accessibility:LIBS+=oleacc.lib
 }
 win32-borland:INCLUDEPATH += kernel
 
