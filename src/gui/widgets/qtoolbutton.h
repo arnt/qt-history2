@@ -84,6 +84,7 @@ protected:
     void drawBevel(QPainter *);
     void drawLabel(QPainter *);
     void paintEvent(QPaintEvent *);
+    void actionEvent(QActionEvent *);
 
     void enterEvent(QEvent *);
     void leaveEvent(QEvent *);
@@ -95,8 +96,6 @@ protected:
 
 private:
     Q_PRIVATE_SLOT(void popupPressed())
-    void popupTimerDone();
-
 
 #ifdef QT_COMPAT
 public:

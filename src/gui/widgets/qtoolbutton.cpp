@@ -41,6 +41,7 @@ class QToolButtonPrivate : public QAbstractButtonPrivate
 public:
     void init(bool doMainWindowConnections);
     void popupPressed();
+    void popupTimerDone();
     QPointer<QMenu> menu;
     QBasicTimer popupTimer;
     int delay;
@@ -262,11 +263,11 @@ QSize QToolButton::sizeHint() const
 
     int w = 0, h = 0;
 
-    if (iconSet().isNull() && !text().isNull() && !usesTextLabel()) {
+    if (icon().isNull() && !text().isNull() && !usesTextLabel()) {
         w = fontMetrics().width(text());
         h = fontMetrics().height(); // boundingRect()?
     } else if (usesBigPixmap()) {
-        QPixmap pm = iconSet().pixmap(QIconSet::Large, QIconSet::Normal);
+        QPixmap pm = icon().pixmap(QIconSet::Large, QIconSet::Normal);
         w = pm.width();
         h = pm.height();
         QSize iconSize = QIconSet::iconSize(QIconSet::Large);
@@ -274,9 +275,9 @@ QSize QToolButton::sizeHint() const
             w = iconSize.width();
         if (h < iconSize.height())
             h = iconSize.height();
-    } else if (!iconSet().isNull()) {
+    } else if (!icon().isNull()) {
         // ### in 3.1, use QIconSet::iconSize(QIconSet::Small);
-        QPixmap pm = iconSet().pixmap(QIconSet::Small, QIconSet::Normal);
+        QPixmap pm = icon().pixmap(QIconSet::Small, QIconSet::Normal);
         w = pm.width();
         h = pm.height();
         if (w < 16)
@@ -286,7 +287,7 @@ QSize QToolButton::sizeHint() const
     }
 
     if (usesTextLabel()) {
-        QSize textSize = fontMetrics().size(Qt::ShowPrefix, textLabel());
+        QSize textSize = fontMetrics().size(Qt::ShowPrefix, text());
         textSize.setWidth(textSize.width() + fontMetrics().width(' ')*2);
         if (d->textPos == Under) {
             h += 4 + textSize.height();
@@ -401,16 +402,16 @@ void QToolButton::drawBevel(QPainter * p)
         flags |= QStyle::Style_HasFocus;
     if (isDown())
         flags |= QStyle::Style_Down;
-    if (isOn())
+    if (isChecked())
         flags |= QStyle::Style_On;
     if (d->autoRaise) {
         flags |= QStyle::Style_AutoRaise;
         if (uses3D()) {
             flags |= QStyle::Style_MouseOver;
-            if (! isOn() && ! isDown())
+            if (! isChecked() && ! isDown())
                 flags |= QStyle::Style_Raised;
         }
-    } else if (! isOn() && ! isDown())
+    } else if (! isChecked() && ! isDown())
         flags |= QStyle::Style_Raised;
 
     style().drawComplexControl(QStyle::CC_ToolButton, p, this, rect(), palette(),
@@ -439,16 +440,16 @@ void QToolButton::drawLabel(QPainter *p)
         flags |= QStyle::Style_HasFocus;
     if (isDown())
         flags |= QStyle::Style_Down;
-    if (isOn())
+    if (isChecked())
         flags |= QStyle::Style_On;
     if (d->autoRaise) {
         flags |= QStyle::Style_AutoRaise;
         if (uses3D()) {
             flags |= QStyle::Style_MouseOver;
-            if (! isOn() && ! isDown())
+            if (! isChecked() && ! isDown())
                 flags |= QStyle::Style_Raised;
         }
-    } else if (! isOn() && ! isDown())
+    } else if (! isChecked() && ! isDown())
         flags |= QStyle::Style_Raised;
 
     style().drawControl(QStyle::CE_ToolButtonLabel, p, this, r,
@@ -473,6 +474,14 @@ void QToolButton::paintEvent(QPaintEvent *)
     QPainter p(this);
     drawBevel(&p);
     drawLabel(&p);
+}
+
+/*!
+    \reimp
+ */
+void QToolButton::actionEvent(QActionEvent * e)
+{
+    
 }
 
 /*!
@@ -504,7 +513,7 @@ void QToolButton::leaveEvent(QEvent * e)
 void QToolButton::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->popupTimer.timerId()) {
-        popupTimerDone();
+        d->popupTimerDone();
         return;
     }
     QAbstractButton::timerEvent(e);
@@ -571,12 +580,12 @@ bool QToolButton::uses3D() const
 
 QIconSet QToolButton::onIconSet() const
 {
-    return iconSet();
+    return icon();
 }
 
 QIconSet QToolButton::offIconSet() const
 {
-    return iconSet();
+    return icon();
 }
 
 
@@ -598,7 +607,7 @@ QIconSet QToolButton::offIconSet() const
 */
 void QToolButton::setOnIconSet(const QIconSet& set)
 {
-    setIconSet(set);
+    setIcon(set);
     /*
       ### Get rid of all qWarning in this file in 4.0.
       Also consider inlining the obsolete functions then.
@@ -625,7 +634,7 @@ void QToolButton::setOnIconSet(const QIconSet& set)
 */
 void QToolButton::setOffIconSet(const QIconSet& set)
 {
-    setIconSet(set);
+    setIcon(set);
 }
 
 
@@ -652,7 +661,7 @@ void QToolButton::setOffIconSet(const QIconSet& set)
 
 void QToolButton::setIconSet(const QIconSet & set, bool /* on */)
 {
-    QAbstractButton::setIconSet(set);
+    QAbstractButton::setIcon(set);
     qWarning("QToolButton::setIconSet(): 'on' parameter ignored");
 }
 
@@ -668,8 +677,7 @@ void QToolButton::setIconSet(const QIconSet & set, bool /* on */)
 */
 QIconSet QToolButton::iconSet(bool /* on */) const
 {
-    QIconSet *icon = QAbstractButton::iconSet();
-    return  icon ? *icon : QIconSet();
+    return QAbstractButton::icon();
 }
 
 #endif
@@ -724,7 +732,7 @@ void QToolButton::showMenu()
     repaint();
     d->popupTimer.stop();
     QPointer<QToolButton> that = this;
-    popupTimerDone();
+    d->popupTimerDone();
     if (!that)
         return;
     d->instantPopup = false;
@@ -736,65 +744,65 @@ void QToolButtonPrivate::popupPressed()
     if (delay > 0)
         popupTimer.start(delay, q);
     else
-        q->popupTimerDone();
+        popupTimerDone();
 }
 
-void QToolButton::popupTimerDone()
+void QToolButtonPrivate::popupTimerDone()
 {
-    d->popupTimer.stop();
-    if ((!isDown() && d->delay > 0) || !d->menu)
+    popupTimer.stop();
+    if ((!q->isDown() && delay > 0) || !menu)
         return;
 
-    d->menu->installEventFilter(this);
-    d->repeat = autoRepeat();
-    setAutoRepeat(false);
+    menu->installEventFilter(q);
+    repeat = q->autoRepeat();
+    q->setAutoRepeat(false);
     bool horizontal = true;
 #ifndef QT_NO_TOOLBAR
-    QToolBar *tb = qt_cast<QToolBar*>(parentWidget());
+    QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
     if (tb && tb->orientation() == Vertical)
         horizontal = false;
 #endif
     QPoint p;
-    QRect screen = qApp->desktop()->availableGeometry(this);
+    QRect screen = qApp->desktop()->availableGeometry(q);
     if (horizontal) {
         if (QApplication::reverseLayout()) {
-            if (mapToGlobal(QPoint(0, rect().bottom())).y() + d->menu->sizeHint().height() <= screen.height()) {
-                p = mapToGlobal(rect().bottomRight());
+            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + menu->sizeHint().height() <= screen.height()) {
+                p = q->mapToGlobal(q->rect().bottomRight());
             } else {
-                p = mapToGlobal(rect().topRight() - QPoint(0, d->menu->sizeHint().height()));
+                p = q->mapToGlobal(q->rect().topRight() - QPoint(0, menu->sizeHint().height()));
             }
-            p.rx() -= d->menu->sizeHint().width();
+            p.rx() -= menu->sizeHint().width();
         } else {
-            if (mapToGlobal(QPoint(0, rect().bottom())).y() + d->menu->sizeHint().height() <= screen.height()) {
-                p = mapToGlobal(rect().bottomLeft());
+            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + menu->sizeHint().height() <= screen.height()) {
+                p = q->mapToGlobal(q->rect().bottomLeft());
             } else {
-                p = mapToGlobal(rect().topLeft() - QPoint(0, d->menu->sizeHint().height()));
+                p = q->mapToGlobal(q->rect().topLeft() - QPoint(0, menu->sizeHint().height()));
             }
         }
     } else {
         if (QApplication::reverseLayout()) {
-            if (mapToGlobal(QPoint(rect().left(), 0)).x() - d->menu->sizeHint().width() <= screen.x()) {
-                p = mapToGlobal(rect().topRight());
+            if (q->mapToGlobal(QPoint(q->rect().left(), 0)).x() - menu->sizeHint().width() <= screen.x()) {
+                p = q->mapToGlobal(q->rect().topRight());
             } else {
-                p = mapToGlobal(rect().topLeft());
-                p.rx() -= d->menu->sizeHint().width();
+                p = q->mapToGlobal(q->rect().topLeft());
+                p.rx() -= menu->sizeHint().width();
             }
         } else {
-            if (mapToGlobal(QPoint(rect().right(), 0)).x() + d->menu->sizeHint().width() <= screen.width()) {
-                p = mapToGlobal(rect().topRight());
+            if (q->mapToGlobal(QPoint(q->rect().right(), 0)).x() + menu->sizeHint().width() <= screen.width()) {
+                p = q->mapToGlobal(q->rect().topRight());
             } else {
-                p = mapToGlobal(rect().topLeft() - QPoint(d->menu->sizeHint().width(), 0));
+                p = q->mapToGlobal(q->rect().topLeft() - QPoint(menu->sizeHint().width(), 0));
             }
         }
     }
-    QPointer<QToolButton> that = this;
-    d->menu->exec(p);
+    QPointer<QToolButton> that = q;
+    menu->exec(p);
     if (!that)
         return;
 
-    setDown(false);
-    if (d->repeat)
-        setAutoRepeat(true);
+    q->setDown(false);
+    if (repeat)
+        q->setAutoRepeat(true);
 }
 
 /*!
