@@ -5494,7 +5494,7 @@ void QCheckListItem::activate()
     QPoint pos;
     if ( activatedPos( pos ) ) {
 	//ignore clicks outside the box
-	QRect r( 0, 0, BoxSize, BoxSize );
+	QRect r( 0, 2, BoxSize-3, BoxSize-3 );
 	if ( lv && lv->columnAlignment(0) == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
 	    r.moveBy( (lv->columnWidth(0) - (BoxSize + fm.width(text()))) / 2, 0 );
@@ -5625,7 +5625,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		p->setPen( QPen( cg.text(), 2 ) );
 	    else
 		p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ), 2 ) );
-	    if ( isSelected() && lv->header()->mapToSection( 0 ) != 0 )
+	    if ( isSelected() && !lv->rootIsDecorated() )
 	    {
 		p->fillRect( 0, 0, x + marg + BoxSize + 4, height(),
 			     cg.brush( QColorGroup::Highlight ) );
@@ -5763,9 +5763,7 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 	xdepth += p;
 	intersect = r.intersects( QRect( p, r.y(), xdepth - p + 1, r.height() ) );
     }
-    if ( myType != Controller && intersect &&
-	 lv && lv->header()->mapToSection( 0 ) == 0 )
-    {
+    if ( myType != Controller && intersect && lv && lv->rootIsDecorated() ) {
 	QRect rect;
 	if ( lv->columnAlignment(0) == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
