@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#9 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
 ** Author  : Haavard Nord
 ** Created : 950810
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#9 $")
 
 
 /*****************************************************************************
@@ -44,8 +44,8 @@ QPrinter::QPrinter()
     pdrv = new QPSPrinter( this );
     orient = Portrait;
     page_size = A4;
-    from_pg = to_pg  = ncopies = 1;
-    min_pg  = max_pg = 0;
+    ncopies = 1;
+    from_pg = to_pg = min_pg = max_pg = 0;
     state = PST_IDLE;
     printer_name = getenv( "PRINTER" );
     output_file = FALSE;
@@ -126,7 +126,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     QPSPrinter *ps = (QPSPrinter*)pdrv;
     if ( c ==  PDC_BEGIN ) {			// begin; start printing
 	if ( ps && state == PST_IDLE ) {
-	    char *fname  = output_file ? output_filename.data() : tmpnam(0);
+	    char *fname	 = output_file ? output_filename.data() : tmpnam(0);
 	    if ( !fname || *fname == '\0' ) {
 #if defined(DEBUG)
 		warning( "QPrinter: File name cannot be null" );
@@ -217,12 +217,12 @@ long QPrinter::metric( int m ) const
     long val;
     PageSize s = pageSize();
     ASSERT( s >= A4 && s <= Executive );
-    static int widths[]  = { 559, 480, 576, 576, 504 };
+    static int widths[]	 = { 559, 480, 576, 576, 504 };
     static int heights[] = { 806, 693, 756, 972, 684 };
     static int widthsMM[]  = { 210, 182, 216, 216, 191 };
     static int heightsMM[] = { 297, 257, 279, 356, 254 };
     switch ( m ) {
-        case PDM_WIDTH:
+	case PDM_WIDTH:
 	    val = widths[ s ];
 	    break;
 	case PDM_HEIGHT:
