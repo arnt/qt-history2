@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#194 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#195 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -124,6 +124,59 @@ typedef QStack<QWMatrix> QWMatrixStack;
   \sa QPaintDevice, QWidget, QPixmap
 */
 
+/*! \enum Qt::AlignmentFlags
+
+  This enum type is used to describe alignment.  It contains four sets
+  of flags: Horizontal, vertical and modifying flags.  The horizontal
+  flags are: <ul>
+
+  <li> \c AlignLeft - Align with the left edge.
+  <li> \c AlignRight - Align with the left edge.
+  <li> \c AlignHCenter - Center horizontally in the available space.
+
+  </ul> The vertical flags are: <ul>
+
+  <li> \c AlignTop - Align with the top.
+  <li> \c AlignBottom - Align with the bottom.
+  <li> \c AlignVCenter - Center vertically in the available space.
+
+  </ul> You can only use one of the horizontal flags at a time.  There
+  is one two-dimensional flag: <ul>
+
+  <li> \c AlignCenter - Center in both dimensions.
+
+  </ul> This counts both as a horizontal and vertical flag: It cannot
+  be combined with any other horizontal or vertical flags.
+
+  There are also some modifier flags.  All of them apply only to
+  printing: <ul>
+
+  <li> \c SingleLine - Treat all white-space as space and print just
+  one line.
+
+  <li> \c DontClip - If it's impossible to stay within the given
+  bounds, print outside.
+
+  <li> \c ExpandTabs - Make the U+0009 (ascii tab) character move to
+  the next tab stop.
+
+  <li> \c ShowPrefix - Display the string "\&P" as an underlined P
+  (see QButton for an example).  To get an ampersand, use "\&\&".
+
+  <li> \c WordBreak - Do line breaking at at appropriate points.
+
+  </ul>
+  
+  You can only use one of the horizontal flags at a time, and one of
+  the vertical flags.  \c AlignCenter counts as both horizontal and
+  vertical.  You can use as many modifier flags as you want, except
+  that \c SingleLine and \c WordBreak cannot be combined.
+
+  Flags that are inappropriate for a given use (e.g. ShowPrefix to
+  QGridLayout::addWidget()) are ignored.
+
+  Conflicting combinations of flags have undefined meanings.
+*/
 
 /*!
   Constructs a painter.
