@@ -1424,28 +1424,31 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 		break;
 
 	    QMenuItem *mi = data.menuItem();
-	    if (mi->isSeparator()) {
-		ret = QSize(10, 3);
-		break;
-	    }
-
 	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
 	    int maxpmw = data.maxIconWidth();
 	    int w = contentsSize.width(), h = contentsSize.height();
 
-	    // most iconsets are 22x22 in menus
-	    if (h < 22)
-		h = 22;
+	    if (mi->custom()) {
+		w = mi->custom()->sizeHint().width();
+		h = mi->custom()->sizeHint().height();
+	    } else if (mi->isSeparator()) {
+		w = 10;
+		h = 3;
+	    } else {
+		// most iconsets are 22x22 in menus
+		if (h < 22)
+		    h = 22;
 
-	    if (mi->pixmap())
-		h = QMAX(h, mi->pixmap()->height());
-	    else if (! mi->text().isNull())
-		h = QMAX(h, popupmenu->fontMetrics().height());
+		if (mi->pixmap())
+		    h = QMAX(h, mi->pixmap()->height());
+		else if (! mi->text().isNull())
+		    h = QMAX(h, popupmenu->fontMetrics().height());
 
-	    if (mi->iconSet() != 0)
-		h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
-						  QIconSet::Normal).height());
-	    h += 2;
+		if (mi->iconSet() != 0)
+		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+						      QIconSet::Normal).height());
+		h += 2;
+	    }
 
 	    // check | 4 pixels | item | 8 pixels | accel | 4 pixels | check
 	    maxpmw = QMAX(maxpmw, 20);

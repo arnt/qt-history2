@@ -1676,13 +1676,13 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 	    int maxpmw = opt.maxIconWidth();
 	    int w = sz.width(), h = sz.height();
 
-	    if ( mi->isSeparator() ) {
+	    if (mi->custom()) {
+		w = mi->custom()->sizeHint().width();
+		h = mi->custom()->sizeHint().height();
+	    } else if ( mi->isSeparator() ) {
 		w = 10;
 		h = motifSepHeight;
-		break;
-	    }
-
-	    if (mi->pixmap() || ! mi->text().isNull())
+	    } else if (mi->pixmap() || ! mi->text().isNull())
 		h += 2*motifItemVMargin + 2*motifItemFrame;
 
 	    // a little bit of border can never harm

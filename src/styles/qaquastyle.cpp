@@ -132,7 +132,7 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
 	QObject::connect(d, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
 	show();
-    } 
+    }
 }
 
 bool QAquaFocusWidget::handles(QWidget *widget)
@@ -161,7 +161,7 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 	if(e->type() == QEvent::ChildRemoved)
 	    o->removeEventFilter(this); //once we're removed, stop listening
 	return TRUE; //block child events
-    } else if (o == d) 
+    } else if (o == d)
 	switch (e->type()) {
 	case QEvent::Move: {
 	    QMoveEvent *me = (QMoveEvent*)e;
@@ -174,7 +174,7 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 	    setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
 	    break;
 	}
-	case QEvent::Reparent: 
+	case QEvent::Reparent:
 	    reparent( d->parentWidget(), pos() );
 	    d->parentWidget()->installEventFilter( this );
 	    raise();
@@ -370,7 +370,7 @@ void QAquaStyle::polish( QWidget * w )
 	    SInt16 f_size;
 	    Style f_style;
 	    GetThemeFont(key, smSystemScript, f_name, &f_size, &f_style);
-	    w->setFont(QFont(p2qstring(f_name), f_size, 
+	    w->setFont(QFont(p2qstring(f_name), f_size,
 			     (f_style & ::bold) ? QFont::Bold : QFont::Normal,
 			     (bool)(f_style & ::italic)));
 	}
@@ -568,7 +568,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    p->save();
 	    p->translate( r.x(), r.y() );
-	
+
 	    bool highlight = flags & Style_On;
 	    QColor dark( cg.dark() );
 	    QColor light( cg.light() );
@@ -601,7 +601,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 		    if ( highlight )
 			p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
 		    QPointArray a( 2 * ((w-6)/3) );
-		
+
 		    int x = 3 + (w%3)/2;
 		    p->setPen( dark );
 		    p->drawLine( 1, 8, w-2, 8 );
@@ -629,7 +629,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    qAquaPixmap( "tbar_hsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
 	else
 	    qAquaPixmap( "tbar_vsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
-	
+
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
 
@@ -1186,7 +1186,7 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     int ret = 0;
     switch(metric) {
-    case PM_TitleBarHeight: 
+    case PM_TitleBarHeight:
 	ret = 16;
 	break;
     case PM_ScrollBarSliderMin:
@@ -1255,7 +1255,10 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 	int maxpmw = opt.maxIconWidth();
 	int w = sz.width(), h = sz.height();
 
-	if (mi->isSeparator()) {
+	if (mi->custom()) {
+	    w = mi->custom()->sizeHint().width();
+	    h = mi->custom()->sizeHint().height();
+	} else if (mi->isSeparator()) {
 	    w = 10;
 	    h = aquaSepHeight;
 	} else {
@@ -1452,12 +1455,12 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    break;
 	if(sub) {
 	    QTitleBar *tb = (QTitleBar *)widget;
-	    if(tb->window() && 
+	    if(tb->window() &&
 	       (sub & (SC_TitleBarMinButton|SC_TitleBarCloseButton|SC_TitleBarMaxButton))) {
 		QPixmap ctrl;
-		if(flags & Style_MouseOver) 
+		if(flags & Style_MouseOver)
 		    qAquaPixmap( "win_act_controls", ctrl );
-		else 
+		else
 		    qAquaPixmap( "win_dis_controls", ctrl );
 		p->drawPixmap(0, 0, ctrl);
 	    }
@@ -1470,17 +1473,17 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		QPixmap fill;
 		qAquaPixmap( "win_fill", fill );
 		p->drawTiledPixmap(x, 0, tb->width() - x, fill.height(), fill);
-		QColorGroup cgroup = tb->isActive() || !tb->window() ? 
+		QColorGroup cgroup = tb->isActive() || !tb->window() ?
 				     tb->palette().active() : tb->palette().inactive();
 		p->setPen( cgroup.highlightedText() );
 		p->save();
 		p->setClipRect( x, 0, tb->width() - x, tb->height() );
-		if((tb->width() - x) <= (p->fontMetrics().width(tb->caption())+iw*2)) 
+		if((tb->width() - x) <= (p->fontMetrics().width(tb->caption())+iw*2))
 		    x += iw;
-		else 
+		else
 		    x += ((tb->width() - x) / 2) - ( p->fontMetrics().width(tb->visibleText()) / 2);
 		y = (tb->height() / 2) - ( p->fontMetrics().height() / 2 );
-		if(tb->icon() && !tb->caption().isEmpty()) 
+		if(tb->icon() && !tb->caption().isEmpty())
 		    p->drawPixmap(x - iw, y, *tb->icon());
 		p->drawText( x, y + p->fontMetrics().ascent(), tb->visibleText() );
 		p->restore();

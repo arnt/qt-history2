@@ -1549,7 +1549,10 @@ QSize QPocketPCStyle::sizeFromContents( ContentsType contents,
 	    int maxpmw = opt.maxIconWidth();
 	    int w = sz.width(), h = sz.height();
 
-	    if (mi->isSeparator()) {
+	    if (mi->custom()) {
+		w = mi->custom()->sizeHint().width();
+		h = mi->custom()->sizeHint().height();
+	    } else if (mi->isSeparator()) {
 		w = 10; // arbitrary
 		h = pocketpcSepHeight;
 		break;
