@@ -3337,28 +3337,6 @@ QString QString::toUpper() const
 }
 
 
-#if !defined(QT_LOCAL_NUMBER_CONVERSION) && !defined(Q_OS_TEMP)
-void qt_fix_double(char *str)
-{
-    struct lconv *lc = localeconv();
-    const char *thousands_sep = lc->thousands_sep;
-    if (!thousands_sep)
-	thousands_sep = "";
-    const char *decimal_point = lc->decimal_point;
-    if (!decimal_point || decimal_point[0] == '\0')
-	decimal_point = ".";
-
-    if (decimal_point[0] != '.' || decimal_point[1] != '\0' || thousands_sep[0] != '\0') {
-	QByteArray ba(str);
-	ba.replace(thousands_sep, "");
-	ba.replace(decimal_point, ".");
-	memcpy(str, ba.constData(), ba.length()+1);
-    }
-}
-#else
-void qt_fix_double(char *) {}
-#endif
-
 /*!
     Safely builds a formatted string from the format string \a cformat
     and an arbitrary list of arguments.

@@ -1945,10 +1945,6 @@ QTextStream &QTextStream::operator<<( float f )
     return *this << (double)f;
 }
 
-#ifndef Q_OS_TEMP
-extern void qt_fix_double(char *);
-#endif
-
 /*!
     \overload
 
@@ -1959,7 +1955,6 @@ extern void qt_fix_double(char *);
 QTextStream &QTextStream::operator<<( double f )
 {
     CHECK_STREAM_PRECOND
-    char buf[64];
     char f_char;
     char format[16];
     if ( (flags()&floatfield) == fixed )
@@ -1983,21 +1978,12 @@ QTextStream &QTextStream::operator<<( double f )
     *fs++ = 'l';
     *fs++ = f_char;
     *fs = '\0';
-#ifdef Q_OS_TEMP
-    const int buffer_size = 10;
-    wchar_t buffer[buffer_size];
-    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
-    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
-    sprintf( buf, format, f );			// convert to text
-    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
-#else
-    sprintf( buf, format, f );			// convert to text
-    qt_fix_double(buf);
-#endif
+    QString num;
+    num.sprintf(format, f);			// convert to text
     if ( fwidth )				// padding
-	*this << (const char*)buf;
+	*this << num.latin1();
     else					// just write it
-	writeBlock( buf, qstrlen(buf) );
+	writeBlock(num.latin1(), num.length());
     return *this;
 }
 

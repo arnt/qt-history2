@@ -1015,9 +1015,6 @@ QDataStream &QDataStream::operator<<( Q_LONG i )
 }
 #endif
 
-#ifndef Q_OS_TEMP
-extern void qt_fix_double(char *);
-#endif
 
 /*!
     \overload QDataStream &QDataStream::operator<<( Q_UINT32 i )
@@ -1037,19 +1034,8 @@ QDataStream &QDataStream::operator<<( float f )
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
-	char buf[64];
-#ifdef Q_OS_TEMP
-	const int buffer_size = 10;
-	wchar_t buffer[buffer_size];
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
-	SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
-	sprintf( buf, "%g\n", (double)f );
-	SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
-#else
-	sprintf( buf, "%g\n", (double)f );
-	qt_fix_double(buf);
-#endif
-	dev->writeBlock( buf, strlen(buf) );
+	QString num = QString::number((double)f);
+	dev->writeBlock(num.latin1(), num.length());
     } else {
 	float g = f;				// fixes float-on-stack problem
 	if ( noswap ) {				// no conversion needed
@@ -1079,19 +1065,8 @@ QDataStream &QDataStream::operator<<( double f )
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
-	char buf[64];
-#ifdef Q_OS_TEMP
-	const int buffer_size = 10;
-	wchar_t buffer[buffer_size];
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
-	SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
-	sprintf( buf, "%g\n", f );
-	SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
-#else
-	sprintf( buf, "%g\n", (double)f );
-	qt_fix_double(buf);
-#endif
-	dev->writeBlock( buf, strlen(buf) );
+	QString num = QString::number((double)f);
+	dev->writeBlock(num.latin1(), num.length());
     } else if ( noswap ) {			// no conversion needed
 	dev->writeBlock( (char *)&f, sizeof(double) );
     } else {					// swap bytes
