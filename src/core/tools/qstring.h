@@ -411,11 +411,11 @@ public:
     bool isRightToLeft() const { if (!d->clean) updateProperties(); return (bool)d->righttoleft; }
 
 private:
-#ifdef QT_NO_CAST_TO_ASCII
+#if defined (QT_NO_CAST_TO_ASCII) && defined (Q_DISABLE_COPY)
     // Having these here gives decent error messages
     operator const char *() const;
 #endif
-#ifdef QT_NO_CAST_FROM_ASCII
+#if defined (QT_NO_CAST_FROM_ASCII) && defined (Q_DISABLE_COPY)
     QString &operator+=(const char *s);
     QString &operator+=(const QByteArray &s);
     QString(const char *ch);
