@@ -175,6 +175,11 @@ public:
 	    if ( !prop )
 		continue;
 
+	    Q_ASSERT(prop->scriptable());
+	    Q_ASSERT(prop->scriptable(object));
+	    Q_ASSERT(prop->designable());
+	    Q_ASSERT(prop->designable(object));
+
 	    // Generate Slot-names
 	    QCString ftemplate = prop->name();
 	    ftemplate[0] = QChar(ftemplate[0]).upper();
