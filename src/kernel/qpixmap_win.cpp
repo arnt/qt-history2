@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#36 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,8 +23,10 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#36 $");
 
+
+extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 bool QPixmap::optimAll = TRUE;
 
@@ -83,9 +85,9 @@ void QPixmap::init( int w, int h, int d )
 				      &data->bits, 0, 0 );
 #endif
 	ReleaseDC( 0, hdc );
-    }
-    else					// monocrome bitmap
+    } else {					// monocrome bitmap
 	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
+    }
     if ( data->optim )
 	allocMemDC();
 }
@@ -112,7 +114,6 @@ QPixmap::QPixmap( const QSize &size, int depth )
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
-    extern uchar *qt_get_bitflip_array();	// defined in qimage.cpp
     init( 0, 0, 0 );
     if ( w <= 0 || h <= 0 )			// create null pixmap
 	return;
@@ -355,16 +356,16 @@ QImage QPixmap::convertToImage() const
 	return nullImage;
     }
 
-    int	 w = width();
-    int	 h = height();
-    int	 d = depth();
-    int	 ncols = 2;
+    int	w = width();
+    int	h = height();
+    int	d = depth();
+    int	ncols = 2;
 
     if ( d > 1 && d <= 8 ) {			// set to nearest valid depth
 	d = 8;					//   2..7 ==> 8
 	ncols = 256;
     } else if ( d > 8 ) {
-	d = 24;					//   > 8  ==> 24
+	d = 32;					//   > 8  ==> 32
 	ncols = 0;
     }
 
@@ -476,30 +477,8 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	r->rgbRed   = qRed  ( c );
 	r->rgbReserved = 0;
     }
-//#error Fix dette
-    uchar *bits = image.bits();
-    if ( image.depth() == 24 && !native ) {
-	ASSERT( ncols == 0 );
-	bits = new uchar[image.numBytes()];
-	int bpl = image.bytesPerLine();
-	for ( int y=0; y<image.height(); y++ ) {
-	    uchar *b = image.scanLine( y );
-	    uchar *p = bits + y*bpl;
-	    uchar *end = p + image.width()*3;
-	    while ( p < end ) {
-		*p++ = b[2];
-		*p++ = b[1];
-		*p++ = b[0];
-		b += 3;
-	    }
-	}
-    }
-
     SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
-		       bits, bmi, DIB_RGB_COLORS );
-
-    if ( bits != image.bits() )
-	delete [] bits;
+		       image.bits(), bmi, DIB_RGB_COLORS );
     delete [] bmi_data;
 
     pm.data->uninit = FALSE;
@@ -539,10 +518,16 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
-    int	  w, h;					// size of target pixmap
-    int	  ws, hs;				// size of source pixmap
-    POINT p[3];					// plg points
-    bool  plg;
+    int	   w, h;				// size of target pixmap
+    int	   ws, hs;				// size of source pixmap
+    uchar *dptr;				// data in target pixmap
+    int	   dbpl, dbytes;			// bytes per line/bytes total
+    uchar *sptr;				// data in original pixmap
+    int	   sbpl;				// bytes per line in original
+    int	   bpp;					// bits per pixel
+    bool   depth1 = depth() == 1;
+    int	   y;
+    bool   src_tmp, dst_tmp;
 
     if ( isNull() )				// this is a null pixmap
 	return copy();
@@ -550,103 +535,277 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
+    const float dt = 0.0001;
+    float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    float xx = (float)ws - 1;
+    float yy = (float)hs - 1;
+
+    matrix.map( dt, dt, &x1, &y1 );
+    matrix.map( xx, dt, &x2, &y2 );
+    matrix.map( xx, yy, &x3, &y3 );
+    matrix.map( dt, yy, &x4, &y4 );
+
+    float ymin = y1;				// lowest y value
+    if ( y2 < ymin ) ymin = y2;
+    if ( y3 < ymin ) ymin = y3;
+    if ( y4 < ymin ) ymin = y4;
+    float xmin = x1;				// lowest x value
+    if ( x2 < xmin ) xmin = x2;
+    if ( x3 < xmin ) xmin = x3;
+    if ( x4 < xmin ) xmin = x4;
+
+    QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
+    mat = matrix * mat;
+
+    QPixmap *self = (QPixmap *)this;
+
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
-	if ( matrix.m11() == 1.0F && matrix.m22() == 1.0F )
+	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
 	    return *this;			// identity matrix
-	plg = FALSE;
-	w = qRound( matrix.m11()*ws );
-	h = qRound( matrix.m22()*hs );
-    } else {					// rotation/shearing
-	plg = TRUE;
-	const float dt = 0.0001F;
-	float x1,y1, x2,y2, x3,y3, x4,y4;	// get corners
-	float xx = (float)ws - 1;
-	float yy = (float)hs - 1;
-
-	matrix.map( dt, dt, &x1, &y1 );
-	matrix.map( xx, dt, &x2, &y2 );
-	matrix.map( xx, yy, &x3, &y3 );
-	matrix.map( dt, yy, &x4, &y4 );
-
-	float ymin = y1;			// lowest y value
-	if ( y2 < ymin ) ymin = y2;
-	if ( y3 < ymin ) ymin = y3;
-	if ( y4 < ymin ) ymin = y4;
-	float xmin = x1;			// lowest x value
-	if ( x2 < xmin ) xmin = x2;
-	if ( x3 < xmin ) xmin = x3;
-	if ( x4 < xmin ) xmin = x4;
-
-	QWMatrix mat( 1.0F, 0.0F, 0.0F, 1.0F, -xmin, -ymin );
-	mat = matrix * mat;
-
+	h = qRound( mat.m22()*hs );
+	w = qRound( mat.m11()*ws );
+	h = QABS( h );
+	w = QABS( w );
+	if ( !self->handle() ) {
+	    self->allocMemDC();
+	    src_tmp = TRUE;
+	} else {
+	    src_tmp = FALSE;
+	}
+	QPixmap pm( w, h, depth() );		// scale the pixmap
+	if ( !pm.handle() ) {
+	    pm.allocMemDC();
+	    dst_tmp = TRUE;
+	} else {
+	    dst_tmp = FALSE;
+	}
+	SetStretchBltMode( pm.handle(), COLORONCOLOR );
+	StretchBlt( pm.handle(), 0, 0, w, h, self->handle(),
+		    0, 0, ws, hs, SRCCOPY );
+	if ( dst_tmp )
+	    pm.freeMemDC();
+	if ( src_tmp )
+	    self->freeMemDC();
+	QPixmap *m = data->mask;
+	if ( m ) {
+	    if ( m->data == data )		// pixmap == mask
+		pm.setMask( *((QBitmap*)(&pm)) );
+	    else
+		pm.setMask( data->mask->xForm(matrix) );
+	}
+	return pm;
+    } else {					// rotation or shearing
 	QPointArray a( QRect(0,0,ws,hs) );
 	a = mat.map( a );
 	QRect r = a.boundingRect().normalize();
-	h = r.height();
 	w = r.width();
-
-	bool invertible;
-	mat = mat.invert( &invertible );	// invert matrix
-
-	if ( !invertible ) {			// not invertible
-	    w = 0;
-	} else {
-	    p[0].x = qRound(x1 - xmin);
-	    p[0].y = qRound(y1 - ymin);
-	    p[1].x = qRound(x2 - xmin);
-	    p[1].y = qRound(y2 - ymin);
-	    p[2].x = qRound(x4 - xmin);
-	    p[2].y = qRound(y4 - ymin);
-	}
+	h = r.height();
     }
+    bool invertible;
+    mat = mat.invert( &invertible );		// invert matrix
 
-    if ( w == 0 || h == 0 ) {			// invalid result
+    if ( h == 0 || w == 0 || !invertible ) {	// error, return null pixmap
 	QPixmap pm;
 	pm.data->bitmap = data->bitmap;
 	return pm;
     }
 
-    bool src_tmp;
-    QPixmap *self = (QPixmap*)this;		// mutable
-    if ( !handle() ) {
+    if ( !self->handle() ) {
 	self->allocMemDC();
 	src_tmp = TRUE;
-    }
-    else
+    } else {
 	src_tmp = FALSE;
-
-    QPixmap pm( w, h, depth() );
-    pm.data->bitmap = data->bitmap;
-    pm.data->uninit = FALSE;
-    bool dst_tmp;
-    if ( !pm.handle() ) {
-	pm.allocMemDC();
-	dst_tmp = TRUE;
     }
-    else
-	dst_tmp = FALSE;
 
-    SetStretchBltMode( pm.handle(), COLORONCOLOR );
-    if ( plg ) {				// rotate/shear
-	RECT r;
-	r.left = r.top = 0;
-	r.right	 = w;
-	r.bottom = h;
-	FillRect( pm.handle(), &r, GetStockObject(WHITE_BRUSH) );
-	PlgBlt( pm.handle(), p, handle(), 0, 0, ws, hs, 0, 0, 0 );
+    bpp  = depth();
+    if ( bpp > 1 && bpp < 8 ) {
+	bpp = 8;
     }
-    else					// scale
-	StretchBlt( pm.handle(), 0, 0, w, h, handle(), 0, 0, ws, hs, SRCCOPY );
+    sbpl = ((ws*bpp+31)/32)*4;
+    sptr = new uchar[hs*sbpl];
+    int ncols;
+    if ( bpp <= 8 ) {
+	ncols = 1 << bpp;
+    } else {
+	ncols = 0;
+    }
 
-    if ( dst_tmp )
-	pm.freeMemDC();
+    int	  bmi_data_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
+    char *bmi_data = new char[bmi_data_len];
+    memset( bmi_data, 0, bmi_data_len );
+    BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
+    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
+    bmh->biSize		  = sizeof(BITMAPINFOHEADER);
+    bmh->biWidth	  = ws;
+    bmh->biHeight	  = -hs;		// top-down bitmap
+    bmh->biPlanes	  = 1;
+    bmh->biBitCount	  = bpp;
+    bmh->biCompression	  = BI_RGB;
+    bmh->biSizeImage	  = sbpl*hs;
+    bmh->biClrUsed	  = ncols;
+    bmh->biClrImportant	  = 0;
+    QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
+
+    int result;
+    result = GetDIBits( handle(), hbm(), 0, hs, sptr, bmi, DIB_RGB_COLORS );
+
     if ( src_tmp )
 	self->freeMemDC();
 
-    if ( data->mask ) {
-	if ( data->mask->data == data )		// pixmap == mask
+    if ( !result ) {				// error, return null pixmap
+	QPixmap pm;
+	pm.data->bitmap = data->bitmap;
+	return pm;
+    }
+
+    dbpl   = ((w*bpp+31)/32)*4;
+    dbytes = dbpl*h;
+
+    dptr = new uchar[ dbytes ];			// create buffer for bits
+    CHECK_PTR( dptr );
+    if ( depth1 )
+	memset( dptr, 0xff, dbytes );
+    else if ( bpp == 8 )
+	memset( dptr, white.pixel(), dbytes );
+    else
+	memset( dptr, 0xff, dbytes );
+
+    int m11 = qRound((double)mat.m11()*65536.0);
+    int m12 = qRound((double)mat.m12()*65536.0);
+    int m21 = qRound((double)mat.m21()*65536.0);
+    int m22 = qRound((double)mat.m22()*65536.0);
+    int dx  = qRound((double)mat.dx() *65536.0);
+    int dy  = qRound((double)mat.dy() *65536.0);
+
+    int	  m21ydx = dx, m22ydy = dy;
+    uint  trigx, trigy;
+    uint  maxws = ws<<16, maxhs=hs<<16;
+    uchar *p	= dptr;
+    uchar *flip = qt_get_bitflip_array();
+    int	  xbpl, p_inc;
+
+    if ( depth1 ) {
+	xbpl  = (w+7)/8;
+	p_inc = dbpl - xbpl;
+    } else {
+	xbpl  = (w*bpp)/8;
+	p_inc = dbpl - xbpl;
+    }
+
+    for ( y=0; y<h; y++ ) {			// for each target scanline
+	trigx = m21ydx;
+	trigy = m22ydy;
+	uchar *maxp = p + xbpl;
+	if ( !depth1 ) {
+	    switch ( bpp ) {
+		case 8:				// 8 bpp transform
+		while ( p < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*p = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
+		    trigx += m11;
+		    trigy += m12;
+		    p++;
+		}
+		break;
+
+		case 16:			// 16 bpp transform
+		while ( p < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*((ushort*)p) = *((ushort *)(sptr+sbpl*(trigy>>16) +
+						     ((trigx>>16)<<1)));
+		    trigx += m11;
+		    trigy += m12;
+		    p++;
+		    p++;
+		}
+		break;
+
+		case 24: {			// 24 bpp transform
+		uchar *p2;
+		while ( p < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs ) {
+			p2 = sptr+sbpl*(trigy>>16) + ((trigx>>16)*3);
+			p[0] = p2[0];
+			p[1] = p2[1];
+			p[2] = p2[2];
+		    }
+		    trigx += m11;
+		    trigy += m12;
+		    p += 3;
+		}
+		}
+		break;
+
+		case 32:			// 32 bpp transform
+		while ( p < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*((uint*)p) = *((uint *)(sptr+sbpl*(trigy>>16) +
+						   ((trigx>>16)<<2)));
+		    trigx += m11;
+		    trigy += m12;
+		    p += 4;
+		}
+		break;
+
+		default: {
+#if defined(CHECK_RANGE)
+		warning( "QPixmap::xForm: DISPLAY NOT SUPPORTED (BPP=%d)",bpp);
+#endif
+		QPixmap pm;
+		return pm;
+		}
+	    }
+	} else {				// mono bitmap LSB first
+	    while ( p < maxp ) {
+#undef IWX
+#define IWX(b,t) if ( trigx < maxws && trigy < maxhs ) {		      \
+		    if ( (*(sptr+sbpl*(trigy>>16)+(trigx>>19)) &	      \
+			 (1 << 7-((trigx>>16)&7))) == 0 )		      \
+			*p &= ~t;					      \
+		}							      \
+		trigx += m11;						      \
+		trigy += m12;
+	// END OF MACRO
+		IWX(1,128);
+		IWX(2,64);
+		IWX(4,32);
+		IWX(8,16);
+		IWX(16,8);
+		IWX(32,4);
+		IWX(64,2);
+		IWX(128,1);
+		p++;
+	    }
+	}
+	m21ydx += m21;
+	m22ydy += m22;
+	p += p_inc;
+    }
+
+    delete [] sptr;
+
+    QPixmap pm( w, h, depth() );
+    pm.data->uninit = FALSE;
+    pm.data->bitmap = data->bitmap;
+    if ( !pm.handle() ) {
+	pm.allocMemDC();
+	dst_tmp = TRUE;
+    } else {
+	dst_tmp = FALSE;
+    }
+    bmh->biWidth  = w;
+    bmh->biHeight = -h;
+    bmh->biSizeImage = dbytes;
+    SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
+		       dptr, bmi, DIB_RGB_COLORS );
+    delete [] bmi_data;
+    delete [] dptr;
+    if ( dst_tmp )
+	pm.freeMemDC();
+    QPixmap *m = data->mask;
+    if ( m ) {
+	if ( m->data == data )			// pixmap == mask
 	    pm.setMask( *((QBitmap*)(&pm)) );
 	else
 	    pm.setMask( data->mask->xForm(matrix) );
