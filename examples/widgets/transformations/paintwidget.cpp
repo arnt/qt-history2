@@ -2,8 +2,8 @@
 
 #include "paintwidget.h"
 
-PaintWidget::PaintWidget(QWidget *parent, bool enable)
-    : QWidget(parent), fixed(enable)
+PaintWidget::PaintWidget(QWidget *parent)
+    : QWidget(parent)
 {
     font.setPixelSize(12);
     QFontMetrics fontMetrics(font);
@@ -17,18 +17,14 @@ void PaintWidget::paintEvent(QPaintEvent *event)
     painter.setBrush(Qt::white);
     painter.drawRect(event->rect());
 
-    if (fixed)
-        painter.translate(116, 116);
-    else
-        painter.translate(66, 66);
+    painter.translate(66, 66);
 
     painter.save();
     transformPainter(painter);
     drawShape(painter);
     painter.restore();
 
-    if (!fixed)
-        drawOutline(painter);
+    drawOutline(painter);
 
     painter.save();
     transformPainter(painter);

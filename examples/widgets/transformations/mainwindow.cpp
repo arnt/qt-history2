@@ -17,15 +17,16 @@ MainWindow::MainWindow()
     setupShapes();
 
     setCentralWidget(frame);
-    setWindowTitle(tr("Painting Demonstration"));
+    setWindowTitle(tr("Transformations"));
 }
 
 void MainWindow::setupFrame(QFrame *frame)
 {
     QStringList operationStrings;
-    operationStrings << tr("No transformation") << tr("Rotate clockwise by 60 degrees")
+    operationStrings << tr("No transformation")
+                     << tr("Rotate clockwise by 60 degrees")
                      << tr("Scale to 75%")
-                     << tr("Translate by (100,100)");
+                     << tr("Translate by (50, 50)");
 
     QLabel *originalLabel = new QLabel(tr("Original shape"));
     originalLabel->setAlignment(Qt::AlignCenter);
@@ -38,7 +39,7 @@ void MainWindow::setupFrame(QFrame *frame)
 
     operationsList << NoTransformation << Rotate << Scale << Translate;
 
-    originalPaintWidget = new PaintWidget(frame, true);
+    originalPaintWidget = new PaintWidget(frame);
     firstPaintWidget = new PaintWidget(frame);
     secondPaintWidget = new PaintWidget(frame);
     thirdPaintWidget = new PaintWidget(frame);

@@ -16,7 +16,7 @@ class PaintWidget : public QWidget
     Q_OBJECT
 
 public:
-    PaintWidget(QWidget *parent, bool fixed = false);
+    PaintWidget(QWidget *parent = 0);
     QSize minimumSizeHint() const;
     QList<Operation> operations() const;
     void setOperations(const QList<Operation> operations);
@@ -31,7 +31,6 @@ private:
     void drawShape(QPainter &painter);
     void transformPainter(QPainter &painter);
 
-    bool fixed;
     QFont font;
     QList<Operation> transforms;
     QPainterPath painterShape;
