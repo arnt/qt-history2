@@ -416,7 +416,7 @@ void QLineEdit::init()
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
-    setBackgroundMode( PaletteBase );
+    setBackgroundMode( NoBackground );
     setKeyCompression( TRUE );
     setMouseTracking( TRUE );
     setFrame( TRUE );
@@ -907,19 +907,27 @@ void QLineEdit::drawContents( QPainter *painter )
     painter->translate( marg, 0 );
     const QColorGroup & g = colorGroup();
 
+    int lineheight = QMIN( fontMetrics().lineSpacing() + 4, height() );
+    int linetop = (height() - lineheight ) / 2;
+    
     // always double buffer when we have focus, and keep the pixmap
     // around until we loose focus again. If we do not have focus,
     // only use the standard shared buffer.
 
-    if ( hasFocus() && !QLineEditPrivate::pm && !QSharedDoubleBuffer::getRawPixmap( width(), height() ) )
+    if ( hasFocus() && !QLineEditPrivate::pm && !QSharedDoubleBuffer::getRawPixmap( width(), lineheight ) )
 	QLineEditPrivate::pm = new QPixmap; // create special while-we-have-focus buffer. Deleted in focusOutEvent
 
     QSharedDoubleBuffer buffer( !hasFocus(), FALSE, QLineEditPrivate::pm );
-    buffer.begin( painter, rect() );
+    buffer.begin( painter, 0, linetop, width(), lineheight );
     buffer.painter()->setPen( colorGroup().text() );
     const QBrush &bg = g.brush((isEnabled()) ? QColorGroup::Base :
 			       QColorGroup::Background);
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
+    if ( linetop ) {
+	painter->fillRect( 0, 0, width(), linetop, bg );	
+	painter->fillRect( 0, linetop + lineheight, width(), linetop, bg );
+    }
+
     QTextParag *parag;
     QTextCursor *cursor;
     d->getTextObjects( &parag, &cursor );
