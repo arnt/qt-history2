@@ -562,17 +562,21 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	v = "QDateTime( QDate( %1, %2, %3 ), QTime( %4, %5, %6 ) )";
 	v = v.arg(y).arg(mo).arg(d).arg(h).arg(mi).arg(s);
     } else if ( e.tagName() == "stringlist" ) {
-	if ( prop == "sort" ) {
-	    QStringList l;
-	    QDomElement n3 = e.firstChild().toElement();
-	    while ( !n3.isNull() ) {
-		if ( n3.tagName() == "string" )
-		    l << n3.firstChild().toText().data().simplifyWhiteSpace();
-		n3 = n3.nextSibling().toElement();
-	    }
-	    if ( l.count() )
-		v = l.join( "\" << \"" );
+	QStringList l;
+	QDomElement n3 = e.firstChild().toElement();
+	QString listname = "l";
+	if ( !obj.isEmpty() ) {
+	    listname = obj + "_stringlist";
+	    out << indent << "QStringList "  << listname << ";" << endl;
+	} else {
+	    out << indent << "QStringList "  << listname << ";" << endl;
 	}
+	while ( !n3.isNull() ) {
+	    if ( n3.tagName() == "string" )
+		out << indent << listname << " << \"" << n3.firstChild().toText().data().simplifyWhiteSpace() << "\";" << endl;
+	    n3 = n3.nextSibling().toElement();
+	}
+	v = listname;	
     }
     return v;
 }
