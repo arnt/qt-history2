@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#34 $
 **
 ** Implementation of QRegExp class
 **
@@ -14,7 +14,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#34 $");
 
 
 /*!
@@ -268,7 +268,7 @@ void QRegExp::setCaseSensitive( bool enable )
 
 int QRegExp::match( const char *str, int index, int *len ) const
 {
-    if ( error )				// not fit for fight
+    if ( error || str == 0 )			// cannot match
 	return -1;
     register char *p = (char *)str + index;
     ushort *d  = rxdata;
@@ -281,8 +281,7 @@ int QRegExp::match( const char *str, int index, int *len ) const
 	    if ( cs ) {				// case sensitive
 		while ( *p && *p != (char)*d )
 		    p++;
-	    }
-	    else {				// case insensitive
+	    } else {				// case insensitive
 		while ( *p && tolower(*p) != (char)*d )
 		    p++;
 	    }
@@ -297,8 +296,7 @@ int QRegExp::match( const char *str, int index, int *len ) const
 	if ( len )
 	    *len = ep - p;
 	return (int)((long)p - (long)str);	// return index
-    }
-    else {					// no match
+    } else {					// no match
 	if ( len )
 	    *len = 0;
 	return -1;
@@ -325,15 +323,13 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 	    if ( cs ) {				// case sensitive
 		if ( *p++ != (char)*d )
 		    return 0;
-	    }
-	    else {				// case insensitive
+	    } else {				// case insensitive
 		if ( tolower(*p) != (char)*d )
 		    return 0;
 		p++;
 	    }
 	    d++;
-	}
-	else switch ( *d++ ) {
+	} else switch ( *d++ ) {
 	    case ANY:				// match anything
 		if ( !*p++ )
 		    return 0;
@@ -372,8 +368,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 			while ( *p && tolower(*p) == (char)*d )
 			    p++;
 		    }
-		}
-		else switch ( *d ) {
+		} else switch ( *d ) {
 		    case ANY:
 			while ( *p )
 			    p++;
@@ -404,8 +399,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 		    if ( cs ) {			// case sensitive
 			if ( *p && *p == (char)*d )
 			    p++;
-		    }
-		    else {			// case insensitive
+		    } else {			// case insensitive
 			if ( *p && tolower(*p) == (char)*d )
 			    p++;
 		    }
@@ -851,16 +845,16 @@ int QString::findRev( const QRegExp &rx, int index ) const
 
 int QString::contains( const QRegExp &rx ) const
 {
-    int count = 0;
-    if ( isNull() )				// null string
+    if ( isEmpty() )
 	return 0;
+    int count = 0;
     int index = -1;
-    while ( TRUE ) {				// count overlapping matches
+    int len = length();
+    while ( index < len ) {			// count overlapping matches
 	index = rx.match( data(), index+1 );
-	if ( index >= 0 )
-	    count++;
-	else
+	if ( index < 0 )
 	    break;
+	count++;
     }
     return count;
 }
@@ -879,13 +873,13 @@ int QString::contains( const QRegExp &rx ) const
 
 QString &QString::replace( const QRegExp &rx, const char *str )
 {
-    if ( isNull() )
+    if ( isEmpty() )
 	return *this;
     int index = 0;
     int slen  = strlen( str );
     int len;
-    while ( TRUE ) {
-	if ( (index = rx.match( data(), index, &len )) >= 0 ) {
+    while ( index < size()-1 ) {
+	if ( (index = rx.match(data(), index, &len)) >= 0 ) {
 	    remove( index, len );
 	    insert( index, str );
 	    index += slen;
