@@ -77,7 +77,7 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     setMargin(1);
     setFrameStyle(QFrame::Plain | QFrame::Box);
     setLineWidth(1);
-    setAlignment(Qt::AlignAuto | Qt::AlignTop);
+    setAlignment(Qt::AlignLeft | Qt::AlignTop);
     setIndent(0);
     ensurePolished();
     setText(text);

@@ -1720,7 +1720,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                                                           v, available) + fudge;
                     if (slider->orientation == Qt::Horizontal) {
                         if (ticks & QSlider::TicksAbove)
-                            p->drawLine(pos, tickOffset - 1 - bothOffset, 
+                            p->drawLine(pos, tickOffset - 1 - bothOffset,
                                         pos, tickOffset - 1 - bothOffset - tickLength);
 
                         if (ticks & QSlider::TicksBelow)
@@ -1728,7 +1728,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                                         pos, tickOffset + thickness + bothOffset + tickLength);
                     } else {
                         if (ticks & QSlider::TicksAbove)
-                            p->drawLine(tickOffset - 1 - bothOffset, pos, 
+                            p->drawLine(tickOffset - 1 - bothOffset, pos,
                                         tickOffset - 1 - bothOffset - tickLength, pos);
 
                         if (ticks & QSlider::TicksBelow)
@@ -1926,7 +1926,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 //                     QPalette::HighlightedText));
                 p->setPen(option->palette.highlightedText());
                 p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
-                            Qt::AlignAuto | Qt::AlignVCenter | Qt::TextSingleLine, titlebar->windowTitle());
+                            Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, titlebar->windowTitle());
             }
             if (sub & SC_TitleBarSysMenu) {
                 theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarSysMenu, widget));

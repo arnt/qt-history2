@@ -443,7 +443,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), fontPointSize(DefaultFontSize),
-      fontWeight(QFont::Normal), alignment(Qt::AlignAuto), verticalAlignment(QTextCharFormat::AlignNormal),
+      fontWeight(QFont::Normal), alignment(Qt::AlignLeft), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
       cssListIndent(0), wsm(WhiteSpaceModeUndefined)
@@ -642,7 +642,7 @@ void QTextHtmlParser::parse() {
                     else if (c == QLatin1Char('\r'))
                         continue;
 
-                    if (textEditMode 
+                    if (textEditMode
                         && c == QChar::LineSeparator)
                         continue;
                 } else if (wsm != QTextHtmlParserNode::WhiteSpacePreWrap) { // non-pre mode: collapse whitespace except nbsp

@@ -1573,9 +1573,7 @@ QPoint QStyle::visualPos(Qt::LayoutDirection direction, const QRect &boundingRec
 
 /*!
      Returns a new rectangle of \a size that is aligned to \a
-     rectangle according to \a alignment.  Qt::AlignAuto is mapped
-     into Qt::AlignLeft or Qt::AlignRight according to
-     the layout \a direction.
+     rectangle according to \a alignment.
  */
 QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment, const QSize &size, const QRect &rectangle)
 {

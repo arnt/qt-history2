@@ -321,7 +321,7 @@ void QAbstractSpinBox::setReadOnly(bool enable)
     \property QAbstractSpinBox::alignment
     \brief the alignment of the spin box
 
-    Possible Values are \c Qt::AlignAuto, \c Qt::AlignLeft, \c
+    Possible Values are \c Qt::AlignLeft, \c
     Qt::AlignRight and \c Qt::AlignHCenter.
 
     By default, the alignment is Qt::AlignLeft

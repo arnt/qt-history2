@@ -274,7 +274,7 @@ void QLabelPrivate::init()
 #ifndef QT_NO_PICTURE
     lpicture = 0;
 #endif
-    align = Qt::AlignAuto | Qt::AlignVCenter | Qt::TextExpandTabs;
+    align = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextExpandTabs;
     extraMargin = -1;
     scaledcontents = false;
     textformat = Qt::AutoText;

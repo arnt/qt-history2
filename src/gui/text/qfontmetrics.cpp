@@ -600,10 +600,10 @@ QRect QFontMetrics::boundingRect(QChar ch) const
 
     The \a flgs argument is the bitwise OR of the following flags:
     \list
-    \i \c Qt::AlignAuto aligns to the left border for all languages except
+    \i \c Qt::AlignLeft aligns to the left border, except for
           Arabic and Hebrew where it aligns to the right.
-    \i \c Qt::AlignLeft aligns to the left border.
-    \i \c Qt::AlignRight aligns to the right border.
+    \i \c Qt::AlignRight aligns to the right border, except for
+          Arabic and Hebrew where it aligns to the left.
     \i \c Qt::AlignJustify produces justified text.
     \i \c Qt::AlignHCenter aligns horizontally centered.
     \i \c Qt::AlignTop aligns to the top border.
@@ -616,7 +616,7 @@ QRect QFontMetrics::boundingRect(QChar ch) const
     \i \c Qt::TextWordBreak breaks the text to fit the rectangle.
     \endlist
 
-    Qt::Horizontal alignment defaults to \c Qt::AlignAuto and vertical
+    Qt::Horizontal alignment defaults to \c Qt::AlignLeft and vertical
     alignment defaults to \c Qt::AlignTop.
 
     If several of the horizontal or several of the vertical alignment
@@ -1263,10 +1263,10 @@ QRectF QFontMetricsF::boundingRect(QChar ch) const
 
     The \a flags argument is the bitwise OR of the following flags:
     \list
-    \i \c Qt::AlignAuto aligns to the left border for all languages except
+    \i \c Qt::AlignLeft aligns to the left border, except for
           Arabic and Hebrew where it aligns to the right.
-    \i \c Qt::AlignLeft aligns to the left border.
-    \i \c Qt::AlignRight aligns to the right border.
+    \i \c Qt::AlignRight aligns to the right border, except for
+          Arabic and Hebrew where it aligns to the left.
     \i \c Qt::AlignJustify produces justified text.
     \i \c Qt::AlignHCenter aligns horizontally centered.
     \i \c Qt::AlignTop aligns to the top border.
@@ -1279,7 +1279,7 @@ QRectF QFontMetricsF::boundingRect(QChar ch) const
     \i \c Qt::TextWordBreak breaks the text to fit the rectangle.
     \endlist
 
-    Qt::Horizontal alignment defaults to \c Qt::AlignAuto and vertical
+    Qt::Horizontal alignment defaults to \c Qt::AlignLeft and vertical
     alignment defaults to \c Qt::AlignTop.
 
     If several of the horizontal or several of the vertical alignment

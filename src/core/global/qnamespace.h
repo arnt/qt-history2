@@ -140,9 +140,9 @@ public:
         AlignVertical_Mask = AlignTop | AlignBottom | AlignVCenter,
 
         AlignCenter = AlignVCenter | AlignHCenter
-//#if QT3_SUPPORT
+#ifdef QT3_SUPPORT
         , AlignAuto = AlignLeft
-//#endif
+#endif
     };
 
     Q_DECLARE_FLAGS(Alignment, AlignmentFlag)

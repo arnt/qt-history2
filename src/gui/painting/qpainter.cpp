@@ -3696,9 +3696,8 @@ QRect QPainter::boundingRect(const QRect &rect, int flags, const QString &str)
     the bitwise OR of the following flags:
     \table
     \header \i Flag \i Meaning
-    \row \i \c Qt::AlignAuto \i aligns according to the language, usually left.
-    \row \i \c Qt::AlignLeft \i aligns to the left border.
-    \row \i \c Qt::AlignRight \i aligns to the right border.
+    \row \i \c Qt::AlignLeft \i aligns to the left border, or to the right border for right-to-left languages.
+    \row \i \c Qt::AlignRight \i aligns to the right border, or to the left border for right-to-left languages.
     \row \i \c Qt::AlignHCenter \i aligns horizontally centered.
     \row \i \c Qt::AlignTop \i aligns to the top border.
     \row \i \c Qt::AlignBottom \i aligns to the bottom border.

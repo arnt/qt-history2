@@ -45,7 +45,7 @@ public:
 #define q q_func()
 
 QProgressBarPrivate::QProgressBarPrivate()
-    : minimum(0), maximum(100), value(-1), alignment(Qt::AlignAuto), textVisible(true),
+    : minimum(0), maximum(100), value(-1), alignment(Qt::AlignLeft), textVisible(true),
       lastPaintedValue(-1)
 {
 }
@@ -76,18 +76,18 @@ bool QProgressBarPrivate::repaintRequired() const
         return false;
 
     int valueDifference = qAbs(value - lastPaintedValue);
-  
+
     // Check if the text needs to be repainted
     if ((value == minimum || value == maximum)
             || (textVisible && valueDifference >= qAbs((maximum - minimum) / 100)))
         return true;
-    
+
     // Check if the bar needs to be repainted
     QStyleOptionProgressBar opt = getStyleOption();
     int cw = q->style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, q);
     QRect groove  = q->style()->subElementRect(QStyle::SE_ProgressBarGroove, &opt, q);
-    // This expression is basically 
-    // (valueDifference / (maximum - minimum) > cw / groove.width()) 
+    // This expression is basically
+    // (valueDifference / (maximum - minimum) > cw / groove.width())
     // transformed to avoid integer division.
     return (valueDifference * groove.width() > cw * (maximum - minimum));
 }

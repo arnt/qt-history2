@@ -1765,7 +1765,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 p->setPen(tb->palette.highlightedText().color());
                 p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
-                            Qt::AlignAuto | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
+                            Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
             }
 
             bool down = false;

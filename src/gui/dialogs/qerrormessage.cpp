@@ -165,7 +165,7 @@ QErrorMessage::QErrorMessage(QWidget * parent)
     grid->addWidget(d->errors, 0, 1);
     d->again = new QCheckBox(tr("&Show this message again"), this);
     d->again->setChecked(true);
-    grid->addWidget(d->again, 1, 1, Qt::AlignTop | Qt::AlignAuto);
+    grid->addWidget(d->again, 1, 1, Qt::AlignTop);
     d->ok = new QPushButton(tr("&OK"), this);
     connect(d->ok, SIGNAL(clicked()), this, SLOT(accept()));
     d->ok->setFocus();

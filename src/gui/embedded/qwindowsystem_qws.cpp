@@ -142,7 +142,7 @@ static int get_object_id()
 #ifndef QT_NO_QWS_IM
 static QWSInputMethod *current_IM = 0;
 
-static QWSServer::IMState current_IM_State = QWSServer::InputMethodEnd;
+static bool current_IM_ComposeMode = false;
 static QWSWindow* current_IM_win=0;
 static int current_IM_winId=-1;
 
@@ -1249,11 +1249,10 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
         QWSWindow *kbw = keyboardGrabber ? keyboardGrabber :
                          qwsServer->focusw;
 
-        //checking for virtual keyboards ### could be better
         QWidget *target = winClient == serverClient ?
                           QApplication::widgetAt(pos) : 0;
-        if (kbw != win && (!target || !(target->windowType() == Qt::Tool) || target->focusPolicy() != Qt::NoFocus))
-            resetInputMethod();
+        if (kbw != win && (!target || !(target->testAttribute(Qt::WA_InputMethodTransparent))))
+            current_IM->mouseHandler(-1, MouseOutside);
     }
 #endif
 
@@ -1535,15 +1534,15 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
                      qwsServer->focusw;
 
-    if (current_IM_State == InputMethodCompose && current_IM_win)
+    if (state == InputMethodCommitToPrev && current_IM_win)
         win = current_IM_win;
 
     event.simpleData.window = win ? win->winId() : 0;
     event.simpleData.replaceFrom = 0;
     event.simpleData.replaceLength = 0;
 
-    QString pre = (state == InputMethodEnd) ? QString() : txt;
-    QString com = (state == InputMethodEnd) ? txt : QString();
+    QString com = (state == InputMethodPreedit) ? QString() : txt;
+    QString pre = (state == InputMethodPreedit) ? txt : QString();
 
     QBuffer buffer;
     buffer.open(QIODevice::WriteOnly);
@@ -1552,7 +1551,7 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
     out << pre;
     out << com;
 
-    if (state != InputMethodEnd) {
+    if (state == InputMethodPreedit) {
         if (cpos > 0)
             out << int(QInputMethodEvent::TextFormat) << 0 <<cpos << QVariant(int(QInputContext::PreeditFormat));
 
@@ -1573,7 +1572,7 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
     if (win && win->client() && win->client() != serverClient)
         win->client()->sendEvent(&event);
 
-    current_IM_State = state;
+    current_IM_ComposeMode = (state == InputMethodPreedit);
     current_IM_win = win;
     current_IM_winId = win->winId();
 }
@@ -1585,7 +1584,7 @@ void QWSServer::sendIMQuery(int property)
 
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
                      qwsServer->focusw;
-    if (current_IM_State == InputMethodCompose && current_IM_win)
+    if (current_IM_ComposeMode && current_IM_win)
         win = current_IM_win;
 
     event.simpleData.window = win ? win->winId() : 0;
@@ -3030,8 +3029,8 @@ QWSInputMethod::~QWSInputMethod()
 */
 void QWSInputMethod::reset()
 {
-    if (current_IM_State != QWSServer::InputMethodEnd)
-        sendIMEvent(QWSServer::InputMethodEnd, QString(), 0, 0);
+    if (current_IM_ComposeMode)
+        sendIMEvent(QWSServer::InputMethodCommitToPrev, QString(), 0, 0);
 }
 
 /*
@@ -3071,12 +3070,21 @@ void QWSInputMethod::responseHandler(int property, const QVariant &result)
   \fn void QWSInputMethod::mouseHandler(int x, int state)
 
   Implemented in subclasses to handle mouse presses/releases within
-  the on-the-spot text. The parameter \a x is the offset within
+  the preedit text. The parameter \a x is the offset within
   the string that was sent with the InputMethodCompose event.
   \a state is either \c QWSServer::MousePress or \c QWSServer::MouseRelease
- */
-void QWSInputMethod::mouseHandler(int, int)
+
+  if \a state < 0 then the mouse event is inside the widget, but outside the preedit text
+
+  \a QWSServer::MouseOutside is sent when clicking in a different widget.
+
+  The default implementation resets the input method on all mouse presses.
+
+*/
+void QWSInputMethod::mouseHandler(int, int state)
 {
+    if (state == QWSServer::MousePress || state == QWSServer::MouseOutside)
+        reset();
 }
 
 

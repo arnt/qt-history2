@@ -177,13 +177,15 @@ public:
                                 bool isPress, bool autoRepeat);
 
 #ifndef QT_NO_QWS_IM
-    enum IMState { InputMethodStart /*###remove this*/, InputMethodCompose, InputMethodEnd, IMMarkedText, IMInternal = 42
+    enum IMState {
+        InputMethodPreedit, InputMethodCommit, InputMethodCommitToPrev //###????
+
 #ifdef QT3_SUPPORT
-                   , IMStart = InputMethodStart, IMCompose = InputMethodCompose, IMEnd = InputMethodEnd
+                   , IMStart = InputMethodPreedit, IMCompose = InputMethodPreedit, IMEnd = InputMethodCommitToPrev
 #endif
     };
-    enum IMMouse { MousePress, MouseRelease, MouseMove }; //MouseMove reserved but not used
-    void sendIMEvent(IMState state, const QString& txt, int cpos, int selLen);
+    enum IMMouse { MousePress, MouseRelease, MouseMove, MouseOutside }; //MouseMove reserved but not used
+    void sendIMEvent(IMState state, const QString& txt, int pos, int len);
     void sendIMQuery(int property);
 #endif
 

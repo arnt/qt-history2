@@ -913,7 +913,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             if (pb->textVisible && pb->minimum - pb->maximum) {
                 int nu = (u * p_v + t_s/2) / t_s;
                 int x = unit_width * nu;
-                if (pb->textAlignment == Qt::AlignAuto || pb->textAlignment == Qt::AlignCenter) {
+                if (pb->textAlignment == Qt::AlignLeft || pb->textAlignment == Qt::AlignCenter) {
                     p->setPen(opt->palette.highlightedText().color());
                     p->setClipRect(opt->rect.x(), opt->rect.y(), x, opt->rect.height());
                     p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
@@ -1847,7 +1847,7 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
             if (pb->textVisible)
                 textw = pb->fontMetrics.width("100%") + 6;
 
-            if (pb->textAlignment == Qt::AlignAuto || pb->textAlignment == Qt::AlignCenter) {
+            if (pb->textAlignment == Qt::AlignLeft || pb->textAlignment == Qt::AlignCenter) {
                 rect = opt->rect;
             } else {
                 if(sr == SE_ProgressBarLabel)
@@ -2329,7 +2329,7 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
         break;
 
     case SH_ProgressDialog_TextLabelAlignment:
-        ret = Qt::AlignAuto | Qt::AlignVCenter;
+        ret = Qt::AlignLeft | Qt::AlignVCenter;
         break;
 
     case SH_ItemView_ChangeHighlightOnFocus:

@@ -1808,7 +1808,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     }
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
-    option.displayAlignment = Qt::AlignAuto|Qt::AlignVCenter;
+    option.displayAlignment = Qt::AlignLeft|Qt::AlignVCenter;
     option.direction = layoutDirection();
     return option;
 }

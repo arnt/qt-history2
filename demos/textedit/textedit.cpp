@@ -514,13 +514,13 @@ void TextEdit::colorChanged(const QColor &c)
 
 void TextEdit::alignmentChanged(Qt::Alignment a)
 {
-    if ((a == Qt::AlignAuto) || (a & Qt::AlignLeft))
+    if (a & Qt::AlignLeft)
         actionAlignLeft->setChecked(true);
-    else if ((a & Qt::AlignHCenter))
+    else if (a & Qt::AlignHCenter)
         actionAlignCenter->setChecked(true);
-    else if ((a & Qt::AlignRight))
+    else if (a & Qt::AlignRight)
         actionAlignRight->setChecked(true);
-    else if ((a & Qt::AlignJustify))
+    else if (a & Qt::AlignJustify)
         actionAlignJustify->setChecked(true);
 }
 

@@ -3717,7 +3717,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 
                 p->setPen(titlePal.highlightedText());
                 p->drawText(ir.x()+2, ir.y(), ir.width()-2, ir.height(),
-                            Qt::AlignAuto | Qt::AlignVCenter | Qt::TextSingleLine, titlebar->visibleText());
+                            Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, titlebar->visibleText());
             }
 
             QRect ir;
