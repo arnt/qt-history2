@@ -58,7 +58,6 @@
 */
 
 
-#ifdef QT_COMPAT
 /*! \obsolete
     Constructs a progress bar.
 
@@ -417,4 +416,3 @@ void Q3ProgressBar::paintEvent(QPaintEvent *)
     }
 }
 
-#endif
