@@ -119,13 +119,13 @@ void SettingsDialog::init()
     browserApp->setText( b );
     
     docuFileBox->clear();
-    docuFileList = settings.readListEntry( "/Qt Assistant/additionalDoc/File/" );
+    docuFileList = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles/" );
     QStringList::iterator i = docuFileList.begin();
     for ( ; i != docuFileList.end(); ++i )
 	docuFileBox->insertItem( *i );
     
-    catListAvail = settings.readListEntry( "/Qt Assistant/categories/available/" );
-    catListSel = settings.readListEntry( "/Qt Assistant/categories/selected/" );    
+    catListAvail = settings.readListEntry( "/Qt Assistant/3.1/CategoriesAvailable/" );
+    catListSel = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected/" );    
     
     insertCategories();    
 }
@@ -352,8 +352,8 @@ void SettingsDialog::browseWebApp()
 void SettingsDialog::accept()
 {
     QSettings *settings = new QSettings();    
-    settings->writeEntry( "/Qt Assistant/additionalDoc/File/", docuFileList );    
-    settings->writeEntry( "/Qt Assistant/categories/available/", catListAvail );
+    settings->writeEntry( "/Qt Assistant/3.1/AdditionalDocFiles/", docuFileList );    
+    settings->writeEntry( "/Qt Assistant/3.1/CategoriesAvailable/", catListAvail );
     
     settings->writeEntry( "/Qt Assistant/3.1/Webbrowser/", browserApp->text() );
             
@@ -364,7 +364,7 @@ void SettingsDialog::accept()
     QStringList newCatListSel = getCheckedItemList();    
     if ( catListSel != newCatListSel || selectionChanged ) {	
 	catListSel = newCatListSel;
-	settings->writeEntry( "/Qt Assistant/categories/selected/", catListSel );
+	settings->writeEntry( "/Qt Assistant/3.1/CategoriesSelected/", catListSel );
 	changedCategory = TRUE;
     }   
         

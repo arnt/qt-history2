@@ -245,7 +245,7 @@ void HelpDialog::showChangedDocu()
 QString HelpDialog::generateFileNumber()
 {
     QSettings settings;
-    QStringList list = settings.readListEntry( "/Qt Assistant/categories/available/" );
+    QStringList list = settings.readListEntry( "/Qt Assistant/3.1/CategoriesAvailable/" );
     QStringList::iterator it = list.begin();
     uint i = 2;
     uint j = 0;
@@ -260,7 +260,7 @@ QString HelpDialog::generateFileNumber()
 	}
     }
 
-    list = settings.readListEntry( "/Qt Assistant/categories/selected/" );
+    list = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected/" );
     for ( it = list.begin(); it != list.end(); ++it ){
 	if ( *it == "all" )
 	    return "";
@@ -272,7 +272,7 @@ QString HelpDialog::generateFileNumber()
 bool HelpDialog::isValidCategory( QString category )
 {
     QSettings settings;
-    QStringList list = settings.readListEntry( "/Qt Assistant/categories/selected/" );
+    QStringList list = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected/" );
     QStringList::iterator it = list.begin();
     for( ; it != list.end(); ++it ){
 	if( ((*it).lower() == category.lower()) || ( *it == "all" ) )
@@ -294,7 +294,7 @@ void HelpDialog::loadIndexFile()
     QString indexFile = documentationPath + "/index";
 
     QSettings settings;
-    QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/additionalDoc/File" );
+    QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
     QStringList::iterator i = addDocuFiles.begin();
 
     int steps = QFileInfo( indexFile ).size();
@@ -493,7 +493,7 @@ void HelpDialog::setupTitleMap()
 	}
 
 	QSettings settings;
-	QStringList docuFiles = settings.readListEntry( "/Qt Assistant/additionalDoc/File" );
+	QStringList docuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
 
 	for( QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++ ) {
 	    DocuParser handler;
@@ -756,7 +756,7 @@ void HelpDialog::insertContents()
     assistantDocu->setPixmap( 0, *bookPixmap );
 
     QSettings settings;
-    QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/additionalDoc/File" );
+    QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
     QStringList::iterator i = addDocuFiles.begin();
     for( ; i != addDocuFiles.end(); i++ ){
 	HelpNavigationContentsItem *additionalDocu;

@@ -378,9 +378,9 @@ void MainWindow::init()
     else
 	goHome();
     qApp->processEvents();
-    if ( config.readBoolEntry( "/Qt Assistant/3.1/newDocu/", FALSE ) ) {
+    if ( config.readBoolEntry( "/Qt Assistant/3.1/NewDoc/", FALSE ) ) {
 	QTimer::singleShot( 100, helpDock, SLOT( generateNewDocu() ));
-	config.writeEntry( "/Qt Assistant/3.1/newDocu/", FALSE );
+	config.writeEntry( "/Qt Assistant/3.1/NewDoc/", FALSE );
     }
 }
 
