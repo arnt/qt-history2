@@ -21,6 +21,8 @@ public:
 
     void insert(QTextCursor &cursor) const;
 
+    void appendFragments(QTextDocumentPrivate *priv, int pos, int endPos);
+    int appendFragment(QTextDocumentPrivate *priv, int pos, int endPos, int objectIndex = -1);
     void appendText(const QString &text, int formatIdx, int blockIdx = -2);
 
     QMap<int, int> fillFormatCollection(QTextFormatCollection *collection) const;

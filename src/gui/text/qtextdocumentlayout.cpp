@@ -316,46 +316,34 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         int columns = table->columns();
         QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
-        int sel_row_start = -1;
-        int sel_row_end = -1;
-        int sel_col_start = -1;
-        int sel_col_end = -1;
-        if (context.cursor.hasSelection()) {
-            QTextTableCell start = table->cellAt(context.cursor.selectionStart());
-            QTextTableCell end = table->cellAt(context.cursor.selectionEnd());
-            if (start != end) {
-                sel_row_start = qMin(start.row(), end.row());
-                sel_col_start = qMin(start.column(), end.column());
-                sel_row_end = qMax(start.row() + start.rowSpan(), end.row() + end.rowSpan());
-                sel_col_end = qMax(start.column() + start.columnSpan(), end.column() + end.columnSpan());
-            }
-        }
+        int row_start, col_start, num_rows, num_cols;
+        context.cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
 
         for (int r = 0; r < rows; ++r) {
             for (int c = 0; c < columns; ++c) {
                 QTextTableCell cell = table->cellAt(r, c);
                 int rspan = cell.rowSpan();
                 int cspan = cell.columnSpan();
-//                 if (rspan != 1) {
-//                     int cr = cell.row();
-//                     if (cr != r)
-//                         continue;
-//                 }
-//                 if (cspan != 1) {
-//                     int cc = cell.column();
-//                     if (cc != c)
-//                         continue;
-//                 }
-//                 QRect cellRect(QPoint(td->columnPositions.at(c), td->rowPositions.at(r)),
-//                                QPoint(td->columnPositions.at(c+cspan-1) + td->widths.at(c+cspan-1),
-//                                       td->rowPositions.at(r+rspan-1) + td->widths.at(r+rspan-1)));
-//                 if (!cellRect.intersects(painter->clipRegion().boundingRect()))
-//                     continue;
+                if (rspan != 1) {
+                    int cr = cell.row();
+                    if (cr != r)
+                        continue;
+                }
+                if (cspan != 1) {
+                    int cc = cell.column();
+                    if (cc != c)
+                        continue;
+                }
+                QRect cellRect(QPoint(td->columnPositions.at(c), td->rowPositions.at(r)),
+                               QPoint(td->columnPositions.at(c+cspan-1) + td->widths.at(c+cspan-1),
+                                      td->rowPositions.at(r+rspan-1) + td->widths.at(r+rspan-1)));
+                if (!cellRect.intersects(painter->clipRegion().boundingRect()))
+                    continue;
 
                 QAbstractTextDocumentLayout::PaintContext cell_context = context;
-                if (sel_row_start != -1) {
-                    if (r >= sel_row_start && r < sel_row_end
-                        && c >= sel_col_start && c < sel_col_end) {
+                if (row_start != -1) {
+                    if (r >= row_start && r < row_start + num_rows
+                        && c >= col_start && c < col_start + num_cols) {
                         cell_context.cursor.setPosition(cell.firstPosition());
                         cell_context.cursor.setPosition(cell.lastPosition(), QTextCursor::KeepAnchor);
                     } else {

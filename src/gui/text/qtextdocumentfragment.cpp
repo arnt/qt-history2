@@ -2,6 +2,7 @@
 #include "qtextdocumentfragment.h"
 #include "qtextdocumentfragment_p.h"
 #include "qtextcursor_p.h"
+#include "qtexttable.h"
 
 #include <qdebug.h>
 #include <qstylesheet.h>
@@ -15,38 +16,87 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     if (!cursor.hasSelection())
         return;
 
-    QTextDocumentPrivate *pieceTable = cursor.d->priv;
+    QTextDocumentPrivate *priv = cursor.d->priv;
+    formatCollection = *priv->formatCollection();
+    const QString originalText = priv->buffer();
 
-    const int startPos = cursor.selectionStart();
-    const int endPos = cursor.selectionEnd();
+    if (cursor.hasComplexSelection()) {
+        QTextTable *table = cursor.currentTable();
+        int row_start, col_start, num_rows, num_cols;
+        cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
 
-    Q_ASSERT(startPos < cursor.selectionEnd());
+        QTextTableFormat tableFormat = table->format();
+        tableFormat.setColumns(num_cols);
+        int objectIndex = formatCollection.createObjectIndex(tableFormat);
 
-    const QString originalText = pieceTable->buffer();
-    QVarLengthArray<int> usedFormats;
-    int pos = startPos;
+        Q_ASSERT(row_start != -1);
+        for (int r = row_start; r < row_start + num_rows; ++r) {
+            for (int c = col_start; c < col_start + num_cols; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                int rspan = cell.rowSpan();
+                int cspan = cell.columnSpan();
+                if (rspan != 1) {
+                    int cr = cell.row();
+                    if (cr != r)
+                        continue;
+                }
+                if (cspan != 1) {
+                    int cc = cell.column();
+                    if (cc != c)
+                        continue;
+                }
 
-    while (pos < endPos) {
-        QTextDocumentPrivate::FragmentIterator fragIt = pieceTable->find(pos);
-        const QTextFragmentData * const frag = fragIt.value();
-
-        const int inFragmentOffset = qMax(0, pos - fragIt.position());
-        int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
-
-        QTextBlock nextBlock = pieceTable->blocksFind(pos + 1);
-
-        int blockIdx = -2;
-        if (nextBlock.position() == pos + 1) {
-            blockIdx = pieceTable->formatCollection()->indexForFormat(nextBlock.blockFormat());
-            usedFormats.append(blockIdx);
+                // add the QTextBeginningOfFrame
+                int cellPos = cell.firstPosition();
+                appendFragment(priv, cellPos-1, cellPos, objectIndex);
+                // add the contents
+                appendFragments(priv, cellPos, cell.lastPosition());
+            }
         }
 
-        appendText(QString::fromRawData(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy), frag->format, blockIdx);
-        usedFormats.append(frag->format);
-        pos += charsToCopy;
+        // add end of table
+        int end = table->lastPosition();
+        appendFragment(priv, end, end+1, objectIndex);
+
+    } else {
+        appendFragments(priv, cursor.selectionStart(), cursor.selectionEnd());
+    }
+}
+
+int QTextDocumentFragmentPrivate::appendFragment(QTextDocumentPrivate *priv, int pos, int endPos, int objectIndex)
+{
+    const QString originalText = priv->buffer();
+    QTextDocumentPrivate::FragmentIterator fragIt = priv->find(pos);
+    const QTextFragmentData * const frag = fragIt.value();
+
+    int charFormatIndex = frag->format;
+    if (objectIndex != -1) {
+        QTextFormat fmt = formatCollection.format(frag->format);
+        Q_ASSERT(frag->size == 1 && fmt.objectIndex() != -1);
+        fmt.setObjectIndex(objectIndex);
+        charFormatIndex = formatCollection.indexForFormat(fmt);
     }
 
-    formatCollection = *pieceTable->formatCollection();
+    const int inFragmentOffset = qMax(0, pos - fragIt.position());
+    int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
+
+    QTextBlock nextBlock = priv->blocksFind(pos + 1);
+
+    int blockIdx = -2;
+    if (nextBlock.position() == pos + 1)
+        blockIdx = formatCollection.indexForFormat(nextBlock.blockFormat());
+
+    appendText(QString::fromRawData(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy),
+               charFormatIndex, blockIdx);
+    return charsToCopy;
+}
+
+void QTextDocumentFragmentPrivate::appendFragments(QTextDocumentPrivate *priv, int pos, int endPos)
+{
+    Q_ASSERT(pos < endPos);
+
+    while (pos < endPos)
+        pos += appendFragment(priv, pos, endPos);
 }
 
 void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const

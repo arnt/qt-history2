@@ -85,6 +85,7 @@ public:
 
     QString selectedText() const;
     QTextDocumentFragment selection() const;
+    void selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const;
 
     QTextBlock block() const;
 

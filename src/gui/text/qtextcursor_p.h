@@ -22,7 +22,10 @@ public:
     void adjustCursor(QTextCursor::MoveOperation m);
 
     void remove();
-    void setPosition(int newPosition);
+    inline void setPosition(int newPosition) {
+        Q_ASSERT(newPosition >= 0 && newPosition < priv->length());
+        position = newPosition;
+    }
     void setX();
     bool canDelete(int pos) const;
 
@@ -33,9 +36,6 @@ public:
         { return QTextBlock(priv, priv->blockMap().findNode(position)); }
     inline QTextBlockFormat blockFormat() const
         { return block().blockFormat(); }
-
-    QTextTable *tableAt(int position) const;
-
 
     int x;
     int position;

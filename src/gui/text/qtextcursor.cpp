@@ -62,12 +62,6 @@ void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRe
     }
 }
 
-void QTextCursorPrivate::setPosition(int newPosition)
-{
-    Q_ASSERT(newPosition >= 0 && newPosition < priv->length());
-    position = newPosition;
-}
-
 void QTextCursorPrivate::setX()
 {
     QTextBlock block = priv->blocksFind(position);
@@ -111,19 +105,6 @@ void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format, const QText
 
     priv->insertBlock(position, idx, formats->indexForFormat(charFormat));
 }
-
-QTextTable *QTextCursorPrivate::tableAt(int position) const
-{
-    QTextFrame *frame = priv->frameAt(position);
-    while (frame) {
-        QTextTable *table = qt_cast<QTextTable *>(frame);
-        if (table)
-            return table;
-        frame = frame->parentFrame();
-    }
-    return 0;
-}
-
 
 void QTextCursorPrivate::adjustCursor(QTextCursor::MoveOperation m)
 {
@@ -610,6 +591,7 @@ void QTextCursor::setPosition(int pos, MoveMode m)
         d->anchor = pos;
         d->adjusted_anchor = pos;
     }
+    // ##### adjust anchor for KeepAnchor!
     d->setX();
 }
 
@@ -775,6 +757,69 @@ bool QTextCursor::hasSelection() const
     return d && d->position != d->anchor;
 }
 
+
+/*!
+    Returns true if the cursor contains a selection and the selection is simple a range
+    from selectionStart() to selectionEnd(); otherwise returns false.
+
+    Complex selections can currently only appear if table cells over
+    more than one row are selected. In this case the selected range of table
+    cells in the current table can be retrieved with selectedTableCells().
+*/
+bool QTextCursor::hasComplexSelection() const
+{
+    if (!d || d->position == d->anchor)
+        return false;
+
+    QTextTable *t = qt_cast<QTextTable *>(d->priv->frameAt(d->position));
+    if (!t)
+        return false;
+
+    QTextTableCell cell_pos = t->cellAt(d->position);
+    QTextTableCell cell_anchor = t->cellAt(d->adjusted_anchor);
+
+    Q_ASSERT(cell_anchor.isValid());
+
+    if (cell_pos == cell_anchor
+        || cell_pos.row() == cell_anchor.row())
+        return false;
+
+    return true;
+}
+
+/*!
+  If the selection spans over table cells, the arguments are set to the range of cells selected in the
+  table. Otherwise all arguments are set to -1.
+*/
+void QTextCursor::selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const
+{
+    *firstRow = -1;
+    *firstColumn = -1;
+    *numRows = -1;
+    *numColumns = -1;
+
+    if (!d || d->position == d->anchor)
+        return;
+
+    QTextTable *t = qt_cast<QTextTable *>(d->priv->frameAt(d->position));
+    if (!t)
+        return;
+
+    QTextTableCell cell_pos = t->cellAt(d->position);
+    QTextTableCell cell_anchor = t->cellAt(d->adjusted_anchor);
+
+    Q_ASSERT(cell_anchor.isValid());
+
+    if (cell_pos == cell_anchor)
+        return;
+
+    *firstRow = qMin(cell_pos.row(), cell_anchor.row());
+    *firstColumn = qMin(cell_pos.column(), cell_anchor.column());
+    *numRows = qMax(cell_pos.row() + cell_pos.rowSpan(), cell_anchor.row() + cell_anchor.rowSpan()) - *firstRow;
+    *numColumns = qMax(cell_pos.column() + cell_pos.columnSpan(), cell_anchor.column() + cell_anchor.columnSpan()) - *firstColumn;
+}
+
+
 /*!
     Clears the current selection.
 
@@ -828,6 +873,19 @@ int QTextCursor::selectionEnd() const
     return qMax(d->position, d->adjusted_anchor);
 }
 
+static void getText(QString &text, QTextDocumentPrivate *priv, const QString &docText, int pos, int end)
+{
+    while (pos < end) {
+        QTextDocumentPrivate::FragmentIterator fragIt = priv->find(pos);
+        const QTextFragmentData * const frag = fragIt.value();
+
+        const int offsetInFragment = qMax(0, pos - fragIt.position());
+        const int len = qMin(int(frag->size - offsetInFragment), end - pos);
+
+        text += QString::fromRawData(docText.constData() + frag->stringPosition + offsetInFragment, len);
+        pos += len;
+    }
+}
 
 /*!
     Returns the current selection's text (which may be empty). This
@@ -841,18 +899,34 @@ QString QTextCursor::selectedText() const
 
     const QString docText = d->priv->buffer();
     QString text;
-    int pos = selectionStart();
-    const int end = selectionEnd();
 
-    while (pos < end) {
-        QTextDocumentPrivate::FragmentIterator fragIt = d->priv->find(pos);
-        const QTextFragmentData * const frag = fragIt.value();
+    if (hasComplexSelection()) {
+        QTextTable *table = currentTable();
+        int row_start, col_start, num_rows, num_cols;
+        selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
 
-        const int offsetInFragment = qMax(0, pos - fragIt.position());
-        const int len = qMin(int(frag->size - offsetInFragment), end - pos);
+        Q_ASSERT(row_start != -1);
+        for (int r = row_start; r < row_start + num_rows; ++r) {
+            for (int c = col_start; c < col_start + num_cols; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                int rspan = cell.rowSpan();
+                int cspan = cell.columnSpan();
+                if (rspan != 1) {
+                    int cr = cell.row();
+                    if (cr != r)
+                        continue;
+                }
+                if (cspan != 1) {
+                    int cc = cell.column();
+                    if (cc != c)
+                        continue;
+                }
 
-        text += QString::fromRawData(docText.constData() + frag->stringPosition + offsetInFragment, len);
-        pos += len;
+                getText(text, d->priv, docText, cell.firstPosition(), cell.lastPosition());
+            }
+        }
+    } else {
+        getText(text, d->priv, docText, selectionStart(), selectionEnd());
     }
 
     return text;
@@ -1174,7 +1248,10 @@ QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat 
 
     int pos = d->position;
     QTextTable *t = QTextTablePrivate::createTable(d->priv, d->position, rows, cols, format);
-    setPosition(pos+1);
+    d->setPosition(pos+1);
+    // ##### what should we do if we have a selection?
+    d->anchor = d->position;
+    d->adjusted_anchor = d->anchor;
     return t;
 }
 
@@ -1190,7 +1267,14 @@ QTextTable *QTextCursor::currentTable() const
     if(!d || !d->priv)
         return 0;
 
-    return d->tableAt(d->position);
+    QTextFrame *frame = d->priv->frameAt(d->position);
+    while (frame) {
+        QTextTable *table = qt_cast<QTextTable *>(frame);
+        if (table)
+            return table;
+        frame = frame->parentFrame();
+    }
+    return 0;
 }
 
 /*!
