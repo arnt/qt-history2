@@ -262,7 +262,7 @@ QStyleOptionComboBox QGenericComboBoxPrivate::getStyleOption() const
 
 void QGenericComboBoxPrivate::updateLineEditGeometry()
 {
-    if (!lineEdit || !q->isVisible())
+    if (!lineEdit)
         return;
 
     QStyleOptionComboBox opt = d->getStyleOption();
