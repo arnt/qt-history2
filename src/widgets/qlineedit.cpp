@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#209 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#210 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -435,6 +435,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_V:
 	    insert( QApplication::clipboard()->text() );
+	    break;
 	case Key_X:
 	    if ( hasMarkedText() && echoMode() == Normal ) {
 		copy();
