@@ -1831,8 +1831,9 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		}
 	    } else if ( retoff ) {
 		objects = new QUObject[1];
-		objects[0].payload.ptr = 0;
 	    }
+	    if ( objects )
+		objects[0].payload.ptr = 0;
 
 	    // call the slot if everthing went fine.
 	    if ( ok ) {
