@@ -250,17 +250,18 @@ int QGenericHeader::indexAt(int position) const
     if (count() < 1)
         return -1;
 
-    int left = 0;
-    int right = count() - 1;
-    int idx = (right + 1) / 2;
-
+    int start = 0;
+    int end = count() - 1;
+    int idx = (end + 1) / 2;
+    
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
-    while (right - left) {
+    
+    while (end - start > 0) {
         if (sections[idx].position > position)
-            right = idx - 1;
+            end = idx - 1;
         else
-            left = idx;
-        idx = (left + right + 1) / 2;
+            start = idx;
+        idx = (start + end + 1) / 2;
     }
     return idx;
 }
@@ -482,7 +483,6 @@ void QGenericHeader::mousePressEvent(QMouseEvent *e)
         d->state = QGenericHeaderPrivate::MoveSection;
         d->setupSectionIndicator();
         d->updateSectionIndicator();
-        updateSection(d->section);
     } else {
         int handle = d->sectionHandleAt(pos + d->offset);
         while (handle > -1 && isSectionHidden(handle)) handle--;
@@ -512,14 +512,15 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
             return;
         }
         case QGenericHeaderPrivate::MoveSection: {
-            int sec = sectionAt(pos + d->offset);
-            int loc = (pos + d->offset) - sectionPosition(sec);
+            int idx = indexAt(pos + d->offset);
+            if (idx < 0)
+                return;
+            int loc = pos + d->offset - d->sections.at(idx).position;
+            int sec = d->sections.at(idx).section;
             if (loc > sectionSize(sec) / 2)
-                ++sec;
-            if (sec > -1) {
-                d->target = sec;
-                d->updateSectionIndicator();
-            }
+                sec = d->sections.at(qMin(idx + 1, d->sections.count() - 1)).section;
+            d->target = sec;
+            d->updateSectionIndicator();
             return;
         }
         case QGenericHeaderPrivate::NoState: {
@@ -542,9 +543,6 @@ void QGenericHeader::mouseReleaseEvent(QMouseEvent *e)
     int pos = orientation() == Horizontal ? e->x() : e->y();
     switch (d->state) {
     case QGenericHeaderPrivate::MoveSection:
-        // keep the value within the header
-        pos = (pos < 0 ? 0 : qMin(pos, d->sections.at(count()).position));
-        d->target = sectionAt(pos + d->offset);
         moveSection(index(d->section), index(d->target));
         d->section = d->target = -1;
         d->updateSectionIndicator();
@@ -861,11 +859,13 @@ void QGenericHeader::updateGeometries()
 
 int QGenericHeaderPrivate::sectionHandleAt(int position)
 {
-    int sec = q->sectionAt(position);
-    int idx = q->index(sec);
+    int idx = q->indexAt(position);
+    if (idx < 0)
+        return -1;
+    int sec = sections.at(idx).section;
     if (idx > 0 && position < q->sectionPosition(sec) + 5)
         return q->section(idx - 1);
-    if (position > q->sectionPosition(sec) + q->sectionSize(sec) - 5)
+    if (position > sections.at(idx).position + q->sectionSize(sec) - 5)
         return sec;
     return -1;
 }
@@ -880,7 +880,7 @@ void QGenericHeaderPrivate::setupSectionIndicator()
 
 void QGenericHeaderPrivate::updateSectionIndicator()
 {
-    if (section == -1 /*|| section == target*/) {
+    if (section == -1 || target == -1 ) {
         sectionIndicator->hide();
         return;
     }

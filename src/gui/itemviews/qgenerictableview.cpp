@@ -124,16 +124,16 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
     int vscroll = 0;
     if (dx) { // horizontal
         int value = horizontalScrollBar()->value();
-        int column = value / horizontalFactor();
-        int left = (value % horizontalFactor()) * columnWidth(column);
+        int column = d->topHeader->section(value / horizontalFactor());
+        int left = (value % horizontalFactor()) * d->topHeader->sectionSize(column);
         int offset = (left / horizontalFactor()) + d->topHeader->sectionPosition(column);
         hscroll = d->topHeader->offset() - offset;
         d->topHeader->setOffset(offset);
     }
     if (dy) { // vetical
         int value = verticalScrollBar()->value();
-        int row = value / verticalFactor();
-        int above = (value % verticalFactor()) * rowHeight(row);
+        int row = d->leftHeader->section(value / verticalFactor());
+        int above = (value % verticalFactor()) * d->leftHeader->sectionSize(row);
         int offset = (above / verticalFactor()) + d->leftHeader->sectionPosition(row);
         vscroll = d->leftHeader->offset() - offset;
         d->leftHeader->setOffset(offset);

@@ -190,7 +190,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     int rightSection = d->header->sectionAt(d->header->offset() + area.right());
     d->left = d->header->index(leftSection);
     d->right = d->header->index(rightSection);
-    if (d->right < 0)
+    if (d->right < d->left)
         d->right = d->header->count() - 1;
 
     if (d->items.isEmpty())
@@ -451,8 +451,9 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 {
     int topPos = 0xFFFFFFFF; // FIXME: use Q_MAX_INT or something
     int bottomPos = 0;
+    QItemSelectionRange r;
     for (int i = 0; i < selection.count(); ++i) {
-        QItemSelectionRange r = selection.at(i);
+        r = selection.at(i);
         topPos = qMin(itemViewportRect(model()->index(r.top(), r.left(), r.parent())).top(), topPos);
         bottomPos = qMax(itemViewportRect(model()->index(r.bottom(), r.left(), r.parent())).bottom() + 1, bottomPos);
     }
@@ -465,9 +466,9 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
     int vscroll = 0;
     if (dx) {
         int value = horizontalScrollBar()->value();
-        int column = value / d->horizontalFactor;
-        int left = (value % d->horizontalFactor) * columnWidth(column);
-        int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
+        int section = d->header->section(value / d->horizontalFactor);
+        int left = (value % d->horizontalFactor) * d->header->sectionSize(section);
+        int offset = (left / d->horizontalFactor) + d->header->sectionPosition(section);
         hscroll = d->header->offset() - offset;
         d->header->setOffset(offset);
     } else
