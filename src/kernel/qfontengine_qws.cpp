@@ -44,6 +44,12 @@ QFontEngine::~QFontEngine()
 }
 
 
+QFontEngine::FECaps QFontEngine::capabilites() const
+{
+    return NoTransformations;
+}
+
+
 /* returns 0 as glyph index for non existant glyphs */
 QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
 {

@@ -97,7 +97,7 @@ public:
 
 
 QWSPaintEngine::QWSPaintEngine(const QPaintDevice *pdev)
-    //, qwsData(0)
+    : QPaintEngine(UsesFontEngine)
 {
 
     d = new QWSPaintEnginePrivate;

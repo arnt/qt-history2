@@ -185,6 +185,19 @@ public:
 	NoError,
 	OutOfMemory
     };
+
+    enum Capabilities {
+	NoTransformations = 0x00,
+	Scale = 0x01,
+	Rotate = 0x02,
+	RotScale = 0x03,
+	Shear = 0x04,
+	FullTransformations = 0x0f
+    };
+    Q_DECLARE_FLAGS(FECaps, Capabilities);
+
+    FECaps capabilites() const;
+    
     /* returns 0 as glyph index for non existant glyphs */
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
