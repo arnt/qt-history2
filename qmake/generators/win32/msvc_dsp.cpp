@@ -167,7 +167,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if(project->variables()["INTERFACES"].isEmpty())
 		    continue;
 
-		QString uicpath = "%QTDIR%\\bin\\" + var("QMAKE_UIC");
+		QString uicpath = var("QMAKE_UIC");
 		uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
 		QStringList &list = project->variables()["INTERFACES"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
