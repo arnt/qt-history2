@@ -164,13 +164,15 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
     if(d) {
 	SetMenuExcludesMarkColumn(ret, !d->isCheckable());
 	for(int id = 1, x = 0; x < (int)d->count(); x++) {
+#if !defined(QMAC_QMENUBAR_NO_MERGE)
 	    if(activeMenuBar->mac_d->commands) {
 		bool found = FALSE;
 		QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> it(*(activeMenuBar->mac_d->commands));
-		for( ; it.current() && !(found = (it.current()->index == x)); ++it);
+		for( ; it.current() && !(found = (it.current()->index == x && it.current()->qpopup == d)); ++it);
 		if(found)
 		    continue;
 	    }
+#endif
 	    QMenuItem *item = d->findItem(d->idAt(x));
 	
 	    if(item->custom()) {
