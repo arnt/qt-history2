@@ -56,6 +56,7 @@
 #include "qguardedptr.h"
 #include "qiconset.h"
 #include "qwidgetresizehandler.h"
+#include "qfocusdata.h"
 
 // REVISED: arnt
 
@@ -538,6 +539,8 @@ protected:
     void childEvent( QChildEvent* );
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
+    
+    bool focusNextPrevChild( bool );
 
 private:
     QWidget* childWidget;
@@ -2146,6 +2149,52 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     return QFrame::eventFilter(o, e);
 }
 
+bool QWorkspaceChild::focusNextPrevChild( bool next )
+{
+    QFocusData *f = focusData();
+
+    QWidget *startingPoint = f->home();
+    QWidget *candidate = 0;
+    QWidget *w = next ? f->next() : f->prev();
+    while( !candidate && w != startingPoint ) {
+	if ( w != startingPoint &&
+	     (w->focusPolicy() & TabFocus) == TabFocus
+	     && w->isEnabled() &&!w->focusProxy() && w->isVisible() )
+	    candidate = w;
+	w = next ? f->next() : f->prev();
+    }
+
+    if ( candidate ) {
+	QObjectList *ol = queryList();
+	bool ischild = ol->findRef( candidate ) != -1;
+	delete ol;
+	if ( !ischild ) {
+	    startingPoint = f->home();
+	    QWidget *nw = next ? f->prev() : f->next();
+	    QObjectList *ol2 = queryList();
+	    QWidget *lastValid = 0;
+	    candidate = startingPoint;
+	    while ( nw != startingPoint ) {
+		if ( ( candidate->focusPolicy() & TabFocus ) == TabFocus 
+		    && candidate->isEnabled() &&!candidate->focusProxy() && candidate->isVisible() )
+		    lastValid = candidate;
+		if ( ol2->findRef( nw ) == -1 ) {
+		    candidate = lastValid;
+		    break;
+		}
+		candidate = nw;
+		nw = next ? f->prev() : f->next();
+	    }
+	    delete ol2;
+	}
+    }
+
+    if ( !candidate )
+	return FALSE;
+
+    candidate->setFocus();
+    return TRUE;
+}
 
 void QWorkspaceChild::childEvent( QChildEvent*  e)
 {
