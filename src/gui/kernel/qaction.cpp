@@ -34,7 +34,7 @@ QActionPrivate::QActionPrivate() : group(0), icons(0), shortcutId(-1), enabled(1
 #endif
 }
 
-QActionPrivate::~QActionPrivate() 
+QActionPrivate::~QActionPrivate()
 {
     delete icons;
     if(menu)
@@ -264,7 +264,7 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 QWidget *QAction::parentWidget() const
 {
     QObject *ret = parent();
-    while (ret && !ret->isWidgetType()) 
+    while (ret && !ret->isWidgetType())
         ret = ret->parent();
     return (QWidget*)ret;
 }
@@ -363,7 +363,7 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 */
 QAction::~QAction()
 {
-    /* We need to be able to tell when a QAction is about to be destroyed (ie before the QObject::~QObject) 
+    /* We need to be able to tell when a QAction is about to be destroyed (ie before the QObject::~QObject)
        so that the QAction can properly be removed */
     emit deleted();
 }
@@ -646,10 +646,8 @@ void QAction::setChecked(bool b)
 {
     d->checked = b;
     d->sendDataChanged();
-#ifdef QT_COMPAT
     if(isCheckable())
         emit toggled(b);
-#endif
 }
 
 bool QAction::isChecked() const
