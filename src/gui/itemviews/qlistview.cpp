@@ -337,7 +337,7 @@ bool QListView::isWrapping() const
     Setting this property when the view is visible will cause the
     items to be laid out again.
 */
-void QListView::setIconSize(IconSize size)
+void QListView::setIconSize(Qt::IconSize size)
 {
     d->modeProperties |= uint(QListViewPrivate::IconSize);
     d->iconSize = size;
@@ -345,7 +345,7 @@ void QListView::setIconSize(IconSize size)
         doItemsLayout();
 }
 
-QListView::IconSize QListView::iconSize() const
+Qt::IconSize QListView::iconSize() const
 {
     return d->iconSize;
 }
@@ -463,7 +463,7 @@ void QListView::setViewMode(ViewMode mode)
         if (!(d->modeProperties & QListViewPrivate::Movement))
             d->movement = Static;
         if (!(d->modeProperties & QListViewPrivate::IconSize))
-            d->iconSize = Small;
+            d->iconSize = Qt::SmallIconSize;
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
     } else {
@@ -478,7 +478,7 @@ void QListView::setViewMode(ViewMode mode)
         if (!(d->modeProperties & QListViewPrivate::Movement))
             d->movement = Free;
         if (!(d->modeProperties & QListViewPrivate::IconSize))
-            d->iconSize = Large;
+            d->iconSize = Qt::LargeIconSize;
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Adjust;
     }
@@ -642,7 +642,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
         d->rubberBand->setGeometry(rect.normalize());
-        if (!d->rubberBand->isVisible() && d->iconSize == Large) {
+        if (!d->rubberBand->isVisible() && d->iconSize == Qt::LargeIconSize) {
             d->rubberBand->show();
             d->rubberBand->raise();
         }
@@ -692,14 +692,14 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
     // the ignore by default
     e->ignore();
-        
+
     if (d->canDecode(e)) {
 
         // get old dragged items rect
         QRect itemsRect = d->itemsRect(d->draggedItems);
         QRect oldRect = itemsRect;
         oldRect.translate(d->draggedItemsDelta());
-        
+
         // update position
         d->draggedItemsPos = e->pos();
 
@@ -708,7 +708,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
         newRect.translate(d->draggedItemsDelta());
 
         d->viewport->repaint(oldRect|newRect);
-        
+
         // set the item under the cursor to current
         QModelIndex index = QAbstractItemView::itemAt(e->pos());
 //         if (index.isValid())
@@ -794,7 +794,7 @@ void QListView::startDrag()
 QStyleOptionViewItem QListView::viewOptions() const
 {
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
-    if (d->iconSize == Automatic ? !d->wrap : d->iconSize == Small) {
+    if (d->iconSize == Qt::AutomaticIconSize ? !d->wrap : d->iconSize == Qt::SmallIconSize) {
         option.decorationSize = QStyleOptionViewItem::Small;
         option.decorationPosition = (QApplication::reverseLayout()
                                       ? QStyleOptionViewItem::Right

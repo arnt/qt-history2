@@ -282,10 +282,10 @@ public:
     QSize gridSize;
     QListView::Flow flow;
     QListView::Movement movement;
-    QListView::IconSize iconSize;
+    Qt::IconSize iconSize;
     QListView::ResizeMode resizeMode;
     QListView::LayoutMode layoutMode;
-    QListView::ViewMode viewMode; 
+    QListView::ViewMode viewMode;
 
     // the properties controlling the
     // icon- or list-view modes
@@ -300,7 +300,7 @@ public:
     };
 
     uint modeProperties : 8;
-    
+
     int layoutStart;
     int translate;
     QRect layoutBounds;
