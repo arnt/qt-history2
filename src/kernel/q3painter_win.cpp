@@ -388,14 +388,29 @@ void QPainter::updatePen()
 	    hpen = stock_nullPen;
 	    penRef = stock_ptr;
 	    SelectObject( hdc, hpen );
+#ifndef Q_OS_TEMP
 	    SetTextColor( hdc, pix );
+#else
+	    if ( old_pix != pix ) {
+		SetTextColor( hdc, pix );
+		old_pix = pix;
+	    }
+#endif
+
 	    if ( hpen_old )
 		DeleteObject( hpen_old );
 	    return;
 	}
 	if ( obtain_pen(&penRef, &hpen, pix) ) {
 	    SelectObject( hdc, hpen );
+#ifndef Q_OS_TEMP
 	    SetTextColor( hdc, pix );
+#else
+	    if ( old_pix != pix ) {
+		SetTextColor( hdc, pix );
+		old_pix = pix;
+	    }
+#endif
 	    if ( hpen_old )
 		DeleteObject( hpen_old );
 	    return;
@@ -473,7 +488,14 @@ void QPainter::updatePen()
     {
 	hpen = CreatePen( s, cpen.width(), pix );
     }
+#ifndef Q_OS_TEMP
     SetTextColor( hdc, pix );			// pen color is also text color
+#else
+    if ( old_pix != pix ) {
+	SetTextColor( hdc, pix );
+	old_pix = pix;
+    }
+#endif
     SelectObject( hdc, hpen );
     if ( hpen_old )				// delete last pen
 	DeleteObject( hpen_old );
@@ -830,6 +852,9 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	SetStretchBltMode( hdc, COLORONCOLOR );
 #endif
     }
+#ifdef Q_OS_TEMP
+    old_pix = ~COLOR_VALUE( cpen.data->color );
+#endif
     updatePen();
     updateBrush();
     if ( hdc ) {
