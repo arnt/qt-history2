@@ -128,6 +128,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(incrs_out.count() == objs.count()) { //we just switched places, no real incrementals to be done!
 	    t << incrs_out.join(" \\\n\t\t") << endl;
 	    do_incremental = FALSE;
+	} else if(!incrs_out.count()) {
+	    do_incremental = FALSE;
 	} else {
 	    t << endl;
 	    t << "INCREMENTAL_OBJECTS = " << incrs_out.join(" \\\n\t\t") << endl;
