@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#64 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#64 $");
 
 
 const int Unsorted = 32767;
@@ -212,7 +212,7 @@ QListViewItem::QListViewItem( QListView * parent,
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent,
-			      const char * label1, 
+			      const char * label1,
 			      const char * label2,
 			      const char * label3,
 			      const char * label4,
@@ -1726,7 +1726,9 @@ void QListView::mousePressEvent( QMouseEvent * e )
 
     if ( (i->isExpandable() || i->children()) &&
 	 d->h->mapToLogical( d->h->cellAt( e->pos().x() ) ) == 0 ) {
-	int x1 = e->pos().x() - d->h->cellPos( d->h->mapToActual( 0 ) );
+	int x1 = e->pos().x() +
+		 d->h->offset() -
+		 d->h->cellPos( d->h->mapToActual( 0 ) );
 	QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 	while( it.current() && it.current()->i != i )
 	    ++it;
@@ -2863,7 +2865,7 @@ bool QListView::isOpen( QListViewItem * item ) const
 
 void QListView::setRootIsDecorated( bool enable )
 {
-    if ( enable != d->rootIsExpandable ) {
+    if ( enable != (int) d->rootIsExpandable ) {
 	d->rootIsExpandable = enable;
 	if ( isVisible() )
 	    triggerUpdate();
