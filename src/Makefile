@@ -98,7 +98,7 @@ shareddbg:
 showdirs:
 	@echo $(DIRS)
 
-showfiles showheaders showsources showbeta clean:
+showfiles showheaders showsources showbeta:
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d $@ ; done
 
 dodepend:
