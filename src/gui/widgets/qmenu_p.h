@@ -12,6 +12,13 @@ struct QMenuAction {
     QAction *action;
     QRect rect;
 };
+#ifdef Q_WS_MAC
+struct QMacMenuAction {
+    int command;
+    uchar visible : 1;
+    QPointer<QAction> action;
+};
+#endif
 
 class Q4MenuPrivate : public QWidgetPrivate 
 {
@@ -95,13 +102,28 @@ public:
 #ifdef Q_WS_MAC
     //mac menu binding
     struct QMacMenuPrivate {
-	struct QMacMenuAction {
-	    int command;
-	    QPointer<QAction> action;
-	};
 	QList<QMacMenuAction*> actionItems;
 	MenuRef menu;
+	QMacMenuPrivate();
+	~QMacMenuPrivate();
+
+	void addAction(QAction *, QMacMenuAction* =0);
+	void addAction(QMacMenuAction *, QMacMenuAction* =0);
+	void syncAction(QMacMenuAction *);
+	inline void syncAction(QAction *a) { syncAction(findAction(a)); }
+	void removeAction(QMacMenuAction *);
+	inline void removeAction(QAction *a) { removeAction(findAction(a)); }
+	inline QMacMenuAction *findAction(QAction *a) {
+	    for(int i = 0; i < actionItems.size(); i++) {
+		QMacMenuAction *act = actionItems[i];
+		if(a == act->action)
+		    return act;
+	    }
+	    return 0;
+	}
+	short findActionIndex(QMacMenuAction *);
     } *mac_menu;
+    MenuRef macMenu();
 #endif
 };
 
@@ -157,9 +179,32 @@ public:
 #ifdef Q_WS_MAC
     //mac menubar binding
     struct QMacMenuBarPrivate {
+	static QPointer<Q4MenuBar> fallback;
 	static QHash<QWidget *, Q4MenuBar *> menubars;
-	MenuBarHandle menubar;
+	QList<QMacMenuAction*> actionItems;
+	MenuRef menu;
+	QMacMenuBarPrivate();
+	~QMacMenuBarPrivate();
+
+	void addAction(QAction *, QMacMenuAction* =0);
+	void addAction(QMacMenuAction *, QMacMenuAction* =0);
+	void syncAction(QMacMenuAction *);
+	inline void syncAction(QAction *a) { syncAction(findAction(a)); }
+	void removeAction(QMacMenuAction *);
+	inline void removeAction(QAction *a) { removeAction(findAction(a)); }
+	inline QMacMenuAction *findAction(QAction *a) {
+	    for(int i = 0; i < actionItems.size(); i++) {
+		QMacMenuAction *act = actionItems[i];
+		if(a == act->action)
+		    return act;
+	    }
+	    return 0;
+	}
+	short findActionIndex(QMacMenuAction *);
     } *mac_menubar;
+    void macCreateMenuBar(QWidget *);
+    void macDestroyMenuBar();
+    MenuRef macMenu();
 #endif
 };
 

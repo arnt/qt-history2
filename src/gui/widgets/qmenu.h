@@ -43,6 +43,10 @@ public:
     QSize sizeHint() const;
     static QAction *exec(QList<QAction*> actions, const QPoint &pos, QAction *at=0);
 
+#ifdef Q_WS_MAC
+    MenuRef macMenu();
+#endif
+
 signals:
     void activated(QAction *action);
     void highlighted(QAction *action);
@@ -89,6 +93,10 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
     int heightForWidth(int) const;
+
+#ifdef Q_WS_MAC
+    MenuRef macMenu();
+#endif
 
 signals:
     void activated(QAction *action);

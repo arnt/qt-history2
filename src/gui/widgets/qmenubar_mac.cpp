@@ -733,6 +733,7 @@ void QMenuBar::cleanup()
     menubars.clear();
 }
 
+#if 0
 /*!
     \internal
 */
@@ -814,6 +815,7 @@ bool QMenuBar::macUpdateMenuBar()
     }
     return false;
 }
+#endif
 
 /*!
     \internal

@@ -1171,10 +1171,22 @@ Q4Menu::timerEvent(QTimerEvent *e)
 
 void Q4Menu::actionEvent(QActionEvent *e)
 {
+    d->itemsDirty = 1;
     if(d->tornPopup)
 	d->tornPopup->syncWithMenu(this, e);
-    d->itemsDirty = 1;
-    update();
+#ifdef Q_WS_MAC
+    if(d->mac_menu) {
+	if(e->type() == QEvent::ActionAdded)
+	    d->mac_menu->addAction(e->action(), d->mac_menu->findAction(e->before()));
+	else if(e->type() == QEvent::ActionRemoved)
+	    d->mac_menu->removeAction(e->action());
+	else if(e->type() == QEvent::ActionChanged)
+	    d->mac_menu->syncAction(e->action());
+    }
+#endif
+
+    if(isVisible())
+	update();
 }
 
 void Q4Menu::internalSetSloppyAction()
@@ -1445,12 +1457,18 @@ void Q4MenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent acti
 
 Q4MenuBar::Q4MenuBar(QWidget *parent) : QWidget(*new Q4MenuBarPrivate, parent, 0)
 {
+#ifdef Q_WS_MAC
+    d->macCreateMenuBar(parent);
+#endif
     topLevelWidget()->installEventFilter(this); //grab accels
     setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
 }
 
 Q4MenuBar::~Q4MenuBar()
 {
+#ifdef Q_WS_MAC
+    d->macDestroyMenuBar();
+#endif
 }
 
 QAction *Q4MenuBar::addMenu(const QString &text, Q4Menu *menu)
@@ -1668,10 +1686,21 @@ void Q4MenuBar::leaveEvent(QEvent *)
 	d->setCurrentAction(0);
 }
 
-void Q4MenuBar::actionEvent(QActionEvent *)
+void Q4MenuBar::actionEvent(QActionEvent *e)
 {
     d->itemsDirty = 1;
-    update();
+#ifdef Q_WS_MAC
+    if(d->mac_menubar) {
+	if(e->type() == QEvent::ActionAdded)
+	    d->mac_menubar->addAction(e->action(), d->mac_menubar->findAction(e->before()));
+	else if(e->type() == QEvent::ActionRemoved)
+	    d->mac_menubar->removeAction(e->action());
+	else if(e->type() == QEvent::ActionChanged)
+	    d->mac_menubar->syncAction(e->action());
+    }
+#endif
+    if(isVisible())
+	update();
 }
 
 void
