@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#45 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#46 $
 **
 ** Definition of QFileDialog class
 **
@@ -27,17 +27,17 @@
 #define QFILEDIALOG_H
 
 struct QFileDialogPrivate;
-class QLineEdit;
 class QPushButton;
-class QListView;
-class QListViewItem;
-class QListBoxItem;
 class QLabel;
 class QWidget;
+class QFileDialog;
 
 #ifndef QT_H
 #include "qdir.h"
 #include "qdialog.h"
+#include "qlistbox.h"
+#include "qlineedit.h"
+#include "qlistview.h"
 #endif // QT_H
 
 
@@ -50,31 +50,96 @@ public:
     virtual const QPixmap * pixmap( const QFileInfo & );
 };
 
+class QRenameEdit : public QLineEdit
+{
+    Q_OBJECT
+    
+public:
+    QRenameEdit( QWidget *parent )
+        : QLineEdit( parent )
+    {}
+    
+protected:
+    void keyPressEvent( QKeyEvent *e );
+    void focusOutEvent( QFocusEvent *e );
+    
+signals:
+    void escapePressed();
+    
+};
+    
+class QFileListBox : public QListBox
+{
+    Q_OBJECT
+    
+public:
+    QFileListBox( QWidget *parent, QFileDialog *d );
+
+    void clear();
+    
+protected:
+    void viewportMousePressEvent( QMouseEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+    
+public slots:
+    void rename();
+    void cancelRename();        
+    
+private:
+    QRenameEdit *lined;
+    QFileDialog *filedialog;
+    bool renaming;
+    
+};
+
+class QFileListView : public QListView
+{
+    Q_OBJECT
+    
+public:
+    QFileListView( QWidget *parent, QFileDialog *d );
+
+    void clear();
+    
+protected:
+    void viewportMousePressEvent( QMouseEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+    
+public slots:
+    void rename();
+    void cancelRename();        
+    
+private:
+    QRenameEdit *lined;
+    QFileDialog *filedialog;
+    bool renaming;
+    
+};
 
 class Q_EXPORT QFileDialog : public QDialog
 {
     Q_OBJECT
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
-		 QWidget *parent=0, const char *name=0, bool modal=FALSE );
+                 QWidget *parent=0, const char *name=0, bool modal=FALSE );
     QFileDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE );
-   ~QFileDialog();
+    ~QFileDialog();
 
     // recommended static functions
 
     static QString getOpenFileName( const QString &initially = QString::null,
-				    const QString &filter= QString::null,
-				    QWidget *parent = 0, const char* name = 0);
+                                    const QString &filter= QString::null,
+                                    QWidget *parent = 0, const char* name = 0);
     static QString getSaveFileName( const QString &initially = QString::null,
-				    const QString &filter= QString::null,
-				    QWidget *parent = 0, const char* name = 0);
+                                    const QString &filter= QString::null,
+                                    QWidget *parent = 0, const char* name = 0);
     static QString getExistingDirectory( const QString &dir = QString::null,
-					 QWidget *parent = 0,
-					 const char* name = 0 );
+                                         QWidget *parent = 0,
+                                         const char* name = 0 );
     static QStringList getOpenFileNames( const QString &filter= QString::null,
-				      const QString &dir = QString::null,
-				      QWidget *parent = 0,
-				      const char* name = 0);
+                                         const QString &dir = QString::null,
+                                         QWidget *parent = 0,
+                                         const char* name = 0);
 
     // other static functions
 
@@ -150,7 +215,7 @@ private:
     QString fileName;
 
     QFileDialogPrivate *d;
-    QListView  *files;
+    QFileListView  *files;
 
     QLineEdit  *nameEdit; // also filter
     void *unused1;
@@ -165,21 +230,21 @@ private:
 
 #if defined(_WS_WIN_)
     static QString winGetOpenFileName( const QString &initialSelection,
-				       const QString &filter,
-				       QString* workingDirectory,
-				       QWidget *parent = 0,
-				       const char* name = 0 );
+                                       const QString &filter,
+                                       QString* workingDirectory,
+                                       QWidget *parent = 0,
+                                       const char* name = 0 );
     static QString winGetSaveFileName( const QString &initialSelection,
-				       const QString &filter,
-				       QString* workingDirectory,
-				       QWidget *parent = 0,
-				       const char* name = 0 );
+                                       const QString &filter,
+                                       QString* workingDirectory,
+                                       QWidget *parent = 0,
+                                       const char* name = 0 );
     static QStringList winGetOpenFileNames( const QString &filter,
-					    QString* workingDirectory,
-					    QWidget *parent = 0,
-					    const char* name = 0 );
+                                            QString* workingDirectory,
+                                            QWidget *parent = 0,
+                                            const char* name = 0 );
 #endif
-    
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QFileDialog( const QFileDialog & );
