@@ -135,31 +135,36 @@ public:
   \class QSqlTable qsqltable.h
   \module sql
 
-  \brief A flexible and editable SQL table widget.
+  \brief A flexible SQL table widget that supports browsing and editing.
 
-  QSqlTable supports various methods for presenting and editing SQL
+  QSqlTable supports various functions for presenting and editing SQL
   data from a \l QSqlCursor.
 
-  When displaying data, QSqlTable only retrieves data for visible
-  rows.  If drivers do not support the 'query size' property, rows are
-  dynamically fetched from the database on an as-needed basis.  This
-  allows extremely large queries to be displayed as quickly as
-  possible, with limited memory usage.
+  When displaying data, QSqlTable only retrieves data for visible rows.
+  If the driver supports the 'query size' property the QSqlTable will
+  have the correct number of rows and the vertical scrollbar will
+  accurately reflect the number of rows displayed in proportion to the
+  number of rows in the dataset. If the driver does not support the
+  'query size' property rows are dynamically fetched from the database
+  on an as-needed basis with the scrollbar becoming more accurate as the
+  user scrolls down through the records.  This allows extremely large
+  queries to be displayed as quickly as possible, with minimum memory
+  usage.
 
-  QSqlTable also offers an API for sorting columns. See setSorting()
-  and sortColumn().
+  QSqlTable inherits QTable's API and extends it with functions to sort
+  and filter the data and sort columns. See setFilter(), setSort(),
+  setSorting() and sortColumn().
 
   When displaying editable cursors, cell editing will be enabled.
-  QSqlTable can modify existing data or enter new records.  When a
-  user makes changes to a record field in the table, the edit buffer
-  of the cursor is used.  The table will not send changes in the
+  QSqlTable can be used to modify existing data and to enter new
+  records.  When a user makes changes to a field in the table, the
+  cursor's edit buffer is used.  The table will not send changes in the
   record to the database until the user moves to a different record in
-  the grid.  If there is a problem updating data, errors will be
-  handled automatically (see handleError() to change this behavior).
-  QSqlTable creates editors using the default \l QSqlEditorFactory.
-  Different editor factories can be used by calling
-  installEditorFactory(). Cell editing can be cancelled by hitting the
-  escape key.
+  the grid.  If there is a problem updating data, errors will be handled
+  automatically (see handleError() to change this behavior). QSqlTable
+  creates editors using the default \l QSqlEditorFactory. Different
+  editor factories can be used by calling installEditorFactory(). Cell
+  editing is initiated by pressing F2 and cancelled by pressing Esc.
 
   Columns in the table can be created automatically based on the
   cursor (see setCursor()), or manually (see addColumn() and
@@ -182,12 +187,13 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     init();
 }
 
-/*!  Constructs a table using the data from \a cursor.  If
-  autopopulate is TRUE (the default is FALSE), columns are
+/*!  Constructs a table using the cursor \a cursor.  If
+  \a autoPopulate is TRUE (the default is FALSE), columns are
   automatically created based upon the fields in the \a cursor record.
-  If the \a cursor is read only, the table becomes read only.  The
-  table adopts the cursor's driver's definition representing NULL
-  values as strings.
+  Note that \a autoPopulate only governs the creation of columns; to
+  load the cursor's data use refresh(). If the \a cursor is read only,
+  the table becomes read only.  The table adopts the cursor's driver's
+  definition for representing NULL values as strings.
 */
 
 QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
@@ -305,7 +311,9 @@ QString QSqlTable::filter() const
 }
 
 /*! Sets the filter to be used on the displayed data to \a filter.  To
-  display the filtered data, use refresh().
+  display the filtered data, call refresh(). The text of a filter is the
+  SQL for a WHERE clause but without the leading "WHERE" or trailing
+  semicolon, e.g. "surname LIKE 'A%'".
 
   \sa refresh() filter()
 */
@@ -316,8 +324,22 @@ void QSqlTable::setFilter( const QString& filter )
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
-  there is no current cursor, there is no effect. To display the
-  filtered data, use refresh().
+  there is no current cursor, nothing happens. To display the
+  sorted data, use refresh(). The strings in the sort string list are
+  the names of the fields to be sorted; these names are used in the
+  ORDER BY clause, e.g.
+
+  \code
+    QStringList fields = QStringList() << "duedate" << "amountdue";
+    thisTable->setSort( fields ); 
+  \endcode
+
+  will produce an ORDER BY clause like this:
+
+  <tt>ORDER BY cursorname.duedate ASC, cursorname.amountdue ASC</tt>
+
+  If you require DESCending order use the overloaded setSort() that
+  takes a QSqlIndex parameter.
 
   \sa sort()
 */
@@ -328,7 +350,9 @@ void QSqlTable::setSort( const QStringList& sort )
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
-  there is no current cursor, there is no effect.
+  there is no current cursor, nothing happens. A QSqlIndex contains
+  field names and their ordering (ASC or DESC); these are used to
+  compose the ORDER BY clause.
 
   \sa sort()
 */
@@ -356,8 +380,8 @@ QStringList QSqlTable::sort() const
     return QSqlNavigator::sort();
 }
 
-/*! If \a confirm is TRUE, all edits will be confirmed with the user
-  using a message box.  If \a confirm is FALSE (the default), all
+/*! If \a confirm is TRUE, all edits will be confirmed by the user
+  through a message box.  If \a confirm is FALSE (the default), all
   edits are posted to the database immediately.
 */
 
@@ -366,8 +390,7 @@ void QSqlTable::setConfirmEdits( bool confirm )
     d->confEdits = confirm;
 }
 
-/*! Returns TRUE if the table confirms edits, otherwise FALSE is
-  returned.
+/*! Returns TRUE if the table confirms edits, otherwise returns FALSE.
 */
 
 bool QSqlTable::confirmEdits() const
@@ -375,8 +398,8 @@ bool QSqlTable::confirmEdits() const
     return d->confEdits;
 }
 
-/*! If \a confirm is TRUE, all cancels will be confirmed with the user
-  using a message box.  If \a confirm is FALSE (the default), all
+/*! If \a confirm is TRUE, all cancels will be confirmed by the user
+  through a message box.  If \a confirm is FALSE (the default), all
   cancels occur immediately.
 */
 
@@ -385,8 +408,7 @@ void QSqlTable::setConfirmCancels( bool confirm )
     d->confCancs = confirm;
 }
 
-/*! Returns TRUE if the table confirms cancels, otherwise FALSE is
-  returned.
+/*! Returns TRUE if the table confirms cancels, otherwise returns FALSE.
 */
 
 bool QSqlTable::confirmCancels() const
@@ -397,11 +419,13 @@ bool QSqlTable::confirmCancels() const
 /*!  \reimp
 
   For an editable table, creates an editor suitable for the field in
-  \a col.  The editor is created using the default editor factory,
-  unless a different editor factory is installed using
+  column \a col.  The editor is created using the default editor
+  factory, unless a different editor factory was installed using
   installEditorFactory().  The editor is primed with the value of the
-  field in \a col using the default property map, unless a new
-  property map is installed using installPropertMap().
+  field in \a col using a property map. The property map used is the
+  default property map, unless a new property map was installed using
+  installPropertMap(). If \a initFromCell is TRUE then the editor is
+  primed with the value in the QSqlTable cell.
 
 */
 
@@ -690,7 +714,7 @@ void QSqlTable::endUpdate()
    QSqlCursor::editBuffer()).
 
    When editing begins, a new row is created in the table marked with
-   a '*' in the vertical header.
+   a '*' in the row's vertical header column.
 
 */
 
@@ -740,6 +764,8 @@ bool QSqlTable::beginInsert()
    Editing takes place using the cursor's edit buffer (see
    QSqlCursor::editBuffer()).
 
+   \a row and \a col refer to the row and column in the QSqlTable.
+
 */
 
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
@@ -760,7 +786,7 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
   using the values of the cursor's edit buffer. If there is no current
   cursor or there is no current "insert" row, nothing happens.  If
   confirmEdits() is TRUE, confirmEdit() is called to confirm the
-  insert. Returns TRUE if the insert succeeded, otherwise FALSE.
+  insert. Returns TRUE if the insert succeeded, otherwise returns FALSE.
 
 */
 
@@ -821,11 +847,11 @@ void QSqlTable::updateRow( int row )
   buffer.  If there is no current cursor or there is no current
   selection, nothing happens.  If confirmEdits() is TRUE,
   confirmEdit() is called to confirm the update. Returns TRUE if the
-  update succeeded, otherwise FALSE.
+  update succeeded, otherwise returns FALSE.
 
-  For this method to succeed, the underlying cursor must have a valid
-  primary index to ensure that a unique record is updated within the
-  database.
+  The underlying cursor must have a valid primary index to ensure that a
+  unique record is updated within the database otherwise the database
+  may be changed to an inconsistent state.
 
 */
 
@@ -887,9 +913,9 @@ void QSqlTable::updateCurrent()
   confirm the delete. Returns TRUE if the delete succeeded, otherwise
   FALSE.
 
-  For this method to succeed, the underlying cursor must have a valid
-  primary index to ensure that a unique record is deleted within the
-  database.
+  The underlying cursor must have a valid primary index to ensure that a
+  unique record is deleted within the database otherwise the database
+  may be changed to an inconsistent state.
 
 */
 
@@ -958,7 +984,7 @@ QSqlTable::Confirm QSqlTable::confirmEdit( QSqlTable::Mode m )
     QSqlTable::Confirm conf;
     if ( m == Delete )
 	conf = (QSqlTable::Confirm)QMessageBox::information ( this, tr( cap ),
-		tr("Are you sure?"),
+		tr("Delete this record?"),
 		tr( "Yes" ),
 		tr( "No" ),
 		QString::null, 0, 1 );
@@ -983,7 +1009,7 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
 {
     d->cancelMode = TRUE;
     QSqlTable::Confirm conf =  (QSqlTable::Confirm)QMessageBox::information ( this, tr( "Confirm" ),
-					      tr( "Are you sure you want to cancel?" ),
+					      tr( "Cancel your edits?" ),
 					      tr( "Yes" ),
 					      tr( "No" ), QString::null, 0, 1 );
     d->cancelMode = FALSE;
@@ -991,8 +1017,18 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
 }
 
 
-/*! Searches the current cursor for the string \a str. If the string
- is found, the cell containing the string is set as the current cell.
+/*! Searches the current cursor for a cell containing the string \a str
+    starting at the current cell and working forwards. If the string is
+    found, the cell containing the string is set as the current cell.
+
+    If \a caseSensitive is FALSE the case of \a str will be ignored. If
+    \a backwards is TRUE the search will start at the current cell and
+    work backwards.
+
+    The search will wrap, i.e. if the first (or if backwards is TRUE,
+    last) cell is reached without finding \a str the search will
+    continue until it reaches the starting cell. If \a str is not found
+    the search will fail and the current cell will remain unchanged.
 */
 void QSqlTable::find( const QString & str, bool caseSensitive, bool backwards )
 {
@@ -1096,8 +1132,8 @@ void QSqlTable::reset()
 	horizontalHeader()->setSortIndicator( -1 );
 }
 
-/*!  Returns the index of the field within the current SQL query based
-  on the displayed column \a i.
+/*!  Returns the index of the field within the current SQL query that is 
+  displayed in column \a i.
 
 */
 
@@ -1110,7 +1146,7 @@ int QSqlTable::indexOf( uint i ) const
 }
 
 /*! Returns TRUE if the table will automatically delete the cursor
-  specified by setCursor().
+  specified by setCursor() otherwise returns FALSE.
 */
 
 bool QSqlTable::autoDelete() const
@@ -1150,7 +1186,7 @@ QString QSqlTable::nullText() const
 }
 
 /*!  Sets the text to be displayed when a TRUE bool value is
-  encountered in the data to \a nullText.  The default is 'True'.
+  encountered in the data to \a trueText.  The default is 'True'.
 
 */
 
@@ -1170,7 +1206,7 @@ QString QSqlTable::trueText() const
 }
 
 /*!  Sets the text to be displayed when a FALSE bool value is
-  encountered in the data to \a nullText.  The default is 'False'.
+  encountered in the data to \a falseText.  The default is 'False'.
 
 */
 
@@ -1201,7 +1237,7 @@ int QSqlTable::numRows() const
 /*!  \reimp
 
   The number of rows in the table will be determined by the cursor
-  (see setCursor()), so normally this method should never be called.
+  (see setCursor()), so normally this function should never be called.
   It is included for completeness.
 */
 
@@ -1212,8 +1248,8 @@ void QSqlTable::setNumRows ( int r )
 
 /*!  \reimp
 
-  The number of columns in the table will be handled automatically
-  (see addColumn()), so normally this method should never be called.
+  The number of columns in the table will be determined automatically
+  (see addColumn()), so normally this function should never be called.
   It is included for completeness.
 */
 
@@ -1231,7 +1267,9 @@ int QSqlTable::numCols() const
 }
 
 /*!  Returns the text in cell \a row, \a col, or an empty string if
-  the relevant item does not exist or includes no text.
+  the cell is empty. If the cell's value is NULL then it's nullText()
+  will be returned. If the cell does not exist then a null QString is
+  returned.
 
 */
 
@@ -1245,7 +1283,7 @@ QString QSqlTable::text ( int row, int col ) const
 }
 
 /*!  Returns the value in cell \a row, \a col, or an invalid value if
-   the relevant item does not exist or includes no value.
+   the cell does not exist or has no value.
 
 */
 
@@ -1293,7 +1331,7 @@ void QSqlTable::loadLine( int )
 }
 
 /*!  Sorts the column \a col in ascending order if \a ascending is
-  TRUE, else in descending order. The \a wholeRows parameter is
+  TRUE, otherwise in descending order. The \a wholeRows parameter is
   ignored for SQL tables.
 
 */
@@ -1350,9 +1388,12 @@ void QSqlTable::repaintCell( int row, int col )
 /*! \reimp
 
   This function renders the cell at \a row, \a col with the value of
-  the corresponding cursor field.  Depending on the current edit mode
-  of the table, paintField() is called for the appropriate cursor
-  field.
+  the corresponding cursor field on the painter \a p.  Depending on the
+  current edit mode of the table, paintField() is called for the
+  appropriate cursor field. \a cr describes the cell coordinates in the
+  content coordinate system. If \a selected is TRUE the cell has been
+  selected and would normally be rendered differently than an unselected
+  cell.
 
   \sa QSql::isNull()
 */
@@ -1397,8 +1438,8 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 
 /*! Paints the \a field on the painter \a p. The painter has already
    been translated to the appropriate cell's origin where the \a field
-   is to be rendered. cr describes the cell coordinates in the content
-   coordinate system..
+   is to be rendered. \a cr describes the cell coordinates in the content
+   coordinate system.
 
    If you want to draw custom field content you have to reimplement
    paintField() to do the custom drawing.  The default implementation
@@ -1474,13 +1515,13 @@ void QSqlTable::setSize( QSqlCursor* sql )
 }
 
 /*!  Sets \a cursor as the data source for the table.  To force the
-  display of the data from \a cursor, use refresh(). If autopopulate
+  display of the data from \a cursor, use refresh(). If \q autoPopulate
   is TRUE (the default is FALSE), columns are automatically created
   based upon the fields in the \a cursor record.  If \a autoDelete is
-  TRUE (the default is FALSE), the table will take ownership of \a
+  TRUE (the default is FALSE), the table will take ownership of the \a
   cursor and delete it when appropriate.  If the \a cursor is read
   only, the table becomes read only.  The table adopts the cursor's
-  driver's definition representing NULL values as strings.
+  driver's definition for representing NULL values as strings.
 
   \sa refresh() setReadOnly() setAutoDelete() QSqlDriver::nullText()
 
