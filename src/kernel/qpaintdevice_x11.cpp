@@ -218,8 +218,6 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 */
 
 /*!
-  \fn HANDLE QPaintDevice::handle() const
-
   Returns the window system handle of the paint device, for low-level
   access.  Using this function is not portable.
 
@@ -228,9 +226,13 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 
   \sa x11Display()
 */
+Qt::HANDLE QPaintDevice::handle() const
+{
+    return hd;
+}
 
 /*!
-  \fn HDC QPaintDevice::handle() const
+  \fn virtual HDC QPaintDevice::handle() const
 
   Returns the window system handle of the paint device, for low-level
   access.  Using this function is not portable.

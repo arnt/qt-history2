@@ -88,13 +88,13 @@ public:
     // Windows:	  get device context
     // X-Windows: get drawable
 #if defined(Q_WS_WIN)
-    HDC		handle() const;
+    virtual HDC		handle() const;
 #elif defined(Q_WS_X11)
-    Qt::HANDLE	handle() const;
+    virtual Qt::HANDLE	handle() const;
 #elif defined(Q_WS_MACX) || defined(Q_WS_MAC9)
-    Qt::HANDLE      handle() const;
+    virtual Qt::HANDLE	handle() const;
 #elif defined(Q_WS_QWS)
-    Qt::HANDLE      handle() const;
+    virtual Qt::HANDLE	handle() const;
 #endif
     
 #if defined(Q_WS_X11)
@@ -282,12 +282,6 @@ inline bool QPaintDevice::isExtDev() const
 
 inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
-
-#if defined(Q_WS_WIN)
-inline HDC    QPaintDevice::handle() const { return hdc; }
-#elif defined(Q_WS_X11)
-inline Qt::HANDLE QPaintDevice::handle() const { return hd; }
-#endif
 
 #if defined(Q_WS_X11)
 inline Display *QPaintDevice::x11Display() const

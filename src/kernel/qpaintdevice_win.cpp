@@ -59,6 +59,10 @@ QPaintDevice::~QPaintDevice()
 #endif
 }
 
+HDC QPaintDevice::handle() const
+{
+    return hdc;
+}
 
 bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 {
