@@ -262,7 +262,8 @@ bool FileDriver::create( const List& data )
     for ( i = 0; i < data.count(); ++i ) {
 	List fieldDescription = data[i].toList();
 	if ( fieldDescription.count() != 4 ) {
-	    ERROR_RETURN( "Internal error: Bad field description" );
+	    ERROR_RETURN( "Internal error: expected 4 field descriptors, got " +
+			  QString::number( fieldDescription.count() ) );
 	}
 	QString name = fieldDescription[0].toString();
 	int namelen = QMAX( name.length(), 11 );
@@ -769,7 +770,8 @@ bool FileDriver::update( const List& data )
     for ( ;  i < data.count(); ++i ) {
 	List updateData = data[i].toList();
 	if ( updateData.count() != 2 ) {
-	    ERROR_RETURN( "Internal error: Bad field description" );
+	    ERROR_RETURN( "Internal error: expected 2 field descriptors, got " +
+			  QString::number( updateData.count() ) );
 	}
 	List fieldDesc = updateData[0].toList();
 	QString name = fieldDesc[0].toString();
@@ -839,7 +841,8 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 	}
 	List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
 	if ( rangeMarkFieldDesc.count() != 4 ) {
-	    ERROR_RETURN( "Internal error: Bad field description");
+	    ERROR_RETURN( "Internal error: expected 4 field descriptors, got " +
+			  QString::number( rangeMarkFieldDesc.count() ) );
 	}
 	QString name = rangeMarkFieldDesc[0].toString();
 	QVariant value = rangeMarkFieldData[1];
