@@ -338,6 +338,26 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir*> &dirs, const Q
 		    for(x += 1 ; *(big_buffer + x + inc_len) != '<'; inc_len++);
 		    *(big_buffer + x + inc_len) = '\0';
 		    inc = big_buffer + x;
+		} else if(total_size_read >= x + 13 && !strncmp(big_buffer + x, "customwidget", 12) &&
+			  (*(big_buffer + x + 12) == ' ' || *(big_buffer + x + 12) == '>')) {
+		    for(x += 13; *(big_buffer + x) != '>'; x++); //skip up to >
+		    while(x < total_size_read) {
+			for(x++; *(big_buffer + x) != '<'; x++); //skip up to <
+			x++;
+			if(total_size_read >= x + 7 && !strncmp(big_buffer+x, "header", 6) &&
+			   (*(big_buffer + x + 6) == ' ' || *(big_buffer + x + 6) == '>')) {
+			    for(x += 7; *(big_buffer + x) != '>'; x++); //skip up to >
+			    int inc_len = 0;
+			    for(x += 1 ; *(big_buffer + x + inc_len) != '<'; inc_len++);
+			    *(big_buffer + x + inc_len) = '\0';
+			    inc = big_buffer + x;
+			    break;
+			} else if(total_size_read >= x + 14 && !strncmp(big_buffer+x, "/customwidget", 13) &&
+				  (*(big_buffer + x + 13) == ' ' || *(big_buffer + x + 13) == '>')) {
+			    x += 14;
+			    break;
+			}
+		    }
 		} else if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include", 7) &&
 		    (*(big_buffer + x + 7) == ' ' || *(big_buffer + x + 7) == '>')) {
 		    for(x += 8; *(big_buffer + x) != '>'; x++) {
