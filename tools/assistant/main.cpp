@@ -183,7 +183,8 @@ int main( int argc, char ** argv )
 		INDEX_CHECK( "Missing content file!" );
 		Config *c = Config::loadConfig( QString::null );
 		Profile *profile = c->profile();
-		QStringList entries = profile->docs.grep(argv[i+1]);
+		bool ok;
+		QStringList entries = profile->docs.grep(argv[i+1], &ok);
 		if (entries.count() == 0) {
 		    fprintf(stderr, "Could not locate content file: '%s'\n",
 			    argv[i+1]);
