@@ -100,11 +100,12 @@ static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
     if(!p || r.isEmpty())
 	return;
 
-    if(now)
+    if(now) 
 	p->repaint(r);
-    else
-	QApplication::postEvent(p,new QPaintEvent(r, !p->testWFlags(QWidget::WRepaintNoErase) ) );
-
+    else 
+	QApplication::postEvent(p, new QPaintEvent(r,
+				       !p->testWFlags(QWidget::WRepaintNoErase) ) );
+	
     QObjectList * childObjects=(QObjectList*)p->children();
     if(childObjects) {
 	QObject * o;
@@ -438,9 +439,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
     if ( showIt )
 	show();
-    if ( setcurs ) {
+    if ( setcurs ) 
 	setCursor(oldcurs);
-    }
 
     QObjectList	*accelerators = queryList();
     QObjectListIt it( *accelerators );
@@ -461,7 +461,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
-    }
+    } 
+
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
 }
@@ -737,24 +738,32 @@ void QWidget::showWindow()
 {
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
+	//I'm not sure I should be doing this here, but it fixes some problems
+	//I need to make sure all events have been processed before painting
+	//the newly shown dialog. This fixes problems like weirdnesses when showing
+	//a dialog with a child that has been reparented (ala qdockareas) FIXME?
+	qApp->sendPostedEvents();
 
 	//forces a paint event before the window is shown
-	paint_children(this, QRegion(0, 0, width(), height()), TRUE);
+	paint_children(this, QRegion(0, 0, width(), height()), TRUE );
 
 	//handle transition
 	if(parentWidget()) {
 	    WindowClass c;
 	    GetWindowClass((WindowPtr)hd, &c);
 	    if(c == kModalWindowClass)
-		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
-					  kWindowSheetTransitionEffect, kWindowShowTransitionAction, NULL);
+		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd, 
+					  kWindowSheetTransitionEffect, 
+					  kWindowShowTransitionAction, NULL);
 	}
-	
+
 	//now actually show it
 	ShowHide( (WindowPtr)hd, 1 );
+	repaint(); //once the window is shown make sure I've been refreshed
 	setActiveWindow();
+    } else {
+	update();
     }
-    update();
 }
 
 void QWidget::hideWindow()
