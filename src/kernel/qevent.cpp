@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#55 $
 **
 ** Implementation of event classes
 **
@@ -521,8 +521,10 @@ void QEvent::peErrMsg()				// posted event error message
   it in the close event. In this case, calling QCloseEvent::accept() or
   QCloseEvent::ignore() makes no difference.
 
-  \warning Be careful.  The code below assumes that the widget was
-  created on the heap using the \c new operator.
+  \warning Be careful.  The code below assumes that the widget was created
+  on the heap using the \c new operator. Even when the widget has been
+  created by new doing this is a tricky opreation. Be sure that you cannot
+  have any other pointers to the widget hanging around.
 
   \code
     void MyWidget::closeEvent( QCloseEvent * )
