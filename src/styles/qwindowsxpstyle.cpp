@@ -333,10 +333,9 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->setBackgroundOrigin( QWidget::ParentOrigin );
     } else if ( widget->inherits( "QTabBar" ) ) {
 	widget->installEventFilter( this );
+	widget->setAutoMask( TRUE );
 	widget->setMouseTracking( TRUE );
 	connect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
-    } else if ( widget->inherits( "QTabWidget" ) ) {
-	widget->setAutoMask( TRUE );
     } else if ( widget->inherits( "QHeader" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
