@@ -229,6 +229,7 @@ public:
     QTextObject *objectForFormat(const QTextFormat &f) const;
 
     QTextObject *createObject(const QTextFormat &newFormat, int objectIndex = -1);
+    void deleteObject(QTextObject *object);
 
     QTextDocument *document() { return q_func(); }
     const QTextDocument *document() const { return q_func(); }

@@ -1186,6 +1186,13 @@ QTextObject *QTextDocumentPrivate::createObject(const QTextFormat &f, int object
     return obj;
 }
 
+void QTextDocumentPrivate::deleteObject(QTextObject *object)
+{
+    const int objIdx = object->d_func()->objectIndex;
+    objects.remove(objIdx);
+    delete object;
+}
+
 void QTextDocumentPrivate::contentsChanged()
 {
     if (editBlock)

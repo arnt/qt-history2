@@ -507,6 +507,12 @@ void QTextFramePrivate::fragmentRemoved(const QChar &type, uint fragment)
 
 void QTextFramePrivate::remove_me()
 {
+    if (fragment_start == 0 && fragment_end == 0
+        && !parentFrame) {
+        qobject_cast<QTextDocument *>(q->parent())->docHandle()->deleteObject(q);
+        return;
+    }
+
     if (!parentFrame)
         return;
 
