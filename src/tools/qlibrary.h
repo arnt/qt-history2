@@ -58,7 +58,7 @@ public:
     };
 
     QLibrary( const QString& filename, Policy = Delayed );
-    ~QLibrary();
+    virtual ~QLibrary();
 
     void *resolve( const char* );
     static void *resolve( const QString &filename, const char * );
@@ -71,10 +71,12 @@ public:
 
     QString library() const;
 
-    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
+    virtual QRESULT queryInterface( const QUuid&, QUnknownInterface** );
+
+protected:
+    bool load();
 
 private:
-    bool load();
     void createInstanceInternal();
 
     QLibraryPrivate *d;
