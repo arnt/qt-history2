@@ -506,9 +506,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             }
             t << "\t\t" << "};" << "\n";
             if(buildable) { //build reference
-                QString obj_key = file + ".o";
-                obj_key = keyFor(obj_key);
-                t << "\t\t" << obj_key << " = {" << "\n"
+                QString build_key = keyFor(file + ".BUILDABLE");
+                t << "\t\t" << build_key << " = {" << "\n"
                   << "\t\t\t" << "fileRef = " << src_key << ";" << "\n"
                   << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
                   << "\t\t\t" << "settings = {" << "\n"
@@ -516,7 +515,18 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t\t\t" << ");" << "\n"
                   << "\t\t\t" << "};" << "\n"
                   << "\t\t" << "};" << "\n";
-                project->variables()["QMAKE_PBX_OBJ"].append(obj_key);
+
+                bool isObj = false;
+                if(file.endsWith(".c")) 
+                    isObj = true;
+                for(int i = 0; !isObj && i < Option::cpp_ext.size(); ++i) {
+                    if(file.endsWith(Option::cpp_ext.at(i))) {
+                        isObj = true;
+                        break;
+                    }
+                }
+                if(isObj)
+                    project->variables()["QMAKE_PBX_OBJ"].append(build_key);
             }
         }
         if(!src_list.isEmpty()) {
@@ -615,9 +625,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     for(int input = 0; input < inputs.size(); ++input) {
                         if(project->isEmpty(inputs.at(input)))
                             continue;
-                        if(input && !(input % 3))
-                            mkt << "\\\n\t";
-                        mkt << " " << replaceExtraCompilerVariables(tmp_out, inputs.at(input), QString());
+                        const QStringList &files = project->values(inputs.at(input));
+                        for(int file = 0; file < files.size(); ++file) {
+                            if(file && !(file % 3))
+                                mkt << "\\\n\t";
+                            mkt << " " << replaceExtraCompilerVariables(tmp_out, files.at(file), 
+                                                                        QString());
+                        }
                     }
                 }
                 mkt << endl;
@@ -753,15 +767,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                       << "\t\t\t" << "refType = " << reftypeForFile(library) << ";" << "\n"
                       << "\t\t" << "};" << "\n";
                     project->variables()["QMAKE_PBX_LIBRARIES"].append(key);
-                    QString obj_key = library + ".o";
-                    obj_key = keyFor(obj_key);
-                    t << "\t\t" << obj_key << " = {" << "\n"
+                    QString build_key = keyFor(library + ".BUILDABLE");
+                    t << "\t\t" << build_key << " = {" << "\n"
                       << "\t\t\t" << "fileRef = " << key << ";" << "\n"
                       << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
                       << "\t\t\t" << "settings = {" << "\n"
                       << "\t\t\t" << "};" << "\n"
                       << "\t\t" << "};" << "\n";
-                    project->variables()["QMAKE_PBX_BUILD_LIBRARIES"].append(obj_key);
+                    project->variables()["QMAKE_PBX_BUILD_LIBRARIES"].append(build_key);
                 }
                 if(remove)
                     tmp.removeAt(x);
@@ -848,7 +861,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             QString icon = project->first("ICON");
             if(icon.length() >= 2 && (icon[0] == '"' || icon[0] == '\'') && icon[(int)icon.length()-1] == icon[0])
                 icon = icon.mid(1, icon.length()-2);
-            t << "\t\t\t\t" << keyFor(icon) << "\n";
+            t << "\t\t\t\t" << keyFor(icon + ".BUILDABLE") << ",\n";
         }
         t << "\t\t\t" << ");" << "\n"
           << "\t\t\t" << "isa = PBXResourcesBuildPhase;" << "\n"
