@@ -85,6 +85,10 @@ void AssistantSocket::readClient()
     if ( !link.isNull() ) {
         link = link.replace(QLatin1String("\n"), QLatin1String(""));
         link = link.replace(QLatin1String("\r"), QLatin1String(""));
+        QFileInfo fi(link);
+        link = fi.absoluteFilePath();
+        if (!link.startsWith("file:"))
+            link = "file:" + link;
         emit showLinkRequest( link );
     }
 }
@@ -141,8 +145,13 @@ int main( int argc, char ** argv )
     bool server = false;
     bool hideSidebar = false;
     if ( argc == 2 ) {
-        if ( (argv[1])[0] != '-' )
+        if ( (argv[1])[0] != '-' ) {
             file = QString::fromUtf8(argv[1]);
+            QFileInfo fi(file);
+            file = fi.absoluteFilePath();
+            if (!file.startsWith("file:"))
+                file = "file:" + file;
+        }
     }
     if ( file.isEmpty() ) {
         for ( int i = 1; i < argc; i++ ) {
