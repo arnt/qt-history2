@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#12 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#12 $")
 
 
 // --------------------------------------------------------------------------
@@ -267,7 +267,7 @@ void QPixmap::optimizeGlobally( bool enable )
 }
 
 
-void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
+void QPixmap::fill( const QColor &fillColor )
 {
     if ( isNull() )
 	return;
@@ -275,23 +275,17 @@ void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
     bool tmp_hdc = hdc == 0;
     if ( tmp_hdc )
 	allocMemDC();
-    bool   stockBrush = TRUE;
-    HANDLE hbrush;
     if ( fillColor == black )
-	hbrush = GetStockObject( BLACK_BRUSH );
+	PatBlt( hdc, 0, 0, data->w, data->h, BLACKNESS );
     else if ( fillColor == white )
-	hbrush = GetStockObject( WHITE_BRUSH );
+	PatBlt( hdc, 0, 0, data->w, data->h, WHITENESS );
     else {
-	hbrush = CreateSolidBrush( fillColor.pixel() );
-	stockBrush = FALSE;
-    }
-    RECT r;
-    r.left = r.top = 0;
-    r.right  = width();
-    r.bottom = height();
-    FillRect( hdc, &r, hbrush );
-    if ( !stockBrush )
+	HANDLE hbrush = CreateSolidBrush( fillColor.pixel() );
+	HANDLE hb_old = SelectObject( hdc, hbrush );
+	PatBlt( hdc, 0, 0, width(), height(), PATCOPY );
+	SelectObject( hdc, hb_old );
 	DeleteObject( hbrush );
+    }
     if ( tmp_hdc )
 	freeMemDC();
 }
