@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#151 $
 **
 ** Implementation of QListView widget class
 **
@@ -2450,11 +2450,12 @@ void QListView::mouseDoubleClickEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    emit doubleClicked( i );
     if ( !i->isOpen() && (i->isExpandable() || i->childCount()) )
 	setOpen( i, TRUE );
     if ( i->isOpen() && i->childItem )
 	setOpen( i, FALSE );
+
+    emit doubleClicked( i );
 }
 
 
