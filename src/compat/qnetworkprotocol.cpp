@@ -1698,17 +1698,17 @@ void QFtpProtocol::npReadyRead()
 
 static void registerProtocols()
 {
-    qNetworkProtocolRegister.ensure_constructed();
+    static bool once = false;
+    if (once) return;
+    once = true;
 
-    if ( qNetworkProtocolRegister.isEmpty() ) {
-	QNetworkProtocol::registerNetworkProtocol( "file", new QNetworkProtocolFactory< QLocalFs > );
+    QNetworkProtocol::registerNetworkProtocol( "file", new QNetworkProtocolFactory< QLocalFs > );
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
-	QNetworkProtocol::registerNetworkProtocol( "ftp", new QNetworkProtocolFactory< QFtpProtocol > );
+    QNetworkProtocol::registerNetworkProtocol( "ftp", new QNetworkProtocolFactory< QFtpProtocol > );
 #endif
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
-	QNetworkProtocol::registerNetworkProtocol( "http", new QNetworkProtocolFactory< QHttpProtocol > );
+    QNetworkProtocol::registerNetworkProtocol( "http", new QNetworkProtocolFactory< QHttpProtocol > );
 #endif
-    }
 }
 
 #include "qnetworkprotocol.moc"
