@@ -280,7 +280,7 @@ Q_EXPORT void __cdecl qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPST
 #else
 Q_EXPORT
 void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
-	       int cmdShow, int &argc, QArray<pchar> &argv )
+	       int cmdShow, int &argc, QMemArray<pchar> &argv )
 #endif
 {
     static bool already_called = FALSE;
@@ -1089,7 +1089,7 @@ void QApplication::beep()
   recursion when processing messages.
  *****************************************************************************/
 
-#include "qqueue.h"
+#include "qptrqueue.h"
 
 struct QWinConfigRequest {
     WId	 id;					// widget to be configured
@@ -1097,12 +1097,12 @@ struct QWinConfigRequest {
     int	 x, y, w, h;				// request parameters
 };
 
-static QQueue<QWinConfigRequest> *configRequests = 0;
+static QPtrQueue<QWinConfigRequest> *configRequests = 0;
 
 void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
 {
     if ( !configRequests )			// create queue
-	configRequests = new QQueue<QWinConfigRequest>;
+	configRequests = new QPtrQueue<QWinConfigRequest>;
     QWinConfigRequest *r = new QWinConfigRequest;
     r->id = id;					// create new request
     r->req = req;

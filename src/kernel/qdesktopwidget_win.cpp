@@ -1,7 +1,7 @@
 #include "qdesktopwidget.h"
 #include "qt_windows.h"
 #include "qapplication_p.h"
-#include "qarray.h"
+#include "qmemarray.h"
 
 class QDesktopWidgetPrivate
 {
@@ -12,7 +12,7 @@ public:
     static int screenCount;
     static int primaryScreen;
 
-    static QArray<QRect> *rects;
+    static QMemArray<QRect> *rects;
 
     struct MONITORINFO
     {

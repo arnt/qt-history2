@@ -30,7 +30,7 @@
 
 #include <qgl.h>
 #include <qshared.h>
-#include <qarray.h>
+#include <qmemarray.h>
 #include <qmap.h>
 #include <qpixmap.h>
 
@@ -43,9 +43,9 @@ public:
     enum AllocState{ UnAllocated = 0, Allocated = 0x01, Reserved = 0x02 };
 
     int maxSize;
-    QArray<uint> colorArray;
-    QArray<Q_UINT8> allocArray;
-    QArray<Q_UINT8> contextArray;
+    QMemArray<uint> colorArray;
+    QMemArray<Q_UINT8> allocArray;
+    QMemArray<Q_UINT8> contextArray;
     QMap<uint,int> colorMap;
 };
 
