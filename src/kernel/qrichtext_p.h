@@ -816,7 +816,7 @@ public:
     int length() const;
 
     int width( int idx ) const;
-    
+
     void insert( int index, const QString &s, QTextFormat *f );
     void insert( int index, Char *c );
     void truncate( int index );
@@ -1216,6 +1216,8 @@ public:
     void setStyle( const QString &s );
     QString styleName() const { return style; }
 
+    int changed() const { return different; }
+    
 private:
     void update();
     void generateKey();
