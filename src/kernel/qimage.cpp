@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#34 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#34 $";
 #endif
 
 /*!
@@ -1395,7 +1395,7 @@ bool QImageIO::read()				// read image data
 	// ok, already open
     }
     else if ( !fname.isEmpty() ) {		// read from file
-	file.setFileName( fname );
+	file.setName( fname );
 	if ( !file.open(IO_ReadOnly) )
 	    return FALSE;			// cannot open file
 	iodev = &file;
@@ -1474,7 +1474,7 @@ bool QImageIO::write()
     if ( iodev )
 	;
     else if ( !fname.isEmpty() ) {
-	file.setFileName( fname );
+	file.setName( fname );
 	int fmode = h->text_mode ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
 	if ( !file.open(fmode) )		// couldn't create file
 	    return FALSE;
