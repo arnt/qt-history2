@@ -1574,16 +1574,12 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
 
     if ( !doc->preProcessor() ) {
 	for ( int i = 0; i < (int)txt.length(); ++i ) {
-	    if ( txt[ i ] == '\n' ) {
-		c2.gotoRight();
-		continue;
-	    }
-	    if ( c2.parag()->at( c2.index() )->format() ) {
+	    if ( txt[ i ] != '\n' && c2.parag()->at( c2.index() )->format() ) {
 		c2.parag()->at( c2.index() )->format()->addRef();
 		undoRedoInfo.d->text.setFormat( oldLen + i, c2.parag()->at( c2.index() )->format(), TRUE );
 	    }
 	    c2.gotoRight();
-	}
+	}	
     }
 
     emit textChanged();
