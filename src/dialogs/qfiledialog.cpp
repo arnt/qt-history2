@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#223 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#224 $
 **
 ** Implementation of QFileDialog class
 **
@@ -427,15 +427,15 @@ struct QFileDialogPrivate {
 
     QString currentFileName;
     QListViewItem *last;
-    
+
     struct File: public QListViewItem {
         File( QFileDialogPrivate * dlgp,
               const QFileInfo * fi, QListViewItem * parent )
-            : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 ) 
+            : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 )
         { setup(); dlgp->last = this; }
         File( QFileDialogPrivate * dlgp,
               const QFileInfo * fi, QListView * parent )
-            : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 ) 
+            : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 )
         { setup(); dlgp->last = this; }
 
         QString text( int column ) const;
@@ -616,6 +616,8 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
                              QListBox::item( currentItem() ) :
                              itemAt( e->pos() );
         if ( item ) {
+            if ( !itemRect( item ).contains( e->pos() ) )
+                return;
             QString source = filedialog->dirPath() + "/" + item->text();
             if ( QFile::exists( source ) ) {
                 QUriDrag* drag = new QUriDrag( viewport() );
@@ -1470,7 +1472,7 @@ void QFileDialog::init()
     d = new QFileDialogPrivate();
     d->mode = AnyFile;
     d->last = 0;
-    
+
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
              this,  SLOT(fileNameEditDone()) );
@@ -1697,7 +1699,7 @@ void QFileDialog::init()
         d->mcView->setOn( FALSE );
         d->detailView->setOn( TRUE );
     }
-        
+
     nameEdit->setFocus();
 }
 
@@ -1871,7 +1873,7 @@ void QFileDialog::rereadDir()
     }
 
     files->setSorting( -1 );
-    
+
     d->cdToParent->setEnabled( !cwd.isRoot() );
 
     const QFileInfoList *filist = 0;
@@ -2121,7 +2123,7 @@ void QFileDialog::okClicked()
 {
     *workingDirectory = cwd.absPath();
     detailViewMode = files->isVisible();
-    
+
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
@@ -2449,7 +2451,7 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
         sortFilesBy = QDir::Unsorted;
         rereadDir();
     }
-        
+
 }
 
 void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
@@ -2529,9 +2531,9 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
         m.setItemChecked( sdate, TRUE );
     else if ( sortFilesBy == QDir::Unsorted )
         m.setItemChecked( sunsorted, TRUE );
-    
+
     m.setItemEnabled( stype, FALSE );
-    
+
     m.insertSeparator();
 
     int hidden = m.insertItem( tr( "Show &hidden files" ) );
