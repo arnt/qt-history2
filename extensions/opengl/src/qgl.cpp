@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#10 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#11 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,7 +26,7 @@
 #include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#11 $");
 
 
 #if defined(_CC_MSVC_)
@@ -538,7 +538,6 @@ void QGLContext::setFormat( const QGLFormat &format )
   a context that satisfies the requested \link setFormat() format\endlink,
   otherwise FALSE is returned (the context is invalid).
 
-  \internal
   <strong>Implementation note:</strong> Initialization of C++ class members
   usually takes place in the class constructor. QGLContext is an exception
   because it must be simple to customize. The virtual functions
@@ -606,7 +605,8 @@ bool QGLContext::create()
 /*!
   \fn void QGLContext::doneCurrent()
 
-  Currently a no-op. Reserved for future development.
+  Resets the current OpenGL rendering context.  Normally, you do not need
+  to call this function, because makeCurrent() takes care of that.
 */
 
 
