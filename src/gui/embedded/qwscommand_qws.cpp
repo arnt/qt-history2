@@ -118,6 +118,29 @@ QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
     dbg << typeStr;
     return dbg.space();
 };
+
+#define N_EVENTS 16
+const char * eventNames[N_EVENTS] =  {
+        "NoEvent",
+        "Connected",
+        "Mouse", "Focus", "Key",
+        "RegionModified",
+        "Creation",
+        "PropertyNotify",
+        "PropertyReply",
+        "SelectionClear",
+        "SelectionRequest",
+        "SelectionNotify",
+        "MaxWindowRect",
+        "QCopMessage",
+        "WindowOperation",
+        "IMEvent",
+    };
+
+
+
+class QWSServer;
+extern QWSServer *qwsServer;
 #endif
 
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -125,8 +148,8 @@ void qws_write_command(QWSSocket *socket, int type, char *simpleData, int simple
                        char *rawData, int rawLen)
 {
 #ifdef QWSCOMMAND_DEBUG
-    qDebug() << "simpleData " << QHexDump(simpleData, simpleLen);
-    qDebug() << "rawData " << QHexDump(rawData, rawLen);
+    if (simpleLen) qDebug() << "simpleData " << QHexDump(simpleData, simpleLen);
+    if (rawLen > 0) qDebug() << "rawData " << QHexDump(rawData, rawLen);
 #endif
     qws_write_uint(socket, type);
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
@@ -135,10 +158,10 @@ void qws_write_command(QWSSocket *socket, int type, char *simpleData, int simple
     // qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
 
     if (simpleData && simpleLen)
-        socket->writeBlock(simpleData, simpleLen);
+        socket->write(simpleData, simpleLen);
 
     if (rawLen && rawData)
-        socket->writeBlock(rawData, rawLen);
+        socket->write(rawData, rawLen);
 }
 
 bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
@@ -157,16 +180,17 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
         if (simpleLen) {
             if (socket->size() < uint(simpleLen))
                 return false;
-            bytesRead = socket->readBlock(simpleData, simpleLen);
+            bytesRead = socket->read(simpleData, simpleLen);
 #ifdef QWSCOMMAND_DEBUG
-            qDebug() << "simpleData " << QHexDump(simpleData, bytesRead);
+         if (simpleLen)
+             qDebug() << "simpleData " << QHexDump(simpleData, bytesRead);
 #endif
         } else {
             bytesRead = 1; // hack!
         }
-#ifdef QWSCOMMAND_DEBUG
-        qDebug() << "simpleLen " << simpleLen << ", bytesRead " << bytesRead;
-#endif
+// #ifdef QWSCOMMAND_DEBUG
+//         qDebug() << "simpleLen " << simpleLen << ", bytesRead " << bytesRead;
+//#endif
     }
 
     if (bytesRead) {
@@ -175,10 +199,10 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
         if (socket->size() < uint(rawLen))
             return false;
         rawData = new char[rawLen];
-        bytesRead += socket->readBlock(rawData, rawLen);
+        bytesRead += socket->read(rawData, rawLen);
 #ifdef QWSCOMMAND_DEBUG
         qDebug() << "rawData " << QHexDump(rawData, rawLen);
-        qDebug() << "==== bytesRead " << bytesRead;
+        //qDebug() << "==== bytesRead " << bytesRead;
 #endif
         return true;
     }
@@ -199,14 +223,21 @@ QWSProtocolItem::~QWSProtocolItem() {
 #ifndef QT_NO_QWS_MULTIPROCESS
 void QWSProtocolItem::write(QWSSocket *s) {
 #ifdef QWSCOMMAND_DEBUG
-    qDebug() << "QWSProtocolItem::write sending type " << static_cast<QWSCommand::Type>(type);
+    if (!qwsServer)
+        qDebug() << "QWSProtocolItem::write sending type " << static_cast<QWSCommand::Type>(type);
+    else
+        qDebug() << "QWSProtocolItem::write sending event " << (type < N_EVENTS ? eventNames[type] : "unknown");
 #endif
     qws_write_command(s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen);
 }
 
 bool QWSProtocolItem::read(QWSSocket *s) {
 #ifdef QWSCOMMAND_DEBUG
-    qDebug() << "QWSProtocolItem::read reading type " << static_cast<QWSCommand::Type>(type);
+    if (qwsServer)
+        qDebug() << "QWSProtocolItem::read reading type " << static_cast<QWSCommand::Type>(type);
+    else
+        //qDebug() << "QWSProtocolItem::read reading event " << (type < N_EVENTS ? eventNames[type] : "unknown");
+        qDebug("QWSProtocolItem::read reading event %s", type < N_EVENTS ? eventNames[type] : "unknown");
 #endif
     bool b = qws_read_command(s, simpleDataPtr, simpleLen, rawDataPtr, rawLen, bytesRead);
     if (b) {
