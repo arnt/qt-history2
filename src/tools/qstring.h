@@ -454,21 +454,22 @@ public:
     int         contains( const QRegExp & ) const;
 #endif
 
-    enum FieldFlags {
+    enum SectionFlags {
 	SectionDefault             = 0x00,
 	SectionSkipEmpty           = 0x01,
 	SectionIncludeLeadingSep   = 0x02,
 	SectionIncludeTrailingSep  = 0x04,
 	SectionCaseInsensitiveSeps = 0x08
     };
-    QString     section( QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
+    QString     section( QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const 
+	          { return section(QString(sep), start, end, flags); }
     QString     section( char sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
 	          { return section(QChar(sep), start, end, flags); }
 #ifndef QT_NO_CAST_ASCII
     QString      section( const char *substr, int start, int end = 0xffffffff, int flags = SectionDefault ) const
 	          { return section(QString(substr), start, end, flags); }
 #endif
-    QString     section( QString substr, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
+    QString     section( const QString &substr, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #ifndef QT_NO_REGEXP
     QString     section( const QRegExp &regxp, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #endif

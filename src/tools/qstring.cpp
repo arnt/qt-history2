@@ -13567,103 +13567,6 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     \sa QStringList::split()
 */
 
-QString QString::section( QChar sep, int start, int end, int flags ) const
-{
-    const QChar *uc = unicode();
-    if ( !uc )
-	return QString();
-    if(flags & SectionCaseInsensitiveSeps)
-	sep = sep.lower();
-    bool match = FALSE, last_match = TRUE;
-    int n = length();
-
-    //find start
-    const QChar *begin = start < 0 ? uc + n : uc;
-    while(start) {
-	match = FALSE;
-	if(flags & SectionCaseInsensitiveSeps) {
-	    if( begin->lower() == sep )
-		match = TRUE;
-	} else {
-	    if( *begin == sep )
-		match = TRUE;
-	}
-	if(start > 0 && (flags & SectionSkipEmpty) && match && last_match)
-	    match = FALSE;
-	last_match = match;
-
-	if(start < 0) {
-	    if(match && !++start)
-		break;
-	    begin--;
-	} else {
-	    if(match && !--start)
-		break;
-	    begin++;
-	}
-	if(begin > uc + n || begin < uc)
-	    return QString();
-    }
-    if(match && !(flags & SectionIncludeLeadingSep))
-	begin++;
-    if(begin > uc + n || begin < uc)
-	return QString();
-
-    //now find last
-    match = FALSE;
-    const QChar *last = end < 0 ? uc + n : uc;
-    if(end == -1) {
-	if(flags & SectionCaseInsensitiveSeps) {
-	    if( last->lower() == sep )
-		match = TRUE;
-	} else {
-	    if( *last == sep )
-		match = TRUE;
-	}
-    } else {
-	end++;
-	last_match = TRUE;
-	while(end) {
-	    match = FALSE;
-	    if(flags & SectionCaseInsensitiveSeps) {
-		if( last->lower() == sep )
-		    match = TRUE;
-	    } else {
-		if( *last == sep )
-		    match = TRUE;
-	    }
-	    if(end > 0 && (flags & SectionSkipEmpty) && match && last_match)
-		match = FALSE;
-	    last_match = match;
-
-	    if(end < 0) {
-		if(match && !++end) {
-		    last++;
-		    break;
-		}
-		last--;
-	    } else {
-		last++;
-		if(match && !--end)
-		    break;
-	    }
-	    if(last >= uc + n) {
-		last = uc + n;
-		break;
-	    } else if(last < uc) {
-		return QString();
-	    }
-	}
-    }
-    if(match && !(flags & SectionIncludeTrailingSep))
-	last--;
-    if(last < uc || last > uc + n || begin >= last)
-	return QString();
-
-    //done
-    return QString(begin, (last - begin));
-}
-
 /*!
     This function returns a section of the string.
 
@@ -13705,7 +13608,7 @@ QString QString::section( QChar sep, int start, int end, int flags ) const
     \sa QStringList::split()
 */
 
-QString QString::section( QString sep, int start, int end, int flags ) const
+QString QString::section( const QString &sep, int start, int end, int flags ) const
 {
     const QChar *uc = unicode();
     if ( !uc )
