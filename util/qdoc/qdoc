@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#48 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#49 $
 #
 # this is a massive hack, written very quickly
 #
@@ -240,7 +240,7 @@ sub processdocs {
 
 	$doc =~ s/\.?\s*$/.\n/s;
 	$doc =~ s/^\s*\n//s;
-	$doc =~ s/>\.\n/$>\n/s;
+	$doc =~ s/>\.\n$/>\n/s;
 	$doc =~ s/\s*\\sa\s+/\n\nmagicwordthatyoushouldavoid /g;
 	$doc =~ s-\s*\n\s*\n\s*-\n<p>-gs;
 	$doc =~ s/<linebreak>//gs;
@@ -462,8 +462,13 @@ sub readfiles {
 
     undef $/;
     foreach $filename ( keys %headerfiles ) {
-	$_ = $filename;
+	if (defined($hdir)) {
+	    $_ = $hdir . "/" . $filename;
+	} else {
+	    $_ = $filename;
+	}
 	open(F, "expand < $_ |") || die "can't open $_ for reading";
+	$_ = $filename;
 	s/\./-/;
 	s/$/.html/;
 	open(H, "> $outputdir/$_") 
@@ -559,7 +564,11 @@ without limitation.
 sub readh {
     local ($filename) = @_;
 
-    $h = getfile($filename);
+    if (defined($hdir)) {
+	$h = getfile($hdir . "/" . $filename);
+    } else {
+	$h = getfile($filename);
+    }
     print "header file: ", $filename, "\n" if ($debug);
 
     $h =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
@@ -1371,11 +1380,31 @@ $outputdir = "/local/qt/doc/html";
 $address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday );
 $doctype = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
 
-
-foreach $arg ( 0..$#ARGV ) {
-    &readc($ARGV[$arg]);
+if ($#ARGV > -1) {
+    foreach $arg ( 0..$#ARGV ) {
+	&readc($ARGV[$arg]);
+    }
+} else {
+    $hdir = "/local/qt/include";
+    chdir("/local/qt/src/tools");
+    opendir(D, ".");
+    foreach $d ( readdir(D) ) {
+	&readc( $d ) if ( -f $d );
+    }
+    closedir(D);
+    chdir("/local/qt/src/kernel");
+    opendir(D, ".");
+    foreach $d ( readdir(D) ) {
+	&readc( $d ) if ( -f $d );
+    }
+    closedir(D);
+    chdir("/local/qt/src/widgets");
+    opendir(D, ".");
+    foreach $d ( readdir(D) ) {
+	&readc( $d ) if ( -f $d );
+    }
+    closedir(D);
 }
-
 
 &preprocessdocs();
 &makenames();
