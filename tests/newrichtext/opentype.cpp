@@ -314,11 +314,11 @@ QOpenType::QOpenType( FT_Face _face )
 QOpenType::~QOpenType()
 {
     if ( hasGDef )
-	TT_Done_GDEF_Table( &gdef );
+	TT_Done_GDEF_Table( gdef );
     if ( hasGSub )
-	TT_Done_GSUB_Table( &gsub );
+	TT_Done_GSUB_Table( gsub );
     if ( hasGPos )
-	TT_Done_GPOS_Table( &gpos );
+	TT_Done_GPOS_Table( gpos );
 }
 
 bool QOpenType::supportsScript( unsigned int script )
