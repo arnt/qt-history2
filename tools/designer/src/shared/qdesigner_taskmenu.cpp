@@ -186,6 +186,7 @@ void QDesignerTaskMenu::promoteToCustomWidget()
 
     QDesignerPromotedWidget *promoted
         = new QDesignerPromotedWidget(item, wgt, parent);
+    promoted->setObjectName(QLatin1String("__qt__promoted_") + wgt->objectName());
     promoted->setGeometry(wgt->geometry());
     InsertWidgetCommand *insert_cmd = new InsertWidgetCommand(fw);
     insert_cmd->init(promoted);

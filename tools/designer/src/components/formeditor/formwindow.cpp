@@ -22,6 +22,7 @@
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_resource.h"
+#include "qdesigner_promotedwidget.h"
 #include "signalsloteditor.h"
 #include "buddyeditor.h"
 
@@ -496,15 +497,13 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
             while ( c->parentWidget() &&
                 ( LayoutInfo::layoutType(m_core, c->parentWidget() ) != LayoutInfo::NoLayout || !isManaged(c) ) )
                     c = c->parentWidget();
+            if (qt_cast<QDesignerPromotedWidget*>(c->parent()) != 0)
+                c = c->parentWidget();
             selectWidget(c);
 
             QDesignerResource res(this);
 
-            QList<QWidget*> sel(selectedWidgets());
-
-            simplifySelection(&sel);
-
-            sel = checkSelectionsForMove(w);
+            QList<QWidget*> sel = checkSelectionsForMove(w);
 
             QList<AbstractDnDItem*> item_list;
             foreach (QWidget *widget, sel) {
@@ -513,7 +512,6 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
                     widget = container;
                     selectWidget(widget, true);
                 }
-
                 if (e->modifiers() & Qt::ControlModifier) {
                     QDesignerResource builder(this);
                     DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
@@ -1002,6 +1000,8 @@ QList<QWidget*> FormWindow::checkSelectionsForMove(QWidget *w)
     while ( w->parentWidget() &&
                 ( LayoutInfo::layoutType(m_core, w->parentWidget() ) != LayoutInfo::NoLayout || !isManaged(w) ) )
         w = w->parentWidget();
+    if (qt_cast<QDesignerPromotedWidget*>(w->parent()) != 0)
+        w = w->parentWidget();
 
     QMap<QWidget *, QPoint> moving;
 
@@ -1264,6 +1264,9 @@ void FormWindow::manageWidget(QWidget *w)
 
     setCursorToAll(Qt::ArrowCursor, w);
 
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(w))
+        manageWidget(promoted->child());
+    
     emit changed();
     emit widgetManaged(w);
 }

@@ -105,7 +105,9 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(object))
             objectName = promoted->child()->objectName();
         else
-            objectName = object->objectName();
+            objectName = object->objectName()
+//                            + QString("(%1)").arg(object->metaObject()->className())
+            ;
             
         if (objectName.isEmpty())
             objectName = tr("<noname>");

@@ -28,9 +28,11 @@
 #include <QtCore/qdebug.h>
 
 GroupBoxTaskMenu::GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent)
-    : QObject(parent),
+    : QDesignerTaskMenu(groupbox, parent),
       m_groupbox(groupbox)
 {
+    m_editTitleAction = new QAction(tr("Edit title"), this);
+    connect(m_editTitleAction, SIGNAL(activated()), this, SLOT(editTitle()));
 }
 
 GroupBoxTaskMenu::~GroupBoxTaskMenu()
@@ -39,18 +41,6 @@ GroupBoxTaskMenu::~GroupBoxTaskMenu()
 
 QList<QAction*> GroupBoxTaskMenu::taskActions() const
 {
-    if (!m_taskActions.isEmpty())
-        return m_taskActions;
-
-    QAction *action = 0;
-
-    GroupBoxTaskMenu *that = const_cast<GroupBoxTaskMenu*>(this);
-
-    action = new QAction(that);
-    action->setText(tr("Edit title"));
-    connect(action, SIGNAL(triggered()), this, SLOT(editTitle()));
-    m_taskActions.append(action);
-
 #if 0 // ### implement me
     action = new QAction(that);
     action->setText(tr("Edit groupbox icon"));
@@ -58,7 +48,10 @@ QList<QAction*> GroupBoxTaskMenu::taskActions() const
     m_taskActions.append(action);
 #endif
 
-    return m_taskActions;
+    QList<QAction*> action_list = QDesignerTaskMenu::taskActions();
+    action_list.insert(1, m_editTitleAction);
+
+    return action_list;
 }
 
 bool GroupBoxTaskMenu::eventFilter(QObject *object, QEvent *event)
@@ -80,9 +73,10 @@ bool GroupBoxTaskMenu::eventFilter(QObject *object, QEvent *event)
 
 void GroupBoxTaskMenu::editTitle()
 {
-    m_formWindow = AbstractFormWindow::findFormWindow(m_groupbox);
-    if (m_formWindow != 0) {
-        connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
+    AbstractFormWindow *fw = formWindow();
+    
+    if (fw != 0) {
+        connect(fw, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_groupbox->parentWidget() != 0);
 
         m_editor = new QLineEdit();
@@ -128,7 +122,7 @@ QObject *GroupBoxTaskMenuFactory::createExtension(QObject *object, const QString
 
 void GroupBoxTaskMenu::updateText(const QString &text)
 {
-    m_formWindow->cursor()->setProperty(QLatin1String("title"), QVariant(text));
+    formWindow()->cursor()->setProperty(QLatin1String("title"), QVariant(text));
 }
 
 void GroupBoxTaskMenu::updateSelection()

@@ -240,7 +240,18 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
     if (m_formWindow)
         m_formWindow->unify(o, objName, true);
 
-    o->setObjectName(objName);
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(o)) {
+        if (objName.startsWith(QLatin1String("__qt__promoted_"))) {
+            promoted->setObjectName(objName);
+            promoted->child()->setObjectName(objName.mid(15));
+        } else {
+            promoted->child()->setObjectName(objName);
+            promoted->setObjectName(QLatin1String("__qt__promoted_") + objName);
+        }
+    } else {
+        o->setObjectName(objName);
+    }
+        
 }
 
 void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
@@ -272,8 +283,9 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
     }
 }
 
-QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
+QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &_name)
 {
+    QString name = _name;
     QString className = widgetName;
     if (m_isMainWidget)
         m_isMainWidget = false;
@@ -281,14 +293,15 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
     QWidget *w = m_core->widgetFactory()->createWidget(className, parentWidget);
     if (!w)
         return 0;
-
+        
     if (name.isEmpty()) {
         AbstractWidgetDataBase *db = m_core->widgetDataBase();
         if (AbstractWidgetDataBaseItem *item = db->item(db->indexOfObject(w)))
-            changeObjectName(w, qtify(item->name()));
-    } else
-        changeObjectName(w, name);
-
+            name = qtify(item->name());
+    }
+    
+    changeObjectName(w, name);
+    
     IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), parentWidget);
     if (!parentWidget || !container) {
         m_formWindow->manageWidget(w);

@@ -12,7 +12,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>161</height>
+    <height>156</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -110,6 +110,9 @@
        </property>
        <property name="editable" >
         <bool>true</bool>
+       </property>
+       <property name="insertPolicy" >
+        <enum>QComboBox::NoInsert</enum>
        </property>
       </widget>
      </item>
@@ -217,7 +220,7 @@
        <x>9</x>
        <y>83</y>
        <width>382</width>
-       <height>27</height>
+       <height>22</height>
       </rect>
      </property>
      <property name="orientation" >
@@ -239,7 +242,7 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>116</y>
+       <y>111</y>
        <width>382</width>
        <height>3</height>
       </rect>

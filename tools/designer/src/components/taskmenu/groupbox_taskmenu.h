@@ -17,16 +17,15 @@
 #include <QGroupBox>
 #include <QPointer>
 
-#include <taskmenu.h>
+#include <qdesigner_taskmenu.h>
 #include <default_extensionfactory.h>
 
 class QLineEdit;
 class AbstractFormWindow;
 
-class GroupBoxTaskMenu: public QObject, public ITaskMenu
+class GroupBoxTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
-    Q_INTERFACES(ITaskMenu)
 public:
     GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent = 0);
     virtual ~GroupBoxTaskMenu();
@@ -43,9 +42,9 @@ private slots:
 
 private:
     QGroupBox *m_groupbox;
-    QPointer<AbstractFormWindow> m_formWindow;
     QPointer<QLineEdit> m_editor;
-    mutable QList<QAction*> m_taskActions;
+
+    QAction *m_editTitleAction;
 };
 
 class GroupBoxTaskMenuFactory: public DefaultExtensionFactory
