@@ -1,5 +1,5 @@
 To install the precompiled Qt library and the binary version of moc cd to
-your qt directory (or, for example, /usr) and type:
+/usr/local and type:
 
 	tar xf .../qt-0.96-bin-linux.tar
 
