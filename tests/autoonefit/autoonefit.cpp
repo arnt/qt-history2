@@ -8,6 +8,7 @@
 #include <qradiobutton.h>
 
 class Fit : public QFrame {
+	Q_OBJECT
 public:
 	Fit( QWidget* parent=0, const char* name=0 );
 	QSize sizeHint() const;
@@ -78,6 +79,8 @@ public slots:
 
 MyScrollView::MyScrollView( QWidget* parent, const char* name, WFlags f )
 	: QScrollView( parent, name, f ) {
+	installEventFilter( this );
+
 }
 
 MyScrollView::~MyScrollView() {
@@ -119,8 +122,18 @@ void MyScrollView::resizeEvent( QResizeEvent* e ) {
 }
 
 bool MyScrollView::eventFilter( QObject* obj, QEvent* e ) {
-	if ( e->type() == QEvent::LayoutHint )
-		qDebug( "MyScrollView::eventFilter( QEvent::LayoutHint )" );
+	switch ( e->type() ) {
+	case QEvent::LayoutHint:
+		qDebug( "MyScrollView::eventFilter( \"%s\", LayoutHint )",
+			obj->className() );
+		break;
+	case QEvent::Resize:
+		qDebug( "MyScrollView::eventFilter( \"%s\", Resize )",
+			obj->className() );
+		break;
+	default:
+		break;
+	}
 	return QScrollView::eventFilter( obj, e );
 }
 

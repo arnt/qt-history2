@@ -239,26 +239,38 @@ struct QScrollViewData {
     }
     void autoResizeHint()
     {
+	bool resize = FALSE;
 	if ( policy == QScrollView::AutoOne ) {
 	    QSVChildRec* r = children.first();
 	    if (r) {
                 QSize s = r->child->sizeHint();
-	        if ( s.isValid() )
+	        if ( s.isValid() ) {
 		    r->child->resize(s);
+		    resize = TRUE;
+		}
 	    }
 	}
     }
-    void autoResizeFit()
+    void autoResizeFit(QScrollView* sv)
     {
 	if ( policy == QScrollView::AutoOneFit ) {
 	    QSVChildRec* r = children.first();
 	    if (r) {
+		bool resize = FALSE;
 		QSize s = r->child->sizeHint();
-		if ( s.height() < viewport.height() )
+		if ( s.height() < viewport.height() ) {
 		    s.setHeight( viewport.height() );
-		if ( s.width() < viewport.width() )
+		    resize = TRUE;
+		}
+		if ( s.width() < viewport.width() ) {
 		    s.setWidth( viewport.width() );
-		if ( s.isValid() )
+		    resize = TRUE;
+		}
+qDebug( "\tviewport(): %d x %d / viewportSize(): %d x %d",
+viewport.width(), viewport.height(),
+sv->viewportSize(viewport.width(),viewport.height()).width(),
+sv->viewportSize(viewport.width(),viewport.height()).height() );
+		if ( resize )
 		    r->child->resize(s);
 	    }
 	}
@@ -861,10 +873,7 @@ void QScrollView::resizeEvent( QResizeEvent* event )
     // the time when making a window smaller.
     if ( u )
 	updateScrollBars();
-    if ( d->policy == AutoOneFit ) {
-	d->autoResizeFit();
-	d->autoResize(this);
-    }
+    d->autoResizeFit(this);
     d->hideOrShowAll(this);
     setUpdatesEnabled( u );
 }
@@ -1204,22 +1213,17 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::Wheel:
 	    viewportWheelEvent( (QWheelEvent*)e );
 	    break;
-
-
 	case QEvent::ChildRemoved:
 	    removeChild((QWidget*)((QChildEvent*)e)->child());
 	    break;
 	case QEvent::LayoutHint:
-	    d->autoResizeFit();
+	    d->autoResizeFit(this);
 	    d->autoResizeHint();
 	    break;
 	default:
 	    break;
 	}
-    } else {
-	// must be a child
-	QSVChildRec* r = d->rec((QWidget*)obj);
-	if (!r) return FALSE; // spurious
+    } else if ( d->rec((QWidget*)obj) ) {  // must be a child
 	if ( e->type() == QEvent::Resize )
 	    d->autoResize(this);
 	else if ( e->type() == QEvent::Move )
