@@ -1,0 +1,396 @@
+\chapter Creating Dialogs
+
+In this chapter we will create the dialogs necessary to complete the
+\c colortool application. We will learn how to create and use both
+modal and modeless dialogs, and more about using Qt's layout classes
+in \QD to produce forms that are well proportioned and that scale
+well.
+
+\section1 Adding Colors
+
+Qt already has a static function that launches a "choose a color"
+dialog. But we need to not only choose a color, but to give it a name
+too. So we'll present the user with the choose a color dialog, and if
+they choose a color, we'll then ask them to name it. 
+
+\img qd-colortool-name.png The Color Name Dialog
+
+\section2 Making the Connection
+
+When we created the main form we made an action called
+"editAddAction". We added this action to the menubar (in the "Edit"
+menu), and to the toolbar. Now we need to connect this action to a
+slot so that we can make it add a color.
+
+Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
+Connections} dialog. Click \Button{New} to create a new connection.
+Change the Sender to "editAddAction", the signal to "activated()" and
+the reciever to "MainForm". We need to create a new slot to connect
+to. Click \Button{Edit Slots} to invoke the \Widget{Edit Functions}
+dialog. Change the slot's name to "editAdd()", then click \OK. Now
+change the slot we connect to "editAdd()", then click \OK to close the
+dialog.
+
+\section2 Creating the Dialog
+
+\section3 Adding the Widgets
+
+We can use one of Qt's static dialogs to get the user to choose a
+color, but we need our own dialog to get them to give it a name. We'll
+create that dialog now.
+
+Click \Menu{File|New} to invoke the \Widget{New File} dialog, then
+click "Dialog", then click \OK. Drag a corner of the new form to make
+it a lot smaller. Change the form's name (in the Property Editor) to
+"ColorNameForm", and change its caption to "Color Tool -- Color Name".
+Click \Menu{File|Save}, then click \OK to save it.
+
+We'll now add some widgets to the dialog. Don't worry about precise
+positioning or sizing; we'll get \QD to lay the form out perfectly for
+us shortly.
+
+We need to create a \l QLabel that will show the color the user has
+chosen. Click the TextLabel tool in the Toolbox, then click on the
+left hand side of the form. Change the label's \Property{name}
+property to "colorLabel", and delete the text in the \Property{text}
+property. Click the \Property{pixmap} property's ellipsis button and
+choose the "editraise.xpm" image. Change the \Property{scaledContents}
+property to True, and set the \Property{minimumSize} property's
+\Property{width} sub-property to 80.
+
+Click the TextLabel tool again, then click to the right of the
+colorLabel, towards the top of the form. Change the \Property{text}
+property to "\&Name". Note that the ampersand is displayed; this is
+because a \l QLabel cannot accept focus and we haven't specified a
+focus widget ("buddy") yet.
+
+Click the LineEdit tool, then click to the right of the "Name" label,
+again towards the top of the form. Change the \Property{name} property
+to "colorLineEdit".
+
+Click on the "Name" label and change its \Property{buddy} property to
+"colorLineEdit". The ampersand has now disappeared and \Key Alt+N will
+set the focus in the colorLineEdit.
+
+Click the PushButton tool, then click below the "Name" label. Change
+the button's \Property{name} property to "okPushButton", its
+\Property{text} property to "OK", and its \Property{default} property
+to True.
+
+Click the PushButton tool again, then click to the right of the OK
+button. Change this button's \Property{name} property to
+"cancelPushButton" and its \Property{text} property to "Cancel".
+
+\section3 Laying Out the Widgets
+
+Now that we've created and roughly placed the widgets we need we are
+ready to lay them out. 
+
+The process of laying out widgets is essentially two steps: 
+\list 1
+\i select two or more widgets (or layouts)
+\i apply a layout method (vertical, horizontal, grid) to the selected
+items
+\endlist
+\QD provides several different ways of selecting widgets and layouts.
+It doesn't matter which you use; some are more convenient in certain
+situations that others. We'll show several different approaches to
+selecting widgets as we lay out this form.
+
+We will lay out the "Name" label and the line edit side by side. Then
+we'll do the same for the buttons, and finally we'll lay out these two
+layouts in relation to the colorLabel.
+
+Click the form to deselect any selected widgets. Click the form above
+the "Name" label and drag the black rectangular elastic band so that
+it touches both the "Name" label and the line edit; then release. (It
+only has to be touching them when you release.) The "Name" label and
+the line edit are now selected. Click the \Button{Lay Out
+Horizontally} toolbar button. A thin red rectangle appears to indicate
+the layout (this only shows up as a visual cue in \QD, it doesn't
+appear in preview mode or in the running form).
+
+Click the form to deselect any selected widgets. In Object Explorer's
+Objects tab click the "cancelPushButton" to select it. Now \Key
+Shift+Click the OK button in the Objects tab. (The Objects tab only
+ever highlights \e one object; but the form shows that both buttons
+selected.) Click the \Button{Lay Out Horizontally} toolbar button.
+
+Click the form to deselect any selected widgets. In Objects Explorer,
+click "Layout1" (which contains the "Name" label and the line edit),
+then \Key Shift+Click "Layout2" (which contains the buttons) so that
+both layouts are selected on the form. Click the \Button{Lay Out
+Vertically} toolbar button.
+
+Now that we've got our two layouts (and the colorLabel widget), we'll
+lay them all out in relation to the form.
+
+Click the form to deselect any selected widgets. Click the \Button{Lay
+Out Horizontally} toolbar button to lay out the form. (The form gets
+laid out because no widgets or layouts are selected.)
+
+Preview the form (\Key Ctrl+T), and try resizing it. Unfortunately,
+when you make the form larger the buttons expand too much and look
+unattractive. Furthermore they don't stay at the bottom of the form as
+we would like. The problem is that when we enlarge the form there is a
+lot of unused space, and we need to tell the buttons not to make use
+of that space. This is achieved by inserting "spacers"; these have no
+visible appearance to the user, but consume excess space.
+
+We need to break the form layout so that we can insert spacers and lay
+out the form once more. Click the red rectangle of "Layout3", the
+layout that lays out the entire form. (We could just have easily have
+clicked the layout in Object Explorer.) Click the \Button{Break
+Layout} toolbar button. 
+
+We could add a spacer to the left of the buttons and lay that out with
+the buttons. But to save creating an extra layout, instead we'll break
+the layout that contains the buttons and lay them out in a single
+layout with the spacer. Click one of the buttons, then click
+\Button{Break Layout} (or press \Key Ctrl+B). Roughly resize the OK
+button so that it is about half as wide, leaving a gap on its left.
+Click the Spacer tool (in the Toolbox or on the toolbar), then click
+the form to the left of the OK button and drag horizontally. A
+horizontal Spacer (indicated by a blue "spring") is now left of the OK
+button.
+
+Since the Spacer is already selected, we'll simply extend the
+selection to include the buttons. \Key Shift+Click the OK and cancel
+buttons in turn so that both buttons and the Spacer are selected. Now
+click \Button{Lay Out Horizontally} (or press \Key Ctrl+H). The Spacer
+may seem to have disappeared, but it is there, ready to take up excess
+space.
+
+Now we'll put a Spacer between the layout containing the line edit and
+the layout we've just created (containing the buttons) to consume any
+excess space between them. Click the Spacer tool, then click the form
+in-between the line edit and the buttons and drag vertically. The
+Spacer is already selected but we need to extend
+the selection to include both the layouts. \Key Shift+Click the
+layouts in Object Explorer's Objects tab. Now click \Button{Lay Out
+Vertically} (or pres \Key Ctrl+L).
+
+Now we'll lay out the form itself. Click the form to deselect any
+selected widgets or layouts. Then click \Button{Lay Out Horizontally}.
+
+So far the form doesn't look very different from before. Try
+previewing it (\Key Ctrl+T) and resizing it. No matter how large or
+small you make it, the form always remains nicely proportioned. 
+
+This is the beauty of using layouts rather than fixed sizes. It is
+especially useful if your program is translated into different
+languages since the labels will automatically and proportionally
+resize without any coding whatsoever. And your users will be able to
+use your forms on a wide variety of screen sizes from giant desktop
+screens to small laptop screens. (And, you can, of course, use fixed
+sizes and positions if you wish.)
+
+Resize the form in \QD. Notice that the form has a minimum size; this
+is because all the widgets it contains have minimum sizes. (You can
+override this if you wish.) The size you make the form in \QD will
+become the form's default size.
+
+When previewing the form, try pressing \Key Tab to move between
+widgets that can accept focus. In all probability the tab order is
+correct. If it isn't, we can easily change it, but we'll defer
+coverage of this for when we look at \l{the options dialog}.
+
+\section3 Connecting the Widgets
+
+We need to handle two buttons; the OK button and the cancel button. If
+the user clicks \OK, we will only accept their color name if it isn't
+empty, and if it isn't already in use. (The \File{rgb.txt} format
+allows duplicate colors, but we will choose not to allow them to be
+added.) If the user clicks \Cancel we'll just close the dialog.
+
+Click \Key Ctrl+T to preview the form. Click the \Cancel button;
+notice that it does nothing.
+
+We'll connect the cancel button first because it is the easiest. Click
+\Menu{Edit|Connections} to invoke the \Widget{View and Edit
+Connections} dialogs. Click \Button{New} to create a new connection.
+Set the Sender to "cancelPushButton", the Signal to "clicked()", the
+receiver to "ColorNameForm", and the slot to "reject()". Because this
+functionality is achieved purely through signal and slot connections
+using a predefined signal and a predefined slot, it will work in
+preview mode. Click \OK to close the dialog, then click \Key Ctrl+T to
+preview. Clicking the \Cancel button will now close the form, even in
+preview mode.
+
+Now we'll connect the OK button. Click \Menu{Edit|Connections} to
+invoke the \Widget{View and Edit Connections} dialogs. Click
+\Button{New} to create a new connection. Set the Sender to
+"okPushButton", the Signal to "clicked()" and the receiver to
+"ColorNameForm". We want to invoke our own custom slot so that we can
+validate what the user has entered. Click \Button{Edit Slots} to
+invoke the \Widget{Edit Functions} dialog. Change the function's name
+to "validate()", then click \OK. Now change the receiver's slot to
+our newly created "validate()" slot. Click \OK to close the dialog.
+
+\section3 Coding the Dialog
+
+We must code our custom "validate()" slot. This slot will check to see
+if the color name entered already exists, so we must also provide a
+function through which a form-global list of color names can be set.
+
+Click "colornameform.ui.h" in the Project Overview window to invoke
+the code editor. The editor shows a single empty slot,
+\Func{validate()}.
+
+We need to add some include files and also a form-global variable to
+hold the color names. We could add this information in the same way as
+we did for the main form, by right-clicking the appropriate sections
+in Objects Explorer's Members list and adding them. Instead we'll take
+an alternative approach; we'll add what we need directly in the form.
+Which approach you take is mostly a matter of personal preference; and
+you can use both approaches if you wish.
+
+\sidebar Adding Members vs Coding in .ui.h
+
+For includes there is no difference between adding an include to
+Object Explorer's Members "Includes (in Implementation)" and typing
+the include directly in the \File{.ui.h} file.
+
+The situation is different for variables. If you add these to Members,
+Class Variables, they will be included as private variables in the
+class definition. If you type them at the top of the \File{.ui.h} file
+they will be form-global variables.
+\endsidebar
+
+We'll start by adding some includes.
+
+\quotefile colortool/colornameform.ui.h
+\skipto qcolor
+\printuntil qstring
+
+Enter these above the \Func{validate()} function.
+
+We also need a variable to hold the list of colors.
+
+\skipto QMap
+\printline
+
+Add this line; we'll store the colors in a local \c{m_colors} map.
+
+We also need a function that the caller can call to populate the
+\c{m_colors} map with the current colors.
+
+\skipto ColorNameForm::setColors
+\printuntil }
+
+Now that we've got a means of obtaining the list of color names we are
+ready to write the \Func{validate()} function.
+
+\skipto ColorNameForm::validate
+\printuntil }
+
+The function examines the text that the user has entered. If they've
+entered something and it doesn't exist in the list of colors we call
+\Func{accept()}; this closes the form and returns a true value to the
+caller. (\Func{reject()}, which is called if the user clicks \Cancel,
+returns a false value.) If the color already exists we simply select
+it; an alternative would be to pop up a message box.
+
+The dialog is now complete. The next stage is to make use of it from
+the main form by coding the \Func{editAdd()} slot.
+
+\section2 Using the Dialog
+
+The ColorNameForm dialog will be called from the main form. The caller
+will firstly call one of Qt's static "choose a color" dialogs, and if
+the user chooses a color, will then invoke our custom dialog. Since
+we're going to use a "choose a color" dialog we will need the
+appropriate header file. We'll also be accessing the dialog's
+colorLabel (to set it to the chosen color), and the dialog's line edit
+(to retrieve the color name), so we'll need appropriate headers for
+these too.
+
+Click "MainForm" in the Project Overview window so that Object
+Explorer shows the main form's objects.
+
+Click Object Explorer's Members tab. Right click "Includes (in
+Implementation)", then click \Menu{Edit} to invoke the \Widget{Edit
+Includes (in Implementation)} dialog. Click \Button{Add} then enter
+"qcolordialog.h". Click \Button{Add} again, and enter "qlabel.h".
+Similarly add "qlineedit.h". We also need to include the header for
+the form we've just created, so add "colornameform.h", and since it is
+our last entry press \Key Enter, then click \Button{Close} Click
+\Button{Add} then enter "qcolordialog.h". Click \Button{Add} again,
+and enter "qlabel.h". Similarly add "qlineedit.h". We also need to
+include the header for the form we've just created, so add
+"colornameform.h", and since it is our last entry press \Key Enter,
+then click \Button{Close}.
+
+Now we're ready to enter the \Func{editAdd()} slot's code. Click
+"mainform.ui.h" in the Project Overview to invoke the code editor.
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::editAdd
+\printuntil colorSwatch
+\printuntil }
+\printuntil }
+\printuntil }
+
+The code for this function is quite long, but it isn't difficult. We
+start by setting a default color to white. If there are any colors in
+the \c{m_colors} map we set the default color to be the current color
+showing in the current view. We then invoke Qt's static
+\link QColorDialog::getColor() getColor()\endlink dialog, passing it
+the default color. (If the user cancels an invalid color is returned.) 
+
+If the user chose a color we want to show their chosen color in our
+custom dialog, so we create a pixmap and fill it with their chosen
+color. We create an instance of our ColorNameForm as a modal dialog
+(third argument is TRUE). We then call its \Func{setColors()} function
+to set the colors in the \c{m_colors} map (so that the
+\Func{validate()} function will work correctly). We set its
+colorLabel's pixmap to the pixmap we've just created, i.e. to a
+rectangle in the user's chosen color.
+
+We execute (\Func{exec()}) the dialog. If the user clicks OK (and the
+color name they've entered is valid), the call will return a true
+value. In this case we retrieve the name they've entered from the line
+edit and create a new entry in the \c{m_colors} map using the name the
+user has given and the color they chose.
+
+At this point we could simply mark the views "dirty" and call
+repopulate. Instead we'll add the new color to each view directly and
+save the overhead of a full update (which might be considerable if we
+have thousands of colors). 
+
+We create a pixmap and fill it with the new color. We then insert a
+new row in the table and set the columns to the new color's values, in
+the same way as we've already seen in the \Func{populate()} function.
+Similarly we create a new icon for the icon view. Finally we mark the
+data as changed so that the user will be prompted to save if they
+attempt to exit or load another color file before they've saved this
+one.
+
+Try building and running the application. You should now be able to
+add your own colors.
+
+The application is essentially complete. We can load and save color
+files, we can show them in the table or icon view and users can add
+and delete colors. But if the user has a color file with hundreds or
+thousands of colors, scrolling to look for a particular color would be
+tedious. Also whenever the user runs the application it starts up with
+the default window size, view and other settings; it would be much
+nicer if we remembered how the user left the application and
+reinstated their choices. In the following two sections we'll address
+both these issues through the creation of a modeless find dialog and a
+modal options dialog.
+
+\section1 Finding Colors
+
+
+
+\section1 User Options
+
+--------
+
+[Tab Order Sidebar]
+
+[[DON'T FORGET TO TELL 'EM TO UNCOMMENT findForm and loadSettings in init() WHEN THEY ARE READY]]
+
+[[MAKE SURE I'VE COVERED EVERY FUNCTION]]
+

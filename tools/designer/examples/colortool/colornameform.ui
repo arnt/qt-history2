@@ -41,7 +41,7 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>Layout5</cstring>
+                <cstring>Layout4</cstring>
             </property>
             <vbox>
                 <property name="name">
@@ -73,6 +73,23 @@
                         </widget>
                     </hbox>
                 </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>Spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                </spacer>
                 <widget class="QLayoutWidget">
                     <property name="name">
                         <cstring>Layout4</cstring>

@@ -422,11 +422,15 @@ void MainForm::changedColor( const QString& name )
     int r = color.red();
     int g = color.green();
     int b = color.blue();
-    statusBar()->message( QString( "%1 \"%2\" (%3,%4,%5)%6" ).
+    statusBar()->message( QString( "%1 \"%2\" (%3,%4,%5)%6 {%7 %8 %9}" ).
 			  arg( name ).
 			  arg( color.name().upper() ).
 			  arg( r ).arg( g ).arg( b ).
-			  arg( isWebColor( r, g, b ) ? " web" : "" ) );
+			  arg( isWebColor( r, g, b ) ? " web" : "" ).
+			  arg( r / 255.0, 1, 'f', 3 ).
+			  arg( g / 255.0, 1, 'f', 3 ).
+			  arg( b / 255.0, 1, 'f', 3 )
+			  );
 }
 
 
@@ -488,8 +492,6 @@ void MainForm::editAdd()
 	    (void) new QIconViewItem( colorIconView, name,
 				      colorSwatch( color ) );
 	    m_changed = TRUE;
-	    m_table_dirty = TRUE;
-	    m_icons_dirty = TRUE;
 	}
     }
 }

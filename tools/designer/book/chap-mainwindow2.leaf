@@ -43,6 +43,8 @@ view and the size and position of the main window with these options,
 so that the application will always start with the size, position and
 view it had when the user last used it.
 
+\img qd-colortool2.png The Color Tool application
+
 \section1 Starting and Exiting \QD
 
 \index Starting Qt Designer
@@ -287,7 +289,8 @@ menus will be available and you'll be able to drag the toolbar
 either into an independent window of its own, or to dock it to
 the left, right, bottom or top of the window. The menus and
 toolbars are not yet functional, but we will rectify this as we
-progress.
+progress. You leave preview mode by clicking the form's Close box (or
+the platform-specific equivalent). 
 
 \img qd-chapmainwin-mainwinwiz3.png
 \caption Previewing the Form
@@ -797,7 +800,9 @@ then click \Menu{Add Page} on the context menu. The table has
 first widget stack page which contains the table. Click IconView in the
 Toolbox, then click roughly in the middle of the widget stack. Change
 the IconView's \Property{name} property to "colorIconView" and change
-its \Property{resizeMode} property to "Adjust".
+its \Property{resizeMode} property to "Adjust". We want our color
+swatches to appear in neat columns so change the \Property{gridX}
+property to "100".
 
 It is often useful to create IconView items during design, but it
 isn't appropriate for our application. Right click the IconView to
@@ -987,9 +992,10 @@ instantly.
 
 If you cut and paste code from this manual, because we've indented the
 code for readability, the code will be over-indented in \QD. This is
-easily solved. Simply select the pasted code (either with the mouse,
-or \Key{Shift+Arrow}s) and press \Key{Tab}: this will make \QD fix
-the indentation.
+easily solved. Simply select the function containing the pasted code
+(either with the mouse, or \Key{Shift+Arrow}s) and press \Key{Tab}:
+this will make \QD fix the indentation. Note that you must select the
+\e entire function, including its name an parameters.
 
 Remember that if you copy and paste just the body of functions into
 the skeletons \QD provides, you must manually enter the names of the
@@ -1273,6 +1279,10 @@ Object Explorer's Members tab and add a "qstatusbar.h" to the
 Implementation)", click \Menu{New}, enter "qstatusbar.h" then press
 \Key Enter.)
 
+Try saving (press \Key Ctrl+S), making and running the application.
+Move to different colors and see the status bar indicating the color
+you are on.
+
 \section2 Changing Views
 
 Frustratingly, we have not yet been able to see the icon view in
@@ -1289,10 +1299,6 @@ just need to write in the code.
 
 (If you're cutting and pasting the code don't forget to name the \l
 QAction parameter "action".)
-
-Try saving (press \Key Ctrl+S), making and running the application.
-Move to different colors and see the status bar indicating the color
-you are on.
 
 \section2 Editing the Code: File Handling
 
@@ -1516,15 +1522,10 @@ changed.
 \skipto MainForm::editCopy
 \printuntil statusBar
 \printuntil }
+\printuntil }
 
 In this function we retrieve the name of the color from the current
 table row (or current icon, depending on the view). We then set a \l
 QString to the text we want to copy into the clipboard and copy it.
-
-
---------
-
-[[DON'T FORGET TO TELL 'EM TO UNCOMMENT findForm and loadSettings in init() WHEN THEY ARE READY]]
-[[MAKE SURE I'VE COVERED EVERY FUNCTION]]
 
 

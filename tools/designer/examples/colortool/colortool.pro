@@ -22,8 +22,9 @@ IMAGES	= images/filenew \
 	images/table.png \
 	images/iconview.png \
 	images/richtextedit.png \
-	images/widgetstack.png
+	images/widgetstack.png \
+	images/editraise.png
 TEMPLATE	=app
-CONFIG	+= qt warn_on release
+CONFIG	+= qt warn_on release thread
 DBFILE	= colortool.db
 LANGUAGE	= C++
