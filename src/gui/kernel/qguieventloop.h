@@ -27,6 +27,8 @@ public:
     bool hasPendingEvents() const;
     int  activateTimers();
     void wakeUp();
+#elif defined(Q_WS_WIN)
+    void winProcessEvent(void *message);
 #endif
 
     void flush();

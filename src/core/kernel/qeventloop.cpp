@@ -321,11 +321,10 @@ int QEventLoop::loopLevel() const
 */
 void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 {
-    QTime start = QTime::currentTime();
-    QTime now;
-    while (! d->quitnow && processEvents(flags & ~WaitForMore)) {
-        now = QTime::currentTime();
-        if (start.msecsTo(now) > maxTime)
+    QTime start;
+    start.start();
+    while (!d->quitnow && processEvents(flags & ~WaitForMore)) {
+        if (start.elapsed() > maxTime)
             break;
     }
 }

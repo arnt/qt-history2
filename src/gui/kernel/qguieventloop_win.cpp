@@ -23,12 +23,6 @@
 #define q q_func()
 
 extern bool qt_winEventFilter(MSG* msg, long &res);
-Q_CORE_EXPORT bool activateTimer(uint id);                // activate timer
-Q_CORE_EXPORT void activateZeroTimers();
-Q_CORE_EXPORT bool winPeekMessage(MSG*, HWND, UINT, UINT, UINT);
-Q_CORE_EXPORT bool winGetMessage(MSG*, HWND, UINT, UINT);
-
-Q_CORE_EXPORT int numZeroTimers;
 
 void QGuiEventLoop::init()
 {
@@ -97,74 +91,8 @@ Q_GUI_EXPORT void qWinProcessConfigRequests()                // perform requests
 
 bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 {
-    MSG         msg;
-
-    emit awake();
-
-    QCoreApplication::sendPostedEvents();
-
-    if (flags & ExcludeUserInput) {
-        while (winPeekMessage(&msg,0,0,0,PM_NOREMOVE)) {
-            if ((msg.message >= WM_KEYFIRST &&
-                 msg.message <= WM_KEYLAST) ||
-                 (msg.message >= WM_MOUSEFIRST &&
-                 msg.message <= WM_MOUSELAST)) {
-                winPeekMessage(&msg,0,0,0,PM_REMOVE);
-                continue;
-            }
-            break;
-        }
-    }
-
-    bool canWait = d->exitloop || d->quitnow ? false : (flags & WaitForMore);
-
-    if (canWait) {                                // can wait if necessary
-        if (numZeroTimers) {                        // activate full-speed timers
-            int ok = false;
-            while (numZeroTimers &&
-                !(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE))) {
-                activateZeroTimers();
-            }
-            if (!ok)        {                        // no event
-                return false;
-            }
-        } else {
-            emit aboutToBlock();
-            if (!winGetMessage(&msg,0,0,0)) {
-                exit(0);                                // WM_QUIT received
-                return false;
-            }
-        }
-    } else {                                        // no-wait mode
-        if (!winPeekMessage(&msg,0,0,0,PM_REMOVE)) { // no pending events
-            if (numZeroTimers > 0) {                // there are 0-timers
-                activateZeroTimers();
-            }
-            return false;
-        }
-    }
-
-    bool handled = false;
-    if (msg.message == WM_TIMER) {                // timer message received
-        if (qt_dispatch_timer(msg.wParam, &msg))
-            return true;
-    } else if (msg.message && (!msg.hwnd || !QWidget::find(msg.hwnd))) {
-        long res;
-        handled = qt_winEventFilter(&msg, res);
-    }
-
-    if (!handled) {
-        QInputContext::TranslateMessage(&msg);                        // translate to WM_CHAR
-
-        QT_WA({
-            DispatchMessage(&msg);                // send to QtWndProc
-        } , {
-            DispatchMessageA(&msg);                // send to QtWndProc
-        });
-    }
-
-    if (!(flags & ExcludeSocketNotifiers))
-        activateSocketNotifiers();
+    if (!QEventLoop::processEvents(flags))
+        return false;
 
     if (configRequests)                        // any pending configs?
         qWinProcessConfigRequests();
@@ -173,9 +101,32 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     return true;
 }
 
+void QGuiEventLoop::winProcessEvent(void *message)
+{
+    MSG *msg = (MSG*)message;
+
+    bool handled = false;
+    if (msg->message == WM_TIMER) {
+        if (qt_dispatch_timer(msg->wParam, msg))
+            return;
+    } else if (msg->message && (!msg->hwnd || !QWidget::find(msg->hwnd))) {
+        // broadcast, or message for a non-Qt widget
+	long res = 0;
+	handled = qt_winEventFilter(msg, res);
+    }
+
+    if (!handled) {
+	QInputContext::TranslateMessage(msg); // translate to WM_CHAR
+
+        QT_WA({
+            DispatchMessage(msg);
+        } , {
+            DispatchMessageA(msg);
+        });
+    }
+}
+
 void QGuiEventLoop::flush()
 {
 
 }
-
-

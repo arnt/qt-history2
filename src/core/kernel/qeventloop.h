@@ -46,7 +46,6 @@ public:
 
     void processEvents(ProcessEventsFlags flags, int maxtime);
     virtual bool processEvents(ProcessEventsFlags flags);
-
     virtual bool hasPendingEvents() const;
 
     virtual void registerSocketNotifier(QSocketNotifier *);
@@ -70,6 +69,10 @@ public:
 
     virtual void wakeUp();
     virtual void flush();
+
+#ifdef Q_WS_WIN
+    virtual void winProcessEvent(void *message);
+#endif
 
 signals:
     void awake();

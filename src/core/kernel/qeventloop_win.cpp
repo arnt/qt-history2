@@ -441,6 +441,22 @@ bool QEventLoop::hasPendingEvents() const
     return qGlobalPostedEventsCount() || winPeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
 }
 
+void QEventLoop::winProcessEvent(void *message)
+{
+    MSG *msg = (MSG*)message;
+
+    if (msg->message == WM_TIMER) {
+        if (qt_dispatch_timer(msg->wParam, msg))
+            return;
+    }
+
+    QT_WA({
+        DispatchMessage(msg);
+    } , {
+        DispatchMessageA(msg);
+    });
+}
+
 bool QEventLoop::processEvents(ProcessEventsFlags flags)
 {
     MSG         msg;
@@ -449,61 +465,48 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
     QCoreApplication::sendPostedEvents();
 
-    if (flags & ExcludeUserInput) {
-        while (winPeekMessage(&msg,0,0,0,PM_NOREMOVE)) {
-            if ((msg.message >= WM_KEYFIRST &&
-                 msg.message <= WM_KEYLAST) ||
-                 (msg.message >= WM_MOUSEFIRST &&
-                 msg.message <= WM_MOUSELAST) ||
-                 msg.message == WM_MOUSEWHEEL) {
-                winPeekMessage(&msg,0,0,0,PM_REMOVE);
-                continue;
-            }
-            break;
-        }
-    }
-
     bool canWait = d->exitloop || d->quitnow ? false : (flags & WaitForMore);
 
-    if (canWait) {                                // can wait if necessary
-        if (numZeroTimers) {                        // activate full-speed timers
-            int ok = false;
-            while (numZeroTimers &&
-                !(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE))) {
-                activateZeroTimers();
-            }
-            if (!ok)        {                        // no event
-                return false;
-            }
-        } else {
-            if (!winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))
-                emit aboutToBlock();
-            if (!winGetMessage(&msg,0,0,0)) {
-                exit(0);                                // WM_QUIT received
-                return false;
-            }
+    if (flags & ExcludeUserInput) {
+        // purge all userinput messages from eventloop
+        while (winPeekMessage(&msg, 0, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
+            ;
+        while (winPeekMessage(&msg, 0, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
+            ;
+        while (winPeekMessage(&msg, 0, WM_MOUSEWHEEL, WM_MOUSEWHEEL, PM_REMOVE))
+            ;
+        // ### tablet?
+
+        // now that we have eaten all userinput we shouldn't wait for the next one...
+        canWait = false;
+    }
+
+    // activate all full-speed timers until there is a message (timers have low priority)
+    int message = 0;
+    if (numZeroTimers) {
+        while (numZeroTimers && !(message=winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))) {
+            activateZeroTimers();
         }
-    } else {                                        // no-wait mode
-        if (!winPeekMessage(&msg,0,0,0,PM_REMOVE)) { // no pending events
-            if (numZeroTimers > 0) {                // there are 0-timers
-                activateZeroTimers();
-            }
+    }
+
+    message = winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE);
+    if (!message && !canWait) // still no message, and shouldn't block
+        return false;
+
+    // process all messages, unless userinput is blocked, then we process only one
+    do {
+        message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
+        winProcessEvent(&msg);
+    } while (message && !(flags & ExcludeUserInput));
+
+    // wait for next message if allowed to block
+    if (canWait) {
+        emit aboutToBlock();
+        if (!winGetMessage(&msg, 0, 0, 0)) {
+            exit(0);
             return false;
         }
-    }
-
-    bool handled = false;
-    if (msg.message == WM_TIMER) {                // timer message received
-        if (qt_dispatch_timer(msg.wParam, &msg))
-            return true;
-    }
-
-    if (!handled) {
-        QT_WA({
-            DispatchMessage(&msg);                // send to QtWndProc
-        } , {
-            DispatchMessageA(&msg);                // send to QtWndProc
-        });
+        winProcessEvent(&msg);
     }
 
     if (!(flags & ExcludeSocketNotifiers))
