@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#31 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#32 $
 **
 ** Implementation of QWizard class.
 **
@@ -457,20 +457,24 @@ QString QWizard::title( QWidget * page ) const
 }
 
 
-/*
+/*!
+  Returns the Back button of the dialog.
 
+  By default, this button is connected to the back()
+  slot, which is virtual.
 */
-
 QPushButton * QWizard::backButton() const
 {
     return d->backButton;
 }
 
 
-/*
+/*!
+  Returns the Next button of the dialog.
 
+  By default, this button is connected to the next()
+  slot, which is virtual.
 */
-
 QPushButton * QWizard::nextButton() const
 {
     return d->nextButton;
@@ -501,10 +505,11 @@ QPushButton * QWizard::cancelButton() const
 }
 
 
-/*
+/*!
+  Returns the Help button of the dialog.
 
+  By default, this button is connected to the help() slot.
 */
-
 QPushButton * QWizard::helpButton() const
 {
     return d->helpButton;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#448 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#449 $
 **
 ** Implementation of QWidget class
 **
@@ -1888,7 +1888,7 @@ void QWidget::paletteChange( const QPalette & )
 
 
 /*!
-  \fn const QFont &QWidget::font() const
+  \fn QFont QWidget::font() const
 
   Returns the font currently set for the widget.
 

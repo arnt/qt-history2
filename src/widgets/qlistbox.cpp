@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#285 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#286 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1005,6 +1005,13 @@ int QListBox::currentItem() const
 
     return index( d->current );
 }
+
+/*!
+  \fn QString QListBox::currentText() const
+
+  Equivalent to <tt>text(currentItem())</tt>, this function returns
+  the text of the current item.
+*/
 
 /*!
   Sets the highlighted item to the item at position \a index in the list.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#96 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -512,6 +512,12 @@ public:
     }
 };
 
+/*!
+  Sets the MIME subtype of the text begin dragged. The default subtype
+  is "plain", this the default MIME type of the text is "text/plain".
+  You might use this to declare that the text is "text/html" by
+  calling setSubtype("html").
+*/
 void QTextDrag::setSubtype( const QCString & st)
 {
     d->setSubType(st);

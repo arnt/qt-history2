@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#255 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#256 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9600,6 +9600,28 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
    </dl>
 */
 
+/*!
+  \fn bool QChar::isNull() const
+  Returns TRUE if the charaters is the unicode character 0x0000,
+  ie. ASCII NUL.
+*/
+
+/*!
+  \fn uchar QChar::cell () const
+  Returns the cell (least significant byte) of the Unicode character.
+*/
+/*!
+  \fn uchar QChar::row () const
+  Returns the row (most significant byte) of the Unicode character.
+*/
+/*!
+  \fn uchar& QChar::cell () 
+  Returns a reference to the cell (least significant byte) of the Unicode character.
+*/
+/*!
+  \fn uchar& QChar::row () 
+  Returns a reference to the row (most significant byte) of the Unicode character.
+*/
 
 /*!
   Returns whether the character is a printable character.  This is
@@ -10573,6 +10595,16 @@ void QStringData::deleteSelf()
 {
     delete this;
 }
+
+/*!
+  \fn QString& QString::operator=( QChar c )
+  Sets the string to contain just the single character \a c.
+*/
+
+/*!
+  \fn QString& QString::operator=( char c )
+  Sets the string to contain just the single character \a c.
+*/
 
 /*!
   Assigns a shallow copy of \a s to this string and returns a
@@ -12622,6 +12654,20 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
   Note: If this QString is not const or const&, the non-const at()
   will be used instead, which will expand the string if \a i is beyond
   the length of the string.
+*/
+
+/*!
+  \fn QChar QString::constref(uint i) const
+  Equivalent to at(i), this returns the QChar at \a i by value.
+
+  \sa ref()
+*/
+
+/*!
+  \fn QChar& QString::ref(uint i)
+  Returns the QChar at \a i by reference.
+
+  \sa constref()
 */
 
 /*!

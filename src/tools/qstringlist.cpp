@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#12 $
 **
 ** Implementation of QStringList
 **
@@ -74,6 +74,17 @@
   is the same as a deep copy. If this list or the original one or some
   other list referencing the same shared data is modified, then the
   modifying list makes a copy first.
+*/
+
+/*!
+  \fn QStringList::QStringList (const QString & i)
+  Constructs a string list consisting of the single string \a i.
+  To make longers lists easily, use:
+  \code
+    QString s1,s2,s3;
+    ...
+    QStringList mylist = QStringList() << s1 << s2 << s3;
+  \endcode
 */
 
 /*!
