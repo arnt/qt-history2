@@ -348,6 +348,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
                              QRect *textRect, bool hint) const
 {
     if (pixmapRect && textRect) {
+        static const int spacing = 2;
         int x = option.rect.left();
         int y = option.rect.top();
         int b = border * 2;
@@ -365,23 +366,23 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
         switch (option.decorationPosition) {
         case QStyleOptionViewItem::Top: {
             decoration.setRect(x, y, w, pixmapRect->height());
-            h = hint ? textRect->height() : h - pixmapRect->height();
-            textRect->setRect(x, y + pixmapRect->height(), w, h);
+            h = hint ? textRect->height() : h - pixmapRect->height() - spacing;
+            textRect->setRect(x, y + pixmapRect->height() + spacing, w, h);
             break;}
         case QStyleOptionViewItem::Bottom: {
             textRect->setRect(x, y, w, textRect->height());
-            h = hint ? pixmapRect->height() : h - textRect->height();
-            decoration.setRect(x, y + textRect->height(), w, h);
+            h = hint ? pixmapRect->height() : h - textRect->height() - spacing;
+            decoration.setRect(x, y + textRect->height() + spacing, w, h);
             break;}
         case QStyleOptionViewItem::Left: {
             decoration.setRect(x, y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : w - pixmapRect->width();
-            textRect->setRect(x + pixmapRect->width(), y, w, h);
+            w = hint ? textRect->width() : w - pixmapRect->width() - spacing;
+            textRect->setRect(x + pixmapRect->width() + spacing, y, w, h);
             break;}
         case QStyleOptionViewItem::Right: {
             textRect->setRect(x, y, textRect->width(), h);
-            w = hint ? pixmapRect->width() : w - textRect->width();
-            decoration.setRect(x + textRect->width(), y, w, h);
+            w = hint ? pixmapRect->width() : w - textRect->width() - spacing;
+            decoration.setRect(x + textRect->width() + spacing, y, w, h);
             break;}
         default:
             qWarning("doLayout: decoration positon is invalid");
