@@ -666,9 +666,10 @@ void QIconSet::detach()
 QIconSet& QIconSet::operator=(const QIconSet &other)
 {
     QIconSetData *x = other.d;
-    ++x->ref;
+    if (x)
+	++x->ref;
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (x && !--x->ref)
 	delete x;
     return *this;
 }
