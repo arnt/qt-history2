@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#123 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#122 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#123 $");
 
 
 struct QLineEditPrivate {
@@ -1388,7 +1388,7 @@ void QLineEdit::repaintArea( int from, int to )
     x2 = x1 + (b > a ? fontMetrics().width( tbuf.mid( a, b-a ) ) : 0);
 
     x1 += margin - 3;
-    x2 += margin + 2;
+    x2 += margin + 2 + 3;
     if ( x2 > width() - margin + 2 )
 	x2 = width() - margin + 2;
     repaint( x1, margin, x2-x1, height() - 2*margin, FALSE );
