@@ -311,7 +311,7 @@ void MainWindow::print()
 	    p.translate( 0 , -body.height() );
 	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
 			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
-	    if ( view.top()  >= richText.height() )
+	    if ( view.top() >= richText.height() )
 		break;
 	    printer.newPage();
 	    page++;

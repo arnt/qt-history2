@@ -1353,7 +1353,20 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p, QWidget* w  )
 	globalPrintDialog->setPrinter( p, TRUE );
     }
     globalPrintDialog->adjustPosition( w );
-    bool r = globalPrintDialog->exec() == QDialog::Accepted;
+ #ifndef QT_NO_WIDGET_TOPEXTRA
+    if ( w ) {
+	const QPixmap *pm = w->icon();
+	if ( pm && !pm->isNull() )
+	    globalPrintDialog->setIcon( *pm );
+	else {
+	    w = w ? w->topLevelWidget() : 0;
+	    pm = w ? w->icon() : 0;
+	    if ( pm && !pm->isNull() )
+		globalPrintDialog->setIcon( *pm );
+	}
+    }
+#endif
+   bool r = globalPrintDialog->exec() == QDialog::Accepted;
     globalPrintDialog->setPrinter( 0 );
     return r;
 }
