@@ -1838,8 +1838,10 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
-    if ( cg != lv->colorGroup() )
-	p->fillRect( 0, 0, width, height(), cg.brush( QPalette::backgroundRoleFromMode( lv->viewport()->backgroundMode() ) ) );
+    const BackgroundMode bgmode = lv->viewport()->backgroundMode();
+    const QColorGroup::ColorRole crole = QPalette::backgroundRoleFromMode( bgmode );
+    if ( cg.brush( crole ) != lv->colorGroup().brush( crole ) )
+	p->fillRect( 0, 0, width, height(), cg.brush( crole ) );
     else
 	lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
 
@@ -2708,7 +2710,9 @@ void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
     if ( isEnabled() )
 	how |= QStyle::Style_Enabled;
 
-    style().drawComplexControl( QStyle::CC_ListView, p, this, rect, colorGroup(), how, QStyle::SC_ListView );
+    style().drawComplexControl( QStyle::CC_ListView, 
+				p, this, rect, colorGroup(), 
+				how, QStyle::SC_ListView, QStyle::SC_None );
 }
 
 
@@ -5618,8 +5622,10 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( !lv )
 	return;
 
-    if ( cg != lv->colorGroup() )
-	p->fillRect( 0, 0, width, height(), cg.brush( QPalette::backgroundRoleFromMode( lv->viewport()->backgroundMode() ) ) );
+    const BackgroundMode bgmode = lv->viewport()->backgroundMode();
+    const QColorGroup::ColorRole crole = QPalette::backgroundRoleFromMode( bgmode );
+    if ( cg.brush( crole ) != lv->colorGroup().brush( crole ) )
+	p->fillRect( 0, 0, width, height(), cg.brush( crole ) );
     else
 	lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
 
