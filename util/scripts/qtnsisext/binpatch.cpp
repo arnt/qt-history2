@@ -7,7 +7,7 @@ BinPatch::BinPatch()
 {
 }
 
-char *BinPatch::find_pattern(char *h, const char *n, ulong hlen)
+char *BinPatch::findPattern(char *h, const char *n, ulong hlen)
 {
     if (!h || !n || hlen == 0)
 	return 0;
@@ -119,7 +119,7 @@ bool BinPatch::patchFile(const char *fileName, const char *qtPath)
         for (uint x = 0; x < total_steps; ++x) {
             if (steps[x].done) continue;
 
-            char *s = find_pattern(data, steps[x].key, len);
+            char *s = BinPatch::findPattern(data, steps[x].key, len);
             if (s) {
                 ulong where = s - data;
                 if (len - where < 256) {
@@ -213,7 +213,7 @@ void BinPatch::checkLibData(const char *fileName)
         for (uint x = 0; x < total_steps; ++x) {
             if (steps[x].done) continue;
 
-            char *s = find_pattern(data, steps[x].key, len);
+            char *s = BinPatch::findPattern(data, steps[x].key, len);
             if (s) {
                 ulong where = s - data;
                 if (len - where < 256) {

@@ -11,8 +11,7 @@ public:
     void checkLibData(const char *fileName);
     bool patchFile(const char *fileName, const char *qtPath);
 
-private:
-    char *find_pattern(char *h, const char *n, ulong hlen);
+    static char *findPattern(char *h, const char *n, ulong hlen);
 };
 
 #endif
