@@ -1160,9 +1160,9 @@ static QString qTrim( const QString& s )
 {
     QString result = s;
     int end = result.length() - 1;
-    while ( end && result[end].isSpace() ) // skip white space from end
+    while ( end >= 0 && result[end].isSpace() ) // skip white space from end
 	end--;
-    result.truncate( end );
+    result.truncate( end + 1 );
     return result;
 }
 
