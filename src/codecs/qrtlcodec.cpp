@@ -341,7 +341,6 @@ static QChar::Direction findBasicDirection(QString str)
 
   \brief The QHebrewCodec class provides conversion to and from visually ordered Hebrew.
 
-  \internal
   Hebrew as a semitic language is written from right to left. As older computer systems
   couldn't handle reordering a string so that the first letter appears on the right, many older documents
   were encoded in visual order, so that the first letter of a line is the rightmost one in the string.

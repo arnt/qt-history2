@@ -44,7 +44,6 @@
 
   \brief The QJisCodec class provides conversion to and from JIS character sets.
 
-  \internal
   More precisely, the QJisCodec class subclasses QTextCodec to
   provide support for JIS X 0201 Latin, JIS X 0201 Kana, JIS X 0208
   and JIS X 0212.
@@ -383,7 +382,7 @@ int QJisCodec::heuristicNameMatch(const char* hint) const
 {
     if ( qstrnicmp( hint, "ISO-2022-JP", 11 ) == 0 )
 	return 10000;
-    
+
     int score = 0;
     bool ja = FALSE;
     if (qstrnicmp(hint, "ja_JP", 5) == 0 || qstrnicmp(hint, "japan", 5) == 0) {

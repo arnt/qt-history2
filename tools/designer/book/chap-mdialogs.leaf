@@ -771,7 +771,7 @@ header file in a directory, click the \Button {(ellipsis)} button to
 the right of the Headerfile line edit to invoke the \Dialog {Open
 Dialog}. Click the 'Select Access' combobox to choose how the file
 will be included. Global include files will be included using angle
-brackets (<>). Local files will be included using quotation marks. If
+brackets (\<\>). Local files will be included using quotation marks. If
 you have a pixmap that you want to use to identify your widget on the
 toolbar, click the \Button {(ellipsis)} button to the right of the
 'Pixmap' label. This invokes the \Dialog{Choose a Pixmap Dialog}.

@@ -48,11 +48,11 @@
   \mainclass
 
   QMap is a Qt implementation of an STL-like map container.  It
-  can be used in your application if the standard map<> is not
+  can be used in your application if the standard map\<\> is not
   available.  QMap is part of the \link qtl.html Qt Template
   Library\endlink.
 
-  QMap<Key,Data> defines a template instance to create a dictionary
+  QMap\<Key,Data\> defines a template instance to create a dictionary
   with keys of type Key and values of type Data. QMap does not store
   pointers to the members of the map. Instead, it holds a copy of
   every member. For that reason this kind of classes is called
@@ -83,8 +83,8 @@
   objects it contains.  For historical reasons, QMap contains
   additional functions which essentially perform the same task.  It is
   recommended that the STL-like functions be used in application code
-  to ease the transition to a future version of Qt.  See the <a
-  href="qtl.html">Qt Template Library</a> for more information.
+  to ease the transition to a future version of Qt.  See the 
+  \link qtl.html Qt Template Library\endlink for more information.
 
   The class used for the key requires that the \c operator< is implemented
   to define ordering of the keys.

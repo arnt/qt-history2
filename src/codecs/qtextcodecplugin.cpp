@@ -41,7 +41,6 @@
 /*!   \class QTextCodecPlugin qtextcodecplugin.h
   \brief The QTextCodecPlugin class provides an abstract base for custom QTextCodec plugins.
   \ingroup plugins
-  \mainclass
 
   The text codec plugin is a simple plugin interface that makes it easy to
   create custom text codecs that can be loaded dynamically into

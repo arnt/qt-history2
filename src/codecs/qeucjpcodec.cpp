@@ -44,8 +44,6 @@
 
   \brief The QEucJpCodec class provides conversion to and from EUC-JP character sets.
 
-  \internal
-
   More precisely, the QEucJpCodec class subclasses QTextCodec to
   provide support for EUC-JP, the main legacy encoding for Unix
   machines in Japan.

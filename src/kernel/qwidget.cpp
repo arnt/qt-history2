@@ -4927,7 +4927,8 @@ bool QWidget::qwsEvent( QWSEvent * )
   QWidget has some built-in support to make the task of recalculating
   the mask easier. When setting auto mask to TRUE, updateMask() will
   be called whenever the widget is resized or changes its focus
-  state.
+  state. Note that you must reimplement updateMask() (which should
+  include a call to setMask()) or nothing will happen.
 
   Note: when you re-implement resizeEvent(), focusInEvent() or
   focusOutEvent() in your custom widgets and still want to ensure
