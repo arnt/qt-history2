@@ -133,16 +133,16 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     \row \i Ctrl+A \i Moves the cursor to the beginning of the line.
     \row \i Ctrl+B \i Moves the cursor one character to the left.
     \row \i Ctrl+C \i Copies the selected text to the clipboard.
-                      (Windows also supports Ctrl+Insert for this operation.)
+    \row \i Ctrl+Insert \i Copies the selected text to the clipboard.
     \row \i Ctrl+D \i Deletes the character to the right of the cursor.
     \row \i Ctrl+E \i Moves the cursor to the end of the line.
     \row \i Ctrl+F \i Moves the cursor one character to the right.
     \row \i Ctrl+H \i Deletes the character to the left of the cursor.
     \row \i Ctrl+K \i Deletes to the end of the line.
     \row \i Ctrl+V \i Pastes the clipboard text into line edit.
-                      (Windows also supports Shift+Insert for this operation.)
+    \row \i Shift+Insert \i Pastes the clipboard text into line edit.
     \row \i Ctrl+X \i Deletes the selected text and copies it to the clipboard.
-                      (Windows also supports Shift+Delete for this operation.)
+    \row \i Shift+Delete \i Deletes the selected text and copies it to the clipboard.
     \row \i Ctrl+Z \i Undoes the last operation.
     \row \i Ctrl+Y \i Redoes the last undone operation.
     \endtable
@@ -1231,7 +1231,7 @@ bool QLineEdit::event(QEvent * e)
             case Qt::Key_Z:
             case Qt::Key_Left:
             case Qt::Key_Right:
-#if defined (Q_WS_WIN)
+#if !defined(Q_WS_MAC)
             case Qt::Key_Insert:
             case Qt::Key_Delete:
 #endif
@@ -1471,7 +1471,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
                 del();
             }
             break;
-#if defined (Q_WS_WIN)
+#if !defined(Q_WS_MAC)
         case Qt::Key_Insert:
             copy();
             break;
@@ -1568,7 +1568,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
         case Qt::Key_Delete:
             if (!d->readOnly) {
-#if defined (Q_WS_WIN)
+#if !defined(Q_WS_MAC)
                 if (e->modifiers() & Qt::ShiftModifier) {
                     cut();
                     break;
@@ -1577,7 +1577,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
                 del();
             }
             break;
-#if defined (Q_WS_WIN)
+#if !defined(Q_WS_MAC)
         case Qt::Key_Insert:
             if (!d->readOnly && e->modifiers() & Qt::ShiftModifier)
                 paste();
