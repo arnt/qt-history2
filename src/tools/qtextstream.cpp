@@ -421,12 +421,19 @@ private:        // Disabled copy constructor and operator=
   \code
     QString str;
     QTextStream ts( &str, IO_WriteOnly );
-    ts << "pi = " << 3.14;			// str == "pi = 3.14..."
+    ts << "pi = " << 3.14;			// str == "pi = 3.14"
   \endcode
 
   Writing data to the text stream will modify the contents of the string.
   The string will be expanded when data is written beyond the end of the
-  string.
+  string. Note that the string will not be truncated:
+  \code
+    QString str = "pi = 3.14";
+    QTextStream ts( &str, IO_WriteOnly );
+    ts <<  "2+2 = " << 2+2; 		// str == "2+2 = 414"
+  \endcode
+  
+  
 
   Note that since QString is Unicode, you should not use readRawBytes()
   or writeRawBytes() on such a stream.
