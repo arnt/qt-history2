@@ -3513,7 +3513,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ( currentItem() && currentItem()->renameBox && e->button() == LeftButton )
+    if ( currentItem() && currentItem()->renameBox )
 	currentItem()->cancelRename();
 
     d->startDragItem = 0;
@@ -3526,7 +3526,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
     if ( i && !i->isEnabled() )
 	return;
-    if ( i == currentItem() && i && i->isSelected() )
+    if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton )
 	d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
     QListViewItem *oldCurrent = currentItem();
     if ( !oldCurrent && !i && firstChild() ) {
