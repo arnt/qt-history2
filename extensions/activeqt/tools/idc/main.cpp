@@ -129,7 +129,7 @@ int main( int argc, char **argv )
 	    else
 		version = argv[i];
 	} else if ( p == "/tlb" || p == "-tlb" ) {
-	    if ( qWinVersion() & Qt::WV_DOS_based )
+	    if ( QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based )
 		fprintf(stderr, "IDC requires Windows NT/2000/XP!\n");
 
 	    ++i;
