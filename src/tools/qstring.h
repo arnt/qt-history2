@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#28 $
+** $Id: //depot/qt/main/src/tools/qstring.h#29 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -119,13 +119,14 @@ public:
     QString    &operator=( const char *str )	// deep copy
 	{ return (QString&)duplicate( str, strlen(str)+1 ); }
 
-    bool	isEmpty() const { return QGArray::size() <= 1; }
-    uint	length()  const;		// length of QString excl. \0
-    bool	resize( uint newlen );		// resize incl. \0 terminator
-    bool	truncate( uint pos );		// truncate excl. \0 terminator
-    bool	fill( char c, int len = -1 );	// resize and fill string
+    bool	isNull()	const;
+    bool	isEmpty()	const;
+    uint	length()	const;
+    bool	resize( uint newlen );
+    bool	truncate( uint pos );
+    bool	fill( char c, int len = -1 );
 
-    QString	copy() const { return QString( this->data() ); }  // deep copy
+    QString	copy()	const;
 
     QString    &sprintf( const char *format, ... );
 
@@ -139,8 +140,8 @@ public:
     int		contains( const char *str, bool cs=TRUE ) const;
     int		contains( const QRegExp & ) const;
 
-    QString	left( uint len )	const;
-    QString	right( uint len )	const;
+    QString	left( uint len )  const;
+    QString	right( uint len ) const;
     QString	mid( uint index, uint len) const;
 
     QString	leftJustify( uint width, char fill=' ', bool trunc=FALSE)const;
@@ -179,22 +180,22 @@ public:
 
     bool	setExpand( uint index, char c );
 
-		operator char *() const	      { return data(); }
+		operator char *()	const { return data(); }
 		operator const char *() const { return (pcchar)data(); }
-    bool	operator!() const	      { return isNull(); }
+    bool	operator!()		const { return data() == 0; }
     QString    &operator+=( const char *str );
     QString    &operator+=( char c );
 
-    bool operator==( const QString &s ) const;
-    bool operator!=( const QString &s ) const;
-    bool operator==( const char *s ) 	const;
-    bool operator!=( const char *s ) 	const;
-    bool operator==( char *s ) 		const;
-    bool operator!=( char *s ) 		const;
-    bool operator<( const char *s )  	const;
-    bool operator>( const char *s )  	const;
-    bool operator<=( const char *s ) 	const;
-    bool operator>=( const char *s ) 	const;
+    bool	operator==( const QString &s )	const;
+    bool	operator!=( const QString &s )	const;
+    bool	operator==( const char *s ) 	const;
+    bool	operator!=( const char *s ) 	const;
+    bool	operator==( char *s ) 		const;
+    bool	operator!=( char *s ) 		const;
+    bool	operator<( const char *s )  	const;
+    bool	operator>( const char *s )  	const;
+    bool	operator<=( const char *s ) 	const;
+    bool	operator>=( const char *s ) 	const;
 };
 
 
@@ -210,11 +211,20 @@ QDataStream &operator>>( QDataStream &, QString & );
 // QString inline functions
 //
 
+inline bool QString::isNull() const
+{ return data() == 0; }
+
+inline bool QString::isEmpty() const
+{ return data() == 0 || *data() == '\0'; }
+
 inline uint QString::length() const
 { return strlen( data() ); }
 
 inline bool QString::truncate( uint pos )
 { return resize(pos+1); }
+
+inline QString QString::copy() const
+{ return QString( data() ); }
 
 inline short QString::toShort( bool *ok ) const
 { return (short)toLong(ok); }
