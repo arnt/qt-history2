@@ -443,12 +443,12 @@ public:
     bool operator==( const QValueVector<T>& x )
     {
 	// force the const versions of begin() and end() to be called
-	return qEqual( ((const QValueVector<T> *)this)->begin(), ((const QValueVector<T> *)this)->end(), x.begin() );
+	return size()==x.size() ? qEqual( ((const QValueVector<T> *)this)->begin(), ((const QValueVector<T> *)this)->end(), x.begin()) : FALSE;
     }
 
     bool operator==( const QValueVector<T>& x ) const
     {
-	return qEqual( begin(), end(), x.begin() );
+	return size()==x.size() ? qEqual( begin(), end(), x.begin() ) : FALSE;
     }
 
     typedef T ValueType;
