@@ -35,7 +35,7 @@ static const int read_cache_size = 4096;
 
 static QByteArray locale_encode(const QString &f)
 {
-#ifndef Q_WS_MAC
+#ifndef Q_OS_DARWIN
     return f.toLocal8Bit();
 #else
     // Mac always expects UTF-8
@@ -45,7 +45,7 @@ static QByteArray locale_encode(const QString &f)
 
 static QString locale_decode(const QByteArray &f)
 {
-#ifndef Q_WS_MAC
+#ifndef Q_OS_DARWIN
     return QString::fromLocal8Bit(f);
 #else
     // Mac always expects UTF-8
