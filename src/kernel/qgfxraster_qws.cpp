@@ -1715,14 +1715,16 @@ void QGfxRasterBase::setBrushOffset( int x, int y )
 void QGfxRasterBase::setSourcePen()
 {
 #ifndef QT_NO_QWS_REPEATER
-    QScreen * tmp=qt_screen;
-    qt_screen=gfx_screen;
+    if ( is_screen_gfx && qt_screen != gfx_screen ) {
+	QScreen * tmp=qt_screen;
+	qt_screen=gfx_screen;
+	QColor tmpcol=cpen.color();
+	srccol = tmpcol.alloc();
+	qt_screen=tmp;
+    } else 
 #endif
-    QColor tmpcol=cpen.color();
-    srccol = tmpcol.alloc();
-#ifndef QT_NO_QWS_REPEATER
-    qt_screen=tmp;
-#endif
+	srccol = cpen.color().pixel();
+
     src_normal_palette=TRUE;
     srctype=SourcePen;
     setSourceWidgetOffset( 0, 0 );
