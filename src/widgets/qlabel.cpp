@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#122 $
 **
 ** Implementation of QLabel widget class
 **
@@ -30,6 +30,7 @@
 #include "qaccel.h"
 #include "qmovie.h"
 #include <ctype.h>
+#include <math.h>
 #include "qimage.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -505,10 +506,13 @@ QSize QLabel::sizeForWidth( int w ) const
 		    mov->framePixmap().height() );
     } else if (doc ){
 	//QRect cr = contentsRect();
-	if ( w < 0 )
-	    w = contentsRect().width();
-
-	w -= 2*frameWidth();
+	if ( w < 0 ) {
+	    w = 1000;
+	    doc->setWidth(&p,w);
+	    w = int(2*sqrt(doc->height()/3*doc->widthUsed()));
+	} else {
+	    w -= 2*frameWidth();
+	}
 	doc->setWidth(&p, w);
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
     } else {
