@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#358 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#359 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -1685,7 +1685,10 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    for ( int i = lastItems.size(); i < (int)items.size(); ++i ) {
 			if ( items[ i ]->name().isEmpty() )
 			    continue;
-			s += "<" + items[ i ]->name() + align_to_string( items[ i ]->name(), p->alignment() ) + ">";
+			if ( items[ i ]->name() == "li" && p->listValue() != -1 )
+			    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
+			else
+			    s += "<" + items[ i ]->name() + align_to_string( items[ i ]->name(), p->alignment() ) + ">";
 		    }
 		} else {
 		    QString end;
@@ -1697,7 +1700,10 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    s += end;
 		}
 		lastItems = items;
-		s += "<" + item->name() + align_to_string( item->name(), p->alignment() ) + ">" +
+		if ( item->name() == "li" && p->listValue() != -1 )
+		    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
+		else
+		    s += "<" + item->name() + align_to_string( item->name(), p->alignment() ) + ">" +
 		     p->richText() + "</" + item->name() + ">\n";
 	    } else {
 		QString end;
