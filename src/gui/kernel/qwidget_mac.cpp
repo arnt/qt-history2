@@ -420,7 +420,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
                            region_rects[i].width(), region_rects[i].height());
 #endif
-                if (isVisible() && isUpdatesEnabled()) { //process the actual paint event.
+                if (widget->isVisible() && widget->isUpdatesEnabled()) { //process the actual paint event.
                     if(widget->testWState(Qt::WState_InPaintEvent))
                         qWarning("QWidget::repaint: recursive repaint detected.");
 
