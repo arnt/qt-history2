@@ -2281,7 +2281,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		QVariant var = qt.object->property(property.name());
 		if (!var.isValid())
 		    res =  DISP_E_MEMBERNOTFOUND;
-		else if (!QVariantToVARIANT(var, *pvarResult, 0))
+		else if (!QVariantToVARIANT(var, *pvarResult))
 		    res = DISP_E_TYPEMISMATCH;
 		else
 		    res = S_OK;
@@ -2818,7 +2818,7 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
 	if (!qvar.isValid())
 	    error = true;
 	VARIANT var;
-	QVariantToVARIANT(qvar, var, property.typeName());
+	QVariantToVARIANT(qvar, var);
 	bag->Write(bstr, &var);
 	SysFreeString(bstr);
     }
