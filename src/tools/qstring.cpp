@@ -17669,7 +17669,8 @@ bool QString::endsWith( const QString& s ) const
 /*!
   \obsolete
 
-  Returns a static Windows TCHAR* from a QString, possibly adding NUL.
+  Returns a static Windows TCHAR* from a QString, adding NUL if \a
+  addnul is TRUE.
 
   The lifetime of the return value is until the next call to this function,
   or until the last copy of str is deleted, whatever comes first.
