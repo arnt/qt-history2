@@ -319,6 +319,10 @@ struct QX11Data
     int color_count;
     bool custom_cmap;
 
+    // outside visual/colormap
+    Visual *visual;
+    Colormap colormap;
+
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {
         // window-manager <-> client protocols

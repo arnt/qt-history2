@@ -294,8 +294,13 @@ void QColormap::initialize()
         d->visual = DefaultVisual(display, i);
         d->defaultVisual = true;
 
-        if ((X11->visual_class != -1 && X11->visual_class >= 0 && X11->visual_class < 6)
-            || (X11->visual_id != -1)) {
+        if (X11->visual && i == DefaultScreen(display)) {
+            // only use the outside colormap on the default screen
+            d->visual = find_visual(display, i, X11->visual->c_class,
+                                    XVisualIDFromVisual(X11->visual),
+                                    &d->depth, &d->defaultVisual);
+        } else if ((X11->visual_class != -1 && X11->visual_class >= 0 && X11->visual_class < 6)
+                   || (X11->visual_id != -1)) {
             // look for a specific visual or type of visual
             d->visual = find_visual(display, i, X11->visual_class, X11->visual_id,
                                     &d->depth, &d->defaultVisual);
@@ -420,8 +425,12 @@ void QColormap::initialize()
             }
         }
 
-        if (((d->visual->c_class & 1) && X11->custom_cmap)
-            || d->visual != DefaultVisual(display, i)) {
+        if (X11->colormap && i == DefaultScreen(display)) {
+            // only use the outside colormap on the default screen
+            d->colormap = X11->colormap;
+            d->defaultColormap = (d->colormap == DefaultColormap(display, i));
+        } else if (((d->visual->c_class & 1) && X11->custom_cmap)
+                   || d->visual != DefaultVisual(display, i)) {
             // allocate custom colormap
             d->colormap =
                 XCreateColormap(display, RootWindow(display, i), d->visual,

@@ -1290,7 +1290,7 @@ extern bool qt_app_has_font;
 // ### it because "storage class specifiers invalid in friend function
 // ### declarations" :-) Ideas anyone?
 void qt_init(QApplicationPrivate *priv, int,
-	     Display *display, Qt::HANDLE /*visual*/, Qt::HANDLE /*colormap*/)
+	     Display *display, Qt::HANDLE visual, Qt::HANDLE colormap)
 {
     X11 = new QX11Data;
     X11->display = display;
@@ -1321,6 +1321,10 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->visual_id = -1;
     X11->color_count = 0;
     X11->custom_cmap = false;
+
+    // outside visual/colormap
+    X11->visual = reinterpret_cast<Visual *>(visual);
+    X11->colormap = colormap;
 
     if (display) {
         // Qt part of other application
