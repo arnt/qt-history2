@@ -55,8 +55,8 @@ public:
 
             QImage bi, mi;
             bitmap = *b;
-            bi = bitmap;
-            mi = *m;
+            bi = bitmap.toImage();
+            mi = m->toImage();
             for(int y = 0; y < bi.height(); y++) {
                 for(int x = 0; x < bi.width(); x++)
                     mi.setPixel(x, y, !(bi.pixel(x, y) && mi.pixel(x, y)));
@@ -281,8 +281,8 @@ void QCursor::update() const
             d->curs.cp.my_cursor = true;
             d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
             QImage bmi, bmmi;
-            bmi = *d->bm;
-            bmmi = *d->bmm;
+            bmi = d->bm->toImage();
+            bmmi = d->bmm->toImage();
 
             memset(d->curs.cp.hcurs->mask, 0, 32);
             memset(d->curs.cp.hcurs->data, 0, 32);
