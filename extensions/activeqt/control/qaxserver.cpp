@@ -38,28 +38,24 @@ ITypeLib *qAxTypeLibrary = 0;
 char qAxModuleFilename[MAX_PATH];
 
 // The QAxFactory instance
-static QAxFactoryInterface* _factory = 0;
-extern QUnknownInterface *ucm_instantiate();
+static QAxFactory* qax_factory = 0;
 extern CLSID CLSID_QRect;
 extern CLSID CLSID_QSize;
 extern CLSID CLSID_QPoint;
 extern void qax_shutDown();
 extern bool qax_ownQApp;
 
-QAxFactoryInterface *qAxFactory()
+QAxFactory *qAxFactory()
 {
-    if (!_factory) {
+    if (!qax_factory) {
+        extern QAxFactory *qax_instantiate();
         bool hadQApp = qApp != 0;
-        QUnknownInterface *unknown = ucm_instantiate();
-        if (unknown) {
-            unknown->queryInterface(IID_QAxFactory, (QUnknownInterface**)&_factory);
-            unknown->release();
-        }
+        qax_factory = qax_instantiate();
         // QAxFactory created a QApplication
         if (!hadQApp && qApp)
             qax_ownQApp = true;
     }
-    return _factory;
+    return qax_factory;
 }
 
 // Some local variables to handle module lifetime
@@ -96,11 +92,9 @@ void qAxCleanup()
     
     if (--initCount)
         return;
-    
-    if (_factory) {
-        _factory->release();
-        _factory = 0;
-    }
+
+    delete qax_factory;
+    qax_factory = 0;
     
     if (qAxTypeLibrary) {
         qAxTypeLibrary->Release();
@@ -924,7 +918,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     if (outfile.contains("\\")) {
         QString outpath = outfile.left(outfile.lastIndexOf("\\"));
         QDir dir;
-        dir.mkdir(outpath, false);
+        dir.mkdir(outpath, QDir::Recursive, false);
     }
     QFile file(outfile);
     file.remove();

@@ -47,7 +47,7 @@ extern HHOOK qax_hhook;
 
 // in qaxserver.cpp
 extern ITypeLib *qAxTypeLibrary;
-extern QAxFactoryInterface *qAxFactory();
+extern QAxFactory *qAxFactory();
 extern unsigned long qAxLock();
 extern unsigned long qAxUnlock();
 extern HANDLE qAxInstance;

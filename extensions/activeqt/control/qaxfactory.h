@@ -15,59 +15,22 @@
 
 #include <qhash.h>
 #include <quuid.h>
-#include <private/qcom_p.h>
+#include <qfactoryinterface.h>
 #include <qmetaobject.h>
-
-// {22B230F6-8722-4051-ADCB-E7C9CE872EB3}
-#ifndef IID_QAxFactory
-#define IID_QAxFactory QUuid(0x22b230f6, 0x8722, 0x4051, 0xad, 0xcb, 0xe7, 0xc9, 0xce, 0x87, 0x2e, 0xb3)
-#endif
 
 class QWidget;
 struct QMetaObject;
 class QSettings;
 struct IDispatch;
 
-struct QAxFactoryInterface : public QFeatureListInterface
-{
-public:
-#ifndef Q_QDOC
-    virtual QObject *createObject(const QString &key) = 0;
-    virtual const QMetaObject *metaObject(const QString &key) const = 0;
-    virtual bool createObjectWrapper(QObject *object, IDispatch **wrapper) = 0;
-    
-    virtual QUuid classID(const QString &key) const = 0;
-    virtual QUuid interfaceID(const QString &key) const = 0;
-    virtual QUuid eventsID(const QString &key) const = 0;    
-    virtual QUuid typeLibID() const = 0;
-    virtual QUuid appID() const = 0;
-    
-    virtual void registerClass(const QString &key, QSettings *) const = 0;
-    virtual void unregisterClass(const QString &key, QSettings *) const = 0;
-    
-    virtual bool validateLicenseKey(const QString &key, const QString &licenseKey) const = 0;
-    
-    virtual QString exposeToSuperClass(const QString &key) const = 0;
-    virtual bool stayTopLevel(const QString &key) const = 0;
-    virtual bool hasStockEvents(const QString &key) const = 0;
-    virtual bool isService() const = 0;
-#endif
-};
-
-extern QAxFactoryInterface *qAxFactory();
-
-class QAxFactory : public QAxFactoryInterface
+class QAxFactory
 {
 public:
     QAxFactory(const QUuid &, const QUuid &);
     virtual ~QAxFactory();
-    Q_REFCOUNT;
     
-    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
-    
-#ifdef Q_QDOC
     virtual QStringList featureList() const = 0;
-#endif
+
     virtual QObject *createObject(const QString &key) = 0;
     virtual const QMetaObject *metaObject(const QString &key) const = 0;
     virtual bool createObjectWrapper(QObject *object, IDispatch **wrapper);
@@ -105,6 +68,8 @@ private:
     QUuid app;
 };
 
+extern QAxFactory *qAxFactory();
+
 inline bool QAxFactory::startServer(ServerType type)
 {
     // implementation in qaxservermain.cpp
@@ -120,12 +85,10 @@ inline bool QAxFactory::stopServer()
 }
 
 #define QAXFACTORY_EXPORT(IMPL, TYPELIB, APPID)	\
-    QUnknownInterface *ucm_instantiate()		\
+    QAxFactory *qax_instantiate()		\
     {							\
         IMPL *impl = new IMPL(QUuid(TYPELIB), QUuid(APPID));	\
-        QUnknownInterface* iface = 0; 			\
-        impl->queryInterface(IID_QUnknown, &iface);	\
-        return iface;					\
+        return impl;					\
     }
 
 #define QAXFACTORY_DEFAULT(Class, IIDClass, IIDInterface, IIDEvents, IIDTypeLib, IIDApp) \
@@ -200,13 +163,13 @@ public:
     class QAxFactoryList : public QAxFactory \
     { \
         QStringList factoryKeys; \
-        QHash<QString, QAxFactoryInterface*> factories; \
+        QHash<QString, QAxFactory*> factories; \
         QHash<QString, bool> creatable; \
     public: \
         QAxFactoryList() \
         : QAxFactory(IDApp, IDTypeLib) \
         { \
-            QAxFactoryInterface *factory = 0; \
+            QAxFactory *factory = 0; \
             QStringList keys; \
             QStringList::Iterator it; \
 
@@ -233,54 +196,52 @@ public:
         ~QAxFactoryList() { qDeleteAll(factories); } \
         QStringList featureList() const {  return factoryKeys; } \
         const QMetaObject *metaObject(const QString&key) const { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactory *f = factories[key]; \
             return f ? f->metaObject(key) : 0; \
         } \
         QObject *createObject(const QString &key) { \
             if (!creatable.value(key)) \
                 return 0; \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactory *f = factories[key]; \
             return f ? f->createObject(key) : 0; \
         } \
         QUuid classID(const QString &key) { \
-            QAxFactoryInterface *f = factories.value(key); \
+            QAxFactory *f = factories.value(key); \
             return f ? f->classID(key) : QUuid(); \
         } \
         QUuid interfaceID(const QString &key) { \
-            QAxFactoryInterface *f = factories.value(key); \
+            QAxFactory *f = factories.value(key); \
             return f ? f->interfaceID(key) : QUuid(); \
         } \
         QUuid eventsID(const QString &key) { \
-            QAxFactoryInterface *f = factories.value(key); \
+            QAxFactory *f = factories.value(key); \
             return f ? f->eventsID(key) : QUuid(); \
         } \
         void registerClass(const QString &key, QSettings *s) const { \
-            QAxFactoryInterface *f = factories.value(key); \
+            QAxFactory *f = factories.value(key); \
             if (f) f->registerClass(key, s); \
         } \
         void unregisterClass(const QString &key, QSettings *s) const { \
-            QAxFactoryInterface *f = factories.value(key); \
+            QAxFactory *f = factories.value(key); \
             if (f) f->unregisterClass(key, s); \
         } \
         QString exposeToSuperClass(const QString &key) const { \
-            QAxFactoryInterface *f = factories.value(key); \
+            QAxFactory *f = factories.value(key); \
             return f ? f->exposeToSuperClass(key) : QString(); \
         } \
         bool stayTopLevel(const QString &key) const { \
-            QAxFactoryInterface *f = factories.value(key); \
+            QAxFactory *f = factories.value(key); \
             return f ? f->stayTopLevel(key) : false; \
         } \
         bool hasStockEvents(const QString &key) const { \
-            QAxFactoryInterface *f = factories.value(key); \
+            QAxFactory *f = factories.value(key); \
             return f ? f->hasStockEvents(key) : false; \
         } \
     }; \
-    QUnknownInterface *ucm_instantiate()		\
+    QAxFactory *qax_instantiate()		\
     {							\
         QAxFactoryList *impl = new QAxFactoryList();	\
-        QUnknownInterface* iface = 0; 			\
-        impl->queryInterface(IID_QUnknown, &iface);	\
-        return iface;					\
+        return impl;					\
     }
 
 

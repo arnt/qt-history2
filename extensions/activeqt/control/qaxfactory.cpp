@@ -198,24 +198,6 @@ QAxFactory::~QAxFactory()
 }
 
 /*!
-    \internal
-*/
-QRESULT QAxFactory::queryInterface(const QUuid &iid, QUnknownInterface **iface)
-{
-    *iface = 0;
-    if (iid == IID_QUnknown)
-        *iface = this;
-    else if (iid == IID_QFeatureList)
-        *iface = this;
-    else if (iid == IID_QAxFactory)
-        *iface = this;
-    else
-        return QE_NOINTERFACE;
-    addRef();
-    return QS_OK;
-}
-
-/*!
     \fn QUuid QAxFactory::typeLibID() const
 
     Reimplement this function to return the ActiveX server's type
