@@ -3,6 +3,7 @@
 
 #include <qlist.h>
 #include <qguardedptr.h>
+#include <qpixmap.h>
 
 template<class Type>
 class QCleanUpHandler
@@ -18,11 +19,13 @@ public:
 	}
     }
 
-    void addCleanUp( Type* object ) {
+    void addCleanUp( Type* object ) 
+    {
 	cleanUpObjects.insert( 0, new QGuardedPtr<Type>(object) );
     }
 
-    bool clean() {
+    bool clean() 
+    {
 	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
@@ -35,6 +38,33 @@ public:
 
 protected:
     QList<QGuardedPtr<Type> > cleanUpObjects;
+};
+
+class QCleanUpHandler<QPixmap>
+{
+public:
+    ~QCleanUpHandler()
+    {
+	QListIterator<QPixmap> it( cleanUpObjects );
+	while ( it.current() ) {
+	    QPixmap* object = it.current();
+	    ++it;
+	    delete object;
+	}
+    }
+
+    void addCleanUp( const QPixmap* pixmap ) 
+    {
+	cleanUpObjects.insert( 0, pixmap );
+    }
+
+    bool clean() 
+    {
+	return !cleanUpObjects.count();
+    }
+
+protected:
+    QList<QPixmap> cleanUpObjects;
 };
 
 #endif //QCLEANUPHANDLER_H
