@@ -30,27 +30,30 @@ public:
     class Widget {
     public:
         Widget(const QString &name = QString(), const QString &xml = QString(),
-                const QIcon icon = QIcon())
-            : m_name(name), m_xml(xml), m_icon(icon) {}
+                const QString &icon_name = QString())
+            : m_name(name), m_xml(xml), m_icon_name(icon_name) {}
         QString name() const { return m_name; }
         void setName(const QString &name) { m_name = name; }
         QString domXml() const { return m_xml; }
         void setDomXml(const QString &xml) { m_xml = xml; }
-        QIcon icon() const { return m_icon; }
-        void setIcon(const QIcon &icon) { m_icon = icon; }
+        QString iconName() const { return m_icon_name; }
+        void setIconName(const QString &icon_name) { m_icon_name = icon_name; }
 
         bool isNull() const { return m_name.isEmpty(); }
 
     private:
         QString m_name;
         QString m_xml;
-        QIcon m_icon;
+        QString m_icon_name;
     };
     typedef QList<Widget> WidgetList;
 
     class Category {
     public:
-        Category(const QString &name = QString()) { m_name = name; }
+        enum Type { Default, Custom, Scratchpad };
+
+        Category(const QString &name = QString(), Type type = Default)
+            : m_name(name), m_type(type) {}
 
         QString name() const { return m_name; }
         void setName(const QString &name) { m_name = name; }
@@ -58,11 +61,14 @@ public:
         Widget widget(int idx) const { return m_widget_list.at(idx); }
         void removeWidget(int idx) { m_widget_list.removeAt(idx); }
         void addWidget(const Widget &widget) { m_widget_list.append(widget); }
+        Type type() const { return m_type; }
+        void setType(Type type) { m_type = type; }
 
         bool isNull() const { return m_name.isEmpty(); }
 
     private:
         QString m_name;
+        Type m_type;
         QList<Widget> m_widget_list;
     };
     typedef QList<Category> CategoryList;
@@ -85,8 +91,10 @@ public:
     virtual void dropWidgets(const QList<AbstractDnDItem*> &item_list,
                                 const QPoint &global_mouse_pos) = 0;
 
-public slots:
-    virtual void reload();
+    virtual void setFileName(const QString &file_name) = 0;
+    virtual QString fileName() const = 0;
+    virtual bool load() = 0;
+    virtual bool save() = 0;
 };
 
 Q_DECLARE_METATYPE(AbstractWidgetBox::Widget)

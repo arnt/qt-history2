@@ -51,6 +51,11 @@ void QDesignerSettings::setFormTemplatePaths(const QStringList &paths)
     setValue(QLatin1String("FormTemplatePaths"), paths);
 }
 
+QString QDesignerSettings::defaultUserWidgetBoxXml() const
+{
+    return QDir::homePath() + m_designerPath + QLatin1String("/widgetbox.xml");
+}
+
 QStringList QDesignerSettings::defaultFormTemplatePaths() const
 {
     QStringList paths;

@@ -54,9 +54,12 @@ public:
     virtual void addWidget(int cat_idx, const Widget &wgt);
     virtual void removeWidget(int cat_idx, int wgt_idx);
 
-    virtual void reload();
-
     void dropWidgets(const QList<AbstractDnDItem*> &item_list, const QPoint &global_mouse_pos);
+
+    virtual void setFileName(const QString &file_name);
+    virtual QString fileName() const;
+    virtual bool load();
+    virtual bool save();
 
 private slots:
     void handleMousePress(const QString &xml, const QPoint &global_mouse_pos);

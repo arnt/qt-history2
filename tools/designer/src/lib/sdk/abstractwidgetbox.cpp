@@ -22,10 +22,6 @@ AbstractWidgetBox::~AbstractWidgetBox()
 {
 }
 
-void AbstractWidgetBox::reload()
-{
-}
-
 int AbstractWidgetBox::findOrInsertCategory(const QString &categoryName)
 {
     int count = categoryCount();

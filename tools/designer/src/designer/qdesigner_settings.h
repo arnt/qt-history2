@@ -27,6 +27,8 @@ public:
     QStringList formTemplatePaths() const;
     void setFormTemplatePaths(const QStringList &paths);
 
+    QString defaultUserWidgetBoxXml() const;
+
     void setGeometryFor(QWidget *w, const QRect &fallBack = QRect()) const;
     void saveGeometryFor(const QWidget *w);
 
