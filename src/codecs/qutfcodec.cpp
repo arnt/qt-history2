@@ -134,24 +134,27 @@ public:
 
     QString toUnicode(const char* chars, int len)
     {
-	QString result = "";
+	QString result;
+	result.setLength( len ); // worst case
+	QChar *qch = (QChar *)result.unicode();
+	uchar ch;
 	for (int i=0; i<len; i++) {
-	    uchar ch = chars[i];
+	    ch = *chars++;
 	    if (need) {
 		if ( (ch&0xc0) == 0x80 ) {
 		    uc = (uc << 6) | (ch & 0x3f);
 		    need--;
 		    if ( !need ) {
-			result += QChar(uc);
+			*qch++ = uc;
 		    }
 		} else {
 		    // error
-		    result += QChar::replacement;
+		    *qch++ = QChar::replacement;
 		    need = 0;
 		}
 	    } else {
 		if ( ch < 128 ) {
-		    result += QChar(ch);
+		    *qch++ = ch;
 		} else if ( (ch&0xe0) == 0xc0 ) {
 		    uc = ch &0x1f;
 		    need = 1;
@@ -161,6 +164,7 @@ public:
 		}
 	    }
 	}
+	result.truncate( qch - result.unicode() );
 	return result;
     }
 };
@@ -236,11 +240,12 @@ public:
 
     QString toUnicode(const char* chars, int len)
     {
-	QString r;
-
+	QString result;
+	result.setLength( len ); // worst case
+	QChar *qch = (QChar *)result.unicode();
+	QChar ch;
 	while ( len-- ) {
 	    if ( half ) {
-		QChar ch;
 		if ( swap ) {
 		    ch.setRow( *chars++ );
 		    ch.setCell( buf );
@@ -254,19 +259,19 @@ public:
 		    } else if ( ch == QChar::byteOrderMark ) {
 			// Ignore ZWNBSP
 		    } else {
-			r += ch;
+			*qch++ = ch;
 		    }
 		    headerdone = TRUE;
 		} else
-		    r += ch;
+		    *qch++ = ch;
 		half = FALSE;
 	    } else {
 		buf = *chars++;
 		half = TRUE;
 	    }
 	}
-
-	return r;
+	result.truncate( qch - result.unicode() );
+	return result;
     }
 };
 

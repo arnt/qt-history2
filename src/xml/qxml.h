@@ -537,11 +537,11 @@ inline bool QXmlSimpleReader::atEnd()
 { return (c.unicode()|0x0001) == 0xffff; }
 
 inline void QXmlSimpleReader::stringClear()
-{ stringValue = ""; stringPos = 0; }
+{ stringValue = QString::null; stringPos = 0; }
 inline void QXmlSimpleReader::nameClear()
-{ nameValue = ""; namePos = 0; }
+{ nameValue = QString::null; namePos = 0; }
 inline void QXmlSimpleReader::refClear()
-{ refValue = ""; refPos = 0; }
+{ refValue = QString::null; refPos = 0; }
 
 inline int QXmlAttributes::count() const
 { return length(); }

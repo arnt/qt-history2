@@ -3404,7 +3404,7 @@ bool QXmlSimpleReader::processElementEmptyTag()
 	    }
 	}
     } else {
-	d->tags.pop();
+	d->tags.pop_back();
 	d->namespaceSupport.popContext();
     }
     return TRUE;
@@ -3833,8 +3833,8 @@ bool QXmlSimpleReader::reportEndEntities()
 		return FALSE;
 	    }
 	}
-	d->xmlRef.pop();
-	d->xmlRefName.pop();
+	d->xmlRef.pop_back();
+	d->xmlRefName.pop_back();
 	count--;
     }
     return TRUE;
@@ -7230,11 +7230,11 @@ void QXmlSimpleReader::next()
     int count = (uint)d->xmlRef.count();
     while ( count != 0 ) {
 	if ( d->xmlRef.top().isEmpty() ) {
-	    d->xmlRef.pop();
-	    d->xmlRefName.pop();
+	    d->xmlRef.pop_back();
+	    d->xmlRefName.pop_back();
 	    count--;
 	} else {
-	    c = d->xmlRef.top()[0];
+	    c = d->xmlRef.top().constref( 0 );
 	    d->xmlRef.top().remove( 0, 1 );
 	    return;
 	}
