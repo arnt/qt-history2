@@ -46,10 +46,7 @@
 #include "msgedit.h"
 #include "phraselv.h"
 
-// defined in simtexth.cpp
-extern QStringList similarTextHeuristicCandidates( const MetaTranslator *tor,
-						   const char *text,
-						   int maxCandidates );
+#include "simtexth.h"
 
 static const int MaxCandidates = 10;
 
@@ -612,11 +609,13 @@ void MessageEditor::showMessage( const QString& text,
     for ( p = phrases.begin(); p != phrases.end(); ++p )
  	(void) new PhraseLVI( phraseLv, *p );
 
-//     QStringList gs = similarTextHeuristicCandidates( tor, sourceText.latin1(),
-// 						     MaxCandidates );
-//     QStringList::Iterator it = gs.begin();
-//     while ( it != gs.end() ) {
-// 	(void) new QListViewItem( phraseLv, "", *it, "Guess" );
+//     CandidateList cl = similarTextHeuristicCandidates( tor,
+// 						       sourceText.latin1(),
+// 						       MaxCandidates );
+//     QValueList<Candidate>::Iterator it = cl.begin();
+//     while ( it != cl.end() ) {
+// 	(void) new QListViewItem( phraseLv, (*it).source , 
+// 				  (*it).target, "Guess" );
 // 	++it;
 //     }
     editorPage->handleSourceChanges();
@@ -715,19 +714,19 @@ void MessageEditor::startFromSource()
 
 void MessageEditor::guessAgain()
 {
-    setFinished( FALSE );
-    if ( guesses.isEmpty() )
-	guesses = similarTextHeuristicCandidates( tor, sourceText.latin1(),
-						  MaxCandidates );
-    if ( guesses.isEmpty() ) {
-	qApp->beep();
-    } else {
-	QString translation = guesses.first();
-	mayOverwriteTranslation = TRUE;
-	setTranslation( translation, TRUE );
-	guesses.remove( guesses.begin() );
-	guesses.append( translation );
-    }
+//     setFinished( FALSE );
+//     if ( guesses.isEmpty() )
+// 	guesses = similarTextHeuristicCandidates( tor, sourceText.latin1(),
+// 						  MaxCandidates );
+//     if ( guesses.isEmpty() ) {
+// 	qApp->beep();
+//     } else {
+// 	QString translation = guesses.first();
+// 	mayOverwriteTranslation = TRUE;
+// 	setTranslation( translation, TRUE );
+// 	guesses.remove( guesses.begin() );
+// 	guesses.append( translation );
+//     }
 }
 
 void MessageEditor::finishAndNext()
