@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#58 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#58 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -259,9 +259,15 @@ bool QWidget::destroy()
 void QWidget::recreate( QWidget *parent, WFlags, const QPoint &p,
 			bool showIt )
 {
-    HANDLE np = parent ? parent->winId() : 0;
+    HANDLE parentWin = parent ? parent->winId() : 0;
     hide();
-    SetParent( winId(), np );
+    if ( parentObj )				// remove from parent
+	parentObj->removeChild( this );
+    if ( parent ) {				// insert into new parent
+	parentObj = parent;			// avoid insertChild warning
+	parent->insertChild( this );
+    }
+    SetParent( winId(), parentWin );
     move( p.x(), p.y() );
     if ( showIt )
 	show();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#164 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#163 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#164 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -315,9 +315,10 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     setWinId( 0 );
     if ( parentObj )				// remove from parent
 	parentObj->removeChild( this );
-    parentObj = parent;
-    if ( parentObj )
-	parentObj->insertChild( this );
+    if ( parent ) {				// insert into new parent
+	parentObj = parent;			// avoid insertChild warning
+	parent->insertChild( this );
+    }
     bool     enable = isEnabled();		// remember status
     QSize    s	    = size();
     QPixmap *bgp    = (QPixmap *)backgroundPixmap();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#120 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#119 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#120 $");
 
 
 /*!
@@ -307,8 +307,8 @@ QObject::QObject( QObject *parent, const char *name )
   \warning \e All child objects are deleted.  If any of these objects are
   on the stack or global, your program will sooner or later crash.  We do
   not recommend holding pointers to child objects from outside the parent.
-  If you still do, the QWidget::destroyed() signal gives you an
-  opportunity to detect when a widget is destroyed.
+  If you still do, the QObject::destroyed() signal gives you an
+  opportunity to detect when an object is destroyed.
 */
 
 QObject::~QObject()
@@ -846,8 +846,11 @@ QConnectionList *QObject::receivers( const char *signal ) const
 void QObject::insertChild( QObject *obj )
 {
     if ( obj->parentObj ) {
-	if ( obj->parentObj == this )
-	    return;
+#if defined(CHECK_STATE)
+	if ( obj->isWidgetType() )
+	    warning( "QObject::insertChild: Cannot reparent a widget, "
+		     "use QWidget::recreate() instead" );
+#endif
 	obj->parentObj->removeChild( obj );
     }
 
