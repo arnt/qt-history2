@@ -147,6 +147,7 @@ public:
     virtual bool unify( QObject *w, QString &s, bool changeIt );
 
     virtual bool isCustomWidgetUsed( MetaDataBase::CustomWidget *w );
+    virtual bool isDatabaseWidgetUsed() const;
     virtual bool isDatabaseAware() const;
 
     virtual QPoint mapToForm( const QWidget* w, const QPoint&  ) const;

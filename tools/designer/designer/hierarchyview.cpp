@@ -78,7 +78,7 @@ QColor HierarchyItem::backgroundColor()
 void HierarchyItem::updateBackColor()
 {
     if ( listView()->firstChild() == this ) {
- 	backColor = backColor1;
+	backColor = backColor1;
 	return;
     }
 
@@ -265,7 +265,7 @@ void HierarchyList::resizeEvent( QResizeEvent *e )
     if ( hierarchyView->formWindow() && hierarchyView->formWindow()->isDatabaseAware() )
 	ns -= header()->sectionSize( 1 );
 #endif
-    
+
     if ( ns < 16 )
 	ns = 16;
 
@@ -280,6 +280,20 @@ void HierarchyList::setup()
 {
     clear();
     QWidget *w = hierarchyView->formWindow()->mainContainer();
+#if defined(QT_MODULE_SQL)
+    if ( hierarchyView->formWindow()->isDatabaseAware() ) {
+	if ( columns() == 2 ) {
+	    addColumn( tr( "Database" ) );
+	    header()->resizeSection( 0, 1 );
+	    header()->resizeSection( 1, 1 );
+	    header()->resizeSection( 2, 1 );
+	}
+    } else {
+	if ( columns() == 3 ) {
+	    removeColumn( 2 );
+	}
+    }
+#endif
     if ( w )
 	insertObject( w, 0 );
     updateHeader();
@@ -303,24 +317,6 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 {
     QListViewItem *item = 0;
     QString className = WidgetFactory::classNameOf( o );
-    QString dbInfo;
-#if defined(QT_MODULE_SQL)
-    if ( hierarchyView->formWindow()->isDatabaseAware() ) {
-	if ( columns() == 2 ) {
-	    addColumn( tr( "Database" ) );
-	    header()->resizeSection( 0, 1 );
-	    header()->resizeSection( 1, 1 );
-	    header()->resizeSection( 2, 1 );
-	}
-	
-	dbInfo = MetaDataBase::fakeProperty( o, "database" ).toStringList().join(".");
-    } else {
-	if ( columns() == 3 )
-	    removeColumn( 2 );
-	dbInfo = QString::null;
-    }
-#endif
-
     if ( o->inherits( "QLayoutWidget" ) ) {
 	switch ( WidgetFactory::layoutType( (QWidget*)o ) ) {
 	case WidgetFactory::HBox:
@@ -337,6 +333,11 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	}
     }
 
+    QString dbInfo;
+#if defined(QT_MODULE_SQL)
+    dbInfo = MetaDataBase::fakeProperty( o, "database" ).toStringList().join(".");
+#endif
+
     QString name = o->name();
     if ( o->parent() && o->parent()->inherits( "QWidgetStack" ) &&
 	 o->parent()->parent() ) {
@@ -351,9 +352,9 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     else
 	item = new HierarchyItem( parent, name, className, dbInfo );
     if ( !parent )
- 	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
+	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
     else if ( o->inherits( "QLayoutWidget") )
- 	item->setPixmap( 0, PixmapChooser::loadPixmap( "layout.xpm", PixmapChooser::Small ) );
+	item->setPixmap( 0, PixmapChooser::loadPixmap( "layout.xpm", PixmapChooser::Small ) );
     else
 	item->setPixmap( 0, WidgetDatabase::iconSet( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( o ) ) ).
 			 pixmap( QIconSet::Small, QIconSet::Normal ) );

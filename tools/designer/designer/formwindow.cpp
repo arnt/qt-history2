@@ -469,7 +469,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		break;
 	    }
 
- 	    raiseChildSelections( w ); // raise selections and select widget
+	    raiseChildSelections( w ); // raise selections and select widget
 	    selectWidget( w );
 
 	    // if widget is laid out, find the first non-laid out super-widget
@@ -1194,7 +1194,7 @@ void FormWindow::checkSelectionsForMove( QWidget *w )
 		continue;
 	    ++it;
 	    if ( l->find( sel->widget() ) == -1 ) {
- 		if ( WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout )
+		if ( WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout )
 		    sel->setWidget( 0 );
 	    } else {
 		if ( WidgetFactory::layoutType( sel->widget()->parentWidget() ) == WidgetFactory::NoLayout ) {
@@ -1492,7 +1492,7 @@ void FormWindow::showOrderIndicators()
 		    stackedWidgets.append( w );
 	    }
 	}
-    	delete l;
+	delete l;
     }
     updateOrderIndicators();
 }
@@ -2000,7 +2000,7 @@ void FormWindow::restoreRect( const QRect &rect )
 void FormWindow::drawConnectLine()
 {
     if ( !unclippedPainter )
- 	return;
+	return;
 
     unclippedPainter->setPen( QPen( white, 2 ) );
     unclippedPainter->drawLine( connectStartPos, currentConnectPos );
@@ -2009,14 +2009,14 @@ void FormWindow::drawConnectLine()
 
     unclippedPainter->setPen( QPen( magenta, 1 ) );
     if ( connectSender ) {
- 	QWidget *w = (QWidget*)connectSender;
+	QWidget *w = (QWidget*)connectSender;
 	QPoint p = mapToForm( w, QPoint(0,0) );
 	unclippedPainter->drawRect( QRect( p + QPoint( 2, 2 ), w->size() - QSize( 4, 4 ) ) );
      }
     if ( connectReceiver ) {
- 	QWidget *w = (QWidget*)connectReceiver;
+	QWidget *w = (QWidget*)connectReceiver;
 	QPoint p = mapToForm( w, QPoint(0,0) );
- 	unclippedPainter->drawRect( QRect( p + QPoint( 2, 2 ), w->size() - QSize( 4, 4 ) ) );
+	unclippedPainter->drawRect( QRect( p + QPoint( 2, 2 ), w->size() - QSize( 4, 4 ) ) );
      }
 }
 
@@ -2074,12 +2074,29 @@ bool FormWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *w )
     return FALSE;
 }
 
+bool FormWindow::isDatabaseWidgetUsed() const
+{
+#if defined(QT_MODULE_SQL)
+    QStringList dbClasses;
+    dbClasses << "QSqlTable"; // add more here
+    QPtrDictIterator<QWidget> it( insertedWidgets );
+    for ( ; it.current(); ++it ) {
+	QString c( it.current()->className() );
+	if ( dbClasses.contains( c ) > 0 ) {
+	    return TRUE;
+	}
+    }
+#endif
+    return FALSE;
+}
+
 bool FormWindow::isDatabaseAware() const
 {
-#if defined(QT_MODULE_SQL)    
+#if defined(QT_MODULE_SQL)
     if ( QString(mContainer->className()) == "QDesignerSqlWidget" || QString(mContainer->className()) == "QDesignerSqlDialog" )
 	return TRUE;
-#endif        
+    return isDatabaseWidgetUsed();
+#endif
     return FALSE;
 }
 
