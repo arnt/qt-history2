@@ -64,8 +64,7 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
-    QTabWidget( QWidget *parent, const char *name, WFlags f);
-    QTabWidget( QWidget* parent=0, const char* name=0);
+    QTabWidget( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     ~QTabWidget();
 
     virtual void addTab( QWidget *, const QString & );
@@ -142,8 +141,7 @@ private slots:
 
 private:
     QTabWidgetData *d;
-    void setUpLayout(bool = FALSE);
-    void init();
+    void setUpLayout( bool = FALSE );
 
     friend class QTabDialog;
 

@@ -192,33 +192,12 @@ public:
     int alignment;
 };
 
-
-
-
-
 /*!
   Constructs a tabbed widget with parent \a parent, name \a name,
   and widget flags \a f.
 */
-
-
 QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
-{
-    init();
-}
-
-/*!
-  \overload
-  Constructs a tabbed widget with parent \a parent and name \a name.
-*/
-QTabWidget::QTabWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name )
-{
-    init();
-}
-
-void QTabWidget::init()
 {
     d = new QTabWidgetData;
 
