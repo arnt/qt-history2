@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#6 $
 **
 ** Implementation of QTextCodec class
 **
@@ -24,6 +24,7 @@
 #include "qlist.h"
 #include "qtextcodec.h"
 #include "qiodevice.h"
+#include "qstrlist.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -127,11 +128,17 @@ int QTextCodec::heuristicNameMatch(const char* hint) const
 */
 int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
+    // ######## Too complicated.
+
     int bestr = -10;
+    while ( name[1] && !isalnum(*name) )
+	name++;
+    while ( hint[1] && !isalnum(*hint) )
+	hint++;
     while ( *hint ) {
 	int r = -10;
 	int toggle = 0;
-	const char* approx = hint++;
+	const char* approx = hint;
 	const char* actual = name;
 	while ( *approx && *actual ) {
 	    // Skip punctuation
@@ -163,6 +170,9 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 	}
 	if ( r > bestr )
 	    bestr = r;
+	hint++;
+	while (*hint && toupper(*hint) != toupper(*name)) // find next plausible
+	    hint++;
     }
     return bestr;
 }
@@ -401,6 +411,7 @@ class QTextCodecFromIOD : public QTextCodec {
     ushort* to_unicode;
     QMultiByteUnicodeTable* to_unicode_multibyte;
     int max_bytes_per_char;
+    QStrList aliases;
 
     bool stateless() const { return !to_unicode_multibyte; }
 
@@ -443,7 +454,9 @@ int mem=0;
 		n = line+15;
 	    else if (0==strnicmp(line,"<escape_char>",13))
 		esc = line[14];
-	    else if (0==strnicmp(line,"CHARMAP",7)) {
+	    else if (0==strnicmp(line,"% alias ",8)) {
+		aliases.append(line+8);
+	    } else if (0==strnicmp(line,"CHARMAP",7)) {
 		if (!from_unicode_page) {
 		    from_unicode_page = new char*[256];
 mem+=256;
@@ -569,6 +582,20 @@ debug("name = \"%s\"   MEMORY=%2.2fK",n.data(),(float)mem/1024);
 	return 0;
     }
 
+    int heuristicNameMatch(const char* hint) const
+    {
+	int bestr = QTextCodec::heuristicNameMatch(hint);
+	QStrListIterator it(aliases);
+	char* a;
+	while ((a=it.current())) {
+	    ++it;
+	    int r = simpleHeuristicNameMatch(a,hint);
+	    if (r > bestr)
+		bestr = r;
+	}
+	return bestr;
+    }
+
     QString toUnicode(const char* chars, int len) const
     {
 	const uchar* uchars = (const uchar*)chars;
@@ -649,6 +676,7 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
   The parser recognises the following lines:
 \code
    &lt;code_set_name&gt; <i>name</i>
+   % alias <i>alias</i>
    CHARMAP
    &lt;<i>token</i>&gt; /x<i>hexbyte</i> &lt;U<i>unicode</i>&gt; ...
    &lt;<i>token</i>&gt; /d<i>decbyte</i> &lt;U<i>unicode</i>&gt; ...
