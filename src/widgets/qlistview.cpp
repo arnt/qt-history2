@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#54 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#54 $");
 
 
 const int Unsorted = 32767;
@@ -1044,7 +1044,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	d->dirtyItems = 0;
 	d->dirtyItemTimer->stop();
     }
-    
+
 
     QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
@@ -1120,17 +1120,20 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    tx = d->h->cellPos( d->h->mapToActual( 0 ) );
 
 	// do any children of current need to be painted?
-	if ( current->i->isOpen() &&
+	if ( ih != ith &&
 	     (current->i->parentItem != d->r || d->rootIsExpandable) &&
+	     current->i->parentItem &&
 	     current->y + ith > cy &&
 	     current->y + ih < cy + ch &&
 	     tx < cx + cw &&
 	     tx + current->l * treeStepSize() > cx ) {
 	    // compute the clip rectangle the safe way
 
+	    debug( "%p %p %p", current->i, current->i->parentItem, d->r );
+
 	    int rtop = current->y + ih;
 	    int rbottom = current->y + ith;
-	    int rleft = tx + (current->l-d->rootIsExpandable)*treeStepSize();
+	    int rleft = tx + current->l*treeStepSize();
 	    int rright = rleft + treeStepSize();
 
 	    int crtop = QMAX( rtop, cy );
@@ -1189,7 +1192,8 @@ void QListView::buildDrawableList() const
 	d->r->sortChildItems( d->column, d->ascending );
 
     QStack<QListViewPrivate::Pending> stack;
-    stack.push( new QListViewPrivate::Pending( 0, 0, d->r ) );
+    stack.push( new QListViewPrivate::Pending( (int)(d->rootIsExpandable),
+					       0, d->r ) );
 
     // could mess with cy and ch in order to speed up vertical
     // scrolling
@@ -2770,9 +2774,9 @@ QSize QListView::sizeHint() const
 /*!  Sets \a item to be open if \a open is TRUE and \item is
   expandable, and to be closed if \a open is FALSE.  Repaints
   accordingly.
-  
+
   Does nothing if \a item is not expandable.
-  
+
   \sa QListViewItem::setOpen() QListViewItem::setExpandable()
 */
 
@@ -2804,7 +2808,7 @@ void QListView::setOpen( QListViewItem * item, bool open )
 
 
 /*!  Identical to \a item->isOpen().  Provided for completeness.
-  
+
   \sa setOpen()
 */
 
@@ -2816,7 +2820,7 @@ bool QListView::isOpen( QListViewItem * item ) const
 
 /*!  Sets this list view to show open/close signs on root items if \a
   enable is TRUE, and to not show such signs if \a enable is FALSE.
-  
+
   Open/close signs is a little + or - in windows style, an arrow in
   Motif style.
 */
