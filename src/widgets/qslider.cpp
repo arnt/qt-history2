@@ -674,7 +674,9 @@ void QSlider::moveSlider( int pos )
     }
     if ( tracking() && sliderVal != value() ) {
 	setValue( sliderVal );
-	emit valueChanged( sliderVal );
+	// ### Why do we emit the valueChanged signal here?  It will get emitted in 
+	// valueChange() anyway...
+	//emit valueChanged( sliderVal );
     }
 
     switch ( (GUIStyle)style() ) {
