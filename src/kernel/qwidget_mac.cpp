@@ -437,9 +437,10 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 			
 			QRegion mask = widget->d->extra->mask;
 			if(!widget->testWFlags(Qt::WStyle_Customize) || !widget->testWFlags(Qt::WStyle_NoBorder)) {
+			    qDebug("has a title..");
 			    QRegion title;
 			    {
-				RgnHandle rgn;
+				RgnHandle rgn = qt_mac_get_rgn();
 				GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
 				title = qt_mac_convert_mac_region(rgn);
 				qt_mac_dispose_rgn(rgn);
@@ -452,13 +453,13 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 
 			QRegion cr = rin & mask;
 			cr.translate(rin_tl.x(), rin_tl.y()); //translate back to incoming space
-			CopyRgn(cr.handle(TRUE), rgn);
+			CopyRgn(cr.handle(true), rgn);
 		    }
-		    ret = TRUE;
+		    ret = true;
 		} else if(force) {
 		    QRegion cr(widget->geometry());
-		    CopyRgn(cr.handle(TRUE), rgn);
-		    ret = TRUE;
+		    CopyRgn(cr.handle(true), rgn);
+		    ret = true;
 		}
 	    }
 	    return ret; }
