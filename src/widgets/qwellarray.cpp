@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#21 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -50,7 +50,7 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 {
     d = 0;
     setFocusPolicy( StrongFocus );		
-    //    setBackgroundMode( PaletteBase );	
+    setBackgroundMode( PaletteButton );	
     nCols = 7;
     nRows = 7;
     int w = 24;		// cell width
@@ -193,15 +193,22 @@ void QWellArray::drawContents( QPainter *p, int row, int col, const QRect &r )
 
 /*
   Handles mouse press events for the well array.
-  The current cell marker is set to the cell the mouse is clicked in.
+  The current cell marker is set to the cell the mouse is pressed in.
 */
 
 void QWellArray::mousePressEvent( QMouseEvent* e )
 {
-    QPoint clickedPos = e->pos();
-    setCurrent( findRow( clickedPos.y() ), findCol( clickedPos.x() ) );
+    QPoint pos = e->pos();
+    setCurrent( findRow( pos.y() ), findCol( pos.x() ) );
+}
+
+/*
+  Handles mouse release events for the well array.
+  The current cell marker is set to the cell the mouse is clicked in.
+*/
+void QWellArray::mouseReleaseEvent( QMouseEvent* )
+{
     setSelected( curRow, curCol );
-    //emit selected();
 }
 
 
@@ -269,6 +276,9 @@ void QWellArray::setSelected( int row, int col )
     if ( row >= 0 )
 	emit selected( row, col );
 
+    if ( isVisible() && parentWidget() && parentWidget()->inherits("QPopupMenu") )
+	parentWidget()->close();
+	
 }
 
 
@@ -325,7 +335,7 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
   \c NoBrush is returned.
 */
 
-QBrush QWellArray::getCellBrush( int row, int col )
+QBrush QWellArray::cellBrush( int row, int col )
 {
     if ( d && row >= 0 && row < nRows && col >= 0 && col < nCols )
 	return d->brush[row*nCols+col];
@@ -374,7 +384,8 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	    int edge = topCell();
 	    if ( curRow < edge )
 		setTopCell( edge - 1 );
-	}
+	} else if ( smallStyle )
+	    focusNextPrevChild( FALSE );
 	break;
     case Key_Down:
 	if( curRow < numRows()-1 ) {
@@ -382,15 +393,13 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	    int edge = lastRowVisible();
 	    if ( curRow >= edge )
 		setTopCell( topCell() + 1 );
-	}
+	} else if ( smallStyle )
+	    focusNextPrevChild( TRUE );
 	break;
     case Key_Space:
     case Key_Return:
     case Key_Enter:
-	if( !smallStyle ) {
-	    setSelected( curRow, curCol );
-	}
-	//emit selected();
+	setSelected( curRow, curCol );
 	break;
     default:				// If not an interesting key,
 	e->ignore();			// we don't accept the event

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.h#14 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.h#15 $
 **
 ** Definition of QWellArray widget class
 **
@@ -45,22 +45,22 @@ public:
     int numCols() { return nCols; }
     int numRows() { return nRows; }
 
-    int selectedColumn() { return selCol; } 
-    int selectedRow() { return selRow; } 
+    int selectedColumn() { return selCol; }
+    int selectedRow() { return selRow; }
 
     virtual void setSelected( int row, int col );
 
     void setCellSize( int w, int h ) { setCellWidth(w);setCellHeight( h ); }
-    
+
     QSize sizeHint() const;
 
     virtual void setDimension( int rows, int cols );
     virtual void setCellBrush( int row, int col, const QBrush & );
-    QBrush getCellBrush( int row, int col );
-    
+    QBrush cellBrush( int row, int col );
+
 signals:
     void selected( int row, int col );
-    
+
 protected:
     virtual void setCurrent( int row, int col );
 
@@ -69,6 +69,7 @@ protected:
 
     void paintCell( QPainter*, int row, int col );
     void mousePressEvent( QMouseEvent* );
+    void mouseReleaseEvent( QMouseEvent* );
     void mouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent* );
     void focusInEvent( QFocusEvent* );
