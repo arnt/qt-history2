@@ -272,7 +272,7 @@ static double qGetDoubleData(SQLHANDLE hStmt, int column, bool& isNull)
 
 static SQLBIGINT qGetBigIntData(SQLHANDLE hStmt, int column, bool& isNull)
 {
-    SQLBIGINT lngbuf = qint64_C(0);
+    SQLBIGINT lngbuf = Q_INT64_C(0);
     isNull = false;
     SQLINTEGER lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
