@@ -1768,14 +1768,15 @@ static void saveDockArea( QTextStream &ts, QDockArea *a )
 QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
 {
     QList<QDockWindow> l = mainWindow.dockWindows( Qt::Minimized );
-    for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+    QDockWindow *dw = 0;
+    for ( dw = l.first(); dw; dw = l.next() ) {
 	ts << dw->caption();
 	ts << ",";
     }
     ts << endl;
 
     l = mainWindow.dockWindows( Qt::TornOff );
-    for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+    for ( dw = l.first(); dw; dw = l.next() ) {
 	ts << dw->caption();
 	ts << ",";
     }
