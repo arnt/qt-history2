@@ -1,11 +1,23 @@
-/****************************************************************************
-** ui.h extension file, included from the uic-generated form implementation.
+/**********************************************************************
+** Copyright (C) 2002 Trolltech AS.  All rights reserved.
 **
-** If you wish to add, delete or rename functions or slots use
-** Qt Designer which will update this file, preserving your code. Create an
-** init() function in place of a constructor, and a destroy() function in
-** place of a destructor.
-*****************************************************************************/
+** This file is part of Qt Linguist.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 void Statistics::init()
 {
     setFixedHeight( sizeHint().height() );
