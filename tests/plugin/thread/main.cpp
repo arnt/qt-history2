@@ -186,10 +186,6 @@ void TestInterface::countWidgets()
 
 void TestInterface::startThread()
 {
-    styleGroup->setEnabled( !styleGroup->isEnabled() );
-
-    return;
-
     if ( !thread )
 	thread = new TestThread( this );
 
