@@ -91,7 +91,7 @@ void SqlEx::execQuery()
     if ( cursor->isSelect() ) {
 	dt->setSqlCursor( cursor, TRUE, TRUE );
 	dt->setSort( QStringList() );
-	dt->refresh( QDataTable::RefreshAll );
+	dt->refresh();
 	QString txt( "Query OK" );
 	if ( cursor->size() >= 0 )
 	    txt += ", returned rows: " + QString::number( cursor->size() );
