@@ -965,7 +965,8 @@ QSize QLayout::totalSizeHint() const
 	QWidget *mw = (QWidget*)parent();
 	if ( mw && !mw->testWState(WState_Polished) )
 	    mw->polish();
-	s = mw->minimumSize();
+	if ( !autoMinimum && !frozen )
+	    s = mw->minimumSize();
     }
     int b = ( topLevel && !marginImpl ) ? 2 * outsideBorder : 0;
 
