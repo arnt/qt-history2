@@ -97,9 +97,9 @@ void PixmapView::setPixmap( const QPixmap &pix )
     viewport()->repaint( FALSE );
 }
 
-void PixmapView::drawContents( QPainter *p, int, int, int, int )
+void PixmapView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
-    viewport()->erase();
+    p->fillRect( cx, cy, cw, ch, colorGroup().brush( QColorGroup::Base ) );
     p->drawPixmap( 0, 0, pixmap );
 }
 
