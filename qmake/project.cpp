@@ -859,6 +859,8 @@ QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
             }
         }
     }
+    if (!s.isEmpty())
+        ret = parse(s, place);
     return ret;
 }
 
