@@ -4,6 +4,7 @@ REL_VERSION=0.0.0
 BRANCH=
 OUT_TREE=`pwd`
 LOCAL_TREE=
+QDOC_PATH=$QTDIR/util/qdoc/qdoc
 DO_DOC=yes
 DO_WIN=yes
 DO_X11=yes
@@ -28,6 +29,7 @@ showhelp()
     echo "Options:"
     echo "-local <directory>"
     echo "-outdir <directory>"
+    echo "-qdoc <executable>"
     echo "-nodoc"
     echo "-nowin"
     echo "-nox11"
@@ -57,6 +59,11 @@ while [ -n "$1" ]; do
 	VAR=local
 	VAL=$1
 	;;
+   -qdoc)
+	shift
+	VAR=qdoc_path
+	VAL=$1
+	;;
    -no*)
 	VAR=`echo $1 | sed "s,^-no-*,,g"`
 	VAL=no
@@ -83,22 +90,27 @@ while [ -n "$1" ]; do
    qws) DO_QWS=$VAL ;;
    free)DO_FREE=$VAL;;
    gzip)DO_GZIP=$VAL;;
+   qdoc_path) QDOC_PATH=$VAL;;
+   outdir) OUT_TREE=$VAL;;
    version)
        expr "$VAL" : ".*\.\d*" >/dev/null 2>&1 || die "Can't figure out version from $VAL"
        REL_VERSION=$VAL
        BRANCH=`echo $VAL | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
-       LABEL="qt/$VAL";;
+       LABEL="qt/$VAL" 
+       ;;
    local)
        [ -d "$VAL" ] || die "Unknown directory: $VAL"
        BRANCH="0.0.0"
-       LOCAL_TREE=$VAL;;
-   outdir)
-	[ ! -d "$VAL" ] && mkdir -p "$VAL"
-	OUT_TREE=$VAL;;
+       LOCAL_TREE=$VAL
+       ;;
    esac
 done
-BRANCH="main"
+#make sure everything is in order before bothering..
+[ "x$DO_DOC" = "xyes" ] && [ ! -x "$QDOC_PATH" ] && die "qdoc not found, failed (${QDOC_PATH})"
+rm -f "$TMP_FILE" && { [ -e "$TMP_FILE" ] && die "Could not remove tmp file, failed (${TMP_FILE})" ; }
+[ ! -d "$OUT_TREE" ] && { mkdir -p $OUT_TREE >/dev/null 2>&1 || die "Could not create outdir, failed (${OUT_TREE})" ; }
 
+BRANCH="main"
 BRANCH_DIGITS=`echo $BRANCH | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
 MYNAME=`whoami`
 [ -z $MYNAME ] && MYNAME="shellssuck"
@@ -158,7 +170,7 @@ if [ "x$DO_DOC" = "xyes" ]; then
     rm -rf $DISTDIR/qt/tools/designer/doc
 
     echo "Running qdoc..";
-    $QTDIR/util/qdoc/qdoc $DISTDIR/qt/util/qdoc/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
+    $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
     $DISTDIR/qt/util/qdoc/man  $DISTDIR/qt >/dev/null 2>&1 || die "could not run man, stopped"
 
     find $DISTDIR/qt/gif -exec mv {} $DISTDIR/qt/doc/html/ \; >/dev/null 2>&1
@@ -202,19 +214,15 @@ fi
 echo "Marking \$ID\$..."
 for a in `find $DISTDIR/qt/`; do
     if [ -f $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
-	execut="no"
-	[ -x $a ] && execut="yes"
+	execut=444
+	[ -x $a ] && execut=555
 
 	mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
 	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${REL_VERSION}${type}   edited $mtime"
 	sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >${TMP_FILE}
 	rm -f $a
 	mv ${TMP_FILE} $a
-	if [ "$execut" = "yes" ]; then
-	    chmod 555 $a
-	else
-	    chmod 444 $a
-	fi
+	chmod $execut $a
     fi
 done
 
@@ -524,8 +532,14 @@ for plat in mac win x11 qws; do
 	find "${PLATNAME}" | zip $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
     fi
 
-    #Remove database sources
-    [ -d "$PLATDIR/src/sql" ] && rm -rf "$PLATDIR/src/sql"
+    #Remove modules..
+    for mod in sql; do 
+	P="$PLATDIR/src/$mod"
+	if [ -d "$P" ]; then
+	    rm -rf "$P" && mkdir -p "$P"
+	    echo "DEFINES    += QT_NO_`echo $mod | tr '[a-z]' '[A-Z]'`" > $P/qt_${mod}.pri
+	fi
+    done
 
     #do professional
     echo "Packing professional..."
