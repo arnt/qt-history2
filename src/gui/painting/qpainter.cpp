@@ -1263,8 +1263,6 @@ void QPainter::drawPath(const QPainterPath &path)
         QRect pathBounds = d->state->clipRegion.boundingRect();
         QBitmap scanlines = pd->scanToBitmap(pathBounds, d->state->matrix, &outBounds);
         resetXForm();
-        qDebug() << "QPainter::drawPath(): outbounds is: " << outBounds;
-        qDebug() << " -> bitmap size" << scanlines.width() << scanlines.height();
         translate(outBounds.left(), outBounds.top());
         setClipRegion(scanlines);
         drawRect(0, 0, outBounds.width(), outBounds.height());
@@ -2292,7 +2290,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     be masked to QPixmap::mask()
 */
 
-/*! 
+/*!
     \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh,
                                   Qt::BlendMode mode)
 

@@ -177,6 +177,8 @@ void QPainterPathPrivate::flatten()
 #define MAX_INTERSECTIONS 256
 
 /*!
+  \internal
+
   Scans the path to a bitmap that can be used to define filling. The insides
   of the bitmap will be filled with foreground color and the outsides
   will be filled with background color.
@@ -184,6 +186,19 @@ void QPainterPathPrivate::flatten()
   The cliprectangle \a clip is used to clip the scan area down to the part that
   is currently visible. The clip is specified in painter coordinates. The
   matrix \a xform defines the world matrix. \pathPos
+
+  The algorithm for this works by first flattening the path to linear
+  segments stored in point arrays (flatCurves). We then intersect the
+  bounding rect of all flat curves with the supplied clip rect to determine
+  the area to scan convert.
+
+  For each scan line we check for intersection with the lines (note to
+  self, we could probably reduce the number of line intersection
+  checks by sorting the lines top->bottom and only checking the ones
+  we know might intersect). We register the xcoord of each
+  intersection in the isects array. At the end we sort the
+  intersections from left to right, and fill in based on current
+  fill rule..
 */
 QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
                                           const QWMatrix &/*xform*/,
@@ -191,16 +206,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
 {
     Q_ASSERT(!bits);
 
-    printf("QPainterPathPrivate::scanToBitmap()\n");
-
     flatten();
-
-    for (int i=0; i<flatCurves.size(); ++i) {
-        printf(" -> Curve: \n");
-        QPointArray array = flatCurves.at(i);
-        for (int line=0; line<array.size(); ++line)
-            printf("   -> (%d, %d)\n", array.at(line).x(), array.at(line).y());
-    }
 
     QRect pathBounds;
     for (int fc=0; fc<flatCurves.size(); ++fc)
@@ -213,10 +219,11 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     if (!scanRect.isValid())
         return QBitmap();
 
-    qDebug() << " -> scanRect:" << scanRect;
+    const uint bgPixel = QColor(Qt::color1).rgb();
+    const uint fgPixel = QColor(Qt::color0).rgb();
 
     QImage image(scanRect.width(), scanRect.height(), 1, 2, QImage::LittleEndian);
-    image.fill(QColor(Qt::color1).rgb());
+    image.fill(bgPixel);
     int isects[MAX_INTERSECTIONS];
     int numISects;
     for (int y=0; y<scanRect.height(); ++y) {
@@ -224,69 +231,63 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
         numISects = 0;
         for (int c=0; c<flatCurves.size(); ++c) {
             QPointArray curve = flatCurves.at(c);
-//             if (!scanRect.intersects(curve.boundingRect()))
-//                 continue;
+            if (!scanRect.intersects(curve.boundingRect()))
+                continue;
             Q_ASSERT(curve.size()>=2);
-            for (int i=1; i<curve.size(); ++i) {
-                QPoint p1 = curve.at(i-1);
+            QPoint p1 = curve.at(curve.size()-1);
+            for (int i=0; i<curve.size(); ++i) {
                 QPoint p2 = curve.at(i);
 
                 // Does the line cross the scan line?
-                if ((p1.y() <= scanLineY && p2.y() >= scanLineY)
-                    || (p1.y() >= scanLineY && p2.y() <= scanLineY)) {
+                if ((p1.y() <= scanLineY && p2.y() > scanLineY)
+                    || (p1.y() > scanLineY && p2.y() <= scanLineY)) {
                     Q_ASSERT(numISects<MAX_INTERSECTIONS);
 
                     // Find intersection and add to set of intersetions for this scanline
-                    if (p1.y() == p2.y()) {
-                        isects[numISects++] = p1.x() - scanRect.x();
-                        isects[numISects++] = p2.y() - scanRect.x();
-                    } else {
+                    // Horizontal lines are skipped since their end points are covered
+                    // by other lines, and adding them would inverse the results
+                    if (p1.y() != p2.y()) {
                         double idelta = (p2.x()-p1.x()) / double(p2.y()-p1.y());
                         isects[numISects++] =
-                            qRound((scanLineY - p1.y()) * idelta + p1.x())
-                            - scanRect.x();
+                            qRound((scanLineY - p1.y()) * idelta + p1.x()) - scanRect.x();
                     }
                 }
+                p1 = p2;
             }
         }
 
         // Sort the intersection entries...
-        qHeapSort(&isects[0], &isects[numISects+1]);
-
-        printf("Line: %d (%d) :: ", y, image.bytesPerLine());
-        if (numISects%2==1) {
-            printf("bailing out on line: %d...\n", y);
-            continue;
-        }
+        qHeapSort(&isects[0], &isects[numISects]);
 
         uchar *scanLine = image.scanLine(y);
         for (int i=0; i<numISects; i+=2) {
             int from = qMax(0, isects[i]);
             int to = qMin(scanRect.width(), isects[i+1]);
 
-            printf("%d -> %d (%d), ", from, to, to/8);
+            int entryByte = from / 8;
+            int exitByte = to / 8;
 
-            // First byte in this scan segment...
-            if ((from%8) != 0)
-                *(scanLine + (from/8)) = ((0xff << (from%8))&0xff);
+            // special case for ranges less than a byte.
+            if (exitByte == entryByte) {
+                uint entryPart = ((0xff << (from%8))&0xff);
+                uint exitPart = (0xff >> (8-(to%8)));
+                *(scanLine + entryByte) |= entryPart & exitPart & 0xff;
+            } else {
+                // First byte in this scan segment...
+                *(scanLine + entryByte) |= ((0xff << (from%8))&0xff);
 
-            // The interior of the segment.
-            if ((to-from)/8 > 0)
-                memset(scanLine + (from+7)/8,  QColor(Qt::color0).rgb(), (to-from)/8);
+                // Fill areas between entry and exit bytes.
+                if (exitByte > entryByte + 1)
+                    memset(scanLine + entryByte + 1,  fgPixel, exitByte - entryByte - 1);
 
-//             // Last byte in this scan segment...
-            if ((to%8) != 0) {
-                *(scanLine + (to/8)) = (0xff >> (8-(to%8)));
+                // Last byte in this scan segment...
+                *(scanLine + exitByte) |= (0xff >> (8-(to%8)));
+
             }
-
         }
-        printf("\n");
     }
     QBitmap bm;
     bm.convertFromImage(image);
-
-//     bm.save("scanlines.png", "PNG");
-
     return bm;
 }
 
@@ -366,7 +367,6 @@ void QPainterPath::addRect(const QRect &rect)
 {
     QPainterSubpath subpath;
     int offset = QRect::rectangleMode();
-    printf("offset: %d\n", offset);
     subpath.addLine(rect.topLeft(), rect.topRight() - QPoint(offset, 0));
     subpath.addLine(rect.bottomRight() - QPoint(offset, offset),
                     rect.bottomLeft() - QPoint(0, offset));
