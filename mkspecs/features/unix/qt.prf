@@ -20,7 +20,7 @@ for(QCONF, QCONFIG) {
          warning($$TARGET cannot have a QCONFIG of $$QCONF)
       } else {
          DEFINES *= $$upper(QT_$${QCONF}_LIB)
-	 isEqual(QCONF, core):DEFINES *= QT_COMPAT
+	 isEqual(QCONF, compat):DEFINES *= QT_COMPAT
          LIBS   += -l$${qlib}
       }
    }
