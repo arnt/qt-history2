@@ -498,7 +498,7 @@ protected:
     virtual void hideEvent( QHideEvent * );
 
 #if defined(Q_WS_MAC)
-    virtual bool macEvent( MSG * );
+    virtual bool macEvent( EventHandlerCallRef, EventRef );
 #endif
 #if defined(Q_WS_WIN)
     virtual bool winEvent( MSG * );
