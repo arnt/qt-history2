@@ -149,9 +149,9 @@ bool QTextCommandHistory::isRedoAvailable()
 QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str )
     : QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str )
 {
-    for ( int i = 0; i < (int)text.size(); ++i ) {
-	if ( text[ i ].format() )
-	    text[ i ].format()->addRef();
+    for ( int j = 0; j < (int)text.size(); ++j ) {
+	if ( text[ j ].format() )
+	    text[ j ].format()->addRef();
     }
 }
 
