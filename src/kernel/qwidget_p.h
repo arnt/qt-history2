@@ -56,7 +56,11 @@ struct QTLWExtra {
 #if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
     uint     transparency : 8;                  // Stores transparencylevel on windows.
 #endif
-    ulong    savedFlags;			// Save widgetflags while showing fullscreen
+#if defined(Q_WS_WIN)
+    ulong savedFlags;				// Save window flags while showing fullscreen
+#else
+    Qt::WFlags savedFlags;			// Save widget flags while showing fullscreen
+#endif
     short    basew, baseh;			// base sizes
 #if defined(Q_WS_X11)
     WId  parentWinId;				// parent window Id (valid after reparenting)
