@@ -451,7 +451,7 @@ void qFatal( const char *msg, ... )
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
-#if defined(UNIX) && defined(DEBUG)
+#if defined(_OS_UNIX_) && defined(DEBUG)
 	abort();				// trap; generates core dump
 #else
 	exit( 1 );				// goodbye cruel world
@@ -474,7 +474,7 @@ void fatal( const char *msg, ... )
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
-#if defined(UNIX) && defined(DEBUG)
+#if defined(_OS_UNIX_) && defined(DEBUG)
 	abort();				// trap; generates core dump
 #else
 	exit( 1 );				// goodbye cruel world

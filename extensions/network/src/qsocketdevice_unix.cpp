@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#8 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#9 $
 **
 ** Implementation of Network Extension Library
 **
@@ -32,7 +32,7 @@
 #include <windows.h>
 #endif
 
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -213,7 +213,7 @@ void QSocketDevice::close()
     setStatus( IO_Ok );
 #if defined(_OS_WIN32_)
     ::closesocket( fd );
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
     ::close( fd );
 #else
     #error "This OS is not supported"
@@ -244,7 +244,7 @@ bool QSocketDevice::blocking() const
 	return TRUE;
 #if defined(_OS_WIN32_)
     return TRUE;
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
     int s = fcntl(fd, F_GETFL, 0);
     return !(s >= 0 && ((s & FNDELAY) != 0));
 #else
@@ -278,7 +278,7 @@ void QSocketDevice::setBlocking( bool enable )
 	return;
 #if defined(_OS_WIN32_)
     // Do nothing
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
     int tmp = ::fcntl(fd, F_GETFL, 0);
     if ( tmp >= 0 )
 	tmp = fcntl( fd, F_SETFL, enable ? (tmp&!FNDELAY) : (tmp|FNDELAY) );
@@ -428,7 +428,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 	return FALSE;
     fetchConnectionParameters();
     return TRUE;
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
     if ( r == 0 ) {
 	fetchConnectionParameters();
 	return TRUE;
@@ -490,7 +490,7 @@ bool QSocketDevice::connect( const QString &localfilename )
 	return FALSE;
     fetchConnectionParameters();
     return TRUE;
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
     if ( r == 0 ) {
 	fetchConnectionParameters();
 	return TRUE;
@@ -736,7 +736,7 @@ int QSocketDevice::bytesAvailable() const
     if ( ::ioctlsocket(fd, FIONREAD, &nbytes) < 0 )
 	return -1;
     return nbytes;
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
     // gives shorter than true amounts on Unix domain sockets.
     int nbytes = 0;
     if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
@@ -821,7 +821,7 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	} else {
 #if defined(_OS_WIN32_)
 	    r = ::recv( fd, data, maxlen, 0 );
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
 	    r = ::read( fd, data, maxlen );
 #else
 #error "This OS is not supported"
@@ -896,7 +896,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
     while ( !done ) {
 #if defined(_OS_WIN32_)
 	r = ::send( fd, data, len, 0 );
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
 	r = ::write( fd, data, len );
 #else
 #error "This OS is not supported"
@@ -969,7 +969,7 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 #endif
 	return -1;
     }
-#if defined(_OS_WIN32_) || defined(UNIX)
+#if defined(_OS_WIN32_) || defined(_OS_UNIX_)
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
     a.sin_family = AF_INET;
@@ -1034,7 +1034,7 @@ void QSocketDevice::fetchConnectionParameters()
 	pa = QHostAddress();
 	return;
     }
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
     struct sockaddr_in sa;
     memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;

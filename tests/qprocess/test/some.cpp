@@ -16,7 +16,7 @@
 Some::Some( QObject *p ) : QObject( p )
 {
     proc = new QProcess( this );
-#if defined( UNIX )
+#if defined(_OS_UNIX_)
     proc->setCommand( QDir::current().absFilePath( "some" ) );
 #else
     QDir dir = QDir::current();

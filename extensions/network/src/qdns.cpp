@@ -1511,7 +1511,7 @@ QString QDns::canonicalName() const
 }
 
 
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
 
 // include this stuff late, so any defines won't hurt.  funkily,
 // struct __res_state is part of the api.  normally not used, it says.

@@ -77,7 +77,7 @@
 #undef gettimeofday
 #endif
 
-#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
 #include <sys/ioctl.h>
 static int qt_thread_pipe[2];
 #endif
@@ -1212,7 +1212,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
     }
 
-#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     pipe( qt_thread_pipe );
 #endif
 
@@ -2214,7 +2214,7 @@ bool QApplication::processNextEvent( bool canWait )
     }
     int nsel;
 
-#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     FD_SET( qt_thread_pipe[0], &app_readfds );
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
@@ -2243,7 +2243,7 @@ bool QApplication::processNextEvent( bool canWait )
     if ( qt_postselect_handler )
 	qt_postselect_handler();
 
-#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
 	::read(qt_thread_pipe[0],&c,1);
@@ -2287,7 +2287,7 @@ bool QApplication::processNextEvent( bool canWait )
 */
 void QApplication::wakeUpGuiThread()
 {
-#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     char c = 0;
     int nbytes;
     if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
@@ -2299,7 +2299,7 @@ void QApplication::wakeUpGuiThread()
 // We've now become the GUI thread
 void QApplication::guiThreadTaken()
 {
-#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     char c = 1;
     int nbytes;
     if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {

@@ -63,7 +63,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
 // getlogin()
 #include <unistd.h>
 
@@ -2653,7 +2653,7 @@ void QFileDialog::setDir( const QString & pathstr )
     if ( dr.isEmpty() )
 	return;
 
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
     if ( dr.length() && dr[0] == '~' ) {
 	struct passwd *pw;
 	int i;
@@ -4718,7 +4718,7 @@ QUrl QFileDialog::url() const
 
 static bool isRoot( const QUrl &u )
 {
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
     if ( u.path() == "/" )
 	return TRUE;
 #elif defined(_OS_WIN32_)

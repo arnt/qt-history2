@@ -30,7 +30,7 @@
 
 #include "qfileinfo.h"
 
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
 #define QT_USE_MMAP
 #endif
 

@@ -283,15 +283,11 @@ uint QFile::size() const
     if ( isOpen() ) {
 	FSTAT( fh ? FILENO(fh) : fd, &st );
     } else {
-#if defined (UNIX)
-	STAT( QFile::encodeName(fn), &st );
-#elif defined(_OS_WIN32_)
 	if ( qt_winunicode ) {
 	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), (STATBUF4TSTAT*)&st);
 	} else {
 	    STAT(qt_win95Name(fn), &st);
 	}
-#endif
     }
     return st.st_size;
 }

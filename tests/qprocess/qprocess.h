@@ -7,12 +7,12 @@
 #include "qdir.h"
 #include "qsocketnotifier.h"
 #include "qqueue.h"
-#if defined( UNIX )
+#if defined(_OS_UNIX_)
 #include "qlist.h"
 #endif
 #endif // QT_H
 
-#if defined( UNIX )
+#if defined(_OS_UNIX_)
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -36,7 +36,7 @@ private:
     QStringList arguments;
     QQueue<QByteArray> stdinBuf;
 
-#if defined ( _WS_WIN_ )
+#if defined (_WS_WIN_)
     HANDLE pipeStdin[2];
     HANDLE pipeStdout[2];
     HANDLE pipeStderr[2];
@@ -58,14 +58,14 @@ private:
     int socketStderr[2];
 #endif
 
-#if defined( _WS_WIN_ )
+#if defined(_WS_WIN_)
     PROCESS_INFORMATION pid;
     uint stdinBufRead;
 #else
     pid_t pid;
     ssize_t stdinBufRead;
 #endif
-#if defined ( UNIX )
+#if defined(_OS_UNIX_)
     QProcess *d;
     static struct sigaction *oldact;
     static QList<QProcess> *proclist;

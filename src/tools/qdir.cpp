@@ -948,7 +948,7 @@ bool QDir::exists( const QString &name, bool acceptAbsPath )
 
 char QDir::separator()
 {
-#if defined( UNIX )
+#if defined(_OS_UNIX_)
     return '/';
 #elif defined (_OS_FATFS_)
     return '\\';

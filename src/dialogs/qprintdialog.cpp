@@ -752,7 +752,7 @@ QGroupBox * QPrintDialog::setupDestination()
     d->printers->addColumn( tr("Comment"), 150 );
     d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
     char * etcLpDefault = 0;
 
     parsePrintcap( d->printers );
@@ -792,7 +792,7 @@ QGroupBox * QPrintDialog::setupDestination()
     parseDollarPrinters( d->printers );
 #endif
 
-#if defined(UNIX) || defined(_OS_VMS_)
+#if defined(_OS_UNIX_) || defined(_OS_VMS_)
     // all printers hopefully known.  try to find a good default
     QString dollarPrinter;
     {

@@ -40,7 +40,7 @@
 #include <dos.h>
 #elif defined(_OS_OS2_)
 #include <os2.h>
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
 #include <sys/time.h>
 #include <unistd.h>
 #undef	gettimeofday
@@ -881,7 +881,7 @@ bool QTime::currentTime( QTime *ct )
 	     t.second*1000 + t.hsecond*10;
     return (t.hour== 0 && t.minute == 0);
 
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
 
     struct timeval tv;
     gettimeofday( &tv, 0 );

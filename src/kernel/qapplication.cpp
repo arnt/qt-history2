@@ -760,7 +760,7 @@ void QApplication::initialize( int argc, char **argv )
     session_manager = new QSessionManager( qApp, session_id );
 #endif
 
-#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     qApp->lock();
     qt_exec_stack=new QExecStack;
 #endif

@@ -123,11 +123,10 @@
 #error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
 #endif
 
-#if !defined(UNIX)
-#define UNIX
-#endif
 #if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_OS2_) || defined(_OS_WIN32_)
-#undef	UNIX
+#undef	_OS_UNIX_
+#elif !defined(_OS_UNIX_)
+#define _OS_UNIX_
 #endif
 
 
@@ -238,7 +237,7 @@
 #define _WS_WIN32_
 #elif defined(_OS_OS2_)
 #error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
-#elif defined(UNIX)
+#elif defined(_OS_UNIX_)
 #ifdef QWS
 #define _WS_QWS_
 #else

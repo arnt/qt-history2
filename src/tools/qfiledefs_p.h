@@ -48,7 +48,7 @@
 #endif
 #include <fcntl.h>
 #include <errno.h>
-#if defined(UNIX)
+#if defined(_OS_UNIX_)
 # include <dirent.h>
 # include <unistd.h>
 #endif
@@ -57,8 +57,8 @@
 # if defined(__CYGWIN32__)
 #  include <dirent.h>
 #  include <unistd.h>
-#  if !defined(UNIX)
-#   define UNIX
+#  if !defined(_OS_UNIX_)
+#   define _OS_UNIX_
 #  endif
 # else
 #  include <io.h>

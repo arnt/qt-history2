@@ -3548,7 +3548,7 @@ bool QImageIO::read()
 
     h = get_image_handler( image_format );
     if ( file.isOpen() ) {
-#if !defined(UNIX)
+#if !defined(_OS_UNIX_)
 	if ( h && h->text_mode ) {		// reopen in translated mode
 	    file.close();
 	    file.open( IO_ReadOnly | IO_Translate );
