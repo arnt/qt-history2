@@ -3805,7 +3805,7 @@ QString QRegExp::cap(int nth)
 
     For zero-length matches, pos() always returns -1. (For example, if
     cap(4) would return an empty string, pos(4) returns -1.) This is
-    due to an implementation tradeoff.
+    a feature of the implementation.
 
     \sa capturedTexts() exactMatch() indexIn() lastIndexIn()
 */
