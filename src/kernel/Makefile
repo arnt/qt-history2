@@ -49,7 +49,7 @@ OBJECTS		= qapp.o	qapp_x11.o	qbitmap.o	qcol_x11.o    \
 		  qaccel.o	qdialog.o	qimage.o	qpmcache.o
 SRCMETA		= maccel.cpp	mdialog.cpp	mtimer.cpp	mwindow.cpp     \
 		  mwidget.cpp
-OBJMETA		= maccel.o	mdialog.o	mtimer.o	mwindow.o	      \
+OBJMETA		= mapp.o	maccel.o	mdialog.o	mtimer.o	mwindow.o	      \
 		  mwidget.o
 TARGET		= $(LIBDIR)/libqkernel.a
 
@@ -110,6 +110,9 @@ checkout:
 
 maccel.cpp: qaccel.h
 	$(QTDIR)/bin/moc qaccel.h -o maccel.cpp
+
+mapp.cpp: qapp.h
+	$(QTDIR)/bin/moc qapp.h -o mapp.cpp
 
 mdialog.cpp: qdialog.h
 	$(QTDIR)/bin/moc qdialog.h -o mdialog.cpp
