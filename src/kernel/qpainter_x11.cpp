@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#206 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#205 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#206 $");
 
 
 /*****************************************************************************
@@ -2388,7 +2388,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     if ( mask && !hasClipping() ) {
 	if ( mono ) {				// needs GCs pen color
-	    bool selfmask = mask->handle() == pixmap.handle();
+	    bool selfmask = pixmap.data->selfmask;
 	    if ( selfmask ) {
 		XSetFillStyle( dpy, gc, FillStippled );
 		XSetStipple( dpy, gc, pixmap.handle() );

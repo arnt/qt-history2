@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#71 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#71 $");
 
 
 /*!
@@ -475,7 +475,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 	bool clipmask = FALSE;
 	if ( mask ) {
-	    if ( mask->handle() == src->handle() ) {
+	    if ( ((QPixmap*)src)->data->selfmask ) {
 		gcvals.fill_style = FillStippled;
 	    } else {
 		XSetClipMask( dpy, gc, mask->handle() );

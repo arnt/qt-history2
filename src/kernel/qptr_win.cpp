@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#63 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#63 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -1891,7 +1891,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, mask->hbm(),
 		     sx, sy, MAKEROP4(SRCCOPY,0x00aa0029) );
 	} else {
-	    if ( pm->depth() == 1 && pm->handle() == mask->handle() ) {
+	    if ( pm->data->selfmask ) {
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 		b = SelectObject( hdc, b );
 		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
