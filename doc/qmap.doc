@@ -734,13 +734,13 @@
 /*!
     \fn QValueList<Key> QMap::keys() const
 
-    Returns a list of all the keys in the map.
+    Returns a list of all the keys in the map, in order.
 */
 
 /*!
     \fn QValueList<T> QMap::values() const
 
-    Returns a list of all the values in the map.
+    Returns a list of all the values in the map, in key order.
 */
 
 /*****************************************************************************
