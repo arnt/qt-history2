@@ -23,7 +23,7 @@ void MainForm::init()
 void MainForm::optionsDlg()
 {
     DialogForm *dlg = new DialogForm( this, "dialog", TRUE );
-    Extension *ext = (Extension*)dlg->extension()->qt_cast( "Extension" );
+    Extension *ext = qt_cast<Extension *>(dlg->extension());
     if ( !ext )
 	return;
     dlg->sessionsCheckBox->setChecked( sessions );

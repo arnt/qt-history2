@@ -521,10 +521,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     statusBar()->addWidget( msg, 4 );
     QToolTip::add( msg, "Message area" );
 
-    QAccel* a = new QAccel( this );
-    a->connectItem(  a->insertItem( Key_F9 ),
-		     this, SLOT( showProperties() ) );
-
     prog = new QProgressBar( statusBar(), "progress" );
     prog->setTotalSteps( 100 );
     progress = 64;
@@ -731,23 +727,4 @@ void WidgetView::clicked( QListViewItem* /*item*/ )
 void WidgetView::mySelectionChanged( QListViewItem* /*item*/ )
 {
     //qDebug("mySelectionChanged %p", item );
-}
-
-void WidgetView::showProperties()
-{
-    if ( !qApp->focusWidget() )
-	return;
-    QCString output;
-    output.sprintf( "Properties for class '%s'",
-		    qApp->focusWidget()->className() );
-    int i = 0;
-    while( i < (int) qApp->focusWidget()->metaObject()->numProperties( TRUE ) ) {
-	const QMetaProperty* p
-	    = qApp->focusWidget()->metaObject()->property( i, TRUE );
-	QCString tmp;
-	tmp.sprintf( "\n %2d: %s (read-%s, %s)", ++i, p->name(),
-		     p->writable() ? "write" : "only", p->type() );
-	output += tmp;
-    }
-    qDebug( output );
 }

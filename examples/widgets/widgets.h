@@ -93,7 +93,6 @@ private slots:
 
     void	open();
     void	dummy();
-    void	showProperties();
 
 private:
     bool	eventFilter( QObject *, QEvent * );
