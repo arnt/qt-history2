@@ -11,12 +11,12 @@ sub fixup {
     local ($_) = @_;
 
     # fix the font changes
-    s-<tt>(.*?)</tt>-\\fC$1\\fP-gs;
-    s-<dfn>(.*?)</dfn>-\\fI$1\\fP-gs;
-    s-<em>(.*?)</em>-\\fI$1\\fP-gs;
-    s-<strong>(.*?)</strong>-\\fB$1\\fP-gs;
-    s-<i>(.*?)</i>-\\fI$1\\fP-gs;
-    s-<var>(.*?)</var>-\\fI$1\\fP-gs;
+    s-<tt>(.*?)</tt>-\\fC$1\\fR-gs;
+    s-<dfn>(.*?)</dfn>-\\fI$1\\fR-gs;
+    s-<em>(.*?)</em>-\\fI$1\\fR-gs;
+    s-<strong>(.*?)</strong>-\\fB$1\\fR-gs;
+    s-<i>(.*?)</i>-\\fI$1\\fR-gs;
+    s-<var>(.*?)</var>-\\fI$1\\fR-gs;
 
     # images
     s!\s*<img src=(.*?\.gif).*?>\s*!\n.ce 1\n.B "[Image Omitted]"\n.PP\n!gs;
@@ -117,8 +117,8 @@ sub parsemembers {
     s@\s*<li>\s*(.*?)\s*(?=<(?:(?:li)|(?:/ul)))@
     {
 	my ($f) = $1;
-	$f =~ s/\\fB(\w[\w\d]+)\\fP/$1/gs;	
-	$f =~ s/\\fB(operator.*?)\\fP/$1/gs;
+	$f =~ s/\\fB(\w[\w\d]+)\\fR/$1/gs;	
+	$f =~ s/\\fB(operator.*?)\\fR/$1/gs;
 	$f =~ s/\x22/QUOTEHERE/gs;
 	$f =~ s/((?:(?:[\w\*])|(?:\&amp\;))\s*)\b(\w[\w\d]*)((?:\s*=\s*(?:(?:[\-\w\d]+)|(?:'.'))\s*)?[,\)])/$1\x22 \x22$2\x22 \x22$3/gs;
 	$f =~ s/QUOTEHERE/""/gs;
@@ -160,9 +160,9 @@ sub parseclassfile {
     s-(?:\s*\n\.PP)*\s*<h3\b.*?>\s*(.*?)</h3.*?>\s*(?:\.PP\s*)*-\n.SH \x22$1\x22\n-gsx;
 
     # fonts, code and emphasized text
-    s-<em>(.*?)</em>-\\fI$1\\fP-gs;
-    s-<strong>(.*?)</strong>-\\fB$1\\fP-gs;
-    s-<code>(.*?)</code>-\\fC$1\\fP-gs;
+    s-<em>(.*?)</em>-\\fI$1\\fR-gs;
+    s-<strong>(.*?)</strong>-\\fB$1\\fR-gs;
+    s-<code>(.*?)</code>-\\fC$1\\fR-gs;
 
     # preformatted stuff
     s-\s*(?:\.PP\s*)?<pre>(.*?)</pre>\s*-&parsepre($1)-gse;
@@ -212,7 +212,7 @@ while ( m@<li><strong><a href=\"(.*?\.html)\">(.*?)</a></strong> \((.*?)\)\n@gs 
 
 foreach ( keys %desc ) {
     $desc{$_} =~ s-<a .*?>(.*?)</a>-$1-gs;
-    $desc{$_} =~ s-<code>(.*?)</code>-\\fC$1\\fP-gs;
+    $desc{$_} =~ s-<code>(.*?)</code>-\\fC$1\\fR-gs;
 }
 
 foreach $url ( sort keys %name ) { #'qstring.html'
@@ -229,7 +229,6 @@ foreach $url ( sort keys %name ) { #'qstring.html'
 .\\\" LICENSE file included in the distribution for a complete license
 .\\\" statement.
 .\\\"
-.\\\" hilit19 workaround: \"
 .ad l
 .nh
 .SH NAME
