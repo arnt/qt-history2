@@ -10,7 +10,7 @@
 
 class QTextImageFormat;
 
-class QTextImageHandler : public QObject,
+class Q_GUI_EXPORT QTextImageHandler : public QObject,
                           public QTextObjectInterface
 {
     Q_OBJECT
