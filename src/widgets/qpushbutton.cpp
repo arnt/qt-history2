@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qpushbutton.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_PUSHBUTTON
 #include "qdialog.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
@@ -257,7 +257,11 @@ void QPushButton::init()
     lastEnabled = FALSE;
     hasMenuArrow = FALSE;
     flt = FALSE;
+#ifndef QT_NO_DIALOG
     autoDefButton = topLevelWidget()->inherits("QDialog");
+#else
+    autoDefButton = FALSE;
+#endif
     setBackgroundMode( PaletteButton );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
@@ -356,8 +360,10 @@ void QPushButton::setDefault( bool enable )
     if ( (bool)defButton == enable )
 	return;					// no change
     defButton = enable;
+#ifndef QT_NO_DIALOG
     if ( defButton && topLevelWidget()->inherits( "QDialog" ) )
  	((QDialog*)topLevelWidget())->setDefault( this );
+#endif
     update();
 }
 
@@ -555,9 +561,11 @@ void QPushButton::focusInEvent( QFocusEvent *e )
 {
     if ( autoDefButton )
 	setDefault( TRUE );
+#ifndef QT_NO_DIALOG
     else {
 	if ( topLevelWidget()->inherits("QDialog") )
 	    ((QDialog*)topLevelWidget())->hideDefault();
+#endif
     }
     QButton::focusInEvent( e );
 }
@@ -566,10 +574,12 @@ void QPushButton::focusInEvent( QFocusEvent *e )
 */
 void QPushButton::focusOutEvent( QFocusEvent *e )
 {
+#ifndef QT_NO_DIALOG
     if ( defButton && autoDefButton ) {
 	if ( topLevelWidget()->inherits("QDialog") )
 	    ((QDialog*)topLevelWidget())->setDefault( 0 );
     }
+#endif
 
     QButton::focusOutEvent( e );
 }
@@ -695,6 +705,7 @@ void QPushButton::popupPressed()
 void QPushButton::setFlat( bool f )
 {
     flt = f;
+    update();
 }
 
 /*!

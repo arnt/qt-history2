@@ -246,9 +246,11 @@ void QMotifPlusStyle::polish(QWidget *widget)
 	((QFrame *) widget)->frameStyle() == QFrame::Panel)
 	((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
 
+#ifndef QT_NO_MENUBAR
     if (widget->inherits("QMenuBar") &&
 	((QMenuBar *) widget)->frameStyle() != QFrame::NoFrame)
 	((QMenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+#endif
 
     if (widget->inherits("QToolBar"))
 	widget->layout()->setMargin(2);
@@ -331,9 +333,9 @@ void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p)
     else
 	fill = button->colorGroup().brush(QColorGroup::Button);
 
-    drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
-	       button->colorGroup(), button->isOn() || button->isDown(),
-	       &fill);
+    if ( !button->isFlat() || button->isOn() || button->isDown() )
+	drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
+		   button->colorGroup(), button->isOn() || button->isDown(), &fill);
 }
 
 

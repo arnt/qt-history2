@@ -502,8 +502,9 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	}
     }
 
-    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
-		&fill );
+    if ( !btn->isFlat() || btn->isOn() || btn->isDown() )
+	drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+		    &fill );
 
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );

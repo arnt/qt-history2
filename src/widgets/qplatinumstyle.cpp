@@ -457,12 +457,14 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	y2 -= diw;
     }
 
-    if( useBevelButton)
-	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
-			 &fill );
-    else
-        drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
-		    &fill );
+    if ( !btn->isFlat() || btn->isOn() || btn->isDown() ) {
+	if( useBevelButton)
+	    drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+			     &fill );
+	else
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+			&fill );
+    }
 
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );

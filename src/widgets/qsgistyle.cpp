@@ -380,7 +380,8 @@ QSGIStyle::drawPushButton( QPushButton* btn, QPainter* p)
     }
 
     QBrush fill = g.brush( QColorGroup::Button );
-    drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill );
+    if ( !btn->isFlat() || btn->isOn() || btn->isDown() )
+	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill );
 
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
@@ -1335,7 +1336,6 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 		    if ( lastWidget->ownPalette() )
 			lastWidgetPalette = new QPalette( lastWidget->palette() );
 		    pal.setColor( QPalette::Active, QColorGroup::Button, pal.active().midlight() );
-		    pal.setColor( QPalette::Inactive, QColorGroup::Button, pal.inactive().midlight() );
 		    lastWidget->setPalette( pal );
 		}
 	    } else if ( o->isWidgetType() ) {		    // must be either slider or scrollbar
