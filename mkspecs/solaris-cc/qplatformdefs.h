@@ -33,6 +33,9 @@
 #include <sys/wait.h>
 #include <netinet/in.h>
 
+// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED
+static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
+{ return ::connect(s, addr, addrlen); }
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
@@ -42,7 +45,7 @@
 #define QT_STAT_DIR		S_IFDIR
 #define QT_STAT_MASK		S_IFMT
 #define QT_STAT_LNK		S_IFLNK
-#define QT_SOCKET_CONNECT	::connect
+#define QT_SOCKET_CONNECT	qt_socket_connect
 #define QT_FILENO		fileno
 #define QT_OPEN			::open
 #define QT_CLOSE		::close
@@ -95,5 +98,8 @@ extern "C" int gethostname(char *, int);
 #define QT_VSNPRINTF		::vsnprintf
 #endif
 
+#ifdef connect
+#undef connect
+#endif
 
 #endif // QPLATFORMDEFS_H
