@@ -1261,7 +1261,7 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
   or drag-and-drop the text, but cannot edit it.
   They never see a cursor in this case.
 
-  \sa setEnabled(), readOnly()
+  \sa setEnabled(), isReadOnly()
 */
 void QLineEdit::setReadOnly( bool enable )
 {
@@ -1269,10 +1269,10 @@ void QLineEdit::setReadOnly( bool enable )
 }
 
 /*!
-  Returns the read-only mode of the line edit.
+  Returns whether the line-edit is read-only.
   \sa setReadOnly()
 */
-bool QLineEdit::readOnly() const
+bool QLineEdit::isReadOnly() const
 {
     return d->readonly;
 }

@@ -74,7 +74,7 @@ public:
 #error "Make setReadOnly virtual"
 #endif
     void setReadOnly( bool );
-    bool readOnly() const;
+    bool isReadOnly() const;
 
     virtual void setValidator( const QValidator * );
     const QValidator * validator() const;
