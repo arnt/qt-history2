@@ -487,7 +487,7 @@ QVariant::QVariant( const QImage& val )
 
 /*!
   Constructs a new variant with a brush value.
-  
+
   Since QBrush is explicitly shared you may need to pass a deep copy
   to the variant using QBrush::copy().
 */
@@ -573,7 +573,7 @@ QVariant::QVariant( const QIconSet& val )
 
 /*!
   Constructs a new variant with a region.
-  
+
   Since QRegion is explicitly shared you may need to pass a deep copy
   to the variant using QRegion::copy().
 */
@@ -608,7 +608,7 @@ QVariant::QVariant( const QCursor& val )
 
 /*!
   Constructs a new variant with an point array value.
-  
+
   Since QPointArray is explicitly shared you may need to pass a deep copy
   to the variant using QPointArray::copy().
 */
@@ -744,7 +744,7 @@ void QVariant::clear()
 
    For dependency reasons, this table is duplicated in moc.y. If you
    change one, change both.
-   
+
    (Search for the word 'Attention' in moc.y.)
 */
 static const int ntypes = 26;
@@ -823,14 +823,14 @@ void QVariant::load( QDataStream& s )
 	d->typ = t;
 	break;
     case Map:
-	{ 
+	{
 	    QMap<QString,QVariant>* x = new QMap<QString,QVariant>;
 	    s >> *x;
 	    d->value.ptr = x;
 	}
 	break;
     case List:
-	{ 
+	{
 	    QValueList<QVariant>* x = new QValueList<QVariant>;
 	    s >> *x;
 	    d->value.ptr = x;
@@ -991,7 +991,7 @@ void QVariant::load( QDataStream& s )
 	}
 	break;
     case SizePolicy:
-	{ 
+	{
 	    int h,v;
 	    Q_INT8 hfw;
 	    s >> h >> v >> hfw;
@@ -1090,7 +1090,7 @@ void QVariant::save( QDataStream& s ) const
     case SizePolicy:
 	{
 	    QSizePolicy p = toSizePolicy();
-	    s << (int) p.horData() << (int) p.verData() 
+	    s << (int) p.horData() << (int) p.verData()
 	      << (Q_INT8) p.hasHeightForWidth();
 	}
 	break;
@@ -1243,9 +1243,9 @@ const QStringList QVariant::toStringList() const
 	QValueList<QVariant>::ConstIterator it = listBegin();
 	QValueList<QVariant>::ConstIterator end = listEnd();
 	while( it != end ) {
-	    const QVariant & tmp( *it );
+	    QString tmp = (*it).toString();
 	    ++it;
-	    lst.append( tmp.toString() );
+	    lst.append( tmp );
 	}
 	return lst;
     }
@@ -1987,7 +1987,7 @@ bool QVariant::operator==( const QVariant &v ) const
     case ColorGroup:
 	return v.toColorGroup() == toColorGroup();
     case IconSet:
-	return v.toIconSet().pixmap().serialNumber() 
+	return v.toIconSet().pixmap().serialNumber()
 	    == toIconSet().pixmap().serialNumber();
     case Int:
 	return v.toInt() == toInt();
