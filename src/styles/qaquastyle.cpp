@@ -159,58 +159,59 @@ void QAquaStylePrivate::doFocus(QWidget *w)
 
 
 /*!
-  \class QAquaStyle qaquastyle.h
-  \brief The QAquaStyle class implements the Aqua 'Look and Feel'.
-  \ingroup appearance
+    \class QAquaStyle qaquastyle.h
+    \brief The QAquaStyle class implements the Aqua 'Look and Feel'.
+    \ingroup appearance
 
-  The class tries to emulate the Mac OS X Aqua GUI style using the
-  QStyle system. There are additional issues that should be taken into
-  consideration to make an application compatible with the
-  \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
-  Aqua Style Guidelines \endlink. Some of these issues are outlined
-  below.
+    The class tries to emulate the Mac OS X Aqua GUI style using the
+    QStyle system. There are additional issues that should be taken
+    into consideration to make an application compatible with the
+    \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
+    Aqua Style Guidelines \endlink. Some of these issues are outlined
+    below.
 
-  \list
+    \list
 
-  \i Layout - The restrictions on window layout are such that some
-  aspects of layout that are style-dependent cannot be achieved using
-  QLayout. Changes are being considered (and feedback would be
-  appreciated) to make layouts QStyle-able. Some of the restrictions
-  involve horizontal and vertical widget alignment and widget size
-  (covered below).
+    \i Layout - The restrictions on window layout are such that some
+    aspects of layout that are style-dependent cannot be achieved
+    using QLayout. Changes are being considered (and feedback would be
+    appreciated) to make layouts QStyle-able. Some of the restrictions
+    involve horizontal and vertical widget alignment and widget size
+    (covered below).
 
-  \i Widget size - Aqua allows widgets to have specific fixed sizes.
-  Qt does not implement this behaviour so as to maintain
-  multiplatform compatibility. As a result you may scale a widget to
-  any size and QAquaStyle will respect your size, even if it is not
-  appropriate in terms of the Aqua Style Guidelines.
+    \i Widget size - Aqua allows widgets to have specific fixed sizes.
+    Qt does not implement this behaviour so as to maintain
+    multiplatform compatibility. As a result you may scale a widget to
+    any size and QAquaStyle will respect your size, even if it is not
+    appropriate in terms of the Aqua Style Guidelines.
 
-  \i Effects - QAquaStyle is an emulating style. Not all of the
-  animations and effects have been completed. If you notice any
-  shortcomings please report them as bugs. We aim to ensure that
-  QAquaStyle is as close to the native look and feel as possible.
+    \i Effects - QAquaStyle is an emulating style. Not all of the
+    animations and effects have been completed. If you notice any
+    shortcomings please report them as bugs. We aim to ensure that
+    QAquaStyle is as close to the native look and feel as possible.
 
-  \endlist
+    \endlist
 
-  There are other issues that need to be considered in the feel of
-  your application (including the general color scheme to match the
-  Aqua colors). The Guidelines mentioned above will remain current
-  with new advances and design suggestions for Mac OS X.
+    There are other issues that need to be considered in the feel of
+    your application (including the general color scheme to match the
+    Aqua colors). The Guidelines mentioned above will remain current
+    with new advances and design suggestions for Mac OS X.
 
-  QAquaStyle is currently a pretty good representation, even though it
-  has different design goals from native Aqua.
+    QAquaStyle is currently a pretty good representation, even though
+    it has different design goals from native Aqua.
 
-  \warning The QAquaStyle code may not be distributed on any platform
-  other than Mac OS X, or included in any other licensed package,
-  unless explicit permission is granted by Trolltech.
+    \warning The QAquaStyle code may not be distributed on any
+    platform other than Mac OS X, or included in any other licensed
+    package, unless explicit permission is granted by Trolltech.
 
-  Note that the functions provided by QAquaStyle are reimplementations
-  of QStyle functions; see QStyle for their documentation.
+    Note that the functions provided by QAquaStyle are
+    reimplementations of QStyle functions; see QStyle for their
+    documentation.
 */
 
 
 /*!
-  Constructs a QAquaStyle object.
+    Constructs a QAquaStyle object.
 */
 QAquaStyle::QAquaStyle()
 {
@@ -745,9 +746,9 @@ void QAquaStyle::drawControl( ControlElement element,
     switch(element) {
     case CE_PopupMenuScroller: {
 	p->fillRect( r.x(), r.y(), r.width(), r.height(), cg.brush( QColorGroup::Button ));
-	const int w = 10, x = (r.width() / 2) - (w / 2), 
+	const int w = 10, x = (r.width() / 2) - (w / 2),
 		  h = 10, y = (r.height() / 2) - (h / 2);
-	drawPrimitive((how & Style_Down) ? PE_ArrowDown : PE_ArrowUp, p, 
+	drawPrimitive((how & Style_Down) ? PE_ArrowDown : PE_ArrowUp, p,
 		      QRect(r.x() + x, r.y() + y, w, h), cg, flags, opt);
 	break; }
     case CE_TabBarTab: {
