@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 1.12 1996/09/18 15:10:17 agulbra Exp $
+** $Id: debug.doc,v 1.13 1996/09/19 17:50:29 hanord Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -30,7 +30,7 @@ over -nograb even when -nograb is last on the command line.
 <li>-sync Runs the application in X synchronous mode.  Synchronous
 mode forces the X server perform each X client request immediately and
 not use a buffer optimizaton. It makes the program easier to debug and
-often much slower.  The -sync option is only valid for the X-Windows
+often much slower.  The -sync option is only valid for the X11
 version of Qt.
 </ul>
 <p>
@@ -53,7 +53,7 @@ errors occur.
 </ul>
 
 The Qt implementation of these functions prints the text to the \c stderr
-output under UNIX/X-Windows and to the debugger under Windows.  You can
+output under Unix/X11 and to the debugger under Windows.  You can
 take over these functions by installing a message handler;
 \link ::qInstallMsgHandler() qInstallMsgHandler()\endlink.
 

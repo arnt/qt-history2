@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.19 1996/09/18 15:10:19 agulbra Exp $
+** $Id: tutorial.doc,v 1.20 1996/09/19 17:50:30 hanord Exp $
 **
 ** Tutorial
 **
@@ -106,7 +106,7 @@ however, Qt needs to process these arguments (see below).
 \line QApplication
 
 \c a is this program's QApplication.  Here it is created and processes
-some of the command-line arguments (such as -display under X-Windows).
+some of the command-line arguments (such as -display under X11).
 Note that all command-line arguments recognized by Qt are removed from
 \c argv (and \c argc is decremented accordingly).  See the \link
 QApplication::argv() QApplication::argv()\endlink documentation for
@@ -162,7 +162,7 @@ button, and on it you can read the famous words, Hello World!
 
 <h2>Excercises</h2>
 
-Try to resize the window.  Press the button.  If you're running X-Windows,
+Try to resize the window.  Press the button.  If you're running X11,
 try running the program with the -geometry option
 (e.g. -geometry 100x200+10+20)
 
@@ -326,7 +326,7 @@ Note that if you resize the widget, the button is not resized, unlike
 the programs in the first two chapters.  That's because the top level
 widget is a QWidget, which does not react to resizing.
 
-If you're using X-windows, you will see the same effect if you invoke
+If you're using X11, you will see the same effect if you invoke
 the program with -geometry.
 
 <h2>Excercises</h2>
@@ -334,7 +334,7 @@ the program with -geometry.
 Try changing the arguments to quit.move() and/or quit.resize().  What
 happens if quit is partly "outside" w?
 
-For X-Windows users:
+For X11 users:
 
 Also try moving the w.resize() to after the quit.move/resize, and to
 after \link QApplication::setMainWidget() a.setMainWidget()\endlink.
@@ -746,7 +746,7 @@ Qt Tutorial - t7/lcdrange.h
 /*! \page t7-makefile.html
 <title>Qt tutorial - t7/makefile</title>
 </head><body bgcolor=white>
-<h1 align=center>UNIX Makefile for \link t7.html tutorial 7\endlink</h1>
+<h1 align=center>Unix Makefile for \link t7.html tutorial 7\endlink</h1>
 <hr>
 \include t7/Makefile
 */
@@ -966,7 +966,7 @@ You may now go on to \link t8.html chapter eight. \endlink
 /*! \page t8-makefile.html
 <title>Qt tutorial - t8/makefile</title>
 </head><body bgcolor=white>
-<h1 align=center>UNIX Makefile for \link t8.html tutorial 8\endlink</h1>
+<h1 align=center>Unix Makefile for \link t8.html tutorial 8\endlink</h1>
 <hr>
 \include t8/Makefile
 */
@@ -1253,7 +1253,7 @@ You may now go on to \link t9.html chapter nine. \endlink
 /*! \page t9-makefile.html
 <title>Qt tutorial - t9/makefile</title>
 </head><body bgcolor=white>
-<h1 align=center>UNIX Makefile for \link t9.html tutorial 9\endlink</h1>
+<h1 align=center>Unix Makefile for \link t9.html tutorial 9\endlink</h1>
 <hr>
 \include t9/Makefile
 */
@@ -1443,7 +1443,7 @@ You may now go on to \link t10.html chapter ten. \endlink
 /*! \page t10-makefile.html
 <title>Qt tutorial - t10/makefile</title>
 </head><body bgcolor=white>
-<h1 align=center>UNIX Makefile for \link t10.html tutorial 10\endlink</h1>
+<h1 align=center>Unix Makefile for \link t10.html tutorial 10\endlink</h1>
 <hr>
 \include t10/Makefile
 */
@@ -1704,7 +1704,7 @@ You may now go on to \link t11.html chapter eleven. \endlink
 /*! \page t11-makefile.html
 <title>Qt tutorial - t11/makefile</title>
 </head><body bgcolor=white>
-<h1 align=center>UNIX Makefile for \link t11.html tutorial 11\endlink</h1>
+<h1 align=center>Unix Makefile for \link t11.html tutorial 11\endlink</h1>
 <hr>
 \include t11/Makefile
 */
@@ -1983,7 +1983,7 @@ You may now go on to \link t12.html chapter twelve. \endlink
 /*! \page t12-makefile.html
 <title>Qt tutorial - t12/makefile</title>
 </head><body bgcolor=white>
-<h1 align=center>UNIX Makefile for \link t12.html tutorial 12\endlink</h1>
+<h1 align=center>Unix Makefile for \link t12.html tutorial 12\endlink</h1>
 <hr>
 \include t12/Makefile
 */
@@ -2377,7 +2377,7 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-makefile.html
 <title>Qt tutorial - t13/makefile</title>
 </head><body bgcolor=white>
-<h1 align=center>UNIX Makefile for \link t13.html tutorial 13\endlink</h1>
+<h1 align=center>Unix Makefile for \link t13.html tutorial 13\endlink</h1>
 <hr>
 \include t13/Makefile
 */
@@ -2698,7 +2698,7 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-makefile.html
 <title>Qt tutorial - t14/makefile</title>
 </head><body bgcolor=white>
-<h1 align=center>UNIX Makefile for \link t14.html tutorial 14\endlink</h1>
+<h1 align=center>Unix Makefile for \link t14.html tutorial 14\endlink</h1>
 <hr>
 \include t14/Makefile
 */
