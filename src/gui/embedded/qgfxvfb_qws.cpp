@@ -85,7 +85,7 @@ void QVFbMouseHandler::readMouseData()
     } while (n > 0);
 
     int idx = 0;
-    while (mouseIdx-idx >= int(sizeof(QPoint) + sizeof(int))) {
+    while (mouseIdx-idx >= int(sizeof(QPoint) + 2*sizeof(int))) {
         uchar *mb = mouseBuf+idx;
         QPoint mousePos = *reinterpret_cast<QPoint *>(mb);
         mb += sizeof(QPoint);
