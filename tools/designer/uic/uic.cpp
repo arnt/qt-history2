@@ -244,6 +244,22 @@ void Uic::createFormDecl( const QDomElement &e )
     }
     QStringList::Iterator it;
 
+    nl = e.parentNode().toElement().elementsByTagName( "include" );
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	QDomElement n2 = nl.item(i).toElement();
+	QString s = n2.firstChild().toText().data();
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" && 
+	     n2.attribute( "location" ) != "local" )
+	    globalIncludes += s;
+    }
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	QDomElement n2 = nl.item(i).toElement();
+	QString s = n2.firstChild().toText().data();
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" && 
+	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
+	    localIncludes += s;
+    }
+
     globalIncludes = unique( globalIncludes );
     for ( it = globalIncludes.begin(); it != globalIncludes.end(); ++it ) {
 	if ( !(*it).isEmpty() )
@@ -283,6 +299,22 @@ void Uic::createFormDecl( const QDomElement &e )
     nl = e.parentNode().toElement().elementsByTagName( "forward" );
     for ( i = 0; i < (int) nl.length(); i++ )
 	forwardDecl2 << nl.item(i).toElement().firstChild().toText().data();
+
+    nl = e.parentNode().toElement().elementsByTagName( "include" );
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	QDomElement n2 = nl.item(i).toElement();
+	QString s = n2.firstChild().toText().data();
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" && 
+	     n2.attribute( "location" ) != "local" )
+	    globalIncludes += s;
+    }
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	QDomElement n2 = nl.item(i).toElement();
+	QString s = n2.firstChild().toText().data();
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" && 
+	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
+	    localIncludes += s;
+    }
 
     forwardDecl = unique( forwardDecl );
     for ( it = forwardDecl.begin(); it != forwardDecl.end(); ++it ) {
@@ -413,14 +445,16 @@ void Uic::createFormImpl( const QDomElement &e )
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "location" ) != "local" )
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" && 
+	     n2.attribute( "location" ) != "local" )
 	    globalIncludes += s;
     }
     // do the local includes afterwards, since global includes have priority on clashes
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" && 
+	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
 	    localIncludes += s;
     }
 

@@ -163,6 +163,9 @@ bool Resource::load( QIODevice* dev )
 	    inc.location = "global";
 	    if ( firstWidget.attribute( "location" ) == "local" )
 		inc.location = "local";
+	    inc.implDecl = "in declaration";
+	    if ( firstWidget.attribute( "impldecl" ) == "in implementation" )
+		inc.implDecl = "in implementation";	
 	    inc.header = firstWidget.firstChild().toText().data();
 	    metaIncludes.append( inc );
 	} else if ( firstWidget.tagName() == "comment" ) {
@@ -459,14 +462,14 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "<widget>" << endl;
 	    ++indent;
 	    ts << makeIndent( indent ) << "<class>" << "QWidget" << "</class>" << endl;
-	    
+	
 	    ts << makeIndent( indent ) << "<property stdset=\"1\">" << endl;
 	    indent++;
 	    ts << makeIndent( indent ) << "<name>name</name>" << endl;
 	    ts << makeIndent( indent ) << "<cstring>" << entitize( it.current()->name() ) << "</cstring>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
-	    
+	
 	    ts << makeIndent( indent ) << "<attribute>" << endl;
 	    indent++;
 	    ts << makeIndent( indent ) << "<name>" << "title" << "</name>" << endl;
@@ -1830,7 +1833,8 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 
     QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formwindow );
     for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it )
-	ts << makeIndent( indent ) << "<include location=\"" << (*it).location << "\">" << (*it).header << "</include>" << endl;
+	ts << makeIndent( indent ) << "<include location=\"" << (*it).location
+	   << "\" impldecl=\"" << (*it).implDecl << "\">" << (*it).header << "</include>" << endl;
     QStringList forwards = MetaDataBase::forwards( formwindow );
     for ( QStringList::Iterator it2 = forwards.begin(); it2 != forwards.end(); ++it2 )
 	ts << makeIndent( indent ) << "<forward>" << *it2 << "</forward>" << endl;

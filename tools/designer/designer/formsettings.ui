@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>623</width>
-            <height>457</height>
+            <width>617</width>
+            <height>451</height>
         </rect>
     </property>
     <property stdset="1">
@@ -149,10 +149,10 @@
                     <property stdset="1">
                         <name>geometry</name>
                         <rect>
-                            <x>36</x>
-                            <y>68</y>
+                            <x>29</x>
+                            <y>64</y>
                             <width>20</width>
-                            <height>87</height>
+                            <height>91</height>
                         </rect>
                     </property>
                     <property stdset="1">
@@ -294,6 +294,20 @@
                     <column>
                         <property>
                             <name>text</name>
+                            <string>Location</string>
+                        </property>
+                        <property>
+                            <name>clickable</name>
+                            <bool>true</bool>
+                        </property>
+                        <property>
+                            <name>resizeable</name>
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <column>
+                        <property>
+                            <name>text</name>
                             <string>Access</string>
                         </property>
                         <property>
@@ -320,48 +334,6 @@
                     <property>
                         <name>whatsThis</name>
                         <string>List of all files that will be included in the &lt;em&gt;classname.cpp&lt;/em&gt;-file.</string>
-                    </property>
-                </widget>
-                <widget row="2"  column="2" >
-                    <class>QComboBox</class>
-                    <item>
-                        <property>
-                            <name>text</name>
-                            <string>global</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property>
-                            <name>text</name>
-                            <string>local</string>
-                        </property>
-                    </item>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>comboLocation</cstring>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Select access mode</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>&lt;b&gt;Change how the include file will be included.&lt;/b&gt;&lt;p&gt;Global include-files will be included using &amp;lt;&amp;gt;-brackets, while local files will included using quotation marks.&lt;/p&gt;</string>
-                    </property>
-                </widget>
-                <widget row="2"  column="0"  rowspan="1"  colspan="2" >
-                    <class>QLineEdit</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>editInclude</cstring>
-                    </property>
-                    <property>
-                        <name>toolTip</name>
-                        <string>Change file</string>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Change the name of the selected include-file.</string>
                     </property>
                 </widget>
                 <widget row="1"  column="2" >
@@ -396,8 +368,8 @@
                         <name>geometry</name>
                         <rect>
                             <x>11</x>
-                            <y>132</y>
-                            <width>38</width>
+                            <y>130</y>
+                            <width>77</width>
                             <height>20</height>
                         </rect>
                     </property>
@@ -432,6 +404,106 @@
                         <name>whatsThis</name>
                         <string>Add a new include-file.</string>
                     </property>
+                </widget>
+                <widget row="2"  column="0"  rowspan="1"  colspan="3" >
+                    <class>QLayoutWidget</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>Layout2</cstring>
+                    </property>
+                    <hbox>
+                        <property stdset="1">
+                            <name>margin</name>
+                            <number>0</number>
+                        </property>
+                        <property stdset="1">
+                            <name>spacing</name>
+                            <number>6</number>
+                        </property>
+                        <widget>
+                            <class>QLineEdit</class>
+                            <property stdset="1">
+                                <name>name</name>
+                                <cstring>editInclude</cstring>
+                            </property>
+                            <property>
+                                <name>toolTip</name>
+                                <string>Change file</string>
+                            </property>
+                            <property>
+                                <name>whatsThis</name>
+                                <string>Change the name of the selected include-file.</string>
+                            </property>
+                        </widget>
+                        <widget>
+                            <class>QComboBox</class>
+                            <item>
+                                <property>
+                                    <name>text</name>
+                                    <string>in declaration</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property>
+                                    <name>text</name>
+                                    <string>in implementation</string>
+                                </property>
+                            </item>
+                            <property stdset="1">
+                                <name>name</name>
+                                <cstring>comboImplDecl</cstring>
+                            </property>
+                            <property stdset="1">
+                                <name>sizePolicy</name>
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property>
+                                <name>toolTip</name>
+                                <string>Select include location</string>
+                            </property>
+                            <property>
+                                <name>whatsThis</name>
+                                <string>&lt;b&gt;Change the location where will be included.&lt;/b&gt;&lt;p&gt;This can be either in the &lt;i&gt;implementation&lt;/i&gt; (cpp) file or in &lt;i&gt;declaration&lt;/i&gt; file (h)&lt;/p&gt;</string>
+                            </property>
+                        </widget>
+                        <widget>
+                            <class>QComboBox</class>
+                            <item>
+                                <property>
+                                    <name>text</name>
+                                    <string>global</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property>
+                                    <name>text</name>
+                                    <string>local</string>
+                                </property>
+                            </item>
+                            <property stdset="1">
+                                <name>name</name>
+                                <cstring>comboLocation</cstring>
+                            </property>
+                            <property stdset="1">
+                                <name>sizePolicy</name>
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property>
+                                <name>toolTip</name>
+                                <string>Select include mode</string>
+                            </property>
+                            <property>
+                                <name>whatsThis</name>
+                                <string>&lt;b&gt;Change how the include file will be included.&lt;/b&gt;&lt;p&gt;Global include-files will be included using &amp;lt;&amp;gt;-brackets, while local files will included using quotation marks.&lt;/p&gt;</string>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
             </grid>
         </widget>
@@ -542,8 +614,8 @@
                         <name>geometry</name>
                         <rect>
                             <x>11</x>
-                            <y>139</y>
-                            <width>28</width>
+                            <y>133</y>
+                            <width>63</width>
                             <height>20</height>
                         </rect>
                     </property>
@@ -621,7 +693,7 @@
                         <rect>
                             <x>87</x>
                             <y>4</y>
-                            <width>341</width>
+                            <width>335</width>
                             <height>20</height>
                         </rect>
                     </property>
@@ -765,13 +837,20 @@
         <receiver>FormSettingsBase</receiver>
         <slot>currentForwardChanged( QListViewItem * )</slot>
     </connection>
+    <connection>
+        <sender>comboImplDecl</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>FormSettingsBase</receiver>
+        <slot>includeImplDeclChanged( const QString &amp; )</slot>
+    </connection>
     <slot access="protected">addForward()</slot>
     <slot access="protected">addInclude()</slot>
+    <slot access="protected">currentForwardChanged( QListViewItem * )</slot>
     <slot access="protected">currentIncludeChanged( QListViewItem * )</slot>
     <slot access="protected">forwardNameChanged( const QString &amp; )</slot>
     <slot access="protected">includeAccessChanged( const QString &amp; )</slot>
+    <slot access="protected">includeImplDeclChanged( const QString &amp; )</slot>
     <slot access="protected">includeNameChanged( const QString &amp; )</slot>
-    <slot access="protected">currentForwardChanged( QListViewItem * )</slot>
     <slot access="protected">okClicked()</slot>
     <slot access="protected">removeForward()</slot>
     <slot access="protected">removeInclude()</slot>

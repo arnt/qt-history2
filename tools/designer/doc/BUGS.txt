@@ -10,7 +10,6 @@ Corrupted designerrc (Reggie)
     When the .designerrc is empty or corrupted designer crashes on
     startup
 
-
 Small
 -----
 

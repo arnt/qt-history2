@@ -36,6 +36,7 @@ protected slots:
     void addInclude();
     void currentIncludeChanged( QListViewItem * );
     void includeAccessChanged( const QString & );
+    void includeImplDeclChanged( const QString & );
     void includeNameChanged( const QString & );
     void okClicked();
     void removeInclude();
@@ -43,7 +44,7 @@ protected slots:
     void removeForward();
     void forwardNameChanged( const QString & );
     void currentForwardChanged( QListViewItem *i );
-    
+
 private:
     FormWindow *formwindow;
 

@@ -85,7 +85,7 @@ private:
 	bool operator==( const Buddy& other ) const
 	    { return (key == other.key); }
     };
-    struct CustomInclude 
+    struct CustomInclude
     {
 	QString header;
 	QString location;

@@ -47,7 +47,8 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
 	QListViewItem *item = new QListViewItem( listIncludes );
 	item->setText( 0, (*it).header );
-	item->setText( 1, (*it).location );
+	item->setText( 1, (*it).implDecl );
+	item->setText( 2, (*it).location );
     }
 
     QStringList forwards = MetaDataBase::forwards( fw );
@@ -61,6 +62,7 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     editInclude->setEnabled( FALSE );
     editForward->setEnabled( FALSE );
     comboLocation->setEnabled( FALSE );
+    comboImplDecl->setEnabled( FALSE );
     listIncludes->setCurrentItem( listIncludes->firstChild() );
     listIncludes->setSelected( listIncludes->firstChild(), TRUE );
     listForwards->setCurrentItem( listForwards->firstChild() );
@@ -89,7 +91,8 @@ void FormSettings::okClicked()
     for ( ; it.current(); ++it ) {
 	MetaDataBase::Include inc;
 	inc.header = it.current()->text( 0 );
-	inc.location = it.current()->text( 1 );
+	inc.implDecl = it.current()->text( 1 );
+	inc.location = it.current()->text( 2 );
 	includes.append( inc );
     }
     MetaDataBase::setIncludes( formwindow, includes );
@@ -120,7 +123,8 @@ void FormSettings::addInclude()
 {
     QListViewItem *item = new QListViewItem( listIncludes );
     item->setText( 0, "include.h" );
-    item->setText( 1, tr( "global" ) );
+    item->setText( 1, comboImplDecl->currentText() );
+    item->setText( 2, comboLocation->currentText() );
     listIncludes->setCurrentItem( item );
     listIncludes->setSelected( item, TRUE );
 }
@@ -134,6 +138,14 @@ void FormSettings::includeNameChanged( const QString &txt )
 }
 
 void FormSettings::includeAccessChanged( const QString &txt )
+{
+    QListViewItem *i = listIncludes->currentItem();
+    if ( !i )
+	return;
+    i->setText( 2, txt );
+}
+
+void FormSettings::includeImplDeclChanged( const QString &txt )
 {
     QListViewItem *i = listIncludes->currentItem();
     if ( !i )
@@ -160,6 +172,7 @@ void FormSettings::currentIncludeChanged( QListViewItem *i )
 	buttonRemove->setEnabled( FALSE );
 	editInclude->setEnabled( FALSE );
 	comboLocation->setEnabled( FALSE );
+	comboImplDecl->setEnabled( FALSE );
 	editInclude->blockSignals( TRUE );
 	editInclude->setText( "" );
 	editInclude->blockSignals( FALSE );
@@ -169,14 +182,19 @@ void FormSettings::currentIncludeChanged( QListViewItem *i )
     buttonRemove->setEnabled( TRUE );
     editInclude->setEnabled( TRUE );
     comboLocation->setEnabled( TRUE );
+    comboImplDecl->setEnabled( TRUE );
 
     editInclude->blockSignals( TRUE );
     editInclude->setText( i->text( 0 ) );
     editInclude->blockSignals( FALSE );
 
     comboLocation->blockSignals( TRUE );
-    comboLocation->setCurrentItem( i->text( 1 ) == tr( "global" ) ? 0 : 1 );
+    comboLocation->setCurrentItem( i->text( 2 ) == tr( "global" ) ? 0 : 1 );
     comboLocation->blockSignals( FALSE );
+
+    comboImplDecl->blockSignals( TRUE );
+    comboImplDecl->setCurrentItem( i->text( 1 ) == tr( "in declaration" ) ? 0 : 1 );
+    comboImplDecl->blockSignals( FALSE );
 }
 
 void FormSettings::addForward()

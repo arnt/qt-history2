@@ -98,8 +98,10 @@ public:
 
     struct Include
     {
+	Include() : header(), location(), implDecl( "in implementation" ) {}
 	QString header;
 	QString location;
+	QString implDecl;
 	bool operator==( const Include & ) const;
     };
 
