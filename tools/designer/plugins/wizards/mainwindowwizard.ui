@@ -21,8 +21,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>602</width>
-            <height>407</height>
+            <width>598</width>
+            <height>403</height>
         </rect>
     </property>
     <property name="caption">
@@ -1420,8 +1420,11 @@
     listToolbar-&gt;setCurrentItem( prev ); 
 }</function>
     <function name="toolbarAddAction()" >{
+    if ( listToolbarActions-&gt;text( listToolbarActions-&gt;currentItem() ).isEmpty() )
+	return;
     listToolbar-&gt;insertItem( listToolbarActions-&gt;text( listToolbarActions-&gt;currentItem() ) );
     listToolbar-&gt;setCurrentItem( listToolbar-&gt;count() - 1 );
+    listToolbarActions-&gt;setCurrentItem( listToolbarActions-&gt;currentItem() + 1 );
 }</function>
     <function name="toolbarRemoveAction()" >{
     listToolbar-&gt;removeItem( listToolbar-&gt;currentItem() );
@@ -1596,6 +1599,7 @@
 	listToolbarActions-&gt;insertItem( tr( "About" ) );  
     }
     listToolbarActions-&gt;insertItem( "&lt;Seperator&gt;" );
+    listToolbarActions-&gt;setCurrentItem( 0 );
 }</function>
     <function name="getPixmap(const QString&amp;,QPixmap&amp;)" >{
     QString name = "small/" + n + ".xpm";
