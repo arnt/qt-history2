@@ -548,6 +548,8 @@ bool QLibrary::load()
     call will fail, and unloading will only happen when every instance
     has called unload().
 
+    Note that on Mac OS X, dynamic libraries cannot be unloaded.
+
     \sa resolve(), load()
 */
 bool QLibrary::unload()
