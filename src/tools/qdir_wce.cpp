@@ -271,7 +271,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
 		( p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b' ) ) {
 	    if ( !fiList ) {
 		fiList = new QFileInfoList;
-		fiList->setAutoDelete( TRUE );
 	    } else {
 		fiList->clear();
 	    }
@@ -284,7 +283,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     if ( !fiList ) {
 	fiList = new QFileInfoList;
-	fiList->setAutoDelete( TRUE );
     } else {
 	fiList->clear();
     }
@@ -357,7 +355,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
     qt_cmp_si_sortSpec = sortSpec;
     qsort( si, i, sizeof(si[0]), qt_cmp_si );
     // put them back in the list
-    fiList->setAutoDelete( FALSE );
     fiList->clear();
     int j;
     for ( j=0; j<i; j++ ) {
@@ -365,7 +362,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fList->append( si[j].item->fileName() );
     }
     delete [] si;
-    fiList->setAutoDelete( TRUE );
 
     if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
 	 nameFilter == nameFilt )
