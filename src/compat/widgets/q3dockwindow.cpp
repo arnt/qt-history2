@@ -555,9 +555,10 @@ void Q3DockWindowHandle::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 Q3DockWindowTitleBar::Q3DockWindowTitleBar(Q3DockWindow *dw)
-    : QTitleBar(0, dw, "qt_dockwidget_internal"), dockWindow(dw),
+    : QTitleBar(0, dw), dockWindow(dw),
       mousePressed(false), hadDblClick(false), opaque(default_opaque)
 {
+    setObjectName("qt_dockwidget_internal");
     setWFlags(getWFlags() | Qt::WStyle_Tool);
     ctrlDown = false;
     setMouseTracking(true);
