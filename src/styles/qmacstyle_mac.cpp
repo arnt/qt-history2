@@ -2043,7 +2043,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	GetThemeButtonBackgroundBounds(&myRect, kThemePushButton, &info, &macRect);
 	myRect.left   += myRect.left - macRect.left;
 	myRect.top    += myRect.top - macRect.top;
-	myRect.right  += myRect.right - myRect.right;
+	myRect.right  += myRect.right - macRect.right;
 	// I don't know why +1, but otherwise we are one pixel too high.
 	myRect.bottom += myRect.bottom - macRect.bottom + 1;
 	GetThemeButtonContentBounds(&myRect, kThemePushButton, &info, &macRect);
