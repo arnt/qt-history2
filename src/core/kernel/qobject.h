@@ -114,9 +114,9 @@ public:
 #endif
 
 #ifdef QT_COMPAT
-    QObject *child(const char *objName, const char *inheritsClass = 0,
+    QT_COMPAT QObject *child(const char *objName, const char *inheritsClass = 0,
                    bool recursiveSearch = true) const;
-    QObjectList queryList(const char *inheritsClass = 0,
+    QT_COMPAT QObjectList queryList(const char *inheritsClass = 0,
                           const char *objName = 0,
                           bool regexpMatch = true,
                           bool recursiveSearch = true) const;
