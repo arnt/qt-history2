@@ -300,7 +300,7 @@ QFontX11Data::QFontX11Data()
     for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
 	fontstruct[i] = 0;
     }
-    memset( latinCache, 0,  256*sizeof( uchar ) );
+    memset( widthCache, 0, widthCacheSize*sizeof( uchar ) );
 }
 
 QFontX11Data::~QFontX11Data()
@@ -864,8 +864,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 	    }
 
 	    int width = 0;
-	    if ( tmp == QFont::LatinBasic )
-		width = x11data.latinCache[chars->unicode()];
+	    if ( chars->unicode() < widthCacheSize )
+		width = x11data.widthCache[chars->unicode()];
 
 	    if ( !width ) {
 #ifndef QT_NO_XFTFREETYPE
@@ -892,8 +892,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 		    } else if (xcs)
 			width = xcs->width;
 		}
-		if ( tmp == QFont::LatinBasic && width < 0x100 )
-		    x11data.latinCache[chars->unicode()] = (uchar)width;
+		if ( chars->unicode() < widthCacheSize && width < 0x100 )
+		    x11data.widthCache[chars->unicode()] = (uchar)width;
 	    }
 	    tmpw += width;
 	}
@@ -3439,8 +3439,8 @@ int QFontMetrics::width(QChar ch) const
 
     QFontStruct *qfs = d->x11data.fontstruct[script];
 
-    if ( script == QFont::LatinBasic )
-	w = d->x11data.latinCache[ch.unicode()];
+    if ( ch.unicode() < widthCacheSize )
+	w = d->x11data.widthCache[ch.unicode()];
 
     if ( !w ) {
 	if ( ch.combiningClass() > 0 )
@@ -3466,8 +3466,8 @@ int QFontMetrics::width(QChar ch) const
 	    else
 		w = xcs->width;
 	}
-	if ( script == QFont::LatinBasic && w < 0x100 )
-	    d->x11data.latinCache[ch.unicode()] = (uchar)w;
+	if ( ch.unicode() < widthCacheSize && w < 0x100 )
+	    d->x11data.widthCache[ch.unicode()] = (uchar)w;
     }
 
     if ( qfs && qfs != (QFontStruct *)-1 && w )
@@ -3503,8 +3503,8 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
     QFontStruct *qfs = d->x11data.fontstruct[script];
 
-    if ( script == QFont::LatinBasic )
-	w = d->x11data.latinCache[ch.unicode()];
+    if ( ch.unicode() < widthCacheSize )
+	w = d->x11data.widthCache[ch.unicode()];
 
     if ( !w ) {
 	if ( ch.combiningClass() > 0 )
@@ -3530,8 +3530,8 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	    else
 		w = xcs->width;
 	}
-	if ( script == QFont::LatinBasic && w < 0x100 )
-	    d->x11data.latinCache[ch.unicode()] = (uchar)w;
+	if ( ch.unicode() < widthCacheSize && w < 0x100 )
+	    d->x11data.widthCache[ch.unicode()] = (uchar)w;
     }
 
     if ( qfs && qfs != (QFontStruct *)-1 && w )

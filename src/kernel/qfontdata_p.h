@@ -125,13 +125,15 @@ public:
     float scale; // needed for printing, to correctly scale font metrics for bitmap fonts
 };
 
+enum { widthCacheSize = 0x500 };
+
 class QFontX11Data  // used as a QFontPrivate member
 {
 public:
     // X fontstruct handles for each character set
     QFontStruct *fontstruct[QFont::LastPrivateScript];
 
-    uchar latinCache[256];
+    uchar widthCache[widthCacheSize];
 
     QFontX11Data();
     ~QFontX11Data();
