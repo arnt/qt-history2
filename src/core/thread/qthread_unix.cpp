@@ -378,6 +378,12 @@ void QThread::start(Priority priority)
     d->args[1] = d;
     d->args[2] = 0;
     ret = pthread_create(&d->thread_id, &attr, (QtThreadCallback)QThreadInstance::start, d->args);
+#if defined (Q_OS_HPUX)
+    if (ret == EPERM) {
+        pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
+       ret = pthread_create(&d->thread_id, &attr, (QtThreadCallback)QThreadInstance::start, d->args);
+    }
+#endif
     pthread_attr_destroy(&attr);
 
     if (ret) {
