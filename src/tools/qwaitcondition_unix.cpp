@@ -240,8 +240,9 @@ bool QWaitCondition::wait(unsigned long time)
 	gettimeofday(&tv, 0);
 
 	timespec ti;
-	ti.tv_sec = tv.tv_sec + (time / 1000);
 	ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000;
+	ti.tv_sec = tv.tv_sec + (time / 1000) + ( ti.tv_nsec / 1000000000 );
+	ti.tv_nsec %= 1000000000;
 
 	ret = pthread_cond_timedwait(&d->cond, &d->mutex.d->handle, &ti);
     } else
@@ -299,8 +300,9 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 	gettimeofday(&tv, 0);
 
 	timespec ti;
-	ti.tv_sec = tv.tv_sec + (time / 1000);
 	ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000;
+	ti.tv_sec = tv.tv_sec + (time / 1000) + ( ti.tv_nsec / 1000000000 );
+	ti.tv_nsec %= 1000000000;
 
 	ret = pthread_cond_timedwait(&d->cond, &mutex->d->handle, &ti);
     } else
