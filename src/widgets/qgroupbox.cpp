@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#24 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,7 +12,7 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#24 $");
 
 
 /*!
@@ -22,8 +22,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#23 $");
   The intended use of a group box is to show that a number of widgets
   (i.e. child widgets) are logically related.
 
-  The button group widget, QButtonGroup, is an "intelligent" group box that is
-  very useful for organizing button widgets in a group.
+  The button group widget, QButtonGroup, is an "intelligent" group box
+  that is very useful for organizing button widgets in a group.
 
   <img src=qgrpbox-m.gif> <img src=qgrpbox-w.gif>
 */
