@@ -831,7 +831,7 @@ void QTextEngine::reallocate(int totalGlyphs)
 {
     int space_charAttributes = sizeof(QCharAttributes)*layoutData->string.length()/sizeof(void*) + 1;
     int space_logClusters = sizeof(unsigned short)*layoutData->string.length()/sizeof(void*) + 1;
-    int space_glyphs = sizeof(QGlyphLayout)*totalGlyphs/sizeof(void*) + 1;
+    int space_glyphs = sizeof(QGlyphLayout)*totalGlyphs/sizeof(void*) + 2;
 
     int newAllocated = space_charAttributes + space_glyphs + space_logClusters;
     layoutData->memory = (void **)::realloc(layoutData->memory, newAllocated*sizeof(void *));
@@ -840,8 +840,10 @@ void QTextEngine::reallocate(int totalGlyphs)
     m += space_charAttributes;
     logClustersPtr = (unsigned short *) m;
     m += space_logClusters;
+    if (long(m)%8)
+        m = (void **) (((long(m) + 7) >> 3) << 3);
     glyphPtr = (QGlyphLayout *) m;
-
+    
     memset(((char *)layoutData->memory) + layoutData->allocated*sizeof(void *), 0,
            (newAllocated - layoutData->allocated)*sizeof(void *));
 
