@@ -62,7 +62,7 @@ class QToolBoxButton : public QToolButton
 public:
     QToolBoxButton( QWidget *parent, const char *name ) :
 	QToolButton( parent, name ), selected( FALSE )
-    { setBackgroundMode( PaletteBase ); }
+    {}
 
     void setSelected( bool b ) { selected = b; update(); }
     virtual void setIcon( const QIconSet &is ) { ic = is; }
@@ -176,18 +176,19 @@ void QToolBoxButton::drawButton( QPainter *p )
     QRect tr, ir;
     int ih = 0;
     if ( icon().isNull() ) {
-	tr = QRect( 2, 2, width() - d - 5, height() );
+	tr = QRect( 2, 0, width() - d - 5, height() );
     } else {
 	int iw = icon().pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	if ( width() < 4 * iw )
 	    ih = iw = 0;
 	else
 	    ih = icon().pixmap( QIconSet::Small, QIconSet::Normal ).height();
-	ir = QRect( 0, 0, iw + 2, ih );
+	ir = QRect( 2, 2, iw + 2, ih );
 	tr = QRect( ir.width() + 4, 0, width() - (ir.width() + 4) - d - 5, height() );
     }
 
-    if ( selected ) {
+    if ( selected
+	 && style().styleHint( QStyle::SH_ToolBox_SelectedPageTitleBold ) ) {
 	QFont f( p->font() );
 	f.setBold( TRUE );
 	p->setFont( f );
@@ -332,6 +333,7 @@ void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
     page->setBackgroundMode( PaletteBackground );
 
     QToolBoxButton *button = new QToolBoxButton( this, label.latin1() );
+    button->setBackgroundMode( (BackgroundMode)style().styleHint( QStyle::SH_ToolBox_PageBackgroundMode, this ) );
     QToolBoxPrivate::Page *c = new QToolBoxPrivate::Page;
     c->button = button;
     c->label = label;
@@ -373,7 +375,8 @@ void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
 	d->lastButton->setSelected( TRUE );
 	sv->show();
 	// #### is this needed, seems hacky
-	set_background_mode( d->currentPage, PaletteBase );
+	set_background_mode( d->currentPage, 
+			     (BackgroundMode)style().styleHint( QStyle::SH_ToolBox_PageBackgroundMode, this ) );
     } else {
 	sv->hide();
     }
@@ -473,7 +476,8 @@ void QToolBox::updateTabs()
     bool after = FALSE;
     for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
 	  c = d->pageList->next() ) {
-	c->button->setBackgroundMode( !after ? PaletteBackground : PaletteBase );
+	c->button->setBackgroundMode( !after ? PaletteButton : 
+				      (BackgroundMode)style().styleHint( QStyle::SH_ToolBox_PageBackgroundMode, this ) );
 	c->button->update();
 	after = c->button == d->lastButton;
     }
@@ -521,7 +525,8 @@ void QToolBox::setCurrentPage( QWidget *page )
     d->currentPage = page;
     d->currentPage->show();
     // #### is this needed, seems hacky
-    set_background_mode( d->currentPage, PaletteBase );
+    set_background_mode( d->currentPage, 
+			 (BackgroundMode)style().styleHint( QStyle::SH_ToolBox_PageBackgroundMode, this ) );
     updateTabs();
     qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
     emit currentChanged( page );

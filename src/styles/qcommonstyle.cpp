@@ -2565,6 +2565,14 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	ret = '*';
 	break;
 
+    case SH_ToolBox_SelectedPageTitleBold:
+	ret = 1;
+	break;
+
+    case SH_ToolBox_PageBackgroundMode:
+	ret = PaletteBase;
+	break;
+
     default:
 	ret = 0;
 	break;

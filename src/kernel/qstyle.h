@@ -633,6 +633,12 @@ public:
 	// QDialogButtons::Button - default button
 	SH_DialogButtons_DefaultButton,
 
+	// QToolBox - Boldness of the selected page title 
+	SH_ToolBox_SelectedPageTitleBold,
+
+	// QToolBox - Background mode of the page
+	SH_ToolBox_PageBackgroundMode,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

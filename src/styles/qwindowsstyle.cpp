@@ -627,6 +627,12 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif // QT_NO_TABBAR
+    case CE_ToolBoxTab:
+	{
+	    qDrawShadePanel( p, r, cg, flags & (Style_Sunken | Style_Down | Style_On) , 1,
+			     &cg.brush(QColorGroup::Button));
+	    break;
+	}
 
 #ifndef QT_NO_POPUPMENU
     case CE_PopupMenuItem:
@@ -1816,6 +1822,14 @@ int QWindowsStyle::styleHint( StyleHint hint,
 	else
 #endif
 	    ret = 0;
+	break;
+
+    case SH_ToolBox_SelectedPageTitleBold:
+	ret = 0;
+	break;
+
+    case SH_ToolBox_PageBackgroundMode:
+	ret = PaletteBackground;
 	break;
 
     default:
