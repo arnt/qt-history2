@@ -72,6 +72,8 @@ public:
 		     QToolTipGroup *, const QString& );
     static void remove( QWidget *, const QRect & );
 
+    static void hide();
+
     static QFont    font();
     static void	    setFont( const QFont & );
     static QPalette palette();

@@ -93,11 +93,13 @@ public:
 
     void    removeFromGroup( QToolTipGroup * );
 
+public slots:
+    void    hideTip();
+
 private slots:
     void    labelDestroyed();
     void    clientWidgetDestroyed();
     void    showTip();
-    void    hideTip();
 
 protected:
     void    maybeTip( const QPoint & );
@@ -762,6 +764,19 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
 	tipManager->remove( widget, rect );
 }
 
+
+/*!
+  Hides any tip that is currently being shown.
+
+  Normally, there is no need to call this function; QToolTip takes
+  care of showing and hiding the tips as the user moves the mouse.
+*/
+
+void QToolTip::hide()
+{
+    if ( tipManager )
+	tipManager->hideTip();
+}
 
 /*!
   \fn virtual void QToolTip::maybeTip( const QPoint & p);
