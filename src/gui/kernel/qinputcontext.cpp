@@ -50,9 +50,6 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#define d d_func()
-#define q q_func()
-
 // TODO: separate QInputContextPrivate into qinputcontext_p.h and
 //       qinputcontext_x11.cpp
 class QInputContextPrivate : public QObjectPrivate
@@ -336,6 +333,7 @@ QInputContext::~QInputContext()
 */
 QWidget *QInputContext::holderWidget() const
 {
+    Q_D(const QInputContext);
     return d->holderWidget;
 }
 
@@ -348,6 +346,7 @@ QWidget *QInputContext::holderWidget() const
 */
 void QInputContext::setHolderWidget( QWidget *w )
 {
+    Q_D(QInputContext);
     d->holderWidget = w;
 }
 
@@ -365,6 +364,7 @@ void QInputContext::setHolderWidget( QWidget *w )
 */
 QWidget *QInputContext::focusWidget() const
 {
+    Q_D(const QInputContext);
     return d->hasFocus ? d->composingWidget : 0;
 }
 
@@ -379,6 +379,7 @@ QWidget *QInputContext::focusWidget() const
 */
 void QInputContext::setFocusWidget( QWidget *w )
 {
+    Q_D(QInputContext);
     if ( w ) {
 	bool isFocusingBack = ( w == d->composingWidget );
 	bool isPreeditRelocation = ( ! isFocusingBack  && isComposing() &&
@@ -420,6 +421,7 @@ void QInputContext::setFocusWidget( QWidget *w )
 */
 void QInputContext::releaseComposingWidget( QWidget *w )
 {
+    Q_D(QInputContext);
     if ( d->composingWidget == w ) {
 	d->composingWidget = 0;
 	d->hasFocus = FALSE;
@@ -452,6 +454,7 @@ bool QInputContext::isPreeditRelocationEnabled()
 */
 bool QInputContext::isComposing() const
 {
+    Q_D(const QInputContext);
     return d->isComposing;
 }
 
@@ -597,6 +600,7 @@ void QInputContextPrivate::sendIMEventInternal( QEvent::Type type,
 void QInputContext::sendIMEvent( QEvent::Type type, const QString &text,
                                  int cursorPosition, int selLength )
 {
+    Q_D(QInputContext);
 #if defined(Q_WS_X11)
     if ( !focusWidget() )
 	return;
