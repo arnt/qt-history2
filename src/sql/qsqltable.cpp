@@ -1789,6 +1789,13 @@ void QSqlTable::refresh()
     }
     viewport()->setUpdatesEnabled( TRUE );
     setSize( cur );
+    // keep others aware
+    if ( d->lastAt != currentRow() ) {
+	setCurrentSelection( currentRow(), currentColumn() );
+    } else {
+	if ( cur->seek( d->lastAt ) )
+	    emit currentChanged( cur );
+    }
 }
 
 /*!  \reimp
