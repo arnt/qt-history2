@@ -33,5 +33,9 @@ int main( int argc, char **argv )
     QRegion r3 = r1.unite( r2 );
     print( r3 );
 
+    debug( "\ntest elliptic regions" );
+    QRegion r4( QRect(100,100,15,15), QRegion::Ellipse );
+    print( r4 );
+
     return 0;
 }
