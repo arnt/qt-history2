@@ -1013,7 +1013,10 @@ bool QSplitter::isHidden( QWidget *w ) const
 
 QValueList<int> QSplitter::sizes() const
 {
-    polish();
+    if ( !testWState(WState_Polished) ) {
+	QWidget* that = (QWidget*) this;
+	that->polish();
+    }
     QValueList<int> list;
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
