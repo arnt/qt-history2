@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#221 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#222 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#221 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#222 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -179,7 +179,8 @@ static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 
 static int qt_xio_errhandler( Display * )
 {
-    fatal( "%s: Fatal IO error: client killed", appName );
+    warning( "%s: Fatal IO error: client killed", appName );
+    exit( 1 );
     return 0;
 }
 
