@@ -725,7 +725,7 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 	    style().drawControl(QStyle::CE_MenuScroller, &p, this, topScroll, palette(), flags);
 	}
 	if(d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollDown) {
-	    QRect bottomScroll(0, height()-scrollerHeight-fw, width()-(fw*2), scrollerHeight);
+	    QRect bottomScroll(fw, height()-scrollerHeight-fw, width()-(fw*2), scrollerHeight);
 	    emptyArea -= QRegion(bottomScroll);
 	    p.setClipRect(bottomScroll);
 	    QStyle::SFlags flags = QStyle::Style_Down;
