@@ -22,11 +22,9 @@ LCDRange::LCDRange( QWidget *parent, const char *name )
         : QVBox( parent, name )
 {
     QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
-    QSlider* slider = new QSlider( 0, 99,      // range
-				   10,	       // page steps
-				   0,	       // inital value
-				   Horizontal, // orientation
-				   this, "scrollbar" );
+    QSlider * slider = new QSlider( Horizontal, this, "slider" );
+    slider->setRange( 0, 99 );
+    slider->setValue( 0 );
     connect( slider, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
 }
 
@@ -47,11 +45,9 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 
     QGrid *grid = new QGrid( 4, this );
 
-    for( int c = 0 ; c < 4 ; c++ ) {
-	for( int r = 0 ; r < 4 ; r++ ) {
+    for( int c = 0 ; c < 4 ; c++ )
+	for( int r = 0 ; r < 4 ; r++ )
 	    (void)new LCDRange( grid );
-	}
-    }
 }
 
 int main( int argc, char **argv )

@@ -13,7 +13,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    QHBox box;
+    QVBox box;
     box.resize( 200, 120 );
 
     QPushButton quit( "Quit", &box );

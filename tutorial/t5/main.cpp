@@ -29,13 +29,11 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 
     QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd" );
 
-    QSlider *sBar = new QSlider( 0, 99,		       	// range
-			   10,				// page steps
-			   0, 				// inital value
-			   Horizontal,		 	// orientation
-                           this, "slider" );
+    QSlider * slider = new QSlider( Horizontal, this, "slider" );
+    slider->setRange( 0, 99 );
+    slider->setValue( 0 );
 
-    connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
+    connect( slider, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
 }
 
 int main( int argc, char **argv )
