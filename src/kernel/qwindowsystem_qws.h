@@ -139,6 +139,7 @@ class QWSServer : private QWSServerSocket
 class QWSServer : private QObject
 #endif
 {
+    friend class PCOPChannel;
     Q_OBJECT
 
 public:
@@ -189,6 +190,11 @@ public:
     QWSPropertyManager *manager() {
 	return &propertyManager;
     }
+#endif
+#ifndef QT_NO_PCOP
+    static void sendPCOPEvent( QWSClient *c, const QCString &ch,
+			       const QCString &msg, const QByteArray &data,
+			       bool response = FALSE );
 #endif
     QWSWindow *windowAt( const QPoint& pos );
 
@@ -246,6 +252,12 @@ private:
     void invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client );
 #ifndef QT_NO_SOUND
     void invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client );
+#endif
+#ifndef QT_NO_PCOP
+    void invokeRegisterChannel( QWSPCOPRegisterChannelCommand *cmd,
+				QWSClient *client );
+    void invokePCOPSend( QWSPCOPSendCommand *cmd, QWSClient *client );
+
 #endif
 
     QMouseHandler* newMouseHandler(const QString& spec);
@@ -331,6 +343,9 @@ private:
     // multimedia
 #ifndef QT_NO_SOUND
     QWSSoundServer *soundserver;
+#endif
+#ifndef QT_NO_PCOP
+    QMap<QString, QList<QWSClient> > channels;
 #endif
 };
 

@@ -187,6 +187,9 @@ QWSCommand *QWSCommand::factory( int type )
     case QWSCommand::PCOPRegisterChannel:
 	command = new QWSPCOPRegisterChannelCommand;
 	break;
+    case QWSCommand::PCOPSend:
+	command = new QWSPCOPSendCommand;
+	break;
 #endif
     default:
 	qDebug( "QWSCommand::factory : Type error - got %08x!", type );

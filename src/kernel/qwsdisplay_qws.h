@@ -57,6 +57,7 @@ public:
 #ifndef QT_NO_PCOP
 
 class PCOPChannelPrivate;
+class QWSClient;
 
 class PCOPChannel
 {
@@ -67,13 +68,23 @@ public:
     QCString channel() const;
 
     static bool isRegistered( const QCString& channel );
-    static bool send(const QCString &channel, const QCString &msg );
-    static bool send(const QCString &channel, const QCString &msg, const QByteArray &data );
+    static bool send( const QCString &channel, const QCString &msg );
+    static bool send( const QCString &channel, const QCString &msg,
+		      const QByteArray &data );
 
     virtual void receive( const QCString &msg, const QByteArray &data ) = 0;
-
 private:
+    // server side
+    static void registerChannel( const QString &ch, const QWSClient *cl );
+    static void answer( QWSClient *cl, const QCString &ch,
+			const QCString &msg, const QByteArray &data );
+    // client side
+    static void processEvent(  const QCString &ch, const QCString &msg,
+			       const QByteArray &data );
     PCOPChannelPrivate* d;
+
+    friend class QWSServer;
+    friend class QApplication;
 };
 
 #endif
@@ -130,6 +141,7 @@ public:
 
 private:
     friend class QApplication;
+    friend class PCOPChannel;
     QWSDisplayData *d;
 
     int getPropertyLen;

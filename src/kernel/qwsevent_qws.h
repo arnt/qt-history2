@@ -219,6 +219,7 @@ struct QWSPCOPMessageEvent : QWSEvent {
     }
 
     struct SimpleData {
+	bool is_response;
 	int lchannel;
 	int lmessage;
 	int ldata;

@@ -242,7 +242,11 @@ public:
 
 #ifndef QT_NO_PCOP
 // PCOP stuff. This should maybe move into qwindowsystem_qws.cpp
-static QList<PCOPChannel> channels;
+typedef QMap<QString, QList<QWSClient> > PCOPServerMap;
+static PCOPServerMap *pcopServerMap = 0;
+
+typedef QMap<QString, QList<PCOPChannel> > PCOPClientMap;
+static PCOPClientMap *pcopClientMap = 0;
 #endif
 
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
@@ -299,6 +303,9 @@ private:
     QWSMouseEvent* mouse_event;
     QWSRegionModifiedEvent *region_event;
     QWSRegionModifiedEvent *region_ack;
+#ifndef QT_NO_PCOP
+    QWSPCOPMessageEvent *pcop_response;
+#endif    
     QWSEvent* current_event;
     QValueList<int> unused_identifiers;
 
@@ -335,6 +342,9 @@ public:
     void waitForConnection();
     void waitForRegionAck();
     void waitForCreation();
+#ifndef QT_NO_PCOP
+    void waitForPCOPResponse();
+#endif    
     void init();
     void create()
     {
@@ -387,6 +397,9 @@ void QWSDisplayData::init()
     region_ack = 0;
     mouse_event = 0;
     region_event = 0;
+#ifndef QT_NO_PCOP
+    pcop_response = 0;
+#endif
     current_event = 0;
 
     QString pipe = QString(QTE_PIPE).arg(qws_display_id); //########
@@ -574,6 +587,15 @@ void QWSDisplayData::fillQueue()
 	    } else {
 		queue.append(e);
 	    }
+#ifndef QT_NO_PCOP	    
+	} else if ( e->type == QWSEvent::PCOPMessage ) {
+	    QWSPCOPMessageEvent *pe = (QWSPCOPMessageEvent*)e;
+	    if ( pe->simpleData.is_response ) {
+		pcop_response = pe;
+	    } else {
+		queue.append(e);
+	    }
+#endif	    
 	} else {
 	    queue.append(e);
 	}
@@ -633,6 +655,23 @@ void QWSDisplayData::waitForCreation()
 	fillQueue();
     }
 }
+
+#ifndef QT_NO_PCOP
+void QWSDisplayData::waitForPCOPResponse()
+{
+    if ( csocket )
+	csocket->flush();
+    while ( 1 ) {
+	fillQueue();
+	if ( pcop_response )
+	    break;
+	if ( csocket )
+	    csocket->waitForMore(1000);
+    }
+    queue.prepend(pcop_response);
+    pcop_response = 0;
+}
+#endif
 
 
 QWSDisplay::QWSDisplay()
@@ -1945,6 +1984,13 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	QPaintDevice::qwsDisplay()->getPropertyData = data;
     }
 #endif //QT_NO_QWS_PROPERTIES
+#ifndef QT_NO_PCOP
+    if ( event->type == QWSEvent::PCOPMessage ) {
+	QWSPCOPMessageEvent *e = (QWSPCOPMessageEvent*)event;
+	PCOPChannel::processEvent( e->channel, e->message, e->data );
+    }
+#endif
+    
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->window() );
 
     QETWidget *keywidget=0;
@@ -3235,32 +3281,122 @@ public:
     QCString channel;
 };
 
+/*! \class PCOPChannel qwsdisplay_qws.h
 
+  \brief This class provides communication capabilities between several
+  clients.
+
+  PCOP, the Palmtop COmmunication Protocol, allows clients to communicate
+  inside of the same address space or between different processes.
+
+  PCOPChannel is an abstract base class. Important functions like send()
+  and isRegistered() are static and therefore usable as is.
+  In order to \e listen to the traffic on channel you have to subclass
+  from PCOPChannel and provide an implementation for receive().
+ */
+
+/*!
+  Constructs a PCOP channel and registers it with the server under the name
+  \a channel.
+ */
 
 PCOPChannel::PCOPChannel( const QCString& channel )
 {
     d = new PCOPChannelPrivate;
     d->channel = channel;
-    channels.append( this );
-    // TODO inform server about this channel
+
+    if ( !qt_fbdpy ) {
+	qFatal( "PCOPChannel: Must construct a QApplication "
+		"before PCOPChannel" );
+	return;
+    }
+    
+    if ( !pcopClientMap )
+	pcopClientMap = new PCOPClientMap;
+
+    // do we need a new channel list ?
+    PCOPClientMap::Iterator it = pcopClientMap->find( channel );
+    if ( it == pcopClientMap->end() )
+	it = pcopClientMap->insert( channel, QList<PCOPChannel>() );
+    it.data().append( this );
+    
+    // inform server about this channel
+    QWSPCOPRegisterChannelCommand reg;
+    reg.setChannel( channel );
+    // ### ugly
+    qt_fbdpy->d->sendCommand( reg );
 }
+
+/*!
+  Destructs the client's side end of the channel and notifies the server
+  about the closing. The server itself keeps the channel open until the
+  last registered client detaches.
+*/
 
 PCOPChannel::~PCOPChannel()
 {
-    // TODO inform server about the death of  this channel
-    channels.removeRef( this );
+    PCOPClientMap::Iterator it = pcopClientMap->find( d->channel );
+    ASSERT( it != pcopClientMap->end() );
+    it.data().removeRef( this );
+    // still any clients connected locally ?
+    if ( it.data().isEmpty() ) {
+	QByteArray data;
+	QDataStream s( data, IO_WriteOnly );
+	s << d->channel;
+	send( "", "detach()", data );
+	pcopClientMap->remove( d->channel );
+    }
+    
     delete d;
 }
+
+/*!
+  Returns the name of the channel.
+ */
 
 QCString PCOPChannel::channel() const
 {
     return d->channel;
 }
 
+/*!
+  \fn void PCOPChannel::receive( const QCString &msg, const QByteArray &data )
+  This abstract virtual function allows subclasses of PCOPChannel to
+  process data received from their channel.
+  Note that the format of \a data has to be well defined in order to
+  demarshall the contained information.
+  \sa send()
+ */
+
+/*!
+  Queries the server for the existance of \a channel.
+  
+  Returns TRUE if \a channel is registered.
+ */
+
 bool PCOPChannel::isRegistered( const QCString& channel )
 {
-    // TODO ask server
+    QByteArray data;
+    QDataStream s( data, IO_WriteOnly );
+    s << channel;
+    if ( !send( "", "isRegistered()", data ) )
+	return FALSE;
+    
+    // ### ugly
+    qt_fbdpy->d->waitForPCOPResponse();
+    QWSPCOPMessageEvent *e = (QWSPCOPMessageEvent*)qt_fbdpy->d->dequeue();
+    ASSERT( e->type == QWSEvent::PCOPMessage );
+    ASSERT( e->channel == "" );
+
+    return e->message == "known";
 }
+
+/*!
+  Send the message \a msg on \a channel. The message will be distributed
+  to all clients subscribed to the channel.
+  
+  \sa receive()
+ */
 
 bool PCOPChannel::send(const QCString &channel, const QCString &msg )
 {
@@ -3268,11 +3404,113 @@ bool PCOPChannel::send(const QCString &channel, const QCString &msg )
     return send( channel, msg, data );
 }
 
+/*!
+  Same as above function except the additional \a data parameter.
+  QDataStream provides a convenient way to fill the byte array with
+  auxiliary data. 
+ */
 
-bool PCOPChannel::send(const QCString &channel, const QCString &msg, const QByteArray &data )
+bool PCOPChannel::send(const QCString &channel, const QCString &msg,
+		       const QByteArray &data )
 {
-    // TODO send message
+    if ( !qt_fbdpy ) {
+	qFatal( "PCOPChannel::send: Must construct a QApplication "
+		"before using PCOPChannel" );
+	return FALSE;
+    }
+
+    QWSPCOPSendCommand com;
+    com.setMessage( channel, msg, data );
+    qt_fbdpy->d->sendCommand( com );
+    
+    return TRUE;
 }
 
+/*!
+  \internal
+  Server side: subscribe client \a cl on channel \a ch.
+ */
+
+void PCOPChannel::registerChannel( const QString &ch, const QWSClient *cl )
+{
+    if ( !pcopServerMap )
+	pcopServerMap = new PCOPServerMap;
+    
+    // do we need a new channel list ? 
+    PCOPServerMap::Iterator it = pcopServerMap->find( ch );
+    if ( it == pcopServerMap->end() )
+	it = pcopServerMap->insert( ch, QList<QWSClient>() );
+
+    it.data().append( cl );
+}
+
+
+/*!
+  \internal
+  Server side: transmit the message to all clients registered to the
+  specified channel.
+ */
+
+void PCOPChannel::answer( QWSClient *cl, const QCString &ch,
+			  const QCString &msg, const QByteArray &data )
+{
+    // internal commands
+    if ( ch.isEmpty() ) {
+	if ( msg == "isRegistered()" ) {
+	    QCString c;
+	    QDataStream s( data, IO_ReadOnly );
+	    s >> c;
+	    QCString ans = pcopServerMap->contains( c ) ? "known" : "unkown";
+	    QWSServer::sendPCOPEvent( cl, "", ans, data, TRUE );
+	    return;
+	} else if ( msg == "detach()" ) {
+	    QCString c;
+	    QDataStream s( data, IO_ReadOnly );
+	    s >> c;
+	    PCOPServerMap::Iterator it = pcopServerMap->find( c );
+	    if ( it != pcopServerMap->end() ) {
+		ASSERT( it.data().contains( cl ) );
+		it.data().remove( cl );
+		if ( it.data().isEmpty() )
+		    pcopServerMap->remove( it );
+	    }
+	    return;
+	}
+	qWarning( "PCOPChannel: unknown internal command %s", msg.data() );
+	QWSServer::sendPCOPEvent( cl, "", "bad", data );
+	return;
+    }
+    
+    QList<QWSClient> clist = (*pcopServerMap)[ ch ];
+    if ( clist.isEmpty() ) {
+	qWarning( "PCOPChannel: no client registered for requested channel" );
+	return;
+    }
+
+    QWSClient *c = clist.first();
+    for (; c != 0; c = clist.next() ) {
+	QWSServer::sendPCOPEvent( c, ch, msg, data );
+    }
+}
+
+/*!
+  \internal
+  Client side: distribute received event to the PCOP instance managing the
+  channel.
+ */
+void PCOPChannel::processEvent( const QCString &ch, const QCString &msg,
+				const QByteArray &data )
+{
+    ASSERT( pcopClientMap );
+    
+    // filter out internal events
+    if ( ch.isEmpty() )
+	return;
+    
+    // feed local clients with received data
+    QList<PCOPChannel> clients = (*pcopClientMap)[ ch ];
+    for ( PCOPChannel *p = clients.first(); p != 0; p = clients.next() )
+	p->receive( msg, data );
+}
 
 #endif

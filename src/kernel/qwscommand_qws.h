@@ -367,7 +367,47 @@ struct QWSPCOPRegisterChannelCommand : public QWSCommand
     QString channel;
 };
 
+struct QWSPCOPSendCommand : public QWSCommand
+{
+    QWSPCOPSendCommand() :
+	QWSCommand( QWSCommand::PCOPSend,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem ) {
+	QWSCommand::setData( d, len, allocateMem );
+	channel = QCString( d, simpleData.clen + 1 );
+	d += simpleData.clen;
+	message = QCString( d, simpleData.mlen + 1 );
+	d += simpleData.mlen;
+	data.duplicate( d, simpleData.dlen );
+    }
+
+    void setMessage( const QCString &c, const QCString &m,
+		     const QByteArray &data )
+    {
+	int l = simpleData.clen = c.length();
+	l += simpleData.mlen = m.length();
+	l += simpleData.dlen = data.size();
+	QByteArray tmp( l );
+	char *d = tmp.data();
+	memcpy( d, c.data(), simpleData.clen );
+	d += simpleData.clen;
+	memcpy( d, m.data(), simpleData.mlen );
+	d += simpleData.mlen;
+	memcpy( d, data.data(), simpleData.dlen );
+	setData( (char*)tmp.data(), l, TRUE );
+    }
+
+    struct SimpleData {
+	int clen;
+	int mlen;
+	int dlen;
+    } simpleData;
+    QCString channel;
+    QCString message;
+    QByteArray data;
+};
 
 #endif
 
-#endif
+#endif // QWSCOMMAND_H

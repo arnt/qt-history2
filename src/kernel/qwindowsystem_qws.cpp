@@ -851,6 +851,15 @@ void QWSServer::doClient( QWSClient *client )
 	    invokePlaySound( (QWSPlaySoundCommand*)cs->command, cs->client );
 	    break;
 #endif
+#ifndef QT_NO_PCOP
+	case QWSCommand::PCOPRegisterChannel:
+	    invokeRegisterChannel( (QWSPCOPRegisterChannelCommand*)cs->command,
+				   cs->client );
+	    break;
+	case QWSCommand::PCOPSend:
+	    invokePCOPSend( (QWSPCOPSendCommand*)cs->command, cs->client );
+	    break;
+#endif
 	}
 	delete cs->command;
 	delete cs;
@@ -1007,6 +1016,36 @@ QList<QWSInternalWindowInfo> * QWSServer::windowList()
 
     return ret;
 }
+
+#ifndef QT_NO_PCOP
+void QWSServer::sendPCOPEvent( QWSClient *c, const QCString &ch,
+			       const QCString &msg, const QByteArray &data,
+			       bool response )
+{
+    ASSERT( c );
+    
+    QWSPCOPMessageEvent event;
+    event.simpleData.is_response = response;
+    event.simpleData.lchannel = ch.length();
+    event.simpleData.lmessage = msg.length();
+    event.simpleData.ldata = data.size();
+    int l = event.simpleData.lchannel + event.simpleData.lmessage +
+	    event.simpleData.ldata;
+
+    // combine channel, message and data into one block of raw bytes
+    QByteArray raw( l );
+    char *d = (char*)raw.data();
+    memcpy( d, ch.data(), event.simpleData.lchannel );
+    d += event.simpleData.lchannel;
+    memcpy( d, msg.data(), event.simpleData.lmessage );
+    d += event.simpleData.lmessage;
+    memcpy( d, data.data(), event.simpleData.ldata );
+    
+    event.setData( raw.data(), l );
+
+    c->sendEvent( &event );
+}
+#endif
 
 QWSWindow *QWSServer::windowAt( const QPoint& pos )
 {
@@ -1372,6 +1411,20 @@ void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient * )
 {
     soundserver->playFile(cmd->filename);
 }
+#endif
+
+#ifndef QT_NO_PCOP
+void QWSServer::invokeRegisterChannel( QWSPCOPRegisterChannelCommand *cmd,
+				       QWSClient *client )
+{
+    PCOPChannel::registerChannel( cmd->channel, client );
+}
+
+void QWSServer::invokePCOPSend( QWSPCOPSendCommand *cmd, QWSClient *client )
+{
+    PCOPChannel::answer( client, cmd->channel, cmd->message, cmd->data );
+}
+
 #endif
 
 /*!
