@@ -58,7 +58,6 @@ void QMenuBarPrivate::updateActions()
     actionItems = calcActionRects(q_width, q_start);
     itemsWidth = q_width;
     itemsStart = q_start;
-#ifndef QT_NO_ACCEL
     if(itemsDirty) {
         delete shortcuts;
         shortcuts = new QAccel(q);
@@ -69,7 +68,6 @@ void QMenuBarPrivate::updateActions()
                 shortcuts->insertItem(key);
         }
     }
-#endif
     itemsDirty = 0;
 
 #ifndef QT_NO_MAINWINDOW
@@ -342,19 +340,19 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
     \link menu-example.html menu/menu.cpp\endlink is an example of
     QMenuBar and QMenu use.
 
-    \sa QMenu QAccel QAction \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua Style Guidelines \endlink \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
+    \sa QMenu QShortcut QAction \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua Style Guidelines \endlink \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
 */
 
 
 void QMenuBarPrivate::init()
 {
+    QWidget *parent = q->parentWidget();
 #ifdef Q_WS_MAC
     macCreateMenuBar(parent);
 #endif
     q->setBackgroundRole(QPalette::Button);
-    QWidget *parent = q->parentWidget();
     if(parent) {
-        q->topLevelWidget()->installEventFilter(q); //grab accels (and maybe resizes)
+        q->topLevelWidget()->installEventFilter(q); //grab shortcuts (and maybe resizes)
         if(!parent->isTopLevel())
             parent->installEventFilter(q); //handle resizes
     }
@@ -802,7 +800,7 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
         d->altPressed = false;
         return false;
     } else if(d->altPressed && event->type() == QEvent::FocusOut) {
-        // some window systems/managers use alt/meta as accelerator keys
+        // some window systems/managers use alt/meta as shortcut keys
         // for switching between windows/desktops/etc.  If the focus
         // widget gets unfocused, then we need to stop waiting for alt release
         d->altPressed = false;
@@ -1037,7 +1035,7 @@ int QMenuBar::frameWidth() const
 }
 
 int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
-                        const QKeySequence *accel, const QMenu *popup, int id, int index)
+                        const QKeySequence *shortcut, const QMenu *popup, int id, int index)
 {
     QAction *act = new QAction;
     if(id != -1)
@@ -1048,8 +1046,8 @@ int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject
         act->setText(*text);
     if(popup)
         act->setMenu(const_cast<QMenu*>(popup));
-    if(accel)
-        act->setAccel(*accel);
+    if(shortcut)
+        act->setShortcut(*shortcut);
     if(receiver && member)
         QObject::connect(act, SIGNAL(triggered()), receiver, member);
     if(index == -1)

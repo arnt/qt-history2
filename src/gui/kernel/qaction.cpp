@@ -11,6 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#include "qaction.h"
+
 
 #include "qaction_p.h"
 #include "qapplication.h"
@@ -19,8 +21,6 @@
 
 #define d d_func()
 #define q q_func()
-
-QAccel *QActionPrivate::actionAccels = 0;
 
 /* QAction code */
 void QActionPrivate::sendDataChanged()
@@ -41,7 +41,7 @@ void QActionPrivate::sendDataChanged()
     \mainclass
 
     In GUI applications many commands can be invoked via a menu
-    option, a toolbar button and a keyboard accelerator. Since the
+    option, a toolbar button and a keyboard shortcut. Since the
     same action must be performed regardless of how the action was
     invoked, and since the menu and toolbar should be kept in sync, it
     is useful to represent a command as an \e action. An action can be
@@ -49,11 +49,11 @@ void QActionPrivate::sendDataChanged()
     sync. For example, if the user presses a Bold toolbar button the
     Bold menu item will automatically be checked.
 
-    A QAction may contain an icon, a menu text, an accelerator, a
+    A QAction may contain an icon, a menu text, a shortcut, a
     status text, a whats this text and a tool tip. Most of these can
     be set in the constructor. They can also be set independently with
     setIconSet(), setText(), setMenuText(), setToolTip(),
-    setStatusTip(), setWhatsThis() and setAccel().
+    setStatusTip(), setWhatsThis() and setShortcut().
 
     Actions are added to widgets using QWidget::addAction().
 
@@ -174,17 +174,16 @@ QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
     d->icons = new QIconSet(icon);
 }
 
-#ifndef QT_NO_ACCEL
 /*!
     Constructs an action with parent \a parent. The text will be set
-    to \a text and an accelerator set to \a accel. This will
+    to \a text and an shortcut set to \a shortcut. This will
     automatically insert the QAction into the group \a parent.
 */
-QAction::QAction(const QString &text, const QKeySequence &accel, QActionGroup* parent)
+QAction::QAction(const QString &text, const QKeySequence &shortcut, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
-    setAccel(accel);
+    setShortcut(shortcut);
     d->group = parent;
     if(parent)
         parent->addAction(this);
@@ -192,15 +191,15 @@ QAction::QAction(const QString &text, const QKeySequence &accel, QActionGroup* p
 
 /*!
     Constructs an action with parent \a parent. The text will be set
-    to \a text, icon set to \a icon, and an accelerator set to \a
-    accel. This will automatically insert the QAction into the group
+    to \a text, icon set to \a icon, and an shortcut set to \a
+    shortcut. This will automatically insert the QAction into the group
     \a parent.
 */
-QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel, QActionGroup* parent)
+QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
-    setAccel(accel);
+    setShortcut(shortcut);
     d->icons = new QIconSet(icon);
     d->group = parent;
     if(parent)
@@ -209,60 +208,70 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 
 /*!
     Constructs an action with parent \a parent. The text will be set
-    to \a text and an accelerator set to \a accel. This will not
+    to \a text and an shortcut set to \a shortcut. This will not
     automatically insert the QAction into the widget \a parent.
 */
-QAction::QAction(const QString &text, const QKeySequence &accel, QWidget* parent)
+QAction::QAction(const QString &text, const QKeySequence &shortcut, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
-    setAccel(accel);
+    setShortcut(shortcut);
 }
 
 /*!
     Constructs an action with parent \a parent. The text will be set
-    to \a text, icon set to \a icon, and an accelerator set to \a
-    accel. This will not automatically insert the QAction into the
+    to \a text, icon set to \a icon, and an shortcut set to \a
+    shortcut. This will not automatically insert the QAction into the
     widget \a parent.
 */
-QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
+QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
                    QWidget* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
-    setAccel(accel);
+    setShortcut(shortcut);
     d->icons = new QIconSet(icon);
 }
 
 /*!
-    \property QAction::accel
-    \brief the action's accelerator key
+  
+*/
+QWidget *QAction::parentWidget() const
+{
+    QObject *ret = parent();
+    while (ret && !ret->isWidgetType()) 
+        ret = ret->parent();
+    return (QWidget*)ret;
+}
+
+/*!
+    \property QAction::shortcut
+    \brief the action's shortcut key
 
     The keycodes can be found in \l Qt::Key and \l Qt::Modifier. There
-    is no default accelerator key.
+    is no default shortcut key.
 */
-void QAction::setAccel(const QKeySequence &accel)
+void QAction::setShortcut(const QKeySequence &shortcut)
 {
-    if(!accel.isEmpty()) {
-        if(!QActionPrivate::actionAccels) {
-            QActionPrivate::actionAccels = new QAccel(0, qApp);
-        } else if(d->accel != -1) {
-            QActionPrivate::actionAccels->removeItem(d->accel);
-            d->accel = -1;
+    if (d->shortcut == shortcut)
+        return;
+
+    d->shortcut = shortcut;
+    if(QWidget *parent = parentWidget()) {
+        if(d->shortcutId != -1) {
+            parent->releaseShortcut(d->shortcutId);
+            d->shortcutId = -1;
+        } else {
+            parent->installEventFilter(this);
         }
-        d->accel = QActionPrivate::actionAccels->insertItem(accel);
-        QActionPrivate::actionAccels->connectItem(d->accel, this, SLOT(sendAccelActivated()));
+        d->shortcutId = parent->grabShortcut(d->shortcut);
     }
     d->sendDataChanged();
 }
 
-QKeySequence QAction::accel() const
+QKeySequence QAction::shortcut() const
 {
-    QKeySequence ret;
-    if(QActionPrivate::actionAccels && d->accel != -1)
-        ret = QActionPrivate::actionAccels->key(d->accel);
-    return ret;
+    return d->shortcut;
 }
-#endif
 
 #ifdef QT_COMPAT
 QAction::QAction(QWidget* parent, const char* name)
@@ -280,49 +289,47 @@ QAction::QAction(QActionGroup* parent, const char* name)
         parent->addAction(this);
 }
 
-#ifndef QT_NO_ACCEL
-QAction::QAction(const QString &text, const QKeySequence &accel, QWidget* parent, const char* name)
+QAction::QAction(const QString &text, const QKeySequence &shortcut, QWidget* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
     d->text = text;
-    setAccel(accel);
+    setShortcut(shortcut);
 }
 
-QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
+QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
                  QWidget* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
     d->text = text;
-    setAccel(accel);
+    setShortcut(shortcut);
     d->icons = new QIconSet(icon);
 }
 
-QAction::QAction(const QString &text, const QKeySequence &accel, QActionGroup* parent, const char* name)
+QAction::QAction(const QString &text, const QKeySequence &shortcut, QActionGroup* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
     d->text = text;
-    setAccel(accel);
+    setShortcut(shortcut);
     d->group = parent;
     if(parent)
         parent->addAction(this);
 }
 
-QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
+QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
                  QActionGroup* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
     d->text = text;
-    setAccel(accel);
+    setShortcut(shortcut);
     d->icons = new QIconSet(icon);
     d->group = parent;
     if(parent)
         parent->addAction(this);
 }
-#endif
 #endif
 
 /*!
@@ -470,7 +477,7 @@ QString QAction::text() const
 
     There is no default tool tip text.
 
-    \sa setStatusTip() setAccel()
+    \sa setStatusTip() setShortcut()
 */
 void QAction::setToolTip(const QString &tooltip)
 {
@@ -602,6 +609,10 @@ void QAction::setEnabled(bool b)
 {
     d->enabled = b;
     d->forceDisabled = !b;
+    if(d->shortcutId != -1) {
+        if(QWidget *p = parentWidget())
+            p->setShortcutEnabled(d->shortcutId, d->enabled && d->visible);
+    }
     d->sendDataChanged();
 }
 
@@ -625,6 +636,10 @@ void QAction::setVisible(bool b)
 {
     d->forceInvisible = !b;
     d->visible = b;
+    if(d->shortcutId != -1) {
+        if(QWidget *p = parentWidget())
+            p->setShortcutEnabled(d->shortcutId, d->enabled && d->visible);
+    }
     d->sendDataChanged();
 }
 
@@ -635,11 +650,22 @@ bool QAction::isVisible() const
 }
 
 /*!
-  \internal
+  \reimp
 */
-void QAction::sendAccelActivated()
+bool
+QAction::eventFilter(QObject *, QEvent *e)
 {
-    activate(Trigger);
+    if (e->type() == QEvent::Shortcut) {
+        QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
+        if (d->shortcutId != se->shortcutId())
+            return false;
+        if (se->isAmbiguous())
+            qWarning("QAction: Ambigious shortcut overload!");
+        else
+            activate(Trigger);
+        return true;
+    }
+    return false;
 }
 
 /*!
@@ -666,7 +692,7 @@ void QAction::activate(ActionEvent event)
 
     This signal is emitted when an action is activated by the user,
     e.g. when the user clicks a menu option or a toolbar button or
-    presses an action's accelerator key combination.
+    presses an action's shortcut key combination.
 
     Connect to this signal for command actions. Connect to the
     toggled() signal for checkable actions.
@@ -679,7 +705,7 @@ void QAction::activate(ActionEvent event)
 
     This signal is emitted when an action is highlighted by the user,
     e.g. when the user pauses with the cursor over a menu option or a
-    toolbar button or presses an action's accelerator key combination.
+    toolbar button or presses an action's shortcut key combination.
 
     \sa QAction::activate()
 */
@@ -801,10 +827,9 @@ QAction *QActionGroup::addAction(QAction* a)
     return a;
 }
 
-#ifndef QT_NO_ACCEL
 /*!
-    Adds an action with text set to \a text and an accelerator of \a
-    accel. This newly created action's parent is set to this action
+    Adds an action with text set to \a text and an shortcut of \a
+    shortcut. This newly created action's parent is set to this action
     group and it is returned.
 
     Normally an action is added to a group by creating it with the
@@ -812,14 +837,14 @@ QAction *QActionGroup::addAction(QAction* a)
 
     \sa QAction::setActionGroup()
 */
-QAction *QActionGroup::addAction(const QString &text, const QKeySequence &accel)
+QAction *QActionGroup::addAction(const QString &text, const QKeySequence &shortcut)
 {
-    return new QAction(text, accel, this);
+    return new QAction(text, shortcut, this);
 }
 
 /*!
     Adds an action with text set to \a text, icon set to \a icon, and
-    an accelerator of \a accel. This newly created action's parent is
+    an shortcut of \a shortcut. This newly created action's parent is
     set to this action group and it is returned.
 
     Normally an action is added to a group by creating it with the
@@ -827,11 +852,10 @@ QAction *QActionGroup::addAction(const QString &text, const QKeySequence &accel)
 
     \sa QAction::setActionGroup()
 */
-QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text, const QKeySequence &accel)
+QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut)
 {
-    return new QAction(icon, text, accel, this);
+    return new QAction(icon, text, shortcut, this);
 }
-#endif
 
 /*!
   Removes action \a action from this group. The action \a action's
@@ -985,3 +1009,5 @@ void QActionGroup::internalHovered()
         qWarning("not possible..");
     emit hovered(action);
 }
+
+

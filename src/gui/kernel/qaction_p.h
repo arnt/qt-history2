@@ -3,7 +3,6 @@
 
 #include "qaction.h"
 #include <private/qobject_p.h>
-#include "qaccel.h"
 #include "qmenu.h"
 
 #ifdef QT_COMPAT
@@ -14,7 +13,7 @@ class QActionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAction);
 public:
-    QActionPrivate() : group(0), icons(0), accel(-1), enabled(1), forceDisabled(0),
+    QActionPrivate() : group(0), icons(0), shortcutId(-1), enabled(1), forceDisabled(0),
                        visible(1), forceInvisible(0), checkable(0), checked(0), separator(0) 
     {
 #ifdef QT_COMPAT
@@ -27,12 +26,9 @@ public:
         delete icons;
         if(menu)
             delete menu;
-        if(actionAccels && accel != -1) {
-            actionAccels->removeItem(accel);
-            if(!actionAccels->count()) {
-                delete actionAccels;
-                actionAccels = 0;
-            }
+        if(shortcutId != -1) {
+            if(QWidget *p = q_func()->parentWidget())
+                p->releaseShortcut(shortcutId);
         }
     }
 
@@ -42,10 +38,8 @@ public:
     QString tooltip;
     QString statustip;
     QString whatsthis;
-#ifndef QT_NO_ACCEL
-    static QAccel *actionAccels;
-    int accel;
-#endif
+    QKeySequence shortcut;
+    int shortcutId;
     QPointer<QMenu> menu;
     uint enabled : 1, forceDisabled : 1;
     uint visible : 1, forceInvisible : 1;

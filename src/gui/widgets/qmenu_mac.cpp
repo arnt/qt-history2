@@ -730,6 +730,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
 void
 QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 {
+    return;
     if(!qt_mac_no_native_menubar) {
         if(!parent && !QMacMenuBarPrivate::fallback) {
             QMacMenuBarPrivate::fallback = q;

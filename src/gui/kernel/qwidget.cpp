@@ -1680,7 +1680,6 @@ QWidget::addAction(QAction *action)
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QActionEvent e(QEvent::ActionAdded, action);
     QApplication::sendEvent(this, &e);
-    action->addedTo(this);
 }
 
 /*!
@@ -1715,7 +1714,6 @@ QWidget::insertAction(QAction *before, QAction *action)
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QActionEvent e(QEvent::ActionAdded, action, before);
     QApplication::sendEvent(this, &e);
-    action->addedTo(this);
 }
 
 /*!

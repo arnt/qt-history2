@@ -85,18 +85,18 @@ public:
     QMenuBar(QWidget *parent, const char *name);
     inline QT_COMPAT uint count() const { return actions().count(); }
     inline QT_COMPAT int insertItem(const QString &text, const QObject *receiver, const char* member,
-                                    const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        return insertAny(0, &text, receiver, member, &accel, 0, id, index);
+                                    const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
+        return insertAny(0, &text, receiver, member, &shortcut, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text,
                                     const QObject *receiver, const char* member,
-                                    const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        return insertAny(&icon, &text, receiver, member, &accel, 0, id, index);
+                                    const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
+        return insertAny(&icon, &text, receiver, member, &shortcut, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, const QObject *receiver, const char* member,
-                                    const QKeySequence& accel = 0, int id = -1, int index = -1) {
+                                    const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
         QIconSet icon(pixmap);
-        return insertAny(&icon, 0, receiver, member, &accel, 0, id, index);
+        return insertAny(&icon, 0, receiver, member, &shortcut, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QString &text, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, 0, id, index);
@@ -128,11 +128,11 @@ public:
 #ifndef QT_NO_ACCEL
     inline QT_COMPAT QKeySequence accel(int id) const {
         if(QAction *act = findActionForId(id))
-            return act->accel();
+            return act->shortcut();
         return QKeySequence(); }
     inline QT_COMPAT void setAccel(const QKeySequence& key, int id) {
         if(QAction *act = findActionForId(id))
-            act->setAccel(key);
+            act->setShortcut(key);
     }
 #endif
     inline QT_COMPAT QIconSet iconSet(int id) const {
@@ -241,7 +241,7 @@ protected:
 private:
     QAction *findActionForId(int id) const;
     int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
-                  const QKeySequence *accel, const QMenu *popup, int id, int index);
+                  const QKeySequence *shorcut, const QMenu *popup, int id, int index);
     int findIdForAction(QAction*) const;
 #endif
 

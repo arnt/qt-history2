@@ -1699,7 +1699,7 @@ void QMenu::internalDelayedPopup()
 #ifdef QT_COMPAT
 #include "qmenudata.h"
 int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
-                          const QKeySequence *accel, const QMenu *popup, int id, int index)
+                          const QKeySequence *shortcut, const QMenu *popup, int id, int index)
 {
     QAction *act = new QAction;
     if(id != -1)
@@ -1710,8 +1710,8 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
         act->setText(*text);
     if(popup)
         act->setMenu(const_cast<QMenu*>(popup));
-    if(accel)
-        act->setAccel(*accel);
+    if(shortcut)
+        act->setShortcut(*shortcut);
     if(receiver && member)
         QObject::connect(act, SIGNAL(triggered()), receiver, member);
     if(index == -1)

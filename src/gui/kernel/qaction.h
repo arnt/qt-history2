@@ -42,9 +42,7 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
-#ifndef QT_NO_ACCEL
-    Q_PROPERTY(QKeySequence accel READ accel WRITE setAccel)
-#endif
+    Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
@@ -56,26 +54,22 @@ public:
     QAction(const QString &text, QMenu *menu, QActionGroup* parent);
     QAction(const QString &text, QActionGroup* parent);
     QAction(const QIconSet &icon, const QString &text, QActionGroup* parent);
-#ifndef QT_NO_ACCEL
-    QAction(const QString &text, const QKeySequence &accel, QWidget* parent=0);
-    QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
+    QAction(const QString &text, const QKeySequence &shortcut, QWidget* parent=0);
+    QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
               QWidget* parent=0);
-    QAction(const QString &text, const QKeySequence &accel, QActionGroup* parent);
-    QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
+    QAction(const QString &text, const QKeySequence &shortcut, QActionGroup* parent);
+    QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
               QActionGroup* parent);
-#endif
 
 #ifdef QT_COMPAT
     QAction(QWidget* parent, const char* name);
     QAction(QActionGroup* parent, const char* name);
-#ifndef QT_NO_ACCEL
-    QAction(const QString &menuText, const QKeySequence &accel, QWidget* parent, const char* name);
-    QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &accel,
+    QAction(const QString &menuText, const QKeySequence &shortcut, QWidget* parent, const char* name);
+    QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
             QWidget* parent, const char* name);
-    QAction(const QString &menuText, const QKeySequence &accel, QActionGroup* parent, const char* name);
-    QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &accel,
+    QAction(const QString &menuText, const QKeySequence &shortcut, QActionGroup* parent, const char* name);
+    QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
             QActionGroup* parent, const char* name);
-#endif
 #endif
     ~QAction();
 
@@ -83,26 +77,35 @@ public:
     QActionGroup *actionGroup() const;
     void setIcon(const QIconSet&);
     QIconSet icon() const;
+
     void setText(const QString&);
     QString text() const;
+
     void setToolTip(const QString&);
     QString toolTip() const;
+
     void setStatusTip(const QString&);
     QString statusTip() const;
+
     void setWhatsThis(const QString&);
     QString whatsThis() const;
+
     void setMenu(QMenu *);
     QMenu *menu() const;
+
     void setSeparator(bool b);
     bool isSeparator() const;
-#ifndef QT_NO_ACCEL
-    void setAccel(const QKeySequence &key);
-    QKeySequence accel() const;
-#endif
+
+    void setShortcut(const QKeySequence &key);
+    QKeySequence shortcut() const;
+
     void setCheckable(bool);
     bool isCheckable() const;
+
     bool isChecked() const;
+
     bool isEnabled() const;
+
     bool isVisible() const;
 
     enum ActionEvent { Trigger, Hover };
@@ -119,10 +122,14 @@ public:
     inline QT_COMPAT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
     inline QT_COMPAT void setMenuText(const QString &s) { setText(s); }
     inline QT_COMPAT QString menuText() { return text(); }
+    inline QT_COMPAT void setAccel(const QKeySequence &shortcut) { setShortcut(shortcut); }
+    inline QT_COMPAT QKeySequence accel() { return shortcut(); }
 #endif
 
+    QWidget *parentWidget() const;
+
 protected:
-    virtual void addedTo(QWidget *) {};
+    bool eventFilter(QObject *, QEvent *);
 
 public slots:
     void setChecked(bool);
@@ -139,7 +146,7 @@ signals:
 #endif
 
 private slots:
-    void sendAccelActivated();
+    void sendShortcutActivated();
 
 private:
 #ifdef QT_COMPAT
@@ -167,10 +174,8 @@ public:
     ~QActionGroup();
 
     QAction *addAction(QAction* a);
-#ifndef QT_NO_ACCEL
-    QAction *addAction(const QString &text, const QKeySequence &accel);
-    QAction *addAction(const QIconSet &icon, const QString &text, const QKeySequence &accel);
-#endif
+    QAction *addAction(const QString &text, const QKeySequence &shortcut);
+    QAction *addAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut);
     void removeAction(QAction *a);
     QList<QAction*> actions() const;
 
