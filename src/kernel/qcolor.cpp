@@ -186,8 +186,8 @@ QColor::QColor(Qt::GlobalColor color)
 	// HACK: we need a way to recognize color0 and color1 uniquely, so
 	// that we can use color0 and color1 with fixed pixel values on
 	// all screens
-	QRGBA(  0,   0,   0, 1), // color0
-	QRGBA(255, 255, 255, 1), // color1
+	QRGBA(255, 255, 255, 1), // color0
+	QRGBA(  0,   0,   0, 1), // color1
 #else
 	QRGB(  0,   0,   0), // color0
 	QRGB(255, 255, 255), // color1
