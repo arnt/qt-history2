@@ -1072,6 +1072,8 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
     const QStringList opts(connOpts.split(';'));
     for (int i = 0; i < opts.count(); ++i) {
         const QString tmp(opts.at(i));
+        if (tmp.isEmpty())
+            continue;
         int idx;
         if ( (idx = tmp.indexOf( '=' )) == -1 ) {
             qWarning("QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1());
