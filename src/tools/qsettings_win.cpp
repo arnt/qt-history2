@@ -581,7 +581,7 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
     }
     if ( !handle )
 	return TRUE;
-    if ( e == "Default" )
+    if ( e == "Default" || e == "." )
 	e = "";
     QT_WA( {
 	res = RegDeleteValueW( handle, (TCHAR*)e.ucs2() );
