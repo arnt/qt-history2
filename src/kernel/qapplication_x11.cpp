@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#822 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#823 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1597,6 +1597,11 @@ void qt_init_internal( int *argcptr, char **argv,
 	QPaintDevice::x_appdepth = DefaultDepth(appDpy,appScreen);
 	QPaintDevice::x_appcells = DisplayCells(appDpy,appScreen);
 
+	// work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
+	// with depth 8
+	if (QPaintDevice::x_appdepth == 8)
+	    QPaintDevice::x_appcells = 256;
+
 	Visual *vis;
 	if (! visual) {
 	    // use the default visual
@@ -1820,7 +1825,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	if ( !strncmp( devices[i].name, WACOM_NAME, sizeof(WACOM_NAME) -1 ) ) {
 	    dev = XOpenDevice( appDpy, devices[i].id );
 	    if ( dev == NULL ) {
-		qDebug( "Failed to open device" );		
+		qDebug( "Failed to open device" );
 	    }
 	    if ( dev->num_classes > 0 ) {
 		for ( ip = dev->classes, j = 0; j < devices->num_classes;
@@ -1833,7 +1838,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		        DeviceKeyRelease( dev, xinput_key_release,
 					  event_list[curr_xinput_events] );
 			curr_xinput_events++;
-			break;			
+			break;
 		    case ButtonClass:
 			DeviceButtonPress( dev, xinput_button_press,
 					   event_list[curr_xinput_events] );
@@ -1848,7 +1853,7 @@ void qt_init_internal( int *argcptr, char **argv,
 			DeviceMotionNotify( dev, xinput_motion,
 					     event_list[curr_xinput_events]);
 			curr_xinput_events++;
-			break;	
+			break;
 		    default:
 			break;
 		    }
@@ -1864,7 +1869,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		    qDebug( "%d", a[WAC_PRESSURE_I].max_value );
 		}
 	    }
-	
+
 	    // at this point we are assuming there is only one
 	    // wacom device...
 	    break;

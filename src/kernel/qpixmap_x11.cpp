@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#208 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -612,7 +612,7 @@ QImage QPixmap::convertToImage() const
     int	    d  = depth();
     bool    mono = d == 1;
     Visual *visual = (Visual *)x11Visual();
-    bool    trucol = (visual->c_class == TrueColor) && !mono;
+    bool    trucol = (visual->c_class == TrueColor) && !mono && d > 8;
 
     if ( d > 1 && d <= 8 )			// set to nearest valid depth
 	d = 8;					//   2..8 ==> 8
@@ -887,6 +887,7 @@ QImage QPixmap::convertToImage() const
 					(carr[i].blue  >> 8) & 255 ) );
 	    }
 	}
+
 	delete [] carr;
     }
     if ( data->optim != BestOptim ) {		// throw away image data
@@ -1100,7 +1101,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     Display *dpy   = x11Display();
     Visual *visual = (Visual *)x11Visual();
     XImage *xi	   = 0;
-    bool    trucol = visual->c_class == TrueColor;
+    bool    trucol = (visual->c_class == TrueColor);
     int	    nbytes = image.numBytes();
     uchar  *newbits= 0;
     register uchar *p;
