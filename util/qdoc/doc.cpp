@@ -1052,6 +1052,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	yyOut += QString( "</hr>" );
     }
 
+    // add a "see also" for the groups
+    if ( seeAlso.isEmpty() && !groups.isEmpty() )
+	yyOut += QString( "\\sa" );
+
     yyOut += QChar( '\n' );
 
     if ( kindIs == Doc::Null ) {
