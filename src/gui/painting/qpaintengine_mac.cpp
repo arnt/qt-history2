@@ -362,40 +362,6 @@ QQuickDrawPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 }
 
 void
-QQuickDrawPaintEngine::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &bgColor)
-{
-    Q_ASSERT(isActive());
-
-    //save
-    QPen    old_pen = d->current.pen;
-    RasterOp old_rop = (RasterOp)d->current.rop;
-
-    //setup
-    if(xorPaint) {
-        if(QColor::numBitPlanes() <= 8)
-            d->current.pen = QPen(color1);
-        else
-            d->current.pen = QPen(white);
-        d->current.rop = XorROP;
-    } else {
-        if(qGray(bgColor.rgb()) < 128)
-            d->current.pen = QPen(white);
-        else
-            d->current.pen = QPen(black);
-    }
-    d->current.pen.setStyle(DashLine);
-
-    //draw
-    setupQDPen();
-    if(d->current.pen.style() != NoPen)
-        drawRect(fr);
-
-    //restore
-    d->current.rop = old_rop;
-    d->current.pen = old_pen;
-}
-
-void
 QQuickDrawPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
