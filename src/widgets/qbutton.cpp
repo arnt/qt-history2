@@ -351,7 +351,7 @@ QTimer *QButton::timer()
     \property QButton::toggleState
     \brief the state of the toggle button
 
-    If this is property is changed then it does not cause the button
+    If this property is changed then it does not cause the button
     to be repainted.
 */
 
@@ -470,7 +470,7 @@ void QButton::setText( const QString &text )
 #ifndef QT_NO_ACCEL
     if( !d || !d->a || !QAccel::shortcutKey( btext ).isEmpty() )
 	setAccel( QAccel::shortcutKey( text ) );
-	
+
 #endif
     btext = text;
 
