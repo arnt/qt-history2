@@ -53,6 +53,7 @@
      OS2	- OS/2
      OS2EMX	- XFree86 on OS/2 (not PM)
      WIN32	- Win32 (Windows 95/98/ME and Windows NT/2000/XP)
+     CYGWIN	- Cygwin
      SUN	- SunOS
      SOLARIS	- Sun Solaris
      HPUX	- HP-UX
@@ -99,6 +100,8 @@
 #  define Q_OS_WIN32
 #elif defined(__MWERKS__) && defined(__INTEL__)
 #  define Q_OS_WIN32
+#elif defined(__CYGWIN__)
+#  define Q_OS_CYGWIN
 #elif defined(sun) || defined(__sun) || defined(__sun__)
 #  if defined(__SVR4)
 #    define Q_OS_SOLARIS
@@ -342,6 +345,8 @@
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
+/* avoid undefined symbol problems with out-of-line template members */
+#  define Q_INLINE_TEMPLATES inline
 
 /* Compilers with EDG front end are similar. To detect them we test:
    __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
