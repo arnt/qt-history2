@@ -14571,7 +14571,7 @@ QString &QString::setNum( double n, char f, int prec )
     }
 #endif
     char format[20];
-    char buf[120];                              // enough for 99 precision?
+    char buf[512];                              // hope this is large enough
     char *fs = format;                          // generate format string
     *fs++ = '%';                                //   "%.<prec>l<f>"
     if ( prec >= 0 ) {
@@ -14588,7 +14588,7 @@ QString &QString::setNum( double n, char f, int prec )
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
-    ::sprintf( buf, format, n );
+    ::sprintf( buf, 255, format, n );	// snprintf is unfortunately not portable
     return setLatin1(buf);
 }
 
