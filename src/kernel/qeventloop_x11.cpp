@@ -146,10 +146,6 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	while ( XPending( QPaintDevice::x11AppDisplay() ) ) {
 	    // also flushes output buffer
 	    while ( XPending( QPaintDevice::x11AppDisplay() ) ) {
-		if ( d->exitloop ) {		// quit between events
-		    return FALSE;
-		}
-
 		XNextEvent( QPaintDevice::x11AppDisplay(), &event );
 
 		if ( flags & ExcludeUserInput ) {
@@ -176,9 +172,8 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 
     QApplication::sendPostedEvents();
 
-    if ( d->exitloop ) {			// break immediately
-	return FALSE;
-    }
+    // don't block if exitLoop() or exit()/quit() has been called.
+    canWait = d->exitloop || d->quitnow ? FALSE : canWait;
 
     // Process timers and socket notifiers - the common UNIX stuff
 

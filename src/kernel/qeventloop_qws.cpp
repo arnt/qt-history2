@@ -131,9 +131,6 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	QApplication::sendPostedEvents();
 
 	while ( qt_fbdpy->eventPending() ) {	// also flushes output buffer
-	    if ( d->exitloop ) {		// quit between events
-		return FALSE;
-	    }
 	    QWSEvent *event = qt_fbdpy->getEvent();	// get next event
 	    nevents++;
 
@@ -145,16 +142,15 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	}
     }
 
-    if ( d->exitloop ) {			// break immediately
-	return FALSE;
-    }
-
     extern QPtrQueue<QWSCommand> *qt_get_server_queue();
     if ( !qt_get_server_queue()->isEmpty() ) {
 	QWSServer::processEventQueue();
     }
 
     QApplication::sendPostedEvents();
+
+    // don't block if exitLoop() or exit()/quit() has been called.
+    canWait = d->exitloop || d->quitnow ? FALSE : canWait;
 
     // Process timers and socket notifiers - the common UNIX stuff
 

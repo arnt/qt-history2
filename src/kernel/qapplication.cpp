@@ -38,6 +38,7 @@
 #include "qobjectlist.h"
 #include "qapplication.h"
 #include "qeventloop.h"
+#include "qeventloop_p.h"
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
@@ -320,7 +321,6 @@ QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
 int	  QApplication::app_tracking   = 0;	// global mouse tracking
 bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
 bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
-bool	  QApplication::app_exit_loop  = FALSE;	// flag to exit local loop
 int	  QApplication::loop_level     = 0;	// event loop level
 QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
@@ -849,7 +849,6 @@ void QApplication::init_precmdline()
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = FALSE;
 #endif
-    app_exit_loop = FALSE;
 #if defined(QT_CHECK_STATE)
     if ( qApp )
 	qWarning( "QApplication: There should be max one application object" );
@@ -2839,6 +2838,14 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		      || receiver == pe->receiver ) // we send to THAT receiver
 		 && ( event_type == 0 // we send all types
 		      || event_type == pe->event->type() ) ) { // we send THAT type
+		// do not process DeferredDelete events if we are in
+		// the middle of a loop level change (which means
+		// exit_loop() has been called, but we have not yet
+		// returned from enter_loop()).
+		if ( eventloop && eventloop->d->exitloop &&
+		     pe->event->type() == QEvent::DeferredDelete )
+		    continue;
+
 		// first, we diddle the event so that we can deliver
 		// it, and that noone will try to touch it later.
 		pe->event->posted = FALSE;
