@@ -1,40 +1,20 @@
 /****************************************************************************
-** $Id$
 **
-** Implementation of QTab and QTabBar classes
+** Implementation of QTab and QTabBar classes.
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
-**
-** This file may be distributed under the terms of the Q Public License
-** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-**   information about Qt Commercial License Agreements.
-** See http://www.trolltech.com/qpl/ for QPL licensing information.
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
-**********************************************************************/
+****************************************************************************/
 
 #include "qtabbar.h"
 #ifndef QT_NO_TABBAR
+#include "qevent.h"
 #include "qaccel.h"
 #include "qbitmap.h"
 #include "qtoolbutton.h"
@@ -48,7 +28,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-
+#include "qmap.h"
 
 /*!
     \class QTab qtabbar.h
@@ -237,9 +217,10 @@ struct QTabPrivate {
     QTabBar::Shape s;
     QToolButton* rightB;
     QToolButton* leftB;
-    int btnWidth;
     bool  scrolls;
     QTabBarToolTip * toolTips;
+    QList<QTab*> l;
+    QList<QTab*> lstatic;
 };
 
 #ifndef QT_NO_TOOLTIP
@@ -264,7 +245,7 @@ public:
 
     QString tipForTab( QTab * tab ) const
     {
-	QMapConstIterator<QTab *, QString> it;
+	QMap<QTab *, QString>::ConstIterator it;
 	it = tabTips.find( tab );
 	if ( it != tabTips.end() )
 	    return it.data();
@@ -291,7 +272,7 @@ protected:
 
 #ifndef QT_NO_TOOLTIP
 	// find and show the tool tip for the tab under the point p
-	QMapIterator<QTab *, QString> it;
+	QMap<QTab *, QString>::Iterator it;
 	for ( it = tabTips.begin(); it != tabTips.end(); ++it ) {
 	    if ( it.key()->rect().contains( p ) )
 		tip( it.key()->rect(), it.data() );
@@ -328,7 +309,7 @@ private:
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )
-    : QWidget( parent, name, WNoAutoErase | WNoMousePropagation  )
+    : QWidget( parent, name, WNoMousePropagation  )
 {
     d = new QTabPrivate;
     d->pressed = 0;
@@ -348,10 +329,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->rightB = new QToolButton( RightArrow, this, "qt_right_btn" );
     connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->rightB->hide();
-    d->btnWidth = 16;
-    l = new QPtrList<QTab>;
-    lstatic = new QPtrList<QTab>;
-    lstatic->setAutoDelete( TRUE );
+    d->lstatic.setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
     setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
 }
@@ -369,10 +347,6 @@ QTabBar::~QTabBar()
 #endif
     delete d;
     d = 0;
-    delete l;
-    l = 0;
-    delete lstatic;
-    lstatic = 0;
 }
 
 
@@ -417,11 +391,11 @@ int QTabBar::insertTab( QTab * newTab, int index )
 	d->focus = newTab->id;
 
     newTab->setTabBar( this );
-    l->insert( 0, newTab );
-    if ( index < 0 || index > int(lstatic->count()) )
-	lstatic->append( newTab );
+    d->l.insert( 0, newTab );
+    if ( index < 0 || index > int(d->lstatic.count()) )
+	d->lstatic.append( newTab );
     else
-	lstatic->insert( index, newTab );
+	d->lstatic.insert( index, newTab );
 
     layoutTabs();
     updateArrowButtons();
@@ -456,8 +430,8 @@ void QTabBar::removeTab( QTab * t )
     if(d->pressed == t)
 	d->pressed = 0;
     t->setTabBar( 0 );
-    l->remove( t );
-    lstatic->remove( t );
+    d->l.remove( t );
+    d->lstatic.remove( t );
     layoutTabs();
     updateArrowButtons();
     makeVisible( tab( currentTab() ) );
@@ -480,9 +454,12 @@ void QTabBar::removeTab( QTab * t )
 
 void QTabBar::setTabEnabled( int id, bool enabled )
 {
-    QTab * t;
-    for( t = l->first(); t; t = l->next() ) {
-	if ( t && t->id == id ) {
+    QTab * t = 0;
+    for (int i=0; i<d->l.size(); ++i) {
+	t = d->l.at(i);
+	if (!t)
+	    break;
+	if ( t->id == id ) {
 	    if ( t->enabled != enabled ) {
 		t->enabled = enabled;
 #ifndef QT_NO_ACCEL
@@ -495,7 +472,11 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 		    int distance;
 		    // look for the closest enabled tab - measure the
 		    // distance between the centers of the two tabs
-		    for( QTab * n = l->first(); n; n = l->next() ) {
+		    QTab *n = 0;
+		    for (int j=0; j<d->l.size(); ++j) {
+			n = d->l.at(j);
+			if (!n)
+			    break;
 			if ( n->enabled ) {
 			    p2 = n->r.center();
 			    distance = (p2.x() - p1.x())*(p2.x() - p1.x()) +
@@ -508,7 +489,7 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 		    }
 		    if ( t->enabled ) {
 			r = r.unite( t->r );
-			l->append( l->take( l->findRef( t ) ) );
+			d->l.append(d->l.takeAt(i));
 			emit selected( t->id );
 		    }
 		}
@@ -543,10 +524,10 @@ bool QTabBar::isTabEnabled( int id ) const
 QSize QTabBar::sizeHint() const
 {
     QSize sz(0, 0);
-    if ( QTab * t = l->first() ) {
-	QRect r( t->r );
-	while ( (t = l->next()) != 0 )
-	    r = r.unite( t->r );
+    if (!!d->l) {
+	QRect r(d->l.first()->r);
+	for (int i=1; i<d->l.size(); ++i)
+	    r = r.unite(d->l.at(i)->r);
 	sz = r.size();
     }
     return sz.expandedTo(QApplication::globalStrut());
@@ -586,7 +567,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     if(t->rect().contains(mapFromGlobal(QCursor::pos())))
 	flags |= QStyle::Style_MouseOver;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
-			 colorGroup(), flags, QStyleOption(t) );
+			 palette(), flags, QStyleOption(t) );
 
     QRect r( t->r );
     p->setFont( font() );
@@ -599,10 +580,10 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     }
     QFontMetrics fm = p->fontMetrics();
     int fw = fm.width( t->label );
-    fw -= t->label.contains('&') * fm.width('&');
-    fw += t->label.contains("&&") * fm.width('&');
+    fw -= t->label.count('&') * fm.width('&');
+    fw += t->label.count("&&") * fm.width('&');
     int w = iw + fw + 4;
-    int h = QMAX(fm.height() + 4, ih );
+    int h = qMax(fm.height() + 4, ih );
     paintLabel( p, QRect( r.left() + (r.width()-w)/2 - 3,
 			  r.top() + (r.height()-h)/2,
 			  w, h ), t, t->id == keyboardFocusTab() );
@@ -644,9 +625,10 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	flags |= QStyle::Style_Enabled;
     if (has_focus)
 	flags |= QStyle::Style_HasFocus;
-    style().drawControl( QStyle::CE_TabBarLabel, p, this, r,
-			 t->isEnabled() ? colorGroup(): palette().disabled(),
-			 flags, QStyleOption(t) );
+    QPalette pal = palette();
+    if(!t->isEnabled())
+	pal.setCurrentColorGroup(QPalette::Disabled);
+    style().drawControl( QStyle::CE_TabBarLabel, p, this, r, pal, flags, QStyleOption(t) );
 }
 
 
@@ -663,36 +645,35 @@ void QTabBar::paintEvent( QPaintEvent * e )
     if ( e->rect().isNull() )
 	return;
 
-    QSharedDoubleBuffer buffer( this, e->rect() );
-
-    QTab * t;
-    t = l->first();
-    do {
-	QTab * n = l->next();
-	if ( t && t->r.intersects( e->rect() ) )
-	    paint( buffer.painter(), t, n == 0 );
+    QPainter p(this);
+    QTab *t = d->l.first();
+    QTab *n = 0;
+    for (int i=1; t; ++i) {
+	n = ( i<d->l.size() ? d->l.at(i) : 0 );
+	if (t->r.intersects(e->rect()))
+	    paint(&p, t, n == 0);
 	t = n;
-    } while ( t != 0 );
+    }
 
-    if ( d->scrolls && lstatic->first()->r.left() < 0 ) {
+    if ( d->scrolls && d->lstatic.first()->r.left() < 0 ) {
 	QPointArray a;
 	int h = height();
 	if ( d->s == RoundedAbove ) {
-	    buffer.painter()->fillRect( 0, 3, 4, h-5,
-			colorGroup().brush( QColorGroup::Background ) );
+	    p.fillRect( 0, 3, 4, h-5,
+			palette().brush( QPalette::Background ) );
 	    a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
 	} else if ( d->s == RoundedBelow ) {
-	    buffer.painter()->fillRect( 0, 2, 4, h-5,
-			colorGroup().brush( QColorGroup::Background ) );
+	    p.fillRect( 0, 2, 4, h-5,
+			palette().brush( QPalette::Background ) );
 	    a.setPoints( 5,  0,0,  3,h/4, 0,h/2, 3,3*h/4, 0,h-3 );
 	}
 
 	if ( !a.isEmpty() ) {
-	    buffer.painter()->setPen( colorGroup().light() );
-	    buffer.painter()->drawPolyline( a );
+	    p.setPen( palette().light() );
+	    p.drawPolyline( a );
 	    a.translate( 1, 0 );
-	    buffer.painter()->setPen( colorGroup().midlight() );
-	    buffer.painter()->drawPolyline( a );
+	    p.setPen( palette().midlight() );
+	    p.drawPolyline( a );
 	}
     }
 }
@@ -710,17 +691,16 @@ void QTabBar::paintEvent( QPaintEvent * e )
 
 QTab * QTabBar::selectTab( const QPoint & p ) const
 {
-    QTab * selected = 0;
-    bool moreThanOne = FALSE;
-
-    QPtrListIterator<QTab> i( *l );
-    while( i.current() ) {
-	QTab * t = i.current();
-	++i;
-
-	if ( t && t->r.contains( p ) ) {
-	    if ( selected )
-		moreThanOne = TRUE;
+    QTab *selected = 0;
+    bool moreThanOne = false;
+    QTab *t = 0;
+    for (int i=0; i<d->l.size(); ++i) {
+	t = d->l.at(i);
+	if (!t)
+	    break;
+	if (t->r.contains(p)) {
+	    if (selected)
+		moreThanOne = true;
 	    else
 		selected = t;
 	}
@@ -745,7 +725,7 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
 	if(e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
 	    setCurrentTab( t );
 	else
-	    repaint(t->rect(), FALSE);
+	    repaint(t->rect());
     }
 }
 
@@ -764,9 +744,9 @@ void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 	QTab *t = selectTab( e->pos() );
 	if(t != d->pressed) {
 	    if(d->pressed)
-		repaint(d->pressed->rect(), FALSE);
+		repaint(d->pressed->rect());
 	    if((d->pressed = t))
-		repaint(t->rect(), FALSE);
+		repaint(t->rect());
 	}
     }
 }
@@ -794,7 +774,7 @@ void QTabBar::mouseReleaseEvent( QMouseEvent *e )
 void QTabBar::show()
 {
     //  ensures that one tab is selected.
-    QTab * t = l->last();
+    QTab * t = d->l.isEmpty() ? 0 : d->l.last();
     QWidget::show();
 
     if ( t )
@@ -819,8 +799,7 @@ void QTabBar::show()
 
 int QTabBar::currentTab() const
 {
-    const QTab * t = l->getLast();
-
+    const QTab *t = d->l.isEmpty() ? 0 : d->l.last();
     return t ? t->id : -1;
 }
 
@@ -841,13 +820,14 @@ void QTabBar::setCurrentTab( int id )
 
 void QTabBar::setCurrentTab( QTab * tab )
 {
-    if ( tab && l ) {
-	if ( l->last() == tab )
+    if (tab && !!d->l) {
+	if ( d->l.last() == tab )
 	    return;
 
-	QRect r = l->last()->r;
-	if ( l->findRef( tab ) >= 0 )
-	    l->append( l->take() );
+	QRect r = d->l.last()->r;
+	int idx = d->l.indexOf(tab);
+	if (idx >= 0)
+	    d->l.append(d->l.takeAt(idx));
 
 	d->focus = tab->id;
 
@@ -897,24 +877,39 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
     if ( ( !reverse && e->key() == Key_Left ) || ( reverse && e->key() == Key_Right ) ) {
 	// left - skip past any disabled ones
 	if ( d->focus > 0 ) {
-	    QTab * t = lstatic->last();
-	    while ( t && t->id != d->focus )
-		t = lstatic->prev();
-	    do {
-		t = lstatic->prev();
-	    } while ( t && !t->enabled);
+
+	    QTab *t = 0;
+	    int i;
+	    for (i=d->lstatic.size(); i>=0; --i) {
+		t = d->lstatic.at(i);
+		if (!t || t->id == d->focus)
+		    break;
+	    }
+	    for (; i>=0; --i) {
+		t = d->lstatic.at(i);
+		if (!t || t->enabled)
+		    break;
+	    }
+
 	    if (t)
 		d->focus = t->id;
 	}
 	if ( d->focus < 0 )
 	    d->focus = old;
     } else if ( ( !reverse && e->key() == Key_Right ) || ( reverse && e->key() == Key_Left ) ) {
-	QTab * t = lstatic->first();
-	while ( t && t->id != d->focus )
-	    t = lstatic->next();
-	do {
-	    t = lstatic->next();
-	} while ( t && !t->enabled);
+
+	int i=0;
+	QTab *t=0;
+	for (; i<d->lstatic.size(); ++i) {
+	    t = d->lstatic.at(i);
+	    if (!t || t->id == d->focus)
+		break;
+	}
+	for (; i<d->lstatic.size(); ++i) {
+	    t = d->lstatic.at(i);
+	    if (!t || t->enabled)
+		break;
+	}
 
 	if (t)
 	    d->focus = t->id;
@@ -941,10 +936,14 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 
 QTab * QTabBar::tab( int id ) const
 {
-    QTab * t;
-    for( t = l->first(); t; t = l->next() )
-	if ( t && t->id == id )
+    QTab * t = 0;
+    for (int i=0; i<d->l.size(); ++i) {
+	t = d->l.at(i);
+	if (!t)
+	    break;
+	if ( t->id == id )
 	    return t;
+    }
     return 0;
 }
 
@@ -958,7 +957,7 @@ QTab * QTabBar::tab( int id ) const
 QTab * QTabBar::tabAt( int index ) const
 {
     QTab * t;
-    t = lstatic->at( index );
+    t = (index < 0 || index >= d->lstatic.size()) ? 0 : d->lstatic.at(index);
     return t;
 }
 
@@ -971,12 +970,9 @@ QTab * QTabBar::tabAt( int index ) const
 */
 int QTabBar::indexOf( int id ) const
 {
-    QTab * t;
-    int idx = 0;
-    for( t = lstatic->first(); t; t = lstatic->next() ) {
-	if ( t && t->id == id )
-	    return idx;
-	idx++;
+    for (int i=0; i<d->l.size(); ++i) {
+	if (d->l.at(i) && d->l.at(i)->id == id)
+	    return i;
     }
     return -1;
 }
@@ -990,7 +986,7 @@ int QTabBar::indexOf( int id ) const
 */
 int QTabBar::count() const
 {
-    return l->count();
+    return d->l.count();
 }
 
 
@@ -1006,9 +1002,9 @@ int QTabBar::count() const
     }
     \endcode
 */
-QPtrList<QTab> * QTabBar::tabList()
+QList<QTab*> * QTabBar::tabList()
 {
-    return l;
+    return &d->l;
 }
 
 
@@ -1042,14 +1038,14 @@ void QTabBar::setShape( Shape s )
  */
 void QTabBar::layoutTabs()
 {
-    if ( lstatic->isEmpty() )
+    if ( d->lstatic.isEmpty() )
 	return;
 
     QSize oldSh(0, 0);
-    if ( QTab * t = l->first() ) {
+    if ( QTab * t = d->l.first() ) {
 	QRect r( t->r );
-	while ( (t = l->next()) != 0 )
-	    r = r.unite( t->r );
+	for (int i=1; i<d->l.size(); ++i)
+	    r = r.unite( d->l.at(i)->r );
 	oldSh = r.size();
     }
 
@@ -1061,38 +1057,31 @@ void QTabBar::layoutTabs()
     QFontMetrics fm = fontMetrics();
     int x = 0;
     QRect r;
-    QTab *t;
+    QTab *t = 0;
     bool reverse = QApplication::reverseLayout();
-    if ( reverse )
-	t = lstatic->last();
-    else
-	t = lstatic->first();
-    while ( t ) {
+    for (int i=0; i<d->lstatic.size(); ++i) {
+	t = d->lstatic.at(reverse ? d->lstatic.size() - 1 - i : i );
 	int lw = fm.width( t->label );
-	lw -= t->label.contains('&') * fm.width('&');
-	lw += t->label.contains("&&") * fm.width('&');
+	lw -= t->label.count('&') * fm.width('&');
+	lw += t->label.count("&&") * fm.width('&');
 	int iw = 0;
 	int ih = 0;
 	if ( t->iconset != 0 ) {
 	    iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	    ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
 	}
-	int h = QMAX( fm.height(), ih );
-	h = QMAX( h, QApplication::globalStrut().height() );
+	int h = qMax( fm.height(), ih );
+	h = qMax( h, QApplication::globalStrut().height() );
 
 	h += vframe;
 	t->r = QRect(QPoint(x, 0), style().sizeFromContents(QStyle::CT_TabBarTab, this,
-   	             QSize( QMAX( lw + hframe + iw, QApplication::globalStrut().width() ), h ),
+   	             QSize( qMax( lw + hframe + iw, QApplication::globalStrut().width() ), h ),
 		     QStyleOption(t) ));
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );
-	if ( reverse )
-	    t = lstatic->prev();
-	else
-	    t = lstatic->next();
     }
-    for ( t = lstatic->first(); t; t = lstatic->next() )
-	t->r.setHeight( r.height() );
+    for (int i=0; i<d->l.size(); ++i)
+	d->l.at(i)->r.setHeight( r.height() );
 
     if ( sizeHint() != oldSh )
 	updateGeometry();
@@ -1107,7 +1096,7 @@ void QTabBar::layoutTabs()
 bool QTabBar::event( QEvent *e )
 {
     if ( e->type() == QEvent::LanguageChange ) {
-	const int arrowWidth = QMAX( d->btnWidth, QApplication::globalStrut().width() );
+	const int arrowWidth = 16;
 	if ( QApplication::reverseLayout() ) {
 	    d->rightB->setGeometry( arrowWidth, 0, arrowWidth, height() );
 	    d->leftB->setGeometry( 0, 0, arrowWidth, height() );
@@ -1119,19 +1108,21 @@ bool QTabBar::event( QEvent *e )
 	updateArrowButtons();
 	makeVisible( tab( currentTab() ));
     }
-
     return QWidget::event( e );
 }
 
 /*!
   \reimp
 */
-
-void QTabBar::styleChange( QStyle& old )
+void QTabBar::changeEvent( QEvent *ev )
 {
-    layoutTabs();
-    updateArrowButtons();
-    QWidget::styleChange( old );
+    if(ev->type() == QEvent::StyleChange) {
+	layoutTabs();
+	updateArrowButtons();
+    } else if(ev->type() == QEvent::FontChange) {
+	layoutTabs();
+    }
+    QWidget::changeEvent(ev);
 }
 
 /*!
@@ -1159,7 +1150,7 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 */
 void QTabBar::resizeEvent( QResizeEvent * )
 {
-    const int arrowWidth = QMAX( d->btnWidth, QApplication::globalStrut().width() );;
+    const int arrowWidth = 16;
     d->rightB->setGeometry( width() - arrowWidth, 0, arrowWidth, height() );
     d->leftB->setGeometry( width() - 2*arrowWidth, 0, arrowWidth, height() );
     layoutTabs();
@@ -1169,9 +1160,13 @@ void QTabBar::resizeEvent( QResizeEvent * )
 
 void QTabBar::scrollTabs()
 {
-    QTab* left = 0;
-    QTab* right = 0;
-    for ( QTab* t = lstatic->first(); t; t = lstatic->next() ) {
+    QTab *left = 0;
+    QTab *right = 0;
+    QTab *t = 0;
+    for (int i=0; i<d->lstatic.size(); ++i) {
+	t = d->lstatic.at(i);
+	if (!t)
+	    break;
 	if ( t->r.left() < 0 && t->r.right() > 0 )
 	    left = t;
 	if ( t->r.left() < d->leftB->x()+2 )
@@ -1200,16 +1195,16 @@ void QTabBar::makeVisible( QTab* tab  )
     int offset = 0;
 
     if ( tooFarLeft )
-	offset = tab == lstatic->first() ? 0 : tab->r.left() - 8;
+	offset = tab == d->lstatic.first() ? 0 : tab->r.left() - 8;
     else if ( tooFarRight ) {
 	offset = tab->r.right() - d->leftB->x() + 1;
     }
 
-    for ( QTab* t = lstatic->first(); t; t = lstatic->next() )
-	t->r.moveBy( -offset, 0 );
+    for (int i=0; i<d->lstatic.size(); ++i)
+	d->lstatic.at(i)->r.moveBy( -offset, 0 );
 
     d->leftB->setEnabled( offset != 0 );
-    d->rightB->setEnabled( lstatic->last()->r.right() >= d->leftB->x() );
+    d->rightB->setEnabled( d->lstatic.last()->r.right() >= d->leftB->x() );
 
     // Make sure disabled buttons pop up again
     if ( !d->leftB->isEnabled() && d->leftB->isDown() )
@@ -1223,7 +1218,7 @@ void QTabBar::makeVisible( QTab* tab  )
 
 void QTabBar::updateArrowButtons()
 {
-    bool b = lstatic->last() &&	( lstatic->last()->r.right() > width() );
+    bool b = !d->lstatic.isEmpty() && (d->lstatic.last()->r.right() > width());
     d->scrolls = b;
     if ( d->scrolls ) {
 	d->leftB->setEnabled( FALSE );
@@ -1312,15 +1307,6 @@ void QTab::setIconSet( const QIconSet &icon )
 void QTab::setTabBar( QTabBar *newTb )
 {
     tb = newTb;
-}
-
-/*!
-    \internal
-*/
-void QTabBar::fontChange( const QFont & oldFont )
-{
-    layoutTabs();
-    QWidget::fontChange( oldFont );
 }
 
 #endif
