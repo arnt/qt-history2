@@ -495,8 +495,6 @@ MakefileGenerator::init()
     { //paths
 	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
 	asp = Option::fixPathToTargetOS(asp);
-	qDebug("asp '%s', output_dir '%s'",
-	       asp.latin1(), Option::output_dir.latin1());
 	if(!asp.isEmpty() && asp == Option::output_dir) //if they're the same, why bother?
 	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
 
