@@ -102,6 +102,13 @@ an extra #include to your files.
 not being defined, then add <code>#include &lt;qstring.h&gt;</code> at
 the top of the file giving the error.
 
+<p> Headers that have been moved around include:
+<ul>
+    <li><code>&lt;qcursor.h&gt;</code>
+    <li><code>&lt;qvaluelist.h&gt;</code>
+    <li><code>&lt;qstringlist.h&gt;</code>
+</ul>
+
 <h3><a name="Namespace">Namespace</a></h3>
 
 <p> Qt 3.x is namespace-clean.  A few global identifiers that have been
