@@ -5,6 +5,7 @@ HEADERS	+= helpwindow.h topicchooserimpl.h docuparser.h helpdialogimpl.h \
 TARGET	= assistant
 
 DEFINES += QT_INTERNAL_NETWORK
+DEFINES += QT_INTERNAL_XML
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
 include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
