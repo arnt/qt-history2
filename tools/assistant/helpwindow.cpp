@@ -77,7 +77,8 @@ void HelpWindow::setSource( const QString &name )
 	    int result = QMessageBox::information( mw, tr( "Help" ), tr( "Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n" ), "Open", "Cancel" );
 	    if ( result == 0 ) {
 		emit chooseWebBrowser();
-		webbrowser = settings.readEntry( "/Qt Assistant/3.1/Webbrowser" );
+		QSettings freshSettings;
+		webbrowser = freshSettings.readEntry( "/Qt Assistant/3.1/Webbrowser" );
 	    }
 #endif
 	    if ( webbrowser.isEmpty() )
