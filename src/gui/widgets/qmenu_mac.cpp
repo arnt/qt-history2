@@ -701,6 +701,8 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
 void
 Q4MenuBarPrivate::macCreateMenuBar(QWidget *parent)
 {
+    return;
+
     if(!qt_mac_no_native_menubar) {
         if(!parent && !QMacMenuBarPrivate::fallback) {
             QMacMenuBarPrivate::fallback = q;
@@ -781,18 +783,21 @@ bool Q4MenuBar::macUpdateMenuBar()
         mb = Q4MenuBarPrivate::QMacMenuBarPrivate::fallback;
     //now set it
     static bool first = true;
+    bool ret = false;
     if(mb) {
         MenuRef menu = mb->macMenu();
         SetRootMenu(menu);
         if(mb != Q4MenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget()))
             qt_mac_set_modal_state(menu, qt_modal_state());
+        ret = true;
 #ifdef QT_COMPAT
     } else if(Q3MenuBar::macUpdateMenuBar()) {
         qt_mac_create_menu_event_handler();
+        ret = true;
 #endif
     } else if(first || fall_back_to_empty) {
         first = false;
         qt_mac_clear_menubar();
     }
-    return false;
+    return ret;
 }
