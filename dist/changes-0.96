@@ -26,7 +26,7 @@ are not even visible in the documentation.
 QFileInfo:
 ----------
   size() returns uint(previousy int), 0 if the size cannot be fetched (was -1).
-	Use isFile() 
+	Use isFile() to check.
 
 
 QPopupMenu
@@ -36,12 +36,6 @@ QPopupMenu
   highlighted() signal when a submenu emits these signals. This fix might
   have undesired effects if you previously have worked around it by
   connecting to signals both in menu bar and its submenus.
-
-
-QPainter:
----------
-  drawBezier draws cubic bezier, requires 4 control points. 
-
 
 *************** Changes that might generate compile errors *****************
 **************           when compiling old code           *****************
@@ -162,9 +156,20 @@ QMenuData:
   Use setItemChecked(TRUE/FALSE) instead.
 
 
+QPainter: 
+--------- 
+
+  drawBezier() is obsolete, general Bezier curves are rarely used and
+  cost too much. Qt will only support drawQuadBezier() (four-point
+  Bezier) in the future.
+
 QPointArray:
-------------
+-----------
   move() is obsolete, use translate() instead.
+  bezier() is obsolete, general Bezier curves are rarely used and
+  cost too much. Qt will only support quadBezier() (four-point
+  Bezier) in the future.
+
 
 
 QRect:
@@ -234,12 +239,6 @@ QPaintDevice:
 ---------
   The bitblt function now takes an ignoreMask parameter. It has a default
   value, so no old code will be broken.
-
-
-QPainter:
----------
-  drawBezier draws cubic bezier, requires 4 control points. 
-
 
 QPrinter:
 ------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#174 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#173 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#174 $")
 
 
 /*****************************************************************************
@@ -2222,11 +2222,11 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
   starting at \e a[index].
 
   \e a must have 4 points or more.  The control point \e a[index+4] and
-  beyon are ignored.
+  beyond are ignored.
  ----------------------------------------------------------------------------*/
   
 
-void QPainter::drawBezier( const QPointArray &a, int index )
+void QPainter::drawQuadBezier( const QPointArray &a, int index )
 {
     if ( !isActive() )
 	return;
@@ -2253,11 +2253,57 @@ void QPainter::drawBezier( const QPointArray &a, int index )
 	    pa = xForm( pa );
     }
     if ( cpen.style() != NoPen ) {
+	pa = pa.quadBezier();
+	XDrawLines( dpy, hd, gc, (XPoint*)pa.data(), pa.size(),
+		    CoordModeOrigin);
+    }
+}
+
+#if defined(OBSOLETE)
+
+/*********************************************************************
+  Draws a Bezier curve defined by the \e npoints control points in \e a,
+  starting at \e a[index]. This function is obsolete. It's going away soon.
+***********************************************************************/
+
+void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
+{
+    qObsolete( "QPainter","drawBezier","drawQuadBezier");
+
+    if ( npoints < 0 )
+	npoints = a.size() - index;
+    if ( index + npoints > (int)a.size() )
+	npoints = a.size() - index;
+    if ( !isActive() || npoints < 2 || index < 0 )
+	return;
+    QPointArray pa;
+    if ( npoints != (int)a.size() ) {
+	pa.resize( npoints );
+	for ( int i=0; i<npoints; i++ )
+	    pa.setPoint( i, a.point(index+i) );
+    } else {
+	pa = a;
+    }
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    param[0].ptarr = (QPointArray*)&pa;
+	    if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hd )
+		return;
+	}
+	if ( txop != TxNone )
+	    pa = xForm( pa );
+    }
+    if ( cpen.style() != NoPen ) {
 	pa = pa.bezier();
 	XDrawLines( dpy, hd, gc, (XPoint*)pa.data(), pa.size(),
 		    CoordModeOrigin);
     }
 }
+#endif
+
+
+
 
 
 /*----------------------------------------------------------------------------

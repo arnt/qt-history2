@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#32 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#32 $")
 
 
 /*----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#31 $")
   \link QPainter::drawLineSegments() line segments\endlink,
   \link QPainter::drawPolyline() polylines\endlink,
   \link QPainter::drawPolygon() polygons\endlink and
-  \link QPainter::drawBezier() Bezier curves\endlink.
+  \link QPainter::drawQuadBezier() Bezier curves\endlink.
 
   The QPointArray is not an array of QPoint, instead it contains a
   platform dependent point type to make the QPainter functions more
@@ -431,7 +431,6 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 }
 
 
-#if 1	/* bresenham */
 void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 {						// midpoint, 1/4 ellipse
     if ( w <= 0 || h <= 0 ) {
@@ -510,59 +509,13 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
     delete[] px;
     delete[] py;
 }
-#else /* my own experimental */
-void QPointArray::makeEllipse( int xx, int yy, int w, int h )
-{
-    int s = (w+h)/2;				// max size of x,y array
-    int *px = new int[s];			// 1/4th of ellipse
-    int *py = new int[s];
-    int x, y, y2, i, a, b, a2, b2;
-    a = w/2;
-    b = h/2;
-    a2 = a*a;
-    b2 = b*b;
-    i = 0;
-    x = a;
-    y = 0;
-    px[i] = x;
-    py[i] = y;
-    i++;
-    while ( x > 0 ) {
-	x--;
-	y2 = (a2*b2-x*x*b2)/a2;
-	while ( y*y < y2 ) {
-	    px[i] = x;
-	    py[i] = y;
-	    y++;
-	}
-	px[i] = x;
-	py[i] = y;
-	i++;
-    }
-    ASSERT( i <= s );
-    s = i;
-    resize( 4*s );				// make full point array
-    xx += w/2;
-    yy += h/2;
-    for ( i=0; i<s; i++ ) {			// mirror
-	x = px[i];
-	y = py[i];
-	setPoint( i, xx+x, yy-y );
-	setPoint( 2*s-i-1, xx-x, yy-y );
-	setPoint( 3*s+i, xx-x, yy+y );
-	setPoint( 4*s-i-1, xx+x, yy+y );
-    }
-    delete[] px;
-    delete[] py;
-}
-#endif
 
 
 /*----------------------------------------------------------------------------
   Returns the Bezier points for the four control points in this array.
  ----------------------------------------------------------------------------*/
 
-QPointArray QPointArray::bezier() const
+QPointArray QPointArray::quadBezier() const
 {
     if ( size() != 4 ) {
 #if defined(CHECK_RANGE)
@@ -617,6 +570,147 @@ QPointArray QPointArray::bezier() const
 
     return p;
 }
+
+
+
+#if defined(OBSOLETE)
+/*****************************************************************************
+ OK, *blush* this code is ugly, we know.  Someone broke into our computer
+ and wrote it, honest.  It's going away soon.
+ *****************************************************************************/
+
+const max_bezcontrols = 20;			// max Bezier control points
+
+const max_bico	= max_bezcontrols;		// max binomial coefficient n
+const num_bicos = max_bico*(max_bico+1)/2;	// 1+2+3+...+max_bico
+static long bicot[num_bicos];			// Pascal's triangle
+
+#define BICO(n,k) bicot[ (n)*((n)+1)/2 + (k) ];
+
+static void init_bicot()			// initialize Pascal's triangle
+{
+    static bool initialized = FALSE;
+    if ( initialized )
+	return;
+    initialized = TRUE;
+    long *p, *c;
+    int n, k;
+    memset( bicot, sizeof(bicot), 0 );
+    for ( n=0; n<max_bico; n++ ) {		// fill edges with 1's
+	c = &BICO(n,0);
+	c[0] = c[n] = 1;
+    }
+    for ( n=2; n<max_bico; n++ ) {		// compute sums
+	p = &BICO(n-1,0);
+	c = &BICO(n,1);
+	for ( k=1; k<n; k++ ) {
+	    *c++ = *p + *(p+1);
+	    p++;
+	}
+    }
+}
+
+
+QPointArray QPointArray::bezier() const		// calculate Bezier curve
+{
+    qObsolete("QPointArray","bezier","quadBezier");
+    int v;
+    if ( size() <= 2 || size() > max_bezcontrols ) {
+	QPointArray p;
+	if ( size() == 2 )			// trivial
+	    p = copy();
+	return p;
+    }
+    int n = size() - 1;				// n + 1 control points
+    int m = 0;					// m = # Bezier points
+    float xvec[max_bezcontrols];
+    float yvec[max_bezcontrols];
+    for ( v=0; v<=n; v++ ) {			// store all x,y in xvec,yvec
+	int x, y;
+	point( v, &x, &y );
+	xvec[v] = (float)x;
+	yvec[v] = (float)y;
+	if ( v > 0 ) {
+	    x -= (int)xvec[v-1];
+	    y -= (int)yvec[v-1];
+	    if ( x < 0 ) x = -x;
+	    if ( y < 0 ) y = -y;
+	    m += x > y ? x : y;
+	}
+    }
+    if ( m == 0 ) m = 1;
+    QPointArray p( m );				// p = Bezier point array
+    register QPointData *pd = p.data();
+    if ( n == 2 ) {				// 3 control points
+	float x0 = xvec[0],  y0 = yvec[0];
+	float dt = 1.0F/m;
+	float bx = 2.0F * (xvec[1] - x0);
+	float ax = xvec[2] - (x0 + bx);
+	float by = 2.0F * (yvec[1] - y0);
+	float ay = yvec[2] - (y0 + by);
+	float t = 0.0F;
+	float xf,yf;
+	while ( m-- ) {				// optimized loop
+	    xf = (ax * t + bx) * t + x0;
+	    yf = (ay * t + by) * t + y0;
+	    pd->x = (Qpnta_t)(xf + (xf > 0 ? 0.5 : -0.5));
+	    pd->y = (Qpnta_t)(yf + (yf > 0 ? 0.5 : -0.5));
+	    pd++;
+	    t += dt;
+	}
+    }
+    else if ( n == 3 ) {			// 4 control points
+	float x0 = xvec[0],  y0 = yvec[0];
+	float dt = 1.0F/m;
+	float cx = 3.0F * (xvec[1] - x0);
+	float bx = 3.0F * (xvec[2] - xvec[1]) - cx;
+	float ax = xvec[3] - (x0 + cx + bx);
+	float cy = 3.0F * (yvec[1] - y0);
+	float by = 3.0F * (yvec[2] - yvec[1]) - cy;
+	float ay = yvec[3] - (y0 + cy + by);
+	float t = 0.0F;
+	float xf,yf;
+	while ( m-- ) {				// optimized loop
+	    xf = ((ax * t + bx) * t + cx) * t + x0;
+	    yf = ((ay * t + by) * t + cy) * t + y0;
+	    pd->x = (Qpnta_t)(xf + (xf > 0 ? 0.5 : -0.5));
+	    pd->y = (Qpnta_t)(yf + (yf > 0 ? 0.5 : -0.5));
+	    pd++;
+	    t += dt;
+	}
+    }
+    else {					// 5..maxbez_control points
+	m--;
+	init_bicot();
+	long *bico = &BICO(n,0);
+	float bv,u;
+	float uv1[max_bezcontrols];		// contains: uv1[i] = u^i
+	float uv2[max_bezcontrols];		// contains: uv2[i] = (1-u)^i
+	uv1[0] = uv2[0] = 1.0F;
+	float xf, yf;
+	int   i, b, k;
+	for ( i=0; i<=m; i++ ) {		// for each Bezier point...
+	    u = (float)i/m;
+	    for ( b=1; b<=n; b++ ) {		// compute u^1, u^2, ... u^n
+		uv1[b] = u*uv1[b-1];		//   and (1-u)^1, ... (1-u)^n
+		uv2[b] = (1.0F-u)*uv2[b-1];
+	    }
+	    xf = yf = 0.0F;
+	    for ( k=0; k<=n; k++ ) {		// add control point influence
+		bv = uv1[k]*uv2[n-k]*bico[k];	// compute blending value
+		xf += bv*xvec[k];
+		yf += bv*yvec[k];
+	    }
+	    pd->x = (Qpnta_t)(xf + (xf > 0 ? 0.5 : -0.5));
+	    pd->y = (Qpnta_t)(yf + (yf > 0 ? 0.5 : -0.5));
+	    pd++;
+	}
+    }
+    return p;
+}
+#endif
+
+
 
 
 /*****************************************************************************

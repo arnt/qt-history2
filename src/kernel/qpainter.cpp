@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#79 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -14,14 +14,13 @@
 ** qptr_xxx.cpp files.
 *****************************************************************************/
 
-#define QPAINTER_C
 #include "qpainter.h"
 #include "qpaintdc.h"
 #include "qbitmap.h"
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#78 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#79 $")
 
 
 /*----------------------------------------------------------------------------
@@ -869,36 +868,19 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 }
 
 
-/*****************************************************************************
-  QPainter member functions (inline if DEBUG not defined)
- *****************************************************************************/
-
 /*----------------------------------------------------------------------------
   \overload void QPainter::setBrushOrigin( const QPoint &p )
  ----------------------------------------------------------------------------*/
-
-void QPainter::setBrushOrigin( const QPoint &p )
-{
-    setBrushOrigin( p.x(), p.y() );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::setWindow( const QRect &r )
  ----------------------------------------------------------------------------*/
 
-void QPainter::setWindow( const QRect &r )
-{
-    setWindow( r.x(), r.y(), r.width(), r.height() );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::setViewport( const QRect &r )
  ----------------------------------------------------------------------------*/
 
-void QPainter::setViewport( const QRect &r )
-{
-    setViewport( r.x(), r.y(), r.width(), r.height() );
-}
 
 /*----------------------------------------------------------------------------
   \fn bool QPainter::hasClipping() const
@@ -917,6 +899,8 @@ void QPainter::setViewport( const QRect &r )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
+  \fn void QPainter::setClipRect( int x, int y, int w, int h )
+
   Sets the clip region to \e (x,y,w,h) and enables clipping.
 
   Note that the clip rectangle is given in physical device coordinates and
@@ -926,117 +910,56 @@ void QPainter::setViewport( const QRect &r )
   \sa setClipRegion(), clipRegion(), setClipping()
  ----------------------------------------------------------------------------*/
 
-void QPainter::setClipRect( int x, int y, int w, int h )
-{
-    setClipRect( QRect(x,y,w,h) );
-}
-
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawPoint( const QPoint &p )
  ----------------------------------------------------------------------------*/
 
-void QPainter::drawPoint( const QPoint &p )
-{
-    drawPoint( p.x(), p.y() );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::moveTo( const QPoint &p )
  ----------------------------------------------------------------------------*/
 
-void QPainter::moveTo( const QPoint &p )
-{
-    moveTo( p.x(), p.y() );
-}
-
 /*----------------------------------------------------------------------------
   \overload void QPainter::lineTo( const QPoint &p )
  ----------------------------------------------------------------------------*/
-
-void QPainter::lineTo( const QPoint &p )
-{
-    lineTo( p.x(), p.y() );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
  ----------------------------------------------------------------------------*/
 
-void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
-{
-    drawLine( p1.x(), p1.y(), p2.x(), p2.y() );
-}
-
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawRect( const QRect &r )
  ----------------------------------------------------------------------------*/
-
-void QPainter::drawRect( const QRect &r )
-{
-    drawRect( r.x(), r.y(), r.width(), r.height() );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
  ----------------------------------------------------------------------------*/
 
-void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
-{
-    drawRoundRect( r.x(), r.y(), r.width(), r.height(), xRnd, yRnd );
-}
-
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawEllipse( const QRect &r )
  ----------------------------------------------------------------------------*/
-
-void QPainter::drawEllipse( const QRect &r )
-{
-    drawEllipse( r.x(), r.y(), r.width(), r.height() );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawArc( const QRect &r, int a, int alen )
  ----------------------------------------------------------------------------*/
 
-void QPainter::drawArc( const QRect &r, int a, int alen )
-{
-    drawArc( r.x(), r.y(), r.width(), r.height(), a, alen );
-}
-
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawPie( const QRect &r, int a, int alen )
  ----------------------------------------------------------------------------*/
-
-void QPainter::drawPie( const QRect &r, int a, int alen )
-{
-    drawPie( r.x(), r.y(), r.width(), r.height(), a, alen );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawChord( const QRect &r, int a, int alen )
  ----------------------------------------------------------------------------*/
 
-void QPainter::drawChord( const QRect &r, int a, int alen )
-{
-    drawChord( r.x(), r.y(), r.width(), r.height(), a, alen );
-}
-
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
  ----------------------------------------------------------------------------*/
-
-void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
-			   const QRect &sr )
-{
-    drawPixmap( p.x(), p.y(), pm, sr.x(), sr.y(), sr.width(), sr.height() );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 
   This version of the call draws the entire pixmap.
  ----------------------------------------------------------------------------*/
-
 void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 {
     drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
@@ -1046,59 +969,27 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
   \overload void QPainter::fillRect( const QRect &r, const QBrush &brush )
  ----------------------------------------------------------------------------*/
 
-void QPainter::fillRect( const QRect &r, const QBrush &brush )
-{
-    fillRect( r.x(), r.y(), r.width(), r.height(), brush );
-}
-
 /*----------------------------------------------------------------------------
+  \fn void QPainter::eraseRect( int x, int y, int w, int h )
   Erases the area inside \e (x,y,w,h).
   Equivalent to <code>fillRect( x, y, w, h, backgroundColor() )</code>.
  ----------------------------------------------------------------------------*/
-
-void QPainter::eraseRect( int x, int y, int w, int h )
-{
-    fillRect( x, y, w, h, backgroundColor() );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::eraseRect( const QRect &r )
  ----------------------------------------------------------------------------*/
 
-void QPainter::eraseRect( const QRect &r )
-{
-    fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
-}
-
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawText( const QPoint &p, const char *s, int len )
  ----------------------------------------------------------------------------*/
-
-void QPainter::drawText( const QPoint &p, const char *s, int len )
-{
-    drawText( p.x(), p.y(), s, len );
-}
 
 /*----------------------------------------------------------------------------
   \overload void QPainter::drawText( const QRect &r, int tf, const char *str, int len, QRect *br, char **i )
  ----------------------------------------------------------------------------*/
 
-void QPainter::drawText( const QRect &r, int tf, const char *str, int len,
-			 QRect *br, char **i )
-{
-    drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len, br, i );
-}
-
 /*----------------------------------------------------------------------------
   \overload QRect QPainter::boundingRect( const QRect &r, int tf,const char *str, int len, char **i )
  ----------------------------------------------------------------------------*/
-
-QRect QPainter::boundingRect( const QRect &r, int tf,
-			      const char *str, int len, char **i )
-{
-    return boundingRect( r.x(), r.y(), r.width(), r.height(), tf, str, len,
-			 i );
-}
 
 
 /*****************************************************************************
@@ -1718,3 +1609,4 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
 	b = QBrush( color, (BrushStyle)style );
     return s;
 }
+
