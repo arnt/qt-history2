@@ -757,7 +757,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction( VARIANT varI
 
     QString def = accessible->text( DefaultAction, varID.lVal );
     if ( !!def ) {
-	*pszDefaultAction = SysAllocString( (TCHAR*)qt_winTchar( def, TRUE ) );
+	*pszDefaultAction = SysAllocString( (OLECHAR*)qt_winTchar( def, TRUE ) );
 	return S_OK;
     }
 
@@ -772,7 +772,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDescription( VARIANT varID,
 
     QString descr = accessible->text( Description, varID.lVal );
     if ( !!descr ) {
-	*pszDescription = SysAllocString( (TCHAR*)qt_winTchar( descr, TRUE ) );
+	*pszDescription = SysAllocString( (OLECHAR*)qt_winTchar( descr, TRUE ) );
 	return S_OK;
     }
 
@@ -787,7 +787,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *
 
     QString help = accessible->text( Help, varID.lVal );
     if ( !!help ) {
-	*pszHelp = SysAllocString( (TCHAR*)qt_winTchar( help, TRUE ) );
+	*pszHelp = SysAllocString( (OLECHAR*)qt_winTchar( help, TRUE ) );
 	return S_OK;
     }
     
@@ -807,7 +807,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accKeyboardShortcut( VARIANT v
 
     QString sc = accessible->text( Accelerator, varID.lVal );
     if ( !!sc ) {
-	*pszKeyboardShortcut = SysAllocString( (TCHAR*)qt_winTchar( sc, TRUE ) );
+	*pszKeyboardShortcut = SysAllocString( (OLECHAR*)qt_winTchar( sc, TRUE ) );
 	return S_OK;
     }
 
@@ -822,7 +822,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accName( VARIANT varID, BSTR* 
 
     QString n = accessible->text( Name, varID.lVal );
     if ( !!n ) {
-	*pszName = SysAllocString( (TCHAR*)qt_winTchar( n, TRUE ) );
+	*pszName = SysAllocString( (OLECHAR*)qt_winTchar( n, TRUE ) );
 	return S_OK;
     }
 
@@ -867,7 +867,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accValue( VARIANT varID, BSTR*
 
     QString value = accessible->text( Value, varID.lVal );
     if ( !value.isNull() ) {
-	*pszValue = SysAllocString( (TCHAR*)qt_winTchar( value, TRUE ) );
+	*pszValue = SysAllocString( (OLECHAR*)qt_winTchar( value, TRUE ) );
 	return S_OK;
     }
 
