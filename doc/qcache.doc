@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.5 1998/06/25 09:04:58 hanord Exp $
+** $Id: qcache.doc,v 2.6 1998/06/25 09:07:56 hanord Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -58,7 +58,8 @@
   There is also a QCacheIterator which may be used to traverse the
   items in the cache in arbritrary order.
 
-  \sa QCacheIterator
+  \sa QCacheIterator, QIntCache,
+      \link collection.html Collection Classes\endlink
 */
 
 
@@ -419,7 +420,7 @@
   case you must delete the object yourself.
 
   In addition to totalCost() and maxCost()/setMaxCost(), there are
-  access functions to obtain the number of items in the cach
+  access functions to obtain the number of items in the cache
   (count()), the size of the hash array (size(), set using the
   constructor) and whether the cache is empty (you guessed it:
   isEmpty()).  Finally, there is a statistics(), which prints various
@@ -428,7 +429,8 @@
   There is also a QIntCacheIterator which may be used to traverse the
   items in the cache in arbritrary order.
 
-  \sa QIntCacheIterator QCache
+  \sa QIntCacheIterator, QCache
+      \link collection.html Collection Classes\endlink
 */
 
 
