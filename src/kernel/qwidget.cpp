@@ -2817,6 +2817,9 @@ void QWidget::setFocus()
     if ( isActiveWindow() ) {
 	QWidget * prev = qApp->focus_widget;
 	qApp->focus_widget = this;
+#if defined(Q_WS_WIN)
+	SetFocus( winId() );
+#endif
 	if ( prev != this ) {
 	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );

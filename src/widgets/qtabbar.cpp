@@ -653,6 +653,9 @@ void QTabBar::setCurrentTab( QTab * tab )
 	    l->append( l->take() );
 
 	d->focus = tab->id;
+
+	setMicroFocusHint( tab->rect().x(), tab->rect().y(), tab->rect().width(), tab->rect().height(), FALSE );
+
 	updateMask();
 	if ( tab->r.intersects( r ) ) {
 	    repaint( r.unite( tab->r ) );
@@ -706,10 +709,11 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	do {
 	    t = lstatic->next();
 	} while ( t && !t->enabled);
-    if (t)
-	d->focus = t->id;
-    if ( d->focus >= d->id )
-	d->focus = old;
+
+	if (t)
+	    d->focus = t->id;
+	if ( d->focus >= d->id )
+	    d->focus = old;
     } else {
 	// other keys - ignore
 	e->ignore();

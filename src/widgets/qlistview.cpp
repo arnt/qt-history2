@@ -4201,6 +4201,13 @@ void QListView::focusInEvent( QFocusEvent *e )
 	emit currentChanged( d->focusItem );
 	repaintItem( d->focusItem );
     }
+    QRect mfrect = itemRect( d->focusItem );
+    if ( mfrect.isValid() ) {
+	if ( header() && header()->isVisible() )
+	    setMicroFocusHint( mfrect.x(), mfrect.y()+header()->height(), mfrect.width(), mfrect.height(), FALSE );
+	else
+	    setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
+    }
 }
 
 
@@ -4742,6 +4749,14 @@ void QListView::setCurrentItem( QListViewItem * i )
 
     QListViewItem * prev = d->focusItem;
     d->focusItem = i;
+
+    QRect mfrect = itemRect( i );
+    if ( mfrect.isValid() ) {
+	if ( header() && header()->isVisible() )
+	    setMicroFocusHint( mfrect.x(), mfrect.y()+header()->height(), mfrect.width(), mfrect.height(), FALSE );
+	else
+	    setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
+    }
 
     if ( i != prev) {
 	if ( i && d->selectionMode == Single ) {

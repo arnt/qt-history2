@@ -857,7 +857,7 @@ int QComboBox::currentItem() const
 void QComboBox::setCurrentItem( int index )
 {
     if ( index == d->current && !d->ed ) {
-	    return;
+	return;
     }
     if ( !checkIndex( "setCurrentItem", name(), count(), index ) ) {
 	return;

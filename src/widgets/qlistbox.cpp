@@ -1520,6 +1520,11 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 {
     if ( !i || d->current == i )
 	return;
+    
+    QRect mfrect = itemRect( i );
+    if ( mfrect.isValid() )
+	setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
+
     QListBoxItem * o = d->current;
     d->current = i;
 
@@ -2218,8 +2223,12 @@ void QListBox::focusInEvent( QFocusEvent *e )
 	emit highlighted( tmp2 );
 	emit currentChanged( i );
     }
-    if ( d->current )
+    if ( d->current ) {
 	updateItem( currentItem() );
+	QRect mfrect = itemRect( d->current );
+	if ( mfrect.isValid() )
+	    setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );    
+    }
 }
 
 

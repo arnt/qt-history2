@@ -2916,6 +2916,9 @@ void QIconView::setCurrentItem( QIconViewItem *item )
 {
     if ( !item || item == d->currentItem )
 	return;
+
+    setMicroFocusHint( item->x(), item->y(), item->width(), item->height(), FALSE );
+
     QIconViewItem *old = d->currentItem;
     d->currentItem = item;
     emit currentChanged( d->currentItem );
@@ -4800,6 +4803,9 @@ void QIconView::focusInEvent( QFocusEvent *e )
 	emit currentChanged( d->currentItem );
 	repaintItem( d->currentItem );
     }
+
+    if ( d->currentItem )
+	setMicroFocusHint( d->currentItem->x(), d->currentItem->y(), d->currentItem->width(), d->currentItem->height(), FALSE );
 }
 
 /*!

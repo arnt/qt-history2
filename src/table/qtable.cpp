@@ -2467,6 +2467,9 @@ void QTable::setCurrentCell( int row, int col )
 	topHeader->setSectionState( curCol, isColumnSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	itm = item( curRow, curCol );
+	
+	QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
+	setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
 
 	if ( cellWidget( oldRow, oldCol ) &&
 	     cellWidget( oldRow, oldCol )->hasFocus() )
@@ -3148,6 +3151,9 @@ void QTable::keyPressEvent( QKeyEvent* e )
 
 void QTable::focusInEvent( QFocusEvent* )
 {
+    QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
+    QTableItem *itm = item( curRow, curCol );
+    setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
 }
 
 

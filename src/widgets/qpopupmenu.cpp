@@ -640,6 +640,9 @@ void QPopupMenu::hidePopups()
 	    mi->popup()->hide();
     }
     popupActive = -1;				// no active sub menu
+
+    QRect mfrect = itemGeometry( actItem );
+    setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
 }
 
 
@@ -1836,10 +1839,15 @@ void QPopupMenu::setActiveItem( int i )
     QMenuItem *mi = mitems->at( actItem );
     if ( !mi )
 	return;
-    if ( mi->widget() && mi->widget()->isFocusEnabled() )
+
+   
+    if ( mi->widget() && mi->widget()->isFocusEnabled() ) {
 	mi->widget()->setFocus();
-    else
+    } else {
 	setFocus();
+	QRect mfrect = itemGeometry( actItem );
+	setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
+    }
     if ( mi->id() != -1 )
 	hilitSig( mi->id() );
 }
