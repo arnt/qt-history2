@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#103 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#103 $");
 
 
 /*!
@@ -299,7 +299,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
 	}
 	d->ed->installEventFilter( this );
-	d->ed->setFocusPolicy( NoFocus );
+	setFocusProxy( d->ed );
 
 	setBackgroundEmpty();
 
@@ -1544,24 +1544,6 @@ void QComboBox::setEnabled( bool enable )
     QWidget::setEnabled( enable );
 }
 
-
-
-#if QT_VERSION == 200
-#error "Redo focusInEvent()."
-#endif
-
-/*!
-  Reimplemented for internal purposes.
-*/
-
-void QComboBox::focusInEvent( QFocusEvent * )
-{
-    if ( d && d->ed ) {
-	d->ed->setFocus();
-    } else {
-	repaint();
-    }
-}
 
 
 /*!  Sets this combo box to be editable only as allowed by \a v.

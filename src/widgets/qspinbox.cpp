@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#20 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -75,8 +75,9 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
     down->setAutoRepeat( TRUE );
 
     vi = new QLineEdit( this, "this is not /usr/bin/vi" );
-    vi->setFocusPolicy( QWidget::NoFocus );
     vi->setFrame( FALSE );
+    setFocusProxy( vi );
+    setFocusPolicy( StrongFocus );
 
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
@@ -91,7 +92,6 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 
     vi->installEventFilter( this );
 
-    setFocusPolicy( TabFocus );
 }
 
 
@@ -377,14 +377,6 @@ void QSpinBox::resizeEvent( QResizeEvent * e )
 
     vi->setGeometry( frameWidth(), frameWidth(),
 		     x - frameWidth(), height() - 2*frameWidth() );
-}
-
-
-/*!  Set focus to point at the line editor. */
-
-void QSpinBox::focusInEvent( QFocusEvent * )
-{
-    vi->setFocus();
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#126 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#127 $
 **
 ** Definition of QWidget class
 **
@@ -147,6 +147,8 @@ public:
     void	 setFocus();
     void	 clearFocus();
     static void  setTabOrder( QWidget *, QWidget * );
+    void	 setFocusProxy( QWidget * );
+    QWidget *	 focusProxy() const;
 
   // Grab functions
 
@@ -277,6 +279,9 @@ protected:
     void	 reposChildren();
     WId		 frm_wnd;
 #endif
+
+private slots:
+    void	 focusProxyDestroyed();
 
 private:
     void	 setWinId( WId );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#42 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#43 $
 **
 ** Definition of QComboBox class
 **
@@ -99,7 +99,6 @@ protected:
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseDoubleClickEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent *e );
-    void	focusInEvent( QFocusEvent * );
 
     void	popup();
 

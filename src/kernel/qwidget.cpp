@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#200 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#201 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#200 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#201 $");
 
 
 /*!
@@ -146,7 +146,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#200 $");
 	focusPolicy(),
 	hasFocus(),
 	setFocus(),
-	clearFocus().
+	clearFocus(),
+	setTabOrder(),
+	setFocusProxy().
 
   <li> Mouse and keyboard grabbing:
 	grabMouse(),
@@ -1750,9 +1752,65 @@ void QWidget::setMouseTracking( bool enable )
 #endif // _WS_X11_
 
 
+/*!  Sets this widget's focus proxy to \a w.
+
+  Some widgets, such as QComboBox, can "have focus," but create a
+  child widget to actually handle the focus.  QComboBox, for example,
+  creates a QLineEdit.
+
+  setFocusProxy() sets the widget which will actually get focus when
+  "this widget" gets it.  If there is a focus proxy, focusPolicy(),
+  setFocusPolicy(), setFocus() and hasFocus() all operate on the focus
+  proxy.
+*/
+
+void QWidget::setFocusProxy( QWidget * w )
+{
+    if ( focusChild )
+	disconnect( focusChild, SIGNAL(destroyed()),
+		    this, SLOT(focusProxyDestroyed()) );
+
+    if ( w ) {
+	w->setFocusPolicy( focusPolicy() );
+	focusChild = 0;
+	setFocusPolicy( NoFocus );
+	focusChild = w;
+	connect( focusChild, SIGNAL(destroyed()),
+		 this, SLOT(focusProxyDestroyed()) );
+    } else {
+	QWidget * pfc = focusChild;
+	focusChild = 0;
+	if ( pfc )
+	    setFocusPolicy( pfc->focusPolicy() );
+    }
+}
+
+
+/*!  Returns a pointer to the focus proxy, or 0 if there is no focus
+  proxy.
+  \sa setFocusProxy()
+*/
+
+QWidget * QWidget::focusProxy() const
+{
+    return focusChild; // ### watch out for deletes
+}
+
+
+/*!  Internal slot used to clean up if the focus proxy is destroyed.
+  \sa setFocusProxy()
+*/
+
+void QWidget::focusProxyDestroyed()
+{
+    focusChild = 0;
+    setFocusPolicy( NoFocus );
+}
+
+
 /*!
-  Returns TRUE if this widget (not one of its children) has the
-  keyboard input focus, otherwise FALSE.
+  Returns TRUE if this widget (or its focus proxy) has the keyboard
+  input focus, otherwise FALSE.
 
   Equivalent to <code>qApp->focusWidget() == this</code>.
 
@@ -1761,11 +1819,11 @@ void QWidget::setMouseTracking( bool enable )
 
 bool QWidget::hasFocus() const
 {
-    return qApp->focusWidget() == this;
+    return qApp->focusWidget() == (focusProxy() ? focusProxy() : this);
 }
 
 /*!
-  Gives the keyboard input focus to the widget.
+  Gives the keyboard input focus to the widget (or its focus proxy).
 
   First, a \link focusOutEvent() focus out event\endlink is sent to the
   focus widget (if any) to tell it that it is about to loose the
@@ -1790,6 +1848,11 @@ void QWidget::setFocus()
 {
     if ( !isEnabled() )
 	return;
+
+    if ( focusProxy() ) {
+	focusProxy()->setFocus();
+	return;
+    }
 
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() == this && qApp->focusWidget() == this )
@@ -1826,6 +1889,7 @@ void QWidget::setFocus()
     }
 }
 
+
 /*!
   Takes keyboard input focus from the widget.
 
@@ -1842,14 +1906,19 @@ void QWidget::setFocus()
 
 void QWidget::clearFocus()
 {
-    QWidget * w = qApp->focusWidget();
-    if ( w && w->focusWidget() == this ) {
-	// clear active focus
-	qApp->focus_widget = 0;
-	QFocusEvent out( Event_FocusOut );
-	QApplication::sendEvent( w, &out );
+    if ( focusProxy() ) {
+	focusProxy()->clearFocus();
+    } else {
+	QWidget * w = qApp->focusWidget();
+	if ( w && w->focusWidget() == this ) {
+	    // clear active focus
+	    qApp->focus_widget = 0;
+	    QFocusEvent out( Event_FocusOut );
+	    QApplication::sendEvent( w, &out );
+	}
     }
 }
+
 
 /*!
   Finds a new widget to give the keyboard focus to, as appropriate for
@@ -1875,7 +1944,7 @@ bool QWidget::focusNextPrevChild( bool next )
 
     do {
 	if ( w && w != startingPoint &&
-	     w->testWFlags( WState_TabToFocus ) &&
+	     w->testWFlags( WState_TabToFocus ) && !w->focusProxy() &&
 	     w->isVisibleToTLW() && w->isEnabled() )
 	    candidate = w;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
@@ -1933,8 +2002,8 @@ QFocusData * QWidget::focusData( bool create )
   so that keyboard focus moves from \a first widget to \a second
   widget when Tab is pressed.
 
-  Note that since the tab order of the \e second
-  widget is changed, you should order a chain like this:
+  Note that since the tab order of the \e second widget is changed,
+  you should order a chain like this:
 
   \code
     setTabOrder(a, b ); // a to b
@@ -1949,11 +2018,21 @@ QFocusData * QWidget::focusData( bool create )
     setTabOrder(a, b); // a to b AND c to d
     setTabOrder(b, c); // a to b to c, but not c to d
   \endcode
+
+  If either \a first or \a second has a focus proxy, setTabOrder()
+  substitutes its/their proxies.
+
+  \sa setFocusPolicy(), setFocusProxy()
 */
 void QWidget::setTabOrder( QWidget* first, QWidget *second )
 {
     if ( !first || !second )
 	return;
+
+    while ( first->focusProxy() )
+	first = first->focusProxy();
+    while ( second->focusProxy() )
+	second = second->focusProxy();
 
     QFocusData *f = first->focusData( TRUE );
     bool focusThere = (f->it.current() == second );
