@@ -71,7 +71,6 @@
 #define IO_Open			0x1000		// device is open
 #define IO_StateMask		0xf000
 
-
 // IO device status
 
 #define IO_Ok			0
@@ -85,7 +84,8 @@
 #define IO_TimeOutError		7		// time out
 #define IO_UnspecifiedError	8		// unspecified error
 
-class Q_EXPORT QIODevice			// IO device class
+
+class Q_EXPORT QIODevice
 {
 public:
 #if defined(QT_NEWABI)
