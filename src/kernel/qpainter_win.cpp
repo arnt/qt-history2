@@ -1383,10 +1383,10 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	    int rxx2 = 2*rxx;
 	    int ryy2 = 2*ryy;
 	    QPointArray a[4];
-	    a[0].makeArc( x, y, rxx2, ryy2, 1*16*90, 16*90, wxmat );
-	    a[1].makeArc( x, y+h-ryy2, rxx2, ryy2, 2*16*90, 16*90, wxmat );
-	    a[2].makeArc( x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*16*90, 16*90, wxmat );
-	    a[3].makeArc( x+w-rxx2, y, rxx2, ryy2, 0*16*90, 16*90, wxmat );
+	    a[0].makeArc( x, y, rxx2, ryy2, 1*16*90, 16*90, xmat );
+	    a[1].makeArc( x, y+h-ryy2, rxx2, ryy2, 2*16*90, 16*90, xmat );
+	    a[2].makeArc( x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*16*90, 16*90, xmat );
+	    a[3].makeArc( x+w-rxx2, y, rxx2, ryy2, 0*16*90, 16*90, xmat );
 	    // ### is there a better way to join QPointArrays?
 	    QPointArray aa;
 	    aa.resize( a[0].size() + a[1].size() + a[2].size() + a[3].size() );
