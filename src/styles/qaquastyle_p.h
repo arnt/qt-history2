@@ -60,14 +60,16 @@ public:
     void setFocusWidget( QWidget * widget );
     QWidget* widget() { return d; }
     QSize sizeHint() { return QSize( 0, 0 ); }
-    static bool handles(QWidget *);
-
-public slots:
-    void objDestroyed(QObject *);
 
 protected:
     bool eventFilter( QObject * o, QEvent * e );
-    void paintEvent( QPaintEvent * );
+
+protected: 
+    virtual void paintEvent( QPaintEvent * );
+    virtual int focusOutset() { return 3; }
+    virtual QRegion focusRegion() { return QRegion( focusOutset() + 2, focusOutset() + 2, 
+						    width() - ((focusOutset() + 2) * 2), 
+						    height() - ((focusOutset() + 2) * 2)); }
 
 private:
     QWidget *d;
@@ -79,16 +81,29 @@ class QAquaAnimate : public QObject
     Q_OBJECT
     QAquaAnimatePrivate *d;
 public:
-    enum Animates { AquaPushButton, AquaProgressBar };
     QAquaAnimate();
     ~QAquaAnimate();
 
-    bool addWidget(QWidget *);
-    void removeWidget(QWidget *);
+    //give the widget over
+    virtual bool addWidget(QWidget *);
+    virtual void removeWidget(QWidget *);
+
+    //animation things
+    enum Animates { AquaPushButton, AquaProgressBar };
     bool animatable(Animates, QWidget *);
 
+    //focus things
+    static bool focusable(QWidget *);
+    QWidget *focusWidget() const;
+
 protected:
+    //finally do the animate..
     virtual void doAnimate(Animates) = 0;
+    //finally set the focus
+    void setFocusWidget(QWidget *);
+    virtual void doFocus(QWidget *w) = 0;
+
+protected:
     bool eventFilter(QObject *, QEvent *);
     void timerEvent( QTimerEvent * );
 

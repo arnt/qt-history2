@@ -83,66 +83,34 @@ static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
 static QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
 static bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go together
 
+//Perhaps this QAquaFocusWidget should be defined elsewhere??
 QAquaFocusWidget::QAquaFocusWidget( )
     : QWidget( NULL, "magicFocusWidget", WResizeNoErase | WRepaintNoErase ), d( NULL )
 {
     setBackgroundMode(NoBackground);
 }
-
 void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 {
-    if (d == widget)
-	return;
     hide();
     if (d) {
-	QObject::disconnect(d, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
 	if(d->parentWidget())
 	    d->parentWidget()->removeEventFilter(this);
 	d->removeEventFilter( this );
     }
     d = NULL;
     if(widget && widget->parentWidget()) {
-	QWidget *p = widget->parentWidget();
-	while(!p->isTopLevel() && !p->testWFlags(WSubWindow))
-	    p = p->parentWidget();
-	if(widget->width() < p->width() - 30 || widget->height() < p->height() - 40) {
-	    if(widget->inherits("QLineEdit") && widget->parentWidget()->inherits("QComboBox"))
-		widget = widget->parentWidget();
-	    d = widget;
-	    reparent( d->parentWidget(), pos() );
-	    raise();
-	    d->installEventFilter( this );
-	    d->parentWidget()->installEventFilter( this );
-	    setGeometry( widget->x() - 3, widget->y() - 3, widget->width() + 6, widget->height() + 6 );
-	    setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
-	    QObject::connect(d, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
-	    show();
-	}
+	d = widget;
+	reparent( d->parentWidget(), pos() );
+	raise();
+	d->installEventFilter( this );
+	d->parentWidget()->installEventFilter( this );
+	setGeometry( widget->x() - focusOutset(), widget->y() - focusOutset(), 
+		     widget->width() + (focusOutset() * 2), 
+		     widget->height() + (focusOutset() * 2) );
+	setMask( QRegion( rect() ) - focusRegion() );
+	show();
     }
 }
-
-bool QAquaFocusWidget::handles(QWidget *widget)
-{
-    return (widget && widget->parentWidget() &&
-	    (widget->inherits("QDateTimeEditor") ||
-	     (widget->inherits("QFrame") && /*((QFrame*)widget)->frameStyle() != QFrame::NoFrame && */
-	      (widget->inherits("QLineEdit") /* &&
-	       (widget->parentWidget()->inherits("QComboBox") || (((QLineEdit*)widget)->frame())) */) ||
-	      (widget->inherits("QTextEdit") && !widget->inherits("QTextView")) ||
-	      widget->inherits("QListBox") || widget->inherits("QListView"))));
-}
-
-void QAquaFocusWidget::objDestroyed(QObject * o)
-{
-    if (o && o == d) {
-	hide();
-	if(d->parentWidget())
-	    d->parentWidget()->removeEventFilter(this);
-	d->removeEventFilter( this );
-	d = NULL;
-    }
-}
-
 bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 {
     if ((e->type() == QEvent::ChildInserted || e->type() == QEvent::ChildRemoved) &&
@@ -152,15 +120,22 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 	return TRUE; //block child events
     } else if (o == d)
 	switch (e->type()) {
+	case QEvent::Hide: 
+	    hide();
+	    break;
+	case QEvent::Show:
+	    show();
+	    break;
 	case QEvent::Move: {
 	    QMoveEvent *me = (QMoveEvent*)e;
-	    move( me->pos().x() - 3, me->pos().y() - 3 );
+	    move( me->pos().x() - focusOutset(), me->pos().y() - focusOutset() );
 	    break;
 	}
 	case QEvent::Resize: {
 	    QResizeEvent *re = (QResizeEvent*)e;
-	    resize( re->size().width() + 6, re->size().height() + 6 );
-	    setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
+	    resize( re->size().width() + (focusOutset() * 2), 
+		    re->size().height() + (focusOutset() * 2) );
+	    setMask( QRegion( rect() ) - focusRegion() );
 	    break;
 	}
 	case QEvent::Reparent:
@@ -173,7 +148,6 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 	}
     return FALSE;
 }
-
 void QAquaFocusWidget::paintEvent( QPaintEvent * )
 {
     QPixmap pmt, pmb, pml, pmr, pmtl, pmtr, pmbl, pmbr;
@@ -198,9 +172,11 @@ void QAquaFocusWidget::paintEvent( QPaintEvent * )
     buffer.painter()->drawPixmap( width() - pmbr.width(), height() - pmbr.height(), pmbr );
 }
 
-//animate things
+//Perhaps this QAquaAnimate should be defined elsewhere??
 struct QAquaAnimatePrivate 
 {
+    //focus
+    QWidget *focus;
     //buttons
     QPushButton *defaultButton, *noPulse;
     int buttonTimerId;
@@ -211,7 +187,7 @@ struct QAquaAnimatePrivate
 QAquaAnimate::QAquaAnimate() 
 {
     d = new QAquaAnimatePrivate;
-    d->defaultButton = d->noPulse = NULL;
+    d->focus = d->defaultButton = d->noPulse = NULL;
     d->progressTimerId = d->buttonTimerId = -1;
 }
 QAquaAnimate::~QAquaAnimate()
@@ -220,6 +196,12 @@ QAquaAnimate::~QAquaAnimate()
 }
 bool QAquaAnimate::addWidget(QWidget *w) 
 {
+    if( focusable(w) ) {
+	if(w->hasFocus()) 
+	    setFocusWidget(w);
+	w->installEventFilter( this );
+    }
+
     if( w->inherits("QPushButton") ){
         QPushButton * btn = (QPushButton *) w;
         if( btn->isDefault() || (btn->autoDefault() && btn->hasFocus()) ){
@@ -243,6 +225,9 @@ bool QAquaAnimate::addWidget(QWidget *w)
 }
 void QAquaAnimate::removeWidget(QWidget *w) 
 {
+    if(focusWidget() == w) 
+	setFocusWidget(NULL);
+
     if( w->inherits("QPushButton") ){
         QPushButton * btn = (QPushButton *) w;
         if( btn == d->defaultButton )
@@ -262,6 +247,8 @@ void QAquaAnimate::removeWidget(QWidget *w)
 }
 void QAquaAnimate::objDestroyed(QObject *o)
 {
+    if(o == d->focus) 
+	setFocusWidget(NULL);
     if(o == d->noPulse)
 	d->noPulse = NULL;
     while(d->progressBars.remove((QProgressBar*)o));
@@ -305,6 +292,19 @@ void QAquaAnimate::timerEvent( QTimerEvent * te )
 }
 bool QAquaAnimate::eventFilter( QObject * o, QEvent * e )
 {
+    //focus
+    if(o->isWidgetType() && focusWidget() && focusable((QWidget *)o) &&
+       ((e->type() == QEvent::FocusOut && focusWidget() == o) ||
+	(e->type() == QEvent::FocusIn && focusWidget() != o)))  { //restore it
+	if (((QFocusEvent *)e)->reason() != QFocusEvent::Popup) 
+	    setFocusWidget(NULL);
+    }
+    if( o && o->isWidgetType() && e->type() == QEvent::FocusIn ) {
+	QWidget *w = (QWidget *)o;
+	if( focusable(w) ) 
+	    setFocusWidget(w);
+    }
+    //animate
     if( o && o->isWidgetType() && e->type() == QEvent::FocusIn ) {
 	QWidget *w = (QWidget *)o;
 	if( o->inherits("QPushButton") && ((QPushButton *)w)->autoDefault()) {
@@ -367,6 +367,41 @@ bool QAquaAnimate::eventFilter( QObject * o, QEvent * e )
     }
     return FALSE;
 }
+QWidget *QAquaAnimate::focusWidget() const
+{
+    return d->focus;
+}
+void QAquaAnimate::setFocusWidget(QWidget *w) 
+{
+    if(w) {
+	QWidget *p = w->parentWidget();
+	while(!p->isTopLevel() && !p->testWFlags(WSubWindow))
+	    p = p->parentWidget();
+	if(p && (w->width() < p->width() - 30 || w->height() < p->height() - 40)) {
+	    if(w->inherits("QLineEdit") && p->inherits("QComboBox"))
+		w = p;
+	} else {
+	    w = NULL;
+	}
+    }
+    if(w == d->focus)
+	return;
+    doFocus(w);
+    if(d->focus) 
+	QObject::disconnect(d->focus, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
+    if((d->focus = w))
+	QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
+}
+bool QAquaAnimate::focusable(QWidget *w)
+{
+    return (w && w->parentWidget() && (w->inherits("QDateTimeEditor") ||
+	     (w->inherits("QFrame") && /*((QFrame*)w)->frameStyle() != QFrame::NoFrame && */
+	      (w->inherits("QLineEdit") /* &&
+	      (w->parentWidget()->inherits("QComboBox") || (((QLineEdit*)w)->frame())) */) ||
+	      (w->inherits("QTextEdit") && !w->inherits("QTextView")) ||
+	      w->inherits("QListBox") || w->inherits("QListView"))));
+}
+
 
 class QAquaStylePrivate : public QAquaAnimate
 {
@@ -387,11 +422,18 @@ public:
     
 protected:
     void doAnimate(QAquaAnimate::Animates);
+    void doFocus(QWidget *);
 };
 void QAquaStylePrivate::doAnimate(QAquaAnimate::Animates as)
 {
     if(as == QAquaAnimate::AquaProgressBar) 
 	progressOff--;
+}
+void QAquaStylePrivate::doFocus(QWidget *w)
+{
+    if (!focusWidget)
+	focusWidget = new QAquaFocusWidget();
+    focusWidget->setFocusWidget( w );
 }
 
 /*!
@@ -454,7 +496,6 @@ QAquaStyle::QAquaStyle()
     installEventFilter(this);
 
     d = new QAquaStylePrivate;
-    d->focusWidget = 0;
     d->progressOff = 0;
 }
 
@@ -517,15 +558,6 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( QAquaFocusWidget::handles(w) ) {
-	if(w->hasFocus()) {
-	    if (!d->focusWidget)
-		d->focusWidget = new QAquaFocusWidget();
-	    d->focusWidget->setFocusWidget( w );
-	}
-	w->installEventFilter( this );
-    }
-
     qAquaPolishFont(w);
     if( w->inherits("QTitleBar") ) {
 	w->font().setPixelSize(10);
@@ -554,9 +586,6 @@ void QAquaStyle::unPolish( QWidget * w )
             (w->backgroundMode() == QWidget::PaletteBackground) )
             w->setBackgroundOrigin( QWidget::WidgetOrigin );
     }
-
-    if(d->focusWidget && d->focusWidget->widget() == w)
-	d->focusWidget->setFocusWidget(NULL);
 }
 
 /*! \reimp */
@@ -568,22 +597,6 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	    appearanceChanged();
 #endif
 	return FALSE;
-    }
-
-    if(o->isWidgetType() &&
-       d->focusWidget && d->focusWidget->widget() && QAquaFocusWidget::handles((QWidget *)o) &&
-       ((e->type() == QEvent::FocusOut && d->focusWidget->widget() == o) ||
-	(e->type() == QEvent::FocusIn && d->focusWidget->widget() != o)))  { //restore it
-	if (((QFocusEvent *)e)->reason() != QFocusEvent::Popup)
-	    d->focusWidget->setFocusWidget( NULL );
-    }
-    if( o && o->isWidgetType() && e->type() == QEvent::FocusIn ) {
-	QWidget *w = (QWidget *)o;
-	if( QAquaFocusWidget::handles(w) ) {
-	    if (!d->focusWidget)
-		d->focusWidget = new QAquaFocusWidget();
-	    d->focusWidget->setFocusWidget( w );
-	}
     }
     return FALSE;
 }

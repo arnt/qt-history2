@@ -30,7 +30,6 @@
 /* broken things:
    titlebar isn't complete
    we don't animate yet
-   focus rects aren't drawn
 */
 
 #include "qmacstyle_mac.h"
@@ -77,10 +76,8 @@ static const int macRightBorder       = 12;   // right border on mac
 class QMacPainter : public QPainter
 {
 public:
-    ~QMacPainter();
+    QMacPainter(QPaintDevice *p) : QPainter(p) { }
     void noop() { QPainter::initPaintDevice(TRUE); }
-private:
-    QMacPainter();
 };
 static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL, 
 					  bool off=TRUE, const QRect &rect=QRect())
@@ -105,15 +102,42 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
 }
 
 //private
+class QMacStyleFocusWidget : public QAquaFocusWidget
+{
+public:
+    QMacStyleFocusWidget() : QAquaFocusWidget() { }
+
+protected: 
+    virtual void paintEvent( QPaintEvent * );
+    virtual int focusOutset();
+};
+void QMacStyleFocusWidget::paintEvent(QPaintEvent *)
+{
+    QMacPainter p(this);
+    p.noop();
+    QRect r(focusOutset(), focusOutset(), 
+	    width() - (focusOutset()*2),
+	    height() - (focusOutset()*2));
+    DrawThemeFocusRect(qt_glb_mac_rect(r, this), true);
+}
+int QMacStyleFocusWidget::focusOutset()
+{
+    SInt32 ret = 0;
+    GetThemeMetric(kThemeMetricFocusRectOutset, &ret);
+    return ret;
+}
+
 class QMacStylePrivate : public QAquaAnimate
 {
     ControlRef button, progressbar;
+    QGuardedPtr<QMacStyleFocusWidget> focusWidget;
 public:
     QMacStylePrivate() : QAquaAnimate(), button(0), progressbar(0) { }
     ~QMacStylePrivate();
     ControlRef control(QAquaAnimate::Animates);
 protected:
     void doAnimate(QAquaAnimate::Animates);
+    void doFocus(QWidget *);
 };
 ControlRef 
 QMacStylePrivate::control(QAquaAnimate::Animates as)
@@ -155,8 +179,15 @@ void QMacStylePrivate::doAnimate(QAquaAnimate::Animates)
     }
 #endif
 }
+void QMacStylePrivate::doFocus(QWidget *w)
+{
+    if (!focusWidget)
+	focusWidget = new QMacStyleFocusWidget();
+    focusWidget->setFocusWidget( w );
+}
 
-#define private public //ugh, what I'll do..
+#define private public //ugh, what I'll do, guess we have to wait until 4.0
+                       //to access positionToValue()..
 #include <qslider.h>
 #undef private
 
@@ -230,9 +261,7 @@ void QMacStyle::polish( QApplication* app )
 
 void QMacStyle::polish( QWidget* w )
 {
-#ifndef QMAC_NO_MACSTYLE_ANIMATE
     d->addWidget(w);
-#endif
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
@@ -253,9 +282,7 @@ void QMacStyle::polish( QWidget* w )
 /*! \reimp */
 void QMacStyle::unPolish( QWidget* w )
 {
-#ifndef QMAC_NO_MACSTYLE_ANIMATE
     d->removeWidget(w);
-#endif
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( TRUE );
@@ -1145,7 +1172,7 @@ QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
 int QMacStyle::styleHint(StyleHint sh, const QWidget *w, 
 			  const QStyleOption &opt,QStyleHintReturn *d) const
 {
-    int ret = 0;
+    SInt32 ret = 0;
     switch(sh) {
     case SH_ScrollBar_StopMouseOverSlider:
         ret = TRUE;
