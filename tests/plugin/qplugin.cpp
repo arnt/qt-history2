@@ -448,9 +448,10 @@ QStringList QPlugIn::featureList()
   \fn QPlugInManager::QPlugInManager( const QString &path, const QString &filter, QPlugIn::LibraryPolicy pol, const char* fn )
 
   Creates a plugin manager.
-  The manager looks up and loads all shared libraries in \a path that match the filter.
+  The manager looks up and loads all shared libraries in \a path that match the \a filter. The default policy \a pol and 
+  the library function name \a fn will be passed to the QPlugIn constructor.
 
-  The default policy \a pol and the library function name \a fn will be passed to the QPlugIn constructor.
+  The manager will be destroyed automatically by the destruction of the application.
 
   \sa QPlugIn::QPlugIn(), addPlugInPath(), addPlugIn()
 */
