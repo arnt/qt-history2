@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#40 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -66,10 +66,26 @@
 #endif
 #endif
 
+#if defined(SIGNAL_HACK)
+#undef SIGNAL_HACK
+#endif
+
+#if defined(Q_OS_OSF) || defined(Q_OS_MACX)
+// these platforms work one way
+#define SIGNAL_HACK
+#elif defined(Q_CC_GNU) && ( defined(Q_OS_IRIX) || defined(Q_OS_SUN) )
+// gcc on these platforms works above, but native compiler doesn't.
+#define SIGNAL_HACK
+#endif
+
+
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
-#if defined(Q_OS_OSF) || ( defined(Q_OS_IRIX) && defined(Q_CC_GNU) ) || defined(Q_OS_MACX)
+    // this looks like two unconnected platform differences that just
+    // happen to match up... perhaps we should use two defines, one
+    // for each yuckyness.
+#if defined(SIGNAL_HACK)
 static void qt_C_sigign() { (*SIG_IGN)(SIGPIPE); }
 static void qt_C_sigchldHnd();
 #else
@@ -432,7 +448,7 @@ void QProcessPrivate::newProc( pid_t pid, QProcess *process )
  * sigchld handler callback
  *
  **********************************************************************/
-#if defined(Q_OS_OSF) || ( defined(Q_OS_IRIX) && defined(Q_CC_GNU) ) || defined(Q_OS_MACX)
+#if defined(SIGNAL_HACK)
 void qt_C_sigchldHnd()
 #else
 void qt_C_sigchldHnd( int )
