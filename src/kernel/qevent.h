@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#4 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#5 $
 **
 ** Definition of QEvent classes
 **
@@ -25,18 +25,18 @@
 #define Event_MouseMove		    5		// mouse move
 #define Event_KeyPress		    6		// key pressed
 #define Event_KeyRelease	    7		// key released
-#define Event_Paint		    8		// paint widget
-#define Event_Move		    9		// move widget
-#define Event_Resize		   10		// resize widget
-#define Event_Create		   11		// after object creation
-#define Event_Destroy		   12		// during object destruction
-#define Event_Show		   13		// before widget is displayed
-#define Event_Hide		   14		// before widget is hidden
-#define Event_Close		   15		// request to close widget
-#define Event_FocusIn		   16		// keyboard focus received
-#define Event_FocusOut		   17		// keyboard focus lost
-#define Event_Enter		   18		// mouse enters widget
-#define Event_Leave		   19		// mouse leaves widget
+#define Event_FocusIn		    8		// keyboard focus received
+#define Event_FocusOut		    9		// keyboard focus lost
+#define Event_Enter		   10		// mouse enters widget
+#define Event_Leave		   11		// mouse leaves widget
+#define Event_Paint		   12		// paint widget
+#define Event_Move		   13		// move widget
+#define Event_Resize		   14		// resize widget
+#define Event_Create		   15		// after object creation
+#define Event_Destroy		   16		// during object destruction
+#define Event_Show		   17		// before widget is displayed
+#define Event_Hide		   18		// before widget is hidden
+#define Event_Close		   19		// request to close widget
 #define Event_Quit		   20		// request to quit application
 #define Event_User		 1000		// first user event id
 
@@ -95,26 +95,37 @@ class QKeyEvent : public QEvent			// keyboard event
 {
 public:
     QKeyEvent( int type, int kc, char ac, int state )
-	: QEvent(type)		{ k=(ushort)kc; a=ac; st=(ushort)state; d=0; }
+	: QEvent(type)		{ k=(ushort)kc; a=ac; st=(ushort)state;
+				  accpt=TRUE; }
     int	   key()	const	{ return k; }	// key code (Key_Code)
     char   ascii()	const	{ return a; }	// ascii value
     int	   state()	const	{ return st; }	// keyboard status
-    bool   discard()	const	{ return d; }	// discard key event
-    void   discard( bool doIt ) { d = (char)doIt; }
+    bool   isAccepted()	const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
 protected:
     ushort k, st;
-    char   a;
-    char   d;
+    char   a, accpt;
 };
 
 #define Q_KEY_EVENT(x)		((QKeyEvent*)x)
+
+
+class QFocusEvent : public QEvent		// widget focus event
+{
+public:
+    QFocusEvent( int type )
+	: QEvent(type)		{}
+};
+
+#define Q_FOCUS_EVENT(x)	((QFocusEvent*)x)
 
 
 class QPaintEvent : public QEvent		// widget paint event
 {
 public:
     QPaintEvent( const QRect &paintRect )
-	: QEvent(Event_Paint) { r=paintRect; }
+	: QEvent(Event_Paint)	{ r=paintRect; }
     QRect &rect()		{ return r; }	// rectangle to be painted
 protected:
     QRect r;
@@ -170,11 +181,13 @@ public:
 class QCloseEvent : public QEvent		// widget close event
 {
 public:
-    QCloseEvent() : QEvent(Event_Close)	{ close_it = FALSE; }
-    bool	close()		const	{ return close_it; }
-    void	close( bool doIt )	{ close_it = doIt; }
+    QCloseEvent()
+	: QEvent(Event_Close)	{ accpt = TRUE; }
+    bool   isAccepted()	const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
 protected:
-    bool	close_it;
+    bool   accpt;
 };
 
 #define Q_CLOSE_EVENT(x)	((QCloseEvent*)x)
