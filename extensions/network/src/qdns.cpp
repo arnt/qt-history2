@@ -38,7 +38,7 @@
 #include "qptrdict.h"
 
 
-#define DEBUG_QDNS
+//#define DEBUG_QDNS
 
 
 static Q_UINT16 id; // ### start somewhere random
@@ -1260,8 +1260,8 @@ void QDnsSocket::answer()
   signal, and finally query functions for the result.
 
   There is one query function for each RecordType, namely addresses(),
-  mailServers(), servers() and texts().  There are also two generic
-  query functions: canonicalName() return the name you'll presumably
+  mailServers(), servers(), hostNames() and texts().  There are also two
+  generic query functions: canonicalName() return the name you'll presumably
   end up using (the exact meaning of that depends on the record type)
   and qualifiedNames() returns a list of the fully qualified names
   label() maps to.
