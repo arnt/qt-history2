@@ -400,7 +400,21 @@ struct Property
 	: lineNo(l), type(t), name(n), set(s), get(g), reset(r), setfunc(0), getfunc(0),
 	  sspec(Unspecified), gspec(Unspecified), stored( st ),
 	  designable( d ), scriptable( sc ), override( ov ), oredEnum( -1 )
-    {}
+    {
+	/*
+	  The Q_PROPERTY construct cannot contain any commas, since
+	  commas separate macro arguments. We therefore expect users
+	  to type "QMap" instead of "QMap<QString, QVariant>". For
+	  coherence, we also expect the same for
+	  QValueList<QVariant>, the other template class supported by
+	  QVariant.
+	*/
+	if ( type == "QMap" ) {
+	    type = "QMap<QString,QVariant>";
+	} else if ( type == "QValueList" ) {
+	    type = "QValueList<QVariant>";
+	}
+    }
 
     int lineNo;
     QCString type;
@@ -3337,6 +3351,10 @@ void generateClass()		      // generate C++ source code for a class
 		    fprintf( out, "_v->asUInt()" );
 		else if ( type == "unsigned int" )
 		    fprintf( out, "(uint)_v->asUInt()" );
+		else if ( type == "QMap<QString,QVariant>" )
+		    fprintf( out, "_v->asMap()" );
+		else if ( type == "QValueList<QVariant>" )
+		    fprintf( out, "_v->asList()" );
 		else if ( isVariantType( type ) ) {
 		    if ( type[0] == 'Q' )
 			type = type.mid(1);
