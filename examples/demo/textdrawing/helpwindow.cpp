@@ -64,9 +64,6 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
     file->insertItem( tr("&New Window"), this, SLOT( newWindow() ), ALT | Key_N );
     file->insertItem( tr("&Open File"), this, SLOT( openFile() ), ALT | Key_O );
     file->insertItem( tr("&Print"), this, SLOT( print() ), ALT | Key_P );
-    file->insertSeparator();
-    file->insertItem( tr("&Close"), this, SLOT( close() ), ALT | Key_Q );
-    file->insertItem( tr("E&xit"), qApp, SLOT( closeAllWindows() ), ALT | Key_X );
 
     // The same three icons are used twice each.
     QIconSet icon_back( QPixmap("textdrawing/back.xpm") );
@@ -81,10 +78,6 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
 				tr("&Forward"), browser, SLOT( forward() ),
 				ALT | Key_Right );
     go->insertItem( icon_home, tr("&Home"), browser, SLOT( home() ) );
-
-    QPopupMenu* help = new QPopupMenu( this );
-    help->insertItem( tr("&About ..."), this, SLOT( about() ) );
-    help->insertItem( tr("About &Qt ..."), this, SLOT( aboutQt() ) );
 
     hist = new QPopupMenu( this );
     QStringList::Iterator it = history.begin();
@@ -107,8 +100,6 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
     menuBar()->insertItem( tr("&Go"), go );
     menuBar()->insertItem( tr( "History" ), hist );
     menuBar()->insertItem( tr( "Bookmarks" ), bookm );
-    menuBar()->insertSeparator();
-    menuBar()->insertItem( tr("&Help"), help );
 
     menuBar()->setItemEnabled( forwardId, FALSE);
     menuBar()->setItemEnabled( backwardId, FALSE);

@@ -75,9 +75,6 @@ void TextEdit::setupFileActions()
     a = new QAction( tr( "Close" ), QPixmap(), tr( "&Close" ), 0, this, "fileClose" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
     a->addTo( menu );
-    a = new QAction( tr( "Exit" ), QPixmap(), tr( "E&xit..." ), 0, this, "fileExit" );
-    connect( a, SIGNAL( activated() ), this, SLOT( fileExit() ) );
-    a->addTo( menu );
 }
 
 void TextEdit::setupEditActions()
