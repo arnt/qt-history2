@@ -256,11 +256,11 @@ bool QDir::readDirEntries(const QStringList &nameFilters,
     }
     if (p.at(plen-1) != '/' && p.at(plen-1) != '\\')
         p += '/';
-    p += QString::fromLatin1("*.*");
+    p += QLatin1String("*.*");
 
     ff = FindFirstFile((TCHAR*)p.utf16(), &finfo);
 
-    if (ff == FF_ERROR) 
+    if (ff == FF_ERROR)
         return; // cannot read the directory
 
     for (;;) {

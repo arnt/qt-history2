@@ -599,7 +599,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
 
     //just read directly from the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
-        const uint remaining = d->str->length()-(d->strOff/sizeof(QChar)); 
+        const uint remaining = d->str->length()-(d->strOff/sizeof(QChar));
         const QChar *data = (QChar*)((char*)d->str->unicode()+d->strOff);
         for(uint i = 0; i < len; i++) {
             if(i == remaining) {
@@ -622,7 +622,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
         d->strOff += len * sizeof(QChar);
         return false;
     }
-    
+
     //read from the device
     enum { NO_FINISH, END_FOUND, END_BUFFER } ret = NO_FINISH;
     uint rnum = 0;   // the number of QChars really read
@@ -897,7 +897,7 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
         return;
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
-        if(d->strOff > 0) 
+        if(d->strOff > 0)
             *((QChar*)((char*)d->str->data()+(d->strOff-=2))) = c;
         return;
     }
@@ -948,7 +948,7 @@ QTextStream &QTextStream::writeRawBytes(const char* s, uint len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
-        d->str->append(QString(QByteArray((const char*)s, len)));
+        d->str->append(QLatin1String(s, len));
         return *this;
     }
     //from device
@@ -961,7 +961,7 @@ QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
-        d->str->append(QString(QByteArray(p, len)));
+        d->str->append(QLatin1String(p, len));
         return *q;
     }
 
@@ -1062,8 +1062,8 @@ void QTextStream::reset()
 */
 
 QIODevice *QTextStream::device() const
-{ 
-    return d->dev; 
+{
+    return d->dev;
 }
 
 
@@ -2069,8 +2069,8 @@ QTextStream &QTextStream::operator<<(const void *ptr)
 */
 
 int QTextStream::flags() const
-{ 
-    return d->d->fflags; 
+{
+    return d->d->fflags;
 }
 
 
@@ -2083,10 +2083,10 @@ int QTextStream::flags() const
 */
 
 int QTextStream::flags(int f)
-{ 
-    int oldf = d->fflags;  
-    d->fflags = f;  
-    return oldf; 
+{
+    int oldf = d->fflags;
+    d->fflags = f;
+    return oldf;
 }
 
 
@@ -2100,10 +2100,10 @@ int QTextStream::flags(int f)
 */
 
 int QTextStream::setf(int bits)
-{ 
-    int oldf = d->fflags;  
-    d->fflags |= bits;  
-    return oldf; 
+{
+    int oldf = d->fflags;
+    d->fflags |= bits;
+    return oldf;
 }
 
 
@@ -2119,10 +2119,10 @@ int QTextStream::setf(int bits)
 */
 
 int QTextStream::setf(int bits, int mask)
-{ 
-    int oldf = d->fflags;  
-    d->fflags = (d->fflags & ~mask) | (bits & mask); 
-    return oldf; 
+{
+    int oldf = d->fflags;
+    d->fflags = (d->fflags & ~mask) | (bits & mask);
+    return oldf;
 }
 
 
@@ -2136,10 +2136,10 @@ int QTextStream::setf(int bits, int mask)
 */
 
 int QTextStream::unsetf(int bits)
-{ 
-    int oldf = d->fflags;  
-    d->fflags &= ~bits;        
-    return oldf; 
+{
+    int oldf = d->fflags;
+    d->fflags &= ~bits;
+    return oldf;
 }
 
 
@@ -2148,8 +2148,8 @@ int QTextStream::unsetf(int bits)
 */
 
 int QTextStream::width() const
-{ 
-    return d->fwidth; 
+{
+    return d->fwidth;
 }
 
 
@@ -2160,10 +2160,10 @@ int QTextStream::width() const
 */
 
 int QTextStream::width(int w)
-{ 
-    int oldw = d->fwidth;  
-    d->fwidth = w;  
-    return oldw;         
+{
+    int oldw = d->fwidth;
+    d->fwidth = w;
+    return oldw;
 }
 
 
@@ -2172,8 +2172,8 @@ int QTextStream::width(int w)
 */
 
 int QTextStream::fill() const
-{ 
-    return d->fillchar; 
+{
+    return d->fillchar;
 }
 
 
@@ -2184,10 +2184,10 @@ int QTextStream::fill() const
 */
 
 int QTextStream::fill(int f)
-{ 
-    int oldc = d->fillchar;        
-    d->fillchar = f;  
-    return oldc;  
+{
+    int oldc = d->fillchar;
+    d->fillchar = f;
+    return oldc;
 }
 
 /*!
@@ -2195,8 +2195,8 @@ int QTextStream::fill(int f)
 */
 
 int QTextStream::precision() const
-{ 
-    return d->fprec; 
+{
+    return d->fprec;
 }
 
 /*!
@@ -2206,10 +2206,10 @@ int QTextStream::precision() const
 */
 
 int QTextStream::precision(int p)
-{ 
-    int oldp = d->fprec;  
-    d->fprec = p;         
-    return oldp;  
+{
+    int oldp = d->fprec;
+    d->fprec = p;
+    return oldp;
 }
 
  /*****************************************************************************
@@ -2501,7 +2501,7 @@ QTextCodec *QTextStream::codec()
 bool QTextStream::atEnd() const
 {
     //just append directly onto the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String) 
+    if (d->sourceType == QTextStreamPrivate::String)
         return d->strOff == (d->str->length()*sizeof(QChar));
     //device
     return ((!d->dev || d->dev->atEnd()) &&
@@ -2513,13 +2513,13 @@ bool QTextStream::atEnd() const
 */
 
 QChar QTextStreamPrivate::ts_getc()
-{ 
-    QChar r; 
-    uint l; 
-    d->ts_getbuf(&r, 1, 0, &l); 
-    if (!l) 
-        r = QChar(0xffff); 
-    return r; 
+{
+    QChar r;
+    uint l;
+    d->ts_getbuf(&r, 1, 0, &l);
+    if (!l)
+        r = QChar(0xffff);
+    return r;
 }
 
 #endif // QT_NO_TEXTSTREAM

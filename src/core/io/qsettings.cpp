@@ -245,7 +245,7 @@ static HANDLE openlock(const QString &name, int type)
 {
     QFileInfo info(name);
     // lockfile should be hidden, and never removed
-    QString lockfile = info.path() + "/." + info.fileName() + ".lock";
+    QString lockfile = info.path() + QLatin1String("/.") + info.fileName() + QLatin1String(".lock");
 
     // open the lockfile
     HANDLE fd = qt_open(QFile::encodeName(lockfile),
@@ -399,7 +399,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
         } else {
             QString key, value;
             key = line.left(i);
-            value = "";
+            value = QLatin1String("");
             bool esc=true;
             i++;
             while (esc) {
@@ -459,7 +459,7 @@ QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
     Q_UNUSED(format);
 #endif
 
-    QString appSettings(QDir::homePath() + "/.qt/");
+    QString appSettings(QDir::homePath() + QLatin1String("/.qt/"));
     QString defPath;
 #ifdef Q_WS_WIN
 #ifdef Q_OS_TEMP
@@ -494,7 +494,7 @@ QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
     });
 #endif // Q_OS_TEMP
 #else
-    defPath = qInstallPathSysconf();
+    defPath = QString::fromLocal8Bit(qInstallPathSysconf());
 #endif
     QDir dir(appSettings);
     if (! dir.exists()) {
@@ -526,11 +526,11 @@ QSettingsGroup QSettingsPrivate::readGroup()
         if (!globalScope)
             ++it;
         while (it != searchPaths.end()) {
-            QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
-            QString fn((*it++) + "/" + filebase + "rc");
-            if (! hd.contains(fn + "cached")) {
+            QString filebase = heading.toLower().replace(QRegExp(QString::fromLatin1("\\s+")), QLatin1String("_"));
+            QString fn((*it++) + QLatin1Char('/') + filebase + QLatin1String("rc"));
+            if (! hd.contains(fn + QLatin1String("cached"))) {
                 hd.read(fn);
-                hd.insert(fn + "cached", QSettingsGroup());
+                hd.insert(fn + QLatin1String("cached"), QSettingsGroup());
             }
         }
 
@@ -562,11 +562,11 @@ void QSettingsPrivate::removeGroup(const QString &key)
         if (!globalScope)
             ++it;
         while (it != searchPaths.end()) {
-            QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
-            QString fn((*it++) + "/" + filebase + "rc");
-            if (! hd.contains(fn + "cached")) {
+            QString filebase = heading.toLower().replace(QRegExp(QLatin1String("\\s+")), QLatin1String("_"));
+            QString fn((*it++) + QLatin1Char('/') + filebase + QLatin1String("rc"));
+            if (! hd.contains(fn + QLatin1String("cached"))) {
                 hd.read(fn);
-                hd.insert(fn + "cached", QSettingsGroup());
+                hd.insert(fn + QLatin1String("cached"), QSettingsGroup());
             }
         }
 
@@ -615,11 +615,11 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
         if (!globalScope)
             ++it;
         while (it != searchPaths.end()) {
-            QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
-            QString fn((*it++) + "/" + filebase + "rc");
-            if (! hd.contains(fn + "cached")) {
+            QString filebase = heading.toLower().replace(QRegExp(QLatin1String("\\s+")), QLatin1String("_"));
+            QString fn((*it++) + QLatin1Char('/') + filebase + QLatin1String("rc"));
+            if (! hd.contains(fn + QLatin1String("cached"))) {
                 hd.read(fn);
-                hd.insert(fn + "cached", QSettingsGroup());
+                hd.insert(fn + QLatin1String("cached"), QSettingsGroup());
             }
         }
 
@@ -651,7 +651,7 @@ QDateTime QSettingsPrivate::modificationTime()
     if (!globalScope)
         ++it;
     while (it != searchPaths.end()) {
-        QFileInfo fi((*it++) + "/" + heading + "rc");
+        QFileInfo fi((*it++) + QLatin1Char('/') + heading + QLatin1String("rc"));
         if (fi.exists() && fi.lastModified() > datetime)
             datetime = fi.lastModified();
     }
@@ -661,7 +661,7 @@ QDateTime QSettingsPrivate::modificationTime()
 
 bool qt_verify_key(const QString &key)
 {
-    if (key.isEmpty() || key[0] != '/' || (bool)key.contains(QRegExp("[=\\r\\n]")))
+    if (key.isEmpty() || key[0] != QLatin1Char('/') || (bool)key.contains(QRegExp(QLatin1String("[=\\r\\n]"))))
         return false;
     return true;
 }
@@ -669,16 +669,16 @@ bool qt_verify_key(const QString &key)
 static QString groupKey(const QString &group, const QString &key)
 {
     QString grp_key;
-    if (group.isEmpty() || (group.length() == 1 && group[0] == '/')) {
+    if (group.isEmpty() || (group.length() == 1 && group[0] == QLatin1Char('/'))) {
         // group is empty, or it contains a single '/', so we just return the key
-        if (key.startsWith("/"))
+        if (key.startsWith(QLatin1String("/")))
             grp_key = key;
         else
-            grp_key = "/" + key;
-    } else if (group.endsWith("/") || key.startsWith("/")) {
+            grp_key = QLatin1Char('/') + key;
+    } else if (group.endsWith(QLatin1String("/")) || key.startsWith(QLatin1String("/"))) {
         grp_key = group + key;
     } else {
-        grp_key = group + "/" + key;
+        grp_key = group + QLatin1Char('/') + key;
     }
     return grp_key;
 }
@@ -933,14 +933,14 @@ bool QSettings::sync()
         if (!d->globalScope)
             ++pit;
         while (pit != d->searchPaths.end()) {
-            QString filebase = it.key().toLower().replace(QRegExp("\\s+"), "_");
+            QString filebase = it.key().toLower().replace(QRegExp(QLatin1String("\\s+")), QLatin1String("_"));
             QFileInfo di(*pit);
             if (!di.exists()) {
                 QDir dir;
                 dir.mkdir(*pit);
             }
 
-            QFileInfo fi((*pit++) + "/" + filebase + "rc");
+            QFileInfo fi((*pit++) + QLatin1Char('/') + filebase + QLatin1String("rc"));
 
             if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
                 (! fi.exists() && di.isDir()
@@ -965,7 +965,7 @@ bool QSettings::sync()
 
         HANDLE lockfd = openlock(filename, Q_LOCKWRITE);
 
-        QFile file(filename + ".tmp");
+        QFile file(filename + QLatin1String(".tmp"));
         if (! file.open(IO_WriteOnly)) {
             qWarning("QSettings::sync: failed to open '%s' for writing",
                      file.fileName().latin1());
@@ -987,13 +987,13 @@ bool QSettings::sync()
                 while (grpit != grp.end()) {
                     QString v = grpit.value();
                     if (v.isNull()) {
-                        v = "\\0"; // escape null string
+                        v = QLatin1String("\\0"); // escape null string
                     } else {
-                        v.replace("\\", "\\\\"); // escape backslash
-                        v.replace("\n", "\\n"); // escape newlines
+                        v.replace(QLatin1Char('\\'), QLatin1String("\\\\")); // escape backslash
+                        v.replace(QLatin1Char('\n'), QLatin1String("\\n")); // escape newlines
                     }
 
-                    stream << grpit.key() << "=" << v << endl;
+                    stream << grpit.key() << QLatin1Char('=') << v << endl;
                     ++grpit;
                 }
 
@@ -1062,15 +1062,15 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok)
         return d->sysReadBoolEntry(grp_key, def, ok);
 #endif
 
-    QString value = readEntry(key, (def ? "true" : "false"), ok);
+    QString value = readEntry(key, QLatin1String(def ? "true" : "false"), ok);
 
-    if (value.toLower() == "true")
+    if (value.toLower() == QLatin1String("true"))
         return true;
-    else if (value.toLower() == "false")
+    else if (value.toLower() == QLatin1String("false"))
         return false;
-    else if (value == "1")
+    else if (value == QLatin1String("1"))
         return true;
-    else if (value == "0")
+    else if (value == QLatin1String("0"))
         return false;
 
     if (! value.isEmpty())
@@ -1217,7 +1217,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok)
 
         if (list.count() == 2) {
             d->heading = list[0];
-            d->group = "General";
+            d->group = QLatin1String("General");
             realkey = list[1];
         } else {
             d->heading = list[0];
@@ -1228,7 +1228,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok)
             // remove the group from the list
             list.removeFirst();
 
-            realkey = list.join("/");
+            realkey = list.join(QLatin1String("/"));
         }
     } else {
         realkey = grp_key;
@@ -1269,7 +1269,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
     if (d->sysd)
         return d->sysWriteEntry(grp_key, value);
 #endif
-    QString s(value ? "true" : "false");
+    QString s(QLatin1String(value ? "true" : "false"));
     return writeEntry(key, s);
 }
 #endif
@@ -1349,7 +1349,7 @@ bool QSettings::writeEntry(const QString &key, int value)
 */
 bool QSettings::writeEntry(const QString &key, const char *value)
 {
-    return writeEntry(key, QString(value));
+    return writeEntry(key, QString::fromLatin1(value));
 }
 
 
@@ -1393,7 +1393,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 
         if (list.count() == 2) {
             d->heading = list[0];
-            d->group = "General";
+            d->group = QLatin1String("General");
             realkey = list[1];
         } else {
             d->heading = list[0];
@@ -1404,7 +1404,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
             // remove the group from the list
             list.removeFirst();
 
-            realkey = list.join("/");
+            realkey = list.join(QLatin1String("/"));
         }
     } else {
         realkey = grp_key;
@@ -1438,7 +1438,7 @@ bool QSettings::removeEntry(const QString &key)
     QString realkey;
     if (grp_key[0] == '/') {
         // parse our key
-        QStringList list(grp_key.split('/', QString::SkipEmptyParts));
+        QStringList list(grp_key.split(QLatin1Char('/'), QString::SkipEmptyParts));
 
         if (list.count() < 2) {
             qWarning("QSettings::removeEntry: invalid key '%s'", grp_key.latin1());
@@ -1448,7 +1448,7 @@ bool QSettings::removeEntry(const QString &key)
 
         if (list.count() == 2) {
             d->heading = list[0];
-            d->group = "General";
+            d->group = QLatin1String("General");
             realkey = list[1];
         } else {
             d->heading = list[0];
@@ -1459,7 +1459,7 @@ bool QSettings::removeEntry(const QString &key)
             // remove the group from the list
             list.removeFirst();
 
-            realkey = list.join("/");
+            realkey = list.join(QLatin1String("/"));
         }
     } else {
         realkey = grp_key;
@@ -1522,7 +1522,7 @@ QStringList QSettings::entryList(const QString &key) const
 
         if (list.count() == 1) {
             d->heading = list[0];
-            d->group = "General";
+            d->group = QLatin1String("General");
         } else {
             d->heading = list[0];
             d->group = list[1];
@@ -1532,7 +1532,7 @@ QStringList QSettings::entryList(const QString &key) const
             // remove the group from the list
             list.removeFirst();
 
-            realkey = list.join("/");
+            realkey = list.join(QLatin1String("/"));
         }
     } else
         realkey = grp_key;
@@ -1616,7 +1616,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 
         if (list.count() == 1) {
             d->heading = list[0];
-            d->group = "General";
+            d->group = QLatin1String("General");
         } else {
             d->heading = list[0];
             d->group = list[1];
@@ -1626,7 +1626,7 @@ QStringList QSettings::subkeyList(const QString &key) const
             // remove the group from the list
             list.removeFirst();
 
-            realkey = list.join("/");
+            realkey = list.join(QLatin1String("/"));
         }
 
     } else
@@ -1636,7 +1636,7 @@ QStringList QSettings::subkeyList(const QString &key) const
     if (subkeycount == 1) {
         QMap<QString,QSettingsHeading>::Iterator it = d->headings.begin();
         while (it != d->headings.end()) {
-            if (it.key() != "General" && ! ret.contains(it.key()))
+            if (it.key() != QLatin1String("General") && ! ret.contains(it.key()))
                 ret << it.key();
             ++it;
         }
@@ -1701,7 +1701,7 @@ QDateTime QSettings::lastModificationTime(const QString &key)
 
         if (list.count() == 2) {
             d->heading = list[0];
-            d->group = "General";
+            d->group = QLatin1String("General");
         } else {
             d->heading = list[0];
             d->group = list[1];
@@ -1758,12 +1758,12 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
     for (QStringList::ConstIterator it=value.begin(); it!=value.end(); ++it) {
         QString el = *it;
         if (el.isNull()) {
-            el = "^0";
+            el = QLatin1String("^0");
         } else {
-            el.replace("^", "^^");
+            el.replace(QLatin1String("^"), QLatin1String("^^"));
         }
         s+=el;
-        s+="^e"; // end of element
+        s+=QLatin1String("^e"); // end of element
     }
     return writeEntry(key, s);
 }
@@ -1846,8 +1846,8 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok)
         if (esc) {
             if (value[i] == 'e') { // end-of-string
                 l.append(s);
-                s="";
-            } else if (value[i] == '0') { // null string
+                s= QLatin1String("");
+            } else if (value[i] == QLatin1Char('0')) { // null string
                 s=QString::null;
             } else {
                 s.append(value[i]);
@@ -1921,10 +1921,10 @@ void QSettings::setPath(const QString &domain, const QString &product, Scope sco
     insertSearchPath(Mac, actualSearchPath);
 #else
     if (scope == User)
-        actualSearchPath = QDir::homePath() + "/.";
+        actualSearchPath = QDir::homePath() + QLatin1String("/.");
     else
-        actualSearchPath = QString(qInstallPathSysconf()) + "/";
-    actualSearchPath += domain.mid(0, lastDot) + "/" + product;
+        actualSearchPath = QString::fromLocal8Bit(qInstallPathSysconf()) + QLatin1Char('/');
+    actualSearchPath += domain.mid(0, lastDot) + QLatin1Char('/') + product;
     insertSearchPath(Unix, actualSearchPath);
 #endif
 }
@@ -1990,8 +1990,8 @@ QString QSettings::group() const
         while (it != d->groupStack.end()) {
             QString group = *it;
             ++it;
-            if (group[0] != '/')
-                group.prepend("/");
+            if (group[0] != QLatin1Char('/'))
+                group.prepend(QLatin1Char('/'));
             d->groupPrefix += group;
         }
     }

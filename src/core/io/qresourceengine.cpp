@@ -22,7 +22,7 @@
 
 inline static QResource *qt_find_resource(const QString &path)
 {
-    if(!path.startsWith(":/"))
+    if(!path.startsWith(QLatin1String(":/")))
         return 0;
     return QResource::find(path.mid(1));
 }
@@ -33,7 +33,7 @@ public:
     QResourceFileEngineHandler() { }
     QFileEngine *createFileEngine(const QString &path)
     {
-        if(path.startsWith(":/"))
+        if(path.startsWith(QLatin1String(":/")))
             return new QResourceFileEngine(path);
         return 0;
     }

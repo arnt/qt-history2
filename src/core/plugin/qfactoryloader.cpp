@@ -42,34 +42,34 @@ QFactoryLoader::QFactoryLoader(const char *iid,
 {
     QStringList filters;
 #if defined(Q_OS_WIN32)
-    filters << "*.dll";
+    filters << QLatin1String("*.dll");
 #elif defined(Q_OS_DARWIN)
-    filters << "*.dylib" << "*.so" << "*.bundle";
+    filters << QLatin1String("*.dylib") << QLatin1String("*.so") << QLatin1String("*.bundle");
 #elif defined(Q_OS_HPUX)
-    filters << "*.sl";
+    filters << QLatin1String("*.sl");
 #elif defined(Q_OS_UNIX)
-    filters << "*.so";
+    filters << QLatin1String("*.so");
 #endif
 
     QSettings settings;
 
     for (int i = 0; i < paths.count(); ++i) {
         QString path = paths.at(i) + suffix;
-        if (!QDir(path).exists(".", true))
+        if (!QDir(path).exists(QLatin1String("."), true))
             continue;
         QStringList plugins = QDir(path).entryList(filters);
         QLibraryPrivate *library = 0;
         for (int j = 0; j < plugins.count(); ++j) {
-            QString fileName = QDir::cleanPath(path + "/" + plugins.at(j));
+            QString fileName = QDir::cleanPath(path + QLatin1Char('/') + plugins.at(j));
             library = QLibraryPrivate::findOrCreate(QDir(fileName).canonicalPath());
             if (!library->isPlugin()) {
                 library->release();
                 continue;
             }
-            QString regkey = QString("/Trolltech/Qt Factory Cache %1.%2/%3:/%4")
+            QString regkey = QString::fromLatin1("/Trolltech/Qt Factory Cache %1.%2/%3:/%4")
                              .arg((QT_VERSION & 0xff0000) >> 16)
                              .arg((QT_VERSION & 0xff00) >> 8)
-                             .arg(iid)
+                             .arg(QLatin1String(iid))
                              .arg(fileName);
             QStringList reg, keys;
             reg = settings.readListEntry(regkey);

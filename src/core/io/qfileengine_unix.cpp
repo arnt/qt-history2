@@ -176,9 +176,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
                      (doWritable && !fi.isWritable()) ||
                      (doExecable && !fi.isExecutable()))
                     continue;
-            if(!doHidden && fn[0] == '.' &&
-                 fn != QString::fromLatin1(".")
-                 && fn != QString::fromLatin1(".."))
+            if(!doHidden && fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."))
                 continue;
             ret.append(fn);
         }
@@ -199,7 +197,7 @@ QFSFileEngine::caseSensitive() const
 bool
 QFSFileEngine::isRoot() const
 {
-    return d->file == QString::fromLatin1("/");
+    return d->file == QLatin1String("/");
 }
 
 bool
@@ -274,7 +272,7 @@ QFSFileEnginePrivate::doStat() const
             that->could_stat = !QT_FSTAT(d->fd, &st);
         } else {
             const QByteArray file = QFile::encodeName(d->file);
-            if(::lstat(file, &st) == 0) 
+            if(::lstat(file, &st) == 0)
                 that->could_stat = true;
             else
                 that->could_stat = !QT_STAT(file, &st);
@@ -349,8 +347,8 @@ QFSFileEngine::fileName(FileName file) const
         QString ret;
         if(!d->file.length() || d->file[0] != '/')
             ret = QDir::currentPath();
-        if(!d->file.isEmpty() && d->file != ".") {
-            if(!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
+        if(!d->file.isEmpty() && d->file != QLatin1String(".")) {
+            if(!ret.isEmpty() && ret.right(1) != QLatin1String("/"))
                 ret += '/';
             ret += d->file;
         }

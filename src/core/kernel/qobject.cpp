@@ -293,7 +293,7 @@ QObject::QObject(QObject *parent, const char *name)
     d_ptr->q_ptr = this;
     d->thread = parent ? parent->thread() : QThread::currentQThread();
     setParent(parent);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 
@@ -1059,7 +1059,7 @@ QObjectList QObject::findChildren(const QString &name) const
 QObjectList QObject::findChildren(const QRegExp &re) const
 {
     QList<QObject *> list;
-    findChildren_helper(0, &re, QObject::staticMetaObject,
+    findChildren_helper(QString(), &re, QObject::staticMetaObject,
                         reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
@@ -2281,7 +2281,7 @@ void QMetaObject::connectSlotsByName(const QObject *o)
         return;
     const QMetaObject *mo = o->metaObject();
     Q_ASSERT(mo);
-    const QObjectList list(o->findChildren(0));
+    const QObjectList list(o->findChildren(QString()));
     for (int i = 0; i < mo->slotCount(); ++i) {
         const char *sig = mo->slot(i).signature();
         Q_ASSERT(sig);
@@ -2474,7 +2474,7 @@ static void dumpRecursive(int level, QObject *object)
         if (level % 2)
             buf += "    ";
         QString name = object->objectName();
-        QString flags="";
+        QString flags = QLatin1String("");
 #if 0
         if (qApp->focusWidget() == object)
             flags += 'F';

@@ -118,7 +118,7 @@ QSignalMapper::QSignalMapper(QObject* parent)
 QSignalMapper::QSignalMapper(QObject *parent, const char *name)
     : QObject(*new QSignalMapperPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 

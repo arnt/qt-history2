@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QTextCodecFactoryInterface_iid, QCoreApplication::libraryPaths(), "/codecs"))
+    (QTextCodecFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/codecs")))
 #endif
 
 QTextCodec *QTextCodecFactory::createForName(const QString &name)
@@ -37,7 +37,7 @@ QTextCodec *QTextCodecFactory::createForName(const QString &name)
 QTextCodec *QTextCodecFactory::createForMib(int mib)
 {
 #ifndef QT_NO_COMPONENT
-    QString name = "MIB-" + QString::number(mib);
+    QString name = QLatin1String("MIB-") + QString::number(mib);
     if (QTextCodecFactoryInterface *factory =
         qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
         return factory->create(name);

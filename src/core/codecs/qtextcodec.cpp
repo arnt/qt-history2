@@ -2272,7 +2272,7 @@ int QSimpleTextCodec::heuristicNameMatch(const char* hint) const
     if (qstricmp(hint, mimeName()) == 0)
         return 10000; // return a large value
     if (hint[0]=='k') {
-        QString lhint = QString(hint).toLower();
+        QByteArray lhint = QByteArray(hint).toLower();
         // Help people with messy fonts
         if (lhint == "koi8-1")
             return QTextCodec::heuristicNameMatch("koi8-r")-1;

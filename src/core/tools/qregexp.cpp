@@ -702,7 +702,7 @@ const int EOS = -1;
 
 static bool isWord(QChar ch)
 {
-    return ch.isLetterOrNumber() || ch == QChar('_');
+    return ch.isLetterOrNumber() || ch == QLatin1Char('_');
 }
 
 /*
@@ -716,7 +716,7 @@ static void mergeInto(QVector<int> *a, const QVector<int> &b)
     if (asize == 0) {
         *a = b;
 #ifndef QT_NO_REGEXP_OPTIM
-    } else if (bsize == 1 && (*a)[asize - 1] < b[0]) {
+    } else if (bsize == 1 && a->at(asize - 1) < b[0]) {
         a->resize(asize + 1);
         (*a)[asize] = b[0];
 #endif
@@ -726,16 +726,16 @@ static void mergeInto(QVector<int> *a, const QVector<int> &b)
         int i = 0, j = 0, k = 0;
         while (i < asize) {
             if (j < bsize) {
-                if ((*a)[i] == b[j]) {
+                if (a->at(i) == b[j]) {
                     i++;
                     csize--;
-                } else if ((*a)[i] < b[j]) {
-                    c[k++] = (*a)[i++];
+                } else if (a->at(i) < b[j]) {
+                    c[k++] = a->at(i++);
                 } else {
                     c[k++] = b[j++];
                 }
             } else {
-                memcpy(c.data() + k, (*a).constData() + i, (asize - i) * sizeof(int));
+                memcpy(c.data() + k, a->constData() + i, (asize - i) * sizeof(int));
                 break;
             }
         }
@@ -752,8 +752,7 @@ static void mergeInto(QVector<int> *a, const QVector<int> &b)
 */
 static void mergeInto(QMap<int, int> *a, const QMap<int, int> &b)
 {
-    QMap<int, int>::ConstIterator it;
-    for (it = b.begin(); it != b.end(); ++it)
+    for (QMap<int, int>::ConstIterator it = b.constBegin(); it != b.constEnd(); ++it)
         a->insert(it.key(), *it);
 }
 
@@ -765,17 +764,17 @@ static void mergeInto(QMap<int, int> *a, const QMap<int, int> &b)
 static QString wc2rx(const QString &wc_str)
 {
     int wclen = wc_str.length();
-    QString rx = QString::fromLatin1("");
+    QString rx = QLatin1String("");
     int i = 0;
     const QChar *wc = wc_str.unicode();
     while (i < wclen) {
         QChar c = wc[i++];
         switch (c.unicode()) {
         case '*':
-            rx += QString::fromLatin1(".*");
+            rx += QLatin1String(".*");
             break;
         case '?':
-            rx += QChar('.');
+            rx += QLatin1Char('.');
             break;
         case '$':
         case '(':
@@ -787,19 +786,19 @@ static QString wc2rx(const QString &wc_str)
         case '{':
         case '|':
         case '}':
-            rx += QChar('\\');
+            rx += QLatin1Char('\\');
             rx += c;
             break;
         case '[':
             rx += c;
-            if (wc[i] == QChar('^'))
+            if (wc[i] == QLatin1Char('^'))
                 rx += wc[i++];
             if (i < wclen) {
                 if (rx[i] == ']')
                     rx += wc[i++];
-                while (i < wclen && wc[i] != QChar(']')) {
+                while (i < wclen && wc[i] != QLatin1Char(']')) {
                     if (wc[i] == '\\')
-                        rx += QChar('\\');
+                        rx += QLatin1Char('\\');
                     rx += wc[i++];
                 }
             }
@@ -1289,15 +1288,15 @@ void QRegExpEngine::match(const QString &str, int pos, bool minimal, bool oneTes
     }
 
     int capturedSize = 2 + 2 * officialncap;
-    captured.detach();
     captured.resize(capturedSize);
     if (matched) {
-        captured[0] = mmPos;
-        captured[1] = mmMatchLen;
+        int *c = captured.data();
+        c[0] = mmPos;
+        c[1] = mmMatchLen;
         for (int j = 0; j < officialncap; j++) {
             int len = mmCapEnd[j] - mmCapBegin[j];
-            captured[2 + 2 * j] = len > 0 ? mmPos + mmCapBegin[j] : 0;
-            captured[2 + 2 * j + 1] = len;
+            c[2 + 2 * j] = len > 0 ? mmPos + mmCapBegin[j] : 0;
+            c[2 + 2 * j + 1] = len;
         }
     } else {
         // we rely on 2's complement here
@@ -1352,7 +1351,7 @@ int QRegExpEngine::createState(int bref)
 void QRegExpEngine::addCatTransitions(const QVector<int> &from, const QVector<int> &to)
 {
     for (int i = 0; i < from.size(); i++) {
-        State *st = s[from[i]];
+        State *st = s.at(from.at(i));
         mergeInto(&st->outs, to);
     }
 }
@@ -1361,10 +1360,10 @@ void QRegExpEngine::addCatTransitions(const QVector<int> &from, const QVector<in
 void QRegExpEngine::addPlusTransitions(const QVector<int> &from, const QVector<int> &to, int atom)
 {
     for (int i = 0; i < from.size(); i++) {
-        State *st = s[from[i]];
+        State *st = s.at(from.at(i));
         QVector<int> oldOuts = st->outs;
         mergeInto(&st->outs, to);
-        if (f[atom].capture >= 0) {
+        if (f.at(atom).capture >= 0) {
             if (st->reenter == 0)
                 st->reenter = new QMap<int, int>;
             for (int j = 0; j < to.size(); j++) {
@@ -1388,7 +1387,7 @@ int QRegExpEngine::anchorAlternation(int a, int b)
 
     int n = aa.size();
 #ifndef QT_NO_REGEXP_OPTIM
-    if (n > 0 && aa[n - 1].a == a && aa[n - 1].b == b)
+    if (n > 0 && aa.at(n - 1).a == a && aa.at(n - 1).b == b)
         return Anchor_Alternation | (n - 1);
 #endif
 
@@ -1408,8 +1407,8 @@ int QRegExpEngine::anchorConcatenation(int a, int b)
     if ((b & Anchor_Alternation) != 0)
         qSwap(a, b);
 
-    int aprime = anchorConcatenation(aa[a ^ Anchor_Alternation].a, b);
-    int bprime = anchorConcatenation(aa[a ^ Anchor_Alternation].b, b);
+    int aprime = anchorConcatenation(aa.at(a ^ Anchor_Alternation).a, b);
+    int bprime = anchorConcatenation(aa.at(a ^ Anchor_Alternation).b, b);
     return anchorAlternation(aprime, bprime);
 }
 #endif
@@ -1420,7 +1419,7 @@ int QRegExpEngine::anchorConcatenation(int a, int b)
 */
 void QRegExpEngine::addAnchors(int from, int to, int a)
 {
-    State *st = s[from];
+    State *st = s.at(from);
     if (st->anchors == 0)
         st->anchors = new QMap<int, int>;
     if (st->anchors->contains(to))
@@ -2677,7 +2676,7 @@ void QRegExpEngine::skipChars(int n)
 void QRegExpEngine::error(const char *msg)
 {
     if (yyError.isEmpty())
-        yyError = QString::fromLatin1(msg);
+        yyError = QLatin1String(msg);
 }
 
 void QRegExpEngine::startTokenizer(const QChar *rx, int len)
@@ -3200,7 +3199,7 @@ static void prepareEngine(QRegExpPrivate *priv)
             priv->rxpattern = wc2rx(priv->pattern);
         else
 #endif
-            priv->rxpattern = priv->pattern.isNull() ? QString::fromLatin1("") : priv->pattern;
+            priv->rxpattern = priv->pattern.isNull() ? QLatin1String("") : priv->pattern;
 
         regexpEngine(priv->eng, priv->rxpattern, priv->cs, false);
         priv->captured.detach();
@@ -3733,7 +3732,7 @@ QStringList QRegExp::capturedTexts()
         for (int i = 0; i < priv->captured.size(); i += 2) {
             QString m;
             if (priv->captured[i + 1] == 0)
-                m = QString::fromLatin1("");
+                m = QLatin1String("");
             else if (priv->captured[i] >= 0)
                 m = priv->t.mid(priv->captured[i], priv->captured[i + 1]);
             priv->capturedCache.append(m);
@@ -3827,7 +3826,7 @@ int QRegExp::pos(int nth)
 QString QRegExp::errorString()
 {
     if (isValid()) {
-        return QString(RXERR_OK);
+        return QString::fromLatin1(RXERR_OK);
     } else {
         return priv->eng->errorString();
     }
@@ -3859,8 +3858,8 @@ QString QRegExp::escape(const QString &str)
     int i = 0;
 
     while (i < quoted.length()) {
-        if (strchr(meta, quoted[i].latin1()) != 0)
-            quoted.insert(i++, "\\");
+        if (strchr(meta, quoted.at(i).latin1()) != 0)
+            quoted.insert(i++, QLatin1Char('\\'));
         i++;
     }
     return quoted;

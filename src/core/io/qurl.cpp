@@ -853,10 +853,10 @@ QString QUrlPrivate::authority(int formattingOptions) const
         return QString();
 
     QString tmp = userInfo(formattingOptions);
-    if (!tmp.isEmpty()) tmp += "@";
+    if (!tmp.isEmpty()) tmp += QLatin1Char('@');
     tmp += host;
     if (!(formattingOptions & QUrl::RemovePort) && port != -1)
-        tmp += ":" + QString::number(port);
+        tmp += QLatin1Char(':') + QString::number(port);
 
     return tmp;
 }
@@ -930,7 +930,7 @@ QString QUrlPrivate::userInfo(int formattingOptions) const
     tmp += userName;
 
     if (!(formattingOptions & QUrl::RemovePassword) && !password.isEmpty())
-        tmp += ":" + password;
+        tmp += QLatin1Char(':') + password;
 
     return tmp;
 }
@@ -947,7 +947,7 @@ QString QUrlPrivate::mergePaths(const QString &relativePath) const
     // path, then return a string consisting of "/" concatenated with
     // the reference's path; otherwise,
     if (!authority().isEmpty() && path.isEmpty())
-        return "/" + relativePath;
+        return QLatin1Char('/') + relativePath;
 
     // Return a string consisting of the reference's path component
     // appended to all but the last segment of the base URI's path
@@ -1133,7 +1133,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         that->port = __port;
         that->path = QUrl::fromPercentEncoding(__path);
         that->query = QUrl::fromPercentEncoding(__query).ascii();
-        that->fragment = QUrl::fromPercentEncoding(__fragment).ascii();
+        that->fragment = QUrl::fromPercentEncoding(__fragment);
     }
 
     that->isValid = true;
@@ -1196,8 +1196,8 @@ QByteArray QUrlPrivate::toEncoded() const
         // IDNA / rfc3490 describes these four delimiters used for
         // separating labels in unicode international domain
         // names.
-        const unsigned short delimiters[] = {0x2e, 0x3002, 0xff0e, 0xff61, 0};
-        QStringList labels = host.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
+        const unsigned short delimiters[] = {'[', 0x2e, 0x3002, 0xff0e, 0xff61, ']', 0};
+        QStringList labels = host.split(QRegExp(QString::fromUtf16(delimiters)));
         for (int i = 0; i < labels.count(); ++i) {
             if (i != 0) url += '.';
 
@@ -1886,7 +1886,7 @@ QUrl QUrl::resolved(const QUrl &relative) const
                 else
                     t.setEncodedQuery(d->query);
             } else {
-                if (r.path().startsWith("/")) {
+                if (r.path().startsWith(QLatin1String("/"))) {
                     t.setPath(r.path());
                     t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
                 } else {
@@ -1946,7 +1946,7 @@ QString QUrl::toString(int formattingOptions) const
 	url += d->path;
     }
     if (!(formattingOptions & QUrl::RemoveQuery) && !d->query.isEmpty())
-        url += QLatin1Char('?') + d->query;
+        url += QLatin1Char('?') + QLatin1String(d->query);
     if (!(formattingOptions & QUrl::RemoveFragment) && !d->fragment.isEmpty())
         url += QLatin1Char('#') + d->fragment;
 
@@ -2221,7 +2221,7 @@ QString QUrl::fromPunycode(const QByteArray &pc)
     // find the last delimiter character '-' in the input array. copy
     // all data before this delimiter directly to the output array.
     int delimiterPos = inputTrimmed.lastIndexOf(0x2d);
-    QString output = delimiterPos == -1 ? QString("") : inputTrimmed.left(delimiterPos);
+    QString output = QLatin1String(delimiterPos == -1 ? "" : inputTrimmed.left(delimiterPos));
 
     // if a delimiter was found, skip to the position after it;
     // otherwise start at the front of the input string. everything
@@ -2247,7 +2247,7 @@ QString QUrl::fromPunycode(const QByteArray &pc)
 
             // reject out of range digits
             if (digit >= base || digit > (MAXINT - i) / w)
-                return "";
+                return QLatin1String("");
 
             i += (digit * w);
 
@@ -2402,7 +2402,7 @@ bool QUrl::isParentOf(const QUrl &childUrl) const
     return ((childUrl.scheme().isEmpty() || d->scheme == childUrl.scheme())
             && (childUrl.authority().isEmpty() || d->authority() == childUrl.authority())
             &&  childPath.startsWith(d->path)
-            && ((d->path.endsWith("/") && childPath.length() > d->path.length())
-                || (!d->path.endsWith("/")
-                    && childPath.length() > d->path.length() && childPath.at(d->path.length()) == '/')));
+            && ((d->path.endsWith(QLatin1String("/")) && childPath.length() > d->path.length())
+                || (!d->path.endsWith(QLatin1String("/"))
+                    && childPath.length() > d->path.length() && childPath.at(d->path.length()) == QLatin1Char('/'))));
 }

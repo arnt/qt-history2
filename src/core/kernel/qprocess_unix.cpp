@@ -795,18 +795,19 @@ bool QProcess::start(QStringList *env)
             // construct the environment for exec
             int numEntries = env->count();
 #if defined(Q_OS_DARWIN)
-            QString ld_library_path("DYLD_LIBRARY_PATH");
+            const char *ld_library_path = "DYLD_LIBRARY_PATH";
 #else
-            QString ld_library_path("LD_LIBRARY_PATH");
+            const char *ld_library_path = "LD_LIBRARY_PATH";
 #endif
-            bool setLibraryPath = env->find(QRegExp("^" + ld_library_path + "=")).empty() && getenv(ld_library_path.local8Bit()) != 0;
+            bool setLibraryPath = env->find(QRegExp(QLatin1Char('^') + QLatin1String(ld_library_path) + QLatin1Char('='))).empty()
+                                  && getenv(ld_library_path) != 0;
             if (setLibraryPath)
                 numEntries++;
             QByteArray *envlistQ = new QByteArray[numEntries + 1];
             const char** envlist = new const char*[numEntries + 1];
             int i = 0;
             if (setLibraryPath) {
-                envlistQ[i] = QString(ld_library_path + QLatin1String("=%1")).arg(getenv(ld_library_path.local8Bit())).toLocal8Bit();
+                envlistQ[i] = QByteArray(ld_library_path) + '=' + QByteArray(getenv(ld_library_path));
                 envlist[i] = envlistQ[i];
                 i++;
             }
@@ -820,8 +821,8 @@ bool QProcess::start(QStringList *env)
             // look for the executable in the search path
             if (_arguments.count()>0 && getenv("PATH")!=0) {
                 QString command = _arguments[0];
-                if (!command.contains('/')) {
-                    QStringList pathList = QString(getenv("PATH")).split(':');
+                if (!command.contains(QLatin1Char('/'))) {
+                    QStringList pathList = QString::fromLocal8Bit(getenv("PATH")).split(':');
                     for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it) {
                         QString dir = *it;
 #if defined(Q_OS_DARWIN) //look in a bundle

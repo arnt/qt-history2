@@ -486,7 +486,7 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QFileEnginePrivate()
 //**************** QFSFileEngine
 QFSFileEngine::QFSFileEngine(const QString &file) : QFileEngine(*new QFSFileEnginePrivate)
 {
-    d->file = QFSFileEnginePrivate::fixToQtSlashes(file);    
+    d->file = QFSFileEnginePrivate::fixToQtSlashes(file);
     d->resetErrors();
 }
 
@@ -507,7 +507,7 @@ QFSFileEngine::open(int flags)
     d->resetErrors();
     if (d->file.isEmpty()) {
         qWarning("QFSFileEngine::open: No file name specified");
-        d->setError(QIODevice::OpenError, "No file name specified");
+        d->setError(QIODevice::OpenError, QLatin1String("No file name specified"));
         return false;
     }
     int oflags = QT_OPEN_RDONLY;
@@ -571,7 +571,7 @@ QFSFileEngine::open(int, int fd)
 	if ((st.st_mode & QT_STAT_MASK) != QT_STAT_REG || !fd) //stdin is non seekable
             d->sequential = 1;
 #ifdef Q_OS_UNIX
-	else { 
+	else {
             char char_read;
             if(!st.st_size && readBlock(&char_read, 1) == 1) {
                 d->ungetchBuffer += char_read;
@@ -711,13 +711,13 @@ QFSFileEngine::errorStatus() const
     return d->errorStatus;
 }
 
-QString 
+QString
 QFSFileEngine::errorString() const
 {
     return d->errorString;
 }
 
-QIOEngine::Type 
+QIOEngine::Type
 QFSFileEngine::type() const
 {
     return QIOEngine::File;

@@ -62,7 +62,7 @@ public:
                       DefaultSort = -1 };
 
     QDir(const QDir &);
-    QDir(const QString &path="");
+    QDir(const QString &path = QString());
     QDir(const QString &path, const QString &nameFilter,
          int sortSpec = Name | IgnoreCase, int filterSpec = All);
     ~QDir();
@@ -85,7 +85,7 @@ public:
                              bool acceptAbsPath = true) const;
 #ifdef QT_COMPAT
     inline QT_COMPAT QString absFilePath(const QString &fileName,
-                                         bool acceptAbsPath = true) const 
+                                         bool acceptAbsPath = true) const
        { return absoluteFilePath(fileName, acceptAbsPath); }
 #endif
 
@@ -103,9 +103,9 @@ public:
     void setSorting(int sortSpec);
 
 #ifdef QT_COMPAT
-    inline bool QT_COMPAT matchAllDirs() const 
+    inline bool QT_COMPAT matchAllDirs() const
         { return filter() & AllDirs; }
-    inline void QT_COMPAT setMatchAllDirs(bool on) 
+    inline void QT_COMPAT setMatchAllDirs(bool on)
         { setFilter((filter() & ~AllDirs) | (on ? AllDirs : 0)); }
 #endif
 
@@ -141,9 +141,9 @@ public:
     bool mkdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
     bool rmdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
 #ifdef QT_COMPAT
-    inline QT_COMPAT bool mkdir(const QString &dirName, bool acceptAbsPath) const 
+    inline QT_COMPAT bool mkdir(const QString &dirName, bool acceptAbsPath) const
         { return mkdir(dirName, NonRecursive, acceptAbsPath); }
-    inline QT_COMPAT bool rmdir(const QString &dirName, bool acceptAbsPath) const 
+    inline QT_COMPAT bool rmdir(const QString &dirName, bool acceptAbsPath) const
         { return rmdir(dirName, NonRecursive, acceptAbsPath); }
 #endif
 

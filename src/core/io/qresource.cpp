@@ -67,12 +67,12 @@ private:
 protected:
     QResourcePrivate(QResource *qq) : q_ptr(qq), compressed(0),
                                       container(0), size(0), data(0), parent(0), decompressed(0) { }
-    ~QResourcePrivate() { 
+    ~QResourcePrivate() {
         for(int i = 0; i < children.size(); i++)
             delete children[i];
         children.clear();
         delete decompressed;
-        q_ptr = 0; 
+        q_ptr = 0;
     }
 };
 
@@ -99,7 +99,7 @@ QResource::~QResource()
 {
     if(d->parent) {
         d->parent->d->children.removeAll(this);
-        if(d->parent->d->children.isEmpty()) 
+        if(d->parent->d->children.isEmpty())
             delete d->parent;
         d->parent = 0;
     }
@@ -111,7 +111,7 @@ QResource::~QResource()
     Returns the resource's node name, which is "/" if this resource is
     at the root of the resource system.
 */
-QString 
+QString
 QResource::name() const
 {
     return d->name;
@@ -121,7 +121,7 @@ QResource::name() const
     Returns the resource that contains this resource, or 0 if this
     resource is at the root of the resource system.
 */
-const QResource 
+const QResource
 *QResource::parent() const
 {
     return d->parent;
@@ -133,7 +133,7 @@ const QResource
 uint
 QResource::size() const
 {
-    if(!d->compressed) 
+    if(!d->compressed)
         return d->size;
     if(!d->decompressed) {
         d->decompressed = new QByteArray;
@@ -147,10 +147,10 @@ QResource::size() const
 
     \sa isContainer() children()
 */
-const uchar 
+const uchar
 *QResource::data() const
 {
-    if(!d->compressed) 
+    if(!d->compressed)
         return d->data;
     if(!d->decompressed) {
         d->decompressed = new QByteArray;
@@ -177,7 +177,7 @@ bool QResource::isContainer() const
 
     \sa isContainer()
 */
-QList<QResource *> 
+QList<QResource *>
 QResource::children() const
 {
     if(d->container)
@@ -191,7 +191,7 @@ QResource::children() const
     with "/". Resources are separated from their containing resource
     with forward slashes ('/') regardless of local file system.
 */
-QResource 
+QResource
 *QResource::find(const QString &path)
 {
     if(!qt_resource_root)
@@ -200,7 +200,7 @@ QResource
         qWarning("Invalid resource path: %s", path.latin1());
         return 0;
     }
-    
+
     QResource *ret = qt_resource_root;
     QStringList chunks = QDir::cleanPath(path).split('/', QString::SkipEmptyParts);
     for(int i = 0; i < chunks.size(); i++) {
@@ -247,10 +247,10 @@ private:
 
 protected:
     QMetaResourcePrivate(QMetaResource *qq) : q_ptr(qq), resource(0) { }
-    ~QMetaResourcePrivate() { 
+    ~QMetaResourcePrivate() {
         delete resource;
         resource = 0;
-        q_ptr = 0; 
+        q_ptr = 0;
     }
 };
 
@@ -267,14 +267,14 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
     if(!qt_resource_root) {
         qt_resource_root = new QResource;
         qt_resource_root->d->container = true;
-        qt_resource_root->d->name = "/";
+        qt_resource_root->d->name = QLatin1Char('/');
     }
     Q_ASSERT(resource[0] == 0x12 && resource[1] == 0x15 && resource[2] == 0x19 && resource[3] == 0x78);
     resource += 4;
 
     if(resource[0] == 0x01) { //version 1
         //flags
-        uchar flags = resource[1]; 
+        uchar flags = resource[1];
         int off = 2;
 
         //name
@@ -293,7 +293,7 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
         uchar bytes_in_len = resource[off];
         Q_ASSERT(bytes_in_len <= 4);
         int len = 0;
-        for(off += 1; bytes_in_len > 0; off++) 
+        for(off += 1; bytes_in_len > 0; off++)
             len += (resource[off] << ((--bytes_in_len) * 8));
         const uchar *bytes = len ? resource+off : 0;
 

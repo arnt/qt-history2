@@ -2272,7 +2272,7 @@ QLocale::QLocale(const QString &name)
 
         const QChar *uc = name.unicode();
         if (l > 2
-                && uc[2] != '_'
+                && uc[2] != QLatin1Char('_')
                 && uc[2] != '.'
                 && uc[2] != '@')
             break;
@@ -2782,14 +2782,15 @@ QString QLocale::toString(double i, char f, int prec) const
 
 QLocale QLocale::system()
 {
+    const char *s = 0;
 #ifdef Q_OS_UNIX
-    const char *s = getenv("LC_NUMERIC");
+    s = getenv("LC_NUMERIC");
     if (s == 0)
         s = getenv("LC_ALL");
-    if (s != 0)
-        return QLocale(s);
+    if (s == 0)
 #endif
-    return QLocale(QLocalePrivate::systemLocaleName());
+        s = QLocalePrivate::systemLocaleName();
+    return QLocale(QLatin1String(s));
 }
 
 /*!

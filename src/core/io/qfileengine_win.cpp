@@ -386,8 +386,8 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         return ret;
     }
     if(p.at(plen-1) != '/' && p.at(plen-1) != '\\')
-        p += '/';
-    p += QString::fromLatin1("*.*");
+        p += QLatin1Char('/');
+    p += QLatin1String("*.*");
 
     QT_WA({
         ff = FindFirstFile((TCHAR*)p.utf16(), &finfo);

@@ -557,10 +557,10 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
             break;
 #endif
         case QCoreVariant::Bool:
-            *str = d->value.b ? "true" : "false";
+            *str = QLatin1String(d->value.b ? "true" : "false");
             break;
         case QCoreVariant::ByteArray:
-            *str = QString(v_cast<QByteArray>(d->value.ptr)->constData());
+            *str = QString::fromAscii(v_cast<QByteArray>(d->value.ptr)->constData());
             break;
         default:
             break;
@@ -632,7 +632,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
             *i = v_cast<QString>(d->value.ptr)->toInt(ok);
             break;
         case QCoreVariant::ByteArray:
-            *i = QString(*v_cast<QByteArray>(d->value.ptr)).toInt(ok);
+            *i = v_cast<QByteArray>(d->value.ptr)->toInt(ok);
             break;
         case QCoreVariant::Int:
             *i = d->value.i;
@@ -665,7 +665,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
             *u = v_cast<QString>(d->value.ptr)->toUInt(ok);
             break;
         case QCoreVariant::ByteArray:
-            *u = QString(*v_cast<QByteArray>(d->value.ptr)).toUInt(ok);
+            *u = v_cast<QByteArray>(d->value.ptr)->toUInt(ok);
             break;
         case QCoreVariant::Int:
             *u = (uint)d->value.i;
@@ -698,7 +698,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
             *l = v_cast<QString>(d->value.ptr)->toLongLong(ok);
             break;
         case QCoreVariant::ByteArray:
-            *l = QString(*v_cast<QByteArray>(d->value.ptr)).toLongLong(ok);
+            *l = v_cast<QByteArray>(d->value.ptr)->toLongLong(ok);
             break;
         case QCoreVariant::Int:
             *l = (Q_LLONG)d->value.i;
@@ -749,7 +749,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
             *l = v_cast<QString>(d->value.ptr)->toULongLong(ok);
             break;
         case QCoreVariant::ByteArray:
-            *l = QString(*v_cast<QByteArray>(d->value.ptr)).toULongLong(ok);
+            *l = v_cast<QByteArray>(d->value.ptr)->toULongLong(ok);
             break;
         default:
             *l = 0;
@@ -778,7 +778,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
         case QCoreVariant::String:
         {
             QString str = v_cast<QString>(d->value.ptr)->toLower();
-            *b = !(str == "0" || str == "false" || str.isEmpty());
+            *b = !(str == QLatin1String("0") || str == QLatin1String("false") || str.isEmpty());
             break;
         }
         default:
@@ -794,7 +794,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
             *f = v_cast<QString>(d->value.ptr)->toDouble(ok);
             break;
         case QCoreVariant::ByteArray:
-            *f = QString(*v_cast<QByteArray>(d->value.ptr)).toDouble(ok);
+            *f = v_cast<QByteArray>(d->value.ptr)->toDouble(ok);
             break;
         case QCoreVariant::Double:
             *f = d->value.d;

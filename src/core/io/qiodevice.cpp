@@ -525,7 +525,7 @@ void QIODevice::setStatus(int status, const QString &errorString)
 void QIODevice::setStatus(int status, int errNum)
 {
     d->ioSt = status;
-    d->errStr = QT_TRANSLATE_NOOP("QIODevice", qt_errorstr(errNum));
+    d->errStr = qt_errorstr(errNum);
 }
 
 /*!
@@ -964,33 +964,35 @@ QString QIODevice::errorString() const
         switch (d->ioSt) {
         case Ok:
         case UnspecifiedError:
-            str = QT_TR_NOOP("Unknown error");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Unknown error");
             break;
         case ReadError:
-            str = QT_TR_NOOP("Could not read from the device");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Could not read from the device");
             break;
         case WriteError:
-            str = QT_TR_NOOP("Could not write to the device");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Could not write to the device");
             break;
         case FatalError:
-            str = QT_TR_NOOP("Fatal error");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Fatal error");
             break;
         case ResourceError:
-            str = QT_TR_NOOP("Resource error");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Resource error");
             break;
         case OpenError:
-            str = QT_TR_NOOP("Could not open the device");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Could not open the device");
             break;
         case ConnectError:
-            str = QT_TR_NOOP("Could not connect to host");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Could not connect to host");
             break;
         case AbortError:
-            str = QT_TR_NOOP("Aborted");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Aborted");
             break;
         case TimeOutError:
-            str = QT_TR_NOOP("Connection timed out");
+            str = QT_TRANSLATE_NOOP("QIODevice", "Connection timed out");
         }
-        return QT_TRANSLATE_NOOP("QIODevice", str);
+        // #### breaks moc build currently
+//         return QCoreApplication::translate("QIODevice", str);
+        return QString::fromLatin1(str);
     }
     return d->errStr;
 }
@@ -998,7 +1000,7 @@ QString QIODevice::errorString() const
 /*!
     \fn QIOEngine *QIODevice::ioEngine() const
 
-    Returns the QIOEngine that operates on the QIODevice backing store. 
+    Returns the QIOEngine that operates on the QIODevice backing store.
 
     \sa QIOEngine
 */

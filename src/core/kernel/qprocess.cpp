@@ -262,7 +262,7 @@ QProcess::QProcess(QObject *parent, const char *name)
       readStdoutCalled(false), readStderrCalled(false),
       comms(Stdin|Stdout|Stderr)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     init();
 }
 
@@ -284,7 +284,7 @@ QProcess::QProcess(const QString& arg0, QObject *parent, const char *name)
       readStdoutCalled(false), readStderrCalled(false),
       comms(Stdin|Stdout|Stderr)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     init();
     addArgument(arg0);
 }
@@ -309,7 +309,7 @@ QProcess::QProcess(const QStringList& args, QObject *parent, const char *name)
       readStdoutCalled(false), readStderrCalled(false),
       comms(Stdin|Stdout|Stderr)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     init();
     setArguments(args);
 }
@@ -548,7 +548,7 @@ QString QProcess::readLineStdout()
         return QString::null;
 
       if (!buf->scanNewline(&a))
-        return QString(buf->readAll());
+        return QString::fromLocal8Bit(buf->readAll());
     }
 
     uint size = a.size();
@@ -561,7 +561,7 @@ QString QProcess::readLineStdout()
       else
         a[size - 1] = '\0';
     }
-    return QString(a.data());
+    return QString::fromLocal8Bit(a.constData());
 }
 
 /*!
@@ -585,7 +585,7 @@ QString QProcess::readLineStderr()
         return QString::null;
 
       if (!buf->scanNewline(&a))
-        return QString(buf->readAll());
+        return QString::fromLocal8Bit(buf->readAll());
     }
 
     uint size = a.size();
@@ -598,7 +598,7 @@ QString QProcess::readLineStderr()
       else
         a[size - 1] = '\0';
     }
-    return QString(a.data());
+    return QString::fromLocal8Bit(a.constData());
 }
 
 /*!

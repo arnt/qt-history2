@@ -202,9 +202,9 @@ static bool qt_parse_pattern(const char *s, uint *version, QByteArray *key)
             qt_token_info pinfo2("..-", 3);
             if (qt_tokenize(pinfo.results[1], pinfo.lengths[1],
                               &advance, pinfo2) != -1) {
-                QString m = QByteArray(pinfo2.results[0], pinfo2.lengths[0]);
-                QString n = QByteArray(pinfo2.results[1], pinfo2.lengths[1]);
-                QString p = QByteArray(pinfo2.results[2], pinfo2.lengths[2]);
+                QByteArray m(pinfo2.results[0], pinfo2.lengths[0]);
+                QByteArray n(pinfo2.results[1], pinfo2.lengths[1]);
+                QByteArray p(pinfo2.results[2], pinfo2.lengths[2]);
                 *version  = (m.toUInt() << 16) | (n.toUInt() << 8) | p.toUInt();
             } else {
                 ret = false;
@@ -411,7 +411,7 @@ bool QLibraryPrivate::isPlugin()
 
     QFileInfo fileinfo(fileName);
     lastModified  = fileinfo.lastModified().toString(Qt::ISODate);
-    QString regkey = QString("/Trolltech/Qt Plugin Cache %1.%2/%3")
+    QString regkey = QString::fromLatin1("/Trolltech/Qt Plugin Cache %1.%2/%3")
                      .arg((QT_VERSION & 0xff0000) >> 16)
                      .arg((QT_VERSION & 0xff00) >> 8)
                      .arg(fileName);
@@ -455,7 +455,7 @@ bool QLibraryPrivate::isPlugin()
 
         QStringList queried;
         queried << QString::number(qt_version,16)
-                <<  key
+                << QLatin1String(key)
                 << lastModified;
         settings.writeEntry(regkey, queried);
     }

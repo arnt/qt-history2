@@ -199,7 +199,7 @@ inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
         int i;
         for (i = 0; i < l.size(); ++i) {
 	    QString path = data->path;
-	    if (!path.isEmpty() && path.right(1) != QString::fromLatin1("/"))
+	    if (!path.isEmpty() && path.right(1) != QLatin1String("/"))
 		path += '/';
             si[i].item = QFileInfo(path + l.at(i));
 	}
@@ -507,7 +507,7 @@ QString
 QDir::absolutePath() const
 {
     if (QDir::isRelativePath(d->data->path))
-        return absoluteFilePath("");
+        return absoluteFilePath(QString::fromLatin1(""));
     return cleanPath(d->data->path);
 }
 
@@ -529,7 +529,7 @@ QString
 QDir::canonicalPath() const
 {
     if(!d->data->fileEngine)
-        return "";
+        return QLatin1String("");
     return cleanPath(d->data->fileEngine->fileName(QFileEngine::CanonicalName));
 }
 
@@ -609,14 +609,14 @@ QDir::absoluteFilePath(const QString &fileName, bool acceptAbsPath) const
     QString ret;
     if (isRelativePath(d->data->path)) //get pwd
         ret = QFSFileEngine::currentPath(fileName);
-    if(!d->data->path.isEmpty() && d->data->path != ".") {
-        if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
-            ret += '/';
+    if(!d->data->path.isEmpty() && d->data->path != QLatin1String(".")) {
+        if (!ret.isEmpty() && ret.right(1) != QLatin1String("/"))
+            ret += QLatin1Char('/');
         ret += d->data->path;
     }
     if (!fileName.isEmpty()) {
-        if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
-            ret += '/';
+        if (!ret.isEmpty() && ret.right(1) != QLatin1String("/"))
+            ret += QLatin1Char('/');
         ret += fileName;
     }
     return ret;
@@ -670,23 +670,23 @@ QDir::convertSeparators(const QString &pathName)
 bool
 QDir::cd(const QString &dirName, bool acceptAbsPath)
 {
-    if (dirName.isEmpty() || dirName == QString::fromLatin1("."))
+    if (dirName.isEmpty() || dirName == QLatin1String("."))
         return true;
     QString newPath = d->data->path;
     if (acceptAbsPath && isAbsolutePath(dirName)) {
         newPath = cleanPath(dirName);
     } else {
         if (isRoot()) {
-            if (dirName == "..")
+            if (dirName == QLatin1String(".."))
                 return false;
         } else {
-            newPath += '/';
+            newPath += QLatin1Char('/');
         }
 
         newPath += dirName;
-        if (dirName.indexOf('/') >= 0
-            || d->data->path == QString::fromLatin1(".")
-            || dirName == QString::fromLatin1("..")) {
+        if (dirName.indexOf(QLatin1Char('/')) >= 0
+            || d->data->path == QLatin1String(".")
+            || dirName == QLatin1String("..")) {
             newPath = cleanPath(newPath);
             /*
               If newPath starts with .., we convert it to absolute to
@@ -1606,7 +1606,7 @@ QDir::cleanPath(const QString &path)
                         }
                         used -= iwrite - last - 1;
                         break;
-                    } 
+                    }
                 } else {
                     if(p[i+dotcount+1] == '/') {
                         if(dotcount == 2 && levels) {
@@ -1703,7 +1703,7 @@ QDir::refresh() const
     by a space or by a semicolon.)
 */
 
-QStringList 
+QStringList
 QDir::nameFiltersFromString(const QString &nameFilter)
 {
     return QDirPrivate::splitFilters(nameFilter);

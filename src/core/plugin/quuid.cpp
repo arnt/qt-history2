@@ -83,9 +83,9 @@ QUuid::QUuid(const QString &text)
     }
     QString temp = text.toUpper();
     if (temp[0] != '{')
-        temp = "{" + text;
+        temp = QLatin1Char('{') + text;
     if (text[(int)text.length()-1] != '}')
-        temp += "}";
+        temp += QLatin1Char('}');
 
     data1 = temp.mid(1, 8).toULong(&ok, 16);
     if (!ok) {
@@ -127,7 +127,7 @@ QUuid::QUuid(const QString &text)
 */
 QUuid::QUuid(const char *text)
 {
-    *this = QUuid(QString(text));
+    *this = QUuid(QString::fromLatin1(text));
 }
 #endif
 /*!
@@ -173,7 +173,7 @@ QString QUuid::toString() const
     QString result;
 
     QChar dash = '-';
-    result = "{" + uuidhex(data1,8);
+    result = QLatin1Char('{') + uuidhex(data1,8);
     result += dash;
     result += uuidhex(data2,4);
     result += dash;
@@ -185,7 +185,7 @@ QString QUuid::toString() const
     for (int i = 2; i < 8; i++)
         result += uuidhex(data4[i],2);
 
-    return result + "}";
+    return result + QLatin1Char('}');
 }
 #endif
 

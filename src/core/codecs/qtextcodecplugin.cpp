@@ -94,13 +94,13 @@ QStringList QTextCodecPlugin::keys() const
     QStringList keys = names();
     QList<int> mibs = mibEnums();
     for (int i = 0; i < mibs.count(); ++i)
-        keys += "MIB-" + QString::number(mibs.at(i));
+        keys += QLatin1String("MIB-") + QString::number(mibs.at(i));
     return keys;
 }
 
 QTextCodec *QTextCodecPlugin::create(const QString &name)
 {
-    if (name.startsWith("MIB-"))
+    if (name.startsWith(QLatin1String("MIB-")))
         return createForMib(name.mid(4).toInt());
     return createForName(name);
 }

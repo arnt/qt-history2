@@ -294,11 +294,11 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
 
     Q_ASSERT_X(QThread::currentQThread() == receiver->thread(),
                "QCoreApplication::sendEvent",
-               QString("Cannot send events to objects owned by a different thread (%1).  "
-                       "Receiver '%2' (of type '%3') was created in thread %4")
+               QString::fromLatin1("Cannot send events to objects owned by a different thread (%1).  "
+                                   "Receiver '%2' (of type '%3') was created in thread %4")
                .arg(QString::number((ulong) QThread::currentQThread(), 16))
                .arg(receiver->objectName())
-               .arg(receiver->metaObject()->className())
+               .arg(QLatin1String(receiver->metaObject()->className()))
                .arg(QString::number((ulong) receiver->thread(), 16))
                .latin1());
 
@@ -1073,13 +1073,13 @@ static QString resolveSymlinks(const QString& path, int depth = 0)
         if (linkTarget[0] == '/') {
             path2 = linkTarget;
             if (slashPos < (int) path.length())
-                path2 += "/" + path.right(path.length() - slashPos - 1);
+                path2 += QLatin1Char('/') + path.right(path.length() - slashPos - 1);
         } else {
             QString relPath;
-            relPath = part.left(part.lastIndexOf('/') + 1) + linkTarget;
+            relPath = part.left(part.lastIndexOf(QLatin1Char('/')) + 1) + linkTarget;
             if (slashPos < (int) path.length()) {
-                if (!linkTarget.endsWith("/"))
-                    relPath += "/";
+                if (!linkTarget.endsWith(QLatin1String("/")))
+                    relPath += QLatin1Char('/');
                 relPath += path.right(path.length() - slashPos - 1);
             }
             path2 = QDir::current().absoluteFilePath(relPath);
@@ -1153,11 +1153,11 @@ QString QCoreApplication::applicationFilePath()
           PATH environment variable.
         */
         char *pEnv = getenv("PATH");
-        QStringList paths = QString(pEnv).split(QChar(':'));
+        QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(":"));
         for (QStringList::const_iterator p = paths.begin(); p != paths.end(); ++p) {
             if ((*p).isEmpty())
                 continue;
-            QString candidate = QDir::current().absoluteFilePath(*p + "/" + argv0);
+            QString candidate = QDir::current().absoluteFilePath(*p + QLatin1Char('/') + argv0);
             if (QFile::exists(candidate)) {
                 absPath = candidate;
                 break;
@@ -1279,7 +1279,7 @@ QStringList QCoreApplication::libraryPaths()
 
         QString app_location(self->applicationFilePath());
         app_location.truncate(app_location.lastIndexOf('/'));
-        if (app_location != qInstallPathPlugins() && QFile::exists(app_location))
+        if (app_location != QString::fromLocal8Bit(qInstallPathPlugins()) && QFile::exists(app_location))
             app_libpaths->append(app_location);
     }
     return *self->d->app_libpaths;

@@ -371,26 +371,27 @@ void qFatal(const char *msg, ...)
 
 Q_CORE_EXPORT QString qt_errorstr(int errorCode)
 {
-    QString ret = QString::null;
+    const char *s = 0;
+    QString ret;
     switch (errorCode) {
     case 0:
         break;
     case EACCES:
-        ret = QT_TR_NOOP("Permission denied");
+        s = QT_TRANSLATE_NOOP("QIODevice", "Permission denied");
         break;
     case EMFILE:
-        ret = QT_TR_NOOP("Too many open files");
+        s = QT_TRANSLATE_NOOP("QIODevice", "Too many open files");
         break;
     case ENOENT:
-        ret = QT_TR_NOOP("No such file or directory");
+        s = QT_TRANSLATE_NOOP("QIODevice", "No such file or directory");
         break;
     case ENOSPC:
-        ret = QT_TR_NOOP("No space left on device");
+        s = QT_TRANSLATE_NOOP("QIODevice", "No space left on device");
         break;
     default: {
 #ifdef Q_OS_WIN
-	unsigned short *string = 0;
         QT_WA({
+            unsigned short *string = 0;
             FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                           NULL,
                           errorCode,
@@ -400,14 +401,15 @@ Q_CORE_EXPORT QString qt_errorstr(int errorCode)
                           NULL);
             ret = QString::fromUtf16(string);
         }, {
+            char *string = 0;
             FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                            NULL,
                            errorCode,
                            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           (char*)&string,
+                           &string,
                            0,
                            NULL);
-            ret = (const char*) string;
+            ret = QString::fromLocal8Bit(string);
         });
         LocalFree((HLOCAL)string);
 #else
@@ -415,6 +417,10 @@ Q_CORE_EXPORT QString qt_errorstr(int errorCode)
 #endif
 	break; }
     }
+    if (s)
+        // ######## this breaks moc build currently
+//         ret = QCoreApplication::translate("QIODevice", s);
+        ret = QString::fromLatin1(s);
     return ret;
 }
 
@@ -453,7 +459,7 @@ void qSystemWarning(const char *msg, ...)
 #else
     int errorCode = errno;
 #endif
-    sys = qt_errorstr(errorCode).latin1();
+    sys = qt_errorstr(errorCode).local8Bit();
 
     QByteArray buf;
     buf.reserve(QT_BUFFER_LENGTH);

@@ -320,7 +320,7 @@ QTranslator::QTranslator(QObject * parent)
 QTranslator::QTranslator(QObject * parent, const char * name)
     : QObject(*new QTranslatorPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 
@@ -383,7 +383,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
          || (filename[0].isLetter() && filename[1] == ':') || filename[0] == '\\'
 #endif
         )
-        prefix = QString::fromLatin1("");
+        prefix = QLatin1String("");
     else
         prefix = directory;
 

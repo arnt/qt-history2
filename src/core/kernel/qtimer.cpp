@@ -106,7 +106,7 @@ QTimer::QTimer(QObject *parent)
 QTimer::QTimer(QObject *parent, const char *name)
     : QObject(parent), id(INV_TIMER), single(0), nulltimer(0)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 
