@@ -91,12 +91,12 @@ because plugins are stored in the standard plugin subdirectories.
 Because of this applications don't require any code to find and load
 plugins, since Qt handles them automatically.
 
-The default directory for plugins is \c{$QTDIR/plugins}, with each
-type of plugin in a subdirectory for that type, e.g. \c styles. If you
-want your applications to use plugins and you don't want to use the
-standard plugins path, have your installation process determine the
-path you want to use for the plugins, and save the path, e.g. using
-QSettings, for the application to read when it runs. The application
+The default directories for plugins are \c{$QTDIR/plugins} and \c{./plugins}
+if they exist, with each type of plugin in a subdirectory for that type, 
+e.g. \c styles. If you want your applications to use plugins and you don't 
+want to use the standard plugins path, have your installation process 
+determine the path you want to use for the plugins, and save the path, e.g. 
+using QSettings, for the application to read when it runs. The application
 can then call QApplication::addLibraryPath() with this path and
 your plugins will be available to the application. Note that the final
 part of the path, i.e. \c styles, \c widgets, etc. cannot be changed.

@@ -50,6 +50,7 @@
 #include "qcursor.h"
 #include "qstyle.h"
 #include "qstylefactory.h"
+#include "qfile.h"
 #include "private/qcomponentfactory_p.h"
 #include <stdlib.h>
 
@@ -1323,12 +1324,14 @@ QStringList QApplication::libraryPaths()
 	app_libpaths = new QStringList;
 
 	char *qtdir = getenv("QTDIR");
-	if ( qtdir )
+	if ( qtdir && QFile::exists( QString(qtdir) + "/plugins" ) )
 	    app_libpaths->append( QString(qtdir) + "/plugins" );
 #ifdef QT_INSTALL_PREFIX
-	else
+	else if ( QFile::exists( QString(QT_INSTALL_PREFIX) + "/plugins" ) )
 	    app_libpaths->append( QString(QT_INSTALL_PREFIX) + "/plugins" );
 #endif // QT_INSTALL_PREFIX
+	if ( QFile::exists( "./plugins" ) )
+	    app_libpaths->append( "./plugins" );
     }
     return *app_libpaths;
 }
