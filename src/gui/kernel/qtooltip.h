@@ -28,7 +28,7 @@ public:
     static QPalette palette();
 #ifdef QT_COMPAT
     static inline QT_COMPAT void add(QWidget *w, const QString &s) { w->setToolTip(s); }
-    static inline QT_COMPAT void add(QWidget *w, const QRect &r, const QString &s)
+    static inline QT_COMPAT void add(QWidget *w, const QRect &, const QString &s)
     { w->setToolTip(s); }
     static inline QT_COMPAT void remove(QWidget *w) { w->setToolTip(QString()); }
 #endif
