@@ -1,4 +1,5 @@
 #include <qfile.h>
+#include <qdir.h>
 #include <qtextstream.h>
 #include <qdatastream.h>
 #include <stdlib.h>
@@ -43,6 +44,16 @@ void readTextLines(QIODevice& f)
 
 int main()
 {
+    printf("Testing QDir::canonicalPath(.)..\n");
+    {
+	QDir d("/home/warwick/local");;
+	debug("/home/warwick/local -> %s", d.canonicalPath().ascii());
+	d.setPath("/home/warwick/local/src/index.html");
+	debug("/home/warwick/local/src/index.html -> %s", d.canonicalPath().ascii());
+	d.setPath("/home/warwick/local/src");
+	debug("/home/warwick/local/src/index.html -> %s", d.canonicalPath().ascii());
+    }
+
     printf("Testing userbug...\n");
     {
 	QFile file("file.txt");
@@ -74,6 +85,7 @@ int main()
 	    printf("stdin is Sequential Access\n");
 	if ( file.isDirectAccess() )
 	    printf("stdin is Direct Access\n");
+	readTextLines(file);
     }
 
     int r;
@@ -146,15 +158,5 @@ int main()
           printf("%d\n", tStream.eof());
           tFile.close();
           printf("%d\n", tStream.eof());
-    }
-
-    printf("Testing example...\n");
-    {
-	QString str;
-	QBuffer buf( str );
-	buf.open( IO_WriteOnly );
-	QTextStream ts( &buf );
-	ts << "pi = " << 3.14;                      // str == "pi = 3.14"
-	buf.close();
     }
 }
