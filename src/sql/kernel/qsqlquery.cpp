@@ -98,11 +98,11 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     Navigating records is performed with the following functions:
 
     \list
-    \i \c next()
-    \i \c previous()
-    \i \c first()
-    \i \c last()
-    \i \c \link QSqlQuery::seek() seek\endlink(int)
+    \i next()
+    \i previous()
+    \i first()
+    \i last()
+    \i \link QSqlQuery::seek() seek\endlink(int)
     \endlist
 
     These functions allow the programmer to move forward, backward or

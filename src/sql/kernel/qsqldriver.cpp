@@ -80,8 +80,7 @@ QSqlDriver::~QSqlDriver()
 }
 
 /*!
-    \fn bool QSqlDriver::open(const QString& db, const QString& user,
-    const QString& password, const QString& host, int port, const QString& connOpts)
+    \fn bool QSqlDriver::open(const QString& db, const QString& user, const QString& password, const QString& host, int port, const QString& connOpts)
 
     Derived classes must reimplement this pure virtual function in
     order to open a database connection on database \a db, using user
