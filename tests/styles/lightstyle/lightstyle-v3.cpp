@@ -1547,84 +1547,60 @@ QStyle::SubControl LightStyleV3::querySubControl( ComplexControl control,
 int LightStyleV3::pixelMetric( PixelMetric metric,
 			     const QWidget *widget ) const
 {
-    int ret;
-
     switch (metric) {
-    case PM_ButtonMargin:
-	ret = 6;
-	break;
+    case PM_MaximumDragDistance:
+	return -1;
 
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
-	ret = 0;
-	break;
-
     case PM_ButtonDefaultIndicator:
-	ret = 0;
-	break;
+    case PM_TabBarTabOverlap:
+    case PM_TabBarBaseHeight:
+    case PM_TabBarBaseOverlap:
+	return 0;
 
+    case PM_MenuBarFrameWidth:
+	return 1;
+
+    case PM_ProgressBarChunkWidth:
     case PM_DefaultFrameWidth:
-	ret = 2;
-	break;
+	return 2;
+
+    case PM_ButtonMargin:
+	return 6;
+
+    case PM_DockWindowHandleExtent:
+    case PM_DockWindowSeparatorExtent:
+    case PM_SplitterWidth:
+	return 8;
+
+    case PM_SliderThickness:
+	return 11;
 
     case PM_IndicatorWidth:
     case PM_IndicatorHeight:
     case PM_ExclusiveIndicatorWidth:
     case PM_ExclusiveIndicatorHeight:
-	ret = 13;
-	break;
-
-    case PM_TabBarTabOverlap:
-    case PM_TabBarBaseOverlap:
-	ret = 0;
-	break;
+	return 13;
 
     case PM_ScrollBarExtent:
     case PM_ScrollBarSliderMin:
-	ret = 15;
-	break;
-
-    case PM_MenuBarFrameWidth:
-	ret = 1;
-	break;
-
-    case PM_ProgressBarChunkWidth:
-	ret = 2;
-	break;
-
-    case PM_DockWindowHandleExtent:
-	ret = 8;
-	break;
-
-    case PM_DockWindowSeparatorExtent:
-	ret = 8;
-	break;
-
-    case PM_SplitterWidth:
-	ret = 8;
-	break;
+	return 15;
 
     case PM_SliderLength:
-	ret = 25;
-	break;
-
-    case PM_SliderThickness:
-	ret = 11;
-	break;
+	return 25;
 
     case PM_SliderControlThickness:
 	{
 	    const QSlider * sl = (const QSlider *) widget;
 	    int space = (sl->orientation() == Horizontal) ? sl->height()
-		: sl->width();
+			: sl->width();
 	    int ticks = sl->tickmarks();
 	    int n = 0;
 	    if ( ticks & QSlider::Above ) n++;
 	    if ( ticks & QSlider::Below ) n++;
-	    if ( !n ) {
-		ret = space;
-		break;
-	    }
+	    if ( !n )
+		return space;
 
 	    int thick = 6;	// Magic constant to get 5 + 16 + 5
 
@@ -1632,20 +1608,11 @@ int LightStyleV3::pixelMetric( PixelMetric metric,
 	    //### the two sides may be unequal in size
 	    if ( space > 0 )
 		thick += (space * 2) / (n + 2);
-	    ret = thick;
-	    break;
+	    return thick;
 	}
-
-    case PM_MaximumDragDistance:
-	ret = -1;
-	break;
-
-    default:
-	ret = QCommonStyle::pixelMetric(metric, widget);
-	break;
     }
 
-    return ret;
+    return QCommonStyle::pixelMetric(metric, widget);
 }
 
 QSize LightStyleV3::sizeFromContents( ContentsType contents,
