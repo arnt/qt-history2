@@ -782,6 +782,7 @@ QStringList QColor::colorNames()
     return qt_get_colornames();
 }
 
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QColor &c)
 {
@@ -789,7 +790,7 @@ QDebug operator<<(QDebug dbg, const QColor &c)
     return dbg.space();
 }
 #endif
-
+#endif
 
 /*****************************************************************************
   QColor stream functions

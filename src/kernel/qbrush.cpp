@@ -385,12 +385,14 @@ bool QBrush::operator==(const QBrush &b) const
     \internal
 */
 
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QBrush &b)
 {
     dbg.nospace() << "QBrush(" << b.color() << ',' << b.style() << ')';
     return dbg.space();
 }
+#endif
 #endif
 
 /*****************************************************************************

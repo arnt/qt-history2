@@ -976,6 +976,7 @@ void QPointArray::cleanBuffers()
     splen = 0;
 }
 
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QPointArray &a)
 {
@@ -985,5 +986,6 @@ QDebug operator<<(QDebug dbg, const QPointArray &a)
     dbg.nospace() << ')';
     return dbg.space();
 }
+#endif
 #endif
 
