@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#27 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1579,8 +1579,10 @@ void QMultiLineEdit::clear()
     contents->first();
     while ( contents->remove() ) 
 	;
+    cursorX = cursorY = 0;
     insert( "", -1 );
     dummy = TRUE;
+    repaint( TRUE );
 }
 
 
