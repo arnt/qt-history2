@@ -359,7 +359,7 @@ Q_OUTOFLINE_TEMPLATE void QList<T>::detach_helper()
 }
 
 template <typename T>
-Q_INLINE_TEMPLATE QList<T>::~QList()
+Q_OUTOFLINE_TEMPLATE QList<T>::~QList()
 {
     if (!d)
         return;
