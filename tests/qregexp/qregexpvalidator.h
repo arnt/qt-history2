@@ -26,7 +26,7 @@ public:
 private:
     QRegExp r;
 
-private:	// Disabled copy constructor and operator=
+private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QRegExpValidator( const QRegExpValidator& );
     QRegExpValidator& operator=( const QRegExpValidator& );
