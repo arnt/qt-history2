@@ -39,8 +39,8 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qmap.h"
 #include "qvariant.h"
+#include "qmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
