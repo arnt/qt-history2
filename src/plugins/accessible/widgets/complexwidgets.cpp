@@ -360,7 +360,7 @@ QRect QAccessibleComboBox::rect(int child) const
     }
 
     if (sc != QStyle::SC_None) {
-        QStyleOptionComboBox option(0);
+        QStyleOptionComboBox option;
         r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, &option,
                                                        sc, comboBox());
     }
