@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#11 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#12 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -36,6 +36,7 @@
 #ifndef QT_H
 #include <qobject.h>
 #include <qpointarray.h>
+#include "qptrlist.h"
 #include "qsocketnotifier.h"
 #endif // QT_H
 
