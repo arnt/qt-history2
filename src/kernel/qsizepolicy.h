@@ -78,26 +78,26 @@ public:
 			     (int)(horData()&ExpMask ? Horizontal : 0) );
     }
 
-    void setHorData( SizeType d ) { data = (data & ~HMask) | d; }
-    void setVerData( SizeType d ) { data = (data & ~(HMask<<HSize)) |
+    void setHorData( SizeType d ) { data = (Q_UINT16)(data & ~HMask) | d; }
+    void setVerData( SizeType d ) { data = (Q_UINT16)(data & ~(HMask<<HSize)) |
 					   (d<<HSize); }
 		
-    void setHeightForWidth( bool b ) { data = b ? ( data | ( 1 << 2*HSize ) )
-					      : ( data & ~( 1 << 2*HSize ) );  }
+    void setHeightForWidth( bool b ) { data = b ? (Q_UINT16)( data | ( 1 << 2*HSize ) )
+					      : (Q_UINT16)( data & ~( 1 << 2*HSize ) );  }
     bool hasHeightForWidth() const { return data & ( 1 << 2*HSize ); }
 
     bool operator==( const QSizePolicy& s ) const { return data == s.data; }
     bool operator!=( const QSizePolicy& s ) const { return data != s.data; }
 
 private:
-    QSizePolicy( int i ): data( i ) {}
+    QSizePolicy( int i ): data( (Q_UINT16)i ) {}
 
     Q_UINT16 data;
 };
 
 #if !(defined(__GNUC__) && __GNUC__ == 2 && __GNUC_MINOR__ == 96)
 inline QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, bool hfw )
-	: data( hor | (ver<<HSize) | (hfw ? (1<<2*HSize) : 0) ) {}
+	: data( hor | (ver<<HSize) | (hfw ? (Q_UINT16)(1<<2*HSize) : 0) ) {}
 #endif
 
 #endif
