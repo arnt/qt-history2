@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#104 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#104 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -412,7 +412,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     QFontMetrics fm = fontMetrics();
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
-    setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar|
+    setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar |
 		   Tbl_smoothVScrolling | Tbl_clipCellPainting );
     switch ( style() ) {
 	case WindowsStyle:
@@ -1331,43 +1331,55 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     int pageSize, delta;
 
     switch ( e->key() ) {
-	case Key_Up:
-	    if ( currentItem() > 0 ) {
-		setCurrentItem( currentItem() - 1 );
-		if ( currentItem() < topItem()	)
-		    setTopItem( currentItem() );
-	    }
-	    break;
-	case Key_Down:
-	    if ( currentItem() < (int)count() - 1 ) {
-		setCurrentItem( currentItem() + 1 );
-		if ( currentItem() > lastRowVisible() )
-		    setTopItem( topItem() + currentItem() - lastRowVisible() );
-	    }
-	    break;
-	case Key_Next:
+    case Key_Up:
+	if ( currentItem() > 0 ) {
+	    setCurrentItem( currentItem() - 1 );
+	    if ( currentItem() < topItem()	)
+		setTopItem( currentItem() );
+	}
+	break;
+    case Key_Down:
+	if ( currentItem() < (int)count() - 1 ) {
+	    setCurrentItem( currentItem() + 1 );
+	    if ( currentItem() > lastRowVisible() )
+		setTopItem( topItem() + currentItem() - lastRowVisible() );
+	}
+	break;
+    case Key_Next:
+	if ( style() == MotifStyle ) {
 	    delta = currentItem() - topItem();
 	    pageSize = lastRowVisible() - topItem();
 	    setTopItem( QMIN( topItem() + pageSize, (int)count() - 1 ) );
 	    setCurrentItem( QMIN( topItem() + delta, (int)count() - 1 ) );
-	    break;
-	case Key_Prior:
+	} else {
+	    pageSize = lastRowVisible() - topItem();
+	    setTopItem( QMIN(currentItem(),(int)count()-pageSize+1) );
+	    setCurrentItem( QMIN(lastRowVisible(), (int)count()-1) );
+	}
+	break;
+    case Key_Prior:
+	if ( style() == MotifStyle ) {
 	    delta = currentItem() - topItem();
 	    pageSize = lastRowVisible() - topItem();
 	    setTopItem( QMAX( topItem() - pageSize, 0 ) );
 	    setCurrentItem( QMAX( topItem() + delta, 0 ) );
-	    break;
+	} else {
+	    pageSize = lastRowVisible() - topItem();
+	    setTopItem( QMAX(0,currentItem()-pageSize+1) );
+	    setCurrentItem( topItem() );
+	}
+	break;
 
-	case Key_Return:
-	case Key_Enter:
-	    if ( currentItem() >= 0 ) {
-		emit selected( currentItem());
-		if ( item(currentItem()) && item(currentItem())->text() )
-		    emit selected( item(currentItem())->text() );
-	    }
-	    break;
-	default:
-	    break;
+    case Key_Return:
+    case Key_Enter:
+	if ( currentItem() >= 0 ) {
+	    emit selected( currentItem());
+	    if ( item(currentItem()) && item(currentItem())->text() )
+		emit selected( item(currentItem())->text() );
+	}
+	break;
+    default:
+	break;
     }
 }
 
