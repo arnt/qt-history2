@@ -426,7 +426,7 @@ void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const 
     p->restore();
 }
 
-#define TITLEBAR_PAD 2
+#define TITLEBAR_PAD 3
 #define TITLEBAR_SEPARATION 1
 #define TITLEBAR_PIXMAP_WIDTH 12
 #define TITLEBAR_PIXMAP_HEIGHT 12
@@ -442,7 +442,7 @@ void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH,
     titleH = 18;
     if(tb->window) {
 	titleW = tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3)-
-		 (TITLEBAR_PAD+TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH);
+		 (TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH);
 	ctrlH = TITLEBAR_CONTROL_HEIGHT;
 	ctrlW = TITLEBAR_CONTROL_WIDTH;
     } else {
@@ -472,7 +472,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	    int xoff=0, yoff=0;
 	    if(down)
 		getButtonShift(xoff, yoff);
-	    p->drawPixmap( r.x()+(TITLEBAR_PAD/2)+xoff, TITLEBAR_PAD+yoff, pm );
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH, 
+		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 	}
 
 	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*2),
@@ -486,7 +487,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	    int xoff=0, yoff=0;
 	    if(down)
 		getButtonShift(xoff, yoff);
-	    p->drawPixmap( r.x()+(TITLEBAR_PAD/2)+xoff, TITLEBAR_PAD+yoff, pm );
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH, 
+		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 	}
 
 	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3),
@@ -501,16 +503,17 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	    int xoff=0, yoff=0;
 	    if(down)
 		getButtonShift(xoff, yoff);
-	    p->drawPixmap( r.x()+(TITLEBAR_PAD/2)+xoff, TITLEBAR_PAD+yoff, pm );
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH, 
+		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 	}
 
-	r = QRect(TITLEBAR_PAD+TITLEBAR_SEPARATION, 2, TITLEBAR_PIXMAP_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	r = QRect(TITLEBAR_SEPARATION+2, 2, TITLEBAR_PIXMAP_WIDTH, TITLEBAR_CONTROL_HEIGHT);
 	titleReg -= r;
 	if(tb->pixmap.mask())
 	    titleReg += QRegion(*tb->pixmap.mask()) ^ QRegion(r);
-	if(controls & TitleSysMenu)
-	    p->drawPixmap( r.x(), r.y(), tb->pixmap );
-
+	if(controls & TitleSysMenu) 
+	    drawItem( p, r.x(), r.y(), TITLEBAR_CONTROL_WIDTH, 
+		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &tb->pixmap, QString::null );
 	p->setClipRegion(titleReg);
     }
 
@@ -543,7 +546,7 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	if(tb->window)
 	    r = QRect( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH, 0,
 		       tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3)-
-		       (TITLEBAR_PAD+TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH),
+		       (TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH),
 		       tb->height());
 	else
 	    r = QRect(0, 0, tb->width(), tb->height());
