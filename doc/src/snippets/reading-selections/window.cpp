@@ -60,7 +60,7 @@ void MainWindow::fillSelection()
 
     foreach(index, indexes) {
         QString text = QString("(%1,%2)").arg(index.row()).arg(index.column());
-        model->setData(index, QAbstractItemModel::EditRole, text);
+        model->setData(index, text);
     }
 }
 
@@ -70,7 +70,7 @@ void MainWindow::clearSelection()
     QModelIndex index;
 
     foreach(index, indexes)
-        model->setData(index, QAbstractItemModel::EditRole, "");
+        model->setData(index, "");
 }
 
 void MainWindow::selectAll()
