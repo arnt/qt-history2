@@ -83,7 +83,7 @@
     setUnderline(), setFamily() (font family), setPointSize(),
     setColor() and setCurrentFont().  The current
     paragraph's style is set with setParagType() and its alignment is
-    set with setAlignment(). 
+    set with setAlignment().
 
     Internally QTextEdit works on paragraphs and characters. A paragraph
     is a formatted string which is word-wrapped to fit into the width of
@@ -242,12 +242,8 @@
   \sa setCursorPosition()
  */
 
-/*! \fn bool QTextEdit::isModified() const
-
-  This function returns whether the document has been modified by the
-  user.
-
-  \sa setModified()
+/*! \property bool QTextEdit::modified 
+  \brief whether the document has been modified by the user
 */
 
 /*! \fn bool QTextEdit::italic() const
@@ -506,13 +502,6 @@
 
 */
 
-/*! \fn void QTextEdit::setModified( bool m )
-
-  Sets the modified flag of the document to \a m.
-
-  \sa isModified()
-*/
-
 /*! \fn void QTextEdit::resetFormat()
 
     \internal
@@ -544,7 +533,7 @@
   changed. If \a m is TRUE, the document was modified, otherwise the
   modification state has been reset to unmodified.
 
-  \sa setModified()
+  \sa modified
 */
 
 /*! \fn void QTextEdit::redoAvailable( bool yes )

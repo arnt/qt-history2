@@ -102,11 +102,11 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setTextFormat( Qt::PlainText );
 }
 
-/*! \fn int QMultiLineEdit::numLines() const
-
-  Returns the number of paragraphs in the editor. The count includes
-  any empty paragraph at top and bottom, so for an empty editor this
-  method will return 1.
+/*! \property QMultiLineEdit::numLines
+  \brief the number of paragraphs in the editor
+  
+  The count includes any empty paragraph at top and bottom, so for an
+  empty editor this method returns 1.
 */
 
 int QMultiLineEdit::numLines() const
@@ -114,9 +114,10 @@ int QMultiLineEdit::numLines() const
     return document()->lastParag()->paragId() + 1;
 }
 
-/*! \fn bool QMultiLineEdit::atEnd() const
-
-  Returns TRUE if the cursor is placed at the end of the text.
+/*! \property QMultiLineEdit::atEnd
+  \brief whether the cursor is placed at the end of the text
+  
+  \sa atBeginning
 */
 
 bool QMultiLineEdit::atEnd() const
@@ -125,9 +126,10 @@ bool QMultiLineEdit::atEnd() const
 }
 
 
-/*! \fn bool QMultiLineEdit::atBeginning() const
-
-  Returns TRUE if the cursor is placed at the beginning of the text.
+/*! \property QMultiLineEdit::atBeginning
+  \brief whether the cursor is placed at the beginning of the text
+  
+  \sa atEnd
 */
 
 bool QMultiLineEdit::atBeginning() const
@@ -146,19 +148,12 @@ int QMultiLineEdit::lineLength( int row ) const
     return document()->paragAt( row )->length();
 }
 
-/*! \fn bool QMultiLineEdit::isReadOnly() const
-
-  Returns FALSE if this multi-line edit accepts text input.
+/*! \property QMultiLineEdit::readOnly
+  \brief whether this multi-line edit accepts text input
+  
   Scrolling and cursor movements are accepted in any case.
 
-  \sa setReadOnly() QWidget::isEnabled()
-*/
-
-/*!
-  If \a on is FALSE, this multi-line edit accepts text input.
-  Scrolling and cursor movements are accepted in any case.
-
-  \sa isReadOnly() QWidget::setEnabled()
+  \sa QWidget::enabled
 */
 
 void QMultiLineEdit::setReadOnly( bool on )
@@ -395,12 +390,15 @@ QPoint QMultiLineEdit::cursorPoint() const
     return QPoint( textCursor()->x(), textCursor()->y() );
 }
 
-/*!  Sets the alignment to \a flag, which must be \c AlignLeft, \c
+/*!  \property QMultiLineEdit::alignment
+  \brief The editor's paragraph alignment
+  
+  Sets the alignment to \a flag, which must be \c AlignLeft, \c
   AlignHCenter or \c AlignRight.
 
   If \a flag is an illegal flag nothing happens.
 
-  \sa alignment(), Qt::AlignmentFlags
+  \sa Qt::AlignmentFlags
 */
 void QMultiLineEdit::setAlignment( int flag )
 {
@@ -415,43 +413,23 @@ void QMultiLineEdit::setAlignment( int flag )
     }
 }
 
-/*!  Returns the alignment.
-
-  \sa setAlignment(), Qt::AlignmentFlags.
-*/
-
 int QMultiLineEdit::alignment() const
 {
     return document()->firstParag()->alignment();
 }
 
 
-/*!  Sets the edited flag of this line edit to \a e.  The edited flag
-  is never read by QMultiLineEdit, but is changed to TRUE whenever the
-  user changes its contents.
-
-  This is useful e.g. for things that need to provide a default value, but
-  cannot find the default at once.  Just open the widget without the best
-  default; when the default is known, check the edited() return value and
-  set contents if the user has not started editing the line edit.
-
-  \sa edited()
-*/
 void QMultiLineEdit::setEdited( bool e )
 {
     setModified( e );
 }
 
-/*!  Returns the edited flag of the editor.  If this returns FALSE, the
-editor's contents have not been changed since the construction of the
-editor (or the last call to either setText() or setEdited(FALSE), if any).
-If it returns true, the contents have been edited or setEdited(TRUE) has
-been called.
-
-This is very useful for detecting whether its contents need saving, for
-example.
-
-  \sa setEdited()
+/*!  property QMultiLineEdit::edited
+  \brief whether the document has been edited by the user
+  
+  This is the same as QTextEdit's "modifed" property.
+  
+  \sa QTextEdit::modified
 */
 bool QMultiLineEdit::edited() const
 {

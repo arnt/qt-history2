@@ -83,6 +83,8 @@ class Q_EXPORT QTextView : public QScrollView
     Q_PROPERTY( WordWrap wordWrap READ wordWrap WRITE setWordWrap )
     Q_PROPERTY( int wrapColumnOrWidth READ wrapColumnOrWidth WRITE setWrapColumnOrWidth )
     Q_PROPERTY( WrapPolicy wrapPolicy READ wrapPolicy WRITE setWrapPolicy )
+    Q_PROPERTY( bool hasSelectedText READ hasSelectedText )
+    Q_PROPERTY( QString selectedText READ selectedText )
 
 public:
     enum WordWrap {

@@ -2581,9 +2581,8 @@ void QTextView::append( const QString &text )
     }
 }
 
-/*! Returns TRUE if some text is selected, otherwise returns FALSE.
-
-    \sa selectedText()
+/*! \property QTextView::hasSelectedText
+  \brief whether some text is selected
  */
 
 bool QTextView::hasSelectedText() const
@@ -2591,15 +2590,15 @@ bool QTextView::hasSelectedText() const
     return doc->hasSelection( QTextDocument::Standard );
 }
 
-/*!
-   Returns the selected text or an empty string if there is no currently
+/*!\property QTextView::selectedText
+   \brief The selected text or an empty string if there is no currently
    selected text.
 
    The text is always returned as \c PlainText regardless of the text
    format. In a future version of Qt an HTML subset \e may be returned
    depending on the text format.
 
-   \sa hasSelectedText()
+   \sa hasSelectedText
  */
 
 QString QTextView::selectedText() const

@@ -55,7 +55,6 @@ class Q_EXPORT QMultiLineEdit : public QTextEdit
     Q_PROPERTY( bool atEnd READ atEnd )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( bool edited READ edited WRITE setEdited DESIGNABLE false )
-    Q_PROPERTY( bool autoUpdate READ autoUpdate WRITE setAutoUpdate DESIGNABLE false )
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
 
 public:

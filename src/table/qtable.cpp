@@ -891,7 +891,7 @@ bool QTableItem::isEnabled() const
   QComboTableItem items have the edit type WhenCurrent (see
   \l{EditType}). The QComboTableItem's list of items is provided by a
   QStringList passed to the constructor. The list of items can be
-  changed later with setStringList(). 
+  changed later with setStringList().
 
   The list of items may be changed using setStringList(). The current
   item can be set with setCurrentItem() and retrieved with
@@ -1078,7 +1078,7 @@ QString QComboTableItem::text( int i ) const
     return *entries.at( i );
 }
 
-/*! 
+/*!
     If \a b is TRUE the combobox item can be edited, i.e. the user can
     enter a string item themselves. If \a b is FALSE the user may not
     enter an item, they may only choose one of the existing items.
@@ -1118,8 +1118,8 @@ bool QComboTableItem::isEditable() const
 
   To fill a table cell with a checkbox instead of the usual text or
   pixmap create a QCheckTableItem object and use QTable::setItem() to
-  make it the contents of a table cell. 
-  
+  make it the contents of a table cell.
+
   The QCheckTableItem is not a real checkbox, but paints itself to look
   like one. When the focus is in the QCheckTableItem cell a checkbox
   that the user can interact with is displayed. The QCheckTableItem
@@ -1140,7 +1140,7 @@ bool QComboTableItem::isEditable() const
 
 /*! Creates a QCheckTableItem with an EditType of WhenCurrent
   as a child of \a table. The checkbox's
-  label is set to the string \a txt. 
+  label is set to the string \a txt.
   Example:
 
   \walkthrough table/small-table-demo/main.cpp
@@ -1211,7 +1211,7 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
     p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
 }
 
-/*! 
+/*!
     If \a b is TRUE the checkbox is checked; if \a b is FALSE the
     checkbox is unchecked.
 
@@ -1598,17 +1598,6 @@ QTable::~QTable()
     widgets.clear();
 }
 
-/*! Makes the entire table read-only (i.e. not editable) if \a b is TRUE.
-
-  Note that if \a b is TRUE this setting overrides
-  individual settings of the QComboTableItem::isEditable() property.
-
-  EditType settings of individual \l{QTableItem}s reading \c Always
-  are not affected.
-
-  \sa isRowReadOnly() setRowReadOnly() setColumnReadOnly()
-*/
-
 void QTable::setReadOnly( bool b )
 {
     readOnly = b;
@@ -1663,9 +1652,14 @@ void QTable::setColumnReadOnly( int col, bool ro )
 	roCols.remove( col );
 }
 
-/*! Returns whether the table is read-only (not editable) or not.
+/*! \property QTable::readOnly
+  \brief whether the table is read-only (not editable)
 
-  \sa setReadOnly() isColumnReadOnly() isRowReadOnly()
+  Setting readOnly to TRUE overrides individual settings of the
+  QComboTableItem::isEditable() property. EditType settings of
+  individual \l{QTableItem}s reading \c Always are not affected.
+
+  \sa QWidget::enabled
 */
 
 bool QTable::isReadOnly() const
@@ -1761,12 +1755,6 @@ QHeader *QTable::verticalHeader() const
     return (QHeader*)leftHeader;
 }
 
-/*! If \a b is TRUE, the table grid is shown, otherwise not. The
-  default is TRUE.
-
-  \sa showGrid()
-*/
-
 void QTable::setShowGrid( bool b )
 {
     if ( sGrid == b )
@@ -1775,9 +1763,10 @@ void QTable::setShowGrid( bool b )
     viewport()->repaint( FALSE );
 }
 
-/*! Returns whether the table grid shows up or not.
-
-  \sa setShowGrid()
+/*! \property QTable::showGrid
+  \brief whether the table grid shows up
+  
+  The default is to show the grid.
 */
 
 bool QTable::showGrid() const
@@ -1785,9 +1774,10 @@ bool QTable::showGrid() const
     return sGrid;
 }
 
-/*! If \a b is set to TRUE, columns can be moved by the user.
+/*! \property QTable::columnMovingEnabled
+ \brief whether columns can be moved by the user
 
-  \sa columnMovingEnabled() setRowMovingEnabled()
+  \sa rowMovingEnabled
 */
 
 void QTable::setColumnMovingEnabled( bool b )
@@ -1795,30 +1785,21 @@ void QTable::setColumnMovingEnabled( bool b )
     mCols = b;
 }
 
-/*! Returns whether columns can be moved by the user.
-
-  \sa setColumnMovingEnabled() rowMovingEnabled()
-*/
-
 bool QTable::columnMovingEnabled() const
 {
     return mCols;
 }
 
-/*! If \a b is set to TRUE, rows can be moved by the user.
+/*! \property QTable::rowMovingEnabled
+ \brief whether rows can be moved by the user
 
-  \sa  rowMovingEnabled() setColumnMovingEnabled()
+  \sa columnMovingEnabled
 */
 
 void QTable::setRowMovingEnabled( bool b )
 {
     mRows = b;
 }
-
-/*! Returns whether rows can be moved by the user.
-
-  \sa  setRowMovingEnabled() columnMovingEnabled()
-*/
 
 bool QTable::rowMovingEnabled() const
 {
@@ -3400,21 +3381,17 @@ void QTable::columnClicked( int col )
     sortColumn( lastSortCol, asc );
 }
 
-/*! If \a b is set to TRUE, a click on the header of a column sorts
-  the appropriate column.
+/*! \property QTable::sorting
+ \brief whether a click on the header of a column sorts the
+ appropriate column
 
-  \sa sortColumn() sorting()
+  \sa sortColumn()
 */
 
 void QTable::setSorting( bool b )
 {
     doSort = b;
 }
-
-/*! Returns whether clicking on a column header sorts the column.
-
- \sa setSorting()
-*/
 
 bool QTable::sorting() const
 {
@@ -3550,9 +3527,10 @@ QSize QTable::tableSize() const
 		  rowPos( numRows() - 1 ) + rowHeight( numRows() - 1 ) );
 }
 
-/*! Returns the number of rows of the table.
+/*! \property QTable::numRows
+  \brief The number of rows of the table
 
-  \sa setNumRows() numCols()
+  \sa numCols
 */
 
 int QTable::numRows() const
@@ -3560,9 +3538,10 @@ int QTable::numRows() const
     return leftHeader->count();
 }
 
-/*! Returns of how many columns the table consists.
+/*! \property QTable::numCols
+  \brief The number of columns of the table
 
-  \sa setNumCols()  numRows()
+  \sa  numRows
 */
 
 int QTable::numCols() const
