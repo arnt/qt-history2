@@ -435,7 +435,7 @@ static QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long par
 #endif
 
 QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn,
-			 RgnHandle, void *w)
+			 RgnHandle outRgn, void *w)
 {
     QWidget *widget = (QWidget *)w;
     if(!widget)
@@ -472,9 +472,12 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	}
 #endif
 	qt_paint_children(widget, reg, PC_Now | PC_ForceErase);
+	CopyRgn(rgn, outRgn);	// 10.2 fix for making sure the Window manager updates the area.
     }
+
     return 0;
 }
+
 bool qt_mac_is_macsheet(QWidget *w)
 {
 #if defined( Q_WS_MACX )
