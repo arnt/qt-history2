@@ -9,8 +9,10 @@ MainWindow::MainWindow()
     fileMenu->addAction(tr("E&xit"), this, SLOT(close()),
         QKeySequence(tr("Ctrl+Q", "File|Exit")));
 
-    QMenu *showMenu = new QMenu(tr("&Show"));
-    showMenu->addAction(tr("&List Items"), this, SLOT(showListItems()));
+    QMenu *actionsMenu = new QMenu(tr("&Actions"));
+    actionsMenu->addAction(tr("&Highlight List Items"),
+                        this, SLOT(highlightListItems()));
+    actionsMenu->addAction(tr("&Show Current List"), this, SLOT(showList()));
 
     QMenu *insertMenu = new QMenu(tr("&Insert"));
 
@@ -18,8 +20,8 @@ MainWindow::MainWindow()
         QKeySequence(tr("Ctrl+L", "Insert|List")));
 
     menuBar()->addMenu(fileMenu);
-    menuBar()->addMenu(showMenu);
     menuBar()->addMenu(insertMenu);
+    menuBar()->addMenu(actionsMenu);
 
     editor = new QTextEdit(this);
     document = new QTextDocument(this);
@@ -29,7 +31,7 @@ MainWindow::MainWindow()
     setWindowTitle(tr("Text Document List Items"));
 }
 
-void MainWindow::showListItems()
+void MainWindow::highlightListItems()
 {
     QTextCursor cursor = editor->textCursor();
     QTextList *list = cursor.currentList();
@@ -53,6 +55,62 @@ void MainWindow::showListItems()
         */
     }
     cursor.endEditBlock();
+}
+
+void MainWindow::showList()
+{
+    QTextCursor cursor = editor->textCursor();
+    QTextFrame *frame = cursor.currentFrame();
+
+    if (!frame)
+        return;
+
+    QTreeWidget *treeWidget = new QTreeWidget;
+    treeWidget->setColumnCount(1);
+    QStringList headerLabels;
+    headerLabels << tr("Lists");
+    treeWidget->setHeaderLabels(headerLabels);
+    QTreeWidgetItem *parentItem = new QTreeWidgetItem(treeWidget);
+    parentItem->setText(0, tr("List items"));
+
+    QTreeWidgetItem *item;
+    lastItem = parentItem;
+    parentItems.clear();
+    previousItems.clear();
+
+    QTextFrame::iterator it;
+    for (it = frame->begin(); !(it.atEnd()); ++it) {
+
+        QTextBlock block = it.currentBlock();
+
+        if (block.isValid()) {
+            const QTextBlockFormat blockFormat = block.blockFormat();
+            QTextObject *object = document->objectForFormat(blockFormat);
+
+            if (QTextList *list = qt_cast<QTextList*>(object)) {
+                int index = list->itemNumber(block);
+                if (index == 0) {
+                    parentItems.append(parentItem);
+                    previousItems.append(lastItem);
+                    listStructures.append(list);
+                    parentItem = lastItem;
+                    lastItem = 0;
+                } else {
+                    while (listStructures.last() != list) {
+                        listStructures.pop_back();
+                        parentItem = parentItems.takeLast();
+                        lastItem = previousItems.takeLast();
+                    }
+                }
+                item = new QTreeWidgetItem(parentItem, lastItem);
+                item->setText(0, block.text());
+                lastItem = item;
+            }
+        }
+    }
+
+    treeWidget->setWindowTitle(tr("List Contents"));
+    treeWidget->show();
 }
 
 void MainWindow::insertList()
