@@ -5,6 +5,8 @@ Here are the bugs I am aware of:
   * --supervisor mode does not (yet) produce more warnings
   * No "Example" link yet (e.g., QApplication::desktop()).
   * First BROKEN LINK so far in page qpopupmenu.html to sizeHint().
+  * Second broken link: QObject::eventFilter(), reimplemented in
+    QWidgetResizeHandler.
   * Translation Tutorial: a few issues with codeProcessor() and stuff.
 
 Please warn me if you find something new.
