@@ -59,6 +59,7 @@ public:
     void setStackSize(uint stackSize);
     uint stackSize() const;
 
+    int exec();
     void exit(int retcode = 0);
 
 public slots:

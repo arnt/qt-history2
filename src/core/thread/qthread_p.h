@@ -17,8 +17,9 @@
 #include "qplatformdefs.h"
 #include <private/qobject_p.h>
 #include "qmutex.h"
-#include "qwaitcondition.h"
+#include "qstack.h"
 #include "qthread.h"
+#include "qwaitcondition.h"
 
 class QAbstractEventDispatcher;
 class QEventLoop;
@@ -58,7 +59,7 @@ public:
     static QThreadData *get(QThread *thread);
 
     QAbstractEventDispatcher *eventDispatcher;
-    QEventLoop *eventLoop;
+    QStack<QEventLoop *> eventLoops;
     QPostEventList postEventList;
     void **tls;
 };

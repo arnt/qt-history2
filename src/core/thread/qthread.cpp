@@ -27,7 +27,7 @@
 */
 
 QThreadData::QThreadData()
-    : eventDispatcher(0), eventLoop(0), tls(0)
+    : eventDispatcher(0), tls(0)
 { }
 
 QThreadData *QThreadData::get(QThread *thread)
@@ -225,15 +225,30 @@ uint QThread::stackSize() const
     return d->stackSize;
 }
 
+/*!
+    Enters the event loop and waits until exit() is called or the main
+    widget is destroyed, and returns the value that was set to exit()
+    (which is 0 if exit() is called via quit()).
+
+    It is necessary to call this function to start event handling.
+
+    \sa quit(), exit()
+*/
+int QThread::exec()
+{
+    QEventLoop eventLoop;
+    int returnCode = eventLoop.exec();
+    return returnCode;
+}
 
 /*!
     Tells the thread's event loop to exit with a return code.
 
     After calling this function, the thread leaves the event loop and
     returns from the call to QEventLoop::exec().  The
-    QEventLoop::exec() function returns \a retcode.
+    QEventLoop::exec() function returns \a returnCode.
 
-    By convention, a \a retcode of 0 means success, any non-zero value
+    By convention, a \a returnCode of 0 means success, any non-zero value
     indicates an error.
 
     Note that unlike the C library function of the same name, this
@@ -245,11 +260,13 @@ uint QThread::stackSize() const
 
     \sa quit() QEventLoop
 */
-void QThread::exit(int retcode)
+void QThread::exit(int returnCode)
 {
     Q_D(QThread);
-    if (d->data.eventLoop)
-        d->data.eventLoop->exit(retcode);
+    for (int i = 0; i < d->data.eventLoops.size(); ++i) {
+        QEventLoop *eventLoop = d->data.eventLoops.at(i);
+        eventLoop->exit(returnCode);
+    }
 }
 
 /*!

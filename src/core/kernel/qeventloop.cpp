@@ -34,21 +34,12 @@ QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate, parent)
 {
     QThreadData *data = QThreadData::current();
-    if (!data) {
+    if (!data)
         qWarning("QEventLoop can only be used with threads started with QThread");
-    } else if (data->eventLoop) {
-        qWarning("eventloop already set");
-    } else {
-        data->eventLoop = this;
-    }
 }
 
 QEventLoop::~QEventLoop()
-{
-    QThreadData *data = QThreadData::current();
-    if (data && data->eventLoop == this)
-        data->eventLoop = 0;
-}
+{ }
 
 bool QEventLoop::processEvents(ProcessEventsFlags flags)
 {
@@ -79,8 +70,17 @@ int QEventLoop::exec(ProcessEventsFlags flags)
 {
     Q_D(QEventLoop);
     d->exit = false;
+
+    QThreadData *data = QThreadData::current();
+    Q_ASSERT_X(data != 0, "QEventLoop::exec()", "internal error");
+    data->eventLoops.push(this);
+
     while (!d->exit)
         processEvents(flags | WaitForMoreEvents);
+
+    QEventLoop *eventLoop = data->eventLoops.pop();
+    Q_ASSERT_X(eventLoop == this, "QEventLoop::exec()", "internal error");
+
     return d->returnCode;
 }
 
@@ -129,7 +129,9 @@ void QEventLoop::exit(int returnCode)
     Q_D(QEventLoop);
     d->returnCode = returnCode;
     d->exit = true;
-    wakeUp();
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
+    if (eventDispatcher)
+        eventDispatcher->interrupt();
 }
 
 void QEventLoop::wakeUp()

@@ -54,9 +54,9 @@ public:
 
     static QCoreApplication *instance() { return self; }
 
-    int exec();
-    void processEvents();
-    void processEvents(int maxtime);
+    static int exec();
+    static void processEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents);
+    static void processEvents(QEventLoop::ProcessEventsFlags flags, int maxtime);
     static void exit(int retcode=0);
 
     static bool sendEvent(QObject *receiver, QEvent *event);
@@ -104,6 +104,13 @@ public:
     inline QT_COMPAT void unlock(bool = true) {}
     inline QT_COMPAT bool locked() { return false; }
     inline QT_COMPAT bool tryLock() { return false; }
+
+    static inline QT_COMPAT void processOneEvent()
+    { processEvents(QEventLoop::WaitForMoreEvents); }
+    static QT_COMPAT bool hasPendingEvents();
+    static QT_COMPAT int enter_loop();
+    static QT_COMPAT void exit_loop();
+    static QT_COMPAT int loopLevel();
 #endif
 
 #if defined(Q_WS_WIN)
@@ -153,8 +160,6 @@ inline bool QCoreApplication::sendSpontaneousEvent(QObject *receiver, QEvent *ev
 { if (event) event->spont = true; return self ? self->notify(receiver, event) : false; }
 
 inline void QCoreApplication::sendPostedEvents() { sendPostedEvents(0, 0); }
-
-inline void QCoreApplication::processEvents() { processEvents(3000); }
 
 #ifdef QT_NO_TRANSLATION
 // Simple versions

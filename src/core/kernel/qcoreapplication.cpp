@@ -103,7 +103,7 @@ QCoreApplication *QCoreApplication::self = 0;
 Q_GLOBAL_STATIC(QThreadData, mainData)
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
-    : QObjectPrivate(), argc(aargc), argv(aargv), eventDispatcher(0), eventLoop(0)
+    : QObjectPrivate(), argc(aargc), argv(aargv), eventDispatcher(0)
 {
     static const char *empty = "";
     if (argc == 0 || argv == 0) {
@@ -411,16 +411,22 @@ bool QCoreApplication::closingDown()
 }
 
 
-/*! \fn void QCoreApplication::processEvents()
-
-    Processes pending events, for 3 seconds or until there are no more
-    events to process, whichever is shorter.
+/*!
+    Processes all pending events until there are no more events to
+    process.
 
     You can call this function occasionally when your program is busy
     performing a long operation (e.g. copying a file).
 
     \sa exec(), QTimer, QEventLoop::processEvents()
 */
+void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags)
+{
+    QThreadData *data = QThreadData::current();
+    if (!data || data->eventLoops.isEmpty())
+        return;
+    data->eventLoops.top()->processEvents(flags);
+}
 
 /*!
     \overload
@@ -433,10 +439,12 @@ bool QCoreApplication::closingDown()
 
     \sa exec(), QTimer, QEventLoop::processEvents()
 */
-void QCoreApplication::processEvents(int maxtime)
+void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags, int maxtime)
 {
-    if (d->eventLoop)
-        d->eventLoop->processEvents(QEventLoop::AllEvents, maxtime);
+    QThreadData *data = QThreadData::current();
+    if (!data || data->eventLoops.isEmpty())
+        return;
+    data->eventLoops.top()->processEvents(flags, maxtime);
 }
 
 /*****************************************************************************
@@ -466,13 +474,23 @@ void QCoreApplication::processEvents(int maxtime)
 */
 int QCoreApplication::exec()
 {
-    if (!self)
+    if (!self) {
+        qWarning("QApplication::exec() failed: create instantiate QApplication first");
         return -1;
+    }
+    QThreadData *data = QThreadData::current();
+    if (data != mainData()) {
+        qWarning("QApplication::exec() failed: must be called from the main thread.");
+        return -1;
+    }
+    if (!data->eventLoops.isEmpty()) {
+        qWarning("QApplication::exec() failed: the event loop is already running.");
+        return -1;
+    }
     QEventLoop eventLoop;
-    self->d->eventLoop = &eventLoop;
     int returnCode = eventLoop.exec();
-    emit self->aboutToQuit();
-    self->d->eventLoop = 0;
+    if (self)
+        emit self->aboutToQuit();
     return returnCode;
 }
 
@@ -481,9 +499,9 @@ int QCoreApplication::exec()
 
   After this function has been called, the application leaves the main
   event loop and returns from the call to exec(). The exec() function
-  returns \a retcode.
+  returns \a returnCode.
 
-  By convention, a \a retcode of 0 means success, and any non-zero
+  By convention, a \a returnCode of 0 means success, and any non-zero
   value indicates an error.
 
   Note that unlike the C library function of the same name, this
@@ -492,11 +510,13 @@ int QCoreApplication::exec()
 
   \sa quit(), exec()
 */
-void QCoreApplication::exit(int retcode)
+void QCoreApplication::exit(int returnCode)
 {
-    QEventLoop *eventLoop = self ? self->d->eventLoop : 0;
-    if (eventLoop)
-        eventLoop->exit(retcode);
+    QThreadData *data = QThreadData::current();
+    for (int i = 0; i < data->eventLoops.size(); ++i) {
+        QEventLoop *eventLoop = data->eventLoops.at(i);
+        eventLoop->exit(returnCode);
+    }
 }
 
 /*****************************************************************************
@@ -1353,4 +1373,78 @@ void QCoreApplication::removeLibraryPath(const QString &path)
 
     See \l lock() for details.
 */
+
+/*! \fn void QCoreApplication::processOneEvent()
+    \obsolete
+
+    Waits for an event to occur, processes it, then returns.
+
+    This function is useful for adapting Qt to situations where the
+    event processing must be grafted onto existing program loops.
+
+    Using this function in new applications may be an indication of design
+    problems.
+
+    \sa processEvents(), exec(), QTimer
+*/
+
+
+/*! \obsolete
+
+    This function returns true if there are pending events; otherwise
+    returns false. Pending events can be either from the window system
+    or posted events using QApplication::postEvent().
+*/
+bool QCoreApplication::hasPendingEvents()
+{
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
+    if (eventDispatcher)
+        return eventDispatcher->hasPendingEvents();
+    return false;
+}
+
+/*! \obsolete
+
+    This function enters the main event loop (recursively). Do not call
+    it unless you really know what you are doing.
+*/
+int QCoreApplication::enter_loop()
+{
+    QThreadData *data = QThreadData::current();
+    if (data != mainData()) {
+        qWarning("QApplication::enter_loop() failed: must be called from the main thread.");
+        return -1;
+    }
+    QEventLoop eventLoop;
+    int returnCode = eventLoop.exec();
+    return returnCode;
+}
+
+/*! \obsolete
+
+    This function exits from a recursive call to the main event loop.
+    Do not call it unless you are an expert.
+*/
+void QCoreApplication::exit_loop()
+{
+    QThreadData *data = QThreadData::current();
+    if (data != mainData()) {
+        qWarning("QApplication::enter_loop() failed: must be called from the main thread.");
+        return;
+    }
+    if (!data->eventLoops.isEmpty())
+        data->eventLoops.top()->exit();
+}
+
+/*! \obsolete
+
+    Returns the current loop level.
+*/
+int QCoreApplication::loopLevel()
+{
+    QThreadData *data = QThreadData::current();
+    if (!data)
+        return -1;
+    return data->eventLoops.size();
+}
 #endif

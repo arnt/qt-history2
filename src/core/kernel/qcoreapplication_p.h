@@ -47,7 +47,6 @@ public:
     int &argc;
     char **argv;
     QAbstractEventDispatcher *eventDispatcher;
-    QEventLoop *eventLoop;
     QString organization, application;
 #ifndef QT_NO_TRANSLATION
     QTranslatorList translators;
