@@ -488,7 +488,7 @@ static void parseSpoolInterface( QListView * printers )
 	    perhapsAddPrinter( printers, printer->fileName(),
 			       QString::fromLatin1(""), namePrinter);
 	} else {
-	    QString comment; 
+	    QString comment;
 	    comment = namePrinter;
 	    comment += " (";
 	    comment += hostPrinter;
@@ -744,13 +744,13 @@ QPrintDialog::~QPrintDialog()
 }
 
 /*!
-  This method allows you to specify a global printdialog, given in \a
-  pd, that will be used instead of the default one provided by Qt.
+  This method allows you to specify a global print dialog, given in \a
+  pd, that will be used instead of the default dialog provided by Qt.
 
-  This is useful, as there are many different printing systems on
-  Unix, and we can not possibly support all of them. Calling this
-  method before using a printer for the first time allows you to set
-  up your own printdialog to use.
+  This is useful, since there are many different printing systems on
+  Unix, and we cannot support all of them. Calling this method before
+  using a printer for the first time allows you to set up your own
+  print dialog.
 
   \sa setupPrinters()
 */
@@ -1142,10 +1142,10 @@ QGroupBox * QPrintDialog::setupPaper()
 }
 
 
-/*!  
+/*!
   Display a dialog and allow the user to configure the QPrinter \a
-  p for an optional  widget \a w. Returns TRUE if the user clicks OK or
-  presses Enter, FALSE if the user clicks Cancel or presses Escape.
+  p for an optional widget \a w. Returns TRUE if the user clicks OK or
+  presses Enter, FALSE if the user clicks Cancel or presses Esc.
 
   getPrinterSetup() remembers the settings and provides the same
   settings the next time the dialog is shown.

@@ -920,14 +920,10 @@ int QIconViewItem::RTTI = 0;
 
 /*! Returns 0.
 
-  Although often frowned upon by purists, Run Time Type Identification
-  is very useful in this case, as it allows a QIconView to be an
-  efficient indexed storage mechanism.
-
-  Make your derived classes return their own values for rtti(), and
-  you can distinguish between iconview items. You should use values
-  greater than 1000 preferably a large random number, to allow for
-  extensions to this class.
+  Make your derived classes return their own values for rtti(), so
+  that you can distinguish between iconview item types. You should use
+  values greater than 1000, preferably a large random number, to allow
+  for extensions to this class.
 */
 
 int QIconViewItem::rtti() const
@@ -2460,9 +2456,9 @@ void QIconViewItem::checkRect()
 /*!
   \fn void QIconView::contextMenuRequested( QIconViewItem *item, const QPoint & pos )
 
-  This signal is emitted when the user invokes a context menu with the right mouse button
-  or with special system keys, with \a item being the item under the mouse cursor or the
-  current item, respectively.
+  This signal is emitted when the user invokes a context menu with the
+  right mouse button or with special system keys, with \a item being
+  the item under the mouse cursor or the current item, respectively.
 
   \a pos is the position for the context menu in the global coordinate system.
 */
@@ -3366,7 +3362,7 @@ void QIconView::arrangeItemsInGrid( bool update )
 
 /*!
 
-  This variant uses \a grid instead of (gridX(),gridY()).  If \a grid
+  This variant uses \a grid instead of (gridX(), gridY()).  If \a grid
   is invalid (see QSize::isValid()), arrangeItemsInGrid() calculates a
   valid grid itself and uses that.
 
@@ -3443,7 +3439,7 @@ void QIconView::showEvent( QShowEvent * )
   \brief the selection mode of the icon view
 
   This can be \c Single (the default), \c Extended, \c Multi or \c
-  NoSelection. The default mode is \c Single.
+  NoSelection.
 */
 
 void QIconView::setSelectionMode( SelectionMode m )
@@ -3484,8 +3480,8 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 
   Returns a pointer to the first item whose text begins with \a text, or
   0 if no such item could be found.
-  The \a compare flag customizes the comparison of the items in the view
-  with \a text.
+  Use the \a compare flag to control the comparison behaviour. (See \l
+  Qt::ComparisonFlags.)
 */
 
 QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare ) const
@@ -5966,7 +5962,8 @@ void QIconView::windowActivationChange( bool )
 	viewport()->update();
 }
 
-/*! Returns whether currently an item of the iconview is being renamed
+/*! Returns TRUE if an iconview item is being renamed; otherwise
+ returns FALSE.
   */
 
 bool QIconView::isRenaming() const

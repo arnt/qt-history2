@@ -140,7 +140,7 @@ public:
 
 
 /*!
-  Constructs a common font dialog.
+  Constructs a standard font dialog.
 
   Use setFont() for setting the initial font attributes.
 
@@ -336,7 +336,7 @@ QFontDialog::~QFontDialog()
   If the \a ok parameter is not-null, \e *\a ok is set to TRUE if the
   user clicked OK, and set to FALSE if the user clicked Cancel.
 
-  This static function is less functional than the full QFontDialog
+  This static function is less flexible than the full QFontDialog
   object, but is convenient and easy to use.
 
   Examples:
@@ -424,7 +424,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
 
 /*!
     Returns a pointer to the "font family" list box.  This is mainly
-    useful mainly if you reimplement updateFontFamilies();
+    useful if you reimplement updateFontFamilies();
 */
 
 QListBox * QFontDialog::familyListBox() const

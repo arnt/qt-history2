@@ -2869,6 +2869,7 @@ QStringList QFileDialog::selectedFiles() const
 
   \omit
   Only for external use.  Not useful inside QFileDialog.
+  \endomit
 */
 
 void QFileDialog::setSelection( const QString & filename )
@@ -3158,11 +3159,10 @@ extern bool qt_resolve_symlinks; // defined in qapplication.cpp
   string.
 
   \code
-    QString s = QFileDialog::getOpenFileName( "/home",
-					      "Images (*.png *.xpm *.jpg)",
-					      this,
-					      "open file dialog"
-					      "Choose a file" );
+    QString s = QFileDialog::getOpenFileName(
+                    "/home", "Images (*.png *.xpm *.jpg)",
+		    this, "open file dialog",
+		    "Choose a file" );
   \endcode
 
   The function creates a modal file dialog with parent \a parent, and
@@ -3185,8 +3185,8 @@ extern bool qt_resolve_symlinks; // defined in qapplication.cpp
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
-  If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
-  symlinks, but it will treat them as regular directories.
+  If \a resolveSymlinks is FALSE, the file dialog will treat
+  symlinks as regular directories.
 
   \sa getOpenFileNames(), getSaveFileName(), getExistingDirectory()
 */
@@ -3282,18 +3282,17 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
 /*!
   This is a convenience static function that will return a file name
-  selected by the user. The file may not exist.
+  selected by the user. The file does not have to exist.
 
   It creates a modal file dialog with parent \a parent, and name
   \a name.  If a parent is specified, then the dialog will be shown
   centered over the parent.
 
   \code
-    QString s = QFileDialog::getSaveFileName( "/home",
-					      "Images (*.png *.xpm *.jpg)",
-					      this,
-					      "save file dialog"
-					      "Choose a file" );
+    QString s = QFileDialog::getSaveFileName(
+                    "/home", "Images (*.png *.xpm *.jpg)",
+		    this, "save file dialog"
+		    "Choose a file" );
   \endcode
 
   The file dialog's working directory will be set to \a startWith. If \a
@@ -3312,8 +3311,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
-  If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
-  symlinks, but it will treat them as regular directories.
+  If \a resolveSymlinks is FALSE, the file dialog will treat
+  symlinks as regular directories.
 
   \sa getOpenFileName(), getOpenFileNames(), getExistingDirectory()
 */
@@ -3728,8 +3727,8 @@ r.setHeight( QMAX(r.height(),t.height()) )
 }
 
 
-/*! Updates the file name edit box to \a newItem in the file dialog when the cursor
-    moves in the listview.
+/*! Updates the file name edit box to \a newItem in the file dialog
+ when the cursor moves in the listview.
 */
 
 void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
@@ -3860,7 +3859,7 @@ void QFileDialog::fileNameEditDone()
 
 
 /*! This private slot reacts to double-clicks in the list view. The item that
-was double-clicked is specified at \a newItem */
+was double-clicked is specified in \a newItem */
 
 void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 {
@@ -4192,15 +4191,14 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
   selected by the user.
 
   \code
-    QString s = QFileDialog::getExistingDirectory( "/home",
-						   this,
-						   "get existing directory"
-						   "Choose a directory",
-						   TRUE );
+    QString s = QFileDialog::getExistingDirectory(
+                    "/home",
+		    this, "get existing directory"
+		    "Choose a directory", TRUE );
   \endcode
 
   This function creates a modal file dialog with parent \a parent,
-  and name \a name.    If a parent is specified the dialog
+  and name \a name. If a parent is specified the dialog
   will be shown centered over the parent.
 
   The dialog's working directory is set to \a dir, and the caption is
@@ -4213,8 +4211,8 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
-  If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
-  symlinks, but it will treat them as regular directories.
+  If \a resolveSymlinks is FALSE, the file dialog will treat
+  symlinks as regular directories.
 
   \sa getOpenFileName(), getOpenFileNames(), getSaveFileName()
 */
@@ -4667,8 +4665,8 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 */
 
 
-/*! Constructs an empty file icon providerwith the parent \a parent and
-  the identity string \a name. */
+/*! Constructs an empty file icon provider with the parent \a parent and
+  name \a name. */
 
 QFileIconProvider::QFileIconProvider( QObject * parent, const char* name )
     : QObject( parent, name )
@@ -4707,7 +4705,7 @@ const QPixmap * QFileIconProvider::pixmap( const QFileInfo & info )
 
 /*!
   Sets the QFileIconProvider used on the file dialog to the
-  QFileIconProvider specified at \a provider.
+  QFileIconProvider specified by \a provider.
 
   The default is that there is no QFileIconProvider and QFileDialog
   just draws a folder icon next to each directory and nothing next
@@ -5135,15 +5133,15 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 }
 
 /*!
+  Sets the filters used in the file dialog to \a filters.  Each group
+  of filters must be separated by \c{;;}.
+
   \code
     QString types("*.png;;*.xpm;;*.jpg");
     QFileDialog fd = new QFileDialog( this );
     fd->setFilters( types );
     fd->show();
   \endcode
-
-  Sets the filters used in the file dialog to \a filters.  You need to ensure that
-  you separate each group of filters with \c ';;'.
 
 */
 
@@ -5246,15 +5244,14 @@ void QFileDialog::modeButtonsDestroyed()
 
 
 /*!
-  This is a convenience static function that will return one or more existing files as
-  selected by the user.
+  This is a convenience static function that will return one or more
+  existing files as selected by the user.
 
   \code
-    QStringList s = QFileDialog::getOpenFileNames( "Images (*.png *.xpm *.jpg)",
-						   "/home",
-						   this,
-						   "open files dialog"
-						   "Select one or more files!" );
+    QStringList s = QFileDialog::getOpenFileNames(
+		        "Images (*.png *.xpm *.jpg)", "/home",
+			this, "open files dialog"
+			"Select one or more files" );
   \endcode
 
   The function creates a modal file dialog with parent \a parent, and
@@ -5277,8 +5274,8 @@ void QFileDialog::modeButtonsDestroyed()
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
-  If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
-  symlinks, but it will treat them as regular directories.
+  If \a resolveSymlinks is FALSE, the file dialog will treat
+  symlinks as regular directories.
 
   \sa getOpenFileName(), getSaveFileName(), getExistingDirectory()
 */
@@ -5722,6 +5719,13 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
 
 
 /*!
+  Sets the widget to be used for displaying information about the file
+  to the widget \a w and a preview of that information to the
+  QFilePreview \a preview.
+
+  Normally you would create a preview widget that derives from both QWidget and
+  QFilePreview, so you should pass the same widget twice.
+
   \code
     class Preview : public QLabel, public QFilePreview
     {
@@ -5739,7 +5743,7 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
 	}
     };
 
-  [...]
+  //...
 
   int main( int argc, char** argv )
   {
@@ -5753,12 +5757,6 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
   }
 
   \endcode
-
-  Sets the widget to be used for displaying information about the file at the widget
-  \a w and a preview of that information at the QFilePreview \a preview.
-
-  Normally you would create a preview widget that derives from both QWidget and
-  QFilePreview, so you should pass the same widget twice.
 
   \sa setContentsPreview(), setInfoPreviewEnabled(), setPreviewMode()
 
@@ -5781,6 +5779,13 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
 }
 
 /*!
+  Sets the widget to be used for displaying the contents of the file
+  to the widget \a w and a preview of those contents to the
+  QFilePreview \a preview.
+
+  Normally you would create a preview widget that derives from both QWidget and
+  QFilePreview, so you should pass the same widget twice.
+
   \code
     class Preview : public QLabel, public QFilePreview
     {
@@ -5798,7 +5803,7 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
 	}
     };
 
-  [...]
+  //...
 
   int main( int argc, char** argv )
   {
@@ -5810,14 +5815,7 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
     fd->setPreviewMode( QFileDialog::Contents );
     fd->show();
   }
-
   \endcode
-
-  Sets the widget to be used for displaying the contents of the file at the widget
-  \a w and a preview of those contents at the QFilePreview \a preview.
-
-  Normally you would create a preview widget that derives from both QWidget and
-  QFilePreview, so you should pass the same widget twice.
 
   \sa setContentsPreviewEnabled(), setInfoPreview(), setPreviewMode()
 */
@@ -5983,8 +5981,8 @@ void QFileDialog::doMimeTypeLookup()
 }
 
 /*!
-  If \a b is TRUE then all the files in the current directory are selected.
-  Otherwise, they are deselected.
+  If \a b is TRUE then all the files in the current directory are selected;
+  otherwise, they are deselected.
 */
 
 void QFileDialog::selectAll( bool b )

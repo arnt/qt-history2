@@ -361,7 +361,7 @@ int QDialog::exec()
 
   If the dialog has the \c WDestructiveClose flag set, done() also
   deletes the dialog. If the dialog is the applications's main widget,
-  the application quits.
+  the application terminates.
 
   \sa accept(), reject(), QApplication::mainWidget(), QApplication::quit()
 */
@@ -513,7 +513,7 @@ void QDialog::closeEvent( QCloseEvent *e )
     Shows a modeless or semi-modal dialog. Control returns immediately
     to the calling code.
 
-    The dialog does not have a local event loop so you will need to call
+    The dialog does not have a local event loop so you must call
     QApplication::processEvents() periodically to give the dialog the
     opportunity to process its events.
 
@@ -567,7 +567,7 @@ void QDialog::show()
 
 /*!\internal
  */
-void QDialog::adjustPosition( QWidget* w) 
+void QDialog::adjustPosition( QWidget* w)
 {
     adjustPositionInternal( w );
 }
@@ -602,7 +602,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 
     if ( useRelPos ) {
 	p = w->pos() + d->relPos;
-	
+
     } else {
 	if ( w ) {
 	    // Use mapToGlobal rather than geometry() in case w might
@@ -622,7 +622,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	p = QPoint( p.x()-width()/2 - extraw,
 		    p.y()-height()/2 - extrah );
     }
-    
+
 
     if ( p.x() + extraw + width() > desk.x() + desk.width() )
 	p.setX( desk.x() + desk.width() - width() - extraw );
@@ -723,7 +723,7 @@ void QDialog::setGeometry( const QRect &r )
     If \a orientation is \c Horizontal, the extension will be displayed
     to the right of the dialog's main area. If \a orientation is \c
     Vertical, the extension will be displayed below the dialog's main
-    are.
+    area.
 
   \sa orientation(), setExtension()
 */

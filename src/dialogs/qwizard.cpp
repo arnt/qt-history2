@@ -256,8 +256,8 @@ void QWizard::addPage( QWidget * page, const QString & title )
 	return;
     }
     int i = d->pages.count();
-    
-    if( i > 0 ) 
+
+    if( i > 0 )
 	d->pages.at( i - 1 )->nextEnabled = TRUE;
 
     QWizardPrivate::Page * p = new QWizardPrivate::Page( page, title );
@@ -344,7 +344,7 @@ int QWizard::pageCount() const
 }
 
 /*!
-  Returns the page index of \a page in the sequence.
+  Returns the sequence index of page \a page.
   If the page is not part of the wizard -1 is returned.
 */
 
@@ -359,15 +359,17 @@ int QWizard::indexOf( QWidget* page ) const
 /*!
   Called when the user clicks the Back button; this function shows
   the preceding relevant page in the sequence.
+
+  \sa appropriate()
 */
 void QWizard::back()
 {
     int i = 0;
-    
+
     while( i < (int)d->pages.count() && d->pages.at( i ) &&
 	   d->current && d->pages.at( i )->w != d->current->w )
 	i++;
-    
+
     i--;
     while( i >= 0 && ( !d->pages.at( i ) || !appropriate( d->pages.at( i )->w ) ) )
 	i--;

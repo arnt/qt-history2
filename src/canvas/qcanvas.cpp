@@ -720,10 +720,10 @@ void QCanvas::resize(int w, int h)
 */
 
 /*!  Change the efficiency tuning parameters to \a mxclusters clusters,
-    each of size \a chunksze.  This is a slow operation if you have many
+    each of size \a chunksze.  This is a slow operation if there are many
     objects on the canvas.
 
-The canvas is divided into chunks which are square areas of the canvas
+The canvas is divided into chunks which are rectangular areas of the canvas
 \a chunksze wide by \a chunksze high. Use a chunk size which is about
 the average size of the canvas items. If you choose a chunk size which
 is too small it will increase the amount of calculation required when
@@ -733,13 +733,13 @@ because for each change a lot of drawing will be required because there
 will be many (unchanged) canvas items which are in the same chunk as the
 changed canvas items.
 
-Internally, a canvas uses a low-resolution "chunk matrix" to keep track
-of all the items in the canvas. The default for a 1024x1024 pixel canvas
-is to have a 64x64 chunk matrix, where each chunk collects canvas items
-in a 16x16 pixel square. This default is also affected by setTiles().
-You can tune this default by using retune(), for example if you have a
-very large canvas and want to trade off speed for memory then you might
-set the chunk size to 32 or 64.
+Internally, a canvas uses a low-resolution "chunk matrix" to keep
+track of all the items in the canvas. A 64x64 chunk matrix is the
+default for a 1024x1024 pixel canvas, where each chunk collects canvas
+items in a 16x16 pixel square. This default is also affected by
+setTiles(). You can tune this default with this function, for example
+if you have a very large canvas and want to trade off speed for memory
+then you might set the chunk size to 32 or 64.
 
 The \a mxclusters argument is the number of rectangular groups of chunks
 that will be separately drawn.  If the canvas has a large number of
@@ -906,7 +906,7 @@ void QCanvas::removeView(QCanvasView* view)
 /*!
   Sets the canvas to call advance() every \a ms milliseconds. Any
   previous setting by setAdvancePeriod() or setUpdatePeriod() is
-  cancelled.
+  overridden.
 
   If \a ms is less than 0 advancing will be stopped.
 */
@@ -1262,7 +1262,8 @@ void QCanvas::ensureOffScrSize( int osw, int osh )
 */
 void QCanvas::drawArea(const QRect& clip, QPainter* painter, bool dbuf)
 {
-    if ( painter ) drawCanvasArea( clip, painter, dbuf );
+    if ( painter )
+	drawCanvasArea( clip, painter, dbuf );
 }
 
 /*!
@@ -1469,7 +1470,7 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
   Note that this function is not a reimplementation
   of QWidget::backgroundColor() (QCanvas is not a subclass
   of QWidget), but all QCanvasViews that are viewing the
-  canvas will set their backgrounds to this.
+  canvas will set their backgrounds to this color.
 
   \sa setBackgroundColor(), backgroundPixmap()
 */
@@ -1765,7 +1766,7 @@ QWidget.
 QCanvasItem also provides the setEnabled(), setActive() and
 setSelected() functions; these functions set the relevant boolean and
 cause a repaint but the boolean values they set are not used in
-QCanvasItem. You can make use of these booleans in your subclasses.
+QCanvasItem itself. You can make use of these booleans in your subclasses.
 
 By default canvas items have no velocity, no size and are not in motion.
 The subclasses provided in Qt do not change these defaults except where
@@ -1969,8 +1970,8 @@ double QCanvasItem::yVelocity() const
  animated(), by the preset velocity if \a phase is 1, and does nothing
  if \a phase is 0.
 
-  Note that if you reimplement this function, the reimplementation may
-  not change the canvas in any way, for example it may not add or remove
+  Note that if you reimplement this function, the reimplementation must
+  not change the canvas in any way, for example it must not add or remove
   items.
 
   \sa QCanvas::advance() setVelocity()
@@ -2611,17 +2612,17 @@ QRect QCanvasItem::boundingRectAdvanced() const
   QPixmap, one a QImage and one a file name that refers to a file in
   any supported file format (see QImageIO).
 
-  Since QCanvasSprite needs (and other uses of pixmaps often need) a
-  hot spot, QCanvasPixmap provides one. When you create the
-  QCanvasPixmap from a PNG file or from a QImage that has a
-  QImage::offset(), the offset() is initialized appropriately, otherwise
-  the constructor leaves it at (0,0). You can set it later using
-  setOffset(). When the QCanvasPixmap is used in a QCanvasSprite, the
-  offset position is the point at QCanvasItem::x() and QCanvasItem::y(),
-  not the top-left corner of the pixmap.
+  QCanvasPixmap can have a hotspot which is defined in terms of an (x,
+  y) offset. When you create a QCanvasPixmap from a PNG file or from
+  a QImage that has a QImage::offset(), the offset() is initialized
+  appropriately, otherwise the constructor leaves it at (0, 0). You
+  can set it later using setOffset(). When the QCanvasPixmap is used
+  in a QCanvasSprite, the offset position is the point at
+  QCanvasItem::x() and QCanvasItem::y(), not the top-left corner of
+  the pixmap.
 
   Note that for QCanvasPixmap objects created by a QCanvasSprite, the
-  position of each QCanvasPixmap object is set so that the hot spot
+  position of each QCanvasPixmap object is set so that the hotspot
   stays in the same position.
 
   Like any other canvas item canvas pixmaps can be moved with
@@ -2634,8 +2635,8 @@ QRect QCanvasItem::boundingRectAdvanced() const
 #ifndef QT_NO_IMAGEIO
 
 /*!
-  Constructs a QCanvasPixmap from an image file at the location
-  specified in \a datafilename by loading it.
+  Constructs a QCanvasPixmap that uses the image stored in
+  \a datafilename.
 */
 QCanvasPixmap::QCanvasPixmap(const QString& datafilename)
 {
@@ -2697,21 +2698,21 @@ QCanvasPixmap::~QCanvasPixmap()
 /*!
   \fn int QCanvasPixmap::offsetX() const
 
-  Returns the X-offset of the pixmap's hot spot.
+  Returns the X-offset of the pixmap's hotspot.
 
   \sa setOffset()
 */
 /*!
   \fn int QCanvasPixmap::offsetY() const
 
-  Returns the Y-offset of the pixmap's hot spot.
+  Returns the Y-offset of the pixmap's hotspot.
 
   \sa setOffset()
 */
 /*!
   \fn void QCanvasPixmap::setOffset(int x, int y)
 
-  Sets the offset of the pixmap's hot spot to (\a x, \a y).
+  Sets the offset of the pixmap's hotspot to (\a x, \a y).
 
   Note that you must not call this function if any QCanvasSprites
   are currently showing this pixmap.
@@ -2810,9 +2811,9 @@ QCanvasPixmapArray::QCanvasPixmapArray(QPtrList<QPixmap> list, QPtrList<QPoint> 
     }
 }
 
-/*! Constructs a QCanvasPixmapArray from the list of QPixmaps in \a
+/*! Constructs a QCanvasPixmapArray from the list of QPixmaps in the \a
   list. Each pixmap will get a hotspot according to the \a hotspots
-  array. If no hotspots are specified, each one is assumed to be at
+  array. If no hotspots are specified, each one is set to be at
   position (0, 0).
 
   If an error occurs, isValid() will return FALSE.
@@ -2881,13 +2882,13 @@ bool QCanvasPixmapArray::readPixmaps( const QString& filenamepattern,
 /*! Reads new collision masks for the array.
 
   By default, QCanvasSprite uses the image mask of a sprite to detect
-  collisions. This function lets you override that.
+  collisions. Use this function to set your own collision image masks.
 
 
   If count() is 1 \a filename must specify a real filename to read the
   mask from. If count() is greater than 1, the \a filename must
   contain a "%1" that will get replaced by the number of the mask to
-  be loaded, similar to QCanvasPixmapArray::readPixmaps.
+  be loaded, similar to QCanvasPixmapArray::readPixmaps().
 
   All collision masks must be 1-bit images or this function call will
   fail.
@@ -2953,7 +2954,7 @@ bool QCanvasPixmapArray::operator!()
 }
 
 /*!
-  returns TRUE if the pixmap array is valid, FALSE otherwise.
+  returns TRUE if the pixmap array is valid; otherwise returns FALSE.
 */
 bool QCanvasPixmapArray::isValid() const
 {
@@ -3014,7 +3015,7 @@ int QCanvasSprite::leftEdge() const
   \overload
 
   Returns what the x coordinate of the left edge of the sprite would be
-  if the sprite (actually its hot spot) were moved to x-position \a nx.
+  if the sprite (actually its hotspot) were moved to x-position \a nx.
 
   \sa rightEdge() bottomEdge() topEdge()
 */
@@ -3038,7 +3039,7 @@ int QCanvasSprite::topEdge() const
   \overload
 
   Returns what the y coordinate of the top edge of the sprite would be
-  if the sprite (actually its hot spot) were moved to y-position \a ny.
+  if the sprite (actually its hotspot) were moved to y-position \a ny.
 
   \sa leftEdge() rightEdge() bottomEdge()
 */
@@ -3062,7 +3063,7 @@ int QCanvasSprite::rightEdge() const
   \overload
 
   Returns what the x coordinate of the right edge of the sprite
-  would be if the sprite (actually its hot spot) were moved to
+  would be if the sprite (actually its hotspot) were moved to
   x-position \a nx.
 
   \sa leftEdge() bottomEdge() topEdge()
@@ -3087,7 +3088,7 @@ int QCanvasSprite::bottomEdge() const
   \overload
 
   Returns what the y coordinate of the top edge of the sprite
-  would be if the sprite (actually its hot spot) were moved to
+  would be if the sprite (actually its hotspot) were moved to
   y-position \a ny.
 
   \sa leftEdge() rightEdge() topEdge()
@@ -3360,7 +3361,7 @@ const QWMatrix &QCanvasView::inverseWorldMatrix() const
   When you use this, you should note that the performance of the
   QCanvasView will decrease considerably.
 
-  Returns FALSE in case \a wm is not invertable; otherwise returns TRUE.
+  Returns FALSE if \a wm is not invertable; otherwise returns TRUE.
 
   \sa worldMatrix() inverseWorldMatrix() QWMatrix::isInvertible()
 */
@@ -3536,8 +3537,8 @@ QCanvasPolygonalItem::~QCanvasPolygonalItem()
 
 /*!
   Returns TRUE if the polygonal item uses the winding algorithm
-  to determine the "inside" of the polygon, or FALSE if it uses the
-  odd-even algorithm.
+  to determine the "inside" of the polygon. Returns FALSE if it uses
+  the odd-even algorithm.
 
   The default is to use the odd-even algorithm.
 
@@ -4930,19 +4931,19 @@ void QCanvasSprite::setFrame(int f)
     animation of QCanvasSprite.
 
     \value Cycle at each advance the frame number will be incremented by
-    1 (modulo the frame count)
+    1 (modulo the frame count).
     \value Oscillate at each advance the frame number will be
     incremented by 1 up to the frame count then decremented to by 1 to
-    0, repeating this sequence indefinitely
+    0, repeating this sequence forever.
 */
 
 /*!
-    Sets the animation characteritics for the sprite.
+    Sets the animation characteristics for the sprite.
 
-    For \a type == Cycle, the frames will increase by \a step
+    For \a type == \c Cycle, the frames will increase by \a step
     at each advance, modulo the frameCount().
 
-    For \a type == Oscillate, the frames will increase by \a step
+    For \a type == \c Oscillate, the frames will increase by \a step
     at each advance, up to the frameCount(), then decrease by \a step
     back to 0, etc.
 
@@ -4990,6 +4991,7 @@ void QCanvasSprite::advance(int phase)
 
 /*!
 \fn int QCanvasSprite::frame() const
+
 Returns the index of the current animation frame in the QCanvasSprite's
 QCanvasPixmapArray.
 
@@ -4998,6 +5000,7 @@ QCanvasPixmapArray.
 
 /*!
 \fn int QCanvasSprite::frameCount() const
+
 Returns the number of frames in the QCanvasSprite's QCanvasPixmapArray.
 */
 

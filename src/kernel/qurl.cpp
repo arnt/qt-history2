@@ -107,7 +107,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
   Example:
 
-  \c http://www.trolltech.com:80/cgi-bin/test%20me.pl?cmd=Hello%20you
+  <tt>http://www.trolltech.com:80/cgi-bin/test%20me.pl?cmd=Hello%20you</tt>
 
   \table
   \header \i Function

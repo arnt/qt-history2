@@ -929,7 +929,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
 
 /*!
-  returns the preferred mime name of the encoding as defined int the
+  Returns the preferred mime name of the encoding as defined in the
         \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
       IANA character-sets encoding file\endlink.
 */
@@ -945,12 +945,12 @@ const char* QTextCodec::mimeName() const
   Subclasses of QTextCodec must reimplement this function.  It examines
   the first \a len bytes of \a chars and returns a value indicating how
   likely it is that the string is a prefix of text encoded in the
-  encoding of the subclass.  Any negative return value indicates that the text
-  is detectably not in the encoding (e.g. it contains undefined characters).
-  A return value of 0 indicates that the text should be decoded with this
-  codec rather than as ASCII, but there
-  is no particular evidence.  The value should range up to \a len.  Thus,
-  most decoders will return -1, 0, or -\a len.
+  encoding of the subclass.  A negative return value indicates that
+  the text is detectably not in the encoding (e.g. it contains
+  characters undefined in the encoding). A return value of 0 indicates
+  that the text should be decoded with this codec rather than as
+  ASCII, but there is no particular evidence.  The value should range
+  up to \a len.  Thus, most decoders will return -1, 0, or -\a len.
 
   The characters are not null terminated.
 
@@ -1138,7 +1138,7 @@ bool QTextCodec::canEncode( QChar ch ) const
 
 /*!
     \overload
-    \a s contains the string that we are testing for encode-ability.
+    \a s contains the string being tested for encode-ability.
 */
 bool QTextCodec::canEncode( const QString& s ) const
 {
