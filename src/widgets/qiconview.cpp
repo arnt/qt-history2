@@ -1996,6 +1996,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->firstContainer = d->lastContainer = 0;
     d->containerUpdateLocked = FALSE;
 
+    setHScrollBarMode( AlwaysOff );
+    setVScrollBarMode( Auto );
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -3205,9 +3208,17 @@ void QIconView::setAlignMode( AlignMode am )
 	return;
 
     d->alignMode = am;
+    
+    if ( d->alignMode == East ) {
+	setHScrollBarMode( AlwaysOff );
+	setVScrollBarMode( Auto );
+    } else {
+	setVScrollBarMode( AlwaysOff );
+	setHScrollBarMode( Auto );
+    }
+    
     viewport()->setUpdatesEnabled( FALSE );
-    resizeContents( viewport()->width() - verticalScrollBar()->width(),
-		    viewport()->height() - horizontalScrollBar()->height() );
+    resizeContents( viewport()->width(), viewport()->height() );
     viewport()->setUpdatesEnabled( TRUE );
     alignItemsInGrid( TRUE );
 }
