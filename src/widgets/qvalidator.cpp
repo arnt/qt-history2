@@ -491,29 +491,15 @@ void QDoubleValidator::setDecimals( int decimals )
 
     Example of use:
     \code
-    #include <qapplication.h>
+    //...
     #include <qlineedit.h>
-    #include <qpushbutton.h>
     #include <qregexp.h>
-    #include <qsplitter.h>
     #include <qvalidator.h>
-
-    int main( int argc, char *argv[] )
-    {
-	QApplication app( argc, argv );
-	QRegExp rx( "-?\\d{1,3}" ); // Regexp: optional '-' followed by between 1 and 3 digits
-	QRegExpValidator validator( rx, 0 );
-	QSplitter   *split  = new QSplitter();
-	QLineEdit   *edit   = new QLineEdit( split );
-	edit->setValidator( &validator ); // edit widget will only accept numbers -999 to 999
-	edit->setFocus();
-	QPushButton *button = new QPushButton( "&Quit", split );
-	app.setMainWidget( split );
-	split->show();
-	app.connect( edit, SIGNAL( returnPressed() ), button, SLOT( animateClick() ) );
-	app.connect( button, SIGNAL( clicked() ), &app, SLOT( quit() ) );
-	return app.exec();
-    }
+    //...
+    QRegExp rx( "-?\\d{1,3}" ); // Regexp: optional '-' followed by between 1 and 3 digits
+    QRegExpValidator validator( rx, 0 );
+    QLineEdit *edit   = new QLineEdit( split );
+    edit->setValidator( &validator ); // edit widget will only accept numbers -999 to 999
     \endcode
 
     Below we present some examples of validators. In practice they would
@@ -556,7 +542,8 @@ void QDoubleValidator::setDecimals( int decimals )
 
 /*!
   Constructs a validator object that accepts any string (including an
-  empty one) as valid.
+  empty one) as valid. The object's parent is \a parent and name is \a
+  name.
 */
 
 QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
@@ -565,8 +552,11 @@ QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
 }
 
 /*!
+  \overload
+
   Constructs a validator object which accepts all strings that match the
-  regular expression \a rx.
+  regular expression \a rx. The object's parent is \a parent and name is
+  \a name.
 
   The match is made against the entire string, e.g. if the regexp is
   <b>[A-Fa-f0-9]+</b> it will be treated as <b>^[A-Fa-f0-9]+$</b>.
@@ -579,7 +569,7 @@ QRegExpValidator::QRegExpValidator( const QRegExp& rx, QWidget *parent,
 }
 
 /*!
-  Destroys the validator, freeing any storage and other resources used.
+  Destroys the validator, freeing any resources allocated.
 */
 
 QRegExpValidator::~QRegExpValidator()
