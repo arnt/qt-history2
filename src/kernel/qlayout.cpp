@@ -1148,7 +1148,7 @@ static bool checkWidget( QLayout *l, QWidget *w )
 {
     if ( !w ) {
 	qWarning( "QLayout: Cannot add null widget to %s/%s", l->className(),
-		  l->name() );
+		  l->objectName() );
 	return FALSE;
     }
     return TRUE;
@@ -1179,7 +1179,7 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, Alignment alignment )
 	return;
     if ( row < 0 || col < 0 ) {
 	qWarning( "QGridLayout: Cannot add %s/%s to %s/%s at row %d col %d",
-		  w->className(), w->name(), className(), name(), row, col );
+		  w->className(), w->objectName(), className(), objectName(), row, col );
 	return;
     }
     addChildWidget(w);

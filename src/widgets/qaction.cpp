@@ -413,7 +413,7 @@ static QString qt_stripMenuText( QString s )
 {
     s.remove( QString::fromLatin1("...") );
     s.remove( QChar('&' ) );
-    return s.stripWhiteSpace();
+    return s.trimmed();
 };
 
 /*!
@@ -684,7 +684,7 @@ void QAction::setMenuText( const QString& text )
 
 QString QAction::menuText() const
 {
-    return d->menuText(); 
+    return d->menuText();
 }
 
 /*!
@@ -758,7 +758,7 @@ QString QAction::statusTip() const
     QStyleSheet for the list of supported tags). There is no default
     "What's This" text.
 
-    If the whats this text contains a hyperlink the whatsThisClicked() 
+    If the whats this text contains a hyperlink the whatsThisClicked()
     signal is emitted when the user clicks inside the "What's This?"
     window.
 
@@ -814,7 +814,7 @@ void QAction::setAccel( const QKeySequence& key )
 	d->accelid = d->accel->insertItem( d->key );
 	d->accel->connectItem( d->accelid, this, SLOT( internalActivation() ) );
     } else
-	qWarning( "QAction::setAccel() (%s) requires widget in parent chain", name() );
+	qWarning( "QAction::setAccel() (%s) requires widget in parent chain", objectName() );
     d->update();
 }
 
@@ -870,11 +870,11 @@ void QAction::activate()
     if ( isToggleAction() ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QAction::%s() (%s) Toggle actions "
-		  "can not be activated", "activate", name() );
+		  "can not be activated", "activate", objectName() );
 #endif
 	return;
     }
-    emit activated();    
+    emit activated();
 }
 
 /*!
@@ -886,7 +886,7 @@ void QAction::toggle()
 {
     if ( !isToggleAction() ) {
 	qWarning( "QAction::%s() (%s) Only toggle actions "
-		  "can be switched", "toggle", name() );
+		  "can be switched", "toggle", objectName() );
 	return;
     }
     setOn( !isOn() );
@@ -908,7 +908,7 @@ void QAction::setOn( bool enable )
     if ( !isToggleAction() ) {
 	if ( enable )
 	    qWarning( "QAction::%s() (%s) Only toggle actions "
-		      "can be switched", "setOn", name() );
+		      "can be switched", "setOn", objectName() );
 	return;
     }
     if ( enable == (bool)d->on )
@@ -1026,10 +1026,10 @@ bool QAction::addTo( QWidget* w )
 {
 #ifndef QT_NO_TOOLBAR
     if (::qt_cast<QToolBar*>(w)) {
-	if (!qstrcmp( name(), "qt_separator_action" )) {
+	if (!qstrcmp( objectName(), "qt_separator_action" )) {
 	    ((QToolBar*)w)->addSeparator();
 	} else {
-	    QByteArray bname = name() + QByteArray( "_action_button" );
+	    QByteArray bname = objectName() + QByteArray( "_action_button" );
 	    QToolButton* btn = new QToolButton( (QToolBar*) w, bname );
 	    addedTo( btn, w );
 	    btn->setToggleButton( d->toggleaction );
@@ -1048,7 +1048,7 @@ bool QAction::addTo( QWidget* w )
     } else
 #endif
     if ( qt_cast<QPopupMenu*>(w) ) {
-	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
+	if ( !qstrcmp( objectName(), "qt_separator_action" ) ) {
 	    ((QPopupMenu*)w)->insertSeparator();
 	} else {
 	    QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
@@ -1073,7 +1073,7 @@ bool QAction::addTo( QWidget* w )
 	ci->combo = (QComboBox*)w;
 	connect( ci->combo, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 	ci->id = ci->combo->count();
-	if ( qstrcmp( name(), "qt_separator_action" ) ) {
+	if ( qstrcmp( objectName(), "qt_separator_action" ) ) {
 	    if ( d->iconset )
 		ci->combo->insertItem( d->iconset->pixmap(), text() );
 	    else
@@ -1317,7 +1317,7 @@ void QAction::objectDestroyed()
 /*!
     \fn void QAction::showStatusMessage(const QString &text)
 
-    This signal is emitted before \a text is displayed in the 
+    This signal is emitted before \a text is displayed in the
     application's statusbar. \a text can be QString::null when the
     status bar is cleared.
 
@@ -1754,7 +1754,7 @@ bool QActionGroup::addTo( QWidget* w )
 		    QAction *action = *it;
 		    if ( !foundOn )
 			foundOn = action->isOn();
-		    if ( qstrcmp( action->name(), "qt_separator_action" ) && !foundOn )
+		    if ( qstrcmp( action->objectName(), "qt_separator_action" ) && !foundOn )
 			onIndex++;
 		    action->addTo( box );
 		}
@@ -2041,7 +2041,7 @@ void QActionGroup::internalComboBoxActivated( int index )
     QAction *a = 0;
     for ( int i = 0; i <= index && i < (int)d->actions.count(); ++i ) {
 	a = d->actions.at( i );
-	if ( a && !qstrcmp( a->name(), "qt_separator_action" ) )
+	if ( a && !qstrcmp( a->objectName(), "qt_separator_action" ) )
 	    index++;
     }
     a = d->actions.at( index );
@@ -2074,7 +2074,7 @@ void QActionGroup::internalComboBoxHighlighted( int index )
     QAction *a = 0;
     for ( int i = 0; i <= index && i < (int)d->actions.count(); ++i ) {
 	a = d->actions.at( i );
-	if ( a && !qstrcmp( a->name(), "qt_separator_action" ) )
+	if ( a && !qstrcmp( a->objectName(), "qt_separator_action" ) )
 	    index++;
     }
     a = d->actions.at( index );
@@ -2088,14 +2088,14 @@ void QActionGroup::internalComboBoxHighlighted( int index )
 */
 void QActionGroup::internalToggle( QAction *a )
 {
-    int index = d->actions.findIndex(a);
+    int index = d->actions.indexOf(a);
     if (index == -1)
 	return;
 
     int lastItem = index;
     for (int i=0; i<lastItem; ++i) {
 	QAction *action = d->actions.at(i);
-	if (!qstrcmp(action->name(), "qt_separator_action"))
+	if (!qstrcmp(action->objectName(), "qt_separator_action"))
 	    --index;
     }
 

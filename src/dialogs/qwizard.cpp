@@ -239,8 +239,8 @@ void QWizard::addPage( QWidget * page, const QString & title )
 	return;
     if ( d->page( page ) ) {
 	qWarning( "QWizard::addPage(): already added %s/%s to %s/%s",
-		  page->className(), page->name(),
-		  className(), name() );
+		  page->className(), page->objectName(),
+		  className(), objectName() );
 	return;
     }
     int i = d->pages.count();
@@ -266,8 +266,8 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
 	return;
     if ( d->page( page ) ) {
 	qWarning( "QWizard::insertPage(): already added %s/%s to %s/%s",
-		  page->className(), page->name(),
-		  className(), name() );
+		  page->className(), page->objectName(),
+		  className(), objectName() );
 	return;
     }
 
@@ -348,7 +348,7 @@ int QWizard::indexOf( QWidget* page ) const
     QWizardPrivate::Page * p = d->page( page );
     if ( !p ) return -1;
 
-    return d->pages.findIndex(p);
+    return d->pages.indexOf(p);
 }
 
 /*!

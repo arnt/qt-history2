@@ -1074,7 +1074,7 @@ void QMotifStyle::drawControl( ControlElement element,
 	    }
 	    QString s = mi->text();
 	    if ( !s.isNull() ) {                        // draw text
-		int t = s.find( '\t' );
+		int t = s.indexOf( '\t' );
 		int m = motifItemVMargin;
 		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 		text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft );
@@ -1727,7 +1727,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 	    // a little bit of border can never harm
 	    w += 2*motifItemHMargin + 2*motifItemFrame;
 
-	    if ( !mi->text().isNull() && mi->text().find('\t') >= 0 )
+	    if ( !mi->text().isNull() && mi->text().indexOf('\t') >= 0 )
 		// string contains tab
 		w += motifTabSpacing;
 	    else if (mi->popup())

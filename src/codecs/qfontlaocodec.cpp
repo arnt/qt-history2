@@ -70,7 +70,8 @@ unsigned short QFontLaoCodec::characterFromUnicode(const QString &str, int pos) 
 
 QByteArray QFontLaoCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QByteArray rstring( lenInOut+1 );
+    QByteArray rstring;
+    rstring.resize( lenInOut+1 );
     uchar *rdata = (uchar *) rstring.data();
     const QChar *sdata = uc.unicode();
     int i = 0;

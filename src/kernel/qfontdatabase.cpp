@@ -64,7 +64,7 @@ static int ucstricmp( const QString &as, const QString &bs )
 
 static int getFontWeight( const QString &weightString )
 {
-    QString s = weightString.lower();
+    QString s = weightString.toLower();
 
     // Test in decreasing order of commonness
     if (s == "medium" ||
@@ -1094,7 +1094,7 @@ static QString styleString( int weight, bool italic, bool oblique )
     if ( result.isEmpty() )
 	result = "Normal";
 
-    return result.simplifyWhiteSpace();
+    return result.simplified();
 }
 
 /*!
@@ -2292,12 +2292,12 @@ QString QFontDatabase::scriptSample(QFont::Script script)
 void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString &family)
 {
     if ( name.contains('-') ) {
-	int i = name.find('-');
+	int i = name.indexOf('-');
 	foundry = name.left( i );
 	family = name.right( name.length() - i - 1 );
     } else if ( name.contains('[') && name.contains(']')) {
-	int i = name.find('[');
-	int li = name.findRev(']');
+	int i = name.indexOf('[');
+	int li = name.lastIndexOf(']');
 
 	if (i < li) {
 	    foundry = name.mid(i + 1, li - i - 1);

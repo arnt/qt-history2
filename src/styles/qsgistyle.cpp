@@ -484,7 +484,7 @@ static void drawSGIPrefix( QPainter *p, int x, int y, QString* miText )
     if ( miText && (!!(*miText)) ) {
         int amp = 0;
         bool nextAmp = FALSE;
-        while ( ( amp = miText->find( '&', amp ) ) != -1 ) {
+        while ( ( amp = miText->indexOf( '&', amp ) ) != -1 ) {
             if ( amp == miText->length()-1 )
                 return;
             miText->remove( amp,1 );
@@ -1050,7 +1050,7 @@ void QSGIStyle::drawControl( ControlElement element,
 
 	    QString s = mi->text();
 	    if ( !!s ) {
-		int t = s.find( '\t' );
+		int t = s.indexOf( '\t' );
 		int m = sgiItemVMargin;
 		const int text_flags = AlignVCenter | DontClip | SingleLine; //special underline for &x
 

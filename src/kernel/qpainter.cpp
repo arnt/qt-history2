@@ -1749,12 +1749,9 @@ void qt_format_text( const QFont& font, const QRect &_r,
     QFontMetrics fm( fnt );
 
     QString text = str;
-    // str.setLength() always does a deep copy, so the replacement
-    // code below is safe.
-    text.setLength( len );
     // compatible behaviour to the old implementation. Replace
     // tabs by spaces
-    QChar *chr = (QChar*)text.unicode();
+    QChar *chr = text.data();
     const QChar *end = chr + len;
     bool haveLineSep = false;
     while ( chr != end ) {
@@ -1801,7 +1798,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	}
 	int newlen = cout - text.unicode();
 	if ( newlen != text.length())
-	    text.setLength( newlen );
+	    text.resize( newlen );
     }
 
     // no need to do extra work for underlines if we don't paint

@@ -211,7 +211,7 @@ bool QErrorMessage::nextPending()
 {
     while ( !pending->isEmpty() ) {
 	QString p = *pending->begin();
-	pending->remove( pending->begin() );
+	pending->erase( pending->begin() );
 	if ( !p.isEmpty() && !doNotShow.contains( p ) ) {
 	    errors->setText( p );
 	    return TRUE;

@@ -1043,7 +1043,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	int resl = res.length();
 
 	while (l < resl) {
-	    r = res.find( '\n', l );
+	    r = res.indexOf( '\n', l );
 	    if ( r < 0 )
 		r = resl;
 	    while ( ::isSpace(res[l]) )
@@ -1054,38 +1054,38 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		  res[l+1] == 'F' || res[l+1] == 'B' || res[l+1] == 'G' ||
 		  res[l+1] == 's' || res[l+1] == 'S' ) ) {
 		// OPTIMIZED, since we only want "*[fbgs].."
-		QString item = res.mid( l, r - l ).simplifyWhiteSpace();
-		int i = item.find( ":" );
-		key = item.left( i ).stripWhiteSpace().mid(1).lower();
-		value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+		QString item = res.mid( l, r - l ).simplified();
+		int i = item.indexOf(':');
+		key = item.left( i ).trimmed().mid(1).toLower();
+		value = item.right(item.length() - i - 1).trimmed();
 		mine = TRUE;
 	    } else if ( res[l] == appName[0] || res[l] == appClass[0] ) {
 		if (res.mid(l,apnl) == apn && (res[l+apnl] == '.' || res[l+apnl] == '*')) {
-		    QString item = res.mid( l, r - l ).simplifyWhiteSpace();
-		    int i = item.find( ":" );
-		    key = item.left( i ).stripWhiteSpace().mid(apnl+1).lower();
-		    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+		    QString item = res.mid( l, r - l ).simplified();
+		    int i = item.indexOf(':');
+		    key = item.left( i ).trimmed().mid(apnl+1).toLower();
+		    value = item.right( item.length() - i - 1 ).trimmed();
 		    mine = TRUE;
 		} else if (res.mid(l,apcl) == apc && (res[l+apcl] == '.' || res[l+apcl] == '*')) {
-		    QString item = res.mid( l, r - l ).simplifyWhiteSpace();
-		    int i = item.find( ":" );
-		    key = item.left( i ).stripWhiteSpace().mid(apcl+1).lower();
-		    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+		    QString item = res.mid( l, r - l ).simplified();
+		    int i = item.indexOf(':');
+		    key = item.left( i ).trimmed().mid(apcl+1).toLower();
+		    value = item.right( item.length() - i - 1 ).trimmed();
 		    mine = TRUE;
 		}
 	    }
 
 	    if ( mine ) {
 		if ( !font && key == "systemfont")
-		    sysFont = value.left( value.findRev(':') ).copy();
+		    sysFont = value.left( value.lastIndexOf(':') );
 		if ( !font && key == "font")
-		    resFont = value.copy();
+		    resFont = value;
 		else if  ( !fg &&  key == "foreground" )
-		    resFG = value.copy();
+		    resFG = value;
 		else if ( !bg && key == "background")
-		    resBG = value.copy();
+		    resBG = value;
 		else if ( key == "guieffects")
-		    resEF = value.copy();
+		    resEF = value;
 		// NOTE: if you add more, change the [fbg] stuff above
 	    }
 
@@ -1488,7 +1488,7 @@ void qt_init( QApplicationPrivate *priv, int,
 		    qt_ncols_option = qMax(0,atoi(argv[i]));
 	    } else if ( arg == "-visual" ) {  // xv and netscape use this name
 		if ( ++i < argc ) {
-		    QString s = QString(argv[i]).lower();
+		    QString s = QString(argv[i]).toLower();
 		    if ( s == "truecolor" ) {
 			qt_visual_option = TrueColor;
 		    } else {
@@ -1498,7 +1498,7 @@ void qt_init( QApplicationPrivate *priv, int,
 #ifndef QT_NO_XIM
 	    } else if ( arg == "-inputstyle" ) {
 		if ( ++i < argc ) {
-		    QString s = QString(argv[i]).lower();
+		    QString s = QString(argv[i]).toLower();
 		    if ( s == "onthespot" )
 			xim_preferred_style = XIMPreeditCallbacks |
 					      XIMStatusNothing;
@@ -1890,7 +1890,7 @@ void qt_init( QApplicationPrivate *priv, int,
     }
 
     if( qt_is_gui_used ) {
-	qApp->setName( appName );
+	qApp->setObjectName( appName );
 
 	int screen;
 	for ( screen = 0; screen < appScreenCount; ++screen ) {
@@ -3131,7 +3131,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		if ((X11->xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 &&
 		     qic && qic->composing && qic->focusWidget) {
 		    // input method has sent us a commit string
-		    QByteArray data(513);
+		    QByteArray data;
+		    data.resize(513);
 		    KeySym sym;    // unused
 		    Status status; // unused
 		    QString text;
@@ -4638,7 +4639,8 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     // some XmbLookupString implementations don't return buffer overflow correctly,
     // so we increase the input buffer to allow for long strings...
     // 256 chars * 2 bytes + 1 null-term == 513 bytes
-    QByteArray chars(513);
+    QByteArray chars;
+    chars.resize(513);
     QChar converted;
     KeySym key = 0;
 

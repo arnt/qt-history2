@@ -414,7 +414,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool prepend )
 	s = new QSplitterLayoutStruct;
 	s->resizeMode = KeepSize;
 	QString tmp = "qt_splithandle_";
-	tmp += w->name();
+	tmp += w->objectName();
 	newHandle = new QSplitterHandle( orientation(), this, tmp );
 	s->wid = newHandle;
 	newHandle->setId( d->list.count() );
@@ -468,7 +468,7 @@ void QSplitter::childEvent( QChildEvent *c )
 	QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
 	while ( it != d->list.end() ) {
 	    if ( (*it)->wid == c->child() ) {
-		d->list.remove( it );
+		d->list.erase( it );
 		if ( prev && prev->isHandle ) {
 		    QWidget *w = prev->wid;
 		    d->list.remove(prev);

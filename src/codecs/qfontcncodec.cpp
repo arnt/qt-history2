@@ -61,7 +61,8 @@ unsigned short QFontGb2312Codec::characterFromUnicode(const QString &str, int po
 
 QByteArray QFontGb2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QByteArray result(lenInOut * 2 + 1);
+    QByteArray result;
+    result.resize(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 
@@ -167,7 +168,8 @@ unsigned short QFontGbkCodec::characterFromUnicode(const QString &str, int pos) 
 
 QByteArray QFontGbkCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QByteArray result(lenInOut * 2 + 1);
+    QByteArray result;
+    result.resize(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 
@@ -256,7 +258,8 @@ QFontGb18030_0Codec::characterFromUnicode(const QString &str, int pos) const
 
 QByteArray QFontGb18030_0Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QByteArray result(lenInOut * 2 + 1);
+    QByteArray result;
+    result.resize(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 

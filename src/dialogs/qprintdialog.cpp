@@ -149,9 +149,9 @@ static void perhapsAddPrinter( QListView * printers, const QString &name,
     if ( host.isEmpty() )
 	host = QPrintDialog::tr( "locally connected" );
     (void)new QPrinterListViewItem( printers,
-				    name.simplifyWhiteSpace(),
-				    host.simplifyWhiteSpace(),
-				    comment.simplifyWhiteSpace(), aliases );
+				    name.simplified(),
+				    host.simplified(),
+				    comment.simplified(), aliases );
 }
 
 static void parsePrinterDesc( QString printerDesc, QListView * printers )
@@ -159,14 +159,14 @@ static void parsePrinterDesc( QString printerDesc, QListView * printers )
     if ( printerDesc.length() < 1 )
 	return;
 
-    printerDesc = printerDesc.simplifyWhiteSpace();
-    int i = printerDesc.find( ':' );
+    printerDesc = printerDesc.simplified();
+    int i = printerDesc.indexOf( ':' );
     QString printerName, printerComment, printerHost;
     QStringList aliases;
 
     if ( i >= 0 ) {
 	// have ':' want '|'
-	int j = printerDesc.find( '|' );
+	int j = printerDesc.indexOf( '|' );
 	if ( j > 0 && j < i ) {
 	    printerName = printerDesc.left( j );
 	    aliases = QStringList::split( '|',
@@ -178,11 +178,11 @@ static void parsePrinterDesc( QString printerDesc, QListView * printers )
 	    printerName = printerDesc.left( i );
 	}
 	// look for lprng pseudo all printers entry
-	i = printerDesc.find( QRegExp(QString::fromLatin1(": *all *=")) );
+	i = printerDesc.indexOf( QRegExp(QString::fromLatin1(": *all *=")) );
 	if ( i >= 0 )
 	    printerName = "";
 	// look for signs of this being a remote printer
-	i = printerDesc.find( QRegExp(QString::fromLatin1(": *rm *=")) );
+	i = printerDesc.indexOf( QRegExp(QString::fromLatin1(": *rm *=")) );
 	if ( i >= 0 ) {
 	    // point k at the end of remote host name
 	    while ( printerDesc[i] != '=' )
@@ -218,7 +218,7 @@ static int parsePrintcap( QListView * printers, const QString& fileName )
 	if ( printcap.atEnd() || printcap.readLine( line_ascii, 1024 ) <= 0 )
 	    atEnd = TRUE;
 	QString line = line_ascii;
-	line = line.stripWhiteSpace();
+	line = line.trimmed();
 	if ( line.length() >= 1 && line[int(line.length()) - 1] == '\\' )
 	    line.truncate( line.length() - 1 );
 	if ( line[0] == '#' ) {
@@ -271,7 +271,7 @@ static void parseEtcLpPrinters( QListView * printers )
 			while ( isspace((uchar) *p) )
 			    p++;
 			printerHost = QString::fromLocal8Bit(p);
-			printerHost = printerHost.simplifyWhiteSpace();
+			printerHost = printerHost.simplified();
 		    } else if ( QString::fromLatin1(line).startsWith( contentType ) ) {
 			char * p = line;
 			while ( *p != ':' )
@@ -340,18 +340,18 @@ static char * parsePrintersConf( QListView * printers, bool *found = 0 )
 	    printerDesc += QString::fromLocal8Bit(line);
 	} else {
 	    printerDesc += QString::fromLocal8Bit(line);
-	    printerDesc = printerDesc.simplifyWhiteSpace();
-	    int i = printerDesc.find( ':' );
+	    printerDesc = printerDesc.simplified();
+	    int i = printerDesc.indexOf( ':' );
 	    QString printerName, printerHost, printerComment;
 	    QStringList aliases;
 	    if ( i >= 0 ) {
 		// have : want |
-		int j = printerDesc.find( '|', 0 );
+		int j = printerDesc.indexOf( '|' );
 		if ( j >= i )
 		    j = -1;
 		printerName = printerDesc.mid( 0, j < 0 ? i : j );
 		if ( printerName == QString::fromLatin1("_default") ) {
-		    i = printerDesc.find(
+		    i = printerDesc.indexOf(
 			QRegExp( QString::fromLatin1(": *use *=") ) );
 		    while ( printerDesc[i] != '=' )
 			i++;
@@ -380,7 +380,7 @@ static char * parsePrintersConf( QListView * printers, bool *found = 0 )
 				     .arg( aliases.join(", ") );
 		}
 		// look for signs of this being a remote printer
-		i = printerDesc.find(
+		i = printerDesc.indexOf(
 		    QRegExp( QString::fromLatin1(": *bsdaddr *=") ) );
 		if ( i >= 0 ) {
 		    // point k at the end of remote host name
@@ -623,7 +623,8 @@ static void parseSpoolInterface( QListView * printers )
 	if ( !configFile.open( IO_ReadOnly ) )
 	    continue;
 
-	QByteArray line( 1025 );
+	QByteArray line;
+	line.resize( 1025 );
 	QString namePrinter;
 	QString hostName;
 	QString hostPrinter;
@@ -639,26 +640,26 @@ static void parseSpoolInterface( QListView * printers )
 	    QString uline = line;
 	    if ( uline.startsWith( typeKey )  ) {
 		printerType = line.mid( nameKey.length() );
-		printerType = printerType.simplifyWhiteSpace();
+		printerType = printerType.simplified();
 	    } else if ( uline.startsWith( hostKey ) ) {
 		hostName = line.mid( hostKey.length() );
-		hostName = hostName.simplifyWhiteSpace();
+		hostName = hostName.simplified();
 	    } else if ( uline.startsWith( hostPrinterKey ) ) {
 		hostPrinter = line.mid( hostPrinterKey.length() );
-		hostPrinter = hostPrinter.simplifyWhiteSpace();
+		hostPrinter = hostPrinter.simplified();
 	    } else if ( uline.startsWith( nameKey ) ) {
 		namePrinter = line.mid( nameKey.length() );
-		namePrinter = namePrinter.simplifyWhiteSpace();
+		namePrinter = namePrinter.simplified();
 	    }
 	}
 	configFile.close();
 
-	printerType = printerType.stripWhiteSpace();
-	if ( printerType.find("postscript", 0, FALSE) < 0 )
+	printerType = printerType.trimmed();
+	if ( printerType.indexOf("postscript", 0, QString::CaseInsensitive) < 0 )
 	    continue;
 
 	int ii = 0;
-	while ( (ii = namePrinter.find('"', ii)) >= 0 )
+	while ( (ii = namePrinter.indexOf('"', ii)) >= 0 )
 	    namePrinter.remove( ii, 1 );
 
 	if ( hostName.isEmpty() || hostPrinter.isEmpty() ) {
@@ -705,19 +706,19 @@ static void parseQconfig( QListView * printers )
     do {
 	line = ts.readLine();
 	bool indented = line[0].isSpace();
-	line = line.simplifyWhiteSpace();
+	line = line.simplified();
 
 	if ( indented && line.contains( '=' ) ) { // line in stanza
 
-	    int i = line.find( '=' );
-	    QString variable = line.left( i ).simplifyWhiteSpace();
-	    QString value=line.mid( i+1, line.length() ).simplifyWhiteSpace();
+	    int i = line.indexOf( '=' );
+	    QString variable = line.left( i ).simplified();
+	    QString value=line.mid( i+1, line.length() ).simplified();
 	    if ( variable == QString::fromLatin1("device") )
 		deviceName = value;
 	    else if ( variable == QString::fromLatin1("host") )
 		remoteHost = value;
 	    else if ( variable == QString::fromLatin1("up") )
-		up = !(value.lower() == QString::fromLatin1("false"));
+		up = !(value.toLower() == QString::fromLatin1("false"));
 	} else if ( line[0] == '*' ) { // comment
 	    // nothing to do
 	} else if ( ts.atEnd() || // end of file, or beginning of new stanza

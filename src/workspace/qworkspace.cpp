@@ -482,7 +482,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     d->active->internalRaise();
 
     if ( change_focus ) {
-	if ( d->focus.findIndex(d->active) >=0 ) {
+	if ( d->focus.indexOf(d->active) >=0 ) {
 	    d->focus.remove( d->active );
 	    d->focus.append( d->active );
 	}
@@ -961,7 +961,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 	if ( !o->isA( "QWorkspaceChild" ) )
 	    break;
 	if ( d->active == o ) {
-	    int a = d->focus.findIndex(d->active);
+	    int a = d->focus.indexOf(d->active);
 	    for ( ;; ) {
 		if ( --a < 0 )
 		    a = d->focus.count()-1;
@@ -1354,7 +1354,7 @@ void QWorkspace::activateNextWindow()
 	return;
     }
 
-    int a = d->focus.findIndex( d->active ) + 1;
+    int a = d->focus.indexOf( d->active ) + 1;
 
     a = a % d->focus.count();
 
@@ -1387,7 +1387,7 @@ void QWorkspace::activatePrevWindow()
 	return;
     }
 
-    int a = d->focus.findIndex( d->active ) - 1;
+    int a = d->focus.indexOf( d->active ) - 1;
     if ( a < 0 )
 	a = d->focus.count()-1;
 
@@ -1806,7 +1806,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
     switch ( e->type() ) {
     case QEvent::ShowToParent:
-	if ( ((QWorkspace*)parentWidget())->d->focus.findIndex( this ) < 0 )
+	if ( ((QWorkspace*)parentWidget())->d->focus.indexOf( this ) < 0 )
 	    ((QWorkspace*)parentWidget())->d->focus.append( this );
 	if ( windowWidget() && windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
 	    internalRaise();

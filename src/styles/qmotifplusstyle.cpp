@@ -825,7 +825,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
 	    QString s = mi->text();
 	    if ( !s.isNull() ) {                        // draw text
-		int t = s.find( '\t' );
+		int t = s.indexOf( '\t' );
 		int m = 2;
 		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 		text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft );

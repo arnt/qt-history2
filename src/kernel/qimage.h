@@ -48,7 +48,7 @@ public:
 class Q_GUI_EXPORT QImage
 {
 public:
-    enum Endian { IgnoreEndian, BigEndian, LittleEndian };
+    enum Endian { BigEndian, LittleEndian, IgnoreEndian };
 
     QImage();
     QImage( int width, int height, int depth, int numColors=0,
@@ -163,7 +163,8 @@ public:
 #ifndef QT_BUILD_KERNEL_LIB
     static Endian systemBitOrder();
 #endif
-    static Endian systemByteOrder();
+    static inline Endian systemByteOrder()
+	{ return QSysInfo::ByteOrder == QSysInfo::BigEndian ? BigEndian : LittleEndian; }
 
 #ifndef QT_NO_IMAGEIO
     static const char* imageFormat( const QString &fileName );

@@ -692,7 +692,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 void QComboBox::insertItem( const QString &t, int index )
 {
     int cnt = count();
-    if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
+    if ( !checkInsertIndex( "insertItem", objectName(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->insertItem( t, index );
@@ -721,7 +721,7 @@ void QComboBox::insertItem( const QString &t, int index )
 void QComboBox::insertItem( const QPixmap &pixmap, int index )
 {
     int cnt = count();
-    if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
+    if ( !checkInsertIndex( "insertItem", objectName(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->insertItem( pixmap, index );
@@ -750,7 +750,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int index )
 {
     int cnt = count();
-    if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
+    if ( !checkInsertIndex( "insertItem", objectName(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->insertItem( pixmap, text, index );
@@ -777,7 +777,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int inde
 void QComboBox::removeItem( int index )
 {
     int cnt = count();
-    if ( !checkIndex( "removeItem", name(), cnt, index ) )
+    if ( !checkIndex( "removeItem", objectName(), cnt, index ) )
 	return;
     if ( d->usingListBox() ) {
 	if ( style().styleHint(QStyle::SH_ComboBox_Popup, this) && d->popup() )
@@ -879,7 +879,7 @@ void QComboBox::setCurrentText( const QString& txt )
 
 QString QComboBox::text( int index ) const
 {
-    if ( !checkIndex( "text", name(), count(), index ) )
+    if ( !checkIndex( "text", objectName(), count(), index ) )
 	return QString::null;
     if ( d->usingListBox() )
 	return d->listBox()->text( index );
@@ -894,7 +894,7 @@ QString QComboBox::text( int index ) const
 
 const QPixmap *QComboBox::pixmap( int index ) const
 {
-    if ( !checkIndex( "pixmap", name(), count(), index ) )
+    if ( !checkIndex( "pixmap", objectName(), count(), index ) )
 	return 0;
     if ( d->usingListBox() )
 	return d->listBox()->pixmap( index );
@@ -908,7 +908,7 @@ const QPixmap *QComboBox::pixmap( int index ) const
 
 void QComboBox::changeItem( const QString &t, int index )
 {
-    if ( !checkIndex( "changeItem", name(), count(), index ) )
+    if ( !checkIndex( "changeItem", objectName(), count(), index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->changeItem( t, index );
@@ -934,7 +934,7 @@ void QComboBox::changeItem( const QString &t, int index )
 
 void QComboBox::changeItem( const QPixmap &im, int index )
 {
-    if ( !checkIndex( "changeItem", name(), count(), index ) )
+    if ( !checkIndex( "changeItem", objectName(), count(), index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->changeItem( im, index );
@@ -955,7 +955,7 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 
 void QComboBox::changeItem( const QPixmap &im, const QString &t, int index )
 {
-    if ( !checkIndex( "changeItem", name(), count(), index ) )
+    if ( !checkIndex( "changeItem", objectName(), count(), index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->changeItem( im, t, index );
@@ -976,7 +976,7 @@ void QComboBox::setCurrentItem( int index )
     if ( index == d->current && !d->ed ) {
 	return;
     }
-    if ( !checkIndex( "setCurrentItem", name(), count(), index ) ) {
+    if ( !checkIndex( "setCurrentItem", objectName(), count(), index ) ) {
 	return;
     }
 
@@ -1849,14 +1849,14 @@ int QComboBox::completionIndex( const QString & prefix,
 	start = 0;
     if ( start >= count() )
 	return -1;
-    QString match = prefix.lower();
+    QString match = prefix.toLower();
     if ( match.length() < 1 )
 	return start;
 
     QString current;
     int i = start;
     do {
-	current = text( i ).lower();
+	current = text( i ).toLower();
 	if ( current.startsWith( match ) )
 	    return i;
 	i++;

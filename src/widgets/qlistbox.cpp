@@ -4195,13 +4195,13 @@ int QListBoxPrivate::findItemByName( int start, const QString &text )
 {
     if ( start < 0 || (uint)start >= listBox->count() )
 	start = 0;
-    QString match = text.lower();
+    QString match = text.toLower();
     if ( match.length() < 1 )
 	return start;
     QString curText;
     int item = start;
     do {
-	curText = listBox->text( item ).lower();
+	curText = listBox->text( item ).toLower();
 	if ( curText.startsWith( match ) )
 	    return item;
 	item++;
@@ -4241,7 +4241,7 @@ QListBoxItem *QListBox::findItem( const QString &text, StringComparison compare 
     QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive ) )
-	comtxt = text.lower();
+	comtxt = text.toLower();
 
     QListBoxItem *item;
     if ( d->current )
@@ -4256,7 +4256,7 @@ QListBoxItem *QListBox::findItem( const QString &text, StringComparison compare 
     if ( item ) {
 	for ( ; item; item = item->n ) {
 	    if ( ! (compare & CaseSensitive) )
-		itmtxt = item->text().lower();
+		itmtxt = item->text().toLower();
 	    else
 		itmtxt = item->text();
 
@@ -4274,7 +4274,7 @@ QListBoxItem *QListBox::findItem( const QString &text, StringComparison compare 
 	    item = d->head;
 	    for ( ; item && item != d->current; item = item->n ) {
 		if ( ! (compare & CaseSensitive) )
-		    itmtxt = item->text().lower();
+		    itmtxt = item->text().toLower();
 		else
 		    itmtxt = item->text();
 

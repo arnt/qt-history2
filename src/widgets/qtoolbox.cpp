@@ -518,7 +518,7 @@ QWidget *QToolBox::item( int index ) const
 int QToolBox::indexOf( QWidget *item ) const
 {
     QToolBoxPrivate::Page *c = d->page(item);
-    return c ? d->pageList.findIndex( *c ) : -1;
+    return c ? d->pageList.indexOf( *c ) : -1;
 }
 
 /*!
@@ -648,7 +648,7 @@ void QToolBox::frameChanged()
 /*! \reimp */
 void QToolBox::changeEvent( QEvent *ev )
 {
-    if(ev->type() == QEvent::StyleChange) 
+    if(ev->type() == QEvent::StyleChange)
 	d->updateTabs();
     QFrame::changeEvent(ev);
 }

@@ -496,17 +496,17 @@ void QApplication::process_cmdline()
 	QString s;
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    // obsolete argument
-	} else if ( arg.find( "-style=", 0, FALSE ) != -1 ) {
+	} else if ( arg.indexOf( "-style=", 0, QString::CaseInsensitive ) != -1 ) {
 	    s = arg.right( arg.length() - 7 );
 	} else if ( qstrcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    s = argv[++i];
-	    s = s.lower();
+	    s = s.toLower();
 #ifndef QT_NO_SESSIONMANAGER
 	} else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
 	    ++i;
 	    if ( argv[i] && *argv[i] ) {
 		d->session_id = QString::fromLatin1( argv[i] );
-		int p = d->session_id.find( '_' );
+		int p = d->session_id.indexOf( '_' );
 		if ( p >= 0 ) {
 		    d->session_key = d->session_id.mid( p +1 );
 		    d->session_id = d->session_id.left( p );
@@ -1377,7 +1377,7 @@ static QString resolveSymlinks( const QString& path, int depth = 0 )
 	    linkTarget = fileInfo.readLink();
 	    break;
 	}
-    } while ( (slashPos = part.findRev('/')) != -1 );
+    } while ( (slashPos = part.lastIndexOf('/')) != -1 );
 
     if ( foundLink ) {
 	QString path2;
@@ -1387,7 +1387,7 @@ static QString resolveSymlinks( const QString& path, int depth = 0 )
 		path2 += "/" + path.right( path.length() - slashPos - 1 );
 	} else {
 	    QString relPath;
-	    relPath = part.left( part.findRev('/') + 1 ) + linkTarget;
+	    relPath = part.left( part.lastIndexOf('/') + 1 ) + linkTarget;
 	    if ( slashPos < (int) path.length() ) {
 		if ( !linkTarget.endsWith( "/" ) )
 		    relPath += "/";
@@ -1450,7 +1450,7 @@ QString QApplication::applicationFilePath()
 	  file path.
 	*/
 	absPath = argv0;
-    } else if ( argv0.find('/') != -1 ) {
+    } else if (argv0.contains('/')) {
 	/*
 	  If argv0 contains one or more slashes, it is a file path
 	  relative to the current directory.

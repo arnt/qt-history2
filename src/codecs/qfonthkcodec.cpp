@@ -70,7 +70,8 @@ QFontBig5hkscsCodec::characterFromUnicode(const QString &str, int pos) const
 QByteArray QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
     //qDebug("QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
-    QByteArray result(lenInOut * 2 + 1);
+    QByteArray result;
+    result.resize(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 

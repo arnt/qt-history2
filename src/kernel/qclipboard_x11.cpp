@@ -650,7 +650,8 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     VDEBUG("QClipboard: send_targets_selection(): %d provided types", atoms);
 
     // for 64 bit cleanness... XChangeProperty expects long* for data with format == 32
-    QByteArray data((atoms+3) * sizeof(long)); // plus TARGETS, MULTIPLE and TIMESTAMP
+    QByteArray data;
+    data.resize((atoms+3) * sizeof(long)); // plus TARGETS, MULTIPLE and TIMESTAMP
     long *atarget = (long *) data.data();
 
     const char *fmt;
@@ -715,7 +716,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
 		  textprop.format, textprop.nitems);
 
 	    int sz = sizeof_format(textprop.format);
-	    data.duplicate((const char *) textprop.value, textprop.nitems * sz);
+	    data = QByteArray((const char *) textprop.value, textprop.nitems * sz);
 	    XFree(textprop.value);
 
 	    return send_selection(d, textprop.encoding, window, property, textprop.format, data);

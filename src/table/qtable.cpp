@@ -932,7 +932,7 @@ QSize QTableItem::sizeHint() const
     }
 
     QString t = text();
-    if ( !wordwrap && t.find( '\n' ) == -1 )
+    if ( !wordwrap && t.contains( '\n' ) )
 	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10,
 		      qMax( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
 
@@ -1306,7 +1306,7 @@ void QComboTableItem::setCurrentItem( int i )
 
 void QComboTableItem::setCurrentItem( const QString &s )
 {
-    int i = entries.findIndex( s );
+    int i = entries.indexOf( s );
     if ( i != -1 )
 	setCurrentItem( i );
 }
@@ -3901,7 +3901,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    }
 	} else {
 	    QObjectList l = viewport()->queryList( "QWidget" );
-	    if ( l.findIndex(o) != -1 ) {
+	    if ( l.contains(o) ) {
 		QKeyEvent *ke = (QKeyEvent*)e;
 		if ( ( ke->state() & ControlButton ) == ControlButton ||
 		     ( ke->key() != Key_Left && ke->key() != Key_Right &&

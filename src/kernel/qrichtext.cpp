@@ -508,7 +508,7 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QVector<QTextSt
     }
 #endif
     if ( checkNewLine )
-	justInsert = s.find( '\n' ) == -1;
+	justInsert = s.indexOf( '\n' ) == -1;
     if ( justInsert ) { // we ignore new lines and insert all in the current para at the current index
 	para->insert( idx, s.unicode(), s.length() );
 	if ( formatting ) {
@@ -526,7 +526,7 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QVector<QTextSt
 	int y = para->rect().y() + para->rect().height();
 	int lastIndex = 0;
 	do {
-	    end = s.find( '\n', start + 1 ); // find line break
+	    end = s.indexOf( '\n', start + 1 ); // find line break
 	    if ( end == -1 ) // didn't find one, so end of line is end of string
 		end = s.length();
 	    int len = (start == -1 ? end : end - start - 1);
@@ -1452,7 +1452,7 @@ void QTextDocument::setPlainText( const QString &text )
     oText = text;
 
     int lastNl = 0;
-    int nl = text.find( '\n' );
+    int nl = text.indexOf( '\n' );
     if ( nl == -1 ) {
 	lParag = createParagraph( this, lParag, 0 );
 	if ( !fParag )
@@ -1478,7 +1478,7 @@ void QTextDocument::setPlainText( const QString &text )
 	    if ( nl == (int)text.length() )
 		break;
 	    lastNl = nl + 1;
-	    nl = text.find( '\n', nl + 1 );
+	    nl = text.indexOf( '\n', nl + 1 );
 	    if ( nl == -1 )
 		nl = text.length();
 	}
@@ -1676,7 +1676,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 #endif
 
 		// some well-known tags, some have a nstyle, some not
-		if ( wellKnownTags.find( tagname ) != -1 ) {
+		if ( wellKnownTags.contains( tagname ) ) {
 		    if ( tagname == "br" ) {
 			emptyTag = space = TRUE;
 			int index = qMax( curpar->length(),1) - 1;
@@ -1852,7 +1852,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 				} else if ( type == "A" ) {
 				    curtag.liststyle = QStyleSheetItem::ListUpperAlpha;
 				} else {
-				    type = type.lower();
+				    type = type.toLower();
 				    if ( type == "square" )
 					curtag.liststyle = QStyleSheetItem::ListSquare;
 				    else if ( type == "disc" )
@@ -1877,7 +1877,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 
 			it = attr.find("align");
 			if (it != end) {
-			    QString align = (*it).lower();
+			    QString align = (*it).toLower();
 			    if ( align == "center" )
 				curtag.alignment = Qt::AlignCenter;
 			    else if ( align == "right" )
@@ -1887,7 +1887,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			}
 			it = attr.find("dir");
 			if (it != end) {
-			    QString dir = (*it).lower();
+			    QString dir = (*it).toLower();
 			    if ( dir == "rtl" )
 				curtag.direction = QChar::DirR;
 			    else if ( dir == "ltr" )
@@ -2781,17 +2781,17 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 	richTextExportEnd = &c2;
 
 	QString sel = richText();
-	int from = sel.find( "<!--StartFragment-->" );
+	int from = sel.indexOf( "<!--StartFragment-->" );
 	if ( from >= 0 ) {
 	    from += 20;
 	    // find the previous span and move it into the start fragment before we clip it
 	    QString prevspan;
-	    int pspan = sel.findRev( "<span", from-21 );
-	    if ( pspan > sel.findRev( "</span", from-21 ) ) {
-		int spanend = sel.find( '>', pspan );
+	    int pspan = sel.lastIndexOf( "<span", from-21 );
+	    if ( pspan > sel.lastIndexOf( "</span", from-21 ) ) {
+		int spanend = sel.indexOf( '>', pspan );
 		prevspan = sel.mid( pspan, spanend - pspan + 1 );
 	    }
-	    int to = sel.findRev( "<!--EndFragment-->" );
+	    int to = sel.lastIndexOf( "<!--EndFragment-->" );
 	    if ( from <= to )
 		sel = "<!--StartFragment-->" + prevspan + sel.mid( from, to - from );
 	}
@@ -3011,6 +3011,7 @@ QTextCursor *QTextDocument::redo( QTextCursor *c )
 
 bool QTextDocument::find( QTextCursor& cursor, const QString &expr, bool cs, bool wo, bool forward )
 {
+    QString::CaseSensitivity caseSensitive = cs ? QString::CaseSensitive : QString::CaseInsensitive;
     removeSelection( Standard );
     QTextParagraph *p = 0;
     if ( expr.isEmpty() )
@@ -3021,7 +3022,9 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &expr, bool cs, boo
 	    QString s = cursor.paragraph()->string()->toString();
 	    int start = cursor.index();
 	    for ( ;; ) {
-		int res = forward ? s.find( expr, start, cs ) : s.findRev( expr, start, cs );
+		int res = forward
+			  ? s.indexOf( expr, start, caseSensitive )
+			  : s.lastIndexOf( expr, start, caseSensitive );
 		int end = res + expr.length();
 		if ( res == -1 || ( !forward && start <= res ) )
 		    break;
@@ -3982,7 +3985,7 @@ int QTextString::width( int idx ) const
 		 pos = idx - 8;
 	     int off = idx - pos;
 	     int end = qMin( length(), idx + 8 );
-	     str.setLength( end-pos );
+	     str.resize( end-pos );
 	     QChar *uc = (QChar *)str.unicode();
 	     while ( pos < end ) {
 		 *(uc++) = at(pos).c;
@@ -6446,7 +6449,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		int size = int( scaleFontsFactor * style.mid( 10, style.length() - 12 ).toDouble() );
 		format.setPointSize( size );
 	    } if ( style.startsWith("font-style:" ) ) {
-		QString s = style.mid( 11 ).stripWhiteSpace();
+		QString s = style.mid( 11 ).trimmed();
 		if ( s == "normal" )
 		    format.fn.setItalic( FALSE );
 		else if ( s == "italic" || s == "oblique" )
@@ -6461,13 +6464,13 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		QString family = style.mid(12).section(',',0,0);
 		family.replace( '\"', ' ' );
 		family.replace( '\'', ' ' );
-		family = family.stripWhiteSpace();
+		family = family.trimmed();
 		format.fn.setFamily( family );
 	    } else if ( style.startsWith("text-decoration:" ) ) {
-		QString s = style.mid( 16 ).stripWhiteSpace();
+		QString s = style.mid( 16 ).trimmed();
 		format.fn.setUnderline( s == "underline" );
 	    } else if ( style.startsWith("vertical-align:" ) ) {
-		QString s = style.mid( 15 ).stripWhiteSpace();
+		QString s = style.mid( 15 ).trimmed();
 		if ( s == "sub" )
 		    format.setVAlign( QTextFormat::AlignSubScript );
 		else if ( s == "super" )
@@ -6613,7 +6616,7 @@ QString QTextImage::richText() const
     QMap<QString, QString>::ConstIterator it = attributes.begin();
     for ( ; it != attributes.end(); ++it ) {
 	s += it.key() + "=";
-	if ( (*it).find( ' ' ) != -1 )
+	if ((*it).contains( ' ' ))
 	    s += "\"" + *it + "\"" + " ";
 	else
 	    s += *it + " ";
@@ -7252,7 +7255,7 @@ QString QTextDocument::parseWord(const QChar* doc, int length, int& pos, bool lo
 	    }
 	}
 	if (lower)
-	    s = s.lower();
+	    s = s.toLower();
     }
     return s;
 }
@@ -7339,7 +7342,7 @@ QString QTextDocument::parseOpenTag(const QChar* doc, int length, int& pos,
 	}
 	else
 	    value = s_TRUE;
-	attr.insert(key.lower(), value );
+	attr.insert(key.toLower(), value );
 	eatSpace(doc, length, pos, TRUE);
     }
 
@@ -7543,7 +7546,7 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 	if ( b ) {
 	    fixwidth = w;
 	} else {
-	    s = s.stripWhiteSpace();
+	    s = s.trimmed();
 	    if ( s.length() > 1 && s[ (int)s.length()-1 ] == '%' )
 		stretch = s.left( s.length()-1).toInt();
 	}
@@ -8000,8 +8003,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     QMap<QString,QString>::ConstIterator it, end = attr.end();
     it = attr.find("align");
     if (it != end && ! (*it).isEmpty()) {
-        QString a = (*it).lower();
-	a = a.lower();
+        QString a = (*it).toLower();
 	if ( a == "left" )
 	    richtext->setAlignment( Qt::AlignLeft );
 	else if ( a == "center" )
@@ -8012,7 +8014,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     align = 0;
     it = attr.find( "valign" );
     if (it != end && ! (*it).isEmpty() ) {
-	QString va = (*it).lower();
+	QString va = (*it).toLower();
 	if ( va == "center" )
 	    align |= Qt::AlignVCenter;
 	else if ( va == "bottom" )
@@ -8051,7 +8053,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 	    minw = maxw;
 	    hasFixedWidth = TRUE;
 	} else {
-	    s = s.stripWhiteSpace();
+	    s = s.trimmed();
 	    if ( s.length() > 1 && s[ (int)s.length()-1 ] == '%' )
 		stretch_ = s.left( s.length()-1).toInt();
 	}

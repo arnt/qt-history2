@@ -253,11 +253,12 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
 	if ( extensions.contains(e) )
 	    mimetype = extensions[e].latin1();
 	else if ( ( imgfmt = QImage::imageFormat( abs_name ) ) )
-	    mimetype = QByteArray("image/")+QByteArray(imgfmt).lower();
+	    mimetype = QByteArray("image/")+QByteArray(imgfmt).toLower();
 
 	QFile f(abs_name);
 	if ( f.open(IO_ReadOnly) && f.size() ) {
-	    QByteArray ba(f.size());
+	    QByteArray ba;
+	    ba.resize(f.size());
 	    f.readBlock(ba.data(), ba.size());
 	    QStoredDrag* sr = new QStoredDrag( mimetype );
 	    sr->setEncodedData( ba );

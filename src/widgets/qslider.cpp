@@ -576,7 +576,7 @@ void QSlider::resetState()
     case Idle:
 	break;
     default:
-	qWarning("QSlider: (%s) in wrong state", name( "unnamed" ) );
+	qWarning("QSlider: (%s) in wrong state", objectName( "unnamed" ) );
     }
     state = Idle;
 }

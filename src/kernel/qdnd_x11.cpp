@@ -1464,7 +1464,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 	// the last drag and drop operation hasn't finished, so we are going to wait
 	// for one second to see if it does... if the finish message comes after this,
 	// then we could still have problems, but this is highly unlikely
-	QApplication::flushX();
+	QApplication::flush();
 
 	QTime started = QTime::currentTime();
 	QTime now = started;

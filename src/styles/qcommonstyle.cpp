@@ -2563,7 +2563,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    }
 
 	    if (! mi->text().isNull()) {
-		if (mi->text().find('\t') >= 0)
+		if (mi->text().contains('\t'))
 		    w += 12;
 	    }
 

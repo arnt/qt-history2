@@ -1111,7 +1111,7 @@ void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
     s.sprintf( "%p_%d", (void*)dw, (int)dock );
     if ( enable )
 	d->disabledDocks.remove( s );
-    else if ( d->disabledDocks.find( s ) == d->disabledDocks.end() )
+    else if (!d->disabledDocks.contains(s))
 	d->disabledDocks << s;
     switch ( dock ) {
 	case DockTop:
@@ -1173,7 +1173,7 @@ bool QMainWindow::isDockEnabled( QDockWindow *tb, Dock dock ) const
 	return FALSE;
     QString s;
     s.sprintf( "%p_%d", (void*)tb, (int)dock );
-    return d->disabledDocks.find( s ) == d->disabledDocks.end();
+    return !d->disabledDocks.contains( s );
 }
 
 

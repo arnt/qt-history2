@@ -171,7 +171,7 @@ static QString double2string( double num, int base, int ndigits, bool *oflow )
         int nd = ndigits;
         do {
             s.sprintf( "%*.*g", ndigits, nd, num );
-            int i = s.find('e');
+            int i = s.indexOf('e');
             if ( i > 0 && s[i+1]=='+' ) {
                 s[i] = ' ';
                 s[i+1] = 'e';
@@ -349,7 +349,7 @@ void QLCDNumber::setNumDigits( int numDigits )
 {
     if ( numDigits > 99 ) {
         qWarning( "QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
-                 name( "unnamed" ) );
+                 objectName( "unnamed" ) );
         numDigits = 99;
     }
     if ( digitStr.isNull() ) {                  // from constructor
@@ -642,7 +642,7 @@ void QLCDNumber::internalSetString( const QString& s )
         if ( len == ndigits )
             buffer = s;
         else
-            buffer = s.right( ndigits ).rightJustify( ndigits, ' ' );
+            buffer = s.right( ndigits ).rightJustified( ndigits, ' ' );
     } else {
         int  index = -1;
         bool lastWasPoint = TRUE;
@@ -934,7 +934,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
         default :
             qWarning( "QLCDNumber::drawSegment: (%s) Internal error."
                      "  Illegal segment id: %d\n",
-                     name( "unnamed" ), segmentNo );
+                     objectName( "unnamed" ), segmentNo );
         }
         // End exact copy
         p.setPen( fgColor );
@@ -1068,7 +1068,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
         default :
             qWarning( "QLCDNumber::drawSegment: (%s) Internal error."
                      "  Illegal segment id: %d\n",
-                     name( "unnamed" ), segmentNo );
+                     objectName( "unnamed" ), segmentNo );
         }
 
 #undef LINETO

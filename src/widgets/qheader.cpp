@@ -800,7 +800,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 	break;
     }
     default:
-	qWarning( "QHeader::mouseMoveEvent: (%s) unknown state", name() );
+	qWarning( "QHeader::mouseMoveEvent: (%s) unknown state", objectName() );
 	break;
     }
 }

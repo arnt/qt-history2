@@ -1551,7 +1551,7 @@ void QListViewItem::setup()
 
 
 /*!
-    This virtual function is called whenever the user presses the mouse 
+    This virtual function is called whenever the user presses the mouse
     on this item or presses Space on it.
 
     \sa activatedPos()
@@ -4856,9 +4856,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    while( keyItem ) {
 		// try twice, first with the previous string and this char
 		if ( d->currentPrefixTime.msecsTo( now ) <= 400 )
-		    input = input + e->text().lower();
+		    input = input + e->text().toLower();
 		else
-		    input = e->text().lower();
+		    input = e->text().toLower();
 		if ( input.length() == e->text().length() ) {
 		    if ( keyItem->itemBelow() ) {
 			keyItem = keyItem->itemBelow();
@@ -4878,7 +4878,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		    if ( !keyItemKey.isEmpty() ) {
 			prefix = keyItemKey;
 			prefix.truncate( input.length() );
-			prefix = prefix.lower();
+			prefix = prefix.toLower();
 			if ( prefix == input ) {
 			    d->currentPrefix = input;
 			    d->currentPrefixTime = now;
@@ -7782,7 +7782,7 @@ QListViewItem *QListView::findItem( const QString& text, int column,
     QString itmtxt;
     QString comtxt = text;
     if ( !(compare & CaseSensitive) )
-	comtxt = comtxt.lower();
+	comtxt = comtxt.toLower();
 
     QListViewItemIterator it( d->focusItem ? d->focusItem : firstChild() );
     QListViewItem *sentinel = 0;
@@ -7795,7 +7795,7 @@ QListViewItem *QListView::findItem( const QString& text, int column,
 	while ( (item = it.current()) != sentinel ) {
 	    itmtxt = item->text( column );
 	    if ( !(compare & CaseSensitive) )
-		itmtxt = itmtxt.lower();
+		itmtxt = itmtxt.toLower();
 
 	    if ( compare & ExactMatch && itmtxt == comtxt )
 		return item;

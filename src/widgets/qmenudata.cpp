@@ -969,7 +969,7 @@ void QMenuData::changeItem( int id, const QString &text )
 	}
 	mi->text_data = text;
 #ifndef QT_NO_ACCEL
-	if ( !mi->accel_key && text.find( '\t' ) != -1 )
+	if ( !mi->accel_key && text.indexOf( '\t' ) != -1 )
 	    mi->accel_key = Qt::Key_unknown;
 #endif
 	parent->menuContentsChanged();

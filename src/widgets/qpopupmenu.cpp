@@ -1040,7 +1040,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 			QString s = mi->text();
 			int t;
 			// ##### search for similar places and replace by regular fm.width( ... , Qt::AlignLeft, .... )
-			if ( (t = s.find('\t')) >= 0 ) { // string contains tab
+			if ( (t = s.indexOf('\t')) >= 0 ) { // string contains tab
 			    w += fm.width( s, t );
 			    w -= s.count('&') * fm.width('&');
 			    w += s.count("&&") * fm.width('&');
@@ -1073,7 +1073,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 		if ( mi->text().isNull() && !mi->pixmap() && !mi->iconSet() &&
 		     !mi->isSeparator() && !mi->widget() && !mi->custom() )
 		    qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
-			      name( "unnamed" ) );
+			      objectName( "unnamed" ) );
 	    }
 	    height += itemHeight;
 	    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
@@ -1222,7 +1222,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	}
 	if ( !mi->text().isNull() || mi->custom() ) {
 	    QString s = mi->text();
-	    int i = s.find('\t');
+	    int i = s.indexOf('\t');
 
 	    // Note: Only looking at the first key in the sequence!
 	    if ( (int)k && (int)k != Key_unknown ) {
@@ -1925,7 +1925,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    QMenuItem *m = mitems->at(i);
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
-		int i = s.find( '&' );
+		int i = s.indexOf( '&' );
 		while ( i >= 0 && i < (int)s.length() - 1 ) {
 		    if ( s[i+1].upper() == c ) {
 			ok_key = TRUE;
@@ -1938,7 +1938,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 			    firstAfterCurrent = m;
 			break;
 		    } else if ( s[i+1] == '&' ) {
-			i = s.find( '&', i+2 );
+			i = s.indexOf( '&', i+2 );
 		    } else {
 			break;
 		    }

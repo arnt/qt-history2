@@ -606,7 +606,7 @@ static bool qt_fillFontDef( XFontStruct *fs, QFontDef *fd, int screen )
     QByteArray xlfd( n );
     if ( n )
 	XFree( n );
-    return qt_fillFontDef( xlfd.lower(), fd, screen );
+    return qt_fillFontDef( xlfd.toLower(), fd, screen );
 }
 
 
@@ -1501,8 +1501,8 @@ QFontEngine *loadEngine( QFont::Script script,
 static void parseFontName(const QString &name, QString &foundry, QString &family)
 {
     if ( name.contains('[') && name.contains(']')) {
-	int i = name.find('[');
-	int li = name.findRev(']');
+	int i = name.indexOf('[');
+	int li = name.lastIndexOf(']');
 
 	if (i < li) {
 	    foundry = name.mid(i + 1, li - i - 1);

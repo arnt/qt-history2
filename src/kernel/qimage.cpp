@@ -973,24 +973,13 @@ void QImage::invertPixels( bool invertAlpha )
 }
 
 
-/*!
+/*! \fn QImage::Endian QImage::systemByteOrder()
+
     Determines the host computer byte order. Returns
     QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
 
     \sa systemBitOrder()
 */
-
-QImage::Endian QImage::systemByteOrder()
-{
-    static Endian sbo = IgnoreEndian;
-    if ( sbo == IgnoreEndian ) {		// initialize
-	int  ws;
-	bool be;
-	qSysInfo( &ws, &be );
-	sbo = be ? BigEndian : LittleEndian;
-    }
-    return sbo;
-}
 
 // Windows defines these
 #if defined(write)
@@ -3565,9 +3554,9 @@ static QString fbname( const QString &fileName ) // get file basename (sort of)
     QString s = fileName;
     if ( !s.isEmpty() ) {
 	int i;
-	if ( (i = s.findRev('/')) >= 0 )
+	if ( (i = s.lastIndexOf('/')) >= 0 )
 	    s = s.mid( i );
-	if ( (i = s.findRev('\\')) >= 0 )
+	if ( (i = s.lastIndexOf('\\')) >= 0 )
 	    s = s.mid( i );
 	QRegExp r( QString::fromLatin1("[a-zA-Z][a-zA-Z0-9_]*") );
 	int p = r.search( s );
@@ -5570,7 +5559,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 	iio->setStatus( 1 );
 	d = iio ? iio->ioDevice() : 0;
 	d->readLine( buf.data(), buf.size() );	// "/* XPM */"
-	if ( buf.find("/* XPM") != 0 )
+	if ( buf.indexOf("/* XPM") != 0 )
 	    return;					// bad magic
     } else if ( !source ) {
 	return;
@@ -5601,25 +5590,25 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 	}
 	QString index;
 	index = buf.left( cpp );
- 	buf = buf.mid( cpp ).simplifyWhiteSpace().lower();
+ 	buf = buf.mid( cpp ).simplified().toLower();
 	buf.prepend( " " );
-	i = buf.find( " c " );
+	i = buf.indexOf( " c " );
 	if ( i < 0 )
-	    i = buf.find( " g " );
+	    i = buf.indexOf( " g " );
 	if ( i < 0 )
-	    i = buf.find( " g4 " );
+	    i = buf.indexOf( " g4 " );
 	if ( i < 0 )
-	    i = buf.find( " m " );
+	    i = buf.indexOf( " m " );
 	if ( i < 0 ) {
 	    qWarning( "QImage: XPM color specification is missing: %s", buf.constData());
 	    return;	// no c/g/g4/m specification at all
 	}
 	buf = buf.mid( i+3 );
 	// Strip any other colorspec
-	int end = buf.find(' ', 4);
+	int end = buf.indexOf(' ', 4);
 	if ( end >= 0 )
 	    buf.truncate(end);
-	buf = buf.stripWhiteSpace();
+	buf = buf.trimmed();
 	if ( buf == "none" ) {
 	    image.setAlphaBuffer( TRUE );
 	    int transparentColor = currentColor;

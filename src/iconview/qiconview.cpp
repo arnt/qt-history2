@@ -496,9 +496,8 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 */
 
 QIconDragItem::QIconDragItem()
-    : ba( 7 /*(int)strlen( "no data" )*/ )
 {
-    memcpy( ba.data(), "no data", 7 /*strlen( "no data" )*/ );
+    ba = "no data";
 }
 
 /*!
@@ -669,7 +668,8 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 	s += k;
     }
 
-    QByteArray a( s.length() + 1 );
+    QByteArray a;
+    a.resize( s.length() + 1 );
     memcpy( a.data(), s.latin1(), a.size() );
     return a;
 }
@@ -723,7 +723,8 @@ bool QIconDragPrivate::decode( QMimeSource* e, QLinkedList<QIconDragDataItem> &l
 	    } else if ( i == 7 ) {
 		tr.setHeight( ( *it ).toInt() );
 	    } else if ( i == 8 ) {
-		QByteArray d( ( *it ).length() );
+		QByteArray d;
+		d.resize( ( *it ).length() );
 		memcpy( d.data(), ( *it ).latin1(), ( *it ).length() );
 		item.item.setPixmapRect( ir );
 		item.item.setTextRect( tr );
@@ -3659,7 +3660,7 @@ QIconViewItem *QIconView::findItem( const QString &text, StringComparison compar
     QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive) )
-	comtxt = text.lower();
+	comtxt = text.toLower();
 
     QIconViewItem *item;
     if ( d->currentItem )
@@ -3674,7 +3675,7 @@ QIconViewItem *QIconView::findItem( const QString &text, StringComparison compar
     if ( item ) {
 	for ( ; item; item = item->next ) {
 	    if ( ! (compare & CaseSensitive) )
-		itmtxt = item->text().lower();
+		itmtxt = item->text().toLower();
 	    else
 		itmtxt = item->text();
 
@@ -3692,7 +3693,7 @@ QIconViewItem *QIconView::findItem( const QString &text, StringComparison compar
 	    item = d->firstItem;
 	    for ( ; item && item != d->currentItem; item = item->next ) {
 		if ( ! (compare & CaseSensitive) )
-		    itmtxt = item->text().lower();
+		    itmtxt = item->text().toLower();
 		else
 		    itmtxt = item->text();
 
@@ -5633,13 +5634,13 @@ QIconViewItem* QIconView::findItemByName( QIconViewItem *start )
 {
     if ( !start )
 	return 0;
-    QString match = d->currInputString.lower();
+    QString match = d->currInputString.toLower();
     if ( match.length() < 1 )
 	return start;
     QString curText;
     QIconViewItem *i = start;
     do {
-	curText = i->text().lower();
+	curText = i->text().toLower();
 	if ( curText.startsWith( match ) )
 	    return i;
 	i = i->next;

@@ -471,7 +471,7 @@ bool QToolBar::event( QEvent * e )
 	QObject * child = ((QChildEvent*)e)->child();
 	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel()
 	     && child->parent() == this
-	     && qstrcmp("qt_dockwidget_internal", child->name()) != 0 ) {
+	     && qstrcmp("qt_dockwidget_internal", child->objectName()) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
 	    if ( isVisible() ) {
 		// toolbar compatibility: we auto show widgets that
@@ -522,7 +522,7 @@ void QToolBar::clear()
     QObjectList childs = children();
     for (int i = 0; i < childs.size(); ++i) {
 	QObject *obj = childs.at(i);
-	if ( obj->isWidgetType() && qstrcmp( "qt_dockwidget_internal", obj->name() ) != 0 )
+	if ( obj->isWidgetType() && qstrcmp( "qt_dockwidget_internal", obj->objectName() ) != 0 )
 	    delete obj;
     }
 }
@@ -577,7 +577,7 @@ void QToolBar::createPopup()
     for (int i = 0; i < childlist.size(); ++i) {
 	QObject *obj = childlist.at(i);
         if ( !obj->isWidgetType() || obj == d->extension->button() ||
-	    qstrcmp( "qt_dockwidget_internal", obj->name() ) == 0 ) {
+	    qstrcmp( "qt_dockwidget_internal", obj->objectName() ) == 0 ) {
 	    continue;
 	}
         int j = 2;

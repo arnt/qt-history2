@@ -124,7 +124,7 @@ public:
 QStyleSheetItem::QStyleSheetItem( QStyleSheet* parent, const QString& name )
 {
     d = new QStyleSheetItemData;
-    d->stylename = name.lower();
+    d->stylename = name.toLower();
     d->sheet = parent;
     init();
     if (parent)
@@ -756,7 +756,7 @@ bool QStyleSheetItem::allowedInContext( const QStyleSheetItem* s) const
 {
     if ( d->contxt.isEmpty() )
 	return TRUE;
-    return d->contxt.find( QChar(' ')+s->name()+QChar(' ')) != -1;
+    return d->contxt.contains( QChar(' ')+s->name()+QChar(' '));
 }
 
 
@@ -1470,7 +1470,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 
     while ( start < int(text.length()) && text[start].isSpace() )
 	++start;
-    if ( text.mid( start, 5 ).lower() == "<!doc" )
+    if ( text.mid( start, 5 ).toLower() == "<!doc" )
 	return TRUE;
     int open = start;
     while ( open < int(text.length()) && text[open] != '<'
@@ -1480,7 +1480,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 	++open;
     }
     if ( open < (int)text.length() && text[open] == '<' ) {
-	int close = text.find('>', open);
+	int close = text.indexOf('>', open);
 	if ( close > -1 ) {
 	    QString tag;
 	    for (int i = open+1; i < close; ++i) {
@@ -1491,7 +1491,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 		else if ( !text[i].isSpace() && (!tag.isEmpty() || text[i] != '!' ) )
 		    return FALSE; // that's not a tag
 	    }
-	    return defaultSheet()->item( tag.lower() ) != 0;
+	    return defaultSheet()->item( tag.toLower() ) != 0;
 	}
     }
     return FALSE;

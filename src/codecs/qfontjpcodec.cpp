@@ -46,7 +46,8 @@ QFontJis0201Codec::characterFromUnicode(const QString &str, int pos) const
 
 QByteArray QFontJis0201Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QByteArray rstring( lenInOut+1 );
+    QByteArray rstring;
+    rstring.resize( lenInOut+1 );
     uchar *rdata = (uchar *) rstring.data();
     const QChar *sdata = uc.unicode();
     int i = 0;
@@ -151,7 +152,8 @@ unsigned short QFontJis0208Codec::characterFromUnicode(const QString &str, int p
 
 QByteArray QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QByteArray result(lenInOut * 2 + 1);
+    QByteArray result;
+    result.resize(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 

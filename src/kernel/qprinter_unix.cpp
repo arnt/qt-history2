@@ -304,7 +304,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		QString pr;
 		if ( !printer_name.isEmpty() )
 		    pr = printer_name;
-		QApplication::flushX();
+		QApplication::flush();
 		int fds[2];
 		if ( pipe( fds ) != 0 ) {
 		    qWarning( "QPSPrinter: could not open pipe to print" );

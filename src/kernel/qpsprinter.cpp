@@ -1304,7 +1304,7 @@ static const struct {
 // make sure DSC comments are not longer than 255 chars per line.
 static QString wrapDSC( const QString &str )
 {
-    QString dsc = str.simplifyWhiteSpace();
+    QString dsc = str.simplified();
     const int wrapAt = 254;
     QString wrapped;
     if ( dsc.length() < wrapAt )
@@ -1499,10 +1499,10 @@ static QString makePSFontName( const QFontEngine *fe, int *listpos = 0, int *fty
   QString ps;
   int i;
 
-  QString family = fe->fontDef.family.lower();
+  QString family = fe->fontDef.family.toLower();
 
   // try to make a "good" postscript name
-  ps = family.simplifyWhiteSpace();
+  ps = family.simplified();
   i = 0;
   while( i < ps.length() ) {
     if ( i != 0 && ps[i] == '[') {
@@ -1528,7 +1528,7 @@ static QString makePSFontName( const QFontEngine *fe, int *listpos = 0, int *fty
 
   // see if the table has a better name
   i = 0;
-  QString lowerName = ps.lower();
+  QString lowerName = ps.toLower();
   while( postscriptFonts[i].input &&
          postscriptFonts[i].input != lowerName )
     i++;
@@ -4208,10 +4208,10 @@ QString QPSPrinterFontAsian::makePSFontName( const QFontEngine *f, int type ) co
     QString ps;
     int i;
 
-    QString family = f->fontDef.family.lower();
+    QString family = f->fontDef.family.toLower();
 
     // try to make a "good" postscript name
-    ps = family.simplifyWhiteSpace();
+    ps = family.simplified();
     i = 0;
     while( i < ps.length() ) {
         if ( i != 0 && ps[i] == '[') {
@@ -4794,14 +4794,14 @@ QPSPrinterFontSimplifiedChinese::QPSPrinterFontSimplifiedChinese(const QFontEngi
 {
     codec = QTextCodec::codecForMib( 114 ); // GB18030
     int type = getPsFontType( f );
-    QString family = f->fontDef.family.lower();
-    if( family.contains("kai",FALSE) ) {
+    QString family = f->fontDef.family.toLower();
+    if( family.contains("kai",QString::CaseInsensitive) ) {
 	psname = KaiGBK2K[type].psname;
 	appendReplacements( replacementList, KaiGBK2KReplacements, type );
-    } else if( family.contains("fangsong",FALSE) ) {
+    } else if( family.contains("fangsong",QString::CaseInsensitive) ) {
 	psname = FangSongGBK2K[type].psname;
 	appendReplacements( replacementList, FangSongGBK2KReplacements, type );
-    } else if( family.contains("hei",FALSE) ) {
+    } else if( family.contains("hei",QString::CaseInsensitive) ) {
 	psname = HeiGBK2K[type].psname;
 	appendReplacements( replacementList, HeiGBK2KReplacements, type );
     } else {
@@ -4877,11 +4877,11 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 	    QString rawName;
 	    if ( engine && engine != (QFontEngine *)-1 )
 		rawName = engine->name();
-	    int index = rawName.find('-');
+	    int index = rawName.indexOf('-');
 	    if (index == 0) {
 		// this is an XLFD font name
 		for (int i=0; i < 6; i++) {
-		    index = rawName.find('-',index+1);
+		    index = rawName.indexOf('-',index+1);
 		}
 		xfontname = rawName.mid(0,index);
 		if ( xfontname.endsWith( "*" ) )
@@ -4962,8 +4962,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 			// fold to lower (since X folds to lowercase)
 			//qWarning(xfontname);
 			//qWarning(mapping);
-			if (mapping.lower().contains(searchname.lower())) {
-			    int index = mapping.find(' ',0);
+			if (mapping.toLower().contains(searchname.toLower())) {
+			    int index = mapping.indexOf(' ');
 			    QString ffn = mapping.mid(0,index);
 			    // remove the most common bitmap formats
 			    if( !ffn.contains( ".pcf" ) && !ffn.contains( ".bdf" ) &&
@@ -4992,7 +4992,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 	QFile fontfile(fontfilename);
 	if ( fontfile.exists() ) {
 	    //printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
-	    data = QByteArray( fontfile.size() );
+	    data = QByteArray();
+	    data.resize(fontfile.size());
 
 	    fontfile.open(IO_Raw | IO_ReadOnly);
 	    fontfile.readBlock(data.data(), fontfile.size());
@@ -5121,9 +5122,9 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
 		    while(f.status()==IO_Ok && !finished) {
 			QString fs;
 			f.readLine(fs, 1024);
-			fs=fs.stripWhiteSpace();
+			fs=fs.trimmed();
 			if (fs.left(9)=="catalogue" && fs.contains('=')) {
-			    fs=fs.mid(fs.find('=')+1).stripWhiteSpace();
+			    fs = fs.mid(fs.indexOf('=') + 1).trimmed();
 			    bool end = FALSE;
 			    while( f.status()==IO_Ok && !end ) {
 				if ( fs[int(fs.length())-1] == ',' )
@@ -5133,7 +5134,7 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
 				if (fs[0] != '#' && !fs.contains(":unscaled"))
 				    fontpath += fs;
 				f.readLine(fs, 1024);
-				fs=fs.stripWhiteSpace();
+				fs=fs.trimmed();
 			    }
 			    finished = TRUE;
 			}

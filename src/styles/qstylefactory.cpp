@@ -94,7 +94,7 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 QStyle *QStyleFactory::create( const QString& key )
 {
     QStyle *ret = 0;
-    QString style = key.lower();
+    QString style = key.toLower();
 #ifndef QT_NO_STYLE_WINDOWS
     if ( style == "windows" )
         ret = new QWindowsStyle;
@@ -157,7 +157,7 @@ QStyle *QStyleFactory::create( const QString& key )
 	    ret = iface->create( style );
     }
     if(ret)
-	ret->setName(key);
+	ret->setObjectName(key);
 #endif
     return ret;
 }

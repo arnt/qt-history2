@@ -971,7 +971,8 @@ void QPicture::detach()
 QPicture QPicture::copy() const
 {
     QPicture p;
-    QByteArray a( size() );
+    QByteArray a;
+    a.resize(size());
     memcpy( a.data(), data(), size() );
     p.d->pictb.setBuffer( a );			// set byte array in buffer
     if ( d->pictb.isOpen() ) {			// copy buffer state

@@ -918,7 +918,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    }
 	    QString s = mi->text();
 	    if ( !s.isNull() ) {                        // draw text
-		int t = s.find( '\t' );
+		int t = s.indexOf( '\t' );
 		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 		if (!styleHint(SH_UnderlineAccelerator, widget))
 		    text_flags |= NoAccel;
@@ -1172,7 +1172,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 			     2*windowsItemFrame);
 	    }
 
-	    if (! mi->text().isNull() && mi->text().find('\t') >= 0) {
+	    if (! mi->text().isNull() && mi->text().indexOf('\t') >= 0) {
 		if ( use2000style )
 		    w += 20;
 		else
@@ -1653,7 +1653,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    p.setPen( color1 );
 		    p.drawPoints( a );
 		    p.end();
-		    QApplication::flushX();
+		    QApplication::flush();
 		    verticalLine->setMask( *verticalLine );
 		    p.begin( horizontalLine );
 		    for( i=0; i<64; i++ )
@@ -1661,7 +1661,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    p.setPen( color1 );
 		    p.drawPoints( a );
 		    p.end();
-		    QApplication::flushX();
+		    QApplication::flush();
 		    horizontalLine->setMask( *horizontalLine );
 		    qlv_cleanup_bitmap.add( &verticalLine );
 		    qlv_cleanup_bitmap.add( &horizontalLine );

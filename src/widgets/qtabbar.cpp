@@ -825,7 +825,7 @@ void QTabBar::setCurrentTab( QTab * tab )
 	    return;
 
 	QRect r = d->l.last()->r;
-	int idx = d->l.findIndex(tab);
+	int idx = d->l.indexOf(tab);
 	if (idx >= 0)
 	    d->l.append(d->l.takeAt(idx));
 

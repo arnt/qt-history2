@@ -125,9 +125,9 @@ static void readLocaleSettings()
     *lTimeSep = ":";
 #endif
     QString d = QDate( 1999, 11, 22 ).toString( Qt::LocalDate );
-    dpos = d.find( "22" );
-    mpos = d.find( "11" );
-    ypos = d.find( "99" );
+    dpos = d.indexOf( "22" );
+    mpos = d.indexOf( "11" );
+    ypos = d.indexOf( "99" );
     if ( dpos > -1 && mpos > -1 && ypos > -1 ) {
 	// test for DMY, MDY, YMD, YDM
 	if ( dpos < mpos && mpos < ypos ) {
@@ -155,9 +155,9 @@ static void readLocaleSettings()
 
 #ifndef Q_WS_WIN
     QString t = QTime( 11, 22, 33 ).toString( Qt::LocalDate );
-    dpos = t.find( "11" );
-    mpos = t.find( "22" );
-    ypos = t.find( "33" );
+    dpos = t.indexOf( "11" );
+    mpos = t.indexOf( "22" );
+    ypos = t.indexOf( "33" );
     // We only allow hhmmss
     if ( dpos > -1 && dpos < mpos && mpos < ypos ) {
 	QString sep = t.mid( dpos + 2, mpos - dpos - 2 );
@@ -584,7 +584,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		QWidget *w = this;
 		bool hadDateEdit = FALSE;
 		while ( w ) {
-		    if ( qt_cast<QDateTimeSpinWidget*>(w) && qstrcmp( w->name(), "qt_spin_widget" ) != 0 ||
+		    if ( qt_cast<QDateTimeSpinWidget*>(w) && qstrcmp( w->objectName(), "qt_spin_widget" ) != 0 ||
 			 qt_cast<QDateTimeEdit*>(w) )
 			break;
 		    hadDateEdit = hadDateEdit || qt_cast<QDateEdit*>(w);
@@ -613,7 +613,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		}
 	    } break;
 	    default:
-		QString txt = ke->text().lower();
+		QString txt = ke->text().toLower();
 		if ( !txt.isEmpty() && !separator().isEmpty() && txt[0] == separator()[0] ) {
 		    // do the same thing as KEY_RIGHT when the user presses the separator key
 		    if ( d->focusSection() < 2 ) {
@@ -626,10 +626,10 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		    QTimeEdit *te = (QTimeEdit*)cw;
 		    QTime time = te->time();
 		    if ( lAMPM && lAM && lPM && (te->display()&QTimeEdit::AMPM) ) {
-			if ( txt[0] == (*lAM).lower()[0] && time.hour() >= 12 ) {
+			if ( txt[0] == (*lAM).toLower()[0] && time.hour() >= 12 ) {
 			    time.setHMS( time.hour()-12, time.minute(), time.second(), time.msec() );
 			    te->setTime( time );
-			} else if ( txt[0] == (*lPM).lower()[0] && time.hour() < 12 ) {
+			} else if ( txt[0] == (*lPM).toLower()[0] && time.hour() < 12 ) {
 			    time.setHMS( time.hour()+12, time.minute(), time.second(), time.msec() );
 			    te->setTime( time );
 			}
@@ -1088,7 +1088,7 @@ QString QDateEdit::sectionFormattedText( int sec )
     else
 	d->ed->setSectionSelection( sec, sectionOffsetEnd( sec ) - sectionLength( sec ),
 			     sectionOffsetEnd( sec ) );
-    txt = txt.rightJustify( sectionLength( sec ), QDATETIMEEDIT_HIDDEN_CHAR );
+    txt = txt.rightJustified( sectionLength( sec ), QDATETIMEEDIT_HIDDEN_CHAR );
     return txt;
 }
 
@@ -1802,7 +1802,7 @@ void QTimeEdit::init()
 {
     d = new QTimeEditPrivate();
     d->ed = new QDateTimeEditor( this, "time edit base" );
-    d->controls = new QDateTimeSpinWidget( this, qstrcmp( name(), "qt_datetime_timeedit" ) == 0 ? "qt_spin_widget" : "time edit controls" );
+    d->controls = new QDateTimeSpinWidget( this, qstrcmp( objectName(), "qt_datetime_timeedit" ) == 0 ? "qt_spin_widget" : "time edit controls" );
     d->controls->setEditWidget( d->ed );
     setFocusProxy( d->ed );
     connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
@@ -2136,7 +2136,7 @@ QString QTimeEdit::sectionFormattedText( int sec )
 {
     QString txt;
     txt = sectionText( sec );
-    txt = txt.rightJustify( 2, QDATETIMEEDIT_HIDDEN_CHAR );
+    txt = txt.rightJustified( 2, QDATETIMEEDIT_HIDDEN_CHAR );
     int offset = sec*2+sec*separator().length() + txt.length();
     if ( d->typing && sec == d->ed->focusSection() )
 	d->ed->setSectionSelection( sec, offset - txt.length(), offset );
@@ -2158,7 +2158,7 @@ bool QTimeEdit::setFocusSection( int sec )
 	d->overwrite = TRUE;
 	d->typing = FALSE;
 	QString txt = sectionText( sec );
-	txt = txt.rightJustify( 2, QDATETIMEEDIT_HIDDEN_CHAR );
+	txt = txt.rightJustified( 2, QDATETIMEEDIT_HIDDEN_CHAR );
 	int offset = sec*2+sec*separator().length() + txt.length();
 	d->ed->setSectionSelection( sec, offset - txt.length(), offset );
 	if ( d->changed ) {

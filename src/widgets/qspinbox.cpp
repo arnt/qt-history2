@@ -53,7 +53,7 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
 {
     QString pref = spinBox->prefix();
     QString suff = spinBox->suffix();
-    QString suffStriped = suff.stripWhiteSpace();
+    QString suffStriped = suff.trimmed();
     int overhead = pref.length() + suff.length();
     State state = Invalid;
 
@@ -77,8 +77,8 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
 	    state = QIntValidator::validate( str, pos );
 	    if ( state == Invalid ) {
 		// stripWhiteSpace(), cf. QSpinBox::interpretText()
-		QString special = spinBox->specialValueText().stripWhiteSpace();
-		QString candidate = str.stripWhiteSpace();
+		QString special = spinBox->specialValueText().trimmed();
+		QString candidate = str.trimmed();
 
 		if ( special.startsWith(candidate) ) {
 		    if ( candidate.length() == special.length() ) {
@@ -291,20 +291,20 @@ QString QSpinBox::text() const
 
 QString QSpinBox::cleanText() const
 {
-    QString s = QString(text()).stripWhiteSpace();
+    QString s = QString(text()).trimmed();
     if ( !prefix().isEmpty() ) {
-	QString px = QString(prefix()).stripWhiteSpace();
+	QString px = QString(prefix()).trimmed();
 	int len = px.length();
 	if ( len && s.left(len) == px )  // Remove _only_ if it is the prefix
 	    s.remove( (uint)0, len );
     }
     if ( !suffix().isEmpty() ) {
-	QString sx = QString(suffix()).stripWhiteSpace();
+	QString sx = QString(suffix()).trimmed();
 	int len = sx.length();
 	if ( len && s.right(len) == sx )  // Remove _only_ if it is the suffix
 	    s.truncate( s.length() - len );
     }
-    return s.stripWhiteSpace();
+    return s.trimmed();
 }
 
 
@@ -819,8 +819,8 @@ void QSpinBox::interpretText()
     bool done = FALSE;
     int newVal = 0;
     if ( !specialValueText().isEmpty() ) {
-	QString s = text().stripWhiteSpace();
-	QString t = specialValueText().stripWhiteSpace();
+	QString s = text().trimmed();
+	QString t = specialValueText().trimmed();
 	if ( s == t ) {
 	    newVal = minValue();
 	    done = TRUE;

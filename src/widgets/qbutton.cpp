@@ -598,7 +598,7 @@ void QButton::setState( ToggleState s )
 {
     if ( !toggleTyp ) {
 	qWarning( "QButton::setState() / setOn: (%s) Only toggle buttons "
-		 "may be switched", name( "unnamed" ) );
+		 "may be switched", objectName( "unnamed" ) );
 	return;
     }
 

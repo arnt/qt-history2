@@ -858,7 +858,7 @@ QKeySequence QAccel::shortcutKey(const QString &str)
 
     int p = 0;
     while (p >= 0) {
-	p = str.find('&', p) + 1;
+	p = str.indexOf('&', p) + 1;
 	if (p <= 0 || p >= (int)str.length())
 	    return 0;
 	if (str[p] != '&') {

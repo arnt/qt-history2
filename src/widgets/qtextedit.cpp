@@ -4869,9 +4869,9 @@ void QTextEdit::pasteSubType( const QByteArray& subtype, QMimeSource *m )
 	return;
     if ( st == "application/x-qrichtext" ) {
 	int start;
-	if ( (start = t.find( "<!--StartFragment-->" )) != -1 ) {
+	if ( (start = t.indexOf( "<!--StartFragment-->" )) != -1 ) {
 	    start += 20;
-	    int end = t.find( "<!--EndFragment-->" );
+	    int end = t.indexOf( "<!--EndFragment-->" );
 	    QTextCursor oldC = *cursor;
 
 	    // during the setRichTextInternal() call the cursors
@@ -4985,7 +4985,7 @@ QByteArray QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoin
 	int n = 0;
 	QHash<QString, bool> done;
 	for (int i = 0; !( fmt = ms->format( i ) ).isNull(); i++) {
-	    int semi = fmt.find( ";" );
+	    int semi = fmt.indexOf( ';' );
 	    if ( semi >= 0 )
 		fmt = fmt.left( semi );
 	    if ( fmt.left( 5 ) == "text/" ) {
@@ -5005,7 +5005,7 @@ QByteArray QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoin
 #else
 	QString fmt;
 	for (int i = 0; !( fmt = ms->format( i ) ).isNull(); i++) {
-	    int semi = fmt.find( ";" );
+	    int semi = fmt.indexOf( ';' );
 	    if ( semi >= 0 )
 		fmt = fmt.left( semi );
 	    if ( fmt.left( 5 ) == "text/" ) {
@@ -6246,7 +6246,7 @@ static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
     int strWidth = 0;
     int tn;
     for (tn = 1; tn <= tabs; ++tn) {
-	newIdx = str.find('\t', newIdx);
+	newIdx = str.indexOf('\t', newIdx);
 	strWidth += fm.width(str.mid(lastIdx, newIdx - lastIdx));
 	if (strWidth >= tn * tabWidth) {
 	    int u = tn;
@@ -6541,10 +6541,10 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
 	    }
 	}
 	if ( tag ) {
-	    QString col = tag->tag.simplifyWhiteSpace();
+	    QString col = tag->tag.simplified();
 	    if ( col.left( 10 ) == "font color" ) {
-		int i = col.find( '=', 10 );
-		col = col.mid( i + 1 ).simplifyWhiteSpace();
+		int i = col.indexOf( '=', 10 );
+		col = col.mid( i + 1 ).simplified();
 		if ( col[0] == '\"' )
 		    col = col.mid( 1, col.length() - 2 );
 	    }
@@ -6985,8 +6985,11 @@ bool QTextEdit::optimFind( const QString & expr, bool cs, bool /*wo*/,
 	return FALSE;
 
     for ( i = parag; fw ? i < d->od->numLines : i >= 0; fw ? i++ : i-- ) {
-	idx = fw ? d->od->lines[ LOGOFFSET(i) ].find( expr, idx, cs ) :
-	      d->od->lines[ LOGOFFSET(i) ].findRev( expr, idx, cs );
+	idx = fw
+	      ? d->od->lines[ LOGOFFSET(i) ].indexOf(expr, idx,
+						     cs ? QString::CaseSensitive : QString::CaseInsensitive)
+	      : d->od->lines[ LOGOFFSET(i) ].lastIndexOf(expr, idx,
+							 cs ? QString::CaseSensitive : QString::CaseInsensitive );
 	if ( idx != -1 ) {
 	    found = TRUE;
 	    break;

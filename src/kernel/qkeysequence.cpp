@@ -325,7 +325,7 @@ int QKeySequence::assign(QString keyseq)
 	// We MUST use something to seperate each sequence, and space
 	// does not cut it, since some of the key names have space
 	// in them.. (Let's hope no one translate with a comma in it:)
-	p = keyseq.find(',');
+	p = keyseq.indexOf(',');
 	if (-1 != p) {
 	    if (',' == keyseq[p+1]) // e.g. 'Ctrl+,, Shift+,,'
 		p++;
@@ -357,7 +357,7 @@ struct ModifKeyName {
 int QKeySequence::decodeString(const QString& str)
 {
     int ret = 0;
-    QString accel = str.lower();
+    QString accel = str.toLower();
 
     // ############ FIXME: We should not need to construct a valuelist with 20 entries for every
     // key decode operation. There _is_ a way to do this more intelligent.
@@ -377,13 +377,13 @@ int QKeySequence::decodeString(const QString& str)
 	modifs << ModifKeyName(SHIFT, QMAC_SHIFT);
 #endif
 	modifs << ModifKeyName(CTRL, "ctrl+")
-	       << ModifKeyName(CTRL, QAccel::tr("Ctrl").lower().append('+'))
+	       << ModifKeyName(CTRL, QAccel::tr("Ctrl").toLower().append('+'))
 	       << ModifKeyName(SHIFT, "shift+")
-	       << ModifKeyName(SHIFT, QAccel::tr("Shift").lower().append('+'))
+	       << ModifKeyName(SHIFT, QAccel::tr("Shift").toLower().append('+'))
 	       << ModifKeyName(ALT, "alt+")
-	       << ModifKeyName(ALT, QAccel::tr("Alt").lower().append('+'))
+	       << ModifKeyName(ALT, QAccel::tr("Alt").toLower().append('+'))
 	       << ModifKeyName(META, "meta+")
-	       << ModifKeyName(ALT, QAccel::tr("Meta").lower().append('+'));
+	       << ModifKeyName(ALT, QAccel::tr("Meta").toLower().append('+'));
     }
     QString sl = accel;
     for (int i = 0; i < modifs.size(); ++i) {
@@ -395,7 +395,7 @@ int QKeySequence::decodeString(const QString& str)
 	}
     }
 
-    int p = accel.findRev('+', str.length() - 2); // -2 so that Ctrl++ works
+    int p = accel.lastIndexOf('+', str.length() - 2); // -2 so that Ctrl++ works
     if(p > 0)
 	accel = accel.mid(p + 1);
 

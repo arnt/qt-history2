@@ -199,7 +199,7 @@ Q_GUI_EXPORT void qt_x11_enforce_cursor( QWidget * w )
 
 Q_GUI_EXPORT void qt_wait_for_window_manager( QWidget* w )
 {
-    QApplication::flushX();
+    QApplication::flush();
     XEvent ev;
     QTime t;
     t.start();
@@ -681,7 +681,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	// declare the widget's object name as window role
 	XChangeProperty( dpy, id,
 			 ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
-			 (unsigned char *)name(), qstrlen( name() ) );
+			 (unsigned char *)objectName(), qstrlen( objectName() ) );
 
 	// set client leader property
 	XChangeProperty( dpy, id, ATOM(WM_CLIENT_LEADER),
@@ -1827,7 +1827,7 @@ void QWidget::hideWindow()
 void QWidget::raise()
 {
     QWidget *p = parentWidget();
-    if ( p && p->d->children.findIndex(this) >= 0 ) {
+    if ( p && p->d->children.indexOf(this) >= 0 ) {
 	p->d->children.remove(this);
 	p->d->children.append(this);
     }
@@ -1846,7 +1846,7 @@ void QWidget::raise()
 void QWidget::lower()
 {
     QWidget *p = parentWidget();
-    if ( p && p->d->children.findIndex(this) >= 0 ) {
+    if ( p && p->d->children.indexOf(this) >= 0 ) {
 	p->d->children.remove(this);
 	p->d->children.prepend(this);
     }
@@ -1866,9 +1866,9 @@ void QWidget::stackUnder( QWidget* w)
     QWidget *p = parentWidget();
     if ( !w || isTopLevel() || p != w->parentWidget() || this == w )
 	return;
-    if ( p && p->d->children.findIndex(w) >= 0 && p->d->children.findIndex(this) >= 0 ) {
+    if ( p && p->d->children.indexOf(w) >= 0 && p->d->children.indexOf(this) >= 0 ) {
 	p->d->children.remove(this);
-	p->d->children.insert(p->d->children.findIndex(w), this);
+	p->d->children.insert(p->d->children.indexOf(w), this);
     }
     Window stack[2];
     stack[0] = w->winId();;
@@ -2052,7 +2052,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	qWarning("QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
-		 name( "unnamed" ), className(), QWIDGETSIZE_MAX,
+		 objectName( "unnamed" ), className(), QWIDGETSIZE_MAX,
 		QWIDGETSIZE_MAX );
 	maxw = qMin( maxw, QWIDGETSIZE_MAX );
 	maxh = qMin( maxh, QWIDGETSIZE_MAX );
@@ -2060,7 +2060,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     if ( maxw < 0 || maxh < 0 ) {
 	qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
 		"are not possible",
-		name( "unnamed" ), className(), maxw, maxh );
+		objectName( "unnamed" ), className(), maxw, maxh );
 	maxw = qMax( maxw, 0 );
 	maxh = qMax( maxh, 0 );
     }

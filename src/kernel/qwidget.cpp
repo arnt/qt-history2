@@ -2757,7 +2757,7 @@ void QWidget::setFocusProxy( QWidget * w )
 
     for ( QWidget* fp  = w; fp; fp = fp->focusProxy() ) {
 	if ( fp == this ) {
-	    qWarning( "%s (%s): already in focus proxy chain", className(), name() );
+	    qWarning( "%s (%s): already in focus proxy chain", className(), objectName() );
 	    return;
 	}
     }

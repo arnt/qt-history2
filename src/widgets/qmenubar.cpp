@@ -1281,7 +1281,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    register QMenuItem *m = mitems->at(i);
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
-		int i = s.find( '&' );
+		int i = s.indexOf( '&' );
 		if ( i >= 0 )
 		{
 		    if ( s[i+1].upper() == c ) {

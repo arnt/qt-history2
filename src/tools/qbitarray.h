@@ -49,10 +49,8 @@ public:
 
     inline bool isNull() { return d.isNull(); }
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool fill(bool val, int size = -1)
+    inline bool fill(bool val, int size = -1)
 	{ *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
-#endif
 
     inline bool ensure_constructed()
     { return d.ensure_constructed(); }
