@@ -138,8 +138,12 @@ void QInputContext::init()
 			aimm->Activate( TRUE ) != S_OK) ) {
 	    aimm->Release();
 	    aimm = 0;
+	    if ( aimmpump )
+		aimmpump->Release();
+	    aimmpump = 0;
 	}
-	aimmpump->Start();
+	if ( aimmpump )
+	    aimmpump->Start();
     }
 }
 
