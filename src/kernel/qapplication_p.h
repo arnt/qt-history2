@@ -71,7 +71,6 @@ extern int qt_ncols_option;
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* );
 extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
 
-class QCursor;
 
 class QApplicationPrivate : public QKernelApplicationPrivate
 {
@@ -89,7 +88,7 @@ public:
 
     QList<QTranslator*> translators;
 #ifndef QT_NO_CURSOR
-    QList<QCursor *> cursor_list;
+    QList<QCursor> cursor_list;
 #endif
 };
 

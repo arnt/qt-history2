@@ -1836,25 +1836,24 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 #ifndef QT_NO_CURSOR
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
-    app_cursor = new QCursor( cursor );
-    if (replace && !qApp->d->cursor_list.isEmpty())
-	qApp->d->cursor_list.removeAt(qApp->d->cursor_list.size()-1);
-    qApp->d->cursor_list.append( app_cursor );
+    if (replace)
+	qApp->d->cursor_list.replace(0, cursor);
+    else
+	qApp->d->cursor_list.prepend(cursor);
 
     QWidget *w = QWidget::mouseGrabber();
     if ( !w && qt_last_x )
 	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
     if ( !w )
 	w = desktop();
-    QPaintDevice::qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
+    QPaintDevice::qwsDisplay()->selectCursor(w, (int)qApp->cursor_list.first().handle());
 }
 
 void QApplication::restoreOverrideCursor()
 {
-    if ( !qApp->d->cursor_list )				// no cursor stack
+    if (qApp->d->cursor_list.isEmpty())
 	return;
-    qApp->d->cursor_list.removeAt(qApp->d->cursor_list.size()-1);
-    app_cursor = qApp->d->cursor_list.last();
+    qApp->d->cursor_list.removeAt(0);
 
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)
@@ -1862,12 +1861,12 @@ void QApplication::restoreOverrideCursor()
     if ( !w )
 	w = desktop();
     int cursor_handle;
-    if ( !app_cursor ) {
+    if (qApp->d->cursor_list.isEmpty()) {
 	qws_overrideCursor = FALSE;
 	cursor_handle = (w->testAttribute(QWidget::WA_SetCursor))
 			? (int)w->cursor().handle() : ArrowCursor;
     } else {
-	cursor_handle = (int)app_cursor->handle();
+	cursor_handle = (int)qApp->d->cursor_list.first().handle();
     }
     QPaintDevice::qwsDisplay()->selectCursor(w, cursor_handle);
 }

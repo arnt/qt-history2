@@ -2436,17 +2436,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 extern void qt_x11_enforce_cursor( QWidget * w );
 
 /*!
-    \fn QCursor *QApplication::overrideCursor()
-
-    Returns the active application override cursor.
-
-    This function returns 0 if no application cursor has been defined
-    (i.e. the internal cursor stack is empty).
-
-    \sa setOverrideCursor(), restoreOverrideCursor()
-*/
-
-/*!
     Sets the application override cursor to \a cursor.
 
     Application override cursors are intended for showing the user
@@ -2480,10 +2469,10 @@ extern void qt_x11_enforce_cursor( QWidget * w );
 
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
-    app_cursor = new QCursor( cursor );
-    if (replace && !qApp->d->cursor_list.isEmpty())
-	qApp->d->cursor_list.removeAt(qApp->d->cursor_list.size()-1);
-    qApp->d->cursor_list.append( app_cursor );
+    if (replace)
+	qApp->d->cursor_list.replace(0, cursor);
+    else
+	qApp->d->cursor_list.prepend(cursor);
 
     for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
 	register QWidget *w = *it;
@@ -2506,10 +2495,10 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 
 void QApplication::restoreOverrideCursor()
 {
-    if ( !qApp->d->cursor_list )				// no cursor stack
+    if (qApp->d->cursor_list.isEmpty())
 	return;
-    qApp->d->cursor_list.removeAt(qApp->d->cursor_list.size()-1);
-    app_cursor = qApp->d->cursor_list.last();
+    qApp->d->cursor_list.removeAt(0);
+
     if ( QWidget::mapper != 0 && !closingDown() ) {
 	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
 	    register QWidget *w = *it;

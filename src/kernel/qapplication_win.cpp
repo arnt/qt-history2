@@ -1098,28 +1098,23 @@ static QCursorList *cursorStack = 0;
 
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
-    if ( !cursorStack ) {
-	cursorStack = new QCursorList;
-	cursorStack->setAutoDelete( TRUE );
-    }
-    app_cursor = new QCursor( cursor );
-    if ( replace )
-	cursorStack->removeLast();
-    cursorStack->append( app_cursor );
-    SetCursor( app_cursor->handle() );
+    if (replace)
+	qApp->d->cursor_list.replace(0, cursor);
+    else
+	qApp->d->cursor_list.prepend(cursor);
+
+    SetCursor( qApp->cursor_list.first().handle() );
 }
 
 void QApplication::restoreOverrideCursor()
 {
-    if ( !cursorStack )				// no cursor stack
+    if (qApp->d->cursor_list.isEmpty())
 	return;
-    cursorStack->removeLast();
-    app_cursor = cursorStack->last();
-    if ( app_cursor ) {
-	SetCursor( app_cursor->handle() );
+    qApp->d->cursor_list.removeAt(0);
+
+    if ( !qApp->d->cursor_list.isEmpty() ) {
+	SetCursor( qApp->d->cursor_list.first().handle() );
     } else {
-	delete cursorStack;
-	cursorStack = 0;
 	QWidget *w = QWidget::find( curWin );
 	if ( w )
 	    SetCursor( w->cursor().handle() );
@@ -1140,7 +1135,9 @@ void qt_set_cursor( QWidget *w, const QCursor& /* c */)
 	return;
     QWidget* cW = QWidget::find( curWin );
     if ( !cW || cW->topLevelWidget() != w->topLevelWidget() ||
-	 !cW->isVisible() || !cW->hasMouse() || cursorStack )
+	 !cW->isVisible() || !cW->hasMouse()
+	 /* ##### || cursorStack */
+	  )
 	return;
 
     SetCursor( cW->cursor().handle() );

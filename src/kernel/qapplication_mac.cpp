@@ -918,38 +918,27 @@ Qt::MacintoshVersion QApplication::macVersion()
 /*****************************************************************************
   QApplication cursor stack
  *****************************************************************************/
-typedef QPtrList<QCursor> QCursorList;
-static QCursorList *cursorStack = 0;
 void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 {
-    if(!cursorStack) {
-	cursorStack = new QCursorList;
-	cursorStack->setAutoDelete(TRUE);
-    }
-    app_cursor = new QCursor(cursor);
-    if(replace)
-	cursorStack->removeLast();
-    cursorStack->append(app_cursor);
+    if (replace)
+	qApp->d->cursor_list.replace(0, cursor);
+    else
+	qApp->d->cursor_list.prepend(cursor);
 
     if(qApp && qApp->activeWindow()) {
 	Point mouse_pos;
 	QPoint qmp(QCursor::pos());
 	mouse_pos.h = qmp.x();
 	mouse_pos.v = qmp.y();
-	qt_mac_set_cursor(app_cursor, &mouse_pos);
+	qt_mac_set_cursor(qApp->d->cursor_list.first(), &mouse_pos);
     }
 }
 
 void QApplication::restoreOverrideCursor()
 {
-    if(!cursorStack)				// no cursor stack
+    if (qApp->d->cursor_list.isEmpty())
 	return;
-    cursorStack->removeLast();
-    app_cursor = cursorStack->last();
-    if(cursorStack->isEmpty()) {
-	delete cursorStack;
-	cursorStack = NULL;
-    }
+    qApp->d->cursor_list.removeAt(0);
 
     if(qApp && qApp->activeWindow()) {
 	Point mouse_pos;
@@ -958,7 +947,8 @@ void QApplication::restoreOverrideCursor()
 	mouse_pos.v = qmp.y();
 
 	const QCursor def(Qt::ArrowCursor);
-	const QCursor *n = app_cursor ? app_cursor : &def;
+	const QCursor *n = qApp->d->cursor_list.isEmpty()
+			   ? &def : &qApp->d->cursor_list.first();
 	qt_mac_set_cursor(n, &mouse_pos);
     }
 }
@@ -1756,8 +1746,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	if(!QMacBlockingFunction::blocking()) { //set the cursor up
 	    const QCursor *n = NULL;
 	    if(widget) { //only over the app, do we set a cursor..
-		if(cursorStack) {
-		    n = app_cursor;
+		if(!qApp->d->cursor_list.isEmpty()) {
+		    n = qApp->d->cursor_list.first();
 		} else {
 		    for(QWidget *p = widget; p; p = p->parentWidget()) {
 			QWExtra *extra = ((QExtraWidget*)p)->extraData();
@@ -2239,7 +2229,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    break;
 		}
 #ifdef DEBUG_KEY_MAPS
-		qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) %d%s", 
+		qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) %d%s",
 		       etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       mychar, chr, mystr.latin1(), modifiers,

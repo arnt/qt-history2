@@ -311,9 +311,6 @@ QPalette *QApplication::app_pal	       = 0;	// default application palette
 #endif
 QFont	 *QApplication::app_font       = 0;	// default application font
 bool	  qt_app_has_font	       = FALSE;
-#ifndef QT_NO_CURSOR
-QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
-#endif
 QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 QWidget	 *QApplication::active_window  = 0;	// toplevel with keyboard focus
@@ -922,8 +919,7 @@ QApplication::~QApplication()
     app_style = 0;
 #endif
 #ifndef QT_NO_CURSOR
-    delete app_cursor;
-    app_cursor = 0;
+    d->cursor_list.clear();
 #endif
 
 #ifndef QT_NO_DRAGANDDROP
@@ -2859,6 +2855,24 @@ bool QApplication::reverseLayout()
 {
     return reverse_layout;
 }
+
+
+/*!
+    \fn QCursor *QApplication::overrideCursor()
+
+    Returns the active application override cursor.
+
+    This function returns 0 if no application cursor has been defined
+    (i.e. the internal cursor stack is empty).
+
+    \sa setOverrideCursor(), restoreOverrideCursor()
+*/
+#ifndef QT_NO_CURSOR
+QCursor *QApplication::overrideCursor()
+{
+    return qApp->d->cursor_list.isEmpty() ? 0 : &qApp->d->cursor_list.first();
+}
+#endif
 
 
 #ifndef QT_NO_ACCEL

@@ -286,9 +286,6 @@ private:
     static QPalette *app_pal;
 #endif
     static QFont    *app_font;
-#ifndef QT_NO_CURSOR
-    static QCursor  *app_cursor;
-#endif
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
     static QWidget  *active_window;
@@ -343,12 +340,6 @@ private: // Disabled copy constructor and operator=
     Q_DECL_PRIVATE(QApplication);
 };
 
-#ifndef QT_NO_CURSOR
-inline QCursor *QApplication::overrideCursor()
-{
-    return app_cursor;
-}
-#endif
 inline QWidget *QApplication::mainWidget() const
 {
     return main_widget;
