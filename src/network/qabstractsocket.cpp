@@ -280,6 +280,7 @@
 #include <time.h>
 
 #define QABSTRACTSOCKET_BUFFERSIZE 32768
+#define QT_CONNECT_TIMEOUT 30000
 
 //#define QABSTRACTSOCKET_DEBUG
 
@@ -930,6 +931,9 @@ void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
     // Report the successful host lookup
     emit q->hostFound();
 
+    // Reset the total time spent connecting.
+    connectTimeElapsed = 0;
+
     // The addresses returned by the lookup will be tested one after
     // another by the connectToNextAddress() slot.
     qInvokeMetaMember(q, "connectToNextAddress",
@@ -1013,10 +1017,12 @@ void QAbstractSocketPrivate::connectToNextAddress()
             return;
         }
 
-        // Wait for a write notification.
-        // ### proper timeout handling.
         if (!isBlocking) {
-            // this will eventually call testConnection()
+            // Start the connect timer.
+            d->connectTimer.start(QT_CONNECT_TIMEOUT);
+
+            // Wait for a write notification that will eventually call
+            // testConnection().
             if (d->writeSocketNotifier)
                 d->writeSocketNotifier->setEnabled(true);
             return;
@@ -1025,10 +1031,18 @@ void QAbstractSocketPrivate::connectToNextAddress()
         // If blocking, wait until the connection has been
         // established. ### proper timeout handling.
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::connectToNextAddress(), waiting for connection...");
+        qDebug("QAbstractSocketPrivate::connectToNextAddress(), "
+               "waiting for connection (%i seconds until timeout)",
+               (d->blockingTimeout - connectTimeElapsed) / 1000);
 #endif
+
+        // Keep track of how much time we're spending.
+        QTime stopWatch;
+        stopWatch.start();
+
         bool timedOut = false;
-        if (!socketLayer.waitForWrite(d->blockingTimeout, &timedOut) && !timedOut) {
+        if (!socketLayer.waitForWrite(d->blockingTimeout - connectTimeElapsed,
+                                      &timedOut) && !timedOut) {
             state = Qt::UnconnectedState;
             socketError = socketLayer.socketError();
             socketErrorString = socketLayer.errorString();
@@ -1047,6 +1061,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
             emit q->error(socketError);
             return;
         }
+
+        connectTimeElapsed += stopWatch.elapsed();
 
         // Check if the connection has been established.
         testConnection();
@@ -1083,6 +1099,25 @@ void QAbstractSocketPrivate::testConnection()
     // Invoke connectToNextAddress(). If we're in blocking mode, we'll
     // reenter this function on return.
     if (!isBlocking)
+        qInvokeMetaMember(q, "connectToNextAddress");
+}
+
+/*! \internal
+
+    This function is called after a certain number of seconds has
+    passed while waiting for a connection. It simply tests the
+    connection, and continues to the next address if the connection
+    failed.
+*/
+void QAbstractSocketPrivate::abortConnectionAttempt()
+{
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocketPrivate::abortConnectionAttempt() (timed out)");
+#endif
+    d->writeSocketNotifier->setEnabled(false);
+    testConnection();
+
+    if (state != Qt::ConnectedState)
         qInvokeMetaMember(q, "connectToNextAddress");
 }
 
@@ -1165,6 +1200,8 @@ QAbstractSocket::QAbstractSocket(Qt::SocketType socketType,
     // classes with a variable called d_ptr.
     d_ptr = static_cast<QAbstractSocketPrivate *>(QIODevice::d_ptr);
     d->socketType = socketType;
+
+    QObject::connect(&d->connectTimer, SIGNAL(timeout()), SLOT(abortConnectionAttempt()));
 }
 
 /*!
@@ -1181,6 +1218,8 @@ QAbstractSocket::QAbstractSocket(Qt::SocketType socketType, QObject *parent)
 #endif
     d_ptr = static_cast<QAbstractSocketPrivate *>(QIODevice::d_ptr);
     d->socketType = socketType;
+
+    QObject::connect(&d->connectTimer, SIGNAL(timeout()), SLOT(abortConnectionAttempt()));
 }
 
 /*!
@@ -1698,7 +1737,7 @@ Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
 {
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::read(%p, %lli), readBuffer.size() == %lli",
-           data, maxLength, d->readBuffer.size());
+           data, maxLength, Q_LLONG(d->readBuffer.size()));
 #endif
     if (!isValid()) {
         qWarning("QAbstractSocket::read: Invalid socket");

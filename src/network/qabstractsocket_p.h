@@ -7,6 +7,7 @@
 #include "qlist.h"
 #include "qsocketlayer.h"
 #include "qsocketnotifier.h"
+#include "qtimer.h"
 
 class QRingBuffer
 {
@@ -52,6 +53,7 @@ public:
     void testConnection();
     void canReadNotification(int);
     void canWriteNotification(int);
+    void abortConnectionAttempt();
 
     bool readSocketNotifierCalled;
 
@@ -79,6 +81,9 @@ public:
     bool isBuffered;
     bool isBlocking;
     int blockingTimeout;
+
+    QTimer connectTimer;
+    int connectTimeElapsed;
 
     Qt::SocketType socketType;
     Qt::SocketState state;
