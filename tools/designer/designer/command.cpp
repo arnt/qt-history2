@@ -356,6 +356,9 @@ void DeleteCommand::execute()
     connections.clear();
     for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
 	w->hide();
+	QString s = w->name();
+	s.prepend( "qt_dead_widget_" );
+	w->setName( s );
 	formWindow()->selectWidget( w, FALSE );
 	formWindow()->widgets()->remove( w );
 	QValueList<MetaDataBase::Connection> conns = MetaDataBase::connections( formWindow(), w );
@@ -378,6 +381,9 @@ void DeleteCommand::unexecute()
     formWindow()->clearSelection( FALSE );
     for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
 	w->show();
+	QString s = w->name();
+	s.remove( 0, QString( "qt_dead_widget_" ).length() );
+	w->setName( s );
 	formWindow()->widgets()->insert( w, w );
 	formWindow()->selectWidget( w );
 	QValueList<MetaDataBase::Connection> conns = *connections.find( w );
