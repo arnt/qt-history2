@@ -534,7 +534,7 @@ void QToolBox::activateClosestPage( QWidget *widget )
     int curIndexUp = d->pageList.findIndex( *c );
     int curIndexDown = curIndexUp;
     while ( !p ) {
-	if ( curIndexDown < d->pageList.count()-1 ) {
+	if ( curIndexDown < (int)d->pageList.count()-1 ) {
 	    c = d->page(page(++curIndexDown));
 	    if ( c->button->isEnabled() ) {
 		p = c->widget;
