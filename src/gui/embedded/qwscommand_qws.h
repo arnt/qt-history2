@@ -134,11 +134,8 @@ struct QWSIdentifyCommand : public QWSCommand
     void setId(const QString& i)
     {
         id = i;
-        int l = simpleData.idLen = id.length();
-        char *d = new char[l];
-        memcpy(d, id.unicode(), simpleData.idLen*2);
-        setData(d, l, true);
-        delete[] d;
+        simpleData.idLen = id.length();
+        setData(reinterpret_cast<const char*>(id.unicode()), simpleData.idLen*2, true);
     }
 
     struct SimpleData {
@@ -465,11 +462,8 @@ struct QWSQCopRegisterChannelCommand : public QWSCommand
     void setChannel(const QString& n)
     {
         channel = n;
-        int l = simpleData.chLen = channel.length();
-        char *d = new char[l];
-        memcpy(d, channel.unicode(), simpleData.chLen*2);
-        setData(d, l, true);
-        delete[] d;
+        simpleData.chLen = channel.length();
+        setData(reinterpret_cast<const char*>(channel.unicode()), simpleData.chLen*2, true);
     }
 
     struct SimpleData {
