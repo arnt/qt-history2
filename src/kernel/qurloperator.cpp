@@ -360,27 +360,27 @@ const QNetworkOperation *QUrlOperator::startOperation( QNetworkOperation *op )
 	msg = tr( "The protocol `%1' is not supported" ).arg( protocol() );
     } else {
 	switch ( op->operation() ) {
-	    case QNetworkProtocol::OpListChildren:
-		msg = tr( "The protocol `%1' does not support listing directories" ).arg( protocol() );
-		break;
-	    case QNetworkProtocol::OpMkDir:
-		msg = tr( "The protocol `%1' does not support creating new directories" ).arg( protocol() );
-		break;
-	    case QNetworkProtocol::OpRemove:
-		msg = tr( "The protocol `%1' does not support removing files or directories" ).arg( protocol() );
-		break;
-	    case QNetworkProtocol::OpRename:
-		msg = tr( "The protocol `%1' does not support renaming files or directories" ).arg( protocol() );
-		break;
-	    case QNetworkProtocol::OpGet:
-		msg = tr( "The protocol `%1' does not support getting files" ).arg( protocol() );
-		break;
-	    case QNetworkProtocol::OpPut:
-		msg = tr( "The protocol `%1' does not support putting files" ).arg( protocol() );
-		break;
-	    default:
-		// ### this should never happen...
-		break;
+	case QNetworkProtocol::OpListChildren:
+	    msg = tr( "The protocol `%1' does not support listing directories" ).arg( protocol() );
+	    break;
+	case QNetworkProtocol::OpMkDir:
+	    msg = tr( "The protocol `%1' does not support creating new directories" ).arg( protocol() );
+	    break;
+	case QNetworkProtocol::OpRemove:
+	    msg = tr( "The protocol `%1' does not support removing files or directories" ).arg( protocol() );
+	    break;
+	case QNetworkProtocol::OpRename:
+	    msg = tr( "The protocol `%1' does not support renaming files or directories" ).arg( protocol() );
+	    break;
+	case QNetworkProtocol::OpGet:
+	    msg = tr( "The protocol `%1' does not support getting files" ).arg( protocol() );
+	    break;
+	case QNetworkProtocol::OpPut:
+	    msg = tr( "The protocol `%1' does not support putting files" ).arg( protocol() );
+	    break;
+	default:
+	    // this should never happen
+	    break;
 	}
     }
     op->setState( QNetworkProtocol::StFailed );
@@ -847,7 +847,7 @@ QUrlInfo QUrlOperator::info( const QString &entry ) const
 {
     if ( d->entryMap.contains( entry.stripWhiteSpace() ) ) {
 	return d->entryMap[ entry.stripWhiteSpace() ];
-     } else if ( entry == "." || entry == ".." ) {
+    } else if ( entry == "." || entry == ".." ) {
 	 // return a faked QUrlInfo
 	 QUrlInfo inf;
 	 inf.setName( entry );
@@ -860,8 +860,7 @@ QUrlInfo QUrlOperator::info( const QString &entry ) const
 	 inf.setWritable( FALSE );
 	 inf.setReadable( TRUE );
 	 return inf;
-     }
-
+    }
     return QUrlInfo();
 }
 
@@ -1135,6 +1134,7 @@ void QUrlOperator::slotItemChanged( QNetworkOperation *op )
 
 	QMap<QString, QUrlInfo>::iterator mi = d->entryMap.find( op->arg( 0 ) );
 	if ( mi != d->entryMap.end() ) {
+	    mi.data().setName( op->arg( 1 ) );
 	    d->entryMap[ op->arg( 1 ) ] = mi.data();
 	    d->entryMap.erase( mi );
 	}
