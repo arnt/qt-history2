@@ -432,7 +432,7 @@ void SetupWizardImpl::makeDone()
     } else {
 	compileProgress->setProgress( compileProgress->totalSteps() );
 
-	if( sysID != MSVC )
+	if( ( sysID != MSVC ) || ( !findFileInPaths( "atlbase.h", QStringList::split( ";", QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	    integratorDone();
 	else {
 	    connect( &integrator, SIGNAL( processExited() ), this, SLOT( integratorDone() ) );
