@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.h#11 $
+** $Id: //depot/qt/main/src/widgets/qgrid.h#12 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -12,28 +12,27 @@
 #define QGRID_H
 
 #ifndef QT_H
-#include "qwidget.h"
+#include "qframe.h"
 #endif // QT_H
 
 class QGridLayout;
 
-class Q_EXPORT QGrid : public QWidget
+class Q_EXPORT QGrid : public QFrame
 {
     Q_OBJECT
 public:
     enum Direction { Horizontal, Vertical };
-    QGrid( int n, QWidget *parent=0, const char *name=0, WFlags f=0 );
-    QGrid( int n, Direction, QWidget *parent=0, const char *name=0, WFlags f=0 );
+    QGrid( int n, QWidget *parent=0, const char *name=0, WFlags f=0,
+	   bool allowLines=TRUE  );
+    QGrid( int n, Direction, QWidget *parent=0, const char *name=0, 
+	   WFlags f=0, bool allowLines=TRUE  );
+    void setSpacing( int );
 
 protected:
-    virtual void childEvent( QChildEvent * );
+    void frameChanged();
+
 private:
-    void skip(); // child events are deferred, so this cannot be public
     QGridLayout *lay;
-    int row;
-    int col;
-    int nRows, nCols;
-    Direction dir;
 };
 
 #endif //QGRID_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#15 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#16 $
 **
 ** Definition of the abstract layout base class
 **
@@ -155,7 +155,7 @@ public:
 
     virtual void setMargin( int );
     virtual void setSpacing( int );
-    
+
     enum { unlimited = QCOORD_MAX };
     enum ResizeMode { FreeResize, Minimum, Fixed };
 #if 1 //OBSOLETE
@@ -171,6 +171,9 @@ public:
     QMenuBar *menuBar() const { return menubar; }
     bool isTopLevel() const { return topLevel; }
 
+    virtual void setAutoAdd( bool );
+    bool autoAdd() const { return autoNewChild; }
+    
     QRect geometry() const;
     bool activate();
 
@@ -194,6 +197,7 @@ private:
     int outsideBorder;
     uint topLevel : 1;
     uint autoMinimum : 1;
+    uint autoNewChild : 1;
     uint frozen : 1;
     uint activated : 1;
     QRect rect;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#13 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -20,6 +20,9 @@
   The number of rows or columns is defined in the constructor. All its
   children will be placed and sized according to their sizeHint()s.
 
+  Use setMargin() to add space around the edge, and use addSpacing to
+  add space between the widgets.
+  
   \sa QVBox and QHBox
  */
 
@@ -30,19 +33,20 @@
   \c Horizontal, \a n specifies the number of columns. If \a d is \c Vertical,
   \a n specifies the number of rows.
  */
-QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f )
-    :QWidget( parent, name, f )
+QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f,
+	      bool allowLines )
+    :QFrame( parent, name, f, allowLines )
 {
+    int nCols, nRows;
     if ( d == Horizontal ) {
 	nCols = n;
-	nRows = 1;
+	nRows = -1;
     } else {
-	nCols = 1;
+	nCols = -1;
 	nRows = n;
     }
-    dir = d;
-    lay = new QGridLayout( this, nRows, nCols, parent?0:5, 5, name ); //### border
-    row = col = 0;
+    lay = new QGridLayout( this, nRows, nCols, 0, 0, name );
+    lay->setAutoAdd( TRUE );
 }
 
 
@@ -51,53 +55,32 @@ QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f )
   Constructs a grid widget with parent \a parent and name \a name.
   \a n specifies the number of columns.
  */
-QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
-    :QWidget( parent, name, f )
+QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f, 
+	      bool allowLines )
+    :QFrame( parent, name, f, allowLines )
 {
-    nCols = n;
-    nRows = 1;
-    dir = Horizontal;
-    lay = new QGridLayout( this, nRows, nCols, parent?0:5, 5, name ); //### border
-    row = col = 0;
+    lay = new QGridLayout( this, -1, n, 0, 0, name );
+    lay->setAutoAdd( TRUE );
 }
 
 
 /*!
-  This function is called when the widget gets a new child or loses an old one.
- */
-void QGrid::childEvent( QChildEvent *c )
-{
-    // Similar to QGroupBox::childEvent()
-    if ( !c->inserted() || !c->child()->isWidgetType() )
-	return;
-    QWidget *w = (QWidget*)c->child();
-    if ( row >= nRows || col >= nCols )
-	lay->expand( row+1, col+1 );
-    lay->addWidget( w, row, col );
-    skip();
-}
-
-
-/*!
-  Skips a position in the grid, leaving it empty.
+  Sets the spacing between children to \a space.
 */
 
-void QGrid::skip()
+void QGrid::setSpacing( int space )
 {
-    // Same as QGroupBox::skip()
-    if ( dir == Horizontal ) {
-	if ( col+1 < nCols ) {
-	    col++;
-	} else {
-	    col = 0;
-	    row++;
-	}
-    } else { //Vertical
-	if ( row+1 < nRows ) {
-	    row++;
-	} else {
-	    row = 0;
-	    col++;
-	}
-    }
+    if ( layout() )
+	layout()->setSpacing( space );
+}
+
+
+/*!
+  Reimplemented for internal purposes
+ */
+void QGrid::frameChanged()
+{
+    if ( !layout() )
+	return;
+    layout()->setMargin( frameWidth() );
 }

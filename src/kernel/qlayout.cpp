@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#88 $
 **
 ** Implementation of layout classes
 **
@@ -111,6 +111,7 @@ public:
     void getNextPos( int &row, int &col ) { row = nextR; col = nextC; }
     uint count() const { return things.count() + (multi?multi->count():0); }
 private:
+    void setNextPosAfter( int r, int c );
     void recalcHFW( int w, int s );
     void addHfwData ( QLayoutBox *box );
     void init();
@@ -134,6 +135,7 @@ private:
     int hfw_height;
     int nextR;
     int nextC;
+    bool addVertical;
     friend class QLayoutArrayIterator;
 };
 
@@ -146,6 +148,14 @@ QLayoutArray::QLayoutArray( int nRows, int nCols )
     :rowData(0), colData(0)
 {
     init();
+    if ( nRows  < 0 ) {
+	nRows = 1;
+	addVertical = FALSE;
+    }
+    if ( nCols  < 0 ) {
+	nCols = 1;
+	addVertical = TRUE;
+    }
     setSize( nRows, nCols );
 }
 
@@ -158,6 +168,7 @@ QLayoutArray::~QLayoutArray()
 
 void QLayoutArray::init()
 {
+    addVertical = FALSE;
     setDirty();
     multi = 0;
     rr = cc = 0;
@@ -324,6 +335,29 @@ void QLayoutArray::setSize( int r, int c )
     cc = c;
 }
 
+void QLayoutArray::setNextPosAfter( int row, int col )
+{
+    if ( addVertical ) {
+	if ( col > nextC || col == nextC && row >= nextR ) {
+	    nextR = row + 1;
+	    nextC = col;
+	    if ( nextR >= rr ) {
+		nextR = 0;
+		nextC++;
+	    }
+	}
+    } else {
+	if ( row > nextR || row == nextR && col >= nextC ) {
+	    nextR = row;
+	    nextC = col + 1;
+	    if ( nextC >= cc ) {
+		nextC = 0;
+		nextR++;
+	    }
+	}
+    }
+}
+
 void QLayoutArray::add( QLayoutBox *box, int row, int col )
 {
     expand( row+1, col+1 );
@@ -331,14 +365,7 @@ void QLayoutArray::add( QLayoutBox *box, int row, int col )
     box->col = col;
     things.append( box );
     setDirty();
-    if ( row > nextR || row == nextR && col >= nextC ) {
-	nextR = row;
-	nextC = col + 1;
-	if ( nextC >= cc ) {
-	    nextC = 0;
-	    nextR++;
-	}
-    }
+    setNextPosAfter( row, col );
 }
 
 
@@ -355,14 +382,8 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
     setDirty();
     if ( col2 < 0 )
 	col2 = cc - 1;
-    if ( row2 > nextR || row2 == nextR && col2 >= nextC ) {
-	nextR = row2;
-	nextC = col2 + 1;
-	if ( nextC >= cc ) {
-	    nextC = 0;
-	    nextR++;
-	}
-    }
+
+    setNextPosAfter( row2, col2 );
 }
 
 void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
@@ -865,7 +886,9 @@ QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
   If \a space is -1, this QGridLayout will inherits its parent's
   spacing(), otherwise \a space is used.
 
-  You have to insert this grid into another layout before using it.
+  You have to insert this grid into another layout. You can insert
+  widgets and layouts in this layout at any time, but layout will not
+  be performed before it is inserted.
 */
 
 QGridLayout::QGridLayout( int nRows, int nCols,
@@ -1343,7 +1366,7 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
   If \a space is -1, this QBoxLayout will inherit its parent's
   spacing(), otherwise \a space is used.
 
-  You have to insert this box into another layout before using it.
+  You have to insert this box into another layout.
 */
 
 QBoxLayout::QBoxLayout( Direction d,
@@ -1597,7 +1620,7 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
 
 /*!
   Creates a new horizontal box. You have to add it to another
-  layout before using it.
+  layout.
  */
 QHBoxLayout::QHBoxLayout( int space, const char *name )
     :QBoxLayout( LeftToRight, space, name )
@@ -1660,7 +1683,7 @@ QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
 
 /*!
   Creates a new vertical box. You have to add it to another
-  layout before using it.
+  layout.
  */
 QVBoxLayout::QVBoxLayout( int space, const char *name )
     :QBoxLayout( TopToBottom, space, name )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#14 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -22,6 +22,9 @@
   All its children will be placed beside each other and sized
   according to their sizeHint()s.
 
+  Use setMargin() to add space around the edge, and use addSpacing to
+  add space between the widgets.
+  
   \sa QVBox and QGrid
 
 */
@@ -34,6 +37,7 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f,  bool allowLines  )
     :QFrame( parent, name, f, allowLines )
 {
     lay = new QHBoxLayout( this, frameWidth(), frameWidth(), name );
+    lay->setAutoAdd( TRUE );
 }
 
 
@@ -51,17 +55,7 @@ QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f, boo
     lay = new QBoxLayout( this,
 		       horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
 			  frameWidth(), frameWidth(), name );
-}
-
-/*!
-  This function is called when the widget gets a new child or loses an old one.
- */
-void QHBox::childEvent( QChildEvent *c )
-{
-    if ( !c->inserted() || !c->child()->isWidgetType() )
-	return;
-    QWidget *w = (QWidget*)c->child();
-    lay->addWidget( w );
+    lay->setAutoAdd( TRUE );
 }
 
 /*!
@@ -69,19 +63,18 @@ void QHBox::childEvent( QChildEvent *c )
  */
 void QHBox::frameChanged()
 {
-    bool horizontal = lay->direction() == QBoxLayout::LeftToRight;
-    delete lay;
-    lay = new QBoxLayout( this,
-			  horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
-			  frameWidth(), frameWidth(), name() );
+    if ( !layout() )
+	return;
+    layout()->setMargin( frameWidth() );
+}
 
-    QObjectListIt it(*children());
-    QObject* o;
-    while ( ( o = it.current() ) ){
-	++it;
-	if ( o->isWidgetType() ) {
-	    QWidget *w = (QWidget*)o;
-	    lay->addWidget( w );
-	}
-    }
+
+/*!
+  Sets the spacing between children to \a space.
+*/
+
+void QHBox::setSpacing( int space )
+{
+    if ( layout() )
+	layout()->setSpacing( space );
 }

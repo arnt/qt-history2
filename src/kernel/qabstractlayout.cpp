@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#42 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -538,6 +538,7 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
     topLevel = FALSE;
     frozen = FALSE;
     autoMinimum = FALSE;
+    autoNewChild = FALSE;
     activated = FALSE;
     if ( parent ) {
 	if ( parent->layout() ) {
@@ -557,6 +558,45 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
 	insideSpacing = border;
     else
 	insideSpacing = space;
+}
+
+
+/*!
+  Constructs a new child QLayout, and places it inside
+  \a parentLayout, using the default placement defined by
+  addItem().
+
+  If \a space is -1, this QLayout inherits \a parentLayout's
+  spacing(), otherwise \a space is used.
+
+*/
+
+QLayout::QLayout( QLayout *parentLayout, int space, const char *name )
+    : QObject( parentLayout, name )
+
+{
+    menubar = 0;
+    topLevel = FALSE;
+    insideSpacing = space < 0 ? parentLayout->insideSpacing : space;
+    parentLayout->addItem( this );
+}
+
+
+/*!
+  Constructs a new child QLayout,
+  If \a space is -1, this QLayout inherits its parent's
+  spacing(), otherwise \a space is used.
+
+  This layout has to be inserted into another layout before geometry
+  management will work.
+*/
+
+QLayout::QLayout( int space, const char *name )
+    : QObject( 0, name )
+{
+    menubar = 0;
+    topLevel	 = FALSE;
+    insideSpacing = space;
 }
 
 
@@ -630,7 +670,7 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
 
 /*!
   Sets the outside border of the layout to \a border.
-  
+
   \sa margin() setSpacing()
  */
 
@@ -646,7 +686,7 @@ void QLayout::setMargin( int border )
 
 /*!
   Sets the internal spacing of the layout to \a space.
-  
+
   \sa spacing() setMargin()
  */
 //##### bool recursive = FALSE ????
@@ -680,45 +720,6 @@ QWidget * QLayout::mainWidget()
 	ASSERT( parent() && parent()->isWidgetType() );
 	return	(QWidget*)parent();
     }
-}
-
-
-
-/*!
-  Constructs a new child QLayout, and places it inside
-  \a parentLayout, using the default placement defined by
-  addItem().
-
-  If \a space is -1, this QLayout inherits \a parentLayout's
-  spacing(), otherwise \a space is used.
-
-*/
-
-QLayout::QLayout( QLayout *parentLayout, int space, const char *name )
-    : QObject( parentLayout, name )
-
-{
-    menubar = 0;
-    topLevel = FALSE;
-    insideSpacing = space < 0 ? parentLayout->insideSpacing : space;
-    parentLayout->addItem( this );
-}
-
-
-/*!
-  Constructs a new child QLayout,
-  If \a space is -1, this QLayout inherits its parent's
-  spacing(), otherwise \a space is used.
-
-  This layout has to be inserted into another layout before use.
-*/
-
-QLayout::QLayout( int space, const char *name )
-    : QObject( 0, name )
-{
-    menubar = 0;
-    topLevel	 = FALSE;
-    insideSpacing = space;
 }
 
 
@@ -797,23 +798,36 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    mbh = menubar->heightForWidth( r->size().width() );
 	if ( activated )
 	    setGeometry( QRect( outsideBorder, mbh + outsideBorder,
-			 r->size().width() - 2*outsideBorder,
-			 r->size().height() - mbh - 2*outsideBorder ) );
+				r->size().width() - 2*outsideBorder,
+				r->size().height() - mbh - 2*outsideBorder ) );
 	else
 	    activate();
 	break;
     }
     case QEvent::ChildRemoved: {
 	QChildEvent *c = (QChildEvent*)e;
-	QWidget *w = (QWidget*)c->child();
-	if ( w == menubar )
-	    menubar = 0;
-	if ( removeWidget( this, w ) ) {
-	    QEvent *lh = new QEvent( QEvent::LayoutHint );
-	    QApplication::postEvent( o, lh );
+	if ( c->child()->isWidgetType() ) {
+	    QWidget *w = (QWidget*)c->child();
+	    if ( w == menubar )
+		menubar = 0;
+	    if ( removeWidget( this, w ) ) {
+		QEvent *lh = new QEvent( QEvent::LayoutHint );
+		QApplication::postEvent( o, lh );
+	    }
 	}
 	break;
     }
+    case QEvent::ChildInserted: 
+	if ( topLevel && autoNewChild ) {
+	    QChildEvent *c = (QChildEvent*)e;
+	    if ( c->child()->isWidgetType() ) {
+		QWidget *w = (QWidget*)c->child();
+		addItem( new QWidgetItem( w ) );
+		QEvent *lh = new QEvent( QEvent::LayoutHint );
+		QApplication::postEvent( o, lh );
+	    }
+	}
+	break;
     case QEvent::LayoutHint:
 	activate(); //######## Check that LayoutHint events are collapsed
 	break;
@@ -827,7 +841,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 
 /*!
   \internal
-  Also takes outsideBorder and menu bar into account. May change name
+  Also takes margin() and menu bar into account. May change name
   or disappear altogether if we find a better solution.
 */
 
@@ -1320,4 +1334,25 @@ void QLayout::setResizeMode( ResizeMode mode )
 QLayout::ResizeMode QLayout::resizeMode() const
 {
     return frozen ? Fixed : (autoMinimum ? Minimum : FreeResize );
+}
+
+
+/*! \fn bool autoAdd() const
+  Returns TRUE if this layout automatically grabs all new mainWidget()'s
+  new children and adds them as defined by addItem().
+
+  autoAdd() is disabled by default.
+  
+  \sa setAutoAdd()
+*/
+
+/*!
+  Sets autoAdd() if \a b is TRUE.
+  
+  \sa autoAdd()
+*/
+
+void QLayout::setAutoAdd( bool b )
+{
+    autoNewChild = b;
 }
