@@ -457,9 +457,14 @@ QByteArray QIODevice::readLine(Q_LONGLONG maxlen)
     char buffer[4096];
     Q_LONGLONG readSoFar = 0;
     Q_LONGLONG readBytes = 0;
+
     do {
-        tmp.resize(readSoFar + qMin(int(maxlen), int(sizeof(buffer))));
+        if (maxlen != 0)
+            tmp.resize(readSoFar + qMin(int(maxlen), int(sizeof(buffer))));
+        else
+            tmp.resize(readSoFar + int(sizeof(buffer)));
         readBytes = readLine(tmp.data() + readSoFar, tmp.size());
+        readSoFar += readBytes;
     } while (readSoFar < maxlen && readBytes > 0
              && readBytes == tmp.size() && tmp.at(readBytes - 1) != '\n');
 

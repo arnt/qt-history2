@@ -56,8 +56,8 @@ public:
     QAbstractSocket(Qt::SocketType socketType, QObject *parent);
     virtual ~QAbstractSocket();
 
-    bool connectToHost(const QString &hostName, Q_UINT16 port);
-    bool connectToHost(const QHostAddress &address, Q_UINT16 port);
+    void connectToHost(const QString &hostName, Q_UINT16 port);
+    void connectToHost(const QHostAddress &address, Q_UINT16 port);
 
     bool isValid() const;
 
@@ -75,21 +75,28 @@ public:
     Q_LONGLONG readBufferSize() const;
     void setReadBufferSize(Q_LONGLONG size);
 
-    bool waitForReadyRead(int msecs = 30000);
-
     void abort();
 
     int socketDescriptor() const;
     bool setSocketDescriptor(int socketDescriptor,
                              Qt::SocketState state = Qt::ConnectedState);
 
-    Qt::SocketError socketError() const;
-    Qt::SocketState socketState() const;
     Qt::SocketType socketType() const;
+    Qt::SocketState socketState() const;
+    Qt::SocketError socketError() const;
 
     // from QIODevice
     void close();
     bool flush();
+    inline bool isSequential() const { return true; }
+
+    // for synchronous access
+    bool waitForReadyRead(int msecs = 30000);
+    bool waitForConnected(int msecs = 30000);
+    bool waitForClosed(int msecs = 30000);
+
+    void setDefaultTimeout(int msecs);
+    int defaultTimeout() const;
 
 signals:
     void hostFound();

@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+//#define QABSTRACTSOCKET_DEBUG
+
 /*! \class QAbstractSocket
 
     \brief The QAbstractSocket class provides the base functionality
@@ -280,8 +282,6 @@
 
 #define QABSTRACTSOCKET_BUFFERSIZE 32768
 #define QT_CONNECT_TIMEOUT 30000
-
-//#define QABSTRACTSOCKET_DEBUG
 
 #if defined QABSTRACTSOCKET_DEBUG
 #include <qstring.h>
@@ -612,7 +612,7 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
     writeSocketNotifier = 0;
     readSocketNotifierCalled = false;
     isBuffered = false;
-    isBlocking = true;
+    blockingTimeout = 30000;
     state = Qt::UnconnectedState;
     readBufferMaxSize = 0;
     socketError = Qt::UnknownSocketError;
@@ -714,7 +714,7 @@ bool QAbstractSocketPrivate::initSocketLayer(Qt::SocketType type,
     setupSocketNotifiers();
 
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocketPrivate::initSocketLayer(%s, %s) succeess",
+    qDebug("QAbstractSocketPrivate::initSocketLayer(%s, %s) success",
            typeStr.latin1(), protocolStr.latin1());
 #endif
     return true;
@@ -1026,59 +1026,15 @@ void QAbstractSocketPrivate::connectToNextAddress()
             return;
         }
 
-        if (!isBlocking) {
-            // Start the connect timer.
-            d->connectTimer.start(QT_CONNECT_TIMEOUT);
+        // Start the connect timer.
+        d->connectTimer.start(QT_CONNECT_TIMEOUT);
 
-            // Wait for a write notification that will eventually call
-            // testConnection().
-            if (d->writeSocketNotifier)
-                d->writeSocketNotifier->setEnabled(true);
-            return;
-        }
-
-        // If blocking, wait until the connection has been
-        // established. ### proper timeout handling.
-#if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::connectToNextAddress(), "
-               "waiting for connection (%i seconds until timeout)",
-               (d->blockingTimeout - connectTimeElapsed) / 1000);
-#endif
-
-        // Keep track of how much time we're spending.
-        QTime stopWatch;
-        stopWatch.start();
-
-        int timeToWait = qMin(d->blockingTimeout - connectTimeElapsed, QT_CONNECT_TIMEOUT);
-        bool timedOut = false;
-        if (!socketLayer.waitForWrite(timeToWait, &timedOut) && !timedOut) {
-            state = Qt::UnconnectedState;
-            socketError = socketLayer.socketError();
-            q->setErrorString(socketLayer.errorString());
-            emit q->error(socketError);
-            return;
-        }
-
-        connectTimeElapsed += stopWatch.elapsed();
-
-        // if we timed out and there are no more address then report timeout error
-        if (timedOut && (addresses.isEmpty() || connectTimeElapsed >= d->blockingTimeout)) {
-#if defined(QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::connectToNextAddress(), connection timed out");
-#endif
-            state = Qt::UnconnectedState;
-            socketError = Qt::SocketTimeoutError;
-            q->setErrorString(QT_TRANSLATE_NOOP(QAbstractSocket,
-                                                "Network operation timed out"));
-            emit q->error(socketError);
-            return;
-        }
-
-
-
-        // Check if the connection has been established.
-        testConnection();
-    } while (state != Qt::ConnectedState && isBlocking);
+        // Wait for a write notification that will eventually call
+        // testConnection().
+        if (d->writeSocketNotifier)
+            d->writeSocketNotifier->setEnabled(true);
+        break;
+    } while (state != Qt::ConnectedState);
 }
 
 /*! \internal
@@ -1110,10 +1066,7 @@ void QAbstractSocketPrivate::testConnection()
     qDebug("QAbstractSocketPrivate::testConnection() connection failed,"
            " checking for alternative addresses");
 #endif
-    // Invoke connectToNextAddress(). If we're in blocking mode, we'll
-    // reenter this function on return.
-    if (!isBlocking)
-        qInvokeMetaMember(q, "connectToNextAddress");
+    connectToNextAddress();
 }
 
 /*! \internal
@@ -1208,7 +1161,7 @@ QAbstractSocket::QAbstractSocket(Qt::SocketType socketType,
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::QAbstractSocket(Qt::%sSocket, QAbstractSocketPrivate == %p, parent == %p)",
            socketType == Qt::TcpSocket ? "Tcp" : socketType == Qt::UdpSocket
-           ? "Udp" : "Unknown", &p, parent);
+           ? "Udp" : "Unknown", &dd, parent);
 #endif
     d->socketType = socketType;
 
@@ -1257,8 +1210,6 @@ bool QAbstractSocket::isValid() const
 
 /*!
     Attempts to make a connection to \a hostName on port \a port.
-    Returns true if the connection has been established; otherwise
-    returns false.
 
     QAbstractSocket first enters Qt::HostLookupState, then performs a
     host name lookup of \a hostName. If the lookup succeeds,
@@ -1276,9 +1227,9 @@ bool QAbstractSocket::isValid() const
     "www.trolltech.com"). QAbstractSocket will do a lookup only if
     required. \a port is in native byte order.
 
-    \sa socketState(), peerName(), peerAddress(), peerPort()
+    \sa socketState(), peerName(), peerAddress(), peerPort(), waitForConnected()
 */
-bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
+void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::connectToHost(\"%s\", %i)...", hostName.latin1(), port);
@@ -1296,10 +1247,7 @@ bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
     if (temp.setAddress(hostName)) {
         d->startConnecting(QDns::getHostByName(hostName));
     } else {
-        if (d->isBlocking)
-            d->startConnecting(QDns::getHostByName(hostName));
-        else
-            QDns::getHostByName(hostName, this, SLOT(startConnecting(const QDnsHostInfo &)));
+        QDns::getHostByName(hostName, this, SLOT(startConnecting(const QDnsHostInfo &)));
     }
 
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1308,20 +1256,19 @@ bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
            (d->state == Qt::ConnectingState || d->state == Qt::HostLookupState)
            ? " (connection in progress)" : "");
 #endif
-    return (d->state == Qt::ConnectedState);
 }
 
 /*! \overload
 
     Attempts to make a connection to \a address on port \a port.
 */
-bool QAbstractSocket::connectToHost(const QHostAddress &address, Q_UINT16 port)
+void QAbstractSocket::connectToHost(const QHostAddress &address, Q_UINT16 port)
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::connectToHost([%s], %i)...",
            address.toString().latin1(), port);
 #endif
-    return connectToHost(address.toString(), port);
+    connectToHost(address.toString(), port);
 }
 
 /*!
@@ -1538,6 +1485,110 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
 }
 
 /*!
+    Waits until the socket is connected, up to \a msecs
+    milliseconds. If the connection has been established, this
+    function returns true; otherwise it returns false. In the case
+    where it returns false, you can call socketError() to determine
+    the cause of the error.
+
+    The following example waits up to one second for a connection
+    to be established:
+
+    \code
+        socket->connectToHost("imap", 143);
+        if (socket->waitForConnected(1000))
+            qDebug("Connected!");
+    \endcode
+
+    \sa connectToHost(), connected()
+*/
+bool QAbstractSocket::waitForConnected(int msecs)
+{
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForConnected(%i)", msecs);
+#endif
+
+    if (socketState() == Qt::ConnectedState) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::waitForConnected(%i) already connected", msecs);
+#endif
+        return true;
+    }
+
+    QTime stopWatch;
+    stopWatch.start();
+
+    if (socketState() == Qt::HostLookupState) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::waitForConnected(%i) doing host name lookup", msecs);
+#endif
+        d->startConnecting(QDns::getHostByName(d->hostName));
+    }
+
+    bool timedOut = false;
+#if defined (QABSTRACTSOCKET_DEBUG)
+    int attempt = 1;
+#endif
+    while (socketState() == Qt::ConnectingState && stopWatch.elapsed() < msecs) {
+        int timeout = qMin(QT_CONNECT_TIMEOUT, msecs - stopWatch.elapsed());
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::waitForConnected(%i) waiting %.2f secs for connection attempt #%i",
+               msecs, timeout / 1000.0, attempt++);
+#endif
+        timedOut = false;
+        d->socketLayer.waitForWrite(timeout, &timedOut);
+        d->testConnection();
+    }
+
+    if (timedOut && socketState() != Qt::ConnectedState) {
+        d->socketError = Qt::SocketTimeoutError;
+        setErrorString(tr("Socket operation timed out"));
+    }
+
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForConnected(%i) == %s", msecs,
+           socketState() == Qt::ConnectedState ? "true" : "false");
+#endif
+    return socketState() == Qt::ConnectedState;
+}
+
+/*!
+    Waits until the socket is closed, up to \a msecs milliseconds. If
+    the connection has been closed, this function returns true;
+    otherwise it returns false. In the case where it returns false,
+    you can call socketError() to determine the cause of the error.
+
+    The following example waits up to one second for a connection
+    to be closed:
+
+    \code
+        socket->close();
+        if (socket->waitForClosed(1000))
+            qDebug("Closed!");
+    \endcode
+
+    \sa close(), closed()
+*/
+bool QAbstractSocket::waitForClosed(int msecs)
+{
+    if (d->state == Qt::UnconnectedState)
+        return true;
+    if (d->state != Qt::ClosingState) {
+        qWarning("QAbstractSocket::waitForClosed() called when not in Qt::ClosingState");
+        return false;
+    }
+
+    int tmp = d->blockingTimeout;
+    d->blockingTimeout = msecs;
+    bool flushed = flush();
+    d->blockingTimeout = tmp;
+    if (!flushed)
+        return false;
+    close();
+    return true;
+}
+
+/*!
     Aborts the current connection and resets the socket. Unlike
     close(), this function immediately closes the socket, clearing
     any pending data in the write buffer.
@@ -1557,18 +1608,29 @@ void QAbstractSocket::abort()
 }
 
 /*!
-    Writes any pending outgoing data to the socket.
+    Writes any pending outgoing data to the socket. Returns true if
+    all data was successfully written; otherwise returns false. If it
+    returns false, you can call socketError() to determine the cause
+    of the error.
 
-    If the socket is in blocking mode, this function blocks until all
-    data has been written or until the timeout has expired;
-    otherwise, the function writes as much as it can without
-    blocking.
+    This function blocks until all data has been written or until the
+    default timeout has expired.
 
-    \sa setBlocking()
+    \sa setDefaultTimeout()
 */
 bool QAbstractSocket::flush()
 {
-    return d->flush();
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::flush() writeBuffer.size() = %d",
+           d->writeBuffer.size());
+#endif
+    while (d->writeBuffer.size() > 0) {
+        if (!waitForReadyRead(1000) && d->socketError != Qt::SocketTimeoutError)
+            return false;
+        d->flush();
+    }
+
+    return d->writeBuffer.isEmpty();
 }
 
 /*! \reimpl
@@ -1605,7 +1667,8 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
         int readSoFar = 0;
         while (readSoFar < bytesToRead) {
             char *ptr = d->readBuffer.readPointer();
-            int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar, d->readBuffer.nextDataBlockSize());
+            int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar,
+                                                d->readBuffer.nextDataBlockSize());
             memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
             readSoFar += bytesToReadFromThisBlock;
             d->readBuffer.free(bytesToReadFromThisBlock);
@@ -1616,10 +1679,6 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
 
     // Wait for more data to read.
     if (!waitForReadyRead(d->blockingTimeout))
-        return -1;
-
-    // Read data into the read buffer.
-    if (!d->readFromSocket())
         return -1;
 
     if (d->readSocketNotifier)
@@ -1635,7 +1694,8 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
     int readSoFar = 0;
     while (readSoFar < bytesToRead) {
         char *ptr = d->readBuffer.readPointer();
-        int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar, d->readBuffer.nextDataBlockSize());
+        int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar,
+                                            d->readBuffer.nextDataBlockSize());
         memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
         readSoFar += bytesToReadFromThisBlock;
         d->readBuffer.free(bytesToReadFromThisBlock);
@@ -1725,19 +1785,13 @@ void QAbstractSocket::close()
     // Wait for pending data to be written. In blocking mode the write
     // buffer list will always be empty.
     if (d->writeBuffer.size() > 0) {
-        if (d->isBlocking) {
-            bool timedOut = false;
-            while (d->socketLayer.waitForWrite(d->blockingTimeout, &timedOut) && !timedOut)
-                flush();
-        } else {
-            if (d->writeSocketNotifier)
-                d->writeSocketNotifier->setEnabled(true);
+        if (d->writeSocketNotifier)
+            d->writeSocketNotifier->setEnabled(true);
 
 #if defined(QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocket::close() delaying close");
+        qDebug("QAbstractSocket::close() delaying close");
 #endif
-            return;
-        }
+        return;
     } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::close() closing immediately");
@@ -1846,6 +1900,28 @@ Qt::SocketError QAbstractSocket::socketError() const
 void QAbstractSocket::setSocketError(Qt::SocketError socketError)
 {
     d->socketError = socketError;
+}
+
+/*!
+    Sets QAbstractSocket's internal timeout default value to \a msecs
+    milliseconds.  This timeout determines how long QAbstractSocket
+    should wait for operations such as connecting, reading, writing
+    and closing to finish before returning an error and setting
+    Qt::SocketTimeoutError.
+*/
+void QAbstractSocket::setDefaultTimeout(int msecs)
+{
+    d->blockingTimeout = msecs;
+}
+
+/*!
+    Returns the default internal timeout.
+
+    \sa setDefaultTimeout(), waitForReadyRead(), waitForConnected()
+*/
+int QAbstractSocket::defaultTimeout() const
+{
+    return d->blockingTimeout;
 }
 
 #include "moc_qabstractsocket.cpp"
