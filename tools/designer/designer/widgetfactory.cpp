@@ -1274,7 +1274,8 @@ bool QLayoutWidget::event( QEvent *e )
 {
     if ( e && ( e->type() == QEvent::ChildInserted ||
 		e->type() == QEvent::ChildRemoved ||
-		e->type() == QEvent::LayoutHint ) )
+		e->type() == QEvent::LayoutHint ||
+		e->type() == QEvent::Reparent ) )
 	updateSizePolicy();
     return QWidget::event( e );
 }
