@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#588 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#589 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3269,23 +3269,30 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     int button = 0;
     int state;
     XEvent nextEvent;
-    
+
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
 
     if ( event->type == MotionNotify ) { // mouse move
 	while( XPending( appDpy ) )  { // compres mouse moves
 	    XNextEvent( appDpy, &nextEvent );
-
-	    if ( nextEvent.type != MotionNotify || 
-		 nextEvent.xmotion.window != event->xmotion.window ||
-		 nextEvent.xmotion.state != event->xmotion.state ) {
+	    if ( nextEvent.type == ConfigureNotify
+		 || nextEvent.type == PropertyNotify
+		 || nextEvent.type == Expose) {
+		qApp->x11ProcessEvent( &nextEvent );
+		continue;
+	    } else if ( nextEvent.type != MotionNotify ||
+			nextEvent.xmotion.window != event->xmotion.window ||
+			nextEvent.xmotion.state != event->xmotion.state ) {
 		XPutBackEvent( appDpy, &nextEvent );
 		break;
 	    }
-	    event = &nextEvent;
+	    if ( !qApp->x11EventFilter(&nextEvent)
+		 && !x11Event( &nextEvent ) ) // send event through filter
+		event = &nextEvent;
+	    else
+		break;
 	}
-	
 	type = QEvent::MouseMove;
 	pos.rx() = event->xmotion.x;
 	pos.ry() = event->xmotion.y;
@@ -4145,17 +4152,9 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 
 //
 // ConfigureNotify (window move and resize) event translation
-//
-// The problem with ConfigureNotify is that one cannot trust x and y values
-// in the xconfigure struct. Top level widgets are reparented by the window
-// manager, and (x,y) is sometimes relative to the parent window, but not
-// always!  It is safer (but slower) to translate the window coordinates.
-//
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
-
-
     if ( !testWFlags( WType_TopLevel )
 	 || testWFlags( WType_Popup )
 	 || (!testWFlags( WStyle_DialogBorder ) &&
@@ -4165,24 +4164,26 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
     clearWState(WState_ConfigPending);
 
+    QPoint newCPos( geometry().topLeft() );
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
-    int x = event->xconfigure.x;
-    int y = event->xconfigure.y;
-
+    
     if (event->xconfigure.send_event ||
 	( topData()->parentWinId == None ||
 	  topData()->parentWinId == appRootWin ) ) {
-	// nothing to do, x and y is correct
-    } else {
-	Display *dpy = x11Display();
-	Window child;
-	// ### this slows down display of all top-level widgets, and most
-	// ### don't care about the result.  can it be avoided?
-	XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
-			       0, 0, &x, &y, &child );
+	/* if a ConfigureNotify comes from a true sendevent request, we can
+	   trust its values. */
+	newCPos.rx() = event->xconfigure.x;
+	newCPos.ry() = event->xconfigure.y;
+//     } 
+//     else { 
+// 	Display *dpy = x11Display();
+// 	Window child;
+// 	// ### this slows down display of all top-level widgets, and most
+// 	// ### don't care about the result.  can it be avoided?
+// 	XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
+// 			       0, 0, &x, &y, &child );
     }
-
-
+    
     XEvent otherEvent;
     while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
 	if ( qApp->x11EventFilter( &otherEvent ) )
@@ -4192,17 +4193,16 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	newSize.setWidth( otherEvent.xconfigure.width );
 	newSize.setHeight( otherEvent.xconfigure.height );
 	if ( otherEvent.xconfigure.send_event ) {
-	    x = otherEvent.xconfigure.x;
-	    y = otherEvent.xconfigure.y;
+	    newCPos.rx() = otherEvent.xconfigure.x;
+	    newCPos.ry() = otherEvent.xconfigure.y;
 	}
     }
 
-    QPoint newPos( x, y );
-    QRect  r = geometry();
-    if ( newSize != size() ) {			// size changed
+    QRect cr ( geometry() );
+    if ( newSize != cr.size() ) {			// size changed
 	QSize oldSize = size();
-	r.setSize( newSize );
-	setCRect( r );
+	cr.setSize( newSize );
+	setCRect( cr );
 	if ( isVisible() ) {
 	    QResizeEvent e( newSize, oldSize );
 	    QApplication::sendEvent( this, &e );
@@ -4215,15 +4215,16 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	if ( !testWFlags( WNorthWestGravity ) )
 	    repaint( visibleRect(), !testWFlags(WResizeNoErase) );
     }
-    if ( newPos != geometry().topLeft() ) {
+    
+    if ( newCPos != cr.topLeft() ) { // compare with cpos (exluding frame)
 	QPoint oldPos = pos();
-	r.moveTopLeft( newPos );
-	setCRect( r );
+	cr.moveTopLeft( newCPos );
+	setCRect( cr );
 	if ( isVisible() ) {
-	    QMoveEvent e( newPos, oldPos );
+	    QMoveEvent e( pos(), oldPos ); // pos (including frame), not cpos
 	    QApplication::sendEvent( this, &e );
 	} else {
-	    QMoveEvent * e = new QMoveEvent( newPos, oldPos );
+	    QMoveEvent * e = new QMoveEvent( pos(), oldPos );
 	    QApplication::postEvent( this, e );
 	}
     }
@@ -4234,10 +4235,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 //
 // Close window event translation.
 //
-// This class is a friend of QApplication because it needs to emit the
-// lastWindowClosed() signal when the last top level widget is closed.
-//
-
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
     return close(FALSE);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#488 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#489 $
 **
 ** Implementation of QWidget class
 **
@@ -1286,7 +1286,7 @@ QRect QWidget::frameGeometry() const
   \fn QPoint QWidget::pos() const
   Returns the position of the widget in its parent widget, including
   the window frame.
-  \sa frameGeometry(), x(), y()
+  \sa move(), frameGeometry(), x(), y()
 */
 
 /*!
@@ -2767,7 +2767,8 @@ void QWidget::setCRect( const QRect &r )
 */
 
 /*!
-  Moves the widget to the position \e (x,y) relative to the parent widget.
+  Moves the widget to the position \e (x,y) relative to the parent widget and 
+  including the window frame.
 
   A \link moveEvent() move event\endlink is generated immediately if
   the widget is visible. If the widget is invisible, the move event
@@ -2784,7 +2785,9 @@ void QWidget::setCRect( const QRect &r )
 
 void QWidget::move( int x, int y )
 {
-    internalSetGeometry( x, y, width(), height(), TRUE );
+    internalSetGeometry( x + geometry().x() - QWidget::x(), 
+			 y + geometry().y() - QWidget::y(), 
+			 width(), height(), TRUE );
 }
 
 
@@ -2814,7 +2817,7 @@ void QWidget::move( int x, int y )
 */
 void QWidget::resize( int w, int h )
 {
-    internalSetGeometry( x(), y(), w, h, FALSE );
+    internalSetGeometry( geometry().x(), geometry().y(), w, h, FALSE );
     setWState( WState_Resized );
 }
 

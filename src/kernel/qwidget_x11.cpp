@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#411 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#412 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1222,7 +1222,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    
+
     if ( isTopLevel()  ) {
 	int sm = topData()->showMode;
 	if ( sm ) { // handles minimize and reset
@@ -1489,21 +1489,21 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     bool isResize = olds != r.size();
 
     if ( isVisible() ) {
-	if ( isMove ) {
+	if ( isMove && oldp != r.topLeft() ) {
 	    QMoveEvent e( r.topLeft(), oldp );
 	    QApplication::sendEvent( this, &e );
 	}
-	if ( isResize ) {
+	if ( isResize && olds != r.size() ) {
 	    QResizeEvent e( r.size(), olds );
 	    QApplication::sendEvent( this, &e );
 	    if ( !testWFlags( WNorthWestGravity ) )
 		repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	}
     } else {
-	if ( isMove )
+	if ( isMove && oldp != r.topLeft() )
 	    QApplication::postEvent( this,
 				     new QMoveEvent( r.topLeft(), oldp ) );
-	if ( isResize )
+	if ( isResize && olds != r.size() )
 	    QApplication::postEvent( this,
 				     new QResizeEvent( r.size(), olds ) );
     }
