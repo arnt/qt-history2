@@ -759,18 +759,9 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
         if(!parent && !QMacMenuBarPrivate::fallback) {
             QMacMenuBarPrivate::fallback = q;
             mac_menubar = new QMacMenuBarPrivate;
-        } else {
-            QWidget *tlw = q->window();
-            if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.contains(tlw)) &&
-               ((((parent->windowType() == Qt::Dialog)
-#ifndef QT_NO_MAINWINDOW
-                  || ::qobject_cast<QMainWindow *>(parent)
-#endif
-                     ) && parent == tlw) ||
-                ::qobject_cast<QToolBar *>(parent))) {
-                QMacMenuBarPrivate::menubars.insert(tlw, q);
-                mac_menubar = new QMacMenuBarPrivate;
-            }
+        } else if (parent && parent->isWindow()) {
+            QMacMenuBarPrivate::menubars.insert(q->window(), q);
+            mac_menubar = new QMacMenuBarPrivate;
         }
     }
 }
