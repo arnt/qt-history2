@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.8 1995/11/23 07:19:16 agulbra Exp $
+** $Id: misc.doc,v 1.9 1996/01/09 17:21:37 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.8 1995/11/23 07:19:16 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.9 1996/01/09 17:21:37 agulbra Exp $";
 #endif
 
 /*! \page license.html
@@ -79,7 +79,7 @@ Fax: +47 22 64 69 49.
 E-mail: <a href=mailto:info@troll.no>info@troll.no</a> for general
 enquiries, <a href=mailto:www@troll.no>www@troll.no</a> for comments
 about our WWW pages, or <a
-href=mailto:qt-bugs@troll.no>qt-bugs@troll.no</a> for Qt bug reports
+href=mailto:bugs@troll.no>bugs@troll.no</a> for Qt bug reports
 and other Qt-related mail. */
 
 /*! \page qt.html
@@ -87,7 +87,8 @@ and other Qt-related mail. */
 <title>Qt toolkit - overview</title>
 </head><body>
 
-This is the announcement of Qt 0.9, the first public beta version.
+This is the announcement of Qt 0.9, the first public beta version,
+with minor updates.
 
 <h1>Qt announcement</h1>
 
@@ -102,12 +103,12 @@ applications.
 <p>
 
 It is ftp'able from sunsite.unc.edu in /pub/Linux/Incoming, hopefully
-soon /pub/Linux/devel/lang/c++, and from ftp.nvg.unit.no in /pub/linux/qt.
+soon /pub/Linux/X11/devel/, and from ftp.nvg.unit.no in /pub/linux/qt.
 
 <p>
 
 The documentation can be browsed on the web at <a href=http://www.troll.no/>
-http://www.troll.no/</a> where you will also find other Qt-related links.
+http://www.troll.no/</a> where you will also find other Qt-related pages.
 
 <p>
 
@@ -166,7 +167,7 @@ If you find any bugs, send a report to qt-bugs@troll.no.
 <p>
 
 If you create a nice Qt program and want us to distribute it as a
-contribution to Qt, send us a line at info@troll.no.
+contrib, send us a line at info@troll.no.
 
 <p>
 
@@ -216,6 +217,7 @@ Here are the main features of Qt:
 <li>	Widget
 <li>	Pixmap/Bitmap
 <li>	Picture (meta-file)
+<li>    Printer (postscript, and on Windows native printer)
 </ul>
 <li>   Painter tools:
 <ul>
@@ -276,11 +278,7 @@ Here are the main features of Qt:
 Frequently Asked Questions
 </h1>
 
-Here is this week's top eleven Qt questions:
 <ol>
-<li>Q: Does there exist a FAQ for Qt? <p>
-    A: This shouldn't be a FAQ any more, so naturally this answer won't be
-       in the next version of the FAQ. <p>
 <li>Q: Will Qt continue to be free? <p>
     A: We will continue to release binary versions for linux, and they will
        be free for non-commercial purposes.  The source, and other versions
@@ -289,17 +287,20 @@ Here is this week's top eleven Qt questions:
 <li>Q: What other versions of Qt exist/are planned? <p>
     A: We're working on versions for several other version of Unix, Windows
        and OS/2. <p>
+       At the time of writing, only the Windows 95/NT, Solaris and HP-UX
+       versions are as advanced as the linux version. <p>
        The other versions will not be priced for the private market.
 <li>Q: When will v1.0 be released? <p>
-    A: We plan to release 1.0 for linux in the first quarter of 1996. <p>
+    A: We plan to release 1.0 for linux in the summer of 1996. <p>
 <li>Q: Will v1.0 include... <p>
     A: v1.0 will not include resources or an interactive GUI designer.  It
        will include postscript output, geometry management and much more
        documentation. <p>
 <li>Q: Who is Troll Tech and what are your future plans? <p>
-    A: Troll Tech consists of three talented, hard-working programmers who
+    A: Troll Tech consists of three (soon to be four) talented,
+       hard-working programmers who
        work day and night to finish Qt, and enjoy it.  We started the
-       company about a year ago, but parts of Qt were written for earlier
+       company in 1993, but parts of Qt were written for earlier
        projects.  The first line of code was written in 1992. <p>
        Most of our income comes from a contract with a beta customer;
        we develop code based on Qt for the Norwegian division of a small
@@ -309,17 +310,15 @@ Here is this week's top eleven Qt questions:
        interface.  See <a href=tools.html>utility classes,</a>  There are
        also a few classes that will work without the GUI only by chance. <p>
 <li>Q: I have (linker, compiler) errors. <p>
-    A: gcc 2.5.8 will not work with Qt.  You need libc 4.6.27 at the
-       very least, 4.7 is recommended.  We use gcc 2.6.2, 2.6.3 and
-       2.7.0; all work. <p>
-       If you use gcc 2.6, binutils 2.5.2.6 is recommended.  If you use
-       gcc 2.7, binutils 2.5.2l.17 or later is recommended. <p>
+    A: gcc 2.7.2 changes the size of the bool type from 4 to 1 bytes.  For
+       the time being, we're staying with 2.7.0. <p>
 <li>Q: Where can I find Qt? <p>
-    A: The latest version of Qt can be downloaded from <a
-        href=ftp://ftp.nvg.unit.no/pub/linux/qt>ftp.nvg.unit.no in
+    A: The latest version of Qt can be downloaded
+	<a href=http://www.troll.no/>on the web</a> or via from <a
+        href=ftp://ftp.nvg.unit.no/pub/linux/qt/>ftp.nvg.unit.no in
 	/pub/linux/qt</a> or (less often updated) from <a
-	href=ftp://sunsite.unc.edu/pub/Linux/devel/lang/c++>sunsite.unc.edu
-	in /pub/Linux/devel/lang/c++	(or /pub/Linux/Incoming).</a>
+	href=ftp://sunsite.unc.edu/pub/Linux/X11/devel/>sunsite.unc.edu
+	in /pub/Linux/X11/devel/ (or /pub/Linux/Incoming).</a> <p>
 </ol>
 */
 
