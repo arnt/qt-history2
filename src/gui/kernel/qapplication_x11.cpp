@@ -2815,7 +2815,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     int xkey_keycode = event->xkey.keycode;
     if (XFilterEvent(event,
-                       keywidget ? keywidget->topLevelWidget()->winId() : XNone)) {
+                       keywidget ? keywidget->topLevelWidget()->winId() : (WId)XNone)) {
         if (keywidget)
             composingKeycode = xkey_keycode; // ### not documented in xlib
 
