@@ -105,6 +105,8 @@ int QAccessibleWidget::controlAt( int x, int y ) const
 	++it;
 	++index;
     }
+    if (index > list.count())
+	return 0;
     return index;
 }
 
