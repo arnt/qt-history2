@@ -559,7 +559,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, int index )
     w->curPlace = QDockWindow::InDock;
     w->updateGui();
 
-    if ( index != -1 ) {
+    if ( index != -1 && index < (int)dockWindows->count() ) {
 	dockWindows->removeRef( w );
 	dockWindows->insert( index, w );
     }
