@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#82 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#81 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#82 $")
 
 
 /*!
@@ -1116,6 +1116,7 @@ void QWidget::focusOutEvent( QFocusEvent * )
   cleared to the background color or pixmap.  For many widgets it is
   sufficient to redraw the entire widget each time, but some need to
   consider \e e->rect() to avoid flicker or slowness.
+
   Pixmaps can also be used to implement flicker-free update.
 
   update() and repaint() can be used to force a paint event.
@@ -1127,27 +1128,25 @@ void QWidget::paintEvent( QPaintEvent * )
 {
 }
 
-/*!
-  This event handler can be reimplemented in a subclass to receive
-  widget move events.
+/*!  This event handler can be reimplemented in a subclass to receive
+  widget move events.  When the widget receives this event, it is
+  already at the new position.
 
   The default implementation does nothing.
 
-  \sa resizeEvent(), event(), move()
-*/
+  \sa resizeEvent(), event(), move() */
 
 void QWidget::moveEvent( QMoveEvent * )
 {
 }
 
-/*!
-  This event handler can be reimplemented in a subclass to receive
-  widget resize events.
+/*!  This event handler can be reimplemented in a subclass to receive
+  widget resize events.  When resizeEvent() is called, the widget
+  already has its new geometry.
 
   The default implementation does nothing.
 
-  \sa moveEvent(), event(), resize()
-*/
+  \sa moveEvent(), event(), resize() */
 
 void QWidget::resizeEvent( QResizeEvent * )
 {
@@ -1176,7 +1175,7 @@ bool QWidget::macEvent( MSG * )			// Macintosh event
 
 #elif defined(_WS_WIN_)
 
-bool QWidget::winEvent( MSG * )			// Windows (+NT) event
+bool QWidget::winEvent( MSG * )			// Windows 95/NT event
 {
     return FALSE;
 }
