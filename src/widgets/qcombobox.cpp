@@ -70,13 +70,13 @@
   user can always see which item they've selected with the minimum amount
   of screen space being used.
 
-  QComboBox supports three different display styles: Motif 1.x, Motif 2.0
+  QComboBox supports three different display styles: Aqua/Motif 1.x, Motif 2.0
   and Windows 95.  In Motif 1.x, a combobox was called XmOptionMenu.
   In Motif 2.0, OSF introduced an improved combobox and
   named that XmComboBox.  QComboBox provides both.
 
   QComboBox provides two different constructors.  The simplest
-  constructor creates an old-style combobox in Motif style:
+  constructor creates an old-style combobox in Motif (or Aqua) style:
   \code
       QComboBox *c = new QComboBox( this, "read-only combobox" );
   \endcode
@@ -88,10 +88,10 @@
       QComboBox *c2 = new QComboBox( TRUE, this, "read-write combobox" );
   \endcode
 
-  New-style comboboxes use a list box in both Motif and Windows
-  styles, and both the content size and the on-screen size of the list
-  box can be limited with sizeLimit() and setMaxCount() respectively.
-  Old-style comboboxes use a popup in Motif style, and that popup will
+  New-style comboboxes use a list box in both Motif and Windows styles, and
+  both the content size and the on-screen size of the list box can be
+  limited with sizeLimit() and setMaxCount() respectively.  Old-style
+  comboboxes use a popup in Aqua and Motif style, and that popup will
   happily grow larger than the desktop if you put enough data into it.
 
   The two constructors create identical-looking comboboxes in Windows
@@ -408,15 +408,15 @@ static inline bool checkIndex( const char *method, const char * name,
 /*!
   Constructs a combobox widget with parent \a parent and name \a name.
 
-  This constructor creates a popup list if the program uses Motif look
-  and feel; this is compatible with Motif 1.x.
+  This constructor creates a popup list if the program uses Motif (or Aqua)
+  look and feel; this is compatible with Motif 1.x and Aqua.
 */
 
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
     d = new QComboBoxData( this );
-    if ( style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle ) {
+    if ( !style().styleHint(QStyle::SH_ComboBox_Popup) ) {
 	setUpListBox();
     } else {
 	d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ) );
@@ -1131,7 +1131,8 @@ void QComboBox::paintEvent( QPaintEvent * )
     }
 
     bool reverse = QApplication::reverseLayout();
-    if ( !d->usingListBox() ) {			// motif 1.x style
+    if ( !d->usingListBox() && 
+	 style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle) {			// motif 1.x style
 	int dist, buttonH, buttonW;
 	dist     = 8;
 	buttonH  = 7;
@@ -1167,6 +1168,36 @@ void QComboBox::paintEvent( QPaintEvent * )
 
 	if ( hasFocus() )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
+    } else if(!d->usingListBox()) {
+	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
+				    flags, QStyle::SC_All,
+				    (d->arrowDown ?
+				     QStyle::SC_ComboBoxArrow :
+				     QStyle::SC_None ));
+
+	QRect re = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+						   QStyle::SC_ComboBoxEditField );
+	re = QStyle::visualRect(re, this);
+	p.setClipRect( re );
+
+	QString str = d->popup()->text( this->d->current );
+	QPixmap *pix = d->popup()->pixmap( this->d->current );
+	if ( !str.isNull() ) {
+	    p.save();
+	    p.setFont(font());
+	    QFontMetrics fm(font());
+	    int x = re.x(), y = re.y() + fm.ascent();
+	    if( pix ) 
+		x += pix->width() + 5;
+	    p.drawText( x, y, str );
+	    p.restore();
+	}
+	if ( pix ) {
+	    p.fillRect( re.x(), re.y(), pix->width() + 4, re.height(),
+			colorGroup().brush( QColorGroup::Base ) );
+	    p.drawPixmap( re.x() + 2, re.y() +
+			  ( re.height() - pix->height() ) / 2, *pix );
+	}
     } else {
 	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
 				    flags, QStyle::SC_All,

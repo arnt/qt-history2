@@ -2192,6 +2192,7 @@ int QMotifStyle::styleHint(StyleHint hint,
 	ret = QWidget::PaletteMid;
 	break;
 
+    case SH_ComboBox_Popup:
     case SH_ScrollBar_MiddleClickAbsolutePosition:
     case SH_Slider_SloppyKeyEvents:
     case SH_ProgressDialog_CenterCancelButton:

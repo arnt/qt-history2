@@ -1555,6 +1555,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_TabBar_SelectMouseType which type of mouse event should
     cause a tab to be selected.
 
+    \value SH_ComboBox_Popup allows popups as a combobox dropdown menu.
+
     \value SH_Workspace_FillSpaceOnMaximize the workspace should
     maximize the client area.
 

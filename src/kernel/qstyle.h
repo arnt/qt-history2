@@ -542,6 +542,9 @@ public:
 	// bool - workspace should just maximize the client area
 	SH_Workspace_FillSpaceOnMaximize,
 
+	// bool - supports popup menu comboboxes
+	SH_ComboBox_Popup, 
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

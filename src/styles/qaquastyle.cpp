@@ -1871,6 +1871,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, QStyleHintReturn *d) c
     case SH_TabBar_SelectMouseType:
 	ret = QEvent::MouseButtonRelease;
 	break;
+    case SH_ComboBox_Popup:
+	ret = TRUE;
+	break;
     case SH_Workspace_FillSpaceOnMaximize:
 	ret = TRUE;
 	break;
