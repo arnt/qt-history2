@@ -693,6 +693,17 @@ public:
 	X11ParentRelative
     };
 
+    typedef uint ComparisonFlags;
+    
+    // Documented in qstring.cpp
+    enum StringComparisonMode {
+        CaseSensitive   = 0x00001,
+        BeginsWith      = 0x00100,
+        EndsWith        = 0x01000,
+        Contains        = 0x10000,
+        ExactMatch      = 0x00010
+    };
+
     // "handle" type for system objects.
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;

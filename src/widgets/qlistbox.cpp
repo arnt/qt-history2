@@ -3774,22 +3774,69 @@ void QListBox::clearInputString()
   The search is done as case-insensitive.
 */
 
-QListBoxItem *QListBox::findItem( const QString &text ) const
+QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare ) const
 {
     if (text.isNull() || text.isEmpty())
 	return 0;
-
-    QString txt = text.lower();
+    
     QListBoxItem *item = d->current;
+    QString itmtxt = item->text();
+    QString comtxt = text;
+
     for ( ; item; item = item->n ) {
-	if ( item->text().lower().left( text.length() ) == txt )
-	    return item;
+        if ( ! (compare & CaseSensitive) ) {
+            itmtxt = item->text().lower();
+            comtxt = text.lower();
+        }
+
+        if ( compare & ExactMatch ) {
+            if ( itmtxt == comtxt ) 
+                return item;
+        }
+
+        if ( compare & BeginsWith ) {
+            if ( itmtxt.startsWith( comtxt ) )
+                return item;
+        }
+
+        if ( compare & EndsWith ) {
+            if ( itmtxt.right( comtxt.length() ) == comtxt )
+                return item;
+        }
+    
+        if ( compare & Contains ) {
+            if ( itmtxt.contains( comtxt, FALSE ) )
+                return item;
+        }
     }
 
     item = d->head;
+
     for ( ; item && item != d->current; item = item->n ) {
-	if ( item->text().lower().left( text.length() ) == txt )
-	    return item;
+        if ( ! (compare & CaseSensitive) ) {
+            itmtxt = item->text().lower();
+            comtxt = text.lower();
+        }
+
+        if ( compare & ExactMatch ) {
+            if ( itmtxt == comtxt ) 
+                return item;
+        }
+
+        if ( compare & BeginsWith ) {
+            if ( itmtxt.startsWith( comtxt ) )
+                return item;
+        }
+
+        if ( compare & EndsWith ) {
+            if ( itmtxt.right( comtxt.length() ) == comtxt )
+                return item;
+        }
+    
+        if ( compare & Contains ) {
+            if ( itmtxt.contains( comtxt, FALSE ) )
+                return item;
+        }
     }
     return 0;
 }
