@@ -63,7 +63,7 @@ FORCE:
 lib: tools kernel widgets dialogs
 
 # need FORCE because the directories' dates confuse make terribly
-tools kernel widgets dialogs: FORCE
+tools kernel widgets dialogs: dodepend
 	-mkdir -p $(OBJDIR)/$@
 	-rm -f $@/*.o
 	-ln -f $(OBJDIR)/$@/*.o $@
@@ -95,77 +95,25 @@ shareddbg:
 	$(CC) -shared -o -Wl,-soname,libqt.so.0 -o $(SHAREDTARGET) \
 		obj/shareddbg/*/*.o -lX11 -lgcc -lc
 
-dist: 
-	-$(RM) -rf $(DISTDIR)
-	mkdir -p $(DISTDIR)/{include,lib,bin,man/man3,man/man1,html,src,arch}
-	(tar cf - . )|(cd $(DISTDIR)/src ; tar xf -)
-	mkdir -p `make -s -C /local/qt/examples showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/examples/_g`
-	set -e ; for a in `find $(DISTDIR)/examples -type d -print` ; \
-	do \
-	    ( set -e ; cd $$a ; co -q -r `pwd | sed s@$(DISTDIR)/@/local/qt/@`/RCS/*,v ); \
-	done
-	mkdir -p `make -s -C /local/qt/tutorial showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/tutorial/_g`
-	set -e ; for a in `find $(DISTDIR)/tutorial -type d -print` ; \
-	do \
-	    ( set -e ; cd $$a ; co -q -r `pwd | sed s@$(DISTDIR)/@/local/qt/@`/RCS/*,v ); \
-	done
-	( cd $(DISTDIR)/src ; $(QTDIR)/util/makearch.sh )
-	-rm -rf $(DISTDIR)/src/{obj,doc,gif,qdoc,moc/test,makefiles}
-	find $(DISTDIR)/src \( -name \*.o -o -name \*_win.\* -o -name \*_os2.\* -o -name Makefile -o -name RCS \) -print | xargs rm -v
-	co -q -p -q moc/moc.1 > $(DISTDIR)/man/man1/moc.1
-	cp -f /local/man/man3/*.3qt $(DISTDIR)/man/man3
-	cp -f /local/qt/doc/html/*.html $(DISTDIR)/html
-	cp -f /local/qt/doc/html/*.gif $(DISTDIR)/html
-	chmod -R u+w $(DISTDIR)
-
-rpm:
-	rpm -bi --short-circuit qt-0.98-1.spec
-	rpm -bl qt-0.98-1.spec
-	rpm -bb qt-0.98-1.spec
-
-tar:
-	-rm $(DISTDIR).tar.gz
-	( set -e ; cd $(DISTDIR) ; tar cf misc.tar bin lib man )
-	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/shared.tar libqt.so* )
-	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/static.tar libqt.a )
-	( set -e ; cd $(DISTDIR)/.. ; tar cf $(DISTDIR).tar `basename $(DISTDIR)`/{README,INSTALL,misc.tar,static.tar,shared.tar,CHANGES,ANNOUNCE,MANIFEST,LICENCE} ; gzip -f9 $(DISTDIR).tar )
-
-info:
-	@for d in $(DIRS); do cd $$d ; rinfo ; cd .. ; done
-
-newer:
-	@for d in $(DIRS); do cd $$d ; rnewer ; cd .. ; done
-
-update:
-	@for d in $(DIRS); do cd $$d ; rupdate ; cd .. ; done
-
-checkout: 
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d checkout ; done
-
 showdirs:
 	@echo $(DIRS)
 
-showfiles:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showfiles ; done
+showfiles showheaders showsources showbeta clean:
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d $@ ; done
 
-showheaders:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showheaders ; done
+dodepend:
+	$(MAKE) depend
+	touch dodepend
 
-showsources:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showsources ; done
-
-showbeta:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showbeta ; done
-
-clean:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d clean ; done
-
-depend dep:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d depend ; done
+depend: include
 
 include:
 	-rm $(INCDIR)/*.h
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d include ; done
+
+clean:
+	-rm -f dodepend
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d $@ ; done
 
 tags:
 	echo */*.cpp */*.h | fmt -1 | egrep -v '_win|_os2|moc/' | etags --c++ -
