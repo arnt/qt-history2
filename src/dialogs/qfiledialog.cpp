@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#111 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#112 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1081,7 +1081,7 @@ void QFileDialog::rereadDir()
 				   QString( tr("Unable to read directory\n") )
 				   + cwd.absPath() + "\n\n" +
 				   tr("Please make sure that the directory\n"
-				      "in readable.\n"),
+				      "is readable.\n"),
 				   tr("Use Parent Directory"),
 				   tr("Use Old Contents"), 0 ) ) {
 	    return;
@@ -1101,7 +1101,7 @@ void QFileDialog::rereadDir()
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
 	++it;
-	if ( fi->fileName() != "." && 
+	if ( fi->fileName() != "." &&
 	     ( !cwd.isRoot() || fi->fileName() != ".." ) )
 	    (void) new QFileDialogPrivate::File( fi, files, itemHeight );
     }
