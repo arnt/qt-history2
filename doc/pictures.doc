@@ -37,95 +37,103 @@
 
 \title Pictures of Most Qt Widgets
 
-<p>Most of these widgets are pictured in either Motif or Windows
-style.  All widgets are supported in both styles (plus other
-\link QStyle styles\endlink), but for clarity we've chosen to cut
-down on the number of repeated images.
+Most of these widgets are pictured in either Motif or Windows style. 
+All widgets are supported in both styles (plus other \link QStyle
+styles\endlink), but for clarity we've chosen to cut down on the
+number of repeated images.
 
-<p>Here you see three views seperated by <a href="qsplitter.html">QSplitters</a>. On
-the lef/top you see a <a href="qlistbox.html">QListBox</a>, at the right/top
-you see a <a href="qlistview.html">QListView</a> with a
-<a href="qheader.html">QHeader</a> and two <a href="qscrollbar.html">QScrollBars</a>.
-And at the bottom there is a <a href="qiconview.html">QIconView</a>.
-<p><img src=splitter-views-w.png >&nbsp;Windows<br>
+Here you see three views seperated by \l {QSplitter}s. At the
+top-left you see a \l QListBox, at the top-right you see a \l
+QListView with a \l QHeader and two \l {QScrollBar}s. And at the
+bottom you see a \l QIconView.
 
-In this screenshot you see a <a href="qmainwindow.html">QMainWindow</a>
-which contains on the top a <a href="qmenubar.html">QMenuBar</a>,
-below that and at the left some <a href="qtoolbar.html">QToolBars</a>
-with widgets like <a href="qtoolbutton.html">QToolButtons</a> and
-<a href="qcombobox.html">QComboBoxes</a>. The central widget
-is a <a href="qworkspace.html">QWorkspace</a> which is used
-for MDI window management and which contains as MDI-Window
-a <a href="qmultilineedit.html">QMultiLineEdit</a> here. At the bottom
-you see a <a href="qstatusbar.html">QStatusBar</a> and at the
-right/bottom edge a <a href="qsizegrip.html">QSizeGrip</a>
-<p><img src=mainwindow-w.png >&nbsp;Windows<br>
+\img splitter-views-w.png
+\caption Windows
 
-Here you see a <a href="qfiledialog.html">QFileDialog</a>. On
-the Windows Platform you can either use the QFileDialog or the native
-Windows Filedialog. For more information on that see the
-<a href="qfiledialog.html">QFileDialog</a> class documentation.
-<p><img src=qfiledlg-w.png >&nbsp;Windows<br>
+In this screenshot you see a \l QMainWindow which contains on the top
+a \l QMenuBar, below that and at the left some \l {QToolBar}s with
+widgets like \l {QToolButton}s and \l {QComboBox}es. The central
+widget is a \l QWorkspace which is used for MDI window management and
+which contains as MDI-Window a \l QMultiLineEdit here. At the bottom
+you see a \l QStatusBar and at the right/bottom edge a \l QSizeGrip.
+
+\img mainwindow-w.png
+\caption Windows
+
+Here you see a \l QFileDialog. On the Windows Platform you can either
+use the QFileDialog or the native Windows file dialog. This is
+explained in the \l QFileDialog class documentation.
+
+\img qfiledlg-w.png
+\caption Windows
 
 This is a QPrintDialog. On Windows this dialog is not supported, as the
 native Windows Print-Dialog is used there. Use QPrinter::setup() for
 portability instead of the QPrintDialog if you need to be platform
 independent.
-<p><img src=qprintdlg-m.png >&nbsp;Motif
 
-In this screenshot you see a <a href="qfontdialog.html">QFontDialog</a>.
-<p><img src=qfontdlg-w.png >&nbsp;Windows<br>
+\img qprintdlg-m.png
+\caption Motif
 
-And in this picture a <a href="qcolordialog.html">QColorDialog</a> is shown.
-<p><img src=qcolordlg-w.png >&nbsp;Windows<br>
+In this screenshot you see a \l QFontDialog.
+
+\img qfontdlg-w.png
+\caption Windows
+
+And in this picture a \l QColorDialog is shown.
+
+\img qcolordlg-w.png
+\caption Windows
 
 For displaying messages you will use
-the <a href="qmessagebox.html">QMessageBox</a>.
-<p><img src=qmsgbox-w.png >&nbsp;Windows<br>
+the \l QMessageBox.
 
-This image shows a <a href="qprogressdialog.html">QProgressDialog</a>. The
-<a href="qprogressbar.html">QProgressBar</a> can be used as seperate
-widget too.
-<p><img src=qprogdlg-w.png >&nbsp;Windows<br>
+\img qmsgbox-w.png
+\caption Windows
 
-In the screenshot below you see a <a href="qgroupbox.html">QGroupBox</a>
-which contains a <a href="qlineedit.html">QLineEdit</a>, a read-only
-<a href="qcombobox.html">QComboBox</a> and a
-editable <a href="qcombobox.html">QComboBox</a>.
-<p><img src=groupbox-w.png >&nbsp;Windows<br>
+This image shows a \l QProgressDialog. The \l QProgressBar can also
+be used as a separate widget.
 
-This screenshot shows a <a href="qpopupmenu.html">QPopupMenu</a>.
-<p><img src=qpopmenu-w.png >&nbsp;Windows<br>
+\img qprogdlg-w.png
+\caption Windows
 
-In the screenshot below you see a
-<a href="qbuttongroup.html">QButtonGroup</a> containing
-four <a href="qradiobutton.html">QRadioButtons</a> and
-two <a href="qcheckbox.html">QCheckBoxes</a></h2>.
-<p><img src=buttongroup-w.png >&nbsp;Windows<br>
+In the screenshot below you see a \l QGroupBox that contains a \l
+QLineEdit, a read-only \l QComboBox and an editable \l QComboBox.
 
-All views in the first screenshot are widgets derived from
-a <a href="qscrollview.html">QScrollView</a>. But this
-class can also manage lots of child-widgets, like in
-this screenshot.
-<p><img src=qscrollview-m.png >&nbsp;Motif<br>
+\img groupbox-w.png
+\caption Windows
 
-This screenshot shows a <a href="qtabdialog.html">QTabDialog</a>.
-The tabs (<a href="qtabbar.html">QTabBar</a>) or the more
-convenient class <a href="qtabwidget.html">QTabWidget</a>, which
-combines a tab bar with the pages, can be used separately.
-In the visible page you see a <a href="qlabel.html">QLabel</a>,
-the range controls <a href="qslider.html">QSlider</a> and
-<a href="qspinbox.html">QSpinBox</a> and below a
-<a href="qlcdnumber.html">QLCDNumber</a>.
-In the bottom row you can see some
-<a href="qpushbutton.html">QPushButtons</a>
-<p><img src=qtabdlg-w.png >&nbsp;Windows<br>
+This screenshot shows a \l QPopupMenu.
 
-The screenshot below shows a <a href="qtableview.html">QTableView</a>.
-<p><img src=qtablevw-m.png >&nbsp;Motif<br>
+\img qpopmenu-w.png
+\caption Windows
 
-In this screenshot you see the <a href="qtextbrowser.html">QTextBrowser</a>
-displaying a HTML page. See also <a href="qtextview.html">QTextView</a>!
-<p><img src=qtextbrowser-w.png >&nbsp;Windows<br>
+In the screenshot below you see a \l QButtonGroup containing four \l
+{QRadioButton}s and two \l {QCheckBox}es.
+
+\img buttongroup-w.png
+\caption Windows
+
+All views in the first screenshot are widgets derived from a \l
+QScrollView. But this class can also manage lots of child-widgets,
+like in this screenshot.
+
+\img qscrollview-m.png
+\caption Motif
+
+This screenshot shows a \l QTabDialog. The tabs (\l QTabBar) or the
+more convenient class \l QTabWidget, which combines a tab bar with
+the pages, can be used separately. In the visible page you see a \l
+QLabel, the range controls \l QSlider and \l QSpinBox and below a \l
+QLCDNumber. In the bottom row you can see some \l {QPushButton}s.
+
+\img qtabdlg-w.png
+\caption Windows
+
+In this screenshot you see the \l QTextBrowser displaying a HTML
+page. See also \l QTextEdit.
+
+\img qtextbrowser-w.png
+\caption Windows
 
 */
