@@ -1599,8 +1599,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	    else
 		argv[j++] = argv[i];
 	}
-	
-	argv[argc] = 0;
 
 	*argcptr = j;
 
