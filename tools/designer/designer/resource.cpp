@@ -2113,7 +2113,7 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it )
 	    ts << makeIndent( indent ) << "<include location=\"" << (*it).location
 	       << "\" impldecl=\"" << (*it).implDecl << "\">" << (*it).header << "</include>" << endl;
-	if ( langIface->supports( LanguageInterface::SaveFormCodeExternal ) &&
+	if ( langIface && langIface->supports( LanguageInterface::SaveFormCodeExternal ) &&
 	     formwindow->project()->language() == "C++" )
 	    ts << makeIndent( indent ) << "<include location=\"local\" implDecl=\"in declaration\">"
 	       << QFileInfo( currFileName ).fileName() << langIface->formCodeExtension() << "</include>" << endl;
