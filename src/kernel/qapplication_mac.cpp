@@ -78,7 +78,7 @@
 /*****************************************************************************
   QApplication debug facilities
  *****************************************************************************/
-//#define DEBUG_KEY_MAPS
+#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 
 #define QMAC_SPEAK_TO_ME
@@ -641,6 +641,9 @@ static key_sym modifier_syms[] = {
 {   0, MAP_KEY(0) } };
 static int get_modifiers(int key, bool from_mouse=FALSE)
 {
+#if !defined(DEBUG_KEY_MAPS) || defined(DEBUG_MOUSE_MAPS)
+    Q_UNUSED(from_mouse);
+#endif
 #ifdef DEBUG_KEY_MAPS
 #ifndef DEBUG_MOUSE_MAPS
 	    if(!from_mouse)
@@ -1567,17 +1570,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
 	static UInt32 state = 0L;
 	char chr = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
-		   (modif & (rightOptionKeyBit|kEventKeyModifierNumLockMask|
-			     optionKey|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
-	if(!chr) 
+		   (modif & (kEventKeyModifierNumLockMask|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
+	if(!chr)
 	    break;
 
 	//map it into qt keys
 	int modifiers = get_modifiers(modif), mychar=get_key(modifiers, chr, keyc);
-	static QTextCodec *c = NULL;
-	if(!c)
-	    c = QTextCodec::codecForName("Apple Roman");
-       	QString mystr = c->toUnicode(&chr, 1);
 	{ 	//now get the real ascii value
 	    UInt32 tmp_mod = 0L;
 	    static UInt32 tmp_state = 0L;
@@ -1594,6 +1592,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 			       tmp_mod | keyc, &tmp_state);
 	}
+	static QTextCodec *c = NULL;
+	if(!c)
+	    c = QTextCodec::codecForName("Apple Roman");
+       	QString mystr = c->toUnicode(&chr, 1);
 
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 	if(mac_keyboard_grabber)
