@@ -66,7 +66,7 @@ extern QColor OLEColorToQColor(uint col);
 
 extern bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &typeName, bool out = false);
 extern QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint type = 0);
-extern bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeName);
+extern bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeName, uint type = 0);
 extern void clearVARIANT(VARIANT *var);
 
 #endif //TYPES_H
