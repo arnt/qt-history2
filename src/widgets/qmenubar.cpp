@@ -1021,12 +1021,18 @@ QRect QMenuBar::itemRect( int index )
   it is a separator item.
 */
 
-int QMenuBar::itemAtPos( const QPoint &pos )
+int QMenuBar::itemAtPos( const QPoint &pos_ )
 {
     calculateRects();
     if ( !irects )
 	return -1;
     int i = 0;
+    QPoint pos = pos_;
+    // Fitts' Law for edges - compensate for the extra margin
+    // added in calculateRects()
+    const int margin = 2;
+    pos.setX( QMAX( margin, QMIN( width() - margin, pos.x())));
+    pos.setY( QMAX( margin, QMIN( height() - margin, pos.y())));
     while ( i < (int)mitems->count() ) {
 	if ( !irects[i].isEmpty() && irects[i].contains( pos ) ) {
 	    QMenuItem *mi = mitems->at(i);
