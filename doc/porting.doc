@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.20 1999/01/21 14:30:26 warwick Exp $
+** $Id: porting.doc,v 1.21 1999/01/28 05:52:24 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -386,6 +386,18 @@ within the entire application. If your code depends on generated ids
 equal to the item's index, a quick fix is to use QMenuData::indexOf(
 int id) in the handling function instead. You may as well pass
 QMenuData::count() as identifier when you insert the items.
+
+<h3>QValidator (QLineEdit, QComboBox, QSpinBox) </h3>
+
+QValidator::validate(...) and QValidator::fixup( QString & ) are const
+functions now. In case your subclass reimplements validate as
+non-const you'll get a compile error (validate was pure virtual).
+
+XXX::setValidator(...) now takes a const pointer to a QValidator,
+XXX::validator() returns a const pointer, resp.. This is correct since
+the widgets don't take the ownership of the validator (a validator is
+a QObject on its own, with it's own parent), so changing the state of
+such an object or deleting it is very likely a bug.
 
 <h3>QWindow</h3>
 
