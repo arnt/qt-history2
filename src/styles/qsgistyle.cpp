@@ -998,17 +998,15 @@ void QSGIStyle::drawControl( ControlElement element,
 		    if (act)
 			cflags |= Style_On;
 
-		    if ( !mi->popup() ) {
+		    if ( mi->isChecked() ) {
 			QRect er( x+sgiItemFrame+1, y+sgiItemFrame+3, 
 				  pixelMetric(PM_IndicatorWidth), 
 				  pixelMetric(PM_IndicatorHeight) );
 			int iflags = flags & ~Style_On;
 			er.addCoords( 1, 1, -1, -1 );
 			drawPrimitive( PE_ButtonBevel, p, er, cg, cflags, opt );
-			if ( mi->isChecked() ) {
-			    er.addCoords( 0, 1, 1, 1 );
-			    drawPrimitive( PE_CheckMark, p, er, cg, cflags | Style_On, opt );
-			}
+			er.addCoords( 0, 1, 1, 1 );
+			drawPrimitive( PE_CheckMark, p, er, cg, cflags | Style_On, opt );
 		    }
 		}
 	    }
