@@ -25,6 +25,7 @@
 
 #include <stdlib.h>
 #include <limits.h>
+#include <errno.h>
 
 bool
 QFSFileInfoEnginePrivate::doStat() const
@@ -125,21 +126,23 @@ QFSFileInfoEngine::fileName(FileName file) const
         }
         return ret;
     } else if(file == Canonical) {
-        QString ret;
         char cur[PATH_MAX+1];
         if (::getcwd(cur, PATH_MAX)) {
+            QString ret;
             char real[PATH_MAX+1];
             // need the cast for old solaris versions of realpath that doesn't take
             // a const char*.
             if(::realpath(QFile::encodeName(d->file).data(), real))
                 ret = QFile::decodeName(QByteArray(real));
+            // always make sure we go back to the current dir
+            ::chdir(cur);
+            //check it
             struct stat st;
             if (::stat(QFile::encodeName(ret), &st) != 0)
                 ret = QString();
-            // always make sure we go back to the current dir
-            ::chdir(cur);
+            return ret;
         }
-        return ret;
+        return fileName(AbsoluteName);
     } else if(file == LinkName) {
         if(d->doStat() && (d->st.st_mode & S_IFMT) == S_IFLNK) {
             char s[PATH_MAX+1];

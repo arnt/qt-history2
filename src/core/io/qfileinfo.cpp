@@ -453,6 +453,18 @@ QFileInfo::dirPath(bool absPath) const
     return d->data->fileInfoEngine->fileName(absPath ? QFileInfoEngine::AbsoluteDirPath : QFileInfoEngine::DirPath);
 }
 
+/*!
+    Returns the canonical path, i.e. a path without symbolic links or
+    redundant "." or ".." elements.
+
+    On systems that do not have symbolic links this function will
+    always return the same string that absFilePath() returns. If the
+    canonical path does not exist (normally due to dangling symbolic
+    links) canonicalPath() returns QString::null.
+
+    \sa absFilePath(), QString::isNull()
+*/
+
 QString
 QFileInfo::canonicalPath() const
 {
