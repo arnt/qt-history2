@@ -137,15 +137,13 @@ extern QRgb qt_colorref2qrgb(COLORREF col);
 
 void QTitleBar::getColors()
 {
-#ifdef Q_WS_WIN
     aleftc = arightc = palette().active().highlight();
-    ileftc = irightc = palette().inactive().dark();
     atextc = palette().active().highlightedText();
+#ifdef Q_WS_WIN
+    ileftc = irightc = palette().inactive().dark();
     itextc = palette().inactive().background();
 #else
-    aleftc = arightc = palette().active().highlight();
     ileftc = irightc = palette().inactive().background();
-    atextc = palette().active().highlightedText();
     itextc = palette().inactive().foreground();
 #endif
 
