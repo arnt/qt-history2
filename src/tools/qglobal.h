@@ -659,7 +659,7 @@ Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 2.x
-#  if !defined(ASSERT)
+#  if !defined(CHECK_PTR)
 #    define CHECK_PTR(x) Q_CHECK_PTR(x)
 #  endif
 #endif // QT_CLEAN_NAMESPACE
