@@ -8,3 +8,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, small-config)"
 
 HEADERS		= forever.h
 SOURCES		= forever.cpp
+QT	+= compat

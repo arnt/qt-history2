@@ -18,6 +18,7 @@
 
 #include "forever.h"
 
+using namespace Qt;
 
 //
 // Forever - a widget that draws rectangles forever.
