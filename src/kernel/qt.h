@@ -169,7 +169,6 @@
 #include <qlayout.h>
 #include <qsjiscodec.h>
 #include <qslider.h>
-#include <qsmartptr.h>
 #include <qdns.h>
 #include "qapplication.h"
 #include <qserversocket.h>

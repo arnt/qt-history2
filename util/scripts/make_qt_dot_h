@@ -187,4 +187,4 @@ print QT_H "\n#ifdef _WS_QWS_\n";
 do_headers @QWS_HEADERS;
 print QT_H "#endif // _WS_QWS_\n\n";
 
-print QT_H "$TAIL";
+print QT_H "$TAIL\n";
