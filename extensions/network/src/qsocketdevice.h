@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#9 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#10 $
 **
 ** Implementation of Network Extension Library
 **
@@ -95,7 +95,19 @@ public:
     QHostAddress address() const;
     QHostAddress peerAddress() const;
 
+    enum Error { NoError, AlreadyBound, Inaccessible, NoResources,
+		 Bug, Impossible, NoFiles, ConnectionRefused,
+		 NetworkFailure, UnknownError };
+    Error 	 error() const;
+
 private:
+    int fd;
+    Type t;
+    uint p;
+    QHostAddress a;
+    uint pp;
+    QHostAddress pa;
+    mutable QSocketDevice::Error e;
     QSocketDevicePrivate * d;
 
     enum Option { Broadcast, ReceiveBuffer, ReuseAddress, SendBuffer };
@@ -104,6 +116,8 @@ private:
     virtual void setOption( Option, int );
 
     void	 fetchConnectionParameters();
+
+    static void init();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

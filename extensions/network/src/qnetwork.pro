@@ -20,3 +20,5 @@ TARGET		= qnetwork
 DESTINCDIR	= ../../../include
 DESTDIR		= ../../../lib
 VERSION		= 0.8
+
+unix:SOURCES   += qsocketdevice_unix.cpp
