@@ -395,7 +395,6 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 
 const char* QDropEvent::format(int i) const
 {
-    char *buffer = NULL;
     FlavorType info = NULL;
     Size flavorsize = 0, typesize = 0, realsize = sizeof(typesize);
     ItemReference ref = NULL;
@@ -412,6 +411,7 @@ const char* QDropEvent::format(int i) const
     }
     if(i >= numFlavors)
 	return 0;
+
 
     if(GetFlavorDataSize(current_dropobj, ref, kDragQtGeneratedMarker, &flavorsize)) { //Mac style
 	for(int x = 1, found = 0; x <= (int)numFlavors; x++) {
@@ -446,7 +446,13 @@ const char* QDropEvent::format(int i) const
 		    return 0;
 		}
 		GetFlavorData(current_dropobj, ref, info, &typesize, &realsize, 0);
-		buffer = (char *)malloc(typesize + 1);
+
+		static char *buffer = NULL;
+		static int buffer_len = 0;
+		if(!buffer)
+		    buffer = (char *)malloc((buffer_len = (typesize + 1)));
+		else if(typesize + 1 > buffer_len) 
+		    buffer = (char *)realloc(buffer, (buffer_len = (typesize + 1)));
 		GetFlavorData(current_dropobj, ref, info, buffer, &typesize, sizeof(typesize));
 		if(typesize < 0) {
 		    qDebug("Qt: internal: typesize negative %s:%d", __FILE__, __LINE__);
@@ -457,11 +463,11 @@ const char* QDropEvent::format(int i) const
 		qDebug("Qt: internal: QDropEvent::format(%d): %s (%c%c%c%c) [from Qt app]", i, buffer, 
 		       char(info >> 24), char((info >> 16) & 255), char((info >> 8) & 255), char(info & 255));
 #endif
-		break;
+		return buffer;
 	    }
 	}
     }
-    return buffer;
+    return NULL;
 }
 
 void QDragManager::timerEvent(QTimerEvent*)
@@ -576,6 +582,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 		    }
 		    AddDragItemFlavor(theDrag, (ItemReference)1, drag_map[sm].mac_type, 
 				       buffer, len, 0);
+		    free(buffer);
 		}
 		break;
 	    }
@@ -590,6 +597,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 	memcpy(buffer+sizeof(mimelen) + mimelen, ar.data(), ar.size());
 	AddDragItemFlavor(theDrag, (ItemReference)1, mactype, buffer, 
 			   ar.size()+mimelen+sizeof(mimelen), 0);
+	free(buffer);
     }
     debug_drag_flav(theDrag, "QDrag::tracking");
 
