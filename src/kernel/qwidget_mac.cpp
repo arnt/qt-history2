@@ -86,7 +86,7 @@ static void paint_children(QWidget * p,const QRegion& r)
     if(!p || r.isEmpty())
 	return;
 
-#if 1
+#if 0
     Rect rect;
     SetRect( &rect, p->x(), p->y(), p->x()+p->width(), p->y()+p->height() );
     InvalWindowRect( (WindowRef)p->topLevelWidget()->winId(), &rect );
@@ -568,8 +568,19 @@ void QWidget::update( int x, int y, int w, int h )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	if ( w && h ) 
-	    QApplication::postEvent( this, new QPaintEvent( QRect(x,y,w,h), !testWFlags( WRepaintNoErase ) ) );
+	if ( w && h ) {
+#if 0
+		QPoint mp(posInWindow(this));
+		x += mp.x();
+		y += mp.y();
+
+		Rect r;
+		SetRect( &r, x, y, x+w, y+h );
+		InvalWindowRect( (WindowRef)hd, &r );
+#else
+		QApplication::postEvent( this, new QPaintEvent( QRect(x, y, w, h), !testWFlags( WRepaintNoErase ) ) );
+#endif
+	}
     }
 }
 
@@ -723,7 +734,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     QRect  r( x, y, w, h );
     setCRect( r );
-//    qDebug("Resizing %s %s", name(), className());
     if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
 
@@ -738,15 +748,17 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isMove ) {
 	    QMoveEvent e( pos(), oldp );
 	    QApplication::sendEvent( this, &e );
-	    update(rect());
+	    update();
 	}
 	if ( isResize ) {
 	    QResizeEvent e( size(), olds );
 	    QApplication::sendEvent( this, &e );
-	    update(rect());
+	    update();
 	}
-	if( parentWidget() && (isMove || isResize) ) 
-	    paint_children( parentWidget(), QRect( oldp, olds ) );
+	if( parentWidget() && (isMove || isResize) ) {
+	    QRegion upd = QRegion(r) | QRegion(( QRect(oldp, olds) ));
+	    paint_children( parentWidget(), upd );
+	}
     } else {
 	if ( isMove ) 
 	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
