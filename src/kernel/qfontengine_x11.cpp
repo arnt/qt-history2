@@ -1279,7 +1279,6 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
     }
 
 #ifdef QT_XFT2
-    bool missing = FALSE;
     for ( int i = 0; i < len; ++i ) {
 	unsigned short uc = str[i].unicode();
 	glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
@@ -1711,6 +1710,9 @@ QOpenType *QFontEngineXft::openType() const
 //     qDebug("openTypeIface requested!");
     if ( _openType )
 	return _openType;
+
+    if ( ! FT_IS_SFNT( _face ) )
+	return 0;
 
     QFontEngineXft *that = (QFontEngineXft *)this;
     that->_openType = new QOpenType( that->_face );
