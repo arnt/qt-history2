@@ -616,13 +616,6 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 	       "Cannot send events without an event loop");
     QPostEventList *postedEvents = eventloop->d->postedEvents;
 
-#if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker(&postedEvents->mutex);
-#endif
-
-    if (!*postedEvents || (receiver && !receiver->hasPostedEvents))
-	return;
-
 #ifndef QT_NO_COMPAT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
     if (receiver && event_type == QEvent::ChildInserted && !receiver->hasPostedChildInsertedEvents)
@@ -632,6 +625,13 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
     if ( receiver == 0 && event_type == 0 )
 	sendPostedEvents( 0, QEvent::ChildInserted );
 #endif
+
+#if defined(QT_THREAD_SUPPORT)
+    QMutexLocker locker(&postedEvents->mutex);
+#endif
+
+    if (!*postedEvents || (receiver && !receiver->hasPostedEvents))
+	return;
 
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
