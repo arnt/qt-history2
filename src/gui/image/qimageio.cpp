@@ -18,6 +18,7 @@
 #include <private/qfactoryloader_p.h>
 #include <private/qcolor_p.h>
 #include <qcoreapplication.h>
+#include <qtextstream.h>
 #include <qmutex.h>
 #include "qmap.h"
 #include "qpngio.h"

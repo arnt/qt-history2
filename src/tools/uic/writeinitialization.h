@@ -19,8 +19,8 @@
 #include <qpair.h>
 #include <qhash.h>
 #include <qstack.h>
+#include <qtextstream.h>
 
-class QTextStream;
 class Driver;
 class Uic;
 struct Option;

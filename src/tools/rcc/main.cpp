@@ -16,6 +16,7 @@
 #include <qfile.h>
 #include <qdir.h>
 #include <qregexp.h>
+#include <qtextstream.h>
 #include <qdom.h>
 #include <qlocale.h>
 #include <qtemporaryfile.h>

@@ -17,6 +17,7 @@
 
 #include <qcoreapplication.h>
 #include <qfile.h>
+#include <qtextstream.h>
 
 static const char *error = 0;
 

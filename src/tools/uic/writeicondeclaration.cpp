@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <qtextstream.h>
+
 #include "writeicondeclaration.h"
 #include "driver.h"
 #include "ui4.h"

@@ -25,6 +25,7 @@ struct QShortcutEntry;
 class QShortcutMapPrivate;
 class QWidget;
 class QAction;
+class QObject;
 
 class QShortcutMap
 {
