@@ -41,6 +41,7 @@
 #include "qapplication_p.h"
 #include <stdlib.h>
 #include "qt_mac.h"
+#include <qstyle.h>
 
 // NOT REVISED
 
