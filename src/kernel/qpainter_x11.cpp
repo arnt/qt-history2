@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#227 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#228 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#227 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#228 $");
 
 
 /*****************************************************************************
@@ -1566,7 +1566,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
     XSetLineAttributes( dpy, gc, 0, LineOnOffDash, CapButt, JoinMiter );
 
     XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
-
+    XSetLineAttributes( dpy, gc, 0, LineSolid, CapButt, JoinMiter );
     setRasterOp( old_rop );
     setPen( old_pen );
 }
