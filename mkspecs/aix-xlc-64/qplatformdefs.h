@@ -33,6 +33,13 @@
 #include <sys/wait.h>
 #include <netinet/in.h>
 
+// POSIX Large File Support redefines open -> open64
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
+
+// POSIX Large File Support redefines truncate -> truncate64
+static inline int qt_truncate(const char *pathname, off_t length)
+{ return ::truncate(pathname, length); }
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
@@ -43,9 +50,9 @@
 #define QT_STAT_MASK		S_IFMT
 #define QT_STAT_LNK		S_IFLNK
 #define QT_FILENO		fileno
-#define QT_OPEN			::open
+#define QT_OPEN			qt_open
 #define QT_CLOSE		::close
-#define QT_TRUNCATE		::truncate
+#define QT_TRUNCATE		qt_truncate
 #define QT_LSEEK		::lseek
 #define QT_READ			::read
 #define QT_WRITE		::write
@@ -74,5 +81,14 @@
 #define QT_VSNPRINTF		::vsnprintf
 #endif
 
+// POSIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
 
 #endif // QPLATFORMDEFS_H
