@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#113 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#112 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#113 $";
 #endif
 
 
@@ -1241,7 +1241,8 @@ void QPainter::moveTo( int x, int y )		// set current point for lineTo
 /*!
   Draws a line from the current point to \e (x,y) and sets this to the new
   current point.
-  \sa moveTo()
+
+  \sa moveTo() drawLine()
 */
 
 void QPainter::lineTo( int x, int y )		// draw line from current point
@@ -1272,6 +1273,8 @@ void QPainter::lineTo( int x, int y )		// draw line from current point
 
 /*!
   Draws a line from \e (x1,y2) to \e (x2,y2).
+
+  \sa lineTo()
 */
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
