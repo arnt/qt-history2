@@ -108,7 +108,7 @@ public:
     ~QTextStringChar();
 
     QChar c;
-    enum Type { Regular, Custom };
+    enum Type { Regular=0, Custom=1, Anchor=2, CustomAnchor=3 };
     uint lineStart : 1;
     uint rightToLeft : 1;
     uint hasCursor : 1;
@@ -120,7 +120,7 @@ public:
     int height() const;
     int ascent() const;
     int descent() const;
-    bool isCustom() const { return type == Custom; }
+    bool isCustom() const { return (type & Custom) != 0; }
     QTextFormat *format() const;
 #ifndef QT_NO_TEXTCUSTOMITEM
     QTextCustomItem *customItem() const;
@@ -136,25 +136,23 @@ public:
 #ifndef QT_NO_TEXTCUSTOMITEM
 	QTextCustomItem *custom;
 #endif
+	QString anchorName;
+	QString anchorHref;
     };
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    void loseCustomItem()
-    {
-	if ( isCustom() ) {
-	    QTextFormat *f = d.custom->format;
-	    d.custom->custom = 0;
-	    delete d.custom;
-	    type = Regular;
-	    d.format = f;
-	}
-    }
-#endif
+    void loseCustomItem();
+#endif    
 
     union {
 	QTextFormat* format;
 	CustomData* custom;
     } d;
+
+    bool isAnchor() const { return ( type & Anchor) != 0; }
+    QString anchorName() const;
+    QString anchorHref() const;
+    void setAnchor( const QString& name, const QString& href );
 
 private:
     QTextStringChar &operator=( const QTextStringChar & ) {
@@ -1339,7 +1337,7 @@ protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     virtual void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
 				  int lastY, int baseLine, int bw, int h, bool drawSelections,
-				  QTextFormat *lastFormat, int i, const QMemArray<int> &selectionStarts,
+				  QTextStringChar *formatChar, int i, const QMemArray<int> &selectionStarts,
 				  const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft  );
 
 private:
@@ -1508,7 +1506,7 @@ public:
     enum VerticalAlignment { AlignNormal, AlignSuperScript, AlignSubScript };
 
     QTextFormat();
-    virtual ~QTextFormat() {}
+    virtual ~QTextFormat();
 
     QTextFormat( const QStyleSheetItem *s );
     QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent = 0 );
@@ -1526,9 +1524,6 @@ public:
     int height() const;
     int ascent() const;
     int descent() const;
-    QString anchorHref() const;
-    QString anchorName() const;
-    bool isAnchor() const;
     bool useLinkColor() const;
 
     void setBold( bool b );
@@ -1545,13 +1540,13 @@ public:
     QTextFormatCollection *parent() const;
     QString key() const;
 
-    static QString getKey( const QFont &f, const QColor &c, bool misspelled, const QString &lhref, const QString &lnm, VerticalAlignment vAlign );
+    static QString getKey( const QFont &f, const QColor &c, bool misspelled, VerticalAlignment vAlign );
 
     void addRef();
     void removeRef();
 
-    QString makeFormatChangeTags( QTextFormat *f ) const;
-    QString makeFormatEndTags() const;
+    QString makeFormatChangeTags( QTextFormat *f, const QString& oldAnchorHref, const QString& anchorHref ) const;
+    QString makeFormatEndTags( const QString& anchorHref ) const;
 
     void setPainter( QPainter *p );
     void updateStyle();
@@ -1582,8 +1577,6 @@ private:
     QString k;
     int logicalFontSize;
     int stdPointSize;
-    QString anchor_href;
-    QString anchor_name;
     QPainter *painter;
     QString style;
     int different;
@@ -1943,21 +1936,6 @@ inline void QTextFormat::removeRef()
 inline QString QTextFormat::key() const
 {
     return k;
-}
-
-inline QString QTextFormat::anchorHref() const
-{
-    return anchor_href;
-}
-
-inline QString QTextFormat::anchorName() const
-{
-    return anchor_name;
-}
-
-inline bool QTextFormat::isAnchor() const
-{
-    return !anchor_href.isEmpty()  || !anchor_name.isEmpty();
 }
 
 inline bool QTextFormat::useLinkColor() const

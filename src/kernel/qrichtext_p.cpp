@@ -155,6 +155,11 @@ QTextParag *QTextDocument::paragAt( int i ) const
     return p;
 }
 
+
+QTextFormat::~QTextFormat()
+{
+}
+
 QTextFormat::QTextFormat()
     : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
       painter( 0 ), different( NoFlags )
@@ -233,8 +238,6 @@ QTextFormat::QTextFormat( const QTextFormat &f )
     missp = f.missp;
     ha = f.ha;
     k = f.k;
-    anchor_name = f.anchor_name;
-    anchor_href = f.anchor_href;
     linkColor = f.linkColor;
     style = f.style;
     different = f.different;
@@ -259,8 +262,6 @@ QTextFormat& QTextFormat::operator=( const QTextFormat &f )
     missp = f.missp;
     ha = f.ha;
     k = f.k;
-    anchor_name = f.anchor_name;
-    anchor_href = f.anchor_href;
     linkColor = f.linkColor;
     style = f.style;
     different = f.different;
@@ -333,13 +334,10 @@ void QTextFormat::generateKey()
        << (uint)col.rgb() << "/"
        << fn.family() << "/"
        << (int)isMisspelled() << "/"
-       << anchor_href << "/"
-       << anchor_name << "/"
        << (int)vAlign();
 }
 
-QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled,
-				    const QString &lhref, const QString &lnm, VerticalAlignment a )
+QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled, VerticalAlignment a )
 {
     QString k;
     QTextOStream ts( &k );
@@ -351,8 +349,6 @@ QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled
        << (uint)col.rgb() << "/"
        << fn.family() << "/"
        << (int)misspelled << "/"
-       << lhref << "/"
-       << lnm << "/"
        << (int)a;
     return k;
 }
@@ -683,12 +679,8 @@ QTextStringChar::~QTextStringChar()
 {
     if ( format() )
 	format()->removeRef();
-    switch ( type ) {
-	case Custom:
-	    delete d.custom; break;
-	default:
-	    break;
-    }
+    if ( type ) // not Regular
+	delete d.custom;
 }
 
 QTextParagPseudoDocument::QTextParagPseudoDocument():pFormatter(0),commandHistory(0), minw(0),wused(0){}

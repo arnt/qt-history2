@@ -1723,8 +1723,8 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	    QTextCursor c = *cursor;
 	    placeCursor( e->pos(), &c, TRUE );
 	    if ( c.parag() && c.parag()->at( c.index() ) &&
-		 c.parag()->at( c.index() )->format()->isAnchor() ) {
-		pressedLink = c.parag()->at( c.index() )->format()->anchorHref();
+		 c.parag()->at( c.index() )->isAnchor() ) {
+		pressedLink = c.parag()->at( c.index() )->anchorHref();
 	    }
 	}
 
@@ -3080,6 +3080,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     updateContents();
+
     emit textChanged();
     formatMore();
     updateCurrentFormat();
@@ -3957,8 +3958,8 @@ void QTextEdit::scrollToAnchor( const QString& name )
     QTextCursor cursor( doc );
     QTextParag* last = doc->lastParag();
     do {
-	QTextFormat* f = cursor.parag()->at( cursor.index() )->format();
-	if( f->isAnchor() && f->anchorName() == name ) {
+	QTextStringChar* c = cursor.parag()->at( cursor.index() );
+	if( c->isAnchor() && c->anchorName() == name ) {
 	    setContentsPos( contentsX(), QMIN( cursor.parag()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight() ) );
 	    return;
 	}
@@ -3975,7 +3976,7 @@ QString QTextEdit::anchorAt( const QPoint& pos )
 {
     QTextCursor c( doc );
     placeCursor( pos, &c );
-    return c.parag()->at( c.index() )->format()->anchorHref();
+    return c.parag()->at( c.index() )->anchorHref();
 }
 
 void QTextEdit::documentWidthChanged( int w )
@@ -4824,14 +4825,16 @@ void QTextEdit::updateCursor( const QPoint & pos )
     if ( isReadOnly() && linksEnabled() ) {
 	QTextCursor c = *cursor;
 	placeCursor( pos, &c, TRUE );
+	
 #ifndef QT_NO_NETWORKPROTOCOL
 	if ( c.parag() && c.parag()->at( c.index() ) &&
-	     c.parag()->at( c.index() )->format()->isAnchor() &&
-	     !c.parag()->at( c.index() )->format()->anchorHref().isEmpty() ) {
+	     c.parag()->at( c.index() )->isAnchor() &&
+	     !c.parag()->at( c.index() )->anchorHref().isEmpty() ) {
 	    if ( c.index() < c.parag()->length() - 1 )
-		onLink = c.parag()->at( c.index() )->format()->anchorHref();
+		onLink = c.parag()->at( c.index() )->anchorHref();
 	    else
 		onLink = QString::null;
+	    
 #ifndef QT_NO_CURSOR
 	    viewport()->setCursor( onLink.isEmpty() ? arrowCursor : pointingHandCursor );
 #endif

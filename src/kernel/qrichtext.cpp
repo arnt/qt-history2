@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "private/qrichtext_p.h"
+#include "qrichtext_p.h"
 
 #ifndef QT_NO_RICHTEXT
 
@@ -1406,8 +1406,7 @@ void QTextDocument::init()
     flow_ = new QTextFlow;
     flow_->setWidth( cw );
 
-    leftmargin = 4;
-    rightmargin = 4;
+    leftmargin = rightmargin = 4;
 
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
     selectionText[ Standard ] = TRUE;
@@ -1532,32 +1531,35 @@ void QTextDocument::setPlainText( const QString &text )
 	lParag = fParag = createParag( this, 0, 0 );
 }
 
-struct Q_EXPORT Tag {
-    Tag(){}
-    Tag( const QString&n, const QStyleSheetItem* s, const QTextFormat& f )
+struct Q_EXPORT QTextDocumentTag {
+    QTextDocumentTag(){}
+    QTextDocumentTag( const QString&n, const QStyleSheetItem* s, const QTextFormat& f )
 	:name(n),style(s), format(f), alignment(Qt::AlignAuto), direction(QChar::DirON),liststyle(QStyleSheetItem::ListDisc) {
 	    wsm = QStyleSheetItem::WhiteSpaceNormal;
     }
     QString name;
     const QStyleSheetItem* style;
+    QString anchorHref;
     QStyleSheetItem::WhiteSpaceMode wsm;
     QTextFormat format;
     int alignment : 16;
     int direction : 5;
     QStyleSheetItem::ListStyle liststyle;
 
-    Tag(  const Tag& t ) {
+    QTextDocumentTag(  const QTextDocumentTag& t ) {
 	name = t.name;
 	style = t.style;
+	anchorHref = t.anchorHref;
 	wsm = t.wsm;
 	format = t.format;
 	alignment = t.alignment;
 	direction = t.direction;
 	liststyle = t.liststyle;
     }
-    Tag& operator=(const Tag& t) {
+    QTextDocumentTag& operator=(const QTextDocumentTag& t) {
 	name = t.name;
 	style = t.style;
+	anchorHref = t.anchorHref;
 	wsm = t.wsm;
 	format = t.format;
 	alignment = t.alignment;
@@ -1567,7 +1569,7 @@ struct Q_EXPORT Tag {
     }
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const Tag& ) const { return FALSE; }
+    bool operator==( const QTextDocumentTag& ) const { return FALSE; }
 #endif
 };
 
@@ -1576,7 +1578,7 @@ struct Q_EXPORT Tag {
 		    space = TRUE; \
 		    QPtrVector<QStyleSheetItem> vec( (uint)tags.count() + 1); \
 		    int i = 0; \
-		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
+		    for ( QValueStack<QTextDocumentTag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec.insert( i++, (*it).style ); \
 		    vec.insert( i, curtag.style ); \
 		    curpar->setStyleSheetItems( vec ); }while(FALSE)
@@ -1627,15 +1629,16 @@ void QTextDocument::setRichTextInternal( const QString &text )
     oText = text;
     QTextParag* curpar = lParag;
     int pos = 0;
-    QValueStack<Tag> tags;
-    Tag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
-    Tag curtag = initag;
+    QValueStack<QTextDocumentTag> tags;
+    QTextDocumentTag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
+    QTextDocumentTag curtag = initag;
     bool space = TRUE;
 
     const QChar* doc = text.unicode();
     int length = text.length();
     bool hasNewPar = curpar->length() <= 1;
     QString lastClose;
+    QString anchorName;
     while ( pos < length ) {
 	if ( hasPrefix(doc, length, pos, '<' ) ){
 	    if ( !hasPrefix( doc, length, pos+1, QChar('/') ) ) {
@@ -1649,7 +1652,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( tagname == "title" ) {
 		    QString title;
 		    while ( pos < length ) {
-			if ( hasPrefix( doc, length, pos, '<' ) && hasPrefix( doc, length, pos+1, QChar('/') ) &&
+			if ( hasPrefix( doc, length, pos, QChar('<') ) && hasPrefix( doc, length, pos+1, QChar('/') ) &&
 			     parseCloseTag( doc, length, pos ) == "title" )
 			    break;
 			title += doc[ pos ];
@@ -1800,6 +1803,11 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			curtag.wsm = nstyle->whiteSpaceMode();
 		    curtag.liststyle = chooseListStyle( nstyle, attr, curtag.liststyle );
 		    curtag.format = curtag.format.makeTextFormat( nstyle, attr );
+		    if ( nstyle->isAnchor() ) {
+			anchorName = attr["name"];
+			curtag.anchorHref = attr["href"];
+		    }
+		
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			curtag.alignment = nstyle->alignment();
 
@@ -1819,26 +1827,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 
 		    if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
 			curpar->setFormat( &curtag.format );
-
-		    // hack to be sure <a name=".."></a> formats are inserted
-		    // we try to set the anchor name to the character directly before us
-		    if ( curtag.name == "a" && attr.find( "name" ) != attr.end() && doc[ pos ] == '<' ) {
-			QTextParag *p = curpar;
-			if ( p && p->length() == 0 && p->prev() )
-			    p = p->prev();
-			if ( p && p->length() > 0 ) {
-			    QTextFormat *f = p->at( p->length() - 1 )->format();
-			    if ( f && !f->isAnchor() ) {
-				// this does not go through the format collection...
-				f = fCollection->createFormat( *f );
-				f->anchor_name = attr[ "name" ];
-				f->update();
-				p->setFormat( p->length() - 1, 1, f, TRUE, QTextFormat::Format );
-				// ... so delete it
-				delete f;
-			    }
-			}
-		    }
 
 		    if ( attr.contains( "align" ) &&
 			 ( curtag.name == "p" ||
@@ -1915,7 +1903,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    // normal contents
 	    QString s;
 	    QChar c;
-	    while ( pos < length && !hasPrefix(doc, length, pos, '<' ) ){
+	    while ( pos < length && !hasPrefix(doc, length, pos, QChar('<') ) ){
 		c = parseChar( doc, length, pos, curtag.wsm );
 
 		if ( c == '\n' ) // happens only in whitespacepre-mode.
@@ -1936,7 +1924,17 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( index < 0 )
 		    index = 0;
 		curpar->append( s );
-		curpar->setFormat( index, s.length(), &curtag.format );
+		QTextFormat* f = formatCollection()->format( &curtag.format );
+		curpar->setFormat( index, s.length(), f, FALSE ); // do not use collection because we have done that already
+		f->ref += s.length() -1; // that what friends are for...
+		if ( !curtag.anchorHref.isEmpty() ) {
+		    for ( int i = 0; i < int(s.length()); i++ )
+			curpar->at(index + i)->setAnchor( QString::null, curtag.anchorHref );
+		}
+		if ( !anchorName.isEmpty()  ) {
+		    curpar->at(index)->setAnchor( anchorName, curpar->at(index)->anchorHref() );
+		    anchorName = QString::null;
+		}
 	    }
 	    if ( c == '\n' ) { // happens in WhiteSpacePre mode
 		hasNewPar = FALSE;
@@ -3096,14 +3094,14 @@ bool QTextDocument::focusNextPrevChild( bool next )
 	int index = focusIndicator.start + focusIndicator.len;
 	while ( p ) {
 	    for ( int i = index; i < p->length(); ++i ) {
-		if ( p->at( i )->format()->isAnchor() ) {
+		if ( p->at( i )->isAnchor() ) {
 		    p->setChanged( TRUE );
 		    focusIndicator.parag = p;
 		    focusIndicator.start = i;
 		    focusIndicator.len = 0;
-		    focusIndicator.href = p->at( i )->format()->anchorHref();
+		    focusIndicator.href = p->at( i )->anchorHref();
 		    while ( i < p->length() ) {
-			if ( !p->at( i )->format()->isAnchor() )
+			if ( !p->at( i )->isAnchor() )
 			    return TRUE;
 			focusIndicator.len++;
 			i++;
@@ -3159,14 +3157,14 @@ bool QTextDocument::focusNextPrevChild( bool next )
 	    index++;
 	while ( p ) {
 	    for ( int i = index; i >= 0; --i ) {
-		if ( p->at( i )->format()->isAnchor() ) {
+		if ( p->at( i )->isAnchor() ) {
 		    p->setChanged( TRUE );
 		    focusIndicator.parag = p;
 		    focusIndicator.start = i;
 		    focusIndicator.len = 0;
-		    focusIndicator.href = p->at( i )->format()->anchorHref();
+		    focusIndicator.href = p->at( i )->anchorHref();
 		    while ( i >= -1 ) {
-			if ( i < 0 || !p->at( i )->format()->isAnchor() ) {
+			if ( i < 0 || !p->at( i )->isAnchor() ) {
 			    focusIndicator.start++;
 			    return TRUE;
 			}
@@ -3549,7 +3547,54 @@ void QTextStringChar::setCustomItem( QTextCustomItem *i )
     }
     d.custom->custom = i;
 }
+
+void QTextStringChar::loseCustomItem()
+{
+    if ( type == Custom ) {
+	QTextFormat *f = d.custom->format;
+	d.custom->custom = 0;
+	delete d.custom;
+	type = Regular;
+	d.format = f;
+    } else if ( type == CustomAnchor ) {
+	d.custom->custom = 0;
+	type = Anchor;
+    }
+}
+
 #endif
+
+QString QTextStringChar::anchorName() const
+{
+    if ( type == Regular )
+	return QString::null;
+    else
+	return d.custom->anchorName;
+}
+
+QString QTextStringChar::anchorHref() const
+{
+    if ( type == Regular )
+	return QString::null;
+    else
+	return d.custom->anchorHref;
+}
+
+void QTextStringChar::setAnchor( const QString& name, const QString& href )
+{
+    if ( type == Regular ) {
+	QTextFormat *f = format();
+	d.custom = new CustomData;
+	d.custom->custom = 0;
+	d.custom->format = f;
+	type = Anchor;
+    } else if ( type == Custom ) {
+	type = CustomAnchor;
+    }
+    d.custom->anchorName = name;
+    d.custom->anchorHref = href;
+}
+
 
 int QTextString::width( int idx ) const
 {
@@ -4153,7 +4198,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int i = 0;
     int h = 0;
     int baseLine = 0, lastBaseLine = 0;
-    QTextFormat *lastFormat = 0;
+    QTextStringChar *formatChar = 0;
     int lastY = -1;
     int startX = 0;
     int bw = 0;
@@ -4249,8 +4294,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 
 	// first time - start again...
-	if ( !lastFormat || lastY == -1 ) {
-	    lastFormat = chr->format();
+	if ( !formatChar || lastY == -1 ) {
+	    formatChar = chr;
 	    lastY = cy;
 	    startX = chr->x;
 	    if ( !chr->isCustom() && chr->c != '\n' )
@@ -4274,7 +4319,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	if ( ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
 	       lastDirection != (bool)chr->rightToLeft ||
 	       chr->startOfRun ||
-	       lastY != cy || chr->format() != lastFormat ||
+	       lastY != cy || chr->format() != formatChar->format() || chr->isAnchor() != formatChar->isAnchor() ||
 	       ( paintEnd != -1 && at( paintEnd )->c =='\t' ) || chr->c == '\t' ||
 	       ( paintEnd != -1 && at( paintEnd )->c.unicode() == 0xad ) || chr->c.unicode() == 0xad ||
 	       selectionChange || chr->isCustom() ) ) {
@@ -4288,7 +4333,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		}
 		drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, x, lastY,
 				 lastBaseLine, bw, lasth, drawSelections,
-				 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
+				 formatChar, i, selectionStarts, selectionEnds, cg, lastDirection );
 		if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
 		    if ( chr->lineStart && drawSelections ) {
 			for ( int j = 0; j < nSels; ++j ) {
@@ -4326,7 +4371,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    paintStart = i+1;
 		    paintEnd = -1;
 		}
-		lastFormat = chr->format();
+		formatChar = chr;
 		lastY = cy;
 		startX = chr->x;
 		bw = cw;
@@ -4337,7 +4382,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 					     nSels && selectionStarts[ 0 ] <= i && selectionEnds[ 0 ] >= i );
 		    paintStart = i+1;
 		    paintEnd = -1;
-		    lastFormat = chr->format();
+		    formatChar = chr;
 		    lastY = cy;
 		    startX = chr->x + string()->width( i );
 		    bw = 0;
@@ -4345,7 +4390,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    chr->customItem()->resize( pntr, chr->customItem()->width );
 		    paintStart = i+1;
 		    paintEnd = -1;
-		    lastFormat = chr->format();
+		    formatChar = chr;
 		    lastY = cy;
 		    startX = chr->x + string()->width( i );
 		    bw = 0;
@@ -4379,7 +4424,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	int x = startX;
 	drawParagString( painter, qstr, paintStart, paintEnd-paintStart+1, x, lastY,
 			 lastBaseLine, bw, h, drawSelections,
-			 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
+			 formatChar, i, selectionStarts, selectionEnds, cg, lastDirection );
 	if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) &&
 	    drawSelections ) {
             // on mac selections have to extend to the right
@@ -4423,26 +4468,27 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 void QTextParag::drawParagString( QPainter &painter, const QString &s, int start, int len, int startX,
 				      int lastY, int baseLine, int bw, int h, bool drawSelections,
-				      QTextFormat *lastFormat, int i, const QMemArray<int> &selectionStarts,
+				      QTextStringChar *formatChar, int i, const QMemArray<int> &selectionStarts,
 				      const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft )
 {
     bool plainText = hasdoc ? document()->textFormat() == Qt::PlainText : FALSE;
+    QTextFormat* format = formatChar->format();
     QString str( s );
     if ( str[ (int)str.length() - 1 ].unicode() == 0xad )
 	str.remove( str.length() - 1, 1 );
-    if ( !plainText || hasdoc && lastFormat->color() != document()->formatCollection()->defaultFormat()->color() )
-	painter.setPen( QPen( lastFormat->color() ) );
+    if ( !plainText || hasdoc && format->color() != document()->formatCollection()->defaultFormat()->color() )
+	painter.setPen( QPen( format->color() ) );
     else
 	painter.setPen( cg.text() );
-    painter.setFont( lastFormat->font() );
+    painter.setFont( format->font() );
 
-    if ( hasdoc && lastFormat->isAnchor() && !lastFormat->anchorHref().isEmpty() && lastFormat->useLinkColor() ) {
+    if ( hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty() && format->useLinkColor() ) {
 	if ( document()->linkColor.isValid() )
 	    painter.setPen( document()->linkColor );
 	else
 	    painter.setPen( QPen( cg.link() ) );
 	if ( document()->underlineLinks() ) {
-	    QFont fn = lastFormat->font();
+	    QFont fn = format->font();
 	    fn.setUnderline( TRUE );
 	    painter.setFont( fn );
 	}
@@ -4469,7 +4515,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	len--;
 
     if ( str[ start ] != '\t' && str[ start ].unicode() != 0xad ) {
-	if ( lastFormat->vAlign() == QTextFormat::AlignNormal ) {
+	if ( format->vAlign() == QTextFormat::AlignNormal ) {
 	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
 #ifdef BIDI_DEBUG
 	    painter.save();
@@ -4485,13 +4531,13 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    painter.drawLine( startX + w - 1, lastY + baseLine/2, startX + w - 1 - 10, lastY + baseLine/2 );
 	    painter.restore();
 #endif
-	} else if ( lastFormat->vAlign() == QTextFormat::AlignSuperScript ) {
+	} else if ( format->vAlign() == QTextFormat::AlignSuperScript ) {
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
 	    painter.drawText( startX, lastY + baseLine - ( painter.fontMetrics().height() / 2 ),
 			      str, start, len, dir );
-	} else if ( lastFormat->vAlign() == QTextFormat::AlignSubScript ) {
+	} else if ( format->vAlign() == QTextFormat::AlignSubScript ) {
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
@@ -4501,7 +4547,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
     if ( i + 1 < length() && at( i + 1 )->lineStart && at( i )->c.unicode() == 0xad ) {
 	painter.drawText( startX + bw, lastY + baseLine, "\xad" );
     }
-    if ( lastFormat->isMisspelled() ) {
+    if ( format->isMisspelled() ) {
 	painter.save();
 	painter.setPen( QPen( Qt::red, 1, Qt::DotLine ) );
 	painter.drawLine( startX, lastY + baseLine + 1, startX + bw, lastY + baseLine + 1 );
@@ -4509,7 +4555,8 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
     }
 
     i -= len;
-    if ( hasdoc && lastFormat->isAnchor() && !lastFormat->anchorHref().isEmpty() &&
+
+    if ( hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty() &&
 	 document()->focusIndicator.parag == this &&
 	 document()->focusIndicator.start >= i &&
 	 document()->focusIndicator.start + document()->focusIndicator.len <= i + len ) {
@@ -4779,13 +4826,20 @@ QTextFormatCollection *QTextParag::formatCollection() const
 QString QTextParag::richText() const
 {
     QString s;
-    QTextFormat *lastFormat = 0;
+    QTextStringChar *formatChar = 0;
     QString spaces;
     for ( int i = 0; i < length()-1; ++i ) {
 	QTextStringChar *c = &str->at( i );
-	if ( !lastFormat || ( lastFormat->key() != c->format()->key() && c->c != ' ' ) ) {
-	    s += c->format()->makeFormatChangeTags( lastFormat );
-	    lastFormat = c->format();
+	if ( c->isAnchor() && !c->anchorName().isEmpty() )
+	    s += "<a name=\"" + c->anchorName() + "\"></a>";
+	if ( !formatChar ) {
+	    s += c->format()->makeFormatChangeTags( 0, QString::null, c->anchorHref() );
+	    formatChar = c;
+	} else if ( ( formatChar->format()->key() != c->format()->key() && c->c != ' ' ) ||
+		  (formatChar->isAnchor() != c->isAnchor() &&
+		   (!c->anchorHref().isEmpty() || !formatChar->anchorHref().isEmpty() ) ) )  {// lisp was here
+	    s += c->format()->makeFormatChangeTags( formatChar->format() , formatChar->anchorHref(), c->anchorHref() );
+	    formatChar = c;
 	}
 
 	if ( c->c == ' ' || c->c == '\t' ) {
@@ -4817,8 +4871,9 @@ QString QTextParag::richText() const
 	else
 	    s += spaces;
     }
-    if ( lastFormat )
-	s += lastFormat->makeFormatEndTags();
+
+    if ( formatChar )
+	s += formatChar->format()->makeFormatEndTags( formatChar->anchorHref() );
     return s;
 }
 
@@ -5706,7 +5761,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
     // ### hack. The last char in the paragraph is always invisible, and somehow sometimes has a wrong format. It changes between
     // layouting and printing. This corrects some layouting errors in BiDi mode due to this.
-    if ( len > 1 && ( !c->format() || !c->format()->isAnchor() ) ) {
+    if ( len > 1 && !c->isAnchor() ) {
 	c->format()->removeRef();
 	c->setFormat( string->at( len - 2 ).format() );
 	c->format()->addRef();
@@ -5897,7 +5952,7 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
 	return cachedFormat;
     }
 
-    QString key = QTextFormat::getKey( f, c, FALSE, QString::null, QString::null, QTextFormat::AlignNormal );
+    QString key = QTextFormat::getKey( f, c, FALSE,  QTextFormat::AlignNormal );
     cachedFormat = cKey.find( key );
     cfont = f;
     ccol = c;
@@ -6116,14 +6171,13 @@ static int makeLogicFontSize( int s )
 
 static QTextFormat *defaultFormat = 0;
 
-QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
+QString QTextFormat::makeFormatChangeTags( QTextFormat *f, const QString& oldAnchorHref, const QString& anchorHref  ) const
 {
-    if ( !defaultFormat )
+    if ( !defaultFormat ) // #### wrong, use the document's default format instead
 	defaultFormat = new QTextFormat( QApplication::font(),
 					     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
 
     QString tag;
-
     if ( f ) {
 	if ( f->font() != defaultFormat->font() ) {
 	    if ( f->font().family() != defaultFormat->font().family()
@@ -6137,16 +6191,12 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 	    if ( f->font().bold() && f->font().bold() != defaultFormat->font().bold() )
 		tag += "</b>";
 	}
-	if ( f->isAnchor() && !f->anchorHref().isEmpty() )
+	if ( !oldAnchorHref.isEmpty() )
 	    tag += "</a>";
     }
 
-    if ( isAnchor() ) {
-	if ( !anchor_href.isEmpty() )
-	    tag += "<a href=\"" + anchor_href + "\">";
-	else
-	    tag += "<a name=\"" + anchor_name + "\"></a>";
-    }
+    if ( !anchorHref.isEmpty() )
+	tag += "<a href=\"" + anchorHref + "\">";
 
     if ( font() != defaultFormat->font() ) {
 	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
@@ -6174,7 +6224,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
     return tag;
 }
 
-QString QTextFormat::makeFormatEndTags() const
+QString QTextFormat::makeFormatEndTags( const QString& anchorHref ) const
 {
     if ( !defaultFormat )
 	defaultFormat = new QTextFormat( QApplication::font(),
@@ -6193,7 +6243,7 @@ QString QTextFormat::makeFormatEndTags() const
 	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
 	    tag += "</b>";
     }
-    if ( isAnchor() && !anchorHref().isEmpty() )
+    if ( !anchorHref.isEmpty() )
 	tag += "</a>";
     return tag;
 }
@@ -6201,7 +6251,6 @@ QString QTextFormat::makeFormatEndTags() const
 QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr ) const
 {
     QTextFormat format(*this);
-    bool changed = FALSE;
     if ( style ) {
 	format.style = style->name();
 	if ( style->name() == "font") {
@@ -6237,12 +6286,6 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		format.fn.setFamily( a );
 	    }
 	} else {
-
-	    if ( style->isAnchor() ) {
-		format.anchor_href = attr["href"];
-		format.anchor_name = attr["name"];
-		changed = TRUE;
-	    }
 
 	    switch ( style->verticalAlignment() ) {
 	    case QStyleSheetItem::VAlignBaseline:
@@ -6280,8 +6323,6 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	}
     }
 
-    if ( fn != format.fn || changed || col != format.col ) // slight performance improvement
-	format.generateKey();
     format.update();
     return format;
 }
@@ -7974,7 +8015,7 @@ QPainter* QTextTableCell::painter() const
 
 int QTextTableCell::horizontalAlignmentOffset() const
 {
-    return parent->cellpadding + parent->innerborder;
+    return parent->cellpadding;
 }
 
 int QTextTableCell::verticalAlignmentOffset() const
