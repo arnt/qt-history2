@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#8 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#8 $");
 
 
 
@@ -553,7 +553,7 @@ QGManager::~QGManager()
 */
 
 /*!
-  \fn void  QGManager::setMenuBar( QWidget *w ) { menuBar = w; }
+  \fn void  QGManager::setMenuBar( QWidget *w )
 
   Makes the geometry manager take account of the menu bar \a w. All
   child widgets are placed below the bottom edge of the menu bar.
@@ -710,9 +710,22 @@ void QGManager::resizeAll()
     QSize max = main->maximumSize();
     QSize min = main->minimumSize();
 
+
+    // Resize menubar first to get valid size for rest of widgets to
+     // arrange themselves around.
+     
+     // size may not be set yet
+     int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
+     int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
+ 
+     if(menuBar)
+     {
+       menuBar->setGeometry(0,menuBar->y(),ww,hh);
+     }
+ 
     int mbh = menuBar ? menuBar->height() : 0;
 
-    if ( mbh != menuBarHeight ) {
+    if ( menuBar && mbh != menuBarHeight ) {
 	int ombh = menuBarHeight;
 	menuBarHeight = mbh;
 	main->setMinimumSize( min.width(), min.height() + mbh - ombh );
@@ -720,9 +733,8 @@ void QGManager::resizeAll()
 	    main->setMaximumSize( max.width(), max.height() + mbh - ombh );
     }
 
-    // size may not be set yet
-    int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
-    int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
+    ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
+    hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
 
     
     xC->distribute( lookupTable, border, ww - 2*border );

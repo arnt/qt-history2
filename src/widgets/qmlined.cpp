@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#45 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1479,8 +1479,6 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
     textDirty = FALSE;
     wordMark = FALSE;
-    if ( readOnly )
-    	return;
     int newY = findRow( m->pos().y() );
     if ( newY < 0 )
 	newY = lastRowVisible();
@@ -1510,6 +1508,8 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	}
 	updateCell( cursorY, 0, FALSE );		// ###
     }
+    if ( readOnly )
+    	return;
     if ( m->button() ==  MidButton )
 	paste();		// Will repaint the cursor line.
     if ( textDirty )
@@ -1521,7 +1521,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 */
 void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( readOnly || !dragMarking )
+    if ( !dragMarking )
 	return;
     if ( rect().contains( e->pos() ) ) {
 	if ( dragScrolling ) {
