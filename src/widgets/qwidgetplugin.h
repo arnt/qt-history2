@@ -85,7 +85,9 @@ class QWidgetContainerPluginPrivate;
 
 class Q_EXPORT QWidgetContainerPlugin : public QWidgetPlugin
 {
-    Q_OBJECT
+//MOC_SKIP_BEGIN
+Q_OBJECT
+//MOC_SKIP_END
 
 public:
     QWidgetContainerPlugin();
