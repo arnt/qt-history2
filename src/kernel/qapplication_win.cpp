@@ -2503,6 +2503,7 @@ void qt_enter_modal( QWidget *widget )
     app_do_modal = TRUE;
     qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin  ) ); // send synthetic leave event
     curWin = 0;
+    qt_button_down = 0;
     ignoreNextMouseReleaseEvent = FALSE;
 }
 
