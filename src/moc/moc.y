@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#48 $
+** $Id: //depot/qt/main/src/moc/moc.y#49 $
 **
 ** Parser and code generator for meta object compiler
 **
-** Authors : Haavard Nord and Eirik Eng
+** Authors : Eirik Eng, Haavard Nord
 ** Created : 930417
 **
-** Copyright (C) 1993 - 1995 by Troll Tech AS.	All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains the parser and code generator for the meta object
@@ -26,9 +26,6 @@
 **
 ** Notice that this code is not possible to compile with GNU bison, instead
 ** use standard AT&T yacc or Berkeley yacc.
-**
-** TODO:
-**    Clean up memory.
 *****************************************************************************/
 
 %{
@@ -40,7 +37,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#49 $";
 #endif
 
 
