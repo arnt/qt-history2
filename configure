@@ -2753,6 +2753,9 @@ if [ "$CFG_JPEG" = "no" ]; then
 elif [ "$CFG_JPEG" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
 fi
+if [ "$CFG_LIBPNG" = "no" ]; then
+    CFG_PNG="no"
+fi
 if [ "$CFG_LIBPNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-png"
     if [ "$CFG_PNG" = "yes" ]; then
