@@ -894,8 +894,7 @@ void QNetworkProtocol::removeMe()
 #ifdef QNETWORKPROTOCOL_DEBUG
 	qDebug( "QNetworkOperation:  autodelete of QNetworkProtocol %p", this );
 #endif
-	delete d->url;
-	d->url = 0;
+	delete d->url; // destructor deletes the network protocol
     }
 }
 
