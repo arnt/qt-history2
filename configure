@@ -1201,7 +1201,7 @@ Installation options:
     -no-sql-<driver> .......... Disable SQL <driver> entirely.
 
                                 Possible values for <driver>: [$SQL_AVAIL ]
-                                Detected on this system: [$SQL_AUTODETECTED ]
+                                Auto-Detected on this system: [$SQL_AUTODETECTED ]
 
     -qt-style-<style> ......... Enable a GUI <style> in the Qt Library, by 
                                 default all available are on.
