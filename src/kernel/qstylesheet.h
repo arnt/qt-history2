@@ -52,6 +52,9 @@ public:
 	DisplayInline,
 	DisplayListItem,
 	DisplayNone
+#ifndef Q_QDOC
+	, DisplayModeUndefined = -1
+#endif
     };
 
     DisplayMode displayMode() const;
@@ -105,7 +108,14 @@ public:
     bool isAnchor() const;
     void setAnchor(bool anc);
 
-    enum WhiteSpaceMode { WhiteSpaceNormal, WhiteSpacePre, WhiteSpaceNoWrap };
+    enum WhiteSpaceMode {
+	WhiteSpaceNormal,
+	WhiteSpacePre,
+	WhiteSpaceNoWrap
+#ifndef Q_QDOC
+	, WhiteSpaceModeUndefined = -1
+#endif
+    };
     WhiteSpaceMode whiteSpaceMode() const;
     void setWhiteSpaceMode(WhiteSpaceMode m);
 
@@ -118,6 +128,9 @@ public:
 	MarginAll,
 	MarginVertical,
 	MarginHorizontal
+#ifndef Q_QDOC
+	, MarginUndefined = -1
+#endif
     };
 
     int margin( Margin m) const;
@@ -130,6 +143,9 @@ public:
 	ListDecimal,
 	ListLowerAlpha,
 	ListUpperAlpha
+#ifndef Q_QDOC
+	, ListStyleUndefined = -1
+#endif
     };
 
     ListStyle listStyle() const;

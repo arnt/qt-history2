@@ -208,8 +208,8 @@ void QStyleSheetItem::init()
     d->margin[2] = Undefined;
     d->margin[3] = Undefined;
     d->margin[4] = Undefined;
-    d->list = (ListStyle) Undefined;
-    d->whitespacemode = (WhiteSpaceMode) Undefined;
+    d->list = ListStyleUndefined;
+    d->whitespacemode = WhiteSpaceModeUndefined;
     d->selfnest = TRUE;
     d->lineSpacing = Undefined;
 }

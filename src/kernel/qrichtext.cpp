@@ -1810,7 +1810,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    curtag.style = nstyle;
 		    curtag.name = tagname;
 		    curtag.style = nstyle;
-		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined )
+		    if ( nstyle->whiteSpaceMode()  != QStyleSheetItem::WhiteSpaceModeUndefined )
 			curtag.wsm = nstyle->whiteSpaceMode();
 
 		    /* netscape compatibility: eat a newline and only a newline if a pre block starts */
@@ -1838,7 +1838,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			curtag.alignment = nstyle->alignment();
 
-		    if ( (int) nstyle->listStyle() != QStyleSheetItem::Undefined )
+		    if ( nstyle->listStyle() != QStyleSheetItem::ListStyleUndefined )
 			curtag.liststyle = nstyle->listStyle();
 
 		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock
@@ -2096,7 +2096,7 @@ void QTextDocument::setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *
 	int numLists = 0;
 	for ( i = 0; i < (int)curStyle->size(); ++i ) {
 	    if ( (*curStyle)[ i ]->displayMode() == QStyleSheetItem::DisplayBlock
-		 && int((*curStyle)[ i ]->listStyle()) != QStyleSheetItem::Undefined )
+		 && (*curStyle)[ i ]->listStyle() != QStyleSheetItem::ListStyleUndefined )
 		numLists++;
 	}
 	stylesPar->ldepth = numLists;
@@ -2105,7 +2105,7 @@ void QTextDocument::setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *
 	    numLists = 0;
 	    for ( i = 0; i < (int)nextStyle->size(); ++i ) {
 		if ( (*nextStyle)[ i ]->displayMode() == QStyleSheetItem::DisplayBlock
-		     && int((*nextStyle)[ i ]->listStyle()) != QStyleSheetItem::Undefined )
+		     && (*nextStyle)[ i ]->listStyle() != QStyleSheetItem::ListStyleUndefined )
 		    numLists++;
 	    }
 	    stylesPar->next()->ldepth = numLists;
@@ -2132,7 +2132,7 @@ void QTextDocument::setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *
 		    (*prevStyle)[ i ] == item ) )
 		break;
 	    // emulate CSS2' standard 0 vertical margin for multiple ul or ol tags
- 	    if ( int(item->listStyle()) != QStyleSheetItem::Undefined  &&
+ 	    if ( item->listStyle() != QStyleSheetItem::ListStyleUndefined  &&
 		 ( (  i> 0 && (*curStyle)[ i-1 ] == item ) || (*curStyle)[i+1] == item ) )
 		continue;
 	    mar = qMax( 0, item->margin( QStyleSheetItem::MarginTop ) );
@@ -2160,7 +2160,7 @@ void QTextDocument::setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *
 		    (*nextStyle)[ i ] == item ) )
 		break;
 	    // emulate CSS2' standard 0 vertical margin for multiple ul or ol tags
- 	    if ( int(item->listStyle()) != QStyleSheetItem::Undefined  &&
+ 	    if ( item->listStyle() != QStyleSheetItem::ListStyleUndefined  &&
 		 ( (  i> 0 && (*curStyle)[ i-1 ] == item ) || (*curStyle)[i+1] == item ) )
 		continue;
 	    mar = qMax(0, item->margin( QStyleSheetItem::MarginBottom ) );
