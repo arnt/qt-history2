@@ -63,7 +63,7 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
 // NOT REVISED
 /*! \class QSizeGrip qsizegrip.h
 
-  \brief The QSizeGrip class provides corner-grip for resizeing a top level
+  \brief The QSizeGrip class provides corner-grip for resizing a top level
 	    window.
 
   \ingroup application
