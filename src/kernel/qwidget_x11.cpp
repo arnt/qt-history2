@@ -1248,7 +1248,7 @@ void QWidget::setActiveWindow()
   This function does not cause an immediate repaint - rather, it
   schedules a paint event for processing when Qt returns to the main
   event loop. This permits Qt to optimize for more speed and less
-  flicker and a call to repaint() does.
+  flicker than a call to repaint() does.
 
   Calling update() several times normally results in just one
   paintEvent() call.

@@ -3133,7 +3133,7 @@ QRect QCanvasSprite::boundingRect() const
 
 
 /*!
-  \intenal
+  \internal
   Returns the chunks covered by the item.
 */
 QPointArray QCanvasItem::chunks() const
@@ -3258,7 +3258,7 @@ void QCanvasSprite::draw(QPainter& painter)
     wm.scale( 2, 2 );   // Zooms in by 2 times
     wm.rotate( 90 );    // Rotates 90 degrees counter clockwise
     			// around the origin.
-    wm.translate( 0, -canvas->height() );  
+    wm.translate( 0, -canvas->height() );
     			// moves the canvas down so what was visible
     			// before is still visible.
     myCanvasView->setWorldMatrix( wm );
@@ -3444,9 +3444,9 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 	    p->eraseRect(viewing->width(), cy,
 		    cx + cw - viewing->width(), ch);
 	if (viewing->height() < (cy + ch))
-	    p->eraseRect(cx, viewing->height(), cw, 
+	    p->eraseRect(cx, viewing->height(), cw,
 		    cy + ch - viewing->height());
-	
+
 	d->repaint_from_moving = FALSE;
     } else {
 	p->eraseRect(r);

@@ -734,7 +734,7 @@ Internal flags.
 
   Example:
   \code
-    QLabel *spashScreen = new QLabel( 0, "mySplashScreen",
+    QLabel *splashScreen = new QLabel( 0, "mySplashScreen",
 				  WStyle_Customize | WStyle_NoBorder |
 				  WStyle_Tool );
   \endcode
