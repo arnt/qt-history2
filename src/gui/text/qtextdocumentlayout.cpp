@@ -1599,8 +1599,7 @@ Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
 /* used from QLabel */
 void QTextDocumentLayout::adjustSize()
 {
-    // ##### use default doc font
-    QFont f;
+    QFont f = document()->defaultFont();
     QFontMetrics fm(f);
     int mw =  fm.width('x') * 80;
     int w = mw;
