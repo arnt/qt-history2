@@ -1280,7 +1280,7 @@ bool QVNCScreen::initDevice()
     hdr->dirty = FALSE;
     memset( qvnc_screen->hdr->map, 0, MAP_WIDTH*MAP_HEIGHT );
 
-    return true;
+    return TRUE;
 }
 
 void QVNCScreen::shutdownDevice()
@@ -1293,7 +1293,7 @@ void QVNCScreen::shutdownDevice()
 int QVNCScreen::initCursor(void* e, bool init)
 {
 #ifndef QT_NO_QWS_CURSOR
-    qt_sw_cursor=true;
+    qt_sw_cursor=TRUE;
     // ### until QLumpManager works Ok with multiple connected clients,
     // we steal a chunk of shared memory
     SWCursorData *data = (SWCursorData *)e - 1;
