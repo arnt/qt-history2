@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#15 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <qmemchk.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#15 $")
 
 
 // --------------------------------------------------------------------------
@@ -35,8 +35,7 @@ static HANDLE	appInst;			// handle to app instance
 static HANDLE	appPrevInst;			// handle to prev app instance
 static int	appCmdShow;			// main window show command
 static int	numZeroTimers = 0;		// number of full-speed timers
-static HWND	curWin = 0;			// current window
-static QWidget *curWidget;
+static HWND	curWin	  = 0;			// current window
 static HANDLE	displayDC = 0;			// display device context
 static QWidget *desktopWidget	= 0;		// desktop window widget
 #if defined(USE_HEARTBEAT)
@@ -577,6 +576,7 @@ int QApplication::enter_loop()			// local event loop
 		POINT p;
 		GetCursorPos( &p );
 		if ( WindowFromPoint( p ) != curWin ) {
+		    QWidget *curWidget = QWidget::find(curWin);
 		    QEvent leave( Event_Leave );
 		    QApplication::sendEvent( curWidget, &leave );
 		    curWin = 0;
@@ -678,6 +678,8 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 
 	case WM_KEYDOWN:			// keyboard event
 	case WM_KEYUP:
+	case WM_SYSKEYDOWN:
+	case WM_SYSKEYUP:
 	case WM_CHAR: {
 	    QWidget *w = QWidget::keyboardGrabber();
 	    if ( w )
@@ -927,8 +929,10 @@ void qt_open_popup( QWidget *popup )		// add popup widget
 	CHECK_PTR( popupWidgets );
     }
     popupWidgets->append( popup );		// add to end of list
-    if ( popupWidgets->count() == 1 && !qt_nograb() ) // grab mouse/keyboard
-	SetCapture( popup->id() );
+    if ( popupWidgets->count() == 1 && !qt_nograb() ) {
+	SetCapture( popup->id() );		// grab mouse/keyboard
+	popup->grabKeyboard();
+    }
 }
 
 void qt_close_popup( QWidget *popup )		// remove popup widget
@@ -941,8 +945,10 @@ void qt_close_popup( QWidget *popup )		// remove popup widget
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
-	if ( !qt_nograb() )			// grabbing not disabled
+	if ( !qt_nograb() ) {			// grabbing not disabled
 	    ReleaseCapture();
+	    popup->releaseKeyboard();
+	}
     }
 }
 
@@ -1191,8 +1197,8 @@ static int translateButtonState( int s )
 	bst |= ShiftButton;
     if ( s & MK_CONTROL )
 	bst |= ControlButton;
-// NOTE:	if ( s & (Mod1Mask | Mod2Mask) )
-//	bst |= AltButton;
+    if ( GetKeyState(VK_MENU) < 0 )
+	bst |= AltButton;
     return bst;
 }
 
@@ -1224,11 +1230,13 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    SetCursor( cursor().handle() );
 	if ( curWin != id() ) {			// new current window
 	    if ( curWin ) {			// send leave event
-		QEvent leave( Event_Leave );
-		QApplication::sendEvent( curWidget, &leave );
+		QWidget *curWidget = QWidget::find(curWin);
+		if ( curWidget ) {
+		    QEvent leave( Event_Leave );
+		    QApplication::sendEvent( curWidget, &leave );
+		}
 	    }
 	    curWin = id();
-	    curWidget = this;
 	    QEvent enter( Event_Enter );	// send enter event
 	    QApplication::sendEvent( this, &enter );
 	}
@@ -1350,6 +1358,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 	state |= ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
 	state |= ControlButton;
+    if ( GetKeyState(VK_MENU) < 0 )
+	state |= AltButton;
 
     if ( msg.message == WM_CHAR ) {		// translated keyboard code
 	type = Event_KeyPress;
@@ -1365,7 +1375,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 	code = translateKeyCode( msg.wParam );
 	if ( code == 0 )
 	    return FALSE;			// virtual key not found
-	type = msg.message == WM_KEYDOWN ?
+	type = msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ?
 	       Event_KeyPress : Event_KeyRelease;
     }
     QKeyEvent e( type, code, ascii, state );

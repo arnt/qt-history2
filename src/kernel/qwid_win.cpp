@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#16 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#16 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -81,7 +81,7 @@ bool QWidget::create()				// create widget
 	setWFlags(WStyle_MinMax);
     }
     if ( !desktop )
-	style |= WS_CLIPSIBLINGS /* | WS_CLIPCHILDREN */;
+	style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
     if ( testWFlags(WStyle_Border) )
 	style |= WS_BORDER;
     if ( testWFlags(WStyle_Title) )
@@ -122,7 +122,7 @@ bool QWidget::create()				// create widget
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentwin, 0,
 				 qWinAppInst(), 0 );
- 	set_id( id );
+	set_id( id );
 	if ( popup ) {
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100,
 			  SWP_NOACTIVATE );

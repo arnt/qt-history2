@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#21 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,8 +20,47 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#21 $")
 
+
+// --------------------------------------------------------------------------
+// QPainter internal functions
+//
+
+static inline int d2i_round( double d )
+{
+    return d > 0 ? int(d+0.5) : int(d-0.5);
+}
+
+
+// --------------------------------------------------------------------------
+// QPainter internal pen and brush cache
+//
+// The cache makes a significant contribution to speeding up drawing.
+// Setting a new pen or brush specification will make the painter look for
+// an existing pen or brush with the same attributes instead of creating
+// a new pen or brush.
+//
+// Only solid line pens with line width 0 and solid brushes will be cached.
+//
+// The cache structure is not ideal, but lookup speed is essential here.
+// Experiments show that the cache is very effective under normal use.
+//
+
+struct QHDCObj					// cached pen or brush
+{
+    HANDLE  obj;
+    ulong   pix;
+    int	    count;
+    int	    hits;
+};
+
+const int	cache_size = 29;		// multiply by 4
+static QHDCObj *pen_cache_buf;
+static QHDCObj *pen_cache[4*cache_size];
+static QHDCObj *brush_cache_buf;
+static QHDCObj *brush_cache[4*cache_size];
+static bool	cache_init = FALSE;
 
 static HANDLE stock_nullPen;
 static HANDLE stock_blackPen;
@@ -31,11 +70,189 @@ static HANDLE stock_blackBrush;
 static HANDLE stock_whiteBrush;
 static HANDLE stock_font;
 
+static QHDCObj stock_dummy;
+static void  *stock_ptr = (void *)&stock_dummy;
 
-static inline int d2i_round( double d )
+
+static void init_cache()
 {
-    return d > 0 ? int(d+0.5) : int(d-0.5);
+    if ( cache_init )
+	return;
+    int i;
+    QHDCObj *h;
+    cache_init = TRUE;
+    h = pen_cache_buf = new QHDCObj[4*cache_size];
+    memset( h, 0, 4*cache_size*sizeof(QHDCObj) );
+    for ( i=0; i<4*cache_size; i++ )
+	pen_cache[i] = h++;
+    h = brush_cache_buf = new QHDCObj[4*cache_size];
+    memset( h, 0, 4*cache_size*sizeof(QHDCObj) );
+    for ( i=0; i<4*cache_size; i++ )
+	brush_cache[i] = h++;
 }
+
+
+#define CACHE_STAT
+#if defined(CACHE_STAT)
+#include "qtstream.h"
+
+static int c_numhits	= 0;
+static int c_numcreates = 0;
+static int c_numfaults	= 0;
+#endif
+
+
+static void cleanup_cache()
+{
+    if ( !cache_init )
+	return;
+    int i;
+#if defined(CACHE_STAT)
+    debug( "Number of cache hits = %d", c_numhits );
+    debug( "Number of cache creates = %d", c_numcreates );
+    debug( "Number of cache faults = %d", c_numfaults );
+    debug( "PEN CACHE" );
+    for ( i=0; i<cache_size; i++ ) {
+	QString	    str;
+	QTextStream s(str,IO_WriteOnly);
+	s << i << ": ";
+	for ( int j=0; j<4; j++ ) {
+	    QHDCObj *h = pen_cache[i*4+j];
+	    s << (h->obj ? 'X' : '-') << ',' << h->hits << ','
+	      << h->count << '\t';
+	}
+	s << '\0';
+	debug( str );
+    }
+    debug( "BRUSH CACHE" );
+    for ( i=0; i<cache_size; i++ ) {
+	QString	    str;
+	QTextStream s(str,IO_WriteOnly);
+	s << i << ": ";
+	for ( int j=0; j<4; j++ ) {
+	    QHDCObj *h = brush_cache[i*4+j];
+	    s << (h->obj ? 'X' : '-') << ',' << h->hits << ','
+	      << h->count << '\t';
+	}
+	s << '\0';
+	debug( str );
+    }
+#endif
+    for ( i=0; i<4*cache_size; i++ ) {
+	if ( pen_cache[i]->obj )
+	    DeleteObject( pen_cache[i]->obj );
+	if ( brush_cache[i]->obj )
+	    DeleteObject( brush_cache[i]->obj );
+    }
+    delete [] pen_cache_buf;
+    delete [] brush_cache_buf;
+    cache_init = FALSE;
+}
+
+
+static bool obtain_obj( void **ref, HANDLE *obj, ulong pix, QHDCObj **cache,
+			bool is_pen )
+{
+    if ( !cache_init )
+	init_cache();
+
+    int k = (pix % cache_size) * 4;
+    // noe bedre ( (((pix >> 12) & 0xc0) + ((pix >> 6) & 0x3c) + ((pix >> 4) & 0x0f)) % cache_size) * 4;
+    // temmelig dårlig (((pix >> 15) ^ (pix >> 9) ^ pix) % cache_size) * 4;
+
+    QHDCObj *h = cache[k++];
+    QHDCObj *prev = 0;
+
+#define NOMATCH (h->obj && h->pix != pix)
+
+    if ( NOMATCH ) {
+	prev = h;
+	h = cache[k++];
+	if ( NOMATCH ) {
+	    prev = h;
+	    h = cache[k++];
+	    if ( NOMATCH ) {
+		prev = h;
+		h = cache[k++];
+		if ( NOMATCH ) {
+		    if ( h->count == 0 ) {	// steal this pen/brush
+#if defined(CACHE_STAT)
+			c_numcreates++;
+#endif
+			h->pix	 = pix;
+			h->count = 1;
+			h->hits	 = 1;
+			DeleteObject( h->obj );
+			if ( is_pen )
+			    h->obj = CreatePen( PS_SOLID, 0, pix );
+			else
+			    h->obj = CreateSolidBrush( pix );
+			cache[k-1] = prev;
+			cache[k-2] = h;
+			*ref = (void *)h;
+			*obj = h->obj;
+			return TRUE;
+		    }
+		    else {			// all objects in use
+#if defined(CACHE_STAT)
+			c_numfaults++;
+#endif
+			*ref = 0;
+			return FALSE;
+		    }
+		}
+	    }
+	}
+    }
+
+#undef NOMATCH
+
+    *ref = (void *)h;
+
+    if ( h->obj ) {				// reuse existing pen/brush
+#if defined(CACHE_STAT)
+	c_numhits++;
+#endif
+	*obj = h->obj;
+	h->count++;
+	h->hits++;
+	if ( prev && h->hits > prev->hits ) {	// maintain LRU order
+	    cache[k-1] = prev;
+	    cache[k-2] = h;
+	}
+    }
+    else {					// create new pen/brush
+#if defined(CACHE_STAT)
+	c_numcreates++;
+#endif
+	if ( is_pen )
+	    h->obj = CreatePen( PS_SOLID, 0, pix );
+	else
+	    h->obj = CreateSolidBrush( pix );
+	h->pix	 = pix;
+	h->count = 1;
+	h->hits	 = 1;
+	*obj = h->obj;
+    }
+    return TRUE;
+}
+
+static inline void release_obj( void *ref )
+{
+#if defined(DEBUG)
+    ASSERT( cache_init && ref );
+#endif
+    ((QHDCObj*)ref)->count--;
+}
+
+static inline bool obtain_pen( void **ref, HANDLE *pen, ulong pix )
+{ return obtain_obj( ref, pen, pix, pen_cache, TRUE ); }
+
+static inline bool obtain_brush( void **ref, HANDLE *brush, ulong pix )
+{ return obtain_obj( ref, brush, pix, brush_cache, FALSE ); }
+
+#define release_pen	release_obj
+#define release_brush	release_obj
 
 
 // --------------------------------------------------------------------------
@@ -51,10 +268,12 @@ void QPainter::initialize()
     stock_blackBrush = GetStockObject( BLACK_BRUSH );
     stock_whiteBrush = GetStockObject( WHITE_BRUSH );
     stock_font	     = GetStockObject( SYSTEM_FONT );
+    init_cache();
 }
 
 void QPainter::cleanup()
 {
+    cleanup_cache();
 }
 
 
@@ -96,10 +315,9 @@ QPainter::QPainter()
     tabarray = 0;
     tabarraylen = 0;
     ps_stack = 0;
-    hpen = hbrush = 0;
-#if defined(USE_CACHE)
+    hdc = hpen = hbrush = hbrushbm = 0;
+    pixmapBrush = nocolBrush = FALSE;
     penRef = brushRef = 0;
-#endif
     tm = 0;
 }
 
@@ -122,7 +340,7 @@ void QPainter::setFont( const QFont &font )
 {
     if ( cfont.d != font.d ) {
 	cfont = font;
-	setf(DirtyFont);
+	updateFont();
     }
 }
 
@@ -153,29 +371,43 @@ void QPainter::updatePen()
 	    return;
     }
 
-    HANDLE hpen_old	= hpen;
-    bool   stockPen_old = stockPen;
+    int	   ps	   = cpen.style();
+    ulong  pix	   = cpen.color().pixel();
+    bool   cacheIt = ps == NoPen || (ps == SolidLine && cpen.width() == 0);
+    HANDLE hpen_old;
 
-    int	   s = PS_NULL;
-    QColor c = cpen.color();
-    stockPen = FALSE;
+    if ( penRef ) {
+	release_pen( penRef );
+	penRef = 0;
+	hpen_old = 0;
+    }
+    else
+	hpen_old = hpen;
 
-    switch ( cpen.style() ) {
-	case NoPen:
+    if ( cacheIt ) {
+	if ( ps == NoPen ) {
 	    hpen = stock_nullPen;
-	    stockPen = TRUE;
-	    break;
+	    penRef = stock_ptr;
+	    SelectObject( hdc, hpen );
+	    SetTextColor( hdc, pix );
+	    if ( hpen_old )
+		DeleteObject( hpen_old );
+	    return;
+	}
+	if ( obtain_pen(&penRef, &hpen, pix) ) {
+	    SelectObject( hdc, hpen );
+	    SetTextColor( hdc, pix );
+	    if ( hpen_old )
+		DeleteObject( hpen_old );
+	    return;
+	}
+    }
+
+    int s;
+
+    switch ( ps ) {
 	case SolidLine:
-	    if ( c == black ) {
-		hpen = stock_blackPen;
-		stockPen = TRUE;
-	    }
-	    else if ( c == white ) {
-		hpen = stock_whitePen;
-		stockPen = TRUE;
-	    }
-	    else
-		s = PS_SOLID;
+	    s = PS_SOLID;
 	    break;
 	case DashLine:
 	    s = PS_DASH;
@@ -189,13 +421,17 @@ void QPainter::updatePen()
 	case DashDotDotLine:
 	    s = PS_DASHDOTDOT;
 	    break;
+	default:
+	    s = PS_SOLID;
+#if defined(DEBUG)
+	    warning( "QPainter::updatePen: Invalid pen style" );
+#endif
     }
 
-    if ( !stockPen )
-	hpen = CreatePen( s, cpen.width(), c.pixel() );
-    SetTextColor( hdc, c.pixel() );		// pen color is also text color
+    hpen = CreatePen( s, cpen.width(), pix );
+    SetTextColor( hdc, pix );			// pen color is also text color
     SelectObject( hdc, hpen );
-    if ( hpen_old && !stockPen_old )		// delete last pen
+    if ( hpen_old )				// delete last pen
 	DeleteObject( hpen_old );
 }
 
@@ -219,46 +455,71 @@ void QPainter::updateBrush()
 	    return;
     }
 
-    HANDLE hbrush_old	   = hbrush;
+    int	   bs	   = cbrush.style();
+    QColor c	   = cbrush.color();
+    bool   cacheIt = bs == NoBrush || bs == SolidPattern;
+    HANDLE hbrush_old;
+
+    if ( brushRef ) {
+	release_brush( brushRef );
+	brushRef = 0;
+	hbrush_old = 0;
+    }
+    else
+	hbrush_old = hbrush;
+
+    if ( cacheIt ) {
+	if ( bs == NoBrush ) {
+	    hbrush = stock_nullBrush;
+	    brushRef = stock_ptr;
+	    SelectObject( hdc, hbrush );
+	    if ( hbrush_old ) {
+		DeleteObject( hbrush_old );
+		if ( hbrushbm && !pixmapBrush )
+		    DeleteObject( hbrushbm );
+		hbrushbm = 0;
+		pixmapBrush = nocolBrush = FALSE;
+	    }
+	    return;
+	}
+	if ( obtain_brush(&brushRef, &hbrush, c.pixel()) ) {
+	    SelectObject( hdc, hbrush );
+	    if ( hbrush_old ) {
+		DeleteObject( hbrush_old );
+		if ( hbrushbm && !pixmapBrush )
+		    DeleteObject( hbrushbm );
+		hbrushbm = 0;
+		pixmapBrush = nocolBrush = FALSE;
+	    }
+	    return;
+	}
+    }
+
     HANDLE hbrushbm_old	   = hbrushbm;
-    bool   stockBrush_old  = stockBrush;
     bool   pixmapBrush_old = pixmapBrush;
 
-    int	   s = cbrush.style();
-    QColor c = cbrush.color();
-    stockBrush	= TRUE;
     pixmapBrush = nocolBrush = FALSE;
     hbrushbm = 0;
 
-    if ( s == NoBrush )				// no brush
-	hbrush = stock_nullBrush;
-    else if ( s == SolidPattern ) {		// create solid brush
-	if ( c == black )
-	    hbrush = stock_blackBrush;
-	else if ( c == white )
-	    hbrush = stock_whiteBrush;
-	else {
-	    hbrush = CreateSolidBrush( c.pixel() );
-	    stockBrush = FALSE;
-	}
-    }
-    else if ( (s >= Dense1Pattern && s <= Dense7Pattern ) ||
-	      (s == CustomPattern) ) {
-	if ( s == CustomPattern ) {
+    if ( bs == SolidPattern )			// create solid brush
+	hbrush = CreateSolidBrush( c.pixel() );
+    else if ( (bs >= Dense1Pattern && bs <= Dense7Pattern ) ||
+	      (bs == CustomPattern) ) {
+	if ( bs == CustomPattern ) {
 	    hbrushbm = cbrush.pixmap()->hbm();
 	    pixmapBrush = TRUE;
 	    nocolBrush = cbrush.pixmap()->depth() == 1;
 	}
 	else {
-	    short *bm = dense_patterns[ s - Dense1Pattern ];
+	    short *bm = dense_patterns[ bs - Dense1Pattern ];
 	    hbrushbm = CreateBitmap( 8, 8, 1, 1, bm );
 	    nocolBrush = TRUE;
 	}
 	hbrush = CreatePatternBrush( hbrushbm );
-	stockBrush = FALSE;
     }
     else {					// one of the hatch brushes
-	switch ( s ) {
+	int s;
+	switch ( bs ) {
 	    case HorPattern:
 		s = HS_HORIZONTAL;
 		break;
@@ -281,15 +542,15 @@ void QPainter::updateBrush()
 		s = HS_HORIZONTAL;
 	}
 	hbrush = CreateHatchBrush( s, c.pixel() );
-	stockBrush = FALSE;
     }
 
     SelectObject( hdc, hbrush );
 
-    if ( hbrush_old && !stockBrush_old )
+    if ( hbrush_old ) {
 	DeleteObject( hbrush_old );		// delete last brush
-    if ( hbrushbm_old && !pixmapBrush_old )
-	DeleteObject( hbrushbm_old );		// delete last brush pixmap
+	if ( hbrushbm_old && !pixmapBrush_old )
+	    DeleteObject( hbrushbm_old );	// delete last brush pixmap
+    }
 }
 
 
@@ -326,8 +587,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     else if ( dt == PDT_PIXMAP )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify pixmap
 
-    hpen = hbrush = hbrushbm = 0;
-    stockPen = stockBrush = pixmapBrush = nocolBrush = xfFont = 0;
+    xfFont = FALSE;
     hdc = 0;
 
     if ( testf(ExtDev) ) {			// external device
@@ -342,7 +602,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
 
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
-    bro = curPt = QPoint( 0, 0 );
+    bro = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
@@ -420,7 +680,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	SetBkMode( hdc, TRANSPARENT );		// set background mode
 	SetROP2( hdc, R2_COPYPEN );		// set raster operation
 	SetTextAlign( hdc, TA_BASELINE );	// baseline-aligned text
-	SetStretchBltMode( hdc, COLORONCOLOR );	// pixmap stretch mode
+	SetStretchBltMode( hdc, COLORONCOLOR ); // pixmap stretch mode
 	if ( QColor::hPal() ) {			// realize global palette
 	    SelectPalette( hdc, QColor::hPal(), FALSE );
 	    RealizePalette( hdc );
@@ -445,19 +705,34 @@ bool QPainter::end()
     if ( testf(FontInf) )			// remove references to this
 	QFontInfo::reset( this );
 
-    if ( tm ) {					// delete old text metrics
-	delete tm;
-	tm = 0;
+    if ( hpen ) {
+	SelectObject( hdc, stock_nullPen );
+	if ( penRef ) {
+	    release_pen( penRef );
+	    penRef = 0;
+	}
+	else
+	    DeleteObject( hpen );
+	hpen = 0;
     }
-    if ( hpen && !stockPen )
-	DeleteObject( SelectObject(hdc,stock_nullPen) );
-    if ( hbrush && !stockBrush ) {
-	DeleteObject( SelectObject(hdc,stock_nullBrush) );
-	if ( hbrushbm && !pixmapBrush )
-	    DeleteObject( hbrushbm );
+    if ( hbrush ) {
+	SelectObject( hdc, stock_nullBrush );
+	if ( brushRef ) {
+	    release_brush( brushRef );
+	    brushRef = 0;
+	}
+	else {
+	    DeleteObject( hbrush );
+	    if ( hbrushbm && !pixmapBrush )
+		DeleteObject( hbrushbm );
+	}
+	hbrush = hbrushbm = 0;
+	pixmapBrush = nocolBrush = FALSE;
     }
+
     if ( testf(ExtDev) )
 	pdev->cmd( PDC_END, this, 0 );
+
     if ( pdev->devType() == PDT_WIDGET ) {
 	if ( !((QWidget*)pdev)->testWFlags(WState_Paint) )
 	    ReleaseDC( ((QWidget*)pdev)->id(), hdc );
@@ -468,6 +743,12 @@ bool QPainter::end()
 	if ( pm->isOptimized() )
 	    pm->allocMemDC();
     }
+
+    if ( tm ) {					// delete old text metrics
+	delete tm;
+	tm = 0;
+    }
+
     flags = 0;
     pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
@@ -593,7 +874,8 @@ void QPainter::updateXForm()
 	m.eM22 = wxmat.m22();
 	m.eDx  = wxmat.dx();
 	m.eDy  = wxmat.dy();
-	SetGraphicsMode( hdc, GM_ADVANCED );
+//	SetGraphicsMode( hdc, GM_ADVANCED );
+	SetGraphicsMode( hdc, GM_COMPATIBLE );
 	SetWorldTransform( hdc, &m );
 #endif
     }
@@ -806,8 +1088,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	else
 	    y2--;
     }
-    else
-    if ( y1 == y2 ) {				// horizontal
+    else if ( y1 == y2 ) {			// horizontal
 	if ( x1 < x2 )
 	    x2++;
 	else
@@ -1209,6 +1490,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     bool tmp_dc = pm->handle() == 0;
     if ( tmp_dc )
 	pm->allocMemDC();
+#if defined(MASK_WILL_BE_IN_PIXMAP)
     if ( pm->depth() == 1 && bg_mode == TransparentMode )
 	MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, pm->hbm(),
 		 sx, sy, 0xccaa0000 );
@@ -1218,6 +1500,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCPAINT );
 #endif
     else
+#endif
 	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
     if ( tmp_dc )
 	pm->freeMemDC();
@@ -1642,7 +1925,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
 	if ( clip_on )				// set original region
-	    setClipRegion( crgn );
+	    setClipRegion( save_rgn );
 	else {					// clipping was off
 	    crgn = save_rgn;
 	    SelectClipRgn( hdc, 0 );
