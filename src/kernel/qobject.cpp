@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#29 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#29 $";
 #endif
 
 
@@ -75,7 +75,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#28 $";
 /*! \fn bool QObject::isWidgetType() const
   Returns TRUE if the object is a widget, FALSE if not. */
 
-/*! \fn bool highPriority() const
+/*! \fn bool QObject::highPriority() const
   Returns TRUE if the object is high priority.  High priority objects
   are placed first in an object's list of children, on the assumption
   that they'll be referenced very often.
