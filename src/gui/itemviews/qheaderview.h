@@ -51,6 +51,11 @@ public:
     int sectionSize(int section) const;
     int sectionPosition(int section) const;
 
+    inline int sectionAt(int x, int y) const
+        { return orientation() == Qt::Horizontal ? sectionAt(x) : sectionAt(y); }
+    inline int sectionAt(QPoint pos) const
+        { return sectionAt(pos.x(), pos.y()); }
+
     void moveSection(int from, int to);
     void resizeSection(int section, int size);
 
@@ -124,9 +129,6 @@ protected:
     virtual QSize sectionSizeFromContents(int section) const;
 
     QModelIndex itemAt(int x, int y) const;
-    inline int sectionAt(int x, int y) const
-    { return orientation() == Qt::Horizontal ? sectionAt(x) : sectionAt(y); }
-    inline int sectionAt(QPoint pos) const { return sectionAt(pos.x(), pos.y()); }
 
     int horizontalOffset() const;
     int verticalOffset() const;
