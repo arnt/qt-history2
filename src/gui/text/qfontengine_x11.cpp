@@ -492,7 +492,12 @@ QFontEngineXft::QFontEngineXft(XftFont *font)
     rbearing = SHRT_MIN;
 
     memset(cmapCache, 0, sizeof(cmapCache));
-    memset(widthCache, 0, sizeof(widthCache));
+    advanceCache = (float *)malloc(256*sizeof(float));
+    advanceCacheSize = 256;
+    for (uint i = 0; i < advanceCacheSize; ++i)
+        advanceCache[i] = -1000000.;
+    designAdvanceCacheSize = 0;
+    designAdvanceCache = 0;
 }
 
 QFontEngineXft::~QFontEngineXft()
@@ -509,6 +514,9 @@ QFontEngineXft::~QFontEngineXft()
         trf = trf->next;
         delete tmp;
     }
+    free(advanceCache);
+    if (designAdvanceCache)
+        free(designAdvanceCache);
 }
 
 QFontEngine::FECaps QFontEngineXft::capabilites() const
@@ -539,8 +547,8 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
            glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
            if ( !glyphs[i].glyph ) {
                glyph_t glyph = XftCharIndex(0, _font, uc);
-                if (!glyph)
-                    glyph = getAdobeCharIndex(_font, _cmap, uc);
+               if (!glyph)
+                   glyph = getAdobeCharIndex(_font, _cmap, uc);
               glyphs[i].glyph = glyph;
                if ( uc < cmapCacheSize )
                    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -582,12 +590,22 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
-    if (flags & QTextEngine::DesignMetrics) {
+    if (1 || flags & QTextEngine::DesignMetrics) {
         FT_Face face = XftLockFace(_font);
         for (int i = 0; i < len; i++) {
             FT_UInt glyph = glyphs[i].glyph;
-            FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING);
-            glyphs[i].advance.rx() = face->glyph->metrics.horiAdvance/64.;
+            if (glyph >= designAdvanceCacheSize) {
+                int newSize = ((glyph+255)>>8 << 8);
+                designAdvanceCache = (float *)realloc(designAdvanceCache, newSize*sizeof(float));
+                for (int i = designAdvanceCacheSize; i < newSize; ++i)
+                    designAdvanceCache[i] = -1000000.;
+                designAdvanceCacheSize = newSize;
+            }
+            if (designAdvanceCache[glyph] < -999999.) {
+                FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING);
+                designAdvanceCache[glyph] = face->glyph->metrics.horiAdvance/64.;
+            }
+            glyphs[i].advance.rx() = designAdvanceCache[glyph];
             glyphs[i].advance.ry() = 0.;
         }
         XftUnlockFace(_font);
@@ -598,20 +616,20 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::
     } else {
         for (int i = 0; i < len; i++) {
             FT_UInt glyph = glyphs[i].glyph;
-            if (glyph < widthCacheSize) {
-                glyphs[i].advance.rx() = widthCache[glyph].x;
-                glyphs[i].advance.ry() = widthCache[glyph].y;
+            if (glyph >= advanceCacheSize) {
+                int newSize = ((glyph+256)>>8 << 8);
+                advanceCache = (float *)realloc(advanceCache, newSize*sizeof(float));
+                for (int i = advanceCacheSize; i < newSize; ++i)
+                    advanceCache[i] = -1000000.;
+                advanceCacheSize = newSize;
             }
-            if (!glyphs[i].advance.x()) {
+            if (advanceCache[glyph] < -999999.) {
                 XGlyphInfo gi;
-                XftGlyphExtents(QX11Info::display(), _font, &glyph, 1, &gi);
-                glyphs[i].advance.rx() = gi.xOff;
-                glyphs[i].advance.ry() = gi.yOff;
-                if (glyph < widthCacheSize) {
-                    widthCache[glyph].x = gi.xOff;
-                    widthCache[glyph].y = gi.yOff;
-                }
+                XftGlyphExtents(X11->display, _font, &glyph, 1, &gi);
+                advanceCache[glyph] = gi.xOff;
             }
+            glyphs[i].advance.rx() = advanceCache[glyph];
+            glyphs[i].advance.ry() = 0;
         }
         if (_scale != 1.) {
             for (int i = 0; i < len; i++)

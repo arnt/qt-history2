@@ -159,8 +159,11 @@ private:
     qreal lbearing;
     qreal rbearing;
 
-    enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    mutable struct { qreal x; qreal y; } widthCache[widthCacheSize];
+    enum { cmapCacheSize = 0x500 };
+    mutable uint advanceCacheSize;
+    mutable float *advanceCache;
+    mutable uint designAdvanceCacheSize;
+    mutable float *designAdvanceCache;
     glyph_t cmapCache[cmapCacheSize];
 };
 
