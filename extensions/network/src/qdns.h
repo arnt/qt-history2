@@ -65,6 +65,7 @@ public:
     // to query for replies
     QValueList<QHostAddress> addresses() const;
 
+#if 0
     class MailServer {
     public:
 	MailServer( const QString & n_, Q_UINT16 p_):n(n_),p(p_){}
@@ -99,6 +100,7 @@ public:
     QValueList<Server> Servers() const;
 
     QStringList texts() const;
+#endif
 
     QString canonicalName() const; // ### real-world but uncommon: QStringList
 

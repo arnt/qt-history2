@@ -1246,13 +1246,14 @@ QDns::QDns()
 
 
 
-/*!  Constructs a DNS query object that will return \a rr
+/*!
+  Constructs a DNS query object that will return \a rr
   information about \a label.
 
   \a rr defaults to \c A, IPv4 addresses.
 */
 
-QDns::QDns( const QString & label, RecordType rr )
+QDns::QDns( const QString & label, QDns::RecordType rr )
 {
     d = 0;
     t = rr;
@@ -1320,6 +1321,12 @@ void QDns::setLabel( const QString & label )
 	qDebug( "QDns::setLabel: %d: %s", i, n[i].ascii() );
 #endif
 }
+
+/*!
+  \fn QValueList<QString> QDns::qualifiedNames() const
+
+  Returns a list of the fully qualified names label() maps to.
+*/
 
 
 /*! \fn QString QDns::label() const
