@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#109 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#109 $");
 
 
 /*!
@@ -874,9 +874,9 @@ static bool convert_32_to_8( const QImage *src, QImage *dst )
 	    while ( p < end ) {			// perform quantization
 		uint d = bm[y&15][x&15];
 
-		rc =  *p        & 0xff;
-		gc = (*p >> 8)  & 0xff;
-		bc = (*p >> 16) & 0xff;
+		rc = qRed( *p );
+		gc = qGreen( *p );
+		bc = qBlue( *p );
 
 		*b++ =
 		    INDEXOF(
