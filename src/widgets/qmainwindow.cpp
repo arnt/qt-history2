@@ -2251,13 +2251,13 @@ QDockArea *QMainWindow::dockingArea( const QPoint &p )
 {
     int mh = d->mb ? d->mb->height() : 0;
     int sh = d->sb ? d->sb->height() : 0;
-    if ( p.x() >= -5 && p.x() <= 20 && p.y() > mh && p.y() - height() - sh )
+    if ( p.x() >= -5 && p.x() <= 100 && p.y() > mh && p.y() - height() - sh )
 	return d->leftDock;
-    if ( p.x() >= width() - 20 && p.x() <= width() + 5 && p.y() > mh && p.y() - height() - sh )
+    if ( p.x() >= width() - 100 && p.x() <= width() + 5 && p.y() > mh && p.y() - height() - sh )
 	return d->rightDock;
-    if ( p.y() >= -5 && p.y() < mh + 20 && p.x() >= 0 && p.x() <= width() )
+    if ( p.y() >= -5 && p.y() < mh + 100 && p.x() >= 0 && p.x() <= width() )
 	return d->topDock;
-    if ( p.y() >= height() - sh - 20 && p.y() <= height() + 5 && p.x() >= 0 && p.x() <= width() )
+    if ( p.y() >= height() - sh - 100 && p.y() <= height() + 5 && p.x() >= 0 && p.x() <= width() )
 	return d->bottomDock;
     return 0;
 }
