@@ -62,13 +62,14 @@ public:
 	AnchorHref = 0x2021,
 	AnchorName = 0x2022,
 
+	NonDeletable = 0x2100,
+
 	// list properties
 	ListStyle = 0x3000,
 	ListIndent = 0x3001,
 
 	// table properties
-	TableNumRows = 0x4000,
-	TableNumCols = 0x4001,
+	TableBorder = 0x4000,
 
 	// table cell properties
 	TableCellEndOfRow = 0x4800,
@@ -219,6 +220,11 @@ public:
     QString anchorName() const
     { return stringProperty(AnchorName); }
 
+    void setNonDeletable(bool d)
+    { setProperty(NonDeletable, d); }
+    bool nonDeletable() const
+    { return boolProperty(NonDeletable); }
+
 protected:
     QTextCharFormat(int type) : QTextFormat(type, CharFormat) {}
 };
@@ -325,14 +331,10 @@ public:
 
     Q_EXPLICIT QTextTableFormat(const QTextFormatPrivate &priv) : QTextFormat(priv) {}
 
-    void setNumRows(int rows)
-    { setProperty(TableNumRows, rows); }
-    void setNumCols(int cols)
-    { setProperty(TableNumCols, cols); }
-    int numRows() const
-    { return intProperty(TableNumRows, 1); }
-    int numCols() const
-    { return intProperty(TableNumCols, 1); }
+    void setBorder(int border)
+    { setProperty(TableBorder, border); }
+    int border() const
+    { return intProperty(TableBorder, 1); }
 };
 
 class QTextImageFormat : public QTextCharFormat
