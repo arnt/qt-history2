@@ -555,16 +555,22 @@ void QWSDisplay::Data::init()
 	// Need to zero index count at end of block, might as well zero
 	// the rest too
 	memset(sharedRam,0,sharedRamSize);
-
-	qt_screen->initDevice();
-
     }
     setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
     int mouseoffset = 0;
 
     // Allow some memory for the graphics driver too
-
+    //### Note that sharedRamSize() has side effects; it must be called
+    //### once, and only once, and before initDevice()
     sharedRamSize -= qt_screen->sharedRamSize(sharedRam+sharedRamSize);
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+    if(!csocket)
+#endif  
+    {
+	//QWS server process
+	qt_screen->initDevice();
+    }
 
 #ifndef QT_NO_QWS_CURSOR
     mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize,
