@@ -38,6 +38,14 @@
 #define select		_qt_hide_select
 #define gettimeofday	_qt_hide_gettimeofday
 
+// Step 3)
+#if defined(Q_OS_LINUX)
+// strcasecmp() in <string.h> - alternative would be to include <strings.h>
+#  define _BSD_SOURCE
+#endif
+// Step 4)
+#include <unistd.h>
+
 #include "qglobal.h"
 #if defined(Q_OS_WIN32)
 #undef select
@@ -86,7 +94,6 @@
 
 #if defined(QT_DEBUG) && defined(Q_OS_LINUX)
 #include "qfile.h"
-#include <unistd.h>
 #endif
 
 #if defined(Q_OS_WIN32)
@@ -138,10 +145,9 @@ static int qt_thread_pipe[2];
 
 #if defined(Q_OS_AIX) && defined(Q_CC_GNU)
 // Please add comments! Which version of AIX? Why?
-// Adding some #defines like the IBM compiler does ought to be enough.
+// Adding some #defines ought to be enough.
 #include <sys/time.h>
 #include <sys/select.h>
-#include <unistd.h>
 #endif
 
 #if defined(Q_OS_QNX)

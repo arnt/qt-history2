@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#21 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#22 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -34,6 +34,14 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+// Step 3)
+#if defined(Q_OS_LINUX)
+// import FNDELAY from <fcntl.h>
+#  define _BSD_SOURCE
+#endif
+// Step 4)
+#include <unistd.h>
 
 #include "qsocketdevice.h"
 #ifndef QT_NO_NETWORK

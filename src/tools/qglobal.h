@@ -152,6 +152,37 @@
 #  define Q_OS_UNIX
 #endif
 
+#if defined(Q_OS_UNIX)
+// 1) Ask for most recent X/Open specification available.
+                                   // ask for upcoming XPG6?
+#  define _XOPEN_SOURCE 500        // fall back on XPG5 / SUSv2 / UNIX 98
+#  define _XOPEN_SOURCE_EXTENDED 1 // fall back on XPG4-UNIX / SUS / UNIX 95
+                                   // fall back on ol' XPG4 or XPG3
+// 2) POSIX standards more recent than the current X/Open specification are
+//    often available. Specify them separately.
+#  define _POSIX_C_SOURCE 199506L  // IEEE Std 1003.1c (1995) / POSIX.1c
+                                   // IEEE Std 1003.1b (1993) / POSIX.1b
+                                   // IEEE Std 1003.1 (1990) / POSIX.1
+// 3) Some functions are neither in the current X/Open specification nor in
+//    any current POSIX standard. BSD string functions on pre-XPG5 systems
+//    are a typical example. However they are still made available either
+//    using platform-dependant macros like _OSF_SOURCE or by including
+//    specific header files like <strings.h> in addition to <string.h> (to be
+//    avoided).
+//    Such exceptional things are better controlled near to the code that
+//    needs the specific functions. So for now add platform-specific macros
+//    and include platform-specific header files near to the code that needs
+//    them.
+// 4) Now include <unistd.h> which will hopefully define other macros to tell
+//    us which of the specified interfaces are available. For example macro
+//    _POSIX_THREADS should be defined if POSIX.1c pthreads are supported.
+//    In practice POSIX drafts are sometimes implemented instead of the
+//    final standard...
+//    Now, as we have deferred step 3) to implementation files, we have
+//    to defer step 4) which comes after step 3) to implementation files
+//    as well.
+#endif
+
 
 //
 // The compiler, must be one of: (Q_CC_x)
@@ -214,7 +245,7 @@
 #  endif
 #elif defined(__CDS__)
 // does not seem to define __EDG__ or __EDG according to Reliant documentation
-// but nevertheless uses EDG conventions
+// but nevertheless uses EDG conventions like _BOOL
 #  define Q_CC_EDG
 #  define Q_CC_CDS
 #elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
