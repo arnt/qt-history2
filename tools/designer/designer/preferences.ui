@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>479</width>
-            <height>410</height>
+            <width>475</width>
+            <height>408</height>
         </rect>
     </property>
     <property name="caption">
@@ -114,9 +114,6 @@
                             <widget class="QRadioButton" row="0" column="0">
                                 <property name="name">
                                     <cstring>radioColor</cstring>
-                                </property>
-                                <property name="focusPolicy">
-                                    <enum>NoFocus</enum>
                                 </property>
                                 <property name="text">
                                     <string>Co&amp;lor</string>
@@ -629,8 +626,8 @@
         <receiver>GroupBox1</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
 <tabstops>
     <tabstop>tabWidget</tabstop>
@@ -638,18 +635,19 @@
     <tabstop>buttonColor</tabstop>
     <tabstop>radioPixmap</tabstop>
     <tabstop>buttonPixmap</tabstop>
-    <tabstop>checkBoxWorkspace</tabstop>
-    <tabstop>checkBoxSplash</tabstop>
-    <tabstop>editDocPath</tabstop>
-    <tabstop>buttonDocPath</tabstop>
+    <tabstop>checkBoxShowGrid</tabstop>
     <tabstop>checkBoxGrid</tabstop>
     <tabstop>spinGridX</tabstop>
     <tabstop>spinGridY</tabstop>
+    <tabstop>checkBoxWorkspace</tabstop>
+    <tabstop>checkBoxSplash</tabstop>
+    <tabstop>checkAutoEdit</tabstop>
+    <tabstop>editDocPath</tabstop>
+    <tabstop>buttonDocPath</tabstop>
     <tabstop>checkBoxBigIcons</tabstop>
     <tabstop>checkBoxTextLabels</tabstop>
     <tabstop>helpButton</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
-    <tabstop>checkBoxShowGrid</tabstop>
 </tabstops>
 </UI>
