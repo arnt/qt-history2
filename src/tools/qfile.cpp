@@ -708,30 +708,3 @@ void QFile::setErrorStringErrno( int errnum )
 	    break;
     }
 }
-
-/*****************************************************************************
-  QOffset stream functions
- *****************************************************************************/
-#ifndef QT_NO_DATASTREAM
-
-QDataStream &operator<<( QDataStream &s, const QOffset &o )
-{
-    s << (Q_UINT64)o;
-    return s;
-}
-
-QDataStream &operator>>( QDataStream &s, QOffset &o )
-{
-    Q_UINT64 value;
-    s >> value;
-#if !defined(QT_LARGEFILE_SUPPORT)
-    if ( value > LONG_MAX ) {
-	qWarning("Large file offsets are not supported on this platform.");
-	o = LONG_MAX;
-    } else
-#endif
-	o = (Q_ULONG)value;
-    return s;
-}
-
-#endif // QT_NO_DATASTREAM

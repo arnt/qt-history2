@@ -478,11 +478,7 @@ bool QFile::at( Offset pos )
 	ioIndex = pos;
 #if defined(QT_CHECK_RANGE)
     else
-#if defined(QT_LARGEFILE_SUPPORT)
-	qWarning( "QFile::at: Cannot set file position %llu", (Q_ULLONG)pos );
-#else
-	qWarning( "QFile::at: Cannot set file position %lu", (Q_ULONG)pos );
-#endif
+	qWarning( "QFile::at: Cannot set file position %lld", pos );
 #endif
     return ok;
 }

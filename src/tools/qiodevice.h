@@ -63,35 +63,10 @@
 class QByteArray;
 
 
-class Q_EXPORT QOffset
-{
-public:
-#if defined(QT_LARGEFILE_SUPPORT)
-    typedef Q_ULLONG type;
-#else
-    typedef Q_ULONG type;
-#endif
-    QOffset() {}
-    QOffset(Q_ULONG o) : offset(o) {}
-    QOffset(const QOffset &o) : offset(o.offset) {}
-    QOffset &operator=(Q_ULONG o) { offset = o; return *this; }
-    QOffset &operator=(const QOffset &o) { offset = o.offset; return *this; }
-    QOffset &operator+=(Q_ULONG n) { offset += n; return *this; }
-    QOffset operator++() { ++offset; return *this; }
-    QOffset operator++(int) { QOffset o(*this); ++offset; return o; }
-    QOffset &operator-=(Q_ULONG n) { offset -= n; return *this; }
-    QOffset operator--() { --offset; return *this; }
-    QOffset operator--(int) { QOffset o(*this); --offset; return o; }
-    operator Q_ULONG() const { return (Q_ULONG)offset; }
-private:
-    Q_ULONG offset;
-};
-
-
 class Q_EXPORT QIODevice
 {
 public:
-    typedef QOffset Offset;
+    typedef Q_LLONG Offset;
 
     QIODevice();
     virtual ~QIODevice();
@@ -155,15 +130,6 @@ private:	// Disabled copy constructor and operator=
     QIODevice &operator=( const QIODevice & );
 #endif
 };
-
-
-/*****************************************************************************
-  QOffset stream functions
- *****************************************************************************/
-#ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<(QDataStream &, const QOffset &);
-Q_EXPORT QDataStream &operator>>(QDataStream &, QOffset &);
-#endif
 
 
 #endif // QIODEVICE_H
