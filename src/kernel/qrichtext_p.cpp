@@ -340,7 +340,7 @@ QPainter*  QTextFormat::painter()
 
 void QTextFormat::applyFont( const QFont &f )
 {
-    if ( !pntr->font().isCopyOf( f ) || !pntr_fm ) {
+    if ( !pntr_fm || !pntr_fm->painter || !pntr->font().isCopyOf( f ) ) {
 	pntr->setFont( f );
 	delete pntr_fm;
 	pntr_fm = new QFontMetrics( pntr->fontMetrics() );
