@@ -163,10 +163,8 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	    out() << "<ul>\n";
 #else
 	    out() << "<table"
-		     " align=\"center\""
-		     " border=\"1\" cellpadding=\"2\"" " cellspacing=\"1\""
-		     " width=\"95%\">\n"
-		     "<col width=\"20%\">\n";
+		     " border=\"1\" cellpadding=\"2\" cellspacing=\"1\""
+		     " width=\"100%\">\n";
 #endif
 	} else {
             out() << "<ol type=";
@@ -195,7 +193,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 #if OLDSTYLE
 	    out() << "<li>";
 #else
-	    out() << "<tr><td valign=\"top\">";
+	    out() << "<tr><td valign=\"top\" width=\"20%\">";
 #endif
 	}
 	break;
@@ -211,6 +209,8 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	    if ( !matchAhead(atom, Atom::ListItemRight) )
 		out() << " -- ";
 #else
+	    if ( !matchAhead(atom, Atom::ListItemRight) )
+		out() << "&nbsp;"; // Needed for old browsers
 	    out() << "</td><td>"; // Need a cell, empty or not, for the border
 #endif
 	} else {
