@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#21 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#22 $
 **
 ** Implementation of something useful.
 **
@@ -625,8 +625,9 @@ bool QWizard::eventFilter( QObject * o, QEvent * e )
 }
 
 
-/*!  Removes \a page from this wizard.  If \a page is currently being
-  displayed, QWizard will display something else.
+/*!  Removes \a page from this wizard.  Does not delete
+  \a page. If \a page is currently being displayed, QWizard will
+  display something else.
 */
 
 void QWizard::removePage( QWidget * page )
