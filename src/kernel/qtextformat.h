@@ -315,21 +315,21 @@ public:
     QTextListFormat() : QTextFormat(ListFormat) {}
 
     enum Style {
-	ListDisc,
-	ListCircle,
-	ListSquare,
-	ListDecimal,
-	ListLowerAlpha,
-	ListUpperAlpha
+	ListDisc = -1,
+	ListCircle = -2,
+	ListSquare = -3,
+	ListDecimal = -4,
+	ListLowerAlpha = -5,
+	ListUpperAlpha = -6
 #ifndef Q_QDOC
-	, ListStyleUndefined = -1
+	, ListStyleUndefined = 0
 #endif
     };
 
-    void setStyle(Style style)
-    { setProperty(ListStyle, int(style)); }
-    Style style() const
-    { return static_cast<Style>(intProperty(ListStyle, ListStyleUndefined)); }
+    void setStyle(int style)
+    { setProperty(ListStyle, style); }
+    int style() const
+    { return intProperty(ListStyle, ListStyleUndefined); }
 
     void setIndent(int indent)
     { setProperty(ListIndent, indent); }
