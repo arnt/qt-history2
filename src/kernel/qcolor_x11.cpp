@@ -213,7 +213,18 @@ void QColor::initialize()
     screencount = ScreenCount( dpy );
     screendata = new QColorScreenData*[ screencount ];
 
-    int scr;
+    int scr = QPaintDevice::x11AppScreen();
+
+    // Initialize global color objects
+    if ( QPaintDevice::x11AppDefaultVisual(scr) &&
+	 QPaintDevice::x11AppDefaultColormap(scr) ) {
+	globalColors()[blackIdx].setPixel((uint) BlackPixel(dpy, scr));
+	globalColors()[whiteIdx].setPixel((uint) WhitePixel(dpy, scr));
+    } else {
+	globalColors()[blackIdx].alloc(scr);
+	globalColors()[whiteIdx].alloc(scr);
+    }
+
     for ( scr = 0; scr < screencount; ++scr ) {
 	screendata[scr] = new QColorScreenData;
         screendata[scr]->g_vis = (Visual *) QPaintDevice::x11AppVisual( scr );
@@ -261,19 +272,6 @@ void QColor::initialize()
 	}
 	screendata[scr]->colorDict = new QColorDict(dictsize);	// create dictionary
 	Q_CHECK_PTR( screendata[scr]->colorDict );
-
-	// Initialize global color objects
-
-	globalColors()[blackIdx].setRgb( 0, 0, 0 );
-	globalColors()[whiteIdx].setRgb( 255, 255, 255 );
-	if ( QPaintDevice::x11AppDefaultVisual( scr ) &&
-	     QPaintDevice::x11AppDefaultColormap( scr ) ) {
-	    globalColors()[blackIdx].setPixel( (uint)BlackPixel( dpy, scr ) );
-	    globalColors()[whiteIdx].setPixel( (uint)WhitePixel( dpy, scr ) );
-	} else {
-	    globalColors()[blackIdx].alloc( scr );
-	    globalColors()[whiteIdx].alloc( scr );
-	}
 
 	if ( spec == (int)QApplication::ManyColor ) {
 	    screendata[scr]->color_reduce = TRUE;
@@ -598,7 +596,10 @@ uint QColor::alloc()
 */
 uint QColor::pixel( int screen ) const
 {
-    if ( screen != QPaintDevice::x11AppScreen() )
+    if (screen != QPaintDevice::x11AppScreen() &&
+	// don't allocate color0 or color1, they have fixed pixel
+	// values for all screens
+	d.argb != qRgba(255, 255, 255, 42) && d.argb != qRgba(0, 0, 0, 42))
 	return ((QColor*)this)->alloc( screen );
     return pixel();
 }

@@ -224,8 +224,16 @@ void QColor::initGlobalColors()
 {
     globals_init = TRUE;
 
+    #ifdef Q_WS_X11
+    // HACK: we need a way to recognize color0 and color1 uniquely, so
+    // that we can use color0 and color1 with fixed pixel values on
+    // all screens
+    stdcol[ 0].d.argb = qRgba(255, 255, 255, 42);
+    stdcol[ 1].d.argb = qRgba(  0,   0,   0, 42);
+    #else
     stdcol[ 0].d.argb = qRgb(255,255,255);
     stdcol[ 1].d.argb = 0;
+    #endif // Q_WS_X11
     stdcol[ 0].setPixel( COLOR0_PIX );
     stdcol[ 1].setPixel( COLOR1_PIX );
 
