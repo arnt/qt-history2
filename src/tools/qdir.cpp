@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#90 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#91 $
 **
 ** Implementation of QDir class
 **
@@ -225,25 +225,26 @@ QDir::QDir( const QString &path, const QString &nameFilter,
 
 QDir::QDir( const QDir &d )
 {
-    dPath    = d.dPath;
-    fList    = 0;
-    fiList   = 0;
+    dPath = d.dPath;
+    fList = 0;
+    fiList = 0;
     nameFilt = d.nameFilt;
-    dirty    = TRUE;
-    allDirs  = d.allDirs;
-    filtS    = d.filtS;
-    sortS    = d.sortS;
+    dirty = TRUE;
+    allDirs = d.allDirs;
+    filtS = d.filtS;
+    sortS = d.sortS;
 }
+
 
 void QDir::init()
 {
-    fList     = 0;
-    fiList    = 0;
+    fList = 0;
+    fiList = 0;
     nameFilt = QString::fromLatin1("*");
-    dirty    = TRUE;
-    allDirs  = FALSE;
-    filtS    = All;
-    sortS    = SortSpec(Name | IgnoreCase);
+    dirty = TRUE;
+    allDirs = FALSE;
+    filtS = All;
+    sortS = SortSpec(Name | IgnoreCase);
 }
 
 /*!
@@ -1007,7 +1008,9 @@ void QDir::convertToAbs()
 QDir &QDir::operator=( const QDir &d )
 {
     dPath    = d.dPath;
+    delete fList;
     fList    = 0;
+    delete fiList;
     fiList   = 0;
     nameFilt = d.nameFilt;
     dirty    = TRUE;
@@ -1392,7 +1395,7 @@ bool QDir::isRelativePath( const QString &path )
 #elif defined(UNIX)
     return path[0] != '/';
 #else
-# error Not implemented for this operating system
+# error "Not implemented for this operating system"
 #endif
 }
 
@@ -1400,7 +1403,9 @@ struct QDirSortItem {
     QString filename_cache;
     QFileInfo* item;
 };
+
 static int cmp_si_sortSpec;
+
 static int cmp_si( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
@@ -1664,9 +1669,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
     fiList->setAutoDelete( FALSE );
     fiList->clear();
     int j;
-    for (j=0; j<i; j++) {
-	fiList->append(si[j].item);
-	fList->append(si[j].item->fileName());
+    for ( j=0; j<i; j++ ) {
+	fiList->append( si[j].item );
+	fList->append( si[j].item->fileName() );
     }
     delete [] si;
     fiList->setAutoDelete( TRUE );
