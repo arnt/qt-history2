@@ -1103,21 +1103,21 @@ bool QAbstractItemView::edit(const QModelIndex &index,
         return false;
 
     // get editor from the map
-    QPersistentModelIndex persistent = QPersistentModelIndex(index, model());
+    QPersistentModelIndex persistent = QPersistentModelIndex(edit, model());
     QWidget *editor = d->editors.value(persistent);
 
     // if the index doesn't have an editor, get it from the delegate
     if (!editor) {
         QStyleOptionViewItem option = viewOptions();
-        option.rect = itemViewportRect(index);
-        option.state |= (index == currentItem()
+        option.rect = itemViewportRect(edit);
+        option.state |= (edit == currentItem()
                          ? QStyle::Style_HasFocus : QStyle::Style_Default);
-        editor = itemDelegate()->editor(action, d->viewport, option, model(), index);
+        editor = itemDelegate()->editor(action, d->viewport, option, model(), edit);
         if (editor) {
             QObject::connect(editor, SIGNAL(destroyed(QObject*)),
                              this, SLOT(editorDestroyed(QObject*)));
-            itemDelegate()->setEditorData(editor, model(), index);
-            itemDelegate()->updateEditorGeometry(editor, option, model(), index);
+            itemDelegate()->setEditorData(editor, model(), edit);
+            itemDelegate()->updateEditorGeometry(editor, option, model(), edit);
             d->editors.insert(persistent, editor);
         }
     }
