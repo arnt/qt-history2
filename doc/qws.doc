@@ -657,5 +657,6 @@ VNC clients are available for a vast array of display systems - X11, Windows, Am
 DOS, VMS, and dozens of others.
 
 You should also be aware of the <a href=qvfb-qws.html>Qt Virtual Framebuffer</a> as
-an alternative technique.
+an alternative technique (it uses shared memory so is much faster and smoother, but
+does not operate over a network).
 */
