@@ -26,9 +26,41 @@ namespace QMsNet
 	    tmUIKiller.Elapsed += new System.Timers.ElapsedEventHandler(OnTimer);
 	    tmUIKiller.Stop();
 	}
+
 	public void loadProject()
 	{
+	    FileDialog toOpen = new OpenFileDialog();
+	    toOpen.Filter = "Qt Project files (*.pro)|*.pro|All files (*.*)|*.*";
+	    toOpen.FilterIndex = 1;
+	    toOpen.Title = "Select a Qt Project to add to the Solution";
+
+	    if ( DialogResult.OK != toOpen.ShowDialog() )
+		return;
+
+	    FileInfo mainInfo = new FileInfo( toOpen.FileName );
+	    string name = mainInfo.Name;
+	    int lio = name.LastIndexOf( "." );
+	    if ( lio != -1 )
+		name = name.Remove( lio, name.Length - lio );
+
+	    FileInfo VCInfo = new FileInfo( mainInfo.DirectoryName + "\\" + name + ".vcproj" );
+
+	    if ( !VCInfo.Exists || 
+		 (VCInfo.Exists && 
+		  DialogResult.Yes == MessageBox.Show( "A .vcproj files already exists for this project!\n\r" + 
+						       "Select 'Yes' to regenerate the project file, and 'No' to use the existing one", 
+						       "VCProj file exists!", MessageBoxButtons.YesNo )) )
+		QMNCommands.generateVCProjectFile( mainInfo.FullName, mainInfo.DirectoryName );
+
+	    try {
+		Connect.applicationObject.Solution.AddFromFile( VCInfo.FullName, false );
+	    }
+	    catch ( System.Exception e ) {
+		MessageBox.Show( "*** Couldn't add project to Solution!\n\r" +
+				 "Does a project with the same name already exist in the Solution?" );
+	    }
 	}
+
 	public void saveProject()
 	{
 	}
@@ -90,19 +122,22 @@ namespace QMsNet
 	}
 
 	// Event handlers -------------------------------------------
-	private void OnDocumentOpening( string path, bool readOnly ) {
+	private void OnDocumentOpening( string path, bool readOnly ) 
+	{
 	    if( path.EndsWith(".ui") )
 		loadDesigner( path, false );
 	}
 
-	private void OnDocumentOpened( Document doc ) {
+	private void OnDocumentOpened( Document doc ) 
+	{
 	    if( doc.Name.EndsWith(".ui") ) {
 		doc.Close( vsSaveChanges.vsSaveChangesNo );
 		tmUIKiller.Start();
 	    }
 	}
 
-	private void OnTimer( Object source, System.Timers.ElapsedEventArgs e ) {
+	private void OnTimer( Object source, System.Timers.ElapsedEventArgs e ) 
+	{
 	    tmUIKiller.Stop();
 	    foreach( Window wnd in Connect.applicationObject.Windows )
 		if ( wnd.Caption == "" )
