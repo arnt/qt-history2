@@ -45,7 +45,7 @@ enum MemberFlags {
     MemberSlot = 0x08,
     MemberCompatibility = 0x10,
     MemberCloned = 0x20,
-    MemberScriptable = 0x40,
+    MemberScriptable = 0x40
 };
 
 /*
