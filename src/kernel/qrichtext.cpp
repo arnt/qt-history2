@@ -4095,8 +4095,13 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
     QRect r ( x, y, w, h );
     QStyleSheetItem::ListStyle s = listStyle();
 
+    p->save();
+    p->setPen( defFormat->color() );
+
     QFont font = p->font();
-    p->setFont( length() > 0 && at( 0 )->format() ? at( 0 )->format()->font() : defFormat->font() );
+    QFont font2( defFormat->font() );
+    font2.setPointSize( length() > 0 && at( 0 )->format() ? at( 0 )->format()->font().pointSize() : defFormat->font().pointSize() );
+    p->setFont( font2 );
     QFontMetrics fm( p->fontMetrics() );
     QFontMetrics dfm( defFormat->font() );
     int size = dfm.lineSpacing() / 3;
@@ -4151,6 +4156,7 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
 	break;
     }
 
+    p->restore();
     p->setFont( font );
 }
 
@@ -5148,8 +5154,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
     // ### hack. The last char in the paragraph is always invisible, and somehow sometimes has a wrong format. It changes between
     // layouting and printing. This corrects some layouting errors in BiDi mode due to this.
-    if ( len > 1 )
+    if ( len > 1 ) {
+	c->format()->removeRef();
 	c->setFormat( string->at( len - 2 ).format() );
+	c->format()->addRef();
+    }
 
     if ( lineStart ) {
 	lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
