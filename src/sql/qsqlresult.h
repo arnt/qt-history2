@@ -63,9 +63,6 @@ protected:
     // prepared query support
     virtual bool exec();
     virtual bool prepare( const QString& query );
-    void bindValue( const QString& placeholder, const QVariant& val );
-    void bindValue( int pos, const QVariant& val );
-    void addBindValue( const QVariant& val );
     void bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType type );
     void bindValue( int pos, const QVariant& val, QSql::ParameterType type );
     void addBindValue( const QVariant& val, QSql::ParameterType type );

@@ -77,19 +77,15 @@ public:
     virtual bool        last();
 
     // prepared query support
-    bool		exec();
-    bool		prepare( const QString& query );
-    void		bindValue( const QString& placeholder, const QVariant& val );
-    void		bindValue( int pos, const QVariant& val );
-    void		addBindValue( const QVariant& val );
-    // remove these overloads in 4.0
-    void		bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType type );
-    void		bindValue( int pos, const QVariant& val, QSql::ParameterType type );
-    void		addBindValue( const QVariant& val, QSql::ParameterType type );
-    QVariant		boundValue( const QString& placeholder ) const;
-    QVariant		boundValue( int pos ) const;
+    bool exec();
+    bool prepare( const QString& query );
+    void bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType type = QSql::In );
+    void bindValue( int pos, const QVariant& val, QSql::ParameterType type = QSql::In );
+    void addBindValue( const QVariant& val, QSql::ParameterType type = QSql::In );
+    QVariant boundValue( const QString& placeholder ) const;
+    QVariant boundValue( int pos ) const;
     QMap<QString, QVariant> boundValues() const;
-    QString             executedQuery() const;
+    QString executedQuery() const;
 
 protected:
     virtual void        beforeSeek();

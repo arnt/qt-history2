@@ -23,7 +23,6 @@
 #include "qsqldatabase.h"
 #include "qsql.h"
 #include "qregexp.h"
-#include "private/qsqlextension_p.h"
 
 
 /*!
