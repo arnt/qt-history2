@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#70 $
 **
 ** Implementation of QFile class
 **
@@ -482,25 +482,35 @@ bool QFile::open( int m, int f )
   handle or a file descriptor, \e except that stdin, stdout and stderr
   are never closed.
 
+  Some "write-behind" filesystems may report an unspecified error on
+  closing the file. These errors only indiciate that something may
+  have gone wrong since the previous open(). In such a case status()
+  reports IO_UnspecifiedError after close(), otherwise IO_Ok.
+  
   \sa open(), flush()
 */
 
 void QFile::close()
 {
-    if ( !isOpen() )				// file is not open
-	return;
-    if ( fh ) {					// buffered file
-	if ( ext_f )
-	    fflush( fh );			// cannot close
-	else
-	    fclose( fh );
-    } else {					// raw file
-	if ( ext_f )
-	    ;					// cannot close
-	else
-	    CLOSE( fd );
+    bool ok = FALSE;
+    if ( isOpen() ) {				// file is not open
+	if ( fh ) {					// buffered file
+	    if ( ext_f )
+		fflush( fh );			// cannot close
+	    else
+		ok = fclose( fh ) != -1;
+	} else {					// raw file
+	    if ( ext_f )
+		;					// cannot close
+	    else
+		ok = CLOSE( fd ) != -1;
+	}
+	init();					// restore internal state
     }
-    init();					// restore internal state
+    if (!ok)
+	setStatus (IO_UnspecifiedError);
+
+    return;
 }
 
 

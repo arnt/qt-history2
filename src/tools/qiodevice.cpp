@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#43 $
 **
 ** Implementation of QIODevice class
 **
@@ -65,20 +65,20 @@
     public:
 	YourDevice();
        ~YourDevice();
-  
+
 	bool open( int mode );
 	void close();
 	void flush();
-  
+
 	uint size() const;
 	int  at() const;	// not a pure virtual function
 	bool at( int );		// not a pure virtual function
 	bool atEnd() const;	// not a pure virtual function
-  
+
 	int readBlock( char *data, uint len );
 	int writeBlock( const char *data, uint len );
 	int readLine( char *data, uint maxlen );
-  
+
 	int getch();
 	int putch( int );
 	int ungetch( int );
@@ -254,6 +254,7 @@ QIODevice::~QIODevice()
   <li>\c IO_ConnectError Could not connect to the device.
   <li>\c IO_AbortError The operation was unexpectedly aborted.
   <li>\c IO_TimeOutError The operation timed out.
+  <li>\c IO_OnCloseError An unspecified error happend on close.
   </ul>
 
   \sa resetStatus()

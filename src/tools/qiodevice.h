@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#23 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#24 $
 **
 ** Definition of QIODevice class
 **
@@ -68,6 +68,7 @@
 #define IO_ConnectError		5		// cannot connect to device
 #define IO_AbortError		6		// abort error
 #define IO_TimeOutError		7		// time out
+#define IO_UnspecifiedError		8		// unspecified error
 
 #undef	TB
 #define TB(x) ((ioMode & (x)) == (x))
