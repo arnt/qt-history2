@@ -13,14 +13,14 @@ int main( int argc, char ** argv )
     QLogView log;
     app.setMainWidget( &log );
     
-    log.setText( "Per Kåre \n\n\nbottolfson jr.\n", Qt::red );
+    log.setText( "Per Kåre \n\n\nbottolfson jr.\n" );
   //  log.setPaletteBackgroundColor( Qt::black );
-    log.append( "per kåre æøå knutsen\noddvar brå\n\n\nTrond Kjernåsen\n\n", Qt::green);
+    log.append( "per kåre æøå knutsen\noddvar brå\n\n\nTrond Kjernåsen\n\n" );
 //    log.setFont( QFont("Times",18) );
     QString str;
     timeval st, et;
     gettimeofday( &st, 0 );
-    for ( int i = 0; i < 200000; i++ ) {
+    for ( int i = 0; i < 2000; i++ ) {
 	str.sprintf("%06d: 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n", i);
 	log.append( str );
 // 	if ( (i % 2000) == 0 )
@@ -28,7 +28,7 @@ int main( int argc, char ** argv )
     }
     gettimeofday( &et, 0 );
 
-    log.setLineColor( 5000, Qt::blue );
+//    log.setLineColor( 5000, Qt::blue );
     fprintf(stderr,"\n");
     fprintf(stderr,"Loop time: %d.%03d s\n", (int)(et.tv_sec - st.tv_sec),(int)(abs(et.tv_usec - st.tv_usec)%1000000) / 1000);
 //     for ( int i = 0; i < 3000000; i++ ) {

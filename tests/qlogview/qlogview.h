@@ -60,10 +60,9 @@ public:
     int     length();
     
 public slots:
-    virtual void setText( const QString & txt, const QColor & col = QColor() );
-    virtual void append( const QString & txt, const QColor & col = QColor() );
+    virtual void setText( const QString & txt );
+    virtual void append( const QString & txt );
     virtual int  find( const QRegExp & reg );
-    virtual void setLineColor( int line, const QColor & col );
 
 signals:
     void textChanged( const QString & txt );
@@ -72,10 +71,14 @@ signals:
 protected:
     void fontChange( const QFont & oldFont );
     void drawContents( QPainter * p, int clipx, int clipy, int clipw,
-		       int cliph );    
+		       int cliph );
+    void contentsMousePressEvent( QMouseEvent * e );
+    void contentsMouseReleaseEvent( QMouseEvent * e );
+    void contentsMouseMoveEvent( QMouseEvent * e );
+    
 private:
-    void 	init();
     QLogViewPrivate * d;
+    void init();
 };
 
 #endif // QT_NO_LOGVIEW

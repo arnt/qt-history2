@@ -4,13 +4,7 @@
 
 /* \class QLogView qlogview.h
    
-   This class is designed for displaying and storing plain text more
-   efficiently than QTextView. Storing large amounts of plain text in
-   a QTextView widget is simply not feasible since the rich text
-   engine incurs a noticeable overhead for each character that is
-   stored. This is not the case with the QLogView class since it does
-   not support editing or complex formatting. You can, however, assign
-   a color to each line in the QLogView.
+   <to be integrated with QTextEdit>
 */
 
 /*! \internal
@@ -18,12 +12,14 @@
 class QLogViewPrivate
 {
 public:
-    QLogViewPrivate() : len(0), numLines(0) {}
+    QLogViewPrivate() : mousePressed( FALSE ), len( 0 ), numLines( 0 ) {}
     ~QLogViewPrivate() {}
+    bool mousePressed;
     int len;
     int numLines;
+    QPoint selectionStart;
+    QPoint selectionEnd;
     QMap< int, QString > lines;
-    QMap< int, QColor >  colors;
 };
 
 /*! 
@@ -47,7 +43,8 @@ QLogView::QLogView( QWidget * parent, const char * name )
     init();
 }
 
-/*! \internal
+/*! 
+  Destruct the QLogView object.
 */
 QLogView::~QLogView()
 {
@@ -87,24 +84,17 @@ QString QLogView::text() const
 /*!
   Sets the widget text to \a str.
 */
-void QLogView::setText( const QString & str, const QColor & col )
+void QLogView::setText( const QString & str )
 {
     if ( str.isEmpty() || str.isNull() )
 	return;
     
     d->numLines = 0;
     d->lines.clear();
-    d->colors.clear();    
     d->len = str.length();
     QStringList strl = QStringList::split( '\n', str, TRUE );
     for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it )
 	d->lines[ d->numLines++ ] = *it;
-    
-    if ( col != QColor() ) {
-	int i;
-	for ( i = 0; i < d->numLines; i++ )
-	    d->colors[ i ] = col;
-    }
     
     QFontMetrics fm( font() );
     resizeContents( contentsWidth(), d->numLines * fm.lineSpacing() + 
@@ -115,7 +105,7 @@ void QLogView::setText( const QString & str, const QColor & col )
   Appends \a str to the widget contents, and the text color to be \a
   col.
 */
-void QLogView::append( const QString & str, const QColor & col )
+void QLogView::append( const QString & str )
 {
     if ( str.isEmpty() || str.isNull() )
 	return;
@@ -125,6 +115,7 @@ void QLogView::append( const QString & str, const QColor & col )
     QStringList strl = QStringList::split( '\n', str, TRUE );
     QStringList::Iterator it = strl.begin();
     
+    // append first line in str to previous line in buffer
     if ( d->numLines > 0 ) {
 	d->lines[ d->numLines - 1 ].append( *it );
 	++it;
@@ -132,12 +123,6 @@ void QLogView::append( const QString & str, const QColor & col )
     
     for ( ; it != strl.end(); ++it )
 	d->lines[ d->numLines++ ] = *it;
-
-    if ( col != QColor() ) {
-	int i;
-	for ( i = oldLines; i < d->numLines; i++ )
-	    d->colors[ i ] = col;
-    }
 
     QFontMetrics fm( font() );
     resizeContents( contentsWidth(), d->numLines * fm.lineSpacing() + 
@@ -162,7 +147,7 @@ int QLogView::length()
 
 /*! \reimp
 */
-void QLogView::drawContents( QPainter * p, int /*clipx*/, int clipy, int /*clipw*/, int cliph )
+void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw, int cliph )
 {
     QFontMetrics fm( font() );
     int startLine = clipy / fm.lineSpacing();
@@ -172,15 +157,26 @@ void QLogView::drawContents( QPainter * p, int /*clipx*/, int clipy, int /*clipw
 	return;
     if ( (startLine + nlines) > d->numLines )
 	nlines = d->numLines - startLine;
-
+    
     int i = 0;
-    for ( i = startLine; i < (startLine + nlines); i++ ) {
-	if ( d->colors.find( i ) != d->colors.end() )
-	    p->setPen( d->colors[ i ] );
-	else
-	    p->setPen( colorGroup().text() );
- 	p->drawText( contentsX(), (i + 1) * fm.lineSpacing(), d->lines[ i ] );
-    }
+    QString str;
+    for ( i = startLine; i < (startLine + nlines); i++ )
+	str.append( d->lines[ i ] + "\n" );
+    
+    QTextDocument * doc = new QTextDocument( 0 );
+    doc->setPlainText( str );
+    doc->setFormatter( new QTextFormatterBreakWords ); // deleted by QTextDoc
+    doc->formatter()->setWrapEnabled( FALSE );
+
+    // have to align the painter so that partly visible lines are
+    // drawn at the correct position within the area that needs to be
+    // painted
+    QRect r( 0, 0, clipw, cliph + (clipy % fm.lineSpacing()) );
+    p->translate( 0, clipy - (clipy % fm.lineSpacing()) );
+    doc->draw( p, r, colorGroup() );
+    p->translate( 0, -(clipy - (clipy % fm.lineSpacing())) );
+
+    delete doc;
 }
 
 /*! \reimp
@@ -192,11 +188,22 @@ void QLogView::fontChange( const QFont & )
 		    fm.descent() + 1 );
 }
 
-/*!
-  Set the color of \a line to be \a col.
-*/
-void QLogView::setLineColor( int line, const QColor & col )
+void QLogView::contentsMousePressEvent( QMouseEvent * e )
 {
-    if ( col != QColor() )
-	d->colors[ line ] = col;
+    d->mousePressed = TRUE;
+    d->selectionStart = e->pos();
+}
+
+void QLogView::contentsMouseReleaseEvent( QMouseEvent * e )
+{
+    d->mousePressed = TRUE;
+}
+
+void QLogView::contentsMouseMoveEvent( QMouseEvent * e )
+{
+    if ( d->mousePressed ) {
+	QPainter p( viewport() );
+	p.drawLine( d->selectionStart.x(), d->selectionStart.y(),
+		    e->pos().x(), e->pos().y() );
+    }
 }
