@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#109 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#109 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -1215,10 +1215,10 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 	    fc = darkBlue;			// !!!hardcoded
 	else
 	    fc = g.text();
-	if ( hasFocus() )
+	//	if ( hasFocus() )
 	    p->fillRect( 0, 0, cellWidth(col), cellHeight(row), fc );
-	else
-	    p->fillRect( 1, 1, cellWidth(col) - 2, cellHeight(row) - 2, fc );
+	    //	else
+	    //	    p->fillRect( 1, 1, cellWidth(col) - 2, cellHeight(row) - 2, fc );
 	p->setPen( g.base() );
 	p->setBackgroundColor( g.text() );
     } else {
@@ -1230,7 +1230,10 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 	if ( style() == WindowsStyle ) {
 	    p->drawWinFocusRect( 1, 1, cellWidth(col)-2 , cellHeight(row)-2 );
 	} else {
-	    p->setPen( g.base() );
+	    if ( isSelected( row ) )
+		p->setPen( g.base() );
+	    else
+		p->setPen( g.text() );
 	    p->setBrush( NoBrush );
 	    p->drawRect( 1, 1, cellWidth(col)-2 , cellHeight(row)-2 );
 	}
@@ -1739,8 +1742,8 @@ void QListBox::setSelected( int index, bool select )
 
 
 /*!
-  Returns TRUE if item \a i is selected, FALSE if it is not or
-  there is an error.
+  Returns TRUE if item \a i is selected. Returns FALSE if it is not 
+  selected or if there is an error.
 */
 
 bool QListBox::isSelected( int i ) const
@@ -1750,4 +1753,16 @@ bool QListBox::isSelected( int i ) const
 
     QListBoxItem * lbi = item( i );
     return lbi ? lbi->selected : FALSE;
+}
+
+
+/*!
+  Deselects all items. Does nothing if the listbox is a single-selection 
+  listbox.
+*/
+
+void QListBox::clearSelection()
+{
+    for ( int i = 0; i < (int)count(); i++ )
+	setSelected( i, FALSE );
 }
