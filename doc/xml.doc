@@ -39,10 +39,6 @@
 
 This module is part of the \link editions.html Qt Enterprise Edition \endlink.
 
-The XML module provides a well-formed XML parser using the SAX2 (Simple API for
-XML) interface plus an implementation of the DOM Level 2 (Document Object
-Model).
-
 \tableofcontents
 
 
@@ -50,7 +46,9 @@ Model).
 \target overview
 \section1 Overview of the XML architecture in Qt
 
-The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 2.
+The XML module provides a well-formed XML parser using the SAX2 (Simple API for
+XML) interface plus an implementation of the DOM Level 2 (Document Object
+Model).
 
 SAX is an event-based standard interface for XML parsers.
 The Qt interface follows the design of the SAX2 Java implementation.
