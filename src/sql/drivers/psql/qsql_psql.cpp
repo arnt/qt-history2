@@ -418,7 +418,8 @@ bool QPSQLResult::poll()
     if (PQisBusy(d->driver->connection))
         return true; // continue polling
     d->result = PQgetResult(d->driver->connection);
-    return d->processResults();
+    d->processResults();
+    return false;
 }
 
 int QPSQLResult::pollDescriptor() const
@@ -430,7 +431,7 @@ bool QPSQLResult::resetAsync(const QString &query)
 {
     cleanup();
     const QSqlDriver *dr = driver();
-    if (!dr || !dr->isOpen() || !dr->isOpenError())
+    if (!dr || !dr->isOpen() || dr->isOpenError())
         return false;
     if (!PQsendQuery(d->driver->connection,
                      d->driver->isUtf8 ? query.utf8() : query.local8Bit())) {
