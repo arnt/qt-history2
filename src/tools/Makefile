@@ -73,6 +73,19 @@ depend:
 clean:
 	/bin/rm -f *.o *.bak *BAK *~ *% #*
 
+# 'make checkout' updates files that MUST be old
+# 'make checkout CO=-d1994/12/24' recreates 1994/12/24
+# 'make checkout CO=-d2000/1/1 updates all files
+checkout:
+	@for rcs in RCS/*,v ; do \
+	    file=`basename $$rcs ,v` ;\
+	    [ -n "${CO}" ] || \
+	    [ '!' -f $$file ] || \
+	    ( [ '!' -w $$file ] && [ $$rcs -nt $$file ] ) && \
+	    echo co ${CO} $$file ;\
+	done; \
+	/bin/true # tell make it worked
+
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
