@@ -98,8 +98,8 @@ SOURCES	= command.cpp \
 		  dbconnectionsimpl.cpp
 
 TARGET	= designer
-INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
-unix:LIBS	+= -lqutil -L$(QTDIR)/lib
+INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/
+unix:LIBS	+= -lqutil -L$(QTDIR)/lib -L$(QTDIR)/qresource.lib
 win32:LIBS	+= $(QTDIR)/lib/qutil.lib
 DEFINES	+= DESIGNER
 DESTDIR	= $(QTDIR)/bin

@@ -1,5 +1,6 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release
+win32:CONFIG	+= static
 SOURCES		= qwidgetfactory.cpp \
 		  ../shared/widgetdatabase.cpp \
 		  ../shared/domtool.cpp \
