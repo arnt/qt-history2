@@ -231,7 +231,9 @@ struct TransformedFont
     float yy;
     union {
 	Font xlfd_font;
+#ifndef QT_NO_XFTFREETYPE
 	XftFont *xft_font;
+#endif
     };
     TransformedFont *next;
 };
