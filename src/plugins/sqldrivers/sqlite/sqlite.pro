@@ -20,9 +20,6 @@ SOURCES		= smain.cpp \
                ../../../3rdparty/sqlite/legacy.c \
                ../../../3rdparty/sqlite/main.c \
                ../../../3rdparty/sqlite/opcodes.c \
-               ../../../3rdparty/sqlite/os_mac.c \
-               ../../../3rdparty/sqlite/os_unix.c \
-               ../../../3rdparty/sqlite/os_win.c \
                ../../../3rdparty/sqlite/pager.c \
                ../../../3rdparty/sqlite/parse.c \
                ../../../3rdparty/sqlite/pragma.c \
@@ -41,6 +38,10 @@ SOURCES		= smain.cpp \
                ../../../3rdparty/sqlite/vdbe.c \
                ../../../3rdparty/sqlite/vdbemem.c \
                ../../../3rdparty/sqlite/where.c
+
+               unix:SOURCES += ../../../3rdparty/sqlite/os_unix.c
+               mac:SOURCES += ../../../3rdparty/sqlite/os_mac.c
+               windows:SOURCES += ../../../3rdparty/sqlite/os_win.c
 }
 
 include(../qsqldriverbase.pri)
