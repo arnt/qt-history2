@@ -4568,6 +4568,7 @@ void QFileDialog::setMode( Mode newMode )
 	    d->types->setEnabled( FALSE );
 	} else if ( newMode == ExistingFiles ) {
 	    maxnamelen = 16384;
+	    files->setSelectionMode( QListView::Extended );
 	    d->moreFiles->setSelectionMode( QListBox::Extended );
 	    d->types->setEnabled( TRUE );
 	} else {
@@ -4576,7 +4577,6 @@ void QFileDialog::setMode( Mode newMode )
 	    d->types->setEnabled( TRUE );
 	}
 	nameEdit->setMaxLength(maxnamelen);
-	files->setSelectionMode( QListView::Extended );
 	rereadDir();
 	QUrlInfo f( d->url, "." );
 	trySetSelection( f.isDir(), d->url, FALSE );
