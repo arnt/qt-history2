@@ -2757,13 +2757,6 @@ void QCanvasPolygonalItem::draw(QPainter & p)
   \sa draw()
 */
 
-void QCanvasPolygonalItem::moveBy(double dx, double dy)
-{
-    if ( dx || dy ) {
-	removeFromChunks();
-	QCanvasItem::moveBy(dx,dy);
-    }
-}
 
 /*!
   Sets the QPen used when drawing the item.
@@ -2861,6 +2854,25 @@ void QCanvasPolygon::moveBy(double dx, double dy)
   points are \e outside the object, not touching it.
 */
 
+/*!
+  \fn QPointArray QCanvasPolygon::points() const
+
+  Returns the vertices of the polygon, not translated by the position.
+
+  \sa setPoints(), areaPoints()
+*/
+QPointArray QCanvasPolygon::points() const
+{
+    QPointArray pa = areaPoints();
+    pa.translate(int(-x()),int(-y()));
+    return pa;
+}
+
+/*!
+  Returns the vertices of the polygon translated by the x(), y() position.
+
+  \sa setPoints(), points()
+*/
 QPointArray QCanvasPolygon::areaPoints() const
 {
     return poly;

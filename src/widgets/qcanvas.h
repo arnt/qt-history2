@@ -384,8 +384,6 @@ public:
     void setPen(QPen p);
     void setBrush(QBrush b);
 
-    void moveBy(double dx, double dy);
-
     virtual QPointArray areaPoints() const=0;
     virtual QPointArray areaPointsAdvanced() const;
     QRect boundingRect() const;
@@ -450,9 +448,10 @@ public:
     QCanvasPolygon();
     ~QCanvasPolygon();
     void setPoints(QPointArray);
-    QPointArray areaPoints() const;
+    QPointArray points() const;
     void moveBy(double dx, double dy);
 
+    QPointArray areaPoints() const;
     int rtti() const;
 
 protected:
