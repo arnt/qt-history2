@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#1 $
+** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#2 $
 **
 ** This is a utility program for merging findtr msgfiles
 **
@@ -7,10 +7,9 @@
 ** Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-//#include <qapplication.h>
 #include <qfile.h>
 #include <qtextstream.h>
-//#include <qtextcodec.h>
+#include <stdlib.h>
 
 #include <stdio.h>
 
@@ -72,8 +71,8 @@ QString extractContents( const QString& line )
 		    case 'f':
 			contents += '\f';
 			break;
-		    case 'e':
-			contents += '\e';
+		    case 'v':
+			contents += '\v';
 			break;
 		    case 'b':
 			contents += '\b';
