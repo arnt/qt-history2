@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#21 $
 **
 ** Implementation of QProgressBar class
 **
@@ -171,6 +171,15 @@ QSize QProgressBar::sizeHint() const
 void QProgressBar::show()
 {
     setIndicator( progress_str, progress_val, total_steps );
+    // ### 2.0: Move this next stuff to styleChange()
+    if ( style() == MotifStyle ) {
+	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
+	setLineWidth( 2 );
+    }
+    else {
+	setFrameStyle(QFrame::NoFrame);
+	setLineWidth( 1 );
+    }
     QFrame::show();
 }
 

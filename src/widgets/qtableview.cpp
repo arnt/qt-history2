@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#83 $
 **
 ** Implementation of QTableView class
 **
@@ -2274,7 +2274,7 @@ int QTableView::maxRowOffset()
 	return my/cellH;
     else {
 	int ycd=0, row=0;
-	while (my > (ycd=cellHeight(row)) ) {
+	while ( row < nRows && my > (ycd=cellHeight(row)) ) {
 	    my -= ycd;
 	    row++;
 	}
