@@ -45,13 +45,13 @@ class QLatin1String;
 class Q_CORE_EXPORT QString
 {
 public:
-    QString();
+    QString() { ++d->ref; }
     QString(const QChar *unicode, int size);
     QString(int size, QChar c);
     explicit QString(QChar c);
     QString(const QLatin1String &latin1);
     QString(const QString &);
-    ~QString();
+    ~QString() { if (!--d->ref) free(d); }
     QString &operator=(QChar c);
     inline QString &operator=(const QString &);
     inline QString &operator=(const QLatin1String &);
@@ -484,8 +484,6 @@ private:
 
 
 
-inline QString::QString() :d(&shared_null)
-{ ++d->ref; }
 inline QString::QString(const QLatin1String &latin1) : d(&shared_null)
 { ++d->ref; *this = fromLatin1(latin1.latin1()); }
 inline int QString::length() const
@@ -532,8 +530,6 @@ inline QString &QString::operator=(const QLatin1String &s)
     *this = fromLatin1(s.latin1());
     return *this;
 }
-inline QString::~QString()
-{ if (!--d->ref) free(d); }
 inline void QString::clear()
 { *this = QString(); }
 inline QString::QString(const QString &s) : d(s.d)

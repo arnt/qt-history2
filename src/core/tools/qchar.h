@@ -29,7 +29,7 @@ public:
 #ifdef Q_QDOC
     QChar(const QChar& c);
 #endif
-    QChar(ushort rc);
+    QChar(ushort rc) : ucs(rc){}
     QChar(short rc);
     QChar(uint rc);
     QChar(int rc);
@@ -190,7 +190,6 @@ inline char QChar::latin1() const { return ucs > 0xff ? 0 : (char) ucs; }
 inline QChar QChar::fromLatin1(char c) { return QChar((ushort) c); }
 
 inline QChar::QChar(uchar c, uchar r) : ucs((r << 8) | c){}
-inline QChar::QChar(ushort rc) : ucs(rc){}
 inline QChar::QChar(short rc) : ucs((ushort) rc){}
 inline QChar::QChar(uint rc) : ucs((ushort) (rc & 0xffff)){}
 inline QChar::QChar(int rc) : ucs((ushort) (rc & 0xffff)){}
