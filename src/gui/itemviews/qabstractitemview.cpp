@@ -516,8 +516,6 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 */
 QItemSelectionModel* QAbstractItemView::selectionModel() const
 {
-//     if (!d->selectionModel)
-//         setSelectionModel(new QItemSelectionModel(model(), const_cast<QAbstractItemView*>(this));
     return d->selectionModel;
 }
 

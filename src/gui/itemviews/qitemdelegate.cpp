@@ -205,7 +205,8 @@ QWidget *QItemDelegate::editor(QWidget *parent,
 
 void QItemDelegate::releaseEditor(QWidget *editor)
 {
-    editor->deleteLater();
+    editor->removeEventFilter(this);
+    delete editor;
 }
 
 /*!
@@ -576,6 +577,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             break;
         }
     } else if (event->type() == QEvent::FocusOut) {
+        qDebug("focus out");
         emit commitData(editor);
         emit closeEditor(editor, NoHint);
         return true;
