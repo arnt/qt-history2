@@ -437,8 +437,10 @@ bool QClipboard::event( QEvent *e )
 }
 
 
-void QClipboard::clear()
+void QClipboard::clear( Mode mode )
 {
+    if ( mode != Clipboard ) return;
+
     if ( OpenClipboard( clipboardOwner()->winId() ) ) {
 	EmptyClipboard();
 	CloseClipboard();
