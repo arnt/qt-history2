@@ -60,9 +60,6 @@ public:
 
     int styleHint(StyleHint sh, const QWidget *, const Q3StyleOption &, QStyleHintReturn *) const;
 
-    QPixmap stylePixmap(StylePixmap sp, const QWidget *widget,
-                        const Q3StyleOption& = Q3StyleOption::Default) const;
-
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                         const QPalette &pal, const Q3StyleOption& = Q3StyleOption::Default) const;
 

@@ -27,7 +27,7 @@ public:
 };
 
 QToolBarButtonPrivate::QToolBarButtonPrivate()
-    : usesTextLabel(false)
+    : usesTextLabel(true)
 { }
 
 QStyleOptionButton QToolBarButtonPrivate::getStyleOption() const

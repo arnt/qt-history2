@@ -27,6 +27,7 @@
 #include "qmacstyleqd_mac.h"
 #include "qmacstylecg_mac.h"
 
+QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height);
 struct QMacStylePrivate {
     struct PolicyState {
         static QMap<const QWidget*, QMacStyle::FocusRectPolicy> focusMap;
@@ -189,13 +190,75 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                                const QPalette &pal, const Q3StyleOption &opt) const
 {
-    return correctStyle(&pixmap)->stylePixmap(pixmaptype, pixmap, pal, opt);
+    QPixmap px = pixmap;
+    switch (pixmaptype) {
+    case PT_Disabled: {
+        QImage img = px;
+        img.setAlphaBuffer(true);
+        QRgb pixel;
+        int imgh = img.height();
+        int imgw = img.width();
+        for (int y = 0; y < imgh; ++y) {
+            for (int x = 0; x < imgw; ++x) {
+                pixel = img.pixel(x, y);
+                img.setPixel(x, y, qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel),
+                                         qAlpha(pixel) / 2));
+            }
+        }
+        px = img;
+        break; }
+    case PT_Active: {
+        QImage img = px;
+        img.setAlphaBuffer(true);
+        int imgh = img.height();
+        int imgw = img.width();
+        int h, s, v, a;
+        QRgb pixel;
+        for (int y = 0; y < imgh; ++y) {
+            for (int x = 0; x < imgw; ++x) {
+                pixel = img.pixel(x, y);
+                a = qAlpha(pixel);
+                QColor hsvColor(pixel);
+                hsvColor.getHsv(&h, &s, &v);
+                s = qMin(100, s * 2);
+                v = v / 2;
+                hsvColor.setHsv(h, s, v);
+                pixel = hsvColor.rgb();
+                img.setPixel(x, y, qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), a));
+            }
+        }
+        px = img;
+        break; }
+    default:
+        px = correctStyle(&pixmap)->stylePixmap(pixmaptype, pixmap, pal, opt);
+    }
+    return px;
 }
 
 /*! \reimp */
 QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap, const QWidget *widget,
                                const Q3StyleOption &opt) const
 {
+    IconRef icon = 0;
+    switch (stylepixmap) {
+        case SP_MessageBoxQuestion:
+        case SP_MessageBoxInformation:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
+            break;
+        case SP_MessageBoxWarning:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertCautionIcon, &icon);
+            break;
+        case SP_MessageBoxCritical:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
+            break;
+        default:
+            break;
+    }
+    if (icon) {
+        QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
+        ReleaseIconRef(icon);
+        return ret;
+    }
     return correctStyle(widget)->stylePixmap(stylepixmap, widget, opt);
 }
 

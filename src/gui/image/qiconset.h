@@ -73,7 +73,7 @@ public:
 private:
     void normalize(Size& which, const QSize& pixSize);
     QPixmap *createScaled(Size size, const QPixmap *suppliedPix) const;
-    QPixmap *createDisabled(Size size, State state) const;
+    QPixmap *createIcon(Size size, Mode mode, State state) const;
     static QPixmap *defaultGenerator(const QIconSet &icon, Size size, Mode mode, State state);
 
     QIconSetData *d;

@@ -279,13 +279,6 @@ void QMacStyleCG::polish(QWidget *w)
         p.end();
         w->setWindowOpacity(0.95);
     }
-
-    if (::qt_cast<QRubberBand*>(w))
-        w->setWindowOpacity(0.25);
-
-    if (QTitleBar *tb = ::qt_cast<QTitleBar *>(w))
-        tb->setAutoRaise(true);
-
     if (!px.isNull()) {
         QPalette pal = w->palette();
         QBrush background(px);
@@ -293,6 +286,12 @@ void QMacStyleCG::polish(QWidget *w)
         pal.setBrush(QPalette::Button, background);
         w->setPalette(pal);
     }
+
+    if (::qt_cast<QRubberBand*>(w))
+        w->setWindowOpacity(0.25);
+
+    if (QTitleBar *tb = ::qt_cast<QTitleBar *>(w))
+        tb->setAutoRaise(true);
     QWindowsStyle::polish(w);
 }
 
@@ -542,32 +541,6 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const Q3StyleOpt
         ret = QWindowsStyle::styleHint(sh, widget, opt, d);
     }
     return ret;
-}
-
-QPixmap QMacStyleCG::stylePixmap(StylePixmap sp, const QWidget *widget,
-                                 const Q3StyleOption &opt) const
-{
-    IconRef icon = 0;
-    switch (sp) {
-        case SP_MessageBoxQuestion:
-        case SP_MessageBoxInformation:
-            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
-            break;
-        case SP_MessageBoxWarning:
-            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertCautionIcon, &icon);
-            break;
-        case SP_MessageBoxCritical:
-            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
-            break;
-        default:
-            break;
-    }
-    if (icon) {
-        QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
-        ReleaseIconRef(icon);
-        return ret;
-    }
-    return QWindowsStyle::stylePixmap(sp, widget, opt);
 }
 
 QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
@@ -1180,6 +1153,34 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             }
         }
         break;
+    case CE_ToolBarButton:
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+            const QRect cr = subRect(SR_ToolBarButtonContents, btn, w);
+            QIconSet::Mode iconMode = (btn->state & Style_Enabled)
+                                        ? QIconSet::Normal
+                                        : QIconSet::Disabled;
+            if (btn->state & Style_Down)
+                iconMode = QIconSet::Active;
+            QIconSet::State iconState = (btn->state & Style_On)
+                ? QIconSet::On
+                : QIconSet::Off;
+
+            const QPixmap pixmap = btn->icon.pixmap(QIconSet::Large, iconMode, iconState);
+
+            p->drawPixmap((cr.width() - pixmap.width()) / 2, 0, pixmap);
+            if (!btn->text.isEmpty()) {
+                if (btn->state & Style_Down)
+                p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(),
+                            cr.height() - pixmap.height(), Qt::AlignCenter, btn->text);
+                p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(), cr.height() - pixmap.height(),
+                            Qt::AlignCenter, btn->text);
+            }
+            if (btn->features & QStyleOptionButton::HasMenu) {
+                const QRect mr = subRect(SR_ToolBarButtonMenu, btn, w);
+                p->fillRect(mr, Qt::green);
+            }
+        }
+        break;
     default:
         QWindowsStyle::drawControl(ce, opt, p, w);
     }
@@ -1210,6 +1211,10 @@ QRect QMacStyleCG::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w
         break;
     case SR_ProgressBarContents:
         r = opt->rect;
+        break;
+    case SR_ToolBarButtonContents:
+    case SR_ToolBarButtonMenu:
+        r = QWindowsStyle::subRect(sr, opt, w);
         break;
     default:
         r = QWindowsStyle::subRect(sr, opt, w);
@@ -1833,6 +1838,18 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
                 w += 12;
             }
             sz = QSize(w, h);
+        }
+        break;
+    case CT_ToolBarButton:
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+            const QPixmap pix = btn->icon.pixmap();
+            sz = pix.size();
+            if (!btn->text.isEmpty()) {
+                sz.rheight() += fm.lineSpacing();
+                sz.rwidth() = qMax(sz.width(), fm.width(btn->text));
+            }
+            if (btn->features & QStyleOptionButton::HasMenu)
+                sz.rwidth() += 12;
         }
         break;
     default:

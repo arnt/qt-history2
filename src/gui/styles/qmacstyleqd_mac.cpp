@@ -772,7 +772,7 @@ QPixmap QMacStyleQD::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                                 const QPalette &pal, const Q3StyleOption &opt) const
 {
     switch(pixmaptype) {
-    case PT_Pressed:
+    case PT_Active:
     case PT_Disabled: {
         QImage img;
         img = pixmap;
@@ -780,7 +780,7 @@ QPixmap QMacStyleQD::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
         for(int y = 0; y < img.height(); y++) {
             for(int x = 0; x < img.width(); x++) {
                 pixel = img.pixel(x, y);
-                if(pixmaptype == PT_Pressed) {
+                if(pixmaptype == PT_Active) {
                     QColor hsvColor(pixel);
                     int h, s, v;
                     hsvColor.getHsv(&h, &s, &v);
@@ -803,32 +803,6 @@ QPixmap QMacStyleQD::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
         break;
     }
     return QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
-}
-
-QPixmap QMacStyleQD::stylePixmap(StylePixmap stylepixmap, const QWidget *widget,
-                                 const Q3StyleOption& opt) const
-{
-    IconRef icon = 0;
-    switch(stylepixmap) {
-    case SP_MessageBoxQuestion:
-    case SP_MessageBoxInformation:
-        GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
-        break;
-    case SP_MessageBoxWarning:
-        GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertCautionIcon, &icon);
-        break;
-    case SP_MessageBoxCritical:
-        GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
-        break;
-    default:
-        break;
-    }
-    if(icon) {
-        QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
-        ReleaseIconRef(icon);
-        return ret;
-    }
-    return QWindowsStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
 void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,

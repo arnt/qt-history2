@@ -484,19 +484,17 @@ QPixmap QIconSet::pixmap(Size size, Mode mode, State state) const
         return QPixmap();
     }
 
-    if (mode == Active)
-        return pixmap(size, Normal, state);
-
     Size otherSize = (size == Large) ? Small : Large;
     QIconSetIcon *otherSizeIcon = d->icon(this, otherSize, mode, state);
 
     if (state == Off) {
-        if (mode == Disabled && d->icon(this, size, Normal, Off)->origin != Generated) {
-            icon->pixmap = createDisabled(size, Off);
+        bool couldCreate = mode == Disabled || mode == Active;
+        if (couldCreate && d->icon(this, size, Normal, Off)->origin != Generated) {
+            icon->pixmap = createIcon(size, mode, Off);
         } else if (otherSizeIcon->origin != Generated) {
             icon->pixmap = createScaled(size, otherSizeIcon->pixmap);
-        } else if (mode == Disabled) {
-            icon->pixmap = createDisabled(size, Off);
+        } else if (couldCreate) {
+            icon->pixmap = createIcon(size, mode, Off);
         } else if (!d->defaultPix.isNull()) {
             icon->pixmap = new QPixmap(d->defaultPix);
         } else {
@@ -551,13 +549,13 @@ QPixmap QIconSet::pixmap(Size size, Mode mode, State state) const
                 if (offIcon->pixmap)
                     icon->pixmap = new QPixmap(*offIcon->pixmap);
             } else if (d->icon(this, size, Normal, On)->origin != Generated) {
-                icon->pixmap = createDisabled(size, On);
+                icon->pixmap = createIcon(size, mode, On);
             } else if (otherSizeIcon->origin != Generated) {
                 icon->pixmap = createScaled(size, otherSizeIcon->pixmap);
             } else if (otherSizeOffIcon->origin != Generated) {
                 icon->pixmap = createScaled(size, otherSizeOffIcon->pixmap);
             } else {
-                icon->pixmap = createDisabled(size, On);
+                icon->pixmap = createIcon(size, mode, On);
             }
         }
     }
@@ -766,17 +764,21 @@ QPixmap *QIconSet::createScaled(Size size, const QPixmap *suppliedPix) const
 }
 
 /*!
-    Returns a new pixmap that has a 'disabled' look, taking as its
+    Returns a new pixmap that has a mode \a mode look, taking as its
     base the iconset's icon with size \a size and state \a state.
 */
-QPixmap *QIconSet::createDisabled(Size size, State state) const
+QPixmap *QIconSet::createIcon(Size size, Mode mode, State state) const
 {
+    Q_ASSERT_X(mode != Normal, "QIconSet::createIcon", "Mode cannot be \"Normal\"");
     QPixmap normalPix = pixmap(size, Normal, state);
     if (normalPix.isNull())
         return 0;
 
-    QPixmap disabledPix = QApplication::style().stylePixmap(QStyle::PT_Disabled, normalPix, QApplication::palette());
-    return new QPixmap(disabledPix);
+    QPixmap pix = QApplication::style().stylePixmap(mode == Disabled
+                                                    ? QStyle::PT_Disabled 
+                                                    : QStyle::PT_Active, normalPix,
+                                                    QApplication::palette());
+    return new QPixmap(pix);
 }
 
 #endif // QT_NO_ICONSET

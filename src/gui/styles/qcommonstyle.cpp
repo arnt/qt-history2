@@ -2603,7 +2603,7 @@ QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
         ret.setMask(mask);
         return ret;
     }
-    case PT_Pressed:
+    case PT_Active:
         return pixmap;
     default:
         break;

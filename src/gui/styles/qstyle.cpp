@@ -1638,7 +1638,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
   perferred way of representing the image in different states.
 
   \value PT_Disabled  a disabled pixmap (drawn on disabled widgets)
-  \value PT_Pressed   a pressed pixmap (drawn on pressed toolbuttons)
+  \value PT_Active   an active pixmap (drawn on active toolbuttons/menuitems)
 
   \value PT_CustomBase base value for custom PixmapTypes. All values
      below this are reserved for internal Qt usage. Therefore, custom
