@@ -406,7 +406,7 @@ bool QSqlRecord::isVisible( const QString& name ) const
 
 */
 
-QString QSqlRecord::toString( const QString& prefix ) const
+QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
 {
     QString pflist;
     QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
@@ -415,7 +415,7 @@ QString QSqlRecord::toString( const QString& prefix ) const
     for ( uint i = 0; i < count(); ++i ){
 	if ( isGenerated( field(i)->name() ) ) {
 	    if( comma )
-		pflist += ", ";
+		pflist += sep + " ";
 	    pflist += pfix + field(i)->name();
 	    comma = TRUE;
 	}

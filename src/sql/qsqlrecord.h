@@ -80,7 +80,8 @@ public:
     virtual void         clear();
     virtual void         clearValues( bool nullify = FALSE );
     uint                 count() const;
-    virtual QString      toString( const QString& prefix = QString::null ) const;
+    virtual QString      toString( const QString& prefix = QString::null,
+				   const QString& sep = "," ) const;
 
     virtual void         setGenerated( const QString& name, bool generated );
     bool                 isGenerated( const QString& name ) const;

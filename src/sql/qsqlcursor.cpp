@@ -205,7 +205,7 @@ QSqlIndex QSqlCursor::sort() const
 
 /*! Sets the current filter to \a filter.  Note that no new records
   are selected.  To select new records, use select()
-  
+
 */
 void QSqlCursor::setFilter( const QString& filter )
 {
@@ -252,7 +252,7 @@ QString QSqlCursor::name() const
 /*! \reimp
 */
 
-QString QSqlCursor::toString( const QString& prefix ) const
+QString QSqlCursor::toString( const QString& prefix, const QString& sep ) const
 {
     QString pflist;
     QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
@@ -262,7 +262,7 @@ QString QSqlCursor::toString( const QString& prefix ) const
 	const QString fname = field( i )->name();
 	if ( !isCalculated( fname ) && isGenerated( fname ) ) {
 	    if( comma )
-		pflist += ", ";
+		pflist += sep + " ";
 	    pflist += pfix + fname;
 	    comma = TRUE;
 	}
@@ -538,7 +538,7 @@ bool QSqlCursor::canDelete() const
 /*! Returns a formatted string consisting of \a prefix, the \a field
   name(), \a fieldSep followed by the field value.  This method is
   useful for generating SQL statements.
-  
+
 */
 
 QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QString& fieldSep ) const
@@ -556,7 +556,7 @@ QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QSt
 
 */
 
-QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, 
+QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QString& fieldSep,
 			      const QString& sep ) const
 {
     QString filter;
@@ -582,7 +582,7 @@ QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QStr
 
 */
 
-QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString& prefix, 
+QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString& prefix,
 				const QString& fieldSep, const QString& sep ) const
 {
     QString filter;

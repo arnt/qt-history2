@@ -93,14 +93,15 @@ public:
     bool              select( const QSqlIndex& sort );
     bool              select( const QSqlIndex & filter, const QSqlIndex & sort );
     virtual bool      select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
-    
+
     virtual void      setSort( const QSqlIndex& sort );
     QSqlIndex         sort() const;
     virtual void      setFilter( const QString& filter );
     QString           filter() const;
     virtual void      setName( const QString& name, bool autopopulate = TRUE );
     QString           name() const;
-    QString           toString( const QString& prefix = QString::null ) const;
+    QString           toString( const QString& prefix = QString::null,
+				const QString& sep = "," ) const;
 
 protected:
     void              afterSeek();
@@ -112,18 +113,18 @@ protected:
     virtual QVariant  calculateField( const QString& name );
     virtual int       update( const QString & filter, bool invalidate = TRUE );
     virtual int       del( const QString & filter, bool invalidate = TRUE );
-    
+
     virtual QString   toString( const QString& prefix, QSqlField* field, const QString& fieldSep ) const;
-    virtual QString   toString( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, 
+    virtual QString   toString( QSqlRecord* rec, const QString& prefix, const QString& fieldSep,
 				const QString& sep ) const;
-    virtual QString   toString( const QSqlIndex& i, QSqlRecord* rec, const QString& prefix, 
+    virtual QString   toString( const QSqlIndex& i, QSqlRecord* rec, const QString& prefix,
 				const QString& fieldSep, const QString& sep ) const;
 
 private:
     void              sync();
     int               apply( const QString& q, bool invalidate );
     QSqlRecord&       operator=( const QSqlRecord & list );
-    
+
     QSqlCursorPrivate*  d;
 };
 
