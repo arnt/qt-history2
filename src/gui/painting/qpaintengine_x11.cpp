@@ -518,11 +518,13 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
  * Polygon tesselator - can probably be optimized a bit more
  */
 
+//#define QT_DEBUG_TESSELATOR
+
 #define FloatToXFixed(i) (int)((i) * 65536)
 #define IntToXFixed(i) ((i) * 65536)
 
 // used by the edge point sort algorithm
-static float currentScanline = 0.f;
+static float currentY = 0.f;
 
 struct QEdge {
     QPointF p1, p2;
@@ -545,13 +547,13 @@ struct QIntersectionPoint {
     const QEdge *edge;
     bool operator<(const QIntersectionPoint &other) const
     {
-	if (QABS(x - other.x) > 0.01) // x != other.x in 99% of the cases
+	if (QABS(x - other.x) > 0.01) { // x != other.x in 99% of the cases
 	    return x < other.x;
-	else {
+	} else {
             float x1 = qIsInf(edge->b) ? edge->p1.x()
-                       : (currentScanline+1.f - edge->b)*edge->m;
+                       : (currentY+1.f - edge->b)*edge->m;
             float x2 = qIsInf(other.edge->b) ? other.edge->p1.x()
-                       : (currentScanline+1.f - other.edge->b)*other.edge->m;
+                       : (currentY+1.f - other.edge->b)*other.edge->m;
             return x1 < x2;
         }
     }
@@ -579,35 +581,30 @@ static void populateXTrapezoid(XTrapezoid *trap, float y,
     trap->right.p2.x = FloatToXFixed(right.p2.x());
 }
 
-// static bool operator==(const XLineFixed &l1, const XLineFixed &l2)
-// {
-//     return l1.p1.x == l2.p1.x && l1.p1.y == l2.p1.y
-// 	   && l1.p2.x == l2.p2.x && l1.p2.y == l2.p2.y;
-// }
+#ifdef QT_DEBUG_TESSELATOR
+static void dump_edges(const QList<QEdge> &et)
+{
+    for (int x = 0; x < et.size(); ++x) {
+        qDebug() << "edge#" << x << et.at(x).p1 << et.at(x).p2 << "b: " << et.at(x).b << "m:" << et.at(x).m << &et.at(x);
+    }
+}
 
-// static bool operator==(const XPointFixed &p1, const XPointFixed &p2)
-// {
-//     return p1.x == p2.x && p1.y == p2.y;
-// }
+static void dump_trap(const XTrapezoid &t)
+{
+    qDebug() << "trap# t=" << t.top/65536.0 << "b=" << t.bottom/65536.0  << "h="
+             << XFixedToDouble(t.bottom - t.top) << "\tleft p1: ("
+             << XFixedToDouble(t.left.p1.x) << ","<< XFixedToDouble(t.left.p1.y)
+             << ")" << "\tleft p2: (" << XFixedToDouble(t.left.p2.x) << ","
+             << XFixedToDouble(t.left.p2.y) << ")" << "\n\t\t\t\tright p1:("
+             << XFixedToDouble(.right.p1.x) << "," << XFixedToDouble(t.right.p1.y) << ")"
+             << "\tright p2:(" << XFixedToDouble(t.right.p2.x) << ","
+             << XFixedToDouble(t.right.p2.y) << ")";
+}
+#endif
 
-// static void dump_edges(const QList<QEdge> &et)
-// {
-//     for (int x = 0; x < et.size(); ++x) {
-//         qDebug() << "edge#" << x << et.at(x).p1 << et.at(x).p2 << &et.at(x);
-//     }
-// }
-
-// static void dump_trap(const XTrapezoid &t)
-// {
-//     qDebug() << "trap# t=" << t.top/65536.0 << "b=" << t.bottom/65536.0  << "h=" << t.bottom/65536.0 - t.top/65536.0 << "\tleft p1: ("
-//              << t.left.p1.x/65536.0 << ","<< t.left.p1.y/65536.0 << ")" << "\tleft p2: ("
-//              << t.left.p2.x/65536.0 << "," << t.left.p2.y/65536.0 << ")"
-//              << "\n\t\t\t\tright p1:(" << t.right.p1.x/65536.0 << "," << t.right.p1.y/65536.0 << ")"
-//              << "\tright p2:(" << t.right.p2.x/65536.0 << "," << t.right.p2.y/65536.0 << ")";
-// }
 
 static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPolygon &pg,
-                                 bool winding, bool need_rounding)
+                                 bool winding, bool do_rounding)
 {
     QList<XTrapezoid> atps; // active trapezoids
     QList<QEdge> et; 	    // edge list
@@ -640,7 +637,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
     qHeapSort(et);
 
     // eliminate shared edges
-    for (int i = 0; i < et.size()-1; ++i) {
+    for (int i = 0; i < et.size(); ++i) {
 	for (int k = i+1; k < et.size(); ++k) {
    	    if (isEqual(et.at(i).p1, et.at(k).p1) && isEqual(et.at(i).p2, et.at(k).p2)
 		&& et.at(i).winding != et.at(k).winding) {
@@ -660,15 +657,19 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 //     if (paintEventClipRegion) // don't scan more lines than we have to
 // 	ymax = paintEventClipRegion->boundingRect().height();
 
-    currentScanline = ymin; // used by the less than op
+#ifdef QT_DEBUG_TESSELATOR
+    qDebug("==> ymin = %f, ymax = %f", ymin, ymax);
+#endif // QT_DEBUG_TESSELATOR
+
+    currentY = ymin; // used by the less than op
     for (float y = ymin; y < ymax;) {
-	// fill active edge table with edges that intersect the
-	// current line
-	for (int x = 0; x < et.size(); ++x) {
-	    if (et.at(x).p1.y() <= y && et.at(x).p2.y() > y || (et.at(x).p1.y() == y && et.at(x).p2.y() == y)) {
-		aet.append(et.at(x));
-		et.removeAt(x);
-		--x;
+	// fill active edge table with edges that intersect the current line
+	for (int i = 0; i < et.size(); ++i) {
+	    if (et.at(i).p1.y() <= y && et.at(i).p2.y() > y
+                || (et.at(i).p1.y() == y && et.at(i).p2.y() == y)) {
+		aet.append(et.at(i));
+		et.removeAt(i);
+		--i;
 	    }
 	}
 
@@ -681,8 +682,6 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	}
 
         Q_ASSERT(aet.size()%2 == 0);
-// 	if (aet.size()%2 != 0)
-// 	    return;
 
 	// done?
 	if (!aet.size()) {
@@ -694,8 +693,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	    }
         }
 
-        // calculate the next y where we have to start a new set of
-        // trapezoids
+        // calculate the next y where we have to start a new set of trapezoids
 	float next_y = 99999999.f;
  	for (int i = 0; i < aet.size(); ++i)
  	    if (aet.at(i).p2.y() < next_y)
@@ -704,7 +702,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	if (et.size() && next_y > et.at(0).p1.y())
 	    next_y = et.at(0).p1.y();
 
-	for (int i = 0; i < aet.size()-1; ++i) {
+	for (int i = 0; i < aet.size(); ++i) {
 	    for (int k = i+1; k < aet.size(); ++k) {
 		float m1 = aet.at(i).m;
 		float b1 = aet.at(i).b;
@@ -712,7 +710,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 		float b2 = aet.at(k).b;
 
 		if (m1 == m2)
-		    break;
+                    continue;
 
                 // ### intersect is not calculated correctly when optimized with -O2 (gcc)
                 volatile float intersect;
@@ -727,8 +725,14 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 		    next_y = intersect;
 	    }
 	}
-//         qDebug("y=%.2f: next_y: %.2f, %d active edges", y, next_y, aet.size());
 
+#ifdef QT_DEBUG_TESSELATOR
+        qDebug("###> y = %f, next_y = %f, %d active edges", y, next_y, aet.size());
+        qDebug("===> edges");
+        dump_edges(et);
+        qDebug("===> active edges");
+        dump_edges(aet);
+#endif
 	// calc intersection points
  	QVarLengthArray<QIntersectionPoint> isects(aet.size()+1);
  	for (int i = 0; i < isects.size()-1; ++i) {
@@ -747,7 +751,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
             traps->resize(start + atps.size());
             for (int i = 0; i < atps.size(); ++i) {
                 (*traps)[start + i] = atps.at(i);
-                (*traps)[start + i].bottom = need_rounding ? IntToXFixed(qRound(y))
+                (*traps)[start + i].bottom = do_rounding ? IntToXFixed(qRound(y))
                                              : FloatToXFixed(y);
             }
             atps.clear();
@@ -766,18 +770,18 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 		if (!left || !right)
 		    break;
                 XTrapezoid trap;
-                populateXTrapezoid(&trap, y, *left, *right, need_rounding);
+                populateXTrapezoid(&trap, y, *left, *right, do_rounding);
                 atps.append(trap);
 	    }
 	} else {
 	    // odd-even fill rule
 	    for (int i = 0; i < isects.size()-2; i += 2) {
                 XTrapezoid trap;
-                populateXTrapezoid(&trap, y, *isects[i].edge, *isects[i+1].edge, need_rounding);
+                populateXTrapezoid(&trap, y, *isects[i].edge, *isects[i+1].edge, do_rounding);
                 atps.append(trap);
             }
 	}
-	y = currentScanline = next_y;
+	y = currentY = next_y;
     }
 
     // close off any open trapezoids
@@ -786,10 +790,14 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
         traps->resize(start + atps.size());
         for (int i = 0; i < atps.size(); ++i) {
             (*traps)[start + i] = atps.at(i);
-            (*traps)[start + i].bottom = need_rounding ? IntToXFixed(qRound(currentScanline))
-                                         : FloatToXFixed(currentScanline);
+            (*traps)[start + i].bottom = do_rounding ? IntToXFixed(qRound(currentY))
+                                         : FloatToXFixed(currentY);
         }
     }
+
+#ifdef QT_DEBUG_TESSELATOR
+    qDebug("==> number of trapezoids: %d - edge table size: %d\n", traps->size(), et.size());
+#endif
 
     // optimize by unifying trapezoids that share left/right lines
     // and have a common top/bottom edge
@@ -1254,7 +1262,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     int  bs = d->cbrush.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
                    (bs == Qt::NoBrush || bs == Qt::SolidPattern) &&
-      origin.x() == 0 && origin.y() == 0;
+                   origin.x() == 0 && origin.y() == 0;
 
     QColormap cmap = QColormap::instance(d->scrn);
     bool obtained = false;
@@ -1354,7 +1362,6 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
 
 void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 {
-
     QPolygon pa = a;
     int npoints = a.size();
     if (mode != PolylineMode) {
