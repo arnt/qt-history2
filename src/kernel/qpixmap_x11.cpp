@@ -1180,16 +1180,17 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		int pixel = (b & blue_mask)|(g & green_mask) | (r & red_mask);
 
 	    if ( dither_tc ) {
+		uint x;
 		switch ( bppc ) {
 		case 16:			// 16 bit MSB
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			GET_PIXEL_DITHER_TC
 			*dst++ = (pixel >> 8);
 			*dst++ = pixel;
 		    }
 		    break;
 		case 17:			// 16 bit LSB
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			GET_PIXEL_DITHER_TC
 			*dst++ = pixel;
 			*dst++ = pixel >> 8;
@@ -1199,29 +1200,30 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    qFatal("Logic error");
 		}
 	    } else {
+		uint x;
 		switch ( bppc ) {
 		case 8:			// 8 bit
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			int pixel = pix[*src++];
 			*dst++ = pixel;
 		    }
 		    break;
 		case 16:			// 16 bit MSB
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			GET_PIXEL
 			*dst++ = (pixel >> 8);
 			*dst++ = pixel;
 		    }
 		    break;
 		case 17:			// 16 bit LSB
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			GET_PIXEL
 			*dst++ = pixel;
 			*dst++ = pixel >> 8;
 		    }
 		    break;
 		case 24:			// 24 bit MSB
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			GET_PIXEL
 			*dst++ = pixel >> 16;
 			*dst++ = pixel >> 8;
@@ -1229,7 +1231,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    }
 		    break;
 		case 25:			// 24 bit LSB
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			GET_PIXEL
 			*dst++ = pixel;
 			*dst++ = pixel >> 8;
@@ -1237,7 +1239,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    }
 		    break;
 		case 32:			// 32 bit MSB
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			GET_PIXEL
 			*dst++ = pixel >> 24;
 			*dst++ = pixel >> 16;
@@ -1246,7 +1248,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    }
 		    break;
 		case 33:			// 32 bit LSB
-		    for ( uint x=0; x<w; x++ ) {
+		    for ( x=0; x<w; x++ ) {
 			GET_PIXEL
 			*dst++ = pixel;
 			*dst++ = pixel >> 8;
@@ -1269,7 +1271,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    image.setNumColors( 1 );
 
 	memset( pop, 0, sizeof(int)*256 );	// reset popularity array
-	for ( uint i=0; i<h; i++ ) {			// for each scanline...
+	uint i;
+	for ( i=0; i<h; i++ ) {			// for each scanline...
 	    uchar* p = image.scanLine( i );
 	    uchar *end = p + w;
 	    while ( p < end )			// compute popularity
@@ -1295,11 +1298,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    int	  mindist;
 	};
 	int ncols = 0;
-	for ( int i=0; i<image.numColors(); i++ ) { // compute number of colors
+	for ( i=0; i<image.numColors(); i++ ) { // compute number of colors
 	    if ( pop[i] > 0 )
 		ncols++;
 	}
-	for ( int i=image.numColors(); i<256; i++ ) // ignore out-of-range pixels
+	for ( i=image.numColors(); i<256; i++ ) // ignore out-of-range pixels
 	    pop[i] = 0;
 
 	// works since we make sure above to have at least
@@ -1315,7 +1318,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	int  maxpix = 0;
 	uint j = 0;
 	QRgb* ctable = image.colorTable();
-	for ( uint i=0; i<256; i++ ) {		// init pixel array
+	for ( i=0; i<256; i++ ) {		// init pixel array
 	    if ( pop[i] > 0 ) {
 		px->r = qRed  ( ctable[i] );
 		px->g = qGreen( ctable[i] );
@@ -1335,7 +1338,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	pixarr_sorted[0] = pixarr[maxpix];
 	pixarr[maxpix].use = 0;
 
-	for ( int i=1; i<ncols; i++ ) {		// sort pixels
+	for ( i=1; i<ncols; i++ ) {		// sort pixels
 	    int minpix = -1, mindist = -1;
 	    px = &pixarr_sorted[i-1];
 	    int r = px->r;
@@ -1379,14 +1382,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 	uint pix[256];				// pixel translation table
 	px = &pixarr_sorted[0];
-	for ( int i=0; i<ncols; i++ ) {		// allocate colors
+	for ( i=0; i<ncols; i++ ) {		// allocate colors
 	    QColor c( px->r, px->g, px->b );
 	    pix[px->index] = c.pixel(data->xinfo->screen());
 	    px++;
 	}
 
 	p = newbits;
-	for ( int i=0; i<nbytes; i++ ) {		// translate pixels
+	for ( i=0; i<nbytes; i++ ) {		// translate pixels
 	    *p = pix[*p];
 	    p++;
 	}
