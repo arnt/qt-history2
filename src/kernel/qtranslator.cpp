@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#6 $
 **
 ** Localization database support.
 **
@@ -212,6 +212,11 @@ void QTranslator::load( const QString & filename, const QString & directory )
 
 #if defined(UNIX)
     // unix (if mmap supported)
+
+// ###### Arnt: seems some platforms don't define this
+#ifndef MAP_FILE
+#define MAP_FILE 0
+#endif
 
     //const char * lang = getenv( "LANG" );
 
