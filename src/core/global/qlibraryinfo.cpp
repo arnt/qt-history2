@@ -112,7 +112,7 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
             }
             if(trySearch) {
                 QDir pwd(QFileInfo(exe).path());
-                while(1) {
+                for(int count = 0; count < 64; ++count) {
                     if(pwd.exists("qt.conf"))
                         return (new QSettings(pwd.filePath("qt.conf"), QSettings::IniFormat));
                     if(pwd.isRoot())
@@ -140,7 +140,7 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
     }
     { //walk up the file system from PWD to (a) root
         QDir pwd = QDir::current();
-        while(1) {
+        for(int count = 0; count < 64; ++count) {
             if(pwd.exists("qt.conf"))
                 return (new QSettings(pwd.filePath("qt.conf"), QSettings::IniFormat));
             if(pwd.isRoot())
