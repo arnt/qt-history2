@@ -1146,11 +1146,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 
             if (best_style->smoothScalable)
                 fe->fontDef.pixelSize = request.pixelSize;
-            else if ((best_style->bitmapScalable && (request.styleStrategy & QFont::PreferMatch))
-#ifdef Q_WS_X11
-                      || fp->dpi != QX11Info::appDpiY(fp->screen)
-#endif
-                )
+            else if ((best_style->bitmapScalable && (request.styleStrategy & QFont::PreferMatch)))
                 fe->fontDef.pixelSize = request.pixelSize;
             else
                 fe->fontDef.pixelSize = best_size->pixelSize;
