@@ -430,7 +430,7 @@ void WidgetDatabase::setupDataBase()
     r = new WidgetDatabaseRecord;
     r->iconSet = "";
     r->name = "QSqlWidget";
-    r->includeFile = "qwidget.h";
+    r->includeFile = "qsqlwidget.h";
     r->group = widgetGroup( "Temp" );
     r->isContainer = TRUE;
 
@@ -439,7 +439,7 @@ void WidgetDatabase::setupDataBase()
     r = new WidgetDatabaseRecord;
     r->iconSet = "";
     r->name = "QSqlDialog";
-    r->includeFile = "qwidget.h";
+    r->includeFile = "qsqldialog.h";
     r->group = widgetGroup( "Temp" );
     r->isContainer = TRUE;
 
