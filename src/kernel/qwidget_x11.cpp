@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#370 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#371 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -38,6 +38,10 @@
 #include "qtextcodec.h"
 #include "qt_x11.h"
 
+// Also in qapplication_x11
+#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
+#define NO_XIM
+#endif
 
 void qt_enter_modal( QWidget * );		// defined in qapplication_x11.cpp
 void qt_leave_modal( QWidget * );		// --- "" ---
@@ -46,14 +50,16 @@ void qt_insert_sip( QWidget*, int, int );	// --- "" ---
 int  qt_sip_count( QWidget* );			// --- "" ---
 bool qt_wstate_iconified( WId );		// --- "" ---
 void qt_updated_rootinfo();
+#ifndef NO_XIM
 extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
+#endif
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-extern bool qt_xdnd_rootwindow_enable( QWidget* w, bool on );
+extern bool qt_xdnd_enable( QWidget* w, bool on );
 extern bool qt_nograb();
 
 extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.const
@@ -227,6 +233,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				   &wsa );
 	}
 	setWinId( id );				// set widget id/handle + hd
+	if ( parentw == root_win )
+	    qt_xdnd_enable( this, TRUE );
     }
 
     if ( topLevel && !(desktop || popup) ) {
@@ -405,7 +413,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
 	    if ( acceptDrops() )
-		qt_xdnd_rootwindow_enable( this, FALSE );
+		qt_xdnd_enable( this, FALSE );
 	} else {
 	    if ( destroyWindow )
 		qt_XDestroyWindow( this, x11Display(), winid );
@@ -1821,6 +1829,7 @@ void QWidget::deleteSysExtra()
 
 void QWidget::createTLSysExtra()
 {
+#ifndef NO_XIM
     if ( qt_xim ) {
 	XPoint spot; spot.x = 1; spot.y = 1; // dummmy
 
@@ -1846,11 +1855,12 @@ void QWidget::createTLSysExtra()
     } else {
 	extra->topextra->xic = 0;
     }
+#endif
 }
 
 void QWidget::deleteTLSysExtra()
 {
-#if !defined(X11R4)
+#ifndef NO_XIM
     if (extra->topextra->xic) {
 	XUnsetICFocus( (XIC) extra->topextra->xic );
 	XDestroyIC( (XIC) extra->topextra->xic );
@@ -1885,7 +1895,7 @@ bool QWidget::acceptDrops() const
 void QWidget::setAcceptDrops( bool on )
 {
     if ( testWState(WState_DND) != on ) {
-	if ( qt_xdnd_rootwindow_enable( this, on ) ) {
+	if ( qt_xdnd_enable( this, on ) ) {
 	    if ( on )
 		setWState(WState_DND);
 	    else
