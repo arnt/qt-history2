@@ -3895,7 +3895,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 
     d->select = d->selectionMode == Multi ? !i->isSelected() : TRUE;
     d->select |= d->context_menu;
-    
+
     {// calculate activatedP
 	activatedByClick = TRUE;
 	QPoint topLeft = itemRect( i ).topLeft(); //### inefficient?
@@ -6669,7 +6669,8 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
   \a text and returns it, or returns 0 of no such item could be found.
   If ComparisonFlags are specified in \a compare then these flags are
   used, otherwise the default is a case-sensitive, exact match search.
-
+  ComparisonFlags is currently an unsigned integer that should contain a
+  binary ored set of \l Qt::StringComparisonMode values.
 */
 
 QListViewItem *QListView::findItem( const QString& text, int column, ComparisonFlags compare ) const
