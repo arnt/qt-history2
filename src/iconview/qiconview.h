@@ -272,6 +272,8 @@ private:
  *
  *****************************************************************************/
 
+class QIconViewPrivate;
+
 class QM_EXPORT QIconView : public QScrollView
 {
     friend class QIconViewItem;
@@ -488,7 +490,6 @@ private:
     void rebuildContainers();
     QBitmap mask( QPixmap *pix ) const;
 
-    class QIconViewPrivate;
     QIconViewPrivate *d;
 
 private:	// Disabled copy constructor and operator=

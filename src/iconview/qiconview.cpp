@@ -200,7 +200,7 @@ public:
 
 class QIconViewToolTip;
 
-class QIconView::QIconViewPrivate
+class QIconViewPrivate
 {
 public:
     QIconViewItem *firstItem, *lastItem;
@@ -281,8 +281,8 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
     if ( !n1 || !n2 )
 	return 0;
 
-    QIconView::QIconViewPrivate::SortableItem *i1 = (QIconView::QIconViewPrivate::SortableItem *)n1;
-    QIconView::QIconViewPrivate::SortableItem *i2 = (QIconView::QIconViewPrivate::SortableItem *)n2;
+    QIconViewPrivate::SortableItem *i1 = (QIconViewPrivate::SortableItem *)n1;
+    QIconViewPrivate::SortableItem *i2 = (QIconViewPrivate::SortableItem *)n2;
 
     return i1->item->compare( i2->item );
 }
@@ -339,7 +339,7 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
 class QIconViewItem::QIconViewItemPrivate
 {
 public:
-    QIconView::QIconViewPrivate::ItemContainer *container1, *container2;
+    QIconViewPrivate::ItemContainer *container1, *container2;
 };
 
 /*****************************************************************************
@@ -5412,14 +5412,14 @@ void QIconView::sort( bool ascending )
 	return;
 
     d->sortDirection = ascending;
-    QIconView::QIconViewPrivate::SortableItem *items = new QIconView::QIconViewPrivate::SortableItem[ count() ];
+    QIconViewPrivate::SortableItem *items = new QIconViewPrivate::SortableItem[ count() ];
 
     QIconViewItem *item = d->firstItem;
     int i = 0;
     for ( ; item; item = item->next )
 	items[ i++ ].item = item;
 
-    qsort( items, count(), sizeof( QIconView::QIconViewPrivate::SortableItem ), cmpIconViewItems );
+    qsort( items, count(), sizeof( QIconViewPrivate::SortableItem ), cmpIconViewItems );
 
     QIconViewItem *prev = 0;
     item = 0;
@@ -5524,7 +5524,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
     }
     item->d->container2 = 0;
 
-    QIconView::QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
     if ( !c ) {
 	appendItemContainer();
 	c = d->firstContainer;
@@ -5580,14 +5580,14 @@ void QIconView::appendItemContainer()
 	s = QSize( RECT_EXTENSION, INT_MAX - 1 );
 
     if ( !d->firstContainer ) {
-	d->firstContainer = new QIconView::QIconViewPrivate::ItemContainer( 0, 0, QRect( QPoint( 0, 0 ), s ) );
+	d->firstContainer = new QIconViewPrivate::ItemContainer( 0, 0, QRect( QPoint( 0, 0 ), s ) );
 	d->lastContainer = d->firstContainer;
     } else {
 	if ( d->arrangement == LeftToRight )
-	    d->lastContainer = new QIconView::QIconViewPrivate::ItemContainer(
+	    d->lastContainer = new QIconViewPrivate::ItemContainer(
 		d->lastContainer, 0, QRect( d->lastContainer->rect.bottomLeft(), s ) );
 	else
-	    d->lastContainer = new QIconView::QIconViewPrivate::ItemContainer(
+	    d->lastContainer = new QIconViewPrivate::ItemContainer(
 		d->lastContainer, 0, QRect( d->lastContainer->rect.topRight(), s ) );
     }
 }
@@ -5602,7 +5602,7 @@ void QIconView::appendItemContainer()
 
 void QIconView::rebuildContainers()
 {
-    QIconView::QIconViewPrivate::ItemContainer *c = d->firstContainer, *tmpc;
+    QIconViewPrivate::ItemContainer *c = d->firstContainer, *tmpc;
     while ( c ) {
 	tmpc = c->n;
 	delete c;
