@@ -24,7 +24,6 @@
 #include "qdrawutil.h"
 #include "qvector.h"
 #include "qpainter.h"
-#include "qptrlist.h"
 #include "qstyle.h"
 #include "qlist.h"
 #include "qtextstream.h"

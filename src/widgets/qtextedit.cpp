@@ -33,7 +33,6 @@
 #include "qapplication.h"
 #include "qclipboard.h"
 #include "qcolordialog.h"
-#include "qfontdialog.h"
 #include "qstylesheet.h"
 #include "qdragobject.h"
 #include "qurl.h"

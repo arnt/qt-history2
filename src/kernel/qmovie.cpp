@@ -16,7 +16,6 @@
 
 #include "qtimer.h"
 #include "qpainter.h"
-#include "qptrlist.h"
 #include "qbitmap.h"
 #include "qmovie.h"
 #include "qfile.h"
@@ -301,7 +300,7 @@ void QMoviePrivate::flushBuffer()
 	}
     }
 
-    if (error) 
+    if (error)
 	frametimer->stop();
 }
 
@@ -530,7 +529,7 @@ void QMoviePrivate::pollForData()
 	if (loop >= 0) {
 	    if (loop) {
 		loop--;
-		if (!loop) 
+		if (!loop)
 		    return;
 	    }
 	    delete decoder;
