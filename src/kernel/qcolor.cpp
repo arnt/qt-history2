@@ -217,13 +217,8 @@ void QColor::initGlobalColors()
 {
     globals_init = TRUE;
 
-#ifdef Q_WS_QWS
-    stdcol[ 0].d.argb = 0;
-    stdcol[ 1].d.argb = qRgb(255,255,255); // ##### WHY?
-#else
     stdcol[ 0].d.argb = qRgb(255,255,255);
     stdcol[ 1].d.argb = 0;
-#endif
     stdcol[ 0].setPixel( COLOR0_PIX );
     stdcol[ 1].setPixel( COLOR1_PIX );
 
