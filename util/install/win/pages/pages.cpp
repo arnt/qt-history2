@@ -136,11 +136,14 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
 
 QValidator::State InstallPathValidator::validate( QString& input, int& ) const
 {
-    if ( input.contains( QRegExp("\\s") ) ) {
-	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name" );
+    if ( ( globalInformation.sysId() == GlobalInformation::MSVC || 
+	   globalInformation.sysId() == GlobalInformation::MSVCNET ) 
+	   && input.contains( QRegExp("\\s") ) ) {
+	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name due to a limitation with MSVC" );
 	return Intermediate;
-    } else if ( input.contains( "-" ) ) {
-	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name" );
+    } else if ( globalInformation.sysId() == GlobalInformation::Borland && input.contains( "-" ) ) {
+	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name due to a limitation in the "
+			      "Borland linker" );
     	return Intermediate;
     }
     return Acceptable;
