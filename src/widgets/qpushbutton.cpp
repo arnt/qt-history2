@@ -293,18 +293,6 @@ void QPushButton::setOn( bool enable )
 }
 
 
-/*!
-  Toggles the state of a toggle button.
-  \sa isOn(), setOn(), toggled(), isToggleButton()
-*/
-
-void QPushButton::toggle()
-{
-    if ( !isToggleButton() )
-	return;
-    QButton::setOn( !isOn() );
-}
-
 
 /*! \fn bool QPushButton::autoDefault() const
 

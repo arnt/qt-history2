@@ -986,8 +986,10 @@ void QButton::enabledChange( bool e )
 }
 
 
-/*!  if this is a toggle button, toggles it. */
-
+/*
+  Toggles the state of a toggle button.
+  \sa isOn(), setOn(), toggled(), isToggleButton()
+*/
 void QButton::toggle()
 {
     if ( isToggleButton() )

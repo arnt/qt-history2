@@ -96,8 +96,6 @@ public:
 public slots:
     virtual void setOn( bool );
 
-    void	toggle();
-
 protected:
     void	drawButton( QPainter * );
     void	drawButtonLabel( QPainter * );
