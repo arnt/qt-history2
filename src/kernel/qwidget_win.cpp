@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#23 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#23 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -160,9 +160,29 @@ bool QWidget::create()				// create widget
 
 bool QWidget::destroy()				// destroy widget
 {
+    if ( qApp->focus_widget == this )
+	qApp->focus_widget = 0;			// reset focus widget
+    if ( parentWidget() && parentWidget()->focusChild == this )
+	parentWidget()->focusChild = 0;
     if ( testWFlags(WState_Created) ) {
+	emit destroyed();			// send out destroyed signal
 	clearWFlags( WState_Created );
-	DestroyWindow( id() );
+	focusChild = 0;
+	if ( children() ) {
+	    QObjectListIt it(*children());
+	    register QObject *obj;
+	    while ( (obj=it.current()) ) {	// destroy all widget children
+		++it;
+		if ( obj->isWidgetType() )
+		    ((QWidget*)obj)->destroy();
+	    }
+	}
+	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
+	    qt_leave_modal( this );
+	else if ( testWFlags(WType_Popup) )
+	    qt_close_popup( this );
+	if ( !testWFlags(WType_Desktop) )
+	    DestroyWindow( id() );
 	set_id( 0 );
     }
     return TRUE;
