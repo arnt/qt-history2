@@ -849,7 +849,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 
         line.setPosition(QPoint(left - layoutStruct->x_left, layoutStruct->y - cy));
         layoutStruct->y += line.ascent() + line.descent() + 1;
-        widthUsed = qMax(widthUsed, line.textWidth());
+        widthUsed = qMax(widthUsed, left + line.textWidth());
     }
     if (tl->numLines() == 0) {
         QTextCharFormat fmt = bl.charFormat();
