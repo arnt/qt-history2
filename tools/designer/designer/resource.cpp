@@ -648,37 +648,44 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	int i;
 	QMap<QString, QString> columnFields = MetaDataBase::columnFields( table );
 	for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
-	    ts << makeIndent( indent ) << "<column>" << endl;
-	    indent++;
-	    QStringList l;
-	    l << table->horizontalHeader()->label( i );
-	    QPtrList<QPixmap> pix;
-	    pix.setAutoDelete( TRUE );
-	    if ( table->horizontalHeader()->iconSet( i ) )
-		pix.append( new QPixmap( table->horizontalHeader()->iconSet( i )->pixmap() ) );
-	    saveItem( l, pix, ts, indent );
-	    if ( table->inherits( "QDataTable" ) && !columnFields.isEmpty() ) {
-		ts << makeIndent( indent ) << "<property name=\"field\">" << endl;
+	    if ( table->horizontalHeader()->label( i ).toInt() != i + 1 ||
+		 table->horizontalHeader()->iconSet( i ) ||
+		 table->inherits( "QDataTable" ) ) {
+		ts << makeIndent( indent ) << "<column>" << endl;
 		indent++;
-		ts << makeIndent( indent ) << "<string>" << entitize( *columnFields.find( l[ 0 ] ) ) << "</string>" << endl;
+		QStringList l;
+		l << table->horizontalHeader()->label( i );
+		QPtrList<QPixmap> pix;
+		pix.setAutoDelete( TRUE );
+		if ( table->horizontalHeader()->iconSet( i ) )
+		    pix.append( new QPixmap( table->horizontalHeader()->iconSet( i )->pixmap() ) );
+		saveItem( l, pix, ts, indent );
+		if ( table->inherits( "QDataTable" ) && !columnFields.isEmpty() ) {
+		    ts << makeIndent( indent ) << "<property name=\"field\">" << endl;
+		    indent++;
+		    ts << makeIndent( indent ) << "<string>" << entitize( *columnFields.find( l[ 0 ] ) ) << "</string>" << endl;
+		    indent--;
+		    ts << makeIndent( indent ) << "</property>" << endl;
+		}
 		indent--;
-		ts << makeIndent( indent ) << "</property>" << endl;
+		ts << makeIndent( indent ) << "</column>" << endl;
 	    }
-	    indent--;
-	    ts << makeIndent( indent ) << "</column>" << endl;
 	}
 	for ( i = 0; i < table->verticalHeader()->count(); ++i ) {
-	    ts << makeIndent( indent ) << "<row>" << endl;
-	    indent++;
-	    QStringList l;
-	    l << table->verticalHeader()->label( i );
-	    QPtrList<QPixmap> pix;
-	    pix.setAutoDelete( TRUE );
-	    if ( table->verticalHeader()->iconSet( i ) )
-		pix.append( new QPixmap( table->verticalHeader()->iconSet( i )->pixmap() ) );
-	    saveItem( l, pix, ts, indent );
-	    indent--;
-	    ts << makeIndent( indent ) << "</row>" << endl;
+	    if ( table->verticalHeader()->label( i ).toInt() != i + 1 ||
+		 table->verticalHeader()->iconSet( i ) ) {
+		ts << makeIndent( indent ) << "<row>" << endl;
+		indent++;
+		QStringList l;
+		l << table->verticalHeader()->label( i );
+		QPtrList<QPixmap> pix;
+		pix.setAutoDelete( TRUE );
+		if ( table->verticalHeader()->iconSet( i ) )
+		    pix.append( new QPixmap( table->verticalHeader()->iconSet( i )->pixmap() ) );
+		saveItem( l, pix, ts, indent );
+		indent--;
+		ts << makeIndent( indent ) << "</row>" << endl;
+	    }
 	}
     }
 #endif
