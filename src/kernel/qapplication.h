@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#112 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#113 $
 **
 ** Definition of QApplication class
 **
@@ -68,6 +68,9 @@ public:
     static QCursor  *overrideCursor();
     static void	     setOverrideCursor( const QCursor &, bool replace=FALSE );
     static void	     restoreOverrideCursor();
+
+    static void   setCusorFlashTime( int );
+    static int   cursorFlashTime();
 
     static bool	     hasGlobalMouseTracking();
     static void	     setGlobalMouseTracking( bool enable );
@@ -179,6 +182,7 @@ private:
     static QWidget  *focus_widget;
     static QWidget  *active_window;
     static bool	     obey_desktop_settings;
+    static int	     cursor_flash_time;
     QList<QTranslator> * translators;
 
     static QDict<QPalette>* app_palettes;

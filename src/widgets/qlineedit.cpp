@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#201 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#202 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -99,7 +99,6 @@ struct QLineEditPrivate {
 */
 
 
-static const int blinkTime  = 500;		// text cursor blink time
 static const int scrollTime = 100;		// mark text scroll time
 
 
@@ -1390,7 +1389,7 @@ void QLineEdit::blinkSlot()
     if ( !hasFocus() )
 	d->blinkTimer.stop();
     else if ( !d->blinkTimer.isActive() )
-	d->blinkTimer.start( blinkTime );
+	d->blinkTimer.start( QApplication::cursorFlashTime()/2 );
 }
 
 

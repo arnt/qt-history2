@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#33 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -93,7 +93,6 @@ struct QMultiLineData
 };
 
 
-static const int blinkTime  = 500;	 // text cursor blink time
 static const int initialScrollTime = 50; // mark text scroll time
 static const int initialScrollAccel = 5; // mark text scroll accel (0=fastest)
 static const int scroll_margin = 16;     // auto-scroll edge in DND
@@ -495,7 +494,7 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
 {
     stopAutoScroll();
     if ( !blinkTimer )
-	blinkTimer = startTimer( blinkTime );
+	blinkTimer = startTimer( QApplication::cursorFlashTime() / 2 );
     cursorOn = TRUE;
     updateCell( cursorY, 0, FALSE );
 }
@@ -1404,7 +1403,7 @@ void QMultiLineEdit::cursorLeft( bool mark, bool clear_mark, bool wrap )
 	}
 	if ( mark )
 	    newMark( cursorX, cursorY, FALSE );
-	blinkTimer = startTimer( blinkTime );
+	blinkTimer = startTimer( QApplication::cursorFlashTime() / 2 );
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;
@@ -1449,7 +1448,7 @@ void QMultiLineEdit::cursorRight( bool mark, bool clear_mark, bool wrap )
 	if ( mark )
 	    newMark( cursorX, cursorY, FALSE );
 	updateCell( cursorY, 0, FALSE );
-	blinkTimer = startTimer( blinkTime );
+	blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2  );
     }
     curXPos  = 0;
     makeVisible();
@@ -1488,7 +1487,7 @@ void QMultiLineEdit::cursorUp( bool mark, bool clear_mark )
 	    newMark( cursorX, cursorY, FALSE );
 	updateCell( oldY, 0, FALSE );
 	updateCell( cursorY, 0, FALSE );
-	blinkTimer = startTimer( blinkTime );
+	blinkTimer = startTimer( QApplication::cursorFlashTime() / 2 );
     }
     makeVisible();
     if ( clear_mark )
@@ -1527,7 +1526,7 @@ void QMultiLineEdit::cursorDown( bool mark, bool clear_mark )
 	    newMark( cursorX, cursorY, FALSE );
 	updateCell( oldY, 0, FALSE );
 	updateCell( cursorY, 0, FALSE );
-	blinkTimer = startTimer( blinkTime );
+	blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2 );
     }
     makeVisible();
     if ( clear_mark )
@@ -1667,7 +1666,7 @@ void QMultiLineEdit::home( bool mark )
 	if ( mark )
 	    newMark( cursorX, cursorY, FALSE );
 	updateCell( cursorY, 0, FALSE );
-	blinkTimer = startTimer( blinkTime );
+	blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2 );
     }
     curXPos  = 0;
     if ( !mark )
@@ -1696,7 +1695,7 @@ void QMultiLineEdit::end( bool mark )
 	cursorOn  = TRUE;
 	if ( mark )
 	    newMark( cursorX, cursorY, FALSE );
-	blinkTimer = startTimer( blinkTime );
+	blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2  );
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;

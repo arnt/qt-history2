@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#218 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#219 $
 **
 ** Implementation of QApplication class
 **
@@ -117,6 +117,7 @@ QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 QWidget	 *QApplication::active_window  = 0;	// toplevel that has keyboard input focus
 bool	  QApplication::obey_desktop_settings = TRUE;  // use winsys resources
+int	  QApplication::cursor_flash_time = 1000;  // text caret flash time
 QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
 static bool makeqdevel = FALSE;		// developer tool needed?
 static QDeveloper* qdevel = 0;		// developer tool
@@ -503,7 +504,7 @@ void QApplication::setStyle( QStyle *style )
 	}
     }
     delete old;
-    
+
     // take care of possible palette requirements of certain gui
     // styles
     QPalette tmpPal = *app_pal;
@@ -1662,12 +1663,12 @@ QWidget *QApplication::desktop()
 
 
 
-/*!  
+/*!
   By default, Qt will try to get the current standard colors, fonts
   etc. from the underlying window system's desktop settings (resources),
   and use them for all relevant widgets. This behavior can be switched off
   by calling this function with \a on set to FALSE.
-  
+
   This static function must be called before creating the QApplication
   object, like this:
 
@@ -1696,4 +1697,28 @@ void QApplication::setDesktopSettingsAware( bool on )
 bool QApplication::desktopSettingsAware()
 {
     return obey_desktop_settings;
+}
+
+
+/*!
+  Sets the text cursor's flash time to \a msecs milliseconds. The flash time is the 
+  time requried to display, invert and restore the caret display.
+  
+  \sa cursorFlashTime()
+ */
+void  QApplication::setCusorFlashTime( int msecs )
+{
+    cursor_flash_time = msecs;
+}
+
+
+/*!
+  Returnss the text cursor's flash time in milliseconds. The flash time is the 
+  time requried to display, invert and restore the caret display.
+
+  \sa setCursorFlashTime()
+ */
+int QApplication::cursorFlashTime()
+{
+    return cursor_flash_time;
 }
