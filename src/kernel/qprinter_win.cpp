@@ -60,7 +60,7 @@ static HANDLE hdevnames = 0;
 
 // ### deal with ColorMode GrayScale in qprinter_win.cpp.
 
-QPrinter::QPrinter()
+QPrinter::QPrinter( PrinterMode m )
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     orient      = Portrait;
@@ -89,6 +89,26 @@ QPrinter::QPrinter()
 	pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
 	if ( PrintDlgA( &pd ) != 0 )
 	    readPdlgA( &pd );
+    }
+    switch ( m ) {
+	case ScreenResolution:
+	    res = 96; // ### is this true in all cases
+	    break;
+	case Compatible:
+	    devFlags |= CompatibilityMode;
+	case PrinterResolution:
+	case HighResolution:
+	    res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+    }
+    switch ( m ) {
+	case ScreenResolution:
+	    res = 96; // ### is this true in all cases?
+	    break;
+	case Compatible:
+	    devFlags |= CompatibilityMode;
+	case PrinterResolution:
+	case HighResolution:
+	    res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     }
 }
 

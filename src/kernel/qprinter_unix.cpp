@@ -81,7 +81,7 @@
   Constructs a printer paint device.
 */
 
-QPrinter::QPrinter()
+QPrinter::QPrinter( PrinterMode m )
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     pdrv = 0;
@@ -93,7 +93,17 @@ QPrinter::QPrinter()
     state = PST_IDLE;
     output_file = FALSE;
     to_edge	= FALSE;
-    res = 72;
+    switch ( m ) {
+	case ScreenResolution:
+	    res = QPaintDevice::x11AppDpiY();
+	    break;
+	case Compatible:
+	case PrinterResolution:
+	    res = 72;
+	    break;
+	case HighResolution:
+	    res = 600;
+    }
 }
 
 /*!

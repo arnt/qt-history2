@@ -117,6 +117,30 @@
   \internal Need a function to setup() without a dialog (ie. use defaults).
 */
 
+/*! \enum QPrinter::PrinterMode
+
+  This enum describes the mode the printer should work in. It basically
+  presets a certain resolution and working mode.
+  
+  \value ScreenResolution Sets the resolution of the print device to the
+  screen resolution. This has the big advantage, that the results obtained
+  when painting on the printer will match more or less exactly the visible 
+  output on the screen. It is the easiest to use, as fontmetrics on the
+  screen and on the printer are the same. This is the default value.
+  
+  \value PrinterResolution Use the physical resolution of the printer on
+  Windows. On Unix, set the postscript resolution to 72 dpi.
+
+  \value HighResolution Use printer resolution on windows, set the resolution
+  of the postscript driver to 600dpi.
+
+  \value Compatible Almost the same as PrinterResolution, but keeps some 
+  peculiarities of the printer dirver of Qt-2.x. This is useful, when porting an
+  application from Qt-2.x to Qt-3.
+  
+ 
+ */
+
 /*! \enum QPrinter::Orientation
 
   This enum type (not to be confused with Qt::Orientation) is used to

@@ -64,7 +64,7 @@
 #define PST_ABORTED	3
 
 
-QPrinter::QPrinter()
+QPrinter::QPrinter( PrinterMode m )
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     //mac specific
@@ -82,6 +82,18 @@ QPrinter::QPrinter()
     state = PST_IDLE;
     output_file = FALSE;
     to_edge	= FALSE;
+
+    switch ( m ) {
+	case ScreenResolution:
+	    res = 80; // ### FIXME
+	    break;
+	case Compatible:
+	    devFlags |= CompatibilityMode;
+	    // fall through
+	case PrinterResolution:
+	case HighResolution:
+	    res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+    }
 }
 
 QPrinter::~QPrinter()
