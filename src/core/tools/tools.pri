@@ -67,7 +67,6 @@ INCLUDEPATH += ../3rdparty/zlib
 }
 !contains(QT_CONFIG, no-zlib):contains(QT_CONFIG, zlib) {
 	unix:LIBS += -lz
-	win32:LIBS += libz.lib
 }
 
 
