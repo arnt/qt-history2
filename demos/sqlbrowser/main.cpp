@@ -16,7 +16,7 @@
 #include <qmenubar.h>
 #include <qstatusbar.h>
 
-#include "browserwidget.h"
+#include "browser.h"
 
 
 int main(int argc, char *argv[])
@@ -26,11 +26,13 @@ int main(int argc, char *argv[])
     QMainWindow mainWin;
     mainWin.setWindowTitle(QObject::tr("Qt SQL Browser"));
 
-    BrowserWidget browser(&mainWin);
+    Browser browser(&mainWin);
     mainWin.setCentralWidget(&browser);
 
     QMenu *menu = mainWin.menuBar()->addMenu(QObject::tr("SqlBrowser"));
     menu->addAction(QObject::tr("Add connection"), &browser, SLOT(addConnection()));
+    menu->addSeparator();
+    menu->addAction(QObject::tr("Quit"), &app, SLOT(quit()));
 
     QObject::connect(&browser, SIGNAL(statusMessage(QString)),
                      mainWin.statusBar(), SLOT(showMessage(QString)));

@@ -11,44 +11,16 @@
 **
 ****************************************************************************/
 
-#include "browserwidget.h"
-#include "connectionwidget.h"
+#include "browser.h"
 #include "qsqlconnectiondialog.h"
 
 #include <QtGui>
 #include <QtSql>
 
-BrowserWidget::BrowserWidget(QWidget *parent)
+Browser::Browser(QWidget *parent)
     : QWidget(parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
-
-    QSplitter *splitter = new QSplitter(Qt::Vertical, this);
-
-    QHBoxWidget *box = new QHBoxWidget(splitter);
-    QSplitter *splitter2 = new QSplitter(Qt::Horizontal, box);
-
-    dbc = new ConnectionWidget(splitter2);
-    connect(dbc, SIGNAL(tableActivated(QString)), SLOT(showTable(QString)));
-    view = new QTableView(splitter2);
-
-    QGroupBox *gbox = new QGroupBox(tr("SQL Query"), splitter);
-    QVBoxLayout *boxLayout = new QVBoxLayout(gbox);
-
-    edit = new QTextEdit(gbox);
-
-    QHBoxWidget *hbox = new QHBoxWidget(gbox);
-    hbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    hbox->layout()->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
-    submitButton = new QPushButton(tr("&Submit"), hbox);
-    connect(submitButton, SIGNAL(clicked()), SLOT(exec()));
-
-    boxLayout->addWidget(edit);
-    boxLayout->addWidget(hbox);
-
-    layout->addWidget(splitter);
-//    layout->addWidget(hbox);
+    setupUi(this);
 
     if (QSqlDatabase::drivers().isEmpty())
         QMessageBox::information(this, tr("No database drivers found"),
@@ -56,20 +28,20 @@ BrowserWidget::BrowserWidget(QWidget *parent)
                                     "Please check the documentation how to build the "
                                     "Qt SQL plugins."));
     else
-        addConnection();
+        QMetaObject::invokeMember(this, "addConnection", Qt::QueuedConnection);
 
     emit statusMessage(tr("Ready."));
 }
 
-BrowserWidget::~BrowserWidget()
+Browser::~Browser()
 {
 }
 
-void BrowserWidget::exec()
+void Browser::exec()
 {
-    QSqlQueryModel *model = new QSqlQueryModel(view);
-    model->setQuery(QSqlQuery(edit->toPlainText(), dbc->currentDatabase()));
-    view->setModel(model);
+    QSqlQueryModel *model = new QSqlQueryModel(table);
+    model->setQuery(QSqlQuery(sqlEdit->toPlainText(), connectionWidget->currentDatabase()));
+    table->setModel(model);
 
     if (model->lastError().type() != QSqlError::NoError)
         emit statusMessage(model->lastError().text());
@@ -80,7 +52,7 @@ void BrowserWidget::exec()
                     model->query().numRowsAffected()));
 }
 
-void BrowserWidget::addConnection()
+void Browser::addConnection()
 {
     QSqlConnectionDialog dialog;
     if (dialog.exec() != QDialog::Accepted)
@@ -88,7 +60,7 @@ void BrowserWidget::addConnection()
 
     static int cCount = 0;
     QSqlDatabase db = QSqlDatabase::addDatabase(dialog.driverName(),
-                                                QString("BrowserWidget%1").arg(++cCount));
+                                                QString("Browser%1").arg(++cCount));
     db.setDatabaseName(dialog.databaseName());
     db.setHostName(dialog.hostName());
     db.setUserName(dialog.userName());
@@ -98,16 +70,16 @@ void BrowserWidget::addConnection()
         QMessageBox::warning(this, tr("Unable to open database"), tr("An error occured while "
                              "opening the connection: ") + db.lastError().text());
 
-    dbc->refresh();
+    connectionWidget->refresh();
 }
 
-void BrowserWidget::showTable(const QString &table)
+void Browser::showTable(const QString &t)
 {
-    QSqlTableModel *model = new QSqlTableModel(view, dbc->currentDatabase());
-    model->setTable(table);
+    QSqlTableModel *model = new QSqlTableModel(table, connectionWidget->currentDatabase());
+    model->setTable(t);
     model->select();
     if (model->lastError().type() != QSqlError::NoError)
         emit statusMessage(model->lastError().text());
-    view->setModel(model);
+    table->setModel(model);
 }
 

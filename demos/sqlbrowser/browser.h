@@ -15,32 +15,32 @@
 #define BROWSERWIDGET_H
 
 #include <qwidget.h>
+#include "ui_browserwidget.h"
 
 class ConnectionWidget;
 class QTableView;
 class QPushButton;
 class QTextEdit;
 
-class BrowserWidget: public QWidget
+class Browser: public QWidget, private Ui::Browser
 {
     Q_OBJECT
 public:
-    BrowserWidget(QWidget *parent = 0);
-    virtual ~BrowserWidget();
+    Browser(QWidget *parent = 0);
+    virtual ~Browser();
 
 public slots:
     void exec();
     void showTable(const QString &table);
     void addConnection();
 
+    void on_connectionWidget_tableActivated(const QString &table)
+    { showTable(table); }
+    void on_submitButton_clicked()
+    { exec(); }
+
 signals:
     void statusMessage(const QString &message);
-
-private:
-    QTextEdit *edit;
-    QTableView *view;
-    QPushButton *submitButton;
-    ConnectionWidget *dbc;
 };
 
 #endif

@@ -3,8 +3,8 @@ TARGET          = sqlbrowser
 
 QT              += sql
 
-HEADERS         = browserwidget.h connectionwidget.h qsqlconnectiondialog.h
-SOURCES         = main.cpp browserwidget.cpp connectionwidget.cpp qsqlconnectiondialog.cpp
+HEADERS         = browser.h connectionwidget.h qsqlconnectiondialog.h
+SOURCES         = main.cpp browser.cpp connectionwidget.cpp qsqlconnectiondialog.cpp
 
-FORMS           = qsqlconnectiondialog.ui
+FORMS           = browserwidget.ui qsqlconnectiondialog.ui
 build_all:CONFIG += release
