@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#196 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#197 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -223,13 +223,11 @@ QString QPopupMenu::accelString( int k )
     if ( (k & ASCII_ACCEL) == ASCII_ACCEL ) {
 	k &= ~ASCII_ACCEL;
 	p.sprintf( "%c", (k & 0xff) );
-	p = tr( p );
     } else if ( k >= Key_F1 && k <= Key_F24 ) {
 	p.sprintf( "F%d", k - Key_F1 + 1 );
 	p = tr( p );
     } else if ( k > Key_Space && k <= Key_AsciiTilde ) {
 	p.sprintf( "%c", k );
-	p = tr( p );
     } else {
 	switch ( k ) {
 	    case Key_Space:
@@ -1680,7 +1678,7 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
 
     syncMenu = this;
     syncMenuId = -1;
-    
+
     connectModal( this, TRUE );
     popup(pos,indexAtPoint);
     qApp->enter_loop();
@@ -1704,7 +1702,7 @@ void QPopupMenu::connectModal(QPopupMenu* receiver, bool doConnect)
     else
 	disconnect( this, SIGNAL(activated(int)),
 		    receiver, SLOT(modalActivation(int)) );
-    
+
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
