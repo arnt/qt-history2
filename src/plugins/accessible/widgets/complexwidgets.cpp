@@ -295,7 +295,7 @@ QAccessibleComboBox::QAccessibleComboBox(QWidget *w)
 }
 
 /*!
-  Returns the combo box.
+  Returns the combobox.
 */
 QComboBox *QAccessibleComboBox::comboBox() const
 {

@@ -211,20 +211,20 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
     This enum specifies what the QComboBox should do when a new string is
     entered by the user.
 
-    \value NoInsertion    The string will not be inserted into the combo box.
+    \value NoInsertion    The string will not be inserted into the combobox.
     \value AtTop          The string will be inserted as the first item in the
-                          combo box.
+                          combobox.
     \value AtCurrent      The current item will be \e replaced by the string.
     \value AtBottom       The string will be inserted after the last item
-                          in the combo box.
+                          in the combobox.
     \value AfterCurrent   The string is inserted after the current item in the
-                          combo box.
+                          combobox.
     \value BeforeCurrent  The string is inserted before the current item in
-                          the combo box.
+                          the combobox.
 */
 
 /*!
-    Constructs a combo box with the given \a parent, using the default model.
+    Constructs a combobox with the given \a parent, using the default model.
 */
 QComboBox::QComboBox(QWidget *parent) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
@@ -262,30 +262,30 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     A QComboBox provides a means of presenting a list of options to the user
     in a way that takes up the minimum amount of screen space.
 
-    A combo box is a selection widget that displays the current item,
-    and can pop up a list of selectable items. A combo box may be editable,
+    A combobox is a selection widget that displays the current item,
+    and can pop up a list of selectable items. A combobox may be editable,
     allowing the user to modify each item in the list.
 
     QComboBox supports three different display styles: Aqua/Motif 1.x,
-    Motif 2.0 and Windows. In Motif 1.x, a combo box was called
-    XmOptionMenu. In Motif 2.0, OSF introduced an improved combo box
+    Motif 2.0 and Windows. In Motif 1.x, a combobox was called
+    XmOptionMenu. In Motif 2.0, OSF introduced an improved combobox
     and named that XmComboBox. QComboBox provides both.
 
     QComboBox provides two different constructors. The simplest
-    constructor creates an "old-style" combo box in Motif (or Aqua)
+    constructor creates an "old-style" combobox in Motif (or Aqua)
     style:
     \code
         QComboBox *c = new QComboBox(this, "read-only combobox");
     \endcode
 
-    The other constructor creates a new-style combo box in Motif style,
-    and can create both read-only and editable combo boxes:
+    The other constructor creates a new-style combobox in Motif style,
+    and can create both read-only and editable comboboxes:
     \code
-        QComboBox *c1 = new QComboBox(false, this, "read-only combo box" );
-        QComboBox *c2 = new QComboBox(true, this, "editable combo box" );
+        QComboBox *c1 = new QComboBox(false, this, "read-only combobox" );
+        QComboBox *c2 = new QComboBox(true, this, "editable combobox" );
     \endcode
 
-    New-style combo boxes use a list box in both Motif and Windows
+    New-style comboboxes use a list box in both Motif and Windows
     styles, and both the content size and the on-screen size of the
     list box can be limited with sizeLimit() and setMaxCount()
     respectively. Old-style comboboxes use a popup in Aqua and Motif
@@ -507,7 +507,7 @@ void QComboBoxPrivate::emitHighlighted(const QModelIndex &index)
 }
 
 /*!
-    Destroys the combo box.
+    Destroys the combobox.
 */
 
 QComboBox::~QComboBox()
@@ -517,7 +517,7 @@ QComboBox::~QComboBox()
 
 /*!
     \property QComboBox::sizeLimit
-    \brief the maximum allowed size on screen of the combo box
+    \brief the maximum allowed size on screen of the combobox
 */
 
 int QComboBox::sizeLimit() const
@@ -533,7 +533,7 @@ void QComboBox::setSizeLimit(int limit)
 
 /*!
     \property QComboBox::count
-    \brief the number of items in the combo box
+    \brief the number of items in the combobox
 */
 
 int QComboBox::count() const
@@ -543,7 +543,7 @@ int QComboBox::count() const
 
 /*!
     \property QComboBox::maxCount
-    \brief the maximum number of items allowed in the combo box
+    \brief the maximum number of items allowed in the combobox
 */
 
 void QComboBox::setMaxCount(int max)
@@ -561,7 +561,7 @@ int QComboBox::maxCount() const
 
 /*!
     \property QComboBox::autoCompletion
-    \brief whether the combo box provides auto-completion for editable items
+    \brief whether the combobox provides auto-completion for editable items
 
     \sa editable
 */
@@ -578,7 +578,7 @@ void QComboBox::setAutoCompletion(bool enable)
 
 /*!
     \property QComboBox::duplicatesEnabled
-    \brief whether the combo box can contain duplicate items
+    \brief whether the combobox can contain duplicate items
 */
 
 bool QComboBox::duplicatesEnabled() const
@@ -592,7 +592,7 @@ void QComboBox::setDuplicatesEnabled(bool enable)
 }
 
 /*!
-  Returns true if any item in the combo box matches the given \a text.
+  Returns true if any item in the combobox matches the given \a text.
 */
 bool QComboBox::contains(const QString &text) const
 {
@@ -618,7 +618,7 @@ int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlag flags
 /*!
     \property QComboBox::insertionPolicy
     \brief the policy used to determine where user-inserted items should
-    appear in the combo box
+    appear in the combobox
 
     The default value is \c AtBottom, indicating that new items will appear
     at the bottom of the list of items.
@@ -638,7 +638,7 @@ void QComboBox::setInsertionPolicy(InsertionPolicy policy)
 
 /*!
     \property QComboBox::editable
-    \brief whether the combo box can be edited by the user
+    \brief whether the combobox can be edited by the user
 */
 
 bool QComboBox::isEditable() const
@@ -660,7 +660,7 @@ void QComboBox::setEditable(bool editable)
 }
 
 /*!
-    Sets the line edit to use \a edit instead of the current line edit.
+    Sets the line \a edit to use instead of the current line edit widget.
 */
 void QComboBox::setLineEdit(QLineEdit *edit)
 {
@@ -697,7 +697,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
 }
 
 /*!
-    Returns the line edit used to edit items in the combo box, or 0 if there
+    Returns the line edit used to edit items in the combobox, or 0 if there
     is no line edit.
 
     Only editable combo boxes have a line edit.
@@ -708,7 +708,9 @@ QLineEdit *QComboBox::lineEdit() const
 }
 
 /*!
-    \internal
+    \fn void QComboBox::setValidator(const QValidator *validator)
+
+    Sets the \a validator to use instead of the current validator.
 */
 
 void QComboBox::setValidator(const QValidator *v)
@@ -719,7 +721,7 @@ void QComboBox::setValidator(const QValidator *v)
 
 /*!
     Returns the validator that is used to constrain text input for the
-    combo box.
+    combobox.
 
     \sa editable
 */
@@ -730,7 +732,7 @@ const QValidator *QComboBox::validator() const
 }
 
 /*!
-    Returns the item delegate used by the combo box and the popup
+    Returns the item delegate used by the combobox and the popup
     list view.
 
     \sa setItemDelegate()
@@ -741,7 +743,7 @@ QAbstractItemDelegate *QComboBox::itemDelegate() const
 }
 
 /*!
-    Sets the item delegate for the combobox and the popup listview to \a delegate.
+    Sets the item \a delegate for the combobox and the popup list view.
 
     \sa itemDelegate()
 */
@@ -762,7 +764,7 @@ void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 }
 
 /*!
-    Returns the model used by the combo box.
+    Returns the model used by the combobox.
 */
 
 QAbstractItemModel *QComboBox::model() const
@@ -773,7 +775,7 @@ QAbstractItemModel *QComboBox::model() const
 /*!
     \internal
 
-    Returns the root model item index for the items in the combo box.
+    Returns the root model item index for the items in the combobox.
 
 */
 
@@ -835,7 +837,7 @@ void QComboBox::setCurrentText(const QString& text)
 }
 
 /*!
-    Returns the text for the given \a row in the combo box.
+    Returns the text for the given \a row in the combobox.
 */
 
 QString QComboBox::text(int row) const
@@ -845,7 +847,7 @@ QString QComboBox::text(int row) const
 }
 
 /*!
-    Returns the pixmap for the given \a row in the combo box.
+    Returns the pixmap for the given \a row in the combobox.
 */
 
 QPixmap QComboBox::pixmap(int row) const
@@ -855,7 +857,7 @@ QPixmap QComboBox::pixmap(int row) const
 }
 
 /*!
-    Inserts the strings from the \a list into the combo box as separate items,
+    Inserts the strings from the \a list into the combobox as separate items,
     starting at the \a row specified.
 */
 
@@ -879,7 +881,7 @@ void QComboBox::insertStringList(const QStringList &list, int row)
 }
 
 /*!
-    Inserts the \a text into the combo box at the given \a row.
+    Inserts the \a text into the combobox at the given \a row.
 */
 
 void QComboBox::insertItem(const QString &text, int row)
@@ -898,7 +900,7 @@ void QComboBox::insertItem(const QString &text, int row)
 }
 
 /*!
-    Inserts the \a icon into the combo box at the given \a row.
+    Inserts the \a icon into the combobox at the given \a row.
 */
 
 void QComboBox::insertItem(const QIconSet &icon, int row)
@@ -917,7 +919,7 @@ void QComboBox::insertItem(const QIconSet &icon, int row)
 }
 
 /*!
-    Inserts the \a icon and \a text into the combo box at the given \a row.
+    Inserts the \a icon and \a text into the combobox at the given \a row.
 */
 
 void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
@@ -940,6 +942,8 @@ void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
 
 /*!
     \internal
+
+    Removes the item in the given \a row from the combobox.
 */
 
 void QComboBox::removeItem(int row)
@@ -948,7 +952,7 @@ void QComboBox::removeItem(int row)
 }
 
 /*!
-    \internal
+    Sets the \a text for the item on the given \a row in the combobox.
 */
 
 void QComboBox::setItemText(const QString &text, int row)
@@ -960,7 +964,7 @@ void QComboBox::setItemText(const QString &text, int row)
 }
 
 /*!
-    \internal
+    Sets the \a icon for the item on the given \a row in the combobox.
 */
 
 void QComboBox::setItemIcon(const QIconSet &icon, int row)
@@ -972,7 +976,7 @@ void QComboBox::setItemIcon(const QIconSet &icon, int row)
 }
 
 /*!
-    \internal
+    Sets the \a icon and \a text for the given \a row in the combobox.
 */
 
 void QComboBox::setItem(const QIconSet &icon, const QString &text, int row)
@@ -989,7 +993,7 @@ void QComboBox::setItem(const QIconSet &icon, const QString &text, int row)
 /*!
     \internal
 
-    Returns the list view used to display the combo box.
+    Returns the list view used to display the combobox.
 
 */
 
@@ -1039,7 +1043,7 @@ QSize QComboBox::sizeHint() const
 }
 
 /*!
-    Displays the list of items in the combo box. If the list is empty then
+    Displays the list of items in the combobox. If the list is empty then
     no items will be shown.
 */
 
@@ -1086,7 +1090,7 @@ void QComboBox::popup()
 /*!
     \internal
 
-    Clears the combo box, removing all items.
+    Clears the combobox, removing all items.
 */
 
 void QComboBox::clear()
@@ -1095,9 +1099,7 @@ void QComboBox::clear()
 }
 
 /*!
-    \internal
-
-    Clears (removes) the validator used to check user input for the line edit.
+    Clears (removes) the validator used to check user input for the combobox.
 */
 
 void QComboBox::clearValidator()
@@ -1107,9 +1109,7 @@ void QComboBox::clearValidator()
 }
 
 /*!
-    \internal
-
-    Clears the contents of the line edit used for editing.
+    Clears the contents of the line edit used for editing in the combobox.
 */
 
 void QComboBox::clearEdit()
@@ -1119,7 +1119,7 @@ void QComboBox::clearEdit()
 }
 
 /*!
-    \internal
+    Sets the \a text in the combobox's text edit.
 */
 
 void QComboBox::setEditText(const QString &text)
@@ -1197,7 +1197,7 @@ void QComboBox::changeEvent(QEvent *e)
 }
 
 /*!
-    \internal
+    \reimp
 */
 
 void QComboBox::resizeEvent(QResizeEvent *)

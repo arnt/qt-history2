@@ -22,7 +22,7 @@
 #include <qgroupbox.h>
 
 /*!
-    Class used by PaletteEditor for bold combo box items
+    Class used by PaletteEditor for bold combobox items
 */
 
 class BoldListBoxText : public QListBoxText

@@ -213,7 +213,7 @@ QSpinBox *QInputDialog::spinBox() const
 }
 
 /*!
-  Returns the combobox which is used in ComboBox mode.
+  Returns the combobox that is used in ComboBox mode.
 */
 
 QComboBox *QInputDialog::comboBox() const
@@ -222,7 +222,7 @@ QComboBox *QInputDialog::comboBox() const
 }
 
 /*!
-  Returns the combobox which is used in EditableComboBox mode.
+  Returns the combobox that is used in EditableComboBox mode.
 */
 
 QComboBox *QInputDialog::editableComboBox() const
