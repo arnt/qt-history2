@@ -1787,20 +1787,20 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
     if ( t != old ) {
 	// contents of setText() with one addition
 	QString text = t;
-	    QString oldText = this->text();
-	    d->parag->truncate( 0 );
-	    d->parag->append( text );
-	    d->cursor->setIndex( d->parag->length() - 1 );
-	    if ( hasFocus() )
-		setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
-	    deselect();
-	    update();
-	    d->cursor->setIndex( newPos ); // put the cursor back where its meant to be before emitting the signal
-	    if ( oldText != text ) {
-		emit textChanged( text );
-	#if defined(QT_ACCESSIBILITY_SUPPORT)
-		QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
-	#endif
+	QString oldText = this->text();
+	d->parag->truncate( 0 );
+	d->parag->append( text );
+	d->cursor->setIndex( d->parag->length() - 1 );
+	if ( hasFocus() )
+	    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	deselect();
+	update();
+	d->cursor->setIndex( newPos ); // put the cursor back where its meant to be before emitting the signal
+	if ( oldText != text ) {
+	    emit textChanged( text );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+#endif
 	// end of setText contents
 	}
     }
