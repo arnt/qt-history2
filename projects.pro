@@ -4,8 +4,13 @@
 
 CONFIG += ordered
 TEMPLATE = subdirs
-isEmpty(QT_PROJECTS):QT_PROJECTS = qmake src tools demos examples
+isEmpty(QT_PROJECTS):QT_PROJECTS = src tools demos examples
 SUBDIRS += $$QT_PROJECTS
+SUBDIRS += ../research/atomic
+SUBDIRS += ../research/object
+SUBDIRS += ../research/eventloop
+# SUBDIRS += ../research/thread
+SUBDIRS += ../qtest/qtestlib
 
 unix {
   confclean.depends += clean
