@@ -845,7 +845,8 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
             QString objName = getObjectName(n);
             QString tab = getDatabaseInfo(n, "table");
             QString con = getDatabaseInfo(n, "connection");
-            out << indent << "QSqlForm* " << objName << "Form =  new QSqlForm(this, \"" << objName << "Form\");" << endl;
+            out << indent << "QSqlForm* " << objName << "Form = new QSqlForm(this);" << endl;
+            out << indent << objName << "Form->setObjectName(\"" << objName << "Form\");" << endl;
             QDomElement n2;
             for (n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement())
                 createFormImpl(n2, objName, con, tab);
