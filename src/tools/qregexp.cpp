@@ -2408,9 +2408,9 @@ void QRegExpEngine::Box::orx( const Box& b )
     }
     earlyStart = 0;
     lateStart = 0;
-    str = QString::null;
-    leftStr = QString::null;
-    rightStr = QString::null;
+    str = QString();
+    leftStr = QString();
+    rightStr = QString();
     if ( b.maxl > maxl )
 	maxl = b.maxl;
 #endif
@@ -2437,9 +2437,9 @@ void QRegExpEngine::Box::opt()
 #ifndef QT_NO_REGEXP_OPTIM
     earlyStart = 0;
     lateStart = 0;
-    str = QString::null;
-    leftStr = QString::null;
-    rightStr = QString::null;
+    str = QString();
+    leftStr = QString();
+    rightStr = QString();
 #endif
     skipanchors = 0;
     minl = 0;
@@ -3087,7 +3087,7 @@ void QRegExpEngine::parseExpression( Box *box )
 }
 
 /*
-  The class QRegExpPrivate contains the private data of a regular
+  The struct QRegExpPrivate contains the private data of a regular
   expression other than the automaton. It makes it possible for many
   QRegExp objects to use the same QRegExpEngine object with different
   QRegExpPrivate objects.
@@ -3156,7 +3156,6 @@ QRegExp::QRegExp()
 {
     eng = new QRegExpEngine( TRUE );
     priv = new QRegExpPrivate;
-    priv->pattern = QString::null;
 #ifndef QT_NO_REGEXP_WILDCARD
     priv->wc = FALSE;
 #endif
@@ -3753,7 +3752,7 @@ void QRegExp::compile( bool caseSensitive )
 			  : priv->pattern;
     eng = newEngine( priv->rxpattern, caseSensitive );
 #ifndef QT_NO_REGEXP_CAPTURE
-    priv->t = QString::null;
+    priv->t = QString();
     priv->capturedCache.clear();
 #endif
     priv->captured.detach();

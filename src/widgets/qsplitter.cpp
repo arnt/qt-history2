@@ -467,10 +467,14 @@ bool QSplitter::event( QEvent *e )
 
 
 /*!
+  \obsolete
+  
   Draws the splitter handle in the rectangle described by \a x, \a y,
   \a w, \a h using painter \a p.
   \sa QStyle::drawPrimitive()
 */
+
+// ### Remove this in 4.0
 
 void QSplitter::drawSplitter( QPainter *p,
 			      QCOORD x, QCOORD y, QCOORD w, QCOORD h )
