@@ -1203,8 +1203,8 @@ Qt/X11 only:
  $XFTY  -xft ............... Compile XftFreeType support.
 			 Requires X11/Xft/XftFreetype.h and libXft.
 
- $XIY  -no-tablet ......... Do not compile Tablet support.
- $XIN  -tablet ............ Compile Tablet support (currently only on IRIX).
+ $XIN  -no-tablet ......... Do not compile Tablet support.
+ $XIY  -tablet ............ Compile Tablet support (currently only on IRIX).
 
 EOF
 fi
