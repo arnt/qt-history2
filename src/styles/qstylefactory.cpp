@@ -118,10 +118,10 @@ QStringList QStyleFactory::styles()
 #ifndef QT_NO_STYLE_MOTIFPLUS
     list << "MotifPlus";
 #endif
-#ifndef QT_STYLE_PLATINUM
+#ifndef QT_NO_STYLE_PLATINUM
     list << "Platinum";
 #endif
-#ifndef QT_STYLE_SGI
+#ifndef QT_NO_STYLE_SGI
     list << "SGI";
 #endif
 
