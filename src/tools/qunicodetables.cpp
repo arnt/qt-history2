@@ -11719,10 +11719,18 @@ const Q_UINT16 QUnicodeTables::symmetricPairs[] = {
 const int QUnicodeTables::symmetricPairsSize =
    sizeof(symmetricPairs)/sizeof(symmetricPairs[0]);
 
+#else
+
+/*
+  only include info for the first unicode range (latin1) when building
+  without unicode tables.
+*/
+const Q_UINT8 * const QUnicodeTables::unicode_info[] = { ui_00 };
+
+#endif
+
 /*
  * ----------------------------------------------------------------------
  * End of unicode tables
  * ----------------------------------------------------------------------
  */
-
-#endif

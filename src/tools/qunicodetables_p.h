@@ -9,9 +9,7 @@
 
 
 class QUnicodeTables {
-
 public:
-
     static const Q_UINT8 * const unicode_info[];
     static const Q_UINT16 decomposition_map[];
     static const Q_UINT16 * const decomposition_info[];
@@ -23,21 +21,15 @@ public:
     static const Q_INT8 * const decimal_info[];
     static const Q_UINT16 symmetricPairs[];
     static const int symmetricPairsSize;
-
 };
 
 
 inline QChar::Category category( const QChar &c )
 {
-#ifndef QT_NO_UNICODETABLES
+#ifdef QT_NO_UNICODETABLES
+    if ( c.unicode() > 0xff ) return QChar::Letter_Uppercase; //#######
+#endif // QT_NO_UNICODETABLES
     return (QChar::Category)(QUnicodeTables::unicode_info[c.row()][c.cell()]);
-#else
-    // ### just ASCII
-    if ( c.unicode() < 0x100 ) {
-	return (QChar::Category)(ui_00[c.unicode()]);
-    }
-    return QChar::Letter_Uppercase; //#######
-#endif
 }
 
 inline QChar lower( const QChar &c )
@@ -54,8 +46,7 @@ inline QChar lower( const QChar &c )
 #else
     if ( c.row() )
 	return c;
-    else
-	return QChar( tolower((uchar) c.latin1()) );
+    return QChar( tolower((uchar) c.latin1()) );
 #endif
 }
 
@@ -73,8 +64,7 @@ inline QChar upper( const QChar &c )
 #else
     if ( c.row() )
 	return c;
-    else
-	return QChar( toupper((uchar) c.latin1()) );
+    return QChar( toupper((uchar) c.latin1()) );
 #endif
 }
 
