@@ -653,7 +653,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	oldHIdxSize = d->sizes[ d->i2s[handleIdx] ];
 	state = d->resize[d->i2s[handleIdx]  ] ? Sliding : Blocked;
     } else if ( index >= 0 ) {
-	handleIdx = index;
+	oldHandleIdx = handleIdx = index;
 	moveToIdx = -1;
 	state = d->clicks[ d->i2s[handleIdx]  ] ? Pressed : Blocked;
 	clickPos = c;
