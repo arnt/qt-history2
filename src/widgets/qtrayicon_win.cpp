@@ -22,7 +22,7 @@ public:
 	if ( !MYWM_TASKBARCREATED ) {
 #if defined(UNICODE)
 	    if ( qt_winver & Qt::WV_NT_based )
-		MYWM_TASKBARCREATED = RegisterWindowMessageW( (const unsigned short*)"TaskbarCreated" );
+		MYWM_TASKBARCREATED = RegisterWindowMessageW( (TCHAR*)"TaskbarCreated" );
 	    else
 #endif
 		MYWM_TASKBARCREATED = RegisterWindowMessageA( "TaskbarCreated" );
@@ -77,7 +77,7 @@ public:
 	    if ( !iconObject->toolTip().isNull() ) {
 		// Tip is limited to 63 + NULL; lstrcpyn appends a NULL terminator.
 		QString tip = iconObject->toolTip().left( 63 ) + QChar();
-		lstrcpynW(tnd.szTip, (const unsigned short*)qt_winTchar( tip, FALSE ), QMIN( tip.length()+1, 64 ) );
+		lstrcpynW(tnd.szTip, (TCHAR*)qt_winTchar( tip, FALSE ), QMIN( tip.length()+1, 64 ) );
 	    }
 	}
 
