@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#21 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#22 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -81,7 +81,8 @@ sub copyandstrip {
 # Maybe we should check out tmake?
 #
 die '$TMAKEDIR not set - need $TMAKEDIR/lib/linux-g++/tmake.conf'
-    if ! -f "$ENV{TMAKEDIR}/lib/linux-g++/tmake.conf";
+    if !defined($ENV{TMAKEDIR})
+	|| ! -f "$ENV{TMAKEDIR}/lib/linux-g++/tmake.conf";
 
 ($junk, $junk, $junk, $d, $m, $y, $junk, $junk, $junk) =
   localtime( time() - $days_stored * 86400 );
@@ -124,13 +125,14 @@ export QTDIR=$base/head/qt
 export PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH:/home/agulbra/bin
 
 # Generate and check-in [changes to] the X11 makefiles/build files
-rsync -avz --delete bahamas:/local/lib/cvs/qt $base/cvs
-find $base/cvs/qt -type f -print | grep -v /Makefile | grep -v /configs/ | grep -v /html/ | xargs rm -f
+
 cd $base/head/qt
 for B in `util/scripts/makeunixmake -p -s`
 do
-  [ -f $base/cvs/qt/\$B,v ] && rcs -l $base/cvs/qt/\$B,v
-  ci -q -mnone -t-'' -u \$B $base/cvs/qt/\$B,v
+  C=$base/cvs/qt/\$B,v
+  rsync -avz bahamas:/local/lib/cvs/qt/\$B,v \$C
+  [ -f \$C ] && rcs -l \$C
+  ci -q -mnone -t-'' -u \$B \$C
 done
 ";
 
@@ -165,7 +167,8 @@ rm -rf makefiles tmake
 rm -rf src/Makefile.win32-dll
 rm -rf src/*.pro
 chmod a+x $base/cvs/qt/bin/*,v
-#rsync -avz --delete $base/cvs/qt bahamas:/local/lib/cvs
+rsync -avz --delete $base/cvs/qt bahamas:/local/lib/cvs
+#rsync --dry-run -avz --delete $base/cvs/qt bahamas:/local/lib/cvs
 ";
 
 close(SH) # We want to wait for the script to complete.
