@@ -76,7 +76,7 @@
     \l{QSpinBox::valueChanged()}{valueChanged()} signal:
 
     \skipto on_inputSpinBox1_valueChanged
-    \printuntil on_inputSpinBox1_valueChanged
+    \printuntil /^\}/
 
     When this occurs, we use the value supplied by the signal to update the
     output label by setting its new text directly. We access the output label
@@ -87,7 +87,7 @@
     signal:
 
     \skipto on_inputSpinBox2_valueChanged
-    \printuntil on_inputSpinBox2_valueChanged
+    \printuntil /^\}/
 
     In this case, the value from the first spin box is read and combined
     with the value supplied by the signal. Again, the output label is

@@ -11,86 +11,90 @@
 **
 ****************************************************************************/
 
-#include <container.h>
-#include <customwidget.h>
-#include <abstractformeditor.h>
-#include <qextensionmanager.h>
-
-#include <qplugin.h>
-
-#include <QIcon>
 #include "analogclock.h"
+#include "plugin.h"
 
-
-class AnalogClockPlugin: public QObject, public ICustomWidget
+AnalogClockPlugin::AnalogClockPlugin(QObject *parent)
+    : QObject(parent)
 {
-    Q_OBJECT
-    Q_INTERFACES(ICustomWidget)
-public:
-    inline AnalogClockPlugin(QObject *parent = 0)
-        : QObject(parent), m_initialized(false) {}
-        
-    virtual QString name() const
-    { return QLatin1String("AnalogClock"); }
-    
-    virtual QString group() const
-    { return QLatin1String("Display"); }
-    
-    virtual QString toolTip() const
-    { return QString(); }
-    
-    virtual QString whatsThis() const
-    { return QString(); }
-    
-    virtual QString includeFile() const
-    { return QLatin1String("analogclock.h"); }
-    
-    virtual QIcon icon() const
-    { return QIcon(); }
+    initialized = false;
+}
 
-    virtual bool isContainer() const
-    { return false; }
-    
-    virtual bool isForm() const
-    { return false; }
+void AnalogClockPlugin::initialize(AbstractFormEditor * /*core*/) 
+{ 
+    if (initialized) 
+        return;
 
-    virtual QWidget *createWidget(QWidget *parent)
-    { return new AnalogClock(parent); }
-    
-    virtual bool isInitialized() const 
-    { return m_initialized; }
-    
-    virtual void initialize(AbstractFormEditor *core) 
-    { 
-        Q_UNUSED(core);
-        
-        if (m_initialized) 
-            return;
-            
-        m_initialized = true;
-    }
-    
-    virtual QString codeTemplate() const
-    { return QString(); }
+    initialized = true;
+}
 
-    virtual QString domXml() const
-    { return QLatin1String("\
-        <widget class=\"AnalogClock\" name=\"AnalogClock\">\
-            <property name=\"geometry\">\
-                <rect>\
-                    <x>0</x>\
-                    <y>0</y>\
-                    <width>100</width>\
-                    <height>100</height>\
-                </rect>\
-            </property>\
-        </widget>\
-      "); }
-    
-private:
-    bool m_initialized;
-};
+bool AnalogClockPlugin::isInitialized() const 
+{
+    return initialized;
+}
+
+QWidget *AnalogClockPlugin::createWidget(QWidget *parent)
+{
+    return new AnalogClock(parent);
+}
+
+QString AnalogClockPlugin::name() const
+{
+    return QLatin1String("AnalogClock");
+}
+
+QString AnalogClockPlugin::group() const
+{
+    return QLatin1String("Display Widgets");
+}
+
+QIcon AnalogClockPlugin::icon() const
+{
+    return QIcon();
+}
+
+QString AnalogClockPlugin::toolTip() const
+{
+    return QString();
+}
+
+QString AnalogClockPlugin::whatsThis() const
+{
+    return QString();
+}
+
+bool AnalogClockPlugin::isContainer() const
+{
+    return false;
+}
+
+bool AnalogClockPlugin::isForm() const
+{
+    return false;
+}
+
+QString AnalogClockPlugin::domXml() const
+{
+    return QLatin1String("<widget class=\"AnalogClock\" name=\"AnalogClock\">\n"
+                         " <property name=\"geometry\">\n"
+                         "  <rect>\n"
+                         "   <x>0</x>\n"
+                         "   <y>0</y>\n"
+                         "   <width>100</width>\n"
+                         "   <height>100</height>\n"
+                         "  </rect>\n"
+                         " </property>\n"
+                         "</widget>\n");
+}
+
+QString AnalogClockPlugin::includeFile() const
+{
+    return QLatin1String("analogclock.h");
+}
+
+QString AnalogClockPlugin::codeTemplate() const
+{
+    return QString();
+}
 
 Q_EXPORT_PLUGIN(AnalogClockPlugin)
-
-#include "plugin.moc"

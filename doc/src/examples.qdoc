@@ -118,4 +118,11 @@
     \o \l{sql/relationaltablemodel}{Relational Table Model}
     \o \l{sql/tablemodel}{Table Model}
     \endlist
+
+    \section1 Qt Designer Examples
+
+    \list
+    \o \l{designer/calculatorform}{Calculator Form}\raisedaster
+    \o \l{designer/customwidget}{Custom Widget}\raisedaster
+    \endlist
 */

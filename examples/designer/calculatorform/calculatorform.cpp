@@ -10,10 +10,10 @@ CalculatorForm::CalculatorForm(QWidget *parent)
 
 void CalculatorForm::on_inputSpinBox1_valueChanged(int value)
 {
-    ui.resultLabel->setText(QString::number(value + ui.inputSpinBox2->value()));
+    ui.outputWidget->setText(QString::number(value + ui.inputSpinBox2->value()));
 }
 
 void CalculatorForm::on_inputSpinBox2_valueChanged(int value)
 {
-    ui.resultLabel->setText(QString::number(value + ui.inputSpinBox1->value()));
+    ui.outputWidget->setText(QString::number(value + ui.inputSpinBox1->value()));
 }

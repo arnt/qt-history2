@@ -12,7 +12,8 @@ contains(CONFIG, "debug") {
     LIBS += -lQtDesigner
 }
    
-HEADERS     = analogclock.h
+HEADERS     = analogclock.h \
+              plugin.h
 SOURCES     = analogclock.cpp \
               plugin.cpp
 TEMPLATE    = lib
