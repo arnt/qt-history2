@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#5 $
 **
-** Implementation of QGCache class
+** Implementation of QGCache and QGCacheIterator classes
 **
 ** Author  : Eirik Eng
 ** Created : 950208
@@ -18,7 +18,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#5 $";
 #endif
 
 

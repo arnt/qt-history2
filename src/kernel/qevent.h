@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#7 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#8 $
 **
-** Definition of QEvent classes
+** Definition of event classes
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

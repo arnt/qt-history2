@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpdevmet.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpdevmet.h#5 $
 **
 ** Definition of QPaintDeviceMetrics class
 **
 ** Author  : Haavard Nord
 ** Created : 941109
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

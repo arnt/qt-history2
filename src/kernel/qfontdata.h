@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#5 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#6 $
 **
 ** Definition of QFontData struct
 **
 ** Author  : Eirik Eng
 ** Created : 941229
 **
-** Copyright (C) 1994, 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** Internal header file containing private data common to QFont,

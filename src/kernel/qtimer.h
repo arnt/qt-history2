@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#3 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#4 $
 **
 ** Definition of QTimer class
 **
 ** Author  : Haavard Nord
 ** Created : 931111
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

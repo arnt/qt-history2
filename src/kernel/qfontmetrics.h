@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#7 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#8 $
 **
 ** Definition of QFontMetrics class
 **
 ** Author  : Eirik Eng
 ** Created : 940514
 **
-** Copyright (C) 1994, 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
