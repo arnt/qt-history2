@@ -2,7 +2,7 @@
 #include "qapplication.h"
 
 QComLibrary::QComLibrary( const QString &filename, QLibrary::Policy pol )
-: QLibrary( filename, pol )
+: QLibrary( filename, pol ), entry( 0 )
 {
 }
 
