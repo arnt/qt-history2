@@ -1358,9 +1358,6 @@ int QRegExpEngine::anchorConcatenation( int a, int b )
     if ( (b & Anchor_Alternation) != 0 )
 	qSwap( a, b );
 
-    /*
-      
-    */
     int aprime = anchorConcatenation( aa[a ^ Anchor_Alternation].a, b );
     int bprime = anchorConcatenation( aa[a ^ Anchor_Alternation].b, b );
     return anchorAlternation( aprime, bprime );
