@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#5 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -12,7 +12,7 @@
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#4 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#5 $")
 
 
 /*----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#4 $")
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn bool QCollection::setAutoDelete( bool enable )
+  \fn void QCollection::setAutoDelete( bool enable )
   Sets the auto-delete option of the collection.
 
   Enabling auto-delete (\e enable is TRUE) will delete objects that
