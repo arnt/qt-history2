@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#78 $
 **
 ** Implementation of QSlider class
 **
@@ -28,6 +28,8 @@
 #include "qdrawutil.h"
 #include "qtimer.h"
 #include "qbitmap.h"
+
+#include <limits.h>
 
 static const int motifBorder = 2;
 static const int thresholdTime = 500;
@@ -210,8 +212,16 @@ void QSlider::setTracking( bool enable )
 int QSlider::positionFromValue( int v ) const
 {
     int  a = available();
-    int range = maxValue() - minValue();
-    return range > 0 ? ( (v - minValue() ) * a ) / (range): 0;
+    if ( maxValue() > minValue() ) {
+	uint range = maxValue() - minValue();
+	uint d = v - minValue();
+	int scale = 1;
+	if ( range > uint(INT_MAX/2048) )
+	     scale = 4096;
+	return ( (d/scale) * a ) / (range/scale);
+    } else {
+	return 0;
+    }
 }
 
 /*!
@@ -242,8 +252,11 @@ int QSlider::available() const
 int QSlider::valueFromPosition( int p ) const
 {
     int a = available();
-    int range = maxValue() - minValue();
-    return   minValue() + ( a > 0 ? (2 * p * range + a ) / ( 2*a ): 0 );
+    if ( a <= 0 )
+	return 0;
+    uint r = maxValue() - minValue();
+    return  minValue() +  p*(r/a) + (2 * p * (r%a) + a) / (2*a) ;
+    //equiv. to minValue() + ( p * r) / a + 0.5;
 }
 
 /*!
