@@ -2297,9 +2297,7 @@ void MainWindow::actionEditorHidden()
 
 void MainWindow::activeWindowChanged( QWidget *w )
 {
-    if ( !w )
-	return;
-    if ( w->inherits( "FormWindow" ) ) {
+    if ( w && w->inherits( "FormWindow" ) ) {
 	lastActiveFormWindow = (FormWindow*)w;
 	lastActiveFormWindow->updateUndoInfo();
 	emit hasActiveForm( TRUE );

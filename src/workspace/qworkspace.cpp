@@ -740,7 +740,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	    break;
 	d->focus.removeRef( (QWorkspaceChild*)o );
 	if ( d->focus.isEmpty() )
-	    d->active = 0;
+	    activateWindow( 0 );
 	else {
 	    activatePreviousWindow();
 	    QWorkspaceChild* c = d->active;
