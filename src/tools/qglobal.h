@@ -304,7 +304,7 @@
    such as template specialization nevertheless */
 #    elif defined(sgi) || defined(__sgi)
 #      define Q_CC_MIPS
-#      if defined(_MIPS_SIM) && _MIPS_SIM == _MIPS_SIM_ABI32 /* o32 ABI */
+#      if defined(_MIPS_SIM) && ( _MIPS_SIM == _ABIO32) /* o32 ABI */
 #        define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #      endif
 #    endif
