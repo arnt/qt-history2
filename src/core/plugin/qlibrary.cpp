@@ -1,0 +1,800 @@
+/****************************************************************************
+**
+** Implementation of QLibrary class.
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "qplatformdefs.h"
+#include "qlibrary.h"
+#include "qlibrary_p.h"
+#include <qstringlist.h>
+#include <qfile.h>
+#include <qdir.h>
+#include <private/qspinlock_p.h>
+#include <qmap.h>
+#include <qsettings.h>
+#ifdef Q_OS_MAC
+# include <qcore_mac.h>
+#endif
+#ifndef NO_ERRNO_H
+#include <errno.h>
+#endif // NO_ERROR_H
+#include <qdebug.h>
+
+/*!
+    \class QLibrary
+    \reentrant
+    \brief The QLibrary class loads shared libraries at runtime.
+
+    \mainclass
+    \ingroup plugins
+
+    An instance of a QLibrary object operates on a single shared
+    object file (or library, or DLL) and provide access to the
+    functionality in the library in a platform independent way. You
+    can either pass a filename in the constructor, or set it
+    explicitly with setFilename(). If the file cannot be found,
+    QLibrary probes different platform specific file suffixes, like
+    ".so" on Unix, ".dylib" on the Mac or ".dll" on MS-Windows. This
+    makes it possible to specify shared libraries through only the
+    basename, so the same code will work on different operating system
+    platforms.
+
+    The most important functions are load() to dynamically load the
+    library file, isLoaded() to know whether loading was successful,
+    and resolve() to resolve a symbol in the library.  resolve()
+    implicitly tries to load the library if it has not been loaded
+    yet. Multiple instance of QLibrary can wrap the same physical
+    shared object file. Once loaded, libraries remain in memory until
+    the application exists. With unload(), you can explicitly unload a
+    library, presuming there are no other QLibrary instances that
+    operate on the same shared object file.
+
+    A typical use of QLibrary is to resolve an exported symbol in a
+    shared object file, and to call the C-function that this symbol
+    represents. This is called "explicit linking" in contrast to
+    "implicit linking", which is done by the link step in the build
+    process when linking an executable against a library.
+
+    The following code snippet loads a library, resolves the symbol
+    "mysymbol", and calls the function if everything succeeded. If
+    something goes wrong, e.g. the library file does not exist or the
+    symbol is not defined, the function pointer will be 0 and won't be
+    called.
+
+    \code
+    QLibrary myLib("mylib");
+    typedef void (*MyPrototype)();
+    MyPrototype myFunction = (MyPrototype) myLib.resolve("mysymbol");
+    if (myFunction) {
+        myFunction();
+    }
+    \endcode
+
+    The symbol must be exported as C-function from the library for
+    resolve to work. This requires the \c {extern "C"} notation if the
+    library is compiled with a C++ compiler. On MS-Windows, this also
+    requires a dllexport macro. See resolve() for details how this is
+    done. For convenience, there is a static resolve function for the
+    common case that does not require creating a QLibrary instance:
+
+    \code
+    typedef void (*MyPrototype)();
+    if (MyPrototype myFunction = (MyPrototype) QLibrary::resolve("mylib", "mysymbol"))
+        myFunction();
+    \endcode
+
+    \sa QPluginLoader
+
+*/
+
+struct qt_token_info
+{
+    qt_token_info(const char *f, const ulong fc)
+        : fields(f), field_count(fc), results(fc), lengths(fc)
+    {
+        results.fill(0);
+        lengths.fill(0);
+    }
+
+    const char *fields;
+    const ulong field_count;
+
+    QVector<const char *> results;
+    QVector<ulong> lengths;
+};
+
+/*
+  return values:
+       1 parse ok
+       0 eos
+      -1 parse error
+*/
+static int qt_tokenize(const char *s, ulong s_len, ulong *advance,
+                        qt_token_info &token_info)
+{
+    ulong pos = 0, field = 0, fieldlen = 0;
+    char current;
+    int ret = -1;
+    *advance = 0;
+    for (;;) {
+        current = s[pos];
+
+        // next char
+        ++pos;
+        ++fieldlen;
+        ++*advance;
+
+        if (! current || pos == s_len + 1) {
+            // save result
+            token_info.results[(int)field] = s;
+            token_info.lengths[(int)field] = fieldlen - 1;
+
+            // end of string
+            ret = 0;
+            break;
+        }
+
+        if (current == token_info.fields[field]) {
+            // save result
+            token_info.results[(int)field] = s;
+            token_info.lengths[(int)field] = fieldlen - 1;
+
+            // end of field
+            fieldlen = 0;
+            ++field;
+            if (field == token_info.field_count - 1) {
+                // parse ok
+                ret = 1;
+            }
+            if (field == token_info.field_count) {
+                // done parsing
+                break;
+            }
+
+            // reset string and its length
+            s = s + pos;
+            s_len -= pos;
+            pos = 0;
+        }
+    }
+
+    return ret;
+}
+
+/*
+  returns true if the string s was correctly parsed, false otherwise.
+*/
+static bool qt_parse_pattern(const char *s, uint *version, QByteArray *key)
+{
+    bool ret = true;
+
+    qt_token_info pinfo("=\n", 2);
+    int parse;
+    ulong at = 0, advance, parselen = qstrlen(s);
+    do {
+        parse = qt_tokenize(s + at, parselen, &advance, pinfo);
+        if (parse == -1) {
+            ret = false;
+            break;
+        }
+
+        at += advance;
+        parselen -= advance;
+
+        if (qstrncmp("version", pinfo.results[0], pinfo.lengths[0]) == 0) {
+            // parse version string
+            qt_token_info pinfo2("..-", 3);
+            if (qt_tokenize(pinfo.results[1], pinfo.lengths[1],
+                              &advance, pinfo2) != -1) {
+                QString m = QByteArray(pinfo2.results[0], pinfo2.lengths[0]);
+                QString n = QByteArray(pinfo2.results[1], pinfo2.lengths[1]);
+                QString p = QByteArray(pinfo2.results[2], pinfo2.lengths[2]);
+                *version  = (m.toUInt() << 16) | (n.toUInt() << 8) | p.toUInt();
+            } else {
+                ret = false;
+                break;
+            }
+        } else if (qstrncmp("buildkey", pinfo.results[0],
+                              pinfo.lengths[0]) == 0){
+            // save buildkey
+            *key = QByteArray(pinfo.results[1], pinfo.lengths[1] + 1);
+        }
+    } while (parse == 1 && parselen > 0);
+
+    return ret;
+}
+
+#if defined(Q_OS_UNIX)
+
+#if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
+#  define USE_MMAP
+#  include <sys/types.h>
+#  include <sys/mman.h>
+#endif // Q_OS_FREEBSD || Q_OS_LINUX
+
+static long qt_find_pattern(const char *s, ulong s_len,
+                             const char *pattern, ulong p_len)
+{
+    /*
+      we search from the end of the file because on the supported
+      systems, the read-only data/text segments are placed at the end
+      of the file.  HOWEVER, when building with debugging enabled, all
+      the debug symbols are placed AFTER the data/text segments.
+
+      what does this mean?  when building in release mode, the search
+      is fast because the data we are looking for is at the end of the
+      file... when building in debug mode, the search is slower
+      because we have to skip over all the debugging symbols first
+    */
+
+    if (! s || ! pattern || p_len > s_len) return -1;
+    ulong i, hs = 0, hp = 0, delta = s_len - p_len;
+
+    for (i = 0; i < p_len; ++i) {
+        hs += s[delta + i];
+        hp += pattern[i];
+    }
+    i = delta;
+    for (;;) {
+        if (hs == hp && qstrncmp(s + i, pattern, p_len) == 0)
+            return i;
+        if (i == 0)
+            break;
+        --i;
+        hs -= s[i + p_len];
+        hs += s[i];
+    }
+
+    return -1;
+}
+
+/*
+  This opens the specified library, mmaps it into memory, and searches
+  for the QT_PLUGIN_VERIFICATION_DATA.  The advantage of this approach is that
+  we can get the verification data without have to actually load the library.
+  This lets us detect mismatches more safely.
+
+  Returns false if version/key information is not present, or if the
+                information could not be read.
+  Returns  true if version/key information is present and successfully read.
+*/
+static bool qt_unix_query(const QString &library, uint *version, QByteArray *key)
+{
+    QFile file(library);
+    if (! file.open(IO_ReadOnly)) {
+        qWarning("%s: %s", (const char*) QFile::encodeName(library),
+            strerror(errno));
+        return false;
+    }
+
+    QByteArray data;
+    char *filedata = 0;
+    ulong fdlen = 0;
+
+#ifdef USE_MMAP
+    char *mapaddr = 0;
+    size_t maplen = file.size();
+    mapaddr = (char *) mmap(mapaddr, maplen, PROT_READ, MAP_PRIVATE, file.handle(), 0);
+    if (mapaddr != MAP_FAILED) {
+        // mmap succeeded
+        filedata = mapaddr;
+        fdlen = maplen;
+    } else {
+        // mmap failed
+        qWarning("mmap: %s", strerror(errno));
+#endif // USE_MMAP
+        // try reading the data into memory instead
+        data = file.readAll();
+        filedata = data.data();
+        fdlen = data.size();
+#ifdef USE_MMAP
+    }
+#endif // USE_MMAP
+
+    // verify that the pattern is present in the plugin
+    const char *pattern = "pattern=QT_PLUGIN_VERIFICATION_DATA";
+    const ulong plen = qstrlen(pattern);
+    long pos = qt_find_pattern(filedata, fdlen, pattern, plen);
+
+    bool ret = false;
+    if (pos >= 0) {
+        ret = qt_parse_pattern(filedata + pos, version, key);
+    }
+
+#ifdef USE_MMAP
+    if (mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0) {
+        qWarning("munmap: %s", strerror(errno));
+    }
+#endif // USE_MMAP
+
+    file.close();
+    return ret;
+}
+
+#endif // Q_OS_UNIX
+
+typedef QMap<QString, QLibraryPrivate*> LibraryMap;
+Q_GLOBAL_STATIC(LibraryMap, libraryMap)
+
+static QStaticSpinLock libraryMapLock = 0;
+
+QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
+    :pHnd(0), fileName(canonicalFileName), instance(0), qt_version(0), pluginState(MightBeAPlugin)
+{
+    libraryRefCount = 1;
+    libraryUnloadCount = 1;
+    libraryMap()->insert(canonicalFileName, this);
+}
+
+QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &canonicalFileName)
+{
+    QSpinLockLocker locker(libraryMapLock);
+    if (QLibraryPrivate *lib = libraryMap()->value(canonicalFileName)) {
+        ++lib->libraryUnloadCount;
+        ++lib->libraryRefCount;
+        return lib;
+    }
+    return new QLibraryPrivate(canonicalFileName);
+}
+
+QLibraryPrivate::~QLibraryPrivate()
+{
+    QSpinLockLocker locker(libraryMapLock);
+    QLibraryPrivate *that = libraryMap()->take(fileName);
+    Q_ASSERT(this == that);
+}
+
+void *QLibraryPrivate::resolve(const char *symbol)
+{
+    if (!pHnd)
+        return 0;
+    return resolve_sys(symbol);
+}
+
+
+bool QLibraryPrivate::load()
+{
+    if (pHnd)
+        return true;
+    return load_sys();
+}
+
+bool QLibraryPrivate::unload()
+{
+    if (!pHnd)
+        return true;
+    if (!--libraryUnloadCount) // only unload if ALL QLibrary instance wanted to
+        if  (unload_sys())
+            pHnd = 0;
+    return (pHnd == 0);
+}
+
+void QLibraryPrivate::release()
+{
+    if (!--libraryRefCount)
+        delete this;
+}
+
+bool QLibraryPrivate::loadPlugin()
+{
+    if (instance)
+        return true;
+    if (load()) {
+        instance = (InstanceFn)resolve("qt_plugin_instance");
+        return instance;
+    }
+    return false;
+}
+
+
+QString QLibraryPrivate::findLib(const QString &fileName)
+{
+    QString lib = fileName;
+
+#if defined(Q_WS_WIN)
+    if (lib.lastIndexOf('.') <= lib.lastIndexOf('/'))
+        lib += ".dll";
+#else
+    QStringList filters;
+#ifdef Q_OS_MAC
+    filters << ".so" << ".bundle" << ".dylib"; //the last one is also the default one..
+#elif defined(Q_OS_HPUX)
+    filters << ".sl";
+#else
+    filters << ".so";
+#endif
+    bool found = QFile::exists(lib);
+    if(!found) {
+        for (int i = 0; i < filters.count(); ++i) {
+            const QString filter(filters.at(i));
+            if (QFile::exists(lib + filter)) {
+                found = true;
+                lib += filter;
+                break;
+            } else if (!filter.isEmpty()) {
+                QString tmplib = lib;
+                const int x = tmplib.lastIndexOf("/");
+                if (x != -1) {
+                    QString path = tmplib.left(x + 1);
+                    QString file = tmplib.right(tmplib.length() - x - 1);
+                    tmplib = QString("%1lib%2").arg(path).arg(file);
+                } else {
+                    tmplib = QString("lib%1").arg(lib);
+                }
+                tmplib += filter;
+                if (QFile::exists(tmplib)) {
+                    found = true;
+                    lib = tmplib;
+                    break;
+                }
+            }
+        }
+    }
+#ifdef Q_OS_MAC
+    if(!found) {
+        if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(lib))) {
+            found = true;
+            QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
+            QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+            lib = str;
+        }
+    }
+#endif
+#endif
+
+    if (found)
+        return lib;
+    qWarning("QLibrary: no such library %s", fileName.local8Bit());
+    return QString();
+}
+
+bool QLibraryPrivate::isPlugin()
+{
+    if (pluginState != MightBeAPlugin)
+        return pluginState == IsAPlugin;
+
+    QByteArray key;
+    bool success = false;
+
+    QFileInfo fileinfo(fileName);
+    lastModified  = fileinfo.lastModified().toString(Qt::ISODate);
+    QString regkey = QString("/Trolltech/Qt Plugin Cache %1.%2/%3")
+                     .arg((QT_VERSION & 0xff0000) >> 16)
+                     .arg((QT_VERSION & 0xff00) >> 8)
+                     .arg(fileName);
+    QStringList reg;
+
+    QSettings settings;
+    reg = settings.readListEntry(regkey);
+    if (reg.count() == 3 &&lastModified == reg[2]) {
+        qt_version = reg[0].toUInt(0, 16);
+        key = reg[1].latin1();
+        success = qt_version != 0;
+    } else {
+#if defined(Q_OS_UNIX)
+        if (!pHnd) {
+            // use unix shortcut to avoid loading the library
+            success = qt_unix_query(fileName, &qt_version, &key);
+        } else
+#endif
+        {
+            bool temporary_load = false;
+            if (!pHnd)
+                temporary_load =  load_sys();
+#  ifdef Q_CC_BOR
+            typedef const char * __stdcall (*QtPluginQueryVerificationDataFn)();
+#  else
+            typedef const char * (*QtPluginQueryVerificationDataFn)();
+#  endif
+            QtPluginQueryVerificationDataFn qtPluginQueryVerificationDataFn =
+                (QtPluginQueryVerificationDataFn) resolve("qt_plugin_query_verification_data");
+
+            if (!qtPluginQueryVerificationDataFn
+                || !qt_parse_pattern(qtPluginQueryVerificationDataFn(), &qt_version, &key)) {
+                qt_version = 0;
+                key = "unknown";
+                if (temporary_load)
+                    unload_sys();
+            } else {
+                success = true;
+            }
+        }
+
+        QStringList queried;
+        queried << QString::number(qt_version,16)
+                <<  key
+                << lastModified;
+        settings.writeEntry(regkey, queried);
+    }
+
+    if (!success) {
+        qWarning("In %s:\n Not a plugin", QFile::encodeName(fileName).constData());
+        return false;
+    }
+
+    pluginState = IsNotAPlugin; // be pessimistic
+
+    bool warn = true;
+    if ((qt_version > QT_VERSION) ||
+                ((QT_VERSION & 0xff0000) > (qt_version & 0xff0000))) {
+        if (warn)
+            qWarning("In %s:\n"
+                      "  Plugin uses incompatible Qt library (%d.%d.%d)",
+                      (const char*) QFile::encodeName(fileName),
+                      (qt_version&0xff0000) >> 16, (qt_version&0xff00) >> 8, qt_version&0xff);
+    } else if (key != QT_BUILD_KEY) {
+        if (warn)
+            qWarning("In %s:\n"
+                      "  Plugin uses incompatible Qt library\n"
+                      "  expected build key \"%s\", got \"%s\"",
+                      (const char*) QFile::encodeName(fileName),
+                      QT_BUILD_KEY,
+                      key.isEmpty() ? "<null>" : (const char *) key);
+    } else {
+        pluginState = IsAPlugin;
+    }
+
+    return pluginState == IsAPlugin;
+}
+
+/*!
+    Loads the library and returns true if the library could be loaded;
+    otherwise returns false. Since resolve() always calls this
+    function before resolving any symbols it is not necessary to call
+    it explicitly. In some situations you might want the library
+    loaded in advance, in which case you would use this function.
+
+    On Darwin and Mac OS X this function uses code from dlcompat, part of the
+    OpenDarwin project.
+
+    \sa unload()
+
+    \legalese
+
+    Copyright (c) 2002 Jorge Acereda and Peter O'Gorman
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+bool QLibrary::load()
+{
+    if (!d)
+        return false;
+    if (did_load)
+        return d->pHnd;
+    did_load = true;
+    return d->load();
+}
+
+/*!
+    Unloads the library and returns true if the library could be
+    unloaded; otherwise returns false.
+
+    \sa resolve(), load()
+*/
+bool QLibrary::unload()
+{
+    if (did_load) {
+        did_load = false;
+        return d->unload();
+    }
+    return false;
+}
+
+/*!
+    Returns true if the library is loaded; otherwise returns false.
+
+    \sa load()
+ */
+bool QLibrary::isLoaded() const
+{
+    return d && d->pHnd;
+}
+
+
+/*!
+  Constructs a library with parent \a parent.
+ */
+QLibrary::QLibrary(QObject *parent)
+    :QObject(parent), d(0), did_load(false)
+{
+}
+
+
+/*!
+    Constructs a library with parent \a parent, and file name \a fileName.
+
+    When setting the file name, the platform specific file suffixes
+    can be omitted. If the file cannot be found, QLibrary probes
+    different platform specific file suffixes, like ".so" on Unix,
+    ".dylib" on the Mac or ".dll" on MS-Windows. This makes it
+    possible to specify shared libraries through only the basename, so
+    the same code will work on different operating system platforms.
+
+    See \l fileName for details.
+ */
+QLibrary::QLibrary(const QString& fileName, QObject *parent)
+    :QObject(parent), d(0), did_load(false)
+{
+    setFileName(fileName);
+}
+
+/*!
+    Destroys the QLibrary object.
+
+    Unless unload() was called explicitly, the shared object file
+    stays in memory until the application exits.
+
+    \sa isLoaded(), unload()
+*/
+QLibrary::~QLibrary()
+{
+    if (d)
+        d->release();
+}
+
+
+/*!
+    \property QLibrary::fileName
+
+    \brief the file name of the share object file
+
+    When setting the file name, the platform specific file suffixes
+    can be omitted. If the file cannot be found, QLibrary probes
+    different platform specific file suffixes, like ".so" on Unix,
+    ".dylib" on the Mac or ".dll" on MS-Windows. This makes it
+    possible to specify shared libraries through only the basename, so
+    the same code will work on different operating system platforms.
+
+    The current list of supported suffixes is:
+    \list
+    \i On MS-Windows: dll
+    \i On Unix: so
+    \i On HPUX: sl
+    \i On MacOSX: dylib, bundle, so
+    \endlist
+
+    Specifying the extension explicitly is not recommended, since
+    doing so introduces a platform dependency.
+
+*/
+
+void QLibrary::setFileName(const QString &fileName)
+{
+    if (d) {
+        d->release();
+        d = 0;
+        did_load = false;
+    }
+    QString lib = QLibraryPrivate::findLib(fileName);
+    if (!lib.isEmpty())
+        d = QLibraryPrivate::findOrCreate(QDir(lib).canonicalPath());
+    if (d && d->pHnd)
+        did_load = true;
+
+}
+
+QString QLibrary::fileName() const
+{
+    if (d)
+        return d->fileName;
+    return QString();
+}
+
+
+/*!
+    Returns the address of the exported symbol \a symbol. The library is
+    loaded if necessary. The function returns 0 if the symbol could
+    not be resolved or the library could not be loaded.
+
+    \code
+    typedef int (*avgProc)(int, int);
+
+    avgProc avg = (avgProc) library->resolve("avg");
+    if (avg)
+        return avg(5, 8);
+    else
+        return -1;
+    \endcode
+
+    The symbol must be exported as a C-function from the library. This
+    requires the \c {extern "C"} notation if the library is compiled
+    with a C++ compiler. On Windows you also have to explicitly export
+    the function from the DLL using the \c {__declspec(dllexport)}
+    compiler directive.
+
+    \code
+    extern "C" MY_EXPORT_MACRO int avg(int a, int b)
+    {
+        return (a + b) / 2;
+    }
+    \endcode
+
+    with \c MY_EXPORT defined as
+
+    \code
+    #ifdef Q_WS_WIN
+    # define MY_EXPORT __declspec(dllexport)
+    #else
+    # define MY_EXPORT
+    #endif
+    \endcode
+
+    On Darwin and Mac OS X this function uses code from dlcompat, part of the
+    OpenDarwin project.
+
+    \legalese
+
+    Copyright (c) 2002 Jorge Acereda and Peter O'Gorman
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+void *QLibrary::resolve(const char *symbol)
+{
+    if (!d)
+        return 0;
+    if (!d->pHnd)
+        d->load();
+    return d->resolve(symbol);
+}
+
+/*!
+    \overload
+
+    Loads the library \a fileName and returns the address of the
+    exported symbol \a symbol. Note that like the constructor, \a
+    fileName does not need to include the (platform specific) file
+    extension. The library remains loaded until the application exits.
+
+    The function returns 0 if the symbol could not be resolved or the
+    library could not be loaded.
+
+    \sa resolve()
+*/
+void *QLibrary::resolve(const QString &fileName, const char *symbol)
+{
+    QLibrary library(fileName);
+    return library.resolve(symbol);
+}

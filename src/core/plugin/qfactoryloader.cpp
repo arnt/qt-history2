@@ -1,0 +1,114 @@
+/****************************************************************************
+**
+** Implementation of QFactoryLoader class.
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include <qdir.h>
+#include <qdebug.h>
+#include <qsettings.h>
+#include "qfactoryinterface.h"
+#include "qfactoryloader_p.h"
+
+QFactoryLoader::QFactoryLoader(const char *iid,
+                               const QStringList &paths, const QString &suffix, QObject *parent)
+    :QObject(parent)
+{
+    QStringList filters;
+#if defined(Q_OS_WIN32)
+    filters << "*.dll";
+#elif defined(Q_OS_DARWIN)
+    filter << "*.dylib;" << "*.so" << "*.bundle";
+#elif defined(Q_OS_HPUX)
+    filters << "*.sl";
+#elif defined(Q_OS_UNIX)
+    filters << "*.so";
+#endif
+
+    QSettings settings;
+
+    for (int i = 0; i < paths.count(); ++i) {
+        QString path = paths.at(i) + suffix;
+        if (!QDir(path).exists(".", true))
+            continue;
+        QStringList plugins = QDir(path).entryList(filters);
+        Q4LibraryPrivate *library = 0;
+        for (int j = 0; j < plugins.count(); ++j) {
+            QString fileName = QDir::cleanDirPath(path + "/" + plugins.at(j));
+            library = Q4LibraryPrivate::findOrCreate(QDir(fileName).canonicalPath());
+            if (!library->isPlugin()) {
+                library->release();
+                continue;
+            }
+            QString regkey = QString("/Trolltech/Qt Factory Cache %1.%2/%3:/%4")
+                             .arg((QT_VERSION & 0xff0000) >> 16)
+                             .arg((QT_VERSION & 0xff00) >> 8)
+                             .arg(iid)
+                             .arg(fileName);
+            QStringList reg, keys;
+            reg = settings.readListEntry(regkey);
+            if (reg.count() && library->lastModified == reg[0]) {
+                keys = reg;
+                keys.removeFirst();
+            } else {
+                if (!library->loadPlugin()) {
+                    library->release();
+                    continue;
+                }
+                QObject *instance = library->instance();
+                QFactoryInterface *factory = qt_cast<QFactoryInterface*>(instance);
+                if (instance && factory && instance->qt_metacast(iid))
+                    keys = factory->keys();
+                if (keys.isEmpty())
+                    library->unload();
+                reg.clear();
+                reg << library->lastModified;
+                reg += keys;
+                settings.writeEntry(regkey, reg);
+            }
+            if (!keys.isEmpty()) {
+                libraryList += library;
+                for (int k = 0; k < keys.count(); ++k) {
+                    // first come first serve, unless the first
+                    // library was built with a future Qt version,
+                    // whereas the new one has a Qt version that fits
+                    // better
+                    Q4LibraryPrivate *previous = keyMap.value(keys.at(k));
+                    if (!previous || (previous->qt_version > QT_VERSION && library->qt_version <= QT_VERSION))
+                        keyMap[keys.at(k)] = library;
+                }
+            } else {
+                qWarning("In %s:\n Plugin does not implement factory interface %s", QFile::encodeName(fileName).constData(), iid);
+                library->release();
+            }
+        }
+    }
+}
+
+QFactoryLoader::~QFactoryLoader()
+{
+    for (int i = 0; i < libraryList.count(); ++i)
+        libraryList.at(i)->release();
+}
+
+QStringList QFactoryLoader::keys() const
+{
+    return keyMap.keys();
+}
+
+void *QFactoryLoader::create(const QString &key) const
+{
+    if (Q4LibraryPrivate* library = keyMap.value(key))
+        if (library->instance || library->loadPlugin())
+            if (QFactoryInterface *factory = qt_cast<QFactoryInterface*>(library->instance()))
+                return factory->create(key);
+    return 0;
+}
