@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#208 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2181,6 +2181,46 @@ QImage QImage::mirror() const
 	int lineSize = bytesPerLine();
 	for ( int i = 0; i < numScanLines; i++ )
 	    memcpy( res.scanLine(numScanLines-1-i), scanLine(i), lineSize );
+    }
+    return res;
+}
+
+
+/*!
+  Returns a QImage where the values of the red and blue components of
+  all pixels have been swapped, effectively converting a RGB image to
+  a BGR image. The original QImage is left unchanged.
+*/
+
+QImage QImage::swapRGB() const
+{
+    QImage res = copy();
+    if ( !isNull() ) {
+	if ( depth() != 32 ) {
+	    uint* p = (uint*)colorTable();
+	    uint* q = (uint*)res.colorTable();
+	    if ( p && q ) {
+		for ( int i=0; i < numColors(); i++ ) {
+		    *q = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
+			 (*p & 0xff00ff00);
+		    p++;
+		    q++;
+		}
+	    }
+	}
+	else {
+	    for ( int i=0; i < height(); i++ ) {
+		uint *p = (uint*)scanLine( i );
+		uint *q = (uint*)res.scanLine( i );
+		uint *end = p + width();
+		while ( p < end ) {
+		    *q = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
+			 (*p & 0xff00ff00);
+		    p++;
+		    q++;
+		}
+	    }    
+	}
     }
     return res;
 }
