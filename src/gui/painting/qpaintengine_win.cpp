@@ -1609,9 +1609,9 @@ void QGdiplusPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 
 void QGdiplusPaintEngine::drawRect(const QRect &r)
 {
-    int subtract = d->usePen && !d->antiAliasEnabled ? 1 : 0;
+    int subtract = d->usePen ? 1 : 0;
     if (d->brush) {
-	d->graphics->FillRectangle(d->brush, r.x()+subtract, r.y()+subtract,
+	d->graphics->FillRectangle(d->brush, r.x(), r.y(),
 				   r.width()-subtract, r.height()-subtract);
     }
     if (d->usePen) {
@@ -1644,10 +1644,12 @@ void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     GraphicsPath path(FillModeAlternate);
 
+    int subtract = d->usePen ? 1 : 0;
+
     int top = r.y();
-    int bottom = r.y() + r.height() - 1;
+    int bottom = r.y() + r.height() - subtract;
     int left = r.x();
-    int right = r.x() + r.width() - 1;
+    int right = r.x() + r.width() - subtract;
 
     int horLength = (99 - xRnd) / 99.0 * r.width() / 1;
     int horStart  = r.x() + r.width() / 2 - horLength / 2;
@@ -1676,31 +1678,43 @@ void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
 void QGdiplusPaintEngine::drawEllipse(const QRect &r)
 {
-    int subtract = d->usePen && !d->antiAliasEnabled ? 1 : 0;
+    int subtract = d->usePen ? 1 : 0;
     if (d->brush)
-	d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width(), r.height());
+	d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
     if (d->usePen)
-	d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width(), r.height());
+	d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
 }
 
 void QGdiplusPaintEngine::drawArc(const QRect &r, int a, int alen)
 {
-    if (d->usePen)
-	d->graphics->DrawArc(d->pen, r.x(), r.y(), r.width(), r.height(), -a/16.0, -alen/16.0);
+    int subtract = d->usePen ? 1 : 0;
+    if (d->usePen) {
+	d->graphics->DrawArc(d->pen, r.x(), r.y(),
+			     r.width()-subtract, r.height()-subtract,
+			     -a/16.0, -alen/16.0);
+    }
 }
 
 void QGdiplusPaintEngine::drawPie(const QRect &r, int a, int alen)
 {
-    if (d->brush)
-	d->graphics->FillPie(d->brush, r.x(), r.y(), r.width(), r.height(), -a/16.0, -alen/16.0);
-    if (d->usePen)
-	d->graphics->DrawPie(d->pen, r.x(), r.y(), r.width(), r.height(), -a/16.0, -alen/16.0);
+    int subtract = d->usePen ? 1 : 0;
+    if (d->brush) {
+	d->graphics->FillPie(d->brush, r.x(), r.y(),
+			     r.width()-subtract, r.height()-subtract,
+			     -a/16.0, -alen/16.0);
+    }
+    if (d->usePen) {
+	d->graphics->DrawPie(d->pen, r.x(), r.y(),
+			     r.width()-subtract, r.height()-substract,
+			     -a/16.0, -alen/16.0);
+    }
 }
 
 void QGdiplusPaintEngine::drawChord(const QRect &r, int a, int alen)
 {
     GraphicsPath path(FillModeAlternate);
-    path.AddArc(r.x(), r.y(), r.width(), r.height(), -a/16.0, -alen/16.0);
+    int subtract = d->usePen ? 1 : 0;
+    path.AddArc(r.x(), r.y(), r.width()-subtract, r.height()-subtract, -a/16.0, -alen/16.0);
     path.CloseFigure();
     if (d->brush)
 	d->graphics->FillPath(d->brush, &path);
@@ -1799,7 +1813,8 @@ void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
 		  image.bits());
     TextureBrush texture(&bitmap, WrapModeTile);
     texture.TranslateTransform(r.x(), r.y());
-    d->graphics->FillRectangle(&texture, r.x(), r.y(), r.width(), r.height());
+    int subtract = d->usePen ? 1 : 0;
+    d->graphics->FillRectangle(&texture, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
 }
 
 #ifndef QT_NO_BEZIER
