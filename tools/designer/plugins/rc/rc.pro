@@ -1,7 +1,7 @@
-TEMPLATE	= app
+TEMPLATE	= lib
 CONFIG		= qt warn_on release
-HEADERS		= rc2ui.h
-SOURCES		= main.cpp \
-		  rc2ui.cpp
-INTERFACES	= 
-TARGET		= rc
+WIN32:CONFIG   += dll
+HEADERS	= rc2ui.h
+SOURCES	= main.cpp rc2ui.cpp
+DESTDIR		= $(QTDIR)/plugins
+TARGET		= rcplugin

@@ -47,11 +47,11 @@ QStringList RCInterface::featureList()
     return list;
 }
 
-QStringList RCInterface::import( const QString& filter, const QString& filename )
+QStringList RCInterface::import( const QString &, const QString& filename )
 {
     QFile file( filename );
     if ( !file.open( IO_ReadOnly ) )
-	qWarning( "uic: Could not open file '%s' ", filename );
+	qWarning( "uic: Could not open file '%s' ", filename.latin1() );
     QTextStream in;
     in.setDevice( &file );
 
