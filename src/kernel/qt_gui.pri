@@ -69,7 +69,7 @@ kernel {
 		  $$KERNEL_CPP/qtextlayout_p.h \
 		  $$KERNEL_H/qwmatrix.h
 
-	win32:SOURCES += 
+	win32:SOURCES += \
 		  $$KERNEL_CPP/qapplication_win.cpp \
 		  $$KERNEL_CPP/qclipboard_win.cpp \
 		  $$KERNEL_CPP/qcolor_win.cpp \
