@@ -1,14 +1,14 @@
 /****************************************************************************
-** $Id: collect.doc,v 1.6 1995/12/17 14:00:25 agulbra Exp $
+** $Id: collect.doc,v 1.7 1995/12/18 18:28:16 hanord Exp $
 **
-** Qt Collection Classes Documentation
+** Qt collection classes documentation
 **
 ** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 /*!
-\page collectionclasses.html
+\page collect.html
 
 <title>Qt Collection Classes</title>
 </head><body>
@@ -50,11 +50,11 @@ destructor or any virtual functions.
 Basically, there are two different implementation strategies for
 collection classes.
 <ol>
-<li> The collection can only contain objects that inherit a special
-     collectable class.  This is the Smalltalk way of doing it.
-<li> The collection is a template (generic) class.
-     Specific collections must be instantiated from the template.
-     This allows any object to be stored in a collection.
+<li>The collection can only contain objects that inherit a special
+    collectable class.  This is the Smalltalk way of doing it.
+<li>The collection is a template (generic) class.
+    Specific collections must be instantiated from the template.
+    This allows any object to be stored in a collection.
 </ol>
 
 In Qt, we have chosen the second approach.  There are three internal
@@ -127,30 +127,73 @@ item itself. This is called a shallow copy. It is possible to make the
 collection copy all of the item's data (known as a deep copy) when an item is
 inserted.  All collection functions that insert an item call the virtual
 function QCollection::newItem() for the item to be inserted.
-Reimplement it if you want to have deep copies in your collection.
+Inherit a collection and reimplement it if you want to have deep copies in
+your collection.
 
 When removing an item from a list, the virtual function
 QCollection::deleteItem() is called.  The default implementation in all
 collection classes is to delete the item if auto-deletion is enabled.
 
 
-<h2>Templates vs. Macros</h2>
+<h2>Templates and Macros</h2>
 
 A template-based collection, for instance QList\<type\>, defines a
 collection of \e pointers to \e type objects.  The pointer (*) is
 implicit.
 
+We discuss QList here, but the same applies for all collection classes
+and collection class iterators.
+
 Template instantiation:
 \code
-  QList<MyClass>  myList;	// wherever the list is used
+  QList<Employee> list;		// wherever the list is used
 \endcode
+
+The item's class or type, Employee in our example, must be defined prior
+to the list definition.
+
+\code
+  // Does not work: Employee is not defined
+  class Employee;
+  QList<Employee> list;
+
+  // This works: Employee is defined before it is used
+  class Employee {
+    ...
+  };
+  QList<Employee> list;
+\endcode
+
+The list can also be instantiated through a macro expansion.
+This is necessary only for compilers that do not support templates.
 
 Macro instantiation:
 \code
-  declare(QListM,MyClass);	// do this once (for instance in a .h file)
+  declare(QListM,Employee);	// declare once (for instance in a .h file)
     ...
-  QListM(MyClass)  myList;	// wherever the list is used
+  QListM(Employee) list;	// wherever the list is used
 \endcode
+
+If you want to make your code work for compilers that do not have
+template support, but use templates if they are available, you
+can use \c typedef:
+
+\code
+    ...
+  #if defined(USE_TEMPLATECLASS)
+  typedef QListT<Employee>	   EmployeeList;
+  #else
+  typedef declare(QListM,Employee) EmployeeList;
+  #endif
+
+  void main()
+  {
+      EmployeeList list;	// list of pointers to Employee
+      ...
+\endcode
+  
+QListT refers to the QList template and QListM refers to the QList macro.
+QList defaults to QListT if templates are supported, QListM otherwise.
 
 We recommend using templates, because macro collections are harder to
 debug.  C++ debuggers understand templates but not macros.
@@ -168,7 +211,7 @@ on the list.  When a list entry is removed, the list updates all iterators
 to point to this entry.
 
 The QDict and QCache collections have no traversal functions. To traverse
-the those collection, you must use QDictIterator or QCacheIterator.
+the these collections, you must use QDictIterator or QCacheIterator.
 
 
 <h2>Predefined Collections</h2>
