@@ -680,7 +680,7 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
     QTextLine line = layout.createLine();
     layout.endLayout();
     const QScriptLine &sl = eng->lines[0];
-    if (!sl.length)
+    if (!sl.length || !eng->layoutData)
         return;
 
     int nItems = eng->layoutData->items.size();
