@@ -173,10 +173,9 @@ int qWinVersion()
 	    winver = Qt::WV_32s;
 	    break;
 	case VER_PLATFORM_WIN32_WINDOWS:
-	    if ( osver.dwMinorVersion == 10 )
+	    // We treat Windows Me (minor 90) the same as Windows 98
+	    if ( ( osver.dwMinorVersion == 10 ) || ( osver.dwMinorVersion == 90 ) )
 		winver = Qt::WV_98;
-	    else if ( osver.dwMinorVersion == 90 )
-		winver = Qt::WV_Me;
 	    else
 		winver = Qt::WV_95;
 	    break;
