@@ -20,7 +20,7 @@
 #define _BSD_SOURCE
 #endif
 
-#include <qstring.h>
+#include <qfile.h>
 #include "qplatformdefs.h"
 #include <qapplication.h>
 
@@ -82,7 +82,6 @@ extern "C" int res_init(); // undeclared - at least on HP-UX 10.20
 #include "qvector.h"
 #include "qtimer.h"
 #include "qcoreapplication.h"
-#include "qfile.h"
 #include "qtextstream.h"
 #include "qsocketdevice.h"
 #include "qcleanuphandler.h"
