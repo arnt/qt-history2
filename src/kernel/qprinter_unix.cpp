@@ -122,6 +122,7 @@ QPrinter::QPrinter( PrinterMode m )
     state = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
+    d = 0;
     QPrinterPrivate *tmp = new QPrinterPrivate;
     margins( &(tmp->topMargin), &(tmp->leftMargin),
 	     &(tmp->bottomMargin), &(tmp->rightMargin) );
