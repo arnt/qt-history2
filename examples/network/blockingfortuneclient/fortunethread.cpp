@@ -14,7 +14,7 @@ FortuneThread::~FortuneThread()
     wait();
 }
 
-void FortuneThread::requestNewFortune(const QString &hostName, Q_UINT16 port)
+void FortuneThread::requestNewFortune(const QString &hostName, quint16 port)
 {
     QMutexLocker locker(&mutex);
     this->hostName = hostName;
@@ -28,7 +28,7 @@ void FortuneThread::requestNewFortune(const QString &hostName, Q_UINT16 port)
 void FortuneThread::run()
 {
     QString serverName = hostName;
-    Q_UINT16 serverPort = port;
+    quint16 serverPort = port;
 
     while (!quit) {
         const int Timeout = 5 * 1000;
@@ -41,14 +41,14 @@ void FortuneThread::run()
             return;
         }
 
-        while (socket.bytesAvailable() < sizeof(Q_UINT16)) {
+        while (socket.bytesAvailable() < (int)sizeof(quint16)) {
             if (!socket.waitForReadyRead(Timeout)) {
                 emit error(socket.error(), socket.errorString());
                 return;
             }
         }
 
-        Q_UINT16 blockSize;
+        quint16 blockSize;
         QDataStream in(&socket);
         in.setVersion(QDataStream::Qt_4_0);
         in >> blockSize;

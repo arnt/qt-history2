@@ -13,7 +13,7 @@ public:
     FortuneThread(QObject *parent = 0);
     ~FortuneThread();
 
-    void requestNewFortune(const QString &hostName, Q_UINT16 port);
+    void requestNewFortune(const QString &hostName, quint16 port);
     void run();
 
 signals:
@@ -22,7 +22,7 @@ signals:
 
 private:
     QString hostName;
-    Q_UINT16 port;
+    quint16 port;
     QMutex mutex;
     QWaitCondition cond;
     bool quit;

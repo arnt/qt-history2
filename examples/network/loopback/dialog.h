@@ -23,7 +23,7 @@ public slots:
     void acceptConnection();
     void startTransfer();
     void updateServerProgress();
-    void updateClientProgress(Q_LONGLONG numBytes);
+    void updateClientProgress(qlonglong numBytes);
     void displayError(QTcpSocket::SocketError socketError);
 
 private:

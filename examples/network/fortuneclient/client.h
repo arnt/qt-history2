@@ -33,7 +33,7 @@ private:
 
     QTcpSocket *tcpSocket;
     QString currentFortune;
-    Q_UINT16 blockSize;
+    quint16 blockSize;
 };
 
 #endif

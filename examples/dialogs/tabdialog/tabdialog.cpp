@@ -41,7 +41,7 @@ GeneralTab::GeneralTab(const QFileInfo &fileInfo, QWidget *parent)
     pathValueLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
     QLabel *sizeLabel = new QLabel(tr("Size:"), this);
-    unsigned long size = fileInfo.size()/1024;
+    qlonglong size = fileInfo.size()/1024;
     QLabel *sizeValueLabel = new QLabel(tr("%1 K").arg(size), this);
     sizeValueLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 

@@ -30,8 +30,8 @@ private slots:
     void addToList(const QUrlInfo &urlInfo);
     void processItem(QListWidgetItem *item);
     void cdToParent();
-    void updateDataTransferProgress(Q_LONGLONG readBytes,
-                                    Q_LONGLONG totalBytes);
+    void updateDataTransferProgress(qlonglong readBytes,
+                                    qlonglong totalBytes);
     void enableConnectButton();
     void enableDownloadButton();
 

@@ -69,7 +69,7 @@ void Client::readFortune()
     in.setVersion(QDataStream::Qt_4_0);
 
     if (blockSize == 0) {
-        if (tcpSocket->bytesAvailable() < sizeof(Q_UINT16))
+        if (tcpSocket->bytesAvailable() < (int)sizeof(quint16))
             return;
 
         in >> blockSize;

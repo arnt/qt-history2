@@ -101,7 +101,7 @@ void Dialog::updateServerProgress()
     }
 }
 
-void Dialog::updateClientProgress(Q_LONGLONG numBytes)
+void Dialog::updateClientProgress(qlonglong numBytes)
 {
     bytesWritten += (int)numBytes;
     if (bytesToWrite > 0)
