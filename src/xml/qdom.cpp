@@ -4120,6 +4120,19 @@ QString QDomElement::tagName() const
     return impl->nodeName();
 }
 
+
+/*!
+    Returns a QDomNamedNodeMap containing all this element's attributes.
+
+    \sa attribute() setAttribute() attributeNode() setAttributeNode()
+*/
+QDomNamedNodeMap QDomElement::attributes() const
+{
+    if ( !impl )
+	return QDomNamedNodeMap();
+    return QDomNamedNodeMap( IMPL->attributes() );
+}
+
 /*!
     Returns the attribute called \a name. If the attribute does not
     exist \a defValue is returned.
