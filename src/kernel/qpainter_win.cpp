@@ -386,7 +386,7 @@ void QPainter::updateFont()
     if ( ownFont ) {
 	int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
 	int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
-	bool vxfScale = testf(VxF)
+	bool vxfScale = testf(Qt2Compat) && testf(VxF)
 	                && ( dw != ww || dw != vw || dh != wh || dh != vh );
 	bool stockFont;
 	hfont = cfont.create( &stockFont, hdc, vxfScale );
@@ -689,6 +689,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 
     if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
 	setf(ExtDev);				// this is an extended device
+    if ( (pdev->devFlags & QInternal::CompatibilityMode) != 0 )
+	setf(Qt2Compat);
     else if ( dt == QInternal::Pixmap )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
 

@@ -68,12 +68,8 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool scale)
     if (lf.lfWeight != FW_DONTCARE)
 	qf.setWeight(lf.lfWeight/10);
     int lfh = QABS( lf.lfHeight );
-    if ( scale ) {
-	Q_ASSERT(shared_dc);
-	qf.setPointSizeFloat( lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
-    } else {
-	qf.setPointSize( lfh );
-    }
+    Q_ASSERT(shared_dc);
+    qf.setPointSizeFloat( lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
     return qf;
 }
 
@@ -334,7 +330,8 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF )
 	return d->create(stockFont, hdc, VxF);
 }
 
-HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
+// compatMode is used to get Qt-2 compatibility when printing
+HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 {
     currHDC = hdc;
     QString fam = QFont::substitute( request.family );
@@ -395,8 +392,9 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
 
     LOGFONT lf;
     memset( &lf, 0, sizeof(LOGFONT) );
-// ### fix compatibility mode when printing!!!
-    if ( hdc ) {//&& !VxF ) {
+
+    // ### fix compatibility mode when printing!!!
+    if ( hdc && !compatMode ) {
 	SIZE size;
 	float sx = 1.;
 	if ( GetWindowExtEx( hdc, &size ) ) {
@@ -404,11 +402,17 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
 	    GetViewportExtEx( hdc, &size );
 	    sx /= size.cy;
 	}
-	lf.lfHeight = -int((float)request.pointSize* sx *
-			   GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
+	if ( request.pointSize != -1 )
+    	    lf.lfHeight = -int((float)request.pointSize* sx *
+	    		   GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
+	else
+	    lf.lfHeight = - request.pixelSize;
     } else {
-	lf.lfHeight = -int((float)request.pointSize*
+	if ( request.pointSize != -1 )
+    	    lf.lfHeight = -int((float)request.pointSize*
 			   GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
+	else
+	    lf.lfHeight = - request.pixelSize;
     }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;

@@ -95,7 +95,7 @@ QPrinter::QPrinter( PrinterMode m )
 	    res = 96; // ### is this true in all cases?
 	    break;
 	case Compatible:
-	    devFlags |= CompatibilityMode;
+	    devFlags |= QInternal::CompatibilityMode;
 	case PrinterResolution:
 	case HighResolution:
 	    res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
