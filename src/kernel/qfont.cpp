@@ -2918,6 +2918,42 @@ QFontCache::~QFontCache()
     instance = 0;
 }
 
+#ifdef Q_WS_QWS
+void QFontCache::clear()
+{
+    {
+	EngineDataCache::Iterator it = engineDataCache.begin(),
+				 end = engineDataCache.end();
+	while ( it != end ) {
+	    QFontEngineData *data = it.data();
+	    if ( data->engine )
+		data->engine->deref();
+	    data->engine = 0;
+	}
+    }
+
+    EngineCache::Iterator it = engineCache.begin(),
+			 end = engineCache.end();
+    while ( it != end ) {
+	if ( it.data().data->count == 0 ) {
+	    if ( --it.data().data->cache_count == 0 ) {
+#ifdef QFONTCACHE_DEBUG
+		qDebug("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
+		       it.data().data, it.key().script, it.key().def.pointSize,
+		       it.key().def.pixelSize, it.key().def.weight, it.key().def.italic, it.key().def.fixedPitch);
+#endif
+		delete it.data().data;
+	    }
+	}
+#ifdef QFONTCACHE_DEBUG
+	else
+		qDebug("QFontCache::~QFontCache: engine = %p still has refcount %d", it.data().data, it.data().data->count);
+#endif
+	++it;
+    }
+}
+#endif
+
 QFontEngineData *QFontCache::findEngineData( const Key &key ) const
 {
     EngineDataCache::ConstIterator it = engineDataCache.find( key ),
