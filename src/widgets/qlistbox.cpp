@@ -1929,16 +1929,11 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 	updateItem( d->head );
     }
 
-    if ( !i && ( d->selectionMode != Single || e->button() == RightButton )
-	 && !( e->state() & ControlButton ) )
-	clearSelection();
-
     d->select = d->selectionMode == Multi ? ( i ? !i->isSelected() : FALSE ) : TRUE;
     d->pressedSelected = i && i->s;
 
-    if ( i )
+    if ( i && (e->button() == LeftButton) ) {
 	d->selectAnchor = i;
-    if ( i ) {
 	switch( selectionMode() ) {
 	default:
 	case Single:
@@ -1950,65 +1945,60 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 	    }
 	    break;
 	case Extended:
-	    if ( i ) {
-		if ( !(e->state() & QMouseEvent::ShiftButton) &&
-		     !(e->state() & QMouseEvent::ControlButton) ) {
-		    if ( !i->isSelected() ) {
-			bool b = signalsBlocked();
-			blockSignals( TRUE );
-			clearSelection();
-			blockSignals( b );
-		    }
-		    setSelected( i, TRUE );
-		    d->dragging = TRUE; // always assume dragging
-		} else if ( e->state() & ControlButton ) {
-		    setSelected( i, !i->isSelected() );
-		    d->pressedSelected = FALSE;
-		} else if ( e->state() & ShiftButton ) {
-		    d->pressedSelected = FALSE;
-		    QListBoxItem *oldCurrent = item( currentItem() );
-		    bool down = index( oldCurrent ) < index( i );
-
-		    QListBoxItem *lit = down ? oldCurrent : i;
-		    bool select = d->select;
-		    bool blocked = signalsBlocked();
+	    if ( !(e->state() & QMouseEvent::ShiftButton) &&
+		 !(e->state() & QMouseEvent::ControlButton) ) {
+		if ( !i->isSelected() ) {
+		    bool b = signalsBlocked();
 		    blockSignals( TRUE );
-		    for ( ;; lit = lit->n ) {
-			if ( !lit ) {
-			    triggerUpdate( FALSE );
-			    break;
-			}
-			if ( down && lit == i ) {
-			    setSelected( i, select );
-			    triggerUpdate( FALSE );
-			    break;
-			}
-			if ( !down && lit == oldCurrent ) {
-			    setSelected( oldCurrent, select );
-			    triggerUpdate( FALSE );
-			    break;
-			}
-			setSelected( lit, select );
-		    }
-		    blockSignals( blocked );
-		    emit selectionChanged();
+		    clearSelection();
+		    blockSignals( b );
 		}
-		setCurrentItem( i );
+		setSelected( i, TRUE );
+		d->dragging = TRUE; // always assume dragging
+	    } else if ( e->state() & ControlButton ) {
+		setSelected( i, !i->isSelected() );
+		d->pressedSelected = FALSE;
+	    } else if ( e->state() & ShiftButton ) {
+		d->pressedSelected = FALSE;
+		QListBoxItem *oldCurrent = item( currentItem() );
+		bool down = index( oldCurrent ) < index( i );
+
+		QListBoxItem *lit = down ? oldCurrent : i;
+		bool select = d->select;
+		bool blocked = signalsBlocked();
+		blockSignals( TRUE );
+		for ( ;; lit = lit->n ) {
+		    if ( !lit ) {
+			triggerUpdate( FALSE );
+			break;
+		    }
+		    if ( down && lit == i ) {
+			setSelected( i, select );
+			triggerUpdate( FALSE );
+			break;
+		    }
+		    if ( !down && lit == oldCurrent ) {
+			setSelected( oldCurrent, select );
+			triggerUpdate( FALSE );
+			break;
+		    }
+		    setSelected( lit, select );
+		}
+		blockSignals( blocked );
+		emit selectionChanged();
 	    }
+	    setCurrentItem( i );
 	    break;
 	case Multi:
-	    if ( i ) {
-		//d->current = i;
-		setSelected( i, !i->s );
-		setCurrentItem( i );
-	    }
+	    //d->current = i;
+	    setSelected( i, !i->s );
+	    setCurrentItem( i );
 	    break;
 	case NoSelection:
 	    setCurrentItem( i );
 	    break;
 	}
     } else {
-	bool unselect = TRUE;
 	if ( e->button() == LeftButton ) {
 	    if ( d->selectionMode == Multi ||
 		 d->selectionMode == Extended ) {
@@ -2022,13 +2012,12 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 
 		if ( d->selectionMode == Extended && !( e->state() & ControlButton ) )
 		    selectAll( FALSE );
-		unselect = FALSE;
 	    }
-	    if ( unselect && ( e->button() == RightButton || isMultiSelection() ) )
-		clearSelection();
+	} else if ( e->button() == RightButton ) {
+	    clearSelection();
+	    emit rightButtonPressed( i, e->globalPos() );
 	}
     }
-
 
     // for sanity, in case people are event-filtering or whatnot
     delete d->scrollTimer;
@@ -2047,9 +2036,6 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
     emit mouseButtonPressed( e->button(), i, e->globalPos() );
     if ( d->context_menu )
 	emit contextMenuRequested( i, e->globalPos() );
-
-    if ( e->button() == RightButton )
-	emit rightButtonPressed( i, e->globalPos() );
 }
 
 
