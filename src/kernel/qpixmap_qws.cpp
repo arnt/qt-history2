@@ -27,7 +27,9 @@
 #include <limits.h>
 
 #include "qmemorymanager_qws.h"
-
+#ifdef Q_Q4PAINTER
+#include "qwsgc_qws.h"
+#endif
 /*****************************************************************************
   Internal functions
  *****************************************************************************/
@@ -192,6 +194,10 @@ void qws_mapPixmaps( bool from )
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
+#ifdef Q_Q4PAINTER
+    //####### used from convertFromImage... Q_ASSERT(!deviceGC);
+    deviceGC = new QWSGC(this);
+#endif
     static int serial = 0;
     int dd = defaultDepth();
 

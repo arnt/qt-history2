@@ -35,6 +35,10 @@
 
 #include "qwidget_p.h"
 
+#ifdef Q_Q4PAINTER
+#include "qwsgc_qws.h"
+#endif
+
 enum WMStyle {
     Default_WMStyle = 1, /* Starting at zero stuffs up menus */
     KDE_WMStyle,
@@ -405,6 +409,12 @@ void QWSManager::paintEvent(QPaintEvent *)
     // manager decoration instead of the widget itself.
     QRegion r = managed->d->topData()->decor_allocated_region;
     int rgnIdx = managed->alloc_region_index;
+
+#if Q_Q4PAINTER
+    QGfx *gfx = static_cast<QWSGC *>(painter.device()->gc())->gfx();
+#else
+    QGfx *gfx = painter.internalGfx();
+#endif
     if ( rgnIdx >= 0 ) {
 	QRegion newRegion;
 	bool changed = FALSE;
@@ -414,13 +424,13 @@ void QWSManager::paintEvent(QPaintEvent *)
 	     newRegion = qt_fbdpy->regionManager()->region( rgnIdx );
 	     changed = TRUE;
 	}
-	painter.internalGfx()->setGlobalRegionIndex( rgnIdx );
+	gfx->setGlobalRegionIndex( rgnIdx );
 	QWSDisplay::ungrab();
 	if ( changed ) {
 	    r &= newRegion;
 	}
     }
-    painter.internalGfx()->setWidgetDeviceRegion( r );
+    gfx->setWidgetDeviceRegion( r );
 
     painter.setClipRegion(dec.region(managed, managed->rect()));
     dec.paint(&painter, managed);

@@ -237,6 +237,9 @@ private:
     friend class QFontEngineXLFD;
     friend class QFontEngineXft;
 #endif
+#ifdef Q_WS_QWS
+    friend class QWSManager;
+#endif
 };
 
 //

@@ -250,6 +250,9 @@ private:
 #if defined(Q_WS_X11) && defined(Q_Q4PAINTER)
     friend class QX11GC;
 #endif
+#if defined(Q_WS_QWS) && defined(Q_Q4PAINTER)
+    friend class QWSGC;
+#endif
 };
 
 

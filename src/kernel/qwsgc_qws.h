@@ -74,7 +74,7 @@ public:
 protected:
     void copyQWSData(const QWSGC *);
     void cloneQWSData(const QWSGC *);
-    virtual void setQWSData(const QWSGCData *);
+    //virtual void setQWSData(const QWSGCData *);
     QWSGCData* getQWSData(bool def = FALSE) const;
 
     friend void qt_init( QApplicationPrivate *, int );
@@ -95,8 +95,8 @@ private:
 
 
     QGfx *mygfx;
-    QWSGCPrivate *d;
-    QWSGCData *qwsData;
+    //QWSGCPrivate *d;
+    //QWSGCData *qwsData;
 
 private:
 #if defined(Q_DISABLE_COPY)

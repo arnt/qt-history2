@@ -34,6 +34,8 @@
 #include "qwsregionmanager_qws.h"
 #include "qinputcontext_p.h"
 
+#include "qwsgc_qws.h"
+
 #include "qwidget_p.h"
 #define d d_func()
 #define q q_func()
@@ -140,6 +142,10 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
+#ifdef Q_Q4PAINTER
+    if (!deviceGC)
+	deviceGC = new QWSGC(this);
+#endif
 
     if ( popup ) {
 	setWFlags(WStyle_Tool); // a popup is a tool window

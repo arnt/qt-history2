@@ -20,12 +20,11 @@
 #if Q_Q4PAINTER
 #include "q4painter_p.h"
 #include "qwsgc_qws.h"
+#define GFX(p) static_cast<QWSGC *>(p->device()->gc())->gfx()
 #endif
 
 #include "qgfx_qws.h"
 
-
-#define GFX(p) static_cast<QWSGC *>(p->device()->gc())->gfx()
 
 
 /*QMemoryManager::FontID*/ void *QFontEngine::handle() const
@@ -107,8 +106,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	    // Now we have an image with r,g,b gray scale set.
 	    // Put this in alpha channel and set pixmap to pen color.
 #ifdef Q_Q4PAINTER
-	    QGfx *g = static_cast<QWSGC *>(p->device()->gc())->gfx();
-	    QRgb bg = g->pen().color().rgb() & 0x00FFFFFF;
+	    QRgb bg = p->pen().color().rgb() & 0x00FFFFFF;
 #else
 	    QRgb bg = p->cpen.color().rgb() & 0x00FFFFFF;
 #endif
@@ -212,7 +210,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
     if ( textFlags ) {
 	int lw = lineThickness();
 #ifdef Q_Q4PAINTER
-	GFX(p)->setBrush( p->d->pen.color() );
+	GFX(p)->setBrush( p->pen().color() );
 #else
 	p->gfx->setBrush( p->cpen.color() );
 #endif
@@ -231,7 +229,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	if ( textFlags & Qt::Overline )
 #ifdef Q_Q4PAINTER
 	    GFX(p)->fillRect( x, y-ascent()-1, si->width, lw );
-	GFX(p)->setBrush( p->d->cbrush );
+	GFX(p)->setBrush( p->brush() );
 #else
 	    p->gfx->fillRect( x, y-ascent()-1, si->width, lw );
 	p->gfx->setBrush( p->cbrush );
