@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#96 $
 **
 ** Implementation of QLabel widget class
 **
@@ -596,8 +596,20 @@ void QLabel::drawContentsMask( QPainter *p )
     }
 
     QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
+    
+    QBitmap bm;
+    if (lpixmap) {
+	if (lpixmap->mask()) {
+	    bm = *lpixmap->mask();
+	}
+	else {
+	    bm.resize( lpixmap->size() );
+	    bm.fill(color1);
+	}
+    }
+    
     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
-	       align, g, isEnabled(), lpixmap, ltext );
+	       align, g, isEnabled(), bm.isNull()?0:&bm, ltext );
 }
 
 
