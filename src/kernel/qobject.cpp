@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#97 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#97 $");
 
 
 /*----------------------------------------------------------------------------
@@ -987,14 +987,15 @@ static void err_member_notfound( int code, const QObject *object,
 
 
 /*----------------------------------------------------------------------------
-  \fn QObject *QObject::sender()
+  \fn const QObject *QObject::sender()
   Returns a pointer to the object that sent the last signal received by
   this object.
 
   \warning
   This function violates the object-oriented principle of modularity,
   However, getting access to the sender might be practical when many
-  signals are connected to a single slot.
+  signals are connected to a single slot. The sender is undefined if
+  the slot is called as a normal C++ function.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -1501,7 +1502,6 @@ void QObject::activate_signal( const char *signal )
 	object = c->object();
 	object->sigSender = this;
 	(object->*r)();
-	object->sigSender = 0;
     }
 }
 
@@ -1525,7 +1525,6 @@ void QObject::activate_signal( const char *signal, TYPE param )		      \
 	object = c->object();						      \
 	object->sigSender = this;					      \
 	(object->*r)( param );						      \
-	object->sigSender = 0;						      \
     }									      \
 }
 
