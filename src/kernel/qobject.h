@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#76 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#77 $
 **
 ** Definition of QObject class
 **
@@ -107,7 +107,7 @@ public:
     virtual bool setProperty( const char *name, const QVariant& value );
     virtual bool property( const char *name, QVariant* value ) const;
     virtual bool setConfiguration( const QDomElement& element );
-    virtual QDomElement& getConfiguration( QDomNode& parent, bool properties ) const;
+    virtual QDomElement configuration( bool properties = TRUE ) const;
 #endif
 
 signals:
