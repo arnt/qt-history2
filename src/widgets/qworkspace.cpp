@@ -722,10 +722,10 @@ void QWorkspace::place( QWidget* w)
 	    overlap = 0;
 
 	    r1.setRect(x, y, w->width(), w->height());
-	    	    
+
 	    QWidget *l;
 	    for (l = d->windows.first(); l ; l = d->windows.next()) {
-		if (! d->icons.contains(l) && l != w ) {
+		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
 		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
 		    if (r2.intersects(r1)) {
@@ -734,7 +734,7 @@ void QWorkspace::place( QWidget* w)
 				     QMIN(r1.right(), r2.right()),
 				     QMIN(r1.bottom(), r2.bottom())
 				     );
-			
+
 			overlap += (r2.right() - r2.left()) *
 				   (r2.bottom() - r2.top());
 		    }
@@ -746,7 +746,7 @@ void QWorkspace::place( QWidget* w)
 	    wpos = QPoint(x, y);
 	    break;
 	}
-	
+
 	if (firstPass) {
 	    firstPass = FALSE;
 	    minOverlap = overlap;
@@ -761,7 +761,7 @@ void QWorkspace::place( QWidget* w)
 
 	    QWidget *l;
 	    for(l = d->windows.first(); l; l = d->windows.next()) {
-		if (! d->icons.contains(l) && l != w ) {
+		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
 		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
 		    if( ( y < r2.bottom() ) && ( r2.top() < w->height() + y ) ) {
@@ -775,7 +775,7 @@ void QWorkspace::place( QWidget* w)
 		    }
 		}
 	    }
-	    
+
 	    x = possible;
 	} else if ( overlap == -2 ) {
 	    x = maxRect.left();
@@ -787,7 +787,7 @@ void QWorkspace::place( QWidget* w)
 	    for (l = d->windows.first(); l; l = d->windows.next()) {
 		if (l != w && ! d->icons.contains(w)) {
 		    r2.setRect(l->x(), l->y(), l->width(), l->height());
-				    
+
 		    if( r2.bottom() > y)
 			possible = possible < r2.bottom() ?
 				   possible : r2.bottom();
@@ -797,7 +797,7 @@ void QWorkspace::place( QWidget* w)
 				   possible : r2.top() - w->height();
 		}
 	    }
-	    
+
 	    y = possible;
 	}
     }
