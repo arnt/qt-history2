@@ -1270,12 +1270,12 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 
     QT_WA( {
 	hWnd = ::CreateWindowW( L"QAxControl", 0,
-	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
     }, {
 	hWnd = ::CreateWindowA( "QAxControl", 0,
-	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
     } );
@@ -1372,7 +1372,8 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
     HRESULT hres = m_spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
     if ( FAILED(hres) ) {
 	::DestroyMenu( hmenuShared );
-	return;	   
+	hmenuShared = 0;
+	return;
     }
 
     m_spInPlaceFrame->GetWindow( &hwndMenuOwner );
@@ -1381,6 +1382,7 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
     hres = m_spInPlaceFrame->SetMenu( hmenuShared, holemenu, m_hWnd );
     if ( FAILED(hres) ) {
 	::DestroyMenu( hmenuShared );
+	hmenuShared = 0;
 	OleDestroyMenuDescriptor( holemenu );
     }
 }
@@ -1604,9 +1606,10 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 	if ( (QStatusBar*)((QObject*)sender())->qt_cast( "QStatusBar" ) != statusBar )
 	    return TRUE;
 
-	QString message = static_QUType_QString.get( _o+1 );
-	m_spInPlaceFrame->SetStatusText( QStringToBSTR(message) );
-
+	if ( statusBar->isHidden() ) {
+	    QString message = static_QUType_QString.get( _o+1 );
+	    m_spInPlaceFrame->SetStatusText( QStringToBSTR(message) );
+	}
 	return TRUE;
     }
 
@@ -2734,6 +2737,7 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
 	    m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
 	    if ( hmenuShared ) {
 		DestroyMenu( hmenuShared );
+		hmenuShared = 0;
 		menuMap.clear();
 	    }
 	    hwndMenuOwner = 0;
@@ -3101,15 +3105,17 @@ HRESULT QAxServerBase::internalActivate()
 		hr = m_spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
 		if ( !FAILED(hr) ) {
 		    menuBar = ( qt.widget && !qax_disable_inplaceframe ) ? (QMenuBar*)qt.widget->child( 0, "QMenuBar" ) : 0;
-		    if ( menuBar ) {
+		    if ( menuBar && !menuBar->isVisible() ) {
 			createMenu( menuBar );
 			menuBar->hide();
+			menuBar->installEventFilter( this );
 		    }
 		    statusBar = qt.widget ? (QStatusBar*)qt.widget->child( 0, "QStatusBar" ) : 0;
-		    if ( statusBar ) {
+		    if ( statusBar && !statusBar->isVisible() ) {
 			const int index = statusBar->metaObject()->findSignal( "messageChanged(const QString&)" );
 			connectInternal( statusBar, index, (QObject*)this, 2, -1 );
 			statusBar->hide();
+			statusBar->installEventFilter( this );
 		    }
 		}
 	    }
@@ -3119,6 +3125,7 @@ HRESULT QAxServerBase::internalActivate()
 		spInPlaceUIWindow->Release();
 	    }
 	}
+	ShowWindow( m_hWnd, SW_NORMAL );
     }
 
     m_spClientSite->ShowObject();
@@ -3368,6 +3375,34 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 {
     if ( !qt.object )
 	return QObject::eventFilter( o, e );
+
+    if ((e->type() == QEvent::Show || e->type() == QEvent::Hide) && (o == statusBar || o == menuBar)) {
+	if ( o == menuBar ){
+	    if ( e->type() == QEvent::Hide ) {
+		createMenu( menuBar );
+	    } else if ( e->type() == QEvent::Show ) {
+		if ( hmenuShared )
+		    m_spInPlaceFrame->RemoveMenus( hmenuShared );
+		holemenu = 0;
+		m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
+		if ( hmenuShared ) {
+		    DestroyMenu( hmenuShared );
+		    hmenuShared = 0;
+		    menuMap.clear();
+		}
+		hwndMenuOwner = 0;
+	    }
+	}
+	updateGeometry();
+	if ( m_spInPlaceSite ) {
+	    RECT rect;
+	    rect.left = rcPos.left;
+	    rect.right = rcPos.left + qt.widget->sizeHint().width();
+	    rect.top = rcPos.top;
+	    rect.bottom = rcPos.top + qt.widget->sizeHint().height();
+	    m_spInPlaceSite->OnPosRectChange( &rect );
+	}
+    }
 
     switch( e->type() ) {
     case QEvent::ChildInserted:
