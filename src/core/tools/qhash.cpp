@@ -1095,6 +1095,13 @@ void QHashData::free()
     \sa key()
 */
 
+/*! \fn T *QHash::iterator::operator->() const
+
+    Returns a pointer to the current item's value.
+
+    \sa value()
+*/
+
 /*! \fn bool QHash::iterator::operator==(const iterator &other)
 
     Returns true if \a other points to the same item as this
@@ -1309,6 +1316,13 @@ void QHashData::free()
     Same as value().
 
     \sa key()
+*/
+
+/*! \fn const T *QHash::const_iterator::operator->() const
+
+    Returns a pointer to the current item's value.
+
+    \sa value()
 */
 
 /*! \fn bool QHash::const_iterator::operator==(const const_iterator &other)

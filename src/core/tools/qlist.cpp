@@ -1057,6 +1057,15 @@ void **QListData::erase(void **xi)
         if (*it == "Hello")
             *it = "Bonjour";
     \endcode
+
+    \sa operator->()
+*/
+
+/*! \fn T *QList::iterator::operator->() const
+
+    Returns a pointer to the current item.
+
+    \sa operator*()
 */
 
 /*! \fn T &QList::iterator::operator[](int j) const
@@ -1272,6 +1281,15 @@ void **QListData::erase(void **xi)
 /*! \fn const T &QList::const_iterator::operator*() const
 
     Returns the current item.
+
+    \sa operator->()
+*/
+
+/*! \fn const T *QList::const_iterator::operator->() const
+
+    Returns a pointer to the current item.
+
+    \sa operator*()
 */
 
 /*! \fn const T &QList::const_iterator::operator[](int j) const

@@ -649,6 +649,15 @@ QLinkedListData QLinkedListData::shared_null = {
         if (*it == "Hello")
             *it = "Bonjour";
     \endcode
+
+    \sa operator->()
+*/
+
+/*! \fn T *QLinkedList::iterator::operator->() const
+
+    Returns a pointer to the current item.
+
+    \sa operator*()
 */
 
 /*! \fn bool QLinkedList::iterator::operator==(const iterator &other) const
@@ -852,6 +861,15 @@ QLinkedListData QLinkedListData::shared_null = {
 /*! \fn const T &QLinkedList::const_iterator::operator*() const
 
     Returns a reference to the current item.
+
+    \sa operator->()
+*/
+
+/*! \fn const T *QLinkedList::const_iterator::operator->() const
+
+    Returns a pointer to the current item.
+
+    \sa operator*()
 */
 
 /*! \fn bool QLinkedList::const_iterator::operator==(const const_iterator &other) const

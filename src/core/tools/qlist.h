@@ -101,6 +101,7 @@ public:
         inline iterator(Node *n) : i(n) {}
         inline iterator(const iterator &o): i(o.i){}
         inline T &operator*() const { return i->t(); }
+        inline T *operator->() const { return &i->t(); }
         inline T &operator[](int j) const { return i[j].t(); }
         inline bool operator==(const iterator &o) const { return i == o.i; }
         inline bool operator!=(const iterator &o) const { return i != o.i; }
@@ -128,9 +129,10 @@ public:
         Node *i;
         inline const_iterator() : i(0) {}
         inline const_iterator(Node *n) : i(n) {}
-        inline const_iterator(const const_iterator &o): i(o.i){}
-        inline const_iterator(const iterator &o): i(((const_iterator&) o).i){}
+        inline const_iterator(const const_iterator &o): i(o.i) {}
+        inline const_iterator(const iterator &o): i(((const const_iterator &)o).i) {}
         inline const T &operator*() const { return i->t(); }
+        inline const T *operator->() const { return &i->t(); }
         inline const T &operator[](int j) const { return i[j].t(); }
         inline bool operator==(const const_iterator &o) const { return i == o.i; }
         inline bool operator!=(const const_iterator &o) const { return i != o.i; }

@@ -929,6 +929,13 @@ void QMapData::dump()
     \sa key()
 */
 
+/*! \fn T *QMap::iterator::operator->() const
+
+    Returns a pointer to the current item's value.
+
+    \sa value()
+*/
+
 /*! \fn bool QMap::iterator::operator==(const iterator &other)
 
     Returns true if \a other points to the same item as this
@@ -1141,6 +1148,13 @@ void QMapData::dump()
     Same as value().
 
     \sa key()
+*/
+
+/*! \fn const T *QMap::const_iterator::operator->() const
+
+    Returns a pointer to the current item's value.
+
+    \sa value()
 */
 
 /*! \fn bool QMap::const_iterator::operator==(const const_iterator &other)

@@ -129,6 +129,7 @@ public:
         inline QT_COMPAT T &data() const { return concrete(i)->value; }
 #endif
         inline T &operator*() const { return concrete(i)->value; }
+        inline T *operator->() const { return &concrete(i)->value; }
         inline bool operator==(const iterator &o) { return i == o.i; }
         inline bool operator!=(const iterator &o) { return i != o.i; }
 
@@ -180,6 +181,7 @@ public:
         inline QT_COMPAT const T &data() const { return concrete(i)->value; }
 #endif
         inline const T &operator*() const { return concrete(i)->value; }
+        inline const T *operator->() const { return &concrete(i)->value; }
         inline bool operator==(const const_iterator &o) { return i == o.i; }
         inline bool operator!=(const const_iterator &o) { return i != o.i; }
 
