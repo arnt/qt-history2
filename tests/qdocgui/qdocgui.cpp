@@ -8,6 +8,7 @@
 #include <qinputdialog.h>
 #include <qregexp.h>
 #include <qdict.h>
+#include <qsettings.h>
 
 QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindow( parent, name )
 {
@@ -69,7 +70,14 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
     if ( item->text(0).startsWith( "Line" ) ) {
 	if ( editText.isNull() ) {
 	    bool ok = FALSE;
-	    editText = QInputDialog::getText( "Please enter your editor", "Enter editor", QLineEdit::Normal, QString::null, &ok, this );
+	    QSettings settings;
+	    settings.insertSearchPath( QSettings::Windows, "/Trolltech/qDocGUI" );
+	    settings.insertSearchPath( QSettings::Unix, "/Trolltech/qDocGUI" );
+	    QString editText = settings.readEntry( "editor" );
+	    if ( editText == QString::null ) {
+		editText = QInputDialog::getText( "Please enter your editor", "Enter editor", QLineEdit::Normal, QString::null, &ok, this );
+		settings.writeEntry( "editor", editText );
+	    }
 	}
 	if ( !editText.isNull() ) {
 	    if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
