@@ -1,6 +1,7 @@
 #ifndef QCORESETTINGS_H
 #define QCORESETTINGS_H
 
+#include "qobject.h"
 #include "qcorevariant.h"
 #include "qstring.h"
 #ifdef QT_COMPAT
@@ -15,22 +16,26 @@
 
 class QCoreSettingsPrivate;
 
-class Q_CORE_EXPORT QCoreSettings
+class Q_CORE_EXPORT QCoreSettings : public QObject
 {
+    Q_OBJECT
     Q_DECLARE_PRIVATE(QCoreSettings);
 
 public:
     enum Status { NoError = 0, AccessError, FormatError };
 
-    QCoreSettings(const QString &organization, const QString &application = QString());
+    QCoreSettings(const QString &organization, const QString &application = QString(),
+                    QObject *parent = 0);
     QCoreSettings(Qt::SettingsScope scope, const QString &organization,
-                  const QString &application = QString());
+                    const QString &application = QString(), QObject *parent = 0);
     QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
-                    const QString &organization, const QString &application = QString());
-    QCoreSettings(const QString &fileName, Qt::SettingsFormat format);
+                    const QString &organization, const QString &application = QString(),
+                    QObject *parent = 0);
+    QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
+                    QObject *parent = 0);
 #ifndef QT_BUILD_QMAKE
      // qmake doesn't link against qcoreapplication, which this ctor needs
-     QCoreSettings();
+     QCoreSettings(QObject *parent = 0);
 #endif
     ~QCoreSettings();
 
@@ -64,10 +69,8 @@ public:
     QString path() const;
 
 protected:
-//    bool event(QEvent *event);
-    QCoreSettings(QCoreSettingsPrivate *p);
-
-    QCoreSettingsPrivate *d_ptr;
+    QCoreSettings(QCoreSettingsPrivate *p, QObject *parent = 0);
+    bool event(QEvent *event);
 
 #ifdef QSETTINGS_EXPORT_PARSER_FUNCTIONS_FOR_TESTING
 public:

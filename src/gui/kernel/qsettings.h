@@ -6,14 +6,17 @@
 
 class Q_GUI_EXPORT QSettings : public QCoreSettings
 {
+    Q_OBJECT
+
 public:
-    QSettings(const QString &organization, const QString &application = QString());
+    QSettings(const QString &organization, const QString &application = QString(),
+                QObject *parent = 0);
     QSettings(Qt::SettingsScope scope, const QString &organization,
-              const QString &application = QString());
+              const QString &application = QString(), QObject *parent = 0);
     QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope, const QString &organization,
-              const QString &application = QString());
-    QSettings(const QString &fileName, Qt::SettingsFormat format);
-    QSettings();
+              const QString &application = QString(), QObject *parent = 0);
+    QSettings(const QString &fileName, Qt::SettingsFormat format, QObject *parent = 0);
+    QSettings(QObject *parent = 0);
     ~QSettings();
 
     inline void setValue(const QString &key, const QVariant &value)
@@ -71,7 +74,8 @@ public:
             *ok = contains(key);
         return value(key, defaultValue).toDouble();
     }
-    inline QT_COMPAT bool readBoolEntry(const QString &key, bool defaultValue = false, bool *ok = 0)
+    inline QT_COMPAT bool readBoolEntry(const QString &key, bool defaultValue = false,
+                                        bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
@@ -88,9 +92,10 @@ public:
     inline QT_COMPAT void setPath(const QString &organization, const QString &application,
                                   Scope scope = Global)
     {
-	this->~QSettings();
-	new (this) QSettings(scope == Global ? Qt::GlobalScope : Qt::UserScope,
-                                organization, application);
+        QObject *parent = this->parent();
+        this->~QSettings();
+        new (this) QSettings(scope == Global ? Qt::GlobalScope : Qt::UserScope,
+                                organization, application, parent);
     }
     inline QT_COMPAT void resetGroup()
     {

@@ -11,46 +11,49 @@
 // ************************************************************************
 // QSettings
 
-QSettings::QSettings(const QString &organization, const QString &application)
+QSettings::QSettings(const QString &organization, const QString &application,
+                        QObject *parent)
     : QCoreSettings(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
                                                 organization, application,
                                                 variantToStringGuiImpl,
-                                                stringToVariantGuiImpl))
+                                                stringToVariantGuiImpl), parent)
 {
 }
 
 QSettings::QSettings(Qt::SettingsScope scope, const QString &organization,
-                        const QString &application)
+                        const QString &application, QObject *parent)
     : QCoreSettings(QCoreSettingsPrivate::create(Qt::NativeFormat, scope,
                                                     organization, application,
                                                     variantToStringGuiImpl,
-                                                    stringToVariantGuiImpl))
+                                                    stringToVariantGuiImpl), parent)
 {
 }
 
 QSettings::QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
                         const QString &organization,
-                        const QString &application)
+                        const QString &application,
+                        QObject *parent)
     : QCoreSettings(QCoreSettingsPrivate::create(format, scope, organization, application,
                                                     variantToStringGuiImpl,
-                                                    stringToVariantGuiImpl))
+                                                    stringToVariantGuiImpl), parent)
 
 {
 }
 
-QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format)
+QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format,
+                        QObject *parent)
     : QCoreSettings(QCoreSettingsPrivate::create(fileName, format,
                                                     variantToStringGuiImpl,
-                                                    stringToVariantGuiImpl))
+                                                    stringToVariantGuiImpl), parent)
 {
 }
 
-QSettings::QSettings()
+QSettings::QSettings(QObject *parent)
     : QCoreSettings(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
                                                 QCoreApplication::instance()->organization(),
                                                 QCoreApplication::instance()->application(),
                                                 variantToStringGuiImpl,
-                                                stringToVariantGuiImpl))
+                                                stringToVariantGuiImpl), parent)
 {
 }
 

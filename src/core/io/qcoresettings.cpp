@@ -541,7 +541,7 @@ void QCoreSettingsPrivate::setStatus(QCoreSettings::Status status)
     if (status == QCoreSettings::NoError || this->status == QCoreSettings::NoError)
         this->status = status;
 }
-/*
+
 void QCoreSettingsPrivate::requestUpdate()
 {
     if (!d->pendingChanges) {
@@ -549,7 +549,7 @@ void QCoreSettingsPrivate::requestUpdate()
         d->pendingChanges = true;
     }
 }
-*/
+
 QStringList QCoreSettingsPrivate::variantListToStringList(const QCoreVariantList &l) const
 {
     QStringList result;
@@ -1585,10 +1585,12 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \sa \l{Locations for Storing Settings}
 */
-QCoreSettings::QCoreSettings(const QString &organization, const QString &application)
-    : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
+QCoreSettings::QCoreSettings(const QString &organization, const QString &application,
+                                QObject *parent)
+    : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
                                             organization, application,
-                                            variantToStringCoreImpl, stringToVariantCoreImpl))
+                                            variantToStringCoreImpl, stringToVariantCoreImpl),
+                parent)
 {
 }
 
@@ -1612,9 +1614,11 @@ QCoreSettings::QCoreSettings(const QString &organization, const QString &applica
 
 */
 QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organization,
-                             const QString &application)
-    : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, scope, organization, application,
-                                            variantToStringCoreImpl, stringToVariantCoreImpl))
+                                const QString &application,
+                                QObject *parent)
+    : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, scope, organization, application,
+                                            variantToStringCoreImpl, stringToVariantCoreImpl),
+                parent)
 {
 }
 
@@ -1639,9 +1643,11 @@ QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organizatio
     \sa {Locations for Storing Settings}
 */
 QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
-                             const QString &organization, const QString &application)
-    : d_ptr(QCoreSettingsPrivate::create(format, scope, organization, application,
-                                            variantToStringCoreImpl, stringToVariantCoreImpl))
+                                const QString &organization, const QString &application,
+                                QObject *parent)
+    : QObject(*QCoreSettingsPrivate::create(format, scope, organization, application,
+                                            variantToStringCoreImpl, stringToVariantCoreImpl),
+                parent)
 {
 }
 
@@ -1660,9 +1666,11 @@ QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
 
     \sa {Locations for Storing Settings}
 */
-QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format)
-    : d_ptr(QCoreSettingsPrivate::create(fileName, format,
-                                            variantToStringCoreImpl, stringToVariantCoreImpl))
+QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
+                                QObject *parent)
+    : QObject(*QCoreSettingsPrivate::create(fileName, format,
+                                            variantToStringCoreImpl, stringToVariantCoreImpl),
+                parent)
 {
 }
 
@@ -1691,11 +1699,12 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format)
 
     \sa \l{Locations for Storing Settings}
 */
-QCoreSettings::QCoreSettings()
-    : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
+QCoreSettings::QCoreSettings(QObject *parent)
+    : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
                                             QCoreApplication::instance()->organization(),
                                             QCoreApplication::instance()->application(),
-                                            variantToStringCoreImpl, stringToVariantCoreImpl))
+                                            variantToStringCoreImpl, stringToVariantCoreImpl),
+                parent)
 {
 }
 #endif
@@ -1707,14 +1716,13 @@ QCoreSettings::~QCoreSettings()
 {
     if (d->pendingChanges)
         d->sync();
-    delete d_ptr;
 }
 
 /*!
     \internal
 */
-QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p)
-    : d_ptr(p)
+QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p, QObject *parent)
+    : QObject(*p, parent)
 {
 }
 
@@ -1729,8 +1737,7 @@ QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p)
 void QCoreSettings::clear()
 {
     d->clear();
-    d->pendingChanges = true;
-//    d->requestUpdate();
+    d->requestUpdate();
 }
 
 /*!
@@ -1890,8 +1897,7 @@ void QCoreSettings::setValue(const QString &key, const QCoreVariant &value)
 {
     QString k = d->actualKey(key);
     d->set(k, value);
-    d->pendingChanges = true;
-//    d->requestUpdate();
+    d->requestUpdate();
 }
 
 /*!
@@ -1914,8 +1920,7 @@ void QCoreSettings::remove(const QString &key)
     } else {
         d->remove(theKey);
     }
-    d->pendingChanges = true;
-//    d->requestUpdate();
+    d->requestUpdate();
 }
 
 /*!
@@ -1945,7 +1950,7 @@ bool QCoreSettings::fallbacksEnabled() const
 
 /*!
     \reimp
-*/ /*
+*/
 bool QCoreSettings::event(QEvent *event)
 {
     if (event->type() == QEvent::UpdateRequest) {
@@ -1955,7 +1960,7 @@ bool QCoreSettings::event(QEvent *event)
     }
     return QObject::event(event);
 }
-*/
+
 /*!
 
 */

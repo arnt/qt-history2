@@ -104,7 +104,7 @@ private:
     QConfFile(const QString &name);
 };
 
-class Q_CORE_EXPORT QCoreSettingsPrivate
+class Q_CORE_EXPORT QCoreSettingsPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QCoreSettings);
 
@@ -130,7 +130,7 @@ public:
     QString actualKey(const QString &key) const;
     void beginGroupOrArray(const QSettingsGroup &group);
     void setStatus(QCoreSettings::Status status);
-//    void requestUpdate();
+    void requestUpdate();
 
     static QString normalizedKey(const QString &key);
     static QCoreSettingsPrivate *create(Qt::SettingsFormat format, Qt::SettingsScope scope,
@@ -156,8 +156,6 @@ protected:
 
     VariantToStringFunc variantToString;
     StringToVariantFunc stringToVariant;
-
-    QCoreSettings *q_ptr;
 };
 
 class QConfFileSettingsPrivate : public QCoreSettingsPrivate
