@@ -274,10 +274,11 @@ class P4Interface : public QObject, public ActionInterface
     Q_OBJECT
 
 public:
-    P4Interface( QUnknownInterface *parent );
+    P4Interface( QUnknownInterface *parent, const char *name = 0 );
     ~P4Interface();
 
     bool initialize( QApplicationInterface* );
+    bool cleanUp( QApplicationInterface* );
 
     QStringList featureList() const;
     QAction *create( const QString &actionname, QObject* parent = 0 );
@@ -313,8 +314,8 @@ private:
     QApplicationInterface* appInterface;
 };
 
-P4Interface::P4Interface( QUnknownInterface *parent )
-: ActionInterface( parent )
+P4Interface::P4Interface( QUnknownInterface *parent, const char *name )
+: ActionInterface( parent, name )
 {
     aware = FALSE;
 }
@@ -325,6 +326,7 @@ P4Interface::~P4Interface()
 
 bool P4Interface::initialize( QApplicationInterface* appIface )
 {
+    qDebug( "P4Interface::INIT" );
     if ( !( appInterface = appIface ) )
 	return FALSE;
 
@@ -343,6 +345,12 @@ bool P4Interface::initialize( QApplicationInterface* appIface )
 
     P4Init* init = new P4Init;
     return init->execute();
+}
+
+bool P4Interface::cleanUp( QApplicationInterface * )
+{
+    qDebug( "P4Interface::CLEANUP" );
+    return TRUE;
 }
 
 QStringList P4Interface::featureList() const
@@ -697,18 +705,35 @@ public:
     P4PlugIn();
     ~P4PlugIn();
 
+    bool initialize( QApplicationInterface *appIface );
+    bool cleanUp( QApplicationInterface *appIface );
+
     QString name() const { return "P4 Integration"; }
     QString description() const { return "Integrates P4 Source Control into the Qt Designer"; }
     QString author() const { return "Trolltech"; }
 };
 
 P4PlugIn::P4PlugIn()
+: QPlugInInterface( "P4PlugIn" )
 {
-    new P4Interface( this );
+    new P4Interface( this, "P4 Interface" );
 }
 
 P4PlugIn::~P4PlugIn()
 {
 }
+
+bool P4PlugIn::initialize( QApplicationInterface * )
+{
+    qDebug( "P4PlugIn::INIT" );
+    return TRUE;
+}
+
+bool P4PlugIn::cleanUp( QApplicationInterface * )
+{
+    qDebug( "P4PlugIn::CLEANUP" );
+    return TRUE;
+}
+
 
 Q_EXPORT_INTERFACE( P4PlugIn )
