@@ -1141,6 +1141,11 @@ void QWidget::raise()
 	return;
 
     if(isTopLevel()) {
+	//we get to be the active process now
+	ProcessSerialNumber psn;
+	GetCurrentProcess(&psn);
+	SetFrontProcess(&psn);
+	//raise this window
 	BringToFront((WindowPtr)hd);
     } else if(QWidget *p = parentWidget(TRUE)) {
 	QRegion clp;
