@@ -177,9 +177,14 @@ void TabbedBrowser::init()
              this, SLOT(transferFocus()));
 
     QTabBar *tabBar = qFindChild<QTabBar*>(ui.tab);
+    QStyleOptionTab opt;
+    if (tabBar) {
+        opt.init(tabBar);
+        opt.shape = tabBar->shape();
+    }
 
-    int m = (tabBar ? style().pixelMetric(QStyle::PM_TabBarTabVSpace)
-              + style().pixelMetric(QStyle::PM_TabBarBaseHeight) : 0);
+    int m = (tabBar ? style().pixelMetric(QStyle::PM_TabBarTabVSpace, &opt)
+              + style().pixelMetric(QStyle::PM_TabBarBaseHeight, &opt) : 0);
     int s = ui.tab->height() - m;
 
     // workaround for sgi style
