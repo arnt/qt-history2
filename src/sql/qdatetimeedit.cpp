@@ -82,6 +82,7 @@ public:
 	cursor = new QTextCursor( 0 );
 	cursor->setParag( parag );
 	pm = new QPixmap;
+	offset = 0;
     }
     ~QDateTimeEditorPrivate()
     {
@@ -111,7 +112,7 @@ public:
     int focusSection() const { return focusSec; }
     int section( const QPoint& p )
     {
-	cursor->place( p, parag );
+	cursor->place( p + QPoint( offset, 0 ), parag );
 	int idx = cursor->index();
 	for ( uint i = 0; i < sections.count(); ++i ) {
 	    if ( idx >= sections[i].selectionStart() &&
@@ -179,7 +180,7 @@ public:
 	parag->invalidate(0);
 	parag->format();
 
-	int xoff = 2 + fw;
+	int xoff = 2 + fw - offset;
 	int yoff = (rect.height() - parag->rect().height())/2;
 	if ( yoff < 0 )
 	    yoff = 0;
@@ -204,6 +205,11 @@ protected:
 	    int selstart = sections[ focusSec ].selectionStart();
 	    int selend = sections[ focusSec ].selectionEnd();
 	    parag->setSelection( QTextDocument::Standard, selstart, selend );
+	    parag->format();
+	    if ( parag->at( selstart )->x < offset ||
+		 parag->at( selend )->x + parag->string()->width( selend ) > offset + pm->width() ) {
+		offset = parag->at( selstart )->x;
+	    }
 	}
     }
 private:
@@ -214,6 +220,7 @@ private:
     int focusSec;
     QValueList< QNumberSection > sections;
     QString sep;
+    int offset;
 };
 
 class QDateTimeEditor : public QWidget
