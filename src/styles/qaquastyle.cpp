@@ -1487,8 +1487,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    break;
 	if(sub) {
 	    QTitleBar *tb = (QTitleBar *)widget;
-	    if(tb->window() &&
-	       (sub & (SC_TitleBarMinButton|SC_TitleBarCloseButton|SC_TitleBarMaxButton))) {
+	    if ( sub & (SC_TitleBarMinButton|SC_TitleBarCloseButton|SC_TitleBarMaxButton) ) {
 		QPixmap ctrl;
 		if(flags & Style_MouseOver)
 		    qAquaPixmap( "win_act_controls", ctrl );
@@ -1496,6 +1495,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    qAquaPixmap( "win_dis_controls", ctrl );
 		p->drawPixmap(0, 0, ctrl);
 	    }
+
 	    if(sub & SC_TitleBarLabel) {
 		int x = 0, y = 0, iw = 0;
 		if(tb->icon())
