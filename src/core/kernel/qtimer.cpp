@@ -17,45 +17,46 @@
 #include "qsignal.h"
 
 /*!
-    \class QTimer qtimer.h
-    \brief The QTimer class provides timer signals and single-shot timers.
+    \class QTimer
+    \brief The QTimer class provides repetitive and single-shot timers.
 
     \ingroup time
     \ingroup events
     \mainclass
 
-    QTimer uses \link QTimerEvent timer events\endlink internally to
-    provide a versatile timer. QTimer is very easy to use:
-    create a QTimer, connect its timeout() signal to the appropriate
-    slots, and call start() to start it. When the time is up it will
-    emit the timeout() signal.
+    The QTimer class provides a high-level programming interface for
+    timers. To use it, create a QTimer, connect its timeout() signal
+    to the appropriate slots, and call start(). From then on it will
+    emit the timeout() signal at constant intervals.
 
-    Note that a QTimer object is destroyed automatically when its
-    parent object is destroyed.
-
-    Example:
+    Example for a five second (5000 millisecond) timer:
     \code
-        QTimer *timer = new QTimer(myObject);
-        connect(timer, SIGNAL(timeout()), myObject, SLOT(timerDone()));
-        timer->start(2000, true); // 2 seconds single-shot timer
+        QTimer *timer = new QTimer(this);
+        connect(timer, SIGNAL(timeout()), this, SLOT(timerDone()));
+        timer->start(5000);
     \endcode
 
-    You can also use the static singleShot() function to create a
-    single shot timer.
+   From then on the \c timerDone() slot is called every five seconds.
 
-    As a special case, a QTimer with a timeout of 0 times out as soon
-    as all the events in the window system's event queue have been
-    processed.
+    You can set a timer to time out only once by calling
+    setSingleShot(true). You can also use the static singleShot()
+    function to call a slot after a specified interval:
 
-    This can be used to do heavy work while providing a snappy
-    user interface:
     \code
-        QTimer *t = new QTimer(myObject);
-        connect(t, SIGNAL(timeout()), SLOT(processOneThing()));
-        t->start(0, false);
+        QTimer::singleShot(5000, this, SLOT(timerDone()));
     \endcode
 
-    myObject->processOneThing() will be called repeatedly and should
+    As a special case, a QTimer with a timeout of 0 will time out as
+    soon as all the events in the window system's event queue have
+    been processed. This can be used to do heavy work while providing
+    a snappy user interface:
+    \code
+        QTimer *timer = new QTimer(this);
+        connect(timer, SIGNAL(timeout()), this, SLOT(processOneThing()));
+        timer->start();
+    \endcode
+
+    \c processOneThing() will be called repeatedly and should
     return quickly (typically after processing one data item) so that
     Qt can deliver events to widgets and stop the timer as soon as it
     has done all its work. This is the traditional way of
@@ -70,12 +71,14 @@
 
     An alternative to using QTimer is to call QObject::startTimer()
     for your object and reimplement the QObject::timerEvent() event
-    handler in your class (which must, of course, inherit QObject).
-    The disadvantage is that timerEvent() does not support such
-    high-level features as single-shot timers or signals.
+    handler in your class (which must inherit QObject).  The
+    disadvantage is that timerEvent() does not support such high-level
+    features as single-shot timers or signals.
 
     Some operating systems limit the number of timers that may be
     used; Qt tries to work around these limitations.
+
+    \sa QTimerEvent
 */
 
 
@@ -83,13 +86,10 @@ static const int INV_TIMER = -1;                // invalid timer id
 
 /*!
     Constructs a timer with a \a parent.
-
-    Note that the parent object's destructor will destroy this timer
-    object.
 */
 
 QTimer::QTimer(QObject *parent)
-    : QObject(parent), id(INV_TIMER), single(0), nulltimer(0)
+    : QObject(parent), id(INV_TIMER), inter(0), del(0), single(0), nulltimer(0)
 {
 }
 
@@ -97,9 +97,6 @@ QTimer::QTimer(QObject *parent)
 #ifdef QT_COMPAT
 /*!
     Constructs a timer called \a name, with a \a parent.
-
-    Note that the parent object's destructor will destroy this timer
-    object.
 */
 
 QTimer::QTimer(QObject *parent, const char *name)
@@ -123,7 +120,9 @@ QTimer::~QTimer()
 /*!
     \fn void QTimer::timeout()
 
-    This signal is emitted when the timer is activated.
+    This signal is emitted when the timer times out.
+
+    \sa interval, start(), stop()
 */
 
 /*!
@@ -141,48 +140,52 @@ QTimer::~QTimer()
 */
 
 
+/*! \overload
+
+    Starts the timer with the timeout specified in \l interval.
+
+    If \l singleShot is true, the timer will be activated only once.
+*/
+void QTimer::start()
+{
+    if (id >=0)
+        return;
+    if (id != INV_TIMER)                        // stop running timer
+        stop();
+    nulltimer = (!inter && single);
+    id = startTimer(inter);
+}
+
 /*!
-    Starts the timer with a \a msec milliseconds timeout. Returns
-    the ID of the timer, or zero if the timer failed to start.
+  Starts or restarts the timer with a timeout interval of \a milliseconds.
 
-    If \a sshot is true, the timer will be activated only once;
-    otherwise it will continue until it is stopped.
+    If \l singleShot is true, the timer will be activated only once.
+ */
+void QTimer::start(int msec)
+{
+    setInterval(msec);
+    start();
+}
 
-    Any pending timer will be stopped.
 
-    \sa singleShot() stop(), changeInterval(), isActive()
+#ifdef QT_COMPAT
+/*! \overload
+
+Call setSingleShot(\a sshot) and start(\a msec) instead.
 */
 
 int QTimer::start(int msec, bool sshot)
 {
     if (id >=0 && nulltimer && !msec && sshot)
         return id;
-    if (id != INV_TIMER)                        // stop running timer
-        stop();
-    single = sshot;
-    nulltimer = (!msec && sshot);
-    return id = startTimer(msec);
+    stop();
+    setInterval(msec);
+    setSingleShot(sshot);
+    start();
+    return timerId();
 }
+#endif
 
-
-/*!
-    Changes the timeout interval to \a msec milliseconds.
-
-    If the timer signal is pending, it will be stopped and restarted;
-    otherwise it will be started.
-
-    \sa start(), isActive()
-*/
-
-void QTimer::changeInterval(int msec)
-{
-    if (id == INV_TIMER) {                        // create new timer
-        start(msec);
-    } else {
-        killTimer(id);                        // restart timer
-        id = startTimer(msec);
-    }
-}
 
 /*!
     Stops the timer.
@@ -279,3 +282,36 @@ void QTimer::singleShot(int msec, QObject *receiver, const char *member)
     if (receiver && member)
         (void) new QSingleShotTimer(msec, receiver, member);
 }
+
+/*\property QTimer::singleShot
+    \brief whether the timer is a single-shot timer
+
+    A single-shot timer fires only once, non-single-shot timers fire
+    every \l interval milliseconds.
+
+ */
+
+/*\property QTimer::interval
+  \brief the timeout interval in milliseconds
+
+  The default value for this property is 0.  A QTimer with a timeout
+  interval of 0 will time out as soon as all the events in the window
+  system's event queue have been processed.
+
+  Setting the interval of an active timer changes its timerId().
+
+  \sa  singleShot
+*/
+void QTimer::setInterval(int msec)
+{
+    inter = msec;
+    if (id != INV_TIMER) {                        // create new timer
+        killTimer(id);                        // restart timer
+        id = startTimer(msec);
+    }
+}
+
+/*! \fn void QTimer::changeInterval(int msec)
+
+   Use setInterval(msec) or start(msec) instead.
+ */

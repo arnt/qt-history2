@@ -21,7 +21,8 @@
 class Q_CORE_EXPORT QTimer : public QObject
 {
     Q_OBJECT
-
+    Q_PROPERTY(bool singleShot READ isSingleShot WRITE setSingleShot)
+    Q_PROPERTY(int interval READ interval WRITE setInterval)
 public:
     QTimer(QObject *parent = 0);
 #ifdef QT_COMPAT
@@ -29,26 +30,38 @@ public:
 #endif
     ~QTimer();
 
-    static void singleShot(int msec, QObject *receiver, const char *member);
-
     inline bool isActive() const { return id >= 0; }
     int timerId() const { return id; }
 
+    void setInterval(int msec);
+    int interval() const { return inter; }
+
+    void setSingleShot(bool singleShot) { single = singleShot; }
+    inline bool isSingleShot() const { return single; }
+
+    static void singleShot(int msec, QObject *receiver, const char *member);
+
 public slots:
-    int                start(int msec, bool sshot = false);
-    void        changeInterval(int msec);
-    void        stop();
+    void start(int msec);
+
+    void start();
+    void stop();
+
+#ifdef QT_COMPAT
+    inline QT_MOC_COMPAT void changeInterval(int msec) { start(msec); };
+    QT_MOC_COMPAT int start(int msec, bool sshot);
+#endif
 
 signals:
-    void        timeout();
+    void timeout();
 
 protected:
-    bool        event(QEvent *);
+    bool event(QEvent *);
 
 private:
     Q_DISABLE_COPY(QTimer)
 
-    int id;
+    int id, inter, del;
     uint single : 1;
     uint nulltimer : 1;
 };
