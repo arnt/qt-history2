@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#77 $
 **
 ** Implementation of QMainWindow class
 **
@@ -910,11 +910,23 @@ void QMainWindow::show()
 /*!  \reimp */
 QSize QMainWindow::sizeHint() const
 {
-    QMainWindow* that = (QMainWindow*) this;
-    that->setUpLayout();
-    qDebug("qmainwindow size hint %d", d->tll->totalSizeHint().height() );
+    if ( !d->tll ) {
+	QMainWindow* that = (QMainWindow*) this;
+	that->setUpLayout();
+    }
     return d->tll->totalSizeHint();
 }
+
+/*!  \reimp */
+QSize QMainWindow::minimumSizeHint() const
+{
+    if ( !d->tll ) {
+	QMainWindow* that = (QMainWindow*) this;
+	that->setUpLayout();
+    }
+    return d->tll->totalMinimumSize();
+}
+
 
 /*!  Sets the central widget for this window to \a w.  The central
   widget is the one around which the toolbars etc. are arranged.

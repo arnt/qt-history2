@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#33 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#34 $
 **
 ** Definition of QMainWindow class
 **
@@ -68,6 +68,7 @@ public:
 
     void show();
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
     bool rightJustification() const;
     bool usesBigPixmaps() const;
