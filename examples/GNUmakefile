@@ -62,10 +62,8 @@ SUBDIRS	=	aclock \
 		wizard \
 		launcher \
 		kiosk \
-		multidoc \
 		dumbterm \
 		canvas \
-		memmeter \
 		xform
 
 all: $(SUBDIRS)
