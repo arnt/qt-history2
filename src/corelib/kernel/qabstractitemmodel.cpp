@@ -533,7 +533,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     reimplemented; for example, lessThan(), equal(), and
     greaterThan().
 
-    \section2 Subclassing
+    \section1 Subclassing
 
     When subclassing QAbstractItemModel, at the very least you must
     implement index(), parent(), rowCount(), columnCount(), hasChildren(),
@@ -1393,7 +1393,7 @@ int QAbstractItemModel::persistentIndexPosition(const QModelIndex &index, int fr
     table. To retrieve a model index corresponding to an item in the model, use
     index() and provide only the row and column numbers.
 
-    \section2 Subclassing
+    \section1 Subclassing
 
     When subclassing QAbstractTableModel, you must implement rowCount(),
     columnCount(), and data(). Default implementations of the index() and
@@ -1520,7 +1520,7 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &) const
     function is implemented for interoperability with all kinds of views, but
     by default informs views that the model contains only one column.
 
-    \section2 Subclassing
+    \section1 Subclassing
 
     When subclassing QAbstractListModel, you must provide implementations
     of the rowCount() and data() functions. Well behaved models also provide
