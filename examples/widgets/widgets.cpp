@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -413,13 +413,13 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     mleText += "Japanese: ";
     mleText += QChar((ushort)0x6a38); // Kanji
     mleText += "\n";
-    mleText += "Russian:";
+    mleText += "Russian: ";
     mleText += QChar((ushort)0x042e); // Cyrillic
     mleText += "\n";
-    mleText += "Norwegian:";
+    mleText += "Norwegian: ";
     mleText += QChar((ushort)0x00d8); // Norwegian
     mleText += "\n";
-    mleText += "Unicode (black square):";
+    mleText += "Unicode (black square): ";
     mleText += QChar((ushort)0x25A0); // BLACK SQUARE
     mleText += "\n";
 #endif
