@@ -44,20 +44,17 @@ void QTextEngine::shape( int item ) const
     }
     ((QTextEngine *)this)->used += si.num_glyphs;
 
-    advance_t *advances = this->advances( &si );
-
+    QGlyphLayout *g = glyphs(&si);
 #ifndef QT_NO_XFTFREETYPE
     if (kern && si.font()->type() == QFontEngine::Xft) {
 	FT_Face face = static_cast<QFontEngineXft *>(si.font())->freetypeFace();
 	if (FT_HAS_KERNING(face)) {
 	    FT_Vector kerning;
-	    glyph_t *g = glyphs(&si);
 	    bool kern = false;
 	    for (int i = 0; i < si.num_glyphs-1; ++i) {
-		FT_Get_Kerning(face, *g, *(g+1), FT_KERNING_DEFAULT, &kerning);
-		++g;
+		FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
 		kerning.x >>= 6;
-		advances[i] += kerning.x;
+		g[i].advance += kerning.x;
 		kern |= (kerning.x != 0);
 	    }
 	    si.hasPositioning |= kern;
@@ -66,9 +63,9 @@ void QTextEngine::shape( int item ) const
 #endif
 
     si.width = 0;
-    advance_t *end = advances + si.num_glyphs;
-    while ( advances < end )
-	si.width += *(advances++);
+    QGlyphLayout *end = g + si.num_glyphs;
+    while ( g < end )
+	si.width += (g++)->advance;
 
     return;
 }

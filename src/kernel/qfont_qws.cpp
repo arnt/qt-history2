@@ -182,11 +182,10 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	QFontEngine *engine = d->engineForScript( script );
 	Q_ASSERT( engine != 0 );
 
-	glyph_t glyphs[8];
-	advance_t advances[8];
+	QGlyphLayout glyphs[8];
 	int nglyphs = 7;
-	engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs, FALSE );
-	width = advances[0];
+	engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+	width = glyphs[0].advance;
     }
     if ( ch.unicode() < QFontEngineData::widthCacheSize && width < 0x100 )
 	d->engineData->widthCache[ ch.unicode() ] = width;

@@ -2154,11 +2154,11 @@ int QFontMetrics::leftBearing(QChar ch) const
 
     if ( engine->type() == QFontEngine::Box ) return 0;
 
-    glyph_t glyphs[10];
+    QGlyphLayout glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs, FALSE );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
     // ### can nglyphs != 1 happen at all? Not currently I think
-    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
+    glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
     return gi.x;
 }
 #endif // !Q_WS_WIN
@@ -2186,11 +2186,11 @@ int QFontMetrics::rightBearing(QChar ch) const
 
     if ( engine->type() == QFontEngine::Box ) return 0;
 
-    glyph_t glyphs[10];
+    QGlyphLayout glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs, FALSE );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
     // ### can nglyphs != 1 happen at all? Not currently I think
-    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
+    glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
     return gi.xoff - gi.x - gi.width;
 }
 #endif // !Q_WS_WIN
@@ -2235,15 +2235,14 @@ int QFontMetrics::width( const QString &str, int len ) const
 	    QFontEngine *engine = d->engineForScript( script );
 	    Q_ASSERT( engine != 0 );
 
-	    glyph_t glyphs[8];
-	    advance_t advances[8];
+	    QGlyphLayout glyphs[8];
 	    int nglyphs = 7;
-	    engine->stringToCMap( ch, 1, glyphs, advances, &nglyphs, FALSE );
+	    engine->stringToCMap( ch, 1, glyphs, &nglyphs, FALSE );
 
 	    // ### can nglyphs != 1 happen at all? Not currently I think
-	    if ( uc < QFontEngineData::widthCacheSize && advances[0] < 0x100 )
-		d->engineData->widthCache[ uc ] = advances[0];
-	    width += advances[0];
+	    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance < 0x100 )
+		d->engineData->widthCache[ uc ] = glyphs[0].advance;
+	    width += glyphs[0].advance;
 	}
 	++pos;
 	++ch;
@@ -2360,10 +2359,10 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
     QFontEngine *engine = d->engineForScript( script );
     Q_ASSERT( engine != 0 );
 
-    glyph_t glyphs[10];
+    QGlyphLayout glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs, FALSE );
-    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+    glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
     return QRect( gi.x, gi.y, gi.width, gi.height );
 }
 
@@ -2803,11 +2802,10 @@ bool QFontInfo::fixedPitch() const
 #ifdef Q_OS_MAC
     if (!engine->fontDef.fixedPitchComputed) {
 	QChar ch[2] = { QChar('i'), QChar('m') };
-	glyph_t g[2];
+	QGlyphLayout g[2];
 	int l = 2;
-	advance_t a[2];
-	engine->stringToCMap(ch, 2, g, a, &l, false);
-	engine->fontDef.fixedPitch = a[0] == a[1];
+	engine->stringToCMap(ch, 2, g, &l, false);
+	engine->fontDef.fixedPitch = g[0].advance == g[1].advance;
 	engine->fontDef.fixedPitchComputed = TRUE;
     }
 #endif

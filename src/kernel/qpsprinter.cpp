@@ -1826,36 +1826,34 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     int xo = 0;
     int yo = 0;
 
-    glyph_t *glyphs = engine->glyphs( &si );
-    advance_t *advances = engine->advances( &si );
-    qoffset_t *offsets = engine->offsets( &si );
+    QGlyphLayout *glyphs = engine->glyphs( &si );
     bool glyphIndices = si.font()->type() == QFontEngine::Xft;
 
     stream << "<";
     if ( si.analysis.bidiLevel % 2 ) {
 	for ( int i = len-1; i >=0; i-- ) {
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i] : glyph_for_unicode(text.unicode()[i].unicode())));
+	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i].glyph : glyph_for_unicode(text.unicode()[i].unicode())));
 	    if ( i != len-1 ) {
-		xyarray += toInt( xo + offsets[i].x + advances[i+1] );
+		xyarray += toInt( xo + glyphs[i].offset.x + glyphs[i+1].advance );
 		xyarray += " ";
-		xyarray += toInt( yo + offsets[i].y );
+		xyarray += toInt( yo + glyphs[i].offset.y );
 		xyarray += " ";
-		xo = -offsets[i].x;
-		yo = -offsets[i].y;
+		xo = -glyphs[i].offset.x;
+		yo = -glyphs[i].offset.y;
 	    }
 	}
     } else {
 	for ( int i = 0; i < len; i++ ) {
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i] : glyph_for_unicode(text.unicode()[i].unicode())));
+	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i].glyph : glyph_for_unicode(text.unicode()[i].unicode())));
 	    if ( i ) {
-		xyarray += toInt( xo - offsets[i].x + advances[i-1] );
+		xyarray += toInt( xo - glyphs[i].offset.x + glyphs[i-1].advance );
 		xyarray += " ";
-		xyarray += toInt( yo + offsets[i].y );
+		xyarray += toInt( yo + glyphs[i].offset.y );
 		xyarray += " ";
-		xo = offsets[i].x;
-		yo = -offsets[i].y;
+		xo = glyphs[i].offset.x;
+		yo = -glyphs[i].offset.y;
 	    }
 	}
     }

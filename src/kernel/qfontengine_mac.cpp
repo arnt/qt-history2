@@ -74,22 +74,20 @@ QFontEngineMac::~QFontEngineMac()
 }
 
 QFontEngine::Error
-QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs,
+QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
 			     bool /*mirrored*/) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
-     memcpy(glyphs, str, len*sizeof(QChar));
     *nglyphs = len;
-    if(advances) {
-	for(int i = 0; i < len; i++) {
-	    if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()])
-		advances[i] = widthCache[str[i].unicode()];
-	    else
-		advances[i] = doTextTask(str+i, 0, 1, 1, WIDTH);
-	}
+    for(int i = 0; i < len; i++) {
+	glyphs[i].glyph = str[i];
+	if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()])
+	    glyphs[i].advance = widthCache[str[i].unicode()];
+	else
+	    glyphs[i].advance = doTextTask(str+i, 0, 1, 1, WIDTH);
     }
     return NoError;
 }
@@ -150,11 +148,9 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const
 	mgc->setupQDFont();
     }
 
-    glyph_t *glyphs = engine->glyphs(si);
-    advance_t *advances = engine->advances(si);
-    qoffset_t *offsets = engine->offsets(si);
+    QGlyphLayout *glyphs = engine->glyphs(si);
     if(p->backgroundMode() == Qt::OpaqueMode) {
-	glyph_metrics_t br = boundingBox(glyphs, advances, offsets, si->num_glyphs);
+	glyph_metrics_t br = boundingBox(glyphs, si->num_glyphs);
 	p->fillRect(x+br.x, y+br.y, br.width, br.height, p->backgroundColor());
     }
 
@@ -164,24 +160,23 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const
     if(textFlags != 0)
 	task |= WIDTH; //I need the width for these..
     if(si->analysis.bidiLevel % 2 ) {
-	offsets += si->num_glyphs;
-	advances += si->num_glyphs;
 	glyphs += si->num_glyphs;
 	for(int i = 0; i < si->num_glyphs; i++) {
 	    glyphs--;
-	    offsets--;
-	    advances--;
-	    w += doTextTask((QChar*)glyphs, 0, 1, 1, task, x, y, p);
-	    x += *advances;
+	    w += doTextTask((QChar*)glyphs->glyph, 0, 1, 1, task, x, y, p);
+	    x += glyphs->advance;
 	}
     } else {
-	w = doTextTask((QChar*)glyphs, 0, si->num_glyphs, si->num_glyphs, task, x, y, p);
+	QStackArray<unsigned short>g(si->num_glyphs);
+	for (int i = 0; i < si->num_glyphs; ++i)
+	    g[i] = glyphs[i].glyph;
+	w = doTextTask((QChar*)g.data(), 0, si->num_glyphs, si->num_glyphs, task, x, y, p);
     }
     if(w && textFlags != 0) {
 	int lineWidth = p->fontMetrics().lineWidth();
-	if(textFlags & Qt::Underline) 
+	if(textFlags & Qt::Underline)
 	    p->drawRect(x, (y + 2) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
-	if(textFlags & Qt::Overline) 
+	if(textFlags & Qt::Overline)
 	    p->drawRect(x, (y - (ascent() + 1)) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
 	if(textFlags & Qt::StrikeOut)
 	    p->drawRect(x, (y - qMax(1, (ascent() / 3))) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
@@ -189,12 +184,12 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const
 }
 
 glyph_metrics_t
-QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const qoffset_t *, int numGlyphs)
+QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
     int w = 0;
-    const advance_t *end = advances + numGlyphs;
-    while(end > advances)
-	w += *(--end);
+    const QGlyphLayout *end = glyphs + numGlyphs;
+    while(end > glyphs)
+	w += (--end)->advance;
     return glyph_metrics_t(0, -(ascent()), w, ascent()+descent()+1, w, 0);
 }
 
@@ -222,7 +217,7 @@ QFontEngineMac::calculateCost()
 //Create a cacheable ATSUStyle
 QATSUStyle *QFontEngineMac::getFontStyle() const
 {
-    if(internal_fi) 
+    if(internal_fi)
 	return internal_fi;
 
     const int arr_guess = 7;
@@ -291,26 +286,26 @@ static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag)
     return FixRound(ret);
 }
 
-int 
-QFontEngineMac::ascent() const 
-{ 
+int
+QFontEngineMac::ascent() const
+{
     QATSUStyle *st = getFontStyle();
     if(st->ascent != -1)
 	return st->ascent;
     return st->ascent = qt_mac_get_measurement(st->style, kATSUAscentTag);
 }
-int 
-QFontEngineMac::descent() const 
-{ 
+int
+QFontEngineMac::descent() const
+{
     QATSUStyle *st = getFontStyle();
     if(st->descent != -1)
 	return st->descent;
     return st->descent = qt_mac_get_measurement(st->style, kATSUDescentTag);
 }
 
-int 
-QFontEngineMac::leading() const 
-{ 
+int
+QFontEngineMac::leading() const
+{
     QATSUStyle *st = getFontStyle();
     if(st->leading != -1)
 	return st->leading;
@@ -318,12 +313,12 @@ QFontEngineMac::leading() const
 }
 
 int
-QFontEngineMac::maxCharWidth() const 
-{ 
+QFontEngineMac::maxCharWidth() const
+{
     QATSUStyle *st = getFontStyle();
     if(st->maxWidth != -1)
 	return st->maxWidth;
-    {     // I hate doing this, but I don't see a better way just yet - so I'll just take the width of the captial m 'M' 
+    {     // I hate doing this, but I don't see a better way just yet - so I'll just take the width of the captial m 'M'
 	QChar ch = 'M';
 	st->maxWidth = doTextTask(&ch, 0, 1, 1, WIDTH);
     }
@@ -368,7 +363,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     {
 	CGAffineTransform tf = CGAffineTransformIdentity;
 #if QT_MACOSX_VERSION >= 0x1020
-	if(fontDef.stretch != 100) 
+	if(fontDef.stretch != 100)
 	    tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
 #endif
 #ifdef USE_CORE_GRAPHICS
@@ -400,7 +395,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
  	    }
  	    ret += widthCache[s[i].unicode()];
  	}
- 	if(use_cached_width && task == WIDTH) 
+ 	if(use_cached_width && task == WIDTH)
 	    return ret;
     }
 
@@ -466,7 +461,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	ATSUDisposeTextLayout(alayout);
 	return 0;
     }
-    
+
     RgnHandle rgnh = NULL;
     if(p && p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw) {
 	QRegion rgn;

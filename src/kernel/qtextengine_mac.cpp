@@ -38,9 +38,9 @@ void QTextEngine::shape( int item ) const
     ((QTextEngine *)this)->used += si.num_glyphs;
 
     si.width = 0;
-    advance_t *advances = this->advances( &si );
+    QGlyphLayout *glyphs = this->glyphs( &si );
     for ( int i = 0; i < si.num_glyphs; i++ )
-	si.width += advances[i];
+	si.width += glyphs[i].advance;
 
     return;
 }

@@ -630,16 +630,15 @@ int QFontMetrics::width( QChar ch ) const
     QFontEngine *engine = d->engineForScript( script );
     Q_ASSERT( engine != 0 );
 
-    glyph_t glyphs[8];
-    advance_t advances[8];
+    QGlyphLayout glyphs[8];
     int nglyphs = 7;
-    engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs, FALSE );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
 
     // ### can nglyphs != 1 happen at all? Not currently I think
-    if ( uc < QFontEngineData::widthCacheSize && advances[0] < 0x100 )
-	d->engineData->widthCache[ uc ] = advances[0];
+    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance < 0x100 )
+	d->engineData->widthCache[ uc ] = glyphs[0].advance;
 
-    return advances[0];
+    return glyphs[0].advance;
 }
 
 
@@ -673,11 +672,10 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	QFontEngine *engine = d->engineForScript( script );
 	Q_ASSERT( engine != 0 );
 
-	glyph_t glyphs[8];
-	advance_t advances[8];
+	QGlyphLayout glyphs[8];
 	int nglyphs = 7;
-	engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs, FALSE );
-	width = advances[0];
+	engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+	width = glyphs[0].advance;
     }
     if ( ch.unicode() < QFontEngineData::widthCacheSize && width < 0x100 )
 	d->engineData->widthCache[ ch.unicode() ] = width;

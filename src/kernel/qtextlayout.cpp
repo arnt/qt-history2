@@ -86,8 +86,7 @@ int QTextItem::cursorToX( int *cPos, Edge edge ) const
     QScriptItem *si = &eng->items[itm];
 
     eng->shape( itm );
-    advance_t *advances = eng->advances( si );
-    GlyphAttributes *glyphAttributes = eng->glyphAttributes( si );
+    QGlyphLayout *glyphs = eng->glyphs(si);
     unsigned short *logClusters = eng->logClusters( si );
 
     int l = eng->length( itm );
@@ -99,7 +98,7 @@ int QTextItem::cursorToX( int *cPos, Edge edge ) const
     int glyph_pos = pos == l ? si->num_glyphs : logClusters[pos];
     if ( edge == Trailing ) {
 	// trailing edge is leading edge of next cluster
-	while ( glyph_pos < si->num_glyphs && !glyphAttributes[glyph_pos].clusterStart )
+	while ( glyph_pos < si->num_glyphs && !glyphs[glyph_pos].attributes.clusterStart )
 	    glyph_pos++;
     }
 
@@ -108,10 +107,10 @@ int QTextItem::cursorToX( int *cPos, Edge edge ) const
 
     if ( reverse ) {
 	for ( int i = si->num_glyphs-1; i >= glyph_pos; i-- )
-	    x += advances[i];
+	    x += glyphs[i].advance;
     } else {
 	for ( int i = 0; i < glyph_pos; i++ )
-	    x += advances[i];
+	    x += glyphs[i].advance;
     }
 //     qDebug("cursorToX: pos=%d, gpos=%d x=%d", pos, glyph_pos, x );
     *cPos = pos;
@@ -122,7 +121,7 @@ int QTextItem::xToCursor( int x, CursorPosition cpos ) const
 {
     QScriptItem *si = &eng->items[itm];
     eng->shape( itm );
-    advance_t *advances = eng->advances( si );
+    QGlyphLayout *glyphs = eng->glyphs( si );
     unsigned short *logClusters = eng->logClusters( si );
 
     int l = eng->length( itm );
@@ -134,7 +133,7 @@ int QTextItem::xToCursor( int x, CursorPosition cpos ) const
     if ( reverse ) {
 	int width = 0;
 	for ( int i = 0; i < si->num_glyphs; i++ ) {
-	    width += advances[i];
+	    width += glyphs[i].advance;
 	}
 	x = -x + width;
     }
@@ -152,7 +151,7 @@ int QTextItem::xToCursor( int x, CursorPosition cpos ) const
 	    x_before = x_after;
 	    cp_after = i;
 	    for ( int j = lastCluster; j < newCluster; j++ )
-		x_after += advances[j];
+		x_after += glyphs[j].advance;
 	    // 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, x_before=%d, x_after=%d",
 	    // 		       lastCluster, newCluster, x_before, x_after );
 	    if ( x_after > x )
@@ -424,7 +423,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 		int length = d->length( i );
 		const QCharAttributes *itemAttrs = attrs + si->position;
 
-		advance_t *advances = d->advances( si );
+		QGlyphLayout *glyphs = d->glyphs( si );
 		unsigned short *logClusters = d->logClusters( si );
 
 		int lastGlyph = 0;
@@ -442,7 +441,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 			int glyph = logClusters[pos];
 			if ( lastGlyph != glyph ) {
 			    while ( lastGlyph < glyph )
-				tmpItemWidth += advances[lastGlyph++];
+				tmpItemWidth += glyphs[lastGlyph++].advance;
 			    if ( w + tmpWidth + tmpItemWidth > d->lineWidth ) {
 // 				qDebug("found break at w=%d, tmpWidth=%d, tmpItemWidth=%d", w, tmpWidth, tmpItemWidth);
 				d->widthUsed = w;
@@ -467,7 +466,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 			itemAttrs++;
 		    }
 		    while ( lastGlyph < si->num_glyphs )
-			tmpItemWidth += advances[lastGlyph++];
+			tmpItemWidth += glyphs[lastGlyph++].advance;
 		    tmpWidth += tmpItemWidth;
 		    if ( w + tmpWidth > d->lineWidth ) {
 			d->widthUsed = w;

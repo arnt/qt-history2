@@ -137,26 +137,26 @@ void QFontEngine::getCMap()
     script_cache = 0;
 }
 
-void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs, bool mirrored ) const
+void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored ) const
 {
     if ( mirrored ) {
 	if ( symbol ) {
 	    while( numChars-- ) {
-		*glyphs = getGlyphIndex(cmap, ch->unicode() );
-		if(!*glyphs && ch->unicode() < 0x100)
-		    *glyphs = getGlyphIndex(cmap, ch->unicode()+0xf000 );
+		glyphs->glyph = getGlyphIndex(cmap, ch->unicode() );
+		if(!glyphs->glyph && ch->unicode() < 0x100)
+		    glyphs->glyph = getGlyphIndex(cmap, ch->unicode()+0xf000 );
 		glyphs++;
 		ch++;
 	    }
 	} else if ( ttf ) {
 	    while( numChars-- ) {
-		*glyphs = getGlyphIndex(cmap, ::mirroredChar(*ch).unicode() );
+		glyphs->glyph = getGlyphIndex(cmap, ::mirroredChar(*ch).unicode() );
 		glyphs++;
 		ch++;
 	    }
 	} else {
 	    while( numChars-- ) {
-		*glyphs = ::mirroredChar(*ch).unicode();
+		glyphs->glyph = ::mirroredChar(*ch).unicode();
 		glyphs++;
 		ch++;
 	    }
@@ -164,21 +164,21 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyph
     } else {
 	if ( symbol ) {
 	    while( numChars-- ) {
-		*glyphs = getGlyphIndex(cmap, ch->unicode() );
-		if(!*glyphs && ch->unicode() < 0x100)
-		    *glyphs = getGlyphIndex(cmap, ch->unicode()+0xf000 );
+		glyphs->glyph = getGlyphIndex(cmap, ch->unicode() );
+		if(!glyphs->glyph && ch->unicode() < 0x100)
+		    glyphs->glyph = getGlyphIndex(cmap, ch->unicode()+0xf000 );
 		glyphs++;
 		ch++;
 	    }
 	} else if ( ttf ) {
 	    while( numChars-- ) {
-		*glyphs = getGlyphIndex(cmap, ch->unicode() );
+		glyphs->glyph = getGlyphIndex(cmap, ch->unicode() );
 		glyphs++;
 		ch++;
 	    }
 	} else {
 	    while( numChars-- ) {
-		*glyphs = ch->unicode();
+		glyphs->glyph = ch->unicode();
 		glyphs++;
 		ch++;
 	    }
@@ -229,7 +229,7 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
 }
 
 
-QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const
+QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -238,24 +238,22 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 
     getGlyphIndexes( str, len, glyphs, mirrored );
 
-    if ( advances ) {
-	HDC hdc = dc();
-	unsigned int glyph;
-	int overhang = (qWinVersion() & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
-	for( register int i = 0; i < len; i++ ) {
-	    glyph = *(glyphs + i);
-	    advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
-	    // font-width cache failed
-	    if ( !advances[i] ) {
-		SIZE size;
-		GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
-		advances[i] = size.cx - overhang;
-		// if glyph's within cache range, store it for later
-		if ( glyph < widthCacheSize )
-		    ((QFontEngineWin *)this)->widthCache[glyph] = size.cx - overhang;
-	    }
- 	    str++;
+    HDC hdc = dc();
+    unsigned int glyph;
+    int overhang = (qWinVersion() & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
+    for( register int i = 0; i < len; i++ ) {
+	glyph = *(glyphs + i);
+	glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+	// font-width cache failed
+	if ( !glyphs[i].advance ) {
+	    SIZE size;
+	    GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
+	    glyphs[i].advance = size.cx - overhang;
+	    // if glyph's within cache range, store it for later
+	    if ( glyph < widthCacheSize )
+		((QFontEngineWin *)this)->widthCache[glyph] = size.cx - overhang;
 	}
+	str++;
     }
 
     *nglyphs = len;
@@ -385,7 +383,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
 #endif
     } else if ( !p->d->gc->hasCapability(QAbstractGC::CoordTransform)
-	 && p->d->txop == QPainter::TxTranslate ) {
+		&& p->d->txop == QPainter::TxTranslate ) {
 	p->map( x, y, &x, &y );
     }
 
@@ -407,9 +405,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
-    glyph_t *glyphs = engine->glyphs( si );
-    advance_t *advances = engine->advances( si );
-    qoffset_t *offsets = engine->offsets( si );
+    QGlyphLayout *glyphs = engine->glyphs( si );
 #if 0
     if(p->pdev->devType() == QInternal::Printer) {
 	// some buggy printer drivers can't handle glyph indices correctly for latin1
@@ -434,66 +430,59 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     if ( !(si->analysis.bidiLevel % 2) ) {
 	// hack to get symbol fonts working on Win95. See also QFontEngine constructor
-#ifndef Q_OS_TEMP
 	if ( useTextOutA ) {
 	    // can only happen if !ttf
 	    for( int i = 0; i < si->num_glyphs; i++ ) {
-    		QChar chr = *glyphs;
+    		QChar chr = glyphs->glyph;
 		QConstString str( &chr, 1 );
 		QByteArray cstr = str.string().toLocal8Bit();
-		TextOutA( hdc, x + offsets->x, y + offsets->y, cstr.data(), cstr.length() );
-		x += *advances;
+		TextOutA( hdc, x + glyphs->offset.x, y + glyphs->offset.y, cstr.data(), cstr.length() );
+		x += glyphs->advance;
 		glyphs++;
-		offsets++;
-		advances++;
 	    }
-	} else
-#endif
-	{
+	} else {
 	    bool haveOffsets = FALSE;
 	    int w = 0;
 	    for( int i = 0; i < si->num_glyphs; i++ ) {
-		if ( offsets[i].x || offsets[i].y ) {
+		if ( glyphs[i].offset.x || glyphs[i].offset.y ) {
 		    haveOffsets = TRUE;
 		    break;
 		}
-		w += advances[i];
+		w += glyphs[i].advance;
 	    }
 
 	    if ( haveOffsets || transform ) {
 		for( int i = 0; i < si->num_glyphs; i++ ) {
     		    wchar_t chr = *glyphs;
-		    int xp = x + offsets->x;
-		    int yp = y + offsets->y;
+		    int xp = x + glyphs->offset.x;
+		    int yp = y + glyphs->offset.y;
 		    if ( transform )
 			p->map( xp, yp, &xp, &yp );
     		    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
-		    x += *advances;
+		    x += glyphs->advance;
 		    glyphs++;
-		    offsets++;
-		    advances++;
 		}
 	    } else {
 		// fast path
-		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, si->num_glyphs, advances );
+		QStackArray<wchar_t> g(si->num_glyphs);
+		for (int i = 0; i < si->num_glyphs; ++i)
+		    g[i] = glyphs[i].glyph;
+		// fast path
+		ExtTextOutW( hdc, x + glyphs->offset.x, y + glyphs->offset.y, options, 0, g, si->num_glyphs, 0 );
 		x += w;
 	    }
 	}
     } else {
-	offsets += si->num_glyphs;
-	advances += si->num_glyphs;
 	glyphs += si->num_glyphs;
 	for( int i = 0; i < si->num_glyphs; i++ ) {
 	    glyphs--;
-	    offsets--;
-	    advances--;
-    	    wchar_t chr = *glyphs;
-	    int xp = x + offsets->x;
-	    int yp = y + offsets->y;
+    	    wchar_t chr = glyphs->glyph;
+	    int xp = x + glyphs->offset.x;
+	    int yp = y + glyphs->offset.y;
 	    if ( transform )
 		p->map( xp, yp, &xp, &yp );
     	    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
-	    x += *advances;
+	    x += glyphs->advance;
 	}
     }
 
@@ -514,19 +503,15 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     hdc = old_hdc;
 }
 
-glyph_metrics_t QFontEngineWin::boundingBox( const glyph_t *glyphs,
-				const advance_t *advances, const qoffset_t *offsets, int numGlyphs )
+glyph_metrics_t QFontEngineWin::boundingBox( const QGlyphLayout *glyphs, int numGlyphs )
 {
-    Q_UNUSED( glyphs );
-    Q_UNUSED( offsets );
-
     if ( numGlyphs == 0 )
 	return glyph_metrics_t();
 
     int w = 0;
-    const advance_t *end = advances + numGlyphs;
-    while( end > advances )
-	w += *(--end);
+    const QGlyphLayout *end = glyphs + numGlyphs;
+    while( end > glyphs )
+	w += (--end)->advance;
 
     return glyph_metrics_t(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0 );
 }
@@ -749,38 +734,8 @@ QFontEngine::Type QFontEngineWin::type() const
 }
 
 
-// Uniscribe engine
-#if 0
-typedef HRESULT (WINAPI *fScriptTextOut)( const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *,
-					 const WCHAR *, int, const WORD *, int, const int *, const int *, const GOFFSET *);
-extern fScriptTextOut ScriptTextOut;
-
-void QFontEngineUniscribe::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	   const advance_t *advances, const qoffset_t *offsets, int numGlyphs, bool reverse, int textFlags )
-{
-    ScriptTextOut(
-    HDC hdc = dc();
-    ScriptTextOut( hdc, script_cache, x, y, 0, 0, analysis, 0, 0, glyphs, numGlyphs, advances, 0, offsets );
-}
-
-bool QFontEngineUniscribe::canRender( const QChar *string,  int len )
-{
-    // ### get default glyph for script and then check.
-    return TRUE;
-}
-
-QFontEngine::Type QFontEngineUniscribe::type() const
-{
-    return QFontEngine::Uniscribe;
-}
-
-#endif
-
-
 
 // box font engine
-
-
 
 QFontEngineBox::QFontEngineBox( int size )
     : _size( size )
@@ -804,7 +759,7 @@ QFontEngineBox::~QFontEngineBox()
 {
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool ) const
+QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, bool ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -812,13 +767,12 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_
     }
 
     for ( int i = 0; i < len; i++ )
-	*(glyphs++) = 0;
+	(glyphs++)->glyphs = 0;
     *nglyphs = len;
 
-    if ( advances ) {
-	for ( int i = 0; i < len; i++ )
-	    *(advances++) = _size;
-    }
+    for ( int i = 0; i < len; i++ )
+	(glyphs++)->advance = _size;
+
     return NoError;
 }
 
@@ -835,7 +789,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     // ########
 }
 
-glyph_metrics_t QFontEngineBox::boundingBox( const glyph_t *, const advance_t *, const qoffset_t *, int numGlyphs )
+glyph_metrics_t QFontEngineBox::boundingBox( const QGlyphLayout *, int numGlyphs )
 {
     glyph_metrics_t overall;
     overall.x = overall.y = 0;

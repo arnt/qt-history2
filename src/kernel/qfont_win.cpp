@@ -369,13 +369,12 @@ int QFontMetrics::width( QChar ch ) const
     QFontEngine *engine = d->engineForScript( script );
     Q_ASSERT( engine != 0 );
 
-    glyph_t glyphs[8];
-    advance_t advances[8];
+    QGlyphLayout glyphs[8];
 
     int nglyphs = 7;
-    engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs, FALSE );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
 
-    return advances[0];
+    return glyphs[0].advance;
 }
 
 

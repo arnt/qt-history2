@@ -171,6 +171,10 @@ static void resolveUsp10()
 	QLibrary lib("usp10");
 	lib.setAutoUnload( FALSE );
 
+	// ##########################
+	hasUsp10 = false;
+	return;
+
 	ScriptFreeCache = (fScriptFreeCache) lib.resolve( "ScriptFreeCache" );
 	ScriptItemize = (fScriptItemize) lib.resolve( "ScriptItemize" );
 	ScriptShape = (fScriptShape) lib.resolve( "ScriptShape" );
@@ -606,6 +610,8 @@ void QTextEngine::shape( int item ) const
 	si.setFont(fe);
     }
 
+
+#if 0
     if ( hasUsp10 ) {
 	int l = len;
 	si.analysis.logicalOrder = TRUE;
@@ -642,13 +648,15 @@ void QTextEngine::shape( int item ) const
 		         glyphAttributes( &si ), &si.analysis, advances( &si ), offsets( &si ), &abc );
 	}
 	si.width = abc.abcA + abc.abcB + abc.abcC;
-    } else {
+    } else
+#else
+    {
 	Q_ASSERT( script < QFont::NScripts );
 	scriptEngines[script].shape( script, string, from, len, (QTextEngine*)this, &si );
 	si.width = 0;
-	advance_t *advances = this->advances( &si );
+	QGlyphLayout *glyphs = this->glyphs( &si );
 	for ( int i = 0; i < si.num_glyphs; i++ )
-	    si.width += advances[i];
+	    si.width += glyphs[i].advance;
     }
     si.ascent = si.font()->ascent();
     si.descent = si.font()->descent();

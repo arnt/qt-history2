@@ -247,6 +247,16 @@ Q_DECLARE_TYPEINFO(QScriptItem, Q_MOVABLE_TYPE);
 
 typedef QVector<QScriptItem> QScriptItemArray;
 
+
+struct QGlyphLayout
+{
+    glyph_t glyph;
+    advance_t advance;
+    qoffset_t offset;
+    GlyphAttributes attributes;
+};
+
+
 class QFontPrivate;
 
 class QTextEngine {
@@ -306,21 +316,12 @@ public:
     void splitItem( int item, int pos );
 
     unsigned short *logClustersPtr;
-    glyph_t *glyphPtr;
-    advance_t *advancePtr;
-    qoffset_t *offsetsPtr;
-    GlyphAttributes *glyphAttributesPtr;
+    QGlyphLayout *glyphPtr;
 
     inline unsigned short *logClusters( const QScriptItem *si ) const
 	{ return logClustersPtr+si->position; }
-    inline glyph_t *glyphs( const QScriptItem *si ) const
-	{ return glyphPtr+si->glyph_data_offset; }
-    inline advance_t *advances( const QScriptItem *si ) const
-	{ return advancePtr+si->glyph_data_offset; }
-    inline qoffset_t *offsets( const QScriptItem *si ) const
-	{ return offsetsPtr+si->glyph_data_offset; }
-    inline GlyphAttributes *glyphAttributes( const QScriptItem *si ) const
-	{ return glyphAttributesPtr+si->glyph_data_offset; }
+    inline QGlyphLayout *glyphs(const QScriptItem *si) const
+	{ return glyphPtr + si->position; }
 
     void reallocate( int totalGlyphs );
     inline void ensureSpace( int nGlyphs ) const {
