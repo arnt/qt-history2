@@ -369,7 +369,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
         // start with the innermost branch
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
-        opt.flags = QStyle::Style_Item
+        opt.state = QStyle::Style_Item
                                | (model()->rowCount(parent) - 1 > index.row()
                                   ? QStyle::Style_Sibling : 0)
                                | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
@@ -382,7 +382,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
         opt.rect = primitive;
         opt.state = model()->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling
                                                                     : QStyle::Style_Default;
-        style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, primitive, this);
+        style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
         current = ancestor;
         ancestor = model()->parent(current);
     }
