@@ -122,7 +122,8 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
     d->lineEdit = new QLineEdit(d->stack);
     d->spinBox = new QSpinBox(d->stack);
     d->comboBox = new QComboBox(d->stack);
-    d->editComboBox = new QComboBox(QComboBox::Editable, d->stack);
+    d->editComboBox = new QComboBox(d->stack);
+    d->editComboBox->setEditable(true);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->setSpacing(6);
