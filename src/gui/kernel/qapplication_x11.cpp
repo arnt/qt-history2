@@ -3922,6 +3922,14 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 #define XK_dead_horn 0xFE62
 #endif
 
+#ifndef XK_Codeinput
+#define XK_Codeinput 0xFF37
+#endif
+
+#ifndef XK_Kanji_Bangou
+#define XK_Kanji_Bangou 0xFF37 /* same as codeinput */
+#endif
+
 // the next lines are taken from XFree > 4.0 (X11/XF86keysyms.h), defining some special
 // multimedia keys. They are included here as not every system has them.
 #define XF86XK_Standby                0x1008FF10
