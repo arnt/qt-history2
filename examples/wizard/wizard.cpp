@@ -177,7 +177,7 @@ void Wizard::setupPage3()
 
     addPage( page3, "Finish" );
 
-    setFinish( page3, TRUE );
+    setFinishEnabled( page3, TRUE );
     setHelpEnabled( page3, FALSE );
 }
 
