@@ -196,6 +196,10 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
 		sp.setHorData( (QSizePolicy::SizeType)n3.firstChild().toText().data().toInt() );
 	    else if ( n3.tagName() == "vsizetype" )
 		sp.setVerData( (QSizePolicy::SizeType)n3.firstChild().toText().data().toInt() );
+	    else if ( n3.tagName() == "horstretch" )
+		sp.setHorStretch( n3.firstChild().toText().data().toInt() );
+	    else if ( n3.tagName() == "verstretch" )
+		sp.setVerStretch( n3.firstChild().toText().data().toInt() );
 	    n3 = n3.nextSibling().toElement();
 	}
 	v = QVariant( sp );

@@ -1049,6 +1049,8 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	indent++;
 	ts << makeIndent( indent ) << "<hsizetype>" << (int)sp.horData() << "</hsizetype>" << endl;
 	ts << makeIndent( indent ) << "<vsizetype>" << (int)sp.verData() << "</vsizetype>" << endl;
+	ts << makeIndent( indent ) << "<horstretch>" << (int)sp.horStretch() << "</horstretch>" << endl;
+	ts << makeIndent( indent ) << "<verstretch>" << (int)sp.verStretch() << "</verstretch>" << endl;
 	indent--;
 	ts << makeIndent( indent ) << "</sizepolicy>" << endl;
 	break;
@@ -1836,8 +1838,8 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 	    MetaDataBase::Slot slot = *it;
 	    if ( saveLangSlots || slot.language != lang ) {
 		ts << makeIndent( indent ) << "<slot access=\"" << slot.access
-		   << "\" specifier=\"" << slot.specifier << "\" language=\"" << slot.language 
-		   << "\" returnType=\"" << slot.returnType  << "\">" 
+		   << "\" specifier=\"" << slot.specifier << "\" language=\"" << slot.language
+		   << "\" returnType=\"" << slot.returnType  << "\">"
 		   << entitize( slot.slot ) << "</slot>" << endl;
 	    }
 	}
@@ -1953,6 +1955,8 @@ void Resource::saveCustomWidgets( QTextStream &ts, int indent )
 	indent++;
 	ts << makeIndent( indent ) << "<hordata>" << (int)w->sizePolicy.horData() << "</hordata>" << endl;
 	ts << makeIndent( indent ) << "<verdata>" << (int)w->sizePolicy.verData() << "</verdata>" << endl;
+	ts << makeIndent( indent ) << "<horstretch>" << (int)w->sizePolicy.horStretch() << "</horstretch>" << endl;
+	ts << makeIndent( indent ) << "<verstretch>" << (int)w->sizePolicy.verStretch() << "</verstretch>" << endl;
 	indent--;
 	ts << makeIndent( indent ) << "</sizepolicy>" << endl;
 	ts << makeIndent( indent ) << "<pixmap>" << saveInCollection( w->pixmap->convertToImage() ) << "</pixmap>" << endl;
@@ -1962,7 +1966,7 @@ void Resource::saveCustomWidgets( QTextStream &ts, int indent )
 	}
 	if ( !w->lstSlots.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
-		ts << makeIndent( indent ) << "<slot access=\"" << (*it).access << "\" specifier=\"" 
+		ts << makeIndent( indent ) << "<slot access=\"" << (*it).access << "\" specifier=\""
 		   << (*it).specifier << "\">" << entitize( (*it).slot ) << "</slot>" << endl;
 	}
 	if ( !w->lstProperties.isEmpty() ) {
@@ -2011,6 +2015,10 @@ void Resource::loadCustomWidgets( const QDomElement &e, Resource *r )
 			    w->sizePolicy.setHorData( (QSizePolicy::SizeType)n3.firstChild().toText().data().toInt() );
 			else if ( n3.tagName() == "verdata" )
 			    w->sizePolicy.setVerData( (QSizePolicy::SizeType)n3.firstChild().toText().data().toInt() );
+			else if ( n3.tagName() == "horstretch" )
+			    w->sizePolicy.setHorStretch( n3.firstChild().toText().data().toInt() );
+			else if ( n3.tagName() == "verstretch" )
+			    w->sizePolicy.setVerStretch( n3.firstChild().toText().data().toInt() );
 			n3 = n3.nextSibling().toElement();
 		    }
 		} else if ( n2.tagName() == "pixmap" ) {

@@ -1950,6 +1950,10 @@ void PropertySizePolicyItem::createChildren()
     i = new PropertyListItem( listview, i, this, tr( "vSizeType" ), FALSE );
     i->setValue( lst );
     addChild( i );
+    i = new PropertyIntItem( listview, i, this, tr( "horizontalStrech" ), TRUE );
+    addChild( i );
+    i = new PropertyIntItem( listview, i, this, tr( "verticalStrech" ), TRUE );
+    addChild( i );
 }
 
 void PropertySizePolicyItem::initChildren()
@@ -1962,6 +1966,10 @@ void PropertySizePolicyItem::initChildren()
 	    ( (PropertyListItem*)item )->setCurrentItem( size_type_to_int( sp.horData() ) );
 	else if ( item->name() == tr( "vSizeType" ) )
 	    ( (PropertyListItem*)item )->setCurrentItem( size_type_to_int( sp.verData() ) );
+	else if ( item->name() == tr( "horizontalStrech" ) )
+	    ( (PropertyIntItem*)item )->setValue( sp.horStretch() );
+	else if ( item->name() == tr( "verticalStrech" ) )
+	    ( (PropertyIntItem*)item )->setValue( sp.verStretch() );
     }
 }
 
@@ -1991,9 +1999,11 @@ void PropertySizePolicyItem::setValue( const QVariant &v )
     if ( value() == v )
 	return;
 
-    QString s = tr( "%1/%2" );
+    QString s = tr( "%1/%2/%2/%2" );
     s = s.arg( size_type_to_string( v.toSizePolicy().horData() ) ).
-	arg( size_type_to_string( v.toSizePolicy().verData() ) );
+	arg( size_type_to_string( v.toSizePolicy().verData() ) ).
+	arg( v.toSizePolicy().horStretch() ).
+	arg( v.toSizePolicy().verStretch() );
     setText( 1, s );
     lined()->setText( s );
     PropertyItem::setValue( v );
@@ -2006,6 +2016,10 @@ void PropertySizePolicyItem::childValueChanged( PropertyItem *child )
 	sp.setHorData( int_to_size_type( ( ( PropertyListItem*)child )->currentIntItem() ) );
     else if ( child->name() == tr( "vSizeType" ) )
 	sp.setVerData( int_to_size_type( ( ( PropertyListItem*)child )->currentIntItem() ) );
+    else if ( child->name() == tr( "horizontalStrech" ) )
+	sp.setHorStretch( ( ( PropertyIntItem*)child )->value().toInt() );
+    else if ( child->name() == tr( "verticalStrech" ) )
+	sp.setVerStretch( ( ( PropertyIntItem*)child )->value().toInt() );
     setValue( sp );
     notifyValueChange();
 }

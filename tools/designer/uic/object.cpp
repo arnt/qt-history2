@@ -441,13 +441,17 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 		sp.setHorData( (QSizePolicy::SizeType)n3.firstChild().toText().data().toInt() );
 	    else if ( n3.tagName() == "vsizetype" )
 		sp.setVerData( (QSizePolicy::SizeType)n3.firstChild().toText().data().toInt() );
+	    else if ( n3.tagName() == "horstretch" )
+		sp.setHorStretch( n3.firstChild().toText().data().toInt() );
+	    else if ( n3.tagName() == "verstretch" )
+		sp.setVerStretch( n3.firstChild().toText().data().toInt() );
 	    n3 = n3.nextSibling().toElement();
 	}
 	QString tmp;
 	if ( !obj.isEmpty() )
 	    tmp = obj + "->";
-	v = "QSizePolicy( (QSizePolicy::SizeType)%1, (QSizePolicy::SizeType)%2, " + tmp + "sizePolicy().hasHeightForWidth() )";
-	v = v.arg( (int)sp.horData() ).arg( (int)sp.verData() );
+	v = "QSizePolicy( (QSizePolicy::SizeType)%1, (QSizePolicy::SizeType)%2, %3, %4, " + tmp + "sizePolicy().hasHeightForWidth() )";
+	v = v.arg( (int)sp.horData() ).arg( (int)sp.verData() ).arg( sp.horStretch() ).arg( sp.verStretch() );
     } else if ( e.tagName() == "palette" ) {
 	QPalette pal;
 	bool no_pixmaps = e.elementsByTagName( "pixmap" ).count() == 0;
