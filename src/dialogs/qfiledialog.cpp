@@ -3475,27 +3475,6 @@ void QFileDialog::okClicked()
 	    return;
 	}
     }
-    
-    QFileInfo inf;
-
-#if defined(Q_WS_WIN)
-    if ( fn.length() == 2 
-	&& fn[0].isLetter() && fn[1] == ':' ) {
-	    inf.setFile( fn );
-    } else if ( fn.length() >= 3 
-	&& fn[0].isLetter() && fn[1] == ':' && fn[2] == '\\' )  {
-	    inf.setFile( fn );
-    } else
-#endif
-    
-    inf.setFile( d->url.path() + fn );
-    
-    if ( !inf.isReadable() || ( inf.isDir() && !inf.isExecutable() ) ) {
-	QMessageBox::critical( this, tr( "Error" ), 
-	    inf.filePath() + tr( " is not accessible" ) + 
-	    "\n\n" + tr( "Access is denied" ) );
-	return;
-    }
 
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
@@ -3924,6 +3903,7 @@ was double-clicked is specified in \a newItem */
 
 void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 {
+
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
     *lastSize = size();
@@ -3931,14 +3911,8 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     if ( !newItem )
 	return;
 
-    QFileInfo fi( d->url.path() + newItem->text(0) );
-    if ( !fi.isReadable() || ( fi.isDir() && !fi.isExecutable() ) ) {
-	QMessageBox::critical( this, tr( "Error" ), 
-	    QString( d->url.path() + newItem->text(0) ) + tr( " is not accessible" ) + 
-	    "\n\n" + tr( "Access is denied" ) );
-	return;
-    }
 #if defined(Q_WS_WIN)
+    QFileInfo fi( d->url.path() + newItem->text(0) );
     if ( fi.isSymLink() ) {
 	nameEdit->setText( fi.readLink() );
 	okClicked();
@@ -3947,7 +3921,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 #endif
 
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
-    
+
     QString oldName = nameEdit->text();
     if ( i->info.isDir() ) {
 	setUrl( QUrlOperator( d->url, QFileDialogPrivate::encodeFileName( i->info.name() ) + "/" ) );
