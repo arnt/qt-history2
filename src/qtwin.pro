@@ -2,9 +2,12 @@ TEMPLATE    =	lib
 CONFIG	    =	qt warn_on release
 HEADERS     =	dialogs/qfiledlg.h \
 		dialogs/qmsgbox.h \
+		dialogs/qprogdlg.h \
 		dialogs/qtabdlg.h \
 		kernel/qaccel.h \
 		kernel/qapp.h \
+		kernel/qasyncimageio.h \
+		kernel/qasyncio.h \
 		kernel/qbitmap.h \
 		kernel/qbrush.h \
 		kernel/qclipbrd.h \
@@ -23,6 +26,7 @@ HEADERS     =	dialogs/qfiledlg.h \
 		kernel/qkeycode.h \
 		kernel/qlayout.h \
 		kernel/qmetaobj.h \
+		kernel/qmovie.h \
 		kernel/qobjcoll.h \
 		kernel/qobjdefs.h \
 		kernel/qobject.h \
@@ -40,6 +44,7 @@ HEADERS     =	dialogs/qfiledlg.h \
 		kernel/qprinter.h \
 		kernel/qrect.h \
 		kernel/qregion.h \
+		kernel/qsemimodal.h \
 		kernel/qsignal.h \
 		kernel/qsize.h \
 		kernel/qsocknot.h \
@@ -72,6 +77,7 @@ HEADERS     =	dialogs/qfiledlg.h \
 		tools/qintdict.h \
 		tools/qiodev.h \
 		tools/qlist.h \
+		tools/qptrdict.h \
 		tools/qqueue.h \
 		tools/qregexp.h \
 		tools/qshared.h \
@@ -95,6 +101,7 @@ HEADERS     =	dialogs/qfiledlg.h \
 		widgets/qmenudta.h \
 		widgets/qmlined.h \
 		widgets/qpopmenu.h \
+		widgets/qprogbar.h \
 		widgets/qpushbt.h \
 		widgets/qradiobt.h \
 		widgets/qrangect.h \
@@ -105,10 +112,13 @@ HEADERS     =	dialogs/qfiledlg.h \
 		widgets/qtooltip.h
 SOURCES     =	dialogs/qfiledlg.cpp \
 		dialogs/qmsgbox.cpp \
+		dialogs/qprogdlg.cpp \
 		dialogs/qtabdlg.cpp \
 		kernel/qaccel.cpp \
 		kernel/qapp.cpp \
 		kernel/qapp_win.cpp \
+		kernel/qasyncimageio.cpp \
+		kernel/qasyncio.cpp \
 		kernel/qbitmap.cpp \
 		kernel/qclb_win.cpp \
 		kernel/qclipbrd.cpp \
@@ -126,6 +136,7 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		kernel/qimage.cpp \
 		kernel/qlayout.cpp \
 		kernel/qmetaobj.cpp \
+		kernel/qmovie.cpp \
 		kernel/qobject.cpp \
 		kernel/qpainter.cpp \
 		kernel/qpalette.cpp \
@@ -144,6 +155,7 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		kernel/qrect.cpp \
 		kernel/qregion.cpp \
 		kernel/qrgn_win.cpp \
+		kernel/qsemimodal.cpp \
 		kernel/qsignal.cpp \
 		kernel/qsize.cpp \
 		kernel/qsocknot.cpp \
@@ -184,6 +196,7 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qmenudta.cpp \
 		widgets/qmlined.cpp \
 		widgets/qpopmenu.cpp \
+		widgets/qprogbar.cpp \
 		widgets/qpushbt.cpp \
 		widgets/qradiobt.cpp \
 		widgets/qrangect.cpp \
@@ -193,5 +206,5 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qtablevw.cpp \
 		widgets/qtooltip.cpp
 TARGET      =	qt
-VERSION     =	1.2
+VERSION     =	1.3
 DESTDIR	    =	../lib
