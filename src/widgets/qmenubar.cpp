@@ -183,7 +183,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 		  QPoint(0, 0) );
     }
 #elif defined(QMAC_QMENUBAR_NATIVE)
-    macCreateNativeMenubar(parent);
+    macCreateNativeMenubar();
 #endif
 #endif
     isMenuBar = TRUE;

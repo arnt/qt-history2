@@ -245,17 +245,17 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
   Internal function that cleans up the menubar.
 */
 static QIntDict<QMenuBar> *menubars = NULL;
-void QMenuBar::macCreateNativeMenubar(QWidget *parent) 
+void QMenuBar::macCreateNativeMenubar() 
 {
     mac_dirty_menubar = 1;
-    if((!menubars || !menubars->find((int)parent)) && parent && !parent->parentWidget() && 
-       parent->inherits("QMainWindow")) {
+    QWidget *p = parentWidget();
+    if(p && (!menubars || !menubars->find((int)p)) && !p->parentWidget() && p->inherits("QMainWindow")) {
 	mac_eaten_menubar = 1;
 	if(!menubars)
 	    menubars = new QIntDict<QMenuBar>();
-	menubars->insert((int)parent, this);
+	menubars->insert((int)p, this);
     } else {
-	mac_eaten_menubar = 0;	
+	mac_eaten_menubar = 0;
     }
 }
 void QMenuBar::macRemoveNativeMenubar()

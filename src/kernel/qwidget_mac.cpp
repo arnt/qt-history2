@@ -52,6 +52,10 @@
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
 #include <qcursor.h>
+#if defined(QMAC_QMENUBAR_NATIVE)
+#  include <qmenubar.h>
+#endif
+
 
 /*****************************************************************************
   QWidget member functions
@@ -435,8 +439,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( setcurs )
 	setCursor(oldcurs);
 
-    QObjectList	*accelerators = queryList();
-    QObjectListIt it( *accelerators );
+    QObjectList	*chldn = queryList();
+    QObjectListIt it( *chldn );
     for ( QObject *obj; (obj=it.current()); ++it ) {
 	if(obj->inherits("QAccel"))
 	    ((QAccel*)obj)->repairEventFilter();
@@ -444,9 +448,19 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    QWidget *w = (QWidget *)obj;
 	    if(((WId)w->hd) == old_winid)
 		w->hd = hd; //all my children hd's are now mine!
+#ifdef QMAC_QMENUBAR_NATIVE  //make sure menubars are fixed
+	    if(w->inherits("QMenuBar") ) {
+		QMenuBar *mb = (QMenuBar *)w;
+		int was_eaten = mb->mac_eaten_menubar;
+		mb->macRemoveNativeMenubar();
+		mb->macCreateNativeMenubar();
+		if(was_eaten)
+		    mb->menuContentsChanged();
+	    }
+#endif
 	}
     }
-    delete accelerators;
+    delete chldn;
 
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );

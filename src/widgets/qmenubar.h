@@ -116,6 +116,7 @@ private slots:
     void	accelActivated( int itemId );
     void	accelDestroyed();
 #endif
+
 private:
     void	menuInsPopup( QPopupMenu * );
     void	menuDelPopup( QPopupMenu * );
@@ -148,11 +149,13 @@ private:
     friend class QPopupMenu;
 
 #if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
+    friend class QWidget;
+    void macCreateNativeMenubar();
+    void macRemoveNativeMenubar();
+
     friend class QApplication;
     uint mac_dirty_menubar : 1;
     uint mac_eaten_menubar : 1;
-    void macCreateNativeMenubar(QWidget *p);
-    void macRemoveNativeMenubar();
     static bool activate(MenuRef, short, bool highlight=FALSE);
     static void macUpdateMenuBar();
     static void macUpdatePopup(MenuRef);
