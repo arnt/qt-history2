@@ -13,7 +13,7 @@ chomp( $line );
 if ( $line !~ /^Perforce/ ) {
     die "$0: $P4 -V isn't p4? Returned: \"$line\"\n";
 }
-    
+
 if ( $#ARGV != 0 ) {
     die "$0: takes a single change number as argument\n";
 } else {
@@ -77,6 +77,8 @@ $targetBranch{"qt-3.1"} = "main";
 $targetBranch{"qtopia-1"} = "main";
 $targetBranch{"qtest-main"} = "stable";
 $targetBranch{"qtest-stable"} = "main";
+$targetBranch{"support-stable"} = "main";
+$targetBranch{"support-main"} = "stable";
 
 $product = $pathComponents[3];
 $fromBranch = $pathComponents[4];
@@ -88,7 +90,7 @@ if ( defined( $targetBranch{"$product-$fromBranch"} ) ) {
 }
 
 print "Merging from $fromBranch to $toBranch\n";
-if ( $fromBranch eq $toBranch ) { 
+if ( $fromBranch eq $toBranch ) {
     die "Can't merge file to itself!\n";
 }
 
