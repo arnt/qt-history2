@@ -32,6 +32,7 @@
 
 class QDomElement;
 class QDomDocument;
+class QMap;
 
 class DomTool : public Qt
 {
@@ -47,6 +48,7 @@ public:
     static bool hasAttribute( const QDomElement& e, const QString& name );
     static QColor readColor( const QDomElement &e );
     static void fixDocument( QDomDocument& );
+    static void fixNodeList( QDomNodeList&, QMap<QString,QString>& );
 };
 
 

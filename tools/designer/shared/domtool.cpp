@@ -35,6 +35,7 @@
 #include <qfont.h>
 #include <qdom.h>
 #include <qcstring.h>
+#include <qmap.h>
 
 /*!
   \class DomTool domtool.h
@@ -353,7 +354,7 @@ static bool toBool( const QString& s )
 }
 
 /*!
-  Convert Qt 2.x format to Qt 3.0 format if necessary
+  Convert Qt 2.x format to Qt 3.x format if necessary
 */
 void DomTool::fixDocument( QDomDocument& doc )
 {
@@ -366,25 +367,20 @@ void DomTool::fixDocument( QDomDocument& doc )
     if ( e.tagName() != "UI" )
 	return;
 
-    // latest version, don't do anything
-    if ( e.hasAttribute("version") && e.attribute("version").toDouble() > 3.0 )
-	return;
+    //QMap<QString,QString> classNames;
+    //classNames[""] = "";
+    QMap<QString,QString> propertyNames;
+    classNames["resizeable"] = "resizable"; // we need to fix a spelling error in 3.0
 
+    // rename classes and properties
+    //nl = doc.elementsByTagName( "class" );
+    //fixNodeList( nl, classNames );
     nl = doc.elementsByTagName( "property" );
+    fixNodeList( nl, propertyNames );
 
-    // in 3.0, we need to fix a spelling error
-    if ( e.hasAttribute("version") && e.attribute("version").toDouble() == 3.0 ) {
-	for ( i = 0; i <  (int) nl.length(); i++ ) {
-	    QDomElement el = nl.item(i).toElement();
-	    QString s = el.attribute( "name" );
-	    if ( s == "resizeable" ) {
-		el.removeAttribute( "name" );
-		el.setAttribute( "name", "resizable" );
-	    }
-	}
+    // 3.x don't do anything more
+    if ( e.hasAttribute("version") && e.attribute("version").toDouble() >= 3.0 )
 	return;
-    }
-
 
     // in versions smaller than 3.0 we need to change more
     e.setAttribute( "version", 3.0 );
@@ -452,3 +448,19 @@ void DomTool::fixDocument( QDomDocument& doc )
 
 }
 
+/*!
+  Change names in the node list to the names specified in the QMap.
+*/
+void DomTool::fixNodeList( QDomNodeList &nl, QMap<QString,QString> &fromTo )
+{
+    // Rename properties
+    QMap<QString,QString>::Iterator it;
+    for ( int i = 0; i <  (int) nl.length(); i++ ) {
+	QDomElement el = nl.item(i).toElement();
+	it = fromTo.find( el.attribute( "name" ) );
+	if ( it != fromTo.end() ) {
+	   el.removeAttribute( "name" );
+	   el.setAttribute( "name", it.data() );
+	}
+    }
+}
