@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#83 $
 **
 ** Implementation of QColor class
 **
@@ -93,7 +93,7 @@
   moving slightly towards the magenta, could be H=350 (equvalent to
   -10), S=255, V=180.  A grayish light red could have H about 0 (say
   350-359 or 0-10), S about 50-100, and S=255.
-  
+
   \sa QPalette, QColorGroup, QApplication::setColorSpec(),
   <a href="http://www.inforamp.net/~poynton/Poynton-color.html">Color FAQ.</a>
 */
@@ -352,7 +352,7 @@ QColor &QColor::operator=( const QColor &c )
 #undef max
 #undef min
 
-/*!
+/*!\obsolete
   Returns the current RGB value as HSV.
 
   \arg \e *h, hue.
@@ -367,6 +367,26 @@ QColor &QColor::operator=( const QColor &c )
 */
 
 void QColor::hsv( int *h, int *s, int *v ) const
+{
+    getHsv(*h,*s,*v);
+}
+
+
+/*!\obsolete
+  Returns the current RGB value as HSV.
+
+  \arg \e h, hue.
+  \arg \e s, saturation.
+  \arg \e v, value.
+
+  The hue defines the color. Its range is 0..359 if the color is chromatic
+  and -1 if the color is achromatic.  The saturation and value both vary
+  between 0 and 255 inclusive.
+
+  \sa setHsv(), rgb()
+*/
+
+void QColor::getHsv( int &h, int &s, int &v ) const
 {
     int r = (int)(rgbVal & 0xff);
     int g = (int)((rgbVal >> 8) & 0xff);
@@ -385,34 +405,33 @@ void QColor::hsv( int *h, int *s, int *v ) const
     if ( (uint)g < min ) min = g;
     if ( (uint)b < min ) min = b;
     int delta = max-min;
-    *v = max;					// calc value
-    *s = max ? (510*delta+max)/(2*max) : 0;
-    if ( *s == 0 ) {
-	*h = -1;				// undefined hue
+    v = max;					// calc value
+    s = max ? (510*delta+max)/(2*max) : 0;
+    if ( s == 0 ) {
+	h = -1;				// undefined hue
     } else {
 	switch ( whatmax ) {
 	    case 0:				// red is max component
 		if ( g >= b )
-		    *h = (120*(g-b)+delta)/(2*delta);
+		    h = (120*(g-b)+delta)/(2*delta);
 		else
-		    *h = (120*(g-b+delta)+delta)/(2*delta) + 300;
+		    h = (120*(g-b+delta)+delta)/(2*delta) + 300;
 		break;
 	    case 1:				// green is max component
 		if ( b > r )
-		    *h = 120 + (120*(b-r)+delta)/(2*delta);
+		    h = 120 + (120*(b-r)+delta)/(2*delta);
 		else
-		    *h = 60 + (120*(b-r+delta)+delta)/(2*delta);
+		    h = 60 + (120*(b-r+delta)+delta)/(2*delta);
 		break;
 	    case 2:				// blue is max component
 		if ( r > g )
-		    *h = 240 + (120*(r-g)+delta)/(2*delta);
+		    h = 240 + (120*(r-g)+delta)/(2*delta);
 		else
-		    *h = 180 + (120*(r-g+delta)+delta)/(2*delta);
+		    h = 180 + (120*(r-g+delta)+delta)/(2*delta);
 		break;
 	}
     }
 }
-
 
 /*!
   Sets a HSV color value.
@@ -421,7 +440,7 @@ void QColor::hsv( int *h, int *s, int *v ) const
   \arg \e s, saturation (0..255).
   \arg \e v, value (0..255).
 
-  \sa hsv(), setRgb()
+  \sa getHsv(), setRgb()
 */
 
 void QColor::setHsv( int h, int s, int v )

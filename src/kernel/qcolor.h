@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#50 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#51 $
 **
 ** Definition of QColor class
 **
@@ -82,6 +82,7 @@ public:
     int	   blue()   const;
 
     void   hsv( int *h, int *s, int *v ) const;
+    void   getHsv( int &h, int &s, int &v ) const;
     void   setHsv( int h, int s, int v );
 
     QColor light( int f = 150 ) const;

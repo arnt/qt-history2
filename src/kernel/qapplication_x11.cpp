@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#396 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#397 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -583,8 +583,15 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	    btn = QColor( button );
 	else
 	    btn = bg;
+	
+	int h,s,v;
+	fg.hsv(&h,&s,&v);
+	QColor base = Qt::white;
+	if (v >= 255-50)
+	    base = btn.light();
+	
 	QColorGroup cg( fg, btn, btn.light(),
-			btn.dark(), btn.dark(150), fg, Qt::white, Qt::white, bg );
+			btn.dark(), btn.dark(150), fg, Qt::white, base, bg );
 	cg.setHighlightedText(Qt::red);
 	cg.setHighlight(Qt::darkBlue);
 	QColor disabled( (fg.red()+btn.red())/2,

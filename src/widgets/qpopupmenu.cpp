@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#189 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#190 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -145,16 +145,17 @@ int QPopupMenu::getWidthOfCheckCol() const
 }
 
 // Checkmark drawing -- temporarily here...
+//##### belongs into QStyle
 static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
-			    const QColorGroup &g, Qt::GUIStyle gs,
+			    const QColorGroup &g, QStyle& style,
 			    bool act, bool dis )
 {
     int markW, markH;
-    getSizeOfBitmap( gs, &markW, &markH );
+    getSizeOfBitmap( style.guiStyle(), &markW, &markH );
     int posX = x + ( w - markW )/2 - 1;
     int posY = y + ( h - markH )/2;
 
-    if ( gs == Qt::WindowsStyle ) {
+    if ( style == Qt::WindowsStyle || style.defaultFrameWidth() < 2) {
 	// Could do with some optimizing/caching...
 	QPointArray a( 7*2 );
 	int i, xx, yy;
@@ -1149,7 +1150,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    int mh = cellh - 2*motifItemFrame;
 	    if ( mi->isChecked() ) {
 		qDrawCheckMark( p, motifItemFrame + motifCheckMarkHMargin,
-				motifItemFrame, mw, mh, itemg, gs, act, dis );
+				motifItemFrame, mw, mh, itemg, style(), act, dis );
 	    }
 	    return;
 	}
