@@ -425,12 +425,21 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->first("QMAKE_PKGINFO").isEmpty()) {
 	QString pkginfo = project->first("QMAKE_PKGINFO");
 	QString destdir = project->first("DESTDIR");
-	t << "#Looks strange? Well I don't even know what it means! ###SAM" << endl;
 	t << pkginfo << ": " << "\n\t";
 	if(!destdir.isEmpty())
-	    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
-	t << "rm -f " << pkginfo << "\n\t"
-	  << "echo \"APPL????\" >" << pkginfo << endl;
+	    t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+	t << "@rm -f " << pkginfo << "\n\t"
+	  << "@echo \"APPL????\" >" << pkginfo << endl;
+    }
+    if(!project->first("QMAKE_INFO_PLIST").isEmpty()) {
+	QString info_plist = project->first("QMAKE_INFO_PLIST"),
+	       info_plist_out = project->first("QMAKE_INFO_PLIST_OUT");
+	QString destdir = project->first("DESTDIR");
+	t << info_plist_out << ": " << "\n\t";
+	if(!destdir.isEmpty())
+	    t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+	t << "@rm -f " << info_plist_out << "\n\t"
+	  << "@cp \"" << info_plist << "\" \"" << info_plist_out << "\"" << endl;
     }
 
     QString ddir = project->isEmpty("QMAKE_DISTDIR") ? project->first("QMAKE_ORIG_TARGET") :

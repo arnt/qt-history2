@@ -212,10 +212,19 @@ UnixMakefileGenerator::init()
 	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	    if(project->isEmpty("DESTDIR"))
 		project->values("DESTDIR").append("");
-	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
-
+	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + 
+						       ".app/Contents/MacOS/";
 	    project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + "../PkgInfo");
 	    project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
+
+	    QString plist = Option::mkfile::qmakespec + QDir::separator() + "Info.plist." + 
+			    project->first("TEMPLATE");
+	    if(QFile::exists(plist)) {
+		project->variables()["QMAKE_INFO_PLIST"].append(plist);
+		project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") + 
+								    "../Info.plist");
+		project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
+	    }
 	}
     }
     //version handling
