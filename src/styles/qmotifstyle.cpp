@@ -760,7 +760,7 @@ void QMotifStyle::drawControl( ControlElement element,
 		} else {
 		    p->setPen( tb->colorGroup().light() );
 		    r2.setRect( r2.left() + 2, r2.top() + 2,
-			       r2.width() - 4, r2.height() - 2 );
+				r2.width() - 4, r2.height() - 2 );
 		}
 
 		p->drawLine( r2.left(), r2.bottom()-1, r2.left(), r2.top() + 2 );
@@ -797,7 +797,7 @@ void QMotifStyle::drawControl( ControlElement element,
 		    p->setPen( tb->colorGroup().dark() );
 		    p->drawLine( r2.left(), r2.top(), r2.right(), r2.top() );
 		    r2.setRect( r2.left() + 2, r2.top(),
-			       r2.width() - 4, r2.height() - 2 );
+				r2.width() - 4, r2.height() - 2 );
 		}
 
 		p->drawLine( r2.right() - 1, r2.top(),
@@ -844,12 +844,18 @@ void QMotifStyle::drawControl( ControlElement element,
 	    int nu = ( u * p_v + t_s/2 ) / t_s;
 	    int x = unit_width * nu;
 	    if ( pb->percentageVisible() && pb->totalSteps() ) {
-		p->setPen( cg.highlightedText() );
-		p->setClipRect( r.x(), r.y(), x, r.height() );
-		p->drawText( r, AlignCenter | SingleLine, pb->progressString() );
-		if ( pb->progress() != pb->totalSteps() ) {
-		    p->setClipRect( r.x() + x, r.y(), r.width() - x, r.height() );
-		    p->setPen( cg.highlight() );
+		if (pb->indicatorFollowsStyle() || pb->centerIndicator()) {
+		    p->setPen( cg.highlightedText() );
+		    p->setClipRect( r.x(), r.y(), x, r.height() );
+		    p->drawText( r, AlignCenter | SingleLine, pb->progressString() );
+
+		    if ( pb->progress() != pb->totalSteps() ) {
+			p->setClipRect( r.x() + x, r.y(), r.width() - x, r.height() );
+			p->setPen( cg.highlight() );
+			p->drawText( r, AlignCenter | SingleLine, pb->progressString() );
+		    }
+		} else {
+		    p->setPen( cg.text() );
 		    p->drawText( r, AlignCenter | SingleLine, pb->progressString() );
 		}
 	    }
@@ -1006,15 +1012,15 @@ void QMotifStyle::drawControl( ControlElement element,
 #endif // QT_NO_POPUPMENU
 
     case CE_MenuBarItem:
- 	{
- 	    if ( flags & Style_Active )  // active item
- 		qDrawShadePanel( p, r, cg, FALSE, motifItemFrame,
- 				 &cg.brush(QColorGroup::Button) );
- 	    else  // other item
- 		p->fillRect( r, cg.brush(QColorGroup::Button) );
+	{
+	    if ( flags & Style_Active )  // active item
+		qDrawShadePanel( p, r, cg, FALSE, motifItemFrame,
+				 &cg.brush(QColorGroup::Button) );
+	    else  // other item
+		p->fillRect( r, cg.brush(QColorGroup::Button) );
 	    QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
- 	    break;
- 	}
+	    break;
+	}
 
     default:
 	QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
@@ -1666,14 +1672,44 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	    break;
 	}
 
-    case SR_ProgressBarContents:
     case SR_ProgressBarGroove:
-	rect = widget->rect();
-	break;
+    case SR_ProgressBarContents:
+	{
+	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
+			       QApplication::fontMetrics() ) );
+	    const QProgressBar *progressbar = (const QProgressBar *) widget;
+	    int textw = 0;
+	    if (progressbar->percentageVisible())
+		textw = fm.width("100%") + 6;
+
+	    QRect wrect = widget->rect();
+	    if (progressbar->indicatorFollowsStyle() ||
+		progressbar->centerIndicator())
+		rect = wrect;
+	    else
+		rect.setCoords(wrect.left(), wrect.top(),
+			       wrect.right() - textw, wrect.bottom());
+	    break;
+	}
 
     case SR_ProgressBarLabel:
-	rect = widget->rect();
-	break;
+	{
+	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
+			       QApplication::fontMetrics() ) );
+	    const QProgressBar *progressbar = (const QProgressBar *) widget;
+	    int textw = 0;
+	    if (progressbar->percentageVisible())
+		textw = fm.width("100%") + 6;
+
+	    QRect wrect = widget->rect();
+	    if (progressbar->indicatorFollowsStyle() ||
+		progressbar->centerIndicator())
+		rect = widget->rect();
+	    else
+		rect.setCoords(wrect.right() - textw, wrect.top(),
+			       wrect.right(), wrect.bottom());
+	    break;
+	}
 
     default:
 	rect = QCommonStyle::subRect( r, widget );

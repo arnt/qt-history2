@@ -691,7 +691,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    bool reverse = QApplication::reverseLayout();
 	    if ( !progressbar->totalSteps() ) {
 		// draw busy indicator
-		int w = r.width();
+		int w = r.width() - 4;
 		int x = progressbar->progress() % (w * 2);
 		if (x > w)
 		    x = 2 * w - x;
@@ -1017,9 +1017,17 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	{
 	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
 			       QApplication::fontMetrics() ) );
-	    int textw = fm.width("100%") + 6;
-	    rect.setCoords(wrect.left(), wrect.top(),
-			   wrect.right() - textw, wrect.bottom());
+	    const QProgressBar *progressbar = (const QProgressBar *) widget;
+	    int textw = 0;
+	    if (progressbar->percentageVisible())
+		textw = fm.width("100%") + 6;
+
+	    if (progressbar->indicatorFollowsStyle() ||
+		! progressbar->centerIndicator())
+		rect.setCoords(wrect.left(), wrect.top(),
+			       wrect.right() - textw, wrect.bottom());
+	    else
+		rect = wrect;
 	    break;
 	}
 
@@ -1027,9 +1035,17 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	{
 	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
 			       QApplication::fontMetrics() ) );
-	    int textw = fm.width("100%") + 6;
-	    rect.setCoords(wrect.right() - textw, wrect.top(),
-			   wrect.right(), wrect.bottom());
+	    const QProgressBar *progressbar = (const QProgressBar *) widget;
+	    int textw = 0;
+	    if (progressbar->percentageVisible())
+		textw = fm.width("100%") + 6;
+
+	    if (progressbar->indicatorFollowsStyle() ||
+		! progressbar->centerIndicator())
+		rect.setCoords(wrect.right() - textw, wrect.top(),
+			       wrect.right(), wrect.bottom());
+	    else
+		rect = wrect;
 	    break;
 	}
 
