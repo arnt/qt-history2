@@ -80,7 +80,7 @@ private:
     struct QColorGroupData
     {
 	QAtomic ref;
-	QBrush br[QColorGroup::NColorRoles];
+	QBrush br[NColorRoles];
     };
     QColorGroupData *d;
     static QColorGroupData *shared_default;
