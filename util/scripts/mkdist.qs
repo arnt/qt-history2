@@ -44,6 +44,7 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tutorial"),
 		       new RegExp("^translations"),
 		       new RegExp("^pics"),
+		       new RegExp("^bin/syncqt.bat"),
 		       new RegExp("^extensions/xt"),
 		       new RegExp("^tools/designer"),
 		       new RegExp("^tools/lsqrc"),
@@ -74,7 +75,6 @@ var editionRemove = new Array();
 var editionKeep = new Array();
 
 platformRemove["win"] = [ new RegExp("^gif"),
-			  new RegExp("^dist"),
 			  new RegExp("^doc/src"),
 			  new RegExp("^config.tests"),
 			  new RegExp("^extensions/motif"),
@@ -91,14 +91,12 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure"),
-			  new RegExp("^bin/syncqt"),
 			  new RegExp("^Makefile.win32-g++"),
 			  new RegExp("^LICENSE.PREVIEW"),
 			  new RegExp("^install.exe") ];
 platformKeep["win"] = [ new RegExp(".") ];
 
 platformRemove["x11"] = [ new RegExp("^gif"),
-			  new RegExp("^dist"),
 			  new RegExp("^doc/src"),
 			  new RegExp("^extensions"),
 			  new RegExp("^src/plugins/gfxdrivers"),
@@ -110,13 +108,11 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/styles/mac"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("^bin/syncqt.bat"),
 			  new RegExp("^.LICENSE"),
 			  new RegExp("^bin/configure.exe") ];
 platformKeep["x11"] = [ new RegExp(".") ];
 
 platformRemove["mac"] = [ new RegExp("^gif"),
-			  new RegExp("^dist"),
 			  new RegExp("^doc/src"),
 			  new RegExp("^extensions"),
 			  new RegExp("^src/plugins/gfxdrivers"),
@@ -127,13 +123,11 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_x11"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("^bin/syncqt.bat"),
 			  new RegExp("^.LICENSE"),
 			  new RegExp("^bin/configure.exe") ];
 platformKeep["mac"] = [ new RegExp(".") ];
 
 platformRemove["embedded"] = [ new RegExp("^gif"),
-			       new RegExp("^dist"),
 			       new RegExp("^doc/src"),
 			       new RegExp("^extensions"),
 			       new RegExp("_win"),
@@ -142,7 +136,6 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("^src/plugins/styles/mac"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
-			       new RegExp("^bin/syncqt.bat"),
 			       new RegExp("^.LICENSE"),
 			       new RegExp("^bin/configure.exe") ];
 platformKeep["embedded"] = [ new RegExp(".") ];
@@ -151,6 +144,9 @@ editionRemove["commercial"] = [ new RegExp("GPL") ];
 editionKeep["commercial"] = [ new RegExp(".") ];
 editionRemove["preview"] = [ new RegExp("GPL") ];
 editionKeep["preview"] = [ new RegExp(".") ];
+
+var finalRemove = [ new RegExp("^dist") ];
+var finalKeep = [ /./ ];
 
 /************************************************************
  * Mapping from directories to module names
@@ -232,6 +228,10 @@ for (var p in validPlatforms) {
 	    // run syncqt
   	    print("Running syncqt...");
   	    syncqt(platDir, platform);
+
+  	    // final package purge
+  	    print("Final package purge...");
+  	    purgeFiles(platDir, getFileList(platDir), finalRemove, finalKeep);
 
 	    // replace tags (like THISYEAR etc.)
 	    print("Traversing all txt files and replacing tags...");
