@@ -56,7 +56,10 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
     labelColumnPixmap->setText( "" );
     labelRowPixmap->setText( "" );
 
-    if ( !qt_cast<QDataTable*>(editTable) ) {
+#ifndef QT_NO_SQL
+    if ( !qt_cast<QDataTable*>(editTable) ) 
+#endif
+    {
 	labelFields->hide();
 	comboFields->hide();
 	labelTable->hide();
@@ -153,7 +156,7 @@ void TableEditor::currentColumnChanged( QListBoxItem *i )
 	labelColumnPixmap->setText( "" );
     editColumnText->blockSignals( FALSE );
 
-#ifndef QT_NO_TABLE
+#ifndef QT_NO_SQL
     if ( qt_cast<QDataTable*>(editTable) ) {
 	QString s = *fieldMap.find( listColumns->index( i ) );
 	if ( s.isEmpty() )
@@ -196,7 +199,7 @@ void TableEditor::deleteColumnClicked()
 {
     if ( listColumns->currentItem() == -1 )
 	return;
-#ifndef QT_NO_TABLE
+#ifndef QT_NO_SQL
     table->setNumCols( table->numCols() - 1 );
     delete listColumns->item( listColumns->currentItem() );
     readColumns();
@@ -224,7 +227,7 @@ void TableEditor::deleteRowClicked()
 
 void TableEditor::newColumnClicked()
 {
-#ifndef QT_NO_TABLE
+#ifndef QT_NO_SQL
     table->setNumCols( table->numCols() + 1 );
     QMap<QString, bool> m;
     for ( int i = 0; i < table->numCols() - 1; ++i )
@@ -249,7 +252,7 @@ void TableEditor::newColumnClicked()
 
 void TableEditor::newRowClicked()
 {
-#ifndef QT_NO_TABLE
+#ifndef QT_NO_SQL
     table->setNumRows( table->numRows() + 1 );
     QMap<QString, bool> m;
     for ( int i = 0; i < table->numRows() - 1; ++i )

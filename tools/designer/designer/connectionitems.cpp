@@ -409,9 +409,11 @@ void SlotItem::signalChanged( const QString &signal )
 
 bool SlotItem::ignoreSlot( const char* slot ) const
 {
+#ifndef QT_NO_SQL
     if ( qstrcmp( slot, "update()" ) == 0 &&
 	 qt_cast<QDataBrowser*>(lastReceiver) )
 	return FALSE;
+#endif
 
     for ( int i = 0; ignore_slots[i]; i++ ) {
 	if ( qstrcmp( slot, ignore_slots[i] ) == 0 )
