@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#315 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#316 $
 **
 ** Global type declarations and definitions
 **
@@ -479,16 +479,14 @@ extern bool qt_winunicode;
 #  if defined(QT_NODLL)
 #    undef QT_MAKEDLL
 #    undef QT_DLL
-#  endif
-#  ifdef QT_DLL
-#    if defined(QT_MAKEDLL)	/* create a Qt DLL library */
+#  elif defined(QT_MAKEDLL)	/* create a Qt DLL library */
+#    if defined(QT_DLL)
 #      undef QT_DLL
-#      define Q_EXPORT  __declspec(dllexport)
-#      define Q_TEMPLATEDLL
-#      undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #    endif
-#  endif
-#  if defined(QT_DLL)		/* use a Qt DLL library */
+#    define Q_EXPORT  __declspec(dllexport)
+#    define Q_TEMPLATEDLL
+#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
+#  elif defined(QT_DLL)		/* use a Qt DLL library */
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
