@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#10 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#10 $";
 #endif
 
 
@@ -382,7 +382,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    return FALSE;
 	}
 
-	tmpHandle = pm->handle() == 0;
 	pm->freeMemDC();
 	pm->allocMemDC();
 	hdc = pm->handle();
@@ -449,7 +448,7 @@ bool QPainter::end()				// end painting
     else if ( pdev->devType() == PDT_PIXMAP ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	pm->freeMemDC();
-	if ( !tmpHandle )
+	if ( pm->optimized() )
 	    pm->allocMemDC();
     }
     hdc	 = 0;
