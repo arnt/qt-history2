@@ -40,11 +40,10 @@
 #include "qstatusbar.h"
 #include "qscrollview.h"
 #include "qtooltip.h"
+#include "qdatetime.h"
 
 #include "qtooltip.h"
 #include "qwhatsthis.h"
-
-#include "qlayoutengine.h"
 
 //#define QMAINWINDOW_DEBUG
 
@@ -320,7 +319,6 @@ private:
     void init();
     int layoutItems( const QRect&, bool testonly = FALSE );
     QMainWindowPrivate::ToolBarDock *dock;
-    QArray<QLayoutStruct> *array;
     QBoxLayout::Direction dir;
     bool fill;
     int cached_width;
@@ -356,13 +354,11 @@ bool QToolLayout::hasHeightForWidth() const
 
 void QToolLayout::init()
 {
-    array = 0;
     cached_width = 0;
 }
 
 QToolLayout::~QToolLayout()
 {
-    delete array;
 }
 
 QSize QToolLayout::minimumSize() const
@@ -384,8 +380,6 @@ QSize QToolLayout::minimumSize() const
 void QToolLayout::invalidate()
 {
     cached_width = 0;
-    delete array;
-    array=0;
 }
 
 int QToolLayout::layoutItems( const QRect &r, bool testonly )
@@ -2391,6 +2385,8 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 	return Bottom;
     }
 
+    rect = QRect( pos, tb->size() );
+    
     // mouse pos outside of any docking area
     return Unmanaged;
 }
@@ -2482,6 +2478,53 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	if ( ( e->button() & MidButton ) ) {
 	    return;
 	}
+
+	// finally really move the toolbar, if the mouse was moved...
+	if ( d->movedEnough ) {
+	    if ( !d->opaque ) {
+		ToolBarDock dock = d->oldDock;
+		if ( dock != Unmanaged && isDockEnabled( dock ) &&
+		     isDockEnabled( t, dock ) ) {
+		    int ipos;
+		    QToolBar *relative;
+		    QPoint pos = mapFromGlobal( e->globalPos() );
+		    QRect r, r2;
+		    findDockArea( pos, r, t, &r2 );
+		    if ( dock != d->origDock ) {
+			saveToolLayout( d, d->origDock, t );
+		    }
+		    findNewToolbarPlace( d, t, dock, r2, relative, ipos );
+		    moveToolBar( t, dock, relative, ipos );
+		} else {
+		    QPoint op = t->pos();
+		    QRect r = d->oldPosRect;
+		    int a = r.x() - op.x();
+		    int b = r.y() - op.y();
+		    int ap = a / 10;
+		    int bp = b / 10;
+		    QTime time;
+		    time.start();
+		    int i = 0;
+		    while ( TRUE ) {
+			if ( time.elapsed() > 30 ) {
+			    ++i;
+			    d->rectPainter->drawRect( r );
+			    r.moveBy( -ap, -bp );
+			    d->rectPainter->drawRect( r );
+			    qApp->processEvents();
+			    if ( i == 10 )
+				break;
+			    time.start();
+			}
+		    }
+		    d->oldPosRect = r;
+		}
+	    }
+	} else { // ... or hide it if it was only a click
+	    if ( isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) )
+		moveToolBar( t, Hidden );
+	}
+
 	// delete the rect painter
 	if ( d->rectPainter && !d->opaque ) {
 	    if ( d->oldPosRectValid )
@@ -2500,29 +2543,6 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		( (QScrollView*)d->mc )->viewport()->setUpdatesEnabled( TRUE );
 	    else
 		d->mc->setUpdatesEnabled( TRUE );
-	}
-
-	// finally really move the toolbar, if the mouse was moved...
-	if ( d->movedEnough ) {
-	    if ( !d->opaque ) {
-		ToolBarDock dock = d->oldDock;
-		if ( dock != Unmanaged && isDockEnabled( dock ) &&
-		     isDockEnabled( t, dock ) ) {
-		    int ipos;
-		    QToolBar *relative;
-		    QPoint pos = mapFromGlobal( e->globalPos() );
-		    QRect r, r2;
-		    findDockArea( pos, r, t, &r2 );
-		    if ( dock != d->origDock ) {
-			saveToolLayout( d, d->origDock, t );
-		    }
-		    findNewToolbarPlace( d, t, dock, r2, relative, ipos );
-		    moveToolBar( t, dock, relative, ipos );
-		}
-	    }
-	} else { // ... or hide it if it was only a click
-	    if ( isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) )
-		moveToolBar( t, Hidden );
 	}
 
 	emit endMovingToolbar( t );
@@ -2550,11 +2570,11 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     QRect r;
     ToolBarDock dock = findDockArea( pos, r, t );
 
-    // if we will not be able to move the toolbar into the dock/rect
-    // we got, it will not be moved at all - show this to the user
-    if ( dock == Unmanaged || !isDockEnabled( dock ) ||
-	 !isDockEnabled( t, dock ) )
-	r = d->origPosRect;
+//     // if we will not be able to move the toolbar into the dock/rect
+//     // we got, it will not be moved at all - show this to the user
+//     if ( dock == Unmanaged || !isDockEnabled( dock ) ||
+// 	 !isDockEnabled( t, dock ) )
+// 	r = d->oldPosRect;
 
     // draw the new rect where the toolbar would be moved
     if ( d->rectPainter && !d->opaque ) {
@@ -2843,7 +2863,7 @@ void QMainWindow::rightMouseButtonMenu( const QPoint &p )
 
 /*!
   Returns TRUE, if rightclicking on an empty space on a toolbar dock
-  or rightclicking on a toolbar handle opens a popup menu which allows 
+  or rightclicking on a toolbar handle opens a popup menu which allows
   lining up toolbars and hiding/showing toolbars.
 
   \sa setDockEnabled(), lineUpToolBars()
@@ -2856,7 +2876,7 @@ bool QMainWindow::isDockMenuEnabled() const
 
 /*!
   When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock
-  or rightclicking on a toolbar handle opens a popup menu which allows lining up toolbars 
+  or rightclicking on a toolbar handle opens a popup menu which allows lining up toolbars
   and hiding/showing toolbars.
 
   \sa lineUpToolBars(), isDockMenuEnabled()
