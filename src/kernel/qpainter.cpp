@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#78 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#77 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#78 $")
 
 
 /*----------------------------------------------------------------------------
@@ -724,6 +724,10 @@ const QWMatrix &QPainter::worldMatrix() const
   World transformations are applied after the view transformations
   (i.e. \link setWindow window\endlink and \link setViewport viewport\endlink).
 
+  If the matrix set is the identity matrix (\link QWMatrix::m11()
+  m11\endlink and \link QWMatrix::m22() m22\endlink are 1.0 and the
+  rest are 0.0), this function calls setWorldXForm(FALSE).
+
   The following functions can transform the coordinate system without using
   a QWMatrix:
   <ul>
@@ -733,7 +737,7 @@ const QWMatrix &QPainter::worldMatrix() const
   <li>rotate()
   </ul>
 
-  They operate on the painter's \link worldMatrix world matrix\endlink
+  They operate on the painter's \link worldMatrix() world matrix\endlink
   and are implemented like this:
 
   \code
@@ -761,13 +765,18 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 	wxmat = m * wxmat;			// combines
     else
 	wxmat = m;				// set new matrix
+    bool identity = wxmat.m11() == 1.0F && wxmat.m22() == 1.0F &&
+		    wxmat.m12() == 0.0F && wxmat.m21() == 0.0F &&
+		    wxmat.dx()  == 0.0F && wxmat.dy()  == 0.0F;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
 	param[0].matrix = &wxmat;
 	param[1].ival = combine;
 	pdev->cmd( PDC_SETWMATRIX, this, param );
     }
-    if ( !testf(WxF) )
+    if ( identity )
+	setWorldXForm( FALSE );
+    else if ( !testf(WxF) )
 	setWorldXForm( TRUE );
     else
 	updateXForm();
@@ -823,12 +832,17 @@ void QPainter::rotate( float a )
 
 /*----------------------------------------------------------------------------
   Resets any transformations that were made using translate(), scale(),
-  shear(), rotate() and setWorldMatrix()
-  \sa worldMatrix()
+  shear(), rotate(), setWorldMatrix(), setViewport() and setWindow()
+  \sa worldMatrix(), viewPort(), window()
  ----------------------------------------------------------------------------*/
 
 void QPainter::resetXForm()
 {
+    if ( !isActive() )
+	return;
+    wx = wy = vx = vy = 0;			// default view origins
+    ww = vw = pdev->metric( PDM_WIDTH );
+    wh = vh = pdev->metric( PDM_HEIGHT );
     wxmat = QWMatrix();
     setWorldXForm( FALSE );
 }
