@@ -728,7 +728,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
         }
 	ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
 	       src_targ + "\" \"" + dst_targ + "\"";
-	if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
+	if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP") &&
+	   (project->first("TEMPLATE") != "lib" || !project->isActiveConfig("staticlib"))) {
 	    ret += "\n\t-" + var("QMAKE_STRIP");
 	    if(project->first("TEMPLATE") == "lib" && !project->isEmpty("QMAKE_STRIPFLAGS_LIB"))
 		ret += " " + var("QMAKE_STRIPFLAGS_LIB");
