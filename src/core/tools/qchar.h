@@ -185,7 +185,7 @@ public:
     UnicodeVersion unicodeVersion() const;
 
     const char toAscii() const;
-    const char toLatin1() const;
+    inline const char toLatin1() const;
     inline const ushort unicode() const { return ucs; }
     inline ushort &unicode() { return ucs; }
 
