@@ -825,9 +825,10 @@ Q_ULONG QSocket::bytesToWrite() const
 }
 
 /*!
-    Deletes the data that is waiting to be written. This is
+    Deletes the data that is waiting to be written. This is useful if you want
+    to close the socket without waiting for all the data to be written.
 
-    \sa bytesToWrite() close()
+    \sa bytesToWrite() close() delayedCloseFinished()
 */
 
 void QSocket::clearPendingData()
@@ -1241,10 +1242,10 @@ void QSocket::setSocketIntern( int socket )
     else
         sd = new QSocketDevice( QSocketDevice::Stream );
 
-    if ( state() != Idle )
+    if ( state() != Idle ) {
+	clearPendingData();
         close();
-    // close may not have actually deleted the thing.  so, we brutally
-    // Act.
+    }
     delete d;
 
     d = new QSocketPrivate;
