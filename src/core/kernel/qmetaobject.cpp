@@ -1452,11 +1452,7 @@ bool QMetaProperty::isReadable() const
  */
 bool QMetaProperty::isWritable() const
 {
-    if (!mobj[QMetaObject::WriteProperty])
-        return false;
-    int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
-    int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-    return !(flags & EnumOrFlag) || menum.name() || QMetaType::type(typeName());
+    return mobj[QMetaObject::WriteProperty] != 0;
 }
 
 
