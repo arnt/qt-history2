@@ -16,6 +16,7 @@
 #endif
 
 #include "qsound.h"
+#include "qsound_p.h"
 
 #ifndef QT_NO_SOUND
 

@@ -25,6 +25,7 @@ HEADERS += \
 	kernel/qshortcutmap_p.h \
 	kernel/qsizepolicy.h \
 	kernel/qsound.h \
+	kernel/qsound_p.h \
 	kernel/qstackedlayout.h \
 	kernel/qtooltip.h \
 	kernel/qvariant.h \

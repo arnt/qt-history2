@@ -18,6 +18,7 @@
 #include "qsound.h"
 #include "qpaintdevice.h"
 #include "qwsdisplay_qws.h"
+#include "qsound_p.h"
 
 class QAuServerQWS : public QAuServer {
 public:

@@ -22,6 +22,7 @@
 #include "qhash.h"
 #include "qsocketnotifier.h"
 #include "qapplication.h"
+#include "qsound_p.h"
 
 
 #ifdef QT_NAS_SUPPORT

@@ -19,6 +19,7 @@
 #include "qapplication_p.h"
 #include <qfile.h>
 #include "qpointer.h"
+#include "qsound_p.h"
 
 #include <qt_windows.h>
 

@@ -16,6 +16,8 @@
 #ifndef QT_NO_SOUND
 
 #include "qlist.h"
+#include <private/qobject_p.h>
+#include "qsound_p.h"
 
 static QList<QAuServer*> *servers=0;
 
@@ -52,14 +54,15 @@ static QAuServer& server()
     return *servers->first();
 }
 
-class QSoundData {
+class QSoundPrivate : public QObjectPrivate
+{
 public:
-    QSoundData(const QString& fname) :
-        filename(fname), bucket(0), looprem(0), looptotal(1)
+    QSoundPrivate(const QString& fname)
+        : filename(fname), bucket(0), looprem(0), looptotal(1)
     {
     }
 
-    ~QSoundData()
+    ~QSoundPrivate()
     {
         delete bucket;
     }
@@ -130,9 +133,8 @@ void QSound::play(const QString& filename)
     The \a parent argument (default 0) is passed on to the QObject
     constructor.
 */
-QSound::QSound(const QString& filename, QObject* parent) :
-    QObject(parent),
-    d(new QSoundData(filename))
+QSound::QSound(const QString& filename, QObject* parent)
+    : QObject(*new QSoundPrivate(filename), parent)
 {
     server().init(this);
 }
@@ -148,9 +150,8 @@ QSound::QSound(const QString& filename, QObject* parent) :
     The \a parent and \a name arguments (default 0) are passed on to
     the QObject constructor.
 */
-QSound::QSound(const QString& filename, QObject* parent, const char* name) :
-    QObject(parent),
-    d(new QSoundData(filename))
+QSound::QSound(const QString& filename, QObject* parent, const char* name)
+    : QObject(*new QSoundPrivate(filename), parent)
 {
     setObjectName(name);
     server().init(this);
@@ -164,7 +165,6 @@ QSound::~QSound()
 {
     if (!isFinished())
         stop();
-    delete d;
 }
 
 /*!
@@ -174,6 +174,7 @@ QSound::~QSound()
 */
 bool QSound::isFinished() const
 {
+    Q_D(const QSound);
     return d->looprem == 0;
 }
 
@@ -189,6 +190,7 @@ bool QSound::isFinished() const
 */
 void QSound::play()
 {
+    Q_D(QSound);
     d->looprem = d->looptotal;
     server().play(this);
 }
@@ -198,6 +200,7 @@ void QSound::play()
 */
 int QSound::loops() const
 {
+    Q_D(const QSound);
     return d->looptotal;
 }
 
@@ -207,6 +210,7 @@ int QSound::loops() const
 */
 int QSound::loopsRemaining() const
 {
+    Q_D(const QSound);
     return d->looprem;
 }
 
@@ -218,6 +222,7 @@ int QSound::loopsRemaining() const
 */
 void QSound::setLoops(int l)
 {
+    Q_D(QSound);
     d->looptotal = l;
 }
 
@@ -226,6 +231,7 @@ void QSound::setLoops(int l)
 */
 QString QSound::fileName() const
 {
+    Q_D(const QSound);
     return d->filename;
 }
 
@@ -239,6 +245,7 @@ QString QSound::fileName() const
 */
 void QSound::stop()
 {
+    Q_D(QSound);
     server().stop(this);
     d->looprem = 0;
 }
@@ -267,8 +274,8 @@ bool QSound::isAvailable()
 */
 void QAuServer::setBucket(QSound* s, QAuBucket* b)
 {
-    delete s->d->bucket;
-    s->d->bucket = b;
+    delete s->d_func()->bucket;
+    s->d_func()->bucket = b;
 }
 
 /*!
@@ -276,7 +283,7 @@ void QAuServer::setBucket(QSound* s, QAuBucket* b)
 */
 QAuBucket* QAuServer::bucket(QSound* s)
 {
-    return s->d->bucket;
+    return s->d_func()->bucket;
 }
 
 /*!
@@ -285,9 +292,9 @@ QAuBucket* QAuServer::bucket(QSound* s)
 */
 int QAuServer::decLoop(QSound* s)
 {
-    if (s->d->looprem > 0)
-        --s->d->looprem;
-    return s->d->looprem;
+    if (s->d_func()->looprem > 0)
+        --s->d_func()->looprem;
+    return s->d_func()->looprem;
 }
 
 /*!
