@@ -1359,6 +1359,8 @@ void QWidgetFactory::loadToolBars( const QDomElement &e )
 			a->addTo( tb );
 		} else if ( n2.tagName() == "separator" ) {
 		    tb->addSeparator();
+		} else if ( n2.tagName() == "widget" ) {
+		    (void)createWidgetInternal( n2, tb, 0, n2.attribute( "class", "QWidget" ) );
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
