@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjdefs.h#12 $
+** $Id: //depot/qt/main/src/kernel/qobjdefs.h#13 $
 **
 ** Macros and definitions related to QObject
 **
@@ -23,7 +23,7 @@
 // They have only semantic purposes, but they are also important for the moc
 
 #define slots					// slots:   in class
-#define signals					// signals: in class
+#define signals protected			// signals: in class
 #define emit					// emit signal
 
 #define Q_OBJECT							      \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#39 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#40 $
 **
 ** Definition of QWidget class
 **
@@ -166,7 +166,7 @@ protected:
 
   // Signals
 
-private signals:
+signals:
     void    destroyed();
 
   // Misc. functions

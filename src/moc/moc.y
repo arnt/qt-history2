@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#38 $
+** $Id: //depot/qt/main/src/moc/moc.y#39 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#39 $";
 #endif
 
 
@@ -494,14 +494,14 @@ obj_member_list:	  obj_member_list obj_member_area
 
 
 qt_access_specifier:      access_specifier      { tmpAccessPerm = $1; }
-                        | SIGNALS       { moc_err( "Missing access specifier"
-                                                   " before \"signals:\"." ); }
                         | SLOTS       { moc_err( "Missing access specifier"
                                                    " before \"slots:\"." ); }
                         ;
 
 obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
-			  qt_member_area
+			  slot_area
+                        | SIGNALS               { BEGIN QT_DEF; }
+                          ':'  opt_signal_declarations
 			| Q_OBJECT		{ if ( tmpAccessPerm )
                                 moc_warn("Q_OBJECT is not in the private"
                                         "  section of the class.\n"
@@ -510,7 +510,8 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
                                                   Q_OBJECTdetected = TRUE; }
 			;
 
-qt_member_area:	          SIGNALS ':' opt_signal_declarations
+slot_area:	          SIGNALS ':'        { moc_err( "Signals cannot "
+                                                 "have access specifiers" ); }
 			| SLOTS	  ':' opt_slot_declarations
 			| ':'            { if ( grammarDebug )
                                                   BEGIN QT_DEF;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#5 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#6 $
 **
 ** Definition of QTimer class
 **
@@ -29,7 +29,7 @@ public:
     void changeInterval( long msec );		// change timer interval
     void stop();				// stop timer
 
-private signals:
+signals:
     void timeout();				// timer expires
 
 private:

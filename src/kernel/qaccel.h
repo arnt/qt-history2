@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#5 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#6 $
 **
 ** Definition of QAccel class
 **
@@ -51,7 +51,7 @@ public:
     bool	disconnectItem( int id,
 				const QObject *receiver, const char *member );
 
-private signals:
+signals:
     void	activated( int id );		// key activated
     void	destroyed();			// accelerator destroyed
 
