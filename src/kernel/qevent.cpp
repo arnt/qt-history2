@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#44 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#44 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -511,15 +511,19 @@ void QEvent::peErrMsg()				// posted event error message
   it in the close event. In this case, calling QCloseEvent::accept() or
   QCloseEvent::ignore() makes no difference.
 
+  \warning Be careful.  The code below assumes that the widget was
+  created on the heap using the \c new operator.
+
   \code
     void MyWidget::closeEvent( QCloseEvent * )
     {
 	delete this;
     }
-  \endcode
+  \endcode  
 
-  QObject emits the \link QObject::destroyed()\endlink signal when it is
-  deleted.
+  QObject emits the \link QObject::destroyed() destroyed()\endlink signal
+  when it is deleted.  This is a useful signal if a widget needs to know
+  when another widget is deleted.
 
   \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
   QApplication::setMainWidget(), QApplication::quit()
