@@ -493,9 +493,9 @@ int QCoreApplication::exec()
 */
 void QCoreApplication::exit(int retcode)
 {
-    QEventLoop *eventLoop = self ? self->d->eventLoop : 0;
-    if (eventLoop)
-        eventLoop->exit(retcode);
+    QThreadData *data = QThreadData::current();
+    if (data && data->eventLoop)
+        data->eventLoop->exit(retcode);
 }
 
 /*****************************************************************************
