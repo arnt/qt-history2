@@ -564,6 +564,7 @@ static void loadXlfdEncoding( int encoding_id )
 
 	    if ( smooth_scalable ) {
 		style->smoothScalable = TRUE;
+		style->bitmapScalable = FALSE;
 		if ( style->pixelSizes ) {
 		    free( style->pixelSizes );
 		    style->pixelSizes = 0;
