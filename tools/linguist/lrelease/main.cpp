@@ -139,7 +139,7 @@ int main( int argc, char **argv )
             continue;
 
         QFile f( argv[i] );
-        if ( !f.open(IO_ReadOnly) ) {
+        if ( !f.open(QIODevice::ReadOnly) ) {
             fprintf( stderr,
                      "lrelease error: Cannot open file '%s': %s\n", argv[i],
                      strerror(errno) );

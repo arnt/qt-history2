@@ -337,7 +337,7 @@ void MetaTranslator::clear()
 bool MetaTranslator::load( const QString& filename )
 {
     QFile f( filename );
-    if ( !f.open(IO_ReadOnly) )
+    if ( !f.open(QIODevice::ReadOnly) )
         return FALSE;
 
     QTextStream t( &f );
@@ -362,7 +362,7 @@ bool MetaTranslator::load( const QString& filename )
 bool MetaTranslator::save( const QString& filename ) const
 {
     QFile f( filename );
-    if ( !f.open(IO_WriteOnly) )
+    if ( !f.open(QIODevice::WriteOnly) )
         return FALSE;
 
     QTextStream t( &f );

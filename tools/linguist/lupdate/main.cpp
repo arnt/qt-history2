@@ -119,7 +119,7 @@ int main( int argc, char **argv )
 
         if ( !metTsFlag ) {
             QFile f( argv[i] );
-            if ( !f.open(IO_ReadOnly) ) {
+            if ( !f.open(QIODevice::ReadOnly) ) {
                 fprintf( stderr, "lupdate error: Cannot open file '%s': %s\n",
                          argv[i], strerror(errno) );
                 return 1;

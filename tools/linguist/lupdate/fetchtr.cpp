@@ -777,7 +777,7 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
                  const char * /* defaultContext */, bool mustExist )
 {
     QFile f( fileName );
-    if ( !f.open(IO_ReadOnly) ) {
+    if ( !f.open(QIODevice::ReadOnly) ) {
         if ( mustExist )
             fprintf( stderr, "lupdate error: cannot open UI file '%s': %s\n",
                      fileName, strerror(errno) );

@@ -119,7 +119,7 @@ bool PhraseBook::load(const QString &filename)
 {
     fn = filename;
     QFile f(filename);
-    if (!f.open(IO_ReadOnly))
+    if (!f.open(QIODevice::ReadOnly))
         return false;
 
     QTextStream t(&f);
@@ -147,7 +147,7 @@ bool PhraseBook::load(const QString &filename)
 bool PhraseBook::save(const QString &filename) const
 {
     QFile f(filename);
-    if (!f.open(IO_WriteOnly))
+    if (!f.open(QIODevice::WriteOnly))
         return false;
 
     QTextStream t(&f);
