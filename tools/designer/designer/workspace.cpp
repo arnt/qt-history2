@@ -94,7 +94,7 @@ static const char * const file_xpm[]={
     "ccccccccccccc###"
 };
 
-static char * const object_xpm[] = {
+static const char * const object_xpm[] = {
     "16 16 35 1",
     "       c None",
     ".      c #004000",
