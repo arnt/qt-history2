@@ -16,23 +16,25 @@
     any number of Qt widgets as ActiveX controls.
     \endlist
 
-    \seciont1 ActiveQt Modules
+    \section1 ActiveQt Modules
 
     The framework consists of two modules.
 
     \section2 QAxContainer
 
-    The \link qaxcontainer.html QAxContainer module \endlink is a 
-    library implementing a QWidget subclass, \l QAxWidget, that acts 
-    as a container for ActiveX controls. If the library is built 
-    against a shared Qt library it integrates as a widget plugin into 
-    \link designer-manual.book Qt Designer\endlink. This module
-    provides the QAxBase, QAxObject and QAxWidget classes.
+    The \link qaxcontainer.html QAxContainer module \endlink is a static
+    library implementing QObject and QWidget subclasses, \l QAxObject and
+    \l QAxWidget, that act as a containers for COM objects and ActiveX 
+    controls.
+
+    If built against a shared Qt library QAxWidget integrates as a widget 
+    plugin into \link designer-manual.book Qt Designer\endlink.
+    This module provides the QAxBase, QAxObject and QAxWidget classes.
 
     \link qaxcontainer-examples.html Examples \endlink include a
-    Web Browser application embedding Internet Explorer, and an
-    AddressBook example synchronizing the contents with Microsoft
-    Outlook.    
+    web browser application embedding Microsoft Internet Explorer, and an
+    address book example synchronizing the contents with Microsoft
+    Outlook.
 
     \section2 QAxServer
 
@@ -49,8 +51,8 @@
     \section1 Additional Information
 
     \list
-    \i \link activeqt-examples.html Examples\endlink.
-    \i \link activeqt-tools.html Tools\endlink.
+    \i \link activeqt-tools.html ActiveQt Tools\endlink.
+    \i \link activeqt-examples.html ActiveQt Examples\endlink.
     \endlist
 */
 
@@ -951,7 +953,7 @@
     If a single license key for the control is not sufficient (ie. you want 
     differnet developers to receive different license keys) you can specify an 
     empty key to indicate that the control requires a license, and ### reimplement 
-    a function ### to verify that a license exists on the system (ie. through a 
+    a function to verify that a license exists on the system (ie. through a 
     license file).
 
     \section2 More Interfaces
