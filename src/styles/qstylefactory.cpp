@@ -43,7 +43,7 @@
 #include "qpluginmanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
-// #include "qcdestyle.h"
+#include "qcdestyle.h"
 // #include "qmotifplusstyle.h"
 // #include "qplatinumstyle.h"
 // #include "qsgistyle.h"
@@ -120,12 +120,12 @@ QStyle *QStyleFactory::create( const QString& s )
         return new QMotifStyle;
     else
 #endif
-#if 0
 #ifndef QT_NO_STYLE_CDE
     if ( style == "cde" )
         return new QCDEStyle;
     else
 #endif
+#if 0
 #ifndef QT_NO_STYLE_MOTIFPLUS
     if ( style == "motifplus" )
         return new QMotifPlusStyle;

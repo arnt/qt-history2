@@ -55,23 +55,27 @@ class Q_EXPORT_STYLE_CDE QCDEStyle : public QMotifStyle
 {
     Q_OBJECT
 public:
+
     QCDEStyle( bool useHighlightCols = FALSE );
     virtual ~QCDEStyle();
-    int defaultFrameWidth() const;
 
-    void drawArrow( QPainter *p, ArrowType type, bool down,
-                    int x, int y, int w, int h,
-                    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
+    int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
 
-    void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
-                       int state, bool down = FALSE, bool enabled = TRUE );
+    void drawControl( ControlElement element,
+		      QPainter *p,
+		      const QWidget *widget,
+		      const QRect &r,
+		      const QColorGroup &cg,
+		      SFlags how = Style_Default,
+		      void **data = 0 ) const;
 
-    void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
-                                 bool on, bool down = FALSE, bool enabled = TRUE );
-    int  menuBarFrameWidth() const;
-    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-                          QMenuItem* mi, QColorGroup& g, bool active,
-                          bool down, bool hasFocus );
+    void drawPrimitive( PrimitiveElement pe,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			SFlags flags = Style_Default,
+			void **data = 0 ) const;
+
 };
 
 #endif // QT_NO_STYLE_CDE

@@ -6,8 +6,8 @@ styles {
 		  $$STYLES_H/qcommonstyle.h \
 		  $$STYLES_H/qwindowsstyle.h \
 		  $$STYLES_H/qplatinumstyle.h \
-		  $$STYLES_H/qmotifstyle.h
-#		  $$STYLES_H/qcdestyle.h \
+		  $$STYLES_H/qmotifstyle.h \
+		  $$STYLES_H/qcdestyle.h
 #		  $$STYLES_H/qmotifplusstyle.h \
 #		  $$STYLES_H/qinterlacestyle.h \
 #		  $$STYLES_H/qsgistyle.h \
@@ -17,8 +17,8 @@ styles {
 		  $$STYLES_CPP/qcommonstyle.cpp \
 		  $$STYLES_CPP/qwindowsstyle.cpp \
 		  $$STYLES_CPP/qplatinumstyle.cpp \
-		  $$STYLES_CPP/qmotifstyle.cpp
-#		  $$STYLES_CPP/qcdestyle.cpp \
+		  $$STYLES_CPP/qmotifstyle.cpp \
+		  $$STYLES_CPP/qcdestyle.cpp
 #		  $$STYLES_CPP/qmotifplusstyle.cpp \
 #		  $$STYLES_CPP/qinterlacestyle.cpp \
 #		  $$STYLES_CPP/qsgistyle.cpp \
