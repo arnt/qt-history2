@@ -231,24 +231,28 @@ static const char * const ps_header[] = {
 "    dup 2 index length ge { exit } if",
 "    1 rB",
 "    1 eq {", // compressed
+/* Warning: if you change the method here, change the table in compress()! */
 "      3 rB", // string pos bits
-"      dup 4 ge {",
-"        dup rB", // string pos bits extra
+"      dup 3 ge {",
+"        1 add dup rB", // string pos bits extra
 "        1 index 5 ge {",
 "          1 index 6 ge {",
 "            1 index 7 ge {",
+"              1 index 8 ge {",
+"                128 add",
+"              } if",
 "              64 add",
 "            } if",
 "            32 add",
 "          } if",
 "          16 add",
 "        } if",
-"        4 add",
+"        3 add",
 "       exch pop",
 "      } if",
-"      1 add",
+"      3 add",
 "      ", // string pos length
-"      exch 10 rB 1 add",
+"      exch 11 rB 1 add",
 "      ", // string length pos dist
 "      {",
 "       dup 3 index lt {",
@@ -5658,9 +5662,10 @@ static void ps_r7( QTextStream& stream, const char * s, int l )
 
 
 static const int quoteSize = 3; // 1-8 pixels
-static const int maxQuoteLength = 4+16+32+64+128; // magic extended quote
-static const int quoteReach = 10; // ... 1-1024 pixels back
-static const int tableSize = 1024; // 2 ** quoteReach;
+static const int maxQuoteLength = 4+16+32+64+128+256; // magic extended quote
+static const int quoteReach = 11; // ... 1-1024 pixels back
+static const int tableSize = 2048; // 2 ** quoteReach;
+static const int numAttempts = 256;
 
 static const int hashSize = 29;
 
@@ -5691,8 +5696,18 @@ static void emitBits( QByteArray & out, int & byte, int & bit,
     }
 }
 
+//#define DEBUG_COMPRESS
 
 QByteArray compress( const QImage & image, bool gray ) {
+#ifdef DEBUG_COMPRESS
+    int sizeUncompressed[11];
+    for( int i = 0; i < 11; i++ )
+	sizeUncompressed[i] = 0;
+    int sizeCompressed[11];
+    for( int i = 0; i < 11; i++ )
+	sizeCompressed[i] = 0;
+#endif
+
     int width = image.width();
     int height = image.height();
     int depth = image.depth();
@@ -5708,7 +5723,20 @@ QByteArray compress( const QImage & image, bool gray ) {
     unsigned char *pixel = new unsigned char[size+1];
     int i = 0;
     if ( depth == 1 ) {
-	// XXXXXXXXXX
+	QImage::Endian bitOrder = image.bitOrder();
+	memset( pixel, 0xff, size );
+        for( int y=0; y < height; y++ ) {
+            uchar * s = image.scanLine( y );
+	    for( int x=0; x < width; x++ ) {
+		// need to copy bit for bit...
+		bool b = ( bitOrder == QImage::LittleEndian ) ?
+			 (*(s + (x >> 3)) >> (x & 7)) & 1 :
+			  (*(s + (x >> 3)) << (x & 7)) & 0x80 ;
+		if ( b )
+		    pixel[i >> 3] ^= (0x80 >> ( i & 7 ));
+		i++;
+	    }
+        }
     } else if ( depth == 8 ) {
         for( int y=0; y < height; y++ ) {
             uchar * s = image.scanLine( y );
@@ -5802,7 +5830,7 @@ QByteArray compress( const QImage & image, bool gray ) {
             while( start != None && end != None &&
                    ( pixel[start] != pixel[index] ||
                      pixel[end] != pixel[index+bestLength] ) ) {
-                if ( attempts++ > 128 ) {
+                if ( attempts++ > numAttempts ) {
                     start = None;
                 } else if ( pixel[end] % hashSize ==
                             pixel[index+bestLength] % hashSize ) {
@@ -5879,7 +5907,7 @@ QByteArray compress( const QImage & image, bool gray ) {
                        count each string compare extra, since they're
                        so expensive. */
                     attempts += 2;
-                    if ( attempts > 128 ) {
+                    if ( attempts > numAttempts ) {
                         start = None;
                     } else if ( pastPixel[start%tableSize] + bestLength <
                                 pastPixel[end%tableSize] ) {
@@ -5898,6 +5926,10 @@ QByteArray compress( const QImage & image, bool gray ) {
                     end = None;
             }
         }
+	/* backreferences to 1 byte of data are actually more costly than 
+         emitting the data directly, 2 bytes don't save much. */
+	if ( bestCandidate != None && bestLength < 3 )
+	    bestCandidate = None;
         /* at this point, bestCandidate is a candidate of bestLength
          length, or else it's None. if we have such a candidate, or
          we're at the end, we have to emit all unquoted data. */
@@ -5905,6 +5937,14 @@ QByteArray compress( const QImage & image, bool gray ) {
             /* we need a double loop, because there's a maximum length
                on the "unquoted data" section. */
             while( emittedUntil < index ) {
+#ifdef DEBUG_COMPRESS
+		int x = 0;
+		int bl = emittedUntil - index;
+		while ( (bl /= 2) )
+		    x++;
+		if ( x > 10 ) x = 10;
+		sizeUncompressed[x]++;
+#endif
                 int l = QMIN( 8, index - emittedUntil );
                 emitBits( out, outOffset, outBit,
                           1, 0 );
@@ -5919,37 +5959,51 @@ QByteArray compress( const QImage & image, bool gray ) {
         }
         /* if we have some quoted data to output, do it. */
         if ( bestCandidate != None ) {
+#ifdef DEBUG_COMPRESS
+	    int x = 0;
+	    int bl = bestLength;
+	    while ( (bl /= 2) )
+		x++;
+	    if ( x > 10 ) x = 10;
+	    sizeCompressed[x]++;
+#endif
             emitBits( out, outOffset, outBit,
                       1, 1 );
-            if ( bestLength < 5 ) {
+	    int l = bestLength - 3;
+	    const struct off_len {
+		int off;
+		int bits;
+	    } ol_table [] = {
+		/* Warning: if you change the table here, change /uc in the PS code! */
+		{ 3, 0/*dummy*/ },
+		{ 16, 4 },
+		{ 32, 5 },
+		{ 64, 6 },
+		{ 128, 7 },
+		{ /*256*/ 0xffffffff, 8 },
+	    };
+
+            if ( l < ol_table[0].off ) {
                 emitBits( out, outOffset, outBit,
-                          quoteSize, bestLength - 1 );
-            } else if ( bestLength - 4 <= 16 ) {
+                          quoteSize, l );
+	    } else {
+		const off_len *ol = ol_table;
+		l -= ol->off;
+		ol++;
+		while ( l >= ol->off ) {
+		    l -= ol->off;
+		    ol++;
+		}
                 emitBits( out, outOffset, outBit,
-                          quoteSize, 4 );
+                          quoteSize, ol->bits-1 );
                 emitBits( out, outOffset, outBit,
-                          4, bestLength - 1 - 4 );
-            } else if ( bestLength - 4 - 16 <= 32 ) {
-                emitBits( out, outOffset, outBit,
-                          quoteSize, 5 );
-                emitBits( out, outOffset, outBit,
-                          5, bestLength - 1 - 4 - 16 );
-            } else if ( bestLength - 4 - 16 - 32 <= 64 ) {
-                emitBits( out, outOffset, outBit,
-                          quoteSize, 6 );
-                emitBits( out, outOffset, outBit,
-                          6, bestLength - 1 - 4 - 16 - 32 );
-            } else /* if ( bestLength - 4 - 16 - 32 - 64 <= 128 ) */ {
-                emitBits( out, outOffset, outBit,
-                          quoteSize, 7 );
-                emitBits( out, outOffset, outBit,
-                          7, bestLength - 1 - 4 - 16 - 32 - 64 );
-            }
-            emitBits( out, outOffset, outBit,
-                      quoteReach, index - bestCandidate - 1 );
-            emittedUntil += bestLength;
-        }
-        index++;
+                          ol->bits, l );
+	    }
+	    emitBits( out, outOffset, outBit,
+		      quoteReach, index - bestCandidate - 1 );
+	    emittedUntil += bestLength;
+	}
+	index++;
     }
     /* we've output all the data; time to clean up and finish off the
        last characters. */
@@ -5967,6 +6021,23 @@ QByteArray compress( const QImage & image, bool gray ) {
         i++;
     }
     delete [] pixel;
+
+#ifdef DEBUG_COMPRESS
+    qDebug( "------------- image compression statistics ----------------" );
+    qDebug( "Size dist of uncompressed blocks:" );
+    qDebug( "\t%d\t%d\t%d\t%d\t%d\t%d\n", sizeUncompressed[0], sizeUncompressed[1],
+	    sizeUncompressed[2], sizeUncompressed[3], sizeUncompressed[4], sizeUncompressed[5]);
+    qDebug( "\t%d\t%d\t%d\t%d\t%d\n", sizeUncompressed[6], sizeUncompressed[7],
+	    sizeUncompressed[8], sizeUncompressed[9], sizeUncompressed[10] );
+    qDebug( "Size dist of compressed blocks:" );
+    qDebug( "\t%d\t%d\t%d\t%d\t%d\t%d\n", sizeCompressed[0], sizeCompressed[1],
+	    sizeCompressed[2], sizeCompressed[3], sizeCompressed[4], sizeCompressed[5]);
+    qDebug( "\t%d\t%d\t%d\t%d\t%d\n", sizeCompressed[6], sizeCompressed[7],
+	    sizeCompressed[8], sizeCompressed[9], sizeCompressed[10] );
+    qDebug( "===> total compression ratio %d/%d = %f", outOffset, size, (float)outOffset/(float)size );
+    qDebug( "-----------------------------------------------------------" );
+#endif
+    
     return out;
 }
 
@@ -6043,11 +6114,14 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
     if ( img.isNull() )
         return;
 
-    if ( width * height > 21830 ) { // 65535/3, tolerance for broken printers
+    bool gray = (printer->colorMode() == QPrinter::GrayScale) ||
+		img.allGray();
+    int splitSize = 21830 * (gray ? 3 : 1 );
+    if ( width * height > splitSize ) { // 65535/3, tolerance for broken printers
         int images, subheight;
-        images = ( width * height + 21829 ) / 21830;
+        images = ( width * height + splitSize - 1 ) / splitSize;
         subheight = ( height + images-1 ) / images;
-        while ( subheight * width > 21830 ) {
+        while ( subheight * width > splitSize ) {
             images++;
             subheight = ( height + images-1 ) / images;
         }
@@ -6058,12 +6132,18 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
             suby += subheight;
         }
     } else {
-        bool gray = (printer->colorMode() == QPrinter::GrayScale) ||
-                    img.allGray();
 
         if ( x || y )
             pageStream << x << " " << y << " TR\n";
-        if ( gray ) {
+	if ( img.depth() == 1 ) {
+            pageStream << "/sl " << (width*height+7)/8 << " string d\n";
+            pageStream << "sl uc\n";
+            QByteArray out;
+            out = ::compress( img, TRUE );
+            ps_r7( pageStream, out, out.size() );
+            pageStream << "pop\n";
+            pageStream << width << ' ' << height << " 1[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}image\n";
+	} else if ( gray ) {
             pageStream << "/sl " << width*height << " string d\n";
             pageStream << "sl uc\n";
             QByteArray out;
