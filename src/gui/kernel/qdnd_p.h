@@ -46,6 +46,11 @@ public:
     QStringList formats() const;
 protected:
     QVariant retrieveData(const QString &mimetype, QVariant::Type) const;
+
+#if defined(Q_WS_WIN)
+public:
+    LPDATAOBJECT currentDataObject;
+#endif
 };
 
 class Q_GUI_EXPORT QDragManager: public QObject {
@@ -70,14 +75,18 @@ public:
     void drop();
     void updatePixmap();
     QWidget *source() { return object ? object->d_func()->source : 0; }
-
     QDragPrivate *dragPrivate() { return object ? object->d_func() : 0; }
+    void setCurrentAction(QDrag::DropAction action);
+    void setCurrentTarget(QWidget *target);
     static QDragManager *self();
-    QDrag::DropAction defaultAction() const;
+    QDrag::DropAction defaultAction(QDrag::DropActions possibleActions) const;
 private:
     Q_DISABLE_COPY(QDragManager)
 
     QDrag *object;
+    QWidget *currentTarget;
+    QDrag::DropAction currentAction;
+
 #if defined(Q_WS_QWS)
     void updateMode(Qt::KeyboardModifiers newstate);  // #### get rid of me
 #endif

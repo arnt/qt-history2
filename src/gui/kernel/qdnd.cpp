@@ -186,6 +186,63 @@ static const char * const link_xpm[] = {
 
 #ifndef QT_NO_DRAGANDDROP
 
+//#define QDND_DEBUG
+
+#ifdef QDND_DEBUG
+QString dragActionsToString(QDrag::DropActions actions)
+{
+    QString str;
+    if (actions == QDrag::IgnoreAction) {
+        if (!str.isEmpty())
+            str += " | ";
+        str += "IgnoreAction";
+    }
+    if (actions & QDrag::LinkAction) {
+        if (!str.isEmpty())
+            str += " | ";
+        str += "LinkAction";
+    }
+    if (actions & QDrag::CopyAction) {
+        if (!str.isEmpty())
+            str += " | ";
+        str += "CopyAction";
+    }
+    if (actions & QDrag::MoveAction) {
+        if (!str.isEmpty())
+            str += " | ";
+        str += "MoveAction";
+    }
+    if (actions & QDrag::TargetMoveAction ) {
+        if (!str.isEmpty())
+            str += " | ";
+        str += "TargetMoveAction";
+    }
+    return str;
+}
+
+QString KeyboardModifiersToString(Qt::KeyboardModifiers moderfies)
+{
+    QString str;
+    if (moderfies & Qt::ControlButton) {
+        if (!str.isEmpty())
+            str += " | ";
+        str += Qt::ControlButton;
+    }
+    if (moderfies & Qt::AltButton) {
+        if (!str.isEmpty())
+            str += " | ";
+        str += Qt::AltButton;
+    }
+    if (moderfies & Qt::ShiftButton) {
+        if (!str.isEmpty())
+            str += " | ";
+        str += Qt::ShiftButton;
+    }
+    return str;
+}
+#endif
+
+
 // the universe's only drag manager
 QDragManager *QDragManager::instance = 0;
 
@@ -226,12 +283,32 @@ QDragManager *QDragManager::self()
     return instance;
 }
 
+void QDragManager::setCurrentAction(QDrag::DropAction action)
+{
+    if (object && currentAction != action) {
+        currentAction = action;
+        emit object->actionChanged(currentAction);
+    }
+}
 
-QDrag::DropAction QDragManager::defaultAction() const
+void QDragManager::setCurrentTarget(QWidget *target)
+{
+    if (object && currentTarget != target) {
+        currentTarget = target;
+        emit object->targetChanged(currentTarget);
+    }
+}
+
+QDrag::DropAction QDragManager::defaultAction(QDrag::DropActions possibleActions) const
 {
     QDrag::DropAction defaultAction = QDrag::CopyAction;
 
+    //### on windows these are not updated as part of the drag ... need to put a hook some where for this
     Qt::KeyboardModifiers moderfies = QApplication::keyboardModifiers();
+#ifdef QDND_DEBUG
+    qDebug("QDragManager::defaultAction(QDrag::DropActions possibleActions)");
+    qDebug("keyboard moderfies : %s", KeyboardModifiersToString(moderfies).latin1());
+#endif
 
     if (moderfies & Qt::ControlButton && moderfies & Qt::ShiftButton)
         defaultAction = QDrag::LinkAction;
@@ -242,9 +319,21 @@ QDrag::DropAction QDragManager::defaultAction() const
     else if (moderfies & Qt::AltButton)
         defaultAction = QDrag::LinkAction;
 
+    // if the object is set take the list of possibles from it
+    if (object)
+        possibleActions = object->d_func()->possible_actions;
+
+#ifdef QDND_DEBUG
+    qDebug("possible actions : %s", dragActionsToString(possibleActions).latin1());
+#endif
+
     // Check if the action determined is allowed
-    if (!object || !(object->d_func()->possible_actions & defaultAction))
+    if (!(possibleActions & defaultAction))
         defaultAction = QDrag::CopyAction;
+
+#ifdef QDND_DEBUG
+    qDebug("defualt action : %s", dragActionsToString(defaultAction).latin1());
+#endif
 
     return defaultAction;
 }

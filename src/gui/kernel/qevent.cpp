@@ -1522,7 +1522,7 @@ QDropEvent::QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMim
       drop_action(QDrag::CopyAction),
       mdata(data)
 {
-    default_action = QDragManager::self()->defaultAction();
+    default_action = QDragManager::self()->defaultAction(act);
     ignore();
 }
 

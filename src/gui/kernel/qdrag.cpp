@@ -133,7 +133,8 @@ QWidget *QDrag::source() const
 */
 QWidget *QDrag::target() const
 {
-    return 0; // ########### d->target;
+    Q_D(const QDrag);
+    return d->target;
 }
 
 /*!
