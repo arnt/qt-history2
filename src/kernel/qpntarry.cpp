@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#6 $
 **
 ** Implementation of QPointArray class
 **
@@ -14,6 +14,7 @@
 #include "qrect.h"
 #include "qbitarry.h"
 #include "qdstream.h"
+#include <stdarg.h>
 #if !defined(_WS_X11_)
 #include <math.h>
 #else
@@ -21,7 +22,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#6 $";
 #endif
 
 
@@ -31,16 +32,15 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#5 $";
 
 QPointArray::QPointArray( const QRect &r )
 {
-    resize( 4 );
-    setPoint( 0, r.left(),  r.top() );
-    setPoint( 1, r.right(), r.top() );
-    setPoint( 2, r.right(), r.bottom() );
-    setPoint( 3, r.left(),  r.bottom() );
+    setPoints( 4, r.left(),  r.top(),
+	          r.right(), r.top(),
+	       	  r.right(), r.bottom(),
+	          r.left(),  r.bottom() );
 }
 
-QPointArray::QPointArray( const QCOOT *points, int nPoints )
+QPointArray::QPointArray( int nPoints, const QCOOT *points )
 {
-    setPoints( points, nPoints );
+    setPoints( nPoints, points );
 }
 
 
@@ -84,9 +84,9 @@ void QPointArray::setPoint( uint i, int x, int y )
     QArrayM(QPointData)::at( i ) = p;
 }
 
-bool QPointArray::setPoints( const QCOOT *points, int nPoints )
+bool QPointArray::setPoints( int nPoints, const QCOOT *points )
 {
-    if ( !resize( nPoints ) )			// allocate space for points
+    if ( !resize(nPoints) )
 	return FALSE;
     int i = 0;
     while ( nPoints-- ) {			// make array of points
@@ -96,6 +96,64 @@ bool QPointArray::setPoints( const QCOOT *points, int nPoints )
     }
     return TRUE;
 }
+
+bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
+			     ... )
+{
+    va_list ap;
+    if ( !resize(nPoints) )
+	return FALSE;
+    setPoint( 0, firstx, firsty );		// set first point
+    int i = 1, x, y;
+    nPoints--;
+    va_start( ap, firsty );
+    while ( nPoints-- ) {
+	x = va_arg( ap, int );
+	y = va_arg( ap, int );
+	setPoint( i++, x, y );
+    }
+    va_end( ap );
+    return TRUE;
+}
+
+bool QPointArray::putPoints( int index, int nPoints, const QCOOT *points )
+{
+    if ( index + nPoints > size() ) {		// extend array
+	if ( !resize( index + nPoints ) )
+	    return FALSE;
+    }
+    int i = index;
+    while ( nPoints-- ) {			// make array of points
+	setPoint( i++, *points, *(points+1) );
+	points++;
+	points++;
+    }
+    return TRUE;
+}
+
+bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
+			     ... )
+{
+    va_list ap;
+    if ( index + nPoints > size() ) {		// extend array
+	if ( !resize( index + nPoints ) )
+	    return FALSE;
+    }
+    if ( nPoints <= 0 )
+	return TRUE;
+    setPoint( index, firstx, firsty );		// set first point
+    int i = index + 1, x, y;
+    nPoints--;
+    va_start( ap, firsty );
+    while ( nPoints-- ) {
+	x = va_arg( ap, int );
+	y = va_arg( ap, int );
+	setPoint( i++, x, y );
+    }
+    va_end( ap );
+    return TRUE;
+}
+
 
 QPoint QPointArray::at( uint i ) const		// get i'th point in array
 {
