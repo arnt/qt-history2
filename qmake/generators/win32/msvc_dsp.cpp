@@ -313,8 +313,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			build.append("# End Custom Build\n\n");
 
 			t << "USERDEP_" << base << "=";
-			for ( QStringList::Iterator it2 = list.begin(); it2 != list.end(); ++it2 ) {
-			    t << "\"" << (*it2) << "\" ";
+			QStringList::Iterator it2 = list.begin();
+			while ( it2 != list.end() ) {
+			    t << "\"" << (*it2) << "\"";
+			    it2++;
+			    if ( it2 != list.end() )
+				t << "\\\n";
 			}
 			t << endl << endl;
 
