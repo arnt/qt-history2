@@ -1848,7 +1848,20 @@ void QAbstractItemView::startDrag()
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(model()->mimeData(indexes));
-        drag->start();
+        if (drag->start() == QDrag::MoveAction) {
+            // remove selected rows (anything else is will just be copied)
+            const QItemSelection selection = selectionModel()->selection();
+            QList<QItemSelectionRange>::const_iterator it = selection.begin();
+            for (; it != selection.end(); ++it) {
+                QModelIndex parent = (*it).parent();
+                if ((*it).left() != 0)
+                    continue;
+                if ((*it).right() != (model()->columnCount(parent) - 1))
+                    continue;
+                //qDebug() << "removing selection" << (*it).top();
+                model()->removeRows((*it).top(), parent, (*it).bottom() - (*it).top());
+            }
+        }
     }
 }
 
