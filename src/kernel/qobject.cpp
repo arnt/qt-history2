@@ -2219,7 +2219,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     }
 
     QVariant::Type type = QVariant::nameToType( p->type() );
-    if ( !v.canCast( type ) )
+    if ( !(type == QVariant::Invalid && !qstrcmp( p->type(), "QVariant" )) && !v.canCast( type ) )
 	return FALSE;
     return qt_property( id, 0, &v );
 }
