@@ -65,6 +65,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+#if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
+#include <qlibrary.h>
+#endif
+
 enum { Success = 's', Unavail = 'u', NotFound = 'n', TryAgain = 't' };
 enum { Continue = 'c', Return = 'r' };
 
@@ -450,22 +454,26 @@ static int retrieveNisPrinters( QListView * printers )
     char *domain;
     int err;
 
-    err = yp_get_default_domain( &domain );
-    if ( err == 0 ) {
-	ypall_callback cb;
-	// wild cast to support K&R-style system headers
-	(int (*&)(int, char *, int, char *, int, char *)) cb.foreach =
+    QLibrary lib( "nsl" );
+    typedef int (*ypGetDefaultDomain)(char **); 
+    ypGetDefaultDomain _ypGetDefaultDomain = (ypGetDefaultDomain)lib.resolve( "yp_get_default_domain" ); 
+    typedef int (*ypAll)(const char *, const char *, const struct ypall_callback *);
+    ypAll _ypAll = (ypAll)lib.resolve( "yp_all" );
+    
+    if ( _ypGetDefaultDomain && _ypAll ) {
+	err = _ypGetDefaultDomain( &domain );
+	if ( err == 0 ) {
+	    ypall_callback cb;
+	    // wild cast to support K&R-style system headers
+	    (int (*&)(int, char *, int, char *, int, char *)) cb.foreach =
 		foreach;
-	cb.data = (char *) printers;
-	err = yp_all( domain, printersConfByname, &cb );
+	    cb.data = (char *) printers;
+	    err = _ypAll( domain, printersConfByname, &cb );
+	}
+	switch ( !err )
+	    return Success;
     }
-
-    switch ( err ) {
-    case 0:
-	return Success;
-    default:
-	return Unavail;
-    }
+    return Unavail;
 }
 
 #endif // QT_NO_NIS
@@ -747,7 +755,6 @@ static void parseQconfig( QListView * printers )
 
 #ifndef QT_NO_CUPS
 #include <cups/cups.h>
-#include <qlibrary.h>
 
 static char * parseCupsOutput( QListView * printers )
 {

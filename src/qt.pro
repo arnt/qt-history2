@@ -113,9 +113,6 @@ thread {
 
 !cups:DEFINES += QT_NO_CUPS
 
-nis {
-	LIBS += -lnsl
-}
 !nis:DEFINES += QT_NO_NIS
 
 largefile {
