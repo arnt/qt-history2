@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.2 1997/09/26 17:38:23 warwick Exp $
+** $Id: index.doc,v 1.3 1997/10/06 12:56:48 agulbra Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.2 1997/09/26 17:38:23 warwick Exp $";
+static char ident[] = "$Id: index.doc,v 1.3 1997/10/06 12:56:48 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -34,14 +34,14 @@ The API of the library is simple.  An application requiring additional
 image formats should either call the function:
 
 <ul>
- <li> <a href=#all><b>qInitImageIO</b></a> ()
+ <li> <a href="#all"><b>qInitImageIO</b></a> ()
 </ul>
 
 <em>or</em> call a selection of the format-specific functions:
 
 <ul>
- <li> <a href=#jpeg><b>qInitJpegIO</b></a> ()
- <li> <a href=#png><b>qInitPngIO</b></a> ()
+ <li> <a href="#jpeg"><b>qInitJpegIO</b></a> ()
+ <li> <a href="#png"><b>qInitPngIO</b></a> ()
 </ul>
 
 
@@ -55,7 +55,7 @@ image formats should either call the function:
   #include &lt;qimgio.h&gt;
 </pre>
 
-  Initialize <em>all</em> image I/O extensions.  Note, that future versions
+  Initialize <em>all</em> image I/O extensions.  Note that future versions
   of this extension may support more formats than the version your application
   was originally linked with.  If you link dynamically with <tt>libqimgio</tt>,
   then
@@ -78,10 +78,10 @@ image formats should either call the function:
    <li> Requires <tt>libjpeg.so.6</tt>
     <ul>
 	<li> Tested with <tt>libjpeg.so.6.0.1</tt>.
-	<li> See <a href=ftp://ftp.uu.net/graphics/jpeg>ftp.uu.net</a> for the official sources.
-	<li> Zipped package available <a href=ftp://ftp.simtel.net/pub/simtelnet/msdos/graphics/jpegsr6a.zip>on Simtel</a>.
-	<li> See <a href=http://filez.triad-interactive.com/ftpsearch?query=jpegsrc.v6a.tar.gz&doit=Search>these FTP Search results</a> for other sources.
-	<li> See <a href=http://www.faqs.org/faqs/jpeg-faq/>the JPEG FAQ</a> for more information.
+	<li> See <a href="ftp://ftp.uu.net/graphics/jpeg/">ftp.uu.net</a> for the official sources.
+	<li> Zipped package available <a href="ftp://ftp.simtel.net/pub/simtelnet/msdos/graphics/jpegsr6a.zip">on Simtel</a>.
+	<li> See <a href="http://filez.triad-interactive.com/ftpsearch?query=jpegsrc.v6a.tar.gz&doit=Search">these FTP Search results</a> for other sources.
+	<li> See <a href="http://www.faqs.org/faqs/jpeg-faq/">the JPEG FAQ</a> for more information.
     </ul>
  </ul>
 
@@ -97,12 +97,12 @@ image formats should either call the function:
    <li> Requires <tt>libpng.so.0</tt> and <tt>libz.so.1</tt>
 	<ul>
 	    <li>Tested with <tt>libpng.so.0.96</tt> and <tt>libz.so.1.0.4</tt>.
-	    <li>Free PNG code available from <a href=http://www.wco.com/~png/pngcode.html>The PNG Development Group</a>
+	    <li>Free PNG code available from <a href="http://www.wco.com/~png/pngcode.html">The PNG Development Group</a>
 	    <li>Free ZLib code available in
-		<a href=http://www.cdrom.com/pub/infozip/zlib/zlib-1.0.4.tar.gz>a Gzipped Tar file</a>, or
-		<a href=http://www.cdrom.com/pub/infozip/zlib/zlib104.zip>a Zip file</a>.
-	    <li>See <a href=http://www.wco.com/~png/>The PNG Home Page</a>
-		and <a href=http://www.cdrom.com/pub/infozip/zlib/>The ZLib Home Page</a>
+		<a href="http://www.cdrom.com/pub/infozip/zlib/zlib-1.0.4.tar.gz">a Gzipped Tar file</a>, or
+		<a href="http://www.cdrom.com/pub/infozip/zlib/zlib104.zip">a Zip file</a>.
+	    <li>See <a href="http://www.wco.com/~png/">The PNG Home Page</a>
+		and <a href="http://www.cdrom.com/pub/infozip/zlib/">The ZLib Home Page</a>
 		for more information.
 	</ul>
  </ul>
