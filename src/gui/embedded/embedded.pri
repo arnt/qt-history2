@@ -89,32 +89,32 @@ embedded {
 #
 # Decorations
 #
-    contains( decorations,  ) {
+    contains( decorations, beos ) {
     	HEADERS += embedded/qdecorationbeos_qws.h  
     	SOURCES += embedded/qdecorationbeos_qws.cpp
     }
     
-    contains( decorations,  ) {
+    contains( decorations, default ) {
     	HEADERS += embedded/qdecorationdefault_qws.h  
     	SOURCES += embedded/qdecorationdefault_qws.cpp
     }
     
-    contains( decorations,  ) {
+    contains( decorations, hydro ) {
     	HEADERS += embedded/qdecorationhydro_qws.h  
     	SOURCES += embedded/qdecorationhydro_qws.cpp
     }
     
-    contains( decorations,  ) {
+    contains( decorations, kde2 ) {
     	HEADERS += embedded/qdecorationkde2_qws.h  
     	SOURCES += embedded/qdecorationkde2_qws.cpp
     }
     
-    contains( decorations,  ) {
+    contains( decorations, kde ) {
     	HEADERS += embedded/qdecorationkde_qws.h  
     	SOURCES += embedded/qdecorationkde_qws.cpp
     }
     
-    contains( decorations,  ) {
+    contains( decorations, windows ) {
     	HEADERS += embedded/qdecorationwindows_qws.h  
     	SOURCES += embedded/qdecorationwindows_qws.cpp
     }
