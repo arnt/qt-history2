@@ -16,6 +16,16 @@ FUNKSJONSENDRINGER
 - QTableView const: cellWidth, cellHeight, totalWidth,  totalHeight, .....
 - QComboBox::activated() rename to selected()
 
+> There doesn't seem to be an easy way to get a pointer to the active page
+> from a QTabDialog object.  There should be some function like:
+> 
+> QWidget* QTabDialog::activePage()
+> {
+> }
+Also, the stuff with the buttons should be redesigned, or at least
+there should be a class which does not impose so many design choices
+on the users. And the pointers to the buttons should be available
+(protected).
 
 AKSESSENDRINGER
 ---------------
