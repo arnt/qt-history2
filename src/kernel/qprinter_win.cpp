@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#18 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#18 $");
 
 
 // QPrinter states
@@ -104,7 +104,7 @@ bool QPrinter::setup( QWidget *parent )
 }
 
 
-bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
+bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
 {
     if ( c ==  PDC_BEGIN ) {			// begin; start printing
 	bool ok = state == PST_IDLE;
@@ -127,11 +127,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		hdc = 0;
 	    }
 	    state = PST_ERROR;
-	}
-	else
+	} else {
 	    state = PST_ACTIVE;
-    }
-    else if ( c == PDC_END ) {
+	}
+    } else if ( c == PDC_END ) {
 	if ( hdc ) {
 	    EndPage( hdc );			// end; printing done
 	    EndDoc( hdc );
@@ -139,15 +138,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    hdc = 0;
 	}
 	state = PST_IDLE;
-    }
-    else {					// all other commands...
+    } else {					// all other commands...
 	if ( state != PST_ACTIVE )		// aborted or error
 	    return FALSE;
 	ASSERT( hdc != 0 );
-	if ( c == PDC_DRAWPIXMAP ) {		// special attention required
+	if ( c == PDC_DRAWPIXMAP ) {		// can't bitblt pixmaps
 	    QPoint pos = *p[0].point;
 	    const QPixmap *pm = p[1].pixmap;
-    // Get the code from gpixmap.cpp
 #if 0
 	    HANDLE hdcMem = CreateCompatibleDC( hdc );
 	    HANDLE hbmOld = SelectObject( hdcMem, pm->hbm() );
