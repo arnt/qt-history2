@@ -58,7 +58,7 @@ public: \
     inline void remove() \
     { if (n != c->end()) { i = c->erase(n); n = c->end(); } } \
     inline void setValue(const T &t) { if (n!= c->end()) *n = t; } \
-    inline const T &value() const { Q_ASSERT(item_exists); return *n; } \
+    inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline void insert(const T &t) { n = i = c->insert(i, t); ++i; } \
     inline bool findNext(const T &t) \
     { while (c && (n=i) != c->end()) if (*i++ == t) return true; return false; } \
