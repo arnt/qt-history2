@@ -86,6 +86,10 @@ public:
     void setWinPageSize( short winPageSize );
     short winPageSize() const;
 #endif
+#ifdef Q_WS_MAC
+    bool printSetup();
+    bool pageSetup();
+#endif
     virtual void setPageOrder( PageOrder );
     PageOrder   pageOrder() const;
 
@@ -152,6 +156,8 @@ private:
     PMPrintSession psession;
     bool prepare(PMPrintSettings *);
     bool prepare(PMPageFormat *);
+    void interpret(PMPrintSettings *);
+    void interpret(PMPageFormat *);
 #endif
 #if defined(Q_WS_WIN)
     void        readPdlg( void* );

@@ -78,12 +78,6 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
 	break; }
     }
 
-    //mac specific
-    pformat = kPMNoPageFormat;
-    psettings = kPMNoPrintSettings;
-    prepare(&pformat);
-    prepare(&psettings);
-
     //other
     orient = Portrait;
     page_size = A4;
@@ -94,6 +88,15 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     state = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
+
+    //mac specific
+    pformat = kPMNoPageFormat;
+    psettings = kPMNoPrintSettings;
+    prepare(&pformat);
+    prepare(&psettings);
+    interpret(&pformat);
+    interpret(&psettings);
+    setPrintRange( AllPages );
 
     d->printerOptions = 0;
     setOptionEnabled( PrintToFile, TRUE );
@@ -197,48 +200,77 @@ bool QPrinter::setup(QWidget *)
     if(!psession && PMCreateSession(&psession) != noErr)
         return FALSE;
     if(qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle")) {
+	return (printSetup() && pageSetup());
+    } else if(QPrintDialog::getPrinterSetup(this)) {
+        if(!prepare(&pformat) || !prepare(&psettings))
+            return FALSE;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+void QPrinter::interpret(PMPrintSettings *s)
+{
+    //get values
+    UInt32 from, to;
+    if(PMGetFirstPage(*s, &from) == noErr && PMGetFirstPage(*s, &to) == noErr)
+	setFromTo(from, to);
+
+    UInt32 copies;
+    if(PMGetCopies(*s, &copies) == noErr)
+	setNumCopies(copies);
+
+    UInt32 max, min;
+    if(PMGetPageRange(*s, &min, &max) == noErr)
+	setMinMax(min-1, max-1);
+
+    PMColorMode cm;
+    if(PMGetColorMode(*s, &cm) == noErr)
+	setColorMode(cm == kPMGray ? GrayScale : Color);
+}
+
+void QPrinter::interpret(PMPageFormat *f)
+{
+    //get values
+    PMOrientation o;
+    if(PMGetOrientation(*f, &o) == noErr)
+	setOrientation(o == kPMPortrait ? Portrait : Landscape);
+
+    //Finally we update the scale so the resolution is effected by it
+    PMSessionValidatePageFormat(psession, *f, kPMDontWantBoolean);    
+}
+
+bool QPrinter::printSetup()
+{
+    if(!psession && PMCreateSession(&psession) != noErr)
+        return FALSE;
+    if(qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle")) {
         Boolean ret;
 	QMacBlockingFunction block;
         //setup
         if(!prepare(&psettings))
             return FALSE;
         if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
-            return FALSE;
+            return FALSE;	
+	interpret(&psettings);
+	return TRUE;
+    }
+    return FALSE;
+}
 
-        //get values
-        UInt32 from, to;
-        if(PMGetFirstPage(psettings, &from) == noErr && PMGetFirstPage(psettings, &to) == noErr)
-            setFromTo(from, to);
-
-        UInt32 copies;
-        if(PMGetCopies(psettings, &copies) == noErr)
-            setNumCopies(copies);
-
-        UInt32 max, min;
-        if(PMGetPageRange(psettings, &max, &min) == noErr)
-            setMinMax(min-1, max-1);
-
-        PMColorMode cm;
-        if(PMGetColorMode(psettings, &cm) == noErr)
-            setColorMode(cm == kPMGray ? GrayScale : Color);
-
+bool QPrinter::pageSetup()
+{
+    if(!psession && PMCreateSession(&psession) != noErr)
+        return FALSE;
+    if(qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle")) {
+        Boolean ret;
+	QMacBlockingFunction block;
         //page format
         if(!prepare(&pformat))
             return FALSE;
         if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
             return FALSE;
-
-        //get values
-        PMOrientation o;
-        if(PMGetOrientation(pformat, &o) == noErr)
-            setOrientation(o == kPMPortrait ? Portrait : Landscape);
-
-	//Finally we update the scale so the resolution is effected by it
-	PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean);
-        return TRUE;
-    } else if(QPrintDialog::getPrinterSetup(this)) {
-        if(!prepare(&pformat) || !prepare(&psettings))
-            return FALSE;
+	interpret(&pformat);
         return TRUE;
     }
     return FALSE;
