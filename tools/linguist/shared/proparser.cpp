@@ -62,7 +62,7 @@ QMap<QString, QString> proFileTagMap( const QString& text )
       white spaces.
     */
     t.replace( QRegExp(QString("#[^\n]*\n")), QString(" ") );
-    t.replace( QRegExp(QString("\\\\\n")), QString(" ") );
+    t.replace( QRegExp(QString("\\\\[^\n\\S]*\n")), QString(" ") );
     t.replace( "=", QString(" = ") );
     t.replace( "+ =", QString(" += ") );
     t.replace( "* =", QString(" *= ") );
