@@ -36,8 +36,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>922</width>
-            <height>768</height>
+            <width>918</width>
+            <height>766</height>
         </rect>
     </property>
     <property name="caption">
@@ -361,18 +361,18 @@
         <receiver>MainWindow</receiver>
         <slot>showQtHelp()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">goHome()</slot>
-    <slot access="public" language="C++">about()</slot>
-    <slot access="public" language="C++">aboutQt()</slot>
-    <slot access="public" language="C++">find()</slot>
-    <slot access="public" language="C++">print()</slot>
-    <slot access="public" language="C++">setupBookmarkMenu()</slot>
-    <slot access="public" language="C++">showDesignerHelp()</slot>
-    <slot access="public" language="C++">showQtHelp()</slot>
-    <slot access="public" language="C++">showBookmark( int id )</slot>
-    <slot access="public" language="C++">showLink( const QString &amp;link,const QString &amp;title )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">goHome()</slot>
+    <slot access="public" language="C++" returnType="void">about()</slot>
+    <slot access="public" language="C++" returnType="void">aboutQt()</slot>
+    <slot access="public" language="C++" returnType="void">find()</slot>
+    <slot access="public" language="C++" returnType="void">print()</slot>
+    <slot access="public" language="C++" returnType="void">setupBookmarkMenu()</slot>
+    <slot access="public" language="C++" returnType="void">showDesignerHelp()</slot>
+    <slot access="public" language="C++" returnType="void">showQtHelp()</slot>
+    <slot access="public" language="C++" returnType="void">showBookmark( int id )</slot>
+    <slot access="public" language="C++" returnType="void">showLink( const QString &amp; link, const QString &amp; title )</slot>
 </connections>
 <functions>
     <function name="init()" >{
@@ -440,6 +440,8 @@
     QPrinter printer;
     printer.setFullPage(TRUE);
     if ( printer.setup() ) {
+	QPaintDeviceMetrics screen( this );
+	printer.setResolution( screen.logicalDpiY() );
 	QPainter p( &amp;printer );
 	QPaintDeviceMetrics metrics(p.device());
 	int dpix = metrics.logicalDpiX();
