@@ -1016,12 +1016,12 @@ struct Q_EXPORT QTextParagLineStart
 	w( 0 ), bidicontext( 0 )  {  }
     QTextParagLineStart( QBidiContext *c, QBidiStatus s ) : y(0), baseLine(0), h(0),
 	status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref();  }
-    ~QTextParagLineStart() { if ( bidicontext ) bidicontext->deref();  }
+    ~QTextParagLineStart() { if ( bidicontext && bidicontext->deref() ) delete bidicontext;  }
     void setContext( QBidiContext *c ) {
 	if ( c == bidicontext )
 	    return;
-	if ( bidicontext )
-	    bidicontext->deref();
+	if ( bidicontext && bidicontext->deref() )
+	    delete bidicontext;
 	bidicontext = c;
 	if ( bidicontext )
 	    bidicontext->ref();

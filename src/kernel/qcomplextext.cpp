@@ -774,8 +774,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 	    context = new QBidiContext( 1, QChar::DirR );
 	else
 	    context = new QBidiContext( 0, QChar::DirL );
-    }
-    context->ref();
+    } 
 
     QBidiStatus status = control->status;
     QChar::Direction dir = QChar::DirON;
@@ -813,7 +812,6 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		    runs->append( new QTextRun(sor, eor, context, dir) );
 		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirR, context);
-		    context->ref();
 		    status.last = QChar::DirR;
 		    status.lastStrong = QChar::DirR;
 		}
@@ -830,7 +828,6 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		    runs->append( new QTextRun(sor, eor, context, dir) );	
 		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirL, context);
-		    context->ref();
 		    status.last = QChar::DirL;
 		    status.lastStrong = QChar::DirL;
 		}
@@ -847,7 +844,6 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		    runs->append( new QTextRun(sor, eor, context, dir) );
 		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirR, context, TRUE);
-		    context->ref();
 		    dir = QChar::DirR;
 		    status.last = QChar::DirR;
 		    status.lastStrong = QChar::DirR;
@@ -865,7 +861,6 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		    runs->append( new QTextRun(sor, eor, context, dir) );
 		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirL, context, TRUE);
-		    context->ref();
 		    dir = QChar::DirL;
 		    status.last = QChar::DirL;
 		    status.lastStrong = QChar::DirL;
@@ -1255,7 +1250,6 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 #endif
 
     control->setContext( context );
-    context->deref();
     control->status = status;
     
     return runs;
