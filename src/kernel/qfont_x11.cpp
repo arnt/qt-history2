@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#45 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#45 $";
 #endif
 
 
@@ -218,6 +218,7 @@ QFont::QFont( bool )				// create default font
 {
     init();
     d->req.family  = "fixed";
+    d->req.pointSize = 12*10;			// approximate point size, hack
     d->req.rawMode = TRUE;
 }
 
