@@ -418,8 +418,6 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
             while ( c->parentWidget() &&
                 ( LayoutInfo::layoutType(m_core, c->parentWidget() ) != LayoutInfo::NoLayout || !isManaged(c) ) )
                     c = c->parentWidget();
-            if (qt_cast<QDesignerPromotedWidget*>(c->parent()) != 0)
-                c = c->parentWidget();
             selectWidget(c);
 
             QDesignerResource res(this);
@@ -915,8 +913,6 @@ QList<QWidget*> FormWindow::checkSelectionsForMove(QWidget *w)
     // if widget is laid out, find the first non-laid out super-widget
     while ( w->parentWidget() &&
                 ( LayoutInfo::layoutType(m_core, w->parentWidget() ) != LayoutInfo::NoLayout || !isManaged(w) ) )
-        w = w->parentWidget();
-    if (qt_cast<QDesignerPromotedWidget*>(w->parent()) != 0)
         w = w->parentWidget();
 
     QMap<QWidget *, QPoint> moving;

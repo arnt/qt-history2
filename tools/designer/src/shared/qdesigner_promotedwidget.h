@@ -70,16 +70,17 @@ public:
     QWidget *child() const { return m_child; }
     AbstractWidgetDataBaseItem *item() const { return m_item; }
     const char *customClassName() { return m_custom_class_name.constData(); }
+    
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSizeHint() const;
         
 protected:
     virtual void childEvent(QChildEvent *e);
-    virtual void resizeEvent(QResizeEvent *e);
 
 private:
     AbstractWidgetDataBaseItem *m_item;
     QByteArray m_custom_class_name;
     QWidget *m_child;
-    bool m_child_inserted;
 };
 
 #endif // QDESIGNER_PROMOTED_WIDGET_H

@@ -3,6 +3,7 @@
 #include <qextensionmanager.h>
 
 #include <QEvent>
+#include <QVBoxLayout>
 
 #include <qdebug.h>
 
@@ -132,20 +133,18 @@ QDesignerPromotedWidget::QDesignerPromotedWidget(AbstractWidgetDataBaseItem *ite
                                                     QWidget *parent)
     : QWidget(parent)
 {
+    (new QVBoxLayout(this))->setMargin(0);
+
     m_child = child;
-    m_child_inserted = false;
     m_item = item;
     m_custom_class_name = item->name().toLatin1();
+
+    setSizePolicy(m_child->sizePolicy());
+    m_child->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
 }
 
 QDesignerPromotedWidget::~QDesignerPromotedWidget()
 {
-}
-
-void QDesignerPromotedWidget::resizeEvent(QResizeEvent*)
-{
-    if (m_child_inserted)
-        m_child->setGeometry(rect());
 }
 
 void QDesignerPromotedWidget::childEvent(QChildEvent *e)
@@ -154,15 +153,24 @@ void QDesignerPromotedWidget::childEvent(QChildEvent *e)
         return;
 
     switch (e->type()) {
-        case QEvent::ChildPolished:
-            m_child_inserted = true;
-            m_child->setGeometry(rect());
+        case QEvent::ChildAdded:
+            layout()->addWidget(m_child);
             break;
         case QEvent::ChildRemoved:
-            m_child_inserted = false;
+            layout()->removeWidget(m_child);
             break;
         default:
             break;
     }
+}
+
+QSize QDesignerPromotedWidget::sizeHint() const
+{
+    return m_child->sizeHint();
+}
+
+QSize QDesignerPromotedWidget::minimumSizeHint() const
+{
+    return m_child->minimumSizeHint();
 }
 
