@@ -307,7 +307,7 @@ Option::parseCommandLine(int argc, char **argv)
     Option::yacc_mod = "_yacc";
     Option::prl_ext = ".prl";
     Option::ui_ext = ".ui";
-    Option::h_ext << ".h" << ".hpp" << ".hh" << ".H";
+    Option::h_ext << ".h" << ".hpp" << ".hh" << ".H" << ".hxx";
     Option::moc_ext = ".moc";
     Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
     Option::lex_ext = ".l";
