@@ -569,12 +569,13 @@ void QMessageBox::init( int button0, int button1, int button2 )
 		  "<p>This application was created with Qt version %1.</p>" ).arg( QT_VERSION_STR );
 	}
 	*translatedTextAboutQt += tr ("<p>This program uses Qt version %1.</p>"
-	    "<p>Qt is a multi-platform C++ "
-	    "GUI application framework from Trolltech. "
-	    "Qt provides single-source "
-	    "portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, "
-	    "HP-UX and many other versions of Unix with X11. "
-	    "Qt is also available for embedded devices.</p>"
+	    "<p>Qt is a C++ toolkit for cross-platform GUI &amp; "
+	    "application development from Trolltech."
+	    "<p>Qt provides single-source "
+	    "portability across Windows 95/98/NT4/ME/2000, Mac&nbsp;OS&nbsp;X, "
+	    "Linux, Solaris, "
+	    "HP-UX and many other versions of Unix with X11."
+	    "<br>Qt is also available for embedded devices.</p>"
 	    "<p>See <tt>http://www.trolltech.com/qt/</tt> "
 	    "for more information.</p>").arg( QT_VERSION_STR );
 
@@ -589,12 +590,13 @@ void QMessageBox::init( int button0, int button1, int button2 )
         *translatedTextAboutQt = tr(
 	    "<h3>About Qt</h3>"
 	    "<p>This program uses Qt version %1.</p>"
-	    "<p>Qt is a multi-platform C++ "
-	    "GUI application framework from Trolltech. "
-	    "Qt provides single-source "
-	    "portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, "
-	    "HP-UX and many other versions of Unix with X11. "
-	    "Qt is also available for embedded devices.</p>"
+	    "<p>Qt is a C++ toolkit for cross-platform GUI &amp; "
+	    "application development from Trolltech."
+	    "<p>Qt provides single-source "
+	    "portability across Windows 95/98/NT4/ME/2000, Mac&nbsp;OS&nbsp;X, "
+	    "Linux, Solaris, "
+	    "HP-UX and many other versions of Unix with X11."
+	    "<br>Qt is also available for embedded devices.</p>"
 	    "<p>See <tt>http://www.trolltech.com/qt/</tt> "
 	    "for more information.</p>"
 	    ).arg( QT_VERSION_STR );
