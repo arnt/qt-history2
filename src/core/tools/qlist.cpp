@@ -224,10 +224,10 @@ void **QListData::erase(void **xi)
 
     Constructs a copy of \a other.
 
-    This operation occurs in \l{constant time}, because QList is
+    This operation takes \l{constant time}, because QList is
     \l{implicitly shared}. This makes returning a QList from a
     function very fast. If a shared instance is modified, it will be
-    copied (copy-on-write), and this takes \l{linear time}.
+    copied (copy-on-write), and that takes \l{linear time}.
 
     \sa operator=()
 */
@@ -245,6 +245,7 @@ void **QListData::erase(void **xi)
 
     This operation occurs in \l{constant time}, because QList is
     \l{implicitly shared}.
+### Jasmin: presumably this list's contents are destroyed first?
 */
 
 /*! \fn bool QList::operator==(const QList &other) const
@@ -255,8 +256,8 @@ void **QListData::erase(void **xi)
     Two lists are considered equal if they contain the same values in
     the same order.
 
-    This function requires the value type to implement \c
-    operator==().
+    This function requires the value type to have an implementation of
+    \c operator==().
 
     \sa operator!=()
 */
@@ -269,8 +270,8 @@ void **QListData::erase(void **xi)
     Two lists are considered equal if they contain the same values in
     the same order.
 
-    This function requires the value type to implement \c
-    operator==().
+    This function requires the value type to have an implementation of
+    \c operator==().
 
     \sa operator==()
 */
@@ -307,7 +308,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList::operator QSafeBool() const
 
-    Returns true if the list contains at least one items; otherwise
+    Returns true if the list contains at least one item; otherwise
     returns false.
 
     Example:
@@ -332,9 +333,9 @@ void **QListData::erase(void **xi)
 
 /*! \fn const T &QList::at(int i) const
 
-    Returns the item at index \a i in the list.
+    Returns the item at index position \a i in the list.
 
-    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
     \sa value(), operator[]()
@@ -342,9 +343,9 @@ void **QListData::erase(void **xi)
 
 /*! \fn T &QList::operator[](int i)
 
-    Returns the item at index \a i as a modifiable reference.
+    Returns the item at index position \a i as a modifiable reference.
 
-    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
     \sa at(), value()
@@ -359,7 +360,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn void QList::append(const T &t)
 
-    Inserts \a t at the end of the list.
+    Inserts item \a t at the end of the list.
 
     Example:
     \code
@@ -395,9 +396,9 @@ void **QListData::erase(void **xi)
 
 /*! \fn void QList::insert(int i, const T &t)
 
-    Inserts the value \a t at index \a i in the list. If \a i is 0,
-    the value is prepended to the list. If \a i is size(), the value
-    is appended to the list.
+    Inserts the value \a t at index position \a i in the list. If \a i
+    is 0, the value is prepended to the list. If \a i is size(), the
+    value is appended to the list.
 
     Example:
     \code
@@ -421,9 +422,9 @@ void **QListData::erase(void **xi)
 
 /*! \fn void QList::replace(int i, const T &t)
 
-    Replaces the item at index \a i with \a t.
+    Replaces the item at index position \a i with \a t.
 
-    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
     \sa operator[](), removeAt()
@@ -441,17 +442,17 @@ void **QListData::erase(void **xi)
         // list: [ "cloud", "rain" ]
     \endcode
 
-    This function requires the value type to implement \c
-    operator==().
+    This function requires the value type to have an implementation of
+    \c operator==().
 
     \sa removeAt(), takeAt(), replace()
 */
 
 /*! \fn void QList::removeAt(int i)
 
-    Removes the item at index \a i.
+    Removes the item at index position \a i.
 
-    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
     \sa takeAt(), removeFirst(), removeLast()
@@ -459,9 +460,9 @@ void **QListData::erase(void **xi)
 
 /*! \fn T QList::takeAt(int i)
 
-    Removes the item at index \a i and returns it.
+    Removes the item at index position \a i and returns it.
 
-    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
     \sa removeAt(), takeFirst(), takeLast()
@@ -487,8 +488,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn void QList::move(int from, int to)
 
-    Moves a the item at index \a from to index \a to, moving all
-    items in between by one position.
+    Moves the item at index position \a from to index position \a to.
 
     Example:
     \code
@@ -505,8 +505,8 @@ void **QListData::erase(void **xi)
 
 /*! \fn void QList::swap(int i, int j)
 
-    Exchange the item at index \a i with the item at index \a j. The
-    items in between stay at the same positions.
+    Exchange the item at index position \a i with the item at index
+    position \a j.
 
     Example:
     \code
@@ -521,8 +521,9 @@ void **QListData::erase(void **xi)
 
 /*! \fn int QList::indexOf(const T &t, int from = 0) const
 
-    Finds the first occurrence of the value \a t in the list, starting at
-    index \a from. Returns -1 if no item matched.
+    Returns the index position of the first occurrence of the value \a
+    t in the list, searching forward from index position \a from.
+    Returns -1 if no item matched.
 
     Example:
     \code
@@ -531,19 +532,21 @@ void **QListData::erase(void **xi)
         list.indexOf("B");          // returns 1
         list.indexOf("B", 1);       // returns 1
         list.indexOf("B", 2);       // returns 3
+        list.indexOf("X");          // returns -1
     \endcode
 
-    This function requires the value type to implement \c
-    operator==().
+    This function requires the value type to have an implementation of
+    \c operator==().
 
     \sa lastIndexOf(), contains()
 */
 
 /*! \fn int QList::lastIndexOf(const T &t, int from = -1) const
 
-    Finds the first occurrence of the value \a t in the list, starting
-    at index \a from and searching backward. If \a from is -1, the
-    search starts at the last item. Returns -1 if no item matched.
+    Returns the index position of the last occurrence of the value \a
+    t in the list, searching backward from index position \a from. If
+    \a from is -1 (the default), the search starts at the last item.
+    Returns -1 if no item matched.
 
     Example:
     \code
@@ -554,8 +557,8 @@ void **QListData::erase(void **xi)
         list.lastIndexOf("B", 2);   // returns 1
     \endcode
 
-    This function requires the value type to implement \c
-    operator==().
+    This function requires the value type to have an implementation of
+    \c operator==().
 
     \sa indexOf()
 */
@@ -565,8 +568,8 @@ void **QListData::erase(void **xi)
     Returns true if the list contains an occurrence of the value \a
     t; otherwise returns false.
 
-    This function requires the value type to implement \c
-    operator==().
+    This function requires the value type to have an implementation of
+    \c operator==().
 
     \sa indexOf(), count()
 */
@@ -575,8 +578,8 @@ void **QListData::erase(void **xi)
 
     Returns the number of occurrences of the value \a t in the list.
 
-    This function requires the value type to implement \c
-    operator==().
+    This function requires the value type to have an implementation of
+    \c operator==().
 
     \sa contains(), indexOf()
 */
@@ -626,7 +629,8 @@ void **QListData::erase(void **xi)
 /*! \fn QList::iterator QList::erase(iterator pos)
 
     Removes the item associated with the iterator \a pos from the
-    list, and returns an iterator to the next item in the list.
+    list, and returns an iterator to the next item in the list (which
+    may be end()).
 
     \sa remove()
 */
@@ -635,7 +639,8 @@ void **QListData::erase(void **xi)
 
     \overload
 
-    Removes all items from \a begin to \a end (not including \a end).
+    Removes all the items from \a begin up to (but not including) \a
+    end.
 */
 
 /*! \typedef QList::Iterator
@@ -699,10 +704,10 @@ void **QListData::erase(void **xi)
 
 /*! \fn T QList::value(int i) const
 
-    Returns the value at index \a i in the list.
+    Returns the value at index position \a i in the list.
 
     If the index \a i is out of bounds, the function returns a
-    \l{default-constructed value}. If you already know that the index
+    \l{default-constructed value}. If you are certain that the index
     is going to be within bounds, you can use at() instead, which is
     slightly faster.
 
@@ -771,7 +776,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList &QList::operator+=(const QList &other)
 
-    Appends the items of \a other to this list and returns a
+    Appends the items of the \a other list to this list and returns a
     reference to this list.
 
     \sa operator+(), append()
@@ -789,15 +794,15 @@ void **QListData::erase(void **xi)
 /*! \fn QList QList::operator+(const QList &other) const
 
     Returns a list that contains all the items in this list followed
-    by all the items in \a other.
+    by all the items in the \a other list.
 
     \sa operator+=()
 */
 
 /*! \fn QList &QList::operator<<(const T &t)
 
-    Appends the value \a t to the lis t and returns a reference to
-    this list.
+    Appends the value \a t to the list and returns a reference to this
+    list.
 
     \sa append(), operator+=()
 */
@@ -853,10 +858,12 @@ void **QListData::erase(void **xi)
 	    *i += 2;
     \endcode
 
+### Jasmin: Presume you're working from here
     QList::iterator and the other iterator clas
 
     For QList, we recommend that you use QList::at() and QList::replace()
     to acce
+### to here?
 
     Most QList functions accept an integer index rather than an
     iterator. For that reason, iterators are rarely useful in
@@ -1012,8 +1019,8 @@ void **QListData::erase(void **xi)
 
 /*! \fn int QList::iterator::operator-(iterator other) const
 
-    Returns the distance between the item pointed to by \a other and
-    the item pointed to by this iterator.
+    Returns the number of items between the item pointed to by \a
+    other and the item pointed to by this iterator.
 */
 
 /*! \class QList::const_iterator
@@ -1200,6 +1207,6 @@ void **QListData::erase(void **xi)
 
 /*! \fn int QList::const_iterator::operator-(const_iterator other) const
 
-    Returns the distance between the item pointed to by \a other and
-    the item pointed to by this iterator.
+    Returns the number of items between the item pointed to by \a
+    other and the item pointed to by this iterator.
 */
