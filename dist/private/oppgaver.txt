@@ -33,6 +33,8 @@ Bugs
 
    QPrinter/X11 fikser ikke setWorldMatrix() <343508A4.97F0CAAE@tradeit.com>
 
+   bool på irix n32
+
 Annet
 -----
 
