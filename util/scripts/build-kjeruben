@@ -1,7 +1,26 @@
 #!/bin/sh
 
 BUILDROOT=/home/mike/sandbox/build-kjeruben
-SOURCEQTDIR=/local/qt/qt/main
+SOURCEQTDIR=/home/mike/sandbox/p4/qt/main
+P4CLIENT=mike-marijuana
+P4PORT=p4.troll.no:866
+P4=/home/mike/p4
+P4SYNC="yes"
+
+for arg in $*; do
+    if [ "$arg" = "noresync" ]; then
+	P4SYNC="no"
+    elif [ "$arg" = "resync" ]; then
+	P4SYNC="yes"
+    else
+	configs="$configs $arg"
+    fi
+done
+
+if [ -z "$configs" ]; then
+    configs=`echo -{static,shared}_-{no-thread,thread}_-{enable-opengl,disable-opengl}`
+fi
+echo "Configurations: $configs"
 
 if [ ! -d "$BUILDROOT" ]; then
     echo "$BUILDROOT does not exist."
@@ -11,6 +30,13 @@ fi
 if [ -z "$MKSPEC" ]; then
     echo "MKSPEC not set."
     exit 1;
+fi
+
+if [ "$P4SYNC" = "yes" ]; then
+    echo "Syncing p4 client $P4CLIENT"
+    export P4CLIENT P4PORT
+    $P4 sync > /dev/null
+    echo "Done."
 fi
 
 PLATFORMSJEF="$SOURCEQTDIR/mkspecs/$MKSPEC/platformsjef"
@@ -23,19 +49,20 @@ else
 fi
 
 # This brace expansion is kinda magic, but not too bad.
-for config in -{static,shared}_-{no-thread,thread}_-{enable-opengl,disable-opengl}; do
-#for config in -{static,shared}_-no-thread_-enable-opengl; do
-    echo
+for config in $configs; do
+    echo 
     if [ -d "$BUILDROOT/$config" ]; then
 	echo "Removing old $BUILDROOT/$config"
 	rm -rf $BUILDROOT/$config
     fi
     mkdir $BUILDROOT/$config
     echo "Copying files from $SOURCEQTDIR to $BUILDROOT/$config"
-    tar -C $SOURCEQTDIR -cf - . | tar -C $BUILDROOT/$config -xf - .
+    tar -C $SOURCEQTDIR -cf - . | tar -C $BUILDROOT/$config -xf - 
     QTDIR=$BUILDROOT/$config 
     export QTDIR
     cd $QTDIR
+    LD_LIBRARY_PATH=$QTDIR/lib
+    export LD_LIBRARY_PATH
     args=`echo $config | sed 's/_/ /g'`
     echo "Configuring as $MKSPEC $args"
     if echo yes yes | ./configure $args > configure-output 2>&1; then
