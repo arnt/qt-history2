@@ -50,6 +50,7 @@ public:
 
 public slots:
     void setShowGrid(bool show);
+    void setGridStyle(Qt::PenStyle style);
     void selectRow(int row, ButtonState state = Qt::NoButton);
     void selectColumn(int column, ButtonState state = Qt::NoButton);
     void hideRow(int row);
@@ -71,7 +72,6 @@ protected:
     QGenericTableView(QGenericTableViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
 
-    virtual void drawGrid(QPainter *p, int x, int y, int w, int h) const;
     void paintEvent(QPaintEvent *e);
     bool event(QEvent *e);
 

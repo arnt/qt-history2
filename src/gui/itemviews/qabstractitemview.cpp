@@ -532,7 +532,9 @@ QModelIndex QAbstractItemView::currentItem() const
 */
 void QAbstractItemView::setRoot(const QModelIndex &index)
 {
+    QModelIndex old = d->root;
     d->root = QPersistentModelIndex(index, d->model);
+    emit rootChanged(old, index);
     if (isVisible())
         doItemsLayout();
 }

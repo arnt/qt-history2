@@ -164,16 +164,6 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
     d->viewport->scroll(dx, dy);
 }
 
-void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
-{
-    QPen old = p->pen();
-    p->setPen(lightGray);
-    int v = QApplication::reverseLayout() ? x : x + w;
-    p->drawLine(v, y, v, y + h);
-    p->drawLine(x, y + h, x + w, y + h);
-    p->setPen(old);
-}
-
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
     QItemOptions options;
@@ -209,6 +199,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     }
 
     bool showGrid = d->showGrid;
+    QPen gridPen = QPen(lightGray, 0, d->gridStyle);
     QItemSelectionModel *sels = selectionModel();
     QGenericHeader *leftHeader = d->leftHeader;
     QGenericHeader *topHeader = d->topHeader;
@@ -235,8 +226,14 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
                                   options.palette.base()));
                 itemDelegate()->paint(&painter, options, item);
             }
-            if (showGrid)
-                drawGrid(&painter, colp, rowp, colw - 1, rowh - 1);
+            if (showGrid) {
+                QPen old = painter.pen();
+                painter.setPen(gridPen);
+                int v = QApplication::reverseLayout() ? colp : colp + colw - 1;
+                painter.drawLine(v, rowp, v, rowp + rowh - 1);
+                painter.drawLine(colp, rowp + rowh - 1, colp + colw - 1, rowp + rowh - 1);
+                painter.setPen(old);
+            }
         }
     }
 
@@ -514,6 +511,11 @@ void QGenericTableView::setShowGrid(bool show)
 bool QGenericTableView::showGrid() const
 {
     return d->showGrid;
+}
+
+void QGenericTableView::setGridStyle(Qt::PenStyle style)
+{
+    d->gridStyle;
 }
 
 QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const

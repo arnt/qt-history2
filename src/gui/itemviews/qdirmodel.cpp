@@ -240,8 +240,8 @@ public:
     int idx(QDirNode *node) const;
     void refresh(QDirNode *parent);
 
-    void savePersistentIndices();
-    void restorePersistentIndices();
+    void savePersistentIndexes();
+    void restorePersistentIndexes();
 
     QDir root;
     QVector<QDirNode> tree;
@@ -510,7 +510,7 @@ bool QDirModel::canDecode(QMimeSource *src) const
 
 bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
 {
-    d->savePersistentIndices();
+    d->savePersistentIndexes();
     // FIXME: what about directories ?
     QStringList files;
     if (!QUriDrag::decodeLocalFiles(e, files))
@@ -540,7 +540,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
         p->children = d->children(p);
     else
         d->tree = d->children(0);
-    d->restorePersistentIndices();
+    d->restorePersistentIndexes();
     emit contentsInserted(topLeft(parent), bottomRight(parent));
     return success;
 }
@@ -567,11 +567,11 @@ QFileIconProvider *QDirModel::iconProvider() const
 void QDirModel::setNameFilters(const QStringList &filters)
 {
     // FIXME: this will rebuild the entire structure of the qdirmodel
-    d->savePersistentIndices();
+    d->savePersistentIndexes();
     emit contentsRemoved(topLeft(), bottomRight());
     d->root.setNameFilters(filters);
     d->tree = d->children(0); // clear model
-    d->restorePersistentIndices();
+    d->restorePersistentIndexes();
     emit contentsInserted(topLeft(), bottomRight());
 }
 
@@ -592,11 +592,11 @@ QDir::FilterSpec QDirModel::filter() const
 
 void QDirModel::setSorting(int spec)
 {
-    d->savePersistentIndices();
+    d->savePersistentIndexes();
     emit contentsRemoved(topLeft(), bottomRight());
     d->root.setSorting(spec);
     d->tree = d->children(0);
-    d->restorePersistentIndices();
+    d->restorePersistentIndexes();
     emit contentsInserted(topLeft(), bottomRight());
 }
 
@@ -617,11 +617,10 @@ bool QDirModel::matchAllDirs() const
 
 void QDirModel::refresh(const QModelIndex &parent)
 {
-    d->savePersistentIndices();
-    //invalidatePersistentIndices();
+    d->savePersistentIndexes();
     emit contentsRemoved(topLeft(parent), bottomRight(parent));
     d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.data()));
-    d->restorePersistentIndices();
+    d->restorePersistentIndexes();
     emit contentsInserted(topLeft(), bottomRight());
 }
 
@@ -697,24 +696,24 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 {
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     int r;
-    d->savePersistentIndices();
+    d->savePersistentIndexes();
     if (p) {
         QDir dir(p->info.absFilePath());
         if (!dir.mkdir(name)) {
-            d->restorePersistentIndices();
+            d->restorePersistentIndexes();
             return QModelIndex();
         }
         p->children = d->children(p);
         r = dir.entryList(d->root.nameFilters(), d->root.filter(), d->root.sorting()).indexOf(name);
     } else {
         if (!d->root.mkdir(name)) {
-            d->restorePersistentIndices();
+            d->restorePersistentIndexes();
             return QModelIndex();
         }
         d->tree = d->children(0);
         r = d->root.entryList(d->root.nameFilters(), d->root.filter(), d->root.sorting()).indexOf(name);
     }
-    d->restorePersistentIndices();
+    d->restorePersistentIndexes();
     QModelIndex i = index(r, 0, parent); // return an invalid index
     emit contentsInserted(i, i); // causes clear that triggers selectionChanged that calls repaint on the old items
     return i;
@@ -733,10 +732,10 @@ bool QDirModel::rmdir(const QModelIndex &index)
         return false;
     }
     emit contentsRemoved(index, index); // always emit before the change
-    d->savePersistentIndices();
+    d->savePersistentIndexes();
     QString path = n->info.absFilePath();
     if (!n->info.dir().rmdir(path)) {
-        d->restorePersistentIndices();
+        d->restorePersistentIndexes();
         return false;
     }
     QDirModelPrivate::QDirNode *p = d->parent(n);
@@ -744,7 +743,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
         p->children = d->children(p);
     else
         d->tree = d->children(0);
-    d->restorePersistentIndices();
+    d->restorePersistentIndexes();
     return true;
 }
 
@@ -761,18 +760,18 @@ bool QDirModel::remove(const QModelIndex &index)
         return false;
     }
     emit contentsRemoved(index, index); // always emit before the change
-    d->savePersistentIndices();
+    d->savePersistentIndexes();
     QDirModelPrivate::QDirNode *p = d->parent(n);
     QDir dir = p ? p->info.dir() : d->root;
     if (!dir.remove(n->info.absFilePath())) {
-        d->restorePersistentIndices();
+        d->restorePersistentIndexes();
         return false;
     }
     if (p)
         p->children = d->children(p);
     else
         d->tree = d->children(0);
-    d->restorePersistentIndices();
+    d->restorePersistentIndexes();
     return true;
 }
 
@@ -837,26 +836,26 @@ void QDirModelPrivate::refresh(QDirNode *parent)
     }
 }
 
-void QDirModelPrivate::savePersistentIndices()
+void QDirModelPrivate::savePersistentIndexes()
 {
     savedPaths.clear();
-    for (int i = 0; i < persistentIndices.count(); ++i) {
-        QModelIndex idx = persistentIndices.at(i)->index;
+    for (int i = 0; i < persistentIndexes.count(); ++i) {
+        QModelIndex idx = persistentIndexes.at(i)->index;
         QString pth = q->path(idx);
         savedPaths.append(pth);
-        ++persistentIndices.at(i)->ref; // save
-        persistentIndices[i]->index = QModelIndex(); // invalidated
+        ++persistentIndexes.at(i)->ref; // save
+        persistentIndexes[i]->index = QModelIndex(); // invalidated
     }
 }
 
-void QDirModelPrivate::restorePersistentIndices()
+void QDirModelPrivate::restorePersistentIndexes()
 {
     QList<QPersistentModelIndexData*> deleteList;
-    for (int i = 0; i < persistentIndices.count(); ++i) {
+    for (int i = 0; i < persistentIndexes.count(); ++i) {
         QString pth = savedPaths.at(i);
-        persistentIndices[i]->index = q->index(pth);
-        if (!--persistentIndices.at(i)->ref)
-            deleteList.append(persistentIndices.at(i));
+        persistentIndexes[i]->index = q->index(pth);
+        if (!--persistentIndexes.at(i)->ref)
+            deleteList.append(persistentIndexes.at(i));
     }
     savedPaths.clear();
     while (!deleteList.isEmpty()) {

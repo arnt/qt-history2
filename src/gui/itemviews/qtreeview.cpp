@@ -29,8 +29,8 @@ public:
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
-    bool removeRow(int row, const QModelIndex &parent = 0, int count = 1);
+    bool insertRows(int row, const QModelIndex &parent = 0, int count = 1);
+    bool removeRows(int row, const QModelIndex &parent = 0, int count = 1);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -269,7 +269,7 @@ bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
   If no valid parent is given, the item will be inserted into this
   tree model at the row given.*/
 
-bool QTreeModel::insertRow(int row, const QModelIndex &parent, int)
+bool QTreeModel::insertRows(int row, const QModelIndex &parent, int)
 {
     if (parent.isValid()) {
         QTreeViewItem *p =  item(parent);
@@ -287,7 +287,7 @@ bool QTreeModel::insertRow(int row, const QModelIndex &parent, int)
   Removes the given \a row from the \parent item, and returns true
   if successful; otherwise false is returned. */
 
-bool QTreeModel::removeRow(int row, const QModelIndex &parent, int)
+bool QTreeModel::removeRows(int row, const QModelIndex &parent, int)
 {
     if (parent.isValid()) {
         QTreeViewItem *p = item(parent);

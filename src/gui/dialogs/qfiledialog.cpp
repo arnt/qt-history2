@@ -597,7 +597,7 @@ void QFileDialog::fileNameChanged(const QString &text)
 void QFileDialog::lookInChanged(const QString &text)
 {
     if (d->lookInEdit->hasFocus() && !text.isEmpty()) {
-        QString pth = text.left(text.findRev('/'));
+        QString pth = text.left(text.lastIndexOf('/'));
         QModelIndex dirIndex = d->model->index(pth);
         QString searchText = text.section('/', -1);
         int rowCount = d->model->rowCount(dirIndex);
@@ -757,7 +757,7 @@ void QFileDialogPrivate::setup()
 
     // model
     QDir dir("/");
-    dir.setMatchAllDirs(true);
+    dir.setFilter(dir.filter() | QDir::AllDirs);
     dir.setSorting(QDir::DirsFirst);
     model = new QDirModel(dir, q);
 

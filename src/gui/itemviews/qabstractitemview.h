@@ -111,6 +111,7 @@ protected slots:
 
 signals:
     void needMore();
+    void rootChanged(const QModelIndex &old, const QModelIndex &root);
     void pressed(const QModelIndex &index, int button);
     void clicked(const QModelIndex &index, int button);
     void doubleClicked(const QModelIndex &index, int button);

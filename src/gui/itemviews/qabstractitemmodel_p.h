@@ -25,7 +25,7 @@ class QAbstractItemModelPrivate : public QObjectPrivate
 
 public:
 
-    QList<QPersistentModelIndexData*> persistentIndices;
+    QList<QPersistentModelIndexData*> persistentIndexes;
 };
 
 #endif // QABSTRACTITEMMODEL_P_H

@@ -100,7 +100,7 @@ bool QAbstractItemModelDrag::decode(QMimeSource *src,
     QVariant data;
     QModelIndex index;
     while (!stream.atEnd()) {
-        model->insertRow(row, parent); // append row
+        model->insertRows(row, parent); // append row
         index = model->index(row, 0, parent); // only insert in col 0
         stream >> count;
         for (int i = 0; i < count; ++i) {
@@ -124,10 +124,10 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 {
     // FIXME: this is slow
     QPersistentModelIndexData *d = &QPersistentModelIndexData::shared_null;
-    QList<QPersistentModelIndexData*> *persistentIndices = &(model->d_func()->persistentIndices);
-    for (int i = 0; i < persistentIndices->count(); ++i) {
-        if (persistentIndices->at(i)->index == index) {
-            d = persistentIndices->at(i);
+    QList<QPersistentModelIndexData*> *persistentIndexes = &(model->d_func()->persistentIndexes);
+    for (int i = 0; i < persistentIndexes->count(); ++i) {
+        if (persistentIndexes->at(i)->index == index) {
+            d = persistentIndexes->at(i);
             break;
         }
     }
@@ -135,7 +135,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
         d = new QPersistentModelIndexData;
         d->model = model;
         d->index = index;
-        persistentIndices->append(d);
+        persistentIndexes->append(d);
     }
     return d;
 }
@@ -143,7 +143,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
     if (data != &QPersistentModelIndexData::shared_null) {
-        data->model->d_func()->persistentIndices.removeAll(data);
+        data->model->d_func()->persistentIndexes.removeAll(data);
         delete data;
     }
 }
@@ -209,6 +209,11 @@ int QPersistentModelIndex::column() const
 void *QPersistentModelIndex::data() const
 {
     return d->index.data();
+}
+
+QModelIndex::Type QPersistentModelIndex::type() const
+{
+    return d->index.type();
 }
 
 bool QPersistentModelIndex::isValid() const
@@ -404,7 +409,7 @@ QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *p
 */
 QAbstractItemModel::~QAbstractItemModel()
 {
-    invalidatePersistentIndices();
+    invalidatePersistentIndexes();
 }
 
 /*!
@@ -642,7 +647,7 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
   you want to be able to insert rows you must reimplement this
   function.
 */
-bool QAbstractItemModel::insertRow(int, const QModelIndex &, int)
+bool QAbstractItemModel::insertRows(int, const QModelIndex &, int)
 {
     return false;
 }
@@ -659,7 +664,7 @@ bool QAbstractItemModel::insertRow(int, const QModelIndex &, int)
   you want to be able to insert columns you must reimplement this
   function.
 */
-bool QAbstractItemModel::insertColumn(int, const QModelIndex &, int)
+bool QAbstractItemModel::insertColumns(int, const QModelIndex &, int)
 {
     return false;
 }
@@ -671,7 +676,7 @@ bool QAbstractItemModel::insertColumn(int, const QModelIndex &, int)
 
     The base class implementation does nothing and returns false.
 */
-bool QAbstractItemModel::removeRow(int, const QModelIndex &, int)
+bool QAbstractItemModel::removeRows(int, const QModelIndex &, int)
 {
     return false;
 }
@@ -683,7 +688,7 @@ bool QAbstractItemModel::removeRow(int, const QModelIndex &, int)
 
     The base class implementation does nothing and returns false.
 */
-bool QAbstractItemModel::removeColumn(int, const QModelIndex &, int)
+bool QAbstractItemModel::removeColumns(int, const QModelIndex &, int)
 {
     return false;
 }
@@ -826,7 +831,6 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     QModelIndex idx;
     QModelIndex par = parent(start);
     QString itemText;
-    bool keepSearching = true;
     int col = start.column();
     int matchType = flags & MatchExactly;
 
@@ -873,12 +877,27 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     model indexes. Affects the given \a parent index, or if the \a
     parent is invalid affects all indexes.
 */
-void QAbstractItemModel::invalidatePersistentIndices(const QModelIndex &parent)
+void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
 {
     bool all = !parent.isValid();
-    for (int i = 0; i < d->persistentIndices.count(); ++i)
-        if (all || this->parent(d->persistentIndices.at(i)->index) == parent)
-            d->persistentIndices[i]->index = QModelIndex();
+    for (int i = 0; i < d->persistentIndexes.count(); ++i)
+        if (all || this->parent(d->persistentIndexes.at(i)->index) == parent)
+            d->persistentIndexes[i]->index = QModelIndex();
+}
+
+int QAbstractItemModel::persistentIndexesCount() const
+{
+    return d->persistentIndexes.count();
+}
+
+QModelIndex QAbstractItemModel::persistentIndexAt(int position) const
+{
+    return d->persistentIndexes.at(position)->index;
+}
+
+void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &index)
+{
+    d->persistentIndexes[position]->index = index;
 }
 
 #ifndef QT_NO_DEBUG

@@ -66,6 +66,7 @@ public:
     int row() const;
     int column() const;
     void *data() const;
+    QModelIndex::Type type() const;
     bool isValid() const;
     bool operator==(const QModelIndex &other) const;
     bool operator!=(const QModelIndex &other) const;
@@ -96,16 +97,16 @@ public:
         User = 32
     };
 
-    // Documented in qstring.cpp
     enum ItemMatch {
-        MatchContains = 0x0000,
-        MatchFromStart = 0x0001,
-        MatchFromEnd = 0x0002,
+        MatchContains = 0,
+        MatchFromStart = 1,
+        MatchFromEnd = 2,
         MatchExactly = MatchFromStart | MatchFromEnd,
-        MatchCase = 0x0004,
-        MatchWrap = 0x0008,
+        MatchCase = 4,
+        MatchWrap = 8,
         MatchDefault = MatchFromStart | MatchWrap
     };
+    
     Q_DECLARE_FLAGS(ItemMatchFlags, ItemMatch);
 
     QAbstractItemModel(QObject *parent = 0);
@@ -138,10 +139,10 @@ public:
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
-    virtual bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool insertColumn(int column, const QModelIndex &parent = 0, int count = 1);
-    virtual bool removeRow(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool removeColumn(int column, const QModelIndex &parent = 0, int count = 1);
+    virtual bool insertRows(int row, const QModelIndex &parent = 0, int count = 1);
+    virtual bool insertColumns(int column, const QModelIndex &parent = 0, int count = 1);
+    virtual bool removeRows(int row, const QModelIndex &parent = 0, int count = 1);
+    virtual bool removeColumns(int column, const QModelIndex &parent = 0, int count = 1);
 
     virtual bool isSelectable(const QModelIndex &index) const;
     virtual bool isEditable(const QModelIndex &index) const;
@@ -168,7 +169,12 @@ signals:
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
-    void invalidatePersistentIndices(const QModelIndex &parent = 0);
+
+    void invalidatePersistentIndexes(const QModelIndex &parent = 0);
+    int persistentIndexesCount() const;
+    QModelIndex persistentIndexAt(int position) const;
+    void setPersistentIndex(int position, const QModelIndex &index);
+
     friend class QPersistentModelIndexData;
 };
 

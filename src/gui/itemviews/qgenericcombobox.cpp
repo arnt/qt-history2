@@ -241,7 +241,7 @@ void QGenericComboBox::setEditable(bool editable)
 QModelIndex QGenericComboBox::insertItem(const QString &text, int row)
 {
     QModelIndex item;
-    if (model()->insertRow(row, root())) {
+    if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
         model()->setData(item, QAbstractItemModel::Display, text);
     }
@@ -251,7 +251,7 @@ QModelIndex QGenericComboBox::insertItem(const QString &text, int row)
 QModelIndex QGenericComboBox::insertItem(const QIconSet &icon, int row)
 {
     QModelIndex item;
-    if (model()->insertRow(row, root())) {
+    if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
         model()->setData(item, QAbstractItemModel::Decoration, icon);
     }
@@ -261,7 +261,7 @@ QModelIndex QGenericComboBox::insertItem(const QIconSet &icon, int row)
 QModelIndex QGenericComboBox::insertItem(const QString &text, const QIconSet &icon, int row)
 {
     QModelIndex item;
-    if (model()->insertRow(row, root())) {
+    if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
         QMap<int, QVariant> values;
         values.insert(QAbstractItemModel::Display, text);

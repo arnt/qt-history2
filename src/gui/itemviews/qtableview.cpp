@@ -11,11 +11,11 @@ public:
     virtual void setRowCount(int rows);
     virtual void setColumnCount(int columns);
 
-    virtual bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool insertColumn(int column, const QModelIndex &parent = 0, int count = 1);
+    virtual bool insertRows(int row, const QModelIndex &parent = 0, int count = 1);
+    virtual bool insertColumns(int column, const QModelIndex &parent = 0, int count = 1);
 
-    virtual bool removeRow(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool removeColumn(int column, const QModelIndex &parent = 0, int count = 1);
+    virtual bool removeRows(int row, const QModelIndex &parent = 0, int count = 1);
+    virtual bool removeColumns(int column, const QModelIndex &parent = 0, int count = 1);
 
     virtual void setText(int row, int column, const QString &text);
     virtual void setIconSet(int row, int column, const QIconSet &iconSet);
@@ -114,31 +114,31 @@ void QTableModel::setColumnCount(int columns)
         emit contentsRemoved(topLeft, bottomRight);
 }
 
-bool QTableModel::insertRow(int, const QModelIndex &, int)
+bool QTableModel::insertRows(int, const QModelIndex &, int)
 {
 // FIXME: not implemented
-    qDebug("insertRow: not implemented");
+    qDebug("insertRows: not implemented");
     return false;
 }
 
-bool QTableModel::insertColumn(int, const QModelIndex &, int)
+bool QTableModel::insertColumns(int, const QModelIndex &, int)
 {
 // FIXME: not implemented
-    qDebug("insertColumn: not implemented");
+    qDebug("insertColumns: not implemented");
     return false;
 }
 
-bool QTableModel::removeRow(int, const QModelIndex &, int)
+bool QTableModel::removeRows(int, const QModelIndex &, int)
 {
 // FIXME: not implemented
-    qDebug("removeRow: not implemented");
+    qDebug("removeRows: not implemented");
     return false;
 }
 
-bool QTableModel::removeColumn(int, const QModelIndex &, int)
+bool QTableModel::removeColumns(int, const QModelIndex &, int)
 {
 // FIXME: not implemented
-    qDebug("removeColumn: not implemented");
+    qDebug("removeColumns: not implemented");
     return false;
 }
 
