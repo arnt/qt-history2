@@ -63,10 +63,10 @@ public:
   top of the tool bar dock; others are placed next to the previous
   tool bar and word-wrapped as necessary.
   Also you can specify if a toolbar should fill a whole row of a dock
-  (if the toolbar is Horizontal) of not, with setFullWidth(), by default
+  (if the toolbar is Horizontal) or not, with setStretchable(), by default
   it is set to FALSE. Normally you want to set it to fill a full row,
   if you have a stretchable widget in the toolbar (see setStretchableWidget()).
-  
+
   The tool bar is able to arrange its buttons horizontally or
   vertically (see setOrientation() for details) and draws the
   appropriate frames around the tool button in Windows and Motif
@@ -314,15 +314,20 @@ QMainWindow * QToolBar::mainWindow()
 
 /*!
   Sets \a w to be expanded if this toolbar is requested to stretch
-  (because QMainWindow right-justifies the dock it's in or fullWidth()
+  (because QMainWindow right-justifies the dock it's in or stretchable()
   of this toolbar is TRUE).
+  
+  If you call setStretchableWidget() and the toolbar is not stretchable
+  yet, setStretchable( TRUE ) is called.
 
-  \sa QMainWindow::setRightJustification(), setFullWidth()
+  \sa QMainWindow::setRightJustification(), setStretchable()
 */
 
 void QToolBar::setStretchableWidget( QWidget * w )
 {
     sw = w;
+    if ( !stretchable() )
+	setStretchable( TRUE );
 }
 
 
@@ -426,7 +431,7 @@ void QToolBar::endMoving( QToolBar *tb )
   \sa QMainWindow::setRightJustification()
 */
 
-void QToolBar::setFullWidth( bool b )
+void QToolBar::setStretchable( bool b )
 {
     if ( d->fullWidth != b ) {
 	d->fullWidth = TRUE;
@@ -439,10 +444,10 @@ void QToolBar::setFullWidth( bool b )
   Returns TRUE, if the toolbar will be resized to fill a whole
   row of a horizontal toolbar dock in a mainwindow, else FALSE.
 
-  \sa setFullWidth()
+  \sa setStretchable()
 */
 
-bool QToolBar::fullWidth() const
+bool QToolBar::stretchable() const
 {
     return d->fullWidth;
 }

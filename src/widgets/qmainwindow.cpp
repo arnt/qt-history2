@@ -83,7 +83,7 @@
   Several functions let you change the appearance of a QMainWindow
   globally: <ul>
   <li> setRightJustification() determines whether QMainWindow
-  should ensure that the toolbars fill the available space (see also QToolBar::setFullWidth()),
+  should ensure that the toolbars fill the available space (see also QToolBar::setStretchable()),
   <li>  setUsesBigPixmaps() determines whether QToolButton (and other
   classes) should draw small or large pixmaps (see QIconSet for more
   about that),
@@ -1165,7 +1165,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( ( !tmp || tmp->nl || tmp->t->fullWidth() ) && !t->t->fullWidth() )
+			if ( ( !tmp || tmp->nl || tmp->t->stretchable() ) && !t->t->stretchable() )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
 			    ipos = QMainWindowPrivate::After;
@@ -1174,7 +1174,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl || t->t->y() > tmp->t->y() || t->t->fullWidth() ) {
+		if ( !t || t->nl || t->t->y() > tmp->t->y() || t->t->stretchable() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
@@ -1190,7 +1190,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( ( !tmp || tmp->nl || tmp->t->fullWidth() ) && !t->t->fullWidth() )
+			if ( ( !tmp || tmp->nl || tmp->t->stretchable() ) && !t->t->stretchable() )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
 			    ipos = QMainWindowPrivate::After;
@@ -1199,7 +1199,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl || t->t->x() > tmp->t->x() || t->t->fullWidth() ) {
+		if ( !t || t->nl || t->t->x() > tmp->t->x() || t->t->stretchable() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
@@ -1231,11 +1231,11 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	QMainWindowPrivate::ToolBar * t = dock->first();
 	bool lastWasFull = FALSE;
 	while ( t ) {
-	    if ( !layout || t->nl || t->t->fullWidth() || lastWasFull ) {
+	    if ( !layout || t->nl || t->t->stretchable() || lastWasFull ) {
 		layout = new QToolLayout( tl, -1, "tool layout" );
 		layout->setDirection( dockDirection );
-		layout->setRightJustified( justify || t->t->fullWidth() );
-		lastWasFull = t->t->fullWidth();
+		layout->setRightJustified( justify || t->t->stretchable() );
+		lastWasFull = t->t->stretchable();
 	    } else
 		lastWasFull = FALSE;
 	
@@ -1584,7 +1584,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 
   The default is FALSE.
 
-  \sa rightJustification(), QToolBar::setFullWidth()
+  \sa rightJustification(), QToolBar::setStretchable()
 */
 
 void QMainWindow::setRightJustification( bool enable )

@@ -65,9 +65,9 @@ public:
     virtual void setLabel( const QString & );
     QString label() const;
 
-    void setFullWidth( bool b );
-    bool fullWidth() const;
-    
+    void setStretchable( bool b );
+    bool stretchable() const;
+
     void clear();
 
 protected:

@@ -211,7 +211,6 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 			       this, SLOT(print2()), fileTools2, "print file2" );
 
 	fileTools2->setStretchableWidget( new QComboBox( TRUE, fileTools2 ) );
-	fileTools2->setFullWidth( TRUE );
 	addToolBar( fileTools2, "Toolbar 2", Top, FALSE );
 	return fileTools2;
     } else if ( name == "file3 operations" ) {
