@@ -118,7 +118,7 @@ void PixmapPropertyEditor::setPath(const QString &path)
         return;
 
     m_pixmap = pm;
-    m_button->setPixmap(m_pixmap);
+    m_button->setIcon(m_pixmap);
     emit pixmapChanged(m_pixmap);
 }
 
@@ -137,7 +137,7 @@ void PixmapPropertyEditor::setPixmap(const QPixmap &pm)
     }
 
     m_pixmap = pm;
-    m_button->setPixmap(m_pixmap);
+    m_button->setIcon(m_pixmap);
     emit pixmapChanged(m_pixmap);
 }
 
@@ -269,7 +269,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 break;
 #endif
             default:
-                qWarning("property '%s' with type '%d' not supported yet!", pname.latin1(), value.type());
+                qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";
                 break;
             } // end switch
         }

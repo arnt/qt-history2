@@ -27,14 +27,14 @@ KeySequenceEditor::KeySequenceEditor(QWidget *parent)
     m_lineEdit->installEventFilter(this);
     m_resetButton = new QToolButton(this);
     m_resetButton->setIcon(QPixmap(":/trolltech/formeditor/images/resetproperty.png"));
-    
+
     setFocusProxy(m_lineEdit);
     m_resetButton->setFocusPolicy(Qt::NoFocus);
-    
+
     reset();
 
     connect(m_lineEdit, SIGNAL(textChanged(const QString&)),
-        this, SIGNAL(changed()));        
+        this, SIGNAL(changed()));
     connect(m_resetButton, SIGNAL(clicked()),
         this, SLOT(reset()));
 }
@@ -46,7 +46,7 @@ KeySequenceEditor::~KeySequenceEditor()
 bool KeySequenceEditor::eventFilter(QObject *o, QEvent *e)
 {
     Q_UNUSED(o);
-    
+
     if ( e->type() == QEvent::KeyPress ) {
         QKeyEvent *k = static_cast<QKeyEvent*>(e);
         if ( !mouseEnter &&
@@ -120,16 +120,16 @@ void KeySequenceEditor::setKeySequence(const QKeySequence &ks)
     lineEdit()->setText(keySequence());
 }
 
-int KeySequenceEditor::translateModifiers(Qt::ButtonState state)
+int KeySequenceEditor::translateModifiers(Qt::KeyboardModifiers modifier)
 {
     int result = 0;
-    if (state & Qt::ShiftButton)
+    if (modifier & Qt::ShiftModifier)
         result |= Qt::SHIFT;
-    if (state & Qt::ControlButton)
+    if (modifier & Qt::ControlModifier)
         result |= Qt::CTRL;
-    if (state & Qt::MetaButton)
+    if (modifier & Qt::MetaModifier)
         result |= Qt::META;
-    if (state & Qt::AltButton)
+    if (modifier & Qt::AltModifier)
         result |= Qt::ALT;
     return result;
 }

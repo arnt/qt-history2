@@ -1,8 +1,6 @@
 TEMPLATE = lib
 
-QT += qt3support
-
-CONFIG += qt 
+CONFIG += qt
 CONFIG += staticlib
 DEFINES += QT_PROPERTYEDITOR_LIBRARY
 

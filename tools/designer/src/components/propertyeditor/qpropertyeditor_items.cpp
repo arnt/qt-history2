@@ -68,7 +68,7 @@ QString BoolProperty::toString() const
 QWidget *BoolProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
-    combo->insertStringList(QStringList() << "false" << "true");
+    combo->insertItems(-1, QStringList() << "false" << "true");
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
     return combo;
@@ -275,7 +275,7 @@ QString ListProperty::toString() const
 QWidget *ListProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
-    combo->insertStringList(items());
+    combo->insertItems(-1, items());
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
     return combo;
 }
@@ -618,7 +618,7 @@ int MapProperty::indexOf(const QVariant &value) const
 QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
-    combo->insertStringList(m_keys);
+    combo->insertItems(-1, m_keys);
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
     return combo;
@@ -1003,7 +1003,7 @@ QPixmap CursorProperty::cursorPixmap(int shape)
 
 void CursorProperty::addCursor(QComboBox *combo, int shape) const
 {
-    combo->insertItem(cursorPixmap(shape), cursorName(shape), shape);
+    combo->insertItem(-1, cursorPixmap(shape), cursorName(shape), shape);
 }
 
 

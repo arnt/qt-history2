@@ -30,7 +30,7 @@ public:
     virtual ~KeySequenceEditor();
 
     QKeySequence keySequence() const;
-    
+
     QToolButton *resetButton() const;
     QLineEdit *lineEdit() const;
 
@@ -38,14 +38,14 @@ public:
 
 signals:
     void changed();
-    
+
 public slots:
     void setKeySequence(const QKeySequence &keySequence);
     void reset();
 
 protected:
     void handleKeyEvent(QKeyEvent *e);
-    int translateModifiers(Qt::ButtonState state);
+    int translateModifiers(Qt::KeyboardModifiers modifier);
 
 private:
     QLineEdit *m_lineEdit;
