@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#33 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#33 $";
 #endif
 
 
@@ -39,7 +39,7 @@ be customized except by inheriting the class.
 
 
 /*!
-\fn void QLineEdit::textChanged( char * )
+\fn void QLineEdit::textChanged( const char * )
 This signal is emitted every time the text has changed.	 The argument
 is the new text.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#10 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,7 +13,7 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#10 $";
 #endif
 
 
@@ -219,7 +219,8 @@ QIODevice::~QIODevice()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn void QIODevice::resetStatus() const
+  \fn void QIODevice::resetStatus()
+
   Sets the IO device status to \c IO_Ok.
 
   \sa status()
@@ -302,7 +303,8 @@ void QIODevice::setStatus( int s )		// set status
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn void QIODevice::flush( int mode ) const
+  \fn void QIODevice::flush( int mode )
+
   Flushes an open IO device.
 
   This virtual function must be reimplemented by subclasses.
