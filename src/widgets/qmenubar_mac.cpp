@@ -197,7 +197,7 @@ uint QMenuBar::isCommand(QMenuItem *it)
     }
     //shall we?
     if(ret && activeMenuBar &&
-       (!activeMenuBar->mac_d->commands || activeMenuBar->mac_d->commands->find(ret))) {
+       (!activeMenuBar->mac_d->commands || !activeMenuBar->mac_d->commands->find(ret))) {
 	if(ret == kHICommandAbout || ret == 'CUTE') {
 	    if(activeMenuBar->mac_d->apple_menu) {
 		QString text = it->text();
