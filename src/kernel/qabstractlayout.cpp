@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#61 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -648,6 +648,7 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
 	insideSpacing = border;
     else
 	insideSpacing = space;
+    installEventFilter( this );//###binary compatibility.
 }
 
 
@@ -669,6 +670,7 @@ QLayout::QLayout( QLayout *parentLayout, int space, const char *name )
     topLevel = FALSE;
     insideSpacing = space < 0 ? parentLayout->insideSpacing : space;
     parentLayout->addItem( this );
+    installEventFilter( this );//###binary compatibility.
 }
 
 
@@ -687,6 +689,7 @@ QLayout::QLayout( int space, const char *name )
     menubar = 0;
     topLevel	 = FALSE;
     insideSpacing = space;
+    installEventFilter( this );//###binary compatibility.
 }
 
 
@@ -888,11 +891,28 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
 }
 /*!
   Performs child widget layout when the parent widget is resized.
-  Also handles removal of widgets.
+  Also handles removal of widgets and child layouts.
 */
 
 bool QLayout::eventFilter( QObject *o, QEvent *e )
 {
+    if ( o == this && e->type() == QEvent::ChildRemoved ) {
+	//we cannot implement childEvent() or event() because of 
+	//###binary compatibility.
+	QChildEvent *c = (QChildEvent*)e;
+	QLayoutIterator it = iterator();
+	QLayoutItem *item;
+	while ( (item = it.current() ) ) {
+	    if ( item == (QLayout*)c->child() ) {
+		it.takeCurrent();
+		invalidate();
+		return FALSE;
+	    }
+	    ++it;
+	}
+	return FALSE;
+    }
+
     if ( !o->isWidgetType() )
 	return FALSE;
 
