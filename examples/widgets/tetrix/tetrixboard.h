@@ -18,6 +18,7 @@ public:
 
     void setNextPieceLabel(QLabel *label);
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
 public slots:
     void start();

@@ -24,6 +24,12 @@ QSize TetrixBoard::sizeHint() const
                  BoardHeight * 15 + frameWidth() * 2);
 }
 
+QSize TetrixBoard::minimumSizeHint() const
+{
+    return QSize(BoardWidth * 5 + frameWidth() * 2,
+                 BoardHeight * 5 + frameWidth() * 2);
+}
+
 void TetrixBoard::start()
 {
     if (isPaused)
