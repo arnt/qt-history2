@@ -72,8 +72,8 @@ public:
    ~QStrIList()			{ clear(); }
 private:
     int	  compareItems( Item s1, Item s2 )
-				{ return stricmp((const char*)s1,
-						 (const char*)s2); }
+				{ return strcasecmp((const char*)s1,
+						    (const char*)s2); }
 };
 
 
