@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#1 $
+** $Id: //depot/qt/main/src/moc/moc.y#2 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -499,7 +499,7 @@ int main( int argc, char **argv )		// program starts here
 	fprintf( stderr, "Usage:  moc <header-file>\n" );
 	return 1;
     }
-    startFSTrace();
+
     fileName = argv[1];
     yyin = fopen( fileName, "r" );
     if ( !yyin ) {
@@ -508,10 +508,10 @@ int main( int argc, char **argv )		// program starts here
     }
     init();
     yyparse();
- //   methods.clear();
- //   signals.clear();
- //   slots.clear();
-    stopFSTrace();
+    methods.clear();
+    signals.clear();
+    slots.clear();
+
     return 0;
 }
 
