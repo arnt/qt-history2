@@ -918,8 +918,8 @@ static int qInitialLobSize(QOCIPrivate *d, OCILobLocator *lob)
     return i;
 }
 
-template<class T>
-int qReadLob(T &buf, QOCIPrivate *d, OCILobLocator *lob, const int sz)
+template<class T, int sz>
+int qReadLob(T &buf, QOCIPrivate *d, OCILobLocator *lob)
 {
     ub4 read = 0;
     int r;
@@ -929,7 +929,7 @@ int qReadLob(T &buf, QOCIPrivate *d, OCILobLocator *lob, const int sz)
     while (true) {
         ub4 amount = ub4(-1); // read maximum amount of data
         r = OCILobRead(d->svc, d->err, lob, &amount, read + 1, (char*)(buf.constData()) + read * sz,
-                (buf.size() - read) * sz, 0, 0, QOCIEncoding, 0);
+                (buf.size() - read) * sz, 0, 0, sz == 1 ? ub2(0) : ub2(QOCIEncoding), 0);
 
 #ifdef QOCI_ORACLE10_WORKAROUND
         /* Hack, because Oracle suddently returns the amount in bytes when not reading from 0
@@ -966,11 +966,11 @@ int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
 
         if (isClob) {
             QString str;
-            r = qReadLob(str, d, lob, sizeof(QChar));
+            r = qReadLob<QString, sizeof(QChar)>(str, d, lob);
             var = str;
         } else {
             QByteArray buf;
-            r = qReadLob(buf, d, lob, sizeof(char));
+            r = qReadLob<QByteArray, sizeof(char)>(buf, d, lob);
             var = buf;
         }
         if (r == OCI_SUCCESS)
