@@ -238,6 +238,7 @@ class QSingleShotTimer : public QObject
 {
 public:
     bool    start( int msec, QObject *r, const char * m );
+    bool    isActive() const { return timerId > 0; }
 protected:
     bool    event( QEvent * );
 private:
@@ -261,7 +262,7 @@ bool QSingleShotTimer::event( QEvent * )
     qKillTimer( timerId );			// no more timeouts
     signal.activate();				// emit the signal
     signal.disconnect( 0, 0 );
-    sst_list->insert( 0, this );		// store in free list
+    timerId = 0;                                // mark as inactive
     return TRUE;
 }
 
@@ -298,11 +299,14 @@ void QTimer::singleShot( int msec, QObject *receiver, const char *member )
 {
     if ( !sst_list )
 	sst_init();
-    QSingleShotTimer *sst;
-    if ( sst_list->isEmpty() ) {		// create new ss timer
+    // search the list for a free ss timer we could reuse
+    QSingleShotTimer *sst = (QSingleShotTimer*)sst_list->first();
+    while ( sst && sst->isActive() )
+        sst = (QSingleShotTimer*)sst_list->next();
+    // create a new one if not successful
+    if ( !sst ) {
 	sst = new QSingleShotTimer;
-    } else {					// use existing one
-	sst = (QSingleShotTimer *)sst_list->take( 0 );
+        sst_list->append( sst );
     }
     sst->start(msec, receiver, member);
 }
