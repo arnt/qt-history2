@@ -657,8 +657,8 @@ static const char * const tis_620locales[] = {
 static bool try_locale_list( const char * const locale[], const char * lang )
 {
     int i;
-    for( i=0; lang && *lang && locale[i] && *locale[i] && strcmp(locale[i], lang); i++ )
-    { }
+    for( i=0; locale[i] && *locale[i] && strcmp(locale[i], lang); i++ )
+	;
     return locale[i] != 0;
 }
 
@@ -798,7 +798,7 @@ QTextCodec* QTextCodec::codecForLocale()
 	    try_by_name = lang;
 
 	// Now do the quessing.
-	if ( !localeMapper && try_by_name && *try_by_name != 0 ) {
+	if ( lang && *lang && !localeMapper && try_by_name && *try_by_name ) {
 	    if ( try_locale_list( iso8859_2locales, lang ) )
 		localeMapper = codecForName( "ISO 8859-2" );
 	    else if ( try_locale_list( iso8859_3locales, lang ) )
