@@ -60,18 +60,10 @@ public:
     QT_COMPAT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state);
     QT_COMPAT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
                                       Qt::ButtonState button, int state);
-    inline QT_COMPAT Qt::ButtonState state() const { 
-        Qt::ButtonState ret(int(mouseState)|int(modifiers()));
-        if(type() != QEvent::MouseButtonRelease)
-            return ret ^ b;
-        return ret; 
-    }
-    inline QT_COMPAT Qt::ButtonState stateAfter() const {
-        Qt::ButtonState ret(int(mouseState)|int(modifiers()));
-        if(type() == QEvent::MouseButtonRelease)
-            return ret ^ b;
-        return ret; 
-    }
+    inline QT_COMPAT Qt::ButtonState state() const
+    { return Qt::ButtonState((mouseState^b)|int(modifiers())); }
+    inline QT_COMPAT Qt::ButtonState stateAfter() const
+    { return Qt::ButtonState(int(mouseState)|int(modifiers())); }
 #endif
 protected:
     QPoint p, g;
