@@ -14,10 +14,14 @@
 	<p>In order to change that, you have to install a profile. You find the
 	   profile file (help.adp) in the help directory. The installation itself
 	   is straightforward. Quit the example and enter</p>
-	<p>assistant helpdemo.adp /path/to/your/qt/examples/help/directory</p>
+	<p>assistant -addprofile helpdemo.adp /path/to/your/qt/examples/help/directory</p>
 	<p>Now, Qt Assistant has installed the profile for this help application.
 	   If you restart the example and invoke the help, you'll realize that
 	   Qt Assistant is adapted for this example, i.e. no Qt related documention
 	   will be visible. Also the caption and some icons have been changed.</p>
+	<p>NOTE: If you haven't run Qt Assistant before and install this profile
+	   you have to install the Qt documentation manually. Do do this start Qt
+	   Assistant with:</p>
+	<p>assistant -intallqtdoc</p>
     </body>
 </html>
