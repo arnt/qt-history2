@@ -99,6 +99,7 @@ public:
     void setBlinkingCursorEnabled(bool enable);
 
     void extendWordwiseSelection(int suggestedNewPosition, qreal mouseXPosition);
+    void extendLinewiseSelection(int suggestedNewPosition);
 
     QTextDocument *doc;
     bool cursorOn;
@@ -136,6 +137,7 @@ public:
     QString anchorToScrollToWhenVisible;
 
     QTextCursor selectedWordOnDoubleClick;
+    QTextCursor selectedLineOnDoubleClick;
 };
 
 #endif // QTEXTEDIT_P_H

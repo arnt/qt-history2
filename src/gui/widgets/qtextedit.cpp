@@ -432,8 +432,10 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
     cursor.setPosition(pos, mode);
     q->ensureCursorVisible();
 
-    if (mode != QTextCursor::KeepAnchor)
+    if (mode != QTextCursor::KeepAnchor) {
         selectedWordOnDoubleClick = QTextCursor();
+        selectedLineOnDoubleClick = QTextCursor();
+    }
 }
 
 void QTextEditPrivate::repaintContents(const QRect &contentsRect)
@@ -631,6 +633,28 @@ void QTextEditPrivate::extendWordwiseSelection(int suggestedNewPosition, qreal m
         setCursorPosition(wordStartPos, QTextCursor::KeepAnchor);
     else
         setCursorPosition(wordEndPos, QTextCursor::KeepAnchor);
+}
+
+void QTextEditPrivate::extendLinewiseSelection(int suggestedNewPosition)
+{
+    Q_Q(QTextEdit);
+
+    // if inside the initial selected line keep that
+    if (suggestedNewPosition >= selectedLineOnDoubleClick.selectionStart()
+        && suggestedNewPosition <= selectedLineOnDoubleClick.selectionEnd()) {
+        q->setTextCursor(selectedLineOnDoubleClick);
+        return;
+    }
+
+    if (suggestedNewPosition < selectedLineOnDoubleClick.position()) {
+        cursor.setPosition(selectedLineOnDoubleClick.selectionEnd());
+        cursor.setPosition(suggestedNewPosition, QTextCursor::KeepAnchor);
+        cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+    } else {
+        cursor.setPosition(selectedLineOnDoubleClick.selectionStart());
+        cursor.setPosition(suggestedNewPosition, QTextCursor::KeepAnchor);
+        cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+    }
 }
 
 /*!
@@ -1652,8 +1676,14 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     if (d->trippleClickTimer.isActive()
         && ((e->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
 
+#if defined(Q_WS_MAC)
+        d->cursor.select(QTextCursor::LineUnderCursor);
+        d->selectedLineOnDoubleClick = d->cursor;
+        d->selectedWordOnDoubleClick = QTextCursor();
+#else
         d->cursor.movePosition(QTextCursor::StartOfBlock);
         d->cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+#endif
 
         d->trippleClickTimer.stop();
     } else {
@@ -1672,6 +1702,8 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
         if (e->modifiers() == Qt::ShiftModifier) {
             if (d->selectedWordOnDoubleClick.hasSelection())
                 d->extendWordwiseSelection(cursorPos, pos.x());
+            else if (d->selectedLineOnDoubleClick.hasSelection())
+                d->extendLinewiseSelection(cursorPos);
             else
                 d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
         } else {
@@ -1701,7 +1733,9 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     if (!(e->buttons() & Qt::LeftButton))
         return;
 
-    if (!(d->mousePressed || d->selectedWordOnDoubleClick.hasSelection()))
+    if (!(d->mousePressed 
+          || d->selectedWordOnDoubleClick.hasSelection()
+          || d->selectedLineOnDoubleClick.hasSelection()))
         return;
 
     if (d->mightStartDrag) {
@@ -1730,6 +1764,8 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 
     if (d->selectedWordOnDoubleClick.hasSelection())
         d->extendWordwiseSelection(newCursorPos, mouseX);
+    else if (d->selectedLineOnDoubleClick.hasSelection())
+        d->extendLinewiseSelection(newCursorPos);
     else
         d->setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
 
