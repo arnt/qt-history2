@@ -184,9 +184,11 @@ typedef void (* fAppendItems)(QTextEngine *, int &start, int &stop, BidiControl 
 static fAppendItems appendItems = qAppendItems;
 
 // creates the next QScript items.
-static void bidiItemize(QTextEngine *engine, bool rightToLeft)
+static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
 {
     BidiControl control(rightToLeft);
+
+    bool hasBidi = rightToLeft;
 
     int sor = 0;
     int eor = -1;
@@ -197,7 +199,7 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft)
     int length = engine->layoutData->string.length();
 
     if (!length)
-        return;
+        return hasBidi;
 
     const QChar *unicode = engine->layoutData->string.unicode();
     int current = 0;
@@ -242,6 +244,7 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft)
         case QChar::DirLRO:
             {
                 bool rtl = (dirCurrent == QChar::DirRLE || dirCurrent == QChar::DirRLO);
+                hasBidi |= rtl;
                 bool override = (dirCurrent == QChar::DirLRO || dirCurrent == QChar::DirRLO);
 
                 uchar level = control.level+1;
@@ -339,6 +342,7 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft)
             break;
         case QChar::DirAL:
         case QChar::DirR:
+            hasBidi = true;
             if(dir == QChar::DirON) dir = QChar::DirR;
             switch(status.last)
                 {
@@ -460,6 +464,7 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft)
                 break;
             }
         case QChar::DirAN:
+            hasBidi = true;
             dirCurrent = QChar::DirAN;
             if(dir == QChar::DirON) dir = QChar::DirAN;
             switch(status.last)
@@ -598,7 +603,7 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft)
     if (sor <= eor)
         appendItems(engine, sor, eor, control, dir);
 
-
+    return hasBidi;
 }
 
 void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrder)
@@ -923,7 +928,7 @@ void QTextEngine::itemize() const
         return;
 
     if (!(itemization_mode & QTextLayout::NoBidi)) {
-        bidiItemize(const_cast<QTextEngine *>(this), (option.layoutDirection() == Qt::RightToLeft));
+        layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.layoutDirection() == Qt::RightToLeft));
     } else {
         BidiControl control(false);
         int start = 0;
@@ -1310,6 +1315,7 @@ QTextEngine::LayoutData::LayoutData()
     memory = 0;
     allocated = 0;
     num_glyphs = 0;
+    hasBidi = false;
     used = 0;
     haveCharAttributes = false;
 }

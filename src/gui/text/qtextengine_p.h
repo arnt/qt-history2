@@ -341,7 +341,8 @@ public:
         mutable QScriptItemArray items;
         int allocated;
         void **memory;
-        int num_glyphs;
+        int num_glyphs : 31;
+        bool hasBidi;
         mutable int used;
         bool haveCharAttributes;
         QString string;

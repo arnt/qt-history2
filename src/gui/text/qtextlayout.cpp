@@ -835,10 +835,12 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
             }
             qreal y = position.y() + sl.y + sl.ascent - ascent;
             p->drawLine(QLineF(x, y, x, y + ascent + descent));
-            const int arrow_extent = 4;
-            int sign = rightToLeft ? -1 : 1;
-            p->drawLine(QLineF(x, y, x + (sign * arrow_extent/2), y + arrow_extent/2));
-            p->drawLine(QLineF(x, y+arrow_extent, x + (sign * arrow_extent/2), y + arrow_extent/2));
+            if (d->layoutData->hasBidi) {
+                const int arrow_extent = 4;
+                int sign = rightToLeft ? -1 : 1;
+                p->drawLine(QLineF(x, y, x + (sign * arrow_extent/2), y + arrow_extent/2));
+                p->drawLine(QLineF(x, y+arrow_extent, x + (sign * arrow_extent/2), y + arrow_extent/2));
+            }
             return;
         }
     }
