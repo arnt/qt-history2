@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#37 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -33,8 +33,7 @@
 
 static HWND nextClipboardViewer = 0;
 static bool inClipboardChain = FALSE;
-extern Qt::WindowsVersion qt_winver;
-		// defined in qapplication_win.cpp
+extern Qt::WindowsVersion qt_winver;		// in qapplication_win.cpp
 
 
 static QWidget *clipboardOwner()
@@ -200,22 +199,32 @@ static QClipboardData *clipboardData()
     return internalCbData;
 }
 
-static
-void renderFormat(int cf)
+
+//# QT_DEBUG_CB
+
+static void renderFormat(int cf)
 {
-    //qDebug("renderFormat(%d)",cf);
-    if ( !internalCbData ) return; // Spurious Windows message
+#if defined(QT_DEBUG_CB)
+    qDebug("renderFormat(%d)",cf);
+#endif
+    if ( !internalCbData )			// Spurious Windows message
+	return;
     QMimeSource *s = internalCbData->source();
-    if ( !s ) return; // Spurious Windows message
+    if ( !s )					// Spurious Windows message
+	return;
     const char* mime;
     for (int i=0; (mime=s->format(i)); i++) {
 	QWindowsMime* c = QWindowsMime::convertor(mime,cf);
 	if ( c ) {
 	    QByteArray md = s->encodedData(mime);
-	    //qDebug("source is %d bytes of %s",md.size(),mime);
+#if defined(QT_DEBUG_CB)
+	    qDebug("source is %d bytes of %s",md.size(),mime);
+#endif
 	    md = c->convertFromMime(md,mime,cf);
 	    int len = md.size();
-	    //qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
+#if defined(QT_DEBUG_CB)
+	    qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
+#endif
 	    HANDLE h = GlobalAlloc( GHND, len );
 	    char *d = (char *)GlobalLock( h );
 	    memcpy( d, md.data(), len );
@@ -226,16 +235,18 @@ void renderFormat(int cf)
     }
 }
 
-static
-void renderAllFormats()
+static void renderAllFormats()
 {
+#if defined(QT_DEBUG_CB)
     qDebug("renderAllFormats");
-    if ( !internalCbData ) return; // Spurious Windows message
+#endif
+    if ( !internalCbData )			// Spurious Windows message
+	return;
     QMimeSource *s = internalCbData->source();
-    if ( !s ) return; // Spurious Windows message
-    // ...
+    if ( !s )					// Spurious Windows message
+	return;
+    // ###### Warwick?
 }
-
 
 
 bool QClipboard::event( QEvent *e )
@@ -278,7 +289,6 @@ bool QClipboard::event( QEvent *e )
 
     return TRUE;
 }
-
 
 
 void QClipboard::clear()
