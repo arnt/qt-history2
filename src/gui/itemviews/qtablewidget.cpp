@@ -335,9 +335,9 @@ bool QTableModel::greaterThan(const QTableWidgetItem *left, const QTableWidgetIt
 QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     QTableWidgetItem *itm = 0;
-    if (orientation == Qt::Horizontal)
+    if (orientation == Qt::Horizontal && section < horizontal.count())
         itm = horizontal.at(section);
-    else
+    else if (section < vertical.count())
         itm = vertical.at(section);
     if (itm)
         return itm->data(role);
