@@ -612,7 +612,7 @@ void QWidgetPrivate::qt_clean_root_win()
                 w->setWinId(0); //at least now we'll just crash
         }
     }
-    DisposeWindow(qt_root_win);
+    ReleaseWindow(qt_root_win);
     qt_root_win = NULL;
 }
 
@@ -651,7 +651,7 @@ bool QWidgetPrivate::qt_recreate_root_win() {
     }
     //cleanup old window
     old_root_hiview = 0;
-    DisposeWindow(old_root_win);
+    ReleaseWindow(old_root_win);
     return true;
 }
 
@@ -1003,7 +1003,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         WindowPtr window = isTopLevel() ? qt_mac_window_for(destroy_hiview) : 0;
         CFRelease(destroy_hiview);
         if(window)
-            DisposeWindow(window);
+            ReleaseWindow(window);
     }
     qt_mac_unicode_init(this);
 }
@@ -1042,7 +1042,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 CFRelease(hiview);
                 if(window) {
                     RemoveWindowProperty(qt_mac_window_for(this), kWidgetCreatorQt, kWidgetPropertyQWidget);
-                    DisposeWindow(window);
+                    ReleaseWindow(window);
                 }
             }
         }
@@ -1116,7 +1116,7 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
         HIViewRemoveFromSuperview(old_id);
         CFRelease(old_id);
         if(window)
-            DisposeWindow(window);
+            ReleaseWindow(window);
     }
 }
 
