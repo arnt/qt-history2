@@ -31,8 +31,7 @@ HEADERS += \
 	kernel/qvariant.h \
 	kernel/qwhatsthis.h \
 	kernel/qwidget.h \
-	kernel/qwindowdefs.h \
-	kernel/qsettings.h
+	kernel/qwindowdefs.h 
 
 SOURCES += \
 	kernel/qabstractlayout.cpp \
@@ -56,8 +55,7 @@ SOURCES += \
 	kernel/qtooltip.cpp \
 	kernel/qvariant.cpp \
 	kernel/qwhatsthis.cpp \
-	kernel/qwidget.cpp \
-	kernel/qsettings.cpp
+	kernel/qwidget.cpp 
 
 
 win32 {

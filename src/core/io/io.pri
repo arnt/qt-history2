@@ -18,8 +18,8 @@ HEADERS +=  \
         io/qresource.h \
         io/qresourceengine_p.h \
 	io/qurl.h \
-	io/qcoresettings.h \
-	io/qcoresettings_p.h
+	io/qsettings.h \
+	io/qsettings_p.h
 
 
 SOURCES += \
@@ -37,15 +37,15 @@ SOURCES += \
         io/qresource.cpp \
         io/qresourceengine.cpp \
 	io/qurl.cpp \
-	io/qcoresettings.cpp
+	io/qsettings.cpp
 
 win32 {
-	SOURCES += io/qcoresettings_win.cpp
+	SOURCES += io/qsettings_win.cpp
         SOURCES += io/qprocess_win.cpp
 	wince-*:SOURCES += io/qfileengine_wce.cpp
 	else:SOURCES += io/qfileengine_win.cpp
 } else:unix {
 	SOURCES += io/qfileengine_unix.cpp
         SOURCES += io/qprocess_unix.cpp
-	mac:SOURCES += io/qcoresettings_mac.cpp
+	mac:SOURCES += io/qsettings_mac.cpp
 }

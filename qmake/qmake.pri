@@ -54,7 +54,7 @@ bootstrap { #Qt code
         qurl.cpp \
         qunicodetables.cpp \
         quuid.cpp \
-	qcoresettings.cpp \
+	qsettings.cpp \
 	qcorevariant.cpp \
 	qrect.cpp \
 	qpoint.cpp \
@@ -98,12 +98,12 @@ bootstrap { #Qt code
     unix {
         SOURCES += qfileengine_unix.cpp
         mac {
-          SOURCES += qcore_mac.cpp qcoresettings_mac.cpp
+          SOURCES += qcore_mac.cpp qsettings_mac.cpp
           QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
           LIBS += -framework CoreServices
         }
     } else:win32 {
-	SOURCES += qfileengine_win.cpp qcoresettings_win.cpp
+	SOURCES += qfileengine_win.cpp qsettings_win.cpp
         win32-msvc*:LIBS += ole32.lib advapi32.lib
     }
 

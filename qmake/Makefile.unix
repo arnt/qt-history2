@@ -9,7 +9,7 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfile.o \
       qfileengine_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qtemporaryfile.o \
-      qmap.o qconfig.o qunicodetables.o qmetatype.o qcoresettings.o qcorevariant.o \
+      qmap.o qconfig.o qunicodetables.o qmetatype.o qsettings.o qcorevariant.o \
       qlocale.o qlinkedlist.o qpoint.o qrect.o qsize.o qurl.o @QMAKE_QTOBJS@
 
 #all sources, used for the depend target
@@ -72,11 +72,11 @@ qsize.o: @SOURCE_PATH@/src/core/tools/qsize.cpp
 qrect.o: @SOURCE_PATH@/src/core/tools/qrect.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qrect.cpp
 
-qcoresettings.o: @SOURCE_PATH@/src/core/io/qcoresettings.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qcoresettings.cpp
+qsettings.o: @SOURCE_PATH@/src/core/io/qsettings.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qsettings.cpp
 
-qcoresettings_mac.o: @SOURCE_PATH@/src/core/io/qcoresettings_mac.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qcoresettings_mac.cpp
+qsettings_mac.o: @SOURCE_PATH@/src/core/io/qsettings_mac.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qsettings_mac.cpp
 
 qiodevice.o: @SOURCE_PATH@/src/core/io/qiodevice.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qiodevice.cpp

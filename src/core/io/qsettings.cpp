@@ -1,15 +1,16 @@
 #include "qplatformdefs.h"
 
-#include "qcoresettings.h"
+#include "qsettings.h"
 
 #ifndef QT_NO_SETTINGS
 
 #include "qcache.h"
 #include "qcoreapplication.h"
-#include "private/qcoresettings_p.h"
+#include "qsettings_p.h"
 #include "qfile.h"
 #include "qdir.h"
 #include "qfileinfo.h"
+#include "qrect.h"
 #include "qmutex.h"
 
 // ************************************************************************
@@ -18,8 +19,8 @@
 /*
     QConfFile objects are explicitly shared within the application.
     This ensures that modification to the settings done through one
-    QCoreSettings or QSettings object are immediately reflected in
-    other setting objects of the same application.
+    QSettings object are immediately reflected in other setting
+    objects of the same application.
 */
 
 typedef QHash<QString, QConfFile *> ConfFileHash;
@@ -91,26 +92,26 @@ void QConfFile::clearCache()
 }
 
 // ************************************************************************
-// QCoreSettingsPrivate
+// QSettingsPrivate
 
-QCoreSettingsPrivate::QCoreSettingsPrivate()
-    : spec(0), fallbacks(true), pendingChanges(false), status(QCoreSettings::NoError)
+QSettingsPrivate::QSettingsPrivate()
+    : spec(0), fallbacks(true), pendingChanges(false), status(QSettings::NoError)
 {
 }
 
-QCoreSettingsPrivate::~QCoreSettingsPrivate()
+QSettingsPrivate::~QSettingsPrivate()
 {
 }
 
-QString QCoreSettingsPrivate::fileName() const
+QString QSettingsPrivate::fileName() const
 {
     return QString();
 }
 
-QString QCoreSettingsPrivate::actualKey(const QString &key) const
+QString QSettingsPrivate::actualKey(const QString &key) const
 {
     QString n = normalizedKey(key);
-    Q_ASSERT_X(!n.isEmpty(), "QCoreSettings", "empty key");
+    Q_ASSERT_X(!n.isEmpty(), "QSettings", "empty key");
     n.prepend(groupPrefix);
     return n;
 }
@@ -126,7 +127,7 @@ QString QCoreSettingsPrivate::actualKey(const QString &key) const
     This function is optimized to avoid a QString deep copy in the
     common case where the key is already normalized.
 */
-QString QCoreSettingsPrivate::normalizedKey(const QString &key)
+QString QSettingsPrivate::normalizedKey(const QString &key)
 {
     QString result = key;
 
@@ -151,45 +152,31 @@ after_loop:
     return result;
 }
 
-void QCoreSettingsPrivate::setStreamingFunctions(VariantToStringFunc vts,
-                                                    StringToVariantFunc stv)
-{
-    variantToString = vts;
-    stringToVariant = stv;
-}
-
-// see also qcoresettings_win.cpp and qcoresettings_mac.cpp
+// see also qsettings_win.cpp and qsettings_mac.cpp
 
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
-QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
-                                                   Qt::SettingsScope scope,
-                                                   const QString &organization,
-                                                   const QString &application,
-                                                   VariantToStringFunc vts,
-                                                   StringToVariantFunc stv)
+QSettingsPrivate *QSettingsPrivate::create(Qt::SettingsFormat format,
+                                           Qt::SettingsScope scope,
+                                           const QString &organization,
+                                           const QString &application)
 {
     QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
                                                                organization, application);
-    p->setStreamingFunctions(vts, stv);
     p->init();
     return p;
 }
 #endif
 
 #if !defined(Q_OS_WIN)
-QCoreSettingsPrivate *QCoreSettingsPrivate::create(const QString &fileName,
-                                                   Qt::SettingsFormat format,
-                                                   VariantToStringFunc vts,
-                                                   StringToVariantFunc stv)
+QSettingsPrivate *QSettingsPrivate::create(const QString &fileName, Qt::SettingsFormat format)
 {
     QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(fileName, format);
-    p->setStreamingFunctions(vts, stv);
     p->init();
     return p;
 }
 #endif
 
-void QCoreSettingsPrivate::processChild(QString key, ChildSpec spec, QMap<QString, QString> &result)
+void QSettingsPrivate::processChild(QString key, ChildSpec spec, QMap<QString, QString> &result)
 {
     if (spec != AllKeys) {
         int slashPos = key.indexOf(QLatin1Char('/'));
@@ -205,7 +192,7 @@ void QCoreSettingsPrivate::processChild(QString key, ChildSpec spec, QMap<QStrin
     result.insert(key, QString());
 }
 
-void QCoreSettingsPrivate::beginGroupOrArray(const QSettingsGroup &group)
+void QSettingsPrivate::beginGroupOrArray(const QSettingsGroup &group)
 {
     groupStack.push(group);
     if (!group.name().isEmpty()) {
@@ -219,23 +206,23 @@ void QCoreSettingsPrivate::beginGroupOrArray(const QSettingsGroup &group)
     first error that occurred. We always allow clearing errors.
 */
 
-void QCoreSettingsPrivate::setStatus(QCoreSettings::Status status)
+void QSettingsPrivate::setStatus(QSettings::Status status)
 {
-    if (status == QCoreSettings::NoError || this->status == QCoreSettings::NoError)
+    if (status == QSettings::NoError || this->status == QSettings::NoError)
         this->status = status;
 }
 
-void QCoreSettingsPrivate::update()
+void QSettingsPrivate::update()
 {
-    Q_Q(QCoreSettings);
+    Q_Q(QSettings);
 
     q->sync();
     pendingChanges = false;
 }
 
-void QCoreSettingsPrivate::requestUpdate()
+void QSettingsPrivate::requestUpdate()
 {
-    Q_Q(QCoreSettings);
+    Q_Q(QSettings);
 
     if (!pendingChanges) {
         pendingChanges = true;
@@ -247,7 +234,7 @@ void QCoreSettingsPrivate::requestUpdate()
     }
 }
 
-QStringList QCoreSettingsPrivate::variantListToStringList(const QCoreVariantList &l) const
+QStringList QSettingsPrivate::variantListToStringList(const QCoreVariantList &l) const
 {
     QStringList result;
     QCoreVariantList::const_iterator it = l.constBegin();
@@ -256,7 +243,7 @@ QStringList QCoreSettingsPrivate::variantListToStringList(const QCoreVariantList
     return result;
 }
 
-QCoreVariantList QCoreSettingsPrivate::stringListToVariantList(const QStringList &l) const
+QCoreVariantList QSettingsPrivate::stringListToVariantList(const QStringList &l) const
 {
     QCoreVariantList result;
     QStringList::const_iterator it = l.constBegin();
@@ -265,14 +252,14 @@ QCoreVariantList QCoreSettingsPrivate::stringListToVariantList(const QStringList
     return result;
 }
 
-QString &QCoreSettingsPrivate::escapedLeadingAt(QString &s)
+QString &QSettingsPrivate::escapedLeadingAt(QString &s)
 {
     if (s.length() > 0 && s.at(0) == QLatin1Char('@'))
         s.prepend(QLatin1Char('@'));
     return s;
 }
 
-QString &QCoreSettingsPrivate::unescapedLeadingAt(QString &s)
+QString &QSettingsPrivate::unescapedLeadingAt(QString &s)
 {
     if (s.length() >= 2
         && s.at(0) == QLatin1Char('@')
@@ -281,7 +268,7 @@ QString &QCoreSettingsPrivate::unescapedLeadingAt(QString &s)
     return s;
 }
 
-QString QCoreSettingsPrivate::variantToStringCoreImpl(const QCoreVariant &v)
+QString QSettingsPrivate::variantToString(const QCoreVariant &v)
 {
     QString result;
 
@@ -309,6 +296,38 @@ QString QCoreSettingsPrivate::variantToStringCoreImpl(const QCoreVariant &v)
             result = escapedLeadingAt(result);
             break;
         }
+        case QCoreVariant::Rect: {
+            QRect r = v.toRect();
+            result += "@Rect("
+                        + QByteArray::number(r.x()) + ", "
+                        + QByteArray::number(r.y()) + ", "
+                        + QByteArray::number(r.width()) + ", "
+                        + QByteArray::number(r.height()) + ")";
+            break;
+        }
+        case QCoreVariant::Size: {
+            QSize s = v.toSize();
+            result += "@Size("
+                        + QByteArray::number(s.width()) + ", "
+                        + QByteArray::number(s.height()) + ")";
+            break;
+        }
+            // #### wrong anyways. It ignores alpha and other than rgb color models
+//         case QCoreVariant::Color: {
+//             QColor c = v2.toColor();
+//             result += "@Color("
+//                         + QByteArray::number(c.red()) + ", "
+//                         + QByteArray::number(c.green()) + ", "
+//                         + QByteArray::number(c.blue()) + ")";
+//             break;
+//         }
+        case QCoreVariant::Point: {
+            QPoint p = v.toPoint();
+            result += "@Point("
+                        + QByteArray::number(p.x()) + ", "
+                        + QByteArray::number(p.y()) + ")";
+            break;
+        }
 
         default: {
             QByteArray a;
@@ -327,7 +346,7 @@ QString QCoreSettingsPrivate::variantToStringCoreImpl(const QCoreVariant &v)
     return result;
 }
 
-QCoreVariant QCoreSettingsPrivate::stringToVariantCoreImpl(const QString &s)
+QCoreVariant QSettingsPrivate::stringToVariant(const QString &s)
 {
     if (s.length() > 3
             && s.at(0) == QLatin1Char('@')
@@ -341,6 +360,27 @@ QCoreVariant QCoreSettingsPrivate::stringToVariantCoreImpl(const QString &s)
             QCoreVariant result;
             stream >> result;
             return result;
+        } else if (s.startsWith(QLatin1String("@Rect("))) {
+            QStringList args = QSettingsPrivate::splitArgs(s, 5);
+            if (args.size() == 4) {
+                return QCoreVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
+            }
+        } else if (s.startsWith(QLatin1String("@Size("))) {
+            QStringList args = QSettingsPrivate::splitArgs(s, 5);
+            if (args.size() == 2) {
+                return QCoreVariant(QSize(args[0].toInt(), args[1].toInt()));
+            }
+            // ### see above
+//         } else if (s.startsWith(QLatin1String("@Color("))) {
+//             QStringList args = QSettingsPrivate::splitArgs(s, 6);
+//             if (args.size() == 3) {
+//                 return QVariant(QColor(args[0].toInt(), args[1].toInt(), args[2].toInt()));
+//             }
+        } else if (s.startsWith(QLatin1String("@Point("))) {
+            QStringList args = QSettingsPrivate::splitArgs(s, 6);
+            if (args.size() == 2) {
+                return QCoreVariant(QPoint(args[0].toInt(), args[1].toInt()));
+            }
         } else if (s == QLatin1String("@Invalid()")) {
             return QCoreVariant();
         }
@@ -352,7 +392,7 @@ QCoreVariant QCoreSettingsPrivate::stringToVariantCoreImpl(const QString &s)
 
 static const char hexDigits[] = "0123456789ABCDEF";
 
-void QCoreSettingsPrivate::iniEscapedKey(const QString &key, QByteArray &result)
+void QSettingsPrivate::iniEscapedKey(const QString &key, QByteArray &result)
 {
     for (int i = 0; i < key.size(); ++i) {
         uint ch = key.at(i).unicode();
@@ -378,7 +418,7 @@ void QCoreSettingsPrivate::iniEscapedKey(const QString &key, QByteArray &result)
     }
 }
 
-bool QCoreSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to,
+bool QSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to,
                                             QString &result)
 {
     bool lowerCaseOnly = true;
@@ -432,7 +472,7 @@ bool QCoreSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int 
     return lowerCaseOnly;
 }
 
-void QCoreSettingsPrivate::iniEscapedString(const QString &str, QByteArray &result)
+void QSettingsPrivate::iniEscapedString(const QString &str, QByteArray &result)
 {
     bool needsQuotes = false;
     bool escapeNextIfDigit = false;
@@ -504,7 +544,7 @@ void QCoreSettingsPrivate::iniEscapedString(const QString &str, QByteArray &resu
     }
 }
 
-void QCoreSettingsPrivate::iniChopTrailingSpaces(QString *str)
+void QSettingsPrivate::iniChopTrailingSpaces(QString *str)
 {
     int n = str->size();
     while (n > 0
@@ -512,7 +552,7 @@ void QCoreSettingsPrivate::iniChopTrailingSpaces(QString *str)
         str->truncate(--n);
 }
 
-void QCoreSettingsPrivate::iniEscapedStringList(const QStringList &strs, QByteArray &result)
+void QSettingsPrivate::iniEscapedStringList(const QStringList &strs, QByteArray &result)
 {
     for (int i = 0; i < strs.size(); ++i) {
         if (i != 0)
@@ -521,7 +561,7 @@ void QCoreSettingsPrivate::iniEscapedStringList(const QStringList &strs, QByteAr
     }
 }
 
-QStringList *QCoreSettingsPrivate::iniUnescapedStringList(const QByteArray &str, int from,
+QStringList *QSettingsPrivate::iniUnescapedStringList(const QByteArray &str, int from,
                                                             int to, QString &result)
 {
     static const char escapeCodes[][2] =
@@ -652,7 +692,7 @@ end_of_switch:
     return strList;
 }
 
-QStringList QCoreSettingsPrivate::splitArgs(const QString &s, int idx)
+QStringList QSettingsPrivate::splitArgs(const QString &s, int idx)
 {
     int l = s.length();
     Q_ASSERT(l > 0);
@@ -726,7 +766,7 @@ void QConfFileSettingsPrivate::init()
         checkAccess(confFiles[spec]->name, &readAccess, &writeAccess);
     }
     if (!readAccess)
-        setStatus(QCoreSettings::AccessError);
+        setStatus(QSettings::AccessError);
     cs = Qt::CaseInsensitive;
     sync();       // loads the files the first time
 }
@@ -754,7 +794,7 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
 
     QString org = organization;
     if (org.isEmpty()) {
-        setStatus(QCoreSettings::AccessError);
+        setStatus(QSettings::AccessError);
         org = QLatin1String("unknown-organization.trolltech.com");
     }
 
@@ -812,7 +852,7 @@ QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
 void QConfFileSettingsPrivate::remove(const QString &key)
 {
     if (!writeAccess) {
-        setStatus(QCoreSettings::AccessError);
+        setStatus(QSettings::AccessError);
         return;
     }
 
@@ -839,7 +879,7 @@ void QConfFileSettingsPrivate::remove(const QString &key)
 void QConfFileSettingsPrivate::set(const QString &key, const QCoreVariant &value)
 {
     if (!writeAccess) {
-        setStatus(QCoreSettings::AccessError);
+        setStatus(QSettings::AccessError);
         return;
     }
 
@@ -918,7 +958,7 @@ QStringList QConfFileSettingsPrivate::children(const QString &prefix, ChildSpec 
 void QConfFileSettingsPrivate::clear()
 {
     if (!writeAccess) {
-        setStatus(QCoreSettings::AccessError);
+        setStatus(QSettings::AccessError);
         return;
     }
 
@@ -942,11 +982,11 @@ void QConfFileSettingsPrivate::sync()
                 // Only problems with the file we actually write to change the status. The
                 // other files are just optional fallbacks.
                 if (i == spec)
-                    setStatus(QCoreSettings::FormatError);
+                    setStatus(QSettings::FormatError);
             }
             if (i == spec && confFile->mergeKeyMaps()) {
                 if (!writeFile(confFile))
-                    setStatus(QCoreSettings::AccessError);
+                    setStatus(QSettings::AccessError);
             }
         }
     }
@@ -1362,8 +1402,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     return !writeError;
 }
 
-/*! \class QCoreSettings
-    \brief The QCoreSettings class provides persistent platform-independent application settings.
+/*! \class QSettings
+    \brief The QSettings class provides persistent platform-independent application settings.
 
     \ingroup io
     \ingroup misc
@@ -1376,12 +1416,12 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     in the absense of a standard, many applications (including the KDE
     applications) use INI text files.
 
-    QCoreSettings is an abstraction around these technologies,
+    QSettings is an abstraction around these technologies,
     enabling you to save and restore application settings in a
     portable manner.
 
     If your application links against the QtGui library, you can use
-    QSettings rather than QCoreSettings. QSettings's API is based on
+    QSettings rather than QSettings. QSettings's API is based on
     QVariant instead of QCoreVariant, which allows you to save
     GUI-related types such as QRect, QSize, and QColor.
 
@@ -1389,34 +1429,34 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \section1 Basic Usage
 
-    When creating a QCoreSettings object, you must pass the domain
+    When creating a QSettings object, you must pass the domain
     name of your company or organization as well as the name of your
     application. For example, if your product is called DataMill and
     you own the software.org Internet domain name, you would
-    construct the QCoreSettings object as follows:
+    construct the QSettings object as follows:
 
     \code
-        QCoreSettings settings("software.org", "DataMill");
+        QSettings settings("software.org", "DataMill");
     \endcode
 
-    QCoreSettings objects can be created either on the stack or on
+    QSettings objects can be created either on the stack or on
     the heap (i.e. using \c new). Constructing and destroying a
-    QCoreSettings object is very fast.
+    QSettings object is very fast.
 
-    If you use QCoreSettings from many places in your application, you
+    If you use QSettings from many places in your application, you
     might want to specify the organization domain name and the
     application name using QCoreApplication::setOrganizationDomain()
     and QCoreApplication::setApplicationName(), and then use the
-    default QCoreSettings constructor:
+    default QSettings constructor:
 
     \code
-        QCoreSettings::setOrganizationDomain("software.org");
-        QCoreSettings::setApplicationName("DataMill");
+        QSettings::setOrganizationDomain("software.org");
+        QSettings::setApplicationName("DataMill");
         ...
-        QCoreSettings settings;
+        QSettings settings;
     \endcode
 
-    QCoreSettings stores settings. Each setting consists of a QString
+    QSettings stores settings. Each setting consists of a QString
     that specifies the setting's name (the \e key) and a QCoreVariant
     that stores the data associated with the key. To write a setting,
     use setValue(). For example:
@@ -1436,7 +1476,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         int margin = settings.value("wrapMargin").toInt();
     \endcode
 
-    If there is no setting with the specified name, QCoreSettings
+    If there is no setting with the specified name, QSettings
     returns a null QCoreVariant (which converts to the integer 0).
     You can specify another default value by passing a second
     argument to value():
@@ -1495,12 +1535,12 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     If a group is set using beginGroup(), the behavior of most
     functions changes consequently. Groups can be set recursively.
 
-    In addition to groups, QCoreSettings also supports an "array"
+    In addition to groups, QSettings also supports an "array"
     concept. See beginReadArray() and beginWriteArray() for details.
 
     \section1 Fallback Mechanism
 
-    Let's assume that you have created a QCoreSettings object with
+    Let's assume that you have created a QSettings object with
     the organization domain name "software.org" and the application
     name "DataMill". When you look up a value, up to four locations
     are searched in that order:
@@ -1558,15 +1598,15 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     Let's see with an example:
 
     \code
-        QCoreSettings obj1("software.org", "DataMill");
-        QCoreSettings obj2("software.org");
-        QCoreSettings obj3(Qt::SystemScope, "software.org", "DataMill");
-        QCoreSettings obj4(Qt::SystemScope, "software.org");
+        QSettings obj1("software.org", "DataMill");
+        QSettings obj2("software.org");
+        QSettings obj3(Qt::SystemScope, "software.org", "DataMill");
+        QSettings obj4(Qt::SystemScope, "software.org");
     \endcode
 
-    The table below summarizes which QCoreSettings objects access
+    The table below summarizes which QSettings objects access
     which location. "\bold{X}" means that the location is the main
-    location associated to the QCoreSettings object and is used both
+    location associated to the QSettings object and is used both
     for reading and for writing; "o" means that the location is used
     as a fallback when reading.
 
@@ -1585,11 +1625,11 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     If you want to use INI files on all platforms instead of the
     native API, you can pass Qt::IniFormat as the first argument to
-    the QCoreSettings constructor, followed by the scope, the
+    the QSettings constructor, followed by the scope, the
     organization domain name, and the application name:
 
     \code
-        QCoreSettings settings(Qt::IniFormat, Qt::UserScope,
+        QSettings settings(Qt::IniFormat, Qt::UserScope,
                                "software.org", "DataMill");
     \endcode
 
@@ -1599,7 +1639,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     example:
 
     \code
-        QCoreSettings settings("datamill.ini", Qt::IniFormat);
+        QSettings settings("datamill.ini", Qt::IniFormat);
     \endcode
 
     The file format can either be Qt::IniFormat or Qt::NativeFormat.
@@ -1609,7 +1649,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     name, for example:
 
     \code
-        QCoreSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft",
+        QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft",
                                Qt::NativeFormat);
     \endcode
 
@@ -1618,9 +1658,9 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \section1 Restoring the State of a GUI Application
 
-    QCoreSettings is often used to store the state of a GUI
+    QSettings is often used to store the state of a GUI
     application. The following example will illustrate how to use we
-    will use QCoreSettings (actually, QSettings) to save and restore
+    will use QSettings (actually, QSettings) to save and restore
     the geometry of an application's main window.
 
     \code
@@ -1677,16 +1717,16 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \section1 Accessing Settings from Multiple Threads or Processes Simultaneously
 
-    QCoreSettings is \l{reentrant}. This means that you can use
-    distinct QCoreSettings object in different threads
-    simultaneously. This guarantee stands even when the QCoreSettings
+    QSettings is \l{reentrant}. This means that you can use
+    distinct QSettings object in different threads
+    simultaneously. This guarantee stands even when the QSettings
     objects refer to the same files on disk (or to the same entries
     in the system registry). If a setting is modified through one
-    QCoreSettings object, the change will immediately be visible in
-    any other QCoreSettings object that operates on the same location
+    QSettings object, the change will immediately be visible in
+    any other QSettings object that operates on the same location
     and that lives in the same process.
 
-    QCoreSettings can safely be used from different processes (which
+    QSettings can safely be used from different processes (which
     can be different instances of your application running at the
     same time or different applications altogether) to read and write
     to the same system locations. It uses a smart merging algorithm
@@ -1695,7 +1735,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \section1 Platform-Specific Notes
 
-    While QCoreSettings attempts to smooth over the differences
+    While QSettings attempts to smooth over the differences
     between the different supported platforms, there are still a few
     differences that you should be aware of when porting your
     application:
@@ -1716,7 +1756,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \sa QSettings, QSessionManager
 */
 
-/*! \enum QCoreSettings::Status
+/*! \enum QSettings::Status
 
     The following status values are possible:
 
@@ -1729,83 +1769,79 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
 #ifndef QT_NO_QOBJECT
 /*!
-    Constructs a QCoreSettings object for accessing settings of the
+    Constructs a QSettings object for accessing settings of the
     application called \a application from the organization with the
     Internet domain name \a organization, and with parent \a parent.
 
     Example:
     \code
-        QCoreSettings settings("www.technopro.co.jp", "Facturo-Pro");
+        QSettings settings("www.technopro.co.jp", "Facturo-Pro");
     \endcode
 
     The scope is Qt::UserScope and the format is Qt::NativeFormat.
 
     \sa {Locations for Storing Settings}
 */
-QCoreSettings::QCoreSettings(const QString &organization, const QString &application,
+QSettings::QSettings(const QString &organization, const QString &application,
                              QObject *parent)
-    : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
-                                            organization, application,
-                                            QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
+    : QObject(*QSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope, organization, application),
               parent)
 {
 }
 
 /*!
-    Constructs a QCoreSettings object for accessing settings of the
+    Constructs a QSettings object for accessing settings of the
     application called \a application from the organization with the
     Internet domain name \a organization, and with parent \a parent.
 
-    If \a scope is Qt::UserScope, the QCoreSettings object searches
+    If \a scope is Qt::UserScope, the QSettings object searches
     user-specific settings first, before it seaches system-wide
     settings as a \l{Fallback Mechanism}{fallback}. If \a scope is
-    Qt::SystemScope, the QCoreSettings object ignores user-specific
+    Qt::SystemScope, the QSettings object ignores user-specific
     settings and provides access to system-wide settings.
 
     The storage format is always Qt::NativeFormat.
 
-    If no application name is given, the QCoreSettings object will
+    If no application name is given, the QSettings object will
     only access the organization-wide
     \l{Locations for Storing Settings}{locations}.
 */
-QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organization,
+QSettings::QSettings(Qt::SettingsScope scope, const QString &organization,
                              const QString &application, QObject *parent)
-    : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, scope, organization, application,
-                                            QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
+    : QObject(*QSettingsPrivate::create(Qt::NativeFormat, scope, organization, application),
               parent)
 {
 }
 
 /*!
-    Constructs a QCoreSettings object for accessing settings of the
+    Constructs a QSettings object for accessing settings of the
     application called \a application from the organization with the
     Internet domain name \a organization, and with parent \a parent.
 
-    If \a scope is Qt::UserScope, the QCoreSettings object searches
+    If \a scope is Qt::UserScope, the QSettings object searches
     user-specific settings first, before it seaches system-wide
     settings as a \l{Fallback Mechanism}{fallback}. If \a scope is
-    Qt::SystemScope, the QCoreSettings object ignores user-specific
+    Qt::SystemScope, the QSettings object ignores user-specific
     settings and provides access to system-wide settings.
 
     If \a format is Qt::NativeFormat, the native API is used for
     storing settings. If \a format is Qt::IniFormat, the INI format
     is used.
 
-    If no application name is given, the QCoreSettings object will
+    If no application name is given, the QSettings object will
     only access the organization-wide
     \l{Locations for Storing Settings}{locations}.
 */
-QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
+QSettings::QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
                              const QString &organization, const QString &application,
                              QObject *parent)
-    : QObject(*QCoreSettingsPrivate::create(format, scope, organization, application,
-                                            QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
+    : QObject(*QSettingsPrivate::create(format, scope, organization, application),
               parent)
 {
 }
 
 /*!
-    Constructs a QCoreSettings object for accessing the settings
+    Constructs a QSettings object for accessing the settings
     stored in the file called \a fileName, with parent \a parent. If
     the file doesn't already exist, it is created.
 
@@ -1819,16 +1855,15 @@ QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
 
     \sa fileName()
 */
-QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
+QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format,
                              QObject *parent)
-    : QObject(*QCoreSettingsPrivate::create(fileName, format,
-                                            QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
+    : QObject(*QSettingsPrivate::create(fileName, format),
               parent)
 {
 }
 
 /*!
-    Constructs a QCoreSettings object for accessing settings of the
+    Constructs a QSettings object for accessing settings of the
     application and organization set previously with a call to
     QCoreApplication::setOrganizationDomain() and
     QCoreApplication::setApplicationName().
@@ -1838,7 +1873,7 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
     The code
 
     \code
-        QCoreSettings settings("www.technopro.co.jp", "Facturo-Pro");
+        QSettings settings("www.technopro.co.jp", "Facturo-Pro");
     \endcode
 
     is equivalent to
@@ -1846,91 +1881,73 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
     \code
         QApplication::setOrganizationDomain("www.technopro.co.jp");
         QApplication::setApplicationName("Facturo-Pro");
-        QCoreSettings settings;
+        QSettings settings;
     \endcode
 
     If QApplication::setOrganizationDomain() and
     QApplication::setApplicationName() has not been previously called,
-    the QCoreSettings object will not be able to read or write any
+    the QSettings object will not be able to read or write any
     settings, and status() will return \c AccessError.
 */
-QCoreSettings::QCoreSettings(QObject *parent)
-    : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
-                                            QCoreApplication::organizationDomain(),
-                                            QCoreApplication::applicationName(),
-                                            QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
-                parent)
+QSettings::QSettings(QObject *parent)
+    : QObject(*QSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
+                                        QCoreApplication::organizationDomain(),
+                                        QCoreApplication::applicationName()),
+              parent)
 {
 }
 
-/*!
-    \internal
-*/
-QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p, QObject *parent)
-    : QObject(*p, parent)
-{
-}
 #else
-QCoreSettings::QCoreSettings(const QString &organization, const QString &application)
-    : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
-                                         organization, application,
-                                         QCoreSettingsPrivate::variantToStringCoreImpl,
-                                         QCoreSettingsPrivate::stringToVariantCoreImpl))
+QSettings::QSettings(const QString &organization, const QString &application)
+    : d_ptr(QSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope, organization, application))
 {
     d_ptr->q_ptr = this;
 }
 
-QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organization,
-                             const QString &application)
-    : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, scope, organization, application,
-                                         QCoreSettingsPrivate::variantToStringCoreImpl,
-                                         QCoreSettingsPrivate::stringToVariantCoreImpl))
+QSettings::QSettings(Qt::SettingsScope scope, const QString &organization, const QString &application)
+    : d_ptr(QSettingsPrivate::create(Qt::NativeFormat, scope, organization, application))
 {
     d_ptr->q_ptr = this;
 }
 
-QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
-                             const QString &organization, const QString &application)
-    : d_ptr(QCoreSettingsPrivate::create(format, scope, organization, application,
-                                         QCoreSettingsPrivate::variantToStringCoreImpl,
-                                         QCoreSettingsPrivate::stringToVariantCoreImpl))
+QSettings::QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
+                     const QString &organization, const QString &application)
+    : d_ptr(QSettingsPrivate::create(format, scope, organization, application))
 {
     d_ptr->q_ptr = this;
 }
 
-QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format)
-    : d_ptr(QCoreSettingsPrivate::create(fileName, format,
-                                         QCoreSettingsPrivate::variantToStringCoreImpl,
-                                         QCoreSettingsPrivate::stringToVariantCoreImpl))
+QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format)
+    : d_ptr(QSettingsPrivate::create(fileName, format))
 {
     d_ptr->q_ptr = this;
 }
 #endif
 
 /*!
-    Destroys the QCoreSettings object. Any unsaved changes will be
+    Destroys the QSettings object. Any unsaved changes will be
     written to permanent storage at that point.
 
     \sa sync()
 */
-QCoreSettings::~QCoreSettings()
+QSettings::~QSettings()
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     if (d->pendingChanges)
         d->sync();
 }
 
 /*!
     Removes all entries in the primary location associated to this
-    QCoreSettings object.
+    QSettings object.
 
     Entries in \l{Fallback Mechanism}{fallback} locations are not removed.
 
     \sa remove(), setFallbacksEnabled()
 */
-void QCoreSettings::clear()
+void QSettings::clear()
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     d->clear();
     d->requestUpdate();
 }
@@ -1940,18 +1957,18 @@ void QCoreSettings::clear()
     settings that have been changed in the meantime by another
     application.
 
-    Unless you use QCoreSettings as a communication mechanism between
+    Unless you use QSettings as a communication mechanism between
     different processes, you normally don't need to call this
     function.
 */
-void QCoreSettings::sync()
+void QSettings::sync()
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     d->sync();
 }
 
 /*!
-    Returns the path where settings written using this QCoreSettings
+    Returns the path where settings written using this QSettings
     object are stored.
 
     On Windows, if format() is Qt::NativeFormat, the return value is
@@ -1959,19 +1976,19 @@ void QCoreSettings::sync()
 
     \sa isWritable()
 */
-QString QCoreSettings::fileName() const
+QString QSettings::fileName() const
 {
-    Q_D(const QCoreSettings);
+    Q_D(const QSettings);
     return d->fileName();
 }
 
 /*!
     Returns a status code indicating the first error that was met by
-    QCoreSettings, or \c QCoreSettings::NoError if no error occurred.
+    QSettings, or \c QSettings::NoError if no error occurred.
 */
-QCoreSettings::Status QCoreSettings::status() const
+QSettings::Status QSettings::status() const
 {
-    Q_D(const QCoreSettings);
+    Q_D(const QSettings);
     return d->status;
 }
 
@@ -1979,7 +1996,7 @@ QCoreSettings::Status QCoreSettings::status() const
     Appends \a prefix to the current group.
 
     The current group is automatically prepended to all keys
-    specified to QCoreSettings. In addition, query functions such as
+    specified to QSettings. In addition, query functions such as
     childGroups(), childKeys(), and allKeys() are based on the group.
     By default, no group is set.
 
@@ -2010,9 +2027,9 @@ QCoreSettings::Status QCoreSettings::status() const
 
     \sa endGroup(), group()
 */
-void QCoreSettings::beginGroup(const QString &prefix)
+void QSettings::beginGroup(const QString &prefix)
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     d->beginGroupOrArray(QSettingsGroup(d->normalizedKey(prefix)));
 }
 
@@ -2038,11 +2055,11 @@ void QCoreSettings::beginGroup(const QString &prefix)
 
     \sa beginGroup(), group()
 */
-void QCoreSettings::endGroup()
+void QSettings::endGroup()
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     if (d->groupStack.isEmpty()) {
-        qWarning("QCoreSettings::endGroup: No matching beginGroup()");
+        qWarning("QSettings::endGroup: No matching beginGroup()");
         return;
     }
 
@@ -2052,7 +2069,7 @@ void QCoreSettings::endGroup()
         d->groupPrefix.truncate(d->groupPrefix.size() - (len + 1));
 
     if (group.isArray())
-        qWarning("QCoreSettings::endGroup: Expected endArray() instead");
+        qWarning("QSettings::endGroup: Expected endArray() instead");
 }
 
 /*!
@@ -2060,9 +2077,9 @@ void QCoreSettings::endGroup()
 
     \sa beginGroup(), endGroup()
 */
-QString QCoreSettings::group() const
+QString QSettings::group() const
 {
-    Q_D(const QCoreSettings);
+    Q_D(const QSettings);
     return d->groupPrefix.left(d->groupPrefix.size() - 1);
 }
 
@@ -2080,7 +2097,7 @@ QString QCoreSettings::group() const
         QList<Login> logins;
         ...
 
-        QCoreSettings settings;
+        QSettings settings;
         int size = settings.beginReadArray("logins");
         for (int i = 0; i < size; ++i) {
             settings.setArrayIndex(i);
@@ -2096,9 +2113,9 @@ QString QCoreSettings::group() const
 
     \sa beginWriteArray(), endArray(), setArrayIndex()
 */
-int QCoreSettings::beginReadArray(const QString &prefix)
+int QSettings::beginReadArray(const QString &prefix)
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     d->beginGroupOrArray(QSettingsGroup(d->normalizedKey(prefix), false));
     return value("size").toInt();
 }
@@ -2121,7 +2138,7 @@ int QCoreSettings::beginReadArray(const QString &prefix)
         QList<Login> logins;
         ...
 
-        QCoreSettings settings;
+        QSettings settings;
         settings.beginWriteArray("logins");
         for (int i = 0; i < logins.size(); ++i) {
             settings.setArrayIndex(i);
@@ -2147,9 +2164,9 @@ int QCoreSettings::beginReadArray(const QString &prefix)
 
     \sa beginReadArray(), endArray(), setArrayIndex()
 */
-void QCoreSettings::beginWriteArray(const QString &prefix, int size)
+void QSettings::beginWriteArray(const QString &prefix, int size)
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     d->beginGroupOrArray(QSettingsGroup(d->normalizedKey(prefix), size < 0));
 
     if (size < 0)
@@ -2164,11 +2181,11 @@ void QCoreSettings::beginWriteArray(const QString &prefix, int size)
 
     \sa beginReadArray(), beginWriteArray()
 */
-void QCoreSettings::endArray()
+void QSettings::endArray()
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     if (d->groupStack.isEmpty()) {
-        qWarning("QCoreSettings::endArray: No matching beginArray()");
+        qWarning("QSettings::endArray: No matching beginArray()");
         return;
     }
 
@@ -2182,7 +2199,7 @@ void QCoreSettings::endArray()
         setValue(group.name() + QLatin1String("/size"), group.arraySizeGuess());
 
     if (!group.isArray())
-        qWarning("QCoreSettings::endArray: Expected endGroup() instead");
+        qWarning("QSettings::endArray: Expected endGroup() instead");
 }
 
 /*!
@@ -2193,11 +2210,11 @@ void QCoreSettings::endArray()
     You must call beginReadArray() or beginWriteArray() before you
     can call this function.
 */
-void QCoreSettings::setArrayIndex(int i)
+void QSettings::setArrayIndex(int i)
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     if (d->groupStack.isEmpty() || !d->groupStack.top().isArray()) {
-        qWarning("QCoreSettings::setArrayIndex: Missing beginArray()");
+        qWarning("QSettings::setArrayIndex: Missing beginArray()");
         return;
     }
 
@@ -2209,12 +2226,12 @@ void QCoreSettings::setArrayIndex(int i)
 
 /*!
     Returns a list of all keys, including subkeys, that can be read
-    using the QCoreSettings object.
+    using the QSettings object.
 
     Example:
 
     \code
-        QCoreSettings settings;
+        QSettings settings;
         settings.setValue("fridge/color", Qt::white);
         settings.setValue("fridge/size", QSize(32, 96));
         settings.setValue("sofa", true);
@@ -2235,20 +2252,20 @@ void QCoreSettings::setArrayIndex(int i)
 
     \sa childGroups(), childKeys()
 */
-QStringList QCoreSettings::allKeys() const
+QStringList QSettings::allKeys() const
 {
-    Q_D(const QCoreSettings);
-    return d->children(d->groupPrefix, QCoreSettingsPrivate::AllKeys);
+    Q_D(const QSettings);
+    return d->children(d->groupPrefix, QSettingsPrivate::AllKeys);
 }
 
 /*!
     Returns a list of all top-level keys that can be read using the
-    QCoreSettings object.
+    QSettings object.
 
     Example:
 
     \code
-        QCoreSettings settings;
+        QSettings settings;
         settings.setValue("fridge/color", Qt::white);
         settings.setValue("fridge/size", QSize(32, 96));
         settings.setValue("sofa", true);
@@ -2272,20 +2289,20 @@ QStringList QCoreSettings::allKeys() const
 
     \sa childGroups(), allKeys()
 */
-QStringList QCoreSettings::childKeys() const
+QStringList QSettings::childKeys() const
 {
-    Q_D(const QCoreSettings);
-    return d->children(d->groupPrefix, QCoreSettingsPrivate::ChildKeys);
+    Q_D(const QSettings);
+    return d->children(d->groupPrefix, QSettingsPrivate::ChildKeys);
 }
 
 /*!
     Returns a list of all key top-level groups that contain keys that
-    can be read using the QCoreSettings object.
+    can be read using the QSettings object.
 
     Example:
 
     \code
-        QCoreSettings settings;
+        QSettings settings;
         settings.setValue("fridge/color", Qt::white);
         settings.setValue("fridge/size", QSize(32, 96));
         settings.setValue("sofa", true);
@@ -2309,24 +2326,24 @@ QStringList QCoreSettings::childKeys() const
 
     \sa childKeys(), allKeys()
 */
-QStringList QCoreSettings::childGroups() const
+QStringList QSettings::childGroups() const
 {
-    Q_D(const QCoreSettings);
-    return d->children(d->groupPrefix, QCoreSettingsPrivate::ChildGroups);
+    Q_D(const QSettings);
+    return d->children(d->groupPrefix, QSettingsPrivate::ChildGroups);
 }
 
 /*!
-    Returns true if settings can be written using this QCoreSettings
+    Returns true if settings can be written using this QSettings
     object; returns false otherwise.
 
     One reason why isWritable() might return false is if
-    QCoreSettings operates on a read-only file.
+    QSettings operates on a read-only file.
 
     \sa fileName(), status()
 */
-bool QCoreSettings::isWritable() const
+bool QSettings::isWritable() const
 {
-    Q_D(const QCoreSettings);
+    Q_D(const QSettings);
     return d->isWritable();
 }
 
@@ -2338,7 +2355,7 @@ bool QCoreSettings::isWritable() const
     Example:
 
     \code
-        QCoreSettings settings;
+        QSettings settings;
         settings.setValue("interval", 30);
         settings.value("interval").toInt();     // returns 30
 
@@ -2348,9 +2365,9 @@ bool QCoreSettings::isWritable() const
 
     \sa value(), remove(), contains()
 */
-void QCoreSettings::setValue(const QString &key, const QCoreVariant &value)
+void QSettings::setValue(const QString &key, const QCoreVariant &value)
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     QString k = d->actualKey(key);
     d->set(k, value);
     d->requestUpdate();
@@ -2362,7 +2379,7 @@ void QCoreSettings::setValue(const QString &key, const QCoreVariant &value)
     Example:
 
     \code
-        QCoreSettings settings;
+        QSettings settings;
         settings.setValue("ape");
         settings.setValue("monkey", 1);
         settings.setValue("monkey/sea", 2);
@@ -2379,9 +2396,9 @@ void QCoreSettings::setValue(const QString &key, const QCoreVariant &value)
 
     \sa setValue(), value(), contains()
 */
-void QCoreSettings::remove(const QString &key)
+void QSettings::remove(const QString &key)
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     /*
         We cannot use actualKey(), because remove() supports empty
         keys. The code is also tricky because of slash handling.
@@ -2409,9 +2426,9 @@ void QCoreSettings::remove(const QString &key)
 
     \sa value(), setValue()
 */
-bool QCoreSettings::contains(const QString &key) const
+bool QSettings::contains(const QString &key) const
 {
-    Q_D(const QCoreSettings);
+    Q_D(const QSettings);
     QString k = d->actualKey(key);
     return d->get(k, 0);
 }
@@ -2423,9 +2440,9 @@ bool QCoreSettings::contains(const QString &key) const
 
     \sa fallbacksEnabled(), {Fallback Mechanism}
 */
-void QCoreSettings::setFallbacksEnabled(bool b)
+void QSettings::setFallbacksEnabled(bool b)
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     d->fallbacks = !!b;
 }
 
@@ -2436,9 +2453,9 @@ void QCoreSettings::setFallbacksEnabled(bool b)
 
     \sa setFallbacksEnabled(), {Fallback Mechanism}
 */
-bool QCoreSettings::fallbacksEnabled() const
+bool QSettings::fallbacksEnabled() const
 {
-    Q_D(const QCoreSettings);
+    Q_D(const QSettings);
     return d->fallbacks;
 }
 
@@ -2446,9 +2463,9 @@ bool QCoreSettings::fallbacksEnabled() const
 /*!
     \reimp
 */
-bool QCoreSettings::event(QEvent *event)
+bool QSettings::event(QEvent *event)
 {
-    Q_D(QCoreSettings);
+    Q_D(QSettings);
     if (event->type() == QEvent::UpdateRequest) {
         d->update();
         return true;
@@ -2467,7 +2484,7 @@ bool QCoreSettings::event(QEvent *event)
     Example:
 
     \code
-        QCoreSettings settings;
+        QSettings settings;
         settings.setValue("snake", 58);
         settings.value("snake", 1024).toInt();  // returns 58
         settings.value("zebra", 1024).toInt();  // returns 1024
@@ -2476,9 +2493,9 @@ bool QCoreSettings::event(QEvent *event)
 
     \sa setValue(), contains(), remove()
 */
-QCoreVariant QCoreSettings::value(const QString &key, const QCoreVariant &defaultValue) const
+QCoreVariant QSettings::value(const QString &key, const QCoreVariant &defaultValue) const
 {
-    Q_D(const QCoreSettings);
+    Q_D(const QSettings);
     QCoreVariant result = defaultValue;
     QString k = d->actualKey(key);
     d->get(k, &result);

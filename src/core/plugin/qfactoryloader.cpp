@@ -15,7 +15,7 @@
 #include "qfactoryinterface.h"
 #include "qmap.h"
 #include <qdir.h>
-#include <qcoresettings.h>
+#include <qsettings.h>
 #include <qdebug.h>
 #include "private/qobject_p.h"
 
@@ -47,7 +47,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
     filters << QLatin1String("*.so");
 #endif
 
-    QCoreSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
+    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
 
     for (int i = 0; i < paths.count(); ++i) {
         QString path = paths.at(i) + suffix;

@@ -1,5 +1,5 @@
-#ifndef QCORESETTINGS_P_H
-#define QCORESETTINGS_P_H
+#ifndef QSETTINGS_P_H
+#define QSETTINGS_P_H
 
 #include <qdatetime.h>
 #include <qmap.h>
@@ -106,22 +106,19 @@ private:
     friend class QConfFile_createsItself; // supress compiler warning
 };
 
-class Q_CORE_EXPORT QCoreSettingsPrivate
+class Q_CORE_EXPORT QSettingsPrivate
 #ifndef QT_NO_QOBJECT
     : public QObjectPrivate
 #endif
 {
 #ifdef QT_NO_QOBJECT
-    QCoreSettings *q_ptr;
+    QSettings *q_ptr;
 #endif
-    Q_DECLARE_PUBLIC(QCoreSettings)
+    Q_DECLARE_PUBLIC(QSettings)
 
 public:
-    typedef QString (*VariantToStringFunc)(const QCoreVariant &v);
-    typedef QCoreVariant (*StringToVariantFunc)(const QString &s);
-
-    QCoreSettingsPrivate();
-    virtual ~QCoreSettingsPrivate();
+    QSettingsPrivate();
+    virtual ~QSettingsPrivate();
 
     virtual void remove(const QString &key) = 0;
     virtual void set(const QString &key, const QCoreVariant &value) = 0;
@@ -137,29 +134,26 @@ public:
 
     QString actualKey(const QString &key) const;
     void beginGroupOrArray(const QSettingsGroup &group);
-    void setStatus(QCoreSettings::Status status);
+    void setStatus(QSettings::Status status);
     void requestUpdate();
     void update();
 
     static QString normalizedKey(const QString &key);
-    static QCoreSettingsPrivate *create(Qt::SettingsFormat format, Qt::SettingsScope scope,
-                                        const QString &organization, const QString &application,
-                                        VariantToStringFunc vts, StringToVariantFunc stv);
-    static QCoreSettingsPrivate *create(const QString &fileName, Qt::SettingsFormat format,
-                                        VariantToStringFunc vts, StringToVariantFunc stv);
+    static QSettingsPrivate *create(Qt::SettingsFormat format, Qt::SettingsScope scope,
+                                        const QString &organization, const QString &application);
+    static QSettingsPrivate *create(const QString &fileName, Qt::SettingsFormat format);
 
     static void processChild(QString key, ChildSpec spec, QMap<QString, QString> &result);
 
     // Variant streaming functions
     QStringList variantListToStringList(const QCoreVariantList &l) const;
     QCoreVariantList stringListToVariantList(const QStringList &l) const;
-    void setStreamingFunctions(VariantToStringFunc vts, StringToVariantFunc stv);
 
     // parser functions
     static QString &escapedLeadingAt(QString &s);
     static QString &unescapedLeadingAt(QString &s);
-    static QString variantToStringCoreImpl(const QCoreVariant &v);
-    static QCoreVariant stringToVariantCoreImpl(const QString &s);
+    static QString variantToString(const QCoreVariant &v);
+    static QCoreVariant stringToVariant(const QString &s);
     static void iniEscapedKey(const QString &key, QByteArray &result);
     static bool iniUnescapedKey(const QByteArray &key, int from, int to, QString &result);
     static void iniEscapedString(const QString &str, QByteArray &result);
@@ -168,8 +162,6 @@ public:
     static QStringList *iniUnescapedStringList(const QByteArray &str, int from, int to,
                                                 QString &result);
     static QStringList splitArgs(const QString &s, int idx);
-    static QString variantToStringGuiImpl(const QCoreVariant &v);
-    static QCoreVariant stringToVariantGuiImpl(const QString &s);
 
 protected:
     QStack<QSettingsGroup> groupStack;
@@ -177,13 +169,10 @@ protected:
     int spec;
     bool fallbacks;
     bool pendingChanges;
-    QCoreSettings::Status status;
-
-    VariantToStringFunc variantToString;
-    StringToVariantFunc stringToVariant;
+    QSettings::Status status;
 };
 
-class QConfFileSettingsPrivate : public QCoreSettingsPrivate
+class QConfFileSettingsPrivate : public QSettingsPrivate
 {
 public:
     QConfFileSettingsPrivate(Qt::SettingsFormat format, Qt::SettingsScope scope,
@@ -224,94 +213,4 @@ private:
     bool writeAccess;
 };
 
-/*
-    This was the only way we could think of to give access to some internal parsing
-    functions for testing by the autotests.
-*/
-
-#define QSETTINGS_DEFINE_GUI_PARSER_FUNCTIONS \
-\
-static QString variantToStringGuiImpl(const QCoreVariant &v)\
-{\
-    QVariant v2 = v;\
-    QString result;\
-\
-    switch (v.type()) {\
-        case QCoreVariant::Rect: {\
-            QRect r = v2.toRect();\
-            result += "@Rect("\
-                        + QByteArray::number(r.x()) + ", "\
-                        + QByteArray::number(r.y()) + ", "\
-                        + QByteArray::number(r.width()) + ", "\
-                        + QByteArray::number(r.height()) + ")";\
-            break;\
-        }\
-\
-        case QCoreVariant::Size: {\
-            QSize s = v2.toSize();\
-            result += "@Size("\
-                        + QByteArray::number(s.width()) + ", "\
-                        + QByteArray::number(s.height()) + ")";\
-            break;\
-        }\
-\
-        case QCoreVariant::Color: {\
-            QColor c = v2.toColor();\
-            result += "@Color("\
-                        + QByteArray::number(c.red()) + ", "\
-                        + QByteArray::number(c.green()) + ", "\
-                        + QByteArray::number(c.blue()) + ")";\
-            break;\
-        }\
-\
-        case QCoreVariant::Point: {\
-            QPoint p = v2.toPoint();\
-            result += "@Point("\
-                        + QByteArray::number(p.x()) + ", "\
-                        + QByteArray::number(p.y()) + ")";\
-            break;\
-        }\
-\
-        default:\
-            result = QCoreSettingsPrivate::variantToStringCoreImpl(v);\
-            break;\
-    }\
-\
-    return result;\
-}\
-\
-static QCoreVariant stringToVariantGuiImpl(const QString &s)\
-{\
-    if (s.length() > 3\
-            && s.at(0) == QLatin1Char('@')\
-            && s.at(s.length() - 1) == QLatin1Char(')')) {\
-\
-        if (s.startsWith(QLatin1String("@Rect("))) {\
-            QStringList args = QCoreSettingsPrivate::splitArgs(s, 5);\
-            if (args.size() == 4) {\
-                return QVariant(QRect(args[0].toInt(), args[1].toInt(),\
-                                        args[2].toInt(), args[3].toInt()));\
-            }\
-        } else if (s.startsWith(QLatin1String("@Size("))) {\
-            QStringList args = QCoreSettingsPrivate::splitArgs(s, 5);\
-            if (args.size() == 2) {\
-                return QVariant(QSize(args[0].toInt(), args[1].toInt()));\
-            }\
-        } else if (s.startsWith(QLatin1String("@Color("))) {\
-            QStringList args = QCoreSettingsPrivate::splitArgs(s, 6);\
-            if (args.size() == 3) {\
-                return QVariant(QColor(args[0].toInt(), args[1].toInt(),\
-                                        args[2].toInt()));\
-            }\
-        } else if (s.startsWith(QLatin1String("@Point("))) {\
-            QStringList args = QCoreSettingsPrivate::splitArgs(s, 6);\
-            if (args.size() == 2) {\
-                return QVariant(QPoint(args[0].toInt(), args[1].toInt()));\
-            }\
-        }\
-    }\
-\
-    return QCoreSettingsPrivate::stringToVariantCoreImpl(s);\
-}
-
-#endif // QCORESETTINGS_P_H
+#endif // QSETTINGS_P_H

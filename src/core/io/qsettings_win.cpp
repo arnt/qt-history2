@@ -2,8 +2,8 @@
 #include "qmap.h"
 #include "qt_windows.h"
 
-#include "qcoresettings.h"
-#include "qcoresettings_p.h"
+#include "qsettings.h"
+#include "qsettings_p.h"
 
 /*  Keys are stored in QStrings. If the variable name starts with 'u', this is a "user"
     key, ie. "foo/bar/alpha/beta". If the variable name starts with 'r', this is a "registry"
@@ -24,7 +24,7 @@ struct RegistryLocation {
 
 typedef QVector<RegistryLocation> RegistryLocationList;
 
-class QWinSettingsPrivate : public QCoreSettingsPrivate
+class QWinSettingsPrivate : public QSettingsPrivate
 {
 public:
     QWinSettingsPrivate(Qt::SettingsScope scope, const QString &organization,
@@ -169,7 +169,7 @@ static HKEY createOrOpenKey(HKEY parentHandle, REGSAM perms, const QString &rSub
     if (res == ERROR_SUCCESS)
         return resultHandle;
 
-    qWarning("QCoreSettings: failed to create subkey \"%s\": %s",
+    qWarning("QSettings: failed to create subkey \"%s\": %s",
             rSubKey.latin1(), errorCodeToString(res).latin1());
 
     return 0;
@@ -216,7 +216,7 @@ static bool createOrOpenKey(HKEY parentHandle, const QString &rSubKey, RegistryL
     return loc->handle != 0;
 }
 
-static QStringList childKeysOrGroups(HKEY parentHandle, QCoreSettingsPrivate::ChildSpec spec)
+static QStringList childKeysOrGroups(HKEY parentHandle, QSettingsPrivate::ChildSpec spec)
 {
     QStringList result;
     LONG res;
@@ -235,7 +235,7 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QCoreSettingsPrivate::Ch
     } );
 
     if (res != ERROR_SUCCESS) {
-        qWarning("QCoreSettings: RegQueryInfoKey() failed: %s", errorCodeToString(res).latin1());
+        qWarning("QSettings: RegQueryInfoKey() failed: %s", errorCodeToString(res).latin1());
         return result;
     }
 
@@ -244,7 +244,7 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QCoreSettingsPrivate::Ch
 
     int n;
     int m;
-    if (spec == QCoreSettingsPrivate::ChildKeys) {
+    if (spec == QSettingsPrivate::ChildKeys) {
         n = numKeys;
         m = maxKeySize;
     } else {
@@ -262,7 +262,7 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QCoreSettingsPrivate::Ch
         QString item;
         QT_WA( {
             DWORD l = buff.size() / sizeof(ushort);
-            if (spec == QCoreSettingsPrivate::ChildKeys) {
+            if (spec == QSettingsPrivate::ChildKeys) {
                 res = RegEnumValueW(parentHandle, i,
                                     reinterpret_cast<ushort *>(buff.data()),
                                     &l, 0, 0, 0, 0);
@@ -275,7 +275,7 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QCoreSettingsPrivate::Ch
                 item = QString::fromUtf16(reinterpret_cast<ushort*>(buff.data()), l);
         }, {
             DWORD l = buff.size();
-            if (spec == QCoreSettingsPrivate::ChildKeys)
+            if (spec == QSettingsPrivate::ChildKeys)
                 res = RegEnumValueA(parentHandle, i, buff.data(), &l, 0, 0, 0, 0);
             else
                 res = RegEnumKeyExA(parentHandle, i, buff.data(), &l, 0, 0, 0, 0);
@@ -299,8 +299,8 @@ static void allKeys(HKEY parentHandle, const QString &rSubKey, NameSet *result)
     if (handle == 0)
         return;
 
-    QStringList childKeys = childKeysOrGroups(handle, QCoreSettingsPrivate::ChildKeys);
-    QStringList childGroups = childKeysOrGroups(handle, QCoreSettingsPrivate::ChildGroups);
+    QStringList childKeys = childKeysOrGroups(handle, QSettingsPrivate::ChildKeys);
+    QStringList childGroups = childKeysOrGroups(handle, QSettingsPrivate::ChildGroups);
     RegCloseKey(handle);
 
     for (int i = 0; i < childKeys.size(); ++i) {
@@ -322,7 +322,7 @@ static void allKeys(HKEY parentHandle, const QString &rSubKey, NameSet *result)
 
 static void deleteChildGroups(HKEY parentHandle)
 {
-    QStringList childGroups = childKeysOrGroups(parentHandle, QCoreSettingsPrivate::ChildGroups);
+    QStringList childGroups = childKeysOrGroups(parentHandle, QSettingsPrivate::ChildGroups);
 
     for (int i = 0; i < childGroups.size(); ++i) {
         QString group = childGroups.at(i);
@@ -384,7 +384,7 @@ QWinSettingsPrivate::QWinSettingsPrivate(Qt::SettingsScope scope, const QString 
     }
 
     if (regList.isEmpty())
-        setStatus(QCoreSettings::AccessError);
+        setStatus(QSettings::AccessError);
 }
 
 QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
@@ -413,7 +413,7 @@ QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
     }
 
     if (regList.isEmpty())
-        setStatus(QCoreSettings::AccessError);
+        setStatus(QSettings::AccessError);
 }
 
 bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCoreVariant *value) const
@@ -548,7 +548,7 @@ QWinSettingsPrivate::~QWinSettingsPrivate()
             res = RegDeleteKeyA(writeHandle(), emptyKey.local8Bit());
         } );
         if (res != ERROR_SUCCESS) {
-            qWarning("QCoreSettings: failed to delete key \"%s\": %s",
+            qWarning("QSettings: failed to delete key \"%s\": %s",
                     regList.at(0).key.latin1(), errorCodeToString(res).latin1());
         }
     }
@@ -579,7 +579,7 @@ void QWinSettingsPrivate::remove(const QString &uKey)
         deleteChildGroups(handle);
 
         if (rKey.isEmpty()) {
-            QStringList childKeys = childKeysOrGroups(handle, QCoreSettingsPrivate::ChildKeys);
+            QStringList childKeys = childKeysOrGroups(handle, QSettingsPrivate::ChildKeys);
 
             for (int i = 0; i < childKeys.size(); ++i) {
                 QString group = childKeys.at(i);
@@ -718,7 +718,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
     if (res == ERROR_SUCCESS) {
         deleteWriteHandleOnExit = false;
     } else {
-        qWarning("QCoreSettings: failed to set subkey \"%s\": %s",
+        qWarning("QSettings: failed to set subkey \"%s\": %s",
                 rKey.latin1(), errorCodeToString(res).latin1());
     }
 
@@ -791,38 +791,30 @@ bool QWinSettingsPrivate::isWritable() const
     return writeHandle() != 0;
 }
 
-QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
-                                                   Qt::SettingsScope scope,
-                                                   const QString &organization,
-                                                   const QString &application,
-                                                   VariantToStringFunc vts,
-                                                   StringToVariantFunc stv)
+QSettingsPrivate *QSettingsPrivate::create(Qt::SettingsFormat format,
+                                           Qt::SettingsScope scope,
+                                           const QString &organization,
+                                           const QString &application)
 {
     if (format == Qt::NativeFormat) {
         QWinSettingsPrivate *p = new QWinSettingsPrivate(scope, organization, application);
-        p->setStreamingFunctions(vts, stv);
         return p;
     } else {
         QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
-                                                                    organization, application);
-        p->setStreamingFunctions(vts, stv);
+                                                                   organization, application);
         p->init();
         return p;
     }
 }
 
-QCoreSettingsPrivate *QCoreSettingsPrivate::create(const QString &fileName,
-                                                   Qt::SettingsFormat format,
-                                                   VariantToStringFunc vts,
-                                                   StringToVariantFunc stv)
+QSettingsPrivate *QSettingsPrivate::create(const QString &fileName,
+                                           Qt::SettingsFormat format)
 {
     if (format == Qt::NativeFormat) {
         QWinSettingsPrivate *p = new QWinSettingsPrivate(fileName);
-        p->setStreamingFunctions(vts, stv);
         return p;
     } else {
         QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(fileName, format);
-        p->setStreamingFunctions(vts, stv);
         p->init();
         return p;
     }

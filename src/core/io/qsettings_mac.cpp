@@ -1,5 +1,5 @@
-#include "qcoresettings.h"
-#include "qcoresettings_p.h"
+#include "qsettings.h"
+#include "qsettings_p.h"
 #include <private/qcore_mac_p.h>
 #include <qdatetime.h>
 #include <qvarlengtharray.h>
@@ -35,10 +35,10 @@ static QString qtKey(CFStringRef cfkey)
 }
 
 static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value,
-                                           QCoreSettingsPrivate::VariantToStringFunc variantToString);
+                                           QSettingsPrivate::VariantToStringFunc variantToString);
 
 static CFArrayRef macList(const QList<QCoreVariant> &list,
-                          QCoreSettingsPrivate::VariantToStringFunc variantToString)
+                          QSettingsPrivate::VariantToStringFunc variantToString)
 {
     int n = list.size();
     QVarLengthArray<QCFType<CFPropertyListRef> > cfvalues(n);
@@ -49,7 +49,7 @@ static CFArrayRef macList(const QList<QCoreVariant> &list,
 }
 
 static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value,
-                                           QCoreSettingsPrivate::VariantToStringFunc variantToString)
+                                           QSettingsPrivate::VariantToStringFunc variantToString)
 {
     CFPropertyListRef result;
 
@@ -151,7 +151,7 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value,
 }
 
 static QCoreVariant qtValue(CFPropertyListRef cfvalue,
-                            QCoreSettingsPrivate::StringToVariantFunc stringToVariant)
+                            QSettingsPrivate::StringToVariantFunc stringToVariant)
 {
     if (!cfvalue)
         return QCoreVariant();
@@ -221,7 +221,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue,
     return QCoreVariant();
 }
 
-class QMacSettingsPrivate : public QCoreSettingsPrivate
+class QMacSettingsPrivate : public QSettingsPrivate
 {
 public:
     QMacSettingsPrivate(Qt::SettingsScope scope, const QString &organization,
@@ -259,7 +259,7 @@ QMacSettingsPrivate::QMacSettingsPrivate(Qt::SettingsScope scope, const QString 
 
     QString org = organization;
     if (org.isEmpty()) {
-        setStatus(QCoreSettings::AccessError);
+        setStatus(QSettings::AccessError);
         org = QLatin1String("unknown-organization.trolltech.com");
     }
 
@@ -399,21 +399,17 @@ bool QMacSettingsPrivate::isWritable() const
     return true; // ###
 }
 
-QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
-                                                   Qt::SettingsScope scope,
-                                                   const QString &organization,
-                                                   const QString &application,
-                                                   VariantToStringFunc vts,
-                                                   StringToVariantFunc stv)
+QSettingsPrivate *QSettingsPrivate::create(Qt::SettingsFormat format,
+                                           Qt::SettingsScope scope,
+                                           const QString &organization,
+                                           const QString &application)
 {
     if (format == Qt::NativeFormat) {
         QMacSettingsPrivate *p = new QMacSettingsPrivate(scope, organization, application);
-        p->setStreamingFunctions(vts, stv);
         return p;
     } else {
         QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
                                                                    organization, application);
-        p->setStreamingFunctions(vts, stv);
         p->init();
         return p;
     }

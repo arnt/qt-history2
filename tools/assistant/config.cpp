@@ -99,13 +99,13 @@ void Config::load()
     home = settings.value( profkey + QLatin1String("Homepage") ).toString();
     pdfApp = settings.value( key + QLatin1String("PDFApplication") ).toString();
     linkUnder = settings.value( key + QLatin1String("LinkUnderline"), true ).toBool();
-    linkCol = settings.value( key + QLatin1String("LinkColor"), QVariant("#0000FF") ).toString();
+    linkCol = settings.value( key + QLatin1String("LinkColor"), "#0000FF" ).toString();
     src = settings.value( profkey + QLatin1String("Source") ).toStringList();
     sideBar = settings.value( key + QLatin1String("SideBarPage") ).toInt();
     if (qApp->type() != QApplication::Tty) {
         fontFam = settings.value( key + QLatin1String("Family"), qApp->font().family() ).toString();
 
-        fontFix = settings.value( key + QLatin1String("FixedFamily"), QVariant("courier") ).toString();
+        fontFix = settings.value( key + QLatin1String("FixedFamily"), "courier" ).toString();
         fontSiz = settings.value( key + QLatin1String("Size"), -1 ).toInt();
         if ( fontSiz < 6 ) {
             QFontInfo fi( qApp->font() );

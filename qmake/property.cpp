@@ -15,7 +15,7 @@
 #include "option.h"
 #include <qdir.h>
 #include <qmap.h>
-#include <qcoresettings.h>
+#include <qsettings.h>
 #include <qstringlist.h>
 #include <stdio.h>
 
@@ -34,7 +34,7 @@ QMakeProperty::~QMakeProperty()
 void QMakeProperty::initSettings()
 {
     if(!settings) {
-        settings = new QCoreSettings(Qt::UserScope, "Trolltech", "QMake");
+        settings = new QSettings(Qt::UserScope, "Trolltech", "QMake");
         settings->setFallbacksEnabled(false);
     }
 }

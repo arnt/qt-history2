@@ -54,10 +54,10 @@ QTOBJS= \
 	qunicodetables.o \
 	quuid.o \
 	qvector.o \
-	qcoresettings.obj \
+	qsettings.obj \
 	qcorevariant.obj \
         qurl.obj \
-	qcoresettings_win.obj \
+	qsettings_win.obj \
 	qrect.obj \
 	qpoint.obj \
 	qsize.obj \
@@ -82,11 +82,11 @@ distclean:: clean
 qconfig.o: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
 
-qcoresettings_win.obj: ..\src\io\qcoresettings_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings_win.cpp
+qsettings_win.obj: ..\src\io\qsettings_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings_win.cpp
 
-qcoresettings.obj: ..\src\io\qcoresettings.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings.cpp
+qsettings.obj: ..\src\io\qsettings.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings.cpp
 
 qcorevariant.obj: ..\src\kernel\qcorevariant.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp

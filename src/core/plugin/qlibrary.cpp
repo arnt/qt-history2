@@ -20,7 +20,7 @@
 #include <qfileinfo.h>
 #include <qmutex.h>
 #include <qmap.h>
-#include <qcoresettings.h>
+#include <qsettings.h>
 #include <qdatetime.h>
 #ifdef Q_OS_MAC
 #  include <private/qcore_mac_p.h>
@@ -430,7 +430,7 @@ bool QLibraryPrivate::isPlugin()
                      .arg(fileName);
     QStringList reg;
 
-    QCoreSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
+    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
     reg = settings.value(regkey).toStringList();
     if (reg.count() == 4 &&lastModified == reg[3]) {
         qt_version = reg[0].toUInt(0, 16);
