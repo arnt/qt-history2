@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#86 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#86 $");
 
 
 /*!
@@ -2468,7 +2468,7 @@ static bool read_xpm_string( QString & buf, QIODevice * d )
 
     buf[0] = '\0';
     int c;
-    unsigned int i;
+    int i;
     while ( (c=d->getch()) != EOF && c != '"' )
 	;
     if ( c == EOF ) {
@@ -2477,7 +2477,7 @@ static bool read_xpm_string( QString & buf, QIODevice * d )
     }
     i = 0;
     while ( (c=d->getch()) != EOF && c != '"' ) {
-	if ( i == buf.size() )
+	if ( i == (int)buf.size() )
 	    buf.resize( i*2+42 );
 	buf[i++] = c;
     }
