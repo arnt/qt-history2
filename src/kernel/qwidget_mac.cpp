@@ -242,10 +242,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
     bg_col=pal.normal().background();
     if(!parentWidget()) {
-	printf("Toplevel %d\n",id);
+	qDebug("Toplevel %d\n",id);
 	setWinId(id);
     } else {
-	printf("Non-toplevel %d\n",id);
+	qDebug("Non-toplevel %d\n",id);
 	winid=id;
     }
 
@@ -694,7 +694,10 @@ void QWidget::setIconText( const QString &iconText )
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
                         bool showIt )
 {
-    setWinId( 0 );
+    if(!parent())
+	setWinId( 0 );
+    winid=parent->id;
+    
     reparentFocusWidgets( parent );             // fix focus chains
 
     if ( parentObj ) {                          // remove from parent
