@@ -38,34 +38,35 @@ public:
     void addPage( QWidget *page, const QString &label );
     void addPage( QWidget *page, const QIconSet &iconSet, const QString &label );
     void insertPage( QWidget *page, const QString &label, int index = -1 );
-    virtual void insertPage( QWidget *page, const QIconSet &iconSet, const QString &label, int index = -1 );
+    void insertPage( QWidget *page, const QIconSet &iconSet, const QString &label, int index = -1 );
     
-    virtual void setPageEnabled( QWidget *page, bool enabled );
+    void removePage( QWidget *page );
+
+    void setPageEnabled( QWidget *page, bool enabled );
     bool isPageEnabled( QWidget *page ) const;
 
-    virtual void setPageLabel( QWidget *page, const QString &label );
+    void setPageLabel( QWidget *page, const QString &label );
     QString pageLabel( QWidget *page ) const;
 
-    virtual void setPageIconSet( QWidget *page, const QIconSet &iconSet );
+    void setPageIconSet( QWidget *page, const QIconSet &iconSet );
     QIconSet pageIconSet( QWidget *page ) const;
 
-    virtual void setPageToolTip( QWidget *page, const QString &toolTip );
+    void setPageToolTip( QWidget *page, const QString &toolTip );
     QString pageToolTip( QWidget *page ) const;
 
     QWidget *currentPage() const;
+    void setCurrentPage( QWidget *page );
 
     int currentIndex() const;
     QWidget *page( int index ) const;
     int indexOf( QWidget *page ) const;
     int count() const;
 
-    virtual void setPageBackgroundMode( BackgroundMode bm );
+    void setPageBackgroundMode( BackgroundMode bm );
     BackgroundMode pageBackgroundMode() const;
 
 public slots:
     void setCurrentIndex( int index );
-    virtual void setCurrentPage( QWidget *page );
-    virtual void removePage( QWidget *page );
 
 signals:
     void currentChanged( int index );
