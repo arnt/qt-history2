@@ -2925,6 +2925,8 @@ void Resource::savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream 
 	else
 	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 	PopupMenuEditor *s =  i->subMenu();
+	if ( i->actionGroup() )
+	    continue;
 	if ( s && s->count() ) {
 	    QString n = a->name();
 	    n.replace( "Action", "Menu" );
@@ -3008,9 +3010,9 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
 	    a = formwindow->findAction( n.attribute( "name" ) );
 	    if ( a ) {
 		if ( a->inherits( "QActionGroup" ) )
-		    p->insert( ( QActionGroup *) a );
+		    p->insert( (QActionGroup *) a, -1, FALSE );
 		else
-		    p->insert( a );
+ 		    p->insert( a );
 	    }
 	}
 	if ( n.tagName() == "item" ) {

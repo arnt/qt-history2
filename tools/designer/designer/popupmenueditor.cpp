@@ -99,7 +99,7 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
 }
 
 PopupMenuEditorItem::PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu,
-					  QObject * parent, const char * name )
+					  bool children, QObject * parent, const char * name )
     : QObject( parent, name ),
       a( 0 ),
       g( actionGroup ),
@@ -114,17 +114,19 @@ PopupMenuEditorItem::PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuE
     g->installEventFilter( this );
     // if the actiongroup uses dropdown, insert the children in the sub menu
     PopupMenuEditor * pme = ( actionGroup->usesDropDown() ? s : m );
+    if ( !children )
+	return;
     QObjectList * l = g->queryList( "QAction" );
     QObject * o = l->first();
     while ( o ) {
-	if ( o->parent() == g ) {
-	    if ( o->inherits( "QActionGroup" ) )
-		pme->insert( ( QActionGroup * ) o );
-	    else
-		pme->insert( ( QAction * ) o );
-	}
-	o = l->next();
-    }
+ 	if ( o->parent() == g ) {
+ 	    if ( o->inherits( "QActionGroup" ) )
+ 		pme->insert( ( QActionGroup * ) o );
+ 	    else
+ 		pme->insert( ( QAction * ) o );
+ 	}
+ 	o = l->next();
+     }
     delete l;
 }
 
@@ -241,11 +243,14 @@ bool PopupMenuEditorItem::eventFilter( QObject * o, QEvent * event )
 
 	if ( c->inherits( "QActionGroup" ) ) {
 	    i = new PopupMenuEditorItem( ( QActionGroup * ) c, s );
-	} else if ( c->inherits( "QAction" ) ) {
+	} else if ( c->inherits( "QAction" ) ) {	    
 	    i = new PopupMenuEditorItem( ( QAction * ) c, s );
 	    if ( c->name() == "qt_separator_action" )
 		i->setSeparator( TRUE );
 	}
+
+	if ( !i )
+	    return FALSE;
 
 	// The action is performed someplace else, just do it (no undo)
 	if ( ( ( QActionGroup * ) o )->usesDropDown() ) {
@@ -390,9 +395,9 @@ void PopupMenuEditor::insert( QAction * action, int index )
     insert( new PopupMenuEditorItem( action, this ), index );
 }
 
-void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
+void PopupMenuEditor::insert( QActionGroup * actionGroup, int index, bool children )
 {
-    insert( new PopupMenuEditorItem( actionGroup, this ), index );
+    insert( new PopupMenuEditorItem( actionGroup, this, children ), index );
 }
 
 int PopupMenuEditor::find( const QAction * action )
@@ -648,7 +653,9 @@ void PopupMenuEditor::remove( int index )
 
 PopupMenuEditorItem * PopupMenuEditor::createItem( QAction * a )
 {
-    PopupMenuEditorItem * i = new PopupMenuEditorItem( a ? a : new QAction( 0 ), this );
+    ActionEditor * ae = (ActionEditor *) formWindow()->mainWindow()->child( 0, "ActionEditor" );
+    PopupMenuEditorItem * i = new PopupMenuEditorItem( a ? a : ae->newActionEx(), this );
+    //PopupMenuEditorItem * i = new PopupMenuEditorItem( a ? a : new QAction( 0 ), this );
     AddActionToPopupCommand * cmd =
 	new AddActionToPopupCommand( "Add Item", formWnd, this, i );
     formWnd->commandHistory()->addCommand( cmd );
@@ -786,7 +793,9 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    draggedItem = itemAt( mousePressPos.y() );
 	    if ( draggedItem == &addItem ) {
 		draggedItem = createItem();
-		draggedItem->anyAction()->setMenuText( "new item" );
+		RenameActionCommand cmd( "Rename Item", formWnd, draggedItem->anyAction(),
+					 this, "Unnamed" );
+		cmd.execute();
                 // FIXME: start rename after drop
 	    } else if ( draggedItem == &addSeparator ) {
 		draggedItem = createItem( new QSeparatorAction( 0 ) );

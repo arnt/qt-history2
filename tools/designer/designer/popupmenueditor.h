@@ -27,7 +27,7 @@ public:
     PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu,
 			 QObject * parent = 0, const char * name = 0 );
     PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu,
-			 QObject * parent = 0, const char * name = 0 );
+			 bool children = TRUE, QObject * parent = 0, const char * name = 0 );
     PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu,
 			 QObject * parent = 0, const char * name = 0 );
     ~PopupMenuEditorItem();
@@ -99,7 +99,7 @@ public:
 
     void insert( PopupMenuEditorItem * item, int index = -1 );
     void insert( QAction * action, int index = -1 );
-    void insert( QActionGroup * actionGroup, int index = -1 );
+    void insert( QActionGroup * actionGroup, int index = -1, bool children = TRUE );
     int find( const QAction * action );
     int find( PopupMenuEditor * menu );
     int count();
