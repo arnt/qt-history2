@@ -577,7 +577,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         default:
             break;
         }
-    } else if (event->type() == QEvent::FocusOut) {
+    } else if (event->type() == QEvent::FocusOut && !editor->isActiveWindow()) {
         emit commitData(editor);
         emit closeEditor(editor, NoHint);
         return true;
