@@ -2194,7 +2194,7 @@ void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
     }
     if ( selDirty )
 	emit q->selectionChanged();
-    if ( textDirty || selDirty )
+    if ( textDirty || selDirty || !setModified )
 	q->update();
     textDirty = selDirty = FALSE;
 }
