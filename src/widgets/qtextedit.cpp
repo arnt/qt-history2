@@ -725,7 +725,23 @@ bool QTextEdit::event( QEvent *e )
 {
     if ( e->type() == QEvent::AccelOverride && !isReadOnly() ) {
 	QKeyEvent* ke = (QKeyEvent*) e;
-	if ( ke->state() & ControlButton ) {
+	if ( ke->state() == NoButton ) {
+	    if ( ke->key() < Key_Escape ) {
+		ke->accept();
+	    } else {
+		switch ( ke->key() ) {
+		case Key_Return:
+		case Key_Enter:
+		case Key_Delete:
+		case Key_Home:
+		case Key_End:
+		case Key_Backspace:
+		    ke->accept();
+		default:
+		    break;
+		}
+	    }
+	} else if ( ke->state() & ControlButton ) {
 	    switch ( ke->key() ) {
 // Those are too frequently used for application functionality
 /*	    case Key_A:
@@ -755,16 +771,6 @@ bool QTextEdit::event( QEvent *e )
 #if defined (Q_WS_WIN)
 	    case Key_Insert:
 #endif
-		ke->accept();
-	    default:
-		break;
-	    }
-	} else {
-	    switch ( ke->key() ) {
-	    case Key_Delete:
-	    case Key_Home:
-	    case Key_End:
-	    case Key_Backspace:
 		ke->accept();
 	    default:
 		break;
