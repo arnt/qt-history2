@@ -454,13 +454,13 @@
 #elif defined(__HIGHC__)
 #  define Q_CC_HIGHC
 
-#elif defined(__SUNPRO_CC)
+#elif defined(__SUNPRO_CC) || defined(__SUNPRO_C)
 #  define Q_CC_SUN
 /* 5.0 compiler or better
     'bool' is enabled by default but can be disabled using -features=nobool
     in which case _BOOL is not defined
         this is the default in 4.2 compatibility mode triggered by -compat=4 */
-#  if __SUNPRO_CC >= 0x500
+#  if __SUNPRO_CC >= 0x500 || __SUNPRO_C >= 0x500
 #    if !defined(_BOOL)
 #      define Q_NO_BOOL_TYPE
 #    endif
@@ -1090,7 +1090,7 @@ inline QT_COMPAT bool qSysInfo( int *wordSize, bool *bigEndian )
 #endif
 
 #if defined(Q_WS_WIN)
-#if defined(QT_COMPAT) 
+#if defined(QT_COMPAT)
 inline QT_COMPAT bool qt_winUnicode() { return !(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based); }
 inline QT_COMPAT int qWinVersion() { return QSysInfo::WindowsVersion; }
 #endif
