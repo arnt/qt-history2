@@ -665,7 +665,6 @@ void QTreeView::doItemsLayout()
         d->reopenChildren(root(), false);
     }
     QAbstractItemView::doItemsLayout();
-    updateGeometries();
 }
 
 /*!

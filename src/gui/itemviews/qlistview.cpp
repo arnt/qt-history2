@@ -1064,8 +1064,8 @@ void QListView::doItemsLayout()
             while (!doItemsLayout(100)) // do layout in batches
                 qApp->processEvents();
     }
+
     QAbstractItemView::doItemsLayout();
-    updateGeometries();
 }
 
 /*!

@@ -1069,8 +1069,6 @@ void QHeaderView::doItemsLayout()
         int r = d->model->rowCount(root());
         initializeSections(0, r > 0 ? r - 1 : 0);
     }
-    if (d->stretchSections)
-        resizeSections();
     QAbstractItemView::doItemsLayout();
 }
 
@@ -1404,7 +1402,8 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
 
 void QHeaderView::updateGeometries()
 {
-    doItemsLayout();
+    if (d->stretchSections)
+        resizeSections();
 }
 
 int QHeaderViewPrivate::sectionHandleAt(int position)

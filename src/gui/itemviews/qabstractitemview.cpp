@@ -550,9 +550,10 @@ QModelIndex QAbstractItemView::currentItem() const
 */
 void QAbstractItemView::reset()
 {
-    bool block = blockSignals(true);
+    bool block = blockSignals(true); // no rootChanged signal
     setRoot(QModelIndex::Null); // does a relayout
-    blockSignals(block); // the views will be updated later
+    blockSignals(block);
+     // the views will be updated later
 }
 
 /*!
@@ -602,12 +603,12 @@ void QAbstractItemView::clearSelections()
     \internal
 
     This function is intended to lay out the items in the view.
-    The default implementation will just call update() on the viewport.
+    The default implementation just call updateGeometries() on the viewport.
 */
 void QAbstractItemView::doItemsLayout()
 {
     d->layoutPosted = false;
-//    updateGeometries();
+    updateGeometries();
     d->viewport->update();
 }
 
