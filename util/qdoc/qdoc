@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#66 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#67 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1159,6 +1159,8 @@ sub printclass {
 			      ") ", $c);
 		    $fndocs{$u}++;
 		} else {
+		    print "undocumented: ", $t," ", $name{$url}, "::", $f,
+		        " (",$a,")\n" if ($errmsg++<$maxerr);
 		    $_ = join("", &html($t), "<strong>", 
 			      &html($f), "</strong> (", 
 			      &html($a), ") ", $c);
@@ -1184,6 +1186,8 @@ sub printclass {
 			      &html($r), "</strong></a> ()", $c);
 		    $fndocs{$u}++;
 		} else {
+		    print "undocumented: ", $name{$url}, "::operator ", $r,
+		        " ()\n" if ($errmsg++<$maxerr);
 		    $_ = join("", "operator <strong>", &html($r),
 			      "</strong> ()", $c);
 		}
@@ -1476,6 +1480,7 @@ sub makepsindex {
 
 umask 0111;
 $cfile = "VOLD";
+$maxerr = 20;
 #$debug = 1;
 # $internal = 1;
 
@@ -1535,4 +1540,5 @@ foreach $c ( keys %doc ) {
 }
 
 print "Documented ", $countdoc, " member functions, left out ",
-    $countall-$countdoc, " private, undocumented or non-function members\n";
+    $errmsg, " undocumented member functions and ", 
+    $countall-$countdoc-$errmsg, " private or non-function members\n";
