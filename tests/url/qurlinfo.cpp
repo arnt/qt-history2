@@ -24,7 +24,7 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
 		    bool isWritable, bool isReadable, bool isExecutable )
 {
     d = new QUrlInfoPrivate;
-    d->name = url.path(); //### todo get name!
+    d->name = QFileInfo( url.path() ).fileName(); //### is this ok?
     d->permissions = permissions;
     d->owner = owner;
     d->group = group;

@@ -59,6 +59,7 @@ QUrl::QUrl( const QString& url )
 }
 
 QUrl::QUrl( const QUrl& url )
+    : QObject()
 {
     d = new QUrlPrivate;
     *d = *url.d;
