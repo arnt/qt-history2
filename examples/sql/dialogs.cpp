@@ -56,11 +56,11 @@ GenericDialog::GenericDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
 				 QSizePolicy::Minimum ) );
 
     QPushButton * button = new QPushButton( op, this );
+    button->setDefault( TRUE );    
     connect( button, SIGNAL( clicked() ), SLOT( execute() ) );
     h->addWidget( button );
 
     button = new QPushButton( "&Close", this );
-    button->setDefault( TRUE );
     connect( button, SIGNAL( clicked() ), SLOT( close() ) );
     h->addWidget( button );
 
@@ -83,7 +83,7 @@ void GenericDialog::execute()
 //  InvoiceDialog
 //
 
-InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord * buf, 
+InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord * buf,
 			      Mode mode, QWidget * parent, const char * name )
     : QDialog( parent, name, TRUE ),
       mMode( mode )
