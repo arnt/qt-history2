@@ -1913,4 +1913,18 @@ bool QLineEdit::dragEnabled() const
     return d->dragEnabled;
 }
 
+/*! This function sets \a start to the position in the text where the
+  selection starts and \a end to the selection end and returns TRUE,
+  if there is a selection. Else it returns FALSE:
+*/
+
+bool QLineEdit::getSelection( int &start, int &end )
+{
+    if ( !hasMarkedText() )
+	return FALSE;
+    start = d->parag->selectionStart( QTextDocument::Standard );
+    end = d->parag->selectionEnd( QTextDocument::Standard );
+    return TRUE;
+}
+
 #endif
