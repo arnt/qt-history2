@@ -25,6 +25,7 @@
 
 #include "qpainter_p.h"
 #include "qabstractgc.h"
+#include "qstackarray.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979
@@ -242,7 +243,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGly
     unsigned int glyph;
     int overhang = (qWinVersion() & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
     for( register int i = 0; i < len; i++ ) {
-	glyph = *(glyphs + i);
+	glyph = glyphs[i].glyph;
 	glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	// font-width cache failed
 	if ( !glyphs[i].advance ) {
@@ -453,7 +454,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
 	    if ( haveOffsets || transform ) {
 		for( int i = 0; i < si->num_glyphs; i++ ) {
-    		    wchar_t chr = *glyphs;
+    		    wchar_t chr = glyphs->glyph;
 		    int xp = x + glyphs->offset.x;
 		    int yp = y + glyphs->offset.y;
 		    if ( transform )
@@ -767,7 +768,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyph
     }
 
     for ( int i = 0; i < len; i++ )
-	(glyphs++)->glyphs = 0;
+	(glyphs++)->glyph = 0;
     *nglyphs = len;
 
     for ( int i = 0; i < len; i++ )

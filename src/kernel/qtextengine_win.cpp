@@ -649,7 +649,7 @@ void QTextEngine::shape( int item ) const
 	}
 	si.width = abc.abcA + abc.abcB + abc.abcC;
     } else
-#else
+#endif
     {
 	Q_ASSERT( script < QFont::NScripts );
 	scriptEngines[script].shape( script, string, from, len, (QTextEngine*)this, &si );
