@@ -78,6 +78,8 @@ public:
     virtual void addWidget(int cat_idx, const Widget &wgt) = 0;
     virtual void removeWidget(int cat_idx, int wgt_idx) = 0;
 
+    int findOrInsertCategory(const QString &categoryName);
+
 public slots:
     virtual void reload();
 };

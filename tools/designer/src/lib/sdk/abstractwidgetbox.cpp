@@ -26,3 +26,16 @@ void AbstractWidgetBox::reload()
 {
 }
 
+int AbstractWidgetBox::findOrInsertCategory(const QString &categoryName)
+{
+    int count = categoryCount();
+    for (int index=0; index<count; ++index) {
+        Category c = category(index);
+        if (c.name() == categoryName)
+            return index;
+    }
+
+    addCategory(Category(categoryName));
+    return count;
+}
+
