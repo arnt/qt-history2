@@ -919,7 +919,6 @@ class QGuiEventDispatcherWin32 : public QEventDispatcherWin32
 public:
     QGuiEventDispatcherWin32(QObject *parent = 0);
     bool processEvents(QEventLoop::ProcessEventsFlags flags);
-    void winProcessEvent(void *message);
 };
 
 QGuiEventDispatcherWin32::QGuiEventDispatcherWin32(QObject *parent)
@@ -936,36 +935,6 @@ bool QGuiEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flag
     QCoreApplication::sendPostedEvents();
 
     return true;
-}
-
-void QGuiEventDispatcherWin32::winProcessEvent(void *message)
-{
-#if 0
-    if (d->process_event_handler && d->process_event_handler(message))
-        return;
-#endif
-
-    MSG *msg = (MSG*)message;
-
-    bool handled = false;
-    if (msg->message == WM_TIMER) {
-        if (qt_dispatch_timer(msg->wParam, msg))
-            return;
-    } else if (msg->message && (!msg->hwnd || !QWidget::find(msg->hwnd))) {
-        // broadcast, or message for a non-Qt widget
-	long res = 0;
-	handled = winEventFilter(msg, &res);
-    }
-
-    if (!handled) {
-	QInputContext::TranslateMessage(msg); // translate to WM_CHAR
-
-        QT_WA({
-            DispatchMessage(msg);
-        } , {
-            DispatchMessageA(msg);
-        });
-    }
 }
 
 void QApplicationPrivate::createEventDispatcher()
@@ -1200,8 +1169,7 @@ bool qt_sendSpontaneousEvent(QObject *receiver, QEvent *event)
 }
 
 extern "C"
-LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
-                            LPARAM lParam)
+LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     bool result = true;
     QEvent::Type evt_type = QEvent::None;
@@ -1249,13 +1217,9 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
     QT_NC_WNDPROC
 #endif
 
-    if (QAbstractEventDispatcher::instance()) {
-        QEventDispatcherWin32 *eventDispatcher =
-            qt_cast<QEventDispatcherWin32 *>(QAbstractEventDispatcher::instance());
-        res = 0;
-        if (eventDispatcher->winEventFilter(&msg, &res))                // send through app filter
-            RETURN(res);
-    }
+    // send through app filter
+    if (qApp->filterEvent(&msg, &res))
+        return res;
 
     switch (message) {
 #ifndef Q_OS_TEMP
