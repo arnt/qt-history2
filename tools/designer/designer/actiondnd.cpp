@@ -391,6 +391,8 @@ void QDesignerToolBar::removeWidget( QWidget *w )
 					    formWindow, a, this, index );
     formWindow->commandHistory()->addCommand( cmd );
     cmd->execute();
+    QApplication::sendPostedEvents();
+    adjustSize();
 }
 
 void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
@@ -412,6 +414,8 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 					    formWindow, a, this, index );
     formWindow->commandHistory()->addCommand( cmd );
     cmd->execute();
+    QApplication::sendPostedEvents();
+    adjustSize();
 
     QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) :
 	a->inherits( "QSeparatorAction" ) ? QString( "application/x-designer-separator" ) : QString( "application/x-designer-actions" );
@@ -528,8 +532,8 @@ void QDesignerToolBar::reInsert()
 	    ( (QSeparatorAction*)a )->widget()->installEventFilter( this );
 	}
     }
-    boxLayout()->invalidate();
-    boxLayout()->activate();
+    QApplication::sendPostedEvents();
+    adjustSize();
     doReinsert = TRUE;
 }
 
