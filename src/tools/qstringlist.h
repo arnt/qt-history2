@@ -48,6 +48,12 @@
 
 class QRegExp;
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<QString>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QStringList : public QValueList<QString>
 {
 public:

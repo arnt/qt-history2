@@ -111,6 +111,12 @@ private:
 /*******     QSqlRecordInfo Class    ******/
 /******************************************/
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<QSqlFieldInfo>;
+// MOC_SKIP_END
+#endif
+
 typedef QValueList<QSqlFieldInfo> QSqlFieldInfoList;
 
 class Q_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
