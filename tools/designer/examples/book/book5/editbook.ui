@@ -1,7 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>EditBookForm</class>
-<include location="local" implDecl="in declaration">editbook.ui.h</include>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>EditBookForm</cstring>
@@ -88,6 +86,9 @@
                         <widget class="QLineEdit" row="0" column="1">
                             <property name="name">
                                 <cstring>QLineEditTitle</cstring>
+                            </property>
+                            <property name="text">
+                                <string></string>
                             </property>
                             <property name="database" stdset="0">
                                 <stringlist>
@@ -212,71 +213,79 @@
     </vbox>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>PushButtonFirst</sender>
         <signal>clicked()</signal>
         <receiver>BookDataBrowser</receiver>
         <slot>first()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>BookDataBrowser</sender>
         <signal>firstRecordAvailable( bool )</signal>
         <receiver>PushButtonFirst</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButtonPrev</sender>
         <signal>clicked()</signal>
         <receiver>BookDataBrowser</receiver>
         <slot>prev()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>BookDataBrowser</sender>
         <signal>prevRecordAvailable( bool )</signal>
         <receiver>PushButtonPrev</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButtonNext</sender>
         <signal>clicked()</signal>
         <receiver>BookDataBrowser</receiver>
         <slot>next()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>BookDataBrowser</sender>
         <signal>nextRecordAvailable( bool )</signal>
         <receiver>PushButtonNext</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButtonLast</sender>
         <signal>clicked()</signal>
         <receiver>BookDataBrowser</receiver>
         <slot>last()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>BookDataBrowser</sender>
         <signal>lastRecordAvailable( bool )</signal>
         <receiver>PushButtonLast</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButtonInsert</sender>
         <signal>clicked()</signal>
         <receiver>BookDataBrowser</receiver>
         <slot>insert()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButtonUpdate</sender>
         <signal>clicked()</signal>
         <receiver>BookDataBrowser</receiver>
         <slot>update()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButtonDelete</sender>
         <signal>clicked()</signal>
         <receiver>BookDataBrowser</receiver>
         <slot>del()</slot>
     </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">editbook.ui.h</include>
+</includes>
+<slots>
+    <slot>init()</slot>
+    <slot>destroy()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
