@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#35 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#35 $");
 
 
 /*!
@@ -603,7 +603,7 @@ QTextStream &QTextStream::operator>>( double &f )
 
 
 /*!
-  Reads a string from the stream and returns a reference to the stream.
+  Reads a word from the stream and returns a reference to the stream.
 */
 
 QTextStream &QTextStream::operator>>( char *s )
@@ -627,7 +627,7 @@ QTextStream &QTextStream::operator>>( char *s )
 }
 
 /*!
-  Reads a string from the stream and returns a reference to the stream.
+  Reads a word from the stream and returns a reference to the stream.
 */
 
 QTextStream &QTextStream::operator>>( QString &s )
@@ -650,6 +650,38 @@ QTextStream &QTextStream::operator>>( QString &s )
     s.truncate(i);
     return *this;
 }
+
+
+/*!
+  Reads a line from the stream and returns a reference to the stream.
+
+  The returned string does not contain any trailing newline or
+  carriage return.
+*/
+
+QString QTextStream::readLine()
+{
+    CHECK_STREAM_PRECOND;
+    QString s( 64 );
+    int i = 0;
+    int c = eat_ws( dev );
+    while ( c != EOF ) {
+	if ( c == '\n' ) {
+	    dev->ungetch( c );
+	    break;
+	}
+	s[i++] = c;
+	if ( i == (int)s.size()-1 )
+	    s.resize( s.size()*2 );
+	c = dev->getch();
+    }
+    if ( i > 0 && s[i-1] == '\r' )
+	s[--i] = '\0'; // if there are two \r, let one stay
+
+    s.truncate(i);
+    return s;
+}
+
 
 
 /*****************************************************************************
