@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#32 $
+** $Id: //depot/qt/main/src/moc/moc.y#33 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#33 $";
 #endif
 
 
@@ -534,14 +534,23 @@ int main( int argc, char **argv )		// program starts here
 		fileName = arg.copy();
 	}
     }
-    if ( fileName.isNull() )
-	error = "No input file specified";
-    if ( argc < 2 || error ) {			// incomplete/wrong args
+    if ( fileName.isNull() ) {
+	fileName = "standard input";
+	yyin = stdin;
+    }
+    else if ( argc < 2 || error ) {		// incomplete/wrong args
 	fprintf( stderr, "Qt meta object compiler\n" );
 	if ( error )
 	    fprintf( stderr, "moc: %s\n", error );
 	fprintf( stderr, "Usage:  moc [-i] [-o output] <header-file>\n" );
 	return 1;
+    }
+    else {
+	yyin = fopen( fileName, "r" );
+	if ( !yyin ) {
+	    fprintf( stderr, "moc: %s: No such file\n", (char*)fileName );
+	    return 1;
+	}
     }
     if ( !ofileName.isNull() ) {		// output file specified
 	out = fopen( ofileName, "w" );		// create output file
@@ -552,11 +561,6 @@ int main( int argc, char **argv )		// program starts here
     }
     else					// use stdout
 	out = stdout;
-    yyin = fopen( fileName, "r" );
-    if ( !yyin ) {
-	fprintf( stderr, "moc: %s: No such file\n", (char*)fileName );
-	return 1;
-    }
     init();
     yyparse();
     fclose( yyin );
