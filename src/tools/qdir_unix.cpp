@@ -213,7 +213,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     union {
 	struct dirent mt_file;
-	char b[sizeof(struct dirent) + NAME_MAX + 1];
+	char b[sizeof(struct dirent) + MAXNAMLEN + 1];
     } u;
     while ( readdir_r(dir, &u.mt_file, &file ) == 0 && file == &u.mt_file ) {
 #else
