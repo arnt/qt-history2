@@ -155,7 +155,7 @@ Get source distributions of both Qt&nbsp;1 and Qt&nbsp;2.
 <ol>
 <li>Install and build Qt&nbsp;1 and Qt&nbsp;2, usually in \code /opt \endcode or
 \code /usr/local \endcode. In the case of \code /opt \endcode:
-<pre>
+\code
 $ cd /opt
 $ gunzip -c qt-1.44.tar.gz | tar xf -
 $ cd qt-1.44
@@ -169,26 +169,26 @@ $ cd qt-2.1.0
 $ setenv QTDIR /opt/qt-2.1.0
 $ configure &lt;...&gt;
 $ make
-</pre>
+\endcode
 <li>Make shared libraries available to programs at run time. Either add both
 \code /opt/qt-1.44 \endcode and \code /opt/qt-2.0.1 \endcode to your environment
 variable \code LD_LIBRARY_PATH \endcode or make links to the libraries in a
 standard directory like \code /usr/local/lib \endcode:
-<pre>
+\code
 cd /usr/local/lib
 ln -s /opt/qt-1.44/lib/libqt.so.1 .
 ln -s /opt/qt-2.1.0/lib/libqt.so.2 .
-</pre>
+\endcode
 <li>To develop with Qt&nbsp;1 use:
-<pre>
+\code
 setenv QTDIR /opt/qt-1.44
 setenv PATH ${QTDIR}/bin:${PATH}
-</pre>
+\endcode
 To develop with Qt&nbsp;2 use:
-<pre>
+\code
 setenv QTDIR /opt/qt-2.1.0
 setenv PATH ${QTDIR}/bin:${PATH}
-</pre>
+\endcode
 Setting the \code PATH \endcode ensures that the proper version of moc is
 being used. Your \code Makefile \endcode should refer to
 \code ${QTDIR}/include \endcode and \code ${QTDIR}/lib \endcode to include the
