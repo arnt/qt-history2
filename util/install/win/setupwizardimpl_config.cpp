@@ -473,6 +473,7 @@ void SetupWizardImpl::showPageConfig()
 	folder = new QCheckListItem ( configPage->installList, "Database drivers" );
 	folder->setOpen( true );
 
+#if !defined(Q_OS_MACX)
 	item = new QCheckListItem( folder, "TDS", QCheckListItem::CheckBox );
 	item->setOn( findFileInPaths( "ntwdblib.dll", paths ) );
 	tdsPluginInstall = item;
@@ -480,6 +481,7 @@ void SetupWizardImpl::showPageConfig()
 	item = new QCheckListItem( folder, "Oracle (OCI)", QCheckListItem::CheckBox );
 	item->setOn( findFileInPaths( "oci.dll", paths ) );
 	ociPluginInstall = item;
+#endif
 
 	if ( globalInformation.sysId() != GlobalInformation::Borland ) {
 	    // I was not able to make Postgres work with Borland
@@ -494,9 +496,11 @@ void SetupWizardImpl::showPageConfig()
 	item->setOn( TRUE );
 	mysqlPluginInstall = item;
 
+#if !defined(Q_OS_MACX)
 	item = new QCheckListItem( folder, "ODBC", QCheckListItem::CheckBox );
 	item->setOn( findFileInPaths( "odbc32.dll", paths ) );
 	odbcPluginInstall = item;
+#endif
 
 	alreadyInitialized = TRUE;
     }

@@ -1258,7 +1258,11 @@ void SetupWizardImpl::showPageProgress()
 	    lib.cd( "lib" );
 #  if !defined(EVAL_CD)
 	    // patch qt*.dll
+#	if !defined(Q_OS_MAC)
 	    QStringList qtDlls = lib.entryList( "qt*.dll" );
+#	else
+	    QStringList qtDlls = lib.entryList( "libqt*.dylib" );
+#	endif
 	    if ( qtDlls.count() == 0 ) {
 		copySuccessful = FALSE;
 		QMessageBox::critical( this,
