@@ -9,4 +9,4 @@ SUBDIRS     = arthur \
               spreadsheet \
               sqlbrowser \
               textedit \
-              widgetview \
+
