@@ -921,7 +921,6 @@ void Project::setCustomSetting( const QString &key, const QString &value )
 {
     customSettings.remove( key );
     customSettings.insert( key, value );
-    save();
 }
 
 QString Project::customSetting( const QString &key ) const
@@ -933,7 +932,7 @@ void Project::updateCustomSettings()
 {
     if ( !projectSettingsPluginManager )
 	return;
-    
+
 /*
     ProjectSettingsInterface *iface = 0;
     projectSettingsPluginManager->queryInterface( lang, (QUnknownInterface**)&iface );
@@ -941,15 +940,15 @@ void Project::updateCustomSettings()
 	return;
     csList = iface->projectSettings();
     iface->release();
-*/  
-    
+*/
+
     QInterfacePtr<ProjectSettingsInterface> iface;
     projectSettingsPluginManager->queryInterface( lang, &iface );
     if ( !iface )
 	return;
     csList = iface->projectSettings();
-    
-    
+
+
     customSettings.clear();
 
 }
