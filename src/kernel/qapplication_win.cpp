@@ -62,7 +62,8 @@
 #include <pktdef.h>
 #include <math.h>
 
-#define NPACKETQSIZE	32	// minimum size of queue.
+const int NPACKETQSIZE = 32;	// minimum size of queue.
+const double PI = 3.14159265359;
 
 PACKET localPacketBuf[NPACKETQSIZE];  // our own tablet packet queue.
 LOGCONTEXT lcMine;   // the logical context for the tablet ( describes capapilities )
@@ -730,8 +731,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 #if defined(QT_WINTAB_SUPPORT)
 
 #define FIX_DOUBLE(x) ( double(INT(x)) + double(FRAC(x) / 0x10000 ) )
-#define PI 3.14159265359
-
     int max_pressure;
     struct tagAXIS tpOri[3];
     struct tagAXIS pressureAxis;
@@ -3547,17 +3546,16 @@ UINT prsAdjust(PACKET p, HCTX hTab)
 bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 				      int numPackets )
 {
-    static POINT ptOrg, ptOld, ptNew;
-    static DWORD btnOld, btnNew;
-    static UINT prsNew;
-    static ORIENTATION ort;
+    POINT ptNew;
+    DWORD btnNew;
+    UINT prsNew;
+    ORIENTATION ort;
     int i;
     int dev;
     int tiltX, tiltY;
     bool sendEvent;
-
+    
     for ( i = 0; i < numPackets; i++ ) {
-	DWORD btnChange;
 	if ( localPacketBuf[i].pkCursor == 2 ) {
 	    dev = QTabletEvent::Eraser;
 	} else if ( localPacketBuf[i].pkCursor == 1 ){
@@ -3566,19 +3564,11 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    dev = QTabletEvent::NoDevice;
 	}
 
-	btnOld = btnNew;
 	btnNew = localPacketBuf[i].pkButtons;
-	btnChange = btnOld ^ btnNew;
 
 	if ( btnNew ) {
-	    ptOld = ptNew;
-
 	    ptNew.x = (UINT)localPacketBuf[i].pkX;
 	    ptNew.y = (UINT)localPacketBuf[i].pkY;
-
-	    ptNew.x -= ptOrg.x;
-	    ptNew.y -= ptOrg.y;
-
 	    prsNew = prsAdjust( localPacketBuf[i], hTab );
 	}
 	QPoint globalPos( ptNew.x, ptNew.y );
@@ -3592,16 +3582,19 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	else {
 	    ort = localPacketBuf[i].pkOrientation;
 	    // convert from azimuth and altitude to x tilt and y tilt
-	    double radAzim = (ort.orAzimuth / 10) * ( PI / 180 );
-	    double radAlt = abs(ort.orAltitude / 10) * ( PI / 180 );
-	    double tmpZ = sin( radAlt );
-	    double tmpX = sin(radAzim) * cos(radAlt);
-	    double tmpY = cos(radAzim) * cos(radAlt);
+	    // what follows is the optimized version.  Here are the equations
+	    // I used to get to this point (in case things change :)
+	    // X = sin(azimuth) * cos(altitude)
+	    // Y = cos(azimuth) * cos(altitude)
+	    // Z = sin(altitude)
+	    // X Tilt = arctan(X / Z)
+	    // Y Tilt = arctan(Y / Z)
+	    double radAzim = ( ort.orAzimuth / 10 ) * ( PI / 180 );
+	    //double radAlt = abs( ort.orAltitude / 10 ) * ( PI / 180 );
+	    double tanAlt = tan( ( ort.orAltitude / 10 ) * ( PI / 180 ) );
 
-	    // ### this value is WRONG but it is close until I regain my math skills...
-	    //double degX = (radAlt - (PI / 2)) * sin(radAzim);
-	    double degX = atan( tmpX / tmpZ );
-	    double degY = atan( tmpY / tmpZ );
+	    double degX = atan( sin(radAzim) / tanAlt );
+	    double degY = atan( cos(radAzim) / tanAlt );
 	    tiltX = degX * ( 180 / PI );
 	    tiltY = -degY * ( 180 / PI );
 	}
