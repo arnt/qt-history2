@@ -39,9 +39,9 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
-#include <limits.h>
 #include "qurloperator.h"
 #include "qdir.h"
+#include <limits.h>
 
 class QUrlInfoPrivate
 {
