@@ -67,7 +67,7 @@ class QObjectPrivate {
 class QSenderObjectList : public QObjectList, public QShared
 {
 public:
-    QSenderObjectList():currentSender(0){}
+    QSenderObjectList() : currentSender( 0 ) { }
     QObject *currentSender;
 };
 
@@ -1425,30 +1425,30 @@ static void err_info_about_candidates( int code,
 
 /*!
     Returns a pointer to the object that sent the signal, if called in
-    a slot activated by a signal; otherwise the return value is undefined.
-
-    \warning This function will return something apparently correct in
-    other cases as well. However, its value may change during any
-    function call, depending on what signal-slot connections are
-    activated during that call. In Qt 3.0 the value will change more
-    often than in 2.x.
-
-    \warning This function violates the object-oriented principle of
-    modularity. However, getting access to the sender might be
-    useful when many signals are connected to a single slot. The
-    sender is undefined if the slot is called as a normal C++
+    a slot activated by a signal; otherwise it returns 0. The pointer
+    is valid only during the execution of the slot that calls this
     function.
+
+    Getting access to the object that sent the signal might be useful
+    when many signals are connected to a single slot.
+
+    \warning The pointer returned by this function becomes invalid if
+    the sender is destroyed, or if the slot is disconnected from the
+    sender's signal.
+
 */
 
 const QObject *QObject::sender()
 {
     if ( senderObjects &&
 	 senderObjects->currentSender &&
-	 /*currentSender may be a dangling pointer in case the object
+	 /*
+	  * currentSender may be a dangling pointer in case the object
 	  * it was pointing to was destructed from inside a slot. Thus
 	  * verify it still is contained inside the senderObjects list
 	  * which gets cleaned on both destruction and disconnect.
 	  */
+
 	 senderObjects->findRef( senderObjects->currentSender ) != -1 )
 	return senderObjects->currentSender;
     return 0;
@@ -2223,7 +2223,7 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 	    object->qt_emit( c->member(), o );
 	else
 	    object->qt_invoke( c->member(), o );
-	if (sol ) {
+	if ( sol ) {
 	    sol->currentSender = oldSender;
 	    if ( sol->deref() )
 		delete sol;
