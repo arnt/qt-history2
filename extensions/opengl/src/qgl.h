@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#13 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#14 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -143,7 +143,7 @@ protected:
 #if defined(Q_WGL)
     virtual int		choosePixelFormat( void* pfd, HANDLE pdc );
 #elif defined(Q_GLX)
-    virtual void*	tryVisual( const QGLFormat& f );
+    virtual void*	tryVisual( const QGLFormat& f, int bufDepth = 1 );
     virtual void*	chooseVisual();
 #endif
 

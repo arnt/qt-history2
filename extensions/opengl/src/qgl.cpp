@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#35 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#36 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -1183,13 +1183,19 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
 void *QGLContext::chooseVisual()
 {
+    static int bufDepths[] = { 16, 12, 8, 4, 2, 1 };
     //todo: if pixmap, also make sure that vi->depth == pixmap->depth
     void* vis = 0;
+    int i = 0;
     bool fail = FALSE;
     QGLFormat fmt = format();
     bool tryDouble = !fmt.doubleBuffer();  // Some GL impl's only have double
     bool triedDouble = FALSE;
-    while( !fail && !( vis = tryVisual( fmt ) ) ) {
+    while( !fail && !( vis = tryVisual( fmt, bufDepths[i] ) ) ) {
+	if ( !fmt.rgba() && bufDepths[i] > 1 ) {
+	    i++;
+	    continue;
+	}
 	if ( tryDouble ) {
 	    fmt.setDoubleBuffer( TRUE );
 	    tryDouble = FALSE;
@@ -1239,7 +1245,7 @@ void *QGLContext::chooseVisual()
   \sa chooseContext()
 */
 
-void *QGLContext::tryVisual( const QGLFormat& f )
+void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 {
     int spec[40];
     int i = 0;
@@ -1249,6 +1255,13 @@ void *QGLContext::tryVisual( const QGLFormat& f )
 	spec[i++] = GLX_DOUBLEBUFFER;
     if ( f.depth() ) {
 	spec[i++] = GLX_DEPTH_SIZE;
+	spec[i++] = 1;
+    }
+    if ( f.stereo() ) {
+	spec[i++] = GLX_STEREO;
+    }
+    if ( f.stencil() ) {
+	spec[i++] = GLX_STENCIL_SIZE;
 	spec[i++] = 1;
     }
     if ( f.rgba() ) {
@@ -1275,16 +1288,9 @@ void *QGLContext::tryVisual( const QGLFormat& f )
 		spec[i++] = 1;
 	    }
         }
-	if ( f.stereo() ) {
-	    spec[i++] = GLX_STEREO;
-	}
     } else {
 	spec[i++] = GLX_BUFFER_SIZE;
-	spec[i++] = 24;
-    }
-    if ( f.stencil() ) {
-	spec[i++] = GLX_STENCIL_SIZE;
-	spec[i++] = 1;
+	spec[i++] = bufDepth;
     }
     spec[i] = None;
     return glXChooseVisual( paintDevice->x11Display(),

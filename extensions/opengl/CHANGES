@@ -4,11 +4,15 @@ Changes from version 4.00 to version 4.10 (Qt 2.0)
 
 General Qt 2.0 namespace updates.
 
+Improved X11 visual selection for color-index mode: Will try to find
+the deepest visual available, but will not fail as long as at least a
+1 bit deep visual can be found.
+
 Added 'texture' example program to demonstrate how to import QImages
 into GL for use as textures etc.
 
 Added 'overlay_x11" example program to demonstrate how to use X server
-overlays with Qt and Qt OpenGL Extension
+overlays with Qt and Qt OpenGL Extension.
 
 
 Changes from version 3.00 to version 4.00 (Qt 1.42) 
