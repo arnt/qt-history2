@@ -338,9 +338,8 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
     // since we need it to be bigger than that, extend it here.
     r.setWidth( view->d->fm->boundingRect( item->itemText ).width() + 4 );
     r = QRect( view->contentsToViewport( QPoint( r.x(), r.y() ) ), QSize( r.width(), r.height() ) );
-    QRect r2( item->pixmapRect( FALSE ) );
-    r2 = QRect( view->contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );
-    tip( r, r2, item->itemText );
+
+    tip( r, item->rect(), item->itemText );
 }
 #endif
 
