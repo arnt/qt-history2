@@ -140,6 +140,8 @@ QTextTable::~QTextTable()
 */
 QTextTableCellProperties QTextTable::cellAt(int row, int col) const
 {
+    if (d->dirty) d->updateGrid();
+
     if (row < 0 || row >= d->rows() || col < 0 || col >= d->cols())
         return QTextTableCellProperties();
     return QTextTableCellProperties(d, row, col);
@@ -152,8 +154,9 @@ QTextTableCellProperties QTextTable::cellAt(int row, int col) const
 */
 QTextTableCellProperties QTextTable::cellAt(const QTextCursor &c) const
 {
-    int pos = c.position();
+    if (d->dirty) d->updateGrid();
 
+    int pos = c.position();
     int row = d->rowAt(pos);
     if (row != -1) {
 	for (int i = d->nCols - 1; i >= 0 ; --i) {
@@ -179,6 +182,9 @@ void QTextTable::resize(int rows, int cols)
     int nRows = d->rows();
     int nCols = d->cols();
 
+    if (rows == nRows && cols == nCols)
+	return;
+
     if (nCols < cols)
         insertCols(nCols, cols - nCols);
     else if (nCols > cols)
@@ -190,6 +196,8 @@ void QTextTable::resize(int rows, int cols)
         removeRows(rows, nRows-rows);
 
     d->pieceTable()->endEditBlock();
+
+    Q_ASSERT(d->dirty);
 }
 
 /*!
@@ -197,6 +205,9 @@ void QTextTable::resize(int rows, int cols)
 */
 void QTextTable::insertRows(int pos, int num)
 {
+    if (num <= 0)
+	return;
+
     d->pieceTable()->beginEditBlock();
 
     int nRows = d->rows();
@@ -219,6 +230,8 @@ void QTextTable::insertRows(int pos, int num)
     }
 
     d->pieceTable()->endEditBlock();
+
+    Q_ASSERT(d->dirty);
 }
 
 /*!
@@ -226,6 +239,8 @@ void QTextTable::insertRows(int pos, int num)
 */
 void QTextTable::insertCols(int pos, int num)
 {
+    if (num <= 0)
+	return;
 //     qDebug() << "-------- insertCols" << pos << num;
     d->pieceTable()->beginEditBlock();
 
@@ -261,6 +276,8 @@ void QTextTable::insertCols(int pos, int num)
 
 //     qDebug() << "-------- end insertCols" << pos << num;
     d->pieceTable()->endEditBlock();
+
+    Q_ASSERT(d->dirty);
 }
 
 /*!
@@ -286,6 +303,8 @@ void QTextTable::removeRows(int pos, int num)
 
     d->pieceTable()->endEditBlock();
 //     qDebug() << "-------- end removeRows" << pos << num;
+
+    Q_ASSERT(d->dirty);
 }
 
 /*!
@@ -325,6 +344,8 @@ void QTextTable::removeCols(int pos, int num)
 
     d->pieceTable()->endEditBlock();
 //     qDebug() << "-------- end removeCols" << pos << num;
+
+    Q_ASSERT(d->dirty);
 }
 
 /*!
@@ -332,6 +353,8 @@ void QTextTable::removeCols(int pos, int num)
 */
 int QTextTable::rows() const
 {
+    if (d->dirty) d->updateGrid();
+
     return d->rows();
 }
 
@@ -340,6 +363,8 @@ int QTextTable::rows() const
 */
 int QTextTable::cols() const
 {
+    if (d->dirty) d->updateGrid();
+
     return d->cols();
 }
 
@@ -348,6 +373,8 @@ int QTextTable::cols() const
 */
 void QTextTable::setRowSpan(int row, int col, int rowspan)
 {
+    if (d->dirty) d->updateGrid();
+
     QTextBlockFormat modifier;
     modifier.setTableCellRowSpan(rowspan);
     d->pieceTable()->setBlockFormat(d->cellAt(row, col).position(), 1, modifier, QTextPieceTable::MergeFormat);
@@ -358,6 +385,8 @@ void QTextTable::setRowSpan(int row, int col, int rowspan)
 */
 void QTextTable::setColSpan(int row, int col, int colspan)
 {
+    if (d->dirty) d->updateGrid();
+
     QTextBlockFormat modifier;
     modifier.setTableCellColSpan(colspan);
     d->pieceTable()->setBlockFormat(d->cellAt(row, col).position(), 1, modifier, QTextPieceTable::MergeFormat);
@@ -423,8 +452,9 @@ void QTextTable::removeBlock(const QTextBlockIterator &block)
     QTextFormatGroup::removeBlock(block);
 }
 
-void QTextTable::blockFormatChanged(const QTextBlockIterator &)
+void QTextTable::blockFormatChanged(const QTextBlockIterator &it)
 {
+    qDebug("blockFormatChanged for block %d", it.position());
     d->dirty = true;
 }
 
@@ -438,6 +468,8 @@ QTextTablePrivate::~QTextTablePrivate()
 
 int QTextTablePrivate::rowAt(int cursor) const
 {
+    if (dirty) updateGrid();
+
     int row = -1;
     for (int i = 0; i < nRows; ++i) {
 	int c = 0;
@@ -459,6 +491,8 @@ int QTextTablePrivate::rowAt(int cursor) const
 
 QTextBlockIterator QTextTablePrivate::cellStart(int cursor) const
 {
+    if (dirty) updateGrid();
+
     QTextBlockIterator cell;
     for (int i = 0; i < blocks.size(); ++i) {
 	QTextBlockIterator it = blocks.at(i);
@@ -471,6 +505,8 @@ QTextBlockIterator QTextTablePrivate::cellStart(int cursor) const
 
 QTextBlockIterator QTextTablePrivate::cellEnd(int cursor) const
 {
+    if (dirty) updateGrid();
+
     if (blocks.at(0).position() > cursor || blocks.last().position() < cursor)
 	return QTextBlockIterator();
     for (int i = 0; i < blocks.size(); ++i) {
@@ -485,6 +521,8 @@ QTextBlockIterator QTextTablePrivate::cellEnd(int cursor) const
 
 QTextBlockIterator QTextTablePrivate::rowStart(int cursor) const
 {
+    if (dirty) updateGrid();
+
     for (int i = 0; i < nRows; ++i) {
 	int c = 0;
 	if (i != 0) {
@@ -505,6 +543,8 @@ QTextBlockIterator QTextTablePrivate::rowStart(int cursor) const
 
 QTextBlockIterator QTextTablePrivate::rowEnd(int cursor) const
 {
+    if (dirty) updateGrid();
+
     QTextBlockIterator end;
     for (int i = nRows-1; i >= 0; --i) {
 	int c = nCols;
@@ -537,7 +577,7 @@ QTextBlockIterator QTextTablePrivate::end() const
 
 void QTextTablePrivate::updateGrid() const
 {
-//     qDebug("updateGrid:");
+    qDebug("updateGrid:");
     nRows = nCols = 0;
 
     int maxRow = 0;
@@ -548,7 +588,7 @@ void QTextTablePrivate::updateGrid() const
 	QTextBlockIterator cell = blocks.at(i);
 	QTextBlockFormat fmt = cell.blockFormat();
 	if (fmt.tableCellEndOfRow()) {
-// 	    qDebug("  ... eor: maxCol=%d, c=%d", maxCol, c);
+	    qDebug("  ... eor: maxCol=%d, c=%d", maxCol, c);
 	    maxCol = qMax(c+1, maxCol);
 	    c = 0;
 	    maxRow++;
@@ -561,7 +601,7 @@ void QTextTablePrivate::updateGrid() const
     nCols = maxCol;
 
  redo:
-//     qDebug("   1: nCols = %d, nRows=%d", nCols, nRows);
+    qDebug("   1: nCols = %d, nRows=%d", nCols, nRows);
     grid = (int *)
            realloc(grid, sizeof(int)*nRows*nCols);
     memset(grid, 0, sizeof(int)*nRows*nCols);
@@ -584,10 +624,11 @@ void QTextTablePrivate::updateGrid() const
 	    ++c;
 
 	if (c + colspan <= nCols) {
-// 	    qDebug("setting cell %d at %d/%d", cell.n, r, c);
 	    for (int ii = 0; ii < rowspan; ++ii)
-		for (int jj = 0; jj < colspan; ++jj)
+		for (int jj = 0; jj < colspan; ++jj) {
+		    qDebug("setting cell %d span=%d/%d at %d/%d", cell.position(), rowspan, colspan, r+ii, c+jj);
 		    setCell(r+ii, c+jj, cell);
+		}
 	    maxRow = qMax(maxRow, r+rowspan);
 	    maxCol = qMax(maxCol, c+colspan);
 
@@ -595,7 +636,7 @@ void QTextTablePrivate::updateGrid() const
 	c += colspan;
 	if (c > nCols) {
 	    nCols = c;
-// 	    qDebug(" ---> redo (r=%d, c=%d, colspan=%d)", r, c, colspan);
+	    qDebug(" ---> redo (r=%d, c=%d, colspan=%d)", r, c, colspan);
 	    goto redo;
 	}
 	if (eor) {
@@ -606,7 +647,7 @@ void QTextTablePrivate::updateGrid() const
     nRows = maxRow;
     // nCols is without the 'eor column', hence the -1
     nCols = maxCol;
-//     qDebug("nRows=%d, nCols=%d", nRows, nCols);
+    qDebug("nRows=%d, nCols=%d", nRows, nCols);
 
     dirty = false;
 }

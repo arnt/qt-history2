@@ -430,8 +430,6 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
     const int startPos = blockIt.position();
     const int endPos = endIt.position() + endIt.length() - 1;
 
-    if (!endIt.atEnd())
-        ++endIt;
     for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt) {
         int oldFormat = block(blockIt)->format;
         QTextBlockFormat format = formats->blockFormat(oldFormat);
@@ -456,7 +454,9 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
                 oldGroup->removeBlock(blockIt);
             if (group)
                 group->insertBlock(blockIt);
-        }
+        } else if (group) {
+	    group->blockFormatChanged(blockIt);
+	}
     }
 
     endEditBlock();
