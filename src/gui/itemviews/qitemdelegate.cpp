@@ -398,6 +398,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         int y = option.rect.top();
         int bb = border * 2;
         int w, h;
+
         if (hint) {
             w = qMax(textRect->width(), pixmapRect->width()) + bb;
             h = qMax(textRect->height(), pixmapRect->height()) + bb;
@@ -420,11 +421,15 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         QRect decoration;
         switch (option.decorationPosition) {
         case QStyleOptionViewItem::Top: {
+            if (!pixmapRect->isEmpty())
+                pixmapRect->setHeight(pixmapRect->height() + bb); // add space
             decoration.setRect(x, y, w, pixmapRect->height());
             h = hint ? textRect->height() : h - pixmapRect->height();
             display.setRect(x, y + pixmapRect->height(), w, h);
             break; }
         case QStyleOptionViewItem::Bottom: {
+            if (!textRect->isEmpty())
+                textRect->setHeight(textRect->height() + bb); // add space
             h = hint ? textRect->height() + pixmapRect->height() : h;
             decoration.setRect(x, y + h - pixmapRect->height(), w, pixmapRect->height());
             h = hint ? textRect->height() : h - pixmapRect->height();
@@ -434,6 +439,8 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
             if (option.direction == Qt::RightToLeft)
                 goto Right;
         Left:
+            if (!pixmapRect->isEmpty())
+                pixmapRect->setWidth(pixmapRect->width() + bb); // add space
             decoration.setRect(x, y, pixmapRect->width(), h);
             w = hint ? textRect->width() : w - pixmapRect->width() - cw;
             display.setRect(x + pixmapRect->width(), y, w, h);
@@ -442,6 +449,8 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
             if (option.direction == Qt::RightToLeft)
                 goto Left;
         Right:
+            if (!textRect->isEmpty())
+                textRect->setWidth(textRect->width() + bb); // add space
             w = hint ? textRect->width() + pixmapRect->width() : w;
             decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
             w = hint ? textRect->width() : w - pixmapRect->width() - cw;
