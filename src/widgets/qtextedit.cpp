@@ -914,6 +914,8 @@ QTextEdit::~QTextEdit()
 
 void QTextEdit::init()
 {
+    viewport()->setAttribute(WA_PaintOnScreen); // disable double buffering on the viewport
+
     d = new QTextEditPrivate;
     doc->formatCollection()->setPaintDevice( this );
     undoEnabled = TRUE;
