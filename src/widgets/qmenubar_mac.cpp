@@ -141,19 +141,19 @@ uint QMenuBar::isCommand(QMenuItem *it)
     //now the fun part
     uint ret = 0;
 #if 0
-    if(t.find("about") != -1 && t.find(QRegExp("qt$")) == -1) 
+    if(t.find("about", 0, FALSE) == 0 && t.find(QRegExp("qt$", FALSE)) == -1) 
 	ret = kHICommandAbout;
 #endif
-    if(t.find("config") != -1 || t.find("preference") != -1 || 
-       t.find("options") != -1 || t.find("setting") != -1) 
+    if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 || 
+       t.find("options", 0, FALSE) == 0 || t.find("setting", 0, FALSE) == 0) 
 	ret = kHICommandPreferences;
-    if(t.find("quit") != -1 || t.find("exit") != -1) 
+    if(t.find("quit", 0, FALSE) == 0 || t.find("exit", 0, FALSE) == 0) 
 	ret = kHICommandQuit;
     //shall we?
     if(ret && activeMenuBar && (!activeMenuBar->mac_d->commands || 
-			 !activeMenuBar->mac_d->commands->find(ret))) 
+				!activeMenuBar->mac_d->commands->find(ret))) 
 	EnableMenuCommand(NULL, ret);
-    else
+    else 
 	ret = 0;
     return ret;
 }
