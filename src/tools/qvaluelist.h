@@ -554,6 +554,8 @@ inline QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
 	T t;
 	s >> t;
 	l.append( t );
+	if ( s.atEnd() )
+	    break;
     }
     return s;
 }

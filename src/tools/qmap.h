@@ -776,6 +776,8 @@ inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 	Key k; T t;
 	s >> k >> t;
 	m.insert( k, t );
+	if ( s.atEnd() )
+	    break;
     }
     return s;
 }
