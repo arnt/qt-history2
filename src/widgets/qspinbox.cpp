@@ -444,6 +444,16 @@ QSize QSpinBox::sizeHint() const
     return QSize( w + d->controls->downRect().width(), h ).expandedTo( QApplication::globalStrut() );
 }
 
+
+/*!\reimp
+*/
+QSize QSpinBox::minimumSizeHint() const
+{
+    int w = vi->minimumSizeHint().width() + d->controls->downRect().width();
+    int h = QMAX( vi->minimumSizeHint().height(), d->controls->minimumSizeHint().height() );
+    return QSize( w, h );
+}
+
 // Does the layout of the lineedit and the buttons
 
 void QSpinBox::arrangeWidgets()

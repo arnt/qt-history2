@@ -892,6 +892,14 @@ QSize QDateEdit::sizeHint() const
     return QSize( w, h + fw * 2 ).expandedTo( QApplication::globalStrut() );
 }
 
+/*! \reimp
+
+*/
+QSize QDateEdit::minimumSizeHint() const
+{
+    return sizeHint();
+}
+
 
 /*! Returns the formatted number for section \a sec.  This will
   correspond to either the year, month or day section, depending on
@@ -2118,6 +2126,13 @@ QSize QTimeEdit::sizeHint() const
 	    d->controls->upRect().width() + fw * 4;
 
     return QSize( w, h + fw * 2 ).expandedTo( QApplication::globalStrut() );
+}
+
+/*! \reimp
+*/
+QSize QTimeEdit::minimumSizeHint() const
+{
+    return sizeHint();
 }
 
 /*!

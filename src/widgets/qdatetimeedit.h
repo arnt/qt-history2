@@ -87,6 +87,7 @@ public:
     };
 
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
     virtual void setDate( const QDate& date );
     QDate date() const;
     virtual void setOrder( Order order );
@@ -149,6 +150,7 @@ public:
     ~QTimeEdit();
 
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
     virtual void setTime( const QTime& time );
     QTime time() const;
     virtual void setAutoAdvance( bool advance );
@@ -204,6 +206,7 @@ public:
     ~QDateTimeEdit();
 
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
     virtual void  setDateTime( const QDateTime & dt );
     QDateTime dateTime() const;
 
@@ -219,7 +222,6 @@ signals:
 protected:
     void init();
     void resizeEvent( QResizeEvent * );
-    QSize minimumSizeHint() const;
     void layoutEditors();
 
 protected slots:
