@@ -34,7 +34,7 @@ Q_CORE_EXPORT HINSTANCE qWinAppPrevInst()                // get Windows prev app
     return appPrevInst;
 }
 
-typedef bool (*QWinEventFilter)(MSG*,long&);
+typedef bool (*QWinEventFilter)(MSG *message,long *result);
 static QWinEventFilter qt_win_event_filter = 0;
 
 Q_CORE_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
@@ -218,12 +218,15 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 /*!
     The message procedure calls this function for every message
     received. Reimplement this function if you want to process window
-    messages \e msg that are not processed by Qt. If you don't want
-    the event to be processed by Qt, then return true; otherwise
-    return false.
+    messages \a msg that are not processed by Qt. If you don't want
+    the event to be processed by Qt, then return true and set \a result 
+    to the value that the window procedure should return. Otherwise
+    return false. 
 */
-bool QCoreApplication::winEventFilter(MSG * /*msg*/)        // Windows event filter
+bool QCoreApplication::winEventFilter(MSG *msg, long *result)        // Windows event filter
 {
+    Q_UNUSED(msg);
+    Q_UNUSED(result);
     return false;
 }
 

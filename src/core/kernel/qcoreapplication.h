@@ -109,7 +109,7 @@ public:
 #endif
 
 #if defined(Q_WS_WIN)
-    virtual bool winEventFilter(MSG *);
+    virtual bool winEventFilter(MSG *message, long *result);
 #endif
 
 public slots:

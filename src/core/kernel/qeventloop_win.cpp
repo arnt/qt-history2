@@ -518,7 +518,7 @@ bool QEventLoop::winEventFilter(void *message, long *result)
         return true;
 
 #ifdef QT_COMPAT
-    if (QCoreApplication::instance()->winEventFilter((MSG*)message))
+    if (QCoreApplication::instance()->winEventFilter((MSG*)message, result))
         return true;
 #endif
 
