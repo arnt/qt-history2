@@ -74,6 +74,7 @@ public:
     virtual void      setPrimaryIndex( const QSqlIndex& idx );
 
 
+    virtual void        primeEditBuffer();
     virtual QSqlRecord* editBuffer( bool prime = FALSE );
     virtual int         insert( bool invalidate = TRUE );
     virtual int         update( bool invalidate = TRUE );

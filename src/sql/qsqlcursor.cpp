@@ -47,13 +47,8 @@ class QSqlCursorPrivate
 {
 public:
     QSqlCursorPrivate( const QString& name )
-	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 )
-    {
-	editBuffer = new QSqlRecord;
-    }
-    ~QSqlCursorPrivate(){
-	if( editBuffer ) delete editBuffer;
-    }
+	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 ){}
+    ~QSqlCursorPrivate(){}
     
     int               lastAt;
     QString           nm;
@@ -61,7 +56,7 @@ public:
     QString           ftr;
     int               md;
     QSqlIndex         priIndx;
-    QSqlRecord      * editBuffer;
+    QSqlRecord        editBuffer;
     QMap< int, bool >  calcFields;
 };
 
@@ -236,8 +231,8 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
     if ( autopopulate ) {
-	*(d->editBuffer) = driver()->record( name );
-	*this = *(d->editBuffer);
+	d->editBuffer = driver()->record( name );
+	*this = d->editBuffer;
 	d->priIndx = driver()->primaryIndex( name );
 #ifdef QT_CHECK_RANGE
 	if ( isEmpty() )
@@ -632,15 +627,15 @@ int QSqlCursor::insert( bool invalidate )
 {
     if ( ( d->md & Insert ) != Insert )
 	return FALSE;
-    int k = d->editBuffer->count();
+    int k = d->editBuffer.count();
     if( k == 0 ) return 0;
     QString str = "insert into " + name();
-    str += " (" + d->editBuffer->toString() + ")";
+    str += " (" + d->editBuffer.toString() + ")";
     str += " values (";
     QString vals;
     bool comma = FALSE;
     for( int j = 0; j < k; ++j ){
-	QSqlField* f = d->editBuffer->field( j );
+	QSqlField* f = d->editBuffer.field( j );
 	if ( !isCalculated( f->name() ) ) {
 	    if( comma )
 		vals += ",";
@@ -650,8 +645,26 @@ int QSqlCursor::insert( bool invalidate )
     }
     str += vals + ");";
     if ( invalidate )
-	QSqlRecord::operator=( *(d->editBuffer) );
+	QSqlRecord::operator=( d->editBuffer );
     return apply( str, invalidate );
+}
+
+/*!  
+
+  Primes the edit buffer with the field values of the cursor buffer.
+
+  \sa editBuffer()
+*/
+
+void QSqlCursor::primeEditBuffer()
+{
+    if( d->editBuffer.count() == 0 ){
+	d->editBuffer = *((QSqlRecord*)this);
+    } else {
+	for(uint i = 0; i < d->editBuffer.count(); i++){
+	    d->editBuffer.setValue( i, value( i ) );
+	}
+    }	
 }
 
 /*!  Returns a pointer to the internal edit buffer.  The edit buffer
@@ -666,14 +679,14 @@ int QSqlCursor::insert( bool invalidate )
 
 QSqlRecord* QSqlCursor::editBuffer( bool prime )
 {
+    primeEditBuffer();
     if( prime ){
-	d->editBuffer->clearValues();
-	primeInsert( d->editBuffer );
+	d->editBuffer.clearValues();
+	primeInsert( &d->editBuffer );
     } else {
-	*(d->editBuffer) = *((QSqlRecord*)this);
-	primeUpdate( d->editBuffer );
+	primeUpdate( &d->editBuffer );
     }
-    return d->editBuffer;
+    return &d->editBuffer;
 }
 
 /*!  Protected virtual function provided for derived classes to
@@ -717,7 +730,7 @@ int QSqlCursor::update( bool invalidate )
 {
     if ( primaryIndex().isEmpty() )
 	return 0;
-    return update( toString( primaryIndex(), d->editBuffer, d->nm, "=", "and" ), invalidate );
+    return update( toString( primaryIndex(), &d->editBuffer, d->nm, "=", "and" ), invalidate );
 }
 
 /*!  \overload
@@ -741,12 +754,12 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     int k = count();
     if( k == 0 ) return 0;
     QString str = "update " + name();
-    str += " set " + toString( d->editBuffer, QString::null, "=", "," );
+    str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
     if ( filter.length() )
  	str+= " where " + filter;
     str += ";";
     if ( invalidate )
-	QSqlRecord::operator=( *(d->editBuffer) );
+	QSqlRecord::operator=( d->editBuffer );
     return apply( str, invalidate );
 }
 
