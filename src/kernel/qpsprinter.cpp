@@ -33,7 +33,7 @@
 #include "qpainter.h"
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"
-#incldue "qpixmap.h"
+#include "qpixmap.h"
 #include "qimage.h"
 #include "qdatetime.h"
 #include "qstring.h"
