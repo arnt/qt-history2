@@ -254,8 +254,6 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     if ( w )
 	return w;
 
-    return widgetManager()->create( className, parent, name );
-
     // try to create it using the loaded widget plugins
     w = widgetManager()->create( className, parent, name );
     if ( w )
