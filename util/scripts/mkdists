@@ -57,6 +57,7 @@ DO_GZIP=auto
 DO_BZIP=auto
 DO_STUFF=no
 DO_ID=auto
+DO_COPYRIGHT=auto
 DO_DOC=auto
 TYPE=auto
 
@@ -262,6 +263,7 @@ while [ -n "$1" ]; do
    gzip)DO_GZIP=$VAL;;
    bzip)DO_BZIP=$VAL;;
    id) DO_ID=$VAL   ;;
+   copyright) DO_COPYRIGHT=$VAL;;
    *) showhelp "--${VAR}=$VAL" ;;
    esac
 done
@@ -279,6 +281,13 @@ if [ "$DO_ID" = "auto" ]; then
 	DO_ID=yes
     else
 	DO_ID=no
+    fi
+fi
+if [ "$DO_COPYRIGHT" = "auto" ]; then
+    if [ -z "$LOCAL_TREE" ]; then
+	DO_COPYRIGHT=yes
+    else
+	DO_COPYRIGHT=no
     fi
 fi
 if [ "$DO_GZIP" = "auto" ]; then
@@ -497,13 +506,29 @@ mv -f ${TMP_FILE} $qglobal
 #fix $Id
 if [ "x$DO_ID" = "xyes" ]; then
     status "Marking \$Id\$..."
-    for a in `find $DISTDIR/qt/`; do
-        if [ -f $a ] && ! binary_file "$a" && [ ! -L $a ] && grep '\$Id.*\$' $a >>$LOG 2>&1; then
+    for a in `find -type f $DISTDIR/qt/`; do
+        if ! binary_file "$a" && [ ! -L $a ] && grep '\$Id.*\$' $a >>$LOG 2>&1; then
 	    execut=444
 	    [ -x $a ] && execut=555
 	    mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
 	    tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${VERSION_STR}   edited $mtime"
 	    sed "s,\$Id[^\\$]*\\$,\$Id: ${tag_ID} \$,g" $a >${TMP_FILE}
+	    rm -f $a
+	    mv ${TMP_FILE} $a
+	    chmod $execut $a
+	fi
+    done
+fi
+
+#fix copyrights
+if [ "x$DO_COPYRIGHT" = "xyes" ]; then
+    status "Marking copyrights..."
+    THISYEAR=`date "+%Y"`
+    for a in `find -type f $DISTDIR/qt/`; do
+        if ! binary_file "$a" && [ ! -L $a ]; then && grep '\$THISYEAR\$' $a >>$LOG 2>&1; then
+	    execut=444
+	    [ -x $a ] && execut=555
+	    sed "s,\$THISYEAR\$,$THISYEAR,g" $a >${TMP_FILE}
 	    rm -f $a
 	    mv ${TMP_FILE} $a
 	    chmod $execut $a
