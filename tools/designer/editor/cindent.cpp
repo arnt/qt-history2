@@ -98,7 +98,6 @@ void CIndent::indent( QTextDocument *doc, QTextParag *p, int *oldIndent, int *ne
     }
 
     int ind = indentForBottomLine( code, QChar::null );
-    ind = ( ind / 4 ) * indentSize;
     indentLine( p, oi, ind );
     if ( oldIndent )
 	*oldIndent = oi;
