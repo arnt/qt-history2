@@ -612,7 +612,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		}
 	    } break;
 	    default:
-		QString txt = ke->text();
+		QString txt = ke->text().lower();
 		if ( !txt.isEmpty() && !separator().isEmpty() && txt[0] == separator()[0] ) {
 		    // do the same thing as KEY_RIGHT when the user presses the separator key
 		    if ( d->focusSection() < 2 ) {
@@ -620,6 +620,19 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 			    repaint( rect(), FALSE );
 		    }
 		    return TRUE;
+		} else if ( !txt.isEmpty() && cw->inherits( "QTimeEdit" ) && focusSection() == d->sectionCount()-1 ) {
+		    // the first character of the AM/PM indicator toggles if the section has focus
+		    QTimeEdit *te = (QTimeEdit*)cw;
+		    QTime time = te->time();
+		    if ( lAMPM && lAM && lPM && (te->display()&QTimeEdit::AMPM) ) {
+			if ( txt[0] == (*lAM).lower()[0] && time.hour() >= 12 ) {
+			    time.setHMS( time.hour()-12, time.minute(), time.second(), time.msec() );
+			    te->setTime( time );
+			} else if ( txt[0] == (*lPM).lower()[0] && time.hour() < 12 ) {
+			    time.setHMS( time.hour()+12, time.minute(), time.second(), time.msec() );
+			    te->setTime( time );
+			}
+		    }
 		}
 
 		int num = txt[0].digitValue();
