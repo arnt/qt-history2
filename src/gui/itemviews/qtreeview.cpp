@@ -255,7 +255,7 @@ bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
     QTreeViewItem *itm = item(index);
     if (itm) {
         itm->setData(index.column(), role, value);
-        emit contentsChanged(index, index);
+        emit dataChanged(index, index);
         return true;
     }
     return false;

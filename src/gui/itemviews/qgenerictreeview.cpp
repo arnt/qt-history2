@@ -88,7 +88,7 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
         QObject::disconnect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
                             this, SLOT(columnWidthChanged(int,int,int)));
         QObject::disconnect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
-                            this, SLOT(contentsChanged()));
+                            this, SLOT(dataChanged()));
         QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
         QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
@@ -100,7 +100,7 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
     QObject::connect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
                      this, SLOT(columnWidthChanged(int,int,int)));
     QObject::connect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
-                     this, SLOT(contentsChanged()));
+                     this, SLOT(dataChanged()));
     QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)));
     QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
@@ -629,9 +629,9 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
     d->viewport->scroll(dx, dy);
 }
 
-void QGenericTreeView::contentsChanged()
+void QGenericTreeView::dataChanged()
 {
-    QAbstractItemView::contentsChanged(QModelIndex(), QModelIndex());
+    QAbstractItemView::dataChanged(QModelIndex(), QModelIndex());
 }
 
 void QGenericTreeView::rowsInserted(const QModelIndex &parent, int, int)

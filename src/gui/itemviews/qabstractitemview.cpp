@@ -56,8 +56,8 @@ void QAbstractItemViewPrivate::init()
 {
     q->setSelectionModel(new QItemSelectionModel(model, q));
 
-    QObject::connect(model, SIGNAL(contentsChanged(QModelIndex,QModelIndex)),
-                     q, SLOT(contentsChanged(QModelIndex,QModelIndex)));
+    QObject::connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(dataChanged(QModelIndex,QModelIndex)));
     QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
                      q, SLOT(rowsInserted(const QModelIndex&,int,int)));
     QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
@@ -107,7 +107,7 @@ void QAbstractItemViewPrivate::init()
     setCurrentItem(), and common signals such as clicked(),
     doubleClicked(), returnPressed(), spacePressed(), and
     deletePressed(). Many protected slots are also provided, including
-    contentsChanged(), rowsInserted(), rowsRemoved(),
+    dataChanged(), rowsInserted(), rowsRemoved(),
     columnsInserted(), columnsRemoved(),
     selectionChanged(), and currentChanged().
 
@@ -1267,7 +1267,7 @@ int QAbstractItemView::keyboardInputInterval() const
     inclusive. If just one item is changed \a topLeft == \a
     bottomRight.
 */
-void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
@@ -1342,7 +1342,7 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
     item by \a current.
 
     If you want to know about changes to items see the
-    contentsChanged() signal.
+    dataChanged() signal.
 */
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
 {

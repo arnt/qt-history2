@@ -486,7 +486,7 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
         QModelIndex par = parent(index);
         QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(par.data());
         d->refresh(p);
-        emit contentsChanged(topLeft(par), bottomRight(par));
+        emit dataChanged(topLeft(par), bottomRight(par));
         return true;
     }
     qWarning("setData: file renaming failed");

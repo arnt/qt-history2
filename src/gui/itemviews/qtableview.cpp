@@ -269,7 +269,7 @@ bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &va
         topHeader[index.column()].setData(role, value);
     else
         table[tableIndex(index.row(), index.column())].setData(role, value);
-    emit contentsChanged(index, index);
+    emit dataChanged(index, index);
     return true;
 }
 

@@ -383,7 +383,8 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     insertColumn(), removeRow(), and removeColumn().
 
     The model emits signals to indicate changes, for example,
-    contentsChanged(), contentsInserted(), and contentsRemoved().
+    dataChanged(), rowsInserted(), columnsInserted(), rowsRemoved()
+    and columnsRemoved().
 
     \sa \link model-view-programming.html Model/View Programming\endlink.
 */
@@ -451,13 +452,13 @@ QAbstractItemModel::~QAbstractItemModel()
 
 
 /*!
-    \fn void QAbstractItemModel::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+    \fn void QAbstractItemModel::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 
     This signal is emitted whenever the data in an existing item
     changes. The affected items are those between \a topLeft and \a
     bottomRight inclusive.
 
-    \sa contentsInserted() contentsRemoved() setData()
+    \sa rowsInserted() rowsRemoved() columnsInserted() columnsRemoved() setData()
 */
 
 /*!
@@ -480,7 +481,7 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::columnssInserted(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::columnsInserted(const QModelIndex &parent, int start, int end)
 
     This signal is emitted when columnss have been inserted
     into the model. The new items are those between \a start and \a end inclusive.

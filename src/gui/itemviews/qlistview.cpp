@@ -67,7 +67,7 @@ bool QListModel::setData(const QModelIndex &index, int role, const QVariant &val
     if (!index.isValid() || index.row() >= (int)lst.count())
         return false;
     lst[index.row()].setData(role, value);
-    emit contentsChanged(index, index);
+    emit dataChanged(index, index);
     return true;
 }
 

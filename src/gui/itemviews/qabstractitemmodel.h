@@ -168,7 +168,7 @@ public:
                                   int hits = 1, MatchFlags flags = MatchDefault) const;
 
 signals:
-    void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsRemoved(const QModelIndex &parent, int start, int end);
     void columnsInserted(const QModelIndex &parent, int start, int end);

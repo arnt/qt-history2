@@ -95,7 +95,7 @@ public slots:
     void setCurrentItem(const QModelIndex &index);
 
 protected slots:
-    virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void rowsInserted(const QModelIndex &parent, int start, int end);
     virtual void rowsRemoved(const QModelIndex &parent, int start, int end);
     virtual void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);

@@ -67,7 +67,7 @@ protected slots:
     void resizeColumnToContents(int column);
     void columnWidthChanged(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
-    void contentsChanged();
+    void dataChanged();
 
 protected:
     QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemModel *model, QWidget *parent = 0);

@@ -406,10 +406,10 @@ void QGenericListView::resizeContents(int w, int h)
     verticalScrollBar()->setRange(0, h - viewport()->height());
 }
 
-void QGenericListView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void QGenericListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     // FIXME: do something here
-    QAbstractItemView::contentsChanged(topLeft, bottomRight);
+    QAbstractItemView::dataChanged(topLeft, bottomRight);
 }
 
 void QGenericListView::rowsInserted(const QModelIndex &parent, int, int)
