@@ -129,6 +129,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
         case 4:
         case 8:
         case 16:
+        case 24:
         case 32:
             break;
 
@@ -243,6 +244,7 @@ void QVFbView::setGamma(double gr, double gg, double gb)
         gmax = 63;
         bmax = 31;
         break;
+      case 24:
       case 32:
         rsh = 16;
         gsh = 8;
@@ -440,7 +442,28 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
         leading = 0;
         return img;
       }
-      case 32: {
+      case 24: {
+        leading = 0;
+        static unsigned char *imgData = 0;
+        if ( !imgData ) {
+            int bpl = 4 * hdr->width;
+            imgData = new unsigned char [ bpl * hdr->height ];
+        }
+        QImage img( imgData, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian );
+        for ( int row = 0; row < r.height(); row++ ) {
+            unsigned char *dptr = img.scanLine( row );
+            unsigned char *sptr = data + hdr->dataoffset + (r.y() + row) * hdr->linestep;
+//            sptr += r.x() * 3;
+            for (int col = 0 ; col < r.width()-1; ++col ) {
+                *dptr++ = *sptr++;
+                *dptr++ = *sptr++;
+                *dptr++ = *sptr++;
+                dptr++;
+            }
+        }
+        return img;
+      }
+      case 32:{
         leading = r.x();
         return QImage( data + hdr->dataoffset + r.y() * hdr->linestep,
                     hdr->width, r.height(), hdr->depth, 0,

@@ -334,6 +334,7 @@ void QVFb::configure()
     config->depth_8->setChecked(view->displayDepth()==8);
     config->depth_12->setChecked(view->displayDepth()==12);
     config->depth_16->setChecked(view->displayDepth()==16);
+    config->depth_24->setChecked(view->displayDepth()==24);
     config->depth_32->setChecked(view->displayDepth()==32);
     if ( view->gammaRed() == view->gammaGreen() && view->gammaGreen() == view->gammaBlue() ) {
         config->gammaslider->setValue(int(view->gammaRed()*400));
@@ -382,6 +383,8 @@ void QVFb::configure()
             d=12;
         else if ( config->depth_16->isChecked() )
             d=16;
+        else if ( config->depth_24->isChecked() )
+            d=24;
         else
             d=32;
 
