@@ -66,7 +66,6 @@
 #include "qptrstack.h"
 #include "qmetaobject.h"
 #include "qtextbrowser.h"
-#include <private/qucom_p.h>
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
@@ -6020,7 +6019,7 @@ QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const
 	while (tmp && tmp->next && tmp->next->line < line)
 	    tmp = tmp->next;
     }
-    
+
     t->prev = tmp;
     t->next = tmp ? tmp->next : 0;
     if (t->next)
@@ -6295,7 +6294,7 @@ static void qStripTags(QString *line)
 }
 
 /*! \internal
-  
+
     Inserts the text into \a line at index \a index.
 */
 
@@ -6311,13 +6310,13 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 	index = 0;
     if (index > d->od->lines[line].length())
 	index = d->od->lines[line].length();
-    
+
     QStringList strl = QStringList::split('\n', text, TRUE);
     int numNewLines = strl.count() - 1;
     QTextEditOptimPrivate::Tag *tag = 0;
     QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator ii;
     int x;
-    
+
     if (numNewLines == 0) {
 	// Case 1. Fast single line case - just inject it!
 	QString stripped = text;
@@ -6345,7 +6344,7 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 	for (x = d->od->numLines - 1; x > line; x--)
 	    d->od->lines[x + numNewLines] = d->od->lines[x];
 	d->od->numLines += numNewLines;
-	
+
 	// fix the tag index and the tag line/index numbers - this
 	// might take a while..
 	for (x = line; x < d->od->numLines; x++) {
@@ -6385,7 +6384,7 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 		tag = tag->next;
 	    }
 	}
-	
+
 	// inject the new lines
 	QStringList::Iterator it = strl.begin();
 	x = line;
@@ -6412,7 +6411,7 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 	lWidth = fm.width(d->od->lines[x]);
 	if (lWidth > d->od->maxLineWidth)
 	    d->od->maxLineWidth = lWidth;
-    }	
+    }
     resizeContents(d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1);
     repaintContents();
     emit textChanged();
@@ -6730,7 +6729,7 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
 	mousePressed = FALSE;
 	copyToClipboard();
     }
-    
+
     inDoubleClick = FALSE;
     emit copyAvailable( optimHasSelection() );
     emit selectionChanged();

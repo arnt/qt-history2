@@ -752,7 +752,7 @@ static void mergeInto(QVector<int> *a, const QVector<int>& b)
 		    c[k++] = b[j++];
 		}
 	    } else {
-		memcpy(c.data() + k, (*a).data() + i,
+		memcpy(c.data() + k, (*a).constData() + i,
 			(asize - i) * sizeof(int));
 		break;
 	    }

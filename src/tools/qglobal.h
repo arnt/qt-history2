@@ -1025,7 +1025,7 @@ template <typename T> inline bool qIsDetached(T &) { return true; }
 template <typename T> class QTypeInfo { public:
     enum { isComplex = true,
 	   isStatic  = true,
-	   isLarge   = (sizeof(T)>=sizeof(void*)),
+	   isLarge   = (sizeof(T)>sizeof(void*)),
 	   isPointer = false
     };
 };
