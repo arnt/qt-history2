@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#34 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#35 $
 **
 ** Definition of QListBox widget class
 **
@@ -29,9 +29,8 @@ class QLBItemList;
 class QColorGroup;
 class QListBox;
 
-class QListBoxItem : public QObject
+class QListBoxItem
 {
-    Q_OBJECT
 public:
     QListBoxItem() {}
     virtual ~QListBoxItem() {}
@@ -58,7 +57,6 @@ private:	// Disabled copy constructor and operator=
 
 class QListBoxText : public QListBoxItem
 {	
-    Q_OBJECT
 public:
     QListBoxText( const char * = 0 );
     ~QListBoxText();
@@ -73,7 +71,6 @@ private:	// Disabled copy constructor and operator=
 
 class QListBoxPixmap : public QListBoxItem
 {
-    Q_OBJECT
 public:
     QListBoxPixmap( const QPixmap & );
    ~QListBoxPixmap();
