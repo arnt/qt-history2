@@ -44,12 +44,14 @@ QProxyModel::QProxyModel(QObject *parent)
     : QAbstractItemModel(*new QProxyModelPrivate, parent)
 {
     setModel(&d->empty);
+    disconnect(this, SIGNAL(reset()), this, SLOT(resetPresistentIndexes()));
 }
 
 QProxyModel::QProxyModel(QProxyModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent)
 {
     setModel(&d->empty);
+    disconnect(this, SIGNAL(reset()), this, SLOT(resetPresistentIndexes()));
 }
 
 QProxyModel::~QProxyModel()
