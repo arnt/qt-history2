@@ -564,6 +564,7 @@ public:
     unsigned int id;
     bool finished  : 1;
     bool running   : 1;
+    bool deleted   : 1;
 };
 
 #if defined(Q_C_CALLBACKS)
@@ -576,18 +577,12 @@ static unsigned int __stdcall start_thread(void* that )
     return 0;
 }
 
-void QThreadPrivate::internalRun( QThread* that )
-{
-    that->run();
-    that->d->finished = TRUE;
-    that->d->running = FALSE;
-}
-
 QThreadPrivate::QThreadPrivate()
 {
     handle = 0;
     running = FALSE;
     finished = FALSE;
+    deleted = FALSE;
 }
 
 QThreadPrivate::~QThreadPrivate()
@@ -601,6 +596,18 @@ QThreadPrivate::~QThreadPrivate()
 	qSystemWarning("Thread destroy failure");
 #endif
     }
+}
+
+void QThreadPrivate::internalRun( QThread* that )
+{
+    QThreadPrivate *d = that->d;
+    d->running = TRUE;
+    d->finished = FALSE;
+    that->run();
+    d->finished = TRUE;
+    d->running = FALSE;
+    if ( d->deleted )
+	delete d;
 }
 
 /*
@@ -664,7 +671,10 @@ QThread::QThread()
 QThread::~QThread()
 {
     if( d->running && !d->finished ) {
+#if defined(QT_CHECK_RANGE)
 	qWarning("QThread object destroyed while thread is still running.");
+#endif
+	d->deleted = TRUE;
     } else {
 	delete d;
     }
@@ -679,10 +689,10 @@ void QThread::start()
 	wait();
     }
 
-    d->running = TRUE;
-    d->finished = FALSE;
     d->handle = (Qt::HANDLE)_beginthreadex( NULL, NULL, start_thread,
 	this, 0, &(d->id) );
+    while ( !d->running )
+	;
 
 #ifdef QT_CHECK_RANGE
     if ( !d->handle )
