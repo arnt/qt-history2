@@ -2718,7 +2718,8 @@ void QFont::initialize()
 
     if (qt_use_xrender &&
 	XftInit(0) && XftInitFtLibrary()) {
-	qt_has_xft = TRUE;
+	QSettings settings;
+	qt_has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
 	qt_use_antialiasing = QSettings().readBoolEntry( "/qt/useXft", TRUE );
 	qt_xft_render_sources = new QPixmapDict();
 	cleanup_pixmapdict.add(&qt_xft_render_sources);

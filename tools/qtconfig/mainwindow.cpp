@@ -561,9 +561,17 @@ MainWindow::MainWindow()
     sublistbox->insertStringList(subs);
 
 #ifdef Q_WS_X11
-    xftcheckbox->setChecked(settings.readBoolEntry("/qt/useXft"));
+    xftcheckbox->setChecked( settings.readBoolEntry( "/qt/enableXft", TRUE ) );
+    if ( xftcheckbox->isChecked() ) {
+	aacheckbox->setEnabled( TRUE );
+	aacheckbox->setChecked( settings.readBoolEntry( "/qt/useXft", TRUE) );
+    } else {
+	aacheckbox->setEnabled( FALSE );
+	aacheckbox->setChecked( FALSE );
+    }
 #else
     xftcheckbox->setEnabled(false);
+    aacheckbox->setEnabled(false);
 #endif
 
     fontembeddingcheckbox->setChecked( settings.readBoolEntry("/qt/embedFonts", TRUE) );
@@ -622,7 +630,8 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/fontPath", fontpaths, ':');
 	settings.writeEntry("/qt/embedFonts", fontembeddingcheckbox->isChecked() );
 	settings.writeEntry("/qt/style", gstylecombo->currentText());
-	settings.writeEntry("/qt/useXft", xftcheckbox->isChecked());
+	settings.writeEntry("/qt/enableXft", xftcheckbox->isChecked());
+	settings.writeEntry("/qt/useXft", aacheckbox->isChecked());
 	settings.writeEntry("/qt/doubleClickInterval",
 					     dcispin->value());
 	settings.writeEntry("/qt/cursorFlashTime", cfispin->value());

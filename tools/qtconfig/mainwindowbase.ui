@@ -1,7 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainWindowBase</class>
-<pixmapinproject/>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QMainWindow">
     <property name="name">
         <cstring>MainWindowBase</cstring>
@@ -10,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>666</width>
-            <height>571</height>
+            <width>680</width>
+            <height>580</height>
         </rect>
     </property>
     <property name="caption">
@@ -22,10 +20,10 @@
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>11</number>
+            <number>8</number>
         </property>
         <property name="spacing">
-            <number>6</number>
+            <number>4</number>
         </property>
         <widget class="QTextView">
             <property name="name">
@@ -122,6 +120,8 @@
                             <sizepolicy>
                                 <hsizetype>5</hsizetype>
                                 <vsizetype>4</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="title">
@@ -178,6 +178,8 @@
                                             <sizepolicy>
                                                 <hsizetype>1</hsizetype>
                                                 <vsizetype>1</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
                                             </sizepolicy>
                                         </property>
                                         <property name="minimumSize">
@@ -199,7 +201,7 @@
                                             <string>Back&amp;ground:</string>
                                         </property>
                                         <property name="alignment">
-                                            <set>AlignAuto|AlignVCenter</set>
+                                            <set>AlignVCenter</set>
                                         </property>
                                         <property name="buddy" stdset="0">
                                             <cstring>buttonMainColor2</cstring>
@@ -211,7 +213,7 @@
                                         </property>
                                     </widget>
                                     <spacer>
-                                        <property name="name">
+                                        <property name="name" stdset="0">
                                             <cstring>Spacer1</cstring>
                                         </property>
                                         <property name="orientation">
@@ -247,6 +249,8 @@
                             <sizepolicy>
                                 <hsizetype>5</hsizetype>
                                 <vsizetype>7</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="title">
@@ -317,6 +321,8 @@
                                     <sizepolicy>
                                         <hsizetype>7</hsizetype>
                                         <vsizetype>7</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
                                     </sizepolicy>
                                 </property>
                                 <property name="minimumSize">
@@ -342,7 +348,7 @@
                         <cstring>unnamed</cstring>
                     </property>
                     <property name="margin">
-                        <number>4</number>
+                        <number>8</number>
                     </property>
                     <property name="spacing">
                         <number>4</number>
@@ -441,7 +447,7 @@
                                     <string>Sample Text</string>
                                 </property>
                                 <property name="alignment">
-                                    <set>AlignAuto|AlignHCenter</set>
+                                    <set>AlignHCenter</set>
                                 </property>
                             </widget>
                         </grid>
@@ -514,7 +520,7 @@
                                 <property name="name">
                                     <cstring>Line1</cstring>
                                 </property>
-                                <property name="frameShape">
+                                <property name="frameShape" stdset="0">
                                     <enum>HLine</enum>
                                 </property>
                                 <property name="frameShadow">
@@ -522,9 +528,6 @@
                                 </property>
                                 <property name="orientation">
                                     <enum>Horizontal</enum>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>HLine</enum>
                                 </property>
                             </widget>
                             <widget class="QLabel">
@@ -583,6 +586,12 @@
                             <widget class="Line">
                                 <property name="name">
                                     <cstring>Line2</cstring>
+                                </property>
+                                <property name="frameShape" stdset="0">
+                                    <enum>HLine</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
                                 </property>
                                 <property name="orientation">
                                     <enum>Horizontal</enum>
@@ -644,7 +653,15 @@
                             <bool>true</bool>
                         </property>
                         <property name="text">
-                            <string>Anti-Aliased Font Support (Xft)</string>
+                            <string>Enable Anti-Aliased Font Support (Xft)</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>aacheckbox</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Anti-Alias Fonts by Default</string>
                         </property>
                     </widget>
                 </vbox>
@@ -661,10 +678,10 @@
                         <cstring>unnamed</cstring>
                     </property>
                     <property name="margin">
-                        <number>11</number>
+                        <number>8</number>
                     </property>
                     <property name="spacing">
-                        <number>6</number>
+                        <number>4</number>
                     </property>
                     <widget class="QGroupBox">
                         <property name="name">
@@ -972,7 +989,7 @@
                         </grid>
                     </widget>
                     <spacer>
-                        <property name="name">
+                        <property name="name" stdset="0">
                             <cstring>Spacer3</cstring>
                         </property>
                         <property name="orientation">
@@ -1090,7 +1107,7 @@
                                         <number>4</number>
                                     </property>
                                     <spacer row="2" column="0">
-                                        <property name="name">
+                                        <property name="name" stdset="0">
                                             <cstring>Spacer1_2</cstring>
                                         </property>
                                         <property name="orientation">
@@ -1153,10 +1170,10 @@
                         <cstring>unnamed</cstring>
                     </property>
                     <property name="margin">
-                        <number>11</number>
+                        <number>8</number>
                     </property>
                     <property name="spacing">
-                        <number>6</number>
+                        <number>4</number>
                     </property>
                     <widget class="QCheckBox">
                         <property name="name">
@@ -1177,6 +1194,8 @@
                             <sizepolicy>
                                 <hsizetype>5</hsizetype>
                                 <vsizetype>7</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="title">
@@ -1187,10 +1206,10 @@
                                 <cstring>unnamed</cstring>
                             </property>
                             <property name="margin">
-                                <number>11</number>
+                                <number>8</number>
                             </property>
                             <property name="spacing">
-                                <number>6</number>
+                                <number>4</number>
                             </property>
                             <widget class="QLayoutWidget">
                                 <property name="name">
@@ -1252,7 +1271,7 @@
                                         <number>4</number>
                                     </property>
                                     <spacer row="2" column="0">
-                                        <property name="name">
+                                        <property name="name" stdset="0">
                                             <cstring>Spacer4</cstring>
                                         </property>
                                         <property name="orientation">
@@ -1334,6 +1353,8 @@
         <sizepolicy>
             <hordata>5</hordata>
             <verdata>5</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image0</pixmap>
         <signal>clicked()</signal>
@@ -1354,6 +1375,8 @@
         <sizepolicy>
             <hordata>5</hordata>
             <verdata>5</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image1</pixmap>
     </customwidget>
@@ -1415,402 +1438,299 @@
             <string>About &amp;Qt...</string>
         </property>
     </action>
-    <action>
-        <property name="name">
-            <cstring>helpWhatsThisAction</cstring>
-        </property>
-        <property name="text">
-            <string>What's this?</string>
-        </property>
-        <property name="menuText">
-            <string>What's this?</string>
-        </property>
-        <property name="accel">
-            <number>2101296</number>
-        </property>
-    </action>
 </actions>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="634">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022430543251d2e253d856405e534300073b182519951190232b5d65c0074a471fe</data>
+        <data format="XPM.GZ" length="917">789c5d92ddae9b300c80effb14a8b9ab264ef929144d7b844dbb9c34edc2495c7ee2d09ceeec629af6eeb30df4a0198afce5c3c149fa72cabe7dfd9c9d5e0e3fdfe06d74991be0919dfcaf187f7ffff1e9cfe1589699dce7ac387e381cf3cc655fee334a6e3837670dc1bb605554e74adf9c05eba23ed78aa322d4ae0641106ccaa6684ac141b0addaa2ad04a3a26d7d6b05ade0b5ba1657b5bd60577797ae16748aaeeb3a279804a1860ba8f58a0e10d4de36b45e30085a6f614114741757ba8be0aba277e8d44e82d860898de043f0d6dc4ad4dd20450ddda83c37ff050fa901631d875d2e6bc118580cb7c2030e116fbdb5c3002357e9568b70384dac024580719cef468d4c4413068d4462cc6a58a04fc4e1434ab4af6121af72504a29bed7a4292ca28f63e42278d620a6452046a98ac63c0d8970dc9e1f818bde6b8218fbfac010c5a4dd6c6c2c3e103d8c40fb1aec47405e69081e64b6dd7710801f9e57eaa583adc6f621f4003e02c926a4f4ecda5acfa17d934ffbf5d841569e28c6b8246456c3bbab235b10c16a0c4f039ba3487c128be1b39ef9021ee231338388edb4efb9043fd72c5f0c69b6fed63f08d1f1efc7c33fddf50264</data>
     </image>
     <image name="image1">
-        <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1be245fc04c5a3201e4615f430059d0711ff5ddb2e6bb236ec90eed134cb5a19d8ef36602af5ecdbfeeac05dda0798d3abebde87e3faa374d3807fa0d633a52d38d8de6f679fe33fc776e196f53cd010188256a3600a292882096246517815ca99884606e18044a3a40d91824820924265a7923a2e8bcd05f33db1173e002913175f2a6be6d3294871a2d95fa00e8a94ee017b69d339d90df1e77c57ea072ede6758</data>
+        <data format="XPM.GZ" length="45">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523250004143a55a6b2e0026630c4f</data>
     </image>
 </images>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>fileSaveAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>fileSave()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>fileExitAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>fileExit()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>helpAboutAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>helpAbout()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>effectcheckbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>effectbase</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>btnAdvanced</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>tunePalette()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>paletteCombo</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>paletteSelected(int)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>gstylecombo</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>styleSelected(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>stylecombo</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>buildFont()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>psizecombo</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>buildFont()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>familycombo</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>familySelected(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonMainColor</sender>
         <signal>colorChanged(const QColor &amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>buildPalette()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonMainColor2</sender>
         <signal>colorChanged(const QColor &amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>buildPalette()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>familysubcombo</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>substituteSelected(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton4</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>removeSubstitute()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton3</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>downSubstitute()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>upSubstitute()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton7</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>upLibpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton8</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>downLibpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton6</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addLibpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton9</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>removeLibpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton5</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>browseLibpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>helpAboutQtAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>helpAboutQt()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton1</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addSubstitute()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>xftcheckbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>dcispin</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>cfispin</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>wslspin</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>menueffect</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>comboeffect</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>tooltipeffect</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>strutwidth</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>strutheight</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>effectcheckbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>TabWidget3</sender>
         <signal>currentChanged(QWidget*)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>pageChanged(QWidget*)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton11</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>upFontpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton12</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>downFontpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton13</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>removeFontpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton14</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>browseFontpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton15</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addFontpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>libpathlineedit</sender>
         <signal>returnPressed()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addLibpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>fontpathlineedit</sender>
         <signal>returnPressed()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addFontpath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>resolvelinks</sender>
         <signal>toggled(bool)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>fontembeddingcheckbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>GroupBox10</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>fontembeddingcheckbox</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">addFontpath()</slot>
-    <slot access="public" language="C++" returnType="void">addLibpath()</slot>
-    <slot access="public" language="C++" returnType="void">addSubstitute()</slot>
-    <slot access="public" language="C++" returnType="void">browseFontpath()</slot>
-    <slot access="public" language="C++" returnType="void">browseLibpath()</slot>
-    <slot access="public" language="C++" returnType="void">buildFont()</slot>
-    <slot access="public" language="C++" returnType="void">buildPalette()</slot>
-    <slot access="public" language="C++" returnType="void">downFontpath()</slot>
-    <slot access="public" language="C++" returnType="void">downLibpath()</slot>
-    <slot access="public" language="C++" returnType="void">downSubstitute()</slot>
-    <slot access="public" language="C++" returnType="void">familySelected( const QString &amp; )</slot>
-    <slot access="public" language="C++" returnType="void">fileExit()</slot>
-    <slot access="public" language="C++" returnType="void">fileSave()</slot>
-    <slot access="public" language="C++" returnType="void">helpAbout()</slot>
-    <slot access="public" language="C++" returnType="void">helpAboutQt()</slot>
-    <slot access="public" language="C++" returnType="void">new_slot()</slot>
-    <slot access="public" language="C++" returnType="void">pageChanged(QWidget *)</slot>
-    <slot access="public" language="C++" returnType="void">paletteSelected( int )</slot>
-    <slot access="public" language="C++" returnType="void">removeFontpath()</slot>
-    <slot access="public" language="C++" returnType="void">removeLibpath()</slot>
-    <slot access="public" language="C++" returnType="void">removeSubstitute()</slot>
-    <slot access="public" language="C++" returnType="void">somethingModified()</slot>
-    <slot access="public" language="C++" returnType="void">styleSelected( const QString &amp; )</slot>
-    <slot access="public" language="C++" returnType="void">substituteSelected( const QString &amp; )</slot>
-    <slot access="public" language="C++" returnType="void">tunePalette()</slot>
-    <slot access="public" language="C++" returnType="void">upFontpath()</slot>
-    <slot access="public" language="C++" returnType="void">upLibpath()</slot>
-    <slot access="public" language="C++" returnType="void">upSubstitute()</slot>
+    <connection>
+        <sender>aacheckbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>somethingModified()</slot>
+    </connection>
+    <connection>
+        <sender>xftcheckbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>aacheckbox</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>xftcheckbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>aacheckbox</receiver>
+        <slot>setChecked(bool)</slot>
+    </connection>
 </connections>
-<functions>
-    <function name="init()" >{
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-    <function name="" ></function>
-    <function name="addLibpath()" >{
-
-}</function>
-    <function name="addSubstitute()" >{
-
-}</function>
-    <function name="" ></function>
-    <function name="browseLibpath()" >{
-
-}</function>
-    <function name="buildFont()" >{
-
-}</function>
-    <function name="buildPalette()" >{
-
-}</function>
-    <function name="" ></function>
-    <function name="downLibpath()" >{
-
-}</function>
-    <function name="downSubstitute()" >{
-
-}</function>
-    <function name="familySelected(const QString&amp;)" >{
-
-}</function>
-    <function name="fileExit()" >{
-
-}</function>
-    <function name="fileSave()" >{
-
-}</function>
-    <function name="helpAbout()" >{
-
-}</function>
-    <function name="helpAboutQt()" >{
-
-}</function>
-    <function name="" ></function>
-    <function name="" ></function>
-    <function name="paletteSelected(int)" >{
-
-}</function>
-    <function name="" ></function>
-    <function name="removeLibpath()" >{
-
-}</function>
-    <function name="removeSubstitute()" >{
-
-}</function>
-    <function name="somethingModified()" >{
-
-}</function>
-    <function name="styleSelected(const QString&amp;)" >{
-
-}</function>
-    <function name="substituteSelected(const QString&amp;)" >{
-
-}</function>
-    <function name="tunePalette()" >{
-
-}</function>
-    <function name="" ></function>
-    <function name="upLibpath()" >{
-
-}</function>
-    <function name="upSubstitute()" >{
-
-}</function>
-</functions>
 <tabstops>
     <tabstop>helpview</tabstop>
     <tabstop>TabWidget3</tabstop>
@@ -1842,4 +1762,41 @@
     <tabstop>sublistbox</tabstop>
     <tabstop>libpathlistbox</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">mainwindowbase.ui.h</include>
+</includes>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot>addFontpath()</slot>
+    <slot>addLibpath()</slot>
+    <slot>addSubstitute()</slot>
+    <slot>browseFontpath()</slot>
+    <slot>browseLibpath()</slot>
+    <slot>buildFont()</slot>
+    <slot>buildPalette()</slot>
+    <slot>downFontpath()</slot>
+    <slot>downLibpath()</slot>
+    <slot>downSubstitute()</slot>
+    <slot>familySelected(const QString &amp;)</slot>
+    <slot>fileExit()</slot>
+    <slot>fileSave()</slot>
+    <slot>helpAbout()</slot>
+    <slot>helpAboutQt()</slot>
+    <slot>new_slot()</slot>
+    <slot>pageChanged(QWidget *)</slot>
+    <slot>paletteSelected(int)</slot>
+    <slot>removeFontpath()</slot>
+    <slot>removeLibpath()</slot>
+    <slot>removeSubstitute()</slot>
+    <slot>somethingModified()</slot>
+    <slot>styleSelected(const QString &amp;)</slot>
+    <slot>substituteSelected(const QString &amp;)</slot>
+    <slot>tunePalette()</slot>
+    <slot>upFontpath()</slot>
+    <slot>upLibpath()</slot>
+    <slot>upSubstitute()</slot>
+</slots>
+<pixmapinproject/>
+<layoutdefaults spacing="4" margin="8"/>
 </UI>
