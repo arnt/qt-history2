@@ -970,20 +970,24 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &pixmap, cons
     pm->releaseDC(pm_dc);
 }
 
-void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
+void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
 {
 #ifdef QT_DEBUG_DRAW
         printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
-               p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).latin1());
+               pos.x(), pos.y(), QString::fromRawData(ti.chars, ti.num_chars).latin1());
 #endif
 
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawTextItem(p, ti);
+        d->gdiplusEngine->drawTextItem(pos, ti);
         return;
     }
 
-    if (d->txop >= QPainterPrivate::TxTranslate) {
+    QPointF p = pos;
+
+    if (d->txop > QPainterPrivate::TxTranslate) {
         d->setNativeMatrix(d->matrix);
+    } else if (d->txop == QPainterPrivate::TxTranslate) {
+        p = p * d->matrix;
     }
 
     QFontEngine *fe = ti.fontEngine;
@@ -1866,24 +1870,26 @@ void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
 {
     QT_WA( {
         XFORM m;
-        if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
+        if (d->txop > QPainterPrivate::TxNone) {
             m.eM11 = mtx.m11();
             m.eM12 = mtx.m12();
             m.eM21 = mtx.m21();
             m.eM22 = mtx.m22();
             m.eDx  = mtx.dx();
             m.eDy  = mtx.dy();
-            qSetGraphicsMode(d->hdc, GM_ADVANCED);
-            if (!SetWorldTransform(d->hdc, &m)) {
-                qErrnoWarning("QWin32PaintEngine::updateMatrix: SetWorldTransformation failed");
-            }
+            if (!qSetGraphicsMode(d->hdc, GM_ADVANCED))
+                qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetGraphicsMode failed");
+            if (!SetWorldTransform(d->hdc, &m))
+                qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetWorldTransformation failed");
             d->advancedMode = true;
         } else {
             m.eM11 = m.eM22 = (float)1.0;
             m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
-            qSetGraphicsMode(d->hdc, GM_ADVANCED);
+            if (!qSetGraphicsMode(d->hdc, GM_ADVANCED))
+                qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetGraphicsMode failed");
             qModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
-            qSetGraphicsMode(d->hdc, GM_COMPATIBLE);
+            if (!qSetGraphicsMode(d->hdc, GM_COMPATIBLE))
+                qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetGraphicsMode failed");
             d->advancedMode = false;
         }
     }, {
