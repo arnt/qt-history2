@@ -86,7 +86,7 @@ QLabel *DesignerApplication::showSplash()
     screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( mainRect.center() ) );
 
     if ( show ) {
-	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WX11BypassWM);
+	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop);
 	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	splash->setPixmap( splashScreen() );
 	splash->adjustSize();
