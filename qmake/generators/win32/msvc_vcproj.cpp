@@ -713,23 +713,23 @@ void VcprojGenerator::initPostBuildEventTools()
 	if(project->isActiveConfig("dll")) { // In process
 	    RConf.postBuild.CommandLine +=
 		// call idc to generate .idl file from .dll
-		idc + " " + RConf.OutputDirectory + "\\" + nameext + ".dll -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
+		idc + " $(TargetPath) -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
 		project->first("QMAKE_IDL") + " /nologo " + objdir + name + ".idl /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call idc to replace tlb...
-		idc + " " + RConf.OutputDirectory + "\\" + nameext + ".dll /tlb " + objdir + name + ".tlb &amp;&amp; " +
+		idc + " $(TargetPath) /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// register server
-		idc + " " + RConf.OutputDirectory + "\\" + nameext + ".dll /regserver";
+		idc + " $(TargetPath) /regserver";
 	} else { // out of process
 	    RConf.postBuild.CommandLine =
 		// call application to dump idl
-		RConf.OutputDirectory + "\\" + nameext + ".exe -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
+		"$(TargetPath) -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
 		project->first("QMAKE_IDL") + " /nologo " + objdir + name + ".idl /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call idc to replace tlb...
-		idc + " " + RConf.OutputDirectory + "\\" + nameext + ".exe /tlb " + objdir + name + ".tlb &amp;&amp; " +
+		idc + " $(TargetPath) /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call app to register
-		RConf.OutputDirectory + "\\" + nameext + " -regserver";
+		"$(TargetPath) -regserver";
 	}
     }
 }
