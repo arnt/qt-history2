@@ -49,6 +49,7 @@ SUBDIRS	=	aclock \
 		tabdialog \
 		tetrix \
 		textedit \
+		themes \
 		tictac \
 		tooltip \
 		tux \
