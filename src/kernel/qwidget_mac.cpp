@@ -1040,15 +1040,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     bool isResize = (olds != size());
     if(isTopLevel() && winid && own_id) {
-	if(isResize && isMove) {
-	    Rect r;
-	    SetRect(&r, x, y, x + w, y + h);
-	    SetWindowBounds((WindowPtr)hd, kWindowStructureRgn, &r);
-	} else if( isMove ) {
-	    MoveWindow( (WindowPtr)hd, x, y, 1);
-	} else if( isResize ) {
-	    SizeWindow( (WindowPtr)hd, w, h, 1);
-	}
+	Rect r;
+	SetRect(&r, x, y, x + w, y + h);
+	SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
     }
 
     if(isMove || isResize) {
@@ -1058,57 +1052,55 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    if ( isResize )
 		QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
 	} else {
-	    if(!isTopLevel()) {//make sure everything is painted right..
-		QRegion bltregion, clpreg = clippedRegion(FALSE);
-		if( !oldregion.isNull() ) {
-		    //setup the old clipped region..
-		    bltregion = oldregion;
-		    if(isMove) 
-			bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
-		    bltregion &= clpreg;
-		    {   //can't blt that which is dirty
-			RgnHandle r = NewRgn();
-			GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
-			if(!EmptyRgn(r)) {
-			    QRegion jamie(r); //the cleaned region
-			    jamie.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
-			    bltregion -= jamie;
-			}
-		    }
-
-		    if(isMove && !no_move_blt) {
-			QWidget *parent = parentWidget() && !isTopLevel() ? parentWidget() : this;
-			QPoint tp(posInWindow(parent));
-			int px = tp.x(), py = tp.y();
-
-			//save the window state, and do the grunt work
-			int ow = olds.width()+1, oh = olds.height()+1;
-			QMacSavedPortInfo saveportstate(this);
-			::RGBColor f;
-			f.red = f.green = f.blue = 0;
-			RGBForeColor( &f );
-			f.red = f.green = f.blue = ~0;
-			RGBBackColor( &f );
-			SetClip((RgnHandle)bltregion.handle());
-
-			//calculate new and old rectangles
-			int nx = px + pos().x(), ny = py + pos().y();  //new
-			Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
-			int ox = px + oldp.x(), oy = py + oldp.y(); //old
-			Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
-			BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-			CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
+	    QRegion bltregion, clpreg = clippedRegion(FALSE);
+	    if( !oldregion.isNull() ) {
+		//setup the old clipped region..
+		bltregion = oldregion;
+		if(isMove && !isTopLevel()) 
+		    bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+		bltregion &= clpreg;
+		{   //can't blt that which is dirty
+		    RgnHandle r = NewRgn();
+		    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
+		    if(!EmptyRgn(r)) {
+			QRegion jamie(r); //the cleaned region
+			jamie.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
+			bltregion -= jamie;
 		    }
 		}
-		//finally issue "expose" events if necesary
-		QRegion upd = ((oldregion - clpreg) + //just the old area
-			       clippedRegion()); //my area (no children)
-		if(!isResize || testWFlags(WNorthWestGravity)) {
-		    upd += clpreg - bltregion;  //just new my area (with children)
-		    upd -= bltregion; //the "copied" area
+
+		if(isMove && !no_move_blt && !isTopLevel()) {
+		    QWidget *parent = parentWidget() && !isTopLevel() ? parentWidget() : this;
+		    QPoint tp(posInWindow(parent));
+		    int px = tp.x(), py = tp.y();
+
+		    //save the window state, and do the grunt work
+		    int ow = olds.width()+1, oh = olds.height()+1;
+		    QMacSavedPortInfo saveportstate(this);
+		    ::RGBColor f;
+		    f.red = f.green = f.blue = 0;
+		    RGBForeColor( &f );
+		    f.red = f.green = f.blue = ~0;
+		    RGBBackColor( &f );
+		    SetClip((RgnHandle)bltregion.handle());
+
+		    //calculate new and old rectangles
+		    int nx = px + pos().x(), ny = py + pos().y();  //new
+		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
+		    int ox = px + oldp.x(), oy = py + oldp.y(); //old
+		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
+		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
+		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
 		}
-		dirty_wndw_rgn("internalSetGeometry",this, upd);
 	    }
+	    //finally issue "expose" events if necesary
+	    QRegion upd = ((oldregion - clpreg) + //just the old area
+			   clippedRegion()); //my area (no children)
+	    if(!isResize || testWFlags(WNorthWestGravity)) {
+		upd += clpreg - bltregion;  //just new my area (with children)
+		upd -= bltregion; //the "copied" area
+	    }
+	    dirty_wndw_rgn("internalSetGeometry",this, upd);
 	    if ( isMove ) { //send the move event..
 		QMoveEvent e( pos(), oldp );
 		QApplication::sendEvent( this, &e );
@@ -1537,22 +1529,11 @@ QRegion QWidget::clippedRegion(bool do_children)
 	return extra->clip_saved;
     }
     
-    QRegion contents;
-    {
-	RgnHandle r = NewRgn();
-	GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
-	if(!EmptyRgn(r)) {
-	    contents = QRegion(r);
-	    contents.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
-	}
-	DisposeRgn(r);
-    }
-
     QRegion mask;
     //clip out my children
     if(do_children && extra->child_dirty) {
 	extra->child_dirty = FALSE;
-	extra->clip_children = QRegion(0, 0, width(), height()) & contents;
+	extra->clip_children = QRegion(0, 0, width(), height());
 	if(const QObjectList *chldnlst=children()) {
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 		if((*it)->isWidgetType()) {
@@ -1574,7 +1555,7 @@ QRegion QWidget::clippedRegion(bool do_children)
     if(isClippedRegionDirty()) {
 	extra->clip_dirty = FALSE;
 	QPoint tmp = posInWindow(this);
-	extra->clip_sibs = QRegion(tmp.x(), tmp.y(), width(), height()) & contents;
+	extra->clip_sibs = QRegion(tmp.x(), tmp.y(), width(), height());
 	//clip my rect with my mask
 	if(extra && !extra->mask.isNull()) {
 	    mask = extra->mask;
