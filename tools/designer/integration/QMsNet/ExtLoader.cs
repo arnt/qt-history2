@@ -33,10 +33,23 @@ namespace QMsNet
 	{
 	}
 
-	public void loadDesigner( string file, bool onlyOne ) 
+	public void loadDesigner( string file, bool locateProject ) 
 	{
-	    file = "-client \"" + file +"\"";
 	    try {
+		try {
+		    if ( locateProject ) {
+			System.Array prjs = (System.Array)Connect.applicationObject.ActiveSolutionProjects;
+			EnvDTE.Project prj = (EnvDTE.Project)prjs.GetValue( 0 );
+			string temp = prj.FileName;
+			if( temp.Length != 0 ) {
+			    file = temp.Substring( 0, temp.LastIndexOf(".") );
+			    file += ".pro";
+			}
+		    }
+		    file = "-client \"" + file +"\"";
+		}
+		catch( System.Exception ) {}
+
 		System.Diagnostics.Process tmp = new System.Diagnostics.Process();
 		tmp.StartInfo.FileName = "Designer";
 		tmp.StartInfo.Arguments = file;
