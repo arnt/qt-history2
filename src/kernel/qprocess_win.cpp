@@ -34,6 +34,7 @@
 #include "qptrqueue.h"
 #include "qtimer.h"
 #include "qregexp.h"
+#include "private/qinternal_p.h"
 #include "qt_windows.h"
 
 //#define QT_QPROCESS_DEBUG
@@ -105,8 +106,8 @@ public:
 	memset( pid, 0, sizeof(PROCESS_INFORMATION) );
     }
 
-    QByteArray bufStdout;
-    QByteArray bufStderr;
+    QMembuf bufStdout;
+    QMembuf bufStderr;
 
     QPtrQueue<QByteArray> stdinBuf;
 
@@ -139,50 +140,23 @@ void QProcess::reset()
     d->reset();
     exitStat = 0;
     exitNormal = FALSE;
-    d->bufStdout.resize( 0 );
-    d->bufStderr.resize( 0 );
+    d->bufStdout.clear();
+    d->bufStderr.clear();
 }
 
-QByteArray* QProcess::bufStdout()
+QMembuf* QProcess::membufStdout()
 {
-    if( d->pipeStdout[0] != 0 ) {
+    if( d->pipeStdout[0] != 0 )
 	socketRead( 1 );
-    }
     return &d->bufStdout;
 }
 
-QByteArray* QProcess::bufStderr()
+QMembuf* QProcess::membufStderr()
 {
-    if( d->pipeStderr[0] != 0 ) {
+    if( d->pipeStderr[0] != 0 )
 	socketRead( 2 );
-    }
     return &d->bufStderr;
 }
-
-void QProcess::consumeBufStdout( int consume )
-{
-    uint n = d->bufStdout.size();
-    if ( consume==-1 || (uint)consume >= n ) {
-	d->bufStdout.resize( 0 );
-    } else {
-	QByteArray tmp( n - consume );
-	memcpy( tmp.data(), d->bufStdout.data()+consume, n-consume );
-	d->bufStdout = tmp;
-    }
-}
-
-void QProcess::consumeBufStderr( int consume )
-{
-    uint n = d->bufStderr.size();
-    if ( consume==-1 || (uint)consume >= n ) {
-	d->bufStderr.resize( 0 );
-    } else {
-	QByteArray tmp( n - consume );
-	memcpy( tmp.data(), d->bufStderr.data()+consume, n-consume );
-	d->bufStderr = tmp;
-    }
-}
-
 
 QProcess::~QProcess()
 {
@@ -491,22 +465,22 @@ void QProcess::socketRead( int fd )
     unsigned long i = 1000;
 #endif
     if ( i > 0 ) {
-	QByteArray *buffer;
-	uint oldSize;
-	if ( fd == 1 ) {
+	QMembuf *buffer;
+	if ( fd == 1 )
 	    buffer = &d->bufStdout;
-	} else {
+	else
 	    buffer = &d->bufStderr;
-	}
 
-	oldSize = buffer->size();
-	buffer->resize( oldSize + i );
-	uint sz = readStddev( dev, buffer->data()+oldSize, i );
+	QByteArray *ba = new QByteArray( i );
+	uint sz = readStddev( dev, ba->data(), i );
 	if ( sz != i )
-	    buffer->resize( oldSize + i );
+	    ba->resize( i );
 
-	if ( sz == 0 )
+	if ( sz == 0 ) {
+	    delete ba;
 	    return;
+	}
+	buffer->append( ba );
 	if ( fd == 1 )
 	    emit readyReadStdout();
 	else

@@ -43,6 +43,7 @@
 #ifndef QT_NO_PROCESS
 
 #include "qapplication.h"
+#include "private/qinternal_p.h"
 
 
 //#define QT_QPROCESS_DEBUG
@@ -436,12 +437,10 @@ QByteArray QProcess::readStdout()
 	return QByteArray();
     }
     readStdoutCalled = TRUE;
-
-    QByteArray buf = bufStdout()->copy();
-    consumeBufStdout( -1 ); // consume everything
-
+    QMembuf *buf = membufStdout();
     readStdoutCalled = FALSE;
-    return buf;
+
+    return buf->readAll();
 }
 
 /*!
@@ -460,12 +459,10 @@ QByteArray QProcess::readStderr()
 	return QByteArray();
     }
     readStderrCalled = TRUE;
-
-    QByteArray buf = bufStderr()->copy();
-    consumeBufStderr( -1 ); // consume everything
-
+    QMembuf *buf = membufStderr();
     readStderrCalled = FALSE;
-    return buf;
+
+    return buf->readAll();
 }
 
 /*!
@@ -477,7 +474,7 @@ QByteArray QProcess::readStderr()
 bool QProcess::canReadLineStdout() const
 {
     QProcess *that = (QProcess*)this;
-    return that->scanNewline( TRUE, 0 );
+    return that->membufStdout()->scanNewline( 0 );
 }
 
 /*!
@@ -489,7 +486,7 @@ bool QProcess::canReadLineStdout() const
 bool QProcess::canReadLineStderr() const
 {
     QProcess *that = (QProcess*)this;
-    return that->scanNewline( FALSE, 0 );
+    return that->membufStderr()->scanNewline( 0 );
 }
 
 /*!
@@ -501,15 +498,13 @@ bool QProcess::canReadLineStderr() const
 */
 QString QProcess::readLineStdout()
 {
-    QByteArray a;
-    QString s;
-    if ( scanNewline( TRUE, &a ) ) {
-	if ( a.isEmpty() )
-	    s = "";
-	else
-	    s = QString( a );
+    QByteArray a( 256 );
+    QMembuf *buf = membufStdout();
+    if ( buf->scanNewline( &a ) ) {
+	buf->consumeBytes( a.size(), 0 );
+	return QString( a );
     }
-    return s;
+    return QString::null;
 }
 
 /*!
@@ -521,51 +516,13 @@ QString QProcess::readLineStdout()
 */
 QString QProcess::readLineStderr()
 {
-    QByteArray a;
-    QString s;
-    if ( scanNewline( FALSE, &a ) ) {
-	if ( a.isEmpty() )
-	    s = "";
-	else
-	    s = QString( a );
+    QByteArray a( 256 );
+    QMembuf *buf = membufStderr();
+    if ( buf->scanNewline( &a ) ) {
+	buf->consumeBytes( a.size(), 0 );
+	return QString( a );
     }
-    return s;
-}
-
-/*
-  This private function scans for any occurrence of \n or \r\n in the
-  buffer \e buf. It stores the text in the byte array \a store if it is
-  non-null.
-*/
-bool QProcess::scanNewline( bool stdOut, QByteArray *store )
-{
-    QByteArray *buf;
-    if ( stdOut )
-	buf = bufStdout();
-    else
-	buf = bufStderr();
-    uint n = buf->size();
-    uint i;
-    for ( i=0; i<n; i++ ) {
-	if ( buf->at(i) == '\n' ) {
-	    break;
-	}
-    }
-    if ( i >= n )
-	return FALSE;
-
-    if ( store ) {
-	uint lineLength = i;
-	if ( lineLength>0 && buf->at(lineLength-1) == '\r' )
-	    lineLength--; // (if there are two \r, let one stay)
-	store->resize( lineLength );
-	memcpy( store->data(), buf->data(), lineLength );
-	if ( stdOut )
-	    consumeBufStdout( i+1 );
-	else
-	    consumeBufStderr( i+1 );
-    }
-    return TRUE;
+    return QString::null;
 }
 
 /*!

@@ -47,6 +47,7 @@
 #ifndef QT_NO_PROCESS
 
 class QProcessPrivate;
+class QMembuf;
 
 
 class Q_EXPORT QProcess : public QObject
@@ -131,12 +132,8 @@ private:
 #if defined(Q_OS_WIN32)
     uint readStddev( HANDLE dev, char *buf, uint bytes );
 #endif
-    bool scanNewline( bool stdOut, QByteArray *store );
-
-    QByteArray* bufStdout();
-    QByteArray* bufStderr();
-    void consumeBufStdout( int consume );
-    void consumeBufStderr( int consume );
+    QMembuf* membufStdout();
+    QMembuf* membufStderr();
 
 private slots:
     void socketRead( int fd );

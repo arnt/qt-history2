@@ -58,6 +58,7 @@
 #include "qtimer.h"
 #include "qcleanuphandler.h"
 #include "qregexp.h"
+#include "private/qinternal_p.h"
 
 #include <stdlib.h>
 #include <errno.h>
@@ -96,8 +97,8 @@ public:
     void closeOpenSocketsForChild();
     void newProc( pid_t pid, QProcess *process );
 
-    QByteArray bufStdout;
-    QByteArray bufStderr;
+    QMembuf bufStdout;
+    QMembuf bufStderr;
 
     QPtrQueue<QByteArray> stdinBuf;
 
@@ -572,11 +573,11 @@ void QProcess::reset()
     d = new QProcessPrivate();
     exitStat = 0;
     exitNormal = FALSE;
-    d->bufStdout.resize( 0 );
-    d->bufStderr.resize( 0 );
+    d->bufStdout.clear();
+    d->bufStderr.clear();
 }
 
-QByteArray* QProcess::bufStdout()
+QMembuf* QProcess::membufStdout()
 {
     if ( d->proc && d->proc->socketStdout ) {
 	/*
@@ -601,7 +602,7 @@ QByteArray* QProcess::bufStdout()
     return &d->bufStdout;
 }
 
-QByteArray* QProcess::bufStderr()
+QMembuf* QProcess::membufStderr()
 {
     if ( d->proc && d->proc->socketStderr ) {
 	/*
@@ -624,30 +625,6 @@ QByteArray* QProcess::bufStderr()
 	    socketRead( d->proc->socketStderr );
     }
     return &d->bufStderr;
-}
-
-void QProcess::consumeBufStdout( int consume )
-{
-    uint n = d->bufStdout.size();
-    if ( consume==-1 || (uint)consume >= n ) {
-	d->bufStdout.resize( 0 );
-    } else {
-	QByteArray tmp( n - consume );
-	memcpy( tmp.data(), d->bufStdout.data()+consume, n-consume );
-	d->bufStdout = tmp;
-    }
-}
-
-void QProcess::consumeBufStderr( int consume )
-{
-    uint n = d->bufStderr.size();
-    if ( consume==-1 || (uint)consume >= n ) {
-	d->bufStderr.resize( 0 );
-    } else {
-	QByteArray tmp( n - consume );
-	memcpy( tmp.data(), d->bufStderr.data()+consume, n-consume );
-	d->bufStderr = tmp;
-    }
 }
 
 /*!
@@ -1163,9 +1140,7 @@ void QProcess::socketRead( int fd )
 #endif
     if ( fd == 0 )
 	return;
-    const int bufsize = 4096;
-    QByteArray *buffer = 0;
-    uint oldSize;
+    QMembuf *buffer = 0;
     int n;
     if ( fd == d->proc->socketStdout ) {
 	buffer = &d->bufStdout;
@@ -1175,15 +1150,22 @@ void QProcess::socketRead( int fd )
 	// this case should never happen, but just to be safe
 	return;
     }
+#if defined(QT_QPROCESS_DEBUG)
+    uint oldSize = buffer->size();
+#endif
 
     // try to read data first (if it fails, the filedescriptor was closed)
-    oldSize = buffer->size();
-    buffer->resize( oldSize + bufsize );
-    n = ::read( fd, buffer->data()+oldSize, bufsize );
-    if ( n > 0 )
-	buffer->resize( oldSize + n );
-    else
-	buffer->resize( oldSize );
+    const int basize = 4096;
+    QByteArray *ba = new QByteArray( basize );
+    n = ::read( fd, ba->data(), basize );
+    if ( n > 0 ) {
+	ba->resize( n );
+	buffer->append( ba );
+	ba = 0;
+    } else {
+	delete ba;
+	ba = 0;
+    }
     // eof or error?
     if ( n == 0 || n == -1 ) {
 	if ( fd == d->proc->socketStdout ) {
@@ -1220,13 +1202,15 @@ void QProcess::socketRead( int fd )
 	FD_ZERO( &fds );
 	FD_SET( fd, &fds );
 	// read data
-	oldSize = buffer->size();
-	buffer->resize( oldSize + bufsize );
-	n = ::read( fd, buffer->data()+oldSize, bufsize );
+	ba = new QByteArray( basize );
+	n = ::read( fd, ba->data(), basize );
 	if ( n > 0 ) {
-	    buffer->resize( oldSize + n );
+	    ba->resize( n );
+	    buffer->append( ba );
+	    ba = 0;
 	} else {
-	    buffer->resize( oldSize );
+	    delete ba;
+	    ba = 0;
 	    break;
 	}
     }
