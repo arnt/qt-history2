@@ -18,6 +18,8 @@
 **
 **********************************************************************/
 
+#include <qvariant.h> // HP-UX compiler need this here
+
 #include "orderindicator.h"
 #include "formwindow.h"
 
