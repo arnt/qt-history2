@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
@@ -542,8 +542,8 @@ MetrowerksMakefileGenerator::init()
 	project->variables()["VERSION"].append("1.0." + 
 					       (project->isEmpty("VER_PAT") ? QString("0") : 
 						project->first("VER_PAT")) );
-    QStringList ver = QStringList::split('.',  //make sure there are three
-					 project->first("VERSION")) << "0" << "0";
+    QStringList ver = QStringList::split('.', project->first("VERSION"));
+    ver << "0" << "0"; //make sure there are three
     project->variables()["VER_MAJ"].append(ver[0]);
     project->variables()["VER_MIN"].append(ver[1]);
     project->variables()["VER_PAT"].append(ver[2]);

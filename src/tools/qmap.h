@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QMap class
 **
 ** Created : 990406
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -609,6 +609,11 @@ public:
     typedef QMapConstIterator<Key,T> const_iterator;
     typedef QPair<iterator,bool> insert_pair;
 
+    typedef QMapIterator< Key, T > Iterator;
+    typedef QMapConstIterator< Key, T > ConstIterator;
+    typedef T ValueType;
+    typedef QMapPrivate< Key, T > Priv;
+
     /**
      * API
      */
@@ -688,11 +693,6 @@ public:
     size_type count( const key_type& k ) const;
     T& operator[] ( const Key& k );
     void clear();
-
-    typedef QMapIterator< Key, T > Iterator;
-    typedef QMapConstIterator< Key, T > ConstIterator;
-    typedef T ValueType;
-    typedef QMapPrivate< Key, T > Priv;
 
     iterator find ( const Key& k )
     {

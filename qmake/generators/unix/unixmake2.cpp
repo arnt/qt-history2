@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -835,7 +835,8 @@ void UnixMakefileGenerator::init2()
 	project->variables()["VERSION"].append("1.0." +
 					       (project->isEmpty("VER_PAT") ? QString("0") :
 						project->first("VER_PAT")) );
-    QStringList l = QStringList::split('.', project->first("VERSION")) << "0" << "0"; //make sure there are three
+    QStringList l = QStringList::split('.', project->first("VERSION"));
+    l << "0" << "0"; //make sure there are three
     project->variables()["VER_MAJ"].append(l[0]);
     project->variables()["VER_MIN"].append(l[1]);
     project->variables()["VER_PAT"].append(l[2]);
