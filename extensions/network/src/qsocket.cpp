@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#13 $
+** $Id: //depot/qt/qws/extensions/network/src/qsocket.cpp#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -355,7 +355,7 @@ void QSocket::tryConnecting()
     if ( !canonical.isNull() && canonical != d->host )
 	qDebug( "Connecting to %s", canonical.ascii() );
     qDebug( "QSocket::tryConnecting: Connect to IP address %s",
-	    l[0].ip4AddrString().ascii() );
+	    l[0].string().ascii() );
 #endif
 
     // Create and setup read/write socket notifiers
@@ -676,7 +676,7 @@ bool QSocket::scanNewline( QByteArray *store )
 
 void QSocket::flush()
 {
-    if ( (d->state == Connection || d->state == Closing) && d->wsize > 0 ) {
+    if ( d->state >= Connecting && d->wsize > 0 ) {
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket: sn_write: Write data to the socket" );
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#7 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#9 $
 **
 ** Implementation of Network Extension Library
 **
@@ -32,6 +32,9 @@
 #endif // QT_H
 
 #include "qhostaddress.h"
+
+
+class QSocketDevicePrivate;
 
 
 class  QSocketDevice: public QIODevice
@@ -87,14 +90,20 @@ public:
     int		 putch( int );
     int		 ungetch(int);
 
+    uint	 port() const;
+    uint	 peerPort() const;
+    QHostAddress address() const;
+    QHostAddress peerAddress() const;
+
 private:
-    Type	 sock_type;
-    int		 sock_fd;
+    QSocketDevicePrivate * d;
 
     enum Option { Broadcast, ReceiveBuffer, ReuseAddress, SendBuffer };
 
     int		 option( Option ) const;
     virtual void setOption( Option, int );
+
+    void	 fetchConnectionParameters();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -102,22 +111,6 @@ private:	// Disabled copy constructor and operator=
     QSocketDevice &operator=( const QSocketDevice & );
 #endif
 };
-
-
-inline bool QSocketDevice::isValid() const
-{
-    return sock_type != -1;
-}
-
-inline QSocketDevice::Type QSocketDevice::type() const
-{
-    return sock_type;
-}
-
-inline int QSocketDevice::socket() const
-{
-    return sock_fd;
-}
 
 
 #endif // QSOCKETDEVICE_H

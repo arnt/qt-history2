@@ -298,7 +298,7 @@ void QDnsAnswer::parseA()
 				( answer[pp+3] ) );
 #if defined(DEBUG_QDNS)
     qDebug( "QDns: saw %s IN A %s (ttl %d)", label.ascii(),
-	    rr->address.ip4AddrString().ascii(), ttl );
+	    rr->address.string().ascii(), ttl );
 #endif
 
 }
@@ -751,9 +751,9 @@ QDnsManager::QDnsManager()
 	if ( !ns->current() ) {
 	    ns->append( new QHostAddress(*h) );
 #if defined(DEBUG_QDNS)
-	    qDebug( "using name server %s", h->ip4AddrString().latin1() );
+	    qDebug( "using name server %s", h->string().latin1() );
 	} else {
-	    qDebug( "skipping address %s", h->ip4AddrString().latin1() );
+	    qDebug( "skipping address %s", h->string().latin1() );
 #endif
 	}
 	::ns->next();
@@ -826,13 +826,16 @@ void QDnsManager::retransmit()
 
 void QDnsManager::answer()
 {
-#if defined(DEBUG_QDNS)
-    qDebug( "DNS Manager: answer arrived" );
-#endif
     QByteArray a( 16383 ); // large enough for anything, one suspects
     int r = socket->readBlock( a.data(), a.size() );
+#if defined(DEBUG_QDNS)
+    qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
+	   socket->peerAddress().string().ascii(), socket->peerPort() );
+#endif
     if ( r < 12 )
 	return;
+    // maybe we should check that the answer comes from port 53 on one
+    // of our name servers...
     a.resize( r );
 
     int id = (a[0] << 8) + a[1];
@@ -959,7 +962,7 @@ void QDnsManager::transmitQuery( int i )
 #if defined(DEBUG_QDNS)
     qDebug( "issuing query %d about %s type %d to %s",
 	    q->id, q->l.ascii(), q->t,
-	    ns->at( q->step % ns->count() )->ip4AddrString().ascii() );
+	    ns->at( q->step % ns->count() )->string().ascii() );
 #endif
     if ( ns->count() > 1 && q->step == 0 ) {
 	// if it's the first time, send nonrecursive queries to the
@@ -969,7 +972,7 @@ void QDnsManager::transmitQuery( int i )
 	while( (server=ns->next()) != 0 ) {
 	    socket->writeBlock( p.data(), pp, *server, 53 );
 #if defined(DEBUG_QDNS)
-	    qDebug( "copying query to %s", server->ip4AddrString().ascii() );
+	    qDebug( "copying query to %s", server->string().ascii() );
 #endif
 	}
     }
@@ -1215,7 +1218,7 @@ void QDnsSocket::answer()
   facilities.  The aim of QDns is to provide a correct and small API
   to the DNS: Nothing more.  (Correctness implies that the DNS
   information is correctly cached, and correctly timed out.)
-  
+
   The API is made up of a constructor, functions to set the DNS node
   (the domain in DNS terminology) and record type: setLabel() and
   setRecordType(), the corresponding getters, an isWorking() function

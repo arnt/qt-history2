@@ -28,7 +28,7 @@ public:
     QHostAddress & operator=( const QHostAddress & );
 
     uint	 ip4Addr()	 const;
-    QString	 ip4AddrString() const;
+    QString	 string() const;
 
     bool	 operator==( const QHostAddress & );
 
