@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#21 $
 **
 ** Implementation of QProcess class
 **
@@ -51,7 +51,7 @@
 /*!
   \class QProcess qprocess.h
 
-  \brief The QProcess class is used to start external programs and control
+  \brief The QProcess class is used to start external programs and to control
   their behavior.
 
   \ingroup misc
