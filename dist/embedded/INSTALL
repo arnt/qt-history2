@@ -1,28 +1,76 @@
-                           DRAFT VERSION
+			      DRAFT VERSION
+			  INSTALLING Qt/Embedded
 
-Guide to installing the Qt/Embedded demo
 
-1. Unpack the archive if you have not done so already:
+
+This installation procedure is written for Linux/i386. It may need
+to be modified for other platforms.
+
+
+1.  Unpack the archive if you have not done so already:
 
 	cd <anywhere>
 	gunzip qt-embedded.tar.gz	# uncompress the archive
-	tar xf qt-embedded.tar	        # unpack it
+	tar xf qt-embedded.tar		# unpack it
 
-2. Enable framebuffer support
+  This document assumes that the archive is installed as ~/qt-embedded
+
+
+2.  Install tmake
+
+You need the newest tmake. (including linux-qws-g++) 
+This should be available at the same place as the qt-embedded archive.
+
+  This document assumes that tmake is installed as ~/tmake
+
+3.  Set some environment variables 
+
+	QTDIR			- wherever you installed Qt
+	PATH			- to locate moc, tmake and so on
+	LD_LIBRARY_PATH		- for the shared Qt library
+	TMAKEDIR
+	TMAKEPATH
+
+
+export QTDIR=$HOME/qws
+export TMAKEDIR=$HOME/tmake
+
+export PATH=$QTDIR/bin:$PATH:$TMAKEDIR/bin
+export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
+
+  
+  Remember to re-source environment files, if necessary.
+
+
+3.  Compile the Qt/Embedded library, and the server
+
+	cd ~/qt-embedded
+	make
+
+
+4. Change permissions
+
+   To run Qt/Embedded, you need write access to the framebuffer device
+   /dev/fb0. 
+
+
+5. Enable framebuffer support
 
    You may need to recompile your kernel to enable the framebuffer.
-   This document does not describe how to do this, the file
-   README-Framebuffer.embedded contains a short description. (You
+   This document does not describe how to do thiss, the file
+   README-Framebuffer.embedded contains a short description. . (You
    should see a penguin logo at boot time when the frame buffer is
-   enabled. This is NOT the same as the penguin login prompt )
+   enabled.)
 
    For Matrox G100/G200/G400 use the matrox frame buffer driver.
 
    For Mach64 and most other cards, use the vesafb driver.
 
+
    Note that some cards are only supported in VGA16 mode, this will
-   not work with the current version of Qt/Embedded, since VGA/16
-   is not yet supported. You may need to upgrade your kernel, or even
+   not work with the current version of Qt/Embedded, since VGA/16 is
+   not yet supportedsupported. You may need to upgrade your kernel, or even
    switch to an experimental kernel.
 
    The frame buffer must also be enabled with a boot parameter. See
@@ -31,23 +79,44 @@ Guide to installing the Qt/Embedded demo
    The fbset program, which should be included in Linux distributions,
    may be used to switch video modes without rebooting the system. The
    video mode active when the server is started will be used. (8-bit
-   modes not yet supported.) NOTE: fbset does not work with the vesafb
+   modes are still experimental.) NOTE: fbset does not work with the vesafb
    driver.
 
 
-3. Change permissions
 
-   To run Qt/Embedded, you need write access to the framebuffer
-   device /dev/fb0.
+6. How to run the demo
+
+   Log into a virtual console and do:
+
+	cd ~/qt-embedded/example/launcher
+   	./start-demo
+  
+
+7. Troubleshooting
+
+  Show processes using the framebuffer:
+
+    fuser -v /dev/fb0
+
+  Kill such processes:
+    fuser -vk /dev/fb0
+  or harsher:
+    fuser -k -KILL /dev/fb0
 
 
-4. How to run the demo
+  Show existing semaphores:
 
-   The package includes all the libraries your Linux system might need,
-   in the qt-embedded/lib directory - they will be used from there directly.
-   Qt/Embedded doesn't actually need much from the standard libraries, but
-   we have included them in this package to simplify installation.
+    ipcs            
+ 
+  Remove semaphores:
 
-   Log in to a virtual console, change directory to the "qt-embedded"
-   directory, then run the "start_demo" script.
+    ipcrm
+
+  The communication between client and server is done through the
+  named pipe /tmp/.QtEmbedded; sometimes it may need to be deleted.
+
+
+  
+
+
 
