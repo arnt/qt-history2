@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#52 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#52 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -243,8 +243,8 @@ void QEvent::peErrMsg()				// posted event error message
   Possible return values are \c LeftButton, \c RightButton, \c MidButton and
   \c NoButton.
 
-  Note that the returned value is always \c NoButton (0) when a mouse move
-  event is received.
+  Note that the returned value is always \c NoButton (0) for mouse move
+  events.
 
   \sa state()
 */
@@ -252,8 +252,11 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*!
   \fn int QMouseEvent::state() const
-  Returns the current button state (a combination of mouse buttons and keyboard
-  modifiers).
+
+  Returns the current button state (a combination of mouse buttons and
+  keyboard modifiers), i.e. what buttons were depressed when the event
+  was generated. This does not include the event-causing button
+  itself.
 
   The returned value is \c LeftButton, \c RightButton, \c MidButton,
   \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
