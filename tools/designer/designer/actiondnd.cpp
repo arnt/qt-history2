@@ -804,7 +804,10 @@ void QDesignerMenuBar::dragMoveEvent( QDragMoveEvent *e )
 	 e->provides( "application/x-designer-actiongroup" ) ||
 	 e->provides( "application/x-designer-separator" ) ) {
 	int item = itemAtPos( e->pos() );
+	bool uieffect = QApplication::isEffectEnabled( UI_AnimateMenu );
+	QApplication::setEffectEnabled( UI_AnimateMenu, FALSE );
 	activateItemAt( item );
+	QApplication::setEffectEnabled( UI_AnimateMenu, uieffect );
 	if ( item == -1 )
 	    hidePopups();
     } else {
