@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>615</width>
+            <width>611</width>
             <height>402</height>
         </rect>
     </property>
@@ -1595,6 +1595,9 @@
                                 <property name="text">
                                     <string>Confirm &amp;Deletes</string>
                                 </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
                             </widget>
                         </grid>
                     </widget>
@@ -1606,6 +1609,9 @@
                 </property>
                 <property name="text">
                     <string>Allow column &amp;sorting</string>
+                </property>
+                <property name="checked">
+                    <bool>true</bool>
                 </property>
             </widget>
         </grid>
@@ -2619,7 +2625,7 @@
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QLabel" row="0" column="0" rowspan="2" colspan="1">
+            <widget class="QLabel" row="0" column="0" rowspan="5" colspan="1">
                 <property name="name">
                     <cstring>TextLabel4_2_2_2_3</cstring>
                 </property>
@@ -2853,7 +2859,7 @@
                     <string>.......A nice Pixmap here......</string>
                 </property>
             </widget>
-            <widget class="QLabel" row="0" column="1" rowspan="1" colspan="3">
+            <widget class="QLabel" row="3" column="1" rowspan="1" colspan="3">
                 <property name="name">
                     <cstring>TextLabel1_5</cstring>
                 </property>
@@ -2861,24 +2867,7 @@
                     <string>Press Finish to create the widget.</string>
                 </property>
             </widget>
-            <spacer row="1" column="1">
-                <property name="name" stdset="0">
-                    <cstring>Spacer1_8</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>20</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <spacer row="1" column="2">
+            <spacer row="4" column="3">
                 <property name="name" stdset="0">
                     <cstring>Spacer2_4</cstring>
                 </property>
@@ -2895,6 +2884,48 @@
                     </size>
                 </property>
             </spacer>
+            <spacer row="2" column="2" rowspan="1" colspan="2">
+                <property name="name" stdset="0">
+                    <cstring>Spacer1</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Vertical</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+            <spacer row="0" column="2">
+                <property name="name" stdset="0">
+                    <cstring>Spacer2</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Vertical</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+            <widget class="QCheckBox" row="1" column="1">
+                <property name="name">
+                    <cstring>checkBoxAutoEdit</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;AutoEditing</string>
+                </property>
+            </widget>
         </grid>
     </widget>
 </widget>

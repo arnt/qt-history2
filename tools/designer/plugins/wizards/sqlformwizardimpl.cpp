@@ -39,6 +39,7 @@
 
 #ifndef QT_NO_SQL
 #include <qdatatable.h>
+#include <qdatabrowser.h>
 #include <qsqleditorfactory.h>
 #include <qsqlindex.h>
 #include <qsqlcursor.h>
@@ -58,10 +59,12 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 	mode = Table;
 	setAppropriate( navigPage, FALSE );
 	setAppropriate( layoutPage, FALSE );
+	checkBoxAutoEdit->setChecked( FALSE );
     } else if ( widget->inherits( "QDataBrowser" ) ) {
 	setCaption( "Data Browser Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
 	mode = Browser;
+	checkBoxAutoEdit->setChecked( TRUE );
     } else if ( widget->inherits( "QDataView" ) ) {
 	setCaption( "Data View Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
@@ -69,6 +72,7 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 	setAppropriate( sqlPage, FALSE);
 	checkCreateFieldLayout->hide();
 	checkCreateButtonLayout->hide();
+	checkBoxAutoEdit->hide();
 	mode = View;
     }
 
@@ -350,6 +354,12 @@ void SqlFormWizard::accept()
 	break;
     case View:
     case Browser: {
+
+	if ( mode == Browser && !checkBoxAutoEdit->isChecked() ) {
+	    ((QDataBrowser*)widget)->setAutoEdit( FALSE );
+	    formWindow->setPropertyChanged( widget, "autoEdit", TRUE );
+	}
+
 	formWindow->clearSelection();
 	bool createFieldLayout = checkCreateFieldLayout->isChecked();
 	bool createButtonLayout = checkCreateButtonLayout->isChecked();
@@ -521,6 +531,11 @@ void SqlFormWizard::accept()
     case Table:
 	{
 	    QDataTable* sqlTable = ((QDataTable*)widget);
+	    if ( checkBoxAutoEdit->isChecked() ) {
+		sqlTable->setAutoEdit( TRUE );
+		formWindow->setPropertyChanged( sqlTable, "autoEdit", TRUE );
+	    }
+
 	    if ( checkBoxReadOnly->isChecked() ) {
 		sqlTable->setReadOnly( TRUE );
 		formWindow->setPropertyChanged( sqlTable, "readOnly", TRUE );
