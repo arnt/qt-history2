@@ -27,6 +27,7 @@
 #include <qvariant.h> // HP-UX compiler needs this here
 #include <qapplication.h>
 #include <qimage.h>
+#include <qpainter.h>
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>

@@ -59,6 +59,7 @@
 #include <qworkspace.h>
 #include <qfiledialog.h>
 #include <qapplication.h>
+#include <qworkspace.h>
 #include <qclipboard.h>
 #include <qmessagebox.h>
 #include <qbuffer.h>
@@ -85,6 +86,7 @@
 #include <qwizard.h>
 #include <qpushbutton.h>
 #include <qdir.h>
+#include <qtimer.h>
 #include <stdlib.h>
 
 static int forms = 0;
