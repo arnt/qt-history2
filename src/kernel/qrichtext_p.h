@@ -1137,7 +1137,7 @@ public:
     void setAlignment( int a );
     int alignment() const;
 
-    virtual void paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cusror = 0, bool drawSelections = FALSE,
+    virtual void paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor = 0, bool drawSelections = FALSE,
 			int clipx = -1, int clipy = -1, int clipw = -1, int cliph = -1 );
 
     void setStyleSheetItems( const QVector<QStyleSheetItem> &vec );
@@ -1340,7 +1340,7 @@ public:
 	Format = Font | Color | Misspelled | HAlign
     };
 
-    enum HorizontalAlignemnt { AlignNormal, AlignSubScript, AlignSuperScript };
+    enum VerticalAlignment { AlignNormal, AlignSubScript, AlignSuperScript };
 
     QTextFormat();
     QTextFormat( const QStyleSheetItem *s );
@@ -1351,7 +1351,7 @@ public:
     QColor color() const;
     QFont font() const;
     bool isMisspelled() const;
-    HorizontalAlignemnt hAlign() const;
+    VerticalAlignment hAlign() const;
     int minLeftBearing() const;
     int minRightBearing() const;
     int width( const QChar &c ) const;
@@ -1372,13 +1372,13 @@ public:
     void setFont( const QFont &f );
     void setColor( const QColor &c );
     void setMisspelled( bool b );
-    void setHAlign( HorizontalAlignemnt a );
+    void setHAlign( VerticalAlignment a );
 
     bool operator==( const QTextFormat &f ) const;
     QTextFormatCollection *parent() const;
     QString key() const;
 
-    static QString getKey( const QFont &f, const QColor &c, bool misspelled, const QString &lhref, const QString &lnm, HorizontalAlignemnt hAlign );
+    static QString getKey( const QFont &f, const QColor &c, bool misspelled, const QString &lhref, const QString &lnm, VerticalAlignment hAlign );
 
     void addRef();
     void removeRef();
@@ -1405,7 +1405,7 @@ private:
     uint missp : 1;
     uint linkColor : 1;
     int leftBearing, rightBearing;
-    HorizontalAlignemnt ha;
+    VerticalAlignment ha;
     uchar widths[ 256 ];
     int hei, asc, dsc;
     QTextFormatCollection *collection;
@@ -1842,7 +1842,7 @@ inline bool QTextFormat::isMisspelled() const
     return missp;
 }
 
-inline QTextFormat::HorizontalAlignemnt QTextFormat::hAlign() const
+inline QTextFormat::VerticalAlignment QTextFormat::hAlign() const
 {
     return ha;
 }
@@ -1938,7 +1938,7 @@ inline void QTextFormat::generateKey()
 }
 
 inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled,
-				    const QString &lhref, const QString &lnm, HorizontalAlignemnt a )
+				    const QString &lhref, const QString &lnm, VerticalAlignment a )
 {
     QString k;
     QTextOStream ts( &k );

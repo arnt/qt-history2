@@ -4912,7 +4912,7 @@ void QTextFormat::setMisspelled( bool b )
     update();
 }
 
-void QTextFormat::setHAlign( HorizontalAlignemnt a )
+void QTextFormat::setHAlign( VerticalAlignment a )
 {
     if ( a == ha )
 	return;
