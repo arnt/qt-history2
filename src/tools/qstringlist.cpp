@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#19 $
 **
 ** Implementation of QStringList
 **
@@ -134,6 +134,12 @@ QStringList QStringList::split( const QString &sep, const QString &str )
 
     return lst;
 }
+
+/*!
+  Splits the string \a str using the regular expression\a sep as separator. Returns the
+  list of strings. If \a str doesn't contain \a sep, a stringlist
+  with one item, which is the same as \a str, is returned.
+*/
 
 QStringList QStringList::split( const QRegExp &sep, const QString &str )
 {
