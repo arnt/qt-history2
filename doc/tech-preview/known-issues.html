@@ -53,6 +53,10 @@
     <p class="issue">I cannot connect to my Oracle server</p>
     <p class="workaround">Use the Oracle &gt;= 9 client libraries, currently there is no workaround for OCI 8</p>
 
+    <h4>QSqlModel</h4>
+    <p class="issue">Only the first 16 rows from a database result are displayed</p>
+    <p class="workaround">You are using a database driver which does not report back the size of a result set and incremental fetching is not yet implemented in the itemviews. You can either use another database like MySQL or increase the QSQL_PREFETCH in qsqlmodel.cpp</p>
+
 
 <!-- Demos section ------------------------------------------------- -->
 <a name="demos"></a>
