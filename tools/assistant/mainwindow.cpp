@@ -362,27 +362,10 @@ void MainWindow::showLink(const QString &link)
         qWarning("The link is empty!");
     }
 
-    int find = link.indexOf(QLatin1Char('#'));
-    QString name = find >= 0 ? link.left(find) : link;
-
-    QString absLink = link;
-    QFileInfo fi(name);
-    if (fi.isRelative()) {
-        if (find >= 0)
-            absLink = fi.absoluteFilePath() + link.right(link.length() - find);
-        else
-            absLink = fi.absoluteFilePath();
-    }
-    if(fi.exists()) {
-        tabs->setSource(absLink);
-        tabs->currentBrowser()->setFocus();
-    } else {
-        // ### Default 404 site!
-        statusBar()->message(tr("Failed to open link: '%1'").arg(link), 5000);
-        tabs->currentBrowser()->setHtml(tr("<div align=\"center\"><h1>The page could not be found!</h1><br>"
-                                             "<h3>'%1'</h3></div>").arg(link));
-        tabs->updateTitle(tr("Error..."));
-    }
+    QUrl url(link);
+    QFileInfo fi(url.toLocalFile());    
+    tabs->setSource(url);
+    tabs->currentBrowser()->setFocus();    
 }
 
 void MainWindow::showLinks(const QStringList &links)

@@ -123,24 +123,27 @@ void HelpWindow::setSource(const QUrl &name)
         return;
     }
     
-    // check for local file
-    QString fileName = name.toString();
-    int j = fileName.indexOf('#');
-    if (j > 0)
-        fileName = fileName.left(j);
+    if (name.scheme() == QLatin1String("file")) {
+        QFileInfo fi(name.toLocalFile());
+        if (!fi.exists()) {
+            //statusBar()->message(tr("Failed to open link: '%1'").arg(fi.absoluteFilePath()), 5000);
+            setHtml(tr("<div align=\"center\"><h1>The page could not be found!</h1><br>"
+                "<h3>'%1'</h3></div>").arg(fi.absoluteFilePath()));
+            //mw->tabs->updateTitle(tr("Error..."));
+            return;
+        }
 
-    QFileInfo fi(fileName);
-    if (!fi.exists()) {
-        QMessageBox::information(mw, tr("Help"), tr("Can't load and display non-local file\n"
-                    "%1").arg(name.toString()));
+        setHtml(QLatin1String("<body bgcolor=\"")
+            + palette().color(backgroundRole()).name()
+            + QLatin1String("\">"));
+
+        QTextBrowser::setSource(name);
         return;
     }
-
-    setHtml(QLatin1String("<body bgcolor=\"")
-        + palette().color(backgroundRole()).name()
-        + QLatin1String("\">"));
-
-    QTextBrowser::setSource(QUrl::fromLocalFile(fi.fileName()));
+    //statusBar()->message(tr("Failed to open link: '%1'").arg(name.toString()), 5000);
+    setHtml(tr("<div align=\"center\"><h1>The page could not be found!!!</h1><br>"
+        "<h3>'%1'</h3></div>").arg(name.toString()));
+    //mw->tabs->updateTitle(tr("Error..."));
 }
 
 

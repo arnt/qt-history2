@@ -100,7 +100,7 @@ QString DocuParser::absolutify(const QString &name) const
 {
     QFileInfo orgPath(name);
     if(orgPath.isRelative())
-        return QFileInfo(fname).path() + QDir::separator() + name;
+        return "file:" + QFileInfo(fname).path() + "/" + name;
     return name;
 }
 

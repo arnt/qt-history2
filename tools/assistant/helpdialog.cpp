@@ -425,10 +425,10 @@ void HelpDialog::buildKeywordDB()
         int counter = 0;
         foreach (IndexItem *indItem, indLst) {
             QFileInfo fi(indItem->reference);
-            lst.append(IndexKeyword(indItem->keyword, fi.absoluteFilePath()));
+            lst.append(IndexKeyword(indItem->keyword, indItem->reference));
             if (ui.progressPrepare)
                 ui.progressPrepare->setValue(ui.progressPrepare->value() +
-                                             int(fi.absoluteFilePath().length() * 1.6));
+                                             int(fi.absoluteFilePath().length() * 2));
 
             if(++counter%100 == 0) {
                 processEvents();
@@ -469,8 +469,7 @@ void HelpDialog::setupTitleMap()
     for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
         ContentList lst = it.value();
         foreach (ContentItem item, lst) {
-            QFileInfo link(item.reference.simplified());
-            titleMap[link.absoluteFilePath()] = item.title.trimmed();
+            titleMap[item.reference] = item.title.trimmed();
         }
     }
     processEvents();
@@ -661,7 +660,7 @@ void HelpDialog::searchInIndex(const QString &s)
 QString HelpDialog::titleOfLink(const QString &link)
 {
     QString s(link);
-    s.remove(s.indexOf(QLatin1Char('#')), s.length());
+    s.remove(s.indexOf(QLatin1Char('#')), s.length());    
     s = titleMap[ s ];
     if (s.isEmpty())
         return link;
@@ -708,7 +707,7 @@ void HelpDialog::addBookmark()
 {
     if (!bookmarksInserted)
         insertBookmarks();
-    QString link = QUrl(help->browsers()->currentBrowser()->source()).resolved(help->browsers()->currentBrowser()->source()).path();
+    QString link = help->browsers()->currentBrowser()->source().toString();
     QString title = help->browsers()->currentBrowser()->documentTitle();
     if (title.isEmpty())
         title = titleOfLink(link);
@@ -766,11 +765,8 @@ void HelpDialog::showBookmarkTopic()
     if (!ui.listBookmarks->currentItem())
         return;
 
-    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)ui.listBookmarks->currentItem();
-    QString absPath;
-    if (QFileInfo(i->link()).isRelative())
-        absPath = documentationPath + QLatin1String("/");
-    emit showLink(absPath + i->link());
+    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)ui.listBookmarks->currentItem();    
+    emit showLink(i->link());
 }
 
 void HelpDialog::saveBookmarks()
