@@ -49,7 +49,7 @@ static bool toBool( const QString& s )
     return s == "true" || s.toInt() != 0;
 }
 
-// fixString is only used in conjunction with tr(). We need to write out the 
+// fixString is only used in conjunction with tr(). We need to write out the
 // string in utf8 and make sure it's converted from utf8 when created.
 static QString fixString( const QString &str )
 {
@@ -1703,18 +1703,18 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 	s = indent + parent + "->setNumRows( " + parent + "->numRows() + 1 );";
 	if ( pix.isEmpty() )
 	    s += indent + parent + "->verticalHeader()->setLabel( " + parent + "->numRows() - 1, "
-		 + trmacro + "( \"" + fixString( txt ) + "\" ) );\n";
+		 + trmacro + "( " + fixString( txt ) + " ) );\n";
 	else
 	    s += indent + parent + "->verticalHeader()->setLabel( " + parent + "->numRows() - 1, "
-		 + pix + ", " + trmacro + "( \"" + fixString( txt ) + "\" ) );\n";
+		 + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
     } else {
 	s = indent + parent + "->setNumCols( " + parent + "->numCols() + 1 );";
 	if ( pix.isEmpty() )
 	    s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
-		 + trmacro + "( \"" + fixString( txt ) + "\" ) );\n";
+		 + trmacro + "( " + fixString( txt ) + " ) );\n";
 	else
 	    s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
-		 + pix + ", " + trmacro + "( \"" + fixString( txt ) + "\" ) );\n";
+		 + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
     }
     return s;
 }
@@ -2630,7 +2630,7 @@ int main( int argc, char * argv[] )
     }
     QTextStream out( &fileOut );
     out.setEncoding( QTextStream::UnicodeUTF8 );
-    
+
     QDomDocument doc;
     if ( !doc.setContent( &file ) )
 	qFatal( "uic: Failed to parse %s\n", fileName );
