@@ -173,6 +173,9 @@ struct Q_CORE_EXPORT QMetaObject
 			   int signal_index,
 			   const QObject *receiver,
 			   int membcode, int member_index);
+    // internal slot-name based connect
+    static void connectSlotsByName(const QObject *o);
+
     // internal index-based signal activation
     static void activate(QObject *obj, int signal_index, void **argv);
     static void activate(QObject *obj, const QMetaObject *, int local_signal_index, void **argv);

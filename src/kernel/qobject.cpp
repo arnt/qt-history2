@@ -2231,6 +2231,42 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 
 /*!\internal
  */
+void QMetaObject::connectSlotsByName(const QObject *o)
+{
+    if (!o)
+        return;
+    const QMetaObject *mo = o->metaObject();
+    Q_ASSERT(mo);
+    const QObjectList list(o->findChildren(0));
+    for (int i = 0; i < mo->slotCount(); ++i) {
+        const char *sig = mo->slot(i).signature();
+        Q_ASSERT(sig);
+        if (sig[0] != 'o' || sig[1] != 'n' || sig[2] != '_')
+            continue;
+        bool foundIt = false;
+        for(int j = 0; j < list.count(); ++j) {
+            const QObject *co = list.at(j);
+            const char *objName = co->objectName(0);
+            int len = qstrlen(objName);
+            if (!len
+                || qstrncmp(sig + 3, objName, len)
+                || sig[len+3] != '_')
+                continue;
+            int sigIndex = co->metaObject()->indexOfSignal(sig + len + 4);
+            if (sigIndex < 0)
+                continue;
+            if (QMetaObject::connect(co, sigIndex, o, QSLOT_CODE, i)) {
+                foundIt = true;
+                break;
+            }
+        }
+        if (!foundIt)
+            qWarning("QMetaObject::connectSlotsByName(): No matching signal for %s", sig);
+    }
+}
+
+/*!\internal
+ */
 void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 {
     if (obj->blockSig)
