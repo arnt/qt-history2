@@ -10,6 +10,7 @@
 **
 ****************************************************************************/
 
+#include "qbitmap.h"
 #include "qfontengine_p.h"
 
 // #define FONTENGINE_DEBUG
@@ -17,7 +18,6 @@
 #include <qbytearray.h>
 #include <qtextcodec.h>
 
-#include "qbitmap.h"
 #include "qfontdatabase.h"
 #include "qpaintdevice.h"
 #include "qpainter.h"
