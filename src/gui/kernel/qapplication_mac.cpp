@@ -2427,8 +2427,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                                   0, sizeof(copy_cmd), 0, &copy_cmd);
                 copy_cmd.menu.menuRef = GetApplicationDockTileMenu();
                 SetEventParameter(copy, kEventParamDirectObject, typeHICommand, sizeof(copy_cmd), &copy_cmd);
-                OSStatus err = SendEventToMenu(copy, copy_cmd.menu.menuRef);
-                if(err == noErr) 
+                if(SendEventToMenu(copy, copy_cmd.menu.menuRef) == noErr) 
                     handled_event = true;
             }
             if(!handled_event) {

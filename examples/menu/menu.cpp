@@ -102,6 +102,10 @@ MenuExample::MenuExample(QWidget *parent)
     print->addAction("Print to fa&x", this, SLOT(fax()));
     print->addSeparator();
     print->addAction("Printer &Setup", this, SLOT(printerSetup()));
+#ifdef Q_WS_MAC
+    extern void qt_mac_set_dock_menu(QMenu *);
+    qt_mac_set_dock_menu(print);
+#endif
 
     QMenu *file = new QMenu(this);
     Q_CHECK_PTR(file);
