@@ -12870,7 +12870,7 @@ QString QString::arg( const QString& a, int fieldwidth ) const
 
     if ( !findArg( pos, len ) ) {
         qWarning( "QString::arg(): Argument missing: %s, %s",
-                  this.latin1(), a.latin1() );
+                  latin1(), a.latin1() );
         // Make sure the text at least appears SOMEWHERE
         r += ' ';
         pos = r.length();
