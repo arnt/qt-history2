@@ -219,7 +219,7 @@ static bool isChildOf( QWidget * child, QWidget * parent )
     Constructs a workspace with a \a parent and a \a name.
 */
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
-    : QWidget( parent, name, WNoMousePropagation )
+    : QWidget( parent, name )
 {
     init();
 }

@@ -996,8 +996,12 @@ void QPopupMenu::updateSize()
 
     for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
 	mi = it.current();
-	if ( mi->widget() && mi->widget()->parentWidget() != this ) {
-	    mi->widget()->reparent( this, QPoint(0,0), TRUE );
+	QWidget *miw = mi->widget();
+	if (miw) {
+	    if ( miw->parentWidget() != this )
+		miw->reparent( this, QPoint(0,0), TRUE );
+	    // widget items musn't propgate mouse events
+	    ((QPopupMenu*)miw)->setWFlags(WNoMousePropagation);
 	}
 	if ( mi->custom() )
 	    mi->custom()->setFont( font() );
@@ -1709,18 +1713,9 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( mi->widget() ) {
 	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
 	    if ( widgetAt && widgetAt != this ) {
-		// Don't send the event to the popupmenu, since this would mean
-		// infinite recursion!
-		WFlags wf = getWFlags();
-		setWFlags( WNoMousePropagation );
-
 		QMouseEvent me( e->type(), widgetAt->mapFromGlobal( e->globalPos() ),
 				e->globalPos(), e->button(), e->state() );
 		QApplication::sendEvent( widgetAt, &me );
-
-		// restore original widget flags
-		clearWFlags( WNoMousePropagation );
-		setWFlags( wf );
 	    }
 	}
 
