@@ -1,5 +1,5 @@
 CONFIG   = console release flat
-DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_COMPAT QT_NO_THREAD
+DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_COMPAT QT_NO_THREAD QT4_TECH_PREVIEW
 HEADERS	 = configureapp.h
 
 SOURCES	 = main.cpp configureapp.cpp \
@@ -33,8 +33,12 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
 
+SOURCES += $$QT_SOURCE_TREE/util/install/keygen/keyinfo.cpp
+
 INCLUDEPATH += $$QT_SOURCE_TREE/include/QtCore \
-               $$QT_SOURCE_TREE/src/core/arch/generic
+               $$QT_SOURCE_TREE/src/core/arch/generic \
+	       $$QT_SOURCE_TREE/util/install/keygen
+
 INTERFACES=
 TARGET=configure
 DESTDIR=../../bin

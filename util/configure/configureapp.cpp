@@ -5,6 +5,10 @@
 #include <qhash.h>
 #include "configureapp.h"
 
+#if defined (QT4_TECH_PREVIEW)
+#include "keyinfo.h"
+#endif
+
 #include <iostream>
 
 #include <windows.h>
@@ -160,6 +164,8 @@ Configure::Configure( int& argc, char** argv )
     } );
 
     readLicense();
+    if (!isOk())
+        return;
 
     buildModulesList();
 #endif
@@ -1615,6 +1621,41 @@ Configure::ProjectType Configure::projectType( const QString& proFileName )
     return App;
 }
 
+#if defined (QT4_TECH_PREVIEW)
+static uint convertor( const QString &list )
+{
+    static const unsigned char checksum[] = {
+	0x61, 0x74, 0x18, 0x10, 0x06, 0x74, 0x76, 0x0b, 0x02, 0x7b,
+	0x78, 0x18, 0x65, 0x72, 0x06, 0x76, 0x6d, 0x1f, 0x01, 0x75,
+	0x7e, 0x79, 0x65, 0x01, 0x03, 0x06, 0x6c, 0x6e, 0x18, 0x14,
+	0x8f, 0x75, 0x6a, 0x7a, 0x18, 0x7b, 0x76, 0x01, 0x1f, 0x7b,
+	0x65, 0x72, 0x06, 0x06, 0x74, 0x76, 0x1f, 0x61, 0x03, 0x6a
+    };
+
+    uint length = 0;
+    int temp = list.length();
+    while ( temp > 0 ) {
+        temp--;
+	uint alpha = 0x58;
+	int currentIndex = 0;
+	for ( ;; ) {
+	    if ( (uint)list[temp].latin1() == alpha ) {
+		length -= (length << 5) + currentIndex;
+		break;
+	    }
+	    alpha ^= (uchar)checksum[currentIndex];
+	    if ( (uchar)checksum[currentIndex] == 0x8f )
+		return checksum[currentIndex] ^ 0x80;
+	    ++currentIndex;
+	}
+	length = uint(-int(length));
+	if ( (uint) (alpha - 0x8a) < 6 )
+	    length += checksum[alpha - 0x8a];
+    }
+    return length;
+}
+#endif // QT4_TECH_PREVIEW
+
 #if !defined(EVAL)
 void Configure::readLicense()
 {
@@ -1634,19 +1675,108 @@ void Configure::readLicense()
 		}
 	    }
 	}
-	licenseFile.close();
+        licenseFile.close();
     }
+
     if( QFile::exists( dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL" ) ) {
 	licenseInfo[ "PRODUCTS" ] = "qt-internal";
 	dictionary[ "QMAKE_INTERNAL" ] = "yes";
-    } else if ( !licenseFile.exists() ) {
+    } else if (!licenseFile.exists()) {
 	cout << "License file not found in " << QDir::homeDirPath() << endl;
+#if defined (QT4_TECH_PREVIEW)
+        cout << "Please put the Qt license file, '.qt-license' in your home "
+             << "directory and run configure again.";
+        dictionary["DONE"] = "error";
+        return;
+#else
 	cout << "Enterprise modules will not be available." << endl << endl;
 	licenseInfo[ "PRODUCTS" ] = "qt-professional";
+#endif
     }
 
     if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
         licenseInfo[ "PRODUCTS" ]= "qt-professional";
+
+#if defined(QT4_TECH_PREVIEW)
+    // Skip for internal build system...
+    if (licenseInfo["PRODUCTS"] == "qt-internal") {
+        return;
+    }
+
+    // Verify license info...
+    QString licenseKey = licenseInfo["LICENSEKEY"];
+    if (!licenseKey.isEmpty()) {
+
+        // Check validity of the license key
+        uint features = featuresForKey(licenseKey);
+
+        if ((features & Feature_Windows) == 0) {
+            cout << "Unable to find valid license for Qt/Windows" << endl
+                 << "Configuration of Qt aborted" << endl << endl;
+            dictionary["DONE"] = "error";
+            return;
+        }
+
+        // Check for expiry
+        QDate expiryDate = decodedExpiryDate(licenseKey.mid(9));
+        if (expiryDate < QDate::currentDate()) {
+            cout << "Your license has expired" << endl
+                 << "Configuration of Qt aborted" << endl << endl;
+            dictionary["DONE"] = "error";
+            return;
+        }
+
+        QString toLicenseFile = dictionary["QT_SOURCE_TREE"] + "/" + "LICENSE";
+        QString usLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-US";
+        QString norLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE";
+
+        // Copy from .LICENSE(-US) to LICENSE
+        if (!QFileInfo(toLicenseFile).exists()) {
+            QString from = (features & Feature_US) ? usLicenseFile : norLicenseFile;
+            if (!CopyFileA(QDir::convertSeparators(from).latin1(),
+                           QDir::convertSeparators(toLicenseFile).latin1(), FALSE)) {
+                cout << "Failed to copy license file";
+                dictionary["DONE"] = "error";
+                return;
+            }
+        }
+
+        // Remove the old ones if present...
+        if (QFileInfo(usLicenseFile).exists())
+            DeleteFileA(usLicenseFile.latin1());
+        if (QFileInfo(norLicenseFile).exists())
+            DeleteFileA(norLicenseFile.latin1());
+
+        QFile file(toLicenseFile);
+        if (!file.open(IO_ReadOnly)) {
+            cout << "Failed to load LICENSE file";
+            dictionary["DONE"] = "error";
+            return;
+        }
+
+        QStringList licenseContent = QString(file.readAll()).split('\n');
+        for (int i = 0; i<licenseContent.size(); ++i) {
+            cout << licenseContent.at(i) << endl;
+            char c;
+            if (i % 25 == 24)
+                cin.get(c);
+
+        }
+        char accept = 'n';
+        cout << endl << "Do you accept the license? (y/n)" << endl;
+        cin >> accept;
+        if (accept == 'n') {
+            cout << "Configuration aborted since license was not accepted";
+            dictionary["DONE"] = "error";
+            return;
+        }
+
+    } else {
+        cout << "License file does not contain proper license key." << endl;
+        dictionary["DONE"] = "error";
+        return;
+    }
+#endif
 }
 #endif
 
