@@ -245,7 +245,7 @@ public:
     const char *format()	const	{ return frmt; }
     QIODevice  *ioDevice()	const	{ return iodev; }
     QString	fileName()	const	{ return fname; }
-    int		quality()	const	{ return m_quality; }
+    int		quality()	const;
     QString	description()	const	{ return descr; }
     const char *parameters()	const;
 
@@ -280,7 +280,6 @@ private:
     QCString	frmt;				// image format
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name
-    int		m_quality;			// image quality (compression)
     char       *params;				// image parameters //### change to QImageIOData *d in 3.0
     QString     descr;				// image description
     QImageIOData *d;

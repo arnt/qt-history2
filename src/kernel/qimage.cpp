@@ -3029,6 +3029,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 struct QImageIOData
 {
     const char *parameters;
+    int quality;
 };
 
 /*!
@@ -3069,6 +3070,7 @@ void QImageIO::init()
 {
     d = new QImageIOData();
     d->parameters = 0;
+    d->quality = -1; // default quality of the current format
     iostat = 0;
     iodev  = 0;
 }
@@ -3347,6 +3349,28 @@ void QImageIO::setIODevice( QIODevice *ioDevice )
 void QImageIO::setFileName( const QString &fileName )
 {
     fname = fileName;
+}
+
+/*!
+  Returns the quality of the written image, related to the compression ratio.
+
+  \sa setQuality() QImage::save()
+*/
+
+int QImageIO::quality() const
+{
+    return d->quality;
+}
+
+/*!
+  Sets the quality of the written image, related to the compression ratio.
+
+  \sa quality() QImage::save()
+*/
+
+void QImageIO::setQuality( int q )
+{
+    d->quality = q;
 }
 
 /*!
