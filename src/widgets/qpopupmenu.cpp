@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#115 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#115 $");
 
 
 // Motif style parameters
@@ -110,23 +110,6 @@ static QPopupMenuExtra * lookInPMDict( const QPopupMenu * that )
 	x = (QPopupMenuExtra *)qpm_extraStuff->find( (long)that );
     return x;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1251,7 +1234,10 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
-    mouseBtDn = FALSE;				// mouse button up
+    if ( !mouseBtDn && !parentMenu && actItem < 0 )
+	return;
+
+    mouseBtDn = FALSE;
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
 	if ( !rect().contains( e->pos() ) && tryMenuBar(e) )
@@ -1298,6 +1284,10 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) )
 	    hidePopups();
     } else {					// mouse on valid item
+	// but did not register mouse press
+	if ( (e->state() & MouseButtonMask) && !mouseBtDn )
+	    mouseBtDn = TRUE; // so mouseReleaseEvent will pop down
+
 	register QMenuItem *mi = mitems->at( item );
 	QPopupMenu *popup = mi->popup();
 	if ( actItem == item ) {
@@ -1375,6 +1365,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    ok_key = FALSE;
 	}
 	break;
+
+    case Key_Space:
+	if ( style() != MotifStyle )
+	    break;
+	// for motif, fall through
 
     case Key_Return:
     case Key_Enter:
@@ -1487,7 +1482,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 
 void QPopupMenu::timerEvent( QTimerEvent *e )
 {
-    killTimer( e->timerId() );			// single-shot timer
+    killTimer( e->timerId() );			// ### single-shot timer
     if ( actItem < 0 )
 	return;
     QMenuItem *mi = mitems->at(actItem);
@@ -1547,3 +1542,18 @@ void QPopupMenu::modalActivation( int id )
 {
     syncMenuId = id;
 }
+
+
+/*!  Sets the currently active item to \a i and repaints as necessary.
+*/
+
+void QPopupMenu::setActiveItem( int i )
+{
+    int lastActItem = actItem;
+    actItem = i;
+    if ( lastActItem >= 0 )
+	updateRow( lastActItem );
+    if ( i >= 0 && i != lastActItem )
+	updateRow( i );
+}
+

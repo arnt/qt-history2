@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#34 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#35 $
 **
 ** Definition of QPopupMenu class
 **
@@ -35,9 +35,9 @@ public:
     void	show();				// reimplemented show
     void	hide();				// reimplemented hide
 
-    //    void	setEnabled( bool );
-
     int		exec();
+
+    void	setActiveItem( int );
 
 signals:
     void	activated( int itemId );
