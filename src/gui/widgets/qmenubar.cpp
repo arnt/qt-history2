@@ -524,8 +524,10 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
     if(e->button() != LeftButton)
         return;
     QMenuAction *action = d->actionAt(e->pos());
-    if (!action)
+    if (!action) {
+        d->setCurrentAction(0);
         return;
+    }
 
     d->mouseDown = true;
 
