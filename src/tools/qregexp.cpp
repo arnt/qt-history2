@@ -631,7 +631,7 @@
 
     Here field[0] is the company, field[1] the web address and so on.
 
-    To immitate the matching of a shell we can use wildcard mode.
+    To imitate the matching of a shell we can use wildcard mode.
 
     \code
     QRegExp rx( "*.html" );	// Invalid regexp: * doesn't quantify anything
