@@ -101,7 +101,7 @@ QByteArray QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     return result;
 }
 
-/*! internal */
+/*! \internal */
 void QFontBig5Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
 {
     uchar c[2];

@@ -34,7 +34,7 @@ static QPtrList<QMacMime> mimes;
 OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
 
 /*!
-  \class QMacMime qmime.h
+  \class QMacMime
   \brief The QMacMime class maps open-standard MIME to Mac flavors.
   \ingroup io
   \ingroup draganddrop
@@ -44,7 +44,7 @@ OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
   On X11, this maps trivially to the Xdnd protocol, but on Mac
   although some applications use MIME types to describe clipboard
   formats, others use arbitrary non-standardized naming conventions,
-  or unnamed built-in formats of Mac.
+  or unnamed built-in Mac formats.
 
   By instantiating subclasses of QMacMime that provide conversions
   between Mac flavors and MIME formats, you can convert proprietary
@@ -598,6 +598,8 @@ static void cleanup_mimes()
 }
 
 /*!
+  \internal
+
   This is an internal function.
 */
 void QMacMime::initialize()

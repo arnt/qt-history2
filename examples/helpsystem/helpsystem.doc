@@ -173,11 +173,11 @@
   
   The static function whatsThisButton() creates a QToolButton
   which will enter "What's this?" mode when clicked.
-  \printto // setup
+  \printto // set up
  
   A QToolTipGroup is created and will show and remove tooltips
   in the statusbar as the tooltips are displayed on the widgets.
-  \printto // setup whats this
+  \printto // set up whats this
    
   The tooltips are set up. The static function add() sets up a 
   tooltip on the Assistant toolbutton. Tooltip objects are created
