@@ -221,7 +221,6 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 	 activeRegion != QWSDecoration::Minimize &&
 	 activeRegion != QWSDecoration::Menu) {
 	managed->raise();
-	managed->setActiveWindow();
     }
     if (e->button() == Qt::RightButton) {
 	menu(e->globalPos());

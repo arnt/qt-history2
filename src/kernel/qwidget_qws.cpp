@@ -873,9 +873,45 @@ void QWidget::raise()
 	p->d->children.append( this );
     }
     if ( isTopLevel() ) {
+#ifdef QT_NO_WINDOWGROUPHINT	
 	if ( !testWFlags( WStyle_Tool ) )
 	    setActiveWindow();
 	qwsDisplay()->setAltitude( winId(), 0 );
+#else
+	QWidget* act=0;
+	if ( !testWFlags( WStyle_Tool ) )
+	    act=this;
+	qwsDisplay()->setAltitude( winId(), 0 );
+	if ( childObjects ) {
+	    QObjectListIt it(*childObjects);
+	    QObject* o;
+	    QWidgetList toraise;
+	    QWidget* w;
+	    while ((o=it.current())) {
+		if ( o->isWidgetType() ) {
+		    w = (QWidget*)o;
+		    if ( w->isTopLevel() )
+			toraise.append(w);
+		}
+		++it;
+	    }
+	    QWidgetListIt wit(toraise);
+	    while ((w=wit.current())) {
+		if ( w->isVisible() ) {
+		    bool wastool = w->testWFlags( WStyle_Tool );
+		    w->setWFlags( WStyle_Tool ); // avoid setActiveWindow flicker
+		    w->raise();
+		    if ( !wastool ) {
+			w->clearWFlags( WStyle_Tool );
+			act = w;
+		    }
+		}
+		++wit;
+	    }
+	}
+	if ( act )
+	    act->setActiveWindow();
+#endif // QT_NO_WINDOWGROUPHINT
     } else if ( p ) {
 	p->setChildrenAllocatedDirty( geometry(), this );
 	paint_hierarchy( this, TRUE );
