@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#29 $
 **
 ** Implementation of QML classes
 **
@@ -4621,6 +4621,9 @@ void QMLSimpleDocument::setWidth( QPainter* p, int w)
     d->doc->setWidth( p, w );
 }
 
+/*!
+  Returns the width of the document, in pixels.
+*/
 int QMLSimpleDocument::width() const
 {
     return d->doc->width;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#359 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#360 $
 **
 ** Implementation of QWidget class
 **
@@ -794,6 +794,10 @@ QWidget *QWidget::find( WId id )
   \sa find(), id()
 */
 
+/*!
+  \fn void QWidget::setWState (uint)
+  \internal
+*/
 
 /*!
   \fn WFlags QWidget::getWFlags() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#35 $
 **
 ** Implementation of QProgressBar class
 **
@@ -227,7 +227,7 @@ void QProgressBar::setCenterIndicator( bool on )
       setIndicator()
 */
 
-/*
+/*!
   When set to TRUE (the default) the positioning of the indicator string
   follows the GUI style. When set to FALSE the indicator posion is decided
   by the value of indicatorFollowsStyle().
