@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#22 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -326,7 +326,7 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
-    return wid->layout() ? wid->layout()->expanding() 
+    return wid->layout() ? wid->layout()->expanding()
 	: wid->sizePolicy().expanding();
 }
 
@@ -877,6 +877,11 @@ bool QLayout::activate()
     // Paul: If adding stuff to a QLayout for a widget causes
     // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
     // unnecessary in that case too.
+    
+    // Matthias: ??? but a LayoutHint simply _calls_ activate! 
+    // However, it does not work at all right now. If a label changes,
+    // for example, its size hint changes at well, the parent widget
+    // receives a layout hint but layout doesn't react to it :-(
 
 #if 1
     invalidate(); //######### need to invalidate all child layouts!!!
