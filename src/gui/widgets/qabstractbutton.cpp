@@ -20,7 +20,7 @@
 #include "qapplication.h"
 #include "qstyle.h"
 #include "qaction.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -364,7 +364,7 @@ void QAbstractButtonPrivate::refresh()
     if (q->autoMask())
         q->updateMask();
     q->repaint();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(q, 0, QAccessible::StateChanged);
 #endif
 }
@@ -437,7 +437,7 @@ void QAbstractButton::setText(const QString &text)
         q->updateMask();
     update();
     updateGeometry();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(q, 0, QAccessible::NameChanged);
 #endif
 }

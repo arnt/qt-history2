@@ -31,7 +31,7 @@
 #include <private/qinternal_p.h>
 #include "qstyle.h"
 #include "qtimer.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #include "qsignal.h"
@@ -44,7 +44,7 @@ public:
     int aInt;
 };
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 static bool inMenu = false;
 #endif
 
@@ -696,7 +696,7 @@ void Q3MenuBar::goodbye(bool cancelled)
 
 void Q3MenuBar::openActPopup()
 {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     if (!inMenu) {
         QAccessible::updateAccessibility(this, 0, QAccessible::MenuStart);
         inMenu = true;
@@ -751,19 +751,19 @@ void Q3MenuBar::openActPopup()
 
 void Q3MenuBar::hidePopups()
 {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     bool anyVisible = false;
 #endif
     for (int i = 0; i < mitems->size(); ++i) {
         register Q3MenuItem *mi = mitems->at(i);
         if (mi->popup() && mi->popup()->isVisible()) {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
             anyVisible = true;
 #endif
             mi->popup()->hide();
         }
     }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     if (!popupvisible && anyVisible && inMenu) {
         QAccessible::updateAccessibility(this, 0, QAccessible::MenuEnd);
         inMenu = false;
@@ -1398,7 +1398,7 @@ void Q3MenuBar::setActiveItem(int i, bool show, bool activate_first_item)
         setMicroFocusHint(mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), false);
     }
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     if (mi)
         QAccessible::updateAccessibility(this, indexOf(mi->id())+1, QAccessible::Focus);
 #endif
@@ -1425,7 +1425,7 @@ void Q3MenuBar::setActiveItem(int i, bool show, bool activate_first_item)
 
 void Q3MenuBar::setAltMode(bool enable)
 {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     if (inMenu && !enable) {
         QAccessible::updateAccessibility(this, 0, QAccessible::MenuEnd);
         inMenu = false;

@@ -49,7 +49,7 @@
 
 
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #  include "qaccessible.h"
 #endif
 
@@ -890,7 +890,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
         QCoreGraphicsPaintEngine::initialize();
 #endif
         QQuickDrawPaintEngine::initialize();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::initialize();
 #endif
 
@@ -937,7 +937,7 @@ void qt_cleanup()
     }
     QPixmapCache::clear();
     if(qt_is_gui_used) {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::cleanup();
 #endif
         QQuickDrawPaintEngine::cleanup();

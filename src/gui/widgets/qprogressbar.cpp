@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qstyle.h"
 #include <private/qinternal_p.h>
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #include "qevent.h"
@@ -172,7 +172,7 @@ void QProgressBar::setProgress(int progress)
 
     repaint();
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
 }

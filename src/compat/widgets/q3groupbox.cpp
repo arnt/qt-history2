@@ -23,7 +23,7 @@
 #include "qevent.h"
 #include "qstyle.h"
 #include "qcheckbox.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -269,7 +269,7 @@ void Q3GroupBox::setTitle(const QString &title)
 
     update();
     updateGeometry();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::NameChanged);
 #endif
 }

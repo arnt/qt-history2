@@ -24,7 +24,7 @@
 #include "qapplication.h"
 #include "qcursor.h"
 #include "qstyle.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #if defined QT_NON_COMMERCIAL
@@ -984,7 +984,7 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
 */
 void QMessageBox::showEvent(QShowEvent *e)
 {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
 #endif
     QDialog::showEvent(e);

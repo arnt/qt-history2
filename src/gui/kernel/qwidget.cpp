@@ -30,7 +30,7 @@
 #include "qmetaobject.h"
 #include "qpointer.h"
 #include "qmenu.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #if defined(Q_WS_WIN)
@@ -3039,7 +3039,7 @@ void QWidget::setFocus()
             SetFocus(f->winId());
         else {
 #endif
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
             QAccessible::updateAccessibility(f, 0, QAccessible::Focus);
 #endif
 #if defined(Q_WS_WIN)
@@ -3092,7 +3092,7 @@ void QWidget::clearFocus()
             SetFocus(0);
         else {
 #endif
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
             QAccessible::updateAccessibility(w, 0, QAccessible::Focus);
 #endif
 #if defined(Q_WS_WIN)
@@ -3808,7 +3808,7 @@ void QWidget::show_helper()
         qApp->openPopup(this);
 #endif
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ObjectShow);
 #endif
 
@@ -3873,7 +3873,7 @@ void QWidget::hide_helper()
     QApplication::sendEvent(this, &hideEvent);
     hideChildren(false);
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     if (wasVisible)
         QAccessible::updateAccessibility(this, 0, QAccessible::ObjectHide);
 #endif
@@ -4790,7 +4790,7 @@ bool QWidget::event(QEvent *e)
             return false;
         break;
 #endif
-#ifdef QT_ACCESSIBILITY_SUPPORT
+#ifndef QT_NO_ACCESSIBILITY
     case QEvent::AccessibleQueryHelp: {
         QAccessibleInterface *iface = 0;
         if (d->whatsThis.size() && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
@@ -4838,7 +4838,7 @@ void QWidget::changeEvent(QEvent * e)
     switch(e->type()) {
     case QEvent::EnabledChange:
         update();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
         break;

@@ -2463,7 +2463,7 @@ QCursor *QApplication::overrideCursor()
  */
 int QApplication::exec()
 {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::setRootObject(this);
 #endif
     return QCoreApplication::exec();

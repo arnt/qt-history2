@@ -34,7 +34,7 @@
 #include "../text/qtextdocumentlayout_p.h"
 #include "qstylesheet.h"
 #include "qtoolbutton.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #if defined(Q_WS_WIN)
@@ -375,7 +375,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     instance = this;
     qApp->installEventFilter(this);
     QApplication::setOverrideCursor(whatsThisCursor, false);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpStart);
 #endif
 }
@@ -387,7 +387,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     if (button)
         button->setChecked(false);
     QApplication::restoreOverrideCursor();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpEnd);
 #endif
     instance = 0;

@@ -22,7 +22,7 @@
 #include "qmainwindow.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 # include "qaccessible.h"
 #endif
 #ifndef QT_NO_EFFECTS
@@ -460,7 +460,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         return;
     action->activate(action_e);
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     if(action_e == QAction::Hover) {
         int actionID = indexOf(action);
         QAccessible::updateAccessibility(q, actionID, QAccessible::Focus);
@@ -1036,7 +1036,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
         show();
     }
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuStart);
 #endif
 }
@@ -1159,7 +1159,7 @@ void QMenu::hideEvent(QHideEvent *)
     if(d->sync)
         qApp->exit_loop();
     d->setCurrentAction(0);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuEnd);
 #endif
     if(QMenuBar *mb = qt_cast<QMenuBar*>(d->causedPopup))

@@ -27,7 +27,7 @@
 #include "qbitmap.h"
 #include "qt_windows.h"
 #include <shlobj.h>
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -278,7 +278,7 @@ void QDragManager::cancel(bool /* deleteSource */)
         restoreCursor = false;
     }
 #endif
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropEnd);
 #endif
 }
@@ -434,7 +434,7 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
     global_src = o;
     global_src->setTarget(0);
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
 #endif
 

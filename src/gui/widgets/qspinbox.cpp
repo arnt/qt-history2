@@ -25,7 +25,7 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qstyle.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -729,7 +729,7 @@ void QSpinBox::valueChange()
     d->selreq = false;
     emit valueChanged(value());
     emit valueChanged(currentValueText());
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
 }

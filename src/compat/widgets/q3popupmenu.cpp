@@ -31,7 +31,7 @@
 #include "qstyle.h"
 #include "qtimer.h"
 #include "qdatetime.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #include "qsignal.h"
@@ -641,7 +641,7 @@ void Q3PopupMenu::popup(const QPoint &pos, int indexAtPoint)
         {
             show();
         }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuStart);
 #endif
 }
@@ -721,7 +721,7 @@ void Q3PopupMenu::actSig(int id, bool inwhatsthis)
 {
     if (!inwhatsthis) {
         emit activated(id);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         if (!fromAccel)
             QAccessible::updateAccessibility(this, indexOf(id)+1, QAccessible::MenuCommand);
 #endif
@@ -742,7 +742,7 @@ void Q3PopupMenu::hilitSig(int id)
     emit highlighted(id);
     emit highlightedRedirect(id);
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, indexOf(id)+1, QAccessible::Focus);
     QAccessible::updateAccessibility(this, indexOf(id)+1, QAccessible::Selection);
 #endif
@@ -1343,7 +1343,7 @@ void Q3PopupMenu::hide()
     if(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this))
         d->mouseMoveBuffer = QRegion();
     mouseBtDn = false;                                // mouse button up
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuEnd);
 #endif
     parentMenu = 0;
@@ -1546,7 +1546,7 @@ bool Q3PopupMenu::event(QEvent *e)
             return true;
         }
     break; }
-#ifdef QT_ACCESSIBILITY_SUPPORT
+#ifndef QT_NO_ACCESSIBILITY
     case QEvent::AccessibleQueryHelp: {
         QAccessibleInterface *iface = 0;
         Q3MenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);

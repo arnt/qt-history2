@@ -29,7 +29,7 @@
 #include "qstyleoption.h"
 #include "qtoolbar.h"
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -311,7 +311,7 @@ void QPushButton::setDefault(bool enable)
         ((QDialog*)topLevelWidget())->setMainDefault(this);
 #endif
     update();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
 }

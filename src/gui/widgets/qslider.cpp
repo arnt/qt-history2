@@ -14,7 +14,7 @@
 
 #include "qslider.h"
 #ifndef QT_NO_SLIDER
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #include "qapplication.h"

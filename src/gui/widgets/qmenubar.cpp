@@ -4,7 +4,7 @@
 #include <qlayout.h>
 #include <qapplication.h>
 #include "qdesktopwidget.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 # include "qaccessible.h"
 #endif
 #include <qpainter.h>

@@ -31,7 +31,7 @@
 #include "qcombobox.h"
 #include "qstyle.h"
 #include <limits.h>
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -1569,7 +1569,7 @@ void QComboBoxPrivate::currentChanged()
         q->adjustSize();
     q->update();
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(q, 0, QAccessible::ValueChanged);
 #endif
 }

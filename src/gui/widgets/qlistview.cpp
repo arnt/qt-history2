@@ -39,7 +39,7 @@
 #include "qtooltip.h"
 #include "qvbox.h"
 #include <private/qinternal_p.h>
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -263,7 +263,7 @@ void QListViewToolTip::maybeTip(const QPoint &pos)
 static bool activatedByClick;
 static QPoint activatedP;
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 static int indexOfItem(QListViewItem *item)
 {
     if (!QAccessible::isActive())
@@ -802,7 +802,7 @@ void QListViewItem::setEnabled(bool b)
     if (lv)
         lv->triggerUpdate();
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(lv->viewport(), indexOfItem(this), QAccessible::StateChanged);
 #endif
 }
@@ -1254,7 +1254,7 @@ void QListViewItem::takeItem(QListViewItem * item)
 
     if (emit_changed) {
         emit lv->currentChanged(lv->d->focusItem);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(lv->viewport(), 0, QAccessible::Focus);
 #endif
     }
@@ -1449,7 +1449,7 @@ void QListViewItem::setOpen(bool o)
                 emit lv->expanded(this);
             else
                 emit lv->collapsed(this);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
             QAccessible::updateAccessibility(lv->viewport(), indexOfItem(this), QAccessible::StateChanged);
 #endif
         }
@@ -1492,7 +1492,7 @@ void QListViewItem::setOpen(bool o)
             emit lv->expanded(this);
         else
             emit lv->collapsed(this);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(lv->viewport(), indexOfItem(this), QAccessible::StateChanged);
 #endif
     }
@@ -1696,7 +1696,7 @@ void QListViewItem::setSelected(bool s)
         else
             selected = false;
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         if (old != (bool)selected) {
             int ind = indexOfItem(this);
             QAccessible::updateAccessibility(lv->viewport(), ind, QAccessible::StateChanged);
@@ -1818,7 +1818,7 @@ void QListViewItem::setText(int column, const QString &text)
     QListView * lv = listView();
     if (lv) {
         lv->triggerUpdate();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         if (lv->isVisible())
             QAccessible::updateAccessibility(lv->viewport(), indexOfItem(this), QAccessible::NameChanged);
 #endif
@@ -4229,7 +4229,7 @@ void QListView::contentsMousePressEventEx(QMouseEvent * e)
                 triggerUpdate();
                 emit selectionChanged();
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
                 QAccessible::updateAccessibility(viewport(), 0, QAccessible::Selection);
 #endif
             }
@@ -4324,7 +4324,7 @@ void QListView::contentsMouseReleaseEventEx(QMouseEvent * e)
         blockSignals(block);
         d->focusItem->setSelected(true);
         emit selectionChanged();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(viewport(), 0, QAccessible::Selection);
 #endif
     }
@@ -5288,7 +5288,7 @@ void QListView::setCurrentItem(QListViewItem * i)
             repaintItem(prev);
         emit currentChanged(i);
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(viewport(), indexOfItem(i), QAccessible::Focus);
 #endif
     }
@@ -5416,7 +5416,7 @@ void QListView::setSorting(int column, bool ascending)
 
     triggerUpdate();
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(viewport(), 0, QAccessible::ObjectReorder);
 #endif
 }
@@ -6189,7 +6189,7 @@ void QCheckListItem::setCurrentState(ToggleState s)
     else
         on = false;
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     if (old != d->currentState && listView())
         QAccessible::updateAccessibility(listView()->viewport(), indexOfItem(this), QAccessible::StateChanged);
 #else

@@ -41,7 +41,7 @@
 #include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include <qaccessible.h>
 #include <winable.h>
 #include <oleacc.h>
@@ -50,7 +50,7 @@
 #endif
 
 extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
-#endif // QT_ACCESSIBILITY_SUPPORT
+#endif // QT_NO_ACCESSIBILITY
 
 #include "private/qapplication_p.h"
 #define d d_func()
@@ -1727,7 +1727,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             result = false;
             break;
 #endif
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         case WM_GETOBJECT:
             {
                 // Ignoring all requests while starting up

@@ -26,7 +26,7 @@
 #include "qpopupmenu.h"
 #include "qcursor.h"
 #include "private/qdialog_p.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #if defined(Q_OS_TEMP)
@@ -655,7 +655,7 @@ void QDialog::show()
         QFocusEvent::resetReason();
     }
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DialogStart);
 #endif
 }
@@ -748,7 +748,7 @@ void QDialog::hide()
     if (isHidden())
         return;
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     if (isVisible())
         QAccessible::updateAccessibility(this, 0, QAccessible::DialogEnd);
 #endif

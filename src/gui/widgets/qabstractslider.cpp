@@ -16,7 +16,7 @@
 #include "qabstractslider.h"
 #include "qevent.h"
 #include "qabstractslider_p.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 #include <limits.h>
@@ -426,7 +426,7 @@ void QAbstractSlider::setValue(int value)
     d->value = value;
     if (d->position != value)
         emit sliderMoved((d->position = value));
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
     sliderChange(SliderValueChange);

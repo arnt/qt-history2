@@ -23,7 +23,7 @@
 #include "qiconset.h"
 #include "qcursor.h"
 #include <private/qinternal_p.h>
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 

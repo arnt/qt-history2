@@ -34,7 +34,7 @@
 #include <private/qinternal_p.h>
 #include "qvector.h"
 #include "qaction.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -2091,7 +2091,7 @@ void QLineEditPrivate::finishChange(int validateFromState, bool setModified)
             textDirty = false;
             emit q->textChanged(maskData ? stripString(text) : text);
         }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(q, 0, QAccessible::ValueChanged);
 #endif
     }

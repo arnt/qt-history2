@@ -24,7 +24,7 @@
 #include "qregion.h"
 #include "qbitmap.h"
 #include "qstyle.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
 
@@ -466,7 +466,7 @@ void QDial::valueChange()
     repaintScreen();
     if (d->tracking || !d->doNotEmit) {
         emit valueChanged(value());
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
     }
