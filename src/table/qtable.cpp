@@ -729,7 +729,7 @@ void QTableItem::paint( QPainter *p, const QPalette &pal,
     else
 	p->setPen( pal.text() );
     p->drawText( x + 2, 0, w - x - 4, h,
-		 wordwrap ? (alignment() | WordBreak) : alignment(), text() );
+		 wordwrap ? (alignment() | WordBreak) : alignment(), content() );
 }
 
 /*!
