@@ -135,6 +135,10 @@ static int get_object_id()
     static int next=1000;
     return next++;
 }
+#ifndef QT_NO_QWS_IM
+static QWSInputMethod *current_IM = 0;
+#endif
+
 
 
 //#define QWS_REGION_DEBUG
@@ -1551,6 +1555,18 @@ static int keyUnicode(int keycode)
 void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
   bool autoRepeat)
 {
+#ifndef QT_NO_QWS_IM
+
+    if ( !current_IM || !current_IM->filter( unicode, keycode, modifiers, 
+					     isPress, autoRepeat ) )
+	sendKeyEventUnfiltered( unicode, keycode, modifiers, 
+				isPress, autoRepeat);
+}
+
+void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, bool isPress,
+  bool autoRepeat)
+{
+#endif
     if ( isPress ) {
 	if ( keycode != Key_F34 && keycode != Key_F35 )
 	    qwsServer->screenSaverWake();
@@ -1578,6 +1594,41 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPre
 	(*it)->sendEvent(&event);
     }
 }
+
+
+#ifndef QT_NO_QWS_IM
+
+void QWSServer::sendIMEvent( IMState state, QString txt, int cpos, int selLen )
+{
+    QWSIMEvent event;
+
+    QWSWindow *win = keyboardGrabber ? keyboardGrabber :
+	qwsServer->focusw;
+
+    event.simpleData.window = win ? win->winId() : 0;
+    event.simpleData.type = state;
+    event.simpleData.cpos = cpos;
+    event.simpleData.selLen = selLen;
+    event.simpleData.textLen = txt.length();
+
+    char * tmp=(char *)txt.unicode();
+    event.setData( tmp, event.simpleData.textLen*2 );
+
+    QWSClient *serverClient = qwsServer->client[-1];
+    if ( serverClient )
+       serverClient->sendEvent( &event );
+    if ( win && win->client() && win->client() != serverClient )
+       win->client()->sendEvent( &event );
+}
+
+
+void QWSServer::setCurrentInputMethod( QWSInputMethod *im )
+{
+    current_IM = im;
+}
+
+#endif //QT_NO_QWS_IM
+
 #ifndef QT_NO_QWS_PROPERTIES
 /*!
   \internal
@@ -1968,6 +2019,25 @@ void QWSServer::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
     r1.setRects(cmd->rectangles,cmd->simpleData.numrects);
     refresh(r1);
 }
+
+
+#ifndef QT_NO_QWS_IM
+void QWSServer::invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
+				    QWSClient * )
+{
+    if ( current_IM )
+	current_IM->setMicroFocus( cmd->simpleData.x, cmd->simpleData.y );
+
+}
+
+void QWSServer::invokeResetIM( const QWSResetIMCommand *cmd,
+			       QWSClient * )
+{
+    if ( current_IM )
+	current_IM->reset(); 
+}
+#endif
+
 
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 {
@@ -2421,6 +2491,16 @@ void QWSServer::name_region( const QWSRegionNameCommand *cmd )
     invokeRegionName( cmd, client[-1] );
 }
 
+void QWSServer::set_micro_focus( const QWSSetMicroFocusCommand *cmd )
+{
+    invokeSetMicroFocus( cmd, client[-1] );
+}
+
+void QWSServer::reset_im( const QWSResetIMCommand *cmd )
+{
+    invokeResetIM( cmd, client[-1] );
+}
+
 
 void QWSServer::openDisplay()
 {
@@ -2818,3 +2898,68 @@ This specifies what sort of event has occurred to a top level window:
 \value Geometry The window has changed size or position.
 */
 
+
+
+/*!
+  \class QWSInputMethod
+  \brief International input methods for Qt/Embedded
+
+  Subclass this to implement your own input method
+
+ */
+
+/*!
+
+*/
+
+QWSInputMethod::QWSInputMethod()
+{
+    
+}
+
+QWSInputMethod::~QWSInputMethod()
+{
+    if ( current_IM == this )
+	current_IM = 0;
+}
+
+
+/*!
+
+*/
+
+void QWSInputMethod::reset()
+{
+    
+}
+
+
+/*!
+
+*/
+
+void QWSInputMethod::setMicroFocus( int, int )
+{
+    
+}
+
+
+/*!
+
+*/
+
+void QWSInputMethod::setFont( const QFont& )
+{
+    
+}
+
+
+/*!
+
+*/
+
+void QWSInputMethod::sendIMEvent( QWSServer::IMState state, QString txt, int cpos, int selLen )
+{
+    qwsServer->sendIMEvent( state, txt, cpos, selLen );
+
+}

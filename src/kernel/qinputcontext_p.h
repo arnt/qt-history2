@@ -6,6 +6,8 @@
 class QKeyEvent;
 class QWidget;
 class QFont;
+class QString;
+
 
 #ifdef Q_WS_X11
 #include "qarray.h"
@@ -15,6 +17,10 @@ class QFont;
 
 #ifdef Q_WS_WIN
 #include <qt_windows.h>
+#endif
+
+#ifdef Q_WS_QWS
+class QWSIMEvent;
 #endif
 
 class QInputContext
@@ -40,6 +46,14 @@ public:
     XFontSet fontset;
     QMemArray<bool> selectedChars;
 #endif // Q_WS_X11
+
+#ifdef Q_WS_QWS
+    static void translateIMEvent( QWSIMEvent *, QWidget * );
+    static void reset();
+private:    
+    static QWidget* focusWidget;
+    static QString* composition;
+#endif //Q_WS_QWS
 
 #ifdef Q_WS_WIN
     static void init();

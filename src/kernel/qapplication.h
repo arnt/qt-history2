@@ -373,7 +373,9 @@ private:
 #if defined(Q_WS_WIN)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
 #endif
-
+#if defined(Q_WS_QWS)
+    friend class QInputContext;
+#endif
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QApplication( const QApplication & );

@@ -110,7 +110,10 @@ public:
 #ifndef QT_NO_QWS_REPEATER
     void repaintRegion(QRegion &);
 #endif
-
+#ifndef QT_NO_QWS_IM
+    void setMicroFocus( int x, int y );
+    void resetIM();
+#endif
     QWSQCopMessageEvent* waitForQCopResponse();
 
     void setCaption( QWidget *w, const QString & );

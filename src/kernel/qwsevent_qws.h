@@ -28,6 +28,7 @@ struct QWSEvent : QWSProtocolItem {
 	MaxWindowRect,
 	QCopMessage,
 	WindowOperation,
+	IMEvent,
 	NEvent
     };
 
@@ -243,5 +244,28 @@ struct QWSWindowOperationEvent : QWSEvent {
 	Operation op;
     } simpleData;
 };
+
+
+#ifndef QT_NO_QWS_IM
+struct QWSIMEvent : QWSEvent {
+    QWSIMEvent()
+	: QWSEvent( IMEvent, sizeof( simpleData ), (char*)&simpleData ) { }
+
+    struct SimpleData {
+	int window;
+	int type;
+	int cpos;
+	int selLen;
+	int textLen;
+    } simpleData;
+
+    void setData( char *d, int len, bool allocateMem = TRUE ) {
+	QWSEvent::setData( d, len, allocateMem );
+	text = (QChar*)rawDataPtr;
+    }
+
+    QChar *text;
+};
+#endif
 
 #endif

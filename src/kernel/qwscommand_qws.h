@@ -114,7 +114,9 @@ struct QWSCommand : QWSProtocolItem
 	RegionName,
 	Identify,
 	GrabKeyboard,
-	RepaintRegion
+	RepaintRegion,
+	SetMicroFocus,
+	ResetIM
     };
     static QWSCommand *factory( int type );
 };
@@ -508,5 +510,38 @@ struct QWSQCopSendCommand : public QWSCommand
 };
 
 #endif
+
+
+#ifndef QT_NO_QWS_IM
+struct QWSSetMicroFocusCommand : public QWSCommand
+{
+    QWSSetMicroFocusCommand() :
+	QWSCommand( QWSCommand::SetMicroFocus,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid;
+	int x;
+	int y;
+	//bool textInput;
+    } simpleData;
+    //XXX Font???
+};
+
+struct QWSResetIMCommand : public QWSCommand
+{
+    QWSResetIMCommand() :
+	QWSCommand( QWSCommand::ResetIM,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid;
+    } simpleData;
+};
+
+
+
+#endif
+
 
 #endif // QWSCOMMAND_H

@@ -206,6 +206,14 @@ QWSCommand *QWSCommand::factory( int type )
     case QWSCommand::RepaintRegion:
 	command = new QWSRepaintRegionCommand;
 	break;
+#ifndef QT_NO_QWS_IM
+    case QWSCommand::SetMicroFocus:
+	command = new QWSSetMicroFocusCommand;
+	break;
+    case QWSCommand::ResetIM:
+	command = new QWSResetIMCommand;
+	break;
+#endif
     default:
 	qDebug( "QWSCommand::factory : Type error - got %08x!", type );
     }

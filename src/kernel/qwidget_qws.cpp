@@ -47,6 +47,7 @@
 #include "qtextcodec.h"
 #include "qcursor.h"
 #include "qptrdict.h"
+#include "qinputcontext_p.h"
 
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
@@ -448,15 +449,14 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 void QWidget::setMicroFocusHint( int x, int y, int width, int height,
-				 bool /*text*/, QFont *)
+				 bool text, QFont *)
 {
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 
-//XXX not implemented
-#if 0
+#ifndef QT_NO_QWS_IM
     if ( text ) {
-
+	qwsDisplay()->setMicroFocus( x, y + height );
     }
 #endif
 }
@@ -1750,7 +1750,8 @@ void QWidget::updateFrameStrut() const
     //FIXME: need to fill in frame strut info
 }
 
-// This one
+
 void QWidget::resetInputContext()
 {
+    QInputContext::reset();
 }

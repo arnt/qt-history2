@@ -82,6 +82,12 @@ QWSEvent *QWSEvent::factory( int type )
     case QWSEvent::WindowOperation:
 	event = new QWSWindowOperationEvent;
 	break;
+
+#ifndef QT_NO_QWS_IM
+    case QWSEvent::IMEvent:
+	event = new QWSIMEvent;
+	break;
+#endif
     default:
 	qDebug( "QWSDisplayData::readMore() : Protocol error - got %08x!", type );
     }

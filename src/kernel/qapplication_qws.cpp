@@ -74,6 +74,7 @@
 #include "qwsdisplay_qws.h"
 #include "qnetwork.h"
 #include "qcursor.h"
+#include "qinputcontext_p.h"
 
 //### convert interlace style
 //#include "qinterlacestyle.h"
@@ -1041,6 +1042,33 @@ void QWSDisplay::destroyRegion( int winId )
     }
 }
 
+#ifndef QT_NO_QWS_IM
+void QWSDisplay::setMicroFocus( int x, int y )
+{
+    QWSSetMicroFocusCommand cmd;
+    cmd.simpleData.x = x;
+    cmd.simpleData.y = y;
+    //XXX Font ???
+    if ( d->directServerConnection() ) {
+	qwsServer->set_micro_focus( &cmd );
+    } else {
+	d->sendCommand( cmd );
+    }
+}
+
+void QWSDisplay::resetIM()
+{
+    QWSResetIMCommand cmd;
+    if ( d->directServerConnection() ) {
+	qwsServer->reset_im( &cmd );
+    } else {
+	d->sendCommand( cmd );
+    }
+}
+
+
+#endif
+
 int QWSDisplay::takeId()
 {
     return d->takeId();
@@ -1889,7 +1917,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 
     QETWidget *keywidget=0;
     bool grabbed=FALSE;
-    if ( event->type==QWSEvent::Key ) {
+    if ( event->type==QWSEvent::Key || event->type == QWSEvent::IMEvent ) {
 	keywidget = (QETWidget*)QWidget::keyboardGrabber();
 	if ( keywidget ) {
 	    grabbed = TRUE;
@@ -2019,6 +2047,13 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    keywidget->translateKeyEvent( (QWSKeyEvent*)event, grabbed );
 	break;
 
+#ifndef QT_NO_QWS_IM
+    case QWSEvent::IMEvent:
+	if ( keywidget ) // should always exist
+	    QInputContext::translateIMEvent( (QWSIMEvent*)event, keywidget );
+	break;
+#endif
+
     case QWSEvent::RegionModified:
 	widget->translateRegionModifiedEvent( (QWSRegionModifiedEvent*)event );
 	break;
@@ -2055,6 +2090,9 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		//active_window = 0;
 		if (old)
 		    old->repaintDecoration(desktop()->rect());
+#ifndef QT_NO_QWS_IM
+		QInputContext::reset();
+#endif
 		/* setActiveWindow() sends focus events
 		QFocusEvent out( QEvent::FocusOut );
 		QWidget *widget = focus_widget;
