@@ -187,6 +187,8 @@ ProjectGenerator::addFile(const QString &file)
 	    where = "SOURCES";
     } else if(file.right(Option::ui_ext.length()) == Option::ui_ext) {
 	where = "INTERFACES";
+    } else if(file.right(2) == ".c") {
+	where = "SOURCES";
     } else if(file.right(2) == ".l") {
 	where = "LEXSOURCES";
     } else if(file.right(2) == ".y") {
