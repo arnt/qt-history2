@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#8 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#9 $
 **
 ** Definition of QGArray class
 **
@@ -53,12 +53,8 @@ protected:
     int		find( const char *d, uint index, uint sz ) const;
     int		contains( const char *d, uint sz ) const;
 
-    char       *at( uint index ) const
-#if defined(CHECK_RANGE) || defined(QGARRAY_CPP)
-	;					// safe (impl. in qgarray.cpp)
-#else
-	{ return &p->data[index]; }		// fast
-#endif
+    char       *at( uint index ) const;
+
     bool	setExpand( uint index, const char *d, uint sz );
 
 protected:
@@ -67,6 +63,13 @@ protected:
     virtual array_data *newData()		    { return new array_data; }
     virtual void	deleteData( array_data *p ) { delete p; }
 };
+
+// maybe use the safe version in qgarray.cpp
+#if !defined(CHECK_RANGE) && !defined(QGARRAY_CPP)
+char *QGArray::at( uint index ) const {
+    return &p->data[index];
+}
+#endif
 
 
 #endif // QGARRAY_H
