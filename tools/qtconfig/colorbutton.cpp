@@ -83,8 +83,7 @@ void ColorButton::drawButton(QPainter *p)
 
     QStyleOptionFocusRect frectOptions;
     frectOptions.init(this);
-    frectOptions.rect = style()->subRect(QStyle::SR_PushButtonFocusRect, &buttonOptions,
-                                        fontMetrics(), this);
+    frectOptions.rect = style()->subRect(QStyle::SR_PushButtonFocusRect, &buttonOptions, this);
     if (hasFocus())
         style()->drawPrimitive(QStyle::PE_FocusRect, &frectOptions, p, this);
 }
