@@ -102,6 +102,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if(project->variables()["SOURCES"].isEmpty())
 		    continue;
 
+		QString mocpath = var( "QMAKE_MOC" );
+		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+		
 		QStringList &list = project->variables()["SOURCES"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
@@ -110,9 +113,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-			QString mocpath = var( "QMAKE_MOC" );
-			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
 					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
@@ -169,6 +169,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 	    else if(variable == "MSVCDSP_FORMSOURCES" || variable == "MSVCDSP_FORMHEADERS") {
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
+		
 		QString uiDir;
 		if(!project->variables()["UI_DIR"].isEmpty())
 		    uiDir = project->first("UI_DIR");
@@ -264,6 +265,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if ( project->variables()["SRCMOC"].isEmpty())
 		    continue;
 
+		QString mocpath = var( "QMAKE_MOC" );
+		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+
 		QStringList &list = project->variables()["SRCMOC"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
@@ -272,9 +276,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-			QString mocpath = var( "QMAKE_MOC" );
-			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
 					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
@@ -315,10 +316,19 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		t << "# Prop Default_Filter \"ui\"\n";
 
 		bool imagesBuildDone = FALSE;	    // Dirty hack to make it not create an output step for images more than once
+	
 		QString uicpath = var("QMAKE_UIC");
 		uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
 		QString mocpath = var( "QMAKE_MOC" );
 		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+
+		QString mocFile;
+		if(!project->variables()["MOC_DIR"].isEmpty())
+		    mocFile = project->first("MOC_DIR");
+		
+		QString uiDir;
+		if(!project->variables()["UI_DIR"].isEmpty())
+		    uiDir = project->first("UI_DIR");
 
 		QStringList &list = project->variables()["FORMS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -332,26 +342,11 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if ( lbs != -1 )
 			fpath = fname.left( lbs + 1 );
 		    fname = fname.right( fname.length() - lbs - 1 );
-		
-		    QString mocFile;
-		    if(!project->variables()["MOC_DIR"].isEmpty())
-			mocFile = project->first("MOC_DIR");
-		    else
+
+		    if ( mocFile.isNull() )
 			mocFile = fpath;
-
-		    QString uiDir;
-		    if(!project->variables()["UI_DIR"].isEmpty())
-			uiDir = project->first("UI_DIR");
-		    else
+		    if ( uiDir.isNull() )
 			uiDir = fpath;
-
-		    QString imagesBuild;
-		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
-			QStringList &list = project->variables()["IMAGES"];
-			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-			    imagesBuild.append(" " + *it );
-			}
-		    }
 
 		    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\" \"$(QTDIR)\\bin\\uic.exe\"" << endl << endl;
 
@@ -361,7 +356,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			" -i " + fname + ".h -o " + uiDir + fname + ".cpp \\\n"
 			"\t" + mocpath + uiDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
 		    
-		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
+		    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
+			QString imagesBuild;
+			QStringList &list = project->variables()["IMAGES"];
+			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			    imagesBuild.append(" " + *it );
+			}
 			build.append("\t" + uicpath + "-embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
 			    + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
 		    } 
@@ -373,7 +373,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 			"\t$(BuildCmds)\n\n");
 		    
-		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
+		    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
 			build.append("\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\"" + " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" 
 			    "\n" "\t$(BuildCmds)\n\n");
 		    }
