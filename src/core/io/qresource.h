@@ -14,7 +14,6 @@
 #ifndef QRESOURCE_H
 #define QRESOURCE_H
 
-#include <qglobal.h>
 #include <qlist.h>
 
 class QMetaResource;
