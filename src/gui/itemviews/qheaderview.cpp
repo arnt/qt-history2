@@ -307,8 +307,6 @@ int QHeaderView::sectionSizeHint(int logicalIndex) const
 
 int QHeaderView::visualIndexAt(int position) const
 {
-//    qDebug("visualIndexAt position %d", position);
-
     if (count() < 1)
         return -1;
 
@@ -332,9 +330,6 @@ int QHeaderView::visualIndexAt(int position) const
 
     if (visual == end && sections[end + 1].position < position)
         return -1;
-
-//    qDebug("visualIndexAt visual %d", visual);
-
     return visual;
 }
 
@@ -1061,7 +1056,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     int tmp = start;
     start = qMin(start, end);
     end = qMax(tmp, end);
-//    qDebug("start %d, end %d", start, end);
 
     if (count() == 0)
         return;
@@ -1085,7 +1079,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             rect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
             highlight = d->highlightSelected && d->selectionModel->rowIntersectsSelection(i, root());
         }
-//        qDebug() << "drawing section" << i << rect;
         if (highlight) {
             QFont bf(fnt);
             bf.setBold(true);

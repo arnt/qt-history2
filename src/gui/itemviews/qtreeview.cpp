@@ -887,13 +887,11 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         int column = d->header->logicalIndex(scrollbarValue / d->horizontalFactor);
         int left = (scrollbarValue % d->horizontalFactor) * d->header->sectionSize(column);
         int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
-        if (QApplication::reverseLayout()) {
-            dx = offset + d->header->offset();
-            d->header->setOffset(offset - d->header->length() + d->viewport->x());
-        } else {
+        if (QApplication::reverseLayout())
+            dx = offset - d->header->offset();
+        else
             dx = d->header->offset() - offset;
-            d->header->setOffset(offset);
-        }
+        d->header->setOffset(offset);
     }
 
     if (dy) {

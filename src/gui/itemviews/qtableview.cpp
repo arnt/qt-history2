@@ -301,15 +301,11 @@ void QTableView::scrollContentsBy(int dx, int dy)
         int section = d->horizontalHeader->logicalIndex(value / horizontalFactor());
         int left = (value % horizontalFactor()) * d->horizontalHeader->sectionSize(section);
         int offset = (left / horizontalFactor()) + d->horizontalHeader->sectionPosition(section);
-        if (QApplication::reverseLayout()) {
-            int delta = d->viewport->width() + d->horizontalHeader->sectionSize(section)
-                        + d->viewport->x() - 2;
-            dx = offset + d->horizontalHeader->offset();
-            d->horizontalHeader->setOffset(offset - delta);
-        } else {
+        if (QApplication::reverseLayout())
+            dx = offset - d->horizontalHeader->offset();
+        else
             dx = d->horizontalHeader->offset() - offset;
-            d->horizontalHeader->setOffset(offset);
-        }
+        d->horizontalHeader->setOffset(offset);
         horizontalScrollBar()->repaint();
     }
 
@@ -547,7 +543,6 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
 {
     QModelIndex tl = itemAt(rect.left(), rect.top());
     QModelIndex br = itemAt(rect.right(), rect.bottom());
-
     selectionModel()->select(QItemSelection(tl, br, model()), command);
 }
 
