@@ -1147,7 +1147,13 @@ bool QOCIResult::cacheNext()
     int currentRecord = at() + 1;
     int r = 0;
     r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
-    if ( r == OCI_NEED_DATA ) { /* piecewise */
+
+    if ( r == OCI_SUCCESS_WITH_INFO ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCIResult::cacheNext: " + qOraWarn( d ) );
+#endif
+	r = 0; //ignore it
+    } else if ( r == OCI_NEED_DATA ) { /* piecewise */
 	r = cols->readPiecewise( fs );
     }
     if( r == OCI_ERROR ) {
@@ -1470,7 +1476,12 @@ bool QOCI9Result::reset ( const QString& query )
 bool QOCI9Result::cacheNext( int r )
 {
     fs.clearValues( TRUE );
-    if ( r == OCI_NEED_DATA ) { /* piecewise */
+    if ( r == OCI_SUCCESS_WITH_INFO ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCI9Result::cacheNext: " + qOraWarn( d ) );
+#endif
+	r = 0; //ignore it
+    } else if ( r == OCI_NEED_DATA ) { /* piecewise */
 	r = cols->readPiecewise( fs );
     }
     if( r == OCI_ERROR ) {
