@@ -123,12 +123,23 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 		image.setColor( i, qRgba(c,c,c,0xff) );
 	    }
 	    if ( png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ) {
-		int g = info_ptr->trans_values.gray;
+		const QRgb rgb =  qRgb((info_ptr->trans_values.red   >> 8) & 0xff,
+				       (info_ptr->trans_values.green >> 8) & 0xff,
+				       (info_ptr->trans_values.blue  >> 8) & 0xff),
+			  rgba = qRgba((info_ptr->trans_values.red   >> 8) & 0xff,
+				       (info_ptr->trans_values.green >> 8) & 0xff,
+				       (info_ptr->trans_values.blue  >> 8) & 0xff,
+				       (info_ptr->trans_values.gray  >> 8) & 0xff);
 		if ( bit_depth > 8 ) {
 		    // transparency support disabled for now
 		} else {
-		    image.setAlphaBuffer( TRUE );
-		    image.setColor(g, RGB_MASK & image.color(g));
+		    int g = 0;
+		    for (; g < image.numColors(); ++g) {
+			if (image.color(g) == rgb) {
+			    image.setColor(g, rgba);
+			    break;
+			}
+		    }
 		}
 	    }
 	}
