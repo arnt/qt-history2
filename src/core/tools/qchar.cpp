@@ -20,6 +20,7 @@
 #undef QT_NO_CAST_TO_ASCII
 #endif
 #include "qchar.h"
+#include "qdatastream.h"
 #include "qunicodetables_p.h"
 #include "qtextcodec.h"
 
@@ -723,6 +724,39 @@ QChar QChar::fromAscii(char c)
 #endif
     return QChar(ushort(c));
 }
+
+#ifndef QT_NO_DATASTREAM
+/*!
+  \relates QChar
+
+  Writes the char \a chr to the stream \a out.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+ */
+
+QDataStream &operator<<(QDataStream &out, const QChar &chr)
+{
+    out << Q_UINT16(chr.unicode());
+    return out;
+}
+
+
+/*!
+  \relates QChar
+
+  Reads a char from the stream \a in into char \a chr.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+ */
+
+QDataStream &operator>>(QDataStream &in, QChar &chr)
+{
+    Q_UINT16 u;
+    in >> u;
+    chr.unicode() = ushort(u);
+    return in;
+}
+#endif
 
 /*! \fn ushort & QChar::unicode()
 

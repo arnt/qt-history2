@@ -68,7 +68,8 @@ class Q_CORE_EXPORT QCoreVariant
         Pen = 32,
         LongLong = 33,
         ULongLong = 34,
-        UserType = 35,
+        Char = 35,
+        UserType = 63,
         LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
 #ifdef QT_COMPAT
         , ColorGroup = 12,
@@ -100,6 +101,7 @@ class Q_CORE_EXPORT QCoreVariant
     QCoreVariant(const QString &string);
     QCoreVariant(const QLatin1String &string);
     QCoreVariant(const QStringList &stringlist);
+    QCoreVariant(const QChar &qchar);
 
     QCoreVariant(const QDate &date);
     QCoreVariant(const QTime &time);
@@ -140,6 +142,7 @@ class Q_CORE_EXPORT QCoreVariant
     QBitArray toBitArray() const;
     QString toString() const;
     QStringList toStringList() const;
+    QChar toChar() const;
     QDate toDate() const;
     QTime toTime() const;
     QDateTime toDateTime() const;
@@ -331,6 +334,8 @@ template<> inline Q_ULONGLONG QVariant_to_helper<Q_ULONGLONG>(const QCoreVariant
 template<> inline bool QVariant_to_helper<bool>(const QCoreVariant &v, const bool*) { return v.toBool(); }
 template<> inline double QVariant_to_helper<double>(const QCoreVariant &v, const double*) { return v.toDouble(); }
 template<> inline QByteArray QVariant_to_helper<QByteArray>(const QCoreVariant &v, const QByteArray*) { return v.toByteArray(); }
+template<> inline QChar QVariant_to_helper<QChar>(const QCoreVariant &v, const QChar *)
+{ return v.toChar(); }
 
 template<> QBitArray QVariant_to_helper<QBitArray>(const QCoreVariant &v, const QBitArray*);
 template<> QString QVariant_to_helper<QString>(const QCoreVariant &v, const QString*);
@@ -356,6 +361,7 @@ template<> inline Q_ULONGLONG QVariant_to<Q_ULONGLONG>(const QCoreVariant &v) { 
 template<> inline bool QVariant_to<bool>(const QCoreVariant &v) { return v.toBool(); }
 template<> inline double QVariant_to<double>(const QCoreVariant &v) { return v.toDouble(); }
 template<> inline QByteArray QVariant_to<QByteArray>(const QCoreVariant &v) { return v.toByteArray(); }
+template<> inline QChar QVariant_to<QChar>(const QCoreVariant &v) { return v.toChar(); }
 
 template<> QBitArray QVariant_to<QBitArray>(const QCoreVariant &v);
 template<> QString QVariant_to<QString>(const QCoreVariant &v);
