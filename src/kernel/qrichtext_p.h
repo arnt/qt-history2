@@ -1307,6 +1307,7 @@ public:
     void writeStyleInformation( QDataStream& stream ) const;
 
 protected:
+    virtual void setColorForSelection( QColor &c, QPainter &p, const QColorGroup& cg, int selection );
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     virtual void drawString( QPainter &painter, const QString &str, int start, int len, int xstart,
 			     int y, int baseLine, int w, int h, int selection,

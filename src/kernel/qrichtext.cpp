@@ -4481,11 +4481,11 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 
 	// init a new line
 	if ( chr->lineStart ) {
-	    if (fullWidthStyle && drawSelections && selection >= 0)
-		painter.fillRect( xend, y, fullSelectionWidth - xend, h,
-				  (selection == QTextDocument::Standard || !hasdoc) ?
-				  cg.color( QColorGroup::Highlight ) :
-				  document()->selectionColor( selection ) );
+	    if (fullWidthStyle && drawSelections && selection >= 0) {
+		QColor color;
+		setColorForSelection( color, painter, cg, selection );
+		painter.fillRect( xend, y, fullSelectionWidth - xend, h, color );
+	    }
 	    ++line;
 	    paintStart = i;
 	    lineInfo( line, y, h, baseLine );
@@ -4553,10 +4553,9 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	for ( QMap<int, QTextParagraphSelection>::ConstIterator it = next()->mSelections->begin();
 	      it != next()->mSelections->end(); ++it )
 	    if (((*it).start) == 0) {
-		painter.fillRect( xend, y, fullSelectionWidth - xend, h,
-				  (selection == QTextDocument::Standard || !hasdoc) ?
-				  cg.color( QColorGroup::Highlight ) :
-				  document()->selectionColor( selection ) );
+		QColor color;
+		setColorForSelection( color, painter, cg, selection );
+		painter.fillRect( xend, y, fullSelectionWidth - xend, h, color );
 		break;
 	    }
 
@@ -4582,6 +4581,28 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 }
 
 //#define BIDI_DEBUG
+
+void QTextParagraph::setColorForSelection( QColor &color, QPainter &painter, 
+					   const QColorGroup& cg, int selection )
+{
+    if (selection <= 0)
+	return;
+    color = ( hasdoc ?
+	  document()->selectionColor( selection ) :
+	  cg.color( QColorGroup::Highlight ) );
+    if ( selection == QTextDocument::IMCompositionText ) {
+	int h1, s1, v1, h2, s2, v2;
+	cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
+	cg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
+	color.setHsv( h1, s1, ( v1 + v2 ) / 2 );
+	painter.setPen( cg.color( QColorGroup::Text ) );
+    } else if ( selection == QTextDocument::IMSelectionText ) {
+	color = cg.color( QColorGroup::Foreground );
+	painter.setPen( cg.color( QColorGroup::HighlightedText ) );
+    } else if ( !hasdoc || document()->invertSelectionText( selection ) ) {
+	painter.setPen( cg.color( QColorGroup::HighlightedText ) );
+    }
+}
 
 void QTextParagraph::drawString( QPainter &painter, const QString &s, int start, int len, int xstart,
 			     int y, int baseLine, int w, int h, int selection,
@@ -4615,21 +4636,8 @@ void QTextParagraph::drawString( QPainter &painter, const QString &s, int start,
     }
 
     if ( selection >= 0 )  {
-	QColor color = ( hasdoc ?
-			 document()->selectionColor( selection ) :
-			 cg.color( QColorGroup::Highlight ) );
-	if ( selection == QTextDocument::IMCompositionText ) {
-	    int h1, s1, v1, h2, s2, v2;
-	    cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
-	    cg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
-	    color.setHsv( h1, s1, ( v1 + v2 ) / 2 );
-	    painter.setPen( cg.color( QColorGroup::Text ) );
-	} else if ( selection == QTextDocument::IMSelectionText ) {
-	    color = cg.color( QColorGroup::Foreground );
-	    painter.setPen( cg.color( QColorGroup::HighlightedText ) );
-	} else if ( !hasdoc || document()->invertSelectionText( selection ) ) {
-	    painter.setPen( cg.color( QColorGroup::HighlightedText ) );
-	}
+	QColor color;
+	setColorForSelection( color, painter, cg, selection );
 	painter.fillRect( xstart, y, w, h, color );
     }
 
