@@ -200,18 +200,19 @@ private:
 
   \class QDateTimeEditBase qdatetimeedit.h
 
-  \brief The QDateTimeEditBase class contains common functionality for
+  \brief The QDateTimeEditBase class provides common functionality for
   date/time editors.
 
   \module ???
 
-  The QDateTimeEditBase class contains common functionality for
+  The QDateTimeEditBase class provides some common functionality for
   date/time editors.  For date/time editing widgets, see QDateEdit,
   QTimeEdit and QDateTimeEdit.
 
 */
 
-/*!  Constructs an empty datetime base
+/*!  Constructs an empty datetime base with parent \a parent and name \a
+   name.
 
 */
 
@@ -579,19 +580,19 @@ int QDateTimeEditBase::focusSection() const
 }
 
 
-/*! Sets the currently focused section to \a s.  If \a s does not
+/*! Sets the currently focused section to \a sec.  If \a sec does not
   exist, nothing happens.
 
 */
 
-bool QDateTimeEditBase::setFocusSection( int s )
+bool QDateTimeEditBase::setFocusSection( int sec )
 {
-    return d->setFocusSection( s );
+    return d->setFocusSection( sec );
 }
 
 /*! Virtual function which is called whenever the user increases a
-  section number by pressing the arrow buttons or the arrow keys on
-  the keyboard.
+  section number by pressing the widget's arrow buttons or the
+  keyboard's arrow keys.
 
 */
 
@@ -601,8 +602,8 @@ void QDateTimeEditBase::stepUp()
 }
 
 /*! Virtual function which is called whenever the user decreases a
-  section number by pressing the arrow buttons or the arrow keys on
-  the keyboard.
+  section number by pressing the widget's arrow buttons or the
+  keyboard's arrow keys.
 
 */
 
