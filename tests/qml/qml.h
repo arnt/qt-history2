@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#10 $
+** $Id: //depot/qt/main/tests/qml/qml.h#11 $
 **
 ** Definition of something or other
 **
@@ -175,7 +175,7 @@ public:
 
     QMLNode* lastChild() const;
 
-    void setParentPointersInSubtree();
+    void reparentSubtree();
 
     virtual QMLContainer* copy();
 
@@ -276,6 +276,8 @@ public:
 
     void insert(QPainter* p, const QChar& c);
     void enter(QPainter* p);
+    void del(QPainter* p);
+    void backSpace(QPainter* p);
 
     void right(QPainter* p, bool select = FALSE);
     void left(QPainter* p, bool select = FALSE);

@@ -656,7 +656,7 @@ void QMLContainer::split(QMLNode* node)
     if (!isBox)
 	parent->split(c2);
     else
-	c2->setParentPointersInSubtree();
+	c2->reparentSubtree();
 }
 
 
@@ -685,14 +685,15 @@ QMLNode* QMLContainer::lastChild() const
 }
 
 
-void QMLContainer::setParentPointersInSubtree()
+void QMLContainer::reparentSubtree()
 {
-    debug("set parent points in subtree");
     QMLNode* n = child;
     while (n) {
 	if (n->isContainer) {
+	    delete  ((QMLContainer*)n)->fnt;
+	    ((QMLContainer*)n)->fnt = 0;
 	    ((QMLContainer*)n)->parent = this;
-	     ((QMLContainer*)n)->setParentPointersInSubtree();
+	     ((QMLContainer*)n)->reparentSubtree();
 	}
 	if (n->isLastSibling) {
 	    n->next = this;
@@ -964,7 +965,7 @@ void QMLCursor::draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int c
 }
 
 
-void QMLCursor::clearSelection() 
+void QMLCursor::clearSelection()
 {
     if (!hasSelection)
 	return;
@@ -981,7 +982,7 @@ void QMLCursor::clearSelection()
 	}
 	i = document->nextLeaf( i, ip );
     }
-    
+
     selectionDirty = TRUE;
     hasSelection = FALSE;
 }
@@ -1053,13 +1054,11 @@ void QMLCursor::insert(QPainter* p, const QChar& c)
     if (nodeParent->child == node) {
 	n->next = node;
 	nodeParent->child = n;
-	row = 0;
+	//	row = 0;
     } else {
  	QMLNode* prev = node->previous(); // slow!
  	n->next = node;
  	prev->next = n;
-// 	n->next = node->next;
-// 	node->next = n;
     }
     QMLBox* b = node->box();
     if (b) {
@@ -1081,9 +1080,73 @@ void QMLCursor::enter(QPainter* p)
     b->update(p);
     b->next->box()->update( p );
 
-    debug("done");
     nodeParent = node->parent();
     calculatePosition(p);
+}
+
+void QMLCursor::del(QPainter* p)
+{
+    QMLNode* curNode = node;
+    QMLContainer* curParent = nodeParent;
+    QMLRow* curRow = row;
+    
+    right( p );
+    if ( node == curNode )
+	return;
+    
+    QMLBox* nodeBox = node->box();
+    QMLBox* curBox = curNode->box();
+
+    QMLNode* prev = curNode->previous();
+    if (prev && prev->next == curNode) {
+	prev->next = curNode->next;
+	prev->isLastSibling = curNode->isLastSibling;
+    }
+    if (curParent->child == curNode){
+	if (curNode->isLastSibling)
+	    curParent->child = 0;
+	else
+	    curParent->child = curNode->next;
+    }
+    curRow->dirty = TRUE;
+
+    if ( nodeBox != curBox ) {
+	curBox->next = nodeBox->next;
+	curBox->isLastSibling = nodeBox->isLastSibling;
+	QMLNode* curLast = curBox->child?curBox->child->lastSibling():0;
+	if (curLast) {
+	    curLast->next = nodeBox->child;
+	    curLast->isLastSibling = 0;
+	}
+	else 
+	    curBox->child = nodeBox->child;
+	curBox->reparentSubtree();
+	if (nodeParent == nodeBox) // correct the cursor position, if necessary
+	    nodeParent = curBox;
+	nodeBox->child = 0;
+	delete nodeBox;
+    }
+    
+    curBox->update(p, (curRow->start!=curNode && curRow->end != curNode)?curRow:0);
+    
+    if (nodeBox != curBox) {
+	QMLBox* b = curBox->parentBox();
+	if (b){
+	    b->update( p );
+	}
+    }
+
+    delete curNode;
+    calculatePosition(p);
+}
+
+void QMLCursor::backSpace(QPainter* p)
+{
+    QMLNode* curNode = node;
+    left( p );
+    if ( node == curNode )
+	return;
+    del(p);
 }
 
 void QMLCursor::right(QPainter* p, bool select)
@@ -1459,6 +1522,11 @@ void QMLView::keyPressEvent( QKeyEvent * e)
     hideCursor();
     bool select = e->state() & Qt::ShiftButton;
 
+    if (!select) {
+	doc->cursor->clearSelection();
+	updateSelection();
+    }
+
     if (e->key() == Key_Right
 	|| e->key() == Key_Left
 	|| e->key() == Key_Up
@@ -1547,13 +1615,8 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	updateSelection(oldCursorY, doc->cursor->y + doc->cursor->height/2);
 	showCursor();
     }
-    else { 
+    else {
 	
-	if (!select) {
-	    doc->cursor->clearSelection();
-	    updateSelection();
-	}
-
 	if (e->key() == Key_Return || e->key() == Key_Enter ) {
 	    {
 		QPainter p( viewport() );
@@ -1571,13 +1634,39 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 		else
 		    p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
 	    }
-	    showCursor();
-	    resizeContents(doc->width, doc->height);
-	    ensureVisible(doc->cursor->x, doc->cursor->y);
+	}
+	else if (e->key() == Key_Delete) {
+	    QPainter p( viewport() );
+	    doc->cursor->del( &p );
+	    QRegion r(0, 0, viewport()->width(), viewport()->height());
+	    doc->draw(&p, 0, 0, contentsX(), contentsY(),
+		      contentsX(), contentsY(),
+		      viewport()->width(), viewport()->height(),
+		      r, colorGroup(), backgroundPixmap, TRUE);
+	    p.setClipRegion(r);
+	    if (backgroundPixmap)
+		p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+				  *backgroundPixmap, contentsX(), contentsY());
+	    else
+		p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+	}
+	else if (e->key() == Key_Backspace) {
+	    QPainter p( viewport() );
+	    doc->cursor->backSpace( &p );
+	    QRegion r(0, 0, viewport()->width(), viewport()->height());
+	    doc->draw(&p, 0, 0, contentsX(), contentsY(),
+		      contentsX(), contentsY(),
+		      viewport()->width(), viewport()->height(),
+		      r, colorGroup(), backgroundPixmap, TRUE);
+	    p.setClipRegion(r);
+	    if (backgroundPixmap)
+		p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+				  *backgroundPixmap, contentsX(), contentsY());
+	    else
+		p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
 	}
 	else if (!e->text().isEmpty() ){
 	    // other keys
-	    {
 		QPainter p( viewport() );
 		for (unsigned int i = 0; i < e->text().length(); i++)
 		    doc->cursor->insert( &p, e->text()[(int)i] );
@@ -1593,11 +1682,10 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 				      *backgroundPixmap, contentsX(), contentsY());
 		else
 		    p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
-	    }
-	    showCursor();
-	    resizeContents(doc->width, doc->height);
-	    ensureVisible(doc->cursor->x, doc->cursor->y);
 	}
+	showCursor();
+	resizeContents(doc->width, doc->height);
+	ensureVisible(doc->cursor->x, doc->cursor->y);
     }
 }
 
@@ -1605,7 +1693,7 @@ void QMLView::updateSelection(int oldY, int newY)
 {
     if (!doc->cursor || !doc->cursor->selectionDirty)
 	return;
-    
+
     QPainter p(viewport());
     int minY = oldY>=0?QMAX(QMIN(oldY, newY), contentsY()):contentsY();
     int maxY = newY>=0?QMIN(QMAX(oldY, newY), contentsY()+viewport()->height()):contentsY()+viewport()->height();
@@ -1634,12 +1722,12 @@ void QMLView::viewportMouseMoveEvent( QMouseEvent * e)
 	hideCursor();
 	{
 	    QPainter p(viewport());
-	    doc->cursor->goTo( &p, e->pos().x() + contentsX(), 
+	    doc->cursor->goTo( &p, e->pos().x() + contentsX(),
 			       e->pos().y() + contentsY(), TRUE);
 	}
 	updateSelection();
 	if (doc->cursor->y + doc->cursor->height > contentsY() + viewport()->height()) {
-	    debug("yes %d", contentsY()+viewport()->height()-doc->cursor->y-doc->cursor->height);
+// 	    debug("yes %d", contentsY()+viewport()->height()-doc->cursor->y-doc->cursor->height);
 	    scrollBy(0, doc->cursor->y + doc->cursor->height-contentsY()-viewport()->height());
 	}
 	else if (doc->cursor->y < contentsY())
@@ -1665,7 +1753,7 @@ void QMLView::drawContentsOffset(QPainter*p, int ox, int oy,
     doc->draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r, colorGroup(), backgroundPixmap);
 
     p->setClipRegion(r);
-    
+
     if (backgroundPixmap)
 	p->drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
 			   *backgroundPixmap, ox, oy);
