@@ -668,7 +668,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    if(dot != -1)
 		src_pc = src_pc.left(dot);
 	    src_pc += ".pc";
-	    QString dst_pc = root + targetdir + src_pc;
+	    QString d = root + targetdir + "pkgconfig" + Option::dir_sep;
+	    QString dst_pc = d + src_pc;
 	    if(!project->isEmpty("DESTDIR")) {
 		src_pc.prepend(var("DESTDIR"));
 		src_pc = Option::fixPathToLocalOS(fileFixify(src_pc,
@@ -676,6 +677,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    }
 	    if(!ret.isEmpty())
 		ret += "\n\t";
+	    ret += mkdir_p_asstring(d) + "\n\t";
 	    ret += "-$(COPY) \"" + src_pc + "\" \"" + dst_pc + "\"";
 	    if(!uninst.isEmpty())
 		uninst.append("\n\t");
@@ -708,7 +710,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	QString dst_targ = root + fileFixify(targetdir + target);
 	if(!ret.isEmpty())
 	    ret += "\n\t";
-	if(resource) 
+	if(resource)
 	    ret += "$(DEL_FILE) -r \"" + dst_targ + "\"" + "\n\t";
 	if(!ret.isEmpty())
 	    ret += "\n\t";

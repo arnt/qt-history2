@@ -170,5 +170,6 @@ inline bool MakefileGenerator::findLibraries()
 inline MakefileGenerator::~MakefileGenerator()
 { }
 
+QString mkdir_p_asstring(const QString &dir);
 
 #endif /* __MAKEFILE_H__ */
