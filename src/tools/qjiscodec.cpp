@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#3 $
 **
 ** Implementation of QJisCodec class
 **
@@ -296,13 +296,13 @@ const char* QJisCodec::name() const
 int QJisCodec::heuristicNameMatch(const char* hint) const
 {
     int score = 0;
-    bool ja = false;
+    bool ja = FALSE;
     if (strnicmp(hint, "ja_JP", 5) == 0 || strnicmp(hint, "japan", 5) == 0) {
 	score += 3; 
-	ja = true;
+	ja = TRUE;
     } else if (strnicmp(hint, "ja", 2) == 0) {
 	score += 2; 
-	ja = true;
+	ja = TRUE;
     }
     const char *p = 0;
     if (ja) {
@@ -460,7 +460,7 @@ class QJisDecoder : public QTextDecoder {
     Iso2022State state, prev;
     bool esc;
 public:
-    QJisDecoder() : nbuf(0), state(Ascii), prev(Ascii), esc(false)
+    QJisDecoder() : nbuf(0), state(Ascii), prev(Ascii), esc(FALSE)
     {
     }
 
@@ -478,7 +478,7 @@ public:
 			buf[nbuf++] = ch;
 		    } else {
 			nbuf = 0;
-			esc = false;
+			esc = FALSE;
 		    }
 		    break;
 		  case 1:
@@ -495,7 +495,7 @@ public:
 				break;
 			    }
 			    nbuf = 0;
-			    esc = false;
+			    esc = FALSE;
 			}
 		    } else {
 			if (buf[0] == '(') {
@@ -512,7 +512,7 @@ public:
 			    }
 			}
 			nbuf = 0;
-			esc = false;
+			esc = FALSE;
 		    }
 		    break;
 		  case 2:
@@ -524,14 +524,14 @@ public:
 			}
 		    }
 		    nbuf = 0;
-		    esc = false;
+		    esc = FALSE;
 		    break;
 		}
 	    } else {
 		if (ch == Esc) {
 		    // Escape sequence
 		    nbuf = 0;
-		    esc = true;
+		    esc = TRUE;
 		} else if (ch == So) {
 		    // Shift out
 		    prev = state;

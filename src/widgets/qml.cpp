@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#36 $
 **
 ** Implementation of QML classes
 **
@@ -1930,7 +1930,7 @@ QString QMLContainer::fontFamily() const
 QMLBox::QMLBox( const QMLStyle *stl)
     :QMLContainer(stl)
 {
-    rows.setAutoDelete(true);
+    rows.setAutoDelete(TRUE);
     isSimpleNode = 0;
     isBox = 1;
     width = height = 0;
@@ -1939,7 +1939,7 @@ QMLBox::QMLBox( const QMLStyle *stl)
 QMLBox::QMLBox( const QMLStyle *stl, const QDict<QString>& attr )
     :QMLContainer(stl, attr)
 {
-    rows.setAutoDelete(true);
+    rows.setAutoDelete(TRUE);
     isSimpleNode = 0;
     isBox = 1;
     width = height = 0;
