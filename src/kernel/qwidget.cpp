@@ -4374,12 +4374,12 @@ bool QWidget::event( QEvent *e )
     case QEvent::WindowStateChange:
 	{
 	    QEvent::Type type;
-	    if (isFullScreen())
+	    if (isMinimized())
+		type = QEvent::ShowMinimized;
+	    else if (isFullScreen())
 		type = QEvent::ShowFullScreen;
 	    else if (isMaximized())
 		type = QEvent::ShowMaximized;
-	    else if (isMinimized())
-		type = QEvent::ShowMinimized;
 	    else
 		type = QEvent::ShowNormal;
 	    QApplication::postEvent(this, new QEvent(type));
