@@ -255,11 +255,13 @@ static const int wpwidth = 2; // WinPanel lwidth
 void QFrame::setFrameStyle( int style )
 {
 #if defined(CHECK_RANGE)
+#if 0
     bool shape	= (style & MShape)  != 0;
     bool shadow = (style & MShadow) != 0;
     if ( shape != shadow )
 	qWarning( "QFrame::setFrameStyle: (%s) Incomplete frame style",
 		 name( "unnamed" ) );
+#endif
 #endif
     fstyle = (short)style;
     //   If this is a line, it may stretch in the direction of the
@@ -274,7 +276,7 @@ void QFrame::setFrameStyle( int style )
 	break;
     default:
 	// only reset if it was hline or vline
-	if ( sizePolicy().horData() == QSizePolicy::Minimum && sizePolicy().verData() == QSizePolicy::Fixed || 
+	if ( sizePolicy().horData() == QSizePolicy::Minimum && sizePolicy().verData() == QSizePolicy::Fixed ||
 	     sizePolicy().horData() == QSizePolicy::Fixed && sizePolicy().verData() == QSizePolicy::Minimum )
 	    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     }
