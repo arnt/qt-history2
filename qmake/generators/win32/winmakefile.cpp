@@ -74,7 +74,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 
     writeMakeQmake(t);
 
-    t << "tmake_all:";
+    t << "qmake_all:";
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	t << "\n\t"
 	  << "cd " << (*sdirit) << "\n\t"
