@@ -3,7 +3,9 @@
 ######################################################################
 
 TEMPLATE = app
+DESTDIR = ..
 TARGET = walkthrough-print
+INCLUDEPATH = ..
 
 # Input
 FORMS    = ../pageeditdialog.ui \
