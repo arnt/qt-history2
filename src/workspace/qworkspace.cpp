@@ -1809,7 +1809,7 @@ void QWorkspaceChild::move( int x, int y )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 QAccessibleInterface *QWorkspaceChild::accessibleInterface()
 {
-    return new QAccessibleWidget( this, QAccessible::Document );
+    return new QAccessibleWidget( this, QAccessible::Window );
 }
 #endif
 
