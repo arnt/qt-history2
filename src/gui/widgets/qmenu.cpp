@@ -194,8 +194,9 @@ void QMenuPrivate::updateActions()
     sloppyAction = 0;
     calcActionRects(actionRects, actionList);
     ncols = 1;
+    int last_left = q->style()->pixelMetric(QStyle::PM_MenuVMargin, 0, q);
     if (!scroll) {
-        for(int i = 0, last_left = 0; i < actionList.count(); i++) {
+        for(int i = 0; i < actionList.count(); i++) {
             int left = actionRects.value(actionList.at(i)).left();
             if (left > last_left) {
                 last_left = left;
@@ -1190,7 +1191,7 @@ QSize QMenu::sizeHint() const
         s.rwidth() += fw*2;
         s.rheight() += fw*2;
     }
-    s.rwidth() +=2 * style()->pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
+    s.rwidth() += 2 * style()->pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
     s.rheight() += 2 * style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
 
     return style()->sizeFromContents(QStyle::CT_Menu, &opt,
