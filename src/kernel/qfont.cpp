@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#5 $
 **
 ** Implementation of QFont and QFontMetrics classes
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#5 $";
 #endif
 
 
@@ -52,23 +52,23 @@ void QFont::setFamily( const char *family )
 {
     if ( data->family != family ) {
 	data->family = family;
-	data->dirty = TRUE;
+	data->dirty  = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
-void QFont::setPointSize( int tenTimesPointSize )
+void QFont::setPointSize( int pointSize )
 {
-    if ( tenTimesPointSize <= 0 ) {
+    if ( pointSize <= 0 ) {
 #if defined(CHECK_RANGE)
 	warning( "QFont::setPointSize: Point size <= 0 (%i)",
-		 tenTimesPointSize );
+		 pointSize );
 #endif
 	return;
     }
-    if ( data->pointSize != tenTimesPointSize ) {
-	data->pointSize = tenTimesPointSize;
-	data->dirty = TRUE;
+    if ( data->pointSize != pointSize ) {
+	data->pointSize = pointSize * 10;
+	data->dirty     = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
@@ -77,7 +77,7 @@ void QFont::setItalic( bool i )
 {
     if ( data->italic != i ) {
 	data->italic = i;
-	data->dirty = TRUE;
+	data->dirty  = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
@@ -92,7 +92,7 @@ void QFont::setWeight( int w )
 #endif
     if ( data->weight != w ) {
 	data->weight = w;
-	data->dirty = TRUE;
+	data->dirty  = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
@@ -101,7 +101,7 @@ void QFont::setFixedPitch( bool b )
 {
     if ( data->fixedPitch != b ) {
 	data->fixedPitch = b;
-	data->dirty = TRUE;
+	data->dirty      = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
@@ -111,7 +111,7 @@ void QFont::setStyleHint( StyleHint h )
     if ( data->styleHint != h ) {
 	data->styleHint	    = h;
 	data->hintSetByUser = TRUE;
-	data->dirty = TRUE;
+	data->dirty         = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
@@ -120,7 +120,7 @@ void QFont::setCharSet( CharSet c )
 {
     if ( data->charSet != c ) {
 	data->charSet = c;
-	data->dirty = TRUE;
+	data->dirty   = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
@@ -132,7 +132,7 @@ const char *QFont::family() const
 
 int QFont::pointSize() const
 {
-    return data->pointSize;
+    return data->pointSize / 10;
 }
 
 bool QFont::italic() const
@@ -199,6 +199,10 @@ void QFont::init()
     data->rawMode	= FALSE;
 }
 
+int QFont::deciPointSize() const
+{
+    return data->pointSize;
+}
 
 // --------------------------------------------------------------------------
 // QFont stream functions
@@ -260,7 +264,7 @@ int QFontMetrics::pointSize() const
 {
     if ( data->dirty || f->data->dirty )
 	updateData();
-    return data->pointSize;
+    return data->pointSize / 10;
 }
 
 bool QFontMetrics::italic() const

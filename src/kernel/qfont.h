@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#10 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#11 $
 **
 ** Definition of QFont class
 **
@@ -28,7 +28,7 @@ public:
     enum CharSet   { Latin1, AnyCharSet };
 
     QFont();					    // default font
-    QFont( const char *family, int pointSize = 120, // 12.0 default point size
+    QFont( const char *family, int pointSize = 12,  // 12 is default point size
 	   int weight = Normal, bool italic = FALSE );
     QFont( const QFont & );
     virtual ~QFont();
@@ -37,7 +37,7 @@ public:
     QFont	copy() const;
 
     void	setFamily( const char * );
-    void	setPointSize( int tenTimesPointSize );
+    void	setPointSize( int pointSize );
     void	setItalic( bool );
     void	setWeight( int );
     void	setFixedPitch( bool );
@@ -69,9 +69,10 @@ public:
     static void cleanup();			// cleanup font system
 
 protected:
-    QString defaultFamily()	  { return "helvetica"; };
-    QString systemDefaultFamily() { return "helvetica"; };
-    QString defaultFont()	  { return "6x13"; };
+    QString defaultFamily() const	  { return "helvetica"; };
+    QString systemDefaultFamily() const { return "helvetica"; };
+    QString defaultFont() const	  { return "6x13"; };
+    int  deciPointSize() const;
 
 private:
     void init();
