@@ -29,7 +29,7 @@
 #include "qframe.h"
 #include "qbitmap.h"
 
-// BEING REVISED: warwick
+// REVISED: warwick
 /*!
   \class QFrame qframe.h
   \brief The QFrame class is the base class of widgets that can have a frame.
@@ -62,9 +62,12 @@
   A frame widget has four attributes: frameStyle(), lineWidth(),
   midLineWidth(), and margin().
 
-  The frame style is specified by a frame shape and a shadow style.
-  The frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel \c
-  WinPanel, \c HLine and \c VLine, and the shadow styles are \c Plain,
+  The frame style is specified by a
+  \link QFrame::Shape frame shape\endlink and a
+  \link QFrame::Shadow shadow style\endlink.
+  The frame shapes are \c NoFrame, \c Box, \c Panel,
+  \c StyledPanel, \c PopupPanel,
+  \c WinPanel, \c HLine and \c VLine, and the shadow styles are \c Plain,
   \c Raised and \c Sunken.
 
   The line width is the width of the frame border.
@@ -80,7 +83,7 @@
   This table shows the most useful combinations of styles and widths
   (and some rather useless ones):
 
-  <img src=frames.png height=422 width=520 alt="Table of frame styles">
+  <img src=frames.png width=515 height=414 alt="Table of frame styles">
 */
 
 
@@ -110,7 +113,7 @@
 
   </ul>
 
-  When it does not call style(), Shape interacts with QFrame::Shadow,
+  When it does not call QStyle, Shape interacts with QFrame::Shadow,
   the lineWidth() and the midLineWidth() to create the total result.
   The <a href="#picture">picture of the frames</a> in the class
   documentation may illustrate this better than words.
@@ -125,9 +128,9 @@
   This enum typde defines the 3D effect used for QFrame's frame.  The
   currently defined effects are: <ul>
   
-  <li> \c Plain - the frame appears level with its surroundings
-  <li> \c Raised - the frame (and perhaps the contents) appear raised
-  <li> \c Sunken - the frame (and perhaps the contents) appear sunken
+  <li> \c Plain - the frame and contents appear level with the surroundings
+  <li> \c Raised - the frame and contents appear raised
+  <li> \c Sunken - the frame and contents appear sunken
 
   </ul>
   
@@ -148,8 +151,7 @@
   width.
 
   The last argument exists for compatibility with Qt 1.x; it
-  no longer has any meaning.  (In Qt 2.x, QFrame always allows the
-  HLine and VLine styles.)
+  no longer has any meaning.
 
   The \e parent, \e name and \e f arguments are passed to the QWidget
   constructor.
