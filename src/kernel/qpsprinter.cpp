@@ -5914,7 +5914,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     if ( printer->numCopies() > 1 ) {
 	outStream << "/#copies " << printer->numCopies() << " def\n";
 	outStream << "/NumCopies " << printer->numCopies() << " SPD\n";
-	outStream << "/Collate " << (printer->collateCopiesEnabled() ? "true" : "false") << " SPD\n";
+	outStream << "/Collate " << (printer->collateCopies() ? "true" : "false") << " SPD\n";
     }
     if ( fontBuffer->buffer().size() ) {
         if ( pageCount == 1 || finished )
