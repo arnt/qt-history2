@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#6 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -19,7 +19,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#6 $";
 #endif
 
 
@@ -420,7 +420,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
-	if ( w->testFlag(WState_Paint) ) {
+	if ( w->testWFlags(WState_Paint) ) {
 	    hps = w->hps;
 	    setRGBTable = FALSE;
 	}

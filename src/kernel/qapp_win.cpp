@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#7 $
 **
 ** Implementation of Windows + NT startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 931203
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#7 $";
 #endif
 
 
@@ -222,7 +222,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 	r = configRequests->dequeue();
 	QWidget *w = QWidget::find( r->id );
 	if ( w ) {				// widget exists
-	    if ( w->testFlag( WWin_Config ) )	// biting our tail
+	    if ( w->testWFlags( WWin_Config ) )	// biting our tail
 		return;
 	    if ( r->req == 0 )
 		w->move( r->x, r->y );
@@ -685,7 +685,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QEvent enter( Event_Enter );	// send enter event
 	    SEND_EVENT( this, &enter );
 	}
-	if ( (state == 0 || !capture) && !testFlag(WEtc_MouMove) )
+	if ( (state == 0 || !capture) && !testWFlags(WEtc_MouMove) )
 	    return TRUE;			// no button
     }
     int bs = state & (LeftButton | RightButton | MidButton);
@@ -810,7 +810,7 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
 {
     PAINTSTRUCT ps;
     QPaintEvent evt( clientRect() );
-    setFlag( WState_Paint );
+    setWFlags( WState_Paint );
     hdc = BeginPaint( id(), &ps );
 #if defined(STUPID_WINDOWS_NT)
     RECT rect;
@@ -823,7 +823,7 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
     bool res = SEND_EVENT( this, &evt );
     EndPaint( id(), &ps );
     hdc = 0;
-    clearFlag( WState_Paint );
+    clearWFlags( WState_Paint );
     return res;
 }
 
@@ -834,7 +834,7 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
 
 bool QETWidget::translateConfigEvent( const MSG &msg )
 {
-    setFlag( WWin_Config );			// set config flag
+    setWFlags( WWin_Config );			// set config flag
     QRect r = clientGeometry();			// get widget geometry
     WORD a = LOWORD(msg.lParam);
     WORD b = HIWORD(msg.lParam);
@@ -844,7 +844,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	setRect( r );
 	QResizeEvent evt( geometry().size() );
 	SEND_EVENT( this, &evt );
-	if ( testFlag(WType_Overlap) && isParentType() ) {
+	if ( testWFlags(WType_Overlap) && isParentType() ) {
 	    QView *v = (QView *)this;		// parent type, i.e. QView
 	    if ( IsIconic(v->id()) && v->iconText() )
 		SetWindowText( v->id(), v->iconText() );
@@ -852,7 +852,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		SetWindowText( v->id(), v->caption() );
 	}
 	else
-	if ( !testFlag(WType_Overlap) )		// manual redraw
+	if ( !testWFlags(WType_Overlap) )	// manual redraw
 	    update();
     }
     else
@@ -863,7 +863,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	QMoveEvent evt( geometry().topLeft() );
 	SEND_EVENT( this, &evt );
     }
-    clearFlag( WWin_Config );			// clear config flag
+    clearWFlags( WWin_Config );			// clear config flag
     return TRUE;
 }
 
