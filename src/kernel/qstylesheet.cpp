@@ -1025,20 +1025,20 @@ void QStyleSheet::init()
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setMargin(QStyleSheetItem::MarginAll, 8 );
 
-     style = new QStyleSheetItem( this, "head" );
+     style = new QStyleSheetItem( this, QString::fromLatin1("head") );
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
-     style = new QStyleSheetItem( this, "dl" );
+     style = new QStyleSheetItem( this, QString::fromLatin1("dl") );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-     style = new QStyleSheetItem( this, "dt" );
+     style = new QStyleSheetItem( this, QString::fromLatin1("dt") );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-     style->setContexts("dl");
-     style = new QStyleSheetItem( this, "dd" );
+     style->setContexts(QString::fromLatin1("dl") );
+     style = new QStyleSheetItem( this, QString::fromLatin1("dd") );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
      style->setMargin(QStyleSheetItem::MarginLeft, 30);
-     style->setContexts("dt");
-     style = new QStyleSheetItem( this, "u" );
+     style->setContexts(QString::fromLatin1("dt dl") );
+     style = new QStyleSheetItem( this, QString::fromLatin1("u") );
      style->setFontUnderline( TRUE);
-     style = new QStyleSheetItem( this, "nobr" );
+     style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
      style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
 }
 
