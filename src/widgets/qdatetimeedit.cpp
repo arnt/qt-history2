@@ -324,7 +324,7 @@ public:
 	nf->removeRef();
 
 	QRect r( rect.x(), rect.y(), rect.width() - 2 * ( 2 + fw ), rect.height() );
-	parag->setDocumentRect( r );
+	parag->pseudoDocument()->docRect = r;
 	parag->invalidate(0);
 	parag->format();
 

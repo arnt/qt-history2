@@ -669,7 +669,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 #ifndef QT_NO_CLIPBOARD
 	case Key_V:
 	    if ( !d->readonly )
-		paste(); 
+		paste();
 	    break;
 	case Key_X:
 	    if ( !d->readonly && hasSelectedText() && echoMode() == Normal ) {
@@ -764,7 +764,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_F18: // Paste key on Sun keyboards
 	    if ( !d->readonly )
-		paste(); 
+		paste();
 	    break;
 	case Key_F20: // Cut key on Sun keyboards
 	    if ( !d->readonly && hasSelectedText() && echoMode() == Normal ) {
@@ -909,7 +909,7 @@ void QLineEdit::drawContents( QPainter *painter )
     parag->setFormat( 0, parag->length(), f );
     f->removeRef();
     QRect r( rect().x(), rect().y(), width() - 4, rect().height() );
-    parag->setDocumentRect( r );
+    parag->pseudoDocument()->docRect = r;
     parag->invalidate( 0 );
     parag->format();
     updateOffset();
@@ -2273,15 +2273,15 @@ void QLineEdit::delOrBackspace( bool backspace )
 		d->cursor->remove();
 
 		if ( d->validator ) {
-		    if ( newText != text() ) 
-			setText( newText ); 
+		    if ( newText != text() )
+			setText( newText );
 		    d->cursor->setIndex( newPos );
 		}
 		d->selectionStart = d->cursor->index();
 		d->ed = TRUE;
 		update();
 		setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
-		emit textChanged( text() ); 
+		emit textChanged( text() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 		QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif

@@ -453,6 +453,7 @@ QString QTextString::toReverseString( bool newlineHack ) const
     return s;
 }
 
+
 void QTextParag::setSelection( int id, int start, int end )
 {
     QMap<int, QTextParagSelection>::ConstIterator it = selections().find( id );
@@ -662,23 +663,16 @@ void QTextParag::setFormat( QTextFormat *fm )
 
 QTextFormatter *QTextParag::formatter() const
 {
-    if ( doc )
-	return doc->formatter();
-    if ( pFormatter )
-	return pFormatter;
-    return ( ( (QTextParag*)this )->pFormatter = new QTextFormatterBreakWords );
-}
-
-void QTextParag::setFormatter( QTextFormatter *f )
-{
-    if ( doc ) return;
-    if ( pFormatter ) delete pFormatter;
-    pFormatter = f;
+    if ( hasdoc )
+	return document()->formatter();
+    if ( pseudoDocument()->pFormatter )
+	return pseudoDocument()->pFormatter;
+    return ( ( (QTextParag*)this )->pseudoDocument()->pFormatter = new QTextFormatterBreakWords );
 }
 
 int QTextParag::minimumWidth() const
 {
-    return doc ? doc->minimumWidth() : 0;
+    return hasdoc ? document()->minimumWidth() : 0;
 }
 
 void QTextParag::setTabArray( int *a )
@@ -689,8 +683,8 @@ void QTextParag::setTabArray( int *a )
 
 void QTextParag::setTabStops( int tw )
 {
-    if ( doc )
-	doc->setTabStops( tw );
+    if ( hasdoc )
+	document()->setTabStops( tw );
     else
 	tabStopWidth = tw;
 }
@@ -727,6 +721,9 @@ QTextStringChar::~QTextStringChar()
 	    break;
     }
 }
+
+QTextParagPseudoDocument::QTextParagPseudoDocument():pFormatter(0),commandHistory(0){}
+QTextParagPseudoDocument::~QTextParagPseudoDocument(){ delete pFormatter; delete commandHistory; }
 
 
 #endif //QT_NO_RICHTEXT

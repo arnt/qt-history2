@@ -939,19 +939,18 @@ private:
     QTextIndent *indenter;
     QTextFormatCollection *fCollection;
     Qt::TextFormat txtFormat;
-    bool preferRichText : 1;
-    bool pages : 1;
-    bool useFC : 1;
-    bool withoutDoubleBuffer : 1;
-    bool underlLinks : 1;
-    bool nextDoubleBuffered : 1;
-    bool addMargs : 1;
-    bool oTextValid : 1;
+    uint preferRichText : 1;
+    uint pages : 1;
+    uint useFC : 1;
+    uint withoutDoubleBuffer : 1;
+    uint underlLinks : 1;
+    uint nextDoubleBuffered : 1;
+    uint addMargs : 1;
+    uint oTextValid : 1;
+    uint mightHaveCustomItems : 1;
+    int align;
     int nSelections;
     QTextFlow *flow_;
-#ifndef QT_NO_TEXTCUSTOMITEM
-    QPtrList<QTextCustomItem> customItems;
-#endif
     QTextDocument *par;
     QTextParag *parParag;
     QTextTableCell *tc;
@@ -969,7 +968,6 @@ private:
 #endif
     QString contxt;
     QMap<QString, QString> attribs;
-    int align;
     int *tArray;
     int tStopWidth;
     int uDepth;
@@ -1154,6 +1152,17 @@ public:
     virtual void join( QTextParagData * );
 };
 
+class Q_EXPORT QTextParagPseudoDocument
+{
+public:
+    QTextParagPseudoDocument();
+    ~QTextParagPseudoDocument();
+    QRect docRect;
+    QTextFormatter *pFormatter;
+    QTextCommandHistory *commandHistory;
+};
+
+
 class Q_EXPORT QTextParag
 {
     friend class QTextDocument;
@@ -1182,6 +1191,7 @@ public:
     QTextFormat *paragFormat() const;
 
     QTextDocument *document() const;
+    QTextParagPseudoDocument *pseudoDocument() const;
 
     QRect rect() const;
     void setHeight( int h ) { r.setHeight( h ); }
@@ -1271,23 +1281,16 @@ public:
     bool isFullWidth() const { return fullWidth; }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextTableCell *tableCell() const { return tc; }
-    void setTableCell( QTextTableCell *c ) { tc = c; }
-
-    void addCustomItem();
-    void removeCustomItem();
-    int customItems() const;
+    QTextTableCell *tableCell() const { return hasdoc ? document()->tableCell () : 0;; }
 #endif
 
     QBrush *background() const;
 
-    void setDocumentRect( const QRect &r );
     int documentWidth() const;
     int documentVisibleWidth() const;
     int documentX() const;
     int documentY() const;
     QTextFormatCollection *formatCollection() const;
-    void setFormatter( QTextFormatter *f );
     QTextFormatter *formatter() const;
     int minimumWidth() const;
 
@@ -1307,7 +1310,7 @@ public:
     void addCommand( QTextCommand *cmd );
     QTextCursor *undo( QTextCursor *c = 0 );
     QTextCursor *redo( QTextCursor *c  = 0 );
-    QTextCommandHistory *commands() const { return commandHistory; }
+    QTextCommandHistory *commands() const { return hasdoc ? document()->commands() : pseudoDocument()->commandHistory; }
     virtual void copyParagData( QTextParag *parag );
 
     void setBreakable( bool b ) { breakable = b; }
@@ -1342,7 +1345,7 @@ private:
     int invalid;
     QRect r;
     QTextParag *p, *n;
-    QTextDocument *doc;
+    void *docOrPseudo;
     uint changed : 1;
     uint firstFormat : 1;
     uint firstPProcess : 1;
@@ -1354,27 +1357,22 @@ private:
     uint breakable : 1;
     uint isBr : 1;
     uint movedDown : 1;
-    QMap<int, QTextParagSelection> *mSelections;
+    uint mightHaveCustomItems : 1;
+    uint hasdoc : 1;
+    int align : 4;
     int state, id;
     QTextString *str;
-    int align;
+    QMap<int, QTextParagSelection> *mSelections;
     QPtrVector<QStyleSheetItem> *mStyleSheetItemsVec;
+    QPtrList<QTextCustomItem> *mFloatingItems;
     QStyleSheetItem::ListStyle listS;
     int numSubParag;
     int tm, bm, lm, rm, flm;
     QTextFormat *defFormat;
-#ifndef QT_NO_TEXTCUSTOMITEM
-    QPtrList<QTextCustomItem> *mFloatingItems;
-    QTextTableCell *tc;
-    int numCustomItems;
-#endif
-    QRect docRect;
-    QTextFormatter *pFormatter;
     int *tArray;
     int tabStopWidth;
     QTextParagData *eData;
     QPainter *pntr;
-    QTextCommandHistory *commandHistory;
     int list_val;
     QColor *bgcol;
     QPaintDevice *paintdevice;
@@ -1994,8 +1992,8 @@ inline void QTextParag::setChanged( bool b, bool recursive )
 {
     changed = b;
     if ( recursive ) {
-	if ( doc && doc->parentParag() )
-	    doc->parentParag()->setChanged( b, recursive );
+	if ( document() && document()->parentParag() )
+	    document()->parentParag()->setChanged( b, recursive );
     }
 }
 
@@ -2080,12 +2078,21 @@ inline QTextString *QTextParag::string() const
 
 inline QTextDocument *QTextParag::document() const
 {
-    return doc;
+    if ( hasdoc )
+	return (QTextDocument*) docOrPseudo;
+    return 0;
+}
+
+inline QTextParagPseudoDocument *QTextParag::pseudoDocument() const
+{
+    if ( hasdoc )
+	return 0;
+    return (QTextParagPseudoDocument*) docOrPseudo;
 }
 
 inline void QTextParag::setAlignment( int a )
 {
-    if ( a == align )
+    if ( a == (int)align )
 	return;
     align = a;
     invalidate( 0 );
@@ -2118,55 +2125,35 @@ inline void QTextParag::unregisterFloatingItem( QTextCustomItem *i )
     floatingItems().removeRef( i );
 }
 
-inline void QTextParag::addCustomItem()
-{
-    numCustomItems++;
-}
-
-inline void QTextParag::removeCustomItem()
-{
-    numCustomItems--;
-}
-
-inline int QTextParag::customItems() const
-{
-    return numCustomItems;
-}
 #endif
 
 inline QBrush *QTextParag::background() const
 {
-#ifndef QT_NO_TEXTCUSTOMITEM
-    return tc ? tc->backGround() : 0;
+#ifndef QT_NO_TEXTCUSTOMITEM    
+    return tableCell() ? tableCell()->backGround() : 0;
 #else
     return 0;
 #endif
 }
 
-
-inline void QTextParag::setDocumentRect( const QRect &r )
-{
-    docRect = r;
-}
-
 inline int QTextParag::documentWidth() const
 {
-    return doc ? doc->width() : docRect.width();
+    return hasdoc ? document()->width() : pseudoDocument()->docRect.width();
 }
 
 inline int QTextParag::documentVisibleWidth() const
 {
-    return doc ? doc->visibleWidth() : docRect.width();
+    return hasdoc ? document()->visibleWidth() : pseudoDocument()->docRect.width();
 }
 
 inline int QTextParag::documentX() const
 {
-    return doc ? doc->x() : docRect.x();
+    return hasdoc ? document()->x() : pseudoDocument()->docRect.x();
 }
 
 inline int QTextParag::documentY() const
 {
-    return doc ? doc->y() : docRect.y();
+    return hasdoc ? document()->y() : pseudoDocument()->docRect.y();
 }
 
 inline void QTextParag::setExtraData( QTextParagData *data )

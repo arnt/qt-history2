@@ -2699,7 +2699,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    formatter->setWrapEnabled( FALSE );
 	else if ( breakany )
 	    formatter->setAllowBreakInWords( TRUE );
-	parag->setFormatter( formatter );
+	parag->pseudoDocument()->pFormatter = formatter;
 	QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
 	f->setPainter( painter );
 #ifndef QT_NO_REGEXP
@@ -2760,7 +2760,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 #if defined(QT_FORMAT_TEXT_DEBUG)
 	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
 #endif
-	parag->setDocumentRect( rect );
+	parag->pseudoDocument()->docRect = rect;
 	parag->setAlignment( tf & Qt::AlignHorizontal_Mask );
 	parag->invalidate( 0 );
 	parag->format();
