@@ -227,7 +227,7 @@ void QListModel::itemChanged(QListWidgetItem *item)
 QListWidgetItem::QListWidgetItem(QListWidget *view)
     : itemFlags(QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsEnabled),
-      model(0)
+      view(view), model(0)
 {
     if (view)
         model = ::qt_cast<QListModel*>(view->model());
@@ -243,7 +243,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     : itemFlags(QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsEnabled),
-      model(0)
+      view(view), model(0)
 {
     setData(QAbstractItemModel::DisplayRole, text);
     if (view)
@@ -260,6 +260,23 @@ QListWidgetItem::~QListWidgetItem()
 {
     if (model)
         model->remove(this);
+}
+
+void QListWidgetItem::setHidden(bool hide)
+{
+    if (view) {
+        int r = view->row(this);
+        view->setRowHidden(r, hide);
+    }
+}
+
+bool QListWidgetItem::isHidden() const
+{
+    if (view) {
+        int r = view->row(this);
+        return view->isRowHidden(r);
+    }
+    return false;
 }
 
 /*!
