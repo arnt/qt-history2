@@ -2036,21 +2036,18 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	}
 	break; }
     case SR_PushButtonContents: {
-	ThemeButtonKind bkind = kThemePushButton;
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	Rect macRect, myRect;
-	SetRect(&myRect, 0, 0, w->width(), w->height());
-	GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-	int offx = myRect.left - macRect.left;
-	int offy = myRect.top - macRect.top;
-	int offw = offx + (macRect.right - myRect.right);
-	int offh = offy + (macRect.bottom - myRect.bottom);
-	myRect.left   += offx;
-	myRect.top    += offy;
-	myRect.right  -= offw;
-	myRect.bottom -= offh;
-	GetThemeButtonContentBounds(&myRect, bkind, &info, &macRect);
-	ret.setCoords(macRect.left, macRect.top + 2, macRect.right, macRect.bottom + 3);
+	QRect widgetRect = w->rect();
+	SetRect(&myRect, 0, 0, widgetRect.right(), widgetRect.bottom());
+	GetThemeButtonBackgroundBounds(&myRect, kThemePushButton, &info, &macRect);
+	myRect.left   += myRect.left - macRect.left;
+	myRect.top    += myRect.top - macRect.top;
+	myRect.right  += myRect.right - myRect.right;
+	// I don't know why +1, but otherwise we are one pixel too high.
+	myRect.bottom += myRect.bottom - macRect.bottom + 1;
+	GetThemeButtonContentBounds(&myRect, kThemePushButton, &info, &macRect);
+	ret.setCoords(macRect.left, macRect.top, macRect.right, macRect.bottom);
 	break; }
     case SR_ProgressBarLabel:
     case SR_ProgressBarGroove:
