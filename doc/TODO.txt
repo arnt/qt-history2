@@ -236,24 +236,12 @@ Multi-head display support?
 Extending existing functionality
 --------------------------------
 
-Action/Mainwindow editor (Reggie)
+Action/Mainwindow editor (Reggie - something for 3.1)
     Actioneditor for QMainWindow so that one can drag'n'drop
     actions in a special mode between the actin editor (which shows
     all available actions) and the menus and toolbars. Allows also
     creating new toolbars and menus (?) on the fly. Like you can do
     in Visual Studio and MS-Office
-
-QTextView, QTextBrowser, QTextEdit, QRichText (Matthias, Reggie)
-    Merge the old QRichText engine with the new one from QTextEdit
-    (done already), and make QTextView,QTextBrowser, QTextEdit and
-    QSimpleRichText using this engine. Then get rid of QMultiLineEdit
-
-Text drawing in Qt (Matthias, Reggie, Lars)
-    After the above (QRichText merging) and the BiDi stuff is
-    done, use QSimpleRichText or directly QRichText for all text
-    drawing in Qt, like QPainter's magic draw_format_text. Probably
-    don't use it everywhere (too much memory wasting), but everwhere
-    where more than one line, richtext or BiDi is displayed.
 
 QThread (Volker, Brad)
     Evaluate possibility of event-loop passing and provide API for
