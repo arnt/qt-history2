@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#36 $
 **
 ** Implementation of QGArray class
 **
@@ -26,7 +26,7 @@
 #include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#36 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -211,9 +211,9 @@ bool QGArray::resize( uint newsize )
 #else
 	shd->data = (char *)realloc( shd->data, newsize );
 #endif
-    }
-    else
+    } else {
 	shd->data = NEW(char,newsize);
+    }
     CHECK_PTR( shd->data );
     if ( !shd->data )				// no memory
 	return FALSE;
@@ -247,14 +247,12 @@ bool QGArray::fill( const char *d, int len, uint sz )
 	INT32 v = *((INT32*)d);
 	while ( len-- )
 	    *x++ = v;
-    }
-    else if ( sz == 2 ) {			// 16 bit elements
+    } else if ( sz == 2 ) {			// 16 bit elements
 	register INT16 *x = (INT16*)data();
 	INT16 v = *((INT16*)d);
 	while ( len-- )
 	    *x++ = v;
-    }
-    else {					// any other size elements
+    } else {					// any other size elements
 	register char *x = data();
 	while ( len-- ) {			// more complicated
 	    memcpy( x, d, sz );
@@ -298,8 +296,7 @@ QGArray &QGArray::assign( const char *d, uint len )
 	shd->count--;
 	shd = newData();
 	CHECK_PTR( shd );
-    }
-    else {
+    } else {
 	if ( shd->data )
 	    DELETE(shd->data);
     }
@@ -327,9 +324,9 @@ QGArray &QGArray::duplicate( const QGArray &a )
 		CHECK_PTR( n->data );
 		if ( n->data )
 		    memcpy( n->data, shd->data, n->len );
-	    }
-	    else
+	    } else {
 		n->data = 0;
+	    }
 	    shd = n;
 	}
 	return *this;
@@ -339,17 +336,17 @@ QGArray &QGArray::duplicate( const QGArray &a )
 	shd->count--;
 	shd = newData();
 	CHECK_PTR( shd );
-    }
-    else					// delete after copy was made
+    } else {					// delete after copy was made
 	oldptr = shd->data;
+    }
     if ( a.shd->len ) {				// duplicate data
 	shd->data = NEW(char,a.shd->len);
 	CHECK_PTR( shd->data );
 	if ( shd->data )
 	    memcpy( shd->data, a.shd->data, a.shd->len );
-    }
-    else
+    } else {
 	shd->data = 0;
+    }
     shd->len = a.shd->len;
     if ( oldptr )
 	DELETE(oldptr);
@@ -358,51 +355,36 @@ QGArray &QGArray::duplicate( const QGArray &a )
 
 /*!
   \internal
-  Deep copy. Dereference the current array and obtains a copy of the
+  Deep copy. Dereferences the current array and obtains a copy of the
   array data \e d instead.  Returns a reference to this array.
   \sa assign(), operator=()
 */
 
 QGArray &QGArray::duplicate( const char *d, uint len )
 {
-    bool overlap = d >= shd->data && d < shd->data + shd->len;
-    char *oldptr = 0;
-    bool null = !(d && len);
-    if ( shd->count > 1 ) {			// disconnect this
+    char *data;
+    if ( d == 0 || len == 0 ) {
+	data = 0;
+	len  = 0;
+    } else {
+	if ( shd->count == 1 && shd->len == len ) {
+	    memcpy( shd->data, d, len );	// use same buffer
+	    return *this;
+	}
+	data = NEW(char,len);
+	CHECK_PTR( data );
+	memcpy( data, d, len );
+    }
+    if ( shd->count > 1 ) {			// detach
 	shd->count--;
 	shd = newData();
 	CHECK_PTR( shd );
-    }
-    else {					// just a single reference
-	if ( len == shd->len && !null ) {	// same size; copy the data
-	    if ( overlap )
-		memmove( shd->data, d, len );
-	    else
-		memcpy( shd->data, d, len );
-	    return *this;
-	}
-	if ( overlap )
-	    oldptr = shd->data;
-	else if ( shd->data )
+    } else {					// just a single reference
+	if ( shd->data )
 	    DELETE(shd->data);
     }
-    if ( null ) {				// null value
-	shd->data = 0;
-	shd->len	= 0;
-    }
-    else {					// duplicate data
-	shd->data = NEW(char,len);
-	CHECK_PTR( shd->data );
-	shd->len = len;
-	if ( shd->data ) {
-	    if ( overlap )
-		memmove( shd->data, d, len );
-	    else
-		memcpy( shd->data, d, len );
-	}
-    }
-    if ( oldptr )
-	DELETE(oldptr);
+    shd->data = data;
+    shd->len  = len;
     return *this;
 }
 
