@@ -19,6 +19,8 @@
 #include <qtimer.h>
 #include <qcstring.h>
 
+using namespace Qt;
+
 void Distributor::init()
 {
     timer = new QTimer( this );
