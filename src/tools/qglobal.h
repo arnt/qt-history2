@@ -179,6 +179,7 @@
      EDG	- Edison Design Group C++
      OC		- CenterLine C++
      SUN	- Sun C++
+     MIPS	- MIPSpro C++
      DEC	- DEC C++
      HP		- HPUX C++
      HPACC	- HPUX ANSI C++
@@ -191,27 +192,36 @@
    Should be sorted most-authoritative to least-authoritative
 */
 
+/* Symantec C++ is now Digital Mars? */
 #if defined(__SC__)
 #  define Q_CC_SYM
+
 #elif defined(applec)
 #  define Q_CC_MPW
 #  define Q_NO_BOOL_TYPE
+
 #elif defined(__MWERKS__)
 #  define Q_CC_MWERKS
 #  define QMAC_PASCAL pascal
+
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC
 /* proper support of bool for _MSC_VER >= 1100 */
 #  define Q_CANNOT_DELETE_CONSTANT
+
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
 #  if __BORLANDC__ < 0x500
 #    define Q_NO_BOOL_TYPE
 #  endif
+
 #elif defined(__WATCOMC__)
 #  define Q_CC_WAT
+
+/* Never tested! */
 #elif defined(__HIGHC__)
 #  define Q_CC_HIGHC
+
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
@@ -220,7 +230,7 @@
 #  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #    define Q_PACKED __attribute__ ((packed))
 #  endif
-#elif defined(__xlC__)
+
 /* IBM compiler versions are a bit messy. There are actually two products:
    the C product, and the C++ product. The C++ compiler is always packaged
    with the latest version of the C compiler. Version numbers do not always
@@ -237,10 +247,11 @@
    	 Visual Age C++ 5.0         C Compiler 5.0
 
    Now:
-   __xlC__    is the version of the C compiler - it's only an approximation
-              of the C++ compiler version (hexadecimal notation)
-   __IBMCPP__ is the version of the C++ compiler - but it's not defined
-              on older compilers like C Set 3.1 (decimal notation) */
+   __xlC__    is the version of the C compiler in hexadecimal notation
+              - it's only an approximation of the C++ compiler version
+   __IBMCPP__ is the version of the C++ compiler in decimal notation
+              - but it's not defined on older compilers like C Set 3.1 */
+#elif defined(__xlC__)
 #  define Q_CC_XLC
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ < 0x400
@@ -248,30 +259,31 @@
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
+
+/* Compilers with EDG front end are similar. To detect them we test:
+   __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
+   __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
-/* __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b */
-/* __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
-#  define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  if !defined(Q_CC_EDG)
 #    define Q_CC_EDG
 #  endif
-/* the EDG documentation says that _BOOL is defined when the compiler has bool
-   but Compaq seem to have disabled this, as observed on Compaq C++ V6.3-002. */
+/* Compaq have disabled EDG's _BOOL macro - observed on Compaq C++ V6.3-002. */
 #  if defined(__DECCXX)
 #    define Q_CC_DEC
+/* Compaq use _BOOL_EXISTS instead of _BOOL. */
 #    if defined(_BOOL_EXISTS)
-/* This is documented for Compaq C++ V6.3, not for Compaq C++ V5.7. */
+/* Well, at least macro _BOOL_EXISTS is documented for Compaq C++ V6.3.
+   In any case versions prior to Compaq C++ V6.0-005 do not have bool. */
 #    elif __DECCXX_VER < 60060005
-/* Versions prior to Compaq C++ V6.0-005. */
 #      define Q_NO_BOOL_TYPE
 #    endif
-#  else
-/* From the EDG documentation:
+/* Apart from Compaq, from the EDG documentation:
    _BOOL
    	Defined in C++ mode when bool is a keyword. The name of this predefined
    	macro is specified by a configuration flag. _BOOL is the default.
    __BOOL_DEFINED
    	Defined in Microsoft C++ mode when bool is a keyword. */
+#  else
 #    if !defined(_BOOL) && !defined(__BOOL_DEFINED)
 #      define Q_NO_BOOL_TYPE
 #    endif
@@ -282,40 +294,52 @@
 #      define Q_CC_KAI
 #    elif defined(__INTEL_COMPILER)
 #      define Q_CC_INTEL
-#    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
-/* mmmh... don't know whether it defines __EDG__ or __EDG for sure! */
-#      define Q_CC_OC
-/* the new UnixWare 7 compiler is based on EDG and does define __EDG__ */
+/* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #    elif defined(__USLC__)
 #      define Q_CC_USLC
+/* Never tested! */
+#    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
+#      define Q_CC_OC
+/* The MIPSpro compiler in o32 mode is based on EDG but disables features
+   such as template specialization nevertheless */
+#    elif defined(sgi) || defined(__sgi)
+#      define Q_CC_MIPS
+#      if defined(_MIPS_SIM) && ( _MIPS_SIM == _MIPS_SIM_ABI32 ) /* o32 ABI */
+#        define Q_BROKEN_TEMPLATE_SPECIALIZATION
+#      endif
 #    endif
 #  endif
-#elif defined(__USLC__)
+
 /* the older UnixWare compiler is not based on EDG */
+#elif defined(__USLC__)
 #  define Q_CC_USLC
 #  define Q_NO_BOOL_TYPE
+
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
-#  if __SUNPRO_CC >= 0x500
-/*      'bool' is enabled by default but can be disabled using -features=nobool
-        in which case _BOOL is not defined
+/* 5.0 compiler or better
+   	'bool' is enabled by default but can be disabled using -features=nobool
+   	in which case _BOOL is not defined
         this is the default in 4.2 compatibility mode triggered by -compat=4 */
+#  if __SUNPRO_CC >= 0x500
 #    if !defined(_BOOL)
 #      define Q_NO_BOOL_TYPE
 #    endif
 #    define Q_C_CALLBACKS
+/* 4.2 compiler or older */
 #  else
-/*      4.2 compiler or older */
 #    define Q_NO_BOOL_TYPE
 #  endif
-#elif defined(Q_OS_RELIANT)
+
 /* CDS++ does not seem to define __EDG__ or __EDG according to Reliant
    documentation but nevertheless uses EDG conventions like _BOOL */
+#elif defined(sinix)
 #  define Q_CC_EDG
 #  define Q_CC_CDS
 #  if !defined(_BOOL)
 #    define Q_NO_BOOL_TYPE
 #  endif
+
 #elif defined(Q_OS_HPUX)
 /* __HP_aCC was not defined in first aCC releases */
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
@@ -325,6 +349,7 @@
 #    define Q_NO_BOOL_TYPE
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #  endif
+
 #else
 #  error "Qt has not been tested with this compiler - talk to qt-bugs@trolltech.com"
 #endif
