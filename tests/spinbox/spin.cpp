@@ -211,7 +211,7 @@ void Main::updatePalette()
 	mainBox->setPalette( myPal );
     }
     else {
-	mainBox->setPalette( *qApp->palette() );
+	mainBox->setPalette( qApp->palette() );
     }
 }
 
