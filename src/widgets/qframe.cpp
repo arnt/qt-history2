@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#24 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#24 $")
 
 
 /*!
@@ -68,7 +68,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#23 $")
   effect.  Notice that a mid-line is only drawn for \c Box, \c HLine
   and \c VLine frames that are raised or sunken.
 
-  This table shows the most useful combinations of style and widths
+  <a name=picture></a>
+  This table shows the most useful combinations of styles and widths
   (and some rather useless ones):
 
   <img src=frames.gif height=422 width=520>
@@ -133,22 +134,27 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   Sets the frame style to \e style.
 
   The \e style is the bitwise OR between a frame shape and a frame
-  shadow style.
+  shadow style.  See the <a href=#picture>illustration</a> in the
+  class documentation.
 
   The frame shapes are:
   <ul>
   <li> \c NoFrame draws nothing.
-  <li> \c Box draws a rectangular box.
+  <li> \c Box draws a rectangular box.  The contents appear to be
+  level with the surrounding screen, but the border itself may be
+  raised or sunken.
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
   <li> \c WinPanel draws a rectangular panel that can be raised or sunken.
-  Specifying this shape sets the line width to 2 pixels.
+  Specifying this shape sets the line width to 2 pixels.  WinPanel provides
+  fancy Windows 95-like shadows.
   <li> \c HLine draws a horizontal line (vertically centered).
   <li> \c VLine draws a vertical line (horizontally centered).
   </ul>
 
   The shadow styles are:
   <ul>
-  <li> \c Plain draws using the palette foreground color.
+  <li> \c Plain draws using the palette foreground color (without any
+  3D effect).
   <li> \c Raised draws a 3D raised line using the light and dark
   colors of the current color group.
   <li> \c Sunken draws a 3D sunken line using the light and dark
@@ -164,7 +170,8 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   (with any shadow style) are disregarded unless line shapes are
   allowed.  Line shapes are allowed by default.
 
-  \sa frameStyle(), lineShapesOk(), colorGroup(), QColorGroup */
+  \sa <a href=#picture>Illustration</a>, frameStyle(), lineShapesOk(),
+  colorGroup(), QColorGroup */
 
 void QFrame::setFrameStyle( int style )
 {
@@ -372,11 +379,15 @@ void QFrame::paintEvent( QPaintEvent * )
 }
 
 
-/*!
-  Adjusts the frame rectangle for the resized widget.
-  Nothing is done if the frame rectangle is a
-  \link QRect::isNull() null rectangle\endlink.
-*/
+/*!  Adjusts the frame rectangle for the resized widget.  The frame
+  rectangle is elastic, the surrounding area is static.
+
+  The resulting frame rectangle may be null or invalid unless
+  setMinimumSize() is used to ensure that the user cannot shrink the
+  widget too much.
+
+  Nothing is done if the frame rectangle is a \link QRect::isNull()
+  null rectangle\endlink already.  */
 
 void QFrame::resizeEvent( QResizeEvent *e )
 {
