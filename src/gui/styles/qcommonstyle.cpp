@@ -879,10 +879,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     p. The \a widget is optional and may contain a widget that is
     useful for drawing the control.
 */
-void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
+void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                                QPainter *p, const QWidget *widget) const
 {
-    switch (ce) {
+    switch (element) {
     case CE_PushButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             drawControl(CE_PushButtonBevel, btn, p, widget);
@@ -962,7 +962,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_RadioButton:
     case CE_CheckBox:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            bool isRadio = (ce == CE_RadioButton);
+            bool isRadio = (element == CE_RadioButton);
             QStyleOptionButton subopt = *btn;
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
                                              subRect(isRadio ? QStyle::SR_RadioButtonIndicator

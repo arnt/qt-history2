@@ -745,6 +745,48 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         drawPrimitive(PE_PanelButtonBevel, &bevelOpt, p, widget);
         break; }
 
+    case CE_RadioButton:
+    case CE_CheckBox:
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+            bool isRadio = (element == CE_RadioButton);
+            QStyleOptionButton subopt = *btn;
+            subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
+                                             subRect(isRadio ? QStyle::SR_RadioButtonIndicator
+                                                             : SR_CheckBoxIndicator, btn, widget));
+            drawPrimitive(isRadio ? PE_IndicatorRadioButton : PE_IndicatorCheckBox,
+                          &subopt, p, widget);
+            subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
+                                             subRect(isRadio ? QStyle::SR_RadioButtonContents
+                                                             : SR_CheckBoxContents, btn, widget));
+            drawControl(isRadio ? CE_RadioButtonLabel : CE_CheckBoxLabel, &subopt, p, widget);
+//             if (btn->state & State_HasFocus) {
+//                 QStyleOptionFocusRect fropt;
+//                 fropt.state = btn->state;
+//                 fropt.palette = btn->palette;
+//                 fropt.rect = visualRect(btn->direction, btn->rect,
+//                                         subRect(isRadio ? QStyle::SR_RadioButtonFocusRect
+//                                                         : SR_CheckBoxFocusRect, btn, widget));
+//                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
+//             }
+        }
+        break;
+    case CE_PushButton:
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+            drawControl(CE_PushButtonBevel, btn, p, widget);
+            QStyleOptionButton subopt = *btn;
+            subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
+                                             subRect(SR_PushButtonContents, btn, widget));
+            drawControl(CE_PushButtonLabel, &subopt, p, widget);
+//             if (btn->state & State_HasFocus) {
+//                 QStyleOptionFocusRect fropt;
+//                 fropt.state = btn->state;
+//                 fropt.palette = btn->palette;
+//                 fropt.rect = visualRect(opt->direction, opt->rect,
+//                                         subRect(SR_PushButtonFocusRect, btn, widget));
+//                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
+//             }
+        }
+        break;
     case CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int diw, x1, y1, x2, y2;
@@ -1146,6 +1188,59 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                                      const QWidget *widget) const
 {
     switch (cc) {
+    case CC_ToolButton:
+        if (const QStyleOptionToolButton *toolbutton
+                = qt_cast<const QStyleOptionToolButton *>(opt)) {
+            QRect button, menuarea;
+            button = visualRect(opt->direction, opt->rect,
+                                subControlRect(cc, toolbutton, SC_ToolButton, widget));
+            menuarea = visualRect(opt->direction, opt->rect,
+                                  subControlRect(cc, toolbutton, SC_ToolButtonMenu,
+                                                         widget));
+
+            State bflags = toolbutton->state;
+
+            if (bflags & State_AutoRaise) {
+                if (!(bflags & State_MouseOver)) {
+                    bflags &= ~State_Raised;
+                }
+            }
+            State mflags = bflags;
+
+            if (toolbutton->activeSubControls & SC_ToolButton)
+                bflags |= State_Down;
+            if (toolbutton->activeSubControls & SC_ToolButtonMenu)
+                mflags |= State_Down;
+
+            QStyleOption tool(0);
+            tool.palette = toolbutton->palette;
+            if (toolbutton->subControls & SC_ToolButton) {
+                if (bflags & (State_Down | State_On | State_Raised)) {
+                    tool.rect = button;
+                    tool.state = bflags;
+                    drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
+                }
+            }
+
+            if (toolbutton->subControls & SC_ToolButtonMenu) {
+                tool.rect = menuarea;
+                tool.state = mflags;
+                if (mflags & (State_Down | State_On | State_Raised))
+                    drawPrimitive(PE_IndicatorButtonDropDown, &tool, p, widget);
+                drawPrimitive(PE_IndicatorArrowDown, &tool, p, widget);
+            }
+
+//             if (toolbutton->state & State_HasFocus) {
+//                 QStyleOptionFocusRect fr;
+//                 fr.rect = toolbutton->rect;
+//                 fr.rect.addCoords(3, 3, -3, -3);
+//                 fr.palette = toolbutton->palette;
+//                 fr.state = State_None;
+//                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
+//             }
+            drawControl(CE_ToolButtonLabel, toolbutton, p, widget);
+        }
+        break;
     case CC_SpinBox: {
         if (opt->subControls & SC_SpinBoxFrame)
             qDrawShadePanel(p, opt->rect, opt->palette, true, pixelMetric(PM_DefaultFrameWidth));
@@ -1168,11 +1263,11 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
             if ((opt->subControls & SC_SliderGroove) && groove.isValid()) {
                 qDrawShadePanel(p, groove, opt->palette, true, 2, &opt->palette.brush(QPalette::Mid));
-                if (opt->state & State_HasFocus) {
-                    QStyleOption focusOpt = *opt;
-                    focusOpt.rect = subRect(SR_SliderFocusRect, opt, widget);
-                    drawPrimitive(PE_FrameFocusRect, &focusOpt, p, widget);
-                }
+//                 if (opt->state & State_HasFocus) {
+//                     QStyleOption focusOpt = *opt;
+//                     focusOpt.rect = subRect(SR_SliderFocusRect, opt, widget);
+//                     drawPrimitive(PE_FrameFocusRect, &focusOpt, p, widget);
+//                 }
             }
 
             if ((opt->subControls & SC_SliderHandle) && handle.isValid()) {
@@ -1227,13 +1322,13 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 p->drawLine(ar.x()+1, sy+sh-1, ar.x()+awh-1, sy+sh-1);
                 p->drawLine(ar.x()+awh-1, sy+1, ar.x()+awh-1, sy+sh-1);
 
-                if (cb->state & State_HasFocus) {
-                    QStyleOptionFocusRect focus;
-                    focus.rect = QStyle::visualRect(opt->direction, opt->rect, subRect(SR_ComboBoxFocusRect, opt, widget));
-                    focus.palette = opt->palette;
-                    focus.backgroundColor = opt->palette.button().color();
-                    drawPrimitive(PE_FrameFocusRect, &focus, p, widget);
-                }
+//                 if (cb->state & State_HasFocus) {
+//                     QStyleOptionFocusRect focus;
+//                     focus.rect = QStyle::visualRect(opt->direction, opt->rect, subRect(SR_ComboBoxFocusRect, opt, widget));
+//                     focus.palette = opt->palette;
+//                     focus.backgroundColor = opt->palette.button().color();
+//                     drawPrimitive(PE_FrameFocusRect, &focus, p, widget);
+//                 }
             }
 
             if (opt->subControls & SC_ComboBoxEditField) {
