@@ -78,6 +78,7 @@ public:
 public slots:
     void scrollListView(int action);
     void updateScrollers();
+    void setCurrentItem(const QModelIndex &index, int bstate);
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);

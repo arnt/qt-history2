@@ -633,40 +633,47 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 */
 void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!(e->state() & Qt::LeftButton))
-        return;
     QPoint topLeft;
     QPoint bottomRight = e->pos();
     if (d->selectionMode != SingleSelection)
         topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
     else
         topLeft = bottomRight;
-    if (state() == Dragging && // the user has already started moving the mouse
-        (topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
-        startDrag();
-        setState(NoState); // the startDrag will return when the dnd operation is done
-        stopAutoScroll();
+
+    if (state() == Dragging) {
+        if ((topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
+            startDrag();
+            setState(NoState); // the startDrag will return when the dnd operation is done
+            stopAutoScroll();
+        }
         return;
     }
 
-    QModelIndex item = itemAt(bottomRight);
-    if (currentItem() == item && state() == Selecting)
+    QModelIndex index = itemAt(bottomRight);
+    if (index != currentItem()) {
+        if (index.isValid())
+            emit onItem(index, e->state());
+    } else if (state() == Selecting) {
         return; // we haven't moved over another item yet
+    }
 
-    if (item.isValid()) {
+    if (!(e->state() & Qt::LeftButton))
+        return;
+
+    if (index.isValid()) {
         if (state() != Selecting) {
-            bool dnd = model()->isDragEnabled(item) && supportsDragAndDrop();
-            bool selected = d->selectionModel->isSelected(item);
+            bool dnd = model()->isDragEnabled(index) && supportsDragAndDrop();
+            bool selected = d->selectionModel->isSelected(index);
             if (dnd && selected) {
                 setState(Dragging);
                 return;
             }
         }
-        d->selectionModel->setCurrentItem(item, QItemSelectionModel::NoUpdate);
+        d->selectionModel->setCurrentItem(index, QItemSelectionModel::NoUpdate);
     }
     setState(Selecting);
     setSelection(QRect(topLeft, bottomRight).normalize(),
-                 selectionCommand(e->state(), item, e->type()));
+                 selectionCommand(e->state(), index, e->type()));
 }
 
 /*!
@@ -957,7 +964,7 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
         if (buddy.isValid() && d->shouldEdit(action, buddy))
             edit = buddy;
     }
-    
+
     if (edit.isValid()) {
         itemDelegate()->event(event, edit);
         if (d->requestEditor(action, event, edit))

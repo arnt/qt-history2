@@ -42,6 +42,8 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
             this, SLOT(updateScrollers()));
     connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
             this, SLOT(updateScrollers()));
+    connect(list, SIGNAL(onItem(const QModelIndex &, int)),
+            this, SLOT(setCurrentItem(const QModelIndex &, int)));
 
     // add widgets to layout and create scrollers if needed
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
@@ -85,6 +87,21 @@ void ListViewContainer::updateScrollers()
             top->hide();
             bottom->hide();
     }
+}
+
+/*
+  \internal
+
+  Sets currentItem on onItem if the LeftButton is not pressed. This
+  means that if mouseTracking(...) is on, we setCurrentItem and select
+  even when LeftButton is not pressed.
+*/
+void ListViewContainer::setCurrentItem(const QModelIndex &index, int bstate)
+{
+    if (bstate & Qt::LeftButton)
+        return;
+
+    list->setCurrentItem(index);
 }
 
 /*
@@ -699,16 +716,17 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
     QRect delegateRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
                                                         QStyle::SC_ComboBoxEditField, this);
     // delegate paints content
-    QStyleOptionViewItem option(0);
+    QStyleOptionViewItem itemOpt(0);
 
     QModelIndex current = currentItem();
     if (current.isValid()) {
-        option.palette = palette();
-        option.state |= (isEditable() ? QStyle::Style_Editing : QStyle::Style_Default);
-        option.state |= (q->hasFocus()
+        itemOpt.init(this);
+        itemOpt.decorationPosition = QStyleOptionViewItem::Left;
+        itemOpt.state |= (isEditable() ? QStyle::Style_Editing : QStyle::Style_Default);
+        itemOpt.state |= (q->hasFocus()
                         ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
-        option.rect = delegateRect;
-        d->delegate->paint(&painter, option, current);
+        itemOpt.rect = delegateRect;
+        d->delegate->paint(&painter, itemOpt, current);
     }
 }
 
