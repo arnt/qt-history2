@@ -555,7 +555,7 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I \"","\" /I \"","\"") +
-						   " /I \"" + Option::mkfile::qmakespec + "\"");
+						   " /I \"" + specdir() + "\"");
 
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");

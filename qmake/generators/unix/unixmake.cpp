@@ -218,7 +218,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + "../PkgInfo");
 	    project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
 
-	    QString plist = Option::mkfile::qmakespec + QDir::separator() + "Info.plist." + 
+	    QString plist = specdir() + QDir::separator() + "Info.plist." + 
 			    project->first("TEMPLATE");
 	    if(QFile::exists(plist)) {
 		project->variables()["QMAKE_INFO_PLIST"].append(plist);

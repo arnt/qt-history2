@@ -43,6 +43,7 @@
 
 class MakefileGenerator
 {
+    QString spec;
     bool init_already, moc_aware;
     QStringList createObjectList(const QString &var);
     QString build_args();
@@ -69,6 +70,7 @@ protected:
     };
     bool generateDependencies(QPtrList<MakefileDependDir> &dirs, QString x, bool recurse);
 
+    QString specdir();
     QString cleanFilePath(const QString &file) const;
     bool generateMocList(QString fn);
 

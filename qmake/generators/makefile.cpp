@@ -1209,3 +1209,24 @@ QStringList
 	key = key.right(key.length() - key.findRev(Option::dir_sep) - 1);
     return depends[key];
 }
+
+
+QString
+MakefileGenerator::specdir()
+{
+    if(!spec.isEmpty())
+	return spec;
+    spec = Option::mkfile::qmakespec;
+    if(const char *d = getenv("QTDIR")) {
+	QString qdir = QDir::convertSeparators(QString(d));
+	//fix path
+	QFileInfo fi(spec);
+	QString absSpec(fi.absFilePath());
+	//replace what you can
+	if(absSpec.left(qdir.length()) == qdir) {
+	    absSpec.replace(0, qdir.length(), "$(QTDIR)");
+	    spec = absSpec;
+	}
+    }
+    return spec;
+}
