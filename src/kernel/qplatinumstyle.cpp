@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#22 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -1165,7 +1165,7 @@ int QPlatinumStyle::sliderLength() const
 void QPlatinumStyle::drawSlider( QPainter *p,
 				 int x, int y, int w, int h,
 				 const QColorGroup &g,
-				 Orientation /* orient */, bool /* tickAbove */, bool /* tickBelow */)
+				 Orientation orient , bool /* tickAbove */, bool /*tickBelow*/ )
 {
     const QColor c0 = g.shadow();
     const QColor c1 = g.dark();
@@ -1177,6 +1177,7 @@ void QPlatinumStyle::drawSlider( QPainter *p,
     int y1 = y;
     int y2 = y+h-1;
     int mx = w/2;
+    int my = h/2;
 
 
     QBrush oldBrush = p->brush();
@@ -1186,30 +1187,64 @@ void QPlatinumStyle::drawSlider( QPainter *p,
     p->setBrush( oldBrush );
 
 
-    //### works only for Down ....
+    if ( orient == Vertical ) {
+	// shadow border
+	p->setPen( c0 );
+// 	p->drawLine(x1+1,y1,x2-1,y1);
+// 	p->drawLine(x1, y2-mx+2, x1+mx-2, y2);
+// 	p->drawLine(x2, y2-mx+2, x1+mx+2, y2);
+// 	p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
+// 	p->drawLine(x1, y1+1, x1, y2-mx+2);
+// 	p->drawLine(x2, y1+1, x2, y2-mx+2);
 
-	    // shadow border
-	    p->setPen( c0 );
-	    p->drawLine(x1+1,y1,x2-1,y1);
-	    p->drawLine(x1, y2-mx+2, x1+mx-2, y2);
-	    p->drawLine(x2, y2-mx+2, x1+mx+2, y2);
-	    p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
-	    p->drawLine(x1, y1+1, x1, y2-mx+2);
-	    p->drawLine(x2, y1+1, x2, y2-mx+2);
 	
-	    // light shadow
-	    p->setPen(c3);
-	    p->drawLine(x1+1, y1+1,x2-1, y1+1);
-	    p->drawLine(x1+1, y1+1, x1+1, y2-mx+2);
+	p->drawLine(x1, y1+1, x1,y2-1);
+	p->drawLine( x2-my+2, y1, x2, y1+my-2);
+	p->drawLine( x2-my+2, y2, x2, y1+my+2);
+ 	p->drawLine(x2, y1+my-2, x2, y1+my+2);
+ 	p->drawLine(x1+1, y1, x2-my+2, y1);
+ 	p->drawLine(x1+1, y2, x2-my+2, y2);
 	
-	    // dark shadow
-	    p->setPen(c1);
-	    p->drawLine(x2-1, y1+1, x2-1, y2-mx+2);
-	    p->drawLine(x1+1, y2-mx+2, x1+mx-2, y2-1);
-	    p->drawLine(x2-1, y2-mx+2, x1+mx+2, y2-1);
-	    p->drawLine(x1+mx-2, y2-1, x1+mx+2, y2-1);
+	// light shadow
+	p->setPen(c3);
+	p->drawLine(x1+1, y1+2, x1+1,y2-2);
+ 	p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
+	p->drawLine( x2-my+2, y1+1, x2-1, y1+my-2);
+	
+	// dark shadow
+	p->setPen(c1);
+ 	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
+	p->drawLine( x2-my+2, y2-1, x2-1, y1+my+2);
+ 	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
+	
+	
+	drawRiffles(p, x, y+2, w-3, h-4, g, TRUE);
+    }
+    else { // Horizontal
+	
+	// shadow border
+	p->setPen( c0 );
+	p->drawLine(x1+1,y1,x2-1,y1);
+	p->drawLine(x1, y2-mx+2, x1+mx-2, y2);
+	p->drawLine(x2, y2-mx+2, x1+mx+2, y2);
+	p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
+	p->drawLine(x1, y1+1, x1, y2-mx+2);
+	p->drawLine(x2, y1+1, x2, y2-mx+2);
+	
+	// light shadow
+	p->setPen(c3);
+	p->drawLine(x1+1, y1+1,x2-1, y1+1);
+	p->drawLine(x1+1, y1+1, x1+1, y2-mx+2);
+	
+	// dark shadow
+	p->setPen(c1);
+	p->drawLine(x2-1, y1+1, x2-1, y2-mx+2);
+	p->drawLine(x1+1, y2-mx+2, x1+mx-2, y2-1);
+	p->drawLine(x2-1, y2-mx+2, x1+mx+2, y2-1);
+	p->drawLine(x1+mx-2, y2-1, x1+mx+2, y2-1);
 
-	    drawRiffles(p, x+2, y, w-4, h-5, g, TRUE);
+	drawRiffles(p, x+2, y, w-4, h-5, g, FALSE);
+    }
 }
 
 
@@ -1217,13 +1252,18 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 void QPlatinumStyle::drawSliderGroove( QPainter *p,
 				      int x, int y, int w, int h,
 				      const QColorGroup& g, QCOORD c,
-				       Orientation )
-
+				       Orientation orient )
 {
 
     p->fillRect(x, y, w, h, g.brush( QColorGroup::Background ));
-    y = y+c-3;
-    h = 7;
+    if ( orient == Horizontal ) {
+	y = y+c-3;
+	h = 7;
+    }
+    else {
+	x = x+c-3;
+	w = 7;
+    }
     p->fillRect(x, y, w, h, g.brush( QColorGroup::Dark ));
 
 	 // the dark side
@@ -1246,7 +1286,7 @@ void QPlatinumStyle::drawSliderGroove( QPainter *p,
     p->drawLine(x, y+h-1,x+w-1, y+h-1);
     p->drawLine(x+w-1, y, x+w-1, y+h-1);
 
- 	 // top left corner:
+    // top left corner:
     p->setPen(g.background());
     p->drawPoint(x, y);
     p->drawPoint(x+1, y);
