@@ -146,6 +146,9 @@
 #  define Q_OS_UNIXWARE7
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
+#elif defined(__svr4__)
+// generic fallback for the rest of svr4 systems, e.g. g++ on UnixWare7.
+#  define Q_OS_SVR4
 #else
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
 #endif
