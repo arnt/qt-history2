@@ -414,19 +414,18 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         q->setFocusPolicy(Qt::WheelFocus);
     }
 
+    doc->setUndoRedoEnabled(false);
+
     q->clear();
 
     QTextCharFormat fmt;
     fmt.setFont(q->font());
     fmt.setTextColor(q->palette().color(QPalette::Text));
-
-    // ###############
-//     d->cursor.movePosition(QTextCursor::Start);
-//     d->cursor.setBlockFormat(fmt);
+    d->cursor.movePosition(QTextCursor::Start);
+    d->cursor.setBlockCharFormat(fmt);
 
     viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
 
-    doc->setUndoRedoEnabled(false);
 
     QTextFrame *rootFrame = doc->rootFrame();
     QTextFrameFormat ffmt = rootFrame->format();
