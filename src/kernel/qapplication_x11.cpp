@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#585 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#586 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2358,7 +2358,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	} else {
 	    void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
-	    qt_np_process_foreign_event( event );
+ 	    if ( !activeModalWidget() ||
+ 		 ( event->type != ButtonRelease && 
+		   event->type != ButtonPress &&
+		   event->type != MotionNotify &&
+		   event->type != XKeyPress &&
+		   event->type != XKeyRelease ) )
+		qt_np_process_foreign_event( event );
 	}
 	return -1;
     }
