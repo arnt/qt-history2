@@ -3844,6 +3844,134 @@ QTextCursor *QTextParag::redo( QTextCursor *c )
     return doc->commands()->redo( c );
 }
 
+int QTextParag::topMargin() const
+{
+    if ( tm != -1 )
+	return tm;
+    QStyleSheetItem *item = style();
+    if ( !item ) {
+	( (QTextParag*)this )->tm = 0;
+	return 0;
+    }
+
+    int m = 0;
+    if ( item->margin( QStyleSheetItem::MarginTop ) != QStyleSheetItem::Undefined )
+	m = item->margin( QStyleSheetItem::MarginTop );
+    QStyleSheetItem *it = 0;
+    QStyleSheetItem *p = prev() ? prev()->style() : 0;
+    for ( int i = (int)styleSheetItemsVec.size() - 2 ; i >= 0; --i ) {
+	it = styleSheetItemsVec[ i ];
+	if ( it != p )
+	    break;
+	int mar = it->margin( QStyleSheetItem::MarginTop );
+	m += mar != QStyleSheetItem::Undefined ? mar : 0;
+	if ( it->displayMode() != QStyleSheetItem::DisplayInline )
+	    break;
+    }
+
+    if ( is_printer( painter() ) ) {
+	QPaintDeviceMetrics metrics( painter()->device() );
+	double yscale = scale_factor( metrics.logicalDpiY() );
+	m = (int)( (double)m * yscale );
+    }
+
+    ( (QTextParag*)this )->tm = m;
+    return tm;
+}
+
+int QTextParag::bottomMargin() const
+{
+    if ( bm != -1 )
+	return bm;
+    QStyleSheetItem *item = style();
+    if ( !item ) {
+	( (QTextParag*)this )->bm = 0;
+	return 0;
+    }
+
+    int m = 0;
+    if ( item->margin( QStyleSheetItem::MarginBottom ) != QStyleSheetItem::Undefined )
+	m = item->margin( QStyleSheetItem::MarginBottom );
+    QStyleSheetItem *it = 0;
+    QStyleSheetItem *n = next() ? next()->style() : 0;
+    for ( int i =(int)styleSheetItemsVec.size() - 2 ; i >= 0; --i ) {
+	it = styleSheetItemsVec[ i ];
+	if ( it != n )
+	    break;
+	int mar = it->margin( QStyleSheetItem::MarginBottom );
+	m += mar != QStyleSheetItem::Undefined ? mar : 0;
+	if ( it->displayMode() != QStyleSheetItem::DisplayInline )
+	    break;
+    }
+
+    if ( is_printer( painter() ) ) {
+	QPaintDeviceMetrics metrics( painter()->device() );
+	double yscale = scale_factor( metrics.logicalDpiY() );
+	m = (int)( (double)m * yscale );
+    }
+
+    ( (QTextParag*)this )->bm = m;
+    return bm;
+}
+
+int QTextParag::leftMargin() const
+{
+    if ( lm != -1 )
+	return lm;
+    QStyleSheetItem *item = style();
+    if ( !item ) {
+	( (QTextParag*)this )->lm = 0;
+	return 0;
+    }
+    int m = 0;
+    for ( int i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
+	item = styleSheetItemsVec[ i ];
+	int mar = item->margin( QStyleSheetItem::MarginLeft );
+	m += mar != QStyleSheetItem::Undefined ? mar : 0;
+	if ( item->name() == "ol" || item->name() == "ul" ) {
+	    m += defFormat->width( '1' ) +
+		 defFormat->width( '2' ) +
+		 defFormat->width( '3' ) +
+		 defFormat->width( '.' );
+	}
+    }
+
+    if ( is_printer( painter() ) ) {
+	QPaintDeviceMetrics metrics( painter()->device() );
+	double yscale = scale_factor( metrics.logicalDpiY() );
+	m = (int)( (double)m * yscale );
+    }
+
+    ( (QTextParag*)this )->lm = m;
+    return lm;
+}
+
+int QTextParag::rightMargin() const
+{
+    if ( rm != -1 )
+	return rm;
+    QStyleSheetItem *item = style();
+    if ( !item ) {
+	( (QTextParag*)this )->rm = 0;
+	return 0;
+    }
+    int m = 0;
+    for ( int i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
+	item = styleSheetItemsVec[ i ];
+	int mar = item->margin( QStyleSheetItem::MarginRight );
+	m += mar != QStyleSheetItem::Undefined ? mar : 0;
+    }
+
+    if ( is_printer( painter() ) ) {
+	QPaintDeviceMetrics metrics( painter()->device() );
+	double yscale = scale_factor( metrics.logicalDpiY() );
+	m = (int)( (double)m * yscale );
+    }
+
+    ( (QTextParag*)this )->rm = m;
+    return rm;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
