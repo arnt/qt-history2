@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#54 $
 **
 ** Implementation of QUrl class
 **
@@ -34,11 +34,12 @@ struct QUrlPrivate
     QString user;
     QString pass;
     QString host;
-    QString path;
+    QString path, cleanPath;
     QString refEncoded;
     QString queryEncoded;
     bool isValid;
     int port;
+    bool cleanPathDirty;
 };
 
 // NOT REVISED
@@ -79,6 +80,7 @@ QUrl::QUrl()
     d = new QUrlPrivate;
     d->isValid = FALSE;
     d->port = -1;
+    d->cleanPathDirty = TRUE;
 }
 
 /*!
@@ -130,34 +132,35 @@ bool QUrl::isRelativeUrl( const QString &url )
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
-  d = new QUrlPrivate;
-  QString relUrl = relUrl_.stripWhiteSpace();
+    d = new QUrlPrivate;
+    QString relUrl = relUrl_.stripWhiteSpace();
 
-  if ( !isRelativeUrl( relUrl ) ) {
-      if ( relUrl[ 0 ] == QChar( '/' ) ) {
-	  *this = url;
-	  setEncodedPathAndQuery( relUrl );
-      } else {
-	  *this = relUrl;
-      }
-  } else {
-      if ( relUrl[ 0 ] == '#' ) {
-	  *this = url;
-	  relUrl.remove( 0, 1 );
-	  decode( relUrl );
-	  setRef( relUrl );
-      } else {
-	  decode( relUrl );
-	  *this = url;
-	  QString p = url.path();
-	  if ( p.isEmpty() )
-	      p = "/";
-	  if ( p.right( 1 ) != "/" )
-	      p += "/";
-	  p += relUrl;
-	  d->path = p;
-      }
-  }
+    if ( !isRelativeUrl( relUrl ) ) {
+	if ( relUrl[ 0 ] == QChar( '/' ) ) {
+	    *this = url;
+	    setEncodedPathAndQuery( relUrl );
+	} else {
+	    *this = relUrl;
+	}
+    } else {
+	if ( relUrl[ 0 ] == '#' ) {
+	    *this = url;
+	    relUrl.remove( 0, 1 );
+	    decode( relUrl );
+	    setRef( relUrl );
+	} else {
+	    decode( relUrl );
+	    *this = url;
+	    QString p = url.path();
+	    if ( p.isEmpty() )
+		p = "/";
+	    if ( p.right( 1 ) != "/" )
+		p += "/";
+	    p += relUrl;
+	    d->cleanPathDirty = TRUE;
+	    d->path = p;
+	}
+    }
 }
 
 /*!
@@ -297,6 +300,7 @@ void QUrl::setPort( int port )
 void QUrl::setPath( const QString& path )
 {
     d->path = path;
+    d->cleanPathDirty = TRUE;
 }
 
 /*!
@@ -381,6 +385,7 @@ void QUrl::reset()
     d->refEncoded = "";
     d->isValid = TRUE;
     d->port = -1;
+    d->cleanPathDirty = TRUE;
 }
 
 /*!
@@ -394,6 +399,7 @@ bool QUrl::parse( const QString& url )
 	return FALSE;
     }
 
+    d->cleanPathDirty = TRUE;
     d->isValid = TRUE;
     QString oldProtocol = d->protocol;
     d->protocol = QString::null;
@@ -592,6 +598,7 @@ bool QUrl::parse( const QString& url )
 	d->host.remove( 0, 1 );
 
     decode( d->path );
+    d->cleanPathDirty = TRUE;
 
 #if 0
     qDebug( "URL: %s", url.latin1() );
@@ -723,6 +730,7 @@ QString QUrl::encodedPathAndQuery()
 
 void QUrl::setEncodedPathAndQuery( const QString& path )
 {
+    d->cleanPathDirty = TRUE;
     int pos = path.find( '?' );
     if ( pos == -1 ) {
 	d->path = path;
@@ -733,6 +741,7 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
     }
 
     decode( d->path );
+    d->cleanPathDirty = TRUE;
 }
 
 /*!
@@ -747,34 +756,36 @@ QString QUrl::path( bool correct ) const
     if ( !correct )
 	return d->path;
 
-    QString res;
-    if ( isLocalFile() ) {
-	QFileInfo fi( d->path );
-	if ( !fi.exists() )
-	    res = d->path;
-	else if ( fi.isDir() ) {
-	    QString dir = QDir::cleanDirPath( QDir( d->path ).canonicalPath() ) + "/";
-	    if ( dir == "//" )
-		res = "/";
-	    else
-		res = dir;
+    if ( d->cleanPathDirty ) {
+	if ( isLocalFile() ) {
+	    QFileInfo fi( d->path );
+	    if ( !fi.exists() )
+		d->cleanPath = d->path;
+	    else if ( fi.isDir() ) {
+		QString dir = QDir::cleanDirPath( QDir( d->path ).canonicalPath() ) + "/";
+		if ( dir == "//" )
+		    d->cleanPath = "/";
+		else
+		    d->cleanPath = dir;
+	    } else {
+		QString p = QDir::cleanDirPath( fi.dir().canonicalPath() );
+		d->cleanPath = p + "/" + fi.fileName();
+	    }
 	} else {
-	    QString p = QDir::cleanDirPath( fi.dir().canonicalPath() );
-	    res = p + "/" + fi.fileName();
+	    if ( d->path != "/" && d->path.right( 1 ) == "/" )
+		d->cleanPath = QDir::cleanDirPath( d->path ) + "/";
+	    else
+		d->cleanPath = QDir::cleanDirPath( d->path );
 	}
-    } else {
-	if ( d->path != "/" && d->path.right( 1 ) == "/" )
-	    res = QDir::cleanDirPath( d->path ) + "/";
-	else
-	    res = QDir::cleanDirPath( d->path );
-    }
 
-    if ( res.length() > 1 ) {
-	if ( res.left( 2 ) == "//" )
-	    res.remove( res.length() - 1, 1 );
+	if ( d->cleanPath.length() > 1 ) {
+	    if ( d->cleanPath.left( 2 ) == "//" )
+		d->cleanPath.remove( d->cleanPath.length() - 1, 1 );
+	}
+	d->cleanPathDirty = FALSE;
     }
-
-    return res;
+    
+    return d->cleanPath;
 }
 
 /*!
@@ -808,6 +819,7 @@ void QUrl::addPath( const QString& p )
     if ( p.isEmpty() )
 	return;
 
+    d->cleanPathDirty = TRUE;
     if ( d->path.isEmpty() ) {
 	if ( p[ 0 ] != QChar( '/' ) )
 	    d->path = "/" + p;
@@ -965,6 +977,7 @@ QUrl::operator QString() const
 bool QUrl::cdUp()
 {
     d->path += "/..";
+    d->cleanPathDirty = TRUE;
     return TRUE;
 }
 
