@@ -117,10 +117,11 @@ QRepeaterGfx::~QRepeaterGfx()
     for(walker=gfxen.first();walker;walker=gfxen.next()) {
 	delete walker->gfx;
     }
-    // FIXME: why is this needed?
+    /*
     while(qt_fbdpy->grabbed()) {
 	qt_fbdpy->ungrab();
     }
+    */
 }
 
 QString dumpRegion(QRegion r)
@@ -655,7 +656,7 @@ QRepeaterScreen::QRepeaterScreen(int)
         qDebug("Can't find %s",fn.local8Bit());
 	sw_cursor_exists=false;
         screens.append(new QScreenRec(new QLinuxFbScreen(0),
-				      "/proc/bus/pci/01/00.0",":0",true));   
+				      "/proc/bus/pci/01/00.0",":0",true));
 	return;
     }
 
@@ -666,22 +667,27 @@ QRepeaterScreen::QRepeaterScreen(int)
 
     fgets(buf,200,screendef);
     while(!feof(screendef)) {
-      if(buf[0]!='#') {
-	int num;
-	int swcursor;
-	sscanf(buf,"%s %d %s %d %s",name,&num,spec,&swcursor,pci);
-	QScreen * tmp=qt_get_screen(num,name);
-	if(!tmp) {
-	  qDebug("Failure to find screen %s",buf);
-	} else {
-	  qDebug("Found %s %s %s %d",name,pci,spec,swcursor);
-	  screens.append(new QScreenRec(tmp,pci,spec,swcursor==0));
-	  if(swcursor!=0) {
-	    sw_cursor_exists=true;
-	  }
+	if(buf[0]!='#') {
+	    int num;
+	    int swcursor;
+	    int x;
+	    int y;
+	    sscanf(buf,"%s %d %s %d %s %d %d",name,&num,spec,&swcursor,
+		   pci,&x,&y);
+	    QScreen * tmp=qt_get_screen(num,name);
+	    if(!tmp) {
+		qDebug("Failure to find screen %s",buf);
+	    } else {
+		QScreenRec * tmp2=new QScreenRec(tmp,pci,spec,swcursor==0);
+		tmp2->xoffs=x;
+		tmp2->yoffs=y;
+		screens.append(tmp2);
+		if(swcursor!=0) {
+		    sw_cursor_exists=true;
+		}
+	    }
 	}
-      }
-      fgets(buf,200,screendef);
+	fgets(buf,200,screendef);
     }
     fclose(screendef);
     qt_screen=this;
