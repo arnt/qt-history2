@@ -2333,37 +2333,32 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    QWorkspace* ws = (QWorkspace*)parentWidget();
 	    if ( !titlebar )
 		break;
+
+	    QPixmap pm;
+	    int iconSize = titlebar->size().height() - frameWidth() * 2;
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	    if ( childWidget->icon() ) {
-		titlebar->setIcon( *childWidget->icon() );
-	    } else
+		pm = *childWidget->icon();
+		if(pm.width() != iconSize || pm.height() != iconSize) {
+		    QImage im;
+		    im = pm;
+		    pm = im.smoothScale( iconSize, iconSize );
+		}
+	    } else 
 #endif
 	    {
-		QPixmap pm;
-		titlebar->setIcon( pm );
+		pm.resize( iconSize, iconSize );
+		pm.fill( white );
 	    }
+	    titlebar->setIcon( pm );
+	    if ( iconw )
+		iconw->setIcon( pm );
 
 	    if ( ws->d->maxWindow != this )
 		break;
 
-	    if ( ws->d->maxtools ) {
-#ifndef QT_NO_WIDGET_TOPEXTRA
-		if ( childWidget->icon() ) {
-		    QPixmap pm(*childWidget->icon());
-		    if(pm.width() != 14 || pm.height() != 14) {
-			QImage im;
-			im = pm;
-			pm = im.smoothScale( 14, 14 );
-		    }
-		    ws->d->maxtools->setPixmap( pm );
-		} else
-#endif
-		{
-		    QPixmap pm(14,14);
-		    pm.fill( white );
-		    ws->d->maxtools->setPixmap( pm );
-		}
-	    }
+	    if ( ws->d->maxtools )
+		ws->d->maxtools->setPixmap( pm );
 	}
 	break;
     case QEvent::Resize:
