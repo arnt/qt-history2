@@ -931,24 +931,6 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
         else
             setPen( black );
     }
-
-#ifndef QT_NO_TRANSFORMATIONS
-    if ( testf(ExtDev|VxF|WxF) ) {
-        if ( testf(ExtDev) ) {
-            QPDevCmdParam param[1];
-            QRect r( x, y, w, h );
-            param[0].rect = &r;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param )) {
-                setRasterOp( old_rop );
-                setPen( old_pen );
-                return;
-            }
-        }
-        map( x, y, w, h, &x, &y, &w, &h );
-    }
-#else
-    map( x, y, w, h, &x, &y, &w, &h );
-#endif
     if ( w <= 0 || h <= 0 ) {
         if ( w == 0 || h == 0 )
             return;
@@ -967,7 +949,6 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 	w -= 2;
 	h -= 2;
     }
-//    fillRect(x,y,w,h);
 
     setRasterOp( old_rop );
     setPen( old_pen );
