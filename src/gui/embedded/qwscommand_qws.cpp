@@ -13,7 +13,7 @@
 
 #include "qwscommand_qws.h"
 
-#define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
+// #define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
 
 #ifdef QWSCOMMAND_DEBUG
 # include <qdebug.h>
