@@ -20,7 +20,7 @@ SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
          borland_bmake.cpp msvc_nmake.cpp \
 	 msvc_dsp.cpp msvc_vcproj.cpp option.cpp winmakefile.cpp \
 	 projectgenerator.cpp metrowerks_xml.cpp mingw_make.cpp \
-         pbuilder_pbx.cpp msvc_objectmodel.cpp
+         pbuilder_pbx.cpp msvc_objectmodel.cpp qtmd5.cpp
 
 #Qt code
 SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \

@@ -14,14 +14,12 @@
 
 #include "msvc_vcproj.h"
 #include "option.h"
+#include "qtmd5.h" // SG's MD5 addon
 #include <qdir.h>
 #include <qregexp.h>
 #include <qdict.h>
 #include <quuid.h>
 #include <stdlib.h>
-#if defined(Q_OS_WIN32)
-#include <objbase.h> // For CoCreateGuid
-#endif
 
 
 // Flatfile Tags ----------------------------------------------------
@@ -96,6 +94,35 @@ struct VcsolutionDepend {
     QStringList dependencies;
 };
 
+QUuid VcprojGenerator::getProjectUUID()
+{
+    bool validUUID = true;
+
+    // Read GUID from variable-space
+    QUuid uuid = project->first("GUID");
+
+    // If none, create one based on the MD5 of absolute project path
+    if (uuid.isNull()) {
+	QCString abspath = project->first("QMAKE_MAKEFILE");
+	qtMD5(abspath, (unsigned char*)(&uuid));
+	validUUID = !uuid.isNull();
+	uuid.data4[0] = (uuid.data4[0] & 0x3F) | 0x80; // UV_DCE variant
+	uuid.data3 = (uuid.data3 & 0x0FFF) | Qt::UV_Name<<12;
+    }
+
+    // If still not valid, generate new one, and suggest adding to .pro
+    if (uuid.isNull() || !validUUID) {
+	uuid = QUuid::createUuid();
+	fprintf(stderr, 
+	        "qmake couldn't create a GUID based on filepath, and we couldn't\nfind a valid GUID in the .pro file (Consider adding\n'GUID = %s'  to the .pro file)\n", 
+		uuid.toString().upper().latin1());
+    }
+
+    // Store GUID in variable-space
+    project->values("GUID") = uuid.toString().upper();
+    return uuid;
+}
+
 QUuid VcprojGenerator::increaseUUID( const QUuid &id )
 {
     QUuid result( id );
@@ -131,17 +158,6 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
     }
 
     t << _snlHeader;
-    QUuid solutionGUID;
-#if defined(Q_WS_WIN32)
-    GUID guid;
-    HRESULT h = CoCreateGuid( &guid );
-    if ( h == S_OK )
-	solutionGUID = QUuid( guid );
-#else
-    // Qt doesn't support GUID on other platforms yet,
-    // so we use the all-zero uuid, and increase that.
-#endif
-
 
     QDict<VcsolutionDepend> solution_depends;
     QPtrList<VcsolutionDepend> solution_cleanup;
@@ -200,7 +216,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
 			newDep->targetType = tmp_vcproj.projectTarget;
 			{
-			    static QUuid uuid = solutionGUID;
+			    static QUuid uuid = getProjectUUID();
 			    uuid = increaseUUID( uuid );
 			    newDep->uuid = uuid.toString().upper();
 			}
@@ -310,26 +326,10 @@ void VcprojGenerator::initProject()
     initLexYaccFiles();
     initResourceFiles();
 
-    // Validate GUID in project file ------------
-    QString prj_guid = project->first("GUID"); 
-    QUuid uid( prj_guid );
-    if ( uid.isNull() ) {
-	// The GUID value is not valid, generate new one, on Windows
-#if defined(Q_WS_WIN32)
-	GUID guid;
-	HRESULT h = CoCreateGuid( &guid );
-	if ( h == S_OK )
-	    uid = QUuid( guid );
-#endif
-	project->values("GUID") = (QString)uid; // Store new value
-	if ( !prj_guid.isEmpty() )
-	    fprintf(stderr, "Project GUID is not valid, using generated %s instead\n", project->first("GUID").latin1() );
-    }
-
     // Own elements -----------------------------
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
     vcProject.Version = "7.00";
-    vcProject.ProjectGUID = project->first("GUID");
+    vcProject.ProjectGUID = getProjectUUID().toString().upper();
     vcProject.PlatformName = ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
     // These are not used by Qt, but may be used by customers
     vcProject.SccProjectName = project->first("SCCPROJECTNAME");

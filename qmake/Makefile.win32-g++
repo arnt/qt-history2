@@ -16,7 +16,7 @@ ADDCLEAN    =
 #qmake code
 OBJS=project.o main.o makefile.o unixmake.o unixmake2.o borland_bmake.o mingw_make.o \
 	msvc_nmake.o msvc_dsp.o msvc_vcproj.o option.o winmakefile.o projectgenerator.o \
- 	metrowerks_xml.o pbuilder_pbx.o msvc_objectmodel.o property.o meta.o
+ 	metrowerks_xml.o pbuilder_pbx.o msvc_objectmodel.o property.o meta.o qtmd5.o
 
 #qt code
 QTOBJS=qstring.o quuid.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o \
@@ -179,6 +179,9 @@ msvc_vcproj.o: generators/win32/msvc_vcproj.cpp
 
 msvc_objectmodel.o: generators/win32/msvc_objectmodel.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
+
+qtmd5.o: generators/win32/qtmd5.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/qtmd5.cpp
 
 project.o: project.cpp project.h option.h
 	$(CXX) $(CXXFLAGS) project.cpp

@@ -73,6 +73,7 @@ protected:
     target projectTarget;
 
 private:
+    QUuid getProjectUUID();
     QUuid increaseUUID(const QUuid &id);
     friend class VCFilter;
 };
