@@ -454,6 +454,7 @@ QMenuBar::QMenuBar(QWidget *parent, const char *name) : QWidget(*new QMenuBarPri
 QMenuBar::~QMenuBar()
 {
 #ifdef Q_WS_MAC
+    Q_D(QMenuBar);
     d->macDestroyMenuBar();
 #endif
 }
