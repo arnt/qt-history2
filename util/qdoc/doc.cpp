@@ -666,10 +666,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		legaleseBegin = yyOut.length();
 		legaleseEnd = INT_MAX;
 		break;
-	    case HASH( 'l', 12 ):
-		CONSUME( "legaleselist" );
-		yyOut += Doc::htmlLegaleseList();
-		break;
 	    case HASH( 'm', 6 ):
 		CONSUME( "module" );
 		moduleName = getWord( yyIn, yyPos );
@@ -2160,6 +2156,10 @@ QString Doc::finalHtml() const
 		    yyOut += y;
 		    yyPos = end + 8;
 		}
+		break;
+	    case HASH( 'l', 12 ):
+		CONSUME( "legaleselist" );
+		yyOut += htmlLegaleseList();
 		break;
 	    case HASH( 'p', 7 ):
 		CONSUME( "printto" );
