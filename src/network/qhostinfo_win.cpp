@@ -40,8 +40,8 @@ struct qt_addrinfo
 
 typedef int (__stdcall *getaddrinfoProto)(const char *, const char *, const qt_addrinfo *, qt_addrinfo **);
 typedef int (__stdcall *freeaddrinfoProto)(qt_addrinfo *);
-static getaddrinfoProto local_getaddrinfo;
-static freeaddrinfoProto local_freeaddrinfo;
+static getaddrinfoProto local_getaddrinfo = 0;
+static freeaddrinfoProto local_freeaddrinfo = 0;
 
 void resolveLibrary()
 {
