@@ -1,0 +1,135 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/widgets/qrangect.cpp#1 $
+**
+** Implementation of QRangeControl class
+**
+** Author  : Eirik Eng
+** Created : 940427
+**
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+**
+*****************************************************************************/
+
+#include "qrangect.h"
+
+#if defined(DEBUG)
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qrangect.cpp#1 $";
+#endif
+
+
+#undef ABS
+#define ABS(X) ((X) < 0) ? (-(X)) : (X)
+
+QRangeControl::QRangeControl()
+{
+    minVal      = 0;
+    maxVal      = 99;
+    line        = 1;
+    page        = 10;
+    val         = 0;
+    previousVal = 0;
+}
+
+QRangeControl::QRangeControl(int minValue, int maxValue,
+                             int LineStep, int PageStep,
+   	                     int value)
+{
+    minVal      = minValue;
+    maxVal      = maxValue;
+    line        = ABS(LineStep);
+    page        = ABS(PageStep);
+    val         = value;
+    previousVal = value;
+    adjustValue();
+}
+
+void QRangeControl::setValue(int value)
+{
+    directSetValue(value);
+    if (previousVal != val)
+	valueChange();
+}
+
+void QRangeControl::directSetValue(int value)
+{
+    previousVal = val;
+    val         = value;
+    adjustValue();
+}
+
+void QRangeControl::addPage()
+{
+    previousVal = val;
+    val         = val + page;
+    if (val > maxVal)
+	val = maxVal;
+    if (previousVal != val)
+	valueChange();
+}
+
+void QRangeControl::subtractPage()
+{
+    previousVal = val;
+    val         = val - page;
+    if (val < minVal)
+	val = minVal;
+    if (previousVal != val)
+	valueChange();
+}
+
+void QRangeControl::addLine()
+{
+    previousVal = val;
+    val         = val + line;
+    if (val > maxVal)
+	val = maxVal;
+    if (previousVal != val)
+	valueChange();
+}
+
+void QRangeControl::subtractLine()
+{
+    previousVal = val;
+    val         = val - line;
+    if (val < minVal)
+	val = minVal;
+    if (previousVal != val)
+	valueChange();
+}
+
+void QRangeControl::adjustValue()
+{
+    if (val < minVal)
+	val = minVal;
+    if (val > maxVal)
+	val = maxVal;
+}
+
+void QRangeControl::setRange(int minValue, int maxValue)
+{
+    if (minValue == minVal && maxValue == maxVal)
+        return;
+    if (minValue > maxValue) {
+	minVal = minValue;
+	maxVal = minValue;
+    } else {
+	minVal = minValue;
+	maxVal = maxValue;
+    }
+    int tmp = val;
+    adjustValue();
+    rangeChange();
+    if (tmp != val) {
+	previousVal = tmp;
+	valueChange();
+    }
+}
+
+void QRangeControl::setSteps(int lineStep,int pageStep)
+{
+    if (lineStep != line || pageStep != page) {
+        line = ABS(lineStep);
+        page = ABS(pageStep);
+        stepChange();
+    }
+}
