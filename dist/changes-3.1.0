@@ -1,0 +1,156 @@
+#77199
+
+Qt 3.1 introduces many significant new features and many improvements
+over the 3.0.x series. For an overview of the main changes between
+3.0.x and 3.1, look at the changes-3.1.0-b1 file. This file describes
+the changes between Qt 3.1 beta2 and Qt 3.1 final.
+
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+- Improved building Qt on MSVC.NET.
+
+- Support XIM on Solaris.
+
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QAccel
+	Corrected illegal accelerator state when using multiple
+	keysequences. (Resulted in no accels being triggered when in
+	partial match). Only triggers on enabled accelerators and
+	their enabled items. Eats all keys in a keysequence, not just
+	the first and last.
+
+- QCString
+	Speed-optimized replace().
+
+- QDataStream
+	Applies for printable data streams only: If the version number
+	of the device is less than 4, use the same streaming format
+	was used in Qt 2.3 and earlier.
+
+- QDataTable
+	Respect read-only columns. Make it possible to swap columns.
+
+- QDockWindow:
+	Added a standard widget constructor (taking a QWidget *parent,
+	const char *name and WFlags). Improved docking behavior.
+
+- QFileDialog:
+	Windows only: make Qt's filedialog work properly with network
+	paths.
+
+- QIconFactory
+	Avoid infinite loops when recursively calling
+	QPixmap::pixmap().
+
+- QLayout
+	alignmentRect() respects the layout's maximum size.
+
+- QLineEdit
+	Added signal lostFocus().
+
+- QListBox:
+	Fixed the item which is passed into the contextMenuRequested()
+	signal (this was sometimes wrong). Don't select items that are
+	not selectable.
+
+- QListView
+	Shift selection in Extended mode now follows Windows
+	Shift-selection standard. Erase empty area when drawing
+	listviews without columns.
+
+- QMainWindow
+	Base the minimumSizeHint() on the sizeHint()s of the left and
+	dock area (instead of the minimumSize()).
+
+- QMenuBar
+	Fixed broken Alt release detection. Fixed flickering.
+
+- QObject:
+	Fixed return value of disconnect().
+
+- QProcess
+	Unix only: Don't eat the filedescriptors if a lot of processes
+	(with short runtime) are started immediately after each other.
+
+- QPSQLDriver
+	Make the driver compile with the standard PostgreSQL source
+	distribution under Windows. Better handling of network,
+	datetime and geometrical datatypes.
+
+- QScrollView
+	Doesn't reposition the view when the user is scrolling the
+	view.
+
+- QString
+	Support QTextCodec::codecForCStrings(). Support
+	string<-->QString conversation when STL support is on.
+
+- QTable
+	Fixed Tab/BackTab handling to always work.
+
+- QTDSDriver
+	Binary datatypes work now.
+
+- QTextCodec
+	Added QTextCodec::codecForCStrings and QTextCodec::codecForTr.
+
+- QTextEdit
+	Fixed a painting error which resulted in areas of the textedit
+	not being erased correctly. Make sure to repaint is updated
+	after changing the underline-links setting. Renamed
+	'allowTabs' property to 'tabChangesFocus' (inverted
+	value). Added a new property 'autoFormatting'
+
+- QUrl
+	Recognize Windows drive letters not only in the form of "c:/"
+	but also in the form "c:" (without the '/').
+
+- QWidget
+	Fixed some visibility issues.
+
+****************************************************************************
+*			   Qt Designer					   *
+****************************************************************************
+
+- Displays now the classname of "gray box" custom widgets in the gray
+box on the form.
+
+- Accept tildes (~) in the project settings.
+
+- A new commandline tool conv2ui (in qt/tools/designer/tools) has been
+added, to convert dialog description files from different file formats
+to .ui files without the need to invoke Qt Designer. This tool uses
+the same plugins as Qt Designer for loading other dialog desription
+files.
+
+- A import filter for .kdevdlg files has been added.
+
+- Actions in the action editor are now sortable
+
+- Improved usibility of more dialogs (in-place renaming, drag'n'drop,
+etc.)
+
+- Preserver creation order of forward declarations, variables, etc.
+
+- Save comments also for actions.
+
+- uic: Fixed generating code for QStringList properties.
+
+****************************************************************************
+*			   Qt Assistant					   *
+****************************************************************************
+
+- Fixed some accelerator conflicts.
+
+****************************************************************************
+*			   Qt Linguist					   *
+****************************************************************************
+
+- Handle trailing backslash in strings correctly in lupdate.
