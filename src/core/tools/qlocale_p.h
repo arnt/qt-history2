@@ -25,7 +25,8 @@
 // We mean it.
 //
 
-#include <qstring.h>
+#include <QString>
+#include <QVarLengthArray>
 
 struct QLocalePrivate
 {
@@ -43,8 +44,6 @@ public:
 
     Q_UINT32 languageId() const { return m_language_id; }
     Q_UINT32 countryId() const { return m_country_id; }
-
-    bool isDigit(QChar d) const;
 
     enum DoubleForm {
         DFExponent = 0,
@@ -91,10 +90,10 @@ public:
     static Q_LONGLONG bytearrayToLongLong(const char *num, int base, bool *ok);
     static Q_ULONGLONG bytearrayToUnsLongLong(const char *num, int base, bool *ok);
 
-    char numberCharToCLocale(QChar c) const;
+    typedef QVarLengthArray<char, 256> CharBuff;
     bool numberToCLocale(const QString &num,
     	    	    	  GroupSeparatorMode group_sep_mode,
-                          char *buff, int bufflen, QByteArray &overflow) const;
+                          CharBuff *result) const;
                           
     Q_UINT32 m_language_id, m_country_id;
 
