@@ -31,6 +31,10 @@ SOURCES+=qstring.cpp qtextstream.cpp \
 	 qbitarray.cpp qdir.cpp \
 	 qfileinfo.cpp qdatetime.cpp \
 	 qstringlist.cpp qmap.cpp
+exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
+    SOURCES += $$QT_BUILD_TREE/src/tools/qconfig.cpp
+}
+
 #where to find the Qt code, and platform dependant SOURCES
 unix {
    VPATH = $$QT_SOURCE_TREE/src/tools
