@@ -47,12 +47,12 @@
 class Q_EXPORT QComponentFactory
 {
 public:
-    static QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer = 0 );
+    static QRESULT createInstance( const QString &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer = 0 );
     static QRESULT registerServer( const QString &filename );
     static QRESULT unregisterServer( const QString &filename );
 
-    static bool registerComponent( const QUuid &cid, const QString &filename, const QString &description = QString::null );
-    static bool unregisterComponent( const QUuid &cid );
+    static bool registerComponent( const QUuid &cid, const QString &filename, const QString &name = QString::null, const QString &description = QString::null );
+    static bool unregisterComponent( const QString &cid );
 };
 
 #endif // QT_NO_COMPONENT
