@@ -201,11 +201,11 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
 
     w->createTLExtra();
     w->extra->topextra->resizer += up;
-    
+
     {
 	WindowClass wclass;
 	GetWindowClass((WindowPtr)w->handle(), &wclass);
-	if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute)) 
+	if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute))
 	    return TRUE;
     }
     bool remove_grip = (w->extra->topextra->resizer ||
@@ -1528,18 +1528,33 @@ void QWidget::hideWindow()
     deactivateWidgetCleanup();
 }
 
-bool QWidget::isMinimized() const
+void QWidget::changeState_helper(WState newstate)
 {
-    // true for non-toplevels that have the minimized flag, e.g. MDI children
-    return IsWindowCollapsed((WindowRef)hd) || (!isTopLevel() && testWState(WState_Minimized));
+    newstate &= (WState_Minimized | WState_Maximized | WState_FullScreen);
+
+    bool needShow = FALSE;
+    if (isTopLevel()) {
+	if ((widget_state & WState_Maximized) != (newstate & WState_Maximized)) {
+	    // change maximized state
+	}
+
+	if ((widget_state & WState_FullScreen) != (newstate & WState_FullScreen)) {
+	    // change fullscreen state
+	}
+
+	if ((widget_state & WState_Minimized) != (newstate & WState_Minimized)) {
+	    // change minimized state
+	}
+    }
+
+    widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
+    widget_state |= newstate;
+
+    if (needShow)
+	show();
 }
 
-bool QWidget::isMaximized() const
-{
-    return testWState(WState_Maximized);
-}
-
-
+#if 0
 void QWidget::showMinimized()
 {
     show();
@@ -1633,6 +1648,7 @@ void QWidget::showNormal()
     QApplication::sendEvent(this, &e);
     clearWState(WState_Minimized | WState_Maximized);
 }
+#endif // 0
 
 void QWidget::raise()
 {

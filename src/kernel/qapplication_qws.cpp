@@ -275,7 +275,7 @@ public:
 	// With limited windowmanagement/taskbar/etc., raising big windows
 	// (eg. spreadsheet) over the top of everything else (eg. calculator)
 	// is just annoying.
-	return !isMaximized() && !d->topData()->fullscreen;
+	return !isMaximized() && !isFullScreen();
     }
 };
 

@@ -145,7 +145,7 @@ public:
 	WState_Polished		= 0x00002000,
 	WState_DND		= 0x00004000,
 	WState_Reserved0	= 0x00008000,
-	WState_Reserved1	= 0x00010000,
+	WState_FullScreen	= 0x00010000,
 	WState_OwnSizePolicy	= 0x00020000,
 	WState_ExplicitShowHide	= 0x00040000,
 	WState_Maximized	= 0x00080000,

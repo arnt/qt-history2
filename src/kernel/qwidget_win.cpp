@@ -906,6 +906,33 @@ void QWidget::repaint(const QRegion& r)
 }
 
 
+void QWidget::changeState_helper(WState newstate)
+{
+    newstate &= (WState_Minimized | WState_Maximized | WState_FullScreen);
+
+    bool needShow = FALSE;
+    if (isTopLevel()) {
+	if ((widget_state & WState_Maximized) != (newstate & WState_Maximized)) {
+	    // change maximized state
+	}
+
+	if ((widget_state & WState_FullScreen) != (newstate & WState_FullScreen)) {
+	    // change fullscreen state
+	}
+
+	if ((widget_state & WState_Minimized) != (newstate & WState_Minimized)) {
+	    // change minimized state
+	}
+    }
+
+    widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
+    widget_state |= newstate;
+
+    if (needShow)
+	show();
+}
+
+
 /*
   \internal
   Platform-specific part of QWidget::hide().
@@ -932,20 +959,11 @@ void QWidget::showWindow()
 #endif
     int sm = SW_SHOW;
     if ( isTopLevel() ) {
-	switch ( d->topData()->showMode ) {
-	case 1:
+	if (testWState(WState_Minimized))
 	    sm = SW_SHOWMINIMIZED;
-	    break;
-	case 2:
+	else if (testWState(WState_Maximized))
 	    sm = SW_SHOWMAXIMIZED;
-	    break;
-	default:
-	    sm = SW_SHOW;
-	    break;
-	}
-	d->topData()->showMode = 0; // reset
     }
-
     if ( testWFlags(WStyle_Tool) || isPopup() )
 	sm = SW_SHOWNOACTIVATE;
 
@@ -954,6 +972,7 @@ void QWidget::showWindow()
 }
 
 
+#if 0
 void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
@@ -1032,6 +1051,7 @@ void QWidget::showNormal()
     QApplication::sendEvent( this, &e );
     clearWState( WState_Maximized | WState_Minimized );
 }
+#endif // 0
 
 
 #else // Q_OS_TEMP --------------------------------------------------
@@ -1042,11 +1062,6 @@ void QWidget::showNormal()
 # else
 #  include <aygshell.h>
 # endif
-
-/*
-  \internal
-  Platform-specific part of QWidget::show().
-*/
 
 void QWidget::showWindow()
 {
@@ -1077,6 +1092,7 @@ void QWidget::showWindow()
 }
 
 
+#if 0
 void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
@@ -1172,30 +1188,9 @@ void QWidget::showNormal()
     QApplication::sendEvent( this, &e );
     clearWState( WState_Maximized | WState_Minimized );
 }
+#endif // 0
 
 #endif // Q_OS_TEMP -------------------------------------------------
-
-
-bool QWidget::isMinimized() const
-{
-    // true for non-toplevels that have the minimized flag, e.g. MDI children
-    return
-#ifndef Q_OS_TEMP
-	    IsIconic(winId()) || ( !isTopLevel() && testWState( WState_Minimized ) );
-#else
-	    testWState( WState_Minimized );
-#endif
-}
-
-bool QWidget::isMaximized() const
-{
-    return
-#ifndef Q_OS_TEMP
-	    IsZoomed(winId()) || ( !isTopLevel() && testWState( WState_Maximized ) );
-#else
-	    testWState( WState_Maximized );
-#endif
-}
 
 void QWidget::raise()
 {

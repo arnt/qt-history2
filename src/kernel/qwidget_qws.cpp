@@ -762,6 +762,33 @@ void QWidget::hideWindow()
     updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 }
 
+void QWidget::changeState_helper(WState newstate)
+{
+    newstate &= (WState_Minimized | WState_Maximized | WState_FullScreen);
+
+    bool needShow = FALSE;
+    if (isTopLevel()) {
+	if ((widget_state & WState_Maximized) != (newstate & WState_Maximized)) {
+	    // change maximized state
+	}
+
+	if ((widget_state & WState_FullScreen) != (newstate & WState_FullScreen)) {
+	    // change fullscreen state
+	}
+
+	if ((widget_state & WState_Minimized) != (newstate & WState_Minimized)) {
+	    // change minimized state
+	}
+    }
+
+    widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
+    widget_state |= newstate;
+
+    if (needShow)
+	show();
+}
+
+#if 0
 void QWidget::showMinimized()
 {
     /* XXX
@@ -775,12 +802,6 @@ void QWidget::showMinimized()
     //parentWidget()->repaint(geometry());
     clearWState( WState_Maximized );
     setWState( WState_Minimized );
-}
-
-bool QWidget::isMinimized() const
-{
-    // true for non-toplevels that have the minimized flag, e.g. MDI children
-    return FALSE || (!isTopLevel() && testWState( WState_Minimized ) ); // XXX
 }
 
 void QWidget::showMaximized()
@@ -821,7 +842,7 @@ void QWidget::showNormal()
     show();
     clearWState( WState_Minimized | WState_Maximized );
 }
-
+#endif // 0
 
 void QWidget::raise()
 {
@@ -1629,11 +1650,6 @@ unsigned char * QWidget::scanLine(int i) const
 int QWidget::bytesPerLine() const
 {
     return qt_screen->linestep();
-}
-
-bool QWidget::isMaximized() const
-{
-    return testWState(WState_Maximized);
 }
 
 void QWidget::resetInputContext()

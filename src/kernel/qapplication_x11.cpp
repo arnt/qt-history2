@@ -171,6 +171,7 @@ static const char * x11_atomnames = {
     "WM_PROTOCOLS\0"
     "WM_DELETE_WINDOW\0"
     "WM_STATE\0"
+    "WM_CHANGE_STATE\0"
     "WM_TAKE_FOCUS\0"
     "WM_CLIENT_LEADER\0"
     "WM_WINDOW_ROLE\0"
@@ -199,6 +200,7 @@ static const char * x11_atomnames = {
     "_NET_WM_STATE_MODAL\0"
     "_NET_WM_STATE_MAXIMIZED_VERT\0"
     "_NET_WM_STATE_MAXIMIZED_HORZ\0"
+    "_NET_WM_STATE_FULLSCREEN\0"
     "_NET_WM_WINDOW_TYPE\0"
     "_NET_WM_WINDOW_TYPE_NORMAL\0"
     "_NET_WM_WINDOW_TYPE_DIALOG\0"
@@ -283,7 +285,6 @@ static GC*	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC*	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
 
 bool		qt_broken_wm		= FALSE;
-
 
 // function to update the workarea of the screen - in qdesktopwidget_x11.cpp
 extern void qt_desktopwidget_update_workarea();
@@ -1769,7 +1770,7 @@ void qt_init( QApplicationPrivate *priv, int,
 		XRenderFindVisualFormat(X11->display,
 					(Visual *) QPaintDevice::x_appvisual);
 	    X11->use_xrender = (format != 0) && (QPaintDevice::x_appdepth != 8);
-#endif	    
+#endif
 	}
 #endif // QT_NO_XRENDER
 

@@ -869,9 +869,6 @@ void QWidgetPrivate::createTLExtra()
 	x->fleft = x->fright = x->ftop = x->fbottom = 0;
 	x->incw = x->inch = 0;
 	x->basew = x->baseh = 0;
-	x->iconic = 0;
-	x->fullscreen = 0;
-	x->showMode = 0;
 	x->normalGeometry = QRect(0,0,-1,-1);
 #if defined(Q_WS_X11)
 	x->embedded = 0;
@@ -1428,6 +1425,35 @@ QStyle* QWidget::setStyle( const QString &style )
 
     \sa showMinimized(), visible, show(), hide(), showNormal(), maximized
 */
+bool QWidget::isMinimized() const
+{ return testWState(WState_Minimized); }
+
+void QWidget::setMinimized(bool minimized)
+{
+    if ((!!testWState(WState_Minimized)) == minimized)
+	return;
+
+    changeState_helper(minimized
+		       ? (widget_state | WState_Minimized)
+		       : (widget_state & ~WState_Minimized));
+}
+
+/*!
+    Shows the widget minimized, as an icon.
+
+    Calling this function only affects \link isTopLevel() top-level
+    widgets\endlink.
+
+    \sa showNormal(), showMaximized(), show(), hide(), isVisible(),
+    isMinimized()
+*/
+void QWidget::showMinimized()
+{
+    changeState_helper(widget_state | WState_Minimized);
+    show();
+    QEvent e(QEvent::ShowMinimized);
+    QApplication::sendEvent(this, &e);
+}
 
 /*!
     \property QWidget::maximized
@@ -1443,6 +1469,109 @@ QStyle* QWidget::setStyle( const QString &style )
 
     \sa showMaximized(), visible, show(), hide(), showNormal(), minimized
 */
+bool QWidget::isMaximized() const
+{ return testWState(WState_Maximized); }
+
+void QWidget::setMaximized(bool maximized)
+{
+    if ((!!testWState(WState_Maximized)) == maximized)
+	return;
+
+    changeState_helper(maximized
+		       ? (widget_state | WState_Maximized)
+		       : (widget_state & ~WState_Maximized));
+}
+
+/*!
+    \property QWidget::fullScreen
+    \brief whether the widget is full screen
+
+    \sa minimized, maximized
+*/
+bool QWidget::isFullScreen() const
+{ return testWState(WState_FullScreen); }
+
+void QWidget::setFullScreen(bool fullScreen)
+{
+    if ((!!testWState(WState_FullScreen)) == fullScreen)
+	return;
+
+    changeState_helper(fullScreen
+		       ? (widget_state | WState_FullScreen)
+		       : (widget_state & ~WState_FullScreen));
+}
+
+/*!
+    Shows the widget in full-screen mode.
+
+    Calling this function only affects top-level widgets.
+
+    To return from full-screen mode, call showNormal().
+
+    Full-screen mode works fine under Windows, but has certai6n
+    problems under X. These problems are due to limitations of the
+    ICCCM protocol that specifies the communication between X11
+    clients and the window manager. ICCCM simply does not understand
+    the concept of non-decorated full-screen windows. Therefore, the
+    best we can do is to request a borderless window and place and
+    resize it to fill the entire screen. Depending on the window
+    manager, this may or may not work. The borderless window is
+    requested using MOTIF hints, which are at least partially
+    supported by virtually all modern window managers.
+
+    An alternative would be to bypass the window manager entirely and
+    create a window with the WX11BypassWM flag. This has other severe
+    problems though, like totally broken keyboard focus and very
+    strange effects on desktop changes or when the user raises other
+    windows.
+
+    Future X11 window managers that follow modern post-ICCCM
+    specifications may support full-screen mode properly.
+
+    \sa showNormal(), showMaximized(), show(), hide(), isVisible()
+*/
+void QWidget::showFullScreen()
+{
+    changeState_helper((widget_state & ~WState_Minimized) | WState_FullScreen);
+    show();
+    setActiveWindow();
+}
+
+/*!
+    Shows the widget maximized.
+
+    Calling this function only affects \link isTopLevel() top-level
+    widgets\endlink.
+
+    On X11, this function may not work properly with certain window
+    managers. See the \link geometry.html Window Geometry
+    documentation\endlink for an explanation.
+
+    \sa showNormal(), showMinimized(), show(), hide(), isVisible()
+*/
+void QWidget::showMaximized()
+{
+    changeState_helper(WState_Maximized);
+    show();
+    QEvent e(QEvent::ShowMaximized);
+    QApplication::sendEvent(this, &e);
+}
+
+/*!
+    Restores the widget after it has been maximized or minimized.
+
+    Calling this function only affects \link isTopLevel() top-level
+    widgets\endlink.
+
+    \sa showMinimized(), showMaximized(), show(), hide(), isVisible()
+*/
+void QWidget::showNormal()
+{
+    changeState_helper(0);
+    show();
+    QEvent e(QEvent::ShowNormal);
+    QApplication::sendEvent(this, &e);
+}
 
 /*!
     Returns TRUE if this widget would become enabled if \a ancestor is
@@ -5160,171 +5289,9 @@ void QWidget::setParent(QWidget *parent, WFlags f)
 #endif
 }
 
-
 /*!
-    Shows the widget in full-screen mode.
-
-    Calling this function only affects top-level widgets.
-
-    To return from full-screen mode, call showNormal().
-
-    Full-screen mode works fine under Windows, but has certain
-    problems under X. These problems are due to limitations of the
-    ICCCM protocol that specifies the communication between X11
-    clients and the window manager. ICCCM simply does not understand
-    the concept of non-decorated full-screen windows. Therefore, the
-    best we can do is to request a borderless window and place and
-    resize it to fill the entire screen. Depending on the window
-    manager, this may or may not work. The borderless window is
-    requested using MOTIF hints, which are at least partially
-    supported by virtually all modern window managers.
-
-    An alternative would be to bypass the window manager entirely and
-    create a window with the WX11BypassWM flag. This has other severe
-    problems though, like totally broken keyboard focus and very
-    strange effects on desktop changes or when the user raises other
-    windows.
-
-    Future X11 window managers that follow modern post-ICCCM
-    specifications may support full-screen mode properly.
-
-    \sa showNormal(), showMaximized(), show(), hide(), isVisible()
-*/
-
-#ifdef Q_OS_TEMP
-# if defined(WIN32_PLATFORM_PSPC) && (WIN32_PLATFORM_PSPC < 310)
-#  define SHFS_HIDETASKBAR            0x0002
-#  define SHFS_HIDESIPBUTTON          0x0008
-   extern "C" BOOL __stdcall SHFullScreen(HWND hwndRequester, DWORD dwState);
-# else
-#  include <aygshell.h>
-# endif
-#endif
-
-void QWidget::showFullScreen()
-{
-    if ( !isTopLevel() )
-	return;
-    if ( d->topData()->fullscreen ) {
-	show();
-	raise();
-	return;
-    }
-    if ( d->topData()->normalGeometry.width() < 0 )
-	d->topData()->normalGeometry = QRect( pos(), size() );
-    d->topData()->savedFlags = getWFlags();
-    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
-	      // preserve some widget flags
-	      (getWFlags() & 0xffff0000),
-	      mapToGlobal( QPoint( 0, 0) ));
-    d->topData()->fullscreen = 1;
-    const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
-    move( screen.topLeft() );
-    resize( screen.size() );
-    raise();
-    show();
-#ifdef Q_OS_TEMP
-    SHFullScreen( winId(), SHFS_HIDETASKBAR | SHFS_HIDESIPBUTTON );
-#endif
-    QEvent e( QEvent::ShowFullScreen );
-    QApplication::sendEvent( this, &e );
-#if defined(Q_WS_X11)
-    extern void qt_wait_for_window_manager( QWidget* w ); // defined in qwidget_x11.cpp
-    qt_wait_for_window_manager( this );
-#endif
-
-    setActiveWindow();
-}
-
-/*!
-    \property QWidget::fullScreen
-    \brief whether the widget is full screen
-
-    \sa minimized, maximized
-*/
-bool QWidget::isFullScreen() const
-{
-    QWidget* that = (QWidget*)this;
-    return isTopLevel() && that->d->topData()->fullscreen;
-}
-
-
-/*!
-    Repaints the widget directly by calling paintEvent() immediately,
-    unless updates are disabled or the widget is hidden.
-
-    We suggest only using repaint() if you need an immediate repaint,
-    for example during animation. In almost all circumstances update()
-    is better, as it permits Qt to optimize for speed and minimize
-    flicker.
-
-    \warning If you call repaint() in a function which may itself be
-    called from paintEvent(), you may get infinite recursion. The
-    update() function never causes recursion.
-
-    \sa update(), paintEvent(), setUpdatesEnabled(), erase()
-*/
-
-void QWidget::repaint()
-{
-#if defined(Q_WS_X11)
-    d->removePendingPaintEvents();
-#endif
-    repaint(d->clipRect());
-}
-
-/*! \overload
-
-    This version repaints a rectangle (\a x, \a y, \a w, \a h) inside
-    the widget.
-
-    If \a w is negative, it is replaced with \c{width() - x}, and if
-    \a h is negative, it is replaced width \c{height() - y}.
-*/
-void QWidget::repaint(int x, int y, int w, int h)
-{
-    if ( x > crect.width() || y > crect.height() )
-	return;
-    if ( w < 0 )
-	w = crect.width()  - x;
-    if ( h < 0 )
-	h = crect.height() - y;
-    repaint(QRegion(QRect(x, y, w, h)));
-}
-
-/*! \overload
-
-    This version repaints a rectangle \a r inside the widget.
-*/
-void QWidget::repaint(const QRect &r)
-{
-    repaint(QRegion(r));
-}
-
-/*! \fn void QWidget::repaint( const QRegion &rgn )
-    \overload
-
-    This version repaints a region \a rgn inside the widget.
-*/
-
-/*! \fn void QWidget::update()
-    Updates the widget unless updates are disabled or the widget is
-    hidden.
-
-    This function does not cause an immediate repaint; instead it
-    schedules a paint event for processing when Qt returns to the main
-    event loop. This permits Qt to optimize for more speed and less
-    flicker than a call to repaint() does.
-
-    Calling update() several times normally results in just one
-    paintEvent() call.
-
-    Qt normally erases the widget's area before the paintEvent() call.
-    If the \c WRepaintNoErase widget flag is set, the widget is
-    responsible for painting all its pixels itself.
-
-    \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(),
-    setWFlags()
+    \property QWidget::ownCursor
+    \brief whether the widget uses its own cursor
 */
 
 /*! \fn void QWidget::update(int x, int y, int w, int h)

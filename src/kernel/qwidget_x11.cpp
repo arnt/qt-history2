@@ -196,6 +196,79 @@ Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
     }
 }
 
+Q_EXPORT void qt_wait_for_window_manager( QWidget* w )
+{
+    QApplication::flushX();
+    XEvent ev;
+    QTime t;
+    t.start();
+    while ( !XCheckTypedWindowEvent( w->x11Display(), w->winId(), ReparentNotify, &ev ) ) {
+	if ( XCheckTypedWindowEvent( w->x11Display(), w->winId(), MapNotify, &ev ) )
+	    break;
+	if ( t.elapsed() > 500 )
+	    return; // give up, no event available
+	qApp->syncX(); // non-busy wait
+    }
+    qApp->x11ProcessEvent( &ev );
+    if ( XCheckTypedWindowEvent( w->x11Display(), w->winId(), ConfigureNotify, &ev ) )
+	qApp->x11ProcessEvent( &ev );
+}
+
+static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom two = 0)
+{
+    if (w->isShown()) {
+	// managed by WM
+        XEvent e;
+        e.xclient.type = ClientMessage;
+        e.xclient.message_type = ATOM(Net_Wm_State);
+        e.xclient.display = w->x11Display();
+        e.xclient.window = w->winId();
+        e.xclient.format = 32;
+        e.xclient.data.l[ 0 ] = set ? 1 : 0;
+        e.xclient.data.l[ 1 ] = one;
+        e.xclient.data.l[ 2 ] = two;
+        e.xclient.data.l[ 3 ] = 0;
+        e.xclient.data.l[ 4 ] = 0;
+        XSendEvent(w->x11Display(), RootWindow(w->x11Display(), w->x11Screen()),
+		   False, (SubstructureNotifyMask|SubstructureRedirectMask), &e);
+    } else {
+        Atom ret;
+	int format = 0, status;
+	unsigned char *data = 0;
+	unsigned long nitems = 0, after = 0;
+	Atom *old_states = 0;
+	status = XGetWindowProperty(w->x11Display(), w->winId(),
+				    ATOM(Net_Wm_State), 0, 1024, False,
+				    XA_ATOM, &ret, &format, &nitems,
+				    &after, &data);
+	if (status == Success && ret == XA_ATOM && format == 32 && nitems > 0)
+	    old_states = (Atom *) data;
+	else
+	    nitems = 0;
+
+	Atom *new_states = new Atom[nitems + 2];
+	int i, j = 0;
+	for (i = 0; i < nitems; ++i) {
+	    if (old_states[i] && old_states[i] != one && old_states[i] != two)
+		new_states[j++] = old_states[i];
+	}
+
+	if (set) {
+	    if (one) new_states[j++] = one;
+	    if (two) new_states[j++] = two;
+	}
+
+	if (j)
+	    XChangeProperty(w->x11Display(), w->winId(), ATOM(Net_Wm_State), XA_ATOM, 32,
+			    PropModeReplace, (uchar *) new_states, j);
+	else
+	    XDeleteProperty(w->x11Display(), w->winId(), ATOM(Net_Wm_State));
+
+	delete [] new_states;
+	if (data) XFree(data);
+    }
+}
+
 /*!
     Creates a new widget window if \a window is 0, otherwise sets the
     widget's window to \a window.
@@ -1534,6 +1607,96 @@ void QWidget::repaint(const QRegion& r)
     clearWState(WState_InPaintEvent);
 }
 
+/*! \internal
+ */
+void QWidget::changeState_helper(WState newstate)
+{
+    newstate &= (WState_Minimized | WState_Maximized | WState_FullScreen);
+
+    bool needShow = FALSE;
+    if (isTopLevel()) {
+	if ((widget_state & WState_Maximized) != (newstate & WState_Maximized)) {
+	    if (qt_net_supports(ATOM(Net_Wm_State_Maximized_Horz))
+		&& qt_net_supports(ATOM(Net_Wm_State_Maximized_Vert))) {
+		qt_net_change_wm_state(this, (newstate & WState_Maximized),
+				       ATOM(Net_Wm_State_Maximized_Horz),
+				       ATOM(Net_Wm_State_Maximized_Vert));
+	    } else if (isVisible()) {
+		QRect maxRect = QApplication::desktop()->availableGeometry(this);
+
+		// save original geometry
+		QTLWExtra *top = d->topData();
+		if ( top->normalGeometry.width() < 0 )
+		    top->normalGeometry = geometry();
+
+		// the wm was not smart enough to adjust our size, do that manually
+		updateFrameStrut();
+		setGeometry(maxRect.x() + top->fleft, maxRect.y() + top->ftop,
+			    maxRect.width() - top->fleft - top->fright,
+			    maxRect.height() - top->ftop - top->fbottom);
+	    }
+	}
+
+	if ((widget_state & WState_FullScreen) != (newstate & WState_FullScreen)) {
+	    if (qt_net_supports(ATOM(Net_Wm_State_FullScreen))) {
+		qt_net_change_wm_state(this, (newstate & WState_FullScreen),
+				       ATOM(Net_Wm_State_FullScreen));
+	    } else {
+		needShow = isVisible();
+
+		QTLWExtra *top = d->topData();
+		if (newstate & WState_FullScreen) {
+		    if ( top->normalGeometry.width() < 0 )
+			top->normalGeometry = QRect( pos(), size() );
+		    top->savedFlags = getWFlags();
+		    reparent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
+			     // preserve some widget flags
+			     (getWFlags() & 0xffff0000),
+			     mapToGlobal(QPoint(0, 0)));
+		    setGeometry(qApp->desktop()->screenGeometry(this));
+		} else {
+		    reparent( 0, top->savedFlags, QPoint(0,0) );
+		    QRect r = top->normalGeometry;
+		    if ( r.width() >= 0 ) {
+			// the widget has been maximized
+			top->normalGeometry = QRect(0,0,-1,-1);
+			setGeometry(r);
+		    }
+		}
+	    }
+	}
+
+	if ((widget_state & WState_Minimized) != (newstate & WState_Minimized)) {
+	    if (isVisible()) {
+		if (newstate & WState_Minimized) {
+		    XEvent e;
+		    e.xclient.type = ClientMessage;
+		    e.xclient.message_type = ATOM(Wm_Change_State);
+		    e.xclient.display = x11Display();
+		    e.xclient.window = winid;
+		    e.xclient.format = 32;
+		    e.xclient.data.l[0] = IconicState;
+		    e.xclient.data.l[1] = 0;
+		    e.xclient.data.l[2] = 0;
+		    e.xclient.data.l[3] = 0;
+		    e.xclient.data.l[4] = 0;
+		    XSendEvent(x11Display(), RootWindow(x11Display(), x11Screen()),
+			       False, (SubstructureNotifyMask|SubstructureRedirectMask), &e);
+		} else {
+		    XMapWindow(x11Display(), winId());
+		}
+	    }
+
+	    needShow = false;
+	}
+    }
+
+    widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
+    widget_state |= newstate;
+
+    if (needShow)
+	show();
+}
 
 /*!
   \internal
@@ -1542,28 +1705,45 @@ void QWidget::repaint(const QRegion& r)
 
 void QWidget::showWindow()
 {
-
     if ( isTopLevel()  ) {
-	int sm = d->topData()->showMode;
-	if ( sm ) { // handles minimize and reset
-	    XWMHints *h = XGetWMHints( x11Display(), winId() );
-	    XWMHints  wm_hints;
-	    bool got_hints = h != 0;
-	    if ( !got_hints ) {
-		h = &wm_hints;
-		h->flags = 0;
-	    }
-	    h->initial_state = sm == 1? IconicState : NormalState;
-	    h->flags |= StateHint;
-	    XSetWMHints( x11Display(), winId(), h );
-	    if ( got_hints )
-		XFree( (char *)h );
-	    d->topData()->showMode = sm == 1?3:0; // trigger reset to normal state next time
+	XWMHints *h = XGetWMHints( x11Display(), winId() );
+	XWMHints  wm_hints;
+	bool got_hints = h != 0;
+	if ( !got_hints ) {
+	    h = &wm_hints;
+	    h->flags = 0;
 	}
+	h->initial_state = testWState(WState_Minimized) ? IconicState : NormalState;
+	h->flags |= StateHint;
+	XSetWMHints( x11Display(), winId(), h );
+	if ( got_hints )
+	    XFree( (char *)h );
+
 	if ( d->d->topData()->parentWinId &&
 	     d->topData()->parentWinId != QPaintDevice::x11AppRootWindow(x11Screen()) &&
 	     !isMinimized() ) {
 	    X11->deferred_map.append(this);
+	    return;
+	}
+
+	if (isMaximized() && !(qt_net_supports(ATOM(Net_Wm_State_Maximized_Horz))
+			       && qt_net_supports(ATOM(Net_Wm_State_Maximized_Vert)))) {
+	    QRect maxRect = QApplication::desktop()->availableGeometry(this);
+
+	    // save original geometry
+	    QTLWExtra *top = d->topData();
+	    if (top->normalGeometry.width() < 0)
+		top->normalGeometry = geometry();
+	    setGeometry(maxRect);
+
+	    XMapWindow( x11Display(), winId() );
+	    qt_wait_for_window_manager(this);
+
+	    // the wm was not smart enough to adjust our size, do that manually
+	    updateFrameStrut();
+	    setGeometry(maxRect.x() + top->fleft, maxRect.y() + top->ftop,
+			maxRect.width() - top->fleft - top->fright,
+			maxRect.height() - top->ftop - top->fbottom);
 	    return;
 	}
     }
@@ -1598,163 +1778,6 @@ void QWidget::hideWindow()
 	    XUnmapWindow( x11Display(), winId() );
     }
 }
-
-
-/*!
-    Shows the widget minimized, as an icon.
-
-    Calling this function only affects \link isTopLevel() top-level
-    widgets\endlink.
-
-    \sa showNormal(), showMaximized(), show(), hide(), isVisible(),
-    isMinimized()
-*/
-
-void QWidget::showMinimized()
-{
-    if ( isTopLevel() ) {
-	if ( isVisible() && !isMinimized() )
-	    XIconifyWindow( x11Display(), winId(), x11Screen() );
-	else {
-	    d->topData()->showMode = 1;
-	    show();
-	}
-    } else {
-	show();
-    }
-    QEvent e( QEvent::ShowMinimized );
-    QApplication::sendEvent( this, &e );
-    clearWState( WState_Maximized );
-    setWState( WState_Minimized );
-}
-
-bool QWidget::isMinimized() const
-{
-    // true for non-toplevels that have the minimized flag, e.g. MDI children
-    return (isTopLevel() && qt_wstate_iconified( winId() )) || ( !isTopLevel() && testWState( WState_Minimized ) );
-}
-
-bool QWidget::isMaximized() const
-{
-    return testWState(WState_Maximized);
-}
-
-Q_EXPORT void qt_wait_for_window_manager( QWidget* w )
-{
-    QApplication::flushX();
-    XEvent ev;
-    QTime t;
-    t.start();
-    while ( !XCheckTypedWindowEvent( w->x11Display(), w->winId(), ReparentNotify, &ev ) ) {
-	if ( XCheckTypedWindowEvent( w->x11Display(), w->winId(), MapNotify, &ev ) )
-	    break;
-	if ( t.elapsed() > 500 )
-	    return; // give up, no event available
-	qApp->syncX(); // non-busy wait
-    }
-    qApp->x11ProcessEvent( &ev );
-    if ( XCheckTypedWindowEvent( w->x11Display(), w->winId(), ConfigureNotify, &ev ) )
-	qApp->x11ProcessEvent( &ev );
-}
-
-/*!
-    Shows the widget maximized.
-
-    Calling this function only affects \link isTopLevel() top-level
-    widgets\endlink.
-
-    On X11, this function may not work properly with certain window
-    managers. See the \link geometry.html Window Geometry
-    documentation\endlink for an explanation.
-
-    \sa showNormal(), showMinimized(), show(), hide(), isVisible()
-*/
-
-void QWidget::showMaximized()
-{
-    if ( isTopLevel() ) {
-	Display *dpy = x11Display();
-
-	if ( qt_net_supports(ATOM(Net_Wm_State_Maximized_Horz)) &&
-	    qt_net_supports(ATOM(Net_Wm_State_Maximized_Vert))) {
-	    // we have a NET supporting window manager
-	    long net_winstates[3] = { 0, 0, 0 };
-	    int curr_winstate = 0;
-
-	    // keep modal state if it is set
-	    if (testWFlags(WShowModal))
-		net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Modal);
-
-	    // set maximized states
-	    net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Maximized_Vert);
-	    net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Maximized_Horz);
-
-	    XChangeProperty(dpy, winId(), ATOM(Net_Wm_State), XA_ATOM, 32, PropModeReplace,
-			    (unsigned char *) net_winstates, curr_winstate);
-	} else {
-	    int scr = x11Screen();
-	    int sw = DisplayWidth(dpy,scr);
-	    int sh = DisplayHeight(dpy,scr);
-	    if ( d->topData()->normalGeometry.width() < 0 )
-		d->topData()->normalGeometry = geometry();
-	    if ( !d->topData()->parentWinId && !isVisible() ) {
-		setGeometry(0, 0, sw, sh );
-		show();
-		qt_wait_for_window_manager( this );
-		updateFrameStrut();
-	    }
-	    if ( width() == sw && height() == sh ) {
-		// the wm was not smart enough to adjust our size, do that manually
-		sw -= frameGeometry().width() - width();
-		sh -= frameGeometry().height() - height();
-		resize( sw, sh );
-	    }
-	}
-    }
-    show();
-    QEvent e( QEvent::ShowMaximized );
-    QApplication::sendEvent( this, &e );
-    clearWState( WState_Minimized );
-    setWState(WState_Maximized);
-}
-
-/*!
-    Restores the widget after it has been maximized or minimized.
-
-    Calling this function only affects \link isTopLevel() top-level
-    widgets\endlink.
-
-    \sa showMinimized(), showMaximized(), show(), hide(), isVisible()
-*/
-
-void QWidget::showNormal()
-{
-    if ( isTopLevel() ) {
-	if ( d->topData()->fullscreen ) {
-	    // when reparenting, preserve some widget flags
-	    reparent( 0, d->topData()->savedFlags, QPoint(0,0) );
-	    d->topData()->fullscreen = 0;
-	}
-	QRect r = d->topData()->normalGeometry;
-	if ( r.width() >= 0 ) {
-	    // the widget has been maximized
-	    d->topData()->normalGeometry = QRect(0,0,-1,-1);
-	    resize( r.size() );
-	    move( r.topLeft() );
-	}
-    }
-    if ( d->extra && d->extra->topextra )
-	d->extra->topextra->fullscreen = 0;
-    if ( !isVisible() ) {
-	show();
-    } else {
-	showWindow();
-    }
-    QEvent e( QEvent::ShowNormal );
-    QApplication::sendEvent( this, &e );
-    clearWState( WState_Minimized | WState_Maximized );
-}
-
 
 /*!
     Raises this widget to the top of the parent widget's stack.
