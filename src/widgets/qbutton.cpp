@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#73 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#73 $");
 
 
 static const int autoRepeatPeriod = 200;
@@ -540,7 +540,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
     if ( hit ) {				// mouse press on button
 	mlbDown = TRUE;				// left mouse button down
 	buttonDown = TRUE;
-	update();
+	repaint();
 	emit pressed();
 	if ( repeat )
 	    QTimer::singleShot( autoRepeatPeriod,
@@ -563,13 +563,13 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     if ( hit ) {				// mouse release on button
 	if ( toggleBt )
 	    buttonOn = !buttonOn;
-	update();
+	repaint();
 	if ( toggleBt )
 	    emit toggled( buttonOn );
 	emit released();
 	emit clicked();
     } else {
-	update();
+	repaint();
 	emit released();
     }
 }
@@ -587,13 +587,13 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
     if ( hit ) {				// mouse move in button
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;
-	    update();
+	    repaint();
 	    emit pressed();
 	}
     } else {					// mouse move outside button
 	if ( buttonDown ) {
 	    buttonDown = FALSE;
-	    update();
+	    repaint();
 	    emit released();
 	}
     }
@@ -665,7 +665,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 	    timer->start( autoRepeatPeriod, TRUE );
 	}
 	buttonDown = TRUE;
-	update();
+	repaint();
 	emit pressed();
     } else {
 	e->ignore();
@@ -687,7 +687,7 @@ void QButton::timerSlot()
     delete timer;
     if ( toggleBt )
 	buttonOn = !buttonOn;
-    update();
+    repaint();
     if ( toggleBt )
 	emit toggled( buttonOn );
     emit released();
@@ -737,7 +737,7 @@ void QButton::animateClick()
     if ( !isEnabled() )
 	return;
     buttonDown = TRUE;
-    update();
+    repaint();
     buttonDown = FALSE;
     if ( isToggleButton() ) {
 	buttonOn = !buttonOn;
