@@ -84,7 +84,7 @@ void usage(char **argv)
     cout << "Tool for porting Qt 3 applications to Qt 4, using the compatibility library" << endl;
     cout << "and compatibility functions in the core library." << endl;
     cout << endl;
-    cout << "Port has two usage modes: " << endl;
+    cout << "qt3to4 has two usage modes: " << endl;
     cout << "* File mode:     port infile.cpp/h" << endl;
     cout << "* Project mode:  port infile.pro " << endl;
     cout << endl;
