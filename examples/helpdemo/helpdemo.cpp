@@ -99,5 +99,14 @@ void HelpDemo::displayPage()
 
 void HelpDemo::showAssistantErrors( const QString &err )
 {
-    QMessageBox::critical( this, "Error", err );
+    QString errorMsg = err;
+    if ( err.startsWith( "Profile" ) ) {
+	errorMsg += "\n\n";
+	errorMsg += "First you have to install this profile. Quit\n";
+	errorMsg += "the application, and start Qt Assistant with:\n\n";
+	errorMsg += "assistant -addprofile helpdemo.adp /Help/Demo/Path\n\n";
+	errorMsg += "and restart this example. Have a look at the\n";
+	errorMsg += "example documentation for further information.\n";
+    }
+    QMessageBox::critical( this, "Error", errorMsg );
 }
