@@ -4027,17 +4027,7 @@ void QTextParag::invalidate( int chr )
 
 void QTextParag::invalidateStyleCache()
 {
-    if ( tm < 0 )
-	tm = -1;
-    if ( bm < 0 )
-	bm = -1;
-    if ( lm < 0 )
-	lm = -1;
-    if ( rm < 0 )
-	rm = -1;
-    if ( flm < 0 )
-	flm = -1;
-
+    tm = bm = lm = rm = flm = -1;
     if ( list_val < 0 )
 	list_val = -1;
 }
