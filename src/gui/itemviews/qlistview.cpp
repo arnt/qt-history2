@@ -503,10 +503,13 @@ bool QListView::isRowHidden(int row) const
 void QListView::setRowHidden(int row, bool hide)
 {
     Q_D(QListView);
-    if (hide)
+    if (hide) {
         d->hiddenRows.append(row);
-    else
-        d->hiddenRows.remove(d->hiddenRows.indexOf(row));
+    } else {
+        int idx = d->hiddenRows.indexOf(row);
+        if(idx != -1)
+            d->hiddenRows.remove(idx);
+    }
 
 //     if (isVisible())
 //         doItemsLayout(); // FIXME: start from the hidden item row
