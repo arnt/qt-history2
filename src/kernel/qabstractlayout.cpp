@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#23 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -741,7 +741,7 @@ QLayout::~QLayout()
 {
     //note that this function may be called during the QObject destructor,
     //when the parent no longer is a QWidget.
-    if ( isTopLevel() && parent()->isWidgetType() &&
+    if ( isTopLevel() && parent() && parent()->isWidgetType() &&
 	 ((QWidget*)parent())->layout() == this )
 	setWidgetLayout( (QWidget*)parent(), 0 );
 }
@@ -877,8 +877,8 @@ bool QLayout::activate()
     // Paul: If adding stuff to a QLayout for a widget causes
     // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
     // unnecessary in that case too.
-    
-    // Matthias: ??? but a LayoutHint simply _calls_ activate! 
+
+    // Matthias: ??? but a LayoutHint simply _calls_ activate!
     // However, it does not work at all right now. If a label changes,
     // for example, its size hint changes at well, the parent widget
     // receives a layout hint but layout doesn't react to it :-(

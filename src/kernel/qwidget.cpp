@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#376 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#377 $
 **
 ** Implementation of QWidget class
 **
@@ -567,10 +567,21 @@ QWidget::~QWidget()
 	warning( "%s (%s): deleted while being painted", className(), name() );
 #endif
 
-    // remove myself from the can-take-focus list
+    // remove myself and all children from the can-take-focus list
     QFocusData *f = focusData( FALSE );
-    if ( f )
-	f->focusWidgets.removeRef( this );
+    if ( f ) {
+	QWidget * home = f->home();
+	QWidget * w = home;
+	do {
+	    QWidget * p = w;
+	    while( p && p != this )
+		p = p->parentWidget();
+	    QWidget * t = w;
+	    w = f->next();
+	    if ( p == this )
+		f->focusWidgets.removeRef( t );
+	} while ( w && w != home );
+    }
 
     if ( QApplication::main_widget == this ) {	// reset main widget
 	QApplication::main_widget = 0;
@@ -591,9 +602,8 @@ QWidget::~QWidget()
 	QObject *obj;
 	while ( (obj=it.current()) ) {
 	    ++it;
+	    obj->parentObj = 0;
 	    delete obj;
-	    if ( !childObjects )		// removeChild resets it
-		break;
 	}
 	delete childObjects;
 	childObjects = 0;
