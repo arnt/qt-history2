@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 # vi:wrap:
 
+# See Qt I18N documentation for usage information.
+
 $projectid='example-Qt-message-extraction';
 $datetime='1999-02-23 15:38+0200';
 $charset='iso-8859-1';
@@ -11,7 +13,11 @@ $noop_mark = "QT_TR_NOOP";
 $scoped_mark = "qApp->translate";
 $noop_scoped_mark = "QT_TRANSLATE_NOOP";
 
-$header='msgid ""
+$header=
+'# This is a Qt message file in .po format.  Each msgid starts with
+# a scope.  This scope should *NOT* be translated - eg. "Foo::Bar"
+# would be translated to "Pub", not "Foo::Pub".
+msgid ""
 msgstr ""
 "Project-Id-Version: '.$projectid.'\n"
 "POT-Creation-Date: '.$datetime.'\n"
