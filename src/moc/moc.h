@@ -80,6 +80,12 @@ struct ClassDef {
     int end;
 };
 
+struct NamespaceDef {
+    QByteArray name;
+    int begin;
+    int end;
+};
+
 class Moc
 {
 public:
@@ -122,7 +128,14 @@ public:
     void moc(FILE *out);
 
     bool parseClassHead(ClassDef *def);
-    bool inClass(ClassDef *def);
+    inline bool inClass(const ClassDef *def) const {
+        return index > def->begin && index < def->end - 1;
+    }
+
+    inline bool inNamespace(const NamespaceDef *def) const {
+        return index > def->begin && index < def->end - 1;
+    }
+
     QByteArray parseType();
 
     bool parseEnum(EnumDef *def);

@@ -247,12 +247,6 @@ bool Moc::parseClassHead(ClassDef *def)
     return true;
 };
 
-bool Moc::inClass(ClassDef *def)
-{
-    return index > def->begin && index < def->end - 1;
-}
-
-
 QByteArray Moc::parseType()
 {
     QByteArray s;
@@ -416,16 +410,32 @@ bool Moc::parsePropertyCandidate(FunctionDef *def)
 
 void Moc::moc(FILE *out)
 {
-    //### TODO track namespaces
-
+    QList<NamespaceDef> namespaceList;
     QList<ClassDef> classList;
     while (hasNext()) {
         Token t = next();
+        if (t == NAMESPACE) {
+            int rewind = index;
+            if (test(IDENTIFIER)) {
+                NamespaceDef def;
+                def.name = lexem();
+                next(LBRACE);
+                def.begin = index - 1;
+                until(RBRACE);
+                def.end = index;
+                index = def.begin + 1;
+                namespaceList += def;
+            }
+            index = rewind;
+        }
         if (t != CLASS)
             continue;
         ClassDef def;
         FunctionDef::Access access = FunctionDef::Private;
         if (parseClassHead(&def)) {
+            for (int i = namespaceList.size() - 1; i >= 0; --i)
+                if (inNamespace(&namespaceList.at(i)))
+                    def.qualified.prepend(namespaceList.at(i).name + "::");
             while (inClass(&def) && hasNext()) {
                 switch ((t = next())) {
                 case PRIVATE:
