@@ -1228,10 +1228,10 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 		  w->className(), w->name(), className(), name(), row, col );
 	return;
     }
+    addChildWidget(w);
     QWidgetItem *b = new QWidgetItem( w );
     b->setAlignment( alignment );
     add( b, row, col );
-    addChildWidget(w);
 }
 
 /*!
@@ -1254,10 +1254,10 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 {
     if ( !checkWidget( this, w ) )
 	return;
+    addChildWidget(w);
     QGridBox *b = new QGridBox( w );
     b->setAlignment( alignment );
     data->add( b, fromRow, toRow, fromCol, toCol );
-    addChildWidget(w);
 }
 
 /*!
@@ -2007,10 +2007,9 @@ void QBoxLayout::insertStretch( int index, int stretch )
 */
 void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
 {
+    addChildLayout( layout );
     if ( index < 0 )				// append
 	index = data->list.count();
-
-    addChildLayout( layout );
     QBoxLayoutItem *it = new QBoxLayoutItem( layout, stretch );
     data->list.insert( index, it );
     invalidate();
@@ -2047,16 +2046,14 @@ void QBoxLayout::insertWidget( int index, QWidget *widget, int stretch,
 {
     if ( !checkWidget(this, widget) )
 	 return;
-
+    addChildWidget(widget);
     if ( index < 0 )				// append
 	index = data->list.count();
-
     QWidgetItem *b = new QWidgetItem( widget );
     b->setAlignment( alignment );
     QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
     data->list.insert( index, it );
     invalidate();
-    addChildWidget(widget);
 }
 
 /*!

@@ -1032,24 +1032,24 @@ void QLayout::addChildLayout( QLayout *l )
 */
 void QLayout::addChildWidget(QWidget *w)
 {
-    QWidget *parentWidget = mainWidget();
-
-    //### WA_Layouted is never reset. That could be done in ~QWidgetItem or something.
-    //### Actually not, since ~QWidgetItem is often done after the widget is deleted...
-    if (w->testAttribute(QWidget::WA_Layouted)) {
-	qWarning("QLayout::addChildWidget: widget is already a layout; moved to new layout");
-	w->setParent(0);
-    }
+    QWidget *mw = mainWidget();
     QWidget *pw = w->parentWidget();
-    if (!pw && !parentWidget) {
-	qWarning("QLayout::addChildWidget: must add layout to parent before adding children to layout.");
-    } else if (pw && pw != parentWidget) {
+
+    //WA_Layouted is never reset. It only means that the widget at some point has
+    //been in a layout.
+    if (w->testAttribute(QWidget::WA_Layouted)) {
+	QLayout *l = pw->layout();
+	if (l && removeWidgetRecursively(l, w))
+	    qWarning("QLayout::addChildWidget: widget is already in a layout; moved to new layout");
+    }
+    if (!pw && !mw) {
+	qWarning("QLayout::addChildWidget: add layout to parent before adding children to layout.");
+    } else if (pw && mw && pw != mw) {
 	qWarning("QLayout::addChildWidget: widget in wrong parent; moved to correct parent");
-	w->setParent(0);
 	pw = 0;
     }
-    if (!pw && parentWidget)
-	w->setParent(parentWidget);
+    if (!pw && mw)
+	w->setParent(mw);
     w->setAttribute(QWidget::WA_Layouted);
 }
 
