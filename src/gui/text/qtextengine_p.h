@@ -157,6 +157,10 @@ inline bool operator == (const QScriptAnalysis &sa1, const QScriptAnalysis &sa2)
 
 struct QGlyphLayout
 {
+    inline QGlyphLayout()
+        : glyph(0), justificationType(0), nKashidas(0), space_18d6(0)
+        {}
+
     // highest value means highest priority for justification. Justification is done by first inserting kashidas
     // starting with the highest priority positions, then stretching spaces, afterwards extending inter char
     // spacing, and last spacing between arabic words.

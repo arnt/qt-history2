@@ -212,32 +212,43 @@ bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
                                     QGlyphLayout *glyphs, int *nglyphs,
                                     QTextEngine::ShaperFlags flags) const
 {
-    if (!engine(0)->stringToCMap(str, len, glyphs, nglyphs, flags))
+    int ng = *nglyphs;
+    if (!engine(0)->stringToCMap(str, len, glyphs, &ng, flags))
         return false;
 
+    int glyph_pos = 0;
     for (int i = 0; i < len; ++i) {
-        if (glyphs[i].glyph != 0)
-            continue;
-
-        for (int x = 0; x < engines.size(); ++x) {
-            QFontEngine *engine = engines.at(x);
-            if (!engine) {
-                const_cast<QFontEngineMulti *>(this)->loadEngine(x);
-                engine = engines.at(x);
-                engine->setScale(scale());
-            }
-            Q_ASSERT(engine != 0);
-            if (engine->type() != Box && engine->canRender(str + i, 1)) {
+        bool surrogate = (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00 && i < len-1
+                          && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
+        if (glyphs[glyph_pos].glyph == 0) {
+            for (int x = 1; x < engines.size(); ++x) {
+                QFontEngine *engine = engines.at(x);
+                if (!engine) {
+                    const_cast<QFontEngineMulti *>(this)->loadEngine(x);
+                    engine = engines.at(x);
+                    engine->setScale(scale());
+                }
+                Q_ASSERT(engine != 0);
+                if (engine->type() == Box)
+                    continue;
                 glyphs[i].advance = glyphs[i].offset = QPointF();
-                engine->stringToCMap(str + i, 1, glyphs + i, nglyphs, flags);
-                // set the high byte to indicate which engine the glyph came from
-                glyphs[i].glyph |= (x << 24);
-                break;
+                int num = 2;
+                engine->stringToCMap(str + i, surrogate ? 2 : 1, g, &num, flags);
+                Q_ASSERT(num == 1); // surrogates only give 1 glyph
+                if (g[0].glyph) {
+                    glyphs[glyph_pos] = g[0];
+                    // set the high byte to indicate which engine the glyph came from
+                    glyphs[glyph_pos].glyph |= (x << 24);
+                    break;
+                }
             }
         }
+        if (surrogate)
+            ++i;
+        ++glyph_pos;
     }
 
-    *nglyphs = len;
+    *nglyphs = ng;
     return true;
 }
 

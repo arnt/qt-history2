@@ -206,7 +206,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
 {
     // ### zeroWidth and justification are missing here!!!!!
 
-    Q_ASSERT(item->num_glyphs == item->length);
+    Q_ASSERT(item->num_glyphs <= item->length);
 
 //     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", num_glyphs);
     QGlyphLayout *glyphs = item->glyphs;
@@ -215,8 +215,17 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
     // honour the logClusters array if it exists.
     const QChar *uc = item->string->unicode() + item->from;
 
-    for (int i = 0; i < item->num_glyphs; i++)
-        logClusters[i] = i;
+    int glyph_pos = 0;
+    for (int i = 0; i < item->length; i++) {
+        bool surrogate = (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < item->length-1
+                          && uc[i+1].unicode() >= 0xdc00 && uc[i+1].unicode() < 0xe000);
+        logClusters[i] = glyph_pos;
+        if (surrogate) {
+            logClusters[++i] = glyph_pos;
+        }
+        ++glyph_pos;
+    }
+    Q_ASSERT(glyph_pos == item->num_glyphs);
 
     // first char in a run is never (treated as) a mark
     int cStart = 0;
@@ -225,15 +234,15 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
 
     int pos = 1;
     QChar::Category lastCat = ::category(uc[0]);
-    while (pos < item->length) {
-        QChar::Category cat = ::category(uc[pos]);
+    while (pos < item->num_glyphs) {
+        QChar::Category cat = ::category(uc[logClusters[pos]]);
         if (cat != QChar::Mark_NonSpacing) {
             glyphs[pos].attributes.mark = false;
             glyphs[pos].attributes.clusterStart = true;
             glyphs[pos].attributes.combiningClass = 0;
-            cStart = pos;
+            cStart = logClusters[pos];
         } else {
-            int cmb = combiningClass(uc[pos]);
+            int cmb = combiningClass(uc[logClusters[pos]]);
 
             if (cmb == 0) {
                 // Fix 0 combining classes
@@ -312,6 +321,11 @@ static void basic_attributes(int /*script*/, const QString &text, int from, int 
         a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
         a->softBreak = false;
         a->charStop = (cat != QChar::Mark_NonSpacing);
+        if (cat == QChar::Other_Surrogate) {
+            // char stop only on first pair
+            a->charStop = (uc->unicode() >= 0xd800 && uc->unicode() < 0xdc00 && i < len-1
+                           && uc[1].unicode() >= 0xdc00 && uc[1].unicode() < 0xe000);
+        }
         a->wordStop = (*uc == QChar::LineSeparator);
         a->invalid = false;
         ++uc;

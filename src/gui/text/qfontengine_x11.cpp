@@ -535,6 +535,19 @@ static glyph_t getAdobeCharIndex(XftFont *font, int cmap, uint ucs4)
     return g;
 }
 
+inline unsigned int getChar(const QChar *str, int &i, const int len)
+{
+    unsigned int uc = str[i].unicode();
+    if (uc >= 0xd800 && uc < 0xdc00 && i < len-1) {
+        uint low = str[i+1].unicode();
+       if (low >= 0xdc00 && low < 0xe000) {
+            uc = (uc - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+            ++i;
+        }
+    }
+    return uc;
+}
+
 bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
     if (*nglyphs < len) {
@@ -543,50 +556,54 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     }
 
     bool mirrored = flags & QTextEngine::RightToLeft;
+    int glyph_pos = 0;
     if (_cmap != -1) {
        for ( int i = 0; i < len; ++i ) {
-           unsigned short uc = str[i].unicode();
-           glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
-           if ( !glyphs[i].glyph ) {
+           unsigned int uc = getChar(str, i, len);
+           glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
+           if ( !glyphs[glyph_pos].glyph ) {
                glyph_t glyph = XftCharIndex(0, _font, uc);
                if (!glyph)
                    glyph = getAdobeCharIndex(_font, _cmap, uc);
-              glyphs[i].glyph = glyph;
+              glyphs[glyph_pos].glyph = glyph;
                if ( uc < cmapCacheSize )
                    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
            }
+           ++glyph_pos;
        }
     } else if ( mirrored ) {
         for (int i = 0; i < len; ++i) {
-            unsigned short uc = ::mirroredChar(str[i]).unicode();
-            glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
-            if (!glyphs[i].glyph) {
+            unsigned int uc = QUnicodeTables::mirroredChar(getChar(str, i, len));
+            glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
+            if (!glyphs[glyph_pos].glyph) {
                 if (uc == 0xa0)
                     uc = 0x20;
                 glyph_t glyph = XftCharIndex(0, _font, uc);
-                glyphs[i].glyph = glyph;
+                glyphs[glyph_pos].glyph = glyph;
                 if (uc < cmapCacheSize)
                     ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
             }
+            ++glyph_pos;
         }
     } else {
         for (int i = 0; i < len; ++i) {
-            unsigned short uc = str[i].unicode();
-            glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
-            if (!glyphs[i].glyph) {
+            unsigned int uc = getChar(str, i, len);
+            glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
+            if (!glyphs[glyph_pos].glyph) {
                 if (uc == 0xa0)
                     uc = 0x20;
                 glyph_t glyph = XftCharIndex(0, _font, uc);
-                glyphs[i].glyph = glyph;
+                glyphs[glyph_pos].glyph = glyph;
                 if (uc < cmapCacheSize)
                     ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
             }
+            ++glyph_pos;
         }
     }
 
-    recalcAdvances(len, glyphs, flags);
+    *nglyphs = glyph_pos;
+    recalcAdvances(*nglyphs, glyphs, flags);
 
-    *nglyphs = len;
     return true;
 }
 
@@ -974,15 +991,16 @@ bool QFontEngineXft::canRender(const QChar *string, int len)
     bool allExist = true;
     if (_cmap != -1) {
         for ( int i = 0; i < len; i++ ) {
-            if (!XftCharExists(0, _font, string[i].unicode())
-                && getAdobeCharIndex(_font, _cmap, string[i].unicode()) == 0) {
+            unsigned int uc = getChar(string, i, len);
+            if (!XftCharExists(0, _font, uc) && getAdobeCharIndex(_font, _cmap, uc) == 0) {
                 allExist = false;
                 break;
             }
         }
     } else {
         for ( int i = 0; i < len; i++ ) {
-            if (!XftCharExists(0, _font, string[i].unicode())) {
+            unsigned int uc = getChar(string, i, len);
+            if (!XftCharExists(0, _font, uc)) {
                 allExist = false;
                 break;
             }
