@@ -95,7 +95,7 @@ public:
 	Remove,
 	Mkdir,
 	Rmdir,
-//###	Rename,
+	Rename,
 	RawCommand
     };
 
@@ -111,6 +111,7 @@ public:
     int remove( const QString &file );
     int mkdir( const QString &dir );
     int rmdir( const QString &dir );
+    int rename( const QString &oldname, const QString &newname );
 
     int rawCommand( const QString &command );
 

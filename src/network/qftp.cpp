@@ -1440,6 +1440,26 @@ int QFtp::rmdir( const QString &dir )
 }
 
 /*!
+  Renames the file \a oldname to \a newname on the server.
+
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
+
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
+
+  \sa commandStarted() commandFinished()
+*/
+int QFtp::rename( const QString &oldname, const QString &newname )
+{
+    QStringList cmds;
+    cmds << "RNFR " + oldname + "\r\n";
+    cmds << "RNTO " + newname + "\r\n";
+    return addCommand( new QFtpCommand( Rename, cmds ) );
+}
+
+/*!
     Sends the raw FTP command \a command to the FTP server. This is useful for
     low-level FTP access; if there is a QFtp function for the FTP command you
     want to issue, it is in general easier and safer to use that one instead.
