@@ -1287,14 +1287,19 @@ void QTextEdit::setPlainText(const QString &text)
 }
 
 /*!
+    \fn QString QTextEdit::toPlainText() const
+
     Returns the text of the text edit as plain text.
 
     \sa setPlainText
  */
-QString QTextEdit::toPlainText() const
-{
-    return d->doc->toPlainText();
-}
+/*!
+    \fn QString QTextEdit::toHtml() const
+
+    Returns the text of the text edit as html.
+
+    \sa setHtml
+ */
 
 /*!
     Changes the text of the text edit to the string \a text.
