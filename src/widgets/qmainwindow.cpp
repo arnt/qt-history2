@@ -1227,6 +1227,7 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
 	     this, SLOT( slotPlaceChanged() ) );
     dockWindow->installEventFilter( this );
     dockWindow->setOpaqueMoving( d->opaque );
+    dockWindow->show();
 }
 
 
@@ -1253,6 +1254,7 @@ void QMainWindow::addDockWindow( QDockWindow * dockWindow, const QString &label,
     if ( dockWindow->inherits( "QToolBar" ) )
 	( (QToolBar*)dockWindow )->setLabel( label );
 #endif
+    dockWindow->show();
 }
 
 /*!
