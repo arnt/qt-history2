@@ -1237,7 +1237,7 @@ void QDragManager::move( const QPoint & globalPos )
 	}
     }
 
-    if ( target ) {
+    if ( target && object ) {
 	XClientMessageEvent move;
 	move.type = ClientMessage;
 	move.window = target;
