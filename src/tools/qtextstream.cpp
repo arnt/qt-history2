@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#97 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#98 $
 **
 ** Implementation of QTextStream class
 **
@@ -1263,8 +1263,7 @@ QString QTextStream::readLine()
 	return QString::null;
     }
 #endif
-    QString   result;
-    int i = 0;
+    QString result;
     QChar c = ts_getc();
 
     while ( c != QEOF ) {
@@ -1274,8 +1273,11 @@ QString QTextStream::readLine()
 	result += c;
 	c = ts_getc();
     }
-    if ( i > 0 && result[i-1] == '\r' )
-	result.truncate(i-1); // if there are two \r, let one stay
+
+    if ( result && result[result.length()-1] == '\r' )
+	result.truncate(result.length()-1);
+	    // (if there are two \r, let one stay)
+
     return result;
 }
 
