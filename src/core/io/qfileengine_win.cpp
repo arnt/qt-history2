@@ -779,7 +779,7 @@ uint
 QFSFileEnginePrivate::getPermissions() const
 {
     int ret = 0;
-    
+
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
 	PSID pOwner = 0;
 	PSID pGroup = 0;
@@ -853,7 +853,7 @@ QFSFileEnginePrivate::getPermissions() const
 	//### what to do with permissions if we don't use ntfs or are not on a NT system
 	// for now just add all permissions and what about exe missions ??
 	// also qt_ntfs_permission_lookup is now not set by defualt ... should it ?
-    	ret |= QFileEngine::ReadOtherPerm | QFileEngine::ReadGroupPerm 
+    	ret |= QFileEngine::ReadOtherPerm | QFileEngine::ReadGroupPerm
 	    | QFileEngine::ReadOwnerPerm | QFileEngine::ReadUserPerm
 	    | QFileEngine::WriteUserPerm | QFileEngine::WriteOwnerPerm
 	    | QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm
@@ -875,7 +875,7 @@ QFSFileEnginePrivate::getPermissions() const
 			 QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
 	});
     }
-    
+
     return ret;
 }
 
@@ -941,30 +941,28 @@ QFSFileEngine::fileName(FileName file) const
 	}
     } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
-        if(d->file.isEmpty()
-            || (d->file.length() >=2 && d->file.at(0) != '/' && d->file.at(1) != ':')) {
-            ret = QDir::currentPath();
-        }
-        if(!d->file.isEmpty() && d->file != ".") {
-            if(!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
-                ret += '/';
-            ret += d->file;
-        }
-	if(ret[1] != ':' && ret[1] != '/') {
-	    ret.prepend(":");
-	    ret.prepend(_getdrive() + 'A' - 1);
-	}
-	if(ret[1] == ':' && ret.length() > 3 && ret[2] != '/') {
-	    QString pwd = currentDirOfDrive((char)ret[0].latin1());
-	    ret = pwd + "/" + ret.mid(2, 0xFFFFFF);
-	}
-        if(file == AbsolutePathName) {
-            int slash = ret.lastIndexOf('/');
-            if(slash == -1)
-                return QString::fromLatin1(".");
-            else if(!slash)
-                return QString::fromLatin1("/");
-            return ret.left(slash);
+        if (d->file.length() >= 2 && d->file.at(0).isLetter() && d->file.at(1) == QLatin1Char(':'))
+            ret = d->file;
+        else
+            ret = QDir::cleanPath(QDir::currentPath() + QLatin1Char('/') + d->file);
+
+        // The path should be absolute at this point.
+        Q_ASSERT(ret.length() >= 2);
+        Q_ASSERT(ret.at(0).isLetter());
+        Q_ASSERT(ret.at(1) == QLatin1Char(':'));
+
+        // Force uppercase drive letters.
+        ret[0] = ret.at(0).toUpper();
+
+        if (file == AbsolutePathName) {
+            if (!QFileInfo(ret).isDir()) {
+                int slash = ret.lastIndexOf(QLatin1Char('/'));
+                Q_ASSERT(slash < 0 || slash >= 2);
+                if (slash < 0)
+                    return ret;
+                else
+                    return ret.left(slash);
+            }
         }
         return ret;
     } else if(file == CanonicalName) {
