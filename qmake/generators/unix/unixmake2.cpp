@@ -77,7 +77,7 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
     return FALSE;
 }
 
-void 
+void
 UnixMakefileGenerator::writeExtraVariables(QTextStream &t)
 {
     bool first = TRUE;
@@ -1302,7 +1302,7 @@ UnixMakefileGenerator::libtoolFileName()
 void
 UnixMakefileGenerator::writeLibtoolFile()
 {
-    QString fname = pkgConfigFileName(), lname = fname;
+    QString fname = libtoolFileName(), lname = fname;
     int slsh = lname.findRev(Option::dir_sep);
     if(slsh != -1)
 	lname = lname.right(lname.length() - slsh);
@@ -1426,7 +1426,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     if(project->isActiveConfig("thread"))
 	libs << "QMAKE_LFLAGS_THREAD"; //not sure about this one, but what about things like -pthread?
     t << "Libs: -L" << libDir << " -l" << lname << " ";
-    for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it) 
+    for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
 	t << project->variables()[(*it)].join(" ") << " ";
     t << endl;
 
