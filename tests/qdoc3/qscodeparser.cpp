@@ -492,12 +492,12 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 	    } else if ( code[i] == 'T' && leftWordBoundary(code, i) &&
 			code.mid(i, 4) == "TRUE" &&
 			rightWordBoundary(code, i + 4) ) {
-		result += "true";
+		result += "\\c{true}";
 		i += 4;
 	    } else if ( code[i] == 'F' && leftWordBoundary(code, i) &&
 			code.mid(i, 5) == "FALSE" &&
 			rightWordBoundary(code, i + 5) ) {
-		result += "false";
+		result += "\\c{false}";
 		i += 5;
 	    } else if ( code[i] == '/' && code[i + 1] == '/' ) {
 		int numSpaces = columnForIndex( code, i ) -
