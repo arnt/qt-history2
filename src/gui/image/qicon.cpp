@@ -149,7 +149,7 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
             else
                 pe = &pixmaps[i];
         }
-    if (pe->isNull()) {
+    if (!pe) {
         // look for right mode, ignore state
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode == mode) {
@@ -159,7 +159,7 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
                     pe = &pixmaps[i];
             }
     }
-    if (pe->isNull()) {
+    if (!pe) {
         // merge active and normal mode, and look for right state
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode == (mode == QIcon::Disabled ? QIcon::Disabled : QIcon::Normal) && pixmaps.at(i).state == state) {
@@ -169,7 +169,7 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
                     pe = &pixmaps[i];
             }
     }
-    if (pe->isNull()) {
+    if (!pe) {
         // merge active and normal mode,  ignore state
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode == (mode == QIcon::Disabled ? QIcon::Disabled : QIcon::Normal)) {
@@ -180,7 +180,7 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
             }
     }
 
-    if (pe->isNull()) {
+    if (!pe) {
         // fallback: look for a normal one
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode == QIcon::Normal) {
