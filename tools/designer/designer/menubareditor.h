@@ -130,7 +130,8 @@ protected:
     void resizeInternals();
     
     void drawItems( QPainter & p );
-    void drawItem( QPainter & p, MenuBarEditorItem * i, int & x, int & y, uint & c );
+    void drawItem( QPainter & p, MenuBarEditorItem * i, int idx, QPoint & pos );
+    void drawSeparator( QPainter & p, QPoint & pos );
     
     QSize itemSize( QPainter & p, MenuBarEditorItem * i );
     void addItemSizeToCoords( QPainter & p, MenuBarEditorItem * i, int & x, int & y, const int w );

@@ -1,13 +1,14 @@
-#include <qdragobject.h>
-#include <qpainter.h>
 #include <qaction.h>
-#include <qlineedit.h>
 #include <qapplication.h>
+#include <qdragobject.h>
+#include <qlineedit.h>
 #include <qmainwindow.h>
-#include "popupmenueditor.h"
-#include "menubareditor.h"
+#include <qpainter.h>
+#include <qstyle.h>
 #include "command.h"
 #include "formwindow.h"
+#include "menubareditor.h"
+#include "popupmenueditor.h"
 
 extern void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, QWidget *w );
 
@@ -625,7 +626,9 @@ void MenuBarEditor::paste()
 void MenuBarEditor::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    p.eraseRect( 0, 0, width(), height() );
+    QRect r = rect();
+    style().drawPrimitive( QStyle::PE_PanelMenuBar, &p,
+			   r, colorGroup() );
     drawItems( p );
 }
 
@@ -859,72 +862,79 @@ void MenuBarEditor::resizeInternals()
 
 void MenuBarEditor::drawItems( QPainter & p )
 {
-    int x = borderSize;
-    int y = 0;
+    QPoint pos( borderSize, 0 );
     uint c = 0;
-
-    p.setPen( foregroundColor() );
+    
+    p.setPen( paletteForegroundColor() );
 
     MenuBarEditorItem * i = itemList.first();
     while ( i ) {
 	if ( i->isVisible() )
-	    drawItem( p, i, x, y, c ); // updates x y c
+	    drawItem( p, i, c++, pos ); // updates x y
 	i = itemList.next();
     }
-    
+
     p.setPen( "darkgray" ); // FIXME: find some portable way to get this color...
-    drawItem( p, &addItem, x, y, c );
-    if ( !hasSeparator ) {
-	drawItem( p, &addSeparator, x, y, c );
-    }
+    drawItem( p, &addItem, c++, pos );
+    if ( !hasSeparator )
+	drawItem( p, &addSeparator, c, pos );
 }
 
 void MenuBarEditor::drawItem( QPainter & p,
 			      MenuBarEditorItem * i,
-			      int & x,
-			      int & y,
-			      uint & c )
+			      int idx,
+			      QPoint & pos )
 {
-    int dx = itemSize( p, i ).width();
+    int w = itemSize( p, i ).width();
 
-    if ( x + dx > width() && x > borderSize ) {
-	y += itemHeight;
-	x = borderSize;
+    // If the item passes the right border, and it is not the first item on the line
+    if ( pos.x() + w > width() && pos.x() > borderSize ) { // wrap
+	pos.ry() += itemHeight;
+	pos.setX( borderSize );
     }
 
-    QRect r;
     if ( i->isSeparator() ) {
-	r = QRect( x, y + 1, separatorWidth, itemHeight - 2 );
-	p.save();
-	p.setPen( "blue" ); // FIXME: find some portable way to get this color...
-	p.drawLine( x, y + 2, x, y + itemHeight - 4 );
-	p.drawLine( x + separatorWidth - 1, y + 2,
-		    x + separatorWidth - 1, y + itemHeight - 4 );
-	p.fillRect( x, y + borderSize * 2, separatorWidth - 1, itemHeight - borderSize * 4,
-		    QBrush( "blue", Qt::Dense5Pattern ) );
-	p.restore();
+	drawSeparator( p, pos );
     } else {
-	p.drawText( x + borderSize, y, dx - borderSize, itemHeight,
-		    QPainter::AlignLeft |
-		    QPainter::AlignVCenter |
-		    Qt::ShowPrefix |
-		    Qt::SingleLine,
-		    i->menuText() );
-	r = QRect( x, y + 1, dx, itemHeight - 2 );
+	int flags = QPainter::AlignLeft | QPainter::AlignVCenter |
+	    Qt::ShowPrefix | Qt::SingleLine;
+	p.drawText( pos.x() + borderSize, pos.y(), w - borderSize, itemHeight,
+		    flags, i->menuText() );
+	//QRect r( 0, pos.y(), width(), itemHeight );
+	//style().drawControl( QStyle::CE_MenuBarItem, &p, i, r );
     }
+
+    if ( hasFocus() && idx == currentIndex && !draggedItem )
+	p.drawWinFocusRect( pos.x(), pos.y() + 1, w, itemHeight - 2 );
     
-    if ( hasFocus() && c == currentIndex && !draggedItem )
-	p.drawWinFocusRect( r );
+    pos.rx() += w;
+}
+
+void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
+{  
+    QColor col( "blue" ); // FIXME: find some portable way to get this color...
+    p.save();
+    p.setPen( col );
+
+    int left = pos.x();
+    int top = pos.y() + 2;
+    int right = left + separatorWidth - 1;
+    int bottom = pos.y() + itemHeight - 4;
     
-    x += dx;
-    c++;
+    p.drawLine( left, top, left, bottom );
+    p.drawLine( right, top, right, bottom );
+    
+    p.fillRect( left, pos.y() + borderSize * 2,
+		separatorWidth - 1, itemHeight - borderSize * 4,
+		QBrush( col, Qt::Dense5Pattern ) );
+    
+    p.restore();
 }
 
 QSize MenuBarEditor::itemSize( QPainter & p, MenuBarEditorItem * i )
 {
     if ( i->isSeparator() )
 	return QSize( separatorWidth, itemHeight ); //FIXME: itemHeight may be 0
-    
     QRect r = p.boundingRect( rect(), Qt::ShowPrefix, i->menuText() );
     return QSize( r.width() + borderSize * 2, r.height() + borderSize * 2 ); 
 }

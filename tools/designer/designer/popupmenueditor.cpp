@@ -1,22 +1,23 @@
-#include <qpainter.h>
-#include <qrect.h>
-#include <qlineedit.h>
-#include <qsize.h>
 #include <qapplication.h>
+#include <qcstring.h>
 #include <qdatastream.h>
 #include <qdragobject.h>
-#include <qcstring.h>
+#include <qlineedit.h>
 #include <qobjectlist.h>
+#include <qpainter.h>
 #include <qpopupmenu.h>
-#include "popupmenueditor.h"
-#include "command.h"
+#include <qrect.h>
+#include <qsize.h>
+#include <qstyle.h>
 #include "actiondnd.h"
-#include "formwindow.h"
-#include "formfile.h"
-#include "mainwindow.h"
 #include "actioneditorimpl.h"
-#include "pixmapchooser.h"
+#include "command.h"
+#include "formfile.h"
+#include "formwindow.h"
+#include "mainwindow.h"
 #include "metadatabase.h"
+#include "pixmapchooser.h"
+#include "popupmenueditor.h"
 
 // Drag Object Declaration -------------------------------------------
 
@@ -838,7 +839,8 @@ void PopupMenuEditor::setFocusAt( const QPoint & pos )
 void PopupMenuEditor::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    drawPopup( p );
+    QRect r = rect();
+    style().drawPrimitive( QStyle::PE_PanelPopup, &p, r, colorGroup() );
     drawItems( p );
 }
 
@@ -1104,8 +1106,8 @@ void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
 {
     QPixmap icon = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
-    
-    if ( a->isToggleAction() && a->isOn() ) {
+
+    if ( a->isToggleAction() && a->isOn() ) { // FIXME: use style
 	p.moveTo( iconWidth, y + 1 );
 	p.setPen( "white" );
 	p.lineTo( iconWidth, y + itemHeight - 2 );
@@ -1115,12 +1117,11 @@ int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
 	p.lineTo( iconWidth, y + 1 );
 	drawToggle( p, y );
     }
-	
+    
     p.drawPixmap( x + ( iconWidth - icon.width() ) / 2,
 		  y + ( iconWidth - icon.height() ) / 2,
 		  icon );
     x += iconWidth;
-    p.eraseRect( x, y, textWidth, itemHeight - borderSize ); // erase old text
     p.drawText( x, y, textWidth, itemHeight,
 		QPainter::AlignLeft |
 		QPainter::AlignVCenter |
@@ -1129,7 +1130,6 @@ int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
 		a->menuText() );
 
     x += textWidth + borderSize * 3;
-    p.eraseRect( x, y, acceleratorWidth, itemHeight - borderSize ); // erase old text
     p.drawText( x, y, acceleratorWidth, itemHeight,
 		QPainter::AlignLeft | QPainter::AlignVCenter,
 		a->accel() );
@@ -1151,6 +1151,7 @@ int PopupMenuEditor::drawActionGroup( QPainter & p, QActionGroup * g, int x, int
 
 int PopupMenuEditor::drawSeparator( QPainter & p, const int y )
 {
+     // FIXME: use style
     int w = width();
     int m = y + separatorHeight / 2;
     p.setPen( "white" );
@@ -1164,6 +1165,7 @@ int PopupMenuEditor::drawSeparator( QPainter & p, const int y )
 
 void PopupMenuEditor::drawArrow( QPainter & p, const int y )
 {
+     // FIXME: use style
     const int my = y + itemHeight / 2;
     const int mx = width() - borderSize - arrowWidth / 2;
 
@@ -1199,6 +1201,7 @@ void PopupMenuEditor::drawArrow( QPainter & p, const int y )
 
 void PopupMenuEditor::drawToggle( QPainter & p, const int y )
 {
+    // FIXME: use style
     const int my = y + itemHeight / 2;
     const int mx = borderSize + iconWidth / 2;
 
@@ -1253,34 +1256,12 @@ void PopupMenuEditor::drawWinFocusRect( QPainter & p, const int y )
     
 }
 
-void PopupMenuEditor::drawPopup( QPainter & p )
-{
-    int w = width() - 1;
-    int h = height() - 1;
-
-    // draw border
-    p.setPen( "lightgray" );
-    p.drawLine( 0, 0, w, 0 );
-    p.drawLine( 0, h, 0, 0 );
-    p.setPen( "black" );
-    p.drawLine( w, 1, w, h );
-    p.drawLine( w, h, 1, h );
-
-    w--; h--;
-    p.setPen( "white" );
-    p.drawLine( 1, 1, w, 1 );
-    p.drawLine( 1, h, 1, 1 );
-    p.setPen( "black" );
-    p.drawLine( w, 2, w, h );
-    p.drawLine( w, h, 2, h );
-}
-
 void PopupMenuEditor::drawItems( QPainter & p )
 {
     int y = borderSize;
     int fy = 0;
     uint c = 0;
-
+   
     p.setPen( paletteForegroundColor() );
     
     PopupMenuEditorItem * i = itemList.first();

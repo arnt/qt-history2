@@ -158,7 +158,6 @@ protected:
     void focusInEvent( QFocusEvent * e );
     void focusOutEvent( QFocusEvent * e );
 
-    void drawPopup( QPainter & p );
     void drawItems( QPainter & p );
     int drawAction( QPainter & p, QAction * a, int x, int y );
     int drawActionGroup( QPainter & p, QActionGroup * g, int x, int y );
