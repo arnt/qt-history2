@@ -223,30 +223,30 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     params.csParam.ioSearchInfo2=&myspec2;
     params.csParam.ioSearchTime=0;
     params.csParam.ioCatPosition.initialize=0;
-    params.csParam.ioOptBuffer=&mybuffer;
+    params.csParam.ioOptBuffer=(char *)&mybuffer;
     params.csParam.ioOptBufSize=4000;
 
-    myspec1.ioNamePtr=myfind;
-    myspec1.ioFlAttrib=0;
-    myspec1.ioFlCrData=0;
-    myspec1.ioDrDirID=mydirid;
-    myspec2.ioNamePtr=0;
-    myspec2.ioFlAttrib=0x10;
-    myspec2.ioFlCrDat=0;
-    myspec2.ioDrDirID=mydirid;
+    myspec1.dirInfo.ioNamePtr=myfind;
+    myspec1.dirInfo.ioFlAttrib=0;
+    myspec1.dirInfo.ioFlCrData=0;
+    myspec1.dirInfo.ioDrDirID=mydirid;
+    myspec2.dirInfo.ioNamePtr=0;
+    myspec2.dirInfo.ioFlAttrib=0x10;
+    myspec2.dirInfo.ioFlCrDat=0;
+    myspec2.dirInfo.ioDrDirID=mydirid;
     
     OSErr done;
     
     char namebuf[256];
     
     do {
-	done=PBGetCatInfo(&mycpb,false);
+	done=PBGetCatInfo(&params,false);
 	if(done==noErr) {
 	    int loopc;
-	    for(loopc=0;loopc<mycpb.ioActMatchCount;loopc++) {
+	    for(loopc=0;loopc<params.csParam.ioActMatchCount;loopc++) {
 		unsigned char * thename=matches[loopc].name;
 		thename[thename[0]+1]=0;
-		QString fn = thename+1;
+		QString fn = (const char *)thename+1;
 		fi.setFile( *this, fn );
 		if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
 		    continue;
