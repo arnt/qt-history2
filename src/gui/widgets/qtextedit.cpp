@@ -1496,10 +1496,10 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
 
 void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 {
-    if (action == MovePgUp) {
+    if (action == MovePageUp) {
         d->pageUp(mode);
         return;
-    } else if (action == MovePgDown) {
+    } else if (action == MovePageDown) {
         d->pageDown(mode);
         return;
     }

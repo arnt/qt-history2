@@ -61,8 +61,13 @@ public:
         MoveLineEnd,
         MoveHome,
         MoveEnd,
-        MovePgUp,
-        MovePgDown
+        MovePageUp,
+        MovePageDown
+#if defined(QT_COMPAT)
+        ,
+        MovePgUp = MovePageUp,
+        MovePgDown = MovePageDown
+#endif
     };
 
     QTextEdit(QWidget *parent);
