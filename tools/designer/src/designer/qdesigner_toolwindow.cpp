@@ -29,6 +29,7 @@ QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget 
     Q_ASSERT(workbench != 0);
 
     m_action = new QAction(this);
+    m_action->setShortcutContext(Qt::ApplicationShortcut);
     m_action->setText(windowTitle());
     m_action->setCheckable(true);
     connect(m_action, SIGNAL(checked(bool)), this, SLOT(setVisible(bool)));
