@@ -82,7 +82,7 @@ QStyleOption QRubberBandPrivate::getStyleOption() const
     change this and call QWidget::setWindowOpacity() to make the
     window only partially opaque.
 */
-QRubberBand::QRubberBand(QRubberBand::Shape s, QWidget *p) :
+QRubberBand::QRubberBand(Shape s, QWidget *p) :
     QWidget(*new QRubberBandPrivate, p, Qt::WType_TopLevel | Qt::WStyle_ToolTip)
 {
     d->shape = s;
@@ -203,17 +203,19 @@ void QRubberBand::changeEvent(QEvent *ev)
 */
 
 /*!
-    \fn void QRubberBand::setGeometry(const QRect &rect);
+    \fn void QRubberBand::setGeometry(int x, int y, int w, int h)
 
     \overload
 
-    Changes the rubberband's geometry to the geometry of the rectangle
-    \a rect.
+    Changes the rubberband's geometry to have a top-left corner of (\a
+    x, \a y), a width of \a w, and a height of \a h.
 */
 
 /*!
-    Changes the rubberband's geometry to have a top-left corner of (\a
-    x, \a y), a width of \a w, and a height of \a h.
+    \fn void QRubberBand::setGeometry(const QRect &rect)
+
+    Changes the rubberband's geometry to the geometry of the rectangle
+    \a rect.
 */
 void QRubberBand::setGeometry(const QRect &geom)
 {
