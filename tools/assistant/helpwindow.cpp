@@ -133,7 +133,7 @@ void HelpWindow::setSource(const QString &name)
     }
 
     QUrl u = QUrl(context()).resolved(name);
-    if (!u.isLocalFile()) {
+    if (u.toLocalFile().isEmpty()) {
         QMessageBox::information(mw, tr("Help"), tr("Can't load and display non-local file\n"
                     "%1").arg(name));
         return;
