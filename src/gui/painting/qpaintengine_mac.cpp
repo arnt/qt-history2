@@ -303,7 +303,7 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin);
+                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -418,7 +418,7 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
 
                 //draw the brush
                 QRect r(pa.boundingRect());
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin);
+                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -474,7 +474,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin);
+                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
