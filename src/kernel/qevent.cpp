@@ -37,8 +37,6 @@
 /*!
     \fn void QInputEvent::accept()
 
-    Sets the accept flag of the event object.
-
     Setting the accept parameter indicates that the event receiver
     wants the event. Unwanted events might be propagated to the parent
     widget.

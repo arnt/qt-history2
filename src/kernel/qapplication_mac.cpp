@@ -1406,6 +1406,10 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inZoomOut:
 	widget->showMaximized();
 	break;
+    case inProxyIcon: {
+	QEvent e(QEvent::IconDrag);
+	QApplication::sendSpontaneousEvent(widget, &e);
+	break; }
     default:
 	qDebug("Qt: internal: Unhandled case in mouse_down.. %d", windowPart);
 	break;

@@ -67,6 +67,7 @@ void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
 bool qt_event_remove_activate(); //qapplication_mac.cpp
 void qt_event_cleanup_for_widget(QWidget *w); //qapplication_mac.cpp
 void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
+IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 bool qt_nograb();
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
@@ -1275,9 +1276,8 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
 		CGDataProviderRelease(dp);
 	    }
 	}
-    } else {
-
-    }
+	SetWindowProxyIcon((WindowRef)handle(), qt_mac_create_iconref(pixmap));
+    } 
     QEvent e( QEvent::IconChange );
     QApplication::sendEvent( this, &e );
 }
