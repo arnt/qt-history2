@@ -171,6 +171,7 @@ while ( $line = <P4> ) {
     $linecount++;
     chomp( $line );
     ($file, $message) = split( m/ - /, $line );
+    $message =~ s/[\r\n]//g;
     if ( $message ne "file(s) not opened on this client." ) {
 	print STDERR "File $file is open; \"$message\"\n";
 	$abort = 1;
@@ -195,6 +196,7 @@ while ( $line = <P4> ) {
     $linecount++;
     chomp( $line );
     ($file, $message) = split( m/ - /, $line );
+    $message =~ s/[\r\n]//g;
     if ( $message ne "file(s) up-to-date."
       && $message ne "no such file(s)." ) {
 	print STDERR "File $file is not up-to-date; \"$message\"\n";
@@ -221,6 +223,7 @@ for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
 	$linecount++;
 	chomp( $line );
 	($file, $message) = split( m/ - /, $line );
+        $message =~ s/[\r\n]//g;
 	if ( $message =~ m/can't branch from.*without -d flag/ ) {
 	    print STDERR "$toBranchFiles[$count] has been deleted, ";
 	    if ( $ignoredeleted ) {
@@ -280,6 +283,7 @@ for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
 	chomp( $line );
 	# Discard revisions here.
 	$line =~ s/\#[0-9]+//g;
+        $line =~ s/[\r\n]//g;
 	if ( $line ne "$toBranchFiles[$count] - integrate from $fromBranchFiles[$count]"
 	  && $line ne "$toBranchFiles[$count] - branch/sync from $fromBranchFiles[$count]"
 	  && $line ne "$toBranchFiles[$count] - delete from $fromBranchFiles[$count]" ) {
