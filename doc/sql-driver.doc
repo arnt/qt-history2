@@ -365,14 +365,15 @@ database.
 \section3 How to build the plugin on Unix/Linux
 
 Just installing the pq client library and the corresponding header
-files is not sufficient. You have to get the PostgreSQL
-source distribution and run the configure script (there is no need to
-build it if you have already installed a binary distribution).
+files is not sufficient. You have to get the PostgreSQL source
+distribution and run the configure script. If you've already installed
+a binary distribution you don't need to build it. The source
+distribution is needed because the QPSQL7 plugin relies on a couple of
+header files that are usually not a part of the binary distribution.
 
-Tell \c qmake where to find the PostgreSQL header files and shared
-libraries (here it is assumed that you extracted the PostgreSQL source
-code in \c{/usr/src/psql} and the shared library is installed in
-\c{/usr/lib}) and run \c{make}:
+To make \c qmake find the PostgreSQL header files and shared
+libraries, run \c qmake the following way (assuming that the
+PostgreSQL sources can be found in \c{/usr/src/psql}):
 
 \code
 cd $QTDIR/plugins/src/sqldrivers/psql
@@ -380,20 +381,11 @@ qmake -o Makefile "INCLUDEPATH+=/usr/src/psql/src/include /usr/src/psql/src/inte
 make
 \endcode
 
-If you install the Su.S.E postgres development rpm package on
-S.u.S.E. Linux 8.0 , the correct commands are
-
-\code
-cd $QTDIR/plugins/src/sqldrivers/psql
-qmake -o Makefile "INCLUDEPATH+=/usr/include/pgsql /usr/include/pgsql/server" "LIBS+=-L/usr/lib -lpq" psql.pro
-make
-\endcode
-
 \section3 How to build the plugin on Windows
 
 Unpack and build the PostgreSQL source distribution as described in
-the PostgreSQL documentation. Build the plugin as follows (here it is
-assumed that PostgreSQL is installed in \c{C:\psql}):
+the PostgreSQL documentation. Assuming the PostgreSQL sources resides
+in \c{C:\psql}, build the plugin as follows:
 
 \code
 cd %QTDIR%\plugins\src\sqldrivers\psql
