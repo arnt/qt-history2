@@ -61,7 +61,6 @@ class QWSRegionManager;
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
-    Q_ENUMS( BackgroundMode PropagationMode FocusPolicy BackgroundOrigin )
     Q_PROPERTY( bool isTopLevel READ isTopLevel )
     Q_PROPERTY( bool isModal READ isModal )
     Q_PROPERTY( bool isPopup READ isPopup )
@@ -236,9 +235,6 @@ public:
     void		unsetFont();
     QFontMetrics	fontMetrics() const;
     QFontInfo	 	fontInfo() const;
-
-    enum PropagationMode { NoChildren, AllChildren,
-			   SameFont, SamePalette = SameFont };
 
 #ifndef QT_NO_CURSOR
     const QCursor      &cursor() const;

@@ -2177,16 +2177,6 @@ const QColorGroup &QWidget::colorGroup() const
   \sa setPalette(), colorGroup(), QApplication::palette()
 */
 
-
-/*! \enum QWidget::PropagationMode
-
-  \obsolete
-
-  This enum used to determine how fonts and palette changes are propagated to
-  children of a widget.
-
-*/
-
 /*!
   Sets the widget palette to \e palette and informs all children about the change.
 
