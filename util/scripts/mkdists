@@ -38,6 +38,8 @@ QDOC_PATH=$QTDIR/util/qdoc/qdoc
 QPKG_PATH=$QTDIR/util/install/package/package
 QMAKE_PATH=$QTDIR/bin/qmake
 MANIFEST_FILE=${TMP_FILE}-manifest
+MANIFEST_FILTER=$QTDIR/util/scripts/manifest.filter
+FASTMANIFEST_PATH=$QTDIR/util/scripts/createmanifest.pl
 #editions
 DO_COMMERCIAL=yes
 DO_FREE=yes
@@ -60,6 +62,7 @@ DO_ID=auto
 DO_COPYRIGHT=auto
 DO_DOC=auto
 TYPE=auto
+DO_FAST_MANIFEST=no  #experimental
 
 die()
 {
@@ -102,6 +105,7 @@ showhelp()
 
     echo "Paths:"
     echo "  -manifest <file>     : Specify path and filename of manifest file (will create)"
+    echo "  -filter <file>       : Where the manifest filter lives (default $MANIFEST_FILTER)"
     echo "  -outdir <directory>  : Where to put all things (default $OUT_TREE)"
     echo "  -p4 <executable>     : Where p4 lives (default $P4)"
     echo "  -qdoc <executable>   : Where qdoc lives (default $QDOC_PATH)"
@@ -131,6 +135,8 @@ showhelp()
     echo "  -no-gzip    / -do-gzip    : Toggle whether to add a gzip package"
     echo "  -no-bzip    / -do-bzip    : Toggle whether to add a bzip package"
     echo "  -no-stuff   / -do-stuff   : Toggle whether to add a stuffit package"
+    echo "  -no-manifast/ -do-manifast: Toggle whether to generate manifest fast   (!exp!)"
+    echo "  -no-fast    / -do-fast    : Toggle whether to generate everything fast (!exp!)"
 
     echo "=-________________________________________________________________-="
     echo "All options can be in long form --option=value as well (where value "
@@ -148,6 +154,11 @@ while [ -n "$1" ]; do
    -manifest)
 	shift
 	VAR=manifest
+	VAL=$1
+	;;
+   -filter)
+	shift
+	VAR=filter
 	VAL=$1
 	;;
    -p4)
@@ -238,6 +249,7 @@ while [ -n "$1" ]; do
    outdir) OUT_TREE=$VAL;;
    p4) P4=$VAL;;
    manifest) MANIFEST_FILE=$VAL;;
+   filter) MANIFEST_FILTER=$VAL;;
    local)
        [ -d "$VAL" ] || die "Unknown directory: $VAL"
        LOCAL_TREE=$VAL
@@ -264,6 +276,9 @@ while [ -n "$1" ]; do
    bzip)DO_BZIP=$VAL;;
    id) DO_ID=$VAL   ;;
    copyright) DO_COPYRIGHT=$VAL;;
+   manifast)DO_FAST_MANIFEST=$VAL ;;
+   fast)DO_FAST_MANIFEST=$VAL
+        [ "$VAL" == "yes" ] && DO_EXPORTS="no" ;;
    *) showhelp "--${VAR}=$VAL" ;;
    esac
 done
@@ -705,37 +720,46 @@ public_file () {
 # Create manifest file (containing a list of all files in the package)
 createManifest()
 {
-    allFiles=( `find $DISTDIR/qt` )
-    totalCount=${#allFiles[*]}
+    if [ "$DO_FAST_MANIFEST" = "no" ]; then
+        # This is the old way of creating the manifest file...
+        # all the egrep forks and sed'ing takes ~1400sec on vrang
+        allFiles=( `find $DISTDIR/qt` )
+        totalCount=${#allFiles[*]}
 
-    keepCount=0
-    removeCount=0
-    startTime=$(date +%s)
+        keepCount=0
+        removeCount=0
+        startTime=$(date +%s)
 
-    for element in $(seq 0 $((${#allFiles[@]}-1))); do
-        a=${allFiles[$element]}     # current file element
-    	[ -d "$a" ] && continue     # shortcut, it's a directory after all!
-    	
-    	# THIS is were most of the time will be spent, checking if the file is
-    	# a public file. 
-    	if public_file "$a"; then
-	    echo "$a" | sed "s,^${DISTDIR}/qt,," >>${MANIFEST_FILE} 2>>$LOG || \
-		    die "Could not write to manifest file";
-	    keepCount=$((keepCount+1))
-    	else
-	    removeCount=$((removeCount+1))
-    	fi
-        if (((keepCount+removeCount)%100 == 0)); then
-            # Time estimates ------------------------
-            currentTime=$(date +%s)
-            timeUsed=$((  currentTime - startTime ))
-            currentCount=$(( removeCount + keepCount ))
-            estimateTotalTime=$(( ((totalCount*100)/(currentCount) * timeUsed)/100 )) # Mult/Div with 100 used to increase presision
-            timeLeft=$(( estimateTotalTime-timeUsed ))
-            # ---------------------------------------
-            status "[$currentCount/$totalCount] Kept: $keepCount   Removed: $removeCount   Used: $timeUsed sec  Estimate: $estimateTotalTime sec -> Remaining: $timeLeft sec"
-        fi
-    done
+        for element in $(seq 0 $((${#allFiles[@]}-1))); do
+            a=${allFiles[$element]}     # current file element
+            [ -d "$a" ] && continue     # shortcut, it's a directory after all!
+
+            # THIS is were most of the time will be spent, checking if the file is
+            # a public file.
+            if public_file "$a"; then
+            echo "$a" | sed "s,^${DISTDIR}/qt,," >>${MANIFEST_FILE} 2>>$LOG || \
+                die "Could not write to manifest file";
+            keepCount=$((keepCount+1))
+            else
+            removeCount=$((removeCount+1))
+            fi
+            if (((keepCount+removeCount)%100 == 0)); then
+                # Time estimates ------------------------
+                currentTime=$(date +%s)
+                timeUsed=$((  currentTime - startTime ))
+                currentCount=$(( removeCount + keepCount ))
+                estimateTotalTime=$(( ((totalCount*100)/(currentCount) * timeUsed)/100 )) # Mult/Div with 100 used to increase presision
+                timeLeft=$(( estimateTotalTime-timeUsed ))
+                # ---------------------------------------
+                status "[$currentCount/$totalCount] Kept: $keepCount   Removed: $removeCount   Used: $timeUsed sec  Estimate: $estimateTotalTime sec -> Remaining: $timeLeft sec"
+            fi
+        done
+    else
+        # This is the new way of creating the manifest file...
+        # by using perl and the built in regexp creating the manifest takes ~1.2sec on vrang
+        perl $FASTMANIFEST_PATH -d $DISTDIR/qt -f $MANIFEST_FILTER -m $MANIFEST_FILE > $LOG || \
+            die "Couldn't create the manifest file";
+    fi
 }
 
 copy_dist_file()
