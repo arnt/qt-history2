@@ -20,24 +20,7 @@
 #include <qsqlmodel.h>
 #include <qsqlquery.h>
 
-static void createConnection()
-{
-    // create the database connection
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
-    if (!db.open()) {
-        qWarning("This example requires the QSQLITE driver");
-        return;
-    }
-
-    // create and populate a test table
-    QSqlQuery q;
-    q.exec("create table persons (id int primary key, firstname varchar(20), "
-           "lastname varchar(20))");
-    q.exec("insert into persons values(1, 'Arthur', 'Tulip')");
-    q.exec("insert into persons values(2, 'Scribe', 'Dent')");
-    q.exec("insert into persons values(3, 'Peter', 'Arthurson')");
-}
+#include "../../connection.h"
 
 int main(int argc, char *argv[])
 {
