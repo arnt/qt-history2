@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#16 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#17 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -1367,6 +1367,9 @@ QNPWidget* QNPInstance::widget()
   function which must consume at least as much data as was returned
   by the most recent call to writeReady().
 
+  Note that the AsFileOnly method is not supported by Netscape 2.0
+  and MS-Explorer 3.0.
+
   See also:
   <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppnewstream>
   Netscape: NPP_NewStream method</a>
@@ -1381,6 +1384,9 @@ bool QNPInstance::newStreamCreated(QNPStream*, StreamMode&)
   as chunks.  This may be simpler for a plugin to deal with, but
   precludes any incremental behaviour.
   \sa newStreamCreated(), newStream()
+
+  Note that the AsFileOnly method is not supported by Netscape 2.0
+  and MS-Explorer 3.0.
 
   See also:
   <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppstreamasfile>
@@ -1659,7 +1665,7 @@ QNPStream::~QNPStream()
 {
     if (!qnps_no_call_back) {
 	qnps_no_call_back++;
-	NPN_DestroyStream(inst->pi->npp, stream, 0);
+	NPN_DestroyStream(inst->pi->npp, stream, NPRES_USER_BREAK);
 	qnps_no_call_back--;
     }
 }
@@ -1819,6 +1825,12 @@ QNPlugin* QNPlugin::actual()
 */
 QNPlugin::QNPlugin()
 {
+    // Encourage linker to include stuff.
+    static void* a; 
+    a = (void*)NP_Initialize;
+    a = (void*)NP_GetMIMEDescription;
+    a = (void*)NP_GetValue;
+    a = (void*)NP_Shutdown;
 }
 
 /*!
