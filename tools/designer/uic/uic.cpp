@@ -66,7 +66,7 @@ static QString mkStdSet( const QString& prop )
 
 
 // convert Qt 2.x format to Qt 3.0 format
-static void fixDocument( QDomDocument& doc ) 
+static void fixDocument( QDomDocument& doc )
 {
     QDomElement e;
     QDomNode n;
@@ -88,15 +88,27 @@ static void fixDocument( QDomDocument& doc )
 	    e.removeChild( n2 );
 	}
 	bool stdset = toBool( e.attribute( "stdset" ) );
-	if ( stdset || name == "toolTip" || name == "whatsThis" || 
-	     name == "buddy" || 
+	if ( stdset || name == "toolTip" || name == "whatsThis" ||
+	     name == "buddy" ||
 	     e.parentNode().toElement().tagName() == "item" ||
 	     e.parentNode().toElement().tagName() == "spacer" ||
-	     e.parentNode().toElement().tagName() == "column" 
+	     e.parentNode().toElement().tagName() == "column"
 	     )
 	    e.removeAttribute( "stdset" );
 	else
 	    e.setAttribute( "stdset", 0 );
+    }
+
+    nl = doc.elementsByTagName( "attribute" );
+    for ( i = 0; i <  (int) nl.length(); i++ ) {
+	e = nl.item(i).toElement();
+	QString name;
+	QDomElement n2 = e.firstChild().toElement();
+	if ( n2.tagName() == "name" ) {
+	    name = n2.firstChild().toText().data();
+	    e.setAttribute( "name", name );
+	    e.removeChild( n2 );
+	}
     }
 
     nl = doc.elementsByTagName( "widget" );
@@ -136,7 +148,7 @@ Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const
     nameOfClass = getFormClassName( doc.firstChild().toElement() );
 
     stdsetdef = toBool( doc.firstChild().toElement().attribute("stdsetdef") );
-    
+
     QDomElement firstWidget = doc.firstChild().firstChild().toElement();
     while ( firstWidget.tagName() != "widget" )
 	firstWidget = firstWidget.nextSibling().toElement();
@@ -203,7 +215,7 @@ QString Uic::getObjectName( const QDomElement& e )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "name" 
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "name"
 	     && n.firstChild().toElement().tagName() == "cstring" )
 	    return n.firstChild().toElement().firstChild().toText().data();
     }
@@ -223,7 +235,7 @@ QString Uic::getLayoutName( const QDomElement& e )
 
     QDomElement n;
     for ( n = p.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "name" 
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "name"
 	     && n.firstChild().toElement().tagName() == "cstring" )
 	    return n.firstChild().toElement().firstChild().toText().data() + tail;
     }
@@ -237,7 +249,7 @@ QString Uic::getConnectionName( const QDomElement& e )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "database" 
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "database"
 	     && n.firstChild().toElement().tagName() == "cstring" )
 	    return n.firstChild().toElement().firstChild().toText().data();
     }
@@ -252,7 +264,7 @@ QString Uic::getTableName( const QDomElement& e )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "table" 
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "table"
 	     && n.firstChild().toElement().tagName() == "cstring" )
 	    return n.firstChild().toElement().firstChild().toText().data();
     }
@@ -266,7 +278,7 @@ QString Uic::getFieldName( const QDomElement& e )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "field" 
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "field"
 	     && n.firstChild().toElement().tagName() == "cstring" )
 	    return n.firstChild().toElement().firstChild().toText().data();
     }
@@ -2577,7 +2589,7 @@ int main( int argc, char * argv[] )
 	qFatal( "uic: Failed to parse %s\n", fileName );
 
     fixDocument( doc );
-    
+
     if ( !subcl ) {
 	out << "/****************************************************************************" << endl;
 	out << "** Form "<< (impl? "implementation" : "interface") << " generated from reading ui file '" << fileName << "'" << endl;

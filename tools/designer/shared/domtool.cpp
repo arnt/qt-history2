@@ -241,12 +241,9 @@ QVariant DomTool::readAttribute( const QDomElement& e, const QString& name, cons
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "attribute" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		if ( prop == name )
-		    return elementToVariant( n2.nextSibling().toElement(), defValue );
-	    }
+	    if ( n.attribute( "name" ) != name )
+		continue;
+	    return elementToVariant( n.firstChild().toElement(), defValue );
 	}
     }
     return defValue;
@@ -262,12 +259,9 @@ bool DomTool::hasAttribute( const QDomElement& e, const QString& name )
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "attribute" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		if ( prop == name )
-		    return TRUE;
-	    }
+	    if ( n.attribute( "name" ) != name )
+		continue;
+	    return TRUE;
 	}
     }
     return FALSE;
