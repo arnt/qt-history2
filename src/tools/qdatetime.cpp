@@ -54,8 +54,6 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-//#define QT_SUPERSTRICT_ISO
-
 static const uint FIRST_DAY	= 2361222;	// Julian day for 1752/09/14
 static const int  FIRST_YEAR	= 1752;		// ### wrong for many countries
 static const uint SECS_PER_DAY	= 86400;
@@ -1146,10 +1144,10 @@ int QTime::elapsed()
   "datetime"). It is a combination of the QDate and QTime classes. It
   can read the current datetime from the system clock. It provides
   functions for comparing datetimes and for manipulating a datetime by
-  adding a number of seconds or days.
+  adding a number of seconds, days, months or years.
 
   A QDateTime object is typically created either by giving a date and
-  time explicitly, or by using the static function currentTime(),
+  time explicitly, or by using the static function currentDateTime(),
   which makes a QDateTime object which contains the system's clock
   time.
 
@@ -1303,13 +1301,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 QString QDateTime::toString( Qt::DateFormat f ) const
 {
     if ( f == Qt::ISODate ) {
-	return d.toString( Qt::ISODate ) +
-#ifdef QT_SUPERSTRICT_ISO
-	    "T"
-#else
-	    " "
-#endif
-	    + t.toString( Qt::ISODate );
+	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
     } else if ( f == Qt::TextDate ) {
 	QString buf = d.dayName(d.dayOfWeek());
 	buf += ' ';
