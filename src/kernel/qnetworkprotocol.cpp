@@ -107,8 +107,8 @@ public:
   in the file dialog) together with the QUrlOperator.
 
   The easiest way to implement a new network protocol is to
-  reimplement the operation[something]( QNetworkOperation * )
-  methods. Only the supported operations should
+  reimplement the operation...()
+  methods, e.g. operationGet(). Only the supported operations should
   be reimplemented. To specify which operations are supported,
   also reimplement supportedOperations() and return an int
   that is OR'd together using the supported operations from
@@ -116,11 +116,10 @@ public:
 
   When you implement a network protocol this way, be careful
   to always emit the correct signals. Also, always emit
-  the finished() signal when an operation is done (on success \e and
-  failure). The Qt Network Architecture relies on correctly emitted
-  finished() signals.
+  the finished() signal when an operation is done (on success and on
+  failure). Qt relies on correctly emitted finished() signals.
 
-  For a detailed description of the Qt Network Architecture and also
+  For a detailed description of the Qt Network Architecture and
   how to implement and use network protocols in Qt, see the \link
   network.html Qt Network Documentation\endlink.
 */
@@ -957,7 +956,7 @@ public:
 };
 
 /*!
-  \class QNetworkOperation qnetworkprotocol.h
+  \class QNetworkOperation
 
   \brief The QNetworkOperation class provides common operations for network protocols.
 
@@ -966,7 +965,7 @@ public:
   An object is created to describe the operation and the current
   state for each operation that a network protocol should process.
 
-  For a detailed description of the Qt Network Architecture and
+  For a detailed description of the Qt Network Architecture
   how to implement and use network protocols in Qt, see
   the \link network.html Qt Network Documentation\endlink.
 
