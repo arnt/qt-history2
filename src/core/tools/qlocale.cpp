@@ -30,65 +30,7 @@
 #   include <private/qcore_mac_p.h>
 #endif
 
-enum {
-    LittleEndian,
-    BigEndian
-
-#ifdef Q_BYTE_ORDER
-#  if Q_BYTE_ORDER == Q_BIG_ENDIAN
-    , ByteOrder = BigEndian
-#  elif Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    , ByteOrder = LittleEndian
-#  else
-#    error "undefined byte order"
-#  endif
-};
-#else
-};
-static const unsigned int one = 1;
-static const bool ByteOrder = ((*((unsigned char *) &one) == 0) ? BigEndian : LittleEndian);
-#endif
-
-static const unsigned char be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
-static const unsigned char le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
-static inline double inf()
-{
-    return *reinterpret_cast<const double *>(ByteOrder == BigEndian ? be_inf_bytes : le_inf_bytes);
-}
-#define Q_INFINITY (::inf())
-
-// Signaling NAN
-static const unsigned char be_snan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
-static const unsigned char le_snan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
-static inline double snan()
-{
-    return *reinterpret_cast<const double *>(ByteOrder == BigEndian ? be_snan_bytes : le_snan_bytes);
-}
-#define Q_SNAN (::snan())
-
-// Quiet NAN
-static const unsigned char be_qnan_bytes[] = { 0xff, 0xf8, 0, 0, 0, 0, 0, 0 };
-static const unsigned char le_qnan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0xff };
-static inline double qnan()
-{
-    return *reinterpret_cast<const double *>(ByteOrder == BigEndian ? be_qnan_bytes : le_qnan_bytes);
-}
-#define Q_QNAN (::qnan())
-
-static inline bool compareBits(double d1, double d2)
-{
-    return memcmp(reinterpret_cast<const char*>(&d1), reinterpret_cast<const char*>(&d2), sizeof(double)) == 0;
-}
-
-static inline bool qIsInf(double d)
-{
-    return compareBits(d, Q_INFINITY) || compareBits(d, -Q_INFINITY);
-}
-
-static inline bool qIsNan(double d)
-{
-    return compareBits(d, Q_QNAN) || compareBits(d, Q_SNAN);
-}
+#include <private/qnumeric_p.h>
 
 // Sizes as defined by the ISO C99 standard - fallback
 #ifndef LLONG_MAX
@@ -4000,7 +3942,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 inline ULong getWord0(const double x)
 {
     const uchar *ptr = reinterpret_cast<const uchar *>(&x);
-    if (ByteOrder == BigEndian) {
+    if (QtByteOrder == QtBigEndian) {
         return (ptr[0]<<24) + (ptr[1]<<16) + (ptr[2]<<8) + ptr[3];
     } else {
         return (ptr[7]<<24) + (ptr[6]<<16) + (ptr[5]<<8) + ptr[4];
@@ -4010,7 +3952,7 @@ inline ULong getWord0(const double x)
 inline void setWord0(double *x, ULong l)
 {
     uchar *ptr = reinterpret_cast<uchar *>(x);
-    if (ByteOrder == BigEndian) {
+    if (QtByteOrder == QtBigEndian) {
         ptr[0] = uchar(l>>24);
         ptr[1] = uchar(l>>16);
         ptr[2] = uchar(l>>8);
@@ -4026,7 +3968,7 @@ inline void setWord0(double *x, ULong l)
 inline ULong getWord1(const double x)
 {
     const uchar *ptr = reinterpret_cast<const uchar *>(&x);
-    if (ByteOrder == BigEndian) {
+    if (QtByteOrder == QtBigEndian) {
         return (ptr[4]<<24) + (ptr[5]<<16) + (ptr[6]<<8) + ptr[7];
     } else {
         return (ptr[3]<<24) + (ptr[2]<<16) + (ptr[1]<<8) + ptr[0];
@@ -4035,7 +3977,7 @@ inline ULong getWord1(const double x)
 inline void setWord1(double *x, ULong l)
 {
     uchar *ptr = reinterpret_cast<uchar *>(x);
-    if (ByteOrder == BigEndian) {
+    if (QtByteOrder == QtBigEndian) {
         ptr[4] = uchar(l>>24);
         ptr[5] = uchar(l>>16);
         ptr[6] = uchar(l>>8);
