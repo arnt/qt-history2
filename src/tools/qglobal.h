@@ -1079,8 +1079,8 @@ enum {  Q_COMPLEX_TYPE = 0, Q_PRIMITIVE_TYPE = 1, Q_STATIC_TYPE = 0, Q_MOVABLE_T
     inline void qInit(TYPE &) { } \
     inline void qDelete(TYPE &) { } \
     template <> class QTypeInfo<TYPE> { public: \
-	enum { isComplex = ((FLAGS & Q_PRIMITIVE_TYPE) != Q_PRIMITIVE_TYPE), \
-	    isStatic  = ((FLAGS & Q_MOVABLE_TYPE)  != Q_MOVABLE_TYPE),\
+	enum { isComplex = ((FLAGS & Q_PRIMITIVE_TYPE) == 0), \
+	    isStatic  = ((FLAGS & (Q_MOVABLE_TYPE|Q_PRIMITIVE_TYPE)) == 0),\
 	    isLarge   = (sizeof(TYPE)>sizeof(void*)), \
 	    isPointer = false }; \
     }
