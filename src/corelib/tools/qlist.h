@@ -409,10 +409,10 @@ inline void QList<T>::swap(int i, int j)
 { 
     Q_ASSERT_X(i >= 0 && i < p.size() && j >= 0 && j < p.size(),
                 "QList<T>::swap", "index out of range");
-    detach(); 
-    T t = reinterpret_cast<Node*>(p.at(i))->t();
-    reinterpret_cast<Node*>(p.at(i))->t() = reinterpret_cast<Node*>(p.at(j))->t();
-    reinterpret_cast<Node*>(p.at(j))->t() = t;
+    detach();
+    void *t = d->array[d->begin + i];
+    d->array[d->begin + i] = d->array[d->begin + j];
+    d->array[d->begin + j] = t;
 }
 
 template <typename T>
