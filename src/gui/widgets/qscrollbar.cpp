@@ -293,7 +293,8 @@ void QScrollBarPrivate::init()
 QSize QScrollBar::sizeHint() const
 {
     ensurePolished();
-    int sbextent = style().pixelMetric(QStyle::PM_ScrollBarExtent, this);
+   QStyleOptionSlider opt = d->getStyleOption();
+    int sbextent = style().pixelMetric(QStyle::PM_ScrollBarExtent, &opt, this);
     if (d->orientation == Qt::Horizontal)
         return QSize(30, sbextent);
     else
@@ -409,7 +410,7 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
     if (d->pressedControl == QStyle::SC_ScrollBarSlider) {
         QPoint click = QStyle::visualPos(e->pos(), this);
         int newPosition = d->pixelPosToRangeValue((HORIZONTAL ? click.x() : click.y()) -d->clickOffset);
-        int m = style().pixelMetric(QStyle::PM_MaximumDragDistance, this);
+        int m = style().pixelMetric(QStyle::PM_MaximumDragDistance, &opt, this);
         if (m >= 0) {
             QRect r = rect();
             r.addCoords(-m, -m, m, m);

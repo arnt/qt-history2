@@ -201,11 +201,11 @@ void QWindowsStyle::polish(QPalette &pal)
 /*!
   \reimp
 */
-int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
+int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QWidget *widget) const
 {
     int ret;
 
-    switch (metric) {
+    switch (pm) {
     case PM_ButtonDefaultIndicator:
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
@@ -240,7 +240,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 
             int thick = 6;        // Magic constant to get 5 + 16 + 5
             if (ticks != QSlider::TickMarksBoth && ticks != QSlider::NoTickMarks)
-                thick += pixelMetric(PM_SliderLength, sl) / 4;
+                thick += pixelMetric(PM_SliderLength, opt, sl) / 4;
 
             space -= thick;
             if (space > 0)
@@ -275,7 +275,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
                 ret = qMax(ncm.iScrollHeight, ncm.iScrollWidth);
             else
 #endif
-                ret = QCommonStyle::pixelMetric(metric, widget);
+                ret = QCommonStyle::pixelMetric(metric, opt, widget);
         }
         break;
 #endif
@@ -291,7 +291,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #endif
 
     default:
-        ret = QCommonStyle::pixelMetric(metric, widget);
+        ret = QCommonStyle::pixelMetric(pm, opt, widget);
         break;
     }
 
@@ -1569,8 +1569,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     qDrawShadeRect(p, mbi->rect.x(), mbi->rect.y(), mbi->rect.width(),
                                    mbi->rect.height(), mbi->palette, active && down, 1, 0, &b);
                 if (active && down) {
-                    newMbi.rect.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-                                       pixelMetric(PM_ButtonShiftVertical, widget));
+                    newMbi.rect.moveBy(pixelMetric(PM_ButtonShiftHorizontal, mbi, widget),
+                                       pixelMetric(PM_ButtonShiftVertical, mbi, widget));
                     p->setBrushOrigin(p->brushOrigin() - QPoint(1, 1));
                 }
             }
@@ -1720,8 +1720,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
     switch (cc) {
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
-            int thickness  = pixelMetric(PM_SliderControlThickness, widget);
-            int len        = pixelMetric(PM_SliderLength, widget);
+            int thickness  = pixelMetric(PM_SliderControlThickness, slider, widget);
+            int len        = pixelMetric(PM_SliderLength, slider, widget);
             int ticks = slider->tickmarks;
             QRect groove = QCommonStyle::querySubControlMetrics(CC_Slider, slider,
                                                                 SC_SliderGroove, widget);
@@ -2158,7 +2158,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
                 h = sz.height();
             int defwidth = 0;
             if (btn->state & Style_ButtonDefault)
-                defwidth = 2 * pixelMetric(PM_ButtonDefaultIndicator, widget);
+                defwidth = 2 * pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
             if (w < 80 + defwidth && btn->icon.isNull())
                 w = 80 + defwidth;
             if (h < 23 + defwidth)

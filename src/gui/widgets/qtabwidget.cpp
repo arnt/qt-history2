@@ -558,8 +558,8 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     bool reverse = QApplication::reverseLayout();
     int tabx, taby, stacky, exty, exth, overlap;
 
-    exth = style().pixelMetric(QStyle::PM_TabBarBaseHeight, this);
-    overlap = style().pixelMetric(QStyle::PM_TabBarBaseOverlap, this);
+    exth = style().pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
+    overlap = style().pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
 
     if (reverse)
         tabx = qMin(width() - t.width(), width() - t.width() - lw + 2) - lcw;

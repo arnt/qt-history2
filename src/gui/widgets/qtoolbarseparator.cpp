@@ -18,6 +18,18 @@
 #include <qtoolbar.h>
 #include <qpainter.h>
 
+static QStyleOption getStyleOption(const QToolBarSeparator *tbs)
+{
+    QStyleOption opt(0, QStyleOption::SO_Default);
+    opt.rect = tbs->rect();
+    opt.palette = tbs->palette();
+    if (tbs->orientation() == Qt::Horizontal)
+        opt.state = QStyle::Style_Horizontal;
+    else
+        opt.state = QStyle::Style_Default;
+    return opt;
+}
+
 QToolBarSeparator::QToolBarSeparator(Qt::Orientation orientation, QToolBar *parent)
     : QWidget(parent), orient(orientation)
 {
@@ -26,20 +38,14 @@ QToolBarSeparator::QToolBarSeparator(Qt::Orientation orientation, QToolBar *pare
 
 QSize QToolBarSeparator::sizeHint() const
 {
-    const int extent = style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent, this);
+    QStyleOption opt = getStyleOption(this);
+    const int extent = style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent, &opt, this);
     return QSize(extent, extent);
 }
 
 void QToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOption opt(0, QStyleOption::SO_Default);
-    opt.rect = rect();
-    opt.palette = palette();
-    if (orientation() == Qt::Horizontal)
-        opt.state = QStyle::Style_Horizontal;
-    else
-        opt.state = QStyle::Style_Default;
-
+    QStyleOption opt = getStyleOption(this);
     style().drawPrimitive(QStyle::PE_DockWindowSeparator, &opt, &p, this);
 }

@@ -352,10 +352,10 @@ QSize QToolButton::sizeHint() const
         }
     }
 
-    if ((d->menu || !actions().isEmpty()) && ! popupDelay())
-        w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
-
     QStyleOptionToolButton opt = d->getStyleOption();
+    if ((d->menu || !actions().isEmpty()) && ! popupDelay())
+        w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
+
     return style().sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), fm, this).
             expandedTo(QApplication::globalStrut());
 }

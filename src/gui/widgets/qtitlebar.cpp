@@ -176,6 +176,11 @@ QTitleBar::~QTitleBar()
 {
 }
 
+QStyleOptionTitleBar QTitleBar::getStyleOption() const
+{
+    return d->getStyleOption();
+}
+
 #ifdef Q_WS_WIN
 extern QRgb qt_colorref2qrgb(COLORREF col);
 #endif
@@ -652,7 +657,7 @@ QSize QTitleBar::sizeHint() const
     QStyleOptionTitleBar opt = d->getStyleOption();
     QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, &opt,
                                                  QStyle::SC_TitleBarSysMenu, this);
-    return QSize(menur.width(), style().pixelMetric(QStyle::PM_TitleBarHeight, this));
+    return QSize(menur.width(), style().pixelMetric(QStyle::PM_TitleBarHeight, &opt, this));
 }
 
 #endif //QT_NO_TITLEBAR

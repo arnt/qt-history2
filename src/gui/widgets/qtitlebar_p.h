@@ -30,6 +30,7 @@
 
 #ifndef QT_H
 #include "qwidget.h"
+#include "qstyleoption.h"
 #endif // QT_H
 
 #if !defined(QT_NO_TITLEBAR)
@@ -61,6 +62,7 @@ public:
     QWidget *window() const;
 
     QSize sizeHint() const;
+    QStyleOptionTitleBar getStyleOption() const;
 
 public slots:
     void setActive(bool);

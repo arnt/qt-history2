@@ -434,7 +434,8 @@ public:
         PM_CustomBase = 0xf0000000
     };
 
-    virtual int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const = 0;
+    virtual int pixelMetric(PixelMetric metric, const QStyleOption *opt = 0,
+                            const QWidget *widget = 0) const = 0;
 
     enum ContentsType {
         CT_PushButton,

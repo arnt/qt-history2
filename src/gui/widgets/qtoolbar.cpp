@@ -48,7 +48,7 @@ void QToolBarPrivate::init()
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     layout->setMargin(0);
-    layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, q));
+    layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, 0, q));
 
     handle = new QToolBarHandle(q);
     layout->addWidget(handle);

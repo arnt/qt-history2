@@ -342,8 +342,9 @@ QSize QPushButton::sizeHint() const
         h = qMax(h, ih);
     }
 #endif
+    QStyleOptionButton opt = d->getStyleOption();
     if (menu())
-        w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
+        w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
     QString s(text());
     bool empty = s.isEmpty();
     if (empty)
@@ -354,7 +355,6 @@ QSize QPushButton::sizeHint() const
         w += sz.width();
     if(!empty || !h)
         h = qMax(h, sz.height());
-    QStyleOptionButton opt = d->getStyleOption();
     return (style().sizeFromContents(QStyle::CT_PushButton, &opt, QSize(w, h), fm, this).
             expandedTo(QApplication::globalStrut()));
 }

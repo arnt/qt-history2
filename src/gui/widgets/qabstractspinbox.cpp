@@ -1008,7 +1008,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         hint += extra;
 
         if (slider)
-            hint.rheight() += q->style().pixelMetric(QStyle::PM_SpinBoxSliderHeight, q);
+            hint.rheight() += q->style().pixelMetric(QStyle::PM_SpinBoxSliderHeight, &sb, q);
         cachedsizehint = hint.expandedTo(QApplication::globalStrut());
         cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
         const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;

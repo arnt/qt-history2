@@ -1728,7 +1728,7 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags
     }
 
     setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-    setLineWidth(style().pixelMetric(QStyle::PM_MDIFrameWidth, this));
+    setLineWidth(style().pixelMetric(QStyle::PM_MDIFrameWidth, 0, this));
     setMinimumSize(128, 0);
 
     childWidget = window;
@@ -2182,8 +2182,9 @@ QWidget* QWorkspaceChild::iconWidget() const
         vbox->setObjectName("qt_vbox");
         QTitleBar *tb = new QTitleBar(windowWidget(), vbox);
         tb->setObjectName("_workspacechild_icon_");
-        int th = style().pixelMetric(QStyle::PM_TitleBarHeight, tb);
-        int iconSize = style().pixelMetric(QStyle::PM_MDIMinimizedWidth, this);
+        QStyleOptionTitleBar opt = tb->getStyleOption();
+        int th = style().pixelMetric(QStyle::PM_TitleBarHeight, &opt, tb);
+        int iconSize = style().pixelMetric(QStyle::PM_MDIMinimizedWidth, 0, this);
         if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
             vbox->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
             vbox->resize(iconSize+2*vbox->frameWidth(), th+2*vbox->frameWidth());

@@ -86,7 +86,7 @@ static inline QPoint domap(const QPainter *p, int x, int y)
 }
 
 // Utility to generate correct rectangles for AppManager internals
-static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL,
+static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=0,
                                           bool useOffset=true, const QRect &rect=QRect())
 {
     static Rect r;
@@ -124,7 +124,7 @@ class QAquaFocusWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QAquaFocusWidget(bool noerase=true, QWidget *w=NULL);
+    QAquaFocusWidget(bool noerase=true, QWidget *w=0);
     ~QAquaFocusWidget() {}
     void setFocusWidget(QWidget * widget);
     QWidget *widget() const { return focusedWidget; }
@@ -334,7 +334,8 @@ public:
     QSize HIThemeSizeFromContents(QStyle::ContentsType ct, const QStyleOption *opt,
                                   const QSize &contentsSize, const QFontMetrics &fm,
                                   const QWidget *w = 0) const;
-    int HIThemePixelMetric(QStyle::PixelMetric metric, const QWidget *widget) const;
+    int HIThemePixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
+                            const QWidget *widget) const;
 
     // Appearance Manager-based functions
     void AppManPolish(QWidget *w);
@@ -355,7 +356,8 @@ public:
     QSize AppManSizeFromContents(QStyle::ContentsType ct, const QStyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
-    int AppManPixelMetric(QStyle::PixelMetric metric, const QWidget *widget) const;
+    int AppManPixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
+                          const QWidget *widget) const;
 
 protected:
     bool eventFilter(QObject *, QEvent *);
@@ -831,7 +833,7 @@ static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
 {
     if(p && p->device()->devType() == QInternal::Widget)
         return qt_aqua_size_constrain(static_cast<QWidget *>(p->device()));
-    return qt_aqua_size_constrain(NULL);
+    return qt_aqua_size_constrain(0);
 }
 
 static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *slider,
@@ -1577,7 +1579,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 }
                 int lw = frame->lineWidth;
                 if (lw <= 0)
-                    lw = q->pixelMetric(QStyle::PM_DefaultFrameWidth, 0);
+                    lw = q->pixelMetric(QStyle::PM_DefaultFrameWidth, frame, w);
                 p->fillRect(frame->rect.x(), frame->rect.y(), lw, frame->rect.height(),
                             frame->palette.background());
                 p->fillRect(frame->rect.right() - lw + 1, frame->rect.y(), lw, frame->rect.height(),
@@ -1655,7 +1657,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             newRect = qt_hirectForQRect(btn->rect, p, false, off_rct);
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             if (btn->features & QStyleOptionButton::HasMenu) {
-                int mbi = q->pixelMetric(QStyle::PM_MenuButtonIndicator, w);
+                int mbi = q->pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
                 QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
@@ -1956,7 +1958,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             else
                 tdi.adornment = kHIThemeTabAdornmentNone;
             QRect tabrect = tabOpt->rect;
-            tabrect.setHeight(tabrect.height() + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, w));
+            tabrect.setHeight(tabrect.height()
+                                + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tabOpt, w));
             HIRect hirect = qt_hirectForQRect(tabrect, p);
             HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
             if (!(opt->state & QStyle::Style_Selected)) {
@@ -1968,7 +1971,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 const int FUDGE = 20;
                 QRect panerect(tabOpt->rect.x() - FUDGE, tabOpt->rect.bottom() - 2,
                                2 * FUDGE + tabOpt->rect.width(),
-                               q->pixelMetric(QStyle::PM_TabBarBaseHeight, w));
+                               q->pixelMetric(QStyle::PM_TabBarBaseHeight, tabOpt, w));
                 if (tdi.direction == kThemeTabSouth)
                     panerect.moveBy(0, (-tabOpt->rect.height() + 2));
                 p->save();
@@ -2610,7 +2613,7 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
         if (const QStyleOptionSpinBox *spin = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             const int spinner_w = 10,
             spinner_h = 15;
-            int fw = q->pixelMetric(QStyle::PM_SpinBoxFrameWidth, widget),
+            int fw = q->pixelMetric(QStyle::PM_SpinBoxFrameWidth, spin, widget),
             y = fw,
             x = spin->rect.width() - fw - spinner_w;
             switch (sc) {
@@ -2633,8 +2636,7 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
                                 spin->rect.height());
                     break;
                 default:
-                    ret = q->QWindowsStyle::querySubControlMetrics(cc, spin, sc,
-                                                                                  widget);
+                    ret = q->QWindowsStyle::querySubControlMetrics(cc, spin, sc, widget);
                     break;
             }
         }
@@ -2664,7 +2666,8 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
             else if (sc == QStyle::SC_TitleBarLabel)
                 wrc = kWindowTitleTextRgn;
             else if (sc == QStyle::SC_TitleBarSysMenu)
-                ret.setRect(-1024, -1024, 10, q->pixelMetric(QStyle::PM_TitleBarHeight, 0));
+                ret.setRect(-1024, -1024, 10, q->pixelMetric(QStyle::PM_TitleBarHeight,
+                                                             titlebar, widget));
             if (wrc != kWindowGlobalPortRgn) {
                 QCFType<HIShapeRef> region;
                 QRect tmpRect = titlebar->rect;
@@ -2834,7 +2837,8 @@ QSize QMacStylePrivate::HIThemeSizeFromContents(QStyle::ContentsType ct, const Q
     return sz;
 }
 
-int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QWidget *widget) const
+int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
+                                         const QWidget *widget) const
 {
     SInt32 ret;
     switch(metric) {
@@ -2866,7 +2870,7 @@ int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QWidg
         ret = int(rect.size.height);
          break; }
     default:
-        ret = q->QWindowsStyle::pixelMetric(metric, widget);
+        ret = q->QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
     }
     return ret;
@@ -3158,7 +3162,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
 
                 int lw = frame->lineWidth;
                 if (lw <= 0)
-                    q->pixelMetric(QStyle::PM_DefaultFrameWidth, 0);
+                    q->pixelMetric(QStyle::PM_DefaultFrameWidth, frame, w);
 
                 p->fillRect(frame->rect.x(), frame->rect.y(), lw, frame->rect.height(),
                             frame->palette.background()); //left
@@ -3272,8 +3276,9 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 bkind = kThemePushButton;
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
             if (opt->state & QStyle::Style_HasFocus
-                    && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
+                    && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled) {
                 info.adornment |= kThemeAdornmentFocus;
+            }
             QRect off_rct;
             { //The AppManager draws outside my rectangle, so account for that difference..
                 Rect macRect, myRect;
@@ -3326,7 +3331,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                     QPixmapCache::insert(pmkey, buffer);
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
-                int mbi = q->pixelMetric(QStyle::PM_MenuButtonIndicator, widget);
+                int mbi = q->pixelMetric(QStyle::PM_MenuButtonIndicator, btn, widget);
                 QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
@@ -3594,9 +3599,10 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (tab->shape == QTabBar::RoundedBelow || tab->shape == QTabBar::TriangularBelow)
                 ttd = kThemeTabSouth;
             QRect tabr(tab->rect.x(), tab->rect.y(), tab->rect.width(),
-                       tab->rect.height() + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, widget));
+                       tab->rect.height() + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tab,
+                                                           widget));
             if (ttd == kThemeTabSouth)
-                tabr.moveBy(0, -q->pixelMetric(QStyle::PM_TabBarBaseOverlap, widget));
+                tabr.moveBy(0, -q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tab, widget));
             qt_mac_set_port(p);
             DrawThemeTab(qt_glb_mac_rect(tabr, p, false), tts, ttd, 0, 0);
             if (!(tab->state & QStyle::Style_Selected)) {
@@ -3605,7 +3611,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 const int fudge = 20;
                 QRect pr = QRect(tab->rect.x() - fudge, tab->rect.bottom() - 2,
                                  tab->rect.width() + (fudge * 2),
-                                 q->pixelMetric(QStyle::PM_TabBarBaseHeight, widget));
+                                 q->pixelMetric(QStyle::PM_TabBarBaseHeight, tab, widget));
                 if (ttd == kThemeTabSouth)
                     pr.moveBy(0, -(tab->rect.height() + 2));
                 p->save();
@@ -4029,7 +4035,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
 
                     qt_mac_set_port(&pixp);
                     DrawThemeWindowFrame(QtWinType, qt_glb_mac_rect(newr, &pixp, false), tds,
-                                         &twm, twa, NULL, 0);
+                                         &twm, twa, 0, 0);
 
                     pixp.save();
                     {
@@ -4056,7 +4062,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             } else {
                 qt_mac_set_port(p);
                 DrawThemeWindowFrame(QtWinType, qt_glb_mac_rect(newr, p, false), tds,
-                                     &twm, twa, NULL, 0);
+                                     &twm, twa, 0, 0);
             }
         }
         if (tbar->parts & (QStyle::SC_TitleBarCloseButton | QStyle::SC_TitleBarMaxButton | QStyle::SC_TitleBarMinButton
@@ -4237,7 +4243,7 @@ QRect QMacStylePrivate::AppManQuerySubControlMetrics(QStyle::ComplexControl cc, 
         if (const QStyleOptionSpinBox *spin = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             const int spinner_w = 10,
             spinner_h = 15;
-            int fw = q->pixelMetric(QStyle::PM_SpinBoxFrameWidth, widget),
+            int fw = q->pixelMetric(QStyle::PM_SpinBoxFrameWidth, spin, widget),
             y = fw,
             x = spin->rect.width() - fw - spinner_w;
             switch (sc) {
@@ -4288,7 +4294,8 @@ QRect QMacStylePrivate::AppManQuerySubControlMetrics(QStyle::ComplexControl cc, 
             else if (sc == QStyle::SC_TitleBarLabel)
                 wrc = kWindowTitleTextRgn;
             else if (sc == QStyle::SC_TitleBarSysMenu) // We currently don't have this on Mac OS X.
-                ret.setRect(-1024, -1024, 10, q->pixelMetric(QStyle::PM_TitleBarHeight, 0));
+                ret.setRect(-1024, -1024, 10, q->pixelMetric(QStyle::PM_TitleBarHeight,
+                                                             tbar, widget));
             if (wrc != kWindowGlobalPortRgn) {
                 // AppMan paints outside the given rectangle,
                 // so I have to adjust for the height properly!
@@ -4449,7 +4456,8 @@ QSize QMacStylePrivate::AppManSizeFromContents(QStyle::ContentsType ct, const QS
     return sz;
 }
 
-int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QWidget *widget) const
+int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
+                                        const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch (metric) {
@@ -4476,7 +4484,7 @@ int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QWidge
         qt_mac_dispose_rgn(rgn);
         break; }
     default:
-        ret = q->QWindowsStyle::pixelMetric(metric, widget);
+        ret = q->QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
     }
     return ret;
@@ -4589,7 +4597,7 @@ void QMacStyle::unPolish(QWidget* w)
 }
 
 /*! \reimp */
-int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
+int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch (metric) {
@@ -4625,7 +4633,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         break;
     case QStyle::PM_DialogButtonsButtonHeight: {
         QSize sz;
-        ret = qt_aqua_size_constrain(NULL, QStyle::CT_PushButton, QSize(-1, -1), &sz);
+        ret = qt_aqua_size_constrain(0, QStyle::CT_PushButton, QSize(-1, -1), &sz);
         if(sz == QSize(-1, -1))
             ret = 32;
         else
@@ -4633,7 +4641,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         break; }
     case QStyle::PM_DialogButtonsButtonWidth: {
         QSize sz;
-        ret = qt_aqua_size_constrain(NULL, QStyle::CT_PushButton, QSize(-1, -1), &sz);
+        ret = qt_aqua_size_constrain(0, QStyle::CT_PushButton, QSize(-1, -1), &sz);
         if(sz == QSize(-1, -1))
             ret = 70;
         else
@@ -4664,7 +4672,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
             ret = 0;
         else
 #endif
-            ret = QWindowsStyle::pixelMetric(metric, widget);
+            ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
     case QStyle::PM_MaximumDragDistance:
         ret = -1;
@@ -4690,8 +4698,8 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         ret = 0;
         break;
     case QStyle::PM_TitleBarHeight:
-	ret = d->useHITheme ? d->HIThemePixelMetric(metric, widget)
-			    : d->AppManPixelMetric(metric, widget);
+	ret = d->useHITheme ? d->HIThemePixelMetric(metric, opt, widget)
+			    : d->AppManPixelMetric(metric, opt, widget);
         break;
     case QStyle::PM_TabBarTabOverlap:
         GetThemeMetric(kThemeMetricTabOverlap, &ret);
@@ -4796,7 +4804,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         ret = 0;
         break;
     default:
-        ret = QWindowsStyle::pixelMetric(metric, widget);
+        ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
     }
     return ret;

@@ -354,14 +354,14 @@ void QFramePrivate::updateFrameWidth()
     case QFrame::TabWidgetPanel:
     case QFrame::PopupPanel:
     case QFrame::StyledPanel:
-        frameWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q);
+        frameWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, 0, q);
         break;
 
     case QFrame::MenuBarPanel:
-        frameWidth = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
+        frameWidth = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q);
         break;
     case QFrame::ToolBarPanel:
-        frameWidth = q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, q);
+        frameWidth = q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, 0, q);
         break;
 
     case QFrame::WinPanel:
@@ -540,8 +540,8 @@ void QFrame::drawFrame(QPainter *p)
 
     case PopupPanel:
     {
-        int vmargin = style().pixelMetric(QStyle::PM_MenuVMargin, this),
-            hmargin = style().pixelMetric(QStyle::PM_MenuHMargin, this);
+        int vmargin = style().pixelMetric(QStyle::PM_MenuVMargin, &opt, this),
+            hmargin = style().pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
         if (vmargin > 0 || hmargin > 0) {
             QStyleOptionMenuItem menuOpt(0);
             menuOpt.palette = opt.palette;

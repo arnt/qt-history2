@@ -197,7 +197,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
 
 int QTabBarPrivate::extraWidth() const
 {
-    return 2 * qMax(q->style().pixelMetric(QStyle::PM_TabBarScrollButtonWidth, q),
+    return 2 * qMax(q->style().pixelMetric(QStyle::PM_TabBarScrollButtonWidth, 0, q),
                     QApplication::globalStrut().width());
 }
 

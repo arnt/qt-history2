@@ -1260,7 +1260,7 @@ int QSplitter::handleWidth() const
     if (d->handleWidth > 0) {
         return d->handleWidth;
     } else {
-        return style().pixelMetric(QStyle::PM_SplitterWidth, this);
+        return style().pixelMetric(QStyle::PM_SplitterWidth, 0, this);
     }
 }
 

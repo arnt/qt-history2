@@ -570,7 +570,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             p->save();
             QRect r = sb->rect;
-            int fw = pixelMetric(PM_DefaultFrameWidth, widget);
+            int fw = pixelMetric(PM_DefaultFrameWidth, sb, widget);
             QRect br;
             br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
                        r.height() - fw*2);
@@ -608,7 +608,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_SpinBoxDown:
         if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             QRect r = sb->rect;
-            int fw = pixelMetric(PM_DefaultFrameWidth, widget);
+            int fw = pixelMetric(PM_DefaultFrameWidth, sb, widget);
             QRect br;
             br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
                        r.height() - fw*2);
@@ -668,7 +668,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_PushButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             QRect br = btn->rect;
-            int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
+            int dbi = pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
             if (btn->state & Style_ButtonDefault) {
                 drawPrimitive(PE_ButtonDefault, opt, p, widget);
                 br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
@@ -680,7 +680,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 drawPrimitive(PE_ButtonCommand, &tmpBtn, p, widget);
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
-                int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+                int mbi = pixelMetric(PM_MenuButtonIndicator, btn, widget);
                 QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() - 20, mbi, ir.height() - 4);
@@ -817,7 +817,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 p->setPen(QPen(pal2.highlight(), 4));
                 p->drawLine(x, pb->rect.y() + 1, x, pb->rect.height() - fw);
             } else {
-                const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
+                const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, pb, widget);
                 int u;
                 if (unit_width > 1)
                     u = (pb->rect.width() + unit_width / 3) / unit_width;
@@ -897,8 +897,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             int shiftX = 0;
             int shiftY = 0;
             if (tb->state & (Style_Down | Style_On)) {
-                shiftX = pixelMetric(PM_ButtonShiftHorizontal, widget);
-                shiftY = pixelMetric(PM_ButtonShiftVertical, widget);
+                shiftX = pixelMetric(PM_ButtonShiftHorizontal, tb, widget);
+                shiftY = pixelMetric(PM_ButtonShiftVertical, tb, widget);
             }
             if (tb->features & QStyleOptionToolButton::Arrow) {
                 PrimitiveElement pe;
@@ -1064,7 +1064,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             QRect tr = tab->rect;
             if (tab->state & Style_Selected)
-                tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_DefaultFrameWidth, widget));
+                tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_DefaultFrameWidth, tab, widget));
 
             int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
             if (!styleHint(SH_UnderlineShortcut, opt, widget))
@@ -1162,9 +1162,9 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
     case SR_PushButtonContents:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int dx1, dx2;
-            dx1 = pixelMetric(PM_DefaultFrameWidth, w);
+            dx1 = pixelMetric(PM_DefaultFrameWidth, btn, w);
             if (btn->state & Style_ButtonDefault)
-                dx1 += pixelMetric(PM_ButtonDefaultIndicator, w);
+                dx1 += pixelMetric(PM_ButtonDefaultIndicator, btn, w);
             dx2 = dx1 * 2;
             r.setRect(opt->rect.x() + dx1, opt->rect.y() + dx1, opt->rect.width() - dx2,
                       opt->rect.height() - dx2);
@@ -1174,11 +1174,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int dbw1 = 0, dbw2 = 0;
             if (btn->state & Style_ButtonDefault) {
-                dbw1 = pixelMetric(PM_ButtonDefaultIndicator, w);
+                dbw1 = pixelMetric(PM_ButtonDefaultIndicator, btn, w);
                 dbw2 = dbw1 * 2;
             }
 
-            int dfw1 = pixelMetric(PM_DefaultFrameWidth, w) * 2,
+            int dfw1 = pixelMetric(PM_DefaultFrameWidth, btn, w) * 2,
                 dfw2 = dfw1 * 2;
 
             r.setRect(btn->rect.x() + dfw1 + dbw1, btn->rect.y() + dfw1 + dbw1,
@@ -1188,9 +1188,9 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
 
     case SR_CheckBoxIndicator:
         {
-            int h = pixelMetric(PM_IndicatorHeight, w);
+            int h = pixelMetric(PM_IndicatorHeight, opt, w);
             r.setRect(0, (opt->rect.height() - h) / 2,
-                      pixelMetric(PM_IndicatorWidth, w), h);
+                      pixelMetric(PM_IndicatorWidth, opt, w), h);
         }
         break;
 
@@ -1226,9 +1226,9 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
 
     case SR_RadioButtonIndicator:
         {
-            int h = pixelMetric(PM_ExclusiveIndicatorHeight, w);
+            int h = pixelMetric(PM_ExclusiveIndicatorHeight, opt, w);
             r.setRect(0, (opt->rect.height() - h) / 2,
-                    pixelMetric(PM_ExclusiveIndicatorWidth, w), h);
+                    pixelMetric(PM_ExclusiveIndicatorWidth, opt, w), h);
         }
         break;
 
@@ -1263,8 +1263,8 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         break;
     case SR_SliderFocusRect:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
-            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, w);
-            int thickness  = pixelMetric(PM_SliderControlThickness, w);
+            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, w);
+            int thickness  = pixelMetric(PM_SliderControlThickness, slider, w);
             if (slider->orientation == Qt::Horizontal)
                 r.setRect(0, tickOffset - 1, slider->rect.width(), thickness + 2);
             else
@@ -1351,11 +1351,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
             if (slider->parts == SC_SliderTickmarks) {
-                int tickOffset = pixelMetric(PM_SliderTickmarkOffset, widget);
+                int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, widget);
                 int ticks = slider->tickmarks;
-                int thickness = pixelMetric(PM_SliderControlThickness, widget);
-                int len = pixelMetric(PM_SliderLength, widget);
-                int available = pixelMetric(PM_SliderSpaceAvailable, widget);
+                int thickness = pixelMetric(PM_SliderControlThickness, slider, widget);
+                int len = pixelMetric(PM_SliderLength, slider, widget);
+                int available = pixelMetric(PM_SliderSpaceAvailable, slider, widget);
                 int interval = slider->tickInterval;
                 if (interval <= 0) {
                     interval = slider->singleStep;
@@ -1668,8 +1668,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 p->save();
                 if (down)
-                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, widget),
-                                 pixelMetric(PM_ButtonShiftVertical, widget));
+                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
+                                 pixelMetric(PM_ButtonShiftVertical, tb, widget));
                 drawItem(p, ir, Qt::AlignCenter, tb->palette, true, pm);
                 p->restore();
             }
@@ -1686,8 +1686,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 p->save();
                 if (down)
-                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, widget),
-                                 pixelMetric(PM_ButtonShiftVertical, widget));
+                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
+                                 pixelMetric(PM_ButtonShiftVertical, tb, widget));
                 drawItem(p, ir, Qt::AlignCenter, tb->palette, true, pm);
                 p->restore();
             }
@@ -1709,8 +1709,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 p->save();
                 if (down)
-                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, widget),
-                                 pixelMetric(PM_ButtonShiftVertical, widget));
+                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
+                                 pixelMetric(PM_ButtonShiftVertical, tb, widget));
                 drawItem(p, ir, Qt::AlignCenter, tb->palette, true, pm);
                 p->restore();
             }
@@ -1726,8 +1726,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
                 p->save();
                 if (down)
-                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, widget),
-                                 pixelMetric(PM_ButtonShiftVertical, widget));
+                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
+                                 pixelMetric(PM_ButtonShiftVertical, tb, widget));
                 drawItem(p, ir, Qt::AlignCenter, tb->palette, true, pm);
                 p->restore();
             }
@@ -1743,8 +1743,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
                 p->save();
                 if (down)
-                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, widget),
-                                 pixelMetric(PM_ButtonShiftVertical, widget));
+                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
+                                 pixelMetric(PM_ButtonShiftVertical, tb, widget));
                 drawItem(p, ir, Qt::AlignCenter, tb->palette, true, pm);
                 p->restore();
             }
@@ -1898,13 +1898,13 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
     switch (cc) {
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
-            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, widget);
-            int thickness = pixelMetric(PM_SliderControlThickness, widget);
+            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, widget);
+            int thickness = pixelMetric(PM_SliderControlThickness, slider, widget);
 
             switch (sc) {
             case SC_SliderHandle: {
                 int sliderPos = 0;
-                int len = pixelMetric(PM_SliderLength, widget);
+                int len = pixelMetric(PM_SliderLength, slider, widget);
                 bool horizontal = slider->orientation == Qt::Horizontal;
                 sliderPos = positionFromValue(slider->minimum, slider->maximum,
                                               slider->sliderPosition,
@@ -1929,7 +1929,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
         break;
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollbar = qt_cast<const QStyleOptionSlider *>(opt)) {
-            int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
+            int sbextent = pixelMetric(PM_ScrollBarExtent, scrollbar, widget);
             int maxlen = ((scrollbar->orientation == Qt::Horizontal) ?
                           scrollbar->rect.width() : scrollbar->rect.height()) - (sbextent * 2);
             int sliderlen;
@@ -1939,7 +1939,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
                 uint range = scrollbar->maximum - scrollbar->minimum;
                 sliderlen = (scrollbar->pageStep * maxlen) / (range + scrollbar->pageStep);
 
-                int slidermin = pixelMetric(PM_ScrollBarSliderMin, widget);
+                int slidermin = pixelMetric(PM_ScrollBarSliderMin, scrollbar, widget);
                 if (sliderlen < slidermin || range > INT_MAX / 2)
                     sliderlen = slidermin;
                 if (sliderlen > maxlen)
@@ -2005,9 +2005,10 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinbox = qt_cast<const QStyleOptionSpinBox *>(opt)) {
 
-            int fw = spinbox->frame ? pixelMetric(PM_SpinBoxFrameWidth, widget) : 0;
-            int slider = spinbox->slider ? qMax((int)(spinbox->rect.height() / 20),
-                                                pixelMetric(PM_SpinBoxSliderHeight, widget)) : 0;
+            int fw = spinbox->frame ? pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
+            int slider = spinbox->slider ? qMax(int(spinbox->rect.height() / 20),
+                                             pixelMetric(PM_SpinBoxSliderHeight, spinbox, widget))
+                                         : 0;
             QSize bs;
 
             bs.setHeight(qMax(8, spinbox->rect.height()/2 - fw));
@@ -2038,7 +2039,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
         break;
     case CC_ToolButton:
         if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt)) {
-            int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+            int mbi = pixelMetric(PM_MenuButtonIndicator, tb, widget);
             ret = tb->rect;
             switch (sc) {
             case SC_ToolButton:
@@ -2142,7 +2143,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
 }
 
 /*! \reimp */
-int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
+int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWidget *widget) const
 {
     int ret;
 
@@ -2250,7 +2251,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
             const QSlider * sl = (const QSlider *) widget;
             int space = (sl->orientation() == Qt::Horizontal) ? sl->height() :
                         sl->width();
-            int thickness = pixelMetric(PM_SliderControlThickness, sl);
+            int thickness = pixelMetric(PM_SliderControlThickness, opt, sl);
             int ticks = sl->tickmarks();
 
             if (ticks == QSlider::Both)
@@ -2266,9 +2267,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
         {
             const QSlider * sl = (const QSlider *) widget;
             if (sl->orientation() == Qt::Horizontal)
-                ret = sl->width() - pixelMetric(PM_SliderLength, sl);
+                ret = sl->width() - pixelMetric(PM_SliderLength, opt, sl);
             else
-                ret = sl->height() - pixelMetric(PM_SliderLength, sl);
+                ret = sl->height() - pixelMetric(PM_SliderLength, opt, sl);
             break;
         }
 #endif // QT_NO_SLIDER
@@ -2409,12 +2410,12 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int w = csz.width(),
                 h = csz.height(),
-                bm = pixelMetric(PM_ButtonMargin, widget),
-            fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
+                bm = pixelMetric(PM_ButtonMargin, btn, widget),
+            fw = pixelMetric(PM_DefaultFrameWidth, btn, widget) * 2;
             w += bm + fw;
             h += bm + fw;
             if (btn->state & Style_ButtonDefault) {
-                int dbw = pixelMetric(PM_ButtonDefaultIndicator, widget) * 2;
+                int dbw = pixelMetric(PM_ButtonDefaultIndicator, btn, widget) * 2;
                 w += dbw;
                 h += dbw;
             }
@@ -2427,7 +2428,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
             bool isRadio = (ct == CT_RadioButton);
             QRect irect = subRect(isRadio ? SR_RadioButtonIndicator : SR_CheckBoxIndicator,
                                   btn, widget);
-            int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight : PM_IndicatorHeight, widget);
+            int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight : PM_IndicatorHeight, btn,
+                                widget);
             int margins = (!btn->icon.isNull() && btn->text.isEmpty()) ? 0 : 10;
             sz += QSize(irect.right() + margins, 4);
             sz.setHeight(qMax(sz.height(), h));
@@ -2463,7 +2465,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
         sz = QSize(sz.width() + 6, sz.height() + 5);
         break;
     case CT_ComboBox: {
-        int dfw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
+        int dfw = pixelMetric(PM_DefaultFrameWidth, opt, widget) * 2;
         sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
         break; }
     case CT_ToolBarButton:

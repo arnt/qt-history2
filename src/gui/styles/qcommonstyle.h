@@ -46,7 +46,7 @@ public:
     QSize sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
-    int pixelMetric(PixelMetric m, const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric m, const QStyleOption *opt = 0, const QWidget *widget = 0) const;
 
     int styleHint(StyleHint sh, const QStyleOption *opt = 0, const QWidget *w = 0,
                   QStyleHintReturn *shret = 0) const;

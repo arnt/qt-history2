@@ -51,11 +51,12 @@ void QMenuBarPrivate::updateActions()
 {
     if(!itemsDirty)
         return;
-    int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2);
+    int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q)*2);
     int q_start = -1;
     if(d->leftWidget || d->rightWidget) {
-        int vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q) + q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q),
-            hmargin = q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q);
+        int vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q)
+                      + q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q),
+            hmargin = q->style().pixelMetric(QStyle::PM_MenuBarHMargin, 0, q);
         if(d->leftWidget && d->leftWidget->isVisible()) {
             QSize sz = d->leftWidget->sizeHint();
             q_width -= sz.width();
@@ -98,7 +99,7 @@ void QMenuBarPrivate::updateActions()
 QRect QMenuBarPrivate::actionRect(QAction *act) const
 {
     QRect ret = actionRects.value(act);
-    const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
+    const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q);
     ret.moveBy(fw, fw);
     return QStyle::visualRect(ret, q);
 }
@@ -216,9 +217,9 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
     }
 
     //calculate position
-    const int hmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q),
-              vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
-    const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, q);
+    const int hmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q),
+              vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
+    const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, 0, q);
     int x = start == -1 ? hmargin : start + itemSpacing, y = vmargin;
     for(int i = 0; i < actionList.count(); i++) {
         QAction *action = actionList.at(i);
@@ -612,7 +613,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         style().drawControl(QStyle::CE_MenuBarItem, &opt, &p, this);
     }
      //draw border
-    if(int fw = style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)) {
+    if(int fw = style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, this)) {
         QRegion borderReg;
         borderReg += QRect(0, 0, fw, height()); //left
         borderReg += QRect(width()-fw, 0, fw, height()); //right
@@ -1044,7 +1045,8 @@ QSize QMenuBar::sizeHint() const
     if(as_gui_menubar) {
         QMap<QAction*, QRect> actionRects;
         QList<QAction*> actionList;
-        d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0, actionRects, actionList);
+        d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, this) * 2),
+                           0, actionRects, actionList);
         for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
              i != actionRects.constEnd(); ++i) {
             QRect actionRect(i.value());
@@ -1053,12 +1055,12 @@ QSize QMenuBar::sizeHint() const
             if(actionRect.bottom() > ret.height())
                 ret.setHeight(actionRect.bottom());
         }
-        if(const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, this)) {
+        if(const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, 0, this)) {
             ret.setWidth(ret.width()+(fw*2));
             ret.setHeight(ret.height()+(fw*2));
         }
-        ret.setWidth(ret.width()+q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q));
-        ret.setHeight(ret.height()+q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q));
+        ret.setWidth(ret.width()+q->style().pixelMetric(QStyle::PM_MenuBarHMargin, 0, q));
+        ret.setHeight(ret.height()+q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q));
     }
 
     if(d->leftWidget) {
@@ -1107,7 +1109,8 @@ int QMenuBar::heightForWidth(int max_width) const
         for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
              i != actionRects.constEnd(); ++i)
             height = qMax(height, i.value().bottom());
-        height += (q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2) + q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
+        height += (q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q) * 2)
+                    + q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
     }
     if(d->leftWidget)
         height = qMax(d->leftWidget->sizeHint().height(), height);
@@ -1209,7 +1212,7 @@ void QMenuBar::setRightWidget(QWidget *w)
 */
 int QMenuBar::frameWidth() const
 {
-    return style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this);
+    return style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, this);
 }
 
 int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,

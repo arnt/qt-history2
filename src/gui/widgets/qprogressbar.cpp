@@ -284,8 +284,8 @@ QSize QProgressBar::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    int cw = style().pixelMetric(QStyle::PM_ProgressBarChunkWidth, this);
     QStyleOptionProgressBar opt = getStyleOption(this);
+    int cw = style().pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
     return style().sizeFromContents(QStyle::CT_ProgressBar, &opt,
                                     QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8), fm, this);
 }

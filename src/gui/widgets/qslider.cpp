@@ -332,7 +332,8 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
     }
     ev->accept();
     int newPosition = d->pixelPosToRangeValue(d->pick(ev->pos()) - d->clickOffset);
-    int m = style().pixelMetric(QStyle::PM_MaximumDragDistance, this);
+    QStyleOptionSlider opt = d->getStyleOption();
+    int m = style().pixelMetric(QStyle::PM_MaximumDragDistance, &opt, this);
     if (m >= 0) {
         QRect r = rect();
         r.addCoords(-m, -m, m, m);
@@ -370,7 +371,8 @@ QSize QSlider::sizeHint() const
 {
     ensurePolished();
     const int SliderLength = 84, TickSpace = 5;
-    int thick = style().pixelMetric(QStyle::PM_SliderThickness, this);
+    QStyleOptionSlider opt = d->getStyleOption();
+    int thick = style().pixelMetric(QStyle::PM_SliderThickness, &opt, this);
     if (d->tickSetting & Above)
         thick += TickSpace;
     if (d->tickSetting & Below)
@@ -380,7 +382,6 @@ QSize QSlider::sizeHint() const
         w = SliderLength;
         h = thick;
     }
-    QStyleOptionSlider opt = d->getStyleOption();
     return style().sizeFromContents(QStyle::CT_Slider, &opt, QSize(w, h), fontMetrics(),
                                     this).expandedTo(QApplication::globalStrut());
 }
@@ -391,7 +392,8 @@ QSize QSlider::sizeHint() const
 QSize QSlider::minimumSizeHint() const
 {
     QSize s = sizeHint();
-    int length = style().pixelMetric(QStyle::PM_SliderLength, this);
+    QStyleOptionSlider opt = d->getStyleOption();
+    int length = style().pixelMetric(QStyle::PM_SliderLength, &opt, this);
     if (d->orientation == Qt::Horizontal)
         s.setWidth(length);
     else
