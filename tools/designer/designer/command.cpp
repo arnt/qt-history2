@@ -892,7 +892,6 @@ AddWidgetStackPageCommand::AddWidgetStackPageCommand( const QString &n, FormWind
 void AddWidgetStackPageCommand::execute()
 {
     index = widgetStack->insertPage( stackPage, index );
-    widgetStack->raiseWidget( stackPage );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
 }
 

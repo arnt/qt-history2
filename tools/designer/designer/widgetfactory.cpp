@@ -276,6 +276,35 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 QDesignerWidgetStack::QDesignerWidgetStack( QWidget *parent, const char *name )
     : QWidgetStack( parent, name )
 {
+    prev = new QPushButton( "<", this, "designer_wizardstack_button" );
+    prev->setFlat( TRUE );
+    next = new QPushButton( ">", this, "designer_wizardstack_button" );
+    next->setFlat( TRUE );
+    prev->show();
+    next->show();
+    connect( prev, SIGNAL( clicked() ), this, SLOT( prevPage() ) );
+    connect( next, SIGNAL( clicked() ), this, SLOT( nextPage() ) );
+    updateButtons();
+}
+
+void QDesignerWidgetStack::updateButtons()
+{
+    prev->setGeometry( 0, 0, fontMetrics().width( ">" ) + 4, fontMetrics().height() );
+    next->setGeometry( width() - prev->width(), 0, prev->width(), prev->height() );
+    prev->show();
+    next->show();
+    prev->raise();
+    next->raise();
+}
+
+void QDesignerWidgetStack::prevPage()
+{
+    setCurrentPage( currentPage() - 1 );
+}
+
+void QDesignerWidgetStack::nextPage()
+{
+    setCurrentPage( currentPage() + 1 );
 }
 
 int QDesignerWidgetStack::currentPage() const
@@ -295,6 +324,7 @@ void QDesignerWidgetStack::setCurrentPage( int i )
     if ( i < 0 || i >= count() )
 	return;
     raiseWidget( pages.at( i ) );
+    updateButtons();
 }
 
 QCString QDesignerWidgetStack::pageName() const
@@ -333,6 +363,8 @@ int QDesignerWidgetStack::insertPage( QWidget *p, int i )
     addWidget( p );
     p->show();
     raiseWidget( p );
+    QApplication::sendPostedEvents();
+    updateButtons();
     return pages.find( p );
 }
 
@@ -341,6 +373,8 @@ int QDesignerWidgetStack::removePage( QWidget *p )
     int i = pages.find( p );
     pages.remove( p );
     removeWidget( p );
+    setCurrentPage( 0 );
+    updateButtons();
     return i;
 }	
 
@@ -353,6 +387,10 @@ int QDesignerWizard::currentPageNum() const
     }
     return 0;
 }
+
+
+
+
 
 void QDesignerWizard::setCurrentPage( int i )
 {
@@ -1079,6 +1117,8 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     else if ( o->inherits( "QDockWindowHandle" ) )
 	return TRUE;
     else if ( o->inherits( "QHideDock" ) )
+	return TRUE;
+    else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
 	return TRUE;
 
     return FALSE;

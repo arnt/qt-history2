@@ -153,8 +153,26 @@ public:
     int insertPage( QWidget *p, int i = -1 );
     int removePage( QWidget *p );
 
+protected:
+    void resizeEvent( QResizeEvent *e ) {
+	QWidgetStack::resizeEvent( e );
+	updateButtons();
+    }
+
+    void showEvent( QShowEvent *e ) {
+	QWidgetStack::showEvent( e );
+	updateButtons();
+    }
+
+private slots:
+    void updateButtons();
+    void prevPage();
+    void nextPage();
+
 private:
     QPtrList<QWidget> pages;
+    QPushButton *prev, *next;
+
 };
 
 class QDesignerWizard : public QWizard
