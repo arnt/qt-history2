@@ -50,4 +50,4 @@ private:
     QVector<unsigned char> waves;
 };
 
-#endif // PLASMAMODEL_H
+#endif

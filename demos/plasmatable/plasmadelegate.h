@@ -30,4 +30,4 @@ public:
                    const QModelIndex &index) const;
 };
 
-#endif // PLASMADELEGATE_H
+#endif

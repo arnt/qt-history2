@@ -44,4 +44,4 @@ public:
     QColor secondaryColor;
 };
 
-#endif // ATTRIBUTES_H
+#endif

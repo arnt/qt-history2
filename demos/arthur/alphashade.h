@@ -29,4 +29,4 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
 };
 
-#endif // ALPHASHADE_H
+#endif

@@ -10,8 +10,8 @@
  **
  ****************************************************************************/
 
-#ifndef COLORMODEL_H
-#define COLORMODEL_H
+#ifndef COLORFILTER_H
+#define COLORFILTER_H
 
 #include <qproxymodel.h>
 

@@ -79,4 +79,4 @@ private slots:
 
 };
 
-#endif // TOOLBAR_H
+#endif

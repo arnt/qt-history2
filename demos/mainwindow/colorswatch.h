@@ -72,4 +72,4 @@ private slots:
     void placeBottom(bool p);
 };
 
-#endif // COLORSWATCH_H
+#endif

@@ -15,6 +15,7 @@
 #define TEXTOUTLINE_H
 
 #include "demowidget.h"
+
 #include <qpainterpath.h>
 
 class TextOutline : public DemoWidget
@@ -46,4 +47,4 @@ private:
     QPoint pul, pur, pbl, pbr;
 };
 
-#endif // TEXTOUTLINE_H
+#endif

@@ -37,4 +37,4 @@ protected:
     QImage image;
 };
 
-#endif // IMAGEMODEL_H
+#endif

@@ -14,8 +14,9 @@
 #ifndef ITEMS_H
 #define ITEMS_H
 
-#include <QList>
 #include "demowidget.h"
+
+#include <QList>
 
 class Item;
 class Items : public DemoWidget
@@ -43,4 +44,4 @@ private:
     QList<Item *> items;
 };
 
-#endif // ITEMS_H
+#endif

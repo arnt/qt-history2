@@ -33,4 +33,4 @@ private:
     QBasicTimer animTimer;
 };
 
-#endif // GLPAINTER_H
+#endif

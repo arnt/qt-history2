@@ -40,4 +40,4 @@ private:
 
 };
 
-#endif // PATHS_H
+#endif

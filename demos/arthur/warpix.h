@@ -45,4 +45,4 @@ private:
     QSound *beat;
 };
 
-#endif // WARPIX_H
+#endif

@@ -39,4 +39,4 @@ private:
     QPoint currentPoint;
 };
 
-#endif // CLIPPING_H
+#endif

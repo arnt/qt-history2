@@ -29,4 +29,4 @@ private:
     QPixmap pixmap;
 };
 
-#endif // ROTATINGGRADIENT_H
+#endif

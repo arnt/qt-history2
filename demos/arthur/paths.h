@@ -26,4 +26,4 @@ public:
     void mouseReleaseEvent(QMouseEvent *) { startAnimation(); }
 };
 
-#endif // PATHS_H
+#endif

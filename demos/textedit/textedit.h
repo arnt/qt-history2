@@ -92,5 +92,4 @@ private:
     QPointer<QTextEdit> currentEditor;
 };
 
-
 #endif

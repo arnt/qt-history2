@@ -33,4 +33,4 @@ private:
     QSize sz;
 };
 
-#endif // HEXDELEGATE_H
+#endif

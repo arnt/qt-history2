@@ -38,4 +38,4 @@ private:
     void setupDockWindows();
 };
 
-#endif // MAINWINDOW_H
+#endif

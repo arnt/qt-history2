@@ -60,4 +60,4 @@ private:
     QComboBox *bgMode;
 };
 
-#endif // DEMOVIEWER_H
+#endif

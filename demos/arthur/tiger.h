@@ -35,4 +35,4 @@ private:
     int mx, my;
 };
 
-#endif // TIGER_H
+#endif

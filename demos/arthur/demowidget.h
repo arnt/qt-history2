@@ -56,4 +56,4 @@ private:
     QBasicTimer animationTimer;
 };
 
-#endif // DEMOWIDGET_H
+#endif

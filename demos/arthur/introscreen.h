@@ -40,4 +40,4 @@ private:
     bool mouseDown;
 };
 
-#endif // INTROSCREEN_H
+#endif
