@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#21 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#22 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -200,9 +200,10 @@ typedef ulong WFlags;
 
 #define WGetMouseMove	0x01000000		// misc widget flags
 #define WConfigPending	0x02000000
-#define WExplicitHide	0x04000000
-#define WPaintDesktop	0x08000000
-#define WPaintUnclipped	0x10000000
+#define WResizeNoErase	0x04000000
+#define WExplicitHide	0x08000000
+#define WPaintDesktop	0x10000000
+#define WPaintUnclipped	0x20000000
 
 
 // Extra Widget data
