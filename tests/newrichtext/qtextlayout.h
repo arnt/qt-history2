@@ -147,7 +147,7 @@ struct GlyphAttributes {
 	Arabic_Ra      = 11,  // Final Form Of Ra (U+631)
 	Arabic_Ba      = 12,  // Middle-Of-Word Form Of Ba (U+628)
 	Arabic_Bara    = 13,  // Ligature Of Alike (U+628,U+631)
-	Arabic_Seen    = 14,  // Highest Priority: Initial Shape Of Seen(U+633) (End)
+	Arabic_Seen    = 14   // Highest Priority: Initial Shape Of Seen(U+633) (End)
     };
     unsigned int justification   :4;  // Justification class
     unsigned int clusterStart    :1;  // First glyph of representation of cluster
