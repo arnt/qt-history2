@@ -24,6 +24,7 @@ HEADERS += \
     qtundo.h \
     pluginmanager.h \
     qdesigner_formbuilder.h \
+    default_propertysheet.h \
     treewidget.h
 
 SOURCES += \
@@ -33,6 +34,7 @@ SOURCES += \
     qtundo.cpp \
     pluginmanager.cpp \
     qdesigner_formbuilder.cpp \
+    default_propertysheet.cpp \
     treewidget.cpp
 
 include(../sharedcomponents.pri)

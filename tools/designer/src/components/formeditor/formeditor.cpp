@@ -16,7 +16,7 @@
 #include "widgetdatabase.h"
 #include "widgetfactory.h"
 #include "formwindowmanager.h"
-#include "default_propertysheet.h"
+#include <default_propertysheet.h>
 #include "default_container.h"
 #include "default_layoutdecoration.h"
 #include "qlayoutwidget_propertysheet.h"

@@ -1162,6 +1162,7 @@ void FormWindow::handleKeyPressEvent(QWidget *w, QKeyEvent *e)
         case Qt::Key_Left:
             cursor()->movePosition(AbstractFormWindowCursor::Left);
             break;
+
         case Qt::Key_Right:
             cursor()->movePosition(AbstractFormWindowCursor::Right);
             break;

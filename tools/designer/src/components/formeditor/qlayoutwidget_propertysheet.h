@@ -14,7 +14,7 @@
 #ifndef QLAYOUTWIDGET_PROPERTYSHEET_H
 #define QLAYOUTWIDGET_PROPERTYSHEET_H
 
-#include "default_propertysheet.h"
+#include <default_propertysheet.h>
 
 class QLayoutWidget;
 

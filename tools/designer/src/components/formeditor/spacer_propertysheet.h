@@ -14,7 +14,7 @@
 #ifndef SPACER_PROPERTYSHEET_H
 #define SPACER_PROPERTYSHEET_H
 
-#include "default_propertysheet.h"
+#include <default_propertysheet.h>
 
 class Spacer;
 

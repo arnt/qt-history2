@@ -35,7 +35,6 @@ HEADERS += qdesigner_widget.h \
            formeditor.h \
            iconloader.h \
            formeditor_global.h \
-           default_propertysheet.h \
            qlayoutwidget_propertysheet.h \
            spacer_propertysheet.h \
            default_container.h \
@@ -60,7 +59,6 @@ SOURCES += qdesigner_widget.cpp \
            formwindowmanager.cpp \
            orderindicator.cpp \
            formeditor.cpp \
-           default_propertysheet.cpp \
            qlayoutwidget_propertysheet.cpp \
            spacer_propertysheet.cpp \
            default_container.cpp \

@@ -14,11 +14,12 @@
 #ifndef DEFAULT_PROPERTYSHEET_H
 #define DEFAULT_PROPERTYSHEET_H
 
+#include "shared_global.h"
 #include <propertysheet.h>
 #include <default_extensionfactory.h>
 #include <qpair.h>
 
-class QDesignerPropertySheet: public QObject, public IPropertySheet
+class QT_SHARED_EXPORT QDesignerPropertySheet: public QObject, public IPropertySheet
 {
     Q_OBJECT
     Q_INTERFACES(IPropertySheet)
@@ -68,7 +69,7 @@ protected:
     QHash<int, QVariant> m_fakeProperties;
 };
 
-class QDesignerPropertySheetFactory: public DefaultExtensionFactory
+class QT_SHARED_EXPORT QDesignerPropertySheetFactory: public DefaultExtensionFactory
 {
     Q_OBJECT
     Q_INTERFACES(ExtensionFactory)
