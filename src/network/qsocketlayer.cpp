@@ -232,6 +232,11 @@ bool QSocketLayer::initialize(Qt::SocketType socketType, Qt::NetworkLayerProtoco
         return false;
     }
 
+    // Set the send and receive buffer sizes to a magic size, found
+    // most optimal for our platforms.
+    setReceiveBufferSize(49152);
+    setSendBufferSize(49152);
+
     d->socketType = socketType;
     d->socketProtocol = protocol;
     return true;
