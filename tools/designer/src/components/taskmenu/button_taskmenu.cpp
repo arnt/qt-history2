@@ -132,14 +132,7 @@ void ButtonTaskMenu::updateText(const QString &text)
 
 void ButtonTaskMenu::updateSelection()
 {
-    if (!m_formWindow || m_formWindow != m_formWindow->core()->formWindowManager()->activeFormWindow()) {
+    if (m_editor)
         m_editor->deleteLater();
-    } else {
-        AbstractFormWindowCursor *c = m_formWindow->cursor();
-        Q_ASSERT(c != 0);
-
-        if (!(c->selectedWidgetCount() == 1 && c->selectedWidget(0) == m_button))
-            m_editor->deleteLater();
-    }
 }
 
