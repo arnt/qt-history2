@@ -36,8 +36,8 @@
 
 #include "qsql_psql.h"
 
+#include <qsqlrecord.h>
 #include <qregexp.h>
-#include <qptrlist.h> // ###??
 #include <qdatetime.h>
 #include <qpointarray.h>
 #include <postgres.h>
@@ -90,7 +90,8 @@ QVariant::Type qDecodePSQLType( int t )
 	break;
     case TIMESTAMPOID   :
 #ifdef DATETIMEOID
-    // Postgres 6.x datetime workaround
+    // Postgres 6.x datetime workaround.
+    // DATETIMEOID == TIMESTAMPOID (only the names have changed)
     case DATETIMEOID    :
 #endif
 	type = QVariant::DateTime;
@@ -218,6 +219,7 @@ QDate qDateFromUInt( uint dt )
     return QDate( y, m, d );
 }
 
+/* // ### this should be obsolete?
 QTime qTimeFromDouble( double tm )
 {
     int hour = ((int)tm / ( 60 * 60 ) );
@@ -225,6 +227,7 @@ QTime qTimeFromDouble( double tm )
     int sec = (((int) tm) % 60 );
     return QTime( hour, min, sec );
 }
+*/
 
 QVariant QPSQLResult::data( int i )
 {
@@ -247,6 +250,15 @@ QVariant QPSQLResult::data( int i )
     case QVariant::Time:
 	return QVariant( QTime::fromString( val, Qt::ISODate ) );
     case QVariant::DateTime:
+	if ( val.length() < 10 )
+	    return QVariant( QDateTime() );
+	// remove the timezone
+	if ( val.find( "+", val.length() - 3 ) >= 0 )
+	    val = val.left( val.length() - 3 );
+	// for some reasons the milliseconds are sometimes only 2 digits
+	// (12 instead of 120)
+	if ( val.find( ".", val.length() - 3 ) >= 0 )
+	    val += "0";
 	return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
     case QVariant::Point:
 	return QVariant( pointFromString( val ) );
@@ -492,11 +504,11 @@ bool QPSQLDriver::open( const QString & db,
     PGresult* dateResult = 0;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO';" );
+	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO'" );
 	break;
     case QPSQLDriver::Version7:
     case QPSQLDriver::Version71:
-	dateResult = PQexec( d->connection, "SET DATESTYLE=ISO;" );
+	dateResult = PQexec( d->connection, "SET DATESTYLE=ISO" );
 	break;
     }
 #ifdef QT_CHECK_RANGE
@@ -676,7 +688,7 @@ QSqlRecord QPSQLDriver::record( const QSqlQuery& query ) const
 	return fil;
     if ( query.isActive() && query.driver() == this ) {
 	QPSQLResult* result = (QPSQLResult*)query.result();
-	int count = PQnfields ( result->d->result );
+	int count = PQnfields( result->d->result );
 	for ( int i = 0; i < count; ++i ) {
 	    QString name = PQfname( result->d->result, i );
 	    QVariant::Type type = qDecodePSQLType( PQftype( result->d->result, i ) );
@@ -687,30 +699,153 @@ QSqlRecord QPSQLDriver::record( const QSqlQuery& query ) const
     return fil;
 }
 
+QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
+{
+    QSqlRecordInfo info;
+    if ( !isOpen() )
+	return info;
+
+    QString stmt;
+    switch( pro ) {
+    case QPSQLDriver::Version6:
+	stmt = "select pg_attribute.attname, int(pg_attribute.atttypid), pg_attribute.attnotnull, "
+		"pg_attribute.attlen, pg_attribute.atttypmod, int(pg_attribute.attrelid), pg_attribute.attnum "
+		"from pg_class, pg_attribute "
+		"where pg_class.relname = '%1' "
+		"and pg_attribute.attnum > 0 "
+		"and pg_attribute.attrelid = pg_class.oid ";
+	break;
+    case QPSQLDriver::Version7:
+	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int, pg_attribute.attnotnull, "
+		"pg_attribute.attlen, pg_attribute.atttypmod, pg_attribute.attrelid::int, pg_attribute.attnum "
+		"from pg_class, pg_attribute "
+		"where pg_class.relname = '%1' "
+		"and pg_attribute.attnum > 0 "
+		"and pg_attribute.attrelid = pg_class.oid ";
+	break;
+    case QPSQLDriver::Version71:
+	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int, pg_attribute.attnotnull, "
+		"pg_attribute.attlen, pg_attribute.atttypmod, pg_attrdef.adsrc "
+		"from pg_class, pg_attribute "
+		"left join pg_attrdef on (pg_attrdef.adrelid = pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum) "
+		"where pg_class.relname = '%1' "
+		"and pg_attribute.attnum > 0 "
+		"and pg_attribute.attrelid = pg_class.oid ";
+	break;
+    }
+
+    QSqlQuery query( stmt.arg( tablename ) );
+    if ( pro == QPSQLDriver::Version71 ) {
+	while ( query.next() ) {
+	    int len = query.value( 3 ).toInt();
+	    int precision = query.value( 4 ).toInt();
+	    // swap length and precision if length == -1
+	    if ( len == -1 && precision > -1 ) {
+		len = precision - 4;
+		precision = -1;
+	    }
+	    QString defVal = query.value( 5 ).toString();
+	    if ( !defVal.isEmpty() && defVal.startsWith( "'" ) )
+		defVal = defVal.mid( 1, defVal.length() - 2 );
+	    info.append( QSqlFieldInfo( query.value( 0 ).toString(),
+					qDecodePSQLType( query.value( 1 ).toInt() ),
+					query.value( 2 ).toBool(),
+					len,
+					precision,
+					defVal,
+					query.value( 1 ).toInt() ) );
+	}
+    } else {
+	// Postgres < 7.1 cannot handle outer joins
+	while ( query.next() ) {
+	    QString defVal;
+	    QString stmt2 = ( "select pg_attrdef.adsrc from pg_attrdef where "
+				"pg_attrdef.adrelid = %1 and pg_attrdef.adnum = %2 " );
+	    QSqlQuery query2( stmt2.arg( query.value( 5 ).toInt() ).arg( query.value( 6 ).toInt() ) );
+	    if ( query2.isActive() && query2.next() )
+		defVal = query2.value( 0 ).toString();
+	    if ( !defVal.isEmpty() && defVal.startsWith( "'" ) )
+		defVal = defVal.mid( 1, defVal.length() - 2 );
+	    int len = query.value( 3 ).toInt();
+	    int precision = query.value( 4 ).toInt();
+	    // swap length and precision if length == -1
+	    if ( len == -1 && precision > -1 ) {
+		len = precision - 4;
+		precision = -1;
+	    }
+	    info.append( QSqlFieldInfo( query.value( 0 ).toString(),
+					qDecodePSQLType( query.value( 1 ).toInt() ),
+					query.value( 2 ).toBool(),
+					len,
+					precision,
+					defVal,
+					query.value( 1 ).toInt() ) );
+	}
+    }
+
+    return info;
+}
+
+QSqlRecordInfo QPSQLDriver::recordInfo( const QSqlQuery& query ) const
+{
+    QSqlRecordInfo info;
+    if ( !isOpen() )
+	return info;
+    if ( query.isActive() && query.driver() == this ) {
+	QPSQLResult* result = (QPSQLResult*)query.result();
+	int count = PQnfields( result->d->result );
+	for ( int i = 0; i < count; ++i ) {
+	    QString name = PQfname( result->d->result, i );
+	    int len = PQfsize( result->d->result, i );
+	    int precision = PQfmod( result->d->result, i );
+	    // swap length and precision if length == -1
+	    if ( len == -1 && precision > -1 ) {
+		len = precision - 4;
+		precision = -1;
+	    }
+	    info.append( QSqlFieldInfo( name,
+					qDecodePSQLType( PQftype( result->d->result, i ) ),
+					-1,
+					len,
+					precision,
+					QVariant(),
+					PQftype( result->d->result, i ) ) );
+	}
+    }
+    return info;
+}
+
 QString QPSQLDriver::formatValue( const QSqlField* field,
 				  bool ) const
 {
     QString r;
     if ( field->isNull() ) {
 	r = nullText();
-    } else if ( field->type() == QVariant::DateTime ) {
-	if ( field->value().toDateTime().isValid() ) {
-	    QDate dt = field->value().toDateTime().date();
-	    QTime tm = field->value().toDateTime().time();
-	    r = "'" + QString::number(dt.year()) + "-" +
-		QString::number(dt.month()) + "-" +
-		QString::number(dt.day()) + " " +
-		tm.toString() + "'";
-	} else {
-	    r = nullText();
-	}
-    } else if ( field->type() == QVariant::Bool ) {
-	if ( field->value().toBool() )
-	    r = "TRUE";
-	else
-	    r = "FALSE";
     } else {
-	r = QSqlDriver::formatValue( field );
+	switch ( field->type() ) {
+	case QVariant::DateTime:
+	    if ( field->value().toDateTime().isValid() ) {
+		QDate dt = field->value().toDateTime().date();
+		QTime tm = field->value().toDateTime().time();
+		r = "'" + QString::number(dt.year()) + "-" +
+			  QString::number(dt.month()) + "-" +
+			  QString::number(dt.day()) + " " +
+			  tm.toString() + "." +
+			  QString::number(tm.msec()) + "'";
+	    } else {
+		r = nullText();
+	    }
+	    break;
+	case QVariant::Bool:
+	    if ( field->value().toBool() )
+		r = "TRUE";
+	    else
+		r = "FALSE";
+	    break;
+	default:
+	    r = QSqlDriver::formatValue( field );
+	    break;
+	}
     }
     return r;
 }

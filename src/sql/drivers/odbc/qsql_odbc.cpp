@@ -35,6 +35,7 @@
 **********************************************************************/
 
 #include "qsql_odbc.h"
+#include <qsqlrecord.h>
 
 #if defined (Q_OS_WIN32)
 #include <qt_windows.h>
@@ -162,13 +163,59 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
 			&colSize,
 			&colScale,
 			&nullable);
-    qColName = qstrdup((const char*)colName);
+    if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-    if ( r != SQL_SUCCESS )
 	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
 #endif
+	return QSqlField();
+    }
+    qColName = qstrdup((const char*)colName);
     QVariant::Type type = qDecodeODBCType( colType );
     return QSqlField( qColName, type );
+}
+
+QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
+{
+    SQLSMALLINT colNameLen;
+    SQLSMALLINT colType;
+    SQLUINTEGER colSize;
+    SQLSMALLINT colScale;
+    SQLSMALLINT nullable;
+    SQLRETURN r = SQL_ERROR;
+    QString qColName;
+    SQLCHAR colName[255];
+    r = SQLDescribeCol( p->hStmt,
+			i+1,
+			colName,
+			sizeof(colName),
+			&colNameLen,
+			&colType,
+			&colSize,
+			&colScale,
+			&nullable);
+
+    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
+#endif
+	return QSqlFieldInfo();
+    }
+    qColName = qstrdup((const char*)colName);
+    // nullable can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
+    int required = -1;
+    if ( nullable == SQL_NO_NULLS ) {
+	required = 1;
+    } else if ( nullable == SQL_NULLABLE ) {
+	required = 0;
+    }
+    QVariant::Type type = qDecodeODBCType( colType );
+    return QSqlFieldInfo( qColName,
+    			  type,
+    			  required,
+    			  (int)colSize == 0 ? -1 : (int)colSize,
+    			  (int)colScale == 0 ? -1 : (int)colScale,
+    			  QVariant(),
+    			  (int)colType );
 }
 
 QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
@@ -281,22 +328,85 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 		     (SQLCHAR*)fieldname.local8Bit().data(),
 		     fieldname.length() );
 
+    if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-    if ( r != SQL_SUCCESS )
 	qSqlWarning( "qMakeField: Unable to execute column list", d );
 #endif
+	return fi;
+    }
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
 			0);
     if ( r == SQL_SUCCESS ) {
 	bool isNull;
 	int type = qGetIntData( hStmt, 4, isNull ); // column type
-	QSqlField f( fieldname, qDecodeODBCType( type ) );
-	fi = f;
+	fi = QSqlField( fieldname, qDecodeODBCType( type ) );
     }
     r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
+#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
-        qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
+        qSqlWarning( "QODBCDriver: Unable to free statement handle " + QString::number(r), d );
+#endif
+    return fi;
+}
+
+QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
+{
+    QSqlFieldInfo fi;
+    SQLHANDLE hStmt;
+    SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
+				  d->hDbc,
+				  &hStmt );
+    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+        qSqlWarning( "qMakeField: Unable to alloc handle", d );
+#endif
+	return fi;
+    }
+    r = SQLSetStmtAttr( hStmt,
+			SQL_ATTR_CURSOR_TYPE,
+			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
+			SQL_IS_UINTEGER );
+    r =  SQLColumns( hStmt,
+		     NULL,
+		     0,
+		     NULL,
+		     0,
+		     (SQLCHAR*)tablename.local8Bit().data(),
+		     tablename.length(),
+		     (SQLCHAR*)fieldname.local8Bit().data(),
+		     fieldname.length() );
+
+    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	qSqlWarning( "qMakeField: Unable to execute column list", d );
+#endif
+	return fi;
+    }
+    r = SQLFetchScroll( hStmt,
+			SQL_FETCH_NEXT,
+			0);
+    if ( r == SQL_SUCCESS ) {
+	bool isNull;
+	int type = qGetIntData( hStmt, 4, isNull ); // column type
+	int required = qGetIntData( hStmt, 10, isNull ); // nullable-flag
+	// required can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
+	if ( required == SQL_NO_NULLS ) {
+	    required = 1;
+	} else if ( required == SQL_NULLABLE ) {
+	    required = 0;
+	} else {
+	    required = -1;
+	}
+	int size = qGetIntData( hStmt, 6, isNull ); // column size
+	int prec = qGetIntData( hStmt, 8, isNull ); // precision
+	fi = QSqlFieldInfo( fieldname, qDecodeODBCType( type ), required, size, prec, QVariant(), type );
+    }
+    r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
+#ifdef QT_CHECK_RANGE
+    if ( r != SQL_SUCCESS )
+        qSqlWarning( "QODBCDriver: Unable to free statement handle " + QString::number(r), d );
+#endif
     return fi;
 }
 
@@ -1022,7 +1132,7 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
 
     QStringList::Iterator i;
     for (i = fList.begin();  i != fList.end(); i++) {
-	QSqlField f = qMakeField( d, tablename, ( *i ) );
+	QSqlField f = qMakeField( d, tablename, (*i) );
 	fil.append( f );
     }
 
@@ -1053,6 +1163,94 @@ QSqlRecord QODBCDriver::record( const QSqlQuery& query ) const
 	if ( count > 0 && r == SQL_SUCCESS ) {
 	    for ( int i = 0; i < count; ++i ) {
 		QSqlField fi = qMakeField( result->d, i );
+		fil.append( fi );
+	    }
+	}
+    }
+    return fil;
+}
+
+QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
+{
+    QSqlRecordInfo fil;
+    QStringList fList;
+    if ( !isOpen() )
+	return fil;
+    SQLHANDLE hStmt;
+
+    SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
+				  d->hDbc,
+				  &hStmt );
+    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	qSqlWarning( "QODBCDriver::record: Unable to allocate handle", d );
+#endif
+	return fil;
+    }
+    r = SQLSetStmtAttr( hStmt,
+			SQL_ATTR_CURSOR_TYPE,
+			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
+			SQL_IS_UINTEGER );
+    r =  SQLColumns( hStmt,
+		     NULL,
+		     0,
+		     NULL,
+		     0,
+		     (SQLCHAR*)tablename.local8Bit().data(),
+		     tablename.length(),
+		     NULL,
+		     0 );
+#ifdef QT_CHECK_RANGE
+    if ( r != SQL_SUCCESS )
+	qSqlWarning( "QODBCDriver::record: Unable to execute column list", d );
+#endif
+    r = SQLFetchScroll( hStmt,
+			SQL_FETCH_NEXT,
+			0);
+    // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
+    while ( r == SQL_SUCCESS ) {
+	bool isNull;
+	SQLINTEGER lengthIndicator(0);
+	fList += qGetStringData( hStmt, 3, lengthIndicator, isNull );
+	
+	r = SQLFetchScroll( hStmt,
+			    SQL_FETCH_NEXT,
+			    0);
+    }
+
+    QStringList::Iterator i;
+    for (i = fList.begin();  i != fList.end(); i++) {
+	QSqlFieldInfo f = qMakeFieldInfo( d, tablename, (*i) );
+	fil.append( f );
+    }
+
+    r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
+    if ( r!= SQL_SUCCESS )
+	qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
+
+//     QSqlIndex priIdx = primaryIndex( tablename );
+//     for ( uint i = 0; i < priIdx.count(); ++i )
+//	fil.field( priIdx.field(i)->name() )->setPrimaryIndex( TRUE );
+    return fil;
+}
+
+QSqlRecordInfo QODBCDriver::recordInfo( const QSqlQuery& query ) const
+{
+    QSqlRecordInfo fil;
+    if ( !isOpen() )
+	return fil;
+    if ( query.isActive() && query.driver() == this ) {
+	QODBCResult* result = (QODBCResult*)query.result();
+	SQLRETURN r;
+	SQLSMALLINT count;
+	r = SQLNumResultCols( result->d->hStmt, &count );
+#ifdef QT_CHECK_RANGE
+	if ( r != SQL_SUCCESS )
+	    qSqlWarning( "QODBCDriver::record: Unable to count result columns", d );
+#endif
+	if ( count > 0 && r == SQL_SUCCESS ) {
+	    for ( int i = 0; i < count; ++i ) {
+		QSqlFieldInfo fi = qMakeFieldInfo( result->d, i );
 		fil.append( fi );
 	    }
 	}

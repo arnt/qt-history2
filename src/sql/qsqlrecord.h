@@ -105,5 +105,23 @@ private:
     QSqlRecordShared*    sh;
 };
 
+/******************************************/
+/*******     QSqlRecordInfo Class    ******/
+/******************************************/
+
+typedef QValueList<QSqlFieldInfo> QSqlFieldInfoList;
+
+class Q_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
+{
+public:
+    QSqlRecordInfo(): QSqlFieldInfoList() {}
+    QSqlRecordInfo( const QSqlFieldInfoList& other ): QSqlFieldInfoList( other ) {}
+
+    size_type contains( const QString& fieldName ) const;
+    QSqlFieldInfo find( const QString& fieldName ) const;
+
+};
+
+
 #endif	// QT_NO_SQL
 #endif

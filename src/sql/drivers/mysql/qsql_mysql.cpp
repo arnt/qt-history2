@@ -38,6 +38,7 @@
 
 #include <qdatetime.h>
 #include <qmap.h>
+#include <qsqlrecord.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
 
@@ -418,6 +419,58 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
     return fil;
 }
 
+QSqlRecordInfo QMYSQLDriver::recordInfo( const QString& tablename ) const
+{
+    QSqlRecordInfo info;
+    if ( !isOpen() )
+	return info;
+    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
+    if ( !r ) {
+	return info;
+    }
+    MYSQL_FIELD* field;
+    while ( (field = mysql_fetch_field( r ))) {
+	info.append ( QSqlFieldInfo( QString( field->name ),
+				qDecodeMYSQLType( (int)field->type ),
+				IS_NOT_NULL( field->flags ),
+				(int)field->length,
+				(int)field->decimals,
+				QString( field->def ),
+				(int)field->type ) );
+    }
+    mysql_free_result( r );
+    return info;
+}
+
+QSqlRecordInfo QMYSQLDriver::recordInfo( const QSqlQuery& query ) const
+{
+    QSqlRecordInfo info;
+    if ( !isOpen() )
+	return info;
+    if ( query.isActive() && query.driver() == this ) {
+	QMYSQLResult* result =  (QMYSQLResult*)query.result();
+	QMYSQLResultPrivate* p = result->d;
+	if ( !mysql_errno( p->mysql ) ) {
+	    for ( ;; ) {
+		MYSQL_FIELD* field = mysql_fetch_field( p->result );
+		if ( field ) {
+		    info.append ( QSqlFieldInfo( QString( field->name ),
+				qDecodeMYSQLType( (int)field->type ),
+				IS_NOT_NULL( field->flags ),
+				(int)field->length,
+				(int)field->decimals,
+				QVariant(),
+				(int)field->type ) );
+		
+		} else
+		    break;
+	    }
+	}
+	mysql_field_seek( p->result, 0 );
+    }
+    return info;
+}
+
 MYSQL* QMYSQLDriver::mysql()
 {
      return d->mysql;
@@ -475,4 +528,28 @@ bool QMYSQLDriver::rollbackTransaction()
 	return FALSE;
     }
     return TRUE;
+}
+
+QString QMYSQLDriver::formatValue( const QSqlField* field, bool trimStrings ) const
+{
+    QString r;
+    if ( field->isNull() ) {
+	r = nullText();
+    } else {
+	switch( field->type() ) {
+	case QVariant::ByteArray: {
+	
+	    const QByteArray ba = field->value().toByteArray();
+	    // buffer has to be at least length*2+1 bytes
+	    char* buffer = new char[ ba.size() * 2 + 1 ];
+	    /*uint escapedSize =*/ mysql_escape_string( buffer, ba.data(), ba.size() );
+            r = QString( "'%1'" ).arg( buffer );
+	    delete[] buffer;
+	}
+	break;
+	default:
+	    r = QSqlDriver::formatValue( field, trimStrings );
+	}
+    }
+    return r;
 }

@@ -280,8 +280,7 @@ QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
 {
     QSqlRecord::operator=( other );
     QSqlQuery::operator=( other );
-    if ( d )
-	delete d;
+    delete d;
     d = new QSqlCursorPrivate( other.d->nm );
     d->lastAt = other.d->lastAt;
     d->nm = other.d->nm;

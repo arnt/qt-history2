@@ -44,6 +44,7 @@
 
 class QPSQLPrivate;
 class QPSQLDriver;
+class QSqlRecordInfo;
 
 class QPSQLResult : public QSqlResult
 {
@@ -57,11 +58,11 @@ protected:
     bool		fetch( int i );
     bool		fetchFirst();
     bool		fetchLast();
-    QVariant            data( int i );
+    QVariant		data( int i );
     bool		isNull( int field );
     bool		reset ( const QString& query );
-    int                 size();
-    int                 numRowsAffected();
+    int			size();
+    int			numRowsAffected();
 private:
     int			currentSize;
     QPSQLPrivate*	d;
@@ -86,10 +87,12 @@ public:
 				int port = -1 );
     void		close();
     QSqlQuery		createQuery() const;
-    QStringList         tables( const QString& user ) const;
-    QSqlIndex           primaryIndex( const QString& tablename ) const;
-    QSqlRecord          record( const QString& tablename ) const;
-    QSqlRecord          record( const QSqlQuery& query ) const;
+    QStringList		tables( const QString& user ) const;
+    QSqlIndex		primaryIndex( const QString& tablename ) const;
+    QSqlRecord		record( const QString& tablename ) const;
+    QSqlRecord		record( const QSqlQuery& query ) const;
+    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
+    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
 
     Protocol            protocol() const { return pro; }
     PGconn*             connection();

@@ -51,6 +51,7 @@
 class QMYSQLDriverPrivate;
 class QMYSQLResultPrivate;
 class QMYSQLDriver;
+class QSqlRecordInfo;
 
 class QMYSQLResult : public QSqlResult
 {
@@ -92,6 +93,10 @@ public:
     QSqlIndex		primaryIndex( const QString& tablename ) const;
     QSqlRecord		record( const QString& tablename ) const;
     QSqlRecord		record( const QSqlQuery& query ) const;
+    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
+    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
+    QString		formatValue( const QSqlField* field,
+				     bool trimStrings ) const;
     MYSQL*		mysql();
 protected:
     bool		beginTransaction();

@@ -620,4 +620,63 @@ void QSqlRecord::setValue( const QString& name, const QVariant& val )
     setValue( position( name ), val );
 }
 
+
+/******************************************/
+/*******     QSqlRecordInfo Impl     ******/
+/******************************************/
+
+/*!
+    \class QSqlRecordInfo qsqlrecord.h
+    \ingroup database
+    \brief The QSqlRecordInfo class encapsulates a set of database field meta information.
+    \preliminary
+    \module sql
+
+    This class is a QValueList that holds a set of database field meta information. It offers some
+    convenience functions to retrieve and find QSqlFieldInfo objects.
+
+    \sa QValueList, QSqlFieldInfo
+*/
+
+/*! Returns the number of times a field named \a fieldName occurs in the record.
+    Returns 0 if no field by that name could be found.
+*/
+QSqlRecordInfo::size_type QSqlRecordInfo::contains( const QString& fieldName ) const
+{
+   size_type i = 0;
+   QString fName = fieldName.upper();
+   for( const_iterator it = begin(); it != end(); ++it ) {
+	if ( (*it).name().upper() == fName ) {
+	    ++i;
+	}
+	++it;
+    }
+    return i;
+}
+
+/*! Returns the first match of the field named \a fieldName.
+    An empty QSqlFieldInfo object is returned if no field could be found.
+*/
+QSqlFieldInfo QSqlRecordInfo::find( const QString& fieldName ) const
+{
+   QString fName = fieldName.upper();
+   for( const_iterator it = begin(); it != end(); ++it ) {
+	if ( (*it).name().upper() == fName ) {
+	    return *it;
+	}
+	++it;
+    }
+    return QSqlFieldInfo();
+}
+
+/*! \fn QSqlRecordInfo::QSqlRecordInfo()
+
+  Constructs an empty recordinfo object
+*/
+
+/*! \fn QSqlRecordInfo::QSqlRecordInfo( const QSqlFieldInfoList& other )
+
+  Constructs a copy of \a other.
+*/
+
 #endif

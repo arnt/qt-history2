@@ -95,5 +95,40 @@ inline bool QSqlField::isReadOnly() const
 inline QVariant::Type QSqlField::type() const
 { return val.type(); }
 
+
+/******************************************/
+/*******     QSqlFieldInfo Class     ******/
+/******************************************/
+
+struct QSqlFieldInfoPrivate;
+
+class QM_EXPORT_SQL QSqlFieldInfo
+{
+public:
+    QSqlFieldInfo( const QString& name = QString::null,
+		   QVariant::Type typ = QVariant::Invalid,
+		   int required = -1,
+		   int len = -1,
+		   int prec = -1,
+		   const QVariant& defValue = QVariant(),
+		   int sqlType = 0 );
+    QSqlFieldInfo( const QSqlFieldInfo & other );
+    ~QSqlFieldInfo();
+    QSqlFieldInfo& operator=( const QSqlFieldInfo& other );
+    bool operator==( const QSqlFieldInfo& f ) const;
+
+    int			isRequired() const;
+    QVariant::Type	type() const;
+    int			length() const;
+    int			precision() const;
+    QVariant		defaultValue() const;
+    QString		name() const;
+    int			typeID() const;
+
+private:
+    QSqlFieldInfoPrivate* d;
+};
+
+
 #endif	// QT_NO_SQL
 #endif

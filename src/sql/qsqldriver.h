@@ -67,33 +67,35 @@ public:
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
 
-    bool		  isOpen() const;
-    bool	          isOpenError() const;
+    bool			isOpen() const;
+    bool			isOpenError() const;
 
-    virtual bool          beginTransaction();
-    virtual bool          commitTransaction();
-    virtual bool          rollbackTransaction();
-    virtual QStringList   tables( const QString& user ) const;
-    virtual QSqlIndex     primaryIndex( const QString& tableName ) const;
-    virtual QSqlRecord    record( const QString& tableName ) const;
-    virtual QSqlRecord    record( const QSqlQuery& query ) const;
-    virtual QString       nullText() const;
-    virtual QString       formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
-    QSqlError	          lastError() const;
+    virtual bool		beginTransaction();
+    virtual bool		commitTransaction();
+    virtual bool		rollbackTransaction();
+    virtual QStringList		tables( const QString& user ) const;
+    virtual QSqlIndex		primaryIndex( const QString& tableName ) const;
+    virtual QSqlRecord		record( const QString& tableName ) const;
+    virtual QSqlRecord		record( const QSqlQuery& query ) const;
+    virtual QSqlRecordInfo	recordInfo( const QString& tablename ) const;
+    virtual QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
+    virtual QString		nullText() const;
+    virtual QString		formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
+    QSqlError			lastError() const;
 
-    virtual bool          hasFeature( DriverFeature f ) const = 0;
-    virtual bool          open( const QString & db,
-				const QString & user = QString::null,
-				const QString & password = QString::null,
-				const QString & host = QString::null,
+    virtual bool		hasFeature( DriverFeature f ) const = 0;
+    virtual bool		open( const QString & db,
+					const QString & user = QString::null,
+					const QString & password = QString::null,
+					const QString & host = QString::null,
 				int port = -1 ) = 0;
-    virtual void          close() = 0;
-    virtual QSqlQuery     createQuery() const = 0;
+    virtual void		close() = 0;
+    virtual QSqlQuery		createQuery() const = 0;
 
 protected:
-    virtual void          setOpen( bool o );
-    virtual void          setOpenError( bool e );
-    virtual void	  setLastError( const QSqlError& e );
+    virtual void		setOpen( bool o );
+    virtual void		setOpenError( bool e );
+    virtual void		setLastError( const QSqlError& e );
 private:
     int		          dbState;
     QSqlError	          error;

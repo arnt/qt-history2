@@ -58,6 +58,8 @@
 
 class QODBCPrivate;
 class QODBCDriver;
+class QSqlRecordInfo;
+
 class QODBCResult : public QSqlResult
 {
     friend class QODBCDriver;
@@ -95,22 +97,24 @@ public:
 			      const QString & password = QString::null,
 			      const QString & host = QString::null,
 			      int port = -1 );
-    void	        close();
-    QSqlQuery	        createQuery() const;
-    QStringList         tables( const QString& user ) const;
-    QSqlRecord          record( const QString& tablename ) const;
-    QSqlRecord          record( const QSqlQuery& query ) const;
-    QSqlIndex           primaryIndex( const QString& tablename ) const;
-    SQLHANDLE           environment();
-    SQLHANDLE           connection();
+    void		close();
+    QSqlQuery		createQuery() const;
+    QStringList		tables( const QString& user ) const;
+    QSqlRecord		record( const QString& tablename ) const;
+    QSqlRecord		record( const QSqlQuery& query ) const;
+    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
+    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
+    QSqlIndex		primaryIndex( const QString& tablename ) const;
+    SQLHANDLE		environment();
+    SQLHANDLE		connection();
 
     QString		formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
 
 protected:
-    bool                beginTransaction();
-    bool                commitTransaction();
-    bool                rollbackTransaction();
+    bool		beginTransaction();
+    bool		commitTransaction();
+    bool		rollbackTransaction();
 private:
     void init();
     bool endTrans();

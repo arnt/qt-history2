@@ -200,7 +200,7 @@ void QSqlDriver::setOpenError( bool e )
     transaction. If successful, return TRUE, otherwise return FALSE.
     The default implementation returns FALSE.
 
-    \sa setTransactionSupport(), commitTransaction(), rollbackTransaction()
+    \sa commitTransaction(), rollbackTransaction()
 
 */
 
@@ -213,7 +213,7 @@ bool QSqlDriver::beginTransaction()
     transaction. If successful, return TRUE, otherwise return FALSE. The
     default implementation returns FALSE.
 
-    \sa setTransactionSupport(), beginTransaction(), rollbackTransaction()
+    \sa beginTransaction(), rollbackTransaction()
 
 */
 
@@ -226,7 +226,7 @@ bool QSqlDriver::commitTransaction()
     transaction. If successful, return TRUE, otherwise return FALSE.
     The default implementation returns FALSE.
 
-    \sa setTransactionSupport(), beginTransaction(), commitTransaction()
+    \sa beginTransaction(), commitTransaction()
 
 */
 
@@ -305,6 +305,21 @@ QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
 {
    return QSqlRecord();
 }
+
+/*! \internal
+*/
+QSqlRecordInfo QSqlDriver::recordInfo( const QString& /*tablename*/ ) const
+{
+    return QSqlRecordInfo();
+}
+
+/*! \internal
+*/
+QSqlRecordInfo QSqlDriver::recordInfo( const QSqlQuery& /*query*/ ) const
+{
+    return QSqlRecordInfo();
+}
+
 
 /*!  Returns a string representation of the 'NULL' value for the
   database.  This is used, for example, when constructing INSERT and
