@@ -136,8 +136,17 @@ QSize QDockAreaLayout::minimumSize() const
  	++it;
 	if ( dw->isHidden() )
 	    continue;
- 	s = s.expandedTo( dw->QFrame::minimumSizeHint() )
- 	    .expandedTo( dw->QFrame::minimumSize() );
+	QSize msh( dw->minimumSizeHint() );
+	if ( dw->orientation() == Horizontal )
+	    msh.setWidth( 0 );
+	else
+	    msh.setHeight( 0 );
+	QSize ms( dw->minimumSize() );
+	if ( dw->orientation() == Horizontal )
+	    ms.setWidth( 0 );
+	else
+	    ms.setHeight( 0 );
+ 	s = s.expandedTo( ms ).expandedTo( msh );
     }
 
     if ( s.width() < 0 )
@@ -440,8 +449,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
   QMainWindow contains four QDockAreas which you can use for your
   QToolbars and QDockWindows, so in most situations you do not need to
-  use the QDockArea class directly. 
-  
+  use the QDockArea class directly.
+
   QMainWindow contains support for its own dock areas but isn't
   convenient for adding new QDockAreas. If you need to create your own
   dock areas we suggest that you create a QWidget subclass and add your
@@ -455,7 +464,7 @@ int QDockAreaLayout::widthForHeight( int h ) const
   from left to right, and in the case of multiple rows of dock windows,
   from top to bottom. A dock window's position can be determined with
   hasDockWindow(). The position can be changed programmatically with
-  moveDockWindow(). 
+  moveDockWindow().
 
   The streaming operators can write the positions of the dock windows in
   the dock area to a QTextStream. The positions can be read back later
@@ -490,7 +499,7 @@ int QDockAreaLayout::widthForHeight( int h ) const
     (The splitter handle is only visible for docked windows.)
 
   This enum specifies where the dock window splitter handle is placed in
-  the dock area. 
+  the dock area.
 
   \value Normal The splitter handles of dock windows are placed at the
   right and/or bottom.
@@ -861,7 +870,7 @@ bool QDockArea::eventFilter( QObject *o, QEvent *e )
     return FALSE;
 }
 
-/*! \internal 
+/*! \internal
 
     Invalidates the offset of the next dock window in this dock area.
  */
@@ -992,8 +1001,8 @@ void QDockArea::dockWindow( QDockWindow *dockWindow, DockWindowData *data )
 
 }
 
-/*! 
-  Returns TRUE if \a dw could be docked into this dock area, 
+/*!
+  Returns TRUE if \a dw could be docked into this dock area,
   otherwise returns FALSE.
 */
 
@@ -1147,7 +1156,7 @@ QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
 }
 
 /*! Reads the layout description of the dock windows in the \a dockArea
-   from the text stream \a ts and restores it. 
+   from the text stream \a ts and restores it.
    The layout description must have been previously written by the
    operator<<() function.
 
