@@ -4,6 +4,7 @@ HEADERS += \
 	painting/qbrush.h \
 	painting/qcolor.h \
 	painting/qcolor_p.h \
+	painting/qcolormap.h \
 	painting/qdrawutil.h \
 	painting/qline.h \
 	painting/qpaintdevice.h \
@@ -57,6 +58,7 @@ win32 {
 
  	SOURCES += \
 		painting/qcolor_win.cpp \
+		painting/qcolormap_win.cpp \
 		painting/qpaintdevice_win.cpp \
 		painting/qpaintengine_win.cpp \
 		painting/qprintengine_win.cpp \
@@ -76,7 +78,7 @@ unix:x11 {
 		painting/qpaintengine_x11_p.h
 
 	SOURCES += \
-		painting/qcolor_x11.cpp \
+		painting/qcolormap_x11.cpp \
 		painting/qpaintdevice_x11.cpp \
 		painting/qpaintengine_x11.cpp
 }
@@ -90,6 +92,7 @@ unix:x11 {
 
 	SOURCES += \
 		painting/qcolor_mac.cpp \
+		painting/qcolormap_mac.cpp \
 		painting/qpaintdevice_mac.cpp \
 		painting/qpaintengine_mac.cpp \
 		painting/qprintengine_mac.cpp
@@ -110,7 +113,8 @@ embedded {
 		painting/qpaintengine_qws_p.h
 
 	SOURCES += \
-		painting/qpaintengine_qws.cpp \
+		painting/qcolor_qws.cpp \
+		painting/qcolormap_qws.cpp \
 		painting/qpaintdevice_qws.cpp \
-		painting/qcolor_qws.cpp
+		painting/qpaintengine_qws.cpp
 }

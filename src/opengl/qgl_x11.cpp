@@ -598,7 +598,7 @@ QColor QGLContext::overlayTransparentColor() const
                 uchar r = (uchar)((col.red / 65535.0) * 255.0 + 0.5);
                 uchar g = (uchar)((col.green / 65535.0) * 255.0 + 0.5);
                 uchar b = (uchar)((col.blue / 65535.0) * 255.0 + 0.5);
-                return QColor(qRgb(r,g,b), trans_colors[i].color);
+                return QColor(qRgb(r,g,b));
             }
         }
     }

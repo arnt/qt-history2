@@ -30,6 +30,7 @@
 #include "qplatformdefs.h"
 
 #include "qbitmap.h"
+#include "qcolormap.h"
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qmatrix.h"
@@ -809,15 +810,6 @@ QImage QPixmap::convertToImage() const
                 p++;
             }
         }
-
-        Colormap cmap        = data->xinfo.colormap();
-        int         ncells = data->xinfo.cells();
-        XColor *carr = new XColor[ncells];
-        for (i=0; i<ncells; i++)
-            carr[i].pixel = i;
-        // Get default colormap
-        XQueryColors(data->xinfo.display(), cmap, carr, ncells);
-
         if (msk) {
             int trans;
             if (ncols < 256) {
@@ -847,18 +839,12 @@ QImage QPixmap::convertToImage() const
         } else {
             image.setNumColors(ncols);        // create color table
         }
+        QColormap cmap = QColormap::instance(data->xinfo.screen());
         int j = 0;
         for (i=0; i<256; i++) {                // translate pixels
-            if (use[i]) {
-                image.setColor(j++,
-                                (msk ? 0xff000000 : 0)
-                                | qRgb((carr[i].red   >> 8) & 255,
-                                        (carr[i].green >> 8) & 255,
-                                        (carr[i].blue  >> 8) & 255));
-            }
+            if (use[i])
+                image.setColor(j++, (msk ? 0xff000000 : 0) | (cmap.colorAt(i).rgb() & 0x00ffffff));
         }
-
-        delete [] carr;
     }
     if (data->optim != BestOptim) {                // throw away image data
         qSafeXDestroyImage(xi);

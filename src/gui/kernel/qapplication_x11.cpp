@@ -34,6 +34,7 @@
 # undef truncate
 #endif
 
+#include "qcolormap.h"
 #include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
@@ -384,9 +385,11 @@ extern bool        qt_check_selection_sentinel(); //def in qclipboard_x11.cpp
 static void        qt_save_rootinfo();
 bool        qt_try_modal(QWidget *, XEvent *);
 
-int                qt_ncols_option  = 216;                // used in qcolor_x11.cpp
+// ###
+int                qt_ncols_option  = 216;
 int                qt_visual_option = -1;
 bool                qt_cmap_option         = false;
+
 QWidget               *qt_button_down         = 0;                // widget got last button-down
 
 
@@ -1296,46 +1299,6 @@ static void qt_check_focus_model()
         X11->focus_model = QX11Data::FM_Other;
 }
 
-
-/*
-  Returns a truecolor visual (if there is one). 8-bit TrueColor visuals
-  are ignored, unless the user has explicitly requested -visual TrueColor.
-  The SGI X server usually has an 8 bit default visual, but the application
-  can also ask for a truecolor visual. This is what we do if
-  QApplication::colorSpec() is QApplication::ManyColor.
-*/
-
-static Visual *find_truecolor_visual(Display *dpy, int scr, int *depth, int *ncols)
-{
-    XVisualInfo *vi, rvi;
-    int best=0, n, i;
-    rvi.c_class = TrueColor;
-    rvi.screen  = scr;
-    vi = XGetVisualInfo(dpy, VisualClassMask | VisualScreenMask,
-                         &rvi, &n);
-    if (vi) {
-        for (i=0; i<n; i++) {
-            if (vi[i].depth > vi[best].depth)
-                best = i;
-        }
-    }
-    Visual *v = DefaultVisual(dpy,scr);
-    if (!vi || (vi[best].visualid == XVisualIDFromVisual(v)) ||
-         (vi[best].depth <= 8 && qt_visual_option != TrueColor))
-        {
-        *depth = DefaultDepth(dpy,scr);
-        *ncols = DisplayCells(dpy,scr);
-    } else {
-        v = vi[best].visual;
-        *depth = vi[best].depth;
-        *ncols = vi[best].colormap_size;
-    }
-    if (vi)
-        XFree((char *)vi);
-    return v;
-}
-
-
 /*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
@@ -1544,7 +1507,6 @@ void qt_init(QApplicationPrivate *priv, int,
     // Get X parameters
 
     if(qt_is_gui_used) {
-
         X11->defaultScreen = DefaultScreen(X11->display);
         X11->screenCount = ScreenCount(X11->display);
 
@@ -1558,97 +1520,9 @@ void qt_init(QApplicationPrivate *priv, int,
                            / (DisplayWidthMM(X11->display, s)*10);
             screen->dpiY = (DisplayHeight(X11->display, s) * 254 + DisplayHeightMM(X11->display, s)*5)
                            / (DisplayHeightMM(X11->display, s)*10);
-            screen->depth = DefaultDepth(X11->display, s);
-            screen->cells = DisplayCells(X11->display, s);
-
-            // setup the visual and colormap for each screen
-            screen->visual = 0;
-            if (visual && s == X11->defaultScreen) {
-                // use the provided visual on the default screen only
-                screen->visual = (Visual *) visual;
-
-                // figure out the depth of the visual we are using
-                XVisualInfo *vi, rvi;
-                int n;
-                rvi.visualid = XVisualIDFromVisual(screen->visual);
-                rvi.screen  = s;
-                vi = XGetVisualInfo(X11->display, VisualIDMask | VisualScreenMask, &rvi, &n);
-                if (vi) {
-                    screen->depth = vi->depth;
-                    screen->cells = screen->visual->map_entries;
-                    screen->defaultVisual = false;
-                    XFree(vi);
-                } else {
-                    // couldn't get info about the visual, use the default instead
-                    screen->visual = 0;
-                }
-            }
-
-            if (!screen->visual) {
-                // use the default visual
-                screen->visual = DefaultVisual(X11->display, s);
-                screen->defaultVisual = true;
-
-                if (qt_visual_option == TrueColor || QApplication::colorSpec() == QApplication::ManyColor) {
-                    // find custom visual
-                    screen->visual = find_truecolor_visual(X11->display, s, &screen->depth, &screen->cells);
-                    screen->defaultVisual = (XVisualIDFromVisual(screen->visual)
-                                             == XVisualIDFromVisual(DefaultVisual(X11->display, s)));
-                }
-            }
-
-            // We assume that 8bpp == pseudocolor, but this is not
-            // always the case (according to the X server), so we need
-            // to make sure that our internal data is setup in a way
-            // that is compatible with our assumptions
-            if (screen->visual->c_class == TrueColor && screen->depth == 8 && screen->cells == 8)
-                screen->cells = 256;
-
-            if (colormap && s == X11->defaultScreen) {
-                // use the provided colormap for the default screen only
-                screen->colormap = colormap;
-                screen->defaultColormap = false;
-            } else {
-                if (screen->visual->c_class == TrueColor) {
-                    screen->defaultColormap = screen->defaultVisual;
-                } else {
-                    screen->defaultColormap = !qt_cmap_option && screen->defaultVisual;
-                }
-
-                if (screen->defaultColormap) {
-                    // use default colormap
-                    XStandardColormap *stdcmap;
-                    VisualID vid = XVisualIDFromVisual(screen->visual);
-                    screen->colormap = 0;
-
-                    QByteArray serverVendor(ServerVendor(X11->display));
-                    if (!serverVendor.contains("Hewlett-Packard")) {
-                        // on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
-                        // doesn't give us correct colors. Why this happens, I have
-                        // no clue, so we disable this for HPUX
-                        int count;
-                        if (XGetRGBColormaps(X11->display, RootWindow(X11->display, s),
-                                             &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
-                            int i = 0;
-                            while (i < count && screen->colormap == 0) {
-                                if (stdcmap[i].visualid == vid)
-                                    screen->colormap = stdcmap[i].colormap;
-                                i++;
-                            }
-
-                            XFree((char *)stdcmap);
-                        }
-                    }
-
-                    if (screen->colormap == 0)
-                        screen->colormap = DefaultColormap(X11->display, s);
-                } else {
-                    // create a custom colormap
-                    screen->colormap =
-                        XCreateColormap(X11->display, RootWindow(X11->display, s), screen->visual, AllocNone);
-                }
-            }
         }
+
+        QColormap::initialize();
 
         // Support protocols
         qt_xdnd_setup();
@@ -1771,7 +1645,6 @@ void qt_init(QApplicationPrivate *priv, int,
 #if 0 //disabled for now..
         QSegfaultHandler::initialize(priv->argv, priv->argc);
 #endif
-        QColor::initialize();
         QFont::initialize();
         QCursor::initialize();
         QX11PaintEngine::initialize();
@@ -2069,7 +1942,7 @@ void qt_cleanup()
         QX11PaintEngine::cleanup();
         QCursor::cleanup();
         QFont::cleanup();
-        QColor::cleanup();
+        QColormap::cleanup();
     }
 
 #if defined (QT_TABLET_SUPPORT)
@@ -2083,15 +1956,6 @@ void qt_cleanup()
     if (X11->xim)
         QApplication::close_xim();
 #endif
-
-    if (qt_is_gui_used) {
-        int screen;
-        for (screen = 0; screen < X11->screenCount; screen++) {
-            if (! QX11Info::appDefaultColormap(screen))
-                XFreeColormap(QX11Info::display(),
-                               QX11Info::appColormap(screen));
-        }
-    }
 
 #define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<X11->screenCount;i++){if(g[i])XFreeGC(X11->display,g[i]);} delete [] g; g = 0; }
     QT_CLEANUP_GC(app_gc_ro);
@@ -2233,8 +2097,8 @@ static GC create_gc(int scrn, bool monochrome)
         } else {
             Window w;
             XSetWindowAttributes a;
-            a.background_pixel = QColor(Qt::black).pixel(scrn);
-            a.border_pixel = QColor(Qt::black).pixel(scrn);
+            a.background_pixel = BlackPixel(X11->display, scrn);
+            a.border_pixel = WhitePixel(X11->display, scrn);
             a.colormap = QX11Info::appColormap(scrn);
             w = XCreateWindow(X11->display, RootWindow(X11->display, scrn), 0, 0, 100, 100,
                                0, QX11Info::appDepth(scrn), InputOutput,
@@ -5362,7 +5226,7 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 */
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 {
-    if (QColor::numBitPlanes() < 16 || !animate_ui)
+    if (QColormap::instance().depth() < 16 || !animate_ui)
         return false;
 
     switch(effect) {
