@@ -115,7 +115,7 @@ public slots:
     void abort();
 
 signals:
-    void stateChanged( int );
+    void stateChanged( QFtp::State );
     void listInfo( const QUrlInfo& );
     void newData( const QByteArray& );
     void dataTransferProgress( int, int );

@@ -1090,7 +1090,7 @@ void QFtp::init()
   \enum QFtp::Command
 ###
 */
-/*!  \fn void QFtp::stateChanged( int state )
+/*!  \fn void QFtp::stateChanged( QFtp::State state )
   This signal is emitted when the state of the connection changes. The argument
   \a state is the new state of the connection; it is one of the enum \l
   State values.
