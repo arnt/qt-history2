@@ -1667,10 +1667,12 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
 
     if ( dockWindowsMovable() )
 	lineup = d->rmbMenu->insertItem( tr( "Line up" ) );
-    int config = d->rmbMenu->insertItem( tr( "Customize..." ) );
+    int config = -2;
+    if ( isCustomizable() )
+	config = d->rmbMenu->insertItem( tr( "Customize..." ) );
     int result = d->rmbMenu->exec( globalPos );
     if ( result == config ) {
-	qDebug( "todo: Action/Toolbar editing" );
+	customize();
 	return TRUE;
     } else if ( result == lineup ) {
 	lineUpDockWindows( TRUE );
@@ -1748,6 +1750,36 @@ QDockArea *QMainWindow::topDock() const
 QDockArea *QMainWindow::bottomDock() const
 {
     return d->bottomDock;
+}
+
+/*! This function is called from the Customize menu item in the right
+   mouse button menu.
+
+   This means the user wants to customize the mainwindow/toolbar/menu
+   settings.
+
+   The default implementation does nothing yet, this may change in
+   later Qt versions. Because of that the Customize menu item is not
+   available in the right mouse button menu by default. To change
+   that, reimplement isCustomizable() and return TRUE there.
+
+   \sa isCustomizable()
+*/
+
+void QMainWindow::customize()
+{
+}
+
+/*! Returns whether this mainwindow is customizable or not. This is
+  used when creating the right mouse button menu to find out whether
+  the Customize menu item should be shown there or not.
+
+  \sa customize()
+*/
+
+bool QMainWindow::isCustomizable() const
+{
+    return FALSE;
 }
 
 #ifndef QT_NO_TEXTSTREAM

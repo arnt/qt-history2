@@ -83,12 +83,12 @@ public:
     bool isDockEnabled( QDockWindow *tb, Dock dock ) const;
     bool isDockEnabled( QDockWindow *tb, QDockArea *area ) const;
 
-    void addDockWindow( QDockWindow *, Dock = Top, bool newLine = FALSE );
-    void addDockWindow( QDockWindow *, const QString &label,
-		     Dock = Top, bool newLine = FALSE );
-    void moveDockWindow( QDockWindow *, Dock = Top );
-    void moveDockWindow( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
-    void removeDockWindow( QDockWindow * );
+    virtual void addDockWindow( QDockWindow *, Dock = Top, bool newLine = FALSE );
+    virtual void addDockWindow( QDockWindow *, const QString &label,
+				Dock = Top, bool newLine = FALSE );
+    virtual void moveDockWindow( QDockWindow *, Dock = Top );
+    virtual void moveDockWindow( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
+    virtual void removeDockWindow( QDockWindow * );
 
     void show();
     QSize sizeHint() const;
@@ -128,6 +128,9 @@ public:
     QDockArea *rightDock() const;
     QDockArea *topDock() const;
     QDockArea *bottomDock() const;
+
+    virtual void customize();
+    virtual bool isCustomizable() const;
 
 public slots:
     virtual void setRightJustification( bool );
