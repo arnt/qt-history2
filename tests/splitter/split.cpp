@@ -10,13 +10,13 @@ int main( int argc, char ** argv )
 
     QSplitter f( QSplitter::Vertical );
 
-    QLabel l( "Judean Popular Front" );
-    l.setBackgroundColor( blue.light() );
+    QLabel l( "Judean Popular Front", &f );
+    l.setBackgroundColor( Qt::blue.light() );
     l.setMinimumSize( l.sizeHint() );
-    f.setFirstWidget( &l );
+
 
     QSplitter m( &f );
-    f.setSecondWidget( &m );
+
 
 
     //m.setFrameStyle( QFrame::Panel | QFrame::Sunken );
@@ -24,15 +24,15 @@ int main( int argc, char ** argv )
     QLabel l1( "Judean People's Front", &m );
     //    l1.setBackgroundColor( white );
     l1.setMinimumSize( l1.sizeHint() );
-    m.setFirstWidget( &l1 );
+
 
     QLabel l2( "Judean Popular People's Front", &m );
     //    l2.setBackgroundColor( white );
-    l2.setAlignment( AlignCenter );
+    l2.setAlignment( Qt::AlignCenter );
 
     l2.setMaximumHeight( 250 );
     l2.setMinimumSize( l2.sizeHint().width(), 100 );
-    m.setSecondWidget( &l2 );
+
 
 
     a.setMainWidget( &f );
