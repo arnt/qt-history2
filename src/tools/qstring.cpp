@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#109 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#110 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -421,6 +421,10 @@ ushort uctoupper(ushort c)
 bool ucisspace(ushort c)
 {
     return c < 256 ? isspace((char)c) : FALSE;
+}
+bool ucisdigit(ushort c)
+{
+    return c < 256 ? isdigit((char)c) : FALSE;
 }
 int ucstrcmp( const Q2String &as, const Q2String &bs )
 {
@@ -1446,9 +1450,9 @@ long Q2String::toLong( bool *ok ) const
 	l--;
 	p++;
     }
-    if ( !l || !isdigit(*p) )
+    if ( !l || !ucisdigit(*p) )
 	goto bye;
-    while ( l && isdigit(*p) ) {
+    while ( l && ucisdigit(*p) ) {
 	l--;
 	if ( val > max_mult || (val == max_mult && (*p-'0') > 7+neg) )
 	    goto bye;
@@ -1488,9 +1492,9 @@ ulong Q2String::toULong( bool *ok ) const
 	l--,p++;
     if ( *p == '+' )
 	l--,p++;
-    if ( !l || !isdigit(*p) )
+    if ( !l || !ucisdigit(*p) )
 	goto bye;
-    while ( l && isdigit(*p) ) {
+    while ( l && ucisdigit(*p) ) {
 	l--;
 	if ( val > max_mult || (val == max_mult && (*p-'0') > 5) )
 	    goto bye;
