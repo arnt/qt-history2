@@ -43,13 +43,7 @@
 
 #include "qwindowdefs.h"
 
-#if defined(Q_CC_BOOLDEF)
-#undef	bool
 #include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 
 // already defined when compiled with WINVER >= 0x0500
 // and we only use them in WV_2000 and WV_98
