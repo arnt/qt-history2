@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#11 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -265,13 +265,26 @@ bool QWindowsMimeText::canConvert( const char* mime, int cf )
     return cfFor(mime) == cf;
 }
 
+/*
+    text/plain is defined as using CRLF, but so many programs don't,
+    and programmers just look for '\n' in strings.
+    Windows really needs CRLF, so we ensure it here.
+*/
+
 QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*/, int cf )
 {
     if ( cf == CF_TEXT ) {
-	// text/plain doesn't have a NUL, but CF_TEXT does.
+	const char* d = data.data();
+	const int s = strlen(d);
 	QByteArray r(data.size()+1);
-	memcpy(r.data(),data.data(),data.size());
-	r[(int)data.size()]=0;
+	char* o = r.data();
+	int j=0;
+	for (int i=0; i<s; i++) {
+	    char c = d[i];
+	    if (c!='\r')
+		o[j++]=c;
+	}
+	o[j]=0;
 	return r;
     }
 
@@ -280,7 +293,8 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
     int s;
     // Find NUL
     for (s=0; s<ms-1 && (data[s+0] || data[s+1]); s+=2)
-	;
+    {
+    }
 
     QByteArray r(s+2);
     r[0]=char(0xff); // BOM
@@ -292,10 +306,33 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
 QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* /*mime*/, int cf )
 {
     if ( cf == CF_TEXT ) {
-	// Ad NUL (### only really necessary if no NUL already)
-	QByteArray r(data.size()+1);
-	memcpy(r.data(),data.data(),data.size());
-	r[(int)data.size()]='\0';
+	// Anticipate required space for CRLFs at 1/40
+	int maxsize=data.size()+data.size()/40+3;
+	QByteArray r(maxsize);
+	char* o = r.data();
+	const char* d = data.data();
+	const int s = data.size();
+	bool cr=FALSE;
+	int j=0;
+	for (int i=0; i<s; i++) {
+	    char c = d[i];
+	    if (c=='\r')
+		cr=TRUE;
+	    else {
+		if (c=='\n') {
+		    if (!cr)
+			o[j++]='\r';
+		}
+		cr=FALSE;
+	    }
+	    o[j++]=c;
+	    if ( j+3 >= maxsize ) {
+		maxsize += maxsize/4;
+		r.resize(maxsize);
+		o = r.data();
+	    }
+	}
+	o[j]=0;
 	return r;
     }
 
