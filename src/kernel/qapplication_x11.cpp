@@ -103,9 +103,16 @@
 // Have <sys/ioctl.h> include <sys/filio.h>.
 #  define BSD_COMP
 #endif
+#if defined(Q_OS_HPUX)
+// needed for ioctl() and FIONREAD
+#  define _HPUX_SOURCE
+#endif
 #include <sys/ioctl.h>
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 #  undef BSD_COMP
+#endif
+#if defined(Q_OS_HPUX)
+#  undef _HPUX_SOURCE
 #endif
 
 #if defined(Q_OS_SCO)
