@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#59 $
 **
 ** Implementation of layout classes
 **
@@ -88,11 +88,15 @@ static const int VerAlign = Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop;
 static QSize smartMinSize( QWidget *w )
 {
     QSize s(0,0);
-    if ( !w->sizePolicy().horData().mayShrink() )
-	s.setWidth( w->sizeHint().width() );
-    if ( !w->sizePolicy().verData().mayShrink() )
-	s.setHeight( w->sizeHint().height() );
-
+    if ( w->layout() ) {
+	//###this is hacky
+	s = w->layout()->minimumSize();
+    } else {
+	if ( !w->sizePolicy().horData().mayShrink() )
+	    s.setWidth( w->sizeHint().width() );
+	if ( !w->sizePolicy().verData().mayShrink() )
+	    s.setHeight( w->sizeHint().height() );
+    }
     QSize min = w->minimumSize();
     if ( min.width() > 0 )
 	s.setWidth( min.width() );
@@ -115,7 +119,7 @@ static QSize smartMaxSize( QWidget *w, int align = 0 )
 	    s.setHeight( w->sizeHint().height() );
 
     //s = s.expandedTo( w->minimumSize() ); //### ???
-    
+
     if (align & HorAlign )
 	s.setWidth( QCOORD_MAX );
     if (align & VerAlign )
@@ -705,7 +709,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 }
 
 
-static void distributeMultiBox( QArray<LayoutStruct> &chain, 
+static void distributeMultiBox( QArray<LayoutStruct> &chain,
 				int start, int end,
 				int minSize, int sizeHint )
 {
@@ -713,17 +717,17 @@ static void distributeMultiBox( QArray<LayoutStruct> &chain,
     int i;
     int w = 0;
     bool exp = FALSE;
-    
+
     for ( i = start; i <= end; i++ ) {
 	w += chain[i].minimumSize;
-	exp = exp || chain[i].expansive && 
+	exp = exp || chain[i].expansive &&
 	             chain[i].maximumSize > chain[i].minimumSize;
     }
     if ( w < minSize ) {
 	//	debug( "Big multicell" );
 	int diff = minSize - w;
 	for ( i = start; i <= end; i++ ) {
-	    if ( chain[i].maximumSize > chain[i].minimumSize 
+	    if ( chain[i].maximumSize > chain[i].minimumSize
 		 && ( chain[i].expansive || !exp ) ) {
 		chain[i].minimumSize += diff; //#################
 		if ( chain[i].sizeHint < chain[i].minimumSize )
@@ -778,7 +782,7 @@ void QLayoutArray::setupLayoutData()
 	    if ( c1 == c2 ) {
 		addData( box, FALSE, TRUE );
 	    } else {
-		distributeMultiBox( colData, c1, c2, 
+		distributeMultiBox( colData, c1, c2,
 				    min.width(), hint.width() );
 	    }
 	}
