@@ -56,7 +56,7 @@ public:
 #endif //QT_NO_IMAGE_TEXT
 
 
-class Q_GUI_EXPORT QImage
+class Q_GUI_EXPORT QImage : public Qt
 {
 public:
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
@@ -143,18 +143,13 @@ public:
     QImage        convertDepth(int, int conversion_flags) const;
     QImage        convertBitOrder(Endian) const;
 
-    enum ScaleMode {
-        ScaleFree,
-        ScaleMin,
-        ScaleMax
-    };
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-    QImage smoothScale(int w, int h, ScaleMode mode=ScaleFree) const;
-    QImage smoothScale(const QSize& s, ScaleMode mode=ScaleFree) const;
+    QImage smoothScale(int w, int h, ScaleMode mode = ScaleFree) const;
+    QImage smoothScale(const QSize& s, ScaleMode mode = ScaleFree) const;
 #endif
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-    QImage scale(int w, int h, ScaleMode mode=ScaleFree) const;
-    QImage scale(const QSize& s, ScaleMode mode=ScaleFree) const;
+    QImage scale(int w, int h, ScaleMode mode = ScaleFree) const;
+    QImage scale(const QSize &s, ScaleMode mode = ScaleFree) const;
     QImage scaleWidth(int w) const;
     QImage scaleHeight(int h) const;
     QImage xForm(const QWMatrix &matrix) const;

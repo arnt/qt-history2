@@ -2221,12 +2221,10 @@ QImage QImage::convertBitOrder(Endian bitOrder) const
     return image;
 }
 
-// ### Candidate (renamed) for qcolor.h
-static
-bool isGray(QRgb c)
+// ### Candidate for qrgb,h
+static bool qIsGray(QRgb c)
 {
-    return qRed(c) == qGreen(c)
-        && qRed(c) == qBlue(c);
+    return qRed(c) == qGreen(c) && qRed(c) == qBlue(c);
 }
 
 /*!
@@ -2245,7 +2243,7 @@ bool QImage::allGray() const
         int p = width()*height();
         QRgb* b = (QRgb*)bits();
         while (p--)
-            if (!isGray(*b++))
+            if (!qIsGray(*b++))
                 return false;
 #ifndef QT_NO_IMAGE_16_BIT
     } else if (depth()==16) {
@@ -2257,10 +2255,10 @@ bool QImage::allGray() const
 #endif
     } else
 #endif //QT_NO_IMAGE_TRUECOLOR
-        {
+    {
         if (!data->ctbl) return true;
         for (int i=0; i<numColors(); i++)
-            if (!isGray(data->ctbl[i]))
+            if (!qIsGray(data->ctbl[i]))
                 return false;
     }
     return true;
@@ -2564,28 +2562,6 @@ void pnmscale(const QImage& src, QImage& dst)
 }
 #endif
 
-/*!
-    \enum QImage::ScaleMode
-
-    The functions scale() and smoothScale() use different modes for
-    scaling the image. The purpose of these modes is to retain the
-    ratio of the image if this is required.
-
-    \img scaling.png
-
-    \value ScaleFree The image is scaled freely: the resulting image
-        fits exactly into the specified size; the ratio will not
-        necessarily be preserved.
-    \value ScaleMin The ratio of the image is preserved and the
-        resulting image is guaranteed to fit into the specified size
-        (it is as large as possible within these constraints) - the
-        image might be smaller than the requested size.
-    \value ScaleMax The ratio of the image is preserved and the
-        resulting image fills the whole specified rectangle (it is as
-        small as possible within these constraints) - the image might
-        be larger than the requested size.
-*/
-
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
 /*!
     Returns a smoothly scaled copy of the image. The returned image
@@ -2642,7 +2618,7 @@ QImage QImage::smoothScale(const QSize& s, ScaleMode mode) const
     }
 
     QSize newSize = size();
-    newSize.scale(s, (QSize::ScaleMode)mode); // ### remove cast in Qt 4.0
+    newSize.scale(s, mode);
     if (newSize == size())
         return copy();
 
@@ -2707,7 +2683,7 @@ QImage QImage::scale(const QSize& s, ScaleMode mode) const
         return QImage();
 
     QSize newSize = size();
-    newSize.scale(s, (QSize::ScaleMode)mode); // ### remove cast in Qt 4.0
+    newSize.scale(s, mode);
     if (newSize == size())
         return copy();
 

@@ -19,17 +19,9 @@
 #include "qpoint.h" // ### change to qwindowdefs.h?
 #endif // QT_H
 
-class Q_GUI_EXPORT QSize
-// ### Make QSize inherit Qt in Qt 4.0
+class Q_GUI_EXPORT QSize : public Qt
 {
 public:
-    // ### Move this enum to qnamespace.h in Qt 4.0
-    enum ScaleMode {
-        ScaleFree,
-        ScaleMin,
-        ScaleMax
-    };
-
     QSize();
     QSize(int w, int h);
 

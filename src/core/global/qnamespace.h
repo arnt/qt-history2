@@ -813,6 +813,12 @@ public:
         LogText
     };
 
+    enum ScaleMode {
+        ScaleFree,
+        ScaleMin,
+        ScaleMax
+    };
+
     // Documented in qtextedit.cpp
     enum AnchorAttribute {
         AnchorName,

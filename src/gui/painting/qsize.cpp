@@ -108,21 +108,6 @@ void QSize::transpose()
     ht = tmp;
 }
 
-/*! \enum QSize::ScaleMode
-
-    This enum type defines the different ways of scaling a size.
-
-    \img scaling.png
-
-    \value ScaleFree  The size is scaled freely. The ratio is not preserved.
-    \value ScaleMin  The size is scaled to a rectangle as large as possible
-                     inside a given rectangle, preserving the aspect ratio.
-    \value ScaleMax  The size is scaled to a rectangle as small as possible
-                     outside a given rectangle, preserving the aspect ratio.
-
-    \sa QSize::scale(), QImage::scale(), QImage::smoothScale()
-*/
-
 /*!
     Scales the size to a rectangle of width \a w and height \a h according
     to the ScaleMode \a mode.
@@ -137,17 +122,17 @@ void QSize::transpose()
 
     Example:
     \code
-    QSize t1(10, 12);
-    t1.scale(60, 60, QSize::ScaleFree);
-    // t1 is (60, 60)
+        QSize t1(10, 12);
+        t1.scale(60, 60, QSize::ScaleFree);
+        // t1 is (60, 60)
 
-    QSize t2(10, 12);
-    t2.scale(60, 60, QSize::ScaleMin);
-    // t2 is (50, 60)
+        QSize t2(10, 12);
+        t2.scale(60, 60, QSize::ScaleMin);
+        // t2 is (50, 60)
 
-    QSize t3(10, 12);
-    t3.scale(60, 60, QSize::ScaleMax);
-    // t3 is (60, 72)
+        QSize t3(10, 12);
+        t3.scale(60, 60, QSize::ScaleMax);
+        // t3 is (60, 72)
     \endcode
 */
 void QSize::scale(int w, int h, ScaleMode mode)
@@ -401,7 +386,6 @@ QDataStream &operator>>(QDataStream &s, QSize &sz)
     return s;
 }
 #endif // QT_NO_DATASTREAM
-
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSize &s) {
