@@ -278,6 +278,10 @@ void QLineEdit::init()
      setAcceptDrops( TRUE );
 #endif
 
+#ifndef QT_NO_CURSOR
+    setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
+
     setFocusPolicy( StrongFocus );
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
@@ -330,7 +334,7 @@ void QLineEdit::selectAll()
 void QLineEdit::deselect()
 {
     d->selectionStart = 0;
-    d->parag->setSelection( 0, 0, 0);
+    d->parag->removeSelection( QTextDocument::Standard );
     update();
 }
 
@@ -838,7 +842,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     }
 #endif
     d->selectionStart = d->cursor->index();
-    par->setSelection( 0, d->selectionStart, d->selectionStart );
+    par->setSelection( QTextDocument::Standard, d->selectionStart, d->selectionStart );
     d->releaseTextObjects( &par, &c);
     update();
     d->mousePressed = TRUE;
@@ -953,8 +957,9 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
     c1.gotoWordLeft();
     c2.gotoWordRight();
 
-    d->parag->setSelection( 0, c1.index(), c2.index() );
+    d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
     *d->cursor = c2;
+    update();
 }
 
 /*!
@@ -1261,6 +1266,9 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
 void QLineEdit::setReadOnly( bool enable )
 {
     d->readonly = enable;
+#ifndef QT_NO_CURSOR
+    setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 }
 
 /*!
@@ -1441,7 +1449,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
     d->cursor->setIndex( newPos );
     d->selectionStart = newMarkAnchor;
-    d->parag->setSelection( 0, newMarkAnchor, newMarkDrag );
+    d->parag->setSelection( QTextDocument::Standard, newMarkAnchor, newMarkDrag );
     update();
     return TRUE;
 }
@@ -1678,7 +1686,7 @@ void QLineEdit::updateSelection()
 	selectionEnd = selectionStart;
 	selectionStart = pos;
     }
-    d->parag->setSelection( 0, selectionStart, selectionEnd );
+    d->parag->setSelection( QTextDocument::Standard, selectionStart, selectionEnd );
 }
 
 void QLineEdit::removeSelectedText()
