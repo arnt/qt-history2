@@ -5861,10 +5861,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
                << pageCount << ' ' << pageCount << endl
                << "%%BeginPageSetup\n"
                << "QI\n";
-        QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
-        while (it.current()) {
-            it.current()->download( stream, FALSE ); // FALSE means its global
-            ++it;
+        {
+            QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
+            while (it.current()) {
+                it.current()->download( stream, FALSE ); // FALSE means its global
+                ++it;
+            }
         }
         // setup page fonts
         // ####
