@@ -201,6 +201,13 @@ public:
 };
 
 static EventTypeSpec events[] = {
+    { kEventClassWindow, kEventWindowUpdate },
+    { kEventClassWindow, kEventWindowActivated },
+    { kEventClassWindow, kEventWindowDeactivated },
+    { kEventClassWindow, kEventWindowShown },
+    { kEventClassWindow, kEventWindowHidden },
+    { kEventClassWindow, kEventWindowContextualMenuSelect },
+
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
@@ -210,13 +217,6 @@ static EventTypeSpec events[] = {
     { kEventClassKeyboard, kEventRawKeyUp },
     { kEventClassKeyboard, kEventRawKeyDown },
     { kEventClassKeyboard, kEventRawKeyRepeat },
-
-    { kEventClassWindow, kEventWindowUpdate },
-    { kEventClassWindow, kEventWindowActivated },
-    { kEventClassWindow, kEventWindowDeactivated },
-    { kEventClassWindow, kEventWindowShown },
-    { kEventClassWindow, kEventWindowHidden },
-    { kEventClassWindow, kEventWindowContextualMenuSelect },
 
     { kEventClassApplication, kEventAppActivated },
     { kEventClassApplication, kEventAppDeactivated },
@@ -880,7 +880,6 @@ bool QApplication::processNextEvent( bool canWait )
 
 	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		break;
-
 	    ret = SendEventToApplication(event);
 	    ReleaseEvent(event);
 	    if(ret != noErr)
@@ -889,9 +888,11 @@ bool QApplication::processNextEvent( bool canWait )
 
 	    //if there are no events in the queue, this is a good time to do "stuff"
 	    ret = ReceiveNextEvent( GetEventTypeCount(events), events, QMAC_EVENT_NOWAIT, FALSE, &event );
-	    if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr) {
+	    if(ret == eventLoopQuitErr) {
+		break;
+	    } else if(ret == eventLoopTimedOutErr) {
 		activateNullTimers();       //try to send null timers..
-		sendPostedEvents(); 	    //send posted events if the event queue is empty
+		sendPostedEvents();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		QMenuBar::macUpdateMenuBar();
 #endif
@@ -907,6 +908,7 @@ bool QApplication::processNextEvent( bool canWait )
 		    QApplication::sendEvent(qt_clipboard, &ev);
 		}
 #endif
+		break; //no more events means end the event loop
 	    }
 	} while(1);
 	sendPostedEvents();
@@ -1094,6 +1096,7 @@ bool QApplication::do_mouse_down( Point *pt )
 	QMacSavedPortInfo savedInfo(widget);
 	Point p = { 0, 0 };
 	LocalToGlobal(&p);
+	widget->fstrut_dirty = TRUE;
 	widget->crect.setRect( p.h, p.v, widget->width(), widget->height() );
 	QMoveEvent qme( QPoint( widget->crect.x(), widget->crect.y() ),
 			QPoint( ox, oy) );
@@ -1114,14 +1117,20 @@ bool QApplication::do_mouse_down( Point *pt )
 	}
 	growWindowSize = GrowWindow( wp, *pt, &limits);
 	if( growWindowSize) {
-	    // nw/nh might not match the actual size if setSizeIncrement
-	    // is used
+	    // nw/nh might not match the actual size if setSizeIncrement is used
 	    int nw = LoWord( growWindowSize );
 	    int nh = HiWord( growWindowSize );
-
 	    if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 ) {
-		if( widget )
-		    widget->resize( nw, nh );
+		if( widget ) {
+		    int ow = widget->crect.width(), oh = widget->crect.height();
+		    widget->dirtyClippedRegion(TRUE);
+		    widget->crect.setRect( widget->x(), widget->y(), nw, nh );
+		    widget->fstrut_dirty = TRUE;
+		    SizeWindow((WindowPtr)widget->handle(), nw, nh, TRUE);
+		    QResizeEvent qre( QSize( widget->crect.width(), widget->crect.height() ),
+				      QSize( ow, oh ));
+		    QApplication::sendEvent( widget, &qre );
+		}
 	    }
 	}
 	break;
@@ -1272,6 +1281,8 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
     else
 	return;
 
+    return;
+
     //figure out which widget to send it to
     QPoint where = QCursor::pos();
     QWidget *widget = NULL;
@@ -1284,7 +1295,7 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
     if ( widget ) {
 	QPoint plocal(widget->mapFromGlobal( where ));
 	QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
-//	QApplication::sendEvent( widget, &qme );
+	QApplication::sendEvent( widget, &qme );
 	if(qme.isAccepted()) { //once this happens the events before are pitched
 	    qt_button_down = NULL;
 	    mouse_button_state = 0;
