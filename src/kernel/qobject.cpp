@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#19 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#19 $";
 #endif
 
 
@@ -498,7 +498,7 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 	    if ( !smeta )			// no meta object
 		return FALSE;
 	    if ( !smeta->signal(signal,TRUE) )
-		warning( "QObject::diconnect: No such signal %s::%s",
+		warning( "QObject::disconnect: No such signal %s::%s",
 			 sender->className(), signal );
 #endif
 	    return FALSE;
