@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#98 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#98 $");
 
 
 /*****************************************************************************
@@ -163,13 +163,14 @@ void QPixmap::init( int w, int h, int d )
     data = new QPixmapData;
     CHECK_PTR( data );
 
-    data->dirty	 = FALSE;
-    data->optim	 = optimAll;
-    data->uninit = TRUE;
-    data->bitmap = FALSE;
-    data->ser_no = ++serial;
-    data->mask	 = 0;
-    data->ximage = 0;
+    data->dirty	   = FALSE;
+    data->optim	   = optimAll;
+    data->uninit   = TRUE;
+    data->bitmap   = FALSE;
+    data->selfmask = FALSE;
+    data->ser_no   = ++serial;
+    data->mask	   = 0;
+    data->ximage   = 0;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -1433,9 +1434,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	QPixmap pm( w, h, dptr, TRUE );
 	pm.data->bitmap = data->bitmap;
 	free( dptr );
-	QPixmap *m = data->mask;
-	if ( m ) {
-	    if ( m->data == data )		// pixmap == mask
+	if ( data->mask ) {
+	    if ( data->selfmask )		// pixmap == mask
 		pm.setMask( *((QBitmap*)(&pm)) );
 	    else
 		pm.setMask( data->mask->xForm(matrix) );

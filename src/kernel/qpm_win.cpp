@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#39 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#39 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -39,13 +39,14 @@ void QPixmap::init( int w, int h, int d )
     data = new QPixmapData;
     CHECK_PTR( data );
 
-    data->dirty	 = FALSE;
-    data->optim	 = optimAll;
-    data->uninit = TRUE;
-    data->bitmap = FALSE;
-    data->ser_no = ++serial;
-    data->mask	 = 0;
-    data->hbm	 = 0;
+    data->dirty	   = FALSE;
+    data->optim	   = optimAll;
+    data->uninit   = TRUE;
+    data->bitmap   = FALSE;
+    data->selfmask = FALSE;
+    data->ser_no   = ++serial;
+    data->mask	   = 0;
+    data->hbm	   = 0;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -811,9 +812,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     delete [] dptr;
     if ( dst_tmp )
 	pm.freeMemDC();
-    QPixmap *m = data->mask;
-    if ( m ) {
-	if ( m->data == data )			// pixmap == mask
+    if ( data->mask ) {
+	if ( data->selfmask )			// pixmap == mask
 	    pm.setMask( *((QBitmap*)(&pm)) );
 	else
 	    pm.setMask( data->mask->xForm(matrix) );
