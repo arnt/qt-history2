@@ -1977,11 +1977,19 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
         break;
 #endif
     case QEvent::KeyPress:
-        n = "KeyPress";
-        break;
     case QEvent::KeyRelease:
-        n = "KeyRelease";
-        break;
+        {
+            const QKeyEvent *ke = static_cast<const QKeyEvent*>(e);
+            dbg.nospace() << "QKeyEvent("  << QString(ke->type()==QEvent::KeyPress ? "KeyPress" : "KeyRelease")
+                        << ", " << ke->key()
+                        << ", " << ke->ascii()
+                        << ", " << hex << ke->state()
+                        << ", \"" << ke->text()
+                        << "\", " << ke->isAutoRepeat()
+                        << ", " << ke->count()
+                        << ")";
+        }
+        return dbg.space();
     case QEvent::FocusIn:
         n = "FocusIn";
         break;
