@@ -19,6 +19,7 @@
 **********************************************************************/
 
 #include "uic.h"
+#include "../shared/parser.h"
 #include <qapplication.h>
 #include <qfile.h>
 #include <stdio.h>
@@ -653,7 +654,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "function" ) {
 		    QString fname = n2.attribute( "name" );
-		    fname = fname.left( fname.find( "(" ) );
+		    fname = Parser::cleanArgs( fname );
 		    functionImpls.insert( fname, n2.firstChild().toText().data() );
 		}
 	    }
@@ -1198,7 +1199,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	for ( it = publicSlots.begin(); it != publicSlots.end(); ++it ) {
 	    out << "void " << nameOfClass << "::" << (*it) << endl;
 	    bool createWarning = TRUE;
-	    QString fname = (*it).left( (*it).find( "(" ) );
+	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
 	    if ( fit != functionImpls.end() ) {
 		int begin = (*fit).find( "{" );
@@ -1221,7 +1222,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	for ( it = protectedSlots.begin(); it != protectedSlots.end(); ++it ) {
 	    out << "void " << nameOfClass << "::" << (*it) << endl;
 	    bool createWarning = TRUE;
-	    QString fname = (*it).left( (*it).find( "(" ) );
+	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
 	    if ( fit != functionImpls.end() ) {
 		int begin = (*fit).find( "{" );

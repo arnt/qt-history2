@@ -4,11 +4,13 @@ HEADERS	= uic.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
+		  ../shared/parser.h \
 		  ../interfaces/widgetinterface.h
 
 SOURCES	= uic.cpp  \
 		  ../shared/widgetdatabase.cpp  \
 		  ../shared/domtool.cpp \
+		  ../shared/parser.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp
 
 TARGET		= uic

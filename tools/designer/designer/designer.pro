@@ -48,6 +48,7 @@ HEADERS	= command.h \
 		  sourceeditor.h \
 		  outputwindow.h \
 		  ../shared/widgetdatabase.h \
+		  ../shared/parser.h \
 		  config.h
 
 SOURCES	= command.cpp \
@@ -94,6 +95,7 @@ SOURCES	= command.cpp \
 		  sourceeditor.cpp \
 		  outputwindow.cpp \
 		  ../shared/widgetdatabase.cpp \
+		  ../shared/parser.cpp \
 		  config.cpp
 
 TARGET	= designer
