@@ -51,7 +51,6 @@ typedef __signed__ int __s32;
 typedef unsigned int __u32;
 #endif
 
-
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
 
@@ -589,7 +588,7 @@ void QScreenCursor::drawCursor()
 	    for (int col = startCol; col < endCol; col++)
 	    {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		srcval = col & 0x1 ? clut[*(srcptr+(col-1))] : 
+		srcval = col & 0x1 ? clut[*(srcptr+(col-1))] :
 				     clut[*(srcptr+(col+1))];
 #else
 		srcval = clut[*(srcptr+col)];
@@ -3492,19 +3491,60 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 	    while ( frontadd-- ) {
 	      if(myrop==XorROP) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  if(srctype==SourceImage) {
+		      *((((unsigned long)myptr) & 0x1) ?
+			myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
+		  } else {
+#else
 		*(myptr)^=get_value_16(srcdepth,&srcdata);
+#endif
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  }
+#endif
 		myptr++;
 	      } else if(myrop==NotROP) {
-		*(myptr)=~(*myptr);
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  if(srctype==SourceImage) {
+		      *((((unsigned long)myptr) & 0x1) ?
+			myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
+		  } else {
+#else
+		*(myptr)=~get_value_16(srcdepth,&srcdata);
+#endif
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  }
+#endif		
 		myptr++;
 	      } else {
-		*(myptr++)=get_value_16(srcdepth,&srcdata);
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  if(srctype==SourceImage) {
+		      *((((unsigned long)myptr) & 0x1) ?
+			myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
+		  } else {
+#else
+		*(myptr)=get_value_16(srcdepth,&srcdata);
+#endif
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  }
+#endif		
+		myptr++;
 	      }
 	    }
 	    while ( count-- ) {
 # ifdef QWS_PACKING_4BYTE
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		if(srctype==SourceImage) {
+		    dput = (get_value_16(srcdepth,&srcdata) << 16);
+		    dput |= get_value_16(srcdepth,&srcdata);
+		} else {
+#else
 		dput = get_value_16(srcdepth,&srcdata);
 		dput |= (get_value_16(srcdepth,&srcdata) << 16);
+#endif
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		}
+#endif		
 		if(myrop==XorROP) {
 		  *((PackType*)myptr) ^= dput;
 		} else if(myrop==NotROP) {
@@ -3530,13 +3570,44 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    }
 	    while ( backadd-- ) {
 	      if(myrop==XorROP) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  if(srctype==SourceImage) {
+		      *((((unsigned long)myptr) & 0x1) ?
+			myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
+		  } else {
+#else
 		*(myptr)^=get_value_16(srcdepth,&srcdata);
+#endif
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  }
+#endif
 		myptr++;
 	      } else if(myrop==NotROP) {
-		*(myptr)=~(*myptr);
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  if(srctype==SourceImage) {
+		      *((((unsigned long)myptr) & 0x1) ?
+			myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
+		  } else {
+#else
+		*(myptr)=~get_value_16(srcdepth,&srcdata);
+#endif
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  }
+#endif		
 		myptr++;
 	      } else {
-		*(myptr++)=get_value_16(srcdepth,&srcdata);
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  if(srctype==SourceImage) {
+		      *((((unsigned long)myptr) & 0x1) ?
+			myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
+		  } else {
+#else
+		*(myptr)=get_value_16(srcdepth,&srcdata);
+#endif
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		  }
+#endif		
+		myptr++;
 	      }
 	    }
 #endif
@@ -3549,6 +3620,21 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		bool masked = TRUE;
 		GET_MASKED(reverse);
 		if ( !masked ) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		    if(srctype==SourceImage) {
+			if(myrop==XorROP) {
+			    *((((unsigned long)myptr) & 0x1) ?
+			      myptr-1 : myptr+1)^=gv;
+			} else if(myrop==NotROP) {
+			    *((((unsigned long)myptr) & 0x1) ?
+			      myptr-1 : myptr+1)= ~(*((((unsigned long)myptr) 
+	      			& 0x1) ? myptr-1 : myptr+1));		
+			} else {
+			    *((((unsigned long)myptr) & 0x1) ?
+			      myptr-1 : myptr+1)=gv;			
+			}
+		    } else {
+#else
 		  if(myrop==XorROP) {
 		    *(myptr) ^= gv;
 		  } else if(myrop==NotROP) {
@@ -3556,6 +3642,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		  } else {
 		    *(myptr) = gv;
 		  }
+#endif
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		    }
+#endif
 		}
 		myptr += inc;
 	    }
