@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#13 $
 **
 ** Implementation of QUrlInfo class
 **
@@ -177,6 +177,24 @@ void QUrlInfo::setFile( bool b )
 void QUrlInfo::setSymLink( bool b )
 {
     d->isSymLink = b;
+}
+
+/*!
+  Specifies if the URL is writeable.
+*/
+
+void QUrlInfo::setWritable( bool b )
+{
+    d->isWritable = b;
+}
+
+/*!
+  Specifies if the URL is readable.
+*/
+
+void QUrlInfo::setReadable( bool b )
+{
+    d->isReadable = b;
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.h#8 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.h#9 $
 **
 ** Implementation of QUrlInfo class
 **
@@ -57,6 +57,8 @@ public:
     virtual void setOwner( const QString &s );
     virtual void setGroup( const QString &s );
     virtual void setSize( uint s );
+    virtual void setWritable( bool b );
+    virtual void setReadable( bool b );
 
     QString name() const;
     int permissions() const;
