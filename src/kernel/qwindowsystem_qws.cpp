@@ -210,8 +210,12 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
 
 #ifndef QT_NO_SOUND
 
-static const int fragment_size = 8;
-static const int sound_buffer_size=1<<fragment_size;
+//#define QT_QWS_SOUND_8BIT
+static const int sound_fragment_size = 8;
+static const int sound_stereo = 0;
+static const int sound_speed = 11025;
+
+static const int sound_buffer_size=1<<sound_fragment_size;
 class QWSSoundServerBucket {
 public:
     QWSSoundServerBucket(QIODevice* d)
@@ -271,23 +275,9 @@ class QWSSoundServerData {
 public:
     QWSSoundServerData(QWSSoundServer* s)
     {
-	int fd = ::open("/dev/dsp",O_WRONLY);
 	active.setAutoDelete(TRUE);
-
-	// Setup soundcard at 16 bit mono
-	int v;
-	v=0x00040000+fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v);
-//#define QT_SOUND_8BIT
-#ifdef QT_SOUND_8BIT
-	v=AFMT_U8; ioctl(fd, SNDCTL_DSP_SETFMT, &v);
-#else
-	v=AFMT_S16_LE; ioctl(fd, SNDCTL_DSP_SETFMT, &v);
-#endif
-	v=0; ioctl(fd, SNDCTL_DSP_STEREO, &v);
-	v=11025; ioctl(fd, SNDCTL_DSP_SPEED, &v);
-
-	sn = new QSocketNotifier(fd,QSocketNotifier::Write,s);
-	QObject::connect(sn,SIGNAL(activated(int)),s,SLOT(feedDevice(int)));
+	sn = 0;
+	server = s;
     }
 
     void feedDevice(int fd)
@@ -314,7 +304,7 @@ public:
 	    for (bucket = active.first(); bucket; bucket = active.next()) {
 		bucket->add(data,available);
 	    }
-#ifdef QT_SOUND_8BIT
+#ifdef QT_QWS_SOUND_8BIT
 	    signed char d8[sound_buffer_size];
 	    for (int i=0; i<available; i++) {
 		int t = data[i] / 1; // ######### configurable
@@ -348,7 +338,7 @@ public:
 		    ; //active.remove(bucket);
 	    }
 	} else {
-	    sn->setEnabled(FALSE);
+	    closeDevice();
 	}
     }
 
@@ -357,11 +347,43 @@ public:
 	QFile* f = new QFile(filename);
 	f->open(IO_ReadOnly);
 	active.append(new QWSSoundServerBucket(f));
-	sn->setEnabled(TRUE);
+	openDevice();
+    }
+
+private:
+    void openDevice()
+    {
+	if ( !sn ) {
+	    int fd = ::open("/dev/dsp",O_WRONLY);
+
+	    // Setup soundcard at 16 bit mono
+	    int v;
+	    v=0x00040000+sound_fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v);
+#ifdef QT_QWS_SOUND_8BIT
+	    v=AFMT_U8; ioctl(fd, SNDCTL_DSP_SETFMT, &v);
+#else
+	    v=AFMT_S16_LE; ioctl(fd, SNDCTL_DSP_SETFMT, &v);
+#endif
+	    v=sound_stereo; ioctl(fd, SNDCTL_DSP_STEREO, &v);
+	    v=sound_speed; ioctl(fd, SNDCTL_DSP_SPEED, &v);
+
+	    sn = new QSocketNotifier(fd,QSocketNotifier::Write,server);
+	    QObject::connect(sn,SIGNAL(activated(int)),server,SLOT(feedDevice(int)));
+	}
+    }
+
+    void closeDevice()
+    {
+	if ( sn ) {
+	    ::close(sn->socket());
+	    delete sn;
+	    sn = 0;
+	}
     }
 
     QList<QWSSoundServerBucket> active;
     QSocketNotifier* sn;
+    QWSSoundServer* server;
 };
 
 QWSSoundServer::QWSSoundServer(QObject* parent) :
