@@ -96,6 +96,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 	p->setPen( g.dark() );
     else
 	p->setPen( g.light() );
+    bool reverse = QApplication::reverseLayout();
     QPointArray a;
     int i;
     if ( y1 == y2 ) {				// horizontal line
@@ -107,9 +108,14 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 	}
 	x2--;
 	for ( i=0; i<lineWidth; i++ ) {		// draw top shadow
-	    a.setPoints( 3, x1+i, y+tlw-1,
-			    x1+i, y+i,
-			    x2,	  y+i );
+	    if( reverse )
+		a.setPoints( 3, x1+i, y+i,
+			     x2-i, y+i,
+			     x2-i, y+tlw-i-1);
+	    else
+		a.setPoints( 3, x1+i, y+tlw-1-i,
+			     x1+i, y+i,
+			     x2-i, y+i );
 	    p->drawPolyline( a );
 	}
 	if ( midLineWidth > 0 ) {
@@ -123,9 +129,14 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 	else
 	    p->setPen( g.dark() );
 	for ( i=0; i<lineWidth; i++ ) {		// draw bottom shadow
-	    a.setPoints( 3, x1+lineWidth, y+tlw-i-1,
-			    x2-i,	  y+tlw-i-1,
-			    x2-i,	  y+lineWidth );
+	    if( reverse )
+		a.setPoints( 3, x1+i, y+i+1,
+			     x1+i, y+tlw-i-1,
+			     x2-i,	  y+tlw-i-1 );
+	    else
+		a.setPoints( 3, x1+i, y+tlw-i-1,
+			     x2-i,	  y+tlw-i-1,
+			     x2-i,	  y+i+1 );
 	    p->drawPolyline( a );
 	}
     }
@@ -138,9 +149,14 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 	}
 	y2--;
 	for ( i=0; i<lineWidth; i++ ) {		// draw left shadow
-	    a.setPoints( 3, x+i,     y2,
-			    x+i,     y1+i,
-			    x+tlw-1, y1+i );
+	    if( reverse )
+		a.setPoints( 3, x+i,     y2,
+			     x+i,     y1+i,
+			     x+tlw-1, y1+i );
+	    else
+		a.setPoints( 3, x+i,     y2,
+			     x+i,     y1+i,
+			     x+tlw-1, y1+i );
 	    p->drawPolyline( a );
 	}
 	if ( midLineWidth > 0 ) {
@@ -218,29 +234,40 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 	p->setPen( g.dark() );
     else
 	p->setPen( g.light() );
+    bool reverse = QApplication::reverseLayout();
     int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
     QPointArray a;
     if ( lineWidth == 1 && midLineWidth == 0 ) {// standard shade rectangle
-	a.setPoints( 8, x1,y1, x2,y1, x1,y1+1, x1,y2, x1+2,y2-1,
-		     x2-1,y2-1, x2-1,y1+2,  x2-1,y2-2 );
+	if( reverse )
+	    a.setPoints( 8, x2,y1, x1,y1, x2,y1+1, x2,y2, x2-2,y2-1,
+			 x1+1,y2-1, x1+1,y1+2,  x1+1,y2-2 );
+	else
+	    a.setPoints( 8, x1,y1, x2,y1, x1,y1+1, x1,y2, x1+2,y2-1,
+			 x2-1,y2-1, x2-1,y1+2,  x2-1,y2-2 );
 	p->drawLineSegments( a );		// draw top/left lines
 	if ( sunken )
 	    p->setPen( g.light() );
 	else
 	    p->setPen( g.dark() );
-	a.setPoints( 8, x1+1,y1+1, x2,y1+1, x1+1,y1+2, x1+1,y2-1,
-		     x1+1,y2, x2,y2,  x2,y1+2, x2,y2-1 );
+	if( reverse )
+	    a.setPoints( 8, x2-1,y1+1, x1,y1+1, x2-1,y1+2, x2-1,y2-1,
+			 x2-1,y2, x1,y2,  x1,y1+2, x1,y2-1 );
+	else
+	    a.setPoints( 8, x1+1,y1+1, x2,y1+1, x1+1,y1+2, x1+1,y2-1,
+			 x1+1,y2, x2,y2,  x2,y1+2, x2,y2-1 );
 	p->drawLineSegments( a );		// draw bottom/right lines
     }
     else {					// more complicated
 	int m = lineWidth+midLineWidth;
 	int i, j=0, k=m;
 	for ( i=0; i<lineWidth; i++ ) {		// draw top shadow
-	    p->drawLine( x1+j, y2-j, x1+j, y1+j );
-	    p->drawLine( x1+j, y1+j, x2-j, y1+j );
-	    p->drawLine( x1+k, y2-k, x2-k, y2-k );
-	    p->drawLine( x2-k, y2-k, x2-k, y1+k );
-	    j++;
+	    if( reverse )
+		a.setPoints( 8, x2-i, y2-i, x2-i, y1+i, x2-i, y1+i, x1+i, y1+i,
+			     x2-k, y2-k, x1+k, y2-k, x1+k, y2-k, x1+k, y1+k );
+	    else
+		a.setPoints( 8, x1+i, y2-i, x1+i, y1+i, x1+i, y1+i, x2-i, y1+i,
+			     x1+k, y2-k, x2-k, y2-k, x2-k, y2-k, x2-k, y1+k );
+	    p->drawLineSegments( a );
 	    k++;
 	}
 	p->setPen( g.mid() );
@@ -253,14 +280,15 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 	    p->setPen( g.light() );
 	else
 	    p->setPen( g.dark() );
-	j = 0;
 	k = m;
 	for ( i=0; i<lineWidth; i++ ) {		// draw bottom shadow
-	    p->drawLine( x1+1+j,y2-j, x2-j, y2-j );
-	    p->drawLine( x2-j,	y2-j, x2-j, y1+j+1 );
-	    p->drawLine( x1+k,	y2-k, x1+k, y1+k );
-	    p->drawLine( x1+k,	y1+k, x2-k, y1+k );
-	    j++;
+	    if( reverse )
+		a.setPoints( 8, x2-1-i,y2-i, x1+i, y2-i, x1+i, y2-i, x1+i, y1+i+1,
+			     x2-k, y2-k, x2-k, y1+k, x2-k, y1+k, x1+k, y1+k );
+	    else
+		a.setPoints( 8, x1+1+i,y2-i, x2-i, y2-i, x2-i, y2-i, x2-i, y1+i+1,
+			     x1+k, y2-k, x1+k, y1+k, x1+k, y1+k, x2-k, y1+k );
+	    p->drawLineSegments( a );
 	    k++;
 	}
     }
@@ -326,21 +354,38 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
 	p->setPen( g.dark() );
     else
 	p->setPen( g.light() );
+    bool reverse = QApplication::reverseLayout();
     int x1, y1, x2, y2;
     int i;
     int n = 0;
-    x1 = x;
-    y1 = y2 = y;
-    x2 = x+w-2;
-    for ( i=0; i<lineWidth; i++ ) {		// top shadow
-	a.setPoint( n++, x1, y1++ );
-	a.setPoint( n++, x2--, y2++ );
-    }
-    x2 = x1;
-    y1 = y+h-2;
-    for ( i=0; i<lineWidth; i++ ) {		// left shadow
-	a.setPoint( n++, x1++, y1 );
-	a.setPoint( n++, x2++, y2-- );
+    if( reverse ) {
+	x1 = x+1;
+	y1 = y2 = y;
+	x2 = x+w-1;
+	for ( i=0; i<lineWidth; i++ ) {		// top shadow
+	    a.setPoint( n++, x2, y1++ );
+	    a.setPoint( n++, x1++, y2++ );
+	}
+	x1 = x2;
+	y1 = y+h-2;
+	for ( i=0; i<lineWidth; i++ ) {		// right shadow
+	    a.setPoint( n++, x2--, y1 );
+	    a.setPoint( n++, x1--, y2-- );
+	}
+    } else {
+	x1 = x;
+	y1 = y2 = y;
+	x2 = x+w-2;
+	for ( i=0; i<lineWidth; i++ ) {		// top shadow
+	    a.setPoint( n++, x1, y1++ );
+	    a.setPoint( n++, x2--, y2++ );
+	}
+	x2 = x1;
+	y1 = y+h-2;
+	for ( i=0; i<lineWidth; i++ ) {		// left shadow
+	    a.setPoint( n++, x1++, y1 );
+	    a.setPoint( n++, x2++, y2-- );
+	}
     }
     p->drawLineSegments( a );
     n = 0;
@@ -348,19 +393,36 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
 	p->setPen( g.light() );
     else
 	p->setPen( g.dark() );
-    x1 = x;
-    y1 = y2 = y+h-1;
-    x2 = x+w-1;
-    for ( i=0; i<lineWidth; i++ ) {		// bottom shadow
-	a.setPoint( n++, x1++, y1-- );
-	a.setPoint( n++, x2, y2-- );
-    }
-    x1 = x2;
-    y1 = y;
-    y2 = y+h-lineWidth-1;
-    for ( i=0; i<lineWidth; i++ ) {		// right shadow
-	a.setPoint( n++, x1--, y1++ );
-	a.setPoint( n++, x2--, y2 );
+    if( reverse ) {
+	x1 = x;
+	y1 = y2 = y+h-1;
+	x2 = x+w-1;
+	for ( i=0; i<lineWidth; i++ ) {		// bottom shadow
+	    a.setPoint( n++, x2--, y1-- );
+	    a.setPoint( n++, x1, y2-- );
+	}
+	x2 = x1;
+	y1 = y;
+	y2 = y+h-lineWidth-1;
+	for ( i=0; i<lineWidth; i++ ) {		// right shadow
+	    a.setPoint( n++, x2++, y1++ );
+	    a.setPoint( n++, x1++, y2 );
+	}
+    } else {
+	x1 = x;
+	y1 = y2 = y+h-1;
+	x2 = x+w-1;
+	for ( i=0; i<lineWidth; i++ ) {		// bottom shadow
+	    a.setPoint( n++, x1++, y1-- );
+	    a.setPoint( n++, x2, y2-- );
+	}
+	x1 = x2;
+	y1 = y;
+	y2 = y+h-lineWidth-1;
+	for ( i=0; i<lineWidth; i++ ) {		// right shadow
+	    a.setPoint( n++, x1--, y1++ );
+	    a.setPoint( n++, x2--, y2 );
+	}
     }
     p->drawLineSegments( a );
     if ( fill ) {				// fill with fill color
@@ -397,27 +459,32 @@ static void qDrawWinShades( QPainter *p,
 {
     if ( w < 2 || h < 2 )			// can't do anything with that
 	return;
+    bool reverse = QApplication::reverseLayout();
     QPen oldPen = p->pen();
     QPointArray a( 3 );
-    a.setPoint( 0, x, y+h-2 );
-    a.setPoint( 1, x, y );
-    a.setPoint( 2, x+w-2, y );
+    if ( reverse )
+	a.setPoints( 3, x+w-1, y+h-2, x+w-1, y, x+1, y );
+    else
+	a.setPoints( 3, x, y+h-2, x, y, x+w-2, y );
     p->setPen( c1 );
     p->drawPolyline( a );
-    a.setPoint( 0, x, y+h-1 );
-    a.setPoint( 1, x+w-1, y+h-1 );
-    a.setPoint( 2, x+w-1, y );
+    if ( reverse )
+	a.setPoints( 3, x+w-1, y+h-1, x, y+h-1, x, y );
+    else
+	a.setPoints( 3, x, y+h-1, x+w-1, y+h-1, x+w-1, y );
     p->setPen( c2 );
     p->drawPolyline( a );
     if ( w > 4 && h > 4 ) {
-	a.setPoint( 0, x+1, y+h-3 );
-	a.setPoint( 1, x+1, y+1 );
-	a.setPoint( 2, x+w-3, y+1 );
+	if ( reverse )
+	    a.setPoints( 3, x+w-2, y+h-3, x+w-2, y+1, x+2, y+1 );
+	else
+	    a.setPoints( 3, x+1, y+h-3, x+1, y+1, x+w-3, y+1 );
 	p->setPen( c3 );
 	p->drawPolyline( a );
-	a.setPoint( 0, x+1, y+h-2 );
-	a.setPoint( 1, x+w-2, y+h-2 );
-	a.setPoint( 2, x+w-2, y+1 );
+	if ( reverse )
+	    a.setPoints( 3, x+w-2, y+h-2, x+1, y+h-2, x+1, y+1 );
+	else
+	    a.setPoints( 3, x+1, y+h-2, x+w-2, y+h-2, x+w-2, y+1 );
 	p->setPen( c4 );
 	p->drawPolyline( a );
 	if ( fill ) {
