@@ -5358,7 +5358,7 @@ QTextLineStart *Q3TextFormatter::formatLine(Q3TextParagraph *parag, Q3TextString
 #endif
 
 // collects one line of the paragraph and transforms it to visual order
-QTextLineStart *Q3TextFormatter::bidiReorderLine(Q3TextParagraph */*parag*/, Q3TextString *text, QTextLineStart *line,
+QTextLineStart *Q3TextFormatter::bidiReorderLine(Q3TextParagraph * /*parag*/, Q3TextString *text, QTextLineStart *line,
                                                         Q3TextStringChar *startChar, Q3TextStringChar *lastChar, int align, int space)
 {
     // ignore white space at the end of the line.
