@@ -750,7 +750,6 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     \sa idAfter()
 */
 
-
 void QSplitter::getRange( int id, int *min, int *max )
 {
     getRange( id, min, 0, 0, max );
@@ -773,19 +772,28 @@ int QSplitter::adjustPos( int pos, int id )
 int QSplitter::adjustPos( int pos, int id, int *farMin, int *min, int *max,
 			  int *farMax )
 {
+    const int Threshold = 40;
+
     getRange( id, farMin, min, max, farMax );
+
     if ( pos >= *min ) {
 	if ( pos <= *max ) {
 	    return pos;
 	} else {
-	    if ( pos - *max > *farMax - pos ) {
+	    int delta = pos - *max;
+	    int width = *farMax - *max;
+
+	    if ( delta > width / 2 && delta >= QMIN(Threshold, width) ) {
 		return *farMax;
 	    } else {
 		return *max;
 	    }
 	}
     } else {
-	if ( *min - pos > pos - *farMin ) {
+	int delta = *min - pos;
+	int width = *min - *farMin;
+	
+	if ( delta > width / 2 && delta >= QMIN(Threshold, width) ) {
 	    return *farMin;
 	} else {
 	    return *min;
