@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#326 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#327 $
 **
 ** Implementation of QFileDialog class
 **
@@ -971,11 +971,11 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 			      currentItem() :
 			      itemAt( e->pos() );
 	if ( item ) {
-	    QString source = filedialog->dirPath() + item->text( 0 );
+	    QUrl u( filedialog->url(), item->text( 0 ) );
 	    // #############
 	    // 	    if ( QFile::exists( source ) ) {
 		QUriDrag* drag = new QUriDrag( viewport() );
-		drag->setUnicodeUris( source );
+		drag->setUnicodeUris( u.toString() );
 
 		if ( lined->isVisible() )
 		    cancelRename();
@@ -2330,7 +2330,7 @@ void QFileDialog::okClicked()
 	accept();
 	return;
     }
-    
+
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
