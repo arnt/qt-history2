@@ -776,7 +776,8 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
     When a dock window's visibility changes, i.e. it is shown or
     hidden, the visibilityChanged() signal is emitted. When a dock
-    window is docked or undocked the placeChanged() signal is emitted.
+    window is docked, undocked or moved inside the dock area the
+    placeChanged() signal is emitted.
 */
 
 /*!
@@ -834,7 +835,8 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     \fn void QDockWindow::placeChanged( QDockWindow::Place p )
 
     This signal is emitted when the dock window is docked (\a p is \c
-    InDock) or undocked (\a p is \c OutsideDock).
+    InDock), undocked (\a p is \c OutsideDock) or moved inside the
+    the dock area.
 
     \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
     QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
