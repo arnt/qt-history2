@@ -1,6 +1,5 @@
 #include <qapplication.h>
 #include "chartform.h"
-#include "element.h"
 
 
 int main( int argc, char *argv[] )
@@ -16,7 +15,6 @@ int main( int argc, char *argv[] )
 
     ChartForm *cf = new ChartForm( filename );
     app.setMainWidget( cf );
-    cf->setCaption( "Chart" );
     cf->show();
     app.connect( &app, SIGNAL(lastWindowClosed()), cf, SLOT(fileQuit()) );
 

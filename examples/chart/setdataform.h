@@ -1,7 +1,6 @@
 #ifndef SETDATAFORM_H
 #define SETDATAFORM_H
 
-#include "globals.h"
 #include "element.h"
 
 #include <qdialog.h>
@@ -16,7 +15,7 @@ class SetDataForm: public QDialog
 {
     Q_OBJECT
 public:
-    SetDataForm( ElementVector *elements,
+    SetDataForm( ElementVector *elements, int decimalPlaces,
 		 QWidget *parent = 0, const char *name = "set data form",
 		 bool modal = TRUE, WFlags f = 0 );
     ~SetDataForm() {}
@@ -32,16 +31,17 @@ protected slots:
 
 private:
     QTable *table;
-    QPushButton* colourPushButton;
-    QPushButton* okPushButton;
-    QPushButton* cancelPushButton;
+    QPushButton *colourPushButton;
+    QPushButton *okPushButton;
+    QPushButton *cancelPushButton;
 
 protected:
     QVBoxLayout *tableButtonBox;
     QHBoxLayout *buttonBox;
 
 private:
-    ElementVector *pelements;
+    ElementVector *m_elements;
+    int m_decimalPlaces;
 };
 
 #endif
