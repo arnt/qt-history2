@@ -20,12 +20,6 @@
 #include "qmap.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
 #ifndef QT_NO_SQL_FORM
 
 class QSqlField;
@@ -35,7 +29,7 @@ class QSqlPropertyMap;
 class QWidget;
 class QSqlFormPrivate;
 
-class QM_EXPORT_SQL QSqlForm : public QObject
+class Q_COMPAT_EXPORT QSqlForm : public QObject
 {
     Q_OBJECT
 public:

@@ -32,7 +32,7 @@
 
 typedef QList<QSqlFieldInfo> QSqlFieldInfoList;
 
-class QM_COMPAT_EXPORT_SQL QSqlRecordInfo: public QSqlFieldInfoList
+class Q_COMPAT_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
 {
 public:
     QSqlRecordInfo(): QSqlFieldInfoList() {}

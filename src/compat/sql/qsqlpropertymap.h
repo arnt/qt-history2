@@ -25,7 +25,7 @@
 class QWidget;
 class QSqlPropertyMapPrivate;
 
-class Q_SQL_EXPORT QSqlPropertyMap {
+class Q_COMPAT_EXPORT QSqlPropertyMap {
 public:
     QSqlPropertyMap();
     virtual ~QSqlPropertyMap();

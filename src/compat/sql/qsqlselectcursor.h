@@ -19,17 +19,11 @@
 #include "qsqlcursor.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
 #ifndef QT_NO_SQL
 
 class QSqlSelectCursorPrivate;
 
-class QM_EXPORT_SQL QSqlSelectCursor : public QSqlCursor
+class Q_COMPAT_EXPORT QSqlSelectCursor : public QSqlCursor
 {
 public:
     QSqlSelectCursor( const QString& query = QString(), QSqlDatabase* db = 0 );
@@ -37,7 +31,7 @@ public:
     ~QSqlSelectCursor();
     bool exec( const QString& query );
     bool select() { return QSqlCursor::select(); }
-    
+
 protected:
     QSqlIndex primaryIndex( bool = TRUE ) const { return QSqlIndex(); }
     QSqlIndex index( const QStringList& ) const { return QSqlIndex(); }
@@ -70,7 +64,7 @@ protected:
 
 private:
     void populateCursor();
-    
+
     QSqlSelectCursorPrivate * d;
 };
 
