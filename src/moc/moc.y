@@ -1126,7 +1126,7 @@ property:		IDENTIFIER IDENTIFIER
 				         propDesignable = TRUE;
 				}
 			prop_statements
-				{ 	
+				{
 				    if ( propRead.isEmpty() && !propOverride)
 					moc_err( "A property must at least feature a read method." );
 				    checkIdentifier( $2 );
@@ -1161,7 +1161,7 @@ prop_statements:	  /* empty */
 				}
 			  prop_statements
 			;
-			
+
 qt_enums:		  /* empty */ { }
 			| IDENTIFIER qt_enums { qtEnums.append( $1 ); }
 			;
@@ -1967,7 +1967,7 @@ int generateProps()
 			if ( !ok ) continue;
 		        p->gspec = spec;
 		        p->getfunc = f;
-			p->oredEnum = TRUE;			
+			p->oredEnum = TRUE;
 		    }
 		}
 	    }
@@ -2084,7 +2084,7 @@ int generateProps()
 			if ( !ok ) continue;
 		        p->sspec = spec;
 		        p->setfunc = f;
-			p->oredEnum = TRUE;			
+			p->oredEnum = TRUE;
 		    }
 		}
 	    }
@@ -2397,7 +2397,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.11 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: 1.11 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
