@@ -464,6 +464,7 @@ static int qt_x_errhandler(Display *dpy, XErrorEvent *err)
 static int qt_xio_errhandler(Display *)
 {
     qWarning("%s: Fatal IO error: client killed", appName);
+    QApplicationPrivate::reset_instance_pointer();
     exit(1);
     //### give the application a chance for a proper shutdown instead,
     //### exit(1) doesn't help.
@@ -756,6 +757,13 @@ bool QApplicationPrivate::x11_apply_settings()
 
     return true;
 }
+
+
+/*! \internal
+    Resets the QApplication::instance() pointer to zero
+*/
+void QApplicationPrivate::reset_instance_pointer()
+{ QApplication::self = 0; }
 
 
 // read the _QT_INPUT_ENCODING property and apply the settings to
@@ -1396,6 +1404,7 @@ void qt_init(QApplicationPrivate *priv, int,
         if ((X11->display = XOpenDisplay(X11->displayName)) == 0) {
             qWarning("%s: cannot connect to X server %s", appName,
                      XDisplayName(X11->displayName));
+            QApplicationPrivate::reset_instance_pointer();
             exit(1);
         }
 
