@@ -3398,12 +3398,16 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,
 
     switch ( res.vt ) {
     case VT_DISPATCH:
-	if ( res.pdispVal )
+	if ( res.pdispVal ) {
 	    object = new QAxObject( res.pdispVal, qObject(), QCString( qObject()->name() ) + "/" + name );
+	    ((QAxBase*)object)->d->tryCache = TRUE;
+	}
 	break;
     case VT_UNKNOWN:
-	if ( res.punkVal )
+	if ( res.punkVal ) {
 	    object = new QAxObject( res.punkVal, qObject(), QCString( qObject()->name() ) + "/" + name  );
+	    ((QAxBase*)object)->d->tryCache = TRUE;
+	}
 	break;
     case VT_EMPTY:
 #ifdef QT_CHECK_STATE
