@@ -1472,8 +1472,8 @@ void QTextEdit::append(const QString &text)
             f = PlainText;
     }
 
-// ############
 //    const bool atBottom = contentsY() >= contentsHeight() - visibleHeight();
+    const bool atBottom = d->contentsY() >= d->contentsHeight() - d->viewport->height();
 
     QTextCursor cursor(d->doc);
     cursor.movePosition(QTextCursor::End);
@@ -1485,8 +1485,8 @@ void QTextEdit::append(const QString &text)
         cursor.insertFragment(frag);
     }
 
-//    if (atBottom)
-//        setContentsPos(contentsX(), contentsHeight() - visibleHeight());
+    if (atBottom && d->vbar->isVisible())
+        d->vbar->setValue(d->vbar->maximum() - d->viewport->height());
 }
 /*!
     Ensures that the cursor is visible by scrolling the text edit if
