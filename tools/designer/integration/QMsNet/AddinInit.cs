@@ -37,7 +37,9 @@ namespace QMsNet
 		     (cmdDel.Name == Resource.LoadQtProjectFullCommand) ||
 		     (cmdDel.Name == Resource.SaveQtProjectFullCommand) ||
 		     (cmdDel.Name == Resource.DLLQtProjectFullCommand) ||
-		     (cmdDel.Name == Resource.AddMocStepFullCommand) ) {
+		     (cmdDel.Name == Resource.AddMocStepFullCommand) ||
+		     (cmdDel.Name == Resource.mntEventsFullCommand) ||
+		     (cmdDel.Name == Resource.unmntEventsFullCommand) ) {
 		    try { cmdDel.Delete(); }
 		    catch ( System.Exception ){}
 		}                                  
@@ -161,6 +163,49 @@ namespace QMsNet
 					    ref contextGUIDS,
 					    disableFlags );
 		cmd.AddControl( cmdBar, 1 );
+
+		// Monitor Events command
+		cmds.AddNamedCommand( Connect.addinInstance,
+				      Resource.mntEvents,
+				      Resource.mntEventsButtonText,
+				      Resource.mntEventsToolTip,
+				      true, 0, ref contextGUIDS,
+				      disableFlags );
+
+		// Stop Monitoring Events command
+		cmds.AddNamedCommand( Connect.addinInstance,
+				      Resource.unmntEvents,
+				      Resource.unmntEventsButtonText,
+				      Resource.unmntEventsToolTip,
+				      true, 0, ref contextGUIDS,
+				      disableFlags );
+
+//		_CommandBars commandBars;
+//		CommandBar toolsCommandBar;
+//		CommandBarControls commandBarControls;
+//		CommandBarControl commandBarControl;
+//		CommandBarEvents commandBarEvents;
+//		String strCommandBarItem = "Tools";
+//
+//		commandBars = Connect.applicationObject.CommandBars;
+//		toolsCommandBar = commandBars[strCommandBarItem];
+//		commandBarControls = toolsCommandBar.Controls;
+//
+//		try {
+////		    commandBarControl = commandBarControls.Add(MsoControlType.msoControlButton, 1, null, 1, false);
+////		    commandBarControl.Visible = true;
+////		    commandBarControl.Caption = "C# Test Button";
+////		    commandBarEvents = (EnvDTE.CommandBarEvents)Connect.applicationObject.Events.get_CommandBarEvents(commandBarControl);
+////		    commandBarEvents.Click += new EnvDTE._dispCommandBarControlEvents_ClickEventHandler(this.Click);
+//		    commandBarControl = cmdBar.Controls.Add(MsoControlType.msoControlButton, 1, null, 1, false);
+//		    commandBarControl.Visible = true;
+//		    commandBarControl.Caption = "#4";
+//		    commandBarEvents = (EnvDTE.CommandBarEvents)Connect.applicationObject.Events.get_CommandBarEvents(commandBarControl);
+//		    commandBarEvents.Click += new EnvDTE._dispCommandBarControlEvents_ClickEventHandler(this.Click);
+//		}
+//		catch (System.Exception ex) {
+//		    System.Windows.Forms.MessageBox.Show(ex.ToString());
+//		}
 	    }
 	    catch( System.Exception e ) {
 		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
