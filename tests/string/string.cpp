@@ -174,6 +174,17 @@ main(int argc, char** argv)
 	a[2]='C';
 	TEST(a,"ABC");
 	TEST(a.length(),3);
+	a = QString();
+	TEST(a.isNull(),TRUE);
+	a[0]='A';
+	TEST(a,"A");
+	TEST(a.length(),1);
+	a[1]='B';
+	TEST(a,"AB");
+	TEST(a.length(),2);
+	a[2]='C';
+	TEST(a,"ABC");
+	TEST(a.length(),3);
     #endif
 
     a="";
@@ -510,6 +521,7 @@ main(int argc, char** argv)
 #endif
 
     printf("\n%d error%s\n",err,"s"+(err==1));
+
 
 #if 0 //QT_VERSION >= 200
 

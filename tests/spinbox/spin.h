@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/spinbox/spin.h#1 $
+** $Id: //depot/qt/main/tests/spinbox/spin.h#2 $
 **
 ** Definition of 
 **
@@ -15,18 +15,22 @@ class QSpinBox;
 class QCheckBox;
 class QLineEdit;
 class QLabel;
+class QSlider;
 
 class Main : public QDialog {
     Q_OBJECT
 public:
     Main(QWidget* parent=0, const char* name=0, int f=0);
 	
+    QSlider* tslider;
+
     QSpinBox* mainBox;
     QSpinBox* decBox;
     QSpinBox* stepBox;
     QSpinBox* minBox;
     QSpinBox* maxBox;
     QSpinBox* valBox;
+    
     QCheckBox* wrapCheck;
     QCheckBox* palCheck;
     QCheckBox* disableCheck;

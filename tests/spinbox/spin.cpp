@@ -11,7 +11,7 @@
 #include <qlineedit.h>
 #include <qmotifstyle.h>
 #include <qwindowsstyle.h>
-
+#include <qslider.h>
 
 
 
@@ -25,13 +25,13 @@ MainParent::MainParent( QWidget* parent, const char* name, int f )
 
 void MainParent::mousePressEvent( QMouseEvent * )
 {
-    Main* myMain = new Main;
+    Main* myMain = new Main( this );
     debug("Starting!");
     myMain->exec();
     debug("Finished!");
     delete myMain;
 }
-	
+
 
 Main::Main(QWidget* parent, const char* name, int f)
     : QDialog(parent, name, TRUE, f)
@@ -39,11 +39,16 @@ Main::Main(QWidget* parent, const char* name, int f)
 
     setCaption("QSpinBox test");
 
+
     QLabel* mainPre = new QLabel("The main spinbox:", this );
     mainPre->setMinimumSize( mainPre->sizeHint() );
     mainBox = new QSpinBox( 0, 10, 1, this );
     mainBox->setMinimumSize( mainBox->sizeHint() );
     connect( mainBox, SIGNAL(valueChanged(int)), this, SLOT( showValue(int) ) );
+
+
+    tslider = new QSlider( QSlider::Horizontal, this );
+    connect( tslider, SIGNAL(valueChanged(int)), mainBox, SLOT(setValue(int)));
     
     /*
     QLabel* decPre = new QLabel("Number of decimals:", this );
