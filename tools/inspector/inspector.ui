@@ -1,0 +1,466 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>InspectorBase</class>
+<include location="local" impldecl="in implementation">cppparser.h</include>
+<include location="local" impldecl="in implementation">quuiddefs.h</include>
+<include location="local" impldecl="in implementation">qfiledialog.h</include>
+<include location="local" impldecl="in implementation">qlibrary.h</include>
+<include location="local" impldecl="in implementation">qcomponentinterface.h</include>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>InspectorBase</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>741</width>
+            <height>629</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Component Inspector</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QListView" row="0" column="0">
+            <column>
+                <property name="text">
+                    <string>Filename</string>
+                </property>
+                <property name="clickable">
+                    <bool>true</bool>
+                </property>
+                <property name="resizeable">
+                    <bool>true</bool>
+                </property>
+            </column>
+            <property name="name">
+                <cstring>libraryList</cstring>
+            </property>
+            <property name="selectionMode">
+                <enum>Extended</enum>
+            </property>
+            <property name="rootIsDecorated">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QGroupBox" row="0" column="1">
+            <property name="name">
+                <cstring>GroupBox1</cstring>
+            </property>
+            <property name="title">
+                <string>&amp;Interfaces</string>
+            </property>
+            <grid>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QListView" row="0" column="0" rowspan="1" colspan="3">
+                    <column>
+                        <property name="text">
+                            <string>Name</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizeable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>UUID</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizeable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <property name="name">
+                        <cstring>interfaceList</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>7</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property name="allColumnsShowFocus">
+                        <bool>true</bool>
+                    </property>
+                    <property name="showSortIndicator">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="1">
+                    <property name="name">
+                        <cstring>newButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;New</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="2">
+                    <property name="name">
+                        <cstring>removeButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Remove</string>
+                    </property>
+                </widget>
+                <spacer row="1" column="0">
+                    <property name="name" stdset="0">
+                        <cstring>Spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLayoutWidget" row="2" column="0" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>Layout2</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>TextLabel1</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Na&amp;me:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>nameEdit</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>nameEdit</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>TextLabel2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Uuid:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>uuidEdit</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>uuidEdit</cstring>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+            </grid>
+        </widget>
+    </grid>
+</widget>
+<menubar>
+    <item text="&amp;File" name="PopupMenu_2">
+        <action name="actionFileOpen"/>
+        <separator/>
+        <action name="fileLoadHeader"/>
+        <separator/>
+        <action name="actionFileExit"/>
+    </item>
+</menubar>
+<toolbars>
+    <toolbar dock="2" label="Toolbar" name="Toolbar">
+        <action name="actionFileOpen"/>
+        <action name="actionRefresh"/>
+        <action name="fileLoadHeader"/>
+    </toolbar>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>actionFileOpen</cstring>
+        </property>
+        <property name="text">
+            <string>Open</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Open...</string>
+        </property>
+        <property name="accel">
+            <number>272629839</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionFileExit</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>E&amp;xit</string>
+        </property>
+        <property name="statusTip">
+            <string>Quits the application</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionRefresh</cstring>
+        </property>
+        <property name="text">
+            <string>Refresh</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileLoadHeader</cstring>
+        </property>
+        <property name="text">
+            <string>Load Header</string>
+        </property>
+    </action>
+</actions>
+<connections>
+    <connection>
+        <sender>actionFileExit</sender>
+        <signal>activated()</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>fileExit()</slot>
+    </connection>
+    <connection>
+        <sender>actionFileOpen</sender>
+        <signal>activated()</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>fileOpen()</slot>
+    </connection>
+    <connection>
+        <sender>nameEdit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>inameChanged(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>uuidEdit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>iuuidChanged(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>newButton</sender>
+        <signal>clicked()</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>newInterface()</slot>
+    </connection>
+    <connection>
+        <sender>removeButton</sender>
+        <signal>clicked()</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>removeInterface()</slot>
+    </connection>
+    <connection>
+        <sender>interfaceList</sender>
+        <signal>currentChanged(QListViewItem*)</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>interfaceSelected(QListViewItem*)</slot>
+    </connection>
+    <connection>
+        <sender>interfaceList</sender>
+        <signal>selectionChanged(QListViewItem*)</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>interfaceSelected(QListViewItem*)</slot>
+    </connection>
+    <connection>
+        <sender>actionRefresh</sender>
+        <signal>activated()</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>refresh()</slot>
+    </connection>
+    <connection>
+        <sender>libraryList</sender>
+        <signal>selectionChanged()</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>fileSelectionChanged()</slot>
+    </connection>
+    <connection>
+        <sender>fileLoadHeader</sender>
+        <signal>activated()</signal>
+        <receiver>InspectorBase</receiver>
+        <slot>loadHeader()</slot>
+    </connection>
+    <slot access="protected" language="C++">destroy()</slot>
+    <slot access="protected" language="C++">fileExit()</slot>
+    <slot access="protected" language="C++">fileOpen()</slot>
+    <slot access="protected" language="C++">fileSelectionChanged()</slot>
+    <slot access="protected" language="C++">newInterface()</slot>
+    <slot access="protected" language="C++">loadHeader()</slot>
+    <slot access="protected" language="C++">refresh()</slot>
+    <slot access="protected" language="C++">removeInterface()</slot>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">inameChanged( const QString &amp;name )</slot>
+    <slot access="protected" language="C++">interfaceSelected( QListViewItem *item )</slot>
+    <slot access="protected" language="C++">iuuidChanged( const QString &amp;uuid )</slot>
+    <slot access="public" language="C++">testInterfaces( QListViewItem *fileItem )</slot>
+</connections>
+<functions>
+    <function name="destroy()" >{
+    
+}</function>
+    <function name="fileExit()" >{
+    close();
+}</function>
+    <function name="fileOpen()" >{
+    QStringList files = QFileDialog::getOpenFileNames( "Windows DLL (*.dll);;Shared Object (*.so);;Bundle (*.dylib)" );
+    if ( !files.count() )
+	return;
+    
+    QStringList::Iterator file = files.begin();
+    while ( file != files.end() ) {
+	QListViewItem *fileItem = new QListViewItem( libraryList, *file ); 
+	testInterfaces( fileItem );
+	++file;
+    }
+}</function>
+    <function name="fileSelectionChanged()" >{
+    QListViewItemIterator it( libraryList );
+    while ( it.current() ) {
+	QListViewItem *item = it.current();
+	++it;
+	if ( item-&gt;isSelected() ) {
+	    actionRefresh-&gt;setEnabled( TRUE );
+	    return;
+	}
+    }
+    actionRefresh-&gt;setEnabled( FALSE );
+}</function>
+    <function name="newInterface()" >{
+    QListViewItem *item = new QListViewItem( interfaceList, "IID_NewInterface", "{00000000-0000-0000-0000-000000000000}" );
+    interfaceList-&gt;setCurrentItem( item );
+    interfaceSelected( item );
+    nameEdit-&gt;setFocus();
+}</function>
+    <function name="loadHeader()" >{
+    QStringList files = QFileDialog::getOpenFileNames( "C++ Header File (*.h;*.hxx;*.hpp)" );
+    if ( !files.count() )
+	return;
+    
+    QStringList::Iterator file = files.begin();
+    while ( file != files.end() ) {
+	QMap&lt;QString, Interface&gt; map;
+	parseHeaderFile( *file, &amp;map );
+	
+	QMap&lt;QString, Interface&gt;::Iterator it = map.begin();
+	while ( it != map.end() ) {
+	    Interface iface = *it;
+	    ++it;
+	    
+	    QListViewItem *item = new QListViewItem( interfaceList, iface.name(), iface.uuid() );
+	    interfaceList-&gt;setCurrentItem( item );
+	    interfaceSelected( item );
+	}
+	++file;
+    }
+}</function>
+    <function name="refresh()" >{     
+    QListViewItem *item = libraryList-&gt;firstChild();
+    while ( item ) {
+	if ( item-&gt;isSelected() &amp;&amp; !item-&gt;parent() ) {
+	    QListViewItem *child = item-&gt;firstChild();  
+	    while ( child ) {  
+		QListViewItem *temp = child-&gt;nextSibling();  
+		delete child;  
+		child = temp;  
+	    }
+	    testInterfaces( item );
+	}
+	
+	item = item-&gt;nextSibling();
+    }
+}</function>
+    <function name="removeInterface()" >{
+    delete interfaceList-&gt;currentItem();
+}</function>
+    <function name="init()" >{
+    interfaceList-&gt;setCurrentItem( 0 );    
+}</function>
+    <function name="inameChanged(const QString&amp;)" >{
+    QListViewItem *item = interfaceList-&gt;currentItem(); 
+    if ( item )
+    	item-&gt;setText( 0, name );    
+}</function>
+    <function name="interfaceSelected(QListViewItem*)" >{    
+    nameEdit-&gt;setEnabled( item );
+    uuidEdit-&gt;setEnabled( item );
+    removeButton-&gt;setEnabled( item );
+    
+    if ( !item )
+	return;
+    
+    nameEdit-&gt;setText( item-&gt;text( 0 ) );
+    uuidEdit-&gt;setText( item-&gt;text( 1 ) );
+}</function>
+    <function name="iuuidChanged(const QString&amp;)" >{
+    QListViewItem *item = interfaceList-&gt;currentItem();
+    if ( item )
+	item-&gt;setText( 1, uuid );
+}</function>
+    <function name="testInterfaces(QListViewItem*)" >{
+    if ( !fileItem )
+	return;
+   
+    QString file = fileItem-&gt;text( 0 );
+    QLibrary *library = new QLibrary( file, QLibrary::Immediately ); 
+    if ( library-&gt;isLoaded() ) { 
+	QListViewItemIterator iidIt( interfaceList ); 
+	bool hasInterface = FALSE; 
+	while ( iidIt.current() ) { 
+	    QListViewItem *iidItem = iidIt.current(); 
+	    ++iidIt; 
+	    QUnknownInterface *iface = library-&gt;queryInterface( QUuid::fromString( iidItem-&gt;text( 1 ) ) ); 
+	    if ( iface ) { 
+		hasInterface = TRUE; 
+		iface-&gt;release(); 
+		QListViewItem *iitem = new QListViewItem( fileItem, iidItem-&gt;text( 0 ) ); 
+		iitem-&gt;setSelectable( FALSE );
+	    } 
+	} 
+	if ( !hasInterface ) 
+	    (void)new QListViewItem( fileItem, "No known interfaces!" ); 
+    } else { 
+	(void)new QListViewItem( fileItem, "Couldn't load library!" ); 
+    } 
+    delete library;    
+}</function>
+</functions>
+</UI>
