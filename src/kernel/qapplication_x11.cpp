@@ -2360,22 +2360,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     event->xfocus.detail != NotifyInferior &&
 	     event->xfocus.detail != NotifyNonlinear )
 	    break;
-	active_window = widget->topLevelWidget();
-	QFocusEvent::setReason( QFocusEvent::ActiveWindow );
-	QWidget *w = widget->focusWidget();
-	while ( w && w->focusProxy() )
-	    w = w->focusProxy();
-	if ( w )
-	    w->setFocus();
-	else
-	    widget->focusNextPrevChild( TRUE );
-	if ( !focus_widget ) {
-	    if ( widget->focusWidget() )
-		widget->focusWidget()->setFocus();
-	    else
-		widget->topLevelWidget()->setFocus();
-	}
-	QFocusEvent::resetReason();
+	setActiveWindow( widget );
     }
     break;
 
@@ -2388,15 +2373,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     event->xfocus.detail != NotifyNonlinearVirtual &&
 	     event->xfocus.detail != NotifyNonlinear )
 	    break;
-	if ( focus_widget && !inPopupMode() && widget->topLevelWidget() == active_window ) {
-	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
-	    active_window = 0;
-	    QFocusEvent out( QEvent::FocusOut );
-	    QWidget *widget = focus_widget;
-	    focus_widget = 0;
-	    QApplication::sendEvent( widget, &out );
-	    QFocusEvent::resetReason();
-	}
+	if ( !inPopupMode() && widget == active_window )
+	    setActiveWindow( 0 );
 	break;
 
     case EnterNotify: {			// enter window

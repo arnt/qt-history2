@@ -239,6 +239,7 @@ private:
     bool	     inPopupMode() const;
     void	     closePopup( QWidget *popup );
     void	     openPopup( QWidget *popup );
+    void 	     setActiveWindow( QWidget* act );
 
     static void      removePostedEvent( QEvent * );
 

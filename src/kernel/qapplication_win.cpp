@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#356 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#357 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1305,38 +1305,17 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
     if ( inPopupMode() ) // some delayed focus event to ignore
 	return;
     if ( gotFocus ) {
-	active_window = widget->topLevelWidget();
-	QWidget *w = widget->focusWidget();
-	QFocusEvent::setReason( QFocusEvent::ActiveWindow );
-	if ( w && w->isFocusEnabled() )
-	    w->setFocus();
-	else
-	    widget->focusNextPrevChild( TRUE );
-	if ( !focus_widget ) {
-	    if ( widget->focusWidget() )
-		widget->focusWidget()->setFocus();
-	    else
-		widget->topLevelWidget()->setFocus();
-	}
-	QFocusEvent::resetReason();
-	if ( active_window->testWFlags( WStyle_Dialog ) ) {
-	  // raise the entire application, not just the dialog
-	  QWidget* mw = active_window;
-	  while( mw->parentWidget() && mw->testWFlags( WStyle_Dialog) )
-	      mw = mw->parentWidget()->topLevelWidget();
-	  if ( mw != active_window )
-	      SetWindowPos( mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE );
+	setActiveWindow( widget );
+	if ( active_window && active_window->testWFlags( WStyle_Dialog ) ) {
+	    // raise the entire application, not just the dialog
+	    QWidget* mw = active_window;
+	    while( mw->parentWidget() && mw->testWFlags( WStyle_Dialog) )
+		mw = mw->parentWidget()->topLevelWidget();
+	    if ( mw != active_window )
+		SetWindowPos( mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE );
 	}
     } else {
-	active_window = 0;
-	if ( focus_widget ) {
-	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
-	    QFocusEvent out( QEvent::FocusOut );
-	    QWidget *widget = focus_widget;
-	    focus_widget = 0;
-	    QApplication::sendEvent( widget, &out );
-	    QFocusEvent::resetReason();
-	}
+	setActiveWindow( 0 );
     }
 }
 

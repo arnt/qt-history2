@@ -1976,6 +1976,54 @@ void QApplication::removePostedEvent( QEvent *  event )
     }
 }
 
+/*!\internal 
+  
+  Sets the active window as a reaction on a system event. Call this
+  from the platform specific event handlers.
+  
+  It sets the activeWindow() and focusWidget() attributes and sends
+  proper WindowActivated/WindowDeactivated and FocusIn/FocusOut events
+  to all appropriate widgets.
+  
+  \sa activeWindow()
+ */
+void QApplication::setActiveWindow( QWidget* act )
+{
+    QWidget* window = act?act->topLevelWidget():0;
+    
+    if ( active_window == window )
+	return;
+
+    // first the activation / deactivation events
+    if ( active_window ) {
+	QWidget *tmp = active_window;
+	active_window = 0;
+	QCustomEvent e( QEvent::WindowDeactivated, 0 );
+	QApplication::sendEvent( tmp, &e );
+    }
+    active_window = window;
+    if ( active_window ) {
+	QCustomEvent e( QEvent::WindowActivated, 0 );
+	QApplication::sendEvent( active_window, &e );
+    }
+    
+    // then focus events
+    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
+    if ( !active_window && focus_widget ) {
+	QFocusEvent out( QEvent::FocusOut );
+	QWidget *tmp = focus_widget;
+	focus_widget = 0;
+	QApplication::sendEvent( tmp, &out );
+    } else if ( active_window ) {
+	QWidget *w = active_window->focusWidget();
+	if ( w )
+	    w->setFocus();
+	else
+	    active_window->focusNextPrevChild( TRUE );
+    }
+    QFocusEvent::resetReason();
+}
+
 
 
 /*!

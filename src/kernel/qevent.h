@@ -71,6 +71,8 @@ public:
 	ShowMaximized = 21,		       	// widget is shown maximized
 	ShowMinimized = 22,		       	// widget is shown minimized
 	ShowNormal = 23,	       		// widget is shown normal
+	WindowActivated = 24,	       		// window was activated
+	WindowDeactivated = 25,	       		// window was deactivated
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
