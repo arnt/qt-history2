@@ -173,8 +173,7 @@ bool QPrinter::aborted() const
 
 bool QPrinter::setup( QWidget * parent )
 {
-    QPrintDialog prndlg( this, parent );
-    return prndlg.exec() == QDialog::Accepted;
+    return QPrintDialog::getPrinterSetup( this );
 }
 
 
@@ -436,7 +435,7 @@ QSize QPrinter::margins() const
 {
     if (orient == Portrait)
 	return QSize( res/2, res/3 );
-    
+
     return QSize( res/3, res/2 );
 }
 
