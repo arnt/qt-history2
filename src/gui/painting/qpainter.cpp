@@ -1342,8 +1342,9 @@ QRegion QPainter::clipRegion() const
 */
 void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
 {
-    // ### use setClipPath
-    setClipRegion(QRegion(rect.toRect()), op);
+    QPainterPath path;
+    path.addRect(rect);
+    setClipPath(path, op);
 }
 
 /*!
@@ -1648,8 +1649,11 @@ void QPainter::translate(double dx, double dy)
 void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
 #ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::setClipPath(), size=%d, op=%d\n", path.elementCount(), op);
+    if (qt_show_painter_debug_output) {
+        QRectF b = path.boundingRect();
+        printf("QPainter::setClipPath(), size=%d, op=%d, bounds=[%.2f,%.2f,%.2f,%.2f]\n",
+               path.elementCount(), op, b.x(), b.y(), b.width(), b.height());
+    }
 #endif
     Q_ASSERT(op != Qt::NoClip);
 
