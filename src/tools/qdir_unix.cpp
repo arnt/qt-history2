@@ -205,7 +205,11 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #endif
     QFileInfo fi;
     DIR	     *dir;
+#if defined(QT_LARGE_FILE_SUPPORT)
+    dirent64 *file;
+#else
     dirent   *file;
+#endif
 
     dir = opendir( QFile::encodeName(dPath) );
     if ( !dir ) {
@@ -216,7 +220,11 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	return FALSE;
     }
 
+#if defined(QT_LARGE_FILE_SUPPORT)
+    while ( (file = readdir64(dir)) ) {
+#else
     while ( (file = readdir(dir)) ) {
+#endif
 	QString fn = QFile::decodeName(file->d_name);
 	fi.setFile( *this, fn );
 	if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
