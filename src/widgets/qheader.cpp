@@ -643,17 +643,19 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	c = d->lastPos - c;
 
     int section = d->sectionAt( c );
+    int GripMargin = (bool)d->resize[ section ] ? GRIPMARGIN : 0;
     if ( section < 0 )
 	return;
     int index = d->s2i[section];
 
-    if ( (index > 0 && c < d->positions[index] + GRIPMARGIN) ||
-	 (c > d->positions[index] + d->sizes[section] - GRIPMARGIN) ) {
-	if ( c < d->positions[index]  + GRIPMARGIN )
+    if ( (index > 0 && c < d->positions[index] + GripMargin) ||
+	 (c > d->positions[index] + d->sizes[section] - GripMargin) ) {
+	if ( c < d->positions[index] + GripMargin )
 	    handleIdx = index-1;
 	else
 	    handleIdx = index;
-	if ( d->lastPos <= ( orient == Horizontal ? width() : height() ) &&  d->fullSize != -2 && handleIdx == count() - 1 ) {
+	if ( d->lastPos <= ( orient == Horizontal ? width() :
+			     height() ) && d->fullSize != -2 && handleIdx == count() - 1 ) {
 	    handleIdx = -1;
 	    return;
 	}
@@ -758,10 +760,11 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     case Idle:
 	hit = FALSE;
 	if ( (section = d->sectionAt( c )) >= 0 ) {
+	    int GripMargin = (bool)d->resize[ section ] ? GRIPMARGIN : 0;
 	    int index = d->s2i[section];
-	    if ( (index > 0 && c < d->positions[index] + GRIPMARGIN) ||
-		 (c > d->positions[index] + d->sizes[section] - GRIPMARGIN) ) {
-		if ( index > 0 && c < d->positions[index]  + GRIPMARGIN )
+	    if ( (index > 0 && c < d->positions[index] + GripMargin) ||
+		 (c > d->positions[index] + d->sizes[section] - GripMargin) ) {
+		if ( index > 0 && c < d->positions[index]  + GripMargin )
 		    section = d->i2s[--index];
 		if ( d->resize.testBit(section) ) {
 		    hit = TRUE;
@@ -842,10 +845,12 @@ void QHeader::mouseDoubleClickEvent( QMouseEvent *e )
 void QHeader::handleColumnResize( int index, int c, bool final, bool recalcAll )
 {
     int section = d->i2s[index];
-    int lim = d->positions[index] +  2*GRIPMARGIN;
+    int GripMargin = (bool)d->resize[ section ] ? GRIPMARGIN : 0;
+    int lim = d->positions[index] + 2*GripMargin;
     if ( c == lim )
 	return;
-    if ( c < lim ) c = lim;
+    if ( c < lim )
+	c = lim;
     int oldSize = d->sizes[section];
     int newSize = c - d->positions[index];
     d->sizes[section] = newSize;
@@ -905,7 +910,8 @@ QRect QHeader::sRect( int index )
 	return rect(); // ### eeeeevil
 
     if ( reverse() )
-	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(), 0, d->sizes[section], height() );
+	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(),
+		       0, d->sizes[section], height() );
     else if ( orient == Horizontal )
 	return QRect(  d->positions[index]-offset(), 0, d->sizes[section], height() );
     else
@@ -923,7 +929,8 @@ QRect QHeader::sectionRect( int section ) const
 	return rect(); // ### eeeeevil
 
     if ( reverse() )
-	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(), 0, d->sizes[section], height() );
+	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(),
+		       0, d->sizes[section], height() );
     else if ( orient == Horizontal )
 	return QRect(  d->positions[index]-offset(), 0, d->sizes[section], height() );
     else
@@ -1210,7 +1217,8 @@ QSize QHeader::sizeHint() const
     if ( d->heightDirty ) {
 	d->height = fm.lineSpacing() + 6;
 	for ( int i = 0; i < count(); i++ ) {
-	    int h = orient == Horizontal ? sectionSizeHint( i, fm ).height() : sectionSizeHint( i, fm ).width();
+	    int h = orient == Horizontal ?
+		    sectionSizeHint( i, fm ).height() : sectionSizeHint( i, fm ).width();
 	    d->height = QMAX( d->height, h );
 	}
 	d->heightDirty = FALSE;
@@ -1469,15 +1477,19 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 				   colorGroup(), flags );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
-	    p->drawLine( fr.x(), fr.y() + fr.height() - 1, fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
-	    p->drawLine( fr.x() + fr.width() - 1, fr.y(), fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
+	    p->drawLine( fr.x(), fr.y() + fr.height() - 1,
+			 fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
+	    p->drawLine( fr.x() + fr.width() - 1, fr.y(),
+			 fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
 	    p->setPen( colorGroup().color( QColorGroup::Light ) );
 	    if ( index > 0 )
 		p->drawLine( fr.x(), fr.y(), fr.x(), fr.y() + fr.height() - 1 );
 	    if ( index == count() - 1 ) {
-		p->drawLine( fr.x() + fr.width() - 1, fr.y(), fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
+		p->drawLine( fr.x() + fr.width() - 1, fr.y(),
+			     fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
 		p->setPen( colorGroup().color( QColorGroup::Mid ) );
-		p->drawLine( fr.x() + fr.width() - 2, fr.y(), fr.x() + fr.width() - 2, fr.y() + fr.height() - 1 );
+		p->drawLine( fr.x() + fr.width() - 2, fr.y(),
+			     fr.x() + fr.width() - 2, fr.y() + fr.height() - 1 );
 	    }
 	} else {
 	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
@@ -1485,15 +1497,19 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 				   colorGroup(), flags );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
-	    p->drawLine( fr.x() + width() - 1, fr.y(), fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
-	    p->drawLine( fr.x(), fr.y() + fr.height() - 1, fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
+	    p->drawLine( fr.x() + width() - 1, fr.y(),
+			 fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
+	    p->drawLine( fr.x(), fr.y() + fr.height() - 1,
+			 fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
 	    p->setPen( colorGroup().color( QColorGroup::Light ) );
 	    if ( index > 0 )
 		p->drawLine( fr.x(), fr.y(), fr.x() + fr.width() - 1, fr.y() );
 	    if ( index == count() - 1 ) {
-		p->drawLine( fr.x(), fr.y() + fr.height() - 1, fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
+		p->drawLine( fr.x(), fr.y() + fr.height() - 1,
+			     fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
 		p->setPen( colorGroup().color( QColorGroup::Mid ) );
-		p->drawLine( fr.x(), fr.y() + fr.height() - 2, fr.x() + fr.width() - 1, fr.y() + fr.height() - 2 );
+		p->drawLine( fr.x(), fr.y() + fr.height() - 2,
+			     fr.x() + fr.width() - 1, fr.y() + fr.height() - 2 );
 	    }
 	}
 	p->restore();
@@ -1833,8 +1849,10 @@ void QHeader::resizeEvent( QResizeEvent *e )
     }
 
     if ( e ) {
-	adjustHeaderSize( orientation() == Horizontal ? width() - e->oldSize().width() : height() - e->oldSize().height() );
-	if ( (orientation() == Horizontal && height() != e->oldSize().height()) || (orientation() == Vertical && width() != e->oldSize().width()) )
+	adjustHeaderSize( orientation() == Horizontal ?
+			  width() - e->oldSize().width() : height() - e->oldSize().height() );
+	if ( (orientation() == Horizontal && height() != e->oldSize().height())
+	     || (orientation() == Vertical && width() != e->oldSize().width()) )
 	    update();
     } else
 	adjustHeaderSize();
@@ -1854,13 +1872,16 @@ void QHeader::adjustHeaderSize( int diff )
 	return;
 
     // we skip the adjustHeaderSize when trying to resize the last column which is set to stretchable
-    if ( d->fullSize == (count() -1) && (d->lastPos - d->sizes[count() -1]) > ( orient == Horizontal ? width() : height() ) )
+    if ( d->fullSize == (count() -1) &&
+	 (d->lastPos - d->sizes[count() -1]) > ( orient == Horizontal ? width() : height() ) )
   	return;
 
     if ( d->fullSize >= 0 ) {
 	int sec = mapToSection( d->fullSize );
 	int lsec = mapToSection( count() - 1 );
-	int ns = sectionSize( sec ) + ( orientation() == Horizontal ? width() : height() ) - ( sectionPos( lsec ) + sectionSize( lsec ) );
+	int ns = sectionSize( sec ) +
+		 ( orientation() == Horizontal ?
+		   width() : height() ) - ( sectionPos( lsec ) + sectionSize( lsec ) );
 	int os = sectionSize( sec );
 	if ( ns < 20 )
 	    ns = 20;
@@ -1909,7 +1930,8 @@ void QHeader::calculatePositions( bool onlyVisible, int start )
     for ( int i = start; i < count(); i++ ) {
   	d->positions[i] = d->lastPos;
 	d->lastPos += d->sizes[d->i2s[i]];
- 	if ( onlyVisible && d->lastPos > offset() + ( orientation() == Horizontal ? width() : height() ) )
+ 	if ( onlyVisible && d->lastPos > offset() +
+	     ( orientation() == Horizontal ? width() : height() ) )
  	    break;
     }
     d->pos_dirty = onlyVisible;
