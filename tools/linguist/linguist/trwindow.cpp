@@ -717,7 +717,7 @@ void TrWindow::findAgain()
     slv->setUpdatesEnabled( TRUE );
     slv->triggerUpdate();
     qApp->beep();
-    QMessageBox::warning( this, tr("Qt Linguist - Find"),
+    QMessageBox::warning( this, tr("Qt Linguist"),
 			  QString( tr("Cannot find the string '%1'.") ).arg(findText) );
     foundItem   = 0;
     foundWhere  = 0;
