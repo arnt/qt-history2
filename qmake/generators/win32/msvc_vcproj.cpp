@@ -47,8 +47,8 @@ const char* _snlProjDepEnd	= "\n\tEndGlobalSection";
 const char* _snlProjConfBeg	= "\n\tGlobalSection(ProjectConfiguration) = postSolution";
 const char* _snlProjRelConfTag1	= ".Release.ActiveCfg = Release|Win32";
 const char* _snlProjRelConfTag2	= ".Release.Build.0 = Release|Win32";
-const char* _snlProjDbgConfTag1	= ".Debug.ActiveCfg = Debug|Win32";
-const char* _snlProjDbgConfTag2	= ".Debug.Build.0 = Debug|Win32";
+const char* _snlProjDbgConfTag1	= ".Release.ActiveCfg = Debug|Win32";
+const char* _snlProjDbgConfTag2	= ".Release.Build.0 = Debug|Win32";
 const char* _snlProjConfEnd	= "\n\tEndGlobalSection";
 const char* _snlExtSections	= "\n\tGlobalSection(ExtensibilityGlobals) = postSolution"
 				  "\n\tEndGlobalSection"
