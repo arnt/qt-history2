@@ -315,6 +315,7 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
     state = QAbstractSocket::UnconnectedState;
     readBufferMaxSize = 0;
     socketError = QAbstractSocket::UnknownSocketError;
+    hostLookupId = -1;
 }
 
 /*! \internal
