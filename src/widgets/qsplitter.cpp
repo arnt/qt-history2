@@ -333,11 +333,10 @@ void QSplitter::setOrientation( Orientation o )
 
     orient = o;
 
-    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
-    while ( it != d->list.end() ) {
-	if ( (*it)->isHandle )
-	    (((QSplitterHandle*)*it)->wid)->setOrientation( o );
-	++it;
+    for (int i = 0; i < d->list.size(); ++i) {
+	QSplitterLayoutStruct *s = d->list.at(i);
+	if ( s->isHandle )
+	    static_cast<QSplitterHandle*>(s->wid)->setOrientation( o );
     }
     recalc( isVisible() );
 }
@@ -391,7 +390,7 @@ QSplitterLayoutStruct *QSplitter::findWidget( QWidget *w )
 {
     processChildEvents();
     QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
-    while ( *it != d->list.end() ) {
+    while ( it != d->list.end() ) {
 	if ( (*it)->wid == w )
 	    return *it;
 	++it;
@@ -470,10 +469,10 @@ void QSplitter::childEvent( QChildEvent *c )
 	QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
 	while ( it != d->list.end() ) {
 	    if ( (*it)->wid == c->child() ) {
-		delete d->list.take( *it );
+		d->list.remove( it );
 		if ( prev && prev->isHandle ) {
 		    QWidget *w = prev->wid;
-		    delete d->list.take(prev);
+		    d->list.remove(prev);
 		    delete w; // will call childEvent()
 		}
 		recalcId();
@@ -572,7 +571,7 @@ int QSplitter::idAfter( QWidget* w ) const
     while ( it != d->list.end() ) {
 	if ( (*it)->isHandle && seen_w )
 	    return d->list.indexOf(*it);
-	if ( !(it)->isHandle && s->wid == w )
+	if ( !(*it)->isHandle && (*it)->wid == w )
 	    seen_w = TRUE;
 	++it;
     }
@@ -1228,7 +1227,7 @@ void QSplitter::setSizes( QList<int> list )
 	    int smartMinSize = pick( qSmartMinSize((*it2)->wid) );
 	    // Make sure that we reset the collapsed state.
 	    if ( (*it2)->sizer == 0 ) {
-		if ( collapsible(s) && smartMinSize > 0 ) {
+		if ( collapsible(*it2) && smartMinSize > 0 ) {
 		    (*it2)->wid->move( -1, -1 );
 		} else {
 		    (*it2)->sizer = smartMinSize;
@@ -1281,7 +1280,7 @@ void QSplitter::processChildEvents()
 */
 void QSplitter::changeEvent( QEvent *ev )
 {
-    if(ev->type() == QEvent::StyleChange) 
+    if(ev->type() == QEvent::StyleChange)
 	updateHandles();
     QFrame::changeEvent(ev);
 }
@@ -1321,7 +1320,7 @@ QTextStream& operator<<( QTextStream& ts, const QSplitter& splitter )
 
 	    if ( (*it)->wid->isHidden() ) {
 		ts << "H";
-	    } else if ( isCollapsed(s->wid) ) {
+	    } else if ( isCollapsed((*it)->wid) ) {
 		ts << 0;
 	    } else {
 		ts << (*it)->getSizer( splitter.orientation() );
@@ -1361,9 +1360,9 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
 	i++;
 	SKIP_SPACES();
 	while ( line[i] != ']' ) {
-	    while ( (*it) != 0 && s->isHandle )
+	    while ( (*it) != 0 && (*it)->isHandle )
 		++it;
-	    if ( it == splitter.d->line.end() )
+	    if ( it == splitter.d->list.end() )
 		break;
 
 	    if ( line[i].upper() == 'H' ) {

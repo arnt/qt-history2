@@ -234,7 +234,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
     if ( id < 0 )				// -2, -3 etc.
 	id = get_seq_id();
 
-    register QMenuItem *mi = new QMenuItem;
+    QMenuItem *mi = new QMenuItem;
     mi->ident = id;
     if ( widget != 0 ) {
 	mi->widget_item = widget;
@@ -278,13 +278,12 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 */
 QMenuItem *QMenuData::findPopup( QPopupMenu *popup, int *index )
 {
-    int i = 0;
-    QMenuItem *mi = mitems->first();
-    while ( mi ) {
+    int i;
+    QMenuItem *mi = 0;
+    for (i = 0; i < mitems->size(); ++i) {
+	mi = mitems->at(i);
 	if ( mi->popup_menu == popup )		// found popup
 	    break;
-	i++;
-	mi = mitems->next();
     }
     if ( index && mi )
 	*index = i;
@@ -782,7 +781,7 @@ void QMenuData::removeItemAt( int index )
     QMenuItem *mi = mitems->at( index );
     if ( mi->popup_menu )
 	menuDelPopup( mi->popup_menu );
-    mitems->remove();
+    mitems->removeAt(index);
     if ( !QApplication::closingDown() )		// avoid trouble
 	menuContentsChanged();
 }
@@ -796,13 +795,12 @@ void QMenuData::removeItemAt( int index )
 
 void QMenuData::clear()
 {
-    register QMenuItem *mi = mitems->first();
-    while ( mi ) {
+    for (int i = 0; i < mitems->size(); ++i) {
+	QMenuItem *mi = mitems->at(i);
 	if ( mi->popup_menu )
 	    menuDelPopup( mi->popup_menu );
-	mitems->remove();
-	mi = mitems->current();
     }
+    mitems->clear();
     if ( !QApplication::closingDown() )		// avoid trouble
 	menuContentsChanged();
 }
@@ -1220,18 +1218,15 @@ QMenuItem * QMenuData::findItem( int id, QMenuData ** parent ) const
 
     if ( id == -1 )				// bad identifier
 	return 0;
-    QMenuItemListIt it = mitems->begin();
-    QMenuItem *mi;
-    while ( it != mitems->end() ) {		// search this menu
-	mi = *it;
-	++it;
+    // search this menu
+    for (int i = 0; i < mitems->size(); ++i) {
+	QMenuItem *mi = mitems->at(i);
 	if ( mi->ident == id )			// found item
 	    return mi;
     }
-    it.toFirst();
-    while ( it != mitems->end() ) {		// search submenus
-	mi = *it;
-	++it;
+    // search submenus
+    for (int i = 0; i < mitems->size(); ++i) {
+	QMenuItem *mi = mitems->at(i);
 #ifndef QT_NO_POPUPMENU
 	if ( mi->popup_menu ) {
 	    QPopupMenu *p = mi->popup_menu;
@@ -1259,15 +1254,10 @@ int QMenuData::indexOf( int id ) const
 {
     if ( id == -1 )				// bad identifier
 	return -1;
-    QMenuItemListIt it = mitems->begin();
-    QMenuItem *mi;
-    int index = 0;
-    while ( it != mitems->end() ) {
-	mi = *it;
+    for (int i = 0; i < mitems->size(); ++i) {
+	QMenuItem *mi = mitems->at(i);
 	if ( mi->ident == id )			// this one?
-	    return index;
-	++index;
-	++it;
+	    return i;
     }
     return -1;					// not found
 }

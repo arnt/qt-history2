@@ -96,7 +96,6 @@ private:	// Disabled copy constructor and operator=
 
 
 typedef QList<QMenuItem*> QMenuItemList;
-typedef QList<QMenuItem*>::iterator QMenuItemListIt;
 
 
 class Q_GUI_EXPORT QCustomMenuItem : public Qt

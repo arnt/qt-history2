@@ -749,10 +749,8 @@ void QMenuBar::hidePopups()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     bool anyVisible = FALSE;
 #endif
-    QMenuItemListIt it(*mitems);
-    register QMenuItem *mi;
-    while ( (mi=it.current()) ) {
-	++it;
+    for (int i = 0; i < mitems->size(); ++i) {
+	register QMenuItem *mi = mitems->at(i);
 	if ( mi->popup() && mi->popup()->isVisible() ) {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	    anyVisible = TRUE;
@@ -1273,16 +1271,14 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
     } else if ( ( !e->state() || ( e->state() & (MetaButton|AltButton) ) ) && e->text().length()==1 ) {
 	QChar c = e->text()[0].upper();
 
-	QMenuItemListIt it(*mitems);
 	QMenuItem* first = 0;
 	QMenuItem* currentSelected = 0;
 	QMenuItem* firstAfterCurrent = 0;
 
-	register QMenuItem *m;
 	int indx = 0;
 	int clashCount = 0;
-	while ( (m=it.current()) ) {
-	    ++it;
+	for (int i = 0; i < mitems->size(); ++i) {
+	    register QMenuItem *m = mitems->at(i);
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
 		int i = s.find( '&' );
@@ -1451,10 +1447,8 @@ void QMenuBar::setupAccelerators()
     delete autoaccel;
     autoaccel = 0;
 
-    QMenuItemListIt it(*mitems);
-    register QMenuItem *mi;
-    while ( (mi=it.current()) ) {
-	++it;
+    for (int i = 0; i < mitems->size(); ++i) {
+	register QMenuItem *mi = mitems->at(i);
 	if ( !mi->isEnabledAndVisible() ) // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
 	    continue;
 	QString s = mi->text();
