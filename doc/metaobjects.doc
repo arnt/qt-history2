@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 1.1 1995/08/02 16:06:46 agulbra Exp $
+** $Id: metaobjects.doc,v 1.2 1995/08/28 16:22:14 agulbra Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -13,7 +13,7 @@
 Qt toolkit - Meta Object Compiler description
 </title></head><body>
 
-<h1>Signals, slots and the Meta Object Compiler</h1>
+<h1>Signals, Slots and the Meta Object Compiler</h1>
 
 Signals and slots are used for communication between objects.  The
 signal/slot mechanism is a central feature of Qt, and is implemented
@@ -48,7 +48,7 @@ This little class has an internal state and public methods to access
 that state.  A small Qt class might read:
 
 <pre>
-    class QFoo : public QObject
+    class Foo : public QObject
     {
 	Q_OBJECT;
     public:
@@ -78,10 +78,10 @@ next code fragment shows this.
 <p>
 
 Slots are implemented by the application programmer (that's you).
-Here is a possible implementation of QFoo::setSomething():
+Here is a possible implementation of Foo::setSomething():
 
 <pre>
-    void QFoo::setSomething(int s) {
+    void Foo::setSomething(int s) {
 	if (s != internal) {
 	    internal = s;
 	    emit somethingChanged(s);
@@ -93,7 +93,7 @@ The example may appear useless, but anyway, here is one way to connect
 two of these already useless objects together:
 
 <pre>
-    QFoo yo, go;
+    Foo yo, go;
 
     connect(&yo, SIGNAL(somethingChanged(int)), &go, SLOT(setSomething(int)));
 </pre>
