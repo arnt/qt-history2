@@ -138,5 +138,7 @@ mscrbar.cpp: qscrbar.h
 mtablevw.cpp: qtablevw.h
 	moc qtablevw.h -o mtablevw.cpp
 
+mtooltip.cpp: qtooltip.h
+	moc qtooltip.h -o mtooltip.cpp
 
 -include .depend
