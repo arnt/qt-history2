@@ -24,7 +24,7 @@
 #include <qwizard.h>
 #include <qwidgetstack.h>
 #include <qsplitter.h>
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 #include <qtoolbox.h>
 #include <qgroupbox.h>
 #include <qscrollview.h>
