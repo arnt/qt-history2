@@ -1060,6 +1060,11 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 		    div = 5;
 		}
 		bool contains = it.key().contains( d->oldPosRect );
+		if ( !contains && rect_extend( d->oldPosRect, o, TRUE ) > rect_extend( it.key(), o, TRUE ) &&
+		     rect_pos( d->oldPosRect, o, TRUE ) < rect_pos( it.key(), o, TRUE ) &&
+		     rect_pos( d->oldPosRect, o, TRUE ) + rect_extend( d->oldPosRect, o, TRUE ) >
+		     rect_pos( it.key(), o, TRUE ) + rect_extend( it.key(), o, TRUE ) )
+		    contains = TRUE;
 		if ( !contains && rect_extend( ir, o, TRUE ) < ( mul * rect_extend( it.key(), o, TRUE ) ) / div ) {
 		    if ( rect_pos( ir, o, TRUE ) <= rect_pos( it.key(), o, TRUE ) ) {
 #ifdef QMAINWINDOW_DEBUG
