@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#18 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#18 $";
 #endif
 
 
@@ -36,7 +36,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#17 $";
   The QTextStream class reads and writes ASCII text and it is not
   appropriate for dealing with binary data (but QDataStream is).
 
-  Note that string input is still not implemented.
+  Note that string and floating point input is still not implemented.
 
   \sa QDataStream
 */
