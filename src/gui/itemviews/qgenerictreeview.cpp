@@ -32,7 +32,7 @@
 
   \ingroup model-view
 
-  This class implements a tree representation of a QGenericItemView working
+  This class implements a tree representation of a QAbstractItemView working
   on a QAbstractItemModel.
 
   \omit

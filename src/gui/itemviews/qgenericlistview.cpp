@@ -235,7 +235,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
     if (t == Node::VerticalPlane) {
         front.setLeft(center.x());
         back.setRight(center.x() - 1); // front includes the center
-    } else { // if (t == Node::HorizontalPlane) {
+    } else { // t == Node::HorizontalPlane
         front.setTop(center.y());
         back.setBottom(center.y() - 1);
     }
@@ -246,6 +246,22 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
         init(front, depth, type, idx + 1);
     }
 }
+
+/*!
+  \class QGenericListView qgenericlistview.h
+
+  \brief The QGenericListView class provides a default model/view implementation of a list and icon view.
+
+  \ingroup model-view
+
+  This class implements a list representation of a QAbstractItemView working on a QAbstractItemModel.
+
+  \omit
+  Describe the listview/iconview concept.
+  \endomit
+
+  \sa \link model-view-programming.html Model/View Programming\endlink.
+*/
 
 /*!
   Creates a new QGenericListView to view the \a model, and with parent \a parent.
