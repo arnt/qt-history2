@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#102 $
 **
 ** Implementation of QColor class
 **
@@ -173,22 +173,22 @@ void QColor::initGlobalColors()
     stdcol[ 1].pix = COLOR1_PIX;
     stdcol[ 0].rgbVal = 0x00ffffff;
     stdcol[ 1].rgbVal = 0;
-    stdcol[ 2].setRgb(   0,	 0,   0 );
+    stdcol[ 2].setRgb(   0,   0,   0 );
     stdcol[ 3].setRgb( 255, 255, 255 );
     stdcol[ 4].setRgb( 128, 128, 128 );
     stdcol[ 5].setRgb( 160, 160, 164 );
     stdcol[ 6].setRgb( 192, 192, 192 );
-    stdcol[ 7].setRgb( 255,	 0,   0 );
+    stdcol[ 7].setRgb( 255,   0,   0 );
     stdcol[ 8].setRgb(   0, 255,   0 );
-    stdcol[ 9].setRgb(   0,	0,  255 );
+    stdcol[ 9].setRgb(   0,   0, 255 );
     stdcol[10].setRgb(   0, 255, 255 );
-    stdcol[11].setRgb( 255,	0,  255 );
+    stdcol[11].setRgb( 255,   0, 255 );
     stdcol[12].setRgb( 255, 255,   0 );
-    stdcol[13].setRgb( 128,	0,    0 );
+    stdcol[13].setRgb( 128,   0,   0 );
     stdcol[14].setRgb(   0, 128,   0 );
-    stdcol[15].setRgb(   0,	0,  128 );
+    stdcol[15].setRgb(   0,   0, 128 );
     stdcol[16].setRgb(   0, 128, 128 );
-    stdcol[17].setRgb( 128,	0,  128 );
+    stdcol[17].setRgb( 128,   0, 128 );
     stdcol[18].setRgb( 128, 128,   0 );
 }
 
@@ -292,6 +292,48 @@ QColor::QColor( const QColor &c )
 }
 
 
+/*!
+  Assigns a copy of the color \c and returns a reference to this color.
+*/
+
+QColor &QColor::operator=( const QColor &c )
+{
+    if ( !globals_init )
+	initGlobalColors();
+    rgbVal = c.rgbVal;
+    pix	   = c.pix;
+    return *this;
+}
+
+
+/*!
+  \fn bool QColor::isValid() const
+  Returns FALSE if the color is invalid, i.e. it was constructed using the
+  default constructor.
+*/
+
+/*!
+  \fn bool QColor::isDirty() const
+  Returns TRUE if the color is dirty, i.e. lazy allocation is enabled and
+  an RGB/HSV value has been set but not allocated.
+  \sa setLazyAlloc(), alloc(), pixel()
+*/
+
+
+/*!
+  Returns the name of the color in the format #RRGGBB.
+
+  \sa setNamedColor()
+*/
+
+QString QColor::name() const
+{
+    QString s;
+    s.sprintf( "#%02x%02x%02x", red(), green(), blue() );
+    return s;
+}
+
+
 inline static int hex2int( QChar hexchar )
 {
     int v;
@@ -355,38 +397,21 @@ void QColor::setNamedColor( const QString& name )
 }
 
 
-/*!
-  Assigns a copy of the color \c and returns a reference to this color.
-*/
-
-QColor &QColor::operator=( const QColor &c )
-{
-    if ( !globals_init )
-	initGlobalColors();
-    rgbVal = c.rgbVal;
-    pix	   = c.pix;
-    return *this;
-}
-
-
-/*!
-  \fn bool QColor::isValid() const
-  Returns FALSE if the color is invalid, i.e. it was constructed using the
-  default constructor.
-*/
-
-/*!
-  \fn bool QColor::isDirty() const
-  Returns TRUE if the color is dirty, i.e. lazy allocation is enabled and
-  an RGB/HSV value has been set but not allocated.
-  \sa setLazyAlloc(), alloc(), pixel()
-*/
-
-
 #undef max
 #undef min
 
 /*!\obsolete
+
+  \sa hsv()
+*/
+
+void QColor::getHsv( int &h, int &s, int &v ) const
+{
+    hsv( &h, &s, &v );
+}
+
+
+/*!
   Returns the current RGB value as HSV.
 
   \arg \e *h, hue.
@@ -401,26 +426,6 @@ QColor &QColor::operator=( const QColor &c )
 */
 
 void QColor::hsv( int *h, int *s, int *v ) const
-{
-    getHsv(*h,*s,*v);
-}
-
-
-/*!\obsolete
-  Returns the current RGB value as HSV.
-
-  \arg \e h, hue.
-  \arg \e s, saturation.
-  \arg \e v, value.
-
-  The hue defines the color. Its range is 0..359 if the color is chromatic
-  and -1 if the color is achromatic.  The saturation and value both vary
-  between 0 and 255 inclusive.
-
-  \sa setHsv(), rgb()
-*/
-
-void QColor::getHsv( int &h, int &s, int &v ) const
 {
     int r = qRed(rgbVal);
     int g = qGreen(rgbVal);
@@ -439,33 +444,34 @@ void QColor::getHsv( int &h, int &s, int &v ) const
     if ( (uint)g < min ) min = g;
     if ( (uint)b < min ) min = b;
     int delta = max-min;
-    v = max;					// calc value
-    s = max ? (510*delta+max)/(2*max) : 0;
-    if ( s == 0 ) {
-	h = -1;				// undefined hue
+    *v = max;					// calc value
+    *s = max ? (510*delta+max)/(2*max) : 0;
+    if ( *s == 0 ) {
+	*h = -1;				// undefined hue
     } else {
 	switch ( whatmax ) {
 	    case 0:				// red is max component
 		if ( g >= b )
-		    h = (120*(g-b)+delta)/(2*delta);
+		    *h = (120*(g-b)+delta)/(2*delta);
 		else
-		    h = (120*(g-b+delta)+delta)/(2*delta) + 300;
+		    *h = (120*(g-b+delta)+delta)/(2*delta) + 300;
 		break;
 	    case 1:				// green is max component
 		if ( b > r )
-		    h = 120 + (120*(b-r)+delta)/(2*delta);
+		    *h = 120 + (120*(b-r)+delta)/(2*delta);
 		else
-		    h = 60 + (120*(b-r+delta)+delta)/(2*delta);
+		    *h = 60 + (120*(b-r+delta)+delta)/(2*delta);
 		break;
 	    case 2:				// blue is max component
 		if ( r > g )
-		    h = 240 + (120*(r-g)+delta)/(2*delta);
+		    *h = 240 + (120*(r-g)+delta)/(2*delta);
 		else
-		    h = 180 + (120*(r-g+delta)+delta)/(2*delta);
+		    *h = 180 + (120*(r-g+delta)+delta)/(2*delta);
 		break;
 	}
     }
 }
+
 
 /*!
   Sets a HSV color value.
@@ -474,7 +480,7 @@ void QColor::getHsv( int &h, int &s, int &v ) const
   \arg \e s, saturation (0..255).
   \arg \e v, value (0..255).
 
-  \sa getHsv(), setRgb()
+  \sa hsv(), setRgb()
 */
 
 void QColor::setHsv( int h, int s, int v )
@@ -577,25 +583,6 @@ void QColor::setRgb( QRgb rgb )
 	rgbVal = (rgb & 0x00ffffff);
 	alloc();				// alloc now
     }
-}
-
-/*!
-  Returns the name of the color in the format #RRGGBB.
-
-  \sa setNamedColor()
-*/
-QString QColor::name() const
-{
-    QString r( "#" );
-    QString t;
-
-    t = QString( "0" ) + QString::number( red(), 16 );
-    r = r + t.right( 2 );
-    t = QString( "0" ) + QString::number( green(), 16 );
-    r = r + t.right( 2 );
-    t = QString( "0" ) + QString::number( blue(), 16 );
-    r = r + t.right( 2 );
-    return r;
 }
 
 /*!
