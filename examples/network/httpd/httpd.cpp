@@ -62,7 +62,11 @@ private slots:
 	    QStringList tokens = QStringList::split( QRegExp("[ \n\r][ \n\r]*"), socket->readLine() );
 	    if ( tokens[0] == "GET" ) {
 		QTextStream os( socket );
-		os << "<h1>Nothing to see here</h1>\n";
+		os.setEncoding( QTextStream::UnicodeUTF8 );
+		os << "HTTP/1.0 200 Ok\n\r"
+		    "Content-Type: text/html; charset=\"utf-8\"\n\r"
+		    "\n\r"
+		    "<h1>Nothing to see here</h1>\n";
 		socket->close();
 		emit wroteToClient();
 	    }
