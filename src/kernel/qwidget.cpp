@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#167 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#166 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#167 $");
 
 
 /*!
@@ -474,17 +474,19 @@ void QWidget::cancelResize()
 
 void QWidget::sendDeferredEvents()
 {
-    uint n;
-    if ( (n=(uint)deferredMoves->find((long)this)) ) {
+    uint m = (uint)deferredMoves->find((long)this);
+    uint r = (uint)deferredResizes->find((long)this);
+    if ( m || r ) {
+	internalSetGeometry( x(), y(), width(), height() );
+    }
+    if ( m ) {
 	deferredMoves->take( (long)this );
-	QMoveEvent e( pos(), QPoint(decompress_a(n), decompress_b(n)) );
-	internalMove( x(), y() );
+	QMoveEvent e( pos(), QPoint(decompress_a(m), decompress_b(m)) );
 	QApplication::sendEvent( this, &e );
     }
-    if ( (n=(uint)deferredResizes->find((long)this)) ) {
+    if ( r ) {
 	deferredResizes->take( (long)this );
-	QResizeEvent e( size(), QSize(decompress_a(n), decompress_b(n)) );
-	internalResize( width(), height() );
+	QResizeEvent e( size(), QSize(decompress_a(r), decompress_b(r)) );
 	QApplication::sendEvent( this, &e );
     }
 }
