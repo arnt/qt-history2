@@ -333,7 +333,7 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, gly
 		unsigned int gl = *g;
 		xcs = (gl >= _fs->min_char_or_byte2 && gl <= _fs->max_char_or_byte2) ?
 		      base + gl : 0;
-		*(--a) = (!xcs || !xcs->width || (!xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
+		*(--a) = (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
 	    }
 	}
 	else {
