@@ -582,8 +582,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	int i;
 
 	QString className = *key;
-	QWidget *w = qAxFactory()->create( className );
-	QMetaObject *mo = w ? w->metaObject() : 0;
+	QMetaObject *mo = QMetaObject::metaObject( className );
 	if ( !mo )
 	    return E_FAIL;
 
@@ -599,6 +598,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
 	int signaloff = pmo ? pmo->signalOffset() : mo->signalOffset();
 
+	QWidget *w = qAxFactory()->create( className );
 	QAxBindable *bind = (QAxBindable*)w->qt_cast( "QAxBindable" );
 	bool isBindable =  bind != 0;
 
