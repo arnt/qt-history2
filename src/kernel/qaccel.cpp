@@ -861,7 +861,7 @@ same dialog), you must decide for yourself.
 \i Cu<b><u>t</u></b>
 \i <b><u>D</u></b>elete
 \i <b><u>E</u></b>dit
-\i <b><u>E</u></b>xit
+\i <b><u>E</u></b>xit (CDE: E<b><u>x</u></b>it)
 \i <b><u>E</u></b>xplore
 \i <b><u>F</u></b>ile
 \i <b><u>F</u></b>ind
