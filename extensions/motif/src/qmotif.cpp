@@ -42,6 +42,8 @@ const int XKeyRelease = KeyRelease;
 #undef KeyRelease
 
 Boolean qmotif_event_dispatcher( XEvent *event );
+static void qmotif_keep_alive();
+void qmotif_timeout_handler( XtPointer, XtIntervalId * );
 
 class QMotifPrivate
 {
@@ -210,6 +212,8 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	}
     }
 
+    qmotif_keep_alive();
+
     if ( delivered )
 	return True;
 
@@ -220,7 +224,6 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     if ( qMotif && QApplication::activeModalWidget() ) {
 	if ( !qt_try_modal(qMotif, event) )
 	    return True;
-
     }
 
     if ( static_d->dispatchers[ event->type ]( event ) )
@@ -277,10 +280,8 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     options and \a numOptions) are used to call XtDisplayInitialize()
     after QApplication has been constructed.
 */
-
-
-
-QMotif::QMotif( const char *applicationClass, XtAppContext context, XrmOptionDescRec *options , int numOptions)
+QMotif::QMotif( const char *applicationClass, XtAppContext context,
+		XrmOptionDescRec *options , int numOptions)
 {
 #if defined(QT_CHECK_STATE)
     if ( static_d )
@@ -305,7 +306,6 @@ QMotif::QMotif( const char *applicationClass, XtAppContext context, XrmOptionDes
 */
 QMotif::~QMotif()
 {
-  //   d->unhook();
     delete d;
 }
 
@@ -350,10 +350,17 @@ void QMotif::appStartingUp()
     }
 
     d->hookMeUp();
+
+    // start a zero-timer to get the timer keep-alive working
+    d->timerid = XtAppAddTimeOut( d->appContext, 0, qmotif_timeout_handler, 0 );
 }
 
 void QMotif::appClosingDown()
 {
+    if ( d->timerid != -1 )
+	XtRemoveTimeOut( d->timerid );
+    d->timerid = -1;
+
     d->unhook();
 }
 
@@ -450,42 +457,60 @@ void QMotif::unregisterSocketNotifier( QSocketNotifier *notifier )
 }
 
 /*! \internal
+
+    helper function to keep timer delivery working
+ */
+static void qmotif_keep_alive() {
+    // make sure we fire off Qt's timers
+    int ttw = QApplication::eventLoop()->timeToWait();
+    if ( static_d->timerid != -1 )
+	XtRemoveTimeOut( static_d->timerid );
+    static_d->timerid = -1;
+    if ( ttw != -1 ) {
+	static_d->timerid =
+	    XtAppAddTimeOut( static_d->appContext, ttw, qmotif_timeout_handler, 0 );
+    }
+}
+
+/*! \internal
  */
 void qmotif_timeout_handler( XtPointer, XtIntervalId * )
 {
-    static_d->activate_timers = TRUE;
     static_d->timerid = -1;
+
+    if ( ! QApplication::eventLoop()->loopLevel() ) {
+	/*
+	  when the Qt eventloop is not running, make sure that Qt
+	  timers still work with an Xt keep-alive timer
+	*/
+	QApplication::eventLoop()->activateTimers();
+	static_d->activate_timers = FALSE;
+
+	qmotif_keep_alive();
+    } else {
+	static_d->activate_timers = TRUE;
+    }
 }
 
 /*! \reimp
  */
 bool QMotif::processEvents( ProcessEventsFlags flags )
 {
-    // Qt uses posted events to do lots of delayed operations, like repaints... these
-    // need to be delivered before we go to sleep
+    // Qt uses posted events to do lots of delayed operations, like
+    // repaints... these need to be delivered before we go to sleep
     QApplication::sendPostedEvents();
 
     bool canWait = ( flags & WaitForMore );
 
-    // make sure we fire off Qt's timers
-    int ttw = timeToWait();
-    if ( d->timerid != -1 ) {
-	XtRemoveTimeOut( d->timerid );
-    }
-    d->timerid = -1;
-    if ( ttw != -1 ) {
-	d->timerid =
-	    XtAppAddTimeOut( d->appContext, ttw,
-			     qmotif_timeout_handler, 0 );
-    }
+    qmotif_keep_alive();
 
     // get the pending event mask from Xt and process the next event
     XtInputMask pendingmask = XtAppPending( d->appContext );
     XtInputMask mask = pendingmask;
     if ( pendingmask & XtIMTimer ) {
 	mask &= ~XtIMTimer;
-	// zero timers will starve the Xt X event dispatcher... so process
-	// something *instead* of a timer first...
+	// zero timers will starve the Xt X event dispatcher... so
+	// process something *instead* of a timer first...
 	if ( mask != 0 )
 	    XtAppProcessEvent( d->appContext, mask );
 	// and process a timer afterwards
