@@ -970,7 +970,6 @@ void QLineEdit::insert(const QString &newText)
     int priorState = d->undoState;
     d->removeSelectedText();
     d->insert(newText);
-    d->finishChange(priorState);
 }
 
 /*!
