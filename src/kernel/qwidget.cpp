@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#86 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#85 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#86 $")
 
 
 /*----------------------------------------------------------------------------
@@ -789,7 +789,11 @@ bool QWidget::setMouseTracking( bool enable )
 
 /*----------------------------------------------------------------------------
   Returns TRUE if the widget (not one of its children) has the
-  keyboard focus.
+  keyboard input focus.
+
+  Equivalent to: <code>qApp->focusWidget() == this</code>.
+
+  \sa setFocus(), setAcceptFocus(), QApplication::focusWidget()
  ----------------------------------------------------------------------------*/
 
 bool QWidget::hasFocus() const
@@ -839,9 +843,24 @@ void QWidget::setCRect( const QRect &r )	// set crect, update frect
 }
 
 /*----------------------------------------------------------------------------
+  \fn bool QWidget::acceptFocus() const
+  Returns TRUE if the widget accepts keyboard focus events, or FALSE if
+  it does not.
+
+  Focus events are initially disabled. They can be enabled by calling
+  setAcceptFocus(TRUE).
+
+  \sa setAcceptFocus()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   Enables or disables the keyboard input focus events for the widget.
 
-  Focus events are initially disabled.
+  Focus events are initially disabled. Enabling focus is normally done
+  from a widget's constructor. For instance, QLineEdit makes the call
+  setAcceptFocus(TRUE) from its constructor.
+
+  \sa acceptFocus(), setFocus()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setAcceptFocus( bool enable )

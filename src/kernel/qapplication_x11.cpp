@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#126 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#125 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#126 $")
 
 
 /*****************************************************************************
@@ -535,8 +535,16 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 
 
 /*----------------------------------------------------------------------------
+  \fn QWidget *QApplication::focusWidget() const
+  Returns the application widget that has the keyboard input focus, or null
+  if no application widget has the focus.
+  \sa QWidget::setFocus(), QWidget::hasFocus()
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
   \fn QWidget *QApplication::desktop()
-  Returns the desktop widget (also called root window).
+  Returns the desktop widget (also called the root window).
 
   The desktop widget is useful for obtaining the size of the screen.
   It can also be used to draw on the desktop.
