@@ -45,34 +45,35 @@
 /*
    The operating system, must be one of: (Q_OS_x)
 
-     MACX	- Mac OS X
-     MAC9	- Mac OS 9
-     MSDOS	- MS-DOS and Windows
-     OS2	- OS/2
-     OS2EMX	- XFree86 on OS/2 (not PM)
-     WIN32	- Win32 (Windows 95/98/ME and Windows NT/2000)
-     SUN	- SunOS
-     SOLARIS	- Sun Solaris
-     HPUX	- HP-UX
-     ULTRIX	- DEC Ultrix
-     LINUX	- Linux
-     FREEBSD	- FreeBSD
-     NETBSD	- NetBSD
+     MACX	  - Mac OS X
+     MAC9	  - Mac OS 9
+     MSDOS  - MS-DOS and Windows
+     OS2	  - OS/2
+     OS2EMX - XFree86 on OS/2 (not PM)
+     WIN32  - Win32 (Windows 95/98/ME and Windows NT/2000)
+     SUN	  - SunOS
+     SOLARIS	 - Sun Solaris
+     HPUX	  - HP-UX
+     ULTRIX - DEC Ultrix
+     LINUX  - Linux
+     FREEBSD	 - FreeBSD
+     NETBSD - NetBSD
      OPENBSD    - OpenBSD
-     BSDI	- BSD/OS
-     IRIX	- SGI Irix
-     OSF	- Compaq Tru64
-     UNIXWARE	- SCO UnixWare
-     SCO	- SCO OpenServer
-     AIX	- AIX
-     HURD	- GNU Hurd
-     DGUX	- DG/UX
-     DYNIX	- DYNIX/ptx
-     RELIANT	- Reliant UNIX
-     QNX	- QNX
-     LYNX	- LynxOS
-     BSD4	- Any BSD 4.4 system
-     UNIX	- Any UNIX BSD/SYSV system
+     BSDI	  - BSD/OS
+     IRIX	  - SGI Irix
+     OSF	  - Compaq Tru64
+     UNIXWARE	 - SCO UnixWare
+     SCO	  - SCO OpenServer
+     AIX	  - AIX
+     HURD	  - GNU Hurd
+     DGUX	  - DG/UX
+     DYNIX  - DYNIX/ptx
+     RELIANT	 - Reliant UNIX
+     QNX	  - QNX
+	QNX6   - QNX RTP 6.1
+     LYNX	  - LynxOS
+     BSD4	  - Any BSD 4.4 system
+     UNIX	  - Any UNIX BSD/SYSV system
 */
 
 #if defined(__APPLE__) && defined(__GNUC__)
@@ -137,6 +138,8 @@
 #  define Q_OS_HURD
 #elif defined(DGUX)
 #  define Q_OS_DGUX
+#elif defined(__QNXNTO__)
+#  define Q_OS_QNX6
 #elif defined(__QNX__)
 #  define Q_OS_QNX
 #elif defined(_SCO_DS) || defined(M_UNIX) || defined(M_XENIX)
@@ -168,26 +171,26 @@
 /*
    The compiler, must be one of: (Q_CC_x)
 
-     SYM	- Symantec C++ for both PC and Macintosh
-     MPW	- MPW C++
-     MWERKS	- Metrowerks CodeWarrior
-     MSVC	- Microsoft Visual C/C++
-     BOR	- Borland/Turbo C++
-     WAT	- Watcom C++
-     GNU	- GNU C++
-     COMEAU	- Comeau C++
-     EDG	- Edison Design Group C++
-     OC		- CenterLine C++
-     SUN	- Sun C++
-     MIPS	- MIPSpro C++
-     DEC	- DEC C++
-     HP		- HPUX C++
-     HPACC	- HPUX ANSI C++
-     USLC	- SCO UnixWare C++
-     CDS	- Reliant C++
-     KAI	- KAI C++
-     HIGHC	- MetaWare High C/C++
-     INTEL	- Intel C++
+     SYM	  - Symantec C++ for both PC and Macintosh
+     MPW	  - MPW C++
+     MWERKS - Metrowerks CodeWarrior
+     MSVC	  - Microsoft Visual C/C++
+     BOR	  - Borland/Turbo C++
+     WAT	  - Watcom C++
+     GNU	  - GNU C++
+     COMEAU - Comeau C++
+     EDG	  - Edison Design Group C++
+     OC	  - CenterLine C++
+     SUN	  - Sun C++
+     MIPS	  - MIPSpro C++
+     DEC	  - DEC C++
+     HP	  - HPUX C++
+     HPACC  - HPUX ANSI C++
+     USLC	  - SCO UnixWare C++
+     CDS	  - Reliant C++
+     KAI	  - KAI C++
+     HIGHC  - MetaWare High C/C++
+     INTEL  - Intel C++
 
    Should be sorted most-authoritative to least-authoritative
 */
@@ -237,15 +240,15 @@
    with the latest version of the C compiler. Version numbers do not always
    match. This little table (I'm not sure it's accurate) should be helpful:
 
-	    C++ product               C product
-	
-   	     C Set 3.1              C Compiler 3.0
-   	       ...                       ...
-   	 C++ Compiler 3.6.6         C Compiler 4.3
-   	       ...                       ...
-   	 Visual Age C++ 4.0              ...
-   	       ...                       ...
-   	 Visual Age C++ 5.0         C Compiler 5.0
+	   C++ product               C product
+    
+	    C Set 3.1              C Compiler 3.0
+		 ...                       ...
+	C++ Compiler 3.6.6         C Compiler 4.3
+		 ...                       ...
+	Visual Age C++ 4.0              ...
+		 ...                       ...
+	Visual Age C++ 5.0         C Compiler 5.0
 
    Now:
    __xlC__    is the version of the C compiler in hexadecimal notation
@@ -280,10 +283,10 @@
 #    endif
 /* Apart from Compaq, from the EDG documentation:
    _BOOL
-   	Defined in C++ mode when bool is a keyword. The name of this predefined
-   	macro is specified by a configuration flag. _BOOL is the default.
+    Defined in C++ mode when bool is a keyword. The name of this predefined
+    macro is specified by a configuration flag. _BOOL is the default.
    __BOOL_DEFINED
-   	Defined in Microsoft C++ mode when bool is a keyword. */
+    Defined in Microsoft C++ mode when bool is a keyword. */
 #  else
 #    if !defined(_BOOL) && !defined(__BOOL_DEFINED)
 #      define Q_NO_BOOL_TYPE
@@ -319,8 +322,8 @@
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
 /* 5.0 compiler or better
-   	'bool' is enabled by default but can be disabled using -features=nobool
-   	in which case _BOOL is not defined
+    'bool' is enabled by default but can be disabled using -features=nobool
+    in which case _BOOL is not defined
         this is the default in 4.2 compatibility mode triggered by -compat=4 */
 #  if __SUNPRO_CC >= 0x500
 #    if !defined(_BOOL)
@@ -363,13 +366,13 @@
 /*
    The window system, must be one of: (Q_WS_x)
 
-     MACX	- Mac OS X
-     MAC9	- Mac OS 9
-     QWS	- Qt/Embedded
-     WIN32	- Windows
-     X11	- X Window System
-     PM		- unsupported
-     WIN16	- unsupported
+     MACX	  - Mac OS X
+     MAC9	  - Mac OS 9
+     QWS	  - Qt/Embedded
+     WIN32  - Windows
+     X11	  - X Window System
+     PM	  - unsupported
+     WIN16  - unsupported
 */
 
 #if defined( Q_OS_MACX )
@@ -428,12 +431,12 @@
 typedef int bool;
 #endif
 
-typedef unsigned char	uchar;
-typedef unsigned short	ushort;
+typedef unsigned char   uchar;
+typedef unsigned short  ushort;
 typedef unsigned	uint;
-typedef unsigned long	ulong;
-typedef char	       *pchar;
-typedef uchar	       *puchar;
+typedef unsigned long   ulong;
+typedef char		   *pchar;
+typedef uchar		   *puchar;
 typedef const char     *pcchar;
 
 
@@ -466,7 +469,7 @@ const bool TRUE = !0;
 
 #define QMAX(a, b)	((b) < (a) ? (a) : (b))
 #define QMIN(a, b)	((a) < (b) ? (a) : (b))
-#define QABS(a)		((a) >= 0  ? (a) : -(a))
+#define QABS(a)	((a) >= 0  ? (a) : -(a))
 
 inline int qRound( double d )
 {
@@ -480,33 +483,33 @@ inline int qRound( double d )
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 1.x
-typedef signed char		INT8;		// 8 bit signed
-typedef unsigned char		UINT8;		// 8 bit unsigned
-typedef short			INT16;		// 16 bit signed
-typedef unsigned short		UINT16;		// 16 bit unsigned
-typedef int			INT32;		// 32 bit signed
-typedef unsigned int		UINT32;		// 32 bit unsigned
+typedef signed char	    INT8;		 // 8 bit signed
+typedef unsigned char	   UINT8;		// 8 bit unsigned
+typedef short		    INT16;	 // 16 bit signed
+typedef unsigned short	   UINT16;	// 16 bit unsigned
+typedef int		INT32;	  // 32 bit signed
+typedef unsigned int	   UINT32;	// 32 bit unsigned
 #endif
 
-typedef signed char		Q_INT8;		// 8 bit signed
-typedef unsigned char		Q_UINT8;	// 8 bit unsigned
-typedef short			Q_INT16;	// 16 bit signed
-typedef unsigned short		Q_UINT16;	// 16 bit unsigned
-typedef int			Q_INT32;	// 32 bit signed
-typedef unsigned int		Q_UINT32;	// 32 bit unsigned
+typedef signed char	    Q_INT8;	 // 8 bit signed
+typedef unsigned char	   Q_UINT8;	// 8 bit unsigned
+typedef short		    Q_INT16;	 // 16 bit signed
+typedef unsigned short	   Q_UINT16;	// 16 bit unsigned
+typedef int		Q_INT32;	  // 32 bit signed
+typedef unsigned int	   Q_UINT32;	// 32 bit unsigned
 #if defined(Q_OS_WIN64)
 // LLP64 64-bit model on Windows
-typedef	__int64			Q_LONG;		// word up to 64 bit signed
-typedef unsigned __int64	Q_ULONG;	// word up to 64 bit unsigned
+typedef __int64	    Q_LONG;	 // word up to 64 bit signed
+typedef unsigned __int64	   Q_ULONG;	// word up to 64 bit unsigned
 #else
 // LP64 64-bit model on Linux
-typedef long			Q_LONG;
-typedef unsigned long		Q_ULONG;
+typedef long		    Q_LONG;
+typedef unsigned long	   Q_ULONG;
 #endif
 
 #if !defined(QT_CLEAN_NAMESPACE)
-#define Q_INT64			Q_LONG
-#define Q_UINT64		Q_ULONG
+#define Q_INT64	    Q_LONG
+#define Q_UINT64	    Q_ULONG
 #endif
 
 
@@ -605,20 +608,20 @@ extern bool qt_winunicode;
 #  if defined(QT_NODLL)
 #    undef QT_MAKEDLL
 #    undef QT_DLL
-#  elif defined(QT_MAKEDLL)	/* create a Qt DLL library */
+#  elif defined(QT_MAKEDLL) /* create a Qt DLL library */
 #    if defined(QT_DLL)
 #      undef QT_DLL
 #    endif
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
-#  elif defined(QT_DLL)		/* use a Qt DLL library */
+#    undef  Q_DISABLE_COPY  /* avoid unresolved externals */
+#  elif defined(QT_DLL)	   /* use a Qt DLL library */
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
+#    undef  Q_DISABLE_COPY  /* avoid unresolved externals */
 #  endif
 #else
-#  undef QT_MAKEDLL		/* ignore these for other platforms */
+#  undef QT_MAKEDLL	    /* ignore these for other platforms */
 #  undef QT_DLL
 #endif
 
@@ -684,14 +687,14 @@ Q_EXPORT int qWinVersion();
 //
 
 #if !defined(QT_NO_CHECK)
-#  define QT_CHECK_STATE			// check state of objects etc.
-#  define QT_CHECK_RANGE			// check range of indexes etc.
-#  define QT_CHECK_NULL				// check null pointers
-#  define QT_CHECK_MATH				// check math functions
+#  define QT_CHECK_STATE			 // check state of objects etc.
+#  define QT_CHECK_RANGE			 // check range of indexes etc.
+#  define QT_CHECK_NULL			 // check null pointers
+#  define QT_CHECK_MATH			 // check math functions
 #endif
 
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
-#  define QT_DEBUG				// display debug messages
+#  define QT_DEBUG			  // display debug messages
 #  if !defined(QT_NO_COMPAT)
 // source compatibility with Qt 2.x
 #    if !defined(NO_DEBUG) && !defined(DEBUG)
@@ -703,19 +706,19 @@ Q_EXPORT int qWinVersion();
 #endif
 
 
-Q_EXPORT void qDebug( const char *, ... )	// print debug message
+Q_EXPORT void qDebug( const char *, ... )   // print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qWarning( const char *, ... )	// print warning message
+Q_EXPORT void qWarning( const char *, ... ) // print warning message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
+Q_EXPORT void qFatal( const char *, ... )   // print fatal message and exit
 #if defined(Q_CC_GNU)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -726,19 +729,19 @@ Q_EXPORT void qSystemWarning( const char *, int code = -1 );
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 1.x
 
-Q_EXPORT void debug( const char *, ... )	// print debug message
+Q_EXPORT void debug( const char *, ... )    // print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void warning( const char *, ... )	// print warning message
+Q_EXPORT void warning( const char *, ... )  // print warning message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
+Q_EXPORT void fatal( const char *, ... )    // print fatal message and exit
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -751,10 +754,10 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #if defined(QT_CHECK_STATE)
 #if defined(QT_FATAL_ASSERT)
 #define Q_ASSERT(x)  if ( !(x) )\
-	qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
+    qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #else
 #define Q_ASSERT(x)  if ( !(x) )\
-	qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
+    qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #endif
 #else
 #define Q_ASSERT(x)
@@ -800,7 +803,7 @@ typedef QtMsgHandler msg_handler;
 Q_EXPORT void qSuppressObsoleteWarnings( bool = TRUE );
 
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
-			 const char *newfunc );
+		   const char *newfunc );
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
