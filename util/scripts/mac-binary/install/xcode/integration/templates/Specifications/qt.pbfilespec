@@ -2,23 +2,21 @@
 */
 (
     {
-       Identifier = sourcecode.qt;
-       BasedOn = sourcecode.cpp;
-       Name = "Qt source file";
+       Identifier = sourcecode.qt.h;
+       BasedOn = sourcecode.cpp.h;
+       Name = "Qt header file";
        ComputerLanguage = qt.c.cpp;
        AppliesToBuildRules = yes;
-    },
-    {
-       Identifier = sourcecode.qt.h;
-       BasedOn = sourcecode.qt;
        Extensions = (h);
        IncludeInIndex = NO;
-       MagicWord = ( "Q_OBJECT" );
-       CanSetIncludeInIndex = NO;
+       CanSetIncludeInIndex = YES;
     },
     {
        Identifier = sourcecode.qt.cpp;
-       BasedOn = sourcecode.qt;
+       BasedOn = sourcecode.cpp.cpp;
+       Name = "Qt source file";
+       ComputerLanguage = qt.c.cpp;
+       AppliesToBuildRules = yes;
        Extensions = (cpp);
        IncludeInIndex = YES;
        CanSetIncludeInIndex = YES;

@@ -19,7 +19,8 @@
         "Q_OVERRIDE",
         "Q_ENUMS",
         "Q_FLAGS",
-        "Q_GADGET"
+        "Q_GADGET",
+        "foreach"
       );
       AltKeywords = (
         "SLOT",

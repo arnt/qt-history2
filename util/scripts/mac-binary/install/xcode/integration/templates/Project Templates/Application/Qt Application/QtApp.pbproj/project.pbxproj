@@ -79,7 +79,7 @@
 			sourceTree = "<group>";
 		};
 		20286C2BFDCF999611CA2CEA = {
-			expectedFileType = sourcecode.cpp.cpp;
+			expectedFileType = sourcecode.qt.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = main.cpp;
