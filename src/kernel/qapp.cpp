@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#24 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#24 $";
 #endif
 
 
@@ -58,7 +58,7 @@ defined!
 */
 
 
-void qt_init( int, char ** );			// defined in qapp_???.cpp
+void qt_init( int *, char ** );			// defined in qapp_???.cpp
 void qt_cleanup();
 
 QApplication *qApp = 0;				// global application object
@@ -122,13 +122,13 @@ The UNIX/X-Windows version of Qt recognizes these command line options:
 </ul>
 */
 
-QApplication::QApplication( int argc, char **argv )
+QApplication::QApplication( int &argc, char **argv )
 {
 #if defined(CHECK_STATE)
     if ( qApp )
 	warning( "QApplication: There should be only one application object" );
 #endif
-    qt_init( argc, argv );
+    qt_init( &argc, argv );
     quit_now = FALSE;
     quit_code = 0;
     qApp = this;

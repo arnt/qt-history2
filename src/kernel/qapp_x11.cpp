@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#62 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#61 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#62 $";
 #endif
 
 
@@ -122,36 +122,13 @@ public:
 // qt_init() - initializes Qt for X-Windows
 //
 
-void qt_init( int argc, char **argv )
+void qt_init( int *argcptr, char **argv )
 {
-    int i;
+    int argc = *argcptr;
+    int i, j;
 #if defined(DEBUG)
     int mcBufSize = 100000;			// default memchk settings
     const char *mcLogFile = "MEMCHK.LOG";
-    for ( i=1; i<argc; i++ ) {			// look for -memchk argument
-	if ( *argv[i] != '-' )
-	    break;
-	if ( strcmp(argv[i],"-memchk") == 0 )
-	    appMemChk = !appMemChk;
-	else if ( strcmp(argv[i],"-membuf") == 0 ) {
-	    if ( ++i < argc ) mcBufSize = atoi(argv[i]);
-	}
-	else if ( strcmp(argv[i],"-memlog") == 0 ) {
-	    if ( ++i < argc ) mcLogFile = argv[i];
-	}
-	else
-	    break;
-    }
-    if ( i > 1 ) {				// shift arguments
-	argc -= --i;
-	argv[i] = argv[0];
-	argv = &argv[i];
-    }
-    if ( appMemChk ) {				// start memory checking
-	memchkSetBufSize( mcBufSize );
-	memchkSetLogFile( mcLogFile );
-	memchkStart();
-    }
 #endif
 
     appArgc = argc;				// save arguments
@@ -179,11 +156,14 @@ void qt_init( int argc, char **argv )
 
   // Get command line params
 
+    j = 1;
     for ( i=1; i<argc; i++ ) {
+	if ( argv[i] && *argv[i] != '-' ) {
+	    argv[j++] = argv[i];
+	    continue;
+	}
 	QString arg = argv[i];
-	if ( arg[0] != '-' )
-	    break;
-	else if ( arg == "-display" ) {
+	if ( arg == "-display" ) {
 	    if ( ++i < argc ) appDpyName = argv[i];
 	}
 	else if ( arg == "-fn" || arg == "-font" ) {
@@ -209,15 +189,28 @@ void qt_init( int argc, char **argv )
 #if defined(DEBUG)
 	else if ( arg == "-sync" )
 	    appSync = !appSync;
+	else if ( arg == "-memchk" )
+	    appMemChk = !appMemChk;
+	else if ( arg == "-membuf" ) {
+	    if ( ++i < argc ) mcBufSize = atoi(argv[i]);
+	}
+	else if ( arg == "-memlog" ) {
+	    if ( ++i < argc ) mcLogFile = argv[i];
+	}
 #endif
 	else
-	    break;
+	    argv[j++] = argv[i];
     }
-    if ( i > 1 ) {				// shift arguments
-	argc -= --i;
-	argv[i] = argv[0];
-	argv = &argv[i];
+
+    *argcptr = j;
+
+#if defined(DEBUG)
+    if ( appMemChk ) {				// perform memory checking
+	memchkSetBufSize( mcBufSize );
+	memchkSetLogFile( mcLogFile );
+	memchkStart();
     }
+#endif
 
   // Connect to X server
 
