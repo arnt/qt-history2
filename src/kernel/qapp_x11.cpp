@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#97 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -34,8 +34,14 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <qmemchk.h>
 #endif
 
+#if defined(_OS_LINUX_)
+#include <qfile.h>
+#include <qstring.h>
+#include <unistd.h>
+#endif
+
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#96 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#97 $";
 #endif
 
 
@@ -186,7 +192,7 @@ void qt_init( int *argcptr, char **argv )
 	else if ( arg == "-sync" )
 	    appSync = !appSync;
 	else if ( arg == "-nograb" )
-	    appNoGrab = !appNoGrab;
+	    appNoGrab = TRUE;
 	else if ( arg == "-memchk" )
 	    appMemChk = !appMemChk;
 	else if ( arg == "-membuf" ) {
@@ -203,6 +209,29 @@ void qt_init( int *argcptr, char **argv )
     }
 
     *argcptr = j;
+
+#if defined(_OS_LINUX_)
+    if ( !appNoGrab ) {
+	QString s;
+	s.sprintf("/proc/%d/cmdline", getppid());
+	QFile f( s );
+	if ( f.open( IO_ReadOnly ) ) {
+	    s.truncate(0);
+	    int c;
+	    while ( (c = f.getch()) > 0 ) {
+		if (c == '/')
+		    s.truncate(0);
+		else
+		    s += (char)c;
+	    }
+	    if ( s == "gdb" ) {
+		appNoGrab == TRUE;
+		debug( "Qt: gdb: -nograb added to command-line options" );
+	    }
+	    f.close();
+	}
+    }
+#endif
 
 #if defined(DEBUG)
     if ( appMemChk ) {				// perform memory checking
