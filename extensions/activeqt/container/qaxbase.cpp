@@ -3876,13 +3876,25 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
     switch (res.vt) {
     case VT_DISPATCH:
         if (res.pdispVal) {
-            object = new QAxObject(res.pdispVal, qObject());
+            if (rettype == "IDispatch*") {
+                object = new QAxObject(res.pdispVal, qObject());
+            } else if (QMetaType::type(rettype)) {
+                QVariant qvar = VARIANTToQVariant(res, rettype, 0);
+                qVariantGet(qvar, object, rettype);
+                res.pdispVal->AddRef();
+            }
             ((QAxBase*)object)->d->tryCache = true;
         }
         break;
     case VT_UNKNOWN:
         if (res.punkVal) {
-            object = new QAxObject(res.punkVal, qObject());
+            if (rettype == "IUnknown*") {
+                object = new QAxObject(res.punkVal, qObject());
+            } else if (QMetaType::type(rettype)) {
+                QVariant qvar = VARIANTToQVariant(res, rettype, 0);
+                qVariantGet(qvar, object, rettype);
+                res.punkVal->AddRef();
+            }
             ((QAxBase*)object)->d->tryCache = true;
         }
         break;
@@ -4104,10 +4116,17 @@ QVariant QAxBase::asVariant() const
     }
 
     QVariant qvar;
-    if (d->dispatch())
-        qVariantSet(qvar, d->dispatch(), "IDispatch*");
-    else if (d->ptr)
-        qVariantSet(qvar, d->ptr, "IUnknown*");
+    QByteArray cn(className());
+    if (cn == "QAxObject" || cn == "QAxBase") {
+        if (d->dispatch())
+            qVariantSet(qvar, d->dispatch(), "IDispatch*");
+        else if (d->ptr)
+            qVariantSet(qvar, d->ptr, "IUnknown*");
+    } else {
+        cn = cn.mid(cn.lastIndexOf(':') + 1);
+        if (QMetaType::type(cn))
+            qVariantSet(qvar, qObject(), cn);
+    }
 
     return qvar;
 }

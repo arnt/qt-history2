@@ -33,6 +33,8 @@ CLSID CLSID_QPoint = { 0x3be838a3, 0x3fac, 0xbfc4, {0x4c, 0x6c, 0x37, 0xc4, 0x4d
 
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
 #else
+#include <quuid.h>
+#include <qaxobject.h>
 extern void *qax_createObjectWrapper(int metaType, IUnknown *iface);
 #endif
 
@@ -578,6 +580,12 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
                 } else {
                     qAxFactory()->createObjectWrapper(static_cast<QObject*>(user), &arg.pdispVal);
                 }
+#else
+            } else if (QMetaType::type(subType)) {
+                QAxObject *object = 0;
+                qVariantGet(qvar, object, subType);
+                arg.vt = VT_DISPATCH;
+                object->queryInterface(IID_IDispatch, (void**)&arg.pdispVal);
 #endif
             } else {
                 return false;
