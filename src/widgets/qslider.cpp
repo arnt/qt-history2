@@ -128,11 +128,11 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
 }
 
 /*!  Constructs a slider whose value can never be smaller than \a
-  minValue or greater than \a maxValue, whose page step size is 
-  \a pageStep and whose value is initially \a value (adjusted 
+  minValue or greater than \a maxValue, whose page step size is
+  \a pageStep and whose value is initially \a value (adjusted
   using bound()).
 
-  If \a orientation is Vertical the slider is vertical and if it is 
+  If \a orientation is Vertical the slider is vertical and if it is
   Horizontal the slider is horizontal.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
@@ -184,32 +184,20 @@ void QSlider::initTicks()
 
 
 /*!
-  Enables slider tracking if \e enable is TRUE, or disables tracking
-  if \e enable is FALSE.
+  \property QSlider::tracking
+  \brief whether slider tracking is enabled
 
   If tracking is enabled (the default), the slider emits the
   valueChanged() signal whenever the slider is being dragged.  If
   tracking is disabled, the slider emits the valueChanged() signal
   when the user releases the mouse button (unless the value happens to
   be the same as before).
-
-  \sa tracking()
 */
 
 void QSlider::setTracking( bool enable )
 {
     track = enable;
 }
-
-
-/*!
-  \fn bool QSlider::tracking() const
-  Returns TRUE if tracking is enabled or FALSE if tracking is disabled.
-
-  Tracking is initially enabled.
-
-  \sa setTracking()
-*/
 
 
 /*!
@@ -336,9 +324,10 @@ void QSlider::setPalette( const QPalette &p )
 
 
 /*!
-  Sets the slider orientation.  The \e orientation must be
-  QSlider::Vertical or QSlider::Horizontal.
-  \sa orientation()
+  \property QSlider::orientation
+  \brief the orientation of the slider
+
+  The orientation must be QSlider::Vertical or QSlider::Horizontal.
 */
 
 void QSlider::setOrientation( Orientation orientation )
@@ -347,14 +336,6 @@ void QSlider::setOrientation( Orientation orientation )
     rangeChange();
     update();
 }
-
-
-/*!
-  \fn Orientation QSlider::orientation() const
-  Returns the slider orientation; QSlider::Vertical or
-  QSlider::Horizontal.
-  \sa setOrientation()
-*/
 
 
 /*!
@@ -795,10 +776,6 @@ int QSlider::slideLength() const
 }
 
 
-/*!
-  Makes QRangeControl::setValue() available as a slot.
-*/
-
 void QSlider::setValue( int value )
 {
     QRangeControl::setValue( value );
@@ -971,8 +948,10 @@ void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int dist, int w,
 
 
 /*!
-  Sets the way tickmarks are displayed by the slider. \a s can take
-  the following values:
+  \property QSlider::tickmarks
+  \brief the tickmark settings for this slider
+
+  This property can have the following values:
   <ul>
   <li> \c NoMarks
   <li> \c Above
@@ -982,7 +961,7 @@ void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int dist, int w,
   <li> \c Both
   </ul>
   The initial value is \c NoMarks.
-  \sa tickmarks(), setTickInterval()
+  \sa tickInterval
 */
 
 void QSlider::setTickmarks( TickSetting s )
@@ -996,25 +975,14 @@ void QSlider::setTickmarks( TickSetting s )
 
 
 /*!
-  \fn QSlider::TickSetting QSlider::tickmarks() const
+  \property QSlider::tickInterval
+  \brief the interval between tickmarks
 
-  Returns the tickmark settings for this slider.
-
-  \sa setTickmarks()
-  */
-
-/*!
-  \fn TickSetting QSlider::tickmarks() const
-  Returns the way tickmarks are displayed by the slider.
-  \sa setTickmarks()
-*/
-
-/*!
-  Sets the interval between tickmarks to \a i. This is a value interval,
-  not a pixel interval. If \a i is 0, the slider
+  This is a value interval, not a pixel interval. If it is 0, the slider
   will choose between lineStep() and pageStep(). The initial value of
-  tickInterval() is 0.
-  \sa tickInterval(), QRangeControl::lineStep(), QRangeControl::pageStep()
+  tickInterval is 0.
+
+  \sa QRangeControl::lineStep(), QRangeControl::pageStep()
 */
 
 void QSlider::setTickInterval( int i )
@@ -1027,14 +995,6 @@ void QSlider::setTickInterval( int i )
 
 
 /*!
-  \fn int QSlider::tickInterval() const
-  Returns the interval between tickmarks. Returns 0 if the slider
-  chooses between pageStep() and lineStep().
-  \sa setTickInterval()
-*/
-
-
-/*!
   \reimp
  */
 void QSlider::styleChange( QStyle& old )
@@ -1043,7 +1003,10 @@ void QSlider::styleChange( QStyle& old )
 }
 
 /*!
-  \reimp
+  \property QSlider::minValue
+  \brief the current minimum value of the slider
+
+  \sa setRange() maxValue
 */
 int QSlider::minValue() const
 {
@@ -1051,37 +1014,34 @@ int QSlider::minValue() const
 }
 
 /*!
-  \reimp
+  \property QSlider::maxValue
+  \brief the current maximum value of the slider
+
+  \sa setRange() minValue
 */
 int QSlider::maxValue() const
 {
     return QRangeControl::maxValue();
 }
 
-/*!
-  A convenience function that just calls
-  setRange( i, maxValue() ).
-
-  \sa setRange()
-*/
 void QSlider::setMinValue( int i )
 {
     setRange( i, maxValue() );
 }
 
-/*!
-  A convenience function that just calls
-  setRange( minValue(), i ).
-
-  \sa setRange()
-*/
 void QSlider::setMaxValue( int i )
 {
     setRange( minValue(), i );
 }
 
 /*!
-  \reimp
+  \property QSlider::lineStep
+  \brief the current line step
+
+  When setting lineStep, the virtual stepChange() function will be called
+  if the new line step is different from the previous setting.
+
+  \sa setSteps() QRangeControl::pageStep() setRange()
 */
 int QSlider::lineStep() const
 {
@@ -1089,42 +1049,37 @@ int QSlider::lineStep() const
 }
 
 /*!
-  \reimp
+  \property QSlider::pageStep
+  \brief the current line step
+
+  When setting pageStep, the virtual stepChange() function will be called
+  if the new page step is different from the previous setting.
+
+  \sa QRangeControl::setSteps() setLineStep() setRange()
 */
+
 int QSlider::pageStep() const
 {
     return QRangeControl::pageStep();
 }
 
-/*!
-  Sets the line step to \e i.
-
-  Calls the virtual stepChange() function if the new line step is
-  different from the previous setting.
-
-  \sa lineStep() QRangeControl::setSteps() setPageStep() setRange()
-*/
 void QSlider::setLineStep( int i )
 {
     setSteps( i, pageStep() );
 }
 
-/*!
-  Sets the page step to \e i.
-
-  Calls the virtual stepChange() function if the new page step is
-  different from the previous setting.
-
-  \sa pageStep() QRangeControl::setSteps() setLineStep() setRange()
-*/
 void QSlider::setPageStep( int i )
 {
     setSteps( lineStep(), i );
 }
 
 /*!
-  \reimp
+  \property QSlider::value
+  \brief the current slider value
+
+  \sa QRangeControl::value() prevValue()
 */
+
 int QSlider::value() const
 {
     return QRangeControl::value();

@@ -1041,9 +1041,10 @@ QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
 
 
 /*!
-  Sets the mode for the vertical scroll bar.
+  \property QScrollView::vScrollBarMode
+  \brief the mode for the vertical scroll bar
 
-  \sa vScrollBarMode(), setHScrollBarMode()
+  \sa hScrollBarMode
 */
 void  QScrollView::setVScrollBarMode( ScrollBarMode mode )
 {
@@ -1055,25 +1056,16 @@ void  QScrollView::setVScrollBarMode( ScrollBarMode mode )
 
 
 /*!
-  Returns the currently set mode for the horizontal scroll bar.
+  \property QScrollView::hScrollBarMode
+  \brief the mode for the horizontal scroll bar
 
-  \sa setHScrollBarMode()
+  \sa vScrollBarMode
 */
 QScrollView::ScrollBarMode QScrollView::hScrollBarMode() const
 {
     return d->hMode;
 }
 
-/*!
-  Sets the mode for the horizontal scroll bar.
-  <ul>
-   <li> \c Auto (the default) shows a scroll bar when the content is too wide to fit.
-   <li> \c AlwaysOff never shows a scroll bar.
-   <li> \c AlwaysOn always shows a scroll bar.
-  </ul>
-
-  \sa hScrollBarMode(), setVScrollBarMode()
-*/
 void QScrollView::setHScrollBarMode( ScrollBarMode mode )
 {
     if (d->hMode != mode) {
@@ -1134,20 +1126,16 @@ void QScrollView::setCornerWidget(QWidget* corner)
 }
 
 
-/*!
-  Sets the resize policy to \a r.
-
-  \sa resizePolicy() ResizePolicy
-*/
 void QScrollView::setResizePolicy( ResizePolicy r )
 {
     d->policy = r;
 }
 
 /*!
-  Returns the currently set ResizePolicy.
+  \property QScrollView::resizePolicy
+  \brief the currently set ResizePolicy
 
-  \sa setResizePolicy() ResizePolicy
+  \sa ResizePolicy
 */
 QScrollView::ResizePolicy QScrollView::resizePolicy() const
 {
@@ -1848,8 +1836,9 @@ void QScrollView::moveContents(int x, int y)
 #endif
 
 /*!
-  Returns the X coordinate of the contents that are at the left
-  edge of the viewport.
+  \property QScrollView::contentsX
+  \brief the X coordinate of the contents that are at the left edge of
+  the viewport.
 */
 int QScrollView::contentsX() const
 {
@@ -1857,8 +1846,9 @@ int QScrollView::contentsX() const
 }
 
 /*!
-  Returns the Y coordinate of the contents that are at the top
-  edge of the viewport.
+  \property QScrollView::contentsY
+  \brief the Y coordinate of the contents that are at the top edge of
+  the viewport.
 */
 int QScrollView::contentsY() const
 {
@@ -1866,7 +1856,8 @@ int QScrollView::contentsY() const
 }
 
 /*!
-  Returns the width of the contents area.
+  \property QScrollView::contentsWidth
+  \brief the width of the contents area
 */
 int QScrollView::contentsWidth() const
 {
@@ -1874,7 +1865,8 @@ int QScrollView::contentsWidth() const
 }
 
 /*!
-  Returns the height of the contents area.
+  \property QScrollView::contentsHeight
+  \brief the height of the contents area
 */
 int QScrollView::contentsHeight() const
 {
@@ -2116,7 +2108,8 @@ QWidget* QScrollView::clipper() const
 }
 
 /*!
-  Returns the horizontal amount of the content that is visible.
+  \property QScrollView::visibleWidth
+  \brief the horizontal amount of the content that is visible
 */
 int QScrollView::visibleWidth() const
 {
@@ -2124,7 +2117,8 @@ int QScrollView::visibleWidth() const
 }
 
 /*!
-  Returns the vertical amount of the content that is visible.
+  \property QScrollView::visibleHeight
+  \brief the vertical amount of the content that is visible
 */
 int QScrollView::visibleHeight() const
 {
@@ -2523,10 +2517,13 @@ void QScrollView::doDragAutoScroll()
 
 
 /*!
-  If \a b is set to TRUE, the QScrollView automatically scrolls the contents
-  in drag move events if the user moves the cursor close to a border of the
-  view. Of course this works only if the viewport accepts drops.
-  Specifying FALSE here disables this autoscroll feature.
+  \property QScrollView::dragAutoScroll
+  \brief whether autoscrolling in drag move events is enabled
+
+  If this property is set to TRUE, the QScrollView automatically scrolls
+  the contents in drag move events if the user moves the cursor close to a
+  border of the view. Of course this works only if the viewport accepts drops.
+  Specifying FALSE disables this autoscroll feature.
 */
 
 void QScrollView::setDragAutoScroll( bool b )

@@ -256,9 +256,10 @@ void QScrollBar::init()
 
 
 /*!
-  Sets the scroll bar orientation.  The \e orientation must be
-  QScrollBar::Vertical or QScrollBar::Horizontal.
-  \sa orientation()
+  \property QScrollBar::orientation
+  \brief the orientation of the scroll bar
+
+  The orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
 */
 
 void QScrollBar::setOrientation( Orientation orientation )
@@ -268,7 +269,7 @@ void QScrollBar::setOrientation( Orientation orientation )
 
     QSizePolicy pol = sizePolicy();
     setSizePolicy( QSizePolicy( pol.verData(), pol.horData() ) );
-	
+
     orient = orientation;
 
     positionSliderFromValue();
@@ -276,39 +277,21 @@ void QScrollBar::setOrientation( Orientation orientation )
 }
 
 /*!
-  \fn Orientation QScrollBar::orientation() const
-  Returns the orientation of the scroll bar; QScrollBar::Vertical or
-  QScrollBar::Horizontal.
-  \sa setOrientation()
-*/
-
-/*!
-  \fn void QScrollBar::setTracking( bool enable )
-  Enables scroll bar tracking if \e enable is TRUE, or disables tracking
-  if \e enable is FALSE.
+  \property QScrollBar::tracking
+  \brief whether scroll bar tracking is enabled
 
   If tracking is enabled (the default), the scroll bar emits the
   valueChanged() signal while the slider is being dragged.  If
   tracking is disabled, the scroll bar emits the valueChanged() signal
   only when the user releases the mouse button after moving the
   slider.
-
-  \sa tracking()
-*/
-
-/*!
-  \fn bool QScrollBar::tracking() const
-  Returns TRUE if tracking is enabled, or FALSE if tracking is disabled.
-
-  Tracking is initially enabled.
-
-  \sa setTracking()
 */
 
 
 /*!
-  Returns TRUE if the user has clicked the mouse on the slider
-  and is currently dragging it, or FALSE if not.
+  \property QScrollBar::draggingSlider
+  \brief whether the the user has clicked the mouse on the slider and
+  and is currently dragging it
 */
 
 bool QScrollBar::draggingSlider() const
@@ -536,7 +519,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 
     if ( e->state() ) // another button was already pressed
 	return;
-    
+
     clickedAt	   = TRUE;
     pressedControl = pointOver( e->pos() );
 
@@ -577,10 +560,10 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     if ( !clickedAt || !( e->button() == LeftButton ||
 			  e->button() == MidButton ) )
 	return;
-    
+
     if ( e->stateAfter() ) // some other button is still pressed
 	return;
-    
+
     QStyle::ScrollControl tmp = (QStyle::ScrollControl) pressedControl;
     clickedAt = FALSE;
     stopAutoRepeat();
@@ -808,7 +791,10 @@ void QScrollBar::styleChange( QStyle& old )
 }
 
 /*!
-  \reimp
+  \property QScrollBar::minValue
+  \brief the current minimum value of the scroll bar
+
+  \sa setRange() maxValue
 */
 int QScrollBar::minValue() const
 {
@@ -816,88 +802,78 @@ int QScrollBar::minValue() const
 }
 
 /*!
-  \reimp
+  \property QScrollBar::maxValue
+  \brief the current maximum value of the scroll bar
+
+  \sa setRange() minValue
 */
 int QScrollBar::maxValue() const
 {
     return QRangeControl::maxValue();
 }
 
-/*!
-  A convenience function which just calls
-  setRange( i, maxValue() )
-
-  \sa setRange()
-*/
 void QScrollBar::setMinValue( int i )
 {
     setRange( i, maxValue() );
 }
 
-/*!
-  A convenience function which just calls
-  setRange( minValue(), i )
-
-  \sa setRange()
-*/
 void QScrollBar::setMaxValue( int i )
 {
     setRange( minValue(), i );
 }
 
 /*!
-  \reimp
+  \property QScrollBar::lineStep
+  \brief the current line step
+
+  When setting lineStep, the virtual stepChange() function will be called
+  if the new line step is different from the previous setting.
+
+  \sa setSteps() QRangeControl::pageStep() setRange()
 */
+
 int QScrollBar::lineStep() const
 {
     return QRangeControl::lineStep();
 }
 
 /*!
-  \reimp
+  \property QScrollBar::pageStep
+  \brief the current line step
+
+  When setting pageStep, the virtual stepChange() function will be called
+  if the new page step is different from the previous setting.
+
+  \sa QRangeControl::setSteps() setLineStep() setRange()
 */
+
 int QScrollBar::pageStep() const
 {
     return QRangeControl::pageStep();
 }
 
-/*!
-  Sets the line step to \e i.
-
-  Calls the virtual stepChange() function if the new line step is
-  different from the previous setting.
-
-  \sa lineStep() QRangeControl::setSteps() setPageStep() setRange()
-*/
 void QScrollBar::setLineStep( int i )
 {
     setSteps( i, pageStep() );
 }
 
-/*!
-  Sets the page step to \e i.
-
-  Calls the virtual stepChange() function if the new page step is
-  different from the previous setting.
-
-  \sa pageStep() QRangeControl::setSteps() setLineStep() setRange()
-*/
 void QScrollBar::setPageStep( int i )
 {
     setSteps( lineStep(), i );
 }
 
 /*!
-  \reimp
+  \property QScrollBar::value
+  \brief the current scroll bar value
+
+  \sa QRangeControl::value() prevValue()
 */
+
 int QScrollBar::value() const
 {
     return QRangeControl::value();
 }
 
-/*!
-  \reimp
-*/
 void QScrollBar::setValue( int i )
 {
     QRangeControl::setValue( i );
