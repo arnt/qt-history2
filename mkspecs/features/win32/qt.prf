@@ -18,7 +18,26 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
   INCLUDEPATH += $$QMAKE_INCDIR_QT/ActiveQt
 }
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
-CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG
+
+CONFIG(release, debug|release) {
+    DEFINES += QT_NO_DEBUG         
+    shared {
+        QMAKE_CFLAGS_RELEASE *= $$QMAKE_CFLAGS_MT_DLL
+        QMAKE_CXXFLAGS_RELEASE *= $$QMAKE_CXXFLAGS_MT_DLL
+    } else {
+        QMAKE_CFLAGS_RELEASE *= $$QMAKE_CFLAGS_MT
+        QMAKE_CXXFLAGS_RELEASE *= $$QMAKE_CXXFLAGS_MT
+    }
+} else {
+    shared {
+        QMAKE_CFLAGS_DEBUG *= $$QMAKE_CFLAGS_MT_DLLDBG
+        QMAKE_CXXFLAGS_DEBUG *= $$QMAKE_CXXFLAGS_MT_DLLDBG
+    } else {
+        QMAKE_CFLAGS_DEBUG *= $$QMAKE_CFLAGS_MT_DBG
+        QMAKE_CXXFLAGS_DEBUG *= $$QMAKE_CXXFLAGS_MT_DBG
+    }
+}    
+
 no_keywords:DEFINES += QT_NO_KEYWORDS
 target_qt {
     shared {
