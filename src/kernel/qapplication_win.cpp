@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#118 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#117 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#118 $");
 
 
 /*****************************************************************************
@@ -1616,6 +1616,7 @@ extern QCursor *qt_grab_cursor();
 bool QETWidget::translateMouseEvent( const MSG &msg )
 {
     static QPoint pos;
+    static POINT gpos={-1,-1};
     int	   type;				// event parameters
     int	   button;
     int	   state;
@@ -1648,14 +1649,19 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QEvent enter( Event_Enter );	// send enter event
 	    QApplication::sendEvent( this, &enter );
 	}
+
+	POINT curPos;
+	GetCursorPos( &curPos );		// compress mouse move
+	if ( curPos.x == gpos.x && curPos.y == gpos.y )
+	    return TRUE;			// same global position
+	gpos = curPos;
+
 	if ( state == 0 && autoCaptureWnd == 0 && !hasMouseTracking() &&
 	     !QApplication::hasGlobalMouseTracking() )
 	    return TRUE;			// no button
-	POINT curPos;
-	GetCursorPos( &curPos );		// compress mouse move
+
 	ScreenToClient( winId(), &curPos );
-	if ( curPos.x == pos.x() && curPos.y == pos.y() )
-	    return TRUE;			// same position
+
 	pos.rx() = (short)curPos.x;
 	pos.ry() = (short)curPos.y;
     } else {
