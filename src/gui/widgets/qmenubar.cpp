@@ -985,6 +985,32 @@ void QMenuBar::setRightWidget(QWidget *w)
     d->updateActions();
 }
 
+/*!
+    \fn void QMenuBar::activated(QAction *action)
+
+    This signal is emitted when a menu action is selected; \a action
+    is the action that caused the event to be sent.
+
+    Normally, you connect each menu action to a single slot using
+    QAction::triggered(), but sometimes you will want to connect
+    several items to a single slot (most often if the user selects
+    from an array). This signal is useful in such cases.
+
+    \sa highlighted(), QAction::triggered()
+*/
+
+/*!
+    \fn void QMenuBar::highlighted(QAction *action)
+
+    This signal is emitted when a menu action is highlighted; \a action
+    is the action that caused the event to be sent.
+
+    Often this is used to update status information.
+
+    \sa activated(), QAction::hovered()
+*/
+
+
 #ifdef QT_COMPAT
 #include "qmenudata.h"
 int QMenuBar::frameWidth() const
