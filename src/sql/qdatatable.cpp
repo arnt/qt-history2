@@ -1854,6 +1854,13 @@ void QDataTable::handleError( const QSqlError& e )
     d->dat.handleError( this, e );
 }
 
+/*! \reimp
+  */
+
+void QDataTable::keyPressEvent( QKeyEvent* )
+{
+}
+
 /*!  \reimp
 */
 

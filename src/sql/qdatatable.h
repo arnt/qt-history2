@@ -164,6 +164,7 @@ protected:
     virtual QWidget* beginUpdate ( int row, int col, bool replace );
 
     bool         eventFilter( QObject *o, QEvent *e );
+    void         keyPressEvent( QKeyEvent* );
     void         resizeEvent ( QResizeEvent * );
     void         contentsMousePressEvent( QMouseEvent* e );
     void         contentsContextMenuEvent( QContextMenuEvent* e );
