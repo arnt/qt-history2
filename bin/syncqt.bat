@@ -105,6 +105,9 @@ if ( check_unix() ) {
 	$h =~ s-.*/--g;
 	sync_files("$basedir/$f", "$privatedir/$h", $fast);
     }
+    sync_files("$basedir/dist/win/Makefile", "$basedir/Makefile", $fast);
+    sync_files("$basedir/dist/win/bin/moc.exe", "$basedir/bin/moc.exe", $fast);
+    sync_files("$basedir/dist/win/bin/configure.exe", "$basedir/bin/configure.exe", $fast);
 }
 
 exit 0;
@@ -125,6 +128,7 @@ sub sync_files()
 	# Uni-directional synchronization
 	if ( (stat($ifile))[9] < (stat($file))[9] ) {
 	    open( I, "< " . $file ) || die "Could not open $file for reading";
+	    binmode I;
 	    $filecontents = <I>;
 	    close I;
 	    $copy = -1;
@@ -133,9 +137,11 @@ sub sync_files()
     } else {
 	# Bi-directional synchronization
 	open( I, "< " . $file ) || die "Could not open $file for reading";
+	binmode I;
 	$filecontents = <I>;
 	close I;
 	if ( open(I, "< " . $ifile) ) {
+	    binmode I;
 	    $ifilecontents = <I>;
 	    close I;
 	    $copy = (stat($ifile))[9] <=> (stat($file))[9];
@@ -149,11 +155,13 @@ sub sync_files()
     if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
 	if ( $copy > 0 ) {
 	    open(O, "> " . $file) || die "Could not open $file for writing";
+	    binmode O;
 	    print O $ifilecontents;
 	    close O;
 	    print "$file written\n";
 	} elsif ( $copy < 0 ) {
 	    open(O, "> " . $ifile) || die "Could not open $ifile for writing";
+	    binmode O;
 	    print O $filecontents;
 	    close O;
 	    print "$ifile written\n";
