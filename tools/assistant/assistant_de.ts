@@ -3,424 +3,418 @@
     <name>Assistant</name>
     <message>
         <source>Welcome to the &lt;b&gt;Qt Assistant&lt;/b&gt;. Qt Assistant will give you quicker access to help and tips while using applications like Qt Designer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wilkommen bei &lt;b&gt;Qt Assistant&lt;/b&gt;. Qt Assistant ermöglicht einen schnellen Zugriff der Onlinehilfe während dem Arbeiten mit Programmen wie dem Qt Designer.</translation>
     </message>
     <message>
         <source>Qt Assistant</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Assistant</translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>FindDialog</name>
-    <message encoding="UTF-8">
+    <message>
         <source>Find Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Textsuche</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Suchen:</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Find</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Suchen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Rich&amp;tung</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Forwar&amp;d</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vorwärts</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Backward</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rückwärts</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Options</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Optionen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Whole words only</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ganze Wörter</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Groß- und &amp;Kleinschreibung beachten</translation>
     </message>
 </context>
 <context>
     <name>HelpDialog</name>
     <message>
         <source>Index</source>
-        <translation type="unfinished"></translation>
+        <translation>Index</translation>
     </message>
     <message>
         <source>Bookmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>Lesezeichen</translation>
     </message>
     <message>
         <source>Con&amp;tents</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhal&amp;t</translation>
     </message>
     <message>
         <source>Qt Reference Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Referenzdokumentation</translation>
     </message>
     <message>
         <source>Qt Designer Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Designer Handbuch</translation>
     </message>
     <message>
         <source>Qt Linguist Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Linguist Handbuch</translation>
     </message>
     <message>
         <source>Qt Assistant Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Assistant Handbuch</translation>
     </message>
     <message>
         <source>Qt Assistant</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Assistant</translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>HelpDialogBase</name>
-    <message encoding="UTF-8">
+    <message>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Hilfe</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&lt;b&gt;Help&lt;/b&gt;&lt;p&gt;Choose the topic you need help for from the contents list, or search the index for keywords.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hilfe&lt;/b&gt;&lt;p&gt;Wählen Sie ein Thema vom Inhaltsverzeichnis oder suchen Sie im Index nach Schlüsselwörtern.&lt;/p&gt;</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Displays help topics organized by category, index or bookmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt die Hilfethemen unterteilt in Kategorien, Indizes oder Lesezeichen an</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Con&amp;tents</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhal&amp;t</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Column 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Spalte 1</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see which topics are in that category. To view a topic, select it, and then click &lt;b&gt;Display&lt;/b&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Die Hilfethemen sind nach Kategorien organisiert.&lt;/b&gt;&lt;p&gt;Ein Doppelklick auf einen Eintrag zeigt die Themen dieser Kategorie an. Um ein Thema anzuzeigen, wählen Sie es aus und drücken Sie &lt;b&gt;Anzeigen&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Index</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Index</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Look For:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Suchen nach:</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Enter keyword</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie ein Schlüsselwort ein</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&lt;b&gt;Enter a keyword.&lt;/b&gt;&lt;p&gt;The list will select an item that matches the entered string best.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Geben Sie ein Schlüsselwort ein.&lt;/b&gt;&lt;p&gt;Es wird dann der Eintrag aus der Liste ausgewählt, der am besten mit dem eingegebenen Begriff übereinstimmt.&lt;/p&gt;</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&lt;b&gt;List of available help topics.&lt;/b&gt;&lt;p&gt;Double-click on an item to open up the help page for this topic. You will have to choose the right page if more than one are found.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Liste aller verfügbaren Hilfethemen.&lt;/b&gt;&lt;p&gt;Ein Doppelklick auf einen Eintrag öffnet die dazugehörige Hilfeseite. Wenn es mehrere Seiten zu einem Eintrag gibt, wählen Sie die gewünschte aus.&lt;/p&gt;</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Bookmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Lesezeichen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Displays the list of bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt alle Lesezeichen an.</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;New Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Neues Lesezeichen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Add new bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge neues Lesezeichen hinzu</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Add the current displayed page as new bookmark to the list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge die aktuelle Seite als Lesezeichen hinzu.</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>D&amp;elete Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Lösche Lesezeichen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Delete bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Lösche Lesezeichen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Delete the selected bookmark from the list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lösche markiertes Lesezeichen.</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Preparing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Initialisiere...</translation>
     </message>
 </context>
 <context>
     <name>HelpWindow</name>
     <message>
         <source>Qt Assistant by Trolltech - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Assistant von Trolltech - %1</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <source>Can&apos;t load and display non-local file
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann gewünschte Datei nicht laden:
+%1</translation>
     </message>
     <message>
         <source>Open Link in New Window<byte value="x9"/>Shift+LMB</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne Link in neuem Fenster Shift+LMB</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
-    <message encoding="UTF-8">
+    <message>
         <source>Qt Assistant by Trolltech</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Assistant von Trolltech</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Werkzeugleiste</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>Drucken</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Print...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Drucken...</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Beenden</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>E&amp;xit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Beenden</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kopieren</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Find in Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Textsuche</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Find in Text...</source>
-        <translation type="unfinished"></translation>
+        <translation>Text&amp;suche...</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Home</source>
-        <translation type="unfinished"></translation>
+        <translation>Startseite</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Home</source>
-        <translation type="unfinished"></translation>
+        <translation>St&amp;artseite</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Previous</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorherige</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Previous</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vorherige</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächste</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Next</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nächste</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Über</translation>
     </message>
-    <message encoding="UTF-8">
-        <source>About</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
+    <message>
         <source>About Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Über Qt</translation>
     </message>
-    <message encoding="UTF-8">
-        <source>About Qt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Qt Class Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Klassenreferenz</translation>
     </message>
     <message>
         <source>Qt Designer Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Designer Handbuch</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Zoom in</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößern</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Zoom &amp;in</source>
-        <translation type="unfinished"></translation>
+        <translation>Ver&amp;größern</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Zoom out</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkleinern</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Zoom &amp;out</source>
-        <translation type="unfinished"></translation>
+        <translation>Ver&amp;kleinern</translation>
     </message>
     <message>
         <source>Qt Linguist Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Linguist Handbuch</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Einstellungen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Einstellungen...</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>New Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Fenster</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>New Window...</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Fenster...</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <source>Vie&amp;ws</source>
-        <translation type="unfinished"></translation>
+        <translation>A&amp;nsicht</translation>
     </message>
     <message>
         <source>Ctrl+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+T
+</translation>
     </message>
     <message>
         <source>Ctrl+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+I</translation>
     </message>
     <message>
         <source>Ctrl+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+B</translation>
     </message>
     <message>
         <source>Qt Assistant</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Assistant</translation>
     </message>
     <message>
         <source>&amp;Add Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Füge Lesezeichen hinzu</translation>
     </message>
     <message>
         <source>Qt Reference Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Referenzdokumention</translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>SettingsDialogBase</name>
-    <message encoding="UTF-8">
+    <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Font:</source>
-        <translation type="unfinished"></translation>
+        <translation>Schriften:</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Link color:</source>
-        <translation type="unfinished"></translation>
+        <translation>Linkfarbe:</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Underline links</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Unterstreiche Links</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Fixed font:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht-proportionale Schrift:</translation>
     </message>
 </context>
 <context>
     <name>TopicChooser</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Thema für &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>TopicChooserBase</name>
-    <message encoding="UTF-8">
+    <message>
         <source>Choose Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Thema wählen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Select a topic from the list and click the &lt;b&gt;Display&lt;/b&gt;-button to open the online help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Thema aus der Liste aus und klicken Sie &lt;b&gt;Anzeigen&lt;/b&gt; um die Hilfe zu öffnen.</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Topics</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Themen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Displays a list of available help topics for the keyword.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt eine Liste der verfügbaren Hilfethemen für diesen Begriff an.</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Display</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Anzeigen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Open the topic selected in the list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne das gewählte Thema aus der Liste.</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Schließen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Close the Dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließt den Dialog.</translation>
     </message>
 </context>
 </TS>
