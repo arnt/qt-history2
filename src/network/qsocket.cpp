@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#19 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#20 $
 **
 ** Implementation of QSocket class.
 **
@@ -957,12 +957,25 @@ int QSocket::ungetch( int )
 
 /*! Returns TRUE if it's possible to read an entire line of text from
   this socket at this time, or FALSE if not.
+
+  Note that if the peer closes the connection unexpectedly, this
+  function returns FALSE. This means that loops such as this won't
+  work:
+
+  \code
+    while( socket->!canReadLine() )
+        ...
+  \endcode
+
   \sa setMode(), readLine()
 */
 
 bool QSocket::canReadLine() const
 {
-    return ((QSocket*)this)->scanNewline( 0 );
+    if ( ((QSocket*)this)->scanNewline( 0 ) )
+	return TRUE;
+    return ( bytesAvailable() > 0 &&
+	     ((QSocket*)this)->scanNewline( 0 ) );
 }
 
 /*!
