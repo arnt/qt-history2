@@ -85,6 +85,8 @@ Possibility to add signals to a form (Reggie)
 
 Set initial focus (probably just set it to the first focus widget in the focus chain) (Reggie)
 
+Show position and size of widgets in statusbar when resizing/moving/inserting
+
 QMsDev
    "c. (Request).  It would be nice to have a toolbutton that runs UIC  in
     the -subimpl, -subdecl modes, to generate  .H and .CPP files for
