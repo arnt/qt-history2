@@ -71,18 +71,43 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 		      LPSTR  cmdParam, int cmdShow )
 #endif
 {
+#ifdef Q_OS_TEMP
+    LPSTR cmdParam = "";
+#endif
+
     int argc = 0;
     char* cmdp = 0;
-#ifdef Q_OS_TEMP
-	// ### cmdParams will be blank
-	LPSTR cmdParam = "";
-#endif
     if ( cmdParam ) {
 	cmdp = new char[ qstrlen( cmdParam ) + 1 ];
 	qstrcpy( cmdp, cmdParam );
     }
     QMemArray<pchar> argv( 8 );
     qWinMain( instance, prevInstance, cmdp, cmdShow, argc, argv );
+
+#ifdef Q_OS_TEMP
+    TCHAR uniqueAppID[256];
+    GetModuleFileName( 0, uniqueAppID, 255 );
+    QString uid = QString::fromUcs2(uniqueAppID).lower().remove('\\');
+
+    // If there exists an other instance of this application
+    // it will be the owner of a mutex with the unique ID.
+    HANDLE mutex = CreateMutex( NULL, TRUE, uid.ucs2() );
+    if ( mutex && ERROR_ALREADY_EXISTS == GetLastError() ) {
+	CloseHandle( mutex );
+
+	// The app is already running, so we use the unique
+	// ID to create a unique messageNo, which is used
+	// as the registered class name for the windows
+	// created. Set the first instance's window to the 
+	// foreground, else just terminate.
+	UINT msgNo = RegisterWindowMessage( uid.ucs2() ); 
+	HWND aHwnd = FindWindow( QString::number(msgNo).ucs2(), 0 );
+	if ( aHwnd )
+	    SetForegroundWindow( aHwnd );
+	return 0;
+    }
+#endif // Q_OS_TEMP
+
     int result = main( argc, argv.data() );
     if ( cmdp ) delete [] cmdp;
     return result;

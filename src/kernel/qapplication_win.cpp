@@ -271,6 +271,7 @@ static HINSTANCE appPrevInst	= 0;		// handle to prev app instance
 static int	 appCmdShow	= 0;		// main window show command
 static HWND	 curWin		= 0;		// current window
 static HDC	 displayDC	= 0;		// display device context
+static UINT	 appUniqueID	= 0;		// application id used by WinCE
 
 // Session management
 static bool	sm_blockUserInput    = FALSE;
@@ -508,6 +509,14 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     appInst = instance;
     appPrevInst = prevInstance;
     appCmdShow = cmdShow;
+
+#ifdef Q_OS_TEMP
+    TCHAR uniqueAppID[256];
+    GetModuleFileName( 0, uniqueAppID, 255 );
+    appUniqueID = RegisterWindowMessage( 
+		  QString::fromUcs2(uniqueAppID)
+		  .lower().remove('\\').ucs2() ); 
+#endif
 }
 
 static void qt_show_system_menu( QWidget* tlw)
@@ -1046,6 +1055,14 @@ const QString qt_reg_winclass( int flags )	// register window class
 	    style |= 0x00020000;		// CS_DROPSHADOW
 	icon  = FALSE;
     }
+
+#ifdef Q_OS_TEMP
+    // We need to register the classes with the
+    // unique ID on WinCE to make sure we can
+    // move the windows to the front when starting
+    // a second instance.
+    cname = QString::number( appUniqueID );
+#endif
 
     if ( winclassNames->find(cname.latin1()) )		// already registered
 	return cname;
