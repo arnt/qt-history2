@@ -151,7 +151,10 @@ bool QPrinter::newPage()
         state = PST_ERROR;
         return false;
     }
-    if(PMSessionBeginPage(psession, pformat, NULL) != noErr)  { //start a new one
+    PMRect rect;
+    if(PMGetAdjustedPageRect(pformat, &rect) != noErr)
+	return FALSE;
+    if(PMSessionBeginPage(psession, pformat, &rect) != noErr)  { //start a new one
         state = PST_ERROR;
         return false;
     }
@@ -333,18 +336,26 @@ QPrinter::printerBegin()
 	return false;
     }
 
-    PMRect rect;
-    OSStatus r;
 
     //validate the settings
     if(PMSessionValidatePrintSettings(psession, psettings, kPMDontWantBoolean) != noErr)
 	return false;
     if(PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean) != noErr)
 	return false;
-    if((r=PMGetAdjustedPageRect(pformat, &rect)) != noErr)
-	return false;
 
     if(PMSessionBeginDocument(psession, psettings, pformat) != noErr) //begin the document
+	return false;
+    
+    if(fullPage()) {
+	QSize marg(margins());
+	QMacSavedPortInfo mp(this);
+	SetOrigin(marg.width(), marg.height());
+    } else {
+	SetOrigin(0, 0);
+    }
+
+    PMRect rect;
+    if(PMGetAdjustedPageRect(pformat, &rect) != noErr)
 	return false;
     if(PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
 	return false;
@@ -352,13 +363,6 @@ QPrinter::printerBegin()
 					&hd) != noErr) { //get the gworld
 	cg_hd = 0;
 	return false;
-    }
-    if(fullPage()) {
-	QSize marg(margins());
-	QMacSavedPortInfo mp(this);
-	SetOrigin(marg.width(), marg.height());
-    } else {
-	SetOrigin(0, 0);
     }
     state = PST_ACTIVE;
     return true;
