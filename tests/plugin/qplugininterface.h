@@ -11,7 +11,7 @@ class QPlugInInterface
     friend class QPlugIn;
     friend class QApplicationInterface;
 public:
-    QPlugInInterface(): cIfaces( 53 )
+    QPlugInInterface(): cIfaces( 11 )
     {
 	cIfaces.setAutoDelete( TRUE );
     }
@@ -38,9 +38,8 @@ protected:
 	return cIfaces[request];
     }
 
-    virtual void connectNotify( const QCString& iface )
+    virtual void connectNotify( const QCString& )
     {
-	Q_CONST_UNUSED(iface);
     }
 
 private:
