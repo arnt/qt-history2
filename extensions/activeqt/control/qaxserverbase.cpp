@@ -2358,7 +2358,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                 ++totalParam;
 
 	    void **argv = 0; // the actual array passed into qt_metacall
-            void **argv_pointer = 0; // the parameters we have to delete later on
+            void **argv_pointer = 0; // in case we need an additional level of indirection
 	    QVariant *varp = 0; // QVariants to hold the temporary Qt data object for us
 
             if (totalParam) {
@@ -2438,7 +2438,6 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                 if (!type.isEmpty() && pvarResult) {
                     if (!varp[0].isValid() && type != "QVariant")
                         qVariantSet(varp[0], argv_pointer[0], type);
-//                        varp[0] = QVariant::UserData(argv_pointer[0], type);
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
                 }
 	    }
