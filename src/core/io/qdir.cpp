@@ -1589,7 +1589,9 @@ QDir::cleanPath(const QString &path)
     if (path.isEmpty())
         return path;
     QString name = path;
-    name.replace(QLatin1Char('\\'), QLatin1Char('/'));
+    QChar dir_separator = separator();
+    if(dir_separator != QLatin1Char('/'))
+	name.replace(dir_separator, QLatin1Char('/'));
 
     int used = 0, levels = 0;
     const int len = name.length();
