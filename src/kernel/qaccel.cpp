@@ -45,7 +45,6 @@
 #include "qptrlist.h"
 #include "qwhatsthis.h"
 #include "qguardedptr.h"
-
 /*!
     \class QAccel qaccel.h
     \brief The QAccel class handles keyboard accelerator and shortcut keys.
@@ -129,42 +128,16 @@
 
 
 struct QAccelItem {				// internal accelerator item
-    QAccelItem( int k, int i )
+    QAccelItem( const QKeySequence &k, int i )
 	{ key=k; id=i; enabled=TRUE; signal=0; }
    ~QAccelItem()	       { delete signal; }
-    int		id;
-    int		key;
-    bool	enabled;
-    QSignal    *signal;
-    QString whatsthis;
-    bool match( int key, QChar ch );
+    int		    id;
+    QKeySequence    key;
+    bool	    enabled;
+    QSignal	   *signal;
+    QString	    whatsthis;
 };
 
-bool QAccelItem::match( int k, QChar ch )
-{
-    if ( ( key & Qt::UNICODE_ACCEL) == 0 )
-	return k == key;
-    int km = key & Qt::MODIFIER_MASK;
-    QChar kc = QChar(key & 0xffff);
-    if ( km ) {
-	// Modifiers must match...
-	QChar c;
-	if ( (k & Qt::CTRL) && (ch < ' ') )
-	    c = ch.unicode()+'@'+' '; // Ctrl+A is ASCII 001, etc.
-	else
-	    c = ch;
-	if ( kc.lower() == c.lower() &&
-	     ( (k & Qt::MODIFIER_MASK) == km
-	       || (k & (Qt::MODIFIER_MASK^Qt::SHIFT)) == km ) )
-	    return TRUE;
-	return FALSE;
-    }
-    // No modifiers requested, ignore Shift but require others...
-    if ( kc == ch &&
-	 (k & (Qt::MODIFIER_MASK^Qt::SHIFT)) == km )
-	return TRUE;
-    return FALSE;
-}
 
 typedef QPtrList<QAccelItem> QAccelList; // internal accelerator list
 
@@ -192,13 +165,16 @@ public:
     bool dispatchAccelEvent( QWidget* w, QKeyEvent* e );
 
 private:
-    QPtrList<QAccelPrivate> accels;
-    static QAccelManager* self_ptr;
-    QAccelManager():clash(-1) { self_ptr = this; }
+    QAccelManager():currentState(Qt::NoMatch), clash(-1) { self_ptr = this; }
     ~QAccelManager() { self_ptr = 0; }
 
-    bool match( QWidget *w, QAccelPrivate* d );
-    bool match( QKeyEvent* e, QAccelItem* item );
+    bool correctSubWindow( QWidget *w, QAccelPrivate* d );
+    SequenceMatch match( QKeyEvent* e, QAccelItem* item, QKeySequence& temp );
+
+    QPtrList<QAccelPrivate> accels;
+    static QAccelManager* self_ptr;
+    Qt::SequenceMatch currentState;
+    QKeySequence intermediate;
     int clash;
 };
 QAccelManager* QAccelManager::self_ptr = 0;
@@ -207,7 +183,11 @@ bool Q_EXPORT qt_dispatchAccelEvent( QWidget* w, QKeyEvent*  e){
     return QAccelManager::self()->dispatchAccelEvent( w, e );
 }
 
-bool QAccelManager::match( QWidget* w, QAccelPrivate* d ) {
+/*
+    /internal
+    Returns TRUE if the accel is in the current subwindow, else FALSE.
+*/
+bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
     if ( !d->enabled || !d->watch || !d->watch->isVisible()
 	 || d->watch->topLevelWidget() != w->topLevelWidget() )
 	return FALSE;
@@ -227,10 +207,24 @@ bool QAccelManager::match( QWidget* w, QAccelPrivate* d ) {
     return TRUE;
 }
 
-bool QAccelManager::match( QKeyEvent *e, QAccelItem* item )
+/*
+    /internal
+    Matches the current intermediate key sequence + the latest 
+    keyevent, with and AccelItem. Returns Identical, 
+    PartialMatch or NoMatch, and fills \a temp with the
+    resulting key sequence. 
+*/
+Qt::SequenceMatch QAccelManager::match( QKeyEvent *e, QAccelItem* item, QKeySequence& temp )
 {
+    SequenceMatch result = Qt::NoMatch;
+    int index = intermediate.count();
+    temp = intermediate;
 
     int key = e->key();
+    if ( (0      == key) || // Undefined
+	 (0xffff == key) )  // Key_unknown
+	 key = (int)e->text()[0].unicode();
+
     if ( e->state() & ShiftButton )
 	key |= SHIFT;
     if ( e->state() & ControlButton )
@@ -239,6 +233,7 @@ bool QAccelManager::match( QKeyEvent *e, QAccelItem* item )
 	key |= META;
     if ( e->state() & AltButton )
 	key |= ALT;
+
     if ( e->key() == Key_BackTab ) {
 	/*
 	  In QApplication, we map shift+tab to shift+backtab.
@@ -247,35 +242,52 @@ bool QAccelManager::match( QKeyEvent *e, QAccelItem* item )
 	  order, meaning backtab has priority.
 	*/
 	key &= ~SHIFT;
-	if ( item->match( key, e->text()[0] ) )
-	    return TRUE;
+
+	temp.setKey( key, index );
+	if ( Qt::NoMatch != (result = temp.matches( item->key )) )
+	    return result;
 	if ( e->state() & ShiftButton )
 	    key |= SHIFT;
 	key = Key_Tab | ( key & MODIFIER_MASK );
-	if ( item->match( key, e->text()[0] ) )
-	    return TRUE;
+	temp.setKey( key, index );
+	if ( Qt::NoMatch != (result = temp.matches( item->key )) )
+	    return result;
     } else {
-	if ( item->match( key, e->text()[0] ) )
-	    return TRUE;
+	temp.setKey( key, index );
+	if ( Qt::NoMatch != (result = temp.matches( item->key )) )
+	    return result;
     }
+
     if ( key == Key_BackTab ) {
 	if ( e->state() & ShiftButton )
 	    key |= SHIFT;
-	if ( item->match( key, e->text()[0] ) )
-	    return TRUE;
+	temp.setKey( key, index );
+	result = temp.matches( item->key );
     }
-    return FALSE;
+    return result;
 }
 
-
+/*
+    /internal
+    Checks for possible accelerators, if no widget 
+    ate the keypres, or we are in the middle of a
+    partial key sequence.
+*/
 bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 {
-    e->spont = TRUE;
-    e->t = QEvent::AccelOverride;
-    e->ignore();
-    QApplication::sendEvent( w, e );
-    if ( e->isAccepted() )
-	return FALSE;
+    if ( Qt::NoMatch == currentState ) {
+	e->spont = TRUE;
+	e->t = QEvent::AccelOverride;
+	e->ignore();
+	QApplication::sendEvent( w, e );
+	if ( e->isAccepted() )
+	    return FALSE;
+    }
+
+    // Accelerators can NOT be modifiers themselvs...
+    if ( e->key() >= Key_Shift &&
+	 e->key() <= Key_Alt )
+	 return FALSE;
 
     int n = -1;
     QAccelPrivate* accel = accels.first();
@@ -284,11 +296,13 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
     QAccelItem* firstitem = 0;
     QAccelPrivate* lastaccel = 0;
     QAccelItem* lastitem = 0;
+    SequenceMatch result = Qt::NoMatch;
+    QKeySequence tocheck, partial;
     while ( accel ) {
-	if ( match( w, accel ) ) {
+	if ( correctSubWindow( w, accel ) ) {
 	    item = accel->aitems.last();
 	    while( item ) {
-		if ( match( e, item ) ) {
+		if ( Qt::Identical == (result = match( e, item, tocheck )) ) {
 		    if ( !firstaccel ) {
 			firstaccel = accel;
 			firstitem = item;
@@ -299,6 +313,8 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 		    if ( n > QMAX(clash,0) )
 			goto doclash;
 		}
+		if ( Qt::PartialMatch == result )
+		    partial = tocheck;
 		item = accel->aitems.prev();
 	    }
 	}
@@ -306,20 +322,29 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
     }
     if ( n < 0 ) { // no match found
 	clash = -1; // reset
+	intermediate = partial;
+	if ( partial.count() ) // Keep sequence keylock
+	    currentState = Qt::PartialMatch;
 	return FALSE;
     } else if ( n == 0 ) { // found exactly one match
 	clash = -1; // reset
+        currentState = Qt::NoMatch; // Free sequence keylock
+	intermediate = QKeySequence();
 	lastaccel->activate( lastitem );
 	return TRUE;
     }
 
  doclash: // found more than one match
     if ( clash >= 0 && n > clash ) { // pick next  match
-	lastaccel->activateAmbiguously( lastitem );
+	intermediate = QKeySequence();
+        currentState = Qt::NoMatch; // Free sequence keylock
 	clash++;
+	lastaccel->activateAmbiguously( lastitem );
     } else { // start (or wrap) with the first matching
-	firstaccel->activateAmbiguously( firstitem );
+	intermediate = QKeySequence();
+        currentState = Qt::NoMatch; // Free sequence keylock
 	clash = 0;
+	firstaccel->activateAmbiguously( firstitem );
     }
     return TRUE;
 }
@@ -345,10 +370,10 @@ static QAccelItem *find_id( QAccelList &list, int id )
     return item;
 }
 
-static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
+static QAccelItem *find_key( QAccelList &list, const QKeySequence &key )
 {
     register QAccelItem *item = list.first();
-    while ( item && !item->match( key, ch ) )
+    while ( item && !( item->key == key ) )
 	item = list.next();
     return item;
 }
@@ -519,7 +544,7 @@ void QAccel::clear()
 QKeySequence QAccel::key( int id )
 {
     QAccelItem *item = find_id( d->aitems, id);
-    return QKeySequence( item ? item->key : 0 );
+    return item ? item->key : QKeySequence( 0 );
 }
 
 
@@ -530,7 +555,7 @@ QKeySequence QAccel::key( int id )
 
 int QAccel::findKey( const QKeySequence& key ) const
 {
-    QAccelItem *item = find_key( d->aitems, key, QChar(key & 0xffff) );
+    QAccelItem *item = find_key( d->aitems, key );
     return item ? item->id : -1;
 }
 

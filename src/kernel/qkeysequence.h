@@ -47,6 +47,15 @@
 
 #ifndef QT_NO_ACCEL
 
+/*****************************************************************************
+  QKeySequence stream functions
+ *****************************************************************************/
+#ifndef QT_NO_DATASTREAM
+class QKeySequence;
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
+#endif
+
 class QKeySequencePrivate;
 
 class Q_EXPORT QKeySequence : public Qt
@@ -55,30 +64,36 @@ public:
     QKeySequence();
     QKeySequence( const QString& key );
     QKeySequence( int key );
+    QKeySequence( int k1, int k2, int k3 = 0, int k4 = 0 );
+    QKeySequence( const QKeySequence & );
+    ~QKeySequence();
+
+    uint count() const;
+    bool isEmpty() const;
+    Qt::SequenceMatch matches( const QKeySequence & ) const;
 
     operator QString() const;
     operator int () const;
-    
-    QKeySequence( const QKeySequence& );
+    int operator[]( uint ) const;
     QKeySequence &operator=( const QKeySequence & );
-    ~QKeySequence();
     bool operator==( const QKeySequence& ) const;
     bool operator!= ( const QKeySequence& ) const;
-    
+
 private:
+    static int decodeString( const QString & );
+    static QString QKeySequence::encodeString( int );
+    int assign( QString );
+    void setKey( int key, int index );
+
     QKeySequencePrivate* d;
-    
+
+    friend QDataStream &operator<<( QDataStream &, const QKeySequence & );
+    friend QDataStream &operator>>( QDataStream &, QKeySequence & );
+    friend class QAccelManager;
 };
 
-/*****************************************************************************
-  QKeySequence stream functions
- *****************************************************************************/
-#ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
-#endif
-
 #else
+
 class Q_EXPORT QKeySequence : public Qt
 {
 public:

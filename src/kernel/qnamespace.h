@@ -270,13 +270,20 @@ public:
     };
 #endif
 
+    // documented in qkeysequence.cpp
+    enum SequenceMatch {
+	NoMatch,
+	PartialMatch,
+	Identical
+    };
+
     // documented in qevent.cpp
     enum Modifier {		// accelerator modifiers
 	META          = 0x00100000,
 	SHIFT         = 0x00200000,
 	CTRL          = 0x00400000,
 	ALT           = 0x00800000,
-	MODIFIER_MASK = 0x00e00000,
+	MODIFIER_MASK = 0x00f00000,
 	UNICODE_ACCEL = 0x10000000,
 
 	ASCII_ACCEL = UNICODE_ACCEL // 1.x compat

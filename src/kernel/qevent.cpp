@@ -662,7 +662,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     \value META the Meta keys.
     \value CTRL the Ctrl keys.
     \value ALT the normal Alt keys, but not e.g. AltGr.
-    \value MODIFIER_MASK is a mask of Shift, Ctrl and Alt.
+    \value MODIFIER_MASK is a mask of Shift, Ctrl, Alt and Meta.
     \value UNICODE_ACCEL the accelerator is specified as a Unicode code
     point, not as a Qt Key.
 */
@@ -752,6 +752,8 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 
     The returned value is \c ShiftButton, \c ControlButton and \c
     AltButton OR'ed together.
+    The returned value is \c ShiftButton, \c ControlButton, \c AltButton
+    and \c MetaButton OR'ed together.
 
     \sa stateAfter()
 */
@@ -775,6 +777,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 	return Qt::ButtonState(state()^ControlButton);
     if ( key() == Key_Alt )
 	return Qt::ButtonState(state()^AltButton);
+    if ( key() == Key_Meta )
+	return Qt::ButtonState(state()^MetaButton);
     return state();
 }
 
