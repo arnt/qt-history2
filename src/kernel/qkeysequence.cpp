@@ -491,48 +491,46 @@ QString QKeySequence::encodeString( int key )
 */
 Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 {
-    uint localN = count(),
-	   seqN = seq.count();
+    uint userN = count(),
+	  seqN = seq.count();
 
-    if ( localN > seqN )
+    if ( userN > seqN )
 	return NoMatch;
 
     // If equal in length, we have a potential Identical sequence,
     // else we already know it can only be partial.
-    SequenceMatch match = ( localN == seqN ? Identical : PartialMatch );
+    SequenceMatch match = ( userN == seqN ? Identical : PartialMatch );
 
-    for ( uint i = 0; i < localN; i++ ) {
-	int a  = (*this)[i],
-	    b  = seq[i];
+    for ( uint i = 0; i < userN; i++ ) {
+	int userKey      = (*this)[i],
+	    sequenceKey  = seq[i];
 
-	if ( a == b ) // perfect match
+	if ( userKey == sequenceKey ) // perfect match
 	    continue;
 
-	if ( (b & Qt::UNICODE_ACCEL ) == 0 || ( a & Qt::UNICODE_ACCEL) == 0 )
-	    return NoMatch; // no unicode representation and no perfect match => no match
-	
-	int   am = a & Qt::MODIFIER_MASK;
-	QChar ac = QChar(a & 0xffff),
-	      bc = QChar(b & 0xffff);
-
-	if ( am ) {
-	    // Modifiers must match...
-	    QChar c;
-	    if ( (b & Qt::CTRL) && (bc < ' ') )
-		c = bc.unicode()+'@'+' '; // Ctrl+A is ASCII 001, etc.
-	    else
-		c = bc;
-	    if ( ac.lower() == c.lower() &&
-		( (b & Qt::MODIFIER_MASK) == am
-		|| (b & (Qt::MODIFIER_MASK^Qt::SHIFT)) == am ) )
-		continue;
-	    return NoMatch;
+	if ( sequenceKey & Qt::UNICODE_ACCEL ) {
+	    int sequenceModifiers = sequenceKey & Qt::MODIFIER_MASK;
+	    QChar userChar = QChar( userKey & 0xffff );
+	    QChar sequenceChar = QChar( sequenceKey & 0xffff );
+	    
+	    if ( sequenceModifiers ) {
+		// Modifiers must match...
+		QChar c;
+		if ( (userKey & Qt::CTRL) && (userChar < ' ') )
+		    c = userChar.unicode()+'@'+' '; // Ctrl+A is ASCII 001, etc.
+		else
+		    c = userChar;
+		if ( sequenceChar.lower() == c.lower() &&
+		    ( (userKey & Qt::MODIFIER_MASK) == sequenceModifiers
+		    || (userKey & (Qt::MODIFIER_MASK^Qt::SHIFT)) == sequenceModifiers ) )
+		    continue;
+	    } else {
+		// No modifiers requested, ignore Shift but require others...
+		if ( sequenceChar == userChar &&
+		    (userKey & (Qt::MODIFIER_MASK^Qt::SHIFT)) == sequenceModifiers )
+		    continue;
+	    }
 	}
-	// No modifiers requested, ignore Shift but require others...
-	if ( ac == bc &&
-	    (b & (Qt::MODIFIER_MASK^Qt::SHIFT)) == am )
-	    continue;
-	
 	return NoMatch;
     }
     return match;
