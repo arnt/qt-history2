@@ -262,8 +262,8 @@ QModelIndex QPersistentModelIndex::parent() const
 }
 
 /*!
-  Returns the sibling of the model index that is stored in the given
-  \a row and \a column of the parent index.
+  Returns the sibling at \a row and \a column or an invalid
+  QModelIndex if there is no sibling at this position.
 
   \sa parent() child()
 */
@@ -439,8 +439,8 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 /*!
     \fn QModelIndex QModelIndex::sibling(int row, int column) const
 
-    Returns the sibling of the model index that is stored in the given
-    \a row and \a column of the parent index.
+    Returns the sibling at \a row and \a column or an invalid
+    QModelIndex if there is no sibling at this position.
 
     \sa parent() child()
 */
@@ -648,7 +648,9 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn QModelIndex QAbstractItemModel::sibling(int row, int column, const QModelIndex &index) const
 
-    Returns the model index of the sibling of the item specified by the given
+    Returns the sibling at \a row and \a column for the item at \a
+    index or an invalid QModelIndex if there is no sibling.
+
     \a row, \a column, and \a index.
 */
 
