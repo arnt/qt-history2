@@ -265,6 +265,6 @@ QRect CannonField::barrierRect() const
 
 void  CannonField::newTarget()
 {
-    target = QPoint( 200 + random() % ( width() - 200 - 10), 
-                      35 + random() % (height() - 35  - 10) );
+    target = QPoint( 200 + rand() % ( width() - 200 - 10), 
+                      35 + rand() % (height() - 35  - 10) );
 }
