@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#9 $
 **
 ** Implementation of layout classes
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#9 $");
 
 /*!
   \class QLayout qlayout.h
@@ -113,6 +113,13 @@ QLayout::~QLayout()
 
 void QLayout::addChildLayout( QLayout *l )
 {
+
+    if ( topLevel ) {
+#if defined(DEBUG)
+	warning("QLayout: attempt to add top-level layout as child");
+#endif
+	return;
+    }
     l->bm = bm;
     insertChild( l );  
     if ( l->defBorder < 0 )
