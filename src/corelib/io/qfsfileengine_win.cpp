@@ -1022,36 +1022,36 @@ QString
 QFSFileEngine::fileName(FileName file) const
 {
     if(file == BaseName) {
-	int slash = d->file.lastIndexOf('/');
-	if(slash == -1) {
-	    int colon = d->file.lastIndexOf(':');
-	    if(colon != -1)
-		return d->file.mid(colon + 1);
-	    return d->file;
-	}
-	return d->file.mid(slash + 1);
+        int slash = d->file.lastIndexOf('/');
+        if(slash == -1) {
+            int colon = d->file.lastIndexOf(':');
+            if(colon != -1)
+                return d->file.mid(colon + 1);
+            return d->file;
+        }
+        return d->file.mid(slash + 1);
     } else if(file == PathName) {
         if(!d->file.size())
             return d->file;
-	int slash = d->file.lastIndexOf('/');
-	if(slash == -1) {
-	    if(d->file.at(1) == ':')
-		return d->file.left(2);
-	    return QString::fromLatin1(".");
-	} else {
-	    if(!slash)
-		return QString::fromLatin1("/");
-	    if(slash == 2 && d->file.at(1) == ':')
-		slash++;
-	    return d->file.left(slash);
-	}
+        int slash = d->file.lastIndexOf('/');
+        if(slash == -1) {
+            if(d->file.at(1) == ':')
+                return d->file.left(2);
+            return QString::fromLatin1(".");
+        } else {
+            if(!slash)
+                return QString::fromLatin1("/");
+            if(slash == 2 && d->file.at(1) == ':')
+                slash++;
+            return d->file.left(slash);
+        }
     } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
         if (!isRelativePath())
             ret = d->file;
         else
             ret = QDir::cleanPath(QDir::currentPath() + QLatin1Char('/') + d->file);
-
+        
         // The path should be absolute at this point.
         // From the docs :
         // Absolute paths begin with the directory separator "/"
@@ -1060,11 +1060,11 @@ QFSFileEngine::fileName(FileName file) const
             Q_ASSERT(ret.length() >= 2);
             Q_ASSERT(ret.at(0).isLetter());
             Q_ASSERT(ret.at(1) == QLatin1Char(':'));
-
+            
             // Force uppercase drive letters.
             ret[0] = ret.at(0).toUpper();
         }
-
+        
         if (file == AbsolutePathName) {
             int slash = ret.lastIndexOf(QLatin1Char('/'));
             Q_ASSERT(slash < 0 || slash >= 2);
@@ -1083,38 +1083,36 @@ QFSFileEngine::fileName(FileName file) const
                 abs = fileName(AbsoluteName);
             } else {
                 if(file == CanonicalName)
-                   attach_basename = true;
+                    attach_basename = true;
                 abs = fileName(AbsolutePathName);
             }
             QT_WA({
-                    TCHAR cur[PATH_MAX];
-                    ::_wgetcwd(cur, PATH_MAX);
-                    if (::_wchdir((TCHAR*)abs.utf16()) >= 0) {
-                        TCHAR real[PATH_MAX];
-                        if(::_wgetcwd(real, PATH_MAX))
-                            ret = QString::fromUtf16((ushort*)real);
-                    }
-                    ::_wchdir(cur);
-                } , {
-                      char cur[PATH_MAX];
-                      QT_GETCWD(cur, PATH_MAX);
-                      if(QT_CHDIR(QFSFileEnginePrivate::win95Name(abs)) >= 0) {
-                          char real[PATH_MAX];
-                          if(QT_GETCWD(real, PATH_MAX) != 0)
-                              ret = QString::fromLocal8Bit(real);
-                      }
-                      QT_CHDIR(cur);
-                  });
+                TCHAR cur[PATH_MAX];
+                ::_wgetcwd(cur, PATH_MAX);
+                if (::_wchdir((TCHAR*)abs.utf16()) >= 0) {
+                    TCHAR real[PATH_MAX];
+                    if(::_wgetcwd(real, PATH_MAX))
+                        ret = QString::fromUtf16((ushort*)real);
+                }
+                ::_wchdir(cur);
+            } , {
+                char cur[PATH_MAX];
+                QT_GETCWD(cur, PATH_MAX);
+                if(QT_CHDIR(QFSFileEnginePrivate::win95Name(abs)) >= 0) {
+                    char real[PATH_MAX];
+                    if(QT_GETCWD(real, PATH_MAX) != 0)
+                        ret = QString::fromLocal8Bit(real);
+                }
+                QT_CHDIR(cur);
+            });
             if (attach_basename)
                 ret += QLatin1Char('/') + fileName(BaseName);
             ret[0] = ret.at(0).toUpper(); // Force uppercase drive letters.
             return QFSFileEnginePrivate::fixToQtSlashes(ret);
         }
-        if(file == CanonicalPathName)
-            return fileName(AbsolutePathName);
-        return fileName(AbsoluteName);
+        return ret;
     } else if(file == LinkName) {
-	return QFSFileEnginePrivate::fixToQtSlashes(d->getLink());
+        return QFSFileEnginePrivate::fixToQtSlashes(d->getLink());
     }
     return d->file;
 }
