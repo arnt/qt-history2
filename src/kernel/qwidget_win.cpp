@@ -554,7 +554,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 
 void QWidget::resetInputContext()
 {
-    QInputContext::endComposition( this );
+    QInputContext::accept();
 }
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
