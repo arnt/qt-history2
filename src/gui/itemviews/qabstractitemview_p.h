@@ -38,6 +38,8 @@ public:
 
     bool layoutLock; // FIXME: this is because the layout will trigger resize events
     QRect dragRect;
+    QModelIndex pressedItem;
+    Qt::ButtonState pressedState;
     QAbstractItemView::State state;
     QPoint cursorIndex;
     int startEditActions;

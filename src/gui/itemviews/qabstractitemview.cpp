@@ -250,6 +250,8 @@ void QAbstractItemView::contentsMousePressEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex item  = itemAt(pos);
     if (item.isValid()) {
+	d->pressedItem = item;
+	d->pressedState = e->state();
 	if (e->state() & ShiftButton) {
 	    d->dragRect.setBottomRight(pos); // do not normalize
 	    selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
@@ -305,6 +307,18 @@ void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
 
 void QAbstractItemView::contentsMouseReleaseEvent(QMouseEvent *e)
 {
+    QPoint pos = e->pos();
+    QModelIndex item  = itemAt(pos);
+    if (item.isValid() &&
+	item == d->pressedItem &&
+	!(d->pressedState & ShiftButton) &&
+	!(d->pressedState & Qt::ControlButton) &&
+	selectionModel()->isSelected(item))
+	selectionModel()->select(item,
+				 QItemSelectionModel::ClearAndSelect,
+				 selectionBehavior() );
+    d->pressedItem = QModelIndex();
+    d->pressedState = Qt::NoButton;
     updateContents(d->dragRect.normalize());
     setState(NoState);
 }
@@ -783,8 +797,6 @@ QItemSelectionModel::SelectionBehavior QAbstractItemView::selectionBehavior() co
 QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(ButtonState state,
 										const QModelIndex &item) const
 {
-    if (selectionModel()->isSelected(item) && !(state & ControlButton))
-	return QItemSelectionModel::NoUpdate;
     if (selectionMode() == QItemSelectionModel::Single)
 	return QItemSelectionModel::ClearAndSelect;
     if (state & ShiftButton)
@@ -793,6 +805,8 @@ QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(
 	return QItemSelectionModel::Toggle;
     if (QAbstractItemView::state() == Selecting)
 	return QItemSelectionModel::Select;
+    if (selectionModel()->isSelected(item))
+	return QItemSelectionModel::NoUpdate;
     return QItemSelectionModel::ClearAndSelect;
 }
 
