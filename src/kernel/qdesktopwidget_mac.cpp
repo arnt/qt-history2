@@ -48,6 +48,7 @@ public:
     int screenCount;
 
     QArray<QRect> rects;
+    QPtrList<GDPtr> devs;
 };
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
@@ -55,10 +56,12 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     appScreen = 0;
     QPtrList<QRect> rs;
     rs.setAutoDelete(TRUE);
-    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) 
+    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
 	rs.append(new QRect((*g)->gdRect.left,    (*g)->gdRect.top,
 			    (*g)->gdRect.right -  (*g)->gdRect.left,
 			    (*g)->gdRect.bottom - (*g)->gdRect.top));
+	devs.append(g);
+    }
     int i = 0;
     rects.resize( screenCount = rs.count() );
     for(QPtrListIterator<QRect> it(rs); it.current(); ++it) 
@@ -132,4 +135,14 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
 	    return i;
     }
     return -1;
+}
+
+GDHandle QDesktopWidget::handle( int screen ) const 
+{
+    if(screen > (int)d->devs.count())
+	return NULL;
+    GDHandle ret = d->devs.first();
+    for(int i = 0; i < screen; i++)	
+	ret = d->devs.next();
+    return ret;
 }

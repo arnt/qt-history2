@@ -1068,29 +1068,26 @@ void QWidget::showMaximized()
     if(isMaximized() || isDesktop())
 	return;
     if ( testWFlags(WType_TopLevel) ) {
+	Rect bounds;
 	QDesktopWidget *dsk = QApplication::desktop();
-	int scrn = dsk->screenNumber(this);
-	QRect r = dsk->screenGeometry(scrn);
-	if(scrn == dsk->primaryScreen())
-	    r.setY(GetMBarHeight());
+	GetAvailableWindowPositioningBounds(dsk->handle(dsk->screenNumber(this)), &bounds);
 	if(QTLWExtra *tlextra = topData()) {
 	    if ( tlextra->normalGeometry.width() < 0 )
 		tlextra->normalGeometry = geometry();
 	    if(fstrut_dirty)
 		updateFrameStrut();
-	    r.setX(r.x() + tlextra->fleft);
-	    r.setY(r.y() + tlextra->ftop);
-	    r.setRight(r.right() - tlextra->fright);
-	    r.setBottom(r.bottom() - tlextra->fbottom);
+	    bounds.left += tlextra->fleft;
+	    bounds.top += tlextra->ftop;
+	    bounds.right -= tlextra->fright;
+	    bounds.bottom -= tlextra->fbottom;
 	}
-	Rect bounds;
-	SetRect(&bounds, r.x(), r.y(), r.right(), r.bottom());
 	SetWindowStandardState((WindowPtr)hd, &bounds);
 	ZoomWindow( (WindowPtr)hd, inZoomOut, FALSE);
 	qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
 	QRect orect(geometry().x(), geometry().y(), width(), height());
-	crect.setRect( bounds.left, bounds.top, bounds.right, bounds.bottom );
+	crect.setRect( bounds.left, bounds.top, bounds.right - bounds.left, 
+		       bounds.bottom - bounds.top );
 
 	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);

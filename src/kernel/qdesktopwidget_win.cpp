@@ -158,6 +158,16 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
     rects = 0;
 }
 
+/*! void *QDesktopWidget::handle( int screen ) const
+
+  Returns the window system handle of the display device, for low-level
+  access.  Using this function is not portable.
+
+  The return type varies with platform; see qwindowdefs.h for details.
+
+  \sa x11Display(), QPaintDevice::handle()
+*/
+
 /*!
   \class QDesktopWidget qdesktopwidget.h
   \brief The QDesktopWidget class provides access to screen information on multi-head systems.

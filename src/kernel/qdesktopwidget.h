@@ -63,6 +63,12 @@ public:
     
     const QRect& screenGeometry( int screen = -1 ) const;
 
+#ifdef Q_WS_MAC
+    GDHandle handle( int screen ) const;
+#else
+    void *handle( int screen ) const { return NULL; }
+#endif
+
 private:
     QDesktopWidgetPrivate *d;
 };
