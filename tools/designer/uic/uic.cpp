@@ -725,7 +725,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 
     QString margin = DomTool::readProperty( e, "margin", defMargin ).toString();
     QString spacing = DomTool::readProperty( e, "spacing", defSpacing ).toString();
-
+    
     QString optcells;
     if ( isGrid )
 	optcells = "1, 1, ";
@@ -740,11 +740,13 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 	out << indent << objName << " = new " << qlayout << "( ";
 	if ( layout.isEmpty() )
 	    out << parent;
-	else
+	else {	    
 	    out << "0";
+	    if ( !DomTool::hasProperty( e, "margin" ) )
+		margin = "0";
+	}
 	out << ", " << optcells << margin << ", " << spacing << ", \"" << objName << "\"); " << endl;
     }
-
 
     if ( !isGrid ) {
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {

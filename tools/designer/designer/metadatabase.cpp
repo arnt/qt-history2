@@ -334,12 +334,26 @@ void MetaDataBase::setMargin( QObject *o, int margin )
     r->margin = margin;
     QLayout * layout = 0;
     WidgetFactory::layoutType( (QWidget*)o, layout );
+    
+    bool isInnerLayout = TRUE;
+   
+    QWidget *widget = (QWidget*)o; 
+    if ( widget && !widget->inherits( "QLayoutWidget" ) &&
+	( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
+	widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) ) 
+	isInnerLayout = FALSE;
+    
+    
     if ( layout ) {
 	int mardef = 11;
 	if ( MainWindow::self->formWindow() )
 	    mardef = MainWindow::self->formWindow()->layoutDefaultMargin();
-	if ( margin == -1 )
-	    layout->setMargin( QMAX( 1, mardef ) );
+	if ( margin == -1 ) {
+	    if ( isInnerLayout ) 
+		layout->setMargin( 1 );
+	    else 
+		layout->setMargin( QMAX( 1, mardef ) );
+	}
 	else
 	    layout->setMargin( QMAX( 1, margin ) );
     }
@@ -358,7 +372,7 @@ int MetaDataBase::margin( QObject *o )
 		  o, o->name(), o->className() );
 	return -1;
     }
-
+    qDebug( "returning margin: %d %s", r->margin, o->name() );
     return r->margin;
 }
 

@@ -443,7 +443,7 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
 	} else if ( e.tagName() == "pixmapinproject" ) {
 	    usePixmapCollection = TRUE;
 	} else if ( e.tagName() == "layoutdefaults" ) {
-	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();
+	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();	    
 	    defMargin = e.attribute( "margin", QString::number( defMargin ) ).toInt();
 	}
 	e = e.nextSibling().toElement();
@@ -928,9 +928,9 @@ QObject *QWidgetFactory::inputObject( QObject **objects, int& numObjects,
 		type = VBox;
 	    }
 	    if ( parentLayout != 0 && parentLayout->inherits("QGridLayout") ) {
-		layout = createLayout( 0, 0, type, FALSE );
+		layout = createLayout( 0, 0, type );
 	    } else {
-		layout = createLayout( parentWidget, parentLayout, type, TRUE );
+		layout = createLayout( parentWidget, parentLayout, type );
 	    }
 	    obj = layout;
 	} else if ( className == "QMenuBar" ) {
@@ -1611,7 +1611,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    if ( layout && layout->inherits( "QGridLayout" ) )
 		layout = createLayout( 0, 0, QWidgetFactory::HBox );
 	    else
-		layout = createLayout( w, layout, QWidgetFactory::HBox, TRUE );
+		layout = createLayout( w, layout, QWidgetFactory::HBox );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -1622,7 +1622,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    if ( layout && layout->inherits( "QGridLayout" ) )
 		layout = createLayout( 0, 0, QWidgetFactory::Grid );
 	    else
-		layout = createLayout( w, layout, QWidgetFactory::Grid, TRUE );
+		layout = createLayout( w, layout, QWidgetFactory::Grid );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -1633,7 +1633,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    if ( layout && layout->inherits( "QGridLayout" ) )
 		layout = createLayout( 0, 0, QWidgetFactory::VBox );
 	    else
-		layout = createLayout( w, layout, QWidgetFactory::VBox, TRUE );
+		layout = createLayout( w, layout, QWidgetFactory::VBox );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -1669,10 +1669,15 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
     return w;
 }
 
-QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutType type, bool setDefaults )
+QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutType type )
 {
+
+    qDebug( "uilib qwidgetfactory::createLayout" );
     int spacing = defSpacing;
     int margin = defMargin;
+
+    if ( layout || !widget ) 
+	margin = 0;
 
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();
@@ -1683,81 +1688,49 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutT
     if ( !layout && widget && widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
+    QLayout *l = 0;
+    int align = 0;
     if ( !layout && widget && widget->inherits( "QGroupBox" ) ) {
 	QGroupBox *gb = (QGroupBox*)widget;
 	gb->setColumnLayout( 0, Qt::Vertical );
-	gb->layout()->setMargin( 0 );
-	gb->layout()->setSpacing( 0 );
-	QLayout *l;
-	switch ( type ) {
-	case HBox:
-	    l = new QHBoxLayout( gb->layout() );
-	    l->setAlignment( Qt::AlignTop );
-	    return l;
+	layout = gb->layout();
+	layout->setMargin( 0 );
+	layout->setSpacing( 0 );
+	align = Qt::AlignTop;
+    }
+    if ( layout ) {
+    	switch ( type ) {
+        case HBox:
+	    l = new QHBoxLayout( layout );
+	    break;
 	case VBox:
-	    l = new QVBoxLayout( gb->layout(), spacing );
-	    l->setAlignment( Qt::AlignTop );
-	    return l;
-	case Grid:
-	    l = new QGridLayout( gb->layout() );
-	    l->setAlignment( Qt::AlignTop );
-	    return l;
+	    l = new QVBoxLayout( layout );
+	    break;
+	case Grid: 
+	    l = new QGridLayout( layout );
+	    break;
 	default:
 	    return 0;
 	}
     } else {
-	if ( layout ) {
-	    QLayout *l;
-	    switch ( type ) {
-	    case HBox:
-		l = new QHBoxLayout( layout );
-		l->setSpacing( spacing );
-		l->setMargin( margin );
-		return l;
-	    case VBox:
-		l = new QVBoxLayout( layout );
-		l->setSpacing( spacing );
-		l->setMargin( margin );
-		return l;
-	    case Grid: {
-		l = new QGridLayout( layout );
-		l->setSpacing( spacing );
-		l->setMargin( margin );
-		return l;
-	    }
-	    default:
-		return 0;
-	    }
-	} else {
-	    QLayout *l;
-	    switch ( type ) {
-	    case HBox:
-		l = new QHBoxLayout( widget );
-		if ( !widget || setDefaults ) {
-		    l->setMargin( margin );
-		    l->setSpacing( spacing );
-		}
-		return l;
-	    case VBox:
-		l = new QVBoxLayout( widget );
-		if ( !widget || setDefaults ) {
-		    l->setMargin( margin );
-		    l->setSpacing( spacing );
-		}
-		return l;
-	    case Grid: {
-		l = new QGridLayout( widget );
-		if ( !widget || setDefaults ) {
-		    l->setMargin( margin );
-		    l->setSpacing( spacing );
-		}
-		return l;
-	    }
-	    default:
-		return 0;
-	    }
+	switch ( type ) {
+	case HBox:
+	    l = new QHBoxLayout( widget );
+	    break;
+	case VBox:
+	    l = new QVBoxLayout( widget );
+	    break;
+	case Grid: 
+	    l = new QGridLayout( widget );
+	    break;
+	default:
+	    return 0;
 	}
     }
+    l->setAlignment( align );
+    l->setMargin( margin );
+    l->setSpacing( spacing );
+    return l;
 }
 
 QWidgetFactory::LayoutType QWidgetFactory::layoutType( QLayout *layout ) const

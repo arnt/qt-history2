@@ -544,15 +544,13 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
     int margin = 0;
 
     int metaspacing = MetaDataBase::spacing( widget );
-    int metamargin = 0;
+    int metamargin = MetaDataBase::margin( widget ); 
 
     if ( widget && !widget->inherits( "QLayoutWidget" ) &&
 	 ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
-	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) ) {
+	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) ) 
 	margin = MainWindow::self->currentLayoutDefaultMargin();
-	metamargin = MetaDataBase::margin( widget );
-    }
-
+    
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();
 
@@ -567,111 +565,75 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
 
     MetaDataBase::addEntry( widget );
     
+    QLayout *l = 0;
+    int align = 0;
     if ( !layout && widget && widget->inherits( "QGroupBox" ) ) {
 	QGroupBox *gb = (QGroupBox*)widget;
 	gb->setColumnLayout( 0, Qt::Vertical );
-	gb->layout()->setMargin( 0 );
-	gb->layout()->setSpacing( 0 );
-	QLayout *l;
+	layout = gb->layout();
+	layout->setMargin( 0 );
+	layout->setSpacing( 0 );
 	switch ( type ) {
 	case HBox:
-	    l = new QHBoxLayout( gb->layout() );
-	    MetaDataBase::setMargin( gb, metamargin );
-	    MetaDataBase::setSpacing( gb, metaspacing );
-	    l->setAlignment( AlignTop );
-	    MetaDataBase::addEntry( l );
-	    return l;
+	    l = new QHBoxLayout( layout );
+	    break;
 	case VBox:
-	    l = new QVBoxLayout( gb->layout(), spacing );
-	    MetaDataBase::setMargin( gb, metamargin );
-	    MetaDataBase::setSpacing( gb, metaspacing );
-	    l->setAlignment( AlignTop );
-	    MetaDataBase::addEntry( l );
-	    return l;
+	    l = new QVBoxLayout( layout );
+	    break;
 	case Grid:
-	    l = new QDesignerGridLayout( gb->layout() );
-	    MetaDataBase::setMargin( gb, metamargin );
-	    MetaDataBase::setSpacing( gb, metaspacing );
-	    l->setAlignment( AlignTop );
-	    MetaDataBase::addEntry( l );
-	    return l;
+	    l = new QDesignerGridLayout( layout );
+	    break;
 	default:
 	    return 0;
 	}
+	align = Qt::AlignTop;
+	MetaDataBase::setMargin( gb, metamargin );
+	MetaDataBase::setSpacing( gb, metaspacing );
     } else {
 	if ( layout ) {
-	    QLayout *l;
 	    switch ( type ) {
 	    case HBox:
 		l = new QHBoxLayout( layout );
-		MetaDataBase::addEntry( l );
-		l->setSpacing( spacing );
-		l->setMargin( margin );
-		MetaDataBase::addEntry( l );
-		return l;
+		break;
 	    case VBox:
 		l = new QVBoxLayout( layout );
-		MetaDataBase::addEntry( l );
-		l->setSpacing( spacing );
-		l->setMargin( margin );
-		MetaDataBase::addEntry( l );
-		return l;
-	    case Grid: {
+		break;
+	    case Grid: 
 		l = new QDesignerGridLayout( layout );
-		MetaDataBase::addEntry( l );
-		l->setSpacing( spacing );
-		l->setMargin( margin );
-		MetaDataBase::addEntry( l );
-		return l;
-	    }
+		break;
 	    default:
 		return 0;
 	    }
+	    MetaDataBase::addEntry( l );
+	    l->setSpacing( spacing );
+	    l->setMargin( margin );
 	} else {
-	    QLayout *l;
 	    switch ( type ) {
 	    case HBox:
 		l = new QHBoxLayout( widget );
-		MetaDataBase::addEntry( l );
-		if ( widget ) {
-		    MetaDataBase::setMargin( widget, metamargin );
-		    MetaDataBase::setSpacing( widget, metaspacing );
-		} else {
-		    l->setMargin( margin );
-		    l->setSpacing( margin );
-		}
-		MetaDataBase::addEntry( l );
-		return l;
+		break;
 	    case VBox:
 		l = new QVBoxLayout( widget );
-		MetaDataBase::addEntry( l );
-		if ( widget ) {
-		    MetaDataBase::setMargin( widget, metamargin );
-		    MetaDataBase::setSpacing( widget, metaspacing );
-		} else {
-		    l->setMargin( margin );
-		    l->setSpacing( margin );
-		}
-		MetaDataBase::addEntry( l );
-		return l;
-	    case Grid: {
+		break;
+	    case Grid: 
 		l = new QDesignerGridLayout( widget );
-		MetaDataBase::addEntry( l );
-		if ( widget ) {
-		    MetaDataBase::setMargin( widget, metamargin );
-		    MetaDataBase::setSpacing( widget, metaspacing );
-		} else {
-		    l->setMargin( margin );
-		    l->setSpacing( margin );
-		}
-		MetaDataBase::addEntry( l );
-		return l;
-	    }
+		break;
 	    default:
 		return 0;
 	    }
+	    MetaDataBase::addEntry( l );
+	    if ( widget ) { 
+		MetaDataBase::setMargin( widget, metamargin );
+		MetaDataBase::setSpacing( widget, metaspacing );
+	    } else {
+		l->setMargin( margin );
+		l->setSpacing( spacing );
+	    }
 	}
     }
+    l->setAlignment( align );
+    MetaDataBase::addEntry( l ); 
+    return l;
 }
 
 void WidgetFactory::deleteLayout( QWidget *widget )
@@ -1376,9 +1338,9 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
     } else if ( propName == "frameworkCode" ) {
 	return QVariant( TRUE, 0 );
     } else if ( propName == "layoutMargin" ) {
-	if ( w->inherits( "QLayoutWidget" ) )
-	    return QVariant( 0 );
-	else if ( MainWindow::self->formWindow() )
+	//if ( w->inherits( "QLayoutWidget" ) )
+	//    return QVariant( 0 );
+	//else if ( MainWindow::self->formWindow() )
 	    return QVariant( -1 ); 
     } else if ( propName == "layoutSpacing" ) {
 	if ( MainWindow::self->formWindow() )
