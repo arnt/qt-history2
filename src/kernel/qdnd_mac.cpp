@@ -434,8 +434,8 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
     DisposeDrag( theDrag );
     qt_mac_in_drag = FALSE;
 
-    return ((result == noErr)  && drag_received &&
-            (current_drag_action == QDropEvent::Move) && 
+    return ((result == noErr) && (current_drag_action == QDropEvent::Move) &&
+	    widget_>extraData()->macDndExtra->acceptfmt &&
 	    !widget->extraData()->macDndExtra->acceptact);
 }
 
@@ -445,6 +445,7 @@ void QDragManager::updatePixmap()
 
 static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
+    qDebug("recieve!!");
     updateDragMode();
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
     current_dropobj = theDrag;
@@ -460,7 +461,8 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     QApplication::sendEvent( widget, &de );
     macDndExtra->acceptact = de.isActionAccepted();
     macDndExtra->acceptfmt = de.isAccepted();
-    return (drag_received = macDndExtra->acceptfmt) ? noErr : dragNotAcceptedErr;
+    drag_received = TRUE;
+    return macDndExtra->acceptfmt ? noErr : dragNotAcceptedErr;
 }
 static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
 static void cleanup_dnd_receiveUPP() 
@@ -501,6 +503,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
     while ( widget && (!widget->acceptDrops()) )
 	widget = widget->parentWidget(TRUE);
     //Dispatch events
+    qDebug("tracking %d", theMessage);
     if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
 	de.setAction(current_drag_action);
