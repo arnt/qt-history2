@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#77 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1814,7 +1814,7 @@ void QMultiLineEdit::setFont( const QFont &font )
 
 void QMultiLineEdit::newMark( int posx, int posy, bool copy )
 {
-    if ( markDragX == posx && markDragY == posy &&
+    if ( markIsOn && markDragX == posx && markDragY == posy &&
 	 cursorX   == posx && cursorY   == posy )
 	return;
     markDragX  = posx;

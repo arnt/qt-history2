@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#106 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#106 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -372,7 +372,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	} else if ( v ) {
 	    v->fixup( tbuf );
 	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
-		 emit returnPressed();
+		emit returnPressed();
 	}
 	e->ignore();
 	return;
@@ -387,21 +387,19 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    test.remove( minMark(), maxMark() - minMark() );
 	    cp = minMark();
 	}
-	if ( (int)test.length() < maxLen )
-	    test.insert( cp, e->ascii() );
+	if ( (int)test.length() >= maxLen )
+	    return;
+	test.insert( cp, e->ascii() );
 	if ( v &&
 	     v->validate( test, cp ) == QValidator::Invalid &&
 	     v->validate( tbuf, cursorPos ) != QValidator::Invalid ) {
 	    // add stuff to indicate the error here and suggest remedies
 	    return;
 	}
-
-	if ( test != tbuf ) {
-	    cursorPos = cp;
-	    tbuf = test;
-	    cursorRight( FALSE );
-	    emit textChanged( tbuf );
-	}
+	cursorPos = cp;
+	tbuf = test;
+	cursorRight( FALSE );
+	emit textChanged( tbuf );
 	return;
     }
     int unknown = 0;
