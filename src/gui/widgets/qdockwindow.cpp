@@ -717,8 +717,12 @@ void QDockWindow::setArea(Qt::DockWindowArea area)
 #ifdef Q_WS_MAC
     extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
     if (qt_mac_is_macdrawer(this)) {
+        if (d->area == area)
+            return;
+        d->area = area;
+
         Qt::Dock x;
-        switch (area) {
+        switch (d->area) {
         case Qt::DockWindowAreaLeft:
             x = Qt::DockLeft;
             break;
@@ -737,6 +741,11 @@ void QDockWindow::setArea(Qt::DockWindowArea area)
         // from qwidget_mac.cpp
         extern bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock edge);
         qt_mac_set_drawer_preferred_edge(this, x);
+
+        if (isVisible()) {
+            hide();
+            show();
+        }
         return;
     }
 #endif
