@@ -66,8 +66,8 @@ QM_EXPORT_OPENGL inline const char *qGLVersion() {
 #ifndef QMAC_OPENGL_DOUBLEBUFFER
 #define QMAC_OPENGL_DOUBLEBUFFER
 #endif
-# include <gl.h>
-# include <glu.h>
+# include <OpenGL/gl.h>
+# include <OpenGL/glu.h>
 #else
 # include <GL/gl.h>
 # include <GL/glu.h>
