@@ -280,7 +280,7 @@ void QHashData::free()
        qHash(Key) function.
     \endlist
 
-    Here's an example QHash with QString keys and int values:
+    Here's an example QHash with QString keys and \c int values:
     \code
         QHash<QString, int> hash;
     \endcode
@@ -491,7 +491,7 @@ void QHashData::free()
     largest extent possible.
 
     In the example above, we've relied on Qt's global qHash(const
-    QString&) to give us a hash value for the employee's name, and
+    QString &) to give us a hash value for the employee's name, and
     XOR'ed this with the day they were born to help produce unique
     hashes for people with the same name.
 
@@ -504,7 +504,7 @@ void QHashData::free()
     necessary to obtain good performance. You can also call capacity()
     to retrieve the hash table's size.
 
-    \sa QHashIterator, QMutableHashIterator, QMap
+    \sa QHashIterator, QMutableHashIterator, QMap, QSet
 */
 
 /*! \fn QHash::QHash()

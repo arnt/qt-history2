@@ -48,12 +48,7 @@ public:
 
     inline bool remove(const T &value) { return q_hash.remove(value) != 0; }
 
-    bool contains(const T &value) const { return q_hash.contains(value); }
-
-/*
-    fromList
-    toList
-*/
+    inline bool contains(const T &value) const { return q_hash.contains(value); }
 
     class const_iterator
     {
@@ -68,7 +63,8 @@ public:
 
         inline const_iterator() {}
         inline const_iterator(typename Hash::const_iterator i) : i(i) {}
-        inline const_iterator(const const_iterator &o): i(o.i){}
+        inline const_iterator(const const_iterator &o) : i(o.i) {}
+        inline const_iterator &operator=(const const_iterator &o) { i = o.i; }
         inline const T &operator*() const { return i.key(); }
         inline const T *operator->() const { return &i.key(); }
         inline bool operator==(const const_iterator &o) const { return i == o.i; }

@@ -1774,8 +1774,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \skipto ::closeEvent
     \printuntil /^\}/
 
-    See the \l mainwindow/application example for a self-contained
-    example that uses QSettings.
+    See the \l{mainwindows/application}{Application} example for a
+    self-contained example that uses QSettings.
 
     \section1 Accessing Settings from Multiple Threads or Processes Simultaneously
 
@@ -1812,7 +1812,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         settings that apply to \e all applications. These keys can be
         read using value() but cannot be change, only shadowed. You
         can hide these global settings by calling
-        setFallbackEnabled(false).
+        setFallbacksEnabled(false).
     \endlist
 
     \sa QVariant, QSessionManager
@@ -2577,7 +2577,7 @@ QVariant QSettings::value(const QString &key, const QVariant &defaultValue) cons
 
     A call to this function should precede any instantiations of QSettings objects.
 
-    \sa setUserConfigPath()
+    \sa setUserIniPath()
 */
 void QSettings::setSystemIniPath(const QString &dir)
 {

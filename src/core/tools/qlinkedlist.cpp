@@ -659,6 +659,11 @@ QLinkedListData QLinkedListData::shared_null = {
     Constructs a copy of \a other.
 */
 
+/*! \fn QLinkedList::iterator &QLinkedList::iterator::operator=(const iterator &other)
+
+    Assigns \a other to this iterator.
+*/
+
 /*! \fn T &QLinkedList::iterator::operator*() const
 
     Returns a modifiable reference to the current item.
@@ -775,7 +780,7 @@ QLinkedListData QLinkedListData::shared_null = {
 */
 
 /*! \class QLinkedList::const_iterator
-    \brief The QLinkedList::const_iterator class provides an STL-style non-const iterator for QLinkedList.
+    \brief The QLinkedList::const_iterator class provides an STL-style const iterator for QLinkedList.
 
     QLinkedList features both \l{STL-style iterators} and
     \l{Java-style iterators}. The STL-style iterators are more
@@ -879,6 +884,12 @@ QLinkedListData QLinkedListData::shared_null = {
 /*! \fn QLinkedList::const_iterator::const_iterator(iterator other)
 
     Constructs a copy of \a other.
+*/
+
+/*! \fn QLinkedList::const_iterator &QLinkedList::const_iterator::operator=( \
+            const const_iterator &other)
+
+    Assigns \a other to this iterator.
 */
 
 /*! \fn const T &QLinkedList::const_iterator::operator*() const

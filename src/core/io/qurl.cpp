@@ -1451,8 +1451,7 @@ bool QUrl::isValid() const
 }
 
 /*!
-    Returns true if the url has no data otherwise returns
-    false.
+    Returns true if the URL has no data; otherwise returns false.
 */
 bool QUrl::isEmpty() const
 {

@@ -20,11 +20,12 @@
 class QByteArray;
 class QIODevice;
 
-template<typename T> class QList;
-template<typename T> class QLinkedList;
-template<typename T> class QVector;
-template<class Key, class T> class QHash;
-template<class Key, class T> class QMap;
+template <typename T> class QList;
+template <typename T> class QLinkedList;
+template <typename T> class QVector;
+template <typename T> class QSet;
+template <class Key, class T> class QHash;
+template <class Key, class T> class QMap;
 
 class QDataStreamPrivate;
 
@@ -240,6 +241,59 @@ QDataStream& operator<<(QDataStream& s, const QLinkedList<T>& l)
     return s;
 }
 
+template<typename T>
+QDataStream& operator>>(QDataStream& s, QVector<T>& v)
+{
+    v.clear();
+    quint32 c;
+    s >> c;
+    v.resize(c);
+    for(quint32 i = 0; i < c; ++i) {
+        T t;
+        s >> t;
+        v[i] = t;
+    }
+    return s;
+}
+
+template<typename T>
+QDataStream& operator<<(QDataStream& s, const QVector<T>& v)
+{
+    s << quint32(v.size());
+    const T* it = v.begin();
+    for(; it != v.end(); ++it)
+        s << *it;
+    return s;
+}
+
+template <typename T>
+QDataStream &operator>>(QDataStream &in, QSet<T> &set)
+{
+    set.clear();
+    quint32 c;
+    in >> c;
+    for (quint32 i = 0; i < c; ++i) {
+        T t;
+        in >> t;
+        set << t;
+        if (in.atEnd())
+            break;
+    }
+    return in;
+}
+
+template <typename T>
+QDataStream& operator<<(QDataStream &out, const QSet<T> &set)
+{
+    out << quint32(set.size());
+    typename QSet<T>::const_iterator i = set.constBegin();
+    while (i != set.constEnd()) {
+        out << *i;
+        ++i;
+    }
+    return out;
+}
+
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QHash<Key, T> &hash)
 {
@@ -265,31 +319,6 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QHash<Key, T> &has
     if (oldStatus != QDataStream::Ok)
         in.setStatus(oldStatus);
     return in;
-}
-
-template<typename T>
-QDataStream& operator>>(QDataStream& s, QVector<T>& v)
-{
-    v.clear();
-    quint32 c;
-    s >> c;
-    v.resize(c);
-    for(quint32 i = 0; i < c; ++i) {
-        T t;
-        s >> t;
-        v[i] = t;
-    }
-    return s;
-}
-
-template<typename T>
-QDataStream& operator<<(QDataStream& s, const QVector<T>& v)
-{
-    s << quint32(v.size());
-    const T* it = v.begin();
-    for(; it != v.end(); ++it)
-        s << *it;
-    return s;
 }
 
 template <class Key, class T>

@@ -36,10 +36,10 @@
     has not been stopped. The timer's ID can be retrieved using
     timerId().
 
-    See \link timers.html Timers \endlink for an overview of different
-    approaches to timers.
+    The \l{widgets/wiggly}{Wiggly} example uses QBasicTimer to repaint
+    a widget at regular intervals.
 
-    \sa QTimer, QTimerEvent, QObject::timerEvent()
+    \sa QTimer, QTimerEvent, QObject::timerEvent(), {timers.html}{Timers Overview}
 */
 
 

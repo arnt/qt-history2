@@ -181,7 +181,7 @@ void QMapData::dump()
        operator<().
     \endlist
 
-    Here's an example QMap with QString keys and int values:
+    Here's an example QMap with QString keys and \c int values:
     \code
         QMap<QString, int> map;
     \endcode
@@ -375,7 +375,7 @@ void QMapData::dump()
     In the example, we start by comparing the employees' names. If
     they're equal, we compare their dates of birth to break the tie.
 
-    \sa QMapIterator, QMutableMapIterator, QHash
+    \sa QMapIterator, QMutableMapIterator, QHash, QSet
 */
 
 /*! \fn QMap::QMap()
@@ -1528,13 +1528,13 @@ void QMapData::dump()
 /*!
     \fn T &QMap::iterator::data() const
 
-###
+    Use value() instead.
 */
 
 /*!
     \fn const T &QMap::const_iterator::data() const
 
-###
+    Use value() instead.
 */
 
 /*!
