@@ -449,7 +449,7 @@ QString qt_error_string(int errorCode)
         // ######## this breaks moc build currently
 //         ret = QCoreApplication::translate("QIODevice", s);
         ret = QString::fromLatin1(s);
-    return ret;
+    return ret.trimmed();
 }
 
 /*!
@@ -703,6 +703,10 @@ void qCritical(const char *msg, ...)
 #endif
     }
 }
+#ifdef QT_COMPAT
+void qSystemWarning(const char *msg, int code)
+   { qCritical("%s (%s)", msg, qt_error_string(code).local8Bit()); }
+#endif // QT_COMPAT
 
 void qErrnoWarning(const char *msg, ...)
 {
@@ -716,7 +720,7 @@ void qErrnoWarning(const char *msg, ...)
 #endif
     va_end(ap);
 
-    qCritical("%s\n\t%s", buf, qt_error_string(-1).local8Bit()); 
+    qCritical("%s (%s)", buf, qt_error_string(-1).local8Bit()); 
 }
 
 void qErrnoWarning(int code, const char *msg, ...)
@@ -731,7 +735,7 @@ void qErrnoWarning(int code, const char *msg, ...)
 #endif
     va_end(ap);
 
-    qCritical("%s\n\t%s", buf, qt_error_string(code).local8Bit());
+    qCritical("%s (%s)", buf, qt_error_string(code).local8Bit());
 }
 
 /*!

@@ -1156,7 +1156,9 @@ Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
 #endif
 ;
 
-// print warning from platform API calls
+#ifdef QT_COMPAT
+Q_CORE_EXPORT QT_COMPAT void qSystemWarning(const char *msg, int code = -1);
+#endif // QT_COMPAT
 Q_CORE_EXPORT void qErrnoWarning(int code, const char *msg, ...);
 Q_CORE_EXPORT void qErrnoWarning(const char *msg, ...);
 
