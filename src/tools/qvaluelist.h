@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#14 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#15 $
 **
 ** Definition of QValueList class
 **
@@ -300,7 +300,7 @@ public:
 	return FALSE;
     return TRUE;
   }
-  
+
   bool operator!= ( const QValueList<T>& _l ) const { return !( *this == _l ); }
 
   Iterator begin() { detach(); return Iterator( sh->node->next ); }
@@ -338,6 +338,19 @@ public:
   uint count() const { return sh->nodes; }
 
   void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; } }
+    
+    
+  QValueList<T>& operator+= ( const T& x )
+  {
+      append( x );
+      return *this;
+  }
+  QValueList<T>& operator<<( const T& x )
+  {
+      append( x );
+      return *this;
+  }
+
 
 protected:
   /**
