@@ -95,7 +95,9 @@ else
   make -s -C ${QTDIR}/src include
   mkdir -p ${DISTDIR}/qt/doc/html
   make -s -C ${QTDIR}/extensions/opengl/src include
-  mkdir -p ${DISTDIR}/qt/opengl/html
+  make -s -C ${QTDIR}/extensions/nsplugin/src include
+  mkdir -p ${DISTDIR}/qt/extensions/opengl/html
+  mkdir -p ${DISTDIR}/qt/extensions/nsplugin/html
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/opengl
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/nsplugin
@@ -146,6 +148,7 @@ if [ "${platform}" = "win" ]; then
   mv */q*.h ../include
   cd ${DISTDIR}/qt
   mv extensions/opengl/src/q*.h include
+  mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
   find . -name 'Makefile*' -o -name 'qtx11.*' | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
