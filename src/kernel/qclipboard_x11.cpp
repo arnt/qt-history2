@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#50 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -420,8 +420,8 @@ bool QClipboard::event( QEvent *e )
 			QPixmap pm;
 			QImage img;
 			img.loadFromData(data);
-			pm.convertFromImage(img);
 			if ( img.depth() == 1 ) {
+			    pm.convertFromImage(img);
 			    Pixmap ph = pm.handle();
 			    XChangeProperty ( dpy, req->requestor, property,
 					      target, 32,
@@ -431,10 +431,7 @@ bool QClipboard::event( QEvent *e )
 			    evt.xselection.property = property;
 			    d->addTransferredPixmap(pm);
 			} else {
-			    if ( pm.mask() )
-				pm = *pm.mask();
-			    else
-				pm.convertFromImage(img.convertDepth(1));
+			    pm.convertFromImage(img.convertDepth(1));
 			    Pixmap ph = pm.handle();
 			    XChangeProperty ( dpy, req->requestor, property,
 					      target, 32,
