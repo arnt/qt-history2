@@ -89,7 +89,7 @@ int QtSqlCachedResultPrivate::nextIndex()
         return 0;
     int newIdx = rowCacheEnd;
     if (newIdx + colCount > cache.size())
-        cache.resize(cache.size() * 2);
+        cache.resize(qMin(cache.size() * 2, cache.size() + 10000));
     rowCacheEnd += colCount;
 
     return newIdx;
