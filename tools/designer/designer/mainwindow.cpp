@@ -778,7 +778,7 @@ void MainWindow::helpContents()
 		while ( mo && !propertyDocumentation.contains( ( s = QString( mo->className() ) + "/" + cp ) ) )
 		    mo = mo->superClass();
 		if ( mo )
-		    source = propertyDocumentation[s];
+		    source = "p:" + propertyDocumentation[s];
 	    }
 	}
 
