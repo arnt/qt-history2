@@ -35,7 +35,13 @@ QDesignerSqlWidget::QDesignerSqlWidget( QWidget *parent, const char *name )
 bool QDesignerSqlWidget::event( QEvent* e )
 {
     bool b = QSqlWidget::event( e );
-    if ( MainWindow::self->isPreviewing() ) {
+    if (
+#if defined(DESIGNER)
+	MainWindow::self->isPreviewing()
+#else
+	TRUE
+#endif
+	) {
 	if ( e->type() == QEvent::Show ) {
 	    (void)DatabaseSupport::defCursor();
 	    refresh();
@@ -64,7 +70,13 @@ QDesignerSqlDialog::QDesignerSqlDialog( QWidget *parent, const char *name )
 bool QDesignerSqlDialog::event( QEvent* e )
 {
     bool b = QSqlDialog::event( e );
-    if ( MainWindow::self->isPreviewing() ) {
+    if (
+#if defined(DESIGNER)
+	MainWindow::self->isPreviewing()
+#else
+	TRUE
+#endif
+	) {
 	if ( e->type() == QEvent::Show ) {
 	    (void)DatabaseSupport::defCursor();
 	    refresh();

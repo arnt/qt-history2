@@ -24,6 +24,7 @@ class DesignerApplicationInterfaceImpl : public QComponentInterface
 {
 public:
     DesignerApplicationInterfaceImpl();
+    virtual ~DesignerApplicationInterfaceImpl() {}
 
     // QUnknownInterface
     QUnknownInterface *queryInterface( const QGuid & );
@@ -43,6 +44,7 @@ class DesignerStatusBarInterfaceImpl : public DesignerStatusBarInterface
 {
 public:
     DesignerStatusBarInterfaceImpl( QUnknownInterface* );
+    virtual ~DesignerStatusBarInterfaceImpl() {}
 
     QUnknownInterface *queryInterface( const QGuid & );
     unsigned long addRef();
@@ -61,7 +63,7 @@ class DesignerFormListInterfaceImpl : public DesignerFormListInterface
 {
 public:
     DesignerFormListInterfaceImpl( QUnknownInterface* );
-    ~DesignerFormListInterfaceImpl();
+    virtual ~DesignerFormListInterfaceImpl();
 
     QUnknownInterface *queryInterface( const QGuid & );
     unsigned long addRef();
@@ -96,6 +98,7 @@ class DesignerFormInterfaceImpl : public DesignerFormInterface
 {
 public:
     DesignerFormInterfaceImpl( FormListItem *fw, QUnknownInterface *ai );
+    virtual ~DesignerFormInterfaceImpl() {}
 
     QUnknownInterface *queryInterface( const QGuid & );
     unsigned long addRef();
@@ -122,7 +125,7 @@ class DesignerWidgetListInterfaceImpl : public DesignerWidgetListInterface
 {
 public:
     DesignerWidgetListInterfaceImpl( QUnknownInterface * );
-    ~DesignerWidgetListInterfaceImpl();
+    virtual ~DesignerWidgetListInterfaceImpl();
 
     QUnknownInterface *queryInterface( const QGuid & );
     unsigned long addRef();
@@ -149,6 +152,7 @@ class DesignerWidgetInterfaceImpl : public DesignerWidgetInterface
 {
 public:
     DesignerWidgetInterfaceImpl( HierarchyItem *, QUnknownInterface * );
+    virtual ~DesignerWidgetInterfaceImpl() {}
 
     QUnknownInterface *queryInterface( const QGuid & );
     unsigned long addRef();

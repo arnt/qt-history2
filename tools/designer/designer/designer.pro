@@ -45,7 +45,8 @@ HEADERS	= command.h \
 		  projectsettingsimpl.h \
 		  dbconnectionsimpl.h \
 		  tableeditorimpl.h \
-		  sourceeditor.h
+		  sourceeditor.h \
+		  database.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -90,7 +91,8 @@ SOURCES	= command.cpp \
 		  dbconnectionsimpl.cpp \
 		  tableeditorimpl.cpp \
 		  sourceeditor.cpp \
-		  ../shared/guid.cpp
+		  ../shared/guid.cpp \
+		  database.cpp
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/

@@ -55,24 +55,24 @@ unsigned long DesignerApplicationInterfaceImpl::release()
     return ref;
 }
 
-QString DesignerApplicationInterfaceImpl::name() const 
-{ 
-    return "Qt Designer"; 
+QString DesignerApplicationInterfaceImpl::name() const
+{
+    return "Qt Designer";
 }
 
-QString DesignerApplicationInterfaceImpl::description() const 
-{ 
-    return "GUI Editor for the Qt Toolkit"; 
+QString DesignerApplicationInterfaceImpl::description() const
+{
+    return "GUI Editor for the Qt Toolkit";
 }
 
-QString DesignerApplicationInterfaceImpl::version() const 
-{ 
-    return "1.1"; 
+QString DesignerApplicationInterfaceImpl::version() const
+{
+    return "1.1";
 }
 
-QString DesignerApplicationInterfaceImpl::author() const 
-{ 
-    return "Trolltech"; 
+QString DesignerApplicationInterfaceImpl::author() const
+{
+    return "Trolltech";
 }
 
 /*
@@ -84,7 +84,7 @@ DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QUnknownInterfac
     QWidget *mw = qApp ? qApp->mainWidget() : 0;
     if ( mw && mw->inherits( "QMainWindow" ) )
 	statusBar = ((QMainWindow*)mw)->statusBar();
-    
+
     appIface->addRef();
 }
 
@@ -162,7 +162,6 @@ unsigned long DesignerFormListInterfaceImpl::release()
 QString DesignerFormListInterfaceImpl::text( DesignerFormInterface *form, int col ) const
 {
     QString formname = form->property( "name" ).toString();
-    DesignerFormListInterfaceImpl* that = (DesignerFormListInterfaceImpl*)this;
     QListViewItemIterator it( formList );
     while ( it.current() ) {
 	FormListItem* item = (FormListItem*)it.current();
@@ -190,7 +189,6 @@ void DesignerFormListInterfaceImpl::setText( DesignerFormInterface *form, int co
 const QPixmap* DesignerFormListInterfaceImpl::pixmap( DesignerFormInterface *form, int col ) const
 {
     QString formname = form->property( "name" ).toString();
-    DesignerFormListInterfaceImpl* that = (DesignerFormListInterfaceImpl*)this;
     QListViewItemIterator it( formList );
     while ( it.current() ) {
 	FormListItem* item = (FormListItem*)it.current();
@@ -517,7 +515,7 @@ void DesignerWidgetListInterfaceImpl::removeAll() const
  * DesignerWidgetInterface implementation
  */
 DesignerWidgetInterfaceImpl::DesignerWidgetInterfaceImpl( HierarchyItem *i, QUnknownInterface *ai )
-: DesignerWidgetInterface(), appIface( ai ), item( i )
+: DesignerWidgetInterface(), item( i ), appIface( ai )
 {
     appIface->addRef();
 
