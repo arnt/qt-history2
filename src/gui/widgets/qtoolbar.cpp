@@ -65,10 +65,14 @@ void QToolBarPrivate::init()
     layout->setSpacing(q->style()->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
 
     handle = new QToolBarHandle(q);
+    QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
+                     handle, SLOT(setOrientation(Qt::Orientation)));
     layout->addWidget(handle);
     handle->setShown(movable);
 
     extension = new QToolBarExtension(q);
+    QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
+                     extension, SLOT(setOrientation(Qt::Orientation)));
     extension->setFocusPolicy(Qt::NoFocus);
     extension->hide();
 
@@ -107,6 +111,8 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
         item.widget = widgetAction->widget();
     } else if (action->isSeparator()) {
         item.widget = new QToolBarSeparator(q);
+        QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
+                         item.widget, SLOT(setOrientation(Qt::Orientation)));
     } else {
         QToolButton *button = new QToolButton(q);
         button->setAutoRaise(true);
@@ -311,18 +317,6 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
         box->setAlignment(Qt::AlignLeft);
  	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 	break;
-    }
-
-    d->handle->setOrientation(d->orientation);
-    d->extension->setOrientation(d->orientation);
-
-    // change the orientation of any separators
-    QLayoutItem *item = 0;
-    int i = 0;
-    while ((item = box->itemAt(i++))) {
-	QToolBarSeparator *sep = qt_cast<QToolBarSeparator *>(item->widget());
-	if (sep)
-            sep->setOrientation(d->orientation);
     }
 
     emit orientationChanged(d->orientation);
@@ -762,14 +756,14 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	QWidget *w = box->itemAt(i)->widget();
 	if (pick(orientation, w->pos()) + pick(orientation, w->size())
             > pick(orientation, size()) - extension_size)
-        {
-            w->hide();
-            d->items[i - 1].hidden = true;
-            ++hidden_count;
-            // the size of the extension menu button needs to be
-            // considered when buttons in the toolbar are hidden
-            extension_size = pick(orientation, d->extension->sizeHint());
-        } else {
+            {
+                w->hide();
+                d->items[i - 1].hidden = true;
+                ++hidden_count;
+                // the size of the extension menu button needs to be
+                // considered when buttons in the toolbar are hidden
+                extension_size = pick(orientation, d->extension->sizeHint());
+            } else {
             w->setShown(d->items[i - 1].action->isVisible());
             d->items[i - 1].hidden = false;
 	}
