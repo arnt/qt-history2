@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#219 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#220 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#219 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#220 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -286,9 +286,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	frect.setRect( a.x, a.y, a.width, a.height );
 	crect = frect;
 	if ( a.map_state == IsUnmapped )
-	    setWFlags( WState_Visible );
-	else
 	    clearWFlags( WState_Visible );
+	else
+	    setWFlags( WState_Visible );
     }
 
     if ( destroyw )
