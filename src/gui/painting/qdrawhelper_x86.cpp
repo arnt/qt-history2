@@ -1,4 +1,4 @@
-#ifdef Q_CC_GNU
+#if defined(Q_CC_GNU) && defined(__i386__)
 enum CPUFeatures {
     None = 0,
     MMX = 0x1,
@@ -289,7 +289,7 @@ void qInitAsm(DrawHelper *dh)
     if (features)
         return;
 
-#ifdef Q_CC_GNU
+#if defined (Q_CC_GNU) && defined (__i386__)
     features = detectCPUFeatures();
     qDebug("features = %x", features);
 
