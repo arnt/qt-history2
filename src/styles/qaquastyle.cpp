@@ -10619,6 +10619,8 @@ void QAquaStyle::drawSlider( QPainter *p, int x, int y, int /*w*/, int h,
     } else {
 	qAquaPixmap( "sldr_dis_pty_" + dir, px );
     }
+    if(contextWidget())
+	((QWidget *)contextWidget())->erase(x, y, px.width(), px.height());
     p->drawPixmap( x, y, px );    
 }
 
