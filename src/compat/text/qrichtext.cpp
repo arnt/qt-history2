@@ -3015,35 +3015,31 @@ bool Q3TextDocument::find(Q3TextCursor& cursor, const QString &expr, bool cs, bo
 {
     Qt::CaseSensitivity caseSensitive = cs ? Qt::CaseSensitive : Qt::CaseInsensitive;
     removeSelection(Standard);
-    Q3TextParagraph *p = 0;
     if (expr.isEmpty())
         return false;
     for (;;) {
-        if (p != cursor.paragraph()) {
-            p = cursor.paragraph();
-            QString s = cursor.paragraph()->string()->toString();
-            int start = cursor.index();
-            for (;;) {
-                int res = forward
-                          ? s.indexOf(expr, start, caseSensitive)
-                          : s.lastIndexOf(expr, start, caseSensitive);
-                int end = res + expr.length();
-                if (res == -1 || (!forward && start <= res))
-                    break;
-                if (!wo || ((res == 0 || !s[res-1].isLetterOrNumber())
-                            && (end == (int)s.length() || !s[end].isLetterOrNumber()))) {
-                    removeSelection(Standard);
-                    cursor.setIndex(forward ? end : res);
-                    setSelectionStart(Standard, cursor);
-                    cursor.setIndex(forward ? res : end);
-                    setSelectionEnd(Standard, cursor);
-                    if (!forward)
-                        cursor.setIndex(res);
-                    return true;
-                }
-                start = res + (forward ? 1 : -1);
-            }
-        }
+	QString s = cursor.paragraph()->string()->toString();
+	int start = cursor.index();
+	for (;;) {
+	    int res = forward
+		? s.indexOf(expr, start, caseSensitive)
+		: s.lastIndexOf(expr, start, caseSensitive);
+	    int end = res + expr.length();
+	    if (res == -1 || (!forward && start <= res))
+		break;
+	    if (!wo || ((res == 0 || !s[res-1].isLetterOrNumber())
+		&& (end == (int)s.length() || !s[end].isLetterOrNumber()))) {
+		removeSelection(Standard);
+		cursor.setIndex(forward ? end : res);
+		setSelectionStart(Standard, cursor);
+		cursor.setIndex(forward ? res : end);
+		setSelectionEnd(Standard, cursor);
+		if (!forward)
+		    cursor.setIndex(res);
+		return true;
+	    }
+	    start = res + (forward ? 1 : -1);
+	}
         if (forward) {
             if (cursor.paragraph() == lastParagraph() && cursor.atParagEnd())
                  break;
