@@ -126,6 +126,12 @@ tar: dist
 	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/aout.tar libqt.a )
 	( set -e ; cd $(DISTDIR)/.. ; tar cf $(DISTDIR).tar `basename $(DISTDIR)`/{INSTALL,README,ANNOUNCE,MANIFEST,LICENCE,misc.tar,aout.tar,elf.tar} ; gzip -f9 $(DISTDIR).tar )
 
+info:
+	@for d in $(DIRS); do cd $$d ; rinfo ; cd .. ; done
+
+newer:
+	@for d in $(DIRS); do cd $$d ; rnewer ; cd .. ; done
+
 update:
 	@for d in $(DIRS); do cd $$d ; rupdate ; cd .. ; done
 
