@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#8 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#9 $
 **
 ** Definition of QDragObject
 **
@@ -66,9 +66,6 @@ public:
 
 class QDragManager: public QObject {
     Q_OBJECT
-
-public:
-    static void registerDropType( QWidget *, const char * );
 
 private:
     QDragManager();

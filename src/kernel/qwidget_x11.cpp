@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#243 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#244 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1656,6 +1656,14 @@ int QWidget::metric( int m ) const
     return val;
 }
 
+void QWidget::createSysExtra()
+{
+    extra->xic = 0;
+}
+
+void QWidget::deleteSysExtra()
+{
+}
 
 /*!  Registers \a mimeType as a possible drop type and announces to
   the system that this widget \e may be able to accept \a mimeType
@@ -1665,11 +1673,11 @@ int QWidget::metric( int m ) const
     registerDropType( "text/plain" );
     retisterDropType( "image/gif" );
   \endcode
-
-  You can also use QDragManager::registerDropType() directly.
 */
 
 void QWidget::registerDropType( const char * mimeType )
 {
-    QDragManager::registerDropType( this, mimeType );
+    // ### set some flags in extraData()?
+
+    qt_xdnd_add_type( mimeType );
 }

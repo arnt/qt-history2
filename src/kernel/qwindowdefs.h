@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#106 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#107 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -236,6 +236,9 @@ const uint WState_TabToFocus	= 0x80000000;
 
 
 class QFocusData;
+#if defined(_WS_WIN_)
+class QOleDropTarget;
+#endif
 
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
@@ -250,6 +253,7 @@ struct QWExtra {
     QPixmap *icon;				// widget icon
 #if defined(_WS_WIN_)
     HANDLE   winIcon;				// internal Windows icon
+    QOleDropTarget *dropTarget;			// DND drop target
 #endif
     QPixmap *bg_pix;				// background pixmap
     char     bg_mode;				// background mode

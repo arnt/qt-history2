@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#107 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1000,8 +1000,25 @@ int QWidget::metric( int m ) const
     return val;
 }
 
-
-void QWidget::registerDropType( const char * /* mimeType */ )
+void QWidget::createSysExtra()
 {
-    // nothing
+    extra->winIcon = 0;
+    extra->dropTarget = 0;
+}
+
+void QWidget::deleteSysExtra()
+{
+    if ( extra->winIcon )
+	DestroyIcon( extra->winIcon );
+    if ( extra->dropTarget )
+	qt_olednd_unregister( this, extra->dropTarget );
+}
+
+void QWidget::registerDropType( const char * /*mimeType*/ )
+{
+    createExtra();
+    QWExtra *extra = extraData();
+    if ( !extra->dropTarget )
+	extra->dropTarget = qt_olednd_register( this );
+    // ### do something with mimeType?
 }

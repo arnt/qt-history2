@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#249 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#250 $
 **
 ** Implementation of QWidget class
 **
@@ -816,16 +816,11 @@ void QWidget::createExtra()
 	extra->incw = extra->inch = 0;
 	extra->caption = extra->iconText = 0;
 	extra->icon = extra->bg_pix = 0;
-#if defined(_WS_WIN_)
-	extra->winIcon = 0;
-#endif
 	extra->bg_mode = PaletteBackground;
 	extra->focusData = 0;
-#if defined(_WS_X11_)
-	extra->xic = 0;
-#endif
 	extra->propagateFont = 0;
 	extra->propagatePalette = 0;
+	createSysExtra();
     }
 }
 
@@ -842,12 +837,9 @@ void QWidget::deleteExtra()
 	if ( extra->iconText )			// Avoid purify complaint.
 	    delete [] extra->iconText;
 	delete extra->icon;
-#if defined(_WS_WIN_)
-	if ( extra->winIcon )
-	    DestroyIcon( extra->winIcon );
-#endif
 	delete extra->bg_pix;
 	delete extra->focusData;
+	deleteSysExtra();
 	delete extra;
 	// extra->xic destroyed in QWidget::destroy()
 	extra = 0;
@@ -3311,3 +3303,4 @@ void QWidget::setPalettePropagation( PropagationMode m )
     createExtra();
     extra->propagatePalette = (int)m;
 }
+

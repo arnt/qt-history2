@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#149 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -31,6 +31,7 @@
 #define __INSIDE_CYGWIN32__
 #include <mywinsock.h>
 #endif
+#include <ole2.h>
 
 /*****************************************************************************
   Internal variables and functions
@@ -217,6 +218,13 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
     appPrevInst = prevInstance;
     appCmdShow = cmdShow;
 
+  // Initialize OLE
+    if (NOERROR != OleInitialize(NULL))
+       return 1;
+
+  // Deinitialize OLE
+    OleUninitialize();
+
   // Call user main()
 
     return main( argc, argv.data() );
@@ -324,6 +332,7 @@ void qt_cleanup()
     QColor::cleanup();
     if ( displayDC )
 	ReleaseDC( 0, displayDC );
+    OleUninitialize();
 }
 
 

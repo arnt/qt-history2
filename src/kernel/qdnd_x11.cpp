@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#20 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -505,12 +505,6 @@ void QDragManager::drop()
     }
 }
 
-
-
-void QDragManager::registerDropType( QWidget *, const char * mimeType )
-{
-    qt_xdnd_add_type( mimeType );
-}
 
 
 void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * e )
