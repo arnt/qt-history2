@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#546 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#547 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -600,11 +600,15 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	resBG = bg;
 
     if ( !resFont.isEmpty() ) {				// set application font
-	QFont font;
-	font.setRawName( resFont );
-	font.setCharSet( QFont::charSetForLocale() ); // override requested charset
-	if ( font != QApplication::font() )
- 	    QApplication::setFont( font, TRUE );
+	QFont fnt;
+	fnt.setRawName( resFont );
+
+	// override requested charset, unless given on the command-line
+	if ( !font )
+	    fnt.setCharSet( QFont::charSetForLocale() );
+
+	if ( fnt != QApplication::font() )
+ 	    QApplication::setFont( fnt, TRUE );
     }
     if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {// set app colors
 	QColor btn;
