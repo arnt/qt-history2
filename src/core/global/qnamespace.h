@@ -888,7 +888,7 @@ public:
         NToolBarAreas     = 4
     };
 
-    Q_DECLARE_FLAGS(ToolBarAreaFlags, ToolBarArea);
+    Q_DECLARE_FLAGS(ToolBarAreas, ToolBarArea);
 
     // Documented in qmainwindow.cpp
     enum Dock {
@@ -1034,7 +1034,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas);
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreaFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas);
 
 class Q_CORE_EXPORT QInternal {
 public:

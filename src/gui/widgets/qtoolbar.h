@@ -15,7 +15,7 @@ class Q_GUI_EXPORT QToolBar : public QFrame
     Q_OBJECT
 
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
-    Q_PROPERTY(Qt::ToolBarAreaFlags allowedAreas READ allowedAreas WRITE setAllowedAreas)
+    Q_PROPERTY(Qt::ToolBarAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
     Q_PROPERTY(Qt::ToolBarArea area READ area WRITE setArea)
 
 public:
@@ -28,8 +28,8 @@ public:
     void setMovable(bool movable = true);
     bool isMovable() const;
 
-    void setAllowedAreas(Qt::ToolBarAreaFlags areas);
-    Qt::ToolBarAreaFlags allowedAreas() const;
+    void setAllowedAreas(Qt::ToolBarAreas areas);
+    Qt::ToolBarAreas allowedAreas() const;
 
     inline bool isDockable(Qt::ToolBarArea area)
     { return (allowedAreas() & area) == area; }

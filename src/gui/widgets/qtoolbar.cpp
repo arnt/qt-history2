@@ -233,7 +233,7 @@ public:
 
     bool movable;
     QSize old_size;
-    Qt::ToolBarAreaFlags allowedAreas;
+    Qt::ToolBarAreas allowedAreas;
     Qt::ToolBarArea area;
     QToolBarHandle *handle;
     QToolBarExtension *extension;
@@ -340,10 +340,10 @@ bool QToolBar::isMovable() const
     The default is \c Qt::AllToolBarAreas.
 */
 
-void QToolBar::setAllowedAreas(Qt::ToolBarAreaFlags areas)
+void QToolBar::setAllowedAreas(Qt::ToolBarAreas areas)
 { d->allowedAreas = (areas & Qt::ToolBarAreaMask); }
 
-Qt::ToolBarAreaFlags QToolBar::allowedAreas() const
+Qt::ToolBarAreas QToolBar::allowedAreas() const
 { return d->allowedAreas; }
 
 /*! \property QToolBar::area
