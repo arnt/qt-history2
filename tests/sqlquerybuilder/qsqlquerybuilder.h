@@ -36,6 +36,7 @@ public:
     QString table( int i ) const;
     QString joinCondition( int i ) const;
     
+    void setPrimaryKey( const QString& table, const QStringList& index );
     void setTable( int i, const QString& table );
     void setJoinCondition( int i, const QString& condition );
     
@@ -43,6 +44,7 @@ public:
     void addField( const QString& table, const QString& field );
     
 private:
+    QSqlQueryBuilder& doJoin( const QString& table, const QString& joinCondition, QSqlQueryBuilder::JoinType type );
     QSqlQueryBuilderPrivate* d;
 };
 

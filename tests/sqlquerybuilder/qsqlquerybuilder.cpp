@@ -3,10 +3,10 @@
 
 class QSqlQueryBuilderPrivate {
 public:
-    QSqlQueryBuilderPrivate() :	numJoins(0) {}
-    int numJoins;
+    QSqlQueryBuilderPrivate() {}
     QString baseTable;
     QMap<QString,QStringList> tableFields;
+    QMap<QString,QStringList> indices;
     QStringList joinConditions;
     QValueList<QSqlQueryBuilder::JoinType> joinTypes;
 };
@@ -27,6 +27,23 @@ static QString qTableFieldList( const QString& table, const QStringList& strl )
     return fields;
 }
 
+static QString qIndexList( const QString& table, const QStringList& index )
+{
+    bool comma = FALSE;
+    QString i;
+    QStringList::ConstIterator it;
+    for ( it = index.begin(); it != index.end(); ++it ) {
+	if ( comma ) {
+	    i += " and " + *it + " = :" + table + "_" + *it;
+	} else {
+	    i += *it + " = :" + table + "_" + *it;
+	    comma = TRUE;
+	}
+    }
+    
+    return i;    
+}
+
 QSqlQueryBuilder::QSqlQueryBuilder( const QString& table, bool )
 {
     d = new QSqlQueryBuilderPrivate;
@@ -36,7 +53,6 @@ QSqlQueryBuilder::QSqlQueryBuilder( const QString& table, bool )
 QSqlQueryBuilder::QSqlQueryBuilder( const QSqlQueryBuilder& other )
 {
     d = new QSqlQueryBuilderPrivate;
-    d->numJoins = other.d->numJoins;
     d->tableFields = other.d->tableFields;
     d->joinConditions = other.d->joinConditions;
     d->joinTypes = other.d->joinTypes;
@@ -49,37 +65,29 @@ QSqlQueryBuilder::~QSqlQueryBuilder()
 
 QSqlQueryBuilder& QSqlQueryBuilder::join( const QString& table, const QString& joinCondition )
 {
-    d->tableFields.insert( table, QStringList() );
-    d->joinConditions.append( joinCondition );
-    d->joinTypes.append( Natural );
-    d->numJoins++;
-    return *this;
+    return doJoin( table, joinCondition, Natural );
 }
 
 QSqlQueryBuilder& QSqlQueryBuilder::leftOuterJoin( const QString& table, const QString& joinCondition )
 {
-    d->tableFields.insert( table, QStringList() );
-    d->joinConditions.append( joinCondition );
-    d->joinTypes.append( LeftOuter );
-    d->numJoins++;
-    return *this;
+    return doJoin( table, joinCondition, LeftOuter );
 }
 
 QSqlQueryBuilder& QSqlQueryBuilder::rightOuterJoin( const QString& table, const QString& joinCondition )
 {
-    d->tableFields.insert( table, QStringList() );
-    d->joinConditions.append( joinCondition );
-    d->joinTypes.append( RightOuter );
-    d->numJoins++;
-    return *this;
+    return doJoin( table, joinCondition, RightOuter );
 }
 
 QSqlQueryBuilder& QSqlQueryBuilder::fullOuterJoin( const QString& table, const QString& joinCondition )
 {
+    return doJoin( table, joinCondition, FullOuter );
+}
+
+QSqlQueryBuilder& QSqlQueryBuilder::doJoin( const QString& table, const QString& joinCondition, QSqlQueryBuilder::JoinType type )
+{
     d->tableFields.insert( table, QStringList() );
     d->joinConditions.append( joinCondition );
-    d->joinTypes.append( FullOuter );
-    d->numJoins++;
+    d->joinTypes.append( type );
     return *this;
 }
 
@@ -174,7 +182,7 @@ QStringList QSqlQueryBuilder::updateQueries() const
 		    comma = TRUE;
 		}
 	    }
-	    q += " where primarykey = key";
+	    q += " where " + qIndexList( it.key(), d->indices[it.key()] );
  	    strl.append( q );
 	}
     }
@@ -188,7 +196,7 @@ QStringList QSqlQueryBuilder::deleteQueries() const
     QStringList strl;
     for ( it = d->tableFields.begin(); it != d->tableFields.end(); ++it ) {
 	if ( !it.data().isEmpty() )
- 	    strl.append( "delete from " + it.key() + " where primarykey = key" );
+ 	    strl.append( "delete from " + it.key() + " where " + qIndexList( it.key(), d->indices[it.key()] ) );
     }
     return strl;
 }
@@ -223,3 +231,7 @@ void QSqlQueryBuilder::addField( const QString& table, const QString& field )
     d->tableFields[table].append( field );
 }
 
+void QSqlQueryBuilder::setPrimaryKey( const QString& table, const QStringList& index )
+{
+    d->indices[table] = index;
+}
