@@ -264,6 +264,7 @@ public slots:
     void previewForm( const QString& );
 
     void toolsCustomWidget();
+    void toolsConfigure();
 
     void helpContents();
     void helpManual();
@@ -335,6 +336,7 @@ private:
     void handleRMBSpecialCommands( int id, QMap<QString, int> &commands, FormWindow *w );
     bool openEditor( QWidget *w, FormWindow *fw );
     void rebuildCustomWidgetGUI();
+    void rebuildCommonWidgetsToolBoxPage();
     void checkTempFiles();
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
@@ -454,6 +456,8 @@ private:
 
 public:
     QString lastSaveFilter;
+    QPtrList<QAction> toolActions;
+    QPtrList<QAction> commonWidgetsPage;
 
 };
 

@@ -32,7 +32,7 @@ table {
 	FORMS += tableeditor.ui
 	}
 
-FORMS	+= listboxeditor.ui editfunctions.ui newform.ui listvieweditor.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui listeditor.ui startdialog.ui richtextfontdialog.ui connectiondialog.ui variabledialog.ui
+FORMS	+= listboxeditor.ui editfunctions.ui newform.ui listvieweditor.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui listeditor.ui startdialog.ui richtextfontdialog.ui connectiondialog.ui variabledialog.ui configtoolboxdialog.ui
 CONFIG	+= qt warn_on release
 DEFINES	+= DESIGNER
 INCLUDEPATH	+= ../shared ../uilib

@@ -68,6 +68,7 @@
 #include "startdialogimpl.h"
 #include "designerappiface.h"
 #include "connectiondialog.h"
+#include "configtoolboxdialog.h"
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -348,7 +349,7 @@ void MainWindow::setupLayoutActions()
     connect( actionEditBreakLayout, SIGNAL( activated() ), this, SLOT( editBreakLayout() ) );
 
     int id = WidgetDatabase::idFromClassName( "Spacer" );
-    QAction* a = new WidgetAction( actionGroupTools, QString::number( id ).latin1() );
+    QAction* a = new WidgetAction( "Layout", actionGroupTools, QString::number( id ).latin1() );
     actionSpacer = a;
     a->setToggleAction( TRUE );
     a->setText( WidgetDatabase::className( id ) );
@@ -363,6 +364,7 @@ void MainWindow::setupLayoutActions()
 	.arg(WidgetDatabase::whatsThis( id ))
 	.arg(WidgetDatabase::toolTip( id ) ));
     actionSpacer->addTo( commonWidgetsToolBar );
+    commonWidgetsPage.append( actionSpacer );
     commonWidgetsToolBar->setStretchableWidget( new QWidget( commonWidgetsToolBar ) );
     QWhatsThis::add( layoutToolBar, tr( "<b>The Layout toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     actionEditAdjustSize->addTo( layoutToolBar );
@@ -396,28 +398,37 @@ void MainWindow::setupToolActions()
     if ( !actionGroupTools ) {
 	actionGroupTools = new QActionGroup( this );
 	actionGroupTools->setExclusive( TRUE );
-	connect( actionGroupTools, SIGNAL( selected(QAction*) ), this, SLOT( toolSelected(QAction*) ) );
+	connect( actionGroupTools, SIGNAL( selected(QAction*) ),
+		 this, SLOT( toolSelected(QAction*) ) );
     }
 
-    actionPointerTool = new QAction( tr("Pointer"), createIconSet("pointer.xpm"), tr("&Pointer"),  Key_F2,
-				     actionGroupTools, QString::number(POINTER_TOOL).latin1(), TRUE );
+    actionPointerTool = new QAction( tr("Pointer"), createIconSet("pointer.xpm"),
+				     tr("&Pointer"),  Key_F2,
+				     actionGroupTools,
+				     QString::number(POINTER_TOOL).latin1(), TRUE );
     actionPointerTool->setStatusTip( tr("Selects the pointer tool") );
     actionPointerTool->setWhatsThis( whatsThisFrom( "Tools|Pointer" ) );
 
-    actionConnectTool = new QAction( tr("Connect Signal/Slots"), createIconSet("connecttool.xpm"),
-				     tr("&Connect Signal/Slots"),  singleProjectMode() ? 0 : Key_F3,
-				     actionGroupTools, QString::number(CONNECT_TOOL).latin1(), TRUE );
+    actionConnectTool = new QAction( tr("Connect Signal/Slots"),
+				     createIconSet("connecttool.xpm"),
+				     tr("&Connect Signal/Slots"),
+				     singleProjectMode() ? 0 : Key_F3,
+				     actionGroupTools,
+				     QString::number(CONNECT_TOOL).latin1(), TRUE );
     actionConnectTool->setStatusTip( tr("Selects the connection tool") );
     actionConnectTool->setWhatsThis( whatsThisFrom( "Tools|Connect Signals and Slots" ) );
 
     actionOrderTool = new QAction( tr("Tab Order"), createIconSet("ordertool.xpm"),
 				   tr("Tab &Order"),  Key_F4,
-				   actionGroupTools, QString::number(ORDER_TOOL).latin1(), TRUE );
+				   actionGroupTools,
+				   QString::number(ORDER_TOOL).latin1(), TRUE );
     actionOrderTool->setStatusTip( tr("Selects the tab order tool") );
     actionOrderTool->setWhatsThis( whatsThisFrom( "Tools|Tab Order" ) );
 
-    actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "pointer.xpm" ), tr( "Set &Buddy" ), Key_F5,
-				   actionGroupTools, QString::number( BUDDY_TOOL ).latin1(), TRUE );
+    actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "pointer.xpm" ),
+				   tr( "Set &Buddy" ), Key_F5,
+				   actionGroupTools,
+				   QString::number( BUDDY_TOOL ).latin1(), TRUE );
     actionBuddyTool->setStatusTip( tr( "Sets a buddy to a label" ) );
     actionBuddyTool->setWhatsThis( whatsThisFrom( "Tools|Set Buddy" ) );
 
@@ -449,11 +460,14 @@ void MainWindow::setupToolActions()
     customWidgetMenu = 0;
 
     actionToolsCustomWidget = new QAction( tr("Custom Widgets"),
-					   createIconSet( "customwidget.xpm" ), tr("Edit &Custom Widgets..."), 0, this, 0 );
-    actionToolsCustomWidget->setStatusTip( tr("Opens a dialog to add and change custom widgets") );
-    actionToolsCustomWidget->setWhatsThis( whatsThisFrom( "Tools|Custom|Edit Custom Widgets" ) );
-
-    connect( actionToolsCustomWidget, SIGNAL( activated() ), this, SLOT( toolsCustomWidget() ) );
+					   createIconSet( "customwidget.xpm" ),
+					   tr("Edit &Custom Widgets..."), 0, this, 0 );
+    actionToolsCustomWidget->setStatusTip( tr("Opens a dialog to add and change "
+					      "custom widgets") );
+    actionToolsCustomWidget->setWhatsThis( whatsThisFrom( "Tools|Custom|Edit Custom"
+							  "Widgets" ) );
+    connect( actionToolsCustomWidget, SIGNAL( activated() ),
+	     this, SLOT( toolsCustomWidget() ) );
 
     for ( int j = 0; j < WidgetDatabase::numWidgetGroups(); ++j ) {
 	QString grp = WidgetDatabase::widgetGroup( j );
@@ -466,12 +480,12 @@ void MainWindow::setupToolActions()
 	bool plural = grp[(int)grp.length()-1] == 's';
 	if ( plural ) {
 	    QWhatsThis::add( tb, tr( "<b>The %1</b>%2" ).arg(grp).arg(tr(toolbarHelp).
-						arg( tr(" Click on a button to insert a single widget, "
-						"or double click to insert multiple %1.") ).arg(grp)) );
+				arg( tr(" Click on a button to insert a single widget, "
+				"or double click to insert multiple %1.") ).arg(grp)) );
 	} else {
 	    QWhatsThis::add( tb, tr( "<b>The %1 Widgets</b>%2" ).arg(grp).arg(tr(toolbarHelp).
-						arg( tr(" Click on a button to insert a single %1 widget, "
-						"or double click to insert multiple widgets.") ).arg(grp)) );
+				arg( tr(" Click on a button to insert a single %1 widget, "
+				"or double click to insert multiple widgets.") ).arg(grp)) );
 	}
 	addToolBar( tb, grp );
 	tb->hide();
@@ -495,7 +509,8 @@ void MainWindow::setupToolActions()
 	for ( int i = 0; i < WidgetDatabase::count(); ++i ) {
 	    if ( WidgetDatabase::group( i ) != grp )
 		continue; // only widgets, i.e. not forms and temp stuff
-	    WidgetAction* a = new WidgetAction( actionGroupTools, QString::number( i ).latin1() );
+	    WidgetAction* a =
+		new WidgetAction( grp, actionGroupTools, QString::number( i ).latin1() );
 	    a->setToggleAction( TRUE );
 	    QString atext = WidgetDatabase::className( i );
 	    if ( atext[0] == 'Q' )
@@ -515,14 +530,16 @@ void MainWindow::setupToolActions()
 	    QString whats = QString("<b>A %1</b>").arg( WidgetDatabase::className( i ) );
 	    if ( !WidgetDatabase::whatsThis( i ).isEmpty() )
 	    whats += QString("<p>%1</p>").arg(WidgetDatabase::whatsThis( i ));
-	    a->setWhatsThis( whats + tr("<p>Double click on this tool to keep it selected.</p>") );
+	    a->setWhatsThis( whats+ tr("<p>Double click on this tool to keep it selected.</p>") );
 
 	    if ( grp != "KDE" )
 		a->addTo( tb );
 	    a->addTo( menu );
 	    a->addTo( tb2 );
-	    if ( WidgetDatabase::isCommon( i ) )
+	    if ( WidgetDatabase::isCommon( i ) ) {
 		a->addTo( commonWidgetsToolBar );
+		commonWidgetsPage.append( a );
+	    }
 	}
 	tb2->setStretchableWidget( new QWidget( tb2 ) );
     }
@@ -531,10 +548,12 @@ void MainWindow::setupToolActions()
 	QToolBar *tb = new QToolBar( this, "Custom Widgets" );
 	tb->setCloseMode( QDockWindow::Undocked );
 	QWhatsThis::add( tb, tr( "<b>The Custom Widgets toolbar</b>%1"
-				 "<p>Click <b>Edit Custom Widgets...</b> in the <b>Tools|Custom</b> menu to "
-				 "add and change custom widgets</p>" ).arg(tr(toolbarHelp).
-				 arg( tr(" Click on the buttons to insert a single widget, "
-				 "or double click to insert multiple widgets.") )) );
+				 "<p>Click <b>Edit Custom Widgets...</b>"
+				 "in the <b>Tools|Custom</b> menu to "
+				 "add and change custom widgets</p>" ).
+			 arg(tr(toolbarHelp).
+			     arg( tr(" Click on the buttons to insert a single widget, "
+				     "or double click to insert multiple widgets.") )) );
 	addToolBar( tb, "Custom" );
 	tb->hide();
 	widgetToolBars.append( tb );
@@ -545,13 +564,20 @@ void MainWindow::setupToolActions()
 	customWidgetToolBar->hide();
 	actionToolsCustomWidget->addTo( customWidgetMenu );
 	customWidgetMenu->insertSeparator();
-	QToolBar *tb2 = new QToolBar( "Custom Widgets", 0, toolBox, FALSE, "Custom Widgets" );
+	QToolBar *tb2 = new QToolBar( "Custom Widgets", 0,
+				      toolBox, FALSE, "Custom Widgets" );
 	tb2->setOrientation( Qt::Vertical );
 	tb2->setFrameStyle( QFrame::NoFrame );
 	toolBox->addCategory( "Custom Widgets", tb2 );
 	customWidgetToolBar2 = tb2;
     }
 
+    QAction *a = new QAction( tr( "Configure Toolbox" ), tr( "Configure Toolbox..." ), 0, this );
+    a->setStatusTip( tr( "Opens a dialog to configure the common "
+					       "widgets page of the toolbox") );
+    connect( a, SIGNAL( activated() ), this, SLOT( toolsConfigure() ) );
+    mmenu->insertSeparator();
+    a->addTo( mmenu );
     resetTool();
 }
 
@@ -1969,6 +1995,14 @@ void MainWindow::toolsCustomWidget()
     edit.exec();
     rebuildCustomWidgetGUI();
     statusBar()->clear();
+}
+
+void MainWindow::toolsConfigure()
+{
+    ConfigToolboxDialog dlg( this );
+    if ( dlg.exec() != QDialog::Accepted )
+	return;
+    rebuildCommonWidgetsToolBoxPage();
 }
 
 void MainWindow::showStartDialog()

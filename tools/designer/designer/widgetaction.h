@@ -28,19 +28,31 @@ class WidgetAction : public QAction
     Q_OBJECT
 
 public:
-    WidgetAction( QObject* parent, const char* name = 0, bool toggle = FALSE  )
-	: QAction( parent, name, toggle ) {}
-    WidgetAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
+    WidgetAction( const QString &grp, QObject* parent,
+		  const char* name = 0, bool toggle = FALSE  )
+	: QAction( parent, name, toggle ) { init( grp ); }
+    WidgetAction( const QString &grp, const QString& text,
+		  const QIconSet& icon, const QString& menuText, QKeySequence accel,
 		  QObject* parent, const char* name = 0, bool toggle = FALSE )
-	: QAction( text, icon, menuText, accel, parent, name, toggle ) {}
-    WidgetAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
+	: QAction( text, icon, menuText, accel, parent, name, toggle ) { init( grp ); }
+    WidgetAction( const QString &grp, const QString& text,
+		  const QString& menuText, QKeySequence accel, QObject* parent,
 		  const char* name = 0, bool toggle = FALSE )
-	: QAction( text, menuText, accel, parent, name, toggle ) {}
+	: QAction( text, menuText, accel, parent, name, toggle ) { init( grp ); }
+    ~WidgetAction();
 
 #if !defined(Q_NO_USING_KEYWORD)
     using QAction::addedTo;
 #endif
     void addedTo( QWidget *, QWidget * );
+
+    QString group() const { return grp; }
+
+private:
+    void init( const QString &g );
+
+private:
+    QString grp;
 
 };
 

@@ -2482,13 +2482,22 @@ void MainWindow::rebuildCustomWidgetGUI()
     customWidgetMenu->clear();
     customWidgetToolBar2->clear();
     int count = 0;
+
+    QPtrListIterator<QAction> it( toolActions );
+    QAction *action;
+    while ( ( action = it.current() ) ) {
+	++it;
+	if ( ( (WidgetAction*)action )->group() == "Custom Widgets" )
+	    delete action;
+    }
+
     QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
 
     actionToolsCustomWidget->addTo( customWidgetMenu );
     customWidgetMenu->insertSeparator();
 
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
-	WidgetAction* a = new WidgetAction( actionGroupTools, QString::number( w->id ).latin1() );
+	WidgetAction* a = new WidgetAction( "Custom Widgets", actionGroupTools, QString::number( w->id ).latin1() );
 	a->setToggleAction( TRUE );
 	a->setText( w->className );
 	a->setIconSet( *w->pixmap );
@@ -2510,6 +2519,18 @@ void MainWindow::rebuildCustomWidgetGUI()
 	customWidgetToolBar->hide();
     else if ( customWidgetToolBar->isVisible() )
 	customWidgetToolBar->show();
+}
+
+void MainWindow::rebuildCommonWidgetsToolBoxPage()
+{
+    toolBox->setUpdatesEnabled( FALSE );
+    commonWidgetsToolBar->setUpdatesEnabled( FALSE );
+    commonWidgetsToolBar->clear();
+    for ( QAction *a = commonWidgetsPage.first(); a; a = commonWidgetsPage.next() )
+	a->addTo( commonWidgetsToolBar );
+    commonWidgetsToolBar->setStretchableWidget( new QWidget( commonWidgetsToolBar ) );
+    toolBox->setUpdatesEnabled( TRUE );
+    commonWidgetsToolBar->setUpdatesEnabled( TRUE );
 }
 
 bool MainWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *wid )

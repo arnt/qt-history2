@@ -21,6 +21,7 @@
 #include "widgetaction.h"
 #include <qwidget.h>
 #include <qtoolbutton.h>
+#include "mainwindow.h"
 
 void WidgetAction::addedTo( QWidget *w, QWidget *container )
 {
@@ -29,5 +30,16 @@ void WidgetAction::addedTo( QWidget *w, QWidget *container )
 	( (QToolButton*)w )->setUsesTextLabel( TRUE );
 	( (QToolButton*)w )->setTextPosition( QToolButton::Right );
     }
+}
+
+WidgetAction::~WidgetAction()
+{
+    MainWindow::self->toolActions.removeRef( this );
+}
+
+void WidgetAction::init( const QString &g )
+{
+    MainWindow::self->toolActions.append( this );
+    grp = g;
 }
 
