@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#20 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#20 $");
 
 
 QTab::~QTab()
@@ -230,12 +230,12 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->setPen( colorGroup().background() );
 	p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
 	p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
-	p->setPen( white );
+	p->setPen( colorGroup().highlight() );
 	QFont bold( font() );
 	bold.setWeight( QFont::Bold );
 	p->setFont( bold );
     } else {
-	p->setPen( white );
+	p->setPen( colorGroup().highlight() );
 	p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
 	r.setRect( r.left() + 2, r.top() + 2, r.width() - 4, r.height() - 2 );
 	p->setFont( font() );
@@ -266,7 +266,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->setPen( palette().disabled().text() );
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     } else { // Windows style, disabled
-	p->setPen( white );
+	p->setPen( colorGroup().highlight() );
 	QRect wr = br;
 	wr.moveBy( 1, 1 );
 	p->drawText( wr, AlignCenter | ShowPrefix, t->label );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#58 $
 **
 ** Implementation of QRadioButton class
 **
@@ -17,7 +17,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#58 $");
 
 
 /*!
@@ -215,11 +215,11 @@ void QRadioButton::drawButton( QPainter *paint )
 	p->drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts3), pts3 );
 	a.translate( x, y );
-	p->setPen( g.background() );
+	p->setPen( g.light() );
 	p->drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts4), pts4 );
 	a.translate( x, y );
-	p->setPen( white );
+	p->setPen( g.highlight() );
 	p->drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts5), pts5 );
 	a.translate( x, y );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#73 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#73 $");
 
 
 /*!
@@ -611,7 +611,7 @@ void QMenuBar::drawContents( QPainter *p )
 		p->setPen( palette().disabled().text() );
 	    else {
 		if ( i == actItem && gs == WindowsStyle )
-		    p->setPen( white );
+		    p->setPen( g.highlight() );
 		else
 		    p->setPen( g.text() );
 	    }

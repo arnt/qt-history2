@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#16 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#16 $");
 
 
 /*!
@@ -404,10 +404,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 
   Draws a Windows-style panel given by \e (x,y,w,h) using the painter \e p.
 
-  The color group argument \e g specifies the shading colors
-  (\link QColorGroup::light() light\endlink,
-  \link QColorGroup::dark() dark\endlink and
-  \link QColorGroup::mid() middle\endlink colors).
+  The color group argument \e g specifies the shading colors.
 
   The panel appears sunken if \e sunken is TRUE, or raised if \e sunken is
   FALSE.
@@ -430,10 +427,10 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 {
     if ( sunken )
 	qDrawWinShades( p, x, y, w, h,
-		       g.dark(), g.light(), black, g.background(), fill );
+		       g.dark(), g.highlight(), black, g.light(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.background(), black, g.light(), g.dark(), fill );
+		       g.light(), black, g.highlight(), g.dark(), fill );
 }
 
 
@@ -563,7 +560,7 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 		}
 	    }
 	    if ( gs == WindowsStyle ) {
-		p->setPen( white );
+		p->setPen( g.highlight() );
 		p->drawPixmap( x+1, y+1, pm );
 		p->setPen( g.text() );
 	    }
@@ -573,7 +570,7 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 	    p->setClipping( FALSE );
     } else if ( text ) {
 	if ( gs == WindowsStyle && !enabled ) {
-	    p->setPen( white );
+	    p->setPen( g.highlight() );
 	    p->drawText( x+1, y+1, w, h, flags, text, len );
 	    p->setPen( g.text() );
 	}
@@ -693,7 +690,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 	p->drawPoint( a[6] );
     } else {
 	a.translate( x+w/2+1, y+h/2+1 );
-	p->setPen( white );
+	p->setPen( g.highlight() );
 	p->drawLineSegments( a, 0, 3 );		// draw arrow
 	p->drawPoint( a[6] );
 	a.translate( -1, -1 );
