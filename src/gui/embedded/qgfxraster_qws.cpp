@@ -4236,12 +4236,12 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 }
 
 /*!
-\fn bool QScreen::onCard(unsigned char * p) const
+\fn bool QScreen::onCard(const unsigned char * p) const
 Returns true if the buffer pointed to by \a p is within graphics card
 memory, false if it's in main RAM.
 */
 
-bool QScreen::onCard(unsigned char * p) const
+bool QScreen::onCard(const unsigned char * p) const
 {
     long t=(unsigned long)p;
     long bmin=(unsigned long)data;
@@ -4253,14 +4253,14 @@ bool QScreen::onCard(unsigned char * p) const
 }
 
 /*!
-\fn bool QScreen::onCard(unsigned char * p, ulong& offset) const
+\fn bool QScreen::onCard(const unsigned char * p, ulong& offset) const
 \overload
 This checks whether the buffer specified by \a p is on the card
 (as per the other version of onCard) and returns an offset in bytes
 from the start of graphics card memory in \a offset if it is.
 */
 
-bool QScreen::onCard(unsigned char * p, ulong& offset) const
+bool QScreen::onCard(const unsigned char * p, ulong& offset) const
 {
     long t=(unsigned long)p;
     long bmin=(unsigned long)data;

@@ -191,8 +191,8 @@ public:
     virtual int pixmapLinestepAlignment() { return 64; }
     virtual int sharedRamSize(void *) { return 0; }
 
-    virtual bool onCard(unsigned char *) const;
-    virtual bool onCard(unsigned char *, ulong& out_offset) const;
+    virtual bool onCard(const unsigned char *) const;
+    virtual bool onCard(const unsigned char *, ulong& out_offset) const;
 
     enum PixelType { NormalPixel, BGRPixel };
 
