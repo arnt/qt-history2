@@ -1172,7 +1172,7 @@ void Q3UriDrag::setFileNames(const QStringList & fnames)
 
 /*!
     \fn void Q3UriDrag::setFileNames(const QString &name)
-    \fn void Q3UriDrag::setFileNames(const QString &name)
+    \fn void Q3UriDrag::setFilenames(const QString &name)
 
     Same as setFileNames(QStringList(\a name)).
 */

@@ -1823,9 +1823,11 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \list
     \o  The Windows system registry has the following limitations: A
-        subkey may not exceed 255 characters, an entry's value may not
-        exceed 16,383 characters, and all the values of a key may not
-        exceed 65,535 characters.
+        subkey may not exceed 255 characters, an entry's value may
+        not exceed 16,383 characters, and all the values of a key may
+        not exceed 65,535 characters. One way to work around these
+        limitations is to store the settings using the IniFormat
+        instead of the NativeFormat.
 
     \o  On Mac OS X, allKeys() will return some extra keys for global
         settings that apply to all applications. These keys can be
@@ -1865,8 +1867,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     thing, except that the file extension is different (\c .conf for
     NativeFormat, \c .ini for IniFormat).
 
-    The INI file format is a standard Windows file format that Qt
-    supports on all platforms.
+    The INI file format is a Windows file format that Qt supports on
+    all platforms.
 */
 
 /*! \enum QSettings::Scope

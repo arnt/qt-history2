@@ -288,7 +288,7 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
     \property QDateTimeEdit::date
     \brief the QDate that is set in the QDateTimeEdit
 
-    \sa setDate()
+    \sa time
 */
 
 QDate QDateTimeEdit::date() const
@@ -308,7 +308,7 @@ void QDateTimeEdit::setDate(const QDate &date)
     \property QDateTimeEdit::time
     \brief the QTime that is set in the QDateTimeEdit
 
-    \sa setTime()
+    \sa date
 */
 
 QTime QDateTimeEdit::time() const
@@ -328,7 +328,7 @@ void QDateTimeEdit::setTime(const QTime &time)
     \property QDateTimeEdit::dateTime
     \brief the QDateTime that is set in the QDateTimeEdit
 
-    \sa setDateTime()
+    \sa minimumDate, minimumTime, maximumDate, maximumTime
 */
 
 /*!
@@ -336,16 +336,11 @@ void QDateTimeEdit::setTime(const QTime &time)
 
     \brief the minimum date of the date time edit
 
-    When setting this property the \l QDateTimeEdit::maximumDate is
-    adjusted if necessary, to ensure that the range remains valid.
-    If the date is not a valid QDate object, this function does
-    nothing.
+    When setting this property the \l maximumDate is adjusted if
+    necessary, to ensure that the range remains valid. If the date is
+    not a valid QDate object, this function does nothing.
 
-    The default minimum value can be restored with clearMinimum().
-
-    \sa setMinimumDate(), maximumDate(), setMaximumDate(),
-    clearMinimumDate(), setMinimumTime(), maximumTime(), setMaximumTime(),
-    clearMinimum(), setTimeRange(), setDateRange(), QDate::isValid()
+    \sa minimumDate, minimumTime, maximumTime, setDateRange()
 */
 
 QDate QDateTimeEdit::minimumDate() const
@@ -370,16 +365,11 @@ void QDateTimeEdit::clearMinimumDate()
 
     \brief the maximum date of the date time edit
 
-    When setting this property the \l QDateTimeEdit::minimumDate is
-    adjusted if necessary to ensure that the range remains valid.
-    If the date is not a valid QDate object, this function does
-    nothing.
+    When setting this property the \l minimumDate is adjusted if
+    necessary to ensure that the range remains valid. If the date is
+    not a valid QDate object, this function does nothing.
 
-    The default minimum value can be restored with clearMinimumDate().
-
-    \sa setMinimumDate(), maximumDate(), setMaximumDate(), clearMinimumDate(),
-    setMinimumTime(), maximumTime(), setMaximumTime(), clearMinimumTime(),
-    setTimeRange(), setDateRange(), QDate::isValid()
+    \sa minimumDate, minimumTime, maximumTime, setDateRange()
 */
 
 QDate QDateTimeEdit::maximumDate() const
@@ -403,16 +393,11 @@ void QDateTimeEdit::clearMaximumDate()
 
     \brief the minimum time of the date time edit
 
-    When setting this property the \l QDateTimeEdit::maximumTime is
-    adjusted if necessary, to ensure that the range remains valid.
-    If the time is not a valid QTime object, this function does
-    nothing.
+    When setting this property the \l maximumTime is adjusted if
+    necessary, to ensure that the range remains valid. If the time is
+    not a valid QTime object, this function does nothing.
 
-    The default minimum value can be restored with clearMinimumTime().
-
-    \sa setMinimumTime(), maximumTime(), setMaximumTime(),
-    clearMinimumTime(), setMinimumDate(), maximumDate(), setMaximumDate(),
-    clearMinimumDate(), setTimeRange(), setDateRange(), QTime::isValid()
+    \sa maximumTime, minimumDate, maximumDate, setTimeRange()
 */
 
 QTime QDateTimeEdit::minimumTime() const
@@ -436,19 +421,12 @@ void QDateTimeEdit::clearMinimumTime()
 
     \brief the maximum time of the date time edit
 
-    When setting this property the \l QDateTimeEdit::maximumTime is
-    adjusted if necessary to ensure that the range remains valid.
-    If the time is not a valid QTime object, this function does
-    nothing.
+    When setting this property, the \l minimumTime is adjusted if
+    necessary to ensure that the range remains valid. If the time is
+    not a valid QTime object, this function does nothing.
 
-    The default minimum value can be restored with clearMinimumDate().
-
-    \sa setMinimumDate(), maximumDate(), setMaximumDate(),
-    clearMinimumDate(), setMinimumTime(), maximumTime(),
-    setMaximumTime(), clearMinimumTime(), setTimeRange(),
-    setDateRange(), QTime::isValid()
+    \sa minimumTime, minimumDate, maximumDate, setTimeRange()
 */
-
 QTime QDateTimeEdit::maximumTime() const
 {
     return d->maximum.toTime();
@@ -613,8 +591,8 @@ QString QDateTimeEdit::sectionText(Section s) const
     enclosed in singlequotes will be treated as text and can be used
     as delimiters.
 
-    Example format strings (assuming that the QDate is the
-    20<sup><small>th</small></sup> July 1969):
+    Example format strings (assuming that the date is 20 July 1969):
+
     \table
     \header \i Format \i Result
     \row \i dd.MM.yyyy    \i 20.07.1969
@@ -623,22 +601,15 @@ QString QDateTimeEdit::sectionText(Section s) const
 
     If you specify an invalid format the format will not be set.
 
-    Multiple instances of the same field is not allowed. E.g.
-
-    setDisplayFormat("yyyy.MM.yy"); // not allowed
-
-    a format with no valid fields is not allowed either. E.g.
-
-    setDisplayFormat("s.M.y"); // not allowed
-
-    \sa QDateTime::toString(), setDisplayFormat(), displayedSections()
+    Multiple instances of the same field is not allowed.A format with
+    no valid fields is not allowed either.
 
     \warning Since QDateTimeEdit internally always operates on a
-    QDateTime changing the format can change the minimum[Time|Date]s
-    and the current[Time|Date]. E.g.
+    QDateTime, changing the format can change the minimum time or
+    date and the current time or date. For example:
 
     \code
-        QDateTimeEdit edit(0); // format is "yyyy.MM.dd hh:mm:ss"
+        QDateTimeEdit edit;     // default format is "yyyy.MM.dd hh:mm:ss"
         edit.setMinimumDate(QDate(2000, 1, 1));
         edit.setMaximumDate(QDate(2003, 1, 1));
         edit.setDateTime(QDateTime(QDate(2002, 5, 5), QTime(10, 10, 10)));
@@ -648,6 +619,8 @@ QString QDateTimeEdit::sectionText(Section s) const
         // minimum and maximum date will be set to the current date,
         // e.g. 2002, 5, 5.
     \endcode
+
+    \sa QDateTime::toString(), displayedSections()
 */
 
 QString QDateTimeEdit::displayFormat() const
@@ -682,14 +655,6 @@ void QDateTimeEdit::clear()
 {
     d->clearSection(d->currentsection);
 }
-
-/*!
-    This virtual function is used by the date time edit whenever it
-    needs to interpret text entered by the user as a value. The user's
-    text is passed in \a txt and the validator's state in \a state.
-
-    \sa mapDateTimeToText()
-*/
 
 /*!
     \reimp
@@ -889,9 +854,8 @@ void QDateTimeEdit::stepBy(int steps)
     If you reimplement this, you may also need to reimplement
     valueFromText() and validate().
 
-    \sa valueFromText(), validate()
+    \sa dateTimeFromText(), validate()
 */
-
 QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 {
     QVariant var(dateTime);
@@ -934,14 +898,11 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 
 
 /*!
-    \fn QDateTime QSpinBox::dateTimeFromText(const QString &text) const
-
     This virtual function is used by the datetime edit whenever it
     needs to interpret text entered by the user as a value.
 
-    \sa textFromValue(), validate()
+    \sa textFromDateTime(), validate()
 */
-
 QDateTime QDateTimeEdit::dateTimeFromText(const QString &text) const
 {
     QString copy = text;

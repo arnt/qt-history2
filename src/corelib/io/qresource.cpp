@@ -31,7 +31,7 @@ Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
 /* ******************** QResource ***************** */
 
 /*!
-    \class QResource qresource.h
+    \class QResource
     \reentrant
 
     \brief The QResource class provides access to application resource data.
@@ -47,6 +47,13 @@ Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
     Use find() to find a resource. A resource has a name(), a size(),
     and either data() or children() (child resources). A resource may
     also have another resource as its parent().
+
+    Another way of iterating through an application's resource is to
+    use a QDir initialized with ":/" (the resource root). QDir and
+    QFileInfo work just as well on resources as on actual files
+    located in the file system.
+
+    \sa {The Qt Resource System}
 */
 
 struct QResourceNode

@@ -109,7 +109,7 @@ using namespace Qt;
 			SLOT(printDoc()));	   // printDoc() slot
     \endcode
 
-    \sa QKeyEvent QWidget::keyPressEvent() Q3MenuData::setAccel()
+    \sa QKeyEvent QWidget::keyPressEvent()
     QAbstractButton::setAccel() QLabel::setBuddy() QKeySequence
 */
 
@@ -934,8 +934,7 @@ QKeySequence Q3Accel::stringToKey(const QString & s)
     To set What's This help on a menu item (with or without an
     accelerator key), use Q3MenuData::setWhatsThis().
 
-    \sa whatsThis(), QWhatsThis::inWhatsThisMode(),
-    Q3MenuData::setWhatsThis(), QAction::setWhatsThis()
+    \sa whatsThis(), QWhatsThis::inWhatsThisMode(), QAction::setWhatsThis()
 */
 void Q3Accel::setWhatsThis(int id, const QString& text)
 {

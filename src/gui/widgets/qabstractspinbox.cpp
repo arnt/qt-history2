@@ -164,10 +164,10 @@ QString QAbstractSpinBox::text() const
 /*!
     \property QAbstractSpinBox::cleanText
 
-    \brief the text of the spin box excluding any prefix(), suffix()
+    \brief the text of the spin box excluding any prefix, suffix,
     or leading or trailing whitespace.
 
-    \sa text, prefix, suffix
+    \sa text, QSpinBox::prefix, QSpinBox::suffix
 */
 
 QString QAbstractSpinBox::cleanText() const
@@ -189,6 +189,7 @@ QString QAbstractSpinBox::cleanText() const
     to the minimum() value and vica versa. Wrapping only make sense if
     you have minimum() and maximum() values set.
 
+    \code
         QSpinBox *spinBox = new QSpinBox(this);
         spinBox->setRange(0, 100);
         spinBox->setWrapping(true);
@@ -336,25 +337,27 @@ QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 
 /*!
    This virtual function is called by the QAbstractSpinBox to
-   determine whether \a input is valid. Reimplemented in the various
+   determine whether \a input is valid. The \a pos parameter indicates
+   the position in the string. Reimplemented in the various
    subclasses.
 */
 
-QValidator::State QAbstractSpinBox::validate(QString &/*input*/, int &/*pos*/) const
+QValidator::State QAbstractSpinBox::validate(QString & /* input */, int & /* pos */) const
 {
     return QValidator::Acceptable;
 }
 
 /*!
    This virtual function is called by the QAbstractSpinBox if the
-   input is not validated to QValidator::Acceptable when Return is
+   \a input is not validated to QValidator::Acceptable when Return is
    pressed or interpretText() is called. It will try to change the
    text so it is valid. Reimplemented in the various subclasses.
 */
 
-void QAbstractSpinBox::fixup(QString &) const
+void QAbstractSpinBox::fixup(QString & /* input */) const
 {
 }
+
 /*!
     Virtual function that is called whenever the user triggers a step.
     The \a steps parameter indicates how many steps were taken, e.g.

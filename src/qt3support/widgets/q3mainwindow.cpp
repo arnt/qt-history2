@@ -805,7 +805,7 @@ void Q3MainWindow::setStatusBar(QStatusBar * newStatusBar)
     statusBar() creates an empty status bar, and if necessary a tool
     tip group too.
 
-    \sa  menuBar() toolTipGroup()
+    \sa menuBar()
 */
 
 QStatusBar * Q3MainWindow::statusBar() const
@@ -836,7 +836,7 @@ QStatusBar * Q3MainWindow::statusBar() const
     contents. All the tool tips connected to it lose the ability to
     display the group texts.
 
-    \sa menuBar() toolTipGroup()
+    \sa menuBar()
 */
 
 void Q3MainWindow::setToolTipGroup(QToolTipGroup * newToolTipGroup)
@@ -848,9 +848,9 @@ void Q3MainWindow::setToolTipGroup(QToolTipGroup * newToolTipGroup)
     d->ttg = newToolTipGroup;
 
     connect(toolTipGroup(), SIGNAL(showTip(QString)),
-             statusBar(), SLOT(showMessage(QString)));
+            statusBar(), SLOT(showMessage(QString)));
     connect(toolTipGroup(), SIGNAL(removeTip()),
-             statusBar(), SLOT(clearMessage()));
+            statusBar(), SLOT(clearMessage()));
 }
 
 
@@ -860,7 +860,6 @@ void Q3MainWindow::setToolTipGroup(QToolTipGroup * newToolTipGroup)
 
     \sa menuBar() statusBar()
 */
-
 QToolTipGroup * Q3MainWindow::toolTipGroup() const
 {
     if (d->ttg)

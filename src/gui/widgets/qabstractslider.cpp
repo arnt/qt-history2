@@ -23,7 +23,7 @@
 #define q q_func()
 
 /*!
-    \class QAbstractSlider qabstractslider.h
+    \class QAbstractSlider
     \brief The QAbstractSlider class provides an integer value within a range.
 
     \ingroup abstractwidgets
@@ -125,7 +125,7 @@
 
     This signal is emitted even when tracking is turned off.
 
-    \sa tracking() valueChanged()
+    \sa setTracking(), valueChanged()
 */
 
 /*!
@@ -433,8 +433,8 @@ int QAbstractSlider::sliderPosition() const
     \property QAbstractSlider::value
     \brief the slider's current value
 
-    The slider forces the value to be within the legal range:
-    \l minimum <= \l value <= \l maximum.
+    The slider forces the value to be within the legal range: \l
+    minimum <= \c value <= \l maximum.
 
     Changing the value also changes the \l sliderPosition.
 */

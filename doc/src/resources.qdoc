@@ -105,12 +105,14 @@
     \skipto cutAct = new QAction(QPixmap(":/images/cut.png
     \printline cutAct =
 
-    See the \l mainwindows/application example for an actual
-    application that uses Qt's resource system to store its icons.
+    See the \l{mainwindows/application}{Application} example for an
+    actual application that uses Qt's resource system to store its
+    icons.
 
     In memory, resources are represented by a tree of QResource
     objects. The tree is automatically built at startup and used by
-    QFile for resolving paths to resources.
+    QFile for resolving paths to resources. You can use a QDir initialized
+    with ":/" to navigate through the resource tree from the root.
 
     QResource supports the concept of a search path list. If you then
     refer to a resource with \c : instead of \c :/ as the prefix, the
