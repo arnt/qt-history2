@@ -26,7 +26,6 @@
 typedef QPtrList<QFileInfo> QFileInfoList;
 typedef QPtrListIterator<QFileInfo> QFileInfoListIterator;
 class QStringList;
-template <class T> class QDeepCopy;
 
 
 class Q_EXPORT QDir
@@ -178,8 +177,8 @@ private:
     uint	dirty	: 1;
     uint	allDirs : 1;
 
+public:
     void detach();
-    friend class QDeepCopy< QDir >;
 };
 
 

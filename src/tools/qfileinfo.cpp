@@ -18,7 +18,6 @@
 #include "qdatetime.h"
 #include "qdir.h"
 #include "qfiledefs_p.h"
-#include "qdeepcopy.h"
 
 
 extern bool qt_file_access( const QString& fn, int t );
@@ -651,7 +650,6 @@ QString QFileInfo::absFilePath() const
 */
 void QFileInfo::detach()
 {
-    fn = QDeepCopy<QString>( fn );
     if ( fic ) {
 	QFileInfoCache *cur = fic;
 	fic = new QFileInfoCache;
