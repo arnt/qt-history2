@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#19 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#20 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -45,10 +45,14 @@
 #include "qmap.h"
 #include "qregexp.h"
 #include "qvaluelist.h"
+#include "qtextstream.h"
+#include "qimage.h"
+#include "qpixmap.h"
 
 #include <math.h>
 
 const double deg2rad = 0.017453292519943295769;	// pi/180
+const char piData[] = "version=\"1.0\" standalone=\"yes\"";
 
 class QSVGDevicePrivate {
 };
@@ -160,6 +164,25 @@ bool QSVGDevice::play( QPainter *painter )
     return play( svg );
 }
 
+QString QSVGDevice::toString() const
+{
+    if ( doc.isNull() )
+	return QString();
+
+    return doc.toString();
+}
+
+bool QSVGDevice::save( const QString &file )
+{
+    QFile f( file );
+    if ( !f.open ( IO_WriteOnly ) )
+	return FALSE;
+    QTextStream s( &f );
+    s << doc;
+
+    return TRUE;
+}
+
 /*!  \fn QRect QSVGDevice::boundingRect() const
   Returns the bounding rectangle of the vector graphic.
  */
@@ -215,9 +238,235 @@ int QSVGDevice::metric( int m ) const
   Records painter commands and stores them in the QDomDocument doc.
  */
 
-bool QSVGDevice::cmd ( int, QPainter*, QPDevCmdParam * )
+bool QSVGDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 {
-    return FALSE;
+    pt = painter;
+    qDebug( "QSVGDevice::cmd(%d)", c );
+
+    if ( c == PdcBegin ) {
+	svgName = "test";	// ###
+	doc = QDomDocument( "svg" );
+	QDomProcessingInstruction pi =
+	    doc.createProcessingInstruction( "xml", QString( piData ) );
+	// ### need some QDom method to set SystemLiteral
+	//	QDomDocumentType dt = doc.doctype();
+        QDomElement svg = doc.createElement( "svg" );
+	doc.appendChild( pi );
+	doc.appendChild( svg );
+	current = svg;
+	imageCount = 0;
+	dirtyTransform = dirtyStyle = FALSE; // ###
+	return TRUE;
+    } else if ( c == PdcEnd ) {
+	return TRUE;
+    }
+
+    QDomElement e;
+    QString str;
+    QRect rect;
+    QPointArray a;
+    int i;
+    switch ( c ) {
+    case PdcNOP:
+	break;
+    case PdcMoveTo:
+	curPt = *p[0].point;
+	break;
+    case PdcLineTo:
+	e = doc.createElement( "line" );
+	e.setAttribute( "x1", curPt.x() );
+	e.setAttribute( "y1", curPt.y() );
+	e.setAttribute( "x2", p[0].point->x() );
+	e.setAttribute( "y2", p[0].point->y() );
+	break;
+    case PdcDrawPoint:
+    case PdcDrawLine:
+	e = doc.createElement( "line" );
+	e.setAttribute( "x1", p[0].point->x() );
+	e.setAttribute( "y1", p[0].point->y() );
+	i = ( c == PdcDrawLine ) ? 1 : 0;
+	e.setAttribute( "x2", p[i].point->x() );
+	e.setAttribute( "y2", p[i].point->y() );
+	break;
+    case PdcDrawRect:
+    case PdcDrawRoundRect:
+	e = doc.createElement( "rect" );
+	e.setAttribute( "x", p[0].rect->x() );
+	e.setAttribute( "y", p[0].rect->y() );
+	e.setAttribute( "width", p[0].rect->width() );
+	e.setAttribute( "height", p[0].rect->height() );
+	if ( c == PdcDrawRoundRect ) {
+	    e.setAttribute( "rx", (p[1].ival*p[0].rect->width())/200 );
+	    e.setAttribute( "ry", (p[2].ival*p[0].rect->height())/200 );
+	}
+	break;
+    case PdcDrawEllipse:
+	rect = *p[0].rect;
+	if ( rect.width() == rect.height() ) {
+	    e = doc.createElement( "circle" );
+	    e.setAttribute( "cx", rect.center().x() );
+	    e.setAttribute( "cy", rect.center().y() );
+	    e.setAttribute( "r", rect.width() / 2 );
+	    applyStyle( &e );
+	} else {
+	    e = doc.createElement( "ellipse" );
+	    e.setAttribute( "cx", rect.center().x() );
+	    e.setAttribute( "cy", rect.center().y() );
+	    e.setAttribute( "rx", rect.width() / 2 );
+	    e.setAttribute( "ry", rect.height() / 2 );
+	    applyStyle( &e );
+	}
+	break;
+    case PdcDrawArc:
+    case PdcDrawPie:
+    case PdcDrawChord: {
+	rect = *p[0].rect;
+	double a = (double)p[1].ival / 16.0 * deg2rad;
+	double al = (double)p[2].ival / 16.0 * deg2rad;
+	double rx = rect.width() / 2.0;
+	double ry = rect.height() / 2.0;
+	double x0 = (double)rect.x() + rx;
+	double y0 = (double)rect.y() + ry;
+	double x1 = x0 + rx*(1+cos(a));
+	double y1 = y0 + ry*(1-sin(a));
+	double x2 = x0 + rx*(1+cos(a+al));
+	double y2 = y0 + ry*(1-sin(a+al));
+	int large = al > 180.0 ? 1 : 0;
+	int sweep = al > 0.0 ? 1 : 0;
+	if ( c == PdcDrawPie ) {
+	    str = QString( "M %1 %2 " ).arg( x0 ).arg( y0 );
+	    str += QString( "L %1 %2 " ).arg( x1 ).arg( y1 );
+	} else
+	    str = QString( "M %1 %2 " ).arg( x1 ).arg( y1 );
+	str += QString( "A %1 %2 0 %3 %4 %5 %6" )
+	       .arg( rx ).arg( ry ).arg( large ).arg( sweep )
+	       .arg( x2 ).arg( y2 );
+	if ( c != PdcDrawArc )
+	    str += "z";
+	e = doc.createElement( "path" );
+	e.setAttribute( "d", str );
+    }
+	break;
+    case PdcDrawLineSegments:
+	a = *p[0].ptarr;
+	for (uint i = 0; i < a.size() / 2; i++) {
+	    e = doc.createElement( "line" );
+	    e.setAttribute( "x1", a[2*i].x() );
+	    e.setAttribute( "y1", a[2*i].y() );
+	    e.setAttribute( "x2", a[2*i+1].x() );
+	    e.setAttribute( "y2", a[2*i+1].y() );
+	}
+	break;
+    case PdcDrawPolyline:
+    case PdcDrawPolygon:
+	a = *p[0].ptarr;
+	e = doc.createElement( ( c == PdcDrawPolyline ) ?
+			       "polyline" : "polygon" );
+	for (uint i = 0; i < a.size(); i++) {
+	    QString tmp;
+	    tmp.sprintf( "%d %d ", a[ i ].x(), a[ i ].y() );
+	    str += tmp;
+	}
+	e.setAttribute( "points", str.stripWhiteSpace() );
+	break;
+    case PdcDrawCubicBezier:
+	a = *p[0].ptarr;
+	e = doc.createElement( "path" );
+	str.sprintf( "M %d %d C %d %d %d %d %d %d", a[0].x(), a[0].y(),
+		     a[1].x(), a[1].y(), a[2].x(), a[2].y(),
+		     a[3].x(), a[3].y() );
+	e.setAttribute( "d", str );
+	break;
+    case PdcDrawText2:
+	e = doc.createElement( "text" );
+	if ( p[0].point->x() )
+	    e.setAttribute( "x", p[0].point->x() );
+	if ( p[0].point->y() )
+	    e.setAttribute( "y", p[0].point->y() );
+	e.appendChild( doc.createTextNode( *p[1].str ) );
+	break;
+    case PdcDrawText2Formatted:
+	e = doc.createElement( "text" );
+	if ( p[0].rect->x() )
+	    e.setAttribute( "x", p[0].rect->x() );
+	if ( p[0].point->y() )
+	    e.setAttribute( "y", p[0].rect->y() );
+	// ### int tf = p[1].ival;
+	e.appendChild( doc.createTextNode( *p[2].str ) );
+	break;
+    case PdcDrawPixmap:
+    case PdcDrawImage:
+	e = doc.createElement( "image" );
+	e.setAttribute( "x", p[0].point->x() );
+	e.setAttribute( "y", p[0].point->y() );
+	str = svgName + "_" + QString::number( imageCount++ ) + ".png";
+	if ( c == PdcDrawImage ) {
+	    e.setAttribute( "width", p[1].image->width() );
+	    e.setAttribute( "height", p[1].image->height() );
+	    p[1].image->save( str, "PNG" );
+	} else {
+	    e.setAttribute( "width", p[1].pixmap->width() );
+	    e.setAttribute( "height", p[1].pixmap->height() );
+	    p[1].pixmap->save( str, "PNG" );
+	}
+	e.setAttribute( "xlink:href", str );
+	break;
+    case PdcSave:
+	e = doc.createElement( "g" );
+	break;
+    case PdcRestore:
+	current = current.parentNode();
+	// ### reset dirty flags
+	break;
+    case PdcSetBkColor:
+    case PdcSetBkMode:
+    case PdcSetROP:
+    case PdcSetBrushOrigin:
+    case PdcSetFont:
+    case PdcSetPen:
+    case PdcSetBrush:
+	dirtyStyle = TRUE;
+	break;
+    case PdcSetTabStops:
+	// ###
+	break;
+    case PdcSetTabArray:
+	// ###
+	break;
+    case PdcSetVXform:
+    case PdcSetWindow:
+    case PdcSetViewport:
+    case PdcSetWXform:
+    case PdcSetWMatrix:
+    case PdcSaveWMatrix:
+    case PdcRestoreWMatrix:
+	dirtyTransform = TRUE;
+	break;
+    case PdcSetClip:
+	// ###
+	break;
+    case PdcSetClipRegion:
+	// ###
+	break;
+    default:
+#if defined(CHECK_RANGE)
+	qWarning( "QSVDevice::cmd: Invalid command %d", c );
+#endif
+	break;
+    }
+
+    if ( !e.isNull() ) {
+	current.appendChild( e );
+	if ( c == PdcSave )
+	    current = e;
+	// ### optimize application of attributes utilizing <g>
+	if ( dirtyStyle )		// only reset when entering
+	    applyStyle( &e );		// or leaving a <g> tag
+	if ( dirtyTransform )		// same as above
+	    applyTransform( &e );
+    }
+
+    return TRUE;
 }
 
 /*!
@@ -689,6 +938,37 @@ void QSVGDevice::drawPath( const QString &data )
 	pt->drawPolyline( path, start, next-start );
 	start = next;
     }
+}
+
+void QSVGDevice::applyStyle( QDomElement *e ) const
+{
+    // ### do not write every attribute each time
+    QColor c = pt->pen().color();
+    QString s = QString( "stroke:rgb(%1,%2,%3);" )
+		.arg( c.red() ).arg( c.green() ).arg( c.blue() );
+    s += QString( "stroke-width:%1;" ).arg( pt->pen().width() );
+    if ( pt->brush().style() != Qt::NoBrush ) {
+	c = pt->brush().color();
+	s += QString( "fill:rgb(%1,%2,%3);" )
+	     .arg( c.red() ).arg( c.green() ).arg( c.blue() );
+    }
+    s += QString( "font-size:%1" ).arg( pt->font().pointSize() );
+    e->setAttribute( "style", s );
+}
+
+void QSVGDevice::applyTransform( QDomElement *e ) const
+{
+    QWMatrix m = pt->worldMatrix();
+
+    QString s;
+    // ### catch pure translation and scaling
+    s = QString( "matrix(%1 %2 %3 %4 %5 %6)" )
+	.arg( m.m11() ).arg( m.m12() )
+	.arg( m.m21() ).arg( m.m22() )
+	.arg( m.dx() ).arg( m.dy() );
+
+    if ( !s.isEmpty() )
+	e->setAttribute( "transform", s );
 }
 
 #endif // QT_NO_SVG

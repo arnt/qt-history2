@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#11 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#12 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -69,6 +69,9 @@ public:
     bool load( const QString& );
     bool play( QPainter *p );
 
+    QString toString() const;
+    bool save( const QString& );
+
     QRect boundingRect() const;
 
 protected:
@@ -76,6 +79,7 @@ protected:
     virtual int	 metric( int ) const;
 
 private:
+    // reading
     bool play( const QDomNode &node );
     QColor parseColor( const QString &col );
     double parseLen( const QString &str, bool *ok=0 ) const;
@@ -84,6 +88,10 @@ private:
     void setStyle( const QString &s );
     void setTransform( const QString &tr );
     void drawPath( const QString &data );
+
+    // writing
+    void applyStyle( QDomElement *e ) const;
+    void applyTransform( QDomElement *e ) const;
 
     enum ElementType {
 	InvalidElement = 0,
@@ -100,11 +108,19 @@ private:
 	GroupElement
     };
 
+    // reading
     QRect brect;	    		// bounding rectangle
     QDomDocument doc;			// document tree
+    QDomNode current;
+    QPoint curPt;
     QPainter *pt;			// used by play() et al
     QMap<QString,ElementType> typeMap;	// element types
     QMap<QString,QString> colMap;	// recognized color keyword names
+
+    // writing
+    int imageCount;			// incremental counter for ext. images
+    QString svgName;			// name of the SVG document
+    bool dirtyTransform, dirtyStyle;
 
     QSVGDevicePrivate *d;
 };
