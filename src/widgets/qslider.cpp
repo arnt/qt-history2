@@ -164,6 +164,14 @@ void QSlider::init()
     tickInt = 0;
     setFocusPolicy( TabFocus  );
     initTicks();
+
+    if ( orient == Horizontal )
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
+				    QSizePolicy::Fixed ) );
+    else
+	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed, 
+				     QSizePolicy::Expanding ) );
+
 }
 
 
@@ -313,7 +321,16 @@ void QSlider::setPalette( const QPalette &p )
 
 void QSlider::setOrientation( Orientation orientation )
 {
+    if ( orientation == orient )
+	return;
     orient = orientation;
+
+    if ( orient == Horizontal )
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
+				    QSizePolicy::Fixed ) );
+    else
+	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed, 
+				     QSizePolicy::Expanding ) );
     rangeChange();
     update();
 }
@@ -688,10 +705,14 @@ QSize QSlider::minimumSizeHint() const
 */
 QSizePolicy QSlider::sizePolicy() const
 {
+    return QWidget::sizePolicy();
+
+    /*
     if ( orient == Horizontal )
 	return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
     else
 	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Expanding );
+    */
 }
 
 
