@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#36 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#37 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5404,6 +5404,8 @@ QDomDocument::QDomDocument( const QString& name )
 
 /*!
   Creates a document with the document type \a doctype.
+
+  \sa QDomImplementation::createDocumentType()
 */
 QDomDocument::QDomDocument( const QDomDocumentType& doctype )
 {
