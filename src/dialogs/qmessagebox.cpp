@@ -707,7 +707,7 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 	    xpm_data = critical_xpm;
 	    break;
 	default:
-	    xpm_data = 0;	
+	    xpm_data = 0;
     }
     QPixmap pm;
     if ( xpm_data ) {
@@ -857,7 +857,7 @@ void QMessageBox::adjustSize()
 	if ( h < mbd->iconLabel.pixmap()->height() + 3*border + smax.height() )
 	    h = mbd->iconLabel.pixmap()->height() + 3*border + smax.height();
     }
-    resize( w, h );	
+    resize( w, h );
 }
 
 
@@ -1237,14 +1237,11 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 
 
 static const char *textAboutQt =
-"<h3>This program is developed with Qt, the multi-platform C++ GUI toolkit.</h3>"
-"<p>Qt version running with this application: <tt>%1</tt></p>"
-"<p>Qt is a product of <b>Troll Tech AS </b>(http://www.troll.no).</p>"
-"<p>Qt is available under two different licenses:</p>"
-"<ul><li>The Free Edition, which may be used free of charge to develop"
-"  Free Software on the X Window System.</li>"
-"<li>The Professional Edition, which may be used to develop commercial"
-"  software on both X and Microsoft Windows.</li></ul>";
+"<h3>This program uses Qt.</h3>"
+"<p>Qt " QT_VERSION_STR " is a multiplatform C++ GUI toolkit from Troll Tech. "
+"It provides single-source portability across Windows 95/98/NT/2000, "
+"Linux/X11, Solaris/X11, HP-UX/X11 and many other versions of Unix/X11.</p>"
+"<p>See http://www.troll.no/qt for more information about Qt.</p>";
 void QT_END_TEXT() { QMessageBox::aboutQt(0,"E" "g" "g"); }
 
 
@@ -1259,11 +1256,21 @@ void QT_END_TEXT() { QMessageBox::aboutQt(0,"E" "g" "g"); }
 
 void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 {
-    information( parent, caption.isNull()
-	? QString::fromLatin1("About Qt") : caption,
-		 qApp->translate( "QMessageBox", textAboutQt )
-			.arg(QString::fromLatin1(QT_VERSION_STR))
-    );
+    QString c = caption;
+    if ( c.isNull() )
+	c = "About Qt";
+    QMessageBox *mb = new QMessageBox( parent, "about qt" );
+    mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
+    mb->setText( qApp->translate( "QMessageBox", textAboutQt ) );
+    //mb->setIconPixmap( Qt icon ); ### Matthias?
+    mb->setButtonText( 0, tr("OK") );
+    if ( mb->mbd && mb->mbd->pb[0] ) {
+	mb->mbd->pb[0]->setAutoDefault( TRUE );
+	mb->mbd->pb[0]->setFocusPolicy( QWidget::StrongFocus );
+	mb->mbd->pb[0]->setDefault( TRUE );
+	mb->mbd->pb[0]->setFocus();
+    }
+    mb->exec();
 }
 
 /*!
@@ -1282,4 +1289,4 @@ void QMessageBox::setIcon( const QPixmap &pix )
 // was trying to convert a file from one format to another.
 // Apparently, I...
 //
-// http://www.people.cornell.edu/pages/mlj8/cant.png
+// http://www.people.cornell.edu/pages/mlj8/cant.gif
