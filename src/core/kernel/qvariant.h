@@ -251,7 +251,7 @@ class Q_CORE_EXPORT QVariant
 #ifndef QT_NO_MEMBER_TEMPLATES
     template<typename T>
     inline void setValue(const T &value)
-    { return qVariantSetValue(*this, value); }
+    { qVariantSetValue(*this, value); }
 
     template<typename T>
     inline T value() const
