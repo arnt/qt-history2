@@ -5092,13 +5092,15 @@ QString Q3TextParagraph::richText() const
     bool doStart = richTextExportStart && richTextExportStart->paragraph() == this;
     bool doEnd = richTextExportEnd && richTextExportEnd->paragraph() == this;
     int i;
+    QString lastAnchorName;
     for (i = 0; i < length()-1; ++i) {
         if (doStart && i && richTextExportStart->index() == i)
             s += "<!--StartFragment-->";
         if (doEnd && richTextExportEnd->index() == i)
             s += "<!--EndFragment-->";
         Q3TextStringChar *c = &str->at(i);
-        if (c->isAnchor() && !c->anchorName().isEmpty()) {
+        if (c->isAnchor() && !c->anchorName().isEmpty() && c->anchorName() != lastAnchorName) {
+	    lastAnchorName = c->anchorName();
             if (c->anchorName().contains('#')) {
                 QStringList l = c->anchorName().split('#');
                 for (QStringList::ConstIterator it = l.begin(); it != l.end(); ++it)
