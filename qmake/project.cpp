@@ -203,16 +203,20 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
     QFile qfile(file);
     if ( (ret = qfile.open(IO_ReadOnly)) ) {
 	QTextStream t( &qfile );
-	QString s;
+	QString s, line;
 	line_count = 0;
 	while ( !t.eof() ) {
 	    line_count++;
-	    s += t.readLine().stripWhiteSpace();
-	    if(s.right(1) == "\\") {
-		s.truncate(s.length() - 1);
-		s += " ";
-	    }
-	    else {
+	    line = t.readLine().stripWhiteSpace();
+	    line.replace(QRegExp("#.*$"), ""); /* bye comments */
+	    if(line.isEmpty())
+		continue;
+
+	    if(line.right(1) == "\\") {
+		line.truncate(line.length() - 1);
+		s += line + " ";
+	    } else {
+		s += line;
 		if(!(ret = parse(file, s, place)))
 		    break;
 		s = "";
