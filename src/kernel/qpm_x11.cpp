@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#80 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#79 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#80 $")
 
 
 /*****************************************************************************
@@ -1065,7 +1065,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    free( newbits );
 	    newbits = (uchar *)newerbits;
 	}
-	else if ( xi->bits_per_pixel != 8 ) {	// !!! to be implemented
+	else if ( xi->bits_per_pixel != 8 ) {
 #if defined(CHECK_RANGE)
 	    warning( "QPixmap::setImageData: DISPLAY NOT SUPPORTED (BPP=%d)",
 		     xi->bits_per_pixel );
