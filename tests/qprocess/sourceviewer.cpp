@@ -3,15 +3,11 @@
 
 #include "sourceviewer.h"
 
-SourceViewer::SourceViewer( const QDir &directory, QWidget *parent, const char *name, WFlags /*f*/, bool allowLines ) 
+SourceViewer::SourceViewer( const QString &cap, const QDir &directory, QWidget *parent, const char *name, WFlags /*f*/, bool allowLines ) 
     : QVBox( parent, name, allowLines ) 
 {
-    init( directory );
-}
-
-void SourceViewer::init( const QDir &directory )
-{
     dir = directory;
+    setCaption( QString("Sources for ") + cap );
 
     sourceSel = new QComboBox( FALSE, this );
     QStringList slist = dir.entryList( "*.cpp *.h" );

@@ -9,7 +9,7 @@ class SourceViewer : public QVBox
     Q_OBJECT
 
 public:
-    SourceViewer(  const QDir &directory, QWidget *parent=0, const char *name=0, WFlags f=0, bool allowLines=TRUE );
+    SourceViewer(  const QString &cap, const QDir &directory, QWidget *parent=0, const char *name=0, WFlags f=0, bool allowLines=TRUE );
     ~SourceViewer();
 
 signals:
@@ -18,9 +18,6 @@ signals:
 public slots:
     void close();
     void setSource( const QString & file );
-
-private:
-    void init( const QDir &directory );
 
 private:
     QDir dir;

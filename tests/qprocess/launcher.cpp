@@ -141,7 +141,7 @@ void Launcher::showSource( const char* path )
 {
     QDir p( baseDir );
     p.cd( path );
-    SourceViewer *sv = new SourceViewer( p );
+    SourceViewer *sv = new SourceViewer( path, p );
     sv->resize( 650, 700 );
     sv->show();
 }
