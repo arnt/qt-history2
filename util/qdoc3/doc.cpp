@@ -1000,7 +1000,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                     int numStrangeSymbols = 0;
 
                     while (pos < len) {
-                        int latin1Ch = in[pos].toLatin1();
+                        unsigned char latin1Ch = in[pos].toLatin1();
 
                         if (islower(latin1Ch)) {
                             ++numLowercase;
