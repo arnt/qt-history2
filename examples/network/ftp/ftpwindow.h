@@ -2,7 +2,7 @@
 #define FTPWINDOW_H
 
 #include <QDialog>
-#include <QMap>
+#include <QHash>
 
 class QFile;
 class QFtp;
@@ -46,7 +46,7 @@ private:
     QPushButton *cdToParentButton;
     QProgressDialog *progressDialog;
 
-    QMap<QString, bool> isDirectory;
+    QHash<QString, bool> isDirectory;
     QString currentPath;
     QFtp *ftp;
     QFile *file;

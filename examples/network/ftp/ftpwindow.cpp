@@ -16,10 +16,10 @@ FtpWindow::FtpWindow(QWidget *parent)
     fileList = new QListWidget(this);
 
     connectButton = new QPushButton(tr("Connect"), this);
-    connectButton->setDefault(true);
 
     downloadButton = new QPushButton(tr("Download"), this);
     downloadButton->setEnabled(false);
+    downloadButton->setDefault(true);
 
     cdToParentButton = new QPushButton(this);
     cdToParentButton->setIcon(QPixmap(":/images/cdtoparent.png"));
@@ -54,7 +54,6 @@ FtpWindow::FtpWindow(QWidget *parent)
     QHBoxLayout *topLayout = new QHBoxLayout;
     topLayout->addWidget(ftpServerLabel);
     topLayout->addWidget(ftpServerLineEdit);
-    topLayout->addStretch(1);
     topLayout->addWidget(cdToParentButton);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
@@ -76,7 +75,7 @@ void FtpWindow::connectToFtpServer()
 {
     ftp->connectToHost(ftpServerLineEdit->text());
     ftp->list();
-    statusLabel->setText(tr("Connecting to FTP server %1.")
+    statusLabel->setText(tr("Connecting to FTP server %1...")
                          .arg(ftpServerLineEdit->text()));
 }
 
@@ -86,7 +85,8 @@ void FtpWindow::downloadFile()
 
     if (QFile::exists(fileName)) {
         QMessageBox::information(this, tr("FTP"),
-                                 tr("You already have a file called %1.")
+                                 tr("You already have a file called %1 in the "
+                                    "current directory.")
                                  .arg(fileName));
         return;
     }
@@ -102,7 +102,7 @@ void FtpWindow::downloadFile()
 
     ftp->get(fileList->currentItem()->text(), file);
 
-    progressDialog->setLabelText(tr("Downloading %1").arg(fileName));
+    progressDialog->setLabelText(tr("Downloading %1...").arg(fileName));
     progressDialog->show();
     downloadButton->setEnabled(false);
 }
@@ -128,7 +128,6 @@ void FtpWindow::ftpCommandFinished(int /* commandId */, bool error)
                              .arg(ftpServerLineEdit->text()));
         fileList->setFocus();
         connectButton->setEnabled(false);
-        downloadButton->setDefault(true);
         return;
     }
 
@@ -143,7 +142,8 @@ void FtpWindow::ftpCommandFinished(int /* commandId */, bool error)
             return;
         }
 
-        statusLabel->setText(tr("Downloaded %1.").arg(file->fileName()));
+        statusLabel->setText(tr("Downloaded %1 to current directory.")
+                             .arg(file->fileName()));
         file->close();
         delete file;
     }
