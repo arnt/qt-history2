@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#72 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#73 $
 **
 ** Definition of QObject class
 **
@@ -39,8 +39,7 @@
 #define QT_TRANSLATE_NOOP(scope,x) (x)
 
 class QMetaObject;
-class QProperty;
-
+class QVariant;
 
 class Q_EXPORT QObject: public Qt
 {
@@ -100,9 +99,9 @@ public:
     void	 dumpObjectTree();
     void	 dumpObjectInfo();
 
-#ifdef Q_PROPS
-    virtual bool setProperty( const char *name, const QProperty& value );
-    virtual bool property( const char *name, QProperty* value ) const;
+#ifdef QT_BUILDER
+    virtual bool setProperty( const char *name, const QVariant& value );
+    virtual bool property( const char *name, QVariant* value ) const;
 #endif
 
 signals:

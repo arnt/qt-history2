@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#206 $
 **
 ** Implementation of QObject class
 **
@@ -31,6 +31,10 @@
 #include "qregexp.h"
 #include <ctype.h>
 
+#ifdef QT_BUILDER
+#include "qvariant.h"
+#include "qpixmap.h"
+#endif // QT_BUILDER
 
 /*! \class Qt qnamespace.h
 
@@ -1981,3 +1985,778 @@ void QObject::dumpObjectInfo()
 	qDebug( "\t<None>" );
 #endif
 }
+
+
+#ifdef QT_BUILDER
+
+bool QObject::setProperty( const char *_name, const QVariant& _value )
+{
+  if ( _value.isEmpty() )
+    return TRUE;
+  
+  typedef void (QObject::*Proto3)( const char* );
+
+  typedef void (QObject::*ProtoString)( QString );
+  typedef void (QObject::*RProtoString)( const QString&);
+
+  typedef void (QObject::*ProtoInt)( int );
+  typedef void (QObject::*RProtoInt)( const int& );
+
+  typedef void (QObject::*ProtoDouble)( double );
+  typedef void (QObject::*RProtoDouble)( const double& );
+
+  typedef void (QObject::*ProtoBool)( bool );
+  typedef void (QObject::*RProtoBool)( const bool& );
+
+  typedef void (QObject::*ProtoFont)( QFont );
+  typedef void (QObject::*RProtoFont)( const QFont& );
+
+  typedef void (QObject::*ProtoMovie)( QMovie );
+  typedef void (QObject::*RProtoMovie)( const QMovie& );
+
+  typedef void (QObject::*ProtoPixmap)( QPixmap );
+  typedef void (QObject::*RProtoPixmap)( const QPixmap& );
+
+  typedef void (QObject::*ProtoBrush)( QBrush );
+  typedef void (QObject::*RProtoBrush)( const QBrush& );
+
+  typedef void (QObject::*ProtoRect)( QRect );
+  typedef void (QObject::*RProtoRect)( const QRect& );
+
+  typedef void (QObject::*ProtoSize)( QSize );
+  typedef void (QObject::*RProtoSize)( const QSize& );
+
+  typedef void (QObject::*ProtoColor)( QColor );
+  typedef void (QObject::*RProtoColor)( const QColor& );
+
+  typedef void (QObject::*ProtoPalette)( QPalette );
+  typedef void (QObject::*RProtoPalette)( const QPalette& );
+
+  typedef void (QObject::*ProtoColorGroup)( QColorGroup );
+  typedef void (QObject::*RProtoColorGroup)( const QColorGroup& );
+
+  QMetaProperty* p = queryMetaObject()->property( _name, TRUE );
+  if ( !p )
+  {
+    debug("Attribute %s::%s does not exist", className(), _name );
+    return FALSE;
+  }
+  
+  if ( p->enumType )
+  {
+    if ( _value.type() != QVariant::String )
+      return FALSE;
+    for( int i = 0; i < p->enumType->nEnumerators; ++i )
+    {
+      if ( _value.stringValue() == (const char*)p->enumType->enumerators[i].name )
+      {
+	ProtoInt m;
+	m = *((ProtoInt*)&p->set);
+	(this->*m)( p->enumType->enumerators[i].value );
+	return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  if ( _value.typeName() != p->type )
+  {
+    qDebug("Trying to get attribute %s with wrong type", _name );
+    return FALSE;
+  }
+  
+
+  if ( _value.type() == QVariant::String )
+  {
+    if ( strcmp( _name, "name" ) == 0 )
+    {
+      Proto3 m;
+      m = *((Proto3*)&p->set);
+      (this->*m)( _value.stringValue() );
+    }
+    else if ( p->setSpec == 'c' )
+    {
+      ProtoString m;
+      m = *((ProtoString*)&p->set);
+      (this->*m)( _value.stringValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoString m;
+      m = *((RProtoString*)&p->set);
+      (this->*m)( _value.stringValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Font )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoFont m;
+      m = *((ProtoFont*)&p->set);
+      (this->*m)( _value.fontValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoFont m;
+      m = *((RProtoFont*)&p->set);
+      (this->*m)( _value.fontValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  /* else if ( _value.type() == QVariant::Movie )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoMovie m;
+      m = *((ProtoMovie*)&p->set);
+      (this->*m)( _value.movieValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoMovie m;
+      m = *((RProtoMovie*)&p->set);
+      (this->*m)( _value.movieValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+    } */
+  else if ( _value.type() == QVariant::Pixmap )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoPixmap m;
+      m = *((ProtoPixmap*)&p->set);
+      (this->*m)( _value.pixmapValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoPixmap m;
+      m = *((RProtoPixmap*)&p->set);
+      (this->*m)( _value.pixmapValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Brush )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoBrush m;
+      m = *((ProtoBrush*)&p->set);
+      (this->*m)( _value.brushValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoBrush m;
+      m = *((RProtoBrush*)&p->set);
+      (this->*m)( _value.brushValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Rect )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoRect m;
+      m = *((ProtoRect*)&p->set);
+      (this->*m)( _value.rectValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoRect m;
+      m = *((RProtoRect*)&p->set);
+      (this->*m)( _value.rectValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Size )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoSize m;
+      m = *((ProtoSize*)&p->set);
+      (this->*m)( _value.sizeValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoSize m;
+      m = *((RProtoSize*)&p->set);
+      (this->*m)( _value.sizeValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Color )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoColor m;
+      m = *((ProtoColor*)&p->set);
+      (this->*m)( _value.colorValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoColor m;
+      m = *((RProtoColor*)&p->set);
+      (this->*m)( _value.colorValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Palette )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoPalette m;
+      m = *((ProtoPalette*)&p->set);
+      (this->*m)( _value.paletteValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoPalette m;
+      m = *((RProtoPalette*)&p->set);
+      (this->*m)( _value.paletteValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::ColorGroup )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoColorGroup m;
+      m = *((ProtoColorGroup*)&p->set);
+      (this->*m)( _value.colorgroupValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoColorGroup m;
+      m = *((RProtoColorGroup*)&p->set);
+      (this->*m)( _value.colorgroupValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Int )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoInt m;
+      m = *((ProtoInt*)&p->set);
+      (this->*m)( _value.intValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoInt m;
+      m = *((RProtoInt*)&p->set);
+      (this->*m)( _value.intValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Double )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoDouble m;
+      m = *((ProtoDouble*)&p->set);
+      (this->*m)( _value.doubleValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoDouble m;
+      m = *((RProtoDouble*)&p->set);
+      (this->*m)( _value.doubleValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( _value.type() == QVariant::Bool )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoBool m;
+      m = *((ProtoBool*)&p->set);
+      (this->*m)( _value.boolValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoBool m;
+      m = *((RProtoBool*)&p->set);
+      (this->*m)( _value.boolValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/*!
+  Reserved for future developments.
+*/
+bool QObject::property( const char *_name, QVariant* _value ) const
+{
+  typedef QString (QObject::*ProtoString)() const;
+  typedef const QString* (QObject::*PProtoString)() const;
+  typedef const QString& (QObject::*RProtoString)() const;
+  typedef const char* (QObject::*Proto3)(const char*) const;
+
+  typedef int (QObject::*ProtoInt)() const;
+  typedef const int* (QObject::*PProtoInt)() const;
+  typedef const int& (QObject::*RProtoInt)() const;
+
+  typedef double (QObject::*ProtoDouble)() const;
+  typedef const double* (QObject::*PProtoDouble)() const;
+  typedef const double& (QObject::*RProtoDouble)() const;
+
+  typedef bool (QObject::*ProtoBool)() const;
+  typedef const bool* (QObject::*PProtoBool)() const;
+  typedef const bool& (QObject::*RProtoBool)() const;
+
+  typedef QFont (QObject::*ProtoFont)() const;
+  typedef const QFont* (QObject::*PProtoFont)() const;
+  typedef const QFont& (QObject::*RProtoFont)() const;
+
+  typedef QMovie (QObject::*ProtoMovie)() const;
+  typedef const QMovie* (QObject::*PProtoMovie)() const;
+  typedef const QMovie& (QObject::*RProtoMovie)() const;
+
+  typedef QPixmap (QObject::*ProtoPixmap)() const;
+  typedef const QPixmap* (QObject::*PProtoPixmap)() const;
+  typedef const QPixmap& (QObject::*RProtoPixmap)() const;
+
+  typedef QBrush (QObject::*ProtoBrush)() const;
+  typedef const QBrush* (QObject::*PProtoBrush)() const;
+  typedef const QBrush& (QObject::*RProtoBrush)() const;
+
+  typedef QRect (QObject::*ProtoRect)() const;
+  typedef const QRect* (QObject::*PProtoRect)() const;
+  typedef const QRect& (QObject::*RProtoRect)() const;
+
+  typedef QSize (QObject::*ProtoSize)() const;
+  typedef const QSize* (QObject::*PProtoSize)() const;
+  typedef const QSize& (QObject::*RProtoSize)() const;
+
+  typedef QColor (QObject::*ProtoColor)() const;
+  typedef const QColor* (QObject::*PProtoColor)() const;
+  typedef const QColor& (QObject::*RProtoColor)() const;
+
+  typedef QPalette (QObject::*ProtoPalette)() const;
+  typedef const QPalette* (QObject::*PProtoPalette)() const;
+  typedef const QPalette& (QObject::*RProtoPalette)() const;
+
+  typedef QColorGroup (QObject::*ProtoColorGroup)() const;
+  typedef const QColorGroup* (QObject::*PProtoColorGroup)() const;
+  typedef const QColorGroup& (QObject::*RProtoColorGroup)() const;
+
+  QMetaProperty* p = queryMetaObject()->property( _name, TRUE );
+  if ( !p )
+    return FALSE;
+
+  if ( p->enumType )
+  {
+    ProtoInt m;
+    m = *((ProtoInt*)&p->get);
+    int x = (int) (this->*m)();
+    for( int i = 0; i < p->enumType->nEnumerators; ++i )
+      if ( x == p->enumType->enumerators[i].value )
+      {
+	_value->setValue( p->enumType->enumerators[i].name );
+	return TRUE;
+      }
+    return FALSE;
+  }
+  else if ( strcmp( p->type, "QString" ) == 0 )
+  {
+    if ( strcmp( _name, "name" ) == 0 )
+    {
+      Proto3 m;
+      m = *((Proto3*)&p->get);
+      _value->setValue( QString( (this->*m)( "unnamed" ) ) );
+    }
+    else if ( p->getSpec == 'c' )
+    {
+      ProtoString m;
+      m = *((ProtoString*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoString m;
+      m = *((RProtoString*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoString m;
+      m = *((PProtoString*)&p->get);
+      const QString* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QString() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "QFont" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoFont m;
+      m = *((ProtoFont*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoFont m;
+      m = *((RProtoFont*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoFont m;
+      m = *((PProtoFont*)&p->get);
+      const QFont* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QFont() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  /* else if ( strcmp( p->type, "QMovie" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoMovie m;
+      m = *((ProtoMovie*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoMovie m;
+      m = *((RProtoMovie*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoMovie m;
+      m = *((PProtoMovie*)&p->get);
+      const QMovie* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QMovie() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+    } */
+  else if ( strcmp( p->type, "QPixmap" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoPixmap m;
+      m = *((ProtoPixmap*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoPixmap m;
+      m = *((RProtoPixmap*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoPixmap m;
+      m = *((PProtoPixmap*)&p->get);
+      const QPixmap* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QPixmap() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "QBrush" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoBrush m;
+      m = *((ProtoBrush*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoBrush m;
+      m = *((RProtoBrush*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoBrush m;
+      m = *((PProtoBrush*)&p->get);
+      const QBrush* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QBrush() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "QRect" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoRect m;
+      m = *((ProtoRect*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoRect m;
+      m = *((RProtoRect*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoRect m;
+      m = *((PProtoRect*)&p->get);
+      const QRect* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QRect() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "QSize" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoSize m;
+      m = *((ProtoSize*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoSize m;
+      m = *((RProtoSize*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoSize m;
+      m = *((PProtoSize*)&p->get);
+      const QSize* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QSize() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "QColor" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoColor m;
+      m = *((ProtoColor*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoColor m;
+      m = *((RProtoColor*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoColor m;
+      m = *((PProtoColor*)&p->get);
+      const QColor* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QColor() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "QPalette" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoPalette m;
+      m = *((ProtoPalette*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoPalette m;
+      m = *((RProtoPalette*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoPalette m;
+      m = *((PProtoPalette*)&p->get);
+      const QPalette* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QPalette() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "QColorGroup" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoColorGroup m;
+      m = *((ProtoColorGroup*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoColorGroup m;
+      m = *((RProtoColorGroup*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoColorGroup m;
+      m = *((PProtoColorGroup*)&p->get);
+      const QColorGroup* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QColorGroup() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "int" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoInt m;
+      m = *((ProtoInt*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoInt m;
+      m = *((RProtoInt*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoInt m;
+      m = *((PProtoInt*)&p->get);
+      const int *p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( 0 );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "double" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoDouble m;
+      m = *((ProtoDouble*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoDouble m;
+      m = *((RProtoDouble*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoDouble m;
+      m = *((PProtoDouble*)&p->get);
+      const double* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( 0.0 );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+  else if ( strcmp( p->type, "bool" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoBool m;
+      m = *((ProtoBool*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoBool m;
+      m = *((RProtoBool*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoBool m;
+      m = *((PProtoBool*)&p->get);
+      const bool* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( (bool)FALSE );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+#endif // QT_BUILDER
