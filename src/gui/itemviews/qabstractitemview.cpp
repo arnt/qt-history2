@@ -369,21 +369,21 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         QObject::disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
                             this, SLOT(rowsInserted(const QModelIndex&,int,int)));
         QObject::disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                            this, SLOT(rowsInserted(const QModelIndex&,int,int)));
+                            this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
 
         if (static_cast<QObject*>(d->model)->parent() == this)
             delete d->model;
      }
 
      d->model = model;
-     
+
     if (d->model) {
         QObject::connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                          this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         QObject::connect(d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
                          this, SLOT(rowsInserted(const QModelIndex&,int,int)));
         QObject::connect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                         this, SLOT(rowsInserted(const QModelIndex&,int,int)));
+                         this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
     }
 
     setRoot(QModelIndex());
