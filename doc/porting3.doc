@@ -293,6 +293,7 @@ new code.
 \i QMessageBox::message( const QString \& caption, const QString \& text, const QString \& buttonText = QString::null, QWidget *parent = 0, const char *= 0 )
 \i QMessageBox::query( const QString \& caption, const QString \& text, const QString \& yesButtonText = QString::null, const QString \& noButtonText = QString::null, QWidget *parent = 0, const char *= 0 )
 \i QMessageBox::standardIcon( Icon icon, GUIStyle style )
+\i QPalette::normal()
 \i QRegExp::match( const QString \& str, int index = 0, int *len = 0, bool indexIsStart = TRUE ) const
 \i QScrollView::childIsVisible( QWidget *child )
 \i QScrollView::showChild( QWidget *child, bool show = TRUE )
@@ -758,7 +759,7 @@ QASyncIO, QDataSink, QDataSource, QIODeviceSource and QDataPump were
 used internally in previous versions of Qt, but are not used anymore.
 They are now obsolete.
 
-\section1 
+\section1 Transparent widgets
 
 In Qt 2.x, the AutoMask property was used to obtain a
 transparent-looking widget. In general, this approach is slow and
