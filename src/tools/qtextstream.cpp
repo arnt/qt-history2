@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#26 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#26 $")
 
 
 /*----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#25 $")
   The QTextStream class reads and writes ASCII text and it is not
   appropriate for dealing with binary data (but QDataStream is).
 
-  Note that string and floating point input is still not implemented.
+  This class is not fully documented yet.
 
   \sa QDataStream
  ----------------------------------------------------------------------------*/
@@ -55,7 +55,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#25 $")
   This class makes it possible to give the QTextStream function objects
   with arguments, like this:
   \code
-    QTextStream cout( stdout );
+    QTextStream cout( stdout, IO_WriteOnly );
     cout << setprecision( 8 );		// QTSManip used here!
     cout << 3.14159265358979323846;
   \endcode
@@ -205,12 +205,12 @@ QTextStream::~QTextStream()
 
   <ul>
   <li> All flags are set to 0.
-  <li> Width is set to 0.
-  <li> Fill character is set to ' ' (space).
-  <li> Precision is set to 6.
+  <li> The field width is set to 0.
+  <li> The fill character is set to ' ' (space).
+  <li> The precision is set to 6.
   </ul>
 
-  \sa setf() width(), fill(), precision()
+  \sa setf(), width(), fill(), precision()
  ----------------------------------------------------------------------------*/
 
 void QTextStream::reset()
@@ -243,7 +243,7 @@ void QTextStream::setDevice( QIODevice *d )
 }
 
 /*----------------------------------------------------------------------------
-  Unsets the IO device.  This is the same as calling setDevice( 0 ).
+  Unsets the IO device.	 Equivalent to setDevice( 0 ).
   \sa device(), setDevice()
  ----------------------------------------------------------------------------*/
 
@@ -305,6 +305,10 @@ static ulong input_oct( QTextStream *s )
 	val <<= 3;
 	val += c - '0';
 	c = d->getch();
+    }
+    if ( c == '8' || c == '9' ) {
+	while ( isdigit(c) )
+	    c = d->getch();
     }
     if ( c != EOF )
 	d->ungetch( c );
@@ -380,8 +384,12 @@ long QTextStream::input_int()
 		else if ( tolower(c) == 'b' )
 		    val = (long)input_bin( this );
 		else {			// octal
-		    dev->ungetch( c );
-		    val = (long)input_oct( this );
+		    if ( c >= '0' && c <= '7' ) {
+			dev->ungetch( c );
+			val = (long)input_oct( this );
+		    } else {
+			val = 0;
+		    }
 		}
 	    }
 	    else if ( c >= '1' && c <= '9' ) {
@@ -405,15 +413,15 @@ long QTextStream::input_int()
 
 static double input_double( QTextStream *s )
 {
-    const Init     = 0;				// states
-    const Sign     = 1;
+    const Init	   = 0;				// states
+    const Sign	   = 1;
     const Mantissa = 2;
     const Dot	   = 3;
     const Abscissa = 4;
     const ExpMark  = 5;
     const ExpSign  = 6;
     const Exponent = 7;
-    const Done     = 8;
+    const Done	   = 8;
 
     const InputSign  = 1;			// input tokens
     const InputDigit = 2;
@@ -421,15 +429,15 @@ static double input_double( QTextStream *s )
     const InputExp   = 4;
 
     static uchar table[8][5] = {
-     /* None     InputSign   InputDigit InputDot InputExp */
-        { 0,        Sign,     Mantissa,  Dot,      0,      }, // Init
-        { 0,        0,        Mantissa,  Dot,      0,      }, // Sign
-        { Done,     Done,     Mantissa,  Dot,      ExpMark,}, // Mantissa
-        { 0,        0,        Abscissa,  0,        0,      }, // Dot
-        { Done,     Done,     Abscissa,  Done,     ExpMark,}, // Abscissa
-        { 0,        ExpSign,  Exponent,  0,        0,      }, // ExpMark
-        { 0,        0,        Exponent,  0,        0,      }, // ExpSign
-        { Done,     Done,     Exponent,  Done,     Done    }  // Exponent
+     /* None	 InputSign   InputDigit InputDot InputExp */
+	{ 0,	    Sign,     Mantissa,	 Dot,	   0,	   }, // Init
+	{ 0,	    0,	      Mantissa,	 Dot,	   0,	   }, // Sign
+	{ Done,	    Done,     Mantissa,	 Dot,	   ExpMark,}, // Mantissa
+	{ 0,	    0,	      Abscissa,	 0,	   0,	   }, // Dot
+	{ Done,	    Done,     Abscissa,	 Done,	   ExpMark,}, // Abscissa
+	{ 0,	    ExpSign,  Exponent,	 0,	   0,	   }, // ExpMark
+	{ 0,	    0,	      Exponent,	 0,	   0,	   }, // ExpSign
+	{ Done,	    Done,     Exponent,	 Done,	   Done	   }  // Exponent
     };
 
     int state = Init;				// parse state
@@ -480,7 +488,7 @@ static double input_double( QTextStream *s )
 	c = d->getch();
     }
 
-    return 0.0;	// never reached
+    return 0.0; // never reached
 }
 
 
@@ -676,6 +684,8 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	    while ( len-- ) {
 		*--p = (char)(n&1) + '0';
 		n >>= 1;
+		if ( !n )
+		    break;
 	    }
 	    if ( flags() & showbase ) {		// show base
 		*--p = (flags() & uppercase) ? 'B' : 'b';
@@ -954,7 +964,82 @@ QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
 }
 
 
-/*****************************************************************************
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::flags() const
+  Returns the current stream flags. The default value is 0.
+  \sa setf(), unsetf()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::flags( int f )
+  Sets the stream flags to \e f.
+  Returns the previous stream flags.
+
+  \sa setf(), unsetf()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::setf( int bits )
+  Sets the stream flag bits \e bits.
+  Returns the previous stream flags.
+
+  Equivalent to <code>flags( flags() | bits )</code>.
+
+  \sa setf(), unsetf()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::setf( int bits, int mask )
+  Sets the stream flag bits \e bits with a bit mask \e mask.
+  Returns the previous stream flags.
+
+  Equivalent to <code>flags( (flags() & ~mask) | (bits & mask) )</code>.
+
+  \sa setf(), unsetf()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::unsetf( int bits )
+  Clears the stream flag bits \e bits.
+  Returns the previous stream flags.
+
+  Equivalent to <code>flags( flags() & ~mask )</code>.
+
+  \sa setf()
+ ----------------------------------------------------------------------------*/
+
+ /*----------------------------------------------------------------------------
+  \fn int QTextStream::width() const
+  Returns the field width. The default value is 0.
+ ----------------------------------------------------------------------------*/
+
+ /*----------------------------------------------------------------------------
+  \fn int QTextStream::width( int w )
+  Sets the field width to \e w. Returns the previous field width.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::fill() const
+  Returns the fill character. The default value is ' ' (space).
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::fill( int f )
+  Sets the fill character to \e f. Returns the previous fill character.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::precision() const
+  Returns the precision. The default value is 6.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QTextStream::precision( int p )
+  Sets the precision to \e p. Returns the previous precision setting.
+ ----------------------------------------------------------------------------*/
+
+
+ /*****************************************************************************
   QTextStream manipulators
  *****************************************************************************/
 
