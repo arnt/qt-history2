@@ -496,8 +496,7 @@ void QMultiLineEdit::cursorDown( bool mark )
 
 
 /*!  Returns the text at line number \a line (possibly the empty
-  string), or a \link QString::operator!() null string\endlink if \a
-  line is invalid.
+  string), or a null if \a line is invalid.
 */
 
 QString QMultiLineEdit::textLine( int line ) const

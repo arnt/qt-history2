@@ -38,7 +38,7 @@ Qt is supported on the following platforms:
 \list
  \i <b>MS/Windows</b> -- 95, 98, NT 4.0, ME, 2000, and XP
  \i <b>Unix/X11</b> -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
-	    IBM AIX, SGI IRIX and a wide range of others
+	    IBM AIX, SGI IRIX and many others
  \i <b>Macintosh</b> -- Mac OS X
  \i <b>Embedded</b> -- Linux platforms with framebuffer support.
 \endlist
@@ -66,5 +66,11 @@ Source software} only. It is provided free of charge under the terms
 of both the \link license.html Q Public License\endlink and the \link
 gpl.html GNU General Public License\endlink.
 \endlist
+
+Trolltech also provides \link
+http://www.trolltech.com/products/solutions/index.html Qt
+Solutions\endlink, a growing range of industry and platform specific
+components that complement Qt. Some of these are only available to
+commercial customers, others are available to all Qt users.
 
 */
