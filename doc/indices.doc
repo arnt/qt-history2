@@ -113,7 +113,7 @@ Overviews
 </td>
 <td valign=top>
 \list
-\i \link modules.html   About Modules \endlink
+\i \link modules.html   All Modules \endlink
 \i \link canvas.html   Canvas \endlink
 \i \link iconview.html   Iconview \endlink
 \i \link network.html   Network \endlink
@@ -122,8 +122,7 @@ Overviews
 \i \link table.html   Table \endlink
 \i \link workspace.html   Workspace \endlink
 \i \link xml.html   XML \endlink
-\i \link qaxserver.html   QAxServer \endlink
-\i \link qaxcontainer.html   QAxContainer \endlink
+\i \link activeqt.html   ActiveQt Framework \endlink
 \endlist
 </td>
 <td valign=top>
