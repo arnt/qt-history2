@@ -309,6 +309,8 @@ void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
 
 void HierarchyList::setup()
 {
+    if ( !formWindow )
+	return;
     clear();
     QWidget *w = formWindow->mainContainer();
 #ifndef QT_NO_SQL
