@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#61 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#60 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#61 $")
 
 
 // Mac style parameters
@@ -878,10 +878,12 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	else {					// normal menu item
 	    hideAllPopups();			// hide all popup
 	    byeMenuBar();			// deactivate menu bar
-	    if ( mi->signal() )			// activate signal
-		mi->signal()->activate();
-	    else				// normal connection
-		actSig( mi->id() );
+	    if ( !mi->isDisabled() ) {
+		if ( mi->signal() )		// activate signal
+		    mi->signal()->activate();
+		else				// normal connection
+		    actSig( mi->id() );
+	    }
 	}
     }
     else {
@@ -977,10 +979,12 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    else {
 		hideAllPopups();
 		byeMenuBar();
-		if ( mi->signal() )
-		    mi->signal()->activate();
-		else
-		    actSig( mi->id() );
+		if ( !mi->isDisabled() ) {
+		    if ( mi->signal() )
+			mi->signal()->activate();
+		    else
+			actSig( mi->id() );
+		}
 	    }
 	    break;
 
