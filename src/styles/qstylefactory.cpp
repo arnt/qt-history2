@@ -40,51 +40,60 @@
 #include "qinterfacemanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
-#if defined(QT_STYLE_CDE)
 #include "qcdestyle.h"
-#endif
-#if defined(QT_STYLE_MOTIFPLUS)
 #include "qmotifplusstyle.h"
-#endif
-#if defined(QT_STYLE_PLATINUM)
 #include "qplatinumstyle.h"
-#endif
-#if defined(QT_STYLE_SGI)
 #include "qsgistyle.h"
-#endif
+#include "qcompactstyle.h"
 #include <stdlib.h>
 
 static QInterfaceManager<QStyleInterface> *manager = 0;
 
-QStyle *QStyleFactory::create( const QString& style )
+QStyle *QStyleFactory::create( const QString& s )
 {
     if ( !manager )
 	manager = new QInterfaceManager<QStyleInterface>( "QStyleInterface", QString((char*)getenv( "QTDIR" )) + "/plugins" );
 
-    QStyleInterface *iface = manager->queryInterface( style );
+    QStyleInterface *iface = manager->queryInterface( s );
 
     if ( iface )
-	return iface->create( style );
+	return iface->create( s );
 
-    if ( style == "Windows" )
+    QString style = s.lower();
+#ifndef QT_NO_STYLE_WINDOWS
+    if ( style == "windows" )
 	return new QWindowsStyle;
-    else if ( style == "Motif" )
+    else 
+#endif
+#ifndef QT_NO_STYLE_MOTIF
+    if ( style == "motif" )
 	return new QMotifStyle;
-#if defined(QT_STYLE_CDE)
-    else if ( style == "CDE" )
+    else
+#endif
+#ifndef QT_NO_STYLE_CDE
+    if ( style == "cde" )
 	return new QCDEStyle;
+    else 
 #endif
-#if defined(QT_STYLE_MOTIFPLUS)
-    else if ( style == "MotifPlus" )
+#ifndef QT_NO_STYLE_MOTIFPLUS
+    if ( style == "motifplus" )
 	return new QMotifPlusStyle;
+    else
 #endif
-#if defined(QT_STYLE_PLATINUM)
-    else if ( style == "Platinum" )
+#ifndef QT_NO_STYLE_PLATINUM
+    if ( style == "platinum" )
 	return new QPlatinumStyle;
+    else
 #endif
-#if defined(QT_STYLE_SGI)
-    else if ( style == "SGI")
+#ifndef QT_NO_STYLE_SGI
+    if ( style == "sgi")
 	return new QSGIStyle;
+    else
+#endif
+#ifndef QT_NO_STYLE_COMPACT
+    if ( style == "compact" )
+	return new QCompactStyle;
+    else
 #endif
 
     return 0;
@@ -97,18 +106,22 @@ QStringList QStyleFactory::styles()
 
     QStringList list = manager->featureList();
 
+#ifndef QT_NO_STYLE_WINDOWS
     list << "Windows";
+#endif
+#ifndef QT_NO_STYLE_MOTIF
     list << "Motif";
-#if defined(QT_STYLE_CDE)
+#endif
+#ifndef QT_NO_STYLE_CDE
     list << "CDE";
 #endif
-#if defined(QT_STYLE_MOTIFPLUS)
+#ifndef QT_NO_STYLE_MOTIFPLUS
     list << "MotifPlus";
 #endif
-#if defined(QT_STYLE_PLATINUM)
+#ifndef QT_STYLE_PLATINUM
     list << "Platinum";
 #endif
-#if defined(QT_STYLE_SGI)
+#ifndef QT_STYLE_SGI
     list << "SGI";
 #endif
 
