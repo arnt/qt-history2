@@ -72,7 +72,7 @@
 
     You can sort the list with sort(), and extract a new list which
     contains only those strings which contain a particular substring
-    (or match a particular regular expression) using the grep()
+    (or match a particular regular expression) using the find()
     functions, e.g.
     \code
     fonts.sort();
@@ -80,7 +80,7 @@
     // Output:
     //	Courier, Courier New, Helvetica [Adobe], Helvetica [Cronyx], Times
 
-    QStringList helveticas = fonts.grep("Helvetica");
+    QStringList helveticas = fonts.find("Helvetica");
     cout << helveticas.join(", ") << endl;
     // Output:
     //	Helvetica [Adobe], Helvetica [Cronyx]
@@ -90,7 +90,7 @@
     string or regular expression separators, e.g.
     \code
     QString s = "Red\tGreen\tBlue";
-    QStringList colors = QStringList::split("\t", s);
+    QStringList colors = s.split("\t");
     cout << colors.join(", ") << endl;
     // Output:
     //	Red, Green, Blue
@@ -167,8 +167,7 @@ void QStringList::sort()
     \sa join() QString::section()
 */
 
-QStringList QStringList::split(const QChar &sep, const QString &str,
-				bool allowEmptyEntries)
+QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
 {
     return split(QString(sep), str, allowEmptyEntries);
 }
@@ -190,8 +189,7 @@ QStringList QStringList::split(const QChar &sep, const QString &str,
     \sa join() QString::section()
 */
 
-QStringList QStringList::split(const QString &sep, const QString &str,
-				bool allowEmptyEntries)
+QStringList QStringList::split(const QString &sep, const QString &str, bool allowEmptyEntries)
 {
     QStringList lst;
 
@@ -237,8 +235,7 @@ QStringList QStringList::split(const QString &sep, const QString &str,
     \sa join() QString::section()
 */
 
-QStringList QStringList::split(const QRegExp &sep, const QString &str,
-				bool allowEmptyEntries)
+QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allowEmptyEntries)
 {
     QStringList lst;
 
@@ -272,20 +269,20 @@ QStringList QStringList::split(const QRegExp &sep, const QString &str,
 /*!
     Returns a list of all the strings containing the substring \a str.
 
-    If \a cs is true, the grep is done case-sensitively; otherwise
-    case is ignored.
+    If \a cs is \l QString::CaseSensitive, the string comparison is
+    case sensitive; otherwise case is ignored.
 
     \code
     QStringList list;
     list << "Bill Gates" << "John Doe" << "Bill Clinton";
-    list = list.grep( "Bill" );
+    list = list.find("Bill");
     // list == ["Bill Gates", "Bill Clinton"]
     \endcode
 
     \sa QString::indexOf()
 */
 
-QStringList QStringList::grep(const QString &str, QString::CaseSensitivity cs) const
+QStringList QStringList::find(const QString &str, QString::CaseSensitivity cs) const
 {
     QStringList res;
     for (int i = 0; i < size(); ++i)
@@ -304,7 +301,7 @@ QStringList QStringList::grep(const QString &str, QString::CaseSensitivity cs) c
     \sa QString::indexOf()
 */
 
-QStringList QStringList::grep(const QRegExp &rx) const
+QStringList QStringList::find(const QRegExp &rx) const
 {
     QStringList res;
     for (int i = 0; i < size(); ++i)
@@ -319,20 +316,20 @@ QStringList QStringList::grep(const QRegExp &rx) const
     that constitute the string list with the string \a after. Returns
     a reference to the string list.
 
-    If \a cs is true, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is \l QString::CaseSensitive, the search is case
+    sensitive; otherwise the search is case insensitive.
 
     Example:
     \code
     QStringList list;
     list << "alpha" << "beta" << "gamma" << "epsilon";
-    list.gres("a", "o");
+    list.replace("a", "o");
     // list == ["olpho", "beto", "gommo", "epsilon"]
     \endcode
 
     \sa QString::replace()
 */
-QStringList& QStringList::gres(const QString &before, const QString &after, QString::CaseSensitivity cs)
+QStringList& QStringList::replace(const QString &before, const QString &after, QString::CaseSensitivity cs)
 {
     for (int i = 0; i < size(); ++i)
 	(*this)[i].replace(before, after, cs);
@@ -350,7 +347,7 @@ QStringList& QStringList::gres(const QString &before, const QString &after, QStr
     \code
     QStringList list;
     list << "alpha" << "beta" << "gamma" << "epsilon";
-    list.gres(QRegExp("^a"), "o");
+    list.replace(QRegExp("^a"), "o");
     // list == ["olpha", "beta", "gamma", "epsilon"]
     \endcode
 
@@ -363,13 +360,13 @@ QStringList& QStringList::gres(const QString &before, const QString &after, QStr
     \code
     QStringList list;
     list << "Bill Clinton" << "Gates, Bill";
-    list.gres(QRegExp("^(.*), (.*)$"), "\\2 \\1");
+    list.replace(QRegExp("^(.*), (.*)$"), "\\2 \\1");
     // list == ["Bill Clinton", "Bill Gates"]
     \endcode
 
     \sa QString::replace()
 */
-QStringList& QStringList::gres(const QRegExp &rx, const QString &after)
+QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
 {
     for (int i = 0; i < size(); ++i)
 	(*this)[i].replace(rx, after);

@@ -39,22 +39,27 @@ public:
 
     void sort();
 
-    static QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
-    static QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
-    static QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
+#ifdef QT_COMPAT
+    static QT_COMPAT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
+    static QT_COMPAT QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
+    static QT_COMPAT QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
+#endif
     QString join(const QString &sep) const;
 
-    QStringList grep(const QString &str, QString::CaseSensitivity cs = QString::CaseSensitive) const;
-    QStringList grep(const QRegExp &expr) const;
+    QStringList find(const QString &str, QString::CaseSensitivity cs = QString::CaseSensitive) const;
+    QStringList find(const QRegExp &rx) const;
 
-    QStringList &gres(const QString &before, const QString &after, QString::CaseSensitivity cs = QString::CaseSensitive);
-    QStringList &gres(const QRegExp &expr, const QString &after);
+    QStringList &replace(const QString &before, const QString &after, QString::CaseSensitivity cs = QString::CaseSensitive);
+    QStringList &replace(const QRegExp &rx, const QString &after);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QStringList grep(const QString &str, bool cs) const
-	{ return grep(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+	{ return find(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+    inline QT_COMPAT QStringList grep(const QRegExp &rx) const { return find(rx); }
     inline QT_COMPAT QStringList &gres(const QString &before, const QString &after, bool cs)
-	{  return gres(before, after, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+	{ return replace(before, after, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+    inline QT_COMPAT QStringList &gres(const QRegExp &rx, const QString &after)
+	{ return replace(rx, after); }
     Iterator QT_COMPAT fromLast() { return (isEmpty() ? end() : --end()); }
     ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif

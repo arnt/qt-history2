@@ -29,7 +29,7 @@
 #  pragma warning ( pop )
 #else
 #  include <string>
-#endif // avoid warning in xlocale on windows .net 1310
+#endif // avoid warning in xlocale on Windows .NET 1310
 #endif // QT_NO_STL
 
 #ifdef QT_INCLUDE_COMPAT
@@ -38,6 +38,7 @@
 
 class QCharRef;
 class QRegExp;
+class QStringList;
 
 class Q_CORE_EXPORT QString
 {
@@ -49,7 +50,7 @@ public:
     QString(const QString &);
     ~QString();
     QString &operator=(QChar c);
-    inline QString &operator=(const QString  &);
+    inline QString &operator=(const QString &);
 
     inline int size() const { return d->size; }
     inline int count() const { return d->size; }
@@ -184,12 +185,16 @@ public:
 	{ return replace(i, len, after.constData(), after.length()); }
     QString &replace(QChar before, QChar after, CaseSensitivity cs = CaseSensitive);
     QString &replace(QChar c, const QString &after, CaseSensitivity cs = CaseSensitive);
-    QString &replace(const QString &before, const QString &after, CaseSensitivity cs = CaseSensitive);
+    QString &replace(const QString &before, const QString &after,
+		     CaseSensitivity cs = CaseSensitive);
 #ifndef QT_NO_REGEXP_CAPTURE
     QString &replace(const QRegExp &rx, const QString &after);
     inline QString &remove(const QRegExp &rx)
     { return replace(rx, QString()); }
 #endif
+    QStringList split(const QString &sep) const;
+    QStringList split(const QChar &sep) const;
+    QStringList split(const QRegExp &sep) const;
 
     inline const char *ascii() const { return toAscii(); }
     inline const char *latin1() const{ return toLatin1(); }

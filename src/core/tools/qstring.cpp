@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-// Don't define it while compiling this module, or USERS of Qt will
+// Don't define it while compiling this module, or users of Qt will
 // not be able to link.
 #ifdef QT_NO_CAST_FROM_ASCII
 #undef QT_NO_CAST_FROM_ASCII
@@ -21,7 +21,7 @@
 #undef QT_NO_CAST_TO_ASCII
 #endif
 
-#include "qstring.h"
+#include "qstringlist.h"
 #include "qregexp.h"
 #include "qunicodetables_p.h"
 #ifndef QT_NO_TEXTCODEC
@@ -153,7 +153,7 @@ const QString::Null QString::null=QString::Null();
     ascii().
 
     Lists of strings are handled by the QStringList class. You can
-    split a string into a list of strings using QStringList::split(),
+    split a string into a list of strings using split(),
     and join a list of strings into a single string with an optional
     separator using QStringList::join(). You can obtain a list of
     strings from a string list that contain a particular substring or
@@ -1662,7 +1662,7 @@ int QString::count(const QRegExp& rx) const
     QString s = path.section( '/', -1 ); // s == "myapp"
     \endcode
 
-    \sa QStringList::split()
+    \sa split()
 */
 
 /*!
@@ -1696,12 +1696,12 @@ int QString::count(const QRegExp& rx) const
     QString s = data.section( "**", -3, -2 ); // s == "middlename**surname"
     \endcode
 
-    \sa QStringList::split()
+    \sa split()
 */
 
 QString QString::section( const QString &sep, int start, int end, int flags ) const
 {
-    QStringList sections = QStringList::split(sep, *this, true);
+    QStringList sections = split(sep);
     if(sections.isEmpty())
 	return QString();
     if(!(flags & SectionSkipEmpty)) {
@@ -1794,7 +1794,7 @@ public:
     \warning Using this QRegExp version is much more expensive than
     the overloaded string and character versions.
 
-    \sa QStringList::split() simplified()
+    \sa split() simplified()
 */
 QString QString::section( const QRegExp &reg, int start, int end, int flags ) const
 {
@@ -4246,6 +4246,73 @@ QString QString::number(double n, char f, int prec)
     return s;
 }
 
+/*!
+    \overload
+
+    This version of the function uses a QString as separator, instead
+    of a regular expression.
+
+    \sa join(), section()
+*/
+QStringList QString::split(const QString &sep) const
+{
+    QStringList list;
+    int start = 0;
+    int end;
+    while ((end = indexOf(sep, start)) != -1) {
+	list.append(mid(start, end - start));
+	start = end + sep.length();
+    }
+    list.append(mid(start));
+    return list;
+}
+
+/*!
+    \overload
+
+    This version of the function uses a QChar as separator, instead
+    of a regular expression.
+
+    \sa join(), section()
+*/
+QStringList QString::split(const QChar &sep) const
+{
+    QStringList list;
+    int start = 0;
+    int end;
+    while ((end = indexOf(sep, start)) != -1) {
+	list.append(mid(start, end - start));
+	start = end + 1;
+    }
+    list.append(mid(start));
+    return list;
+}
+
+/*!
+    Splits the string into strings wherever the regular expression \a
+    sep occurs, and returns the list of those strings.
+
+    For example, if you split the string "a::b:c" on QRegExp(":"),
+    split() returns the list ["a", "", "b", "c"].
+
+    If \a sep does not match anywhere in \a str, split() returns a
+    single-element list.
+
+    \sa join(), section()
+*/
+QStringList QString::split(const QRegExp &sep) const
+{
+    QStringList list;
+    int start = 0;
+    int end;
+    while ((end = indexOf(sep, start)) != -1) {
+	list.append(mid(start, end - start));
+	start = end + sep.matchedLength();
+    }
+    list.append(mid(start));
+    return list;
+}
+
 struct ArgEscapeData
 {
     uint min_escape;	    // lowest escape sequence number
@@ -4322,7 +4389,7 @@ static ArgEscapeData findArgEscapes(const QString &s)
 }
 
 static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int field_width,
-    	    	    	    	    const QString &arg, const QString &larg)
+    	    	    	    	 const QString &arg, const QString &larg)
 {
     const QChar *uc_begin = s.unicode();
     const QChar *uc_end = uc_begin + s.length();
@@ -4867,8 +4934,6 @@ QConstString::QConstString(const QChar *unicode, int length)
     Returns a constant string referencing the data passed during
     construction.
 */
-
-
 
 #ifndef QT_NO_DATASTREAM
 /*!
