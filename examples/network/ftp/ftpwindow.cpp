@@ -75,6 +75,7 @@ FtpWindow::FtpWindow(QWidget *parent)
 void FtpWindow::connectToFtpServer()
 {
     ftp->connectToHost(ftpServerLineEdit->text());
+    ftp->login();
     ftp->list();
     statusLabel->setText(tr("Connecting to FTP server %1...")
                          .arg(ftpServerLineEdit->text()));
