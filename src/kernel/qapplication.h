@@ -46,7 +46,7 @@
 #include "qstrlist.h"
 #include "qstringlist.h"
 #ifndef QT_NO_REMOTE
-#include "qremotecontrol_p.h"
+#include "private/qremotecontrol_p.h"
 #endif
 #endif // QT_H
 
