@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#2 $
 **
 ** Implementation of QSocket class
 **
@@ -459,7 +459,7 @@ bool QSocket::connect( const QSocketAddress *addr )
     if ( !isValid() )
 	return FALSE;
     return ::connect(sock_fd, (struct sockaddr*)addr->data(),
-		     addr->datalen()) == 0;
+		     addr->length()) == 0;
 }
 
 
@@ -476,7 +476,7 @@ bool QSocket::bind( const QSocketAddress *name )
     if ( !isValid() )
 	return FALSE;
     return ::bind(sock_fd, (struct sockaddr*)name->data(),
-		  name->datalen()) == 0;
+		  name->length()) == 0;
 }
 
 
@@ -517,7 +517,7 @@ int QSocket::accept( QSocketAddress *addr )
     struct sockaddr a;
     int l = sizeof(struct sockaddr);
     int s = ::accept( sock_fd, (struct sockaddr*)&a, &l );
-    addr->setData( &a );
+    addr->setData( &a, l );
     return s;
 }
 
@@ -619,4 +619,73 @@ int QSocket::writeBlock( const char *data, uint len )
 #if defined(UNIX)
     return ::write( sock_fd, data, len );
 #endif
+}
+
+
+/*****************************************************************************
+  QSocketAddress member functions
+ *****************************************************************************/
+
+void QSocketAddress::setData( void *data, int len )
+{
+    if ( ptr )
+	delete [] ptr;
+    ptr = new char[len];
+    memcpy( ptr, data, len );
+}
+
+
+QSocketAddress::QSocketAddress()
+    : ptr(0)
+{
+    struct sockaddr_in a;
+    memset( &a, 0, sizeof(a) );
+    a.sin_family = AF_INET;
+    setData( &a, sizeof(a) );
+}
+
+
+QSocketAddress::QSocketAddress( int port, uint ip4Addr )
+    : ptr(0)
+{
+    struct sockaddr_in a;
+    memset( &a, 0, sizeof(a) );
+    a.sin_family = AF_INET;
+    a.sin_port = ntohs( port );
+    a.sin_addr.s_addr = ntohl( ip4Addr );
+    setData( &a, sizeof(a) );
+}
+
+
+QSocketAddress::QSocketAddress( const QSocketAddress &a )
+    : ptr(0)
+{
+    setData( a.ptr, a.len );
+}
+
+
+QSocketAddress & QSocketAddress::operator=( const QSocketAddress &a )
+{
+    setData( a.ptr, a.len );
+    return *this;
+}
+
+
+int QSocketAddress::port() const
+{
+    return htons(((struct sockaddr_in*)ptr)->sin_port);
+}
+
+
+uint QSocketAddress::ip4Addr() const
+{
+    return htonl(((struct sockaddr_in*)ptr)->sin_addr.s_addr);
+}
+
+
+bool QSocketAddress::operator==( const QSocketAddress &a )
+{
+    if ( a.len != len )
+	return FALSE;
+    return memcmp(ptr,a.ptr,len) == 0;
 }
