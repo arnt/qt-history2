@@ -687,6 +687,7 @@ inline void QWidget::constPolish() const
     if ( !testWState(WState_Polished) ) {
 	QWidget* that = (QWidget*) this;
 	that->polish();
+        that->setWState(WState_Polished); // be on the safe side...
     }
 }
 
