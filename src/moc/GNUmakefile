@@ -30,6 +30,7 @@ SOURCES =	mocgen.cpp \
 		../tools/qdatastream.cpp \
 		../tools/qdatetime.cpp \
 		../tools/qfile.cpp \
+		../tools/qfile_unix.cpp \
 		../tools/qgarray.cpp \
 		../tools/qgdict.cpp \
 		../tools/qglist.cpp \
@@ -47,6 +48,7 @@ OBJECTS =	mocgen.o \
 		qdatastream.o \
 		qdatetime.o \
 		qfile.o \
+		qfile_unix.o \
 		qgarray.o \
 		qgdict.o \
 		qglist.o \
@@ -85,7 +87,7 @@ TARGET	=	moc
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(OBJMOC) 
+$(TARGET): $(OBJECTS) $(OBJMOC)
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
 
 moc: $(SRCMOC)
@@ -184,6 +186,18 @@ qfile.o: ../tools/qfile.cpp \
 		../../include/qstring.h \
 		../../include/qfiledefs.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qfile.o ../tools/qfile.cpp
+
+qfile_unix.o: ../tools/qfile_unix.cpp \
+		../../include/qglobal.h \
+		../../include/qfile.h \
+		../../include/qiodevice.h \
+		../../include/qcstring.h \
+		../../include/qarray.h \
+		../../include/qgarray.h \
+		../../include/qshared.h \
+		../../include/qstring.h \
+		../../include/qfiledefs.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qfile_unix.o ../tools/qfile_unix.cpp
 
 qgarray.o: ../tools/qgarray.cpp \
 		../../include/qgarray.h \
