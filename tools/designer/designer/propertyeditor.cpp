@@ -3996,10 +3996,10 @@ void EventList::save( QListViewItem *p )
 
 /*!
   \class PropertyEditor propertyeditor.h
-  \brief PropertyEdior toplevel window
+  \brief The PropertyEditor top-level window.
 
-  This is the toplevel window of the property editor which contains a
-  listview for editing properties.
+  The top-level window of the property editor contains a list view
+  for editing properties.
 */
 
 PropertyEditor::PropertyEditor( QWidget *parent )
