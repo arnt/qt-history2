@@ -319,75 +319,72 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 #if defined(QSOCKET_DEBUG)
     qDebug("QSocket (%s)::tryConnecting()", q->name());
 #endif
-    // ### this ifdef isn't correct - addresses() also does /etc/hosts and
-    // numeric-address-as-string handling.
 #ifndef QT_NO_DNS
-    if (state == QSocket::HostLookup) {
-        if (hostInfo.addresses.isEmpty()) {
-            // no results: give up
-            state = QSocket::Idle;
-            emit q->error(QSocket::ErrHostNotFound);
-            return;
-        }
 
-        // we've found something. press on with that. if we later find
-        // more, fine.
-        emit q->hostFound();
-        state = QSocket::Connecting;
+    // if there are no addresses in the host list, report this to the
+    // user.
+    if (hostInfo.addresses.isEmpty()) {
+        state = QSocket::Idle;
+        emit q->error(QSocket::ErrHostNotFound);
+        return;
     }
 
-    if (state == QSocket::Connecting) {
-        // put IPv4 addresses upfront, IPv6 back. the relative order of
-        // the addresses is not important beyond that
-	for (int i = 0; i < hostInfo.addresses.size(); ++i) {
-	    const QHostAddress &a = hostInfo.addresses.at(i);
-	    if (a.isIPv4Address())
-		addresses.prepend(a);
-            else
-		addresses.append(a);
-	}
+    // report the successful host lookup
+    emit q->hostFound();
 
-        // try one address at a time, falling back to the next one if
-        // there is a connection failure. (should also support a timeout,
-        // or do multiple TCP-level connects at a time, with staggered
-        // starts to avoid bandwidth waste and cause fewer
-        // "connect-and-abort" errors. but that later.)
-        bool stuck = true;
-        while (stuck) {
-            stuck = false;
-            if (socket && !socket->connect(addr, port)) {
-		if (socket->error() == QSocketDevice::NoError) {
-                    if (wsn)
-                        wsn->setEnabled(true);
-                    return; // not serious, try again later
-                }
+    // put IPv4 addresses upfront, IPv6 back. the relative order of
+    // the addresses is not important beyond that
+    for (int i = 0; i < hostInfo.addresses.size(); ++i) {
+        const QHostAddress &a = hostInfo.addresses.at(i);
+        if (a.isIPv4Address())
+            addresses.prepend(a);
+        else
+            addresses.append(a);
+    }
 
-#if defined(QSOCKET_DEBUG)
-                qDebug("QSocket (%s)::tryConnecting: Gave up on IP address %s",
-                       q->name(), socket->peerAddress().toString().ascii());
-#endif
-                delete wsn;
-                wsn = 0;
-                delete rsn;
-                rsn = 0;
-                delete socket;
-                socket = 0;
-            }
-            // if the host has more addresses, try another some.
-            if (socket == 0 && !addresses.isEmpty()) {
-                addr = addresses.takeFirst();
-                internalSetSocketDevice(0);
-                stuck = true;
-#if defined(QSOCKET_DEBUG)
-                qDebug("QSocket (%s)::tryConnecting: Trying IP address %s",
-                        q->name(), addr.toString().ascii());
-#endif
-            }
+    // enter Connecting state (see also sn_write, which is called by
+    // the write socket notifier after connect())
+    state = QSocket::Connecting;    
+    
+    // attempt to connect to all addresses, one at a time.
+    for (;;) {    
+        // reset the socket device if it's 0
+        if (!socket) {
+            addr = addresses.takeFirst();
+            internalSetSocketDevice(0);
         }
 
-        // The socket write notifier will fire when the connection succeeds
-        if (wsn)
-            wsn->setEnabled(true);
+        // try connecting (nonblocking).  if the connect failed but
+        // there was no error, the write socket notifier will fire at
+        // a point where we should call connect() again. wsn is
+        // connected to tryConnection().
+        if (socket->connect(addr, port) || socket->error() == QSocketDevice::NoError) {
+            if (wsn) wsn->setEnabled(true);
+            break;
+        }
+        
+        // an error occurred. we ignore the cause of this error and
+        // delete our socket notifiers and socket device. if there are
+        // more addresses we can try then we will continue.
+#if defined(QSOCKET_DEBUG)
+        qDebug("QSocket (%s)::tryConnecting: Gave up on IP address %s",
+               q->name(), socket->peerAddress().toString().ascii());
+#endif
+        delete wsn;
+        wsn = 0;
+        delete rsn;
+        rsn = 0;
+        delete socket;
+        socket = 0;
+
+        // if there are no more addresses to try; they all
+        // failed. we also know that the list was not empty, so we
+        // treat this as a connection failure. otherwise the next
+        // address is tested.
+        if (addresses.isEmpty()) {
+            emit q->error(QSocket::ErrConnectionRefused);
+            break;            
+        }
     }
 #endif
 }
@@ -585,16 +582,9 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
     d->host = host;
     d->port = port;
 
-    QHostAddress hostAddr;
-    if (hostAddr.setAddress(host)) {
-	// try if the address is already available (for faster connecting)
-	QDnsHostInfo h;
-	h.addresses.append(hostAddr);
-	d->tryConnecting(h);
-    }
-
-    if (d->state == HostLookup)
-	QDns::getHostByName(host, this, SLOT(tryConnecting(QDnsHostInfo)));
+    // whether or not the host lookup succeeds, tryConnecting() will
+    // be called after this.
+    QDns::getHostByName(host, this, SLOT(tryConnecting(QDnsHostInfo)));
 }
 
 #endif
