@@ -14,7 +14,6 @@
 #ifndef QWINDOWSYSTEM_QWS_H
 #define QWINDOWSYSTEM_QWS_H
 
-#include "qwssocket_qws.h"
 #include "qbytearray.h"
 #include "qmap.h"
 #include "qdatetime.h"
@@ -34,6 +33,10 @@ class QWSClient;
 class QWSRegionManager;
 class QWSPaintEngine;
 class QWSServerData;
+class QWSSocket;
+class QWSServerSocket;
+class QTcpSocket;
+class QTcpServer;
 
 class QWSInternalWindowInfo
 {
@@ -147,11 +150,7 @@ private:
 class QWSMouseHandler;
 struct QWSCommandStruct;
 
-#ifndef QT_NO_QWS_MULTIPROCESS
-class QWSServer : public QWSServerSocket
-#else
 class QWSServer : public QObject
-#endif
 {
     friend class QCopChannel;
     friend class QWSMouseHandler;
@@ -320,9 +319,6 @@ private:
     static QImage *bgImage;
 
     void sendMaxWindowRectEvents();
-#ifndef QT_NO_QWS_MULTIPROCESS
-    void newConnection(int socket);
-#endif
     void invokeIdentify(const QWSIdentifyCommand *cmd, QWSClient *client);
     void invokeCreate(QWSCreateCommand *cmd, QWSClient *client);
     void invokeRegionName(const QWSRegionNameCommand *cmd, QWSClient *client);
@@ -395,6 +391,9 @@ private slots:
     void screenSaverSleep();
     void screenSaverTimeout();
 
+#ifndef QT_NO_QWS_MULTIPROCESS
+    void newConnection();
+#endif
 private:
     void disconnectClient(QWSClient *);
     void screenSave(int level);
@@ -410,7 +409,7 @@ private:
 
     QWSPaintEngine *paintEngine;
 
-    ClientMap client;
+    ClientMap clientMap;
 #ifndef QT_NO_QWS_PROPERTIES
     QWSPropertyManager propertyManager;
 #endif
@@ -480,6 +479,8 @@ private:
         { if (f) addKeyboardFilter(f); else removeKeyboardFilter(); }
 #endif
 #endif
+
+    QWSServerSocket *ssocket;
 };
 
 extern QWSServer *qwsServer; //there can be only one
@@ -525,7 +526,7 @@ class QWSClient : public QObject
 {
     Q_OBJECT
 public:
-    QWSClient(QObject* parent, int socket, int id);
+    QWSClient(QObject* parent, QTcpSocket *, int id);
     ~QWSClient();
 
     int socket() const;
@@ -554,7 +555,7 @@ private slots:
     void closeHandler();
     void errorHandler(int);
 private:
-    int s; // XXX csocket->d->socket->socket() is this value
+    int socketDescriptor;
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSSocket *csocket;
 #endif

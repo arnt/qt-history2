@@ -69,6 +69,8 @@
 #include "qkbddriverfactory_qws.h"
 #include "qmousedriverfactory_qws.h"
 
+//#include <qdebug.h>
+
 extern void qt_setMaxWindowRect(const QRect& r);
 
 QWSServer *qwsServer=0;
@@ -379,22 +381,23 @@ QWSWindow::~QWSWindow()
  *
  *********************************************************************/
 //always use frame buffer
-QWSClient::QWSClient(QObject* parent, int socket, int id)
-    : QObject(parent), s(socket), command(0), cid(id)
+QWSClient::QWSClient(QObject* parent, QTcpSocket* sock, int id)
+    : QObject(parent), command(0), cid(id)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    if (socket == -1) {
+    if (!sock) {
+        socketDescriptor = -1;
         csocket = 0;
         isClosed = false;
     } else {
-        csocket = new QWSSocket(this);
-        csocket->setSocket(socket);
+        csocket = static_cast<QWSSocket*>(sock); //###
+
         isClosed = false;
 
         csocket->flush();
-
+        socketDescriptor = csocket->socketDescriptor();
         connect(csocket, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
-        connect(csocket, SIGNAL(connectionClosed()), this, SLOT(closeHandler()));
+        connect(csocket, SIGNAL(closed()), this, SLOT(closeHandler()));
         connect(csocket, SIGNAL(error(int)), this, SLOT(errorHandler(int)));
     }
 #else
@@ -420,39 +423,25 @@ void QWSClient::closeHandler()
 
 void QWSClient::errorHandler(int err)
 {
-    QString s = "Unknown";
-#ifndef QT_NO_QWS_MULTIPROCESS
-    switch(err) {
-    case QWSSocket::ErrConnectionRefused:
-        s = "Connection Refused";
-        break;
-    case QWSSocket::ErrHostNotFound:
-        s = "Host Not Found";
-        break;
-    case QWSSocket::ErrSocketRead:
-        s = "Socket Read";
-        break;
-    }
-#endif
-    //qDebug("Client %p error %d (%s)", this, err, s.ascii());
+    //qDebug("Client %p error %d %s", this, err, csocket ? csocket->errorString().latin1() : "(no socket)");
     isClosed = true;
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if (csocket)
-        csocket->flush(); //####We need to clean out the pipes, this in not the the way.
-#endif
+//####Do we need to clean out the pipes?
+
     emit connectionClosed();
 }
 
+
 int QWSClient::socket() const
 {
-    return s;
+    return socketDescriptor;
 }
 
 void QWSClient::sendEvent(QWSEvent* event)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if (csocket) {
-        if (csocket->state() == QSocket::Connection) {
+        //qDebug() << "QWSClient::sendEvent type " << event->type << " socket state " << csocket->socketState();
+        if (csocket->socketState() == Qt::ConnectedState) {
             event->write(csocket);
             csocket->flush();
         }
@@ -654,12 +643,7 @@ struct QWSCommandStruct
 };
 
 QWSServer::QWSServer(int flags, QObject *parent) :
-#ifndef QT_NO_QWS_MULTIPROCESS
-    QWSServerSocket(qws_qtePipeFilename(),16,parent),
-#else
-    QObject(parent),
-#endif
-    disablePainting(false)
+    QObject(parent), disablePainting(false)
 {
     initServer(flags);
 }
@@ -669,12 +653,7 @@ QWSServer::QWSServer(int flags, QObject *parent) :
     Use the two-argument overload and call setObjectName() instead.
 */
 QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
-#ifndef QT_NO_QWS_MULTIPROCESS
-    QWSServerSocket(qws_qtePipeFilename(),16,parent),
-#else
-    QObject(parent),
-#endif
-    disablePainting(false)
+    QObject(parent), disablePainting(false)
 {
     setObjectName(name);
     initServer(flags);
@@ -686,6 +665,9 @@ static void ignoreSignal(int) {} // Used to eat SIGPIPE signals below
 
 void QWSServer::initServer(int flags)
 {
+    ssocket = new QWSServerSocket(qws_qtePipeFilename(), this);
+    connect(ssocket, SIGNAL(newConnection()), this, SLOT(newConnection()));
+
     d = new QWSServerData;
     Q_ASSERT(!qwsServer);
     qwsServer = this;
@@ -693,14 +675,14 @@ void QWSServer::initServer(int flags)
 #ifndef QT_NO_QWS_MULTIPROCESS
     QString pipe = qws_qtePipeFilename();
 
-    if (!ok()) {
+    if (0 /*!ssocket->ok()*/) { //########
         perror("Error");
         qFatal("Failed to bind to %s", pipe.latin1());
     } else {
         struct linger tmp;
         tmp.l_onoff=1;
         tmp.l_linger=0;
-        setsockopt(socket(),SOL_SOCKET,SO_LINGER,(char *)&tmp,sizeof(tmp));
+        setsockopt(ssocket->socketDescriptor(),SOL_SOCKET,SO_LINGER,(char *)&tmp,sizeof(tmp));
     }
 
     signal(SIGPIPE, ignoreSignal); //we get it when we read
@@ -740,7 +722,7 @@ void QWSServer::initServer(int flags)
     connect(d->screensavertimer, SIGNAL(timeout()), this, SLOT(screenSaverTimeout()));
     screenSaverWake();
 
-    client[-1] = new QWSClient(this, -1, 0);
+    clientMap[-1] = new QWSClient(this, 0, 0);
 
     // input devices
     if (!(flags&DisableMouse)) {
@@ -772,7 +754,7 @@ void QWSServer::initServer(int flags)
 QWSServer::~QWSServer()
 {
     // destroy all clients
-    for (ClientIterator it = client.begin(); it != client.end(); ++it)
+    for (ClientIterator it = clientMap.begin(); it != clientMap.end(); ++it)
         delete *it;
 
     qDeleteAll(windows);
@@ -822,24 +804,28 @@ void QWSServer::releaseKeyboard(QWSWindow* w)
 /*!
   \internal
 */
-void QWSServer::newConnection(int socket)
+void QWSServer::newConnection()
 {
-    client[socket] = new QWSClient(this,socket, get_object_id());
-    connect(client[socket], SIGNAL(readyRead()),
-             this, SLOT(doClient()));
-    connect(client[socket], SIGNAL(connectionClosed()),
-             this, SLOT(clientClosed()));
+    while (QTcpSocket *sock = ssocket->nextPendingConnection()) {
+        int socket = sock->socketDescriptor();
 
-    client[socket]->sendConnectedEvent(qws_display_spec);
+        clientMap[socket] = new QWSClient(this,sock, get_object_id());
+        connect(clientMap[socket], SIGNAL(readyRead()),
+                this, SLOT(doClient()));
+        connect(clientMap[socket], SIGNAL(connectionClosed()),
+                this, SLOT(clientClosed()));
 
-    if (!maxwindow_rect.isEmpty())
-        client[socket]->sendMaxWindowRectEvent();
+        clientMap[socket]->sendConnectedEvent(qws_display_spec);
 
-    // pre-provide some object id's
-    for (int i=0; i<20 && client[socket]; i++)
-        invokeCreate(0,client[socket]);
+        if (!maxwindow_rect.isEmpty())
+            clientMap[socket]->sendMaxWindowRectEvent();
+
+        // pre-provide some object id's
+        for (int i=0; i<20 && clientMap[socket]; i++)
+            invokeCreate(0,clientMap[socket]);
+
+    }
 }
-
 /*!
   \internal
 */
@@ -879,6 +865,7 @@ void QWSServer::clientClosed()
         while (i < windows.size()) {
             QWSWindow* w = windows.at(i);
             if (w->forClient(cl)) {
+                w->c = 0; //so we don't send events to it anymore
                 releaseMouse(w);
                 releaseKeyboard(w);
                 exposed += w->allocatedRegion();
@@ -898,7 +885,8 @@ void QWSServer::clientClosed()
         if (d->deletedWindows.count())
             QTimer::singleShot(0, this, SLOT(deleteWindowsLater()));
     }
-    client.remove(cl->socket());
+    //qDebug("removing client %d with socket %d", cl->clientId(), cl->socket());
+    clientMap.remove(cl->socket());
     if (cl == d->cursorClient)
         d->cursorClient = 0;
     if (qt_screen->clearCacheFunc)
@@ -958,7 +946,7 @@ QWSCommand* QWSClient::readMoreCommand()
 void QWSServer::processEventQueue()
 {
     if (qwsServer)
-        qwsServer->doClient(qwsServer->client[-1]);
+        qwsServer->doClient(qwsServer->clientMap[-1]);
 }
 
 
@@ -1198,7 +1186,7 @@ void QWSServer::setMaxWindowRect(const QRect& r)
 */
 void QWSServer::sendMaxWindowRectEvents()
 {
-    for (ClientIterator it = client.begin(); it != client.end(); ++it)
+    for (ClientIterator it = clientMap.begin(); it != clientMap.end(); ++it)
         (*it)->sendMaxWindowRectEvent();
 }
 
@@ -1273,7 +1261,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     event.simpleData.state=state | qws_keyModifiers;
     event.simpleData.time=qwsServer->timer.elapsed();
 
-    QWSClient *serverClient = qwsServer->client[-1];
+    QWSClient *serverClient = qwsServer->clientMap[-1];
     QWSClient *winClient = win ? win->client() : 0;
 
 #ifndef QT_NO_QWS_IM
@@ -1473,7 +1461,7 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
     event.simpleData.is_press = isPress;
     event.simpleData.is_auto_repeat = autoRepeat;
 
-    for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it) {
+    for (ClientIterator it = qwsServer->clientMap.begin(); it != qwsServer->clientMap.end(); ++it) {
         (*it)->sendEvent(&event);
     }
 }
@@ -1583,7 +1571,7 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
     char * tmp=(char *)txt.unicode();
     event.setData(tmp, event.simpleData.textLen*2);
 
-    QWSClient *serverClient = qwsServer->client[-1];
+    QWSClient *serverClient = qwsServer->clientMap[-1];
     if (serverClient)
        serverClient->sendEvent(&event);
     if (win && win->client() && win->client() != serverClient)
@@ -1615,7 +1603,7 @@ void QWSServer::requestMarkedText()
     event.simpleData.textLen = 0;
     event.setData(0, 0);
 
-    QWSClient *serverClient = qwsServer->client[-1];
+    QWSClient *serverClient = qwsServer->clientMap[-1];
     if (serverClient)
        serverClient->sendEvent(&event);
     if (win && win->client() && win->client() != serverClient)
@@ -1654,7 +1642,7 @@ void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
 */
 void QWSServer::sendPropertyNotifyEvent(int property, int state)
 {
-    for (ClientIterator it = client.begin(); it != client.end(); ++it)
+    for (ClientIterator it = clientMap.begin(); it != clientMap.end(); ++it)
         (*it)->sendPropertyNotifyEvent(property, state);
 }
 #endif
@@ -1819,7 +1807,8 @@ void QWSServer::setFocus(QWSWindow* changingw, bool gain)
             emit windowEvent(focusw, Active);
         }
     } else if (focusw == changingw) {
-        changingw->focus(0);
+        if (changingw->client())
+            changingw->focus(0);
         focusw = 0;
         // pass focus to window which most recently got it...
         QWSWindow* bestw=0;
@@ -2566,29 +2555,29 @@ QImage *QWSServer::bgImage = 0;
 
 void QWSServer::move_region(const QWSRegionMoveCommand *cmd)
 {
-    QWSClient *serverClient = client[-1];
+    QWSClient *serverClient = clientMap[-1];
     invokeRegionMove(cmd, serverClient);
 }
 
 void QWSServer::set_altitude(const QWSChangeAltitudeCommand *cmd)
 {
-    QWSClient *serverClient = client[-1];
+    QWSClient *serverClient = clientMap[-1];
     invokeSetAltitude(cmd, serverClient);
 }
 
 void QWSServer::request_focus(const QWSRequestFocusCommand *cmd)
 {
-    invokeSetFocus(cmd, client[-1]);
+    invokeSetFocus(cmd, clientMap[-1]);
 }
 
 void QWSServer::set_identity(const QWSIdentifyCommand *cmd)
 {
-    invokeIdentify(cmd, client[-1]);
+    invokeIdentify(cmd, clientMap[-1]);
 }
 
 void QWSServer::request_region(int wid, QRegion region)
 {
-    QWSClient *serverClient = client[-1];
+    QWSClient *serverClient = clientMap[-1];
     QWSWindow* changingw = findWindow(wid, 0);
     if (!changingw) {
         if (!region.isEmpty())
@@ -2612,18 +2601,18 @@ void QWSServer::request_region(int wid, QRegion region)
 
 void QWSServer::destroy_region(const QWSRegionDestroyCommand *cmd)
 {
-    invokeRegionDestroy(cmd, client[-1]);
+    invokeRegionDestroy(cmd, clientMap[-1]);
 }
 
 void QWSServer::name_region(const QWSRegionNameCommand *cmd)
 {
-    invokeRegionName(cmd, client[-1]);
+    invokeRegionName(cmd, clientMap[-1]);
 }
 
 #ifndef QT_NO_QWS_IM
 void QWSServer::set_im_info(const QWSSetIMInfoCommand *cmd)
 {
-    invokeSetIMInfo(cmd, client[-1]);
+    invokeSetIMInfo(cmd, clientMap[-1]);
 }
 
 void QWSServer::reset_im(const QWSResetIMCommand *)
@@ -2633,7 +2622,7 @@ void QWSServer::reset_im(const QWSResetIMCommand *)
 
 void QWSServer::set_im_font(const QWSSetIMFontCommand *cmd)
 {
-    invokeSetIMFont(cmd, client[-1]);
+    invokeSetIMFont(cmd, clientMap[-1]);
 }
 
 void QWSServer::send_im_mouse(const QWSIMMouseCommand *cmd)

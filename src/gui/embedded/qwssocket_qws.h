@@ -14,44 +14,36 @@
 #ifndef QWSSOCKET_QWS_H
 #define QWSSOCKET_QWS_H
 
-#include "qsocket.h"
-#include "qserversocket.h"
+#include "qtcpsocket.h"
+#include "qtcpserver.h"
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
-class QWSSocket : public QSocket
+class QWSSocket : public QTcpSocket
 {
     Q_OBJECT
 public:
     QWSSocket(QObject *parent=0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QWSSocket(QObject *parent, const char *name);
-#endif
     ~QWSSocket();
 
-    virtual void connectToLocalFile(const QString &file);
+    void connectToLocalFile(const QString &file);
 
 private:
     Q_DISABLE_COPY(QWSSocket)
 };
 
 
-class QWSServerSocket : public QServerSocket
+class QWSServerSocket : public QTcpServer
 {
     Q_OBJECT
 public:
-    QWSServerSocket(const QString& file, int backlog = 0,
-                     QObject *parent=0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QWSServerSocket(const QString& file, int backlog,
-                                          QObject *parent, const char *name);
-#endif
+    QWSServerSocket(const QString& file, QObject *parent=0);
     ~QWSServerSocket();
 
 private:
     Q_DISABLE_COPY(QWSServerSocket)
 
-    void init(const QString &file, int backlog);
+    void init(const QString &file);
 };
 
 #endif // QT_NO_QWS_MULTIPROCESS

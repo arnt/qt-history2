@@ -206,7 +206,7 @@ void QWSProtocolItem::write(QWSSocket *s) {
 
 bool QWSProtocolItem::read(QWSSocket *s) {
 #ifdef QWSCOMMAND_DEBUG
-    qDebug() << "QWSProtocolItem::read sending type " << static_cast<QWSCommand::Type>(type);
+    qDebug() << "QWSProtocolItem::read reading type " << static_cast<QWSCommand::Type>(type);
 #endif
     bool b = qws_read_command(s, simpleDataPtr, simpleLen, rawDataPtr, rawLen, bytesRead);
     if (b) {

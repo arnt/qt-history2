@@ -308,7 +308,7 @@ public:
             csocket = 0;
         else {
             csocket = new QWSSocket(parent);
-            QObject::connect(csocket, SIGNAL(connectionClosed()),
+            QObject::connect(csocket, SIGNAL(closed()),
                               qApp, SLOT(quit()));
         }
 #endif
@@ -517,7 +517,7 @@ void QWSDisplay::Data::init()
             perror("Can't attach to main ram memory.");
             exit(1);
         }
-        sharedRam = (uchar *)shm.base();
+        sharedRam = static_cast<uchar *>(shm.base());
     } else
 #endif
     {
@@ -536,9 +536,9 @@ void QWSDisplay::Data::init()
             perror("Cannot create main ram shared memory\n");
         if (!shm.attach())
             perror("Cannot attach to main ram shared memory\n");
-        sharedRam = (uchar *)shm.base();
+        sharedRam = static_cast<uchar *>(shm.base());
 #else
-        sharedRam=(uchar *)malloc(sharedRamSize);
+        sharedRam=static_cast<uchar *>(malloc(sharedRamSize));
 #endif
         // Need to zero index count at end of block, might as well zero
         // the rest too
@@ -576,9 +576,9 @@ void QWSDisplay::Data::init()
 
     sharedRamSize -= mouseoffset;
     sharedRamSize -= sizeof(int);
-    qt_last_x = (int *)(sharedRam + sharedRamSize);
+    qt_last_x = reinterpret_cast<int *>(sharedRam + sharedRamSize);
     sharedRamSize -= sizeof(int);
-    qt_last_y = (int *)(sharedRam + sharedRamSize);
+    qt_last_y = reinterpret_cast<int *>(sharedRam + sharedRamSize);
 
     /* Initialise framebuffer memory manager */
     /* Add 4k for luck and to avoid clobbering hardware cursor */
@@ -635,17 +635,17 @@ void QWSDisplay::Data::fillQueue()
     QWSEvent *e = readMore();
     while (e) {
         if (e->type == QWSEvent::Connected) {
-            connected_event = (QWSConnectedEvent *)e;
+            connected_event = static_cast<QWSConnectedEvent *>(e);
             return;
         } else if (e->type == QWSEvent::Creation) {
-            QWSCreationEvent *ce = (QWSCreationEvent*)e;
+            QWSCreationEvent *ce = static_cast<QWSCreationEvent*>(e);
             unused_identifiers.append(ce->simpleData.objectid);
             delete e;
         } else if (e->type == QWSEvent::Mouse) {
             if (!qt_screen) {
                 delete e;
             } else {
-                QWSMouseEvent *me = (QWSMouseEvent*)e;
+                QWSMouseEvent *me = static_cast<QWSMouseEvent*>(e);
                 if (mouseFilter)
                     mouseFilter(me);
                 if (mouse_event) {
@@ -671,7 +671,7 @@ void QWSDisplay::Data::fillQueue()
                 mouse_event_count++;
             }
         } else if (e->type == QWSEvent::RegionModified) {
-            QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
+            QWSRegionModifiedEvent *re = static_cast<QWSRegionModifiedEvent *>(e);
             if (re->simpleData.is_ack) {
                 region_ack = re;
                 region_offset = QPoint();
@@ -689,7 +689,7 @@ void QWSDisplay::Data::fillQueue()
                         r2.setRects(region_event->rectangles,
                                 region_event->simpleData.nrectangles);
                         QRegion ur(r1 + r2);
-                        region_event->setData((char *)ur.rects().data(),
+                        region_event->setData(reinterpret_cast<char *>(ur.rects().data()),
                                 ur.rects().count() * sizeof(QRect), true);
                         region_event->simpleData.nrectangles = ur.rects().count();
                         delete e;
@@ -703,11 +703,11 @@ void QWSDisplay::Data::fillQueue()
         } else if (e->type==QWSEvent::MaxWindowRect && !servermaxrect && qt_screen) {
             // Process this ASAP, in case new widgets are created (startup)
             servermaxrect=true;
-            setMaxWindowRect(((QWSMaxWindowRectEvent*)e)->simpleData.rect);
+            setMaxWindowRect((static_cast<QWSMaxWindowRectEvent*>(e))->simpleData.rect);
             delete e;
 #ifndef QT_NO_COP
         } else if (e->type == QWSEvent::QCopMessage) {
-            QWSQCopMessageEvent *pe = (QWSQCopMessageEvent*)e;
+            QWSQCopMessageEvent *pe = static_cast<QWSQCopMessageEvent*>(e);
             if (pe->simpleData.is_response) {
                 qcop_response = pe;
             } else {
@@ -731,7 +731,7 @@ void QWSDisplay::Data::offsetPendingExpose(int window, const QPoint &offset)
     for (int i = 0; i < queue.size(); ++i) {
         QWSEvent *e = queue.at(i);
         if (e->type == QWSEvent::RegionModified) {
-            QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
+            QWSRegionModifiedEvent *re = static_cast<QWSRegionModifiedEvent *>(e);
             if (!re->simpleData.is_ack && region_offset_window == re->window()) {
 //                qDebug("Rgn Adjust b %d, %d", region_offset.x(), region_offset.y());
                 translateExpose(re, region_offset);
@@ -756,9 +756,11 @@ void QWSDisplay::Data::waitForConnection()
             return;
         if (csocket) {
             csocket->flush();
-            csocket->waitForMore(2000);
+            csocket->waitForReadyRead(2000);
+            qDebug( "waitForReadyRead %d bytesAvailable %lld", i, csocket->bytesAvailable() );
         }
         usleep(50000);
+        //sleep(1);
         fillQueue();
     }
 #else
@@ -781,8 +783,8 @@ void QWSDisplay::Data::waitForRegionAck()
 #ifndef QT_NO_QWS_MULTIPROCESS
         if (csocket) {
             csocket->flush();
-            csocket->waitForMore(1000);
-            if (csocket->state() != QSocket::Connection)
+            csocket->waitForReadyRead(1000);
+            if (csocket->state() != Qt::ConnectedState)
                 return;
         }
 #endif
@@ -798,7 +800,7 @@ void QWSDisplay::Data::waitForCreation()
 #ifndef QT_NO_QWS_MULTIPROCESS
         if (csocket) {
             csocket->flush();
-            csocket->waitForMore(1000);
+            csocket->waitForReadyRead(1000);
         }
 #endif
         fillQueue();
@@ -815,7 +817,7 @@ void QWSDisplay::Data::waitForQCopResponse()
 #ifndef QT_NO_QWS_MULTIPROCESS
         if (csocket) {
             csocket->flush();
-            csocket->waitForMore(1000);
+            csocket->waitForReadyRead(1000);
         }
 #endif
     }
@@ -907,7 +909,7 @@ void QWSDisplay::setProperty(int winId, int property, int mode,
     cmd.simpleData.windowid = winId;
     cmd.simpleData.property = property;
     cmd.simpleData.mode = mode;
-    cmd.setData((char *)data, strlen(data));
+    cmd.setData(data, strlen(data));
     d->sendCommand(cmd);
 }
 
@@ -1021,7 +1023,7 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
         QWSRegionCommand cmd;
         cmd.simpleData.windowid = winId;
         cmd.simpleData.nrectangles = ra.count();
-        cmd.setData((char *)ra.data(), ra.count() * sizeof(QRect), false);
+        cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
         d->sendCommand(cmd);
     }
     if (!r.isEmpty())
@@ -1160,7 +1162,7 @@ void QWSDisplay::convertSelection(int winId, int selectionProperty, const QStrin
     // ### we need the atom/property thingy like in X here
     addProperty(winId, QT_QWS_PROPERTY_CONVERTSELECTION);
     setProperty(winId, QT_QWS_PROPERTY_CONVERTSELECTION,
-                 (int)QWSPropertyManager::PropReplace, QByteArray(mimeTypes.latin1()));
+                 int(QWSPropertyManager::PropReplace), QByteArray(mimeTypes.latin1()));
 #endif
     QWSConvertSelectionCommand cmd;
     cmd.simpleData.requestor = winId;
@@ -1188,7 +1190,7 @@ void QWSDisplay::defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
     memcpy(data, cursImg.bits(), dataLen);
     memcpy(data + dataLen, maskImg.bits(), dataLen);
 
-    cmd.setData((char*)data, dataLen*2);
+    cmd.setData(reinterpret_cast<char*>(data), dataLen*2);
     delete [] data;
     d->sendCommand(cmd);
 }
@@ -1224,7 +1226,7 @@ void QWSDisplay::sendMessage(const QByteArray &channel, const QByteArray &msg,
 QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 {
     qt_fbdpy->d->waitForQCopResponse();
-    QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)qt_fbdpy->d->dequeue();
+    QWSQCopMessageEvent *e = static_cast<QWSQCopMessageEvent*>(qt_fbdpy->d->dequeue());
     Q_ASSERT(e->type == QWSEvent::QCopMessage);
     return e;
 }
@@ -1235,7 +1237,7 @@ void QWSDisplay::setWindowCaption(QWidget *w, const QString &c)
 {
     if (w->isTopLevel()) {
         nameRegion(w->winId(), w->objectName(), c);
-        ((QETWidget *)w)->repaintDecoration(qApp->desktop()->rect(), true);
+        static_cast<QETWidget *>(w)->repaintDecoration(qApp->desktop()->rect(), true);
     }
 }
 
@@ -1658,7 +1660,7 @@ void qt_cleanup()
 
 const char *qAppName()                                // get application name
 {
-    return (char*)/* bin-compat */  appName;
+    return appName;
 }
 
 /*****************************************************************************
@@ -1752,7 +1754,7 @@ static int parseGeometry(const char* string,
         if (*string == '=')
                 string++;  /* ignore possible '=' at beg of geometry spec */
 
-        strind = (char *)string;
+        strind = const_cast<char *>(string);
         if (*strind != '+' && *strind != '-' && *strind != 'x') {
                 tempWidth = ReadInteger(strind, &nextCharacter);
                 if (strind == nextCharacter)
@@ -1882,7 +1884,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
         w = topLevelAt(*qt_last_x, *qt_last_y);
     if (!w)
         w = desktop();
-    QPaintDevice::qwsDisplay()->selectCursor(w, (int)qApp->d->cursor_list.first().handle());
+    QPaintDevice::qwsDisplay()->selectCursor(w, int(qApp->d->cursor_list.first().handle()));
 }
 
 void QApplication::restoreOverrideCursor()
@@ -1954,7 +1956,7 @@ QWidget *QApplication::topLevelAt(int x, int y)
     QPoint pos(x,y);
 
     for (int i = list.size()-1; i >= 0; --i) {
-        QWidget *w = (QWidget*)list[i];
+        QWidget *w = list[i];
         if (w != QApplication::desktop() &&
              w->isVisible() && w->geometry().contains(pos)
              && w->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()))))
@@ -1999,7 +2001,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 
 #ifndef QT_NO_QWS_PROPERTIES
     if (event->type == QWSEvent::PropertyNotify) {
-        QWSPropertyNotifyEvent *e = (QWSPropertyNotifyEvent*)event;
+        QWSPropertyNotifyEvent *e = static_cast<QWSPropertyNotifyEvent*>(event);
         if (e->simpleData.property == 424242) {       // Clipboard
 #ifndef QT_NO_CLIPBOARD
             if (qt_clipboard) {
@@ -2009,7 +2011,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #endif
         }
     } else if (event->type == QWSEvent::PropertyReply) {
-        QWSPropertyReplyEvent *e = (QWSPropertyReplyEvent*)event;
+        QWSPropertyReplyEvent *e = static_cast<QWSPropertyReplyEvent*>(event);
         int len = e->simpleData.len;
         char *data;
         if (len <= 0) {
@@ -2024,29 +2026,29 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #endif //QT_NO_QWS_PROPERTIES
 #ifndef QT_NO_COP
     if (event->type == QWSEvent::QCopMessage) {
-        QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)event;
+        QWSQCopMessageEvent *e = static_cast<QWSQCopMessageEvent*>(event);
         QCopChannel::sendLocally(e->channel, e->message, e->data);
         return 0;
     }
 #endif
 
-    QETWidget *widget = (QETWidget*)QWidget::find((WId)event->window());
+    QETWidget *widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
 
     QETWidget *keywidget=0;
     bool grabbed=false;
     if (event->type==QWSEvent::Key || event->type == QWSEvent::IMEvent) {
-        keywidget = (QETWidget*)QWidget::keyboardGrabber();
+        keywidget = static_cast<QETWidget*>(QWidget::keyboardGrabber());
         if (keywidget) {
             grabbed = true;
         } else {
             if (focus_widget && focus_widget->isVisible())
-                keywidget = (QETWidget*)focus_widget;
+                keywidget = static_cast<QETWidget*>(focus_widget);
             else if (widget)
-                keywidget = (QETWidget*)widget->topLevelWidget();
+                keywidget = static_cast<QETWidget*>(widget->topLevelWidget());
         }
     } else if (event->type==QWSEvent::MaxWindowRect) {
         servermaxrect=true;
-        QRect r = ((QWSMaxWindowRectEvent*)event)->simpleData.rect;
+        QRect r = static_cast<QWSMaxWindowRectEvent*>(event)->simpleData.rect;
         setMaxWindowRect(r);
         return 0;
     } else if (widget && event->type==QWSEvent::Mouse) {
@@ -2058,12 +2060,12 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         int mouseButtonState = event->asMouse()->simpleData.state & btnMask;
         static int btnstate = 0;
 
-        QETWidget *w = (QETWidget*)QWidget::mouseGrabber();
+        QETWidget *w = static_cast<QETWidget*>(QWidget::mouseGrabber());
         if (w && !mouseButtonState && qt_pressGrab == w)
             qt_pressGrab = 0;
 #ifndef QT_NO_QWS_MANAGER
         if (!w)
-            w = (QETWidget*)QWSManager::grabbedMouse();
+            w = static_cast<QETWidget*>(QWSManager::grabbedMouse());
 #endif
         if (w) {
             // Our mouse is grabbed - send it.
@@ -2080,8 +2082,8 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             QPoint dp = qt_screen->mapToDevice(p, s);
             if (widget->data->alloc_region.contains(dp)) {
                 // Find the child widget that the cursor is in.
-                w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
-                w = w ? (QETWidget*)w : widget;
+                w = static_cast<QETWidget*>(findChildWidget(widget, widget->mapFromParent(p)));
+                w = w ? static_cast<QETWidget*>(w) : widget;
 #ifndef QT_NO_CURSOR
                 // Update Cursor.
                 if (!gw || gw != w || qt_last_cursor == 0xffffffff) {
@@ -2101,7 +2103,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                     }
                     if (!qws_overrideCursor) {
                         if (curs)
-                            QPaintDevice::qwsDisplay()->selectCursor(widget, (int)curs->handle());
+                            QPaintDevice::qwsDisplay()->selectCursor(widget, int(curs->handle()));
                         else
                             QPaintDevice::qwsDisplay()->selectCursor(widget, Qt::ArrowCursor);
                     }
@@ -2201,28 +2203,28 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     }
     case QWSEvent::Key:                                // keyboard event
         if (keywidget) // should always exist
-            keywidget->translateKeyEvent((QWSKeyEvent*)event, grabbed);
+            keywidget->translateKeyEvent(static_cast<QWSKeyEvent*>(event), grabbed);
         break;
 
 #ifndef QT_NO_QWS_IM
     case QWSEvent::IMEvent:
         if (keywidget) // should always exist
-            QInputContext::translateIMEvent((QWSIMEvent*)event, keywidget);
+            QInputContext::translateIMEvent(static_cast<QWSIMEvent*>(event), keywidget);
         break;
 #endif
 
     case QWSEvent::RegionModified:
-        widget->translateRegionModifiedEvent((QWSRegionModifiedEvent*)event);
+        widget->translateRegionModifiedEvent(static_cast<QWSRegionModifiedEvent*>(event));
         break;
 
     case QWSEvent::Focus:
-        if (((QWSFocusEvent*)event)->simpleData.get_focus) {
-            if (widget == (QWidget *)desktop())
+        if ((static_cast<QWSFocusEvent*>(event))->simpleData.get_focus) {
+            if (widget == static_cast<QWidget *>(desktop()))
                 return true; // not interesting
             if (inPopupMode()) // some delayed focus event to ignore
                 break;
             setActiveWindow(widget);
-            ((QETWidget *)active_window)->repaintDecoration(desktop()->rect(), false);
+            (static_cast<QETWidget *>(active_window))->repaintDecoration(desktop()->rect(), false);
 
             QWidget *w = widget->focusWidget();
             while (w && w->focusProxy())
@@ -2238,10 +2240,10 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                     widget->topLevelWidget()->setFocus();
             }
         } else {        // lost focus
-            if (widget == (QWidget *)desktop())
+            if (widget == static_cast<QWidget *>(desktop()))
                 return true; // not interesting
             if (focus_widget && !inPopupMode()) {
-                QETWidget *old = (QETWidget *)active_window;
+                QETWidget *old = static_cast<QETWidget *>(active_window);
                 setActiveWindow(0);
                 qt_last_cursor = 0xffffffff;
                 //active_window = 0;
@@ -2258,9 +2260,9 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         break;
 
     case QWSEvent::WindowOperation:
-        if ((QWidget *)widget == desktop())
+        if (static_cast<QWidget *>(widget) == desktop())
             return true;
-        switch (((QWSWindowOperationEvent *)event)->simpleData.op) {
+        switch ((static_cast<QWSWindowOperationEvent *>(event))->simpleData.op) {
             case QWSWindowOperationEvent::Show:
                 widget->show();
                 break;
@@ -2369,8 +2371,8 @@ void QApplication::qwsSetDecoration(QDecoration *dec)
         for (int i = 0; i < widgets.size(); ++i) {
             QWidget *w = widgets[i];
             if (w->isVisible() && w != desktop()) {
-                ((QETWidget *)w)->updateRegion();
-                ((QETWidget *)w)->repaintDecoration(desktop()->rect(), false);
+                static_cast<QETWidget *>(w)->updateRegion();
+                static_cast<QETWidget *>(w)->repaintDecoration(desktop()->rect(), false);
                 if (w->isMaximized())
                     w->showMaximized();
             }
@@ -2456,7 +2458,7 @@ static bool qt_try_modal(QWidget *widget, QWSEvent *event)
 
     switch (event->type) {
         case QWSEvent::Focus:
-            if (!((QWSFocusEvent*)event)->simpleData.get_focus)
+            if (!static_cast<QWSFocusEvent*>(event)->simpleData.get_focus)
                 break;
             // drop through
         case QWSEvent::Mouse:                        // disallow mouse/key events
@@ -2612,7 +2614,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
                             qt_button_down = this;
                         if (/*XXX mouseActWindow == this &&*/
                              mouseButtonPressed == button &&
-                             (long)mouse.time -(long)mouseButtonPressTime
+                             long(mouse.time) -long(mouseButtonPressTime)
                                    < QApplication::doubleClickInterval() &&
                              QABS(mouse.x_root - mouseXPos) < 5 &&
                              QABS(mouse.y_root - mouseYPos) < 5) {

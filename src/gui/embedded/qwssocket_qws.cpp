@@ -61,17 +61,9 @@
  *
  **********************************************************************/
 QWSSocket::QWSSocket(QObject *parent)
-    : QSocket(parent)
+    : QTcpSocket(parent)
 {
 }
-
-#ifdef QT_COMPAT
-QWSSocket::QWSSocket(QObject *parent, const char *name)
-    : QSocket(parent)
-{
-    setObjectName(name);
-}
-#endif
 
 QWSSocket::~QWSSocket()
 {
@@ -89,10 +81,11 @@ void QWSSocket::connectToLocalFile(const QString &file)
     strncpy(a.sun_path, file.local8Bit(), sizeof(a.sun_path) - 1);
     int r = ::connect(s, (struct sockaddr*)&a, SUN_LEN(&a));
     if (r == 0) {
-        setSocket(s);
+        setSocketDescriptor(s);
     } else {
+        perror( "QWSSocket::connectToLocalFile connection refused ");
         ::close(s);
-        emit error(ErrConnectionRefused);
+        emit error(Qt::ConnectionRefusedError);
     }
 }
 
@@ -102,24 +95,18 @@ void QWSSocket::connectToLocalFile(const QString &file)
  * QWSServerSocket
  *
  **********************************************************************/
-QWSServerSocket::QWSServerSocket(const QString& file, int backlog, QObject *parent)
-    : QServerSocket(parent)
+QWSServerSocket::QWSServerSocket(const QString& file, QObject *parent)
+    : QTcpServer(parent)
 {
-    init(file, backlog);
+    init(file);
 }
 
-#ifdef QT_COMPAT
-QWSServerSocket::QWSServerSocket(const QString& file, int backlog, QObject *parent, const char *name)
-    : QServerSocket(parent)
+void QWSServerSocket::init(const QString &file)
 {
-    setObjectName(name);
-    init(file, backlog);
-}
-#endif
+    int backlog = 16; //#####
 
-void QWSServerSocket::init(const QString &file, int backlog)
-{
-    // create socket
+
+// create socket
     int s = ::socket(PF_LOCAL, SOCK_STREAM, 0);
     unlink(file.local8Bit()); // doesn't have to succeed
 
@@ -143,7 +130,8 @@ void QWSServerSocket::init(const QString &file, int backlog)
 
     // listen
     if (::listen(s, backlog) == 0) {
-        setSocket(s);
+        if (!setSocketDescriptor(s))
+            qWarning( "QWSServerSocket could not set descriptor %d : %s", s, errorString());
     } else {
         qWarning("QWSServerSocket: could not listen to file %s", file.latin1());
         ::close(s);
