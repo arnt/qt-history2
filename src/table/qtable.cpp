@@ -3881,7 +3881,8 @@ void QTable::keyPressEvent( QKeyEvent* e )
 				      itm ? itm->isReplaceable() : TRUE ) ) ) {
 		    setEditMode( ( !itm || itm && itm->isReplaceable()
 				   ? Replacing : Editing ), tmpRow, tmpCol );
-		    QApplication::sendEvent( w, e );
+		    QKeyEvent ev( e->type(), e->key(), e->ascii(), e->state(), e->text(), e->isAutoRepeat(), e->count() );
+		    QApplication::sendEvent( w, &ev );
 		}
 	    }
 	}
@@ -5668,7 +5669,7 @@ void QTable::removeRows( const QMemArray<int> &rows )
 
 /*!
     Removes column \a col, and deletes all its cells including any
-    table items and widgets the cells may contain. Also clears the 
+    table items and widgets the cells may contain. Also clears the
     selection(s).
 
     \sa removeColumns() hideColumn() insertColumns() removeRow()
@@ -5845,10 +5846,10 @@ void QTable::startDrag()
 
 /*! \reimp */
 void QTable::windowActivationChange( bool oldActive )
-{    
+{
     if ( oldActive && autoScrollTimer )
 	autoScrollTimer->stop();
-    
+
     if ( !isVisible() )
 	return;
 
@@ -6271,7 +6272,7 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
     //Make sure all newly selected sections are painted one last time
     QRect selectedRects;
     for ( int i = 0; i < count(); i++ ) {
-	if(sectionState( i ) == Selected) 
+	if(sectionState( i ) == Selected)
 	    selectedRects |= sRect( i );
     }
     if(!selectedRects.isNull())
