@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#55 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -426,7 +426,7 @@ QWidget * QDragObject::source()
   first and most important step is to look for existing formats
   that are appropriate - the Internet Assigned Numbers Authority
   (<a href=http://www.iana.org>IANA</a>) provides a
-  <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/>
+  <a href=http://www.isi.edu/in-notes/iana/assignments/media-types/>
   hierarchical list of MIME media types</a>
   at the Information Sciences Institute
   (<a href=http://www.isi.edu>ISI</a>).
