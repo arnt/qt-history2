@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QPixmap class
 **
 ** Created : 940501
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -196,7 +196,6 @@ protected:
 	int	ser_no;
 	QBitmap *mask;
 #if defined(Q_WS_WIN)
-	void   *bits;
 	QPixmap *maskpm;
 	union {
 	    HBITMAP hbm;    // if mcp == FALSE

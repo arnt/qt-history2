@@ -5,7 +5,7 @@
 **
 ** Created : 940501
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -177,8 +177,6 @@ void QPixmap::deref()
 	}
 	if ( data->mask )
 	    delete data->mask;
-	if ( data->bits )
-	    delete [] data->bits;
 	if ( data->maskpm )
 	    delete data->maskpm;
 	if ( hdc ) {
@@ -240,11 +238,6 @@ void QPixmap::detach()
 	data->uninit = FALSE;
     else
 	*this = copy();
-    // reset the cache data
-    if ( data->bits ) {
-	delete [] data->bits;
-	data->bits = 0;
-    }
     if ( data->maskpm ) {
 	delete data->maskpm;
 	data->maskpm = 0;
@@ -269,10 +262,6 @@ void QPixmap::setOptimization( Optimization optimization )
     data->optim = optimization == DefaultOptim ?
 	    defOptim : optimization;
     if ( data->optim == MemoryOptim ) {
-	if ( data->bits ) {
-	    delete [] data->bits;
-	    data->bits = 0;
-	}
 	if ( data->maskpm ) {
 	    delete data->maskpm;
 	    data->maskpm = 0;
