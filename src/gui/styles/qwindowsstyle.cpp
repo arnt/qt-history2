@@ -41,15 +41,15 @@ extern HDC qt_winHDC(const QPaintDevice *dev);
 
 #include <limits.h>
 
-static const int windowsItemFrame                =  2; // menu item frame width
-static const int windowsSepHeight                =  2; // separator item height
-static const int windowsItemHMargin                =  3; // menu item hor text margin
-static const int windowsItemVMargin                =  2; // menu item ver text margin
-static const int windowsArrowHMargin                =  6; // arrow horizontal margin
-static const int windowsTabSpacing                = 12; // space between text and tab
-static const int windowsCheckMarkHMargin        =  2; // horiz. margins of check mark
-static const int windowsRightBorder                = 12; // right border on windows
-static const int windowsCheckMarkWidth                = 12; // checkmarks width on windows
+static const int windowsItemFrame 	 =  2; // menu item frame width
+static const int windowsSepHeight 	 =  2; // separator item height
+static const int windowsItemHMargin 	 =  3; // menu item hor text margin
+static const int windowsItemVMargin 	 =  2; // menu item ver text margin
+static const int windowsArrowHMargin 	 =  6; // arrow horizontal margin
+static const int windowsTabSpacing 	 = 12; // space between text and tab
+static const int windowsCheckMarkHMargin =  2; // horiz. margins of check mark
+static const int windowsRightBorder 	 = 15; // right border on windows
+static const int windowsCheckMarkWidth 	 = 12; // checkmarks width on windows
 
 static bool use2000style = true;
 
@@ -1524,11 +1524,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     text_flags |= Qt::TextHideMnemonic;
                 text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {
-                    int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
-                    if (use2000style)
-                        xp -= 20;
-                    else
-                        xp -= windowsRightBorder;
+                    int xp = x + w - tab - windowsItemHMargin - windowsItemFrame - windowsRightBorder + 1;
                     int xoff = visualRect(QRect(xp, y + windowsItemVMargin, tab,
                                                 h - 2 * windowsItemVMargin), menuitem->rect).x();
                     if (dis && !act) {
@@ -2200,16 +2196,13 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
                 w += checkMarkWidth - maxpmw;
             if (checkable || maxpmw > 0)
                 w += windowsCheckMarkWidth;
-            if (use2000style)
-                w += 20;
-            else
-                w += windowsRightBorder;
+	    w += windowsRightBorder + 10;
             sz.setWidth(w);
         }
         break;
     case CT_MenuBarItem:
         if (!sz.isEmpty())
-            sz = QSize(sz.width() + windowsItemVMargin * 2, sz.height() + windowsItemHMargin * 2);
+            sz = QSize(sz.width() + windowsItemHMargin * 2, sz.height() + windowsItemVMargin * 2);
         break;
     default:
         sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
