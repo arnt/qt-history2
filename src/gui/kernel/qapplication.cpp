@@ -2526,12 +2526,12 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 #ifndef QT_NO_ACCEL
         if (qt_tryComposeUnicode(w, key))
             break;
-
+#endif
         // Try looking for a Shortcut before sending key events
         if (key->type()==QEvent::KeyPress)
             if (res = qApp->d->shortcutMap.tryShortcutEvent(w, key))
                 return res;
-#endif
+
         bool def = key->isAccepted();
         while (w) {
             if (def)
