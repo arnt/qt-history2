@@ -94,7 +94,7 @@ void* qt_resolve_symbol( HINSTANCE handle, const char* f )
     void* address = GetProcAddress( handle, f );
 #ifdef CHECK_RANGE
     if ( !address )
-	qSystemWarning( "Couldn't resolve symbol" );
+	qSystemWarning( QString("Couldn't resolve symbol \"%1\"").arg( f ) );
 #endif
 
     return address;
