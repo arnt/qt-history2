@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#28 $
 **
 ** Implementation of QStyle class
 **
@@ -443,7 +443,7 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 /*!
-  \fn void drawArrow( QPainter *p, Qt::ArrowType type, bool down,
+  \fn void QStyle::drawArrow( QPainter *p, Qt::ArrowType type, bool down,
 		     int x, int y, int w, int h,
 		     const QColorGroup &g, bool enabled, const QBrush *fill)
   Draws a button indicating direction.
@@ -573,7 +573,7 @@ QStyle::drawSliderMask( QPainter *p,
 }
 
 /*!
-  \fn  void drawSliderGroove( QPainter *p,
+  \fn  void QStyle::drawSliderGroove( QPainter *p,
 				   int x, int y, int w, int h,
 				   const QColorGroup& g, QCOORD c,
 				   Orientation )
