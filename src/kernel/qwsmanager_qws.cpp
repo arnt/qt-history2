@@ -327,8 +327,8 @@ void QWSManager::handleMove()
     if (!dx && !dy)
 	return;
 
-    int x = managed->x();
-    int y = managed->y();
+    int x = managed->geometry().x();
+    int y = managed->geometry().y();
     int w = managed->width();
     int h = managed->height();
 
@@ -369,16 +369,30 @@ void QWSManager::handleMove()
     if (geom.width() >= managed->minimumWidth()
 	    && geom.width() <= managed->maximumWidth()) {
 	mousePos.setX(mousePos.x() + dx);
-    }
-    else {
+    } else if (geom.width() < managed->minimumWidth()) {
+	if ( x != geom.x() ) {
+	    geom.setX(x+(w-managed->minimumWidth()));
+	    mousePos.setX( geom.x() );
+	} else {
+	    mousePos.setX( x+managed->minimumWidth() );
+	}
+	geom.setWidth(managed->minimumWidth());
+    } else {
 	geom.setX(x);
 	geom.setWidth(w);
     }
     if (geom.height() >= managed->minimumHeight()
 	    && geom.height() <= managed->maximumHeight()) {
 	mousePos.setY(mousePos.y() + dy);
-    }
-    else {
+    } else if (geom.height() < managed->minimumHeight()) {
+	if ( y != geom.y() ) {
+	    geom.setY(y+(h-managed->minimumHeight()));
+	    mousePos.setY( mousePos.y()+(geom.y()-y) );
+	} else {
+	    mousePos.setY( y+managed->minimumHeight() );
+	}
+	geom.setHeight(managed->minimumHeight());
+    } else {
 	geom.setY(y);
 	geom.setHeight(h);
     }

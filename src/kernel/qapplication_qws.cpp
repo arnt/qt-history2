@@ -2692,7 +2692,7 @@ void QETWidget::repaintHierarchy(QRegion r)
     r &= geometry();
     if (r.isEmpty())
 	return;
-    r.translate(-x(),-y());
+    r.translate(-crect.x(),-crect.y());
 
     erase(r);
 
@@ -2722,7 +2722,7 @@ void QETWidget::repaintDecoration(QRegion r)
 #ifndef QT_NO_QWS_MANAGER
     if ( testWFlags(WType_TopLevel) && topData()->qwsManager) {
 	r &= topData()->qwsManager->region();
-	r.translate(-x(),-y());
+	r.translate(-crect.x(),-crect.y());
 	QPaintEvent e(r, FALSE);
 	setWState( WState_InPaintEvent );
 	qt_set_paintevent_clipping( this, r );

@@ -276,6 +276,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    qwsDisplay()->nameRegion( winId(), name(), caption() );
 	else
 	    qwsDisplay()->nameRegion( winId(), "", caption() );
+	createTLExtra();
 #else
 	qwsDisplay()->nameRegion( winId(), name(), QString::null );
 #endif
@@ -286,7 +287,11 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    // get size of wm decoration
 	    QRegion r = QApplication::qwsDecoration().region(this, crect);
 	    QRect br( r.boundingRect() );
-	    crect.moveBy( crect.x() - br.x(), crect.y() - br.y() );
+	    crect.moveBy( crect.x()-br.x(), crect.y()-br.y() );
+	    extra->topextra->fleft = crect.x()-br.x();
+	    extra->topextra->ftop = crect.y()-br.y();
+	    extra->topextra->fright = br.right()-crect.right();
+	    extra->topextra->fbottom = br.bottom()-crect.bottom();
 	    topData()->qwsManager = new QWSManager(this);
 	}
 #endif
@@ -298,16 +303,21 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	// If we are session managed, inform the window manager about it
 	if ( extra && !extra->mask.isNull() ) {
 	    req_region = extra->mask;
-	    req_region.translate(crect.x(),crect.y()); //###expensive?
+	    req_region.translate(crect.x(),crect.y());
 	    req_region &= crect; //??? this is optional
 	} else {
 	    req_region = crect;
 	}
 	req_region = qt_screen->mapToDevice( req_region, QSize(qt_screen->width(), qt_screen->height()) );
     } else {
+	if ( extra && extra->topextra )	{ // already allocated due to reparent?
+	    extra->topextra->fleft = 0;
+	    extra->topextra->ftop = 0;
+	    extra->topextra->fright = 0;
+	    extra->topextra->fbottom = 0;
+	}
 	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
     }
-    //### frame rect is not handled in Qt/Embedded
 }
 
 
@@ -427,8 +437,8 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     int	   x=pos.x(), y=pos.y();
     const QWidget* w = this;
     while (w) {
-	x += w->x();
-	y += w->y();
+	x += w->crect.x();
+	y += w->crect.y();
 	w = w->isTopLevel() ? 0 : w->parentWidget();
     }
     return QPoint( x, y );
@@ -439,8 +449,8 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     int	   x=pos.x(), y=pos.y();
     const QWidget* w = this;
     while (w) {
-	x -= w->x();
-	y -= w->y();
+	x -= w->crect.x();
+	y -= w->crect.y();
 	w = w->isTopLevel() ? 0 : w->parentWidget();
     }
     return QPoint( x, y );
@@ -895,10 +905,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QPoint oldp = pos();
-    QSize  olds = size();
 
-    QRect  r( x, y, w, h );
+    QPoint oldp = geometry().topLeft();
+    QSize olds = size();
+    QRect r( x, y, w, h );
 
     bool isResize = olds != r.size();
 
@@ -915,13 +925,13 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( !in_show_maximized && !r.contains(geometry()) ) // eg. might not FIT in max window rect
 	clearWState(WState_Maximized);
 
+    QPoint oldPos = pos();
     crect = r;
 
     if ( testWFlags(WType_Desktop) )
 	return;
 
     if ( isTopLevel() ) {
-
 	//### ConfigPending not implemented, do we need it?
 	//setWState( WState_ConfigPending );
 	if ( isMove && ( w==olds.width() && h==olds.height() ) ) {
@@ -955,6 +965,13 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		}
 #endif
 		qwsDisplay()->requestRegion(winId(), rgn);
+		if ( extra && extra->topextra ) {
+		    QRect br( rgn.boundingRect() );
+		    extra->topextra->fleft = crect.x()-br.x();
+		    extra->topextra->ftop = crect.y()-br.y();
+		    extra->topextra->fright = br.right()-crect.right();
+		    extra->topextra->fbottom = br.bottom()-crect.bottom();
+		}
 	    }
 	}
     }
@@ -962,7 +979,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( isVisible() ) {
 	isSettingGeometry = TRUE;
 	if ( isMove ) {
-	    QMoveEvent e( r.topLeft(), oldp );
+	    QMoveEvent e( pos(), oldPos );
 	    QApplication::sendEvent( this, &e );
 #ifndef QT_NO_QWS_MANAGER
 	    if (extra && extra->topextra && extra->topextra->qwsManager)
@@ -996,7 +1013,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		dirtyChildren.translate( x, y );
 		if ( p->isSettingGeometry ) {
 		    if ( oldp != r.topLeft() ) {
-			QRegion upd( ( QRegion(r) | oldr ) & p->rect() );
+			QRegion upd( (QRegion(r) | oldr) & p->rect() );
 			dirtyChildren |= upd;
 		    } else {
 			dirtyChildren |= QRegion(r) - oldr;
@@ -1005,7 +1022,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    }
 		    p->dirtyChildren |= dirtyChildren;
 		} else {
-		    QRegion upd( ( QRegion(r) | oldr ) & p->rect() );
+		    QRegion upd( (QRegion(r) | oldr) & p->rect() );
 		    dirtyChildren |= upd;
 		    QRegion paintRegion = dirtyChildren;
 #define FAST_WIDGET_MOVE
@@ -1068,10 +1085,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     } else {
 	if ( isMove )
 	    QApplication::postEvent( this,
-				     new QMoveEvent( r.topLeft(), oldp ) );
+				     new QMoveEvent( pos(), oldPos ) );
 	if ( isResize )
 	    QApplication::postEvent( this,
-				     new QResizeEvent( r.size(), olds ) );
+				     new QResizeEvent(crect.size(), olds) );
     }
 }
 
