@@ -85,6 +85,89 @@ const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian
 #include "qkernel_mac.h"
 #include "qnamespace.h"
 
+// This function has descended from Apple Source Code (FSpLocationFromFullPath),
+// but changes have been made. [Creates a minimal alias from the full pathname]
+OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
+{
+    FSRef fref;
+    QByteArray utfs = file.utf8();
+    OSErr ret = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
+    if(ret == noErr)
+	ret = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, spec, NULL);
+    return ret;
+}
+
+
+CFStringRef qstring2cfstring(const QString &str)
+{
+    return CFStringCreateWithCharacters(0, (UniChar *)str.unicode(), str.length());
+}
+
+QString cfstring2qstring(CFStringRef str)
+{
+    if(!str)
+	return QString();
+
+    CFIndex length = CFStringGetLength(str);
+    if(const UniChar *chars = CFStringGetCharactersPtr(str))
+	return QString((QChar *)chars, length);
+    UniChar *buffer = (UniChar*)malloc(length * sizeof(UniChar));
+    CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
+    QString ret((QChar *)buffer, length);
+    free(buffer);
+    return ret;
+}
+
+void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1)
+{
+    if(len == -1)
+	len = s.length();
+
+    UnicodeMapping mapping;
+    UnicodeToTextInfo info;
+    mapping.unicodeEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault, kTextEncodingDefaultVariant,
+						 kUnicode16BitFormat);
+    mapping.otherEncoding = (encoding ? encoding : mapping.unicodeEncoding);
+    mapping.mappingVersion = kUnicodeUseLatestMapping;
+
+    if(CreateUnicodeToTextInfo(&mapping, &info) != noErr) {
+	qDebug("Qt: internal: Unexpected condition reached %s:%d", __FILE__, __LINE__);
+	return;
+    }
+    const int unilen = len * 2;
+    const UniChar *unibuf = (UniChar *)s.unicode();
+    ConvertFromUnicodeToPString(info, unilen, unibuf, str);
+    DisposeUnicodeToTextInfo(&info);
+}
+
+QString pstring2qstring(const unsigned char *c) {
+    QString ret;
+    if(c[0])
+	ret = QString::fromAscii((char*)c+1, c[0]);
+    return ret;
+}
+
+unsigned char *p_str(const char * c, int len=-1)
+{
+    const int maxlen = 255;
+    if(len == -1)
+	len = qstrlen(c);
+    if(len > maxlen) {
+	qWarning( "p_str len must never exceed %d", maxlen );
+	len = maxlen;
+    }
+    unsigned char *ret = (unsigned char*)malloc(len+2);
+    *ret=len;
+    memcpy(((char *)ret)+1,c,len);
+    *(ret+len+1) = '\0';
+    return ret;
+}
+
+unsigned char * p_str(const QString &s)
+{
+    return p_str(s, s.length());
+}
+
 int qMacVersion()
 {
     static int macver = Qt::MV_Unknown;
@@ -269,94 +352,6 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
 
 static QtMsgHandler handler = 0;		// pointer to debug handler
 static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
-
-
-#ifdef Q_OS_MAC
-// This function has descended from Apple Source Code (FSpLocationFromFullPath),
-// but changes have been made. [Creates a minimal alias from the full pathname]
-OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
-{
-    FSRef fref;
-    QByteArray utfs = file.utf8();
-    OSErr ret = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
-    if(ret == noErr)
-	ret = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, spec, NULL);
-    return ret;
-}
-
-
-CFStringRef qstring2cfstring(const QString &str)
-{
-    return CFStringCreateWithCharacters(0, (UniChar *)str.unicode(), str.length());
-}
-
-QString cfstring2qstring(CFStringRef str)
-{
-    if(!str)
-	return QString();
-
-    CFIndex length = CFStringGetLength(str);
-    if(const UniChar *chars = CFStringGetCharactersPtr(str))
-	return QString((QChar *)chars, length);
-    UniChar *buffer = (UniChar*)malloc(length * sizeof(UniChar));
-    CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
-    QString ret((QChar *)buffer, length);
-    free(buffer);
-    return ret;
-}
-
-void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1)
-{
-    if(len == -1)
-	len = s.length();
-
-    UnicodeMapping mapping;
-    UnicodeToTextInfo info;
-    mapping.unicodeEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault, kTextEncodingDefaultVariant,
-						 kUnicode16BitFormat);
-    mapping.otherEncoding = (encoding ? encoding : mapping.unicodeEncoding);
-    mapping.mappingVersion = kUnicodeUseLatestMapping;
-
-    if(CreateUnicodeToTextInfo(&mapping, &info) != noErr) {
-	qDebug("Qt: internal: Unexpected condition reached %s:%d", __FILE__, __LINE__);
-	return;
-    }
-    const int unilen = len * 2;
-    const UniChar *unibuf = (UniChar *)s.unicode();
-    ConvertFromUnicodeToPString(info, unilen, unibuf, str);
-    DisposeUnicodeToTextInfo(&info);
-}
-
-QString pstring2qstring(const unsigned char *c) {
-    QString ret;
-    if(c[0])
-	ret = QString::fromAscii((char*)c+1, c[0]);
-    return ret;
-}
-
-unsigned char *p_str(const char * c, int len=-1)
-{
-    const int maxlen = 255;
-    if(len == -1)
-	len = qstrlen(c);
-    if(len > maxlen) {
-	qWarning( "p_str len must never exceed %d", maxlen );
-	len = maxlen;
-    }
-    unsigned char *ret = (unsigned char*)malloc(len+2);
-    *ret=len;
-    memcpy(((char *)ret)+1,c,len);
-    *(ret+len+1) = '\0';
-    return ret;
-}
-
-unsigned char * p_str(const QString &s)
-{
-    return p_str(s, s.length());
-}
-
-#endif
-
 
 #ifdef Q_CC_MWERKS
 
