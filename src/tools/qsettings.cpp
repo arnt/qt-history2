@@ -5,7 +5,7 @@
 **
 ** Created: 2000.06.26
 **
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -37,19 +37,16 @@
 
 #include "qplatformdefs.h"
 
-static inline int qt_open( const char *pathname, int flags, mode_t mode )
-{
-    return ::open( pathname, flags, mode );
-}
-
 // POSIX Large File Support redefines open -> open64
+static inline int qt_open( const char *pathname, int flags, mode_t mode )
+{ return ::open( pathname, flags, mode ); }
 #if defined(open)
-#undef open
+# undef open
 #endif
 
 // POSIX Large File Support redefines truncate -> truncate64
 #if defined(truncate)
-#undef truncate
+# undef truncate
 #endif
 
 #include "qsettings.h"

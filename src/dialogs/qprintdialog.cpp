@@ -5,7 +5,7 @@
 **
 ** Created : 950829
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
@@ -52,7 +52,7 @@
 
 // UNIX Large File Support redefines open -> open64
 #if defined(open)
-#undef open
+# undef open
 #endif
 
 #include "qfiledialog.h"

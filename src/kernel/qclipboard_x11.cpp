@@ -39,11 +39,10 @@
 // #define QCLIPBOARD_DEBUG_VERBOSE
 
 #include "qplatformdefs.h"
-#undef open
 
-// POSIX Large File Support on broken compilers redefines open -> open64
+// POSIX Large File Support redefines open -> open64
 #if defined(open)
-#undef open
+# undef open
 #endif
 
 #include "qclipboard.h"

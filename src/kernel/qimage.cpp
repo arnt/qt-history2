@@ -1,5 +1,4 @@
 /****************************************************************************
-
 ** $Id$
 **
 ** Implementation of QImage and QImageIO classes
@@ -1075,12 +1074,12 @@ QImage::Endian QImage::systemByteOrder()
 
 // POSIX Large File Support redefines open -> open64
 #if defined(open)
-#undef open
+# undef open
 #endif
 
 // POSIX Large File Support redefines truncate -> truncate64
 #if defined(truncate)
-#undef truncate
+# undef truncate
 #endif
 
 /*!

@@ -39,7 +39,7 @@
 
 // UNIX Large File Support redefines open -> open64
 #if defined(open)
-#undef open
+# undef open
 #endif
 
 #include "qtextcodec.h"
