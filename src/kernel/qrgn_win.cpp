@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#28 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#28 $");
 
 
 static QRegion *empty_region = 0;
@@ -137,7 +137,7 @@ bool QRegion::isNull() const
 
 bool QRegion::isEmpty() const
 {
-    return data->bop.isNull() || data->rgn == 0;
+    return data->rgn == 0;
 }
 
 
