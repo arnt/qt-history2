@@ -455,13 +455,14 @@ QStringList QFileDialog::selectedFiles() const
     QStringList fileNames = d->fileName->text().split(' ', QString::SkipEmptyParts);
     for (int j = 0; j < fileNames.count(); ++j) {
         QString name = d->toInternal(fileNames.at(j));
+        QFileInfo info(name);
         // if the filename has no suffix, add the default suffix
-        if (!d->defaultSuffix.isEmpty() && name.lastIndexOf('.') == -1)
+        if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf('.') == -1)
             name += "." + d->defaultSuffix;
         // a new filename
         if ((d->fileMode == AnyFile && files.isEmpty())
-            || (d->fileMode == ExistingFile && QFileInfo(name).exists())) {
-            if (QFileInfo(name).isAbsolute())
+            || (d->fileMode == ExistingFile && info.exists())) {
+            if (info.isAbsolute())
                 files.append(name);
             else
                 files.append(d->toInternal(d->lookIn->currentText() + QDir::separator() + name));
