@@ -124,6 +124,6 @@
     \printuntil /^\}$/
 
     Again, we draw markers around the edge of the clock, but this
-    time to indicate minutes. We skip multiple of 5 to avoid drawing
+    time to indicate minutes. We skip multiples of 5 to avoid drawing
     minute markers on top of hour markers.
 */
