@@ -143,7 +143,7 @@ void WidgetHandle::paintEvent(QPaintEvent *)
         option.features = QStyleOptionToolButton::Arrow;
         option.subControls = QStyle::SC_ToolButton;
         p.drawComplexControl(QStyle::CC_ToolButton, option);
-    } else if (fw->currentWidget() != widget) {
+    } else if (fw->currentWidget() == widget) {
         p.setPen(m->activeFormWindow() == fw ? Qt::blue : Qt::red);
         p.drawRect(0, 0, width() - 1, height() - 1);
     }
