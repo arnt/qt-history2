@@ -84,6 +84,7 @@ tools {
 		  $$TOOLS_CPP/qlibrary.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
+		  $$TOOLS_CPP/qshared.cpp \
 		  $$TOOLS_CPP/qstack.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qsettings.cpp \
