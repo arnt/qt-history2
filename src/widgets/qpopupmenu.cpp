@@ -37,7 +37,7 @@
 #include "qwhatsthis.h"
 #include "qobjectlist.h"
 #include "qguardedptr.h"
-#include "qeffects.h"
+#include "qeffects_p.h"
 #include <ctype.h>
 
 //#define ANIMATED_POPUP

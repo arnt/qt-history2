@@ -1,4 +1,4 @@
-#include "qeffects.h"
+#include "qeffects_p.h"
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qpixmap.h"

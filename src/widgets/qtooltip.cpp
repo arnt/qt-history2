@@ -28,7 +28,7 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qtimer.h"
-#include "qeffects.h"
+#include "qeffects_p.h"
 
 //#define ANIMATED_TOOLTIP
 //#define BLEND_TOOLTIP
