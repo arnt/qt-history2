@@ -577,22 +577,16 @@ Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
 \value WStyle_NoBorder  produces a borderless window.  Note that the user
 cannot move or resize a borderless window via the window system.
 Cannot be combined with \c WStyle_NormalBorder or \c
-WStyle_DialogBorder. On Windows, the flag works fine. On X11, it
-bypasses the window manager completely, which results in a borderless
-window, but also in a window that is not managed at all (i.e. for
-example, no keyboard focus unless you call QWidget::setActiveWindow()
-manually.) For compatibility, the flag was not changed for Qt 2.1. We
-recommend using \c WStyle_NoBorderEx instead.
-
-\value WStyle_NoBorderEx  produces a borderless window.  Note that the user
-cannot move or resize a borderless window via the window system.  Cannot
-be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder. On X11,
+WStyle_DialogBorder. On Windows, the flag works fine. On X11,
 the result of the flag is dependent on the window manager and its ability
-to understand MOTIF hints: most existing modern window
+to understand MOTIF and/or NETWM hints: most existing modern window
 managers can handle this. With \c WX11BypassWM, you can bypass the
 window manager completely. This results in a borderless window that is
 not managed at all (i.e. no keyboard input unless you call
 setActiveWindow() manually).
+
+\value WStyle_NoBorderEx  this value is obsolete.  It has the same effect
+as using \c WStyle_NoBorder.
 
 \value WStyle_Title  gives the window a title bar.
 
@@ -2500,7 +2494,7 @@ void QWidget::setPalette( const QPalette &palette )
 void QWidget::unsetPalette()
 {
     if ( own_palette ) {
-        if ( !isTopLevel() && QApplication::palette( this ).isCopyOf( QApplication::palette() ) 
+        if ( !isTopLevel() && QApplication::palette( this ).isCopyOf( QApplication::palette() )
             && parentWidget() ) {
 	    setPalette( parentWidget()->palette() );
         } else
