@@ -188,8 +188,8 @@ QString QAccessibleButton::text(Text t, int child) const
 	return tx;
     case Name:
 	tx = button()->text();
-	if (tx.isEmpty() && qt_cast<QToolButton*>(widget()))
-	    tx = static_cast<QToolButton*>(widget())->textLabel();
+	if (tx.isEmpty() && qt_cast<QToolButton*>(object()))
+	    tx = static_cast<QToolButton*>(object())->textLabel();
 	if (tx.isEmpty())
 	    tx = buddyString(widget());
 
@@ -253,16 +253,16 @@ QString QAccessibleRangeControl::text(Text t, int child) const
     case Value:
 	{
 	    int value = 0;
-	    if (qt_cast<QSlider*>(widget()))
-		value = qt_cast<QSlider*>(widget())->value();
-	    else if (qt_cast<QDial*>(widget()))
-		value = qt_cast<QDial*>(widget())->value();
-	    else if (qt_cast<QScrollBar*>(widget()))
-		value = qt_cast<QScrollBar*>(widget())->value();
-	    else if (qt_cast<QSpinBox*>(widget()))
-		return qt_cast<QSpinBox*>(widget())->text();
-	    else if (qt_cast<QProgressBar*>(widget()))
-		value = qt_cast<QProgressBar*>(widget())->progress();
+	    if (qt_cast<QSlider*>(object()))
+		value = qt_cast<QSlider*>(object())->value();
+	    else if (qt_cast<QDial*>(object()))
+		value = qt_cast<QDial*>(object())->value();
+	    else if (qt_cast<QScrollBar*>(object()))
+		value = qt_cast<QScrollBar*>(object())->value();
+	    else if (qt_cast<QSpinBox*>(object()))
+		return qt_cast<QSpinBox*>(object())->text();
+	    else if (qt_cast<QProgressBar*>(object()))
+		value = qt_cast<QProgressBar*>(object())->progress();
 	    return QString::number(value);
 	}
     default:
@@ -434,7 +434,7 @@ QAccessibleScrollBar::QAccessibleScrollBar(QWidget *w, QString name,
 /*! Returns the scroll bar. */
 QScrollBar *QAccessibleScrollBar::scrollBar() const
 {
-    return qt_cast<QScrollBar*>(widget());
+    return qt_cast<QScrollBar*>(object());
 }
 
 /*! \reimp */
@@ -606,7 +606,7 @@ QAccessibleSlider::QAccessibleSlider(QWidget *w, QString name,
 /*! Returns the slider. */
 QSlider *QAccessibleSlider::slider() const
 {
-    return qt_cast<QSlider*>(widget());
+    return qt_cast<QSlider*>(object());
 }
 
 /*! \reimp */
@@ -781,7 +781,7 @@ QAccessible::State QAccessibleText::state(int child) const
 {
     int state = QAccessibleWidget::state(child);
 
-    QLineEdit *l = qt_cast<QLineEdit*>(widget());
+    QLineEdit *l = qt_cast<QLineEdit*>(object());
     if (l) {
 	if (l->isReadOnly())
 	    state |= ReadOnly;
@@ -813,7 +813,7 @@ QAccessibleDisplay::QAccessibleDisplay(QWidget *o, Role role, QString descriptio
 /*! \reimp */
 QAccessible::Role QAccessibleDisplay::role(int child) const
 {
-    QLabel *l = qt_cast<QLabel*>(widget());
+    QLabel *l = qt_cast<QLabel*>(object());
     if (l) {
 	if (l->pixmap() || l->picture())
 	    return Graphic;
@@ -838,12 +838,12 @@ QString QAccessibleDisplay::text(Text t, int child) const
 
     switch (t) {
     case Name:
-	if (qt_cast<QLabel*>(widget())) {
-	    str = qt_cast<QLabel*>(widget())->text();
-	} else if (qt_cast<QGroupBox*>(widget())) {
-	    str = qt_cast<QGroupBox*>(widget())->title();
-	} else if (qt_cast<QLCDNumber*>(widget())) {
-	    QLCDNumber *l = qt_cast<QLCDNumber*>(widget());
+	if (qt_cast<QLabel*>(object())) {
+	    str = qt_cast<QLabel*>(object())->text();
+	} else if (qt_cast<QGroupBox*>(object())) {
+	    str = qt_cast<QGroupBox*>(object())->title();
+	} else if (qt_cast<QLCDNumber*>(object())) {
+	    QLCDNumber *l = qt_cast<QLCDNumber*>(object());
 	    if (l->numDigits())
 		str = QString::number(l->value());
 	    else
@@ -877,7 +877,7 @@ QAccessibleHeader::QAccessibleHeader(QWidget *o, QString description,
 /*! Returns the QHeader. */
 QHeader *QAccessibleHeader::header() const
 {
-    return qt_cast<QHeader*>(widget());
+    return qt_cast<QHeader*>(object());
 }
 
 /*! \reimp */
@@ -974,7 +974,7 @@ QAccessibleTabBar::QAccessibleTabBar(QWidget *o, QString description,
 /*! Returns the QTabBar. */
 QTabBar *QAccessibleTabBar::tabBar() const
 {
-    return qt_cast<QTabBar*>(widget());
+    return qt_cast<QTabBar*>(object());
 }
 
 /*! \reimp */
