@@ -229,7 +229,7 @@ static HANDLE openlock( const QString &name, int type )
     QString lockfile = info.dirPath() + "/." + info.fileName() + ".lock";
 
     // open the lockfile
-    int fd = open( QFile::encodeName( lockfile ),
+    HANDLE fd = open( QFile::encodeName( lockfile ),
 		   O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
 
     if ( fd < 0 ) {
