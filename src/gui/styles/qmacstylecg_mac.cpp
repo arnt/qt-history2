@@ -5,18 +5,20 @@
 
 #include <qapplication.h>
 #include <qevent.h>
+#include <qgroupbox.h>
+#include <qmenu.h>
 #include <qpaintdevice.h>
 #include <qpainter.h>
-#include <qprogressbar.h>
-#include <qpushbutton.h>
 #include <qpointer.h>
 #include <qpopupmenu.h>
+#include <qprogressbar.h>
+#include <qpushbutton.h>
+#include <qrubberband.h>
 #include <qscrollbar.h>
 #include <qslider.h>
-#include <qtabbar.h>
-#include <qrubberband.h>
-#include <qmenu.h>
 #include <qt_mac.h>
+#include <qtabbar.h>
+
 
 #include <private/qaquastyle_p.h>
 
@@ -426,6 +428,20 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
             bdi.adornment = kThemeAdornmentFocus;
         HIThemeDrawButton(qt_glb_mac_rect(ir, p), &bdi, static_cast<CGContextRef>(p->handle()),
                           kHIThemeOrientationNormal, 0);
+        break; }
+    case PE_PanelGroupBox: {
+        if (opt.isDefault())
+            break;
+        HIThemeGroupBoxDrawInfo gdi;
+        gdi.version = qt_mac_hitheme_version;
+        gdi.state = tds;
+        QWidget *w = qt_abuse_painter_for_widget(p);
+        if (w && ::qt_cast<QGroupBox *>(w->parentWidget()))
+            gdi.kind = kHIThemeGroupBoxKindSecondary;
+        else
+            gdi.kind = kHIThemeGroupBoxKindPrimary;
+        HIThemeDrawGroupBox(qt_glb_mac_rect(r, p), &gdi, static_cast<CGContextRef>(p->handle()),
+                            kHIThemeOrientationNormal);
         break; }
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
