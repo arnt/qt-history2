@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#48 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -40,7 +40,7 @@
 
   \ingroup realwidgets
 
-  QSpinBox allows the user to choose a numeric value, either by
+  QSpinBox allows the user to choose an integer value, either by
   clicking the up/down buttons to increase/decrease the value
   currently displayed, or by typing the value directly into the spin
   box.
@@ -613,8 +613,12 @@ void QSpinBox::rangeChange()
 
 
 /*!
-  Sets the validator to \a v. The default is to use a suitable
-  QIntValidator.
+  Sets the validator to \a v. The validator controls what keyboard
+  input is accepted when the user is editing in the value field. The
+  default is to use a suitable QIntValidator. 
+
+  Use setValidator(0) to turn off input validation (entered input will
+  still be clamped to the range of the spinbox).
 */
 
 void QSpinBox::setValidator( QValidator* v )
