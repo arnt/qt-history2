@@ -196,7 +196,7 @@ void TextEdit::load( const QString &f )
     doConnections( edit );
     tabWidget->addTab( edit, QFileInfo( f ).fileName() );
 
-    if ( !f.contains( "bidi" ) ) { // ### hack, Lars please
+    if ( !f.contains( "bidi" ) && !f.contains( "utf8" ) ) { // ### hack, Lars please
 	edit->load( f );
     } else {
 	QFile fl( f );
