@@ -739,10 +739,13 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
 	    return FALSE;
 	}
 	return vars[args[0]].isEmpty();
-    } else if(func == "include") {
+    } else if(func == "include" || func == "load") {
 	if(args.count() != 1) {
-	    fprintf(stderr, "%s:%d: include(file) requires one argument.\n", parser.file.latin1(),
-		    parser.line_no);
+	    QString func_desc = "include(file)";
+	    if(func == "load")
+		func_desc = "load(feature)";
+	    fprintf(stderr, "%s:%d: %s requires one argument.\n", parser.file.latin1(),
+		    parser.line_no, func_desc.latin1());
 	    return FALSE;
 	}
 
@@ -750,13 +753,47 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
 	file = Option::fixPathToLocalOS(file);
 	file.replace("\"", "");
 	doVariableReplace(file, place);
-	debug_msg(1, "Project Parser: Including file %s.", file.latin1());
+	if(func == "load") {
+	    if(!file.endsWith(Option::prf_ext))
+		file += Option::prf_ext;
+	    if(file.find(Option::dir_sep) == -1) {
+		if(QFile::exists(Option::mkfile::qmakespec + QDir::separator() + file)) {
+		    file.prepend(Option::mkfile::qmakespec + QDir::separator());
+		} else {
+		    bool found = FALSE;
+		    QStringList feature_roots;
+		    if(getenv("QTDIR"))
+			feature_roots << getenv("QTDIR");
+#ifdef QT_INSTALL_PREFIX
+		    feature_roots << QT_INSTALL_PREFIX;
+#endif
+#ifdef QT_INSTALL_DATA
+		    feature_roots << QT_INSTALL_DATA;
+#endif
+		    for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
+			QString prf = (*it) + QDir::separator() + QString("mkspecs") +
+				      QDir::separator() + QString("features") + QDir::separator() + file;
+			if(QFile::exists(prf)) {
+			    found = TRUE;
+			    file = prf;
+			    break;
+			}
+		    }
+		    if(!found) {
+			printf("Project LOAD(): Feature %s cannot be found.\n", args.first().latin1());
+			exit(3);
+		    }
+		}
+	    }
+	}
+
+	debug_msg(1, "Project Parser: %s'ing file %s.", func.latin1(), file.latin1());
 	parser_info pi = parser;
 	int sb = scope_block;
 	int sf = scope_flag;
 	TestStatus sc = test_status;
 	bool r = read(file.latin1(), place);
-	if(r)
+	if(r) 
 	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
 	parser = pi;
 	test_status = sc;
