@@ -11,44 +11,10 @@ class QListView;
 class QAction;
 class QTabWidget;
 
-class TeamEditorWidget;
 class TeamPicker;
+class TeamEditor;
 class Statistics;
-
-class Statistics : public QWidget
-{
-    Q_OBJECT
-public:
-    Statistics( QWidget * parent = 0, const char * name = 0 );
-
-protected slots:
-    void updateStats();
-
-private:
-    TeamCursor teamCr;
-    QLabel * setsWon;
-    QLabel * setsLost;
-    QLabel * matchesWon;
-    QLabel * matchesLost;
-    QLabel * winPercentage;
-    QLabel * lossPercentage;
-    QLabel * totalSets;
-    QLabel * totalMatches;
-    QLabel * hate;
-    QLabel * love;
-    QLabel * topTeam;
-    TeamPicker * teamPicker;
-};
-
-class HallOfFame : public QWidget
-{
-public:
-    HallOfFame( QWidget * parent = 0, const char * name = 0 );
-
-private:
-    QListView * scorelist;
-    TeamCursor teamCr;
-};
+class HighscoreList;
 
 class PingPongApp : public QMainWindow
 {
@@ -71,13 +37,13 @@ private:
     QAction * updateResultAc;
     QAction * deleteResultAc;
 
-    QTabWidget * tab;
-    TeamEditorWidget * teamEditor;
-    Statistics * statWidget;
-    HallOfFame * hallOfFameWidget;
-    QSqlTable * matchTable;
-    MatchView matchView;
-    MatchCursor matchCursor;
+    QTabWidget    * tab;
+    TeamEditor    * teamEditor;
+    Statistics    * statistics;
+    HighscoreList * highscore;
+    QSqlTable     * matchTable;
+    MatchView     matchView;
+    MatchCursor   matchCursor;
 };
 
 #endif

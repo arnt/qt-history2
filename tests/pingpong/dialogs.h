@@ -3,16 +3,17 @@
 
 #include <qdialog.h>
 #include <qsqltable.h>
-#include <qframe.h>
 #include <qcombobox.h>
-#include <qspinbox.h>
-#include <qlineedit.h>
 
 #include "pingpongapp.h"
 #include "cursors.h"
 
 
 class QSqlForm;
+class QListView;
+class QLabel;
+class QSpinBox;
+class QLineEdit;
 
 class TeamPicker : public QComboBox
 {
@@ -28,13 +29,13 @@ private:
     QMap< int, int > index2Id;
 };
 
-class TeamEditorWidget : public QWidget
+class TeamEditor : public QWidget
 {
     Q_OBJECT
 
 public:
-    TeamEditorWidget( QWidget * parent = 0, const char * name = 0 );
-
+    TeamEditor( QWidget * parent = 0, const char * name = 0 );
+    
 protected slots:
     void updateTeamMembers( const QSqlRecord * record );
     void addPlayer();
@@ -50,6 +51,43 @@ private:
     Player2TeamCursor player2teamCursor;
     TeamCursor   teamCursor;
     PlayerCursor playerCursor;
+};
+
+class Statistics : public QWidget
+{
+    Q_OBJECT
+public:
+    Statistics( QWidget * parent = 0, const char * name = 0 );
+
+public slots:
+    void update();
+
+private:
+    TeamPicker * teamPicker;
+    QLabel * setsWon;
+    QLabel * setsLost;
+    QLabel * matchesWon;
+    QLabel * matchesLost;
+    QLabel * winPercentage;
+    QLabel * lossPercentage;
+    QLabel * totalSets;
+    QLabel * totalMatches;
+    QLabel * hate;
+    QLabel * love;
+    QLabel * topTeam;
+};
+
+class HighscoreList : public QWidget
+{
+    Q_OBJECT
+public:
+    HighscoreList( QWidget * parent = 0, const char * name = 0 );
+
+public slots:
+    void update();
+    
+private:
+    QListView * list;
 };
 
 class MatchDialog : public QDialog
