@@ -23,7 +23,7 @@
 
 
 ListBoxDemo::ListBoxDemo()
-    : QWidget( 0, 0 )
+    : QWidget( 0 )
 {
     QGridLayout * g = new QGridLayout( this, 2, 2, 6 );
 
