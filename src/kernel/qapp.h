@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#7 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#8 $
 **
 ** Definition of QApplication class
 **
@@ -33,9 +33,9 @@ public:
     int		 exec( QWidget *mainWidget );	// start event handing
     static void	 quit( int retcode = 0 );	// quit application
 
-    static bool	 sendEvent( QObject *object, QEvent *event )
-	{ return qApp->notify( object, event ); }
-    static bool	 postEvent( QObject *object, QEvent *event );
+    static bool	 sendEvent( QObject *receiver, QEvent *event )
+	{ return qApp->notify( receiver, event ); }
+    static bool	 postEvent( QObject *receiver, QEvent *event );
 
     static QWidget *desktop();			// get desktop widget
     QWidget	*mainWidget() const { return main_widget; }
