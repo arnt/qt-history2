@@ -829,6 +829,9 @@ void QTextPieceTable::changeObjectFormat(QTextFormatObject *obj, int format)
             documentChange(block.position(), block.length());
         }
     }
+    QTextFrame *f = qt_cast<QTextFrame *>(obj);
+    if (f)
+        documentChange(f->startPosition(), f->endPosition() - f->startPosition());
 
     UndoCommand c = { UndoCommand::GroupFormatChange, true, UndoCommand::MoveCursor, oldFormatIndex,
                       0, 0, { 1 } };
