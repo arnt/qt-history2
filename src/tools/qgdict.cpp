@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#6 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#6 $";
 #endif
 
 
@@ -380,6 +380,12 @@ GCI QGDictIterator::get() const			// get current item
 {
     return curNode ? curNode->getData() : 0;
 }
+
+char *QGDictIterator::getKey() const		// get current key
+{
+    return curNode ? curNode->getKey() : 0;
+}
+
 
 GCI QGDictIterator::operator()()		// get current and move to next
 {
