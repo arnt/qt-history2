@@ -284,11 +284,23 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	    if(widget->extra && !widget->extra->mask.isNull()) {
 		QRegion rin;
 		CopyRgn(rgn, rin.handle(TRUE));
+		QPoint g(widget->x(), widget->y());
+		int offx = 0, offy = 0;
 		QRegion rpm = widget->extra->mask;
-		QRect rpm_br = rpm.boundingRect();
-		rin -= QRegion(widget->x() + rpm_br.x(), widget->y() + rpm_br.y(), 
-			       widget->width(), widget->height());
-		rpm.translate(widget->x(), widget->y());
+		if(widget->testWFlags(Qt::WStyle_Customize) && widget->testWFlags(Qt::WStyle_NoBorder)) {
+		    QPoint rpm_tl = rpm.boundingRect().topLeft();
+		    offx = rpm_tl.x();
+		    offy = rpm_tl.y();
+		} else {
+		    Rect title_r;
+		    RgnHandle rgn = qt_mac_get_rgn();
+		    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
+		    GetRegionBounds(rgn, &title_r);
+		    qt_mac_dispose_rgn(rgn);
+		    g.setY(g.y() + (title_r.bottom - title_r.top));
+		} 
+		rin -= QRegion(g.x() + offx, g.y() + offy, widget->width(), widget->height());
+		rpm.translate(g.x(), g.y());
 		rin += rpm;
 		CopyRgn(rin.handle(TRUE), rgn);
 	    } else if(force) {
@@ -301,7 +313,16 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	if(widget) {
 	    if(widget->extra && !widget->extra->mask.isNull()) {
 		QRegion cr = widget->extra->mask;
-		cr.translate(widget->x(), widget->y());
+		QPoint g(widget->x(), widget->y());
+		if(!widget->testWFlags(Qt::WStyle_Customize) || !widget->testWFlags(Qt::WStyle_NoBorder)) {
+		    Rect title_r;
+		    RgnHandle rgn = qt_mac_get_rgn();
+		    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
+		    GetRegionBounds(rgn, &title_r);
+		    qt_mac_dispose_rgn(rgn);
+		    g.setY(g.y() + (title_r.bottom - title_r.top));
+		}
+		cr.translate(g.x(), g.y());
 		CopyRgn(cr.handle(TRUE), rgn);
 	    } else if(force) {
 		QRegion cr(widget->geometry());
@@ -331,7 +352,7 @@ static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef eve
 	    RgnHandle rgn;
 	    GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
 			      sizeof(rgn), NULL, &rgn);
-	    qt_window_rgn((WId)wid, wcode, rgn, FALSE);
+	    handled_event = qt_window_rgn((WId)wid, wcode, rgn, FALSE);
 	} else {
 	    handled_event = FALSE;
 	}
@@ -1784,12 +1805,14 @@ void QWidget::setMask( const QRegion &region )
 	qt_dirty_wndw_rgn("setMask",this, clp);
     }
     if ( isTopLevel() ) {
-	/* We do this because the X/Y seems to move to the first paintable point
-	   (ie the bounding rect of the mask). We must offset everything or else
-	   we have big problems. */
-	QRect r = region.boundingRect();
-	QMacSavedPortInfo mp(this);
-	SetOrigin(r.x(), r.y());
+	if(testWFlags(WStyle_Customize) && testWFlags(WStyle_NoBorder)) {
+	    /* We do this because the X/Y seems to move to the first paintable point
+	       (ie the bounding rect of the mask). We must offset everything or else
+	       we have big problems. */
+	    QRect r = region.boundingRect();
+	    QMacSavedPortInfo mp(this);
+	    SetOrigin(r.x(), r.y());
+	}
 	//now let the wdef take it
 	ReshapeCustomWindow((WindowPtr)hd);
     }
