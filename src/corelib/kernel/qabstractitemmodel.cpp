@@ -349,10 +349,9 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     with the zero argument form of the QModelIndex() constructor.
 
     To obtain a model index that refers to an item in a model, call
-    \l{QAbstractItemModel::index()}{index()} with the required row and column
-    values, and the parent model index. Supply the zero argument form of
-    the QModelIndex() constructor as the parent index when referring to
-    top-level items in a model.
+    QAbstractItemModel::index() with the required row and column
+    values, and the model index of the parent. When referring to
+    top-level items in a model, supply QModelIndex() as the parent index.
 
     The model() function returns the model that the index references as a
     QAbstractItemModel.
@@ -534,14 +533,37 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     reimplemented; for example, lessThan(), equal(), and
     greaterThan().
 
+    \section2 Subclassing
+
     When subclassing QAbstractItemModel, at the very least you must
     implement index(), parent(), rowCount(), columnCount(), hasChildren(),
     and data().  To enable editing in your model, you must
     also implement setData(), and reimplement flags() to ensure that
     \c ItemIsEditable is returned.
 
-    You can also reimplement headerData() to control the way the headers
-    for your model are presented.
+    You can also reimplement headerData() and setHeaderData() to control
+    the way the headers for your model are presented.
+
+    Models that provide interfaces to resizable data structures can
+    provide implementations of insertRows(), removeRows(), insertColumns(),
+    and removeColumns(). When implementing these functions, it is
+    important to emit the appropriate signals so that all connected views
+    are aware of any changes:
+
+    \list
+    \o An insertRows() implementation must emit rowsInserted() after the
+       new rows have been inserted into the data structure.
+    \o An insertColumns() implementation must emit columnsInserted() after
+       the new columns have been inserted into the data structure.
+    \o A removeRows() implementation must emit rowsAboutToBeRemoved()
+       \e before the rows are removed from the data structure. This gives
+       attached components the chance to take action before any data
+       becomes unavailable.
+    \o A removeColumns() implementation must emit columnsAboutToBeRemoved().
+       \e before the columns are removed from the data structure. This gives
+       attached components the chance to take action before any data
+       becomes unavailable.
+    \endlist
 
     \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
 
@@ -941,8 +963,9 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
   false.
 
   The base class implementation does nothing and returns false. If
-  you want to be able to insert rows you must reimplement this
-  function.
+  you want to be able to insert rows in a subclass, you must reimplement
+  this function and make sure that rowsInserted() is emitted after the
+  new rows have been inserted into the data structure.
 */
 bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 {
@@ -963,8 +986,9 @@ bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
   false.
 
   The base class implementation does nothing and returns false. If
-  you want to be able to insert columns you must reimplement this
-  function.
+  you want to be able to insert columns in a subclass, you must reimplement
+  this function, and make sure that columnsInserted() is emitted after
+  the new columns have been inserted into the data structure.
 */
 bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 {
@@ -977,6 +1001,11 @@ bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
     removed; otherwise returns false.
 
     The base class implementation does nothing and returns false.
+
+    If you want to remove rows in a subclass, you must reimplement this
+    function and make sure that rowsAboutToBeRemoved() is emitted \e before
+    the rows are removed from the data structure. This gives attached
+    components the chance to take action before any data becomes unavailable.
 */
 bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 {
@@ -985,10 +1014,15 @@ bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 
 /*!
     Removes \a count columns starting with the given \a column under
-    parent \a parent from the model.  Returns true if the columns were
+    parent \a parent from the model. Returns true if the columns were
     successfully removed; otherwise returns false.
 
     The base class implementation does nothing and returns false.
+
+    If you want to remove columns in a subclass, you must reimplement this
+    function and make sure that columnsAboutToBeRemoved() is emitted \e before
+    the columns are removed from the data structure. This gives attached
+    components the chance to take action before any data becomes unavailable.
 */
 bool QAbstractItemModel::removeColumns(int, int, const QModelIndex &)
 {
@@ -1418,9 +1452,37 @@ int QAbstractItemModel::persistentIndexPosition(const QModelIndex &index, int fr
     table. To retrieve a model index corresponding to an item in the model, use
     index() and provide only the row and column numbers.
 
+    \section2 Subclassing
+
     When subclassing QAbstractTableModel, you must implement rowCount(),
     columnCount(), and data(). Default implementations of the index() and
-    parent() functions are provided.
+    parent() functions are provided by QAbstractTableModel.
+    Well behaved models will also implement headerData().
+
+    Editable models need to implement setData(), and implement flags() to
+    return a value containing
+    \l{QAbstractItemModel::ItemFlags}{ItemIsEditable}.
+
+    Models that provide interfaces to resizable data structures can
+    provide implementations of insertRows(), removeRows(), insertColumns(),
+    and removeColumns(). When implementing these functions, it is
+    important to emit the appropriate signals so that all connected views
+    are aware of any changes:
+
+    \list
+    \o An insertRows() implementation must emit rowsInserted() after the
+       new rows have been inserted into the data structure.
+    \o An insertColumns() implementation must emit columnsInserted() after
+       the new columns have been inserted into the data structure.
+    \o A removeRows() implementation must emit rowsAboutToBeRemoved()
+       \e before the rows are removed from the data structure. This gives
+       attached components the chance to take action before any data
+       becomes unavailable.
+    \o A removeColumns() implementation must emit columnsAboutToBeRemoved().
+       \e before the columns are removed from the data structure. This gives
+       attached components the chance to take action before any data
+       becomes unavailable.
+    \endlist
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractListModel
 
@@ -1517,10 +1579,33 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &) const
     function is implemented for interoperability with all kinds of views, but
     by default informs views that the model contains only one column.
 
+    \section2 Subclassing
+
     When subclassing QAbstractListModel, you must provide implementations
-    of the rowCount() and data() functions. A default implementation of
-    columnCount() is provided that informs views that there is only a single
-    column of items in this model.
+    of the rowCount() and data() functions. Well behaved models also provide
+    a headerData() implementation.
+
+    For editable list models, you must also provide an implementation of
+    setData(), implement the flags() function so that it returns a value
+    containing \l{QAbstractItemModel::ItemFlags}{ItemIsEditable}.
+
+    Note that QAbstractListModel provides a default implementation of
+    columnCount() that informs views that there is only a single column
+    of items in this model.
+
+    Models that provide interfaces to resizable list-like data structures
+    can provide implementations of insertRows() and removeRows(). When
+    implementing these functions, it is important to emit the appropriate
+    signals so that all connected views are aware of any changes:
+
+    \list
+    \o An insertRows() implementation must emit rowsInserted() after the
+       new rows have been inserted into the data structure.
+    \o A removeRows() implementation must emit rowsAboutToBeRemoved()
+       \e before the rows are removed from the data structure. This gives
+       attached components the chance to take action before any data
+       becomes unavailable.
+    \endlist
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemView QAbstractTableModel
 
