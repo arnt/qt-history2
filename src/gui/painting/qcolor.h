@@ -20,7 +20,16 @@
 #  include "qrgb.h"
 #endif // QT_H
 
+class QColor;
 class QColormap;
+
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QColor &);
+#endif
+#ifndef QT_NO_DATASTREAM
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QColor &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QColor &);
+#endif
 
 class Q_GUI_EXPORT QColor
 {
@@ -102,8 +111,13 @@ public:
 
     QColor convertTo(Spec colorSpec) const;
 
+    static QColor fromRgb(int r, int g, int b, int a = 255);
     static QColor fromRgb(float r, float g, float b, float a = 1.0);
+
+    static QColor fromHsv(int h, int s, int v, int a = 255);
     static QColor fromHsv(float h, float s, float v, float a = 1.0);
+
+    static QColor fromCmyk(int c, int m, int y, int k, int a = 255);
     static QColor fromCmyk(float c, float m, float y, float k, float a = 1.0);
 
     QColor light(int f = 150) const;
@@ -133,6 +147,11 @@ public:
 #endif
 
 private:
+#ifndef QT_COMPAT
+    // do not allow a spec to be used as an alpha value
+    QColor(int, int, int, Spec);
+#endif
+
     void invalidate();
 
     Spec cspec;
@@ -161,6 +180,10 @@ private:
     };
 
     friend class QColormap;
+#ifndef QT_NO_DATASTREAM
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QColor &);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QColor &);
+#endif
 };
 
 inline QColor::QColor()
@@ -181,17 +204,5 @@ inline QColor::QColor(const QColor &color)
 
 inline bool QColor::isValid() const
 { return cspec != Invalid; }
-
-/*****************************************************************************
-  QColor stream functions
- *****************************************************************************/
-
-#ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QColor &);
-#endif
-#ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QColor &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QColor &);
-#endif
 
 #endif // QCOLOR_H

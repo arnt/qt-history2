@@ -498,6 +498,24 @@ void QColor::getRgb(int *r, int *g, int *b, int *a) const
 
     All values must be in the range 0.0f-1.0f.
 */
+void QColor::setRgb(float r, float g, float b, float a)
+{
+    if (r < 0.0f || r > 1.0f
+        || g < 0.0f || g > 1.0f
+        || b < 0.0f || b > 1.0f
+        || a < 0.0f || a > 1.0f) {
+        qWarning("QColor::setRgb: RGB parameter(s) out of range");
+        invalidate();
+        return;
+    }
+
+    cspec = Rgb;
+    argb.alpha = ushort(a * USHRT_MAX);
+    argb.red   = ushort(r * USHRT_MAX);
+    argb.green = ushort(g * USHRT_MAX);
+    argb.blue  = ushort(b * USHRT_MAX);
+    argb.pad   = 0;
+}
 
 /*!
     Sets the RGB value to \a r, \a g, \a b and the alpha value to \a
@@ -1029,6 +1047,37 @@ QColor QColor::convertTo(QColor::Spec colorSpec) const
     the RGB color values, \a r (red), \a g (green), \a b (blue),
     and \a a (alpha-channel, i.e. transparency).
 
+    All the values must be in the range 0-255.
+
+    \sa toRgb() fromCmyk() fromHsv()
+*/
+QColor QColor::fromRgb(int r, int g, int b, int a)
+{
+    if (r < 0 || r > 255
+        || g < 0 || g > 255
+        || b < 0 || b > 255
+        || a < 0 || a > 255) {
+        qWarning("QColor::fromRgb: RGB paramaters out of range");
+        return QColor();
+    }
+
+    QColor color;
+    color.cspec = Rgb;
+    color.argb.alpha = a * 0x101;
+    color.argb.red   = r * 0x101;
+    color.argb.green = g * 0x101;
+    color.argb.blue  = b * 0x101;
+    color.argb.pad   = 0;
+    return color;
+}
+
+/*!
+    \overload
+
+    Static convenience function that returns a QColor constructed from
+    the RGB color values, \a r (red), \a g (green), \a b (blue),
+    and \a a (alpha-channel, i.e. transparency).
+
     All the values must be in the range 0.0f-1.0f.
 
     \sa toRgb() fromCmyk() fromHsv()
@@ -1059,13 +1108,45 @@ QColor QColor::fromRgb(float r, float g, float b, float a)
     and \a a (alpha-channel, i.e. transparency).
 
     The value of \a s, \a v, and \a a must all be in the range
+    0-255; the value of \a h must be in the range 0-360.
+
+    \sa toHsv() fromCmyk() fromRgb()
+*/
+QColor QColor::fromHsv(int h, int s, int v, int a)
+{
+    if (((h < 0 || h >= 360) && h != -1)
+        || s < 0 || s > 255
+        || v < 0 || v > 255
+        || a < 0 || a > 255) {
+        qWarning("QColor::fromHsv: HSV parameters out of range");
+        return QColor();
+    }
+
+    QColor color;
+    color.cspec = Hsv;
+    color.ahsv.alpha      = a * 0x101;
+    color.ahsv.hue        = h == -1 ? USHRT_MAX : (h % 360) * 100;
+    color.ahsv.saturation = s * 0x101;
+    color.ahsv.value      = v * 0x101;
+    color.ahsv.pad        = 0;
+    return color;
+}
+
+/*!
+    \overload
+
+    Static convenience function that returns a QColor constructed from
+    the HSV color values, \a h (hue), \a s (saturation), \a v (value),
+    and \a a (alpha-channel, i.e. transparency).
+
+    The value of \a s, \a v, and \a a must all be in the range
     0.0f-1.0f; the value of \a h must be in the range 0.0f-360.0f.
 
     \sa toHsv() fromCmyk() fromRgb()
 */
 QColor QColor::fromHsv(float h, float s, float v, float a)
 {
-    if (((h < 0.0f || h >= 360.0f) && h != 1.0f)
+    if (((h < 0.0f || h >= 360.0f) && h != -1.0f)
         || (s < 0.0f || s > 1.0f)
         || (v < 0.0f || v > 1.0f)
         || (a < 0.0f || a > 1.0f)) {
@@ -1100,8 +1181,6 @@ QColor QColor::fromHsv(float h, float s, float v, float a)
 */
 
 /*!
-    \fn void QColor::setCmyk(int c, int m, int y, int k, int a)
-
     Sets the color to CMYK values, \a c (cyan), \a m (magenta), \a y (yellow),
     \a k (black), and \a a (alpha-channel, i.e. transparency).
 
@@ -1109,16 +1188,83 @@ QColor QColor::fromHsv(float h, float s, float v, float a)
 
     \sa getCmyk() setRgb() setHsv()
 */
+void QColor::setCmyk(int c, int m, int y, int k, int a)
+{
+    if (c < 0 || c > 255
+        || m < 0 || m > 255
+        || y < 0 || y > 255
+        || k < 0 || k > 255
+        || a < 0 || a > 255) {
+        qWarning("QColor::setCmyk: CMYK paramaters out of range");
+        return;
+    }
+
+    cspec = Cmyk;
+    acmyk.alpha   = a * 0x101;
+    acmyk.cyan    = c * 0x101;
+    acmyk.magenta = m * 0x101;
+    acmyk.yellow  = y * 0x101;
+    acmyk.black   = k * 0x101;
+}
 
 /*!
-    \fn void QColor::setCmyk(float c, float m, float y, float k, float a)
-
     \overload
 
     All the values must be in the range 0.0f-1.0f.
 */
+void QColor::setCmyk(float c, float m, float y, float k, float a)
+{
+    if (c < 0.0f || c > 1.0f
+        || m < 0.0f || m > 1.0f
+        || y < 0.0f || y > 1.0f
+        || k < 0.0f || k > 1.0f
+        || a < 0.0f || a > 1.0f) {
+        qWarning("QColor::setCmyk: CMYK paramaters out of range");
+        return;
+    }
+
+    QColor color;
+    color.cspec = Cmyk;
+    color.acmyk.alpha   = ushort(a * USHRT_MAX);
+    color.acmyk.cyan    = ushort(c * USHRT_MAX);
+    color.acmyk.magenta = ushort(m * USHRT_MAX);
+    color.acmyk.yellow  = ushort(y * USHRT_MAX);
+    color.acmyk.black   = ushort(k * USHRT_MAX);
+}
 
 /*!
+    Static convenience function that returns a QColor constructed from
+    the CMYK color values, \a c (cyan), \a m (magenta), \a y (yellow),
+    \a k (black), and \a a (alpha-channel, i.e. transparency).
+
+    All the values must be in the range 0-255.
+
+    \sa toCmyk() fromHsv() fromRgb()
+*/
+QColor QColor::fromCmyk(int c, int m, int y, int k, int a)
+{
+    if (c < 0 || c > 255
+        || m < 0 || m > 255
+        || y < 0 || y > 255
+        || k < 0 || k > 255
+        || a < 0 || a > 255) {
+        qWarning("QColor::fromCmyk: CMYK paramaters out of range");
+        return QColor();
+    }
+
+    QColor color;
+    color.cspec = Cmyk;
+    color.acmyk.alpha   = a * 0x101;
+    color.acmyk.cyan    = c * 0x101;
+    color.acmyk.magenta = m * 0x101;
+    color.acmyk.yellow  = y * 0x101;
+    color.acmyk.black   = k * 0x101;
+    return color;
+}
+
+/*!
+    \overload
+
     Static convenience function that returns a QColor constructed from
     the CMYK color values, \a c (cyan), \a m (magenta), \a y (yellow),
     \a k (black), and \a a (alpha-channel, i.e. transparency).
@@ -1329,10 +1475,28 @@ QDebug operator<<(QDebug dbg, const QColor &c)
 */
 QDataStream &operator<<(QDataStream &stream, const QColor &color)
 {
-    Q_UINT32 p = (Q_UINT32)color.rgb();
-    if (stream.version() == 1) // Swap red and blue
-        p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
-    return stream << p;
+    if (stream.version() < 7) {
+        Q_UINT32 p = (Q_UINT32)color.rgb();
+        if (stream.version() == 1) // Swap red and blue
+            p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
+        return stream << p;
+    }
+
+    Q_INT8   s = color.cspec;
+    Q_UINT16 a = color.argb.alpha;
+    Q_UINT16 r = color.argb.red;
+    Q_UINT16 g = color.argb.green;
+    Q_UINT16 b = color.argb.blue;
+    Q_UINT16 p = color.argb.pad;
+
+    stream << s;
+    stream << a;
+    stream << r;
+    stream << g;
+    stream << b;
+    stream << p;
+
+    return stream;
 }
 
 /*!
@@ -1345,11 +1509,31 @@ QDataStream &operator<<(QDataStream &stream, const QColor &color)
 */
 QDataStream &operator>>(QDataStream &stream, QColor &color)
 {
-    Q_UINT32 p;
+    if (stream.version() < 7) {
+        Q_UINT32 p;
+        stream >> p;
+        if (stream.version() == 1) // Swap red and blue
+            p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
+        color.setRgb(p);
+        return stream;
+    }
+
+    Q_INT8 s;
+    Q_UINT16 a, r, g, b, p;
+    stream >> s;
+    stream >> a;
+    stream >> r;
+    stream >> g;
+    stream >> b;
     stream >> p;
-    if (stream.version() == 1) // Swap red and blue
-        p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
-    color.setRgb(p);
+
+    color.cspec = QColor::Spec(s);
+    color.argb.alpha = a;
+    color.argb.red   = r;
+    color.argb.green = g;
+    color.argb.blue  = b;
+    color.argb.pad   = p;
+
     return stream;
 }
 #endif
