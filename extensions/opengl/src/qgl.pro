@@ -1,5 +1,5 @@
 TEMPLATE    =	lib
-CONFIG      =   qt release opengl
+CONFIG      =   qt release
 HEADERS     =	../../../include/qgl.h
 SOURCES     =	qgl.cpp
 MOC_DIR     =   .
