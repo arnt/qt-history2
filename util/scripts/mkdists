@@ -369,33 +369,26 @@ for $platform ( "x11", "qws" ) {
     );
 
     # copy the dist things into a supplemental directory
-    mkdir "$distdir/$platform-free/", 0777;
-    mkdir "$distdir/$platform-free/qt-$version$type", 0777;
-    mkdir "$distdir/$platform-pro/", 0777;
-    mkdir "$distdir/$platform-pro/qt-$version$type", 0777;
+    for $freedom ( "free", "commercial" ) {
+	next if $freedom eq "free" && $platform ne "x11";
 
-    opendir( D, "$distdir/qt/dist/commercial" );
-    foreach ( readdir( D ) ) {
-	&copy_version( "$distdir/qt/dist/commercial/$_",
-		       "$distdir/$platform-pro/qt-$version$type/$_" );
-    }
-    closedir( D );
+	mkdir "$distdir/$platform-$freedom/", 0777;
+	mkdir "$distdir/$platform-$freedom/qt-$version$type", 0777;
 
-    opendir( D, "$distdir/qt/dist/free" );
-    foreach ( readdir( D ) ) {
-	&copy_version( "$distdir/qt/dist/free/$_",
-		       "$distdir/$platform-free/qt-$version$type/$_" );
-    }
-    closedir( D );
+	opendir( D, "$distdir/qt/dist/$freedom" );
+	foreach ( readdir( D ) ) {
+	    &copy_version( "$distdir/qt/dist/$freedom/$_",
+			   "$distdir/$platform-$freedom/qt-$version$type/$_" );
+	}
+	closedir( D );
 
-    opendir( D, "$distdir/qt/dist/$platform" );
-    foreach ( readdir( D ) ) {
-	&copy_version( "$distdir/qt/dist/$platform/$_",
-		       "$distdir/$platform-free/qt-$version$type/$_" );
-	&copy_version( "$distdir/qt/dist/$platform/$_",
-		       "$distdir/$platform-pro/qt-$version$type/$_" );
+	opendir( D, "$distdir/qt/dist/$platform" );
+	foreach ( readdir( D ) ) {
+	    &copy_version( "$distdir/qt/dist/$platform/$_",
+			   "$distdir/$platform-$freedom/qt-$version$type/$_" );
+	}
+	closedir( D );
     }
-    closedir( D );
 
     link( "$distdir/qt/util/scripts/configure", "$qtdir/configure" );
 
@@ -444,7 +437,7 @@ for $platform ( "x11", "qws" ) {
 
     chdir( "$distdir/$platform-free" );
     system( "tar cf ../qt-$platform-$version$type.tar ." );
-    chdir( "$distdir/$platform-pro" );
+    chdir( "$distdir/$platform-commercial" );
     system( "tar cf ../qt-$platform-$version$type-commercial.tar ." );
 
     # then run tar for real, on the unix tree.
