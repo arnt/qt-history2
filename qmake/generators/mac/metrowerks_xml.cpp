@@ -204,15 +204,13 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		}
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    QString p = (*it), v;
+		    QString p = (*it), v, recursive = "false";
+		    if(p.left(11) == "recursive--") {
+			p = p.right(p.length() - 11);
+			recursive = "true";
+		    }
 		    if(!fixifyToMacPath(p, v))
 			continue;
-
-		    QString recursive = "true";
-#if 0
-		    if(p.right(11) == ".framework:")
-			recursive = "true";
-#endif
 		    t << "\t\t\t\t\t<SETTING>" << endl
 		      << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 		      << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
@@ -357,7 +355,7 @@ MetrowerksMakefileGenerator::init()
 
 	    if(project->isEmpty("QMAKE_FRAMEWORKDIR"))
 		project->variables()["QMAKE_FRAMEWORKDIR"].append("/System/Library/Frameworks/");
-	    QString dir = project->first("QMAKE_FRAMEWORKDIR");
+	    QString dir = "recursive--" + project->first("QMAKE_FRAMEWORKDIR");
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		project->variables()["INCLUDEPATH"].append(dir);

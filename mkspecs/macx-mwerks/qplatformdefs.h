@@ -27,6 +27,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <stat.h>
+#include <socket.h>
+#include <ioctl.h>
+#include <wait.h>
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
@@ -55,8 +58,8 @@
 #define QT_OPEN_APPEND		O_APPEND
 
 #define QT_SIGNAL_RETTYPE	void
-#define QT_SIGNAL_ARGS		
-#define QT_SIGNAL_IGNORE	(void (*)())1
+#define QT_SIGNAL_ARGS		int
+#define QT_SIGNAL_IGNORE	(QT_SIGNAL_RETTYPE (*)(QT_SIGNAL_ARGS))1
 
 #define QT_SOCKLEN_T		int
 

@@ -77,6 +77,8 @@
 
 #if defined(__APPLE__) && defined(__GNUC__)
 #  define Q_OS_MACX
+#elif defined(__MACOSX__)
+#  define Q_OS_MACX
 #elif defined(macintosh)
 #  define Q_OS_MAC9
 #elif defined(MSDOS) || defined(_MSDOS) || defined(__MSDOS__)
@@ -196,6 +198,7 @@
 #  define Q_NO_BOOL_TYPE
 #elif defined(__MWERKS__)
 #  define Q_CC_MWERKS
+#  define QMAC_PASCAL pascal
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC
 /* proper support of bool for _MSC_VER >= 1100 */
@@ -345,10 +348,8 @@
 
 #if defined( Q_OS_MACX )
 #  define Q_WS_MACX
-#  define QMAC_PASCAL
 #elif defined( Q_OS_MAC9 )
 #  define Q_WS_MAC9
-#  define QMAC_PASCAL pascal
 #elif defined(Q_OS_MSDOS)
 #  define Q_WS_WIN16
 #  error "Qt requires Win32 and does not work with Windows 3.x"
@@ -368,6 +369,9 @@
 #  else
 #    define Q_WS_X11
 #  endif
+#endif
+#if defined(Q_OS_MAC) && !defined(QMAC_PASCAL)
+#  define QMAC_PASCAL
 #endif
 
 #if defined(Q_WS_WIN16) || defined(Q_WS_WIN32)
