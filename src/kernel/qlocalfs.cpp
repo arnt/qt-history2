@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#13 $
 **
 ** Implementation of QLocalFs class
 **
@@ -34,14 +34,14 @@
 
 /*!
   \class QLocalFs qlocalfs.h
-  \brief Implementation of a QNetworkProtocol which works 
+  \brief Implementation of a QNetworkProtocol which works
   on the local filesystem.
-  
-  This class is a subclass of QNetworkProtocol and works 
+
+  This class is a subclass of QNetworkProtocol and works
   on the local filesystem. If you want to write a network
-  transparent application using QNetworkProtocol, 
+  transparent application using QNetworkProtocol,
   QUrlOperator, etc. this class is used for accessing
-  the local filesystem by QUrlOperator. 
+  the local filesystem by QUrlOperator.
 
   \sa QUrlOperator, QNetworkProtocol
 */
@@ -180,6 +180,7 @@ void QLocalFs::operationRename( QNetworkOperation *op )
 
 void QLocalFs::operationGet( QNetworkOperation *op )
 {
+    op->setState( StInProgress );
     QString from = QUrl( op->arg1() ).path();
 
     QFile f( from );
@@ -207,6 +208,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 
 void QLocalFs::operationPut( QNetworkOperation *op )
 {
+    op->setState( StInProgress );
     QString to = QUrl( op->arg1() ).path();
 
     QFile f( to );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#41 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#42 $
 **
 ** Implementation of Network Extension Library
 **
@@ -70,19 +70,21 @@ void QFtp::operationListChildren( QNetworkOperation *op )
 
 void QFtp::operationMkDir( QNetworkOperation *op )
 {
+    op->setState( StInProgress );
     QString cmd( "MKD " + op->arg1() + "\r\n" );
     commandSocket->writeBlock( cmd, cmd.length() );
 }
 
 void QFtp::operationRemove( QNetworkOperation *op )
 {
-    QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
+    QString path = url()->dirPath().isEmpty() ? QString( "/" ) : url()->dirPath();
     QString cmd = "CWD " + path + "\r\n";
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
 void QFtp::operationRename( QNetworkOperation *op )
 {
+    op->setState( StInProgress );
     QString oldname = op->arg1();
     QString newname = op->arg2();
 
@@ -267,6 +269,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 	if ( operationInProgress() ) {
 	    if ( operationInProgress()->operation() == OpGet ||
 		 operationInProgress()->operation() == OpPut )
+		operationInProgress()->setState( StInProgress );
 		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 	}
     } break;
@@ -295,6 +298,7 @@ void QFtp::okGoOn( int code, const QCString &data )
     case 250: { // file operation succesfully
 	if ( operationInProgress() && !passiveMode &&
 	     operationInProgress()->operation() == OpListChildren ) { // list dir
+	    operationInProgress()->setState( StInProgress );
 	    dataSocket->setMode( QSocket::Ascii );
 	    commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
 	    emit start( operationInProgress() );
@@ -308,7 +312,8 @@ void QFtp::okGoOn( int code, const QCString &data )
 		    operationInProgress()->operation() == OpRemove ) { // remove or cwd successful
 	    if ( operationInProgress()->state() == StWaiting ) {
 		operationInProgress()->setState( StInProgress );
-		QString cmd( "DELE " + operationInProgress()->arg1() + "\r\n" );
+		QString name = QUrl( operationInProgress()->arg1() ).path();
+		QString cmd( "DELE " + name + "\r\n" );
 		commandSocket->writeBlock( cmd, cmd.length() );
 	    } else {
 		operationInProgress()->setState( StDone );
@@ -360,7 +365,6 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	QString msg( tr( "Login Incorrect" ) );
 	QNetworkOperation *op = operationInProgress();
 	if ( op ) {
-	    qDebug( "%d", op->operation() );
 	    op->setProtocolDetail( msg );
 	    op->setState( StFailed );
 	    op->setErrorCode( ErrLoginIncorrect );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#340 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#341 $
 **
 ** Implementation of QFileDialog class
 **
@@ -833,7 +833,8 @@ void QFileListBox::changeDirDuringDrag()
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
-    filedialog->setDir( filedialog->dirPath() + currDropItem->text() );
+    QUrl u( filedialog->url(), currDropItem->text() );
+    filedialog->setDir( u );
     currDropItem = 0;
     eraseDragShape = FALSE;
 }
@@ -1251,7 +1252,8 @@ void QFileListView::changeDirDuringDrag()
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
-    filedialog->setDir( filedialog->dirPath() + currDropItem->text( 0 ) );
+    QUrl u( filedialog->url(), currDropItem->text( 0 ) );
+    filedialog->setDir( u );
     currDropItem = 0;
     eraseDragShape = FALSE;
 }
