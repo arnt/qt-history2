@@ -3415,7 +3415,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ( currentItem() && currentItem()->renameBox )
+    if ( currentItem() && currentItem()->renameBox && e->button() == LeftButton )
 	currentItem()->cancelRename();
 
     d->startDragItem = 0;
