@@ -68,6 +68,7 @@ QString BoolProperty::toString() const
 QWidget *BoolProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
+    combo->setFrame(0);
     combo->insertItems(-1, QStringList() << "false" << "true");
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
@@ -222,6 +223,8 @@ QString StringProperty::toString() const
 QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QLineEdit *lineEdit = new QLineEdit(parent);
+    lineEdit->setFrame(0);
+
     if (propertyName() == QLatin1String("objectName")) {
         lineEdit->setValidator(new QRegExpValidator(QRegExp("[_a-zA-Z][_a-zA-Z0-9]*"), lineEdit));
     }
@@ -275,6 +278,8 @@ QString ListProperty::toString() const
 QWidget *ListProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
+    combo->setFrame(0);
+
     combo->insertItems(-1, items());
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
     return combo;
@@ -364,6 +369,8 @@ QString IntProperty::toString() const
 QWidget *IntProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QSpinBox *spinBox = new QSpinBox(parent);
+    spinBox->setFrame(0);
+
     QObject::connect(spinBox, SIGNAL(valueChanged(int)), target, receiver);
     spinBox->setSpecialValueText(m_specialValue);
     spinBox->setRange(m_low, m_hi);
@@ -617,6 +624,8 @@ int MapProperty::indexOf(const QVariant &value) const
 QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
+    combo->setFrame(0);
+
     combo->insertItems(-1, m_keys);
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
@@ -929,6 +938,7 @@ QVariant CursorProperty::decoration() const
 QWidget *CursorProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
+    combo->setFrame(0);
 
     addCursor(combo, Qt::ArrowCursor);
     addCursor(combo, Qt::UpArrowCursor);
