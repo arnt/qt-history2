@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.h#11 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.h#12 $
 **
 ** Definition of QTextCodec class
 **
@@ -61,7 +61,7 @@ public:
     static const char* locale();
 
     virtual const char* name() const = 0;
-    virtual int mib() const = 0;
+    virtual int mibEnum() const = 0;
 
     virtual QTextDecoder* makeDecoder() const;
     virtual QTextEncoder* makeEncoder() const;

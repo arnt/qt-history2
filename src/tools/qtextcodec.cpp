@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#48 $
 **
 ** Implementation of QTextCodec class
 **
@@ -277,7 +277,7 @@ QTextCodec* QTextCodec::codecForMib(int mib)
     QListIterator<QTextCodec> i(*all);
     QTextCodec* result;
     for ( ; (result=i); ++i ) {
-	if ( result->mib()==mib )
+	if ( result->mibEnum()==mib )
 	    break;
     }
     return result;
@@ -418,9 +418,14 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 */
 
 /*!
-  \fn int QTextCodec::mib() const
-  Subclasses of QTextCodec must override this function.  It returns
-  the MIBenum (see IANA######) for this encoding.
+  \fn int QTextCodec::mibEnum() const
+
+  Subclasses of QTextCodec must override this function.  It returns the
+  MIBenum (see 
+  <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets> 
+  the IANA character-sets encoding file) for more information.  
+  It is important that each QTextCodec subclass return the correct unique
+  value for this function.
 */
 
 
@@ -826,7 +831,7 @@ public:
 	return n;
     }
 
-    int mib() const
+    int mibEnum() const
     {
 	return 0; // #### Unknown.
     }
@@ -1020,7 +1025,7 @@ public:
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     const char* name() const;
-    int mib() const;
+    int mibEnum() const;
 
     int heuristicContentMatch(const char* chars, int len) const;
 
@@ -1298,7 +1303,7 @@ const char* QSimpleTextCodec::name() const
 }
 
 
-int QSimpleTextCodec::mib() const
+int QSimpleTextCodec::mibEnum() const
 {
     return unicodevalues[forwardIndex].mib;
 }

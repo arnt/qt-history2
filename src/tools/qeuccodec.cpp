@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#13 $
 **
 ** Implementation of QEucCodec class
 **
@@ -4625,8 +4625,24 @@ static ushort unicode_to_euc_FF00[0x100] = {
 /*!
   Returns the MIB for eucJP, which is 18.
 */
-int QEucCodec::mib() const
+int QEucCodec::mibEnum() const
 {
+    /*
+    Name: Extended_UNIX_Code_Packed_Format_for_Japanese
+    MIBenum: 18
+    Source: Standardized by OSF, UNIX International, and UNIX Systems
+	    Laboratories Pacific.  Uses ISO 2022 rules to select
+		   code set 0: US-ASCII (a single 7-bit byte set)
+		   code set 1: JIS X0208-1990 (a double 8-bit byte set)
+			       restricted to A0-FF in both bytes
+		   code set 2: Half Width Katakana (a single 7-bit byte set)
+			       requiring SS2 as the character prefix
+		   code set 3: JIS X0212-1990 (a double 7-bit byte set)
+			       restricted to A0-FF in both bytes
+			       requiring SS3 as the character prefix
+    Alias: csEUCPkdFmtJapanese
+    Alias: EUC-JP  (preferred MIME name)
+    */
     return 18;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#7 $
 **
 ** Implementation of QEucCodec class
 **
@@ -25,7 +25,7 @@
 
 #include "qutfcodec.h"
 
-int QUtf8Codec::mib() const
+int QUtf8Codec::mibEnum() const
 {
     return 106;
 }
@@ -150,7 +150,7 @@ QTextDecoder* QUtf8Codec::makeDecoder() const
 
 
 
-int QUtf16Codec::mib() const
+int QUtf16Codec::mibEnum() const
 {
     return 1000;
 }

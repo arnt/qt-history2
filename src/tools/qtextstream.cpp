@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#96 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#97 $
 **
 ** Implementation of QTextStream class
 **
@@ -1912,7 +1912,7 @@ void QTextStream::setEncoding( Encoding e )
     case Locale:
 	latin1 = TRUE; //fallback to Latin 1
 	mapper = QTextCodec::codecForLocale();
-	if ( mapper && mapper->mib() == 4 ) {
+	if ( mapper && mapper->mibEnum() == 4 ) {
 	    // Use optimized latin1 processing
 	    mapper = 0;
 	}

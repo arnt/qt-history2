@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#9 $
 **
 ** Implementation of QKoi8Codec class
 **
@@ -25,7 +25,7 @@
 
 #include "qkoi8codec.h"
 
-int QKoi8Codec::mib() const
+int QKoi8Codec::mibEnum() const
 {
     return 2084;
 }

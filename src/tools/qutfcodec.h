@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.h#4 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.h#5 $
 **
 ** Definition of QEucCodec class
 **
@@ -30,7 +30,7 @@
 
 class QUtf8Codec : public QTextCodec {
 public:
-    virtual int mib() const;
+    virtual int mibEnum() const;
     const char* name() const;
 
     QTextDecoder* makeDecoder() const;
@@ -42,7 +42,7 @@ public:
 
 class QUtf16Codec : public QTextCodec {
 public:
-    virtual int mib() const;
+    virtual int mibEnum() const;
     const char* name() const;
 
     QTextDecoder* makeDecoder() const;

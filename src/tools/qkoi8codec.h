@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.h#4 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.h#5 $
 **
 ** Definition of QKoi8Codec class
 **
@@ -30,7 +30,7 @@
 
 class QKoi8Codec : public QTextCodec {
 public:
-    virtual int mib() const;
+    virtual int mibEnum() const;
     const char* name() const;
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
     QString toUnicode(const char* chars, int len) const;
