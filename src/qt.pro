@@ -5,7 +5,7 @@ VERSION		= 3.0.0
 DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
-CONFIG		+= qt warn_on release
+CONFIG		+= qt warn_on release styles
 
 KERNEL_CPP	= kernel	
 CANVAS_CPP      = canvas
@@ -19,6 +19,7 @@ OPENGL_CPP	= opengl
 TOOLS_CPP	= tools
 WORKSPACE_CPP	= workspace
 XML_CPP	        = xml
+STYLES_CPP	= styles
 
 win32 {
 	WIN_ALL_H = ../include
@@ -34,6 +35,7 @@ win32 {
 	WORKSPACE_H	= $$WIN_ALL_H
 	XML_H	        = $$WIN_ALL_H
 	CANVAS_H	= $$WIN_ALL_H
+	STYLES_H	= $$WIN_ALL_H
 
 	CONFIG	+= png zlib
 	CONFIG -= jpeg
@@ -57,6 +59,7 @@ unix {
 	TOOLS_H	        = $$TOOLS_CPP
 	WORKSPACE_H	= $$WORKSPACE_CPP
 	XML_H	        = $$XML_CPP
+	STYLES_H	= $$STYLES_CPP
 
 	CONFIG	   += x11 x11inc
 	DEFINES    += QT_FATAL_ASSERT
@@ -64,7 +67,7 @@ unix {
 }
 
 DEPENDPATH += :$$NETWORK_H:$$KERNEL_H:$$WIDGETS_H:$$SQL_H:$$TABLE_H:$$DIALOGS_H:
-DEPENDPATH += $$ICONVIEW_H:$$OPENGL_H:$$TOOLS_H:$$WORKSPACE_H:$$XML_H:$$CANVAS_H
+DEPENDPATH += $$ICONVIEW_H:$$OPENGL_H:$$TOOLS_H:$$WORKSPACE_H:$$XML_H:$$CANVAS_H:$$STYLES_H
 
 thread {
 	TARGET = qt-mt
@@ -99,5 +102,4 @@ include($$OPENGL_CPP/qt_opengl.pri)
 include($$SQL_CPP/qt_sql.pri)
 include($$KERNEL_CPP/qt_gfx.pri)
 include($$TOOLS_CPP/qt_tools.pri)
-
-
+include($$STYLES_CPP/qt_styles.pri)

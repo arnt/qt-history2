@@ -6,9 +6,7 @@ widgets {
 	HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
-		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
-		  $$WIDGETS_H/qcommonstyle.h \
 		  $$WIDGETS_H/qwidgetresizehandler.h \
 		  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qdockarea.h \
@@ -28,10 +26,7 @@ widgets {
 		  $$WIDGETS_H/qmainwindow.h \
 		  $$WIDGETS_H/qmenubar.h \
 		  $$WIDGETS_H/qmenudata.h \
-		  $$WIDGETS_H/qmotifstyle.h \
-		  $$WIDGETS_H/qmotifplusstyle.h \
 		  $$WIDGETS_H/qmultilineedit.h \
-		  $$WIDGETS_H/qplatinumstyle.h \
 		  $$WIDGETS_H/qpopupmenu.h \
 		  $$WIDGETS_H/qprogressbar.h \
 		  $$WIDGETS_H/qpushbutton.h \
@@ -39,7 +34,6 @@ widgets {
 		  $$WIDGETS_H/qrangecontrol.h \
 		  $$WIDGETS_H/qscrollbar.h \
 		  $$WIDGETS_H/qscrollview.h \
-		  $$WIDGETS_H/qsgistyle.h \
 		  $$WIDGETS_H/qslider.h \
 		  $$WIDGETS_H/qspinbox.h \
 		  $$WIDGETS_H/qsplitter.h \
@@ -57,7 +51,6 @@ widgets {
 		  $$WIDGETS_H/qvgroupbox.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
-		  $$WIDGETS_H/qwindowsstyle.h \
 		  $$WIDGETS_H/qaction.h \
 		  $$WIDGETS_H/qtextview.h \
 		  $$WIDGETS_H/qtextbrowser.h \
@@ -65,11 +58,9 @@ widgets {
 
 	SOURCES += $$WIDGETS_CPP/qbuttongroup.cpp \
 		  $$WIDGETS_CPP/qbutton.cpp \
-		  $$WIDGETS_CPP/qcdestyle.cpp \
 		  $$WIDGETS_CPP/qcheckbox.cpp \
 		  $$WIDGETS_CPP/qcombobox.cpp \
 		  $$WIDGETS_CPP/qwidgetresizehandler.cpp \
-		  $$WIDGETS_CPP/qcommonstyle.cpp \
 		  $$WIDGETS_CPP/qdial.cpp \
 		  $$WIDGETS_CPP/qdockarea.cpp \
 		  $$WIDGETS_CPP/qdockwindow.cpp \
@@ -88,10 +79,7 @@ widgets {
 		  $$WIDGETS_CPP/qmainwindow.cpp \
 		  $$WIDGETS_CPP/qmenubar.cpp \
 		  $$WIDGETS_CPP/qmenudata.cpp \
-		  $$WIDGETS_CPP/qmotifstyle.cpp \
-		  $$WIDGETS_CPP/qmotifplusstyle.cpp \
 		  $$WIDGETS_CPP/qmultilineedit.cpp \
-		  $$WIDGETS_CPP/qplatinumstyle.cpp \
 		  $$WIDGETS_CPP/qpopupmenu.cpp \
 		  $$WIDGETS_CPP/qprogressbar.cpp \
 		  $$WIDGETS_CPP/qpushbutton.cpp \
@@ -99,7 +87,6 @@ widgets {
 		  $$WIDGETS_CPP/qrangecontrol.cpp \
 		  $$WIDGETS_CPP/qscrollbar.cpp \
 		  $$WIDGETS_CPP/qscrollview.cpp \
-		  $$WIDGETS_CPP/qsgistyle.cpp \
 		  $$WIDGETS_CPP/qslider.cpp \
 		  $$WIDGETS_CPP/qspinbox.cpp \
 		  $$WIDGETS_CPP/qsplitter.cpp \
@@ -117,7 +104,6 @@ widgets {
 		  $$WIDGETS_CPP/qvgroupbox.cpp \
 		  $$WIDGETS_CPP/qwhatsthis.cpp \
 		  $$WIDGETS_CPP/qwidgetstack.cpp \
-		  $$WIDGETS_CPP/qwindowsstyle.cpp \
 		  $$WIDGETS_CPP/qaction.cpp \
 		  $$WIDGETS_CPP/qeffects.cpp \
 		  $$WIDGETS_CPP/qtextview.cpp \
