@@ -2160,14 +2160,15 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                             QApplication::sendSpontaneousEvent(doc->inputWidget(), &imend);
                             if(imend.isAccepted()) {
                                 handled_event = true;
-                                QInputMethodEvent imstart(QEvent::InputMethodStart, text.mid(fixed_length / sizeof(UniChar)),
-                                                 (fixed_length - text.length()) / sizeof(UniChar));
+                                QInputMethodEvent imstart(QEvent::InputMethodStart, 
+                                                          text.mid(fixed_length / sizeof(UniChar)),
+                                                          (fixed_length - text.length()) / sizeof(UniChar));
                                 QApplication::sendSpontaneousEvent(doc->inputWidget(), &imstart);
                                 if(imstart.isAccepted())
                                     handled_event = true;
                             }
                         } else {
-                            QInputMethodEvent imcompose(QEvent::InputMethodCompose, text, text.length(), 0);
+                            QInputMethodEvent imcompose(QEvent::InputMethodCompose, text, 0, text.length());
                             QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
                             if(imcompose.isAccepted())
                                 handled_event = true;
