@@ -14,6 +14,7 @@ FUNKSJONSENDRINGER
 ------------------
 
 - QTableView const: cellWidth, cellHeight, totalWidth,  totalHeight, .....
+- QComboBox::activated() rename to selected()
 
 
 AKSESSENDRINGER
