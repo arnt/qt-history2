@@ -52,9 +52,9 @@
 #include "qobjectlist.h"
 #include "qcheckbox.h"
 #include "qsplitter.h"
-#include "qprogressdialog.h"
 #include "qmap.h"
 #include "qnetworkprotocol.h"
+#include "qsemimodal.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -399,6 +399,68 @@ static void makeVariables() {
     }
 }
 
+class ProgressDialog : public QSemiModal
+{
+    Q_OBJECT
+    
+public:
+    ProgressDialog( QWidget *parent, const QString &fn, int steps );
+    
+    void setReadProgress( int p );
+    void setWriteProgress( int p );
+    void setWriteLabel( const QString &s );
+  
+signals:
+    void cancelled();
+    
+private:
+    QProgressBar *readBar;
+    QProgressBar *writeBar;
+    QLabel *writeLabel;
+    
+};
+
+ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
+    : QSemiModal( parent, "", TRUE )
+{
+    QVBoxLayout *layout = new QVBoxLayout( this );
+    layout->setSpacing( 5 );
+    layout->setMargin( 5 );
+    
+    layout->addWidget( new QLabel( tr( "Read: %1" ).arg( fn ), this ) );
+    readBar = new QProgressBar( steps, this );
+    readBar->reset();
+    readBar->setProgress( 0 );
+    layout->addWidget( readBar );
+    writeLabel = new QLabel( tr( "Write: %1" ).arg( QString::null ), this );
+    layout->addWidget( writeLabel );
+    writeBar = new QProgressBar( steps, this );
+    writeBar->reset();
+    writeBar->setProgress( 0 );
+    layout->addWidget( writeBar );
+    
+    QPushButton *b = new QPushButton( tr( "&Cancel" ), this );
+    b->setFixedSize( b->sizeHint() );
+    layout->addWidget( b );
+    connect( b, SIGNAL( clicked() ),
+	     this, SIGNAL( cancelled() ) );
+}
+
+void ProgressDialog::setReadProgress( int p )
+{
+    readBar->setProgress( p );
+}
+
+void ProgressDialog::setWriteProgress( int p )
+{
+    writeBar->setProgress( p );
+}
+
+void ProgressDialog::setWriteLabel( const QString &s )
+{
+    writeLabel->setText( tr( "Write: %1" ).arg( s ) );
+}
+
 /************************************************************************
  *
  * Private QFileDialog members
@@ -528,7 +590,7 @@ struct QFileDialogPrivate {
     bool hadDotDot;
 
     bool ignoreNextKeyPress;
-    QProgressDialog *progressDia;
+    ProgressDialog *progressDia;
     bool checkForFilter;
     bool ignoreReturn;
     bool ignoreStop;
@@ -3969,6 +4031,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    ; // another error happened, no need to go back to last dir
     } else if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	if ( !d->hadDotDot && !isRoot( d->url ) ) {
+
 	    QUrlInfo ui( d->url, ".." );
 	    ui.setName( ".." );
 	    ui.setDir( TRUE );
@@ -3979,10 +4042,6 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	}
 	resortDir();
     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
-	if ( d->progressDia ) {
-	    d->progressDia->reset();
-	    d->progressDia->show();
-	}	
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
  	rereadDir();
 	if ( d->progressDia ) {
@@ -3998,34 +4057,39 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 {
     if ( !op )
 	return;
+    
+    QString label;
+    QUrl u( op->arg( 0 ) );
+    if ( u.isLocalFile() ) {
+	label = u.path();
+    } else {
+	label = QString( "%1 (on %2)" );
+	label = label.arg( u.path() ).arg( u.host() );
+    }
+    
     if ( !d->progressDia ) {
 	if ( bytesDone < bytesTotal) {
 	    d->ignoreStop = FALSE;
-	    d->progressDia = new QProgressDialog( tr( "Read: %1" ).arg( op->arg( 0 ) ), QString::null,
-						  bytesTotal, this, 0, TRUE );
-	    d->progressDia->setCancelButton( new QPushButton( tr( "&Cancel" ), d->progressDia ) );
+	    d->progressDia = new ProgressDialog( this, label, bytesTotal );
 	    connect( d->progressDia, SIGNAL( cancelled() ),
 		     this, SLOT( stopCopy() ) );
 	    d->progressDia->show();
-	    d->progressDia->setProgress( 0 );
-	    d->progressDia->setTotalSteps( bytesTotal );
 	} else
 	    return;
     }
 		
     if ( d->progressDia ) {
-	if ( d->progressDia->totalSteps() != bytesTotal )
-	    d->progressDia->setTotalSteps( bytesTotal );
-
-	if ( op->operation() == QNetworkProtocol::OpGet )
-	    d->progressDia->setLabelText( tr( "Read: %1" ).arg( op->arg( 0 ) ) );
-	else if ( op->operation() == QNetworkProtocol::OpPut )
-	    d->progressDia->setLabelText( tr( "Write: %1" ).arg( op->arg( 0 ) ) );
-	else
+	if ( op->operation() == QNetworkProtocol::OpGet ) {
+	    if ( d->progressDia ) {
+		d->progressDia->setReadProgress( bytesDone );
+	    }
+	} else if ( op->operation() == QNetworkProtocol::OpPut ) {
+	    if ( d->progressDia ) {
+		d->progressDia->setWriteLabel( label );
+		d->progressDia->setWriteProgress( bytesDone );
+	    }
+	} else {
 	    return;
-
-	if ( d->progressDia ) {
-	    d->progressDia->setProgress( bytesDone < bytesTotal ? bytesDone : bytesTotal - 1 );
 	}
     }
 }
@@ -4240,3 +4304,5 @@ void QFileDialog::removeProgressDia()
 	delete d->progressDia;
     d->progressDia = 0;
 }
+
+#include "qfiledialog.moc"
