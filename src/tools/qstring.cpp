@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#251 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#252 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10305,7 +10305,7 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
     while ( l < (int)ba.size() && ba[l] )
 	l++;
     char* str = ba.data();
-    QChar *uc = new QChar[l];
+    QChar *uc = (QChar*)new char[ l*sizeof(QChar) ];
     QChar *result = uc;
     if ( len )
 	*len = l;
@@ -10334,7 +10334,7 @@ QChar* QString::asciiToUnicode(const char *str, uint* len, uint maxlen )
 	    // Faster?
 	    l = strlen(str);
 	}
-	QChar *uc = new QChar[l];
+	QChar *uc = (QChar*)new char[ l*sizeof(QChar) ];
 	result = uc;
 	uint i = l;
 	while ( i-- )
@@ -10489,7 +10489,8 @@ QString::QString( int size, bool /*dummy*/ )
 	Q2HELPER(stat_construct_int++);
 	int l = size;
 	Q2HELPER(stat_construct_int_size+=l);
-	d = new QStringData(new QChar[l],0,l);
+	QChar* uc = (QChar*)new char[ l*sizeof(QChar) ];
+	d = new QStringData( uc, 0, l );
     } else {
 	Q2HELPER(stat_construct_null++);
 	d = shared_null ? shared_null : shared_null=new QStringData;
@@ -10519,7 +10520,7 @@ QString::QString( const QByteArray& ba )
 
 QString::QString( const QChar* unicode, uint length )
 {
-    QChar* uc = new QChar[ length ];
+    QChar* uc = (QChar*)new char[ length*sizeof(QChar) ];
     memcpy(uc, unicode, length*sizeof(QChar));
     d = new QStringData(uc,length,length);
 }
@@ -10700,7 +10701,7 @@ void QString::setLength( uint newLen )
 	uint newMax = 4;
 	while ( newMax < newLen )
 	    newMax *= 2;
-	QChar* nd = new QChar[newMax];
+	QChar* nd = (QChar*)new char[ newMax*sizeof(QChar) ];
 	uint len = QMIN( d->len, newLen );
 	if ( d->unicode )
 	    memcpy( nd, d->unicode, sizeof(QChar)*len );
@@ -11072,7 +11073,7 @@ void QString::fill( QChar c, int len )
     if ( len == 0 ) {
 	*this = "";
     } else {
-	QChar * nd = new QChar[len];
+	QChar * nd = (QChar*)new char[ len*sizeof(QChar) ];
 	d = new QStringData(nd,len,len);
 	while (len--) *nd++ = c;
     }
@@ -11657,7 +11658,7 @@ QString &QString::insert( uint index, const QChar* s, uint len )
     int df = d->unicode - s;
     if ( df >= 0 && (uint)df < d->maxl ) {
 	// Part of me - take a copy.
-	QChar *tmp = new QChar[len];
+	QChar *tmp = (QChar*)new char[ len*sizeof(QChar) ];
 	memcpy(tmp,s,len*sizeof(QChar));
 	insert(index,tmp,len);
 	delete[] tmp;
@@ -11794,7 +11795,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 	int df = d->unicode - s;
 	if ( df >= 0 && (uint)df < d->maxl ) {
 	    // Part of me - take a copy.
-	    QChar *tmp = new QChar[slen];
+	    QChar *tmp = (QChar*)new char[ slen*sizeof(QChar) ];
 	    memcpy(tmp,s,slen*sizeof(QChar));
 	    replace(index,len,tmp,slen);
 	    delete[] tmp;
@@ -13021,7 +13022,7 @@ QConstString::QConstString( QChar* unicode, uint length ) :
 QConstString::~QConstString()
 {
     if ( d->count > 1 ) {
-        QChar* cp = new QChar[d->len];
+        QChar* cp = (QChar*)new char[ d->len*sizeof(QChar) ];
         memcpy( cp, d->unicode, d->len*sizeof(QChar) );
         d->unicode = cp;
     } else {
@@ -13153,12 +13154,12 @@ QCString qt_winQString2MB( const QString& s, int uclen )
 QString qt_winMB2QString( const char* mb, int mblen )
 {
     const int wclen_auto = 4096;
-    QChar wc_auto[wclen_auto];
+    WCHAR wc_auto[wclen_auto];
     int wclen = wclen_auto;
-    QChar *wc = wc_auto;
+    WCHAR *wc = wc_auto;
     int len;
     while ( !(len=MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-		mb, mblen, (WCHAR*)wc, wclen )) )
+		mb, mblen, wc, wclen )) )
     {
 	int r = GetLastError();
 	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
@@ -13168,7 +13169,7 @@ QString qt_winMB2QString( const char* mb, int mblen )
 	    } else {
 		wclen = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
 				    mb, mblen, 0, 0 );
-		wc = new QChar[wclen];
+		wc = new WCHAR[wclen];
 		// and try again...
 	    }
 	} else {
@@ -13177,7 +13178,7 @@ QString qt_winMB2QString( const char* mb, int mblen )
 	    break;
 	}
     }
-    QString s(wc, len-1/*don't want terminator*/);
+    QString s( (QChar*)wc, len-1 ); // len-1: we don't want terminator
     if ( wc != wc_auto )
 	delete [] wc;
     return s;
