@@ -882,7 +882,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             qDebug("Qt: internal: %s:%d If you reach this error please contact Trolltech and include the\n"
                    "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
         QWidget *me = this;
-        SetWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(me), &me);
+        if(SetWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(me), &me) != noErr)
+            qDebug("Qt: internal: %s:%d This should not happen!", __FILE__, __LINE__); //no real way to recover
         if(!desktop) { //setup an event callback handler on the window
             SetAutomaticControlDragTrackingEnabledForWindow(window, true);
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
@@ -954,7 +955,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     d->macDropEnabled = false;
     if(HIViewRef destroy_hiview = (HIViewRef)destroyid) {
-        if(isTopLevel())
+        if(isTopLevel()) 
             DisposeWindow(qt_mac_window_for(destroy_hiview));
         CFRelease(destroy_hiview);
     }
@@ -987,14 +988,15 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             qt_leave_modal(this);
         else if(testWFlags(Qt::WType_Popup))
             qApp->closePopup(this);
-        RemoveWindowProperty(qt_mac_window_for((HIViewRef)winId()), kWidgetCreatorQt, kWidgetPropertyQWidget);
         if(destroyWindow) {
             if(d->window_event)
                 RemoveEventHandler(d->window_event);
-            if(isTopLevel())
+            if(isTopLevel()) {
+                RemoveWindowProperty(qt_mac_window_for((HIViewRef)winId()), kWidgetCreatorQt, kWidgetPropertyQWidget);
                 DisposeWindow(qt_mac_window_for((HIViewRef)winId()));
-            else if(HIViewRef hiview = (HIViewRef)winId())
+            } else if(HIViewRef hiview = (HIViewRef)winId()) {
                 CFRelease(hiview);
+            }
         }
     }
     setWinId(0);
@@ -1066,7 +1068,7 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
     if(old_window_event)
         RemoveEventHandler(old_window_event);
     if(old_id) { //don't need old window anymore
-        if(oldtlw == this)
+        if(oldtlw == this) 
             DisposeWindow(qt_mac_window_for(old_id));
         HIViewRemoveFromSuperview(old_id);
         CFRelease(old_id);
