@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#354 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#355 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2889,11 +2889,8 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 
 void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 {
-    if ( !item )
-	return;
-
     PopupAction action;
-    popupContextMenu( item->text(), FALSE, action, p );
+    popupContextMenu( item ? item->text() : QString::null, FALSE, action, p );
 
     if ( action == PA_Open )
 	selectDirectoryOrFile( item );
@@ -2934,13 +2931,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 {
     action = PA_Cancel;
 
-    bool glob = TRUE;
-
-    if ( d->moreFiles->isVisible() ) {
-	QListBoxItem *i = d->moreFiles->item( d->moreFiles->currentItem() );
-	glob = !i || !i->selected();
-    } else
-	glob = filename.isEmpty();
+    bool glob = filename.isEmpty();
 
     QPopupMenu m( 0, "file dialog context menu" );
     m.setCheckable( TRUE );
@@ -3179,7 +3170,9 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     }
 
     QString result;
-
+    if ( dir.isEmpty() )
+	dialog->setSelection( "." );
+    
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
 	*workingDirectory = result;

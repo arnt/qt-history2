@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#359 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#360 $
 **
 ** Implementation of QListView widget class
 **
@@ -1843,7 +1843,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    x = fx;
 	    c = fc;
-
 	    // draw to last interesting column
 	    while( c < lc ) {
 		int i = d->h->mapToLogical( c );
@@ -1995,7 +1994,7 @@ void QListView::buildDrawableList() const
 
 	int ih = cur->i->height();
 	int ith = cur->i->totalHeight();
-
+	
 	// is this item, or its branch symbol, inside the viewport?
 	if ( cur->y + ith >= cy && cur->y < cy + ch ) {
 	    dl->append( new QListViewPrivate::DrawableItem(cur));
@@ -2101,11 +2100,11 @@ void QListView::clear()
     }
 
     if ( d->drawables )
-      d->drawables->clear();
+	d->drawables->clear();
     delete d->dirtyItems;
     d->dirtyItems = 0;
     d->dirtyItemTimer->stop();
-
+    
     setSelected( d->currentSelected, FALSE );
     d->focusItem = 0;
 
@@ -2120,6 +2119,12 @@ void QListView::clear()
 	c = n;
     }
     resizeContents( d->h->sizeHint().width(), contentsHeight() );
+    delete d->r;
+    d->r = 0;
+    QListViewPrivate::Root * r = new QListViewPrivate::Root( this );
+    r->is_root = TRUE;
+    d->r = r;
+    d->r->setSelectable( FALSE );
     blockSignals( FALSE );
     triggerUpdate();
 }
@@ -2957,7 +2962,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     }
 
  emit_signals:
-    
+
     emit pressed( i );
     emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
 
@@ -2969,6 +2974,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	if ( !i ) {
 	    clearSelection();
 	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
+	    return;
 	}
 
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
@@ -4575,7 +4581,7 @@ int QListView::childCount() const
 void QListViewItem::moveToJustAfter( QListViewItem * olderSibling )
 {
     if ( parentItem && olderSibling &&
-	 olderSibling->parentItem == parentItem ) {
+	 olderSibling->parentItem == parentItem && olderSibling != this ) {
 	if ( parentItem->childItem == this ) {
 	    parentItem->childItem = siblingItem;
 	} else {
