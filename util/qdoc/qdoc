@@ -1,16 +1,18 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#31 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#32 $
 #
 # this is a massive hack, written very quickly
 #
 # usage: gendoc *.cpp
 #        (or just some C++ files)
 #
-# gendoc looks for comments that start with /*! and look for these
+# gendoc looks for comments that start with /*! and does stuff with these
 # escapes:
 #
 # "\e word" emphasises that word
+#
+# "\warning" outputs "Warning:" in boldface or equivalent
 #
 # \< -> <
 # \> -> >
@@ -32,11 +34,14 @@
 # "\code ... \endcode" makes a code example.  If the first two characters
 # on a line in the block are space characters (not white space, ascii 32)
 # they will be removed.
+#   Variables declared as "class name" or "class * name" (any amount of
+# white space) and used as "name.member" or "name->member" will be linked
+# to the correct class::member
 #
 # "\link name text text text \endlink" makes "text text text" into a link
-# "name" which must be a member of this class or fully qualified.
+# to "name" which must be a member of this class or fully qualified
 #
-# "\page filename.html" directs the rest of the file to that filename.
+# "\page filename.html" directs the rest of the file to that filename
 
 sub urlencode {
     local($_) = @_;
@@ -58,6 +63,7 @@ sub html {
 
 sub processcode {
     local ($_) = @_;
+    local (%types);
 
     $_ = &html($_);
     s/^\s*\n//s;
@@ -66,9 +72,27 @@ sub processcode {
     s!\\/(.*?\n)!//$1!gs;
     s/\n  /\n/gs;
 
+    while ( /(?:(?:^)|(?:\b))([A-Za-z0-9_:]+)\b(?=\s*\*?\s*([A-Za-z0-9_]+)\b)/gs ) {
+	if ($type{$anchor{$1}} eq "class") {
+	    if (defined($types{$2})) {
+		print "confusion: ", %2, " seems to refer to both ", $1, 
+		" and ", $types{$2}, "\n";
+	    } else {
+		$types{$2} = $1;
+	    }
+	}
+    }
+    s@\b([A-Za-z0-9_]+)(\s*(?:(?:\.)|(?:->))\s*)([A-Za-z0-9_]+)\b@
+	if (defined($anchor{$types{$1} . "::" . $3})) {
+	    sprintf("%s%s<a href=%s>%s</a>", $1, $2,
+		    $anchor{$types{$1} . "::" . $3}, $3);
+	} else {
+	    sprintf("%s%s%s", $1, $2, $3);
+	}
+    @egsx;
+
     join($_, "<bq><pre>\n", "</pre></bq>\n");
 }
-
 
 
 sub findlink {
@@ -171,7 +195,7 @@ sub processdocs {
 	s/:://;
 	$word{$_}++;
 
-	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})|(?:\w+)))(\()?)|(<.*?>))-
+	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})|(?:\w+)))(\()?(?!</a>))|(<.*?>))-
 	    if ($3 eq "") {
 		if (!defined($word{$1})) {
 		    my ($tmp);
@@ -240,15 +264,6 @@ sub manglefn {
 	s/\s+/-/g;
 	s/-+$//;
 	s/^-+//;
-# qualify enums
-	s/\w+/
-	    if (defined($anchor{$class . "::" . $&})
-		&& $type{$anchor{$class . "::" . $&}} eq "enum") {
-		sprintf("%s::%s", $class, $&);
-	    } else {
-		sprintf("%s", $&);
-	    }
-	/egsx;
 
 # finally add it to the url
 	$url = join($d, $url, $_);
@@ -259,6 +274,16 @@ sub manglefn {
     } else {
 	$url .= "()" . $type . $const;
     }
+
+# qualify enums
+    $url =~ s/[:A-Za-z0-9_]+/
+	if (defined($anchor{$class . "::" . $&})
+	    && $type{$anchor{$class . "::" . $&}} eq "enum") {
+	    sprintf("%s::%s", $class, $&);
+	} else {
+	    sprintf("%s", $&);
+	}
+    /egsx;
 
     $url = &urlencode($url);
 }
@@ -394,6 +419,10 @@ sub readc {
 	    $class =~ s/:://;
 	    $type =~ s/^\s+//;
 	    $type =~ s/\s+$//;
+	} elsif ($name =~ /^\s*(\w+)\s*::\s*(\~?\w+)$/s) {
+	    $type = "";
+	    $class = $1;
+	    $name = $2;
 	} else {
 	    $skip = 1;
 	}
@@ -593,7 +622,7 @@ sub printout {
 	    print "output html file: ", $file, "\n";
 	    $cfile = $file;
 
-	    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=licence.html>copyright</a> 1995\n<a href=troll.html>Troll Tech AS</a>, all rights reserved.";
+	    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=licence.html>copyright</a> 1995\n<a href=troll.html>Troll Tech</a>, all rights reserved.";
 	    if (defined ($cfiles{$includefile{$url}})) {
 		my(%files);
 		$files{$includefile{$url}}++;
@@ -620,9 +649,9 @@ sub printout {
 	    }
 	    $tail .= "<address>\nGenerated at " . $date . " by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>";
 
-	    print O "<html><head>\n<title>Qt toolkit - ", 
+	    print O "<html><head>\n<title>Qt Toolkit - ", 
 	    $name{$url}, 
-	    " class</title>\n</head><body>\n",
+	    " Class</title>\n</head><body>\n",
 	    "<h1>", $name{$url}, " Class Reference</h1>\n<hr>\n";
 	}
 	if ($type{$url} eq "class") {
@@ -692,15 +721,18 @@ sub printout {
 			s/\s+/ /g;
 
 			if (/^\s*(?:\}\s*)?((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
-							       )
+									      )
 			    ((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
-								   )
+								       )
 			    \s*\(([^\(\)]*)\)\s*(const)?\s*(?:[\{=].*)?$/x) {
 			    my ($u,$t,$mt,$f,$a,$ma,$c);
-			    $t = $mt = $1;
+			    $t = $1;
 			    $f = $2;
-			    $a = $ma = $3;
+			    $a = $3;
 			    $c = $4;
+
+			    $a =~ s/^\s+//s;
+			    $a =~ s/\s+$//s;
 
 			    $u = &manglefn($t, $name{$url}, $f, $a, $c);
 			    &fixdefvalues($u, $a) if ($type{$u} eq "fn");
@@ -710,12 +742,12 @@ sub printout {
 			    if ($type{$u} eq "fn") {
 				$_ = join("", &html($t), "<a href=", $u,
 					  "><strong>", &html($f), 
-					  "</strong></a> ( ", &html($a), 
-					  " ) ", $c);
+					  "</strong></a> (", &html($a), 
+					  ") ", $c);
 			    } else {
 				$_ = join("", &html($t), "<strong>", 
-					  &html($f), "</strong> ( ", 
-					  &html($a), " ) ", $c);
+					  &html($f), "</strong> (", 
+					  &html($a), ") ", $c);
 			    }
 			    $_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
 				if (defined($capt{$u}));
