@@ -390,6 +390,9 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unc
 //         return true;
     }
 
+    d->antialiased = false;
+    d->alphaColor = false;
+
     setActive(true);
     d->pdev = pdev;
 
@@ -1071,7 +1074,6 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         if (d->usesGdiplus()) {
             updateState(state);
             d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
-            d->endGdiplus();
             return;
         }
     }
@@ -1161,14 +1163,18 @@ HDC QWin32PaintEngine::handle() const
 
 void QWin32PaintEngine::updatePen(QPainterState *state)
 {
+    d->pStyle = state->pen.style();
+    int bs = state->brush.style();
+    d->alphaColor = ( bs != Qt::NoBrush && state->brush.color().alpha() != 255
+                      || d->pStyle != Qt::NoPen && state->pen.color().alpha() != 255);
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updatePen(state);
         return;
     }
+
     int old_pix = d->pColor;
     d->pColor = COLOR_VALUE(state->pen.color());
     d->pWidth = state->pen.width();
-    d->pStyle = state->pen.style();
     bool cacheIt = (d->pStyle == PS_NULL || (d->pStyle == PS_SOLID && state->pen.width() == 0));
     HANDLE hpen_old;
 
@@ -1254,10 +1260,15 @@ set:
 
 void QWin32PaintEngine::updateBrush(QPainterState *state)
 {
+    int bs = state->brush.style();
+    int ps = state->pen.style();
+    d->alphaColor = ( bs != Qt::NoBrush && state->brush.color().alpha() != 255
+                      || ps != Qt::NoPen && state->pen.color().alpha() != 255);
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateBrush(state);
         return;
     }
+
 #ifndef Q_OS_TEMP
     static short d1_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
     static short d2_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
@@ -1289,7 +1300,6 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
         = { hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 #endif
 
-    int           bs           = state->brush.style();
     d->bColor           = COLOR_VALUE(state->brush.color());
     bool   cacheIt = bs == NoBrush || bs == SolidPattern;
     HBRUSH hbrush_old;
@@ -1608,6 +1618,7 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     d->gdiplusEngine->begin(pdev, q->state);
     d->gdiplusInUse = true;
     q->setDirty(QPaintEngine::AllDirty);
+    q->updateState(q->state);
     d->gdiplusEngine->setRenderHint(QPainter::LineAntialiasing, antialiased);
 }
 
@@ -1951,8 +1962,11 @@ void QGdiplusPaintEngine::updatePen(QPainterState *ps)
 {
 //     d->pen->SetWidth(ps->pen.width());
 //     d->pen->SetColor(conv(ps->pen.color()));
-    GdipSetPenWidth(d->pen, ps->pen.width());
-    GdipSetPenColor(d->pen, ps->pen.color().rgb());
+    int status;
+    status = GdipSetPenWidth(d->pen, ps->pen.width());
+    Q_ASSERT(status == 0);
+    status = GdipSetPenColor(d->pen, ps->pen.color().rgb());
+    Q_ASSERT(status == 0);
 
     Qt::PenStyle style = ps->pen.style();
     if (style == Qt::NoPen) {

@@ -96,6 +96,7 @@ public:
         usesWidgetDC(false),
         antialiased(false),
         forceGdi(false),
+        alphaColor(false),
         rasterOp(Qt::CopyROP),
         pStyle(Qt::SolidLine),
         pWidth(0),
@@ -122,8 +123,9 @@ public:
     uint pixmapBrush:1;
     uint usesWidgetDC:1;
 
-    uint antialiased:1;
-    uint forceGdi:1; // Used in drawTextItem to block GDI+
+    uint antialiased:1;         // True if antialiased render hint is set.
+    uint forceGdi:1;            // Used in drawTextItem to block GDI+
+    uint alphaColor:1;          // Set if pen has alpha color
 
     Qt::RasterOp rasterOp;
     Qt::PenStyle pStyle;
@@ -152,7 +154,9 @@ public:
       Returns true if the engine has any property set that requires it to
       use GDI+ for rendering
     */
-    inline bool requiresGdiplus() { return !forceGdi && antialiased; }
+    inline bool requiresGdiplus() {
+        return !forceGdi && (antialiased || alphaColor);
+    }
 
     /*!
       Convenience function for checking if the engine should switch to/from

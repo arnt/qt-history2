@@ -29,7 +29,7 @@ public:
 
     QColor();
     QColor(Qt::GlobalColor color);
-    QColor(int r, int g, int b);
+    QColor(int r, int g, int b, int a = 255);
     QColor(int x, int y, int z, Spec);
     QColor(QRgb rgb, uint pixel=0xffffffff);
     QColor(const QString& name);
@@ -133,11 +133,14 @@ private:
 inline QColor::QColor()
 { d.d32.argb = Invalid; d.d32.pix = Dirt; }
 
-inline QColor::QColor(int r, int g, int b)
+inline QColor::QColor(int r, int g, int b, int a)
 {
     d.d32.argb = Invalid;
     d.d32.pix = Dirt;
-    setRgb(r, g, b);
+    if (a!=255)
+        setRgba(r, g, b, a);
+    else
+        setRgb(r, g, b);
 }
 
 inline QColor::QColor(const char *name)
