@@ -1253,9 +1253,10 @@ QCanvas::collisions() functions.
 */
 
 /*!
-Constructs a QCanvasItem on the current canvas.
+Constructs a QCanvasItem on the
+\link QCanvasItem::setCurrentCanvas() current canvas\endlink.
 
-\sa setCurrentSpriteField(QCanvas*) setSpriteField(QCanvas*)
+\sa setCurrentCanvas(QCanvas*) setCanvas(QCanvas*)
 */
 QCanvasItem::QCanvasItem() :
     cnv(current_canvas),
@@ -1446,7 +1447,8 @@ void QCanvasItem::setCurrentCanvas(QCanvas* c)
 
 /*!
 Sets the QCanvas upon which the QCanvasItem is to be drawn to \a c.
-Initially this will be the current canvas.
+Initially this will be the
+\link QCanvasItem::setCurrentCanvas() current canvas\endlink.
 
 \sa setCurrentCanvas(QCanvas*), canvas()
 */
@@ -2345,6 +2347,17 @@ int QCanvasSprite::absY2(int ny) const
 }
 
 /*!
+  \fn QCanvasPixmap* QCanvasSprite::image() const
+  Returns the current image frame.
+  \sa frame(), setFrame()
+*/
+
+/*!
+  \fn QCanvasPixmap* QCanvasSprite::image(int f) const
+  Returns image frame \a f.
+*/
+
+/*!
   The image the sprite \e will have after advance(1) is called.
   Be default this is the same as image().
 */
@@ -2353,8 +2366,10 @@ QCanvasPixmap* QCanvasSprite::imageAdvanced() const
     return image();
 }
 
-/*
-  Returns the bounding rectangle of pixels covered by the item.
+/*!
+  Returns the bounding rectangle of pixels covered by the sprite.
+  This assumes that the images are tightly cropped (ie. do not have
+  transparent pixels all along a side).
 */
 QRect QCanvasSprite::boundingRect() const
 {
@@ -2605,6 +2620,9 @@ QCanvasPolygonalItem::~QCanvasPolygonalItem()
 }
 
 
+/*!
+  Returns the points advanced by the current xVelocity() and yVelocity().
+*/
 QPointArray QCanvasPolygonalItem::areaPointsAdvanced() const
 {
     int dx = int(x()+xVelocity())-int(x());
@@ -2709,11 +2727,19 @@ QPointArray QCanvasPolygonalItem::chunks() const
     return processor.result;
 }
 
+/*!
+  Returns the bounding rectangle of the polygonal item,
+  based on areaPoints().
+*/
 QRect QCanvasPolygonalItem::boundingRect() const
 {
     return areaPoints().boundingRect();
 }
 
+/*!
+  Reimplemented from QCanvasItem, this draws the item by setting the
+  pen and brush on \a p and calling drawShape().
+*/
 void QCanvasPolygonalItem::draw(QPainter & p)
 {
     p.setPen(pen);
@@ -2721,25 +2747,41 @@ void QCanvasPolygonalItem::draw(QPainter & p)
     drawShape(p);
 }
 
+/*!
+  \fn void QCanvasPolygonalItem::drawShape(QPainter & p)
+
+  Subclasses must reimplement this function to draw their shape. The
+  pen and brush of \a p are already set to pen() and brush() prior to
+  calling this function.
+
+  \sa draw()
+*/
+
 void QCanvasPolygonalItem::moveBy(double dx, double dy)
 {
     if ( dx || dy ) {
 	removeFromChunks();
-	movingBy(dx,dy);
 	QCanvasItem::moveBy(dx,dy);
     }
 }
 
-void QCanvasPolygonalItem::movingBy(int, int)
-{
-}
+/*!
+  Sets the QPen used when drawing the item.
+  Note that many QCanvasPolygonalItem do not use the pen value.
 
+  \sa setBrush(), pen(), drawShape()
+*/
 void QCanvasPolygonalItem::setPen(QPen p)
 {
     pen = p;
     changeChunks();
 }
 
+/*!
+  Sets the QBrush used when drawing item.
+
+  \sa setPen(), brush(), drawShape()
+*/
 void QCanvasPolygonalItem::setBrush(QBrush b)
 {
     // XXX if transparent, needn't add to inner chunks
@@ -2797,9 +2839,18 @@ void QCanvasPolygon::setPoints(QPointArray pa)
 /*!
   \reimp
 */
-void QCanvasPolygon::movingBy(int dx, int dy)
+void QCanvasPolygon::moveBy(double dx, double dy)
 {
-    poly.translate(dx,dy);
+    // Note: does NOT call QCanvasPolygonalItem::moveBy(), since that
+    // only does half this work.
+    //
+    int idx = int(x()+dx)-int(x());
+    int idy = int(y()+dy)-int(y());
+    if ( idx || idy ) {
+	removeFromChunks();
+	poly.translate(idx,idy);
+	QCanvasItem::moveBy(dx,dy);
+    }
 }
 
 
@@ -3262,6 +3313,9 @@ For example:
 */
 int QCanvasItem::rtti() const { return 0; }
 
+/*!
+Returns 1.
+*/
 int QCanvasSprite::rtti() const { return 1; }
 
 /*!
@@ -3301,28 +3355,26 @@ int QCanvasEllipse::rtti() const { return 6; }
 
 
 /*!
-\fn QCanvasSprite::QCanvasPositionedSprite(QCanvasPixmapArray* seq)
-
 Create a QCanvasSprite which uses images from the given array.
 
-The sprite in initially at (0,0) on the current canvas
-(see constructor for QCanvas), using the 0th array frame.
+The sprite in initially at (0,0) on the
+\link QCanvasItem::setCurrentCanvas() current canvas\endlink,
+using frame 0.
 */
-QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* seq) :
+QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a) :
     frm(0),
-    images(seq)
+    images(a)
 {
     show();
     addToChunks();
 }
 
 /*!
-\fn QCanvasSprite::QCanvasPositionedSprite()
-
 Create a QCanvasSprite without defining its image array.
 
-The sprite in initially at (0,0) on the current canvas
-(see constructor for QCanvas), using the 0th array frame.
+The sprite in initially at (0,0) on the
+\link QCanvasItem::setCurrentCanvas() current canvas\endlink,
+using frame 0.
 
 Note that you must call setSequence(QCanvasPixmapArray*) before
 doing anything else with the sprite.
@@ -3334,17 +3386,17 @@ QCanvasSprite::QCanvasSprite() :
 }
 
 /*!
-\fn void QCanvasSprite::setSequence(QCanvasPixmapArray* seq)
+\fn void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
 
 Set the array of images used for displaying the sprite.  Note that
 the array should have enough images for the sprites current frame()
 to be valid.
 */
-void QCanvasSprite::setSequence(QCanvasPixmapArray* seq)
+void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
 {
     bool vis=visible();
     if (vis && images) hide();
-    images=seq;
+    images=a;
     if (vis) show();
 }
 
@@ -3368,8 +3420,6 @@ void QCanvasSprite::changeChunks()
 }
 
 /*!
-\fn QCanvasSprite::~QCanvasPositionedSprite()
-
 Destruct the sprite.
 It is removed from its QCanvas in this process.
 */
@@ -3379,14 +3429,12 @@ QCanvasSprite::~QCanvasSprite()
 }
 
 /*!
-\fn void QCanvasSprite::frame(int f)
+Sets the animation frame used for displaying the sprite to
+\a f, an index into the QCanvasSprite's QCanvasPixmapArray.
 
-Set the animation frame used for displaying the sprite to
-the given index into the QCanvasSprite's QCanvasPixmapArray.
-
-\sa move(double,double,int)
+\sa frame(), move(double,double,int)
 */
-void QCanvasSprite::frame(int f)
+void QCanvasSprite::setFrame(int f)
 {
     move(x(),y(),f);
 }
@@ -3396,7 +3444,7 @@ void QCanvasSprite::frame(int f)
 Returns the index into the QCanvasSprite's QCanvasPixmapArray
 of the current animation frame.
 
-\sa move(double,double,int)
+\sa setFrame(), move(double,double,int)
 */
 
 /*!

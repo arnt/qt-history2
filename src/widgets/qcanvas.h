@@ -325,7 +325,7 @@ public:
 
     void move(double x, double y);
     virtual void move(double x, double y, int frame);
-    void frame(int); 
+    void setFrame(int); 
     int frame() const { return frm; }
     int frameCount() const { return images->count(); }
 
@@ -384,7 +384,7 @@ public:
     void setPen(QPen p);
     void setBrush(QBrush b);
 
-    virtual void moveBy(double dx, double dy);
+    void moveBy(double dx, double dy);
 
     virtual QPointArray areaPoints() const=0;
     virtual QPointArray areaPointsAdvanced() const;
@@ -393,10 +393,6 @@ public:
     int rtti() const;
 
 protected:
-    virtual void movingBy(int dx, int dy);
-
-    void drawRects(QPainter & p);
-
     void draw(class QPainter &);
     virtual void drawShape(QPainter &) = 0;
 
@@ -455,11 +451,11 @@ public:
     ~QCanvasPolygon();
     void setPoints(QPointArray);
     QPointArray areaPoints() const;
+    void moveBy(double dx, double dy);
 
     int rtti() const;
 
 protected:
-    void movingBy(int dx, int dy);
     void drawShape(QPainter &);
 };
 

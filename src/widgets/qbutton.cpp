@@ -463,11 +463,13 @@ void QButton::setAccel( int key )
 }
 
 
-/*!\obsolete
+/*!
+  \fn bool QButton::autoResize() const
+
+  \obsolete
 
   Strange pre-layout stuff.
 
-  \fn bool QButton::autoResize() const
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
 

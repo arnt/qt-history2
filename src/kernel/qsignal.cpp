@@ -151,6 +151,10 @@ QSignal::QSignal( QObject *parent, const char *name )
     isSignal = TRUE;
 }
 
+/*!
+  Destructs the signal.  All connections are removed, as is the case
+  with all QObjects.
+*/
 QSignal::~QSignal()
 {
     delete_d(this);
