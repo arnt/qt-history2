@@ -148,7 +148,7 @@ public:
 	NScripts,
 	AnyScript = NScripts,
 	UnknownScript = NScripts,
-	
+
 	// No Script
 	NoScript
     };
@@ -176,7 +176,7 @@ public:
 	: QShared(fp), request(fp.request), actual(fp.actual),
 	  exactMatch(fp.exactMatch), lineWidth(1)
     {
-	
+
 #ifndef QT_NO_COMPAT
 	// charset = fp.charset;
 #endif
@@ -246,9 +246,9 @@ public:
 			      int *) const;
     QCString bestMatch(const char *, int *) const;
     int fontMatchScore(const char *, QCString &, float *, int *, bool *, bool *) const;
-    void computeLineWidth(QFontPrivate::Script);
     void initFontInfo(QFontPrivate::Script);
     void load(QFontPrivate::Script, bool = TRUE);
+    void computeLineWidth();
 
     class QFontX11Data {
     public:

@@ -2845,27 +2845,29 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 
 	// 2a. encoding boundary
 	if (tmp != currs) {
-	    currs = tmp;
-
-	    // new encoding! time to draw this text
-	    truples[currt].script = currs;
-
 	    if (currt != 0) {
+		f = 0;
+
 		if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
 		    cfont.d->load(truples[currt - 1].script);
-		    if (! cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
-			continue;
+
+		    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
+			f = (XFontStruct *) cfont.d->
+			    x11data.fontstruct[truples[currt - 1].script]->handle;
+		    } else {
+			tmp = QFontPrivate::UnknownScript;
 		    }
+		}
 
-		    f = (XFontStruct *)
-			cfont.d->x11data.fontstruct[truples[currt - 1].script]->handle;
-
+		if (f) {
 		    // 2b. string width (this is for the PREVIOUS truple)
 		    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
 			truples[currt - 1].mapped =
 			    cfont.d->
 			    x11data.fontstruct[truples[currt - 1].script]->codec->
-			    fromUnicode( str, truples[currt - 1].stroffset, i + pos - truples[currt - 1].stroffset );
+			    fromUnicode( str, truples[currt - 1].stroffset,
+					 i + pos - truples[currt - 1].stroffset );
+			
 			if (f->max_byte1) {
 			    currx +=
 				XTextWidth16(f, (XChar2b *)
@@ -2882,17 +2884,24 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 				XTextWidth16(f, (XChar2b *)
 					     (str.unicode() +
 					      truples[currt - 1].stroffset),
-					     i - truples[currt - 1].stroffset);
+					     i + pos - truples[currt - 1].stroffset);
+			} else {
+			    // STOP: we want to use unicode, but don't have a multi-byte
+			    // font?  something is seriously wrong... assume we have text
+			    // we know nothing about
+
+			    tmp = QFontPrivate::UnknownScript;
+			    currx += (i + pos - truples[currt - 1].stroffset) *
+				     (cfont.d->request.pointSize * 3 / 40);
 			}
-			// STOP: we want to use unicode, but don't have a multi-byte
-			// font?  something is seriously wrong... assume we have text
-			// we know nothing about
 		    }
 		} else {
-		    currx += (i - truples[currt - 1].stroffset) *
+		    currx += (i + pos - truples[currt - 1].stroffset) *
 			     (cfont.d->request.pointSize * 3 / 40);
 		}
 	    }
+
+	    currs = tmp;
 
 	    // 2c.
 	    truples[currt].script = currs;
@@ -2903,42 +2912,56 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
     }
 
     if (currt != 0) {
+	f = 0;
+
 	if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
 	    cfont.d->load(truples[currt - 1].script);
-	    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
-		f = (XFontStruct *)
-		    cfont.d->x11data.fontstruct[truples[currt - 1].script]->handle;
 
-		// 2b. string width (this is for the PREVIOUS truple)
-		if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
-		    truples[currt - 1].mapped =
-			cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec->
-			fromUnicode( str, truples[currt - 1].stroffset, i +pos - truples[currt - 1].stroffset );
-		    if (f->max_byte1) {
-			currx += XTextWidth16(f, (XChar2b *)
-					      truples[currt - 1].mapped.data(),
-					      truples[currt - 1].mapped.size() / 2);
-		    } else {
-			currx += XTextWidth(f, truples[currt - 1].mapped.data(),
-					    truples[currt - 1].mapped.size() );
-		    }
+	    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
+		f = (XFontStruct *) cfont.d->
+		    x11data.fontstruct[truples[currt - 1].script]->handle;
+	    } else {
+		currs = QFontPrivate::UnknownScript;
+	    }
+	}
+
+	if (f) {
+	    // 2b. string width (this is for the PREVIOUS truple)
+	    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
+		truples[currt - 1].mapped =
+		    cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec->
+		    fromUnicode( str, truples[currt - 1].stroffset,
+				 i + pos - truples[currt - 1].stroffset );
+
+		if (f->max_byte1) {
+		    currx += XTextWidth16(f, (XChar2b *)
+					  truples[currt - 1].mapped.data(),
+					  truples[currt - 1].mapped.size() / 2);
 		} else {
-		    if (f->max_byte1) {
-			currx +=
-			    XTextWidth16(f, (XChar2b *)
-					 (str.unicode() + truples[currt - 1].stroffset),
-					 i - truples[currt - 1].stroffset);
-		    }
+		    currx += XTextWidth(f, truples[currt - 1].mapped.data(),
+					truples[currt - 1].mapped.size() );
+		}
+	    } else {
+		if (f->max_byte1) {
+		    currx +=
+			XTextWidth16(f, (XChar2b *)
+				     (str.unicode() + truples[currt - 1].stroffset),
+				     i + pos - truples[currt - 1].stroffset);
+		} else {
 		    // STOP: we want to use unicode, but don't have a multi-byte
 		    // font?  something is seriously wrong... assume we have text
 		    // we know nothing about
+
+		    currs = QFontPrivate::UnknownScript;
+		    currx += (i + pos - truples[currt - 1].stroffset) *
+			     (cfont.d->request.pointSize * 3 / 40);
 		}
 	    }
 	} else {
-	    currx += (i - truples[currt - 1].stroffset) *
+	    currx += (i + pos - truples[currt - 1].stroffset) *
 		     (cfont.d->request.pointSize * 3 / 40);
 	}
-    } else {
+    } else if (truples[currt].script != QFontPrivate::UnknownScript) {
 	// make sure the last font for the text is at least loaded
 	cfont.d->load(truples[currt].script);
     }
@@ -2948,7 +2971,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 	// step 4... if nothing is found, the for-condition will
 	// break us out of the loop
 	if (truples[i].stroffset == -1) {
-	    // continue;
 	    break;
 	}
 
@@ -2981,10 +3003,23 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
 				      (XChar2b *) (str.unicode() + truples[j].stroffset),
 				      l);
+		    } else {
+			// STOP: we want to use unicode, but don't have a multi-byte
+			// font?  something is seriously wrong... assume we have text
+			// we know nothing about
+
+			XRectangle *rects = new XRectangle[l];
+			int inc = cfont.d->request.pointSize * 3 / 40;
+
+			for (int k = 0; k < l; k++) {
+			    rects[k].x = truples[j].xoffset + (k * inc) + 1;
+			    rects[k].y = y - inc + 1;
+			    rects[k].width = rects[k].height = inc - 2;
+			}
+
+			XDrawRectangles(dpy, hd, gc, rects, l);
+			delete [] rects;
 		    }
-		    // STOP: we want to use unicode, but don't have a multi-byte
-		    // font?  something is seriously wrong... assume we have text
-		    // we know nothing about
 		} else {
 		    if (f->max_byte1) {
 			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
@@ -3011,7 +3046,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		int l;
 
 		if (truples[j + 1].stroffset == -1) {
-		    l = len - truples[j].stroffset;
+		    l = len + pos - truples[j].stroffset;
 		} else {
 		    l = truples[j + 1].stroffset - truples[j].stroffset;
 		}
@@ -3038,18 +3073,16 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();
 	int lw = fm.lineWidth();
-	int tw = fm.width( str, len );
+	int tw = currx - x;
 
 	// draw underline effect
 	if ( cfont.underline() ) {
-	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(),
-			    tw, lw );
+	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), tw, lw );
 	}
 
 	// draw strikeout effect
 	if ( cfont.strikeOut() ) {
-	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),
-			    tw, lw );
+	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), tw, lw );
 	}
     }
 }
