@@ -516,7 +516,7 @@ bool QODBCResult::reset ( const QString& query )
 		       (SQLCHAR*)query.local8Bit().data(),
 #endif
 		       (SQLINTEGER)query.length() /* count of characters, not bytes */ );
-    if ( r != SQL_SUCCESS ) {
+    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
