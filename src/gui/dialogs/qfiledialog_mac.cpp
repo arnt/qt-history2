@@ -344,7 +344,37 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd
     return retstrl;
 }
 
-QString QFileDialog::macGetSaveFileName(const QString &start, const QString &filter, 
+// Copious copy and paste from qfiledialog.cpp. Fix in 4.0.
+static QString encodeFileName(const QString &fName)
+{
+    QString newStr;
+    QCString cName = fName.utf8();
+    const QCString sChars(
+	    "<>#@\"&%$:,;?={}|^~[]\'`\\*"
+	    );
+
+    int len = cName.length();
+    if ( !len )
+	return QString::null;
+    for ( int i = 0; i < len ;++i ) {
+	uchar inCh = (uchar)cName[ i ];
+	if ( inCh >= 128 || sChars.contains(inCh) )
+	{
+	    newStr += QChar( '%' );
+	    ushort c = inCh / 16;
+	    c += c > 9 ? 'A' - 10 : '0';
+	    newStr += (char)c;
+	    c = inCh % 16;
+	    c += c > 9 ? 'A' - 10 : '0';
+	    newStr += (char)c;
+	} else {
+	    newStr += (char)inCh;
+	}
+    }
+    return newStr;
+}
+
+QString QFileDialog::macGetSaveFileName(const QString &start, const QString &filter,
 					 QString *, QWidget *parent, const char* /*name*/,
 					 const QString& caption, QString *selectedFilter)
 {
@@ -356,10 +386,27 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
     options.optionFlags |= kNavDontConfirmReplacement;
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
-    if(!start.isEmpty()) {
-	QString startf = start.section(QDir::separator(), -1);
-	options.saveFileName = CFStringCreateWithCharacters(NULL, (UniChar *)startf.unicode(), 
-							   startf.length());
+    QString workingDir;
+    QString initialSelection;
+    if (!start.isEmpty()) {
+	QUrlOperator u(encodeFileName(start));
+	if (u.isLocalFile() && QFileInfo(u.path()).isDir()) {
+	    workingDir = start;
+	} else {
+	    if (u.isLocalFile()) {
+		QFileInfo fi(u.dirPath());
+		if (fi.exists()) {
+		    workingDir = u.dirPath();
+		    initialSelection = u.fileName();
+		}
+	    } else {
+		workingDir = u.toString();
+	    }
+	}
+	if (!initialSelection.isEmpty())
+	    options.saveFileName = CFStringCreateWithCharacters(0,
+							    (UniChar *)initialSelection.unicode(),
+							    initialSelection.length());
     }
     if(!caption.isEmpty())
 	options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(), 
@@ -411,6 +458,14 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
 			      (void *) (filts.isEmpty() ? NULL : &t), &dlg)) {
 	qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	return retstr;
+    }
+    if (!workingDir.isEmpty()) {
+	FSSpec spec;
+	if (qt_mac_create_fsspec(workingDir, &spec) == noErr) {
+	    AEDesc desc;
+	    if (AECreateDesc(typeFSS, &spec, sizeof(FSSpec), &desc) == noErr)
+		NavCustomControl(dlg, kNavCtlSetLocation, (void*)&desc);
+	}
     }
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
