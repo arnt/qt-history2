@@ -717,7 +717,7 @@ QFSFileEnginePrivate::getLink() const
 
                     if(SUCCEEDED(hres)) {
                         memcpy(szGotPath, (TCHAR*)d->file.utf16(), (d->file.length()+1)*sizeof(QChar));
-                        hres = psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
+                        hres = psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY);
                         ret = QString::fromUtf16((ushort*)szGotPath);
                     }
                 }
@@ -773,6 +773,71 @@ QFSFileEnginePrivate::getLink() const
 #else
     return QString();
 #endif // QT_NO_COMPONENT
+}
+
+bool QFSFileEngine::link(const QString &  newName)
+{
+    bool ret = false;
+    
+    QString linkName = newName;
+    //### assume that they add .lnk
+
+    QT_WA({
+        HRESULT hres;
+        IShellLink *psl;
+        bool neededCoInit = false;
+
+        hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+        if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
+                neededCoInit = true;
+                CoInitialize(NULL);
+                hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+        }
+        if (SUCCEEDED(hres)) {
+            hres = psl->SetPath((TCHAR*)fileName(AbsoluteName).utf16());
+            if (SUCCEEDED(hres)) { 
+                IPersistFile *ppf;
+                hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
+                if (SUCCEEDED(hres)) {
+                    hres = ppf->Save((TCHAR*)linkName.utf16(), TRUE);
+                    if (SUCCEEDED(hres))
+                         ret = true;
+                    ppf->Release();
+                }
+            }
+            psl->Release();
+        }
+        if(neededCoInit)
+                CoUninitialize();
+    } , {
+        HRESULT hres;
+        IShellLinkA *psl;
+        bool neededCoInit = false;
+
+        hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+        if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
+                neededCoInit = true;
+                CoInitialize(NULL);
+                hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+        }
+        if (SUCCEEDED(hres)) {
+            hres = psl->SetPath(QFSFileEnginePrivate::win95Name(fileName(AbsoluteName)).data());
+            if (SUCCEEDED(hres)) { 
+                IPersistFile *ppf;
+                hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
+                if (SUCCEEDED(hres)) {
+                    hres = ppf->Save((LPOLESTR)linkName.utf16(), TRUE);
+                    if (SUCCEEDED(hres))
+                         ret = true;
+                    ppf->Release();
+                }
+            }
+            psl->Release();
+        }
+        if(neededCoInit)
+                CoUninitialize();
+    });
+    return ret;
 }
 
 uint
@@ -1122,7 +1187,4 @@ bool QFSFileEngine::setSize(QIODevice::Offset size)
     return false;
 }
 
-bool QFSFileEngine::link(const QString & /* newName */)
-{
-    return false;
-}
+
