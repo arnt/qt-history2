@@ -3,6 +3,8 @@
 
 #include "qabstracteventdispatcher_p.h"
 
+class QBitArray;
+
 // internal timer info
 struct QTimerInfo;
 
