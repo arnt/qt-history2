@@ -835,11 +835,11 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
 	return false;
 
     int mid = GetMenuID(mr);
-    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups 
+    if (MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups 
 	    ? activeMenuBar->mac_d->popups->value(mid) : 0) {
 	if(mpb->qpopup) {
 	    emit mpb->qpopup->aboutToShow();
-	    if(1 || mpb->qpopup->mac_dirty_popup) {
+	    if (1 || mpb->qpopup->mac_dirty_popup) {
 		mpb->qpopup->mac_dirty_popup = 0;
 		DeleteMenuItems(mr, 1, CountMenuItems(mr));
 		activeMenuBar->syncPopups(mr, mpb->qpopup);
@@ -848,6 +848,14 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
 	} else {
 	    activeMenuBar->activateItemAt(activeMenuBar->indexOf(mpb->id));
 	    HiliteMenu(0);
+	}
+    } else if (mr == activeMenuBar->mac_d->apple_menu && activeMenuBar->mac_d->commands) {
+	QHash<int, MacPrivate::CommandBinding>::const_iterator it 
+						    = activeMenuBar->mac_d->commands->constBegin();
+	for (; it != activeMenuBar->mac_d->commands->constEnd(); ++it) {
+	    MacPrivate::CommandBinding *cb = it.value();
+	    qt_mac_command_set_enabled(it.key(),
+				       cb->qpopup->isItemEnabled(cb->qpopup->idAt(cb->index)));
 	}
     }
     return false;
