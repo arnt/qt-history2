@@ -388,6 +388,9 @@ bool QPlugIn::loadInterface()
     if ( !infoProc )
 	return FALSE;
     info = infoProc();
+    
+    if ( info )
+	info->setApplicationInterface( appInterface );
 
     return info != 0;
 }
