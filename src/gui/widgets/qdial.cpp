@@ -83,13 +83,11 @@ void QDialPrivate::repaintScreen()
 {
     QPainter p;
     p.begin(q);
+    p.setRenderHint(QPainter::Antialiasing);
 
     int width = q->width();
     int height = q->height();
     QRect br(calcDial());
-    QRect te = br;
-    te.setWidth(te.width() + 2);
-    te.setHeight(te.height() + 2);
 
     QPalette pal = q->palette();
     // draw notches
@@ -99,17 +97,22 @@ void QDialPrivate::repaintScreen()
         p.drawLines(lines);
     }
 
-    // calculate and paint arrow
+    if (q->isEnabled()) {
+        p.setBrush(pal.brush((QPalette::ColorRole) q->style()->styleHint(QStyle::SH_Dial_BackgroundRole)));
+        p.setPen(Qt::NoPen);
+        p.drawEllipse(br);
+        p.setBrush(Qt::NoBrush);
+    }
     p.setPen(QPen(pal.dark().color()));
-    p.drawArc(te, 60 * 16, 180 * 16);
+    p.drawArc(br, 60 * 16, 180 * 16);
     p.setPen(QPen(pal.light().color()));
-    p.drawArc(te, 240 * 16, 180 * 16);
+    p.drawArc(br, 240 * 16, 180 * 16);
 
     double a;
     QPolygon arrow(calcArrow(a));
 
     p.setPen(Qt::NoPen);
-    p.setBrush(pal.brush(QPalette::Button));
+    p.setBrush(pal.button());
     if (!d->onlyOutside)
         p.drawPolygon(arrow);
 
@@ -144,7 +147,9 @@ void QDialPrivate::repaintScreen()
     }
 
     // draw focus rect around the dial
-    if (q->hasFocus()) {
+    QStyleOptionFocusRect opt;
+    opt.init(q);
+    if (opt.state & QStyle::State_HasFocus) {
         br.setWidth(br.width() + 2);
         br.setHeight(br.height() + 2);
         if (d->showNotches) {
@@ -153,9 +158,7 @@ void QDialPrivate::repaintScreen()
             br.setWidth(br.width() + r / 3);
             br.setHeight(br.height() + r / 3);
         }
-        QStyleOptionFocusRect opt;
-        opt.init(q);
-        opt.rect = br;
+        opt.rect = br.adjusted(-2, -2, 2, 2);
         q->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, q);
     }
     p.end();
@@ -179,7 +182,7 @@ QPolygon QDialPrivate::calcArrow(double &a) const
     int len = r - calcBigLineSize() - 5;
     if (len < 5)
         len = 5;
-    int back = len / 4;
+    int back = len / 2;
     if (back < 1)
         back = 1;
 

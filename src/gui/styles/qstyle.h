@@ -517,6 +517,7 @@ public:
         SH_FocusFrame_Mask,
         SH_RubberBand_Mask,
         SH_SpinControls_DisableOnBounds,
+        SH_Dial_BackgroundRole,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT

@@ -164,7 +164,7 @@ void QStyleOption::init(const QWidget *widget)
     state = QStyle::State_None;
     if (widget->isEnabled())
         state |= QStyle::State_Enabled;
-    if (widget->hasFocus())
+    if (widget->hasFocus() && widget->window()->testAttribute(Qt::WA_KeyboardFocusChange))
         state |= QStyle::State_HasFocus;
     if (widget->underMouse())
         state |= QStyle::State_MouseOver;

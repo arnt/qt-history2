@@ -1021,23 +1021,14 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 
             if (tab->state & State_HasFocus && !tab->text.isEmpty()) {
                 QStyleOptionFocusRect fropt;
-                const int OFFSET = 3;
+                const int OFFSET = 1 + pixelMetric(PM_DefaultFrameWidth);
 
                 int x1, x2;
                 x1 = tab->rect.left();
                 x2 = tab->rect.right() - 1;
 
-                if (selected) {
-                    x1 -= 2;
-                    x2 += 2;
-                }
-                if (tab->position == QStyleOptionTab::Beginning)
-                    x1 += 2;
-                if (tab->position == QStyleOptionTab::End)
-                    x2 -= 2;
-
-                fropt.rect.setRect(x1 + OFFSET, tab->rect.y() + OFFSET,
-                                   x2 - x1 - 2*OFFSET + 2, tab->rect.height() - 2*OFFSET);
+                fropt.rect.setRect(x1 + 1 + OFFSET, tab->rect.y() + OFFSET,
+                                   x2 - x1 - 2*OFFSET, tab->rect.height() - 2*OFFSET);
                 fropt.palette = tab->palette;
                 fropt.state = State_None;
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
@@ -1910,7 +1901,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawItemPixmap(p, ir, Qt::AlignCenter, pm);
                 p->restore();
             }
-#ifndef QT_NO_WIDGET_TOPEXTRA
             if (tb->subControls & SC_TitleBarSysMenu && tb->titleBarFlags & Qt::WindowSystemMenuHint) {
                 ir = visualRect(opt->direction, opt->rect,
                         subControlRect(CC_TitleBar, tb, SC_TitleBarSysMenu, widget));
@@ -1924,7 +1914,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     p->restore();
                 }
             }
-#endif
         }
         break;
     default:
@@ -2379,6 +2368,8 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
     case PM_ComboBoxFrameWidth:
     case PM_SpinBoxFrameWidth:
     case PM_MenuPanelWidth:
+    case PM_TabBarBaseOverlap:
+    case PM_TabBarBaseHeight:
         ret = pixelMetric(PM_DefaultFrameWidth, opt, widget);
         break;
 
@@ -2488,14 +2479,6 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
 
     case PM_TabBarTabOverlap:
         ret = 3;
-        break;
-
-    case PM_TabBarBaseHeight:
-        ret = 2;
-        break;
-
-    case PM_TabBarBaseOverlap:
-        ret = 2;
         break;
 
     case PM_TabBarTabHSpace:
@@ -2831,6 +2814,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 
     case SH_SpinControls_DisableOnBounds:
         ret = 1;
+        break;
+
+    case SH_Dial_BackgroundRole:
+        ret = QPalette::Background;
         break;
 
     default:

@@ -223,6 +223,9 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         }
         break;
 
+    case PE_FrameTabWidget:
+        qDrawShadePanel(p, opt->rect, opt->palette, QStyle::State_None, pixelMetric(PM_DefaultFrameWidth));
+        break;
     case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
             if ((fropt->state & State_HasFocus) && focus && focus->isVisible())
@@ -669,9 +672,9 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
     case CE_ScrollBarAddLine:{
         PrimitiveElement pe;
         if (element == CE_ScrollBarAddLine)
-            pe = (opt->state & State_Horizontal) ? PE_IndicatorArrowRight : PE_IndicatorArrowDown;
+            pe = (opt->state & State_Horizontal) ? (opt->direction == Qt::LeftToRight ? PE_IndicatorArrowRight : PE_IndicatorArrowLeft) : PE_IndicatorArrowDown;
         else
-            pe = (opt->state & State_Horizontal) ? PE_IndicatorArrowLeft : PE_IndicatorArrowUp;
+            pe = (opt->state & State_Horizontal) ? (opt->direction == Qt::LeftToRight ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight) : PE_IndicatorArrowUp;
         QStyleOption arrowOpt = *opt;
         arrowOpt.state |= State_Enabled;
         drawPrimitive(pe, &arrowOpt, p, widget);
@@ -881,27 +884,26 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, opt, widget);
             int u = opt->rect.width() / unit_width;
             int p_v = pb->progress;
-            int t_s = pb->minimum - pb->maximum;
+            int t_s = qMax(0, pb->maximum - pb->minimum);
             if (u > 0 && pb->progress >= INT_MAX / u && t_s >= u) {
                 // scale down to something usable.
                 p_v /= u;
                 t_s /= u;
             }
-            if (pb->textVisible && pb->minimum - pb->maximum) {
+            if (pb->textVisible && t_s) {
                 int nu = (u * p_v + t_s/2) / t_s;
                 int x = unit_width * nu;
-                if (pb->textAlignment == Qt::AlignLeft || pb->textAlignment == Qt::AlignCenter) {
-                    p->setPen(opt->palette.highlightedText().color());
-                    p->setClipRect(opt->rect.x(), opt->rect.y(), x, opt->rect.height());
-                    p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
+                QRect left(opt->rect.x(), opt->rect.y(), x, opt->rect.height());
+                QRect right(opt->rect.x() + x, opt->rect.y(), opt->rect.width() - x, opt->rect.height());
+                const QRect &highlighted = opt->direction == Qt::LeftToRight ? left : right;
+                const QRect &background = opt->direction == Qt::LeftToRight ? right : left;
+                p->setPen(opt->palette.highlightedText().color());
+                p->setClipRect(highlighted);
+                p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
 
-                    if (pb->progress != pb->maximum) {
-                        p->setClipRect(opt->rect.x() + x, opt->rect.y(), opt->rect.width() - x, opt->rect.height());
-                        p->setPen(opt->palette.highlight().color());
-                        p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
-                    }
-                } else {
-                    p->setPen(opt->palette.text().color());
+                if (pb->progress != pb->maximum) {
+                    p->setClipRect(background);
+                    p->setPen(opt->palette.highlight().color());
                     p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
                 }
             }
@@ -1848,6 +1850,37 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
 }
 
 #ifndef QT_NO_IMAGEIO_XPM
+static const char * const qt_menu_xpm[] = {
+"16 16 11 1",
+"  c #000000",
+", c #336600",
+". c #99CC00",
+"X c #666600",
+"o c #999933",
+"+ c #333300",
+"@ c #669900",
+"# c #999900",
+"$ c #336633",
+"% c #666633",
+"& c #99CC33",
+"................",
+"................",
+".....#,++X#.....",
+"....X      X....",
+"...X  Xo#%  X&..",
+"..#  o..&@o  o..",
+".., X..#+ @X X..",
+"..+ o.o+ +o# +..",
+"..+ #o+  +## +..",
+".., %@ ++ +, X..",
+"..#  o@oo+   #..",
+"...X  X##$   o..",
+"....X        X..",
+"....&oX++X#oX...",
+"................",
+"................"};
+
+
 static const char * const qt_close_xpm[] = {
     "12 12 2 1",
     "       s None  c None",
@@ -2158,6 +2191,8 @@ QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *o
 {
 #ifndef QT_NO_IMAGEIO_XPM
     switch (standardPixmap) {
+    case SP_TitleBarMenuButton:
+        return QPixmap((const char **)qt_menu_xpm);
     case SP_TitleBarShadeButton:
         return QPixmap((const char **)qt_shade_xpm);
     case SP_TitleBarUnshadeButton:
@@ -2247,10 +2282,10 @@ QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *o
 bool QMotifStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::FocusIn) {
-        if (QApplication::focusWidget()) {
+        if (QWidget *focusWidget = QApplication::focusWidget()) {
             if(!focus)
-                focus = new QFocusFrame(QApplication::focusWidget());
-            focus->setWidget(QApplication::focusWidget());
+                focus = new QFocusFrame(focusWidget);
+            focus->setWidget(focusWidget);
         } else {
             if(focus)
                 focus->setWidget(0);
@@ -2307,6 +2342,10 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
 
     case SH_MessageBox_UseBorderForButtonSpacing:
         ret = 1;
+        break;
+
+    case SH_Dial_BackgroundRole:
+        ret = QPalette::Mid;
         break;
 
     default:

@@ -539,6 +539,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_Sunken
     \value State_Top
     \value State_UpArrow
+    \value State_NoKeyboardFocusChange
     \omitvalue State_Default
 
     \sa drawPrimitive()
@@ -1418,6 +1419,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
      \value SH_SpinControls_DisableOnBounds Determines if the spin controls will shown
      as disabled when reaching the spin range boundary.
+
+     \value SH_Dial_BackgroundRole Defines the style's preferred
+     background role (as QPalette::ColorRole) for a dial widget.
 
      \omitvalue SH_UnderlineAccelerator
 
