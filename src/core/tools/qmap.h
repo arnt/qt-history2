@@ -73,12 +73,14 @@ template <class Key> inline bool qMapLessThanKey(const Key &key1, const Key &key
 #ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 template <class Ptr> inline bool qMapLessThanKey(Ptr *key1, Ptr *key2)
 {
-    return reinterpret_cast<Q_ULONGLONG>(key1) < reinterpret_cast<Q_ULONGLONG>(key2);
+    Q_ASSERT(sizeof(Q_LONG) == sizeof(Ptr *));
+    return reinterpret_cast<Q_ULONG>(key1) < reinterpret_cast<Q_ULONG>(key2);
 }
 
 template <class Ptr> inline bool qMapLessThanKey(const Ptr *key1, const Ptr *key2)
 {
-    return reinterpret_cast<Q_ULONGLONG>(key1) < reinterpret_cast<Q_ULONGLONG>(key2);
+    Q_ASSERT(sizeof(Q_LONG) == sizeof(const Ptr *));
+    return reinterpret_cast<Q_ULONG>(key1) < reinterpret_cast<Q_ULONG>(key2);
 }
 #endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
@@ -356,11 +358,11 @@ Q_INLINE_TEMPLATE QMapData::Node *QMap<Key, T>::findNode(const Key &key) const
     QMapData::Node *next = e;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey(concrete(next)->key, key))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, key))
             cur = next;
     }
 
-    if (next != e && !qMapLessThanKey(key, concrete(next)->key)) {
+    if (next != e && !qMapLessThanKey<Key>(key, concrete(next)->key)) {
         return next;
     } else {
         return e;
@@ -418,7 +420,7 @@ Q_INLINE_TEMPLATE int QMap<Key, T>::count(const Key &key) const
         do {
             ++cnt;
             node = node->forward[0];
-        } while (node != e && !qMapLessThanKey(key, concrete(node)->key));
+        } while (node != e && !qMapLessThanKey<Key>(key, concrete(node)->key));
     }
     return cnt;
 }
@@ -530,17 +532,17 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &key)
     int oldSize = d->size;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey(concrete(next)->key, key))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, key))
             cur = next;
         update[i] = cur;
     }
 
-    if (next != e && !qMapLessThanKey(key, concrete(next)->key)) {
+    if (next != e && !qMapLessThanKey<Key>(key, concrete(next)->key)) {
         bool deleteNext = true;
         do {
             cur = next;
             next = cur->forward[0];
-            deleteNext = (next != e && !qMapLessThanKey(concrete(cur)->key, concrete(next)->key));
+            deleteNext = (next != e && !qMapLessThanKey<Key>(concrete(cur)->key, concrete(next)->key));
             concrete(cur)->key.~Key();
             concrete(cur)->value.~T();
             d->node_delete(update, Payload, cur);
@@ -559,13 +561,13 @@ Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &key)
     QMapData::Node *next = e;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey(concrete(next)->key, key))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, key))
             cur = next;
         update[i] = cur;
     }
 
     T t;
-    if (next != e && !qMapLessThanKey(key, concrete(next)->key)) {
+    if (next != e && !qMapLessThanKey<Key>(key, concrete(next)->key)) {
         t = concrete(next)->value;
         concrete(next)->key.~Key();
         concrete(next)->value.~T();
@@ -587,7 +589,7 @@ Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::erase(iterato
         return it;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey(concrete(next)->key, it.key()))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, it.key()))
             cur = next;
         update[i] = cur;
     }
@@ -713,7 +715,7 @@ Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key) const
         do {
             res.append(concrete(node)->value);
             node = node->forward[0];
-        } while (node != e && !qMapLessThanKey(key, concrete(node)->key));
+        } while (node != e && !qMapLessThanKey<Key>(key, concrete(node)->key));
     }
     return res;
 }
@@ -741,7 +743,7 @@ QMap<Key, T>::upperBound(const Key &key) const
     QMapData::Node *update[QMapData::LastLevel + 1];
     mutableFindNode(update, key);
     QMapData::Node *node = update[0]->forward[0];
-    while (node != e && !qMapLessThanKey(key, concrete(node)->key))
+    while (node != e && !qMapLessThanKey<Key>(key, concrete(node)->key))
         node = node->forward[0];
     return const_iterator(node);
 }
