@@ -14,7 +14,7 @@ chdir "$qtdir/tutorial";
 $qtdir =~ s/([:\\\/])/\\$1/g;
 foreach $f ( split(/\s/,$vars{"SUBDIRS"}) ) {
     chdir $f;
-#    `progen -a"UNIXLIBS    =\t-lm" -n $f -o $f.pro`;
+#    `progen -n $f -o $f.pro "unix:LIBS=-lm"`;
     `tmake $f.pro | sed -e "s/$qtdir/\$(QTDIR)/g" > $f.mak`;
     chdir "..";
 }
