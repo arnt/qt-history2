@@ -354,6 +354,7 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
 	if ( started > now )			// crossed midnight
 	    started = now;
 
+	// 0x08 == ExcludeTimers for X11 only
 	qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput |
 					  QEventLoop::ExcludeSocketNotifiers |
 					  QEventLoop::WaitForMore | 0x08 );

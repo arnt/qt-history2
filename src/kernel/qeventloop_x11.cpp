@@ -196,6 +196,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     QApplication::sendPostedEvents();
 
     const uint exclude_all = ExcludeSocketNotifiers | 0x08;
+    // 0x08 == ExcludeTimers for X11 only
     if ( nevents > 0 && ( flags & exclude_all ) == exclude_all &&
 	 ( flags & WaitForMore ) ) {
 	return TRUE;
@@ -209,7 +210,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     // return the maximum time we can wait for an event.
     static timeval zerotm;
     timeval *tm = 0;
-    if ( ! ( flags & 0x08 ) ) {			// 0x08 == ExcludeTimers from 3.2
+    if ( ! ( flags & 0x08 ) ) {			// 0x08 == ExcludeTimers for X11 only
 	tm = qt_wait_timer();			// wait for timer or X event
 	if ( !canWait ) {
 	    if ( !tm )
@@ -335,7 +336,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     // activate timers
     if ( ! ( flags & 0x08 ) ) {
-	// 0x08 == ExcludeTimers in 3.2
+	// 0x08 == ExcludeTimers for X11 only
 	nevents += activateTimers();
     }
 

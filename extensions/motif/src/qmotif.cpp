@@ -589,7 +589,7 @@ bool QMotif::processEvents( ProcessEventsFlags flags )
     }
 
     if ( ! ( flags & 0x08 ) && d->activate_timers ) {
-	// 0x08 == ExcludeTimers in 3.2
+	// 0x08 == ExcludeTimers for X11 only
 	nevents += activateTimers();
 	d->activate_timers = FALSE;
     }
