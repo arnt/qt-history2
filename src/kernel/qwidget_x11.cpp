@@ -1794,7 +1794,7 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
 	    s.min_width  = x->minw;
 	    s.min_height = x->minh;
 	}
-	if ( x->maxw < QWIDGETSIZE_MAX || x->maxh < QWIDGETSIZE_MAX ) {
+	if ( x->maxw <= QWIDGETSIZE_MAX || x->maxh <= QWIDGETSIZE_MAX ) {
 	    s.flags |= PMaxSize;		// add maximum size hints
 	    s.max_width  = x->maxw;
 	    s.max_height = x->maxh;
