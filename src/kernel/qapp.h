@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#58 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#59 $
 **
 ** Definition of QApplication class
 **
@@ -13,6 +13,12 @@
 #define QAPP_H
 
 #include "qwidget.h"
+
+
+#if defined(TrueColor)
+// X11/X111.h #defines TrueColor, so it can't be used in any class or enum
+#error "TrueColor" #defined: Do not include X11/X.h before qapp.h
+#endif
 
 
 extern QApplication *qApp;			// global application object
