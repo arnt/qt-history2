@@ -173,6 +173,7 @@ static QColorGroup::ColorRole effectFromItem( int item )
 
 static void setStyleHelper(QWidget *w, QStyle *s)
 {
+    w->unsetPalette();
     w->setStyle(s);
 
     const QObjectList children = w->children();
