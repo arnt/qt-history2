@@ -134,7 +134,7 @@ void ListViewContainer::updateScrollers()
   even when LeftButton is not pressed.
 */
 void ListViewContainer::setCurrentIndex(const QModelIndex &index, Qt::MouseButton button,
-                                        Qt::KeyboardModifiers modifiers)
+                                        Qt::KeyboardModifiers /*modifiers*/)
 {
     if (button & Qt::LeftButton)
         return;
