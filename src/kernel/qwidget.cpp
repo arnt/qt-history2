@@ -3716,6 +3716,7 @@ void QWidget::internalShow(bool informParent)
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     QApplication::sendPostedEvents(this, QEvent::LayoutHint);
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
+#ifndef Q_OS_TEMP
 	// toplevels with layout may need a initial size
 	QSize s = qt_initial_size(this);
 	// do this before sending the posted resize events. Otherwise
@@ -3730,6 +3731,7 @@ void QWidget::internalShow(bool informParent)
 	// relayout before we receive our move and resize events.
 	if (parentWidget()->layout())
 	    parentWidget()->layout()->activate();
+#endif // Q_OS_TEMP
     }
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
