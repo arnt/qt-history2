@@ -576,7 +576,7 @@ static void setDefaultPrinter(const QString &printerName, HANDLE hdevmode, HANDL
     pDevNames->wDefault = 0;
 
     // Clean up
-    GlobalUnlock(pDevNames);
+    GlobalUnlock(hdevnames);
     GlobalFree(pinf2);
 }
 
