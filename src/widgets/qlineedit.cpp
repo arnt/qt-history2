@@ -484,11 +484,11 @@ QString QLineEdit::displayText() const
 
   \sa selectedText()
 */
-/*!
-    Returns TRUE if some or all of the text has been selected by the
-    user (e.g. by clicking and dragging); otherwise returns FALSE.
 
-  \sa selectedText()
+/*! \property QLineEdit::hasSelectedText
+    \brief wether some text in the lineedit is selected
+
+    \sa selectedText()
 */
 
 
@@ -509,9 +509,10 @@ bool QLineEdit::hasSelectedText() const
 
   \sa hasSelectedText()
 */
+
 /*!
-    Returns the text selected by the user (e.g. by clicking and
-    dragging), or QString::null if no text is selected.
+  \property QLineEdit::selectedText
+  \brief the selected text, if there is one, else QString::null
 
   \sa hasSelectedText()
 */
@@ -2164,14 +2165,18 @@ int QLineEdit::characterAt( int xpos, QChar *chr ) const
     return c.index();
 }
 
-/*! Returns whether undo is available */
+/*! \property QLineEdit::undoAvailable
+    \brief wether undo is available
+*/
 
 bool QLineEdit::isUndoAvailable() const
 {
     return d->parag->commands()->isUndoAvailable();
 }
 
-/*! Returns whether redo is available */
+/*! \property QLineEdit::redoAvailable
+    \brief wether redo is available
+*/
 
 bool QLineEdit::isRedoAvailable() const
 {
