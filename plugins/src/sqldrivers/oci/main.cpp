@@ -35,12 +35,14 @@
 **********************************************************************/
 
 #include <qsqldriverinterface.h>
+#include <qobjectcleanuphandler.h>
 #include "../../../../src/sql/drivers/oci/qsql_oci.h"
 
 class QOCIDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
     QOCIDriverPlugin();
+    virtual ~QOCIDriverPlugin();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -50,11 +52,16 @@ public:
     QStringList featureList() const;
 
 private:
+    QObjectCleanupHandler drivers;
     unsigned long ref;
 };
 
 QOCIDriverPlugin::QOCIDriverPlugin()
 : ref( 0 )
+{
+}
+
+QOCIDriverPlugin::~QOCIDriverPlugin()
 {
 }
 
@@ -93,7 +100,9 @@ unsigned long QOCIDriverPlugin::release()
 QSqlDriver* QOCIDriverPlugin::create( const QString &name )
 {
     if ( name == "QOCI8" ) {
-	return new QOCIDriver();
+	QOCIDriver* driver = new QOCIDriver();
+	drivers.add( driver );	
+	return driver;
     }
     return 0;
 }

@@ -35,12 +35,14 @@
 **********************************************************************/
 
 #include <qsqldriverinterface.h>
+#include <qobjectcleanuphandler.h>
 #include "../../../../src/sql/drivers/mysql/qsql_mysql.h"
 
 class QMYSQLDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
     QMYSQLDriverPlugin();
+    virtual ~QMYSQLDriverPlugin();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -50,11 +52,16 @@ public:
     QStringList featureList() const;
 
 private:
+    QObjectCleanupHandler drivers;
     unsigned long ref;
 };
 
 QMYSQLDriverPlugin::QMYSQLDriverPlugin()
 : ref( 0 )
+{
+}
+
+QMYSQLDriverPlugin::~QMYSQLDriverPlugin()
 {
 }
 
@@ -89,8 +96,11 @@ unsigned long QMYSQLDriverPlugin::release()
 
 QSqlDriver* QMYSQLDriverPlugin::create( const QString &name )
 {
-    if ( name.upper() == "QMYSQL3" )
-	return new QMYSQLDriver();
+    if ( name.upper() == "QMYSQL3" ) {
+	QMYSQLDriver* driver = new QMYSQLDriver();
+	drivers.add( driver );	
+	return driver;
+    }
     return 0;
 }
 

@@ -36,12 +36,14 @@
 
 #define Q_UUIDIMPL
 #include <qsqldriverinterface.h>
+#include <qobjectcleanuphandler.h>
 #include "../../../../src/sql/drivers/tds/qsql_tds.h"
 
 class QTDSDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
     QTDSDriverPlugin();
+    virtual ~QTDSDriverPlugin();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -51,11 +53,16 @@ public:
     QStringList featureList() const;
 
 private:
+    QObjectCleanupHandler drivers;
     unsigned long ref;
 };
 
 QTDSDriverPlugin::QTDSDriverPlugin()
 : ref( 0 )
+{
+}
+
+QTDSDriverPlugin::~QTDSDriverPlugin()
 {
 }
 
@@ -93,8 +100,11 @@ unsigned long QTDSDriverPlugin::release()
 
 QSqlDriver* QTDSDriverPlugin::create( const QString &name )
 {
-    if ( name == "QTDS7" )
-	return new QTDSDriver();
+    if ( name == "QTDS7" ) {
+	QTDSDriver* driver = new QTDSDriver();
+	drivers.add( driver );	
+	return driver;
+    }
     return 0;
 }
 

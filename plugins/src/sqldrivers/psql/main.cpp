@@ -35,12 +35,14 @@
 **********************************************************************/
 
 #include <qsqldriverinterface.h>
+#include <qobjectcleanuphandler.h>
 #include "../../../../src/sql/drivers/psql/qsql_psql.h"
 
 class QPSQLDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
     QPSQLDriverPlugin();
+    virtual ~QPSQLDriverPlugin();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -50,11 +52,16 @@ public:
     QStringList featureList() const;
 
 private:
+    QObjectCleanupHandler drivers;
     unsigned long ref;
 };
 
 QPSQLDriverPlugin::QPSQLDriverPlugin()
 : ref( 0 )
+{
+}
+
+QPSQLDriverPlugin::~QPSQLDriverPlugin()
 {
 }
 
@@ -92,8 +99,11 @@ unsigned long QPSQLDriverPlugin::release()
 
 QSqlDriver* QPSQLDriverPlugin::create( const QString &name )
 {
-    if ( name == "QPSQL7" )
-	return new QPSQLDriver();
+    if ( name == "QPSQL7" ) {
+	QPSQLDriver* driver = new QPSQLDriver();
+	drivers.add( driver );
+	return driver;
+    }
     return 0;
 }
 

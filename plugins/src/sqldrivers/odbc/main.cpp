@@ -35,12 +35,14 @@
 **********************************************************************/
 
 #include <qsqldriverinterface.h>
+#include <qobjectcleanuphandler.h>
 #include "../../../../src/sql/drivers/odbc/qsql_odbc.h"
 
 class QODBCDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
     QODBCDriverPlugin();
+    virtual ~QODBCDriverPlugin();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -50,11 +52,16 @@ public:
     QStringList featureList() const;
 
 private:
+    QObjectCleanupHandler drivers;
     unsigned long ref;
 };
 
 QODBCDriverPlugin::QODBCDriverPlugin()
 : ref( 0 )
+{
+}
+
+QODBCDriverPlugin::~QODBCDriverPlugin()
 {
 }
 
@@ -92,7 +99,9 @@ unsigned long QODBCDriverPlugin::release()
 QSqlDriver* QODBCDriverPlugin::create( const QString &name )
 {
     if ( name == "QODBC3" ) {
-	return new QODBCDriver();
+	QODBCDriver* driver = new QODBCDriver();
+	drivers.add( driver );	
+	return driver;
     }
     return 0;
 }
