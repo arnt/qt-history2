@@ -54,6 +54,7 @@
 #include "qdragobject.h"
 #include "qevent.h"
 
+#include <stdlib.h>
 
 class Q_EXPORT QTableHeader : public QHeader
 {
