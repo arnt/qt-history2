@@ -565,20 +565,6 @@ void QWidget::setIconText( const QString &iconText )
     // XXX XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-void QWidget::setAccessibilityHint( const QString &hint )
-{
-    if ( isTopLevel() )
-	return;
-
-    if ( !extra )
-	createExtra();
-    extra->accessibility_hint = hint;
-}
-
-#endif
-
 void QWidget::grabMouse()
 {
     if ( mouseGrb )

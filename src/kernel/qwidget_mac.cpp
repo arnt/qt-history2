@@ -738,20 +738,6 @@ void QWidget::setIconText( const QString &iconText )
     extra->topextra->iconText = iconText;
 }
 
-#ifndef QT_NO_ACCESSIBILITY
-
-void QWidget::setAccessibilityHint( const QString &hint )
-{
-    if ( topLevelWidget() )
-	return;
-
-    if ( !extra )
-	createExtra();
-    extra->accessibility_hint = hint;
-}
-
-#endif
-
 void QWidget::grabMouse()
 {
     if ( isVisible() && !qt_nograb() ) {
