@@ -1003,9 +1003,15 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		}
 		switch(status.last)
 		    {
+		    case QChar::DirET:
+			if ( status.lastStrong == QChar::DirR || status.lastStrong == QChar::DirAL ) {
+			    runs->append( new QTextRun(sor, eor, context, dir) );
+			    ++eor; sor = eor; status.eor = QChar::DirON;
+			    dir = QChar::DirAN;
+			}
+			// fall through
 		    case QChar::DirEN:
 		    case QChar::DirL:
-		    case QChar::DirET:
 			eor = current;
 			status.eor = dirCurrent;
 			break;
@@ -1013,7 +1019,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		    case QChar::DirAL:
 		    case QChar::DirAN:
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			++eor; sor = eor; status.eor = QChar::DirON;
 			dir = QChar::DirAN; break;
 		    case QChar::DirES:
 		    case QChar::DirCS:
