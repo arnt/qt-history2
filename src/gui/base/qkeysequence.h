@@ -40,8 +40,7 @@ class Q_GUI_EXPORT QKeySequence : public Qt
 public:
     QKeySequence();
     QKeySequence(const QString &key);
-    QKeySequence(int key);
-    QKeySequence(int k1, int k2, int k3 = 0, int k4 = 0);
+    QKeySequence(int k1, int k2 = 0, int k3 = 0, int k4 = 0);
     QKeySequence(const QKeySequence &ks);
     ~QKeySequence();
 

@@ -214,19 +214,6 @@ QKeySequence::QKeySequence(const QString &key)
 }
 
 /*!
-    Constructs a key sequence that has a single \a key.
-
-    The key codes are listed in \c{qnamespace.h} and can be
-    combined with modifiers, e.g. with \c SHIFT, \c CTRL, \c
-    ALT or \c META.
-*/
-QKeySequence::QKeySequence(int key)
-{
-    d = new QKeySequencePrivate();
-    d->key[0] = key;
-}
-
-/*!
     Constructs a key sequence with up to 4 keys \a k1, \a k2,
     \a k3 and \a k4.
 
