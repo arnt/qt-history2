@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 2.8 1999/04/13 05:29:14 warwick Exp $
+** $Id: debug.doc,v 2.9 1999/04/28 05:57:10 aavit Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -51,11 +51,6 @@ often much slower.  The -sync option is only valid for the X11
 version of Qt.
 </ul>
 <p>
-(Note that these options are only available in the development
-version of the Qt library, not in the production version.  Currently,
-<a href="troll.html">Troll Tech</a> only supports a development version
-of the Qt library.)
-<p>
 
 <hr>
 <h2>Warning and Debugging Messages</h2>
@@ -99,9 +94,16 @@ These macros are useful for detecting program errors, e.g. like this:
   }
 \endcode
 
-Note that the CHECK_PTR macro is a null expression if \c CHECK_NULL
-(see below) is not defined.  Any code in it will simply not be
-executed.  Here is an example of how you should NOT do it:
+Note that the ASSERT macro is a null expression if NO_CHECK (see
+below) is defined. Any code in it will simply not be executed. If you
+define the flag QT_FATAL_ASSERT, ASSERT will call fatal() instead of
+warning(), so a failed assertion will cause the program to exit after
+printing the error message.
+
+CHECK_PTR is a null expression if \c CHECK_NULL (see below) is not
+defined.
+
+Here is an example of how you should NOT use ASSERT and CHECK_PTR it:
 \code
   char *alloc( int size )
   {
@@ -111,23 +113,29 @@ executed.  Here is an example of how you should NOT do it:
   }
 \endcode
 
-Very tricky: \e p is set to a sane value only if you're debugging.
-When you're ready to ship, that code is not executed (correctly, since
-it's only a debugging aid) and \e alloc returns a wild pointer.
+The problem is very tricky: \e p is set to a sane value only as long
+as the correct debuggin flags are defined.  Typically, when you're
+ready to ship, you will turn off the debugging flags, and that code is
+not executed (correctly, since it's only a debugging aid) and \e alloc
+returns a wild pointer.
 
-The Qt development library contains hundreds of warning messages that
-are printed when some error is detected.
+The Qt library contains hundreds of warning messages that are printed
+when some error is detected.
 
-The warning messages inside Qt are conditional, based on the state of
-various debugging flags:
+The tests for sanity and the resulting warning messages inside Qt are
+conditional, based on the state of various debugging flags:
 <ul>
 <li> \c CHECK_STATE: Check for consistent/expected object state
 <li> \c CHECK_RANGE: Check for variables range errors
 <li> \c CHECK_NULL: Check for dangerous null pointer
+<li> \c CHECK_MATH: Check for dangerous math, e.g. division by 0.
 <li> \c NO_CHECK: Turn off all CHECK_... flags
 <li> \c DEBUG: Enable debugging code
 <li> \c NO_DEBUG: Turn off DEBUG flag
 </ul>
+
+By default, both DEBUG and all the CHECK flags are on. To turn off
+DEBUG, define NO_DEBUG. To turn off the CHECK flags, define NO_CHECK.
 
 Example:
 \code
