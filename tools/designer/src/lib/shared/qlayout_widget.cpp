@@ -820,8 +820,9 @@ bool QLayoutWidget::event(QEvent *e)
         case QEvent::LayoutRequest: {
             (void) QWidget::event(e);
 
-            if (layout() && LayoutInfo::layoutType(formWindow()->core(), parentWidget()) == LayoutInfo::NoLayout)
-                resize(layout()->sizeHint());
+            if (layout() && LayoutInfo::layoutType(formWindow()->core(), parentWidget()) == LayoutInfo::NoLayout) {
+                resize(layout()->totalMinimumSize().expandedTo(size()));
+            }
 
             update();
 
