@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#121 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#120 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#121 $";
 #endif
 
 
@@ -709,8 +709,12 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    cpen.setColor( color1 );
 	}
     }
+    else if ( pdev->devType() == PDT_PRINTER ) {// device is a printer
+	ww = vw = pdev->metric( PDM_WIDTH );
+	wh = vh = pdev->metric( PDM_HEIGHT );
+    }
     else
-	ww = wh = vw = vh = 1;
+	ww = wh = vw = vh = 1024;
     if ( gc ) {					// widget or pixmap
 	XSetBackground( dpy, gc, bg_col.pixel() );
 	bg_mode = TransparentMode;
