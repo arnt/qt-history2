@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qplatformspec.h"
 #include "q3ftp.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
