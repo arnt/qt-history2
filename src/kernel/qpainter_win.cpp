@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#52 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -30,7 +30,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#52 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -1299,7 +1299,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	map( x2, y2, &x2, &y2 );
     }
     POINT pts[2];
-    bool final_pixel = FALSE;
+    bool plot_pixel = FALSE;
     if ( x1 == x2 ) {				// vertical
 	if ( y1 < y2 )
 	    y2++;
@@ -1311,12 +1311,12 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	else
 	    x2--;
     } else {
-	final_pixel = cpen.style() == SolidLine;// draw last pixel
+	plot_pixel = cpen.style() == SolidLine;	// plot last pixel
     }
     pts[0].x = x1;  pts[0].y = y1;
     pts[1].x = x2;  pts[1].y = y2;
     Polyline( hdc, pts, 2 );
-    if ( final_pixel )
+    if ( plot_pixel )
 	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
 }
 
@@ -1722,11 +1722,31 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	if ( txop != TxNone && cpen.style() != NoPen )
 	    pa = xForm( a );
     }
-    Polyline( hdc, (POINT*)(pa.data()+index), npoints );
-    if ( cpen.style() == SolidLine ) {
-	int x, y;
-	pa.point( index+npoints-1, &x, &y );	// plot last point
-	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+    int x1, y1, x2, y2, xsave, ysave;
+    pa.point( index+npoints-2, &x1, &y1 );	// last line segment
+    pa.point( index+npoints-1, &x2, &y2 );
+    xsave = x2; ysave = y2;
+    bool plot_pixel = FALSE;
+    if ( x1 == x2 ) {				// vertical
+	if ( y1 < y2 )
+	    y2++;
+	else
+	    y2--;
+    } else if ( y1 == y2 ) {			// horizontal
+	if ( x1 < x2 )
+	    x2++;
+	else
+	    x2--;
+    } else {
+	plot_pixel = cpen.style() == SolidLine;	// plot last pixel
+    }
+    if ( plot_pixel ) {
+	Polyline( hdc, (POINT*)(pa.data()+index), npoints );
+	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+    } else {
+	pa.setPoint( index+npoints-1, x2, y2 );
+        Polyline( hdc, (POINT*)(pa.data()+index), npoints );
+	pa.setPoint( index+npoints-1, xsave, ysave );
     }
 }
 
@@ -1843,7 +1863,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( mask ) {
 	if ( qt_winver == WV_NT ) {
 	    MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, mask->hbm(),
-		     sx, sy, 0xaacc0020 );
+		     sx, sy, MAKEROP4(SRCCOPY,0x00aa0029) );
 	} else {
 	    if ( pm->depth() == 1 && pm->handle() == mask->handle() ) {
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
