@@ -796,8 +796,8 @@ void QTextDocumentPrivate::enableUndoRedo(bool enable)
         undoPosition = 0;
         truncateUndoStack();
 
-        modified = false;
         lastUnmodifiedUndoStackPos = -1;
+        setModified(false);
     }
     undoEnabled = enable;
 }
@@ -1155,6 +1155,8 @@ void QTextDocumentPrivate::contentsChanged()
     if (editBlock)
         return;
 
+    qDebug() << "QTextDocumentPrivate::contentsChanged"
+             << lastUnmodifiedUndoStackPos << undoPosition;
     if (lastUnmodifiedUndoStackPos != -1
         && lastUnmodifiedUndoStackPos == undoPosition)
         setModified(false);
@@ -1171,12 +1173,8 @@ void QTextDocumentPrivate::setModified(bool m)
 
     modified = m;
 
-    if (!modified) {
-        if (undoEnabled)
+    if (!modified)
             lastUnmodifiedUndoStackPos = undoPosition;
-        else
-            lastUnmodifiedUndoStackPos = -1;
-    }
 
     emit q->modificationChanged(modified);
 }
