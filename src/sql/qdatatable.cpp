@@ -99,7 +99,8 @@ public:
     QStringList fld;
     QStringList fldLabel;
     QValueList<int> fldWidth;
-    QValueList< QIconSet > fldIcon;
+    QValueList<QIconSet> fldIcon;
+    QValueList<bool> fldHidden;
     QSqlCursorManager cur;
     QDataManager dat;
 };
@@ -308,6 +309,7 @@ void QDataTable::addColumn( const QString& fieldName,
     d->fldLabel += label;
     d->fldIcon += iconset;
     d->fldWidth += width;
+    d->fldHidden += FALSE;
 }
 
 /*!
@@ -331,6 +333,7 @@ void QDataTable::setColumn( uint col, const QString& fieldName,
     d->fldLabel[col] = label;
     d->fldIcon[col] = iconset;
     d->fldWidth[col] = width;
+    d->fldHidden[col] = FALSE;
 }
 
 /*!
@@ -347,6 +350,7 @@ void QDataTable::removeColumn( uint col )
 	d->fldLabel.remove( d->fldLabel.at( col ) );
 	d->fldIcon.remove( d->fldIcon.at( col ) );
 	d->fldWidth.remove( d->fldWidth.at( col ) );
+	d->fldHidden.remove( d->fldHidden.at( col ) );
     }
 }
 
@@ -1377,6 +1381,7 @@ void QDataTable::reset()
     d->fldLabel.clear();
     d->fldWidth.clear();
     d->fldIcon.clear();
+    d->fldHidden.clear();
     if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
 }
@@ -1843,6 +1848,7 @@ void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoD
 	    d->fldLabel.clear();
 	    d->fldWidth.clear();
 	    d->fldIcon.clear();
+	    d->fldHidden.clear();
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i ) {
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() );
 		setColumnReadOnly( i, sqlCursor()->field( i )->isReadOnly() );
@@ -2060,10 +2066,13 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 		    setNumCols( numCols() + 1 );
 		    d->colIndex.append( fpos );
 		    setColumnReadOnly( numCols()-1, field->isReadOnly() || isColumnReadOnly( numCols()-1 ) );
-		    QHeader* h = horizontalHeader();
-		    QString label = d->fldLabel[ i ];
-		    QIconSet icons = d->fldIcon[ i ];
-		    h->setLabel( numCols()-1, icons, label );
+		    horizontalHeader()->setLabel( numCols()-1, d->fldIcon[ i ], d->fldLabel[ i ] );
+		    if ( d->fldHidden[ i ] ) {
+			QTable::showColumn( i ); // ugly but necessary
+			QTable::hideColumn( i );
+		    } else {
+			QTable::showColumn( i );
+		    }
 		    if ( d->fldWidth[ i ] > -1 )
 			QTable::setColumnWidth( i, d->fldWidth[i] );
 		}
@@ -2073,13 +2082,13 @@ void QDataTable::refresh( QDataTable::Refresh mode )
     viewport()->setUpdatesEnabled( TRUE );
     viewport()->repaint( FALSE );
     horizontalHeader()->repaint();
+    verticalHeader()->repaint();
     setSize( cur );
     // keep others aware
-    if ( d->lastAt == -1 ) {
-	setCurrentSelection( -1, 0 );
-    } else if ( d->lastAt != currentRow() ) {
+    if ( d->lastAt == -1 )
+ 	setCurrentSelection( -1, -1 );
+    else if ( d->lastAt != currentRow() )
 	setCurrentSelection( currentRow(), currentColumn() );
-    }
 }
 
 /*!
@@ -2179,6 +2188,26 @@ void QDataTable::drawContents( QPainter * p, int cx, int cy, int cw, int ch )
     QTable::drawContents( p, cx, cy, cw, ch );
     if ( sqlCursor() && currentRow() >= 0 )
 	sqlCursor()->seek( currentRow() );
+}
+
+/*!
+    \reimp
+*/
+
+void QDataTable::hideColumn( int col )
+{
+    d->fldHidden[col] = TRUE;
+    refresh( RefreshColumns );
+}
+
+/*!
+    \reimp
+*/
+
+void QDataTable::showColumn( int col )
+{
+    d->fldHidden[col] = FALSE;
+    refresh( RefreshColumns );
 }
 
 /*!

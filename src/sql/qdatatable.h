@@ -149,6 +149,8 @@ public:
     void         setNumRows ( int r );
     bool         findBuffer( const QSqlIndex& idx, int atHint = 0 );
 
+    void 	 hideColumn( int col );
+    void 	 showColumn( int col );
 signals:
     void         currentChanged( QSqlRecord* record );
     void         primeInsert( QSqlRecord* buf );
