@@ -420,16 +420,18 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
     if ( ok )
 	*ok = ok_;
 
-    QString editText = dlg->lineEdit()->text();
-    int i = dlg->lineEdit()->text().find( '.' );
+    QString editText = dlg->lineEdit()->text().lower();
+    bool isExp = editText.find('e') != -1;
+    int i = editText.find( '.' );
+
     if ( i >= 0 ) {
 	// has decimal point, now count digits after that
 	i++;
 	int j = i;
-	while( dlg->lineEdit()->text()[j].isDigit() )
+	while( editText[j].isDigit() || editText[j] == 'e' || editText[j] == '-' || editText[j] == '+' )
 	    j++;
-        if ( j > decimals )
-            editText.truncate( i + decimals );
+        if ( !isExp && j - i > decimals ) // if number contains an 'e' e.g. is exponential we don't truncate at all
+            editText.truncate( i + decimals );	
     }
     result = editText.toDouble();
 
