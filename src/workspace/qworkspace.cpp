@@ -979,7 +979,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 	    } else if(w->inherits("QStatusBar")) {
 		if(activeWindow()) {
 		    QWorkspaceChild *c;
-		    if(c = findChild(activeWindow()))
+		    if ( c = findChild(activeWindow()) ) 
 			c->setStatusBar((QStatusBar*)w);
 		}
 	    } else if(w->inherits("QWorkspaceChild")) {
@@ -1970,10 +1970,15 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	    titlebar->setIcon( pm );
 	}
 #endif
+	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
+	    th += frameWidth();
+	else
+	    th -= contentsRect().y();
+
 	p = QPoint( contentsRect().x(),
 		    th + contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
-		   cs.height() + 2*frameWidth() + th + 2 );
+		   cs.height() + 2*frameWidth() + th );
     } else {
 	p = QPoint( contentsRect().x(), contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
@@ -1990,7 +1995,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
-    widgetResizeHandler->setExtraHeight( th + 2 );
+    widgetResizeHandler->setExtraHeight( th + contentsRect().y() );
     if(parent->windowMode() == QWorkspace::TopLevel && isTopLevel()) {
 	move(0, 0);
 	widgetResizeHandler->setActive( FALSE );
@@ -2081,8 +2086,13 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder ) )
 	    tbrect = QRect( r.x(), r.y(), r.width(), th );
 	titlebar->setGeometry( tbrect );
-	cr = QRect( r.x(), r.y() + titlebar->height() + (shademode ? 5 : 1),
-	    r.width(), r.height() - titlebar->height() - 2 );
+
+	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
+	    th += frameWidth();
+	else
+	    th -= r.y();
+	cr = QRect( r.x(), r.y() + th + (shademode ? (frameWidth() * 3) : 0),
+		    r.width(), r.height() - th );
     } else {
 	cr = r;
     }
@@ -2104,7 +2114,11 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 QSize QWorkspaceChild::baseSize() const
 {
     int th = titlebar ? titlebar->sizeHint().height() : 0;
-    return QSize( 2*frameWidth(), 2*frameWidth() + th + 2 );
+    if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
+	th += frameWidth();
+    else
+	th -= contentsRect().y();
+    return QSize( 2*frameWidth(), 2*frameWidth() + th );
 }
 
 QSize QWorkspaceChild::sizeHint() const
@@ -2456,17 +2470,21 @@ QWidget* QWorkspaceChild::iconWidget() const
 {
     if ( !iconw ) {
 	QWorkspaceChild* that = (QWorkspaceChild*) this;
-	QVBox* vbox = new QVBox(0, "qt_vbox" );
+
+	// ### why do we even need the vbox? -Brad
+	QVBox* vbox = new QVBox(that, "qt_vbox", WType_TopLevel );
+	QTitleBar *tb = new QTitleBar( windowWidget(), vbox, "_workspacechild_icon_");
+	int th = style().pixelMetric( QStyle::PM_TitleBarHeight, tb );
 	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder ) ) {
 	    vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	    vbox->resize( 196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth() );
+	    vbox->resize( 196+2*vbox->frameWidth(), th+2*vbox->frameWidth() );
 	} else {
-	    vbox->resize( 196, 20 );
+	    vbox->resize( 196, th );
 	}
-	QTitleBar *tb = new QTitleBar( windowWidget(), vbox, "_workspacechild_icon_");
 	((QWorkspaceChild*)tb)->setWState( WState_Minimized );
 	that->iconw = tb;
 	iconw->setActive( isActive() );
+
 	connect( iconw, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );
 	connect( iconw, SIGNAL( doClose() ),
