@@ -6,7 +6,7 @@
 applications can be written entirely as source code, or using \QD
 to speed up development.
 
-\img designer.png
+\img designer-wp.png
 \caption Qt Designer
 
 Designing a form with \QD is a simple process. Developers click a
