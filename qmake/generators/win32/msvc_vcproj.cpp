@@ -858,7 +858,6 @@ void VcprojGenerator::initOld()
 		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
 		if(project->isActiveConfig("dll")) {
 		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
-		    project->variables()["MSVCPROJ_LFLAGS"].append("/DEF:"+project->first("DEF_FILE"));
 		}
 	    }
 	    if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin"))
@@ -1080,6 +1079,9 @@ void VcprojGenerator::initOld()
 	    project->variables()["MSVCPROJ_REGSVR_DBG"].append(regcmd.arg(executable).arg(executable).arg(executable));
 	}
     }
+
+    if ( !project->variables()["DEF_FILE"].isEmpty() )
+	project->variables()["MSVCPROJ_LFLAGS"].append("/DEF:"+project->first("DEF_FILE"));
 
     // FORMS ---------------------------------------------------------
     QStringList &list = project->variables()["FORMS"];
