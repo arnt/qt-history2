@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#22 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -605,10 +605,11 @@ void QWorkspaceChild::setActive( bool b)
 
     if (act) {
 	QObjectList* ol = clientw->queryList( "QWidget" );
-	for (QObject* o = ol->first(); o; o = ol->next() )
+	QObject *o;
+	for ( o = ol->first(); o; o = ol->next() )
 	    o->removeEventFilter( this );
 	bool hasFocus = FALSE;
-	for (QObject* o = ol->first(); o; o = ol->next() ) {
+	for ( o = ol->first(); o; o = ol->next() ) {
 	    hasFocus |= ((QWidget*)o)->hasFocus();
 	}
 	if ( !hasFocus ) {
