@@ -2367,6 +2367,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 
 QTextParag::~QTextParag()
 {
+    delete str;
     if ( doc && p == doc->minwParag ) {
 	doc->minwParag = 0;
 	doc->minw = 0;
@@ -2374,9 +2375,7 @@ QTextParag::~QTextParag()
     if ( !doc ) {
 	delete pFormatter;
 	delete commandHistory;
-	defFormat->removeRef();
     }
-    delete str;
     if ( tabArray )
 	delete [] tabArray;
     delete eData;
@@ -5762,6 +5761,7 @@ QTextTableCell::~QTextTableCell()
     delete background;
     background = 0;
     delete richtext;
+    richtext = 0;
 }
 
 QSize QTextTableCell::sizeHint() const

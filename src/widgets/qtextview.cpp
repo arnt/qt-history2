@@ -1546,7 +1546,9 @@ void QTextView::setText( const QString &txt, const QString &context )
 {
     lastFormatted = 0;
     doc->setText( txt, context );
+    cursor->restoreState();
     resizeContents( 0, 0 );
+    cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
@@ -2373,7 +2375,9 @@ QTextView::WrapPolicy QTextView::wrapPolicy() const
 
 void QTextView::clear()
 {
+    cursor->restoreState();
     doc->clear( TRUE );
+    cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
