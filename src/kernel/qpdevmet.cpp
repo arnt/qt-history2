@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpdevmet.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpdevmet.cpp#4 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -13,9 +13,17 @@
 #include "qpdevmet.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#4 $";
 #endif
 
+/*! \class QPaintDeviceMetrics qpdevmet.h
+
+  \brief The QPaintDeviceMetrics class provides information about a
+  paint device.
+
+  This class is not yet documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 {
