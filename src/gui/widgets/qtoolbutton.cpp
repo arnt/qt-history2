@@ -28,32 +28,8 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qvariant.h>
+#include <private/qtoolbutton_p.h>
 
-#include <private/qabstractbutton_p.h>
-
-
-class QToolButtonPrivate : public QAbstractButtonPrivate
-{
-    Q_DECLARE_PUBLIC(QToolButton)
-public:
-    void init();
-    void popupPressed();
-    void popupTimerDone();
-    QStyleOptionToolButton getStyleOption() const;
-    QPointer<QMenu> menu; //the menu set by the user (setMenu)
-    QPointer<QMenu> actualMenu; //the menu being displayed (could be the same as menu above)
-    QBasicTimer popupTimer;
-    int delay;
-    Qt::ArrowType arrow;
-    uint instantPopup          : 1;
-    uint autoRaise             : 1;
-    uint repeat                : 1;
-    uint usesTextLabel         : 1;
-    uint usesBigPixmap         : 1;
-    uint hasArrow              : 1;
-    uint discardNextMouseEvent : 1;
-    QToolButton::TextPosition textPos;
-};
 
 #define d d_func()
 #define q q_func()
@@ -827,6 +803,14 @@ void QToolButton::setTextPosition(TextPosition pos)
     d->textPos = pos;
     updateGeometry();
     update();
+}
+
+/*! \internal
+ */
+QToolButton::QToolButton(QToolButtonPrivate &dd, QWidget *parent)
+    :QAbstractButton(dd, parent)
+{
+    d->init();
 }
 
 /*!

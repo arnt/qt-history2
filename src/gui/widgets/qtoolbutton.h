@@ -72,6 +72,7 @@ public slots:
     void setTextPosition(TextPosition pos);
 
 protected:
+    QToolButton(QToolButtonPrivate &, QWidget* parent);
     void mousePressEvent(QMouseEvent *);
     void drawBevel(QPainter *);
     void drawLabel(QPainter *);
