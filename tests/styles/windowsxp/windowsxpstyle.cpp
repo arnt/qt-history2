@@ -163,6 +163,10 @@ static int activeScrollBarElement       = 0;
 #define TVP_TREEITEM		3
 
 
+static ulong ref = 0;
+static bool use_xp  = FALSE;
+static bool init_xp = FALSE;
+
 class QWindowsXPStylePrivate
 {
 public:
@@ -171,11 +175,14 @@ public:
     {
         if ( !init_xp && qWinVersion() == Qt::WV_XP ) {
 	    init_xp = TRUE;
+	    if ( SearchPathA( NULL, "uxtheme.dll", NULL, 0, NULL, NULL ) ) {
+		limboWidget = new QWidget( 0, "xp_limbo_widget" );
+		hwnd = limboWidget->winId();
 
-	    limboWidget = new QWidget( 0, "xp_limbo_widget" );
-	    hwnd = limboWidget->winId();
-
-	    use_xp = IsThemeActive() && IsAppThemed();
+		use_xp = IsThemeActive() && IsAppThemed();
+	    } else {
+		use_xp = FALSE;
+	    }
 	}
 	if ( use_xp )
 	    ref++;
@@ -207,7 +214,6 @@ public:
     }
 
     static HWND hwnd;
-    static bool use_xp;
 
     // hot-widget stuff
     QPoint hotSpot;
@@ -218,16 +224,12 @@ public:
     QPalette oldPalette;
 
 private:
-    static ulong ref;
-    static bool init_xp;
     static QWidget *limboWidget;
 };
 
-ulong QWindowsXPStylePrivate::ref = 0;
-bool QWindowsXPStylePrivate::use_xp  = FALSE;
-bool QWindowsXPStylePrivate::init_xp = FALSE;
 QWidget *QWindowsXPStylePrivate::limboWidget = 0;
 HWND QWindowsXPStylePrivate::hwnd = NULL;
+
 
 struct XPThemeData
 {
@@ -248,7 +250,7 @@ struct XPThemeData
 
     HTHEME handle()
     {
-	if ( !QWindowsXPStylePrivate::use_xp )
+	if ( !use_xp )
 	    return NULL;
 
         if ( !htheme )
@@ -259,7 +261,7 @@ struct XPThemeData
 
     bool isValid()
     {
-        return partId && stateId && handle();
+        return use_xp && partId && stateId && handle();
     }
 
     RECT rect()
@@ -340,6 +342,11 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveOperation op,
 		    PFlags flags,
 		    void **data ) const
 {
+    if ( !use_xp ) {
+	QWindowsStyle::drawPrimitive( op, p, r, cg, flags, data );
+	return;
+    }
+
     LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
@@ -486,6 +493,11 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		  CFlags how,
 		  void **data ) const
 {
+    if ( !use_xp ) {
+	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+	return;
+    }
+	
     LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
@@ -610,6 +622,11 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			 SCFlags subActive,
 			 void **data ) const
 {
+    if ( !use_xp ) {
+	QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, data );
+	return;
+    }
+
     LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
@@ -889,13 +906,15 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 QRect QWindowsXPStyle::subRect( SubRect r, const QWidget *widget ) const
 {
-    return QWindowsStyle::subRect( r, widget );
+    if ( 1 ) // !use_xp
+	return QWindowsStyle::subRect( r, widget );
 }
 
 int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 		 const QWidget *widget ) const
 {
-    return QWindowsStyle::pixelMetric( metric, widget );
+    if ( 1 ) // !use_xp
+	return QWindowsStyle::pixelMetric( metric, widget );
 }
 
 QSize QWindowsXPStyle::sizeFromContents( ContentsType contents,
@@ -903,14 +922,16 @@ QSize QWindowsXPStyle::sizeFromContents( ContentsType contents,
 			const QSize &contentsSize,
 			void **data ) const
 {
-    return QWindowsStyle::sizeFromContents( contents, w, contentsSize, data );
+    if ( 1 ) // !use_xp
+	return QWindowsStyle::sizeFromContents( contents, w, contentsSize, data );
 }
 
 QPixmap QWindowsXPStyle::stylePixmap( StylePixmap stylepixmap,
 		     const QWidget * w,
 		     void **data ) const
 {
-    return QWindowsStyle::stylePixmap( stylepixmap, w, data );
+    if ( 1 ) // !use_xp
+	return QWindowsStyle::stylePixmap( stylepixmap, w, data );
 }
 
 
@@ -2045,7 +2066,7 @@ void QWindowsXPStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h
 // HotSpot magic
 bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 {
-    if ( o && o->isWidgetType() ) {
+    if ( use_xp && o && o->isWidgetType() ) {
 	switch ( e->type() ) {
 	case QEvent::MouseMove:
 	    {
