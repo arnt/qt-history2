@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#24 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#25 $
 **
 ** Definition of QObject class
 **
@@ -19,9 +19,6 @@
 
 class QObject					// base class for Q objects
 {
-friend class QWidget;
-friend class QSignal;
-friend class QSenderObject;
 public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
@@ -103,6 +100,11 @@ private:
     QObjectList *senderObjects;			// list of sender objects
     QObjectList *eventFilters;			// list of event filters
     QObject	*sigSender;			// sender of last signal
+
+    friend class QApplication;
+    friend class QWidget;
+    friend class QSignal;
+    friend class QSenderObject;
 };
 
 
