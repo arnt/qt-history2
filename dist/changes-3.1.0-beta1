@@ -57,9 +57,8 @@ plugins).
 Qt/Mac, the Mac OS X version of Qt, was an instant success when it was
 introduced with version 3.0. In 3.1, many improvements have been added
 to further integrate Qt with the Mac OS X environment, e.g. Appearance
-Manager, anitaliased text drawing, and user settings. The Qt OpenGL
-support is greatly improved, and uses the hardware-accellerated
-drivers.
+Manager, antialiased text drawing, and user settings. The Qt OpenGL
+support is greatly improved, and uses the hardware-accelerated drivers.
 
 Last, but not least: As all major Qt releases, the 3.1 release adds
 hundreds of improvements in the existing class library. Here is a
@@ -95,6 +94,10 @@ a QMutexLocker class to simplify locking and unlocking of mutextes.
 - Input methods - Add a selectionLength() method to QIMEvent, handle
 japanese compositions correctly. Added support for AIMM based input
 methods (those working on non asian versions of Win95/98/ME).
+
+- Large File support - Qt internals have been modified to support
+Large Files (> 2GB). QFileDialog will now correctly display and
+select Lareg Files.
 
 - SQL module - added support for prepared query execution and value
 binding. Among other things, this makes it possible to write large
@@ -144,7 +147,6 @@ QApplication
 Handling of the event loop has been moved to the QEventLoop class,
 making the integration of other toolkits with Qt easier.
 
-
 New functions:
 	QEventLoop *eventLoop() const
 	void setEventLoop( QEventLoop * )
@@ -167,7 +169,7 @@ New functions:
 	void setImage( const QImage &, Mode mode )
 	void setPixmap( const QPixmap &, Mode mode )
 
-QDesktopWidget:
+QDesktopWidget
 ------------------
 New functions:
 	const QRect& screenGeometry( QWidget *widget ) const
@@ -175,6 +177,29 @@ New functions:
 	const QRect& availableGeometry( int screen ) const
 	const QRect& availableGeometry( QWidget *widget ) const
 	const QRect& availableGeometry( const QPoint &point ) const
+
+QFileDialog
+------------------
+Large Files (> 2GB) are now correctly displayed and selected.
+
+QFileInfo
+------------------
+QFileInfo now supports Large Files (> 2GB) internally. For reasons of
+binary compatibility the QFileInfo API cannot be adapted before Qt 4
+and will truncate file sizes and offsets to 4 GB.
+
+New functions:
+	bool isHidden() const
+
+QFile
+------------------
+QFile now supports Large Files (> 2GB) internally. For reasons of binary
+compatibility the QFile API cannot be adapted before Qt 4 and will truncate
+file sizes and offsets to 4 GB.
+
+QDir
+------------------
+QDir now supports Large Files (> 2GB).
 
 QImEvent
 ------------------
@@ -409,11 +434,6 @@ QDateTime
 New functions:
 	static QDateTime currentDateTime( Qt::DateTimeSpec )
 
-QFileInfo
-------------------
-New functions:
-	bool isHidden() const
-
 QPtrList
 ------------------
 New functions:
@@ -478,7 +498,7 @@ QTextStream
 New functions:
 	QTextCodec *codec()
 
-QTimeEdit:
+QTimeEdit
 ------------------
 New properties:
 	Display display
@@ -490,7 +510,7 @@ New functions:
 New enum:
 	Display { Hours = 0x01, Minutes = 0x02, Seconds = 0x04, AMPM = 0x10 }
 
-QFrame:
+QFrame
 ------------------
 New enum value:
 	GroupBoxPanel = 0x000c
