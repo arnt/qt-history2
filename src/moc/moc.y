@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#268 $
+** $Id: //depot/qt/main/src/moc/moc.y#269 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2595,8 +2595,8 @@ int generateProps()
     {
 	fprintf( out, "    int id = parentObject->propertyOffset() + parentObject->numProperties();\n");
 	fprintf( out, "    static QMetaProperty props_tbl[%d]; ", g->props.count() );
-	fprintf( out, "QMetaProperty *p; int e = 0;\n", g->props.count() );
-	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ){
+	fprintf( out, "QMetaProperty *p; int e = 0;\n" );
+	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ) {
 
 	    fprintf( out, "    (p=&props_tbl[e++])->t = \"%s\"; ", it.current()->type.data() );
 	    fprintf( out, "p->n = \"%s\"; ", it.current()->name.data() );
@@ -2607,7 +2607,7 @@ int generateProps()
 		flags += "QMetaProperty::EnumOrSet|";
 		int enumpos = -1;
 		int k = 0;
-		for( QPtrListIterator<Enum> eit( g->enums ); eit.current(); ++eit, ++k ){
+		for( QPtrListIterator<Enum> eit( g->enums ); eit.current(); ++eit, ++k ) {
 		    if ( eit.current()->name == it.current()->type )
 			enumpos = k;
 		}
@@ -2682,7 +2682,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#268 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#269 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
