@@ -1718,6 +1718,10 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 		resize( re->size() + baseSize() );
 	}
 	break;
+    case QEvent::WindowDeactivate:
+	QApplication::sendEvent( titlebar, e );
+	((QWorkspace*)parentWidget())->activateWindow( 0, FALSE );
+	break;
     default:
 	break;
     }

@@ -133,18 +133,19 @@ class QTitleBarPrivate
 {
 public:
     QTitleBarPrivate()
-	: toolTip( 0 ), act( 0 ), window( 0 ), movable( 1 ), pressed( 0 ), autoraise(0)
+	: toolTip( 0 ), window( 0 ), act( 0 ), movable( 1 ), pressed( 0 ), autoraise(0), wasActive( 0 )
     {
     }
 
     QStyle::SCFlags buttonDown;
     QPoint moveOffset;
     QToolTip *toolTip;
-    bool act		    :1;
     QWidget* window;
+    bool act		    :1;    
     bool movable            :1;
     bool pressed            :1;
     bool autoraise          :1;
+    bool wasActive	    :1;
     QString cuttext;
 };
 
@@ -578,7 +579,7 @@ void QTitleBar::enterEvent( QEvent * )
 void QTitleBar::setActive( bool active )
 {
     if ( d->act == active )
-	return ;
+	return;
 
     d->act = active;
     update();
@@ -605,11 +606,10 @@ bool QTitleBar::event( QEvent* e )
 	readColors();
 	return TRUE;
     } else if ( e->type() == QEvent::WindowActivate ) {
-	setActive( d->act );
+	setActive( d->wasActive );
     } else if ( e->type() == QEvent::WindowDeactivate ) {
-	bool wasActive = d->act;
+	d->wasActive = d->act;
 	setActive( FALSE );
-	d->act = wasActive;
     }
 
     return QWidget::event( e );
