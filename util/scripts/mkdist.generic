@@ -82,7 +82,7 @@ if [ "$local" = "yes" ]; then
   rm -f ${DISTDIR}/qt/src/moc/moc
 else
   echo "Exporting the entire Qt archive..." >&2
-  cvs -Q export -rrelease-20D qt
+  cvs -Q export -rrelease-20 qt
   echo "Exporting the latest tmake" >&2
   cvs -Q export -rHEAD tmake
   export TMAKEDIR=$DISTDIR/tmake
