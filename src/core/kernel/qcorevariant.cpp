@@ -1211,10 +1211,6 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     you must make a deep copy of the returned values before modifying
     them.
 
-    The asT() functions are not const. They do conversion like the
-    toT() methods, set the variant to hold the converted value, and
-    return a reference to the new contents of the variant.
-
     Here is some example code to demonstrate the use of QCoreVariant:
 
     \code
@@ -1235,7 +1231,6 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
             v.typeName());
     v.asInt() += 100;               // The variant now hold the value 223.
     v = QCoreVariant(QStringList());
-    v.asStringList().append("Hello");
     \endcode
 
     You can even store QCoreVariantLists and
