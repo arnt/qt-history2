@@ -29,6 +29,50 @@
 #define WIDGETBOXICON QLatin1String("widgetboxicon")
 #define CATEGORY QLatin1String("category")
 
+class WidgetBoxDelegate: public QItemDelegate
+{
+    public:
+        WidgetBoxDelegate(QWidget *parent)
+    : QItemDelegate(parent) {}
+
+        virtual void paint(QPainter *painter,
+                           const QStyleOptionViewItem &option,
+                           const QModelIndex &index) const
+        {
+        // unfortunately we don't have access to the view here :(
+        // It is very annoying, as workaround we can check if
+        // the parent of this delegator is an AbstractItemView.
+        // NOTE: with this hack is not possible to share an instance
+        // of the WidgetBoxDelegate.
+
+            if (QAbstractItemView *view = qt_cast<QAbstractItemView*>(parent())) {
+                QAbstractItemModel *model = view->model();
+                Q_ASSERT(model);
+
+                if (!model->parent(index).isValid()) {
+                // this is a top-level item.
+                    QStyleOptionButton buttonOption;
+
+                    buttonOption.state = option.state;
+                //buttonOption.state |= QStyle::Style_Active;
+                    // buttonOption.state |= QStyle::State_Raised;
+                    buttonOption.state &= ~QStyle::State_HasFocus;
+
+
+                    buttonOption.rect = option.rect;
+                    buttonOption.palette = option.palette;
+                    buttonOption.features = QStyleOptionButton::None;
+                    buttonOption.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
+                    buttonOption.icon = model->data(index, QAbstractItemModel::DecorationRole).toIcon();
+                    view->style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter, view);
+                    return;
+                }
+            }
+
+            QItemDelegate::paint(painter, option, index);
+        }
+};
+
 class WidgetBoxDnDItem : public AbstractDnDItem
 {
     Q_OBJECT
@@ -586,7 +630,7 @@ QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
             return item.name;
         case DecorationRole:
             if (d == -1)
-                return createIconSet("object.png");
+                return QVariant();
             return item.icon.pixmap(Qt::SmallIconSize, QIcon::Normal);
         default:
             return QVariant();
@@ -724,6 +768,8 @@ WidgetBoxListView::WidgetBoxListView(WidgetCollectionModel *model, QWidget *pare
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);
     WidgetBoxListViewChild *child = new WidgetBoxListViewChild(model, this);
+    child->setItemDelegate(new WidgetBoxDelegate(child));
+
     l->addWidget(child);
     connect(child, SIGNAL(pressed(const QModelIndex&, Qt::MouseButton,
                                              Qt::KeyboardModifiers)),
@@ -732,11 +778,18 @@ WidgetBoxListView::WidgetBoxListView(WidgetCollectionModel *model, QWidget *pare
 
 void WidgetBoxListView::handleMousePress(const QModelIndex &index, Qt::MouseButton button)
 {
+    if (QTreeView *child = qt_cast<QTreeView*>(sender())) {
+        if (!child->model()->parent(index).isValid()) {
+            child->setOpen(index, !child->isOpen(index));
+        }
+    }
+
     if (!index.isValid())
         return;
     QDomElement elt = model()->widgetElt(index);
     if (elt.isNull())
         return;
+
     emit pressed(elt, QRect(), button);
 }
 
