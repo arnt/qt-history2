@@ -986,8 +986,8 @@ void QX11PaintEngine::drawRect(const QRectF &rect)
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
 
-    if (!testf(MonoDev) && pict && d->cbrush.style() != Qt::NoBrush
-	&& d->cbrush.color().alpha() != 255) {
+    if (X11->use_xrender && !testf(MonoDev) && pict && d->cbrush.style() != Qt::NoBrush
+        && d->cbrush.color().alpha() != 255) {
 	XRenderColor xc;
 	QColor qc = d->cbrush.color();
 
