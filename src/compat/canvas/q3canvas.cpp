@@ -11,50 +11,48 @@
 **
 ****************************************************************************/
 
-#include "qcanvas.h"
-#ifndef QT_NO_CANVAS
+#include "q3canvas.h"
 #include "qapplication.h"
 #include "qbitmap.h"
-#include "qdesktopwidget.h"
-#include "qhash.h"
 #include "qimage.h"
-#include "qlist.h"
+#include "q3ptrdict.h"
 #include "qpainter.h"
 #include "qpolygonscanner.h"
 #include "qtimer.h"
-#include "qalgorithms.h"
+#include "qtl.h"
 
 #include <stdlib.h>
+using namespace Qt;
 
-class QCanvasData {
+class Q3CanvasData {
 public:
-    QCanvasData()
+    Q3CanvasData() :
+	itemDict(1013), animDict(503)
     {
     }
 
-    QList<QCanvasView*> viewList;
-    QHash<QCanvasItem*, bool> itemDict;
-    QHash<QCanvasItem*, bool> animDict;
+    Q3PtrList<Q3CanvasView> viewList;
+    Q3PtrDict<void> itemDict;
+    Q3PtrDict<void> animDict;
 };
 
-class QCanvasViewData {
+class Q3CanvasViewData {
 public:
-    QCanvasViewData() : repaint_from_moving(false)
-			,update_outside_paintevent(false) {}
+    Q3CanvasViewData() : repaint_from_moving(false), update_outside_paintevent(false) {}
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix xform;
-    QWMatrix ixform;
+    QMatrix xform;
+    QMatrix ixform;
 #endif
-    bool repaint_from_moving : 1;
-    bool update_outside_paintevent : 1;
+    bool repaint_from_moving;
+    bool update_outside_paintevent;
 };
 
 // clusterizer
 
-class QCanvasClusterizer {
+class Q3CanvasClusterizer {
 public:
-    QCanvasClusterizer(int maxclusters);
-    ~QCanvasClusterizer();
+    Q3CanvasClusterizer(int maxclusters);
+    ~Q3CanvasClusterizer();
 
     void add(int x, int y); // 1x1 rectangle (point)
     void add(int x, int y, int w, int h);
@@ -74,50 +72,50 @@ static
 void include(QRect& r, const QRect& rect)
 {
     if (rect.left()<r.left()) {
-            r.setLeft(rect.left());
+	    r.setLeft(rect.left());
     }
     if (rect.right()>r.right()) {
-            r.setRight(rect.right());
+	    r.setRight(rect.right());
     }
     if (rect.top()<r.top()) {
-            r.setTop(rect.top());
+	    r.setTop(rect.top());
     }
     if (rect.bottom()>r.bottom()) {
-            r.setBottom(rect.bottom());
+	    r.setBottom(rect.bottom());
     }
 }
 
 /*
-A QCanvasClusterizer groups rectangles (QRects) into non-overlapping rectangles
+A Q3CanvasClusterizer groups rectangles (QRects) into non-overlapping rectangles
 by a merging heuristic.
 */
-QCanvasClusterizer::QCanvasClusterizer(int maxclusters) :
+Q3CanvasClusterizer::Q3CanvasClusterizer(int maxclusters) :
     cluster(new QRect[maxclusters]),
     count(0),
     maxcl(maxclusters)
 { }
 
-QCanvasClusterizer::~QCanvasClusterizer()
+Q3CanvasClusterizer::~Q3CanvasClusterizer()
 {
     delete [] cluster;
 }
 
-void QCanvasClusterizer::clear()
+void Q3CanvasClusterizer::clear()
 {
     count=0;
 }
 
-void QCanvasClusterizer::add(int x, int y)
+void Q3CanvasClusterizer::add(int x, int y)
 {
     add(QRect(x,y,1,1));
 }
 
-void QCanvasClusterizer::add(int x, int y, int w, int h)
+void Q3CanvasClusterizer::add(int x, int y, int w, int h)
 {
     add(QRect(x,y,w,h));
 }
 
-void QCanvasClusterizer::add(const QRect& rect)
+void Q3CanvasClusterizer::add(const QRect& rect)
 {
     QRect biggerrect(rect.x()-1,rect.y()-1,rect.width()+2,rect.height()+2);
 
@@ -126,44 +124,44 @@ void QCanvasClusterizer::add(const QRect& rect)
     int cursor;
 
     for (cursor=0; cursor<count; cursor++) {
-        if (cluster[cursor].contains(rect)) {
-            // Wholly contained already.
-            return;
-        }
+	if (cluster[cursor].contains(rect)) {
+	    // Wholly contained already.
+	    return;
+	}
     }
 
     int lowestcost=9999999;
     int cheapest=-1;
     cursor = 0;
     while(cursor<count) {
-        if (cluster[cursor].intersects(biggerrect)) {
-            QRect larger=cluster[cursor];
-            include(larger,rect);
-            int cost = larger.width()*larger.height() -
-                       cluster[cursor].width()*cluster[cursor].height();
+	if (cluster[cursor].intersects(biggerrect)) {
+	    QRect larger=cluster[cursor];
+	    include(larger,rect);
+	    int cost = larger.width()*larger.height() -
+		       cluster[cursor].width()*cluster[cursor].height();
 
-            if (cost < lowestcost) {
-                bool bad=false;
-                for (int c=0; c<count && !bad; c++) {
-                    bad=cluster[c].intersects(larger) && c!=cursor;
-                }
-                if (!bad) {
-                    cheapest=cursor;
-                    lowestcost=cost;
-                }
-            }
-        }
-        cursor++;
+	    if (cost < lowestcost) {
+		bool bad=false;
+		for (int c=0; c<count && !bad; c++) {
+		    bad=cluster[c].intersects(larger) && c!=cursor;
+		}
+		if (!bad) {
+		    cheapest=cursor;
+		    lowestcost=cost;
+		}
+	    }
+	}
+	cursor++;
     }
 
     if (cheapest>=0) {
-        include(cluster[cheapest],rect);
-        return;
+	include(cluster[cheapest],rect);
+	return;
     }
 
     if (count < maxcl) {
-        cluster[count++]=rect;
-        return;
+	cluster[count++]=rect;
+	return;
     }
 
     // Do cheapest of:
@@ -174,21 +172,21 @@ void QCanvasClusterizer::add(const QRect& rect)
     cheapest=-1;
     cursor=0;
     while(cursor<count) {
-        QRect larger=cluster[cursor];
-        include(larger,rect);
-        int cost=larger.width()*larger.height()
-                - cluster[cursor].width()*cluster[cursor].height();
-        if (cost < lowestcost) {
-            bool bad=false;
-            for (int c=0; c<count && !bad; c++) {
-                bad=cluster[c].intersects(larger) && c!=cursor;
-            }
-            if (!bad) {
-                cheapest=cursor;
-                lowestcost=cost;
-            }
-        }
-        cursor++;
+	QRect larger=cluster[cursor];
+	include(larger,rect);
+	int cost=larger.width()*larger.height()
+		- cluster[cursor].width()*cluster[cursor].height();
+	if (cost < lowestcost) {
+	    bool bad=false;
+	    for (int c=0; c<count && !bad; c++) {
+		bad=cluster[c].intersects(larger) && c!=cursor;
+	    }
+	    if (!bad) {
+		cheapest=cursor;
+		lowestcost=cost;
+	    }
+	}
+	cursor++;
     }
 
     // ###
@@ -200,37 +198,37 @@ void QCanvasClusterizer::add(const QRect& rect)
 
     int merge1 = 0;
     while(merge1 < count) {
-        int merge2=0;
-        while(merge2 < count) {
-            if(merge1!=merge2) {
-                QRect larger=cluster[merge1];
-                include(larger,cluster[merge2]);
-                int cost=larger.width()*larger.height()
-                    - cluster[merge1].width()*cluster[merge1].height()
-                    - cluster[merge2].width()*cluster[merge2].height();
-                if (cost < lowestcost) {
-                    bool bad=false;
-                    for (int c=0; c<count && !bad; c++) {
-                        bad=cluster[c].intersects(larger) && c!=cursor;
-                    }
-                    if (!bad) {
-                        cheapestmerge1=merge1;
-                        cheapestmerge2=merge2;
-                        lowestcost=cost;
-                    }
-                }
-            }
-            merge2++;
-        }
-        merge1++;
+	int merge2=0;
+	while(merge2 < count) {
+	    if(merge1!=merge2) {
+		QRect larger=cluster[merge1];
+		include(larger,cluster[merge2]);
+		int cost=larger.width()*larger.height()
+		    - cluster[merge1].width()*cluster[merge1].height()
+		    - cluster[merge2].width()*cluster[merge2].height();
+		if (cost < lowestcost) {
+		    bool bad=false;
+		    for (int c=0; c<count && !bad; c++) {
+			bad=cluster[c].intersects(larger) && c!=cursor;
+		    }
+		    if (!bad) {
+			cheapestmerge1=merge1;
+			cheapestmerge2=merge2;
+			lowestcost=cost;
+		    }
+		}
+	    }
+	    merge2++;
+	}
+	merge1++;
     }
 
     if (cheapestmerge1>=0) {
-        include(cluster[cheapestmerge1],cluster[cheapestmerge2]);
-        cluster[cheapestmerge2]=cluster[count--];
+	include(cluster[cheapestmerge1],cluster[cheapestmerge2]);
+	cluster[cheapestmerge2]=cluster[count--];
     } else {
-        // if (!cheapest) debugRectangles(rect);
-        include(cluster[cheapest],rect);
+	// if (!cheapest) debugRectangles(rect);
+	include(cluster[cheapest],rect);
     }
 
     // NB: clusters do not intersect (or intersection will
@@ -244,7 +242,7 @@ void QCanvasClusterizer::add(const QRect& rect)
     // and rephrase it as pre-/post-conditions.
 }
 
-const QRect& QCanvasClusterizer::operator[](int i)
+const QRect& Q3CanvasClusterizer::operator[](int i)
 {
     return cluster[i];
 }
@@ -267,143 +265,143 @@ static void qt_setcliprect(QPainter *p, const QRect &r)
     qt_setclipregion(p, QRegion(r));
 }
 
-class QCanvasItemPtr {
-public:
-    QCanvasItemPtr() : ptr(0) { }
-    QCanvasItemPtr(QCanvasItem* p) : ptr(p) { }
 
-    bool operator<=(const QCanvasItemPtr& that) const
+class Q_COMPAT_EXPORT Q3CanvasItemPtr {
+public:
+    Q3CanvasItemPtr() : ptr(0) { }
+    Q3CanvasItemPtr(Q3CanvasItem* p) : ptr(p) { }
+
+    bool operator<=(const Q3CanvasItemPtr& that) const
     {
-        // Order same-z objects by identity.
-        if (that.ptr->z()==ptr->z())
-            return that.ptr <= ptr;
-        return that.ptr->z() <= ptr->z();
+	// Order same-z objects by identity.
+	if (that.ptr->z()==ptr->z())
+	    return that.ptr <= ptr;
+	return that.ptr->z() <= ptr->z();
     }
-    bool operator<(const QCanvasItemPtr& that) const
+    bool operator<(const Q3CanvasItemPtr& that) const
     {
-        // Order same-z objects by identity.
-        if (that.ptr->z()==ptr->z())
-            return that.ptr < ptr;
-        return that.ptr->z() < ptr->z();
+	// Order same-z objects by identity.
+	if (that.ptr->z()==ptr->z())
+	    return that.ptr < ptr;
+	return that.ptr->z() < ptr->z();
     }
-    bool operator>(const QCanvasItemPtr& that) const
+    bool operator>(const Q3CanvasItemPtr& that) const
     {
-        // Order same-z objects by identity.
-        if (that.ptr->z()==ptr->z())
-            return that.ptr > ptr;
-        return that.ptr->z() > ptr->z();
+	// Order same-z objects by identity.
+	if (that.ptr->z()==ptr->z())
+	    return that.ptr > ptr;
+	return that.ptr->z() > ptr->z();
     }
-    bool operator==(const QCanvasItemPtr& that) const
+    bool operator==(const Q3CanvasItemPtr& that) const
     {
-            return that.ptr == ptr;
+	    return that.ptr == ptr;
     }
-    operator QCanvasItem*() const { return ptr; }
+    operator Q3CanvasItem*() const { return ptr; }
 
 private:
-    QCanvasItem* ptr;
+    Q3CanvasItem* ptr;
 };
 
-Q_DECLARE_TYPEINFO(QCanvasItemPtr, Q_PRIMITIVE_TYPE);
 
 /*!
-    \class QCanvasItemList
-    \brief The QCanvasItemList class is a list of QCanvasItems.
-
+    \class Q3CanvasItemList
+    \brief The Q3CanvasItemList class is a list of Q3CanvasItems.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
-    QCanvasItemList is a QList of pointers to \l{QCanvasItem}s.
-    This class is used by some methods in QCanvas that need to return
+    Q3CanvasItemList is a Q3ValueList of pointers to \l{Q3CanvasItem}s.
+    This class is used by some methods in Q3Canvas that need to return
     a list of canvas items.
 
-    The \l QList documentation describes how to use this list.
+    The \l Q3ValueList documentation describes how to use this list.
 */
 
 /*!
   \internal
 */
-void QCanvasItemList::sort()
+void Q3CanvasItemList::sort()
 {
-    qHeapSort(*((QList<QCanvasItemPtr>*)this));
+    qHeapSort(*((Q3ValueList<Q3CanvasItemPtr>*)this));
 }
 
 /*!
   \internal
 */
-void QCanvasItemList::drawUnique(QPainter& painter)
+void Q3CanvasItemList::drawUnique(QPainter& painter)
 {
-    QCanvasItem* prev=0;
-    for (Iterator it = end(); it!=begin();) {
-        --it;
-        QCanvasItem *g=*it;
-        if (g!=prev) {
-            g->draw(painter);
-            prev=g;
-        }
+    Q3CanvasItem* prev=0;
+    for (Iterator it=fromLast(); it!=end(); --it) {
+	Q3CanvasItem *g=*it;
+	if (g!=prev) {
+	    g->draw(painter);
+	    prev=g;
+	}
     }
 }
 
 /*!
     Returns the concatenation of this list and list \a l.
 */
-QCanvasItemList QCanvasItemList::operator+(const QCanvasItemList &l) const
+Q3CanvasItemList Q3CanvasItemList::operator+(const Q3CanvasItemList &l) const
 {
-    QCanvasItemList l2(*this);
+    Q3CanvasItemList l2(*this);
     for(const_iterator it = l.begin(); it != l.end(); ++it)
        l2.append(*it);
     return l2;
 }
 
-class QCanvasChunk {
+class Q3CanvasChunk {
 public:
-    QCanvasChunk() : changed(true) { }
+    Q3CanvasChunk() : changed(true) { }
     // Other code assumes lists are not deleted. Assignment is also
     // done on ChunkRecs. So don't add that sort of thing here.
 
     void sort()
     {
-        list.sort();
+	list.sort();
     }
 
-    const QCanvasItemList* listPtr() const
+    const Q3CanvasItemList* listPtr() const
     {
-        return &list;
+	return &list;
     }
 
-    void add(QCanvasItem* item)
+    void add(Q3CanvasItem* item)
     {
-        list.prepend(item);
-        changed = true;
+	list.prepend(item);
+	changed = true;
     }
 
-    void remove(QCanvasItem* item)
+    void remove(Q3CanvasItem* item)
     {
-        list.removeAll(item);
-        changed = true;
+	list.remove(item);
+	changed = true;
     }
 
     void change()
     {
-        changed = true;
+	changed = true;
     }
 
     bool hasChanged() const
     {
-        return changed;
+	return changed;
     }
 
     bool takeChange()
     {
-        bool y = changed;
-        changed = false;
-        return y;
+	bool y = changed;
+	changed = false;
+	return y;
     }
 
 private:
-    QCanvasItemList list;
+    Q3CanvasItemList list;
     bool changed;
 };
 
@@ -412,8 +410,8 @@ static int gcd(int a, int b)
 {
     int r;
     while ((r = a%b)) {
-        a=b;
-        b=r;
+	a=b;
+	b=r;
     }
     return b;
 }
@@ -427,41 +425,43 @@ static int scm(int a, int b)
 
 
 /*!
-    \class QCanvas
-    \brief The QCanvas class provides a 2D area that can contain QCanvasItem objects.
-
+    \class Q3Canvas qcanvas.h
+    \brief The Q3Canvas class provides a 2D area that can contain Q3CanvasItem objects.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \ingroup abstractwidgets
+    \ingroup graphics
+    \ingroup images
+    \mainclass
+    \module canvas
 
-    The QCanvas class manages its 2D graphic area and all the canvas
-    items the area contains. The canvas has \e{no visual appearance} of
-    its own. Instead, it is displayed on screen using a QCanvasView.
-    Multiple QCanvasView widgets can be associated with a canvas to
+    The Q3Canvas class manages its 2D graphic area and all the canvas
+    items the area contains. The canvas has no visual appearance of
+    its own. Instead, it is displayed on screen using a Q3CanvasView.
+    Multiple Q3CanvasView widgets may be associated with a canvas to
     provide multiple views of the same canvas.
 
     The canvas is optimized for large numbers of items, particularly
     where only a small percentage of the items change at any
     one time. If the entire display changes very frequently, you should
-    consider using your own custom QScrollView subclass.
+    consider using your own custom Q3ScrollView subclass.
 
-    Qt provides a rich set of canvas item classes, e.g.
-    QCanvasEllipse, QCanvasLine, QCanvasPolygon, QCanvasPolygonalItem,
-    QCanvasRectangle, QCanvasSpline, QCanvasSprite and QCanvasText.
-    You can subclass any of these to create your own canvas items,
-    although QCanvasPolygonalItem is the most common base class used
+    Qt provides a rich
+    set of canvas item classes, e.g. Q3CanvasEllipse, Q3CanvasLine,
+    Q3CanvasPolygon, Q3CanvasPolygonalItem, Q3CanvasRectangle, Q3CanvasSpline,
+    Q3CanvasSprite and Q3CanvasText. You can subclass to create your own
+    canvas items; Q3CanvasPolygonalItem is the most common base class used
     for this purpose.
 
-    Items appear on the canvas after their \link QCanvasItem::show()
+    Items appear on the canvas after their \link Q3CanvasItem::show()
     show()\endlink function has been called (or \link
-    QCanvasItem::setVisible() setVisible(true)\endlink), and \e after
+    Q3CanvasItem::setVisible() setVisible(true)\endlink), and \e after
     update() has been called. The canvas only shows items that are
-    \link QCanvasItem::setVisible() visible\endlink, and then only if
-    \l update() is called on the canvas itself. (By default the canvas
-    is white and so are canvas items, so if nothing appears try
-    changing the colors of your items.)
+    \link Q3CanvasItem::setVisible() visible\endlink, and then only if
+    \l update() is called. (By default the canvas is white and so are
+    canvas items, so if nothing appears try changing colors.)
 
     If you created the canvas without passing a width and height to
     the constructor you must also call resize().
@@ -481,14 +481,14 @@ static int scm(int a, int b)
     \i The canvas can be larger than a widget. A million-by-million canvas
     is perfectly possible. At such a size a widget might be very
     inefficient, and some window systems might not support it at all,
-    whereas QCanvas scales well. Even with a billion pixels and a million
+    whereas Q3Canvas scales well. Even with a billion pixels and a million
     items, finding a particular canvas item, detecting collisions, etc.,
     is still fast (though the memory consumption may be prohibitive
     at such extremes).
 
-    \i Two or more QCanvasView objects can view the same canvas.
+    \i Two or more Q3CanvasView objects can view the same canvas.
 
-    \i An arbitrary transformation matrix can be set on each QCanvasView
+    \i An arbitrary transformation matrix can be set on each Q3CanvasView
     which makes it easy to zoom, rotate or shear the viewed canvas.
 
     \i Widgets provide a lot more functionality, such as input (QKeyEvent,
@@ -508,35 +508,35 @@ static int scm(int a, int b)
     are corresponding get functions, e.g. backgroundColor() and
     backgroundPixmap().
 
-    Note that QCanvas does not inherit from QWidget, even though it has some
+    Note that Q3Canvas does not inherit from QWidget, even though it has some
     functions which provide the same functionality as those in QWidget. One
     of these is setBackgroundPixmap(); some others are resize(), size(),
-    width() and height(). \l QCanvasView is the widget used to display a
+    width() and height(). \l Q3CanvasView is the widget used to display a
     canvas on the screen.
 
     Canvas items are added to a canvas by constructing them and passing the
     canvas to the canvas item's constructor. An item can be moved to a
-    different canvas using QCanvasItem::setCanvas().
+    different canvas using Q3CanvasItem::setCanvas().
 
-    Canvas items are movable (and in the case of QCanvasSprites, animated)
-    objects that inherit QCanvasItem. Each canvas item has a position on the
+    Canvas items are movable (and in the case of Q3CanvasSprites, animated)
+    objects that inherit Q3CanvasItem. Each canvas item has a position on the
     canvas (x, y coordinates) and a height (z coordinate), all of which are
     held as floating-point numbers. Moving canvas items also have x and y
     velocities. It's possible for a canvas item to be outside the canvas
-    (for example QCanvasItem::x() is greater than width()). When a canvas
+    (for example Q3CanvasItem::x() is greater than width()). When a canvas
     item is off the canvas, onCanvas() returns false and the canvas
     disregards the item. (Canvas items off the canvas do not slow down any
     of the common operations on the canvas.)
 
-    Canvas items can be moved with QCanvasItem::move(). The advance()
-    function moves all QCanvasItem::animated() canvas items and
-    setAdvancePeriod() makes QCanvas move them automatically on a periodic
-    basis. In the context of the QCanvas classes, to `animate' a canvas item
-    is to set it in motion, i.e. using QCanvasItem::setVelocity(). Animation
+    Canvas items can be moved with Q3CanvasItem::move(). The advance()
+    function moves all Q3CanvasItem::animated() canvas items and
+    setAdvancePeriod() makes Q3Canvas move them automatically on a periodic
+    basis. In the context of the Q3Canvas classes, to `animate' a canvas item
+    is to set it in motion, i.e. using Q3CanvasItem::setVelocity(). Animation
     of a canvas item itself, i.e. items which change over time, is enabled
-    by calling QCanvasSprite::setFrameAnimation(), or more generally by
-    subclassing and reimplementing QCanvasItem::advance(). To detect collisions
-    use one of the QCanvasItem::collisions() functions.
+    by calling Q3CanvasSprite::setFrameAnimation(), or more generally by
+    subclassing and reimplementing Q3CanvasItem::advance(). To detect collisions
+    use one of the Q3CanvasItem::collisions() functions.
 
     The changed parts of the canvas are redrawn (if they are visible in a
     canvas view) whenever update() is called. You can either call update()
@@ -545,22 +545,22 @@ static int scm(int a, int b)
     the canvas, you must call advance() every time the objects should
     move one step further. Periodic calls to advance() can be forced using
     setAdvancePeriod(). The advance() function will call
-    QCanvasItem::advance() on every item that is \link
-    QCanvasItem::animated() animated\endlink and trigger an update of the
+    Q3CanvasItem::advance() on every item that is \link
+    Q3CanvasItem::animated() animated\endlink and trigger an update of the
     affected areas afterwards. (A canvas item that is `animated' is simply
     a canvas item that is in motion.)
 
-    QCanvas organizes its canvas items into \e chunks; these are areas on
+    Q3Canvas organizes its canvas items into \e chunks; these are areas on
     the canvas that are used to speed up most operations. Many operations
     start by eliminating most chunks (i.e. those which haven't changed)
     and then process only the canvas items that are in the few interesting
     (i.e. changed) chunks. A valid chunk, validChunk(), is one which is on
     the canvas.
 
-    The chunk size is a key factor to QCanvas's speed: if there are too many
+    The chunk size is a key factor to Q3Canvas's speed: if there are too many
     chunks, the speed benefit of grouping canvas items into chunks is
     reduced. If the chunks are too large, it takes too long to process each
-    one. The QCanvas constructor tries to pick a suitable size, but you
+    one. The Q3Canvas constructor tries to pick a suitable size, but you
     can call retune() to change it at any time. The chunkSize() function
     returns the current chunk size. The canvas items always make sure
     they're in the right chunks; all you need to make sure of is that
@@ -583,22 +583,22 @@ static int scm(int a, int b)
     If the canvas is resized it emits the resized() signal.
 
     The examples/canvas application and the 2D graphics page of the
-    examples/demo application demonstrate many of QCanvas's facilities.
+    examples/demo application demonstrate many of Q3Canvas's facilities.
 
-    \sa QCanvasView QCanvasItem
+    \sa Q3CanvasView Q3CanvasItem
 */
-void QCanvas::init(int w, int h, int chunksze, int mxclusters)
+void Q3Canvas::init(int w, int h, int chunksze, int mxclusters)
 {
-    d = new QCanvasData;
+    d = new Q3CanvasData;
     awidth=w;
     aheight=h;
     chunksize=chunksze;
     maxclusters=mxclusters;
     chwidth=(w+chunksize-1)/chunksize;
     chheight=(h+chunksize-1)/chunksize;
-    chunks=new QCanvasChunk[chwidth*chheight];
+    chunks=new Q3CanvasChunk[chwidth*chheight];
     update_timer = 0;
-    bgcolor = Qt::white;
+    bgcolor = white;
     grid = 0;
     htiles = 0;
     vtiles = 0;
@@ -607,30 +607,28 @@ void QCanvas::init(int w, int h, int chunksze, int mxclusters)
 }
 
 /*!
-    Create a QCanvas with no size. \a parent and \a name are passed to
+    Create a Q3Canvas with no size. \a parent and \a name are passed to
     the QObject superclass.
 
     \warning You \e must call resize() at some time after creation to
     be able to use the canvas.
 */
-QCanvas::QCanvas(QObject* parent, const char* name)
-    : QObject(parent)
+Q3Canvas::Q3Canvas(QObject* parent, const char* name)
+    : QObject(parent, name)
 {
-    if (name)
-	setObjectName(name);
     init(0,0);
 }
 
 /*!
-    Constructs a QCanvas that is \a w pixels wide and \a h pixels high.
+    Constructs a Q3Canvas that is \a w pixels wide and \a h pixels high.
 */
-QCanvas::QCanvas(int w, int h)
+Q3Canvas::Q3Canvas(int w, int h)
 {
     init(w,h);
 }
 
 /*!
-    Constructs a QCanvas which will be composed of \a h tiles
+    Constructs a Q3Canvas which will be composed of \a h tiles
     horizontally and \a v tiles vertically. Each tile will be an image
     \a tilewidth by \a tileheight pixels taken from pixmap \a p.
 
@@ -644,7 +642,7 @@ QCanvas::QCanvas(int w, int h)
     \row \i 4 \i 5 \i 6 \i 7
     \endtable
 
-    The QCanvas is initially sized to show exactly the given number of
+    The Q3Canvas is initially sized to show exactly the given number of
     tiles horizontally and vertically. If it is resized to be larger,
     the entire matrix of tiles will be repeated as often as necessary
     to cover the area. If it is smaller, tiles to the right and bottom
@@ -652,28 +650,29 @@ QCanvas::QCanvas(int w, int h)
 
     \sa setTiles()
 */
-QCanvas::QCanvas(QPixmap p,
-        int h, int v, int tilewidth, int tileheight)
+Q3Canvas::Q3Canvas(QPixmap p,
+	int h, int v, int tilewidth, int tileheight)
 {
     init(h*tilewidth, v*tileheight, scm(tilewidth,tileheight));
     setTiles(p, h, v, tilewidth, tileheight);
 }
 
-void qt_unview(QCanvas* c)
+void qt_unview(Q3Canvas* c)
 {
-    for (int i = 0; i < c->d->viewList.size(); ++i)
-        c->d->viewList.at(i)->viewing = 0;
+    for (Q3CanvasView* view=c->d->viewList.first(); view != 0; view=c->d->viewList.next()) {
+	view->viewing = 0;
+    }
 }
 
 /*!
     Destroys the canvas and all the canvas's canvas items.
 */
-QCanvas::~QCanvas()
+Q3Canvas::~Q3Canvas()
 {
     qt_unview(this);
-    QCanvasItemList all = allItems();
-    for (QCanvasItemList::Iterator it=all.begin(); it!=all.end(); ++it)
-        delete *it;
+    Q3CanvasItemList all = allItems();
+    for (Q3CanvasItemList::Iterator it=all.begin(); it!=all.end(); ++it)
+	delete *it;
     delete [] chunks;
     delete [] grid;
     delete d;
@@ -683,7 +682,7 @@ QCanvas::~QCanvas()
 \internal
 Returns the chunk at a chunk position \a i, \a j.
 */
-QCanvasChunk& QCanvas::chunk(int i, int j) const
+Q3CanvasChunk& Q3Canvas::chunk(int i, int j) const
 {
     return chunks[i+chwidth*j];
 }
@@ -692,7 +691,7 @@ QCanvasChunk& QCanvas::chunk(int i, int j) const
 \internal
 Returns the chunk at a pixel position \a x, \a y.
 */
-QCanvasChunk& QCanvas::chunkContaining(int x, int y) const
+Q3CanvasChunk& Q3Canvas::chunkContaining(int x, int y) const
 {
     return chunk(x/chunksize,y/chunksize);
 }
@@ -700,12 +699,12 @@ QCanvasChunk& QCanvas::chunkContaining(int x, int y) const
 /*!
     Returns a list of all the items in the canvas.
 */
-QCanvasItemList QCanvas::allItems()
+Q3CanvasItemList Q3Canvas::allItems()
 {
-    QCanvasItemList list;
-    for (QHash<QCanvasItem*, bool>::ConstIterator it = d->itemDict.begin();
-         it != d->itemDict.end(); ++it)
-        list.prepend(it.key());
+    Q3CanvasItemList list;
+    for (Q3PtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
+	list.prepend((Q3CanvasItem*)it.currentKey());
+    }
     return list;
 }
 
@@ -714,25 +713,24 @@ QCanvasItemList QCanvas::allItems()
     Changes the size of the canvas to have a width of \a w and a
     height of \a h. This is a slow operation.
 */
-void QCanvas::resize(int w, int h)
+void Q3Canvas::resize(int w, int h)
 {
     if (awidth==w && aheight==h)
-        return;
+	return;
 
-    QList<QCanvasItem*> hidden;
-    for (QHash<QCanvasItem*, bool>::ConstIterator it = d->itemDict.begin();
-         it != d->itemDict.end(); ++it) {
-        QCanvasItem *item = it.key();
-        if (item->isVisible()) {
-            item->hide();
-            hidden.append(item);
-        }
+    Q3CanvasItem* item;
+    Q3PtrList<Q3CanvasItem> hidden;
+    for (Q3PtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
+	if (((Q3CanvasItem*)it.currentKey())->isVisible()) {
+	    ((Q3CanvasItem*)it.currentKey())->hide();
+	    hidden.append(((Q3CanvasItem*)it.currentKey()));
+	}
     }
 
     int nchwidth=(w+chunksize-1)/chunksize;
     int nchheight=(h+chunksize-1)/chunksize;
 
-    QCanvasChunk* newchunks = new QCanvasChunk[nchwidth*nchheight];
+    Q3CanvasChunk* newchunks = new Q3CanvasChunk[nchwidth*nchheight];
 
     // Commit the new values.
     //
@@ -743,8 +741,9 @@ void QCanvas::resize(int w, int h)
     delete [] chunks;
     chunks=newchunks;
 
-    for (int i = 0; i<hidden.size(); ++i)
-        hidden.at(i)->show();
+    for (item=hidden.first(); item != 0; item=hidden.next()) {
+	item->show();
+    }
 
     setAllChanged();
 
@@ -752,10 +751,10 @@ void QCanvas::resize(int w, int h)
 }
 
 /*!
-    \fn void QCanvas::resized()
+    \fn void Q3Canvas::resized()
 
     This signal is emitted whenever the canvas is resized. Each
-    QCanvasView connects to this signal to keep the scrollview's size
+    Q3CanvasView connects to this signal to keep the scrollview's size
     correct.
 */
 
@@ -778,10 +777,11 @@ void QCanvas::resize(int w, int h)
     Internally, a canvas uses a low-resolution "chunk matrix" to keep
     track of all the items in the canvas. A 64x64 chunk matrix is the
     default for a 1024x1024 pixel canvas, where each chunk collects
-    canvas items in 16x16 pixel squares. This default is also affected
-    by setTiles(). You can tune this default using this function. For
-    example if you have a very large canvas and want to trade off
-    speed for memory then you might set the chunk size to 32 or 64.
+    canvas items in a 16x16 pixel square. This default is also
+    affected by setTiles(). You can tune this default using this
+    function. For example if you have a very large canvas and want to
+    trade off speed for memory then you might set the chunk size to 32
+    or 64.
 
     The \a mxclusters argument is the number of rectangular groups of
     chunks that will be separately drawn. If the canvas has a large
@@ -790,66 +790,66 @@ void QCanvas::resize(int w, int h)
     almost always best.
 
 */
-void QCanvas::retune(int chunksze, int mxclusters)
+void Q3Canvas::retune(int chunksze, int mxclusters)
 {
     maxclusters=mxclusters;
 
     if (chunksize!=chunksze) {
-        QList<QCanvasItem*> hidden;
-        for (QHash<QCanvasItem*, bool>::ConstIterator it = d->itemDict.begin();
-             it != d->itemDict.end(); ++it) {
-            QCanvasItem *item = it.key();
-            if (item->isVisible()) {
-                item->hide();
-                hidden.append(item);
-            }
-        }
-        chunksize=chunksze;
+	Q3PtrList<Q3CanvasItem> hidden;
+	for (Q3PtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
+	    if (((Q3CanvasItem*)it.currentKey())->isVisible()) {
+		((Q3CanvasItem*)it.currentKey())->hide();
+		hidden.append(((Q3CanvasItem*)it.currentKey()));
+	    }
+	}
 
-        int nchwidth=(awidth+chunksize-1)/chunksize;
-        int nchheight=(aheight+chunksize-1)/chunksize;
+	chunksize=chunksze;
 
-        QCanvasChunk* newchunks = new QCanvasChunk[nchwidth*nchheight];
+	int nchwidth=(awidth+chunksize-1)/chunksize;
+	int nchheight=(aheight+chunksize-1)/chunksize;
 
-        // Commit the new values.
-        //
-        chwidth=nchwidth;
-        chheight=nchheight;
-        delete [] chunks;
-        chunks=newchunks;
+	Q3CanvasChunk* newchunks = new Q3CanvasChunk[nchwidth*nchheight];
 
-        for (int i = 0; i < hidden.size(); ++i)
-            hidden.at(i)->show();
+	// Commit the new values.
+	//
+	chwidth=nchwidth;
+	chheight=nchheight;
+	delete [] chunks;
+	chunks=newchunks;
+
+	for (Q3CanvasItem* item=hidden.first(); item != 0; item=hidden.next()) {
+	    item->show();
+	}
     }
 }
 
 /*!
-    \fn int QCanvas::width() const
+    \fn int Q3Canvas::width() const
 
     Returns the width of the canvas, in pixels.
 */
 
 /*!
-    \fn int QCanvas::height() const
+    \fn int Q3Canvas::height() const
 
     Returns the height of the canvas, in pixels.
 */
 
 /*!
-    \fn QSize QCanvas::size() const
+    \fn QSize Q3Canvas::size() const
 
     Returns the size of the canvas, in pixels.
 */
 
 /*!
-    \fn QRect QCanvas::rect() const
+    \fn QRect Q3Canvas::rect() const
 
     Returns a rectangle the size of the canvas.
 */
 
 
 /*!
-    \fn bool QCanvas::onCanvas(int x, int y) const
+    \fn bool Q3Canvas::onCanvas(int x, int y) const
 
     Returns true if the pixel position (\a x, \a y) is on the canvas;
     otherwise returns false.
@@ -858,7 +858,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 */
 
 /*!
-    \fn bool QCanvas::onCanvas(const QPoint& p) const
+    \fn bool Q3Canvas::onCanvas(const QPoint& p) const
     \overload
 
     Returns true if the pixel position \a p is on the canvas;
@@ -868,7 +868,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 */
 
 /*!
-    \fn bool QCanvas::validChunk(int x, int y) const
+    \fn bool Q3Canvas::validChunk(int x, int y) const
 
     Returns true if the chunk position (\a x, \a y) is on the canvas;
     otherwise returns false.
@@ -877,7 +877,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 */
 
 /*!
-  \fn bool QCanvas::validChunk(const QPoint& p) const
+  \fn bool Q3Canvas::validChunk(const QPoint& p) const
   \overload
 
   Returns true if the chunk position \a p is on the canvas; otherwise
@@ -887,7 +887,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 */
 
 /*!
-    \fn int QCanvas::chunkSize() const
+    \fn int Q3Canvas::chunkSize() const
 
     Returns the chunk size of the canvas.
 
@@ -895,74 +895,71 @@ void QCanvas::retune(int chunksze, int mxclusters)
 */
 
 /*!
-\fn bool QCanvas::sameChunk(int x1, int y1, int x2, int y2) const
+\fn bool Q3Canvas::sameChunk(int x1, int y1, int x2, int y2) const
 \internal
 Tells if the points (\a x1, \a y1) and (\a x2, \a y2) are within the same chunk.
 */
 
 /*!
 \internal
-This method adds an the item \a item to the list of QCanvasItem objects
-in the QCanvas. The QCanvasItem class calls this.
+This method adds an the item \a item to the list of Q3CanvasItem objects
+in the Q3Canvas. The Q3CanvasItem class calls this.
 */
-void QCanvas::addItem(QCanvasItem* item)
+void Q3Canvas::addItem(Q3CanvasItem* item)
 {
-    d->itemDict.insert(item,true);
+    d->itemDict.insert((void*)item,(void*)1);
 }
 
 /*!
 \internal
-This method adds the item \a item to the list of QCanvasItem objects
-to be moved. The QCanvasItem class calls this.
+This method adds the item \a item to the list of Q3CanvasItem objects
+to be moved. The Q3CanvasItem class calls this.
 */
-void QCanvas::addAnimation(QCanvasItem* item)
+void Q3Canvas::addAnimation(Q3CanvasItem* item)
 {
-    d->animDict.insert(item,true);
+    d->animDict.insert((void*)item,(void*)1);
 }
 
 /*!
 \internal
-This method adds the item \a item  to the list of QCanvasItem objects
-which are no longer to be moved. The QCanvasItem class calls this.
+This method adds the item \a item  to the list of Q3CanvasItem objects
+which are no longer to be moved. The Q3CanvasItem class calls this.
 */
-void QCanvas::removeAnimation(QCanvasItem* item)
+void Q3Canvas::removeAnimation(Q3CanvasItem* item)
 {
-    d->animDict.remove(item);
+    d->animDict.remove((void*)item);
 }
 
 /*!
 \internal
-This method removes the item \a item from the list of QCanvasItem objects
-in this QCanvas. The QCanvasItem class calls this.
+This method removes the item \a item from the list of Q3CanvasItem objects
+in this Q3Canvas. The Q3CanvasItem class calls this.
 */
-void QCanvas::removeItem(QCanvasItem* item)
+void Q3Canvas::removeItem(Q3CanvasItem* item)
 {
-    d->itemDict.remove(item);
+    d->itemDict.remove((void*)item);
 }
 
 /*!
 \internal
-This method adds the view \a view to the list of QCanvasView objects
-viewing this QCanvas. The QCanvasView class calls this.
+This method adds the view \a view to the list of Q3CanvasView objects
+viewing this Q3Canvas. The Q3CanvasView class calls this.
 */
-void QCanvas::addView(QCanvasView* view)
+void Q3Canvas::addView(Q3CanvasView* view)
 {
     d->viewList.append(view);
-    if (htiles>1 || vtiles>1 || pm.isNull()) {
-	QPalette p(view->viewport()->palette());
-	p.setColor(view->viewport()->backgroundRole(), backgroundColor());
-	view->viewport()->setPalette(p);
-    }
+    if (htiles>1 || vtiles>1 || pm.isNull())
+	view->viewport()->setBackgroundColor(backgroundColor());
 }
 
 /*!
 \internal
-This method removes the view \a view from the list of QCanvasView objects
-viewing this QCanvas. The QCanvasView class calls this.
+This method removes the view \a view from the list of Q3CanvasView objects
+viewing this Q3Canvas. The Q3CanvasView class calls this.
 */
-void QCanvas::removeView(QCanvasView* view)
+void Q3Canvas::removeView(Q3CanvasView* view)
 {
-    d->viewList.removeAll(view);
+    d->viewList.removeRef(view);
 }
 
 /*!
@@ -972,17 +969,17 @@ void QCanvas::removeView(QCanvasView* view)
 
     If \a ms is less than 0 advancing will be stopped.
 */
-void QCanvas::setAdvancePeriod(int ms)
+void Q3Canvas::setAdvancePeriod(int ms)
 {
     if (ms<0) {
-        if (update_timer)
-            update_timer->stop();
+	if (update_timer)
+	    update_timer->stop();
     } else {
-        if (update_timer)
-            delete update_timer;
-        update_timer = new QTimer(this);
-        connect(update_timer,SIGNAL(timeout()),this,SLOT(advance()));
-        update_timer->start(ms);
+	if (update_timer)
+	    delete update_timer;
+	update_timer = new QTimer(this);
+	connect(update_timer,SIGNAL(timeout()),this,SLOT(advance()));
+	update_timer->start(ms);
     }
 }
 
@@ -993,27 +990,27 @@ void QCanvas::setAdvancePeriod(int ms)
 
     If \a ms is less than 0 automatic updating will be stopped.
 */
-void QCanvas::setUpdatePeriod(int ms)
+void Q3Canvas::setUpdatePeriod(int ms)
 {
     if (ms<0) {
-        if (update_timer)
-            update_timer->stop();
+	if (update_timer)
+	    update_timer->stop();
     } else {
-        if (update_timer)
-            delete update_timer;
-        update_timer = new QTimer(this);
-        connect(update_timer,SIGNAL(timeout()),this,SLOT(update()));
-        update_timer->start(ms);
+	if (update_timer)
+	    delete update_timer;
+	update_timer = new QTimer(this);
+	connect(update_timer,SIGNAL(timeout()),this,SLOT(update()));
+	update_timer->start(ms);
     }
 }
 
 /*!
-    Moves all QCanvasItem::animated() canvas items on the canvas and
+    Moves all Q3CanvasItem::animated() canvas items on the canvas and
     refreshes all changes to all views of the canvas. (An `animated'
     item is an item that is in motion; see setVelocity().)
 
     The advance takes place in two phases. In phase 0, the
-    QCanvasItem::advance() function of each QCanvasItem::animated()
+    Q3CanvasItem::advance() function of each Q3CanvasItem::animated()
     canvas item is called with paramater 0. Then all these canvas
     items are called again, with parameter 1. In phase 0, the canvas
     items should not change position, merely examine other items on
@@ -1021,7 +1018,7 @@ void QCanvas::setUpdatePeriod(int ms)
     collisions between items. In phase 1, all canvas items should
     change positions, ignoring any other items on the canvas. This
     two-phase approach allows for considerations of "fairness",
-    although no QCanvasItem subclasses supplied with Qt do anything
+    although no Q3CanvasItem subclasses supplied with Qt do anything
     interesting in phase 0.
 
     The canvas can be configured to call this function periodically
@@ -1029,21 +1026,23 @@ void QCanvas::setUpdatePeriod(int ms)
 
     \sa update()
 */
-void QCanvas::advance()
+void Q3Canvas::advance()
 {
-    for (QHash<QCanvasItem*, bool>::ConstIterator it = d->animDict.begin();
-         it != d->animDict.end(); ++it) {
-        QCanvasItem* i = it.key();
-        if (i)
-            i->advance(0);
+    Q3PtrDictIterator<void> it=d->animDict;
+    while (it.current()) {
+	Q3CanvasItem* i = (Q3CanvasItem*)(void*)it.currentKey();
+	++it;
+	if (i)
+	    i->advance(0);
     }
     // we expect the dict contains the exact same items as in the
     // first pass.
-    for (QHash<QCanvasItem*, bool>::ConstIterator it = d->animDict.begin();
-         it != d->animDict.end(); ++it) {
-        QCanvasItem* i = it.key();
-        if (i)
-            i->advance(1);
+    it.toFirst();
+    while (it.current()) {
+	Q3CanvasItem* i = (Q3CanvasItem*)(void*)it.currentKey();
+	++it;
+	if (i)
+	    i->advance(1);
     }
     update();
 }
@@ -1053,16 +1052,16 @@ void QCanvas::advance()
 /*!
   \internal
 */
-void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool dbuf)
+void Q3Canvas::drawViewArea(Q3CanvasView* view, QPainter* p, const QRect& vr, bool dbuf)
 {
     QPoint tl = view->contentsToViewport(QPoint(0,0));
 
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix wm = view->worldMatrix();
-    QWMatrix iwm = wm.invert();
+    QMatrix wm = view->worldMatrix();
+    QMatrix iwm = wm.invert();
     // ivr = covers all chunks in vr
     QRect ivr = iwm.map(vr);
-    QWMatrix twm;
+    QMatrix twm;
     twm.translate(tl.x(),tl.y());
 #else
     QRect ivr = vr;
@@ -1071,66 +1070,61 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
     QRect all(0,0,width(),height());
 
     if (!all.contains(ivr)) {
-        // Need to clip with edge of canvas.
+	// Need to clip with edge of canvas.
 
 #ifndef QT_NO_TRANSFORMATIONS
-        // For translation-only transformation, it is safe to include the right
-        // and bottom edges, but otherwise, these must be excluded since they
-        // are not precisely defined (different bresenham paths).
-        QPointArray a;
-        if (wm.m12()==0.0 && wm.m21()==0.0 && wm.m11() == 1.0 && wm.m22() == 1.0)
-            a = QPointArray(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
-        else
-            a = QPointArray(all);
+	// For translation-only transformation, it is safe to include the right
+	// and bottom edges, but otherwise, these must be excluded since they
+	// are not precisely defined (different bresenham paths).
+	QPointArray a;
+	if (wm.m12()==0.0 && wm.m21()==0.0 && wm.m11() == 1.0 && wm.m22() == 1.0)
+	    a = QPointArray(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
+	else
+	    a = QPointArray(all);
 
-        a = (wm*twm).map(a);
+	a = (wm*twm).map(a);
 #else
-        QPointArray a(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
+	QPointArray a(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
 #endif
-        if (view->viewport()->testAttribute(Qt::WA_NoSystemBackground)) {
-            QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
+	if (view->viewport()->backgroundMode() == NoBackground) {
+	    QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
 	    qt_setclipregion(p, QRegion(cvr)-QRegion(a));
-            p->fillRect(vr,view->viewport()->palette()
-			.brush(QPalette::Active,QPalette::Background));
-        }
+	    p->fillRect(vr,view->viewport()->palette()
+		.brush(QPalette::Active,QColorGroup::Background));
+	}
 	qt_setclipregion(p, a);
     }
 
     if (dbuf) {
-        ensureOffScrSize(vr.width(), vr.height());
-        QPainter dbp(&offscr);
+	ensureOffScrSize(vr.width(), vr.height());
+	QPainter dbp(&offscr);
 #ifndef QT_NO_TRANSFORMATIONS
-        twm.translate(-vr.x(),-vr.y());
-        twm.translate(-tl.x(),-tl.y());
-        dbp.setWorldMatrix(wm*twm, true);
+	twm.translate(-vr.x(),-vr.y());
+	twm.translate(-tl.x(),-tl.y());
+	dbp.setWorldMatrix(wm*twm, true);
 #else
-        dbp.translate(-vr.x()-tl.x(),-vr.y()-tl.y());
+	dbp.translate(-vr.x()-tl.x(),-vr.y()-tl.y());
 #endif
-	qt_setcliprect(&dbp,QRect(0,0,vr.width(), vr.height()));
-        dbp.setBrushOrigin(-vr.x(), -vr.y());
-        drawCanvasArea(ivr,&dbp,false);
-        dbp.end();
-        p->drawPixmap(vr.x(), vr.y(), offscr, 0, 0, vr.width(), vr.height());
+	qt_setcliprect(&dbp, QRect(0,0,vr.width(), vr.height()));
+	drawCanvasArea(ivr,&dbp,false);
+	p->drawPixmap(vr.x(), vr.y(), offscr, 0, 0, vr.width(), vr.height());
     } else {
-        QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
-        if (!all.contains(ivr)) {
-	    bool xfrm = p->hasWorldXForm();
-	    p->setWorldXForm(false);
-            QRegion inside = p->clipRegion();
-	    inside &= r;
-	    p->setWorldXForm(xfrm);
+	QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
+	if (!all.contains(ivr)) {
+	    QRegion inside = p->clipRegion() & r;
 	    //QRegion outside = p->clipRegion() - r;
- 	    //p->setClipRegion(outside);
-	    //p->fillRect(outside.boundingRect(),Qt::red);
+	    //p->setClipRegion(outside);
+	    //p->fillRect(outside.boundingRect(),red);
 	    qt_setclipregion(p, inside);
-        } else {
+	} else {
 	    qt_setcliprect(p, r);
-        }
+	}
 #ifndef QT_NO_TRANSFORMATIONS
-        p->setWorldMatrix(wm*twm);
+	p->setWorldMatrix(wm*twm);
+#else
 #endif
-        p->setBrushOrigin(tl.x(), tl.y());
-        drawCanvasArea(ivr,p,false);
+	p->setBrushOrigin(tl.x(), tl.y());
+	drawCanvasArea(ivr,p,false);
     }
 }
 
@@ -1139,45 +1133,48 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
 
     \sa advance()
 */
-void QCanvas::update()
+void Q3Canvas::update()
 {
-    QCanvasClusterizer clusterizer(d->viewList.size());
+    Q3CanvasClusterizer clusterizer(d->viewList.count());
 #ifndef QT_NO_TRANSFORMATIONS
-    QList<QRect> doneareas;
+    Q3PtrList<QRect> doneareas;
+    doneareas.setAutoDelete(true);
 #endif
 
-    for (int i = 0; i < d->viewList.size(); ++i) {
-        QCanvasView *view = d->viewList.at(i);
+    Q3PtrListIterator<Q3CanvasView> it(d->viewList);
+    Q3CanvasView* view;
+    while((view=it.current()) != 0) {
+	++it;
 #ifndef QT_NO_TRANSFORMATIONS
-        QWMatrix wm = view->worldMatrix();
+	QMatrix wm = view->worldMatrix();
 #endif
-        QRect area(view->contentsX(),view->contentsY(),
-                   view->visibleWidth(),view->visibleHeight());
-        if (area.width()>0 && area.height()>0) {
+	QRect area(view->contentsX(),view->contentsY(),
+		   view->visibleWidth(),view->visibleHeight());
+	if (area.width()>0 && area.height()>0) {
 #ifndef QT_NO_TRANSFORMATIONS
-            if (!wm.isIdentity()) {
-                // r = Visible area of the canvas where there are changes
+	    if (!wm.isIdentity()) {
+		// r = Visible area of the canvas where there are changes
 		QRect r = changeBounds(view->inverseWorldMatrix().map(area));
-                if (!r.isEmpty()) {
-		    QRect tr = wm.map(r);
-		    tr.moveBy(-view->contentsX(), -view->contentsY());
- 		    view->viewport()->repaint(tr);
-		    doneareas.append(r);
-                }
-            } else
+		if (!r.isEmpty()) {
+                    QRect tr = wm.map(r);
+                    tr.moveBy(-view->contentsX(), -view->contentsY());
+                    view->viewport()->repaint(tr);
+		    doneareas.append(new QRect(r));
+		}
+	    } else
 #endif
-            {
-                clusterizer.add(area);
-            }
-        }
+	    {
+		clusterizer.add(area);
+	    }
+	}
     }
 
     for (int i=0; i<clusterizer.clusters(); i++)
 	drawChanges(clusterizer[i]);
 
 #ifndef QT_NO_TRANSFORMATIONS
-    for (int i = 0; i < doneareas.size(); ++i)
-        setUnchanged(doneareas.at(i));
+    for (QRect* r=doneareas.first(); r != 0; r=doneareas.next())
+	setUnchanged(*r);
 #endif
 }
 
@@ -1191,7 +1188,7 @@ void QCanvas::update()
     All views of the canvas will be entirely redrawn when
     update() is called next.
 */
-void QCanvas::setAllChanged()
+void Q3Canvas::setAllChanged()
 {
     setChanged(QRect(0,0,width(),height()));
 }
@@ -1200,25 +1197,25 @@ void QCanvas::setAllChanged()
     Marks \a area as changed. This \a area will be redrawn in all
     views that are showing it when update() is called next.
 */
-void QCanvas::setChanged(const QRect& area)
+void Q3Canvas::setChanged(const QRect& area)
 {
     QRect thearea = area.intersect(QRect(0,0,width(),height()));
 
     int mx = (thearea.x()+thearea.width()+chunksize)/chunksize;
     int my = (thearea.y()+thearea.height()+chunksize)/chunksize;
     if (mx>chwidth)
-        mx=chwidth;
+	mx=chwidth;
     if (my>chheight)
-        my=chheight;
+	my=chheight;
 
     int x=thearea.x()/chunksize;
     while(x<mx) {
-        int y = thearea.y()/chunksize;
-        while(y<my) {
-            chunk(x,y).change();
-            y++;
-        }
-        x++;
+	int y = thearea.y()/chunksize;
+	while(y<my) {
+	    chunk(x,y).change();
+	    y++;
+	}
+	x++;
     }
 }
 
@@ -1227,25 +1224,25 @@ void QCanvas::setChanged(const QRect& area)
     the views for the next update(), unless it is marked or changed
     again before the next call to update().
 */
-void QCanvas::setUnchanged(const QRect& area)
+void Q3Canvas::setUnchanged(const QRect& area)
 {
     QRect thearea = area.intersect(QRect(0,0,width(),height()));
 
     int mx = (thearea.x()+thearea.width()+chunksize)/chunksize;
     int my = (thearea.y()+thearea.height()+chunksize)/chunksize;
     if (mx>chwidth)
-        mx=chwidth;
+	mx=chwidth;
     if (my>chheight)
-        my=chheight;
+	my=chheight;
 
     int x=thearea.x()/chunksize;
     while(x<mx) {
-        int y = thearea.y()/chunksize;
-        while(y<my) {
-            chunk(x,y).takeChange();
-            y++;
-        }
-        x++;
+	int y = thearea.y()/chunksize;
+	while(y<my) {
+	    chunk(x,y).takeChange();
+	    y++;
+	}
+	x++;
     }
 }
 
@@ -1253,38 +1250,38 @@ void QCanvas::setUnchanged(const QRect& area)
 /*!
   \internal
 */
-QRect QCanvas::changeBounds(const QRect& inarea)
+QRect Q3Canvas::changeBounds(const QRect& inarea)
 {
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
 
     int mx = (area.x()+area.width()+chunksize)/chunksize;
     int my = (area.y()+area.height()+chunksize)/chunksize;
     if (mx > chwidth)
-        mx=chwidth;
+	mx=chwidth;
     if (my > chheight)
-        my=chheight;
+	my=chheight;
 
     QRect result;
 
     int x=area.x()/chunksize;
     while(x<mx) {
-        int y=area.y()/chunksize;
-        while(y<my) {
-            QCanvasChunk& ch=chunk(x,y);
-            if (ch.hasChanged())
-                result |= QRect(x,y,1,1);
-            y++;
-        }
-        x++;
+	int y=area.y()/chunksize;
+	while(y<my) {
+	    Q3CanvasChunk& ch=chunk(x,y);
+	    if (ch.hasChanged())
+		result |= QRect(x,y,1,1);
+	    y++;
+	}
+	x++;
     }
 
     if (!result.isEmpty()) {
-        result.rLeft() *= chunksize;
-        result.rTop() *= chunksize;
-        result.rRight() *= chunksize;
-        result.rBottom() *= chunksize;
-        result.rRight() += chunksize;
-        result.rBottom() += chunksize;
+	result.rLeft() *= chunksize;
+	result.rTop() *= chunksize;
+	result.rRight() *= chunksize;
+	result.rBottom() *= chunksize;
+	result.rRight() += chunksize;
+	result.rBottom() += chunksize;
     }
 
     return result;
@@ -1292,42 +1289,42 @@ QRect QCanvas::changeBounds(const QRect& inarea)
 
 /*!
 \internal
-Redraws the area \a inarea of the QCanvas.
+Redraws the area \a inarea of the Q3Canvas.
 */
-
-void QCanvas::drawChanges(const QRect& inarea)
+void Q3Canvas::drawChanges(const QRect& inarea)
 {
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
 
-    QCanvasClusterizer clusters(maxclusters);
+    Q3CanvasClusterizer clusters(maxclusters);
 
     int mx = (area.x()+area.width()+chunksize)/chunksize;
     int my = (area.y()+area.height()+chunksize)/chunksize;
     if (mx > chwidth)
-        mx=chwidth;
+	mx=chwidth;
     if (my > chheight)
-        my=chheight;
+	my=chheight;
 
     int x=area.x()/chunksize;
     while(x<mx) {
-        int y=area.y()/chunksize;
-        while(y<my) {
-            QCanvasChunk& ch=chunk(x,y);
-            if (ch.hasChanged())
-                clusters.add(x,y);
-            y++;
-        }
-        x++;
+	int y=area.y()/chunksize;
+	while(y<my) {
+	    Q3CanvasChunk& ch=chunk(x,y);
+	    if (ch.hasChanged())
+		clusters.add(x,y);
+	    y++;
+	}
+	x++;
     }
 
     for (int i=0; i<clusters.clusters(); i++) {
-        QRect elarea=clusters[i];
-        elarea.setRect(elarea.left()*chunksize,
-		       elarea.top()*chunksize,
-		       elarea.width()*chunksize,
-		       elarea.height()*chunksize);
-	for (int i = 0; i < d->viewList.size(); ++i) {
-	    QCanvasView* view = d->viewList.at(i);
+	QRect elarea=clusters[i];
+	elarea.setRect(
+	    elarea.left()*chunksize,
+	    elarea.top()*chunksize,
+	    elarea.width()*chunksize,
+	    elarea.height()*chunksize
+	);
+        for (Q3CanvasView* view = d->viewList.first(); view != 0; view = d->viewList.next()) {
 	    // this is necessary to avoid reworking the entire canvas
 	    // update scheme
 	    view->d->update_outside_paintevent = true;
@@ -1338,44 +1335,44 @@ void QCanvas::drawChanges(const QRect& inarea)
     }
 }
 
-void QCanvas::ensureOffScrSize(int osw, int osh)
+void Q3Canvas::ensureOffScrSize(int osw, int osh)
 {
     if (osw > offscr.width() || osh > offscr.height())
-        offscr.resize(qMax(osw,offscr.width()),
-                      qMax(osh,offscr.height()));
+	offscr.resize(QMAX(osw,offscr.width()),
+		      QMAX(osh,offscr.height()));
     else if (offscr.width() == 0 || offscr.height() == 0)
-        offscr.resize(qMax(offscr.width(), 1),
-                       qMax(offscr.height(), 1));
+	offscr.resize(QMAX(offscr.width(), 1),
+		       QMAX(offscr.height(), 1));
 }
 
 /*!
     Paints all canvas items that are in the area \a clip to \a
     painter, using double-buffering if \a dbuf is true.
 
-    For example, to print the entire canvas to a printer:
+    e.g. to print the canvas to a printer:
     \code
     QPrinter pr;
     if (pr.setup()) {
-        QPainter p(&pr);
-        canvas.drawArea(canvas.rect(), &p);
+	QPainter p(&pr);
+	canvas.drawArea(canvas.rect(), &p);
     }
     \endcode
 */
-void QCanvas::drawArea(const QRect& clip, QPainter* painter, bool dbuf)
+void Q3Canvas::drawArea(const QRect& clip, QPainter* painter, bool dbuf)
 {
     if (painter)
-        drawCanvasArea(clip, painter, dbuf);
+	drawCanvasArea(clip, painter, dbuf);
 }
 
 /*!
   \internal
 */
-void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffer)
+void Q3Canvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffer)
 {
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
 
     if (!dblbuf)
-        double_buffer = false;
+	double_buffer = false;
 
     if (!d->viewList.first() && !p) return; // Nothing to do.
 
@@ -1384,186 +1381,185 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
     int mx=area.right()/chunksize;
     int my=area.bottom()/chunksize;
     if (mx>=chwidth)
-        mx=chwidth-1;
+	mx=chwidth-1;
     if (my>=chheight)
-        my=chheight-1;
+	my=chheight-1;
 
-    QCanvasItemList allvisible;
+    Q3CanvasItemList allvisible;
 
     // Stores the region within area that need to be drawn. It is relative
     // to area.topLeft()  (so as to keep within bounds of 16-bit XRegions)
     QRegion rgn;
 
     for (int x=lx; x<=mx; x++) {
-        for (int y=ly; y<=my; y++) {
-            // Only reset change if all views updating, and
-            // wholy within area. (conservative:  ignore entire boundary)
-            //
-            // Disable this to help debugging.
-            //
+	for (int y=ly; y<=my; y++) {
+	    // Only reset change if all views updating, and
+	    // wholy within area. (conservative:  ignore entire boundary)
+	    //
+	    // Disable this to help debugging.
+	    //
 	    if (!p) {
-                if (chunk(x,y).takeChange()) {
-                    // ### should at least make bands
-                    rgn |= QRegion(x*chunksize-area.x(),y*chunksize-area.y(),
-                                    chunksize,chunksize);
-                    allvisible += *chunk(x,y).listPtr();
-                }
-             } else {
-                 allvisible += *chunk(x,y).listPtr();
-             }
-        }
+		if (chunk(x,y).takeChange()) {
+		    // ### should at least make bands
+		    rgn |= QRegion(x*chunksize-area.x(),y*chunksize-area.y(),
+				    chunksize,chunksize);
+		    allvisible += *chunk(x,y).listPtr();
+		}
+	    } else {
+		allvisible += *chunk(x,y).listPtr();
+	    }
+	}
     }
     allvisible.sort();
 
     if (double_buffer)
-        ensureOffScrSize(area.width(), area.height());
+	ensureOffScrSize(area.width(), area.height());
 
     if (double_buffer && !offscr.isNull()) {
-        QPainter painter;
-        painter.begin(&offscr);
-        painter.translate(-area.x(),-area.y());
-        if (p) {
-            qt_setcliprect(&painter, QRect(0,0,area.width(),area.height()));
-        } else {
+	QPainter painter;
+	painter.begin(&offscr);
+	painter.translate(-area.x(),-area.y());
+	if (p) {
+	    qt_setcliprect(&painter, QRect(0,0,area.width(),area.height()));
+	} else {
 	    qt_setclipregion(&painter, rgn);
-        }
-        drawBackground(painter,area);
-        allvisible.drawUnique(painter);
-        drawForeground(painter,area);
-        painter.end();
-        if (p) {
-            p->drawPixmap(area.x(), area.y(), offscr,
-                0, 0, area.width(), area.height());
-            return;
+	}
+	drawBackground(painter,area);
+	allvisible.drawUnique(painter);
+	drawForeground(painter,area);
+	painter.end();
+	if (p) {
+	    p->drawPixmap(area.x(), area.y(), offscr,
+		0, 0, area.width(), area.height());
+	    return;
 	}
     } else if (p) {
-        drawBackground(*p,area);
-        allvisible.drawUnique(*p);
-        drawForeground(*p,area);
-        return;
+	drawBackground(*p,area);
+	allvisible.drawUnique(*p);
+	drawForeground(*p,area);
+	return;
     }
 
     QPoint trtr; // keeps track of total translation of rgn
 
     trtr -= area.topLeft();
 
-    for (int i = 0; i < d->viewList.size(); ++i) {
-        QCanvasView* view = d->viewList.at(i);
+    for (Q3CanvasView* view=d->viewList.first(); view; view=d->viewList.next()) {
 #ifndef QT_NO_TRANSFORMATIONS
-        if (!view->worldMatrix().isIdentity())
-            continue; // Cannot paint those here (see callers).
+	if (!view->worldMatrix().isIdentity())
+	    continue; // Cannot paint those here (see callers).
 #endif
 	QPainter painter(view->viewport());
-        QPoint tr = view->contentsToViewport(area.topLeft());
-        QPoint nrtr = view->contentsToViewport(QPoint(0,0)); // new translation
-        QPoint rtr = nrtr - trtr; // extra translation of rgn
-        trtr += rtr; // add to total
-        if (double_buffer) {
+	QPoint tr = view->contentsToViewport(area.topLeft());
+	QPoint nrtr = view->contentsToViewport(QPoint(0,0)); // new translation
+	QPoint rtr = nrtr - trtr; // extra translation of rgn
+	trtr += rtr; // add to total
+	if (double_buffer) {
 	    rgn.translate(rtr.x(),rtr.y());
 	    qt_setclipregion(&painter, rgn);
-            painter.drawPixmap(tr,offscr, QRect(QPoint(0,0),area.size()));
-        } else {
- 	    painter.translate(nrtr.x(),nrtr.y());
-            rgn.translate(rtr.x(),rtr.y());
-  	    qt_setclipregion(&painter, rgn);
-            drawBackground(painter,area);
-            allvisible.drawUnique(painter);
-            drawForeground(painter,area);
+	    painter.drawPixmap(tr,offscr, QRect(QPoint(0,0),area.size()));
+	} else {
+	    painter.translate(nrtr.x(),nrtr.y());
+	    rgn.translate(rtr.x(),rtr.y());
+	    qt_setclipregion(&painter, rgn);
+	    drawBackground(painter,area);
+	    allvisible.drawUnique(painter);
+	    drawForeground(painter,area);
 	    painter.translate(-nrtr.x(),-nrtr.y());
-        }
+	}
     }
 }
 
 /*!
 \internal
-This method to informs the QCanvas that a given chunk is
+This method to informs the Q3Canvas that a given chunk is
 `dirty' and needs to be redrawn in the next Update.
 
 (\a x,\a y) is a chunk location.
 
-The sprite classes call this. Any new derived class of QCanvasItem
+The sprite classes call this. Any new derived class of Q3CanvasItem
 must do so too. SetChangedChunkContaining can be used instead.
 */
-void QCanvas::setChangedChunk(int x, int y)
+void Q3Canvas::setChangedChunk(int x, int y)
 {
     if (validChunk(x,y)) {
-        QCanvasChunk& ch=chunk(x,y);
-        ch.change();
+	Q3CanvasChunk& ch=chunk(x,y);
+	ch.change();
     }
 }
 
 /*!
 \internal
-This method to informs the QCanvas that the chunk containing a given
+This method to informs the Q3Canvas that the chunk containing a given
 pixel is `dirty' and needs to be redrawn in the next Update.
 
 (\a x,\a y) is a pixel location.
 
-The item classes call this. Any new derived class of QCanvasItem must
+The item classes call this. Any new derived class of Q3CanvasItem must
 do so too. SetChangedChunk can be used instead.
 */
-void QCanvas::setChangedChunkContaining(int x, int y)
+void Q3Canvas::setChangedChunkContaining(int x, int y)
 {
     if (x>=0 && x<width() && y>=0 && y<height()) {
-        QCanvasChunk& chunk=chunkContaining(x,y);
-        chunk.change();
+	Q3CanvasChunk& chunk=chunkContaining(x,y);
+	chunk.change();
     }
 }
 
 /*!
 \internal
-This method adds the QCanvasItem \a g to the list of those which need to be
+This method adds the Q3CanvasItem \a g to the list of those which need to be
 drawn if the given chunk at location (\a x, \a y) is redrawn. Like
 SetChangedChunk and SetChangedChunkContaining, this method marks the
 chunk as `dirty'.
 */
-void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
+void Q3Canvas::addItemToChunk(Q3CanvasItem* g, int x, int y)
 {
     if (validChunk(x,y)) {
-        chunk(x,y).add(g);
+	chunk(x,y).add(g);
     }
 }
 
 /*!
 \internal
-This method removes the QCanvasItem \a g from the list of those which need to
+This method removes the Q3CanvasItem \a g from the list of those which need to
 be drawn if the given chunk at location (\a x, \a y) is redrawn. Like
 SetChangedChunk and SetChangedChunkContaining, this method marks the chunk
 as `dirty'.
 */
-void QCanvas::removeItemFromChunk(QCanvasItem* g, int x, int y)
+void Q3Canvas::removeItemFromChunk(Q3CanvasItem* g, int x, int y)
 {
     if (validChunk(x,y)) {
-        chunk(x,y).remove(g);
+	chunk(x,y).remove(g);
     }
 }
 
 
 /*!
 \internal
-This method adds the QCanvasItem \a g to the list of those which need to be
+This method adds the Q3CanvasItem \a g to the list of those which need to be
 drawn if the chunk containing the given pixel (\a x, \a y) is redrawn. Like
 SetChangedChunk and SetChangedChunkContaining, this method marks the
 chunk as `dirty'.
 */
-void QCanvas::addItemToChunkContaining(QCanvasItem* g, int x, int y)
+void Q3Canvas::addItemToChunkContaining(Q3CanvasItem* g, int x, int y)
 {
     if (x>=0 && x<width() && y>=0 && y<height()) {
-        chunkContaining(x,y).add(g);
+	chunkContaining(x,y).add(g);
     }
 }
 
 /*!
 \internal
-This method removes the QCanvasItem \a g from the list of those which need to
+This method removes the Q3CanvasItem \a g from the list of those which need to
 be drawn if the chunk containing the given pixel (\a x, \a y) is redrawn.
 Like SetChangedChunk and SetChangedChunkContaining, this method
 marks the chunk as `dirty'.
 */
-void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
+void Q3Canvas::removeItemFromChunkContaining(Q3CanvasItem* g, int x, int y)
 {
     if (x>=0 && x<width() && y>=0 && y<height()) {
-        chunkContaining(x,y).remove(g);
+	chunkContaining(x,y).remove(g);
     }
 }
 
@@ -1572,13 +1568,13 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
     white.
 
     This function is not a reimplementation of
-    QWidget::backgroundColor() (QCanvas is not a subclass of QWidget),
-    but all QCanvasViews that are viewing the canvas will set their
+    QWidget::backgroundColor() (Q3Canvas is not a subclass of QWidget),
+    but all Q3CanvasViews that are viewing the canvas will set their
     backgrounds to this color.
 
     \sa setBackgroundColor(), backgroundPixmap()
 */
-QColor QCanvas::backgroundColor() const
+QColor Q3Canvas::backgroundColor() const
 {
     return bgcolor;
 }
@@ -1588,16 +1584,18 @@ QColor QCanvas::backgroundColor() const
 
     \sa backgroundColor(), setBackgroundPixmap(), setTiles()
 */
-void QCanvas::setBackgroundColor(const QColor& c)
+void Q3Canvas::setBackgroundColor(const QColor& c)
 {
     if (bgcolor != c) {
-        bgcolor = c;
-        for (int i = 0; i < d->viewList.size(); ++i) {
-	    QPalette p(d->viewList.at(i)->viewport()->palette());
-	    p.setColor(d->viewList.at(i)->viewport()->backgroundRole(), bgcolor);
-	    d->viewList.at(i)->viewport()->setPalette(p);
-        }
-        setAllChanged();
+	bgcolor = c;
+	Q3CanvasView* view=d->viewList.first();
+	while (view != 0) {
+	    /* XXX this doesn't look right. Shouldn't this
+	       be more like setBackgroundPixmap? : Ian */
+	    view->viewport()->setEraseColor(bgcolor);
+	    view=d->viewList.next();
+	}
+	setAllChanged();
     }
 }
 
@@ -1607,7 +1605,7 @@ void QCanvas::setBackgroundColor(const QColor& c)
 
     \sa setBackgroundPixmap(), backgroundColor()
 */
-QPixmap QCanvas::backgroundPixmap() const
+QPixmap Q3Canvas::backgroundPixmap() const
 {
     return pm;
 }
@@ -1618,11 +1616,13 @@ QPixmap QCanvas::backgroundPixmap() const
 
     \sa backgroundPixmap(), setBackgroundColor(), setTiles()
 */
-void QCanvas::setBackgroundPixmap(const QPixmap& p)
+void Q3Canvas::setBackgroundPixmap(const QPixmap& p)
 {
     setTiles(p, 1, 1, p.width(), p.height());
-    for (int i = 0; i < d->viewList.size(); ++i) {
-        d->viewList.at(i)->updateContents();
+    Q3CanvasView* view = d->viewList.first();
+    while (view != 0) {
+	view->updateContents();
+	view = d->viewList.next();
     }
 }
 
@@ -1639,38 +1639,38 @@ void QCanvas::setBackgroundPixmap(const QPixmap& p)
 
     \sa setBackgroundColor(), setBackgroundPixmap(), setTiles()
 */
-void QCanvas::drawBackground(QPainter& painter, const QRect& clip)
+void Q3Canvas::drawBackground(QPainter& painter, const QRect& clip)
 {
     if (pm.isNull()) {
-        painter.fillRect(clip,bgcolor);
+	painter.fillRect(clip,bgcolor);
     } else if (!grid) {
-        for (int x=clip.x()/pm.width();
-            x<(clip.x()+clip.width()+pm.width()-1)/pm.width(); x++)
-        {
-            for (int y=clip.y()/pm.height();
-                y<(clip.y()+clip.height()+pm.height()-1)/pm.height(); y++)
-            {
-                painter.drawPixmap(x*pm.width(), y*pm.height(),pm);
-            }
-        }
+	for (int x=clip.x()/pm.width();
+	    x<(clip.x()+clip.width()+pm.width()-1)/pm.width(); x++)
+	{
+	    for (int y=clip.y()/pm.height();
+		y<(clip.y()+clip.height()+pm.height()-1)/pm.height(); y++)
+	    {
+		painter.drawPixmap(x*pm.width(), y*pm.height(),pm);
+	    }
+	}
     } else {
-        const int x1 = clip.left()/tilew;
-        int x2 = clip.right()/tilew;
-        const int y1 = clip.top()/tileh;
-        int y2 = clip.bottom()/tileh;
+	const int x1 = clip.left()/tilew;
+	int x2 = clip.right()/tilew;
+	const int y1 = clip.top()/tileh;
+	int y2 = clip.bottom()/tileh;
 
-        const int roww = pm.width()/tilew;
+	const int roww = pm.width()/tilew;
 
-        for (int j=y1; j<=y2; j++) {
-            int jj = j%tilesVertically();
-            for (int i=x1; i<=x2; i++) {
-                int t = tile(i%tilesHorizontally(), jj);
-                int tx = t % roww;
-                int ty = t / roww;
-                painter.drawPixmap(i*tilew, j*tileh, pm,
-                                tx*tilew, ty*tileh, tilew, tileh);
-            }
-        }
+	for (int j=y1; j<=y2; j++) {
+	    int jj = j%tilesVertically();
+	    for (int i=x1; i<=x2; i++) {
+		int t = tile(i%tilesHorizontally(), jj);
+		int tx = t % roww;
+		int ty = t / roww;
+		painter.drawPixmap(i*tilew, j*tileh, pm,
+				tx*tilew, ty*tileh, tilew, tileh);
+	    }
+	}
     }
 }
 
@@ -1685,12 +1685,12 @@ void QCanvas::drawBackground(QPainter& painter, const QRect& clip)
 
     The default is to draw nothing.
 */
-void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
+void Q3Canvas::drawForeground(QPainter& painter, const QRect& clip)
 {
     if (debug_redraw_areas) {
-	painter.setPen(Qt::red);
-	painter.setBrush(Qt::NoBrush);
-        painter.drawRect(clip);
+	painter.setPen(red);
+	painter.setBrush(NoBrush);
+	painter.drawRect(clip);
     }
 }
 
@@ -1701,14 +1701,14 @@ void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
     Turning off double-buffering causes the redrawn areas to flicker a
     little and also gives a (usually small) performance improvement.
 */
-void QCanvas::setDoubleBuffering(bool y)
+void Q3Canvas::setDoubleBuffering(bool y)
 {
     dblbuf = y;
 }
 
 
 /*!
-    Sets the QCanvas to be composed of \a h tiles horizontally and \a
+    Sets the Q3Canvas to be composed of \a h tiles horizontally and \a
     v tiles vertically. Each tile will be an image \a tilewidth by \a
     tileheight pixels from pixmap \a p.
 
@@ -1733,65 +1733,65 @@ void QCanvas::setDoubleBuffering(bool y)
     pixmap and 0 for \a h, \a v, \a tilewidth, and
     \a tileheight.
 */
-void QCanvas::setTiles(QPixmap p,
-                        int h, int v, int tilewidth, int tileheight)
+void Q3Canvas::setTiles(QPixmap p,
+			int h, int v, int tilewidth, int tileheight)
 {
     if (!p.isNull() && (!tilewidth || !tileheight ||
-         p.width() % tilewidth != 0 || p.height() % tileheight != 0))
-        return;
+	 p.width() % tilewidth != 0 || p.height() % tileheight != 0))
+    	return;
 
     htiles = h;
     vtiles = v;
     delete[] grid;
     pm = p;
     if (h && v && !p.isNull()) {
-        grid = new ushort[h*v];
-        memset(grid, 0, h*v*sizeof(ushort));
-        tilew = tilewidth;
-        tileh = tileheight;
+	grid = new ushort[h*v];
+	memset(grid, 0, h*v*sizeof(ushort));
+	tilew = tilewidth;
+	tileh = tileheight;
     } else {
-        grid = 0;
+	grid = 0;
     }
     if (h + v > 10) {
-        int s = scm(tilewidth,tileheight);
-        retune(s < 128 ? s : qMax(tilewidth,tileheight));
+	int s = scm(tilewidth,tileheight);
+	retune(s < 128 ? s : QMAX(tilewidth,tileheight));
     }
     setAllChanged();
 }
 
 /*!
-    \fn int QCanvas::tile(int x, int y) const
+    \fn int Q3Canvas::tile(int x, int y) const
 
-    Returns the tile number of the tile at position (\a x, \a y).
-    Initially, all tiles are 0.
+    Returns the tile at position (\a x, \a y). Initially, all tiles
+    are 0.
 
     The parameters must be within range, i.e.
-        0 \< \a x \< tilesHorizontally() and
-        0 \< \a y \< tilesVertically().
+	0 \< \a x \< tilesHorizontally() and
+	0 \< \a y \< tilesVertically().
 
     \sa setTile()
 */
 
 /*!
-    \fn int QCanvas::tilesHorizontally() const
+    \fn int Q3Canvas::tilesHorizontally() const
 
     Returns the number of tiles horizontally.
 */
 
 /*!
-    \fn int QCanvas::tilesVertically() const
+    \fn int Q3Canvas::tilesVertically() const
 
     Returns the number of tiles vertically.
 */
 
 /*!
-    \fn int QCanvas::tileWidth() const
+    \fn int Q3Canvas::tileWidth() const
 
     Returns the width of each tile.
 */
 
 /*!
-    \fn int QCanvas::tileHeight() const
+    \fn int Q3Canvas::tileHeight() const
 
     Returns the height of each tile.
 */
@@ -1814,45 +1814,46 @@ void QCanvas::setTiles(QPixmap p,
 
     \sa tile() setTiles()
 */
-void QCanvas::setTile(int x, int y, int tilenum)
+void Q3Canvas::setTile(int x, int y, int tilenum)
 {
     ushort& t = grid[x+y*htiles];
     if (t != tilenum) {
-        t = tilenum;
-        if (tilew == tileh && tilew == chunksize)
-            setChangedChunk(x, y);            // common case
-        else
-            setChanged(QRect(x*tilew,y*tileh,tilew,tileh));
+	t = tilenum;
+	if (tilew == tileh && tilew == chunksize)
+	    setChangedChunk(x, y);	    // common case
+	else
+	    setChanged(QRect(x*tilew,y*tileh,tilew,tileh));
     }
 }
 
 
 // lesser-used data in canvas item, plus room for extension.
 // Be careful adding to this - check all usages.
-class QCanvasItemExtra {
-    QCanvasItemExtra() : vx(0.0), vy(0.0) { }
+class Q3CanvasItemExtra {
+    Q3CanvasItemExtra() : vx(0.0), vy(0.0) { }
     double vx,vy;
-    friend class QCanvasItem;
+    friend class Q3CanvasItem;
 };
 
 
 /*!
-    \class QCanvasItem
-    \brief The QCanvasItem class provides an abstract graphic object on a QCanvas.
-
+    \class Q3CanvasItem qcanvas.h
+    \brief The Q3CanvasItem class provides an abstract graphic object on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
-    A variety of QCanvasItem subclasses provide immediately usable
-    behavior. This class is a pure abstract superclass providing the
-    behavior that is shared by all the concrete canvas item classes.
-    QCanvasItem is not intended for direct subclassing. It is much easier
-    to subclass one of its subclasses, e.g. QCanvasPolygonalItem (the
-    commonest base class), QCanvasRectangle, QCanvasSprite, QCanvasEllipse
-    or QCanvasText.
+    A variety of Q3CanvasItem subclasses provide immediately usable
+    behaviour. This class is a pure abstract superclass providing the
+    behaviour that is shared among all the concrete canvas item classes.
+    Q3CanvasItem is not intended for direct subclassing. It is much easier
+    to subclass one of its subclasses, e.g. Q3CanvasPolygonalItem (the
+    commonest base class), Q3CanvasRectangle, Q3CanvasSprite, Q3CanvasEllipse
+    or Q3CanvasText.
 
     Canvas items are added to a canvas by constructing them and passing the
     canvas to the canvas item's constructor. An item can be moved to a
@@ -1864,11 +1865,11 @@ class QCanvasItemExtra {
     canvas only shows items that are \link setVisible() visible\endlink,
     and then only if \l update() is called. If you created the canvas
     without passing a width and height to the constructor you'll also need
-    to call \link QCanvas::resize() resize()\endlink. Since the canvas
+    to call \link Q3Canvas::resize() resize()\endlink. Since the canvas
     background defaults to white and canvas items default to white,
     you may need to change colors to see your items.
 
-    A QCanvasItem object can be moved in the x(), y() and z() dimensions
+    A Q3CanvasItem object can be moved in the x(), y() and z() dimensions
     using functions such as move(), moveBy(), setX(), setY() and setZ(). A
     canvas item can be set in motion, `animated', using setAnimated() and
     given a velocity in the x and y directions with setXVelocity() and
@@ -1877,24 +1878,24 @@ class QCanvasItemExtra {
     will collide on the \e next advance(1) and use collisions() to see what
     collisions have occurred.
 
-    Use QCanvasSprite or your own subclass of QCanvasSprite to create canvas
+    Use Q3CanvasSprite or your own subclass of Q3CanvasSprite to create canvas
     items which are animated, i.e. which change over time.
 
-    The size of a canvas item is specified by boundingRect(). Use
+    The size of a canvas item is given by boundingRect(). Use
     boundingRectAdvanced() to see what the size of the canvas item will be
     \e after the next advance(1) call.
 
-    The rtti() function is used for identifying subclasses of QCanvasItem.
+    The rtti() function is used for identifying subclasses of Q3CanvasItem.
     The canvas() function returns a pointer to the canvas which contains the
     canvas item.
 
-    QCanvasItem provides the show() and isVisible() functions like those in
+    Q3CanvasItem provides the show() and isVisible() functions like those in
     QWidget.
 
-    QCanvasItem also provides the setEnabled(), setActive() and
+    Q3CanvasItem also provides the setEnabled(), setActive() and
     setSelected() functions; these functions set the relevant boolean and
     cause a repaint but the boolean values they set are not used in
-    QCanvasItem itself. You can make use of these booleans in your subclasses.
+    Q3CanvasItem itself. You can make use of these booleans in your subclasses.
 
     By default, canvas items have no velocity, no size, and are not in
     motion. The subclasses provided in Qt do not change these defaults
@@ -1903,7 +1904,7 @@ class QCanvasItemExtra {
 */
 
 /*!
-    \enum QCanvasItem::RttiValues
+    \enum Q3CanvasItem::RttiValues
 
     This enum is used to name the different types of canvas item.
 
@@ -1920,17 +1921,17 @@ class QCanvasItemExtra {
 */
 
 /*!
-    \fn void QCanvasItem::update()
+    \fn void Q3CanvasItem::update()
 
     Call this function to repaint the canvas's changed chunks.
 */
 
 /*!
-    Constructs a QCanvasItem on canvas \a canvas.
+    Constructs a Q3CanvasItem on canvas \a canvas.
 
     \sa setCanvas()
 */
-QCanvasItem::QCanvasItem(QCanvas* canvas) :
+Q3CanvasItem::Q3CanvasItem(Q3Canvas* canvas) :
     cnv(canvas),
     myx(0),myy(0),myz(0)
 {
@@ -1946,61 +1947,55 @@ QCanvasItem::QCanvasItem(QCanvas* canvas) :
 }
 
 /*!
-    Destroys the QCanvasItem and removes it from its canvas.
+    Destroys the Q3CanvasItem and removes it from its canvas.
 */
-QCanvasItem::~QCanvasItem()
+Q3CanvasItem::~Q3CanvasItem()
 {
     if (cnv) {
-        cnv->removeItem(this);
-        cnv->removeAnimation(this);
+	cnv->removeItem(this);
+	cnv->removeAnimation(this);
     }
     delete ext;
 }
 
-QCanvasItemExtra& QCanvasItem::extra()
+Q3CanvasItemExtra& Q3CanvasItem::extra()
 {
     if (!ext)
-        ext = new QCanvasItemExtra;
+	ext = new Q3CanvasItemExtra;
     return *ext;
 }
 
 /*!
-    \fn double QCanvasItem::x() const
+    \fn double Q3CanvasItem::x() const
 
     Returns the horizontal position of the canvas item. Note that
     subclasses often have an origin other than the top-left corner.
-
-    \sa QCanvas::onCanvas()
 */
 
 /*!
-    \fn double QCanvasItem::y() const
+    \fn double Q3CanvasItem::y() const
 
     Returns the vertical position of the canvas item. Note that
     subclasses often have an origin other than the top-left corner.
-
-    \sa QCanvas::onCanvas()
 */
 
 /*!
-    \fn double QCanvasItem::z() const
+    \fn double Q3CanvasItem::z() const
 
     Returns the z index of the canvas item, which is used for visual
     order: higher-z items obscure (are in front of) lower-z items.
-
-    \sa isVisible()
 */
 
 /*!
-    \fn void QCanvasItem::setX(double x)
+    \fn void Q3CanvasItem::setX(double x)
 
-    Moves the canvas item so that its x position is \a x.
+    Moves the canvas item so that its x-position is \a x.
 
     \sa x(), move()
 */
 
 /*!
-    \fn void QCanvasItem::setY(double y)
+    \fn void Q3CanvasItem::setY(double y)
 
     Moves the canvas item so that its y-position is \a y.
 
@@ -2008,7 +2003,7 @@ QCanvasItemExtra& QCanvasItem::extra()
 */
 
 /*!
-    \fn void QCanvasItem::setZ(double z)
+    \fn void Q3CanvasItem::setZ(double z)
 
     Sets the z index of the canvas item to \a z. Higher-z items
     obscure (are in front of) lower-z items.
@@ -2021,13 +2016,13 @@ QCanvasItemExtra& QCanvasItem::extra()
     Moves the canvas item relative to its current position by (\a dx,
     \a dy).
 */
-void QCanvasItem::moveBy(double dx, double dy)
+void Q3CanvasItem::moveBy(double dx, double dy)
 {
     if (dx || dy) {
-        removeFromChunks();
-        myx += dx;
-        myy += dy;
-        addToChunks();
+	removeFromChunks();
+	myx += dx;
+	myy += dy;
+	addToChunks();
     }
 }
 
@@ -2035,7 +2030,7 @@ void QCanvasItem::moveBy(double dx, double dy)
 /*!
     Moves the canvas item to the absolute position (\a x, \a y).
 */
-void QCanvasItem::move(double x, double y)
+void Q3CanvasItem::move(double x, double y)
 {
     moveBy(x-myx, y-myy);
 }
@@ -2047,7 +2042,7 @@ void QCanvasItem::move(double x, double y)
 
     \sa setVelocity(), setAnimated()
 */
-bool QCanvasItem::animated() const
+bool Q3CanvasItem::animated() const
 {
     return (bool)ani;
 }
@@ -2057,22 +2052,22 @@ bool QCanvasItem::animated() const
     y is false. The speed and direction of the motion is set with
     setVelocity(), or with setXVelocity() and setYVelocity().
 
-    \sa advance(), QCanvas::advance()
+    \sa advance(), Q3Canvas::advance()
 */
-void QCanvasItem::setAnimated(bool y)
+void Q3CanvasItem::setAnimated(bool y)
 {
     if (y != (bool)ani) {
-        ani = (uint)y;
-        if (y) {
-            cnv->addAnimation(this);
-        } else {
-            cnv->removeAnimation(this);
-        }
+	ani = (uint)y;
+	if (y) {
+	    cnv->addAnimation(this);
+	} else {
+	    cnv->removeAnimation(this);
+	}
     }
 }
 
 /*!
-    \fn void QCanvasItem::setXVelocity(double vx)
+    \fn void Q3CanvasItem::setXVelocity(double vx)
 
     Sets the horizontal component of the canvas item's velocity to \a vx.
 
@@ -2080,7 +2075,7 @@ void QCanvasItem::setAnimated(bool y)
 */
 
 /*!
-    \fn void QCanvasItem::setYVelocity(double vy)
+    \fn void Q3CanvasItem::setYVelocity(double vy)
 
     Sets the vertical component of the canvas item's velocity to \a vy.
 
@@ -2093,20 +2088,20 @@ void QCanvasItem::setAnimated(bool y)
 
     \sa advance() setXVelocity() setYVelocity()
 */
-void QCanvasItem::setVelocity(double vx, double vy)
+void Q3CanvasItem::setVelocity(double vx, double vy)
 {
     if (ext || vx!=0.0 || vy!=0.0) {
-        if (!ani)
-            setAnimated(true);
-        extra().vx = vx;
-        extra().vy = vy;
+	if (!ani)
+	    setAnimated(true);
+	extra().vx = vx;
+	extra().vy = vy;
     }
 }
 
 /*!
     Returns the horizontal velocity component of the canvas item.
 */
-double QCanvasItem::xVelocity() const
+double Q3CanvasItem::xVelocity() const
 {
     return ext ? ext->vx : 0;
 }
@@ -2114,7 +2109,7 @@ double QCanvasItem::xVelocity() const
 /*!
     Returns the vertical velocity component of the canvas item.
 */
-double QCanvasItem::yVelocity() const
+double Q3CanvasItem::yVelocity() const
 {
     return ext ? ext->vy : 0;
 }
@@ -2128,81 +2123,86 @@ double QCanvasItem::yVelocity() const
     must not change the canvas in any way, for example it must not add
     or remove items.
 
-    \sa QCanvas::advance() setVelocity()
+    \sa Q3Canvas::advance() setVelocity()
 */
-void QCanvasItem::advance(int phase)
+void Q3CanvasItem::advance(int phase)
 {
     if (ext && phase==1)
-        moveBy(ext->vx,ext->vy);
+	moveBy(ext->vx,ext->vy);
 }
 
 /*!
-    \fn void QCanvasItem::draw(QPainter& painter)
+    \fn void Q3CanvasItem::draw(QPainter& painter)
 
     This abstract virtual function draws the canvas item using \a painter.
 */
 
 /*!
-    Sets the QCanvas upon which the canvas item is to be drawn to \a c.
+    Sets the Q3Canvas upon which the canvas item is to be drawn to \a c.
 
     \sa canvas()
 */
-void QCanvasItem::setCanvas(QCanvas* c)
+void Q3CanvasItem::setCanvas(Q3Canvas* c)
 {
     bool v=isVisible();
     setVisible(false);
     if (cnv) {
 	if (ext)
 	    cnv->removeAnimation(this);
-        cnv->removeItem(this);
+	cnv->removeItem(this);
     }
     cnv=c;
     if (cnv) {
-        cnv->addItem(this);
-        if (ext)
-            cnv->addAnimation(this);
+	cnv->addItem(this);
+	if (ext)
+	    cnv->addAnimation(this);
     }
     setVisible(v);
 }
 
 /*!
-    \fn QCanvas* QCanvasItem::canvas() const
+    \fn Q3Canvas* Q3CanvasItem::canvas() const
 
     Returns the canvas containing the canvas item.
 */
 
-/*! The same as setVisible(true). */
-void QCanvasItem::show()
+/*! Shorthand for setVisible(true). */
+void Q3CanvasItem::show()
 {
     setVisible(true);
 }
 
-/*! The same as setVisible(false). */
-void QCanvasItem::hide()
+/*! Shorthand for setVisible(false). */
+void Q3CanvasItem::hide()
 {
     setVisible(false);
 }
 
 /*!
     Makes the canvas item visible if \a yes is true, or invisible if
-    \a yes is false. The change takes effect when QCanvas::update() is
+    \a yes is false. The change takes effect when Q3Canvas::update() is
     next called.
 */
-void QCanvasItem::setVisible(bool yes)
+void Q3CanvasItem::setVisible(bool yes)
 {
     if ((bool)vis!=yes) {
-        if (yes) {
-            vis=(uint)yes;
-            addToChunks();
-        } else {
-            removeFromChunks();
-            vis=(uint)yes;
-        }
+	if (yes) {
+	    vis=(uint)yes;
+	    addToChunks();
+	} else {
+	    removeFromChunks();
+	    vis=(uint)yes;
+	}
     }
 }
+/*!
+    \obsolete
+    \fn bool Q3CanvasItem::visible() const
+    Use isVisible() instead.
+*/
 
 /*!
-    \fn bool QCanvasItem::isVisible() const
+    \fn bool Q3CanvasItem::isVisible() const
 
     Returns true if the canvas item is visible; otherwise returns
     false.
@@ -2217,7 +2217,13 @@ void QCanvasItem::setVisible(bool yes)
 */
 
 /*!
-    \fn bool QCanvasItem::isSelected() const
+    \obsolete
+    \fn bool Q3CanvasItem::selected() const
+    Use isSelected() instead.
+*/
+
+/*!
+    \fn bool Q3CanvasItem::isSelected() const
 
     Returns true if the canvas item is selected; otherwise returns false.
 */
@@ -2225,76 +2231,88 @@ void QCanvasItem::setVisible(bool yes)
 /*!
     Sets the selected flag of the item to \a yes. If this changes the
     item's selected state the item will be redrawn when
-    QCanvas::update() is next called.
+    Q3Canvas::update() is next called.
 
-    The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem
+    The Q3Canvas, Q3CanvasItem and the Qt-supplied Q3CanvasItem
     subclasses do not make use of this value. The setSelected()
     function is supplied because many applications need it, but it is
     up to you how you use the isSelected() value.
 */
-void QCanvasItem::setSelected(bool yes)
+void Q3CanvasItem::setSelected(bool yes)
 {
     if ((bool)sel!=yes) {
-        sel=(uint)yes;
-        changeChunks();
+	sel=(uint)yes;
+	changeChunks();
     }
 }
 
 /*!
-    \fn bool QCanvasItem::isEnabled() const
+    \obsolete
+    \fn bool Q3CanvasItem::enabled() const
+    Use isEnabled() instead.
+*/
 
-    Returns true if the QCanvasItem is enabled; otherwise returns false.
+/*!
+    \fn bool Q3CanvasItem::isEnabled() const
+
+    Returns true if the Q3CanvasItem is enabled; otherwise returns false.
 */
 
 /*!
     Sets the enabled flag of the item to \a yes. If this changes the
     item's enabled state the item will be redrawn when
-    QCanvas::update() is next called.
+    Q3Canvas::update() is next called.
 
-    The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem
+    The Q3Canvas, Q3CanvasItem and the Qt-supplied Q3CanvasItem
     subclasses do not make use of this value. The setEnabled()
     function is supplied because many applications need it, but it is
     up to you how you use the isEnabled() value.
 */
-void QCanvasItem::setEnabled(bool yes)
+void Q3CanvasItem::setEnabled(bool yes)
 {
     if (ena!=(uint)yes) {
-        ena=(uint)yes;
-        changeChunks();
+	ena=(uint)yes;
+	changeChunks();
     }
 }
 
 /*!
-    \fn bool QCanvasItem::isActive() const
+    \obsolete
+    \fn bool Q3CanvasItem::active() const
+    Use isActive() instead.
+*/
 
-    Returns true if the QCanvasItem is active; otherwise returns false.
+/*!
+    \fn bool Q3CanvasItem::isActive() const
+
+    Returns true if the Q3CanvasItem is active; otherwise returns false.
 */
 
 /*!
     Sets the active flag of the item to \a yes. If this changes the
     item's active state the item will be redrawn when
-    QCanvas::update() is next called.
+    Q3Canvas::update() is next called.
 
-    The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem
+    The Q3Canvas, Q3CanvasItem and the Qt-supplied Q3CanvasItem
     subclasses do not make use of this value. The setActive() function
     is supplied because many applications need it, but it is up to you
     how you use the isActive() value.
 */
-void QCanvasItem::setActive(bool yes)
+void Q3CanvasItem::setActive(bool yes)
 {
     if (act!=(uint)yes) {
-        act=(uint)yes;
-        changeChunks();
+	act=(uint)yes;
+	changeChunks();
     }
 }
 
-bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
+bool qt_testCollision(const Q3CanvasSprite* s1, const Q3CanvasSprite* s2)
 {
     const QImage* s2image = s2->imageAdvanced()->collision_mask;
     QRect s2area = s2->boundingRectAdvanced();
 
     QRect cyourarea(s2area.x(),s2area.y(),
-            s2area.width(),s2area.height());
+	    s2area.width(),s2area.height());
 
     QImage* s1image=s1->imageAdvanced()->collision_mask;
 
@@ -2303,7 +2321,7 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
     QRect ourarea = s1area.intersect(cyourarea);
 
     if (ourarea.isEmpty())
-        return false;
+	return false;
 
     int x2=ourarea.x()-cyourarea.x();
     int y2=ourarea.y()-cyourarea.y();
@@ -2313,14 +2331,14 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
     int h=ourarea.height();
 
     if (!s2image) {
-        if (!s1image)
-            return w>0 && h>0;
-        // swap everything around
-        int t;
-        t=x1; x1=x2; x2=t;
-        t=y1; x1=y2; y2=t;
-        s2image = s1image;
-        s1image = 0;
+	if (!s1image)
+	    return w>0 && h>0;
+	// swap everything around
+	int t;
+	t=x1; x1=x2; x2=t;
+	t=y1; x1=y2; y2=t;
+	s2image = s1image;
+	s1image = 0;
     }
 
     // s2image != 0
@@ -2335,113 +2353,113 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
     // Q_ASSERT(s1image->bitOrder()==s2image->bitOrder());
 
     if (s1image) {
-        if (s1image->bitOrder() == QImage::LittleEndian) {
-            for (int j=0; j<h; j++) {
-                uchar* ml = s1image->scanLine(y1+j);
-                const uchar* yl = s2image->scanLine(y2+j);
-                for (int i=0; i<w; i++) {
-                    if (*(yl + ((x2+i) >> 3)) & (1 << ((x2+i) & 7))
-                    && *(ml + ((x1+i) >> 3)) & (1 << ((x1+i) & 7)))
-                    {
-                        return true;
-                    }
-                }
-            }
-        } else {
-            for (int j=0; j<h; j++) {
-                uchar* ml = s1image->scanLine(y1+j);
-                const uchar* yl = s2image->scanLine(y2+j);
-                for (int i=0; i<w; i++) {
-                    if (*(yl + ((x2+i) >> 3)) & (1 << (7-((x2+i) & 7)))
-                    && *(ml + ((x1+i) >> 3)) & (1 << (7-((x1+i) & 7))))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
+	if (s1image->bitOrder() == QImage::LittleEndian) {
+	    for (int j=0; j<h; j++) {
+		uchar* ml = s1image->scanLine(y1+j);
+		const uchar* yl = s2image->scanLine(y2+j);
+		for (int i=0; i<w; i++) {
+		    if (*(yl + ((x2+i) >> 3)) & (1 << ((x2+i) & 7))
+		    && *(ml + ((x1+i) >> 3)) & (1 << ((x1+i) & 7)))
+		    {
+			return true;
+		    }
+		}
+	    }
+	} else {
+	    for (int j=0; j<h; j++) {
+		uchar* ml = s1image->scanLine(y1+j);
+		const uchar* yl = s2image->scanLine(y2+j);
+		for (int i=0; i<w; i++) {
+		    if (*(yl + ((x2+i) >> 3)) & (1 << (7-((x2+i) & 7)))
+		    && *(ml + ((x1+i) >> 3)) & (1 << (7-((x1+i) & 7))))
+		    {
+			return true;
+		    }
+		}
+	    }
+	}
     } else {
-        if (s2image->bitOrder() == QImage::LittleEndian) {
-            for (int j=0; j<h; j++) {
-                const uchar* yl = s2image->scanLine(y2+j);
-                for (int i=0; i<w; i++) {
-                    if (*(yl + ((x2+i) >> 3)) & (1 << ((x2+i) & 7)))
-                    {
-                        return true;
-                    }
-                }
-            }
-        } else {
-            for (int j=0; j<h; j++) {
-                const uchar* yl = s2image->scanLine(y2+j);
-                for (int i=0; i<w; i++) {
-                    if (*(yl + ((x2+i) >> 3)) & (1 << (7-((x2+i) & 7))))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
+	if (s2image->bitOrder() == QImage::LittleEndian) {
+	    for (int j=0; j<h; j++) {
+		const uchar* yl = s2image->scanLine(y2+j);
+		for (int i=0; i<w; i++) {
+		    if (*(yl + ((x2+i) >> 3)) & (1 << ((x2+i) & 7)))
+		    {
+			return true;
+		    }
+		}
+	    }
+	} else {
+	    for (int j=0; j<h; j++) {
+		const uchar* yl = s2image->scanLine(y2+j);
+		for (int i=0; i<w; i++) {
+		    if (*(yl + ((x2+i) >> 3)) & (1 << (7-((x2+i) & 7))))
+		    {
+			return true;
+		    }
+		}
+	    }
+	}
     }
 
     return false;
 }
 
-static bool collision_double_dispatch(const QCanvasSprite* s1,
-                                       const QCanvasPolygonalItem* p1,
-                                       const QCanvasRectangle* r1,
-                                       const QCanvasEllipse* e1,
-                                       const QCanvasText* t1,
-                                       const QCanvasSprite* s2,
-                                       const QCanvasPolygonalItem* p2,
-                                       const QCanvasRectangle* r2,
-                                       const QCanvasEllipse* e2,
-                                       const QCanvasText* t2)
+static bool collision_double_dispatch(const Q3CanvasSprite* s1,
+				       const Q3CanvasPolygonalItem* p1,
+				       const Q3CanvasRectangle* r1,
+				       const Q3CanvasEllipse* e1,
+				       const Q3CanvasText* t1,
+				       const Q3CanvasSprite* s2,
+				       const Q3CanvasPolygonalItem* p2,
+				       const Q3CanvasRectangle* r2,
+				       const Q3CanvasEllipse* e2,
+				       const Q3CanvasText* t2)
 {
-    const QCanvasItem* i1 = s1 ?
-                            (const QCanvasItem*)s1 : p1 ?
-                            (const QCanvasItem*)p1 : r1 ?
-                            (const QCanvasItem*)r1 : e1 ?
-                            (const QCanvasItem*)e1 : (const QCanvasItem*)t1;
-    const QCanvasItem* i2 = s2 ?
-                            (const QCanvasItem*)s2 : p2 ?
-                            (const QCanvasItem*)p2 : r2 ?
-                            (const QCanvasItem*)r2 : e2 ?
-                            (const QCanvasItem*)e2 : (const QCanvasItem*)t2;
+    const Q3CanvasItem* i1 = s1 ?
+			    (const Q3CanvasItem*)s1 : p1 ?
+			    (const Q3CanvasItem*)p1 : r1 ?
+			    (const Q3CanvasItem*)r1 : e1 ?
+			    (const Q3CanvasItem*)e1 : (const Q3CanvasItem*)t1;
+    const Q3CanvasItem* i2 = s2 ?
+			    (const Q3CanvasItem*)s2 : p2 ?
+			    (const Q3CanvasItem*)p2 : r2 ?
+			    (const Q3CanvasItem*)r2 : e2 ?
+			    (const Q3CanvasItem*)e2 : (const Q3CanvasItem*)t2;
 
     if (s1 && s2) {
-        // a
-        return qt_testCollision(s1,s2);
+	// a
+	return qt_testCollision(s1,s2);
     } else if ((r1 || t1 || s1) && (r2 || t2 || s2)) {
-        // b
-        QRect rc1 = i1->boundingRectAdvanced();
-        QRect rc2 = i2->boundingRectAdvanced();
-        return rc1.intersects(rc2);
+	// b
+	QRect rc1 = i1->boundingRectAdvanced();
+	QRect rc2 = i2->boundingRectAdvanced();
+	return rc1.intersects(rc2);
     } else if (e1 && e2
-                && e1->angleLength()>=360*16 && e2->angleLength()>=360*16
-                && e1->width()==e1->height()
-                && e2->width()==e2->height()) {
-        // c
-        double xd = (e1->x()+e1->xVelocity())-(e2->x()+e1->xVelocity());
-        double yd = (e1->y()+e1->yVelocity())-(e2->y()+e1->yVelocity());
-        double rd = (e1->width()+e2->width())/2;
-        return xd*xd+yd*yd <= rd*rd;
+		&& e1->angleLength()>=360*16 && e2->angleLength()>=360*16
+		&& e1->width()==e1->height()
+		&& e2->width()==e2->height()) {
+	// c
+	double xd = (e1->x()+e1->xVelocity())-(e2->x()+e1->xVelocity());
+	double yd = (e1->y()+e1->yVelocity())-(e2->y()+e1->yVelocity());
+	double rd = (e1->width()+e2->width())/2;
+	return xd*xd+yd*yd <= rd*rd;
     } else if (p1 && (p2 || s2 || t2)) {
-        // d
-        QPointArray pa1 = p1->areaPointsAdvanced();
-        QPointArray pa2 = p2 ? p2->areaPointsAdvanced()
-                          : QPointArray(i2->boundingRectAdvanced());
-        bool col= !(QRegion(pa1) & QRegion(pa2,Qt::WindingFill)).isEmpty();
+	// d
+	QPointArray pa1 = p1->areaPointsAdvanced();
+	QPointArray pa2 = p2 ? p2->areaPointsAdvanced()
+			  : QPointArray(i2->boundingRectAdvanced());
+	bool col= !(QRegion(pa1) & QRegion(pa2,true)).isEmpty();
 
-        return col;
+	return col;
     } else {
-        return collision_double_dispatch(s2,p2,r2,e2,t2,
-                                         s1,p1,r1,e1,t1);
+	return collision_double_dispatch(s2,p2,r2,e2,t2,
+					 s1,p1,r1,e1,t1);
     }
 }
 
 /*!
-    \fn bool QCanvasItem::collidesWith(const QCanvasItem* other) const
+    \fn bool Q3CanvasItem::collidesWith(const Q3CanvasItem* other) const
 
     Returns true if the canvas item will collide with the \a other
     item \e after they have moved by their current velocities;
@@ -2452,27 +2470,27 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
 
 
 /*!
-    \class QCanvasSprite
-    \brief The QCanvasSprite class provides an animated canvas item on a QCanvas.
-
+    \class Q3CanvasSprite qcanvas.h
+    \brief The Q3CanvasSprite class provides an animated canvas item on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
     A canvas sprite is an object which can contain any number of images
     (referred to as frames), only one of which is current, i.e.
     displayed, at any one time. The images can be passed in the
     constructor or set or changed later with setSequence(). If you
-    subclass QCanvasSprite you can change the frame that is displayed
-    periodically, e.g. whenever QCanvasItem::advance(1) is called, to
+    subclass Q3CanvasSprite you can change the frame that is displayed
+    periodically, e.g. whenever Q3CanvasItem::advance(1) is called to
     create the effect of animation.
 
     The current frame can be set with setFrame() or with move(). The
-    number of frames available is specified by frameCount(). The
-    bounding rectangle of the current frame is returned by
-    boundingRect().
+    number of frames available is given by frameCount(). The bounding
+    rectangle of the current frame is returned by boundingRect().
 
     The current frame's image can be retrieved with image(); use
     imageAdvanced() to retrieve the image for the frame that will be
@@ -2484,28 +2502,29 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
     frame.
 
     Use leftEdge() and rightEdge() to retrieve the current frame's
-    left-hand and right-hand x-coordinates. Use bottomEdge() and
-    topEdge() to retrieve the current frame's bottom and top
-    y-coordinates. These functions have an overload which will accept
-    an integer frame number to retrieve the coordinates of a
-    particular frame.
+    left-hand and right-hand x-coordinates respectively. Use
+    bottomEdge() and topEdge() to retrieve the current frame's bottom
+    and top y-coordinates respectively. These functions have an overload
+    which will accept an integer frame number to retrieve the
+    coordinates of a particular frame.
 
-    QCanvasSprite draws very fast, at the expense of memory.
+    Q3CanvasSprite draws very quickly, at the expense of memory.
 
     The current frame's image can be drawn on a painter with draw().
 
     Like any other canvas item, canvas sprites can be moved with
     move() which sets the x and y coordinates and the frame number, as
-    well as with QCanvasItem::move() and QCanvasItem::moveBy(), or by
-    setting coordinates with QCanvasItem::setX(), QCanvasItem::setY()
-    and QCanvasItem::setZ().
+    well as with Q3CanvasItem::move() and Q3CanvasItem::moveBy(), or by
+    setting coordinates with Q3CanvasItem::setX(), Q3CanvasItem::setY()
+    and Q3CanvasItem::setZ().
 
 */
+
 
 /*!
   \reimp
 */
-bool QCanvasSprite::collidesWith(const QCanvasItem* i) const
+bool Q3CanvasSprite::collidesWith(const Q3CanvasItem* i) const
 {
     return i->collidesWith(this,0,0,0,0);
 }
@@ -2516,11 +2535,11 @@ bool QCanvasSprite::collidesWith(const QCanvasItem* i) const
     \a e and \a t, are all the same object, this is just a type
     resolution trick.
 */
-bool QCanvasSprite::collidesWith(const QCanvasSprite* s,
-                                  const QCanvasPolygonalItem* p,
-                                  const QCanvasRectangle* r,
-                                  const QCanvasEllipse* e,
-                                  const QCanvasText* t) const
+bool Q3CanvasSprite::collidesWith(const Q3CanvasSprite* s,
+				  const Q3CanvasPolygonalItem* p,
+				  const Q3CanvasRectangle* r,
+				  const Q3CanvasEllipse* e,
+				  const Q3CanvasText* t) const
 {
     return collision_double_dispatch(s,p,r,e,t,this,0,0,0,0);
 }
@@ -2528,16 +2547,16 @@ bool QCanvasSprite::collidesWith(const QCanvasSprite* s,
 /*!
   \reimp
 */
-bool QCanvasPolygonalItem::collidesWith(const QCanvasItem* i) const
+bool Q3CanvasPolygonalItem::collidesWith(const Q3CanvasItem* i) const
 {
     return i->collidesWith(0,this,0,0,0);
 }
 
-bool QCanvasPolygonalItem::collidesWith( const QCanvasSprite* s,
-                                 const QCanvasPolygonalItem* p,
-                                 const QCanvasRectangle* r,
-                                 const QCanvasEllipse* e,
-                                 const QCanvasText* t) const
+bool Q3CanvasPolygonalItem::collidesWith( const Q3CanvasSprite* s,
+				 const Q3CanvasPolygonalItem* p,
+				 const Q3CanvasRectangle* r,
+				 const Q3CanvasEllipse* e,
+				 const Q3CanvasText* t) const
 {
     return collision_double_dispatch(s,p,r,e,t,0,this,0,0,0);
 }
@@ -2545,16 +2564,16 @@ bool QCanvasPolygonalItem::collidesWith( const QCanvasSprite* s,
 /*!
   \reimp
 */
-bool QCanvasRectangle::collidesWith(const QCanvasItem* i) const
+bool Q3CanvasRectangle::collidesWith(const Q3CanvasItem* i) const
 {
     return i->collidesWith(0,this,this,0,0);
 }
 
-bool QCanvasRectangle::collidesWith( const QCanvasSprite* s,
-                                 const QCanvasPolygonalItem* p,
-                                 const QCanvasRectangle* r,
-                                 const QCanvasEllipse* e,
-                                 const QCanvasText* t) const
+bool Q3CanvasRectangle::collidesWith( const Q3CanvasSprite* s,
+				 const Q3CanvasPolygonalItem* p,
+				 const Q3CanvasRectangle* r,
+				 const Q3CanvasEllipse* e,
+				 const Q3CanvasText* t) const
 {
     return collision_double_dispatch(s,p,r,e,t,0,this,this,0,0);
 }
@@ -2563,16 +2582,16 @@ bool QCanvasRectangle::collidesWith( const QCanvasSprite* s,
 /*!
   \reimp
 */
-bool QCanvasEllipse::collidesWith(const QCanvasItem* i) const
+bool Q3CanvasEllipse::collidesWith(const Q3CanvasItem* i) const
 {
     return i->collidesWith(0,this,0,this,0);
 }
 
-bool QCanvasEllipse::collidesWith( const QCanvasSprite* s,
-                                 const QCanvasPolygonalItem* p,
-                                 const QCanvasRectangle* r,
-                                 const QCanvasEllipse* e,
-                                 const QCanvasText* t) const
+bool Q3CanvasEllipse::collidesWith( const Q3CanvasSprite* s,
+				 const Q3CanvasPolygonalItem* p,
+				 const Q3CanvasRectangle* r,
+				 const Q3CanvasEllipse* e,
+				 const Q3CanvasText* t) const
 {
     return collision_double_dispatch(s,p,r,e,t,0,this,0,this,0);
 }
@@ -2580,16 +2599,16 @@ bool QCanvasEllipse::collidesWith( const QCanvasSprite* s,
 /*!
   \reimp
 */
-bool QCanvasText::collidesWith(const QCanvasItem* i) const
+bool Q3CanvasText::collidesWith(const Q3CanvasItem* i) const
 {
     return i->collidesWith(0,0,0,0,this);
 }
 
-bool QCanvasText::collidesWith( const QCanvasSprite* s,
-                                 const QCanvasPolygonalItem* p,
-                                 const QCanvasRectangle* r,
-                                 const QCanvasEllipse* e,
-                                 const QCanvasText* t) const
+bool Q3CanvasText::collidesWith( const Q3CanvasSprite* s,
+				 const Q3CanvasPolygonalItem* p,
+				 const Q3CanvasRectangle* r,
+				 const Q3CanvasEllipse* e,
+				 const Q3CanvasText* t) const
 {
     return collision_double_dispatch(s,p,r,e,t,0,0,0,0,this);
 }
@@ -2613,7 +2632,7 @@ bool QCanvasText::collidesWith( const QCanvasSprite* s,
     using this approach, you can ignore some canvas items for which
     collisions are not relevant.
 
-    The returned list is a list of QCanvasItems, but often you will
+    The returned list is a list of Q3CanvasItems, but often you will
     need to cast the items to their subclass types. The safe way to do
     this is to use rtti() before casting. This provides some of the
     functionality of the standard C++ dynamic cast operation even on
@@ -2623,7 +2642,7 @@ bool QCanvasText::collidesWith( const QCanvasSprite* s,
     with the canvas as parameter, even though its coordinates place it
     beyond the edge of the canvas's area. Collision detection only
     works for canvas items which are wholly or partly within the
-    canvas's area; see QCanvas::onCanvas().
+    canvas's area.
 
     Note that if items have a velocity (see \l setVelocity()), then
     collision testing is done based on where the item \e will be when
@@ -2632,7 +2651,7 @@ bool QCanvasText::collidesWith( const QCanvasSprite* s,
     collision is detected. For items without velocity, plain
     intersection is used.
 */
-QCanvasItemList QCanvasItem::collisions(bool exact) const
+Q3CanvasItemList Q3CanvasItem::collisions(bool exact) const
 {
     return canvas()->collisions(chunks(),this,exact);
 }
@@ -2642,7 +2661,7 @@ QCanvasItemList QCanvasItem::collisions(bool exact) const
     The list is ordered by z coordinates, from highest z coordinate
     (front-most item) to lowest z coordinate (rear-most item).
 */
-QCanvasItemList QCanvas::collisions(const QPoint& p) const
+Q3CanvasItemList Q3Canvas::collisions(const QPoint& p) const
 {
     return collisions(QRect(p,QSize(1,1)));
 }
@@ -2654,12 +2673,12 @@ QCanvasItemList QCanvas::collisions(const QPoint& p) const
     list is ordered by z coordinates, from highest z coordinate
     (front-most item) to lowest z coordinate (rear-most item).
 */
-QCanvasItemList QCanvas::collisions(const QRect& r) const
+Q3CanvasItemList Q3Canvas::collisions(const QRect& r) const
 {
-    QCanvasRectangle i(r,(QCanvas*)this);
-    i.setPen(Qt::NoPen);
+    Q3CanvasRectangle i(r,(Q3Canvas*)this);
+    i.setPen(NoPen);
     i.show(); // doesn't actually show, since we destroy it
-    QCanvasItemList l = i.collisions(true);
+    Q3CanvasItemList l = i.collisions(true);
     l.sort();
     return l;
 }
@@ -2669,34 +2688,34 @@ QCanvasItemList QCanvas::collisions(const QRect& r) const
 
     Returns a list of canvas items which intersect with the chunks
     listed in \a chunklist, excluding \a item. If \a exact is true,
-    only those which actually \link QCanvasItem::collidesWith()
+    only those which actually \link Q3CanvasItem::collidesWith()
     collide with\endlink \a item are returned; otherwise canvas items
     are included just for being in the chunks.
 
     This is a utility function mainly used to implement the simpler
-    QCanvasItem::collisions() function.
+    Q3CanvasItem::collisions() function.
 */
-QCanvasItemList QCanvas::collisions(const QPointArray& chunklist,
-            const QCanvasItem* item, bool exact) const
+Q3CanvasItemList Q3Canvas::collisions(const QPointArray& chunklist,
+	    const Q3CanvasItem* item, bool exact) const
 {
-    QHash<QCanvasItem *, bool> seen;
-    QCanvasItemList result;
+    Q3PtrDict<void> seen;
+    Q3CanvasItemList result;
     for (int i=0; i<(int)chunklist.count(); i++) {
-        int x = chunklist[i].x();
-        int y = chunklist[i].y();
-        if (validChunk(x,y)) {
-            const QCanvasItemList* l = chunk(x,y).listPtr();
-            for (QCanvasItemList::ConstIterator it=l->begin(); it!=l->end(); ++it) {
-                QCanvasItem *g=*it;
-                if (g != item) {
-                    if (!seen.contains(g)) {
-                        seen.insert(g, true);
-                        if (!exact || item->collidesWith(g))
-                            result.append(g);
-                    }
-                }
-            }
-        }
+	int x = chunklist[i].x();
+	int y = chunklist[i].y();
+	if (validChunk(x,y)) {
+	    const Q3CanvasItemList* l = chunk(x,y).listPtr();
+	    for (Q3CanvasItemList::ConstIterator it=l->begin(); it!=l->end(); ++it) {
+		Q3CanvasItem *g=*it;
+		if (g != item) {
+		    if (!seen.find(g)) {
+			seen.replace(g,(void*)1);
+			if (!exact || item->collidesWith(g))
+			    result.append(g);
+		    }
+		}
+	    }
+	}
     }
     return result;
 }
@@ -2705,13 +2724,13 @@ QCanvasItemList QCanvas::collisions(const QPointArray& chunklist,
   \internal
   Adds the item to all the chunks it covers.
 */
-void QCanvasItem::addToChunks()
+void Q3CanvasItem::addToChunks()
 {
     if (isVisible() && canvas()) {
-        QPointArray pa = chunks();
-        for (int i=0; i<(int)pa.count(); i++)
-            canvas()->addItemToChunk(this,pa[i].x(),pa[i].y());
-        val=(uint)true;
+	QPointArray pa = chunks();
+	for (int i=0; i<(int)pa.count(); i++)
+	    canvas()->addItemToChunk(this,pa[i].x(),pa[i].y());
+	val=(uint)true;
     }
 }
 
@@ -2719,33 +2738,33 @@ void QCanvasItem::addToChunks()
   \internal
   Removes the item from all the chunks it covers.
 */
-void QCanvasItem::removeFromChunks()
+void Q3CanvasItem::removeFromChunks()
 {
     if (isVisible() && canvas()) {
-        QPointArray pa = chunks();
-        for (int i=0; i<(int)pa.count(); i++)
-            canvas()->removeItemFromChunk(this,pa[i].x(),pa[i].y());
+	QPointArray pa = chunks();
+	for (int i=0; i<(int)pa.count(); i++)
+	    canvas()->removeItemFromChunk(this,pa[i].x(),pa[i].y());
     }
 }
 
 /*!
   \internal
-  Sets all the chunks covered by the item to be refreshed with QCanvas::update()
+  Sets all the chunks covered by the item to be refreshed with Q3Canvas::update()
   is next called.
 */
-void QCanvasItem::changeChunks()
+void Q3CanvasItem::changeChunks()
 {
     if (isVisible() && canvas()) {
-        if (!val)
-            addToChunks();
-        QPointArray pa = chunks();
-        for (int i=0; i<(int)pa.count(); i++)
-            canvas()->setChangedChunk(pa[i].x(),pa[i].y());
+	if (!val)
+	    addToChunks();
+	QPointArray pa = chunks();
+	for (int i=0; i<(int)pa.count(); i++)
+	    canvas()->setChangedChunk(pa[i].x(),pa[i].y());
     }
 }
 
 /*!
-    \fn QRect QCanvasItem::boundingRect() const
+    \fn QRect Q3CanvasItem::boundingRect() const
 
     Returns the bounding rectangle in pixels that the canvas item covers.
 
@@ -2758,7 +2777,7 @@ void QCanvasItem::changeChunks()
 
     \sa boundingRect()
 */
-QRect QCanvasItem::boundingRectAdvanced() const
+QRect Q3CanvasItem::boundingRectAdvanced() const
 {
     int dx = int(x()+xVelocity())-int(x());
     int dy = int(y()+yVelocity())-int(y());
@@ -2768,52 +2787,53 @@ QRect QCanvasItem::boundingRectAdvanced() const
 }
 
 /*!
-    \class QCanvasPixmap
-    \brief The QCanvasPixmap class provides pixmaps for QCanvasSprites.
-
+    \class Q3CanvasPixmap qcanvas.h
+    \brief The Q3CanvasPixmap class provides pixmaps for Q3CanvasSprites.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
-    If you want to show a single pixmap on a QCanvas use a
-    QCanvasSprite with just one pixmap.
+    If you want to show a single pixmap on a Q3Canvas use a
+    Q3CanvasSprite with just one pixmap.
 
-    When pixmaps are inserted into a QCanvasPixmapArray they are held
-    as QCanvasPixmaps. \l{QCanvasSprite}s are used to show pixmaps on
-    \l{QCanvas}es and hold their pixmaps in a QCanvasPixmapArray. If
-    you retrieve a frame (pixmap) from a QCanvasSprite it will be
-    returned as a QCanvasPixmap.
+    When pixmaps are inserted into a Q3CanvasPixmapArray they are held
+    as Q3CanvasPixmaps. \l{Q3CanvasSprite}s are used to show pixmaps on
+    \l{Q3Canvas}es and hold their pixmaps in a Q3CanvasPixmapArray. If
+    you retrieve a frame (pixmap) from a Q3CanvasSprite it will be
+    returned as a Q3CanvasPixmap.
 
     The pixmap is a QPixmap and can only be set in the constructor.
     There are three different constructors, one taking a QPixmap, one
     a QImage and one a file name that refers to a file in any
     supported file format (see QImageIO).
 
-    QCanvasPixmap can have a hotspot which is defined in terms of an (x,
-    y) offset. When you create a QCanvasPixmap from a PNG file or from
+    Q3CanvasPixmap can have a hotspot which is defined in terms of an (x,
+    y) offset. When you create a Q3CanvasPixmap from a PNG file or from
     a QImage that has a QImage::offset(), the offset() is initialized
     appropriately, otherwise the constructor leaves it at (0, 0). You
-    can set it later using setOffset(). When the QCanvasPixmap is used
-    in a QCanvasSprite, the offset position is the point at
-    QCanvasItem::x() and QCanvasItem::y(), not the top-left corner of
+    can set it later using setOffset(). When the Q3CanvasPixmap is used
+    in a Q3CanvasSprite, the offset position is the point at
+    Q3CanvasItem::x() and Q3CanvasItem::y(), not the top-left corner of
     the pixmap.
 
-    Note that for QCanvasPixmap objects created by a QCanvasSprite, the
-    position of each QCanvasPixmap object is set so that the hotspot
+    Note that for Q3CanvasPixmap objects created by a Q3CanvasSprite, the
+    position of each Q3CanvasPixmap object is set so that the hotspot
     stays in the same position.
 
-    \sa QCanvasPixmapArray QCanvasItem QCanvasSprite
+    \sa Q3CanvasPixmapArray Q3CanvasItem Q3CanvasSprite
 */
 
 #ifndef QT_NO_IMAGEIO
 
 /*!
-    Constructs a QCanvasPixmap that uses the image stored in \a
+    Constructs a Q3CanvasPixmap that uses the image stored in \a
     datafilename.
 */
-QCanvasPixmap::QCanvasPixmap(const QString& datafilename)
+Q3CanvasPixmap::Q3CanvasPixmap(const QString& datafilename)
 {
     QImage image(datafilename);
     init(image);
@@ -2822,57 +2842,57 @@ QCanvasPixmap::QCanvasPixmap(const QString& datafilename)
 #endif
 
 /*!
-    Constructs a QCanvasPixmap from the image \a image.
+    Constructs a Q3CanvasPixmap from the image \a image.
 */
-QCanvasPixmap::QCanvasPixmap(const QImage& image)
+Q3CanvasPixmap::Q3CanvasPixmap(const QImage& image)
 {
     init(image);
 }
 /*!
-    Constructs a QCanvasPixmap from the pixmap \a pm using the offset
+    Constructs a Q3CanvasPixmap from the pixmap \a pm using the offset
     \a offset.
 */
-QCanvasPixmap::QCanvasPixmap(const QPixmap& pm, const QPoint& offset)
+Q3CanvasPixmap::Q3CanvasPixmap(const QPixmap& pm, const QPoint& offset)
 {
     init(pm,offset.x(),offset.y());
 }
 
-void QCanvasPixmap::init(const QImage& image)
+void Q3CanvasPixmap::init(const QImage& image)
 {
     convertFromImage(image);
     hotx = image.offset().x();
     hoty = image.offset().y();
 #ifndef QT_NO_IMAGE_DITHER_TO_1
     if(image.hasAlphaBuffer()) {
-        QImage i = image.createAlphaMask();
-        collision_mask = new QImage(i);
+	QImage i = image.createAlphaMask();
+	collision_mask = new QImage(i);
     } else
 #endif
-        collision_mask = 0;
+	collision_mask = 0;
 }
 
-void QCanvasPixmap::init(const QPixmap& pixmap, int hx, int hy)
+void Q3CanvasPixmap::init(const QPixmap& pixmap, int hx, int hy)
 {
     (QPixmap&)*this = pixmap;
     hotx = hx;
     hoty = hy;
     if(pixmap.mask())  {
-        QImage i = mask()->convertToImage();
-        collision_mask = new QImage(i);
+	QImage i = mask()->convertToImage();
+	collision_mask = new QImage(i);
     } else
-        collision_mask = 0;
+	collision_mask = 0;
 }
 
 /*!
     Destroys the pixmap.
 */
-QCanvasPixmap::~QCanvasPixmap()
+Q3CanvasPixmap::~Q3CanvasPixmap()
 {
     delete collision_mask;
 }
 
 /*!
-    \fn int QCanvasPixmap::offsetX() const
+    \fn int Q3CanvasPixmap::offsetX() const
 
     Returns the x-offset of the pixmap's hotspot.
 
@@ -2880,7 +2900,7 @@ QCanvasPixmap::~QCanvasPixmap()
 */
 
 /*!
-    \fn int QCanvasPixmap::offsetY() const
+    \fn int Q3CanvasPixmap::offsetY() const
 
     Returns the y-offset of the pixmap's hotspot.
 
@@ -2888,25 +2908,27 @@ QCanvasPixmap::~QCanvasPixmap()
 */
 
 /*!
-    \fn void QCanvasPixmap::setOffset(int x, int y)
+    \fn void Q3CanvasPixmap::setOffset(int x, int y)
 
     Sets the offset of the pixmap's hotspot to (\a x, \a y).
 
-    \warning Do not call this function if any QCanvasSprites are
+    \warning Do not call this function if any Q3CanvasSprites are
     currently showing this pixmap.
 */
 
 /*!
-    \class QCanvasPixmapArray
-    \brief The QCanvasPixmapArray class provides an array of QCanvasPixmaps.
-
+    \class Q3CanvasPixmapArray qcanvas.h
+    \brief The Q3CanvasPixmapArray class provides an array of Q3CanvasPixmaps.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
-    This class is used by QCanvasSprite to hold an array of pixmaps.
+
+    This class is used by Q3CanvasSprite to hold an array of pixmaps.
     It is used to implement animated sprites, i.e. images that change
     over time, with each pixmap in the array holding one frame.
 
@@ -2919,7 +2941,7 @@ QCanvasPixmap::~QCanvasPixmap()
     image(). The number of pixmaps in the array is returned by
     count().
 
-    QCanvasSprite uses an image's mask for collision detection. You
+    Q3CanvasSprite uses an image's mask for collision detection. You
     can change this by reading in a separate set of image masks using
     readCollisionMasks().
 
@@ -2928,16 +2950,16 @@ QCanvasPixmap::~QCanvasPixmap()
 /*!
     Constructs an invalid array (i.e. isValid() will return false).
     You must call readPixmaps() before being able to use this
-    QCanvasPixmapArray.
+    Q3CanvasPixmapArray.
 */
-QCanvasPixmapArray::QCanvasPixmapArray()
+Q3CanvasPixmapArray::Q3CanvasPixmapArray()
 : framecount(0), img(0)
 {
 }
 
 #ifndef QT_NO_IMAGEIO
 /*!
-    Constructs a QCanvasPixmapArray from files.
+    Constructs a Q3CanvasPixmapArray from files.
 
     The \a fc parameter sets the number of frames to be loaded for
     this image.
@@ -2956,8 +2978,8 @@ QCanvasPixmapArray::QCanvasPixmapArray()
     isValid() returns false.
 */
 
-QCanvasPixmapArray::QCanvasPixmapArray(const QString& datafilenamepattern,
-                                        int fc)
+Q3CanvasPixmapArray::Q3CanvasPixmapArray(const QString& datafilenamepattern,
+					int fc)
 : framecount(0), img(0)
 {
     readPixmaps(datafilenamepattern,fc);
@@ -2965,45 +2987,72 @@ QCanvasPixmapArray::QCanvasPixmapArray(const QString& datafilenamepattern,
 #endif
 
 /*!
-    Constructs a QCanvasPixmapArray from the list of QPixmaps in the
+  \obsolete
+  Use Q3CanvasPixmapArray::Q3CanvasPixmapArray(Q3ValueList<QPixmap>, QPointArray)
+  instead.
+
+  Constructs a Q3CanvasPixmapArray from the list of QPixmaps \a
+  list. The \a hotspots list has to be of the same size as \a list.
+*/
+Q3CanvasPixmapArray::Q3CanvasPixmapArray(Q3PtrList<QPixmap> list, Q3PtrList<QPoint> hotspots) :
+    framecount(list.count()),
+    img(new Q3CanvasPixmap*[list.count()])
+{
+    if (list.count() != hotspots.count()) {
+	qWarning("Q3CanvasPixmapArray: lists have different lengths");
+	reset();
+	img = 0;
+    } else {
+	list.first();
+	hotspots.first();
+	for (int i=0; i<framecount; i++) {
+	    img[i]=new Q3CanvasPixmap(*list.current(), *hotspots.current());
+	    list.next();
+	    hotspots.next();
+	}
+    }
+}
+
+/*!
+    Constructs a Q3CanvasPixmapArray from the list of QPixmaps in the
     \a list. Each pixmap will get a hotspot according to the \a
     hotspots array. If no hotspots are specified, each one is set to
     be at position (0, 0).
 
     If an error occurs, isValid() will return false.
 */
-QCanvasPixmapArray::QCanvasPixmapArray(QList<QPixmap> list, QPointArray hotspots) :
+Q3CanvasPixmapArray::Q3CanvasPixmapArray(Q3ValueList<QPixmap> list, QPointArray hotspots) :
     framecount((int)list.size()),
-    img(new QCanvasPixmap*[list.size()])
+    img(new Q3CanvasPixmap*[list.size()])
 {
     bool have_hotspots = (hotspots.size() != 0);
     if (have_hotspots && list.count() != hotspots.count()) {
-        qWarning("QCanvasPixmapArray: lists have different lengths");
-        reset();
-        img = 0;
+	qWarning("Q3CanvasPixmapArray: lists have different lengths");
+	reset();
+	img = 0;
     } else {
-        QList<QPixmap>::iterator it;
-        it = list.begin();
-        for (int i=0; i<framecount; i++) {
-            QPoint hs = have_hotspots ? hotspots[i] : QPoint(0, 0);
-            img[i]=new QCanvasPixmap(*it, hs);
-            ++it;
-        }
+	Q3ValueList<QPixmap>::iterator it;
+	it = list.begin();
+	for (int i=0; i<framecount; i++) {
+	    QPoint hs = have_hotspots ? hotspots[i] : QPoint(0, 0);
+	    img[i]=new Q3CanvasPixmap(*it, hs);
+	    ++it;
+	}
     }
 }
 
 /*!
     Destroys the pixmap array and all the pixmaps it contains.
 */
-QCanvasPixmapArray::~QCanvasPixmapArray()
+Q3CanvasPixmapArray::~Q3CanvasPixmapArray()
 {
     reset();
 }
 
-void QCanvasPixmapArray::reset()
+void Q3CanvasPixmapArray::reset()
 {
     for (int i=0; i<framecount; i++)
-        delete img[i];
+	delete img[i];
     delete [] img;
     img = 0;
     framecount = 0;
@@ -3029,8 +3078,8 @@ void QCanvasPixmapArray::reset()
 
     \sa isValid()
 */
-bool QCanvasPixmapArray::readPixmaps(const QString& filenamepattern,
-                                      int fc)
+bool Q3CanvasPixmapArray::readPixmaps(const QString& filenamepattern,
+				      int fc)
 {
     return readPixmaps(filenamepattern,fc,false);
 }
@@ -3038,14 +3087,14 @@ bool QCanvasPixmapArray::readPixmaps(const QString& filenamepattern,
 /*!
     Reads new collision masks for the array.
 
-    By default, QCanvasSprite uses the image mask of a sprite to
+    By default, Q3CanvasSprite uses the image mask of a sprite to
     detect collisions. Use this function to set your own collision
     image masks.
 
     If count() is 1 \a filename must specify a real filename to read
     the mask from. If count() is greater than 1, the \a filename must
     contain a "%1" that will get replaced by the number of the mask to
-    be loaded, just like QCanvasPixmapArray::readPixmaps().
+    be loaded, just like Q3CanvasPixmapArray::readPixmaps().
 
     All collision masks must be 1-bit images or this function call
     will fail.
@@ -3057,52 +3106,56 @@ bool QCanvasPixmapArray::readPixmaps(const QString& filenamepattern,
 
     \sa isValid()
 */
-bool QCanvasPixmapArray::readCollisionMasks(const QString& filename)
+bool Q3CanvasPixmapArray::readCollisionMasks(const QString& filename)
 {
     return readPixmaps(filename,framecount,true);
 }
 
 
-bool QCanvasPixmapArray::readPixmaps(const QString& datafilenamepattern,
-                                      int fc, bool maskonly)
+bool Q3CanvasPixmapArray::readPixmaps(const QString& datafilenamepattern,
+				      int fc, bool maskonly)
 {
     if (!maskonly) {
-        reset();
-        framecount = fc;
-        if (!framecount)
-            framecount=1;
-        img = new QCanvasPixmap*[framecount];
+	reset();
+	framecount = fc;
+	if (!framecount)
+	    framecount=1;
+	img = new Q3CanvasPixmap*[framecount];
     }
     bool ok = true;
     bool arg = fc > 1;
     if (!arg)
-        framecount=1;
+	framecount=1;
     for (int i=0; i<framecount; i++) {
-        QString r;
-        r.sprintf("%04d",i);
-        if (maskonly) {
-            img[i]->collision_mask->load(
-                arg ? datafilenamepattern.arg(r) : datafilenamepattern);
-            ok = ok
-               && !img[i]->collision_mask->isNull()
-               && img[i]->collision_mask->depth()==1;
-        } else {
-            img[i]=new QCanvasPixmap(
-                arg ? datafilenamepattern.arg(r) : datafilenamepattern);
-            ok = ok && !img[i]->isNull();
-        }
+	QString r;
+	r.sprintf("%04d",i);
+	if (maskonly) {
+	    img[i]->collision_mask->load(
+		arg ? datafilenamepattern.arg(r) : datafilenamepattern);
+	    ok = ok
+	       && !img[i]->collision_mask->isNull()
+	       && img[i]->collision_mask->depth()==1;
+	} else {
+	    img[i]=new Q3CanvasPixmap(
+		arg ? datafilenamepattern.arg(r) : datafilenamepattern);
+	    ok = ok && !img[i]->isNull();
+	}
     }
     if (!ok) {
-        reset();
+	reset();
     }
     return ok;
 }
 #endif
 
 /*!
-   This is the same as !isValid().
+  \obsolete
+
+  Use isValid() instead.
+
+  This returns false if the array is valid, and true if it is not.
 */
-bool QCanvasPixmapArray::operator!()
+bool Q3CanvasPixmapArray::operator!()
 {
     return img==0;
 }
@@ -3111,22 +3164,22 @@ bool QCanvasPixmapArray::operator!()
     Returns true if the pixmap array is valid; otherwise returns
     false.
 */
-bool QCanvasPixmapArray::isValid() const
+bool Q3CanvasPixmapArray::isValid() const
 {
     return (img != 0);
 }
 
 /*!
-    \fn QCanvasPixmap* QCanvasPixmapArray::image(int i) const
+    \fn Q3CanvasPixmap* Q3CanvasPixmapArray::image(int i) const
 
     Returns pixmap \a i in the array, if \a i is non-negative and less
     than than count(), and returns an unspecified value otherwise.
 */
 
-// ### wouldn't it be better to put empty QCanvasPixmaps in there instead of
+// ### wouldn't it be better to put empty Q3CanvasPixmaps in there instead of
 // initializing the additional elements in the array to 0? Lars
 /*!
-    Replaces the pixmap at index position \a i with pixmap \a p.
+    Replaces the pixmap at index \a i with pixmap \a p.
 
     The array takes ownership of \a p and will delete \a p when the
     array itself is deleted.
@@ -3135,21 +3188,21 @@ bool QCanvasPixmapArray::isValid() const
     least i+1 elements, with elements count() to i-1 being initialized
     to 0.
 */
-void QCanvasPixmapArray::setImage(int i, QCanvasPixmap* p)
+void Q3CanvasPixmapArray::setImage(int i, Q3CanvasPixmap* p)
 {
     if (i >= framecount) {
-        QCanvasPixmap** newimg = new QCanvasPixmap*[i+1];
-        memcpy(newimg, img, sizeof(QCanvasPixmap *)*framecount);
-        memset(newimg + framecount, 0, sizeof(QCanvasPixmap *)*(i+1 - framecount));
-        framecount = i+1;
-        delete [] img;
-        img = newimg;
+	Q3CanvasPixmap** newimg = new Q3CanvasPixmap*[i+1];
+	memcpy(newimg, img, sizeof(Q3CanvasPixmap *)*framecount);
+	memset(newimg + framecount, 0, sizeof(Q3CanvasPixmap *)*(i+1 - framecount));
+	framecount = i+1;
+	delete [] img;
+	img = newimg;
     }
     delete img[i]; img[i]=p;
 }
 
 /*!
-    \fn uint QCanvasPixmapArray::count() const
+    \fn uint Q3CanvasPixmapArray::count() const
 
     Returns the number of pixmaps in the array.
 */
@@ -3161,7 +3214,7 @@ void QCanvasPixmapArray::setImage(int i, QCanvasPixmap* p)
 
     \sa rightEdge() bottomEdge() topEdge()
 */
-int QCanvasSprite::leftEdge() const
+int Q3CanvasSprite::leftEdge() const
 {
     return int(x()) - image()->hotx;
 }
@@ -3175,7 +3228,7 @@ int QCanvasSprite::leftEdge() const
 
     \sa rightEdge() bottomEdge() topEdge()
 */
-int QCanvasSprite::leftEdge(int nx) const
+int Q3CanvasSprite::leftEdge(int nx) const
 {
     return nx - image()->hotx;
 }
@@ -3187,7 +3240,7 @@ int QCanvasSprite::leftEdge(int nx) const
 
     \sa leftEdge() rightEdge() bottomEdge()
 */
-int QCanvasSprite::topEdge() const
+int Q3CanvasSprite::topEdge() const
 {
     return int(y()) - image()->hoty;
 }
@@ -3201,7 +3254,7 @@ int QCanvasSprite::topEdge() const
 
     \sa leftEdge() rightEdge() bottomEdge()
 */
-int QCanvasSprite::topEdge(int ny) const
+int Q3CanvasSprite::topEdge(int ny) const
 {
     return ny - image()->hoty;
 }
@@ -3213,7 +3266,7 @@ int QCanvasSprite::topEdge(int ny) const
 
     \sa leftEdge() bottomEdge() topEdge()
 */
-int QCanvasSprite::rightEdge() const
+int Q3CanvasSprite::rightEdge() const
 {
     return leftEdge() + image()->width()-1;
 }
@@ -3227,7 +3280,7 @@ int QCanvasSprite::rightEdge() const
 
     \sa leftEdge() bottomEdge() topEdge()
 */
-int QCanvasSprite::rightEdge(int nx) const
+int Q3CanvasSprite::rightEdge(int nx) const
 {
     return leftEdge(nx) + image()->width()-1;
 }
@@ -3239,7 +3292,7 @@ int QCanvasSprite::rightEdge(int nx) const
 
     \sa leftEdge() rightEdge() topEdge()
 */
-int QCanvasSprite::bottomEdge() const
+int Q3CanvasSprite::bottomEdge() const
 {
     return topEdge() + image()->height()-1;
 }
@@ -3253,13 +3306,13 @@ int QCanvasSprite::bottomEdge() const
 
     \sa leftEdge() rightEdge() topEdge()
 */
-int QCanvasSprite::bottomEdge(int ny) const
+int Q3CanvasSprite::bottomEdge(int ny) const
 {
     return topEdge(ny) + image()->height()-1;
 }
 
 /*!
-    \fn QCanvasPixmap* QCanvasSprite::image() const
+    \fn Q3CanvasPixmap* Q3CanvasSprite::image() const
 
     Returns the current frame's image.
 
@@ -3267,7 +3320,7 @@ int QCanvasSprite::bottomEdge(int ny) const
 */
 
 /*!
-    \fn QCanvasPixmap* QCanvasSprite::image(int f) const
+    \fn Q3CanvasPixmap* Q3CanvasSprite::image(int f) const
     \overload
 
     Returns the image for frame \a f. Does not do any bounds checking on \a f.
@@ -3277,7 +3330,7 @@ int QCanvasSprite::bottomEdge(int ny) const
     Returns the image the sprite \e will have after advance(1) is
     called. By default this is the same as image().
 */
-QCanvasPixmap* QCanvasSprite::imageAdvanced() const
+Q3CanvasPixmap* Q3CanvasSprite::imageAdvanced() const
 {
     return image();
 }
@@ -3287,7 +3340,7 @@ QCanvasPixmap* QCanvasSprite::imageAdvanced() const
     current frame. This assumes that the images are tightly cropped
     (i.e. do not have transparent pixels all along a side).
 */
-QRect QCanvasSprite::boundingRect() const
+QRect Q3CanvasSprite::boundingRect() const
 {
     return QRect(leftEdge(), topEdge(), width(), height());
 }
@@ -3297,22 +3350,22 @@ QRect QCanvasSprite::boundingRect() const
   \internal
   Returns the chunks covered by the item.
 */
-QPointArray QCanvasItem::chunks() const
+QPointArray Q3CanvasItem::chunks() const
 {
     QPointArray r;
     int n=0;
     QRect br = boundingRect();
     if (isVisible() && canvas()) {
-        int chunksize=canvas()->chunkSize();
-        br &= QRect(0,0,canvas()->width(),canvas()->height());
-        if (br.isValid()) {
-            r.resize((br.width()/chunksize+2)*(br.height()/chunksize+2));
-            for (int j=br.top()/chunksize; j<=br.bottom()/chunksize; j++) {
-                for (int i=br.left()/chunksize; i<=br.right()/chunksize; i++) {
-                    r[n++] = QPoint(i,j);
-                }
-            }
-        }
+	int chunksize=canvas()->chunkSize();
+	br &= QRect(0,0,canvas()->width(),canvas()->height());
+	if (br.isValid()) {
+	    r.resize((br.width()/chunksize+2)*(br.height()/chunksize+2));
+	    for (int j=br.top()/chunksize; j<=br.bottom()/chunksize; j++) {
+		for (int i=br.left()/chunksize; i<=br.right()/chunksize; i++) {
+		    r[n++] = QPoint(i,j);
+		}
+	    }
+	}
     }
     r.resize(n);
     return r;
@@ -3321,56 +3374,56 @@ QPointArray QCanvasItem::chunks() const
 
 /*!
   \internal
-  Add the sprite to the chunks in its QCanvas which it overlaps.
+  Add the sprite to the chunks in its Q3Canvas which it overlaps.
 */
-void QCanvasSprite::addToChunks()
+void Q3CanvasSprite::addToChunks()
 {
     if (isVisible() && canvas()) {
-        int chunksize=canvas()->chunkSize();
-        for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
-            for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
-                canvas()->addItemToChunk(this,i,j);
-            }
-        }
+	int chunksize=canvas()->chunkSize();
+	for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
+	    for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
+		canvas()->addItemToChunk(this,i,j);
+	    }
+	}
     }
 }
 
 /*!
   \internal
-  Remove the sprite from the chunks in its QCanvas which it overlaps.
+  Remove the sprite from the chunks in its Q3Canvas which it overlaps.
 
   \sa addToChunks()
 */
-void QCanvasSprite::removeFromChunks()
+void Q3CanvasSprite::removeFromChunks()
 {
     if (isVisible() && canvas()) {
-        int chunksize=canvas()->chunkSize();
-        for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
-            for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
-                canvas()->removeItemFromChunk(this,i,j);
-            }
-        }
+	int chunksize=canvas()->chunkSize();
+	for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
+	    for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
+		canvas()->removeItemFromChunk(this,i,j);
+	    }
+	}
     }
 }
 
 /*!
-    Returns the width of the sprite for the current frame's image.
+    The width of the sprite for the current frame's image.
 
     \sa frame()
 */
 //### mark: Why don't we have width(int) and height(int) to be
 //consistent with leftEdge() and leftEdge(int)?
-int QCanvasSprite::width() const
+int Q3CanvasSprite::width() const
 {
     return image()->width();
 }
 
 /*!
-    Returns the height of the sprite for the current frame's image.
+    The height of the sprite for the current frame's image.
 
     \sa frame()
 */
-int QCanvasSprite::height() const
+int Q3CanvasSprite::height() const
 {
     return image()->height();
 }
@@ -3380,35 +3433,36 @@ int QCanvasSprite::height() const
     Draws the current frame's image at the sprite's current position
     on painter \a painter.
 */
-void QCanvasSprite::draw(QPainter& painter)
+void Q3CanvasSprite::draw(QPainter& painter)
 {
     painter.drawPixmap(leftEdge(),topEdge(),*image());
 }
 
 /*!
-    \class QCanvasView
-    \brief The QCanvasView class provides an on-screen view of a QCanvas.
-
+    \class Q3CanvasView qcanvas.h
+    \brief The Q3CanvasView class provides an on-screen view of a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
-    If you want users to be able to interact with a canvas view, you
-    will need to subclass QCanvasView. You might then reimplement some
-    of the event handlers, for example,
-    QScrollView::contentsMousePressEvent():
+    A Q3CanvasView is widget which provides a view of a Q3Canvas.
+
+    If you want users to be able to interact with a canvas view,
+    subclass Q3CanvasView. You might then reimplement
+    Q3ScrollView::contentsMousePressEvent(). For example:
 
     \code
-    void MyCanvasView::contentsMousePressEvent(QMouseEvent* evt)
+    void MyCanvasView::contentsMousePressEvent(QMouseEvent* e)
     {
-        QCanvasItemList lst = canvas()->collisions(evt->pos());
-        QCanvasItemList::ConstIterator i = lst.constBegin();
-        for (; i != lst.constEnd(); ++i) {
-            if ((*i)->rtti() == QCanvasRectangle::RTTI)
-                qDebug("A QCanvasRectangle lies somewhere at this point");
-        }
+	Q3CanvasItemList l = canvas()->collisions(e->pos());
+	for (Q3CanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
+	    if ((*it)->rtti() == Q3CanvasRectangle::RTTI)
+		qDebug("A Q3CanvasRectangle lies somewhere at this point");
+	}
     }
     \endcode
 
@@ -3420,13 +3474,13 @@ void QCanvasSprite::draw(QPainter& painter)
     For example:
 
     \code
-    QWMatrix wm;
+    QMatrix wm;
     wm.scale(2, 2);   // Zooms in by 2 times
     wm.rotate(90);    // Rotates 90 degrees counter clockwise
-                      // around the origin.
+			// around the origin.
     wm.translate(0, -canvas->height());
-                      // moves the canvas down so what was visible
-                      // before is still visible.
+			// moves the canvas down so what was visible
+			// before is still visible.
     myCanvasView->setWorldMatrix(wm);
     \endcode
 
@@ -3442,28 +3496,28 @@ void QCanvasSprite::draw(QPainter& painter)
 
     \code
     QRect rc = QRect(myCanvasView->contentsX(), myCanvasView->contentsY(),
-                     myCanvasView->visibleWidth(), myCanvasView->visibleHeight());
+			myCanvasView->visibleWidth(), myCanvasView->visibleHeight());
     QRect canvasRect = myCanvasView->inverseWorldMatrix().mapRect(rc);
     \endcode
 
-    \sa QWMatrix QPainter::setWorldMatrix()
+    \sa QMatrix QPainter::setWorldMatrix()
 
 */
 
 /*!
-    Constructs a QCanvasView with parent \a parent, and name \a name,
+    Constructs a Q3CanvasView with parent \a parent, and name \a name,
     using the widget flags \a f. The canvas view is not associated
     with a canvas, so you must to call setCanvas() to view a
     canvas.
 */
-QCanvasView::QCanvasView(QWidget* parent, const char* name, Qt::WFlags f) :
-    QScrollView(parent,name,f|Qt::WResizeNoErase|Qt::WStaticContents)
+Q3CanvasView::Q3CanvasView(QWidget* parent, const char* name, WFlags f) :
+    Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
-    d = new QCanvasViewData;
-    viewing = 0;
+    d = new Q3CanvasViewData;
     viewport()->setAttribute(Qt::WA_PaintOnScreen);
     viewport()->setAttribute(Qt::WA_NoSystemBackground);
     viewport()->setAttribute(Qt::WA_NoBackground);
+    viewing = 0;
     setCanvas(0);
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
 }
@@ -3471,17 +3525,17 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, Qt::WFlags f) :
 /*!
     \overload
 
-    Constructs a QCanvasView which views canvas \a canvas, with parent
+    Constructs a Q3CanvasView which views canvas \a canvas, with parent
     \a parent, and name \a name, using the widget flags \a f.
 */
-QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, Qt::WFlags f) :
-    QScrollView(parent,name,f|Qt::WResizeNoErase|Qt::WStaticContents)
+Q3CanvasView::Q3CanvasView(Q3Canvas* canvas, QWidget* parent, const char* name, WFlags f) :
+    Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
-    d = new QCanvasViewData;
-    viewing = 0;
+    d = new Q3CanvasViewData;
     viewport()->setAttribute(Qt::WA_PaintOnScreen);
     viewport()->setAttribute(Qt::WA_NoSystemBackground);
     viewport()->setAttribute(Qt::WA_NoBackground);
+    viewing = 0;
     setCanvas(canvas);
 
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
@@ -3490,7 +3544,7 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, Qt:
 /*!
     Destroys the canvas view. The associated canvas is \e not deleted.
 */
-QCanvasView::~QCanvasView()
+Q3CanvasView::~Q3CanvasView()
 {
     delete d;
     d = 0;
@@ -3498,27 +3552,27 @@ QCanvasView::~QCanvasView()
 }
 
 /*!
-    \fn QCanvas* QCanvasView::canvas() const
+    \fn Q3Canvas* Q3CanvasView::canvas() const
 
-    Returns a pointer to the canvas which the QCanvasView is currently
+    Returns a pointer to the canvas which the Q3CanvasView is currently
     showing.
 */
 
 
 /*!
-    Sets the canvas that the QCanvasView is showing to the canvas \a
+    Sets the canvas that the Q3CanvasView is showing to the canvas \a
     canvas.
 */
-void QCanvasView::setCanvas(QCanvas* canvas)
+void Q3CanvasView::setCanvas(Q3Canvas* canvas)
 {
     if (viewing) {
-        disconnect(viewing);
-        viewing->removeView(this);
+	disconnect(viewing);
+	viewing->removeView(this);
     }
     viewing=canvas;
     if (viewing) {
-        connect(viewing,SIGNAL(resized()), this, SLOT(updateContentsSize()));
-        viewing->addView(this);
+	connect(viewing,SIGNAL(resized()), this, SLOT(updateContentsSize()));
+	viewing->addView(this);
     }
     if (d) // called by d'tor
         updateContentsSize();
@@ -3530,7 +3584,7 @@ void QCanvasView::setCanvas(QCanvas* canvas)
 
     \sa setWorldMatrix() inverseWorldMatrix()
 */
-const QWMatrix &QCanvasView::worldMatrix() const
+const QMatrix &Q3CanvasView::worldMatrix() const
 {
     return d->xform;
 }
@@ -3541,53 +3595,66 @@ const QWMatrix &QCanvasView::worldMatrix() const
 
     \sa setWorldMatrix() worldMatrix()
 */
-const QWMatrix &QCanvasView::inverseWorldMatrix() const
+const QMatrix &Q3CanvasView::inverseWorldMatrix() const
 {
     return d->ixform;
 }
 
 /*!
-    Sets the transformation matrix of the QCanvasView to \a wm. The
+    Sets the transformation matrix of the Q3CanvasView to \a wm. The
     matrix must be invertible (i.e. if you create a world matrix that
     zooms out by 2 times, then the inverse of this matrix is one that
     will zoom in by 2 times).
 
-    Using this function will considerably reduce the speed of the
-    canvas view.
+    When you use this, you should note that the performance of the
+    Q3CanvasView will decrease considerably.
 
     Returns false if \a wm is not invertable; otherwise returns true.
 
-    \sa worldMatrix() inverseWorldMatrix() QWMatrix::isInvertible()
+    \sa worldMatrix() inverseWorldMatrix() QMatrix::isInvertible()
 */
-bool QCanvasView::setWorldMatrix(const QWMatrix & wm)
+bool Q3CanvasView::setWorldMatrix(const QMatrix & wm)
 {
     bool ok = wm.isInvertible();
     if (ok) {
-        d->xform = wm;
-        d->ixform = wm.invert();
-        updateContentsSize();
-        viewport()->update();
+	d->xform = wm;
+	d->ixform = wm.invert();
+	updateContentsSize();
+	viewport()->update();
     }
     return ok;
 }
 #endif
 
-void QCanvasView::updateContentsSize()
+void Q3CanvasView::updateContentsSize()
 {
     if (viewing) {
-        QRect br;
+	QRect br;
 #ifndef QT_NO_TRANSFORMATIONS
-        br = d->xform.map(QRect(0,0,viewing->width(),viewing->height()));
+	br = d->xform.map(QRect(0,0,viewing->width(),viewing->height()));
 #else
-        br = QRect(0,0,viewing->width(),viewing->height());
+	br = QRect(0,0,viewing->width(),viewing->height());
 #endif
-        resizeContents(br.width(),br.height());
+
+	if (br.width() < contentsWidth()) {
+	    QRect r(contentsToViewport(QPoint(br.width(),0)),
+		    QSize(contentsWidth()-br.width(),contentsHeight()));
+	    viewport()->erase(r);
+	}
+	if (br.height() < contentsHeight()) {
+	    QRect r(contentsToViewport(QPoint(0,br.height())),
+		    QSize(contentsWidth(),contentsHeight()-br.height()));
+	    viewport()->erase(r);
+	}
+
+	resizeContents(br.width(),br.height());
     } else {
-        resizeContents(1,1);
+	viewport()->erase();
+	resizeContents(1,1);
     }
 }
 
-void QCanvasView::cMoving(int x, int y)
+void Q3CanvasView::cMoving(int x, int y)
 {
     // A little kludge to smooth up repaints when scrolling
     int dx = x - contentsX();
@@ -3596,11 +3663,11 @@ void QCanvasView::cMoving(int x, int y)
 }
 
 /*!
-    Repaints part of the QCanvas that the canvas view is showing
+    Repaints part of the Q3Canvas that the canvas view is showing
     starting at \a cx by \a cy, with a width of \a cw and a height of \a
     ch using the painter \a p.
 */
-void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
+void Q3CanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
@@ -3608,55 +3675,65 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 	    viewing->drawCanvasArea(r);
 	else
 	    viewing->drawViewArea(this,p,r,!d->repaint_from_moving);
-        d->repaint_from_moving = false;
+	d->repaint_from_moving = false;
     } else {
-        p->eraseRect(r);
+	p->eraseRect(r);
     }
+}
+
+/*!
+  \reimp
+  \internal
+
+  (Implemented to get rid of a compiler warning.)
+*/
+void Q3CanvasView::drawContents(QPainter *)
+{
 }
 
 /*!
     Suggests a size sufficient to view the entire canvas.
 */
-QSize QCanvasView::sizeHint() const
+QSize Q3CanvasView::sizeHint() const
 {
     if (!canvas())
-        return QScrollView::sizeHint();
+	return Q3ScrollView::sizeHint();
     // should maybe take transformations into account
     return (canvas()->size() + 2 * QSize(frameWidth(), frameWidth()))
-           .boundedTo(3 * QApplication::desktop()->size() / 4);
+	   .boundedTo(3 * QApplication::desktop()->size() / 4);
 }
 
 /*!
-    \class QCanvasPolygonalItem
-    \brief The QCanvasPolygonalItem class provides a polygonal canvas item
-    on a QCanvas.
-
+    \class Q3CanvasPolygonalItem qcanvas.h
+    \brief The Q3CanvasPolygonalItem class provides a polygonal canvas item
+    on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
-    The mostly rectangular classes, such as QCanvasSprite and
-    QCanvasText, use the object's bounding rectangle for movement,
+    The mostly rectangular classes, such as Q3CanvasSprite and
+    Q3CanvasText, use the object's bounding rectangle for movement,
     repainting and collision calculations. For most other items, the
     bounding rectangle can be far too large -- a diagonal line being
     the worst case, and there are many other cases which are also bad.
-    QCanvasPolygonalItem provides polygon-based bounding rectangle
-    handling, etc., which is both faster and more accurate for
-    non-rectangular items.
+    Q3CanvasPolygonalItem provides polygon-based bounding rectangle
+    handling, etc., which is much faster for non-rectangular items.
 
     Derived classes should try to define as small an area as possible
     to maximize efficiency, but the polygon must \e definitely be
     contained completely within the polygonal area. Calculating the
     exact requirements is usually difficult, but if you allow a small
     overestimate it can be easy and quick, while still getting almost
-    all of QCanvasPolygonalItem's speed.
+    all of Q3CanvasPolygonalItem's speed.
 
     Note that all subclasses \e must call hide() in their destructor
     since hide() needs to be able to access areaPoints().
 
-    Normally, QCanvasPolygonalItem uses the odd-even algorithm for
+    Normally, Q3CanvasPolygonalItem uses the odd-even algorithm for
     determining whether an object intersects this object. You can
     change this to the winding algorithm using setWinding().
 
@@ -3664,37 +3741,37 @@ QSize QCanvasView::sizeHint() const
     points bounding the polygonal item are retrieved with
     areaPoints(). Use areaPointsAdvanced() to retrieve the bounding
     points the polygonal item \e will have after
-    QCanvasItem::advance(1) has been called.
+    Q3CanvasItem::advance(1) has been called.
 
     If the shape of the polygonal item is about to change while the
     item is visible, call invalidate() before updating with a
     different result from \l areaPoints().
 
-    By default, QCanvasPolygonalItem objects have a black pen and no
+    By default, Q3CanvasPolygonalItem objects have a black pen and no
     brush (the default QPen and QBrush constructors). You can change
     this with setPen() and setBrush(), but note that some
-    QCanvasPolygonalItem subclasses only use the brush, ignoring the
+    Q3CanvasPolygonalItem subclasses only use the brush, ignoring the
     pen setting.
 
     The polygonal item can be drawn on a painter with draw().
     Subclasses must reimplement drawShape() to draw themselves.
 
     Like any other canvas item polygonal items can be moved with
-    QCanvasItem::move() and QCanvasItem::moveBy(), or by setting coordinates
-    with QCanvasItem::setX(), QCanvasItem::setY() and QCanvasItem::setZ().
+    Q3CanvasItem::move() and Q3CanvasItem::moveBy(), or by setting coordinates
+    with Q3CanvasItem::setX(), Q3CanvasItem::setY() and Q3CanvasItem::setZ().
 
 */
 
 
 /*
   Since most polygonal items don't have a pen, the default is
-  Qt::NoPen and a black brush.
+  NoPen and a black brush.
 */
 static const QPen& defaultPolygonPen()
 {
     static QPen* dp=0;
     if (!dp)
-        dp = new QPen;
+	dp = new QPen;
     return *dp;
 }
 
@@ -3702,15 +3779,15 @@ static const QBrush& defaultPolygonBrush()
 {
     static QBrush* db=0;
     if (!db)
-        db = new QBrush;
+	db = new QBrush;
     return *db;
 }
 
 /*!
-    Constructs a QCanvasPolygonalItem on the canvas \a canvas.
+    Constructs a Q3CanvasPolygonalItem on the canvas \a canvas.
 */
-QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
-    QCanvasItem(canvas),
+Q3CanvasPolygonalItem::Q3CanvasPolygonalItem(Q3Canvas* canvas) :
+    Q3CanvasItem(canvas),
     br(defaultPolygonBrush()),
     pn(defaultPolygonPen())
 {
@@ -3719,9 +3796,9 @@ QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
 
 /*!
     Note that all subclasses \e must call hide() in their destructor
-    since hide() must be able to access areaPoints().
+    since hide() needs to be able to access areaPoints().
 */
-QCanvasPolygonalItem::~QCanvasPolygonalItem()
+Q3CanvasPolygonalItem::~Q3CanvasPolygonalItem()
 {
 }
 
@@ -3734,7 +3811,7 @@ QCanvasPolygonalItem::~QCanvasPolygonalItem()
 
     \sa setWinding()
 */
-bool QCanvasPolygonalItem::winding() const
+bool Q3CanvasPolygonalItem::winding() const
 {
     return wind;
 }
@@ -3748,7 +3825,7 @@ bool QCanvasPolygonalItem::winding() const
 
     \sa winding()
 */
-void QCanvasPolygonalItem::setWinding(bool enable)
+void Q3CanvasPolygonalItem::setWinding(bool enable)
 {
     wind = enable;
 }
@@ -3760,14 +3837,14 @@ void QCanvasPolygonalItem::setWinding(bool enable)
     this function if you are going to change the shape of the item (as
     returned by areaPoints()) while the item is visible.
 */
-void QCanvasPolygonalItem::invalidate()
+void Q3CanvasPolygonalItem::invalidate()
 {
     val = (uint)false;
     removeFromChunks();
 }
 
 /*!
-    \fn QCanvasPolygonalItem::isValid() const
+    \fn Q3CanvasPolygonalItem::isValid() const
 
     Returns true if the polygonal item's area information has not been
     invalidated; otherwise returns false.
@@ -3777,17 +3854,17 @@ void QCanvasPolygonalItem::invalidate()
 
 /*!
     Returns the points the polygonal item \e will have after
-    QCanvasItem::advance(1) is called, i.e. what the points are when
+    Q3CanvasItem::advance(1) is called, i.e. what the points are when
     advanced by the current xVelocity() and yVelocity().
 */
-QPointArray QCanvasPolygonalItem::areaPointsAdvanced() const
+QPointArray Q3CanvasPolygonalItem::areaPointsAdvanced() const
 {
     int dx = int(x()+xVelocity())-int(x());
     int dy = int(y()+yVelocity())-int(y());
     QPointArray r = areaPoints();
     r.detach(); // Explicit sharing is stupid.
     if (dx || dy)
-        r.translate(dx,dy);
+	r.translate(dx,dy);
     return r;
 }
 
@@ -3799,136 +3876,136 @@ static QPainter* dbg_ptr=0;
 
 class QPolygonalProcessor {
 public:
-    QPolygonalProcessor(QCanvas* c, const QPointArray& pa) :
-        canvas(c)
+    QPolygonalProcessor(Q3Canvas* c, const QPointArray& pa) :
+	canvas(c)
     {
-        QRect pixelbounds = pa.boundingRect();
-        int cs = canvas->chunkSize();
-        bounds.setLeft(pixelbounds.left()/cs);
-        bounds.setRight(pixelbounds.right()/cs);
-        bounds.setTop(pixelbounds.top()/cs);
-        bounds.setBottom(pixelbounds.bottom()/cs);
-        bitmap = QImage(bounds.width(),bounds.height(),1,2,QImage::LittleEndian);
-        pnt = 0;
-        bitmap.fill(0);
+	QRect pixelbounds = pa.boundingRect();
+	int cs = canvas->chunkSize();
+	bounds.setLeft(pixelbounds.left()/cs);
+	bounds.setRight(pixelbounds.right()/cs);
+	bounds.setTop(pixelbounds.top()/cs);
+	bounds.setBottom(pixelbounds.bottom()/cs);
+	bitmap = QImage(bounds.width(),bounds.height(),1,2,QImage::LittleEndian);
+	pnt = 0;
+	bitmap.fill(0);
 #ifdef QCANVAS_POLYGONS_DEBUG
-        dbg_start();
+	dbg_start();
 #endif
     }
 
     inline void add(int x, int y)
     {
-        if (pnt >= (int)result.size()) {
-            result.resize(pnt*2+10);
-        }
-        result[pnt++] = QPoint(x+bounds.x(),y+bounds.y());
+	if (pnt >= (int)result.size()) {
+	    result.resize(pnt*2+10);
+	}
+	result[pnt++] = QPoint(x+bounds.x(),y+bounds.y());
 #ifdef QCANVAS_POLYGONS_DEBUG
-        if (dbg_ptr) {
-            int cs = canvas->chunkSize();
-            QRect r(x*cs+bounds.x()*cs,y*cs+bounds.y()*cs,cs-1,cs-1);
-            dbg_ptr->setPen(Qt::blue);
-            dbg_ptr->drawRect(r);
-        }
+	if (dbg_ptr) {
+	    int cs = canvas->chunkSize();
+	    QRect r(x*cs+bounds.x()*cs,y*cs+bounds.y()*cs,cs-1,cs-1);
+	    dbg_ptr->setPen(Qt::blue);
+	    dbg_ptr->drawRect(r);
+	}
 #endif
     }
 
     inline void addBits(int x1, int x2, uchar newbits, int xo, int yo)
     {
-        for (int i=x1; i<=x2; i++)
-            if (newbits & (1<<i))
-                add(xo+i,yo);
+	for (int i=x1; i<=x2; i++)
+	    if (newbits & (1<<i))
+		add(xo+i,yo);
     }
 
 #ifdef QCANVAS_POLYGONS_DEBUG
     void dbg_start()
     {
-        if (!dbg_wid) {
-            dbg_wid = new QWidget;
-            dbg_wid->resize(800,600);
-            dbg_wid->show();
-            dbg_ptr = new QPainter(dbg_wid);
-            dbg_ptr->setBrush(Qt::NoBrush);
-        }
-        dbg_ptr->fillRect(dbg_wid->rect(),Qt::white);
+	if (!dbg_wid) {
+	    dbg_wid = new QWidget;
+	    dbg_wid->resize(800,600);
+	    dbg_wid->show();
+	    dbg_ptr = new QPainter(dbg_wid);
+	    dbg_ptr->setBrush(Qt::NoBrush);
+	}
+	dbg_ptr->fillRect(dbg_wid->rect(),Qt::white);
     }
 #endif
 
     void doSpans(int n, QPoint* pt, int* w)
     {
-        int cs = canvas->chunkSize();
-        for (int j=0; j<n; j++) {
-            int y = pt[j].y()/cs-bounds.y();
-            uchar* l = bitmap.scanLine(y);
-            int x = pt[j].x();
-            int x1 = x/cs-bounds.x();
-            int x2 = (x+w[j])/cs-bounds.x();
-            int x1q = x1/8;
-            int x1r = x1%8;
-            int x2q = x2/8;
-            int x2r = x2%8;
+	int cs = canvas->chunkSize();
+	for (int j=0; j<n; j++) {
+	    int y = pt[j].y()/cs-bounds.y();
+	    uchar* l = bitmap.scanLine(y);
+	    int x = pt[j].x();
+	    int x1 = x/cs-bounds.x();
+	    int x2 = (x+w[j])/cs-bounds.x();
+	    int x1q = x1/8;
+	    int x1r = x1%8;
+	    int x2q = x2/8;
+	    int x2r = x2%8;
 #ifdef QCANVAS_POLYGONS_DEBUG
-            if (dbg_ptr) dbg_ptr->setPen(Qt::yellow);
+	    if (dbg_ptr) dbg_ptr->setPen(Qt::yellow);
 #endif
-            if (x1q == x2q) {
-                uchar newbits = (~l[x1q]) & (((2<<(x2r-x1r))-1)<<x1r);
-                if (newbits) {
+	    if (x1q == x2q) {
+		uchar newbits = (~l[x1q]) & (((2<<(x2r-x1r))-1)<<x1r);
+		if (newbits) {
 #ifdef QCANVAS_POLYGONS_DEBUG
-                    if (dbg_ptr) dbg_ptr->setPen(Qt::darkGreen);
+		    if (dbg_ptr) dbg_ptr->setPen(Qt::darkGreen);
 #endif
-                    addBits(x1r,x2r,newbits,x1q*8,y);
-                    l[x1q] |= newbits;
-                }
-            } else {
+		    addBits(x1r,x2r,newbits,x1q*8,y);
+		    l[x1q] |= newbits;
+		}
+	    } else {
 #ifdef QCANVAS_POLYGONS_DEBUG
-                if (dbg_ptr) dbg_ptr->setPen(Qt::blue);
+		if (dbg_ptr) dbg_ptr->setPen(Qt::blue);
 #endif
-                uchar newbits1 = (~l[x1q]) & (0xff<<x1r);
-                if (newbits1) {
+		uchar newbits1 = (~l[x1q]) & (0xff<<x1r);
+		if (newbits1) {
 #ifdef QCANVAS_POLYGONS_DEBUG
-                    if (dbg_ptr) dbg_ptr->setPen(Qt::green);
+		    if (dbg_ptr) dbg_ptr->setPen(Qt::green);
 #endif
-                    addBits(x1r,7,newbits1,x1q*8,y);
-                    l[x1q] |= newbits1;
-                }
-                for (int i=x1q+1; i<x2q; i++) {
-                    if (l[i] != 0xff) {
-                        addBits(0,7,~l[i],i*8,y);
-                        l[i]=0xff;
-                    }
-                }
-                uchar newbits2 = (~l[x2q]) & (0xff>>(7-x2r));
-                if (newbits2) {
+		    addBits(x1r,7,newbits1,x1q*8,y);
+		    l[x1q] |= newbits1;
+		}
+		for (int i=x1q+1; i<x2q; i++) {
+		    if (l[i] != 0xff) {
+			addBits(0,7,~l[i],i*8,y);
+			l[i]=0xff;
+		    }
+		}
+		uchar newbits2 = (~l[x2q]) & (0xff>>(7-x2r));
+		if (newbits2) {
 #ifdef QCANVAS_POLYGONS_DEBUG
-                    if (dbg_ptr) dbg_ptr->setPen(Qt::red);
+		    if (dbg_ptr) dbg_ptr->setPen(Qt::red);
 #endif
-                    addBits(0,x2r,newbits2,x2q*8,y);
-                    l[x2q] |= newbits2;
-                }
-            }
+		    addBits(0,x2r,newbits2,x2q*8,y);
+		    l[x2q] |= newbits2;
+		}
+	    }
 #ifdef QCANVAS_POLYGONS_DEBUG
-            if (dbg_ptr) {
-                dbg_ptr->drawLine(pt[j],pt[j]+QPoint(w[j],0));
-            }
+	    if (dbg_ptr) {
+		dbg_ptr->drawLine(pt[j],pt[j]+QPoint(w[j],0));
+	    }
 #endif
-        }
-        result.resize(pnt);
+	}
+	result.resize(pnt);
     }
 
     int pnt;
     QPointArray result;
-    QCanvas* canvas;
+    Q3Canvas* canvas;
     QRect bounds;
     QImage bitmap;
 };
 
 
-QPointArray QCanvasPolygonalItem::chunks() const
+QPointArray Q3CanvasPolygonalItem::chunks() const
 {
     QPointArray pa = areaPoints();
 
     if (!pa.size()) {
-        pa.detach(); // Explicit sharing is stupid.
-        return pa;
+	pa.detach(); // Explicit sharing is stupid.
+	return pa;
     }
 
     QPolygonalProcessor processor(canvas(),pa);
@@ -3938,29 +4015,29 @@ QPointArray QCanvasPolygonalItem::chunks() const
     return processor.result;
 }
 /*!
-    Simply calls QCanvasItem::chunks().
+    Simply calls Q3CanvasItem::chunks().
 */
-QPointArray QCanvasRectangle::chunks() const
+QPointArray Q3CanvasRectangle::chunks() const
 {
     // No need to do a polygon scan!
-    return QCanvasItem::chunks();
+    return Q3CanvasItem::chunks();
 }
 
 /*!
     Returns the bounding rectangle of the polygonal item, based on
     areaPoints().
 */
-QRect QCanvasPolygonalItem::boundingRect() const
+QRect Q3CanvasPolygonalItem::boundingRect() const
 {
     return areaPoints().boundingRect();
 }
 
 /*!
-    Reimplemented from QCanvasItem, this draws the polygonal item by
+    Reimplemented from Q3CanvasItem, this draws the polygonal item by
     setting the pen and brush for the item on the painter \a p and
     calling drawShape().
 */
-void QCanvasPolygonalItem::draw(QPainter & p)
+void Q3CanvasPolygonalItem::draw(QPainter & p)
 {
     p.setPen(pn);
     p.setBrush(br);
@@ -3968,7 +4045,7 @@ void QCanvasPolygonalItem::draw(QPainter & p)
 }
 
 /*!
-    \fn void QCanvasPolygonalItem::drawShape(QPainter & p)
+    \fn void Q3CanvasPolygonalItem::drawShape(QPainter & p)
 
     Subclasses must reimplement this function to draw their shape. The
     pen and brush of \a p are already set to pen() and brush() prior
@@ -3978,7 +4055,7 @@ void QCanvasPolygonalItem::draw(QPainter & p)
 */
 
 /*!
-    \fn QPen QCanvasPolygonalItem::pen() const
+    \fn QPen Q3CanvasPolygonalItem::pen() const
 
     Returns the QPen used to draw the outline of the item, if any.
 
@@ -3986,7 +4063,7 @@ void QCanvasPolygonalItem::draw(QPainter & p)
 */
 
 /*!
-    \fn QBrush QCanvasPolygonalItem::brush() const
+    \fn QBrush Q3CanvasPolygonalItem::brush() const
 
     Returns the QBrush used to fill the item, if filled.
 
@@ -3995,16 +4072,16 @@ void QCanvasPolygonalItem::draw(QPainter & p)
 
 /*!
     Sets the QPen used when drawing the item to the pen \a p.
-    Note that many QCanvasPolygonalItems do not use the pen value.
+    Note that many Q3CanvasPolygonalItems do not use the pen value.
 
     \sa setBrush(), pen(), drawShape()
 */
-void QCanvasPolygonalItem::setPen(QPen p)
+void Q3CanvasPolygonalItem::setPen(QPen p)
 {
     if (pn != p) {
-        removeFromChunks();
-        pn = p;
-        addToChunks();
+	removeFromChunks();
+	pn = p;
+	addToChunks();
     }
 }
 
@@ -4013,24 +4090,25 @@ void QCanvasPolygonalItem::setPen(QPen p)
 
     \sa setPen(), brush(), drawShape()
 */
-void QCanvasPolygonalItem::setBrush(QBrush b)
+void Q3CanvasPolygonalItem::setBrush(QBrush b)
 {
     if (br != b) {
-        br = b;
-        changeChunks();
+	br = b;
+	changeChunks();
     }
 }
 
 
 /*!
-    \class QCanvasPolygon
-    \brief The QCanvasPolygon class provides a polygon on a QCanvas.
-
+    \class Q3CanvasPolygon qcanvas.h
+    \brief The Q3CanvasPolygon class provides a polygon on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
     Paints a polygon with a QBrush. The polygon's points can be set in
     the constructor or set or changed later using setPoints(). Use
@@ -4040,26 +4118,26 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
     The polygon can be drawn on a painter with drawShape().
 
     Like any other canvas item polygons can be moved with
-    QCanvasItem::move() and QCanvasItem::moveBy(), or by setting
-    coordinates with QCanvasItem::setX(), QCanvasItem::setY() and
-    QCanvasItem::setZ().
+    Q3CanvasItem::move() and Q3CanvasItem::moveBy(), or by setting
+    coordinates with Q3CanvasItem::setX(), Q3CanvasItem::setY() and
+    Q3CanvasItem::setZ().
 
-    Note: QCanvasPolygon does not use the pen.
+    Note: Q3CanvasPolygon does not use the pen.
 */
 
 /*!
     Constructs a point-less polygon on the canvas \a canvas. You
     should call setPoints() before using it further.
 */
-QCanvasPolygon::QCanvasPolygon(QCanvas* canvas) :
-    QCanvasPolygonalItem(canvas)
+Q3CanvasPolygon::Q3CanvasPolygon(Q3Canvas* canvas) :
+    Q3CanvasPolygonalItem(canvas)
 {
 }
 
 /*!
     Destroys the polygon.
 */
-QCanvasPolygon::~QCanvasPolygon()
+Q3CanvasPolygon::~Q3CanvasPolygon()
 {
     hide();
 }
@@ -4067,15 +4145,15 @@ QCanvasPolygon::~QCanvasPolygon()
 /*!
     Draws the polygon using the painter \a p.
 
-    Note that QCanvasPolygon does not support an outline (the pen is
-    always Qt::NoPen).
+    Note that Q3CanvasPolygon does not support an outline (the pen is
+    always NoPen).
 */
-void QCanvasPolygon::drawShape(QPainter & p)
+void Q3CanvasPolygon::drawShape(QPainter & p)
 {
     // ### why can't we draw outlines? We could use drawPolyline for it. Lars
     // ### see other message. Warwick
 
-    p.setPen(Qt::NoPen); // since QRegion(QPointArray) excludes outline :-()-:
+    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-()-:
     p.drawPolygon(poly);
 }
 
@@ -4084,7 +4162,7 @@ void QCanvasPolygon::drawShape(QPainter & p)
     their x and y coordinates automatically translated by x(), y() as
     the polygon is moved.
 */
-void QCanvasPolygon::setPoints(QPointArray pa)
+void Q3CanvasPolygon::setPoints(QPointArray pa)
 {
     removeFromChunks();
     poly = pa;
@@ -4096,35 +4174,36 @@ void QCanvasPolygon::setPoints(QPointArray pa)
 /*!
   \reimp
 */
-void QCanvasPolygon::moveBy(double dx, double dy)
+void Q3CanvasPolygon::moveBy(double dx, double dy)
 {
-    // Note: does NOT call QCanvasPolygonalItem::moveBy(), since that
+    // Note: does NOT call Q3CanvasPolygonalItem::moveBy(), since that
     // only does half this work.
     //
     int idx = int(x()+dx)-int(x());
     int idy = int(y()+dy)-int(y());
     if (idx || idy) {
-        removeFromChunks();
-        poly.translate(idx,idy);
+	removeFromChunks();
+	poly.translate(idx,idy);
     }
     myx+=dx;
     myy+=dy;
     if (idx || idy) {
-        addToChunks();
+	addToChunks();
     }
 }
 
 /*!
-    \class QCanvasSpline
-    \brief The QCanvasSpline class provides multi-bezier splines on a QCanvas.
-
+    \class Q3CanvasSpline qcanvas.h
+    \brief The Q3CanvasSpline class provides multi-bezier splines on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
-    A QCanvasSpline is a sequence of 4-point bezier curves joined
+    A Q3CanvasSpline is a sequence of 4-point bezier curves joined
     together to make a curved shape.
 
     You set the control points of the spline with setControlPoints().
@@ -4136,12 +4215,12 @@ void QCanvasPolygon::moveBy(double dx, double dy)
 
     The beziers are not necessarily joined "smoothly". To ensure this,
     set control points appropriately (general reference texts about
-    beziers explain this in detail).
+    beziers will explain this in detail).
 
     Like any other canvas item splines can be moved with
-    QCanvasItem::move() and QCanvasItem::moveBy(), or by setting
-    coordinates with QCanvasItem::setX(), QCanvasItem::setY() and
-    QCanvasItem::setZ().
+    Q3CanvasItem::move() and Q3CanvasItem::moveBy(), or by setting
+    coordinates with Q3CanvasItem::setX(), Q3CanvasItem::setY() and
+    Q3CanvasItem::setZ().
 
 */
 
@@ -4150,8 +4229,8 @@ void QCanvasPolygon::moveBy(double dx, double dy)
 
     \sa setControlPoints()
 */
-QCanvasSpline::QCanvasSpline(QCanvas* canvas) :
-    QCanvasPolygon(canvas),
+Q3CanvasSpline::Q3CanvasSpline(Q3Canvas* canvas) :
+    Q3CanvasPolygon(canvas),
     cl(true)
 {
 }
@@ -4159,12 +4238,10 @@ QCanvasSpline::QCanvasSpline(QCanvas* canvas) :
 /*!
     Destroy the spline.
 */
-QCanvasSpline::~QCanvasSpline()
+Q3CanvasSpline::~Q3CanvasSpline()
 {
 }
 
-// ### shouldn't we handle errors more gracefully than with an assert? Lars
-// ### no, since it's a programming error. Warwick
 /*!
     Set the spline control points to \a ctrl.
 
@@ -4178,12 +4255,12 @@ QCanvasSpline::~QCanvasSpline()
     the number of points will be truncated to the largest number of
     points that do meet the requirement.
 */
-void QCanvasSpline::setControlPoints(QPointArray ctrl, bool close)
+void Q3CanvasSpline::setControlPoints(QPointArray ctrl, bool close)
 {
     if ((int)ctrl.count() % 3 != (close ? 0 : 1)) {
-        qWarning("QCanvasSpline::setControlPoints(): Number of points doesn't fit.");
-        int numCurves = (ctrl.count() - (close ? 0 : 1))/ 3;
-        ctrl.resize(numCurves*3 + (close ? 0 : 1));
+	qWarning("Q3CanvasSpline::setControlPoints(): Number of points doesn't fit.");
+	int numCurves = (ctrl.count() - (close ? 0 : 1))/ 3;
+	ctrl.resize(numCurves*3 + (close ? 0 : 1));
     }
 
     cl = close;
@@ -4196,7 +4273,7 @@ void QCanvasSpline::setControlPoints(QPointArray ctrl, bool close)
 
     \sa setControlPoints(), closed()
 */
-QPointArray QCanvasSpline::controlPoints() const
+QPointArray Q3CanvasSpline::controlPoints() const
 {
     return bez;
 }
@@ -4205,42 +4282,42 @@ QPointArray QCanvasSpline::controlPoints() const
     Returns true if the control points are a closed set; otherwise
     returns false.
 */
-bool QCanvasSpline::closed() const
+bool Q3CanvasSpline::closed() const
 {
     return cl;
 }
 
-void QCanvasSpline::recalcPoly()
+void Q3CanvasSpline::recalcPoly()
 {
-    QList<QPointArray> segs;
+    Q3PtrList<QPointArray> segs;
+    segs.setAutoDelete(true);
     int n=0;
     for (int i=0; i<(int)bez.count()-1; i+=3) {
-        QPointArray ctrl(4);
-        ctrl[0] = bez[i+0];
-        ctrl[1] = bez[i+1];
-        ctrl[2] = bez[i+2];
-        if (cl)
-            ctrl[3] = bez[(i+3)%(int)bez.count()];
-        else
-            ctrl[3] = bez[i+3];
-        QPointArray seg = ctrl.cubicBezier();
-        n += seg.count()-1;
-        segs.append(seg);
+	QPointArray ctrl(4);
+	ctrl[0] = bez[i+0];
+	ctrl[1] = bez[i+1];
+	ctrl[2] = bez[i+2];
+	if (cl)
+	    ctrl[3] = bez[(i+3)%(int)bez.count()];
+	else
+	    ctrl[3] = bez[i+3];
+	QPointArray *seg = new QPointArray(ctrl.cubicBezier());
+	n += seg->count()-1;
+	segs.append(seg);
     }
     QPointArray p(n+1);
     n=0;
-    for (int i = 0; i < segs.size(); ++i) {
-        const QPointArray &seg = segs.at(i);
-        for (int i=0; i<(int)seg.count()-1; i++)
-            p[n++] = seg.point(i);
-        if (n == (int)p.count()-1)
-            p[n] = seg.point(seg.count()-1);
+    for (QPointArray* seg = segs.first(); seg; seg = segs.next()) {
+	for (int i=0; i<(int)seg->count()-1; i++)
+	    p[n++] = seg->point(i);
+	if (n == (int)p.count()-1)
+	    p[n] = seg->point(seg->count()-1);
     }
-    QCanvasPolygon::setPoints(p);
+    Q3CanvasPolygon::setPoints(p);
 }
 
 /*!
-    \fn QPointArray QCanvasPolygonalItem::areaPoints() const
+    \fn QPointArray Q3CanvasPolygonalItem::areaPoints() const
 
     This function must be reimplemented by subclasses. It \e must
     return the points bounding (i.e. outside and not touching) the
@@ -4248,13 +4325,13 @@ void QCanvasSpline::recalcPoly()
 */
 
 /*!
-    \fn QPointArray QCanvasPolygon::points() const
+    \fn QPointArray Q3CanvasPolygon::points() const
 
     Returns the vertices of the polygon, not translated by the position.
 
     \sa setPoints(), areaPoints()
 */
-QPointArray QCanvasPolygon::points() const
+QPointArray Q3CanvasPolygon::points() const
 {
     QPointArray pa = areaPoints();
     pa.translate(int(-x()),int(-y()));
@@ -4267,29 +4344,33 @@ QPointArray QCanvasPolygon::points() const
 
     \sa setPoints(), points()
 */
-QPointArray QCanvasPolygon::areaPoints() const
+QPointArray Q3CanvasPolygon::areaPoints() const
 {
-    return poly;
+    return poly.copy();
 }
 
+// ### mark: Why don't we offer a constructor that lets the user set the
+// points -- that way for some uses just the constructor call would be
+// required?
 /*!
-    \class QCanvasLine
-    \brief The QCanvasLine class provides a line on a QCanvas.
-
+    \class Q3CanvasLine qcanvas.h
+    \brief The Q3CanvasLine class provides a line on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
-    The line inherits functionality from QCanvasPolygonalItem, for
+    The line inherits functionality from Q3CanvasPolygonalItem, for
     example the setPen() function. The start and end points of the
     line are set with setPoints().
 
     Like any other canvas item lines can be moved with
-    QCanvasItem::move() and QCanvasItem::moveBy(), or by setting
-    coordinates with QCanvasItem::setX(), QCanvasItem::setY() and
-    QCanvasItem::setZ().
+    Q3CanvasItem::move() and Q3CanvasItem::moveBy(), or by setting
+    coordinates with Q3CanvasItem::setX(), Q3CanvasItem::setY() and
+    Q3CanvasItem::setZ().
 */
 
 /*!
@@ -4297,8 +4378,8 @@ QPointArray QCanvasPolygon::areaPoints() const
 
     \sa setPoints().
 */
-QCanvasLine::QCanvasLine(QCanvas* canvas) :
-    QCanvasPolygonalItem(canvas)
+Q3CanvasLine::Q3CanvasLine(Q3Canvas* canvas) :
+    Q3CanvasPolygonalItem(canvas)
 {
     x1 = y1 = x2 = y2 = 0;
 }
@@ -4306,7 +4387,7 @@ QCanvasLine::QCanvasLine(QCanvas* canvas) :
 /*!
     Destroys the line.
 */
-QCanvasLine::~QCanvasLine()
+Q3CanvasLine::~Q3CanvasLine()
 {
     hide();
 }
@@ -4314,13 +4395,13 @@ QCanvasLine::~QCanvasLine()
 /*!
   \reimp
 */
-void QCanvasLine::setPen(QPen p)
+void Q3CanvasLine::setPen(QPen p)
 {
-    QCanvasPolygonalItem::setPen(p);
+    Q3CanvasPolygonalItem::setPen(p);
 }
 
 /*!
-    \fn QPoint QCanvasLine::startPoint() const
+    \fn QPoint Q3CanvasLine::startPoint () const
 
     Returns the start point of the line.
 
@@ -4328,7 +4409,7 @@ void QCanvasLine::setPen(QPen p)
 */
 
 /*!
-    \fn QPoint QCanvasLine::endPoint() const
+    \fn QPoint Q3CanvasLine::endPoint () const
 
     Returns the end point of the line.
 
@@ -4339,22 +4420,22 @@ void QCanvasLine::setPen(QPen p)
     Sets the line's start point to (\a xa, \a ya) and its end point to
     (\a xb, \a yb).
 */
-void QCanvasLine::setPoints(int xa, int ya, int xb, int yb)
+void Q3CanvasLine::setPoints(int xa, int ya, int xb, int yb)
 {
     if (x1 != xa || x2 != xb || y1 != ya || y2 != yb) {
-        removeFromChunks();
-        x1 = xa;
-        y1 = ya;
-        x2 = xb;
-        y2 = yb;
-        addToChunks();
+	removeFromChunks();
+	x1 = xa;
+	y1 = ya;
+	x2 = xb;
+	y2 = yb;
+	addToChunks();
     }
 }
 
 /*!
   \reimp
 */
-void QCanvasLine::drawShape(QPainter &p)
+void Q3CanvasLine::drawShape(QPainter &p)
 {
     p.drawLine((int)(x()+x1), (int)(y()+y1), (int)(x()+x2), (int)(y()+y2));
 }
@@ -4365,7 +4446,7 @@ void QCanvasLine::drawShape(QPainter &p)
     Note that the area defined by the line is somewhat thicker than
     the line that is actually drawn.
 */
-QPointArray QCanvasLine::areaPoints() const
+QPointArray Q3CanvasLine::areaPoints() const
 {
     QPointArray p(4);
     int xi = int(x());
@@ -4377,30 +4458,30 @@ QPointArray QCanvasLine::areaPoints() const
     int px = x1<x2 ? -pw : pw ;
     int py = y1<y2 ? -pw : pw ;
     if (dx && dy && (dx > dy ? (dx*2/dy <= 2) : (dy*2/dx <= 2))) {
-        // steep
-        if (px == py) {
-            p[0] = QPoint(x1+xi   ,y1+yi+py);
-            p[1] = QPoint(x2+xi-px,y2+yi  );
-            p[2] = QPoint(x2+xi   ,y2+yi-py);
-            p[3] = QPoint(x1+xi+px,y1+yi  );
-        } else {
-            p[0] = QPoint(x1+xi+px,y1+yi  );
-            p[1] = QPoint(x2+xi   ,y2+yi-py);
-            p[2] = QPoint(x2+xi-px,y2+yi  );
-            p[3] = QPoint(x1+xi   ,y1+yi+py);
-        }
+	// steep
+	if (px == py) {
+	    p[0] = QPoint(x1+xi   ,y1+yi+py);
+	    p[1] = QPoint(x2+xi-px,y2+yi  );
+	    p[2] = QPoint(x2+xi   ,y2+yi-py);
+	    p[3] = QPoint(x1+xi+px,y1+yi  );
+	} else {
+	    p[0] = QPoint(x1+xi+px,y1+yi  );
+	    p[1] = QPoint(x2+xi   ,y2+yi-py);
+	    p[2] = QPoint(x2+xi-px,y2+yi  );
+	    p[3] = QPoint(x1+xi   ,y1+yi+py);
+	}
     } else if (dx > dy) {
-        // horizontal
-        p[0] = QPoint(x1+xi+px,y1+yi+py);
-        p[1] = QPoint(x2+xi-px,y2+yi+py);
-        p[2] = QPoint(x2+xi-px,y2+yi-py);
-        p[3] = QPoint(x1+xi+px,y1+yi-py);
+	// horizontal
+	p[0] = QPoint(x1+xi+px,y1+yi+py);
+	p[1] = QPoint(x2+xi-px,y2+yi+py);
+	p[2] = QPoint(x2+xi-px,y2+yi-py);
+	p[3] = QPoint(x1+xi+px,y1+yi-py);
     } else {
-        // vertical
-        p[0] = QPoint(x1+xi+px,y1+yi+py);
-        p[1] = QPoint(x2+xi+px,y2+yi-py);
-        p[2] = QPoint(x2+xi-px,y2+yi-py);
-        p[3] = QPoint(x1+xi-px,y1+yi+py);
+	// vertical
+	p[0] = QPoint(x1+xi+px,y1+yi+py);
+	p[1] = QPoint(x2+xi+px,y2+yi-py);
+	p[2] = QPoint(x2+xi-px,y2+yi-py);
+	p[3] = QPoint(x1+xi-px,y1+yi+py);
     }
     return p;
 }
@@ -4410,24 +4491,25 @@ QPointArray QCanvasLine::areaPoints() const
 
 */
 
-void QCanvasLine::moveBy(double dx, double dy)
+void Q3CanvasLine::moveBy(double dx, double dy)
 {
-    QCanvasPolygonalItem::moveBy(dx, dy);
+    Q3CanvasPolygonalItem::moveBy(dx, dy);
 }
 
 /*!
-    \class QCanvasRectangle
-    \brief The QCanvasRectangle class provides a rectangle on a QCanvas.
-
+    \class Q3CanvasRectangle qcanvas.h
+    \brief The Q3CanvasRectangle class provides a rectangle on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
     This item paints a single rectangle which may have any pen() and
     brush(), but may not be tilted/rotated. For rotated rectangles,
-    use QCanvasPolygon.
+    use Q3CanvasPolygon.
 
     The rectangle's size and initial position can be set in the
     constructor. The size can be set or changed later using setSize().
@@ -4436,9 +4518,9 @@ void QCanvasLine::moveBy(double dx, double dy)
     The rectangle can be drawn on a painter with drawShape().
 
     Like any other canvas item rectangles can be moved with
-    QCanvasItem::move() and QCanvasItem::moveBy(), or by setting
-    coordinates with QCanvasItem::setX(), QCanvasItem::setY() and
-    QCanvasItem::setZ().
+    Q3CanvasItem::move() and Q3CanvasItem::moveBy(), or by setting
+    coordinates with Q3CanvasItem::setX(), Q3CanvasItem::setY() and
+    Q3CanvasItem::setZ().
 
 */
 
@@ -4446,8 +4528,8 @@ void QCanvasLine::moveBy(double dx, double dy)
     Constructs a rectangle at position (0,0) with both width and
     height set to 32 pixels on \a canvas.
 */
-QCanvasRectangle::QCanvasRectangle(QCanvas* canvas) :
-    QCanvasPolygonalItem(canvas),
+Q3CanvasRectangle::Q3CanvasRectangle(Q3Canvas* canvas) :
+    Q3CanvasPolygonalItem(canvas),
     w(32), h(32)
 {
 }
@@ -4455,8 +4537,8 @@ QCanvasRectangle::QCanvasRectangle(QCanvas* canvas) :
 /*!
     Constructs a rectangle positioned and sized by \a r on \a canvas.
 */
-QCanvasRectangle::QCanvasRectangle(const QRect& r, QCanvas* canvas) :
-    QCanvasPolygonalItem(canvas),
+Q3CanvasRectangle::Q3CanvasRectangle(const QRect& r, Q3Canvas* canvas) :
+    Q3CanvasPolygonalItem(canvas),
     w(r.width()), h(r.height())
 {
     move(r.x(),r.y());
@@ -4466,9 +4548,9 @@ QCanvasRectangle::QCanvasRectangle(const QRect& r, QCanvas* canvas) :
     Constructs a rectangle at position (\a x, \a y) and size \a width
     by \a height, on \a canvas.
 */
-QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height,
-        QCanvas* canvas) :
-    QCanvasPolygonalItem(canvas),
+Q3CanvasRectangle::Q3CanvasRectangle(int x, int y, int width, int height,
+	Q3Canvas* canvas) :
+    Q3CanvasPolygonalItem(canvas),
     w(width), h(height)
 {
     move(x,y);
@@ -4477,7 +4559,7 @@ QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height,
 /*!
     Destroys the rectangle.
 */
-QCanvasRectangle::~QCanvasRectangle()
+Q3CanvasRectangle::~Q3CanvasRectangle()
 {
     hide();
 }
@@ -4486,7 +4568,7 @@ QCanvasRectangle::~QCanvasRectangle()
 /*!
     Returns the width of the rectangle.
 */
-int QCanvasRectangle::width() const
+int Q3CanvasRectangle::width() const
 {
     return w;
 }
@@ -4494,7 +4576,7 @@ int QCanvasRectangle::width() const
 /*!
     Returns the height of the rectangle.
 */
-int QCanvasRectangle::height() const
+int Q3CanvasRectangle::height() const
 {
     return h;
 }
@@ -4502,18 +4584,18 @@ int QCanvasRectangle::height() const
 /*!
     Sets the \a width and \a height of the rectangle.
 */
-void QCanvasRectangle::setSize(int width, int height)
+void Q3CanvasRectangle::setSize(int width, int height)
 {
     if (w != width || h != height) {
-        removeFromChunks();
-        w = width;
-        h = height;
-        addToChunks();
+	removeFromChunks();
+	w = width;
+	h = height;
+	addToChunks();
     }
 }
 
 /*!
-    \fn QSize QCanvasRectangle::size() const
+    \fn QSize Q3CanvasRectangle::size() const
 
     Returns the width() and height() of the rectangle.
 
@@ -4521,7 +4603,7 @@ void QCanvasRectangle::setSize(int width, int height)
 */
 
 /*!
-    \fn QRect QCanvasRectangle::rect() const
+    \fn QRect Q3CanvasRectangle::rect() const
 
     Returns the integer-converted x(), y() position and size() of the
     rectangle as a QRect.
@@ -4530,12 +4612,12 @@ void QCanvasRectangle::setSize(int width, int height)
 /*!
   \reimp
 */
-QPointArray QCanvasRectangle::areaPoints() const
+QPointArray Q3CanvasRectangle::areaPoints() const
 {
     QPointArray pa(4);
     int pw = (pen().width()+1)/2;
     if (pw < 1) pw = 1;
-    if (pen() == Qt::NoPen) pw = 0;
+    if (pen() == NoPen) pw = 0;
     pa[0] = QPoint((int)x()-pw,(int)y()-pw);
     pa[1] = pa[0] + QPoint(w+pw*2,0);
     pa[2] = pa[1] + QPoint(0,h+pw*2);
@@ -4546,21 +4628,22 @@ QPointArray QCanvasRectangle::areaPoints() const
 /*!
     Draws the rectangle on painter \a p.
 */
-void QCanvasRectangle::drawShape(QPainter & p)
+void Q3CanvasRectangle::drawShape(QPainter & p)
 {
     p.drawRect((int)x(), (int)y(), w, h);
 }
 
 
 /*!
-    \class QCanvasEllipse
-    \brief The QCanvasEllipse class provides an ellipse or ellipse segment on a QCanvas.
-
+    \class Q3CanvasEllipse qcanvas.h
+    \brief The Q3CanvasEllipse class provides an ellipse or ellipse segment on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
     A canvas item that paints an ellipse or ellipse segment with a QBrush.
     The ellipse's height, width, start angle and angle length can be set
@@ -4587,14 +4670,14 @@ void QCanvasRectangle::drawShape(QPainter & p)
     Like any other canvas item ellipses can be moved with move() and
     moveBy(), or by setting coordinates with setX(), setY() and setZ().
 
-    Note: QCanvasEllipse does not use the pen.
+    Note: Q3CanvasEllipse does not use the pen.
 */
 
 /*!
     Constructs a 32x32 ellipse, centered at (0, 0) on \a canvas.
 */
-QCanvasEllipse::QCanvasEllipse(QCanvas* canvas) :
-    QCanvasPolygonalItem(canvas),
+Q3CanvasEllipse::Q3CanvasEllipse(Q3Canvas* canvas) :
+    Q3CanvasPolygonalItem(canvas),
     w(32), h(32),
     a1(0), a2(360*16)
 {
@@ -4604,16 +4687,16 @@ QCanvasEllipse::QCanvasEllipse(QCanvas* canvas) :
     Constructs a \a width by \a height pixel ellipse, centered at
     (0, 0) on \a canvas.
 */
-QCanvasEllipse::QCanvasEllipse(int width, int height, QCanvas* canvas) :
-    QCanvasPolygonalItem(canvas),
+Q3CanvasEllipse::Q3CanvasEllipse(int width, int height, Q3Canvas* canvas) :
+    Q3CanvasPolygonalItem(canvas),
     w(width),h(height),
     a1(0),a2(360*16)
 {
 }
 
 // ### add a constructor taking degrees in float. 1/16 degrees is stupid. Lars
-// ### it's how QPainter does it, so QCanvas does too for consistency. If it's
-// ###  a good idea, it should be added to QPainter, not just to QCanvas. Warwick
+// ### it's how QPainter does it, so Q3Canvas does too for consistency. If it's
+// ###  a good idea, it should be added to QPainter, not just to Q3Canvas. Warwick
 /*!
     Constructs a \a width by \a height pixel ellipse, centered at
     (0, 0) on \a canvas. Only a segment of the ellipse is drawn,
@@ -4623,9 +4706,9 @@ QCanvasEllipse::QCanvasEllipse(int width, int height, QCanvas* canvas) :
     Note that angles are specified in
     <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.
 */
-QCanvasEllipse::QCanvasEllipse(int width, int height,
-    int startangle, int angle, QCanvas* canvas) :
-    QCanvasPolygonalItem(canvas),
+Q3CanvasEllipse::Q3CanvasEllipse(int width, int height,
+    int startangle, int angle, Q3Canvas* canvas) :
+    Q3CanvasPolygonalItem(canvas),
     w(width),h(height),
     a1(startangle),a2(angle)
 {
@@ -4634,7 +4717,7 @@ QCanvasEllipse::QCanvasEllipse(int width, int height,
 /*!
     Destroys the ellipse.
 */
-QCanvasEllipse::~QCanvasEllipse()
+Q3CanvasEllipse::~Q3CanvasEllipse()
 {
     hide();
 }
@@ -4642,7 +4725,7 @@ QCanvasEllipse::~QCanvasEllipse()
 /*!
     Returns the width of the ellipse.
 */
-int QCanvasEllipse::width() const
+int Q3CanvasEllipse::width() const
 {
     return w;
 }
@@ -4650,7 +4733,7 @@ int QCanvasEllipse::width() const
 /*!
     Returns the height of the ellipse.
 */
-int QCanvasEllipse::height() const
+int Q3CanvasEllipse::height() const
 {
     return h;
 }
@@ -4658,30 +4741,30 @@ int QCanvasEllipse::height() const
 /*!
     Sets the \a width and \a height of the ellipse.
 */
-void QCanvasEllipse::setSize(int width, int height)
+void Q3CanvasEllipse::setSize(int width, int height)
 {
     if (w != width || h != height) {
-        removeFromChunks();
-        w = width;
-        h = height;
-        addToChunks();
+	removeFromChunks();
+	w = width;
+	h = height;
+	addToChunks();
     }
 }
 
 /*!
-    \fn int QCanvasEllipse::angleStart() const
+    \fn int Q3CanvasEllipse::angleStart() const
 
     Returns the start angle in 16ths of a degree. Initially
-    this is 0.
+    this will be 0.
 
     \sa setAngles(), angleLength()
 */
 
 /*!
-    \fn int QCanvasEllipse::angleLength() const
+    \fn int Q3CanvasEllipse::angleLength() const
 
     Returns the length angle (the extent of the ellipse segment) in
-    16ths of a degree. Initially this is 360 x 16 (a complete
+    16ths of a degree. Initially this will be 360 * 16 (a complete
     ellipse).
 
     \sa setAngles(), angleStart()
@@ -4692,24 +4775,24 @@ void QCanvasEllipse::setSize(int width, int height)
     the extent of the segment is \a length (the angle length) from the
     \a start. The angles are specified in 16ths of a degree. By
     default the ellipse will start at 0 and have an angle length of
-    360 x 16 (a complete ellipse).
+    360 * 16 (a complete ellipse).
 
     \sa angleStart(), angleLength()
 */
-void QCanvasEllipse::setAngles(int start, int length)
+void Q3CanvasEllipse::setAngles(int start, int length)
 {
     if (a1 != start || a2 != length) {
-        removeFromChunks();
-        a1 = start;
-        a2 = length;
-        addToChunks();
+	removeFromChunks();
+	a1 = start;
+	a2 = length;
+	addToChunks();
     }
 }
 
 /*!
   \reimp
 */
-QPointArray QCanvasEllipse::areaPoints() const
+QPointArray Q3CanvasEllipse::areaPoints() const
 {
     QPointArray r;
     // makeArc at 0,0, then translate so that fixed point math doesn't overflow
@@ -4724,29 +4807,30 @@ QPointArray QCanvasEllipse::areaPoints() const
 /*!
     Draws the ellipse, centered at x(), y() using the painter \a p.
 
-    Note that QCanvasEllipse does not support an outline (the pen is
-    always Qt::NoPen).
+    Note that Q3CanvasEllipse does not support an outline (the pen is
+    always NoPen).
 */
-void QCanvasEllipse::drawShape(QPainter & p)
+void Q3CanvasEllipse::drawShape(QPainter & p)
 {
-    p.setPen(Qt::NoPen); // since QRegion(QPointArray) excludes outline :-()-:
+    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-()-:
     if (!a1 && a2 == 360*16) {
-        p.drawEllipse(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h);
+	p.drawEllipse(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h);
     } else {
-        p.drawPie(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h, a1, a2);
+	p.drawPie(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h, a1, a2);
     }
 }
 
 
 /*!
-    \class QCanvasText
-    \brief The QCanvasText class provides a text object on a QCanvas.
-
+    \class Q3CanvasText qcanvas.h
+    \brief The Q3CanvasText class provides a text object on a Q3Canvas.
 \if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \compat
+    \module canvas
+    \ingroup graphics
+    \ingroup images
 
     A canvas text item has text with font, color and alignment
     attributes. The text and font can be set in the constructor or set
@@ -4757,16 +4841,16 @@ void QCanvasEllipse::drawShape(QPainter & p)
     The text can be drawn on a painter with draw().
 
     Like any other canvas item text items can be moved with
-    QCanvasItem::move() and QCanvasItem::moveBy(), or by setting
-    coordinates with QCanvasItem::setX(), QCanvasItem::setY() and
-    QCanvasItem::setZ().
+    Q3CanvasItem::move() and Q3CanvasItem::moveBy(), or by setting
+    coordinates with Q3CanvasItem::setX(), Q3CanvasItem::setY() and
+    Q3CanvasItem::setZ().
 */
 
 /*!
-    Constructs a QCanvasText with the text "\<text\>", on \a canvas.
+    Constructs a Q3CanvasText with the text "\<text\>", on \a canvas.
 */
-QCanvasText::QCanvasText(QCanvas* canvas) :
-    QCanvasItem(canvas),
+Q3CanvasText::Q3CanvasText(Q3Canvas* canvas) :
+    Q3CanvasItem(canvas),
     txt("<text>"), flags(0)
 {
     setRect();
@@ -4774,10 +4858,10 @@ QCanvasText::QCanvasText(QCanvas* canvas) :
 
 // ### add textflags to the constructor? Lars
 /*!
-    Constructs a QCanvasText with the text \a t, on canvas \a canvas.
+    Constructs a Q3CanvasText with the text \a t, on canvas \a canvas.
 */
-QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
-    QCanvasItem(canvas),
+Q3CanvasText::Q3CanvasText(const QString& t, Q3Canvas* canvas) :
+    Q3CanvasItem(canvas),
     txt(t), flags(0)
 {
     setRect();
@@ -4785,11 +4869,11 @@ QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
 
 // ### see above
 /*!
-    Constructs a QCanvasText with the text \a t and font \a f, on the
+    Constructs a Q3CanvasText with the text \a t and font \a f, on the
     canvas \a canvas.
 */
-QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
-    QCanvasItem(canvas),
+Q3CanvasText::Q3CanvasText(const QString& t, QFont f, Q3Canvas* canvas) :
+    Q3CanvasItem(canvas),
     txt(t), flags(0),
     fnt(f)
 {
@@ -4799,7 +4883,7 @@ QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
 /*!
     Destroys the canvas text item.
 */
-QCanvasText::~QCanvasText()
+Q3CanvasText::~Q3CanvasText()
 {
     removeFromChunks();
 }
@@ -4807,36 +4891,36 @@ QCanvasText::~QCanvasText()
 /*!
     Returns the bounding rectangle of the text.
 */
-QRect QCanvasText::boundingRect() const { return brect; }
+QRect Q3CanvasText::boundingRect() const { return brect; }
 
-void QCanvasText::setRect()
+void Q3CanvasText::setRect()
 {
     brect = QFontMetrics(fnt).boundingRect(int(x()), int(y()), 0, 0, flags, txt);
 }
 
 /*!
-    \fn int QCanvasText::textFlags() const
+    \fn int Q3CanvasText::textFlags() const
 
     Returns the currently set alignment flags.
 
-    \sa setTextFlags(), Qt::Alignment
+    \sa setTextFlags() Qt::AlignmentFlags
 */
 
 
 /*!
     Sets the alignment flags to \a f. These are a bitwise OR of the
-    flags available to QPainter::drawText() -- see
-    \l{Qt::Alignment}.
+    flags available to QPainter::drawText() -- see the
+    \l{Qt::AlignmentFlags}.
 
     \sa setFont() setColor()
 */
-void QCanvasText::setTextFlags(int f)
+void Q3CanvasText::setTextFlags(int f)
 {
     if (flags != f) {
-        removeFromChunks();
-        flags = f;
-        setRect();
-        addToChunks();
+	removeFromChunks();
+	flags = f;
+	setRect();
+	addToChunks();
     }
 }
 
@@ -4845,7 +4929,7 @@ void QCanvasText::setTextFlags(int f)
 
     \sa setText()
 */
-QString QCanvasText::text() const
+QString Q3CanvasText::text() const
 {
     return txt;
 }
@@ -4856,13 +4940,13 @@ QString QCanvasText::text() const
 
     \sa text(), setFont(), setColor() setTextFlags()
 */
-void QCanvasText::setText(const QString& t)
+void Q3CanvasText::setText(const QString& t)
 {
     if (txt != t) {
-        removeFromChunks();
-        txt = t;
-        setRect();
-        addToChunks();
+	removeFromChunks();
+	txt = t;
+	setRect();
+	addToChunks();
     }
 }
 
@@ -4871,7 +4955,7 @@ void QCanvasText::setText(const QString& t)
 
     \sa setFont()
 */
-QFont QCanvasText::font() const
+QFont Q3CanvasText::font() const
 {
     return fnt;
 }
@@ -4881,13 +4965,13 @@ QFont QCanvasText::font() const
 
     \sa font()
 */
-void QCanvasText::setFont(const QFont& f)
+void Q3CanvasText::setFont(const QFont& f)
 {
     if (f != fnt) {
-        removeFromChunks();
-        fnt = f;
-        setRect();
-        addToChunks();
+	removeFromChunks();
+	fnt = f;
+	setRect();
+	addToChunks();
     }
 }
 
@@ -4896,7 +4980,7 @@ void QCanvasText::setFont(const QFont& f)
 
     \sa setColor()
 */
-QColor QCanvasText::color() const
+QColor Q3CanvasText::color() const
 {
     return col;
 }
@@ -4906,7 +4990,7 @@ QColor QCanvasText::color() const
 
     \sa color(), setFont()
 */
-void QCanvasText::setColor(const QColor& c)
+void Q3CanvasText::setColor(const QColor& c)
 {
     col=c;
     changeChunks();
@@ -4916,25 +5000,25 @@ void QCanvasText::setColor(const QColor& c)
 /*!
   \reimp
 */
-void QCanvasText::moveBy(double dx, double dy)
+void Q3CanvasText::moveBy(double dx, double dy)
 {
     int idx = int(x()+dx)-int(x());
     int idy = int(y()+dy)-int(y());
     if (idx || idy) {
-        removeFromChunks();
+	removeFromChunks();
     }
     myx+=dx;
     myy+=dy;
     if (idx || idy) {
-        brect.moveBy(idx,idy);
-        addToChunks();
+	brect.moveBy(idx,idy);
+	addToChunks();
     }
 }
 
 /*!
     Draws the text using the painter \a painter.
 */
-void QCanvasText::draw(QPainter& painter)
+void Q3CanvasText::draw(QPainter& painter)
 {
     painter.setFont(fnt);
     painter.setPen(col);
@@ -4944,144 +5028,153 @@ void QCanvasText::draw(QPainter& painter)
 /*!
   \reimp
 */
-void QCanvasText::changeChunks()
+void Q3CanvasText::changeChunks()
 {
     if (isVisible() && canvas()) {
-        int chunksize=canvas()->chunkSize();
-        for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
-            for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
-                canvas()->setChangedChunk(i,j);
-            }
-        }
+	int chunksize=canvas()->chunkSize();
+	for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
+	    for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
+		canvas()->setChangedChunk(i,j);
+	    }
+	}
     }
 }
 
 /*!
     Adds the text item to the appropriate chunks.
 */
-void QCanvasText::addToChunks()
+void Q3CanvasText::addToChunks()
 {
     if (isVisible() && canvas()) {
-        int chunksize=canvas()->chunkSize();
-        for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
-            for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
-                canvas()->addItemToChunk(this,i,j);
-            }
-        }
+	int chunksize=canvas()->chunkSize();
+	for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
+	    for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
+		canvas()->addItemToChunk(this,i,j);
+	    }
+	}
     }
 }
 
 /*!
     Removes the text item from the appropriate chunks.
 */
-void QCanvasText::removeFromChunks()
+void Q3CanvasText::removeFromChunks()
 {
     if (isVisible() && canvas()) {
-        int chunksize=canvas()->chunkSize();
-        for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
-            for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
-                canvas()->removeItemFromChunk(this,i,j);
-            }
-        }
+	int chunksize=canvas()->chunkSize();
+	for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
+	    for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
+		canvas()->removeItemFromChunk(this,i,j);
+	    }
+	}
     }
 }
 
 
 /*!
-    Returns 0 (QCanvasItem::Rtti_Item).
+    Returns 0 (Q3CanvasItem::Rtti_Item).
 
     Make your derived classes return their own values for rtti(), so
     that you can distinguish between objects returned by
-    QCanvas::at(). You should use values greater than 1000 to allow
+    Q3Canvas::at(). You should use values greater than 1000 to allow
     for extensions to this class.
 
     Overuse of this functionality can damage it's extensibility. For
-    example, once you have identified a base class of a QCanvasItem
-    found by QCanvas::at(), cast it to that type and call meaningful
+    example, once you have identified a base class of a Q3CanvasItem
+    found by Q3Canvas::at(), cast it to that type and call meaningful
     methods rather than acting upon the object based on its rtti
     value.
 
     For example:
 
     \code
-        QCanvasItem* item;
-        // Find an item, e.g. with QCanvasItem::collisions().
-        ...
-        if (item->rtti() == MySprite::RTTI) {
-            MySprite* sprite = (MySprite*)item;
-            if (sprite->isDamagable()) sprite->loseHitPoints(1000);
-            if (sprite->isHot()) myself->loseHitPoints(1000);
-            ...
-        }
+	Q3CanvasItem* item;
+	// Find an item, e.g. with Q3CanvasItem::collisions().
+	...
+	if (item->rtti() == MySprite::RTTI) {
+	    MySprite* s = (MySprite*)item;
+	    if (s->isDamagable()) s->loseHitPoints(1000);
+	    if (s->isHot()) myself->loseHitPoints(1000);
+	    ...
+	}
     \endcode
 */
-int QCanvasItem::rtti() const { return RTTI; }
+int Q3CanvasItem::rtti() const { return RTTI; }
+int Q3CanvasItem::RTTI = Rtti_Item;
 
 /*!
-    Returns 1 (QCanvasItem::Rtti_Sprite).
+    Returns 1 (Q3CanvasItem::Rtti_Sprite).
 
-    \sa QCanvasItem::rtti()
+    \sa Q3CanvasItem::rtti()
 */
-int QCanvasSprite::rtti() const { return RTTI; }
+int Q3CanvasSprite::rtti() const { return RTTI; }
+int Q3CanvasSprite::RTTI = Rtti_Sprite;
 
 /*!
-    Returns 2 (QCanvasItem::Rtti_PolygonalItem).
+    Returns 2 (Q3CanvasItem::Rtti_PolygonalItem).
 
-    \sa QCanvasItem::rtti()
+    \sa Q3CanvasItem::rtti()
 */
-int QCanvasPolygonalItem::rtti() const { return RTTI; }
+int Q3CanvasPolygonalItem::rtti() const { return RTTI; }
+int Q3CanvasPolygonalItem::RTTI = Rtti_PolygonalItem;
 
 /*!
-    Returns 3 (QCanvasItem::Rtti_Text).
+    Returns 3 (Q3CanvasItem::Rtti_Text).
 
-    \sa QCanvasItem::rtti()
+    \sa Q3CanvasItem::rtti()
 */
-int QCanvasText::rtti() const { return Rtti_Text; }
+int Q3CanvasText::rtti() const { return RTTI; }
+int Q3CanvasText::RTTI = Rtti_Text;
 
 /*!
-    Returns 4 (QCanvasItem::Rtti_Polygon).
+    Returns 4 (Q3CanvasItem::Rtti_Polygon).
 
-    \sa QCanvasItem::rtti()
+    \sa Q3CanvasItem::rtti()
 */
-int QCanvasPolygon::rtti() const { return RTTI; }
+int Q3CanvasPolygon::rtti() const { return RTTI; }
+int Q3CanvasPolygon::RTTI = Rtti_Polygon;
 
 /*!
-    Returns 5 (QCanvasItem::Rtti_Rectangle).
+    Returns 5 (Q3CanvasItem::Rtti_Rectangle).
 
-    \sa QCanvasItem::rtti()
+    \sa Q3CanvasItem::rtti()
 */
-int QCanvasRectangle::rtti() const { return RTTI; }
+int Q3CanvasRectangle::rtti() const { return RTTI; }
+int Q3CanvasRectangle::RTTI = Rtti_Rectangle;
 
 /*!
-    Returns 6 (QCanvasItem::Rtti_Ellipse).
+    Returns 6 (Q3CanvasItem::Rtti_Ellipse).
 
-    \sa QCanvasItem::rtti()
+    \sa Q3CanvasItem::rtti()
 */
-int QCanvasEllipse::rtti() const { return RTTI; }
+int Q3CanvasEllipse::rtti() const { return RTTI; }
+int Q3CanvasEllipse::RTTI = Rtti_Ellipse;
 
 /*!
-    Returns 7 (QCanvasItem::Rtti_Line).
+    Returns 7 (Q3CanvasItem::Rtti_Line).
 
-    \sa QCanvasItem::rtti()
+    \sa Q3CanvasItem::rtti()
 */
-int QCanvasLine::rtti() const { return RTTI; }
+int Q3CanvasLine::rtti() const { return RTTI; }
+int Q3CanvasLine::RTTI = Rtti_Line;
 
 /*!
-    Returns 8 (QCanvasItem::Rtti_Spline).
+    Returns 8 (Q3CanvasItem::Rtti_Spline).
 
-    \sa QCanvasItem::rtti()
+    \sa Q3CanvasItem::rtti()
 */
-int QCanvasSpline::rtti() const { return RTTI; }
+int Q3CanvasSpline::rtti() const { return RTTI; }
+int Q3CanvasSpline::RTTI = Rtti_Spline;
 
 /*!
-    Constructs a QCanvasSprite which uses images from the
-    QCanvasPixmapArray \a a.
+    Constructs a Q3CanvasSprite which uses images from the
+    Q3CanvasPixmapArray \a a.
 
     The sprite in initially positioned at (0, 0) on \a canvas, using
     frame 0.
 */
-QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
-    QCanvasItem(canvas),
+Q3CanvasSprite::Q3CanvasSprite(Q3CanvasPixmapArray* a, Q3Canvas* canvas) :
+    Q3CanvasItem(canvas),
     frm(0),
     anim_val(0),
     anim_state(0),
@@ -5093,21 +5186,21 @@ QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
 
 /*!
     Set the array of images used for displaying the sprite to the
-    QCanvasPixmapArray \a a.
+    Q3CanvasPixmapArray \a a.
 
     If the current frame() is larger than the number of images in \a
     a, the current frame will be reset to 0.
 */
-void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
+void Q3CanvasSprite::setSequence(Q3CanvasPixmapArray* a)
 {
     bool isvisible = isVisible();
     if (isvisible && images)
-        hide();
+	hide();
     images = a;
     if (frm >= (int)images->count())
-        frm = 0;
+	frm = 0;
     if (isvisible)
-        show();
+	show();
 }
 
 /*!
@@ -5115,15 +5208,15 @@ void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
 
 Marks any chunks the sprite touches as changed.
 */
-void QCanvasSprite::changeChunks()
+void Q3CanvasSprite::changeChunks()
 {
     if (isVisible() && canvas()) {
-        int chunksize=canvas()->chunkSize();
-        for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
-            for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
-                canvas()->setChangedChunk(i,j);
-            }
-        }
+	int chunksize=canvas()->chunkSize();
+	for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
+	    for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
+		canvas()->setChangedChunk(i,j);
+	    }
+	}
     }
 }
 
@@ -5131,29 +5224,29 @@ void QCanvasSprite::changeChunks()
     Destroys the sprite and removes it from the canvas. Does \e not
     delete the images.
 */
-QCanvasSprite::~QCanvasSprite()
+Q3CanvasSprite::~Q3CanvasSprite()
 {
     removeFromChunks();
 }
 
 /*!
     Sets the animation frame used for displaying the sprite to \a f,
-    an index into the QCanvasSprite's QCanvasPixmapArray. The call
+    an index into the Q3CanvasSprite's Q3CanvasPixmapArray. The call
     will be ignored if \a f is larger than frameCount() or smaller
     than 0.
 
     \sa frame() move()
 */
-void QCanvasSprite::setFrame(int f)
+void Q3CanvasSprite::setFrame(int f)
 {
     move(x(),y(),f);
 }
 
 /*!
-    \enum QCanvasSprite::FrameAnimationType
+    \enum Q3CanvasSprite::FrameAnimationType
 
     This enum is used to identify the different types of frame
-    animation offered by QCanvasSprite.
+    animation offered by Q3CanvasSprite.
 
     \value Cycle at each advance the frame number will be incremented by
     1 (modulo the frame count).
@@ -5174,7 +5267,7 @@ void QCanvasSprite::setFrame(int f)
 
     The \a state parameter is for internal use.
 */
-void QCanvasSprite::setFrameAnimation(FrameAnimationType type, int step, int state)
+void Q3CanvasSprite::setFrameAnimation(FrameAnimationType type, int step, int state)
 {
     anim_val = step;
     anim_type = type;
@@ -5183,124 +5276,101 @@ void QCanvasSprite::setFrameAnimation(FrameAnimationType type, int step, int sta
 }
 
 /*!
-    Extends the default QCanvasItem implementation to provide the
+    Extends the default Q3CanvasItem implementation to provide the
     functionality of setFrameAnimation().
 
-    The \a phase is 0 or 1: see QCanvasItem::advance() for details.
+    The \a phase is 0 or 1: see Q3CanvasItem::advance() for details.
 
-    \sa QCanvasItem::advance() setVelocity()
+    \sa Q3CanvasItem::advance() setVelocity()
 */
-void QCanvasSprite::advance(int phase)
+void Q3CanvasSprite::advance(int phase)
 {
     if (phase==1) {
-        int nf = frame();
-        if (anim_type == Oscillate) {
-            if (anim_state)
-                nf += anim_val;
-            else
-                nf -= anim_val;
-            if (nf < 0) {
-                nf = abs(anim_val);
-                anim_state = !anim_state;
-            } else if (nf >= frameCount()) {
-                nf = frameCount()-1-abs(anim_val);
-                anim_state = !anim_state;
-            }
-        } else {
-            nf = (nf + anim_val + frameCount()) % frameCount();
-        }
-        move(x()+xVelocity(),y()+yVelocity(),nf);
+	int nf = frame();
+	if (anim_type == Oscillate) {
+	    if (anim_state)
+		nf += anim_val;
+	    else
+		nf -= anim_val;
+	    if (nf < 0) {
+		nf = abs(anim_val);
+		anim_state = !anim_state;
+	    } else if (nf >= frameCount()) {
+		nf = frameCount()-1-abs(anim_val);
+		anim_state = !anim_state;
+	    }
+	} else {
+	    nf = (nf + anim_val + frameCount()) % frameCount();
+	}
+	move(x()+xVelocity(),y()+yVelocity(),nf);
     }
 }
 
 
 /*!
-    \fn int QCanvasSprite::frame() const
+    \fn int Q3CanvasSprite::frame() const
 
     Returns the index of the current animation frame in the
-    QCanvasSprite's QCanvasPixmapArray.
+    Q3CanvasSprite's Q3CanvasPixmapArray.
 
     \sa setFrame(), move()
 */
 
 /*!
-    \fn int QCanvasSprite::frameCount() const
+    \fn int Q3CanvasSprite::frameCount() const
 
-    Returns the number of frames in the QCanvasSprite's
-    QCanvasPixmapArray.
+    Returns the number of frames in the Q3CanvasSprite's
+    Q3CanvasPixmapArray.
 */
 
 
 /*!
-    \fn void QCanvasSprite::move(double nx, double ny)
-
-    \overload
+  \reimp
+  \internal
+  Moves the sprite to the position \a x, \a y.
+    Keep it visible.
 */
+void Q3CanvasSprite::move(double x, double y) { Q3CanvasItem::move(x,y); }
 
 /*!
-    \fn void QCanvasSprite::move(double nx, double ny, int nf)
+    \fn void Q3CanvasSprite::move(double nx, double ny, int nf)
 
     Set the position of the sprite to \a nx, \a ny and the current
     frame to \a nf. \a nf will be ignored if it is larger than
     frameCount() or smaller than 0.
 */
-void QCanvasSprite::move(double nx, double ny, int nf)
+void Q3CanvasSprite::move(double nx, double ny, int nf)
 {
     if (isVisible() && canvas()) {
-        hide();
-        QCanvasItem::move(nx,ny);
-        if (nf >= 0 && nf < frameCount())
-            frm=nf;
-        show();
+	hide();
+	Q3CanvasItem::move(nx,ny);
+	if (nf >= 0 && nf < frameCount())
+	    frm=nf;
+	show();
     } else {
-        QCanvasItem::move(nx,ny);
-        if (nf >= 0 && nf < frameCount())
-            frm=nf;
+	Q3CanvasItem::move(nx,ny);
+	if (nf >= 0 && nf < frameCount())
+	    frm=nf;
     }
 }
 
-class QCanvasPolygonScanner : public QPolygonScanner {
+class Q3CanvasPolygonScanner : public QPolygonScanner {
     QPolygonalProcessor& processor;
 public:
-    QCanvasPolygonScanner(QPolygonalProcessor& p) :
-        processor(p)
+    Q3CanvasPolygonScanner(QPolygonalProcessor& p) :
+	processor(p)
     {
     }
     void processSpans(int n, QPoint* point, int* width)
     {
-        processor.doSpans(n,point,width);
+	processor.doSpans(n,point,width);
     }
 };
 
-void QCanvasPolygonalItem::scanPolygon(const QPointArray& pa, int winding, QPolygonalProcessor& process) const
+void Q3CanvasPolygonalItem::scanPolygon(const QPointArray& pa, int winding, QPolygonalProcessor& process) const
 {
-    QCanvasPolygonScanner scanner(process);
+    Q3CanvasPolygonScanner scanner(process);
     scanner.scan(pa,winding);
 }
 
-/*!
-    \fn bool QCanvasItem::visible() const
 
-    Use isVisible() instead.
-*/
-
-/*!
-    \fn bool QCanvasItem::selected() const
-
-    Use isSelected() instead.
-*/
-
-/*!
-    \fn bool QCanvasItem::enabled() const
-
-    Use isEnabled() instead.
-*/
-
-/*!
-    \fn bool QCanvasItem::active() const
-
-    Use isActive() instead.
-*/
-
-
-#endif // QT_NO_CANVAS

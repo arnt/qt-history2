@@ -1,2 +1,2 @@
-HEADERS += canvas/qcanvas.h
-SOURCES += canvas/qcanvas.cpp
+HEADERS += canvas/q3canvas.h
+SOURCES += canvas/q3canvas.cpp
