@@ -61,6 +61,9 @@ public:
 
     QTextDecoder* makeDecoder() const;
 
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
     QString toUnicode(const char* chars, int len) const;
 
@@ -78,6 +81,9 @@ public:
 
     QTextDecoder* makeDecoder() const;
 
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
     QString toUnicode(const char* chars, int len) const;
 
