@@ -704,7 +704,7 @@ void MainWindow::setupFileActions()
 
 void MainWindow::setupProjectActions()
 {
-    QPopupMenu *projectMenu = new QPopupMenu( this, "Project" );
+    projectMenu = new QPopupMenu( this, "Project" );
     menubar->insertItem( tr( "Pr&oject" ), projectMenu );
 
     QActionGroup *ag = new QActionGroup( this, 0 );
@@ -724,7 +724,7 @@ void MainWindow::setupProjectActions()
 
     projectMenu->insertSeparator();
 
-    a = new QAction( tr( "Insert File ..." ), QPixmap(), tr( "&Insert File ..." ), CTRL + Key_I, this, 0 );
+    a = new QAction( tr( "Insert File" ), QPixmap(), tr( "&Insert File..." ), CTRL + Key_I, this, 0 );
     a->setStatusTip( tr("Inserts a file into the current project") );
     a->setWhatsThis( tr("<b>Insert File</b>"
 			"<p>Use the filedialog to select the file you want to "

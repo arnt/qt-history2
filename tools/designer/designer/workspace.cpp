@@ -573,15 +573,18 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	menu.insertItem( tr( "&Remove source file from project" ), REMOVE_SOURCE );
 	break;
     case WorkspaceItem::FormFileType:
-	menu.insertItem( tr( "&Open form ..." ), OPEN_FORM );
+	menu.insertItem( tr( "&Open form..." ), OPEN_FORM );
 	menu.insertSeparator();
 	menu.insertItem( tr( "&Remove form from project" ), REMOVE_FORM );
 	break;
     case WorkspaceItem::FormSourceType:
-	menu.insertItem( tr( "&Open form source  ..." ), OPEN_FORM_SOURCE );
+	menu.insertItem( tr( "&Open form source..." ), OPEN_FORM_SOURCE );
 	menu.insertSeparator();
 	menu.insertItem( tr( "&Remove form from project" ), REMOVE_FORM );
 	break;
+    case WorkspaceItem::ProjectType:
+	MainWindow::self->popupProjectMenu( pos );
+	return;
     default:
 	return;
     }

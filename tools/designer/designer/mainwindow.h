@@ -164,6 +164,8 @@ public:
     SourceFile *sourceFile();
     void createNewProject( const QString &lang );
 
+    void popupProjectMenu( const QPoint &pos );
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
@@ -419,6 +421,8 @@ private:
     QObjectList debuggingForms;
     QString lastOpenFilter;
     QGuardedPtr<QWidget> previewedForm;
+    QPopupMenu *projectMenu;
+
 public:
     QString lastSaveFilter;
 

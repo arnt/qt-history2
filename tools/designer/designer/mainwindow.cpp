@@ -3254,3 +3254,9 @@ bool MainWindow::openProjectSettings( Project *pro )
 
     return res == QDialog::Accepted;
 }
+
+void MainWindow::popupProjectMenu( const QPoint &pos )
+{
+
+    projectMenu->exec( pos );
+}
