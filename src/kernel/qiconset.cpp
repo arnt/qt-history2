@@ -235,15 +235,21 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   \code
     void MyWidget::drawIcon( QPainter* p, QPoint pos )
     {
-	p->drawPixmap( pos, icons->pixmap(QIconSet::Small, isEnabled()) );
+	p->drawPixmap( pos, icons->pixmap(
+				QIconSet::Small,
+				isEnabled() ? QIconSet::Normal :
+					      QIconSet::Disabled,
+				isEnabled() ? QIconSet::On :
+					      QIconSet::Off));
     }
   \endcode
 
-  You might also make use of the Active mode, perhaps making your widget
-  Active when the mouse is over the widget (see \l QWidget::enterEvent()),
-  while the mouse is pressed pending the release that will activate
-  the function, or when it is the currently selected item. If the widget
-  can be toggled, the "On" mode might be used to draw a different icon.
+  You might also make use of the \c Active mode, perhaps making your
+  widget \c Active when the mouse is over the widget (see \l
+  QWidget::enterEvent()), while the mouse is pressed pending the
+  release that will activate the function, or when it is the currently
+  selected item. If the widget can be toggled, the "On" mode might be
+  used to draw a different icon.
 
   \img iconset.png QIconSet
 
