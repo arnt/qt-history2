@@ -1,6 +1,6 @@
 /*!
     \class QQueue
-    \brief The QQueue class is a template class that provides a queue.
+    \brief The QQueue class is a generic container that provides a queue.
 
     \ingroup qtl
     \ingroup tools
@@ -8,8 +8,8 @@
     \mainclass
     \reentrant
 
-    Define a template instance QQueue\<X\> to create a queue of
-    values of type X.
+    QQueue\<T\> is one of Qt's generic \l{container classes}. It
+    implements a queue data structure for items of a same type.
 
     A queue is a first in, first out (FIFO) structure. Items are
     added to the tail of the queue using enqueue() and retrieved from
@@ -23,36 +23,20 @@
 	queue.enqueue(2);
 	queue.enqueue(3);
 	while (!queue.isEmpty())
-	    cout << "Item: " << queue.dequeue() << endl;
-
-	// Output:
-	//	Item: 1
-	//	Item: 2
-	//	Item: 3
+	    cout << queue.dequeue() << endl;
     \endcode
 
-    QQueue is a specialized QList provided for convenience.  All of
-    QList's functionality also applies to QList, for example the
-    facility to iterate over all elements using QList<T>::Iterator,
-    or the possibility to reserve extra capacity with reserve().
+    The example will output 1, 2, 3 in that order.
 
-    Some classes cannot be used within a QQueue directly, for example
-    everything derived from QObject and thus all classes that
-    implement widgets. If you need a queue of QWidgets you would
-    instantiate a QQueue<QWidget *> instead. Only values can be used in
-    a QQueue, including pointers to objects.  To qualify as a value,
-    the class must provide
-    \list
-    \i a copy constructor;
-    \i an assignment operator;
-    \i a default constructor, i.e. a constructor that does not take any arguments.
-    \endlist
+    QQueue inherits from QList. All of QList's functionality also
+    applies to QList. For example, you can use isEmpty() to test
+    whether the queue is empty, and you can traverse a QQueue using
+    QList's iterator classes (for example, QListIterator). But in
+    addition, QQueue provides three convenience functions that make
+    it easy to implement FIFO semantics: enqueue(), dequeue(), and
+    head().
 
-    Note that C++ defaults to field-by-field assignment operators and
-    copy constructors if no explicit version is supplied. In many
-    cases this is sufficient.
-
-    \important isEmpty()
+    \sa QList, QStack
 */
 
 /*!
@@ -65,16 +49,15 @@
     \fn QQueue::~QQueue()
 
     Destroys the queue. References to the values in the queue and all
-    mutable iterators on this queue become invalidated. Because QQueue
-    is highly tuned for performance, you won't see warnings if you use
-    invalid iterators because it is impossible for an iterator to
-    check whether or not it is valid.
+    iterators of this queue become invalid.
 */
 
 /*!
     \fn void QQueue::enqueue(const T& t)
 
-    Adds element \a t to the tail of the queue. Last in, last out.
+    Adds value \a t to the tail of the queue.
+
+    This is the same as QList::append().
 
     \sa dequeue(), head()
 */
@@ -82,25 +65,27 @@
 /*!
     \fn T &QQueue::head()
 
-    Returns a reference to the head item of the queue, if there is any.
+    Returns a reference to the queue's head item. This function
+    assumes that the queue isn't empty.
 
-    \sa dequeue(), enqueue()
+    This is the same as QList::first().
+
+    \sa dequeue(), enqueue(), isEmpty()
 */
 
 /*!
     \fn const T &QQueue::head() const
 
     \overload
-
-    Returns a reference to the head item of the queue, if there is any.
-
-    \sa dequeue(), enqueue()
 */
 
 /*!
     \fn T QQueue::dequeue()
 
-    Removes the head item from the queue, if there is any, and returns it.
+    Removes the head item in the queue and returns it. This function
+    assumes that the queue isn't empty.
 
-    \sa head(), enqueue()
+    This is the same as QList::takeFirst().
+
+    \sa head(), enqueue(), isEmpty()
 */
