@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.h#6 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.h#7 $
 **
 ** Definition of draw utilities
 **
@@ -19,7 +19,6 @@
 //
 // Standard shade drawing
 //
-
 
 void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 		     const QColorGroup &g, bool sunken = TRUE,
@@ -70,8 +69,12 @@ void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &,
 		     int lineWidth = 1, const QBrush *fill = 0 );
 
 
+//
+// Other useful drawing functions
+//
+
 void qDrawItem( QPainter *p, GUIStyle gs, int x, int y, int w, int h,
-	        int flags, const QColorGroup &g, bool enabled,
+		int flags, const QColorGroup &g, bool enabled,
 		const QPixmap *pixmap, const char *text, int len=-1 );
 
 

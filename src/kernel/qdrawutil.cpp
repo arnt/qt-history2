@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#12 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#12 $");
 
 
 /*!
@@ -482,59 +482,69 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
 
 void qDrawItem( QPainter *p, GUIStyle gs,
 		int x, int y, int w, int h,
-	        int flags, 
+		int flags, 
 		const QColorGroup &g, bool enabled,
 		const QPixmap *pixmap,
 		const char *text, int len )
 {
     p->setPen( g.text() );
     if ( pixmap ) {
-	QPixmap *pm = (QPixmap *)pixmap;
+	QPixmap  pm( *pixmap );
 	bool clip = (flags & DontClip) == 0;
-	if ( clip )
-	    p->setClipRect( x, y, w, h );
+	if ( clip ) {
+	    if ( pm.width() < w && pm.height() < h )
+		clip = FALSE;
+	    else
+		p->setClipRect( x, y, w, h );
+	}
 	if ( (flags & AlignVCenter) == AlignVCenter )
-	    y += h/2 - pm->height()/2;
+	    y += h/2 - pm.height()/2;
 	else if ( (flags & AlignBottom) == AlignBottom)
-	    y += h - pm->height();
+	    y += h - pm.height();
 	if ( (flags & AlignRight) == AlignRight )
-	    x += w - pm->width();
+	    x += w - pm.width();
 	else if ( (flags & AlignHCenter) == AlignHCenter )
-	    x += w/2 - pm->width()/2;
+	    x += w/2 - pm.width()/2;
 	if ( !enabled ) {
-	    if ( pm->depth() > 1 ) {
-		if ( pm->mask() ) {
-		    pm = (QPixmap *)pm->mask();
+	    if ( pm.mask() ) {
+		if ( !pm.selfMask() ) {
+		    QPixmap pmm( *pm.mask() );
+		    pmm.setMask( *((QBitmap *)&pmm) );
+		    pm = pmm;
+		}
+	    } else if ( pm.depth() == 1 ) {
+		pm.setMask( *((QBitmap *)&pm) );
+	    } else if ( pm.depth() > 1 ) {
+		if ( pm.mask() ) {
+		    pm = *pm.mask();
 		} else {
 		    QString k;
-		    k.sprintf( "$qt-drawitem-%x", pm->serialNumber() );
+		    k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
 		    QPixmap *mask = QPixmapCache::find(k);
 		    if ( !mask ) {
-			mask = new QPixmap( pm->reasonableMask() );
+			mask = new QPixmap( pm.reasonableMask() );
+			mask->setMask( *((QBitmap*)mask) );
 			QPixmapCache::insert( k, mask );
-			debug( "must create mask" );
-		    } else {
-			debug( "got mask" );
 		    }
-		    pm = mask;
+		    pm = *mask;
 		}
 	    }
 	    if ( gs == WindowsStyle ) {
 		p->setPen( white );
-		p->drawPixmap( x+1, y+1, *pm );
+		p->drawPixmap( x+1, y+1, pm );
 		p->setPen( g.text() );
 	    }
 	}
-	p->drawPixmap( x, y, *pm );
+	p->drawPixmap( x, y, pm );
 	if ( clip )
 	    p->setClipping( FALSE );
     } else if ( text ) {
 	if ( gs == WindowsStyle && !enabled ) {
 	    p->setPen( white );
-	    p->drawText( x+1, y+1, w, h, flags, text );
+	    p->drawText( x+1, y+1, w, h, flags, text, len );
 	    p->setPen( g.text() );
 	}
-	p->drawText( x, y, w, h, flags, text );
+	p->drawText( x, y, w, h, flags, text, len );
     }
 }
 
