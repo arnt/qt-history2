@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#41 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#42 $
 #
 # this is a massive hack, written very quickly
 #
@@ -239,7 +239,9 @@ sub processdocs {
 	s/:://;
 	$word{$_}++;
 
-	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})|(?:[\w\.:]+)))(\()?(?!</a>))|((?:(?:<pre>.*?</pre>)|(?:<.*?>))))-
+	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})
+			    |(?:[\w:]+(?:\.(?:h)|(?:cpp))?)))(\()?(?!</a>))
+		   |((?:(?:<pre>.*?</pre>)|(?:<.*?>))))-
 	    if ($3 eq "") {
 		if (!defined($word{$1})) {
 		    if ($1 eq "magicwordthatyoushouldavoid") {
@@ -280,7 +282,10 @@ sub mangleclass {
 
 
 
-
+#
+#
+#
+#
 sub manglefn {
     local($type, $class, $name, $sig, $const) = @_;
     local($url, $d);
@@ -381,9 +386,7 @@ sub getfile {
     while(<F>) {
 	$dates{$1} = $2 if (/\$Id\:\s+(.*?),v\s+[0-9\.]+\s+(\S+)\s/);
 	$ifdef++ if (/^\#if/ && ($ifdef || !/_H$/)); # medium awful
-	if ($ifdef) {
-	    print $filename, ":", $., ": ignoring ", $_ if ($debug);
-	} else {
+	unless ($ifdef) {
 	    s-//.*--;
 	    push @_,$_;
 	}
@@ -479,144 +482,90 @@ sub readc {
     $c = getfile($filename);
     print "code file: ", $filename, "\n" if ($debug);
 
-    study $c;
-
-# find all class documentation entries
-    while ($c =~ m;
-	   /\*\![-\s]*	      (?# documentation prologue
-			       )
-	   \\class\s+         (?# class keyword
-			       )
-           (\w+)\s+([\.\w]+)  (?# class name and header file
-			       )
-           (.*?)              (?# actual documentation
-			       )
-           \*/;gsx) {           # comment end
-	my ($class, $hfile, $doc);
-	my ($url);
-	$class = $1;
-	$hfile = $2;
-	$doc = $3;
-	if (!defined($cfiles{$hfile})) {
-	    readh($hfile);
-	}
-	$filename =~ s-^.*/--;
-	$cfiles{$hfile} .= " " . $filename;
-	$url = &mangleclass($class);
-	print $class, " not in ", $hfile, "\n" 
-	    unless (defined($members{$url}));
-	$doc{$url} = $doc;
-	$includefile{$url} = $hfile;
-	$includefile{$url} =~ s/\.doc/.h/;
-    }
-
-# find all the defined functions
     while ($c =~ m@
 	   (?:/\*\![-\s]*
 	    ((?:[^\*]|(?:\*[^/]))*)
 	    \*/)\s*
-	   ([A-Za-z_](?:[^\{;\*]|(?:\*[^/]))+)\s*\x7b@gsx) {
+	   (?:([A-Za-z_](?:[^\{;\*]|(?:\*[^/]))+)\s*\x7b)?@gsx) {
 	my ($doc, $def, $type, $class, $name, $args, $const, $skip);
 	$skip = 0;
 
 	$doc = $1;
 	$def = $2;
-	($name, $args) = split(/\s*\(\s*/, $def);
-	if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+[^(\s\w]{0,3})$/s) {
-	    $type = $1;
-	    $class = $2;
-	    $name = $3;
-	    $class =~ s/:://;
-	    $type =~ s/^\s+//;
-	    $type =~ s/\s+$//;
-	} elsif ($name =~ /^\s*(\w+)\s*::\s*(\~?\w+)$/s) {
-	    $type = "";
-	    $class = $1;
-	    $name = $2;
-	} else {
-	    $skip = 1;
-	}
-	$args =~ s/([^:]):[^:].*/$1/s;
-	if ($args =~ /^(.*?)\s*\)\s*((?:const)?)\s*?$/s) {
-	    $args = $1;
-	    $const = $2;
-	} else {
-	    $skip = 1;
-	}
 
-	if (!($doc =~ /\\class /) &&
-	    !($doc =~ /\\fn /) &&
-	    !($doc =~ /\\page /) &&
-	    !($doc =~ /\\example /) &&
-	    ($skip == 0)) {
-	    if (!($type =~ /\bstatic\b/)) {
-		if ($args =~ /[()]/) {
-		    print STDERR "function prototype in argument\n", $def;
-		} else {
-		    my ($url);
-		    $url = &manglefn($type, $class, $name, $args, $const);
-		    $name{$url} = $class . "::" . $name;
-		    $type{$url} = "fn";
-		    $doc{$url} = $doc;
-		    $class .= "::" if ($class ne "");
-		    $const = " " . const if ($const ne "");
-		    $def{$url} = $type." ".$class.$name."(".$args.")".$const;
-		    print "url: ", $url, "\n" if ($debug);
+	if ($doc =~ m@^\\class\s+(\w+)\s+([\.\w]+)\s+(.*?)\s*$@s) {
+	    # it's a \class
+	    my ($class, $hfile, $doc);
+	    my ($url);
+	    $class = $1;
+	    $hfile = $2;
+	    $doc = $3;
+	    if (!defined($cfiles{$hfile})) {
+		readh($hfile);
+	    }
+	    $filename =~ s-^.*/--;
+	    $cfiles{$hfile} .= " " . $filename;
+	    $url = &mangleclass($class);
+	    print $class, " not in ", $hfile, "\n" 
+		unless (defined($members{$url}));
+	    $doc{$url} = $doc;
+	    $includefile{$url} = $hfile;
+	    $includefile{$url} =~ s/\.doc/.h/;
+	} elsif ($doc =~ m@^\\page\s+(\w+)\s+(.*?)\s*$@s) {
+	    # it s \page
+	    my ($page, $doc);
+	    my ($url);
+	    $page = $1;
+	    $doc = $3;
+	    $doc = &html($doc);
+	    $doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
+	} else {
+	    # it's a function, \fn or real?
+	    if ($doc =~ m@^\\fn\s+([^\;\n]+);?\s+(.*?)\s*$@s) {
+		$def = $1;
+		$doc = $2;
+	    }
+	    ($name, $args) = split(/\s*\(\s*/, $def);
+	    if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+[^\(\s\w]{0,3})$/s) {
+		$type = $1;
+		$class = $2;
+		$name = $3;
+		$class =~ s/:://;
+		$type =~ s/^\s+//;
+		$type =~ s/\s+$//;
+	    } elsif ($name =~ /^\s*(\w+)\s*::\s*(\~?\w+)$/s) {
+		$type = "";
+		$class = $1;
+		$name = $2;
+	    } else {
+		$skip = 1;
+	    }
+	    $args =~ s/([^:]):[^:].*/$1/s;
+	    if ($args =~ /^(.*?)\s*\)\s*((?:const)?)\s*?$/s) {
+		$args = $1;
+		$const = $2;
+	    } else {
+		$skip = 1;
+	    }
+
+	    if (($skip == 0)) {
+		if (!($type =~ /\bstatic\b/)) {
+		    if ($args =~ /[()]/) {
+			print STDERR "function prototype in argument\n", $def;
+		    } else {
+			my ($url);
+			$url = &manglefn($type, $class, $name, $args, $const);
+			$name{$url} = $class . "::" . $name;
+			$type{$url} = "fn";
+			$doc{$url} = $doc;
+			$class .= "::" if ($class ne "");
+			$const = " " . const if ($const ne "");
+			$def{$url} = $type." ".$class.$name."(".$args.")".$const;
+			print "url: ", $url, "\n" if ($debug);
+		    }
 		}
 	    }
 	}
-    }
-
-# and function documentation
-    while ($c =~ m@
-	   /\*\![-\s]*	      (?# documentation prologue
-			       )
-	   \\fn\s+         (?# fn keyword
-			       )
-           ((?:[^\(:]*[\s\&\*]+)?)
-	   (?:(\w+)::)?
-	   ((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+)))
-	   (?:\s*\(([^\(\)]*)\)\s*(const)?)?;?\n (?# function signature
-						)
-           (.*?)              (?# actual documentation
-			       )
-           \*/@gsx) {           # comment end
-	my ($type, $class, $name, $args, $const, $doc);
-	my ($url);
-	print "url:\n" if ($debug);
-	$type = $1;
-	$class = $2;
-	$name = $3;
-	$args = $4;
-	$const = $5;
-	$doc = $6;
-	$all = $&;
-	$url = &manglefn($type, $class, $name, $args, $const);
-	$name{$url} = $class . "::" . $name;
-	$type{$url} = "fn";
-	$doc{$url} = $doc;
-	$class .= "::" if ($class ne "");
-	$def{$url} = $type." ".$class.$name."(".$args.")";
-	print "    ", $url, "\n" if ($debug);
-     }
-
-# find all extra pages
-    while ($c =~ m;
-	   /\*\![-\s]*	      (?# documentation prologue
-			       )
-	   \\page\s+         (?# page keyword
-			       )
-           (\w+)\s+  (?# file name and optional link trigger
-			       )
-           (.*?)              (?# file contents
-			       )
-           \*/;gsx) {           # comment end
-	my ($page, $doc);
-	my ($url);
-	$page = $1;
-	$doc = $3;
-	$doc = &html($doc);
-	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
     }
 }
 
@@ -975,6 +924,9 @@ sub printout {
     }
     print O $fntail, $tail;
     close(O);
+}
+
+sub classindex {
     open(O, "> $outputdir/index.html")
 	|| die "can't open $outputdir/index.html for writing";
     print O <<EOHEAD
@@ -1007,6 +959,7 @@ EOTAIL
 }
 
 
+
 umask 0111;
 $cfile = "VOLD";
 #$debug = 1;
@@ -1027,4 +980,4 @@ $outputdir = "/local/qt/doc/html";
 &readfiles();
 
 &printout();
-
+&classindex();
