@@ -27,7 +27,7 @@
 
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
-    Q_DECLARE_PUBLIC(QDateTimeEdit);
+    Q_DECLARE_PUBLIC(QDateTimeEdit)
 public:
     enum Section {
 	NoSection = 0x0000,
@@ -65,7 +65,7 @@ public:
     QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
 
     QStyleOptionSpinBox styleOption() const;
-    QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const;
+    QCoreVariant valueForPosition(int pos) const;
 
 
     void clearSection(Section s);
