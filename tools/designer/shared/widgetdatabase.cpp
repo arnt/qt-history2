@@ -108,6 +108,8 @@ void WidgetDatabase::setupDataBase( int id )
 	setupPlugins();
 	return;
     }
+    if ( dbcount && plugins_set_up)
+	return;
 #endif
 
     wGroups = new QStrList;
