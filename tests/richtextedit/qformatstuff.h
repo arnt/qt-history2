@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#6 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#7 $
 **
 ** Definition of the QtTextView class
 **
@@ -62,7 +62,8 @@ protected:
     QString key;
     int ref;
     QtTextCustomItem *customItem_;
-
+    int logicalFontSize;
+    
 };
 
 class QtTextCustomItem

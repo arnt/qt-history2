@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#9 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#10 $
 **
 ** Definition of the QtTextView class
 **
@@ -29,18 +29,19 @@
 #include <qstylesheet.h>
 
 QtTextCharFormat::QtTextCharFormat()
-    : ref( 1 ), customItem_( 0 )
+    : ref( 1 ), customItem_( 0 ), logicalFontSize( 3 )
 {
 }
 
 QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
     : font_( format.font_ ), color_( format.color_ ),
-      key( format.key ), ref( 1 ), customItem_( 0 )
+      key( format.key ), ref( 1 ), customItem_( 0 ),
+      logicalFontSize( format.logicalFontSize )
 {
 }
 
 QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c, QtTextCustomItem *ci )
-    : font_( f ), color_( c ), ref( 1 ), customItem_( ci )
+    : font_( f ), color_( c ), ref( 1 ), customItem_( ci ), logicalFontSize( 3 )
 {
     key = QString( "%1_%2_%3_%4_%5_%6_%7_%8" ).
           arg( c.red() ).arg( c.green() ).arg( c.blue() ).
@@ -57,7 +58,8 @@ QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
     key = fmt.key;
     ref = 1;
     customItem_ = fmt.customItem_;
-
+    logicalFontSize = fmt.logicalFontSize;
+    
     return *this;
 }
 
@@ -95,6 +97,9 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *item )
         format.font_.setPointSize( item->fontSize() );
     else if ( item->logicalFontSize() != QStyleSheetItem::Undefined )
         item->styleSheet()->scaleFont( format.font_, item->logicalFontSize() );
+    else if ( item->logicalFontSizeStep() != QStyleSheetItem::Undefined )
+        item->styleSheet()->scaleFont( format.font_, 
+                                       logicalFontSize + item->logicalFontSizeStep() );
     if ( !item->fontFamily().isEmpty() )
         format.font_.setFamily( item->fontFamily() );
     if ( item->color().isValid() )
