@@ -1318,8 +1318,9 @@ int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
     }
     
     int cnt = 0;
-    for ( int j = 0; j < (int) count(); ++j ) {
-	QSqlField* f = d->editBuffer.field( j );
+    int fieldCount = (int)count();
+    for ( int j = 0; j < fieldCount; ++j ) {
+	const QSqlField* f = d->editBuffer.field( j );
 	if ( d->editBuffer.isGenerated( j ) ) {
 	    sql->bindValue( cnt, f->value() );
 	    cnt++;

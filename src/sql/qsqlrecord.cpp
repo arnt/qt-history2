@@ -39,7 +39,7 @@
 #ifndef QT_NO_SQL
 
 #include "qregexp.h"
-#include "qmap.h"
+#include "qvaluevector.h"
 #include "qshared.h"
 #include "qnamespace.h"
 
@@ -60,12 +60,18 @@ public:
 	    nogen = other.nogen;
 	    return *this;
 	}
+	bool isValid() const
+	{
+	    return !field.name().isNull();
+	}
 	Q_DUMMY_COMPARISON_OPERATOR(info)
 	QSqlField field;
 	bool    nogen;
     };
 
-    QSqlRecordPrivate() { }
+    QSqlRecordPrivate(): cnt(0) 
+    {
+    }
     QSqlRecordPrivate( const QSqlRecordPrivate& other )
     {
 	*this = other;
@@ -74,46 +80,66 @@ public:
     QSqlRecordPrivate& operator=( const QSqlRecordPrivate& other )
     {
 	fi = other.fi;
+	cnt = other.cnt;
 	return *this;
     }
     void append( const QSqlField& field )
     {
 	info i;
 	i.field = field;
-	fi.insert( (int)fi.count(), i );
+	fi.append( i );
+	cnt++;
     }
     void insert( int pos, const QSqlField& field )
     {
 	info i;
 	i.field = field;
-	fi.insert( pos, i );
+	if ( pos == (int)fi.size() )
+	    append( field );
+	if ( pos > (int)fi.size() ) {
+	    fi.resize( pos + 1 );
+	    cnt++;
+	}
+	fi[ pos ] = i;
     }
     void remove( int i )
     {
-	fi.remove( i );
+	info inf;
+	if ( i >= (int)fi.count() )
+	    return;
+	if ( fi[ i ].isValid() )
+	    cnt--;
+	fi[ i ] = inf;
+	// clean up some memory
+	while ( fi.count() && !fi.back().isValid() )
+	    fi.pop_back();
     }
     void clear()
     {
 	fi.clear();
+	cnt = 0;
     }
     bool isEmpty()
     {
-	return fi.isEmpty();
+	return cnt == 0;
     }
     info* fieldInfo( int i )
     {
-	return &fi[i];
+	if ( i < (int)fi.count() )
+	    return &fi[i];
+	return 0;
     }
-    uint count()
+    uint count() const
     {
-	return (uint)fi.count();
+	return cnt;
     }
     bool contains( int i ) const
     {
-	return fi.contains( i );
+	return i >= 0 && i < (int)fi.count() && fi[ i ].isValid();
     }
 private:
-    QMap< int, info > fi;
+    QValueVector< info > fi;
+    uint		 cnt;
 };
 
 QSqlRecordShared::~QSqlRecordShared()
@@ -334,7 +360,7 @@ const QSqlField* QSqlRecord::field( int i ) const
 
 const QSqlField* QSqlRecord::field( const QString& name ) const
 {
-    if( (unsigned int) position( name ) > sh->d->count() )
+    if( !sh->d->contains( position( name ) ) )
 	return 0;
     return &sh->d->fieldInfo( position( name ) )->field;
 }
@@ -415,8 +441,9 @@ bool QSqlRecord::contains( const QString& name ) const
 void QSqlRecord::clearValues( bool nullify )
 {
     checkDetach();
-    uint cnt = count();
-    for ( uint i = 0; i < cnt; ++i ) {
+    int cnt = (int)count();
+    int i;
+    for ( i = 0; i < cnt; ++i ) {
 	field( i )->clear( nullify );
     }
 }
