@@ -139,13 +139,13 @@ MenuExample::MenuExample(QWidget *parent)
     bold.setBold(true);
     boldAct->setFont(bold);
     boldAct->setShortcut(Qt::CTRL+Qt::Key_B);
-    QObject::connect(boldAct, SIGNAL(activated()), this, SLOT(bold()));
+    QObject::connect(boldAct, SIGNAL(triggered()), this, SLOT(bold()));
     underlineAct = options->addAction("Underline");
     QFont underline;
     underline.setUnderline(true);
     underlineAct->setFont(underline);
-    boldAct->setShortcut(Qt::CTRL+Qt::Key_U);
-    QObject::connect(boldAct, SIGNAL(activated()), this, SLOT(underline()));
+    underlineAct->setShortcut(Qt::CTRL+Qt::Key_U);
+    QObject::connect(underlineAct, SIGNAL(triggered()), this, SLOT(underline()));
 
     isBold = FALSE;
     isUnderline = FALSE;
