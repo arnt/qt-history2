@@ -281,6 +281,9 @@ public:
     inline QT_COMPAT bool isRedoAvailable() const
     { return document()->isRedoAvailable(); }
 
+    QT_COMPAT QColor paragraphBackgroundColor(int parag) const;
+    QT_COMPAT void setParagraphBackgroundColor(int parag, const QColor &col);
+
 #endif
 };
 

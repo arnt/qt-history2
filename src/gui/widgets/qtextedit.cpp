@@ -1371,6 +1371,23 @@ int QTextEdit::charAt(const QPoint &pos, int *parag) const
     return docPos - block.position();
 }
 
+QColor QTextEdit::paragraphBackgroundColor(int parag) const
+{
+    return d->blockAt(parag).blockFormat().backgroundColor();
+}
+
+void QTextEdit::setParagraphBackgroundColor(int parag, const QColor &col)
+{
+    QTextBlock block = d->blockAt(parag);
+    if (!block.isValid())
+        return;
+
+    QTextCursor c(block);
+    QTextBlockFormat fmt;
+    fmt.setBackgroundColor(col);
+    c.mergeBlockFormat(fmt);
+}
+
 #endif
 
 /*!
