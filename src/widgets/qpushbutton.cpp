@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#141 $
 **
 ** Implementation of QPushButton class
 **
@@ -200,7 +200,7 @@ void QPushButton::setDefault( bool enable )
 {
     if ( (defButton && enable) || !(defButton || enable) )
 	return;					// no change
-    QWidget *p = topLevelWidget();
+    QWidget *p = topLevelWidget();     //### bug now that dialogs have parents
     if ( !p->inherits("QDialog") )		// not a dialog
 	return;
     defButton = enable;
