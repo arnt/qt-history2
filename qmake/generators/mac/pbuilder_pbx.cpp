@@ -135,12 +135,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    if(file.endsWith(Option::moc_ext)) 
 		continue;
 	    bool in_root = TRUE;
-	    QString src_key = keyFor(file);
+	    QString src_key = keyFor(file), name = file;
 	    if(!project->isActiveConfig("flat")) {
 		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
 		if(QDir::isRelativePath(flat_file) && flat_file.find(Option::dir_sep) != -1) {
 		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
 		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
+		    name = dirs.back();
 		    dirs.pop_back(); //remove the file portion as it will be added via src_key
 		    for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
 			QString new_grp(last_grp + Option::dir_sep + (*dir_it)),
@@ -163,6 +164,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    //source reference
 	    t << "\t\t" << src_key << " = {" << "\n"
 	      << "\t\t\t" << "isa = PBXFileReference;" << "\n"
+	      << "\t\t\t" << "name = \"" << name << "\";" << "\n"
 	      << "\t\t\t" << "path = \"" << file << "\";" << "\n"
 	      << "\t\t\t" << "refType = " << reftypeForFile(file) << ";" << "\n"
 	      << "\t\t" << "};" << "\n";
