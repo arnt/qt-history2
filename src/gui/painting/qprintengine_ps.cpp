@@ -5238,7 +5238,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
         if ( pipe( fds ) != 0 ) {
             qWarning( "QPSPrinter: could not open pipe to print" );
             state = PST_ERROR;
-            return FALSE;
+            return false;
         }
 
         pid = fork();

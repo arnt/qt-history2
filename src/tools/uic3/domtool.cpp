@@ -77,10 +77,10 @@ bool DomTool::hasProperty(const QDomElement& e, const QString& name)
         if (n.tagName() == QLatin1String("property")) {
             if (n.attribute(QLatin1String("name")) != name)
                 continue;
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 /*
@@ -197,7 +197,7 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
     } else if (e.tagName() == QLatin1String("cstring")) {
         v = QCoreVariant(e.firstChild().toText().data().toAscii());
     } else if (e.tagName() == QLatin1String("number")) {
-        bool ok = TRUE;
+        bool ok = true;
         v = QCoreVariant(e.firstChild().toText().data().toInt(&ok));
         if (!ok)
             v = QCoreVariant(e.firstChild().toText().data().toDouble());
@@ -356,10 +356,10 @@ bool DomTool::hasAttribute(const QDomElement& e, const QString& name)
         if (n.tagName() == QLatin1String("attribute")) {
             if (n.attribute(QLatin1String("name")) != name)
                 continue;
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 static bool toBool(const QString& s)

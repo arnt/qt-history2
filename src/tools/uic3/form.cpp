@@ -162,16 +162,16 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     }
     out << endl;
 
-    bool dbForm = FALSE;
+    bool dbForm = false;
     registerDatabases(e);
     dbConnections = unique(dbConnections);
     if (dbForms[QLatin1String("(default)")].count())
-        dbForm = TRUE;
-    bool subDbForms = FALSE;
+        dbForm = true;
+    bool subDbForms = false;
     for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
         if (!(*it).isEmpty() && (*it) != QLatin1String("(default)")) {
             if (dbForms[(*it)].count()) {
-                subDbForms = TRUE;
+                subDbForms = true;
                 break;
             }
         }
@@ -249,12 +249,12 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
 
     // constructor
     if (objClass == QLatin1String("QDialog") || objClass == QLatin1String("QWizard")) {
-        out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0);" << endl;
+        out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0);" << endl;
     } else if (objClass == QLatin1String("QWidget")) {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = 0);" << endl;
     } else if (objClass == QLatin1String("QMainWindow") || objClass == QLatin1String("Q3MainWindow")) {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = Qt::WType_TopLevel);" << endl;
-        isMainWindow = TRUE;
+        isMainWindow = true;
     } else {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0);" << endl;
     }
@@ -265,13 +265,13 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
 
     // database connections
     dbConnections = unique(dbConnections);
-    bool hadOutput = FALSE;
+    bool hadOutput = false;
     for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
         if (!(*it).isEmpty()) {
             // only need pointers to non-default connections
             if ((*it) != QLatin1String("(default)") && !(*it).isEmpty()) {
                 out << indent << "QSqlDatabase* " << *it << "Connection;" << endl;
-                hadOutput = TRUE;
+                hadOutput = true;
             }
         }
     }
@@ -551,14 +551,14 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
 
     registerDatabases(e);
     dbConnections = unique(dbConnections);
-    bool dbForm = FALSE;
+    bool dbForm = false;
     if (dbForms[QLatin1String("(default)")].count())
-        dbForm = TRUE;
-    bool subDbForms = FALSE;
+        dbForm = true;
+    bool subDbForms = false;
     for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
         if (!(*it).isEmpty()  && (*it) != QLatin1String("(default)")) {
             if (dbForms[(*it)].count()) {
-                subDbForms = TRUE;
+                subDbForms = true;
                 break;
             }
         }
@@ -615,7 +615,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         if (!outputFileName.isEmpty())
             uiDotH = QString::fromUtf8(combinePath(uiDotH.ascii(), outputFileName.ascii()));
         out << "#include \"" << uiDotH << "\"" << endl;
-        writeFunctImpl = FALSE;
+        writeFunctImpl = false;
     }
 
     // register the object and unify its name
@@ -632,7 +632,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         out << " *  name 'name' and widget flags set to 'f'." << endl;
         out << " *" << endl;
         out << " *  The " << objClass.mid(1).toLower() << " will by default be modeless, unless you set 'modal' to" << endl;
-        out << " *  TRUE to construct a modal " << objClass.mid(1).toLower() << "." << endl;
+        out << " *  true to construct a modal " << objClass.mid(1).toLower() << "." << endl;
         out << " */" << endl;
         out << nameOfClass << "::" << bareNameOfClass << "(QWidget* parent, const char* name, bool modal, Qt::WFlags fl)" << endl;
         out << "    : " << objClass << "(parent, name, modal, fl)";
@@ -651,7 +651,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         out << " */" << endl;
         out << nameOfClass << "::" << bareNameOfClass << "(QWidget* parent, const char* name, Qt::WFlags fl)" << endl;
         out << "    : " << objClass << "(parent, name, fl)";
-        isMainWindow = TRUE;
+        isMainWindow = true;
     } else {
         out << "/*" << endl;
         out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the" << endl;
@@ -764,21 +764,21 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     out << endl;
 
     // handle application events if required
-    bool needFontEventHandler = FALSE;
-    bool needSqlTableEventHandler = FALSE;
-    bool needSqlDataBrowserEventHandler = FALSE;
+    bool needFontEventHandler = false;
+    bool needSqlTableEventHandler = false;
+    bool needSqlDataBrowserEventHandler = false;
     nl = e.elementsByTagName(QLatin1String("widget"));
     for (i = 0; i < (int) nl.length(); i++) {
         if (!DomTool::propertiesOfType(nl.item(i).toElement() , QLatin1String("font")).isEmpty())
-            needFontEventHandler = TRUE;
+            needFontEventHandler = true;
         QString s = getClassName(nl.item(i).toElement());
         if (s == QLatin1String("QDataTable") || s == QLatin1String("QDataBrowser")) {
             if (!isFrameworkCodeGenerated(nl.item(i).toElement()))
                  continue;
             if (s == QLatin1String("QDataTable"))
-                needSqlTableEventHandler = TRUE;
+                needSqlTableEventHandler = true;
             if (s == QLatin1String("QDataBrowser"))
-                needSqlDataBrowserEventHandler = TRUE;
+                needSqlDataBrowserEventHandler = true;
         }
         if (needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler)
             break;
@@ -820,7 +820,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
 
                       1.  If the type is 'void', we return nothing.
 
-                      2.  If the type is 'bool', we return 'FALSE'.
+                      2.  If the type is 'bool', we return 'false'.
 
                       3.  If the type is 'unsigned long' or
                           'Q_UINT16' or 'double' or similar, we
@@ -840,7 +840,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
                                 (toks.find(numeric).count() == toks.count());
 
                         if (type == QLatin1String("bool")) {
-                            retVal = QLatin1String("FALSE");
+                            retVal = QLatin1String("false");
                         } else if (isBasicNumericType || type.endsWith(QLatin1String("*"))) {
                             retVal = QLatin1String("0");
                         } else if (type.endsWith(QLatin1String("&"))) {

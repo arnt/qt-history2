@@ -467,7 +467,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     QList<DomLayout*> ui_layout_list;
     QList<DomActionRef*> ui_action_list;
 
-    bool needPolish = FALSE;
+    bool needPolish = false;
 
     createProperties(w, &ui_property_list, className);
     createAttributes(w, &ui_attribute_list, className);
@@ -577,7 +577,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
         if (s == QLatin1String("QDataTable")
                 || s == QLatin1String("QDataBrowser")) {
             if (isFrameworkCodeGenerated(e))
-                 needPolish = TRUE;
+                 needPolish = true;
         }
 
         e = e.nextSibling().toElement();
@@ -620,7 +620,7 @@ DomLayout *Ui3Reader::createLayout(const QDomElement &w)
     createProperties(w, &ui_property_list, className);
     createAttributes(w, &ui_attribute_list, className);
 
-    bool needPolish = FALSE;
+    bool needPolish = false;
     QDomElement e = w.firstChild().toElement();
     while (!e.isNull()) {
         QString t = e.tagName().toLower();
@@ -638,7 +638,7 @@ DomLayout *Ui3Reader::createLayout(const QDomElement &w)
         if (s == QLatin1String("QDataTable")
                  || s == QLatin1String("QDataBrowser")) {
             if (isFrameworkCodeGenerated(e))
-                 needPolish = TRUE;
+                 needPolish = true;
         }
 
         e = e.nextSibling().toElement();

@@ -95,7 +95,7 @@ int main(int argc, char * argv[])
                 } else
                     headerFile = opt.data() + 1;
             } else if ( opt[0] == 'e' || opt == "embed" ) {
-                imagecollection = TRUE;
+                imagecollection = true;
                 if ( opt == "embed" || opt[1] == '\0' ) {
                     if ( !(n < argc-1) ) {
                         error = "Missing name of project";
@@ -106,7 +106,7 @@ int main(int argc, char * argv[])
                     projectName = opt.data() + 1;
                 }
                 if ( argc > n+1 && qstrcmp( argv[n+1], "-f" ) == 0 ) {
-                    imagecollection_tmpfile = TRUE;
+                    imagecollection_tmpfile = true;
                     image_tmpfile = argv[n+2];
                     n += 2;
                 }

@@ -120,7 +120,7 @@ int QPrintDialog::exec()
 
     bool result = PrintDlg(&pd);
     if (result && pd.hDC == 0)
-        result = FALSE;
+        result = false;
 
     if (parent) {
         qt_leave_modal(parent);

@@ -157,7 +157,7 @@ private:
     static QString mkBool(bool b);
     static QString mkBool(const QString& s);
     bool toBool(const QString& s);
-    static QString fixString(const QString &str, bool encode = FALSE);
+    static QString fixString(const QString &str, bool encode = false);
     static bool onlyAscii;
     static QString mkStdSet(const QString& prop);
     static QString getComment(const QDomNode& n);
