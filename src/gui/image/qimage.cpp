@@ -2602,7 +2602,7 @@ QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) con
     }
 
     bool invertible;
-    mat = mat.invert(&invertible);                // invert matrix
+    mat = mat.inverted(&invertible);                // invert matrix
     if (hd == 0 || wd == 0 || !invertible)        // error, return null image
         return QImage();
 

@@ -301,7 +301,7 @@ void qt_vectorize_region(const QRegion &region, QPainterPath *path)
 
 }
 
-#ifdef QT_DEBUG
+#ifdef QPP_DEBUG
 static void qt_debug_path(const QPainterPath &path)
 {
     const char *names[] = {
