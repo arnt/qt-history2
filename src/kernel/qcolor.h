@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#33 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#34 $
 **
 ** Definition of QColor class
 **
@@ -81,8 +81,12 @@ public:
     uint   alloc();
     uint   pixel()  const;
 
-    static int maxColors();
-    static int numBitPlanes();
+    static int  maxColors();
+    static int  numBitPlanes();
+
+    static int  enterAllocationContext();
+    static void leaveAllocationContext();
+    static void destroyAllocationContext( int );
 
 #if defined(_WS_WIN_)
     static HANDLE hPal()  { return hpal; }

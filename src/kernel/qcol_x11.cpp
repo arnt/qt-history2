@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#46 $
 **
 ** Implementation of QColor class for X11
 **
@@ -16,7 +16,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#46 $");
 
 
 /*****************************************************************************
@@ -339,4 +339,37 @@ void QColor::setRgb( int r, int g, int b )
     } else {
 	alloc();				// alloc now
     }
+}
+
+
+/*!
+  Enters a color allocation context.
+
+  \sa leaveAllocationContext(), destroyAllocationContext()
+*/
+
+int QColor::enterAllocationContext()
+{
+    return 0;
+}
+
+/*!
+  Leaves a color allocation context.
+
+  \sa enterAllocationContext(), destroyAllocationContext()
+*/
+
+void QColor::leaveAllocationContext()
+{
+}
+
+/*!
+  Destroys all colors that were allocated in a color allocation context,
+  \e context.
+
+  \sa enterAllocationContext(), destroyAllocationContext()
+*/
+
+void QColor::destroyAllocationContext( int context )
+{
 }

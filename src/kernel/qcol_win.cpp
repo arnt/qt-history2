@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#28 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#28 $");
 
 
 /*****************************************************************************
@@ -178,4 +178,22 @@ void QColor::setRgb( int r, int g, int b )
     } else {
 	alloc();				// alloc now
     }
+}
+
+
+/*
+  The allocation context functions does nothing under Windows.
+*/
+
+int QColor::enterAllocationContext()
+{
+    return 0;
+}
+
+void QColor::leaveAllocationContext()
+{
+}
+
+void QColor::destroyAllocationContext( int )
+{
 }
