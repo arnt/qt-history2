@@ -3963,7 +3963,7 @@ int QTextString::width( int idx ) const
 {
      int w = 0;
      QTextStringChar *c = &at( idx );
-     if ( c->c.unicode() == 0xad )
+     if ( c->c.unicode() == 0xad || c->c.unicode() == 0x2028 )
 	 return 0;
 #ifndef QT_NO_TEXTCUSTOMITEM
      if( c->isCustom() ) {
@@ -5246,8 +5246,6 @@ QTextFormatter::QTextFormatter()
 {
 }
 
-/* only used for bidi or complex text reordering
- */
 QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line,
 						   QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
@@ -5841,7 +5839,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    lineStart->h = h;
   		    DO_FLOW( lineStart );
 		}
-		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, lastWasHardBreak ? Qt::AlignAuto : align, w - x );
+		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
@@ -5869,8 +5867,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    } else { // ... otherwise if we had a breakable char, break there
   		DO_FLOW( lineStart );
 		i = lastBreak;
-		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ),
-					lastWasHardBreak ? Qt::AlignAuto : align, w - string->at( i ).x );
+		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ),align, w - string->at( i ).x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
