@@ -77,6 +77,14 @@
 */
 
 /*!
+    \fn void QRegion::translate(const QPoint &point)
+
+    \overload
+
+    Translates to the given \a point.
+*/
+
+/*!
     \fn Region  QRegion::handle() const
 
     Returns the region's handle.
@@ -351,3 +359,10 @@ QRegion& QRegion::operator-=(const QRegion &r)
 */
 QRegion& QRegion::operator^=(const QRegion &r)
     { return *this = *this ^ r; }
+
+/*!
+    \fn bool QRegion::operator!=(const QRegion &other) const
+
+    Returns true if this region is different from the \a other region;
+    otherwise returns false.
+*/

@@ -118,7 +118,7 @@ QPointArray::QPointArray(int nPoints, const QCOORD *points)
 
 
 /*!
-    Translates all points in the array by \a (dx, dy).
+    Translates all points in the array by (\a{dx}, \a{dy}).
 */
 
 void QPointArray::translate(int dx, int dy)
@@ -141,7 +141,7 @@ void QPointArray::translate(int dx, int dy)
 
 /*!
     Reads the coordinates of the point at position \a index within the
-    array and writes them into \a *x and \a *y.
+    array and writes them into \c{*}\a{x} and \c{*}\a{y}.
 */
 
 void QPointArray::point(int index, int *x, int *y) const
@@ -171,7 +171,8 @@ void QPointArray::point(int index, int *x, int *y) const
 
 /*!
     \fn void QPointArray::setPoint(int index, int x, int y)
-    Sets the point at position \a index in the array to \a (x, y).
+
+    Sets the point at position \a index in the array to (\a{x}, \a{y}).
 */
 
 /*!

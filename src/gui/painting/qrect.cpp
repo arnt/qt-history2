@@ -66,6 +66,28 @@ QRect::RectangleMode QRect::static_rect_mode = QRect::InclusiveRectangles;
     \sa QPoint, QSize
 */
 
+/*!
+    \enum QRect::RectangleMode
+
+    \value ExclusiveRectangles
+    \value InclusiveRectangles
+*/
+
+/*!
+    \fn void QRect::setRectangleMode(RectangleMode mode)
+
+    Sets the rectangle's drawing \a mode.
+
+    \sa rectangleMode()
+*/
+
+/*!
+    \fn RectangleMode QRect::rectangleMode()
+
+    Returns the rectangle's drawing \l{RectangleMode}.
+
+    \sa setRectangleMode()
+*/
 
 /*****************************************************************************
   QRect member functions
@@ -414,8 +436,8 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::rect(int *x, int *y, int *w, int *h) const
 
-    Extracts the rectangle parameters as the position \a *x, \a *y and
-    width \a *w and height \a *h.
+    Extracts the rectangle parameters as the position \c{*}\a{x},
+    \c{*}\a{y} and width \c{*}\a{w} and height \c{*}\a{h}.
 
     \sa setRect(), coords()
 */
@@ -424,8 +446,9 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::coords(int *xp1, int *yp1, int *xp2, int *yp2) const
 
-    Extracts the rectangle parameters as the top-left point \a *xp1,
-    \a *yp1 and the bottom-right point \a *xp2, \a *yp2.
+    Extracts the rectangle parameters as the top-left point
+    \c{*}\a{xp1}, \c{*}\a{yp1} and the bottom-right point
+    \c{*}\a{xp2}, \c{*}\a{yp2}.
 
     \sa setCoords(), rect()
 */
@@ -556,8 +579,8 @@ void QRect::moveCenter(const QPoint &p)
 /*!
   \fn  void QRect::setRect(int x, int y, int w, int h)
 
-  Sets the coordinates of the rectangle's top-left corner to \a (x,
-  y), and its size to \a (w, h).
+  Sets the coordinates of the rectangle's top-left corner to (\a{x},
+  \a{y}), and its size to (\a{w}, \a{h}).
 
   \sa rect(), setCoords()
 */
@@ -566,9 +589,9 @@ void QRect::moveCenter(const QPoint &p)
 /*!
   \fn void QRect::setCoords(int xp1, int yp1, int xp2, int yp2)
 
-    Sets the coordinates of the rectangle's top-left corner to \a
-    (xp1, yp1), and the coordinates of its bottom-right corner to \a
-    (xp2, yp2).
+    Sets the coordinates of the rectangle's top-left corner to
+    (\a{xp1}, \a{yp1}), and the coordinates of its bottom-right corner to
+    (\a{xp2}, \a{yp2}).
 
     \sa coords(), setRect()
 */

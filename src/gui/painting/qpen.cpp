@@ -52,13 +52,13 @@
     Example:
     \code
     QPainter painter;
-    QPen     pen(red, 2);             // red solid line, 2 pixels wide
+    QPen pen(red, 2);                 // red solid line, 2 pixels wide
     painter.begin(&anyPaintDevice);   // paint something
     painter.setPen(pen);              // set the red, wide pen
     painter.drawRect(40,30, 200,100); // draw a rectangle
     painter.setPen(blue);             // set blue pen, 0 pixel width
     painter.drawLine(40,30, 240,130); // draw a diagonal in rectangle
-    painter.end();                      // painting done
+    painter.end();                    // painting done
     \endcode
 
     See the \l Qt::PenStyle enum type for a complete list of pen
