@@ -18,41 +18,40 @@
 **
 **********************************************************************/
 
-#ifndef LISTBOXDND_H
-#define LISTBOXDND_H
+#ifndef LISTDND_H
+#define LISTDND_H
 
-#include <qptrlist.h>
-#include <qlistbox.h>
-#include "listdnd.h"
+#include <qobject.h>
+#include <qscrollview.h>
 
-class QWidget;
-class QListBox;
-typedef QPtrList<QListBoxItem> ListBoxItemList;
-
-class ListBoxDnd : public ListDnd
+class ListDnd : public QObject
 {
     Q_OBJECT
 public:
-    // dragModes are enumerated in ListDnd
-    ListBoxDnd( QListBox * eventSource, const char * name = 0 );
-    
-signals:
-    void dropped( QListBoxItem * );
-
-public slots:
-    void confirmDrop( QListBoxItem * );
+    enum DragMode { None = 0, External = 1, Internal = 2, Both = 3, Move = 4, NullDrop = 8 };
+    ListDnd( QScrollView * eventSource, const char *name = 0 );
+    void setDragMode( const int mode );
+    int dragMode() const;
+    bool eventFilter( QObject *, QEvent * event );
 
 protected:
+    virtual bool dragEnterEvent( QDragEnterEvent * event );
+    virtual bool dragLeaveEvent( QDragLeaveEvent * );
+    virtual bool dragMoveEvent( QDragMoveEvent * event );
     virtual bool dropEvent( QDropEvent * event );
+    virtual bool mousePressEvent( QMouseEvent * event );
     virtual bool mouseMoveEvent( QMouseEvent * event );
-    virtual void updateLine( const QPoint & pos );
+    virtual void updateLine( const QPoint & dragPos );
     virtual bool canDecode( QDragEnterEvent * event );
 
-private:
-    QListBoxItem * itemAt( QPoint pos );
-    int buildList( ListBoxItemList & list );
-    void insertList( ListBoxItemList & list );
-    void removeList( ListBoxItemList & list );
+    QScrollView * src;
+    QWidget * line;
+    QPoint mousePressPos;
+    QPoint dragPos;
+    bool dragInside;
+    bool dragDelete;
+    bool dropConfirmed;
+    int dMode;
 };
 
-#endif //LISTBOXDND_H
+#endif // LISTDND_H

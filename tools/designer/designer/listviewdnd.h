@@ -21,24 +21,21 @@
 #ifndef LISTVIEWDND_H
 #define LISTVIEWDND_H
 
-#include <qobject.h>
 #include <qptrlist.h>
 #include <qlistview.h>
+#include "listdnd.h"
 
 class QWidget;
 class QListView;
 typedef QPtrList<QListViewItem> ListViewItemList;
 
-class ListViewDnd : public QObject
+class ListViewDnd : public ListDnd
 {
     Q_OBJECT
 public:
-    enum DragMode { None = 0, External = 1, Internal = 2, Both = 3, Move = 4, NullDrop = 8, Flat = 16 };
+    enum DragMode { Flat = 16 }; // see ListDnd::DragMode
 
     ListViewDnd( QListView * eventSource, const char * name = 0 );
-    void setDragMode( int mode );
-    int dragMode() const;
-    bool eventFilter( QObject *, QEvent * event ); 
 
 signals:
     void dropped( QListViewItem * );
@@ -47,29 +44,17 @@ public slots:
     void confirmDrop( QListViewItem * );
 
 protected:
-    bool dragEnterEvent( QDragEnterEvent * event );
-    bool dragLeaveEvent( QDragLeaveEvent * );
-    bool dragMoveEvent( QDragMoveEvent * event );
-    bool dropEvent( QDropEvent * event );
-    bool mousePressEvent( QMouseEvent * event );
-    bool mouseMoveEvent( QMouseEvent * event );
-
+    virtual bool dropEvent( QDropEvent * event );
+    virtual bool mouseMoveEvent( QMouseEvent * event );
+    virtual void updateLine( const QPoint & pos );
+    virtual bool canDecode( QDragEnterEvent * event );
 private:
-    void updateLine( const QPoint & pos );
     QListViewItem * itemAt( QPoint pos );
     int dropDepth( QListViewItem * item, QPoint pos );
     int buildFlatList( ListViewItemList & list );
     int buildTreeList( ListViewItemList & list );
     void setVisibleItems( bool b );
-    QListView * src;
-    QWidget * line;
-    QPoint mousePressPos;
-    QPoint dragPos;
-    bool dragInside;
-    bool dragDelete;
-    bool dropConfirmed;
     ListViewItemList disabledItems;
-    int dMode;
 };
 
 #endif //LISTVIEWDND_H

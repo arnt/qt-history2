@@ -37,91 +37,12 @@ public:
 };
 // ------------------------------------------------------------------
 
-ListBoxDnd::ListBoxDnd( QListBox * eventSource, const char *name )
-    : QObject( eventSource, name ), 
-      dragInside( FALSE ), dragDelete( TRUE ), dropConfirmed( FALSE ), dMode( Both )
-{
-    src = eventSource;
-    src->setAcceptDrops( true );
-    src->installEventFilter( this );
-
-    line = new QWidget( src->viewport(), 0, Qt::WStyle_NoBorder | WStyle_StaysOnTop );
-    line->setBackgroundColor( Qt::black );
-    line->resize( src->viewport()->width(), 2 );
-    line->hide();
-    
-}
-
-void ListBoxDnd::setDragMode( int mode )
-{
-    dMode = mode;
-}
-
-int ListBoxDnd::dragMode() const
-{
-    return dMode;
-}
-
-bool ListBoxDnd::eventFilter( QObject *, QEvent * event )
-{
-    switch ( event->type() ) {
-    case QEvent::DragEnter:
-	return dragEnterEvent( (QDragEnterEvent *) event );
-    case QEvent::DragLeave:
-	return dragLeaveEvent( (QDragLeaveEvent *) event );
-    case QEvent::DragMove:
-	return dragMoveEvent( (QDragMoveEvent *) event );
-    case QEvent::Drop:
-	return dropEvent( (QDropEvent *) event );
-    case QEvent::MouseButtonPress:
-	return mousePressEvent( (QMouseEvent *) event );
-    case QEvent::MouseMove:
-	return mouseMoveEvent( (QMouseEvent *) event );
-    default:
-	break;
-    }
-    return FALSE;
-}
+ListBoxDnd::ListBoxDnd( QListBox * eventSource, const char * name )
+    : ListDnd( eventSource, name ) { }
 
 void ListBoxDnd::confirmDrop( QListBoxItem * )
 {
     dropConfirmed = TRUE;
-}
-
-bool ListBoxDnd::dragEnterEvent( QDragEnterEvent * event )
-{
-    if ( dMode == None ) {
-	return TRUE;
-    }
-
-    bool ok = ( ( ( dMode & Both ) == Both ) ||
-		( ( dMode & Internal ) && ( event->source() == src ) ) ||
-		( ( dMode & External ) && ( event->source() != src ) ) );
-    
-    if ( ok && ListBoxItemDrag::canDecode( event ) ) {
-	event->accept();
-	dragInside = TRUE;
-	if ( !( dMode & NullDrop ) ) {
-	    updateLine( event->pos() );
-	    line->show();
-	}
-    }
-    return TRUE;
-}
-
-bool ListBoxDnd::dragLeaveEvent( QDragLeaveEvent * )
-{
-    dragInside = FALSE;
-    line->hide();
-    return TRUE;
-}
-
-bool ListBoxDnd::dragMoveEvent( QDragMoveEvent * event )
-{
-    if ( dragInside && dMode && !( dMode & NullDrop ) ) {
-	updateLine( event->pos() );
-    }
-    return TRUE;
 }
 
 bool ListBoxDnd::dropEvent( QDropEvent * event )
@@ -137,7 +58,7 @@ bool ListBoxDnd::dropEvent( QDropEvent * event )
 	QPoint pos = event->pos();
 	QListBoxItem *item = itemAt( pos );
 
-	if ( ListBoxItemDrag::decode( event, src, item ) ) {
+	if ( ListBoxItemDrag::decode( event, (QListBox *) src, item ) ) {
 	    event->accept();
 	    emit dropped( 0 ); // Use ID instead of item?
 	}
@@ -149,13 +70,6 @@ bool ListBoxDnd::dropEvent( QDropEvent * event )
     return TRUE;
 }
 
-bool ListBoxDnd::mousePressEvent( QMouseEvent * event )
-{
-    if ( event->button() == LeftButton )
-	mousePressPos = event->pos();
-    return FALSE;
-}
-
 bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
 {
     if ( event->state() & LeftButton ) {
@@ -163,7 +77,7 @@ bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
 
 	    ListBoxItemList list;
 	    buildList( list );
-	    ListBoxItemDrag * dragobject = new ListBoxItemDrag( list, src );
+	    ListBoxItemDrag * dragobject = new ListBoxItemDrag( list, (QListBox *) src );
 
 	    if ( dMode & Move ) {
 		removeList( list ); // "hide" items
@@ -187,7 +101,7 @@ bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
 
 int ListBoxDnd::buildList( ListBoxItemList & list )
 {
-    QListBoxItem * i = src->firstItem();
+    QListBoxItem * i = ((QListBox *)src)->firstItem();
     while ( i ) {
 	if ( i->isSelected() )
 	    list.append( i );
@@ -200,7 +114,7 @@ void ListBoxDnd::insertList( ListBoxItemList & list )
 {
     QListBoxItem * i = list.first();
     while ( i ) {
-	src->insertItem( i, i->prev() );
+	((QListBox *)src)->insertItem( i, i->prev() );
 	i = list.next();
     }
 }
@@ -209,18 +123,19 @@ void ListBoxDnd::removeList( ListBoxItemList & list )
 {
     QListBoxItem * i = list.first();
     while ( i ) {
-	src->takeItem( i ); // remove item from QListView
+	((QListBox *)src)->takeItem( i ); // remove item from QListBox
 	i = list.next();
     }
 }
 
-void ListBoxDnd::updateLine( const QPoint &dragPos )
+void ListBoxDnd::updateLine( const QPoint & dragPos )
 {
+    QListBox * src = (QListBox *) this->src;
     QListBoxItem *item = itemAt( dragPos );
 
     int ypos = item ? 
 	( src->itemRect( item ).bottom() - ( line->height() / 2 ) ) : 
-	( src->itemRect( src->firstItem() ).top() );
+	( src->itemRect( ((QListBox *)src)->firstItem() ).top() );
 
     line->resize( src->viewport()->width(), line->height() );
     line->move( 0, ypos );
@@ -228,6 +143,7 @@ void ListBoxDnd::updateLine( const QPoint &dragPos )
 
 QListBoxItem *ListBoxDnd::itemAt( QPoint pos )
 {
+    QListBox * src = (QListBox *) this->src;
     QListBoxItem * result = src->itemAt( pos );
     QListBoxItem * last = src->item( src->count() - 1 );
     int i = src->index( result );
@@ -240,11 +156,17 @@ QListBoxItem *ListBoxDnd::itemAt( QPoint pos )
     return result;
 }
 
+bool ListBoxDnd::canDecode( QDragEnterEvent * event )
+{
+    return ListBoxItemDrag::canDecode( event );
+}
+
+
 // ------------------------------------------------------------------
 // The Dragobject Implementation ------------------------------------
 // ------------------------------------------------------------------
 
-ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList &items, QWidget * parent, const char * name )
+ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, QWidget * parent, const char * name )
     : QStoredDrag( "qt/listboxitem", parent, name )
 {
     // ### FIX!
@@ -283,7 +205,7 @@ bool ListBoxItemDrag::canDecode( QDragMoveEvent * event )
     return event->provides( "qt/listboxitem" );
 }
 
-bool ListBoxItemDrag::decode( QDropEvent * event, QListBox *parent, QListBoxItem *after )
+bool ListBoxItemDrag::decode( QDropEvent * event, QListBox * parent, QListBoxItem * after )
 {
     QByteArray data = event->encodedData( "qt/listboxitem" );
 
