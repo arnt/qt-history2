@@ -1,0 +1,195 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/tools/qglist.h#1 $
+**
+** Definition of QGList and QGListIterator classes
+**
+** Author  : Haavard Nord
+** Created : 920624
+**
+** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+**
+*****************************************************************************/
+
+#ifndef QGLIST_H
+#define QGLIST_H
+
+#include "qcollect.h"
+
+class QStream;
+
+
+// --------------------------------------------------------------------------
+// Qdnode class (internal doubly linked list node)
+//
+
+class Qdnode
+{
+friend class QGList;
+friend class QGListIterator;
+public:
+    GCI	    getData()	{ return data; }
+private:
+    GCI	    data;
+    Qdnode *prev;
+    Qdnode *next;
+    Qdnode( GCI d )	{ data = d; }
+};
+
+
+// --------------------------------------------------------------------------
+// QGList class
+//
+
+class QGList : public QCollection		// doubly linked generic list
+{
+friend class QGListIterator;
+friend class QGVector;				// needed by QGVector::asList
+public:
+    uint  count() const	 { return numNodes; }	// return number of nodes
+
+    QStream &read( QStream & );			// read list from stream
+    QStream &write( QStream & ) const;		// write list to stream
+
+protected:
+    QGList();					// create empty list
+    QGList( const QGList & );			// make copy of other list
+   ~QGList();
+
+    QGList &operator=( const QGList & );	// assign from other list
+
+    bool  insert( GCI );			// add item at start of list
+    bool  inSort( GCI );			// add item sorted in list
+    bool  append( GCI );			// add item at end of list
+    bool  insertAt( GCI, uint index );		// add item at i'th position
+    bool  remove( GCI = 0 );			// remove one item (0=current)
+    bool  removeFirst();			// remove first item
+    bool  removeLast();				// remove last item
+    GCI	  take();				// take out current item
+    GCI	  takeFirst();				// take out first item
+    GCI	  takeLast();				// take out last item
+
+    void  clear();				// remove all items
+
+    int	  findRef( GCI, bool = TRUE );		// find exact item in list
+    int	  find( GCI, bool = TRUE );		// find equal item in list
+
+    uint  containsRef( GCI );			// get number of exact matches
+    uint  contains( GCI );			// get number of equal matches
+
+    GCI	  at( uint index );			// access item at i'th pos
+    uint  at() const { return curIndex; }	// get current index
+
+    GCI	  get() const;				// get current item
+
+    GCI	  cfirst() const;			// get ptr to first list item
+    GCI	  first();				// get first item in list
+    GCI	  last();				// get last item in list
+    GCI	  next();				// get next item in list
+    GCI	  prev();				// get previous item in list
+
+    void  asVector( QGVector & ) const;		// put items in vector
+
+    int	  apply( GCF, void * ) const;		// apply function to all items
+
+    virtual int compareItems( GCI, GCI );
+    virtual QStream &read( QStream &, GCI & );	// read item from stream
+    virtual QStream &write( QStream &, GCI ) const; // write item to stream
+
+private:
+    Qdnode *firstNode;				// first node
+    Qdnode *lastNode;				// last node
+    Qdnode *curNode;				// current node
+    uint    curIndex;				// current index
+    uint    numNodes;				// number of nodes
+    QGList *iterators;				// list of iterators
+
+    Qdnode *locate( uint );			// get node at i'th pos
+    Qdnode *unlink();				// unlink node
+};
+
+
+inline bool QGList::removeFirst()
+{
+    first();
+    return remove();
+}
+
+inline bool QGList::removeLast()
+{
+    last();
+    return remove();
+}
+
+inline GCI QGList::at( uint index )
+{
+    Qdnode *n = locate( index );
+    return n ? n->data : 0;
+}
+
+inline GCI QGList::get() const
+{
+    return curNode ? curNode->data : 0;
+}
+
+inline GCI QGList::cfirst() const
+{
+    return firstNode ? firstNode->data : 0;
+}
+
+
+// --------------------------------------------------------------------------
+// QGList stream functions
+//
+
+QStream &operator>>( QStream &, QGList & );
+QStream &operator<<( QStream &, const QGList & );
+
+
+// --------------------------------------------------------------------------
+// QGListIterator class
+//
+
+class QGListIterator				// QGList iterator
+{
+friend class QGList;
+protected:
+    QGListIterator( const QGList & );
+   ~QGListIterator();
+
+    bool  atFirst() const;			// test if at first item
+    bool  atLast()  const;			// test if at last item
+    GCI	  toFirst();				// move to first item
+    GCI	  toLast();				// move to last item
+
+    GCI	  get() const;				// get current item
+    GCI	  operator()();				// get current and move to next
+    GCI	  operator++();				// move to next item (prefix)
+    GCI	  operator+=(uint);			// move n positions forward
+    GCI	  operator--();				// move to prev item (prefix)
+    GCI	  operator-=(uint);			// move n positions backward
+
+protected:
+    QGList *list;				// reference to list
+
+private:
+    Qdnode  *curNode;				// current node in list
+};
+
+
+inline bool QGListIterator::atFirst() const
+{
+    return curNode == list->firstNode;
+}
+
+inline bool QGListIterator::atLast() const
+{
+    return curNode == list->lastNode;
+}
+
+inline GCI QGListIterator::get() const
+{
+    return curNode ? curNode->data : 0;
+}
+
+
+#endif	// QGLIST_H

@@ -1,0 +1,132 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/tools/qdict.h#1 $
+**
+** Definition of QDict template/macro class
+**
+** Author  : Haavard Nord
+** Created : 920821
+**
+** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+**
+*****************************************************************************/
+
+#ifndef QDICT_H
+#define QDICT_H
+
+#include "qgdict.h"
+
+
+#if defined(USE_MACROCLASS)
+
+#include <generic.h>
+
+#if !defined(name2)
+#define name2(a,b)    name2_xx(a,b)
+#define name2_xx(a,b) a##b
+#endif
+
+#if defined(DEFAULT_MACROCLASS)
+#define QDictdeclare QDictMdeclare
+#define QDict QDictM
+#endif
+#define QDictM(type) name2(QDictM_,type)
+
+#define QDictMdeclare(type)						      \
+class QDictM(type) : public QGDict					      \
+{									      \
+public:									      \
+    QDictM(type)(int size=15,bool cs=TRUE,bool ck=TRUE):QGDict(size,cs,ck,0){}\
+   ~QDictM(type)()			{ clear(); }			      \
+    uint  count()   const		{ return QGDict::count(); }	      \
+    bool  isEmpty() const		{ return QGDict::count() == 0; }      \
+    bool  insert( const char *k, const type *d )			      \
+					{ return QGDict::look(k,GCI(d),1)!=0;}\
+    bool  remove( const char *k )	{ return QGDict::remove(k); }	      \
+    void  clear()			{ QGDict::clear(); }		      \
+    type *find( const char *k ) const					      \
+		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0);}   \
+    type *operator[]( const char *k ) const				      \
+		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0);}   \
+    void  statistics() const		{ QGDict::statistics(); }	      \
+private:								      \
+    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }	      \
+}
+
+
+#if defined(DEFAULT_MACROCLASS)
+#define QDictIteratordeclare QDictIteratorMdeclare
+#define QDictIterator QDictIteratorM
+#endif
+#define QDictIteratorM(type) name2(QDictIteratorM_,type)
+
+#define QDictIteratorMdeclare(type)					      \
+class QDictIteratorM(type) : public QGDictIterator			      \
+{									      \
+public:									      \
+    QDictIteratorM(type)(const QDictM(type) &d) :QGDictIterator((QGDict &)d){}\
+   ~QDictIteratorM(type)()    {}					      \
+    int	  count()   const     { return dict->count(); }			      \
+    bool  isEmpty() const     { return dict->count() == 0; }		      \
+    type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }   \
+    operator type *() const   { return (type *)QGDictIterator::get(); }	      \
+    type *current()   const   { return (type *)QGDictIterator::get(); }	      \
+    type *operator()()	      { return (type *)QGDictIterator::operator()();} \
+    type *operator++()	      { return (type *)QGDictIterator::operator++(); }\
+    type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}\
+}
+
+#endif // USE_MACROCLASS
+
+
+#if defined(USE_TEMPLATECLASS)
+
+#if defined(DEFAULT_TEMPLATECLASS)
+#undef	QDict
+#define QDict QDictT
+#endif
+
+template<class type> class QDictT : public QGDict
+{
+public:
+    QDictT(int size=15,bool cs=TRUE,bool ck=TRUE) : QGDict(size,cs,ck,0) {}
+   ~QDictT()				{ clear(); }
+    uint  count()   const		{ return QGDict::count(); }
+    bool  isEmpty() const		{ return QGDict::count() == 0; }
+    bool  insert( const char *k, const type *d )
+					{ return QGDict::look(k,GCI(d),1)!=0; }
+    bool  remove( const char *k )	{ return QGDict::remove(k); }
+    void  clear()			{ QGDict::clear(); }
+    type *find( const char *k ) const
+		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
+    type *operator[]( const char *k ) const
+		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
+    void  statistics() const		{ QGDict::statistics(); }
+private:
+    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
+};
+
+
+#if defined(DEFAULT_TEMPLATECLASS)
+#undef	QDictIterator
+#define QDictIterator QDictIteratorT
+#endif
+
+template<class type> class QDictIteratorT : public QGDictIterator
+{
+public:
+    QDictIteratorT(const QDictT<type> &d) :QGDictIterator((QGDict &)d) {}
+   ~QDictIteratorT()	      {}
+    int	  count()   const     { return dict->count(); }
+    bool  isEmpty() const     { return dict->count() == 0; }
+    type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
+    operator type *() const   { return (type *)QGDictIterator::get(); }
+    type *current()   const   { return (type *)QGDictIterator::get(); }
+    type *operator()()	      { return (type *)QGDictIterator::operator()();}
+    type *operator++()	      { return (type *)QGDictIterator::operator++(); }
+    type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
+};
+
+#endif // USE_TEMPLATECLASS
+
+
+#endif // QDICT_H
