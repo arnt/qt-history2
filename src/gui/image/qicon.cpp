@@ -444,7 +444,7 @@ QIcon::QIcon(const QIcon &other)
     executable.
 */
 QIcon::QIcon(const QString &fileName)
-    :d(0)
+    : d(0)
 {
     QFileInfo info(fileName);
     QString suffix = info.suffix();
@@ -459,9 +459,10 @@ QIcon::QIcon(const QString &fileName)
 }
 
 
-/*!  Creates an icon with a specific icon \a engine. The icon takes
- *   ownership of the engine.
- */
+/*!
+    Creates an icon with a specific icon \a engine. The icon takes
+    ownership of the engine.
+*/
 QIcon::QIcon(QIconEngine *engine)
     :d(new QIconPrivate)
 {
@@ -493,7 +494,7 @@ QIcon &QIcon::operator=(const QIcon &other)
 }
 
 /*!
-   Returns the icon as a QVariant
+   Returns the icon as a QVariant.
 */
 QIcon::operator QVariant() const
 {
@@ -522,7 +523,7 @@ int QIcon::serialNumber() const
   state, generating one if necessary. The pixmap might be smaller than
   requested, but never larger.
 */
-QPixmap QIcon::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) const
+QPixmap QIcon::pixmap(const QSize &size, Mode mode, State state) const
 {
     if (!d)
         return QPixmap();
@@ -534,7 +535,7 @@ QPixmap QIcon::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) c
   mode, and \a state. The result might be smaller than requested, but
   never larger.
 */
-QSize QIcon::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state) const
+QSize QIcon::actualSize(const QSize &size, Mode mode, State state) const
 {
     if (!d)
         return QSize();
@@ -542,10 +543,11 @@ QSize QIcon::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)
 }
 
 
-/*! Uses the \a painter to paint the icon with specified \a alignment,
- *  required \a mode, and \a state into the rectangle \a rect/
+/*!
+    Uses the \a painter to paint the icon with specified \a alignment,
+    required \a mode, and \a state into the rectangle \a rect/
 */
-void QIcon::paint(QPainter *painter, const QRect &rect,  Qt::Alignment alignment, QIcon::Mode mode, QIcon::State state) const
+void QIcon::paint(QPainter *painter, const QRect &rect,  Qt::Alignment alignment, Mode mode, State state) const
 {
     if (!d || !painter)
         return;
@@ -570,11 +572,14 @@ bool QIcon::isDetached() const
 }
 
 
-/*!  Adds \a pixmap to the icon, as a specialization for \a mode and
- *   \a state. Note: custom icon engines are free to ignore
- *   additionally added pixmaps.
- */
-void QIcon::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state)
+/*!
+    Adds \a pixmap to the icon, as a specialization for \a mode and
+    \a state.
+    
+    Custom icon engines are free to ignore additionally added
+    pixmaps.
+*/
+void QIcon::addPixmap(const QPixmap &pixmap, Mode mode, State state)
 {
     if (pixmap.isNull())
         return;
@@ -619,42 +624,53 @@ void QIcon::addFile(const QString &fileName, const QSize &size, Mode mode, State
 static int widths[2] = { 22, 32 };
 static int heights[2] = { 22, 32 };
 
-/*! \compat */
 static QSize pixmapSize(QIcon::Size which) {
     int i = 0;
-    if (which == QIcon::Large)
+    if (which == Large)
         i = 1;
     return QSize(widths[i], heights[i]);
 }
 
-/*! \compat */
-QPixmap QIcon::pixmap(Size size, QIcon::Mode mode, QIcon::State state) const
+/*!
+    \enum Size
+    \compat
+
+    \value Small  Use QStyle::pixelMetric(QStyle::PM_SmallIconSize) instead.
+    \value Large  Use QStyle::pixelMetric(QStyle::PM_LargeIconSize) instead.
+    \value Automatic  N/A.
+*/
+
+/*!
+    Use pixmap(QSize(...), \a mode, \a state), where the first
+    argument is an appropriate QSize instead of a \l Size value.
+
+    \sa pixmapSize()
+*/
+QPixmap QIcon::pixmap(Size size, Mode mode, State state) const
 { return pixmap(::pixmapSize(size), mode, state); }
-/*! \compat */
-QPixmap QIcon::pixmap(Size size, bool enabled, QIcon::State state) const
+
+/*
+    Use pixmap(QSize(...), mode, \a state), where the first argument
+    is an appropriate QSize instead of a \l Size value, and the
+    second argument is QIcon::Normal or QIcon::Disabled, depending on
+    the value of \a enabled.
+
+    \sa pixmapSize()
+*/
+QPixmap QIcon::pixmap(Size size, bool enabled, State state) const
 { return pixmap(::pixmapSize(size), enabled ? Normal : Disabled, state); }
-/*! \compat */
+
+/*!
+    Use one of the other pixmap() overloads.
+*/
 QPixmap QIcon::pixmap() const
 { return pixmap(::pixmapSize(Small), Normal, Off); }
 
-
-
 /*!
-  \compat
-
-  Set the preferred size for all small or large pixmaps that are
-  generated after this call. If \a which is Small, sets the preferred
-  size of small generated pixmaps to \a size. Similarly, if \a which is
-  Large, sets the preferred size of large generated pixmaps to \a size.
-
-  Note that cached pixmaps will not be regenerated, so it is recommended
-  that you set the preferred icon sizes before generating any icon sets.
-  Also note that the preferred icon sizes will be ignored for icon sets
-  that have been created using both small and large pixmaps.
-
-  \sa pixmapSize()
+    The pixmap() function now takes a QSize instead of a QIcon::Size,
+    so there is no need for this function in new code.
 */
-void QIcon::setPixmapSize(QIcon::Size which, const QSize &size)
+void QIcon::setPixmapSize(Size which, const QSize &size)
 {
     int i = 0;
     if (which == Large)
@@ -664,19 +680,33 @@ void QIcon::setPixmapSize(QIcon::Size which, const QSize &size)
 }
 
 /*!
-    \compat
-
-    If \a which is Small, returns the preferred size of a small
-    generated icon; if \a which is Large, returns the preferred size
-    of a large generated icon.
-
-  \sa setPixmapSize()
+    Use QStyle::pixelMetric() with QStyle::PM_SmallIconSize or
+    QStyle::PM_LargeIconSize as the first argument, depending on \a
+    which.
 */
-QSize QIcon::pixmapSize(QIcon::Size which)
+QSize QIcon::pixmapSize(Size which)
 {
     return ::pixmapSize(which);
 }
 
+/*!
+    \fn void QIcon::reset(const QPixmap &pixmap, Size size)
+
+    Use the constructor that takes a QPixmap and operator=().
+*/
+
+/*!
+    \fn void QIcon::setPixmap(const QPixmap &pixmap, Size size, Mode mode, State state)
+
+    Use addPixmap(\a pixmap, \a mode, \a state) instead. The \a size
+    parameter is ignored.
+*/
+
+/*!
+    \fn void QIcon::setPixmap(const QString &fileName, Size size, Mode mode, State state)
+
+    Use addFile(\a fileName, \a mode, \a state) instead. The \a size
+    parameter is ignored.
+*/
+
 #endif // QT3_SUPPORT
-
-
