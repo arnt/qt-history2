@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#1 $
+** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#2 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -14,6 +14,23 @@ extern "C" {
 }
 #include <qimage.h>
 #include <qiodev.h>
+
+/*
+  The following PNG Test Suite (October 1996) images do not load correctly,
+  with no apparent reason:
+
+    ct0n0g04.png
+    ct1n0g04.png
+    ctzn0g04.png
+    cm0n0g04.png
+    cm7n0g04.png
+    cm9n0g04.png
+
+  All others load apparently correctly, and to the minimal QImage equivalent.
+
+  All QImage formats output to reasonably efficient PNG equivalents.  Never
+  to greyscale.
+*/
 
 static
 void iod_read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
@@ -111,7 +128,6 @@ void read_png_image(QImageIO* iio)
 	image.setColor(0, qRgb(255,255,255) );
     } else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE
     && (info_ptr->valid & PNG_INFO_PLTE)
-    && (!(info_ptr->valid & PNG_INFO_tRNS))
     && info_ptr->num_palette <= 256)
     {
 	// 1-bit and 8-bit color
@@ -131,20 +147,40 @@ void read_png_image(QImageIO* iio)
 		)
 	    );
 	}
+	if ( info_ptr->valid & PNG_INFO_tRNS ) {
+	    image.setAlphaBuffer( TRUE );
+	    int i;
+	    for (i=0; i<info_ptr->num_trans; i++) {
+		image.setColor(i, image.color(i) | 
+		    (info_ptr->trans[i] << 24));
+	    }
+	    while (i < info_ptr->num_palette) {
+		image.setColor(i, image.color(i) | (0xff << 24));
+		i++;
+	    }
+	}
     } else if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY)
     {
 	// 8-bit greyscale
 	int ncols = info_ptr->bit_depth < 8 ? 1 << info_ptr->bit_depth : 256;
+	int g = info_ptr->trans_values.gray;
+	if ( info_ptr->bit_depth > 8 ) {
+	    g >>= (info_ptr->bit_depth-8);
+	}
 	png_read_update_info(png_ptr, info_ptr);
 	image.create(info_ptr->width,info_ptr->height,8,ncols);
 	for (int i=0; i<ncols; i++) {
 	    int c = i*255/(ncols-1);
-	    image.setColor( i, qRgb(c,c,c) );
+	    image.setColor( i, 0xff000000 | qRgb(c,c,c) );
+	}
+	if ( info_ptr->valid & PNG_INFO_tRNS ) {
+	    image.setAlphaBuffer( TRUE );
+	    image.setColor(g, 0x00ffffff & image.color(g));
 	}
     } else {
 	// 32-bit
 	png_set_expand(png_ptr);
-	
+
 	if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
 	    info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
 	{
@@ -152,7 +188,8 @@ void read_png_image(QImageIO* iio)
 	}
 
 	// Only add filler if no alpha, or we'll get 5 channel data!
-	if (!(info_ptr->color_type & PNG_COLOR_MASK_ALPHA))
+	if (!(info_ptr->color_type & PNG_COLOR_MASK_ALPHA)
+	   && !(info_ptr->valid & PNG_INFO_tRNS))
 	    png_set_filler(png_ptr, 0xff,
 		QImage::systemByteOrder() == QImage::BigEndian ?
 		    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
@@ -161,21 +198,37 @@ void read_png_image(QImageIO* iio)
 	image.create(info_ptr->width,info_ptr->height,32);
     }
 
-    if (info_ptr->channels == 4) {
+    if (info_ptr->channels == 4 || 
+	(info_ptr->channels == 3 && (info_ptr->valid & PNG_INFO_tRNS))) {
 	image.setAlphaBuffer(TRUE);
-    } else {
-	image.setAlphaBuffer(FALSE);
     }
 
     uchar** jt = image.jumpTable();
     row_pointers=new png_bytep[info_ptr->height];
-    {
-	    uint y;
-	    for (y=0; y<info_ptr->height; y++) {
-		    row_pointers[y]=jt[y];
-	    }
+
+    for (uint y=0; y<info_ptr->height; y++) {
+	row_pointers[y]=jt[y];
     }
+
     png_read_image(png_ptr, row_pointers);
+
+#if 0 // LibPNG seems to be taking care of this.
+    if (image.depth()==32 && (info_ptr->valid & PNG_INFO_tRNS)) {
+	QRgb trans = 0xFF000000 | qRgb(
+	      (info_ptr->trans_values.red << 8 >> info_ptr->bit_depth)&0xff,
+	      (info_ptr->trans_values.green << 8 >> info_ptr->bit_depth)&0xff,
+	      (info_ptr->trans_values.blue << 8 >> info_ptr->bit_depth)&0xff);
+	for (uint y=0; y<info_ptr->height; y++) {
+	    for (uint x=0; x<info_ptr->width; x++) {
+		if (((uint**)jt)[y][x] == trans) {
+		    ((uint**)jt)[y][x] &= 0x00FFFFFF;
+		} else {
+		}
+	    }
+	}
+    }
+#endif
+
     delete row_pointers;
 
     iio->setImage(image);
@@ -216,28 +269,23 @@ void write_png_image(QImageIO* iio)
 
     const QImage& image = iio->image();
 
-    info_ptr->width = image.width();
-    info_ptr->height = image.height();
+    png_set_IHDR(png_ptr, info_ptr, image.width(), image.height(),
+	image.depth() == 1 ? 1 : 8 /* per channel */,
+	image.depth() == 32
+	    ? image.hasAlphaBuffer()
+		? PNG_COLOR_TYPE_RGB_ALPHA
+		: PNG_COLOR_TYPE_RGB
+	    : PNG_COLOR_TYPE_PALETTE, 0, 0, 0);
 
-    switch (image.depth()) {
-      case 1:
-	info_ptr->bit_depth = 1;
-	info_ptr->color_type = PNG_COLOR_TYPE_PALETTE;
-	break;
-      case 8:
-	info_ptr->bit_depth = 8;
-	info_ptr->color_type = PNG_COLOR_TYPE_PALETTE;
-	break;
-      case 32:
-	info_ptr->bit_depth = 8; // per channel
-	info_ptr->color_type = image.hasAlphaBuffer()
-	    ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
-	break;
-    }
-
+    //png_set_sBIT(png_ptr, info_ptr, 8);
     info_ptr->sig_bit.red = 8;
     info_ptr->sig_bit.green = 8;
     info_ptr->sig_bit.blue = 8;
+
+#if 0 // Doesn't seem to do anything, either way.
+    if (image.depth() == 1 && image.bitOrder() == QImage::BigEndian)
+       png_set_packswap(png_ptr);
+#endif
 
     if (image.numColors()) {
 	// Paletted
@@ -270,6 +318,9 @@ void write_png_image(QImageIO* iio)
     if ( image.hasAlphaBuffer() ) {
 	info_ptr->sig_bit.alpha = 8;
     }
+
+    if ( QImage::systemByteOrder() == QImage::BigEndian )
+	png_set_bgr(png_ptr);
 
     png_write_info(png_ptr, info_ptr);
 
