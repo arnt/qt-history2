@@ -83,7 +83,7 @@ void FormFile::setFormWindow( FormWindow *f )
     if ( fw )
 	fw->setFormFile( this );
     if ( seperateSource )
-	parseCode( cod );
+	parseCode( cod, FALSE );
 }
 
 void FormFile::setEditor( SourceEditor *e )
@@ -473,7 +473,7 @@ void FormFile::createFormCode()
 						    (*it).returnType, (*it).access ) +
 	       "\n" + iface->createEmptyFunction();
     }
-    parseCode( cod );
+    parseCode( cod, FALSE );
 }
 
 bool FormFile::loadCode()
@@ -485,7 +485,7 @@ bool FormFile::loadCode()
     }
     QTextStream ts( &f );
     cod = ts.read();
-    parseCode( cod );
+    parseCode( cod, FALSE );
     timeStamp.update();
     return TRUE;
 }
@@ -500,7 +500,7 @@ void FormFile::setCodeEdited( bool b )
     codeEdited = b;
 }
 
-void FormFile::parseCode( const QString &txt )
+void FormFile::parseCode( const QString &txt, bool allowModify )
 {
     if ( !formWindow() )
 	return;
@@ -543,7 +543,8 @@ void FormFile::parseCode( const QString &txt )
 	    slot.returnType = (*it).returnType;
 	    newSlots << slot;
 	    funcs.insert( (*it).name, (*it).body );
-	    setFormWindowModified( TRUE );
+	    if ( allowModify )
+		setFormWindowModified( TRUE );
 	}
 	MetaDataBase::setFunctionComments( formWindow(), (*it).name, (*it).comments );
     }
@@ -556,7 +557,7 @@ void FormFile::syncCode()
 {
     if ( !editor() )
 	return;
-    parseCode( editor()->editorInterface()->text() );
+    parseCode( editor()->editorInterface()->text(), TRUE );
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( iface && iface->supports( LanguageInterface::StoreFormCodeSeperate ) )
 	cod = editor()->editorInterface()->text();

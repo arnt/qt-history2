@@ -93,7 +93,7 @@ private:
     void setFormWindowModified( bool m );
     void setCodeModified( bool m );
     QString codeExtension() const;
-    void parseCode( const QString &txt );
+    void parseCode( const QString &txt, bool allowModify );
     bool checkFileName( bool allowBreak );
 
 private:
