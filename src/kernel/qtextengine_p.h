@@ -277,6 +277,10 @@ public:
     static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder );
 
     const QCharAttributes *attributes();
+
+    void setFont(int from, int length, QFontPrivate *font);
+    void setBoundary(int strPos);
+
     void shape( int item ) const;
 
     // ### we need something for justification

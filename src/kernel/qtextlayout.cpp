@@ -232,6 +232,9 @@ void QTextLayout::setBoundary( int strPos )
 	// already a split at the requested position
 	return;
     }
+    // we have to ensure we get correct shaping for arabic and other
+    // complex languages so we have to call shape _before_ we split the item.
+    d->shape(itemToSplit);
     d->splitItem( itemToSplit, strPos - d->items[itemToSplit].position );
 }
 

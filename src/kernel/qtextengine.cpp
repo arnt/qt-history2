@@ -898,14 +898,50 @@ const QCharAttributes *QTextEngine::attributes()
     return charAttributes;
 }
 
+void QTextEngine::setFont(int from, int length, QFontPrivate *font)
+{
+    if (from >= string.length())
+	return;
+
+    setBoundary(from+length);
+    setBoundary(from);
+
+    int item = 0;
+    while ( item < items.size() && items[item].position <= from )
+	item++;
+    item--;
+    while (items[item].position < from+length) {
+	QScriptItem &si = items[item];
+	QFont::Script script = (QFont::Script)si.analysis.script;
+
+	if (si.fontEngine && si.fontEngine->deref())
+	    delete si.fontEngine;
+	si.fontEngine = fnt->engineForScript( script );
+	si.fontEngine->ref();
+	++item;
+    }
+}
+
+void QTextEngine::setBoundary(int strPos)
+{
+    if ( strPos <= 0 || strPos >= string.length() )
+	return;
+
+    int itemToSplit = 0;
+    while ( itemToSplit < items.size() && items[itemToSplit].position <= strPos )
+	itemToSplit++;
+    itemToSplit--;
+    if ( items[itemToSplit].position == strPos ) {
+	// already a split at the requested position
+	return;
+    }
+    splitItem( itemToSplit, strPos - items[itemToSplit].position );
+}
+
 void QTextEngine::splitItem( int item, int pos )
 {
     if ( pos <= 0 )
 	return;
-
-    // we have to ensure we get correct shaping for arabic and other
-    // complex languages so we have to call shape _before_ we split the item.
-    shape(item);
 
     if ( items.d->size == items.d->alloc )
 	items.resize( items.d->size + 1 );
