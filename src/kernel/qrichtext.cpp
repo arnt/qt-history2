@@ -1963,6 +1963,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     if ( p )
 	p->setFont( fmt->font() );
     QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
+    int leading = fm.leading();
     
     widthUsed = 0;
 
@@ -1977,6 +1978,8 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 		p->setFont( fmt->font() );
 	    else
 		fm = QFontMetrics( fmt->font() );
+	    if ( fm.leading() > leading )
+		leading = fm.leading();
 	}
 
 	QTextRichString::Item* item = &paragraph->text.items[current];
@@ -2037,8 +2040,8 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
     last = lastSpace;
     rh = lastHeight;
-    rasc = lastAsc;
-    rdesc = lastDesc;
+    rasc = lastAsc + leading/2;
+    rdesc = lastDesc + leading/2;
 
     height = QMAX(rh, rasc+rdesc+1);
     base = rasc;
