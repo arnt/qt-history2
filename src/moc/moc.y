@@ -64,6 +64,7 @@ void yyerror( const char *msg );
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <qplatformdefs.h> 
 
 bool isEnumType( const char* type );
  int enumIndex( const char* type );
@@ -1802,7 +1803,6 @@ QCString combinePath( const char *infile, const char *outfile )
     a = aDir;
     QString bDir( cleanDirPath( b ) );
     b = bDir;
-    QCString r;
     int i = 0;
     int ncommondirs = 0;
     while ( a[i] && a[i] == b[i] ) {
@@ -1824,6 +1824,24 @@ QCString combinePath( const char *infile, const char *outfile )
 	    return a;
 	b = &b[i];
     }
+
+    if(b.left(3) == "../") {
+	QCString cdir;
+	char currentName[PATH_MAX];
+	if ( QT_GETCWD(currentName,PATH_MAX) >= 0 ) {
+	    cdir = QString::fromLatin1(currentName);
+	    replace(cdir.data(),'\\','/');
+	    if(isRelativePath(cdir)) 
+		fprintf(stderr, "Got relative path from CWD, help!?");
+	}
+	while(b.left(3) == "../") {
+	    int l = cdir.findRev('/');
+	    a.prepend(cdir.right(cdir.length() - l - 1) + '/');
+	    cdir = cdir.left(l);
+	    b = b.right(b.length() - 3);
+	}
+    }
+    QCString r;
     i = b.contains('/');
     while ( i-- > 0 )
 	r += "../";
