@@ -1,0 +1,38 @@
+diff -uwr template/Makefile solaris-cc-shared/Makefile
+--- template/Makefile	Fri Aug 23 07:46:54 1996
++++ solaris-cc-shared/Makefile	Fri Aug 23 08:11:20 1996
+@@ -4,8 +4,8 @@
+ # Read PORTING for instructions how to port Qt to a new platform.
+ #
+ 
+-CC	= gcc
+-CFLAGS	= -O2 -fno-strength-reduce -Wall
++CC	= CC
++CFLAGS	= -O2 -pto
+ LFLAGS	= -lqt
+ 
+ all: moc library tutorial examples
+diff -uwr template/library/Makefile solaris-cc-shared/library/Makefile
+--- template/library/Makefile	Fri Aug 23 07:47:30 1996
++++ solaris-cc-shared/library/Makefile	Fri Aug 23 08:13:44 1996
+@@ -76,7 +76,7 @@
+ .SUFFIXES: .cpp
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) -pic $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ 
+@@ -86,9 +86,8 @@
+ 
+ library: $(OBJECTS) $(METAOBJ)
+ 	-rm -f ../../../lib/libqt.so.$(VERSION)
+-	$(CC) -shared -Wl,-soname,libqt.so.0 \
+-		-o ../../../lib/libqt.so.$(VERSION) \
+-		$(OBJECTS) $(METAOBJ) -lX11
++	$(CC) -G -o ../../../lib/libqt.so.$(VERSION) \
++		$(OBJECTS) $(METAOBJ) -lX11 -lsocket
+ 	-rm -f ../../../lib/libqt.so
+ 	-ln -sf libqt.so.$(VERSION) ../../../lib/libqt.so
+ 	-rm -f ../../../lib/libqt.so.0
