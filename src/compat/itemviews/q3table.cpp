@@ -3566,7 +3566,7 @@ void Q3Table::selectRow(int row)
 	return;
     bool isDataTable = false;
 #ifndef QT_NO_SQL
-    isDataTable = ::qt_cast<QDataTable*>(this) != 0;
+    isDataTable = ::qt_cast<Q3DataTable*>(this) != 0;
 #endif
     if (isDataTable || selectionMode() == SingleRow) {
 	setCurrentCell(row, currentColumn());
