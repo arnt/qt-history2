@@ -50,7 +50,7 @@ public:
                         const QRect &r,
                         const QPalette &pal,
                         SFlags flags = Style_Default,
-                        const QStyleOption& = QStyleOption::Default) const;
+                        const Q3StyleOption& = Q3StyleOption::Default) const;
 
     void drawControl(ControlElement element,
                       QPainter *p,
@@ -58,7 +58,7 @@ public:
                       const QRect &r,
                       const QPalette &pal,
                       SFlags how = Style_Default,
-                      const QStyleOption& = QStyleOption::Default) const;
+                      const Q3StyleOption& = Q3StyleOption::Default) const;
 
     void drawComplexControl(ComplexControl control,
                              QPainter *p,
@@ -68,25 +68,25 @@ public:
                              SFlags how = Style_Default,
                              SCFlags sub = SC_All,
                              SCFlags subActive = SC_None,
-                             const QStyleOption& = QStyleOption::Default) const;
+                             const Q3StyleOption& = Q3StyleOption::Default) const;
 
     QRect querySubControlMetrics(ComplexControl control,
                                   const QWidget *widget,
                                   SubControl sc,
-                                  const QStyleOption& = QStyleOption::Default) const;
+                                  const Q3StyleOption& = Q3StyleOption::Default) const;
 
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
     QSize sizeFromContents(ContentsType contents,
                             const QWidget *widget,
                             const QSize &contentsSize,
-                            const QStyleOption& = QStyleOption::Default) const;
+                            const Q3StyleOption& = Q3StyleOption::Default) const;
 
     QRect subRect(SubRect r, const QWidget *widget) const;
 
-    QPixmap stylePixmap(StylePixmap, const QWidget * = 0, const QStyleOption& = QStyleOption::Default) const;
+    QPixmap stylePixmap(StylePixmap, const QWidget * = 0, const Q3StyleOption& = Q3StyleOption::Default) const;
 
-    int styleHint(StyleHint sh, const QWidget *, const QStyleOption & = QStyleOption::Default,
+    int styleHint(StyleHint sh, const QWidget *, const Q3StyleOption & = Q3StyleOption::Default,
                   QStyleHintReturn* = 0) const;
 
 private:

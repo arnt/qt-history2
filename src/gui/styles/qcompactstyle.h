@@ -35,7 +35,7 @@ public:
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
     void drawControl(ControlElement element, QPainter *p, const QWidget *w, const QRect &r,
-                      const QPalette &pal, SFlags how = Style_Default, const QStyleOption& = QStyleOption::Default);
+                      const QPalette &pal, SFlags how = Style_Default, const Q3StyleOption& = Q3StyleOption::Default);
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

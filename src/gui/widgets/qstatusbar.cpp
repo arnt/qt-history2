@@ -474,7 +474,7 @@ void QStatusBar::paintEvent(QPaintEvent *)
             if (item->w->isVisible()) {
                 if (item->p && item->w->x()-1 < psx)
                     psx = item->w->x()-1;
-                Q4StyleOption opt(0, Q4StyleOption::Default);
+                QStyleOption opt(0, QStyleOption::Default);
                 opt.rect.setRect(item->w->x() - 1, item->w->y() - 1,
                                  item->w->width() + 2, item->w->height() + 2);
                 opt.palette = palette();

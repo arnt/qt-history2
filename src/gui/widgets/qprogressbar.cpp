@@ -201,20 +201,20 @@ void QProgressBar::setProgress(int progress, int totalSteps)
     This property is QString::null if progress counting has not started.
 */
 
-static Q4StyleOptionProgressBar getStyleOption(const QProgressBar *pb)
+static QStyleOptionProgressBar getStyleOption(const QProgressBar *pb)
 {
-    Q4StyleOptionProgressBar opt(0);
+    QStyleOptionProgressBar opt(0);
     opt.init(pb);
     opt.totalSteps = pb->totalSteps();
     opt.progress = pb->progress();
     opt.progressString = pb->progressString();
-    opt.extras = Q4StyleOptionProgressBar::None;
+    opt.extras = QStyleOptionProgressBar::None;
     if (pb->centerIndicator())
-        opt.extras |= Q4StyleOptionProgressBar::CenterIndicator;
+        opt.extras |= QStyleOptionProgressBar::CenterIndicator;
     if (pb->percentageVisible())
-        opt.extras |= Q4StyleOptionProgressBar::PercentageVisible;
+        opt.extras |= QStyleOptionProgressBar::PercentageVisible;
     if (pb->indicatorFollowsStyle())
-        opt.extras |= Q4StyleOptionProgressBar::IndicatorFollowsStyle;
+        opt.extras |= QStyleOptionProgressBar::IndicatorFollowsStyle;
     return opt;
 }
 
@@ -226,7 +226,7 @@ QSize QProgressBar::sizeHint() const
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     int cw = style().pixelMetric(QStyle::PM_ProgressBarChunkWidth, this);
-    Q4StyleOptionProgressBar opt = getStyleOption(this);
+    QStyleOptionProgressBar opt = getStyleOption(this);
     return style().sizeFromContents(QStyle::CT_ProgressBar, &opt,
                                     QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8), fm, this);
 }
@@ -367,7 +367,7 @@ void QProgressBar::paintEvent(QPaintEvent *)
     QPainter *p = &paint;
     drawFrame(p);
     
-    Q4StyleOptionProgressBar opt = getStyleOption(this);
+    QStyleOptionProgressBar opt = getStyleOption(this);
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, &opt, this), this);
     
     style().drawControl(QStyle::CE_ProgressBarGroove, &opt, p, this);

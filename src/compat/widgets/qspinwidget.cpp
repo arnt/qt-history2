@@ -148,9 +148,9 @@ void QSpinWidget::mousePressEvent(QMouseEvent *e)
 
 }
 
-static Q4StyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
+static QStyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
 {
-    Q4StyleOptionSpinBox opt(0);
+    QStyleOptionSpinBox opt(0);
     opt.init(spin);
     opt.parts = 0;
     opt.buttonSymbols = (QAbstractSpinBox::ButtonSymbols)spin->buttonSymbols();
@@ -171,7 +171,7 @@ static Q4StyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
 
 void QSpinWidget::arrange()
 {
-    Q4StyleOptionSpinBox opt = getStyleOption(this);
+    QStyleOptionSpinBox opt = getStyleOption(this);
     d->up = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt,
                                                               QStyle::SC_SpinBoxUp, this), this);
     d->down = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt,
@@ -316,7 +316,7 @@ void QSpinWidget::wheelEvent(QWheelEvent *e)
 void QSpinWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    Q4StyleOptionSpinBox opt = getStyleOption(this);
+    QStyleOptionSpinBox opt = getStyleOption(this);
 
     if (d->theButton & 1)
         opt.activeParts = QStyle::SC_SpinBoxDown;

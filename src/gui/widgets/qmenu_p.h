@@ -74,7 +74,7 @@ public:
     //syncronous operation (ie exec())
     uint sync : 1;
     QPointer<QAction> syncAction;
-    Q4StyleOptionMenuItem getStyleOption(const QAction *action) const;
+    QStyleOptionMenuItem getStyleOption(const QAction *action) const;
 
     //passing of mouse events up the parent heirarchy
     QPointer<QMenu> activeMenu;

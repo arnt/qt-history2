@@ -622,7 +622,7 @@ QSize QTabWidget::sizeHint() const
         t = t.boundedTo(QApplication::desktop()->size());
     QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
               s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
-    Q4StyleOption opt(0);
+    QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -653,7 +653,7 @@ QSize QTabWidget::minimumSizeHint() const
 
     QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
               s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
-    Q4StyleOption opt(0);
+    QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;

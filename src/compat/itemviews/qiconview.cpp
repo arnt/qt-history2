@@ -2039,7 +2039,7 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     if (!view)
         return;
 
-    Q4StyleOptionFocusRect opt(0);
+    QStyleOptionFocusRect opt(0);
     opt.rect = textRect(false);
     opt.palette = cg;
     if (isSelected()) {
@@ -5298,7 +5298,7 @@ void QIconView::drawRubber(QPainter *p)
     QPoint pnt(d->rubber->x(), d->rubber->y());
     pnt = contentsToViewport(pnt);
     // ### this needs qrubberband too.
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.rect.setRect(pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height());
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -5500,7 +5500,7 @@ void QIconView::drawDragShapes(const QPoint &pos)
     p.begin(viewport());
     p.translate(-contentsX(), -contentsY());
     p.setPen(QPen(Qt::color0));
-    Q4StyleOptionFocusRect opt(0);
+    QStyleOptionFocusRect opt(0);
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
     opt.backgroundColor = palette().base();

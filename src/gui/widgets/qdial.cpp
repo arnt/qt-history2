@@ -189,7 +189,7 @@ void QDialPrivate::repaintScreen(const QRect &cr)
         p.setBrush(Qt::NoBrush);
         p.drawRect(br);
         p.restore();
-        Q4StyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt(0);
         opt.rect = br;
         opt.palette = pal;
         opt.state = QStyle::Style_Default;

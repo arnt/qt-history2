@@ -127,7 +127,7 @@ public:
     bool autoraise          :1;
 
     int titleBarState() const;
-    Q4StyleOptionTitleBar getStyleOption() const;
+    QStyleOptionTitleBar getStyleOption() const;
     void readColors();
 };
 
@@ -140,9 +140,9 @@ inline int QTitleBarPrivate::titleBarState() const
 #define d d_func()
 #define q q_func()
 
-Q4StyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
+QStyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
 {
-    Q4StyleOptionTitleBar opt(0);
+    QStyleOptionTitleBar opt(0);
     opt.init(q);
     opt.text = q->windowTitle();
     opt.icon = q->windowIcon();
@@ -252,7 +252,7 @@ void QTitleBar::mousePressEvent(QMouseEvent *e)
         emit doActivate();
     if (e->button() == Qt::LeftButton) {
         d->pressed = true;
-        Q4StyleOptionTitleBar opt = d->getStyleOption();
+        QStyleOptionTitleBar opt = d->getStyleOption();
         QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
         switch (ctrl) {
         case QStyle::SC_TitleBarSysMenu:
@@ -316,7 +316,7 @@ void QTitleBar::mousePressEvent(QMouseEvent *e)
 
 void QTitleBar::contextMenuEvent(QContextMenuEvent *e)
 {
-    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt = d->getStyleOption();
     QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
     if(ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu) {
         e->accept();
@@ -330,7 +330,7 @@ void QTitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton && d->pressed) {
         e->accept();
-        Q4StyleOptionTitleBar opt = d->getStyleOption();
+        QStyleOptionTitleBar opt = d->getStyleOption();
         QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
 
         if (ctrl == d->buttonDown) {
@@ -403,7 +403,7 @@ void QTitleBar::mouseMoveEvent(QMouseEvent *e)
     case QStyle::SC_TitleBarCloseButton:
         {
             QStyle::SCFlags last_ctrl = d->buttonDown;
-            Q4StyleOptionTitleBar opt = d->getStyleOption();
+            QStyleOptionTitleBar opt = d->getStyleOption();
             d->buttonDown = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
             if (d->buttonDown != last_ctrl)
                 d->buttonDown = QStyle::SC_None;
@@ -456,7 +456,7 @@ void QTitleBar::resizeEvent(QResizeEvent *r)
 
 void QTitleBar::paintEvent(QPaintEvent *)
 {
-    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt = d->getStyleOption();
     opt.parts = QStyle::SC_TitleBarLabel;
     opt.activeParts = d->buttonDown;
     if (testWFlags(Qt::WStyle_SysMenu)) {
@@ -505,7 +505,7 @@ void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
         return;
     }
     e->accept();
-    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt = d->getStyleOption();
     switch (style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this)) {
     case QStyle::SC_TitleBarLabel:
         emit doubleClicked();
@@ -524,7 +524,7 @@ void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
 void QTitleBar::cutText()
 {
     QFontMetrics fm(font());
-    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt = d->getStyleOption();
     int maxw = style().querySubControlMetrics(QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel,
                                               this).width();
     if (!d->window)
@@ -601,7 +601,7 @@ bool QTitleBar::event(QEvent *e)
         d->act = wasActive;
     } else if (e->type() == QEvent::WindowIconChange) {
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-        Q4StyleOptionTitleBar opt = d->getStyleOption();
+        QStyleOptionTitleBar opt = d->getStyleOption();
         QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, &opt,
                                                      QStyle::SC_TitleBarSysMenu, this);
         QPixmap icon = windowIcon();
@@ -654,7 +654,7 @@ bool QTitleBar::autoRaise() const
 QSize QTitleBar::sizeHint() const
 {
     ensurePolished();
-    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt = d->getStyleOption();
     QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, &opt,
                                                  QStyle::SC_TitleBarSysMenu, this);
     return QSize(menur.width(), style().pixelMetric(QStyle::PM_TitleBarHeight, this));

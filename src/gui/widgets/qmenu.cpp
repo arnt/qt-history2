@@ -127,7 +127,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
         }
 
         //let the style modify the above size..
-        Q4StyleOptionMenuItem opt = getStyleOption(action);
+        QStyleOptionMenuItem opt = getStyleOption(action);
         opt.rect = q->rect();
         sz = q->style().sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q->fontMetrics(), q);
 
@@ -489,9 +489,9 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     }
 }
 
-Q4StyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
+QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 {
-    Q4StyleOptionMenuItem opt(0);
+    QStyleOptionMenuItem opt(0);
     opt.palette = q->palette();
     opt.state = QStyle::Style_Default;
 
@@ -508,16 +508,16 @@ Q4StyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     if (mouseDown)
         opt.state |= QStyle::Style_Down;
     if (!checkable)
-        opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+        opt.checkState = QStyleOptionMenuItem::NotCheckable;
     else
-        opt.checkState = action->isChecked() ? Q4StyleOptionMenuItem::Checked
-                                             : Q4StyleOptionMenuItem::Unchecked;
+        opt.checkState = action->isChecked() ? QStyleOptionMenuItem::Checked
+                                             : QStyleOptionMenuItem::Unchecked;
     if (action->menu())
-        opt.menuItemType = Q4StyleOptionMenuItem::SubMenu;
+        opt.menuItemType = QStyleOptionMenuItem::SubMenu;
     else if (action->isSeparator())
-        opt.menuItemType = Q4StyleOptionMenuItem::Separator;
+        opt.menuItemType = QStyleOptionMenuItem::Separator;
     else
-        opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+        opt.menuItemType = QStyleOptionMenuItem::Normal;
     opt.icon = action->icon();
     QString textAndAccel = action->text();
     QKeySequence seq = action->shortcut();
@@ -963,7 +963,7 @@ QSize QMenu::sizeHint() const
     }
     s.setWidth(s.width()+q->style().pixelMetric(QStyle::PM_MenuHMargin, q));
     s.setHeight(s.height()+q->style().pixelMetric(QStyle::PM_MenuVMargin, q));
-    Q4StyleOption opt(0);
+    QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -1233,22 +1233,22 @@ void QMenu::paintEvent(QPaintEvent *e)
         emptyArea -= adjustedActionReg;
         p.setClipRegion(adjustedActionReg);
 
-        Q4StyleOptionMenuItem opt = d->getStyleOption(action->action);
+        QStyleOptionMenuItem opt = d->getStyleOption(action->action);
         opt.rect = adjustedActionRect;
         style().drawControl(QStyle::CE_MenuItem, &opt, &p, this);
     }
 
-    Q4StyleOptionMenuItem menuOpt(0);
+    QStyleOptionMenuItem menuOpt(0);
     menuOpt.palette = palette();
     menuOpt.state = QStyle::Style_Default;
-    menuOpt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
     menuOpt.menuRect = rect();
     menuOpt.maxIconWidth = 0;
     menuOpt.tabWidth = 0;
     //draw the scroller regions..
     if (d->scroll) {
         const int scrollerHeight = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
-        menuOpt.menuItemType = Q4StyleOptionMenuItem::Scroller;
+        menuOpt.menuItemType = QStyleOptionMenuItem::Scroller;
         if (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp) {
             menuOpt.rect.setRect(fw, fw, width() - (fw * 2), scrollerHeight);
             emptyArea -= QRegion(menuOpt.rect);
@@ -1266,7 +1266,7 @@ void QMenu::paintEvent(QPaintEvent *e)
     }
     //paint the tear off..
     if (d->tearoff) {
-        menuOpt.menuItemType = Q4StyleOptionMenuItem::TearOff;
+        menuOpt.menuItemType = QStyleOptionMenuItem::TearOff;
         menuOpt.rect.setRect(fw, fw, width() - (fw * 2),
                              style().pixelMetric(QStyle::PM_MenuTearoffHeight, this));
         if (d->scroll && d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
@@ -1287,7 +1287,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         borderReg += QRect(0, height()-fw, width(), fw); //bottom
         p.setClipRegion(borderReg);
         emptyArea -= borderReg;
-        Q4StyleOptionFrame frame(0);
+        QStyleOptionFrame frame(0);
         frame.rect = rect();
         frame.palette = palette();
         frame.state = QStyle::Style_Default;
@@ -1299,8 +1299,8 @@ void QMenu::paintEvent(QPaintEvent *e)
     //finally the rest of the space
     p.setClipRegion(emptyArea);
     menuOpt.state = QStyle::Style_Default;
-    menuOpt.menuItemType = Q4StyleOptionMenuItem::EmptyArea;
-    menuOpt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    menuOpt.menuItemType = QStyleOptionMenuItem::EmptyArea;
+    menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
     menuOpt.rect = rect();
     menuOpt.menuRect = rect();
     style().drawControl(QStyle::CE_MenuEmptyArea, &menuOpt, &p, this);

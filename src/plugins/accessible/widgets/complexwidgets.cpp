@@ -332,7 +332,7 @@ QRect QAccessibleComboBox::rect(int child) const
     }
 
     if (sc != QStyle::SC_None) {
-        Q4StyleOptionComboBox option(0);
+        QStyleOptionComboBox option(0);
         r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, &option,
                                                        sc, comboBox());
     }
@@ -509,7 +509,7 @@ QRect QAccessibleTitleBar::rect(int child) const
 
     QRect r;
     if (sc != QStyle::SC_None) {
-        Q4StyleOptionTitleBar option(0);
+        QStyleOptionTitleBar option(0);
         r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, &option, sc, titleBar());
     }
 

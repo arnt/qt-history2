@@ -239,7 +239,7 @@ int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QWidget *widget) cons
 /*! \reimp */
 void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
                                      QPainter *p, const QRect &r, const QPalette &pal,
-                                     SFlags flags, const QStyleOption& opt) const
+                                     SFlags flags, const Q3StyleOption& opt) const
 {
     switch (pe) {
     case PE_HeaderSection:
@@ -614,7 +614,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                                    const QRect &r,
                                    const QPalette &pal,
                                    SFlags flags,
-                                   const QStyleOption& opt) const
+                                   const Q3StyleOption& opt) const
 {
     if (widget == singleton->hoverWidget)
         flags |= Style_MouseOver;
@@ -1219,7 +1219,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                             SFlags flags,
                             SCFlags controls,
                             SCFlags active,
-                            const QStyleOption& opt) const
+                            const Q3StyleOption& opt) const
 {
     if (widget == singleton->hoverWidget)
         flags |= Style_MouseOver;
@@ -1497,7 +1497,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,
                                               SubControl subcontrol,
-                                              const QStyleOption& opt) const
+                                              const Q3StyleOption& opt) const
 {
     switch (control) {
     case CC_SpinBox: {
@@ -1672,7 +1672,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 /*! \reimp */
 int QMotifPlusStyle::styleHint(StyleHint hint,
                                const QWidget *widget,
-                               const QStyleOption &opt,
+                               const Q3StyleOption &opt,
                                QStyleHintReturn *returnData) const
 {
     int ret;

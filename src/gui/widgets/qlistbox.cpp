@@ -3872,7 +3872,7 @@ void QListBox::paintCell(QPainter * p, int row, int col)
     if (d->current == i && hasFocus() && !i->custom_highlight) {
         if (numColumns() > 1)
             cw = i->width(this);
-        Q4StyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt(0);
         opt.rect.setRect(0, 0, cw, ch);
         opt.palette = pal;
         opt.state = QStyle::Style_FocusAtBorder;
@@ -4127,7 +4127,7 @@ void QListBox::drawRubber()
         return;
     QPainter p(viewport());
     // p.setRasterOp(NotROP); // ### fix - use qrubberband instead
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.rect = d->rubber->normalize();
     opt.palette = palette();
     opt.state = QStyle::Style_Rectangle;

@@ -1936,9 +1936,9 @@ const QPixmap * Q3ListViewItem::pixmap(int column) const
     \sa paintBranches(), Q3ListView::drawContentsOffset()
 */
 
-static Q4StyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListViewItem *item)
+static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListViewItem *item)
 {
-    Q4StyleOptionListView opt(0);
+    QStyleOptionListView opt(0);
     opt.init(lv);
     opt.parts = QStyle::SC_None;
     opt.activeParts = QStyle::SC_None;
@@ -1951,26 +1951,26 @@ static Q4StyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListVi
     opt.rootIsDecorated = lv->rootIsDecorated();
     bool firstItem = true;
     while (item) {
-        Q4StyleOptionListViewItem lvi(0);
+        QStyleOptionListViewItem lvi(0);
         lvi.height = item->height();
         lvi.totalHeight = item->totalHeight();
         lvi.itemY = item->itemPos();
         lvi.childCount = item->childCount();
-        lvi.extras = Q4StyleOptionListViewItem::None;
+        lvi.extras = QStyleOptionListViewItem::None;
         lvi.state = QStyle::Style_Default;
         if (item->isEnabled())
             lvi.state |= QStyle::Style_Enabled;
         if (item->isOpen())
             lvi.state |= QStyle::Style_Open;
         if (item->isExpandable())
-            lvi.extras |= Q4StyleOptionListViewItem::Expandable;
+            lvi.extras |= QStyleOptionListViewItem::Expandable;
         if (item->multiLinesEnabled())
-            lvi.extras |= Q4StyleOptionListViewItem::MultiLine;
+            lvi.extras |= QStyleOptionListViewItem::MultiLine;
         if (item->isVisible())
-            lvi.extras |= Q4StyleOptionListViewItem::Visible;
+            lvi.extras |= QStyleOptionListViewItem::Visible;
         if (item->parent() && item->parent()->rtti() == 1
             && static_cast<QCheckListItem *>(item->parent())->type() == QCheckListItem::Controller)
-            lvi.extras |= Q4StyleOptionListViewItem::ParentControl;
+            lvi.extras |= QStyleOptionListViewItem::ParentControl;
         opt.items.append(lvi);
         if (!firstItem) {
             item = item->nextSibling();
@@ -2138,7 +2138,7 @@ void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
             textheight++;
         if (textheight < height()) {
             int w = lv->treeStepSize() / 2;
-            Q4StyleOptionListView opt = getStyleOption(lv, this);
+            QStyleOptionListView opt = getStyleOption(lv, this);
             opt.rect.setRect(0, textheight, w + 1, height() - textheight + 1);
             opt.palette = pal;
             opt.parts = QStyle::SC_ListViewExpand;
@@ -2190,7 +2190,7 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r
 {
     Q3ListView *lv = listView();
     if (lv) {
-        Q4StyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt(0);
         opt.rect = r;
         opt.palette = pal;
         if (isSelected()) {
@@ -2229,7 +2229,7 @@ void Q3ListViewItem::paintBranches(QPainter * p, const QPalette & pal,
         lv->paintEmptyArea(p, QRect(0, 0, w, h));
     if (!visible || !lv)
         return;
-    Q4StyleOptionListView opt = getStyleOption(lv, this);
+    QStyleOptionListView opt = getStyleOption(lv, this);
     opt.rect.setRect(0, y, w, h);
     opt.palette = pal;
     opt.parts = QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand;
@@ -2995,7 +2995,7 @@ void Q3ListView::drawContentsOffset(QPainter * p, int ox, int oy,
 
 void Q3ListView::paintEmptyArea(QPainter * p, const QRect & rect)
 {
-    Q4StyleOptionListView opt = getStyleOption(this, 0);
+    QStyleOptionListView opt = getStyleOption(this, 0);
     opt.rect = rect;
     opt.sortColumn = d->sortcolumn;
     style().drawComplexControl(QStyle::CC_ListView, &opt, p, this);
@@ -4174,7 +4174,7 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
 
         if (draw < d->drawables.size()) {
             Q3ListViewPrivate::DrawableItem it = d->drawables.at(draw);
-            Q4StyleOptionListView opt = getStyleOption(this, i);
+            QStyleOptionListView opt = getStyleOption(this, i);
             x1 -= treeStepSize() * (it.l - 1);
             QStyle::SubControl ctrl = style().querySubControl(QStyle::CC_ListView, &opt,
                                                               QPoint(x1, e->pos().y()), this);
@@ -4386,7 +4386,7 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
         if (draw < d->drawables.size()) {
             int x1 = vp.x() + d->h->offset() - d->h->cellPos(d->h->mapToActual(0)) -
                      (treeStepSize() * (d->drawables.at(draw).l - 1));
-            Q4StyleOptionListView opt = getStyleOption(this, i);
+            QStyleOptionListView opt = getStyleOption(this, i);
             QStyle::SubControl ctrl = style().querySubControl(QStyle::CC_ListView, &opt,
                                                               QPoint(x1, e->pos().y()), this);
             if (ctrl == QStyle::SC_ListViewExpand) {
@@ -6582,7 +6582,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
         if(!parentControl)
             x += 3;
         if (!pixmap(0)) {
-            Q4StyleOptionListView opt = getStyleOption(lv, this);
+            QStyleOptionListView opt = getStyleOption(lv, this);
             opt.rect.setRect(x, 0, boxsize, fm.height() + 2 + marg);
             opt.palette = pal;
             opt.state = styleflags;
@@ -6600,7 +6600,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
         else
             y = (fm.height() + 2 + marg - boxsize) / 2;
 
-        Q4StyleOptionListView opt = getStyleOption(lv, this);
+        QStyleOptionListView opt = getStyleOption(lv, this);
         opt.rect.setRect(x, y, boxsize, fm.height() + 2 + marg);
         opt.palette = pal;
         opt.state = styleflags;

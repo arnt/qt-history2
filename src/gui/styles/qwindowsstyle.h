@@ -43,25 +43,25 @@ public:
 
     void polish(QPalette &);
 
-    void drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+    void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                        const QWidget *w = 0) const;
-    void drawControl(ControlElement element, const Q4StyleOption *opt, QPainter *p,
+    void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                      const QWidget *w = 0) const;
-    QRect subRect(SubRect r, const Q4StyleOption *opt, const QWidget *widget = 0) const;
-    void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
+    QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
+    void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
-    QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
+    QSize sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
     int pixelMetric(PixelMetric metric,
                      const QWidget *widget = 0) const;
 
-    int styleHint(StyleHint sh, const QWidget *, const QStyleOption & = QStyleOption::Default,
+    int styleHint(StyleHint sh, const QWidget *, const Q3StyleOption & = Q3StyleOption::Default,
                   QStyleHintReturn* = 0) const;
 
     QPixmap stylePixmap(StylePixmap stylepixmap,
                          const QWidget *widget = 0,
-                         const QStyleOption& = QStyleOption::Default) const;
+                         const Q3StyleOption& = Q3StyleOption::Default) const;
 
 private:
     class Private;

@@ -444,7 +444,7 @@ QSize QLineEdit::sizeHint() const
     int h = qMax(fm.lineSpacing(), 14) + 2*innerMargin;
     int w = fm.width('x') * 17; // "some"
     int m = d->frame ? 4 : 0;
-    Q4StyleOptionFrame opt(0);
+    QStyleOptionFrame opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -1625,7 +1625,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
     if (d->frame) {
         int frameWidth = style().pixelMetric(QStyle::PM_DefaultFrameWidth);
-        Q4StyleOptionFrame opt(0);
+        QStyleOptionFrame opt(0);
         opt.rect = r;
         opt.palette = pal;
         opt.lineWidth = frameWidth;

@@ -21,7 +21,7 @@
 #include "qtabbar.h"
 #include "qtoolbutton.h"
 
-struct Q_GUI_EXPORT Q4StyleOption {
+struct Q_GUI_EXPORT QStyleOption {
     int version;
     int type;
     QStyle::SFlags state;
@@ -31,49 +31,49 @@ struct Q_GUI_EXPORT Q4StyleOption {
            ListView, ListViewItem, Header, DockWindow, SpinBox, ToolButton, ComboBox, ToolBox,
            TitleBar };
     enum { Type = Default };
-    Q4StyleOption(int optionversion, int optiontype = Default);
+    QStyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
 };
 
-struct Q4StyleOptionFocusRect  : public Q4StyleOption {
+struct QStyleOptionFocusRect  : public QStyleOption {
     enum { Type = FocusRect };
     QColor backgroundColor;
-    Q4StyleOptionFocusRect(int version) : Q4StyleOption(version, FocusRect) {}
+    QStyleOptionFocusRect(int version) : QStyleOption(version, FocusRect) {}
 };
 
-struct Q4StyleOptionFrame : public Q4StyleOption {
+struct QStyleOptionFrame : public QStyleOption {
     enum { Type = Frame };
     int lineWidth;
     int midLineWidth;
-    Q4StyleOptionFrame(int version) : Q4StyleOption(version, Frame) {}
+    QStyleOptionFrame(int version) : QStyleOption(version, Frame) {}
 };
 
-struct Q4StyleOptionHeader : public Q4StyleOption {
+struct QStyleOptionHeader : public QStyleOption {
     enum { Type = Header };
     int section;
     QString text;
     QIconSet icon;
-    Q4StyleOptionHeader(int version) : Q4StyleOption(version, Header) {}
+    QStyleOptionHeader(int version) : QStyleOption(version, Header) {}
 };
 
-struct Q4StyleOptionButton : public Q4StyleOption {
+struct QStyleOptionButton : public QStyleOption {
     enum { Type = Button };
     enum Extras { None = 0x00, Flat = 0x01, HasMenu = 0x02 };
     uint extras;
     QString text;
     QIconSet icon;
-    Q4StyleOptionButton(int version) : Q4StyleOption(version, Button) {}
+    QStyleOptionButton(int version) : QStyleOption(version, Button) {}
 };
 
-struct Q4StyleOptionTab : public Q4StyleOption {
+struct QStyleOptionTab : public QStyleOption {
     enum { Type = Tab };
     QTabBar::Shape tabshape;
     QString text;
     QIconSet icon;
-    Q4StyleOptionTab(int version) : Q4StyleOption(version, Tab) {}
+    QStyleOptionTab(int version) : QStyleOption(version, Tab) {}
 };
 
-struct Q4StyleOptionProgressBar : public Q4StyleOption
+struct QStyleOptionProgressBar : public QStyleOption
 {
     enum { Type = ProgressBar };
     enum Extras { None, CenterIndicator = 0x01, PercentageVisible = 0x02,
@@ -82,10 +82,10 @@ struct Q4StyleOptionProgressBar : public Q4StyleOption
     QString progressString;
     int totalSteps;
     int progress;
-    Q4StyleOptionProgressBar(int version) : Q4StyleOption(version, ProgressBar) {}
+    QStyleOptionProgressBar(int version) : QStyleOption(version, ProgressBar) {}
 };
 
-struct Q4StyleOptionMenuItem : public Q4StyleOption {
+struct QStyleOptionMenuItem : public QStyleOption {
     enum { Type = MenuItem };
     enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, Margin, EmptyArea, Q3Custom };
     enum CheckState { NotCheckable, Checked, Unchecked };
@@ -98,18 +98,18 @@ struct Q4StyleOptionMenuItem : public Q4StyleOption {
     int tabWidth;
     QSize q3CustomItemSizeHint;
     bool q3CustomItemFullSpan;
-    Q4StyleOptionMenuItem(int version) : Q4StyleOption(version, MenuItem) {}
+    QStyleOptionMenuItem(int version) : QStyleOption(version, MenuItem) {}
 };
 
-struct Q4StyleOptionComplex : public Q4StyleOption
+struct QStyleOptionComplex : public QStyleOption
 {
     enum { Type = Complex };
     QStyle::SCFlags parts;
     QStyle::SCFlags activeParts;
-    Q4StyleOptionComplex(int version, int type = Complex) : Q4StyleOption(version, type) {}
+    QStyleOptionComplex(int version, int type = Complex) : QStyleOption(version, type) {}
 };
 
-struct Q4StyleOptionSlider : public Q4StyleOptionComplex {
+struct QStyleOptionSlider : public QStyleOptionComplex {
     enum { Type = Slider };
     Qt::Orientation orientation;
     int minimum;
@@ -122,19 +122,19 @@ struct Q4StyleOptionSlider : public Q4StyleOptionComplex {
     int sliderValue;
     int singleStep;
     int pageStep;
-    Q4StyleOptionSlider(int version) : Q4StyleOptionComplex(version, Slider) {}
+    QStyleOptionSlider(int version) : QStyleOptionComplex(version, Slider) {}
 };
 
-struct Q4StyleOptionSpinBox : public Q4StyleOptionComplex {
+struct QStyleOptionSpinBox : public QStyleOptionComplex {
     enum { Type = SpinBox };
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QAbstractSpinBox::StepEnabled stepEnabled;
     double percentage;
     bool slider;
-    Q4StyleOptionSpinBox(int version) : Q4StyleOptionComplex(version, SpinBox) {}
+    QStyleOptionSpinBox(int version) : QStyleOptionComplex(version, SpinBox) {}
 };
 
-struct Q4StyleOptionListViewItem : public Q4StyleOption
+struct QStyleOptionListViewItem : public QStyleOption
 {
     enum { Type = ListViewItem };
     enum Extras { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04,
@@ -144,32 +144,32 @@ struct Q4StyleOptionListViewItem : public Q4StyleOption
     int totalHeight;
     int itemY;
     int childCount;
-    Q4StyleOptionListViewItem(int version) : Q4StyleOption(version, ListViewItem) {}
+    QStyleOptionListViewItem(int version) : QStyleOption(version, ListViewItem) {}
 };
 
-struct Q4StyleOptionListView : public Q4StyleOptionComplex {
+struct QStyleOptionListView : public QStyleOptionComplex {
     enum { Type = ListView };
     // List of listview items. The first item corresponds to the old ListViewItem we passed,
     // all the other items are its children
-    QList<Q4StyleOptionListViewItem> items;
+    QList<QStyleOptionListViewItem> items;
     QPalette viewportPalette;
     QPalette::ColorRole viewportBGRole;
     int sortColumn;
     int itemMargin;
     int treeStepSize;
     bool rootIsDecorated;
-    Q4StyleOptionListView(int version) : Q4StyleOptionComplex(version, ListView) {}
+    QStyleOptionListView(int version) : QStyleOptionComplex(version, ListView) {}
 };
 
-struct Q4StyleOptionDockWindow : public Q4StyleOption
+struct QStyleOptionDockWindow : public QStyleOption
 {
     enum { Type = DockWindow };
     bool docked;
     bool isCloseEnabled;
-    Q4StyleOptionDockWindow(int version) : Q4StyleOption(version , DockWindow) {}
+    QStyleOptionDockWindow(int version) : QStyleOption(version , DockWindow) {}
 };
 
-struct Q4StyleOptionToolButton : public Q4StyleOptionComplex
+struct QStyleOptionToolButton : public QStyleOptionComplex
 {
     enum { Type = ToolButton };
     enum Extras { None = 0x00, Arrow = 0x01, TextLabel = 0x02, Menu = 0x04, PopupDelay = 0x08,
@@ -184,18 +184,18 @@ struct Q4StyleOptionToolButton : public Q4StyleOptionComplex
     QPoint pos;
     QFont font;
     QToolButton::TextPosition textPosition;
-    Q4StyleOptionToolButton(int version) : Q4StyleOptionComplex(version, ToolButton) {}
+    QStyleOptionToolButton(int version) : QStyleOptionComplex(version, ToolButton) {}
 };
 
-struct Q4StyleOptionComboBox : public Q4StyleOptionComplex
+struct QStyleOptionComboBox : public QStyleOptionComplex
 {
     enum { Type = ComboBox };
     bool editable;
     QRect popupRect;
-    Q4StyleOptionComboBox(int version) : Q4StyleOptionComplex(version, ComboBox) {}
+    QStyleOptionComboBox(int version) : QStyleOptionComplex(version, ComboBox) {}
 };
 
-struct Q4StyleOptionToolBox : public Q4StyleOption
+struct QStyleOptionToolBox : public QStyleOption
 {
     enum { Type = ToolBox };
     QString text;
@@ -203,21 +203,21 @@ struct Q4StyleOptionToolBox : public Q4StyleOption
     QPalette::ColorRole bgRole;
     QPalette::ColorRole currentWidgetBGRole;
     QPalette currentWidgetPalette;
-    Q4StyleOptionToolBox(int version) : Q4StyleOption(version, ToolBox) {};
+    QStyleOptionToolBox(int version) : QStyleOption(version, ToolBox) {};
 };
 
-struct Q4StyleOptionTitleBar : public Q4StyleOptionComplex
+struct QStyleOptionTitleBar : public QStyleOptionComplex
 {
     enum { Type = TitleBar };
     QString text;
     QPixmap icon;
     int titleBarState;
     Qt::WFlags titleBarFlags;
-    Q4StyleOptionTitleBar(int version) : Q4StyleOptionComplex(version, TitleBar) {};
+    QStyleOptionTitleBar(int version) : QStyleOptionComplex(version, TitleBar) {};
 };
 
 template <typename T>
-T qt_cast(const Q4StyleOption *opt)
+T qt_cast(const QStyleOption *opt)
 {
     if (opt->type == static_cast<T>(0)->Type)
         return static_cast<T>(opt);
@@ -225,7 +225,7 @@ T qt_cast(const Q4StyleOption *opt)
 }
 
 template <typename T>
-T qt_cast(Q4StyleOption *opt)
+T qt_cast(QStyleOption *opt)
 {
     if (opt->type == static_cast<T>(0)->Type)
         return static_cast<T>(opt);

@@ -113,9 +113,9 @@ public:
     }
 };
 
-static Q4StyleOptionHeader getStyleOption(const Q3Header *header, int section)
+static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
 {
-    Q4StyleOptionHeader opt(0);
+    QStyleOptionHeader opt(0);
     opt.init(header);
     opt.section = section;
     if (header->iconSet(section))
@@ -1244,7 +1244,7 @@ QSize Q3Header::sizeHint() const
         for (int i = 0; i < count(); i++)
             height += d->sizes[i];
     }
-    Q4StyleOptionHeader opt = getStyleOption(this, 0);
+    QStyleOptionHeader opt = getStyleOption(this, 0);
     return style().sizeFromContents(QStyle::CT_Header, &opt, QSize(width, height), fm,
                                     this).expandedTo(QApplication::globalStrut());
 }
@@ -1444,7 +1444,7 @@ void Q3Header::setClickEnabled(bool enable, int section)
 void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
 {
     int section = mapToSection(index);
-    Q4StyleOptionHeader opt = getStyleOption(this, section);
+    QStyleOptionHeader opt = getStyleOption(this, section);
     opt.state |= QStyle::Style_Raised;
     opt.rect = fr;
 
@@ -1533,7 +1533,7 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
         return;
 
     int dx = 0, dy = 0;
-    Q4StyleOptionHeader opt = getStyleOption(this, section);
+    QStyleOptionHeader opt = getStyleOption(this, section);
     if (index == handleIdx && (state == Pressed || state == Moving)) {
         dx = style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this);
         dy = style().pixelMetric(QStyle::PM_ButtonShiftVertical, this);
@@ -1608,7 +1608,7 @@ void Q3Header::paintEvent(QPaintEvent *e)
                 if (i < count() || d->clicks[mapToSection(count() - 1)])
                     paintSection(&p, i, r);
                 if (hasFocus() && d->focusIdx == i) {
-                    Q4StyleOptionFocusRect opt(0);
+                    QStyleOptionFocusRect opt(0);
                     opt.rect.setRect(r.x()+2, r.y()+2, r.width()-4, r.height()-4);
                     opt.palette = palette();
                     opt.state = QStyle::Style_Default;

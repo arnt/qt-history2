@@ -44,14 +44,14 @@ protected:
     }
     void paintEvent(QEvent *) {
         QPainter p(this);
-        Q4StyleOptionMenuItem menuOpt(0);
+        QStyleOptionMenuItem menuOpt(0);
         menuOpt.palette = palette();
         menuOpt.state = QStyle::Style_Default;
-        menuOpt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+        menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
         menuOpt.menuRect = rect();
         menuOpt.maxIconWidth = 0;
         menuOpt.tabWidth = 0;
-        menuOpt.menuItemType = Q4StyleOptionMenuItem::Scroller;
+        menuOpt.menuItemType = QStyleOptionMenuItem::Scroller;
         if (sliderAction == QAbstractSlider::SliderSingleStepAdd)
             menuOpt.state = QStyle::Style_Down;
         menuOpt.rect = rect();
@@ -99,19 +99,19 @@ public:
 protected:
     void paint(QPainter *painter, const QItemOptions &options,
                const QModelIndex &index) const {
-        Q4StyleOptionMenuItem opt = getStyleOption(options, index);
+        QStyleOptionMenuItem opt = getStyleOption(options, index);
         QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
     QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
                    const QModelIndex &index) const {
-        Q4StyleOptionMenuItem opt = getStyleOption(options, index);
+        QStyleOptionMenuItem opt = getStyleOption(options, index);
         return QApplication::style().sizeFromContents(
             QStyle::CT_MenuItem, &opt, options.itemRect.size(), fontMetrics, 0);
     }
 
 private:
-    Q4StyleOptionMenuItem getStyleOption(const QItemOptions &options, const QModelIndex &index) const {
-        Q4StyleOptionMenuItem opt(0);
+    QStyleOptionMenuItem getStyleOption(const QItemOptions &options, const QModelIndex &index) const {
+        QStyleOptionMenuItem opt(0);
         opt.palette = options.palette;
         opt.state = QStyle::Style_Default;
         if (options.disabled)
@@ -121,11 +121,11 @@ private:
         opt.state |= QStyle::Style_ButtonDefault;
         if (options.selected) {
             opt.state |= QStyle::Style_Active;
-            opt.checkState = Q4StyleOptionMenuItem::Checked;
+            opt.checkState = QStyleOptionMenuItem::Checked;
         } else {
-            opt.checkState = Q4StyleOptionMenuItem::Unchecked;
+            opt.checkState = QStyleOptionMenuItem::Unchecked;
         }
-        opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+        opt.menuItemType = QStyleOptionMenuItem::Normal;
         opt.icon = model()->data(index, QAbstractItemModel::Decoration).toIconSet();
         opt.text = model()->data(index, QAbstractItemModel::Display).toString();
         opt.tabWidth = 0;
@@ -205,7 +205,7 @@ public:
           skipCompletion(false) {}
     ~QGenericComboBoxPrivate() {}
     void init();
-    Q4StyleOptionComboBox getStyleOption() const;
+    QStyleOptionComboBox getStyleOption() const;
     void updateLineEditGeometry();
     void returnPressed();
     void complete();

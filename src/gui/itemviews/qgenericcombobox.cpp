@@ -178,9 +178,9 @@ void QGenericComboBoxPrivate::init()
                           q, SLOT(itemSelected(const QModelIndex &)));
 }
 
-Q4StyleOptionComboBox QGenericComboBoxPrivate::getStyleOption() const
+QStyleOptionComboBox QGenericComboBoxPrivate::getStyleOption() const
 {
-    Q4StyleOptionComboBox opt(0);
+    QStyleOptionComboBox opt(0);
     opt.init(q);
     opt.parts = QStyle::SC_All;
 //     if (arrowDown)
@@ -196,7 +196,7 @@ void QGenericComboBoxPrivate::updateLineEditGeometry()
     if (!lineEdit || !q->isVisible())
         return;
 
-    Q4StyleOptionComboBox opt = d->getStyleOption();
+    QStyleOptionComboBox opt = d->getStyleOption();
     QRect editorRect = q->style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
                                                          QStyle::SC_ComboBoxEditField, q);
     lineEdit->setGeometry(editorRect);
@@ -576,7 +576,7 @@ QSize QGenericComboBox::sizeHint() const
         if (itemSize.height() > d->sizeHint.height())
             d->sizeHint.setHeight(itemSize.height());
     }
-    Q4StyleOptionComboBox opt = d->getStyleOption();
+    QStyleOptionComboBox opt = d->getStyleOption();
     d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, &opt,
                                             d->sizeHint, fm, this)
                    .expandedTo(QApplication::globalStrut()));
@@ -653,7 +653,7 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
     painter.setPen(palette().color(QPalette::Text));
 
     // paint the combobox except content
-    Q4StyleOptionComboBox opt = d->getStyleOption();
+    QStyleOptionComboBox opt = d->getStyleOption();
     style().drawComplexControl(QStyle::CC_ComboBox, &opt, &painter, this);
     QRect delegateRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
                                                         QStyle::SC_ComboBoxEditField, this);
@@ -673,7 +673,7 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
 
 void QGenericComboBox::mousePressEvent(QMouseEvent *e)
 {
-    Q4StyleOptionComboBox opt = d->getStyleOption();
+    QStyleOptionComboBox opt = d->getStyleOption();
     QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
                                                      QStyle::SC_ComboBoxArrow, this);
 

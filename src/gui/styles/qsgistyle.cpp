@@ -570,7 +570,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe,
                     const QRect &r,
                     const QPalette &pal,
                     SFlags flags,
-                    const QStyleOption& opt) const
+                    const Q3StyleOption& opt) const
 {
     const int x = r.x();
     const int y = r.y();
@@ -904,7 +904,7 @@ void QSGIStyle::drawControl(ControlElement element,
                   const QRect &r,
                   const QPalette &pal,
                   SFlags flags,
-                  const QStyleOption& opt) const
+                  const Q3StyleOption& opt) const
 {
     if (widget == d->hotWidget)
         flags |= Style_MouseOver;
@@ -1331,7 +1331,7 @@ void QSGIStyle::drawComplexControl(ComplexControl control,
                          SFlags flags,
                          SCFlags sub,
                          SCFlags subActive,
-                         const QStyleOption& opt) const
+                         const Q3StyleOption& opt) const
 {
     if (widget == d->hotWidget)
         flags |= Style_MouseOver;
@@ -1551,7 +1551,7 @@ void QSGIStyle::drawComplexControl(ComplexControl control,
 QSize QSGIStyle::sizeFromContents(ContentsType contents,
                                      const QWidget *widget,
                                      const QSize &contentsSize,
-                                     const QStyleOption& opt) const
+                                     const Q3StyleOption& opt) const
 {
     QSize sz(contentsSize);
 
@@ -1633,7 +1633,7 @@ QRect QSGIStyle::subRect(SubRect r, const QWidget *widget) const
 QRect QSGIStyle::querySubControlMetrics(ComplexControl control,
                                            const QWidget *widget,
                                            SubControl sub,
-                                           const QStyleOption& opt) const
+                                           const Q3StyleOption& opt) const
 {
     switch (control) {
     case CC_ComboBox:

@@ -24,16 +24,16 @@
 
 
 /*!
-    \class QStyleOption qstyle.h
-    \brief The QStyleOption class specifies optional parameters for QStyle functions.
+    \class Q3StyleOption qstyle.h
+    \brief The Q3StyleOption class specifies optional parameters for QStyle functions.
     \ingroup appearance
 
     Some QStyle functions take an optional argument specifying extra
     information that is required for a paritical primitive or control.
-    So that the QStyle class can be extended, QStyleOption is used to
+    So that the QStyle class can be extended, Q3StyleOption is used to
     provide a variable-argument for these options.
 
-    The QStyleOption class has constructors for each type of optional
+    The Q3StyleOption class has constructors for each type of optional
     argument, and this set of constructors may be extended in future
     Qt releases. There are also corresponding access functions that
     return the optional arguments: these too may be extended.
@@ -42,9 +42,9 @@
     QStyle functions to see the meaning of the arguments.
 
     When calling QStyle functions from your own widgets, you must only
-    pass the default QStyleOption or the argument that QStyle is
+    pass the default Q3StyleOption or the argument that QStyle is
     documented to accept. For example, if the function expects
-    QStyleOption(Q3MenuItem *, int), passing QStyleOption(Q3MenuItem *)
+    Q3StyleOption(Q3MenuItem *, int), passing Q3StyleOption(Q3MenuItem *)
     leaves the optional integer argument uninitialized.
 
     When subclassing QStyle, you must similarly only expect the
@@ -52,14 +52,14 @@
     uninitialized values.
 
     If you make your own QStyle subclasses and your own widgets, you
-    can make a subclass of QStyleOption to pass additional arguments
+    can make a subclass of Q3StyleOption to pass additional arguments
     to your QStyle subclass. You will need to cast the "const
-    QStyleOption&" argument to your subclass, so be sure your style
+    Q3StyleOption&" argument to your subclass, so be sure your style
     has been called from your widget.
 */
 
 /*!
-    \enum QStyleOption::StyleOptionDefault
+    \enum Q3StyleOption::StyleOptionDefault
 
     This enum value can be passed as the optional argument to any
     QStyle function.
@@ -68,7 +68,7 @@
 */
 
 /*!
-    \fn int QStyleOption::titleBarState() const
+    \fn int Q3StyleOption::titleBarState() const
 
     \internal
 
@@ -76,7 +76,7 @@
 */
 
 /*!
-    \fn QAction* QStyleOption::action() const
+    \fn QAction* Q3StyleOption::action() const
 
     \internal
 
@@ -84,142 +84,142 @@
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(StyleOptionDefault)
+    \fn Q3StyleOption::Q3StyleOption(StyleOptionDefault)
 
     The default option. This can always be passed as the optional
     argument to QStyle functions.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(int)
+    \fn Q3StyleOption::Q3StyleOption(int)
 
     Pass one integer, \a in1. For example, headerSection.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(int, int)
+    \fn Q3StyleOption::Q3StyleOption(int, int)
 
     Pass two integers, \a in1 and \a in2. For example, linewidth and
     midlinewidth.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(QAction* a)
+    \fn Q3StyleOption::Q3StyleOption(QAction* a)
 
     Pass an action, \a a.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(QAction* a, int in1)
+    \fn Q3StyleOption::Q3StyleOption(QAction* a, int in1)
 
     Pass an action \a a, and an integer \a in1.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(QAction* a, int in1, int in2)
+    \fn Q3StyleOption::Q3StyleOption(QAction* a, int in1, int in2)
 
     Pass an action \a a, and two integers \a in1 and \a in2.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(int, int, int, int)
+    \fn Q3StyleOption::Q3StyleOption(int, int, int, int)
 
     Pass four integers, \a in1, \a in2, \a in3 and \a in4.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(const QColor&)
+    \fn Q3StyleOption::Q3StyleOption(const QColor&)
 
     Pass a color, \a c.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(QTab*)
+    \fn Q3StyleOption::Q3StyleOption(QTab*)
 
     Pass a QTab, \a t.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(QListViewItem*)
+    \fn Q3StyleOption::Q3StyleOption(QListViewItem*)
 
     Pass a QListViewItem, \a i.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(Qt::ArrowType)
+    \fn Q3StyleOption::Q3StyleOption(Qt::ArrowType)
 
     Pass an Qt::ArrowType, \a a.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(QCheckListItem* i)
+    \fn Q3StyleOption::Q3StyleOption(QCheckListItem* i)
 
     Pass a QCheckListItem, \a i.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(const QRect &r)
+    \fn Q3StyleOption::Q3StyleOption(const QRect &r)
 
     Pass a QRect, \a r.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(QWidget *w)
+    \fn Q3StyleOption::Q3StyleOption(QWidget *w)
 
     Pass a QWidget, \a w.
 */
 
 /*!
-    \fn bool QStyleOption::isDefault() const
+    \fn bool Q3StyleOption::isDefault() const
 
     Returns true if the option was constructed with the default
     constructor; otherwise returns false.
 */
 
 /*!
-    \fn int QStyleOption::day() const
+    \fn int Q3StyleOption::day() const
 
     Returns the index of the day in the month if the appropriate
     constructor was called; otherwise the return value is undefined.
 */
 
 /*!
-    \fn int QStyleOption::lineWidth() const
+    \fn int Q3StyleOption::lineWidth() const
 
     Returns the line width if the appropriate constructor was called;
     otherwise the return value is undefined.
 */
 
 /*!
-    \fn int QStyleOption::midLineWidth() const
+    \fn int Q3StyleOption::midLineWidth() const
 
     Returns the mid-line width if the appropriate constructor was
     called; otherwise the return value is undefined.
 */
 
 /*!
-    \fn int QStyleOption::frameShape() const
+    \fn int Q3StyleOption::frameShape() const
 
     Returns a QFrame::Shape value if the appropriate constructor was
     called; otherwise the return value is undefined.
 */
 
 /*!
-    \fn int QStyleOption::frameShadow() const
+    \fn int Q3StyleOption::frameShadow() const
 
     Returns a QFrame::Shadow value if the appropriate constructor was
     called; otherwise the return value is undefined.
 */
 
 /*!
-    \fn Q3MenuItem* QStyleOption::menuItem() const
+    \fn Q3MenuItem* Q3StyleOption::menuItem() const
 
     Returns a menu item if the appropriate constructor was called;
     otherwise the return value is undefined.
 */
 
 /*!
-    \fn int QStyleOption::maxIconWidth() const
+    \fn int Q3StyleOption::maxIconWidth() const
 
     Returns the maximum width of the menu item check area if the
     appropriate constructor was called; otherwise the return value is
@@ -227,63 +227,63 @@
 */
 
 /*!
-    \fn int QStyleOption::tabWidth() const
+    \fn int Q3StyleOption::tabWidth() const
 
     Returns the tab indent width if the appropriate constructor was
     called; otherwise the return value is undefined.
 */
 
 /*!
-    \fn int QStyleOption::headerSection() const
+    \fn int Q3StyleOption::headerSection() const
 
     Returns the header section if the appropriate constructor was
     called; otherwise the return value is undefined.
 */
 
 /*!
-    \fn const QColor& QStyleOption::color() const
+    \fn const QColor& Q3StyleOption::color() const
 
     Returns a color if the appropriate constructor was called;
     otherwise the return value is undefined.
 */
 
 /*!
-    \fn QTab* QStyleOption::tab() const
+    \fn QTab* Q3StyleOption::tab() const
 
     Returns a QTabBar tab if the appropriate constructor was called;
     otherwise the return value is undefined.
 */
 
 /*!
-    \fn QListViewItem* QStyleOption::listViewItem() const
+    \fn QListViewItem* Q3StyleOption::listViewItem() const
 
     Returns a QListView item if the appropriate constructor was
     called; otherwise the return value is undefined.
 */
 
 /*!
-    \fn Qt::ArrowType QStyleOption::arrowType() const
+    \fn Qt::ArrowType Q3StyleOption::arrowType() const
 
     Returns an arrow type if the appropriate constructor was called;
     otherwise the return value is undefined.
 */
 
 /*!
-    \fn QCheckListItem* QStyleOption::checkListItem() const
+    \fn QCheckListItem* Q3StyleOption::checkListItem() const
 
     Returns a check list item if the appropriate constructor was
     called; otherwise the return value is undefined.
 */
 
 /*!
-    \fn QRect QStyleOption::rect() const
+    \fn QRect Q3StyleOption::rect() const
 
     Returns a rectangle if the appropriate constructor was called;
     otherwise the return value is undefined.
 */
 
 /*!
-    \fn QWidget* QStyleOption::widget() const
+    \fn QWidget* Q3StyleOption::widget() const
 
     Returns a pointer to a widget if the appropriate constructor was called;
     otherwise the return value is undefined.
@@ -800,7 +800,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p, const QWidget *w = 0) const = 0
+    \fn void QStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p, const QWidget *w = 0) const = 0
 
     \overload
 
@@ -808,7 +808,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal, SFlags flags, const QStyleOption& opt) const;
+    \fn void QStyle::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal, SFlags flags, const Q3StyleOption& opt) const;
 
     Draws the style PrimitiveElement \a pe using the painter \a p in
     the area \a r. Colors are used from the palette \a pal.
@@ -829,48 +829,48 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \table
     \header \i PrimitiveElement \i Options \i Notes
     \row \i \l PE_FocusRect
-         \i \l QStyleOption (const \l QColor & bg)
+         \i \l Q3StyleOption (const \l QColor & bg)
             \list
-            \i opt.\link QStyleOption::color() color\endlink()
+            \i opt.\link Q3StyleOption::color() color\endlink()
             \endlist
          \i \e bg is the background color on which the focus rect is being drawn.
     \row \i12 \l PE_Panel
-         \i12 \l QStyleOption (int linewidth, int midlinewidth)
+         \i12 \l Q3StyleOption (int linewidth, int midlinewidth)
                 \list
-                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
                 \endlist
          \i \e linewidth is the line width for drawing the panel.
     \row \i \e midlinewidth is the mid-line width for drawing the panel.
     \row \i12 \l PE_PanelPopup
-         \i12 \l QStyleOption (int linewidth, int midlinewidth)
+         \i12 \l Q3StyleOption (int linewidth, int midlinewidth)
                 \list
-                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
                 \endlist
          \i \e linewidth is the line width for drawing the panel.
     \row \i \e midlinewidth is the mid-line width for drawing the panel.
     \row \i12 \l PE_PanelMenuBar
-         \i12 \l QStyleOption (int linewidth, int midlinewidth)
+         \i12 \l Q3StyleOption (int linewidth, int midlinewidth)
                 \list
-                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
                 \endlist
          \i \e linewidth is the line width for drawing the panel.
     \row \i \e midlinewidth is the mid-line width for drawing the panel.
     \row \i12 \l PE_PanelDockWindow
-         \i12 \l QStyleOption (int linewidth, int midlinewidth)
+         \i12 \l Q3StyleOption (int linewidth, int midlinewidth)
                 \list
-                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
                 \endlist
          \i \e linewidth is the line width for drawing the panel.
     \row \i \e midlinewidth is the mid-line width for drawing the panel.
     \row \i14 \l PE_GroupBoxFrame
-         \i14 \l QStyleOption (int linewidth, int midlinewidth, int shape, int shadow)
+         \i14 \l Q3StyleOption (int linewidth, int midlinewidth, int shape, int shadow)
                 \list
-                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \i opt.\link Q3StyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link Q3StyleOption::midLineWidth() midLineWidth\endlink()
                 \endlist
          \i \e linewidth is the line width for the group box.
     \row \i \e midlinewidth is the mid-line width for the group box.
@@ -936,13 +936,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /*!
     \fn void QStyle::drawControl(ControlElement element, const
-    Q4StyleOption *opt, QPainter *p, const QWidget *widget = 0) const = 0
+    QStyleOption *opt, QPainter *p, const QWidget *widget = 0) const = 0
 
     \overload
 */
 
 /*!
-    \fn void QStyle::drawControl(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, const QStyleOption& opt) const;
+    \fn void QStyle::drawControl(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, const Q3StyleOption& opt) const;
 
     Draws the ControlElement \a element using the painter \a p in the
     area \a r. Colors are used from the palette \a pal.
@@ -1021,9 +1021,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
          \l{CE_TabBarLabel}(const \l QTabBar *)
 
          \i \l Style_Enabled \i Set if the tabbar and tab is enabled.
-         \i12 \l QStyleOption (\l QTab *t)
+         \i12 \l Q3StyleOption (\l QTab *t)
                 \list
-                \i opt.\link QStyleOption::tab() tab\endlink()
+                \i opt.\link Q3StyleOption::tab() tab\endlink()
                 \endlist
          \i12 \e t is the QTab being drawn.
     \row \i \l Style_Selected \i Set if the tab is the current tab.
@@ -1045,11 +1045,11 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \row \i13 \l{CE_MenuItem}(const \l Q3PopupMenu *)
          \i \l Style_Enabled \i Set if the menuitem is enabled.
-         \i13 \l QStyleOption (Q3MenuItem *mi, int tabwidth, int maxpmwidth)
+         \i13 \l Q3StyleOption (Q3MenuItem *mi, int tabwidth, int maxpmwidth)
                 \list
-                \i opt.\link QStyleOption::menuItem() menuItem\endlink()
-                \i opt.\link QStyleOption::tabWidth() tabWidth\endlink()
-                \i opt.\link QStyleOption::maxIconWidth() maxIconWidth\endlink()
+                \i opt.\link Q3StyleOption::menuItem() menuItem\endlink()
+                \i opt.\link Q3StyleOption::tabWidth() tabWidth\endlink()
+                \i opt.\link Q3StyleOption::maxIconWidth() maxIconWidth\endlink()
                 \endlist
          \i \e mi is the menu item being drawn. Q3MenuItem is currently an
             internal class.
@@ -1063,9 +1063,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \row \i14 \l{CE_MenuBarItem}(const \l Q3MenuBar *)
          \i \l Style_Enabled \i Set if the menuitem is enabled
-         \i14 \l QStyleOption (Q3MenuItem *mi)
+         \i14 \l Q3StyleOption (Q3MenuItem *mi)
                 \list
-                \i opt.\link QStyleOption::menuItem() menuItem\endlink()
+                \i opt.\link Q3StyleOption::menuItem() menuItem\endlink()
                 \endlist
          \i14 \e mi is the menu item being drawn.
     \row \i \l Style_Active \i Set if the menuitem is the current item.
@@ -1075,9 +1075,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \row \i17 \l{CE_ToolButtonLabel}(const \l QToolButton *)
          \i \l Style_Enabled \i Set if the toolbutton is enabled.
-         \i17 \l QStyleOption (\l Qt::ArrowType t)
+         \i17 \l Q3StyleOption (\l Qt::ArrowType t)
                 \list
-                \i opt.\link QStyleOption::arrowType() arrowType\endlink()
+                \i opt.\link Q3StyleOption::arrowType() arrowType\endlink()
                 \endlist
          \i17 When the tool button only contains an arrow, \e t is the
             arrow's type.
@@ -1097,13 +1097,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /*!
     \fn void QStyle::drawControlMask(ControlElement element, const
-    Q4StyleOption *opt, QPainter *p, const QWidget *widget) const = 0
+    QStyleOption *opt, QPainter *p, const QWidget *widget) const = 0
 
     \overload
 */
 
 /*!
-    \fn void QStyle::drawControlMask(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt = QStyleOption::Default) const;
+    \fn void QStyle::drawControlMask(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const Q3StyleOption& opt = Q3StyleOption::Default) const;
 
     Draw a bitmask for the ControlElement \a element using the painter
     \a p in the area \a r. See drawControl() for an explanation of the
@@ -1171,7 +1171,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QRect QStyle::subRect(SubRect subrect, const Q4StyleOption *opt, const QWidget *widget = 0) const = 0
+    \fn QRect QStyle::subRect(SubRect subrect, const QStyleOption *opt, const QWidget *widget = 0) const = 0
 
     \overload
 
@@ -1308,13 +1308,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /*!
     \fn void QStyle::drawComplexControl(ComplexControl control, const
-    Q4StyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
+    QStyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
 
     \overload
 */
 
 /*!
-    \fn void QStyle::drawComplexControl(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, SCFlags sub, SCFlags subActive, const QStyleOption& opt) const
+    \fn void QStyle::drawComplexControl(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, SCFlags sub, SCFlags subActive, const Q3StyleOption& opt) const
 
     Draws the ComplexControl \a control using the painter \a p in the
     area \a r. Colors are used from the palette \a pal. The \a sub
@@ -1374,9 +1374,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \row \i16 \l{CC_ToolButton}(const \l QToolButton *)
          \i \l Style_Enabled \i Set if the toolbutton is enabled.
-         \i16 \l QStyleOption (\l Qt::ArrowType t)
+         \i16 \l Q3StyleOption (\l Qt::ArrowType t)
                 \list
-                \i opt.\link QStyleOption::arrowType() arrowType\endlink()
+                \i opt.\link Q3StyleOption::arrowType() arrowType\endlink()
                 \endlist
          \i16 When the tool button only contains an arrow, \e t is the
                 arrow's type.
@@ -1396,9 +1396,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \row \i \l{CC_ListView}(const \l QListView *)
          \i \l Style_Enabled \i Set if the title bar is enabled.
-         \i \l QStyleOption (\l QListViewItem *item)
+         \i \l Q3StyleOption (\l QListViewItem *item)
             \list
-            \i opt.\link QStyleOption::listViewItem() listViewItem\endlink()
+            \i opt.\link Q3StyleOption::listViewItem() listViewItem\endlink()
             \endlist
          \i \e item is the item that needs branches drawn
     \endtable
@@ -1408,14 +1408,14 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /*!
     \fn void QStyle::drawComplexControlMask(ComplexControl control,
-    const Q4StyleOptionComplex *opt, QPainter *p, const QWidget
+    const QStyleOptionComplex *opt, QPainter *p, const QWidget
  *widget = 0) const = 0
 
     \overload
 */
 
 /*!
-    \fn void QStyle::drawComplexControlMask(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt) const
+    \fn void QStyle::drawComplexControlMask(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const Q3StyleOption& opt) const
 
     Draw a bitmask for the ComplexControl \a control using the painter
     \a p in the area \a r. See drawComplexControl() for an explanation
@@ -1431,13 +1431,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /*!
     \fn QRect QStyle::querySubControlMetrics(ComplexControl control,
-    const Q4StyleOptionComplex *opt, const QWidget *widget) const = 0
+    const QStyleOptionComplex *opt, const QWidget *widget) const = 0
 
     \overload
 */
 
 /*!
-    \fn QRect QStyle::querySubControlMetrics(ComplexControl control, const QWidget *widget, SubControl subcontrol, const QStyleOption& opt = QStyleOption::Default) const;
+    \fn QRect QStyle::querySubControlMetrics(ComplexControl control, const QWidget *widget, SubControl subcontrol, const Q3StyleOption& opt = Q3StyleOption::Default) const;
 
     Returns the rect for the SubControl \a subcontrol for \a widget in
     logical coordinates.
@@ -1455,14 +1455,14 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /*!
     \fn SubControl QStyle::querySubControl(ComplexControl control,
-    const Q4StyleOptionComplex *opt, const QPoint &pos, const QWidget
+    const QStyleOptionComplex *opt, const QPoint &pos, const QWidget
  *widget = 0) const = 0
 
     \overload
 */
 
 /*!
-    \fn SubControl QStyle::querySubControl(ComplexControl control, const QWidget *widget, const QPoint &pos, const QStyleOption& opt = QStyleOption::Default) const;
+    \fn SubControl QStyle::querySubControl(ComplexControl control, const QWidget *widget, const QPoint &pos, const Q3StyleOption& opt = Q3StyleOption::Default) const;
 
     Returns the SubControl for \a widget at the point \a pos. The \a
     widget argument is a pointer to a QWidget or one of its
@@ -1648,7 +1648,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QSize QStyle::sizeFromContents(ContentsType contents, const Q4StyleOption *opt, const QSize &contentsSize, const QFontMetrics &fm, const QWidget *w) const = 0
+    \fn QSize QStyle::sizeFromContents(ContentsType contents, const QStyleOption *opt, const QSize &contentsSize, const QFontMetrics &fm, const QWidget *w) const = 0
 
     \overload
 
@@ -1657,7 +1657,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QSize QStyle::sizeFromContents(ContentsType contents, const QWidget *widget, const QSize &contentsSize, const QStyleOption& opt = QStyleOption::Default) const;
+    \fn QSize QStyle::sizeFromContents(ContentsType contents, const QWidget *widget, const QSize &contentsSize, const Q3StyleOption& opt = Q3StyleOption::Default) const;
 
     Returns the size of \a widget based on the contents size \a
     contentsSize.
@@ -1681,9 +1681,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \row \i \l CT_DockWindow \i (const \l QDockWindow *) \i Unused. \i &nbsp;
     \row \i \l CT_ProgressBar \i (const \l QProgressBar *) \i Unused. \i &nbsp;
     \row \i \l CT_MenuItem \i (const Q3PopupMenu *)
-        \i \l QStyleOption (Q3MenuItem *mi)
+        \i \l Q3StyleOption (Q3MenuItem *mi)
             \list
-            \i opt.\link QStyleOption::menuItem() menuItem\endlink()
+            \i opt.\link Q3StyleOption::menuItem() menuItem\endlink()
             \endlist
         \i \e mi is the menu item to use when calculating the size.
             Q3MenuItem is currently an internal class.
@@ -1853,7 +1853,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn int QStyle::styleHint(StyleHint stylehint, const QWidget *widget = 0, const QStyleOption &opt = QStyleOption::Default, QStyleHintReturn *returnData = 0) const;
+    \fn int QStyle::styleHint(StyleHint stylehint, const QWidget *widget = 0, const Q3StyleOption &opt = Q3StyleOption::Default, QStyleHintReturn *returnData = 0) const;
 
     Returns the style hint \a stylehint for \a widget. Currently, \a
     widget, \a opt, and \a returnData are unused; they're included to
@@ -1913,7 +1913,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 /*!
     \fn QPixmap QStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                                     const QPalette &pal,
-                                    const QStyleOption& opt) const
+                                    const Q3StyleOption& opt) const
 
     \overload
 
@@ -1933,7 +1933,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 /*!
     \fn QPixmap QStyle::stylePixmap(StylePixmap stylepixmap,
                                     const QWidget *widget,
-                                    const QStyleOption& opt) const
+                                    const Q3StyleOption& opt) const
 
     Returns a pixmap for \a stylepixmap.
 

@@ -89,7 +89,7 @@ QSplitterHandle::QSplitterHandle(Qt::Orientation o, QSplitter *parent,
 QSize QSplitterHandle::sizeHint() const
 {
     int hw = s->handleWidth();
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.rect = s->rect();
     opt.palette = s->palette();
     opt.state = QStyle::Style_Default;
@@ -138,7 +138,7 @@ void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 void QSplitterHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    Q4StyleOptionFrame opt(0);
+    QStyleOptionFrame opt(0);
     opt.rect = rect();
     opt.palette = palette();
     if (orientation() == Qt::Horizontal)

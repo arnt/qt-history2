@@ -76,7 +76,7 @@ public:
                             q->palette(), q->isEnabled(), text);
 
         if (d->menu) {
-            Q4StyleOption opt(0, Q4StyleOption::Default);
+            QStyleOption opt(0, QStyleOption::Default);
             opt.rect = menuRect;
             opt.palette = q->palette();
             opt.state = QStyle::Style_Enabled;

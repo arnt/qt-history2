@@ -97,30 +97,30 @@ static void popupSubMenuLater(int msec, Q3PopupMenu * receiver) {
 
 static bool preventAnimation = false;
 
-static Q4StyleOptionMenuItem getStyleOption(const Q3PopupMenu *pop, const Q3MenuItem *mi)
+static QStyleOptionMenuItem getStyleOption(const Q3PopupMenu *pop, const Q3MenuItem *mi)
 {
-    Q4StyleOptionMenuItem opt(0);
+    QStyleOptionMenuItem opt(0);
     opt.palette = pop->palette();
     opt.state = QStyle::Style_Default;
     opt.menuRect = pop->rect();
     if (mi->isSeparator()) {
-        opt.menuItemType = Q4StyleOptionMenuItem::Separator;
+        opt.menuItemType = QStyleOptionMenuItem::Separator;
     } else if (mi->popup()) {
-        opt.menuItemType = Q4StyleOptionMenuItem::SubMenu;
+        opt.menuItemType = QStyleOptionMenuItem::SubMenu;
     } else if (mi->custom()) {
-        opt.menuItemType = Q4StyleOptionMenuItem::Q3Custom;
+        opt.menuItemType = QStyleOptionMenuItem::Q3Custom;
         opt.q3CustomItemSizeHint = mi->custom()->sizeHint();
         opt.q3CustomItemFullSpan = mi->custom()->fullSpan();
     } else {
-        opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+        opt.menuItemType = QStyleOptionMenuItem::Normal;
     }
     if (pop->isCheckable()) {
         if (mi->isChecked())
-            opt.checkState = Q4StyleOptionMenuItem::Checked;
+            opt.checkState = QStyleOptionMenuItem::Checked;
         else
-            opt.checkState = Q4StyleOptionMenuItem::Unchecked;
+            opt.checkState = QStyleOptionMenuItem::Unchecked;
     } else {
-        opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+        opt.checkState = QStyleOptionMenuItem::NotCheckable;
     }
     opt.text = mi->text();
     if (mi->iconSet())
@@ -602,7 +602,7 @@ void Q3PopupMenu::popup(const QPoint &pos, int indexAtPoint)
                     if (tmp_y >= off_top)
                         break;
                     Q3MenuItem *mi = mitems->at(i);
-                    Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+                    QStyleOptionMenuItem opt = getStyleOption(this, mi);
                     opt.rect = rect();
                     opt.tabWidth = 0;
                     opt.maxIconWidth = maxPMWidth;
@@ -920,7 +920,7 @@ int Q3PopupMenu::itemAtPos(const QPoint &pos, bool ignoreSeparator) const
         if (!mi->isVisible())
             continue;
         int itemh = itemHeight(mi);
-        Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+        QStyleOptionMenuItem opt = getStyleOption(this, mi);
         opt.rect = rect();
         opt.maxIconWidth = maxPMWidth;
         opt.tabWidth = 0;
@@ -971,7 +971,7 @@ QRect Q3PopupMenu::itemGeometry(int index)
             continue;
         int itemh = itemHeight(mi);
 
-        Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+        QStyleOptionMenuItem opt = getStyleOption(this, mi);
         opt.rect = rect();
         opt.maxIconWidth = maxPMWidth;
         opt.tabWidth = 0;
@@ -1107,7 +1107,7 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
                     }
                 }
 
-                Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+                QStyleOptionMenuItem opt = getStyleOption(this, mi);
                 opt.rect = rect();
                 opt.maxIconWidth = maxPMWidth;
                 opt.tabWidth = 0;
@@ -1188,7 +1188,7 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
 
                 int itemh = itemHeight(mi);
 
-                Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+                QStyleOptionMenuItem opt = getStyleOption(this, mi);
                 opt.rect = rect();
                 opt.maxIconWidth = maxPMWidth;
                 opt.tabWidth = 0;
@@ -1436,7 +1436,7 @@ void Q3PopupMenu::drawItem(QPainter* p, int tab_, Q3MenuItem* mi,
                            bool act, int x, int y, int w, int h)
 {
     // This call is a waste, but we want people to not use this class, right :)
-    Q4StyleOptionMenuItem menuOpt = getStyleOption(this, mi);
+    QStyleOptionMenuItem menuOpt = getStyleOption(this, mi);
     menuOpt.state = QStyle::Style_Default;
     menuOpt.maxIconWidth = maxPMWidth;
     menuOpt.tabWidth = tab_;
@@ -1453,7 +1453,7 @@ void Q3PopupMenu::drawItem(QPainter* p, int tab_, Q3MenuItem* mi,
     menuOpt.rect.setRect(x, y, w, h);
     if (mi->custom() && mi->custom()->fullSpan()) {
         // the custom item will paint it all, so just do the background.
-        menuOpt.menuItemType = Q4StyleOptionMenuItem::Normal;
+        menuOpt.menuItemType = QStyleOptionMenuItem::Normal;
         menuOpt.text = "";
         menuOpt.icon = QIconSet();
         style().drawControl(QStyle::CE_MenuItem, &menuOpt, p, this);
@@ -1471,12 +1471,12 @@ void Q3PopupMenu::drawContents(QPainter* p)
     int row = 0;
     int x = contentsRect().x();
     int y = contentsRect().y();
-    Q4StyleOptionMenuItem opt(0);
+    QStyleOptionMenuItem opt(0);
     opt.menuRect = rect();
     opt.state = QStyle::Style_Default;
     opt.palette = palette();
-    opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
-    opt.menuItemType = Q4StyleOptionMenuItem::Scroller;
+    opt.checkState = QStyleOptionMenuItem::NotCheckable;
+    opt.menuItemType = QStyleOptionMenuItem::Scroller;
     opt.tabWidth = 0;
     opt.maxIconWidth = maxPMWidth;
     if (d->scroll.scrollable) {
@@ -1505,7 +1505,7 @@ void Q3PopupMenu::drawContents(QPainter* p)
             break;
         if (!mi->isVisible())
             continue;
-        Q4StyleOptionMenuItem menuOpt = getStyleOption(this, mi);
+        QStyleOptionMenuItem menuOpt = getStyleOption(this, mi);
         menuOpt.tabWidth = 0;
         menuOpt.maxIconWidth = maxPMWidth;
         int itemh = itemHeight(mi);
@@ -1540,7 +1540,7 @@ void Q3PopupMenu::drawContents(QPainter* p)
                 opt.state |= QStyle::Style_Enabled;
             opt.icon = QIconSet();
             opt.text = "";
-            opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+            opt.menuItemType = QStyleOptionMenuItem::Normal;
             style().drawControl(QStyle::CE_MenuItem, &opt, p, this);
         }
     }
@@ -1548,7 +1548,7 @@ void Q3PopupMenu::drawContents(QPainter* p)
         int sh = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
         opt.icon = QIconSet();
         opt.text = "";
-        opt.menuItemType = Q4StyleOptionMenuItem::Scroller;
+        opt.menuItemType = QStyleOptionMenuItem::Scroller;
         opt.rect.setRect(x, contentsRect().height() - sh, contentsRect().width(), sh);
         if (!p->hasClipping() || p->clipRegion().contains(opt.rect)) {
             opt.state = QStyle::Style_Down;
@@ -2141,14 +2141,14 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
                         Q3MenuItem *mi = mitems->at(i);
                         if(i >= d->scroll.topScrollableIndex) {
                             int itemh = itemHeight(mi);
-                            Q4StyleOptionMenuItem opt(0);
+                            QStyleOptionMenuItem opt(0);
                             opt.palette = palette();
                             opt.rect = rect();
                             opt.menuRect = rect();
                             opt.state = QStyle::Style_Default;
-                            opt.checkState = isCheckable() ? Q4StyleOptionMenuItem::Unchecked
-                                                           : Q4StyleOptionMenuItem::NotCheckable;
-                            opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+                            opt.checkState = isCheckable() ? QStyleOptionMenuItem::Unchecked
+                                                           : QStyleOptionMenuItem::NotCheckable;
+                            opt.menuItemType = QStyleOptionMenuItem::Normal;
                             opt.text = mi->text();
                             opt.tabWidth = 0;
                             opt.maxIconWidth = maxPMWidth;
@@ -2268,7 +2268,7 @@ void Q3PopupMenu::subScrollTimer() {
             Q3MenuItem *mi = mitems->at(i);
             if(i >= d->scroll.topScrollableIndex) {
                 int itemh = itemHeight(mi);
-                Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+                QStyleOptionMenuItem opt = getStyleOption(this, mi);
                 opt.tabWidth = 0;
                 opt.maxIconWidth = maxPMWidth;
                 QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt, QSize(0, itemh),
@@ -2811,7 +2811,7 @@ Q3PopupMenu::updateScrollerState()
         Q3MenuItem *mi = mitems->at(row);
 
         int myheight = contentsRect().height();
-        Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+        QStyleOptionMenuItem opt = getStyleOption(this, mi);
         opt.rect = rect();
         opt.tabWidth = 0;
         opt.maxIconWidth = maxPMWidth;

@@ -31,34 +31,34 @@ class QCheckListItem;
 class QFontMetrics;
 
 // You'll be going away soon, deary.
-class QStyleOption {
+class Q3StyleOption {
 public:
     enum StyleOptionDefault { Default };
 
-    QStyleOption(StyleOptionDefault=Default) : def(true) {}
+    Q3StyleOption(StyleOptionDefault=Default) : def(true) {}
 
     // Note: we don't use default arguments since that is unnecessary
     // initialization.
-    QStyleOption(int in1) :
+    Q3StyleOption(int in1) :
         def(false), i1(in1) {}
-    QStyleOption(int in1, int in2) :
+    Q3StyleOption(int in1, int in2) :
         def(false), i1(in1), i2(in2) {}
-    QStyleOption(int in1, int in2, int in3, int in4) :
+    Q3StyleOption(int in1, int in2, int in3, int in4) :
         def(false), i1(in1), i2(in2), i3(in3), i4(in4) {}
-    QStyleOption(QAction* a) : def(false), act(a) {}
-    QStyleOption(QAction* a, int in1) : def(false), act(a), i1(in1) {}
-    QStyleOption(QAction* a, int in1, int in2) : def(false), act(a), i1(in1), i2(in2) {}
+    Q3StyleOption(QAction* a) : def(false), act(a) {}
+    Q3StyleOption(QAction* a, int in1) : def(false), act(a), i1(in1) {}
+    Q3StyleOption(QAction* a, int in1, int in2) : def(false), act(a), i1(in1), i2(in2) {}
 #ifdef QT_COMPAT
-    QStyleOption(Q3MenuItem* m) : def(false), mi(m) {}
-    QStyleOption(Q3MenuItem* m, int in1) : def(false), mi(m), i1(in1) {}
-    QStyleOption(Q3MenuItem* m, int in1, int in2) : def(false), mi(m), i1(in1), i2(in2) {}
+    Q3StyleOption(Q3MenuItem* m) : def(false), mi(m) {}
+    Q3StyleOption(Q3MenuItem* m, int in1) : def(false), mi(m), i1(in1) {}
+    Q3StyleOption(Q3MenuItem* m, int in1, int in2) : def(false), mi(m), i1(in1), i2(in2) {}
 #endif
-    QStyleOption(const QColor& c) : def(false), cl(&c) {}
-    QStyleOption(QTab* t) : def(false), tb(t) {}
-    QStyleOption(QCheckListItem* i) : def(false), cli(i) {}
-    QStyleOption(Qt::ArrowType a) : def(false), i1((int)a) {}
-    QStyleOption(const QRect& r) : def(false), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
-    QStyleOption(QWidget *w) : def(false), p1((void*)w) {}
+    Q3StyleOption(const QColor& c) : def(false), cl(&c) {}
+    Q3StyleOption(QTab* t) : def(false), tb(t) {}
+    Q3StyleOption(QCheckListItem* i) : def(false), cli(i) {}
+    Q3StyleOption(Qt::ArrowType a) : def(false), i1((int)a) {}
+    Q3StyleOption(const QRect& r) : def(false), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
+    Q3StyleOption(QWidget *w) : def(false), p1((void*)w) {}
 
     bool isDefault() const { return def; }
 
@@ -94,7 +94,6 @@ private:
     QAction *act;
     Q3MenuItem* mi;
     QTab* tb;
-//     QListViewItem* li;
     const QColor* cl;
     int i1, i2, i3, i4, i5, i6; // reserved
     QCheckListItem* cli;
@@ -104,8 +103,8 @@ private:
 
 class QStyleHintReturn; // not defined yet
 
-struct Q4StyleOption;
-struct Q4StyleOptionComplex;
+struct QStyleOption;
+struct QStyleOptionComplex;
 class Q_GUI_EXPORT QStyle: public QObject
 {
     Q_OBJECT
@@ -268,7 +267,7 @@ public:
         PE_CustomBase =                        0xf000000
     };
 
-    virtual void drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+    virtual void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                                const QWidget *w = 0) const = 0;
     enum ControlElement {
         CE_PushButton,
@@ -307,9 +306,9 @@ public:
         CE_CustomBase =                0xf0000000
     };
 
-    virtual void drawControl(ControlElement element, const Q4StyleOption *opt, QPainter *p,
+    virtual void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                              const QWidget *w = 0) const = 0;
-    virtual void drawControlMask(ControlElement element, const Q4StyleOption *opt, QPainter *p,
+    virtual void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
                                  const QWidget *w) const = 0;
 
     enum SubRect {
@@ -352,7 +351,7 @@ public:
         SR_CustomBase =                0xf0000000
     };
 
-    virtual QRect subRect(SubRect r, const Q4StyleOption *opt, const QWidget *widget = 0) const = 0;
+    virtual QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const = 0;
 
 
     enum ComplexControl{
@@ -417,13 +416,13 @@ public:
     typedef uint SCFlags;
 
 
-    virtual void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
+    virtual void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                                     const QWidget *w = 0) const = 0;
-    virtual void drawComplexControlMask(ComplexControl cc, const Q4StyleOptionComplex *opt,
+    virtual void drawComplexControlMask(ComplexControl cc, const QStyleOptionComplex *opt,
                                         QPainter *p, const QWidget *w = 0) const = 0;
-    virtual SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
+    virtual SubControl querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                        const QPoint &pt, const QWidget *w = 0) const = 0;
-    virtual QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
+    virtual QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
                                          SubControl sc, const QWidget *w) const = 0;
     enum PixelMetric {
         PM_ButtonMargin,
@@ -527,8 +526,9 @@ public:
         CT_CustomBase =                0xf0000000
     };
 
-    virtual QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
-                                   const QFontMetrics &fm, const QWidget *w = 0) const = 0;
+    virtual QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                                   const QSize &contentsSize, const QFontMetrics &fm,
+                                   const QWidget *w = 0) const = 0;
 
     enum StyleHint  {
         // ...
@@ -694,10 +694,9 @@ public:
         SH_CustomBase =                0xf0000000
     };
 
-    // Perhaps this needs Q4StyleOption too?
     virtual int styleHint(StyleHint stylehint,
                            const QWidget *widget = 0,
-                           const QStyleOption& = QStyleOption::Default,
+                           const Q3StyleOption& = Q3StyleOption::Default,
                            QStyleHintReturn* returnData = 0
                           ) const = 0;
 
@@ -720,8 +719,8 @@ public:
     };
 
     virtual QPixmap stylePixmap(StylePixmap stylepixmap,
-                                 const QWidget *widget = 0,
-                                 const QStyleOption& = QStyleOption::Default) const = 0;
+                                const QWidget *widget = 0,
+                                const Q3StyleOption& = Q3StyleOption::Default) const = 0;
 
     enum PixmapType {
         PT_Disabled,
@@ -732,7 +731,8 @@ public:
     };
 
     virtual QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                                 const QPalette &pal, const QStyleOption& = QStyleOption::Default) const = 0;
+                                const QPalette &pal,
+                                const Q3StyleOption& = Q3StyleOption::Default) const = 0;
 
     static QRect visualRect(const QRect &logical, const QWidget *w);
     static QRect visualRect(const QRect &logical, const QRect &bounding);

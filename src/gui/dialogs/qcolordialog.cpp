@@ -175,7 +175,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
         int n = 2;
         p->drawRect(n, n, w-2*n, h-2*n);
     }
-    Q4StyleOptionFrame opt(0);
+    QStyleOptionFrame opt(0);
     opt.rect.setRect(b, b, w - 2 * b, h - 2 * b);
     opt.palette = g;
     opt.state = QStyle::Style_Enabled | QStyle::Style_Sunken;
@@ -195,7 +195,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
             p->drawRect(2, 2, w-4, h-4);
             b = 3;
         } else if (hasFocus()) {
-            Q4StyleOptionFocusRect opt(0);
+            QStyleOptionFocusRect opt(0);
             opt.palette = g;
             opt.rect.setRect(0, 0, w, h);
             opt.state = QStyle::Style_Default;

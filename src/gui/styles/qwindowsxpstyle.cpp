@@ -659,7 +659,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement op,
                                     const QRect &r,
                                     const QPalette &pal,
                                     SFlags flags,
-                                    const QStyleOption &opt) const
+                                    const Q3StyleOption &opt) const
 {
     if (!use_xp) {
         QWindowsStyle::drawPrimitive(op, p, r, pal, flags, opt);
@@ -1072,7 +1072,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
                                   const QRect &r,
                                   const QPalette &pal,
                                   SFlags flags,
-                                  const QStyleOption &opt) const
+                                  const Q3StyleOption &opt) const
 {
     bool doFlipp = false;
     d->currentWidget = widget;
@@ -1422,7 +1422,7 @@ void QWindowsXPStyle::drawControlMask(ControlElement element,
                           QPainter *p,
                           const QWidget *widget,
                           const QRect &r,
-                          const QStyleOption &option) const
+                          const Q3StyleOption &option) const
 {
     if (!use_xp) {
         QWindowsStyle::drawControlMask(element, p, widget, r, option);
@@ -1507,7 +1507,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                                          SFlags flags,
                                          SCFlags sub,
                                          SCFlags subActive,
-                                         const QStyleOption &opt) const
+                                         const Q3StyleOption &opt) const
 {
     d->currentWidget = w;
 
@@ -1880,7 +1880,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                 theme.drawBackground(partId, stateId);
             }
             if (flags & Style_HasFocus) {
-                Q4StyleOptionFocusRect opt(0);
+                Q3StyleOptionFocusRect opt(0);
                 opt.rect = subRect(SR_SliderFocusRect, sl);
                 opt.palette = pal;
                 opt.state = Style_Default;
@@ -1975,7 +1975,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
             }
 
             if (tb->hasFocus() && !tb->focusProxy()) {
-                Q4StyleOptionFocusRect opt(0);
+                Q3StyleOptionFocusRect opt(0);
                 opt.rect = tb->rect();
                 opt.rect.addCoords(3, 3, -3, -3);
                 opt.palette = pal;
@@ -2414,7 +2414,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric metric,
 QRect QWindowsXPStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,
                                               SubControl sc,
-                                              const QStyleOption &option) const
+                                              const Q3StyleOption &option) const
 {
     if (!use_xp)
         return QWindowsStyle::querySubControlMetrics(control, widget, sc, option);
@@ -2504,7 +2504,7 @@ QRect QWindowsXPStyle::querySubControlMetrics(ComplexControl control,
 QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
                                        const QWidget *widget,
                                        const QSize &contentsSize,
-                                       const QStyleOption& opt) const
+                                       const Q3StyleOption& opt) const
 {
     if (!use_xp)
         return QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
@@ -2574,7 +2574,7 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
 /*! \reimp */
 int QWindowsXPStyle::styleHint(StyleHint stylehint,
                            const QWidget *widget,
-                           const QStyleOption& opt,
+                           const Q3StyleOption& opt,
                            QStyleHintReturn* returnData) const
 {
     if (!use_xp)

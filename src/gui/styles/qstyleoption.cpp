@@ -15,12 +15,12 @@
 
 #include "qstyleoption.h"
 
-Q4StyleOption::Q4StyleOption(int optionversion, int optiontype)
+QStyleOption::QStyleOption(int optionversion, int optiontype)
     : version(optionversion), type(optiontype)
 {
 }
 
-void Q4StyleOption::init(const QWidget *w)
+void QStyleOption::init(const QWidget *w)
 {
     state = 0;
     if (w->isEnabled())

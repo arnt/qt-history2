@@ -58,7 +58,7 @@ public:
     bool clickableSections;
     int stretchSections;
     QWidget *sectionIndicator;//, *sectionIndicator2;
-    Q4StyleOptionHeader getStyleOption() const;
+    QStyleOptionHeader getStyleOption() const;
 };
 
 static const int border = 4;
@@ -255,7 +255,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             paintSection(&painter, &options, item);
         }
         if (options.itemRect.right() < area.right()) {
-            Q4StyleOptionHeader opt = d->getStyleOption();
+            QStyleOptionHeader opt = d->getStyleOption();
             opt.state |= QStyle::Style_Off | QStyle::Style_Raised;
             opt.rect.setRect(options.itemRect.right() + 1, 0,
                              width - options.itemRect.right() - 1, height);
@@ -272,7 +272,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             paintSection(&painter, &options, item);
         }
         if (options.itemRect.bottom() < area.bottom()) {
-            Q4StyleOptionHeader opt = d->getStyleOption();
+            QStyleOptionHeader opt = d->getStyleOption();
             opt.state |= QStyle::Style_Off | QStyle::Style_Raised;
             opt.rect.setRect(0, options.itemRect.bottom() + 1, width,
                              height - options.itemRect.bottom() - 1);
@@ -290,7 +290,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 
 void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item)
 {
-    Q4StyleOptionHeader opt = d->getStyleOption();
+    QStyleOptionHeader opt = d->getStyleOption();
     QStyle::SFlags arrowFlags = QStyle::Style_Off;
     opt.rect = options->itemRect;
     if (d->clickableSections && (d->orientation == Qt::Horizontal ?
@@ -1156,9 +1156,9 @@ QRect QGenericHeaderPrivate::sectionHandleRect(int section)
     return rect;
 }
 
-Q4StyleOptionHeader QGenericHeaderPrivate::getStyleOption() const
+QStyleOptionHeader QGenericHeaderPrivate::getStyleOption() const
 {
-    Q4StyleOptionHeader opt(0);
+    QStyleOptionHeader opt(0);
     opt.rect = q->rect();
     opt.palette = q->palette();
     opt.state = QStyle::Style_Default;

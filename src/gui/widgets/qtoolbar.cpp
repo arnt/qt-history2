@@ -91,7 +91,7 @@ public:
 void QToolBarHandle::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.state = QStyle::Style_Default;
     if (isEnabled())
 	opt.state |= QStyle::Style_Enabled;

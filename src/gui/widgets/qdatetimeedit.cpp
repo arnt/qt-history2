@@ -42,7 +42,7 @@ public:
     void editorCursorPositionChanged(int lastpos, int newpos);
     QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
 
-//    Q4StyleOptionSpinBox styleOption() const;
+//    QStyleOptionSpinBox styleOption() const;
 
     void clearSection(SectionFlags s);
 
@@ -1330,9 +1330,9 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(SectionF
     \reimp
 */
 
-// Q4StyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
+// QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
 // {
-//     Q4StyleOptionSpinBox opt(0);
+//     QStyleOptionSpinBox opt(0);
 //     opt.init(q);
 //     opt.stepEnabled = q->stepEnabled();
 //     opt.activeParts = 0;

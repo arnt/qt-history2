@@ -129,7 +129,7 @@ QSizeGrip::~QSizeGrip()
 */
 QSize QSizeGrip::sizeHint() const
 {
-    Q4StyleOption opt(0);
+    QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -146,7 +146,7 @@ void QSizeGrip::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
     painter.setClipRegion(e->region());
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;

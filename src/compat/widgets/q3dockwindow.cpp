@@ -85,7 +85,7 @@ QSize Q3DockWindowResizeHandle::sizeHint() const
 {
     int sw = 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3;
 
-    Q4StyleOptionDockWindow opt(0);
+    QStyleOptionDockWindow opt(0);
     opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
@@ -225,7 +225,7 @@ void Q3DockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
 void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -386,7 +386,7 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
     if ((!dockWindow->dockArea || mousePressed) && !opaque)
         return;
     QPainter p(this);
-    Q4StyleOptionDockWindow opt(0);
+    QStyleOptionDockWindow opt(0);
     opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
@@ -587,7 +587,7 @@ void Q3DockWindowTitleBar::keyReleaseEvent(QKeyEvent *e)
 
 void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
 {
-    Q4StyleOptionTitleBar opt(0);
+    QStyleOptionTitleBar opt(0);
     opt.init(this);
     opt.parts = QStyle::SC_All;
     opt.activeParts = QStyle::SC_None;
@@ -1508,7 +1508,7 @@ void Q3DockWindow::drawFrame(QPainter *p)
         return;
     }
 
-    Q4StyleOptionFrame opt(0);
+    QStyleOptionFrame opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -1526,7 +1526,7 @@ void Q3DockWindow::drawFrame(QPainter *p)
 void Q3DockWindow::drawContents(QPainter *p)
 {
     // This is only used by the PocketPC style. We probably need to revist later.
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.init(this);
     if (titleBar->isActive())
         opt.state |= QStyle::Style_Active;

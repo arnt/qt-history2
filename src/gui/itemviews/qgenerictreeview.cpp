@@ -497,7 +497,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
     int outer = d->rootDecoration ? 0 : 1;
     QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
 
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.palette = palette();
     if (level >= outer) {
         // start with the innermost branch

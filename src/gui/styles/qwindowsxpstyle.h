@@ -44,7 +44,7 @@ public:
                         const QRect &r,
                         const QPalette &pal,
                         SFlags flags = Style_Default,
-                        const QStyleOption& = QStyleOption::Default) const;
+                        const Q3StyleOption& = Q3StyleOption::Default) const;
 
     void drawControl(ControlElement element,
                       QPainter *p,
@@ -52,13 +52,13 @@ public:
                       const QRect &r,
                       const QPalette &pal,
                       SFlags how = Style_Default,
-                      const QStyleOption& = QStyleOption::Default) const;
+                      const Q3StyleOption& = Q3StyleOption::Default) const;
 
     void drawControlMask(ControlElement element,
                           QPainter *p,
                           const QWidget *widget,
                           const QRect &r,
-                          const QStyleOption& = QStyleOption::Default) const;
+                          const Q3StyleOption& = Q3StyleOption::Default) const;
 
     void drawComplexControl(ComplexControl control,
                              QPainter* p,
@@ -68,7 +68,7 @@ public:
                              SFlags flags = Style_Default,
                              SCFlags sub = SC_All,
                              SCFlags subActive = SC_None,
-                             const QStyleOption& = QStyleOption::Default) const;
+                             const Q3StyleOption& = Q3StyleOption::Default) const;
 
 
     int pixelMetric(PixelMetric metic,
@@ -77,16 +77,16 @@ public:
     QRect querySubControlMetrics(ComplexControl control,
                                   const QWidget *widget,
                                   SubControl sc,
-                                  const QStyleOption& = QStyleOption::Default) const;
+                                  const Q3StyleOption& = Q3StyleOption::Default) const;
 
     QSize sizeFromContents(ContentsType contents,
                                     const QWidget *widget,
                                     const QSize &contentsSize,
-                                    const QStyleOption& = QStyleOption::Default) const;
+                                    const Q3StyleOption& = Q3StyleOption::Default) const;
 
     int styleHint(StyleHint stylehint,
                            const QWidget *widget = 0,
-                           const QStyleOption& = QStyleOption::Default,
+                           const Q3StyleOption& = Q3StyleOption::Default,
                            QStyleHintReturn* returnData = 0
                           ) const;
 

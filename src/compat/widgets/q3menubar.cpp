@@ -1089,7 +1089,7 @@ void Q3MenuBar::drawContents(QPainter *p)
     if (!irects)
         return;
 
-    Q4StyleOptionMenuItem opt(0);
+    QStyleOptionMenuItem opt(0);
     for (int i = 0; i < mitems->count(); ++i) {
         Q3MenuItem *mi = mitems->at(i);
         if (!mi->text().isEmpty() || mi->pixmap()) {
@@ -1104,8 +1104,8 @@ void Q3MenuBar::drawContents(QPainter *p)
             opt.text = mi->text();
             if (mi->pixmap())
                 opt.icon = *mi->pixmap();
-            opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
-            opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+            opt.checkState = QStyleOptionMenuItem::NotCheckable;
+            opt.menuItemType = QStyleOptionMenuItem::Normal;
             opt.maxIconWidth = 0;
             opt.tabWidth = 0;
             bool eav = mi->isEnabledAndVisible();
@@ -1549,12 +1549,12 @@ QSize Q3MenuBar::sizeHint() const
             s.setWidth(s.width() + irects[i].width() + 2);
     }
     s.setHeight(h);
-    Q4StyleOptionMenuItem opt(0);
+    QStyleOptionMenuItem opt(0);
     opt.rect = rect();
     opt.menuRect = rect();
     opt.state = QStyle::Style_Default;
-    opt.menuItemType = Q4StyleOptionMenuItem::Normal;
-    opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    opt.menuItemType = QStyleOptionMenuItem::Normal;
+    opt.checkState = QStyleOptionMenuItem::NotCheckable;
     opt.palette = palette();
     return (style().sizeFromContents(QStyle::CT_MenuBar, &opt,
                                      s.expandedTo(QApplication::globalStrut()),

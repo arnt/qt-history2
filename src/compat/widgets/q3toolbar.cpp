@@ -177,7 +177,7 @@ QSize Q3ToolBarSeparator::sizeHint() const
 void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.rect = rect();
     opt.palette = palette();
     if (orientation() == Qt::Horizontal)

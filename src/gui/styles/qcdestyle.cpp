@@ -91,7 +91,7 @@ void QCDEStyle::drawControl(ControlElement element,
                              const QRect &r,
                              const QPalette &pal,
                              SFlags how,
-                             const QStyleOption& opt) const
+                             const Q3StyleOption& opt) const
 {
 
     switch(element) {
@@ -132,7 +132,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                                const QRect &r,
                                const QPalette &pal,
                                SFlags flags,
-                               const QStyleOption& opt) const
+                               const Q3StyleOption& opt) const
 {
     switch(pe) {
     case PE_Indicator: {

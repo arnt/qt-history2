@@ -4924,7 +4924,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
            document()->focusIndicator.start + document()->focusIndicator.len <= start + len ||
            document()->focusIndicator.start <= start &&
            document()->focusIndicator.start + document()->focusIndicator.len >= start + len)) {
-        Q4StyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt(0);
         opt.rect.setRect(xstart, y, w, h);
         opt.state = QStyle::Style_Default;
         opt.palette = pal;

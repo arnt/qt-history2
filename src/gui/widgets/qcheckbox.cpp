@@ -31,7 +31,7 @@ public:
     uint tristate : 1;
     uint noChange : 1;
     void init();
-    Q4StyleOptionButton getStyleOption() const;
+    QStyleOptionButton getStyleOption() const;
 };
 
 #define d d_func()
@@ -118,9 +118,9 @@ void QCheckBoxPrivate::init()
     q->setCheckable(true);
 }
 
-Q4StyleOptionButton QCheckBoxPrivate::getStyleOption() const
+QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
 {
-    Q4StyleOptionButton opt(0);
+    QStyleOptionButton opt(0);
     opt.init(q);
     if (down)
         opt.state |= QStyle::Style_Down;
@@ -202,7 +202,7 @@ QSize QCheckBox::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    Q4StyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt = d->getStyleOption();
     QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), Qt::ShowPrefix, false, text()).size();
     return (style().sizeFromContents(QStyle::CT_CheckBox, &opt, sz, fm, this)
                    .expandedTo(QApplication::globalStrut()));
@@ -215,7 +215,7 @@ QSize QCheckBox::sizeHint() const
 */
 void QCheckBox::drawBevel(QPainter *paint)
 {
-    Q4StyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt = d->getStyleOption();
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxIndicator, &opt, this), this);
     style().drawControl(QStyle::CE_CheckBox, &opt, paint, this);
 }
@@ -228,7 +228,7 @@ void QCheckBox::drawBevel(QPainter *paint)
 */
 void QCheckBox::drawLabel(QPainter *p)
 {
-    Q4StyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt = d->getStyleOption();
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxContents, &opt, this), this);
     style().drawControl(QStyle::CE_CheckBoxLabel, &opt, p, this);
 }
@@ -257,7 +257,7 @@ void QCheckBox::paintEvent(QPaintEvent *)
 */
 void QCheckBox::updateMask()
 {
-    Q4StyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt = d->getStyleOption();
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxIndicator, &opt, this), this);
 
     QBitmap bm(width(), height());
@@ -266,7 +266,7 @@ void QCheckBox::updateMask()
     QPainter p(&bm);
     style().drawControlMask(QStyle::CE_CheckBox, &opt, &p, this);
     if (!text().isNull() || !icon().isNull()) {
-        Q4StyleOptionButton opt = d->getStyleOption();
+        QStyleOptionButton opt = d->getStyleOption();
         QRect crect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxContents, &opt, this),
                                          this);
         QRect frect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxFocusRect, &opt, this),
@@ -282,7 +282,7 @@ void QCheckBox::updateMask()
 /*!\reimp*/
 bool QCheckBox::hitButton(const QPoint &pos) const
 {
-    Q4StyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt = d->getStyleOption();
     QRect r = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxFocusRect, &opt, this), this);
     if (qApp->reverseLayout()) {
         r.setRight(width());

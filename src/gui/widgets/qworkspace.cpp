@@ -2011,7 +2011,7 @@ void QWorkspaceChild::leaveEvent(QEvent *)
 
 void QWorkspaceChild::drawFrame(QPainter *p)
 {
-    Q4StyleOptionFrame opt(0);
+    QStyleOptionFrame opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;

@@ -55,7 +55,7 @@ int QAccessibleSpinBox::childCount() const
 QRect QAccessibleSpinBox::rect(int child) const
 {
     QRect rect;
-    Q4StyleOptionComplex so(0);
+    QStyleOptionComplex so(0);
     so.rect = widget()->rect();
     switch(child) {
     case Editor:
@@ -222,7 +222,7 @@ QScrollBar *QAccessibleScrollBar::scrollBar() const
 QRect QAccessibleScrollBar::rect(int child) const
 {
     QRect rect;
-    Q4StyleOptionSlider option(0);
+    QStyleOptionSlider option(0);
     QRect srect = scrollBar()->style().querySubControlMetrics(QStyle::CC_Slider,
                                                               &option,
                                                               QStyle::SC_SliderHandle,
@@ -378,7 +378,7 @@ QSlider *QAccessibleSlider::slider() const
 QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
-    Q4StyleOptionSlider option(0);
+    QStyleOptionSlider option(0);
     QRect srect = slider()->style().querySubControlMetrics(QStyle::CC_Slider,
                                                            &option,
                                                            QStyle::SC_SliderHandle,

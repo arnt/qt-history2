@@ -197,7 +197,7 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QItemOptions &option
 void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const
 {
     if (options.focus) {
-        Q4StyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt(0);
         opt.rect = rect;
         opt.palette = options.palette;
         opt.state = QStyle::Style_Default;

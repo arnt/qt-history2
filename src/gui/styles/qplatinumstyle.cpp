@@ -63,7 +63,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
                                     const QRect &r,
                                     const QPalette &pal,
                                     SFlags flags,
-                                    const QStyleOption& opt) const
+                                    const Q3StyleOption& opt) const
 {
     switch (pe) {
     case PE_HeaderSection:
@@ -715,7 +715,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
                                   const QRect &r,
                                   const QPalette &pal,
                                   SFlags how,
-                                  const QStyleOption& opt) const
+                                  const Q3StyleOption& opt) const
 {
     switch(element) {
     case CE_PushButton:
@@ -904,7 +904,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                                          SFlags how,
                                          SCFlags sub,
                                          SCFlags subActive,
-                                         const QStyleOption& opt) const
+                                         const Q3StyleOption& opt) const
 {
     switch (control) {
     case CC_ComboBox:
@@ -1073,7 +1073,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                                             widget);
                     drawPrimitive(PE_FocusRect, p, re, pal,
                                    Style_FocusAtBorder,
-                                   QStyleOption(pal.highlight()));
+                                   Q3StyleOption(pal.highlight()));
                 }
                 if (cmb->editable()) {
                     // need this for the moment...
@@ -1289,7 +1289,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
 QRect QPlatinumStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,
                                               SubControl sc,
-                                              const QStyleOption& opt) const
+                                              const Q3StyleOption& opt) const
 {
     switch(control) {
 #ifndef QT_NO_COMBOBOX

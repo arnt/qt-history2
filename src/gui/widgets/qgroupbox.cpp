@@ -266,7 +266,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
             // ### This should probably be a style primitive.
             qDrawShadeLine(&paint, p1, p2, palette(), true, 1, 0);
     } else {
-        Q4StyleOptionFrame opt(0);
+        QStyleOptionFrame opt(0);
         opt.rect = frameRect;
         opt.palette = palette();
 

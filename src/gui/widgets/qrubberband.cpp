@@ -29,14 +29,14 @@ class QRubberBandPrivate : public QWidgetPrivate
 public:
     QRect rect;
     QRubberBand::Shape shape;
-    Q4StyleOption getStyleOption() const;
+    QStyleOption getStyleOption() const;
 };
 
 #define d d_func()
 #define q q_func()
-Q4StyleOption QRubberBandPrivate::getStyleOption() const
+QStyleOption QRubberBandPrivate::getStyleOption() const
 {
-    Q4StyleOption opt(0, Q4StyleOption::Default);
+    QStyleOption opt(0, QStyleOption::Default);
     opt.rect = rect;
     opt.palette = q->palette();
     opt.state = QStyle::Style_Default;
@@ -117,7 +117,7 @@ QRubberBand::~QRubberBand()
 */
 void QRubberBand::drawRubberBandMask(QPainter *p)
 {
-    Q4StyleOption opt = d->getStyleOption();
+    QStyleOption opt = d->getStyleOption();
     style().drawPrimitive(QStyle::PE_RubberBandMask, &opt, p, this);
 }
 
@@ -130,7 +130,7 @@ void QRubberBand::drawRubberBandMask(QPainter *p)
 */
 void QRubberBand::drawRubberBand(QPainter *p)
 {
-    Q4StyleOption opt = d->getStyleOption();
+    QStyleOption opt = d->getStyleOption();
     style().drawPrimitive(QStyle::PE_RubberBand, &opt, p, this);
 }
 

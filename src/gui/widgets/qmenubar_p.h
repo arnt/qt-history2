@@ -38,7 +38,7 @@ public:
     }
 
     void init();
-    Q4StyleOptionMenuItem getStyleOption(const QAction *action) const;
+    QStyleOptionMenuItem getStyleOption(const QAction *action) const;
 
     //item calculations
     uint itemsDirty : 1;

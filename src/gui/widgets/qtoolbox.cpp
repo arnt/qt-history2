@@ -176,7 +176,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     QString text = QAbstractButton::text();
     QPainter *p = &paint;
     const QPalette &pal = palette();
-    Q4StyleOptionToolBox opt(0);
+    QStyleOptionToolBox opt(0);
     opt.init(this);
     if (selected)
         opt.state |= QStyle::Style_Selected;
@@ -246,7 +246,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
                       isEnabled(), QPixmap(), txt, -1, fill);
 
     if (!txt.isEmpty() && hasFocus()) {
-        Q4StyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt(0);
         opt.rect = tr;
         opt.palette = pal;
         opt.state = QStyle::Style_Default;

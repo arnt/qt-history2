@@ -251,7 +251,7 @@ protected:
             Q3DockWindow *dw = qt_cast<Q3DockWindow*>(o);
             if (!dw || !dw->isVisible())
                 continue;
-            Q4StyleOptionDockWindow opt(0);
+            QStyleOptionDockWindow opt(0);
             opt.rect.setRect(x, 0, 30, 10);
             opt.palette = palette();
             opt.docked = dw->area();
@@ -1498,7 +1498,7 @@ void Q3MainWindow::paintEvent(QPaintEvent *)
         style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this)) {
         QPainter p(this);
         int y = d->mb->height() + 1;
-        Q4StyleOption opt(0, Q4StyleOption::Default);
+        QStyleOption opt(0, QStyleOption::Default);
         opt.rect.setRect(0, y, width(), 1);
         opt.palette = palette();
         opt.state = QStyle::Style_Sunken;

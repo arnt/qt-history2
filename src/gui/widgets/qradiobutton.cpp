@@ -107,9 +107,9 @@ QRadioButton::QRadioButton(const QString &text, QWidget *parent)
     setText(text);
 }
 
-static Q4StyleOptionButton getStyleOption(const QRadioButton *btn)
+static QStyleOptionButton getStyleOption(const QRadioButton *btn)
 {
-    Q4StyleOptionButton opt(0);
+    QStyleOptionButton opt(0);
     opt.init(btn);
     opt.text = btn->text();
     opt.icon = btn->icon();
@@ -129,7 +129,7 @@ QSize QRadioButton::sizeHint() const
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), Qt::ShowPrefix, false, text()).size();
-    Q4StyleOptionButton opt = getStyleOption(this);
+    QStyleOptionButton opt = getStyleOption(this);
     return (style().sizeFromContents(QStyle::CT_RadioButton, &opt, sz, fm, this).
             expandedTo(QApplication::globalStrut()));
 }
@@ -139,7 +139,7 @@ QSize QRadioButton::sizeHint() const
 */
 bool QRadioButton::hitButton(const QPoint &pos) const
 {
-    Q4StyleOptionButton opt = getStyleOption(this);
+    QStyleOptionButton opt = getStyleOption(this);
     QRect r =
         QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonFocusRect, &opt, this), this);
     if (qApp->reverseLayout()) {
@@ -158,7 +158,7 @@ bool QRadioButton::hitButton(const QPoint &pos) const
 */
 void QRadioButton::drawBevel(QPainter *p)
 {
-    Q4StyleOptionButton opt = getStyleOption(this);
+    QStyleOptionButton opt = getStyleOption(this);
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonIndicator, &opt, this),
                                   this);
     style().drawControl(QStyle::CE_RadioButton, &opt, p, this);
@@ -172,7 +172,7 @@ void QRadioButton::drawBevel(QPainter *p)
 */
 void QRadioButton::drawLabel(QPainter *p)
 {
-    Q4StyleOptionButton opt = getStyleOption(this);
+    QStyleOptionButton opt = getStyleOption(this);
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonContents, &opt, this),
                                   this);
     style().drawControl(QStyle::CE_RadioButtonLabel, &opt, p, this);
@@ -202,7 +202,7 @@ void QRadioButton::paintEvent(QPaintEvent *)
 */
 void QRadioButton::updateMask()
 {
-    Q4StyleOptionButton opt = getStyleOption(this);
+    QStyleOptionButton opt = getStyleOption(this);
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonIndicator, &opt, this),
                                   this);
     QBitmap bm(width(), height());

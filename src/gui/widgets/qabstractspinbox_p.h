@@ -58,7 +58,7 @@ public:
     void updateEdit() const;
     void calculateSizeHints() const;
 
-    Q4StyleOptionSpinBox styleOption() const;
+    QStyleOptionSpinBox styleOption() const;
 
     QCoreVariant valueForPosition(int pos) const;
 

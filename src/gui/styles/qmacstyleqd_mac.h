@@ -42,29 +42,29 @@ public:
     void unPolish(QWidget * w);
     void polish(QApplication*);
 
-    void drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+    void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                        const QWidget *w = 0) const;
-    void drawControl(ControlElement element, const Q4StyleOption *opt, QPainter *p,
+    void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                      const QWidget *w = 0) const;
-    QRect subRect(SubRect r, const Q4StyleOption *opt, const QWidget *widget = 0) const;
-    void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
+    QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
+    void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
-    SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
+    SubControl querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                const QPoint &pt, const QWidget *w = 0) const;
-    QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt, SubControl sc,
+    QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
                                  const QWidget *w) const;
-    QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
+    QSize sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
     int pixelMetric(PixelMetric metric, const QWidget *widget) const;
 
-    int styleHint(StyleHint sh, const QWidget *, const QStyleOption &, QStyleHintReturn *) const;
+    int styleHint(StyleHint sh, const QWidget *, const Q3StyleOption &, QStyleHintReturn *) const;
 
     QPixmap stylePixmap(StylePixmap sp, const QWidget *widget,
-                        const QStyleOption& = QStyleOption::Default) const;
+                        const Q3StyleOption& = Q3StyleOption::Default) const;
 
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                        const QPalette &pal, const QStyleOption& = QStyleOption::Default) const;
+                        const QPalette &pal, const Q3StyleOption& = Q3StyleOption::Default) const;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

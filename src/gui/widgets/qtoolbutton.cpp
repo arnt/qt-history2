@@ -37,7 +37,7 @@ public:
     void init(bool doMainWindowConnections);
     void popupPressed();
     void popupTimerDone();
-    Q4StyleOptionToolButton getStyleOption() const;
+    QStyleOptionToolButton getStyleOption() const;
     QPointer<QMenu> menu; //the menu set by the user (setMenu)
     QPointer<QMenu> popupMenu; //the menu being displayed (could be the same as menu above)
     QBasicTimer popupTimer;
@@ -198,9 +198,9 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
 }
 
-Q4StyleOptionToolButton QToolButtonPrivate::getStyleOption() const
+QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 {
-    Q4StyleOptionToolButton opt(0);
+    QStyleOptionToolButton opt(0);
     opt.init(q);
     bool down = q->isDown();
     bool checked = q->isChecked();
@@ -232,17 +232,17 @@ Q4StyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         if (instantPopup || down)
             opt.activeParts |= QStyle::SC_ToolButtonMenu;
     }
-    opt.extras = Q4StyleOptionToolButton::None;
+    opt.extras = QStyleOptionToolButton::None;
     if (usesTextLabel)
-        opt.extras |= Q4StyleOptionToolButton::TextLabel;
+        opt.extras |= QStyleOptionToolButton::TextLabel;
     if (hasArrow)
-        opt.extras |= Q4StyleOptionToolButton::Arrow;
+        opt.extras |= QStyleOptionToolButton::Arrow;
     if (menu)
-        opt.extras |= Q4StyleOptionToolButton::Menu;
+        opt.extras |= QStyleOptionToolButton::Menu;
     if (delay)
-        opt.extras |= Q4StyleOptionToolButton::PopupDelay;
+        opt.extras |= QStyleOptionToolButton::PopupDelay;
     if (usesBigPixmap)
-        opt.extras |= Q4StyleOptionToolButton::BigPixmap;
+        opt.extras |= QStyleOptionToolButton::BigPixmap;
     opt.bgRole = q->backgroundRole();
     const QWidget *w = q->parentWidget();
     if (w) {
@@ -356,7 +356,7 @@ QSize QToolButton::sizeHint() const
     if ((d->menu || !actions().isEmpty()) && ! popupDelay())
         w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
 
-    Q4StyleOptionToolButton opt = d->getStyleOption();
+    QStyleOptionToolButton opt = d->getStyleOption();
     return style().sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), fm, this).
             expandedTo(QApplication::globalStrut());
 }
@@ -437,7 +437,7 @@ void QToolButton::setUsesTextLabel(bool enable)
 */
 void QToolButton::drawBevel(QPainter *p)
 {
-    Q4StyleOptionToolButton opt = d->getStyleOption();
+    QStyleOptionToolButton opt = d->getStyleOption();
     style().drawComplexControl(QStyle::CC_ToolButton, &opt, p, this);
 }
 
@@ -449,7 +449,7 @@ void QToolButton::drawBevel(QPainter *p)
 */
 void QToolButton::drawLabel(QPainter *p)
 {
-    Q4StyleOptionToolButton opt = d->getStyleOption();
+    QStyleOptionToolButton opt = d->getStyleOption();
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, &opt, this),
                                   this);
     style().drawControl(QStyle::CE_ToolButtonLabel, &opt, p, this);
@@ -522,7 +522,7 @@ void QToolButton::timerEvent(QTimerEvent *e)
 */
 void QToolButton::mousePressEvent(QMouseEvent *e)
 {
-    Q4StyleOptionToolButton opt = d->getStyleOption();
+    QStyleOptionToolButton opt = d->getStyleOption();
     QRect popupr =
         QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ToolButton, &opt,
                                                           QStyle::SC_ToolButtonMenu, this), this);

@@ -91,7 +91,7 @@ static inline bool qt_mac_is_metal(QPainter *p)
     return qt_mac_is_metal(qt_abuse_painter_for_widget(p));
 }
 
-static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *slider,
+static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *slider,
                           HIThemeTrackDrawInfo *tdi, const QWidget *needToRemoveMe)
 {
     memset(tdi, 0, sizeof(HIThemeTrackDrawInfo)); // We don't get it all for some reason or another...
@@ -501,7 +501,7 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 }
 
 
-int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOption &opt,
+int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const Q3StyleOption &opt,
                            QStyleHintReturn *d) const
 {
     SInt32 ret = 0;
@@ -535,7 +535,7 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
 }
 
 QPixmap QMacStyleCG::stylePixmap(StylePixmap sp, const QWidget *widget,
-                                 const QStyleOption &opt) const
+                                 const Q3StyleOption &opt) const
 {
     IconRef icon = 0;
     switch (sp) {
@@ -561,13 +561,13 @@ QPixmap QMacStyleCG::stylePixmap(StylePixmap sp, const QWidget *widget,
 }
 
 QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                                 const QPalette &pal, const QStyleOption &opt) const
+                                 const QPalette &pal, const Q3StyleOption &opt) const
 {
     return QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
 }
 
 
-void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                                 const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
@@ -579,7 +579,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
     case PE_CheckListIndicator:
     case PE_IndicatorMask:
     case PE_Indicator:
-        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
@@ -719,14 +719,14 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                            kHIThemeOrientationNormal);
         break; }
     case PE_HeaderArrow:
-        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+        if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
             if (w && w->inherits("QTable"))
                 drawPrimitive(header->state & Style_Up ? PE_ArrowUp : PE_ArrowDown, header, p, w);
             // ListView header is taken care of.
         }
         break;
     case PE_HeaderSection:
-        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+        if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
@@ -761,7 +761,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         }
         break;
     case PE_PanelGroupBox:
-        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt)) {
+        if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             HIThemeGroupBoxDrawInfo gdi;
             gdi.version = qt_mac_hitheme_version;
             gdi.state = tds;
@@ -776,7 +776,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         break;
     case PE_Panel:
     case PE_PanelLineEdit:
-        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt)) {
+        if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             if (frame->state & Style_Sunken) {
                 HIThemeFrameDrawInfo fdi;
                 fdi.version = qt_mac_hitheme_version;
@@ -815,14 +815,14 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
     }
 }
 
-void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
+void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p,
                               const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
     CGContextRef cg = qt_macCGHandle(p->device());
     switch (ce) {
     case CE_PushButton:
-        if (const Q4StyleOptionButton *btn = ::qt_cast<const Q4StyleOptionButton *>(opt)) {
+        if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (Style_Raised | Style_Down | Style_On)))
                 break;
             HIThemeButtonDrawInfo bdi;
@@ -835,7 +835,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             if (btn->state & Style_ButtonDefault)
                 bdi.adornment = kThemeAdornmentDefault;
             bdi.value = kThemeButtonOff;
-            if (btn->extras != Q4StyleOptionButton::None)
+            if (btn->extras != QStyleOptionButton::None)
                 bdi.kind = kThemeBevelButton;
             else
                 bdi.kind = kThemePushButton;
@@ -848,17 +848,17 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             }
             HIThemeDrawButton(&newRect, &bdi, cg,
                               kHIThemeOrientationNormal, 0);
-            if (btn->extras & Q4StyleOptionButton::HasMenu) {
+            if (btn->extras & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, w);
                 QRect ir = btn->rect;
-                Q4StyleOptionButton newBtn = *btn;
+                QStyleOptionButton newBtn = *btn;
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
                 drawPrimitive(PE_ArrowDown, &newBtn, p, w);
             }
         }
         break;
     case CE_MenuItem:
-        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             int tabwidth = mi->tabWidth;
             int maxpmw = mi->maxIconWidth;
             bool active = mi->state & Style_Active;
@@ -870,11 +870,11 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             mdi.itemType = kThemeMenuItemPlain;
             if (!mi->icon.isNull())
                 mdi.itemType |= kThemeMenuItemHasIcon;
-            if (mi->menuItemType == Q4StyleOptionMenuItem::SubMenu)
+            if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
                 mdi.itemType |= kThemeMenuItemHierarchical | kThemeMenuItemHierBackground;
             else
                 mdi.itemType |= kThemeMenuItemPopUpBackground;
-            if (mi->checkState != Q4StyleOptionMenuItem::NotCheckable)
+            if (mi->checkState != QStyleOptionMenuItem::NotCheckable)
                 maxpmw = qMax(maxpmw, 12);
             if (enabled)
                 mdi.state = kThemeMenuActive;
@@ -883,7 +883,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             if (active)
                 mdi.state |= kThemeMenuSelected;
             HIRect contentRect;
-            if (mi->menuItemType == Q4StyleOptionMenuItem::Separator) {
+            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
                 // First arg should be &menurect, but wacky stuff happens then.
                 HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
                                          cg,
@@ -906,7 +906,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             else
                 p->setPen(mi->palette.buttonText());
 
-            if (mi->checkState == Q4StyleOptionMenuItem::Checked) {
+            if (mi->checkState == QStyleOptionMenuItem::Checked) {
                 // Use the HIThemeTextInfo foo to draw the check mark correctly, if we do it,
                 // we somehow need to use a special encoding as it doesn't look right with our
                 // drawText().
@@ -953,7 +953,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 xpos += pixw + 6;
             }
 
-            if (mi->menuItemType == Q4StyleOptionMenuItem::Q3Custom) {
+            if (mi->menuItemType == QStyleOptionMenuItem::Q3Custom) {
                 /*
                 int m = macItemVMargin;
                 mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
@@ -980,7 +980,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
     case CE_MenuVMargin:
     case CE_MenuTearoff:
     case CE_MenuScroller:
-        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             HIRect menuRect = qt_hirectForQRect(mi->menuRect);
             HIRect itemRect = qt_hirectForQRect(mi->rect);
             HIThemeMenuItemDrawInfo mdi;
@@ -1013,7 +1013,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
         }
         break;
     case CE_MenuBarItem:
-        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             HIThemeMenuTitleDrawInfo tdi;
             tdi.version = qt_mac_hitheme_version;
             tdi.state = kThemeMenuActive;
@@ -1031,7 +1031,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
         }
         break;
     case CE_MenuBarEmptyArea:
-        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             HIThemeMenuBarDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeMenuBarNormal;
@@ -1042,7 +1042,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             break;
         }
     case CE_ProgressBarContents:
-        if (const Q4StyleOptionProgressBar *pb = qt_cast<const Q4StyleOptionProgressBar *>(opt)) {
+        if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             HIThemeTrackDrawInfo tdi;
             tdi.version = qt_mac_hitheme_version;
             tdi.reserved = 0;
@@ -1085,7 +1085,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
     case CE_ProgressBarGroove:
         break;
     case CE_HeaderLabel:
-        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+        if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
             QRect textr = header->rect;
             if (!header->icon.isNull()) {
                 QIconSet::Mode mode = QIconSet::Disabled;
@@ -1117,18 +1117,18 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
     }
 }
 
-QRect QMacStyleCG::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *w) const
+QRect QMacStyleCG::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
 {
     QRect r;
     switch (sr) {
     case SR_PushButtonContents:
-        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             HIRect inRect = CGRectMake(0, 0, btn->rect.width(), btn->rect.height());
             HIRect outRect;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
-            if (btn->extras & Q4StyleOptionButton::None)
+            if (btn->extras & QStyleOptionButton::None)
                 bdi.kind = kThemePushButton;
             else
                 bdi.kind = kThemeBevelButton;
@@ -1149,7 +1149,7 @@ QRect QMacStyleCG::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *
     return r;
 }
 
-void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
+void QMacStyleCG::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                      QPainter *p, const QWidget *widget) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
@@ -1157,7 +1157,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:
-        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
+        if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             if (cc == CC_Slider) {
@@ -1221,7 +1221,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
         }
         break;
     case CC_ListView:
-        if (const Q4StyleOptionListView *lv = qt_cast<const Q4StyleOptionListView *>(opt)) {
+        if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
             if (lv->parts & SC_ListView)
                 QWindowsStyle::drawComplexControl(cc, lv, p, widget);
             if (lv->parts & (SC_ListViewBranch | SC_ListViewExpand)) {
@@ -1229,10 +1229,10 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                 int h = lv->rect.height();
                 int x = lv->rect.right() - 10;
                 for (int i = 1; i < lv->items.size() && y < h; ++i) {
-                    Q4StyleOptionListViewItem item = lv->items.at(i);
+                    QStyleOptionListViewItem item = lv->items.at(i);
                     if (y + item.height > 0 && (item.childCount > 0
-                        || item.extras & Q4StyleOptionListViewItem::Expandable)) {
-                        Q4StyleOption treeOpt(0, Q4StyleOption::Default);
+                        || item.extras & QStyleOptionListViewItem::Expandable)) {
+                        QStyleOption treeOpt(0, QStyleOption::Default);
                         treeOpt.rect.setRect(x, y + item.height / 2 - 4, 9, 9);
                         treeOpt.palette = lv->palette;
                         treeOpt.state = lv->state;
@@ -1247,10 +1247,10 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
         }
         break;
     case CC_SpinBox:
-        if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
-            Q4StyleOptionSpinBox newSB = *sb;
+        if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
+            QStyleOptionSpinBox newSB = *sb;
             if (sb->parts & SC_SpinBoxFrame) {
-                Q4StyleOptionFrame lineedit(0);
+                QStyleOptionFrame lineedit(0);
                 lineedit.rect = QStyle::visualRect(querySubControlMetrics(CC_SpinBox, sb,
                                                                           SC_SpinBoxFrame, widget),
                                                    widget);
@@ -1311,7 +1311,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
         }
         break;
     case CC_ComboBox:
-        if (const Q4StyleOptionComboBox *cmb = qt_cast<const Q4StyleOptionComboBox *>(opt)) {
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             QRect comborect(cmb->rect);
@@ -1340,7 +1340,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                 }
                 QRect lineeditRect(cmb->rect);
                 lineeditRect.setWidth(cmb->rect.width() - comborect.width());
-                Q4StyleOptionFrame lineedit(0);
+                QStyleOptionFrame lineedit(0);
                 lineedit.rect = lineeditRect;
                 lineedit.palette = cmb->palette;
                 lineedit.state = cmb->state;
@@ -1356,7 +1356,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
         }
         break;
     case CC_TitleBar:
-        if (const Q4StyleOptionTitleBar *titlebar = qt_cast<const Q4StyleOptionTitleBar *>(opt)) {
+        if (const QStyleOptionTitleBar *titlebar = qt_cast<const QStyleOptionTitleBar *>(opt)) {
             HIThemeWindowDrawInfo wdi;
             wdi.version = qt_mac_hitheme_version;
             wdi.state = tds;
@@ -1454,13 +1454,13 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
     }
 }
 
-QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
+QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                    const QPoint &pt, const QWidget *widget) const
 {
     SubControl sc = SC_None;
     switch (cc) {
     case CC_Slider:
-        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
+        if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             ControlPartCode part;
@@ -1474,7 +1474,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const Q4Style
         }
         break;
     case CC_ScrollBar:
-        if (const Q4StyleOptionSlider *sb = qt_cast<const Q4StyleOptionSlider *>(opt)) {
+        if (const QStyleOptionSlider *sb = qt_cast<const QStyleOptionSlider *>(opt)) {
             HIScrollBarTrackInfo sbi;
             sbi.version = qt_mac_hitheme_version;
             if (!qAquaActive(sb->palette))
@@ -1514,14 +1514,14 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const Q4Style
     return sc;
 }
 
-QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
+QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
                                           SubControl sc, const QWidget *widget) const
 {
     QRect ret;
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:
-        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
+        if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             HIRect macRect;
@@ -1546,7 +1546,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
         }
         break;
     case CC_SpinBox:
-        if (const Q4StyleOptionSpinBox *spin = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
+        if (const QStyleOptionSpinBox *spin = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             const int spinner_w = 10,
             spinner_h = 15;
             int fw = pixelMetric(PM_SpinBoxFrameWidth, widget),
@@ -1578,7 +1578,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
         }
         break;
     case CC_TitleBar:
-        if (const Q4StyleOptionTitleBar *titlebar = qt_cast<const Q4StyleOptionTitleBar *>(opt)) {
+        if (const QStyleOptionTitleBar *titlebar = qt_cast<const QStyleOptionTitleBar *>(opt)) {
             HIThemeWindowDrawInfo wdi;
             memset(&wdi, 0, sizeof(wdi));
             wdi.version = qt_mac_hitheme_version;
@@ -1619,7 +1619,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
         }
         break;
     case CC_ComboBox:
-        if (const Q4StyleOptionComboBox *cmb = qt_cast<const Q4StyleOptionComboBox *>(opt)) {
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
             if (cmb->editable) {
                 if (sc == SC_ComboBoxEditField)
                     ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
@@ -1635,7 +1635,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
     return ret;
 }
 
-QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &csz,
+QSize QMacStyleCG::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &csz,
                                     const QFontMetrics &fm, const QWidget *widget) const
 {
     QSize sz(csz);
@@ -1681,12 +1681,12 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
         sz = QSize(sz.width() + 16, sz.height());
         break;
     case CT_MenuItem:
-        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
-            bool checkable = mi->checkState != Q4StyleOptionMenuItem::NotCheckable;
+        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+            bool checkable = mi->checkState != QStyleOptionMenuItem::NotCheckable;
             int maxpmw = mi->maxIconWidth;
             int w = sz.width(),
                 h = sz.height();
-            if (mi->menuItemType == Q4StyleOptionMenuItem::Separator) {
+            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
                 w = 10;
                 SInt16 ash;
                 GetThemeMenuSeparatorHeight(&ash);
@@ -1698,7 +1698,7 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
             }
             if (mi->text.contains('\t'))
                 w += 12;
-            if (mi->menuItemType == Q4StyleOptionMenuItem::SubMenu)
+            if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
                 w += 20;
             if (maxpmw)
                 w += maxpmw + 6;
@@ -1706,7 +1706,7 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
                 w += 12;
             if (widget && ::qt_cast<QComboBox*>(widget->parentWidget())
                     && widget->parentWidget()->isVisible()) {
-                Q4StyleOptionComboBox cmb(0);
+                QStyleOptionComboBox cmb(0);
                 cmb.init(widget->parentWidget());
                 cmb.editable = false;
                 cmb.parts = SC_ComboBoxEditField;

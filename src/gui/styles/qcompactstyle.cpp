@@ -119,7 +119,7 @@ void drawPopupMenuItem(QPainter* p, bool checkable,
 /*! \reimp */
 void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidget *widget,
                                  const QRect &r, const QPalette &pal,
-                                 SFlags flags, const QStyleOption& opt)
+                                 SFlags flags, const Q3StyleOption& opt)
 {
     switch (element) {
 #ifdef QT_COMPAT

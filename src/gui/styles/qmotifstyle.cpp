@@ -181,7 +181,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                                  const QRect &r,
                                  const QPalette &pal,
                                  SFlags flags,
-                                 const QStyleOption& opt) const
+                                 const Q3StyleOption& opt) const
 {
     switch(pe) {
 #ifndef QT_NO_LISTVIEW
@@ -754,7 +754,7 @@ void QMotifStyle::drawControl(ControlElement element,
                                const QRect &r,
                                const QPalette &pal,
                                SFlags flags,
-                               const QStyleOption& opt) const
+                               const Q3StyleOption& opt) const
 {
     switch(element) {
     case CE_PushButton:
@@ -1355,7 +1355,7 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
                                      SFlags flags,
                                      SCFlags sub,
                                      SCFlags subActive,
-                                     const QStyleOption& opt) const
+                                     const Q3StyleOption& opt) const
 {
     switch (control) {
     case CC_SpinBox: {
@@ -1672,7 +1672,7 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
                                            const QWidget *widget,
                                            SubControl sc,
-                                           const QStyleOption& opt) const
+                                           const Q3StyleOption& opt) const
 {
     switch (control) {
     case CC_SpinBox: {
@@ -1852,7 +1852,7 @@ QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
 QSize QMotifStyle::sizeFromContents(ContentsType contents,
                                      const QWidget *widget,
                                      const QSize &contentsSize,
-                                     const QStyleOption& opt) const
+                                     const Q3StyleOption& opt) const
 {
     QSize sz(contentsSize);
 
@@ -2398,7 +2398,7 @@ static const char *const question_xpm[] = {
  */
 QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
                                  const QWidget *widget,
-                                 const QStyleOption& opt) const
+                                 const Q3StyleOption& opt) const
 {
 #ifndef QT_NO_IMAGEIO_XPM
     switch (sp) {
@@ -2491,7 +2491,7 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 /*! \reimp */
 int QMotifStyle::styleHint(StyleHint hint,
                            const QWidget *widget,
-                           const QStyleOption &opt,
+                           const Q3StyleOption &opt,
                            QStyleHintReturn *returnData) const
 {
     int ret;
