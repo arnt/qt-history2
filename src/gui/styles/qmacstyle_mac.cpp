@@ -16,7 +16,7 @@
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
 
-#include <private/qaquatabpix_mac_p.h>
+#include <private/qmacstylepixmaps_mac_p.h>
 #include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>
 #include <private/qprintengine_mac_p.h>
@@ -5034,20 +5034,56 @@ QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOpt
                                   const QWidget *widget) const
 {
     IconRef icon = 0;
+    OSType iconType = 0;
     switch (standardPixmap) {
-        case QStyle::SP_MessageBoxQuestion:
-        case QStyle::SP_MessageBoxInformation:
-            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
-            break;
-        case QStyle::SP_MessageBoxWarning:
-            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertCautionIcon, &icon);
-            break;
-        case QStyle::SP_MessageBoxCritical:
-            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
-            break;
-        default:
-            break;
+    case QStyle::SP_MessageBoxQuestion:
+    case QStyle::SP_MessageBoxInformation:
+        iconType = kAlertNoteIcon;
+        break;
+    case QStyle::SP_MessageBoxWarning:
+        iconType = kAlertCautionIcon;
+        break;
+    case QStyle::SP_MessageBoxCritical:
+        iconType = kAlertStopIcon;
+        break;
+    case SP_DesktopIcon:
+        iconType = kDesktopIcon;
+        break;
+    case SP_TrashIcon:
+        iconType = kTrashIcon;
+        break;
+    case SP_ComputerIcon:
+        iconType = kComputerIcon;
+        break;
+    case SP_DriveFDIcon:
+        iconType = kGenericFloppyIcon;
+        break;
+    case SP_DriveHDIcon:
+        iconType = kGenericHardDiskIcon;
+        break;
+    case SP_DriveCDIcon:
+    case SP_DriveDVDIcon:
+        iconType = kGenericCDROMIcon;
+        break;
+    case SP_DriveNetIcon:
+        iconType = kGenericNetworkIcon;
+        break;
+    case SP_DirOpenIcon:
+        iconType = kOpenFolderIcon;
+        break;
+    case SP_DirClosedIcon:
+    case SP_DirLinkIcon:
+        iconType = kGenericFolderIcon;
+        break;
+    case SP_FileLinkIcon:
+    case SP_FileIcon:
+        iconType = kGenericDocumentIcon;
+        break;
+    default:
+        break;
     }
+    if (iconType != 0)
+        GetIconRef(kOnSystemDisk, kSystemIconsCreator, iconType, &icon);
     if (icon) {
         QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
         ReleaseIconRef(icon);
