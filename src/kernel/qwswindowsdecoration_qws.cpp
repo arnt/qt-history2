@@ -103,7 +103,6 @@ static const char * const win_maximize_xpm[] = {
 "16 16 4 1",
 "       s None  c None",
 ".      c #000000",
-".      c #000000",
 "X      c #FFFFFF",
 "Y      c #707070",
 "XXXXXXXXXXXXXXXY",
