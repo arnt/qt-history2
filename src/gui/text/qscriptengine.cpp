@@ -56,7 +56,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
     QRectF baseRect(baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height);
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast);
-//     qDebug("baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
+//     qDebug("baseInfo: %f/%f (%f/%f) off=%f/%f", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
 
     qreal size = f->ascent()/10.;
     qreal offsetBase = (size - 4) / 4 + qMin(size, 4) + 1;
@@ -73,6 +73,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         QPointF p;
         glyph_metrics_t markInfo = f->boundingBox(mark);
         QRectF markRect(markInfo.x, markInfo.y, markInfo.width, markInfo.height);
+//         qDebug("markInfo: %f/%f (%f/%f) off=%f/%f", markInfo.x, markInfo.y, markInfo.width, markInfo.height, markInfo.xoff, markInfo.yoff);
 
         qreal offset = offsetBase;
         unsigned char cmb = glyphs[gfrom+i].attributes.combiningClass;
@@ -122,18 +123,18 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         case QChar::Combining_BelowLeft:
             p += QPointF(0, offset);
         case QChar::Combining_BelowLeftAttached:
-            p += QPointF(0, attachmentRect.height());
+            p += attachmentRect.bottomLeft() - markRect.topLeft();
             break;
         case QChar::Combining_Below:
             p += QPointF(0, offset);
         case QChar::Combining_BelowAttached:
-            p += QPointF(0, attachmentRect.height());
+            p += attachmentRect.bottomLeft() - markRect.topLeft();
             p += QPointF((attachmentRect.width() - markRect.width())/2 , 0);
             break;
             case QChar::Combining_BelowRight:
             p += QPointF(0, offset);
         case QChar::Combining_BelowRightAttached:
-            p += QPointF(0, attachmentRect.height());
+            p += attachmentRect.bottomRight() - markRect.topRight();
             break;
             case QChar::Combining_Left:
             p += QPointF(-offset, 0);
@@ -148,25 +149,25 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         case QChar::Combining_AboveLeft:
             p += QPointF(0, -offset);
         case QChar::Combining_AboveLeftAttached:
-            p += QPointF(0, attachmentRect.height());
+            p += attachmentRect.topLeft() - markRect.bottomLeft();
             break;
-            case QChar::Combining_Above:
+        case QChar::Combining_Above:
             p += QPointF(0, -offset);
         case QChar::Combining_AboveAttached:
-            p += QPointF(0, attachmentRect.height());
+            p += attachmentRect.topLeft() - markRect.bottomLeft();
             p += QPointF((attachmentRect.width() - markRect.width())/2 , 0);
             break;
-            case QChar::Combining_AboveRight:
+        case QChar::Combining_AboveRight:
             p += QPointF(0, -offset);
         case QChar::Combining_AboveRightAttached:
-            p += QPointF(0, attachmentRect.height());
+            p += attachmentRect.topRight() - markRect.bottomRight();
             break;
 
         case QChar::Combining_IotaSubscript:
             default:
                 break;
         }
-//         qDebug("char=%x combiningClass = %d offset=%d/%d", mark, cmb, p.x(), p.y());
+//         qDebug("char=%x combiningClass = %d offset=%f/%f", mark, cmb, p.x(), p.y());
         markRect.translate(p.x(), p.y());
         attachmentRect |= markRect;
         lastCmb = cmb;
@@ -1202,7 +1203,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
             uchar c = ch->cell();
             int pos = i + from;
             int shape = properties[i].shape;
-            qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
+//             qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
             // take care of lam-alef ligatures (lam right of alef)
             ushort map;
             switch (c) {
@@ -1251,7 +1252,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
         glyphs[gpos].attributes.clusterStart = !glyphs[gpos].attributes.mark;
         glyphs[gpos].attributes.combiningClass = combiningClass(*ch);
         glyphs[gpos].attributes.justification = properties[i].justification;
-        qDebug("data[%d] = %x (from %x)", gpos, (uint)data->unicode(), ch->unicode());
+//         qDebug("data[%d] = %x (from %x)", gpos, (uint)data->unicode(), ch->unicode());
         data++;
     skip:
         ch++;
@@ -1383,7 +1384,7 @@ static bool arabic_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Arabic);
 
-#if 0 //def QT_HAVE_FREETYPE
+#ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(QUnicodeTables::Arabic))
