@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#97 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#97 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -1247,14 +1247,4 @@ QValidator * QLineEdit::validator() const
 void QLineEdit::clearValidator()
 {
     setValidator( 0 );
-}
-
-
-/*!
-  Same as QWidget::setPalette().
-*/
-
-void QLineEdit::setPalette( const QPalette & p )
-{
-    QWidget::setPalette( p );
 }

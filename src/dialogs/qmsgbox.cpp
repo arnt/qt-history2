@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#48 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#49 $
 **
 ** Implementation of QMessageBox class
 **
@@ -20,7 +20,7 @@
 #include "qmlined.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#49 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -524,13 +524,6 @@ void QMessageBox::resizeButtons()
     for ( i=0; i<mbd->numButtons; i++ )
 	mbd->pb[i]->resize( maxSize );
 }
-
-
-void QMessageBox::show()
-{
-    QDialog::show();
-}
-
 
 /*!
   Returns the message box text currently set, or null if no text has been set.

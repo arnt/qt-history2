@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#108 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#108 $");
 
 
 // Motif style parameters
@@ -1335,13 +1335,4 @@ int QPopupMenu::exec()
 void QPopupMenu::modalActivation( int id )
 {
     syncMenuId = id;
-}
-
-
-/*!  Handles close events for the popup menu. */
-
-void QPopupMenu::closeEvent( QCloseEvent * e )
-{
-    debug( "QPopupMenu::closeEvent()" );
-    QTableView::closeEvent( e );
 }
