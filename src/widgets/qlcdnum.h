@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#15 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#16 $
 **
 ** Definition of QLCDNumber class
 **
@@ -27,23 +27,22 @@ public:
 
     enum Mode { HEX, DEC, OCT, BIN };
 
-    bool    smallDecimalPoint() const { return (bool)smallPoint; }
+    bool    smallDecimalPoint() const;
 
-    int	    numDigits() const	{ return ndigits; }
+    int	    numDigits() const;
     void    setNumDigits( int nDigits );
 
     bool    checkOverflow( double num ) const;
-    bool    checkOverflow( long	  num ) const;
+    bool    checkOverflow( int	  num ) const;
 
     QLCDNumber::Mode mode() const;
     void    setMode( Mode );
 
     double  value() const;
-    long    longValue() const;
+    int     intValue() const;
+
 public slots:
     void    display( int num );
-    void    display( long num );
-    void    display( float num );
     void    display( double num );
     void    display( const char *str );
     void    setHexMode();
@@ -74,6 +73,13 @@ private:
     QString digitStr;
     QBitArray points;
 };
+
+
+inline bool QLCDNumber::smallDecimalPoint() const
+{ return (bool)smallPoint; }
+
+inline int QLCDNumber::numDigits() const
+{ return ndigits; }
 
 
 #endif // QLCDNUM_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#36 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -60,13 +60,13 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#35 $")
   \fn void QLCDNumber::overflow()
 
   This signal is emitted whenever the QLCDNumber is asked to display a
-  too big number or too long string.
+  too large number or a too long string.
 
   It is never emitted by setNumDigits().
  ----------------------------------------------------------------------------*/
 
 
-static QString long2string( long num, int base, int ndigits, bool *oflow )
+static QString int2string( int num, int base, int ndigits, bool *oflow )
 {
     QString s;
     bool negative;
@@ -89,7 +89,7 @@ static QString long2string( long num, int base, int ndigits, bool *oflow )
 	case QLCDNumber::BIN: {
 	    char buf[42];
 	    char *p = &buf[41];
-	    ulong n = num;
+	    uint n = num;
 	    int len = 0;
 	    *p = '\0';
 	    do {
@@ -127,12 +127,12 @@ static QString double2string( double num, int base, int ndigits, bool *oflow )
     QString s;
     if ( base != QLCDNumber::DEC ) {
 	bool of = num >= 2147483648.0 || num < -2147483648.0;
-	if ( of ) {				// oops, 'long' overflow
+	if ( of ) {				// oops, integer overflow
 	    if ( oflow )
 		*oflow = TRUE;
 	    return s;
 	}
-	s = long2string( (long)num, base, ndigits, 0 );
+	s = int2string( (int)num, base, ndigits, 0 );
     } else {					// decimal base
 	s.sprintf( "%*g", ndigits, num );
 	int i = s.find('e');
@@ -215,7 +215,7 @@ static char *getSegments( char ch )		// gets list of segments for ch
 	    n = 23;  break;
 	case 's':
 	case 'S':
-	    n = 5;  break;
+	    n = 5;   break;
 	case 'u':
 	    n = 24;  break;
 	case 'U':
@@ -361,10 +361,10 @@ void QLCDNumber::setNumDigits( int numDigits )
   \sa display(), numDigits(), smallDecimalPoint()
  ----------------------------------------------------------------------------*/
 
-bool QLCDNumber::checkOverflow( long num ) const
+bool QLCDNumber::checkOverflow( int num ) const
 {
     bool of;
-    long2string( num, base, ndigits, &of );
+    int2string( num, base, ndigits, &of );
     return of;
 }
 
@@ -400,7 +400,7 @@ QLCDNumber::Mode QLCDNumber::mode() const
 
   If display(const char *) was the last called, 0 is returned.
 
-  \sa longValue(), display()
+  \sa intValue(), display()
  ----------------------------------------------------------------------------*/
 
 double QLCDNumber::value() const
@@ -410,16 +410,16 @@ double QLCDNumber::value() const
 
 /*----------------------------------------------------------------------------
   Returns the last value set by one of the display() slots rounded to the
-  nearest long.
+  nearest integer.
 
   If display(const char *) was the last called, 0 is returned.
 
   \sa value(), display()
  ----------------------------------------------------------------------------*/
 
-long QLCDNumber::longValue() const
+int QLCDNumber::intValue() const
 {
-    return (long) (val < 0 ? val - 0.5 : val + 0.5);
+    return (int)(val < 0 ? val - 0.5 : val + 0.5);
 }
 
 
@@ -430,29 +430,9 @@ long QLCDNumber::longValue() const
 
 void QLCDNumber::display( int num )
 {
-    display( (long) num );
-}
-
-
-/*----------------------------------------------------------------------------
-  \overload void QLCDNumber::display( float num )
- ----------------------------------------------------------------------------*/
-
-void QLCDNumber::display( float num )
-{
-    display( (double) num );
-}
-
-
-/*----------------------------------------------------------------------------
-  \overload void QLCDNumber::display( long num )
- ----------------------------------------------------------------------------*/
-
-void QLCDNumber::display( long num )
-{
-    val = (double) num;
+    val = (double)num;
     bool of;
-    QString s = long2string( num, base, ndigits, &of );
+    QString s = int2string( num, base, ndigits, &of );
     if ( of )
 	emit overflow();
     else
@@ -637,11 +617,11 @@ void QLCDNumber::internalDisplay( const char *s )
 
     p.begin( this );
     if ( !smallPoint ) {
-	if ( len >= ndigits ) {			  // String too long?
-	    for( i=0; i<(int)ndigits; i++ )	  // Yes, show first chars.
+	if ( len >= ndigits ) {
+	    for( i=0; i<(int)ndigits; i++ )	// trunc too long string
 		buffer[i] = s[len - ndigits + i];
 	} else {
-	    for( i=0; i<ndigits-len; i++ )	  // Pad with spaces.
+	    for( i=0; i<ndigits-len; i++ )	// pad with spaces
 		buffer[i] = ' ';
 	    for( i=0; i<len; i++ )
 		buffer[ndigits - len + i] = s[i];
@@ -654,20 +634,20 @@ void QLCDNumber::internalDisplay( const char *s )
 	newPoints.clearBit(0);
 	for ( i=0; i<len; i++ ) {
 	    if ( s[i] == '.' ) {
-		if ( lastWasPoint ) {		// Point already set for digit?
-		    if ( index == ndigits - 1 ) // No more digits?
+		if ( lastWasPoint ) {		// point already set for digit?
+		    if ( index == ndigits - 1 ) // no more digits
 			break;
 		    index++;
 		    buffer[index] = ' ';	// 2 points in a row, add space
 		}
-		newPoints.setBit(index);	// Set decimal point
+		newPoints.setBit(index);	// set decimal point
 		lastWasPoint = TRUE;
 	    } else {
 		if ( index == ndigits - 1 )
 		    break;
 		index++;
 		buffer[index] = s[i];
-		newPoints.clearBit(index);     // Decimal point default off
+		newPoints.clearBit(index);	// decimal point default off
 		lastWasPoint = FALSE;
 	    }
 	}
@@ -740,8 +720,8 @@ void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
 // Draws and/or erases segments to change display of a single digit
 // from oldCh to newCh
 
-    char updates[18][2];	// Can hold 2 times number of segments, only
-				// first 9 used if segment table is correct.
+    char updates[18][2];	// can hold 2 times number of segments, only
+				// first 9 used if segment table is correct
     int	 nErases;
     int	 nUpdates;
     char *segs;
@@ -754,7 +734,7 @@ void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
     segs = getSegments(oldCh);
     for ( nErases=0; segs[nErases] != 99; nErases++ ) {
 	updates[nErases][0] = erase;		// get segments to erase to
-	updates[nErases][1] = segs[nErases];	// remove old char.
+	updates[nErases][1] = segs[nErases];	// remove old char
     }
     nUpdates = nErases;
     segs = getSegments(newCh);
@@ -842,7 +822,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(segLen - width - 1,-width/2);
 	    LINETO(segLen - 1,0);
 	    DARK;
-	    if (width & 1) {	// Adjust for integer division error.
+	    if (width & 1) {		// adjust for integer division error
 		LINETO(segLen - width - 3,width/2 + 1);
 		LINETO(width + 2,width/2 + 1);
 	    } else {
@@ -884,7 +864,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 	case 7 :
-	    if ( smallPoint )  // If smallpoint place'.' between other digits
+	    if ( smallPoint )	// if smallpoint place'.' between other digits
 		pt.rx() += (QCOORD)(segLen + width/2);
 	    else
 		pt.rx() += (QCOORD)(segLen/2);
