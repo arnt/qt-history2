@@ -120,6 +120,6 @@ Q_EXPORT HDC	   qt_display_dc();
     uint	nocolBrush  : 1;\
     uint	pixmapBrush : 1;\
     void       *textMetric();	\
-    void	nativeXForm( bool );
+    bool	nativeXForm( bool );
 
 #endif

@@ -1059,7 +1059,7 @@ void QPainter::setBrushOrigin( int x, int y )
 }
 
 
-void QPainter::nativeXForm( bool enable )
+bool QPainter::nativeXForm( bool enable )
 {
 #ifndef Q_OS_TEMP
     XFORM m;
@@ -1080,7 +1080,7 @@ void QPainter::nativeXForm( bool enable )
 	m.eDx  = mtx.dx();
 	m.eDy  = mtx.dy();
 	SetGraphicsMode( hdc, GM_ADVANCED );
-	SetWorldTransform( hdc, &m );
+	return SetWorldTransform( hdc, &m );
     } else {
 	m.eM11 = m.eM22 = (float)1.0;
 	m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
@@ -1104,6 +1104,7 @@ void QPainter::nativeXForm( bool enable )
 	SetViewportOrgEx( hdc, 0, 0, NULL );
     }
 #endif
+    return TRUE;
 }
 
 
@@ -2463,7 +2464,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    return;
 	}
 	if ( nat_xf )
-	    nativeXForm( TRUE );
+	    if( !nativeXForm( TRUE ) ) {
+ 		nativeXForm( FALSE );
+		return;
+	    }
 	else if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
     }
