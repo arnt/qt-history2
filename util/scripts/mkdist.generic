@@ -92,6 +92,7 @@ fi
 echo "Exporting the entire Qt and tmake depots..." >&2
 
 set +e
+rm -rf $DISTDIR
 TMPCLIENT=qt-release-tmp-$$
 p4 client -t qt-release-$disttype-$platform -o $TMPCLIENT |
     perl -p -e "
@@ -234,7 +235,6 @@ if [ "${platform}" = "win" ]; then
   [ -f qt.h ] && mv qt.h ../include
   cd ${DISTDIR}/qt
   mv extensions/opengl/src/q*.h include
-  mv extensions/imageio/src/q*.h include
   mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
   rm -rf extensions/xt
