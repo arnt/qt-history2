@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/scrollview/scrollview.cpp#3 $
+** $Id: //depot/qt/main/examples/scrollview/scrollview.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -83,7 +83,7 @@ class BigMatrix : public QScrollView {
     QMultiLineEdit *dragging;
 public:
     BigMatrix(QWidget* parent) :
-	QScrollView(parent,"matrix"),
+	QScrollView(parent,"matrix", WNorthWestGravity),
 	bg("bg.ppm")
     {
 	bg.load("bg.ppm");
