@@ -18,7 +18,7 @@
 // provide a proper alternative for others. See also the exports in
 // qapplication_win.cpp which suggest a unification.
 
-// ### needed for solaris-g++ in beta5
+// ### needed for solaris-g++
 #define QT_CLEAN_NAMESPACE
 
 #include "qplatformdefs.h"
