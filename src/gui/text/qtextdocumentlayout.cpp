@@ -56,15 +56,9 @@ class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
     Q_DECLARE_PUBLIC(QTextDocumentLayout);
 public:
     struct Float {
-        int pos;
-        int length;
-        QTextBlockIterator block;
-        QTextFormat format;
-
         QRect rect;
-        bool operator==(const Float &other) { return (pos == other.pos && block == other.block); }
     };
-    QList<Float> floats;
+    QHash<QTextFormatGroup *, Float> floats;
 
 #if 0
     struct Page {
@@ -318,17 +312,13 @@ void QTextDocumentLayoutPrivate::floatMargins(int *left, int *right)
 {
     *left = 0;
     *right = d->pageSize.width();
-    for (int i = 0; i < floats.size(); ++i) {
-        const Float &f = floats.at(i);
-        if (f.rect.y() < currentYPos && f.rect.bottom() > currentYPos) {
-            QTextFormatGroup *group = f.format.group();
-            if (group) {
-                QTextFloatFormat::Position pos = group->commonFormat().toFloatFormat().position();
-                if (pos == QTextFloatFormat::Left)
-                    *left = qMax(*left, f.rect.right());
-                else
-                    *right = qMin(*right, f.rect.left());
-            }
+    for (QHash<QTextFormatGroup *, Float>::const_iterator it = floats.constBegin(); it != floats.constEnd(); ++it) {
+        if (it->rect.y() < currentYPos && it->rect.bottom() > currentYPos) {
+            QTextFloatFormat::Position pos = it.key()->commonFormat().toFloatFormat().position();
+            if (pos == QTextFloatFormat::Left)
+                *left = qMax(*left, it->rect.right());
+            else
+                *right = qMin(*right, it->rect.left());
         }
     }
 }
@@ -426,20 +416,10 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
         return;
 
     QTextDocumentLayoutPrivate::Float fl;
-    fl.pos = item.at();
-    fl.length = 1;
-    fl.block = d->currentBlock;
-    fl.format = format;
-
     fl.rect = QRect((pos == QTextFloatFormat::Left ? 0 : d->pageSize.width() - s.width()), d->currentYPos,
                     s.width(), s.height());
 
-    int i = d->floats.indexOf(fl);
-    if (i < 0) {
-        d->floats.append(fl);
-    } else {
-        d->floats.replace(i, fl);
-    }
+    d->floats[group] = fl;
 
     item.setWidth(0);
     item.setAscent(0);
@@ -456,14 +436,8 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject
         pos = group->commonFormat().toFloatFormat().position();
     QRect r = rect;
     if (pos != QTextFloatFormat::None) {
-        int pos = item.at();
-        for (int i = 0; i < d->floats.size(); ++i) {
-            const QTextDocumentLayoutPrivate::Float &f = d->floats.at(i);
-            if (f.pos == pos && d->currentBlock == f.block) {
-                r = f.rect;
-                break;
-            }
-        }
+        QTextDocumentLayoutPrivate::Float f = d->floats.value(group);
+        r = f.rect;
     }
 
     QAbstractTextDocumentLayout::drawObject(p, r, item, format, selType);
