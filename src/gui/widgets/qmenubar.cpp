@@ -1026,7 +1026,7 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
     }
 #endif
     if(((QWidget*)object)->focusWidget() == object || (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0)) {
-        if(d->altPressed && event->type() == QEvent::KeyRelease && (ke->key() == Qt::Key_Alt || ke->key() == Qt::Key_Meta)) {    //alt release
+        if(d->altPressed && event->type() == QEvent::KeyRelease && (ke->key() == Qt::Key_Alt || ke->key() == Qt::Key_Meta || ke->key() == 0)) {    //alt release
             d->setKeyboardMode(true);
             if(!widget->isTopLevel())
                 object->removeEventFilter(this);
