@@ -90,6 +90,7 @@ class QDragMime : public QMimeData
 {
 public:
     QDragMime(Q3DragObject *parent) : QMimeData() { dragObject = parent; }
+    ~QDragMime() { delete dragObject; }
 
     QByteArray data(const QString &mimetype) const;
     bool hasFormat(const QString &mimetype) const;
@@ -330,10 +331,10 @@ bool Q3DragObject::drag(DragMode mode)
         ++i;
     }
 
-    QDrag drag(qt_cast<QWidget *>(parent()));
-    drag.setMimeData(d->data);
-    drag.setPixmap(d->pixmap);
-    drag.setHotSpot(d->hot);
+    QDrag *drag = new QDrag(qt_cast<QWidget *>(parent()));
+    drag->setMimeData(d->data);
+    drag->setPixmap(d->pixmap);
+    drag->setHotSpot(d->hot);
 
     QDrag::DropActions op;
     switch(mode) {
@@ -351,15 +352,10 @@ bool Q3DragObject::drag(DragMode mode)
         op = QDrag::LinkAction;
         break;
     }
-    switch(drag.start(op)) {
-    case QDrag::MoveAction:
-        return true;
-    default:
-        return false;
-    }
-    last_target = drag.target();
+    bool retval = (drag->start(op) == QDrag::MoveAction);
+    last_target = drag->target();
 
-    delete this;
+    return retval;
 }
 
 #endif
