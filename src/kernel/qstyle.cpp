@@ -587,10 +587,14 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	QPixmap  pm( *pixmap );
 	bool clip = (flags & Qt::DontClip) == 0;
 	if ( clip ) {
-	    if ( pm.width() < w && pm.height() < h )
+	    if ( pm.width() < w && pm.height() < h ) {
 		clip = FALSE;
-	    else
-		p->setClipRect( x, y, w, h );
+	    } else {
+		p->save();
+		QRegion cr = p->clipRegion(QPainter::CoordPainter);
+		cr &= QRect(x, y, w, h);
+		p->setClipRegion(cr);
+	    }
 	}
 	if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
 	    y += h/2 - pm.height()/2;
@@ -631,7 +635,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	}
 	p->drawPixmap( x, y, pm );
 	if ( clip )
-	    p->setClipping( FALSE );
+	    p->restore();
     } else if ( !text.isNull() ) {
 	if ( gs == Qt::WindowsStyle && !enabled ) {
 	    p->setPen( g.light() );
