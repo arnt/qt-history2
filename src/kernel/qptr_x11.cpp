@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#182 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#181 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#182 $")
 
 
 /*****************************************************************************
@@ -2766,7 +2766,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     while ( k < len ) {				// convert string to codes
 
-	if ( *p > 32 ) {			// printable character
+	if ( *(unsigned char *)p > 32 ) {	// printable character
 	    if ( *p == '&' && showprefix ) {
 		cc = '&';			// assume ampersand
 		if ( k < len-1 ) {
