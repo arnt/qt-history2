@@ -145,6 +145,9 @@ public:
     QCanvas* canvas() const
 	{ return cnv; }
 
+protected:
+    void update() { changeChunks(); }
+
 private:
     // For friendly sublasses...
 
