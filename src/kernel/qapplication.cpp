@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#10 $
 **
 ** Implementation of QApplication class
 **
@@ -15,16 +15,14 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#10 $";
 #endif
 
 
 QApplication *qApp = 0;				// global application object
 QWidget *QApplication::main_widget = 0;		// main application widget
-
-QFont    QApplication::appFont;			// default application font
-QCursor  QApplication::appCursor;		// default application cursor
-bool	 QApplication::appCursorDefined = FALSE;// application cursor defined
+QFont   *QApplication::appFont     = 0;		// default application font
+QCursor *QApplication::appCursor   = 0;		// default application cursor
 
 #if defined(_WS_MAC_)
 GUIStyle QApplication::appStyle = MacStyle;	// default style for Mac
@@ -86,7 +84,7 @@ void QApplication::quit( int retcode )		// quit application
 bool QApplication::notify( QObject *receiver, QEvent *event )
 {						// send event to object
 #if defined(CHECK_NULL)
-    if ( receiver == 0 )
+    if ( receiver == 0 )			// fatal error
 	warning( "QApplication::notify: Unexpected NULL receiver" );
 #endif
     return receiver->event( event );
