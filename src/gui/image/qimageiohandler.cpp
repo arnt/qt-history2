@@ -322,6 +322,8 @@ bool QImageIOHandler::write(const QImage &image)
 */
 void QImageIOHandler::setOption(ImageOption option, const QVariant &value)
 {
+    Q_UNUSED(option);
+    Q_UNUSED(value);
 }
 
 /*!
@@ -333,6 +335,7 @@ void QImageIOHandler::setOption(ImageOption option, const QVariant &value)
 */
 QVariant QImageIOHandler::option(ImageOption option) const
 {
+    Q_UNUSED(option);
     return QVariant();
 }
 
@@ -346,6 +349,7 @@ QVariant QImageIOHandler::option(ImageOption option) const
 */
 bool QImageIOHandler::supportsOption(ImageOption option) const
 {
+    Q_UNUSED(option);
     return false;
 }
 
