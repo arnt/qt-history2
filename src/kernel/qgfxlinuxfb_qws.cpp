@@ -57,28 +57,12 @@ QLinuxFbScreen::~QLinuxFbScreen()
 
 bool QLinuxFbScreen::connect( const QString &displaySpec )
 {
-    QString dev( "/dev/fb0" );
-
-    //    qDebug("Display spec %s",displaySpec.ascii());
-
-    // This doesn't seem to work?
-
-    /*
     // Check for explicitly specified device
-    QRegExp r( "\/dev\/fb*:" );
+    QRegExp r( "/dev/fb[0-9]+" );
     int len;
     int m = r.match( displaySpec, 0, &len );
-    if ( m >= 0 ) {
-	qDebug("Have match");
-	dev = displaySpec.mid( m, len-1 );
-    }
-    */
 
-    if(getenv("QWS_FB")) {
-	dev=getenv("QWS_FB");
-    }
-
-    //    qDebug( "QLinuxFbScreen: using device %s", dev.latin1() );
+    QString dev = (m>=0) ? displaySpec.mid( m, len ) : QString("/dev/fb0");
 
     fd=open( dev.latin1(), O_RDWR );
     if(fd<0) {
