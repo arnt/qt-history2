@@ -1,0 +1,200 @@
+\chapter qmake Tutorial
+
+\section1 Introduction to the qmake tutorial
+
+This is a tutorial in using qmake, if you haven't read through the rest of the manual then it is recommended to do so.
+
+\section1 Starting off simple
+
+Let's assume that you have just finished a basic implementation of your application, and you have created the following files:
+
+\list
+\i hello.cpp
+\i hello.h
+\i main.cpp
+\endlist
+
+You will find these files in \e {qt/qmake/tutorial}.  The only other thing you know about the setup of the application is that it's written in Qt.  First, using 
+your favourite editor, create a file called \e hello.pro in \e {qt/qmake/tutorial}.  The first thing you need to do is add the lines that tell \e qmake about the source
+and header files that are part of your development project.  
+
+We'll add the source files to the project file first, to do this you need to use the SOURCES variable.  Just start a new line with \e {SOURCES =} and put hello.cpp 
+after it.  So you should have something like:
+
+\code
+	SOURCES = hello.cpp
+\endcode
+
+This isn't all of the source files, but we can't just put \e main.cpp on a new line, and if we used \e {SOURCES +=} for each additional source file it would start
+to look messy.  So in order to show that we want another file added to the SOURCES variable we put a \e \\ after the first line and put \e main.cpp on a new line.  So 
+your project file should look something like:
+
+\code
+	SOURCES = hello.cpp \
+		  main.cpp
+\endcode
+
+Now that we have the source files setup in the project file, we now need to tell \e qmake about the header files.  Just add a similar line to the SOURCES one except 
+use the HEADERS variable and put \e hello.h as the value.
+
+Once you have done this, your project file should look something like:
+
+\code
+	SOURCES = hello.cpp \
+		  main.cpp
+	HEADERS = hello.h
+\endcode
+
+Now we should set a target name, this is so that \e qmake knows what the resulting executable should be called.  Here we use the \e TARGET variable and we will put
+\e hello as the value.  You may have noticed that the extension isn't given, this is because \e qmake will handle this automatically.
+
+The final thing we need to do to set up the \e CONFIG variable, since this is a Qt application, we need to put the \e qt value on the CONFIG line so that qmake will
+add the relevant libraries to be linked against and any other relevant settings needed when building a Qt application.
+
+Your finished project file should look like:
+
+\code
+	SOURCES = hello.cpp \
+		  main.cpp
+	HEADERS = hello.h
+	TARGET = hello
+	CONFIG = qt
+\endcode
+
+You can now use \e qmake to generate a makefile for your application.  On the command line, in your application directory, simply type:
+
+\code
+	qmake -o makefile hello.pro
+\endcode
+
+Then type make or nmake depending on the compiler you use.  You now have your basic hello application built!
+
+\section1 Making the 'hello' application debuggable
+
+Normally when you are developing an application you want to be able to debug the code, in order to be able to do this with the hello application we need to modify 
+the project file to set it as a debug project.
+
+Open the \e hello.pro file in your favourite editor if you haven't already done so.  All you need to do add \e debug to the CONFIG variable line and when the 
+project file is processed qmake will set up the makefile with the relevant settings so that the application can be debugged.
+
+Once you have done this, your project file should now look like:
+
+\code
+	SOURCES = hello.cpp \
+		  main.cpp
+	HEADERS = hello.h
+	TARGET = hello
+	CONFIG = qt debug
+\endcode
+
+Use \e qmake as before to generate a makefile and you will be able to debug your application.
+
+\section1 Adding platform specific source files
+
+After a few more hours of coding, you might have made a start on the platform specific part of your application, and decided to keep the platform dependent code 
+separate.  So you now have two new files to include into your project file - \e hello_win.cpp and \e hello_x11.cpp.  But wait, we can't just add these to the 
+\e SOURCES variable, this will put both files in the makefile.  So what we need to do here is to use a scope which will be processed depending on which platform
+qmake is ran on.
+
+A simple scope which will add in the platform dependent file for Windows looks something like:
+
+\code
+	win32 {
+		SOURCES += hello_win.cpp
+	}
+\endcode
+
+So if \e qmake is ran on Windows it will add \e hello_win.cpp to the list of source files, if \e qmake is ran on any other platform it will simply ignore it.  Now all 
+that is left to be done, is create a scope for the x11 dependent file, as a hint, use x11.
+
+When you have done that, your project file should now be looking something like:
+
+\code
+	SOURCES = hello.cpp \
+		  main.cpp
+	HEADERS = hello.h
+	TARGET = hello
+	CONFIG = qt debug
+	win32 {
+		SOURCES += hello_win.cpp
+	}
+	x11 {
+		SOURCES += hello_x11.cpp
+	}
+\endcode
+
+Use \e qmake as before to generate a makefile and you will see the relevant platform dependent file included.
+
+\section1 Stopping qmake if a file doesn't exist
+
+You may not want to create a makefile if a certain file doesn't exist, we can check if a file exists by using the exists() function, and we can stop qmake from 
+processing by using the error() function.  This works in the same way as scopes, which we have done already, just replace the scope condition with the function, so
+to check for the main.cpp file will look something like:
+
+\code
+	exists( main.cpp ) {
+	}
+\endcode
+
+However, this will process the code inside the scope if the file exists, but we want to process the settings if the file doesn't exist.  All we need to do to fix
+this is to put a \e ! before the function, and it will process the settings when the file does not exist.  
+
+All that is left to do is to use the error() function to output a suitable error message, this is just a simple function, just put the text in quotes inside the 
+brackets.  
+
+So now, your project file should look like:
+
+\code
+	SOURCES = hello.cpp \
+		  main.cpp
+	HEADERS = hello.h
+	TARGET = hello
+	CONFIG = qt debug
+	win32 {
+		SOURCES += hello_win.cpp
+	}
+	x11 {
+		SOURCES += hello_x11.cpp
+	}
+	!exists( main.cpp ) {
+		error( "The file 'main.cpp' does not exist!" )
+	}
+\endcode
+
+Use \e qmake as before to generate a makefile and if you rename \e main.cpp temporarily you will see the message and \e qmake will stop processing.
+
+\section1 Checking for more than one condition
+
+Suppose you use Windows and you want to be able to see the qDebug() statements when you run your application on the command line, as any Windows based Qt developer 
+will tell you, unless you build your application with the console setting, you won't see the output.  We can easily put \e console on the CONFIG line so that on Windows
+the makefile will have this setting.  But lets say that we only want to put on the CONFIG line if we are running on Windows and \e debug is on the CONFIG line also.
+To do this requires using two scopes nested, just create one scope, then create the other inside that one, and inside that scope put in the settings to be processed.
+
+Try to do this without looking at the resulting project file and see if you get it right.  
+
+If you get it right then your final project file should look like:
+
+\code
+	SOURCES = hello.cpp \
+		  main.cpp
+	HEADERS = hello.h
+	TARGET = hello
+	CONFIG = qt debug
+	win32 {
+		SOURCES += hello_win.cpp
+	}
+	x11 {
+		SOURCES += hello_x11.cpp
+	}
+	!exists( main.cpp ) {
+		error( "The file 'main.cpp' does not exist!" )
+	}
+	win32 {
+		debug{
+			CONFIG += console
+		}
+	}
+\endcode
+
+That's it!  You have now completed the tutorial for qmake, you are now ready to write project files for your real life development projects and to use qmake to 
+generate the makefiles for them.

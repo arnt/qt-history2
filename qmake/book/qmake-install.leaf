@@ -1,0 +1,30 @@
+\chapter Installing qmake
+
+\section1 Installing qmake
+
+\e qmake is built by default when you build Qt.  Just follow your installation instructions for Qt
+and \e qmake will be built automatically.  If you don't want to know how to build qmake manually then
+you can skip this section altogether.
+
+\section1 Installing qmake manually
+
+Before you start to build Qt manually you need to make sure that the following environment variables
+are set:
+
+\list
+\i QMAKESPEC \BR This needs to be set to the platform and compiler combination that you are using on
+your system.  For example, if you are using Windows and Microsoft Visual Studio, you would set this 
+environment variable to \e win32-msvc.  If you are using Solaris and g++, you would set this environment 
+variable to \e solaris-g++.
+\i QTDIR \BR This needs to be set to where you unpacked the Qt package.  For example, \e {c:\\qt} and \e {\\local\\qt}
+\endlist
+
+Once you have set up the environment variables you are now ready to build \e qmake.  First go into the qmake 
+directory which is usually something like \e {c:\\qt\\qmake}.  Then type \e make or \e nmake depending on your 
+compiler.
+
+When it has finished building, \e qmake is now ready for use.
+
+
+
+

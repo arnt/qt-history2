@@ -1,0 +1,11 @@
+\chapter Introduction to qmake
+
+\section1 Introduction to qmake
+
+\e qmake is a tool created by Trolltech to help create makefiles for your development projects.
+
+It can be a difficult and tedious task to create makefiles for your development projects, especially if you are developing on more than one platform and with 
+different compilers.  qmake handles the makefile generation for you, so that you can spend more time developing rather than creating makefiles.
+
+\e qmake has additional features for generating makefile for Qt applications which include ensuring the relevant defines are set and the appropriate steps for
+using moc and uic are put in.
