@@ -4924,8 +4924,13 @@ void QTable::showColumn( int col )
 
 void QTable::setColumnWidth( int col, int w )
 {
-    topHeader->resizeSection( col, w );
-    columnWidthChanged( col );
+    int *ow = d->hiddenCols.find( col );
+    if ( ow ) {
+	d->hiddenCols.replace( col, new int( w ) );
+    } else {
+	topHeader->resizeSection( col, w );
+	columnWidthChanged( col );
+    }
 }
 
 /*! Resizes row \a row to be \a h pixels high.
@@ -4935,8 +4940,13 @@ void QTable::setColumnWidth( int col, int w )
 
 void QTable::setRowHeight( int row, int h )
 {
-    leftHeader->resizeSection( row, h );
-    rowHeightChanged( row );
+    int *oh = d->hiddenRows.find( row );
+    if ( oh ) {
+	d->hiddenRows.replace( row, new int( h ) );
+    } else {
+	leftHeader->resizeSection( row, h );
+	rowHeightChanged( row );
+    }
 }
 
 /*! Resizes column \a col so that the column width is wide enough to display
