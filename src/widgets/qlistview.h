@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#46 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#47 $
 **
 ** Definition of QListView widget class
 **
@@ -48,12 +48,17 @@ public:
     int height() const { return ownHeight; }
     virtual void invalidateHeight();
     int totalHeight() const;
-    virtual int width( const QFontMetrics&, const QListView*, int column) const;
+    virtual int width( const QFontMetrics&,
+		       const QListView*, int column) const;
     void widthChanged(int column=-1) const;
     int depth() const;
 
+    virtual void setText( int, const char * );
     virtual const char * text( int ) const;
 
+    virtual void setPixmap( int, const QPixmap & );
+    virtual const QPixmap * pixmap( int ) const;
+    
     virtual const char * key( int, bool ) const;
     virtual void sortChildItems( int, bool );
 
@@ -67,7 +72,7 @@ public:
     bool isSelected() const { return selected; }
 
     virtual void paintCell( QPainter *,  const QColorGroup & cg,
-			    int column, int width );
+			    int column, int width, int alignment );
     virtual void paintBranches( QPainter * p, const QColorGroup & cg,
 				int w, int y, int h, GUIStyle s );
     virtual void paintFocus( QPainter *, const QColorGroup & cg,
@@ -114,7 +119,7 @@ private:
     QListViewItem * siblingItem;
     QListViewItem * childItem;
 
-    QStrList * columnTexts;
+    void * columns;
 
     friend class QListView;
 };
@@ -142,6 +147,9 @@ public:
     virtual void setColumnWidthMode( int column, WidthMode );
     WidthMode columnWidthMode( int column ) const;
 
+    virtual void setColumnAlignment( int, int );
+    int columnAlignment( int ) const;
+    
     void show();
 
     QListViewItem * itemAt( const QPoint & screenPos ) const;
@@ -250,7 +258,7 @@ public:
 		    const QPixmap & );
 
     void paintCell( QPainter *,  const QColorGroup & cg,
-		    int column, int width );
+		    int column, int width, int alignment );
     int width( const QFontMetrics&, const QListView*, int column) const;
     void setup();
 

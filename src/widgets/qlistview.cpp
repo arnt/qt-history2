@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#96 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#96 $");
 
 
 const int Unsorted = 16383;
@@ -72,7 +72,24 @@ struct QListViewPrivate
 	QListViewItem * i;
     };
 
+    struct ItemColumnInfo {
+	ItemColumnInfo(): next( 0 ) {}
+	~ItemColumnInfo() { delete next; }
+	QString text;
+	QPixmap pm;
+	ItemColumnInfo * next;
+    };
+    
+    struct ViewColumnInfo {
+	ViewColumnInfo(): align(AlignLeft), sortable(TRUE), next( 0 ) {}
+	~ViewColumnInfo() { delete next; }
+	int align;
+	bool sortable;
+	ViewColumnInfo * next;
+    };
+    
     // private variables used in QListView
+    ViewColumnInfo * vci;
     QHeader * h;
     Root * r;
     uint rootIsExpandable : 1;
@@ -191,24 +208,15 @@ QListViewItem::QListViewItem( QListView * parent,
 {
     init();
     parent->insertItem( this );
-
-    columnTexts = new QStrList();
-    if ( label1 )
-	columnTexts->append( label1 );
-    if ( label2 )
-	columnTexts->append( label2 );
-    if ( label3 )
-	columnTexts->append( label3 );
-    if ( label4 )
-	columnTexts->append( label4 );
-    if ( label5 )
-	columnTexts->append( label5 );
-    if ( label6 )
-	columnTexts->append( label6 );
-    if ( label7 )
-	columnTexts->append( label7 );
-    if ( label8 )
-	columnTexts->append( label8 );
+    
+    setText( 0, label1 );
+    setText( 1, label2 );
+    setText( 2, label3 );
+    setText( 3, label4 );
+    setText( 4, label5 );
+    setText( 5, label6 );
+    setText( 6, label7 );
+    setText( 7, label8 );
 }
 
 
@@ -234,23 +242,14 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     init();
     parent->insertItem( this );
 
-    columnTexts = new QStrList();
-    if ( label1 )
-	columnTexts->append( label1 );
-    if ( label2 )
-	columnTexts->append( label2 );
-    if ( label3 )
-	columnTexts->append( label3 );
-    if ( label4 )
-	columnTexts->append( label4 );
-    if ( label5 )
-	columnTexts->append( label5 );
-    if ( label6 )
-	columnTexts->append( label6 );
-    if ( label7 )
-	columnTexts->append( label7 );
-    if ( label8 )
-	columnTexts->append( label8 );
+    setText( 0, label1 );
+    setText( 1, label2 );
+    setText( 2, label3 );
+    setText( 3, label4 );
+    setText( 4, label5 );
+    setText( 5, label6 );
+    setText( 6, label7 );
+    setText( 7, label8 );
 }
 
 /*!  Performs the initializations that's common to the constructors. */
@@ -265,7 +264,7 @@ void QListViewItem::init()
     parentItem = 0;
     siblingItem = childItem = 0;
 
-    columnTexts = 0;
+    columns = 0;
 
     selected = 0;
 
@@ -679,10 +678,91 @@ int QListViewItem::totalHeight() const
 
 const char * QListViewItem::text( int column ) const
 {
-    if ( columnTexts && (int)columnTexts->count() > column )
-	return columnTexts->at( column );
-    else
-	return 0;
+    QListViewPrivate::ItemColumnInfo * l
+	= (QListViewPrivate::ItemColumnInfo*) columns;
+    
+    while( column && l ) {
+	l = l->next;
+	column--;
+    }
+
+    return l ? (const char *)(l->text) : 0;
+}
+
+
+/*!  Sets the text in column \a column to \a text, if \a column is a
+  valid column number and \a text is non-null.
+  
+  If \a text() has been reimplemented, this function may be a no-op.
+
+  \sa text() key()
+*/
+
+void QListViewItem::setText( int column, const char * text )
+{
+    if ( column < 0 )
+	return;
+
+    QListViewPrivate::ItemColumnInfo * l
+	= (QListViewPrivate::ItemColumnInfo*) columns;
+    if ( !l ) {
+	l = new QListViewPrivate::ItemColumnInfo;
+	columns = (void*)l;
+    }
+    while( column ) {
+	if ( !l->next )
+	    l->next = new QListViewPrivate::ItemColumnInfo;
+	l = l->next;
+	column--;
+    }
+    l->text = text;
+    repaint();
+}
+
+
+/*!  Sets the pixmap in column \a column to \a text, if \a text is
+  non-null and \a column is non-negative.
+  
+  \sa pixmap() setText()
+*/
+
+void QListViewItem::setPixmap( int column, const QPixmap & pm )
+{
+    if ( column < 0 )
+	return;
+
+    QListViewPrivate::ItemColumnInfo * l
+	= (QListViewPrivate::ItemColumnInfo*) columns;
+    if ( !l ) {
+	l = new QListViewPrivate::ItemColumnInfo;
+	columns = (void*)l;
+    }
+    while( column ) {
+	if ( !l->next )
+	    l->next = new QListViewPrivate::ItemColumnInfo;
+	l = l->next;
+	column--;
+    }
+    l->pm = pm;
+    repaint();
+}
+
+
+/*!
+
+*/
+
+const QPixmap * QListViewItem::pixmap( int column ) const
+{
+    QListViewPrivate::ItemColumnInfo * l
+	= (QListViewPrivate::ItemColumnInfo*) columns;
+    
+    while( column && l ) {
+	l = l->next;
+	column--;
+    }
+
+    return (l && !l->pm.isNull()) ? &(l->pm) : 0;
 }
 
 
@@ -709,7 +789,7 @@ const char * QListViewItem::text( int column ) const
 */
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
-			       int column, int width )
+			       int column, int width, int align )
 {
     // Change width() if you change this.
 
@@ -750,7 +830,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	p->setBackgroundMode( OpaqueMode );
 	// should do the ellipsis thing in drawText()
 	p->drawText( r, 0, width-marg-r, height(),
-		     AlignLeft + AlignVCenter, t );
+		     align | AlignVCenter, t );
     } else {
 	p->fillRect( r - marg, 0, width - r + marg, height(), cg.base() );
     }
@@ -1051,6 +1131,7 @@ QListView::QListView( QWidget * parent, const char * name )
     : QScrollView( parent, name )
 {
     d = new QListViewPrivate;
+    d->vci = 0;
     d->timer = new QTimer( this );
     d->levelWidth = 20;
     d->r = 0;
@@ -1211,7 +1292,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
 		current->i->paintCell( p, colorGroup(),
-				       d->h->mapToLogical( c ), r.width() );
+				       d->h->mapToLogical( c ), r.width(),
+				       columnAlignment( c ) );
 		p->restore();
 		x += cs;
 		c++;
@@ -1457,11 +1539,11 @@ void QListView::clear()
 
 
 /*!
-  Adds a new column at the right end of the
-  widget, with the header \a label.
-  If \a width is negative, the new column will have
-  WidthMode Maximum, otherwise it will be Manual at
-  \a width pixels wide.
+  Adds a new column at the right end of the widget, with the header \a
+  label.
+
+  If \a width is negative, the new column will have WidthMode Maximum,
+  otherwise it will be Manual at \a width pixels wide.
 
   \sa setColumnText() setColumnWidth() setColumnWidthMode()
 */
@@ -1541,6 +1623,49 @@ void QListView::setColumnWidthMode( int c, WidthMode mode )
 QListView::WidthMode QListView::columnWidthMode( int c ) const
 {
     return d->column[c]->wmode;
+}
+
+
+/*!
+
+*/
+
+void QListView::setColumnAlignment( int column, int align )
+{
+    if ( column < 0 )
+	return;
+    if ( !d->vci )
+	d->vci = new QListViewPrivate::ViewColumnInfo;
+    QListViewPrivate::ViewColumnInfo * l = d->vci;
+    while( column ) {
+	if ( !l->next )
+	    l->next = new QListViewPrivate::ViewColumnInfo;
+	l = l->next;
+	column--;
+    }
+    if ( l->align == align )
+	return;
+    l->align = align;
+    triggerUpdate();
+}
+
+
+/*!
+
+*/
+
+int QListView::columnAlignment( int column ) const
+{
+    if ( column < 0 || !d->vci )
+	return AlignLeft;
+    QListViewPrivate::ViewColumnInfo * l = d->vci;
+    while( column ) {
+	if ( !l->next )
+	    l->next = new QListViewPrivate::ViewColumnInfo;
+	l = l->next;
+	column--;
+    }
+    return l ? l->align : AlignLeft;
 }
 
 
@@ -2928,7 +3053,7 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
   Paints this item.
  */
 void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
-			       int column, int width )
+			       int column, int width, int align )
 {
     if ( !p )
 	return;
@@ -2937,7 +3062,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     if ( column != 0 ) {
 	// The rest is text, or for subclasses to change.
-	QListViewItem::paintCell( p, cg, column, width );
+	QListViewItem::paintCell( p, cg, column, width, align );
 	return;
     }
 
@@ -3058,7 +3183,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
     p->translate( r, 0 );
-    QListViewItem::paintCell( p, cg, column, width - r );
+    QListViewItem::paintCell( p, cg, column, width - r, align );
 }
 
 /*!
