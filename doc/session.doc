@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: session.doc,v 1.5 1999/06/03 15:14:52 warwick Exp $
+** $Id: session.doc,v 1.6 1999/06/15 19:29:40 ettrich Exp $
 **
 ** Qt session management overview documentation
 **
@@ -82,18 +82,19 @@ support the XConsortium standard.
 
 <h2> Getting session management to work with Qt </h2>
 
-Summary: Reimplement saveState() and commitData().  Restore the
-application in main() if QApplication::isSessionRestored() is
-TRUE. The globally unique application specific session identifier
-QApplication::sessionId() shall be used to identify session specific
-data during both saving and restoring.
+Summary: Reimplement \l QApplication::saveState() and \l
+QApplication::commitData().  Restore the application in main() if
+\l QApplication::isSessionRestored() is TRUE. The globally unique
+application specific session identifier \l QApplication::sessionId()
+shall be used to identify session specific data during both saving and
+restoring.
 
-<strong>Important:<strong> To allow the window manager to restore
+<strong>Important:</strong> To allow the window manager to restore
 window attributes such as stacking order or geometry information, you
 have to identify your toplevel widgets with an application-wide unique
-object name (see QObject::setName() ). When restoring the application,
-you'll have to ensure that the same toplevel widgets end up with their
-prior object name again. 
+object name (see \l QObject::setName() ). When restoring the application,
+you'll have to ensure that all restored toplevel widgets end up with their
+prior object name again.
 
 <h2> Testing and debugging session management </h2>
 
