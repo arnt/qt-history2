@@ -593,6 +593,12 @@ void SetupWizardImpl::initConnections()
 	connect( configPage->configTabs, SIGNAL(currentChanged(QWidget*)), SLOT(configPageChanged()));
     }
     if ( buildPage ) {
+	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
+	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
+	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
+	connect( &make, SIGNAL( processExited() ), this, SLOT( makeDone() ) );
+	connect( &make, SIGNAL( readyReadStdout() ), this, SLOT( readMakeOutput() ) );
+	connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
 	connect( buildPage->restartBuild, SIGNAL(clicked()), this, SLOT(restartBuild()) );
     }
 }
@@ -1024,10 +1030,6 @@ void SetupWizardImpl::configDone()
     } else
 #endif
     {
-	connect( &make, SIGNAL( processExited() ), this, SLOT( makeDone() ) );
-	connect( &make, SIGNAL( readyReadStdout() ), this, SLOT( readMakeOutput() ) );
-	connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
-
 	args << makeCmds[ globalInformation.sysId() ];
 #if !defined(EVAL) && !defined(EDU)
 	args << "sub-src";

@@ -316,9 +316,6 @@ void SetupWizardImpl::cleanDone()
 	logOutput( "Execute configure...\n" );
 	logOutput( args.join( " " ) + "\n" );
 
-	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
-	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
-	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
 	configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	configure.setArguments( args );
 	// Start the configure process
