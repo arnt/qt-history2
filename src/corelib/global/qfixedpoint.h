@@ -21,6 +21,8 @@ class QFixedPoint;
 #endif
 /* Fixed point class. emulates IEEE behaviour for infinity, doesn't have NaN */
 
+#ifndef Q_CC_BOR
+
 class Q_CORE_EXPORT QFixedPoint {
 public:
     enum {
@@ -252,5 +254,7 @@ Q_CORE_EXPORT QFixedPointLong sqrt(QFixedPointLong f);
 Q_CORE_EXPORT QFixedPointLong sin(QFixedPointLong f);
 Q_CORE_EXPORT QFixedPointLong cos(QFixedPointLong f);
 Q_CORE_EXPORT QFixedPointLong acos(QFixedPointLong f);
+
+#endif // Q_CC_BOR
 
 #endif // QFIXEDPOINT_H
