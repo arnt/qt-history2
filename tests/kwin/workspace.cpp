@@ -28,7 +28,7 @@ static Client* clientFactory( Workspace *ws, WId w )
 	return c;
     }
 
-    return new BeClient( ws, w );
+    return new StdClient( ws, w );
 }
 
 Workspace::Workspace()
@@ -82,7 +82,7 @@ Workspace::Workspace( WId rootwin )
 
 }
 
-void Workspace::init() 
+void Workspace::init()
 {
     tab_box = 0;
     active_client = 0;
@@ -112,6 +112,7 @@ void Workspace::init()
 		// TODO may use QWidget:.create
 		qDebug(" create a mdi client");
 		XReparentWindow( qt_xdisplay(), c->winId(), root, 0, 0 );
+		c->move(0,0);
 	    }
 	}
     }
@@ -147,6 +148,7 @@ bool Workspace::workspaceEvent( XEvent * e )
     case ButtonRelease:
 	break;
     case UnmapNotify:
+	qDebug("unmap notify");
 	// this is special due to
 	// SubstructureRedirectMask. e->xany.window is the window the
 	// event is reported to. Take care not to confuse Qt.
@@ -164,6 +166,7 @@ bool Workspace::workspaceEvent( XEvent * e )
     case DestroyNotify:
 	return destroyClient( findClient( e->xdestroywindow.window ) );
     case MapRequest:
+	qDebug("maprequest");
 	if ( e->xmaprequest.parent == root ) {
 	    c = findClient( e->xmaprequest.window );
 	    if ( !c ) {
@@ -274,6 +277,7 @@ bool Workspace::destroyClient( Client* c)
 {
     if ( !c )
 	return FALSE;
+    qDebug("destroy client ");
     clients.remove( c );
     stacking_order.remove( c );
     focus_chain.remove( c );
@@ -597,13 +601,16 @@ void Workspace::activateClient( Client* c)
  */
 void Workspace::requestFocus( Client* c)
 {
-    
+
     //TODO will be different for non-root clients. (subclassing?)
-    
-    
+
+    if ( !c ) {
+	focusToNull();
+	return;
+    }
+
     if ( c->isVisible() && !c->isShade() ) {
-	// TODO take focus protocol
-	XSetInputFocus( qt_xdisplay(), c->window(), RevertToPointerRoot, CurrentTime );
+	c->takeFocus();
 	should_get_focus = c;
     } else if ( c->isShade() ) {
 	// client cannot accept focus, but at least the window should be active (window menu, et. al. )
@@ -773,3 +780,25 @@ void Workspace::setDesktopClient( Client* c)
 	desktop_client->setGeometry( geometry() );
     }
 }
+
+void Workspace::makeFullScreen( Client* c )
+{
+    WId w = c->window();
+    clients.remove( c );
+    stacking_order.remove( c );
+    focus_chain.remove( c );
+    bool wasbe = c->inherits("BeClient");
+    bool mapped = c->isVisible();
+    c->hide();
+    c->releaseWindow();
+    if (!wasbe )
+	c = new BeClient( this, w);
+    else
+	c = new StdClient( this, w );
+    clients.append( c );
+    stacking_order.append( c );
+    c->manage( mapped );
+    activateClient( c );
+//     c->maximize();
+}
+

@@ -60,15 +60,12 @@ static bool getDoubleProperty(Window w, Atom a, long &result1, long &result2){
   return TRUE;
 }
 QPixmap KWM::miniIcon(Window w, int width, int height){
-  static Atom a = 0;
-  if (!a)
-    a = XInternAtom(qt_xdisplay(), "KWM_WIN_ICON", False);
   QPixmap result;
   Pixmap p = None;
   Pixmap p_mask = None;
 
   long tmp[2] = {None, None};
-  if (!getDoubleProperty(w, a, tmp[0], tmp[1])){
+  if (!getDoubleProperty(w, atoms->kwm_win_icon, tmp[0], tmp[1])){
     XWMHints *hints = XGetWMHints(qt_xdisplay(), w);
     if (hints && (hints->flags & IconPixmapHint)){
       p = hints->icon_pixmap;
@@ -223,7 +220,7 @@ QPixmap KWM::icon(Window w, int width, int height){
  */
 
 
-WindowWrapper::WindowWrapper( WId w, QWidget *parent, const char* name)
+WindowWrapper::WindowWrapper( WId w, Client *parent, const char* name)
     : QWidget( parent, name )
 {
     win = w;
@@ -269,8 +266,7 @@ WindowWrapper::WindowWrapper( WId w, QWidget *parent, const char* name)
 
 WindowWrapper::~WindowWrapper()
 {
-    if ( win )
-	XRemoveFromSaveSet(qt_xdisplay(), win );
+    releaseWindow();
 }
 
 QSize WindowWrapper::sizeHint() const
@@ -286,7 +282,7 @@ QSizePolicy WindowWrapper::sizePolicy() const
 
 void WindowWrapper::resizeEvent( QResizeEvent * )
 {
-    if ( win && isVisible() )
+    if ( win )
 	XMoveResizeWindow( qt_xdisplay(), win,
 			   0, 0, width(), height() );
 }
@@ -309,6 +305,23 @@ void WindowWrapper::invalidateWindow()
 {
     win = 0;
 }
+
+/*!
+  Releases the window. The client has done its job and the window is still existing.
+ */
+void WindowWrapper::releaseWindow()
+{
+    if ( win ) {
+	qDebug("release to %d %d", parentWidget()->x(), parentWidget()->y() );
+	XReparentWindow( qt_xdisplay(), win,
+			 ((Client*)parentWidget())->workspace()->rootWin(),
+			 parentWidget()->x(),
+			 parentWidget()->y() );
+	XRemoveFromSaveSet(qt_xdisplay(), win );
+	invalidateWindow();
+    }
+}
+
 
 
 void WindowWrapper::mousePressEvent( QMouseEvent*  )
@@ -362,7 +375,7 @@ bool WindowWrapper::x11Event( XEvent * e)
   Creates a client on workspace \a ws for window \a w.
  */
 Client::Client( Workspace *ws, WId w, QWidget *parent, const char *name, WFlags f )
-    : QWidget( parent, name, f )
+    : QWidget( parent, name, f | WStyle_Customize | WStyle_NoBorder )
 {
 
     wspace = ws;
@@ -394,10 +407,7 @@ Client::Client( Workspace *ws, WId w, QWidget *parent, const char *name, WFlags 
  */
 Client::~Client()
 {
-    if ( win ) {
-	gravitate( TRUE );
-	XReparentWindow( qt_xdisplay(), win, workspace()->rootWin(), x(), y() );
-    }
+    releaseWindow();
 }
 
 
@@ -544,6 +554,8 @@ bool Client::windowEvent( XEvent * e)
 	    break; // we don't care
 	if ( isShade() )
 	    break; // we neither
+	if ( e->xfocus.detail != NotifyNonlinear )
+	    return TRUE; // hack for motif apps like netscape
 	setActive( FALSE );
 	break;
     default:
@@ -594,7 +606,7 @@ bool Client::unmapNotify( XUnmapEvent& e )
 	    withdraw();
 	break;
     case NormalState:
-	if ( !windowWrapper()->isVisibleToTLW() && !e.send_event )
+	if ( !windowWrapper()->isVisible() && !e.send_event )
 	    return TRUE; // this event was produced by us as well
 	
 	// maybe we will be destroyed soon. Check this first.
@@ -620,11 +632,7 @@ bool Client::unmapNotify( XUnmapEvent& e )
 void Client::withdraw()
 {
     setMappingState( WithdrawnState );
-    if ( win ) {
-	gravitate( TRUE );
-	XReparentWindow( qt_xdisplay(), win, workspace()->rootWin(), x(), y() );
-    }
-    invalidateWindow();
+    releaseWindow();
     workspace()->destroyClient( this );
 }
 
@@ -695,6 +703,10 @@ bool Client::propertyNotify( XPropertyEvent& e )
     default:
 	if ( e.atom == atoms->wm_protocols )
 	    getWindowProtocols();
+	else if ( e.atom == atoms->kwm_win_icon ) {
+	    getIcons();
+	}
+	    
 	break;
     }
     return TRUE;
@@ -791,6 +803,7 @@ QSize Client::sizeForWindowSize( const QSize& wsize, bool ignore_height) const
 void Client::mousePressEvent( QMouseEvent * e)
 {
     if ( e->button() == LeftButton ) {
+	qDebug("mouse press event %d %d ", e->pos().x(), e->pos().y() );
 	if ( options->focusPolicyIsReasonable() )
 	    workspace()->requestFocus( this );
 	workspace()->raiseClient( this );
@@ -831,8 +844,9 @@ void Client::mouseMoveEvent( QMouseEvent * e)
 	shaded = FALSE;
     }
 
-    QPoint globalPos = e->globalPos() - workspace()->geometry().topLeft();
-    
+    qDebug("x=%d, y=%d", x(), y() );
+    QPoint globalPos = e->pos() + geometry().topLeft();
+
     // TODO for MDI this has to be based on the parent window!
 //     QPoint p = parentWidget()->mapFromGlobal( e->globalPos() );
 
@@ -847,8 +861,8 @@ void Client::mouseMoveEvent( QMouseEvent * e)
 // 	    p.ry() = parentWidget()->height();
 //     }
 
-    if ( testWState(WState_ConfigPending) )
-	return;
+//     if ( testWState(WState_ConfigPending) )
+// 	return;
 
     QPoint p = globalPos + invertedMoveOffset;
 
@@ -932,7 +946,7 @@ void Client::moveEvent( QMoveEvent * )
 void Client::showEvent( QShowEvent* )
 {
     setMappingState( NormalState );
-    windowWrapper()->show();
+    windowWrapper()->show();// ########## hack for qt < 2.1
  }
 
 /*!
@@ -941,11 +955,20 @@ void Client::showEvent( QShowEvent* )
  */
 void Client::hideEvent( QHideEvent* )
 {
-    windowWrapper()->hide();
+    windowWrapper()->hide();// ########## hack for qt < 2.1
     workspace()->clientHidden( this );
 }
 
 
+
+/*!
+  Late initialialize the client after the window has been managed.
+  
+  Ensure to call the superclasses init() implementation when subclassing.
+ */
+void Client::init()
+{
+}
 
 /*!\fn captionChange( const QString& name )
 
@@ -966,6 +989,16 @@ void Client::captionChange( const QString& )
   mannor.  The default implementation calls repaint( FALSE );
  */
 void Client::activeChange( bool )
+{
+    repaint( FALSE );
+}
+
+/*!
+  Indicates that the application's icon changed to \a act.  Subclasses
+  may want to indicate the new state graphically in a clever, fast
+  mannor.  The default implementation calls repaint( FALSE );
+ */
+void Client::iconChange()
 {
     repaint( FALSE );
 }
@@ -991,6 +1024,19 @@ void Client::paintEvent( QPaintEvent * )
 {
 }
 
+
+
+/*!
+  Releases the window. The client has done its job and the window is still existing.
+ */
+void Client::releaseWindow()
+{
+    if ( win ) {
+	gravitate( TRUE );
+	windowWrapper()->releaseWindow();
+	win = 0;
+    }
+}
 
 /*!
   Invalidates the window to avoid the client accessing it again.
@@ -1112,6 +1158,12 @@ void Client::maximize()
 }
 
 
+void Client::fullScreen()
+{
+    workspace()->makeFullScreen( this );
+}
+
+
 
 /*!
   Catch events of the WindowWrapper
@@ -1203,7 +1255,7 @@ bool Client::x11Event( XEvent * e)
 	    setCursor( arrowCursor );
 	if ( options->focusPolicy == Options::FocusStricklyUnderMouse ) {
 	    if ( isActive() && !rect().contains( QPoint( e->xcrossing.x, e->xcrossing.y ) ) )
-		XSetInputFocus( qt_xdisplay(), None, RevertToPointerRoot, CurrentTime );
+		workspace()->requestFocus( 0 ) ;
 	}
 	return TRUE;
     }
@@ -1333,6 +1385,8 @@ void Client::getIcons()
 {
     icon_pix = KWM::icon( win, 32, 32 ); // TODO sizes from workspace
     miniicon_pix = KWM::miniIcon( win, 16, 16 );
+    if ( !isWithdrawn() )
+	iconChange();
 }
 
 void Client::getWindowProtocols(){
@@ -1341,7 +1395,7 @@ void Client::getWindowProtocols(){
 
   Pdeletewindow = 0;
   Ptakefocus = 0;
-  
+
   if (XGetWMProtocols(qt_xdisplay(), win, &p, &n)){
       for (i = 0; i < n; i++)
 	  if (p[i] == atoms->wm_delete_window)
@@ -1353,6 +1407,18 @@ void Client::getWindowProtocols(){
   }
 }
 
+
+/*!
+  Puts the focus on this window. Clients should never calls this
+  themselves, instead they should use Workspace::requestFocus().
+ */
+void Client::takeFocus()
+{
+    if ( !Ptakefocus )
+	XSetInputFocus( qt_xdisplay(), win, RevertToPointerRoot, CurrentTime );
+    else
+	sendClientMessage(win, atoms->wm_protocols, atoms->wm_take_focus);
+}
 
 
 NoBorderClient::NoBorderClient( Workspace *ws, WId w, QWidget *parent=0, const char *name=0 )

@@ -109,7 +109,7 @@ static const char * normalize_xpm[] = {
 "  .XXXXXXXXXX   ",
 "                ",
 "                ",
-"                "};                      
+"                "};
 
 static QPixmap* close_pix = 0;
 static QPixmap* maximize_pix = 0;
@@ -173,7 +173,9 @@ StdClient::StdClient( Workspace *ws, WId w, QWidget *parent, const char *name )
 	button[i]->setFixedSize( 20, 20 );
     }
 
-    button[1]->hide();
+    button[0]->setIconSet( miniIcon() );
+    //button[1]->hide();
+    connect( button[1], SIGNAL( clicked() ), this, ( SLOT( fullScreen() ) ) );
     button[2]->hide();
 
     button[3]->setIconSet( *minimize_pix );
@@ -250,4 +252,18 @@ void StdClient::mouseDoubleClickEvent( QMouseEvent * e )
     if ( titlebar->geometry().contains( e->pos() ) )
 	setShade( !isShade() );
     workspace()->requestFocus( this );
+}
+
+
+void StdClient::init()
+{
+   button[0]->setIconSet( miniIcon() );
+   
+   // ### TODO transient etc.
+ }
+
+void StdClient::iconChange()
+{
+    button[0]->setIconSet( miniIcon() );
+    button[0]->repaint( FALSE );
 }

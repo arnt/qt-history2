@@ -18,7 +18,9 @@ protected:
 
     void mouseDoubleClickEvent( QMouseEvent * );
 
+    void init();
     void captionChange( const QString& name );
+    void iconChange();
     void maximizeChange( bool );
 
 private:

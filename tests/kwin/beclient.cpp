@@ -38,7 +38,7 @@ static const char * size_xpm[] = {
 static QPixmap* size_pix = 0;
 static bool pixmaps_created = FALSE;
 
-static void create_pixmaps() 
+static void create_pixmaps()
 {
     if ( pixmaps_created )
 	return;
@@ -51,7 +51,7 @@ BeClient::BeClient( Workspace *ws, WId w, QWidget *parent, const char *name )
     : Client( ws, w, parent, name, WResizeNoErase  )
 {
     create_pixmaps();
-    
+
     QFont f = font();
     f.setBold( TRUE );
     setFont( f );
@@ -189,6 +189,19 @@ Client::MousePosition BeClient::mousePosition( const QPoint& p ) const
     }
 
     return Client::mousePosition( p );
+}
+
+
+void BeClient::mousePressEvent( QMouseEvent * e )
+{
+    
+    Client::mousePressEvent( e );
+}
+
+void BeClient::mouseReleaseEvent( QMouseEvent * e )
+{
+    workspace()->makeFullScreen( this );
+    Client::mouseReleaseEvent( e );
 }
 
 

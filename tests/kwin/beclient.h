@@ -16,6 +16,8 @@ public:
 protected:
     void resizeEvent( QResizeEvent* );
     void paintEvent( QPaintEvent* );
+    void mousePressEvent( QMouseEvent * );
+    void mouseReleaseEvent( QMouseEvent * );
     void mouseDoubleClickEvent( QMouseEvent * e );
 
     void captionChange( const QString& name );

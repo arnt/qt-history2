@@ -10,7 +10,7 @@
 #include <X11/Xutil.h>
 
 class Workspace;
-
+class Client;
 
 class KWM
 {
@@ -23,10 +23,11 @@ class WindowWrapper : public QWidget
 {
     Q_OBJECT
 public:
-    WindowWrapper( WId w, QWidget *parent=0, const char* name=0);
+    WindowWrapper( WId w, Client *parent=0, const char* name=0);
     ~WindowWrapper();
 
     inline WId window() const;
+    void releaseWindow();
     void invalidateWindow();
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
@@ -62,12 +63,14 @@ public:
     inline WId window() const;
     inline WindowWrapper* windowWrapper() const;
     inline Workspace* workspace() const;
+    void releaseWindow();
     void invalidateWindow();
     inline WId transientFor() const;
 
     virtual bool windowEvent( XEvent * );
 
     void manage( bool isMapped = FALSE );
+    
     void setMappingState( int s );
     int mappingState() const;
 
@@ -98,7 +101,7 @@ public:
     bool isNormal(){
 	return state == NormalState;
     }
-    
+
     inline bool isActive() const;
     void setActive( bool );
 
@@ -110,12 +113,16 @@ public:
 
     inline bool isMaximized() const;
     enum MaximizeMode { MaximizeVertical, MaximizeHorizontal, MaximizeFull };
+
+    void takeFocus();
+
 public slots:
     void iconify();
     void closeWindow();
     void maximize( MaximizeMode );
     void maximize();
-    
+    void fullScreen();
+
 protected:
     void paintEvent( QPaintEvent * );
     void mousePressEvent( QMouseEvent * );
@@ -130,7 +137,10 @@ protected:
 
     bool eventFilter( QObject *, QEvent * );
 
+    
+    virtual void init();
     virtual void captionChange( const QString& name );
+    virtual void iconChange();
     virtual void activeChange( bool );
     virtual void maximizeChange( bool );
 

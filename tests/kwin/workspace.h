@@ -57,6 +57,8 @@ public:
     void showPopup( const QPoint&, Client* );
 
     void setDesktopClient( Client* );
+    
+    void makeFullScreen( Client* );
 
 protected:
     bool keyPress( XKeyEvent key );
