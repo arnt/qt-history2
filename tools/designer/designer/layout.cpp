@@ -29,6 +29,7 @@
 #include <qpen.h>
 #include <qbitmap.h>
 #include <qsplitter.h>
+#include <qvaluevector.h>
 
 bool operator<( const QGuardedPtr<QWidget> &p1, const QGuardedPtr<QWidget> &p2 )
 {
@@ -401,6 +402,12 @@ public:
 
     QWidget* cell( int row, int col ) const { return cells[ row * ncols + col]; }
     void setCell( int row, int col, QWidget* w ) { cells[ row*ncols + col] = w; }
+    void setCells( QRect c, QWidget* w ) {
+	for ( int rows = c.bottom()-c.top(); rows >= 0; rows--)
+	    for ( int cols = c.right()-c.left(); cols >= 0; cols--) {
+		setCell(c.top()+rows, c.left()+cols, w);
+	    }
+    }
     int numRows() const { return nrows; }
     int numCols() const { return ncols; }
 
@@ -767,30 +774,64 @@ void GridLayout::setup()
 
 void GridLayout::buildGrid()
 {
-    QWidget* w;
-    QRect br;
-    for ( w = widgets.first(); w; w = widgets.next() )
-	br = br.unite( w->geometry() );
+    // Pixel to cell conversion:
+    // By keeping a list of start'n'stop values (x & y) for each widget,
+    // it is possible to create a very small grid of cells to represent
+    // the widget layout.
+    // -----------------------------------------------------------------
 
+    // We need a list of both start and stop values for x- & y-axis
+    QValueVector<int> x( widgets.count()*2 );
+    QValueVector<int> y( widgets.count()*2 );
+
+    // Using push_back would look nicer, but operator[] is much faster
+    int index = 0;
+    for ( QWidget* w = widgets.first(); w; w = widgets.next() ) {
+	QRect widgetPos = w->geometry();
+	x[index]   = widgetPos.left();
+	x[index+1] = widgetPos.right();
+	y[index]   = widgetPos.top();
+	y[index+1] = widgetPos.bottom();
+	index += 2;
+    }
+
+    qHeapSort(x);
+    qHeapSort(y);
+
+    // Remove duplicate x enteries (Remove next, if equal to current)
+    if ( !x.empty() )
+	for (QValueVector<int>::iterator current = x.begin() ;
+	     (current != x.end()) && ((current+1) != x.end()) ; )
+	    if ( (*current == *(current+1)) ) x.erase(current+1);
+	    else current++;
+
+    // Remove duplicate y enteries (Remove next, if equal to current)
+    if ( !y.empty() )
+	for (QValueVector<int>::iterator current = y.begin() ;
+	     (current != y.end()) && ((current+1) != y.end()) ; )
+	    if ( (*current == *(current+1)) ) y.erase(current+1);
+	    else current++;
+
+    // Create the smallest grid possible to represent the current layout
+    // Since no widget will be placed in the last row and column, we'll
+    // skip them to increase speed even further
     delete grid;
-    grid = new Grid( br.height() / resolution.height() + 1,
-		     br.width() / resolution.width() + 1 );
+    grid = new Grid( y.size()-1, x.size()-1 );
 
-    int r,c;
-    for ( r = 0; r < grid->numRows(); r++ ) {
-	for ( c = 0; c < grid->numCols(); c++ ) {
-	    QPoint p( br.left() + c * resolution.width(),
-		      br.top() + r* resolution.height() );
-	    QRect cr( p, resolution );
-	    for ( w = widgets.first(); w; w = widgets.next() ) {
-		    // check that the overlap is significant
-		    QRect intersect = cr.intersect( w->geometry() );
-		    if ( intersect.size().width() > resolution.width()/2 &&
-			 intersect.size().height() > resolution.height()/2 ) {
-			grid->setCell( r, c, w );
-		    }
-	    }
+    // Mark the cells in the grid that contains a widget
+    for ( QWidget* w = widgets.first(); w; w = widgets.next() ) {
+	QRect c(0,0,0,0), widgetPos = w->geometry();
+	// From left til right (not including)
+	for (uint cw=0; cw<x.size(); cw++) {
+	    if ( x[cw] == widgetPos.left() ) c.setLeft(cw);
+	    if ( x[cw] <  widgetPos.right()) c.setRight(cw);
 	}
+	// From top til bottom (not including)
+	for (uint ch=0; ch<y.size(); ch++) {
+	    if ( y[ch] == widgetPos.top()    ) c.setTop(ch);
+	    if ( y[ch] <  widgetPos.bottom() ) c.setBottom(ch);
+	}
+	grid->setCells(c, w); // Mark cellblock
     }
     grid->simplify();
 }
