@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#551 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#552 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -283,6 +283,10 @@ extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region
 extern void qt_clear_paintevent_clipping();
 
 
+// Palette handling
+extern QPalette *qt_std_pal;
+extern void qt_create_std_palette();
+
 void qt_x11_intern_atom( const char *, Atom * );
 void qt_xembed_tab_focus( QWidget*, bool next );
 
@@ -482,20 +486,14 @@ static void qt_x11_process_intern_atoms()
 }
 
 
-static void qt_fix_tooltips()
-{
-    // No resources for this yet (unlike on Windows).
-    QColorGroup cg( Qt::black, QColor(255,255,220),
-		    QColor(96,96,96), Qt::black, Qt::black,
-		    Qt::black, QColor(255,255,220) );
-    QPalette pal( cg, cg, cg );
-    QApplication::setPalette( pal, TRUE, "QTipLabel");
-}
-
 // read the _QT_DESKTOP_PROPERTIES property and apply the settings to
 // the application
 static bool qt_set_desktop_properties()
 {
+    
+    if ( !qt_std_pal )
+	qt_create_std_palette();
+    
     Atom type;
     int format;
     ulong  nitems, after = 1;
@@ -526,13 +524,13 @@ static bool qt_set_desktop_properties()
     QPalette pal;
     QFont font;
     d >> pal >> font;
-    if ( pal != QApplication::palette() )
+    if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	QApplication::setPalette( pal, TRUE );
+    *qt_std_pal = pal;
     font.setCharSet(QFont::charSetForLocale());
     if ( font != QApplication::font() ) {
 	QApplication::setFont( font, TRUE );
     }
-    qt_fix_tooltips();
     return TRUE;
 }
 
@@ -542,6 +540,9 @@ static bool qt_set_desktop_properties()
 static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 				  const char* bg = 0, const char* button = 0 )
 {
+    if ( !qt_std_pal )
+	qt_create_std_palette();
+    
     QCString resFont, resFG, resBG;
 
     if ( QApplication::desktopSettingsAware() && !qt_set_desktop_properties() ) {
@@ -617,17 +618,17 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	if ( !resBG.isEmpty() )
 	    bg = QColor(QString(resBG));
 	else
-	    bg = QApplication::palette().normal().background();
+	    bg = qt_std_pal->normal().background();
 	if ( !resFG.isEmpty() )
 	    fg = QColor(QString(resFG));
 	else
-	    fg = QApplication::palette().normal().foreground();
+	    fg = qt_std_pal->normal().foreground();
 	if ( button )
 	    btn = QColor( button );
 	else if ( !resBG.isEmpty() )
 	    btn = bg;
 	else
-	    btn = QApplication::palette().normal().button();
+	    btn = qt_std_pal->normal().button();
 	
 	int h,s,v;
 	fg.hsv(&h,&s,&v);
@@ -654,9 +655,9 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
 			 disabled, Qt::white, Qt::white, bg );
 	QPalette pal( cg, dcg, cg );
-	if ( pal != QApplication::palette() )
+	if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	    QApplication::setPalette( pal, TRUE );
-	qt_fix_tooltips();
+	*qt_std_pal = pal;
     }
 }
 
@@ -1023,8 +1024,7 @@ if( QApplication::is_gui_used ) {
     f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
     QApplication::setFont( f );
 
-    qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
-    qt_fix_tooltips();
+    qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
 }
 }
 
@@ -2286,8 +2286,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XFocusIn: {				// got focus
 	if ( widget == desktop() )
 	    return TRUE; // not interesting
-	if ( inPopupMode() ) // some delayed focus event to ignore
-	    break;
+ 	if ( inPopupMode() ) // some delayed focus event to ignore
+ 	    break;
+// 	if ( event->xfocus.mode == NotifyUngrab )
+// 	    break;
 	QWidget* old_active_window = active_window;
 	active_window = widget->topLevelWidget();
 	if (active_window && active_window->extra &&
@@ -2322,6 +2324,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XFocusOut:				// lost focus
 	if ( widget == desktop() )
 	    return TRUE; // not interesting
+// 	if ( event->xfocus.mode == NotifyGrab )
+// 	    break;
 	active_window = 0;
 	if ( focus_widget && !inPopupMode() ) {
 	    QFocusEvent out( QEvent::FocusOut );

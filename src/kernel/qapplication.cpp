@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#280 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#281 $
 **
 ** Implementation of QApplication class
 **
@@ -275,13 +275,12 @@ static void cleanupPostedEvents();
 int	 QApplication::app_cspec = QApplication::NormalColor;
 
 
-static QPalette *stdPalette = 0;
-static QColor * winHighlightColor = 0;
 
-static void create_palettes()			// creates default palettes
+QPalette *qt_std_pal = 0;
+void qt_create_std_palette() 
 {
-    if ( stdPalette )
-	delete stdPalette;
+    if ( qt_std_pal )
+	delete qt_std_pal;
 
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
@@ -295,14 +294,20 @@ static void create_palettes()			// creates default palettes
     QColorGroup std_act( Qt::black, standardLightGray,
 			 light, dark, Qt::gray,
 			 Qt::black, Qt::white );
-    stdPalette = new QPalette( std_nor, std_dis, std_act );
+    qt_std_pal = new QPalette( std_nor, std_dis, std_act );
 }
 
-static void destroy_palettes()
+static void qt_fix_tooltips()
 {
-    delete stdPalette;
-    stdPalette = 0;
+    // No resources for this yet (unlike on Windows).
+    QColorGroup cg( Qt::black, QColor(255,255,220),
+		    QColor(96,96,96), Qt::black, Qt::black,
+		    Qt::black, QColor(255,255,220) );
+    QPalette pal( cg, cg, cg );
+    QApplication::setPalette( pal, TRUE, "QTipLabel");
 }
+
+
 
 void QApplication::process_cmdline( int* argcptr, char ** argv )
 {
@@ -513,8 +518,8 @@ void QApplication::initialize( int argc, char **argv )
     quit_now = FALSE;
     quit_code = 0;
     if ( !app_pal ) {				// palette not already set
-	create_palettes();
-	app_pal = new QPalette( *stdPalette );
+	qt_create_std_palette();
+	app_pal = new QPalette( *qt_std_pal );
 	CHECK_PTR( app_pal );
     }
     QWidget::createMapper();			// create widget mapper
@@ -554,7 +559,8 @@ QApplication::~QApplication()
 {
     is_app_closing = TRUE;
     QWidget::destroyMapper();
-    destroy_palettes();
+    delete qt_std_pal;
+    qt_std_pal = 0;
     delete app_pal;
     app_pal = 0;
     delete app_font;
@@ -568,8 +574,6 @@ QApplication::~QApplication()
     delete app_cursor;
     app_cursor = 0;
     qt_cleanup();
-    delete winHighlightColor;
-    winHighlightColor = 0;
     delete objectDict;
     objectDict = 0;
     qApp = 0;
@@ -637,8 +641,13 @@ QApplication::~QApplication()
 /*!
   Sets the application GUI style to \e style.  Ownership of the style
   object is not transfered.
+  
+  When switching application styles, the color palette is set back to
+  the initital colors or the system defaults. This is necessary since
+  certain styles have to adapt the color palette to be fully
+  style-guide compliant.
 
-  \sa style(), QStyle
+  \sa style(), QStyle, setPalette(), desktopSettingsAware()
 */
 
 void QApplication::setStyle( QStyle *style )
@@ -686,7 +695,9 @@ void QApplication::setStyle( QStyle *style )
 
     // take care of possible palette requirements of certain gui
     // styles
-    QPalette tmpPal = *app_pal;
+    if ( !qt_std_pal )
+	qt_create_std_palette();
+    QPalette tmpPal = *qt_std_pal;
     app_style->polish( tmpPal );
     if ( tmpPal != *app_pal )
 	setPalette( tmpPal, TRUE );
@@ -825,9 +836,9 @@ QPalette QApplication::palette(const QWidget* w)
     }
 #endif
     if ( !app_pal ) {
-	if ( !stdPalette )
-	    create_palettes();
-	app_pal = new QPalette( *stdPalette );
+	if ( !qt_std_pal )
+	    qt_create_std_palette();
+	app_pal = new QPalette( *qt_std_pal );
     }
 
     if ( w && app_palettes ) {
@@ -871,9 +882,9 @@ QPalette QApplication::palette( const QWidget* w, const char* className  )
     if ( w )
 	return palette( w );
     if ( !app_pal ) {
-	if ( !stdPalette )
-	    create_palettes();
-	app_pal = new QPalette( *stdPalette );
+	if ( !qt_std_pal )
+	    qt_create_std_palette();
+	app_pal = new QPalette( *qt_std_pal );
     }
     if ( w && app_palettes ) {
 	QAsciiDictIterator<QPalette> it( *app_palettes );
@@ -926,6 +937,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 	}
 	delete app_palettes;
 	app_palettes = 0;
+	qt_fix_tooltips();
     }
     else {
 	if (!app_palettes){
@@ -2025,7 +2037,7 @@ void QApplication::exit_loop()
 
 /*!
   Returns the current loop level
-  
+
   \sa enter_loop(), exit_loop()
  */
 int QApplication::loopLevel() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#322 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#323 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -315,6 +315,10 @@ static void qt_show_system_menu( QWidget* tlw)
 
 extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 
+// Palette handling
+extern QPalette *qt_std_pal = 0;
+extern void qt_create_std_palette();
+
 static void qt_set_windows_resources()
 {
     QFont menuFont;
@@ -388,6 +392,7 @@ static void qt_set_windows_resources()
 
     QPalette pal( cg, dcg, cg );
     QApplication::setPalette( pal, TRUE );
+    palref = pal;
 
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
@@ -532,8 +537,10 @@ void qt_init( int *argcptr, char **argv )
 #endif
     // QFont::locale_init();  ### Uncomment when it does something on Windows
 
+    if ( !qt_std_pal )
+	qt_create_std_palette();
     if ( QApplication::desktopSettingsAware() )
-	qt_set_windows_resources();
+	qt_set_windows_resources( *qt_std_pal );
 
 }
 
@@ -2057,7 +2064,7 @@ static int translateButtonState( int s, int type, int button )
 
 extern QCursor *qt_grab_cursor();
 
-// In DnD, the mouse release event never appears, so the 
+// In DnD, the mouse release event never appears, so the
 // mouse button state machine must be manually reset
 void QApplication::winMouseButtonUp()
 {
