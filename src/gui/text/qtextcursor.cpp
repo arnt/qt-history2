@@ -375,19 +375,21 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
     QTextCursor is modelled on how a text cursor behaves in a text
     editor, providing a programmatic means of doing what users do
-    through the user interface.A document can be thought of as a
-    single string of characters with the cursor's position() being the
-    absolute 0-based cursor position within this string. Documents can
-    also contain tables, lists, images, etc., in addition to text, but
-    from the APIs point of view the document is just one long string,
-    with some portions of that string considered to be within
-    particular blocks (e.g. paragraphs), or within a table's cell, or
-    a list's item, etc. When we refer to "current character" we mean
-    the character at position() in the document; similarly the
-    "current block" is the block that contains position().
+    through the user interface. A document can be thought of as a
+    single string of characters with the cursor's position() being \e
+    between any two characters (or at the very beginning or very end
+    of the document). Documents can also contain tables, lists,
+    images, etc., in addition to text, but from the APIs point of view
+    the document is just one long string, with some portions of that
+    string considered to be within particular blocks (e.g.
+    paragraphs), or within a table's cell, or a list's item, etc. When
+    we refer to "current character" we mean the character immediately
+    after the cursor position() in the document; similarly the
+    "current block" is the block that contains the cursor position().
 
     A QTextCursor also has an anchor() position. The text that is
-    between the anchor() and the position() is the selection.
+    between the anchor() and the position() is the selection. If
+    anchor() == position() there is no selection.
 
     The cursor position can be changed programmatically using
     setPosition() and moveTo(); the latter can also be used to select
@@ -401,10 +403,11 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     blockFormat().
 
     Formatting can be applied to the current character (the character
-    at position()) using applyCharFormatModifier(), and to the current
-    block (the block that contains position()) using
-    setBlockFormat() and applyBlockFormatModifier(). The text at
-    position() can be turned into a list using createList().
+    immedately after position()) using applyCharFormatModifier(), and
+    to the current block (the block that contains position()) using
+    setBlockFormat() and applyBlockFormatModifier(). The text at the
+    current character position can be turned into a list using
+    createList().
 
     Deletions can be achieved using deleteChar(),
     deletePreviousChar(), and removeSelectedText().
@@ -457,7 +460,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     \value KeepAnchor Keeps the anchor where it is.
 
     If the anchor() is kept where it is and the position() is moved,
-    the text inbetween will be selected.
+    the text in-between will be selected.
 */
 
 /*!
@@ -533,7 +536,7 @@ bool QTextCursor::isNull() const
 
 /*!
     Moves the cursor to the absolute position \a pos using \c MoveMode
-    \a m.
+    \a m. The cursor is positioned between characters.
 
     \sa position() moveTo() anchor()
 */
@@ -551,6 +554,7 @@ void QTextCursor::setPosition(int pos, MoveMode m)
 
 /*!
     Returns the absolute position of the cursor within the document.
+    The cursor is positioned between characters.
 
     \sa setPosition() moveTo() anchor()
 */
@@ -564,7 +568,8 @@ int QTextCursor::position() const
 /*!
     Returns the anchor position; this is the same as position() unless
     there is a selection in which case position() marks one end of the
-    selection and anchor() marks the other end.
+    selection and anchor() marks the other end. Just like the cursor
+    position, the anchor position is between characters.
 
     \sa position() setPosition() moveTo() selectionStart() selectionEnd()
 */
@@ -841,9 +846,10 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 }
 
 /*!
-    Returns the format of the character the cursor points to.
+    Returns the format of the character immediately following the
+    cursor position().
 
-    \sa insertText(), position(), blockFormat()
+    \sa insertText(), blockFormat()
  */
 QTextCharFormat QTextCursor::charFormat() const
 {
@@ -940,8 +946,8 @@ bool QTextCursor::atEnd() const
 }
 
 /*!
-    Inserts a new empty block at position() with the current
-    blockFormat() and charFormat().
+    Inserts a new empty block at the cursor position() with the
+    current blockFormat() and charFormat().
 
     \sa setBlockFormat()
 */
@@ -956,8 +962,8 @@ void QTextCursor::insertBlock()
 /*!
     \overload
 
-    Inserts a new empty block at position() with block format \a
-    format and the current charFormat().
+    Inserts a new empty block at the cursor position() with block
+    format \a format and the current charFormat().
 
     \sa setBlockFormat()
 */
