@@ -178,15 +178,21 @@ QMacSavedPortInfo::init()
 
 inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
-    if(valid_gworld)
-        SetGWorld(world,handle); //always do this one first
-    else
+    bool set_state = false;
+    if(valid_gworld) {
+        set_state = IsValidPort(world);
+        if(set_state)
+            SetGWorld(world,handle); //always do this one first
+    } else {
         setPaintDevice(qt_mac_safe_pdev);
-    SetClip(clip);
+    }
+    if(set_state) {
+        SetClip(clip);
+        SetPenState(&pen);
+        RGBForeColor(&fore);
+        RGBBackColor(&back);
+    }
     DisposeRgn(clip);
-    SetPenState(&pen);
-    RGBForeColor(&fore);
-    RGBBackColor(&back);
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
         qt_mac_port_mutex->unlock();
