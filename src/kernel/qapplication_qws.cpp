@@ -298,6 +298,8 @@ void qt_remove_postselect_handler( VFPTR handler )
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 static WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
 
+extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+
 class QWSMouseEvent;
 class QWSKeyEvent;
 
@@ -2671,39 +2673,20 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
     }
     code = event->simpleData.keycode;
 
-    bool isAccel = FALSE;
-    if (!grab) { // test for accel if the keyboard is not grabbed
-	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
-		     int(text.length()) );
-	a.ignore();
-	QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
-	isAccel = a.isAccepted();
+    if ( type == QEvent::KeyPress && !grab ) {
+	// send accel events if the keyboard is not grabbed
+	QKeyEvent a( type, code, ascii, state, text, autor, int(text.length()) );
+	if ( qt_dispatchAccelEvent( this, &a ) )
+	    return TRUE;
     }
 
-    if ( !isAccel && !text.isEmpty() && testWState(WState_CompressKeys) ) {
+    if ( !text.isEmpty() && testWState(WState_CompressKeys) ) {
 	// the widget wants key compression so it gets it
 
 	// XXX not implemented
     }
 
-
-    // process accelerates before popups
-    QKeyEvent e( type, code, ascii, state, text, autor,
-		 int(text.length()) );
-    if ( type == QEvent::KeyPress && !grab ) {
-	// send accel event to tlw if the keyboard is not grabbed
-	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
-		     int(text.length()) );
-	a.ignore();
-	QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
-	if ( a.isAccepted() )
-	    return TRUE;
-    }
-
-
-    //###### TODO lacks AccelOverride functionality, see qapplication_x11 for details
-
-
+    QKeyEvent e( type, code, ascii, state, text, autor, int(text.length()) );
     return QApplication::sendSpontaneousEvent( this, &e );
 }
 

@@ -517,10 +517,12 @@ void QButton::setAccel( const QKeySequence& key )
     if ( !(int)key )
 	return;
     ensureData();
-    if ( !d->a )
+    if ( !d->a ) {
 	d->a = new QAccel( this, "buttonAccel" );
-    d->a->connectItem( d->a->insertItem( key, 0 ),
-		       this, SLOT(animateClick()) );
+	connect( d->a, SIGNAL( activated(int) ), this, SLOT( animateClick() ) );
+	connect( d->a, SIGNAL( activatedAmbiguously(int) ), this, SLOT( setFocus() ) );
+    }
+    d->a->insertItem( key );
 }
 #endif
 
@@ -576,7 +578,7 @@ void QButton::emulateClick()
     animation = TRUE;
     buttonDown = TRUE;
     emit pressed();
-    animateTimeout(); 
+    animateTimeout();
 }
 
 void QButton::setDown( bool enable )

@@ -90,6 +90,17 @@
     connected, so that two different keys will activate two different
     slots (see connectItem() and disconnectItem()).
 
+    The activated() signal is \e not emitted when two or more
+    accelerators match the same key.  Instead, the first matching
+    accelerator sends out the activatedAmbiguously() signal. By
+    pressing the key multiple times, users can navigate between all
+    matching accelerators. Some standard controls like QPushButton and
+    QCheckBox connect the activatedAmbiguously() signal to the
+    harmless setFocus() slot, whereas activated() is connected to a
+    slot invoking the button's action.  Most controls, like QLabel and
+    QTabBar, treat activated() and activatedAmbiguously() as
+    equivalent.
+
     Use setEnabled() to enable or disable all the items in an
     accelerator, or setItemEnabled() to enable or disable individual
     items. An item is active only when both the QAccel and the item
@@ -126,23 +137,205 @@ struct QAccelItem {				// internal accelerator item
     bool	enabled;
     QSignal    *signal;
     QString whatsthis;
+    bool match( int key, QChar ch );
 };
 
+bool QAccelItem::match( int k, QChar ch )
+{
+    if ( ( key & Qt::UNICODE_ACCEL) == 0 )
+	return k == key;
+    int km = key & Qt::MODIFIER_MASK;
+    QChar kc = QChar(key & 0xffff);
+    if ( km ) {
+	// Modifiers must match...
+	QChar c;
+	if ( (k & Qt::CTRL) && (ch < ' ') )
+	    c = ch.unicode()+'@'+' '; // Ctrl+A is ASCII 001, etc.
+	else
+	    c = ch;
+	if ( kc.lower() == c.lower() &&
+	     ( (k & Qt::MODIFIER_MASK) == km
+	       || (k & (Qt::MODIFIER_MASK^Qt::SHIFT)) == km ) )
+	    return TRUE;
+	return FALSE;
+    }
+    // No modifiers requested, ignore Shift but require others...
+    if ( kc == ch &&
+	 (k & (Qt::MODIFIER_MASK^Qt::SHIFT)) == km )
+	return TRUE;
+    return FALSE;
+}
 
 typedef QPtrList<QAccelItem> QAccelList; // internal accelerator list
 
-
-class QAccelPrivate {
+class QAccelPrivate : public Qt {
 public:
-    QAccelPrivate() { aitems.setAutoDelete( TRUE ); ignorewhatsthis = FALSE; }
-    ~QAccelPrivate() {}
+    QAccelPrivate( QAccel* p );
+    ~QAccelPrivate();
     QAccelList aitems;
     bool enabled;
-    QGuardedPtr<QWidget> tlw;
     QGuardedPtr<QWidget> watch;
     bool ignorewhatsthis;
+    QAccel* parent;
+
+    void activate( QAccelItem* item );
+    void activateAmbiguously( QAccelItem* item );
 };
 
+
+
+class QAccelManager : public Qt {
+public:
+    static QAccelManager* self() { return self_ptr ? self_ptr : new QAccelManager; }
+    void registerAccel( QAccelPrivate* a ) { accels.append( a ); }
+    void unregisterAccel( QAccelPrivate* a ) { accels.removeRef( a ); if ( accels.isEmpty() ) delete this; }
+    bool dispatchAccelEvent( QWidget* w, QKeyEvent* e );
+
+private:
+    QPtrList<QAccelPrivate> accels;
+    static QAccelManager* self_ptr;
+    QAccelManager():clash(-1) { self_ptr = this; }
+    ~QAccelManager() { self_ptr = 0; }
+
+    bool match( QWidget *w, QAccelPrivate* d );
+    bool match( QKeyEvent* e, QAccelItem* item );
+    int clash;
+};
+QAccelManager* QAccelManager::self_ptr = 0;
+
+bool Q_EXPORT qt_dispatchAccelEvent( QWidget* w, QKeyEvent*  e){
+    return QAccelManager::self()->dispatchAccelEvent( w, e );
+}
+
+bool QAccelManager::match( QWidget* w, QAccelPrivate* d ) {
+    if ( !d->enabled || !d->watch || !d->watch->isVisible()
+	 || d->watch->topLevelWidget() != w->topLevelWidget() )
+	return FALSE;
+
+    /* if we live in a MDI subwindow, ignore the event if we are
+       not the active document window */
+    QWidget* sw = d->watch;
+    while ( sw && !sw->testWFlags( WSubWindow ) )
+	sw = sw->parentWidget( TRUE );
+    if ( sw )  { // we are in a subwindow indeed
+	QWidget* fw = w;
+	while ( fw && fw != sw )
+	    fw = fw->parentWidget( TRUE );
+	if ( fw != sw ) // focus widget not in our subwindow
+	    return FALSE;
+    }
+    return TRUE;
+}
+
+bool QAccelManager::match( QKeyEvent *e, QAccelItem* item )
+{
+
+    int key = e->key();
+    if ( e->state() & ShiftButton )
+	key |= SHIFT;
+    if ( e->state() & ControlButton )
+	key |= CTRL;
+    if ( e->state() & MetaButton )
+	key |= META;
+    if ( e->state() & AltButton )
+	key |= ALT;
+    if ( e->key() == Key_BackTab ) {
+	/*
+	  In QApplication, we map shift+tab to shift+backtab.
+	  This code here reverts the mapping in a way that keeps
+	  backtab and shift+tab accelerators working, in that
+	  order, meaning backtab has priority.
+	*/
+	key &= ~SHIFT;
+	if ( item->match( key, e->text()[0] ) )
+	    return TRUE;
+	if ( e->state() & ShiftButton )
+	    key |= SHIFT;
+	key = Key_Tab | ( key & MODIFIER_MASK );
+	if ( item->match( key, e->text()[0] ) )
+	    return TRUE;
+    } else {
+	if ( item->match( key, e->text()[0] ) )
+	    return TRUE;
+    }
+    if ( key == Key_BackTab ) {
+	if ( e->state() & ShiftButton )
+	    key |= SHIFT;
+	if ( item->match( key, e->text()[0] ) )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
+
+bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
+{
+    e->spont = TRUE;
+    e->t = QEvent::AccelOverride;
+    e->ignore();
+    QApplication::sendEvent( w, e );
+    if ( e->isAccepted() )
+	return FALSE;
+
+    int n = -1;
+    QAccelPrivate* accel = accels.first();
+    QAccelItem* item = 0;
+    QAccelPrivate* firstaccel = 0;
+    QAccelItem* firstitem = 0;
+    QAccelPrivate* lastaccel = 0;
+    QAccelItem* lastitem = 0;
+    while ( accel ) {
+	if ( match( w, accel ) ) {
+	    item = accel->aitems.first();
+	    while( item ) {
+		if ( match( e, item ) ) {
+		    if ( !firstaccel ) {
+			firstaccel = accel;
+			firstitem = item;
+		    }
+		    lastaccel = accel;
+		    lastitem = item;
+		    n++;
+		    if ( n > QMAX(clash,0) )
+			goto doclash;
+		}
+		item = accel->aitems.next();
+	    }
+	}
+	accel = accels.next();
+    }
+    if ( n < 0 ) { // no match found
+	clash = -1; // reset
+	return FALSE;
+    } else if ( n == 0 ) { // found exactly one match
+	clash = -1; // reset
+	lastaccel->activate( lastitem );
+	return TRUE;
+    }
+
+ doclash: // found more than one match
+    if ( clash >= 0 && n > clash ) { // pick next  match
+	lastaccel->activateAmbiguously( lastitem );
+	clash++;
+    } else { // start (or wrap) with the first matching
+	firstaccel->activateAmbiguously( firstitem );
+	clash = 0;
+    }
+    return TRUE;
+}
+
+QAccelPrivate::QAccelPrivate( QAccel* p )
+    : parent( p )
+{
+    QAccelManager::self()->registerAccel( this );
+    aitems.setAutoDelete( TRUE );
+    ignorewhatsthis = FALSE;
+}
+
+QAccelPrivate::~QAccelPrivate()
+{
+    QAccelManager::self()->unregisterAccel( this );
+}
 
 static QAccelItem *find_id( QAccelList &list, int id )
 {
@@ -155,39 +348,10 @@ static QAccelItem *find_id( QAccelList &list, int id )
 static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 {
     register QAccelItem *item = list.first();
-    while ( item ) {
-	int k = item->key;
-	int km = k & Qt::MODIFIER_MASK;
-	QChar kc = QChar(k & 0xffff);
-	if ( k & Qt::UNICODE_ACCEL )
-	{
-	    if ( km ) {
-		// Modifiers must match...
-		QChar c;
-		if ( (key & Qt::CTRL) && (ch < ' ') )
-		    c = ch.unicode()+'@'+' '; // Ctrl+A is ASCII 001, etc.
-		else
-		    c = ch;
-		if ( kc.lower() == c.lower()
-		  && (key & Qt::MODIFIER_MASK) == km )
-		    break;
-		else if ( kc.lower() == c.lower()
-		    && (key & (Qt::MODIFIER_MASK^Qt::SHIFT)) == km )
-		    break;
-	    } else {
-		// No modifiers requested, ignore Shift but require others...
-		if ( kc == ch
-		  && (key & (Qt::MODIFIER_MASK^Qt::SHIFT)) == km )
-		    break;
-	    }
-	} else if ( k == key ) {
-	    break;
-	}
+    while ( item && !item->match( key, ch ) )
 	item = list.next();
-    }
     return item;
 }
-
 
 /*!
     Constructs a QAccel object called \a name, with parent \a parent.
@@ -197,19 +361,13 @@ static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 QAccel::QAccel( QWidget *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QAccelPrivate;
+    d = new QAccelPrivate( this );
     d->enabled = TRUE;
     d->watch = parent;
-    if ( d->watch ) {				// install event filter
-	d->watch->installEventFilter( this );
-	d->tlw = d->watch->topLevelWidget();
-	if ( d->tlw != d->watch )
-	    d->tlw->installEventFilter( this );
-    } else {
 #if defined(QT_CHECK_NULL)
+    if ( !d->watch )
 	qWarning( "QAccel: An accelerator must have a parent or a watch widget" );
 #endif
-    }
 }
 
 /*!
@@ -221,19 +379,13 @@ QAccel::QAccel( QWidget *parent, const char *name )
 QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QAccelPrivate;
+    d = new QAccelPrivate( this );
     d->enabled = TRUE;
     d->watch = watch;
-    if ( watch ) {				// install event filter
-	d->watch->installEventFilter( this );
-	d->tlw = d->watch->topLevelWidget();
-	if ( d->tlw != d->watch )
-	    d->tlw->installEventFilter( this );
-    } else {
 #if defined(QT_CHECK_NULL)
+    if ( !d->watch )
 	qWarning( "QAccel: An accelerator must have a parent or a watch widget" );
 #endif
-    }
 }
 
 /*!
@@ -251,7 +403,19 @@ QAccel::~QAccel()
 
     This signal is emitted when an accelerator key is pressed. \a id
     is a number that identifies this particular accelerator item.
+
+    \sa activateAmbiguously()
 */
+
+/*!
+    \fn void QAccel::activatedAmbiguously( int id )
+
+    This signal is emitted when an accelerator key is pressed. \a id
+    is a number that identifies this particular accelerator item.
+
+    \sa activated()
+*/
+
 
 /*!
     Returns TRUE if the accelerator is enabled; otherwise returns
@@ -444,120 +608,27 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
     return FALSE;
 }
 
-
-/*!
-    Makes sure that the accelerator is watching the correct event
-    filter. This function is called automatically; you should not need
-    to call it in application code.
-*/
-
-void QAccel::repairEventFilter()
+void QAccelPrivate::activate( QAccelItem* item )
 {
-    QWidget *ntlw;
-    if ( d->watch )
-	ntlw = d->watch->topLevelWidget();
+#ifndef QT_NO_WHATSTHIS
+    if ( QWhatsThis::inWhatsThisMode() && !ignorewhatsthis ) {
+	QWhatsThis::leaveWhatsThisMode( item->whatsthis );
+	return;
+    }
+#endif
+    if ( item->signal )
+	item->signal->activate();
     else
-	ntlw = 0;
-
-    if ( (QWidget*) d->tlw != ntlw ) {
-	if ( d->tlw )
-	    d->tlw->removeEventFilter( this );
-	d->tlw = ntlw;
-	if ( d->tlw )
-	    d->tlw->installEventFilter( this );
-    }
+	emit parent->activated( item->id );
 }
 
-
-/*!
-    Processes accelerator events intended for the top level widget. \a
-    e is the event that occurred on object \a o.
-*/
-
-bool QAccel::eventFilter( QObject *o, QEvent *e )
+void QAccelPrivate::activateAmbiguously( QAccelItem* item )
 {
-    if ( e->type() == QEvent::Reparent && ( d->watch == o || d->tlw == o ) ) {
-	repairEventFilter();
-    } else  if ( d->enabled &&
-                 ( e->type() == QEvent::Accel ||
-                   e->type() == QEvent::AccelAvailable) &&
-                 d->watch && d->watch->isVisible() ) {
-
-	/* if we live in a MDI subwindow, ignore the event if we are
-	   not the active document window */
-	QWidget* w = (QWidget*) parent();
-	while ( w && !w->testWFlags( WSubWindow ) )
-	    w = w->parentWidget( TRUE );
-	if ( w && w->isVisible() ) { // we are in a subwindow indeed
-	    QWidget* fw = qApp->focusWidget();
-	    while ( fw && fw != w )
-		fw = fw->parentWidget( TRUE );
-	    if ( w != fw ) // focus widget not in our subwindow
-		return FALSE; 
-	}
-
-	QKeyEvent *k = (QKeyEvent *)e;
-	int key = k->key();
-	if ( k->state() & ShiftButton )
-	    key |= SHIFT;
-	if ( k->state() & ControlButton )
-	    key |= CTRL;
-	if ( k->state() & MetaButton )
-	    key |= META;
-	if ( k->state() & AltButton )
-	    key |= ALT;
-	QAccelItem *item;
-        if ( k->key() == Key_BackTab ) {
-            /*
-              In QApplication, we map shift+tab to shift+backtab.
-              This code here reverts the mapping in a way that keeps
-              backtab and shift+tab accelerators working, in that
-              order, meaning backtab has priority.
-            */
-            key &= ~SHIFT;
-            item = find_key( d->aitems, key, k->text()[0] );
-            if ( ! item ) {
-                if ( k->state() & ShiftButton )
-                    key |= SHIFT;
-                key = Key_Tab | ( key & MODIFIER_MASK );
-                item = find_key( d->aitems, key, k->text()[0] );
-            }
-        } else {
-            item = find_key( d->aitems, key, k->text()[0] );
-        }
-        if ( ! item && key == Key_BackTab ) {
-            if ( k->state() & ShiftButton )
-                key |= SHIFT;
-            item = find_key( d->aitems, key, k->text()[0] );
-        }
-        if ( key == Key_unknown )
-	    item = 0;
-#ifndef QT_NO_WHATSTHIS
-	bool b = QWhatsThis::inWhatsThisMode();
-#else
-	bool b = FALSE;
-#endif
-	if ( item && ( item->enabled || b )) {
-	    if (e->type() == QEvent::Accel) {
-		if ( b && !d->ignorewhatsthis ) {
-#ifndef QT_NO_WHATSTHIS
-		    QWhatsThis::leaveWhatsThisMode( item->whatsthis );
-#endif
-		}
-		else if ( item->enabled ){
-		    if ( item->signal )
-			item->signal->activate();
-		    else
-			emit activated( item->id );
-		}
-	    }
-	    k->accept();
-	    return TRUE;
-	}
-    }
-    return QObject::eventFilter( o, e );
+    if ( item->signal )
+	item->signal->activate();
+    else
+	emit parent->activatedAmbiguously( item->id );
 }
-
 
 
 /*!
@@ -787,4 +858,8 @@ to help. Ask them for ISBN 1859121047.
 
 */
 
+/*! \obsolete  serves no purpose anymore */
+void QAccel::repairEventFilter() {}
+/*! \obsolete   serves no purpose anymore */
+bool QAccel::eventFilter( QObject *, QEvent * ) { return FALSE; }
 #endif // QT_NO_ACCEL

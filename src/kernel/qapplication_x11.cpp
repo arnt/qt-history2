@@ -398,6 +398,8 @@ int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
+extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+
 struct QScrollInProgress {
     static long serial;
     QScrollInProgress( QWidget* w, int x, int y ) :
@@ -4918,28 +4920,12 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     // key event
 
     // process accelerators before doing key compression
-    bool isAccel = FALSE;
-    if ( !grab ) { // test for accel if the keyboard is not grabbed
-	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
-		     QMAX(count, int(text.length())) );
-	a.ignore();
-	QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
-	isAccel = a.isAccepted();
-    }
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
-	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor,
-		      QMAX(count, int(text.length())) );
-	aa.ignore();
-	QApplication::sendSpontaneousEvent( this, &aa );
-	if ( !aa.isAccepted() ) {
-	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
-			 QMAX(count, int(text.length())) );
-	    a.ignore();
-	    QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
-	    if ( a.isAccepted() )
-		return TRUE;
-	}
+	QKeyEvent a( type, code, ascii, state, text, autor,
+		     QMAX(count, int(text.length())) );
+	if ( qt_dispatchAccelEvent( this, &a ) )
+	    return TRUE;
     }
 
     long save = 0;
@@ -4953,7 +4939,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 
     // compress keys
-    if ( !isAccel && !text.isEmpty() && testWState(WState_CompressKeys) &&
+    if ( !text.isEmpty() && testWState(WState_CompressKeys) &&
 	 // do not compress keys if the key event we just got above matches
 	 // one of the key ranges used to compute stopCompression
 	 ! ( ( code >= Key_Escape && code <= Key_SysReq ) ||
@@ -4993,18 +4979,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		//    to newline text
 		((codeIntern == 0) && (asciiIntern == '\n'));
 	    if (stateIntern == state && !textIntern.isEmpty() && !stopCompression) {
-		if (!grab) { // test for accel if the keyboard is not grabbed
-		    QKeyEvent a( QEvent::AccelAvailable, codeIntern,
-				 asciiIntern, stateIntern, textIntern, FALSE,
-				 QMAX(countIntern, int(textIntern.length())) );
-		    a.ignore();
-		    QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
-		    if ( a.isAccepted() ) {
-			XPutBackEvent(dpy, &evRelease);
-			XPutBackEvent(dpy, &evPress);
-			break;
-		    }
-		}
 		text += textIntern;
 		count += countIntern;
 	    } else {

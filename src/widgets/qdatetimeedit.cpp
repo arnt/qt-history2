@@ -453,7 +453,6 @@ void QDateTimeEditor::init()
 {
     setBackgroundMode( PaletteBase );
     setFocusSection( -1 );
-    setKeyCompression( TRUE );
     installEventFilter( this );
     setFocusPolicy( WheelFocus );
 }

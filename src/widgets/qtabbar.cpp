@@ -319,6 +319,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 #ifndef QT_NO_ACCEL
     d->a = new QAccel( this, "tab accelerators" );
     connect( d->a, SIGNAL(activated(int)), this, SLOT(setCurrentTab(int)) );
+    connect( d->a, SIGNAL(clash(int)), this, SLOT(setCurrentTab(int)) );
 #endif
     d->s = RoundedAbove;
     d->scrolls = FALSE;
@@ -1020,7 +1021,7 @@ void QTabBar::layoutTabs()
 	h = QMAX( h, QApplication::globalStrut().height() );
 
 	h += vframe;
-	t->r = QRect(QPoint(x, 0), style().sizeFromContents(QStyle::CT_TabBarTab, this, 
+	t->r = QRect(QPoint(x, 0), style().sizeFromContents(QStyle::CT_TabBarTab, this,
    	             QSize( QMAX( lw + hframe + iw, QApplication::globalStrut().width() ), h ),
 		     QStyleOption(t) ));
 	x += t->r.width() - overlap;

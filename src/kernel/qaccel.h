@@ -86,6 +86,7 @@ public:
 
 signals:
     void activated( int id );
+    void activatedAmbiguously( int id );
 
 protected:
     bool eventFilter( QObject *, QEvent * );
@@ -93,11 +94,12 @@ protected:
 private:
     QAccelPrivate * d;
 
-private:	// Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QAccel( const QAccel & );
     QAccel &operator=( const QAccel & );
 #endif
+    friend class QAccelPrivate;
 };
 
 #endif // QT_NO_ACCEL

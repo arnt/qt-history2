@@ -143,6 +143,7 @@ private:
 
 
     friend class QApplication;
+    friend class QAccelManager;
     friend class QBaseApplication;
     friend class QETWidget;
 };

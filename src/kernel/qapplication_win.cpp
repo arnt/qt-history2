@@ -274,6 +274,8 @@ static bool	qt_try_modal( QWidget *, MSG *, int& ret );
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
 
+extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
 static void	releaseAutoCapture();
@@ -2488,7 +2490,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    break;
 	}
     }
-    state  = translateButtonState( msg.wParam, type, button ); // button state    
+    state  = translateButtonState( msg.wParam, type, button ); // button state
     if ( type == QEvent::MouseMove ) {
 	if ( !(state & MouseButtonMask) )
 	    qt_button_down = 0;
@@ -3106,12 +3108,12 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     globalPos.ry() = (short)HIWORD ( msg.lParam );
 
 
-    // if there is a widget under the mouse and it is not shadowed 
+    // if there is a widget under the mouse and it is not shadowed
     // by modality, we send the event to it first
-    int ret = 0;    
+    int ret = 0;
     QWidget* w = QApplication::widgetAt( globalPos, TRUE );
     if ( !w || !qt_try_modal( w, (MSG*)&msg, ret ) )
-	w = this; 
+	w = this;
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
@@ -3247,7 +3249,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
     t = QEvent::TabletMove;
     if ( winPeekMessage( &msg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE) ) {
 	switch (msg1.message) {
-	case WM_MOUSEMOVE:    	    
+	case WM_MOUSEMOVE:    	
 	    t = QEvent::TabletMove;
 	    break;
 	case WM_LBUTTONDOWN:
@@ -3271,7 +3273,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	ptNew.x = (UINT)localPacketBuf[i].pkX;
 	ptNew.y = (UINT)localPacketBuf[i].pkY;
 	prsNew = 0;
-	if ( btnNew ) {	    
+	if ( btnNew ) {	
 	    prsNew = prsAdjust( localPacketBuf[i], hTab );
 	} else if ( button_pressed ) {
 	    // One button press, should only give one button release
@@ -3328,17 +3330,11 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 			      int state, bool grab, const QString& text,
 			      bool autor )
 {
-    if ( type == QEvent::KeyPress && !grab ) {	// send accel events
-	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor );
-	aa.ignore();
-	QApplication::sendSpontaneousEvent( this, &aa );
-	if ( !aa.isAccepted() ) {
-	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
-	    a.ignore();
-	    QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
-	    if ( a.isAccepted() )
-		return TRUE;
-	}
+    if ( type == QEvent::KeyPress && !grab ) {
+	// send accel events if the keyboard is not grabbed
+	QKeyEvent a( type, code, ascii, state, text, autor, int(text.length()) );
+	if ( qt_dispatchAccelEvent( this, &a ) )
+	    return TRUE;
     }
     if ( !isEnabled() )
 	return FALSE;

@@ -138,7 +138,6 @@
   \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
   \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
   \value ContextMenu context popup menu, \l{QContextMenuEvent}
-  \value AccelAvailable  Internal event used by Qt on some platforms.
   \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
   \value WindowActivate  Window was activated.
   \value WindowDeactivate  Window was deactivated.
