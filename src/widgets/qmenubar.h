@@ -54,7 +54,7 @@ class Q_EXPORT QMenuBar : public QFrame, public QMenuData
     Q_ENUMS( Separator )
     Q_PROPERTY( Separator separator READ separator WRITE setSeparator DESIGNABLE false )
     Q_PROPERTY( bool defaultUp READ isDefaultUp WRITE setDefaultUp )
-	
+
 public:
     QMenuBar( QWidget* parent=0, const char* name=0 );
     ~QMenuBar();
@@ -81,7 +81,7 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
-    void activateItemAt( int index ); // ### virtual in QMenuData 3.0
+    void activateItemAt( int index );
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     static void initialize();
