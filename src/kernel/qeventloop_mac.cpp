@@ -762,6 +762,12 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 #endif
 
     if(qt_is_gui_used) {
+	if(!qt_mac_safe_pdev) { //create an empty widget and this can be used for a port anytime
+	    QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
+	    tlw->hide();
+	    qt_mac_safe_pdev = tlw;
+	}
+
 	extern EventRef qt_replay_event;
 	if(qt_replay_event) {	//ick
 	    EventRef ev = qt_replay_event;
