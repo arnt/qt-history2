@@ -758,7 +758,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         }
 
         if (QApplication::isRightToLeft()) {
-            forward = !forward;
+            forward = !forward; // ### is this actually right?
         }
         const QDateTimeEditPrivate::SectionNode newSection =
             d->nextPrevSection(d->currentsection, forward);
@@ -1700,13 +1700,6 @@ bool QDateTimeEditPrivate::addSection(QList<SectionNode> &list, Section ds, int 
 
 void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 {
-    switch (s) {
-    case NoSection:
-    case LastSection:
-    case FirstSection:
-        return;
-    default: break;
-    }
     if (forward) {
         edit->setSelection(sectionPos(s), sectionSize(s));
     } else {
