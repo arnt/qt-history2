@@ -295,7 +295,7 @@ void QThread::start(Priority priority)
 	prio = THREAD_PRIORITY_NORMAL;
 	break;
 
-    case HightPriority:
+    case HighPriority:
 	prio = THREAD_PRIORITY_ABOVE_NORMAL;
 	break;
 
