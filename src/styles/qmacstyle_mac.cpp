@@ -86,7 +86,7 @@ void QMacPainter::setport()
     QPainter::initPaintDevice(TRUE, 0, &rgn);
     QMacSavedPortInfo::setClipRegion(rgn);
 #else
-    QPainter::initPaintDevice(TRUE, 0, );
+    QPainter::initPaintDevice(TRUE, 0);
 #endif
     NormalizeThemeDrawingState(); //just to be extra sure
 }
