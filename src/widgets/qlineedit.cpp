@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#220 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#221 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -529,7 +529,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	QString marked = display.mid( markBegin, markEnd - markBegin );
 	QString after = display.mid( markEnd, display.length() );
 
-	int y = d->pm->height()/2 + fm.height()/2 - fm.descent() - 1 ;
+	int y = (d->pm->height() + fm.height())/2 - fm.descent() - 1 ;
 
 	int x = offset + 2;
 	int w;

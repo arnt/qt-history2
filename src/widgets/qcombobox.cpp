@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#212 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#213 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -164,8 +164,7 @@
 
 struct QComboData
 {
-    QComboData( QListBox *l )   { lBox = l; usingLBox = TRUE;  }
-    QComboData( QPopupMenu *popmenu ) { pop  = popmenu; usingLBox = FALSE; }
+    QComboData(): usingLBox( FALSE ), pop( 0 ), lBox( 0 ) {}
     ~QComboData()
     {
 	delete pop;
