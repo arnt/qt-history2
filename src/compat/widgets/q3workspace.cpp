@@ -2590,3 +2590,4 @@ void Q3Workspace::changeEvent(QEvent *ev)
 #endif // QT_NO_WORKSPACE
 
 #include "moc_q3workspace.cpp"
+#include "q3workspace.moc"
