@@ -525,10 +525,12 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const char *type, bool
 #ifdef QAX_SERVER
             } else if (qAxFactory()->metaObject(subType)) {
                 arg.vt = VT_DISPATCH;
-                if (!qvar.constData()) {
+                void *user;
+                qVariantGet(qvar, user, qvar.typeName());
+                if (!user) {
                     arg.pdispVal = 0;
                 } else {
-                    qAxFactory()->createObjectWrapper(*static_cast<QObject**>(qvar.data()), &arg.pdispVal);
+                    qAxFactory()->createObjectWrapper(static_cast<QObject*>(user), &arg.pdispVal);
                 }
 #endif
             } else {
