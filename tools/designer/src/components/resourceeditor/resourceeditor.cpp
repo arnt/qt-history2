@@ -24,60 +24,44 @@
 
 #include "resourceeditor.h"
 
-/******************************************************************************
-** FormTab
-*/
-
-class FormTab : public QWidget
+class ModelCache
 {
-    Q_OBJECT
-
 public:
-    FormTab(AbstractFormWindow *form, ResourceEditor *editor);
-
-    AbstractFormWindow *form() const { return m_form; }
-    int qrcCount();
-    
-public slots:
-    void updateQrcList();
-    void updateUi();
-    void addPrefix();
-    void addFiles();
-    void deleteItem();
-    void setCurrentPrefix(const QString &prefix);
-    void setCurrentIndex(int i);
-    int currentIndex() const;
-    
-    void addView(const QString &file_name);
-    
-    void saveCurrentView();
-    void removeCurrentView();
-    void reloadCurrentView();
-    void newView();
-    void openView();
+    ResourceModel *model(const QString &file);
     
 private:
-    QToolButton *m_new_button;
-    QToolButton *m_open_button;
-    QToolButton *m_save_button;
-    QToolButton *m_remove_button;
-    QToolButton *m_reload_button;
-
-    AbstractFormWindow *m_form;
-    ResourceEditor *m_editor;
-
-    QComboBox *m_qrc_combo;
-    QStackedWidget *m_qrc_stack;
-    QPushButton *m_add_prefix_button;
-    QPushButton *m_add_files_button;
-    QPushButton *m_delete_button;
-    QLineEdit *m_prefix_edit;
-
-    void getCurrentItem(QString &prefix, QString &file);
-    QTreeView *currentView() const;
-    ResourceModel *currentModel() const;
-    int indexOfView(QTreeView *view);
+    QList<ResourceModel*> m_model_list;
 };
+
+Q_GLOBAL_STATIC(ModelCache, g_model_cache)
+
+ResourceModel *ModelCache::model(const QString &file)
+{
+    if (file.isEmpty()) {
+        ResourceModel *model = new ResourceModel(ResourceFile());
+        m_model_list.append(model);
+        return model;
+    }
+
+    for (int i = 0; i < m_model_list.size(); ++i) {
+        ResourceModel *model = m_model_list.at(i);
+        if (model->fileName() == file)
+            return model;
+    }
+
+    ResourceFile rf(file);
+    if (!rf.load()) {
+        QMessageBox::warning(0, QObject::tr("Error opening resource file"),
+                                QObject::tr("Failed to open \"%1\":\n%2")
+                                    .arg(file).arg(rf.errorMessage()),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return 0;
+    }
+
+    ResourceModel *model = new ResourceModel(rf);
+    m_model_list.append(model);
+    return model;
+}
 
 static QToolButton *createToolButton(QWidget *parent, const QString &text,
                                         const QString &icon_path, const char *slot)
@@ -89,11 +73,10 @@ static QToolButton *createToolButton(QWidget *parent, const QString &text,
     return result;
 }
 
-FormTab::FormTab(AbstractFormWindow *form, ResourceEditor *editor)
-    : QWidget(0)
+ResourceEditor::ResourceEditor(AbstractFormWindow *form, QWidget *parent)
+    : QWidget(parent)
 {
     m_form = form;
-    m_editor = editor;
 
     connect(form, SIGNAL(mainContainerChanged(QWidget*)),
             this, SLOT(updateQrcList()));
@@ -154,17 +137,17 @@ FormTab::FormTab(AbstractFormWindow *form, ResourceEditor *editor)
     updateUi();
 }
 
-int FormTab::qrcCount()
+int ResourceEditor::qrcCount()
 {
     return m_qrc_stack->count();
 }
 
-QTreeView *FormTab::currentView() const
+QTreeView *ResourceEditor::currentView() const
 {
     return qobject_cast<QTreeView*>(m_qrc_stack->currentWidget());
 }
 
-ResourceModel *FormTab::currentModel() const
+ResourceModel *ResourceEditor::currentModel() const
 {
     QTreeView *view = currentView();
     if (view == 0)
@@ -172,7 +155,7 @@ ResourceModel *FormTab::currentModel() const
     return qobject_cast<ResourceModel*>(view->model());
 }
 
-void FormTab::getCurrentItem(QString &prefix, QString &file)
+void ResourceEditor::getCurrentItem(QString &prefix, QString &file)
 {
     prefix.clear();
     file.clear();
@@ -188,7 +171,7 @@ void FormTab::getCurrentItem(QString &prefix, QString &file)
     model->getItem(view->currentIndex(), prefix, file);
 }
 
-void FormTab::addPrefix()
+void ResourceEditor::addPrefix()
 {
     QTreeView *view = currentView();
     if (view == 0)
@@ -204,7 +187,7 @@ void FormTab::addPrefix()
     updateUi();
 }
 
-void FormTab::setCurrentPrefix(const QString &prefix)
+void ResourceEditor::setCurrentPrefix(const QString &prefix)
 {
     QTreeView *view = currentView();
     if (view == 0)
@@ -218,7 +201,7 @@ void FormTab::setCurrentPrefix(const QString &prefix)
     updateUi();
 }
 
-void FormTab::addFiles()
+void ResourceEditor::addFiles()
 {
     QTreeView *view = currentView();
     if (view == 0)
@@ -242,7 +225,7 @@ void FormTab::addFiles()
     updateUi();
 }
 
-void FormTab::deleteItem()
+void ResourceEditor::deleteItem()
 {
     QTreeView *view = currentView();
     if (view == 0)
@@ -267,7 +250,7 @@ void FormTab::deleteItem()
     updateUi();
 }
 
-void FormTab::updateUi()
+void ResourceEditor::updateUi()
 {
     QString prefix, file;
     getCurrentItem(prefix, file);
@@ -288,12 +271,12 @@ void FormTab::updateUi()
 //    m_reload_button->setEnabled(currentModel() != 0);
 }
 
-int FormTab::currentIndex() const
+int ResourceEditor::currentIndex() const
 {
     return m_qrc_stack->currentIndex();
 }
 
-void FormTab::setCurrentIndex(int i)
+void ResourceEditor::setCurrentIndex(int i)
 {
     if (i > qrcCount())
         return;
@@ -306,7 +289,7 @@ void FormTab::setCurrentIndex(int i)
     updateUi();
 }
 
-void FormTab::updateQrcList()
+void ResourceEditor::updateQrcList()
 {
     m_qrc_combo->clear();
     while (m_qrc_stack->count() > 0) {
@@ -322,12 +305,12 @@ void FormTab::updateQrcList()
     updateUi();
 }
 
-void FormTab::addView(const QString &qrc_file)
+void ResourceEditor::addView(const QString &qrc_file)
 {
     int idx = qrcCount();
 
     QTreeView *view = new QTreeView;
-    ResourceModel *model = m_editor->model(qrc_file);
+    ResourceModel *model = g_model_cache()->model(qrc_file);
     if (model == 0)
         return;
     view->setModel(model);
@@ -351,7 +334,7 @@ void FormTab::addView(const QString &qrc_file)
     updateUi();
 }
 
-void FormTab::saveCurrentView()
+void ResourceEditor::saveCurrentView()
 {
     ResourceModel *model = currentModel();
     if (model == 0)
@@ -377,7 +360,7 @@ void FormTab::saveCurrentView()
     updateUi();
 }
 
-int FormTab::indexOfView(QTreeView *view)
+int ResourceEditor::indexOfView(QTreeView *view)
 {
     for (int i = 0; i < m_qrc_stack->count(); ++i) {
         if (view == m_qrc_stack->widget(i))
@@ -386,7 +369,7 @@ int FormTab::indexOfView(QTreeView *view)
     return -1;
 }
 
-void FormTab::removeCurrentView()
+void ResourceEditor::removeCurrentView()
 {
     QTreeView *view = currentView();
     if (view == 0)
@@ -418,7 +401,7 @@ void FormTab::removeCurrentView()
     updateUi();
 }
 
-void FormTab::reloadCurrentView()
+void ResourceEditor::reloadCurrentView()
 {
     ResourceModel *model = currentModel();
     if (model == 0)
@@ -428,12 +411,12 @@ void FormTab::reloadCurrentView()
     updateUi();
 }
 
-void FormTab::newView()
+void ResourceEditor::newView()
 {
     addView(QString());
 }
 
-void FormTab::openView()
+void ResourceEditor::openView()
 {
     QString file_name = QFileDialog::getOpenFileName(this, tr("Open resource file"),
                                                         m_form->absolutePath(QString()),
@@ -443,103 +426,3 @@ void FormTab::openView()
 
     addView(file_name);
 }
-
-/******************************************************************************
-** ResourceEditor
-*/
-
-ResourceEditor::ResourceEditor(AbstractFormEditor *core, QWidget *parent)
-    : QWidget(parent)
-{
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    m_tabs = new QTabWidget(this);
-    layout->addWidget(m_tabs);
-
-    connect(core->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow*)),
-            this, SLOT(addTab(AbstractFormWindow*)));
-    connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
-            this, SLOT(removeTab(AbstractFormWindow*)));
-}
-
-static QString tabName(const QString &form_name)
-{
-    if (form_name.isEmpty())
-        return QObject::tr("Unnamed");
-    return QFileInfo(form_name).fileName();
-}
-
-void ResourceEditor::addTab(AbstractFormWindow *form)
-{
-    m_tabs->addTab(new FormTab(form, this), tabName(form->fileName()));
-    connect(form, SIGNAL(fileNameChanged(const QString&)),
-            this, SLOT(formNameChanged(const QString&)));
-    m_tabs->setCurrentIndex(m_tabs->count() - 1);
-}
-
-int ResourceEditor::indexOfForm(AbstractFormWindow *form)
-{
-    for (int i = 0; i < m_tabs->count(); ++i) {
-        FormTab *form_tab = qobject_cast<FormTab*>(m_tabs->widget(i));
-        if (form_tab->form() == form)
-            return i;
-    }
-    return -1;
-}
-
-void ResourceEditor::removeTab(AbstractFormWindow *form)
-{
-    int idx = indexOfForm(form);
-    if (idx == -1)
-        return;
-    QWidget *form_tab = m_tabs->widget(idx);
-    m_tabs->removeTab(idx);
-    delete form_tab;
-}
-
-void ResourceEditor::formNameChanged(const QString &name)
-{
-    AbstractFormWindow *form = qobject_cast<AbstractFormWindow*>(sender());
-    if (form == 0)
-        return;
-
-    int idx = indexOfForm(form);
-    if (idx == -1)
-        return;
-        
-    m_tabs->setTabText(idx, tabName(name));
-}
-
-ResourceModel *ResourceEditor::model(const QString &file)
-{
-    if (file.isEmpty()) {
-        ResourceModel *model = new ResourceModel(ResourceFile());
-        m_model_list.append(model);
-        return model;
-    }
-
-    for (int i = 0; i < m_model_list.size(); ++i) {
-        ResourceModel *model = m_model_list.at(i);
-        if (model->fileName() == file)
-            return model;
-    }
-
-    ResourceFile rf(file);
-    if (!rf.load()) {
-        QMessageBox::warning(this, tr("Error opening resource file"),
-                                tr("Failed to open \"%1\":\n%2")
-                                    .arg(file).arg(rf.errorMessage()),
-                                QMessageBox::Ok, QMessageBox::NoButton);
-        return 0;
-    }
-                
-    ResourceModel *model = new ResourceModel(rf);
-    m_model_list.append(model);
-    return model;
-}
-
-FormTab *ResourceEditor::currentFormTab() const
-{
-    return qobject_cast<FormTab*>(m_tabs->currentWidget());
-}
-
-#include "resourceeditor.moc"

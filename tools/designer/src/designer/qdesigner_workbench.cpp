@@ -20,7 +20,6 @@
 #include "qdesigner_widgetbox.h"
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
-#include "qdesigner_resourceeditor.h"
 #include <qdesigner_integration.h>
 
 // components
@@ -145,7 +144,6 @@ void QDesignerWorkbench::initialize()
     addToolWindow(new QDesignerWidgetBox(this));
     addToolWindow(new QDesignerObjectInspector(this));
     addToolWindow(new QDesignerPropertyEditor(this));
-    addToolWindow(new QDesignerResourceEditor(this));
 
     m_modeActionGroup = new QActionGroup(this);
     m_modeActionGroup->setExclusive(true);

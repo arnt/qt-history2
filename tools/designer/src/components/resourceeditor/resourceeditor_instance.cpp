@@ -11,14 +11,9 @@
 **
 ****************************************************************************/
 
-#include <buddyeditor/buddyeditor_plugin.h>
-#include <signalsloteditor/signalsloteditor_plugin.h>
-#include <tabordereditor/tabordereditor_plugin.h>
-
 #include <QtCore/qplugin.h>
 
-Q_IMPORT_PLUGIN(SignalSlotEditorPlugin)
-Q_IMPORT_PLUGIN(BuddyEditorPlugin)
-Q_IMPORT_PLUGIN(TabOrderEditorPlugin)
-Q_IMPORT_PLUGIN(ResourceEditorPlugin)
+#include "resourceeditor_plugin.h"
+
+Q_EXPORT_STATIC_PLUGIN(ResourceEditorPlugin)
 

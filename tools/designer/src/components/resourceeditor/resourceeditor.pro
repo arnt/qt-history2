@@ -12,9 +12,14 @@ INCLUDEPATH += \
 
 DEFINES += QT_RESOURCEEDITOR_LIBRARY
 
-SOURCES += resourceeditor.cpp
+SOURCES += resourceeditor.cpp \
+            resourceeditor_instance.cpp \
+            resourceeditor_plugin.cpp \
+            resourceeditor_tool.cpp
 HEADERS += resourceeditor.h \
-            resourceeditor_global.h
+            resourceeditor_global.h \
+            resourceeditor_plugin.h \
+            resourceeditor_tool.h
 
 # DEFINES -= QT_COMPAT_WARNINGS
 # DEFINES += QT_COMPAT
