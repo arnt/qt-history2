@@ -108,9 +108,9 @@ static QStringList split_arg_list(const QString &params)
     QChar quote = 0;
     QStringList args;
     for(int x = 0, last = 0, parens = 0; x <= (int)params.length(); x++) {
-	if(x == params.length()) {
+	if(x == (int)params.length()) {
 	    QString mid = params.mid(last, x - last).stripWhiteSpace();
-	    if(mid[mid.length()-1] == quote)
+	    if(mid[(int)mid.length()-1] == quote)
 		mid.truncate(1);
 	    args << mid;
 	} else if(params[x] == ')') {
