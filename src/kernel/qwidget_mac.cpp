@@ -1114,7 +1114,7 @@ void QWidget::setFontSys(QFont *)
 
 void QWidgetPrivate::updateSystemBackground()
 {
-    QBrush = q->palette().brush(q->backgroundRole());
+    QBrush brush = q->palette().brush(q->backgroundRole());
     if(!brush.pixmap() && q->isTopLevel()) {
 	QMacSavedPortInfo savedInfo(q);
 	RGBColor f;
@@ -1835,7 +1835,7 @@ void qt_erase_region( QWidget* w, const QRegion& reg)
     if(was_unclipped)
 	w->setWFlags(Qt::WPaintUnclipped);
     p.setClipRegion(reg);
-    QBrush bg = w->background();
+    QBrush bg = w->backgroundBrush();
     if(bg.pixmap()) {
 	if(!bg.pixmap()->isNull()) {
 	    QPoint offset = w->backgroundOffset();
