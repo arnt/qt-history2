@@ -11,6 +11,11 @@
     $project{"TMAKE_LIBS"} = "";
 
     Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
+    if ( Project('TEMPLATE') eq "qt.t" ) {
+	# Qt/Embedded hackery.
+	Project('TMAKE_LIBS += -L'.$project{"OBJECTS_DIR"});
+	Project('TMAKE_LIBS += -freetype2');
+    }
 
     if ( Config("qt") || Config("opengl") ) {
 	Project('CONFIG *= x11lib');
@@ -175,6 +180,10 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
        	ExpandGlue("ALL_DEPS",""," "," ");
 	$text .= '$(DESTDIR)' . $targ . "\n\n";
 	$text .= '$(DESTDIR)' . $targ . ': $(OBJECTS) $(OBJMOC) ';
+	if ( Project('TEMPLATE') eq "qt.t" ) {
+	    # Qt/Embedded hackery.
+	    $text .= '$(OBJECTS_DIR)/libfreetype.a ';
+	}
 	Expand("TARGETDEPS");
 	$text .= "\n\t";
 	if ( Project('TEMPLATE') eq "lib" || Project('TEMPLATE') eq "qt.t" ) {
@@ -188,6 +197,9 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 	    $text .= '-o '.$targ.' $(OBJECTS) $(OBJMOC) $(LIBS)';
 	}
 #$}
+
+#$ Substitute('$$OBJECTS_DIR/libfreetype.a:');
+#$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config.mk OBJ_DIR=../../$$OBJECTS_DIR ../../$$OBJECTS_DIR/libfreetype.a');
 
 moc: $(SRCMOC)
 
