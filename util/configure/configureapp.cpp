@@ -49,7 +49,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "QMAKE_INTERNAL" ]  = "no";
     dictionary[ "LEAN" ]	    = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
-    dictionary[ "STL" ]		    = "no";
+    dictionary[ "STL" ]		    = "yes";
     dictionary[ "QWINEXPORT" ]	    = "no";
     dictionary[ "EXCEPTIONS" ]	    = "no";
     dictionary[ "RTTI" ]	    = "no";
@@ -69,7 +69,7 @@ Configure::Configure( int& argc, char** argv )
 
     dictionary[ "DEBUG" ]	    = "no";
     dictionary[ "SHARED" ]	    = "yes";
-    dictionary[ "THREAD" ]	    = "yes";
+    dictionary[ "THREAD" ]	    = "no";
 
     dictionary[ "GIF" ]		    = "no";
     dictionary[ "ZLIB" ]	    = "yes";
@@ -568,8 +568,8 @@ bool Configure::displayHelp()
 	cout << "-shared            * Build Qt as a shared library." << endl;
 	cout << "-static              Build Qt as a static library." << endl << endl;
 
-	cout << "-thread            * Configure Qt with thread support." << endl;
-	cout << "-no-thread           Configure Qt without thread support." << endl << endl;
+	cout << "-thread              Configure Qt with thread support." << endl;
+	cout << "-no-thread         * Configure Qt without thread support." << endl << endl;
 
 	cout << "-spec                Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig             Specify config, available configs:" << endl;
@@ -600,8 +600,8 @@ bool Configure::displayHelp()
 	cout << "-qt-jpeg           * Use the libjpeg bundled with Qt." << endl;
 	cout << "-system-jpeg         Use existing libJPEG in system" << endl << endl;
 
-	cout << "-stl                 Enable STL support." << endl;
-	cout << "-no-stl            * Disable STL support." << endl  << endl;
+	cout << "-stl               * Enable STL support." << endl;
+	cout << "-no-stl              Disable STL support." << endl  << endl;
 
 	cout << "-qwinexport          Enable additional and centralized template exports." << endl;
 	cout << "-no-qwinexport     * Disable additional template exports." << endl  << endl;
