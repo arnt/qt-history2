@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#110 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#109 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#110 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -427,7 +427,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
     wm_hints.input = True;
     wm_hints.icon_pixmap = extra->icon->handle();
     wm_hints.flags = IconPixmapHint;
-    XSetWMHints( xDisplay(), id(), &wm_hints );
+    XSetWMHints( dpy, id(), &wm_hints );
 }
 
 /*----------------------------------------------------------------------------
