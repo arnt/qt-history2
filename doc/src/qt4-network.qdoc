@@ -76,7 +76,7 @@
     address, QDns resolves host names into addresses, QUrl stores a
     URL, and QUrlInfo stores information about a resource pointed to
     by a URL, such as the file size and modification date. (Because
-    QUrl is used by QTextBrowser, it is part of the QtGui library and
+    QUrl is used by QTextBrowser, it is part of the QtCore library and
     not of QtNetwork.)
 
     See the \l{network.html}{Network Module Overview} for a more
