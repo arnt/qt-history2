@@ -71,7 +71,7 @@ public:
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
     QByteArray readKey( const QString &key, bool *ok );
 
-    HKEY openKey( const QString &key, bool create );
+    HKEY openKey( const QString &key, bool write );
 
     QStringList paths;
 
@@ -91,7 +91,7 @@ QSettingsPrivate::QSettingsPrivate()
     local = 0;
     user  = 0 ;
 
-    long res;
+    LONG res;
     if ( settingsTryLocal ) {
 #ifdef Q_OS_TEMP
 	res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_ALL_ACCESS, &local );
@@ -158,7 +158,7 @@ QSettingsPrivate::QSettingsPrivate()
 
 QSettingsPrivate::~QSettingsPrivate()
 {
-    long res;
+    LONG res;
     if ( local ) {
 	res = RegCloseKey( local );
 #if defined(QT_CHECK_STATE)
@@ -214,19 +214,35 @@ inline QString QSettingsPrivate::entry( const QString &key )
     return k.right( k.length() - k.findRev( "\\" ) - 1 );
 }
 
-inline HKEY QSettingsPrivate::openKey( const QString &key, bool create )
+inline HKEY QSettingsPrivate::openKey( const QString &key, bool write )
 {
     QString f = folder( key );
 
     HKEY handle = 0;
-    long res;
+    LONG res = ERROR_FILE_NOT_FOUND;
 
-    if ( local ) {
+    // if we write and there is a user specific setting, overwrite that
+    if ( write && user ) {
+#if defined(UNICODE)
+#ifndef Q_OS_TEMP
+	if ( qWinVersion() & Qt::WV_NT_based )
+#endif
+	    res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
+#ifndef Q_OS_TEMP
+	else
+#endif
+#endif
+#ifndef Q_OS_TEMP
+	    res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
+#endif
+    }
+
+    if ( res != ERROR_SUCCESS && local ) {
 #if defined(UNICODE)
 #ifndef Q_OS_TEMP
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
-	    if ( create )
+	    if ( write )
 		res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
@@ -236,15 +252,11 @@ inline HKEY QSettingsPrivate::openKey( const QString &key, bool create )
 #endif
 #ifndef Q_OS_TEMP
 	{
-	    if ( create )
+	    if ( write )
 		res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	}
-#endif
-#if defined(QT_CHECK_STATE)
-	if ( res != ERROR_SUCCESS )
-	    qSystemWarning("Couldn't open folder " + f + " for writing", res );
 #endif
     }
     if ( !handle && user ) {
@@ -252,7 +264,7 @@ inline HKEY QSettingsPrivate::openKey( const QString &key, bool create )
 #ifndef Q_OS_TEMP
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
-	    if ( create )
+	    if ( write )
 		res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
@@ -262,15 +274,11 @@ inline HKEY QSettingsPrivate::openKey( const QString &key, bool create )
 #endif
 #ifndef Q_OS_TEMP
 	{
-	    if ( create )
+	    if ( write )
 		res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	}
-#endif
-#if defined(QT_CHECK_STATE)
-	if ( res != ERROR_SUCCESS )
-	    qSystemWarning( "Couldn't open folder " + f + " for writing", res );
 #endif
     }
     return handle;
@@ -279,7 +287,7 @@ inline HKEY QSettingsPrivate::openKey( const QString &key, bool create )
 inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &value, ulong type )
 {
     QString e;
-    long res;
+    LONG res;
 
     HKEY handle = 0;
     for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
@@ -320,7 +328,7 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
 inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
 {
     HKEY handle = 0;
-    long res;
+    LONG res;
     ulong size = 0;
     QString e;
     for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
@@ -617,7 +625,7 @@ bool QSettings::readBoolEntry( const QString &key, bool def, bool *ok )
 bool QSettings::removeEntry( const QString &key )
 {
     QString e;
-    long res;
+    LONG res;
 
     HKEY handle = 0;
     for ( QStringList::Iterator it = d->paths.fromLast(); it != d->paths.end(); --it ) {
