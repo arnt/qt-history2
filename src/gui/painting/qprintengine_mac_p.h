@@ -27,6 +27,7 @@ class QMacPrintEnginePrivate : public QPaintEnginePrivate
 public:
     QPrinter::PrinterMode mode;
     QPrinter::PrinterState state;
+    QPrinter::Orientation orient;
     PMPageFormat format;
     PMPrintSettings settings;
     PMPrintSession session;
@@ -37,7 +38,8 @@ public:
     GWorldPtr qdHandle;
     QPaintEngine *paintEngine;
     QMacPrintEnginePrivate() : mode(QPrinter::ScreenResolution), state(QPrinter::Idle),
-                               format(0), settings(0),session(0), qdHandle(0), paintEngine(0) {}
+                               orient(QPrinter::Portrait), format(0), settings(0), session(0),
+                               qdHandle(0), paintEngine(0) {}
     void initialize();
     bool newPage_helper();
 };

@@ -139,12 +139,16 @@ QString QMacPrintEngine::creator() const { return QString(); }
 
 void QMacPrintEngine::setOrientation(QPrinter::Orientation orientation)
 {
+    d->orient = orientation;
     PMOrientation o = orientation == QPrinter::Portrait ? kPMPortrait : kPMLandscape;
     PMSetOrientation(d->format, o, false);
 }
 
 QPrinter::Orientation QMacPrintEngine::orientation() const
 {
+    if (d->state == QPrinter::Idle)
+        return d->orient;
+
     PMOrientation orientation;
     PMGetOrientation(d->format, &orientation);
     return orientation == kPMPortrait ? QPrinter::Portrait : QPrinter::Landscape;
@@ -208,6 +212,9 @@ void QMacPrintEngine::setPageSize(QPrinter::PageSize ps)
             int hMM = int((paper.bottom - paper.top) / 72 * 25.4 + 0.5);
             if (newSize.w == wMM && newSize.h == hMM) {
                 PMCopyPageFormat(tmp, d->format);
+                // reset the orientation and resolution as they are lost in the copy.
+                setOrientation(d->orient);
+                PMSetResolution(d->format, &d->resolution);
                 break;
             }
         }
@@ -387,10 +394,16 @@ int QMacPrintEngine::metric(int m) const
     int val = 1;
     switch (m) {
     case QPaintDeviceMetrics::PdmWidth:
-        val = qt_get_PDMWidth(d->format, fullPage());
+        if (d->state == QPrinter::Active || orientation() == QPrinter::Portrait)
+            val = qt_get_PDMWidth(d->format, fullPage());
+        else
+            val = qt_get_PDMHeight(d->format, fullPage());
         break;
     case QPaintDeviceMetrics::PdmHeight:
-        val = qt_get_PDMHeight(d->format, fullPage());
+        if (d->state == QPrinter::Active || orientation() == QPrinter::Portrait)
+            val = qt_get_PDMHeight(d->format, fullPage());
+        else
+            val = qt_get_PDMWidth(d->format, fullPage());
         break;
     case QPaintDeviceMetrics::PdmWidthMM:
         val = metric(QPaintDeviceMetrics::PdmWidth);
