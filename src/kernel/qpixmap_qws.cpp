@@ -457,6 +457,8 @@ QImage QPixmap::convertToImage() const
     int	d  = depth();
     bool mono = d == 1;
 
+    const QBitmap* msk = mask();
+
     if( d == 15 || d == 16 ) {
 #ifndef QT_NO_QWS_DEPTH_16
 	d = 32;
@@ -466,9 +468,26 @@ QImage QPixmap::convertToImage() const
 	    register uint *p = (uint *)image.scanLine(y);
 	    ushort  *s = (ushort*)scanLine(y);
 	    uint *end = p + w;
-	    while ( p < end )
-		*p++ = qt_conv16ToRgb( *s++ );
+	    if ( msk ) {
+		uchar* a = msk->scanLine(y);
+		uchar bit = 1; // mask is LittleEndian
+		while ( p < end ) {
+		    uint rgb = qt_conv16ToRgb( *s++ );
+		    if ( !(*a & bit) )
+			rgb &= 0x00ffffff;
+		    *p++ = rgb;
+		    if (!(bit <<= 1)) {
+			++a;
+			bit = 1;
+		    }
+		}
+	    } else {
+		while ( p < end )
+		    *p++ = qt_conv16ToRgb( *s++ );
+	    }
 	}
+	if ( msk )
+	    image.setAlphaBuffer( TRUE );
 #endif
     } else {
 	// We can only create little-endian pixmaps
