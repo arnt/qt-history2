@@ -25,6 +25,16 @@
 #include "qrect.h"
 #include "qmutex.h"
 
+#ifdef Q_OS_WIN // for homedirpath reading from registry
+#include "qt_windows.h"
+#include "qlibrary.h"
+
+#ifndef CSIDL_COMMON_APPDATA
+#define CSIDL_COMMON_APPDATA            0x0023        // All Users\Application Data
+#endif
+
+#endif // Q_OS_WIN
+
 #ifndef QT_NO_QOBJECT
 #include "qcoreapplication.h"
 #endif
@@ -789,7 +799,31 @@ void QConfFileSettingsPrivate::init()
 
 static QString systemIniPath()
 {
-    return QLatin1String(qInstallPathSysconf()) + QDir::separator();
+    QString defPath;
+#ifdef Q_OS_WIN
+    QLibrary library("shell32");
+    library.setAutoUnload(false);
+    QT_WA( {
+	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
+	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");
+	if (SHGetSpecialFolderPath) {
+	    TCHAR path[MAX_PATH];
+	    SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, FALSE);
+	    defPath = QString::fromUcs2((ushort*)path);
+	}
+    } , {
+	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
+	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathA");
+	if (SHGetSpecialFolderPath) {
+	    char path[MAX_PATH];
+	    SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, FALSE);
+	    defPath = QString::fromLocal8Bit(path);
+	}
+    } );
+#else
+    defPath = QLatin1String(qInstallPathSysconf());
+#endif // Q_OS_WIN
+    return defPath + QDir::separator();
 }
 
 static QString userIniPath()
