@@ -459,9 +459,22 @@ QFile::rename(const QString &newName)
             QFile out(newName);
             if (in.open(QIODevice::ReadOnly)) {
                 if(out.open(IO_WriteOnly | IO_Truncate)) {
-                    out.write(in.readAll());
-                    in.remove();
-                    return true;
+                    bool error = false;
+                    char block[1024];
+                    while(!atEnd()) {
+                        Q_LONG read = in.read(block, 1024);
+                        if(read == -1)
+                            break;
+                        if(read != out.write(block, read)) {
+                            setStatus(QIODevice::CopyError,
+                                      QLatin1String("Failure to write block"));
+                            error = true;
+                            break;
+                        }
+                    }
+                    if(!error)
+                        in.remove();
+                    return !error;
                  }
             }
         }
