@@ -335,53 +335,75 @@ removed, \QA will reindex.
 
 \chapter Customizing Qt Assistant with Profiles
 
-You can change several aspects of \QA's behavior to adapt it for your
-needs. This is achieved by creating and modifying profiles. Profiles
-contain attributes, for example a list of documentation content files,
-and icon names.
+You can change several aspects of \QA's behavior to adapt it to your
+needs. This is achieved by creating and modifying profiles. A profile
+is a collection of document content files and related information.
+
+\section1 How to Create a Profile
 
 If you want to add or modify a profile, open the settings dialog, go
 to the profile tab and click \Button Modify or \Button Add. A new
 dialog pops up. Insert the name of the profile in the first line edit.
 This name is used both in the settings dialog (where you choose which
 profile to use) and when you start \QA specifying a particular profile
-on the command line. Click the toolbutton in the upper right corner to
-change \QA's application icon. The title field is used to specify \QA'
-caption, so can make \QA have a name consistent with your application.
-The next line edit contains your application's base path (see below).
-You can also click the \Button ... button to invoke a file dialog and
-navigate until you find the right directory. The Homepage specifies
-which page \QA should start with for this profile. Usually, this is
-the HTML file which contains the documentation's contents. In order to
-customize the about text which appears in the help menu fill out the
-next line edit. The about URL specifies a file which contains your
-application's about text. (For adding or removing documentation see
-\l{Adding Documentation to a Profile}.)
+on the command line. The title field is used to specify \QA's
+caption. Enter the path and file name in the icon line edit. Alternatively,
+click the \Button ... browse button and choose the icon from the file open
+dialog. The next line edit contains your application's path (see below).
+The start page specifies which page \QA should initially display when
+the profile is used. Usually, this is the HTML file which contains the
+documentation's table of contents. If you want \QA's about box to display
+your own about text you must do two things. Firstly, you must enter the menu
+text in the 'about menu text' line edit. This text will appear in \QA's
+help menu, and when the user clicks it, the about box will be displayed.
+Secondly, enter the name of the file that contains the about box's text in
+the 'about URL' line edit.
 
-\section1 Using Profiles
+The documentation box contains a list of all the documentation content files
+used by this profile. (For further information about documentation content
+files see \l{Documentation Content File format}.)
 
-If you just want to change the documentation sets that \QA displays,
-add or remove documentation files from the list, click \OK and you're
-done.
+If you have created the profile just for your own use, click \OK and
+\QA will save the profile.
 
-If you want to create a profile for your own application which is
-shipped along with your application then click \Button{Save As} and
-give a file name. This will make \QA save all the profile information
-into that file. The base path (mentioned earlier) points to the
-application path. While saving, \QA determines the relative path
-between the documentation content files and the base path. The same is
-done for other properties as well. So all specified paths and files
-are saved relative to the base path. The saved profile file is later
-used to initialize \QA for your application, i.e. you must ship this
-file with your application. The initialization itself is then
-straightforward. Call \QA from your installation program with the
+If \QA is used as the help system for an application, it must be initialized with a 
+profile that identifies the location and content of the help files supplied with
+the application. The profile is created using this dialog. It must then be exported
+into a file (by clicking the \Button Export button and choosing a file name).
+When exporting, \QA determines the relative path
+between the documentation content files and the application path. When \QA and
+the documentation are installed the relative paths are converted to absolute
+paths that take account of where the application is actually installed.
+(The next section explains how to initialize \QA using the exported profile file.)
+
+
+\section1 How to Use a Profile
+
+If the profile is only for your own use, either create a new one or modify
+an existing one. When you click \OK, the new or modified profile will take effect.
+
+If you want to use a profile with an application that you are distributing,
+create the profile and export it to a file as described in the previous section.
+To make use of an exported profile,
+call \QA from your installation program with the
 following option:
 \code
-assistant -addProfile profile-filename optional/path/to/custom/profile
+assistant -addProfile path/to/profile path/to/application
 \endcode
+This command line will not launch \QA in GUI mode, but will simply register
+your profile and then terminate. The \c{path/to/profile} is the path to the profile
+file on the installation media. The \c{path/to/application} is the path
+to the \e installed application on the user's hard disk, i.e. the specified
+application path from the profile is replaced by \c{path/to/application}. 
+When the user runs \QA it will use the profile that was installed
+with the \c{-addProfile} call.
+
+The base path (\c{path/to/application}) is the path to the "root" of the application. For example,
+\c{C:\Program Files\MyApp}. The documentation might be stored in
+\c{C:\Program Files\MyApp\help} and the executable in \c{C:\Program Files\MyApp\bin}.
+
 If you don't provide the path, \QA will use the path from the old
-profile file. Note that when you use this option, \QA does not show a
-main window; it simply registers the profile and quits.
+profile file.
 
 When \QA is run for the first time 
 it tries to find a profile so that it can find documents to display.
