@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#9 $
 **
 ** Implementation of QML classes
 **
@@ -435,6 +435,7 @@ public:
     QChar c;
 
     inline bool isSpace() const {return c.isSpace();}
+    inline bool isNewline() const {return c == '\n';}
     inline bool isNull() const {return c == QChar::null;}
 
     inline QMLContainer* parent() const;
@@ -481,7 +482,6 @@ private:
     QPixmap pm;
     QRegion* reg;
 };
-
 
 // internal class for qmlbox, also used in qmlcursor.
 class QMLRow
@@ -724,9 +724,11 @@ public:
 	- A list item.
 
     <li>\c &lt;img&gt;
-	An image. The image name for the provider is given in the
+	- An image. The image name for the provider is given in the
 	source attribute, for example \c &lt;img source="qt.xpm" &gt;
 
+    <li>\c &lt;br&gt;
+	- A line break
   </ul>
 */
 
@@ -819,6 +821,7 @@ void QMLStyleSheet::init()
     insert(style);
 
     insert(new QMLStyle("img"));
+    insert(new QMLStyle("br"));
 
 }
 
@@ -876,6 +879,11 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
     // first the empty tags
     if (style->name() == "img")
 	return new QMLImage(attr, provider);
+    else if (style->name() == "br") {
+	QMLNode* result = new QMLNode; 
+	result->c = '\n';
+	return result;
+    }
 
     // process containers
     switch ( style->displayMode() ) {
@@ -1076,7 +1084,7 @@ QMLRow::QMLRow( QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par,
 	
 	// break (a) after a space, (b) before a box, (c) if we have
 	// to or (d) at the end of a box.
-	if (cur->isSpace() || (i&&i->isBox) || noSpaceFound || !i || i == t){
+	if (cur->isSpace() || cur->isNewline() || (i&&i->isBox) || noSpaceFound || !i || i == t){
 	    lastPar = par;
 	    lastSpace = cur;
 	    lastHeight = rh;
@@ -1085,7 +1093,9 @@ QMLRow::QMLRow( QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par,
 	    lastWidth = tx;
 	    if (noSpaceFound && cur->isSpace())
 		noSpaceFound = FALSE;
-	}	
+	}
+	if (cur->isNewline() )
+	    break;
     }
     end = lastSpace;
     i = box->nextLayout(lastSpace, lastPar);
@@ -1150,7 +1160,7 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 
     bool reducedFlickerMode = FALSE;
     do {
-	if ( !t->isSimpleNode) {
+	if ( !t->isSimpleNode && paper ) {
 	    reducedFlickerMode = TRUE;
 	    break;
 	}
@@ -1293,6 +1303,11 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 			QRect tr( tx+obx-ox, y+oby-oy+base-h, tw, h );
 			backgroundRegion = backgroundRegion.subtract( tr );
 		    }
+		}
+		else {
+		    int h = ((QMLCustomNode*)t)->height;
+		    ((QMLCustomNode*)t)->draw(p,tx+obx,y+oby+base-h,
+					      ox, oy, cx, cy, cw, ch, backgroundRegion, cg, paper);
 		}
 	    }
 	}
@@ -2700,9 +2715,9 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    QDict<QString> attr;
 	    attr.setAutoDelete( TRUE );
 	    QString tagname = parseOpenTag(doc, pos, attr);
-	    sep = eatSpace(doc, pos);
 	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
 	    if (tag->isContainer ) {
+		sep = eatSpace(doc, pos);
 		if (current == this && !attr.isEmpty() ) {
 		    setAttributes( attr );
 		}
@@ -2737,7 +2752,6 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    }
 	    else { // empty tags
 		if (valid) {
-		    sep |= eatSpace(doc, pos);
 		    QMLNode* l = lastChild;
 		    if (!l){
 			current->child  = tag;
@@ -2837,8 +2851,10 @@ QString QMLDocument::parsePlainText(const QString& doc, int& pos)
 	    while (pos+1 < int(doc.length() ) && doc[pos+1].isSpace() ){
 		pos++;
 	    }
+	    s += ' ';
 	}
-	s += doc[pos];
+	else
+	    s += doc[pos];
 	pos++;
     }
     valid &= pos <= int(doc.length());
