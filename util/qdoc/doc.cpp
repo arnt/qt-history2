@@ -246,6 +246,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     QStringList seeAlso, important, footnotes;
     bool obsolete = FALSE;
     bool preliminary = FALSE;
+    bool mainClass = FALSE;
     int base;
     int briefBegin = -1;
     int briefEnd = 0;
@@ -676,6 +677,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKindHasToBe( Doc::Class, command );
 		}
 		break;
+	    case HASH( 'm', 9 ):
+		CONSUME( "mainclass" );
+		setKindHasToBe( Doc::Class, command );
+		mainClass = TRUE;
+		break;
 	    case HASH( 'n', 4 ):
 		CONSUME( "note" );
 		yyOut += QString( "Note:" );
@@ -1100,7 +1106,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    .arg(config->product()) );
 
 	doc = new ClassDoc( loc, yyOut, className, brief, moduleName, extName,
-			    headers, important );
+			    headers, important, mainClass );
 	break;
     case Doc::Enum:
 	sanitize( enumName );
@@ -1371,6 +1377,7 @@ QMap<QString, QMap<QString, QString> > Doc::legaleses;
 QMap<QString, QString> Doc::keywordLinks;
 StringSet Doc::hflist;
 QMap<QString, QString> Doc::clist;
+QMap<QString, QString> Doc::mainclist;
 QMap<QString, StringSet> Doc::findex;
 QMap<QString, QString> Doc::grmap;
 QMap<QString, StringSet> Doc::chierarchy;
@@ -1388,9 +1395,11 @@ void Doc::setHeaderFileList( const StringSet& headerFiles )
     hflist = headerFiles;
 }
 
-void Doc::setClassList( const QMap<QString, QString>& classList )
+void Doc::setClassLists( const QMap<QString, QString>& allClasses,
+			 const QMap<QString, QString>& mainClasses )
 {
-    clist = classList;
+    clist = allClasses;
+    mainclist = mainClasses;
 
     /*
       Why is here the best place to build the mega regular expression?
@@ -1553,17 +1562,116 @@ QString Doc::htmlHeaderFileList()
 
 QString Doc::htmlClassList()
 {
+    return htmlCompactList( clist );
+}
+
+QString Doc::htmlMainClassList()
+{
+    return htmlCompactList( mainclist );
+}
+
+QString Doc::htmlAnnotatedClassList()
+{
+    return htmlNormalList( clist );
+}
+
+QString Doc::htmlFunctionIndex()
+{
+    QString hook( "QIntDict::operator=()" );
+    QString gulbrandsen( "::" );
+
+    QString html = QString( "<ul>\n" );
+    QMap<QString, StringSet>::ConstIterator f = findex.begin();
+    while ( f != findex.end() ) {
+	html += QString( "<li>%1:\n" ).arg( htmlProtect(f.key()) );
+	StringSet::ConstIterator s = (*f).begin();
+	while ( s != (*f).end() ) {
+	    QString t = *s + gulbrandsen + f.key() + parenParen;
+	    QString y = href( t, *s );
+	    if ( y != t );
+	    html += QChar( ' ' );
+	    html += y;
+	    if ( t == hook )
+		html += QString(" <a href=\"http://www.kbuxton.com/discordia/"
+				"fnord.html\">fnord</a>" );
+	    ++s;
+	}
+	++f;
+    }
+    html += QString( "</ul>\n" );
+    return html;
+}
+
+QString Doc::htmlClassHierarchy()
+{
+    QValueStack<QStringList> stack;
+    QString html;
+
+    stack.push( chierarchy[QString::null].toIStringList() );
+
+    html += QString( "<ul>\n" );
+    while ( !stack.isEmpty() ) {
+	QStringList& top = stack.top();
+
+	if ( top.isEmpty() ) {
+	    stack.pop();
+	    html += QString( "</ul>\n" );
+	} else {
+	    QString child = *top.begin();
+	    html += QString( "<li>" );
+	    html += href( child );
+#if 0
+	    // bad idea
+	    QString brief = clist[child];
+	    if ( !brief.isEmpty() )
+		html += QString( " - " ) + brief;
+#endif
+	    html += QString( "\n" );
+	    top.remove( top.begin() );
+
+	    StringSet newTop = chierarchy[child];
+	    if ( !newTop.isEmpty() ) {
+		stack.push( newTop.toIStringList() );
+		html += QString( "<ul>\n" );
+	    }
+	}
+    }
+    html += QString( "</ul>\n" );
+    return html;
+}
+
+QString Doc::htmlExtensionList()
+{
+    QString html;
+
+    if ( !extlist.isEmpty() ) {
+	StringSet::ConstIterator e;
+	QValueStack<QString> seps = separators( extlist.count(),
+						QString(".\n") );
+	html += QString( "* Extension classes of " );
+	e = extlist.begin();
+	while ( e != extlist.end() ) {
+	    html += *e;
+	    html += seps.pop();
+	    ++e;
+	}
+    }
+    return html;
+}
+
+QString Doc::htmlCompactList( const QMap<QString, QString>& list )
+{
     /*
       The problem here is to transform a list of classes into a
       five-column table, with the constraint that all classes starting
       by the same letter should appear in the same column.
     */
 
-    const int NumParagraphs = 27; // 26 letters in Alphabits, plus tax
+    const int NumParagraphs = 27; // 26 letters in Alphabits plus tax
     const int NumColumns = 5; // number of columns in the result
     QString html( "" );
 
-    if ( clist.isEmpty() )
+    if ( list.isEmpty() )
 	return html;
 
     /*
@@ -1572,8 +1680,8 @@ QString Doc::htmlClassList()
       classes in alphabetical order (QAccel and QXtWidget in Qt 2.1).
     */
     int commonPrefixLen = 0;
-    QString first = clist.begin().key();
-    QMap<QString, QString>::ConstIterator beforeEnd = clist.end();
+    QString first = list.begin().key();
+    QMap<QString, QString>::ConstIterator beforeEnd = list.end();
     QString last = (--beforeEnd).key();
 
     while ( commonPrefixLen < (int) first.length() + 1 &&
@@ -1593,8 +1701,8 @@ QString Doc::htmlClassList()
     QMap<QString, QString> paragraph[NumParagraphs];
     QString paragraphName[NumParagraphs];
 
-    QMap<QString, QString>::ConstIterator c = clist.begin();
-    while ( c != clist.end() ) {
+    QMap<QString, QString>::ConstIterator c = list.begin();
+    while ( c != list.end() ) {
 	QString key = c.key().mid( commonPrefixLen ).lower();
 	int paragraphNo = NumParagraphs - 1;
 
@@ -1729,7 +1837,7 @@ QString Doc::htmlClassList()
       Aasheim comes in. Seriously, we have to generate all columns in
       parallel. The offset array guides us.
     */
-    html += QString( "<table>\n" );
+    html += QString( "<p><table width=\"100%\">\n" );
     for ( k = 0; k < numRows[NumColumns - 1][NumParagraphs - 1]; k++ ) {
 	html += QString( "<tr>\n" );
 	for ( i = 0; i < NumColumns; i++ ) {
@@ -1766,102 +1874,39 @@ QString Doc::htmlClassList()
     return html;
 }
 
-QString Doc::htmlAnnotatedClassList()
+QString Doc::htmlNormalList( const QMap<QString, QString>& list )
 {
+    QString html;
+
+    if ( list.isEmpty() )
+	return html;
+
     /*
       We fight hard just to go through the QMap in case-insensitive
-      order. In Qt, this gets class Qt among the t's and Quebec among
+      order. In Qt, this puts class Qt among the t's and Quebec among
       the u's.
     */
+
     StringSet cset;
-    QString html = QString( "<table>\n" );
-    QMap<QString, QString>::ConstIterator c = clist.begin();
-    while ( c != clist.end() ) {
+    html += QString( "<p><table width=\"100%\">\n" );
+    QMap<QString, QString>::ConstIterator c = list.begin();
+    while ( c != list.end() ) {
 	cset.insert( c.key() );
 	++c;
     }
+
     QStringList stringl = cset.toIStringList();
     QStringList::ConstIterator s = stringl.begin();
     while ( s != stringl.end() ) {
-	c = clist.find( *s );
+	c = list.find( *s );
 	html += QString( "<tr bgcolor=#f0f0f0>" );
 	html += QString( "<td><b>%1</b>" ).arg( href(c.key()) );
 	if ( !(*c).isEmpty() )
 	    html += QString( "<td>" ) + *c;
-	html += QString( "\n" );
+	html += QChar( '\n' );
 	++s;
     }
     html += QString( "</table>\n" );
-    return html;
-}
-
-QString Doc::htmlFunctionIndex()
-{
-    QString gulbrandsen( "::" );
-    QString html = QString( "<ul>\n" );
-    QMap<QString, StringSet>::ConstIterator f = findex.begin();
-    while ( f != findex.end() ) {
-	html += QString( "<li>%1:\n" ).arg( htmlProtect(f.key()) );
-	StringSet::ConstIterator s = (*f).begin();
-	while ( s != (*f).end() ) {
-	    html += QChar( ' ' );
-	    html += href( *s + gulbrandsen + f.key() + parenParen, *s );
-	    ++s;
-	}
-	++f;
-    }
-    html += QString( "</ul>\n" );
-    return html;
-}
-
-QString Doc::htmlClassHierarchy()
-{
-    QValueStack<QStringList> stack;
-    QString html;
-
-    stack.push( chierarchy[QString::null].toIStringList() );
-
-    html += QString( "<ul>\n" );
-    while ( !stack.isEmpty() ) {
-	QStringList& top = stack.top();
-
-	if ( top.isEmpty() ) {
-	    stack.pop();
-	    html += QString( "</ul>\n" );
-	} else {
-	    QString child = *top.begin();
-	    html += QString( "<li>" );
-	    html += href( child );
-	    html += QString( "\n" );
-	    top.remove( top.begin() );
-
-	    StringSet newTop = chierarchy[child];
-	    if ( !newTop.isEmpty() ) {
-		stack.push( newTop.toIStringList() );
-		html += QString( "<ul>\n" );
-	    }
-	}
-    }
-    html += QString( "</ul>\n" );
-    return html;
-}
-
-QString Doc::htmlExtensionList()
-{
-    QString html;
-
-    if ( !extlist.isEmpty() ) {
-	StringSet::ConstIterator e;
-	QValueStack<QString> seps = separators( extlist.count(),
-						QString(".\n") );
-	html += QString( "* Extension classes of " );
-	e = extlist.begin();
-	while ( e != extlist.end() ) {
-	    html += *e;
-	    html += seps.pop();
-	    ++e;
-	}
-    }
     return html;
 }
 
@@ -2198,6 +2243,10 @@ QString Doc::finalHtml() const
 		CONSUME( "legaleselist" );
 		yyOut += htmlLegaleseList();
 		break;
+	    case HASH( 'm', 13 ):
+		CONSUME( "mainclasslist" );
+		yyOut += htmlMainClassList();
+		break;
 	    case HASH( 'p', 7 ):
 		CONSUME( "printto" );
 		substr = getRestOfLine( yyIn, yyPos );
@@ -2391,9 +2440,10 @@ FnDoc::FnDoc( const Location& loc, const QString& html,
 ClassDoc::ClassDoc( const Location& loc, const QString& html,
 		    const QString& className, const QString& brief,
 		    const QString& module, const QString& extension,
-		    const StringSet& headers, const QStringList& important )
+		    const StringSet& headers, const QStringList& important,
+		    bool mainClass )
     : Doc( Class, loc, html, className ), bf( brief ), mod( module ),
-      ext( extension ), h( headers )
+      ext( extension ), h( headers ), main( mainClass )
 {
     setFileName( config->classRefHref(className) );
 

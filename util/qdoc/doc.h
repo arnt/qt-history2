@@ -61,7 +61,8 @@ public:
 
     static void setResolver( const Resolver *resolver ) { res = resolver; }
     static void setHeaderFileList( const StringSet& headerFiles );
-    static void setClassList( const QMap<QString, QString>& classList );
+    static void setClassLists( const QMap<QString, QString>& allClasses,
+			       const QMap<QString, QString>& mainClasses );
     static void setFunctionIndex( const QMap<QString, StringSet>& index );
     static void setGroupMap( const QMap<QString, QString>& groupMap );
     static void setClassHierarchy( const QMap<QString, StringSet>& hierarchy );
@@ -74,10 +75,14 @@ public:
     static QString htmlLegaleseList();
     static QString htmlHeaderFileList();
     static QString htmlClassList();
+    static QString htmlMainClassList();
     static QString htmlAnnotatedClassList();
     static QString htmlFunctionIndex();
     static QString htmlClassHierarchy();
     static QString htmlExtensionList();
+
+    static QString htmlCompactList( const QMap<QString, QString>& list );
+    static QString htmlNormalList( const QMap<QString, QString>& list );
 
     Doc( Kind kind, const Location& loc, const QString& htmlText,
 	 const QString& name = QString::null,
@@ -157,6 +162,7 @@ private:
     static QMap<QString, QString> keywordLinks;
     static StringSet hflist;
     static QMap<QString, QString> clist;
+    static QMap<QString, QString> mainclist;
     static QMap<QString, StringSet> findex;
     static QMap<QString, QString> grmap;
     static QMap<QString, StringSet> chierarchy;
@@ -203,13 +209,15 @@ public:
     ClassDoc( const Location& loc, const QString& html,
 	      const QString& className, const QString& brief,
 	      const QString& module, const QString& extension,
-	      const StringSet& headers, const QStringList& important );
+	      const StringSet& headers, const QStringList& important,
+	      bool mainClass );
 
     const QString& brief() const { return bf; }
     const QString& module() const { return mod; }
     const QString& extension() const { return ext; }
     const StringSet& headers() const { return h; }
     const QStringList& important() const { return imp; }
+    bool mainClass() const { return main; }
 
 private:
     QString bf;
@@ -217,6 +225,7 @@ private:
     QString ext;
     StringSet h;
     QStringList imp;
+    bool main;
 };
 
 class EnumDoc : public Doc

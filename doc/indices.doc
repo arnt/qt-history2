@@ -80,7 +80,7 @@ What´s New
 </td>
 </tr>
 <tr>
-<th  bgcolor=#A2C511>
+<th bgcolor=#A2C511>
 API Reference
 </th>
 <th bgcolor=#A2C511>
@@ -89,11 +89,11 @@ Modules
 Overviews
 </tr>
 <tr>
-<td valign=top >
+<td valign=top>
 \list
 \i \link classes.html   All Classes\endlink
-\i \link mainclasses.html Main Classes\endlink
-\i \link topicals.html   Grouped Classes\endlink
+\i \link mainclasses.html   Main Classes\endlink
+\i \link grouped.html   Grouped Classes\endlink
 \i \link annotated.html   Annotated Classes\endlink
 \i \link hierarchy.html   Inheritance Hierarchy\endlink
 \i \link functions.html   All Functions (long) \endlink
@@ -172,7 +172,7 @@ Appendix
 
 */
 
-/*! \page topicals.html
+/*! \page groups.html
 
 \title API Structure Overview
 
@@ -695,17 +695,6 @@ These classes are relevant to Qt/Embedded users.
 
 \title Text Related Classes
 
-These classes are relevant to text processing. (See the XML classes
-for XML.)
-*/
-
-
-/*! \defgroup mainclasses
-
-\title Qt's Main Classes
-
-These are the most frequently used Qt classes.
-For the complete list, including XML, networking and container
-classes, etc., see the <a href="classes.html">All Classes List</a>.
-
+These classes are relevant to text processing. See also the
+\link xml.html XML classes \endlink.
 */

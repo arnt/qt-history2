@@ -307,8 +307,11 @@ void DocEmitter::nailDownDocs()
 		 !classDecl->classDoc()->headers().isEmpty() )
 		hlist = reunion( hlist, classDecl->classDoc()->headers() );
 
-	    if ( !classDecl->obsolete() ) {
+	    if ( !classDecl->obsolete() && classDecl->classDoc() != 0 ) {
 		clist.insert( classDecl->name(), classDecl->whatsThis() );
+		if ( classDecl->classDoc()->mainClass() )
+		    mainclist.insert( classDecl->name(),
+				      classDecl->whatsThis() );
 		wmap[classDecl->whatsThis()].insert( classDecl->name() );
 	    }
 
@@ -367,8 +370,8 @@ void DocEmitter::emitHtml() const
     res->setHtmlChunkMap( chkmap );
 
     Doc::setHeaderFileList( hlist );
-    Doc::setClassList( clist );
     Doc::setFunctionIndex( findex );
+    Doc::setClassLists( clist, mainclist );
     Doc::setGroupMap( grmap );
     Doc::setClassHierarchy( chierarchy );
 
@@ -468,19 +471,14 @@ void DocEmitter::emitHtml() const
 		    HtmlWriter out( (*def)->location(), htmlFileName );
 		    out.setHeading( (*def)->title() );
 		    (*def)->printHtml( out );
-		    out.putsMeta( "<p><ul>\n" );
 
+		    QMap<QString, QString> list;
 		    c = (*groupies).begin();
 		    while ( c != (*groupies).end() ) {
-			QString link = (*c)->fileName();
-			out.printfMeta( "<li><a href=\"%s\">%s</a>\n",
-					link.latin1(), (*c)->name().latin1() );
-			if ( !(*c)->whatsThis().isEmpty() )
-			    out.printfMeta( "   (%s)\n",
-					    (*c)->whatsThis().latin1() );
+			list.insert( c.key(), (*c)->whatsThis() );
 			++c;
 		    }
-		    out.putsMeta( "</ul>\n" );
+		    out.putsMeta( Doc::htmlNormalList(list) );
 		}
 		++def;
 		++groupies;

@@ -505,14 +505,12 @@ Decl *Decl::resolvePlain( const QString& relOrFullName ) const
     return d;
 }
 
-void Decl::printHtmlShort( HtmlWriter& out ) const
+void Decl::printHtmlShort( HtmlWriter& /* out */ ) const
 {
-    out.printFnord();
 }
 
-void Decl::printHtmlLong( HtmlWriter& out ) const
+void Decl::printHtmlLong( HtmlWriter& /* out */ ) const
 {
-    out.printFnord();
 }
 
 Decl::Decl( Kind kind, const Location& loc, const QString& name, Decl *context )

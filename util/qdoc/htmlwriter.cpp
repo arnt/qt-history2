@@ -108,12 +108,6 @@ void HtmlWriter::putchar( int ch )
     doputchar( ch );
 }
 
-void HtmlWriter::printFnord()
-{
-    putsMeta( "<a href=\"http://www.kbuxton.com/discordia/fnord.html\">"
-	      "fnord</a>" );
-}
-
 void HtmlWriter::startRecording()
 {
     flushHead();

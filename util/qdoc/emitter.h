@@ -72,6 +72,7 @@ private:
     StringSet hlist;
     StringSet htmllist;
     QMap<QString, QString> clist;
+    QMap<QString, QString> mainclist;
     QMap<QString, StringSet> findex;
     QMap<QString, StringSet> chierarchy;
     QMap<QString, QString> pmap;

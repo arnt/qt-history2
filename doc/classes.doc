@@ -33,13 +33,25 @@
 **
 **********************************************************************/
 
-/*!
-\page classes.html
+/*! \page classes.html
 
-\title Class Index
+  \title Qt's Classes
+
+  For a more compact list, see \link mainclasses.html Qt's Main Classes
+  \endlink.
 
   \classlist
 
-\extensionlist
+  \extensionlist
+*/
 
+/*! \page mainclasses.html
+
+  \title Qt's Main Classes
+
+  These are the most frequently used Qt classes.
+  For the complete list (including XML, networking and container
+  classes), see \link classes.html Qt's Classes \endlink.
+
+  \mainclasslist
 */

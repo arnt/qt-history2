@@ -35,7 +35,6 @@ public:
     void putsMeta( const char *str );
     void puts( const char *str );
     void putchar( int ch );
-    void printFnord();
 
     void startRecording();
     QString endRecording();
