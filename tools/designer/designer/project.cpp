@@ -690,11 +690,13 @@ void Project::saveConnections()
     if ( dbFile.isEmpty() ) {
 	QFileInfo fi( fileName() );
 	dbFile = fi.baseName() + ".db";
+	save();
     }
 
     if ( !QFile::exists( makeAbsolute( dbFile ) ) ) {
 	QFileInfo fi( fileName() );
 	setDatabaseDescription( fi.baseName() + ".db" );
+	save();
     }
 
     /* .db xml */
