@@ -24,25 +24,33 @@ ActiveQt Extension
 Two new functions, QAxFactory::startServer() and QAxFactory::stopServer(),
 can be used to start and stop an out-of-process ActiveQt server in runtime. 
 Server binaries no longer need to implement a main() entry point function.
-A default implementation will be used for out-of-process servers. QAxFactory
-can use class specific information provided by the Q_CLASSINFO macro to 
-register and expose controls (see the QAxServer documentation for details).
+A default implementation will be used for out-of-process servers.
+IClassFactory2 is supported for the development of licensed components, and
+QAxFactory supports the creation of non-visual COM objects.
+Class specific information provided by the Q_CLASSINFO macro can be provided
+directly in the C++ class declaration to control how objects and controls
+are registered and exposed.
+New helper classes and macros are provided to make it even easier to expose
+object classes (see the QAxServer documentation for details).
 
 COM objects developed with ActiveQt are now supported in a wider range of
-standard clients, including Microsoft Office applications and .NET.
+clients, including Microsoft Office applications and .NET. Examples that 
+demonstrate how to use the Qt objects from the examples in .NET languages
+like C# are included.
 
 The QAxContainer library is now static even for shared configurations of Qt,
-which simplifies depolyment and allows using of both QAxServer and 
-QAxContainer in one project (ie. an OLE automatable application that uses
-COM objects itself). The semantic of QAxBase::setControl() has been extended
-to allow creating of COM objects on remote machines via DCOM.
+which simplifies deployment and allows using both QAxServer and QAxContainer 
+in one project (ie. an OLE automatable application that uses COM objects 
+itself). The semantic of QAxBase::setControl() has been extended to allow 
+creating of COM objects on remote machines via DCOM, and to create controls
+requiring a license key.
 
 Calling of COM object methods with out-parameters of type short is now 
 supported (the parameters are of type int& in the Qt wrapper), and QVariants
 used for out-parameters don't have to be initialized to the expected type.
-Calling QByteArray functions in out-of-process controls doesn't return an
-error code anymore. The control's client side is set to zero when the 
-container releases the control.
+Calling QByteArray functions in out-of-process controls no longer returns an
+error code. The control's client side is set to zero when the container
+releases the control.
 
 Qt Designer
 -----------

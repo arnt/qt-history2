@@ -817,67 +817,75 @@
     SmallActiveX class can of course propagate some of the QWidget
     functions and properties into its own interface.
 
-    \section2 Class Information
+    \section2 Class Information and Tuning
 
-    An alternative to reimplementing QAxFactory to have more control about
-    how objects are registered or exposed is to provide class specific
-    information using the Q_CLASSINFO macro.
+    An alternative way to reimplementing QAxFactory to have more control
+    about how objects are registered or exposed is to provide class
+    specific information using the Q_CLASSINFO macro, which is part of
+    Qt's meta object system.
 
     \table
     \header
     \i Key
-    \i Value
-    \i Meaning
+    \i Meaning of value
     \row
     \i Version
-    \i x.y
     \i The version of the class (1.0 is default)
     \row
     \i ClassID
-    \i {12345678-1234-1234-1234-123412345678}
-    \i You must reimplement QAxFactory::classID if not specified
+    \i The class ID.
+       You must reimplement QAxFactory::classID if not specified.
     \row
     \i InterfaceID
-    \i {12345678-1234-1234-1234-123412345678}
-    \i You must reimplement QAxFactory::interfaceID if not specified
+    \i The interface ID. 
+       You must reimplement QAxFactory::interfaceID if not specified.
     \row
     \i EventsID
-    \i {12345678-1234-1234-1234-123412345678}
-    \i No signals are exposed as COM events if not specified
+    \i The event interface ID.
+       No signals are exposed as COM events if not specified.
     \row
     \i StockEvents
-    \i yes
-    \i The object exposes stock events. See \l QAxFactory::hasStockEvents()
+    \i Objects expose stock events if value is "yes".
+       See \l QAxFactory::hasStockEvents()
     \row
     \i ToSuperClass
-    \i classname
-    \i The object exposes functionality of all super classes up to and
-       including \e classname. An empty value indicates "QWidget". 
+    \i Objects expose functionality of all super classes up to and
+       including the class name in value.
        See \l QAxFactory::exposeToSuperClass()
     \row
     \i Insertable
-    \i yes
-    \i The object is registered to be "Insertable" and will be listed in 
-       OLE 2 containers (ie. Microsoft Office). This attribute will not be 
-       set by default.
+    \i If the value is "yes" the class is registered to be "Insertable" 
+       and will be listed in OLE 2 containers (ie. Microsoft Office). This 
+       attribute is not be set by default.
     \row
     \i Aggregatable
-    \i no
-    \i The object does not support aggregation. By default aggregation is
-       supported.
+    \i If the value is "no" the class does not support aggregation. By 
+       default aggregation is supported.
+    \row
+    \i Creatable
+    \i If the value is "no" the class cannot be created by the client,
+       and is only available through the API of another class (ie. the
+       class is a sub-type).
     \row
     \i DefaultProperty
-    \i property name
-    \i The property \e name represents the default property of this object.
+    \i The property specified represents the default property of this class.
        Ie. the default property of a push button would be "text".
     \row
     \i DefaultSignal
-    \i signal name
-    \i The signal \e name respresents the default signal of this object.
+    \i The signal specified respresents the default signal of this class.
        Ie. the default signal of a push button would be "clicked".
+    \row
+    \i LicenseKey
+    \i Object creation requires the specified license key. The key can be
+       empty to require a licensed machine. By default classes are not
+       licensed. Also see the following section.
+    \row
+    \i Description
+    \i A string describing the class.
     \endtable
 
     Note that both keys and values are case sensitive.
+
     The following declares a second version of a class that exposes only its
     own API, and is available in the "Insert Objects" dialog of Microsoft
     Office applications.
@@ -888,27 +896,62 @@
     {
         Q_OBJECT
         <b>Q_CLASSINFO("Version", "2.0")
-        Q_CLASSINFO("ClassID", "")
-        Q_CLASSINFO("InterfaceID", "")
-        Q_CLASSINFO("EventsID", "")
+        Q_CLASSINFO("ClassID", "{7a4cffd8-cbcd-4ae9-ae7e-343e1e5710df}")
+        Q_CLASSINFO("InterfaceID", "{6fb035bf-8019-48d8-be51-ef05427d8994}")
+        Q_CLASSINFO("EventsID", "{c42fffdf-6557-47c9-817a-2da2228bc29c}")
         Q_CLASSINFO("Insertable", "yes")
         Q_CLASSINFO("ToSuperClass", "MyActiveX")</b>
 
-	Q_PROPERTY( ...
+        Q_PROPERTY( ...
     public:
-	MyActiveX(QWidget *parent = 0, const char *name = 0);
-	
-	...
+        MyActiveX(QWidget *parent = 0, const char *name = 0);
+
+        ...
     };
     </pre>
     \endraw
 
+    \section2 Developing licensed components
+
+    If you develop components you might want to control who is able to instantiate
+    those components. Since the server binary can be shipped to and registered on 
+    any client machine it is possible for anybody to use those components in his 
+    own software.
+
+    Licensing components can be done using a variety of techniques, e.g. the code
+    creating the control can provide a license key, or the machine on which the
+    control is supposed to run needs to be licensed.
+
+    To mark a Qt class as licensed specify a "LicenseKey" using the \c Q_CLASSINFO
+    macro.
+    \raw
+    <pre>
+    class MyLicensedControl : public QWidget
+    {
+        Q_OBJECT
+        <b>Q_CLASSINFO("LicenseKey", "&lt;key string&gt;")</b>
+    ...
+    };
+    </pre>
+    \endraw
+
+    The key is required to be able to create an instance of \c MyLicensedControl
+    on a machine that is not licensed itself. The licensed developer can now 
+    redistributes the server binary with his application, which creates the control 
+    using the value of "LicenseKey", while users of the application cannot create
+    the control without the license key.
+
+    If a single license key for the control is not sufficient (ie. you want 
+    differnet developers to receive different license keys) you can specify an 
+    empty key to indicate that the control requires a license, and ### reimplement 
+    a function ### to verify that a license exists on the system (ie. through a 
+    license file).
+
     \section2 More Interfaces
 
-    The ActiveX control provide by ActiveQt servers supports a minimal
-    set of COM interfaces to implement the OLE specifications. When the ActiveX 
-    class inherits from the QAxBindable class it can also implement additional 
-    COM interfaces.
+    ActiveX controls provided by ActiveQt servers support a minimal set of COM 
+    interfaces to implement the OLE specifications. When the ActiveX class inherits 
+    from the QAxBindable class it can also implement additional COM interfaces.
 
     Create a new subclass of QAxAggregated and use multiple inheritance
     to subclass additional COM interface classes. 
@@ -919,18 +962,8 @@
     public:
         AxImpl() {}
 
-        long queryInterface( const QUuid &iid, void **iface )
-        {
-	    *iface = 0;	    
-	    if ( iid == IID_ISomeCOMInterface )
-	        *iface = (ISomeCOMInterface*)this;
-	    else
-	        return E_NOINTERFACE;
+        long queryInterface( const QUuid &iid, void **iface );
 
-            AddRef();
-	    return S_OK;
-        }
-        
         // IUnknown
 	QAXAGG_IUNKNOWN
 
@@ -970,9 +1003,8 @@
     Do not support the \c IUnknown interface itself in your \c queryInterface() 
     implementation.
 
-    Implement the methods of the COM interfaces. If you need to make
-    calls to the QWidget implementing the ActiveX control, use
-    QAxAggregated::widget().
+    Implement the methods of the COM interfaces, and use QAxAggregated::Object()
+    if you need to make calls to the QObject subclass implementing the control.
 
     In your QAxBindable subclass, implement \c createAggregate() to return
     a new object of the QAxAggregated subclass.
@@ -1060,6 +1092,18 @@
     ActiveX server binaries you are using might not be installed on the
     target system, so you have to ship them with your package and register
     them during the installation process of your application.
+
+    \section1 Instantiating COM objects
+
+    To instantiate a COM object use the QAxBase::setControl() API, or pass
+    the name of the object directly into the constructor of the QAxBase 
+    subclass you are using.
+
+    The control can be specified in a variety of formats, but the fastest
+    and most powerful format is to use the class ID (CLSID) of the object
+    directly. The class ID can be prepended with information about a remote
+    machine that the object should run on, and can include a license key
+    for licensed controls.
 
     \section1 Accessing the object API
 
