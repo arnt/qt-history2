@@ -368,7 +368,7 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 	if (wg.intersects(sg)) {
 	    QAccessibleInterface *pIface = 0;
 	    sibIface->navigate(Ancestor, 1, &pIface);
-	    if (pIface) {
+	    if (pIface && !((sibIface->state(0) | state(0)) & Invisible)) {
 		int wi = pIface->indexOfChild(this);
 		int si = pIface->indexOfChild(sibIface);
 
@@ -568,7 +568,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    for (int i = piface->indexOfChild(this) + 1; i <= sibCount && entry; ++i) {
 		piface->navigate(Child, i, &sibling);
 		Q_ASSERT(sibling);
-		if (!sibling)
+		if (!sibling || (sibling->state(0) & Invisible))
 		    continue;
 		if (sibling->rect(0).intersects(r))
 		    --entry;
@@ -597,7 +597,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    for (int i = 1; i < index && entry; ++i) {
 		piface->navigate(Child, i, &sibling);
 		Q_ASSERT(sibling);
-		if (!sibling)
+		if (!sibling || (sibling->state(0) & Invisible))
 		    continue;
 		if (sibling->rect(0).intersects(r))
 		    --entry;
