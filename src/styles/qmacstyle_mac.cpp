@@ -859,7 +859,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	QRect br = treg.boundingRect(), newr = r;
 	newr.moveBy(newr.x() - br.x(), newr.y() - br.y());
 	((QMacPainter *)p)->noop();
-	DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, p->device()), 
+	DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, p->device(), FALSE), 
 			     tds, &twm, twa, NULL, 0);
 	if((sub & SC_TitleBarLabel) || 1) {
 	    p->save();
@@ -875,15 +875,14 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 				     tds, &twm, twa, kWindowTitleTextRgn, treg.handle(TRUE));
 		p->setClipRegion(treg);
 		QRect br = treg.boundingRect();
-		int x = br.x(), y = br.y();
+		int x = br.x(), y = br.y() + ((tb->height() / 2) - ( p->fontMetrics().height() / 2 ));
 		if(br.width() <= (p->fontMetrics().width(tbar->caption())+iw*2))
 		    x += iw;
 		else
 		    x += (br.width() / 2) - (p->fontMetrics().width(tbar->visibleText()) / 2);
 		if(iw) 
 		    p->drawPixmap(x - iw, y, *tbar->icon());
-		y += p->fontMetrics().ascent();
-		p->drawText(x, y, tbar->visibleText());
+		p->drawText(x, y + p->fontMetrics().ascent(), tbar->visibleText());
 	    }
 	    p->restore();
 	}
