@@ -1738,6 +1738,16 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
 	}
+    } else {
+	bool redraw = doc->removeSelection( QTextDocument::Standard );
+	if ( !redraw ) {
+	    drawCursor( TRUE );
+	} else {
+	    repaintChanged();
+#ifndef QT_NO_CURSOR
+	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
+	}
     }
 
     if ( *cursor != oldCursor )
