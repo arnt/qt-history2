@@ -9,8 +9,13 @@ DEPENDPATH += $$ARCH_CPP;$$ARCH_H
 
 HEADERS += $$ARCH_H/qatomic.h
 
-*-g++* {
-    SOURCES += $$ARCH_CPP/qatomic.cpp
-} else {
-    message("need assembler versions")
+*-g++*:SOURCES += $$ARCH_CPP/qatomic.cpp
+    
+!*-g++ {
+    *-64 {
+        SOURCES += $$ARCH_CPP/qatomic64.s
+    } else {
+        SOURCES += $$ARCH_CPP/qatomic32.s
+    }
 }
+
