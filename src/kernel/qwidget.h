@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#226 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#227 $
 **
 ** Definition of QWidget class
 **
@@ -44,6 +44,7 @@ struct QWExtra;
 class QFocusData;
 class QStyle;
 
+
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
@@ -52,13 +53,12 @@ public:
    ~QWidget();
 
     WId		 winId() const;
-    void		 setName( const char *name );
+    void	 setName( const char *name );
 
   // GUI style setting
 
-    QStyle& style() const;
-
-    void setStyle( QStyle* );
+    QStyle     &style() const;
+    void        setStyle( QStyle * );
 
   // Widget types and states
 
@@ -390,6 +390,7 @@ private:
     void	 deleteSysExtra();
     void	 createTLSysExtra();
     void	 deleteTLSysExtra();
+    void	 deactivateWidgetCleanup();
     void	 internalSetGeometry( int, int, int, int, bool );
     void	 reparentFocusWidgets( QWidget *parent );
     QFocusData	*focusData( bool create );
@@ -622,18 +623,18 @@ struct QTLWExtra {
 #define QWIDGETSIZE_MAX 32767
 
 struct QWExtra {
-    Q_INT16    minw, minh;			// minimum size
-    Q_INT16    maxw, maxh;			// maximum size
+    Q_INT16  minw, minh;			// minimum size
+    Q_INT16  maxw, maxh;			// maximum size
     QPixmap *bg_pix;				// background pixmap
     QWidget *focus_proxy;
     QCursor *curs;
     QTLWExtra *topextra;			// only useful for TLWs
 #if defined(_WS_WIN_)
-    HICON   winIcon;				// internal Windows icon
+    HICON    winIcon;				// internal Windows icon
     QOleDropTarget *dropTarget;			// drop target
 #endif
 #if defined(_WS_X11_)
-    WId xDndProxy;				// XDND forwarding to embedded windows
+    WId	     xDndProxy;				// XDND forwarding to embedded windows
 #endif
     char     bg_mode;				// background mode
     QStyle* style;

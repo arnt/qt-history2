@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#413 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#414 $
 **
 ** Implementation of QWidget class
 **
@@ -558,7 +558,7 @@ QWidget::~QWidget()
 	qWarning( "%s (%s): deleted while being painted", className(), name() );
 #endif
 
-    // remove myself and all children from the can-take-focus list
+    // Remove myself and all children from the can-take-focus list
     QFocusData *f = focusData( FALSE );
     if ( f ) {
 	QListIterator<QWidget> it(f->focusWidgets);
@@ -769,6 +769,25 @@ void QWidget::deleteExtra()
 	// extra->xic destroyed in QWidget::destroy()
 	extra = 0;
     }
+}
+
+
+/*!
+  \internal
+  This function is called when a widget is hidden or destroyed.
+  It resets some application global pointers that should only refer active,
+  visible widgets.
+*/
+
+void QWidget::deactivateWidgetCleanup()
+{
+    extern QWidget *qt_button_down;
+    // If this was the active application window, reset it
+    if ( this == QApplication::active_window )
+	QApplication::active_window = 0;
+    // If the is the active mouse press widget, reset it
+    if ( qt_button_down == this )
+	qt_button_down = 0;
 }
 
 

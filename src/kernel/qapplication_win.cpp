@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#291 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#292 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -70,23 +70,24 @@ static HDC	 displayDC	= 0;		// display device context
 static int	 heartBeat	= 0;		// heatbeat timer
 #endif
 
-// session management
-static bool sm_blockUserInput = FALSE;
-static bool sm_smActive = FALSE;
-static bool sm_interactionActive = FALSE;
+// Session management
+static bool	sm_blockUserInput    = FALSE;
+static bool	sm_smActive	     = FALSE;
+static bool	sm_interactionActive = FALSE;
 static QSessionManager* win_session_manager = 0;
-static bool sm_cancel;
-
+static bool	sm_cancel;
 
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
 
-static bool	app_do_modal	= FALSE;	// modal mode
+static bool	app_do_modal	   = FALSE;	// modal mode
+static QWidgetList *modal_stack    = 0;		// stack of modal widgets
+static QWidget *popupButtonFocus   = 0;
+static bool	popupCloseDownMode = FALSE;
+static bool	qt_try_modal( QWidget *, MSG * );
 
-static QWidgetList *modal_stack = 0;		// stack of modal widgets
-static QWidget	   *popupButtonFocus = 0;
-static bool	    popupCloseDownMode = FALSE;
+QWidget	       *qt_button_down = 0;		// widget got last button-down
 
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
@@ -97,7 +98,6 @@ typedef QList<void> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
 static void	msgHandler( QtMsgType, const char* );
-
 static void     unregWinClasses();
 
 // Simpler timers are needed when Qt does not have the
@@ -111,15 +111,12 @@ static void	dispatchTimer( uint, MSG * );
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
 
-Q_EXPORT Qt::WindowsVersion qt_winver = Qt::WV_NT;
-
-QObject	       *qt_clipboard = 0;
-
-static bool	qt_try_modal( QWidget *, MSG * );
-
 static int	translateKeyCode( int );
 
-QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
+Q_EXPORT Qt::WindowsVersion qt_winver = Qt::WV_NT;
+
+QObject	       *qt_clipboard   = 0;
+
 
 #if defined(_WS_WIN32_)
 #define __export
@@ -2046,7 +2043,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
 	
 	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
-	    qt_button_down = findChildWidget( this, pos );	//magic for masked widgets
+	    // Magic for masked widgets
+	    qt_button_down = findChildWidget( this, pos );
 	    if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )
 		qt_button_down = this;
 	}

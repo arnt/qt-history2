@@ -96,6 +96,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
 		  $$KERNEL_H/qprinter.h \
+		  $$KERNEL_H/qproperty.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
 		  $$KERNEL_H/qsemimodal.h \
@@ -118,7 +119,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
-		  $$KERNEL_H/qproperty.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
@@ -131,9 +131,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qdir.h \
 		  $$TOOLS_H/qeucjpcodec.h \
 		  $$TOOLS_H/qeuckrcodec.h \
-		  $$TOOLS_H/qjiscodec.h \
-		  $$TOOLS_H/qjpunicode.h \
-		  $$TOOLS_H/qsjiscodec.h \
 		  $$TOOLS_H/qfile.h \
 		  $$TOOLS_H/qfiledefs.h \
 		  $$TOOLS_H/qfileinfo.h \
@@ -147,6 +144,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qintcache.h \
 		  $$TOOLS_H/qintdict.h \
 		  $$TOOLS_H/qiodevice.h \
+		  $$TOOLS_H/qjiscodec.h \
+		  $$TOOLS_H/qjpunicode.h \
 		  $$TOOLS_H/qkoi8codec.h \
 		  $$TOOLS_H/qlist.h \
 		  $$TOOLS_H/qmap.h \
@@ -155,9 +154,11 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qregexp.h \
 		  $$TOOLS_H/qrtlcodec.h \
 		  $$TOOLS_H/qshared.h \
+		  $$TOOLS_H/qsjiscodec.h \
 		  $$TOOLS_H/qsortedlist.h \
 		  $$TOOLS_H/qstack.h \
 		  $$TOOLS_H/qstring.h \
+		  $$TOOLS_H/qstringlist.h \
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextcodec.h \
@@ -165,7 +166,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qutfcodec.h \
 		  $$TOOLS_H/qvector.h \
 		  $$TOOLS_H/qvaluelist.h \
-		  $$TOOLS_H/qstringlist.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
@@ -213,10 +213,10 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qvbox.h \
 		  $$WIDGETS_H/qwellarray.h \
 		  $$WIDGETS_H/qwhatsthis.h \
-		  $$WIDGETS_H/qworkspace.h \
-		  $$WIDGETS_H/qworkspacechild.h \
 		  $$WIDGETS_H/qwidgetstack.h \
-		  $$WIDGETS_H/qwindowsstyle.h
+		  $$WIDGETS_H/qwindowsstyle.h \
+		  $$WIDGETS_H/qworkspace.h \
+		  $$WIDGETS_H/qworkspacechild.h
 
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
@@ -277,11 +277,11 @@ SOURCES	       += tools/qbitarray.cpp \
 		  tools/qjpunicode.cpp \
 		  tools/qkoi8codec.cpp \
 		  tools/qmap.cpp \
-		  tools/qstringlist.cpp \
 		  tools/qregexp.cpp \
 		  tools/qrtlcodec.cpp \
 		  tools/qsjiscodec.cpp \
 		  tools/qstring.cpp \
+		  tools/qstringlist.cpp \
 		  tools/qtextcodec.cpp \
 		  tools/qtextstream.cpp \
 		  tools/qutfcodec.cpp \
@@ -321,6 +321,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
 		  kernel/qprinter.cpp \
+		  kernel/qproperty.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \
 		  kernel/qrichtext.cpp \
@@ -338,7 +339,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwmatrix.cpp \
-		  kernel/qproperty.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qcdestyle.cpp \
@@ -403,7 +403,6 @@ SOURCES	       += tools/qbitarray.cpp \
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h \
 		  $$KERNEL_H/qfontdatabase.h
-
 
 png:SOURCES    += 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \

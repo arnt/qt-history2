@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#364 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#365 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -48,15 +48,12 @@ void qt_updated_rootinfo();
 extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
 
-// paintevent clipping magic
+// Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
 extern bool qt_xdnd_rootwindow_enable( QWidget* w, bool on );
-
-
 extern bool qt_nograb();
-extern QWidget *qt_button_down;
 
 static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
@@ -375,9 +372,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
-    if ( qt_button_down == this )
-	qt_button_down = 0;
-
+    deactivateWidgetCleanup();
     if ( testWState(WState_Created) ) {
 	clearWState( WState_Created );
 	if ( children() ) {
@@ -1193,8 +1188,7 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
-    if ( qt_button_down == this )
-	qt_button_down = 0;
+    deactivateWidgetCleanup();
     XUnmapWindow( x11Display(), winId() );
     if ( isPopup() )
 	XFlush( x11Display() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#204 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#205 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -255,7 +255,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		       QPoint(pt.x+cr.right, pt.y+cr.bottom) );
     }
 
-    setWState( WState_Created );			// accept move/resize events
+    setWState( WState_Created );		// accept move/resize events
     hdc = 0;					// no display context
 
     if ( window ) {				// got window from outside
@@ -273,6 +273,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
+    deactivateWidgetCleanup();
     if ( testWState(WState_Created) ) {
 	clearWState( WState_Created );
 	if ( children() ) {
@@ -765,6 +766,7 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
+    deactivateWidgetCleanup();
     if ( isTopLevel() && parentWidget() && isActiveWindow() )
 	SetFocus( parentWidget()->winId() );
     ShowWindow( winId(), SW_HIDE );

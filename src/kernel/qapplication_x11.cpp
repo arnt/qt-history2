@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#484 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#485 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -144,6 +144,7 @@ const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
+
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -196,8 +197,8 @@ static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
 Atom		qt_wm_state;
 static Atom 	qt_desktop_properties;   	// Qt desktop properties
-static Atom 	qt_resource_manager;   	// X11 Resource manager
-Atom 		qt_sizegrip;		// sizegrip
+static Atom 	qt_resource_manager;		// X11 Resource manager
+Atom 		qt_sizegrip;			// sizegrip
 Atom 		qt_wm_client_leader;
 Atom 		qt_window_role;
 Atom 		qt_sm_client_id;
@@ -214,7 +215,7 @@ static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 static bool	    popupGrabOk;
 
-static bool sm_blockUserInput = FALSE; // session management
+static bool sm_blockUserInput = FALSE;		// session management
 
 typedef void  (*VFPTR)();
 typedef QList<void> QVFuncList;
@@ -223,6 +224,8 @@ static QVFuncList *postRList = 0;		// list of post routines
 static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
+timeval        *qt_wait_timer();
+int	        qt_activate_timers();
 
 #if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
 #define NO_XIM
@@ -235,9 +238,6 @@ static XIMStyle xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
 #endif
 static QTextCodec * input_mapper = 0;
 
-timeval        *qt_wait_timer();
-int	        qt_activate_timers();
-
 QObject	       *qt_clipboard = 0;
 Time		qt_x_clipboardtime = CurrentTime;
 
@@ -249,15 +249,11 @@ int		qt_ncols_option  = 216;		// used in qcolor_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
-Window 	qt_window_for_button_down = 0; // the window which receives the mouse events
 
 struct QScrollInProgress {
     static long serial;
     QScrollInProgress( QWidget* w, int x, int y ) :
-	id( serial++ ), scrolled_widget( w ), dx( x ), dy( y )
-    {
-    }
-
+    id( serial++ ), scrolled_widget( w ), dx( x ), dy( y ) {}
     long id;
     QWidget* scrolled_widget;
     int dx, dy;
@@ -289,12 +285,10 @@ extern Atom qt_xdnd_finished;
 extern Atom qt_xdnd_selection;
 
 
-// paintevent clipping magic
+// Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-
-// thatsall
 
 void qt_x11_intern_atom( const char *, Atom * );
 void qt_xembed_tab_focus( QWidget*, bool next );
@@ -355,7 +349,8 @@ bool qt_badwindow()
     return x11_badwindow;
 }
 
-static int qt_x_errhandler( Display *dpy, XErrorEvent *err ) {
+static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
+{
     if ( err->error_code == BadWindow ) {
 	x11_badwindow = TRUE;
 	if ( err->request_code == 25 && qt_xdnd_handle_badwindow() )
@@ -3131,7 +3126,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    qt_button_down = findChildWidget( this, pos );	//magic for masked widgets
 	    if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )
 		qt_button_down = this;
-	    qt_window_for_button_down = winId();
 	    if ( mouseActWindow == event->xbutton.window &&
 		 mouseButtonPressed == button &&
 		 (long)event->xbutton.time -(long)mouseButtonPressTime
@@ -3254,7 +3248,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 				    MidButton |
 				    RightButton)) == 0 ) {
 	    qt_button_down = 0;
-	    qt_window_for_button_down = 0;
 	}
     }
     return TRUE;
