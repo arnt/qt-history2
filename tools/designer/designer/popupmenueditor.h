@@ -14,7 +14,7 @@ class PopupMenuEditorItem : public QObject
 
     friend class PopupMenuEditor;
 
-    PopupMenuEditorItem( PopupMenuEditor * menu = 0 );
+    PopupMenuEditorItem( PopupMenuEditor * menu = 0, QObject * parent = 0, const char * name = 0 );
 
 public:
     enum ItemType {
@@ -25,11 +25,14 @@ public:
 	Widget = 4
     };
 
-    // FIXME: Qt-ify the constructors
-    PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu );
-    PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu );
-    PopupMenuEditorItem( QWidget * widget, PopupMenuEditor * menu );
-    PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu );
+    PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu,
+			 QObject * parent = 0, const char * name = 0 );
+    PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu,
+			 QObject * parent = 0, const char * name = 0 );
+    PopupMenuEditorItem( QWidget * widget, PopupMenuEditor * menu,
+			 QObject * parent = 0, const char * name = 0 );
+    PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu,
+			 QObject * parent = 0, const char * name = 0 );
     ~PopupMenuEditorItem();
 
     void init();
@@ -61,8 +64,6 @@ public:
     int count();
 
     bool eventFilter( QObject *, QEvent * event );
-
-    //QMenuItem * toItem();
     
 public slots:
     void selfDestruct();

@@ -63,8 +63,9 @@ bool PopupMenuEditorItemPtrDrag::decode( QDropEvent * e, PopupMenuEditorItem ** 
 
 // PopupMenuEditorItem Implementation -----------------------------------
 
-PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditor * menu )
-    : a( 0 ),
+PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditor * menu, QObject * parent, const char * name )
+    : QObject( parent, name ),
+      a( 0 ),
       g( 0 ),
       w( 0 ),
       s( 0 ),
@@ -79,8 +80,10 @@ PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditor * menu )
 }
 
 
-PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu )
-    : a( action ),
+PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu,
+					  QObject * parent, const char * name )
+    : QObject( parent, name ),
+      a( action ),
       g( 0 ),
       w( 0 ),
       s( 0 ),
@@ -95,8 +98,10 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
 	separator = TRUE;
 }
 
-PopupMenuEditorItem::PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu )
-    : a( 0 ),
+PopupMenuEditorItem::PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu,
+					  QObject * parent, const char * name )
+    : QObject( parent, name ),
+      a( 0 ),
       g( actionGroup ),
       w( 0 ),
       s( 0 ),
@@ -124,8 +129,10 @@ PopupMenuEditorItem::PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuE
     delete l;
 }
 
-PopupMenuEditorItem::PopupMenuEditorItem( QWidget * widget, PopupMenuEditor * menu )
-    : a( 0 ),
+PopupMenuEditorItem::PopupMenuEditorItem( QWidget * widget, PopupMenuEditor * menu,
+					  QObject * parent, const char * name )
+    : QObject( parent, name ),
+      a( 0 ),
       g( 0 ),
       w( widget ),
       s( 0 ),
@@ -137,8 +144,10 @@ PopupMenuEditorItem::PopupMenuEditorItem( QWidget * widget, PopupMenuEditor * me
     init();
 }
 
-PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu )
-    : a( item->a ),
+PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu,
+					  QObject * parent, const char * name )
+    : QObject( parent, name ),
+      a( item->a ),
       g( item->g ),
       w( item->w ),
       s( 0 ),
@@ -379,12 +388,7 @@ void PopupMenuEditorItem::selfDestruct()
     w = 0;
     delete this;
 }
-/*
-QMenuItem * PopupMenuEditorItem::toItem()
-{
-    QMenuItem * i = new QMenuItem;
-}
-*/
+
 // PopupMenuEditor Implementation -----------------------------------
 
 PopupMenuEditorItem * PopupMenuEditor::draggedItem = 0;
@@ -409,7 +413,8 @@ PopupMenuEditor::PopupMenuEditor( FormWindow * fw, QWidget * parent, const char 
     init();
 }
 
-PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu, QWidget * parent, const char * name )
+PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu,
+				  QWidget * parent, const char * name )
     : QWidget( 0, name, WStyle_Customize | WStyle_NoBorder ), // ?
       formWnd( fw ),
       parentMenu( parent ),
@@ -1442,7 +1447,7 @@ void PopupMenuEditor::navigateUp( bool ctrl )
 	}
 	showCurrentItemMenu();
     } else if ( parentMenu ) {
-	parentMenu->update(); // FIXME
+	parentMenu->update();
 	parentMenu->setFocus();
     }
 }
