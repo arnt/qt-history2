@@ -128,6 +128,8 @@ QGenericTreeView::~QGenericTreeView()
 */
 void QGenericTreeView::setModel(QAbstractItemModel *model)
 {
+    d->opened.clear();
+    d->items.clear();
     d->header->setModel(model);
     QAbstractItemView::setModel(model);
 }
@@ -910,9 +912,16 @@ void QGenericTreeView::rowsInserted(const QModelIndex &parent, int, int)
 
   Informs the view that the rows from the \a first to the \a last
   inclusive have been removed from the given \a parent model item.*/
-void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int, int)
+void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
 {
-    d->relayout(parent);
+    for (int i = start; i <= end; ++i) {
+        QModelIndex idx = model()->index(i, 0, parent);
+        close(model()->index(i, 0, parent));
+    }
+    int offset = parent.isValid() ? d->viewIndex(parent) : 0;
+    qCollapse<QGenericTreeViewItem>(d->items, offset + start, end - start + 1);
+
+    d->opened.clear(); // ### FIXME: do not collapse everything
 }
 
 /*!
