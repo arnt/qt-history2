@@ -16,13 +16,9 @@
 
 #include <qstring.h>
 
-class QCoreSettings;
-
 class QMakeProperty
 {
-    QCoreSettings *sett;
     QString keyBase(bool =true) const;
-    bool initSettings();
     QString value(QString, bool just_check);
 public:
     QMakeProperty();

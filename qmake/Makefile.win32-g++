@@ -45,8 +45,6 @@ QTOBJS= \
 	qlocale.o \
 	qmap.o \
 	qregexp.o \
-	qcoresettings.o \
-	qcoresettings_win.o \
 	qstring.o \
 	qstringlist.o \
 	qtextstream.o \
@@ -143,12 +141,6 @@ qbitarray.o: ..\src\core\tools\qbitarray.cpp
 
 qdir.o: ..\src\core\io\qdir.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir.cpp
-
-qcoresettings.o: ..\src\core\io\qcoresettings.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings.cpp
-
-qcoresettings_win.o: ..\src\core\io\qcoresettings_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings_win.cpp
 
 qcorevariant.o: ..\src\core\kernel\qcorevariant.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp

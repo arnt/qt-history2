@@ -13,7 +13,6 @@
 
 #include "property.h"
 #include "option.h"
-#include <qcoresettings.h>
 #include <qdir.h>
 #include <qmap.h>
 #include <qstringlist.h>
@@ -21,23 +20,12 @@
 
 QStringList qmake_mkspec_paths(); //project.cpp
 
-QMakeProperty::QMakeProperty() : sett(NULL)
+QMakeProperty::QMakeProperty()
 {
 }
 
 QMakeProperty::~QMakeProperty()
 {
-    delete sett;;
-    sett = NULL;
-}
-
-
-bool QMakeProperty::initSettings()
-{
-    if(sett)
-        return true;
-    sett = new QCoreSettings(Qt::UserScope, "Trolltech", "QMake");
-    return true;
 }
 
 QString
@@ -45,10 +33,8 @@ QMakeProperty::keyBase(bool version) const
 {
     if (version)
         return QString(qmake_version()) + "/";
-
     return QString();
 }
-
 
 QString
 QMakeProperty::value(QString v, bool just_check)
@@ -113,16 +99,12 @@ QMakeProperty::value(QString v, bool just_check)
 bool
 QMakeProperty::hasValue(QString v)
 {
-    if(initSettings())
-        return !value(v, true).isNull();
-    return false;
+    return !value(v, true).isNull();
 }
 
 void
 QMakeProperty::setValue(QString var, const QString &val)
 {
-    if(initSettings())
-        sett->setValue(keyBase() + var, val);
 }
 
 bool
@@ -130,27 +112,6 @@ QMakeProperty::exec()
 {
     bool ret = true;
     if(Option::qmake_mode == Option::QMAKE_QUERY_PROPERTY) {
-        if(Option::prop::properties.isEmpty() && initSettings()) {
-            sett->beginGroup(keyBase(false));
-            QStringList subs = sett->childGroups();
-            sett->endGroup();
-            subs.sort();
-            for(int x = subs.count() - 1; x >= 0; x--) {
-                QString s = subs[x];
-                if(s.isEmpty())
-                    continue;
-                sett->beginGroup(keyBase(false) + s);
-                QStringList keys = sett->childKeys();
-                sett->endGroup();
-                for(QStringList::Iterator it2 = keys.begin(); it2 != keys.end(); it2++) {
-                    QString ret = sett->value(keyBase(false) + s + "/" + (*it2)).toString();
-                    if(s != qmake_version())
-                        fprintf(stdout, "%s/", s.latin1());
-                    fprintf(stdout, "%s:%s\n", (*it2).latin1(), ret.latin1());
-                }
-            }
-            return true;
-        }
         for(QStringList::Iterator it = Option::prop::properties.begin();
             it != Option::prop::properties.end(); it++) {
             if(Option::prop::properties.count() > 1)

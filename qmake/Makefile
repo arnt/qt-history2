@@ -65,8 +65,6 @@ QTOBJS= \
 	qlocale.obj \
 	qmap.obj \
 	qregexp.obj \
-	qcoresettings.obj \
-	qcoresettings_win.obj \
 	qstring.obj \
 	qstringlist.obj \
 	qstringmatcher.obj \
@@ -169,12 +167,6 @@ qbitarray.obj: ..\src\core\tools\qbitarray.cpp
 
 qdir.obj: ..\src\core\io\qdir.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir.cpp
-
-qcoresettings.obj: ..\src\core\io\qcoresettings.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings.cpp
-
-qcoresettings_win.obj: ..\src\core\io\qcoresettings_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings_win.cpp
 
 qcorevariant.obj: ..\src\core\kernel\qcorevariant.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp

@@ -32,7 +32,6 @@ bootstrap { #Qt code
         qbytearray.cpp \
         qbytearraymatcher.cpp \
         qchar.cpp \
-        qcoresettings.cpp \
         qcorevariant.cpp \
         qdatastream.cpp \
         qdatetime.cpp \
@@ -63,7 +62,6 @@ bootstrap { #Qt code
         qbytearray.h \
         qbytearraymatcher.h \
         qchar.h \
-        qcoresettings.h \
         qcorevariant.h \
         qdatastream.h \
         qdatetime.h \
@@ -94,9 +92,9 @@ bootstrap { #Qt code
 
     unix {
         SOURCES += qfileengine_unix.cpp
-        mac:SOURCES += qcoresettings_mac.cpp qurl.cpp qcore_mac.cpp
+        mac:SOURCES += qurl.cpp qcore_mac.cpp
     } else:win32 {
-       SOURCES += qfileengine_win.cpp qcoresettings_win.cpp
+       SOURCES += qfileengine_win.cpp
        win32-msvc*:LIBS += ole32.lib advapi32.lib
     }
     macx-*: LIBS += -framework CoreServices
