@@ -28,7 +28,7 @@ QFontEngine::~QFontEngine()
 QFontEngineBox::QFontEngineBox( int size )
     : _size( size )
 {
-    cache_cost = 1;
+    cache_cost = sizeof( QFontEngineBox );
 }
 
 QFontEngineBox::~QFontEngineBox()
