@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#88 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#88 $");
 
 
 /*!
@@ -26,12 +26,62 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#87 $");
   program-definable range, and to give the user visible indication of
   the current value of a \link QRangeControl range control \endlink.
 
-  QScrollBar only offers integer ranges.
+  Scroll bars include four separate controls, in order: <ul> <li> The
+  \e line-up control is a little triangle with which the user can move
+  one line up.  The meaning of line is configurable. In e.g. editors
+  and list boxes means one line of text.  <li> The \e slider is the
+  handle that indicates the current value of the scroll bar, and which
+  the user can drag to change the value.  <li> The \a page-up/down
+  control is the area on which the slider slides (the scroll bar's
+  background).  Clicking here moves the scroll bar up or down one
+  page.  The meaning of page too is configurable - in editors and list
+  boxes it means as many lines as there is space for in the widget.
+  <li> Finally, the line-down control is the arrow on the other end of
+  the scroll bar.  Clicking there moves the scroll bar down/rightwards
+  one line.</ul>
 
-  The recommended thickness of a scroll bar is 16 pixels.
+  QScrollBar has not much of an API of its own; it mostly relies on
+  QRangeControl.  The most useful functions are setValue() to set the
+  scrollbar directly to some value; addPage(), addLine(), subPage()
+  and subLine() to simulate the effects of clicking (neat for
+  accelerator keys; setSteps() to define the values of pageStep() and
+  lineStep(); and last but NOT least setRange() to set the minValue()
+  and maxValue() of the scrollbar.  (QScrollBar has a convenience
+  constructor with which you can set most of that.)
+  
+  In addition to the access functions from QRangeControl, QScrollBar
+  has a comprehensive set of signals: <ul>
 
+  <li> valueChanged() - emitted when the scroll bar's value has changed.
+  
+  <li> sliderPressed() - emitted when the user starts to drag the
+  slider
+  
+  <li> sliderMoved() - emitted when the user drags the slider
+  
+  <li> sliderReleased() - emitted when the user releases the slider
+  
+  <li> nextLine() - emitted when the scroll bar has moved one line
+  down/rightwards.  Line is defined in QRangeControl.
+  
+  <li> prevLine() - emitted when the scroll bar has moved one line
+  up/leftwards.
+  
+  <li> nextPage() - emitted when the scroll bar has moved one page
+  down/rightwards.
+  
+  <li> prevPage() - emitted when the scroll bar has moved one page
+  up/leftwards.
+  
+  </ul>
+  
+  QScrollBar only offers integer ranges, and the current
+  implementation has problems when the range is greater than a million
+  or so.  (A million is more than sufficient for today's display
+  sizes, however.)
+  
   A scroll bar can be controlled by the keyboard, but it has a
-  default focusPolicy() of \a NoFocus. Use setFocusPolicy() to
+  default focusPolicy() of \c NoFocus. Use setFocusPolicy() to
   enable keyboard focus.
 
   \ingroup realwidgets
