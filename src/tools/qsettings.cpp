@@ -268,7 +268,11 @@ static void closelock( HANDLE fd )
 
 static HANDLE openlock( const QString &name, int /*type*/ )
 {
-    HANDLE fd = 0;
+    if ( !QFile::exists( name ) )
+	return 0;
+
+    return 0;
+
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	fd = CreateFileW( (TCHAR*)qt_winTchar(name, TRUE), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
@@ -286,6 +290,9 @@ static HANDLE openlock( const QString &name, int /*type*/ )
 
 void closelock( HANDLE fd )
 {
+    if ( !fd )
+	return;
+
     if ( !UnlockFile( fd, 0, 0, -1, -1 ) ) {
 #ifdef QT_CHECK_STATE
 	qWarning( "QSettings: closelock failed!");
