@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#65 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#65 $");
 
 
 /*!
@@ -306,7 +306,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 	br = br.intersect( QRect(0,0,width(),height()) );
 
 	if ( gs == WindowsStyle ) {
-	    p->drawWinFocusRect( br );
+	    p->drawWinFocusRect( br, backgroundColor() );
 	} else {
 	    p->setPen( black );
 	    p->drawRect( br );

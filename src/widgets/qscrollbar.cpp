@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#82 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#82 $");
 
 
 /*!
@@ -784,7 +784,8 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	// ### perhaps this should not be able to accept focus if maxedOut?
 	if ( hasFocus() && (controls & SLIDER) )
 	    p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
-				 sliderR.width()-5, sliderR.height()-5 );
+				 sliderR.width()-5, sliderR.height()-5, 
+				 backgroundColor() );
     } else {
 	if ( controls & ADD_LINE )
 	    qDrawArrow( p, VERTICAL ? DownArrow : RightArrow, MotifStyle,

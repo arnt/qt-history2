@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#44 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#44 $");
 
 
 static const int motifBorder = 2;
@@ -572,7 +572,7 @@ void QSlider::paintEvent( QPaintEvent *e )
 		r.setRect( tickOffset-1, 0, thickness()+2, height() );
 	    r = r.intersect( rect() );
 	    qDrawPlainRect( &p, r, g.background() );
-	    p.drawWinFocusRect( r );
+	    p.drawWinFocusRect( r, backgroundColor() );
 	}
 	{
 	    int mid = tickOffset + thickness()/2;
@@ -721,6 +721,14 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
     resetState();
 }
 
+/*!
+  Handles focus in events for the slider.
+*/
+
+void QSlider::focusInEvent( QFocusEvent * )
+{
+    repaint( FALSE );
+}
 
 /*!
   Moves the left (or top) edge of the slider to position 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#97 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#97 $");
 
 
 /*!
@@ -379,7 +379,8 @@ void QPushButton::drawButton( QPainter *paint )
 
     if ( hasFocus() ) {
 	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
+	    p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5, 
+				 backgroundColor() );
 	} else {
 	    p->setPen( black );
 	    p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
@@ -421,9 +422,10 @@ void QPushButton::drawButtonLabel( QPainter *paint )
   Handles focus in events for the push button.
 */
 
-void QPushButton::focusInEvent( QFocusEvent *e )
+void QPushButton::focusInEvent( QFocusEvent * )
 {
     if ( autoDefButton )
 	setDefault( TRUE );
-    QButton::focusInEvent( e );
+    repaint( FALSE );
 }
+

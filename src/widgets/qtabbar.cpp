@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#29 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#29 $");
 
 
 QTab::~QTab()
@@ -385,7 +385,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	return;
 
     if ( style() == WindowsStyle )
-	p->drawWinFocusRect( br );
+	p->drawWinFocusRect( br, backgroundColor() );
     else // shouldn't this be black, irrespective of everything?
 	p->drawRect( br );
 }
