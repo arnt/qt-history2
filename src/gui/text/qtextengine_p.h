@@ -409,7 +409,8 @@ public:
     unsigned int haveCharAttributes : 1;
     unsigned int widthOnly : 1;
     unsigned int designMetrics : 1;
-    unsigned int reserved : 24;
+    unsigned int textColorFromPalette : 1;
+    unsigned int reserved : 23;
     unsigned int textFlags;
     QPalette *pal;
     QAbstractTextDocumentLayout *docLayout;

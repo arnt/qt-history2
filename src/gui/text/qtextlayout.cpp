@@ -151,9 +151,13 @@ bool QTextLayout::usesDesignMetrics() const
     return d->designMetrics;
 }
 
-void QTextLayout::setPalette(const QPalette &p)
+void QTextLayout::setPalette(const QPalette &p, PaletteFlags f)
 {
-    d->pal = new QPalette(p);
+    if (!d->pal)
+        d->pal = new QPalette(p);
+    else
+        *d->pal = p;
+    d->textColorFromPalette = (f & UseTextColor);
 }
 
 
@@ -656,6 +660,9 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
             Q_ASSERT(fmt.isCharFormat());
             QTextCharFormat chf = fmt.toCharFormat();
             QColor c = chf.color();
+            if (!c.isValid() && eng->textColorFromPalette) {
+                c = eng->pal->color(QPalette::Text);
+            }
             p->setPen(c);
             f = chf.font();
         }

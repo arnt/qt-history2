@@ -255,7 +255,8 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
         return;
     }
 
-    const_cast<QTextLayout *>(tl)->setPalette(context.palette);
+    const_cast<QTextLayout *>(tl)->setPalette(context.palette,
+                                              context.textColorFromPalette ? QTextLayout::UseTextColor : QTextLayout::None);
 
     tl->draw(painter, QPoint(0, 0), cursor, &s, nSel, painter->clipRegion().boundingRect());
 }
@@ -574,4 +575,33 @@ void QTextDocumentLayout::setPageSize(const QSize &size)
 QSize QTextDocumentLayout::pageSize() const
 {
     return d->pageSize;
+}
+
+
+int QTextDocumentLayout::widthUsed() const
+{
+    // ###########
+    return d->pageSize.width();
+}
+
+// Pull this private function in from qglobal.cpp
+Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
+
+void QTextDocumentLayout::adjustSize()
+{
+    // ##### use default doc font
+    QFont f;
+    QFontMetrics fm(f);
+    int mw =  fm.width('x') * 80;
+    int w = mw;
+    setPageSize(QSize(w, INT_MAX));
+    if (widthUsed() != 0) {
+        w = qt_int_sqrt(5 * totalHeight() * widthUsed() / 3);
+        setPageSize(QSize(qMin(w, mw), INT_MAX));
+
+        if (w*3 < 5*totalHeight()) {
+            w = qt_int_sqrt(2 * totalHeight() * widthUsed());
+            setPageSize(QSize(qMin(w, mw), INT_MAX));
+        }
+    }
 }

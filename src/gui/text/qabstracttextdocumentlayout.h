@@ -24,9 +24,11 @@ class Q_GUI_EXPORT QAbstractTextDocumentLayout : public QObject
 public:
     struct PaintContext
     {
+        PaintContext() { showCursor = false; textColorFromPalette = false; }
         QTextCursor cursor;
         QPalette palette;
         bool showCursor;
+        bool textColorFromPalette;
     };
 
     QAbstractTextDocumentLayout();

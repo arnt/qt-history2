@@ -67,6 +67,8 @@ public:
 
     void draw(int page, QPainter *p, const QRect &rect);
 
+    void setHtml(const QString &html);
+
 signals:
     void contentsChanged();
     void undoAvailable(bool);

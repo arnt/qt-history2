@@ -832,6 +832,7 @@ static void init(QTextEngine *e)
     e->nSelections = 0;
     e->underlinePositions = 0;
     e->designMetrics = false;
+    e->textColorFromPalette = false;
 }
 
 QTextEngine::QTextEngine()
@@ -874,6 +875,8 @@ QTextEngine::~QTextEngine()
         delete fnt;
     if (formats && !--formats->ref)
         delete formats;
+    if (pal)
+        delete pal;
     free(memory);
     allocated = 0;
 }

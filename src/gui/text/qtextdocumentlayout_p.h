@@ -27,8 +27,9 @@ public:
 
     int numPages() const;
 
-    // ### remove me
     int totalHeight() const;
+    int widthUsed() const;
+    void adjustSize();
 
     virtual void setPageSize(const QSize &size);
     virtual QSize pageSize() const;

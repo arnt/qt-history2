@@ -2,6 +2,7 @@
 #include "qtextpiecetable_p.h"
 #include <qtextformat.h>
 #include "qtextdocumentlayout_p.h"
+#include "qtextdocumentfragment.h"
 
 #include "qtextdocument_p.h"
 #define d d_func()
@@ -192,4 +193,13 @@ QSize QTextDocument::pageSize() const
 int QTextDocument::numPages() const
 {
     return d->pieceTable->layout()->numPages();
+}
+
+
+void QTextDocument::setHtml(const QString &html)
+{
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(html);
+    QTextCursor cursor(this);
+    cursor.moveTo(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.insertFragment(fragment);
 }

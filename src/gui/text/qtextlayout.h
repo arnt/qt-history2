@@ -95,8 +95,12 @@ public:
     void setTextFlags(int textFlags);
     // #### remove me
     void setFormat(int from, int length, int format);
-    // ##### should probably get passed as parameter to draw
-    void setPalette(const QPalette &);
+
+    enum PaletteFlags {
+        None,
+        UseTextColor
+    };
+    void setPalette(const QPalette &, PaletteFlags f = None);
 
     void useDesignMetrics(bool);
     bool usesDesignMetrics() const;
