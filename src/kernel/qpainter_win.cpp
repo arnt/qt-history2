@@ -686,7 +686,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
 
     bool reinit = flags != IsStartingUp;	// 2nd, 3rd,.... time called
-    flags = IsActive;				// init flags
+    flags = 0x0;				// init flags
     int dt = pdev->devType();			// get the device type
 
     if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
@@ -708,7 +708,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	if ( tabarray )				// update tabarray for device
 	    setTabArray( tabarray );
     }
-
+    
+    setf( IsActive );
     pdev->painters++;				// also tell paint device
     Q_ASSERT(pdev->painters==1);
     bro = QPoint( 0, 0 );
