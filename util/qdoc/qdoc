@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#36 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#37 $
 #
 # this is a massive hack, written very quickly
 #
@@ -329,6 +329,7 @@ sub storeclass {
     $def =~ s/\s+/ /g;
     $def =~ s/Q_OBJECT//;
     $def =~ s/(\)\s*(?:const\s*)?)\{.*?\}/$1;/gs;
+    $def =~ s/struct[^\;\{]*\{.*?\}\s*\w*\s*\;\s*//gs;
     $def =~ s/;\s*$//s;
 
     while ($def =~ /(?:\b|^)enum\s+(\w+)\b/gs) {
@@ -723,12 +724,12 @@ sub printout {
 		undef %m;
 		$mode = "Private";
 		foreach (split(/;/, $members{$url})) {
-		    $mode = ucfirst($1) if (s/^\s*((?:
-						    (?:private\b\s*?)|
-						    (?:protected\b\s*?)|
-						    (?:public\b\s*?)|
-						    (?:signals\b\s*?)|
-						    (?:slots\b\s*?))+):\s*//sx);
+		    $mode = ucfirst($1) while (s/^\s*((?:
+						       (?:private\b\s*?)|
+						       (?:protected\b\s*?)|
+						       (?:public\b\s*?)|
+						       (?:signals\b\s*?)|
+						       (?:slots\b\s*?))+):\s*//sx);
 		    next if (/^\s*friend\b/);
 		    if (/((^)|([^\(]*\b))static\b/) {
 			s/(\s*)static\s*/$1/;
@@ -745,7 +746,7 @@ sub printout {
 		    next unless (defined($m{$mode}));
 		    $_ = $mode;
 		    $_ .= " Members" if (!/s$/);
-		    print O "<h2>", ucfirst $_, "</h2>\n<ul>\n";
+		    print O "<h2>", $_, "</h2>\n<ul>\n";
 		    foreach (split (/;/, $m{$mode})) {
 			s/\s*([\(\)]+\s*)/ $1 /g;
 			s/\s*([,\*\&]+\s*)/$1 /g;
