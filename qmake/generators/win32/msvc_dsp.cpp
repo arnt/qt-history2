@@ -68,6 +68,18 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     if(!project->variables()["QMAKE_PLATFORM"].isEmpty())
 	platform = varGlue("QMAKE_PLATFORM", "", " ", "");
 
+    bool usePCH = !project->variables()["PRECOMPH"].isEmpty();
+    QString precomph = project->first("PRECOMPH");
+    QString precompcpp = project->first("PRECOMPCPP");
+    if ( project->variables()["PRECOMPCPP"].size() > 1 )
+	warn_msg(WarnLogic, "dsp generator doesn't support multiple files in PRECOMPCPP, only first one used" );
+    QString pch = QString(precomph).replace(".h", ".pch");
+    bool deletePCHcpp = precompcpp.isEmpty();
+    if (usePCH && deletePCHcpp) {
+	precompcpp = project->first("TARGET");
+	precompcpp.replace(".exe", "_pch.cpp");
+	project->variables()["SOURCES"] += precompcpp;
+    }
     int rep;
     QString line;
     while (!dsp.eof()) {
@@ -92,6 +104,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for(it = list.begin(); it != list.end(); ++it) {
 		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
+		    if (usePCH) {
+			t << "# ADD CPP /Y" << (precompcpp == (*it)?'c':'u')
+			<< "\"" << precomph << "\" /Fp" << pch << endl;
+		    }
 		    if(project->isActiveConfig("moc") && (*it).endsWith(Option::cpp_moc_ext)) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").toUpper();
@@ -127,25 +143,44 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 //		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl << endl;
-		    if(project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
-			QString base = (*it);
-			base.replace(QRegExp("\\..*$"), "").toUpper();
+		    QString createPCHcpp = "";
+		    QString createMOC = "";
+		    QString buildCmds = "\nBuildCmds= \\\n";
+		    // Create unique baseID
+		    QString base = (*it);
+		    {
+			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-			QString mocpath = var("QMAKE_MOC");
-			mocpath = mocpath.replace(QRegExp("\\..*$"), "") + " ";
-
-			QString build = "\n\n# Begin Custom Build - Moc'ing " + (*it) +
-					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + findMocDestination((*it)) +
-					"\"" " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-					"\t" + mocpath + (*it)  + " -o " +
-					findMocDestination((*it)) + "\n\n" "# End Custom Build\n\n";
-
+		    }
+		    if(deletePCHcpp && (precomph.compare(*it) == 0)){
+			buildCmds   += "\t@echo #include \"" + precomph + "\" > " + precompcpp + " \\\n";
+			createPCHcpp = "\"" +precompcpp + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
+		    }
+		    if (project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
+			QString mocpath = var( "QMAKE_MOC" );
+			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+			if (usePCH)
+			    mocpath += " -pch " + precomph + " ";
+			buildCmds += "\t" + mocpath + (*it)  + " -o " + findMocDestination((*it)) + " \\\n";
+			createMOC  = "\"" + findMocDestination((*it)) +	"\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
 			t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
+		    }
+		    if (!createPCHcpp.isEmpty() || !createMOC.isEmpty()) {
+			bool doMOC = !createMOC.isEmpty();
+			bool doPCH = !createPCHcpp.isEmpty();
+			QString build = "\n\n# Begin Custom Build - "+ 
+					QString(doMOC?"Moc'ing ":"") +
+					QString((doMOC&&doPCH)?" and ":"") +
+					QString(doPCH?"Creating PCH cpp from ":"") +
+					(*it) + "...\nInputPath=.\\" + (*it) + "\n\n" +
+					buildCmds + "\n" +
+					createMOC + 
+					createPCHcpp + 
+					"# End Custom Build\n\n";
 
-			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
-			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
-			  << build << "!ENDIF " << endl << endl;
+			t << "!IF  \"$(CFG)\" == \""     << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""   << build
+			  << "!ENDIF " << endl << endl;
 		    }
 		    t << "# End Source File" << endl;
 		}
@@ -367,8 +402,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
 			"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
 				    " -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
+				    QString(usePCH?" -pch " + precomph:"") +
 				    " -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
-				    "\t" + mocpath + uiHeadersDir + fname + ".h -o " + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + " \\\n";
+				    "\t" + mocpath + QString(usePCH?" -pch " + precomph:"") + " " + uiHeadersDir +
+				    fname + ".h -o " + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + " \\\n";
 
 		    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 				 "\t$(BuildCmds)\n\n"
