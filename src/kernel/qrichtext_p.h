@@ -1185,7 +1185,13 @@ public:
 //     void setFormat( QTextFormat *fm );
 //     QTextFormat *paragFormat() const;
 
+#if defined(Q_STRICT_INLINING_RULES)
+    // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
+    // implementation to be a redefinition.
+    inline QTextDocument *document() const;
+#else
     QTextDocument *document() const;
+#endif
     QTextParagraphPseudoDocument *pseudoDocument() const;
 
     QRect rect() const;
