@@ -4552,23 +4552,21 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	repaintItem( d->currentItem );
 	repaintContents( r.x(), r.y(), r.width(), r.height(), FALSE );
 
-	if ( d->selectionMode != Single ) {
-	    int dx = d->currentItem->x() - r.x();
-	    int dy = d->currentItem->y() - r.y();
+	int dx = d->currentItem->x() - r.x();
+	int dy = d->currentItem->y() - r.y();
 
-	    QIconViewItem *item = d->firstItem;
-	    QRect rr;
-	    for ( ; item; item = item->next ) {
-		if ( item->isSelected() && item != d->currentItem ) {
-		    rr = rr.unite( item->rect() );
-		    item->moveBy( dx, dy );
-		    rr = rr.unite( item->rect() );
-		    w = QMAX( w, item->x() + item->width() + 1 );
-		    h = QMAX( h, item->y() + item->height() + 1 );
-		}
+	QIconViewItem *item = d->firstItem;
+	QRect rr;
+	for ( ; item; item = item->next ) {
+	    if ( item->isSelected() && item != d->currentItem ) {
+		rr = rr.unite( item->rect() );
+		item->moveBy( dx, dy );
+		rr = rr.unite( item->rect() );
 	    }
-	    repaintContents( rr, FALSE );
+	    w = QMAX( w, item->x() + item->width() + 1 );
+	    h = QMAX( h, item->y() + item->height() + 1 );
 	}
+	repaintContents( rr, FALSE );
 	bool fullRepaint = FALSE;
 	if ( w > contentsWidth() ||
 	     h > contentsHeight() )
@@ -4577,7 +4575,8 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	int oldw = contentsWidth();
 	int oldh = contentsHeight();
 
-	resizeContents( QMAX( contentsWidth(), w ), QMAX( contentsHeight(), h ) );
+	resizeContents( w, h );
+
 
 	if ( fullRepaint ) {
 	    repaintContents( oldw, 0, contentsWidth() - oldw, contentsHeight(), FALSE );
