@@ -1,7 +1,7 @@
 TEMPLATE = app
 LANGUAGE = C++
 
-CONFIG        += qt warn_on assistantclient
+CONFIG        += qt warn_on assistant
 
 SOURCES        += finddialog.cpp \
 	about.cpp \
