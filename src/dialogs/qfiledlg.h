@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#17 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#18 $
 **
 ** Definition of QFileDialog class
 **
@@ -37,6 +37,9 @@ public:
 				    QWidget *parent = 0, const char *name = 0);
     static QString getSaveFileName( const char *dir = 0, const char *filter= 0,
 				    QWidget *parent = 0, const char *name = 0);
+    static QString getExistingDirectory( const char *dir = 0,
+					 QWidget *parent = 0,
+					 const char *name = 0 );
 
     // non-static function for special needs
 
@@ -48,8 +51,12 @@ public:
     const QDir *dir() const;
 
     void rereadDir();
+    
+    enum Mode { AnyFile, ExistingFile, Directory };
+    void setMode( Mode );
+    Mode mode() const;
 
-public slots:    
+public slots:
     void setDir( const char * );
 
 signals:
