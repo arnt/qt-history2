@@ -73,8 +73,8 @@ public:
 
     void clearPropertyFlags();
 
-    QRect itemViewportRect(const QModelIndex &item) const;
-    void ensureItemVisible(const QModelIndex &item);
+    QRect itemViewportRect(const QModelIndex &index) const;
+    void ensureItemVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
 
     void doItemsLayout();
@@ -106,7 +106,7 @@ protected:
 
     QDragObject *dragObject();
     void startDrag();
-    bool isDragEnabled(const QModelIndex &) const;
+    bool isDragEnabled(const QModelIndex &index) const;
 
     QStyleOptionViewItem viewOptions() const;
     void paintEvent(QPaintEvent *e);
@@ -114,7 +114,7 @@ protected:
     int horizontalOffset() const;
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
-    QRect itemRect(const QModelIndex &item) const;
+    QRect itemRect(const QModelIndex &index) const;
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;

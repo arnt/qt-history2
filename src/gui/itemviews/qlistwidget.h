@@ -81,6 +81,11 @@ public:
     inline void setChecked(const bool checked)
         { setData(QAbstractItemModel::CheckStateRole, checked); }
 
+//     inline bool isHidden() const { return hidden; }
+//     inline void setHidden(bool hide) { hidden = hide; }
+//     inline void hide() { setHidden(true); }
+//     inline void show() { setHidden(false); }
+
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);
     virtual bool operator<(const QListWidgetItem &other) const;
@@ -98,6 +103,7 @@ protected:
 private:
     QAbstractItemModel::ItemFlags itemFlags;
     QListModel *model;
+//    bool hidden;
 };
 
 class QListWidgetPrivate;
@@ -136,6 +142,9 @@ public:
     bool isSelected(const QListWidgetItem *item) const;
     void setSelected(const QListWidgetItem *item, bool select);
     QList<QListWidgetItem*> selectedItems() const;
+
+    bool isVisible(const QListWidgetItem *item) const;
+    void ensureItemVisible(const QListWidgetItem *item);
 
 public slots:
     void clear();

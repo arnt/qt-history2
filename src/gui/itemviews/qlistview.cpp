@@ -509,12 +509,12 @@ QRect QListView::itemViewportRect(const QModelIndex &index) const
 /*!
   \reimp
 */
-void QListView::ensureItemVisible(const QModelIndex &item)
+void QListView::ensureItemVisible(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
-    QRect rect = itemViewportRect(item);
+    QRect rect = itemViewportRect(index);
 
-    if (model()->parent(item) != root())
+    if (model()->parent(index) != root())
         return;
 
     if (area.contains(rect)) {

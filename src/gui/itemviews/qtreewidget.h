@@ -147,6 +147,9 @@ public:
     void setSelected(const QTreeWidgetItem *item, bool select);
     QList<QTreeWidgetItem*> selectedItems() const;
 
+    bool isVisible(const QTreeWidgetItem *item) const;
+    void ensureItemVisible(const QTreeWidgetItem *item);
+
 public slots:
     void clear();
 

@@ -703,6 +703,29 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems() const
 }
 
 /*!
+  Returns true if the \a item is in the viewport, otherwise returns false.
+*/
+
+bool QTableWidget::isVisible(const QTableWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
+    QRect rect = itemViewportRect(index);
+    return d->viewport->rect().contains(rect);
+}
+
+/*!
+  Scrolls the view if necessary to ensure that the \a item is visible.
+*/
+
+void QTableWidget::ensureItemVisible(const QTableWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
+    QTableView::ensureItemVisible(index);
+}
+
+/*!
   ###
 */
 void QTableWidget::insertRow(int row)

@@ -695,6 +695,29 @@ QList<QListWidgetItem*> QListWidget::selectedItems() const
 }
 
 /*!
+  Returns true if the \a item is in the viewport, otherwise returns false.
+*/
+
+bool QListWidget::isVisible(const QListWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
+    QRect rect = itemViewportRect(index);
+    return d->viewport->rect().contains(rect);
+}
+
+/*!
+  Scrolls the view if necessary to ensure that the \a item is visible.
+*/
+
+void QListWidget::ensureItemVisible(const QListWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
+    QListView::ensureItemVisible(index);
+}
+
+/*!
   Removes all items in the view.
 */
 void QListWidget::clear()

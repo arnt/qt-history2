@@ -1092,6 +1092,29 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 }
 
 /*!
+  Returns true if the \a item is in the viewport, otherwise returns false.
+*/
+
+bool QTreeWidget::isVisible(const QTreeWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
+    QRect rect = itemViewportRect(index);
+    return d->viewport->rect().contains(rect);
+}
+
+/*!
+  Scrolls the view if necessary to ensure that the \a item is visible.
+*/
+
+void QTreeWidget::ensureItemVisible(const QTreeWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
+    QTreeView::ensureItemVisible(index);
+}
+
+/*!
   Clears the tree widget by removing all of its items.
 */
 

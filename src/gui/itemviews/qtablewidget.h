@@ -143,6 +143,9 @@ public:
     bool isSelected(const QTableWidgetItem *item) const;
     void setSelected(const QTableWidgetItem *item, bool select);
     QList<QTableWidgetItem*> selectedItems() const;
+    
+    bool isVisible(const QTableWidgetItem *item) const;
+    void ensureItemVisible(const QTableWidgetItem *item);
 
 public slots:
     void insertRow(int row);
