@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.7 1999/01/12 16:38:19 warwick Exp $
+** $Id: index.doc,v 1.8 1999/02/12 12:54:13 warwick Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.7 1999/01/12 16:38:19 warwick Exp $";
+static char ident[] = "$Id: index.doc,v 1.8 1999/02/12 12:54:13 warwick Exp $";
 #endif
 
 /*! \page imageio.html
@@ -41,7 +41,6 @@ image formats should either call the function:
 
 <ul>
  <li> <a href="#jpeg"><b>qInitJpegIO</b></a> ()
- <li> <a href="#png"><b>qInitPngIO</b></a> ()
 </ul>
 
 
@@ -64,7 +63,9 @@ image formats should either call the function:
   have if they have installed a newer version of <tt>libqimgio</tt>).
   If this is not what you want, consider linking this code statically.
 <p>
-  Currently, this function enables JPEG and PNG support.
+  Currently, this function enables JPEG support.  Note that PNG support is
+  now included in Qt (installer chooses static or dynamic linking at
+  installation time).
 
 <h3> <a name="jpeg">qInitJpegIO()</a> </h3>
 
@@ -85,28 +86,6 @@ image formats should either call the function:
     </ul>
  </ul>
 
-
-<h3> <a name="png">qInitPngIO()</a> </h3>
-
-<pre>
-  #include &lt;qpngio.h&gt;
-</pre>
-
-  Initialize PNG image I/O extensions.
-
- <ul>
-   <li> Requires <tt>libpng.so.0</tt> and <tt>libz.so.1</tt>
-	<ul>
-	    <li>Tested with <tt>libpng.so.0.96</tt> and <tt>libz.so.1.0.4</tt>.
-	    <li>Free PNG code available from <a href="http://www.cdrom.com/pub/png/pngcode.html">The PNG Development Group</a>
-	    <li>Free ZLib code available in
-		<a href="http://www.cdrom.com/pub/infozip/zlib/zlib-1.0.4.tar.gz">a Gzipped Tar file</a>, or
-		<a href="http://www.cdrom.com/pub/infozip/zlib/zlib104.zip">a Zip file</a>.
-	    <li>See <a href="http://www.cdrom.com/pub/png/">The PNG Home Page</a>
-		and <a href="http://www.cdrom.com/pub/infozip/zlib/">The ZLib Home Page</a>
-		for more information.
-	</ul>
- </ul>
 
 </body>
 </html>
