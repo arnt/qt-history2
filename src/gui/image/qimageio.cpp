@@ -138,7 +138,7 @@ static void swapPixel01(QImage *image)        // 1-bpp: swap 0 and 1 pixels
     \legalese
 
     Qt supports GIF reading if it is configured that way during
-    installation (see qgif.h). If it is, we are required to state that
+    installation. If it is, we are required to state that
     "The Graphics Interchange Format(c) is the Copyright property of
     CompuServe Incorporated. GIF(sm) is a Service Mark property of
     CompuServe Incorporated."
