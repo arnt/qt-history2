@@ -12142,10 +12142,8 @@ static bool qAquaActive( const QColorGroup & g )
 static void qAquaPixmap( const QString & s, QPixmap & p )
 {
 #ifdef Q_WS_MAC
-    if(aquaMode == AquaModeUnknown) {
-	qDebug("This shouldn't happen %s:%d", __FILE__, __LINE__);
-	return;
-    }
+    if(aquaMode == AquaModeUnknown) 
+	QAquaStyle::appearanceChanged();
 #endif
     int i, size = 0;
 
