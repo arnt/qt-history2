@@ -50,6 +50,7 @@
 #include "qt_mac.h"
 #include <qstack.h>
 #include <qtextcodec.h>
+#include <qprinter.h>
 
 const int TxNone=0;
 const int TxTranslate=1;
@@ -1810,7 +1811,13 @@ void QPainter::initPaintDevice(bool force) {
 #endif
     
     clippedreg = QRegion(); //empty
-    if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
+    if( pdev->devType() == QInternal::Printer ) {
+	if(pdev->handle()) {
+	    SetGWorld((GrafPtr)pdev->handle(), 0); //set the gworld
+	    clippedreg = QRegion(0, 0, pdev->metric(QPaintDeviceMetrics::PdmWidth), 
+				 pdev->metric(QPaintDeviceMetrics::PdmHeight));
+	}
+    } else if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
 
 	//set the correct window prot

@@ -192,17 +192,21 @@ bool QPrinter::setup( QWidget *  )
 }
 
 
-bool QPrinter::cmd( int, QPainter *, QPDevCmdParam * )
+bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam * )
 {
-#if 0
     if ( c ==  PdcBegin ) {			// begin; start printing
+	if(PMSessionBeginDocument(psession, psettings, pformat) != noErr)
+	    return FALSE;
+	if( PMSessionGetGraphicsContext(psession, NULL, &hd) != noErr )
+	    return FALSE;
     } else if ( c == PdcEnd ) {
+	PMSessionEndDocument(psession);
+	hd = NULL;
     } else {					// all other commands...
 	if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
 	    return FALSE;			// don't bitblt
 	}
     }
-#endif
     return TRUE;
 }
 
