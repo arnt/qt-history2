@@ -12,7 +12,7 @@
 **
 **************************************************************************-->
 <Rules>
-    <Count>3350</Count>
+    <Count>3508</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -1551,14 +1551,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
-        <Name>QEventDispatcherUNIX</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
-        <Name>QEventDispatcherWin32</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
         <Name>QEventLoop</Name>
     </item>
     <item Type="Qt4Class" >
@@ -1668,6 +1660,10 @@
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
         <Name>QLibraryInfo</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtCore</Library>
+        <Name>QLine</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
@@ -2307,10 +2303,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QDecorationBeOS</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QDecorationDefault</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2320,10 +2312,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QDecorationFactoryInterface</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QDecorationHydro</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -4440,6 +4428,7 @@
     <item Type="qt3Header" >qxml.h</item>
     <item Type="qt3Header" >qxt.h</item>
     <item Type="qt3Header" >qxtwidget.h</item>
+    <item Type="qt3Header" >translationunit.h</item>
     <item Type="qt4Header" >Q3Accel</item>
     <item Type="qt4Header" >Q3Action</item>
     <item Type="qt4Header" >Q3ActionGroup</item>
@@ -4688,11 +4677,9 @@
     <item Type="qt4Header" >QDebug</item>
     <item Type="qt4Header" >QDecoration</item>
     <item Type="qt4Header" >QDecorationAction</item>
-    <item Type="qt4Header" >QDecorationBeOS</item>
     <item Type="qt4Header" >QDecorationDefault</item>
     <item Type="qt4Header" >QDecorationFactory</item>
     <item Type="qt4Header" >QDecorationFactoryInterface</item>
-    <item Type="qt4Header" >QDecorationHydro</item>
     <item Type="qt4Header" >QDecorationStyled</item>
     <item Type="qt4Header" >QDecorationWindows</item>
     <item Type="qt4Header" >QDesktopWidget</item>
@@ -4729,8 +4716,6 @@
     <item Type="qt4Header" >QDropEvent</item>
     <item Type="qt4Header" >QErrorMessage</item>
     <item Type="qt4Header" >QEvent</item>
-    <item Type="qt4Header" >QEventDispatcherUNIX</item>
-    <item Type="qt4Header" >QEventDispatcherWin32</item>
     <item Type="qt4Header" >QEventLoop</item>
     <item Type="qt4Header" >QExplicitlySharedDataPointer</item>
     <item Type="qt4Header" >QFactoryInterface</item>
@@ -4836,6 +4821,7 @@
     <item Type="qt4Header" >QLayoutIterator</item>
     <item Type="qt4Header" >QLibrary</item>
     <item Type="qt4Header" >QLibraryInfo</item>
+    <item Type="qt4Header" >QLine</item>
     <item Type="qt4Header" >QLineEdit</item>
     <item Type="qt4Header" >QLineF</item>
     <item Type="qt4Header" >QLinearGradient</item>
@@ -7110,12 +7096,48 @@
         <Qt3>Qt::MouseButtonMask</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::ShiftButton</Qt4>
+        <Qt3>Qt::ShiftButton</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::ControlButton</Qt4>
+        <Qt3>Qt::ControlButton</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::AltButton</Qt4>
+        <Qt3>Qt::AltButton</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::MetaButton</Qt4>
+        <Qt3>Qt::MetaButton</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::KeyButtonMask</Qt4>
+        <Qt3>Qt::KeyButtonMask</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Keypad</Qt4>
+        <Qt3>Qt::Keypad</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Horizontal</Qt4>
         <Qt3>Qt::Horizontal</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Vertical</Qt4>
         <Qt3>Qt::Vertical</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Ascending</Qt4>
+        <Qt3>Qt::Ascending</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Descending</Qt4>
+        <Qt3>Qt::Descending</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::AlignAuto</Qt4>
+        <Qt3>Qt::AlignAuto</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::AlignLeft</Qt4>
@@ -7156,6 +7178,190 @@
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::AlignCenter</Qt4>
         <Qt3>Qt::AlignCenter</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::SingleLine</Qt4>
+        <Qt3>Qt::SingleLine</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DontClip</Qt4>
+        <Qt3>Qt::DontClip</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::ExpandTabs</Qt4>
+        <Qt3>Qt::ExpandTabs</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::ShowPrefix</Qt4>
+        <Qt3>Qt::ShowPrefix</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WordBreak</Qt4>
+        <Qt3>Qt::WordBreak</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::BreakAnywhere</Qt4>
+        <Qt3>Qt::BreakAnywhere</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DontPrint</Qt4>
+        <Qt3>Qt::DontPrint</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::IncludeTrailingSpaces</Qt4>
+        <Qt3>Qt::IncludeTrailingSpaces</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::NoAccel</Qt4>
+        <Qt3>Qt::NoAccel</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WType_TopLevel</Qt4>
+        <Qt3>Qt::WType_TopLevel</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WType_Dialog</Qt4>
+        <Qt3>Qt::WType_Dialog</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WType_Popup</Qt4>
+        <Qt3>Qt::WType_Popup</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WType_Desktop</Qt4>
+        <Qt3>Qt::WType_Desktop</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WType_Mask</Qt4>
+        <Qt3>Qt::WType_Mask</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_Customize</Qt4>
+        <Qt3>Qt::WStyle_Customize</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_NormalBorder</Qt4>
+        <Qt3>Qt::WStyle_NormalBorder</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_DialogBorder</Qt4>
+        <Qt3>Qt::WStyle_DialogBorder</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_NoBorder</Qt4>
+        <Qt3>Qt::WStyle_NoBorder</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_Title</Qt4>
+        <Qt3>Qt::WStyle_Title</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_SysMenu</Qt4>
+        <Qt3>Qt::WStyle_SysMenu</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_Minimize</Qt4>
+        <Qt3>Qt::WStyle_Minimize</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_Maximize</Qt4>
+        <Qt3>Qt::WStyle_Maximize</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_MinMax</Qt4>
+        <Qt3>Qt::WStyle_MinMax</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_Tool</Qt4>
+        <Qt3>Qt::WStyle_Tool</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_StaysOnTop</Qt4>
+        <Qt3>Qt::WStyle_StaysOnTop</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_ContextHelp</Qt4>
+        <Qt3>Qt::WStyle_ContextHelp</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WDestructiveClose</Qt4>
+        <Qt3>Qt::WDestructiveClose</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WPaintDesktop</Qt4>
+        <Qt3>Qt::WPaintDesktop</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WPaintClever</Qt4>
+        <Qt3>Qt::WPaintClever</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WResizeNoErase</Qt4>
+        <Qt3>Qt::WResizeNoErase</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WMouseNoMask</Qt4>
+        <Qt3>Qt::WMouseNoMask</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStaticContents</Qt4>
+        <Qt3>Qt::WStaticContents</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WRepaintNoErase</Qt4>
+        <Qt3>Qt::WRepaintNoErase</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WX11BypassWM</Qt4>
+        <Qt3>Qt::WX11BypassWM</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WWinOwnDC</Qt4>
+        <Qt3>Qt::WWinOwnDC</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WMacNoSheet</Qt4>
+        <Qt3>Qt::WMacNoSheet</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WMacDrawer</Qt4>
+        <Qt3>Qt::WMacDrawer</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WGroupLeader</Qt4>
+        <Qt3>Qt::WGroupLeader</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WShowModal</Qt4>
+        <Qt3>Qt::WShowModal</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WNoMousePropagation</Qt4>
+        <Qt3>Qt::WNoMousePropagation</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_Splash</Qt4>
+        <Qt3>Qt::WStyle_Splash</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WNoAutoErase</Qt4>
+        <Qt3>Qt::WNoAutoErase</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WNorthWestGravity</Qt4>
+        <Qt3>Qt::WNorthWestGravity</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WType_Modal</Qt4>
+        <Qt3>Qt::WType_Modal</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_Dialog</Qt4>
+        <Qt3>Qt::WStyle_Dialog</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WStyle_NoBorderEx</Qt4>
+        <Qt3>Qt::WStyle_NoBorderEx</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::WindowNoState</Qt4>
@@ -7254,6 +7460,50 @@
         <Qt3>Qt::OpaqueMode</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PixelUnit</Qt4>
+        <Qt3>Qt::PixelUnit</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::LoMetricUnit</Qt4>
+        <Qt3>Qt::LoMetricUnit</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::HiMetricUnit</Qt4>
+        <Qt3>Qt::HiMetricUnit</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::LoEnglishUnit</Qt4>
+        <Qt3>Qt::LoEnglishUnit</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::HiEnglishUnit</Qt4>
+        <Qt3>Qt::HiEnglishUnit</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::TwipsUnit</Qt4>
+        <Qt3>Qt::TwipsUnit</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::MacStyle</Qt4>
+        <Qt3>Qt::MacStyle</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WindowsStyle</Qt4>
+        <Qt3>Qt::WindowsStyle</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Win3Style</Qt4>
+        <Qt3>Qt::Win3Style</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PMStyle</Qt4>
+        <Qt3>Qt::PMStyle</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::MotifStyle</Qt4>
+        <Qt3>Qt::MotifStyle</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::META</Qt4>
         <Qt3>Qt::META</Qt3>
     </item>
@@ -7290,8 +7540,16 @@
         <Qt3>Qt::Key_Backtab</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_BackTab</Qt4>
+        <Qt3>Qt::Key_BackTab</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Key_Backspace</Qt4>
         <Qt3>Qt::Key_Backspace</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_BackSpace</Qt4>
+        <Qt3>Qt::Key_BackSpace</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Key_Return</Qt4>
@@ -7350,8 +7608,16 @@
         <Qt3>Qt::Key_Down</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_Prior</Qt4>
+        <Qt3>Qt::Key_Prior</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Key_PageUp</Qt4>
         <Qt3>Qt::Key_PageUp</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_Next</Qt4>
+        <Qt3>Qt::Key_Next</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Key_PageDown</Qt4>
@@ -8094,8 +8360,128 @@
         <Qt3>Qt::Key_ssharp</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_agrave</Qt4>
+        <Qt3>Qt::Key_agrave</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_aacute</Qt4>
+        <Qt3>Qt::Key_aacute</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_acircumflex</Qt4>
+        <Qt3>Qt::Key_acircumflex</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_atilde</Qt4>
+        <Qt3>Qt::Key_atilde</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_adiaeresis</Qt4>
+        <Qt3>Qt::Key_adiaeresis</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_aring</Qt4>
+        <Qt3>Qt::Key_aring</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ae</Qt4>
+        <Qt3>Qt::Key_ae</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ccedilla</Qt4>
+        <Qt3>Qt::Key_ccedilla</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_egrave</Qt4>
+        <Qt3>Qt::Key_egrave</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_eacute</Qt4>
+        <Qt3>Qt::Key_eacute</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ecircumflex</Qt4>
+        <Qt3>Qt::Key_ecircumflex</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ediaeresis</Qt4>
+        <Qt3>Qt::Key_ediaeresis</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_igrave</Qt4>
+        <Qt3>Qt::Key_igrave</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_iacute</Qt4>
+        <Qt3>Qt::Key_iacute</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_icircumflex</Qt4>
+        <Qt3>Qt::Key_icircumflex</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_idiaeresis</Qt4>
+        <Qt3>Qt::Key_idiaeresis</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_eth</Qt4>
+        <Qt3>Qt::Key_eth</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ntilde</Qt4>
+        <Qt3>Qt::Key_ntilde</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ograve</Qt4>
+        <Qt3>Qt::Key_ograve</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_oacute</Qt4>
+        <Qt3>Qt::Key_oacute</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ocircumflex</Qt4>
+        <Qt3>Qt::Key_ocircumflex</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_otilde</Qt4>
+        <Qt3>Qt::Key_otilde</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_odiaeresis</Qt4>
+        <Qt3>Qt::Key_odiaeresis</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Key_division</Qt4>
         <Qt3>Qt::Key_division</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_oslash</Qt4>
+        <Qt3>Qt::Key_oslash</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ugrave</Qt4>
+        <Qt3>Qt::Key_ugrave</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_uacute</Qt4>
+        <Qt3>Qt::Key_uacute</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_ucircumflex</Qt4>
+        <Qt3>Qt::Key_ucircumflex</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_udiaeresis</Qt4>
+        <Qt3>Qt::Key_udiaeresis</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_yacute</Qt4>
+        <Qt3>Qt::Key_yacute</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_thorn</Qt4>
+        <Qt3>Qt::Key_thorn</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Key_ydiaeresis</Qt4>
@@ -8156,6 +8542,10 @@
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Key_MediaStop</Qt4>
         <Qt3>Qt::Key_MediaStop</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Key_MediaPrev</Qt4>
+        <Qt3>Qt::Key_MediaPrev</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::Key_MediaNext</Qt4>
@@ -8402,6 +8792,10 @@
         <Qt3>Qt::DiagCrossPattern</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::CustomPattern</Qt4>
+        <Qt3>Qt::CustomPattern</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::UI_General</Qt4>
         <Qt3>Qt::UI_General</Qt3>
     </item>
@@ -8526,6 +8920,62 @@
         <Qt3>Qt::AnchorHref</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DockUnmanaged</Qt4>
+        <Qt3>Qt::DockUnmanaged</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DockTornOff</Qt4>
+        <Qt3>Qt::DockTornOff</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DockTop</Qt4>
+        <Qt3>Qt::DockTop</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DockBottom</Qt4>
+        <Qt3>Qt::DockBottom</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DockRight</Qt4>
+        <Qt3>Qt::DockRight</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DockLeft</Qt4>
+        <Qt3>Qt::DockLeft</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::DockMinimized</Qt4>
+        <Qt3>Qt::DockMinimized</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Unmanaged</Qt4>
+        <Qt3>Qt::Unmanaged</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::TornOff</Qt4>
+        <Qt3>Qt::TornOff</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Top</Qt4>
+        <Qt3>Qt::Top</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Bottom</Qt4>
+        <Qt3>Qt::Bottom</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Right</Qt4>
+        <Qt3>Qt::Right</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Left</Qt4>
+        <Qt3>Qt::Left</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::Minimized</Qt4>
+        <Qt3>Qt::Minimized</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::TextDate</Qt4>
         <Qt3>Qt::TextDate</Qt3>
     </item>
@@ -8546,8 +8996,104 @@
         <Qt3>Qt::UTC</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::FixedColor</Qt4>
+        <Qt3>Qt::FixedColor</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::FixedPixmap</Qt4>
+        <Qt3>Qt::FixedPixmap</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::NoBackground</Qt4>
+        <Qt3>Qt::NoBackground</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteForeground</Qt4>
+        <Qt3>Qt::PaletteForeground</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteButton</Qt4>
+        <Qt3>Qt::PaletteButton</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteLight</Qt4>
+        <Qt3>Qt::PaletteLight</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteMidlight</Qt4>
+        <Qt3>Qt::PaletteMidlight</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteDark</Qt4>
+        <Qt3>Qt::PaletteDark</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteMid</Qt4>
+        <Qt3>Qt::PaletteMid</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteText</Qt4>
+        <Qt3>Qt::PaletteText</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteBrightText</Qt4>
+        <Qt3>Qt::PaletteBrightText</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteBase</Qt4>
+        <Qt3>Qt::PaletteBase</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteBackground</Qt4>
+        <Qt3>Qt::PaletteBackground</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteShadow</Qt4>
+        <Qt3>Qt::PaletteShadow</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteHighlight</Qt4>
+        <Qt3>Qt::PaletteHighlight</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteHighlightedText</Qt4>
+        <Qt3>Qt::PaletteHighlightedText</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteButtonText</Qt4>
+        <Qt3>Qt::PaletteButtonText</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteLink</Qt4>
+        <Qt3>Qt::PaletteLink</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::PaletteLinkVisited</Qt4>
+        <Qt3>Qt::PaletteLinkVisited</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::X11ParentRelative</Qt4>
+        <Qt3>Qt::X11ParentRelative</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::CaseSensitive</Qt4>
         <Qt3>Qt::CaseSensitive</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::TopLeft</Qt4>
+        <Qt3>Qt::TopLeft</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::TopRight</Qt4>
+        <Qt3>Qt::TopRight</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::BottomLeft</Qt4>
+        <Qt3>Qt::BottomLeft</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::BottomRight</Qt4>
+        <Qt3>Qt::BottomRight</Qt3>
     </item>
     <item Type="RenamedType" >
         <Qt4>QApplication::ColorSpec</Qt4>
@@ -8670,6 +9216,14 @@
         <Qt3>Qt::BGMode</Qt3>
     </item>
     <item Type="RenamedType" >
+        <Qt4>Qt::PaintUnit</Qt4>
+        <Qt3>Qt::PaintUnit</Qt3>
+    </item>
+    <item Type="RenamedType" >
+        <Qt4>Qt::GUIStyle</Qt4>
+        <Qt3>Qt::GUIStyle</Qt3>
+    </item>
+    <item Type="RenamedType" >
         <Qt4>Qt::Modifier</Qt4>
         <Qt3>Qt::Modifier</Qt3>
     </item>
@@ -8714,6 +9268,10 @@
         <Qt3>Qt::AnchorAttribute</Qt3>
     </item>
     <item Type="RenamedType" >
+        <Qt4>Qt::Dock</Qt4>
+        <Qt3>Qt::Dock</Qt3>
+    </item>
+    <item Type="RenamedType" >
         <Qt4>Qt::DateFormat</Qt4>
         <Qt3>Qt::DateFormat</Qt3>
     </item>
@@ -8722,12 +9280,20 @@
         <Qt3>Qt::TimeSpec</Qt3>
     </item>
     <item Type="RenamedType" >
+        <Qt4>Qt::BackgroundMode</Qt4>
+        <Qt3>Qt::BackgroundMode</Qt3>
+    </item>
+    <item Type="RenamedType" >
         <Qt4>Qt::Corner</Qt4>
         <Qt3>Qt::Corner</Qt3>
     </item>
     <item Type="RenamedType" >
         <Qt4>Qt::WFlags</Qt4>
         <Qt3>Qt::WFlags</Qt3>
+    </item>
+    <item Type="RenamedType" >
+        <Qt4>Qt::ToolBarDock</Qt4>
+        <Qt3>Qt::ToolBarDock</Qt3>
     </item>
     <item Type="RenamedType" >
         <Qt4>Qt::HANDLE</Qt4>
@@ -8810,8 +9376,80 @@
         <Qt3>Qt::darkYellow</Qt3>
     </item>
     <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::ButtonState</Qt4>
+        <Qt3>Qt::ButtonState</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::TextFlags</Qt4>
+        <Qt3>Qt::TextFlags</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
         <Qt4>Qt::ImageConversionFlags</Qt4>
         <Qt3>Qt::ImageConversionFlags</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::arrowCursor</Qt4>
+        <Qt3>Qt::arrowCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::upArrowCursor</Qt4>
+        <Qt3>Qt::upArrowCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::crossCursor</Qt4>
+        <Qt3>Qt::crossCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::waitCursor</Qt4>
+        <Qt3>Qt::waitCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::ibeamCursor</Qt4>
+        <Qt3>Qt::ibeamCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::sizeVerCursor</Qt4>
+        <Qt3>Qt::sizeVerCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::sizeHorCursor</Qt4>
+        <Qt3>Qt::sizeHorCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::sizeBDiagCursor</Qt4>
+        <Qt3>Qt::sizeBDiagCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::sizeFDiagCursor</Qt4>
+        <Qt3>Qt::sizeFDiagCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::sizeAllCursor</Qt4>
+        <Qt3>Qt::sizeAllCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::blankCursor</Qt4>
+        <Qt3>Qt::blankCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::splitVCursor</Qt4>
+        <Qt3>Qt::splitVCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::splitHCursor</Qt4>
+        <Qt3>Qt::splitHCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::pointingHandCursor</Qt4>
+        <Qt3>Qt::pointingHandCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::forbiddenCursor</Qt4>
+        <Qt3>Qt::forbiddenCursor</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>Qt::whatsThisCursor</Qt4>
+        <Qt3>Qt::whatsThisCursor</Qt3>
     </item>
     <item Type="RenamedQtSymbol" >
         <Qt4>qPixmapFromMimeSource</Qt4>
@@ -8824,14 +9462,6 @@
     <item Type="RenamedQtSymbol" >
         <Qt4>QImageIO::outputFormats</Qt4>
         <Qt3>QImage::outputFormats</Qt3>
-    </item>
-    <item Type="RenamedHeader" >
-        <Qt4>qabstractlayout.h</Qt4>
-        <Qt3>qlayout.h</Qt3>
-    </item>
-    <item Type="RenamedHeader" >
-        <Qt4>qvboxwidget.h</Qt4>
-        <Qt3>qvbox.h</Qt3>
     </item>
     <item Type="RenamedClass" >
         <Qt4>QPointer</Qt4>
@@ -8950,22 +9580,6 @@
         <Header>QTabletEvent</Header>
     </item>
     <item Type="NeedHeader" >
-        <Class>Q3PtrList</Class>
-        <Header>Q3PtrList</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>Q3ValueList</Class>
-        <Header>Q3ValueList</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>Q3MemArray</Class>
-        <Header>Q3MemArray</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>Q3StrList</Class>
-        <Header>Q3StrList</Header>
-    </item>
-    <item Type="NeedHeader" >
         <Class>QPaintEvent</Class>
         <Header>QPaintEvent</Header>
     </item>
@@ -8996,6 +9610,22 @@
     <item Type="NeedHeader" >
         <Class>QCustomEvent</Class>
         <Header>QCustomEvent</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3PtrList</Class>
+        <Header>Q3PtrList</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3ValueList</Class>
+        <Header>Q3ValueList</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3MemArray</Class>
+        <Header>Q3MemArray</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3StrList</Class>
+        <Header>Q3StrList</Header>
     </item>
     <item Type="NeedHeader" >
         <Class>Q3Painter</Class>
@@ -9074,6 +9704,10 @@
         <Qt3>qgrid.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
+        <Qt4>qvboxwidget.h</Qt4>
+        <Qt3>qvbox.h</Qt3>
+    </item>
+    <item Type="RenamedHeader" >
         <Qt4>qhboxwidget.h</Qt4>
         <Qt3>qhbox.h</Qt3>
     </item>
@@ -9090,7 +9724,11 @@
         <Qt3>qwmatrix.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
-        <Qt4>qobject.h</Qt4>
+        <Qt4>qpointer.h</Qt4>
         <Qt3>qguardedptr.h</Qt3>
+    </item>
+    <item Type="RenamedHeader" >
+        <Qt4>qabstractlayout.h</Qt4>
+        <Qt3>qlayout.h</Qt3>
     </item>
 </Rules>
