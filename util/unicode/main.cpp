@@ -82,6 +82,7 @@ struct UnicodeData {
         p.caseDiff = 0;
         p.digitValue = 0xf;
         propertyIndex = -1;
+        excludedComposition = false;
     }
     PropertyFlags p;
 
@@ -92,6 +93,9 @@ struct UnicodeData {
     // from BidiMirroring.txt
     int mirroredChar;
     int otherCase;
+
+    // CompositionExclusions.txt
+    bool excludedComposition;
 
     // computed position of unicode property set
     int propertyIndex;
@@ -245,6 +249,12 @@ QList<PropertyFlags> uniqueProperties;
 
 
 QHash<int, int> decompositionLength;
+int highestComposedCharacter = 0;
+int numLigatures = 0;
+int highestLigature = 0;
+int longestLigature = 0;
+QList<QByteArray> ligatures;
+
 QHash<int, int> combiningClassUsage;
 
 
@@ -316,6 +326,7 @@ static void readUnicodeData()
         // decompositition
         QByteArray decomposition = properties[UD_Decomposition];
         if (!decomposition.isEmpty()) {
+            highestComposedCharacter = qMax(highestComposedCharacter, codepoint);
             QList<QByteArray> d = decomposition.split(' ');
             if (d[0].contains('<')) {
                 data.decompositionType = decompositionMap.value(d[0], QChar::Canonical);
@@ -482,6 +493,54 @@ static void readDerivedAge()
     }
 }
 
+
+static void readCompositionExclusion()
+{
+    QFile f("data/CompositionExclusions.txt");
+    if (!f.exists())
+        qFatal("Couldn't find CompositionExclusions.txt");
+
+    f.open(QFile::IO_ReadOnly);
+
+    while (!f.atEnd()) {
+        QByteArray line;
+        line.resize(1024);
+        int len = f.readLine(line.data(), 1024);
+        line.resize(len-1);
+
+        int comment = line.indexOf('#');
+        if (comment >= 0)
+            line = line.left(comment);
+        line.replace(" ", "");
+
+        if (line.isEmpty())
+            continue;
+
+        Q_ASSERT(!line.contains(".."));
+
+        bool ok;
+        int codepoint = line.toInt(&ok, 16);
+
+        UnicodeData d = unicodeData.value(codepoint, UnicodeData(codepoint));
+        d.excludedComposition = true;
+        unicodeData.insert(codepoint, d);
+    }
+
+    for (int i = 0; i < 0x110000; ++i) {
+        UnicodeData data = unicodeData.value(i, UnicodeData(i));
+        if (!data.excludedComposition
+            && data.decompositionType == QChar::Canonical && data.decomposition.size() > 1) {
+            ++numLigatures;
+            highestLigature = qMax(highestLigature, data.decomposition.at(0));
+            QByteArray ligature;
+            for (int i = 0; i < data.decomposition.size(); ++i)
+                ligature += QByteArray::number(data.decomposition.at(i), 16) + " ";
+            ligatures.append(ligature);
+            longestLigature = qMax(longestLigature, data.decomposition.size());
+        }
+    }
+}
+
 static void computeUniqueProperties()
 {
     qDebug("computeUniqueProperties:");
@@ -595,7 +654,7 @@ static QByteArray createPropertyInfo()
     out += "static const unsigned short uc_property_trie[] = {\n";
 
     // first write the map
-    out += "    // BMP";
+    out += "    // 0x" + QByteArray::number(BMP_END, 16);
     for (int i = 0; i < BMP_END/BMP_BLOCKSIZE; ++i) {
         if (!(i % 8)) {
             if (!((i*BMP_BLOCKSIZE) % 0x1000))
@@ -605,7 +664,7 @@ static QByteArray createPropertyInfo()
         out += QByteArray::number(blockMap.at(i) + blockMap.size());
         out += ", ";
     }
-    out += "\n\n    // SMP";
+    out += "\n\n    // 0x" + QByteArray::number(BMP_END, 16) + " - 0x" + QByteArray::number(SMP_END, 16) + "\n";;
     for (int i = BMP_END/BMP_BLOCKSIZE; i < blockMap.size(); ++i) {
         if (!(i % 8)) {
             if (!(i % (0x10000/SMP_BLOCKSIZE)))
@@ -741,6 +800,222 @@ static QByteArray createPropertyInfo()
 }
 
 
+struct DecompositionBlock {
+    DecompositionBlock() { index = -1; }
+    int index;
+    QList<int> decompositionPositions;
+    bool operator ==(const DecompositionBlock &other)
+        { return decompositionPositions == other.decompositionPositions; }
+};
+
+static QByteArray createCompositionInfo()
+{
+    qDebug("createCompositionInfo:");
+
+    const int BMP_BLOCKSIZE=16;
+    const int BMP_SHIFT = 4;
+    const int BMP_END = 0x3400; // start of Han
+    const int SMP_END = 0x30000;
+    const int SMP_BLOCKSIZE = 256;
+    const int SMP_SHIFT = 8;
+
+    if(SMP_END <= highestComposedCharacter)
+        qFatal("end of table smaller than highest composed character at %x", highestComposedCharacter);
+
+    QList<DecompositionBlock> blocks;
+    QList<int> blockMap;
+    QList<unsigned short> decompositions;
+
+    int used = 0;
+    int tableIndex = 0;
+
+    for (int block = 0; block < BMP_END/BMP_BLOCKSIZE; ++block) {
+        DecompositionBlock b;
+        for (int i = 0; i < BMP_BLOCKSIZE; ++i) {
+            int uc = block*BMP_BLOCKSIZE + i;
+            UnicodeData d = unicodeData.value(uc, UnicodeData(uc));
+            if (!d.decomposition.isEmpty()) {
+                int utf16Chars = 0;
+                for (int j = 0; j < d.decomposition.size(); ++j)
+                    utf16Chars += d.decomposition.at(j) > 0x10000 ? 2 : 1;
+                decompositions.append(d.decompositionType + (utf16Chars<<8));
+                for (int j = 0; j < d.decomposition.size(); ++j) {
+                    int code = d.decomposition.at(j);
+                    if (code > 0x10000) {
+                        // save as surrogate pair
+                        code -= 0x10000;
+                        ushort high = code/0x400 + 0xd800;
+                        ushort low = code%0x400 + 0xdc00;
+                        decompositions.append(high);
+                        decompositions.append(low);
+                    } else {
+                        decompositions.append(code);
+                    }
+                }
+                b.decompositionPositions.append(tableIndex);
+                tableIndex += utf16Chars + 1;
+            } else {
+                b.decompositionPositions.append(0xffff);
+            }
+        }
+        int index = blocks.indexOf(b);
+        if (index == -1) {
+            index = blocks.size();
+            b.index = used;
+            used += BMP_BLOCKSIZE;
+            blocks.append(b);
+        }
+        blockMap.append(blocks.at(index).index);
+    }
+
+    int bmp_blocks = blocks.size();
+    Q_ASSERT(blockMap.size() == BMP_END/BMP_BLOCKSIZE);
+
+    for (int block = BMP_END/SMP_BLOCKSIZE; block < SMP_END/SMP_BLOCKSIZE; ++block) {
+        DecompositionBlock b;
+        for (int i = 0; i < SMP_BLOCKSIZE; ++i) {
+            int uc = block*SMP_BLOCKSIZE + i;
+            UnicodeData d = unicodeData.value(uc, UnicodeData(uc));
+            if (!d.decomposition.isEmpty()) {
+                int utf16Chars = 0;
+                for (int j = 0; j < d.decomposition.size(); ++j)
+                    utf16Chars += d.decomposition.at(j) > 0x10000 ? 2 : 1;
+                decompositions.append(d.decompositionType + (utf16Chars<<8));
+                for (int j = 0; j < d.decomposition.size(); ++j) {
+                    int code = d.decomposition.at(j);
+                    if (code > 0x10000) {
+                        // save as surrogate pair
+                        code -= 0x10000;
+                        ushort high = code/0x400 + 0xd800;
+                        ushort low = code%0x400 + 0xdc00;
+                        decompositions.append(high);
+                        decompositions.append(low);
+                    } else {
+                        decompositions.append(code);
+                    }
+                }
+                b.decompositionPositions.append(tableIndex);
+                tableIndex += utf16Chars + 1;
+            } else {
+                b.decompositionPositions.append(0xffff);
+            }
+        }
+        int index = blocks.indexOf(b);
+        if (index == -1) {
+            index = blocks.size();
+            b.index = used;
+            used += SMP_BLOCKSIZE;
+            blocks.append(b);
+        }
+        blockMap.append(blocks.at(index).index);
+    }
+
+    int bmp_block_data = bmp_blocks*BMP_BLOCKSIZE*2;
+    int bmp_trie = BMP_END/BMP_BLOCKSIZE*2;
+    int bmp_mem = bmp_block_data + bmp_trie;
+    qDebug("    %d unique blocks in BMP.",blocks.size());
+    qDebug("        block data uses: %d bytes", bmp_block_data);
+    qDebug("        trie data uses : %d bytes", bmp_trie);
+    qDebug("        memory usage: %d bytes", bmp_mem);
+
+    int smp_block_data = (blocks.size()- bmp_blocks)*SMP_BLOCKSIZE*2;
+    int smp_trie = (SMP_END-BMP_END)/SMP_BLOCKSIZE*2;
+    int smp_mem = smp_block_data + smp_trie;
+    qDebug("    %d unique blocks in SMP.",blocks.size()-bmp_blocks);
+    qDebug("        block data uses: %d bytes", smp_block_data);
+    qDebug("        trie data uses : %d bytes", smp_trie);
+
+    qDebug("\n        decomposition table use : %d bytes", decompositions.size()*2);
+    qDebug("    memory usage: %d bytes", bmp_mem+smp_mem + decompositions.size()*2);
+
+    QByteArray out;
+
+    out += "static const unsigned short uc_decomposition_trie[] = {\n";
+
+    // first write the map
+    out += "    // 0 - 0x" + QByteArray::number(BMP_END, 16);
+    for (int i = 0; i < BMP_END/BMP_BLOCKSIZE; ++i) {
+        if (!(i % 8)) {
+            if (!((i*BMP_BLOCKSIZE) % 0x1000))
+                out += "\n";
+            out += "\n    ";
+        }
+        out += QByteArray::number(blockMap.at(i) + blockMap.size());
+        out += ", ";
+    }
+    out += "\n\n    // 0x" + QByteArray::number(BMP_END, 16) + " - 0x" + QByteArray::number(SMP_END, 16) + "\n";;
+    for (int i = BMP_END/BMP_BLOCKSIZE; i < blockMap.size(); ++i) {
+        if (!(i % 8)) {
+            if (!(i % (0x10000/SMP_BLOCKSIZE)))
+                out += "\n";
+            out += "\n    ";
+        }
+        out += QByteArray::number(blockMap.at(i) + blockMap.size());
+        out += ", ";
+    }
+    out += "\n";
+    // write the data
+    for (int i = 0; i < blocks.size(); ++i) {
+        out += "\n";
+        const DecompositionBlock &b = blocks.at(i);
+        for (int j = 0; j < b.decompositionPositions.size(); ++j) {
+            if (!(j % 8))
+                out += "\n    ";
+            out += "0x" + QByteArray::number(b.decompositionPositions.at(j), 16);
+            out += ", ";
+        }
+    }
+
+    out += "\n};\n\n"
+
+           "#define GET_DECOMPOSITION_INDEX(ucs4) \\\n"
+           "       (ucs4 < 0x" + QByteArray::number(BMP_END, 16) + " \\\n"
+           "        ? (uc_decomposition_trie[uc_decomposition_trie[ucs4>>" + QByteArray::number(BMP_SHIFT) +
+           "] + (ucs4 & 0x" + QByteArray::number(BMP_BLOCKSIZE-1, 16)+ ")]) \\\n"
+           "        : (uc_decomposition_trie[uc_decomposition_trie[((ucs4 - 0x" + QByteArray::number(BMP_END, 16) +
+           ")>>" + QByteArray::number(SMP_SHIFT) + ") + 0x" + QByteArray::number(BMP_END/BMP_BLOCKSIZE, 16) + "]"
+           " + (ucs4 & 0x" + QByteArray::number(SMP_BLOCKSIZE-1, 16) + ")]))\n\n"
+
+           "static const unsigned short uc_decomposition_map[] = {\n";
+
+    for (int i = 0; i < decompositions.size(); ++i) {
+        if (!(i % 8)) {
+            out += "\n    ";
+        }
+        out += "0x" + QByteArray::number(decompositions.at(i), 16);
+        out += ", ";
+    }
+
+    out += "\n};\n\n"
+
+           "QString QUnicodeTables::decomposition(uint ucs4)\n"
+           "{\n"
+           "    const unsigned short index = GET_DECOMPOSITION_INDEX(ucs4);\n"
+           "    if (index == 0xffff)\n"
+           "        return QString();\n"
+           "    const unsigned short *decomposition = uc_decomposition_map+index;\n"
+           "    uint length = (*decomposition) >> 8;\n"
+           "    QString str;\n"
+           "    str.resize(length);\n"
+           "    QChar *c = str.data();\n"
+           "    for (uint i = 0; i < length; ++i)\n"
+           "        *(c++) = *(++decomposition);\n"
+           "    return str;\n"
+           "}\n\n"
+
+           "QChar::Decomposition QUnicodeTables::decompositionTag(uint ucs4)\n"
+           "{\n"
+           "    const unsigned short index = GET_DECOMPOSITION_INDEX(ucs4);\n"
+           "    if (index == 0xffff)\n"
+           "        return QChar::NoDecomposition;\n"
+           "    return (QChar::Decomposition)(uc_decomposition_map[index] & 0xff);\n"
+           "}\n\n";
+
+    return out;
+}
+
+
+
 int main(int, char **)
 {
     initCategoryMap();
@@ -751,11 +1026,13 @@ int main(int, char **)
     readBidiMirroring();
     readArabicShaping();
     readDerivedAge();
+    readCompositionExclusion();
 
     computeUniqueProperties();
     QByteArray properties = createPropertyInfo();
 
 
+    QByteArray compositions = createCompositionInfo();
 
     QFile f("qunicodetables.cpp");
     f.open(IO_WriteOnly|IO_Truncate);
@@ -779,27 +1056,41 @@ int main(int, char **)
 
     f.writeBlock(header.data(), header.length());
     f.writeBlock(properties.data(), properties.length());
+    f.writeBlock(compositions.data(), compositions.length());
 
-#ifdef DEBUG
-    dump(0, 0x7f);
-    dump(0x620, 0x640);
-    dump(0x10000, 0x10020);
-    dump(0x10800, 0x10820);
+#if 0
+//     dump(0, 0x7f);
+//     dump(0x620, 0x640);
+//     dump(0x10000, 0x10020);
+//     dump(0x10800, 0x10820);
 
     qDebug("decompositionLength used:");
-    for (int i = 1; i < 20; ++i)
+    int totalcompositions = 0;
+    int sum = 0;
+    for (int i = 1; i < 20; ++i) {
         qDebug("    length %d used %d times", i, decompositionLength.value(i, 0));
-
-    qDebug("combiningClass usage:");
-    int numClasses = 0;
-    for (int i = 0; i < 255; ++i) {
-        int num = combiningClassUsage.value(i, 0);
-        if (num) {
-            ++numClasses;
-            qDebug("    combiningClass %d used %d times", i, num);
-        }
+        totalcompositions += i*decompositionLength.value(i, 0);
+        sum += decompositionLength.value(i, 0);
     }
-    qDebug("total of %d combining classes used", numClasses);
+    qDebug("    len decomposition map %d, average length %f, num composed chars %d",
+           totalcompositions, (float)totalcompositions/(float)sum,  sum);
+    qDebug("highest composed character %x", highestComposedCharacter);
+    qDebug("num ligatures = %d highest=%x, maxLength=%d", numLigatures, highestLigature, longestLigature);
+
+    qBubbleSort(ligatures);
+    for (int i = 0; i < ligatures.size(); ++i)
+        qDebug("%s", ligatures.at(i).data());
+
+//     qDebug("combiningClass usage:");
+//     int numClasses = 0;
+//     for (int i = 0; i < 255; ++i) {
+//         int num = combiningClassUsage.value(i, 0);
+//         if (num) {
+//             ++numClasses;
+//             qDebug("    combiningClass %d used %d times", i, num);
+//         }
+//     }
+//     qDebug("total of %d combining classes used", numClasses);
 
 #endif
 }
