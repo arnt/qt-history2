@@ -285,42 +285,51 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
   leftChar() returns true if the char to the left is a left join-causing char
   rightChar() returns true if the char to the right is a right join-causing char
 */
-static inline bool leftChar( const QString &str, int pos)
+static inline const QChar *prevChar( const QString &str, int pos )
 {
     //qDebug("leftChar: pos=%d", pos);
     pos--;
+    const QChar *ch = str.unicode() + pos;
     while( pos > -1 ) {
-	const QChar &ch = str[pos];
-	//qDebug("leftChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( ch.isLetter() )
-	    return (	 ch.joining() != QChar::OtherJoining );
-	// assume it's a transparent char, this might not be 100% correct
+	if( ch->isLetter() )
+	    return ch;
 	pos--;
+	ch--;
     }
-    return FALSE;
-}
+    return &QChar::replacement;
+}    
 
-static inline bool rightChar( const QString &str, int pos)
+static inline const QChar *nextChar( const QString &str, int pos)
 {
     pos++;
     int len = str.length();
+    const QChar *ch = str.unicode() + pos;
     while( pos < len ) {
-	const QChar &ch = str[pos];
 	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( ch.isLetter() ) {
-	    QChar::Joining join = ch.joining();
-	    return ( join == QChar::Dual || join == QChar::Center );
-	}
+	if( ch->isLetter() )
+	    return ch;
 	// assume it's a transparent char, this might not be 100% correct
 	pos++;
+	ch++;
     }
-    return FALSE;
+    return &QChar::replacement;
+}
+
+static inline bool prevVisualCharJoins( const QString &str, int pos)
+{
+    return (	 prevChar( str, pos )->joining() != QChar::OtherJoining );
+}
+
+static inline bool nextVisualCharJoins( const QString &str, int pos)
+{
+    QChar::Joining join = nextChar( str, pos )->joining();
+    return ( join == QChar::Dual || join == QChar::Center );
 }
 
 
 QArabicShaping::Shape QArabicShaping::glyphVariant( const QString &str, int pos)
 {
-    // ### ignores L1 - L3
+    // ignores L1 - L3, done in the codec
     QChar::Joining joining = str[pos].joining();
     //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
     switch ( joining ) {
@@ -330,12 +339,12 @@ QArabicShaping::Shape QArabicShaping::glyphVariant( const QString &str, int pos)
 	    return XIsolated;
 	case QChar::Right:
 	    // only rule R2 applies
-	    if( rightChar( str, pos ) )
+	    if( nextVisualCharJoins( str, pos ) )
 		return XRight;
 	    return XIsolated;
 	case QChar::Dual:
-	    bool right = rightChar( str, pos );
-	    bool left = leftChar( str, pos );
+	    bool right = nextVisualCharJoins( str, pos );
+	    bool left = prevVisualCharJoins( str, pos );
 	    //qDebug("dual: right=%d, left=%d", right, left);
 	    if( right && left )
 		return XMedial;
@@ -351,42 +360,21 @@ QArabicShaping::Shape QArabicShaping::glyphVariant( const QString &str, int pos)
 
 /* and the same thing for logical ordering :)
  */
-static inline bool leftCharL( const QString &str, int pos)
+static inline bool prevLogicalCharJoins( const QString &str, int pos)
 {
-    //qDebug("leftChar: pos=%d", pos);
-    pos++;
-    int len = str.length();
-    while( pos < len ) {
-	const QChar &ch = str[pos];
-	//qDebug("leftChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( ch.isLetter() )
-	    return (	 ch.joining() != QChar::OtherJoining );
-	// assume it's a transparent char, this might not be 100% correct
-	pos++;
-    }
-    return FALSE;
+    return (	 nextChar( str, pos )->joining() != QChar::OtherJoining );
 }
 
-static inline bool rightCharL( const QString &str, int pos)
+static inline bool nextLogicalCharJoins( const QString &str, int pos)
 {
-    pos--;
-    while( pos > -1 ) {
-	const QChar &ch = str[pos];
-	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( ch.isLetter() ) {
-	    QChar::Joining join = ch.joining();
-	    return ( join == QChar::Dual || join == QChar::Center );
-	}
-	// assume it's a transparent char, this might not be 100% correct
-	pos--;
-    }
-    return FALSE;
+    QChar::Joining join = prevChar( str, pos )->joining();
+    return ( join == QChar::Dual || join == QChar::Center );
 }
 
 
 QArabicShaping::Shape QArabicShaping::glyphVariantLogical( const QString &str, int pos)
 {
-    // ### ignores L1 - L3
+    // ignores L1 - L3, ligatures are job of the codec
     QChar::Joining joining = str[pos].joining();
     //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
     switch ( joining ) {
@@ -396,12 +384,12 @@ QArabicShaping::Shape QArabicShaping::glyphVariantLogical( const QString &str, i
 	    return XIsolated;
 	case QChar::Right:
 	    // only rule R2 applies
-	    if( rightCharL( str, pos ) )
+	    if( nextLogicalCharJoins( str, pos ) )
 		return XRight;
 	    return XIsolated;
 	case QChar::Dual:
-	    bool right = rightCharL( str, pos );
-	    bool left = leftCharL( str, pos );
+	    bool right = nextLogicalCharJoins( str, pos );
+	    bool left = prevLogicalCharJoins( str, pos );
 	    //qDebug("dual: right=%d, left=%d", right, left);
 	    if( right && left )
 		return XMedial;
@@ -540,7 +528,20 @@ static const uchar arabic68Mapping[112][4] = {
     { 0x2c, 0xff, 0xff, 0xff }, // 0x66c 	Arabic thousands separator
     { 0x2a, 0xff, 0xff, 0xff }, // 0x66d 	Arabic five pointed star
     { 0xff, 0xff, 0xff, 0xff }, // 0x66e 
-    { 0xff, 0xff, 0xff, 0xff }, // 0x66f 
+    { 0xff, 0xff, 0xff, 0xff } // 0x66f 
+};
+
+static const uchar arabic68AlefMapping[6][5] = {
+    { 0xc2, 0xff, 0xc2, 0xff, 0xa2 }, // 0x622 	R 	Alef with Madda above
+    { 0xc3, 0xff, 0xc3, 0xff, 0xa3 }, // 0x623 	R	Alef with Hamza above
+    { 0xc4, 0xff, 0xc4, 0xff, 0xff}, // 0x624 	R	Waw with Hamza above
+    { 0xc5, 0xff, 0xc5, 0xff, 0xa4 }, // 0x625 	R	Alef with Hamza below
+    { 0xc6, 0xc0, 0xc6, 0xc0, 0xff }, // 0x626 	D	Yeh with Hamza above
+    { 0xc7, 0xff, 0xc7, 0xff, 0xa1 } // 0x627 	R	Alef
+};
+
+static const uchar arabic68LamLigature[8] = {
+    0xff, 0xa5, 0xff, 0xa6 
 };
 
 int QFontArabic68Codec::heuristicContentMatch(const char *, int) const
@@ -572,16 +573,50 @@ QCString QFontArabic68Codec::fromUnicode(const QString& uc, int& lenInOut ) cons
     QCString result;
     const QChar *ch = uc.unicode();
     for ( int i = 0; i < lenInOut; i++ ) {
-	if ( ch->row() == 0 && ch->cell() < 0x80 ) {
-	    result += ch->cell();
-	}
-	if ( ch->row() != 0x06 || ch->cell() > 0x6f )
+	uchar r = ch->row();
+	uchar c = ch->cell();
+	if ( r == 0 && c < 0x80 ) {
+	    result += c;
+	} else if ( r != 0x06 || c > 0x6f )
 	    result += 0xff; // undefined char in iso8859-6.8x
 	else {
 	    int shape = QArabicShaping::glyphVariant( uc, i );
 	    //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabic68Mapping[ch->cell()][shape]);
-	    result += arabic68Mapping[ch->cell()][shape];
+
+	    // take care of lam-alef ligatures (lam right of alef)
+	    switch ( c ) {
+		case 0x22: // alef with madda
+		case 0x23: // alef with hamza above
+		case 0x25: // alef with hamza below
+		case 0x27: // alef
+		    if ( nextChar( uc, i )->unicode() == 0x0644 ) {
+			// have a lam alef ligature
+			shape = 4; // ligating shape
+			//qDebug(" alef of lam-alef ligature");
+		    }
+		    result += arabic68AlefMapping[c - 0x22][shape];
+		    break;
+		case 0x44: { // lam
+		    const QChar *pch = prevChar( uc, i );
+		    if ( pch->row() == 0x06 ) {
+			switch ( pch->cell() ) {
+			    case 0x22:
+			    case 0x23:
+			    case 0x25:
+			    case 0x27:
+				//qDebug(" lam of lam-alef ligature");
+				result += arabic68LamLigature[shape];
+				goto next;
+			    default:
+				break;
+			}
+		    }
+		}
+		default:
+		    result += arabic68Mapping[c][shape];
+	    }
 	}
+    next:
 	ch++;
     }
     return result;
@@ -590,17 +625,46 @@ QCString QFontArabic68Codec::fromUnicode(const QString& uc, int& lenInOut ) cons
 ushort QFontArabic68Codec::characterFromUnicode( const QString &str, int pos ) const
 {
     const QChar *ch = str.unicode() + pos;
-    if ( ch->row() == 0 && ch->cell() < 0x80 ) {
-	return ch->cell();
+    uchar r = ch->row();
+    uchar c = ch->cell();
+    if ( r == 0 && c < 0x80 ) {
+	return c;
     }
-    if ( ch->row() != 0x06 || ch->cell() > 0x6f )
+    if ( r != 0x06 || c > 0x6f )
 	return 0xff; // undefined char in iso8859-6.8x
     else {
 	int shape = QArabicShaping::glyphVariantLogical( str, pos );
 	//qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabic68Mapping[ch->cell()][shape]);
-	return arabic68Mapping[ch->cell()][shape];
+	
+	// lam aleph ligatures
+	switch ( c ) { 
+	    case 0x22: // alef with madda
+	    case 0x23: // alef with hamza above
+	    case 0x25: // alef with hamza below
+	    case 0x27: // alef
+		if ( prevChar( str, pos )->unicode() == 0x0644 )
+		    // have a lam alef ligature
+		    shape = 4; // ligating shape
+		return arabic68AlefMapping[c - 0x22][shape];
+	    case 0x44: { // lam
+		const QChar *nch = nextChar( str, pos );
+		if ( nch->row() == 0x06 ) {
+		    switch ( nch->cell() ) {
+			case 0x22:
+			case 0x23:
+			case 0x25:
+			case 0x27:
+			    return arabic68LamLigature[shape];
+			default:
+			    break;
+		    }
+		}
+	    }
+	    default:
+		break;
+	}
+	return arabic68Mapping[c][shape];
     }
-    
 }
 
 // -------------------------------------------------------------
@@ -886,6 +950,15 @@ static const ushort arabicUnicodeMapping[256][4] = {
     
 };
 
+static const uchar arabicUnicodeLamAlefMapping[6][4] = {
+    { 0xc2, 0xff, 0xc2, 0xff }, // 0x622 	R 	Alef with Madda above
+    { 0xc3, 0xff, 0xc3, 0xff }, // 0x623 	R	Alef with Hamza above
+    { 0xc4, 0xff, 0xc4, 0xff }, // 0x624 	R	Waw with Hamza above
+    { 0xc5, 0xff, 0xc5, 0xff }, // 0x625 	R	Alef with Hamza below
+    { 0xc6, 0xc0, 0xc6, 0xc0 }, // 0x626 	D	Yeh with Hamza above
+    { 0xc7, 0xff, 0xc7, 0xff } // 0x627 	R	Alef
+};
+
 int QFontArabicUnicodeCodec::heuristicContentMatch(const char *, int) const
 {
     return 0;
@@ -916,6 +989,7 @@ QCString QFontArabicUnicodeCodec::fromUnicode(const QString& uc, int& lenInOut )
     result.resize(lenInOut*2+1);
     uchar *data = (uchar *)result.data();
     const QChar *ch = uc.unicode();
+    int skipped = 0;
     for ( int i = 0; i < lenInOut; i++ ) {
 	uchar r = ch->row();
 	uchar c = ch->cell();
@@ -925,13 +999,51 @@ QCString QFontArabicUnicodeCodec::fromUnicode(const QString& uc, int& lenInOut )
 	} else {
 	    int shape = QArabicShaping::glyphVariant( uc, i );
 	    //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
-	    ushort map = arabicUnicodeMapping[c][shape];
+	    // take care of lam-alef ligatures (lam right of alef)
+	    ushort map;
+	    switch ( c ) {
+		case 0x44: { // lam
+		    const QChar *pch = prevChar( uc, i );
+		    if ( pch->row() == 0x06 ) {
+			switch ( pch->cell() ) {
+			    case 0x22:
+			    case 0x23:
+			    case 0x25:
+			    case 0x27:
+				//qDebug(" lam of lam-alef ligature");
+				map = arabicUnicodeLamAlefMapping[pch->cell() - 0x22][shape];
+				goto next;
+			    default:
+				break;
+			}
+		    }
+		    break;
+		}
+		case 0x22: // alef with madda
+		case 0x23: // alef with hamza above
+		case 0x25: // alef with hamza below
+		case 0x27: // alef
+		    if ( nextChar( uc, i )->unicode() == 0x0644 ) {
+			// have a lam alef ligature
+			//qDebug(" alef of lam-alef ligature");
+			skipped += 2;
+			goto skip;
+		    } 
+		default:
+		    break;
+	    }
+	    map = arabicUnicodeMapping[c][shape];
+	next:
 	    *data++ = (map >> 8);
 	    *data++ = map & 0xff;
 	}
+    skip:
 	ch++;
     }
+    *data = 0;
     lenInOut *= 2;
+    lenInOut -= skipped;
+    result.resize( lenInOut + 1);
     return result;
 }
 
@@ -943,9 +1055,35 @@ ushort QFontArabicUnicodeCodec::characterFromUnicode( const QString &str, int po
     else {
 	int shape = QArabicShaping::glyphVariantLogical( str, pos );
 	//qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
+	// lam aleph ligatures
+	switch ( ch->cell() ) { 
+	    case 0x44: { // lam
+		const QChar *nch = nextChar( str, pos );
+		if ( nch->row() == 0x06 ) {
+		    switch ( nch->cell() ) {
+			case 0x22:
+			case 0x23:
+			case 0x25:
+			case 0x27:
+			    return arabicUnicodeLamAlefMapping[nch->cell() - 0x22][shape];
+			default:
+			    break;
+		    }
+		}
+		break;
+	    }
+	    case 0x22: // alef with madda
+	    case 0x23: // alef with hamza above
+	    case 0x25: // alef with hamza below
+	    case 0x27: // alef
+		if ( prevChar( str, pos )->unicode() == 0x0644 )
+		    // have a lam alef ligature
+		    return 0;
+	    default:
+		break;
+	}
 	return arabicUnicodeMapping[ch->cell()][shape];
     }
-    
 }
 
 

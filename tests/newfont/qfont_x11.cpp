@@ -1879,6 +1879,8 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, const QString &str
     } else {
 	ch = *( str.unicode() + pos );
     }
+    if( ch.unicode() == 0 )
+	return 0;
     
     if ( f->max_byte1 ) {
 	if (! (ch.cell() >= f->min_char_or_byte2 &&
@@ -2354,7 +2356,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     XCharStruct *xcs = charStr(d->x11data.fontstruct[script]->codec,
 			       ((XFontStruct *) d->x11data.fontstruct[script]->handle), str, pos);
 
-    return xcs ? xcs->width : d->request.pointSize * 3 / 40;
+    return xcs ? xcs->width : 0;
 }
 
 
