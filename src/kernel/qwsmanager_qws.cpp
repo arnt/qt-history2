@@ -452,13 +452,13 @@ void QWSManager::menu(const QPoint &pos)
 	for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++)
 	    styleMenu->insertItem( qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName), WMStyleList[i].WMStyleType );
 	styleMenu->connect(styleMenu, SIGNAL(activated(int)), this, SLOT(styleMenuActivated(int)));
-	popup->insertSeparator();
-	popup->insertItem(tr("Style"), styleMenu);
+//	popup->insertSeparator();
+//	popup->insertItem(tr("Style"), styleMenu);
 
 	connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
     }
-    popup->setItemEnabled(QWSDecoration::Maximize, normalSize.isNull());
-    popup->setItemEnabled(QWSDecoration::Normalize, !normalSize.isNull());
+    popup->setItemEnabled(QWSDecoration::Maximize, !managed->isMaximized());
+    popup->setItemEnabled(QWSDecoration::Normalize, managed->isMaximized());
     popup->popup(pos);
 #endif
 }
@@ -530,22 +530,18 @@ void QWSManager::minimize()
 
 void QWSManager::maximize()
 {
-    if ( normalSize.isNull() )
-	normalSize = managed->geometry();
     QApplication::qwsDecoration().maximize(managed);
     maximizeBtn->setOn(TRUE);
 }
 
 void QWSManager::toggleMaximize()
 {
-    if (normalSize.isNull()) {
-	normalSize = managed->geometry();
+    if ( !managed->isMaximized() ) {
 	managed->showMaximized();
 	maximizeBtn->setOn(TRUE);
     } else {
-	managed->setGeometry(normalSize);
+	managed->showNormal();
 	maximizeBtn->setOn(FALSE);
-	normalSize = QRect();
     }
 }
 

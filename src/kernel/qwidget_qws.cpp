@@ -799,6 +799,8 @@ void QWidget::showMaximized()
     setWState(WState_Maximized);
     if ( testWFlags(WType_TopLevel) ) {
 	createTLExtra();
+	if ( topData()->normalGeometry.width() < 0 )
+	    topData()->normalGeometry = geometry();
 #ifndef QT_NO_QWS_MANAGER
 	if ( extra && extra->topextra && extra->topextra->qwsManager )
 	    extra->topextra->qwsManager->maximize();
