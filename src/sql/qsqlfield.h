@@ -55,7 +55,7 @@ public:
     bool operator==(const QSqlField& other) const;
     ~QSqlField();
 
-    QVariant           value() const;
+    QVariant           value() const { return val; }
     void               setValue( const QVariant& value );
     void               clear();
 

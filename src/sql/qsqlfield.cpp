@@ -114,15 +114,9 @@ QSqlField::~QSqlField()
 }
 
 
-/*!
+/*! \fn QVariant QSqlField::value() const
   Returns the internal value of the field.
-
 */
-
-QVariant QSqlField::value() const
-{
-    return val;
-}
 
 /*!  Sets the value of the field to \a value. If the data type of \a
   value differs from the field's current data type, an attempt is made
