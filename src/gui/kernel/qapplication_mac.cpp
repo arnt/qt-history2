@@ -2434,9 +2434,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
     if(!handled_event) //let the event go through
         return eventNotHandledErr;
-#ifdef QMAC_USE_APPLICATION_EVENT_LOOP
-    QuitApplicationEventLoop();
-#endif
     return noErr; //we eat the event
 }
 
@@ -2492,9 +2489,6 @@ OSStatus QApplication::globalAppleEventProcessor(const AppleEvent *ae, AppleEven
 #endif
     if(!handled_event) //let the event go through
         return eventNotHandledErr;
-#ifdef QMAC_USE_APPLICATION_EVENT_LOOP
-    QuitApplicationEventLoop();
-#endif
     return noErr; //we eat the event
 }
 

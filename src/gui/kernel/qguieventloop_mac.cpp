@@ -371,11 +371,7 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 
     if(canWait && !d->zero_timer_count) {
         emit aboutToBlock();
-#if defined(QMAC_USE_APPLICATION_EVENT_LOOP)
-        RunApplicationEventLoop();
-#else
         while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
-#endif
 
         // we are awake, broadcast it
         emit awake();
