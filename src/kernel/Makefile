@@ -32,7 +32,7 @@ SOURCES		= qapp.cpp	qapp_x11.cpp	qcol_x11.cpp	qcolor.cpp    \
 		  qpntarry.cpp	qpoint.cpp	qprinter.cpp	qprtstrm.cpp  \
 		  qptd_x11.cpp	qptr_x11.cpp	qrect.cpp	qrgn_x11.cpp  \
 		  qsize.cpp	qtimer.cpp	qview.cpp	qwid_x11.cpp  \
-		  qwidget.cpp	qwmatrix.cpp
+		  qwidget.cpp	qwmatrix.cpp	qevent.cpp
 OBJECTS		= qapp.o	qapp_x11.o	qcol_x11.o	qcolor.o      \
 		  qconnect.o	qcur_x11.o	qcursor.o	qfnt_x11.o    \
 		  qpicture.o	qmetaobj.o	qpic_x11.o	qobject.o     \
@@ -40,7 +40,7 @@ OBJECTS		= qapp.o	qapp_x11.o	qcol_x11.o	qcolor.o      \
 		  qpntarry.o	qpoint.o	qprinter.o	qprtstrm.o    \
 		  qptd_x11.o	qptr_x11.o	qrect.o		qrgn_x11.o    \
 		  qsize.o	qtimer.o	qview.o		qwid_x11.o    \
-		  qwidget.o	qwmatrix.o
+		  qwidget.o	qwmatrix.o	qevent.o
 SRCMETA		= mtimer.cpp	mview.cpp	mwidget.cpp
 OBJMETA		= mtimer.o	mview.o		mwidget.o
 TARGET		= $(LIBDIR)/libqkernel.a
@@ -486,6 +486,9 @@ qwmatrix.o: /home/popcorn/home/hanord/qt/include/qiodev.h /usr/include/math.h
 qwmatrix.o: /usr/include/features.h /usr/include/sys/cdefs.h
 qwmatrix.o: /usr/include/huge_val.h /usr/include/endian.h
 qwmatrix.o: /usr/include/bytesex.h /usr/include/values.h
+qevent.o: qevent.h qwindefs.h qobjdefs.h
+qevent.o: /home/popcorn/home/hanord/qt/include/qglobal.h qrect.h qsize.h
+qevent.o: qpoint.h
 mtimer.o: qmetaobj.h qconnect.h qobject.h qobjdefs.h
 mtimer.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 mtimer.o: /home/popcorn/home/hanord/qt/include/qstring.h
