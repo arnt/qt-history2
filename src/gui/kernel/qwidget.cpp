@@ -4417,7 +4417,7 @@ bool QWidget::event(QEvent *e)
         break;
 #ifdef QT_COMPAT
     case QEvent::Accel:
-        ((QKeyEvent*)e)->ignore();
+        e->ignore();
         return false;
 #endif
     case QEvent::KeyPress: {
@@ -4681,7 +4681,7 @@ bool QWidget::event(QEvent *e)
         if (d->toolTip.size() && isActiveWindow())
             QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
         else
-            static_cast<QHelpEvent *>(e)->ignore();
+            e->ignore();
         break;
 
 #ifndef QT_NO_WHATSTHIS
@@ -4689,7 +4689,7 @@ bool QWidget::event(QEvent *e)
         if (d->whatsThis.size())
             QWhatsThis::showText(static_cast<QHelpEvent *>(e)->globalPos(), d->whatsThis, this);
         else
-            static_cast<QHelpEvent *>(e)->ignore();
+            e->ignore();
         break;
 #endif
 #ifndef QT_NO_ACCESSIBILITY

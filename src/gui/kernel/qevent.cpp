@@ -20,62 +20,6 @@
 #include "qdnd_p.h"
 
 /*!
-    \class QAcceptEvent qevent.h
-    \ingroup events
-
-    \brief The QAcceptEvent class is the base class for events that
-    can be either accepted or ignored.
-
-    An accept event has only one property: the accept flag that is
-    read with isAccepted(). The flag is set by calling accept(), and
-    cleared by calling ignore().
-
-    The accept flag is set by default, but don't rely on it as
-    subclasses may choose to call ignore() in their constructor.
-*/
-
-
-/*!\internal
- */
-QAcceptEvent::QAcceptEvent(Type type)
-    : QEvent(type), m_accept(true)
-{
-}
-
-/*!
-    \fn bool QAcceptEvent::isAccepted() const
-
-    Returns the accept flag of the event object.
-
-    \sa accept(), ignore()
-*/
-
-/*!
-    \fn void QAcceptEvent::accept()
-
-    Setting the accept parameter indicates that the event receiver
-    wants the event. Unwanted events might be propagated to the parent
-    widget.
-
-    \sa ignore()
-*/
-
-
-/*!
-    \fn void QAcceptEvent::ignore()
-
-    Clears the accept flag parameter of the event object.
-
-    Clearing the accept parameter indicates that the event receiver
-    does not want the event. Unwanted events might be propgated to the
-    parent widget.
-
-
-    \sa accept()
-*/
-
-
-/*!
     \class QInputEvent qevent.h
     \ingroup events
 
@@ -87,7 +31,7 @@ QAcceptEvent::QAcceptEvent(Type type)
     \internal
 */
 QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
-    : QAcceptEvent(type), modState(modifiers)
+    : QEvent(type), modState(modifiers)
 {}
 
 
@@ -1202,7 +1146,7 @@ QResizeEvent::QResizeEvent(const QSize &size, const QSize &oldSize)
     \sa accept()
 */
 QCloseEvent::QCloseEvent()
-    : QAcceptEvent(Close)
+    : QEvent(Close)
 {}
 
 /*!
@@ -1229,7 +1173,7 @@ QCloseEvent::QCloseEvent()
     \sa accept()
 */
 QIconDragEvent::QIconDragEvent()
-    : QAcceptEvent(IconDrag)
+    : QEvent(IconDrag)
 { ignore(); }
 
 /*!
@@ -2076,15 +2020,15 @@ QDragLeaveEvent::QDragLeaveEvent()
 
 
 QHelpEvent::QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos)
-    : QAcceptEvent(type), p(pos), gp(globalPos)
+    : QEvent(type), p(pos), gp(globalPos)
 {}
 
 QStatusTipEvent::QStatusTipEvent(const QString &tip)
-    : QAcceptEvent(StatusTip), s(tip)
+    : QEvent(StatusTip), s(tip)
 {}
 
 QWhatsThisClickedEvent::QWhatsThisClickedEvent(const QString &href)
-    : QAcceptEvent(WhatsThisClicked), s(href)
+    : QEvent(WhatsThisClicked), s(href)
 {}
 
 QActionEvent::QActionEvent(int type, QAction *action, QAction *before)

@@ -39,7 +39,12 @@
     QWidget::mouseMoveEvent(). QObject::installEventFilter() allows an
     object to intercept events destined for another object.
 
-    The basic QEvent contains only an event type parameter.
+    The basic QEvent contains only an event type parameter and an
+    accept flag.  The accept flag is read with isAccepted(), set with
+    accept(), and cleared by calling ignore(). The accept flag is set
+    by default, but don't rely on it as subclasses may choose to clear
+    it in their constructor.
+
     Subclasses of QEvent contain additional parameters that describe
     the particular event.
 
@@ -197,7 +202,7 @@
     Contructs an event object of type \a type.
 */
 QEvent::QEvent(Type type)
-    : t(type), d(0), posted(FALSE), spont(FALSE)
+    : t(type), d(0), posted(false), spont(false), m_accept(true)
 {}
 
 /*!
@@ -211,6 +216,40 @@ QEvent::~QEvent()
     if (posted && QCoreApplication::self)
         QCoreApplication::removePostedEvent(this);
 }
+
+
+/*!
+    \fn bool QEvent::isAccepted() const
+
+    Returns the accept flag of the event object.
+
+    \sa accept(), ignore()
+*/
+
+/*!
+    \fn void QEvent::accept()
+
+    Setting the accept parameter indicates that the event receiver
+    wants the event. Unwanted events might be propagated to the parent
+    widget.
+
+    \sa ignore()
+*/
+
+
+/*!
+    \fn void QEvent::ignore()
+
+    Clears the accept flag parameter of the event object.
+
+    Clearing the accept parameter indicates that the event receiver
+    does not want the event. Unwanted events might be propgated to the
+    parent widget.
+
+
+    \sa accept()
+*/
+
 
 /*!
     \fn QEvent::Type QEvent::type() const

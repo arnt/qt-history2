@@ -26,18 +26,7 @@
 
 class QAction;
 
-class Q_GUI_EXPORT QAcceptEvent : public QEvent
-{
-public:
-    QAcceptEvent(Type type);
-    inline bool isAccepted() const { return m_accept; }
-    inline void accept() { m_accept = true; }
-    inline void ignore() { m_accept = false; }
-private:
-    bool m_accept;
-};
-
-class Q_GUI_EXPORT QInputEvent : public QAcceptEvent
+class Q_GUI_EXPORT QInputEvent : public QEvent
 {
 public:
     QInputEvent(Type type, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
@@ -271,14 +260,14 @@ protected:
 };
 
 
-class Q_GUI_EXPORT QCloseEvent : public QAcceptEvent
+class Q_GUI_EXPORT QCloseEvent : public QEvent
 {
 public:
     QCloseEvent();
 };
 
 
-class Q_GUI_EXPORT QIconDragEvent : public QAcceptEvent
+class Q_GUI_EXPORT QIconDragEvent : public QEvent
 {
 public:
     QIconDragEvent();
@@ -432,7 +421,7 @@ public:
 #endif // QT_NO_DRAGANDDROP
 
 
-class Q_GUI_EXPORT QHelpEvent : public QAcceptEvent
+class Q_GUI_EXPORT QHelpEvent : public QEvent
 {
 public:
     QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos);
@@ -451,7 +440,7 @@ private:
 };
 
 
-class Q_GUI_EXPORT QStatusTipEvent : public QAcceptEvent
+class Q_GUI_EXPORT QStatusTipEvent : public QEvent
 {
 public:
     QStatusTipEvent(const QString &tip);
@@ -460,7 +449,7 @@ private:
     QString s;
 };
 
-class Q_GUI_EXPORT QWhatsThisClickedEvent : public QAcceptEvent
+class Q_GUI_EXPORT QWhatsThisClickedEvent : public QEvent
 {
 public:
     QWhatsThisClickedEvent(const QString &href);

@@ -2893,7 +2893,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         QWidget *w = static_cast<QWidget *>(receiver);
         while (w) {
             res = notify_helper(w, e);
-            if ((res && static_cast<QAcceptEvent*>(e)->isAccepted()) || w->isTopLevel())
+            if ((res && e->isAccepted()) || w->isTopLevel())
                 break;
             w = w->parentWidget();
         }

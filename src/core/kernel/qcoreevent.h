@@ -166,6 +166,10 @@ public:
     inline Type type() const { return static_cast<Type>(t); }
     inline bool spontaneous() const { return spont; }
 
+    inline bool isAccepted() const { return m_accept; }
+    inline void accept() { m_accept = true; }
+    inline void ignore() { m_accept = false; }
+
 protected:
     ushort t;
     QEventPrivate *d;
@@ -173,6 +177,7 @@ protected:
 private:
     ushort posted : 1;
     ushort spont : 1;
+    ushort m_accept : 1;
 
     friend class QCoreApplication;
     friend class QCoreApplicationPrivate;
