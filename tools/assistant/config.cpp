@@ -28,7 +28,7 @@
 static Config *static_configuration = 0;
 
 Config::Config()
-    : hideSidebar( FALSE ), profil( 0 )
+    : hideSidebar( FALSE ), profil( 0 ), maximized(FALSE)
 {
     if( !static_configuration ) {
 	static_configuration = this;
@@ -104,11 +104,13 @@ void Config::load()
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
     src = settings.readListEntry( profkey + "Source" );
     sideBar = settings.readNumEntry( key + "SideBarPage" );
-    geom.setRect( settings.readNumEntry( key + "GeometryX", QApplication::desktop()->availableGeometry().x() ),
-		  settings.readNumEntry( key + "GeometryY", QApplication::desktop()->availableGeometry().y() ),
-		  settings.readNumEntry( key + "GeometryWidth", 800 ),
-		  settings.readNumEntry( key + "GeometryHeight", 600 ) );
-    maximized = settings.readBoolEntry( key + "GeometryMaximized", FALSE );
+    if (qApp->type() != QApplication::Tty) {
+	geom.setRect( settings.readNumEntry( key + "GeometryX", QApplication::desktop()->availableGeometry().x() ),
+		      settings.readNumEntry( key + "GeometryY", QApplication::desktop()->availableGeometry().y() ),
+		      settings.readNumEntry( key + "GeometryWidth", 800 ),
+		      settings.readNumEntry( key + "GeometryHeight", 600 ) );
+	maximized = settings.readBoolEntry( key + "GeometryMaximized", FALSE );
+    }
     mainWinLayout = settings.readEntry( key + "MainwindowLayout" );
     rebuildDocs = settings.readBoolEntry( key + "RebuildDocDB", TRUE );
 
@@ -138,11 +140,13 @@ void Config::saveSettings()
     settings.writeEntry( key + "LinkColor", linkCol );
     settings.writeEntry( profkey + "Source", src );
     settings.writeEntry( key + "SideBarPage", sideBarPage() );
-    settings.writeEntry( key + "GeometryX", geom.x() );
-    settings.writeEntry( key + "GeometryY", geom.y() );
-    settings.writeEntry( key + "GeometryWidth", geom.width() );
-    settings.writeEntry( key + "GeometryHeight", geom.height() );
-    settings.writeEntry( key + "GeometryMaximized", maximized );
+    if (qApp->type() != QApplication::Tty) {
+	settings.writeEntry( key + "GeometryX", geom.x() );
+	settings.writeEntry( key + "GeometryY", geom.y() );
+	settings.writeEntry( key + "GeometryWidth", geom.width() );
+	settings.writeEntry( key + "GeometryHeight", geom.height() );
+	settings.writeEntry( key + "GeometryMaximized", maximized );
+    }
     if ( !hideSidebar )
 	settings.writeEntry( key + "MainwindowLayout", mainWinLayout );
     settings.writeEntry( key + "RebuildDocDB", rebuildDocs );
@@ -292,7 +296,7 @@ QString Config::homePage() const
 
 QStringList Config::source() const
 {
-    return src.size() == 0 ? profil->props["startpage"] : src;
+    return src.size() == 0 ? QStringList(profil->props["startpage"]) : src;
 }
 
 QStringList Config::docFiles() const

@@ -288,7 +288,16 @@ void MainWindow::findAgain()
 	find();
 	return;
     }
-    findDialog->doFind();
+    findDialog->doFind(TRUE);
+}
+
+void MainWindow::findAgainPrev()
+{
+    if (!findDialog) {
+	find();
+	return;
+    }
+    findDialog->doFind(FALSE);
 }
 
 void MainWindow::goHome()

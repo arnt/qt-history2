@@ -15,22 +15,25 @@
 
 #include <qtextbrowser.h>
 
-class QMouseEvent;
 class MainWindow;
+class QKeyEvent;
 class QMime;
+class QMouseEvent;
 
 class HelpWindow : public QTextBrowser
 {
     Q_OBJECT
 public:
     HelpWindow( MainWindow *m, QWidget *parent = 0, const char *name = 0 );
-    void setSource(const QString &name, bool newWin);
     void setSource( const QString &name );
     QPopupMenu *createPopupMenu( const QPoint& pos );
     void blockScrolling( bool b );
     void openLinkInNewWindow( const QString &link );
     void openLinkInNewPage( const QString &link );
     void addMimePath( const QString &path );
+
+    void contentsMousePressEvent(QMouseEvent *e);
+    void keyPressEvent(QKeyEvent *);
 
 signals:
     void chooseWebBrowser();
@@ -47,6 +50,7 @@ private:
     MainWindow *mw;
     QString lastAnchor;
     bool blockScroll;
+    bool shiftPressed;
     bool newWindow;
     QMimeSourceFactory *mimeSourceFactory;
 

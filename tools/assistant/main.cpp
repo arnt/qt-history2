@@ -13,8 +13,8 @@
 #include "mainwindow.h"
 #include "helpdialogimpl.h"
 #include "config.h"
-#include "assistantapplication.h"
 
+#include <qapplication.h>
 #include <qserversocket.h>
 #include <qsocket.h>
 #include <qpixmap.h>
@@ -127,14 +127,12 @@ int main( int argc, char ** argv )
     if ( argc > 1 ) {
 	QString arg( argv[1] );
 	arg = arg.lower();
-#ifndef Q_WS_WIN
 	if ( arg == "-addcontentfile" ||
 	     arg == "-removecontentfile" ||
 	     arg == "-help" )
 	    withGUI = FALSE;
-#endif
     }
-    AssistantApplication a(argc, argv, withGUI);
+    QApplication a(argc, argv, withGUI);
 
     QString resourceDir;
     AssistantServer *as = 0;

@@ -28,6 +28,11 @@ void FindDialog::destroy()
 
 void FindDialog::doFind()
 {
+    doFind(radioForward->isChecked());
+}
+
+void FindDialog::doFind(bool forward)
+{
     QTextBrowser *browser = (QTextBrowser*) mainWindow()->browsers()->currentBrowser();
     sb->clear();
 
@@ -38,17 +43,17 @@ void FindDialog::doFind()
     bool found;
     if (browser->hasSelectedText()) { // Search either forward or backward from cursor.
 	found = browser->find(findExpr, checkCase->isChecked(), checkWords->isChecked(),
-			      radioForward->isChecked());
+			      forward);
     } else {
-	int para = radioForward->isChecked() ? 0 : INT_MAX;
-	int index = radioForward->isChecked() ? 0 : INT_MAX;
+	int para = forward ? 0 : INT_MAX;
+	int index = forward ? 0 : INT_MAX;
 	found = browser->find(findExpr, checkCase->isChecked(), checkWords->isChecked(),
-			      radioForward->isChecked(), &para, &index);
+			      forward, &para, &index);
     }
 
     if (!found) {
 	if (onceFound) {
-	    if (radioForward->isChecked())
+	    if (forward)
 		statusMessage(tr("Search reached end of the document"));
 	    else
 		statusMessage(tr("Search reached start of the document"));

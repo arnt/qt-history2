@@ -15,8 +15,7 @@ SOURCES	+= main.cpp \
 	settingsdialogimpl.cpp \
 	index.cpp \
         profile.cpp \
-        config.cpp \
-	assistantapplication.cpp
+        config.cpp 
 
 HEADERS	+= helpwindow.h \
 	topicchooserimpl.h \
@@ -25,9 +24,7 @@ HEADERS	+= helpwindow.h \
 	settingsdialogimpl.h \
 	index.h \
         profile.h \
-        config.h \
-	assistantapplication.h
-
+        config.h
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
 !network:DEFINES	+= QT_INTERNAL_NETWORK

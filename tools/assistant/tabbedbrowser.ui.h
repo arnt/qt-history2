@@ -39,7 +39,7 @@ void TabbedBrowser::backward()
 void TabbedBrowser::setSource( const QString &ref )
 {
     HelpWindow * win = currentBrowser();
-    win->setSource(ref, FALSE);
+    win->setSource(ref);
 }
 
 void TabbedBrowser::reload()

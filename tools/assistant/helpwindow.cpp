@@ -15,8 +15,8 @@
 #include "tabbedbrowser.h"
 #include "helpdialogimpl.h"
 #include "config.h"
-#include "assistantapplication.h"
 
+#include <qapplication.h>
 #include <qurl.h>
 #include <qmessagebox.h>
 #include <qdir.h>
@@ -34,21 +34,10 @@
 #endif
 
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
-    : QTextBrowser( parent, name ), mw( w ), blockScroll( FALSE ), newWindow( FALSE )
+    : QTextBrowser( parent, name ), mw( w ), blockScroll( FALSE ),
+      shiftPressed( FALSE ), newWindow( FALSE )
 {
 
-}
-
-void HelpWindow::setSource(const QString &name, bool newWin)
-{
-    if (newWin) {
-	newWindow = TRUE;
-	setSource(name);
-	newWindow = FALSE;
-    } else {
-	setText("<body bgcolor=white>");
-	QTextBrowser::setSource(name);
-    }
 }
 
 void HelpWindow::setSource( const QString &name )
@@ -56,7 +45,7 @@ void HelpWindow::setSource( const QString &name )
     if ( name.isEmpty() )
 	return;
 
-    if (newWindow || ((AssistantApplication *)qApp)->isShiftKeyPressed()) {
+    if (newWindow || shiftPressed) {
 	removeSelection();
 	mw->saveSettings();
 	mw->saveToolbarSettings();
@@ -273,4 +262,16 @@ void HelpWindow::setCharacterEncoding( const QString &name )
 	encoding = QString( codec->name() );
     QString extension = QString( "text/html; charset=%1" ).arg( encoding );
     mw->browsers()->setMimeExtension( extension );
+}
+
+void HelpWindow::contentsMousePressEvent(QMouseEvent *e)
+{
+    shiftPressed = ( e->state() & ShiftButton );
+    QTextBrowser::contentsMousePressEvent(e);
+}
+
+void HelpWindow::keyPressEvent(QKeyEvent *e)
+{
+    shiftPressed = ( e->state() & ShiftButton );
+    QTextBrowser::keyPressEvent(e);
 }
