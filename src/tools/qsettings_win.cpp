@@ -60,7 +60,7 @@ void Q_EXPORT qt_setSettingsBasePath( const QString &base )
 class QSettingsSysPrivate
 {
 public:
-    QSettingsSysPrivate();
+    QSettingsSysPrivate( QSettingsPrivate *priv );
     ~QSettingsSysPrivate();
 
     HKEY user;
@@ -80,12 +80,15 @@ public:
     QStringList paths;
 
 private:
+    QSettingsPrivate *d;
+
     static uint refCount;
 };
 
 uint QSettingsSysPrivate::refCount = 0;
 
-QSettingsSysPrivate::QSettingsSysPrivate()
+QSettingsSysPrivate::QSettingsSysPrivate( QSettingsPrivate *priv )
+    : d( priv )
 {
     paths.append( "" );
     if ( !settingsBasePath ) {
@@ -446,7 +449,7 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 
 void QSettingsPrivate::sysInit()
 {
-    sysd = new QSettingsSysPrivate;
+    sysd = new QSettingsSysPrivate( this );
 }
 
 void QSettingsPrivate::sysClear()
