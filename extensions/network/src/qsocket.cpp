@@ -28,13 +28,6 @@
 #include "qsocketdevice.h"
 #include "qdns.h"
 
-#if defined(UNIX)
-#include <errno.h>
-#endif
-
-#if defined(_OS_WIN32_)
-#include <windows.h>
-#endif
 
 //#define QSOCKET_DEBUG
 
@@ -187,8 +180,9 @@ void QSocket::timerEvent( QTimerEvent *e )
 	    killTimer( d->ready_read_timer );	// then reset the timer
 	    d->ready_read_timer = 0;
 	}
+    } else {
+	QObject::timerEvent( e );
     }
-    // ### should call super here
 }
 
 
@@ -344,6 +338,8 @@ void QSocket::tryConnecting()
     // ### hack: just use the first address
     d->state = Connecting;
     if ( d->socket->connect( l[0], d->port ) == FALSE ) {
+	if ( d->socket->error() == QSocketDevice::NoError )
+	    return; // not serious, try again later
 	d->state = Idle;
 	emit error( ErrConnectionRefused );
     }
@@ -352,7 +348,7 @@ void QSocket::tryConnecting()
     if ( !canonical.isNull() && canonical != d->host )
 	qDebug( "Connecting to %s", canonical.ascii() );
     qDebug( "QSocket::tryConnecting: Connect to IP address %s",
-	    l[0].string().ascii() );
+	    l[0].toString().ascii() );
 #endif
 
     // Create and setup read/write socket notifiers
@@ -360,15 +356,15 @@ void QSocket::tryConnecting()
     if ( !d->rsn ) {
 	d->rsn = new QSocketNotifier( d->socket->socket(),
 				      QSocketNotifier::Read );
-	d->rsn->setEnabled( TRUE );
 	connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
     }
+    d->rsn->setEnabled( TRUE );
     if ( !d->wsn ) {
 	d->wsn = new QSocketNotifier( d->socket->socket(),
 				      QSocketNotifier::Write );
-	d->wsn->setEnabled( TRUE );
 	connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
     }
+    d->wsn->setEnabled( TRUE );
     return;
 }
 
@@ -528,7 +524,7 @@ void QSocket::close()
 
 /*!
   This function consumes data from the read buffer and copies
-  it into \a sink if it is a valid pointer.
+  it into \a sink.
 */
 
 bool QSocket::consumeReadBuf( int nbytes, char *sink )
@@ -536,7 +532,7 @@ bool QSocket::consumeReadBuf( int nbytes, char *sink )
     if ( nbytes <= 0 || nbytes > d->rsize )
 	return FALSE;
 #if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket: skipReadBuf %d bytes", nbytes );
+    qDebug( "QSocket: consumeReadBuf %d bytes", nbytes );
 #endif
     d->rsize -= nbytes;
     while ( TRUE ) {
@@ -572,7 +568,7 @@ bool QSocket::consumeReadBuf( int nbytes, char *sink )
 
 /*!
   This function consumes data from the write buffer.  It is similar
-  to skipReadBuf() above, except that it does not copy the data
+  to consumeReadBuf() above, except that it does not copy the data
   into another buffer.
 */
 
@@ -668,7 +664,6 @@ bool QSocket::scanNewline( QByteArray *store )
 
 /*!
   Implementation of the abstract virtual QIODevice::flush() function.
-  This implementation is a no-op.
 */
 
 void QSocket::flush()
@@ -998,13 +993,6 @@ void QSocket::sn_read()
 	    return;
 	} else {
 	    if ( nread < 0 ) {
-#if defined(_OS_WIN_)
-		if ( WSAGetLastError() == WSAEWOULDBLOCK )
-		    return;			// WSA event too late
-#elif defined(UNIX)
-		if ( errno = EWOULDBLOCK )
-		    return;			// socket not closed
-#endif
 #if defined(CHECK_RANGE)
 		qWarning( "QSocket::sn_read: Close error" );
 #endif
