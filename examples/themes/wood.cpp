@@ -743,8 +743,10 @@ static const char *button_xpm[] = {
 
 NorwegianWoodStyle::NorwegianWoodStyle( int sbext ) : QWindowsStyle()
 {
+#if 0
     if ( sbext >= 0 )
 	setScrollBarExtent( sbext );
+#endif
 }
 
 /*!
