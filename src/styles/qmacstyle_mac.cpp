@@ -1138,10 +1138,13 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	twm.titleWidth = tbar->width();
 	twm.titleHeight = tbar->height();
 	ThemeWindowAttributes twa = kThemeWindowHasTitleText;
-	if(tbar->window())
+	if(tbar->window()) {
+	    if(tbar->window()->isMinimized())
+		twa |= kThemeWindowIsCollapsed;
 	    twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
-	else if(tbar->testWFlags(WStyle_SysMenu))
+	} else if(tbar->testWFlags(WStyle_SysMenu)) {
 	    twa |= kThemeWindowHasCloseBox;
+	}
 	QString dblbuf_key;
 
 	//AppMan paints outside the given rectangle, so I have to adjust for the height properly!
@@ -1204,14 +1207,13 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    if(flags & Style_MouseOver)
 		wtds = kThemeStateRollover;
 	    struct {
-		SubControl qt_type;
+		unsigned int qt_type;
 		ThemeTitleBarWidget mac_type;
 	    } types[] = {
 		{ SC_TitleBarCloseButton, kThemeWidgetCloseBox },
 		{ SC_TitleBarMaxButton, kThemeWidgetZoomBox },
-		{ SC_TitleBarMinButton, kThemeWidgetCollapseBox },
-		{ SC_TitleBarNormalButton, kThemeWidgetCollapseBox },
-		{ (SubControl)0, 0 } };
+		{ SC_TitleBarMinButton|SC_TitleBarNormalButton, kThemeWidgetCollapseBox },
+		{ 0, 0 } };
 	    ThemeWindowMetrics tm;
 	    tm.metricSize = sizeof(tm);
 	    const Rect *wm_rect = qt_glb_mac_rect(newr, p, FALSE);
