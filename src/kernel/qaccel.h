@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#18 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#19 $
 **
 ** Definition of QAccel class
 **
@@ -61,16 +61,6 @@ private:
     bool	enabled;
     QWidget    *tlw;
 
-#if defined(OBSOLETE)
-public:
-    void	enable();			// enable accelerator
-    void	disable();			// disable accelerator
-    bool	isDisabled()	const;
-    bool	isItemDisabled( int id ) const;
-    void	enableItem( int id );
-    void	disableItem( int id );
-#endif
-
 private:	// Disabled copy constructor and operator=
     QAccel( const QAccel & ) {}
     QAccel &operator=( const QAccel & ) { return *this; }
@@ -81,44 +71,6 @@ inline bool QAccel::isEnabled() const
 {
     return enabled;
 }
-
-#if defined(OBSOLETE)
-inline void QAccel::enable()
-{
-    qObsolete( "QAccel", "enable", "setEnabled(TRUE)" );
-    setEnabled( TRUE );
-}
-
-inline void QAccel::disable()
-{
-    qObsolete( "QAccel", "disable", "setEnabled(FALSE)" );
-    setEnabled( FALSE );
-}
-
-inline bool QAccel::isDisabled() const
-{
-    qObsolete( "QAccel", "isDisabled", "!isEnabled()" );
-    return !isEnabled();
-}
-
-inline bool QAccel::isItemDisabled( int id ) const
-{
-    qObsolete( "QAccel", "isItemDisabled", "!isItemEnabled(id)" );
-    return !isItemEnabled(id);
-}
-
-inline void QAccel::enableItem( int id )
-{
-    qObsolete( "QAccel", "enableItem", "setItemEnabled(id,TRUE)" );
-    setItemEnabled( id, TRUE );
-}
-
-inline void QAccel::disableItem( int id )
-{
-    qObsolete( "QAccel", "disableItem", "setItemEnabled(id,FALSE)" );
-    setItemEnabled( id, FALSE );
-}
-#endif
 
 
 #endif // QACCEL_H

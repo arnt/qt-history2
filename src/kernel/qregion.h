@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#22 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#23 $
 **
 ** Definition of QRegion class
 **
@@ -81,10 +81,6 @@ private:
 #if defined(_WS_PM_)
     static HPS hps;
 #endif
-#if defined(OBSOLETE)
-public:
-    void    move( int dx, int dy );
-#endif
 };
 
 
@@ -105,15 +101,6 @@ public:
 
 QDataStream &operator<<( QDataStream &, const QRegion & );
 QDataStream &operator>>( QDataStream &, QRegion & );
-
-
-#if defined(OBSOLETE)
-inline void QRegion::move( int dx, int dy ) 
-{ 
-    qObsolete("QRegion","move","translate");
-    translate( dx, dy ); 
-}
-#endif
 
 
 #endif // QREGION_H

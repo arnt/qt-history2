@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#37 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#38 $
 **
 ** Definition of QListBox widget class
 **
@@ -190,35 +190,10 @@ private:
     int		current;
     QLBItemList *itemList;
 
-#if defined(OBSOLETE)
-public:
-    const char *string( int index )	const;
-    bool	stringCopy()	const;
-    void	setStringCopy( bool );
-#endif
-
 private:	// Disabled copy constructor and operator=
     QListBox( const QListBox & ) {}
     QListBox &operator=( const QListBox & ) { return *this; }
 };
-
-#if defined(OBSOLETE)
-#define LBI_String   (qObsolete("","LBI_String","LBI_Text instead"),1)
-inline const char *QListBox::string( int index ) const 
-{
-    qObsolete("QListBox","string","text");
-    return text(index); 
-}
-inline bool QListBox::stringCopy() const
-{
-    qObsolete("QListBox","stringCopy" );
-    return TRUE; 
-}
-inline void QListBox::setStringCopy( bool ) 
-{
-    qObsolete("QListBox","setStringCopy" );
-}
-#endif
 
 
 #endif // QLISTBOX_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#48 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#49 $
 **
 ** Definition of QApplication class
 **
@@ -106,13 +106,6 @@ private:
 
     friend class QWidget;
 
-#if defined(OBSOLETE)
-public:
-    static QCursor *cursor();
-    static void	    setCursor( const QCursor &, bool replace=FALSE );
-    static void	    restoreCursor();
-#endif
-
 private:	// Disabled copy constructor and operator=
     QApplication( const QApplication & ) {}
     QApplication &operator=( const QApplication & ) { return *this; }
@@ -158,26 +151,6 @@ inline QWidget *QApplication::widgetAt( const QPoint &p, bool child )
 {
     return widgetAt( p.x(), p.y(), child );
 }
-
-#if defined(OBSOLETE)
-inline QCursor *QApplication::cursor()
-{
-    qObsolete( "QApplication", "cursor", "overrideCursor" );
-    return overrideCursor();
-}
-
-inline void QApplication::setCursor( const QCursor &c, bool replace )
-{
-    qObsolete( "QApplication", "setCursor", "setOverrideCursor" );
-    setOverrideCursor( c, replace );
-}
-
-inline void QApplication::restoreCursor()
-{
-    qObsolete( "QApplication", "restoreCursor", "restoreOverrideCursor" );
-    restoreOverrideCursor();
-}
-#endif
 
 
 #endif // QAPP_H

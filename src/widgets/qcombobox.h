@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#21 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#22 $
 **
 ** Definition of QComboBox class
 **
@@ -80,38 +80,10 @@ private:
 
     QComboData	*d;
 
-#if defined(OBSOLETE)
-public:
-    void	setStrList( const QStrList *list );
-    void	setStrList( const char **strings, int numStrings=-1 );
-    const char *string( int index ) const;
-#endif
-
-
 private:	// Disabled copy constructor and operator=
     QComboBox( const QComboBox & ) {}
     QComboBox &operator=( const QComboBox & ) { return *this; }
 };
-
-#if defined(OBSOLETE)
-inline void QComboBox::setStrList( const QStrList *list )
-{
-    qObsolete("QComboBox","setStrList","insertStrList (probably)");
-    clear(); 
-    insertStrList(list,0); 
-}
-inline void QComboBox::setStrList( const char **strings, int numStrings )
-{ 
-    qObsolete("QComboBox","setStrList","insertStrList (probably)");
-    clear(); 	
-    insertStrList(strings,numStrings,0); 
-}
-inline const char *QComboBox::string( int index ) const  
-{ 
-    qObsolete("QComboBox","string","text");
-    return text(index); 
-}
-#endif
 
 
 #endif // QCOMBOBOX_H

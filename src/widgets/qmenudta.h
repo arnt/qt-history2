@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#35 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#36 $
 **
 ** Definition of QMenuData class
 **
@@ -150,60 +150,10 @@ private:
     void	removePopup( QPopupMenu * );
     void	setAllDirty( bool );
 
-#if defined(OBSOLETE)
-public:
-    const char *string( int id )	const;
-    bool	isItemDisabled( int id ) const;
-    void	enableItem( int id );
-    void	disableItem( int id );
-    void	checkItem( int id );
-    void	uncheckItem( int id );
-#endif
-
-
 private:	//Disabled copy constructor and operator=
     QMenuData( const QMenuData & ) {}
     QMenuData &operator=( const QMenuData & ) { return *this; }
 };
-
-
-#if defined(OBSOLETE)
-inline const char *QMenuData::string( int id ) const
-{
-    qObsolete("QMenuData","string","text" );
-    return text(id); 
-}
-
-inline bool QMenuData::isItemDisabled( int id ) const
-{
-    qObsolete("QMenuData","isItemDisabled","!isItemEnabled()" );
-    return !isItemEnabled(id);
-}
-
-inline void QMenuData::enableItem( int id )
-{
-    qObsolete("QMenuData","enableITem","setItemEnabled(id,TRUE)" );
-    setItemEnabled( id, TRUE );
-}
-
-inline void QMenuData::disableItem( int id )
-{
-    qObsolete("QMenuData","disableItem","setItemEnabled(id,FALSE)" );
-    setItemEnabled( id, FALSE );
-}
-
-inline void QMenuData::checkItem( int id )
-{
-    qObsolete("QMenuData","checkItem","setItemChecked(id,TRUE)" );
-    setItemChecked( id, TRUE );
-}
-
-inline void QMenuData::uncheckItem( int id )
-{
-    qObsolete("QMenuData","uncheckItem","setItemChecked(id,FALSE)" );
-    setItemChecked( id, FALSE );
-}
-#endif
 
 
 #endif // QMENUDTA_H

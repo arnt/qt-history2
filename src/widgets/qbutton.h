@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#39 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#40 $
 **
 ** Definition of QButton widget class
 **
@@ -73,53 +73,10 @@ private:
 
     friend class QButtonGroup;
 
-#if defined(OBSOLETE)
-public:
-    bool	toggleButton()	const;
-    bool	isUp()		const;
-    bool	isOff()		const;
-    void	switchOn();
-    void	switchOff();
-#endif
-
 private:	// Disabled copy constructor and operator=
     QButton( const QButton & ) {}
     QButton &operator=( const QButton & ) { return *this; }
 };
-
-
-#if defined(OBSOLETE)
-inline bool QButton::toggleButton() const
-{
-    qObsolete("QButton","toggleButton","isToggleButton");
-    return isToggleButton();
-}
-
-inline bool QButton::isUp() const
-{
-    qObsolete("QButton","isUp","!isDown()");
-    return !buttonDown;
-}
-
-inline bool QButton::isOff() const
-{
-    qObsolete("QButton","isOff","!isOn()");
-    return !buttonOn;
-}
-
-inline void QButton::switchOn()
-{
-    qObsolete("QButton","switchOn","setOn(TRUE)");
-    setOn( TRUE );
-}
-
-inline void QButton::switchOff()
-{
-    qObsolete("QButton","switchOff","setOn(FALSE)");
-    setOn( FALSE );
-}
-
-#endif
 
 
 #endif // QBUTTON_H

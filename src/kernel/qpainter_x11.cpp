@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#192 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#191 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#192 $");
 
 
 /*****************************************************************************
@@ -2257,48 +2257,6 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 		    CoordModeOrigin);
     }
 }
-
-#if defined(OBSOLETE)
-/*********************************************************************
-  Draws a Bezier curve defined by the \e npoints control points in \e a,
-  starting at \e a[index]. This function is obsolete. It's going away soon.
-***********************************************************************/
-
-void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
-{
-    qObsolete( "QPainter","drawBezier","drawQuadBezier");
-
-    if ( npoints < 0 )
-	npoints = a.size() - index;
-    if ( index + npoints > (int)a.size() )
-	npoints = a.size() - index;
-    if ( !isActive() || npoints < 2 || index < 0 )
-	return;
-    QPointArray pa;
-    if ( npoints != (int)a.size() ) {
-	pa.resize( npoints );
-	for ( int i=0; i<npoints; i++ )
-	    pa.setPoint( i, a.point(index+i) );
-    } else {
-	pa = a;
-    }
-    if ( testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[1];
-	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hd )
-		return;
-	}
-	if ( txop != TxNone )
-	    pa = xForm( pa );
-    }
-    if ( cpen.style() != NoPen ) {
-	pa = pa.bezier();
-	XDrawLines( dpy, hd, gc, (XPoint*)pa.data(), pa.size(),
-		    CoordModeOrigin);
-    }
-}
-#endif
 
 
 /*!

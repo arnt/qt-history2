@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#95 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#96 $
 **
 ** Definition of QWidget class
 **
@@ -266,18 +266,6 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
 
-#if defined(OBSOLETE)
-public:
-    WId		 id() const;
-    void	 enable();
-    void	 disable();
-    bool	 isDisabled()	const;
-    bool	 minimumSize( int *w, int *h )	 const;
-    bool	 maximumSize( int *w, int *h )	 const;
-    bool	 sizeIncrement( int *w, int *h ) const;
-    bool	 enableUpdates( bool enable );
-#endif
-
 private:	// Disabled copy constructor and operator=
     QWidget( const QWidget & ) :QPaintDevice(0) {}
     QWidget &operator=( const QWidget & ) { return *this; }
@@ -406,62 +394,6 @@ inline void QWidget::setWFlags( WFlags f )
 
 inline void QWidget::clearWFlags( WFlags f )
 { flags &= ~f; }
-
-
-#if defined(OBSOLETE)
-inline WId QWidget::id() const
-{ qObsolete("QWidget","id","winId"); return winid; }
-
-inline void QWidget::enable()
-{ qObsolete("QWidget","enable","setEnabled(TRUE)"); setEnabled(TRUE); }
-
-inline void QWidget::disable()
-{ qObsolete("QWidget","disable","setEnabled(FALSE)"); setEnabled(FALSE); }
-
-inline bool QWidget::isDisabled() const
-{ qObsolete("QWidget","isDisabled","!isEnabled()"); return !isEnabled(); }
-
-inline bool QWidget::minimumSize( int *w, int *h ) const
-{
-    qObsolete( "QWidget", "minimumSize(int*,int*)", "minimumSize()" );
-    bool ok = extra && extra->minw >= 0 && w && h;
-    if ( ok ) {
-	*w = extra->minw;
-	*h = extra->minh;
-    }
-    return ok;
-}
-
-inline bool QWidget::maximumSize( int *w, int *h ) const
-{
-    qObsolete( "QWidget", "maximumSize(int*,int*)", "maximumSize()" );
-    bool ok = extra && extra->maxw >= 0 && w && h;
-    if ( ok ) {
-	*w = extra->maxw;
-	*h = extra->maxh;
-    }
-    return ok;
-}
-
-inline bool QWidget::sizeIncrement( int *w, int *h ) const
-{
-    qObsolete( "QWidget", "sizeIncrement(int*,int*)", "sizeIncrement()" );
-    bool ok = extra && extra->incw >= 0 && w && h;
-    if ( ok ) {
-	*w = extra->incw;
-	*h = extra->inch;
-    }
-    return ok;
-}
-
-inline bool QWidget::enableUpdates( bool enable )
-{
-    qObsolete("QWidget","enableUpdates","isUpdatesEnabled/setUpdatesEnabled");
-    bool last=isUpdatesEnabled();
-    setUpdatesEnabled(enable);
-    return last;
-}
-#endif // OBSOLETE
 
 
 #endif // QWIDGET_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#24 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#25 $
 **
 ** Definition of QRect class
 **
@@ -89,16 +89,6 @@ private:
     QCOORD y1;
     QCOORD x2;
     QCOORD y2;
-#endif
-#if defined(OBSOLETE)
-public:
-    void   setTopLeft( const QPoint &p );
-    void   setBottomRight( const QPoint &p );
-    void   setTopRight( const QPoint &p );
-    void   setBottomLeft( const QPoint &p );
-    void   setCenter( const QPoint &p );
-    void   translate( int dx, int dy );
-    void   move( int dx, int dy );
 #endif
 };
 
@@ -191,29 +181,6 @@ inline int QRect::height() const
 
 inline QSize QRect::size() const
 { return QSize(x2-x1+1, y2-y1+1); }
-
-#if defined(OBSOLETE)
-inline void   QRect::setTopLeft( const QPoint &p )
-{ qObsolete("QRect", "setTopLeft" , "moveTopLeft" ); moveTopLeft( p ); }
-inline void   QRect::setBottomRight( const QPoint &p )
-{ 
-    qObsolete("QRect", "setBottomRight" , "moveBottomRight" ); 
-    moveBottomRight( p ); 
-}
-inline void   QRect::setTopRight( const QPoint &p )
-{ qObsolete("QRect", "setTopRight" , "moveTopRight" ); moveTopRight( p ); }
-inline void   QRect::setBottomLeft( const QPoint &p )
-{ 
-    qObsolete("QRect", "setBottomLeft" , "moveBottomLeft" ); 
-    moveBottomLeft( p ); 
-}
-inline void   QRect::setCenter( const QPoint &p )
-{ qObsolete("QRect", "setCenter" , "moveCenter" ); moveCenter( p ); }
-inline void   QRect::translate( int dx, int dy )
-{ qObsolete("QRect", "translate" , "moveBy" ); moveBy( dx, dy ); }
-inline void   QRect::move( int dx, int dy ) 
-{ qObsolete("QRect", "move" , "moveBy" ); moveBy( dx, dy ); }
-#endif
 
 
 #endif // QRECT_H

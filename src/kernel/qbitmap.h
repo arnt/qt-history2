@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#22 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#23 $
 **
 ** Definition of QBitmap class
 **
@@ -31,30 +31,7 @@ public:
     QBitmap &operator=( const QImage  & );
 
     QBitmap  xForm( const QWMatrix & ) const;
-
-#if defined(OBSOLETE)
-public:
-    QBitmap( int w, int h,  const char *bits, bool isXbitmap=FALSE );
-    QBitmap( const QSize &s, const char *bits, bool isXbitmap=FALSE );
-#endif
 };
 
-
-#if defined(OBSOLETE)
-inline QBitmap::QBitmap( int w, int h,  const char *bits, bool isXBitmap )
-    : QPixmap( w, h, (const uchar *)bits, isXBitmap )
-{ 
-    qObsolete( "QBitmap", "QBitmap(int, int, const char *, bool )",
-	       "QBitmap(int, int, const uchar *, bool )" );
-    data->bitmap = TRUE; 
-}
-inline QBitmap::QBitmap( const QSize &s, const char *bits, bool isXBitmap )
-    : QPixmap( s.width(), s.height(), (const uchar *)bits, isXBitmap )
-{ 
-    qObsolete( "QBitmap", "QBitmap( const QSize &s, const char *, bool )",
-	       "QBitmap( const QSize &s, const uchar *, bool )" );
-    data->bitmap = TRUE; 
-}
-#endif
 
 #endif // QBITMAP_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#79 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#80 $
 **
 ** Definition of QPainter class
 **
@@ -259,11 +259,6 @@ protected:
 #endif
     friend class QFontMetrics;
     friend class QFontInfo;
-
-#if defined(OBSOLETE)
-public:
-    void drawBezier( const QPointArray &, int index=0, int npoints=-1 );
-#endif
 
 private:	// Disabled copy constructor and operator=
     QPainter( const QPainter & ) {}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#20 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#21 $
 **
 ** Definition of QPointArray class
 **
@@ -104,12 +104,8 @@ public:
 
     void    makeArc( int x, int y, int w, int h, int a1, int a2 );
     void    makeEllipse( int x, int y, int w, int h );
+
     QPointArray quadBezier() const;
-#if defined(OBSOLETE)
-public:
-    void    move( int dx, int dy );
-    QPointArray bezier() const;
-#endif
 };
 
 
@@ -136,14 +132,6 @@ inline QPointVal &QPointVal::operator=( const QPoint &point )
     p->y = (Qpnta_t)point.y();
     return *this;
 }
-
-#if defined(OBSOLETE)
-inline void QPointArray::move( int dx, int dy ) 
-{ 
-    qObsolete("QPointArray","move","translate");
-    translate( dx, dy ); 
-}
-#endif
 
 
 #endif // QPNTARRY_H

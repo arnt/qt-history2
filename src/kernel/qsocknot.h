@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.h#8 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.h#9 $
 **
 ** Definition of QSocketNotifier class
 **
@@ -42,12 +42,6 @@ private:
     Type	sntype;
     bool	snenabled;
 
-#if defined(OBSOLETE)
-public:
-    bool	enabled()	const;
-#endif
-
-
 private:	// Disabled copy constructor and operator=
     QSocketNotifier( const QSocketNotifier & ) {}
     QSocketNotifier &operator=( const QSocketNotifier & ) { return *this; }
@@ -63,12 +57,5 @@ inline QSocketNotifier::Type QSocketNotifier::type() const
 inline bool QSocketNotifier::isEnabled() const
 { return snenabled; }
 
-#if defined(OBSOLETE)
-inline bool QSocketNotifier::enabled() const
-{
-    qObsolete("QSocketNotifier","enabled","isEnabled");
-    return isEnabled(); 
-}
-#endif
 
 #endif // QSOCKNOT_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#30 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#31 $
 **
 ** Definition of QColor class
 **
@@ -39,6 +39,7 @@ inline int qGray( int r, int g, int b )		// convert R,G,B to gray 0..255
 
 inline int qGray( QRgb rgb )			// convert RGB to gray 0..255
 { return qGray( qRed(rgb), qGreen(rgb), qBlue(rgb) ); }
+
 
 class QColor					// color class
 {
@@ -182,31 +183,5 @@ extern const QColor darkYellow;
 QDataStream &operator<<( QDataStream &, const QColor & );
 QDataStream &operator>>( QDataStream &, QColor & );
 
-
-#if defined(OBSOLETE)
-inline int   QRED( QRgb rgb )			// get red part of RGB
-{ qObsolete("","QRED","qRed");return (int)(rgb & 0xff); }
-
-inline int   QGREEN( QRgb rgb )			// get green part of RGB
-{ qObsolete("","QGREEN","qGreen");return (int)((rgb >> 8) & 0xff); }
-
-inline int   QBLUE( QRgb rgb )			// get blue part of RGB
-{ qObsolete("","QBLUE","qBlue");return (int)((rgb >> 16) & 0xff); }
-
-inline QRgb QRGB( int r, int g, int b )		// set RGB value
-{ 
-    qObsolete("","QRGB","qRgb");
-    return (uchar)r | ((ushort)g << 8) | ((uint)b << 16); 
-}
-
-inline int QGRAY( int r, int g, int b )		// convert R,G,B to gray 0..255
-{ qObsolete("","QGRAY","qGray");return (r*11+g*16+b*5)/32; }
-
-inline int QGRAY( QRgb rgb )			// convert RGB to gray 0..255
-{ 
-    qObsolete("","QGRAY","qGray");
-    return QGRAY( QRED(rgb), QGREEN(rgb), QBLUE(rgb) ); 
-}
-#endif
 
 #endif // QCOLOR_H
