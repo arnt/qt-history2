@@ -81,6 +81,14 @@ public:
   they also look correct for a mirrored layout. You can start your application
   with -reverse to check the mirrored layout. Also notice, that for a reversed
   layout, the light usually comes from top right instead of top left.
+
+  The actual reverse layout is performed automatically when possible.  However, in
+  the interest of flexibility, the translation cannot be performed everywhere.  The
+  documentation for each function in the QStyle API states whether the function
+  expects/returns logical or screen coordinates.  Using logical coordinates (in
+  ComplexControls, for example) provides much flexibility in controlling the look
+  of a widget.  Use visualRect() when needed to translate logical coordinates into
+  screen coordinates for drawing.
 */
 
 /*!
@@ -360,6 +368,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   Draws the style PrimitiveOperation \a op using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.
 
+  The rect \a r should be in screen coordinates.
+
   The \a flags argument is used to control how the PrimitiveOperation is drawn.
   Multiple flags can be OR'ed together.
 
@@ -496,6 +506,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   Draws the ControlElement \a element using the painter \a p in the area \a r.  Colors
   are used from the color group \a cg.
+
+  The rect \a r should be in screen coordinates.
 
   The \a how argument is used to control how the ControlElement is drawn.  Multiple
   flags can be OR'ed together.
@@ -635,6 +647,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   area \r.  See the documentation for drawControl() for an explanation on use
   of the \a widget and \a data arguments.
 
+  The rect \a r should be in screen coordinates.
+
   \sa drawControl(), ControlElement
 */
 
@@ -672,7 +686,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn QRect QStyle::subRect( SubRect subrect, const QWidget *widget ) const;
 
-  Returns the sub-area \a subrect for \a widget.
+  Returns the sub-area \a subrect for \a widget in logical coordinates.
 
   The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
   widget can be cast to the appropriate type based on the value of \a subrect.  See
@@ -839,6 +853,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   to draw.  Multiple SubControls can be OR'ed together.  The \a subActive argument
   specifies which SubControl to draw as active.
 
+  The rect \a r should be in logical coordinates.  Reimplementations of this function
+  should use visualRect() to change the logical corrdinates into screen coordinates
+  when using drawPrimitive() and drawControl().
+
   The \a flags argument is used to control how the ComplexControl is drawn.  Multiple
   flags can OR'ed together.
 
@@ -937,13 +955,17 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   area \a r.  See the documentation for drawComplexControl() for an explanation on the
   use of the \a widget and \a data arguments.
 
+  The rect \a r should be in logical coordinates.  Reimplementations of this function
+  should use visualRect() to change the logical corrdinates into screen coordinates
+  when using drawPrimitive() and drawControl().
+
   \sa drawComplexControl, ComplexControl
 */
 
 /*!
   \fn QRect QStyle::querySubControlMetrics( ComplexControl control, const QWidget *widget, SubControl subcontrol, void **data = 0 ) const;
 
-  Returns the rect for the SubControl \a subcontrol for \a widget.
+  Returns the rect for the SubControl \a subcontrol for \a widget in logical coordinates.
 
   The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
   widget can be cast to the appropriate type based on the value of \a control.
@@ -965,6 +987,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   that \a data can be zero even for ComplexControls that make use of the extra data.
   See the documentation for drawComplexControl() for an explanation of the \a widget
   and \a data arguments.
+
+  Note that \a pos is passed in screen coordinates.  When using querySubControlMetrics()
+  to check for hits and misses, use visualRect() to change the logical coordinates
+  into screen coordinates.
 
   \sa drawComplexControl(), ComplexControl, SubControl, querySubControlMetrics()
 */
@@ -1143,8 +1169,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   This enum represents a StyleHint.  A StyleHint is a general Look and/or Feel hint.
 
   \value SH_ScrollBar_BackgroundMode  the background mode for a QScrollBar.  Possible
-         values are any in the \link Qt::BackgroundMode
-	 BackgroundMode\endlink enum.
+         values are any in the \link Qt::BackgroundMode BackgroundMode\endlink enum.
   \value SH_ScrollBar_MiddleClickAbsolutePosition  a boolean value.  If TRUE, middle
          clicking on a scrollbar causes the slider to jump to that position.  If FALSE,
          the click is ignored.
@@ -1165,6 +1190,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   Returns the style hint \a stylehint for \a widget.  Currently, \a widget and \a
   returnData are unused, and are provided only for future development considerations.
+
+  For explanation on the return values of this function, see the StyleHint documentation.
 
   \sa StyleHint
 */
@@ -1244,13 +1271,21 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn QRect QStyle::visualRect( const QRect &logical, const QWidget *w );
 
-  document me!
+  Returns the rect \a logical in screen coordinates.  The bounding rect for \a widget
+  is used to perform the translation.  This function is provided to aid style
+  implementors in supporting right-to-left mode.
+
+  \sa QApplication::reverseLayout()
 */
 
 /*!
   \fn QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
 
-  document me!
+  Returns the rect \a logical in screen coordinates.  The rect \a bounding
+  is used to perform the translation.  This function is provided to aid style
+  implementors in supporting right-to-left mode.
+
+  \sa QApplication::reverseLayout()
 */
 
 
