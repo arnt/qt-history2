@@ -52,8 +52,6 @@
 
 #include "qlibrary.h"
 
-#ifndef QT_NO_COMPONENT
-
 #ifndef QT_H
 #include "qwindowdefs.h"
 #endif // QT_H
@@ -76,7 +74,5 @@ public:
 private:
     QLibrary *library;
 };
-
-#endif // QT_NO_COMPONENT
 
 #endif // QLIBRARY_P_H

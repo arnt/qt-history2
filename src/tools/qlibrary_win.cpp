@@ -30,8 +30,6 @@
 #include <qmap.h>
 #include <private/qlibrary_p.h>
 
-#ifndef QT_NO_COMPONENT
-
 #ifndef QT_H
 #include "qfile.h"
 #endif // QT_H
@@ -142,5 +140,3 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
 
     return address;
 }
-
-#endif // QT_NO_COMPONENT

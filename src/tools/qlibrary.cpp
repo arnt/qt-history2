@@ -38,8 +38,6 @@
 
 #include <private/qlibrary_p.h>
 
-#ifndef QT_NO_COMPONENT
-
 #include <qregexp.h>
 
 // uncomment this to get error messages
@@ -344,5 +342,3 @@ QString QLibrary::library() const
 
     return filename;
 }
-
-#endif // QT_NO_COMPONENT

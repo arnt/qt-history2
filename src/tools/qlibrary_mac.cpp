@@ -27,8 +27,6 @@
 **
 **********************************************************************/
 
-#ifndef QT_NO_COMPONENT
-
 #include "private/qlibrary_p.h"
 
 /*
@@ -201,5 +199,3 @@ void* QLibraryPrivate::resolveSymbol( const char *symbol )
 }
 
 #endif // Q_OS_MAC9
-
-#endif // QT_NO_COMPONENT

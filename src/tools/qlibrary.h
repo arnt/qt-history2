@@ -42,8 +42,6 @@
 #include <qstring.h>
 #endif // QT_H
 
-#ifndef QT_NO_COMPONENT
-
 class QLibraryPrivate;
 
 class Q_EXPORT QLibrary
@@ -76,7 +74,5 @@ private:	// Disabled copy constructor and operator=
     QLibrary &operator=( const QLibrary & );
 #endif
 };
-
-#endif //QT_NO_COMPONENT
 
 #endif //QLIBRARY_H
