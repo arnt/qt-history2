@@ -555,7 +555,8 @@ int QTextHtmlParser::topMargin(int i) const
         // get previous block
         while (i-1 && !at(i-1).isBlock)
             --i;
-        if (i && node->parent == at(i).parent)
+
+        if (i - 1 && node->parent == at(i - 1).parent)
             break;
         i = node->parent;
     }
@@ -570,12 +571,13 @@ int QTextHtmlParser::bottomMargin(int i) const
         node = &at(i);
         if (!node->isBlock)
             return 0;
-        m = qMax(m, node->margin[MarginTop]);
+        m = qMax(m, node->margin[MarginBottom]);
 
         // get next block
         while (i+1 < count() && !at(i+1).isBlock)
             ++i;
-        if (i && node->parent == at(i).parent)
+
+        if (i + 1 < count() && node->parent == at(i + 1).parent)
             break;
         i = node->parent;
     }
