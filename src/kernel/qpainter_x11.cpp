@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#129 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -10,16 +10,13 @@
 **
 *****************************************************************************/
 
-// #define USE_GC_CACHE
+#define USE_GC_CACHE
 
 #include "qpainter.h"
 #include "qpaintdc.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpmcache.h"
-#if defined(USE_GC_CACHE)
-#include "qcache.h"
-#endif
 #include "qlist.h"
 #include "qintdict.h"
 #include <ctype.h>
@@ -29,7 +26,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#128 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#129 $")
 
 
 // --------------------------------------------------------------------------
@@ -51,7 +48,8 @@ const double Q_3PI2 = 4.71238898038468985769;	// 3*pi/2
 
 #if defined(_OS_LINUX_) && defined(_CC_GNU_)
 
-inline double qcos( double a ) {
+inline double qcos( double a )
+{
     double r;
     __asm__ (
 	"fcos"
@@ -59,7 +57,8 @@ inline double qcos( double a ) {
     return(r);
 }
 
-inline double qsin( double a ) {
+inline double qsin( double a )
+{
     double r;
     __asm__ (
 	"fsin"
@@ -67,7 +66,8 @@ inline double qsin( double a ) {
     return(r);
 }
 
-double qsincos( double a, bool calcCos=FALSE ) {
+double qsincos( double a, bool calcCos=FALSE )
+{
     return calcCos ? qcos(a) : qsin(a);
 }
 
@@ -106,38 +106,58 @@ inline double qcos( double a ) { return qsincos(a,TRUE); }
 
 
 // --------------------------------------------------------------------------
-// QPainter internal GC cache (simple)
+// QPainter internal GC (Graphics Context) allocator.
 //
+// The GC allocator offers two functions; alloc_gc() and free_gc() that
+// reuse GC objects instead of calling XCreateGC() and XFreeGC(), which
+// are a whole lot slower.
+// 
 
-struct QGC {
+struct QGC
+{
     GC	 gc;
     char in_use;
     char mono;
 };
 
-const	    gc_array_size = 128;
-static QGC  gc_array[gc_array_size];
+const  int  gc_array_size = 256;
+static QGC  gc_array[gc_array_size];		// array of GCs
 static bool gc_array_init = FALSE;
 
-// #define SLOW_GC_ALLOC
 
-static GC alloc_painter_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
+static void init_gc_array()
 {
-#if defined(SLOW_GC_ALLOC)
-    return XCreateGC( dpy, hd, 0, 0 );
+    if ( !gc_array_init ) {
+	memset( gc_array, 0, gc_array_size*sizeof(QGC) );
+	gc_array_init = TRUE;
+    }
+}
+
+static void cleanup_gc_array( Display *dpy )
+{
+    register QGC *p = gc_array;
+    int i = gc_array_size;
+    if ( gc_array_init ) {
+	while ( i-- ) {
+	    if ( p->gc )			// destroy GC
+		XFreeGC( dpy, p->gc );
+	    p++;
+	}
+	gc_array_init = FALSE;
+    }
+}
+
+// #define DONT_USE_GC_ARRAY
+
+static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
+{
+#if defined(DONT_USE_GC_ARRAY)
+    return XCreateGC( dpy, hd, 0, 0 );		// will be slow!
 #endif
     register QGC *p = gc_array;
     int i = gc_array_size;
-    if ( !gc_array_init ) {			// initialize GC array
-	while ( i-- ) {
-	    p->gc     = 0;
-	    p->in_use = FALSE;
-	    p++;
-	}
-	gc_array_init = TRUE;
-	p = gc_array;
-	i = gc_array_size;
-    }
+    if ( !gc_array_init )			// not initialized
+	init_gc_array();
     while ( i-- ) {
 	if ( !p->gc ) {				// create GC (once)
 	    p->gc = XCreateGC( dpy, hd, 0, 0 );
@@ -156,11 +176,11 @@ static GC alloc_painter_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
     return XCreateGC( dpy, hd, 0, 0 );
 }
 
-static void free_painter_gc( Display *dpy, GC gc )
+static void free_gc( Display *dpy, GC gc )
 {
-#if defined(SLOW_GC_ALLOC)
+#if defined(DONT_USE_GC_ARRAY)
     ASSERT( dpy != 0 );
-    XFreeGC( dpy, gc );
+    XFreeGC( dpy, gc );				// will be slow
     return;
 #else
     dpy = dpy;					// avoid compiler warning
@@ -178,146 +198,40 @@ static void free_painter_gc( Display *dpy, GC gc )
     }
 }
 
-static void cleanup_painter_gc( Display *dpy )
-{
-    register QGC *p = gc_array;
-    int i = gc_array_size;
-    if ( gc_array_init ) {
-	while ( i-- ) {
-	    if ( p->gc )			// destroy GC
-		XFreeGC( dpy, p->gc );
-	    p++;
-	}
-	gc_array_init = FALSE;
-    }
-}
-
 
 // --------------------------------------------------------------------------
-// QPainter internal GC cache for pens and brushes (advanced)
+// QPainter internal GC (Graphics Context) cache for solid pens and brushes.
 //
-
-#if defined(USE_GC_CACHE0)
-
-struct QGCData					// GC pen/brush cache item
-{
-    QGCData( const char *k, Display *d, GC g )
-		{ key=qstrdup(k); dpy=d; gc=g; }
-   ~QGCData()	{ delete [] key; free_painter_gc(0,gc); }
-    char    *key;
-    Display *dpy;
-    GC	      gc;
-};
-
-typedef declare(QCacheM,QGCData) QGCCache;
-static QGCCache *gc_cache = 0;
-
-static void init_gc_cache()
-{
-    if ( !gc_cache ) {
-	gc_cache = new QGCCache( 64, 719, TRUE, FALSE );
-	CHECK_PTR( gc_cache );
-    }
-}
-
-static void cleanup_gc_cache()
-{
-    delete gc_cache;
-    gc_cache = 0;
-}
-
-
-static GC alloc_pen( bool *hit, char **penKey, QPainter *p,
-		     Display *dpy, bool mono )
-{
-    if ( !gc_cache )
-	init_gc_cache();
-    UINT32 n;
-    char   key[80];
-    char  *k = key;
-    *k++ = 'p';
-
-    const QPen &pen = p->pen();
-    *k++ = pen.style() + 'e';
-    *k++ = p->backgroundMode() + 'i';
-    *k++ = p->rasterOp() + 'r';
-
-    n = pen.width();
-    *k++ = (char)((n>>14) &   3)+'i';
-    *k++ = (char)((n>> 7) & 127)+'k';
-    *k++ = (char)((n)     & 127)+'+';
-
-    n = pen.color().pixel();
-    *k++ = (char)((n>>28) &  15)+'h';
-    *k++ = (char)((n>>21) & 127)+'e';
-    *k++ = (char)((n>>14) & 127)+'l';
-    *k++ = (char)((n>> 7) & 127)+'e';
-    *k++ = (char)((n)     & 127)+'n';
-
-    n = p->backgroundColor().pixel();
-    *k++ = (char)((n>>28) &  15)+'r';
-    *k++ = (char)((n>>21) & 127)+' ';
-    *k++ = (char)((n>>14) & 127)+'e';
-    *k++ = (char)((n>> 7) & 127)+'r';
-    *k++ = (char)((n)     & 127)+' ';
-
-    n = 0; // p->font().serialNumber();
-    *k++ = (char)((n>>28) &  15)+'s';
-    *k++ = (char)((n>>21) & 127)+'a';
-    *k++ = (char)((n>>14) & 127)+'n';
-    *k++ = (char)((n>> 7) & 127)+'t';
-    *k++ = (char)((n)     & 127)+'!';
-
-    *k = '\0';
-
-    QGCData *d = gc_cache->find( key );
-    if ( !d ) {
-	GC gc = alloc_painter_gc( dpy, p->handle(), mono );
-	d = new QGCData( key, dpy, gc );
-	*hit = FALSE;
-	gc_cache->insert( d->key, d );
-    }
-    else
-	*hit = TRUE;
-    *penKey = d->key;
-    return d->gc;
-}
-
-void test_alloc_pen( bool *hit, char **penKey, QPainter *p )
-{
-    alloc_pen( hit, penKey, p, p->device()->display(), FALSE );
-}
-		    
-static inline void free_pen( char *key )
-{    
-    if ( !gc_cache )
-	return;
-    ASSERT( key != 0 );
-}
-
-#endif  // USE_GC_CACHE0
+// The GC cache makes a significant contribution to speeding up drawing.
+// Setting new pen and brush colors will make the painter try to find
+// another GC with the same color instead of changing the color-setting
+// of the GC currently in use.
+//
+// The cache structure is not ideal, but lookup speed is essential here.
+// Experiments show that the GC cache is very effective under normal use.
+//
 
 #if defined(USE_GC_CACHE)
 
-struct QGCItem {
+struct QGCC					// cached GC
+{
     GC	    gc;
-    ulong   fgpix;
-    ulong   bgpix;
-    long    fntid;
+    ulong   pix;
+    int	    count;
     int	    hits;
 };
 
-static bool gc_cache_init = FALSE;
-static const int gc_cache_size = 32;
-static QGCItem *gc_cache[4*gc_cache_size];
+const  int   gc_cache_size = 32;		// actually 32*4
+static QGCC *gc_cache[4*gc_cache_size];
+static bool  gc_cache_init = FALSE;
 
 
 static void init_gc_cache()
 {
     if ( !gc_cache_init ) {
 	gc_cache_init = TRUE;
-	QGCItem *g = new QGCItem[4*gc_cache_size];
-	memset( (void*)g, 0, 4*gc_cache_size*sizeof(QGCItem) );
+	QGCC *g = new QGCC[4*gc_cache_size];
+	memset( g, 0, 4*gc_cache_size*sizeof(QGCC) );
 	for ( int i=0; i<4*gc_cache_size; i++ )
 	    gc_cache[i] = g++;
     }
@@ -333,22 +247,50 @@ int g_numcreates = 0;
 int g_numfaults = 0;
 
 
-static GC alloc_pen( bool *hit, int *key, QPainter *p,
-		     Display *dpy, bool mono )
+static bool obtain_gc( void **ref, GC *gc, ulong pix,
+		     Display *dpy, HANDLE hd )
 {
-    if ( !gc_cache )
+    if ( !gc_cache_init )
 	init_gc_cache();
 
-    ulong fgpix = p->pen().color().pixel();
-    ulong bgpix = p->backgroundColor().pixel();
-    long  fntid = 0; // p->font().serialNumber();
-
-    int k = (int)fgpix % gc_cache_size;
-    *key = k;
+    int k = (int)pix % gc_cache_size;
     k *= 4;
 
-    QGCItem *g = gc_cache[k];
-    QGCItem *prev = 0;
+    QGCC *g = gc_cache[k++];
+    QGCC *prev = 0;
+
+#define NOMATCH (g->gc && g->pix != pix)
+
+    if ( NOMATCH ) {
+	prev = g;
+	g = gc_cache[k++];
+	if ( NOMATCH ) {
+	    prev = g;
+	    g = gc_cache[k++];
+	    if ( NOMATCH ) {
+		prev = g;
+		g = gc_cache[k++];
+		if ( NOMATCH ) {
+		    g_numfaults++;	// S
+		    if ( g->count == 0 ) {
+			g->pix   = pix;
+			g->count = 1;
+			g->hits  = 1;
+			*ref = (void *)g;
+			return FALSE;
+		    }
+		    else {
+			*ref = 0;
+			return FALSE;
+		    }
+		}
+	    }
+	}
+    }
+
+#undef NOMATCH
+
+#if 0
     int c = 0;
     while ( c < 4 && g->gc && (g->fgpix != fgpix || g->bgpix != bgpix ||
 	    g->fntid != fntid) ) {
@@ -356,55 +298,36 @@ static GC alloc_pen( bool *hit, int *key, QPainter *p,
 	prev = g;
 	g++;
     }
+#endif
 
-    if ( c < 4 ) {
-	if ( g->gc ) {				// found gc item
-	    g_numhits++;	// S
-	    g->hits++;
-	    *hit = TRUE;
-	    if ( prev && g->hits > prev->hits ) {
-		QGCItem *t = g;			// keep LRU order
-		gc_cache[k+c] = prev;
-		gc_cache[k+c-1] = t;
-	    }
+    *ref = (void *)gc;
+
+    if ( g->gc ) {				// reuse existing GC
+	g_numhits++;	// S
+	*gc = g->gc;
+	g->hits++;
+	if ( prev && g->hits > prev->hits ) {
+	    QGCC *t = g;			// keep LRU order
+	    gc_cache[k-1] = prev;
+	    gc_cache[k-2] = t;
 	}
-	else {
-	    g_numcreates++;	// S
-	    *hit = FALSE;
-	    g->gc = alloc_painter_gc( dpy, p->handle(), mono );
-	    g->fgpix = fgpix;
-	    g->bgpix = bgpix;
-	    g->fntid = fntid;
-	    g->hits  = 0;
-	}
+	return TRUE;
     }
-    else {
-	g_numfaults++;	// S
-	*hit = FALSE;
-	g = prev;				// forget the last one
-	g->fgpix = fgpix;
-	g->bgpix = bgpix;
-	g->fntid = fntid;
-	g->hits  = 0;
+    else {					// create new GC
+	g_numcreates++;	// S
+	g->gc  = alloc_gc( dpy, hd, FALSE );
+	g->pix = pix;
+	*gc = g->gc;
+	return FALSE;
     }
-    return g->gc;
 }
 		    
-static inline void free_pen( int key, GC gc )
+static inline void release_gc( void *ref )
 {
 #if defined(DEBUG)
-    ASSERT( gc_cache_init );
+    ASSERT( gc_cache_init && ref );
 #endif
-    QGCItem *g = gc_cache[key*4];
-    int c = 0;
-    while ( c < 4 && g->gc != gc ) {
-	c++;
-	g++;
-    }
-#if defined(DEBUG)
-    ASSERT( c < 4 );
-#endif
-//    free_painter_gc( 0, gc );
+    ((QGCC*)ref)->count--;
 }
 
 #endif  // USE_GC_CACHE
@@ -420,6 +343,7 @@ static inline void free_pen( int key, GC gc )
 
 void QPainter::initialize()
 {
+    init_gc_array();
 #if defined(USE_GC_CACHE)
     init_gc_cache();
 #endif
@@ -437,7 +361,7 @@ void QPainter::cleanup()
     debug( "Number of cache faults = %d", g_numfaults );
     cleanup_gc_cache();
 #endif
-    cleanup_painter_gc( qt_xdisplay() );
+    cleanup_gc_array( qt_xdisplay() );
 }
 
 
@@ -505,7 +429,7 @@ QPainter::QPainter()
     ps_stack = 0;
     gc = gc_brush = 0;
 #if defined(USE_GC_CACHE)
-    penKey = brushKey = 0;
+    penRef = brushRef = 0;
 #endif
 }
 
@@ -694,31 +618,34 @@ void QPainter::updatePen()			// update after changed pen
     int ps = cpen.style();
 
 #if defined(USE_GC_CACHE)
-    bool cacheIt = !testf(ClipOn) && (ps == NoPen || ps == SolidLine)
-	&& cpen.width() == 0 && rop == CopyROP && !testf(MonoDev);
+    bool cacheIt = !testf(ClipOn|MonoDev) &&
+		   (ps == NoPen || ps == SolidLine) &&
+		   cpen.width() == 0 && rop == CopyROP;
 
     if ( cacheIt ) {
 	if ( gc ) {
 	    if ( testf(OptPen) )
-		free_pen( penKey, gc );
+		release_gc( penRef );
 	    else
-		free_painter_gc( dpy, gc );
+		free_gc( dpy, gc );
 	}
 	setf(OptPen);
-	bool hit;
-	gc = alloc_pen( &hit, &penKey, this, dpy, testf(MonoDev) );
-	if ( hit )
+	if ( obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, hd) )
 	    return;
+	if ( !penRef ) {
+	    gc = alloc_gc( dpy, hd, FALSE );
+	    clearf(OptPen);
+	}
     }
     else {
 	if ( gc ) {
 	    if ( testf(OptPen) ) {
-		free_pen( penKey, gc );
-		gc = alloc_painter_gc( dpy, hd, testf(MonoDev) );
+		release_gc( penRef );
+		gc = alloc_gc( dpy, hd, testf(MonoDev) );
 	    }
 	}
 	else
-	    gc = alloc_painter_gc( dpy, hd, testf(MonoDev) );
+	    gc = alloc_gc( dpy, hd, testf(MonoDev) );
 	clearf(OptPen);
     }
 #endif
@@ -806,28 +733,62 @@ static uchar *pat_tbl[] = {
     dense6_pat, dense7_pat,
     hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
-    clearf(DirtyBrush);				// brush becomes clean
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].brush = &cbrush;
 	if ( !pdev->cmd(PDC_SETBRUSH,this,param) || !hd )
 	    return;
     }
+
     int bs = cbrush.style();
+
+#if defined(USE_GC_CACHE)
+    bool cacheIt = !testf(ClipOn|MonoDev) &&
+		   (bs == NoBrush || bs == SolidPattern) &&
+		   rop == CopyROP;
+
+    if ( cacheIt ) {
+	if ( gc_brush ) {
+	    if ( testf(OptBrush) )
+		release_gc( brushRef );
+	    else
+		free_gc( dpy, gc_brush );
+	}
+	setf(OptBrush);
+	if ( obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy, hd) )
+	    return;
+	if ( !brushRef ) {
+	    gc_brush = alloc_gc( dpy, hd, FALSE );
+	    clearf(OptBrush);
+	}
+    }
+    else {
+	if ( gc_brush ) {
+	    if ( testf(OptBrush) ) {
+		release_gc( brushRef );
+		gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
+	    }
+	}
+	else
+	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
+	clearf(OptBrush);
+    }
+#endif
+
     char *pat = 0;				// pattern
-    int sz = 0;					// defalt pattern size: sz*sz
+    int d = 0;					// defalt pattern size: d*d
     int s  = FillSolid;
     if ( bs >= Dense1Pattern && bs <= DiagCrossPattern ) {
 	pat = (char *)pat_tbl[ bs-Dense1Pattern ];
 	if ( bs <= Dense7Pattern )
-	    sz = 8;
+	    d = 8;
 	else if ( bs <= CrossPattern )
-	    sz = 24;
+	    d = 24;
 	else
-	    sz = 16;
+	    d = 16;
     }
     if ( !gc_brush ) {				// brush not yet created
-	gc_brush = alloc_painter_gc( dpy, hd, testf(MonoDev) );
+	gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
 	XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
 	if ( rop != CopyROP ) {			// update raster op for brush
 	    RasterOp r = (RasterOp)rop;
@@ -849,7 +810,7 @@ static uchar *pat_tbl[] = {
 	    key.sprintf( "$qt-brush$%d", bs );
 	    pm = QPixmapCache::find( key );
 	    if ( !pm ) {			// not already in pm dict
-		pm = new QBitmap( sz, sz, pat, TRUE );
+		pm = new QBitmap( d, d, pat, TRUE );
 		CHECK_PTR( pm );
 		QPixmapCache::insert( key, pm );
 	    }
@@ -908,14 +869,17 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else
 	pdev = (QPaintDevice *)pd;
+
+    int dt = pdev->devType();
+
     if ( (pdev->devFlags & PDF_EXTDEV) != 0 )	// this is an extended device
 	setf(ExtDev);
-    else if ( pdev->devType() == PDT_PIXMAP )	// device is a pixmap
+    else if ( dt == PDT_PIXMAP )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify pixmap
 
+    
     dpy = pdev->dpy;				// get display variable
     hd = pdev->hd;				// get handle to drawable
-//    gc = gc_brush = 0;
 
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd(PDC_BEGIN,this,0) ) {	// could not begin painting
@@ -933,14 +897,16 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     bro = curPt = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_col = white;				// default background color
+	bg_mode = TransparentMode;		// default background mode
+	rop = CopyROP;				// default ROP
 	wxmat.reset();				// reset world xform matrix
     }
     wx = wy = vx = vy = 0;			// default view origins
 
-    if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
+    if ( dt == PDT_WIDGET ) {			// device is a widget
 	QWidget *w = (QWidget*)pdev;
 #if !defined(USE_GC_CACHE)
-	gc = alloc_painter_gc( dpy, w->handle() );
+	gc = alloc_gc( dpy, w->handle() );
 #endif
 	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
@@ -958,7 +924,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	}
 #endif
     }
-    else if ( pdev->devType() == PDT_PIXMAP ) { // device is a pixmap
+    else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
@@ -971,7 +937,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( mono )
 	    setf( MonoDev );
 #if !defined(USE_GC_CACHE)
-	gc = alloc_painter_gc( dpy, hd, mono ); // create GC
+	gc = alloc_gc( dpy, hd, mono );		// create GC
 #endif
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
@@ -988,7 +954,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    cpen.setColor( color1 );
 	}
     }
-    else if ( pdev->devType() == PDT_PRINTER ) {// device is a printer
+    else if ( dt == PDT_PRINTER ) {		// device is a printer
 	ww = vw = pdev->metric( PDM_WIDTH );
 	wh = vh = pdev->metric( PDM_HEIGHT );
     }
@@ -1001,14 +967,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else {					// widget or pixmap
 #if defined(USE_GC_CACHE)
-	bg_mode = TransparentMode;
-	rop = CopyROP;
 	updatePen();
 	updateBrush();
 #else
 	XSetBackground( dpy, gc, bg_col.pixel() );
-	bg_mode = TransparentMode;
-	rop = CopyROP;
 #endif
     }
     return TRUE;
@@ -1035,17 +997,25 @@ bool QPainter::end()				// end painting
     if ( testf(ExtDev) )
 	pdev->cmd( PDC_END, this, 0 );
     if ( gc_brush ) {				// restore brush gc
-	if ( testf(ClipOn) )
-	    XSetClipMask( dpy, gc_brush, None );
-	if ( rop != CopyROP )
-	    XSetFunction( dpy, gc_brush, GXcopy );
-	XSetFillStyle( dpy, gc_brush, FillSolid );
-	free_painter_gc( dpy, gc_brush );
+	if ( testf(OptBrush) ) {
+#if defined(USE_GC_CACHE)
+	    release_gc( brushRef );
+#endif
+	}
+	else {
+	    if ( testf(ClipOn) )
+		XSetClipMask( dpy, gc_brush, None );
+	    if ( rop != CopyROP )
+		XSetFunction( dpy, gc_brush, GXcopy );
+	    XSetFillStyle( dpy, gc_brush, FillSolid );
+	    free_gc( dpy, gc_brush );
+	    gc_brush = 0;
+	}
     }
     if ( gc ) {					// restore pen gc
 	if ( testf(OptPen) ) {
 #if defined(USE_GC_CACHE)
-	    free_pen( penKey, gc );
+	    release_gc( penRef );
 #endif
 	}
 	else {
@@ -1053,13 +1023,13 @@ bool QPainter::end()				// end painting
 		XSetClipMask( dpy, gc, None );
 	    if ( rop != CopyROP )
 		XSetFunction( dpy, gc, GXcopy );
-	    free_painter_gc( dpy, gc );
+	    free_gc( dpy, gc );
 	}
+	gc = 0;
     }
     flags = 0;
     pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
-    gc = gc_brush = 0;
     return TRUE;
 }
 
