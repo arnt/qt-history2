@@ -211,7 +211,7 @@ uint QComLibrary::qtVersion()
 {
     if ( !entry )
 	createInstanceInternal();
-    return qt_version;
+    return entry ? qt_version : 0;
 }
 
 

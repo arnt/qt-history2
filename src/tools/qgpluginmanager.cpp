@@ -351,7 +351,7 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 {
     if ( feature.isEmpty() )
 	return 0;
-
+    
     // We already have a QLibrary object for this feature
     QLibrary *library = 0;
     if ( ( library = plugDict[feature] ) )
@@ -369,7 +369,7 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 	    worst = s;
 	if ( s > best )
 	    best = s;
-	map[s].append( *it );
+	map[s].append( basename + QChar(0xfffd) + *it );
 	++it;
     }
 
@@ -377,69 +377,81 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
     QGPluginManager *that = (QGPluginManager*)this;
     for ( int s = best; s >= worst; --s ) {
 	QStringList group = map[s];
-	group.sort();
-	QStringList::Iterator git = group.begin();
+	group.sort(); // sort according to the base name
+	QStringList::ConstIterator git = group.begin();
 	while ( git != group.end() ) {
-	    QString lib = *git;
+	    QString lib = (*git).mid( (*git).find( QChar(0xfffd) ) + 1 );
+	    QString basename = (*git).left( (*git).find( QChar(0xfffd) ) );
 	    ++git;
 	    if ( lib.isEmpty() || libDict[lib] )
 		continue;
 
-	    if ( git != group.end() && 
-		 QFileInfo(lib).baseName() == QFileInfo(*git).baseName() ) {
-		QComLibrary* first = new QComLibrary( lib );
-		QComLibrary* second = 0;
-		bool takeFirst = TRUE;
-		if ( first->qtVersion() != QT_VERSION ) {
-		    second = new QComLibrary( *git );
-		    if ( second->qtVersion() == QT_VERSION )
-			takeFirst = FALSE;
-		    else if ( second->qtVersion() < QT_VERSION &&
-			      first->qtVersion() > QT_VERSION )
-			takeFirst = FALSE;
-		}
-
-		if ( takeFirst ) {
-		    that->addLibrary( first );
-		    delete second;
-		} else {
-		    that->addLibrary( second );
-		    delete first;
-		}
+	    QStringList sameBasename;
+	    while( git != group.end() &&
+		   basename == (*git).left( (*git).find( QChar(0xfffd) ) )  ) {
+		sameBasename << (*git).mid( (*git).find( QChar(0xfffd) ) + 1 );
 		++git;
-	    } else {
-		that->addLibrary( new QComLibrary(lib ) );
 	    }
 	    
+	    if ( sameBasename.isEmpty() ) {
+		that->addLibrary( new QComLibrary(lib ) );
+	    } else {
+		QPtrList<QComLibrary> same;
+		same.setAutoDelete( TRUE );
+		for ( QStringList::ConstIterator bit = sameBasename.begin(); 
+		      bit != sameBasename.end(); ++bit )
+		    same.append( new QComLibrary( *bit ) );
+		QComLibrary* bestMatch = 0;
+		for ( QComLibrary* candidate = same.first(); candidate; candidate = same.next() )
+		    if ( candidate->qtVersion() && candidate->qtVersion() <= QT_VERSION
+			 && ( !bestMatch || candidate->qtVersion() > bestMatch->qtVersion() ) )
+			bestMatch = candidate;
+		if ( bestMatch ) {
+		    same.find( bestMatch );
+		    that->addLibrary( same.take() );
+		}
+	    }
+	
 	    if ( ( library = plugDict[feature] ) )
 		return library;
 	}
     }
-    
     return 0;
 }
 
 QStringList QGPluginManager::featureList() const
 {
-    // Make sure that all libraries have been loaded once.
     QGPluginManager *that = (QGPluginManager*)this;
     QStringList theLibs = libList;
-    QStringList::Iterator it = theLibs.begin();
-    while ( it != theLibs.end() ) {
-	QString lib = *it;
-	++it;
-	if ( !lib.isEmpty() && !libDict[lib] )
-	    that->addLibrary( new QComLibrary(lib) );
-    }
+    QStringList phase2Libs;
+    QStringList phase2Deny;
 
-    QStringList list;
-    QDictIterator<QLibrary> pit( plugDict );
-    while( pit.current() ) {
-	list << pit.currentKey();
-	++pit;
+    /* In order to get the feature list we need to add all interesting
+      libraries. If there are libraries with the same base name, we
+      prioritze the one that fits our Qt version number and ignore the
+      others  */
+    QStringList::Iterator it;
+    for ( it = theLibs.begin(); it != theLibs.end(); ++it  ) {
+	if ( (*it).isEmpty() || libDict[*it] )
+	    continue;
+	QComLibrary* library = new QComLibrary( *it );
+	if ( library->qtVersion() == QT_VERSION ) {
+	    that->addLibrary( library );
+	    phase2Deny << QFileInfo( *it ).baseName();
+	} else {
+	    delete library;
+	    phase2Libs << *it;
+	}
     }
+    for ( it = phase2Libs.begin(); it != phase2Libs.end(); ++it  )
+	if ( !phase2Deny.contains( QFileInfo( *it ).baseName() ) )
+	    that->addLibrary( new QComLibrary( *it ) );
 
-    return list;
+    QStringList features;
+    for ( QDictIterator<QLibrary> pit( plugDict ); pit.current(); ++pit )
+	features << pit.currentKey();
+
+    return features;
 }
 
 bool QGPluginManager::addLibrary( QLibrary* lib )
@@ -506,7 +518,7 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
 	if ( !libList.contains( plugin->library() ) )
 	    libList.append( plugin->library() );
 	return TRUE;
-    } 
+    }
     libList.remove( plugin->library() );
     delete plugin;
     return FALSE;
