@@ -95,26 +95,30 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     writeMakeQmake(t);
 
     t << "qmake_all:";
-    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
-	QString subdir = *sdirit;
-	int lastSeparator( 0 );
-	subLevels = 1;
-	for( i = 0; i < subdir.length(); i++ ) {
-	    if( subdir.at( i ) == '/' ) {
-		subLevels++;
-		lastSeparator = i;
+    if( sdirs.count()) {
+	for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+	    QString subdir = *sdirit;
+	    int lastSeparator( 0 );
+	    subLevels = 1;
+	    for( i = 0; i < subdir.length(); i++ ) {
+		if( subdir.at( i ) == '/' ) {
+		    subLevels++;
+		    lastSeparator = i;
+		}
+	    }
+	    t << "\n\t"
+	      << "cd " << subdir << "\n\t";
+	    if( lastSeparator ) {
+		subdir = subdir.mid( lastSeparator + 1 );
+	    }
+	    t << "$(QMAKE) " << subdir << ".pro -o $(MAKEFILE)" << "\n\t"
+	      << "@cd ..";
+	    for( i = 1; i < subLevels; i++ ) {
+		t << "\\..";
 	    }
 	}
-	t << "\n\t"
-	  << "cd " << subdir << "\n\t";
-	if( lastSeparator ) {
-	    subdir = subdir.mid( lastSeparator + 1 );
-	}
-	t << "$(QMAKE) " << subdir << ".pro -o $(MAKEFILE)" << "\n\t"
-	  << "@cd ..";
-	for( i = 1; i < subLevels; i++ ) {
-	    t << "\\..";
-	}
+    } else {
+	t << "\n\t" << "@cd .";
     }
     t << endl << endl;
 
