@@ -327,7 +327,8 @@ void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     writeCmdLength(pos, r, false);
 }
 
-void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s)
+void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+					  Qt::PixmapDrawingMode)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawTiledPixmap);

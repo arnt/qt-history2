@@ -1539,9 +1539,11 @@ void QWin32PaintEngine::updateFont(const QFont &font)
 }
 
 extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);
-extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
+extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int,
+			 Qt::PixmapDrawingMode);
 
-void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
+void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
+					Qt::PixmapDrawingMode mode)
 {
     QBitmap *mask = (QBitmap *)pixmap.mask();
 
@@ -1569,9 +1571,9 @@ void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, c
             qt_fill_tile(&tilemask, *mask);
             tile.setMask(tilemask);
         }
-        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), tile, p.x(), p.y());
+        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), tile, p.x(), p.y(), mode);
     } else {
-        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y());
+        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y(), mode);
     }
 }
 
@@ -2595,7 +2597,7 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
 }
 
 void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
-                                          const QPoint &)
+                                          const QPoint &, Qt::PixmapDrawingMode)
 {
     Q_UNUSED(r);
     Q_UNUSED(pm);

@@ -140,9 +140,9 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
     d->clip.dirty = false;
     d->offx = d->offy = 0;
     bool unclipped = false;
-    if(d->pdev->devType() == QInternal::Pixmap) { 
+    if(d->pdev->devType() == QInternal::Pixmap) {
         static_cast<QPixmap*>(d->pdev)->detach();  //detach it
-    } else if(d->pdev->devType() == QInternal::Widget) { 
+    } else if(d->pdev->devType() == QInternal::Widget) {
         QWidget *w = static_cast<QWidget*>(d->pdev);
         { //offset painting in widget relative the tld
             QPoint wp = posInWindow(w);
@@ -607,7 +607,8 @@ QQuickDrawPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
+QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
+				       Qt::PixmapDrawingMode mode)
 {
     int yPos=r.y(), xPos, drawH, drawW, yOff=p.y(), xOff;
     while(yPos < r.bottom()) {
@@ -621,7 +622,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
             if(xPos + drawW > r.right())    // Cropping last column
                 drawW = r.right() - xPos;
             drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
-                       Qt::ComposePixmap);
+                       mode);
             xPos += drawW;
             xOff = 0;
         }
@@ -979,13 +980,13 @@ static void qt_mac_clip_cg_reset(CGContextRef hd)
 
     //do the clip reset
     QRect qrect = QRect(0, 0, 99999, 999999);
-    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+QRect::rectangleMode(), 
+    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+QRect::rectangleMode(),
                       qrect.bottom()+QRect::rectangleMode());
     ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
 
     //reset xforms
     CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
-    CGContextConcatCTM(hd, old_xform); 
+    CGContextConcatCTM(hd, old_xform);
 }
 
 static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAffineTransform *orig_xform)
@@ -1005,7 +1006,7 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
         const int count = rects.size();
         for(int i = 0; i < count; i++) {
             const QRect &r = rects[i];
-            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width()-(!QRect::rectangleMode()), 
+            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width()-(!QRect::rectangleMode()),
                                       r.height()-(!QRect::rectangleMode()));
             if(pt) {
                 mac_r.origin.x -= pt->x();
@@ -1018,7 +1019,7 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
 
     if(orig_xform) {//reset xforms
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
-        CGContextConcatCTM(hd, old_xform); 
+        CGContextConcatCTM(hd, old_xform);
     }
 }
 
@@ -1602,14 +1603,15 @@ QCoreGraphicsPaintEngine::cleanup()
 {
 }
 
-CGContextRef 
+CGContextRef
 QCoreGraphicsPaintEngine::handle() const
 {
     return d->hd;
 }
 
 void
-QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
+QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
+					  Qt::PixmapDrawingMode)
 {
     Q_ASSERT(isActive());
 

@@ -61,7 +61,8 @@ public:
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+			 Qt::PixmapDrawingMode mode);
     void drawPath(const QPainterPath &path);
 
     inline Type type() const { return QPaintEngine::Windows; }

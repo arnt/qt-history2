@@ -1337,11 +1337,7 @@ static GC cache_mask_gc(Display *dpy, Drawable hd, int mask_no, Pixmap mask)
 
 void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 		const QPaintDevice *src, int sx, int sy, int sw, int sh,
-		bool ignoreMask=false);
-
-void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
-		const QPaintDevice *src, int sx, int sy, int sw, int sh,
-		bool ignoreMask)
+		bool ignoreMask = false)
 {
     if (!src || !dst) {
         Q_ASSERT(src != 0);
@@ -1681,7 +1677,21 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
                 }
             }
         } else {
-            qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::CopyPixmapNoMask ? true : false);
+	    qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::CopyPixmapNoMask ? true : false);
+	    if (mode == Qt::CopyPixmap) {
+		if (pixmap.data->alphapm && d->pdev->devType() == QInternal::Pixmap) {
+		    QPixmap *px = static_cast<QPixmap *>(d->pdev);
+		    if (px->data->alphapm) {
+			GC agc = XCreateGC(d->dpy, px->data->alphapm->handle(), 0, 0);
+			XCopyArea(d->dpy, pixmap.data->alphapm->handle(), px->data->alphapm->handle(),
+				  agc, sx, sy, sw, sh, x, y);
+			XFreeGC(d->dpy, agc);
+		    } else {
+			Q_ASSERT(0); // ### add support for this
+		    }
+		} else {
+		}
+	    }
         }
         return;
     }
@@ -1734,7 +1744,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
         QPixmap *alpha = pixmap.data->alphapm;
 
-        if (pict && pixmap.xftPictureHandle() &&
+        if (mode == Qt::ComposePixmap && pict && pixmap.xftPictureHandle() &&
             alpha && alpha->xftPictureHandle()) {
             XRenderComposite(d->dpy, PictOpOver, pixmap.xftPictureHandle(),
                              alpha->xftPictureHandle(), pict,
@@ -1743,6 +1753,18 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
         {
             XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
+	    if (mode == Qt::CopyPixmap && pixmap.data->alphapm
+		&& d->pdev->devType() == QInternal::Pixmap) {
+		QPixmap *px = static_cast<QPixmap *>(d->pdev);
+		if (px->data->alphapm) {
+ 		    GC agc = XCreateGC(d->dpy, px->data->alphapm->handle(), 0, 0);
+		    XCopyArea(d->dpy, pixmap.data->alphapm->handle(), px->data->alphapm->handle(),
+			      agc, sx, sy, sw, sh, x, y);
+		    XFreeGC(d->dpy, agc);
+		} else {
+		    Q_ASSERT(0); // ### add support for this
+		}
+	    }
         }
     }
 
@@ -1818,9 +1840,11 @@ Qt::HANDLE QX11PaintEngine::handle() const
     return d->hd;
 }
 
-extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
+extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int,
+			 Qt::PixmapDrawingMode mode);
 
-void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
+void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
+				      Qt::PixmapDrawingMode mode)
 {
     int x = r.x();
     int y = r.y();
@@ -1870,6 +1894,6 @@ void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, con
         XSetTSOrigin(d->dpy, d->gc, 0, 0);
         XSetFillStyle(d->dpy, d->gc, FillSolid);
     } else {
-        qt_draw_tile(this, x, y, w, h, pixmap, sx, sy);
+	qt_draw_tile(this, x, y, w, h, pixmap, sx, sy, mode);
     }
 }

@@ -5831,7 +5831,8 @@ void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int text
         d->currentFontFile->drawText(d->pageStream, d, p, ti, textflags);
 }
 
-void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
+void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
+				     Qt::PixmapDrawingMode mode)
 {
     // ### Optimise implementation!
     int yPos = r.y();
@@ -5846,7 +5847,7 @@ void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, cons
             int drawW = pixmap.width() - xOff; // Cropping first column
             if ( xPos + drawW > r.x() + r.width() )    // Cropping last column
                 drawW = r.x() + r.width() - xPos;
-            painter()->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH );
+            painter()->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH, mode);
             xPos += drawW;
             xOff = 0;
         }

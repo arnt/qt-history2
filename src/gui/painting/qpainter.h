@@ -158,7 +158,8 @@ public:
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
 
-    void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0);
+    void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0,
+			 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     void drawTiledPixmap(const QRect &, const QPixmap &, const QPoint &);
     void drawTiledPixmap(const QRect &, const QPixmap &);
 #ifndef QT_NO_PICTURE

@@ -60,7 +60,7 @@ public:
 #endif
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, Qt::PixmapDrawingMode mode);
 
     virtual Qt::HANDLE handle() const;
     inline Type type() const { return QPaintEngine::QWindowSystem; }

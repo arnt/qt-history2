@@ -60,7 +60,8 @@ public:
 
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
-    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
+    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+				 Qt::PixmapDrawingMode mode);
     virtual void drawPath(const QPainterPath &);
 
     virtual QPaintEngine::Type type() const { return QPaintEngine::PostScript; }

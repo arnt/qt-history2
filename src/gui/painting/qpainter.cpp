@@ -2658,7 +2658,8 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
 
 /*!\internal internal, used by drawTiledPixmap */
 void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
-                  const QPixmap &pixmap, int xOffset, int yOffset)
+                  const QPixmap &pixmap, int xOffset, int yOffset,
+		  Qt::PixmapDrawingMode mode)
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
@@ -2673,8 +2674,7 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
             drawW = pixmap.width() - xOff; // Cropping first column
             if (xPos + drawW > x + w)           // Cropping last column
                 drawW = x + w - xPos;
-            gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
-                           Qt::ComposePixmap);
+            gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), mode);
             xPos += drawW;
             xOff = 0;
         }
@@ -2714,7 +2714,8 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
     \sa drawPixmap()
 */
 
-void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy)
+void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy,
+			       Qt::PixmapDrawingMode mode)
 {
     if (!isActive())
         return;
@@ -2733,18 +2734,20 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
     else
         sy = sy % sh;
 
-    if ((d->state->VxF || d->state->WxF)
+    if ((d->state->VxF || d->state->WxF) && d->state->txop > TxScale
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
-        QPixmap pm(w, h);
+	QImage img(w, h, 32);
+	img.setAlphaBuffer(true);
+        QPixmap pm = img;
         QPainter p(&pm);
         // Recursive call ok, since the pixmap is not transformed...
-        p.drawTiledPixmap(0, 0, w, h, pixmap, sx, sy);
+	p.drawTiledPixmap(0, 0, w, h, pixmap, sx, sy, Qt::CopyPixmap);
         p.end();
         drawPixmap(x, y, pm);
         return;
     }
 
-    d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy));
+    d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), mode);
 }
 
 /*!
