@@ -1,11 +1,11 @@
-/*! \headerfile <qalgorithms.h>
+/*! \headerfile <QtAlgorithms>
 
     \title Generic Algorithms
 
-    \brief The <qalgorithms.h> header file provides generic template-based algorithms.
+    \brief The <QtAlgorithms> header file provides generic template-based algorithms.
 
     Qt provides a number of global template functions in \c
-    <qalgorithm.h> that work on containers and perform well-know
+    <QtAlgorithms> that work on containers and perform well-know
     algorithms. You can use these algorithms with any \l {container
     class} that provides STL-style iterators, including Qt's QList,
     QLinkedList, QVector, QMap, and QHash classes.
@@ -129,8 +129,8 @@
     An \e{input iterator} is an iterator that can be used for reading
     data sequentially from a container. It must provide the following
     operators: \c{==} and \c{!=} for comparing two iterators, unary
-    \c{*} for retrieving the value stored in the item, and \c{++} for
-    advancing to the next item.
+    \c{*} for retrieving the value stored in the item, and prefix
+    \c{++} for advancing to the next item.
 
     The Qt containers' iterator types (const and non-const) are all
     input iterators.
@@ -140,8 +140,8 @@
     An \e{output iterator} is an iterator that can be used for
     writing data sequentially to a container or to some output
     stream. It must provide the following operators: unary \c{*} for
-    writing a value (i.e., \c{*it = val}) and \c{++} for advancing to
-    the next item.
+    writing a value (i.e., \c{*it = val}) and prefix \c{++} for
+    advancing to the next item.
 
     The Qt containers' non-const iterator types are all output
     iterators.
@@ -158,7 +158,7 @@
 
     A \e{bidirectional iterator} is an iterator that meets the
     requirements of forward iterators but that in addition supports
-    \c{--} for iterating backward.
+    prefix \c{--} for iterating backward.
 
     The Qt containers' non-const iterator types are all bidirectional
     iterators.
@@ -187,7 +187,7 @@
 */
 
 /*! \fn OutputIterator qCopy(InputIterator begin1, InputIterator end1, OutputIterator begin2)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Copies the items from range [\a begin1, \a end1) to range [\a
     begin2, ...), in the order in which they appear.
@@ -214,7 +214,7 @@
 */
 
 /*! \fn BiIterator2 qCopyBackward(BiIterator1 begin1, BiIterator1 end1, BiIterator2 end2)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Copies the items from range [\a begin1, \a end1) to range [...,
     \a end2).
@@ -230,14 +230,14 @@
 
 	QVector<QString> vect(5);
         qCopyBackward(list.begin(), list.end(), vect.end());
-        // vect: [ "", "", "three", "two", "one" ]
+        // vect: [ "", "", "one", "two", "three" ]
     \endcode
 
     \sa qCopy(), {bidirectional iterators}
 */
 
 /*! \fn bool qEqual(InputIterator1 begin1, InputIterator1 end1, InputIterator2 begin2)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Compares the items in the range [\a begin1, \a end1) with the
     items in the range [\a begin2, ...). Returns true if all the
@@ -268,7 +268,7 @@
 */
 
 /*! \fn void qFill(ForwardIterator begin, ForwardIterator end, const T &value)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Fills the range [\a begin, \a end) with \a value.
 
@@ -288,7 +288,7 @@
 */
 
 /*! \fn InputIterator qFind(InputIterator begin, InputIterator end, const T &value)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Returns an iterator to the first occurrence of \a value in a
     container in the range [\a begin, \a end). Returns \a end if \a
@@ -319,7 +319,7 @@
 */
 
 /*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Sets \a n to the number of occurrences of \a value in the range
     [\a begin, \a end).
@@ -345,7 +345,7 @@
 */
 
 /*! \fn void qSwap(T &var1, T &var2)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Exchanges the values of variables \a var1 and \a var2.
 
@@ -360,7 +360,7 @@
 */
 
 /*! \fn bool qLess(const T &t1, const T &t2)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Returns true if \a t1 < \a t2; otherwise returns false.
 
@@ -370,7 +370,7 @@
 */
 
 /*! \fn bool qGreater(const T &t1, const T &t2)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Returns true if \a t1 > \a t2; otherwise returns false.
 
@@ -380,7 +380,7 @@
 */
 
 /*! \fn void qBubbleSort(BiIterator begin, BiIterator end)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Sorts the items in range [\a begin, \a end) in ascending order
     using the bubble sort algorithm.
@@ -406,7 +406,7 @@
 */
 
 /*! \fn void qBubbleSort(BiIterator begin, BiIterator end, LessThan lessThan)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     \overload
 
@@ -445,7 +445,7 @@
 */
 
 /*! \fn void qBubbleSort(Container &c)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     \overload
 
@@ -453,28 +453,28 @@
 */
 
 /*! \fn void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     \internal
     Used by qHeapSort().
 */
 
 /*! \fn void qHeapSortHelper(BiIterator b, BiIterator e, T, LessThan lessThan)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     \internal
     Used by qHeapSort().
 */
 
 /*! \fn void qHeapSortHelper(BiIterator b, BiIterator e, T dummy)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     \internal
     Used by qHeapSort().
 */
 
 /*! \fn void qHeapSort(BiIterator begin, BiIterator end)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Sorts the items in range [\a begin, \a end) in ascending order
     using the heap sort algorithm.
@@ -499,7 +499,7 @@
 */
 
 /*! \fn void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     \overload
 
@@ -538,7 +538,7 @@
 */
 
 /*! \fn void qHeapSort(Container &c)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     \overload
 
@@ -546,7 +546,7 @@
 */
 
 /*! \fn RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Performs a binary search of the range [\a begin, \a end) and
     returns the position of the first ocurrence of \a value. If no
@@ -596,12 +596,12 @@
 */
 
 /*! \fn RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Performs a binary search of the range [\a begin, \a end) and
-    returns the position of the next-to-last occurrence of \a value.
-    If no such item is found, returns the position where the item
-    should be inserted.
+    returns the position of the one-past-the-last occurrence of \a
+    value. If no such item is found, returns the position where the
+    item should be inserted.
 
     The items in the range [\a begin, \e end) must be sorted in
     ascending order; see qHeapSort().
@@ -611,11 +611,11 @@
 	QList<int> list;
         list << 3 << 3 << 6 << 6 << 6 << 8;
 
-        QList<int>::Iterator i = qLowerBound(list.begin(), list.end(), 5);
+        QList<int>::Iterator i = qUpperBound(list.begin(), list.end(), 5);
 	list.insert(i, 5);
         // list: [ 3, 3, 5, 6, 6, 6, 8 ]
 
-	i = qLowerBound(list.begin(), list.end(), 12);
+	i = qUpperBound(list.begin(), list.end(), 12);
         list.insert(i, 12);
         // list: [ 3, 3, 5, 6, 6, 6, 8, 12 ]
     \endcode
@@ -632,7 +632,7 @@
         QVector<int>::Iterator begin6 =
 	        qLowerBound(vect.begin(), vect.end(), 6);
         QVector<int>::Iterator end6 =
-	        qUpperBound(begin6, vect.end(), 6);
+	        qUpperBound(vect.begin(), vect.end(), 6);
 
 	QVector<int>::Iterator i = begin6;
         while (i != end6) {
@@ -646,7 +646,7 @@
 */
 
 /*! \fn RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Performs a binary search of the range [\a begin, \a end) and
     returns the position of an occurrence of \a value. If there are
@@ -678,7 +678,7 @@
 */
 
 /*! \fn void qDeleteAll(ForwardIterator begin, ForwardIterator end)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     Deletes all the items in the range [\a begin, \a end) using the
     C++ \c delete operator. The item type must be a pointer type (for
@@ -702,15 +702,9 @@
 */
 
 /*! \fn void qDeleteAll(const Container &c)
-    \relates <qalgorithms.h>
+    \relates <QtAlgorithms>
 
     \overload
 
     This is the same as qDeleteAll(\a{c}.begin(), \a{c}.end()).
-*/
-
-/*! \fn QBackInsertIterator<Container> qBackInserter(Container &c)
-    \relates <qalgorithms.h>
-
-    \internal
 */
