@@ -1049,7 +1049,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
                         oldcode=incode;
                         while (sp>stack) {
                             --sp;
-                            if (!out_of_bounds && *sp!=trans_index)
+                            if (!out_of_bounds && line && *sp!=trans_index)
                                 line[y][x] = color(*sp);
                             x++;
                             if (x>=swidth) out_of_bounds = true;
