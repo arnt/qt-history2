@@ -250,7 +250,7 @@ void QSqlRowset::dumpRecords()
 	n++;
 	//    } else {
 	//	qDebug("No matching records.");
-	/    }
+	//    }
 }
 
 #endif // QT_NO_SQL
