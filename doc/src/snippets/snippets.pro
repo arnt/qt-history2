@@ -4,7 +4,7 @@
 
 TEMPLATE        = subdirs
 SUBDIRS         = coordsys \
-                  customstyle \
+#                  customstyle \
                   dialogs \
                   itemselection \
 #                  modelview-subclasses \

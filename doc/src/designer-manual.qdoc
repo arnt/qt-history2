@@ -28,6 +28,8 @@ be certain that they will look and feel exactly as you expect.
 \i \l{designer-using-a-component.html}{Using a Component In Your Application}
   \list
   \i \l{designer-using-a-component.html#ASimpleCase}{A Simple Case}
+  \i \l{designer-using-a-component.html#UsingAPrivateInterface}{Using A Private Interface}
+  \i \l{designer-using-a-component.html#SubclassingAForm}{Subclassing a Form}
   \endlist
 \endlist
 
@@ -244,11 +246,17 @@ The Property Editor always shows the properties of the currently selected
 object, so we just need to select each of the widgets in turn to access
 their properties.
 
-For the labels, we only need to change the \c text properties; for the
-spinboxes, we must change the \c value, \c minimum, and \c maximum
-properties.
+For the labels and push buttons, we only need to change the \c text
+property of each widget; for the spinboxes, we must change the \c value,
+\c minimum, and \c maximum properties.
 The dialog's window title can also be changed using the Property Editor:
 click on the form itself to access the dialog's properties.
+
+It is usually a good idea to give meaningful names to widgets in case
+you want to connect their signals to slots in other components. Code
+that uses components created with \QD needs to follow certain
+conventions in order to take advantage of \c uic's auto-connection
+facilities.
 
 \table
 \row \i
@@ -333,8 +341,17 @@ it to make it smaller.
 With Qt's integrated build tools, \e qmake and \e uic, the code for user
 interface components created with \QD is automatically generated when the
 rest of of your application is built. Forms can be included and used
-directly from your application or, for extra flexibility, they can be
-subclassed and extended from your code.
+directly from your application or, for extra flexibility, you can
+use them to extend subclasses of standard widgets.
+
+There are two very similar approaches to using form with subclasses.
+In the \l{#UsingAPrivateInterface}{simplest approach}, you subclass
+the form's base class (such as QWidget or QDialog), and include a
+private instance of the form's user interface object that sets up your
+component. Alternatively, you can
+\l{#SubclassingAForm}{use multiple inheritance} to allow the widgets
+defined in the form to be directly used from within the scope of the
+subclass.
 
 \target ASimpleCase
 \section1 A Simple Case
@@ -361,7 +378,7 @@ to include it in a file listed in \c SOURCES. Since we only have
 \c main.cpp, we include it there:
 
 \quotefromfile snippets/designer/imagedialog/main.cpp
-\skipto #include "ui_
+\skipto #include "ui_imagedialog.h"
 \printuntil #include <QApplication>
 
 This additional check ensures that we do not generate code for \e .ui
@@ -383,13 +400,125 @@ components in your applications, but many components created with \QD
 will need to be integrated more closely with the rest of the application
 code. To achieve this, we need to subclass the form that we created.
 
+\target UsingAPrivateInterface
+\section1 Using a Private Interface
+
+In this approach, we use the \c{Ui::ImageDialog} object as we did in
+the simple case, but instead of setting up the dialog from the
+application's main function, we subclass QDialog and set up the
+user interface from within the constructor.
+
+Components used in this way expose the widgets and layouts used in the
+form to the QDialog subclass, and provide a standard system for
+making signal and slot connections between the user interface and other
+objects in your application.
+
+To ensure that we can use the user interface, we need to include the
+header file that \e uic generates before referring to \c{Ui::ImageDialog}:
+
+\quotefromfile snippets/designer/subclassing-member/imagedialog.h
+\skipto #include "ui_imagedialog.h"
+\printuntil #include "ui_imagedialog.h"
+
+The subclass is defined in the following way:
+
+\skipto class ImageDialog
+\printuntil /^\};/
+
+The important features of the class are the private \c ui object
+which provides the code for setting up and managing the user
+interface, and two private slots for handling mouse clicks on the
+push buttons in the dialog.
+
+The constructor for the subclass constructs and configures all the
+widgets and layouts for the dialog by just calling the \c ui object's
+setupUi() function. Once this has been done, it is possible to modify
+the user interface and create items for the combobox:
+
+\quotefromfile snippets/designer/privateinterface/imagedialog.cpp
+\skipto ImageDialog::ImageDialog
+\printuntil /^\}/
+
+The slots we declared in the class definition are automatically
+connected to widgets in the dialog. The names used for the slots
+depend on both the names of the widgets in the form and the signals
+we want to connect to. The naming convention follows a standard
+pattern:
+
+\code
+    void on_<widget name>_<signal name>(<signal parameters>);
+\endcode
+
+Using this convention, we implement the slots that respond to mouse
+clicks on the push buttons:
+
+\skipto void ImageDialog::on_cancelButton
+\printuntil /^\}/
+
+When the cancel button is clicked, we just call the QDialog's reject()
+function to close the dialog and dismiss its contents.
+
+\skipto void ImageDialog::on_okButton
+\printuntil /^\}/
+
+When the OK button is clicked, we call QDialog's accept() function to
+close the dialog and accept its contents.
+
+Note that we could also connect the push buttons to slots with
+different names, but this would require the connections to be made
+manually, using the connect() function. If you are prepared to
+use the naming convention, auto-connection is usually more convenient
+to use.
+
+The main advantages of this approach are its simple use of inheritance
+to provide a QDialog-based interface, and its encapsulation of the
+user interface widget variables within the \c ui member.
+
 \target SubclassingAForm
 \section1 Subclassing a Form
 
-Components created with \QD can be subclassed to provide additional
-functionality, and to enable signal and slot connections to be made
-with objects in your application.
+Components created with \QD can be subclassed along with a standard
+QWidget-based class. This approach makes all the user interface
+components defined in the form directly accessible within the scope of
+the subclass, and enables signal and slot connections to be made in
+the usual way, with the \l{QObject::connect()}{connect()} function.
 
+As before, we need to include the header file that \e uic generates
+from the \c imagedialog.ui file:
+
+\quotefromfile snippets/designer/subclassing/imagedialog.h
+\skipto #include "ui_imagedialog.h"
+\printuntil #include "ui_imagedialog.h"
+
+The class is defined in a similar way to the one used in the private
+interface approach, except that this time we inherit from both QDialog
+and \c{Ui::ImageDialog}:
+
+\skipto class ImageDialog
+\printuntil /^\];/
+
+We inherit \c{Ui::ImageDialog} privately to ensure that the user
+interface objects are private in our subclass.
+
+The constructor for the subclass performs many of the same tasks as
+the constructor used in the private interface example:
+
+\quotefromfile snippets/designer/subclassing/imagedialog.cpp
+\skipto ImageDialog::ImageDialog
+\printuntil /^\}/
+
+In this case, the interface can be set up using a member function,
+and the combobox is accessed in the same way as a widget created
+in code by hand. The only significant change is the addition of
+the connect() functions that are used to connect the push buttons
+to the dialog's accept() and reject() slots. Note that we could
+instead use the auto-connection facilities of \e uic to connect
+signals from the push buttons to slots in our subclass.
+
+Subclassing using multiple inheritance gives us easier access to
+the contents of the form, and still allows auto-connection to be
+used. However, it is expected that some frameworks may be unable
+to use this approach due to restrictions on inheritance.
 
 \l{designer-designing-a-component.html}{[Designing a Component]}
 \l{designer-manual.html}{[Up]}
