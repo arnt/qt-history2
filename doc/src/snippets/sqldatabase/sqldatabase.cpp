@@ -1,5 +1,5 @@
+#include <QtGui>
 #include <QtSql>
-#include <QPixmap>
 
 #include <iostream>
 
@@ -143,12 +143,25 @@ void QSqlQuery_snippets()
 
 void QSqlQueryModel_snippets()
 {
+    {
+    QSqlQueryModel *model = new QSqlQueryModel;
+    model->setQuery("SELECT name, salary FROM employee");
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"),
+                         QAbstractItemModel::DisplayRole);
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Salary"),
+                         QAbstractItemModel::DisplayRole);
+
+    QTableView *view = new QTableView;
+    view->setModel(model);
+    view->show();
+    }
+
     QSqlQueryModel model;
     model.setQuery("SELECT * FROM employee");
-    int age = model.record(4).value("age").toInt();
+    int salary = model.record(4).value("salary").toInt();
 
     {
-    int age = model.data(model.index(4, 3)).toInt();
+    int salary = model.data(model.index(4, 2)).toInt();
     }
 
     for (int row = 0; row < model.rowCount(); ++row) {
@@ -156,11 +169,6 @@ void QSqlQueryModel_snippets()
             qDebug() << model.data(model.index(row, col));
         }
     }
-
-    model.insertRow(4);
-    model.setData(model.index(4, 1), "Noah");
-
-    model.removeRow(4);
 }
 
 class MyModel : public QSqlQueryModel
@@ -179,10 +187,71 @@ QVariant MyModel::data(const QModelIndex &item, int role) const
     return QSqlQueryModel::data(item, role);
 }
 
+void QSqlTableModel_snippets()
+{
+    QSqlTableModel *model = new QSqlTableModel;
+    model->setTable("employee");
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model->select();
+    model->removeColumn(0); // don't show the ID
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"),
+                         QAbstractItemModel::DisplayRole);
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Salary"),
+                         QAbstractItemModel::DisplayRole);
+
+    QTableView *view = new QTableView;
+    view->setModel(model);
+    view->show();
+
+    {
+    QSqlTableModel model;
+    model.setTable("employee");
+    QString name = model.record(4).value("name").toString();
+    }
+}
+
+class XyzResult : public QSqlResult
+{
+public:
+    XyzResult(const QSqlDriver *driver)
+        : QSqlResult(driver) {}
+    ~XyzResult() {}
+
+protected:
+    QCoreVariant data(int /* index */) { return QCoreVariant(); }
+    bool isNull(int /* index */) { return false; }
+    bool reset(const QString & /* query */) { return false; }
+    bool fetch(int /* index */) { return false; }
+    bool fetchFirst() { return false; }
+    bool fetchLast() { return false; }
+    int size() { return 0; }
+    int numRowsAffected() { return 0; }
+    QSqlRecord record() { return QSqlRecord(); }
+};
+
+class XyzDriver : public QSqlDriver
+{
+public:
+    XyzDriver() {}
+    ~XyzDriver() {}
+
+    bool hasFeature(DriverFeature /* feature */) const { return false; }
+    bool open(const QString & /* db */, const QString & /* user */,
+              const QString & /* password */, const QString & /* host */,
+              int /* port */, const QString & /* options */)
+        { return false; }
+    void close() {}
+    QSqlResult *createResult() const { return new XyzResult(this); }
+};
+
 int main()
 {
     QSqlDatabase_snippets();
     QSqlField_snippets();
     QSqlQuery_snippets();
     QSqlQueryModel_snippets();
+    QSqlTableModel_snippets();
+
+    XyzDriver driver;
+    XyzResult result(&driver);
 }
