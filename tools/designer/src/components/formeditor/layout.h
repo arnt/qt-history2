@@ -28,6 +28,10 @@
 
 class FormWindow;
 
+void add_to_box_layout(QBoxLayout *box, QWidget *widget);
+void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
+void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align = Qt::AlignAuto);
+
 class Layout : public QObject
 {
     Q_OBJECT
@@ -36,7 +40,7 @@ public:
     virtual ~Layout();
 
     virtual void setup();
-    
+
     virtual void doLayout() = 0;
     virtual void undoLayout();
     virtual void breakLayout();
@@ -153,10 +157,10 @@ inline int indexOfWidget(QLayout *layout, QWidget *widget)
     while (QLayoutItem *item = layout->itemAt(index)) {
         if (item->widget() == widget)
             return index;
-            
+
         ++index;
     }
-    
+
     return -1;
 }
 

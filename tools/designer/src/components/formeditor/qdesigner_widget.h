@@ -16,8 +16,10 @@
 
 #include "formeditor_global.h"
 #include "layoutdecoration.h"
+
 #include <abstractmetadatabase.h>
 
+#include <QGridLayout>
 #include <QWidget>
 #include <QDialog>
 #include <QLabel>
@@ -119,7 +121,7 @@ private:
     QPair<int, int> m_currentCell;
 };
 
-class QT_FORMEDITOR_EXPORT QLayoutWidget : public QWidget
+class QT_FORMEDITOR_EXPORT QLayoutWidget: public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(int margin READ layoutMargin WRITE setLayoutMargin DESIGNABLE true)
@@ -182,6 +184,18 @@ private:
     FormWindow *m_formWindow;
     QSizePolicy sp;
     QLayoutSupport m_support;
+};
+
+class QLayoutWidgetItem: public QWidgetItem
+{
+public:
+    QLayoutWidgetItem(QWidget *widget): QWidgetItem(widget) {}
+
+    virtual void setGeometry(const QRect &r)
+    { widget()->setGeometry(r); }
+
+    void addTo(QLayout *layout);
+    void removeFrom(QLayout *layout);
 };
 
 class QT_FORMEDITOR_EXPORT QDesignerDialog : public QDialog

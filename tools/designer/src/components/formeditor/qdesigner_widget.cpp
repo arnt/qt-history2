@@ -36,6 +36,15 @@
 #include <qpair.h>
 #include <qdebug.h>
 
+
+class FriendlyLayout: public QLayout
+{
+public:
+    inline FriendlyLayout(): QLayout() { Q_ASSERT(0); }
+
+    friend class QLayoutWidgetItem;
+};
+
 static void paintGrid(QWidget *widget, AbstractFormWindow *formWindow, QPaintEvent *e, bool needFrame = false)
 {
     QPainter p(widget);
@@ -169,7 +178,8 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
 
 QSizePolicy QLayoutWidget::sizePolicy() const
 {
-    return sp;
+    return QWidget::sizePolicy();
+    // ### (old) return sp;
 }
 
 void QLayoutWidget::updateMargin()
@@ -210,7 +220,7 @@ bool QLayoutWidget::event(QEvent *e)
         case QEvent::LayoutRequest: {
             (void) QWidget::event(e);
 
-            if (LayoutInfo::layoutType(formWindow()->core(), parentWidget()) == LayoutInfo::NoLayout)
+            if (layout() && LayoutInfo::layoutType(formWindow()->core(), parentWidget()) == LayoutInfo::NoLayout)
                 resize(layout()->sizeHint());
 
             update();
@@ -233,7 +243,6 @@ bool QLayoutWidget::event(QEvent *e)
 */
 void QLayoutWidget::updateSizePolicy()
 {
-    qDebug() << "QLayoutWidget::updateSizePolicy()";
     QList<QWidget*> l = widgets(layout());
     if (l.isEmpty()) {
         sp = QWidget::sizePolicy();
@@ -542,12 +551,12 @@ AbstractFormEditor *QLayoutSupport::core() const
 
 void QLayoutSupport::removeWidget(QWidget *widget)
 {
-    int index = indexOf(widget);
-    if (index != -1) {
-        LayoutInfo::Type layoutType = LayoutInfo::layoutType(core(), m_widget);
+    LayoutInfo::Type layoutType = LayoutInfo::layoutType(core(), m_widget);
 
-        switch (layoutType) {
-            case LayoutInfo::Grid: {
+    switch (layoutType) {
+        case LayoutInfo::Grid: {
+            int index = indexOf(widget);
+            if (index != -1) {
                 QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
                 Q_ASSERT(gridLayout);
                 int row, column, rowspan, colspan;
@@ -555,11 +564,17 @@ void QLayoutSupport::removeWidget(QWidget *widget)
                 gridLayout->takeAt(index);
                 QSpacerItem *spacer = new QSpacerItem(20, 20);
                 gridLayout->addItem(spacer, row, column, rowspan, colspan);
-            } break;
+            }
+        } break;
 
-            default:
-                break;
-        }
+        case LayoutInfo::VBox:
+        case LayoutInfo::HBox: {
+            QBoxLayout *box = static_cast<QBoxLayout*>(layout());
+            box->removeWidget(widget);
+        } break;
+
+        default:
+            break;
     }
 }
 
@@ -587,11 +602,13 @@ void QLayoutSupport::insertWidget(QWidget *widget)
     LayoutInfo::Type lt = LayoutInfo::layoutType(core, layout());
     switch (lt) {
         case LayoutInfo::VBox: {
-            static_cast<QVBoxLayout*>(layout())->insertWidget(currentCell().first, widget);
+            QVBoxLayout *vbox = static_cast<QVBoxLayout*>(layout());
+            insert_into_box_layout(vbox, currentCell().first, widget);
         } break;
 
         case LayoutInfo::HBox: {
-            static_cast<QHBoxLayout*>(layout())->insertWidget(currentCell().second, widget);
+            QHBoxLayout *hbox = static_cast<QHBoxLayout*>(layout());
+            insert_into_box_layout(hbox, currentCell().second, widget);
         } break;
 
         case LayoutInfo::Grid: {
@@ -622,8 +639,6 @@ void QLayoutSupport::insertWidget(QWidget *widget)
         } break;
 
         default: {
-            qDebug() << "widget:" << m_widget;
-            qDebug() << "layout:" << layout();
             Q_ASSERT(0);
         }
     } // end switch
@@ -656,6 +671,16 @@ int QLayoutSupport::findItemAt(QGridLayout *gridLayout, int at_row, int at_colum
     return -1;
 }
 
+void QLayoutWidgetItem::addTo(QLayout *layout)
+{
+    static_cast<FriendlyLayout*>(layout)->addChildWidget(widget());
+}
+
+void QLayoutWidgetItem::removeFrom(QLayout *layout)
+{
+    Q_UNUSED(layout);
+}
+
 void QLayoutSupport::insertWidget(int index, QWidget *widget)
 {
     QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
@@ -664,7 +689,7 @@ void QLayoutSupport::insertWidget(int index, QWidget *widget)
         int row, column, rowspan, colspan;
         gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
         gridLayout->takeAt(index);
-        gridLayout->addWidget(widget, row, column, rowspan, colspan);
+        add_to_grid_layout(gridLayout, widget, row, column, rowspan, colspan);
         delete item;
     }
 }

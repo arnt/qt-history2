@@ -335,12 +335,13 @@ void DeleteWidgetCommand::init(QWidget *widget)
 
 void DeleteWidgetCommand::redo()
 {
-    if (QLayoutWidget *g = qt_cast<QLayoutWidget*>(m_parentWidget)) {
-        g->removeWidget(m_widget);
-    } else if (hasLayout(m_parentWidget)) {
-        QLayoutSupport support(formWindow(), m_parentWidget);
-        support.removeWidget(m_widget);
-    }
+    AbstractFormEditor *core = formWindow()->core();
+    ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), m_parentWidget);
+    if (!deco && hasLayout(m_parentWidget))
+        deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), m_parentWidget);
+
+    if (deco)
+        deco->removeWidget(m_widget);
 
     formWindow()->unmanageWidget(m_widget);
     m_widget->hide();
@@ -357,15 +358,21 @@ void DeleteWidgetCommand::undo()
 
     // ### set up alignment
     switch (m_layoutType) {
-        case LayoutInfo::VBox:
-            static_cast<QVBoxLayout*>(m_parentWidget->layout())->insertWidget(m_index, m_widget);
-            break;
-        case LayoutInfo::HBox:
-            static_cast<QHBoxLayout*>(m_parentWidget->layout())->insertWidget(m_index, m_widget);
-            break;
-        case LayoutInfo::Grid:
-            static_cast<QGridLayout*>(m_parentWidget->layout())->addWidget(m_widget, m_row, m_col, m_rowspan, m_colspan);
-            break;
+        case LayoutInfo::VBox: {
+            QVBoxLayout *vbox = static_cast<QVBoxLayout*>(m_parentWidget->layout());
+            insert_into_box_layout(vbox, m_index, m_widget);
+        } break;
+
+        case LayoutInfo::HBox: {
+            QHBoxLayout *hbox = static_cast<QHBoxLayout*>(m_parentWidget->layout());
+            insert_into_box_layout(hbox, m_index, m_widget);
+        } break;
+
+        case LayoutInfo::Grid: {
+            QGridLayout *grid = static_cast<QGridLayout*>(m_parentWidget->layout());
+            add_to_grid_layout(grid, m_widget, m_row, m_col, m_rowspan, m_colspan);
+        } break;
+
         default:
             break;
     } // end switch
