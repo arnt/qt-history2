@@ -1060,10 +1060,10 @@ fi ### help
 if [ "$CFG_EMBEDDED" != "no" ]; then
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
     QNX:*)
-        QNX_PLATFORM=qws/qnx-rtp-g++
-	[ "$CFG_EMBEDDED" = "qnx4" ] && QNX_PLATFORM=qws/qnx4-cc
-	[ -z "$PLATFORM" ] && PLATFORM="$QNX_PLATFORM"
-        [ -z "$XPLATFORM" ] && XPLATFORM="$QNX_PLATFORM"
+        PLATFORM_QNX=qws/qnx-rtp-g++
+	[ "$CFG_EMBEDDED" = "qnx4" ] && PLATFORM_QNX=qws/qnx4-cc
+	[ -z "$PLATFORM" ] && PLATFORM="$PLATFORM_QNX"
+        [ -z "$XPLATFORM" ] && XPLATFORM="$PLATFORM_QNX"
 	CFG_STL=no
 	CFG_QWS_QVFB=no
 	;;
