@@ -1,41 +1,31 @@
 #include "qdefaultplugin.h"
+#include <qwidget.h>
 
-/*! 
+/*!
   \class QDefaultPlugIn qdefaultplugin.h
+
+  \brief A plugin loader implementing the QDefaultInterface
 */
 
 /*!
   Constructs a default plugin with file \a file and policy \a pol.
 */
 QDefaultPlugIn::QDefaultPlugIn( const QString& file, LibraryPolicy pol )
-: QPlugIn( file, pol )
+    : QPlugIn( file, pol )
 {
-}
-
-/*! \reimp
-*/
-bool QDefaultPlugIn::load()
-{
-    if ( !QPlugIn::load() )
-	return FALSE;
-
-    createWidgetPtr = (CreateWidgetProc) getSymbolAddress( "createWidget" );
-    widgetsPtr = (StringProc) getSymbolAddress( "widgets" );
-
-    createActionPtr = (CreateActionProc) getSymbolAddress( "createAction" );
-    actionsPtr = (StringProc) getSymbolAddress( "actions" );
-
-    return TRUE;
 }
 
 /*! \reimp
 */
 bool QDefaultPlugIn::addToManager( QPlugInDict& dict )
 {
+    if ( !use() )
+	return FALSE;
+    
     bool useful = FALSE;
 
-    QStringList wl = QStringList::split( QRegExp("[;\\s]"), widgets() );
-    for ( QStringList::Iterator w = wl.begin(); w != wl.end(); w++ ) {
+    QStringList list = this->widgets();
+    for ( QStringList::Iterator w = list.begin(); w != list.end(); w++ ) {
 	useful = TRUE;
 #ifdef CHECK_RANGE
 	if ( dict[*w] )
@@ -43,17 +33,6 @@ bool QDefaultPlugIn::addToManager( QPlugInDict& dict )
 	else
 #endif
 	    dict.insert( *w, this );
-    }
-
-    QStringList al = QStringList::split( QRegExp("[;\\s]"), actions() );
-    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
-	useful = TRUE;
-#ifdef CHECK_RANGE
-	if ( dict[*a] )
-	    qWarning("%s: Action %s already defined!", library().latin1(), (*a).latin1() );
-	else
-#endif
-	    dict.insert( *a, this );
     }
 
     return useful;
@@ -65,69 +44,40 @@ bool QDefaultPlugIn::removeFromManager( QPlugInDict& dict )
 {
     bool res = TRUE;
 
-    QStringList wl = QStringList::split( QRegExp("[;\\s]"), widgets() );
+    QStringList wl = this->widgets();
     for ( QStringList::Iterator w = wl.begin(); w != wl.end(); w++ )
         res = res && dict.remove( *w );
-
-    QStringList al = QStringList::split( QRegExp("[;\\s]"), actions() );
-    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
-        res = res && dict.remove( *a );
 
     return res;
 }
 
-/*!
-  Calls the appropriate plugin's create-method and returns the result.
+/*! \reimp
 */
 QWidget* QDefaultPlugIn::create( const QString& classname, QWidget* parent, const char* name )
 {
-    use();
+    if ( !use() )
+	return 0;
 
-    if ( createWidgetPtr )
-	return createWidgetPtr( classname, parent, name );
-    return 0;
+    QWidget* w = ((QDefaultInterface*)iface())->create( classname, parent, name );
+    guard( w );
+    return w;
 }
 
-/*!
-  Calls the appropriate plugin's widgets-method and returns the result.
+/*! \reimp
 */
-const char* QDefaultPlugIn::widgets()
+QStringList QDefaultPlugIn::widgets()
 {
-    use();
+    if ( !use() )
+	return QStringList();
+    QStringList list = ((QDefaultInterface*)iface())->widgets();
 
-    if ( widgetsPtr )
-	return widgetsPtr();
-    return "";
-}
-
-/*!
-  Calls the appropriate plugin's create-method and returns the result.
-*/
-QAction* QDefaultPlugIn::create( const QString& actionname, bool& self, QObject *parent )
-{
-    use();
-
-    if ( createActionPtr )
-	return createActionPtr( actionname, self, parent );
-    return 0;
-}
-
-/*!
-  Calls the appropriate plugin's actions-method and returns the result.
-*/
-const char* QDefaultPlugIn::actions()
-{
-    use();
-
-    if ( actionsPtr )
-	return actionsPtr();
-    return "";
+    return list;
 }
 
 /*!
   \class QDefaultPlugInManager qdefaultpluginmanager.h
 
-  \brief Implements a QPlugInManager that handles plugins for custom widgets, actions and filetypes
+  \brief Implements a QPlugInManager that handles plugins for custom widgets
 
   \sa QPlugInManager
 */
@@ -159,10 +109,9 @@ QStringList QDefaultPlugInManager::widgets()
 {
     QStringList list;
     QDictIterator<QPlugIn> it (libDict);
-   
+
     while( it.current() ) {
-	QDefaultPlugIn* plugin = (QDefaultPlugIn*)it.current();
-	QStringList widgets = QStringList::split( QRegExp("[;\\s]"), plugin->widgets() );
+	QStringList widgets = ((QDefaultPlugIn*)it.current())->widgets();
 	for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ )
 	    list << *w;
 	++it;
@@ -171,31 +120,4 @@ QStringList QDefaultPlugInManager::widgets()
     return list;
 }
 
-/*! \reimp
-*/
-QAction* QDefaultPlugInManager::newAction( const QString& actionname, bool& self, QObject* parent )
-{
-    QDefaultPlugIn* plugin = (QDefaultPlugIn*)plugDict[ actionname ];
-    if ( plugin )
-	return plugin->create( actionname, self, parent );
-    return 0;
-}
 
-/*!
-  Returns a list of all action names supported by registered plugins.
-*/
-QStringList QDefaultPlugInManager::actions()
-{
-    QStringList list;
-    QDictIterator<QPlugIn> it (libDict);
-
-    while( it.current() ) {
-	QDefaultPlugIn* plugin = (QDefaultPlugIn*)it.current();
-    	QStringList actions = QStringList::split( QRegExp("[;\\s]"), plugin->actions() );
-	for ( QStringList::Iterator a = actions.begin(); a != actions.end(); a++ )
-	    list << *a;
-	++it;
-    }
-
-    return list;
-}

@@ -1,50 +1,73 @@
 #ifndef QPLUGIN_H
 #define QPLUGIN_H
 
-#include "qwidgetfactory.h"
-#include "qactionfactory.h"
-#include "qwindowdefs.h"
-#include "qdict.h"
+#include <qdict.h>
 #include <qdir.h>
+#include <qwidget.h>
+#include <qapplication.h>
 
-class QAction;
+#include "qplugininterface.h"
+
 class QPlugIn;
 
 typedef QDict<QPlugIn> QPlugInDict;
 
-class QPlugIn
+class QPlugIn : public QObject, public QPlugInInterface
 {
+    Q_OBJECT
+    Q_ENUMS( LibraryPolicy )
+    Q_PROPERTY( LibraryPolicy policy READ policy WRITE setPolicy )
+    Q_PROPERTY( QString library READ library )
+
 public:
     enum LibraryPolicy
     { DefaultPolicy,
       OptimizeSpeed,
+      OptimizeMemory,
       ManualPolicy
     };
 
     QPlugIn( const QString& filename, LibraryPolicy = DefaultPolicy );
     virtual ~QPlugIn();
 
-    virtual bool addToManager( QPlugInDict& dict ) = 0;			// add yourself to manager's dict
-    virtual bool removeFromManager( QPlugInDict& dict ) = 0;		// remove yourself from manager's dict
-    virtual bool load();
-    void unload();
+    bool load();
+    void unload( bool = FALSE );
 
     void setPolicy( LibraryPolicy pol );
     LibraryPolicy policy() const;
 
     QString library() const;
+    QString name();
+    QString description();    
 
-    const char* infoString();
+signals:
+    void loaded();
+    void unloaded();
+
+protected slots:
+    void unuse();
+    bool use();
 
 protected:
-    void use();
-    void* getSymbolAddress( const QString& );
+    bool loadInterface();
+    QPlugInInterface* iface() { return ifc; }
+    void guard( QObject* o );
+
+private slots:
+    bool deref();
 
 private:
-    typedef const char* (*StringProc)();
-    StringProc infoStringPtr;
+    QPlugInInterface* ifc;
 
-private:
+    uint count;
+    void ref() { count++; }
+
+    typedef QPlugInInterface* (*LoadInterfaceProc)();
+    typedef bool (*ConnectProc)( QApplication* );
+
+    virtual bool addToManager( QPlugInDict& dict ) = 0;			// add yourself to manager's dict
+    virtual bool removeFromManager( QPlugInDict& dict ) = 0;		// remove yourself from manager's dict
+
 #ifdef _WS_WIN_
     HINSTANCE pHnd;
 #else
@@ -55,12 +78,13 @@ private:
 };
 
 template<class Type>
-class QPlugInManager
+class QPlugInManager : public QObject
 {
 public:
     QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::DefaultPolicy )
-    : defPol( pol )
+    : QObject( qApp, "qt_plugin_manager_"+path.utf8() ), defPol( pol )
     {
+	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
 	plugDict.setAutoDelete( FALSE );
 	if ( !path.isEmpty() )
@@ -77,27 +101,27 @@ public:
 
 	for ( uint p = 0; p < plugins.count(); p++ ) {
 	    QString lib = path + "/" + plugins[p];
-	    addPlugIn( lib );
+	    addLibrary( lib );
 	}
     }
 
-    bool removePlugIn( const QString& file )
+    bool removeLibrary( const QString& file )
     {
-	if ( libDict.remove( file ) &&  
-	     plugin->removeFromManager( plugDict ) )
+	Type* plugin = (Type*)(libDict[ file ]);
+	if ( plugin && plugin->removeFromManager( plugDict ) && libDict.remove( file ) )
 		return TRUE;
 	return FALSE;
     }
 
-    bool addPlugIn( const QString& file )
+    Type* addLibrary( const QString& file )
     {
 	if ( libDict[file] )
-	    return TRUE;
+	    return 0;
 
 	Type* plugin = new Type( file, defPol );
 
 	bool result = plugin->addToManager( plugDict );
-    
+
 	if ( result ) {
 #ifdef CHECK_RANGE
 	    if ( libDict[plugin->library()] )
@@ -106,17 +130,13 @@ public:
 	    libDict.replace( plugin->library(), plugin );
 	} else {
 	    delete plugin;
+	    return 0;
 	}
 
-	return result;
+	return plugin;
     }
 
-    QPlugIn* plugIn( const QString& library )
-    {
-	return libDict[library];
-    }
-
-    void setDefaultPolicy( QPlugIn::LibraryPolicy )
+    void setDefaultPolicy( QPlugIn::LibraryPolicy pol )
     {
 	defPol = pol;
     }
@@ -126,20 +146,45 @@ public:
 	return defPol;
     }
 
-    QList<QPlugIn> plugInList() {
+    QPlugIn *plugIn( const QString &className )
+    {
+	return plugDict[className];
+    }
+
+    QPlugIn* plugInFromFile( const QString& fileName )
+    {
+	return libDict[fileName];
+    }
+
+    QList<QPlugIn> plugInList()
+    {
 	QList<QPlugIn> list;
 	QDictIterator<QPlugIn> it( libDict );
 
 	while ( it.current() ) {
 #ifdef CHECK_RANGE
 	    if ( list.containsRef( it.current() ) )
-		qWarning("QPlugInManager: Library %s twice in dictionary!", it.current()->library().latin1() );
+		qWarning("QPlugInManager: Library %s added twice!", it.current()->library().latin1() );
 #endif
 	    list.append( it.current() );
 	    ++it;
 	}
 	return list;
     }
+
+    QStringList libraryList()
+    {
+	QStringList list;
+
+	QDictIterator<QPlugIn> it( libDict );
+	while ( it.current() ) {
+	    list << it.currentKey();
+	    ++it;
+	}
+
+	return list;
+    }
+
 protected:
     QPlugInDict plugDict;	    // Dict to match requested interface with plugin
     QPlugInDict libDict;	    // Dict to match library file with plugin

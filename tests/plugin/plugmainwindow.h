@@ -2,6 +2,12 @@
 #define PLUGMAINWINDOW_H
 
 #include <qmainwindow.h>
+#include <qdict.h>
+
+class QHBox;
+class QScrollView;
+class QDefaultPlugInManager;
+class QPopupMenu;
 
 class PlugMainWindow : public QMainWindow
 {
@@ -11,6 +17,19 @@ public:
 
 public slots:
     void fileOpen();
+    void fileClose();
+    void runWidget( int );
+    void runAction( int );
+
+protected:
+    QPopupMenu* actionMenu;
+    QPopupMenu* widgetMenu;
+    QHBox *box;
+    QScrollView *sv;
+    QDefaultPlugInManager* manager;
+
+private:
+    QDict<int> menuIDs;
 };
 
 #endif // PLUGMAINWINDOW_H

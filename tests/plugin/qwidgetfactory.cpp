@@ -44,7 +44,8 @@
 
 static const unsigned int prime[6] = { 53, 151, 503, 1511, 5101, 15101 };
 static int primeSize = 0;
-QDict<QWidgetFactory> QWidgetFactory::factories( prime[0] );
+QDict<QWidgetFactory> QWidgetFactory::factory( prime[0] );
+QList<QWidgetFactory> QWidgetFactory::factories = QList<QWidgetFactory>();
 QWidgetFactory* QWidgetFactory::that = 0;
 
 /*!
@@ -54,9 +55,9 @@ QWidgetFactory* QWidgetFactory::that = 0;
   Normal use of this class is to call QWidgetFactory::create() with a
   widget description, and get a QWidget* in return.
 
-  As supplied, QWidgetFactory can load ui-files and create all the widgets 
-  in Qt, but it can be extended with support for custom widgets. To do that, 
-  you must subclass QWidgetFactory, reimplement newWidget() and widgets() and 
+  As supplied, QWidgetFactory can load ui-files and create all the widgets
+  in Qt, but it can be extended with support for custom widgets. To do that,
+  you must subclass QWidgetFactory, reimplement newWidget() and widgets() and
   make your reimplementation create the widget types requested. QWidgetFactory
   uses setProperties() to configure the widgets once they're created, so
   your custom widgets must support properties.
@@ -68,63 +69,55 @@ QWidgetFactory* QWidgetFactory::that = 0;
 
   \sa widgetList()
 */
-void QWidgetFactory::installWidgetFactory( QWidgetFactory* factory )
+void QWidgetFactory::installWidgetFactory( QWidgetFactory* f )
 {
     if ( !that )
-	that = factory;
+	that = f;
 
-    QStringList widgets = factory->widgets();
+    if ( !factories.contains( f ) )
+	factories.append( f );
+    QStringList widgets = f->widgets();
     for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ ) {
 #ifdef CHECK_RANGE
-	if ( factories[*w] && factories[*w] != factory )
+	if ( factory[*w] && factory[*w] != f )
 	    qWarning("More than one factory provides %s", (*w).latin1() );
 #endif
-	factories.insert( *w, factory );
+	factory.insert( *w, f );
     }
 
-    if ( factories.count() > prime[primeSize] ) {
+    if ( factory.count() > prime[primeSize] ) {
 	if ( primeSize <= 6 )
-	    factories.resize( prime[++primeSize] );
+	    factory.resize( prime[++primeSize] );
     }
 }
 
 /*!
-  Removes a factory.
-  All widgets supported by \a factory are no longer available. 
+  Removes the widget factory \a f.
+  All widgets supported by \a f are no longer available.
 
   \sa installWidgetFactory(), createWidget()
 */
-void QWidgetFactory::removeWidgetFactory( QWidgetFactory* factory )
+void QWidgetFactory::removeWidgetFactory( QWidgetFactory* f )
 {
-    QDictIterator<QWidgetFactory> it( factories );
+    factories.remove( f );
+    QDictIterator<QWidgetFactory> it( factory );
 
     while (it.current() ) {
-	if ( it.current() == factory )
-	    factories.remove( it.currentKey() );
+	if ( it.current() == f )
+	    factory.remove( it.currentKey() );
 	else
 	    ++it;
     }
 }
 
 /*!
-  Returns a list of installed factories
+  Returns the list of installed factories
 
   \sa installWidgetFactory()
 */
 QList<QWidgetFactory> QWidgetFactory::factoryList()
 {
-    QList<QWidgetFactory> list;
-
-    QDictIterator<QWidgetFactory> it( factories );
-
-    while ( it.current() ) {
-	if ( !list.contains( it.current() ) )
-	    list.append( it.current() );
-
-	++it;
-    }
-
-    return list;
+    return factories;
 }
 
 /*!
@@ -135,8 +128,8 @@ QList<QWidgetFactory> QWidgetFactory::factoryList()
 QStringList QWidgetFactory::widgetList()
 {
     QStringList l;
-    
-    QList<QWidgetFactory> list = factoryList();
+
+    QList<QWidgetFactory> list = factories;
     QListIterator<QWidgetFactory> it( list );
 
     while ( it.current() ) {
@@ -147,7 +140,7 @@ QStringList QWidgetFactory::widgetList()
 	}
 	++it;
     }
-    
+
     return l;
 }
 
@@ -156,13 +149,9 @@ QStringList QWidgetFactory::widgetList()
 
   \sa installWidgetFactory()
 */
-QString QWidgetFactory::widgetFactory( const QString& classname )
+QWidgetFactory *QWidgetFactory::widgetFactory( const QString& classname )
 {
-    QWidgetFactory* f = factories[classname];
-    if ( f )
-	return f->factoryName();
-    else
-	return "";
+   return factory[classname];
 }
 
 /*!
@@ -170,7 +159,7 @@ QString QWidgetFactory::widgetFactory( const QString& classname )
 
   Tries to process a UI-description and returns the created widget
   if successful, or looks up the widget factory that provides a widget
-  matching the description and creates the widget with \a parent and 
+  matching the description and creates the widget with \a parent and
   \a name.
   Returns 0 if the widget could not be created.
 
@@ -194,7 +183,7 @@ QWidget* QWidgetFactory::create( const QString& description, QWidget* parent, co
 	}
     }
 
-    QWidgetFactory* fact = factories[description];
+    QWidgetFactory* fact = factory[description];
     if ( fact )
 	return fact->newWidget( description, parent, name );
     return 0;
@@ -205,9 +194,9 @@ QWidget* QWidgetFactory::create( const QString& description, QWidget* parent, co
 */
 QWidget* QWidgetFactory::compose( const QString& description )
 {
-    qDebug("Imagine I process %s", description );
-    
-    // TODO: process doc
+    qDebug("Imagine I process %s", description.latin1() );
+
+    // TODO: process document
 
     return 0;
 }
@@ -215,7 +204,7 @@ QWidget* QWidgetFactory::compose( const QString& description )
 /*!
   Creates and returns a widget registered with \a description and passes \a parent and \a name
   to the widgets's constructor if successful. Otherwise returns 0.
-  
+
   You have to reimplement this function in your factories to add support for custom widgets.
   Note that newWidget() is declared as private, so you musn't call the super-class.
 
@@ -244,7 +233,7 @@ QWidget* QWidgetFactory::newWidget( const QString& description, QWidget* parent,
     } else if ( description == "QHGroupBox" ) {
 	return new QHGroupBox( parent, name );
     } else if ( description == "QIconView" ) {
-	return new QIconView( parent, name ); // bug in QIconView ?
+	return new QIconView( parent, name );
     } else if ( description == "QLabel" ) {
 	return new QLabel( parent, name );
     } else if ( description == "QLCDNumber" ) {
@@ -292,6 +281,10 @@ QWidget* QWidgetFactory::newWidget( const QString& description, QWidget* parent,
     } else if ( description == "QToolBar" ) {
 	if (  parent &&  parent->inherits( "QMainWindow" ) )
 	    return new QToolBar( (QMainWindow*)parent, name );
+#ifdef CHECK_RANGE
+	else
+	    qWarning( "QToolBar needs a QMainWindow derived class as parent!" );
+#endif
     } else if ( description == "QToolButton" ) {
 	return new QToolButton( parent, name );
     } else if ( description == "QVBox" ) {
@@ -346,7 +339,7 @@ QStringList QWidgetFactory::widgets()
     list << "QMultiLineEdit";
     list << "QPopupMenu";
     list << "QProgressBar";
-    list << "QPushButton";    
+    list << "QPushButton";
     list << "QRadioButton";
     list << "QScrollBar";
     list << "QScrollView";

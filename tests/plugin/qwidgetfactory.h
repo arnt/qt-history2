@@ -4,7 +4,6 @@
 #include <qlist.h>
 #include <qstringlist.h>
 #include <qdict.h>
-#include <qnamespace.h>
 
 class QWidget;
 
@@ -14,27 +13,25 @@ public:
     virtual ~QWidgetFactory() { QWidgetFactory::removeWidgetFactory( this ); }
 
     static QWidget* create( const QString& description, QWidget* parent = 0, const char* name = 0 );
+    virtual QString factoryName() const { return "QWidgetFactory"; }
 
     static void installWidgetFactory( QWidgetFactory* factory );
     static void removeWidgetFactory( QWidgetFactory* factory );
 
-//### only for testing?
     static QList<QWidgetFactory> factoryList();
     static QStringList widgetList();
-    static QStringList fileTypeList();
-    static QString widgetFactory( const QString& classname );
-//###
+    static void updateWidgetList();
+    static QWidgetFactory *widgetFactory( const QString& description );
 
 protected:
     QWidget* compose( const QString& description );
 
 private:
-    virtual QString factoryName() const { return "QWidgetFactory"; }
-
     virtual QWidget* newWidget( const QString& classname, QWidget* parent = 0, const char* name = 0 );
     virtual QStringList widgets();
 
-    static QDict<QWidgetFactory> factories;
+    static QDict<QWidgetFactory> factory;
+    static QList<QWidgetFactory> factories;
     static QWidgetFactory* that;
 };
 
