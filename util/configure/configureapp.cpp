@@ -1065,6 +1065,18 @@ void Configure::generateConfigfiles()
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
 
+	outStream << endl;
+	outStream << "/* Machine byte-order */" << endl;
+	outStream << "#define Q_BIG_ENDIAN 4321" << endl;
+	outStream << "#define Q_LITTLE_ENDIAN 1234" << endl;
+	int dummy;
+	bool bigEndian;
+	qSysInfo( &dummy, &bigEndian );
+	if ( bigEndian )
+	    outStream << "#define Q_BYTE_ORDER Q_BIG_ENDIAN" << endl;
+	else
+	    outStream << "#define Q_BYTE_ORDER Q_LITTLE_ENDIAN" << endl;
+
 	outStream << "// Compile time features" << endl;
 	if( dictionary[ "STL" ] == "no" ) {
 	    outStream << "#ifndef QT_NO_STL" << endl;
