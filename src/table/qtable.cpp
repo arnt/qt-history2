@@ -2597,7 +2597,7 @@ void QTable::setNumCols( int c )
 
 QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 {
-    if ( isReadOnly() || isRowReadOnly( row ) || isColumnSelected( col ) )
+    if ( isReadOnly() || isRowReadOnly( row ) || isColumnReadOnly( col ) )
 	return 0;
 
     QWidget *e = 0;
@@ -2635,6 +2635,8 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 
 QWidget *QTable::beginEdit( int row, int col, bool replace )
 {
+    if ( isReadOnly() || isRowReadOnly( row ) || isColumnReadOnly( col ) )
+	return 0;
     QTableItem *itm = item( row, col );
     if ( itm && cellWidget( itm->row(), itm->col() ) )
 	return 0;
