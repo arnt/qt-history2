@@ -122,6 +122,7 @@ void QComLibrary::createInstanceInternal()
 	return;
 
     QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QString regkey = QString("/qt_plugin%1.%2/%3").arg( QT_MAJOR_VERSION ).arg( QT_MINOR_VERSION ).arg( library() );
     QStringList reg;
 
