@@ -851,6 +851,37 @@ void QComboBox::focusOutEvent(QFocusEvent *)
     update();
 }
 
+/*! \reimp */
+void QComboBox::changeEvent(QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::StyleChange:
+        d->sizeHint = QSize(); // invalidate size hint
+        if (d->lineEdit)
+            d->updateLineEditGeometry();
+        //### need to update scrollers etc. as well here
+        break;
+    case QEvent::EnabledChange:
+        if (!isEnabled())
+            d->container->hide();
+        break;
+    case QEvent::ApplicationPaletteChange:
+    case QEvent::PaletteChange:
+        d->container->setPalette(palette());
+        break;
+    case QEvent::ApplicationFontChange:
+    case QEvent::FontChange:
+        d->sizeHint = QSize(); // invalidate size hint
+        d->container->setFont(font());
+        if (d->lineEdit)
+            d->updateLineEditGeometry();
+        break;
+    default:
+        break;
+    }
+    QWidget::changeEvent(e);
+}
+
 void QComboBox::resizeEvent(QResizeEvent *)
 {
     d->updateLineEditGeometry();

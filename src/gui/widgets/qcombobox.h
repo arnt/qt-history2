@@ -140,6 +140,7 @@ protected:
 
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
+    void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *e);
     void paintEvent(QPaintEvent *e);
     void mousePressEvent(QMouseEvent *e);
