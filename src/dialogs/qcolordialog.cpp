@@ -146,7 +146,7 @@ struct QWellArrayData {
 };
 
 // NOT REVISED
-/* WARNING, NOT
+/* WARNING, NOT DOCUMENTED
   \class QWellArray qwellarray_p.h
   \brief ....
 
@@ -381,7 +381,7 @@ void QWellArray::focusInEvent( QFocusEvent* )
 
 
 /*!
-  Sets the size of the well array to be \c rows cells by \c cols.
+  Sets the size of the well array to be \a rows cells by \a cols.
   Resets any brush info set by setCellBrush().
 
   Must be called by reimplementors.
@@ -1455,31 +1455,30 @@ void QColorDialogPrivate::addCustom()
 }
 
 
-// BEING REVISED: jo
 /*!
   \class QColorDialog qcolordialog.h
   \brief The QColorDialog class provides a dialog widget for specifying colors.
   \ingroup dialogs
 
-  The color dialog's function is to allow users to choose colors -
-  for instance, you might use this in a drawing program to allow the
-  user to set the brush color.
+  The color dialog's function is to allow users to choose colors - for
+  instance, you might use this in a drawing program to allow the user
+  to set the brush color.
 
   This version of Qt provides only modal color dialogs. The static
-  getColor() function shows the dialog and allows the user to specify a color,
-  whereas getRgba() does the same but allows the user to specify a color with an
-  alpha channel (transparency) value.
+  getColor() function shows the dialog and allows the user to specify
+  a color, whereas getRgba() does the same but allows the user to
+  specify a color with an alpha channel (transparency) value.
 
   The user can store customCount() different custom colors. The custom
   colors are shared by all color dialogs, and remembered during the
-  execution of the program. Use setCustomColor() to set the
-  custom colors, and use customColor() to get them.
+  execution of the program. Use setCustomColor() to set the custom
+  colors, and use customColor() to get them.
 
-  <img src=qcolordlg-m.png> <img src=qcolordlg-w.png>
+  <img src=qcolordlg-w.png>
 */
 
-/*!
-  Constructs a default color dialog. Use setColor() for setting an initial value.
+/*!  Constructs a default color dialog. Use setColor() for setting an
+  initial value.
 
   \sa getColor()
 */
