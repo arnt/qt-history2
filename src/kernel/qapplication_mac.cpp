@@ -1481,7 +1481,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     case kEventClassMouse:
     {
-#ifdef DEBUG_MOUSE_MAPS
+#if defined(DEBUG_MOUSE_MAPS) || defined(DEBUG_DROPPED_EVENTS)
 	const char *edesc = NULL;
 	switch(ekind) {
 	case kEventMouseDown: edesc = "MouseButtonPress"; break;
@@ -1492,7 +1492,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	if((ekind == kEventMouseDown && mouse_button_state) ||
 	    (ekind == kEventMouseUp && !mouse_button_state)) {
-#ifdef DEBUG_MOUSE_MAPS
+#if defined(DEBUG_MOUSE_MAPS) || defined(DEBUG_DROPPED_EVENTS)
 	    qDebug("**** Dropping mouse event.. %s %d %p **** ",
 		   edesc, mouse_button_state, (QWidget*)qt_button_down);
 #endif
@@ -2176,7 +2176,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(app_do_modal && !qt_try_modal(widget, event)) 
 		break;
 
-	    if(widget) {
+	    if(widget && widget->topLevelWidget()->isVisible()) {
 		QWidget *tlw = widget->topLevelWidget();
 		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() ||
 							    !tlw->testWFlags(WStyle_Tool))) 
