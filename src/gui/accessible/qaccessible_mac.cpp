@@ -21,12 +21,6 @@
 #include "qapplication.h"
 
 /*****************************************************************************
-  External functions
- *****************************************************************************/
-CFStringRef qstring2cfstring(const QString &s); //qglobal.cpp
-QString cfstring2qstring(CFStringRef); //qglobal.cpp
-
-/*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
 static EventHandlerRef access_proc_handler = NULL;
@@ -528,7 +522,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(ekind == kEventAccessibleGetNamedAttribute) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    CFStringRef str;
+                    QCFStringHelper str;
                     GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
                                       sizeof(str), NULL, &str);
                     if(CFStringCompare(str, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
@@ -668,9 +662,9 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                             if(iface->role(0) == (QAccessible::Role)text_bindings[r][0].qt) {
                                 for(int a = 1; text_bindings[r][a].qt != -1; a++) {
                                     if(CFStringCompare(str, text_bindings[r][a].mac, 0) == kCFCompareEqualTo) {
-                                        CFStringRef str = qstring2cfstring(iface->text((QAccessible::Text)text_bindings[r][a].qt, 0));
+                                        QCFStringHelper str2(iface->text((QAccessible::Text)text_bindings[r][a].qt, 0));
                                         SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
-                                                          sizeof(str), &str);
+                                                          sizeof(str2), &str2);
                                         found = true;
                                         break;
                                     }
@@ -679,14 +673,15 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                             }
                         }
                         if(!found)
-                            qDebug("Unknown [kEventAccessibleGetNamedAttribute]: %s", cfstring2qstring(str).latin1());
+                            qDebug("Unknown [kEventAccessibleGetNamedAttribute]: %s",
+                                   static_cast<QString>(str).latin1());
                     }
                     iface->release();
                 }
             } else if(ekind == kEventAccessibleSetNamedAttribute) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    CFStringRef str;
+                    QCFStringHelper str;
                     GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
                                       sizeof(str), NULL, &str);
 #if 0
@@ -706,10 +701,11 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                             if(iface->role(0) == (QAccessible::Role)text_bindings[r][0].qt) {
                                 for(int a = 1; text_bindings[r][a].qt != -1; a++) {
                                     if(CFStringCompare(str, text_bindings[r][a].mac, 0) == kCFCompareEqualTo) {
-                                        CFStringRef val;
+                                        QCFStringHelper val;
                                         if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, NULL,
                                                              sizeof(val), NULL, &val) == noErr)
-                                            iface->setText((QAccessible::Text)text_bindings[r][a].qt, 0, cfstring2qstring(val));
+                                            iface->setText((QAccessible::Text)text_bindings[r][a].qt,
+                                                           0, val);
                                         found = true;
                                         break;
                                     }
@@ -718,14 +714,15 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                             }
                         }
                         if(!found)
-                            qDebug("Unknown [kEventAccessibleSetNamedAttribute]: %s", cfstring2qstring(str).latin1());
+                            qDebug("Unknown [kEventAccessibleSetNamedAttribute]: %s",
+                                   static_cast<QString>(str).latin1());
                     }
                     iface->release();
                 }
             } else if(ekind == kEventAccessibleIsNamedAttributeSettable) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    CFStringRef str;
+                    QCFStringHelper str;
                     GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
                                       sizeof(str), NULL, &str);
                     Boolean settable = false;
@@ -743,16 +740,18 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                     CFStringRef *arr = (CFStringRef *)malloc(sizeof(AXUIElementRef) * actCount);
                     for(int i = 0; i < actCount; i++) {
                         QString actName = iface->actionText(i, Name, 0);
-                        arr[i] = CFStringCreateWithCharacters(NULL, (UniChar *)actName.unicode(), actName.length());
+                        arr[i] = QCFStringHelper::qstring2cfstring(actName);
                     }
-                    CFArrayRef cfList = CFArrayCreate(NULL, (const void **)arr, actCount, NULL);
-                    SetEventParameter(event, kEventParamAccessibleActionNames, typeCFTypeRef, sizeof(cfList), &cfList);
+                    QCFHelper<CFArrayRef> cfList 
+                                        = CFArrayCreate(NULL, (const void **)arr, actCount, NULL);
+                    SetEventParameter(event, kEventParamAccessibleActionNames, typeCFTypeRef,
+                                      sizeof(cfList), &cfList);
                     iface->release();
                 }
             } else if(ekind == kEventAccessiblePerformNamedAction) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    CFStringRef act;
+                    QCFStringHelper act;
                     GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
                                       sizeof(act), NULL, &act);
                     if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) {
@@ -769,24 +768,24 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                         iface->doAction(0, Cancel, QVariantList());
                     } else {
                         bool found_act = false;
-                        const QString qAct = cfstring2qstring(act);
                         const int actCount = iface->userActionCount(0);
                         for(int i = 0; i < actCount; i++) {
-                            if(iface->actionText(i, Name, 0) == qAct) {
+                            if(iface->actionText(i, Name, 0) == act) {
                                 iface->doAction(0, i, QVariantList());
                                 found_act = true;
                                 break;
                             }
                         }
                         if(!found_act)
-                            qWarning("Unknown [kEventAccessiblePerformNamedAction]: %s", qAct.latin1());
+                            qWarning("Unknown [kEventAccessiblePerformNamedAction]: %s",
+                                     static_cast<QString>(act).latin1());
                     }
                     iface->release();
                 }
             } else if(ekind == kEventAccessibleGetNamedActionDescription) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    CFStringRef act;
+                    QCFStringHelper act;
                     GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
                                       sizeof(act), NULL, &act);
                     QString actDesc;
@@ -804,20 +803,20 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                         actDesc = iface->actionText(Cancel, Description, 0);
                     } else {
                         bool found_act = false;
-                        const QString qAct = cfstring2qstring(act);
                         const int actCount = iface->userActionCount(0);
                         for(int i = 0; i < actCount; i++) {
-                            if(iface->actionText(i, Name, 0) == qAct) {
+                            if(iface->actionText(i, Name, 0) == act) {
                                 actDesc = iface->actionText(i, Description, 0);
                                 found_act = true;
                                 break;
                             }
                         }
                         if(!found_act)
-                            qWarning("Unknown [kEventAccessibleGetNamedActionDescription]: %s", qAct.latin1());
+                            qWarning("Unknown [kEventAccessibleGetNamedActionDescription]: %s",
+                                     static_cast<QString>(act).latin1());
                     }
                     if(!actDesc.isNull()) {
-                        CFStringRef cfActDesc = qstring2cfstring(actDesc);
+                        QCFStringHelper cfActDesc = actDesc;
                         SetEventParameter(event, kEventParamAccessibleActionDescription, typeCFStringRef,
                                           sizeof(cfActDesc), &cfActDesc);
                     }

@@ -55,20 +55,18 @@ enum {
   Externals
  *****************************************************************************/
 extern IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
-extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
-extern CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
 extern bool qt_modal_state(); //qapplication_mac.cpp
 
 /*****************************************************************************
   QMenu utility functions
  *****************************************************************************/
-inline static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
+inline static QString qt_mac_no_ampersands(QString str, CFStringRef *cfstr = 0) {
     for(int w = -1; (w=str.indexOf('&', w+1)) != -1;) {
         if(w < (int)str.length()-1)
             str.remove(w, 1);
     }
-    if(cf)
-        *cf = qstring2cfstring(str);
+    if (cfstr)
+        *cfstr = QCFStringHelper::qstring2cfstring(str);
     return str;
 }
 
@@ -657,19 +655,19 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
         return;
     if(!qt_mac_no_menubar_merge && !apple_menu) { //handle the apple menu
         QWidget *widget = 0;
-        GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget);
+        GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0,
+                            &widget);
 
         //create
         MenuItemIndex index;
         apple_menu = qt_mac_create_menu(widget);
         AppendMenuItemTextWithCFString(menu, 0, 0, 0, &index);
 
-        //set it up
-        CFStringRef cfref = qstring2cfstring(QString(QChar(0x14)));
-        SetMenuTitleWithCFString(apple_menu, cfref);
-        CFRelease(cfref);
+        // set it up
+        SetMenuTitleWithCFString(apple_menu, QCFStringHelper(QString(QChar(0x14))));
         SetMenuItemHierarchicalMenu(menu, index, apple_menu);
-        SetMenuItemProperty(apple_menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), &widget);
+        SetMenuItemProperty(apple_menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget),
+                            &widget);
     }
 
     int before_index = actionItems.indexOf(before);
@@ -681,7 +679,8 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
         InsertMenuItemTextWithCFString(action->menu, 0, before_index-1, 0, action->command);
     else
         AppendMenuItemTextWithCFString(action->menu, 0, 0, action->command, &index);
-    SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
+    SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action),
+                        &action);
     syncAction(action);
 }
 
@@ -716,9 +715,8 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
         CreateNewMenu(0, 0, &submenu);
     }
     SetMenuItemHierarchicalMenu(action->menu, qt_mac_menu_find_action(action->menu, action), submenu);
-    CFStringRef cfref;
-    qt_mac_no_ampersands(action->action->text(), &cfref);
-    SetMenuTitleWithCFString(submenu, cfref);
+    SetMenuTitleWithCFString(submenu,
+                             QCFStringHelper(qt_mac_no_ampersands(action->action->text())));
     if(release_submenu)
         ReleaseMenu(submenu);
 }

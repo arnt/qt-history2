@@ -45,7 +45,6 @@
 
 #ifndef QT_H
 #include "qstring.h"
-#include "qvarlengtharray.h"
 #endif
 
 template <typename T>
@@ -76,8 +75,10 @@ class Q_CORE_EXPORT QCFStringHelper : public QCFHelper<CFStringRef>
 public:
     inline QCFStringHelper(const QString &str) : QCFHelper<CFStringRef>(0), string(str) {}
     inline QCFStringHelper(const CFStringRef cfstr = 0) : QCFHelper<CFStringRef>(cfstr) {}
-    operator QString();
-    operator CFStringRef();
+    operator QString() const;
+    operator CFStringRef() const;
+    static QString cfstring2qstring(CFStringRef cfstr);
+    static CFStringRef qstring2cfstring(const QString &str);
 private:
     QString string;
 };

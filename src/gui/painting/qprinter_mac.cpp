@@ -21,10 +21,10 @@
 #include <qmacstyle_mac.h>
 #include <qpaintdevicemetrics.h>
 #include <qpaintengine.h>
+#include <qpaintengine_mac.h>
 #include <qprintdialog.h>
 #include <qprinter.h>
 #include <qstyle.h>
-#include <qpaintengine_mac.h>
 #include <qt_mac.h>
 
 #include <private/qapplication_p.h>
@@ -33,12 +33,6 @@
 #include <private/qpsprinter_p.h>
 
 #include <stdlib.h>
-
-/*****************************************************************************
-  External functions
- *****************************************************************************/
-CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
-QString cfstring2qstring(CFStringRef);
 
 /*****************************************************************************
   QPrinter member functions
@@ -236,18 +230,15 @@ QPrinter::prepare(PMPrintSettings *s)
     PMSetColorMode(*s, colorMode() == GrayScale ? kPMGray : kPMColor);
     PMSetCopies(*s, numCopies(), true);
     if(outputToFile()) {
-        CFStringRef cfstring = qstring2cfstring(outputFileName());
-        CFURLRef outFile = CFURLCreateWithFileSystemPath(kCFAllocatorSystemDefault, cfstring,
-                                                         kCFURLPOSIXPathStyle, false);
+        QCFStringHelper cfstring(outputFileName());
+        QCFHelper<CFURLRef> outFile = CFURLCreateWithFileSystemPath(kCFAllocatorSystemDefault,
+                                                                    cfstring, kCFURLPOSIXPathStyle,
+                                                                    false);
         PMSessionSetDestination(psession, *s, kPMDestinationFile, kPMDocumentFormatPDF, outFile);
-        CFRelease(cfstring);
     }
     QString printName = printerName();
-    if (!printName.isEmpty()) {
-        CFStringRef pname = qstring2cfstring(printName);
-        PMSessionSetCurrentPrinter(psession, pname);
-        CFRelease(pname);
-    }
+    if (!printName.isEmpty())
+        PMSessionSetCurrentPrinter(psession, QCFStringHelper(printName));
     return true;
 }
 
@@ -334,16 +325,14 @@ void QPrinter::interpret(PMPrintSettings *s)
     // Get the current Printer Name
     CFIndex currPrinterIndex;
     PMPrinter currPrinter;
-    CFArrayRef printerArray = CFArrayCreate(kCFAllocatorDefault, 0, 0, 0);
-    if (!printerArray)
-        qWarning("Qt: QPrinter::interpret problem allocating array");
+    QCFHelper<CFArrayRef> printerArray;
     OSStatus err = PMSessionCreatePrinterList(psession, &printerArray,
                                               &currPrinterIndex, &currPrinter);
     if (err != noErr)
         qWarning("Qt: QPrinter::interpret problem creating printer list %ld", err);
-    QString newPrinter = cfstring2qstring((CFStringRef)CFArrayGetValueAtIndex(printerArray,
-                                                                              currPrinterIndex));
-    setPrinterName(newPrinter);
+    
+    setPrinterName(QCFStringHelper(static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerArray,
+                                                                               currPrinterIndex))));
 
 }
 

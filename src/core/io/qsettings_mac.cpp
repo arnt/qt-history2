@@ -19,7 +19,7 @@
 #ifndef QT_NO_SETTINGS
 #include "qstring.h"
 #include "qcleanuphandler.h"
-#include <CoreFoundation/CoreFoundation.h>
+#include "qcore_mac.h"
 #include <stdlib.h>
 
 /*****************************************************************************
@@ -27,8 +27,7 @@
  *****************************************************************************/
 //#define DEBUG_SETTINGS_KEYS
 
-static QString *qt_mac_settings_base = NULL;
-QString cfstring2qstring(CFStringRef); //qglobal.cpp
+QString qt_mac_settings_base;
 bool qt_verify_key(const QString &); //qsettings.cpp
 
 /*****************************************************************************
@@ -81,39 +80,36 @@ qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=Q
 {
     if(file.isNull())
         file = ".GlobalPreferences";
-    CFStringRef k = CFStringCreateWithCharacters(0, (UniChar *)key.unicode(), key.length()),
-               id = CFStringCreateWithCharacters(0, (UniChar *)file.unicode(), file.length());
-    if(CFPropertyListRef r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser,
-                                                    kCFPreferencesAnyHost)) {
+    QCFStringHelper k(key), id(file);
+    if(QCFHelper<CFPropertyListRef> r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser,
+                                                               kCFPreferencesAnyHost)) {
         CFTypeID typeID = CFGetTypeID(r);
         if(typeID == CFStringGetTypeID()) {
-            ret = cfstring2qstring((CFStringRef)r);
+            ret = QCFStringHelper::cfstring2qstring(static_cast<CFStringRef>(
+                                                                static_cast<CFPropertyListRef>(r)));
         } else if(typeID == CFBooleanGetTypeID()) {
-            ret = CFEqual((CFBooleanRef)r, kCFBooleanTrue) ? "TRUE" : "FALSE";
+            ret = CFEqual(static_cast<CFBooleanRef>(static_cast<CFPropertyListRef>(r)),
+                          kCFBooleanTrue) ? "TRUE" : "FALSE";
         } else if(typeID == CFNumberGetTypeID()) {
             int num;
-            if(CFNumberGetValue((CFNumberRef)r, kCFNumberIntType, &num))
+            if(CFNumberGetValue(static_cast<CFNumberRef>(static_cast<CFPropertyListRef>(r)),
+                                kCFNumberIntType, &num))
                 ret = QString::number(num);
         } else {
             qWarning("qt-internal::QSettings, %s: unknown CFType %d", key.latin1(),
                      (int)CFGetTypeID(r));
         }
-        CFRelease(r);
     }
-    CFRelease(id);
-    CFRelease(k);
     return ret;
 }
 
 /*****************************************************************************
   Developers are allowed to access this to influence the base (defaults to 'com.')
  *****************************************************************************/
-static QSingleCleanupHandler<QString> cleanup_base;
 void qt_setSettingsBasePath(const QString &s)
 {
-    delete qt_mac_settings_base;
-    qt_mac_settings_base = new QString(s);
-    cleanup_base.set(&qt_mac_settings_base);
+    qt_mac_settings_base.ensure_constructed();
+    qt_mac_settings_base = s;
 }
 
 /*****************************************************************************
@@ -159,16 +155,17 @@ search_keys::search_keys(QString path, QString key, const char *where)
     qt_mac_unfix_key(qi);
     qi.replace('/', ".");
     qi.replace("..", ".");
-    if(qt_mac_settings_base)
-        qi.prepend(*qt_mac_settings_base);
+    qt_mac_settings_base.ensure_constructed();
+    if (!qt_mac_settings_base.isEmpty())
+        qi.prepend(qt_mac_settings_base);
 
     qt_mac_fix_key(qk);
 #ifdef DEBUG_SETTINGS_KEYS
     qDebug("search_key [%s] %s::%s -> %s::%s", where ? where : "*Unknown*",
            oldpath.latin1(), oldkey.latin1(), qi.latin1(), qk.latin1());
 #endif
-    i = CFStringCreateWithCharacters(NULL, (UniChar *)qi.unicode(), qi.length());
-    k = CFStringCreateWithCharacters(NULL, (UniChar *)qk.unicode(), qk.length());
+    i = QCFStringHelper::qstring2cfstring(qi);
+    k = QCFStringHelper::qstring2cfstring(qk);
 }
 search_keys::~search_keys()
 {
@@ -184,7 +181,7 @@ class QSettingsSysPrivate
 public:
     QSettingsSysPrivate();
     bool writeEntry(QString, CFPropertyListRef, bool);
-    CFPropertyListRef readEntry(QString, bool);
+    QCFHelper<CFPropertyListRef> readEntry(QString, bool);
     QStringList entryList(QString, bool, bool);
     QStringList searchPaths;
     QStringList syncKeys;
@@ -192,10 +189,9 @@ public:
 
 QSettingsSysPrivate::QSettingsSysPrivate()
 {
-    if(!qt_mac_settings_base) {
-        qt_mac_settings_base = new QString("com.");
-        cleanup_base.set(&qt_mac_settings_base);
-    }
+    qt_mac_settings_base.ensure_constructed();
+    if (!qt_mac_settings_base.isEmpty())
+        qt_mac_settings_base = "com.";
 }
 
 struct QMacSettingPerms {
@@ -226,16 +222,17 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
     }
     return ret;
 }
-CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
+
+QCFHelper<CFPropertyListRef> QSettingsSysPrivate::readEntry(QString key, bool global)
 {
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
         search_keys k(searchPaths.at(i), key, "readEntry");
 	for(int scope = (global ? 0 : 1); scope >= 0; scope--) { //try local, then global (unless global == true, then just global)
-            if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(), scopes[scope].user, scopes[scope].host))
+            if(QCFHelper<CFPropertyListRef> ret = CFPreferencesCopyValue(k.key(), k.id(), scopes[scope].user, scopes[scope].host))
                 return ret;
         }
     }
-    return NULL;
+    return 0;
 }
 
 QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global)
@@ -244,10 +241,11 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
         search_keys k(searchPaths.at(i), key, subkey ? "subkeyList" : "entryList");
 	for(int scope = (global ? 0 : 1); scope >= 0; scope--) { //try local, then global (unless global == true, then just global)
-            if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope].user, scopes[scope].host)) {
-                QString qk = cfstring2qstring(k.key());
+            if(QCFHelper<CFArrayRef> cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope].user, scopes[scope].host)) {
+                QString qk = k.qtKey();
                 for(CFIndex i = 0, cnt = CFArrayGetCount(cfa); i < cnt; i++) {
-                    QString s = cfstring2qstring((CFStringRef)CFArrayGetValueAtIndex(cfa, i));
+                    QString s
+                        = QCFStringHelper(static_cast<CFStringRef>(CFArrayGetValueAtIndex(cfa, i)));
                     if(s.left(qk.length()) == qk) {
                         s = s.mid(qk.length());
                         while(s[0] == MACKEY_SEP)
@@ -267,7 +265,6 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
                         }
                     }
                 }
-                CFRelease(cfa);
                 return ret;
             }
         }
@@ -293,14 +290,11 @@ bool QSettingsPrivate::sysSync()
 {
     bool ret = true;
     for(QStringList::Iterator it = sysd->syncKeys.begin();  it != sysd->syncKeys.end(); ++it) {
-        CFStringRef csr = CFStringCreateWithCharacters(NULL, (UniChar *)(*it).unicode(),
-                                                       (*it).length());
 #ifdef DEBUG_SETTINGS_KEYS
         qDebug("QSettingsPrivate::sysSync(%s)", (*it).latin1());
 #endif
-        if(CFPreferencesAppSynchronize(csr))
+        if(CFPreferencesAppSynchronize(QCFStringHelper(*it)))
             ret = false;
-        CFRelease(csr);
     }
     sysd->syncKeys.clear();
     return ret;
@@ -340,17 +334,12 @@ bool QSettingsPrivate::sysReadBoolEntry(const QString &key, bool def, bool *ok) 
             *ok = false;
         return def;
     }
-    if(CFPropertyListRef r = sysd->readEntry(key, globalScope)) {
+    if(QCFHelper<CFPropertyListRef> r = sysd->readEntry(key, globalScope)) {
         if(CFGetTypeID(r) == CFBooleanGetTypeID()) {
             if(ok)
-                *ok = TRUE;
-            bool ret = false;
-            if(CFEqual((CFBooleanRef)r, kCFBooleanTrue))
-                ret = true;
-            CFRelease(r);
-            return ret;
-        } else {
-            CFRelease(r);
+                *ok = true;
+            return CFEqual(static_cast<CFBooleanRef>(static_cast<CFPropertyListRef>(r)),
+                           kCFBooleanTrue);
         }
     }
     if(ok)
@@ -366,20 +355,18 @@ double QSettingsPrivate::sysReadDoubleEntry(const QString &key, double def, bool
             *ok = false;
         return def;
     }
-    if(CFPropertyListRef r = sysd->readEntry(key, globalScope)) {
+    if(QCFHelper<CFPropertyListRef> r = sysd->readEntry(key, globalScope)) {
         if(CFGetTypeID(r) == CFNumberGetTypeID()) {
             double ret;
-            if(!CFNumberGetValue((CFNumberRef)r, kCFNumberDoubleType, &ret)) {
+            if(!CFNumberGetValue(static_cast<CFNumberRef>(static_cast<CFPropertyListRef>(r)),
+                                 kCFNumberDoubleType, &ret)) {
                 if(ok)
                     *ok = false;
                 ret = def;
             } else if(ok) {
                 *ok = true;
             }
-            CFRelease(r);
             return ret;
-        } else {
-            CFRelease(r);
         }
     }
     if(ok)
@@ -395,20 +382,18 @@ int QSettingsPrivate::sysReadNumEntry(const QString &key, int def, bool *ok) con
             *ok = false;
         return def;
     }
-    if(CFPropertyListRef r = sysd->readEntry(key, globalScope)) {
+    if(QCFHelper<CFPropertyListRef> r = sysd->readEntry(key, globalScope)) {
         if(CFGetTypeID(r) == CFNumberGetTypeID()) {
             int ret;
-            if(!CFNumberGetValue((CFNumberRef)r, kCFNumberIntType, &ret)) {
+            if(!CFNumberGetValue(static_cast<CFNumberRef>(static_cast<CFPropertyListRef>(r)),
+                                                          kCFNumberIntType, &ret)) {
                 if(ok)
                     *ok = false;
                 ret = def;
             } else if(ok) {
                 *ok = true;
             }
-            CFRelease(r);
             return ret;
-        } else {
-            CFRelease(r);
         }
     }
     if(ok)
@@ -424,15 +409,12 @@ QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, b
             *ok = false;
         return def;
     }
-    if(CFPropertyListRef r = sysd->readEntry(key, globalScope)) {
+    if(QCFHelper<CFPropertyListRef> r = sysd->readEntry(key, globalScope)) {
         if(CFGetTypeID(r) == CFStringGetTypeID()) {
             if(ok)
                 *ok = true;
-            QString ret = cfstring2qstring((CFStringRef)r);
-            CFRelease(r);
-            return ret;
-        } else {
-            CFRelease(r);
+            return QCFStringHelper::cfstring2qstring(static_cast<CFStringRef>(
+                                                                static_cast<CFPropertyListRef>(r)));
         }
     }
     if(ok)
@@ -459,10 +441,8 @@ bool QSettingsPrivate::sysWriteEntry(const QString &key, double value)
         qWarning("QSettingsPrivate::sysWriteEntry (double): invalid null/empty key.");
         return false;
     }
-    CFNumberRef val = CFNumberCreate(NULL, kCFNumberDoubleType, &value);
-    bool ret = sysd->writeEntry(key, val, globalScope);
-    CFRelease(val);
-    return ret;
+    QCFHelper<CFNumberRef> val = CFNumberCreate(NULL, kCFNumberDoubleType, &value);
+    return sysd->writeEntry(key, val, globalScope);
 }
 
 bool QSettingsPrivate::sysWriteEntry(const QString &key, int value)
@@ -471,10 +451,8 @@ bool QSettingsPrivate::sysWriteEntry(const QString &key, int value)
         qWarning("QSettingsPrivate::sysWriteEntry (int): invalid null/empty key.");
         return false;
     }
-    CFNumberRef val = CFNumberCreate(NULL, kCFNumberIntType, &value);
-    bool ret = sysd->writeEntry(key, val, globalScope);
-    CFRelease(val);
-    return ret;
+    QCFHelper<CFNumberRef> val = CFNumberCreate(NULL, kCFNumberIntType, &value);
+    return sysd->writeEntry(key, val, globalScope);
 }
 
 bool QSettingsPrivate::sysWriteEntry(const QString &key, const QString &value)
@@ -483,11 +461,7 @@ bool QSettingsPrivate::sysWriteEntry(const QString &key, const QString &value)
         qWarning("QSettingsPrivate::sysWriteEntry (QString): invalid null/empty key.");
         return false;
     }
-    CFStringRef val = CFStringCreateWithCharacters(NULL, (UniChar *)value.unicode(),
-                                                 value.length());
-    bool ret = sysd->writeEntry(key, val, globalScope);
-    CFRelease(val);
-    return ret;
+    return sysd->writeEntry(key, QCFStringHelper(value), globalScope);
 }
 
 bool QSettingsPrivate::sysRemoveEntry(const QString &key)

@@ -147,7 +147,6 @@ inline QTLWExtra* QETWidget::topData() { return d->topData(); }
 extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
-extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *); //qwidget_mac.cpp
 extern QString qt_mac_get_global_setting(QString key, QString val, QString file=QString::null); //qsettings_mac.cpp
@@ -875,17 +874,11 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
         //special hack to change working directory (for an app bundle) when running from finder
         if(!passed_psn.isNull() && QDir::currentDirPath() == "/") {
             QString qbundlePath;
-            {
-                CFURLRef bundleURL = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-                CFStringRef cfPath = CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle);
-                qbundlePath = cfstring2qstring(cfPath);
-                CFRelease(bundleURL);
-                CFRelease(cfPath);
-            }
-#ifdef Q_WS_MAC
+            QCFHelper<CFURLRef> bundleURL(CFBundleCopyBundleURL(CFBundleGetMainBundle()));
+            QCFStringHelper cfPath(CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle));
+            qbundlePath = cfPath;
             if(qbundlePath.endsWith(".app"))
                 QDir::setCurrent(qbundlePath.section('/', 0, -2));
-#endif
         }
     }
 

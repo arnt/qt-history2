@@ -161,9 +161,6 @@ void QFontPrivate::load(QFont::Script script)
         engineData->engine = engine;
     }
 #else
-    extern QString cfstring2qstring(CFStringRef str); //qglobal.cpp
-    extern CFStringRef qstring2cfstring(const QString &str); //qglobal.cpp
-
     QFontEngineMac *engine = 0;
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
         Q_ASSERT(e->type() == QFontEngine::Mac);

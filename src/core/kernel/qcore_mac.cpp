@@ -13,27 +13,36 @@
 ****************************************************************************/
 
 #include "qcore_mac.h"
+#include "qvarlengtharray.h"
 
-QCFStringHelper::operator QString()
+QString QCFStringHelper::cfstring2qstring(CFStringRef str)
 {
-    if (string.isEmpty() && type) {
-        CFIndex length = CFStringGetLength(type);
-        const UniChar *chars = CFStringGetCharactersPtr(type);
-        if (chars) {
-            string = QString(reinterpret_cast<const QChar *>(chars), length);
-        } else {
-            QVarLengthArray<UniChar> buffer(length);
-            CFStringGetCharacters(type, CFRangeMake(0, length), buffer);
-            string = QString(reinterpret_cast<const QChar *>(buffer.constData()), length);
-        }
-    }
+    CFIndex length = CFStringGetLength(str);
+    const UniChar *chars = CFStringGetCharactersPtr(str);
+    if (chars)
+        return QString(reinterpret_cast<const QChar *>(chars), length);
+
+    QVarLengthArray<UniChar> buffer(length);
+    CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
+    return QString(reinterpret_cast<const QChar *>(buffer.constData()), length);    
+}
+
+QCFStringHelper::operator QString() const
+{
+    if (string.isEmpty() && type)
+        const_cast<QCFStringHelper *>(this)->string = cfstring2qstring(type);
     return string;
 }
 
-QCFStringHelper::operator CFStringRef()
+CFStringRef QCFStringHelper::qstring2cfstring(const QString &string)
+{
+    return CFStringCreateWithCharacters(0, reinterpret_cast<const UniChar *>(string.unicode()),
+                                        string.length());
+}
+
+QCFStringHelper::operator CFStringRef() const
 {
     if (!type)
-        type = CFStringCreateWithCharacters(0,
-                reinterpret_cast<const UniChar *>(string.unicode()), string.length());
-    return static_cast<CFStringRef>(type);
+        const_cast<QCFStringHelper *>(this)->type = qstring2cfstring(string);
+    return type;
 }

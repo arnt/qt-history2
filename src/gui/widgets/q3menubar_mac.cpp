@@ -37,8 +37,6 @@
 //#define DEBUG_MENUBAR_ACTIVATE
 
 IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
-extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
-extern CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
 QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 bool qt_modal_state(); //qapplication_mac.cpp
@@ -120,7 +118,7 @@ static void qt_mac_set_modal_state(bool b, Q3MenuBar *mb)
 }
 
 /* utility functions */
-static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
+static QString qt_mac_no_ampersands(QString str) {
     for(int w = 0; (w=str.indexOf('&', w)) != -1;) {
         if(w < (int)str.length()-1) {
             str.remove(w, 1);
@@ -128,8 +126,6 @@ static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
                 w++;
         }
     }
-    if(cf)
-        *cf = qstring2cfstring(str);
     return str;
 }
 
@@ -200,12 +196,10 @@ uint Q3MenuBar::isCommand(Q3MenuItem *it, bool just_check)
                 text.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
                 if(ret == kHICommandAbout && text.toLower() == tr("About").toLower())
                     text += " " + QString(qAppName());
-                CFStringRef cfref;
-                qt_mac_no_ampersands(text, &cfref);
                 InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu,
-                                               cfref, activeMenuBar->mac_d->in_apple++,
+                                               QCFStringHelper(qt_mac_no_ampersands(text)),
+                                               activeMenuBar->mac_d->in_apple++,
                                                kMenuItemAttrAutoRepeat, ret);
-                CFRelease(cfref);
             }
         }
         qt_mac_command_set_enabled(ret, it->isEnabled());
@@ -290,12 +284,8 @@ bool Q3MenuBar::syncPopups(MenuRef ret, Q3PopupMenu *d)
             else if(!accel.isEmpty())
                 accel_key = QKeySequence(accel);
 
-            {
-                CFStringRef cfref;
-                qt_mac_no_ampersands(text, &cfref);
-                InsertMenuItemTextWithCFString(ret, cfref, id,  attr, item->id());
-                CFRelease(cfref);
-            }
+            InsertMenuItemTextWithCFString(ret, QCFStringHelper(qt_mac_no_ampersands(text)),
+                                           id, attr, item->id());
             if(item->isSeparator()) {
                 ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
             } else {
@@ -413,10 +403,7 @@ bool Q3MenuBar::updateMenuBar()
     if(mac_d)
         mac_d->clear();
     if(!CreateNewMenu(0, 0, &mac_d->apple_menu)) {
-        CFStringRef cfref;
-        qt_mac_no_ampersands(QString(QChar(0x14)), &cfref);
-        SetMenuTitleWithCFString(mac_d->apple_menu, cfref);
-        CFRelease(cfref);
+        SetMenuTitleWithCFString(mac_d->apple_menu, QCFStringHelper(QString(QChar(0x14))));
         InsertMenu(mac_d->apple_menu, 0);
     }
 
@@ -425,10 +412,7 @@ bool Q3MenuBar::updateMenuBar()
         if (item->isSeparator() || !item->isVisible()) //mac doesn't support these
             continue;
         if(MenuRef mp = createMacPopup(item->popup(), item->id(), true)) {
-            CFStringRef cfref;
-            qt_mac_no_ampersands(item->text(), &cfref);
-            SetMenuTitleWithCFString(mp, cfref);
-            CFRelease(cfref);
+            SetMenuTitleWithCFString(mp, QCFStringHelper(qt_mac_no_ampersands(item->text())));
             InsertMenu(mp, 0);
             if(item->isEnabled())
                 EnableMenuItem(mp, 0);

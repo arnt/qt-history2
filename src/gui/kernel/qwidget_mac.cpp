@@ -60,10 +60,8 @@ int mac_window_count = 0;
 extern void qt_set_paintevent_clipping(QPaintDevice*, const QRegion&); //qpaintengine_mac.cpp
 extern void qt_clear_paintevent_clipping(QPaintDevice *); //qpaintengine_mac.cpp
 extern QSize qt_naturalWidgetSize(QWidget *); //qwidget.cpp
-extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern QSize qt_initial_size(QWidget *w); //qwidget.cpp
 extern void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
-extern CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
 extern void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
@@ -898,7 +896,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         }
 #ifdef DEBUG_WINDOW_CREATE
         if(WindowGroupRef grpf = GetWindowGroup(window)) {
-            CFStringRef cfname;
+            QCFStringHelper cfname;
             CopyWindowGroupName(grpf, &cfname);
             SInt32 lvl;
             GetWindowGroupLevel(grpf, &lvl);
@@ -908,7 +906,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             else if(grpf == grp)
                 from = "Copied";
             qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s",
-                   cfstring2qstring(cfname).latin1(), grpf, (int)lvl, from);
+                   static_cast<QString>(cfname).latin1(), grpf, (int)lvl, from);
         } else {
             qDebug("Qt: internal: No window group!!!");
         }
@@ -1179,11 +1177,8 @@ void QWidget::setWindowTitle(const QString &cap)
         return; // for less flicker
     d->createTLExtra();
     d->topData()->caption = cap;
-    if(isTopLevel()) {
-        CFStringRef str = CFStringCreateWithCharacters(0, (UniChar *)cap.unicode(), cap.length());
-        SetWindowTitleWithCFString(qt_mac_window_for((HIViewRef)winId()), str);
-        CFRelease(str);
-    }
+    if(isTopLevel())
+        SetWindowTitleWithCFString(qt_mac_window_for((HIViewRef)winId()), QCFStringHelper(cap));
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
 }
@@ -1219,12 +1214,8 @@ void QWidget::setWindowIconText(const QString &iconText)
 {
     d->createTLExtra();
     d->topData()->iconText = iconText;
-    if(isTopLevel()) {
-        CFStringRef str = 0;
-        if(!iconText.isNull())
-            CFStringCreateWithCharacters(0, (UniChar *)iconText.unicode(), iconText.length());
-        SetWindowAlternateTitle(qt_mac_window_for((HIViewRef)winId()), str);
-    }
+    if(isTopLevel() && !iconText.isEmpty())
+        SetWindowAlternateTitle(qt_mac_window_for((HIViewRef)winId()), QCFStringHelper(iconText));
     QEvent e(QEvent::IconTextChange);
     QApplication::sendEvent(this, &e);
 }

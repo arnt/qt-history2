@@ -94,27 +94,6 @@ OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
     return ret;
 }
 
-
-CFStringRef qstring2cfstring(const QString &str)
-{
-    return CFStringCreateWithCharacters(0, (UniChar *)str.unicode(), str.length());
-}
-
-QString cfstring2qstring(CFStringRef str)
-{
-    if(!str)
-        return QString();
-
-    CFIndex length = CFStringGetLength(str);
-    if(const UniChar *chars = CFStringGetCharactersPtr(str))
-        return QString((QChar *)chars, length);
-    UniChar *buffer = (UniChar*)malloc(length * sizeof(UniChar));
-    CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
-    QString ret((QChar *)buffer, length);
-    free(buffer);
-    return ret;
-}
-
 void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1)
 {
     if(len == -1)
