@@ -1021,7 +1021,12 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
         QIconSet::Mode mode = QIconSet::Normal; // no disabled icons in Motif
         if (act && !dis )
             mode = QIconSet::Active;
-        QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+	QPixmap pixmap;
+	if ( checkable && mi->isChecked() )
+	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
+	else
+	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+
         int pixw = pixmap.width();
         int pixh = pixmap.height();
         QRect cr( x + motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame );

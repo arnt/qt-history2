@@ -1191,7 +1191,11 @@ void QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
         QIconSet::Mode mode = QIconSet::Normal;
         if ( act && !dis )
             mode = QIconSet::Active;
-        QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+        QPixmap pixmap;
+	if ( checkable && mi->isChecked() )
+	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
+	else
+	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
 
         int pixw = pixmap.width();
         int pixh = pixmap.height();

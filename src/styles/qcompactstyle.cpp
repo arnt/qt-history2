@@ -175,7 +175,11 @@ void QCompactStyle::drawPopupMenuItem( QPainter* p, bool checkable,
 	QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
 	if (act && !dis )
 	    mode = QIconSet::Active;
-	QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+	QPixmap pixmap;
+	if ( checkable && mi->isChecked() )
+	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
+	else
+	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
 	int pixw = pixmap.width();
 	int pixh = pixmap.height();
 	if ( act && !dis ) {
