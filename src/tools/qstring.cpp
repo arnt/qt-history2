@@ -3305,10 +3305,10 @@ void qt_fix_double(char *str)
 	decimal_point = ".";
 
     if (decimal_point[0] != '.' || decimal_point[1] != '\0' || thousands_sep[0] != '\0') {
-	QCString cstr(str);
-	cstr.replace(thousands_sep, "");
-	cstr.replace(decimal_point, ".");
-	memcpy(str, cstr.data(), cstr.length()+1);
+	QByteArray ba(str);
+	ba.replace(thousands_sep, "");
+	ba.replace(decimal_point, ".");
+	memcpy(str, ba.constData(), ba.length()+1);
     }
 }
 #else
