@@ -9,7 +9,6 @@
 
 #define TEST_RECS 10
 
-// add a new bogus comment
 
 QSqlDatabase* database;
 
