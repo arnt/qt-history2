@@ -71,8 +71,9 @@ QString Uic::fixString( const QString &str )
 
 QString Uic::trcall( const QString& sourceText, const QString& comment )
 {
-    return trmacro + "( " + fixString( sourceText ) + ", " +
-	   fixString( comment ) + " )";
+    if ( comment.isEmpty() )
+	return trmacro + "( " + fixString( sourceText ) + " )";
+    return trmacro + "( " + fixString( sourceText ) + ", " + fixString( comment ) + " )";
 }
 
 QString Uic::mkStdSet( const QString& prop )
@@ -673,22 +674,25 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
     int margin = DomTool::readProperty( e, "margin", defMargin ).toInt();
     int spacing = DomTool::readProperty( e, "spacing", defSpacing ).toInt();
 
+    QString optcells;
+    if ( isGrid )
+	optcells = "1, 1, ";
     if ( (parentClass == "QGroupBox" || parentClass == "QButtonGroup") && layout.isEmpty() ) {
 	// special case for group box
 	out << indent << parent << "->setColumnLayout(0, Qt::Vertical );" << endl;
-	out << indent << parent << "->layout()->setSpacing( 0 );" << endl;
-	out << indent << parent << "->layout()->setMargin( 0 );" << endl;
+	out << indent << parent << "->layout()->setSpacing( " << spacing << " );" << endl;
+	out << indent << parent << "->layout()->setMargin( " << margin << " );" << endl;
 	out << indent << objName << " = new " << qlayout << "( " << parent << "->layout() );" << endl;
 	out << indent << objName << "->setAlignment( Qt::AlignTop );" << endl;
     } else {
+	out << indent << objName << " = new " << qlayout << "( ";
 	if ( layout.isEmpty() )
-	    out << indent << objName << " = new " << qlayout << "( " << parent << " ); " << endl;
+	    out << parent;
 	else
-	    out << indent << objName << " = new " << qlayout << "; " << endl;
+	    out << "0";
+	out << ", " << optcells << margin << ", " << spacing << ", \"" << objName << "\"); " << endl;
     }
 
-    out << indent << objName << "->setSpacing( " << spacing << " );" << endl;
-    out << indent << objName << "->setMargin( " << margin << " );" << endl;
 
     if ( !isGrid ) {
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
