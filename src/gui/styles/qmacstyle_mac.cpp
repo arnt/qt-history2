@@ -4798,6 +4798,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             GetThemeMetric(kThemeMetricSmallCheckBoxWidth, &ret);
             break;
         }
+        ++ret;
         break; }
     case PM_ExclusiveIndicatorHeight: {
         switch (qt_aqua_size_constrain(widget)) {
@@ -4834,6 +4835,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             GetThemeMetric(kThemeMetricSmallRadioButtonWidth, &ret);
             break;
         }
+        ++ret;
         break; }
     case PM_MenuVMargin:
         ret = 4;
