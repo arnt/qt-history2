@@ -400,32 +400,21 @@ extern QX11Data *qt_x11Data;
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
 enum {
     XFocusOut = FocusOut,
-    XFocusIn = FocusIn
-};
-#undef FocusOut
-#undef FocusIn
-
-enum {
+    XFocusIn = FocusIn,
     XKeyPress = KeyPress,
-    XKeyRelease = KeyRelease
-};
-#undef KeyPress
-#undef KeyRelease
-
-enum {
+    XKeyRelease = KeyRelease,
     XNone = None,
     XRevertToNone = RevertToNone
 };
+#undef FocusOut
+#undef FocusIn
+#undef KeyPress
+#undef KeyRelease
 #undef None
 #undef RevertToNone
 
 #ifdef FontChange
 #undef FontChange
 #endif
-
-// enum {
-//     XBool = Bool
-// };
-// #undef Bool
 
 #endif // QT_X11_H
