@@ -171,7 +171,7 @@ QString QSqlIndex::toString( const QString& prefix ) const
 	s += field( i )->name();
 	if ( isDescending( i ) )
 	    s += " desc";
-	comma = TRUE;y
+	comma = TRUE;
     }
     return s;
 }
