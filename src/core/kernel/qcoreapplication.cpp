@@ -170,7 +170,7 @@ bool QCoreApplication::is_app_running = false;
 bool QCoreApplication::is_app_closing = false;
 
 
-uint qGlobalPostedEventsCount()
+Q_CORE_EXPORT uint qGlobalPostedEventsCount()
 {
     QPostEventList *postedEvents = qt_postEventList(0);
     return postedEvents ? postedEvents->size() : 0;

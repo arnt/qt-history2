@@ -91,11 +91,15 @@ sub find_classnames {
 	    } elsif($definition =~ m/^ *(template<.*> *)?(class|struct) +$EXPORT_SYMBOL +([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
 		my $symbol = $3;
 		$symbol =~ s/[<>+=*!-]/?/g;
+#		print "2) hmm $symbol *********** $definition\n";
 		$CLASSES{$symbol} = "$file" unless(!length "$symbol" || defined $CLASSES{$symbol});
-	    } elsif($definition =~ /$EXPORT_SYMBOL +([a-zA-Z0-9_\*& ]* +)?[&\*]?([a-zA-Z0-9>=!\*<+_-]*)( *\(.*\))? *(;|\{\})$/) {
+	    } elsif($definition =~ /$EXPORT_SYMBOL +([a-zA-Z0-9_:\*& ]* +)?[&\*]?([a-zA-Z0-9>=!\*<+_-]+)( *\(.*\)| *(\[.*\] *)?(=.*)?|)? *(;|\{\})$/) {
 		my $symbol = $2;
 		$symbol =~ s/[<>+=*!-]/?/g;
+#		print "1) hmm $symbol *********** $1 -- $2 -- $3 -- $definition\n";
 		$GLOBALS{$symbol} = "$file" unless(!length "$symbol" || defined $GLOBALS{$symbol});
+	    } else {
+#		print "dammit $definition\n";
 	    }
 	}
     }
