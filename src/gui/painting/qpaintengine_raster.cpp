@@ -45,24 +45,24 @@ static void qt_initialize_ft()
     int error;
 
     // The antialiasing raster.
-    error = ft_grays_raster.raster_new(0, &qt_gray_raster);
+    error = qt_ft_grays_raster.raster_new(0, &qt_gray_raster);
     if (error) {
-        qWarning("failed to initlize ft_grays_raster");
+        qWarning("failed to initlize qt_ft_grays_raster");
         return;
     }
 
     unsigned long poolSize = 128 * 128;
     unsigned char *poolBase = (unsigned char *) malloc(poolSize);
 
-    ft_grays_raster.raster_reset(qt_gray_raster, poolBase, poolSize);
+    qt_ft_grays_raster.raster_reset(qt_gray_raster, poolBase, poolSize);
 
     // Initialize the standard raster.
-    error = ft_standard_raster.raster_new(0, &qt_black_raster);
+    error = qt_ft_standard_raster.raster_new(0, &qt_black_raster);
     if (error) {
         qWarning("Failed to initialize standard raster: code=%d\n", error);
         return;
     }
-    ft_standard_raster.raster_reset(qt_black_raster, poolBase, poolSize);
+    qt_ft_standard_raster.raster_reset(qt_black_raster, poolBase, poolSize);
 }
 
 static void qt_finalize_ft()
@@ -1964,14 +1964,14 @@ void qt_scanconvert(FT_Outline *outline, qt_span_func callback, void *userData,
     if (d->antialiased) {
         rasterParams.flags |= (FT_RASTER_FLAG_AA | FT_RASTER_FLAG_DIRECT);
         rasterParams.gray_spans = func;
-        int error = ft_grays_raster.raster_render(qt_gray_raster, &rasterParams);
+        int error = qt_ft_grays_raster.raster_render(qt_gray_raster, &rasterParams);
         if (error) {
             printf("qt_scanconvert(), gray raster failed...: %d\n", error);
         }
     } else {
         rasterParams.flags |= FT_RASTER_FLAG_DIRECT;
         rasterParams.black_spans = func;
-        int error = ft_standard_raster.raster_render(qt_black_raster, &rasterParams);
+        int error = qt_ft_standard_raster.raster_render(qt_black_raster, &rasterParams);
         if (error) {
             qWarning("black raster failed to render, code=%d", error);
         }

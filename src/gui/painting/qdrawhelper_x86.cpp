@@ -6,7 +6,7 @@ enum CPUFeatures {
     SSE2 = 0x4,
     CMOV = 0x8
 };
-uint detectCPUFeatures() {
+static uint detectCPUFeatures() {
     uint result;
     /* see p. 79 of amd64 instruction set manual Vol 1 */
     asm ("push %%ebx\n"

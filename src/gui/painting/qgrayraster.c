@@ -1956,7 +1956,7 @@
   }
 
 
-  extern int
+  static int
   gray_raster_render( PRaster            raster,
                       FT_Raster_Params*  params )
   {
@@ -2141,7 +2141,7 @@
   }
 
 
-  const FT_Raster_Funcs  ft_grays_raster =
+  const FT_Raster_Funcs  qt_ft_grays_raster =
   {
     FT_GLYPH_FORMAT_OUTLINE,
 

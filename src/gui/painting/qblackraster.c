@@ -45,14 +45,14 @@ typedef unsigned char FT_Byte;
 #define Raster_Err_Ok 0
 #define Raster_Err_Cannot_Render_Glyph 1
 
-#define FT_LOCAL_DEF(x) x
+#define FT_LOCAL_DEF(x) static x
 
 #define FT_BEGIN_HEADER
 #define FT_END_HEADER
 #include <private/qrasterdefs_p.h>
 #include <private/qblackraster_p.h>
 
-FT_Long FT_MulDiv(FT_Long  a, FT_Long  b, FT_Long  c)
+static FT_Long FT_MulDiv(FT_Long  a, FT_Long  b, FT_Long  c)
 {
     FT_Int   s;
     FT_Long  d;
@@ -2465,7 +2465,7 @@ ft_black_render( TRaster_Instance*  raster,
 }
 
 
-const FT_Raster_Funcs  ft_standard_raster =
+const FT_Raster_Funcs  qt_ft_standard_raster =
 {
     FT_GLYPH_FORMAT_OUTLINE,
     (FT_Raster_New_Func)     ft_black_new,

@@ -45,7 +45,7 @@ FT_BEGIN_HEADER
 #define FT_EXPORT_VAR( x )  extern  x
 #endif
 
-  FT_EXPORT_VAR( const FT_Raster_Funcs )  ft_standard_raster;
+  FT_EXPORT_VAR( const FT_Raster_Funcs )  qt_ft_standard_raster;
 
 
 FT_END_HEADER
