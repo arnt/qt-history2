@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#46 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#46 $")
 
 
 /*----------------------------------------------------------------------------
@@ -382,6 +382,25 @@ void QFont::setWeight( int weight )
     }
 }
 
+/*!
+  \fn bool QFont::bold() const
+
+  Returns TRUE if weight() would return a greater than
+  \c QFont::Normal, and FALSE otherwise.
+
+  \sa weight(), setBold(), QFontInfo::bold()
+  */
+
+/*!
+  \fn void QFont::setBold( bool b )
+
+  Sets the weight to \c QFont::Bold if \e b is TRUE, and to \c
+  QFont::Normal if \e b is FALSE.
+
+  Use setWeight() to set the weight to other values.
+
+  \sa bold(), setWeight()
+  */
 
 /*----------------------------------------------------------------------------
   Returns the value set by setUnderline().
@@ -1320,7 +1339,8 @@ bool QFontInfo::italic() const
 
 /*----------------------------------------------------------------------------
   Returns the weight of the matched window system font.
-  \sa QFont::weight()
+
+  \sa QFont::weight(), bold()
  ----------------------------------------------------------------------------*/
 
 int QFontInfo::weight() const
@@ -1329,6 +1349,15 @@ int QFontInfo::weight() const
     f.updateFontInfo();
     return (int)f.d->act.weight;
 }
+
+/*!
+  \fn bool QFontInfo::bold() const
+
+  Returns TRUE if weight() would return a greater than
+  \c QFont::Normal, and FALSE otherwise.
+
+  \sa weight(), QFont::bold()
+  */
 
 /*----------------------------------------------------------------------------
   Returns the underline value of the matched window system font.

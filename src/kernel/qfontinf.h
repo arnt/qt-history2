@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinf.h#12 $
+** $Id: //depot/qt/main/src/kernel/qfontinf.h#13 $
 **
 ** Definition of QFontInfo class
 **
@@ -28,6 +28,7 @@ public:
     int			pointSize()	const;
     bool		italic()	const;
     int			weight()	const;
+    bool		bold() const { return weight() > QFont::Normal; }
     bool		underline()	const;
     bool		strikeOut()	const;
     bool		fixedPitch()	const;

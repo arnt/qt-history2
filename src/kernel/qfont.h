@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#30 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#31 $
 **
 ** Definition of QFont class
 **
@@ -46,6 +46,8 @@ public:
     void	setPointSize( int );
     int		weight()	const;
     void	setWeight( int );
+    bool	bold() const { return weight() > Normal; }
+    void	setBold( bool b ) { setWeight( b ? Bold : Normal ); }
     bool	italic()	const;
     void	setItalic( bool );
     bool	underline()	const;
