@@ -317,8 +317,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
 QPixmapData::~QPixmapData()
 {
     delete mask;
-    if (maskgc)
-        XFreeGC(xinfo.display(), (GC)maskgc);
     if (qApp && hd) {
 
 #ifndef QT_NO_XFT
@@ -407,10 +405,6 @@ void QPixmap::detach()
     if (data->hd2) {
         XFreePixmap(data->xinfo.display(), data->hd2);
         data->hd2 = 0;
-    }
-    if (data->maskgc) {
-        XFreeGC(data->xinfo.display(), (GC)data->maskgc);
-        data->maskgc = 0;
     }
     data->ser_no = ++qt_pixmap_serial;
 }

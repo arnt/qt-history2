@@ -1418,21 +1418,14 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
     }
 #endif
 
-    GC gc;
 
     if (mask && !mono_src) {                        // fast masked blt
-        bool temp_gc = false;
-        if (mask->data->maskgc) {
-            gc = (GC)mask->data->maskgc;        // we have a premade mask GC
-        } else {
-            // Create a new mask GC. If BestOptim, we store the mask GC
-            // with the mask (not at the pixmap). This way, many pixmaps
-            // which have a common mask will be optimized at no extra cost.
-            gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
-            XSetGraphicsExposures(dpy, gc, False);
-            XSetClipMask(dpy, gc, mask->handle());
-            temp_gc = true;
-        }
+        // Create a new mask GC. If BestOptim, we store the mask GC
+        // with the mask (not at the pixmap). This way, many pixmaps
+        // which have a common mask will be optimized at no extra cost.
+        GC gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
+        XSetGraphicsExposures(dpy, gc, False);
+        XSetClipMask(dpy, gc, mask->handle());
         XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
         if (include_inferiors) {
             XSetSubwindowMode(dpy, gc, IncludeInferiors);
@@ -1442,12 +1435,11 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
             XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
         }
 
-        if (temp_gc)                                // delete temporary GC
-            XFreeGC(dpy, gc);
+        XFreeGC(dpy, gc);
         return;
     }
 
-    gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
+    GC gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
     if (mono_src && mono_dst && src == dst) { // dst and src are the same bitmap
         XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
     } else if (mono_src) {                        // src is bitmap
