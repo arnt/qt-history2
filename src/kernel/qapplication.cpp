@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#88 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#88 $");
 
 
 /*!
@@ -405,8 +405,8 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 /*!
   Returns a list of the top level widgets in the application.
 
-  The list is \link empty QList::empty()\endlink if there are
-  no top level widgets.
+  The list is \link QList::isEmpty() empty \endlink if there are no
+  top level widgets.
 
   Note that some of the top level widgets may be hidden.
 

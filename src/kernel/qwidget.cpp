@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#145 $
 **
 ** Implementation of QWidget class
 **
@@ -19,30 +19,170 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#144 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#145 $");
 
 
-/*!
-  \class QWidget qwidget.h
+/*! \class QWidget qwidget.h
+
   \brief The QWidget class is the base class of all user interface objects.
 
   \ingroup abstractwidgets
 
-  It receives mouse, keyboard and other events from the window system.
-  It has a number of virtual functions which can be reimplemented in
-  order to respond to these events.
-
-  By far the most important is paintEvent() which is called whenever
-  the widget needs to update its on-screen representation.  Other
-  commonly implemented events include resizeEvent(), keyPressEvent(),
-  mousePressEvent() etc.
+  The widget is the atom of the user interface: It receives mouse,
+  keyboard and other events from the window system, and paints a
+  representation of itself on the screen.  Every widget is
+  rectangular, and they are sorted in a Z-order.  A widget is clipped
+  by its parent and by the widgets in front of it.
 
   A widget without a parent, called a top-level widget, is a window
-  with a frame and title bar (depending on the widget style specified
-  by the widget flags). A widget with a parent is a child window in
-  its parent.
+  and usually has with a frame and title bar.  A widget with a parent
+  is a child window in its parent.  You usually can't distinguish a
+  child widget from its parent visually.
 
-  \sa QEvent, QPainter
+  There are many member functions in QWidget, but it has hardly any
+  functionality - for example it ias a setFont() function but never
+  uses the font itself.  There are many subclasses which provide real
+  functionality, as diverse as QPushButton, QListBox and QTabDialog.
+
+  QWidget offers two APIs: The public functions, for mamipulating stat
+  which is common to all or many of the subclasses, and the protected
+  event handlers, which constitute the interface towards the user.
+  (The constructor and a few static functions don't belong in either
+  group.)
+
+  <strong>Publics:</strong> The public interface mostly consists of
+  access functions.  Here are the main groups, with a link to a
+  relevant access function or two: <ul> <li> Geometry: size(), move(),
+  mapFromGlobal(). <li> Mode: isPopup(), hasFocus().  <li> Look and
+  feel: style(), setFont(), setPalette(). <li> Convenience:
+  childrenRect(), topLevelWidget(), sizeHint(). <li> User
+  communication: grabMouse(), clearFocus(), raise(), show().  <li>
+  System functions: recreate(), parentWidget(). </ul>
+
+  <strong>Constructor:</strong> Every widget's constructor accepts two
+  or three standard arguments: <ul><li><code>QWidget * parent =
+  0</code> is the parent of the new widget.  If it is 0, the new
+  widget will be a top-level window.  If not, it will be a child of \e
+  parent, and be constrained by \e parent's geometry.  <li><code>const
+  char * name = 0</code> is the widget name of the new widget.  The
+  widget name is little used at the moment - the dumpObjectTree()
+  debugging function uses it, and you can access it using name().  It
+  will become more important when our visual GUI builder is ready (you
+  can name a a widget in the builder, and connect() to it by name in
+  your code).  <li><code>WFlags f = 0</code> (where available) sets
+  the <a href="#widgetflags">widget flags;</a> the default is good for
+  almost all widgets, but to get e.g. top-level widgets without a
+  window system frame you must use special flags. </ul>
+
+  <strong>Subclassing QWidget:</strong> The tictac/tictac.cpp example
+  program is good example of a simple widget.  It contains a few event
+  handlers (as all widgets must), a few custom routines that are
+  peculiar to it (as all useful widgets must), and has a few children
+  and connections.  Everything it does is done in response to an
+  event: This is by far the most common way to design GUI
+  applications.
+
+  You will need to supply the content for your widgets yourself, but
+  here's a brief run-down of the events, starting with the most common
+  ones: <ul>
+
+  <li> paintEvent() - which is called whenever the widget needs to be
+  repainted.  Every widget which displays output must implement it,
+  and it is sensible to \e never paint on the screen outside
+  paintEvent().  You are guaranteed to receive a paint event
+  immediately after every resize events, and at once when the widget
+  is first shown.
+
+  <li> resizeEvent() - which is called whenever the widget's size is
+  changed.
+
+ <li> mousePressEvent() - called when a mouse button is pressed.
+ There are six mouse-related events, mouse press and mouse release
+ events are by far the most important.  A widget receives mouse press
+ events when the widget is inside it, or when it has grabbed the mouse
+ using grabMouse().
+
+  <li> mouseReleaseEvent() - called when a mouse button is released.
+  A widget receives mouse release events when it has received the
+  corresponding mouse press event.  This means that if the user
+  presses the mouse inside \e your widget, then drags the mouse to
+  somewhere else, then releases, \e your widget receives the release
+  event.  There is one exception, however: If a popup menu appears
+  while the mouse button is held down, that popup steals the mouse
+  events at once.
+
+  <li> mouseDoubleClickEvent() - not quite as obvious as it might
+  seem.  If the user double-clicks, the widget receives a mouse press
+  event (perhaps a mouse move event or two if he/she doens't hold the
+  mouse quite steady), a mouse release event, another mouse press
+  event, and finally this event.  It is \e not \e possible to
+  distinguish a click from a double click until you've seen whether
+  the second click arrives.  (This is one reason why most GUI books
+  recommend that double clicks be an extension of single clicks,
+  rather than a different action.) </ul>
+
+  Widgets that accept keyboard input need to reimplement a few more
+  event handlers: <ul>
+
+  <li> keyPressEvent() - called whenever a key is pressed, and again
+  when a key has been held down long enough for it to auto-repeat.
+
+  <li> focusInEvent() - called when the widget gains keyboard focus
+  (assuming you have called setFocusEnabled(), of course).  Well
+  written widgets indicate that they own the keyboard focus in a clear
+  but discreet way.
+
+  <li> focusOutEvent() - called when the widget loses keyboard
+  focus. </ul>
+
+  Some widgets will need to reimplement some more obscure event
+  handlers, too: <ul>
+
+  <li> mouseMoveEvent() - called whenever the mouse moves while a
+  button is held down.  This is useful for e.g. dragging.  If you call
+  setMouseTracking( TRUE ), you get mouse move events even when no
+  buttons are held down.  (Note that applications which make use of
+  mouse tracking are often not very useful on low-bandwidth X
+  connections.)
+
+  <li> keyReleaseEvent() - called whenever a key is released, and also
+  while it is held down if the key is auto-repeating.  In that case
+  the widget receives a key release event and immediately a key press
+  event for every repeat.
+
+  <li> enterEvent() - called when the mouse enters the widget's screen
+  space.  (This excludes screen space owned by any children of the
+  widget.)
+
+  <li> leaveEvent() - called when the mouse leaves the widget's screen
+  space.
+
+  <li> moveEvent() - called when the widget moves, relative to its
+  parent.  This is usually because the user has moved and/or resized
+  the top-level window, and the effects have trickle down to your
+  widget.
+
+  <li> closeEvent() - called when the widget is about to be closed
+  (using hide(), or because the parent widget is about to be closed.)
+  You can't do anything to stop it, but you can close down
+  gracefully. </ul>
+
+  There are also some \e really obscure events.  They are listed in
+  qevent.h and you need to reimplement event() to handle them.  The
+  default implementation of event() handles TAB and shift-TAB (to move
+  the keyboard focus), and passes on every other event to one of the
+  more specialized handlers above.
+
+  When writing a widget, there are a few more things to look out for.
+  In the constructor, be sure to set up your member variables early
+  on, before there's any chance that you might receive an event.  You
+  may want to call setMinimumSize() and perhaps setMaximumSize() or
+  setSizeIncrement() to ensure that your widget will not be resized
+  ridiculously (but neither give you any guarantee, so write
+  carefully!)  If your widget is a top-level window, setCaption() and
+  setIcon() set the title bar and icon respectively.
+
+  \sa QEvent, QPainter, QGridLayout, QBoxLayout
 */
 
 
@@ -128,6 +268,8 @@ inline bool QWidgetMapper::remove( WId id )
   window inside \e parent.
 
   The \e name is sent to the QObject constructor.
+
+  <a name="widgetflags"></a>
 
   The widget flags argument \e f is normally 0, but it can be set to
   customize the window frame of a top-level widget (i.e. \e parent must be
