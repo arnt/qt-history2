@@ -1234,8 +1234,17 @@ void MainWindow::fileCloseProject()
 	lastValid = it.key();
     }
     if ( a ) {
-	currentProject->save(); // ### do more here? close all project form windows? other cleanup?
-	fileSaveAll();
+	currentProject->save();
+	QWidgetList windows = workSpace()->windowList();
+	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	    if ( !w->inherits( "FormWindow" ) )
+		continue;
+	    if ( currentProject->hasFormWindow( (FormWindow*)w) ) {
+		closeForm( (FormWindow*)w );
+		w->close();
+		qApp->processEvents();
+	    }
+	}
 	actionGroupProjects->removeChild( a );
 	projects.remove( a );
 	delete a;
@@ -1243,6 +1252,7 @@ void MainWindow::fileCloseProject()
 	if ( lastValid ) {
 	    projectSelected( lastValid );
 	    lastValid->setOn( TRUE );
+	    statusBar()->message( tr( currentProject->projectName() + " project selected...") );
 	}
     }
 }
