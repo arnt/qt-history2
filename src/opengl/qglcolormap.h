@@ -17,7 +17,6 @@
 #include "qcolor.h"
 #include "qvector.h"
 
-class QWidget;
 class Q_OPENGL_EXPORT QGLColormap
 {
 public:
