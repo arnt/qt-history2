@@ -25,7 +25,7 @@ class QTitleBar;
 class QAccessibleHeader : public QAccessibleWidget
 {
 public:
-    QAccessibleHeader(QWidget *w);
+    explicit QAccessibleHeader(QWidget *w);
 
     int childCount() const;
 
@@ -41,7 +41,7 @@ protected:
 class QAccessibleTabBar : public QAccessibleWidget
 {
 public:
-    QAccessibleTabBar(QWidget *w);
+    explicit QAccessibleTabBar(QWidget *w);
 
     int childCount() const;
 
@@ -64,7 +64,7 @@ private:
 class QAccessibleComboBox : public QAccessibleWidget
 {
 public:
-    QAccessibleComboBox(QWidget *w);
+    explicit QAccessibleComboBox(QWidget *w);
 
     enum ComboBoxElements {
         ComboBoxSelf        = 0,

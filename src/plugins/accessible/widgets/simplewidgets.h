@@ -23,7 +23,7 @@ class QToolButton;
 class QAccessibleButton : public QAccessibleWidget
 {
 public:
-    QAccessibleButton(QWidget *w, Role r);
+    explicit QAccessibleButton(QWidget *w, Role r);
 
     QString text(Text t, int child) const;
     State state(int child) const;
@@ -38,7 +38,7 @@ protected:
 class QAccessibleToolButton : public QAccessibleButton
 {
 public:
-    QAccessibleToolButton(QWidget *w, Role role);
+    explicit QAccessibleToolButton(QWidget *w, Role role);
 
     enum ToolButtonElements {
         ToolButtonSelf        = 0,
@@ -67,7 +67,7 @@ protected:
 class QAccessibleDisplay : public QAccessibleWidget
 {
 public:
-    QAccessibleDisplay(QWidget *w, Role role = StaticText);
+    explicit QAccessibleDisplay(QWidget *w, Role role = StaticText);
 
     QString text(Text t, int child) const;
     Role role(int child) const;
@@ -79,7 +79,7 @@ public:
 class QAccessibleLineEdit : public QAccessibleWidget
 {
 public:
-    QAccessibleLineEdit(QWidget *o, const QString &name = QString());
+    explicit QAccessibleLineEdit(QWidget *o, const QString &name = QString());
 
     QString text(Text t, int child) const;
     void setText(Text t, int control, const QString &text);

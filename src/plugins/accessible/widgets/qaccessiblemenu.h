@@ -22,7 +22,7 @@ class QMenuBar;
 class QAccessibleMenu : public QAccessibleWidget
 {
 public:
-    QAccessibleMenu(QWidget *w);
+    explicit QAccessibleMenu(QWidget *w);
 
     int childCount() const;
     int childAt(int x, int y) const;
@@ -41,7 +41,7 @@ protected:
 class QAccessibleMenuBar : public QAccessibleWidget
 {
 public:
-    QAccessibleMenuBar(QWidget *w);
+    explicit QAccessibleMenuBar(QWidget *w);
 
     int childCount() const;
     int childAt(int x, int y) const;

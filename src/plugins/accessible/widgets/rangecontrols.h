@@ -23,7 +23,7 @@ class QSpinBox;
 class QAccessibleSpinBox : public QAccessibleWidget
 {
 public:
-    QAccessibleSpinBox(QWidget *w);
+    explicit QAccessibleSpinBox(QWidget *w);
 
     enum SpinBoxElements {
         SpinBoxSelf        = 0,
@@ -50,7 +50,7 @@ protected:
 class QAccessibleScrollBar : public QAccessibleWidget
 {
 public:
-    QAccessibleScrollBar(QWidget *w, const QString &name = QString());
+    explicit QAccessibleScrollBar(QWidget *w, const QString &name = QString());
 
     enum ScrollBarElements {
         ScrollBarSelf        = 0,
@@ -76,7 +76,7 @@ protected:
 class QAccessibleSlider : public QAccessibleWidget
 {
 public:
-    QAccessibleSlider(QWidget *w, const QString &name = QString());
+    explicit QAccessibleSlider(QWidget *w, const QString &name = QString());
 
     enum SliderElements {
         SliderSelf  = 0,
