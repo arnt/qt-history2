@@ -67,35 +67,47 @@ public:
 
     void add( Type* object )
     {
-	if ( object )
-	    cleanupObjects.insert( 0, object );
+	if ( !cleanupObjects ) {
+	    cleanupObjects = new QList<Type>;
+	}
+	cleanupObjects->insert( 0, object );
     }
 
     void remove( Type *object )
     {
+	if ( !cleanupObjects )
+	    return;
 	if ( object )
-	    cleanupObjects.removeRef( object );
+	    cleanupObjects->removeRef( object );
     }
 
     bool isEmpty() const
     {
-	return cleanupObjects.isEmpty();
+	return cleanupObjects ? cleanupObjects->isEmpty() : TRUE;
     }
 
     void clear()
     {
-	QListIterator<Type> it( cleanupObjects );
+	if ( !cleanupObjects )
+	    return;
+
+	QListIterator<Type> it( *cleanupObjects );
 	it.toLast();
 	while ( it.current() ) {
 	    Type* object = it.current();
 	    --it;
-	    cleanupObjects.removeRef( object );
+	    cleanupObjects->removeRef( object );
 	    delete object;
 	}
+
+	delete cleanupObjects;
+	cleanupObjects = 0;
     }
 
 private:
-    QList<Type> cleanupObjects;
+    static QList<Type> *cleanupObjects;
 };
+
+template<class Type> QList<Type> *QCleanupHandler<Type>::cleanupObjects = 0;
 
 #endif //QCLEANUPHANDLER_H
