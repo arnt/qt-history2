@@ -791,10 +791,11 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 
 	if ( qt_xim && qic ) {
 	    QPoint p( x, y );
+	    QPoint p2 = mapTo( topLevelWidget(), QPoint( 0, 0 ) );
 	    p = mapTo( topLevelWidget(), p);
 	    qic->setXFontSet(f);
 	    qic->setComposePosition(p.x(), p.y() + height);
-	    qic->setComposeArea(p.x(), p.y(), width, height);
+	    qic->setComposeArea(p2.x(), p2.y(), this->width(), this->height());
 	}
     }
 #endif
