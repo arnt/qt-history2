@@ -408,7 +408,11 @@ QString QLineEdit::displayText() const
 
 bool QLineEdit::hasMarkedText() const
 {
-    return d->parag->hasSelection( 0 );
+    return d->parag->hasSelection( QTextDocument::Standard ) &&
+	d->parag->length() > 1 &&
+	d->parag->selectionStart( QTextDocument::Standard ) > 0 &&
+	d->parag->selectionEnd( QTextDocument::Standard ) > 0 &&
+	d->parag->selectionStart( QTextDocument::Standard ) != d->parag->selectionEnd( QTextDocument::Standard );
 }
 
 /*!
