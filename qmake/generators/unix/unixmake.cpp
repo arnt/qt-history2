@@ -186,6 +186,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    //utility variables
 	    QString s_ext = project->variables()["QMAKE_EXTENTION_SHLIB"].first();
 	    QString incr_target = var("TARGET").replace("." + s_ext, "").replace(QRegExp("^lib"), "") + "_incremental";
+
 	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
 	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
 	    
@@ -219,7 +220,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(do_incremental) {
 	    //utility variables
 	    QString s_ext = project->variables()["QMAKE_EXTENTION_SHLIB"].first();
-	    QString incr_target = var("TARGET_").replace("." + s_ext, "_incremental").replace(QRegExp("^lib"), "");
+	    QString incr_target = var("QMAKE_ORIG_TARGET").replace("." + s_ext, "_incremental").replace(QRegExp("^lib"), "");
 	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
 	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
 	    
@@ -457,6 +458,7 @@ UnixMakefileGenerator::init()
 
     if( project->variables()["QMAKE_EXTENTION_SHLIB"].isEmpty() )
 	project->variables()["QMAKE_EXTENTION_SHLIB"].append( "so" );
+    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
     bool extern_libs = !project->isActiveConfig("dll")  || (project->variables()["TARGET"].first() == "qt" ||
 							    project->variables()["TARGET"].first() == "qte" ||
