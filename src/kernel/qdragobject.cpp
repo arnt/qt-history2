@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#28 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -49,6 +49,7 @@ QDragManager::QDragManager()
 	manager = this;
     beingCancelled = FALSE;
     restoreCursor = FALSE;
+    willDrop = FALSE;
 }
 
 

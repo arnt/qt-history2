@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#14 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#15 $
 **
 ** Definition of QDragObject
 **
@@ -116,6 +116,7 @@ private:
     QWidget * dropWidget;
     bool beingCancelled;
     bool restoreCursor;
+    bool willDrop;
 };
 
 

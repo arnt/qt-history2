@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#30 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -450,7 +450,8 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	move( dragSource->mapToGlobal( ((QMouseEvent *)e)->pos() ) );
 	return TRUE;
     } else if ( e->type() == Event_MouseButtonRelease ) {
-	drop();
+	if ( willDrop )
+	    drop();
 	dragSource->removeEventFilter( this );
 	object = 0;
 	dragSource = 0;
@@ -468,6 +469,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
 	    QApplication::setOverrideCursor( arrowCursor, restoreCursor );
 	    restoreCursor = TRUE;
+	    willDrop = TRUE;
 	} else {
 	    if ( !noDropCursor ) {
 		QBitmap b( noDropCursorWidth, noDropCursorHeight, noDropCutBits, TRUE );
@@ -475,6 +477,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	    }
 	    QApplication::setOverrideCursor( *noDropCursor, restoreCursor );
 	    restoreCursor = TRUE;
+	    willDrop = FALSE;
 	}
 	return TRUE;
     }
@@ -599,6 +602,8 @@ void QDragManager::drop()
     drop.data.l[2] = 0; // ###
     drop.data.l[3] = 0;
     drop.data.l[4] = 0;
+    
+    debug( "i am here" );
 
     QWidget * w = QWidget::find( qt_xdnd_current_target );
     if ( w )
@@ -713,7 +718,7 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 static QByteArray qt_xdnd_obtain_data( const char * format )
 {
     QByteArray result;
-    
+
     debug( "want <%s>", format );
 
     if ( qt_xdnd_dragsource_xid && qt_xdnd_source_object &&
@@ -818,6 +823,8 @@ void QDragManager::startDrag( QDragObject * o )
     }
 
     qt_xdnd_source_object = o;
+
+    willDrop = FALSE;
 
     object = o;
     dragSource = (QWidget *)(object->parent());
