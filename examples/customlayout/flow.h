@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/flow.h#1 $
+** $Id: //depot/qt/main/examples/customlayout/flow.h#2 $
 **
 ** Definition of simple flow layout for custom layout example
 **
@@ -29,6 +29,9 @@ public:
 	: QLayout( space, name ),
 	cached_width(0) {}
 
+    ~SimpleFlow()
+    {}
+    
     void addItem( QLayoutItem *item);
     bool hasHeightForWidth() const { return TRUE; }
     int heightForWidth( int ) const;

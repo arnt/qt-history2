@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/border.h#1 $
+** $Id: //depot/qt/main/examples/customlayout/border.h#2 $
 **
 ** Definition of simple flow layout for custom layout example
 **
@@ -70,15 +70,18 @@ public:
           sizeDirty( TRUE ), msizeDirty( TRUE )
     {}
 
+    ~BorderLayout()
+    {}
+    
     void addItem( QLayoutItem *item )
     { add( item, West ); }
 
     void addWidget( QWidget *widget, Position pos )
     { add( new BorderWidgetItem( widget ), pos ); }
 
-    void add( QLayoutItem *item, Position pos ) { 
-        list.append( new BorderLayoutStruct( item, pos ) ); 
-        sizeDirty = TRUE; msizeDirty = TRUE; 
+    void add( QLayoutItem *item, Position pos ) {
+        list.append( new BorderLayoutStruct( item, pos ) );
+        sizeDirty = TRUE; msizeDirty = TRUE;
         calcSize( SizeHint ); calcSize( Minimum );
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/tetrix/qdragapp.cpp#2 $
+** $Id: //depot/qt/main/examples/tetrix/qdragapp.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -54,6 +54,9 @@ class QDragger : public QObject
     Q_OBJECT
 public:
     QDragger();
+    ~QDragger()
+    {}
+    
     bool notify( QObject *, QEvent * ); // event filter
     void closeDropWindow( DropWindow * );
 public slots:

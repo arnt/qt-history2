@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.h#1 $
+** $Id: //depot/qt/main/examples/listviews/listviews.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -83,7 +83,9 @@ class Folder : public QObject
 
 public:
     Folder( Folder *parent, const QString &name );
-
+    ~Folder()
+    {}
+    
     void addMessage( Message *m )
     { lstMessages.append( m ); }
 
@@ -140,7 +142,9 @@ class ListViews : public QSplitter
 
 public:
     ListViews( QWidget *parent = 0, const char *name = 0 );
-
+    ~ListViews()
+    {}
+    
 protected:
     void initFolders();
     void initFolder( Folder *folder, unsigned int &count );
