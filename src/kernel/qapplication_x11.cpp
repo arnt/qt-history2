@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#51 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#50 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#51 $";
 #endif
 
 
@@ -1624,30 +1624,26 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 // The problem with ConfigureNotify is that one cannot trust x and y values
 // in the xconfigure struct. Top level widgets are reparented by the window
 // manager, and (x,y) is sometimes relative to the parent window, but not
-// always!  It is safer (but slower) to fetch the window attributes.
+// always!  It is safer (but slower) to translate the window coordinates.
 //
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     if ( !parentWidget() ) {			// top level widget
-	XWindowAttributes a;
-	XGetWindowAttributes( display(), id(), &a );
-	QSize  newSize( a.width, a.height );
-	QPoint newPos( a.x, a.y );
-	QRect r = geometry();
+	Window child;
+	int    x, y;
+	XTranslateCoordinates( display(), id(), DefaultRootWindow(display()),
+			       0, 0, &x, &y, &child );
+	QPoint newPos( x, y );
+	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
+	QRect  r = geometry();
 	if ( newSize != size() ) {		// size changed
 	    r.setSize( newSize );
 	    setCRect( r );
 	    QResizeEvent e( newSize );
 	    QApplication::sendEvent( this, &e );
 	}
-	if ( newPos != frameGeometry().topLeft() ) {
-	    int x, y;				// position changed
-	    Window child;
-	    XTranslateCoordinates( display(), id(),
-				   DefaultRootWindow(display()),
-				   newPos.x(), newPos.y(), &x, &y, &child );
-	    newPos = QPoint(x,y) - newPos;	// get position excl frame
+	if ( newPos != geometry().topLeft() ) {
 	    r.setTopLeft( newPos );
 	    setCRect( r );
 	    QMoveEvent e( frameGeometry().topLeft() );
