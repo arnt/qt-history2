@@ -4262,8 +4262,8 @@ void QTextEdit::setStyleSheet( QStyleSheet* styleSheet )
 void QTextEdit::setPaper( const QBrush& pap )
 {
     doc->setPaper( new QBrush( pap ) );
-    setBackgroundColor( pap.color() );
-    viewport()->setBackgroundColor( pap.color() );
+    setPaletteBackgroundColor( pap.color() );
+    viewport()->setPaletteBackgroundColor( pap.color() );
     updateContents();
 }
 
