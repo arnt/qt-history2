@@ -11,6 +11,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 
+#include "node.h"
 #include "text.h"
 
 class ClassNode;
@@ -84,8 +85,9 @@ private:
     void appendFullName( Text& text, const Node *apparentNode,
 			 const Node *relative, CodeMarker *marker,
 			 const Node *actualNode = 0 );
-    void Generator::appendSortedNames(Text& text, const ClassNode *classe,
-				      CodeMarker *marker);
+    void appendSortedNames(Text& text, const ClassNode *classe,
+                           const QList<RelatedClass> &classes,
+                           CodeMarker *marker);
 
     QRegExp amp;
     QRegExp lt;

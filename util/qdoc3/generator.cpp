@@ -373,7 +373,7 @@ void Generator::generateInheritedBy( const ClassNode *classe,
 	Text text;
 	text << Atom::ParaLeft << "Inherited by ";
 
-        appendSortedNames(text, classe, marker);
+        appendSortedNames(text, classe, classe->derivedClasses(), marker);
 	text << Atom::ParaRight;
 	generateText( text, classe, marker );
     }
@@ -719,15 +719,16 @@ void Generator::appendFullName( Text& text, const Node *apparentNode,
 }
 
 void Generator::appendSortedNames(Text& text, const ClassNode *classe,
-				  CodeMarker *marker)
+				  const QList<RelatedClass> &classes,
+                                  CodeMarker *marker)
 {
     QList<RelatedClass>::ConstIterator r;
     QMap<QString,Text> classMap;
     QString className;
     int index = 0;
 
-    r = classe->derivedClasses().begin();
-    while ( r != classe->derivedClasses().end() ) {
+    r = classes.begin();
+    while ( r != classes.end() ) {
         Text className;
 	appendFullName( className, (*r).node, classe, marker );
         classMap[className.toString()] = className;
@@ -739,6 +740,6 @@ void Generator::appendSortedNames(Text& text, const ClassNode *classe,
 
     foreach (className, classNames) {
         text << classMap[className];
-	text << separator( index++, classe->derivedClasses().count() );
+	text << separator( index++, classes.count() );
     }
 }
