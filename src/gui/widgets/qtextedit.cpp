@@ -1941,9 +1941,6 @@ QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
     if (!d->readOnly) {
         a = menu->addAction(tr("&Paste") + ACCEL_KEY(V), this, SLOT(paste()));
         a->setEnabled(!QApplication::clipboard()->text().isEmpty());
-
-        a = menu->addAction(tr("Clear"), this, SLOT(clear()));
-        a->setEnabled(!d->doc->isEmpty());
     }
 
     menu->addSeparator();
