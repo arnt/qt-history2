@@ -81,8 +81,8 @@ void MainWindow::setupTreeItems()
 
 void MainWindow::findItems()
 {
-    QString itemText = QInputDialog::getText(this, tr("Insert Item"),
-        tr("Input text for the new item:"));
+    QString itemText = QInputDialog::getText(this, tr("Find Items"),
+        tr("Input the text to find:"));
 
     if (itemText.isEmpty())
         return;
