@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Qt/Embedded (Qt on QWS) documentation
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -32,7 +32,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-/*! \page emb-install.html
+
+/*!
+\page emb-install.html
 
 \title Installing Qt/Embedded
 
@@ -75,7 +77,7 @@ Configurations files are found in \c configs/.
 
    You may need to recompile your kernel to enable the framebuffer.
    This document does not describe how to do this; the
-   \link emb-framebuffer-howto.html HOWTO-Framebuffer page \endlink
+   \link emb-framebuffer-howto.html Framebuffer HOWTO page \endlink
    contains a short description. (You should see
    a penguin logo at boot time when the frame buffer is enabled.)
 
