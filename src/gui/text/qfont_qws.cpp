@@ -213,7 +213,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
     QFont::Script script;
     SCRIPT_FOR_CHAR(script, ch);
 
-    int width;
+    float width;
 
     if (script >= QFont::Arabic && script <= QFont::Khmer) {
         // complex script shaping. Have to do some hard work
@@ -222,7 +222,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         QString cstr = QString::fromRawData(str.unicode()+from, to-from);
         QTextEngine layout(cstr, d);
         layout.itemize(QTextEngine::WidthOnly);
-        width = layout.width(pos-from, 1).toInt();
+        width = layout.width(pos-from, 1);
     } else {
         QFontEngine *engine = d->engineForScript(script);
         Q_ASSERT(engine != 0);
@@ -230,9 +230,9 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         QGlyphLayout glyphs[8];
         int nglyphs = 7;
         engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-        width = glyphs[0].advance.x.toInt();
+        width = glyphs[0].advance.x();
     }
-    return width;
+    return qRound(width);
 }
 
 int QFontMetrics::width(QChar ch) const
@@ -249,7 +249,7 @@ int QFontMetrics::width(QChar ch) const
     QGlyphLayout glyphs[8];
     int nglyphs = 7;
     engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-    return glyphs[0].advance.x.toInt();
+    return qRound(glyphs[0].advance.x());
 }
 
 
