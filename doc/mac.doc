@@ -181,6 +181,11 @@ create a different default menubar by creating a parentless QMenuBar, the
 first one created will thus be designated the default menubar, and will be
 used whenever a default menubar is needed.
 
+\section1 Limitations
+
+QCustomMenuItems are not supported in Mac native menubars, they are supported
+in popupmenus that are not in the Mac native menubar.
+
 */
 
 
