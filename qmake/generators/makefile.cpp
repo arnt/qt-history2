@@ -1640,7 +1640,10 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	QString yaccflags = "$(YACCFLAGS)", mangle = "y";
 	if(!project->isActiveConfig("yacc_no_name_mangle")) {
 	    mangle = fi.baseName(TRUE);
-	    yaccflags += " -p " + mangle;
+	    if(!project->isEmpty("QMAKE_YACCFLAGS_MANGLE")) 
+		yaccflags += " " + var("QMAKE_YACCFLAGS_MANGLE").replace(stringBase, mangle);
+	    else
+		yaccflags += " -p " + mangle;
 	}
 	QString out_h = default_out_h, out_c = default_out_c;
 	if(!mangle.isEmpty()) {
