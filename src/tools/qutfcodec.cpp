@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#2 $
 **
 ** Implementation of QEucCodec class
 **
@@ -198,9 +198,10 @@ class QUtf16Decoder : public QTextDecoder {
     uchar buf;
     bool half;
     bool swap;
+    bool headerdone;
 
 public:
-    QUtf16Decoder() : half(FALSE), swap(FALSE)
+    QUtf16Decoder() : half(FALSE), swap(FALSE), headerdone(FALSE)
     {
     }
 
@@ -218,11 +219,15 @@ public:
 		    ch.row = buf;
 		    ch.cell = *chars++;
 		}
-		if ( ch == QChar::byteOrderSwapped )
-		    swap = !swap;
-		else if ( ch == QChar::byteOrderMark )
-		    ; // Ignore ZWNBSP
-		else
+		if ( !headerdone ) {
+		    if ( ch == QChar::byteOrderSwapped )
+			swap = !swap;
+		    else if ( ch == QChar::byteOrderMark )
+			; // Ignore ZWNBSP
+		    else
+			r += ch;
+		    headerdone = TRUE;
+		} else
 		    r += ch;
 		half = FALSE;
 	    } else {
