@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#58 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#59 $
 **
 ** Definition of event classes
 **
@@ -113,7 +113,7 @@ public:
 	: QEvent(type), p(pos), b(button),s((ushort)state) {}
     QMouseEvent( int type, const QPoint &pos, const QPoint&globalPos, int button, int state )
 	: QEvent(type), p(pos), b(button),s((ushort)state) {g = globalPos;}
-    
+
     const QPoint &pos() const	{ return p; }
     const QPoint &globalPos() { return g; }
     int	   x()		const	{ return p.x(); }
@@ -135,8 +135,8 @@ protected:
 class QWheelEvent : public QEvent		// wheel event
 {
 public:
-    QWheelEvent( int type, const QPoint &pos, int delta, int state )
-	: QEvent(type), p(pos), d(delta), s((ushort)state),
+    QWheelEvent( const QPoint &pos, int delta, int state )
+	: QEvent(Event_Wheel), p(pos), d(delta), s((ushort)state),
 	  accpt(TRUE) {}
     int	   delta()	const	{ return d; }
     const QPoint &pos() const	{ return p; }
