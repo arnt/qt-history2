@@ -28,20 +28,30 @@ const tabSize = 4;
  * Purging filters that will be moved into files later
  */
 
-var preRemove = [ new RegExp("/qt/tools/designer/manual"),
-		  new RegExp("/qt/tools/designer/doc"),
-		  new RegExp("/qt/tools/designer/plugins/designer_interface_roadmap"),
-		  new RegExp("/qt/tools/designer/plugins/extrawidgets"),
-		  new RegExp("/qt/tools/designer/plugins/p4"),
-		  new RegExp("/qt/tools/designer/plugins/qvim"),
-		  new RegExp("/qt/tools/designer/plugins/designer_interface_roadmap"),
-		  new RegExp("/qt/tools/inspector") ];
-var preKeep = [ /./ ];
+var depotRemove = [ new RegExp("/qt/tools/designer/manual"),
+		    new RegExp("/qt/tools/designer/doc"),
+		    new RegExp("/qt/tools/designer/plugins/designer_interface_roadmap"),
+		    new RegExp("/qt/tools/designer/plugins/extrawidgets"),
+		    new RegExp("/qt/tools/designer/plugins/p4"),
+		    new RegExp("/qt/tools/designer/plugins/qvim"),
+		    new RegExp("/qt/tools/designer/plugins/designer_interface_roadmap"),
+		    new RegExp("/qt/tools/inspector") ];
+var depotKeep = [ /./ ];
+
+var platformRemove = new Array();
+var platformKeep = new Array();
+
+var editionRemove = new Array();
+var editionKeep = new Array();
+
+platformRemove["win"] = [ /x11/ ];
+platformKeep["win"] = [ /./ ];
+editionRemove["commercial"] = [ /GPL/ ];
+editionKeep["commercial"] = [ /./ ];
 
 /*******************************************************************************
  * Here we go
  */
-
 print("Initializing...");
 parseArgc();
 initialize();
@@ -52,7 +62,7 @@ buildQdoc();
 print("Checkout from P4...");
 checkout();
 print("Purging before packaging...");
-purgeFiles(getFileList(distDir), preRemove, preKeep);
+purgeFiles(getFileList(distDir), depotRemove, depotKeep);
 indentation+=tabSize;
 for (var p in validPlatforms) {
     for (var e in validEditions) {
@@ -67,18 +77,23 @@ for (var p in validPlatforms) {
 	    var platName = "qt-%1-%2-%3".arg(platform).arg(edition).arg(options["version"]);
 	    var platDir = distDir + "/" + platName;
 	    Process.execute(["cp", "-r", distDir+"/qt", platDir]);
-	    var dir = new Dir(platDir);
-	    dir.setCurrent();
 
 	    // run syncqt
 	    print("Running syncqt...");
 	    syncqt(platDir, platform);
 
 	    // run qdoc
+	    print("Running qdoc...");
+	    qdoc(platDir);
 
-	    // purge files after qdoc
+	    // purge platform and edition files
+	    print("Purging platform and edition spesific files...");
+	    purgeFiles(getFileList(platDir),
+		       [].concat(platformRemove[platform]).concat(editionRemove[edition]),
+		       [].concat(platformKeep[platform]).concat(editionKeep[edition]));
 
 	    // package directory
+	    indentation-=tabSize;
 	}
     }
 }
@@ -125,7 +140,7 @@ function initialize()
 	throw "version not specified.";
 
 
-    // by default turn on all valid platforms were not defined
+    // by default turn on all valid platforms that were not defined
     for (var i in validPlatforms)
 	if (!(validPlatforms[i] in options))
 	    options[validPlatforms[i]] = true;
@@ -134,6 +149,20 @@ function initialize()
     for (var i in validEditions)
 	if (!(validEditions[i] in options))
 	    options[validEditions[i]] = true;
+
+    // make sure platform and edition filters are defined
+    for (var i in validPlatforms) {
+	if (!(validPlatforms[i] in platformRemove))
+	    platformRemove[validPlatforms[i]] = new Array();
+	if (!(validPlatforms[i] in platformKeep))
+	    platformKeep[validPlatforms[i]] = new Array();
+    }
+    for (var i in validEditions) {
+	if (!(validEditions[i] in editionRemove))
+	    editionRemove[validEditions[i]] = new Array();
+	if (!(validEditions[i] in editionKeep))
+	    editionKeep[validEditions[i]] = new Array();
+    }
 
     // finds a tmpDir
     if (tmpDir == undefined || !File.exists(tmpDir)) {
@@ -158,6 +187,8 @@ function initialize()
 	p4Command = System.getenv("which p4");
     if (!File.exists(p4Command))
 	p4Command = "/usr/local/bin/p4";
+
+
 
 //     for (var i in options)
 // 	print("options[%1] = %2".arg(i).arg(options[i]));
@@ -287,7 +318,7 @@ function purgeFiles(fileList, remove, keep)
 
 	// bail out
 	if (!doKeep)
-	    throw "File: %1 not found in remove nor keep filter, bailing out.";
+	    throw "File: %1 not found in remove nor keep filter, bailing out.".arg(fileName);
     }
 }
 
@@ -345,18 +376,29 @@ function cleanup()
 }
 
 /************************************************************
- * runs syncqt on syncDir with the specified platform
+ * runs syncqt in packageDir with the specified platform
  */
-function syncqt(syncDir, platform)
+function syncqt(packageDir, platform)
 {
-    var dir = new Dir(syncDir);
+    var dir = new Dir(packageDir);
     dir.setCurrent();
-    System.setenv("QTDIR", syncDir);
-    var syncqtCommand = syncDir + "/bin/syncqt";
+    System.setenv("QTDIR", packageDir);
+    var syncqtCommand = packageDir + "/bin/syncqt";
     if (platform == "win")
 	Process.execute([syncqtCommand, "-windows"]);
     else
 	Process.execute([syncqtCommand]);
+}
+
+/************************************************************
+ * runs qdoc on packageDir
+ */
+function qdoc(packageDir)
+{
+    var dir = new Dir(packageDir);
+    dir.setCurrent();
+    System.setenv("QTDIR", packageDir);
+    Process.execute([qdocCommand, packageDir + "/util/qdoc/qdoc.conf"]);
 }
 
 /************************************************************
