@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#63 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#64 $
 **
 ** Definition of QFileDialog class
 **
@@ -153,7 +153,8 @@ private slots:
 private slots:
     void doubleClickTimeout();
     void changeDirDuringDrag();
-
+    void doDragScroll();
+    
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
@@ -165,9 +166,9 @@ private:
     int urls;
     QString startDragDir;
     QListViewItem *currDropItem;
-    QTimer changeDirTimer;
+    QTimer changeDirTimer, dragScrollTimer;
     bool firstMousePressEvent;
-
+    
 };
 
 
@@ -202,7 +203,7 @@ public:
     static QString getOpenFileName( const QStringList &filters,
                                     const QString &initially = QString::null,
                                     QWidget *parent = 0, const char* name = 0);
-    static QString getSaveFileName( const QStringList &filters, 
+    static QString getSaveFileName( const QStringList &filters,
                                     const QString &initially = QString::null,
                                     QWidget *parent = 0, const char* name = 0);
     static QStringList getOpenFileNames( const QStringList &filters,
