@@ -460,14 +460,14 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
                                               const QAbstractTextDocumentLayout::PaintContext &context,
                                               QTextBlock bl, const QTextLayout::Selection &selection) const
 {
-    QTextBlockFormat blockFormat = bl.blockFormat();
-    QTextCharFormat charFormat = bl.charFormat();
-    QFontMetrics fontMetrics(charFormat.font());
-    QTextObject *object = q->document()->objectForFormat(blockFormat);
-    QTextListFormat lf = object->format().toListFormat();
+    const QTextBlockFormat blockFormat = bl.blockFormat();
+    const QTextCharFormat charFormat = bl.charFormat();
+    const QFontMetrics fontMetrics(charFormat.font());
+    QTextObject * const object = q->document()->objectForFormat(blockFormat);
+    const QTextListFormat lf = object->format().toListFormat();
     const int style = lf.style();
     QString itemText;
-    QPoint pos = bl.layout()->rect().topLeft() + offset;
+    const QPoint pos = bl.layout()->rect().topLeft() + offset;
     QSize size;
 
     switch (style) {
