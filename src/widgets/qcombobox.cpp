@@ -1138,9 +1138,10 @@ void QComboBox::setFont( const QFont &font )
 
 void QComboBox::resizeEvent( QResizeEvent * e )
 {
-    if ( d->ed ) {
+    if ( d->ed )
 	d->updateLinedGeometry();
-    }
+    if ( d->listBox() )
+	d->listBox()->resize( width(), d->listBox()->height() );
     QWidget::resizeEvent( e );
 }
 
@@ -1430,6 +1431,7 @@ void QComboBox::popup()
 	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
     } else {
 	// Send all listbox events to eventFilter():
+	d->listBox()->triggerUpdate( TRUE );
 	d->listBox()->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
 	d->listBox()->resize( d->listBox()->variableWidth() ? d->listBox()->sizeHint().width() : width(),
