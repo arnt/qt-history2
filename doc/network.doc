@@ -81,18 +81,18 @@ documentation.
 
 Now as everything works asyncronous, the function call returns before the
 operation has been processed. So you don't get a return value which tells you
-something about failure or success. The return value always is a pointer to a 
-\c QNetworkOperation. 
+something about failure or success. The return value always is a pointer to a
+\c QNetworkOperation.
 
 In this \c QNetworkOperation pointer all information about the operation is stored.
 There is e.g. a method of \c QNetworkOperation which returns the state of
 this operation. Using that you can find out all the time in which state the operation
 currently is . Also you get the arguments you passed to the QUrlOperator
-method, the type of the operation and some more stuff from this \c QNetworkOperation 
+method, the type of the operation and some more stuff from this \c QNetworkOperation
 object. For more details see the class documentation of \c QNetworkOperation.
- 
+
 Now, later you get signals emitted by the QUrlOperator, which inform you about the process
-of the operations. As you can call many methods which operate on an URL of one 
+of the operations. As you can call many methods which operate on an URL of one
 QUrlOperator, it queues up all these operations. So you can't know which operation
 the QUrlOperator just processes. Because of this you get in each signal as the last argument
 a pointer to the \c QNetworkOperation object which is just processed.
@@ -126,7 +126,7 @@ void MyClass::slotOperationFinished( QNetworkOperation *op )
 \endcode
 
 As mentioned before, some operations send other signals too. Let's take
-the list children operation as an example (e.g. read the directory of a 
+the list children operation as an example (e.g. read the directory of a
 directory on a FTP server):
 
 \code
@@ -209,8 +209,8 @@ all information about the operation in the current state. If you start
 procressing such an operation, set the state to \c StInProgress. If
 you finished processing the operation, set the state to \c StDone if it
 was successful or \c StFailed if an error occured. If an error occured
-you have to set an error code and if you know some details 
-(e.g. an error message) you can also set this message to the operation 
+you have to set an error code and if you know some details
+(e.g. an error message) you can also set this message to the operation
 pointer.
 Also you get all information (type, arguments, etc.) of the operation
 from this QNetworkOperation pointer. For details about which arguments
@@ -253,7 +253,7 @@ Then there are some more special signals which are specific to operations:
     <li>\c dataTransferProgress() each time data has been written to indicate how much of the data
 	has been written. Although you know the whole data when this operation is called, it's
 	suggested not to write the whole data at once, but to do it step by step to avoid
-	blocking the GUI and also this way the progress can be made visible to the user. 
+	blocking the GUI and also this way the progress can be made visible to the user.
   </ul>
 </ul>
 
@@ -263,10 +263,10 @@ For more details about the arguments of these signals take a look
 at the QNetworkProtocol class documentation.
 
 Now, as argument in such a method you get the QNetworkOperation
-which you process. Here is a list which arguments of the QNetworkOperation 
+which you process. Here is a list which arguments of the QNetworkOperation
 you can get and which you have to set in which method:
 
-(To get the URL on which you should work, use the \c QNetworkProtocol::url() method 
+(To get the URL on which you should work, use the \c QNetworkProtocol::url() method
 which returns the pointer to the URL operator. Using that you can get the path, host,
 name filter and everything else of the URL)
 
@@ -375,7 +375,8 @@ myprot. So if you want to use it, you would do something like
 \endcode
 
 Finally as example for a network implementation you could look at the implementation
-of QFtp (in qt/extenstions/network/src/qftp.cpp) or at the example ##### TODO.
+of QFtp (in qt/extenstions/network/src/qftp.cpp) or at the example in 
+qt/extenstions/network/examples/networkprotocol.
 
 <h2>Error Handling</h2>
 
@@ -399,7 +400,7 @@ error. Following error codes are defined in QNetworkProtocol:
   <li>\c QNetworkProtocol::ErrHostNotFound (-6) - The specified host (in the URL) couldn´t be found
   <li>\c QNetworkProtocol::ErrListChlidren (-7) - An error occured while listing the children
   <li>\c QNetworkProtocol::ErrMkdir (-8) - An error occured when creating a directory
-  <li>\c QNetworkProtocol::ErrRemove (-9) -An error occured while removing a child 
+  <li>\c QNetworkProtocol::ErrRemove (-9) -An error occured while removing a child
   <li>\c QNetworkProtocol::ErrRename (-10) - An error occured while renaming a child
   <li>\c QNetworkProtocol::ErrGet (-11) - An error occured while getting (retrieving) data
   <li>\c QNetworkProtocol::ErrPut (-12) - An error occured while putting (uploading) data
@@ -415,12 +416,12 @@ message then which could e.g. be displayed for the user.
 
 According tho this information it should be possible to react on errors.
 
-Now, if you implement your work network protocol, you will need to tell about errors 
+Now, if you implement your work network protocol, you will need to tell about errors
 which occured. First you always need to be able to access the \c QNetworkOperation
 which is processed at the moment. This can be done using \c QNetworkOperation::operationInProgress(),
-which returns a pointer to the current network operation. 
+which returns a pointer to the current network operation.
 
-Now if and error occured and you need to handle it, do 
+Now if and error occured and you need to handle it, do
 
 \code
 
