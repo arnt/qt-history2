@@ -147,6 +147,18 @@ QSGIStyle::polish( QApplication* app)
     QApplication::setPalette( pal, TRUE, "QToolBar" );
 }
 
+/*! \reimp
+*/
+
+void
+QSGIStyle::unPolish( QApplication* app )
+{    
+    QFont f = QApplication::font();
+    QApplication::setFont( f, TRUE, "QPopupMenu" );
+    QApplication::setFont( f, TRUE, "QMenuBar" );
+    QApplication::setFont( f, TRUE, "QComboBox" );
+}
+
 /*!
     Installs eventfilters for several widgets to enable
     the SGI-effect of glowing buttons.
