@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#26 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#27 $
 **
 ** Definition of event classes
 **
@@ -82,14 +82,14 @@ class QMouseEvent : public QEvent		// mouse event
 {
 public:
     QMouseEvent( int type, const QPoint &pos, int button, int state )
-	: QEvent(type), p(pos), b(button),st((ushort)state) {}
+	: QEvent(type), p(pos), b(button),s((ushort)state) {}
     const QPoint &pos() const	{ return p; }
     int	   button()	const	{ return b; }
-    int	   state()	const	{ return st; }
+    int	   state()	const	{ return s; }
 protected:
     QPoint p;
     int	   b;
-    ushort st;
+    ushort s;
 };
 
 #define Q_MOUSE_EVENT(x)	((QMouseEvent*)x)
@@ -98,16 +98,18 @@ protected:
 class QKeyEvent : public QEvent			// keyboard event
 {
 public:
-    QKeyEvent( int type, int kc, uchar ac, int state )
-	: QEvent(type), k((ushort)kc), st((ushort)state), a(ac), accpt(TRUE) {}
+    QKeyEvent( int type, int key, int ascii, int state )
+	: QEvent(type), k((ushort)key), s((ushort)state), a((uchar)ascii),
+	  accpt(TRUE) {}
     int	   key()	const	{ return k; }
-    uchar  ascii()	const	{ return (uchar )a; }
-    int	   state()	const	{ return st; }
+    int	   ascii()	const	{ return a; }
+    int	   state()	const	{ return s; }
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
 protected:
-    ushort k, st, a;
+    ushort k, s;
+    uchar  a;
     char   accpt;
 };
 

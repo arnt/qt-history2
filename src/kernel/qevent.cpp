@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#28 $
 **
 ** Implementation of event classes
 **
@@ -12,7 +12,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#28 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -269,7 +269,7 @@ void QEvent::peErrMsg()				// posted event error message
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QKeyEvent::QKeyEvent( int type, int key, uchar ascii, int state )
+  \fn QKeyEvent::QKeyEvent( int type, int key, int ascii, int state )
   Constructs a key event object.
 
   The \e type parameter must be \c Event_KeyPress or \c Event_KeyRelease.
@@ -292,7 +292,7 @@ void QEvent::peErrMsg()				// posted event error message
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn uchar QKeyEvent::ascii() const
+  \fn int QKeyEvent::ascii() const
   Returns the ASCII code of the key that was pressed or released.
  ----------------------------------------------------------------------------*/
 
