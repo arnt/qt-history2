@@ -646,7 +646,7 @@ static char * aqua_win_act_controls_xpm[] = {
 
 
 /* XPM */
-static char * aqua_win_act_fill_xpm[] = {
+static char * aqua_win_fill_xpm[] = {
 "53 16 5 1",
 " 	c None",
 ".	c #EEEEEE",
@@ -12043,8 +12043,10 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     if( s.contains("win_") ) {
         QPixmapCache::insert( "$qt_aqua_win_act_controls",
                               (const char **) aqua_win_act_controls_xpm );
-        QPixmapCache::insert( "$qt_aqua_win_act_fill",
-                              (const char **) aqua_win_act_fill_xpm );
+        QPixmapCache::insert( "$qt_aqua_win_dis_controls",
+                              (const char **) aqua_win_dis_controls_xpm );
+        QPixmapCache::insert( "$qt_aqua_win_fill",
+                              (const char **) aqua_win_fill_xpm );
     }
 
     // Horizontal scrollbar

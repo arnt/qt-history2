@@ -59,7 +59,8 @@
 #include "qprogressbar.h"
 #include "qlistview.h"
 #include <limits.h>
-#include "../widgets/qtitlebar_p.h"
+#include "private/qtitlebar_p.h"
+#include "private/qinternal_p.h"
 #include "qpopupmenu.h"
 #include "qaquastyle_p.h"
 #include "qguardedptr.h"
@@ -100,20 +101,11 @@ protected:
 
 private:
     QWidget *d;
-    QPixmap pmt, pmb, pml, pmr, pmtl, pmtr, pmbl, pmbr;
 };
 
 QAquaFocusWidget::QAquaFocusWidget( )
     : QWidget( NULL, "magicFocusWidget" ), d( NULL )
 {
-    qAquaPixmap( "focus_t", pmt );
-    qAquaPixmap( "focus_l", pml );
-    qAquaPixmap( "focus_b", pmb );
-    qAquaPixmap( "focus_r", pmr );
-    qAquaPixmap( "focus_tl", pmtl );
-    qAquaPixmap( "focus_bl", pmbl );
-    qAquaPixmap( "focus_tr", pmtr );
-    qAquaPixmap( "focus_br", pmbr );
 }
 
 void QAquaFocusWidget::setFocusWidget( QWidget * widget )
@@ -193,15 +185,26 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 
 void QAquaFocusWidget::paintEvent( QPaintEvent * )
 {
-    QPainter p( this );
-    p.drawTiledPixmap( 4, 0, width() - 8, pmt.height(), pmt );
-    p.drawTiledPixmap( 4, height() - pmb.height(), width() - 8, pmb.height(), pmb );
-    p.drawTiledPixmap( 0, 5, pml.width(), height() - 10, pml );
-    p.drawTiledPixmap( width() - pmr.width(), 5, pml.width(), height() - 10, pmr );
-    p.drawPixmap( 0, 0, pmtl );
-    p.drawPixmap( 0, height() - pmbl.height(), pmbl );
-    p.drawPixmap( width() - pmtr.width(), 0, pmtr );
-    p.drawPixmap( width() - pmbr.width(), height() - pmbr.height(), pmbr );
+    QPixmap pmt, pmb, pml, pmr, pmtl, pmtr, pmbl, pmbr;
+    qAquaPixmap( "focus_t", pmt );
+    qAquaPixmap( "focus_l", pml );
+    qAquaPixmap( "focus_b", pmb );
+    qAquaPixmap( "focus_r", pmr );
+    qAquaPixmap( "focus_tl", pmtl );
+    qAquaPixmap( "focus_bl", pmbl );
+    qAquaPixmap( "focus_tr", pmtr );
+    qAquaPixmap( "focus_br", pmbr );
+
+    QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
+    buffer.begin( this, rect() );
+    buffer.painter()->drawTiledPixmap( 4, 0, width() - 8, pmt.height(), pmt );
+    buffer.painter()->drawTiledPixmap( 4, height() - pmb.height(), width() - 8, pmb.height(), pmb );
+    buffer.painter()->drawTiledPixmap( 0, 5, pml.width(), height() - 10, pml );
+    buffer.painter()->drawTiledPixmap( width() - pmr.width(), 5, pml.width(), height() - 10, pmr );
+    buffer.painter()->drawPixmap( 0, 0, pmtl );
+    buffer.painter()->drawPixmap( 0, height() - pmbl.height(), pmbl );
+    buffer.painter()->drawPixmap( width() - pmtr.width(), 0, pmtr );
+    buffer.painter()->drawPixmap( width() - pmbr.width(), height() - pmbr.height(), pmbr );
 }
 
 class QAquaStylePrivate : public QObject
@@ -442,9 +445,10 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	    {
 		QPushButton * tmp = d->defaultButton;
 		d->defaultButton = 0;
-		if( tmp != 0 )
+		if( tmp )
 		    tmp->repaint( FALSE );
-		d->defaultButton = pb;
+		if(pb->topLevelWidget()->isActiveWindow())
+		    d->defaultButton = pb;
 		break;
 	    }
 	}
@@ -1415,9 +1419,13 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    break;
 	if(sub) {
 	    QTitleBar *tb = (QTitleBar *)widget;
-	    if(tb->window()) {
+	    if(tb->window() && 
+	       (sub & (SC_TitleBarMinButton|SC_TitleBarCloseButton|SC_TitleBarMaxButton))) {
 		QPixmap ctrl;
-		qAquaPixmap( "win_act_controls", ctrl );
+		if(flags & Style_MouseOver) 
+		    qAquaPixmap( "win_act_controls", ctrl );
+		else 
+		    qAquaPixmap( "win_dis_controls", ctrl );
 		p->drawPixmap(0, 0, ctrl);
 	    }
 	    if(sub & SC_TitleBarLabel) {
@@ -1425,7 +1433,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		if(tb->window())
 		    x += 55;
 		QPixmap fill;
-		qAquaPixmap( "win_act_fill", fill );
+		qAquaPixmap( "win_fill", fill );
 		p->drawTiledPixmap(x, 0, tb->width() - x, fill.height(), fill);
 		QColorGroup cgroup = tb->isActive() || !tb->window() ? tb->palette().active() : tb->palette().inactive();
 		p->setPen( cgroup.highlightedText() );
@@ -1849,34 +1857,5 @@ void QAquaStyle::appearanceChanged()
 #endif
 }
 #endif
-
-#if 0
-/*! \reimp */
-QRect QAquaStyle::comboButtonRect( int x, int y, int w, int h) const
-{
-    QRect r(x+3, y+3, w-6-20, h-6);
-    if( QApplication::reverseLayout() )
-        r.moveBy( 16, 0 );
-    return r;
-}
-
-/*! \reimp */
-void QAquaStyle::drawToolBarPanel( QPainter * p, int x, int y,
-                                   int w, int h, const QColorGroup & g,
-                                   const QBrush * /*fill*/ )
-{
-    p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ) );
-}
-
-/*! \reimp */
-void QAquaStyle::drawMenuBarPanel( QPainter * p, int x, int y,
-                                   int w, int h, const QColorGroup & g,
-                                   const QBrush * /*fill*/ )
-{
-    p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ) );
-}
-
-#endif
-
 #endif /* QT_NO_STYLE_AQUA */
 

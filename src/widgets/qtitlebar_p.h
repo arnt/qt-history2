@@ -106,6 +106,7 @@ protected:
     void mouseReleaseEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
     void enterEvent( QEvent *e );
+    void leaveEvent( QEvent *e );
     void paintEvent( QPaintEvent *p );
 
     virtual void cutText();

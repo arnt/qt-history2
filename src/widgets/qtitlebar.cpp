@@ -41,16 +41,17 @@
 
 #ifndef QT_NO_TITLEBAR
 
+#include <qcursor.h>
 #include "qapplication.h"
 #include "qstyle.h"
 #include "qdatetime.h"
-#include "../kernel/qapplication_p.h"
+#include "private/qapplication_p.h"
 #include "qtooltip.h"
 #include "qimage.h"
 #include "qtimer.h"
 #include "qpainter.h"
 #include "qstyle.h"
-#include "../kernel/qinternal_p.h"
+#include "private/qinternal_p.h"
 #ifndef QT_NO_WORKSPACE
 #include "qworkspace.h"
 #endif
@@ -132,7 +133,7 @@ class QTitleBarPrivate
 {
 public:
     QTitleBarPrivate()
-	: toolTip( 0 ), act( 0 ), window( 0 ), movable( 0 )
+	: toolTip( 0 ), act( 0 ), window( 0 ), movable( 0 ), pressed( 0 )
     {
     }
 
@@ -142,6 +143,7 @@ public:
     bool act		    :1;
     QWidget* window;
     bool movable            :1;
+    bool pressed            :1;
     QString cuttext;
 };
 
@@ -163,6 +165,7 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
 
     readColors();
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+    setMouseTracking(TRUE);
 }
 
 QTitleBar::~QTitleBar()
@@ -237,6 +240,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 {
     emit doActivate();
     if ( e->button() == LeftButton ) {
+	d->pressed = TRUE;
 	QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
 	switch (ctrl) {
 	case QStyle::SC_TitleBarSysMenu: 
@@ -307,8 +311,9 @@ void QTitleBar::contextMenuEvent( QContextMenuEvent *e )
 
 void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 {
-    if ( e->button() == LeftButton ) {
+    if ( e->button() == LeftButton && d->pressed) {
 	QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+	d->pressed = FALSE;
 
 	if (ctrl == d->buttonDown) {
 	    switch(ctrl) {
@@ -357,13 +362,12 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 
 void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 {
-    if ( d->buttonDown == QStyle::SC_None)
-	return;
-
     switch (d->buttonDown) {
+    case QStyle::SC_None:
+	repaint();
+	break;
     case QStyle::SC_TitleBarSysMenu:
 	break;
-
     case QStyle::SC_TitleBarShadeButton:
     case QStyle::SC_TitleBarUnshadeButton:
     case QStyle::SC_TitleBarNormalButton:
@@ -447,12 +451,25 @@ void QTitleBar::paintEvent(QPaintEvent *)
 	}
     }
 
+    QStyle::SCFlags under_mouse = QStyle::SC_None;
+    if( hasMouse() && !d->pressed ) {
+	QPoint p(mapFromGlobal(QCursor::pos()));
+	under_mouse = style().querySubControl(QStyle::CC_TitleBar, this, p);
+	ctrls ^= under_mouse;
+    }
+
     QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
     buffer.begin( this, rect() );
     style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
 			       colorGroup(),
 			       isEnabled() ? QStyle::Style_Enabled :
 			       QStyle::Style_Default, ctrls, d->buttonDown);
+    if(under_mouse != QStyle::SC_None) 
+	style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
+				   colorGroup(),
+				   QStyle::Style_MouseOver | 
+				   (isEnabled() ? QStyle::Style_Enabled : 0),
+				   under_mouse, 0);
 }
 
 void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
@@ -541,8 +558,16 @@ void QTitleBar::setIcon( const QPixmap& icon )
 #endif
 }
 
+void QTitleBar::leaveEvent( QEvent * )
+{
+    if(!d->pressed)
+	repaint();
+}
+
 void QTitleBar::enterEvent( QEvent * )
 {
+    if(!d->pressed)
+	repaint();
     QEvent e( QEvent::Leave );
     QApplication::sendEvent( parentWidget(), &e );
 }
