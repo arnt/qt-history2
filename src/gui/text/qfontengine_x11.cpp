@@ -635,9 +635,6 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
 {
     Q_ASSERT(freetype->lock == 1);
 
-    if (outline_drawing)
-        return 0;
-
     bool add_to_glyphset = false;
     if (format == Format_None) {
         format = Format_Mono;
@@ -653,7 +650,9 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
     int hfactor = 1;
     int vfactor = 1;
     int load_flags = FT_LOAD_DEFAULT;
-    if (format == Format_Mono) {
+    if (outline_drawing) {
+        load_flags = FT_LOAD_NO_BITMAP|FT_LOAD_NO_HINTING;
+    } else if (format == Format_Mono) {
         load_flags |= FT_LOAD_TARGET_MONO;
     } else if (format == Format_A32) {
         if (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_BGR) {
@@ -674,6 +673,10 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
 
     FT_Face face = freetype->face;
     FT_Load_Glyph(face, glyph, load_flags);
+
+    if (outline_drawing)
+        return 0;
+
     FT_GlyphSlot slot = face->glyph;
 
     int left  = FLOOR(slot->metrics.horiBearingX);
@@ -1115,10 +1118,10 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
     if (FT_IS_SCALABLE(freetype->face)) {
         FT_Face face = lockFace();
         QPointF point = QPointF(x, y);
-        for (int i = 0; i < numGlyphs; i++) {
-            FT_UInt glyph = glyphs[i].glyph;
-            QPointF cp = point + glyphs[i].offset;
-            point += glyphs[i].advance;
+        for (int gl = 0; gl < numGlyphs; gl++) {
+            FT_UInt glyph = glyphs[gl].glyph;
+            QPointF cp = point + glyphs[gl].offset;
+            point += glyphs[gl].advance;
 
             FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
 
