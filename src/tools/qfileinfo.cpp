@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#12 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#12 $")
 
 
 struct QFileInfoCache
@@ -517,10 +517,7 @@ bool QFileInfo::isFile() const
 #else
     if ( !fic || !cache )
 	doStat();
-    if ( fic )
-	return ( fic->st.st_mode & STAT_MASK) == STAT_REG;
-    else
-	return FALSE;
+    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_REG : FALSE;
 #endif
 }
 
@@ -537,10 +534,7 @@ bool QFileInfo::isDir() const
 #else
     if ( !fic || !cache )
 	doStat();
-    if ( fic )
-	return ( fic->st.st_mode & STAT_MASK) == STAT_DIR;
-    else
-	return FALSE;
+    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_DIR : FALSE;
 #endif
 }
 
@@ -556,10 +550,7 @@ bool QFileInfo::isSymLink() const
 #else
     if ( !fic || !cache )
 	doStat();
-    if ( fic )
-	return ( fic->st.st_mode & STAT_MASK) == STAT_LNK;
-    else
-	return FALSE;
+    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_LNK : FALSE;
 #endif
 }
 
@@ -578,8 +569,8 @@ bool QFileInfo::isSymLink() const
 const char *QFileInfo::owner() const
 {
 #if defined(UNIX)
-    passwd *tmp = getpwuid( ownerId() );
-    return tmp ? tmp->pw_name : 0;
+    passwd *pw = getpwuid( ownerId() );
+    return pw ? pw->pw_name : 0;
 #else
     return 0;
 #endif
@@ -764,11 +755,15 @@ QDateTime QFileInfo::lastRead() const
 
 void QFileInfo::doStat() const
 {
-    QFileInfo *This = ((QFileInfo*)this);	// Mutable function
-    if ( !fic )
-	This->fic = new QFileInfoCache;
-    if ( STAT(fn.data(), &This->fic->st) != 0 ) {
-	delete This->fic;
-	This->fic = 0;
+    QFileInfo *that = ((QFileInfo*)this);	// mutable function
+    if ( !that->fic )
+	that->fic = new QFileInfoCache;
+    STATBUF *b = &that->fic->st;
+    if ( STAT(fn.data(),b) != 0 ) {
+#if defined(DEBUG)
+	debug( "QFileInfo::doStat: stat() failed" );
+#endif
+	delete that->fic;
+	that->fic = 0;
     }
 }
