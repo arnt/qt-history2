@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#51 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#51 $");
 
 
 /*!
@@ -580,7 +580,10 @@ bool QFile::atEnd() const
 int QFile::readBlock( char *p, uint len )
 {
 #if defined(CHECK_STATE)
-    CHECK_PTR( p );
+    if ( !p ) {
+	warning( "QFile::readBlock: Null block pointer" );
+	return -1;
+    }
     if ( !isOpen() ) {				// file not open
 	warning( "QFile::readBlock: File not open" );
 	return -1;
