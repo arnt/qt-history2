@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#69 $
 **
 ** Implementation of the QDockWindow class
 **
@@ -365,10 +365,19 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
     if ( !dockWindow->dockArea )
 	return;
     QPainter p( this );
-    style().drawControl( QStyle::CE_ToolBarHandle, &p, this,
-			 style().subRect( QStyle::SR_ToolBarHandleRect, this ),
-			 colorGroup() );
+    QStyle::PFlags flags = QStyle::PStyle_Default;
+    
+    if ( dockWindow->area()->orientation() == Horizontal )
+	flags |= QStyle::PStyle_Horizontal;
+    else
+	flags |= QStyle::PStyle_Vertical;
+    
+    style().drawPrimitive( QStyle::PO_DockWindowHandle, &p,
+			   style().subRect( QStyle::SR_DockWindowHandleRect, 
+					    this ),
+			   colorGroup(), flags );
 
+// ### Remember the WindowsStyle dep. when doing the Motif impl.
 //     if ( !dockWindow->area() || !dockWindow->isCloseEnabled() ) {
 // 	style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
 // 				   dockWindow->orientation(), FALSE, colorGroup() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#53 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#54 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -634,7 +634,49 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->setBrush(color1);
 	p->drawEllipse(ir);
 	break; }
+    
+    case PO_DockWindowHandle: {
+	bool highlight = flags & PStyle_On;
+		
+	p->save();
+	p->translate( r.x(), r.y() );
+	if ( flags & PStyle_Vertical ) {
+	    if ( r.width() > 4 ) {
+		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+	    }
+	} else {
+	    if ( r.height() > 4 ) {
+		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+	    }
+	}
+	p->restore();
+	break; }
 
+    case PO_DockWindowSeparator: {
+	QPoint p1, p2;
+	if ( flags & PStyle_Vertical ) {
+	    p1 = QPoint( 0, r.height()/2 );
+	    p2 = QPoint( r.width(), p1.y() );
+	} else {
+	    p1 = QPoint( r.width()/2, 0 );
+	    p2 = QPoint( p1.x(), r.height() );
+	}
+	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );	
+	break; }
+    
+    case PO_DockWindowPanel: {
+	// ### I guess drawPanel() should be a primitive as well?
+	QCommonStyle * that = (QCommonStyle *) this;
+	that->drawPanel( p, r.x(), r.y(), r.width(), r.height(), cg, 
+			 FALSE, pixelMetric( PM_DockWindowFrameWidth ), 0 );
+	break; }
+    
     default:
 	break;
     }
@@ -773,55 +815,6 @@ void QCommonStyle::drawControl( ControlElement element,
 	drawPrimitive(PO_ExclusiveIndicatorMask, p, r, cg, PStyle_Default, data);
 	break;
 
-    case CE_ToolBarSeparator: {
-	if ( !widget || !widget->parent() )
-	    break;
-
-	QToolBar * tb = (QToolBar *) widget->parent();
-	QPoint p1, p2;
-
-	if ( tb->orientation() == Vertical ) {
-	    p1 = QPoint( 0, r.height()/2 );
-	    p2 = QPoint( r.width(), p1.y() );
-	} else {
-	    p1 = QPoint( r.width()/2, 0 );
-	    p2 = QPoint( p1.x(), r.height() );
-	}
-	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );
-	break; }
-
-    case CE_ToolBarHandle: {
-	if ( !widget && !widget->parent() )
-	    break;
-
-	QDockWindow * dw = (QDockWindow *) widget->parent();
-	bool highlight = FALSE;
-
-	if ( data != 0 ) {
-	    highlight = *((bool *) data);
-	}
-
-	p->save();
-	p->translate( r.x(), r.y() );
-
-	if ( dw->orientation() == Vertical ) {
-	    if ( r.width() > 4 ) {
-		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
-	    }
-	} else {
-	    if ( r.height() > 4 ) {
-		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
-				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
-				 cg, highlight, 1, 0 );
-	    }
-	}
-	p->restore();
-	break; }
-
     default:
 	break;
     }
@@ -932,7 +925,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	rect = rect.intersect( sl->rect() ); // ## is this really necessary?
 	break; }
 
-    case SR_ToolBarHandleRect: {
+    case SR_DockWindowHandleRect: {
 	if ( !widget || !widget->parent() )
 	    break;
 
@@ -1162,7 +1155,6 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    break;
 
 	QScrollBar *scrollbar = (QScrollBar *) w;
-	void **sdata = (void **) data;
 	int sliderstart = 0;
 	int sbextent = pixelMetric(PM_ScrollBarExtent, w);
 	int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
@@ -1170,8 +1162,8 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	int sliderlen;
 	int sbstart;
 
-	if (sdata)
-	    sliderstart = *((int*) sdata[0]);
+	if (data)
+	    sliderstart = *((int*) data);
 	else
 	    sliderstart = sbextent;
 
@@ -1399,15 +1391,19 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	else
 	    ret = 0;
 	break; }
-
-    case PM_ToolBarSeparatorExtent:
+        
+    case PM_DockWindowSeparatorExtent:
 	ret = 6;
 	break;
 
-    case PM_ToolBarHandleExtent:
+    case PM_DockWindowHandleExtent:
 	ret = 11;
 	break;
 
+    case PM_DockWindowFrameWidth:
+	ret = 1;
+	break;
+	
     default:
 	ret = 0;
 	break;

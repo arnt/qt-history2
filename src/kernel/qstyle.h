@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#106 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#107 $
 **
 ** Definition of QStyle class
 **
@@ -117,8 +117,11 @@ public:
 	PO_Indicator,
 	PO_IndicatorMask,
 	PO_ExclusiveIndicator,
-	PO_ExclusiveIndicatorMask
+	PO_ExclusiveIndicatorMask,
 
+	PO_DockWindowHandle,
+	PO_DockWindowSeparator,
+	PO_DockWindowPanel
 	/*
 	  PO_Panel,
 	  PO_PanelPopup,
@@ -141,7 +144,9 @@ public:
 	PStyle_Sunken = 		0x00000002,
 	PStyle_Off =			0x00000004,
 	PStyle_NoChange =		0x00000008,
-	PStyle_On =			0x00000010
+	PStyle_On =			0x00000010,
+	PStyle_Horizontal =		0x00000020,
+	PStyle_Vertical =		0x00000040
 	/*
 	  PStyle_FocusHighlight=	0x00000001,
 	  PStyle_FocusAtBorder=		0X00000002
@@ -169,11 +174,6 @@ public:
 	CE_RadioButton,
 	CE_RadioButtonLabel,
 	CE_RadioButtonMask,
-
-	CE_ToolBarSeparator,
-	CE_ToolBarHandle,
-	CE_ToolBarPanel,
-
 	/*
 	  CE_Tab,
 	  CE_MenuBarItem,
@@ -213,9 +213,9 @@ public:
 	SR_ComboBoxFocusRect,
 
 	SR_SliderFocusRect,
-
-	SR_ToolBarHandleRect,
-
+	
+	SR_DockWindowHandleRect
+	
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,
@@ -256,16 +256,15 @@ public:
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010,
 
-	SC_ComboBoxEditField =		0x00000021,
-	SC_ComboBoxArrow =		0x00000022,
+	SC_ComboBoxEditField =		0x00000020,
+	SC_ComboBoxArrow =		0x00000040,
 
-	SC_SliderGroove =		0x00000031,
-	SC_SliderHandle = 		0x00000032,
-	SC_SliderTickmarks = 		0x00000034,
+	SC_SliderGroove =		0x00000080,
+	SC_SliderHandle = 		0x00000100,
+	SC_SliderTickmarks = 		0x00000200,
 
 	SC_ToolButton =			0x00000001,
 	SC_ToolButtonMenu =		0x00000002
-
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,
@@ -315,10 +314,11 @@ public:
 	PM_SliderLength,
 	PM_SliderMaximumDragDistance,
 	PM_SliderTickmarkOffset,
-
-	PM_ToolBarSeparatorExtent,
-	PM_ToolBarHandleExtent
-
+	
+	PM_DockWindowSeparatorExtent,
+	PM_DockWindowHandleExtent,
+	PM_DockWindowFrameWidth
+	
 	/*
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,

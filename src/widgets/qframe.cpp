@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#131 $
 **
 ** Implementation of QFrame widget class
 **
@@ -373,7 +373,7 @@ void QFrame::updateFrameWidth()
         fwidth = style().menuBarFrameWidth();
         break;
     case ToolBarPanel:
-        fwidth = style().toolBarFrameWidth();
+	fwidth = style().pixelMetric( QStyle::PM_DockWindowFrameWidth, this );
         break;
     case HLine:
     case VLine:
@@ -590,7 +590,8 @@ void QFrame::drawFrame( QPainter *p )
         style().drawMenuBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
         break;
     case ToolBarPanel:
-        style().drawToolBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
+	style().drawPrimitive( QStyle::PO_DockWindowPanel, p, rect(), g );
+//        style().drawToolBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
         break;
     case HLine:
     case VLine:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#324 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#325 $
 **
 ** Implementation of QMainWindow class
 **
@@ -225,7 +225,8 @@ class QHideDock : public QWidget
 public:
     QHideDock( QMainWindow *parent ) : QWidget( parent, "qt_hide_dock" ) {
 	hide();
-	setFixedHeight( style().toolBarHandleExtent() );
+	setFixedHeight( style().pixelMetric( QStyle::PM_DockWindowHandleExtent,
+					     this ) );
 	pressedHandle = -1;
 	pressed = FALSE;
 	setMouseTracking( TRUE );
@@ -252,8 +253,15 @@ protected:
 		continue;
 	    if ( !( (QDockWindow*)o )->isVisible() )
 		continue;
-	    style().drawToolBarHandle( &p, QRect( x, 0, 30, 10 ), Qt::Vertical,
-				       i == pressedHandle, colorGroup(), TRUE );
+	    
+	    QStyle::PFlags flags = QStyle::PStyle_Default;    
+	    flags |= QStyle::PStyle_Vertical;
+	    if ( i == pressedHandle )
+		flags |= QStyle::PStyle_On;
+    
+	    style().drawPrimitive( QStyle::PO_DockWindowHandle, &p,
+				   QRect( x, 0, 30, 10 ), colorGroup(),
+				   flags );
 	    x += 30;
 	}
     }

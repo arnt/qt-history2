@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#166 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#167 $
 **
 ** Implementation of QToolBar class
 **
@@ -194,8 +194,8 @@ void QToolBarSeparator::styleChange( QStyle& )
 
 QSize QToolBarSeparator::sizeHint() const
 {
-    int extent = style().pixelMetric( QStyle::PM_ToolBarSeparatorExtent,this );
-    
+    int extent = style().pixelMetric( QStyle::PM_DockWindowSeparatorExtent, 
+				      this );
     if ( orient == Horizontal )
 	return QSize( extent, 0 );
     else
@@ -205,9 +205,15 @@ QSize QToolBarSeparator::sizeHint() const
 void QToolBarSeparator::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-
-    style().drawControl( QStyle::CE_ToolBarSeparator, &p, this, rect(),
-			 colorGroup() );
+    QStyle::PFlags flags = QStyle::PStyle_Default;
+    
+    if ( orientation() == Horizontal )
+	flags |= QStyle::PStyle_Horizontal;
+    else
+	flags |= QStyle::PStyle_Vertical;
+    
+    style().drawPrimitive( QStyle::PO_DockWindowSeparator, &p, rect(),
+			   colorGroup(), flags );
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -398,6 +404,15 @@ void QToolBar::setOrientation( Orientation o )
 {
     QDockWindow::setOrientation( o );
     d->extension->setOrientation( o );
+    QObjectList *childs = queryList( "QToolBarSeparator" );
+    if ( childs ) {
+        QObject *ob = 0;
+	for ( ob = childs->first(); ob; ob = childs->next() ) {
+	    QToolBarSeparator* w = (QToolBarSeparator*)ob;
+	    w->setOrientation( o );
+        }
+    }
+    delete childs;    
 }
 
 /*!  Adds a separator to the end of the toolbar. */
