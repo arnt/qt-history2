@@ -12,7 +12,8 @@
 
 #include <oaidl.h>
 #include "../../shared/types.h"
-#include <qtextbrowser.h>
+#include "docuwindow.h"
+#include <qlabel.h>
 
 IDispatch *create_object_wrapper( QObject *o )
 {
@@ -226,6 +227,7 @@ void MainWindow::updateGUI()
     actionControlMethods->setEnabled( hasControl );
     actionControlInfo->setEnabled( hasControl );
     actionControlDocumentation->setEnabled( hasControl );
+    actionControlPixmap->setEnabled( hasControl );
     if ( dlgInvoke )
 	dlgInvoke->setControl( hasControl ? container : 0 );
     if ( dlgProperties )
@@ -273,7 +275,6 @@ void MainWindow::windowActivated( QWidget *window )
     updateGUI();
 }
 
-
 void MainWindow::showDocumentation()
 {
     QAxWidget *container = 0;
@@ -286,10 +287,24 @@ void MainWindow::showDocumentation()
     if ( docu.isEmpty() )
 	return;
 
-    QTextBrowser *browser = new QTextBrowser( workspace );
-    browser->setSource( docu );
-    browser->setCaption( container->caption() + " - Documentation" );
-    browser->setText( docu );
-    browser->setLinkUnderline( TRUE );
-    browser->show();
+    DocuWindow *docwindow = new DocuWindow( docu, workspace, container );
+    docwindow->show();
+}
+
+
+void MainWindow::renderPixmap()
+{
+    QAxWidget *container = 0;
+    if ( workspace->activeWindow() )
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+    if ( !container )
+	return;
+
+    QPixmap pm = QPixmap::grabWidget( container );
+
+    QLabel *label = new QLabel( workspace, "pixmap_label", WDestructiveClose );
+    label->setPixmap( pm );
+    label->setCaption( container->caption() + " - Pixmap" );
+
+    label->show();
 }

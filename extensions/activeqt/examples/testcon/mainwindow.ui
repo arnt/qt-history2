@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>MainWindow</class>
 <widget class="QMainWindow">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>808</width>
-            <height>534</height>
+            <width>929</width>
+            <height>605</height>
         </rect>
     </property>
     <property name="caption">
@@ -63,6 +63,14 @@
                     <widget class="QFrame">
                         <property name="name">
                             <cstring>Workbase</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>5</hsizetype>
+                                <vsizetype>7</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
                         </property>
                         <property name="frameShape">
                             <enum>NoFrame</enum>
@@ -217,6 +225,7 @@
         <separator/>
         <action name="actionControlInfo"/>
         <action name="actionControlDocumentation"/>
+        <action name="actionControlPixmap"/>
     </item>
     <item text="&amp;Options" name="PopupMenu_4">
         <action name="actionFreezeEvents"/>
@@ -262,7 +271,7 @@
             <string>&amp;Set Control</string>
         </property>
         <property name="accel">
-            <number>4194387</number>
+            <string>Ctrl+S</string>
         </property>
     </action>
     <action>
@@ -282,7 +291,7 @@
             <string>Invoke &amp;Methods</string>
         </property>
         <property name="accel">
-            <number>4194381</number>
+            <string>Ctrl+M</string>
         </property>
     </action>
     <action>
@@ -296,10 +305,10 @@
             <iconset>image1</iconset>
         </property>
         <property name="text">
-            <string>Change Properties</string>
+            <string>Change &amp;Properties</string>
         </property>
         <property name="accel">
-            <number>4194384</number>
+            <string>Ctrl+P</string>
         </property>
     </action>
     <action>
@@ -316,7 +325,7 @@
             <string>C&amp;lear Control</string>
         </property>
         <property name="accel">
-            <number>0</number>
+            <string></string>
         </property>
     </action>
     <action>
@@ -330,7 +339,7 @@
             <string>Ambient &amp;Properties</string>
         </property>
         <property name="accel">
-            <number>4194369</number>
+            <string>Ctrl+A</string>
         </property>
     </action>
     <action>
@@ -345,6 +354,9 @@
         </property>
         <property name="menuText">
             <string>&amp;Details</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+I</string>
         </property>
     </action>
     <action>
@@ -451,7 +463,7 @@
             <string>&amp;Insert Control</string>
         </property>
         <property name="accel">
-            <number>4194382</number>
+            <string>Ctrl+N</string>
         </property>
     </action>
     <action>
@@ -466,6 +478,23 @@
         </property>
         <property name="menuText">
             <string>Show D&amp;ocumentation</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+D</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionControlPixmap</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Render to Pi&amp;xmap</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+X</string>
         </property>
     </action>
 </actions>
@@ -565,6 +594,12 @@
         <receiver>MainWindow</receiver>
         <slot>showDocumentation()</slot>
     </connection>
+    <connection>
+        <sender>actionControlPixmap</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>renderPixmap()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="global" impldecl="in implementation">qworkspace.h</include>
@@ -608,6 +643,7 @@
     <slot>fileNew()</slot>
     <slot>windowActivated( QWidget * window )</slot>
     <slot>showDocumentation()</slot>
+    <slot>renderPixmap()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
