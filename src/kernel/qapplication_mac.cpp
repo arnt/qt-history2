@@ -1261,6 +1261,9 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
 #endif
 	QApplication::sendEvent( widget, &qme );
     }
+    //once this happens the events before are pitched
+    qt_button_down = NULL;
+    mouse_button_state = 0;
 }
 
 QMAC_PASCAL OSStatus
@@ -1334,7 +1337,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    break;
 	case kEventMouseDragged:
 	case kEventMouseMoved:
-	    remove_context_timer = FALSE;
 	    etype = QEvent::MouseMove;
 	    state = after_state;
 	    break;
