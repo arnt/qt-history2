@@ -189,7 +189,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt = getStyleOption(this);
-    style()->drawPrimitive(QStyle::PE_DockWindowSeparator, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_Q3DockWindowSeparator, &opt, &p, this);
 }
 
 #include "q3toolbar.moc"

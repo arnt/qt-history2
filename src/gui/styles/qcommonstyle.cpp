@@ -285,10 +285,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->fillRect(opt->rect.x(), opt->rect.y() + 3, opt->rect.width() -2, opt->rect.height() - 6,
                     opt->palette.brush(QPalette::Highlight));
         break;
-    case PE_CheckListController:
+    case PE_Q3CheckListController:
         p->drawPixmap(opt->rect.topLeft(), QPixmap(check_list_controller_xpm));
         break;
-    case PE_CheckListExclusiveIndicator:
+    case PE_Q3CheckListExclusiveIndicator:
         if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
             if (lv->items.isEmpty())
                 return;
@@ -342,7 +342,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
 #undef QCOORDARRLEN
         }
         break;
-    case PE_CheckListIndicator:
+    case PE_Q3CheckListIndicator:
         if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
             if(lv->items.isEmpty())
                 break;
@@ -489,7 +489,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         p->restore();
         break; }
-    case PE_Separator:
+    case PE_Q3Separator:
         qDrawShadeLine(p, opt->rect.left(), opt->rect.top(), opt->rect.right(), opt->rect.bottom(),
                        opt->palette, opt->state & Style_Sunken, 1, 0);
         break;
@@ -1324,7 +1324,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             }
         }
         break;
-    case SR_DockWindowHandleRect:
+    case SR_Q3DockWindowHandleRect:
         if (const QStyleOptionQ3DockWindow *dw = qt_cast<const QStyleOptionQ3DockWindow *>(opt)) {
             if (!dw->docked || !dw->closeEnabled)
                 r.setRect(0, 0, dw->rect.width(), dw->rect.height());

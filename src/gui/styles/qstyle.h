@@ -136,8 +136,8 @@ public:
         PE_ExclusiveIndicator,
         PE_ExclusiveIndicatorMask,
 
-        PE_DockWindowHandle,
-        PE_DockWindowSeparator,
+        PE_Q3DockWindowHandle,
+        PE_Q3DockWindowSeparator,
         PE_DockWindowResizeHandle,
         PE_DockWindowTitle,
 
@@ -154,7 +154,7 @@ public:
         PE_HeaderArrow,
         PE_StatusBarSection,
 
-        PE_Separator,
+        PE_Q3Separator,
 
         PE_SizeGrip,
 
@@ -174,9 +174,9 @@ public:
         PE_PanelTabWidget,
         PE_WindowFrame,
 
-        PE_CheckListController,
-        PE_CheckListIndicator,
-        PE_CheckListExclusiveIndicator,
+        PE_Q3CheckListController,
+        PE_Q3CheckListIndicator,
+        PE_Q3CheckListExclusiveIndicator,
 
         PE_PanelGroupBox,
 
@@ -255,7 +255,7 @@ public:
 
         SR_SliderFocusRect,
 
-        SR_DockWindowHandleRect,
+        SR_Q3DockWindowHandleRect,
 
         SR_ProgressBarGroove,
         SR_ProgressBarContents,

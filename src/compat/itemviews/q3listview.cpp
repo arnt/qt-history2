@@ -6556,7 +6556,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
             opt.rect.setRect(x, 0, boxsize, fm.height() + 2 + marg);
             opt.palette = pal;
             opt.state = styleflags;
-            lv->style()->drawPrimitive(QStyle::PE_CheckListController, &opt, p, lv);
+            lv->style()->drawPrimitive(QStyle::PE_Q3CheckListController, &opt, p, lv);
             r += boxsize + 4;
         }
     } else {
@@ -6575,8 +6575,8 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
         opt.palette = pal;
         opt.state = styleflags;
         lv->style()->drawPrimitive((myType == CheckBox || myType == CheckBoxController)
-                                    ? QStyle::PE_CheckListIndicator
-                                    : QStyle::PE_CheckListExclusiveIndicator, &opt, p, lv);
+                                    ? QStyle::PE_Q3CheckListIndicator
+                                    : QStyle::PE_Q3CheckListExclusiveIndicator, &opt, p, lv);
         r += boxsize + 4;
     }
 

@@ -1173,12 +1173,12 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         else
             p->setPen(opt->palette.text().color());
         } // Fall through!
-    case PE_CheckListIndicator:
+    case PE_Q3CheckListIndicator:
         if (!doRestore) {
             p->save();
             doRestore = true;
         }
-        if (pe == PE_CheckListIndicator) {
+        if (pe == PE_Q3CheckListIndicator) {
             if (opt->state & Style_Enabled)
                 p->setPen(QPen(opt->palette.text().color(), 1));
             else
@@ -1347,9 +1347,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 p->setBackground(opt->palette.dark().color());
                 p->setBrush(QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern));
             } else {
-                br = opt->palette.brush(QPalette::Light).pixmap()
-                     ? opt->palette.brush(QPalette::Light)
-                     : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
+                QPixmap pm = opt->palette.brush(QPalette::Light).texture();
+                br = !pm.isNull() ? pm : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
                 p->setBrush(br);
             }
             p->drawRect(opt->rect);
@@ -1358,9 +1357,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             break; }
     case PE_ScrollBarSlider:
         if (!(opt->state & Style_Enabled)) {
-            QBrush br = opt->palette.brush(QPalette::Light).pixmap()
-                        ? opt->palette.brush(QPalette::Light)
-                        : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
+            QPixmap pm = opt->palette.brush(QPalette::Light).texture();
+            QBrush br = !pm.isNull() ? pm : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
             p->setPen(Qt::NoPen);
             p->setBrush(br);
             p->setBackgroundMode(Qt::OpaqueMode);

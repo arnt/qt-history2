@@ -258,7 +258,7 @@ protected:
             if (i == pressedHandle)
                 opt.state |= QStyle::Style_On;
 
-            style()->drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_Q3DockWindowHandle, &opt, &p, this);
             x += 30;
         }
     }
@@ -1430,7 +1430,7 @@ void Q3MainWindow::paintEvent(QPaintEvent *)
         opt.rect.setRect(0, y, width(), 1);
         opt.palette = palette();
         opt.state = QStyle::Style_Sunken;
-        style()->drawPrimitive(QStyle::PE_Separator, &opt, &p, this);
+        style()->drawPrimitive(QStyle::PE_Q3Separator, &opt, &p, this);
     }
 }
 

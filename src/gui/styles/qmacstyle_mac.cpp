@@ -599,17 +599,17 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             const QToolButton *bt = static_cast<const QToolButton *>(widg);
             if(!bt->icon().isNull()) {
                 Qt::IconSize sz = Qt::SmallIconSize;
-                if(bt->usesBigPixmap())
+                if(bt->iconSize() == Qt::LargeIconSize)
                     sz = Qt::LargeIconSize;
                 QSize iconSize = QIcon::pixmapSize(sz);
                 QPixmap pm = bt->icon().pixmap(sz, QIcon::Normal);
                 width = qMax(width, qMax(iconSize.width(), pm.width()));
                 height = qMax(height, qMax(iconSize.height(), pm.height()));
             }
-            if(!bt->text().isNull() && bt->usesTextLabel()) {
+            if(!bt->text().isNull() && bt->toolButtonStyle() != Qt::ToolButtonIconOnly) {
                 int text_width = bt->fontMetrics().width(bt->text()),
                    text_height = bt->fontMetrics().height();
-                if(bt->textPosition() == QToolButton::Under) {
+                if(bt->toolButtonStyle() == Qt::ToolButtonTextUnderIcon) {
                     width = qMax(width, text_width);
                     height += text_height;
                 } else {
@@ -1393,71 +1393,68 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                                             QPainter *p, const QWidget *w) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-
     ThemeDrawState tds = getDrawState(opt->state);
     QMacCGContext cg(p);
     switch (pe) {
-    case QStyle::PE_CheckListExclusiveIndicator:
+    case QStyle::PE_Q3CheckListExclusiveIndicator:
+    case QStyle::PE_Q3CheckListIndicator:
     case QStyle::PE_ExclusiveIndicatorMask:
     case QStyle::PE_ExclusiveIndicator:
-    case QStyle::PE_CheckListIndicator:
     case QStyle::PE_IndicatorMask:
-    case QStyle::PE_Indicator:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            HIThemeButtonDrawInfo bdi;
-            bdi.version = qt_mac_hitheme_version;
-            bdi.state = tds;
-            bdi.adornment = kThemeDrawIndicatorOnly;
-            if (btn->state & QStyle::Style_HasFocus
-                    && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
-                bdi.adornment |= kThemeAdornmentFocus;
-            bool isRadioButton = (pe == QStyle::PE_CheckListExclusiveIndicator
-                                  || pe == QStyle::PE_ExclusiveIndicatorMask
-                                  || pe == QStyle::PE_ExclusiveIndicator);
-            switch (qt_aqua_size_constrain(w)) {
-            case QAquaSizeUnknown:
-            case QAquaSizeLarge:
-                if (isRadioButton)
-                    bdi.kind = kThemeRadioButton;
-                else
-                    bdi.kind = kThemeCheckBox;
-                break;
-            case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                    if (isRadioButton)
-                        bdi.kind = kThemeMiniRadioButton;
-                    else
-                        bdi.kind = kThemeMiniCheckBox;
-                    break;
-                }
-#endif
-            case QAquaSizeSmall:
-                if (isRadioButton)
-                    bdi.kind = kThemeSmallRadioButton;
-                else
-                    bdi.kind = kThemeSmallCheckBox;
-                break;
-            }
-            if (btn->state & QStyle::Style_NoChange)
-                bdi.value = kThemeButtonMixed;
-            else if (btn->state & QStyle::Style_On)
-                bdi.value = kThemeButtonOn;
+    case QStyle::PE_Indicator: {
+        HIThemeButtonDrawInfo bdi;
+        bdi.version = qt_mac_hitheme_version;
+        bdi.state = tds;
+        bdi.adornment = kThemeDrawIndicatorOnly;
+        if (opt->state & QStyle::Style_HasFocus
+                && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+            bdi.adornment |= kThemeAdornmentFocus;
+        bool isRadioButton = (pe == QStyle::PE_Q3CheckListExclusiveIndicator
+                              || pe == QStyle::PE_ExclusiveIndicatorMask
+                              || pe == QStyle::PE_ExclusiveIndicator);
+        switch (qt_aqua_size_constrain(w)) {
+        case QAquaSizeUnknown:
+        case QAquaSizeLarge:
+            if (isRadioButton)
+                bdi.kind = kThemeRadioButton;
             else
-                bdi.value = kThemeButtonOff;
-            HIRect macRect = qt_hirectForQRect(btn->rect, p);
-            if (pe == QStyle::PE_IndicatorMask || pe == QStyle::PE_ExclusiveIndicatorMask) {
-                QRegion saveRegion = p->clipRegion();
-                QCFType<HIShapeRef> macRegion;
-                HIThemeGetButtonShape(&macRect, &bdi, &macRegion);
-                p->setClipRegion(qt_mac_convert_mac_region(macRegion));
-                p->fillRect(btn->rect, Qt::color1);
-                p->setClipRegion(saveRegion);
-            } else {
-                HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
+                bdi.kind = kThemeCheckBox;
+            break;
+        case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+                if (isRadioButton)
+                    bdi.kind = kThemeMiniRadioButton;
+                else
+                    bdi.kind = kThemeMiniCheckBox;
+                break;
             }
+#endif
+        case QAquaSizeSmall:
+            if (isRadioButton)
+                bdi.kind = kThemeSmallRadioButton;
+            else
+                bdi.kind = kThemeSmallCheckBox;
+            break;
         }
-        break;
+        if (opt->state & QStyle::Style_NoChange)
+            bdi.value = kThemeButtonMixed;
+        else if (opt->state & QStyle::Style_On)
+            bdi.value = kThemeButtonOn;
+        else
+            bdi.value = kThemeButtonOff;
+        HIRect macRect = qt_hirectForQRect(opt->rect, p);
+        if (pe == QStyle::PE_IndicatorMask || pe == QStyle::PE_ExclusiveIndicatorMask) {
+            QRegion saveRegion = p->clipRegion();
+            QCFType<HIShapeRef> macRegion;
+            HIThemeGetButtonShape(&macRect, &bdi, &macRegion);
+            p->setClipRegion(qt_mac_convert_mac_region(macRegion));
+            p->fillRect(opt->rect, Qt::color1);
+            p->setClipRegion(saveRegion);
+        } else {
+            HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
+        }
+        break; }
     case QStyle::PE_ArrowUp:
     case QStyle::PE_ArrowDown:
     case QStyle::PE_ArrowRight:
@@ -1612,7 +1609,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     case QStyle::PE_PanelLineEdit:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             if (frame->state & QStyle::Style_Sunken) {
-                QColor baseColor(frame->palette.background());
+                QColor baseColor(frame->palette.background().color());
                 HIThemeFrameDrawInfo fdi;
                 fdi.version = qt_mac_hitheme_version;
                 fdi.state = tds;
@@ -2283,8 +2280,9 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                                                                QStyle::SC_SpinBoxDown, widget));
                 if (widget) {
                     QPalette::ColorRole bgRole = widget->backgroundRole();
-                    if (sb->palette.brush(bgRole).pixmap())
-                        p->drawPixmap(updown, *sb->palette.brush(bgRole).pixmap());
+                    QPixmap pm = sb->palette.brush(bgRole).texture();
+                    if (!pm.isNull())
+                        p->drawPixmap(updown, pm);
                     else
                         p->fillRect(updown, sb->palette.color(bgRole));
                 }
@@ -2859,13 +2857,6 @@ void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &s
 
 void QMacStylePrivate::AppManPolish(QWidget *w)
 {
-    QPixmap *bgPixmap = w->palette().brush(w->backgroundRole()).pixmap();
-    if(!w->isTopLevel() && qt_cast<QSplitter*>(w) == 0
-       && bgPixmap && qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap()
-       && bgPixmap->serialNumber() == qApp->palette().brush(QPalette::Active,
-                                                QPalette::Background).pixmap()->serialNumber()) {
-        // w->setBackgroundOrigin(QWidget::AncestorOrigin); // I currently do nothing.
-    }
     addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
@@ -2969,65 +2960,63 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
 {
     ThemeDrawState tds = getDrawState(opt->state);
     switch (pe) {
-    case QStyle::PE_CheckListExclusiveIndicator:
+    case QStyle::PE_Q3CheckListExclusiveIndicator:
+    case QStyle::PE_Q3CheckListIndicator:
     case QStyle::PE_ExclusiveIndicatorMask:
     case QStyle::PE_ExclusiveIndicator:
-    case QStyle::PE_CheckListIndicator:
     case QStyle::PE_IndicatorMask:
-    case QStyle::PE_Indicator:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            bool isRadioButton = (pe == QStyle::PE_CheckListIndicator
-                                  || pe == QStyle::PE_ExclusiveIndicator
-                                  || pe == QStyle::PE_ExclusiveIndicatorMask);
-            ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
-            if (btn->state & QStyle::Style_HasFocus
-                    && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
-                info.adornment |= kThemeAdornmentFocus;
-            if (btn->state & QStyle::Style_NoChange)
-                info.value = kThemeButtonMixed;
-            else if (btn->state & QStyle::Style_On)
-                info.value = kThemeButtonOn;
-            ThemeButtonKind bkind;
-            switch (qt_mac_get_size_for_painter(p)) {
-                default:
-                case QAquaSizeUnknown:
-                case QAquaSizeLarge:
-                    if (isRadioButton)
-                        bkind = kThemeRadioButton;
-                    else
-                        bkind = kThemeCheckBox;
-                    break;
-                case QAquaSizeMini:
+    case QStyle::PE_Indicator: {
+        bool isRadioButton = (pe == QStyle::PE_Q3CheckListIndicator
+                || pe == QStyle::PE_ExclusiveIndicator
+                || pe == QStyle::PE_ExclusiveIndicatorMask);
+        ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
+        if (opt->state & QStyle::Style_HasFocus
+                && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+            info.adornment |= kThemeAdornmentFocus;
+        if (opt->state & QStyle::Style_NoChange)
+            info.value = kThemeButtonMixed;
+        else if (opt->state & QStyle::Style_On)
+            info.value = kThemeButtonOn;
+        ThemeButtonKind bkind;
+        switch (qt_mac_get_size_for_painter(p)) {
+            default:
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                if (isRadioButton)
+                    bkind = kThemeRadioButton;
+                else
+                    bkind = kThemeCheckBox;
+                break;
+            case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                        if (isRadioButton)
-                            bkind = kThemeMiniRadioButton;
-                        else
-                            bkind = kThemeMiniCheckBox;
-                        break;
-                    }
-#endif
-                case QAquaSizeSmall:
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                     if (isRadioButton)
-                        bkind = kThemeSmallRadioButton;
+                        bkind = kThemeMiniRadioButton;
                     else
-                        bkind = kThemeSmallCheckBox;
+                        bkind = kThemeMiniCheckBox;
                     break;
-            }
-            if (pe == QStyle::PE_ExclusiveIndicatorMask || pe == QStyle::PE_IndicatorMask) {
-                p->save();
-                RgnHandle rgn = qt_mac_get_rgn();
-                GetThemeButtonRegion(qt_glb_mac_rect(btn->rect, p, false), bkind, &info, rgn);
-                p->setClipRegion(qt_mac_convert_mac_region(rgn));
-                qt_mac_dispose_rgn(rgn);
-                p->fillRect(btn->rect, Qt::color1);
-                p->restore();
-            } else {
-                qt_mac_set_port(p);
-                DrawThemeButton(qt_glb_mac_rect(btn->rect, p, false), bkind, &info, 0, 0, 0, 0);
-            }
+                }
+#endif
+            case QAquaSizeSmall:
+                if (isRadioButton)
+                    bkind = kThemeSmallRadioButton;
+                else
+                    bkind = kThemeSmallCheckBox;
+                break;
         }
-        break;
+        if (pe == QStyle::PE_ExclusiveIndicatorMask || pe == QStyle::PE_IndicatorMask) {
+            p->save();
+            RgnHandle rgn = qt_mac_get_rgn();
+            GetThemeButtonRegion(qt_glb_mac_rect(opt->rect, p, false), bkind, &info, rgn);
+            p->setClipRegion(qt_mac_convert_mac_region(rgn));
+            qt_mac_dispose_rgn(rgn);
+            p->fillRect(opt->rect, Qt::color1);
+            p->restore();
+        } else {
+            qt_mac_set_port(p);
+            DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false), bkind, &info, 0, 0, 0, 0);
+        }
+        break; }
     case QStyle::PE_FocusRect:
         break;     //This is not used because of the QAquaFocusWidget thingie..
     case QStyle::PE_TreeBranch:
@@ -3140,7 +3129,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             if (opt->state & QStyle::Style_Sunken) {
                 SInt32 frame_size;
-                QColor baseColor(frame->palette.background());
+                QColor baseColor(frame->palette.background().color());
                 if (pe == QStyle::PE_PanelLineEdit) {
                     GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
                 } else {
@@ -3756,8 +3745,9 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                                                                   widget));
                 if (widget) {
                     QPalette::ColorRole bgRole = widget->backgroundRole();
-                    if (sb->palette.brush(bgRole).pixmap())
-                        p->drawPixmap(updown, *sb->palette.brush(bgRole).pixmap());
+                    QPixmap pm = sb->palette.brush(bgRole).texture();
+                    if (!pm.isNull())
+                        p->drawPixmap(updown, pm);
                     else
                         p->fillRect(updown, sb->palette.color(bgRole));
                 }
