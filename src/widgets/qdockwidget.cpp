@@ -206,7 +206,7 @@ protected:
 
 private slots:
     void minimize();
-    
+
 private:
     QDockWidget *dockWidget;
     QPoint offset;
@@ -214,7 +214,7 @@ private:
     QToolButton *closeButton;
     bool hadDblClick;
     QTimer *timer;
-    
+
 };
 
 QDockWidgetHandle::QDockWidgetHandle( QDockWidget *dw )
@@ -872,7 +872,8 @@ void QDockWidget::undock( QWidget *w )
 	show();
     } else {
 	reparent( w, 0, QPoint( 0, 0 ), FALSE );
-	setGeometry( -10, -10, 1, 1 );
+	resize( 1, 1 );
+	move( -width() - 5, -height() - 5 );
 	show();
     }
 }
