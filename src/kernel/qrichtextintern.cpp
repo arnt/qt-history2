@@ -172,6 +172,11 @@ public:
     virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
 
     virtual QString anchorAt( QPainter* /*p*/, int /*x*/, int /*y*/)  { return QString::null; }
+    virtual bool ownSelection() const { return FALSE; }
+    virtual bool toggleSelection( QPainter* /*p*/, const QPoint& /*from*/, QPoint& /*to*/ ) { return FALSE;}
+    virtual void selectAll() {};
+    virtual void clearSelection() {};
+    
 
     int y; // used for floating items
     int x; // used for floating items
@@ -416,7 +421,6 @@ class QTextCursor {
     bool pastEnd() const;
     bool atEndOfLine() const;
     bool pastEndOfLine() const;
-    bool inLastLine() const;
     void gotoParagraph( QPainter* p, QTextParagraph* b );
 
     void initParagraph( QPainter* p, QTextParagraph* b );
@@ -455,6 +459,7 @@ class QTextCursor {
     void draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch);
     QRect caretGeometry() const;
     QRect lineGeometry() const;
+    QPoint clickPos() const;
     void right( QPainter* p );
     void left( QPainter* p );
     void up( QPainter* p );
@@ -546,8 +551,11 @@ public:
     bool clearSelection();
     QString selectedText();
     void selectAll();
+    bool toggleSelection( QPainter* p, const QPoint& from, QPoint& to );
 
     void append( const QString& txt, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
+    
+    QTextParagraph* getParBefore( int y ) const;
 
 private:
     void init( const QString& doc, int& pos );
@@ -576,7 +584,8 @@ private:
     QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextCharFormat &fmt, const QString &doc, int& pos );
 
     bool keep_going;
-
+    QTextParagraph* b_cache;
+    QTextCustomItem* selection_owner;
 };
 
 inline void QTextRichString::append( const QString& c,const  QTextCharFormat& fmt )

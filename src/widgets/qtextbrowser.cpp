@@ -210,12 +210,6 @@ void QTextBrowser::setSource(const QString& name)
 
     if ( isVisible() )
 	qApp->restoreOverrideCursor();
-
-
-    QValueStack<int> stack;
-    stack.push( 1 );
-    stack.push( 2 );
-    stack.push( 3 );
 }
 
 /*!

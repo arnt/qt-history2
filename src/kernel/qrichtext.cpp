@@ -71,12 +71,17 @@ public:
     int rowspan() const { return rowspan_; }
     int colspan() const { return colspan_; }
     int stretch() const { return stretch_; }
+    
+    void selectAll();
+    void clearSelection();
+
 
     void draw( int x, int y,
 	       int ox, int oy, int cx, int cy, int cw, int ch,
 	       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
 
     QString anchorAt( int x, int y ) const;
+    bool toggleSelection( const QPoint& from, QPoint& to );
     
 private:
 
@@ -107,8 +112,13 @@ public:
 
     bool noErase() const { return TRUE; };
     bool expandsHorizontally() const { return TRUE; }
+    bool ownSelection() const { return TRUE; }
     void resize( QPainter*, int nwidth );
     QString anchorAt( QPainter* p, int x, int y );
+    bool toggleSelection( QPainter* p, const QPoint& from, QPoint& to );
+
+    void selectAll();
+    void clearSelection();
 
 private:
     QGridLayout* layout;
@@ -124,6 +134,7 @@ private:
     int border;
     int outerborder;
     int stretch;
+    QTextTableCell* selection_owner;
 };
 
 
@@ -357,6 +368,8 @@ void QRichText::init( const QString& doc, int& pos )
 	    pos++;
     } while ( pos < (int) doc.length()-1 );
     //qDebug("parse time used: %d", ( before.msecsTo( QTime::currentTime() ) ) );
+    b_cache = 0;
+    selection_owner = 0;
 }
 
 QRichText::~QRichText()
@@ -1067,6 +1080,95 @@ void QRichText::selectAll()
     }
 }
 
+QTextParagraph* QRichText::getParBefore( int y ) const
+{
+    QTextParagraph* b = dirty?0:b_cache;
+    if ( !b ) {
+	b = (QTextParagraph*)this;
+	while ( b->child )
+	    b = b->child;
+    }
+    while ( b->y > y  && b->prevInDocument() ) 
+	b = b->prevInDocument();
+    while ( b->y + b->height < y && b->nextInDocument() )
+	b = b->nextInDocument();
+    QRichText* that = (QRichText*) this;
+    that->b_cache = b;
+    return b;
+}
+
+
+bool QRichText::toggleSelection( QPainter* p, const QPoint& from, QPoint& to )
+{
+    QTextCursor cursor( *this );
+    cursor.gotoParagraph( p, b_cache );
+    cursor.goTo( p, from.x(), from.y() );
+    b_cache = cursor.paragraph;
+
+    if ( to == from ) {
+	selection_owner = 0;
+	QTextCustomItem* c = cursor.currentFormat()?cursor.currentFormat()->customItem():0;
+	if ( c && c->ownSelection() ) {
+	    selection_owner = c;
+	    cursor.paragraph->text.setSelected( -1, TRUE );
+	}
+    }
+    if ( selection_owner ) {
+	QRect geom( cursor.lineGeometry() );
+	QPoint offset (geom.x() + cursor.currentx, geom.y() + cursor.base - selection_owner->height );
+	to -= offset;
+	bool sel = selection_owner->toggleSelection( p, from - offset, to );
+	to += offset;
+	flow()->invalidateRect( geom );
+	return sel;
+    }
+    
+    cursor.split();
+    QTextCursor oldc( cursor );
+    cursor.goTo( p, to.x(), to.y() );
+    if ( cursor.split() ) {
+	if ( (oldc.paragraph == cursor.paragraph) && (oldc.current >= cursor.current) ) {
+	    oldc.current++;
+	    oldc.update( p );
+	}
+    }
+    int oldy = oldc.y();
+    int oldx = oldc.x();
+    int oldh = oldc.height;
+    int newy = cursor.y();
+    int newx = cursor.x();
+    int newh = cursor.height;
+
+    to = cursor.clickPos();
+    bool sel = cursor.isSelected();
+    if ( oldx == newx && oldy == newy && oldh == newh )
+  	return sel;
+
+    QTextCursor start( *this ), end( *this );
+    bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
+    if ( oldIsFirst ) {
+	start = oldc;
+	end = cursor;
+    } else {
+	start = cursor;
+	end = oldc;
+    }
+
+    while ( start.paragraph != end.paragraph ) {
+	start.setSelected( !start.isSelected() );
+	start.rightOneItem( p );
+    }
+    while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
+	start.setSelected( !start.isSelected() );
+	start.rightOneItem( p );
+    }
+    
+    flow()->invalidateRect( QRect( 0, QMIN(oldy, newy),
+				   flow()->width,
+				   QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy) ) );
+    return sel;
+}
+
 
 void QTextParagraph::invalidateLayout()
 {
@@ -1261,7 +1363,7 @@ QTextRichString::~QTextRichString()
 void QTextRichString::clearSelection()
 {
     for (int i = 0; i < len; ++i ) {
-	items[i].selected = 0;
+	setSelected( i, FALSE );
     }
     selection = FALSE;
 }
@@ -1333,7 +1435,16 @@ QString& QTextRichString::getCharAt( int index )
 
 void QTextRichString::setSelected( int index, bool selected )
 {
-    items[index].selected = selected;
+    if ( index >= 0 ) {
+	items[index].selected = selected;
+	if ( items[index].format->customItem() ) {
+	    if ( selected )
+		items[index].format->customItem()->selectAll();
+	    else
+		items[index].format->customItem()->clearSelection();
+	    
+	}
+    }
     if ( selected )
 	selection = TRUE;
 }
@@ -1506,8 +1617,8 @@ void QTextCursor::update( QPainter* p )
     gotoParagraph( p, paragraph );
     makeLineLayout( p, fm );
     gotoLineStart( p, fm );
-    while ( current < i )
-	rightOneItem( p );
+    while ( current < i  && rightOneItem( p ) )
+	;
     while ( currentoffset < io )
 	right( p );
 }
@@ -1767,11 +1878,6 @@ bool QTextCursor::atEndOfLine() const
     return current > last || (current == last && currentoffset >= int(paragraph->text.charAt( current ).length())-1);
 }
 
-bool QTextCursor::inLastLine() const
-{
-    return last > paragraph->text.length()-2;
-}
-
 bool QTextCursor::rightOneItem( QPainter* p )
 {
     QFontMetrics fm( p->fontMetrics() );
@@ -1890,7 +1996,9 @@ void QTextCursor::down( QPainter* p )
 void QTextCursor::goTo( QPainter* p, int xpos, int ypos )
 {
     QFontMetrics fm( p->fontMetrics() );
-    gotoParagraph( p, doc );
+    while ( y() > ypos && paragraph->prevInDocument() ) 
+	gotoParagraph( p, paragraph->prevInDocument() );
+//     gotoParagraph( p, doc );
     QTextParagraph* b = paragraph;
     while ( b ) {
 	gotoParagraph( p, b );
@@ -1901,7 +2009,7 @@ void QTextCursor::goTo( QPainter* p, int xpos, int ypos )
 	    do {
 		makeLineLayout( p, fm );
 		QRect geom( lineGeometry() );
-		if ( ypos <= geom.bottom() || inLastLine() ) {
+		if ( ypos <= geom.bottom()  ) {
 		    gotoLineStart( p, fm );
  		    while ( !atEndOfLine() && geom.left() + x() < xpos ) {
  			right( p );
@@ -2241,6 +2349,12 @@ QRect QTextCursor::caretGeometry() const
 {
     return QRect( x(), y()+base-currentasc, 1, currentasc + currentdesc + 1 );
 }
+
+QPoint QTextCursor::clickPos() const
+{
+    return QPoint( x(), y() + height/2);
+}
+
 QRect QTextCursor::lineGeometry() const
 {
     int realWidth = QMAX( width, widthUsed );
@@ -2379,6 +2493,7 @@ QTextTable::QTextTable(const QMap<QString, QString> & attr  )
     }
 
     cachewidth = 0;
+    selection_owner = 0;
 }
 
 QTextTable::~QTextTable()
@@ -2470,12 +2585,48 @@ QString QTextTable::anchorAt( QPainter* p, int x, int y )
 {
     painter = p;
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	if ( cell->geometry().contains( QPoint(x,y) ) )
-	    return cell->anchorAt( x+outerborder, y+outerborder );
+	if ( cell->geometry().contains( QPoint(x-outerborder,y-outerborder) ) )
+	    return cell->anchorAt( x-outerborder, y-outerborder );
     }
     return QString::null;
 }
 
+
+bool QTextTable::toggleSelection( QPainter* p, const QPoint& from, QPoint& to )
+{
+    painter = p;
+    if ( from == to )
+	selection_owner = 0;
+    
+    if ( !selection_owner ) {
+	for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+	    if ( cell->geometry().contains( from - QPoint(outerborder, outerborder)) ) {
+		selection_owner = cell;
+		break;
+	    }
+	}
+    }
+    if ( selection_owner ) {
+	to -= QPoint( outerborder, outerborder );
+	bool sel = selection_owner->toggleSelection( from - QPoint(outerborder, outerborder), to );
+	to += QPoint( outerborder, outerborder );
+	return sel;
+    }
+    return FALSE;
+}
+
+void QTextTable::selectAll()
+{
+    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+	cell->selectAll();
+    }
+}
+void QTextTable::clearSelection()
+{
+    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+	cell->clearSelection();
+    }
+}
 
 
 void QTextTable::addCell( QTextTableCell* cell )
@@ -2638,6 +2789,24 @@ void QTextTableCell::draw(int x, int y,
 QString QTextTableCell::anchorAt( int x, int y ) const
 {
     return richtext->anchorAt( painter(), x - geometry().x(), y - geometry().y() );
+}
+
+bool QTextTableCell::toggleSelection( const QPoint& from, QPoint& to )
+{
+    to -= geometry().topLeft();
+    bool sel  = richtext->toggleSelection( painter(), from - geometry().topLeft(), to );
+    to += geometry().topLeft();
+    return sel;
+}
+
+
+void QTextTableCell::selectAll()
+{
+    richtext->selectAll();
+}
+void QTextTableCell::clearSelection()
+{
+    richtext->clearSelection();
 }
 
 

@@ -99,7 +99,7 @@ public:
     QTimer* scrollTimer;
     Qt::TextFormat textformat;
     QTextCursor* fcresize;
-    QTextCursor* cursor;
+    QPoint cursor;
     uint selection :1;
     uint dirty :1;
     uint dragSelection :1;
@@ -140,7 +140,6 @@ void QTextView::init()
     d->paplinkcol = d->mylinkcol;
     d->linkunderline = TRUE;
     d->fcresize = 0;
-    d->cursor = 0;
 
     setKeyCompression( TRUE );
     setVScrollBarMode( QScrollView::Auto );
@@ -173,7 +172,6 @@ void QTextView::init()
 QTextView::~QTextView()
 {
     delete d->doc_;
-    delete d->cursor;
     delete d;
 }
 
@@ -293,8 +291,7 @@ void QTextView::createRichText()
 	if (!pm.isNull())
 	    d->papcolgrp.setBrush( QColorGroup::Base, QBrush(d->papcolgrp.base(), pm) );
     }
-    delete d->cursor;
-    d->cursor = new QTextCursor( richText() );
+    d->cursor = QPoint(0,0);
 }
 
 
@@ -497,7 +494,7 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     QRegion r(cx-ox, cy-oy, cw, ch);
 
     QTextCursor tc( richText() );
-    tc.gotoParagraph( p, &richText() );
+    tc.gotoParagraph( p, richText().getParBefore( cy ) );
     QTextParagraph* b = tc.paragraph;
 
     // TODO merge with update, this is only draw. Everything needs to be clean!
@@ -580,14 +577,15 @@ void QTextView::resizeEvent( QResizeEvent* e )
 */
 void QTextView::viewportMousePressEvent( QMouseEvent* e )
 {
-    if ( !d->cursor )
-	return;
     if ( e->button() != LeftButton )
 	return;
     QPainter p( viewport() );
-    d->cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
+    d->cursor = e->pos() + QPoint( contentsX(), contentsY() );
+    QPoint to( d->cursor );
+    bool sel = richText().toggleSelection( &p, QPoint(to), to );
+    d->cursor = to;
     p.end();
-    if ( !d->cursor->isSelected() ) {
+    if ( !sel ) {
 	clearSelection();
 	d->dragSelection = TRUE;
     } else {
@@ -601,6 +599,7 @@ void QTextView::viewportMousePressEvent( QMouseEvent* e )
 void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
+	d->scrollTimer->stop();
 	if ( d->dragSelection ) {
 #if defined(_WS_X11_)
 	copy();
@@ -677,10 +676,9 @@ void QTextView::viewportMouseMoveEvent( QMouseEvent* e)
 {
 
     if (e->state() & LeftButton ) {
-	if ( !d->cursor )
-	    return;
 	if (d->dragSelection ) {
 	    doSelection( e->pos() );
+	    ensureVisible( d->cursor.x(), d->cursor.y() );
 	} else if ( d->dragTimer->isActive() ) {
 	    d->dragTimer->stop();
 	    doStartDrag();
@@ -843,63 +841,34 @@ void QTextView::doStartDrag()
 
 void QTextView::doAutoScroll()
 {
-    doSelection( viewport()->mapFromGlobal(QCursor::pos()) );
+    QPoint pos = viewport()->mapFromGlobal( QCursor::pos() );
+    if ( pos.y() < 0 )
+	scrollBy( 0, -32 );
+    else if (pos.y() > visibleHeight() )
+	scrollBy( 0, 32 );
+    doSelection( pos );
 }
 
 void QTextView::doSelection( const QPoint& pos ) 
 {
     QPainter p(viewport());
-    d->cursor->split();
-    QTextCursor oldc( *d->cursor );
-    d->cursor->goTo( &p, pos.x() + contentsX(),
-		     pos.y() + contentsY() );
-    if ( d->cursor->split() ) {
-	if ( (oldc.paragraph == d->cursor->paragraph) && (oldc.current >= d->cursor->current) ) {
-	    oldc.current++;
-	    oldc.update( &p );
-	}
-    }
-    int oldy = oldc.y();
-    int oldx = oldc.x();
-    int oldh = oldc.height;
-    int newy = d->cursor->y();
-    int newx = d->cursor->x();
-    int newh = d->cursor->height;
 
-    QTextCursor start( richText() ), end( richText() );
-
-    bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
-    if ( oldIsFirst ) {
-	start = oldc;
-	end = *d->cursor;
-    } else {
-	start = *d->cursor;
-	end = oldc;
-    }
-
-    while ( start.paragraph != end.paragraph ) {
-	start.setSelected( !start.isSelected() );
-	start.rightOneItem( &p );
+    QPoint to( pos + QPoint( contentsX(), contentsY()  ) );
+    if ( to != d->cursor )
+	richText().toggleSelection( &p, d->cursor, to );
+    
+    if ( to != d->cursor ) {
 	d->selection = TRUE;
+	d->cursor = to;
+	repaintContents( richText().flow()->updateRect(), FALSE );
+	richText().flow()->validateRect();
     }
-    while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
-	start.setSelected( !start.isSelected() );
-	start.rightOneItem( &p );
-	d->selection = TRUE;
-    }
-    p.end();
-    repaintContents( 0, QMIN(oldy, newy),
-		     contentsWidth(),
-		     QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy),
-		     FALSE);
-    QRect geom ( d->cursor->caretGeometry() );
-	    
-    if ( pos.y() < 0 || pos.y() > visibleHeight() )
-	d->scrollTimer->start( 100, FALSE );
-    else
-	d->scrollTimer->stop();
-	    
-    ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
+    
+   if ( pos.y() < 0 || pos.y() > visibleHeight() )
+       d->scrollTimer->start( 100, FALSE );
+   else
+       d->scrollTimer->stop();
+    
 }    
 
 void QTextView::clipboardChanged()
