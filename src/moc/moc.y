@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#64 $
+** $Id: //depot/qt/main/src/moc/moc.y#65 $
 **
 ** Parser and code generator for meta object compiler
 **
-** Authors : Eirik Eng, Haavard Nord
 ** Created : 930417
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -38,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#64 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#65 $");
 
 QString rmWS( const char * );
 

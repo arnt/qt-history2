@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#17 $
+** $Id: //depot/qt/main/src/moc/moc.l#18 $
 **
 ** Lexical analyzer for meta object compiler
 **
-** Author  : Eirik Eng
 ** Created : 930417
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
