@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qcstring.cpp#9 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -301,38 +301,13 @@ Q_UINT16 qChecksum( const char *data, uint len )
     return (~crc & 0xffff);
 }
 
-/*!
-  \relates QByteArray
-
-  Please use qChecksum; this function is provided only for
-  upward compatibility.
-*/
-
-UINT16 qchecksum( const char *data, uint len )
-{
-    if ( !crc_tbl_init ) {			// create lookup table
-	createCRC16Table();
-	crc_tbl_init = TRUE;
-    }
-    register Q_UINT16 crc = 0xffff;
-    uchar c;
-    uchar *p = (uchar *)data;
-    while ( len-- ) {
-	c = *p++;
-	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
-	c >>= 4;
-	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
-    }
-    return (~crc & 0xffff);
-}
-
 
 /*****************************************************************************
   QByteArray member functions
  *****************************************************************************/
 
-/*!
-  \class QByteArray qcstring.h
+/*! \class QByteArray qcstring.h
+
   \brief The QByteArray class provides an array of bytes.
 
   \inherit QArray
