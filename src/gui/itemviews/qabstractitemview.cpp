@@ -1166,6 +1166,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Escape:
     case Qt::Key_Shift:
     case Qt::Key_Control:
+        QViewport::keyPressEvent(e);
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:

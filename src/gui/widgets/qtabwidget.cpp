@@ -796,6 +796,8 @@ void QTabWidget::keyPressEvent(QKeyEvent *e)
         setCurrentIndex(page);
         if (!qApp->focusWidget())
             d->tabs->setFocus();
+    } else {
+        e->ignore();
     }
 }
 

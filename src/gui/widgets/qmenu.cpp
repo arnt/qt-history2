@@ -1829,6 +1829,8 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     }
     if(key_consumed)
         e->accept();
+    else
+        e->ignore();
 }
 
 /*!
