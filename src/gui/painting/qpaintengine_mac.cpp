@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** Definition of QQuickDrawPaintEngine/QCoreGraphicsPaintEngine  class.
+** Impelemtnation of QQuickDrawPaintEngine and QCoreGraphicsPaintEngine classes.
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
@@ -1474,13 +1474,14 @@ QCoreGraphicsPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 {
     Q_ASSERT(isActive());
 
-    CGContextBeginPath(d->hd);
-    CGContextMoveToPoint(d->hd, a[0].x(), a[0].y());
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, 0, a[0].x(), a[0].y());
     for(int x = 1; x < a.size(); x++)
-        CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y());
+        CGPathAddLineToPoint(path, 0, a[x].x(), a[x].y());
     if(close)
-        CGContextAddLineToPoint(d->hd, a[0].x(), a[0].y());
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
+        CGPathAddLineToPoint(path, 0, a[0].x(), a[0].y());
+    CGContextBeginPath(d->hd);
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke, path);
 }
 
 void
@@ -1496,8 +1497,7 @@ QCoreGraphicsPaintEngine::drawChord(const QRect &r, int a, int alen)
         CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
                      r.y()+(r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath(d->hd);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
-                path);
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke, path);
     CGPathRelease(path);
 }
 
