@@ -2324,8 +2324,11 @@ void QWorkspaceChild::setActive( bool b )
     if ( !childWidget )
 	return;
 
+    if ( act == b )
+	return;
+
     act = b;
-    update();
+    repaint( FALSE );
 
     if ( titlebar )
 	titlebar->setActive( act );

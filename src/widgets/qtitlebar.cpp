@@ -585,7 +585,7 @@ void QTitleBar::setActive( bool active )
 	return ;
 
     d->act = active;
-    update();
+    repaint( FALSE );
 }
 
 bool QTitleBar::isActive() const
