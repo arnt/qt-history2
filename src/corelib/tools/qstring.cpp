@@ -2502,23 +2502,29 @@ QString QString::section(const QString &sep, int start, int end, SectionFlags fl
     }
     int x = 0;
     QString ret;
-    for(int i = 0; x <= end && i < sections.size(); ++i) {
+    for(int i = 0, atSep = 0; x <= end && i < sections.size(); ++i) {
         QString section = sections.at(i);
         if(x >= start) {
             if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
                 int i_end = 0;
-                if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
-                    i_end++;
-                if((flags & SectionIncludeLeadingSep) && i && x == start)
-                    i_end++;
+                if(section.isEmpty()) {
+                    if(x < end || x == start)
+                        i_end++;
+                } else if(!atSep){
+                    if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
+                        i_end++;
+                    else if((flags & SectionIncludeLeadingSep) && i && x == start)
+                        i_end++;
+                }
                 for(int i = 0; i < i_end; i++)
                     ret += sep;
             } else if((flags & SectionIncludeLeadingSep) && i) {
                 ret += sep;
             }
             ret += section;
-            if((flags & SectionIncludeTrailingSep) && i != sections.size()-1)
+            if(!(atSep=section.isEmpty()) && (flags & SectionIncludeTrailingSep) && i != sections.size()-1) {
                 ret += sep;
+            }
         }
         if(!section.isEmpty() || !(flags & SectionSkipEmpty))
             x++;
@@ -2581,25 +2587,23 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
         l.append(section_chunk(last_len, QString(uc + last_m, n - last_m)));
 
     if(start < 0)
-        start = l.count() + start;
-    if(end == -1)
-        end = l.count();
-    else if(end < 0)
-        end = l.count() + end;
+        start += l.count();
+    if(end < 0)
+        end += l.count();
 
     QString ret;
     for (int idx = 0; idx < l.size(); ++idx) {
         const section_chunk &chk = l.at(idx);
-        if((flags & SectionSkipEmpty) && chk.length == chk.string.length()) {
+        const bool isEmpty = (chk.length == chk.string.length());
+        if((flags & SectionSkipEmpty) && isEmpty) {
             if(idx <= start)
                 start++;
             end++;
         }
-        if(idx == start) {
+        if(idx == start)
             ret += (flags & SectionIncludeLeadingSep) ? chk.string : chk.string.mid(chk.length);
-        } else if(idx > start) {
+        else if(idx > start && (!isEmpty || idx < end))
             ret += chk.string;
-        }
         if(idx >= start && idx < l.size()-1 && flags & SectionIncludeTrailingSep) {
             const section_chunk &next = l.at(idx+1);
             ret += next.string.left(next.length);
