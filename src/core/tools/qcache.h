@@ -73,14 +73,18 @@ public:
 
     void clear();
 
-    void insert(const Key &key, T *data, int cost = 1);
-    T *find(const Key &key) const;
-
+    void insert(const Key &key, T *object, int cost = 1);
+    T *object(const Key &key) const;
     inline bool contains(const Key &key) const { return hash.contains(key); }
     T *operator[](const Key &key) const;
 
     bool remove(const Key &key);
     T *take(const Key &key);
+
+#ifdef QT_COMPAT
+    inline QT_COMPAT T *find(const Key &key) const { return object(key); }
+#endif
+
 };
 
 template <class Key, class T>
@@ -93,7 +97,7 @@ inline void QCache<Key,T>::setMaxCost(int m)
 { mx = m; while (l && total > mx) unlink(*l); }
 
 template <class Key, class T>
-inline T *QCache<Key,T>::find(const Key &key) const
+inline T *QCache<Key,T>::object(const Key &key) const
 { if (!hash.contains(key)) return 0;
  return ((QCache<Key,T>*)this)->relink(key); }
 
@@ -111,11 +115,11 @@ inline T *QCache<Key,T>::take(const Key &key)
  Node &n = hash[key]; T *t = n.t; n.t = 0; unlink(n); return t; }
 
 template <class Key, class T>
-void QCache<Key,T>::insert(const Key &key, T *data, int cost)
+void QCache<Key,T>::insert(const Key &key, T *object, int cost)
 {
     remove(key);
     if (cost > mx) {
-        delete data;
+        delete object;
         return;
     }
     Node *n = l;
@@ -125,7 +129,7 @@ void QCache<Key,T>::insert(const Key &key, T *data, int cost)
         if (qIsDetached(*u->t))
             unlink(*u);
     }
-    Node sn(key, data, cost);
+    Node sn(key, object, cost);
     hash.insert(key, sn);
     total += cost;
     n = &hash[key];
