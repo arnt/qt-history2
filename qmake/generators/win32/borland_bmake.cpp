@@ -203,7 +203,8 @@ BorlandMakefileGenerator::init()
 	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( (project->variables()["TARGET"].first() == "qt") &&
+	    if ( (project->variables()["TARGET"].first() == "qt" || 
+		  project->variables()["TARGET"].first() == "qt-mt") &&
 		 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
@@ -265,7 +266,8 @@ BorlandMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
-	if ( (project->variables()["TARGET"].first() == "qt") &&
+	if ( (project->variables()["TARGET"].first() == "qt" ||
+	      project->variables()["TARGET"].first() == "qt-mt") &&
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
