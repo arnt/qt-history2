@@ -60,34 +60,33 @@ public:
     };
 };
 
-// NOT REVISED
 /*! \class QWidgetStack qwidgetstack.h
 
-  \brief The QWidgetStack class provides a stack of widgets in which the
-  user can see only the top widget.
+  \brief The QWidgetStack class provides a stack of widgets of which only the
+  top widget is user-visible.
 
   \ingroup organizers
   \mainclass
 
   The application programmer can move any widget to the top of the
-  stack at any time using the slot raiseWidget(), and add or remove
-  widgets using addWidget() and removeWidget().
+  stack at any time using raiseWidget(), and add or remove widgets
+  using addWidget() and removeWidget().
 
   visibleWidget() is the \e get equivalent of raiseWidget(); it
-  returns a pointer to the widget that is currently on the top of the
+  returns a pointer to the widget that is currently at the top of the
   stack.
 
   QWidgetStack also provides the ability to manipulate widgets through
   application-specified integer ids. You can also translate from
   widget pointers to ids using id() and from ids to widget pointers
-  using widget().  These numeric ids are unique (in each QWidgetStack,
-  not globally) and cannot be -1, but QWidgetStack does not attach any
+  using widget().  These numeric ids are unique (per QWidgetStack,
+  not globally), but QWidgetStack does not attach any
   additional meaning to them.
 
   The default widget stack is frameless, but you can use the usual
   QFrame functions (such as setFrameStyle()) to add a frame.
 
-  Finally, QWidgetStack provides a signal, aboutToShow(), which is
+  QWidgetStack provides a signal, aboutToShow(), which is
   emitted just before a managed widget is shown.
 
   \sa QTabDialog QTabBar QFrame
@@ -122,16 +121,28 @@ QWidgetStack::~QWidgetStack()
 }
 
 
-/*!  Adds \a w to this stack of widgets, with id \a id.
+/*!  Adds widget \a w to this stack of widgets, with id \a id.
+
+  If you pass an id >= 0 this id is used. If you pass an \a id of -1
+  (the default), the widgets will be numbered automatically starting
+  at 0. If you pass any other negative integer a unique negative
+  integer (<= -2) will be generated. No widget has an id of -1.
 
   If \a w is not a child of \c this, QWidgetStack moves it using
   reparent().
 */
 
-void QWidgetStack::addWidget( QWidget * w, int id )
+int QWidgetStack::addWidget( QWidget * w, int id )
 {
+    static int seq_no = -2;
+
     if ( !w || w == invisible )
-	return;
+	return -1;
+
+    if ( id < -1 )
+	id = seq_no--;
+    else if ( id == -1 )
+	id = dict->count();
 
     dict->insert( id+1, w );
 
@@ -149,12 +160,16 @@ void QWidgetStack::addWidget( QWidget * w, int id )
     if ( w->parent() != this )
 	w->reparent( this, 0, contentsRect().topLeft(), FALSE );
     w->setGeometry( contentsRect() );
+
+    return id;
 }
 
 
-/*!  Removes \a w from this stack of widgets.  Does not delete \a
+/*!  Removes widget \a w from this stack of widgets.  Does not delete \a
   w. If \a w is the currently visible widget, no other widget is
-  substituted. \sa visibleWidget() raiseWidget() */
+  substituted.
+  \sa visibleWidget() raiseWidget()
+*/
 
 void QWidgetStack::removeWidget( QWidget * w )
 {
@@ -170,7 +185,10 @@ void QWidgetStack::removeWidget( QWidget * w )
 }
 
 
-/*!  Raises \a id to the top of the widget stack. \sa visibleWidget() */
+/*!  Raises the widget with id, \a id, to the top of the widget stack.
+
+    \sa visibleWidget()
+*/
 
 void QWidgetStack::raiseWidget( int id )
 {
@@ -184,7 +202,7 @@ void QWidgetStack::raiseWidget( int id )
 
 /*!
     \overload
-    Raises \a w to the top of the widget stack.
+    Raises widget \a w to the top of the widget stack.
 */
 
 void QWidgetStack::raiseWidget( QWidget * w )
@@ -291,7 +309,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 }
 
 
-/*!  Returns TRUE if \a w is a child of this widget, else FALSE. */
+/*!  Returns TRUE if \a w is a child of this widget; otherwise returns FALSE. */
 
 bool QWidgetStack::isMyChild( QWidget * w )
 {

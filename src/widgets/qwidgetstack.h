@@ -58,7 +58,7 @@ public:
 
     ~QWidgetStack();
 
-    void addWidget( QWidget *, int );
+    int addWidget( QWidget *, int = -1 );
     void removeWidget( QWidget * );
 
     QSize sizeHint() const;
