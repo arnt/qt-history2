@@ -870,11 +870,11 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
     QFile qfile;
     if(!strcmp(filename, "-")) {
         qfile.setFileName("");
-        ret = qfile.open(IO_ReadOnly, stdin);
+        ret = qfile.open(QIODevice::ReadOnly, stdin);
         using_stdin = true;
     } else {
         qfile.setFileName(filename);
-        ret = qfile.open(IO_ReadOnly);
+        ret = qfile.open(QIODevice::ReadOnly);
     }
     if(ret) {
         parser_info pi = parser;
@@ -1419,7 +1419,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         parser.from_file = false;
         parser.file = "(eval)";
         parser.line_no = 0;
-        QTextStream t(&project, IO_ReadOnly);
+        QTextStream t(&project, QIODevice::ReadOnly);
         bool ret = read(t, place);
         parser = pi;
         return ret;
@@ -1844,7 +1844,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     file = Option::fixPathToLocalOS(file);
 
                     QFile qfile(file);
-                    if(qfile.open(IO_ReadOnly)) {
+                    if(qfile.open(QIODevice::ReadOnly)) {
                         QTextStream stream(&qfile);
                         while(!stream.eof())
                             replacement += stream.readLine().trimmed();
@@ -2087,7 +2087,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     fprintf(stderr, "Project %s: %s ", val.toUpper().latin1(), msg.latin1());
 
                     QFile qfile;
-                    if(qfile.open(IO_ReadOnly, stdin)) {
+                    if(qfile.open(QIODevice::ReadOnly, stdin)) {
                         QTextStream t(&qfile);
                         replacement = t.readLine();
                     }

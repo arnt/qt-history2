@@ -774,7 +774,7 @@ MakefileGenerator::writePrlFile()
 	    prl.prepend(var("DESTDIR"));
 	QString local_prl = Option::fixPathToLocalOS(fileFixify(prl, QDir::currentPath(), Option::output_dir));
 	QFile ft(local_prl);
-	if(ft.open(IO_WriteOnly)) {
+	if(ft.open(QIODevice::WriteOnly)) {
 	    project->variables()["ALL_DEPS"].append(prl);
 	    project->variables()["QMAKE_INTERNAL_PRL_FILE"].append(prl);
 	    QTextStream t(&ft);
@@ -2274,7 +2274,7 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
     int slsh = file.fileName().lastIndexOf(Option::dir_sep);
     if(slsh != -1)
         createDir(file.fileName().left(slsh));
-    if(file.open(IO_WriteOnly | IO_Translate | IO_Truncate)) {
+    if(file.open(QIODevice::WriteOnly | QIODevice::Translate | QIODevice::Truncate)) {
         QFileInfo fi(Option::output);
         QString od = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.path()));
         if(QDir::isRelativePath(od))

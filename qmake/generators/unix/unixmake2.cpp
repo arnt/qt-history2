@@ -1096,7 +1096,7 @@ UnixMakefileGenerator::writeLibtoolFile()
     if(slsh != -1)
         lname = lname.right(lname.length() - slsh - 1);
     QFile ft(fname);
-    if(!ft.open(IO_WriteOnly))
+    if(!ft.open(QIODevice::WriteOnly))
         return;
     project->variables()["ALL_DEPS"].append(fileFixify(fname));
 
@@ -1202,7 +1202,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     if(slsh != -1)
         lname = lname.right(lname.length() - slsh - 1);
     QFile ft(fname);
-    if(!ft.open(IO_WriteOnly))
+    if(!ft.open(QIODevice::WriteOnly))
         return;
     project->variables()["ALL_DEPS"].append(fileFixify(fname));
     QTextStream t(&ft);
