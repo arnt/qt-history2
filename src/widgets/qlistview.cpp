@@ -4056,7 +4056,9 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	    clearSelection();
 	goto emit_signals;
     } else {
-	d->selectAnchor = i;
+	// No new anchor when using shift
+	if ( !(e->state() & ShiftButton) )
+ 	    d->selectAnchor = i;
     }
 
     if ( (i->isExpandable() || i->childCount()) &&
@@ -4157,36 +4159,50 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 			changed = TRUE;
 			i->setSelected( d->select );
 		    }
+		// Shift pressed in Extended mode ---
 		} else {
-		    bool down = oldCurrent->itemPos() < i->itemPos();
-		    QListViewItemIterator lit( down ? oldCurrent : i );
-		    for ( ;; ++lit ) {
-			if ( !lit.current() ) {
-			    triggerUpdate();
-			    goto emit_signals;
+		    int  anchorPos = d ? d->selectAnchor->itemPos() : 0,
+			 oldPos    = oldCurrent ? oldCurrent->itemPos() : 0,
+			 newPos    = i->itemPos();
+		    bool down      = oldPos < newPos;
+		    QListViewItem *top=0, *bottom=0;
+		    if ( anchorPos > newPos ) {
+			top = i;
+			bottom = d->selectAnchor;
+		    } else {
+			top = d->selectAnchor;
+			bottom = i;
+		    }
+
+		    // Remove old selections if not in new selection (Shift)
+		    if ( e->state() & ShiftButton ) {
+			int topPos    = top ? top->itemPos() : 0,
+			    bottomPos = bottom ? bottom->itemPos() : 0;
+			if ( !(oldPos > topPos && oldPos < bottomPos) ) {
+			    if ( oldPos < topPos )
+				changed = clearRange( oldCurrent, top );
+			    else
+				changed = clearRange( bottom, oldCurrent );
 			}
-			if ( down && lit.current() == i ) {
-			    if ( (bool)i->selected != d->select ) {
-				i->setSelected( d->select );
-				changed = TRUE;
-			    }
-			    triggerUpdate();
-			    break;
-			}
-			if ( !down && lit.current() == oldCurrent ) {
-			    oldCurrent->setSelected( d->select );
-			    triggerUpdate();
-			    break;
-			}
+
+		    }
+		    QListViewItemIterator lit( top );
+		    for ( ; lit.current(); ++lit ) {
 			if ( (bool)lit.current()->selected != d->select ) {
 			    lit.current()->setSelected( d->select );
 			    changed = TRUE;
 			}
+			// Include bottom, then break
+			if ( lit.current() == bottom )
+			    break;
 		    }
 		}
 	    }
-	    if ( changed )
+	    if ( changed ) {
+		d->useDoubleBuffer = TRUE;
+		triggerUpdate();
 		emit selectionChanged();
+	    }
 	}
     }
 
@@ -5051,7 +5067,6 @@ void QListView::selectAll( bool select )
 	blockSignals( TRUE );
 	bool anything = FALSE;
 	QListViewItemIterator it( this );
-	QPtrStack<QListViewItem> s;
 	while ( it.current() ) {
 	    QListViewItem *i = it.current();
 	    if ( (bool)i->selected != select ) {
@@ -6876,6 +6891,41 @@ void QListView::startRename()
 	return;
     currentItem()->startRename( d->pressedColumn );
     d->buttonDown = FALSE;
+}
+
+bool QListView::clearRange( QListViewItem *from, QListViewItem *to, bool includeFirst )
+{
+    if ( !from || !to )
+	return FALSE;
+
+    // Swap
+    if ( from->itemPos() > to->itemPos() ) {
+	QListViewItem *temp = from;
+	from = to;
+	to = temp;
+    }
+
+    // Start on second?
+    if ( !includeFirst ) {
+	QListViewItem *below = (from == to) ? from : from->itemBelow();
+	if ( below )
+	    from = below;
+    }
+
+    // Clear items <from, to>
+    bool changed = FALSE;
+    for ( QListViewItem *i = from; i; i = i->itemBelow() ) {
+	if ( i->isSelected() ) {
+	    i->setSelected( FALSE );
+	    changed = TRUE;
+	}
+	if ( i == to )
+	    break;
+    }
+
+    // NOTE! This function does _not_ emit 
+    // any signals about selection changed
+    return changed;
 }
 
 void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel )
