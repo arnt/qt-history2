@@ -3556,7 +3556,7 @@ void QWidget::show()
 	// do not show the window directly, but post a showWindow
 	// request to reduce flicker with laid out widgets
 	if ( !isTopLevel() && sendLayoutHint
-	    && !winQNPChildWidget)   // ### Not sure why showWindow is needed for QNPWidget children, but is nessary
+	    && !winQNPChildWidget)   // ### Not sure why showWindow is needed for QNPWidget children, but is necessary
 	    sendShowWindowRequest = TRUE;
 	else
 	    showWindow();
