@@ -37,7 +37,7 @@
 
 #ifndef QT_NO_COMPONENT
 
-#include "qlibrary.h"
+#include "qlibrary_p.h"
 
 /*
   The platform dependent implementations of
