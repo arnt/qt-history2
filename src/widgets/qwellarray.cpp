@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#3 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -150,6 +150,15 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
     }
     drawContents( p, row, col, QRect(b, b, w - 2*b, h - 2*b) ); 
 }
+
+/*!
+  Pass-through to QTableView::drawContents() to avoid hiding.
+*/
+void QWellArray::drawContents( QPainter *p )
+{
+    QTableView::drawContents(p);
+}
+
 /*!
   Override this function to change the contents of the well array.
  */

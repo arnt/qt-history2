@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#241 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#242 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -913,7 +913,7 @@ bool QWidget::isActiveWindow() const
 	Window *ch;
 	unsigned int nch;
 	while ( XQueryTree(dpy, cursor, &root, &parent, &ch, &nch) ) {
-	    if (ch) XFree(ch);
+	    if (ch) XFree( (char*)ch);
 	    if ( parent == win ) return TRUE;
 	    if ( parent == root ) return FALSE;
 	    cursor = parent;

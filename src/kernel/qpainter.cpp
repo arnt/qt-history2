@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#137 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1287,16 +1287,18 @@ QRect QPainter::xForm( const QRect &rv ) const
 {
     if ( txop == TxNone )
 	return rv;
+
     if ( txop == TxRotShear ) {			// rotation/shear
 	QPointArray a( rv );
 	a = xForm( a );
 	return a.boundingRect();
-    } else {					// translation/scale
-	int x, y, w, h;
-	rv.rect( &x, &y, &w, &h );
-	map( x, y, w, h, &x, &y, &w, &h );
-	return QRect( x, y, w, h );
     }
+
+    // Just translation/scale
+    int x, y, w, h;
+    rv.rect( &x, &y, &w, &h );
+    map( x, y, w, h, &x, &y, &w, &h );
+    return QRect( x, y, w, h );
 }
 
 /*!
@@ -1396,12 +1398,13 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 	QPointArray a( rd );
 	a = xFormDev( a );
 	return a.boundingRect();
-    } else {					// translation/scale
-	int x, y, w, h;
-	rd.rect( &x, &y, &w, &h );
-	mapInv( x, y, w, h, &x, &y, &w, &h );
-	return QRect( x, y, w, h );
     }
+
+    // Just translation/scale
+    int x, y, w, h;
+    rd.rect( &x, &y, &w, &h );
+    mapInv( x, y, w, h, &x, &y, &w, &h );
+    return QRect( x, y, w, h );
 }
 
 /*!

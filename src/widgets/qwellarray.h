@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.h#3 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.h#4 $
 **
 ** Definition of QWellArray widget class
 **
@@ -41,6 +41,7 @@ protected:
     void setCurrent( int row, int col );
 
     void drawContents( QPainter *, int row, int col, const QRect& );
+    void drawContents( QPainter * );
 
     void paintCell( QPainter*, int row, int col );
     void mousePressEvent( QMouseEvent* );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#17 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -82,7 +82,7 @@ Atom qt_xdnd_aware;
 
 // real variables:
 // xid of current drag source
-static Atom qt_xdnd_dragsource_xid = 0;
+static Window qt_xdnd_dragsource_xid = 0;
 
 // the types in this drop.  100 is no good, but at least it's big.
 static Atom qt_xdnd_types[100];
@@ -217,7 +217,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
     if ( version > 2 )
 	return;
 
-    qt_xdnd_dragsource_xid = l[0];
+    qt_xdnd_dragsource_xid = (Window)l[0];
     // ### can crash if the xid is wild
     if ( qt_xdnd_dragsource_xid && !QWidget::find( qt_xdnd_dragsource_xid ) )
 	XSelectInput( qt_xdisplay(), qt_xdnd_dragsource_xid,
@@ -243,10 +243,10 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
+    QPoint p( (int)((l[2] & 0xffff0000) >> 16), (int)(l[2] & 0x0000ffff) );
     QWidget * c = find_child( w, p );
 
-    if ( l[0] != qt_xdnd_dragsource_xid ) {
+    if ( (Window)l[0] != qt_xdnd_dragsource_xid ) {
 	debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
 	       l[0], qt_xdnd_dragsource_xid );
 	return;
@@ -300,7 +300,7 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 
     //debug( "xdnd leave" );
 
-    if ( l[0] != qt_xdnd_dragsource_xid ) {
+    if ( (Window)l[0] != qt_xdnd_dragsource_xid ) {
 	debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
 	       l[0], qt_xdnd_dragsource_xid );
 	qt_xdnd_current_widget = 0;
@@ -328,7 +328,7 @@ static void qt_xdnd_send_leave()
     leave.window = qt_xdnd_current_target;
     leave.format = 32;
     leave.message_type = qt_xdnd_leave;
-    leave.data.l[0] = qt_xdnd_dragsource_xid;
+    leave.data.l[0] = (Atom)qt_xdnd_dragsource_xid;
     leave.data.l[1] = 0; // flags
     leave.data.l[2] = 0; // x, y
     leave.data.l[3] = 0; // w, h
@@ -355,7 +355,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 
     //debug( "xdnd drop" );
 
-    if ( l[0] != qt_xdnd_dragsource_xid ) {
+    if ( (Window)l[0] != qt_xdnd_dragsource_xid ) {
 	debug( "xdnd drop from unexpected source (%08lx not %08lx",
 	       l[0], qt_xdnd_dragsource_xid );
 	return;
@@ -512,7 +512,7 @@ void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * e )
     if ( e->window == qt_xdnd_current_target ) {
 	qt_xdnd_current_target = 0;
     }
-    if ( e->window == (Window)qt_xdnd_dragsource_xid ) {
+    if ( e->window == qt_xdnd_dragsource_xid ) {
 	qt_xdnd_dragsource_xid = 0;
 	if ( qt_xdnd_current_widget ) {
 	    QDragLeaveEvent e;
