@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#13 $
 **
 ** Definition of QIconView widget class
 **
@@ -875,7 +875,7 @@ void QIconView::doAutoScroll()
     QPainter p;
     p.begin( viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
+    p.setPen( QPen( Qt::black, 1 ) );
     p.setBrush( Qt::NoBrush );
     drawRubber( &p );
     p.end();
@@ -895,7 +895,7 @@ void QIconView::doAutoScroll()
 
     p.begin( viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
+    p.setPen( QPen( Qt::black, 1 ) );
     p.setBrush( Qt::NoBrush );
     drawRubber( &p );
 
@@ -1016,7 +1016,7 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 
 void QIconView::clear()
 {
-    resizeContents( visibleWidth() - verticalScrollBar()->width(), 
+    resizeContents( visibleWidth() - verticalScrollBar()->width(),
                     visibleHeight() - horizontalScrollBar()->width() );
     setContentsPos( 0, 0 );
 
@@ -1165,7 +1165,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent * )
         QPainter p;
         p.begin( viewport() );
         p.setRasterOp( NotROP );
-        p.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
+        p.setPen( QPen( Qt::black, 1 ) );
         p.setBrush( Qt::NoBrush );
 
         drawRubber( &p );
