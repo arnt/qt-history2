@@ -260,6 +260,7 @@ ALLHEADERS	= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
 		  $$WIDGETS_H/qworkspace.h \
 		  $$WIDGETS_H/qaction.h \
+		  $$WIDGETS_H/qeffects_p.h
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
@@ -471,6 +472,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qwindowsstyle.cpp \
 		  widgets/qworkspace.cpp \
 		  widgets/qaction.cpp \
+		  widgets/qeffects.cpp \
 		  dialogs/qcolordialog.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qfontdialog.cpp \
