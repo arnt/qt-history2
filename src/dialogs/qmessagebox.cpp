@@ -771,8 +771,8 @@ QMessageBox::Icon QMessageBox::icon() const
 
   \sa icon(), setIconPixmap(), iconPixmap()
 */
-
-void QMessageBox::setIcon( Icon icon )
+//#### Bad API (see QWidget::setIcon). Should be setMessageIcon in 3.0 (same for setIconPixmap and friends)
+void QMessageBox::setIcon( Icon icon ) 
 {
     setIconPixmap( standardIcon(icon, style()) );
     mbd->icon = icon;

@@ -112,11 +112,11 @@ public:
     void	setText( const QString &);
 
     Icon	icon() const;
-    void	setIcon( Icon );
-    void	setIcon( const QPixmap & );
+    void	setIcon( Icon );	    //#### Bad API (see QWidget::setIcon). Should be setMessageIcon in 3.0
+    void	setIcon( const QPixmap & ); //#### Bad API (see QWidget::setIcon). Should be setMessageIcon in 3.0
 
-    const QPixmap *iconPixmap() const;
-    void	setIconPixmap( const QPixmap & );
+    const QPixmap *iconPixmap() const;		  //#### Bad API (see QWidget::setIcon). Should be messageIconPixmap in 3.0
+    void	setIconPixmap( const QPixmap & ); //#### Bad API (see QWidget::setIcon). Should be setMessageIconPixmap in 3.0
 
     QString	buttonText( int button ) const;
     void	setButtonText( int button, const QString &);
