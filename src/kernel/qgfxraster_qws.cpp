@@ -2940,7 +2940,8 @@ double qatan2( double y, double x )
 static uint int_sqrt(uint n)
 {
     uint h, p= 0, q= 1, r= n;
-    ASSERT( n < 1073741824U );  // UINT_MAX>>2 on 32-bits architecture
+    if ( n >= UINT_MAX >> 2 )
+	return (uint)sqrt( (double)n );
     while ( q <= n )
         q <<= 2;
     while ( q != 1 ) {
