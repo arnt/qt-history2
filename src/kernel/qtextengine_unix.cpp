@@ -73,6 +73,7 @@ void QTextEngine::shape( int item ) const
 
     advance_t *advances = this->advances( &si );
 
+#ifndef QT_NO_XFTFREETYPE
     if (kern && si.fontEngine->type() == QFontEngine::Xft) {
 	FT_Face face = static_cast<QFontEngineXft *>(si.fontEngine)->freetypeFace();
 	if (FT_HAS_KERNING(face)) {
@@ -89,7 +90,8 @@ void QTextEngine::shape( int item ) const
 	    si.hasPositioning |= kern;
 	}
     }
-
+#endif
+    
     si.width = 0;
     advance_t *end = advances + si.num_glyphs;
     while ( advances < end )

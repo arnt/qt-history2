@@ -22,6 +22,8 @@
 
 #define QTE_PIPE "QtEmbedded-%1"
 
+class QRect;
+
 /*********************************************************************
  *
  * Functions to read/write commands on/from a socket

@@ -261,6 +261,12 @@ private:
 };
 #endif
 
+#ifdef Q_WS_QWS
+#ifndef QT_NO_XFTFREETYPE
+# define QT_NO_XFTFREETYPE
+#endif
+#endif
+
 #ifdef Q_WS_X11
 #include "qt_x11_p.h"
 
