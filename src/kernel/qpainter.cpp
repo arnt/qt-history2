@@ -924,8 +924,6 @@ void QPainter::setPen( const QPen &pen )
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
 #endif
-    if ( cpen == pen )
-	return;
     cpen = pen;
     updatePen();
 }
@@ -945,8 +943,6 @@ void QPainter::setPen( PenStyle style )
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
 #endif
-    if ( cpen.data->style == style )
-	return;
     QPen::QPenData *d = cpen.data;	// low level access
     if ( d->count != 1 ) {
 	cpen.detach();
@@ -974,8 +970,6 @@ void QPainter::setPen( const QColor &color )
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
 #endif
-    if ( cpen.data->color == color )
-	return;
     QPen::QPenData *d = cpen.data;	// low level access
     if ( d->count != 1 ) {
 	cpen.detach();
@@ -1012,8 +1006,6 @@ void QPainter::setBrush( const QBrush &brush )
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
 #endif
-    if ( cbrush == brush )
-	return;
     cbrush = brush;
     updateBrush();
 }
@@ -1031,8 +1023,6 @@ void QPainter::setBrush( BrushStyle style )
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
 #endif
-    if ( cbrush.data->style == style )
-	return;
     QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
 	cbrush.detach();
@@ -1062,8 +1052,6 @@ void QPainter::setBrush( const QColor &color )
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
 #endif
-    if ( cbrush.data->color == color )
-	return;
     QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
 	cbrush.detach();
