@@ -90,8 +90,8 @@ public:
     static bool	 isValid( int y, int m, int d );
     static bool	 leapYear( int year );
 
-    static uint	 greg2jul( int y, int m, int d );
-    static void	 jul2greg( uint jd, int &y, int &m, int &d );
+    static uint	 gregorianToJulian( int y, int m, int d );
+    static void	 julianToGregorian( uint jd, int &y, int &m, int &d );
 private:
     uint	 jd;
     friend class QDateTime;

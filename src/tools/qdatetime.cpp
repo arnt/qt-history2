@@ -185,7 +185,7 @@ bool QDate::isValid() const
 int QDate::year() const
 {
     int y, m, d;
-    jul2greg( jd, y, m, d );
+    julianToGregorian( jd, y, m, d );
     return y;
 }
 
@@ -198,7 +198,7 @@ int QDate::year() const
 int QDate::month() const
 {
     int y, m, d;
-    jul2greg( jd, y, m, d );
+    julianToGregorian( jd, y, m, d );
     return m;
 }
 
@@ -211,7 +211,7 @@ int QDate::month() const
 int QDate::day() const
 {
     int y, m, d;
-    jul2greg( jd, y, m, d );
+    julianToGregorian( jd, y, m, d );
     return d;
 }
 
@@ -234,7 +234,7 @@ int QDate::dayOfWeek() const
 
 int QDate::dayOfYear() const
 {
-    return jd - greg2jul(year(), 1, 1) + 1;
+    return jd - gregorianToJulian(year(), 1, 1) + 1;
 }
 
 /*!
@@ -246,7 +246,7 @@ int QDate::dayOfYear() const
 int QDate::daysInMonth() const
 {
     int y, m, d;
-    jul2greg( jd, y, m, d );
+    julianToGregorian( jd, y, m, d );
     if ( m == 2 && leapYear(y) )
 	return 29;
     else
@@ -262,7 +262,7 @@ int QDate::daysInMonth() const
 int QDate::daysInYear() const
 {
     int y, m, d;
-    jul2greg( jd, y, m, d );
+    julianToGregorian( jd, y, m, d );
     return leapYear(y) ? 366 : 365;
 }
 
@@ -317,7 +317,7 @@ QString QDate::dayName( int weekday ) const
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates, which is YYYY-MM-DD
   where YYYY is the year, MM is the month of the year (between 01 and
-  12), and DD is the day of the month between 01 and 31. 
+  12), and DD is the day of the month between 01 and 31.
 
   \sa dayName(), monthName()
 */
@@ -325,7 +325,7 @@ QString QDate::dayName( int weekday ) const
 QString QDate::toString( Qt::DateFormat f ) const
 {
     int y, m, d;
-    jul2greg( jd, y, m, d );
+    julianToGregorian( jd, y, m, d );
     switch ( f ) {
     case Qt::ISODate:
 	{
@@ -367,7 +367,7 @@ bool QDate::setYMD( int y, int m, int d )
 #endif
 	 return FALSE;
     }
-    jd = greg2jul( y, m, d );
+    jd = gregorianToJulian( y, m, d );
     return TRUE;
 }
 
@@ -394,27 +394,27 @@ QDate QDate::addDays( int ndays ) const
 QDate QDate::addMonths( int nmonths ) const
 {
     int y, m, d;
-    jul2greg( jd, y, m, d );
-    
+    julianToGregorian( jd, y, m, d );
+
     while ( nmonths != 0 ) {
-        if ( nmonths < 0 && nmonths + 12 <= 0 ) {
-            y--;
-            nmonths+=12;
-        } else if ( nmonths < 0 ) {
-            m+= nmonths;
-            nmonths = 0;
-        } else if ( nmonths - 12 >= 0 ) {
-            y++;
-            nmonths-=12;
-        } else {
-            m+= nmonths;
-            nmonths = 0;
-        }
+	if ( nmonths < 0 && nmonths + 12 <= 0 ) {
+	    y--;
+	    nmonths+=12;
+	} else if ( nmonths < 0 ) {
+	    m+= nmonths;
+	    nmonths = 0;
+	} else if ( nmonths - 12 >= 0 ) {
+	    y++;
+	    nmonths-=12;
+	} else {
+	    m+= nmonths;
+	    nmonths = 0;
+	}
     }
-    
+
     QDate date(y, m, d);
     return date;
-    
+
 }
 
 /*!
@@ -426,12 +426,12 @@ QDate QDate::addMonths( int nmonths ) const
 QDate QDate::addYears( int nyears ) const
 {
     int y, m, d;
-    jul2greg( jd, y, m, d );
-    y += nyears;    
+    julianToGregorian( jd, y, m, d );
+    y += nyears;
     QDate date(y, m, d);
     return date;
 }
-        
+
 
 
 /*!
@@ -501,7 +501,7 @@ QDate QDate::currentDate()
     SYSTEMTIME t;
     GetLocalTime( &t );
     QDate d;
-    d.jd = greg2jul( t.wYear, t.wMonth, t.wDay );
+    d.jd = gregorianToJulian( t.wYear, t.wMonth, t.wDay );
     return d;
 
 #else
@@ -510,7 +510,7 @@ QDate QDate::currentDate()
     time( &ltime );
     tm *t = localtime( &ltime );
     QDate d;
-    d.jd = greg2jul( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
+    d.jd = gregorianToJulian( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
     return d;
 
 #endif
@@ -593,10 +593,10 @@ bool QDate::leapYear( int y )
   \internal
   Converts a Gregorian date to a Julian day.
   This algorithm is taken from Communications of the ACM, Vol 6, No 8.
-  \sa jul2greg()
+  \sa julianToGregorian()
 */
 
-uint QDate::greg2jul( int y, int m, int d )
+uint QDate::gregorianToJulian( int y, int m, int d )
 {
     uint c, ya;
     if ( y <= 99 )
@@ -617,10 +617,10 @@ uint QDate::greg2jul( int y, int m, int d )
   \internal
   Converts a Julian day to a Gregorian date.
   This algorithm is taken from Communications of the ACM, Vol 6, No 8.
-  \sa greg2jul()
+  \sa gregorianToJulian()
 */
 
-void QDate::jul2greg( uint jd, int &y, int &m, int &d )
+void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
 {
     uint x;
     uint j = jd - 1721119;
@@ -781,7 +781,7 @@ int QTime::msec() const
 
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates, which is also
-  HH:MM:SS. 
+  HH:MM:SS.
 */
 
 QString QTime::toString( Qt::DateFormat f ) const
@@ -1269,12 +1269,12 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
     if ( !tM ) {
 	tM = gmtime( &tmp );
 	if ( !tM ) {
-	    d.jd = QDate::greg2jul( 1970, 1, 1 );
+	    d.jd = QDate::gregorianToJulian( 1970, 1, 1 );
 	    t.ds = 0;
 	    return;
 	}
     }
-    d.jd = QDate::greg2jul( tM->tm_year + 1900, tM->tm_mon + 1, tM->tm_mday );
+    d.jd = QDate::gregorianToJulian( tM->tm_year + 1900, tM->tm_mon + 1, tM->tm_mday );
     t.ds = MSECS_PER_HOUR*tM->tm_hour + MSECS_PER_MIN*tM->tm_min +
 	    1000*tM->tm_sec;
 }

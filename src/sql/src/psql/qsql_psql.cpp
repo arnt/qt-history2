@@ -242,7 +242,7 @@ QPoint pointFromString( const QString& s)
 QDate qDateFromUInt( uint dt )
 {
     int y,m,d;
-    QDate::jul2greg( dt, y, m, d );
+    QDate::julianToGregorian( dt, y, m, d );
     return QDate( y, m, d );
 }
 
