@@ -82,9 +82,6 @@ extern "C" {
 	} else
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
 
-	// qDebug("xic_draw_callback - string length %d, caret %d, data:",
-	// qic->text.length(), drawstruct->caret);
-
 	QIMEvent event(QEvent::IMCompose, qic->text, drawstruct->caret);
 	QApplication::sendEvent(widget, &event);
 	return 0;
@@ -102,11 +99,11 @@ extern "C" {
 
 	qic->composing = FALSE;
 
-	// qDebug("xic_done_callback - string length %d, data:",
-	// qic->lastcompose.length());
-
 	QIMEvent event(QEvent::IMEnd, qic->lastcompose, -1);
 	QApplication::sendEvent(widget, &event);
+
+	qic->lastcompose = QString::null;
+
 	return 0;
     }
 

@@ -5115,7 +5115,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    return TRUE;
     }
 
-    // process acceleraters before popups
+    // process accelerators before popups
     QKeyEvent e( type, code, ascii, state, text, autor,
 		 QMAX(count, int(text.length())) );
     if ( type == QEvent::KeyPress && !grab ) {
@@ -5136,15 +5136,12 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
 #ifndef NO_XIM
     if (qt_xim_style & XIMPreeditCallbacks) {
-	// when in OnTheSpot mode - we need to deliver the events properly
 	QWidget *tlw = topLevelWidget();
 	QInputContext *qic = (QInputContext *) tlw->topData()->xic;
 
-	if (qic && qic->composing) {
-	    // QKeyEvent *ke = new QKeyEvent(type, code, ascii, state, text, autor,
-	    // QMAX(count, int(text.length())));
-	    qDebug("### what to do with %04x?", e.text()[0].unicode());
-
+	if (qic && qic->composing && ! qic->lastcompose.isNull()) {
+	    // when in OnTheSpot mode, we eat this event because it is the keypress
+	    // that causes the QEvent::IMEnd event
 	    return TRUE;
 	}
     }

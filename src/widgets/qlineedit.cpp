@@ -93,7 +93,9 @@ struct QLineEditPrivate {
 	parag( new QTextParag( 0, 0, 0, FALSE ) ),
 	dragTimer( l, "QLineEdit drag timer" ),
 	undoRedoInfo( parag ),
-	dragEnabled( TRUE )
+	dragEnabled( TRUE ),
+	preeditStart(-1),
+	preeditLength(-1)
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
@@ -178,7 +180,7 @@ struct QLineEditPrivate {
     QPoint lastMovePos;
     int id[ 7 ];
     bool dragEnabled;
-
+    int preeditStart, preeditLength;
 };
 
 
@@ -694,6 +696,45 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	e->ignore();
 	return;
     }
+}
+
+
+/*! \reimp
+ */
+void QLineEdit::imStartEvent( QIMEvent *e )
+{
+    d->preeditStart = cursorPosition();
+    d->preeditLength = 0;
+
+    e->accept();
+}
+
+
+/*! \reimp
+ */
+void QLineEdit::imComposeEvent( QIMEvent *e )
+{
+    if (d->preeditLength > 0)
+	d->parag->remove(d->preeditStart, d->preeditLength);
+    d->parag->insert(d->preeditStart, e->text());
+    d->preeditLength = e->text().length();
+    d->cursor->setIndex(d->preeditStart + e->cursorPos());
+
+    e->accept();
+}
+
+
+/*! \reimp
+ */
+void QLineEdit::imEndEvent( QIMEvent *e )
+{
+    if (d->preeditLength > 0)
+	d->parag->remove(d->preeditStart, d->preeditLength);
+    d->parag->insert(d->preeditStart, e->text());
+    d->cursor->setIndex(d->preeditStart + e->text().length());
+    d->preeditStart = d->preeditLength = -1;
+
+    e->accept();
 }
 
 

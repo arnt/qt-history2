@@ -155,6 +155,9 @@ protected:
     void mouseReleaseEvent( QMouseEvent * );
     void mouseDoubleClickEvent( QMouseEvent * );
     void keyPressEvent( QKeyEvent * );
+    void imStartEvent( QIMEvent * );
+    void imComposeEvent( QIMEvent * );
+    void imEndEvent( QIMEvent * );
     void focusInEvent( QFocusEvent * );
     void focusOutEvent( QFocusEvent * );
     void drawContents( QPainter *painter );
