@@ -110,8 +110,8 @@ public:
     friend Q_GUI_EXPORT bool operator!=(const QRect &, const QRect &);
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT void rect(int *x, int *y, int *w, int *h) const { return getRect(x, y, w, h); }
-    inline QT_COMPAT void coords(int *x1, int *y1, int *x2, int *y2) const { return getCoords(x1, y1, x2, y2); }
+    inline QT_COMPAT void rect(int *x, int *y, int *w, int *h) const { getRect(x, y, w, h); }
+    inline QT_COMPAT void coords(int *x1, int *y1, int *x2, int *y2) const { getCoords(x1, y1, x2, y2); }
 #endif
 
 private:
