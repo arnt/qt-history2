@@ -1803,7 +1803,7 @@ QList<QTreeWidgetItem*> QTreeWidget::findItems(const QRegExp &rx) const
 bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
 {
     if (item == headerItem())
-        return header()->isHidden();
+        return header()->isExplicitlyHidden();
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     QModelIndex parent = index.parent();
     return isRowHidden(index.row(), parent);

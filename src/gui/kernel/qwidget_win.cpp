@@ -403,7 +403,7 @@ void QWidgetPrivate::reparentChildren()
             if (w->isPopup()) {
                 ;
             } else if (w->isWindow()) {
-                bool showIt = w->isShown();
+                bool showIt = !w->isExplicitlyHidden();
                 QPoint old_pos = w->pos();
                 w->setParent(q, w->getWFlags());
                 w->move(old_pos);
@@ -1425,7 +1425,7 @@ void QWidgetPrivate::setWSGeometry()
         if (outsideRange) {
             ShowWindow(q->winId(), SW_HIDE);
             q->setAttribute(Qt::WA_Mapped, false);
-        } else if (q->isShown()) {
+        } else if (!q->isExplicitlyHidden()) {
             mapWindow = true;
         }
     }

@@ -1892,7 +1892,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 	if (qt_cast<QStatusBar*>(sender()) != statusBar)
 	    return true;
 
-	if (statusBar->isHidden()) {
+	if (statusBar->isExplicitlyHidden()) {
 	    QString message = *(QString*)argv[1];
 	    m_spInPlaceFrame->SetStatusText(QStringToBSTR(message));
 	}

@@ -1068,7 +1068,7 @@ void QTableView::showColumn(int column)
 void QTableView::resizeRowToContents(int row)
 {
     int content = sizeHintForRow(row);
-    int header = d->verticalHeader->isHidden() ? 0 : d->verticalHeader->sectionSizeHint(row);
+    int header = d->verticalHeader->isExplicitlyHidden() ? 0 : d->verticalHeader->sectionSizeHint(row);
     d->verticalHeader->resizeSection(row, qMax(content, header));
 }
 
@@ -1078,7 +1078,7 @@ void QTableView::resizeRowToContents(int row)
 void QTableView::resizeColumnToContents(int column)
 {
     int content = sizeHintForColumn(column);
-    int header = d->horizontalHeader->isHidden() ? 0 : d->horizontalHeader->sectionSizeHint(column);
+    int header = d->horizontalHeader->isExplicitlyHidden() ? 0 : d->horizontalHeader->sectionSizeHint(column);
     d->horizontalHeader->resizeSection(column, qMax(content, header));
 }
 

@@ -82,7 +82,7 @@ void QDockWindowLayout::saveState(QDataStream &stream) const
             const QWidget * const widget = info.item->widget();
             stream << (uchar) WidgetMarker;
             stream << widget->windowTitle();
-            stream << (uchar) widget->isShown();
+            stream << (uchar) !widget->isExplicitlyHidden();
             stream << info.cur_pos;
             stream << info.cur_size;
             stream << info.min_size;
@@ -463,7 +463,7 @@ QSize QDockWindowLayout::minimumSize() const
 	const QDockWindowLayoutInfo &info = layout_info.at(it);
 	int s, p;
 	if (info.is_sep) {
-            s = p = (info.item->widget()->isHidden()) ? 0 : sep_extent;
+            s = p = (info.item->widget()->isExplicitlyHidden()) ? 0 : sep_extent;
 	} else {
 	    QSize sz = info.item->minimumSize();
 	    s = pick(orientation, sz);
@@ -493,7 +493,7 @@ QSize QDockWindowLayout::sizeHint() const
 	const QDockWindowLayoutInfo &info = layout_info.at(it);
 	int s, p;
 	if (info.is_sep) {
-            s = p = (info.item->widget()->isHidden()) ? 0 : sep_extent;
+            s = p = (info.item->widget()->isExplicitlyHidden()) ? 0 : sep_extent;
 	} else {
 	    QSize sz = info.item->sizeHint();
 	    s = pick(orientation, sz);

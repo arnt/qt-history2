@@ -27,7 +27,7 @@
 
 static int menuBarHeightForWidth(QWidget *menubar, int w)
 {
-    if (menubar && !menubar->isHidden() && !menubar->isWindow())
+    if (menubar && !menubar->isExplicitlyHidden() && !menubar->isWindow())
         return menubar->heightForWidth(qMax(w, menubar->minimumWidth()));
     return 0;
 }
@@ -540,7 +540,7 @@ bool QSpacerItem::isEmpty() const
 */
 bool QWidgetItem::isEmpty() const
 {
-    return wid->isHidden() || wid->isWindow();
+    return wid->isExplicitlyHidden() || wid->isWindow();
 }
 
 /*!

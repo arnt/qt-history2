@@ -135,9 +135,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(bool focus READ hasFocus)
     Q_PROPERTY(Qt::ContextMenuPolicy contextMenuPolicy READ contextMenuPolicy WRITE setContextMenuPolicy)
     Q_PROPERTY(bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false)
-    Q_PROPERTY(bool visible READ isVisible)
-    Q_PROPERTY(bool hidden READ isHidden WRITE setHidden DESIGNABLE false SCRIPTABLE false)
-    Q_PROPERTY(bool shown READ isShown WRITE setShown DESIGNABLE false SCRIPTABLE false)
+    Q_PROPERTY(bool visible READ isVisible WRITE setVisible DESIGNABLE false)
     Q_PROPERTY(bool minimized READ isMinimized)
     Q_PROPERTY(bool maximized READ isMaximized)
     Q_PROPERTY(bool fullScreen READ isFullScreen)
@@ -370,10 +368,11 @@ public:
 public slots:
     // Widget management functions
 
-    virtual void show();
-    virtual void hide();
-    void setShown(bool show);
-    void setHidden(bool hide);
+    virtual void setVisible(bool visible);
+    inline void setHidden(bool hidden) { setVisible(!hidden); }
+    inline void show() { setVisible(true); }
+    inline void hide() { setVisible(false); }
+    inline QT_MOC_COMPAT void setShown(bool shown) { setVisible(shown); }
 
     void showMinimized();
     void showMaximized();
@@ -395,8 +394,8 @@ public:
     void adjustSize();
     bool isVisible() const;
     bool isVisibleTo(QWidget*) const;
-    bool isHidden() const;
-    bool isShown() const;
+    bool isExplicitlyHidden() const;
+
     bool isMinimized() const;
     bool isMaximized() const;
     bool isFullScreen() const;
@@ -693,6 +692,9 @@ public:
     inline QT3_SUPPORT void setInputMethodEnabled(bool b) { setAttribute(Qt::WA_InputMethodEnabled, b); }
     inline QT3_SUPPORT bool isInputMethodEnabled() const { return testAttribute(Qt::WA_InputMethodEnabled); }
     inline QT3_SUPPORT void setActiveWindow() { activateWindow(); }
+    inline QT3_SUPPORT bool isHidden() const { return isExplicitlyHidden(); }
+    inline QT3_SUPPORT bool isShown() const { return !isExplicitlyHidden(); }
+
 
 private:
     void drawText_helper(int x, int y, const QString &);
@@ -813,11 +815,8 @@ inline void QWidget::update(int x, int y, int w, int h)
 inline bool QWidget::isVisible() const
 { return testAttribute(Qt::WA_WState_Visible); }
 
-inline bool QWidget::isHidden() const
+inline bool QWidget::isExplicitlyHidden() const
 { return testAttribute(Qt::WA_WState_Hidden); }
-
-inline bool QWidget::isShown() const
-{ return !testAttribute(Qt::WA_WState_Hidden); }
 
 inline void QWidget::move(int x, int y)
 { move(QPoint(x, y)); }

@@ -418,7 +418,7 @@ QWidget * Q3Workspace::addWindow(QWidget *w, Qt::WFlags flags)
         return 0;
     bool wasMaximized = w->isMaximized();
     bool wasMinimized = w->isMinimized();
-    bool hasBeenHidden = w->isHidden();
+    bool hasBeenHidden = w->isExplicitlyHidden();
     bool hasSize = w->testAttribute(Qt::WA_Resized);
     int x = w->x();
     int y = w->y();
@@ -1254,7 +1254,7 @@ void Q3Workspace::closeAllWindows()
     while (it != d->windows.begin() && did_close) {
         Q3WorkspaceChild *c = *it;
         ++it;
-        if (c->windowWidget() && !c->windowWidget()->isHidden())
+        if (c->windowWidget() && !c->windowWidget()->isExplicitlyHidden())
             did_close = c->windowWidget()->close();
     }
 }
@@ -1564,7 +1564,7 @@ void Q3Workspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (!c->windowWidget()->isHidden()
+        if (!c->windowWidget()->isExplicitlyHidden()
          && !c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop)
          && !c->windowWidget()->testWFlags(Qt::WStyle_Tool)
          && !c->iconw)
@@ -1591,7 +1591,7 @@ void Q3Workspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (c->iconw || c->windowWidget()->isHidden() || c->windowWidget()->testWFlags(Qt::WStyle_Tool))
+        if (c->iconw || c->windowWidget()->isExplicitlyHidden() || c->windowWidget()->testWFlags(Qt::WStyle_Tool))
             continue;
         if (!row && !col) {
             w -= c->baseSize().width();
@@ -2299,7 +2299,7 @@ void Q3WorkspaceChild::internalRaise()
             Q3WorkspaceChild* c = *it;
             ++it;
             if (c->windowWidget() &&
-                !c->windowWidget()->isHidden() &&
+                !c->windowWidget()->isExplicitlyHidden() &&
                 c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop))
                 c->raise();
         }
@@ -2308,7 +2308,7 @@ void Q3WorkspaceChild::internalRaise()
 
 void Q3WorkspaceChild::show()
 {
-    if (childWidget && childWidget->isHidden())
+    if (childWidget && childWidget->isExplicitlyHidden())
         childWidget->show();
     QWidget::show();
 }
@@ -2408,7 +2408,7 @@ QRect Q3WorkspacePrivate::updateWorkspace()
         while (it != d->windows.end()) {
             Q3WorkspaceChild *child = *it;
             ++it;
-            if (!child->isHidden())
+            if (!child->isExplicitlyHidden())
                 r = r.unite(child->geometry());
         }
         d->vbar->blockSignals(true);

@@ -417,7 +417,7 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
             for (int i = 0; i < lineInfo.list.size(); ++i) {
                 const ToolBarLayoutInfo &info = lineInfo.list.at(i);
                 stream << info.item->widget()->windowTitle();
-                stream << (uchar) info.item->widget()->isShown();
+                stream << (uchar) !info.item->widget()->isExplicitlyHidden();
                 stream << info.pos;
                 stream << info.size;
                 stream << info.offset;

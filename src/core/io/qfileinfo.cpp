@@ -790,7 +790,7 @@ QFileInfo::isExecutable() const
 }
 
 bool
-QFileInfo::isHidden() const
+QFileInfo::isExplicitlyHidden() const
 {
     if(!d->data->fileEngine)
         return false;

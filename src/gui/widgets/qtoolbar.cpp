@@ -97,7 +97,7 @@ void QToolBarPrivate::init()
 
 void QToolBarPrivate::toggleView(bool b)
 {
-    if (b != q->isShown()) {
+    if (b == q->isExplicitlyHidden()) {
         if (b)
             q->show();
         else
@@ -618,7 +618,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                 // destroy the QToolButton/QToolBarSeparator
                 delete item.widget;
             } else {
-                if (isShown())
+                if (!isExplicitlyHidden())
                     item.widget->hide();
             }
             break;
@@ -710,8 +710,8 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	QWidget *w = box->itemAt(i)->widget();
 	bool hide = false;
 	if (QApplication::layoutDirection() == Qt::RightToLeft && orientation == Qt::Horizontal) {
-            if (w->isHidden()) {
-                if (box->itemAt(i-1) && box->itemAt(i-1)->widget()->isShown()) {
+            if (w->isExplicitlyHidden()) {
+                if (box->itemAt(i-1) && !box->itemAt(i-1)->widget()->isExplicitlyHidden()) {
                     QWidget *pw = box->itemAt(i-1)->widget();
                     hide = pw->pos().x() < (extension_size + w->size().width() + margin + box->spacing());
                 } else {
@@ -721,7 +721,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                         QWidget * pw = box->itemAt(k)->widget();
                         if (pw == w)
                             break;
-                        pos = pw->isHidden()
+                        pos = pw->isExplicitlyHidden()
                               ? pos - pw->size().width() - box->spacing()
                               : pos = pw->pos().x();
                     }
@@ -804,7 +804,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             d->extension->show();
             d->extension->setEnabled(false);
         }
-    } else if (d->extension->isShown()) {
+    } else if (!d->extension->isExplicitlyHidden()) {
 	if (d->extension->menu())
 	    d->extension->menu()->clear();
 	d->extension->hide();

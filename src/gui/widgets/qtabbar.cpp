@@ -351,7 +351,7 @@ void QTabBarPrivate::layoutTabs()
 
 void QTabBarPrivate::makeVisible(int index)
 {
-    if (!validIndex(index) || leftB->isHidden())
+    if (!validIndex(index) || leftB->isExplicitlyHidden())
         return;
     const QRect tabRect = tabList.at(index).rect;
 

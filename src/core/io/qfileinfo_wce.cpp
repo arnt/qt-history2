@@ -55,7 +55,7 @@ void QFileInfo::makeAbs(QString &s)
 /*!
     Returns true if this is a `hidden' file; otherwise returns false.
 */
-bool QFileInfo::isHidden() const
+bool QFileInfo::isExplicitlyHidden() const
 {
     return GetFileAttributes((TCHAR*)fn.ucs2()) & FILE_ATTRIBUTE_HIDDEN;
 }

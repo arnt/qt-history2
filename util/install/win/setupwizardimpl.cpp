@@ -2309,7 +2309,7 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		    if( !copyFiles( entryName, targetName, false ) )
 			return false;
 	    } else {
-		if( qApp && !isHidden() ) {
+		if( qApp && isShown() ) {
 		    qApp->processEvents();
 		    progressPage->operationProgress->setProgress( totalFiles );
 		    logFiles( targetName );

@@ -528,9 +528,9 @@ void QDialog::closeEvent(QCloseEvent *e)
     if (isModal() && QWhatsThis::inWhatsThisMode())
         QWhatsThis::leaveWhatsThisMode();
 #endif
-    if (isShown())
+    if (!isExplicitlyHidden())
         reject();
-    if (isHidden())
+    if (isExplicitlyHidden())
         e->accept();
 }
 
@@ -721,7 +721,7 @@ void QDialog::adjustPosition(QWidget* w)
 /*! \reimp */
 void QDialog::hide()
 {
-    if (isHidden())
+    if (isExplicitlyHidden())
         return;
 
 #ifndef QT_NO_ACCESSIBILITY

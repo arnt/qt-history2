@@ -933,7 +933,7 @@ QWidget::~QWidget()
 
     clearFocus();
 
-    if (isWindow() && isShown() && winId())
+    if (isWindow() && !isExplicitlyHidden() && winId())
         hide();
 
     // A parent widget must destroy all its children before destroying itself
@@ -2186,7 +2186,7 @@ QRect QWidget::childrenRect() const
     QRect r(0, 0, 0, 0);
     for (int i = 0; i < d->children.size(); ++i) {
         QObject *obj = d->children.at(i);
-        if (obj->isWidgetType() && !((QWidget*)obj)->isHidden())
+        if (obj->isWidgetType() && !((QWidget*)obj)->isExplicitlyHidden())
             r = r.unite(((QWidget*)obj)->geometry());
     }
     return r;
@@ -2207,7 +2207,7 @@ QRegion QWidget::childrenRegion() const
     QRegion r;
     for (int i = 0; i < d->children.size(); ++i) {
         QObject *obj = d->children.at(i);
-        if (obj->isWidgetType() && !((QWidget*)obj)->isHidden())
+        if (obj->isWidgetType() && !((QWidget*)obj)->isExplicitlyHidden())
             r = r.unite(((QWidget*)obj)->geometry());
     }
     return r;
@@ -3183,8 +3183,8 @@ void QWidget::setFocus(Qt::FocusReason reason)
 
 
     QWidget *w = f;
-    if (isHidden()) {
-        while (w && w->isHidden()) {
+    if (isExplicitlyHidden()) {
+        while (w && w->isExplicitlyHidden()) {
             w->d_func()->focus_child = f;
             w = w->isWindow() ? 0 : w->parentWidget();
         }
@@ -3366,7 +3366,7 @@ QWidget *QWidget::nextInFocusChain() const
 
 /*!
     \property QWidget::isActiveWindow
-    \brief whether this widget is the active window
+    \brief whether this widget's window is the active window
 
     The active window is the window that contains the widget that
     has keyboard focus.
@@ -3854,7 +3854,8 @@ void QWidget::setUpdatesEnabled(bool enable)
     d->setUpdatesEnabled_helper(enable);
 }
 
-/*!
+/*!  \fn void QWidget::show()
+
     Shows the widget and its child widgets.
 
     If its size or position has changed, Qt guarantees that a widget
@@ -3871,65 +3872,6 @@ void QWidget::setUpdatesEnabled(bool enable)
     showNormal(), isVisible()
 */
 
-void QWidget::show()
-{
-    if (testAttribute(Qt::WA_WState_ExplicitShowHide) && !testAttribute(Qt::WA_WState_Hidden))
-        return;
-
-    bool wasResized = testAttribute(Qt::WA_Resized);
-    Qt::WindowStates initialWindowState = windowState();
-
-    Q_D(QWidget);
-    if (isWindow()
-        && !testAttribute(Qt::WA_SetWindowIcon)
-        && (!d->extra || !d->extra->topextra || !d->extra->topextra->icon))
-        d->setWindowIcon_sys(qApp->windowIcon());
-
-    // polish if necessary
-    ensurePolished();
-
-    // remember that show was called explicitly
-    setAttribute(Qt::WA_WState_ExplicitShowHide);
-    // whether we need to inform the parent widget immediately
-    bool needUpdateGeometry = !isWindow() && testAttribute(Qt::WA_WState_Hidden);
-    // we are no longer hidden
-    setAttribute(Qt::WA_WState_Hidden, false);
-
-    if (needUpdateGeometry)
-        updateGeometry();
-
-#ifdef QT3_SUPPORT
-    QApplication::sendPostedEvents(this, QEvent::ChildInserted);
-#endif
-#ifndef QT_NO_LAYOUT
-    if (!isWindow() && parentWidget()->d_func()->layout)
-        parentWidget()->d_func()->layout->activate();
-#endif
-#ifndef QT_NO_LAYOUT
-    // activate our layout before we and our children become visible
-    if (d->layout)
-        d->layout->activate();
-#endif
-
-    // adjust size if necessary
-    if (!wasResized
-        && (isWindow() || !parentWidget()->d_func()->layout))  {
-        if (isWindow()) {
-            adjustSize();
-            if (windowState() != initialWindowState)
-                setWindowState(initialWindowState);
-        } else {
-            adjustSize();
-        }
-        setAttribute(Qt::WA_Resized, false);
-    }
-
-    if (isWindow() || parentWidget()->isVisible())
-        d->show_helper();
-
-    QEvent showToParentEvent(QEvent::ShowToParent);
-    QApplication::sendEvent(this, &showToParentEvent);
-}
 
 /*! \internal
 
@@ -4061,29 +4003,15 @@ void QWidgetPrivate::show_helper()
     data.in_show = false;  // reset qws optimization
 }
 
-/*!
+/*! \fn void QWidget::hide()
+
     Hides the widget.
 
     You almost never have to reimplement this function. If you need to
     do something after a widget is hidden, use hideEvent() instead.
 
-    \sa hideEvent(), isHidden(), show(), showMinimized(), isVisible(), close()
+    \sa hideEvent(), isExplicitlyHidden(), show(), showMinimized(), isVisible(), close()
 */
-
-void QWidget::hide()
-{
-    if (testAttribute(Qt::WA_WState_ExplicitShowHide) && testAttribute(Qt::WA_WState_Hidden))
-        return;
-
-    Q_D(QWidget);
-    setAttribute(Qt::WA_WState_Hidden);
-    if (testAttribute(Qt::WA_WState_ExplicitShowHide))
-        d->hide_helper();
-    else
-        setAttribute(Qt::WA_WState_ExplicitShowHide);
-    QEvent hideToParentEvent(QEvent::HideToParent);
-    QApplication::sendEvent(this, &hideToParentEvent);
-}
 
 /*!\internal
  */
@@ -4137,21 +4065,89 @@ void QWidgetPrivate::hide_helper()
 #endif
 }
 
-void QWidget::setShown(bool show)
+void QWidget::setVisible(bool visible)
 {
-    if (show)
-        this->show();
-    else
-        hide();
+    if (visible) { // show
+        if (testAttribute(Qt::WA_WState_ExplicitShowHide) && !testAttribute(Qt::WA_WState_Hidden))
+            return;
+
+        bool wasResized = testAttribute(Qt::WA_Resized);
+        Qt::WindowStates initialWindowState = windowState();
+
+        Q_D(QWidget);
+        if (isWindow()
+            && !testAttribute(Qt::WA_SetWindowIcon)
+            && (!d->extra || !d->extra->topextra || !d->extra->topextra->icon))
+            d->setWindowIcon_sys(qApp->windowIcon());
+
+        // polish if necessary
+        ensurePolished();
+
+        // remember that show was called explicitly
+        setAttribute(Qt::WA_WState_ExplicitShowHide);
+        // whether we need to inform the parent widget immediately
+        bool needUpdateGeometry = !isWindow() && testAttribute(Qt::WA_WState_Hidden);
+        // we are no longer hidden
+        setAttribute(Qt::WA_WState_Hidden, false);
+
+        if (needUpdateGeometry)
+            updateGeometry();
+
+#ifdef QT3_SUPPORT
+        QApplication::sendPostedEvents(this, QEvent::ChildInserted);
+#endif
+#ifndef QT_NO_LAYOUT
+        if (!isWindow() && parentWidget()->d_func()->layout)
+            parentWidget()->d_func()->layout->activate();
+#endif
+#ifndef QT_NO_LAYOUT
+        // activate our layout before we and our children become visible
+        if (d->layout)
+            d->layout->activate();
+#endif
+
+        // adjust size if necessary
+        if (!wasResized
+            && (isWindow() || !parentWidget()->d_func()->layout))  {
+            if (isWindow()) {
+                adjustSize();
+                if (windowState() != initialWindowState)
+                    setWindowState(initialWindowState);
+            } else {
+                adjustSize();
+            }
+            setAttribute(Qt::WA_Resized, false);
+        }
+
+        if (isWindow() || parentWidget()->isVisible())
+            d->show_helper();
+
+        QEvent showToParentEvent(QEvent::ShowToParent);
+        QApplication::sendEvent(this, &showToParentEvent);
+    } else { // hide
+        if (testAttribute(Qt::WA_WState_ExplicitShowHide) && testAttribute(Qt::WA_WState_Hidden))
+            return;
+
+        Q_D(QWidget);
+        setAttribute(Qt::WA_WState_Hidden);
+        if (testAttribute(Qt::WA_WState_ExplicitShowHide))
+            d->hide_helper();
+        else
+            setAttribute(Qt::WA_WState_ExplicitShowHide);
+        QEvent hideToParentEvent(QEvent::HideToParent);
+        QApplication::sendEvent(this, &hideToParentEvent);
+    }
 }
 
-void QWidget::setHidden(bool hide)
-{
-    if (hide)
-        this->hide();
-    else
-        show();
-}
+/*!\fn void QWidget::setHidden(bool hidden)
+
+    Convenience function, equivalent to setVisible(!\a hidden).
+*/
+
+/*!\fn void QWidget::setShown(bool shown)
+
+    Use setVisible(\a shown) instead.
+*/
 
 void QWidgetPrivate::showChildren(bool spontaneous)
 {
@@ -4226,7 +4222,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
             data.is_closing = 0;
             return false;
         }
-        if (!wasDeleted && !q->isHidden())
+        if (!wasDeleted && !q->isExplicitlyHidden())
             q->hide();
     }
 
@@ -4245,7 +4241,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
             if(qt_mac_is_macdrawer(w) || qt_mac_is_macdrawer(w))
                 continue;
 #endif
-            if (!w->isHidden()
+            if (!w->isExplicitlyHidden()
                 && !w->isDesktop()
                 && !w->isPopup()
                 && (!(w->isDialog() || w->testWFlags(Qt::WStyle_Tool)) || !w->parentWidget()))
@@ -4319,7 +4315,7 @@ bool QWidget::close()
     when the user minimizes the window, and a spontaneous show event
     when the window is restored again.
 
-    \sa show(), hide(), isHidden(), isVisibleTo(), isMinimized(),
+    \sa show(), hide(), isExplicitlyHidden(), isVisibleTo(), isMinimized(),
     showEvent(), hideEvent()
 */
 
@@ -4346,12 +4342,12 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
         return isVisible();
     const QWidget * w = this;
     while (w
-            && w->isShown()
+            && !w->isExplicitlyHidden()
             && !w->isWindow()
             && w->parentWidget()
             && w->parentWidget() != ancestor)
         w = w->parentWidget();
-    return w->isShown();
+    return !w->isExplicitlyHidden();
 }
 
 
@@ -4758,7 +4754,7 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::ShowWindowRequest:
-        if (isShown())
+        if (!isExplicitlyHidden())
             d->show_sys();
         break;
 
@@ -5845,7 +5841,7 @@ QWidget *QWidget::childAt(const QPoint &p) const
     for (int i = d->children.size(); i > 0 ;) {
         --i;
         QWidget *w = static_cast<QWidget *>(d->children.at(i));
-        if (w->isWidgetType() && !w->isWindow() && !w->isHidden() && w->geometry().contains(p)) {
+        if (w->isWidgetType() && !w->isWindow() && !w->isExplicitlyHidden() && w->geometry().contains(p)) {
             if (QWidget *t = w->childAt(p.x() - w->x(), p.y() - w->y()))
                 return t;
             // if WMouseNoMask is set the widget mask is ignored, if
@@ -5873,7 +5869,7 @@ QWidget *QWidget::childAt(const QPoint &p) const
 void QWidget::updateGeometry()
 {
 #ifndef QT_NO_LAYOUT
-    if (!isWindow() && isShown() && parentWidget()) {
+    if (!isWindow() && !isExplicitlyHidden() && parentWidget()) {
         if (parentWidget()->d_func()->layout)
             parentWidget()->d_func()->layout->update();
         else if (parentWidget()->isVisible())

@@ -275,7 +275,7 @@ Q_GUI_EXPORT void qt_wait_for_window_manager(QWidget* w)
 
 static void qt_change_net_wm_state(const QWidget* w, bool set, Atom one, Atom two = 0)
 {
-    if (!w->isShown()) // not managed by the window manager
+    if (w->isExplicitlyHidden()) // not managed by the window manager
         return;
 
     XEvent e;
@@ -2039,7 +2039,7 @@ void QWidgetPrivate::setWSGeometry()
         if (outsideRange) {
             XUnmapWindow(dpy, data.winid);
             q->setAttribute(Qt::WA_Mapped, false);
-        } else if (q->isShown()) {
+        } else if (!q->isExplicitlyHidden()) {
             mapWindow = true;
         }
     }

@@ -1536,7 +1536,7 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     // (if you change this please also check the layoutingLoop() testcase in
     // QTextEdit's autotests)
     if (lastUsedSize.isValid()
-        && d->vbar->isShown()
+        && !d->vbar->isExplicitlyHidden()
         && d->viewport->width() < lastUsedSize.width()
         && usedSize.height() < lastUsedSize.height()
         && usedSize.height() <= d->viewport->height())

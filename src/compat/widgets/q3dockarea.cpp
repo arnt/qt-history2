@@ -96,7 +96,7 @@ QSize Q3DockAreaLayout::sizeHint() const
     for (int i = 0; i < dockWindows->size(); ++i) {
         Q3DockWindow *dw = dockWindows->at(i);
         int plush = 0, plusw = 0;
-        if (dw->isHidden())
+        if (dw->isExplicitlyHidden())
             continue;
         if (hasHeightForWidth()) {
             if (y != dw->y())
@@ -277,7 +277,7 @@ QSize Q3DockAreaLayout::minimumSize() const
 
     for (int i = 0; i < dockWindows->size(); ++i) {
         Q3DockWindow *dw = dockWindows->at(i);
-        if (dw->isHidden())
+        if (dw->isExplicitlyHidden())
             continue;
         s = qMax(s, dock_strut(dw, orientation()));
     }
@@ -314,7 +314,7 @@ int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
     // go through all widgets in the dock
     for (int i = 0; i < dockWindows->size(); ++i) {
         Q3DockWindow *dw = dockWindows->at(i);
-        if (dw->isHidden())
+        if (dw->isExplicitlyHidden())
             continue;
         ++visibleWindows;
         // find position for the widget: This is the maximum of the
@@ -644,7 +644,7 @@ void Q3DockArea::moveDockWindow(Q3DockWindow *w, const QPoint &p, const QRect &r
     bool hasResizable = false;
     for (int i = 0; i < dockWindows.size(); ++i) {
         Q3DockWindow *dw = dockWindows.at(i);
-        if (dw->isHidden())
+        if (dw->isExplicitlyHidden())
             continue;
         if (dw->isResizeEnabled())
             hasResizable = true;
@@ -1130,7 +1130,7 @@ int Q3DockArea::maxSpace(int hint, Q3DockWindow *dw)
     int i = 0;
     do {
         w = dockWindows.at(index + (++i));
-    } while (i + 1 < (int)dockWindows.count() && (!w || w->isHidden()));
+    } while (i + 1 < (int)dockWindows.count() && (!w || w->isExplicitlyHidden()));
     if (!w || !w->isResizeEnabled() || i >= (int)dockWindows.count()) {
         if (orientation() == Qt::Horizontal)
             return dw->width();
@@ -1170,7 +1170,7 @@ void Q3DockArea::setFixedExtent(int d, Q3DockWindow *dw)
     QList<Q3DockWindow *> lst;
     for (int i = 0; i < dockWindows.size(); ++i) {
         Q3DockWindow *w = dockWindows.at(i);
-        if (w->isHidden())
+        if (w->isExplicitlyHidden())
             continue;
         if (orientation() == Qt::Horizontal) {
             if (dw->y() != w->y())
@@ -1232,7 +1232,7 @@ QTextStream &operator<<(QTextStream &ts, const Q3DockArea &dockArea)
         Q3DockWindow *dw = l.at(i);
         str += "[" + QString(dw->windowTitle()) + "," + QString::number((int)dw->offset()) +
                "," + QString::number((int)dw->newLine()) + "," + QString::number(dw->fixedExtent().width()) +
-               "," + QString::number(dw->fixedExtent().height()) + "," + QString::number((int)!dw->isHidden()) + "]";
+               "," + QString::number(dw->fixedExtent().height()) + "," + QString::number((int)!dw->isExplicitlyHidden()) + "]";
     }
     ts << str << endl;
 
