@@ -6297,6 +6297,8 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 	line = d->od->numLines-1;
     if (index < 0)
 	index = 0;
+    if (index > d->od->lines[line].length())
+	index = d->od->lines[line].length();
     
     QStringList strl = QStringList::split('\n', text, TRUE);
     int numNewLines = strl.count() - 1;
@@ -6394,7 +6396,7 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
     QFontMetrics fm( QScrollView::font() );
     int lWidth = 0;
     d->od->maxLineWidth = 0;
-    for (x = 0; x < d->od->numLines-1; x++) {
+    for (x = 0; x < d->od->numLines; x++) {
 	lWidth = fm.width(d->od->lines[x]);
 	if (lWidth > d->od->maxLineWidth)
 	    d->od->maxLineWidth = lWidth;
