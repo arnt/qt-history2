@@ -2669,11 +2669,21 @@ QSize QScrollView::sizeHint() const
     if ( d->use_cached_size_hint && d->cachedSizeHint.isValid() )
 	return d->cachedSizeHint;
 
-    int h = fontMetrics().height();
-    if ( h < 10 )
-	h = 10;
-    int f = 2 * frameWidth();
-    return QSize( (12 * h) + f, (8 * h) + f );
+    constPolish();
+    QSize sz = QSize( frameWidth() * 2, frameWidth() * 2 );
+    if ( d->policy > Manual ) {
+	QSVChildRec* r = d->children.first();
+	if ( r ) {
+	    QSize cs = r->child->sizeHint();
+	    if ( cs.isValid() )
+		sz += cs.boundedTo( r->child->maximumSize() );
+	    else
+		sz += r->child->size();
+        }
+    } else {
+	sz += QSize( contentsWidth(), contentsHeight() );
+    }
+    return sz;
 }
 
 
