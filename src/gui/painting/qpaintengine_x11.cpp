@@ -1370,6 +1370,13 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 
 void QX11PaintEngine::drawEllipse(const QRectF &rect)
 {
+    if (renderHints() & QPainter::Antialiasing) {
+        QPainterPath path;
+        path.addEllipse(rect);
+        QPolygonF poly = path.toFillPolygon();
+        drawPolygon(poly.constData(), poly.size(), QPaintEngine::OddEvenMode);
+        return;
+    }
     QRect r = rect.toRect();
     int x = r.x();
     int y = r.y();
