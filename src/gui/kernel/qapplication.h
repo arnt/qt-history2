@@ -99,7 +99,7 @@ public:
     static const QPixmap &windowIcon();
 
 
-    QWidget *mainWidget()  const;
+    static QWidget *mainWidget();
     virtual void setMainWidget(QWidget *);
     virtual void polish(QWidget *);
 
@@ -212,7 +212,7 @@ signals:
 
 public slots:
     void closeAllWindows();
-    void aboutQt();
+    static void aboutQt();
 
 protected:
 #if defined(Q_WS_QWS)

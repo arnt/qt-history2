@@ -3621,7 +3621,7 @@ void QSessionManager::requestPhase2()
     \endcode
 */
 
-QWidget *QApplication::mainWidget() const
+QWidget *QApplication::mainWidget()
 {
     return QApplicationPrivate::main_widget;
 }
