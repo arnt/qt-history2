@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#287 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#288 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1027,8 +1027,14 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
 			   int off_x, int off_y )
 {
+    QPixmap *pm = (QPixmap*)bg_pixmap;
+    // We must temporarily disable MemoryOptim since we need to access
+    // the pixmap's hbm and hdc
+    bool memOptim = pm->optimization() == QPixmap::MemoryOptim;
+    if ( memOptim )
+	pm->setOptimization( QPixmap::NormalOptim );
     if ( qt_winver == Qt::WV_NT ) {		// no brush size limitation
-	HBRUSH brush = CreatePatternBrush( bg_pixmap->hbm() );
+	HBRUSH brush = CreatePatternBrush( pm->hbm() );
 	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
 	if ( off_x || off_y ) {
 	    POINT p;
@@ -1041,7 +1047,7 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 	SelectObject( hdc, oldBrush );
 	DeleteObject( brush );
     } else {					// Windows 95 & 98
-	QPixmap tile = *bg_pixmap;
+	QPixmap tile = *pm;
 	int sw = tile.width(), sh = tile.height();
 	if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
 	    int tw = sw, th = sh;
@@ -1051,15 +1057,12 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 		th *= 2;
 	    tile.resize( tw, th );
 	    tile.setOptimization( QPixmap::BestOptim );
-	    qt_fill_tile( &tile, *bg_pixmap );
+	    qt_fill_tile( &tile, *pm );
 	}
-	bool tmp_dc = tile.handle() == 0;
-	if ( tmp_dc )
-	    tile.allocMemDC();
 	drawTile( hdc, x, y, w, h, tile, off_x, off_y );
-	if ( tmp_dc )
-	    tile.freeMemDC();
     }
+    if ( memOptim )
+	pm->setOptimization( QPixmap::MemoryOptim );
 }
 
 

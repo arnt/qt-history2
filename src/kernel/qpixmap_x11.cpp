@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#154 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -40,12 +40,12 @@
 #endif
 
 #include "qbitmap.h"
+#include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include <stdlib.h>
 #include "qt_x11.h"
-#include "qpaintdevicemetrics.h"
 #ifdef MITSHM
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -247,15 +247,12 @@ static void build_scale_table( uint **table, uint nBits )
   QPixmap member functions
  *****************************************************************************/
 
-QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
-
-
 /*!
   \internal
   Initializes the pixmap data.
 */
 
-void QPixmap::init( int w, int h, int d )
+void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
     static int serial = 0;
     int dd = x11Depth();
@@ -263,25 +260,19 @@ void QPixmap::init( int w, int h, int d )
     data = new QPixmapData;
     CHECK_PTR( data );
 
-    data->uninit   = TRUE;
-    data->bitmap   = FALSE;
-    data->selfmask = FALSE;
-    data->ser_no   = ++serial;
-    data->optim	   = defOptim;
-    data->mask	   = 0;
-    data->ximage   = 0;
-    data->maskgc   = 0;
+    memset( data, 0, sizeof(QPixmapData) );
+    data->count  = 1;
+    data->uninit = TRUE;
+    data->bitmap = bitmap;
+    data->ser_no = ++serial;
+    data->optim	 = optim;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
 	data->d = 1;
     else if ( d < 0 || d == dd )		// def depth pixmap
 	data->d = dd;
-    else					// invalid depth
-	data->d = 0;
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
-	data->w = data->h = 0;
-	data->d = 0;
 	hd = 0;
 #if defined(CHECK_RANGE)
 	if ( !make_null )
@@ -299,18 +290,12 @@ void QPixmap::init( int w, int h, int d )
 void QPixmap::deref()
 {
     if ( data && data->deref() ) {			// last reference lost
-	if ( data->mask ) {
+	if ( data->mask )
 	    delete data->mask;
-	    data->mask = 0;
-	}
-	if ( data->maskgc ) {
-	    XFreeGC( x11Display(), (GC)data->maskgc );
-	    data->maskgc = 0;
-	}
-	if ( data->ximage ) {
+	if ( data->ximage )
 	    qSafeXDestroyImage( (XImage*)data->ximage );
-	    data->ximage = 0;
-	}
+	if ( data->maskgc )
+	    XFreeGC( x11Display(), (GC)data->maskgc );
 	if ( hd && qApp ) {
 	    XFreePixmap( x11Display(), hd );
 	    hd = 0;
@@ -328,7 +313,7 @@ void QPixmap::deref()
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {						// for bitmaps only
-    init( 0, 0, 0 );
+    init( 0, 0, 0, FALSE, defOptim );
     if ( w <= 0 || h <= 0 )			// create null pixmap
 	return;
 
@@ -348,33 +333,6 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 					(char *)bits, w, h );
     if ( flipped_bits )				// Avoid purify complaint
 	delete [] flipped_bits;
-}
-
-/*!
-  Constructs a pixmap which is a copy of \e pixmap.
-*/
-
-QPixmap::QPixmap( const QPixmap &pixmap )
-    : QPaintDevice( QInternal::Pixmap )
-{
-    if ( pixmap.paintingActive() ) {		// make a deep copy
-	data = 0;
-	operator=( pixmap );
-    } else {
-	data = pixmap.data;
-	data->ref();
-	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
-	hd = pixmap.hd;				// copy QPaintDevice drawable
-    }
-}
-
-/*!
-  Destroys the pixmap.
-*/
-
-QPixmap::~QPixmap()
-{
-    deref();
 }
 
 
@@ -411,44 +369,6 @@ void QPixmap::detach()
 	XFreeGC( x11Display(), (GC)data->maskgc );
 	data->maskgc = 0;
     }
-}
-
-
-/*!
-  Assigns the pixmap \e pixmap to this pixmap and returns a reference to
-  this pixmap.
-*/
-
-QPixmap &QPixmap::operator=( const QPixmap &pixmap )
-{
-    if ( paintingActive() ) {
-#if defined(CHECK_STATE)
-	warning("QPixmap::operator=: Cannot assign to pixmap during painting");
-#endif
-	return *this;
-    }
-    pixmap.data->ref();				// avoid 'x = x'
-    deref();
-
-    if ( pixmap.paintingActive() ) {		// make a deep copy
-	init( pixmap.width(), pixmap.height(), pixmap.depth() );
-	data->uninit = FALSE;
-	data->bitmap = pixmap.data->bitmap;	// copy bitmap flag
-	data->optim  = pixmap.data->optim;	// copy optimization flag
-	if ( !isNull() ) {
-	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
-		    CopyROP, TRUE );
-	    if ( pixmap.mask() )
-		setMask( *pixmap.mask() );
-	}
-	pixmap.data->deref();
-    } else {
-	data = pixmap.data;
-	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
-	hd = pixmap.hd;				// copy QPaintDevice drawable
-	copyX11Data( &pixmap );			// copy x11Data
-    }
-    return *this;
 }
 
 
@@ -519,33 +439,6 @@ void QPixmap::setOptimization( Optimization optimization )
 	qSafeXDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
     }
-}
-
-/*!
-  Returns the default pixmap optimization setting.
-  \sa setDefaultOptimization(), setOptimization(), optimization()
-*/
-
-QPixmap::Optimization QPixmap::defaultOptimization()
-{
-    return defOptim;
-}
-
-/*!
-  Sets the default pixmap optimization.
-
-  All \e new pixmaps that are created will use this default optimization.
-  You may also set optimization for individual pixmaps using the
-  setOptimization() function.
-
-  The initial default optimization setting is \c QPixmap::Normal.
-
-  \sa defaultOptimization(), setOptimization(), optimization()
-*/
-
-void QPixmap::setDefaultOptimization( Optimization optimization )
-{
-    defOptim = optimization;
 }
 
 

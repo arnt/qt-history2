@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#101 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#102 $
 **
 ** Definition of QPixmap class
 **
@@ -34,7 +34,13 @@
 #endif // QT_H
 
 
-class Q_EXPORT QPixmap : public QPaintDevice, public Qt	// pixmap class
+#if defined(_WS_WIN_)
+// Internal pixmap memory optimization class for Windows 9x
+class QMultiCellPixmap;
+#endif
+
+
+class Q_EXPORT QPixmap : public QPaintDevice, public Qt
 {
 friend class QPaintDevice;
 friend class QPainter;
@@ -96,7 +102,7 @@ public:
     bool	loadFromData( const uchar *buf, uint len,
 			      const char* format,
 			      int conversion_flags );
-    bool	loadFromData( QByteArray data,
+    bool	loadFromData( const QByteArray &data,
 			      const char* format=0,
 			      int conversion_flags=0 );
     bool	save( const QString& fileName, const char* format ) const;
@@ -107,7 +113,7 @@ public:
 
     int		serialNumber()	const;
 
-    enum Optimization { NoOptim, NormalOptim, BestOptim };
+    enum Optimization { NoOptim, MemoryOptim=NoOptim, NormalOptim, BestOptim };
 
     Optimization	optimization() const;
     void		setOptimization( Optimization );
@@ -119,13 +125,25 @@ public:
     bool	isQBitmap() const;
 
 #if defined(_WS_WIN_)
-    HDC		allocMemDC();
-    void	freeMemDC();
+    // These functions are internal and used by Windows 9x only
+    bool	isMultiCellPixmap() const;
+    HDC		multiCellHandle() const;
+    HBITMAP	multiCellBitmap() const;
+    int		multiCellOffset() const;
+    int		allocCell();
+    void	freeCell();
 #endif
 
 protected:
     QPixmap( int w, int h, const uchar *data, bool isXbitmap );
     int metric( int ) const;
+
+#if defined(_WS_WIN_)
+    struct QMCPI {				// mem optim for win9x
+	QMultiCellPixmap *mcp;
+	int	offset;
+    };
+#endif
 
     struct QPixmapData : public QShared {	// internal pixmap data
 	QCOORD	w, h;
@@ -133,13 +151,18 @@ protected:
 	uint	uninit	 : 1;
 	uint	bitmap	 : 1;
 	uint	selfmask : 1;
-	uint	unused	 : 1;
+#if defined(_WS_WIN_)
+	uint	mcp	 : 1;
+#endif
 	int	ser_no;
 	QBitmap *mask;
 #if defined(_WS_WIN_)
-	HBITMAP	hbm;
 	void   *bits;
 	QPixmap *maskpm;
+	union {
+	    HBITMAP hbm;    // if mcp == FALSE
+	    QMCPI  *mcpi;   // if mcp == TRUE
+	} hbm_or_mcpi;
 #elif defined(_WS_X11_)
 	void   *ximage;
 	void   *maskgc;
@@ -148,7 +171,8 @@ protected:
     } *data;
 
 private:
-    void	init( int, int, int );
+    QPixmap( int w, int h, int depth, bool, Optimization );
+    void	init( int, int, int, bool, Optimization );
     void	deref();
     QPixmap	copy() const;
     static Optimization defOptim;
@@ -163,11 +187,7 @@ private:
 
 inline bool QPixmap::isNull() const
 {
-#if defined(_WS_X11_)
-    return hd == 0;
-#else
-    return data->hbm == 0;
-#endif
+    return data->w == 0;
 }
 
 inline void QPixmap::fill( const QWidget *w, const QPoint &ofs )
@@ -193,7 +213,7 @@ inline bool QPixmap::selfMask() const
 #if defined(_WS_WIN_)
 inline HBITMAP QPixmap::hbm() const
 {
-    return data->hbm;
+    return data->mcp ? 0 : data->hbm_or_mcpi.hbm;
 }
 #endif
 
@@ -211,6 +231,13 @@ inline bool QPixmap::isQBitmap() const
 {
     return data->bitmap;
 }
+
+#if defined(_WS_WIN_)
+inline bool QPixmap::isMultiCellPixmap() const
+{
+    return data->mcp;
+}
+#endif
 
 
 /*****************************************************************************

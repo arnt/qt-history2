@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#151 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -22,6 +22,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qwidget.h"
 #include "qbitmap.h"
+#include "qpaintdevicemetrics.h"
 #include "qpixmapcache.h"
 #include "qlist.h"
 #include "qintdict.h"
@@ -674,8 +675,8 @@ bool QPainter::begin( const QPaintDevice *pd )
     holdpal = 0;
 
     if ( testf(ExtDev) ) {			// external device
-	if ( !pdev->cmd(QPaintDevice::PdcBegin,this,0) ) {  // could not begin
-	    pdev = 0;
+	if ( !pdev->cmd(QPaintDevice::PdcBegin,this,0) ) {
+	    pdev = 0;				// could not begin
 	    return FALSE;
 	}
 	if ( tabstops )				// update tabstops for device
@@ -731,7 +732,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    }
 	    w->hdc = hdc;
 	}
-    } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
+    } else if ( dt == QInternal::Pixmap ) {	// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
@@ -740,8 +741,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    end();
 	    return FALSE;
 	}
-	pm->freeMemDC();
-	pm->allocMemDC();
+	if ( pm->isMultiCellPixmap() )		// disable multi cell
+	    pm->freeCell();
 	hdc = pm->handle();
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
@@ -858,9 +859,9 @@ bool QPainter::end()
 	}
     } else if ( pdev->devType() == QInternal::Pixmap ) {
 	QPixmap *pm = (QPixmap*)pdev;
-	pm->freeMemDC();
-	if ( pm->optimization() != QPixmap::NoOptim )
-	    pm->allocMemDC();
+	if ( pm->optimization() == QPixmap::MemoryOptim &&
+	     qt_winver != WV_NT )
+	    pm->allocCell();
     }
 
     flags = 0;
@@ -1799,7 +1800,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	if ( testf(ExtDev) || (txop == TxScale && pixmap.mask()) ||
 	     txop == TxRotShear ) {
 	    if ( sx != 0 || sy != 0 ||
-		 sw != pixmap.width() || sh != pixmap.height() ) {
+		 sw != pixmap.width() || sh != pixmap.height() ||
+		 pixmap.isMultiCellPixmap() ) {
 		QPixmap tmp( sw, sh, pixmap.depth() );
 		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE );
 		if ( pixmap.mask() ) {
@@ -1825,33 +1827,32 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    map( x, y, &x, &y );
     }
 
-
     if ( txop <= TxTranslate ) {		// use optimized bitBlt
 	if ( pixmap.mask() && pixmap.data->selfmask ) {
-	    QPixmap *pm	= (QPixmap*)&pixmap;
-	    bool tmp_dc	= pm->handle() == 0;
-	    if ( tmp_dc )
-	    	pm->allocMemDC();
 	    if ( qt_winver == WV_NT ) {
-		// ( The other method fails on NT )
-		MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy,
-			 pm->mask()->hbm(), sx, sy,
+		// The other method fails on NT
+		MaskBlt( hdc, x, y, sw, sh, pixmap.handle(), sx, sy, 
+			 pixmap.mask()->hbm(), sx, sy, 
 			 MAKEROP4(0x00aa0029,SRCCOPY) );
-	    }
-	    else {
+	    } else {
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 		COLORREF tc, bc;
 		b = (HBRUSH)SelectObject( hdc, b );
 		tc = SetTextColor( hdc, COLOR_VALUE(black) );
 		bc = SetBkColor( hdc, COLOR_VALUE(white) );
+		HDC pm_dc;
+		if ( pixmap.isMultiCellPixmap() ) {
+		    pm_dc = pixmap.multiCellHandle();
+		    sy += pixmap.multiCellOffset();
+		} else {
+		    pm_dc = pixmap.handle();
+		}
 		// PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
-		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
+		BitBlt( hdc, x, y, sw, sh, pm_dc, sx, sy, 0x00b8074a );
 		SetBkColor( hdc, bc );
 		SetTextColor( hdc, tc );
 		DeleteObject( SelectObject(hdc, b) );
 	    }
-	    if ( tmp_dc )
-		pm->freeMemDC();
 	} else {
 	    bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
 	}
@@ -1860,10 +1861,15 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     QPixmap *pm	  = (QPixmap*)&pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
-    bool tmp_dc	  = pm->handle() == 0;
-
-    if ( tmp_dc )
-	pm->allocMemDC();
+    HDC pm_dc;
+    int pm_offset;
+    if ( pm->isMultiCellPixmap() ) {
+	pm_dc = pm->multiCellHandle();
+	pm_offset = pm->multiCellOffset();
+    } else {
+	pm_dc = pm->handle();
+	pm_offset = 0;
+    }
 
     /*
      We now have either stretch or free xform
@@ -1877,7 +1883,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( txop == TxScale && !mask ) {
 	int w, h;
 	map( x, y, sw, sh, &x, &y, &w, &h );
-	StretchBlt( hdc, x, y, w, h, pm->handle(), sx,sy, sw,sh, SRCCOPY );
+	StretchBlt( hdc, x, y, w, h, pm_dc, sx,sy+pm_offset, sw,sh, SRCCOPY );
     } else {
 	QWMatrix mat( m11(), m12(),
 		      m21(), m22(),
@@ -1902,9 +1908,6 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	mat.map( 0, 0, &dx, &dy );
 	bitBlt( pdev, x - dx, y - dy, &pmx );
     }
-
-    if ( tmp_dc )
-	pm->freeMemDC();
 }
 
 
@@ -1975,13 +1978,14 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 	while ( tw*th < 32678 && th < h/2 )
 	    th *= 2;
 	QPixmap tile( tw, th, pixmap.depth() );
+	tile.setOptimization( QPixmap::BestOptim );
 	qt_fill_tile( &tile, pixmap );
 	if ( mask ) {
 	    QBitmap tilemask( tw, th );
+	    tilemask.setOptimization( QPixmap::BestOptim );
 	    qt_fill_tile( &tilemask, *mask );
 	    tile.setMask( tilemask );
 	}
-	tile.setOptimization( QPixmap::BestOptim );
 	drawTile( this, x, y, w, h, tile, sx, sy );
     } else {
 	drawTile( this, x, y, w, h, pixmap, sx, sy );
@@ -2095,7 +2099,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		    delete wx_bm;		// nothing to draw
 		    return;
 		}
-		wx_bm->allocMemDC();
 	    }
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		int fx = x;

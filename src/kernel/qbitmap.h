@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#35 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#36 $
 **
 ** Definition of QBitmap class
 **
@@ -40,7 +40,7 @@ public:
     QBitmap( int w, int h,  const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QSize &, const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QBitmap & );
-    QBitmap( const QString& fileName, const char *format=0 );
+    QBitmap( const QString &fileName, const char *format=0 );
 
     QBitmap &operator=( const QBitmap & );
     QBitmap &operator=( const QPixmap & );

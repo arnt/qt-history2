@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#66 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -83,28 +83,28 @@ bool qt_bitblt_bsm = FALSE;			// ######### experimental
 
 /*
   Draw transparent pixmap using the black source method.
+  The src_offset and mask_offset parameters are for multi cell
+  pixmaps.  sy includes src_offset.
 */
 
 static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
 				    int dx, int dy,
-				    const QPixmap *pixmap,
-				    const QBitmap *mask,
+				    HDC hdc_src,
+				    int src_width, int src_height,
+				    int src_depth,
+				    HDC hdc_mask,
 				    int sx, int sy, int sw, int sh,
+				    int src_offset, int mask_offset,
 				    QPixmap **blackSourcePixmap )
 {
-#if defined(CHECK_RANGE)
-    if ( !( sw > 0 && sh > 0 && pixmap->handle() && mask->handle() ) ) {
-	warning( "qDrawTransparentPixmap: Parameters out of range." );
-	return;
-    }
-#endif
     HDC	     hdc;
-    HDC	     hdc_buf = 0;
+    HDC	     hdc_buf;
     HBITMAP  hbm_buf, hbm_buf_old;
     int	     nx, ny;
 
     if ( destIsPixmap ) {			// blt directly into pixmap
 	hdc = hdc_dest;
+	hdc_buf = 0;
 	nx = dx;
 	ny = dy;
     } else {					// use off-screen buffer
@@ -119,20 +119,21 @@ static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
     QPixmap *bs = *blackSourcePixmap;
     bool newPixmap = bs == 0;
     if ( newPixmap ) {
-	bs = new QPixmap( sw, sh, pixmap->depth() );
+	bs = new QPixmap( src_width, src_height, src_depth );
 	CHECK_PTR( bs );
 	bs->setOptimization( QPixmap::NormalOptim );
-	BitBlt( bs->handle(), 0, 0, sw, sh, pixmap->handle(),
-		sx, sy, SRCCOPY );
-	QBitmap masknot( sw, sh );
+	BitBlt( bs->handle(), 0, 0, src_width, src_height,
+		hdc_src, 0, src_offset, SRCCOPY );
+	QBitmap masknot( src_width, src_height );
 	masknot.setOptimization( QPixmap::NormalOptim );
-	BitBlt( masknot.handle(), 0, 0, sw, sh, mask->handle(),
-		sx, sy, NOTSRCCOPY );
-	BitBlt( bs->handle(), 0, 0, sw, sh, masknot.handle(),
-		sx, sy, SRCAND );
+	BitBlt( masknot.handle(), 0, 0, src_width, src_height,
+		hdc_mask, 0, mask_offset, NOTSRCCOPY );
+	BitBlt( bs->handle(), 0, 0, src_width, src_height,
+		masknot.handle(), 0, 0, SRCAND );
     }
-    BitBlt( hdc, nx, ny, sw, sh, mask->handle(), sx, sy, SRCAND );
-    BitBlt( hdc, nx, ny, sw, sh, bs->handle(), sx, sy, SRCPAINT );
+    BitBlt( hdc, nx, ny, sw, sh, hdc_mask, sx, sy-src_offset+mask_offset,
+	    SRCAND );
+    BitBlt( hdc, nx, ny, sw, sh, bs->handle(), sx, sy-src_offset, SRCPAINT );
     *blackSourcePixmap = bs;
 
     if ( hdc_buf ) {				// blt off-screen buffer
@@ -162,13 +163,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( sw <= 0 ) {				// special width
 	if ( sw < 0 )
-	    sw = src->metric( QPaintDeviceMetrics::PdmWidth ) - sx;
+	    sw = src->metric(QPaintDeviceMetrics::PdmWidth) - sx;
 	else
 	    return;
     }
     if ( sh <= 0 ) {				// special height
 	if ( sh < 0 )
-	    sh = src->metric( QPaintDeviceMetrics::PdmHeight ) - sy;
+	    sh = src->metric(QPaintDeviceMetrics::PdmHeight) - sy;
 	else
 	    return;
     }
@@ -235,46 +236,47 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( td == QInternal::Pixmap )
 	((QPixmap*)dst)->detach();		// changes shared pixmap
 
-    HDC	 src_dc	 = src->hdc, dst_dc  = dst->hdc;
-    bool src_tmp = FALSE,    dst_tmp = FALSE;
+    HDC	 src_dc = src->hdc, dst_dc = dst->hdc;
+    bool src_tmp = FALSE, dst_tmp = FALSE;
+    int  src_offset = 0;
 
-    QPixmap *src_pm;
+    QPixmap *src_pm, *dst_pm;
     QBitmap *mask;
     if ( ts == QInternal::Pixmap ) {
 	src_pm = (QPixmap *)src;
-	mask   = ignoreMask ? 0 : (QBitmap *)src_pm->mask();
+	mask = ignoreMask ? 0 : (QBitmap *)src_pm->mask();
+	if ( src_pm->isMultiCellPixmap() ) {
+	    src_dc = src_pm->multiCellHandle();
+	    src_offset = src_pm->multiCellOffset();
+	    sy += src_offset;
+	}
     } else {
 	src_pm = 0;
 	mask   = 0;
-    }
-
-    if ( !src_dc ) {
-	switch ( ts ) {
-	    case QInternal::Widget:
-		src_dc = GetDC( ((QWidget*)src)->winId() );
-		break;
-	    case QInternal::Pixmap:
-		src_dc = src_pm->allocMemDC();
-		break;
+	if ( !src_dc && ts == QInternal::Widget ) {
+	    src_dc = GetDC( ((QWidget*)src)->winId() );
+	    src_tmp = TRUE;
 	}
-	src_tmp = TRUE;
     }
-    if ( !dst_dc ) {
-	switch ( td ) {
-	    case QInternal::Widget:
-		if ( ((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped) )
-		    dst_dc = GetWindowDC( ((QWidget*)dst)->winId() );
-		else
-		    dst_dc = GetDC( ((QWidget*)dst)->winId() );
-		break;
-	    case QInternal::Pixmap:
-		dst_dc = ((QPixmap*)dst)->allocMemDC();
-		break;
+    if ( td == QInternal::Pixmap ) {
+	dst_pm = (QPixmap *)dst;
+	if ( dst_pm->isMultiCellPixmap() ) {
+	    dst_dc = dst_pm->multiCellHandle();
+	    dy += dst_pm->multiCellOffset();
 	}
-	dst_tmp = TRUE;
+    } else {
+	dst_pm = 0;
+	if ( !dst_dc && td == QInternal::Widget ) {
+	    if ( ((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped) )
+		dst_dc = GetWindowDC( ((QWidget*)dst)->winId() );
+	    else
+		dst_dc = GetDC( ((QWidget*)dst)->winId() );
+	    dst_tmp = TRUE;
+	}
     }
-    if ( !(src_dc && dst_dc) )			// not ready, (why?)
-	return;
+#if defined(CHECK_NULL)
+    ASSERT( src_dc && dst_dc );
+#endif
 
     if ( mask ) {
 	if ( src_pm->data->selfmask ) {
@@ -289,18 +291,26 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    DeleteObject( SelectObject(dst_dc, b) );
 	} else if ( qt_winver == Qt::WV_95 || qt_winver == Qt::WV_98 ||
 		    qt_bitblt_bsm ) {
-	    bool mask_tmp = mask->handle() == 0;
-	    if ( mask_tmp )
-		mask->allocMemDC();
+	    HDC mask_dc;
+	    int mask_offset;
+	    if ( mask->isMultiCellPixmap() ) {
+		mask_dc = mask->multiCellHandle();
+		mask_offset = mask->multiCellOffset();
+	    } else {
+		mask_dc = mask->handle();
+		mask_offset = 0;
+	    }
 	    qDrawTransparentPixmap( dst_dc, td == QInternal::Pixmap,
-				    dx, dy, src_pm, mask,
-				    sx, sy, sw, sh, &src_pm->data->maskpm );
+				    dx, dy, src_dc, src_pm->width(),
+				    src_pm->height(), src_pm->depth(),
+				    mask_dc, sx, sy, sw, sh,
+				    src_offset, mask_offset,
+				    &src_pm->data->maskpm );
 	    if ( src_pm->optimization() != QPixmap::BestOptim ) {
+		// Don't keep black source pixmap
 		delete src_pm->data->maskpm;
 		src_pm->data->maskpm = 0;
 	    }
-	    if ( mask_tmp )
-		mask->freeMemDC();
 	} else {
 	    MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
 		     sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
@@ -308,25 +318,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     } else {
 	BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
     }
-    if ( src_tmp ) {
-	switch ( ts ) {
-	    case QInternal::Widget:
-		ReleaseDC( ((QWidget*)src)->winId(), src_dc );
-		break;
-	    case QInternal::Pixmap:
-		src_pm->freeMemDC();
-		break;
-	}
-    }
-    if ( dst_tmp ) {
-	switch ( td ) {
-	    case QInternal::Widget:
-		ReleaseDC( ((QWidget*)dst)->winId(), dst_dc );
-		break;
-	    case QInternal::Pixmap:
-		((QPixmap*)dst)->freeMemDC();
-		break;
-	}
-    }
-
+    if ( src_tmp )
+	ReleaseDC( ((QWidget*)src)->winId(), src_dc );
+    if ( dst_tmp )
+	ReleaseDC( ((QWidget*)dst)->winId(), dst_dc );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#83 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -26,12 +26,63 @@
 #include "qt_windows.h"
 
 
+extern Qt::WindowsVersion qt_winver;
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
-QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
+#define DATA_HBM	 data->hbm_or_mcpi.hbm
+#define DATA_MCPI	 data->hbm_or_mcpi.mcpi
+#define DATA_MCPI_MCP	 data->hbm_or_mcpi.mcpi->mcp
+#define DATA_MCPI_OFFSET data->hbm_or_mcpi.mcpi->offset
 
 
-void QPixmap::init( int w, int h, int d )
+/*
+  The QMultiCellPixmap class is strictly internal and used to
+  implement the setOptimization(MemoryOptim) feature for Win9x.
+*/
+
+struct QMCPFreeNode {
+    QMCPFreeNode( short o, short s ) : offset(o), size(s) {}
+    short offset;
+    short size;
+};
+
+typedef QList<QMCPFreeNode> QMCPFreeList;
+
+class QMultiCellPixmap {
+public:
+    QMultiCellPixmap( int width, int depth, int maxHeight );
+   ~QMultiCellPixmap();
+    bool isEmpty() const
+    {
+	QMCPFreeNode *n = free_list->last();
+	return n && n->offset == 0 && n->size == max_height;
+    }
+    QPixmap *sharedPixmap() const { return pixmap; }
+    HDC	     handle()	    const { return pixmap->handle(); }
+    HBITMAP  hbm()	    const { return pixmap->hbm(); }
+    int	     allocCell( int height );
+    void     freeCell( int offset, int height );
+    void     debugger(); // for debugging during development
+private:
+    QPixmap	  *pixmap;
+    int		   max_height;
+    QMCPFreeList *free_list;
+};
+
+
+static inline HDC alloc_mem_dc( HBITMAP hbm )
+{
+    HDC hdc = CreateCompatibleDC( qt_display_dc() );
+    if ( QColor::hPal() ) {
+	SelectPalette( hdc, QColor::hPal(), FALSE );
+	RealizePalette( hdc );
+    }
+    SelectObject( hdc, hbm );
+    return hdc;
+}
+
+
+void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
     static int serial = 0;
     int dd = defaultDepth();
@@ -39,26 +90,21 @@ void QPixmap::init( int w, int h, int d )
     data = new QPixmapData;
     CHECK_PTR( data );
 
-    data->uninit   = TRUE;
-    data->bitmap   = FALSE;
-    data->selfmask = FALSE;
-    data->ser_no   = ++serial;
-    data->optim	   = defOptim;
-    data->mask	   = 0;
-    data->hbm	   = 0;
-    data->bits     = 0;
-    data->maskpm   = 0;
+    memset( data, 0, sizeof(QPixmapData) );
+    data->count  = 1;
+    data->uninit = TRUE;
+    data->bitmap = bitmap;
+    data->ser_no = ++serial;
+    data->optim	 = optim;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
 	data->d = 1;
     else if ( d < 0 || d == dd )		// compatible pixmap
 	data->d = dd;
-    else
-	data->d = 0;
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
-	data->w = data->h = 0;
-	data->d = 0;
+	hdc = 0;
+	DATA_HBM = 0;
 #if defined(CHECK_RANGE)
 	if ( !make_null )			// invalid parameters
 	    warning( "QPixmap: Invalid pixmap parameters" );
@@ -67,40 +113,36 @@ void QPixmap::init( int w, int h, int d )
     }
     data->w = w;
     data->h = h;
-
-    if ( data->d == dd ) {			// compatible bitmap
-	data->hbm  = CreateCompatibleBitmap( qt_display_dc(), w, h );
-    } else {					// monocrome bitmap
-	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
+    if ( data->optim == MemoryOptim && qt_winver != WV_NT ) {
+        hdc = 0;
+	if ( allocCell() >= 0 )			// successful
+	    return;
     }
-    if ( data->optim != NoOptim )
-	allocMemDC();
+    if ( data->d == dd )			// compatible bitmap
+	DATA_HBM = CreateCompatibleBitmap( qt_display_dc(), w, h );
+    else					// monocrome bitmap
+	DATA_HBM = CreateBitmap( w, h, 1, 1, 0 );
+    hdc = alloc_mem_dc( DATA_HBM );
 }
 
 
 void QPixmap::deref()
 {
     if ( data && data->deref() ) {		// last reference lost
+	if ( data->mcp )
+	    freeCell();
+	if ( data->mask )
+	    delete data->mask;
+	if ( data->bits )
+	    delete [] data->bits;
+	if ( data->maskpm )
+	    delete data->maskpm;
 	if ( hdc ) {
 	    DeleteDC( hdc );
 	    hdc = 0;
 	}
-	if ( data->mask ) {
-	    delete data->mask;
-	    data->mask = 0;
-	}
-	if ( data->hbm ) {
-	    DeleteObject( data->hbm );
-	    data->hbm = 0;
-	}
-	if ( data->bits ) {
-	    delete [] data->bits;
-	    data->bits = 0;
-	}
-	if ( data->maskpm ) {
-	    delete data->maskpm;
-	    data->maskpm = 0;
-	}
+	if ( DATA_HBM )
+	    DeleteObject( DATA_HBM );
 	delete data;
     }
 }
@@ -109,7 +151,7 @@ void QPixmap::deref()
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {						// for bitmaps only
-    init( 0, 0, 0 );
+    init( 0, 0, 0, FALSE, NormalOptim );
     if ( w <= 0 || h <= 0 )			// create null pixmap
 	return;
 
@@ -140,29 +182,11 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 		*p++ = 0;
 	}
     }
-    data->hbm = CreateBitmap( w, h, 1, 1, newbits );
-    if ( data->optim != NoOptim )
-	allocMemDC();
+    DATA_HBM = CreateBitmap( w, h, 1, 1, newbits );
+    hdc = alloc_mem_dc( DATA_HBM );
     delete [] newbits;
-}
-
-QPixmap::QPixmap( const QPixmap &pixmap )
-    : QPaintDevice( QInternal::Pixmap )
-{
-    if ( pixmap.paintingActive() ) {		// make a deep copy
-	data = 0;
-	operator=( pixmap );
-    } else {
-	data = pixmap.data;
-	data->ref();
-	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
-	hdc = pixmap.hdc;			// copy QPaintDevice hdc
-    }
-}
-
-QPixmap::~QPixmap()
-{
-    deref();
+    if ( defOptim != NormalOptim )
+	setOptimization( defOptim );
 }
 
 
@@ -184,62 +208,6 @@ void QPixmap::detach()
 }
 
 
-HDC QPixmap::allocMemDC()
-{
-    if ( !hdc && !isNull() ) {
-	HDC hdcScreen = GetDC( 0 );
-	hdc = CreateCompatibleDC( hdcScreen );
-	if ( QColor::hPal() ) {
-	    SelectPalette( hdc, QColor::hPal(), FALSE );
-	    RealizePalette( hdc );
-	}
-	SelectObject( hdc, data->hbm );
-	ReleaseDC( 0, hdcScreen );
-    }
-    return hdc;
-}
-
-void QPixmap::freeMemDC()
-{
-    if ( hdc ) {
-	DeleteDC( hdc );
-	hdc = 0;
-    }
-}
-
-
-QPixmap &QPixmap::operator=( const QPixmap &pixmap )
-{
-    if ( paintingActive() ) {
-#if defined(CHECK_STATE)
-	warning("QPixmap::operator=: Cannot assign to pixmap during painting");
-#endif
-	return *this;
-    }
-    pixmap.data->ref();				// avoid 'x = x'
-    deref();
-
-    if ( pixmap.paintingActive() ) {		// make a deep copy
-	init( pixmap.width(), pixmap.height(), pixmap.depth() );
-	data->uninit = FALSE;
-	data->bitmap = pixmap.data->bitmap;	// copy bitmap flag
-	data->optim  = pixmap.data->optim;	// copy optimization flag
-	if ( !isNull() ) {
-	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
-		    CopyROP, TRUE );
-	    if ( pixmap.mask() )
-		setMask( *pixmap.mask() );
-	}
-	pixmap.data->deref();
-    } else {
-	data = pixmap.data;
-	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
-	hdc = pixmap.hdc;			// copy QPaintDevice drawable
-    }
-    return *this;
-}
-
-
 int QPixmap::defaultDepth()
 {
     static int dd = 0;
@@ -254,9 +222,7 @@ void QPixmap::setOptimization( Optimization optimization )
     if ( optimization == data->optim )
 	return;
     data->optim = optimization;
-    if ( paintingActive() )			// wait until QPainter::end()
-	return;
-    if ( optimization == NoOptim ) {
+    if ( optimization == MemoryOptim ) {
 	if ( data->bits ) {
 	    delete [] data->bits;
 	    data->bits = 0;
@@ -265,17 +231,12 @@ void QPixmap::setOptimization( Optimization optimization )
 	    delete data->maskpm;
 	    data->maskpm = 0;
 	}
-	if ( data->count == 1 )			// affects non-shared hdc
-	    freeMemDC();
+	if ( qt_winver != WV_NT )
+	    allocCell();
     } else {
-	if ( data->count == 1 )			// affects non-shared hdc
-	    allocMemDC();
+	if ( data->mcp )
+	    freeCell();
     }
-}
-
-void QPixmap::setDefaultOptimization( Optimization optimization )
-{
-    defOptim = optimization;
 }
 
 
@@ -284,59 +245,73 @@ void QPixmap::fill( const QColor &fillColor )
     if ( isNull() )
 	return;
     detach();					// detach other references
-    bool tmp_hdc = hdc == 0;
-    if ( tmp_hdc )
-	allocMemDC();
-    if ( fillColor == black ) {
-	PatBlt( hdc, 0, 0, data->w, data->h, BLACKNESS );
-    } else if ( fillColor == white ) {
-	PatBlt( hdc, 0, 0, data->w, data->h, WHITENESS );
+    HDC dc;
+    int sy;
+    if ( data->mcp ) {				// multi-cell pixmap
+	dc = DATA_MCPI_MCP->handle();
+	sy = DATA_MCPI_OFFSET;
     } else {
-	HANDLE hbrush = CreateSolidBrush( fillColor.pixel() );
-	HANDLE hb_old = SelectObject( hdc, hbrush );
-	PatBlt( hdc, 0, 0, width(), height(), PATCOPY );
-	SelectObject( hdc, hb_old );
-	DeleteObject( hbrush );
+	dc = hdc;
+	sy = 0;
     }
-    if ( tmp_hdc )
-	freeMemDC();
+    if ( fillColor == black ) {
+	PatBlt( dc, 0, sy, data->w, data->h, BLACKNESS );
+    } else if ( fillColor == white ) {
+	PatBlt( dc, 0, sy, data->w, data->h, WHITENESS );
+    } else {
+	HBRUSH hbrush = CreateSolidBrush( fillColor.pixel() );
+	HBRUSH hb_old = (HBRUSH)SelectObject( dc, hbrush );
+	PatBlt( dc, 0, sy, width(), height(), PATCOPY );
+	DeleteObject( SelectObject(dc, hb_old) );
+    }
 }
 
 
 int QPixmap::metric( int m ) const
 {
-    int val;
-    if ( m == QPaintDeviceMetrics::PdmWidth )
-	val = width();
-    else if ( m == QPaintDeviceMetrics::PdmHeight ) {
-	val = height();
+    if ( m == QPaintDeviceMetrics::PdmWidth ) {
+	return width();
+    } else if ( m == QPaintDeviceMetrics::PdmHeight ) {
+	return height();
     } else {
-	HDC gdc = GetDC( 0 );
+	int val;
+	HDC dc;
+	QPixmap *spm;
+	if ( data->mcp ) {
+	    spm = DATA_MCPI_MCP->sharedPixmap();
+	    dc  = spm->handle();
+	} else {
+	    spm = 0;
+	    dc  = handle();
+	}
 	switch ( m ) {
-	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = GetDeviceCaps( gdc, HORZSIZE );
-	    break;
-	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = GetDeviceCaps( gdc, VERTSIZE );
-	    break;
-	case QPaintDeviceMetrics::PdmNumColors:
-	    if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )
-		val = GetDeviceCaps( gdc, SIZEPALETTE );
-	    else
-		val = GetDeviceCaps( gdc, NUMCOLORS );
-	    break;
-	case QPaintDeviceMetrics::PdmDepth:
-	    val = GetDeviceCaps( gdc, PLANES );
-	    break;
-	default:
-	    val = 0;
+	    case QPaintDeviceMetrics::PdmWidthMM:
+		val = GetDeviceCaps( dc, HORZSIZE );
+		if ( spm )
+		    val = val * width() / spm->width();
+		break;
+	    case QPaintDeviceMetrics::PdmHeightMM:
+		val = GetDeviceCaps( dc, VERTSIZE );
+		if ( spm )
+		    val = val * height() / spm->height();
+		break;
+	    case QPaintDeviceMetrics::PdmNumColors:
+		if ( GetDeviceCaps(dc, RASTERCAPS) & RC_PALETTE )
+		    val = GetDeviceCaps( dc, SIZEPALETTE );
+		else
+		    val = GetDeviceCaps( dc, NUMCOLORS );
+		break;
+	    case QPaintDeviceMetrics::PdmDepth:
+		val = GetDeviceCaps( dc, PLANES );
+		break;
+	    default:
+		val = 0;
 #if defined(CHECK_RANGE)
-	    warning( "QPixmap::metric: Invalid metric command" );
+		warning( "QPixmap::metric: Invalid metric command" );
 #endif
 	}
-	ReleaseDC( 0, gdc );
+	return val;
     }
-    return val;
 }
 
 
@@ -364,7 +339,6 @@ QImage QPixmap::convertToImage() const
     }
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
-
     int	  bmi_data_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = new char[bmi_data_len];
     memset( bmi_data, 0, bmi_data_len );
@@ -381,7 +355,19 @@ QImage QPixmap::convertToImage() const
     bmh->biClrImportant	  = 0;
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
 
-    GetDIBits( handle(), hbm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS );
+    HDC dc;
+    HBITMAP bm;
+    int sy;
+    if ( data->mcp ) {
+	dc = DATA_MCPI_MCP->handle();
+	bm = DATA_MCPI_MCP->hbm();
+	sy = DATA_MCPI_OFFSET;
+    } else {
+	dc = handle();
+	bm = DATA_HBM;
+	sy = 0;
+    }
+    GetDIBits( dc, bm, sy, h, image.bits(), bmi, DIB_RGB_COLORS );
 
 #if 0
     #error "Need to take QPixmap::mask() into account here, "\
@@ -423,8 +409,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		       (conversion_flags & ColorMode_Mask)==MonoOnly );
 
     if ( force_mono ) {				// must be monochrome
-	if ( d != 1 ) {
-	    image = image.convertDepth( 1, conversion_flags );	// dither
+	if ( d != 1 ) {				// dither
+	    image = image.convertDepth( 1, conversion_flags );
 	    d = 1;
 	}
     } else {					// can be both
@@ -442,7 +428,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		QRgb c1 = image.color(1);
 		conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
 	    } else {
-		// eg. 1-colour monochrome images (they do exist).
+		// eg. 1-color monochrome images (they do exist).
 		conv8 = TRUE;
 	    }
 	}
@@ -468,15 +454,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
     } else {
 	// different size or depth, make a new pixmap
-	QPixmap pm( w, h, d == 1 ? 1 : -1 );
-	pm.data->bitmap = data->bitmap;		// keep is-a flag
-	pm.data->optim  = data->optim;		// keep optimization flag
+	QPixmap pm(w, h, d == 1 ? 1 : -1, data->bitmap, data->optim);
 	*this = pm;
     }
-
-    bool tmp_dc = handle() == 0;
-    if ( tmp_dc )
-	allocMemDC();
 
     int	  ncols	   = image.numColors();
     char *bmi_data = new char[sizeof(BITMAPINFO)+sizeof(QRgb)*ncols];
@@ -502,13 +482,21 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	r->rgbRed   = qRed  ( c );
 	r->rgbReserved = 0;
     }
-    SetDIBitsToDevice( handle(), 0, 0, w, h, 0, 0, 0, h,
+
+    HDC dc;
+    int sy;
+    if ( data->mcp ) {
+	dc = DATA_MCPI_MCP->handle();
+	sy = DATA_MCPI_OFFSET;
+    } else {
+	dc = handle();
+	sy = 0;
+    }
+    SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		       image.bits(), bmi, DIB_RGB_COLORS );
     delete [] bmi_data;
 
     data->uninit = FALSE;
-    if ( tmp_dc )
-	freeMemDC();
 
     if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
@@ -535,14 +523,18 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	    h = (r.bottom - r.top) + 1;
     }
     QPixmap pm( w, h );
-    bool tmp_hdc = pm.hdc == 0;
-    if ( tmp_hdc )
-	pm.allocMemDC();
+    HDC dc;
+    int sy;
+    if ( pm.data->mcp ) {
+	dc = pm.DATA_MCPI_MCP->handle();
+	sy = pm.DATA_MCPI_OFFSET;
+    } else {
+	dc = pm.handle();
+	sy = 0;
+    }
     HDC src_dc = GetDC( window );
-    BitBlt( pm.hdc, 0, 0, w, h, src_dc, x, y, SRCCOPY );
+    BitBlt( dc, 0, sy, w, h, src_dc, x, y, SRCCOPY );
     ReleaseDC( window, src_dc );
-    if ( tmp_hdc )
-	pm.freeMemDC();
     return pm;
 }
 
@@ -558,7 +550,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     int	   bpp;					// bits per pixel
     bool   depth1 = depth() == 1;
     int	   y;
-    bool   src_tmp, dst_tmp;
 
     if ( isNull() )				// this is a null pixmap
 	return copy();
@@ -588,8 +579,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
 
-    QPixmap *self = (QPixmap *)this;
-
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
@@ -598,33 +587,24 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	w = qRound( mat.m11()*ws );
 	h = QABS( h );
 	w = QABS( w );
-	if ( !self->handle() ) {
-	    self->allocMemDC();
-	    src_tmp = TRUE;
+	HDC dc;
+	int sy;
+	if ( data->mcp ) {
+	    dc = DATA_MCPI_MCP->handle();
+	    sy = DATA_MCPI_OFFSET;
 	} else {
-	    src_tmp = FALSE;
+	    dc = handle();
+	    sy = 0;
 	}
 	QPixmap pm( w, h, depth() );		// scale the pixmap
-	if ( !pm.handle() ) {
-	    pm.allocMemDC();
-	    dst_tmp = TRUE;
-	} else {
-	    dst_tmp = FALSE;
-	}
+	if ( pm.optimization() == MemoryOptim )
+	    pm.setOptimization( NormalOptim );
 	SetStretchBltMode( pm.handle(), COLORONCOLOR );
-	StretchBlt( pm.handle(), 0, 0, w, h, self->handle(),
-		    0, 0, ws, hs, SRCCOPY );
-	if ( dst_tmp )
-	    pm.freeMemDC();
-	if ( src_tmp )
-	    self->freeMemDC();
-	QPixmap *m = data->mask;
-	if ( m ) {
-	    if ( m->data == data )		// pixmap == mask
-		pm.setMask( *((QBitmap*)(&pm)) );
-	    else
-		pm.setMask( data->mask->xForm(matrix) );
-	}
+	StretchBlt( pm.handle(), 0, 0, w, h, dc,
+		    0, sy, ws, hs, SRCCOPY );
+	if ( data->mask )
+	    pm.setMask( data->selfmask ? *((QBitmap*)(&pm)) :
+				         data->mask->xForm(matrix) );
 	return pm;
     } else {					// rotation or shearing
 	QPointArray a( QRect(0,0,ws,hs) );
@@ -640,13 +620,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	QPixmap pm;
 	pm.data->bitmap = data->bitmap;
 	return pm;
-    }
-
-    if ( !self->handle() ) {
-	self->allocMemDC();
-	src_tmp = TRUE;
-    } else {
-	src_tmp = FALSE;
     }
 
     bpp  = depth();
@@ -677,16 +650,23 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = 0;
 
+    HDC dc;
+    HBITMAP bm;
+    int sy;
+    if ( data->mcp ) {
+	dc = DATA_MCPI_MCP->handle();
+	bm = DATA_MCPI_MCP->hbm();
+	sy = DATA_MCPI_OFFSET;
+    } else {
+	dc = handle();
+	bm = DATA_HBM;
+	sy = 0;
+    }
     int result;
-    result = GetDIBits( handle(), hbm(), 0, hs, sptr, bmi, DIB_RGB_COLORS );
-
-    if ( src_tmp )
-	self->freeMemDC();
+    result = GetDIBits( dc, bm, sy, hs, sptr, bmi, DIB_RGB_COLORS );
 
     if ( !result ) {				// error, return null pixmap
-	QPixmap pm;
-	pm.data->bitmap = data->bitmap;
-	return pm;
+	return QPixmap( 0, 0, 0, data->bitmap, data->optim );
     }
 
     dbpl   = ((w*bpp+31)/32)*4;
@@ -781,8 +761,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #if defined(CHECK_RANGE)
 		warning( "QPixmap::xForm: Display not supported (bpp=%d)",bpp);
 #endif
-		QPixmap pm;
-		return pm;
+		return QPixmap( 0, 0, 0, data->bitmap, data->optim );
 		}
 	    }
 	} else {				// mono bitmap LSB first
@@ -814,30 +793,25 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
     delete [] sptr;
 
-    QPixmap pm( w, h, depth() );
+    QPixmap pm( w, h, depth(), data->bitmap, data->optim );
     pm.data->uninit = FALSE;
-    pm.data->bitmap = data->bitmap;
-    if ( !pm.handle() ) {
-	pm.allocMemDC();
-	dst_tmp = TRUE;
-    } else {
-	dst_tmp = FALSE;
-    }
     bmh->biWidth  = w;
     bmh->biHeight = -h;
     bmh->biSizeImage = dbytes;
-    SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
+    if ( pm.data->mcp ) {
+	dc = pm.DATA_MCPI_MCP->handle();
+	sy = pm.DATA_MCPI_OFFSET;
+    } else {
+	dc = pm.handle();
+	sy = 0;
+    }
+    SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		       dptr, bmi, DIB_RGB_COLORS );
     delete [] bmi_data;
     delete [] dptr;
-    if ( dst_tmp )
-	pm.freeMemDC();
-    if ( data->mask ) {
-	if ( data->selfmask )			// pixmap == mask
-	    pm.setMask( *((QBitmap*)(&pm)) );
-	else
-	    pm.setMask( data->mask->xForm(matrix) );
-    }
+    if ( data->mask )
+	pm.setMask( data->selfmask ? *((QBitmap*)(&pm)) :
+				     data->mask->xForm(matrix) );
     return pm;
 }
 
@@ -866,4 +840,279 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
     QWMatrix mat( 1.0, 0.0, 0.0, 1.0, -xmin, -ymin );
     mat = matrix * mat;
     return mat;
+}
+
+
+HDC QPixmap::multiCellHandle() const
+{
+    return data->mcp ? DATA_MCPI_MCP->handle() : 0;
+}
+
+HBITMAP QPixmap::multiCellBitmap() const
+{
+    return data->mcp ? DATA_MCPI_MCP->hbm() : 0;
+}
+
+int QPixmap::multiCellOffset() const
+{
+    return data->mcp ? DATA_MCPI_OFFSET : 0;
+}
+
+
+/*
+  Implementation of internal QMultiCellPixmap class.
+*/
+
+QMultiCellPixmap::QMultiCellPixmap( int width, int depth, int maxHeight )
+{
+    // Start with a small pixmap first and expand as needed
+    int height = width * 4;
+    // Set def optim to normal to avoid recursion
+    QPixmap::Optimization opt = QPixmap::defaultOptimization();
+    QPixmap::setDefaultOptimization( QPixmap::NormalOptim ); 
+    pixmap = new QPixmap( width, height, depth );
+    pixmap->detach();				// clears uninit flag
+    QPixmap::setDefaultOptimization( opt );
+    max_height = maxHeight;
+    free_list = new QMCPFreeList;
+    free_list->setAutoDelete( TRUE );
+    // The whole pixmap area can be allocated
+    free_list->append( new QMCPFreeNode(0,max_height) );
+}
+
+QMultiCellPixmap::~QMultiCellPixmap()
+{
+    delete free_list;
+    delete pixmap;
+}
+
+int QMultiCellPixmap::allocCell( int height )
+{
+    QMCPFreeNode *n = free_list->first();
+    while ( n && n->size < height )		// find free space
+	n = free_list->next();
+    if ( !n )					// not enough space
+	return -1;
+    int offset = n->offset;
+    if ( n->size > height ) {			// alloc part of free space
+	n->offset += height;
+	n->size -= height;
+    } else {					// perfect fit, height == size
+	ASSERT( n->size == height );
+	free_list->remove();			// remove the node
+    }
+    int pm_height = pixmap->height();
+    while ( offset + height > pm_height )
+	pm_height *= 2;
+    if ( pm_height > pixmap->height() )		// expand pixmap
+	pixmap->resize( pixmap->width(), pm_height );
+    return offset;
+}
+
+void QMultiCellPixmap::freeCell( int offset, int size )
+{
+    QMCPFreeNode *n = free_list->first();
+    QMCPFreeNode *p = 0;
+    while ( n && n->offset < offset ) {
+	p = n;
+	n = free_list->next();
+    }
+    if ( p && p->offset + p->size == offset ) {
+	// The previous free node is adjacent to the cell we are freeing up,
+	// then expand the size of the prev node to include this space.
+	p->size += size;
+	if ( n && p->offset + p->size == n->offset ) {
+	    // If the next node comes after the prev node, collapse them.
+	    p->size += n->size;
+	    free_list->remove();	// removes the current node (i.e. n)
+	}
+    } else if ( n ) {
+	// We have found the first free node after the cell.
+	if ( offset + size == n->offset ) {
+	    // The next free node comes right after the freed up area, then
+	    // include this area.
+	    n->offset -= size;
+	    n->size   += size;
+	} else {
+	    // Insert a new free node before this one.
+	    free_list->insert( free_list->at(),
+			       new QMCPFreeNode(offset,size) );
+	}
+    } else {
+	// n == 0, this means the free_list is empty or that the cell is
+	// after the last free block (but still not adjacent to p),
+	// then append a new free node.
+	free_list->append( new QMCPFreeNode(offset,size) );
+    }
+}
+
+
+/*
+  We have internal lists of QMultiCellPixmaps; 5 for color pixmaps and
+  5 for mono pixmaps/bitmaps.  There is one list for pixmaps with a
+  width 1..16, 17..32, 33..64, 65..128, 129..256.
+*/
+
+typedef QList<QMultiCellPixmap>  QMultiCellPixmapList;
+typedef QMultiCellPixmapList   *pQMultiCellPixmapList;
+
+static const int mcp_num_lists = 10;
+static bool	 mcp_lists_init = FALSE;
+static pQMultiCellPixmapList mcp_lists[mcp_num_lists];
+
+static void init_mcp()
+{
+    if ( !mcp_lists_init ) {
+	mcp_lists_init = TRUE;
+	for ( int i=0; i<mcp_num_lists; i++ )
+	    mcp_lists[i] = 0;
+    }
+}
+
+static int index_of_mcp_list( int width, bool mono, int *size=0 )
+{
+    if ( width <= 0 )
+	return -1;
+    int i;
+    int s = 16;
+    for ( i=0; i<5; i++ ) {			// try s=16,32,64,128,256
+	if ( width <= s )			// index= 0, 1, 2,  3,  4
+	    break;
+	s *= 2;
+    }
+    if ( i == 5 )				// too big pixmap
+	return -1;
+    if ( mono )					// mono: index 5,6, ...
+	i += 5;
+    if ( size )
+	*size = s;
+    return i;
+}
+
+
+int QPixmap::allocCell()
+{
+    if ( qt_winver == WV_NT )			// only for Windows 9x
+	return -1;
+    if ( !mcp_lists_init )
+	init_mcp();
+    if ( data->mcp )				// cell already alloc'd
+	freeCell();
+    int s;
+    int i = index_of_mcp_list(width(), depth() == 1, &s);
+    if ( i < 0 )				// too large width
+	return -1;
+    if ( !mcp_lists[i] ) {
+	mcp_lists[i] = new QMultiCellPixmapList;
+	mcp_lists[i]->setAutoDelete( TRUE );
+    }
+    QMultiCellPixmapList *list = mcp_lists[i];
+    QMultiCellPixmap     *mcp  = list->first();
+    int offset = -1;
+    while ( mcp && offset < 0 ) {
+	offset = mcp->allocCell( height() );
+	if ( offset < 0 )
+	    mcp = list->next();
+    }
+    if ( offset < 0 ) {				// could not alloc
+	mcp = new QMultiCellPixmap( s, depth(), 8192 );
+	CHECK_PTR( mcp );
+	offset = mcp->allocCell( height() );
+	if ( offset < 0 ) {			// height() > total height
+	    delete mcp;
+	    return offset;
+	}
+	list->append( mcp );
+    } 
+    if ( hdc ) {				// copy into multi cell pixmap
+	BitBlt( mcp->handle(), 0, offset, width(), height(), handle(),
+		0, 0, SRCCOPY );
+	DeleteDC( hdc );
+	hdc = 0;
+	DeleteObject( DATA_HBM );
+	DATA_HBM = 0;	
+    }
+    data->mcp = TRUE;
+    DATA_MCPI = new QMCPI;
+    CHECK_PTR( DATA_MCPI );
+    DATA_MCPI_MCP = mcp;
+    DATA_MCPI_OFFSET = offset;
+    return offset;
+}
+
+
+void QPixmap::freeCell()
+{
+    if ( !mcp_lists_init || !data->mcp )
+	return;
+    QMultiCellPixmap *mcp = DATA_MCPI_MCP;
+    int offset = DATA_MCPI_OFFSET;
+    data->mcp = FALSE;
+    delete DATA_MCPI;
+    DATA_MCPI = 0;
+    ASSERT( hdc == 0 );
+    if ( QApplication::closingDown() ) {	// app terminated
+	DATA_HBM = 0;
+	hdc = 0;
+    } else {
+	if ( data->d == defaultDepth() )
+	    DATA_HBM = CreateCompatibleBitmap( qt_display_dc(), data->w, data->h);
+	else
+	    DATA_HBM = CreateBitmap( data->w, data->h, 1, 1, 0 );
+	hdc = alloc_mem_dc( DATA_HBM );
+	BitBlt( hdc, 0, 0, data->w, data->h, mcp->handle(), 0, offset, SRCCOPY );
+    }
+    mcp->freeCell( offset, data->h );
+    if ( mcp->isEmpty() ) {			// no more cells left
+	int i = index_of_mcp_list(width(),depth()==1,0);
+	ASSERT( i >= 0 && mcp_lists[i] );
+	mcp_lists[i]->remove( mcp );
+	if ( mcp_lists[i]->isEmpty() ) {
+	    delete mcp_lists[i];
+	    mcp_lists[i] = 0;
+	}
+    }
+}
+
+void QMultiCellPixmap::debugger()
+{
+    debug( "  Multi cell pixmap %d x %d x %d (%p)",
+	   pixmap->width(), max_height, pixmap->depth(), this );
+    debug( "    Actual pixmap height = %d", pixmap->height() );
+    debug( "    Free List" );
+    QMCPFreeNode *n = free_list->first();
+    while ( n  ) {
+	debug( "      Offset %4d, Size %3d", n->offset, n->size );
+	n = free_list->next();
+    }
+    debug( "      Num free nodes = %d", free_list->count() );
+}
+
+
+Q_EXPORT void mcp_debugger()
+{
+    int i, s=16;
+    const char *info = "pixmaps";
+    bool nothing = TRUE;
+    debug( "MCP DEBUGGER" );
+    debug( "------------" );
+    for ( i=0; i<mcp_num_lists; i++ ) {
+	if ( i == 5 ) {
+	    s = 16;
+	    info = "mono pixmaps";
+	}
+	if ( mcp_lists[i] ) {
+	    nothing = FALSE;
+	    debug( "Multi cell list %d, %s, size<=%d, number of lists = %d",
+		   i, info, s, mcp_lists[i]->count() );
+	    QMultiCellPixmap *mcp = mcp_lists[i]->first();
+	    while ( mcp ) {
+		mcp->debugger();
+		mcp = mcp_lists[i]->next();
+	    }
+	}
+    }
+    if ( nothing )
+	debug( "No internal info" );
+    debug( "MCP DONE\n" );
 }

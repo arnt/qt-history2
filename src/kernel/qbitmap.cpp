@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#40 $
 **
 ** Implementation of QBitmap class
 **
@@ -25,6 +25,7 @@
 
 #include "qbitmap.h"
 #include "qimage.h"
+
 
 /*!
   \class QBitmap qbitmap.h
@@ -59,6 +60,7 @@
   Classes\endlink
 */
 
+
 /*!
   Constructs a null bitmap.
   \sa QPixmap::isNull()
@@ -68,6 +70,7 @@ QBitmap::QBitmap()
 {
     data->bitmap = TRUE;
 }
+
 
 /*!
   Constructs a bitmap with \e w width and \e h height.
@@ -84,6 +87,7 @@ QBitmap::QBitmap( int w, int h, bool clear )
 	fill( Qt::color0 );
 }
 
+
 /*!
   Overloaded constructor; takes a QSize parameter instead of \e (w,h).
 */
@@ -95,6 +99,7 @@ QBitmap::QBitmap( const QSize &size, bool clear )
     if ( clear )
 	fill( Qt::color0 );
 }
+
 
 /*!
   Constructs a bitmap with \e w width and \e h height and sets the contents
@@ -117,6 +122,7 @@ QBitmap::QBitmap( int w, int h, const uchar *bits, bool isXbitmap )
     data->bitmap = TRUE;
 }
 
+
 /*!
   Overloaded constructor; takes a QSize parameter instead of \e (w,h).
 */
@@ -127,6 +133,7 @@ QBitmap::QBitmap( const QSize &size, const uchar *bits, bool isXbitmap )
     data->bitmap = TRUE;
 }
 
+
 /*!
   Constructs a bitmap which is a copy of \e bitmap.
 */
@@ -135,6 +142,7 @@ QBitmap::QBitmap( const QBitmap &bitmap )
     : QPixmap( bitmap )
 {
 }
+
 
 /*!
   Constructs a pixmap from the file \e fileName. If the file does not
@@ -199,6 +207,7 @@ QBitmap &QBitmap::operator=( const QPixmap &pixmap )
     }
     return *this;
 }
+
 
 /*!
   Converts the image \e image to a bitmap that is assigned to this bitmap.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#101 $
 **
 ** Implementation of QPixmap class
 **
@@ -76,6 +76,21 @@
 */
 
 
+QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
+
+
+/*!
+  \internal
+  Private constructor which takes the bitmap flag and the optimization.
+*/
+
+QPixmap::QPixmap( int w, int h, int depth, bool bitmap, Optimization optim )
+    : QPaintDevice( QInternal::Pixmap )
+{
+    init( w, h, depth, bitmap, optim );
+}
+
+
 /*!
   Constructs a null pixmap.
   \sa isNull()
@@ -84,7 +99,7 @@
 QPixmap::QPixmap()
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0 );
+    init( 0, 0, 0, FALSE, defOptim );
 }
 
 /*!
@@ -105,7 +120,7 @@ QPixmap::QPixmap()
 QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( w, h, depth );
+    init( w, h, depth, FALSE, defOptim );
 }
 
 /*!
@@ -115,7 +130,7 @@ QPixmap::QPixmap( int w, int h, int depth )
 QPixmap::QPixmap( const QSize &size, int depth )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( size.width(), size.height(), depth );
+    init( size.width(), size.height(), depth, FALSE, defOptim );
 }
 
 /*!
@@ -131,7 +146,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
 	int conversion_flags )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0 );
+    init( 0, 0, 0, FALSE, defOptim );
     load( fileName, format, conversion_flags );
 }
 
@@ -147,7 +162,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
 QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0 );
+    init( 0, 0, 0, FALSE, defOptim );
     load( fileName, format, mode );
 }
 
@@ -158,7 +173,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
 QPixmap::QPixmap( const char *xpm[] )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0 );
+    init( 0, 0, 0, FALSE, defOptim );
     QImage image( xpm );
     if ( !image.isNull() )
 	convertFromImage( image );
@@ -173,8 +188,42 @@ QPixmap::QPixmap( const char *xpm[] )
 QPixmap::QPixmap( const QByteArray & data )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0 );
-    loadFromData(data);
+    init( 0, 0, 0, FALSE, defOptim );
+    loadFromData( data );
+}
+
+
+/*!
+  Constructs a pixmap which is a copy of \e pixmap.
+*/
+
+QPixmap::QPixmap( const QPixmap &pixmap )
+    : QPaintDevice( QInternal::Pixmap )
+{
+    if ( pixmap.paintingActive() ) {		// make a deep copy
+	data = 0;
+	operator=( pixmap.copy() );
+    } else {
+	data = pixmap.data;
+	data->ref();
+	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
+#if defined(_WS_WIN_)
+	hdc = pixmap.hdc;			// copy Windows device context
+#elif defined(_WS_X11_)
+	hd = pixmap.hd;				// copy X11 drawable
+	copyX11Data( &pixmap );			// copy x11Data
+#endif
+    }
+}
+
+
+/*!
+  Destroys the pixmap.
+*/
+
+QPixmap::~QPixmap()
+{
+    deref();
 }
 
 
@@ -187,15 +236,57 @@ QPixmap::QPixmap( const QByteArray & data )
 
 QPixmap QPixmap::copy() const
 {
-    QPixmap tmp( data->w, data->h, data->d );
-    tmp.data->bitmap = data->bitmap;		// copy bitmap flag
-    tmp.data->optim  = data->optim;		// copy optimization setting
-    if ( !tmp.isNull() ) {			// copy the bitmap
-	bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
+    QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
+    if ( !pm.isNull() ) {			// copy the bitmap
+#if defined(_WS_X11_)
+	pm.copyX11Data( this );
+#endif
+	bitBlt( &pm, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
 	if ( data->mask )			// copy the mask
-	    tmp.setMask( *data->mask );
+	    pm.setMask( data->selfmask ? *((QBitmap*)&pm) : *data->mask );
     }
-    return tmp;
+    return pm;
+}
+
+
+/*!
+  Assigns the pixmap \e pixmap to this pixmap and returns a reference to
+  this pixmap.
+*/
+
+QPixmap &QPixmap::operator=( const QPixmap &pixmap )
+{
+    if ( paintingActive() ) {
+#if defined(CHECK_STATE)
+	warning("QPixmap::operator=: Cannot assign to pixmap during painting");
+#endif
+	return *this;
+    }
+    pixmap.data->ref();				// avoid 'x = x'
+    deref();
+    if ( pixmap.paintingActive() ) {		// make a deep copy
+	init( pixmap.width(), pixmap.height(), pixmap.depth(),
+	      pixmap.data->bitmap, pixmap.data->optim );
+	data->uninit = FALSE;
+	if ( !isNull() ) {
+	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
+		    CopyROP, TRUE );
+	    if ( pixmap.mask() )
+		setMask( pixmap.data->selfmask ? *((QBitmap*)(this))
+					       : *pixmap.mask() );
+	}
+	pixmap.data->deref();
+    } else {
+	data = pixmap.data;
+	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
+#if defined(_WS_WIN_)
+	hdc = pixmap.hdc;
+#elif defined(_WS_X11_)
+	hd = pixmap.hd;				// copy QPaintDevice drawable
+	copyX11Data( &pixmap );			// copy x11Data
+#endif
+    }
+    return *this;
 }
 
 
@@ -267,6 +358,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 /*!
   \fn void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
+
   Fills the pixmap with the widget's background color or pixmap.
   If the background is empty, nothing is done.
 
@@ -301,7 +393,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 */
 
 /*!
-  void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+  \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 */
 
 void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
@@ -338,29 +430,29 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 void QPixmap::resize( int w, int h )
 {
     if ( w < 1 || h < 1 ) {			// becomes null
-	QPixmap pm;
-	pm.data->bitmap = data->bitmap;		// keep is-a flag
-	pm.data->optim	= data->optim;		// keep optimization setting
+	QPixmap pm( 0, 0, 0, data->bitmap, data->optim );
 	*this = pm;
 	return;
     }
-
     int d;
     if ( depth() > 0 )
 	d = depth();
     else
 	d = isQBitmap() ? 1 : -1;
-    QPixmap pm( w, h, d );			// create new pixmap
+    // Create new pixmap
+    QPixmap pm( w, h, d, data->bitmap, data->optim );
     if ( !data->uninit && !isNull() )		// has existing pixmap
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
 		QMIN(height(),h), CopyROP, TRUE );
-    pm.data->bitmap = data->bitmap;		// keep bitmap flag
-    pm.data->optim  = data->optim;		// keep optimization setting
     if ( data->mask ) {				// resize mask as well
-	QBitmap m = *data->mask;
-	m.resize( w, h );
-	pm.setMask( m );
+	if ( data->selfmask ) {			// preserve self-mask
+	    pm.setMask( *((QBitmap*)&pm) );
+	} else {				// independent mask
+	    QBitmap m = *data->mask;
+	    m.resize( w, h );
+	    pm.setMask( m );
+	}
     }
     *this = pm;
 }
@@ -416,8 +508,7 @@ void QPixmap::setMask( const QBitmap &mask )
 
 /*!
   \fn bool QPixmap::selfMask() const
-  Returns TRUE if the pixmap's mask is identical to the pixmap
-  itself.
+  Returns TRUE if the pixmap's mask is identical to the pixmap itself.
   \sa mask()
 */
 
@@ -462,23 +553,6 @@ const char* QPixmap::imageFormat( const QString &fileName )
 }
 
 
-static bool can_handle_bmp = FALSE;
-static bool did_handle_bmp = FALSE;
-
-bool qt_image_native_bmp()
-{
-    if ( can_handle_bmp ) {
-	did_handle_bmp = TRUE;
-	return TRUE;
-    }
-    return FALSE;
-}
-
-bool qt_image_did_native_bmp()
-{
-    return did_handle_bmp;
-}
-
 /*!
   Loads a pixmap from the file \e fileName.
   Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
@@ -496,28 +570,23 @@ bool qt_image_did_native_bmp()
   \sa loadFromData(), save(), imageFormat(), QImage::load(), QImageIO
 */
 
-bool QPixmap::load( const QString& fileName, const char *format,
+bool QPixmap::load( const QString &fileName, const char *format,
 		    int conversion_flags )
 {
     QImageIO io( fileName, format );
-#if defined(_WS_WIN_)
-    can_handle_bmp = TRUE;
-#endif
     bool result = io.read();
     if ( result ) {
-	detach();
+	detach(); // ###hanord: Why detach here, convertFromImage does it
 	result = convertFromImage( io.image(), conversion_flags );
     }
-#if defined(_WS_WIN_)
-    can_handle_bmp = did_handle_bmp = FALSE;
-#endif
     return result;
 }
 
 /*!
   \overload
 */
-bool QPixmap::load( const QString& fileName, const char *format,
+
+bool QPixmap::load( const QString &fileName, const char *format,
 		    ColorMode mode )
 {
     int conversion_flags = 0;
@@ -534,10 +603,12 @@ bool QPixmap::load( const QString& fileName, const char *format,
     return load( fileName, format, conversion_flags );
 }
 
+
 /*!
   \overload
 */
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
+
+bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
 {
     int conversion_flags = 0;
     switch (mode) {
@@ -550,7 +621,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
       default:
 	;// Nothing.
     }
-    return convertFromImage( img, conversion_flags );
+    return convertFromImage( image, conversion_flags );
 }
 
 
@@ -579,9 +650,6 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
     QBuffer b( a );
     b.open( IO_ReadOnly );
     QImageIO io( &b, format );
-#if defined(_WS_WIN_)
-    can_handle_bmp = TRUE;
-#endif
     bool result = io.read();
     b.close();
     a.resetRawData( (char *)buf, len );
@@ -589,15 +657,13 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 	detach();
 	result = convertFromImage( io.image(), conversion_flags );
     }
-#if defined(_WS_WIN_)
-    can_handle_bmp = did_handle_bmp = FALSE;
-#endif
     return result;
 }
 
 /*!
   \overload
 */
+
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 			    ColorMode mode )
 {
@@ -618,13 +684,14 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 /*!
   \overload
 */
-bool QPixmap::loadFromData( QByteArray buf,
-			    const char* format,
+
+bool QPixmap::loadFromData( const QByteArray &buf, const char *format,
 			    int conversion_flags )
 {
     return loadFromData( (const uchar *)(buf.data()), buf.size(),
 			 format, conversion_flags );
 }
+
 
 /*!
   Saves the pixmap to the file \e fileName, using the image file format
@@ -633,7 +700,7 @@ bool QPixmap::loadFromData( QByteArray buf,
   \sa load(), loadFromData(), imageFormat(), QImage::save(), QImageIO
 */
 
-bool QPixmap::save( const QString& fileName, const char *format ) const
+bool QPixmap::save( const QString &fileName, const char *format ) const
 {
     if ( isNull() )
 	return FALSE;				// nothing to save
@@ -653,19 +720,47 @@ bool QPixmap::save( const QString& fileName, const char *format ) const
 */
 
 
+/*!
+  Returns the default pixmap optimization setting.
+  \sa setDefaultOptimization(), setOptimization(), optimization()
+*/
+
+QPixmap::Optimization QPixmap::defaultOptimization()
+{
+    return defOptim;
+}
+
+/*!
+  Sets the default pixmap optimization.
+
+  All \e new pixmaps that are created will use this default optimization.
+  You may also set optimization for individual pixmaps using the
+  setOptimization() function.
+
+  The initial default optimization setting is \c QPixmap::Normal.
+
+  \sa defaultOptimization(), setOptimization(), optimization()
+*/
+
+void QPixmap::setDefaultOptimization( Optimization optimization )
+{
+    defOptim = optimization;
+}
+
+
 /*****************************************************************************
   QPixmap stream functions
  *****************************************************************************/
 
 /*!
   \relates QPixmap
-  Writes a pixmap to the stream as a BMP image.
+  Writes a pixmap to the stream as a PNG image.
   \sa QPixmap::save()
 */
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
-    QImageIO io( s.device(), "BMP" );
+    QImageIO io( s.device(), "PNG" );
     io.setImage( pixmap.convertToImage() );
     io.write();
     return s;

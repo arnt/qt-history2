@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#2 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#3 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -32,14 +32,6 @@
 #include "qscrollview.h"
 #include "qcolor.h"
 #include "qml.h" //########## QMLProvider
-
-#if defined(Q_TEMPLATEDLL)
-/*
-  Gives moc syntac error
-template class Q_EXPORT QDict<QPixmap>;
-template class Q_EXPORT QDict<QString>;
-*/
-#endif
 
 
 class QStyleSheet;
@@ -116,10 +108,9 @@ private:
 
 
 #if defined(Q_TEMPLATEDLL)
-/*
-  Gives moc syntax error
-template class Q_EXPORT QDict<QMLStyle>;
-*/
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QDict<QStyleSheetItem>;
+// MOC_SKIP_END
 #endif
 
 class QTextNode;
@@ -152,8 +143,7 @@ private:
     void init();
     QDict<QStyleSheetItem> styles;
     QStyleSheetItem* nullstyle;
-
 };
 
 
-#endif
+#endif // QSTYLESHEET_H

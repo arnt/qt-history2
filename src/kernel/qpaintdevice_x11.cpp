@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#98 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -138,10 +138,10 @@ void QPaintDevice::copyX11Data( const QPaintDevice *fromDevice )
     setX11Data( fromDevice ? fromDevice->x11Data : 0 );
 }
 
+
 /*
   \internal
-
-  Set the x11-specific data
+  Set the X11-specific data.
 */
 
 void QPaintDevice::setX11Data( const QPaintDeviceX11Data* d )
@@ -150,8 +150,7 @@ void QPaintDevice::setX11Data( const QPaintDeviceX11Data* d )
 	if ( !x11Data )
 	    x11Data = new QPaintDeviceX11Data;
 	*x11Data = *d;
-    }
-    else if ( x11Data ) {
+    } else if ( x11Data ) {
 	delete x11Data;
 	x11Data = 0;
     }
@@ -167,11 +166,9 @@ void QPaintDevice::setX11Data( const QPaintDeviceX11Data* d )
   In any case the caller is responsible for deleting the returned struct.
 */
 
-
 QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 {
     QPaintDeviceX11Data* res = 0;
-
     if ( def ) {
 	res = new QPaintDeviceX11Data;
 	res->x_display = x11AppDisplay();
@@ -182,8 +179,7 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 	res->x_defcolormap = x11AppDefaultColormap();
 	res->x_visual = x11AppVisual();
 	res->x_defvisual = x11AppDefaultVisual();
-    }
-    else if ( x11Data ) {
+    } else if ( x11Data ) {
 	res = new QPaintDeviceX11Data;
 	*res = *x11Data;
     }
