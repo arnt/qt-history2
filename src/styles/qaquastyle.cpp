@@ -64,6 +64,7 @@
 #include "qpopupmenu.h"
 #include "qaquastyle_p.h"
 #include "qguardedptr.h"
+#include "qlineedit.h"
 #ifdef Q_WS_MAC
 #  include <string.h>
 #  include <qt_mac.h>
@@ -145,9 +146,12 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 bool QAquaFocusWidget::handles(QWidget *widget)
 {
     return (widget && widget->parentWidget() &&
-	    (widget->inherits("QDateTimeEditor") || widget->inherits("QLineEdit") ||
-	     (widget->inherits("QTextEdit") && !widget->inherits("QTextView")) ||
-	     widget->inherits("QListBox") || widget->inherits("QListView")));
+	    (widget->inherits("QDateTimeEditor") || 
+	     (widget->inherits("QFrame") && /*((QFrame*)widget)->frameStyle() != QFrame::NoFrame && */
+	      (widget->inherits("QLineEdit") && 
+	       (widget->parentWidget()->inherits("QComboBox") || (((QLineEdit*)widget)->frame()))) ||
+	      (widget->inherits("QTextEdit") && !widget->inherits("QTextView")) ||
+	      widget->inherits("QListBox") || widget->inherits("QListView"))));
 }
 
 void QAquaFocusWidget::objDestroyed(QObject * o)
