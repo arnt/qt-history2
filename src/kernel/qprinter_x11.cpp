@@ -361,7 +361,7 @@ int QPrinter::metric( int m ) const
     int val;
     PageSize s = pageSize();
 #if defined(QT_CHECK_RANGE)
-    ASSERT( (uint)s < (uint)NPageSize );
+    Q_ASSERT( (uint)s < (uint)NPageSize );
 #endif
     static int widths[]	 = { 595, 516, 612, 612, 541,
 			     2384, 1684, 1191, 842, 420, 297, 210, 148, 105,

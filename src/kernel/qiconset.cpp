@@ -425,7 +425,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 	switch( m ) {
 	case Normal:
 	    if ( !p->vlarge.pm ) {
-		ASSERT( p->vsmall.pm );
+		Q_ASSERT( p->vsmall.pm );
 		i = p->vsmall.pm->convertToImage();
 		i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
 		p->vlarge.pm = new QPixmap;
@@ -505,7 +505,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 	switch( m ) {
 	case Normal:
 	    if ( !p->vsmall.pm ) {
-		ASSERT( p->vlarge.pm );
+		Q_ASSERT( p->vlarge.pm );
 		i = p->vlarge.pm->convertToImage();
 		i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
 		p->vsmall.pm = new QPixmap;
@@ -583,7 +583,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 	    break;
 	}
     }
-    ASSERT( pm );
+    Q_ASSERT( pm );
     return *pm;
 }
 

@@ -112,7 +112,7 @@ public:
 QCList::~QCList()
 {
 #if defined(QT_DEBUG)
-    ASSERT( count() == 0 );
+    Q_ASSERT( count() == 0 );
 #endif
 }
 
@@ -129,7 +129,7 @@ void QCList::insert( QCacheItem *ci )
     else
 	append( ci );
 #if defined(QT_DEBUG)
-    ASSERT( ci->node == 0 );
+    Q_ASSERT( ci->node == 0 );
 #endif
     ci->node = currentNode();
 }
@@ -138,7 +138,7 @@ inline void QCList::insert( int i, QCacheItem *ci )
 {
     QList<QCacheItem>::insert( i, ci );
 #if defined(QT_DEBUG)
-    ASSERT( ci->node == 0 );
+    Q_ASSERT( ci->node == 0 );
 #endif
     ci->node = currentNode();
 }
@@ -148,7 +148,7 @@ void QCList::take( QCacheItem *ci )
 {
     if ( ci ) {
 #if defined(QT_DEBUG)
-	ASSERT( ci->node != 0 );
+	Q_ASSERT( ci->node != 0 );
 #endif
 	takeNode( ci->node );
 	ci->node = 0;
@@ -159,7 +159,7 @@ void QCList::take( QCacheItem *ci )
 inline void QCList::reference( QCacheItem *ci )
 {
 #if defined(QT_DEBUG)
-    ASSERT( ci != 0 && ci->node != 0 );
+    Q_ASSERT( ci != 0 && ci->node != 0 );
 #endif
     ci->skipPriority = ci->priority;
     relinkNode( ci->node );			// relink as first item
@@ -357,7 +357,7 @@ bool QGCache::insert_string( const QString &key, QCollection::Item data,
 	}
     }
 #if defined(QT_DEBUG)
-    ASSERT( keytype == StringKey );
+    Q_ASSERT( keytype == StringKey );
     lruList->inserts++;
     lruList->insertCosts += cost;
 #endif
@@ -389,7 +389,7 @@ bool QGCache::insert_other( const char *key, QCollection::Item data,
 	}
     }
 #if defined(QT_DEBUG)
-    ASSERT( keytype != StringKey );
+    Q_ASSERT( keytype != StringKey );
     lruList->inserts++;
     lruList->insertCosts += cost;
 #endif
@@ -588,7 +588,7 @@ bool QGCache::makeRoomFor( int cost, int priority )
     if ( cntCost < cost )			// can enough cost be dumped?
 	return FALSE;				// no
 #if defined(QT_DEBUG)
-    ASSERT( dumps > 0 );
+    Q_ASSERT( dumps > 0 );
 #endif
     while ( dumps-- ) {
 	ci = lruList->last();
@@ -678,7 +678,7 @@ QGCacheIterator::QGCacheIterator( const QGCache &c )
 {
     it = new QCListIt( c.lruList );
 #if defined(QT_DEBUG)
-    ASSERT( it != 0 );
+    Q_ASSERT( it != 0 );
 #endif
 }
 
@@ -691,7 +691,7 @@ QGCacheIterator::QGCacheIterator( const QGCacheIterator &ci )
 {
     it = new QCListIt( ci.it );
 #if defined(QT_DEBUG)
-    ASSERT( it != 0 );
+    Q_ASSERT( it != 0 );
 #endif
 }
 

@@ -67,7 +67,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool scale)
 	qf.setWeight(lf.lfWeight/10);
     int lfh = QABS( lf.lfHeight );
     if ( scale ) {
-	ASSERT(shared_dc);
+	Q_ASSERT(shared_dc);
 	qf.setPointSizeFloat( lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
     } else {
 	qf.setPointSize( lfh );
@@ -138,7 +138,7 @@ inline HDC QFontInternal::dc() const
 {
     if ( qt_winver & Qt::WV_NT_based )
 	return hdc;
-    ASSERT( shared_dc != 0 && hfont != 0 );
+    Q_ASSERT( shared_dc != 0 && hfont != 0 );
     if ( shared_dc_font != hfont ) {
 	SelectObject( shared_dc, hfont );
 	shared_dc_font = hfont;
@@ -187,7 +187,7 @@ void QFontInternal::reset()
     } else {
 	if ( hfont ) {				// shared DC (Windows 95/98)
 	    if ( shared_dc_font == hfont ) {	// this is the current font
-		ASSERT( shared_dc != 0 );
+		Q_ASSERT( shared_dc != 0 );
 		SelectObject( shared_dc, systemFont() );
 		shared_dc_font = 0;
 	    }
@@ -264,7 +264,7 @@ void QFont::cleanup()
     fontCache = 0;
     fontDict->setAutoDelete( TRUE );
     delete fontDict;
-    ASSERT( shared_dc_font == 0 );
+    Q_ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
     shared_dc = 0;
 }
@@ -569,7 +569,7 @@ void *QFont::textMetric() const
     if ( DIRTY_FONT ) {
 	load();
 #if defined(QT_DEBUG)
-	ASSERT( d->fin && d->fin->font() );
+	Q_ASSERT( d->fin && d->fin->font() );
 #endif
     }
 #ifdef UNICODE

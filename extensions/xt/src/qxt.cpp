@@ -341,7 +341,7 @@ QXtApplication::QXtApplication(Display *display, int argc, char **argv)
 */
 QXtApplication::~QXtApplication()
 {
-    ASSERT(qxtapp==this);
+    Q_ASSERT(qxtapp==this);
     removeXtEventFilters();
     qxtapp = 0;
 
@@ -354,7 +354,7 @@ QXtApplication::~QXtApplication()
 
 void QXtApplication::init()
 {
-    ASSERT(qxtapp==0);
+    Q_ASSERT(qxtapp==0);
     qxtapp = this;
     installXtEventFilters();
     qt_np_add_timeoutcb(np_do_timers);
@@ -385,7 +385,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
     need_reroot=FALSE;
     xtparent = 0;
     if (parent ) {
-	ASSERT(!qparent);
+	Q_ASSERT(!qparent);
 	xtw = XtCreateWidget(name, widget_class, parent, args, num_args);
 	if ( widget_class == qWidgetClass )
 	    ((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
@@ -393,7 +393,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	if (managed)
 	    XtManageChild(xtw);
     } else {
-	ASSERT(!managed);
+	Q_ASSERT(!managed);
 
 	String n, c;
 	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);

@@ -71,7 +71,7 @@
 
     QArray<int> fib( int num )			// returns fibonacci array
     {
-	ASSERT( num > 2 );
+	Q_ASSERT( num > 2 );
 	QArray<int> f( num );			// array of ints
 
         f[0] = f[1] = 1;			// initialize first two numbers

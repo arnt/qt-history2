@@ -706,7 +706,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 		// We are the first Qt-based plugin to arrive
 		new QApplication(This->display);
 		//XSynchronize(This->display,True);  // Helps debugging
-		ASSERT(qt_np_count == 0);
+		Q_ASSERT(qt_np_count == 0);
 	    }
 	    installXtEventFilters(Safe);
 	    qt_np_add_timeoutcb(np_do_timers);

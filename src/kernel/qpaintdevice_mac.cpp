@@ -167,7 +167,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 
 	QPixmap *pm = (QPixmap *)dst;
 	SetGWorld((GWorldPtr)pm->handle(),0);
-	ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
 	dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
 
 	if(dw < 0)

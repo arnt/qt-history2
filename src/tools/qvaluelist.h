@@ -223,7 +223,7 @@ public:
     }
 
     Iterator remove( Iterator it ) {
-	ASSERT ( it.node != node );
+	Q_ASSERT ( it.node != node );
 	NodePtr next = it.node->next;
 	NodePtr prev = it.node->prev;
 	prev->next = next;
@@ -284,7 +284,7 @@ public:
     }
 
     NodePtr at( uint i ) const {
-	ASSERT( i <= nodes );
+	Q_ASSERT( i <= nodes );
 	NodePtr p = node->next;
 	for( uint x = 0; x < i; ++x )
 	    p = p->next;

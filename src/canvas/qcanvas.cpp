@@ -1754,7 +1754,7 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
     // Let's make an assumption.  That sprite masks don't have
     // bit orders for different machines!
     //
-    // ASSERT(s1image->bitOrder()==s2image->bitOrder());
+    // Q_ASSERT(s1image->bitOrder()==s2image->bitOrder());
 
     if (s1image) {
 	if (s1image->bitOrder() == QImage::LittleEndian) {

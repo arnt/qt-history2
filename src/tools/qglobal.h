@@ -559,17 +559,17 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #endif // QT_CLEAN_NAMESPACE
 
 
-#if !defined(ASSERT)
+#if !defined(Q_ASSERT)
 #if defined(QT_CHECK_STATE)
 #if defined(QT_FATAL_ASSERT)
-#define ASSERT(x)  if ( !(x) )\
+#define Q_ASSERT(x)  if ( !(x) )\
 	qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #else
-#define ASSERT(x)  if ( !(x) )\
+#define Q_ASSERT(x)  if ( !(x) )\
 	qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #endif
 #else
-#define ASSERT(x)
+#define Q_ASSERT(x)
 #endif
 #endif
 

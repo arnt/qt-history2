@@ -1013,7 +1013,7 @@ void QWSServer::lowerWindow( QWSWindow *changingw, int )
     //the exposed region comes from changingw, so either we have to
     //wait for acks from changingw, or we don't have to do anything
     if ( changingw->removeAllocation( exposed )  ) {
-	ASSERT( !pending_region_acks );
+	Q_ASSERT( !pending_region_acks );
 	changingw->pending_acks++;
 	pendingRegion = exposed;
 	pending_region_acks++;
@@ -1124,7 +1124,7 @@ void QWSServer::givePendingRegion()
 
     if ( pendingWindex >= 0 ) {
 	QWSWindow* changingw = windows.at( pendingWindex );
-	ASSERT( changingw );
+	Q_ASSERT( changingw );
 	changingw->addAllocation( pendingAllocation, TRUE );
     } else if (!disablePainting) {
 	paintServerRegion();

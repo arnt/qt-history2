@@ -851,13 +851,13 @@ QWidget * QLayout::mainWidget()
 {
     if ( !topLevel ) {
 	if ( parent() ) {
-	    ASSERT( parent()->inherits( "QLayout" ) );
+	    Q_ASSERT( parent()->inherits( "QLayout" ) );
 	    return ((QLayout*)parent())->mainWidget();
 	} else {
 	    return 0;
 	}
     } else {
-	ASSERT( parent() && parent()->isWidgetType() );
+	Q_ASSERT( parent() && parent()->isWidgetType() );
 	return	(QWidget*)parent();
     }
 }

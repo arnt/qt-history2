@@ -2,7 +2,7 @@
 
 int main(int argc, char ** argv)
 {
-  ASSERT( argc == 2 );
+  Q_ASSERT( argc == 2 );
 
   QImage image( argv[1] );
   image.save( "toto-000.png", "PNG", 0 );

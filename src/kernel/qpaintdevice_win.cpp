@@ -166,8 +166,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 {
     if ( !src || !dst ) {
 #if defined(QT_CHECK_NULL)
-	ASSERT( src != 0 );
-	ASSERT( dst != 0 );
+	Q_ASSERT( src != 0 );
+	Q_ASSERT( dst != 0 );
 #endif
 	return;
     }
@@ -307,7 +307,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
     }
 #if defined(QT_CHECK_NULL)
-    ASSERT( src_dc && dst_dc );
+    Q_ASSERT( src_dc && dst_dc );
 #endif
 
     if ( mask ) {

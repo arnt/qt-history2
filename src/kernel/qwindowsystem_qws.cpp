@@ -298,7 +298,7 @@ public:
     }
     void add(int* mix, int count)
     {
-	ASSERT(available>=count);
+	Q_ASSERT(available>=count);
 	available -= count;
 	while ( count-- ) {
 	    *mix++ += ((int)data[out] - 128)*128;
@@ -308,7 +308,7 @@ public:
     }
     void rewind(int count)
     {
-	ASSERT(count<sound_buffer_size);
+	Q_ASSERT(count<sound_buffer_size);
 	out = (out + (sound_buffer_size-count))%sound_buffer_size;
 	available += count;
     }
@@ -571,7 +571,7 @@ QWSServer::QWSServer( int displayId, int flags,
 #endif
     disablePainting(false)
 {
-    ASSERT( !qwsServer );
+    Q_ASSERT( !qwsServer );
     qwsServer = this;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -1027,7 +1027,7 @@ void QWSServer::sendQCopEvent( QWSClient *c, const QCString &ch,
 			       const QCString &msg, const QByteArray &data,
 			       bool response )
 {
-    ASSERT( c );
+    Q_ASSERT( c );
     
     QWSQCopMessageEvent event;
     event.simpleData.is_response = response;
@@ -1902,7 +1902,7 @@ void QWSServer::paintServerRegion()
 void QWSServer::paintBackground( QRegion r )
 {
     if ( !r.isEmpty() ) {
-	ASSERT ( qt_fbdpy );
+	Q_ASSERT ( qt_fbdpy );
 
 	r = qt_screen->mapFromDevice( r, QSize(swidth, sheight) );
 

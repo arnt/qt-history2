@@ -4763,7 +4763,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	if ( !pixmap( 0 ) )
 	    r += BoxSize + 4;
     } else {
-	ASSERT( lv ); //###
+	Q_ASSERT( lv ); //###
 	//	QFontMetrics fm( lv->font() );
 	//	int d = fm.height();
 	int x = 0;

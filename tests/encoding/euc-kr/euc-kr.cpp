@@ -24,7 +24,7 @@ int main( int argc, char *argv[] )
 
 	/* translate EUC-KR to Unicode to display in a QLabel */
 	QTextCodec* codec = QTextCodec::codecForMib( EUC_KR_MIB );
-	ASSERT( codec );
+	Q_ASSERT( codec );
 	QString unicode_text = codec->toUnicode( euc_kr_text );
 	QLabel label( unicode_text, 0 );
 

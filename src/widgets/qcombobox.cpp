@@ -224,8 +224,8 @@ struct QComboData
     }
 
     bool usingListBox()  { return usingLBox; }
-    QListBox * listBox() { ASSERT(usingLBox); return lBox; }
-    QComboBoxPopup * popup() { ASSERT(!usingLBox); return pop; }
+    QListBox * listBox() { Q_ASSERT(usingLBox); return lBox; }
+    QComboBoxPopup * popup() { Q_ASSERT(!usingLBox); return pop; }
     void updateLinedGeometry();
 
     void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE;
@@ -484,7 +484,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 {
     if ( !list ) {
 #if defined(QT_CHECK_NULL)
-	ASSERT( list != 0 );
+	Q_ASSERT( list != 0 );
 #endif
 	return;
     }
@@ -557,7 +557,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 {
     if ( !strings ) {
 #if defined(QT_CHECK_NULL)
-	ASSERT( strings != 0 );
+	Q_ASSERT( strings != 0 );
 #endif
 	return;
     }
@@ -1407,7 +1407,7 @@ void QComboBox::updateMask()
 */
 void QComboBox::popDownListBox()
 {
-    ASSERT( d->usingListBox() );
+    Q_ASSERT( d->usingListBox() );
     d->listBox()->removeEventFilter( this );
     d->listBox()->viewport()->removeEventFilter( this );
     d->listBox()->hide();

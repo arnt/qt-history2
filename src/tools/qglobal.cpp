@@ -83,8 +83,8 @@ static bool si_bigEndian;
 bool qSysInfo( int *wordSize, bool *bigEndian )
 {
 #if defined(QT_CHECK_NULL)
-    ASSERT( wordSize != 0 );
-    ASSERT( bigEndian != 0 );
+    Q_ASSERT( wordSize != 0 );
+    Q_ASSERT( bigEndian != 0 );
 #endif
 
     if ( si_alreadyDone ) {			// run it only once
@@ -491,14 +491,14 @@ void fatal( const char *msg, ... )
 
 
 /*!
-  \fn void ASSERT( bool test )
+  \fn void Q_ASSERT( bool test )
   \relates QApplication
   Prints a warning message containing the source code file name and line number
   if \e test is FALSE.
 
   This is really a macro defined in qglobal.h.
 
-  ASSERT is useful for testing required conditions in your program.
+  Q_ASSERT is useful for testing required conditions in your program.
 
   Example:
   \code
@@ -510,12 +510,12 @@ void fatal( const char *msg, ... )
 
     int divide( int a, int b )
     {
-	ASSERT( b != 0 );			// this is line 9
+	Q_ASSERT( b != 0 );			// this is line 9
 	return a/b;
     }
   \endcode
 
-  If \c b is zero, the ASSERT statement will output the following message
+  If \c b is zero, the Q_ASSERT statement will output the following message
   using the qWarning() function:
   \code
     ASSERT: "b == 0" in div.cpp (9)

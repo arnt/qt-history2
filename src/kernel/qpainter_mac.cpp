@@ -354,7 +354,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 
 	//setup the gworld
 	SetGWorld((GWorldPtr)pm->handle(),0);
-	ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
 
 	//clip out my bounding rect
 	clippedreg = QRegion(0, 0, pm->width(), pm->height());

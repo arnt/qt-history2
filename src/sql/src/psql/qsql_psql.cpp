@@ -147,7 +147,7 @@ bool qIsPrimaryIndex( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, 
     QString pIdx;
     switch( protocol ) {
     case QPSQLDriver::Version6:
-	ASSERT(FALSE);
+	Q_ASSERT(FALSE);
 	break;
     case QPSQLDriver::Version7:	
 	pIdx = "select count(1) "
@@ -173,7 +173,7 @@ QSqlField qMakeField( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, 
     QString stmt;
     switch( protocol ) {
     case QPSQLDriver::Version6:
-	ASSERT(FALSE);
+	Q_ASSERT(FALSE);
 	break;
     case QPSQLDriver::Version7:	
 	stmt = "select a.atttypid::int "
@@ -555,7 +555,7 @@ bool QPSQLDriver::open( const QString & db,
     }
     switch( pro ) {
     case QPSQLDriver::Version6:
-	ASSERT(FALSE);
+	Q_ASSERT(FALSE);
 	break;
     case QPSQLDriver::Version7:	
 	PGresult* dateResult = PQexec( d->connection, "SET DATESTYLE=ISO;" );
@@ -627,7 +627,7 @@ QStringList QPSQLDriver::tables( const QString& user ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	ASSERT(FALSE);
+	Q_ASSERT(FALSE);
 	break;
     case QPSQLDriver::Version7:	
 	stmt = "select relname from pg_class, pg_user "
@@ -651,7 +651,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	ASSERT(FALSE);
+	Q_ASSERT(FALSE);
 	break;
     case QPSQLDriver::Version7:	
 	stmt = "select a.attname from pg_attribute a, pg_class c1,"
@@ -675,7 +675,7 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	ASSERT(FALSE);
+	Q_ASSERT(FALSE);
 	break;
     case QPSQLDriver::Version7:	
 	stmt = "select a.attname "

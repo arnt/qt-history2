@@ -1146,7 +1146,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		    }
 		} else {
 		    // Cannot be in table
-		    ASSERT ( pix != 256 );	// too many colors
+		    Q_ASSERT ( pix != 256 );	// too many colors
 		    // Insert into table at this unused position
 		    dst->setColor( pix, (*p & amask) );
 		    table[hash].pix = pix++;

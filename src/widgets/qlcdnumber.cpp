@@ -1142,7 +1142,7 @@ void QLCDNumber::setSegmentStyle( SegmentStyle s )
 
 QLCDNumber::SegmentStyle QLCDNumber::segmentStyle() const
 {
-    ASSERT( fill || shadow );
+    Q_ASSERT( fill || shadow );
     if ( !fill && shadow )
 	return Outline;
     if ( fill && shadow )

@@ -2991,7 +2991,7 @@ QVariant QObject::property( const char *name ) const
     switch ( type ) {
     case QVariant::Invalid:
 	// A real assert, since this indicates a moc bug
-	ASSERT( 0 );
+	Q_ASSERT( 0 );
 	return QVariant();
 
     case QVariant::Image:
@@ -3009,7 +3009,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QImage() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3028,7 +3028,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QPoint() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3047,7 +3047,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QStringList() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3066,7 +3066,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QValueList<QVariant>() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3088,7 +3088,7 @@ QVariant QObject::property( const char *name ) const
 	    ProtoConstCharStar m = (ProtoConstCharStar)p->get;
 	    value = QVariant( QCString( (this->*m)() ) );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3110,7 +3110,7 @@ QVariant QObject::property( const char *name ) const
 	    ProtoConstCharStar m = (ProtoConstCharStar)p->get;
 	    value = QVariant( QCString( (this->*m)() ) );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3129,7 +3129,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QFont() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3148,7 +3148,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QPixmap() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3167,7 +3167,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QBrush() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3186,7 +3186,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QRect() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3205,7 +3205,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QSize() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3224,7 +3224,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QColor() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3243,7 +3243,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QPalette() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3262,7 +3262,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QColorGroup() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3281,7 +3281,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QBitmap() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3301,7 +3301,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QPointArray() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3320,7 +3320,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QRegion() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3340,7 +3340,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QCursor() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 #else
 	qWarning("Cursor in QVariant ignored");
@@ -3362,7 +3362,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QIconSet() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3381,7 +3381,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( 0 );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3400,7 +3400,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( 0 );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3419,7 +3419,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( 0.0 );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3435,7 +3435,7 @@ QVariant QObject::property( const char *name ) const
 	    const bool* p = (this->*m)();
 	    value = QVariant( p ? *p : FALSE, 42 /* dummy */ );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3454,7 +3454,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QMap<QString,QVariant>() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3473,7 +3473,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( 0 );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3492,7 +3492,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QDate() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3511,7 +3511,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QTime() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 
@@ -3530,7 +3530,7 @@ QVariant QObject::property( const char *name ) const
 	    else
 		value = QVariant( QDateTime() );
 	} else {
-	    ASSERT( 0 );
+	    Q_ASSERT( 0 );
 	}
 	return value;
 

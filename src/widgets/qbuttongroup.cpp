@@ -394,7 +394,7 @@ void QButtonGroup::buttonClicked()
     int id = -1;
     QButton *bt = (QButton *)sender();		// object that sent the signal
 #if defined(QT_CHECK_NULL)
-    ASSERT( bt->inherits("QButton") );
+    Q_ASSERT( bt->inherits("QButton") );
 #endif
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
 	if ( bt == i->button ) {			// button was clicked
@@ -420,8 +420,8 @@ void QButtonGroup::buttonToggled( bool on )
 	return;
     QButton *bt = (QButton *)sender();		// object that sent the signal
 #if defined(QT_CHECK_NULL)
-    ASSERT( bt->inherits("QButton") );
-    ASSERT( bt->isToggleButton() );
+    Q_ASSERT( bt->inherits("QButton") );
+    Q_ASSERT( bt->isToggleButton() );
 #endif
 
     if ( !excl_grp && !bt->inherits("QRadioButton") )

@@ -236,7 +236,7 @@ This change has been made to avoid collisions with other namespaces.
 
 <h3><a name=DebugVsRelease>Debug vs. Release</a></h3>
 
-<p>The ASSERT macro is now a null expression if the QT_CHECK_STATE flag
+<p>The Q_ASSERT macro is now a null expression if the QT_CHECK_STATE flag
 is not set (i.e. if the QT_NO_CHECK flag is defined).
 
 <p>The debug() function now outputs nothing if Qt was compiled with
@@ -477,7 +477,7 @@ This means that inserting a 0-character
  \endcode
  This creates a string 2 characters long.
  To find these problems while converting, you might like to
- add ASSERT(strlen(d->ascii)==d->len) inside
+ add Q_ASSERT(strlen(d->ascii)==d->len) inside
  \code QString::latin1()\endcode.
 
 <dt><b>QString or Standard C++ string?</b></dt>

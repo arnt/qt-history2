@@ -723,7 +723,7 @@ bool QWSDisplay::eventPending() const
 QWSEvent*  QWSDisplay::getEvent()
 {
     d->fillQueue();
-    ASSERT(d->queueNotEmpty());
+    Q_ASSERT(d->queueNotEmpty());
     QWSEvent* e = d->dequeue();
 
     return e;
@@ -3428,7 +3428,7 @@ QCopChannel::QCopChannel( const QCString& channel )
 QCopChannel::~QCopChannel()
 {
     QCopClientMap::Iterator it = qcopClientMap->find( d->channel );
-    ASSERT( it != qcopClientMap->end() );
+    Q_ASSERT( it != qcopClientMap->end() );
     it.data().removeRef( this );
     // still any clients connected locally ?
     if ( it.data().isEmpty() ) {
@@ -3477,8 +3477,8 @@ bool QCopChannel::isRegistered( const QCString& channel )
     // ### ugly
     qt_fbdpy->d->waitForQCopResponse();
     QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)qt_fbdpy->d->dequeue();
-    ASSERT( e->type == QWSEvent::QCopMessage );
-    ASSERT( e->channel == "" );
+    Q_ASSERT( e->type == QWSEvent::QCopMessage );
+    Q_ASSERT( e->channel == "" );
 
     return e->message == "known";
 }
@@ -3575,7 +3575,7 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 	    s >> c;
 	    QCopServerMap::Iterator it = qcopServerMap->find( c );
 	    if ( it != qcopServerMap->end() ) {
-		ASSERT( it.data().contains( cl ) );
+		Q_ASSERT( it.data().contains( cl ) );
 		it.data().remove( cl );
 		if ( it.data().isEmpty() )
 		    qcopServerMap->remove( it );
@@ -3607,7 +3607,7 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 void QCopChannel::processEvent( const QCString &ch, const QCString &msg,
 				const QByteArray &data )
 {
-    ASSERT( qcopClientMap );
+    Q_ASSERT( qcopClientMap );
 
     // filter out internal events
     if ( ch.isEmpty() )

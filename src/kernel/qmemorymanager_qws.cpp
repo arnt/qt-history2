@@ -657,7 +657,7 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    mmf->renderer = 0;
 #if defined(QT_USE_MMAP)
 	    int f = ::open( QFile::encodeName(filename), O_RDONLY );
-	    ASSERT(f>=0);
+	    Q_ASSERT(f>=0);
 	    struct stat st;
 	    if ( fstat( f, &st ) )
 		qFatal("Failed to stat %s",QFile::encodeName(filename).data());

@@ -1128,7 +1128,7 @@ void QFont::initFontInfo() const
 	return;
     }
 
-    ASSERT(!PRIV->needsSet()); // They are always exact
+    Q_ASSERT(!PRIV->needsSet()); // They are always exact
     QCString encoding;
 
     if ( fillFontDef( f->name(), &f->s, &encoding ) ) { // valid XLFD?

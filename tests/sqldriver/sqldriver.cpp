@@ -41,12 +41,12 @@ void TestInsert()
 	database->transaction();
     for ( int i=0; i<TEST_RECS; ++i ) {
 	QSqlQuery r = database->exec( "insert into " + TABLE_NAME + " values (" + QString::number(i) + ",'foo:" + QString::number(i) + "','blarg " + QString::number(i*10) + " blarg'," + QString::number(i*12.345) + ", '18-APR-1972');");
-	ASSERT( r.numRowsAffected() == 1 );
+	Q_ASSERT( r.numRowsAffected() == 1 );
     }
     QSqlQuery r = database->exec( "insert into " + TABLE_NAME + " values (9999,NULL,'should have nulls',NULL,NULL);");
     if ( r.numRowsAffected() != 1)
 	qDebug("ERROR:" + database->lastError().databaseText());
-    ASSERT( r.numRowsAffected() == 1);
+    Q_ASSERT( r.numRowsAffected() == 1);
     if ( database->driver()->hasTransactionSupport() )
 	database->commit();
     qDebug("Done.");

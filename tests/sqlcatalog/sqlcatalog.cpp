@@ -46,25 +46,25 @@ int main( int argc, char** argv )
     qDebug("after insert, name:" + v["name"].toString() );
 
     v.select( v.primaryIndex(), v.primaryIndex() );
-    ASSERT( v.next() );
+    Q_ASSERT( v.next() );
     qDebug("after next, ID:" + v["id"].toString() );
     qDebug("after next, name:" + v["name"].toString() );
-    ASSERT( v["id"].toInt() == 999 );
+    Q_ASSERT( v["id"].toInt() == 999 );
 
     // put back a new value
     v["name"] = "barf";
-    ASSERT( v.update( v.primaryIndex() ) == 1 );
+    Q_ASSERT( v.update( v.primaryIndex() ) == 1 );
     v.select( v.primaryIndex(), v.primaryIndex() );
-    ASSERT( v.next() );
+    Q_ASSERT( v.next() );
     qDebug("after next, ID:" + v["id"].toString() );
     qDebug("after next, name:" + v["name"].toString() );
-    ASSERT( v["id"].toInt() == 999 );
+    Q_ASSERT( v["id"].toInt() == 999 );
 
     // delete the record
     v["id"] = 999;
-    ASSERT( v.del( v.primaryIndex() ) == 1 );
+    Q_ASSERT( v.del( v.primaryIndex() ) == 1 );
     v.select( v.primaryIndex(), v.primaryIndex() );
-    ASSERT( !v.next() );
+    Q_ASSERT( !v.next() );
 
     qDebug("Done.");
     return 0;

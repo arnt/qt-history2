@@ -96,7 +96,7 @@ LPFORMATETC allFormats(int& n)
 	}
     }
 
-    ASSERT(n==i);
+    Q_ASSERT(n==i);
     return fmtetc;
 }
 
@@ -128,7 +128,7 @@ LPFORMATETC someFormats(const char* mime, int& n)
 	}
     }
 
-    ASSERT(n==i);
+    Q_ASSERT(n==i);
     return fmtetc;
 }
 

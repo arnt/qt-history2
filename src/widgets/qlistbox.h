@@ -189,7 +189,7 @@ public:
     int cellHeight( int i ) const { return itemHeight(i); }
     int cellHeight() const { return itemHeight(); }
     int cellWidth() const { return maxItemWidth(); }
-    int cellWidth(int i) const { ASSERT(i==0); return maxItemWidth(); }
+    int cellWidth(int i) const { Q_ASSERT(i==0); return maxItemWidth(); }
     int	numCols() const { return numColumns(); }
 #endif
 

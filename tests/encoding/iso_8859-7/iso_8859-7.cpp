@@ -21,7 +21,7 @@ int main( int argc, char *argv[] )
 
 	/* translate ISO 8859-7 to Unicode to display in a QLabel */
 	QTextCodec* codec = QTextCodec::codecForMib( ISO_8859_7_MIB );
-	ASSERT( codec );
+	Q_ASSERT( codec );
 	QString unicode_text = codec->toUnicode( iso_8859_7_text );
 	QLabel label( unicode_text, 0 );
 

@@ -187,7 +187,7 @@ QSocket::~QSocket()
 #endif
     if ( state() != Idle )
 	close();
-    ASSERT( d != 0 );
+    Q_ASSERT( d != 0 );
     delete d;
 }
 

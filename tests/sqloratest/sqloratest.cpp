@@ -17,10 +17,10 @@ void TestInsert()
 	database->transaction();
     for ( int i=0; i<TEST_RECS; ++i ) {
 	int r = database->exec( "insert into qsql_test values (" + QString::number(i) + ",'foo:" + QString::number(i) + "','blarg " + QString::number(i*10) + " blarg'," + QString::number(i*12.345) + ", '18-APR-1972');");
-	ASSERT( r == 1 );
+	Q_ASSERT( r == 1 );
     }
     int r = database->exec( "insert into qsql_test values (NULL,NULL,'should have nulls',NULL,NULL);");
-    ASSERT( r == 1);
+    Q_ASSERT( r == 1);
     if ( database->hasTransactionSupport() )
 	database->commit();
 }

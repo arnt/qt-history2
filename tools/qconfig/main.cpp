@@ -236,7 +236,7 @@ void Main::loadFeatures(const QString& filename)
 		sec = token.join(" ");
 		sections.append(sec);
 	    } else if ( token[0] == "#if" ) {
-		ASSERT(deps.isEmpty());
+		Q_ASSERT(deps.isEmpty());
 		for (int i=1; i<(int)token.count(); i++) {
 		    if ( token[i][0] == 'd' ) {
 			int index;

@@ -830,7 +830,7 @@ void QSlider::subtractStep()
 
 void QSlider::repeatTimeout()
 {
-    ASSERT( timer );
+    Q_ASSERT( timer );
     timer->disconnect();
     if ( state == TimingDown )
 	connect( timer, SIGNAL(timeout()), SLOT(subtractStep()) );

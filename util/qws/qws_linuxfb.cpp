@@ -96,7 +96,7 @@ memory.\n");
 
 #ifdef Q_WS_QWS
     gfx = QGfx::createRasterGfx( qfb.depth, qfb.fbp, qfb.width, qfb.height );
-    ASSERT( gfx );
+    Q_ASSERT( gfx );
 #endif
 }
 
@@ -113,7 +113,7 @@ void QWSServer::paintServerRegion()
 {
 
     if ( shmid == -1 ) {
-	ASSERT( fb_open );
+	Q_ASSERT( fb_open );
 /*	
 	QRegion sr = serverRegion.intersect( QRegion(0,0,fb_vinfo.xres,
 						     fb_vinfo.yres ));
@@ -153,7 +153,7 @@ void QWSServer::paintServerRegion()
 void QWSServer::paintBackground( QRegion r )
 {
     if ( shmid == -1 ) {
-	ASSERT ( fb_open );
+	Q_ASSERT ( fb_open );
 
 	//### testcode - should paint properly
 	uint col = fb_vinfo.bits_per_pixel == 32 ? 0x0030e0 : 0x0118;

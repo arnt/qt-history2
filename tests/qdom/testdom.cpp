@@ -7,7 +7,7 @@
 
 int main( int argc, char** argv )
 {
-  ASSERT( argc == 2 );
+  Q_ASSERT( argc == 2 );
 
   QFile file( argv[1] );
   if ( !file.open( IO_ReadOnly ) )
@@ -44,7 +44,7 @@ int main( int argc, char** argv )
       QApplication app( argc, argv );
       
       QWidget* w = doc.documentElement().toWidget();
-      ASSERT( w );
+      Q_ASSERT( w );
       w->show();
       
       app.exec();

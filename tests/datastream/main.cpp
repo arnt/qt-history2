@@ -92,7 +92,7 @@ void dumpPalette( const QPalette& p )
 bool Streamer::writeOut( QIODevice* dev, int ver, bool printable  )
 {
     QPixmap* pm = new QPixmap(open_xpm);
-    ASSERT( !pm->isNull() );
+    Q_ASSERT( !pm->isNull() );
 
     QDataStream s( dev );
     s.setPrintableData( printable );
@@ -195,7 +195,7 @@ bool Streamer::writeOut( QIODevice* dev, int ver, bool printable  )
 bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
 {
     QPixmap* pm = new QPixmap(open_xpm);
-    ASSERT( !pm->isNull() );
+    Q_ASSERT( !pm->isNull() );
 
     QDataStream s( dev );
     s.setPrintableData( printable );
@@ -207,17 +207,17 @@ bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
 
     QBitArray d1;
     s >> d1;
-    ASSERT( d1[0] == 1 );
-    ASSERT( d1[1] == 0 );
-    ASSERT( d1[2] == 1 );
+    Q_ASSERT( d1[0] == 1 );
+    Q_ASSERT( d1[1] == 0 );
+    Q_ASSERT( d1[2] == 1 );
 
     QBrush d2( red, CrossPattern );
     s >> d2;
-    ASSERT( d2 == QBrush( red, CrossPattern ) );
+    Q_ASSERT( d2 == QBrush( red, CrossPattern ) );
 
     QColor d3;
     s >> d3;
-    ASSERT( d3 == QColor ( 50, 100, 150 ) );
+    Q_ASSERT( d3 == QColor ( 50, 100, 150 ) );
 
 #if QT_VERSION >= 200
     QCString d4;
@@ -225,31 +225,31 @@ bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
     QString d4;
 #endif
     s >> d4;
-    ASSERT( d4 == "Faen her koder man" ); 
+    Q_ASSERT( d4 == "Faen her koder man" ); 
 
     QCursor d5;
     s >> d5;
-    ASSERT( d5.shape() == QCursor(waitCursor).shape() ); //## lacks operator==
+    Q_ASSERT( d5.shape() == QCursor(waitCursor).shape() ); //## lacks operator==
 
     QDate d6;
     s >> d6;
-    ASSERT( d6 == QDate( 1976, 4, 5 ) );
+    Q_ASSERT( d6 == QDate( 1976, 4, 5 ) );
 
     QTime d7;
     s >> d7;
-    ASSERT( d7 == QTime( 11, 45, 30, 791 ) );
+    Q_ASSERT( d7 == QTime( 11, 45, 30, 791 ) );
 
     QDateTime d8;
     s >> d8;
-    ASSERT( d8 == QDateTime( d6, d7 ) );
+    Q_ASSERT( d8 == QDateTime( d6, d7 ) );
 
     QFont d9;
     s >> d9;
-    ASSERT( d9 == QFont( "Courier", 18, QFont::Bold, TRUE ) );
+    Q_ASSERT( d9 == QFont( "Courier", 18, QFont::Bold, TRUE ) );
 
     QImage d12;
     s >> d12;
-    ASSERT( d12.size() == QImage( open_xpm ).size() );
+    Q_ASSERT( d12.size() == QImage( open_xpm ).size() );
     QImage ref( open_xpm );
     /*
     qDebug( "Alpha: %i %i", (int)d12.hasAlphaBuffer(), ref.hasAlphaBuffer() );
@@ -264,40 +264,40 @@ bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
 		qDebug( "Feil %i %i", j, i );
 
     */
-    //ASSERT( d12 == QImage( open_xpm ) );
+    //Q_ASSERT( d12 == QImage( open_xpm ) );
 
     QPalette d13;
     s >> d13;
-    ASSERT( d13 == QPalette( green ) );
+    Q_ASSERT( d13 == QPalette( green ) );
 
     QColorGroup d14;
     s >> d14;
-    ASSERT( d14 == QColorGroup( d13.normal() ) );
+    Q_ASSERT( d14 == QColorGroup( d13.normal() ) );
 
 
     QPixmap d16;
     s >> d16;
-    ASSERT( d16.size() == QPixmap( *pm ).size() ); //## lacks operator==
+    Q_ASSERT( d16.size() == QPixmap( *pm ).size() ); //## lacks operator==
 
 
     QPoint d17;
     s >> d17;
-    ASSERT( d17 == QPoint( -109, 110 ) );
+    Q_ASSERT( d17 == QPoint( -109, 110 ) );
 
 
     QRect d18;
     s >> d18;
-    ASSERT( d18 == QRect( 99, -100, 101, 102 ) );
+    Q_ASSERT( d18 == QRect( 99, -100, 101, 102 ) );
 
 
     QPointArray d19;
     s >> d19;
-    ASSERT( d19 == QPointArray( d18, TRUE ) );
+    Q_ASSERT( d19 == QPointArray( d18, TRUE ) );
 
 
     QRegion d20;
     s >> d20;
-    ASSERT( d20 == QRegion( d19 ) );
+    Q_ASSERT( d20 == QRegion( d19 ) );
 
     QPen origPen( blue, 3, DashDotLine );
 #if QT_VERSION >= 210
@@ -308,41 +308,41 @@ bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
 #endif
     QPen d15;
     s >> d15;
-    ASSERT( d15 == origPen );
+    Q_ASSERT( d15 == origPen );
 
     QSize d21;
     s >> d21;
-    ASSERT( d21 == QSize( 567, -568 ) );
+    Q_ASSERT( d21 == QSize( 567, -568 ) );
 
     QString d22;
     s >> d22;
-    ASSERT( d22 == QString( "Faen her spyr man" ) );
+    Q_ASSERT( d22 == QString( "Faen her spyr man" ) );
 
     // QStringList: Qt 2.0 specific
 
     QWMatrix d23;
     s >> d23;
-    //    ASSERT( d23 == QWMatrix( 1.2, 2.3, 3.4, 4.5, 5.6, 6.7 ) );
+    //    Q_ASSERT( d23 == QWMatrix( 1.2, 2.3, 3.4, 4.5, 5.6, 6.7 ) );
     QWMatrix m( 1.2, 2.3, 3.4, 4.5, 5.6, 6.7 );
     // Because of double vs. float rounding differences:
-    ASSERT( QABS(d23.m11() - m.m11()) < 1e-6 );
-    ASSERT( QABS(d23.m12() - m.m12()) < 1e-6 );
-    ASSERT( QABS(d23.m21() - m.m21()) < 1e-6 );
-    ASSERT( QABS(d23.m22() - m.m22()) < 1e-6 );
-    ASSERT( QABS(d23.dx() - m.dx()) < 1e-6 );
-    ASSERT( QABS(d23.dy() - m.dy()) < 1e-6 );
+    Q_ASSERT( QABS(d23.m11() - m.m11()) < 1e-6 );
+    Q_ASSERT( QABS(d23.m12() - m.m12()) < 1e-6 );
+    Q_ASSERT( QABS(d23.m21() - m.m21()) < 1e-6 );
+    Q_ASSERT( QABS(d23.m22() - m.m22()) < 1e-6 );
+    Q_ASSERT( QABS(d23.dx() - m.dx()) < 1e-6 );
+    Q_ASSERT( QABS(d23.dy() - m.dy()) < 1e-6 );
 
     QString d24;
     s >> d24;
-    ASSERT(d24.isNull());
+    Q_ASSERT(d24.isNull());
 
     QString d25;
     s >> d25;
-    ASSERT(d25.isEmpty());
+    Q_ASSERT(d25.isEmpty());
 
     QString d26;
     s >> d26;
-    ASSERT(d26=="nonempty");
+    Q_ASSERT(d26=="nonempty");
 
     return TRUE;
 }

@@ -1500,7 +1500,7 @@ void QHttpConnection::reply( const QHttpReplyHeader& repl, const char* data, uin
 
 void QHttpConnection::readyRead()
 {
-    ASSERT( m_state == Created || m_state == Reading || m_state == Alive );
+    Q_ASSERT( m_state == Created || m_state == Reading || m_state == Alive );
 
     // Stop the timeout if this is a keep alive connection.
     if ( m_killTimer )
@@ -1694,7 +1694,7 @@ void QHttpConnection::error( int )
 void QHttpConnection::timerEvent( QTimerEvent *e )
 {
     if ( e->timerId() == m_killTimer ) {
-	ASSERT( m_state == Closed || m_state == Alive );
+	Q_ASSERT( m_state == Closed || m_state == Alive );
 	delete this;
     } else {
 	QObject::timerEvent( e );

@@ -279,7 +279,7 @@ static void free_gc( Display *dpy, GC gc, bool privateGC = FALSE )
     privateGC = TRUE;				// will be slower
 #endif
     if ( privateGC ) {
-	ASSERT( dpy != 0 );
+	Q_ASSERT( dpy != 0 );
 	XFreeGC( dpy, gc );
 	return;
     }
@@ -707,7 +707,7 @@ void QPainter::updatePen()
 	    dashes[5] = dot;
 	    dash_len = 6;
     }
-    ASSERT( dash_len <= (int) sizeof(dashes) );
+    Q_ASSERT( dash_len <= (int) sizeof(dashes) );
 
     switch ( cpen.capStyle() ) {
     case SquareCap:

@@ -860,7 +860,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	return FALSE;
     }
 
-    ASSERT( object != 0 );
+    Q_ASSERT( object != 0 );
 
     if ( !o->isWidgetType() )
 	return FALSE;

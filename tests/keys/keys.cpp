@@ -125,7 +125,7 @@ T(QWExtra)
     QFont f("Times New Roman (Cyrillic)");
     QApplication::setFont(f);
 
-    #define T(x) ASSERT(QAccel::keyToString(QAccel::stringToKey(x))==x)
+    #define T(x) Q_ASSERT(QAccel::keyToString(QAccel::stringToKey(x))==x)
     T("A");
     T("Ctrl+D");
     T("Ctrl++");

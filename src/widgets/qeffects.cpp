@@ -328,7 +328,7 @@ QRollEffect::QRollEffect( QWidget* w, WFlags f, DirFlags orient )
     : QWidget( 0, 0, f ), orientation(orient)
 {
     widget = (QAccessWidget*) w;
-    ASSERT( widget );
+    Q_ASSERT( widget );
 
     setBackgroundMode( NoBackground );
 

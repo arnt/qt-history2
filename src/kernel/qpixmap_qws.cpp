@@ -251,7 +251,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     int xoffset,linestep;
     memorymanager->findPixmap(data->id,data->rw,data->d,&dest,&xoffset,&linestep);
 
-    ASSERT((xoffset&7) == 0); // if not, we need to fix this to do a bitblt
+    Q_ASSERT((xoffset&7) == 0); // if not, we need to fix this to do a bitblt
     dest += xoffset/8;
 
     uchar *src = (uchar*)bits;

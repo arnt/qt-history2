@@ -157,8 +157,8 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
       img3 = img3.convertDepth(8,Qt::AvoidDither);
 
       clusterizer.clear();
-      ASSERT( img1.depth() == 32 );
-      ASSERT( img2.depth() == 32 );
+      Q_ASSERT( img1.depth() == 32 );
+      Q_ASSERT( img2.depth() == 32 );
 
       // Variables used for demo mode
       QPainter painter;

@@ -984,7 +984,7 @@ int QMultiCellPixmap::allocCell( int height )
 	n->offset += height;
 	n->size -= height;
     } else {					// perfect fit, height == size
-	ASSERT( n->size == height );
+	Q_ASSERT( n->size == height );
 	free_list->remove();			// remove the node
     }
     int pm_height = pixmap->height();
@@ -1147,7 +1147,7 @@ void QPixmap::freeCell( bool terminate )
     data->mcp = FALSE;
     delete DATA_MCPI;
     DATA_MCPI = 0;
-    ASSERT( hdc == 0 );
+    Q_ASSERT( hdc == 0 );
     if ( terminate ) {				// pixmap is being destroyed
 	DATA_HBM = 0;
     } else {
@@ -1161,7 +1161,7 @@ void QPixmap::freeCell( bool terminate )
     mcp->freeCell( offset, data->h );
     if ( mcp->isEmpty() ) {			// no more cells left
 	int i = index_of_mcp_list(width(),depth()==1,0);
-	ASSERT( i >= 0 && mcp_lists[i] );
+	Q_ASSERT( i >= 0 && mcp_lists[i] );
 	if ( mcp_lists[i]->count() > 1 ) {	// don't remove the last one
 	    mcp_lists[i]->remove( mcp );
 	    if ( mcp_lists[i]->isEmpty() ) {

@@ -1300,7 +1300,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     const char* locale = ::setlocale( LC_ALL, "" );
     if ( !locale || qstrcmp( locale, "C" ) == 0 ) {
 	locale = ::setlocale( LC_ALL, "en_US" );
-	ASSERT( qstrcmp( locale, "en_US" ) == 0 );
+	Q_ASSERT( qstrcmp( locale, "en_US" ) == 0 );
     }
 #else
     setlocale( LC_ALL, "" );		// use correct char set mapping

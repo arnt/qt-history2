@@ -176,7 +176,7 @@ void QDialog::setDefault( QPushButton *pushButton )
 {
 #ifndef QT_NO_DIALOG
     QObjectList *list = queryList( "QPushButton" );
-    ASSERT(list);
+    Q_ASSERT(list);
     QObjectListIt it( *list );
     QPushButton *pb;
     bool hasMain = FALSE;

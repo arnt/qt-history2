@@ -1619,7 +1619,7 @@ int QTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
 	    r	     = yCellOffs;
 	    int h    = minViewY() - yCellDelta; //##arnt3
 	    int oldH = h;
-	    ASSERT( r < nRows );
+	    Q_ASSERT( r < nRows );
 	    while ( r < nRows ) {
 		oldH = h;
 		h += tw->cellHeight( r );	     // Start of next cell
@@ -1666,7 +1666,7 @@ int QTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
 	    c	     = xCellOffs;
 	    int w    = minViewX() - xCellDelta; //##arnt3
 	    int oldW = w;
-	    ASSERT( c < nCols );
+	    Q_ASSERT( c < nCols );
 	    while ( c < nCols ) {
 		oldW = w;
 		w += tw->cellWidth( c );	// Start of next cell

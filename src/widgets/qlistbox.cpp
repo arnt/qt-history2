@@ -137,7 +137,7 @@ public:
 
 QListBoxPrivate::~QListBoxPrivate()
 {
-    ASSERT( !head );
+    Q_ASSERT( !head );
 }
 
 
@@ -1008,7 +1008,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
 {
     if ( !list ) {
 #if defined(QT_CHECK_NULL)
-	ASSERT( list != 0 );
+	Q_ASSERT( list != 0 );
 #endif
 	return;
     }
@@ -1096,7 +1096,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 {
     if ( !strings ) {
 #if defined(QT_CHECK_NULL)
-	ASSERT( strings != 0 );
+	Q_ASSERT( strings != 0 );
 #endif
 	return;
     }
@@ -1124,7 +1124,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 void QListBox::insertItem( const QListBoxItem *lbi, int index )
 {
 #if defined ( QT_CHECK_NULL )
-    ASSERT( lbi != 0 );
+    Q_ASSERT( lbi != 0 );
 #else
     if ( !lbi )
 	return;
@@ -1190,7 +1190,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 {
 #if defined ( QT_CHECK_NULL )
-    ASSERT( lbi != 0 );
+    Q_ASSERT( lbi != 0 );
 #else
     if ( !lbi )
 	return;

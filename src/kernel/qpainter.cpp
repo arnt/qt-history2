@@ -1429,7 +1429,7 @@ void QPainter::updateXForm()
 void QPainter::updateInvXForm()
 {
 #if defined(QT_CHECK_STATE)
-    ASSERT( txinv == FALSE );
+    Q_ASSERT( txinv == FALSE );
 #endif
     txinv = TRUE;				// creating inverted matrix
     bool invertible;

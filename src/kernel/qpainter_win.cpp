@@ -707,7 +707,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
 
     pdev->painters++;				// also tell paint device
-    ASSERT(pdev->painters==1);
+    Q_ASSERT(pdev->painters==1);
     bro = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode

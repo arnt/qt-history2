@@ -193,7 +193,7 @@ QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 {
     QPixmap::operator=(bitmap);
 #if defined(QT_CHECK_STATE)
-    ASSERT( data->bitmap );
+    Q_ASSERT( data->bitmap );
 #endif
     return *this;
 }

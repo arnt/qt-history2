@@ -148,7 +148,7 @@ void QFont::macSetFont(QPaintDevice *v)
 {
     if(v && !v->paintingActive()) {
 	qDebug("I was really hoping it would never come to this...");
-	ASSERT(0); //we need to figure out if this can really happen
+	Q_ASSERT(0); //we need to figure out if this can really happen
     }
 
     TextSize(pointSize());
