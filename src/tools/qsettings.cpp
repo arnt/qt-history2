@@ -188,6 +188,8 @@
 */
 
 #if defined(Q_OS_UNIX)
+// avoid pulling in qnamespace.h from kernel to get the HANDLE typedef
+typedef unsigned long HANDLE;
 #define Q_LOCKREAD F_RDLCK
 #define Q_LOCKWRITE F_WRLCK
 /*
