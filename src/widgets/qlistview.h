@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#83 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#84 $
 **
 ** Definition of QListView widget class
 **
@@ -73,7 +73,8 @@ public:
     virtual ~QListViewItem();
 
     virtual void insertItem( QListViewItem * );
-    virtual void removeItem( QListViewItem * );
+    virtual void takeItem( QListViewItem * );
+    virtual void removeItem( QListViewItem * ); //obsolete, use takeItem instead
 
     int height() const;
     virtual void invalidateHeight();
@@ -171,7 +172,8 @@ public:
     virtual void setTreeStepSize( int );
 
     virtual void insertItem( QListViewItem * );
-    virtual void removeItem( QListViewItem * );
+    virtual void takeItem( QListViewItem * );
+    virtual void removeItem( QListViewItem * ); // obsolete, use takeItem instead
 
     virtual void clear();
 

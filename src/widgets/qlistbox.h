@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#85 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#86 $
 **
 ** Definition of QListBox widget class
 **
@@ -70,6 +70,8 @@ public:
     void changeItem( const QListBoxItem *, int index );
     void changeItem( const QString &text, int index );
     void changeItem( const QPixmap &pixmap, int index );
+
+    void takeItem( const QListBoxItem * );
 
     int numItemsVisible() const;
 
@@ -238,17 +240,22 @@ private:	// Disabled copy constructor and operator=
 class Q_EXPORT QListBoxItem
 {
 public:
-    QListBoxItem();
+    QListBoxItem( QListBox* listbox = 0);
     virtual ~QListBoxItem();
 
     virtual QString text() const;
     virtual const QPixmap *pixmap() const;
 
-    virtual int	 height( const QListBox * ) const = 0;
-    virtual int	 width( const QListBox * )  const = 0;
+    virtual int	 height() const;
+    virtual int	 width()  const;
+
+    virtual int	 height( const QListBox * ) const; // obolete, use height() instead
+    virtual int	 width( const QListBox * )  const; // obolete, use width() instead
 
     bool selected() const { return s; }
 
+    QListBox *listBox() const;
+    
 protected:
     virtual void paint( QPainter * ) = 0;
     virtual void setText( const QString &text ) { txt = text; }
@@ -259,7 +266,7 @@ private:
     uint dirty:1;
     int x, y;
     QListBoxItem * p, * n;
-
+    QListBox* lbox;
     friend class QListBox;
 
 private:	// Disabled copy constructor and operator=
@@ -273,11 +280,12 @@ private:	// Disabled copy constructor and operator=
 class Q_EXPORT QListBoxText : public QListBoxItem
 {
 public:
+    QListBoxText( QListBox* listbox, const QString & text=QString::null );
     QListBoxText( const QString & text=QString::null );
    ~QListBoxText();
     void  paint( QPainter * );
-    int	  height( const QListBox * ) const;
-    int	  width( const QListBox * )  const;
+    int height() const;
+    int width()  const;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QListBoxText( const QListBoxText & );
@@ -289,13 +297,14 @@ private:	// Disabled copy constructor and operator=
 class Q_EXPORT QListBoxPixmap : public QListBoxItem
 {
 public:
+    QListBoxPixmap( QListBox* listbox, const QPixmap & );
     QListBoxPixmap( const QPixmap & );
    ~QListBoxPixmap();
     const QPixmap *pixmap() const { return &pm; }
 protected:
     void paint( QPainter * );
-    int height( const QListBox * ) const;
-    int width( const QListBox * ) const;
+    int height() const;
+    int width() const;
 private:
     QPixmap pm;
 private:	// Disabled copy constructor and operator=

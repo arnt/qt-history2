@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#236 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#237 $
 **
 ** Implementation of QListBox widget class
 **
@@ -126,8 +126,8 @@ QListBoxPrivate::~QListBoxPrivate()
 
     protected:
 	virtual void paint( QPainter * );
-	virtual int height( const QListBox * ) const;
-	virtual int width( const QListBox * ) const;
+	virtual int height() const;
+	virtual int width() const;
 	virtual const QPixmap *pixmap() { return &pm; }
 
     private:
@@ -146,14 +146,14 @@ QListBoxPrivate::~QListBoxPrivate()
 	p->drawText( pm.width() + 5, yPos, text() );
     }
 
-    int MyListBoxItem::height(const QListBox *lb ) const
+    int MyListBoxItem::height() const
     {
-	return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
+	return QMAX( pm.height(), listBox()->fontMetrics().lineSpacing() + 1 );
     }
 
-    int MyListBoxItem::width(const QListBox *lb ) const
+    int MyListBoxItem::width() const
     {
-	return pm.width() + lb->fontMetrics().width( text() ) + 6;
+	return pm.width() + listBox()->fontMetrics().width( text() ) + 6;
     }
   \endcode
 
@@ -162,17 +162,21 @@ QListBoxPrivate::~QListBoxPrivate()
 
 
 /*!
-  Constructs an empty list box item.
+  Constructs an empty list box item in the listbox \a listbox
 */
 
-QListBoxItem::QListBoxItem()
+QListBoxItem::QListBoxItem( QListBox* listbox )
 {
+    lbox = listbox;
     s = FALSE;
     dirty = TRUE;
     p = n = 0;
 
     // just something that'll look noticeable in the debugger
     x = y = 42;
+    
+    if (listbox)
+	listbox->insertItem( this );
 }
 
 /*!
@@ -181,10 +185,8 @@ QListBoxItem::QListBoxItem()
 
 QListBoxItem::~QListBoxItem()
 {
-    if ( p && p->n == this )
-	p->n = p;
-    if ( n && n->p == this )
-	n->p = n;
+    if ( lbox )
+	lbox->takeItem( this );
 }
 
 
@@ -196,7 +198,47 @@ QListBoxItem::~QListBoxItem()
   \sa height(), width()
 */
 
+
+
+/*
+  \fn int QListBoxItem::width() const
+
+  Implement this function to return the width of your item
+
+  \sa paint(), height()
+*/
+int QListBoxItem::width()  const
+{
+    return width( listBox() ); // compatibility
+}
+
 /*!
+  \fn int QListBoxItem::height() const
+
+  Implement this function to return the height of your item
+
+  \sa paint(), width()
+*/
+int QListBoxItem::height()  const
+{
+    return height( listBox() ); // compatibility
+}
+
+
+/*!\obsolete
+  \fn int QListBoxItem::width(	const QListBox * ) const
+
+  Implement this function to return the width of your item
+
+  \sa paint(), height()
+*/
+
+int QListBoxItem::width( const QListBox * )  const
+{
+    return 0;
+}
+
+/*!\obsolete
   \fn int QListBoxItem::height( const QListBox * ) const
 
   Implement this function to return the height of your item
@@ -204,13 +246,12 @@ QListBoxItem::~QListBoxItem()
   \sa paint(), width()
 */
 
-/*!
-  \fn int QListBoxItem::width(	const QListBox * ) const
+int QListBoxItem::height( const QListBox * ) const
+{
+    return 0;
+}
 
-  Implement this function to return the width of your item
 
-  \sa paint(), height()
-*/
 
 /*!
   Returns the text of the item, which is used for sorting.
@@ -255,6 +296,15 @@ const QPixmap *QListBoxItem::pixmap() const
 
 
 /*!
+  Constructs a list box item in listbox \a listtbox showing the text \a text.
+*/
+QListBoxText::QListBoxText( QListBox* listbox, const QString & text=QString::null )
+    :QListBoxItem( listbox )
+{
+    setText( text );
+}
+
+/*!
   Constructs a list box item showing the text \a text.
 */
 
@@ -288,9 +338,9 @@ void QListBoxText::paint( QPainter *p )
   \sa paint(), width()
 */
 
-int QListBoxText::height( const QListBox * l ) const
+int QListBoxText::height() const
 {
-    return l ? l->fontMetrics().lineSpacing() + 2 : 0;
+    return listBox() ? listBox()->fontMetrics().lineSpacing() + 2 : 0;
 }
 
 /*!
@@ -299,9 +349,9 @@ int QListBoxText::height( const QListBox * l ) const
   \sa paint(), height()
 */
 
-int QListBoxText::width( const QListBox * l ) const
+int QListBoxText::width() const
 {
-    return l ? l->fontMetrics().width( text() ) + 6 : 0;
+    return listBox() ? listBox()->fontMetrics().width( text() ) + 6 : 0;
 }
 
 
@@ -311,6 +361,17 @@ int QListBoxText::width( const QListBox * l ) const
 
   \sa QListBox, QListBoxItem
 */
+
+
+/*!
+  Creates a new list box item in listbox \a listbox showing the pixmap \a pixmap.
+*/
+
+QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap )
+    : QListBoxItem( listbox )
+{
+    pm = pixmap;
+}
 
 /*!
   Creates a new list box item showing the pixmap \a pixmap.
@@ -352,7 +413,7 @@ void QListBoxPixmap::paint( QPainter *p )
   \sa paint(), width()
 */
 
-int QListBoxPixmap::height( const QListBox * ) const
+int QListBoxPixmap::height() const
 {
     return pm.height();
 }
@@ -363,7 +424,7 @@ int QListBoxPixmap::height( const QListBox * ) const
   \sa paint(), height()
 */
 
-int QListBoxPixmap::width( const QListBox * ) const
+int QListBoxPixmap::width() const
 {
     return pm.width() + 6;
 }
@@ -413,15 +474,15 @@ int QListBoxPixmap::width( const QListBox * ) const
   property of QListBox and you may not delete it.  (QListBox will
   delete it when appropriate.)
 
+  You can also create a QListBoxItem such as QListBoxText or
+  QListBoxPixmap with the list box as first parameter. The item will
+  then append itself. When deleteting an item, it will automatically
+  be remove from the listbox again.
 
-
-
-
-
-
-
-
-
+  
+  
+  
+  
   The list of items can be arbitrarily big; if necessary, QListBox
   adds scroll bars.  It can be single-column (as most list boxes are)
   or multi-column, and offers both single and multiple selection.
@@ -448,23 +509,8 @@ highlighted.
   get keyboard focus both by tabbing and clicking.
 
   New items may be inserted using either insertItem(), insertStrList()
-  and inSort().  The list box is automatically updated to reflect the
-  change; if you are going to insert a lot of data it may be
-  worthwhile to wrap the insertion in calls to setAutoUpdate():
-
-  \code
-      listBix->setAutoUpdate( FALSE );
-      for( i=1; i< hugeArray->count(); i++ )
-          listBox->insertItem( hugeArray[i] );
-      listBox->setAutoUpdate( TRUE );
-      listBox->repaint();
-  \endcode
-
-  Each change to insertItem() normally causes a screen update, and for
-  a large change only a few of those updates are really necessary.  Be
-  careful to call repaint() when you re-enable updates, so the widget
-  is completely repainted.
-
+  and inSort().
+  
   By default, vertical and horizontal scroll bars are added and
   removed as necessary.	 setAutoScrollBar() can be used to force a
   specific policy.
@@ -768,6 +814,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	index = count();
 
     QListBoxItem * item = (QListBoxItem *)lbi;
+    item->lbox = this;
     if ( !d->head || index == 0 ) {
 	item->n = d->head;
 	item->p = 0;
@@ -822,7 +869,7 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 }
 
 
-/*!  Removes the item at position \a index. If \a index is equal to
+/*!  Removes and deletes the item at position \a index. If \a index is equal to
 currentItem(), a new item gets selected and the highlighted() signal
 is emitted.
 
@@ -830,8 +877,8 @@ is emitted.
 
 void QListBox::removeItem( int index )
 {
-    d->count--;
     delete item( index );
+    triggerUpdate( TRUE );
 }
 
 
@@ -1880,7 +1927,7 @@ void QListBox::doLayout() const
 	    int maxh = 0;
 	    QListBoxItem * i = d->head;
 	    while ( i ) {
-		int h = i->height( this );
+		int h = i->height();
 		if ( maxh < h )
 		    maxh = h;
 		i = i->n;
@@ -1919,7 +1966,7 @@ void QListBox::doLayout() const
 	    int maxw = 0;
 	    QListBoxItem * i = d->head;
 	    while ( i ) {
-		int tw = i->width( this );
+		int tw = i->width();
 		if ( maxw < tw )
 		    maxw = tw;
 		i = i->n;
@@ -2000,10 +2047,10 @@ void QListBox::tryGeometry( int rows, int columns ) const
 	    d->currentRow = r;
 	    d->currentColumn = c;
 	}
-	int w = i->width( this );
+	int w = i->width();
 	if ( d->columnPos[c] < w )
 	    d->columnPos[c] = w;
-	int h = i->height( this );
+	int h = i->height();
 	if ( d->rowPos[r] < h )
 	    d->rowPos[r] = h;
 	i = i->n;
@@ -2402,7 +2449,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 		r = r.subtract( itemPaintRegion );
 	    }
 	    row++;
-	    if ( i->dirty ) { 
+	    if ( i->dirty ) {
 		// reset dirty flag only if the entire item was painted
 		if ( itemPaintRegion == QRegion( itemRect ) )
 		    i->dirty = FALSE;
@@ -2572,3 +2619,33 @@ bool QListBox::itemYPos( int index, int *yPos ) const
     return TRUE;
 }
 
+
+
+
+/*! Returns a pointer to the listbox containing this item.
+*/
+
+QListBox * QListBoxItem::listBox() const
+{
+    return lbox;
+}
+
+
+/*!
+  Removes \a item from the listbox and causes an update of the screen
+  display.  The item is not deleted. You should normally not need to
+  call this function, as QListBoxItem::~QListBoxItem() calls it. The
+  normal way to delete an item is \c delete.
+
+  \sa QListBox::insertItem()
+*/
+void QListBox::takeItem( const QListBoxItem * item)
+{
+    d->count--;
+    if ( item->p && item->p->n == item )
+	item->p->n = item->p;
+    if ( item->n && item->n->p == item )
+	item->n->p = item->n;
+    
+    triggerUpdate( TRUE );
+}

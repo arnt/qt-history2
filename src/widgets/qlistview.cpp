@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#235 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#236 $
 **
 ** Implementation of QListView widget class
 **
@@ -533,7 +533,8 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 }
 
 
-/*!  Removes \a tbg from this object's list of children and causes an
+/*!\obsolete
+  Removes \a tbg from this object's list of children and causes an
   update of the screen display.  You should normally not need to call
   this function, as QListViewItem::~QListViewItem() calls it. The normal way
   to delete an item is \c delete.
@@ -544,10 +545,9 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 
   \sa QListViewItem::insertItem()
 */
-
-void QListViewItem::removeItem( QListViewItem * tbg )
+void QListViewItem::removeItem( QListViewItem * item )
 {
-    if ( !tbg )
+    if ( !item )
 	return;
 
     QListView * lv = listView();
@@ -556,7 +556,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
         if ( lv->d->iterators ) {
 	    QListViewItemIterator *i = lv->d->iterators->first();
 	    while ( i ) {
-   	        if ( i->current() == tbg )
+   	        if ( i->current() == item )
 		    i->currentRemoved();
 		i = lv->d->iterators->next();
 	    }
@@ -570,21 +570,21 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 	}
 
 	if ( lv->d->dirtyItems ) {
-	    if ( tbg->childItem ) {
+	    if ( item->childItem ) {
 		delete lv->d->dirtyItems;
 		lv->d->dirtyItems = 0;
 		lv->d->dirtyItemTimer->stop();
 		lv->triggerUpdate();
 	    } else {
-		lv->d->dirtyItems->take( (void *)tbg );
+		lv->d->dirtyItems->take( (void *)item );
 	    }
 	}
 
 	if ( lv->d->currentSelected ) {
 	    QListViewItem * c = lv->d->currentSelected;
-	    while( c && c != tbg )
+	    while( c && c != item )
 		c = c->parentItem;
-	    if ( c == tbg ) {
+	    if ( c == item ) {
 		lv->d->currentSelected = 0;
 		emit lv->selectionChanged( 0 );
 	    }
@@ -592,9 +592,9 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 
 	if ( lv->d->focusItem ) {
 	    const QListViewItem * c = lv->d->focusItem;
-	    while( c && c != tbg )
+	    while( c && c != item )
 		c = c->parentItem;
-	    if ( c == tbg )
+	    if ( c == item )
 		lv->d->focusItem = 0;
 	}
     }
@@ -602,12 +602,31 @@ void QListViewItem::removeItem( QListViewItem * tbg )
     nChildren--;
 
     QListViewItem ** nextChild = &childItem;
-    while( nextChild && *nextChild && tbg != *nextChild )
+    while( nextChild && *nextChild && item != *nextChild )
 	nextChild = &((*nextChild)->siblingItem);
 
-    if ( nextChild && tbg == *nextChild )
+    if ( nextChild && item == *nextChild )
 	*nextChild = (*nextChild)->siblingItem;
-    tbg->parentItem = 0;
+    item->parentItem = 0;
+}
+
+
+/*!
+  Removes \a item from this object's list of children and causes an
+  update of the screen display.  You should normally not need to call
+  this function, as QListViewItem::~QListViewItem() calls it. The normal way
+  to delete an item is \c delete.
+
+  \warning This function leaves \a item and its children in a state
+  where most member functions are unsafe.  Only the few functions that
+  are explicitly documented to work in this state may be used then.
+
+  \sa QListViewItem::insertItem()
+*/
+
+void QListViewItem::takeItem( QListViewItem * item )
+{
+    removeItem( item );
 }
 
 
@@ -4182,7 +4201,8 @@ int QListViewItem::itemPos() const
 }
 
 
-/*!  Removes \a i from the list view; \a i must be a top-level item.
+/*!\obsolete
+  Removes \a i from the list view; \a i must be a top-level item.
   The warnings regarding QListViewItem::removeItem( i ) apply to this
   function too.
 
@@ -4193,6 +4213,18 @@ void QListView::removeItem( QListViewItem * i )
 {
     d->r->removeItem( i );
 }
+
+/*!  Removes \a i from the list view; \a i must be a top-level item.
+  The warnings regarding QListViewItem::takeItem( i ) apply to this
+  function too.
+
+  \sa QListViewItem::takeItem() (important) insertItem()
+*/
+void QListView::takeItem( QListViewItem * i )
+{
+    removeItem( i );
+}
+
 
 /**********************************************************************
  *

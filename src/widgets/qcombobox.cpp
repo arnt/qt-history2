@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#206 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#207 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1271,7 +1271,7 @@ void QComboBox::focusInEvent( QFocusEvent * )
 static int listHeight( QListBox *l, int sl )
 {
     if ( l->count() > 0 )
-        return QMIN( l->count(), (uint)sl) * l->item( 0 )->height( l );
+        return QMIN( l->count(), (uint)sl) * l->item( 0 )->height();
     else
         return l->sizeHint().height();
 }
