@@ -68,7 +68,7 @@ public:
     QString anchorAt( const QPoint& pos ) const;
     QString anchor( QPainter* p, const QPoint& pos ); // remove in 3.0
     
-    bool hitTest( const QPoint& pos ) const;
+    bool inText( const QPoint& pos ) const;
 
 private:
     QSimpleRichTextData* d;

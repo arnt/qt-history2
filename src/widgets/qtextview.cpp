@@ -534,6 +534,8 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	b = b->nextInDocument();
     };
 
+    to.selstart = QtTriple();
+    to.selstart = to.selend;
     richText().flow()->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
     p->setClipRegion(r);
 
@@ -665,7 +667,8 @@ QString QTextView::selectedText() const
 	    column += s.length();
 	}
 	int oldpar = it.position().a;
-	it.right( FALSE );
+	if ( !it.right( FALSE ) )
+	    break;
 	if ( it.position().a != oldpar ) {
 	    txt += '\n';
 	    column = 0;
@@ -874,8 +877,7 @@ void QTextView::clearSelection()
 	viewport()->update();
     else {
 	QRect r = it.lineGeometry();
-	while ( it.position() < d->selend ) {
-	    it.right();
+	while ( it.position() < d->selend && it.right() ) {
 	    r = r.unite( it.lineGeometry() );
 	}
 	updateContents( r );

@@ -145,8 +145,7 @@ public:
     virtual void realize( QPainter* ) { width = 0; }
 
     enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
-    virtual Placement placement() { return PlaceInline; }
-
+    virtual Placement placement() const { return PlaceInline; }
     bool placeInline() { return placement() == PlaceInline; }
 
     virtual bool noErase() const { return FALSE; };
@@ -339,7 +338,7 @@ public:
 		       const QMimeSourceFactory &factory);
     ~QTextImage();
 
-    Placement placement();
+    Placement placement() const { return place; }
 
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,

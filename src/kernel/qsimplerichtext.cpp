@@ -307,7 +307,7 @@ void QSimpleRichText::adjustSize()
 /*!
   Returns whether \a pos is within a text line of the document or not.
  */
-bool QSimpleRichText::hitTest( const QPoint& pos ) const
+bool QSimpleRichText::inText( const QPoint& pos ) const
 {
     QRichTextIterator it( *d->doc );
     return it.goTo( pos );

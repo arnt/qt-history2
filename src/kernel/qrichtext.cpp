@@ -42,6 +42,8 @@
 #include <qdrawutil.h>
 #include <limits.h>
 
+static int qt_text_paragraph_id = 0;
+
 class QTextTableCell : public QLayoutItem
 {
 public:
@@ -107,6 +109,7 @@ public:
 
     bool noErase() const { return TRUE; };
     bool expandsHorizontally() const { return TRUE; }
+    Placement placement() const { return place; }
     bool isTable() const { return TRUE; }
     void resize( QPainter*, int nwidth );
     QString anchorAt( QPainter* p, int x, int y );
@@ -126,6 +129,8 @@ private:
     int border;
     int outerborder;
     int stretch;
+    
+    Placement place;
 };
 
 
@@ -204,26 +209,18 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
 	}
     }
 
-    if ( pm.isNull() && (width*height)==0 ) {
+    if ( pm.isNull() && (width*height)==0 )
 	width = height = 50;
-    }
 
     place = PlaceInline;
     if ( attr["align"] == "left" )
 	place = PlaceLeft;
     else if ( attr["align"] == "right" )
 	place = PlaceRight;
-
 }
 
 QTextImage::~QTextImage()
 {
-}
-
-
-QTextCustomItem::Placement QTextImage::placement()
-{
-    return place;
 }
 
 void QTextImage::draw(QPainter* p, int x, int y,
@@ -477,19 +474,24 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		}
 	    }
 	    else if ( tagname == "table" ) {
-		QTextCharFormat nfmt( fmt.makeTextFormat( nstyle, attr ) );
 		PROVIDE_DUMMY
-		QTextParagraph* table = new QTextParagraph( current, formats, fmt,  nullstyle );
-		if ( current->child ) {
-		    QTextParagraph* it = current->child;
-		    while ( it->next )
-			it = it->next;
-		    it->next = table;
-		} else
-		    current->child = table;
+		int reserved_id = qt_text_paragraph_id++;
+		QTextCharFormat nfmt( fmt.makeTextFormat( nstyle, attr ) );
 		custom = parseTable( attr, nfmt, doc, pos );
-		table->text.append( "", fmt.makeTextFormat( nstyle, attr, custom )  );
-		table->text.append( " ", fmt );
+		(dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
+ 		(dummy?dummy:current)->text.append( "", fmt ) ;
+		if ( custom->placeInline() ) {
+		    // inline tables need to be at the end of a paragraph for proper selection handling
+		    if ( !current->text.isEmpty() ){
+			dummy = new QTextParagraph( current, formats, fmt, nullstyle );
+			dummy->id = reserved_id;
+			dummy->text = current->text;
+			current->text.clear();
+			current->child = dummy;
+		    }
+		    dummy = 0;
+		    PROVIDE_DUMMY
+		}
 		CLOSE_TAG
 	    }
 	    else if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
@@ -574,6 +576,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 	    }
 	}
     }
+    ENSURE_ENDTOKEN
     return TRUE;
 }
 
@@ -1035,7 +1038,7 @@ bool QRichTextIterator::right( bool doFormat )
     QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
 
     QTextCustomItem* c = f.format()->customItem();
-    if ( c && c->isTable() ) {
+    if ( c && c->isTable() && c->placeInline() ) {
 	QTextTable* table = (QTextTable*) c;
 	if ( !table->cells.isEmpty() ) {
 	    Item* item = new Item( f, table->cells );
@@ -1111,7 +1114,7 @@ bool QRichTextIterator::goTo( const QPoint& pos )
     stack.clear();
     bool within = fc.goTo( 0, pos.x(), pos.y() );
     QTextCustomItem* c = fc.format()->customItem();
-    if ( c && c->isTable() ) {
+    if ( c && c->isTable() && c->placeInline() ) {
 	QTextTable* table = (QTextTable*) c;
 	if ( table->cells.isEmpty() )
 	    return FALSE;
@@ -1140,8 +1143,8 @@ void QRichTextIterator::goTo( const QtTriple& pos )
     QtTriple rawpos = pos; rawpos.c = 0;
     stack.clear();
     fc.gotoParagraph( 0, &doc );
-    while ( position() < rawpos )
-	right( FALSE );
+    while ( position() < rawpos && right( FALSE ) )
+	;
     QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
     f.currentoffset = pos.c;
 }
@@ -1239,8 +1242,6 @@ QTextParagraph::QTextParagraph( QTextParagraph* p, QTextFormatCollection* format
     init();
 };
 
-
-static int qt_text_paragraph_id;
 
 void QTextParagraph::init()
 {
@@ -1585,13 +1586,13 @@ bool QRichTextFormatter::gotoNextLine( QPainter* p )
 	paragraph->dirty = FALSE;
 	return FALSE;
     }
-    current++;
-    currentx = lmargin;
-    y_ += height;
+    y_ += height + 1;
     width = flow->width;
     lmargin = flow->adjustLMargin( y_, static_lmargin );
     lmargin += static_labelmargin;
     rmargin = flow->adjustRMargin( y_, static_rmargin );
+    current++;
+    currentx = lmargin;
 
     height = 0;
     updateCharFormat( p );
@@ -1954,9 +1955,8 @@ bool QRichTextFormatter::goTo( QPainter* p, int xpos, int ypos )
 		if ( ypos <= geom.bottom()  ) {
 		    gotoLineStart( p );
 		    if ( ypos >= geom.top() ) {
-			while ( !atEndOfLine() && geom.left() + x() < xpos ) {
+			while ( !atEndOfLine() && geom.left() + x() < xpos )
 			    right( p );
-			}
 			if ( geom.left() + x() > xpos )
 			    left( p ); //####necesssary? TODO
 		    }
@@ -2058,7 +2058,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	    floatingItems.append( custom );
 	}
 
-	bool custombreak = custom && custom->ownLine();
+	bool custombreak = custom && custom->ownLine() && custom->placeInline();
 
 	if ( custombreak && current > first ) {
 	    // break _before_ a custom expander
@@ -2137,7 +2137,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     int fl = lmargin;
     int fr = width - rmargin;
     for ( QTextCustomItem* item = floatingItems.first(); item; item = floatingItems.next() ) {
-	item->y = y_ + height;
+	item->y = y_ + height + 1;
 	flow->adjustFlow( item->y, item->width, item->height );
 	if ( item->placement() == QTextCustomItem::PlaceRight ) {
 	    fr -= item->width;
@@ -2309,6 +2309,11 @@ QTextTable::QTextTable(const QMap<QString, QString> & attr  )
 	}
     }
 
+    place = PlaceInline;
+    if ( attr["align"] == "left" )
+	place = PlaceLeft;
+    else if ( attr["align"] == "right" )
+	place = PlaceRight;
     cachewidth = 0;
 }
 
