@@ -1921,6 +1921,7 @@ BreakLayoutCommand *FormWindow::breakLayoutCommand( QWidget *w )
     QWidgetList widgets;
     for ( QObject *o = l->first(); o; o = l->next() ) {
 	if ( o->isWidgetType() &&
+	     !mainWindow()->isAToolBarChild( (QWidget*)o ) &&
 	     ( (QWidget*)o )->isVisibleTo( this ) &&
 	     insertedWidgets.find( (QWidget*)o ) )
 	    widgets.append( (QWidget*)o );

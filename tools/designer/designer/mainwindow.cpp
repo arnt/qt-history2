@@ -3420,7 +3420,7 @@ void MainWindow::selectionChanged()
 	    actionEditVLayout->setEnabled( FALSE );
 	    actionEditGridLayout->setEnabled( FALSE );
 	    if ( w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout ) {
-		actionEditBreakLayout->setEnabled( TRUE );
+		actionEditBreakLayout->setEnabled( !isAToolBarChild( w ) );
 		breakLayout = TRUE;
 	    } else {
 		actionEditBreakLayout->setEnabled( FALSE );
@@ -3440,14 +3440,14 @@ void MainWindow::selectionChanged()
 		    layoutChilds = TRUE;
 		}
 		if ( w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout ) {
-		    actionEditBreakLayout->setEnabled( TRUE );
+		    actionEditBreakLayout->setEnabled( !isAToolBarChild( w ) );
 		    breakLayout = TRUE;
 		}
 	    } else {
 		actionEditHLayout->setEnabled( FALSE );
 		actionEditVLayout->setEnabled( FALSE );
 		actionEditGridLayout->setEnabled( FALSE );
-		actionEditBreakLayout->setEnabled( TRUE );
+		actionEditBreakLayout->setEnabled( !isAToolBarChild( w ) );
 		breakLayout = TRUE;
 	    }
 	}
