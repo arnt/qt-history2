@@ -1369,14 +1369,24 @@ bool createConnections()
     If the author name has changed or been deleted the query will
     fail and no author id will be inserted into the buffer causing the \ins
     to fail.  An alternative is to record
-    the author id's as we populate the ComboBox and store them in a static
+    the author id's as we populate the ComboBox and store them in a 
     \class[QMap] which we can then look up as required. This approach
     requires changes to the \fn[init()], \fn[beforeUpdateBook()] and
     \fn[primeInsertBook()] functions and the addition of a new function,
-    \fn[mapAuthor()]. The relevant code from
+    \fn[mapAuthor()]. 
+    The relevant code from
     \f[qt/tools/designer/eg/book/book8/editbook.ui] is shown below.
 
 	    \list[1,1]
+	    <listitem>
+	    <para>
+	    First we need to create a class variable to map author names
+	    to author id's. Click in the Source tab of the Object
+	    Hierarchy, then right click the Class Variables item and
+	    click <guimenuitem>New</guimenuitem>. Type in
+	    'QMap&lt;QString,int&gt; authorMap;'.
+	    </para>
+	    </listitem>
 	    \item\p
 	    We now record the author id's in the \fn[init()] function.
 <programlisting>
