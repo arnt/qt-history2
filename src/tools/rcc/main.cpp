@@ -359,7 +359,7 @@ main(int argc, char **argv)
             for(int resource = 0; resource < resources.size(); ++resource) {
                 const RCCResource &r = resources.at(resource);
                 if(display.indexOf("files") != -1 || display.indexOf("names") != -1) {
-                    for(int f = 0; f < files.size(); ++f) {
+                    for(int f = 0; f < r.files.size(); ++f) {
                         for(int d = 0; d < display.size(); ++d) {
                             if(d)
                                 out << ",";

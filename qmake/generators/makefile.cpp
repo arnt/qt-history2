@@ -1419,7 +1419,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                                 indeps += QByteArray(buff, read_in);
                             }
                             fclose(proc);
-                            deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(" ");
+                            if(!indeps.isEmpty())
+                                deps += " " + fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(" ");
                         }
                     }
                 }
@@ -1448,19 +1449,16 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), out);
                     dep_cmd = Option::fixPathToLocalOS(dep_cmd);
                     if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+	                QString indeps;
                         while(!feof(proc)) {
                             int read_in = fread(buff, 1, 255, proc);
                             if(!read_in)
                                 break;
-                            int l = 0;
-                            for(int i = 0; i < read_in; i++) {
-                                if(buff[i] == '\n' || buff[i] == ' ') {
-                                    deps += " " + QByteArray(buff+l, (i - l) + 1);
-                                    l = i;
-                                }
-                            }
+                            indeps += QByteArray(buff, read_in);
                         }
                         fclose(proc);
+                        if(!indeps.isEmpty())
+                            deps += " " + fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(" ");
                     }
                 }
                 deps = replaceExtraCompilerVariables(deps, (*input), out);
