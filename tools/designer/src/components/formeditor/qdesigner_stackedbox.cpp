@@ -29,16 +29,18 @@
 QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     : QStackedWidget(parent)
 {
-    prev = new QToolButton(Qt::LeftArrow, this);
+    prev = new QToolButton(this);
     prev->setObjectName("designer_wizardstack_button");
+    prev->setArrowType(Qt::LeftArrow);
     prev->setAutoRaise(true);
     prev->setAutoRepeat(true);
     prev->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     connect(prev, SIGNAL(clicked()), this, SLOT(prevPage()));
     removeWidget(prev);
 
-    next = new QToolButton(Qt::RightArrow, this);
+    next = new QToolButton(this);
     next->setObjectName("designer_wizardstack_button");
+    next->setArrowType(Qt::RightArrow);
     next->setAutoRaise(true);
     next->setAutoRepeat(true);
     next->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
