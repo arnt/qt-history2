@@ -15,6 +15,7 @@
 
 #include "qplatformdefs.h"
 #include <private/qlibrary_p.h>
+#include <qstringlist.h>
 #include <qfile.h>
 
 #ifndef QT_NO_LIBRARY
