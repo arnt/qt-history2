@@ -21,6 +21,11 @@ void ClassHierarchy::removeSearchPath()
 
 void ClassHierarchy::updateHierarchy()
 {
+    QListViewItem *airship = new QListViewItem( hierarchyView, "Airship", "airship.h" );
+    QListViewItem *airplane = new QListViewItem( airship, "Airplane", "airplane.h" );
+    QListViewItem *helicopter = new QListViewItem( airship, "Helicopter", "helicopter.h" );
+
+#if 0
     QString fileNameFilter;
     QString classDef;
 
@@ -70,12 +75,14 @@ void ClassHierarchy::updateHierarchy()
 
     hierarchyView->clear();
     populateLevel( derivedClassMap, "", 0 );
+#endif
 }
 
 void ClassHierarchy::populateLevel(
 	const QMap<QString, QStringList>& derivedClassMap,
 	const QString& baseClass, QListViewItem *parentItem ) const
 {
+#if 0
     QStringList derivedClasses = derivedClassMap[baseClass];
     for ( int i = 0; i < derivedClasses.count(); i++ ) {
 	QListViewItem *item;
@@ -87,4 +94,5 @@ void ClassHierarchy::populateLevel(
 	item->setOpen( TRUE );
 	populateLevel( derivedClassMap, derivedClasses[i], item );
     }
+#endif
 }

@@ -2,8 +2,6 @@
   dialog.cpp
 */
 
-#define private public
-
 #include <qapplication.h>
 #include <qcolordialog.h>
 #include <qfiledialog.h>
@@ -42,7 +40,7 @@ int main( int argc, char **argv )
     QWizard wizard;
     wizard.setCaption( "..." );
     wizard.show();
-
+#if 0
     QFontDialog font;
     font.setCaption( "Select Font" );
     font.show();
@@ -55,7 +53,7 @@ int main( int argc, char **argv )
     QPrintDialog print( &printer );
     print.setCaption( "Setup Printer" );
     print.show();
-
+#endif
     QObject::connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()) );
     return app.exec();
 }
