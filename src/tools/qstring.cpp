@@ -5092,8 +5092,12 @@ QString& QString::operator+=( const QString &str )
     uint len1 = length();
     uint len2 = str.length();
     if ( len2 ) {
-	grow( len1+len2 );
-	memcpy( d->unicode+len1, str.unicode(), sizeof(QChar)*len2 );
+	if ( isEmpty() ) {
+	    operator=( str );
+	} else {
+	    grow( len1+len2 );
+	    memcpy( d->unicode+len1, str.unicode(), sizeof(QChar)*len2 );
+	}
     } else if ( isNull() && !str.isNull() ) {   // ## just for 1.x compat:
 	*this = fromLatin1( "" );
     }
@@ -5298,26 +5302,23 @@ QString QString::fromUtf8( const char* utf8, int len )
     QChar *qch = (QChar *)result.unicode();
     ushort uc = 0;
     int need = 0;
+    uchar ch;
     for (int i=0; i<len; i++) {
-	uchar ch = utf8[i];
+	ch = *utf8++;
 	if (need) {
 	    if ( (ch&0xc0) == 0x80 ) {
 		uc = (uc << 6) | (ch & 0x3f);
 		need--;
-		if ( !need ) {
-		    *qch = uc;
-		    qch++;
-		}
+		if ( !need )
+		    *qch++ = uc;
 	    } else {
 		// error
-		*qch = QChar::replacement;
-		qch++;
+		*qch++ = QChar::replacement;
 		need = 0;
 	    }
 	} else {
 	    if ( ch < 128 ) {
-		*qch = ch;
-		qch++;
+		*qch++ = ch;
 	    } else if ( (ch&0xe0) == 0xc0 ) {
 		uc = ch &0x1f;
 		need = 1;
