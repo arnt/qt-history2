@@ -2641,7 +2641,7 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 		s += maskData[ i ].maskChar;
 		if ( str[(int)strIndex] == maskData[ i ].maskChar )
 		    strIndex++;
-		i++;
+		++i;
 	    } else {
 		if ( isValidInput( str[(int)strIndex], maskData[ i ].maskChar ) ) {
 		    switch ( maskData[ i ].caseMode ) {
@@ -2654,13 +2654,15 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 		    default:
 			s += str[(int)strIndex];
 		    }
-		    i++;
+		    ++i;
 		} else {
 		    // search for separator first
 		    int n = findInMask( i, TRUE, TRUE, str[(int)strIndex] );
 		    if ( n != -1 ) {
-			s += fill.mid( i, n-i+1 );
-			i = n + 1; // update i to find + 1
+			if ( str.length() != 1 || i == 0 || (i > 0 && (!maskData[i-1].separator || maskData[i-1].maskChar != str[(int)strIndex])) ) {
+			    s += fill.mid( i, n-i+1 );
+			    i = n + 1; // update i to find + 1
+			}
 		    } else {
 			// search for valid blank if not
 			n = findInMask( i, TRUE, FALSE, str[(int)strIndex] );
