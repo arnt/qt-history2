@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#23 $
+# $Id: //depot/qt/main/GNUmakefile.inc#24 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -15,6 +15,9 @@ endif
 ifeq ($(QT_EMBEDDED),mips)
 # MIPS_OPT="-mcpu=r4000 -mips3" # Doesn't work?
 TMAKEHACKEXTRA="DASHMIPS=-mips" "TMAKE_CXXFLAGS+=$(MIPS_OPT) -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_LINK_SHLIB=mipsel-linux-g++ -fnonnull-objects" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc $(MIPS_OPT)" "TMAKE_CXX=mipsel-linux-g++"
+ifndef QT_TARGET
+QT_TARGET=release
+endif
 endif
 ifeq ($(LIBTARGET),1)
 TMAKEHACK="DESTDIR=../lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
@@ -25,9 +28,6 @@ PROJOBJ=e-$(QT_EMBEDDED)/
 PROJMAK=-e-$(QT_EMBEDDED)
 TMAKEPATH=$(TMAKEDIR)/lib/qws/linux-$(QT_EMBEDDED)-g++
 export TMAKEPATH
-ifndef QT_TARGET
-QT_TARGET=release
-endif
 else
 # Should do this too...
 #PROJOBJ=x11/
