@@ -1354,7 +1354,6 @@ void QPainter::drawCubicBezier( const QPointArray &, int )
 {
 }
 
-
 void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh )
 {
     if ( !isActive() || pixmap.isNull() ) {
@@ -1386,8 +1385,13 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 
     initPaintDevice();
     if ( testf(ExtDev|VxF|WxF) ) {
-        if ( testf(ExtDev) || (txop == TxScale && pixmap.mask()) ||
-             txop == TxRotShear ) {
+	if(txop == TxScale ) {
+	    // Plain scaling, then unclippedScaledBitBlt is fastest
+	    int w, h;
+	    map( x, y, sw, sh, &x, &y, &w, &h );
+	    unclippedScaledBitBlt( pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
+	    return;
+        } else if ( testf(ExtDev) || txop == TxRotShear ) {
             if ( sx != 0 || sy != 0 ||
                  sw != pixmap.width() || sh != pixmap.height() ) {
                 QPixmap tmp( sw, sh, pixmap.depth() );
@@ -1395,7 +1399,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
                 if ( pixmap.mask() ) {
                     QBitmap mask( sw, sh );
                     unclippedBitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh,
-                            CopyROP, TRUE );
+				     CopyROP, TRUE );
                     tmp.setMask( mask );
                 }
                 drawPixmap( x, y, tmp );
@@ -1410,11 +1414,30 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
                     return;
 		}
             }
-        }
-        if ( txop == TxTranslate )
-            map( x, y, &x, &y );
-    }
+	    if ( txop == TxScale || txop == TxRotShear ) {
+		QWMatrix mat( m11(), m12(),
+			      m21(), m22(),
+			      dx(),  dy() );
+		mat = QPixmap::trueMatrix( mat, sw, sh );
+		qDebug("in");
+		QPixmap pm = pixmap.xForm( mat );
+		qDebug("out");
+		if ( !pm.mask() && txop == TxRotShear ) {
+		    QBitmap bm_clip( sw, sh, 1 );
+		    bm_clip.fill( color1 );
+		    pm.setMask( bm_clip.xForm(mat) );
+		}
+		map( x, y, &x, &y );		// compute position of pixmap
+		int dx, dy;
+		mat.map( 0, 0, &dx, &dy );
+		unclippedBitBlt( pdev, x-dx, y-dy, &pm, 0, 0, pm.width(), pm.height(), (RasterOp)rop, FALSE );
+		return;
+	    }
+	}
 
+	if ( txop == TxTranslate ) 
+	    map( x, y, &x, &y );
+    }
     unclippedBitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 }
 
