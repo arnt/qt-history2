@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#202 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -100,7 +100,7 @@ static void     unregWinClasses();
 
 // Simpler timers are needed when Qt does not have the
 // event loop (such as for plugins).
-Q_EXPORT bool	qt_win_use_simple_timers = FALSE;
+Q_EXPORT bool	qt_win_use_simple_timers = TRUE; //FALSE;
 void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
 
 static void	initTimers();
