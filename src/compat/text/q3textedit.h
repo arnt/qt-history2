@@ -515,9 +515,6 @@ private:
     void optimCheckLimit(const QString& str);
     bool optimHasBoldMetrics(int line);
 
-    void drawCursor_helper(bool visible);
-    void viewportPaintEvent(QPaintEvent*);
-
 private slots:
     void optimDoAutoScroll();
 #endif // QT_TEXTEDIT_OPTIMIZATION

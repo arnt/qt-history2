@@ -3206,12 +3206,11 @@ void Q3TextDocument::draw(QPainter *p, const QRect &rect, const QPalette &pal,
     Q3TextFormat::setPainter(oldPainter);
 }
 
-void Q3TextDocument::drawParagraph(QPainter *p, Q3TextParagraph *parag, int cx, int cy,
+void Q3TextDocument::drawParagraph(QPainter *painter, Q3TextParagraph *parag, int cx, int cy,
                                    int cw, int ch,
-                                   QPixmap *&doubleBuffer, const QPalette &pal,
+                                   QPixmap *&/*doubleBuffer*/, const QPalette &pal,
                                    bool drawCursor, Q3TextCursor *cursor, bool resetChanged)
 {
-    QPainter *painter = 0;
     if (resetChanged)
         parag->setChanged(false);
     QRect ir(parag->rect());
@@ -3220,44 +3219,20 @@ void Q3TextDocument::drawParagraph(QPainter *p, Q3TextParagraph *parag, int cx, 
 #endif
         ir.setWidth(width());
 
-    bool uDoubleBuffer = useDoubleBuffer(parag, p);
-
-    if (uDoubleBuffer ) {
-        painter = new QPainter;
-        if (cx >= 0 && cy >= 0)
-            ir = ir.intersect(QRect(cx, cy, cw, ch));
-        if (!doubleBuffer ||
-             ir.width() > doubleBuffer->width() ||
-             ir.height() > doubleBuffer->height()) {
-            doubleBuffer = bufferPixmap(ir.size());
-            painter->begin(doubleBuffer);
-        } else {
-            painter->begin(doubleBuffer);
-        }
-    } else {
-        painter = p;
-        painter->translate(ir.x(), ir.y());
-    }
-
+    painter->translate(ir.x(), ir.y());
     painter->setBrushOrigin(-ir.x(), -ir.y());
 
-    if (uDoubleBuffer || is_printer(painter))
+    if (is_printer(painter))
         painter->fillRect(QRect(0, 0, ir.width(), ir.height()), parag->backgroundBrush(pal));
     else if (cursor && cursor->paragraph() == parag)
         painter->fillRect(QRect(parag->at(cursor->index())->x, 0, 2, ir.height()),
-                           parag->backgroundBrush(pal));
+                          parag->backgroundBrush(pal));
 
     painter->translate(-(ir.x() - parag->rect().x()),
-                        -(ir.y() - parag->rect().y()));
+                       -(ir.y() - parag->rect().y()));
     parag->paint(*painter, pal, drawCursor ? cursor : 0, true, cx, cy, cw, ch);
 
-    if (uDoubleBuffer) {
-        delete painter;
-        painter = 0;
-        p->drawPixmap(ir.topLeft(), *doubleBuffer, QRect(QPoint(0, 0), ir.size()));
-    } else {
-        painter->translate(-ir.x(), -ir.y());
-    }
+    painter->translate(-ir.x(), -ir.y());
 
     parag->document()->nextDoubleBuffered = false;
 }

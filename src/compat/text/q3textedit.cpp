@@ -922,8 +922,6 @@ Q3TextEdit::~Q3TextEdit()
 
 void Q3TextEdit::init()
 {
-    viewport()->setAttribute(Qt::WA_PaintOnScreen); // disable double buffering on the viewport
-
     d = new Q3TextEditPrivate;
     doc->formatCollection()->setPaintDevice(this);
     undoEnabled = true;
@@ -1011,7 +1009,7 @@ void Q3TextEdit::paintDocument(bool drawAll, QPainter *p, int cx, int cy, int cw
         return;
 #endif
 
-    bool drawCur = hasFocus() || viewport()->hasFocus();
+    bool drawCur = blinkCursorVisible && (hasFocus() || viewport()->hasFocus());
     if ((hasSelectedText() && !style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected)) ||
         isReadOnly() || !cursorVisible)
         drawCur = false;
@@ -1070,6 +1068,7 @@ void Q3TextEdit::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
 void Q3TextEdit::drawContents(QPainter *p)
 {
+    Q_ASSERT(false);
     if (horizontalScrollBar()->isVisible() &&
          verticalScrollBar()->isVisible()) {
         const QRect verticalRect = verticalScrollBar()->geometry();
@@ -1628,7 +1627,7 @@ void Q3TextEdit::doKeyboardAction(KeyboardAction action)
     if (isReadOnly() && !qtextedit_ignore_readonly)
         return;
 
-    if (cursor->nestedDepth() != 0) // #### for 3.0, disable editing of tables as this is not advanced enough
+    if (cursor->nestedDepth() != 0)
         return;
 
     lastFormatted = cursor->paragraph();
@@ -2091,65 +2090,13 @@ void Q3TextEdit::drawCursor(bool visible)
 {
     d->cursorRepaintMode = true;
     blinkCursorVisible = visible;
-    viewport()->update(cursor->topParagraph()->rect());
-}
-
-void Q3TextEdit::viewportPaintEvent(QPaintEvent *e)
-{
-    if (d->cursorRepaintMode) {
-        drawCursor_helper(blinkCursorVisible);
-        d->cursorRepaintMode = false;
-        repaintChanged();
-    } else {
-        QScrollView::viewportPaintEvent(e);
-    }
-}
-
-/*!
-    \internal
-*/
-void Q3TextEdit::drawCursor_helper(bool visible)
-{
-    if (!isUpdatesEnabled() ||
-         !viewport()->isUpdatesEnabled() ||
-         !cursor->paragraph() ||
-         !cursor->paragraph()->isValid() ||
-         (!style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected) &&
-           (d->optimMode ? optimHasSelection() : doc->hasSelection(Q3TextDocument::Standard, true))) ||
-         (visible && !hasFocus() && !viewport()->hasFocus() && !inDnD) ||
-         isReadOnly())
-        return;
-
-    QPainter p(viewport());
     QRect r(cursor->topParagraph()->rect());
-    cursor->paragraph()->setChanged(true);
-    p.translate(-contentsX() + cursor->totalOffsetX(), -contentsY() + cursor->totalOffsetY());
-    QPixmap *pix = 0;
-    QPalette pal(palette());
-    const QPalette::ColorRole backRole = backgroundRole();
-    if (cursor->paragraph()->background())
-        pal.setBrush(backRole, *cursor->paragraph()->background());
-    else if (doc->paper())
-        pal.setBrush(backRole, *doc->paper());
-    p.setBrushOrigin(-contentsX(), -contentsY());
-    cursor->paragraph()->document()->nextDoubleBuffered = true;
     if (!cursor->nestedDepth()) {
         int h = cursor->paragraph()->lineHeightOfChar(cursor->index());
-        int dist = 5;
-        if ((cursor->paragraph()->alignment() & Qt::AlignJustify) == Qt::AlignJustify)
-            dist = 50;
-        int x = r.x() - cursor->totalOffsetX() + cursor->x() - dist;
-        x = qMax(x, 0);
-        p.setClipRect(QRect(x - contentsX(),
-                              r.y() - cursor->totalOffsetY() + cursor->y() - contentsY(), 2 * dist, h));
-        doc->drawParagraph(&p, cursor->paragraph(), x,
-                        r.y() - cursor->totalOffsetY() + cursor->y(), 2 * dist, h, pix, pal, visible, cursor);
-    } else {
-        doc->drawParagraph(&p, cursor->paragraph(), r.x() - cursor->totalOffsetX(),
-                        r.y() - cursor->totalOffsetY(), r.width(), r.height(),
-                        pix, pal, visible, cursor);
+        r = QRect(r.x(), r.y() + cursor->y(), r.width(), h);
     }
-    cursorVisible = visible;
+    r.moveBy(-contentsX(), -contentsY());
+    viewport()->update(r);
 }
 
 enum {
