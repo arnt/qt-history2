@@ -268,6 +268,10 @@ void CustomWidgetEditor::deleteWidgetClicked()
     if ( !i || !w )
 	return;
 
+    MetaDataBase::CustomWidget *cw = MetaDataBase::customWidget( mainWindow->currentTool() );
+    if ( cw == w )
+	mainWindow->resetTool();
+
     MetaDataBase::removeCustomWidget( w );
     customWidgets.remove( i );
     delete i;
