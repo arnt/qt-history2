@@ -265,9 +265,11 @@ bool QPopupMenu::macPopupMenu(const QPoint &p, int index)
 
 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
+static bool qt_mac_no_merge = FALSE;
+void qt_mac_set_no_merge(bool b) { qt_mac_no_merge = b; } //backdoor to disable merging
 uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 {
-    if(it->popup() || it->custom() || it->isSeparator())
+    if(qt_mac_no_merge || it->popup() || it->custom() || it->isSeparator())
 	return 0;
 
     QString t = it->text().lower();
