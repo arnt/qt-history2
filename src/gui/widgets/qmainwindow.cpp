@@ -86,6 +86,30 @@ public:
 */
 
 /*!
+    \fn void QMainWindow::iconSizeChanged(Qt::IconSize iconSize)
+
+    This signal is emitted when the size of the icons used in the
+    window is changed. The new icon size is passed in \a iconSize.
+
+    You can connect this signal to other components to help maintain
+    a consistent appearance for your application.
+
+    \sa setIconSize()
+*/
+
+/*!
+    \fn void QMainWindow::toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle)
+
+    This signal is emiited when the style used for tool buttons in the
+    window is changed. The new style is passed in \a toolButtonStyle.
+
+    You can connect this signal to other components to help maintain
+    a consistent appearance for your application.
+
+    \sa setToolButtonStyle()
+*/
+
+/*!
     Constructs a QMainWindow with the given \a parent and the specified
     widget \a flags.
  */
@@ -267,9 +291,16 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
 Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 { return d->layout->corners[corner]; }
 
+/*!
+    Adds a toolbar break to the given \a area after all the other
+    objects that are present.
+*/
 void QMainWindow::addToolBarBreak(Qt::ToolBarArea area)
 { d->layout->addToolBarBreak(area); }
 
+/*!
+    Inserts a toolbar break before the toolbar specified by \a before.
+*/
 void QMainWindow::insertToolBarBreak(QToolBar *before)
 { d->layout->insertToolBarBreak(before); }
 
@@ -303,8 +334,10 @@ void QMainWindow::addToolBar(QToolBar *toolbar)
 { addToolBar(Qt::TopToolBarArea, toolbar); }
 
 /*!
-    Inserts the \a toolbar into the specified \a area in this main
-    window.  The \a toolbar is placed before the toolbar \a before.
+    Inserts the \a toolbar into the area occupied by the \a before toolbar
+    so that it appears before it. For example, in normal left-to-right
+    layout operation, this means that \a toolbar will appear to the left
+    of the toolbar specified by \a before in a horizontal toolbar area.
 
     \sa insertToolBarBlock() addToolBar() addToolBarBlock()
 */
@@ -345,6 +378,9 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
 Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 { return d->layout->toolBarArea(toolbar); }
 
+/*!
+    Adds the given \a dockwindow to the specified \a area.
+*/
 void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow)
 {
     Q_ASSERT_X(dockwindow->isDockable(area),
@@ -373,6 +409,10 @@ void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow
 #endif
 }
 
+/*!
+    Extend \a dockwindow into the given \a area in the direction specified
+    by the \a orientation.
+*/
 void QMainWindow::extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *dockwindow,
                                        Qt::Orientation orientation)
 {
@@ -384,6 +424,21 @@ void QMainWindow::extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *doc
         d->layout->relayout();
 }
 
+/*!
+    \fn void QMainWindow::splitDockWindow(QDockWindow *first, QDockWindow *second, Qt::Orientation orientation)
+
+    Splits the space covered by the \a first dock window into two parts,
+    moves the \a first dock window into the first part, and moves the
+    \a second dock window into the second part.
+
+    The \a orientation specifies how the space is divided: A Qt::Horizontal
+    split places the second dock window to the right of the first; a
+    Qt::Vertical split places the second dock window below the first.
+
+    \e Note: The Qt::LayoutDirection influences the order of the dock windows
+    in the two parts of the divided area. When right-to-left layout direction
+    is enabled, the placing of the dock windows will be reversed.
+*/
 void QMainWindow::splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
                                   Qt::Orientation orientation)
 {

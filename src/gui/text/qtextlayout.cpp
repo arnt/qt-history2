@@ -276,7 +276,7 @@ bool QTextInlineObject::isRightToLeft() const
 */
 
 /*!
-    \enum QTextLayout::LayoutMode
+    \enum QTextLayout::LayoutModeFlags
 
     \internal
 
@@ -327,7 +327,8 @@ QTextLayout::QTextLayout(const QString& string)
 }
 
 /*!
-    Constructs a text layout to lay out the given \a string.
+    Constructs a text layout to lay out the given \a string with the specified
+    \a font.
 
     All the metric and layout calculations will be done in terms of
     the paint device, \a paintdevice.
@@ -385,6 +386,10 @@ void QTextLayout::setFont(const QFont &font)
     ++d->fnt->ref;
 }
 
+/*!
+    Returns the current font that is used for the layout, or a default
+    font if none is set.
+*/
 QFont QTextLayout::font() const
 {
     return d->fnt ? QFont(d->fnt) : QFont();
@@ -455,18 +460,28 @@ void QTextLayout::setPalette(const QPalette &p, PaletteFlags f)
     d->textColorFromPalette = (f & UseTextColor);
 }
 
+/*!
+    \fn void QTextLayout::setLayoutMode(LayoutMode mode)
 
+    Sets the layout mode to the given \a mode.
+*/
 void QTextLayout::setLayoutMode(LayoutMode m)
 {
     d->setMode(m);
 }
 
+/*!
+    Begins the layout process.
+*/
 void QTextLayout::beginLayout()
 {
     d->invalidate();
     d->itemize();
 }
 
+/*!
+    Ends the layout process.
+*/
 void QTextLayout::endLayout()
 {
     if (d->itemization_mode & NoGlyphCache)
@@ -707,11 +722,11 @@ void QTextLayout::setDirection(QChar::Direction dir)
 }
 
 /*!
-    \fn void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const QVector<Selection> &selections) const
+    \fn void QTextLayout::draw(QPainter *painter, const QPointF &pos, int cursorPos, const QVector<Selection> &selections) const
 
-    Draws the whole layout on painter \a p at point \a pos with the
-    given \a cursorPos with the given \a selections (which may be
-    empty).
+    Draws the whole layout on the \a painter at point \a pos with the
+    given \a cursorPos. The list of \a selections specified (which may be
+    empty) is also rendered with the contents of the layout.
 */
 
 /*!
@@ -799,13 +814,6 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
 
     \value Leading
     \value Trailing
-*/
-
-/*!
-    \enum QTextLine::LineWidthUnit
-
-    \value UnitIsPixels
-    \value UnitIsGlyphs
 */
 
 /*!
@@ -1535,7 +1543,7 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
 }
 
 /*!
-  Converts the x-coordinate \a xpos, to the nearest matching cursor
+  Converts the x-coordinate \a x, to the nearest matching cursor
   position, depending on the cursor position type, \a cpos.
 
   \sa cursorToX()

@@ -120,7 +120,6 @@
     \value ALT The normal Alt keys, but not keys like AltGr.
     \value UNICODE_ACCEL The shortcut is specified as a Unicode code
     point, not as a Qt Key.
-    \omitvalue ASCII_ACCEL
     \omitvalue MODIFIER_MASK
 
     \sa KeyboardModifier MouseButton
@@ -357,6 +356,7 @@
 
     \omitvalue ToolBarAreaMask
     \omitvalue NToolBarAreas
+    \omitvalue ToolBarArea_Mask
 */
 
 /*!
@@ -370,6 +370,7 @@
 
     \omitvalue DockWindowAreaMask
     \omitvalue NDockWindowAreas
+    \omitvalue DockWindowArea_Mask
 */
 
 /*!

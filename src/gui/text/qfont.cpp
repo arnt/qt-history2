@@ -525,6 +525,22 @@ QFontEngineData::~QFontEngineData()
 */
 
 /*!
+    \enum QFont::Style
+
+    This enum describes the different styles of glyphs that are used to
+    display text.
+
+    \value StyleNormal  Normal glyphs used in unstyled text.
+    \value StyleItalic  Italic glyphs that are specifically designed for
+                        the purpose of representing italicized text.
+    \value StyleOblique Glyphs with an italic appearance that are typically
+                        based on the unstyled glyphs, but are not fine-tuned
+                        for the purpose of representing italicized text.
+
+    \sa Weight
+*/
+
+/*!
   Constructs a font from \a font for use on the paint device \a pd.
 */
 QFont::QFont(const QFont &font, QPaintDevice *pd)
@@ -694,7 +710,7 @@ void QFont::setFamily(const QString &family)
     Returns the point size of the font. Returns -1 if the font size
     was specified in pixels.
 
-    \sa setPointSize() pointSizeFloat()
+    \sa setPointSize() pointSizeF()
 */
 int QFont::pointSize() const
 {
@@ -705,7 +721,7 @@ int QFont::pointSize() const
     Sets the point size to \a pointSize. The point size must be
     greater than zero.
 
-    \sa pointSize() setPointSizeFloat()
+    \sa pointSize() setPointSizeF()
 */
 void QFont::setPointSize(int pointSize)
 {
@@ -724,11 +740,11 @@ void QFont::setPointSize(int pointSize)
     greater than zero. The requested precision may not be achieved on
     all platforms.
 
-    \sa pointSizeFloat() setPointSize() setPixelSize()
+    \sa pointSizeF() setPointSize() setPixelSize()
 */
 void QFont::setPointSizeF(float pointSize)
 {
-    Q_ASSERT_X(pointSize > 0.0, "QFont::setPointSizeFloat", "point size must be greater than 0");
+    Q_ASSERT_X(pointSize > 0.0, "QFont::setPointSizeF", "point size must be greater than 0");
 
     detach();
 
@@ -742,7 +758,7 @@ void QFont::setPointSizeF(float pointSize)
     Returns the point size of the font. Returns -1 if the font size was
     specified in pixels.
 
-    \sa pointSize() setPointSizeFloat() pixelSize() QFontInfo::pointSize() QFontInfo::pixelSize()
+    \sa pointSize() setPointSizeF() pixelSize() QFontInfo::pointSize() QFontInfo::pixelSize()
 */
 float QFont::pointSizeF() const
 {
@@ -753,7 +769,7 @@ float QFont::pointSizeF() const
     Sets the font size to \a pixelSize pixels.
 
     Using this function makes the font device dependent. Use
-    setPointSize() or setPointSizeFloat() to set the size of the font
+    setPointSize() or setPointSizeF() to set the size of the font
     in a device independent manner.
 
     \sa pixelSize()
@@ -776,7 +792,7 @@ void QFont::setPixelSize(int pixelSize)
 /*!
     Returns the pixel size of the font if it was set with
     setPixelSize(). Returns -1 if the size was set with setPointSize()
-    or setPointSizeFloat().
+    or setPointSizeF().
 
     \sa setPixelSize() pointSize() QFontInfo::pointSize() QFontInfo::pixelSize()
 */
@@ -808,10 +824,10 @@ void QFont::setPixelSizeFloat(float pixelSize)
 /*!
   \fn void QFont::setItalic(bool enable)
 
-  Sets the style() of the font to QFont::StyleItalic if true, to
-  QFont::StyleNormal otherwise.
+  Sets the style() of the font to QFont::StyleItalic if \a enable is true;
+  otherwise the style is set to QFont::StyleNormal.
 
-  \sa italic(), QFontInfo
+  \sa italic() QFontInfo
 */
 
 /*!
@@ -830,7 +846,7 @@ QFont::Style QFont::style() const
 
   \sa italic(), QFontInfo
 */
-void QFont::setStyle(QFont::Style style)
+void QFont::setStyle(Style style)
 {
     detach();
 
@@ -1406,7 +1422,19 @@ void QFont::setDefaultFont(const QFont &f)
     QApplication::setFont(f);
 }
 
+/*!
+    \fn float QFont::pointSizeFloat() const
+    \compat
 
+    Use pointSizeF() instead.
+*/
+
+/*!
+    \fn void QFont::setPointSizeFloat(float size)
+    \compat
+
+    Use setPointSizeF() instead.
+*/
 #endif
 
 

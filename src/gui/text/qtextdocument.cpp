@@ -367,7 +367,8 @@ bool QTextDocument::isUndoRedoEnabled() const
     \fn QTextDocument::cursorPositionChanged(const QTextCursor &cursor);
 
     This signal is emitted whenever the position of a cursor changed
-    due to an edition operation.
+    due to an editing operation. The cursor that changed is passed in
+    \a cursor.
 */
 
 /*!
@@ -723,6 +724,10 @@ void QTextDocument::setModified(bool m)
     docHandle()->setModified(m);
 }
 
+/*!
+    Prints the document to the given \a printer. The QPrinter must be
+    set up before being used with this function.
+*/
 void QTextDocument::print(QPrinter *printer) const
 {
     QPainter p(printer);

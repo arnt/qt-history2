@@ -848,6 +848,19 @@ int QFontMetrics::lineWidth() const
 */
 
 /*!
+    \fn QFontMetricsF::QFontMetricsF(const QFontMetrics &fontMetrics)
+
+    Constructs a font metrics object with floating point precision
+    from the given \a fontMetrics object.
+*/
+
+/*!
+    \fn QFontMetricsF &QFontMetricsF::operator=(const QFontMetrics &fontMetrics)
+
+    Assigns \a fontMetrics to this font metrics object.
+*/
+
+/*!
     Constructs a font metrics object for \a font.
 
     The font metrics will be screen-compatible, i.e. the metrics you
@@ -947,7 +960,7 @@ QFontMetricsF::~QFontMetricsF()
 }
 
 /*!
-    Assigns the font metrics \a fm.
+    Assigns the font metrics \a fm to this font metrics object.
 */
 QFontMetricsF &QFontMetricsF::operator=(const QFontMetricsF &fm)
 {
@@ -1269,18 +1282,18 @@ float QFontMetricsF::width(QChar ch) const
 }
 
 /*!
-    Returns the bounding rectangle of the first \a len characters of
-    \a str, which is the set of pixels the text would cover if drawn
-    at (0, 0).
+    \fn QRectF QFontMetricsF::boundingRect(const QString &text) const
 
-    If \a len is negative (the default), the entire string is used.
+    Returns the bounding rectangle of the characters in the given
+    \a text. This is the set of pixels the text would cover if drawn
+    at (0, 0).
 
     Note that the bounding rectangle may extend to the left of (0, 0),
     e.g. for italicized fonts, and that the text output may cover \e
     all pixels in the bounding rectangle.
 
     Newline characters are processed as normal characters, \e not as
-    linebreaks.
+    line breaks.
 
     Due to the different actual character heights, the height of the
     bounding rectangle of e.g. "Yes" and "yes" may be different.
@@ -1333,7 +1346,8 @@ QRectF QFontMetricsF::boundingRect(QChar ch) const
     \overload
 
     Returns the bounding rectangle of the characters in the given \a text.
-    This is the set of pixels the text would cover if drawn at (0, 0).
+    This is the set of pixels the text would cover if drawn when constrained
+    to the bounding rectangle specified by \a rect.
 
     The \a flags argument is the bitwise OR of the following flags:
     \list
