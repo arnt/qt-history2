@@ -114,7 +114,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "OBJMOC   = " << varList("OBJMOC") << endl;
     t << "DIST	   = " << varList("DISTFILES") << endl;
     t << "TARGET   = " << var("TARGET") << endl;
-    if(!project->isActiveConfig("staticlib") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "TARGETA	= " << var("TARGETA") << endl;
 	if(project->variables()["QMAKE_HPUX_SHLIBS"].isEmpty()) {
 	    t << "TARGETD	= " << var("TARGET_x.y.z") << endl;
@@ -146,8 +146,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl << endl;
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  var("TARGET") << endl << endl;
-	t << var("TARGET") << ": $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
+	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
+	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     }
     else if(!project->isActiveConfig("staticlib")) {
