@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#35 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -234,13 +234,23 @@ void QProcessManager::sigchldHnd( int fd )
 #endif
     QProcess *proc;
     for ( proc=procList->first(); proc!=0; proc=procList->next() ) {
-	proc->timeout(); // ### the name "timeout" is wrong
-#if 0
-	// ### take a close look at this
-	// the slot might have deleted the last process...
-	if ( !procManager )
-	    return;
+	if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
+#if defined(QT_QPROCESS_DEBUG)
+	    qDebug( "QProcessManager::sigchldHnd(): process exited" );
 #endif
+	    // read pending data
+	    proc->socketRead( proc->d->socketStdout[0] );
+	    proc->socketRead( proc->d->socketStderr[0] );
+
+	    if ( proc->notifyOnExit )
+		emit proc->processExited();
+#if 0
+	    // ### take a close look at this
+	    // the slot might have deleted the last process...
+	    if ( !procManager )
+		return;
+#endif
+	}
     }
 }
 
@@ -758,21 +768,9 @@ void QProcess::socketWrite( int fd )
 
 /*!
   Only used under Windows (but moc does not know about #if defined()).
-  ### function name is bad and comment is wrong
 */
 void QProcess::timeout()
 {
-    if ( !d->exitValuesCalculated && !isRunning() ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::timeout(): process exited" );
-#endif
-	// read pending data
-	socketRead( d->socketStdout[0] );
-	socketRead( d->socketStderr[0] );
-
-	if ( notifyOnExit )
-	    emit processExited();
-    }
 }
 
 
