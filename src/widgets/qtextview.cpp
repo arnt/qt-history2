@@ -2056,10 +2056,8 @@ QString QTextView::anchorAt( const QPoint& pos )
 
 void QTextView::setRealWidth( int w )
 {
-    if ( w > contentsWidth() ) {
-	resizeContents( w, contentsHeight() );
-	QScrollView::setHScrollBarMode( setMode );
-    }
+    resizeContents( w, contentsHeight() );
+    QScrollView::setHScrollBarMode( setMode );
 }
 
 /*! If you changed something in the styleSheet(), use this function to
