@@ -414,7 +414,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 		 wordwrap ? (alignment() | WordBreak) : alignment(), txt );
 }
 
-/*!  This virtual function creates the editor with which the user can
+/*! This virtual function creates the editor with which the user can
   edit the cell.  The default implementation creates a QLineEdit.
 
   If the function returns 0, that the cell can not be edited.
@@ -1269,7 +1269,7 @@ QTable::~QTable()
   Note that if \a b is TRUE this setting overrides
   individual settings of the QComboTableItem::isEditable() property.
 
-  Individual QTableItem::EditType settings are not affected.
+  EditType settings of individual QTableItems are not affected.
 
   \sa isRowReadOnly() setRowReadOnly() setColumnReadOnly()
 */
@@ -3258,7 +3258,7 @@ void QTable::setNumCols( int c )
 /*! This function returns a widget which should be used as editor for
   the cell \a row, \a col. If \a initFromCell is TRUE, the editor is
   used to edit the current content of the cell (so the editor widget
-  should be initialized with that content). Otherwise the content of
+  should be initialized with this content). Otherwise the content of
   this cell will be replaced by a new content which the user will
   enter into the widget which this function should create.
 
@@ -3779,7 +3779,7 @@ void QTable::hideRow( int row )
 
 /*! Hides the column \a col.
 
-  \sa showCol()
+  \sa showColumn()
 */
 
 void QTable::hideColumn( int col )
@@ -3814,6 +3814,8 @@ void QTable::showColumn( int col )
 }
 
 /*! Resizes the column \a col to \a w pixel width.
+
+  \sa columnWidth() setRowHeight() 
 */
 
 void QTable::setColumnWidth( int col, int w )
@@ -3823,6 +3825,8 @@ void QTable::setColumnWidth( int col, int w )
 }
 
 /*! Resizes the row no. \a row to a height of \a h pixel.
+
+  \sa rowHeight() setColumnWidth()
 */
 
 void QTable::setRowHeight( int row, int h )
