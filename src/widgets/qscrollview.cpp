@@ -745,22 +745,6 @@ void QScrollView::show()
 void QScrollView::resize( int w, int h )
 {
     QWidget::resize( w, h );
-    return;
-
-    /*
-      ### This looks wrong to me, warwick. We shall discuss it. It makes
-      writing really nicely behaving widgets like QTextView impossible. I do not
-      see any negative effects removing this code from a first glance.
-
-
-    // Need both this and resize event, due to deferred resize event.
-    bool u = isUpdatesEnabled();
-    setUpdatesEnabled( FALSE );
-    QWidget::resize( w, h );
-    updateScrollBars();
-    d->hideOrShowAll(this);
-    setUpdatesEnabled( u );
-    */
 }
 
 /*! \reimp
@@ -1598,9 +1582,11 @@ void QScrollView::moveContents(int x, int y)
 	)
     {
 	// Big move
-	QPaintEvent* pe = new QPaintEvent( viewport()->rect(),
+	if ( viewport()->isUpdatesEnabled() ) {
+	    QPaintEvent* pe = new QPaintEvent( viewport()->rect(),
 				   !viewport()->testWFlags( WRepaintNoErase ) );
-	QApplication::postEvent( viewport(), pe );
+	    QApplication::postEvent( viewport(), pe );
+	}
 	d->moveAllBy(dx,dy);
     } else {
 	// Small move
