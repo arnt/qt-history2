@@ -77,6 +77,7 @@ struct QPixmapIconEngineEntry
 
 class QPixmapIconEngine : public QIconEngine{
 public:
+    QPixmapIconEngine(){}
     QPixmapIconEngine(const QPixmap &);
     QPixmapIconEngine(const QString &);
     ~QPixmapIconEngine();
@@ -474,8 +475,12 @@ bool QIcon::isDetached() const
  */
 void QIcon::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state)
 {
-    if (!d || pixmap.isNull())
+    if (pixmap.isNull())
         return;
+    if (!d) {
+        d = new QIconPrivate;
+        d->engine = new QPixmapIconEngine;
+    }
     d->engine->addPixmap(pixmap, mode, state);
 }
 
