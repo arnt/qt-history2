@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: session.doc,v 1.6 1999/06/15 19:29:40 ettrich Exp $
+** $Id: session.doc,v 1.7 1999/06/24 12:36:12 ettrich Exp $
 **
 ** Qt session management overview documentation
 **
@@ -61,33 +61,48 @@ saved and which should be discarded. In the latter case, there's no
 time for interaction. There may not even be a user sitting in front of
 the machine!
 
-TODO
-
-
-<center><img src="session.png" alt="A typical dialog on shutdown"></center>
-
-TODO	
 
 <h2> Protocols and support on different plattforms</h2>
 
-TODO
+On MS-Windows, there is nothing like completele session management for
+application yet, i.e. no restoring of previous session.  Windows does,
+however, support graceful logouts where applications have the chance
+to cancel the process after getting confirmation from the user. This
+is the functionality that that corresponds to the
+\l QApplication::commitData() method.
 
-Summary: MS-Windows supports only graceful logouts where applications
-have the chance to cancel the process after getting confirmation from
-the user (corresponds to QApplication::commitData() ).
-
-X11 supports complete session management since X11R6. Within the
-life-time of Qt-2.0, virtually all popuplar Unix/X11 desktops will
-support the XConsortium standard.
+X11 on the other hand supports complete session management since
+X11R6. Within the life-time of Qt-2.0, virtually all popuplar Unix/X11
+desktops will very likely support the XConsortium standard. 
 
 <h2> Getting session management to work with Qt </h2>
 
-Summary: Reimplement \l QApplication::saveState() and \l
-QApplication::commitData().  Restore the application in main() if
-\l QApplication::isSessionRestored() is TRUE. The globally unique
-application specific session identifier \l QApplication::sessionId()
-shall be used to identify session specific data during both saving and
-restoring.
+In any case you should reimplement \l QApplication::commitData() to
+enable your appliation to take part in the graceful logout process. If
+you target the MS-Windows plattform only, this is all you can and have
+to provide. Ideally, your application should provide a shutdown dialog
+similar to the following one:
+
+<center><img src="session.png" alt="A typical dialog on
+shutdown"></center>
+
+Example code to this dialog can be found in the documentation of \l
+QApplication::commitData() and \l QSessionManager::allowsInteraction().
+
+For complete session management yet only supported on X11R6, you also
+have to take care of saving the state of the application and
+potentially restore the state in the next life cycle of the session.
+This saving is done by reimplementing \l
+QApplication::saveState(). All state data you are saving in this
+function, shall be marked with the session identifier \l
+QApplication::sessionId(). This appliation specific identifier is
+globally unqiue, so no clashes will happen.
+
+Restauration is usually done in the application's main()
+function. Check if \l QApplication::isSessionRestored() is \c TRUE. If
+that's the case, use the session identifier \l
+QApplication::sessionId() again to access your state date and restore
+the state of the application.
 
 <strong>Important:</strong> To allow the window manager to restore
 window attributes such as stacking order or geometry information, you
