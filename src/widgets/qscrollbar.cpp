@@ -583,13 +583,14 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	    sliderLength = sr.width();
 	} else {
 	    sliderMin = gr.y();
-	    sliderMax = sliderMax + gr.height();
+	    sliderMax = sliderMin + gr.height();
 	    sliderLength = sr.height();
 	}
 
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
 			   - sliderLength/2;
 	newSliderPos = QMIN( newSliderPos, sliderMax - sliderLength );
+	newSliderPos = QMAX( newSliderPos, sliderMin );
 	setValue( sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
 	pressedControl = QStyle::SC_ScrollBarSlider;
