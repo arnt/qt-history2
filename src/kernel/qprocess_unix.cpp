@@ -962,6 +962,8 @@ void QProcess::socketRead( int fd )
 	n = ::read( fd, buffer->data()+oldSize, bufsize );
 	if ( n > 0 )
 	    buffer->resize( oldSize + n );
+	else
+	    buffer->resize( oldSize );
     }
 
     d->socketReadCalled = TRUE;
