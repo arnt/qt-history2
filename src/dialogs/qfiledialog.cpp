@@ -82,11 +82,10 @@
 
 #if defined(Q_OS_UNIX)
 // getlogin()
-#include <unistd.h>
-
+# include <unistd.h>
 // getpwnam()
-#include <sys/types.h>
-#include <pwd.h>
+# include <sys/types.h>
+# include <pwd.h>
 #endif
 
 // see comment near use of this variable
