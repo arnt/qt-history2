@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#4 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#5 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -350,6 +350,8 @@ void QTMainWindow::editPreferences()
 
 void QTMainWindow::toolsPOT()
 {
+    QApplication::setOverrideCursor( waitCursor );
+    
     if ( !configsOk() )
         return;
 
@@ -367,6 +369,7 @@ void QTMainWindow::toolsPOT()
 
     system( cmd.latin1() );
 
+    QApplication::restoreOverrideCursor();
     if ( QMessageBox::information( this, tr( "Message Merge" ),
                                    tr( "Do you want to merge the existing translations\n"
                                        "with the new translation template?" ), tr( "&Yes" ),
@@ -584,27 +587,27 @@ bool QTMainWindow::configsOk()
 QString QTMainWindow::parseItem( QTextStream &t, QString &line, QString type, QStringList *lst )
 {
     QString item;
-    
+
     QString tmp;
     if ( line.left( type.length() ) == type ) {
         int start = line.find( '\"' );
         int end = line.findRev( '\"', line.length() - 1 );
         item = line.mid( start + 1, end - start - 1 );
-        
-        
+
+
         line = t.readLine();
-        if ( lst && line.left( 6 ) != "msgstr" && 
-             line.left( 5 ) != "msgid" ) 
+        if ( lst && line.left( 6 ) != "msgstr" &&
+             line.left( 5 ) != "msgid" )
             lst->append( line );
         tmp = line.stripWhiteSpace();
         while ( tmp[ 0 ] == '\"' ) {
             start = line.find( '\"' );
             end = line.findRev( '\"', line.length() - 1 );
             item += line.mid( start + 1, end - start - 1 );
-            
+
             line = t.readLine();
-            if ( lst && line.left( 6 ) != "msgstr" && 
-                 line.left( 5 ) != "msgid" ) 
+            if ( lst && line.left( 6 ) != "msgstr" &&
+                 line.left( 5 ) != "msgid" )
                 lst->append( line );
             tmp = line.stripWhiteSpace();
         }
@@ -618,7 +621,7 @@ QString QTMainWindow::getMessageID( QTextStream &t, QString &line )
     QString msgid = parseItem( t, line, "msgid" );
     int cc = msgid.find( "::" );
     msgid.remove( 0, cc + 2 );
-    
+
     return msgid;
 }
 
@@ -627,7 +630,7 @@ QString QTMainWindow::getMessageID( QTextStream &t, QString &line, QStringList &
     QString msgid = parseItem( t, line, "msgid", &out );
     int cc = msgid.find( "::" );
     msgid.remove( 0, cc + 2 );
-    
+
     return msgid;
 }
 
