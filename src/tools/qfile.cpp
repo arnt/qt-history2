@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#17 $
 **
 ** Implementation of QFile class
 **
@@ -11,54 +11,53 @@
 *****************************************************************************/
 
 #include "qfile.h"
-#include "qfileinf.h"
-#include "qdir.h"
 #include "qfiledef.h"
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#17 $";
 #endif
 
-  /*! \class QFile qfile.h
 
-  \brief The QFile class provides system-independent file access and
-  related functions.
+/*----------------------------------------------------------------------------
+  \class QFile qfile.h
+  \brief The QFile class provides system-independent file access.
 
   \ingroup tools
 
-  This class is not yet documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt.
-  */
+  A file is an \link QIODevice I/O device\endlink that can read and write
+  binary and text files.
+
+  The QFileInfo class holds detailed information about a file, such as
+  access permissions, file dates and file types.
+
+  The QDir class manages directories and lists of file names.
+ ----------------------------------------------------------------------------*/
 
 
-  /*!
-  /fn QFile::name()
-  Returns the name set by setName().
-
-  This is NOT a function that always returns a pure file name (i.e. without
-  path information).
-
-  \sa setName(), QFileInfo::fileName().  
-  */
+/*----------------------------------------------------------------------------
+  Constructs a QFile with no name.
+ ----------------------------------------------------------------------------*/
 
 QFile::QFile()
 {
     init();
 }
 
-QFile::QFile( const char *relativeOrAbsoluteFileName )
+/*----------------------------------------------------------------------------
+  Constructs a QFile with a file name \e name.
+  \sa setName()
+ ----------------------------------------------------------------------------*/
+
+QFile::QFile( const char *name )
 {
     init();
-    fn = QDir::cleanPathName( relativeOrAbsoluteFileName );
+    fn = name;
 }
 
-QFile::QFile( const QDir &d, const char *fileName )
-{
-    init();
-    fn = QDir::cleanPathName( d.fullPathName( fileName ) );
-}
+/*----------------------------------------------------------------------------
+  Destroys a QFile.  Calls close().
+ ----------------------------------------------------------------------------*/
 
 QFile::~QFile()
 {
@@ -75,16 +74,41 @@ void QFile::init()				// initialize internal data
     index  = 0;
 }
 
-  /*!
+
+/*----------------------------------------------------------------------------
+  /fn QFile::name()
+  Returns the name set by setName().
+
+  This is NOT a function that always returns a pure file name (i.e. without
+  path information).
+
+  \sa setName(), QFileInfo::fileName().  
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   Sets the name of the file, the name can include an absolute directory
   path or it can be a name or a path relative to the current directory.
+
   Note that if the name is relative it will NOT be associated with the current
   directory, thus changing the current directory before doing
   open() will change the location of the QFile.
 
-  \sa name(), fullPathName(), QFileInfo::fileName(), QDir::setCurrent()
-  */
-void QFile::setName( const char *relativeOrAbsoluteFileName )
+  Do not call this function if the file has already been opened.
+
+  Example:
+  \code
+     QFile f;
+     QDir  d;
+     d.setCurrent( "/tmp" );
+     f.setName( "readme.txt" );
+     d.setCurrent( "/home" );
+     f.open( IO_ReadOnly );		// will open "/home/readme.txt"
+  \endcode
+
+  \sa name(), QFileInfo, QDir
+ ----------------------------------------------------------------------------*/
+
+void QFile::setName( const char *name )
 {
     if ( isOpen() ) {
 #if defined(CHECK_STATE)
@@ -92,54 +116,34 @@ void QFile::setName( const char *relativeOrAbsoluteFileName )
 #endif
         close();
     }
-    fn = QDir::cleanPathName( relativeOrAbsoluteFileName );
+    fn = name;
 }
 
-  /*!
-  Sets the name of the file, and the directory it is/is going to be in.
-  If the file is open a warning is given and the file is closed.
 
-  \sa name(), QDir::rename(), QFileInfo::fullPathName, QFileInfo::fileName
-  */
+/*----------------------------------------------------------------------------
+  Returns TRUE if the file exists, otherwise FALSE.
+  \sa name()
+ ----------------------------------------------------------------------------*/
 
-void QFile::setName(  const QDir &d, const char *fileName )
+bool QFile::exists() const
 {
-    if ( isOpen() ) {
-#if defined(CHECK_STATE)
-	warning( "QFile::setName: File is open" );
-#endif
-        close();
-    }
-    fn = QDir::cleanPathName( d.fullPathName( fileName ) );
-}
-
-long QFile::get_stat( bool lnk ) const		// get file stat, 0 if error
-{
-#if defined(_OS_MAC_)
-    return 0;
-#else
-    if ( fn.isNull() )				// no filename specified
-	return 0;
-    struct STATBUF st;
-#if defined(_OS_LINUX_)
-    if ( lnk )					// detect if symlink
-	return lstat(fn.data(), &st)==0 ? st.st_mode : 0;
-#else
-    lnk = lnk;
-#endif
-    return STAT(fn.data(), &st)==0 ? st.st_mode : 0;
-#endif
-}
-
-bool QFile::exists() const			// test if current file exists
-{
+    if ( fn.isEmpty() )
+	return FALSE;
     return access( fn.data(), F_OK ) == 0;
 }
 
+/*----------------------------------------------------------------------------
+  Returns TRUE if the file given by \e fileName exists, otherwise FALSE.
+ ----------------------------------------------------------------------------*/
+
 bool QFile::exists( const char *fileName )
 {
-    return access( QDir::cleanPathName( fileName), F_OK ) == 0;
+#if defined(CHECK_NULL)
+    ASSERT( fileName != 0 );
+#endif
+    return access( fileName, F_OK ) == 0;
 }
+
 
 #if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
 #define HAS_TEXT_FILEMODE			// has translate/text filemode
@@ -151,6 +155,37 @@ bool QFile::exists( const char *fileName )
 #define HAS_ASYNC_FILEMODE
 #define OPEN_ASYNC O_NDELAY
 #endif
+
+/*----------------------------------------------------------------------------
+  Opens the file specified by the file name currently set, using the mode \e m.
+  Returns TRUE if successful, otherwise FALSE.
+
+  The mode parameter \e m must be a combination of the following flags.
+  <ul>
+  <li>IO_Raw</li> specified raw (unbuffered) file access.
+  <li>IO_ReadOnly</li> opens a file in read-only mode.
+  <li>IO_WriteOnly</li> opens a file in write-only mode.
+  <li>IO_ReadWrite</li> opens a file in read/write mode.
+  <li>IO_Append</li> sets the file index to the end of the file.
+  <li>IO_Truncate</li> truncates the file.
+  <li>IO_Translate</li> enables carriage returns and linefeed translation
+  for text files under MS-DOS, Window, OS/2 and Macintosh.  Cannot be
+  combined with \c IO_Raw.
+  <\ul>
+
+  If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is
+  specified, it will be created.
+
+  Example:
+  \code
+    QFile f1( "/tmp/data.bin" );
+    QFile f2( "readme.txt" );
+    f1.open( IO_Raw | IO_ReadWrite | IO_Append );
+    f2.open( IO_ReadOnly | IO_Translate );
+  \endcode
+
+  \sa name(), close()
+ ----------------------------------------------------------------------------*/
 
 bool QFile::open( int m )			// open file
 {
@@ -267,6 +302,26 @@ bool QFile::open( int m )			// open file
     return ok;
 }
 
+/*----------------------------------------------------------------------------
+  Opens a file in the mode \e m using an existing file handle \e f.
+  Returns TRUE if successful, otherwise FALSE.
+
+  Example:
+  \code
+    #include <stdio.h>
+
+    void printError( const char *msg )
+    {
+        QFile f;
+	f.open( IO_WriteOnly, stderr );
+	f.writeBlock( msg, strlen(msg) );	// write to stderr
+	f.close();
+    }
+  \endcode
+
+  \sa close()
+ ----------------------------------------------------------------------------*/
+
 bool QFile::open( int m, FILE *f )		// open file, using file handle
 {
     if ( isOpen() ) {
@@ -282,6 +337,13 @@ bool QFile::open( int m, FILE *f )		// open file, using file handle
     length = LONG_MAX;				// file might be stdin etc.
     return TRUE;
 }
+
+/*----------------------------------------------------------------------------
+  Opens a file in the mode \e m using an existing file descriptor \e f.
+  Returns TRUE if successful, otherwise FALSE.
+
+  \sa close()
+ ----------------------------------------------------------------------------*/
 
 bool QFile::open( int m, int f )		// open file, using file descr
 {
@@ -299,6 +361,11 @@ bool QFile::open( int m, int f )		// open file, using file descr
     return TRUE;
 }
 
+/*----------------------------------------------------------------------------
+  Closes an open file.  The file will be closed even if it was opened with
+  an existing file handle or file descriptor.
+ ----------------------------------------------------------------------------*/
+
 void QFile::close()				// close file
 {
     if ( !isOpen() )				// file is not open
@@ -310,6 +377,12 @@ void QFile::close()				// close file
     init();					// restore internal state
 }
 
+/*----------------------------------------------------------------------------
+  Flushes the file buffer to the disk.
+
+  Calling close() will also flush.
+ ----------------------------------------------------------------------------*/
+
 void QFile::flush()				// flush file
 {
     if ( isOpen() && fh )			// can only flush open/buffered
@@ -317,22 +390,53 @@ void QFile::flush()				// flush file
 }
 
 
-long QFile::size() const			// get file size
+/*----------------------------------------------------------------------------
+  Returns the file size.
+  \sa at()
+ ----------------------------------------------------------------------------*/
+
+long QFile::size() const
 {
     if ( isOpen() ) {
         return length;
     } else {
-        QFileInfo fi( *this );
-        return fi,size();
+	QFile f( fn );
+	long  s = 0;
+	if ( f.open(IO_ReadOnly) ) {
+	    s = f.size();
+	    f.close();
+	}
+	return s;
     }
 }
 
-long QFile::at() const				// get file position
+/*----------------------------------------------------------------------------
+  Returns the file index.
+  \sa size()
+ ----------------------------------------------------------------------------*/
+
+long QFile::at() const
 {
     return index;
 }
 
-bool QFile::at( long n )			// set file position
+/*----------------------------------------------------------------------------
+  Sets the file index to \e n.  Returns TRUE if successful, otherwise FALSE.
+
+  Example:
+  \code
+    QFile f( "data.bin" );
+    f.open( IO_ReadOnly );			// index set to 0
+    f.at( 100 );				// set index to 100
+    f.at( f.at()+50 );				// set index to 150
+    f.at( f.size()-80 );			// set index to 80 before EOF
+    f.close();
+  \endcode
+
+  \sa size()
+ ----------------------------------------------------------------------------*/
+
+bool QFile::at( long n )
 {
     if ( !isOpen() ) {
 #if defined(CHECK_STATE)
@@ -359,7 +463,16 @@ bool QFile::at( long n )			// set file position
 }
 
 
-int QFile::readBlock( char *p, uint len )	// read data from file
+/*----------------------------------------------------------------------------
+  Reads at most \e len bytes from the file into \e p and
+  returns the number of bytes actually read.
+
+  Returns -1 if a serious error occurred.
+
+  \sa writeBlock()
+ ----------------------------------------------------------------------------*/
+
+int QFile::readBlock( char *p, uint len )
 {
 #if defined(CHECK_STATE)
     CHECK_PTR( p );
@@ -381,7 +494,16 @@ int QFile::readBlock( char *p, uint len )	// read data from file
     return nread;
 }
 
-int QFile::writeBlock( const char *p, uint len ) // write data to file
+/*----------------------------------------------------------------------------
+  Writes \e len bytes from \e p to the file and returns the number of
+  bytes actually written.
+
+  Returns -1 if a serious error occurred.
+
+  \sa readBlock()
+ ----------------------------------------------------------------------------*/
+
+int QFile::writeBlock( const char *p, uint len )
 {
 #if defined(CHECK_NULL)
     if ( p == 0 && len != 0 )
@@ -419,7 +541,20 @@ int QFile::writeBlock( const char *p, uint len ) // write data to file
     return nwritten;
 }
 
-int QFile::readLine( char *p, uint maxlen )	// read data from file
+
+/*----------------------------------------------------------------------------
+  Reads a line of text.
+
+  Reads bytes from the file until end-of-line is reached, or up to
+  \e maxlen bytes.
+  This function is efficient only for buffered files.  Avoid
+  readLine() for files that have been opened with the \c IO_Raw
+  flag.
+
+  \sa readBlock()
+ ----------------------------------------------------------------------------*/
+
+int QFile::readLine( char *p, uint maxlen )
 {
 #if defined(CHECK_STATE)
     CHECK_PTR( p );
@@ -444,7 +579,15 @@ int QFile::readLine( char *p, uint maxlen )	// read data from file
 }
 
 
-int QFile::getch()				// get next char
+/*----------------------------------------------------------------------------
+  Reads a single byte/character from the file.
+
+  Returns -1 if the end of file has been reached.
+
+  \sa putch(), ungetch()
+ ----------------------------------------------------------------------------*/
+
+int QFile::getch()
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
@@ -468,7 +611,15 @@ int QFile::getch()				// get next char
     return ch;
 }
 
-int QFile::putch( int ch )			// put char
+/*----------------------------------------------------------------------------
+  Writes the character \e ch to the file.
+
+  Returns \e ch, or -1 if some error occurred.
+
+  \sa getch(), ungetch()
+ ----------------------------------------------------------------------------*/
+
+int QFile::putch( int ch )
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
@@ -495,7 +646,17 @@ int QFile::putch( int ch )			// put char
     return ch;
 }
 
-int QFile::ungetch( int ch )			// put back char
+/*----------------------------------------------------------------------------
+  Puts the character \e ch back into the file.
+
+  This function is normally called to "undo" a getch() operator.
+
+  Returns \e ch, or -1 if some error occurred.
+
+  \sa getch(), putch()
+ ----------------------------------------------------------------------------*/
+
+int QFile::ungetch( int ch )
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
