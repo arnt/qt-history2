@@ -1496,8 +1496,6 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 
 	bool redraw = FALSE;
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
-	    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
-	    emit selectionChanged();
 	    if ( !( e->state() & ShiftButton ) ) {
 		redraw = doc->removeSelection( QTextDocument::Standard );
 		doc->setSelectionStart( QTextDocument::Standard, cursor );
@@ -1593,6 +1591,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 {
+    bool emitSignals = FALSE;
     QTextCursor oldCursor = *cursor;
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
@@ -1613,10 +1612,8 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 	    if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
 		doc->copySelectedText( QTextDocument::Standard );
 	    QApplication::clipboard()->setSelectionMode(FALSE);
-
-	    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
-	    emit selectionChanged();
 	}
+	emitSignals = TRUE;
 #endif
     }
     emit cursorPositionChanged( cursor );
@@ -1634,6 +1631,9 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     drawCursor( TRUE );
     if ( !doc->hasSelection( QTextDocument::Standard, TRUE ) )
 	doc->removeSelection( QTextDocument::Standard );
+
+    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
+    emit selectionChanged();
 }
 
 /*! \reimp */
