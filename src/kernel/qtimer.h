@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#14 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#15 $
 **
 ** Definition of QTimer class
 **
@@ -28,7 +28,7 @@ public:
     void	changeInterval( int msec );
     void	stop();
 
-    static bool singleShot( int msec, QObject *receiver, const char *member );
+    static void singleShot( int msec, QObject *receiver, const char *member );
 
 signals:
     void	timeout();

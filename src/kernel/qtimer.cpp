@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#22 $
 **
 ** Implementation of QTimer class
 **
@@ -12,7 +12,7 @@
 #include "qtimer.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#22 $");
 
 
 /*!
@@ -192,13 +192,11 @@ bool QSingleShotTimer::event( QEvent * )
 
 
 /*!
-  This static function creates a single shot timer and connects it
-  to a slot. Returns TRUE if successful or FALSE if it could not
-  create a timer.
+  This static function calls a slot after a given time interval.
 
   It is very convenient to use this function because you do not need to
-  bother with a \link QObject::timerEvent() timerEvent\endlink or
-  to create a local QTimer object.
+  bother with a \link QObject::timerEvent() timerEvent\endlink or to
+  create a local QTimer object.
 
   Example:
   \code
@@ -218,12 +216,10 @@ bool QSingleShotTimer::event( QEvent * )
   600000 milliseconds).
 */
 
-bool QTimer::singleShot( int msec, QObject *receiver, const char *member )
+void QTimer::singleShot( int msec, QObject *receiver, const char *member )
 {
     QSingleShotTimer *sst = new QSingleShotTimer;
-    if ( !sst->start(msec, receiver, member) ) { // could not start
-	delete sst;
-	return FALSE;
-    }
-    return TRUE;
+    sst->start(msec, receiver, member);
 }
+
+
