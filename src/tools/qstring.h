@@ -712,6 +712,7 @@ private:
 		      const QString& a4 = QString::null ) const;
 
     void checkSimpleText() const;
+    void grow( uint newLength );
 #ifndef QT_NO_CAST_ASCII
     QString &insertHelper( uint index, const char *s, uint len=UINT_MAX );
     QString &operatorPlusEqHelper( const char *s, uint len2=UINT_MAX );

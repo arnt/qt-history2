@@ -1712,6 +1712,21 @@ void QString::setLength( uint newLen )
 }
 
 /*!
+    \internal
+
+    Like setLength, but doesn't shrink the allocated memory.
+*/
+void QString::grow( uint newLen )
+{
+    if ( d->count != 1 || newLen > d->maxl ) {
+	setLength( newLen );
+    } else {
+	d->len = newLen;
+	d->setDirty();
+    }
+}
+
+/*!
     This function will return a string that replaces the lowest
     numbered occurrence of \c %1, \c %2, ..., \c %9 with \a a.
 
@@ -3500,7 +3515,7 @@ QString &QString::insertHelper( uint index, const char *s, uint len )
 	int nlen = olen + len;
 
 	if ( index >= olen ) {                      // insert after end of string
-	    setLength( len + index );
+	    grow( len + index );
 	    int n = index - olen;
 	    QChar* uc = d->unicode + olen;
 	    while ( n-- )
@@ -3510,7 +3525,7 @@ QString &QString::insertHelper( uint index, const char *s, uint len )
 	    while ( len-- )
 		*uc++ = *s++;
 	} else {                                    // normal insert
-	    setLength( nlen );
+	    grow( nlen );
 	    memmove( d->unicode + index + len, unicode() + index,
 		    sizeof(QChar) * (olen - index) );
 
@@ -3547,14 +3562,14 @@ QString &QString::insert( uint index, const QChar* s, uint len )
     }
 
     if ( index >= olen ) {                      // insert after end of string
-	setLength( len + index );
+	grow( len + index );
 	int n = index - olen;
 	QChar* uc = d->unicode+olen;
 	while (n--)
 	    *uc++ = ' ';
 	memcpy( d->unicode+index, s, sizeof(QChar)*len );
     } else {                                    // normal insert
-	setLength( nlen );
+	grow( nlen );
 	memmove( d->unicode + index + len, unicode() + index,
 		 sizeof(QChar) * (olen - index) );
 	memcpy( d->unicode + index, s, sizeof(QChar) * len );
@@ -5033,7 +5048,7 @@ QString& QString::operator+=( const QString &str )
     uint len1 = length();
     uint len2 = str.length();
     if ( len2 ) {
-	setLength(len1+len2);
+	grow( len1+len2 );
 	memcpy( d->unicode+len1, str.unicode(), sizeof(QChar)*len2 );
     } else if ( isNull() && !str.isNull() ) {   // ## just for 1.x compat:
 	*this = fromLatin1( "" );
@@ -5054,7 +5069,7 @@ QString &QString::operatorPlusEqHelper( const char *s, uint len2 )
 	if ( len2 == UINT_MAX )
 	    len2 = strlen( s );
 	if ( len2 ) {
-	    setLength( len1 + len2 );
+	    grow( len1 + len2 );
 	    QChar* uc = d->unicode + len1;
 	    while ( len2-- )
 		*uc++ = *s++;
@@ -5086,7 +5101,7 @@ QString& QString::operator+=( const char *str )
 
 QString &QString::operator+=( QChar c )
 {
-    setLength(length()+1);
+    grow( length()+1 );
     d->unicode[length()-1] = c;
     return *this;
 }
@@ -5103,7 +5118,7 @@ QString &QString::operator+=( char c )
     if ( QTextCodec::codecForCStrings() )
 	return operator+=( fromAscii( &c, 1 ) );
 #endif
-    setLength(length()+1);
+    grow( length()+1 );
     d->unicode[length()-1] = c;
     return *this;
 }
