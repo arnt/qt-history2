@@ -739,6 +739,95 @@ static char * drive_hd_xpm[] = {
 "................",
 "................"};
 
+/* XPM */
+static char * desktop_xpm[] = {
+"16 16 12 1",
+" 	c None",
+".	c #FF00FF",
+"+	c #000000",
+"@	c #008484",
+"#	c #FFFFFF",
+"$	c #00FFFF",
+"%	c #848400",
+"&	c #FFFF00",
+"*	c #848484",
+"=	c #C6C6C6",
+"-	c #FF0000",
+";	c #840000",
+"       @+       ",
+"       $@ +     ",
+"       $@ @$+   ",
+"      $$@@  @$+ ",
+"     @@@@++   $ ",
+"       %+    @+ ",
+"             $  ",
+"            @+  ",
+"  **********$@*+",
+"  #***+=**==***+",
+" *=#+#*=#####*=+",
+" #*#*+=*####+=*+",
+"*=+++*+=*****=* ",
+"#=====;======*+ ",
+"=============*  ",
+"++++++++++++++  "};
+
+/* XPM */
+static char * computer_xpm[] = {
+"16 16 10 1",
+" 	c None",
+".	c #008080",
+"+	c #808080",
+"@	c #C0C0C0",
+"#	c #FFFFFF",
+"$	c #000000",
+"%	c #000080",
+"&	c #0000FF",
+"*	c #00FFFF",
+"=	c #008000",
+"    @@@@@@@@#$  ",
+"   #@@@@@@@@+$  ",
+"   #$$$$$$$#+$  ",
+"   #$*&&&&&#+$  ",
+"   #$&&&&&&#+$  ",
+"   #$&&&&&&#+$  ",
+"   #$&&&&&&#+$  ",
+"   #########+$  ",
+"   +++++++++++@ ",
+"  +++++++++++@+ ",
+" +@@@@@@@@@@@++ ",
+" +@=@@@$$$$$+++ ",
+" ++#$+#$+#$++++$",
+"+++$++$++$####+$",
+"@@@@@@@@@@++++$ ",
+"          $$$   "};
+
+/* XPM */
+static char * trashcan_xpm[] = {
+"16 16 7 1",
+" 	c None",
+".	c #008282",
+"+	c #828282",
+"@	c #FFFFFF",
+"#	c #C3C3C3",
+"$	c #000000",
+"%	c #008200",
+"    +@@++ +     ",
+" +@@++@@+@@@+   ",
+" @+@@@#@@@@++   ",
+" #@+@@@#@+@@++  ",
+" +##@+@++@@@##@ ",
+" +####@+#@##@@+ ",
+"  ####%#@@@+++$ ",
+"  #%%##%%#++++$ ",
+"  +%%##%%#++++  ",
+"  +%####%#++++  ",
+"   #+#%#%#+++$  ",
+"   ##+%%##+++$  ",
+"   $+#+###+++   ",
+"     $+###+++   ",
+"       $+#++$   ",
+"         $$     "};
+
 #endif //QT_NO_IMAGEIO_XPM
 
 /*!
@@ -784,13 +873,16 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
         return QPixmap((const char **)file_link_xpm);
     case SP_DriveHDIcon:
         return QPixmap((const char **)drive_hd_xpm);
+    case SP_DesktopIcon:
+        return QPixmap((const char **)desktop_xpm);
+    case SP_ComputerIcon:
+        return QPixmap((const char **)computer_xpm);
+    case SP_TrashIcon:
+        return QPixmap((const char **)trashcan_xpm);
     case SP_DriveFDIcon:
     case SP_DriveCDIcon:
     case SP_DriveDVDIcon:
     case SP_DriveNetIcon:
-    case SP_ComputerIcon:
-    case SP_TrashIcon:
-    case SP_DesktopIcon:
         return QPixmap();
     default:
         break;
