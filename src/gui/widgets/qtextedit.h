@@ -102,7 +102,7 @@ public:
     int fontWeight() const;
     bool fontUnderline() const;
     bool fontItalic() const;
-    QColor color() const;
+    QColor textColor() const;
     QFont currentFont() const;
     Qt::Alignment alignment() const;
 
@@ -150,7 +150,7 @@ public slots:
     void setFontWeight(int w);
     void setFontUnderline(bool b);
     void setFontItalic(bool b);
-    void setColor(const QColor &c);
+    void setTextColor(const QColor &c);
     void setCurrentFont(const QFont &f);
     void setAlignment(Qt::Alignment a);
 
@@ -303,6 +303,9 @@ public:
     inline QT_COMPAT bool isModified() const
     { return document()->isModified(); }
 
+    inline QT_COMPAT QColor color() const
+    { return textColor(); }
+
 public slots:
     inline QT_MOC_COMPAT void setModified(bool m = true)
     { document()->setModified(m); }
@@ -310,6 +313,9 @@ public slots:
     { document()->undo(); }
     inline QT_MOC_COMPAT void redo() const
     { document()->redo(); }
+
+    inline QT_MOC_COMPAT void setColor(const QColor &c)
+    { setTextColor(c); }
 
 #endif
 };

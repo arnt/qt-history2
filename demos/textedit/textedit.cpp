@@ -468,10 +468,10 @@ void TextEdit::textColor()
 {
     if (!currentEditor)
         return;
-    QColor col = QColorDialog::getColor(currentEditor->color(), this);
+    QColor col = QColorDialog::getColor(currentEditor->textColor(), this);
     if (!col.isValid())
         return;
-    currentEditor->setColor(col);
+    currentEditor->setTextColor(col);
     colorChanged(col);
 }
 
@@ -553,7 +553,7 @@ void TextEdit::editorChanged()
         return;
 
     fontChanged(currentEditor->font());
-    colorChanged(currentEditor->color());
+    colorChanged(currentEditor->textColor());
     alignmentChanged(currentEditor->alignment());
 
     connect(currentEditor->document(), SIGNAL(undoAvailable(bool)),

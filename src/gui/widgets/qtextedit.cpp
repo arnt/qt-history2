@@ -713,7 +713,7 @@ void QTextEditPrivate::setClipboardSelection()
 
     The current char format's attributes are set with setFontItalic(),
     setFontBold(), setFontUnderline(), setFontFamily(),
-    setFontPointSize(), setColor() and setCurrentFont(). The current
+    setFontPointSize(), setTextColor() and setCurrentFont(). The current
     paragraph's alignment is set with setAlignment().
 
     Selection of text is handled by the QTextCursor class, which provides
@@ -924,11 +924,11 @@ bool QTextEdit::fontItalic() const
 }
 
 /*!
-    Returns the color of the current format.
+    Returns the text color of the current format.
 
-    \sa setColor()
+    \sa setTextColor()
 */
-QColor QTextEdit::color() const
+QColor QTextEdit::textColor() const
 {
     return d->currentCharFormat.textColor();
 }
@@ -1093,11 +1093,11 @@ void QTextEdit::setFontItalic(bool b)
 }
 
 /*!
-    Sets the color of the current format, i.e. of the text, to \a c.
+    Sets the text color of the current format to \a c.
 
-    \sa color()
+    \sa textColor()
 */
-void QTextEdit::setColor(const QColor &c)
+void QTextEdit::setTextColor(const QColor &c)
 {
     if (d->readOnly)
 	return;
