@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#1 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#2 $
 **
-** Implementation of JPEG QImage IOHandler
+** Implementation of Network Extension Library
 **
 ** Created : 970521
 **
