@@ -320,7 +320,7 @@ QVariant QPSQLResult::data( int i )
 	    val.truncate( val.length() - 3 );
 	// milliseconds are sometimes returned with 2 digits only
 	if ( val.at( val.length() - 3 ).isPunct() )
-	    val.insert( val.length() - 2, '0' );
+	    val += '0';
 	if ( val.isEmpty() )
 	    return QVariant( QDateTime() );
 	else
@@ -921,11 +921,13 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	    if ( field->value().toDateTime().isValid() ) {
 		QDate dt = field->value().toDateTime().date();
 		QTime tm = field->value().toDateTime().time();
+		// msecs need to be right aligned otherwise psql
+		// interpretes them wrong
 		r = "'" + QString::number( dt.year() ) + "-" +
 			  QString::number( dt.month() ) + "-" +
 			  QString::number( dt.day() ) + " " +
 			  tm.toString() + "." +
-			  QString::number( tm.msec() ) + "'";
+			  QString::number( tm.msec() ).rightJustify( 3, '0' ) + "'";
 	    } else {
 		r = nullText();
 	    }
