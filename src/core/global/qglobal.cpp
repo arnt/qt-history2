@@ -400,18 +400,19 @@ Q_CORE_EXPORT QString qt_errorstr(int errorCode)
                           0,
                           NULL);
             ret = QString::fromUtf16(string);
+            LocalFree((HLOCAL)string);
         }, {
             char *string = 0;
             FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                            NULL,
                            errorCode,
                            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           &string,
+                           (LPSTR)&string,
                            0,
                            NULL);
             ret = QString::fromLocal8Bit(string);
+            LocalFree((HLOCAL)string);
         });
-        LocalFree((HLOCAL)string);
 #else
         ret = QString::fromLocal8Bit(strerror(errorCode));
 #endif
