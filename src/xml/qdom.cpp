@@ -2500,7 +2500,7 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::namedItem( const QString& name ) const
 QDomNodePrivate* QDomNamedNodeMapPrivate::namedItemNS( const QString& nsURI, const QString& localName ) const
 {
     QHash<QString, QDomNodePrivate *>::ConstIterator it = map.begin();
-    QDomNodePrivate *n = *it;
+    QDomNodePrivate *n;
     for (; it != map.end(); ++it) {
 	n = *it;
 	if ( !n->prefix.isNull() ) {
