@@ -235,6 +235,13 @@ QLabel* label = new QLabel(
     "Rich text with embedded image:<img source=\"myimage\">"
     "Isn't that <em>cute</em>?" );
 \endcode
+
+  When no longer needed, you can clear the data from the factory:
+
+\code
+delete label;
+QMimeSourceFactory::defaultFactory()->setData( "myimage", 0 );
+\endcode
 */
 
 
@@ -515,12 +522,17 @@ void QMimeSourceFactory::setPixmap( const QString& abs_name, const QPixmap& pixm
   the absolute name \a abs_name. Note that the ownership of \a data is
   transferred to the factory: do not delete or access the pointer after
   passing it to this function.
+
+  Passing 0 for data removes previously stored data.
 */
 void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
 {
     if ( d->stored.contains(abs_name) )
 	delete d->stored[abs_name];
-    d->stored.replace(abs_name,data);
+    if ( data )
+	d->stored.replace(abs_name,data);
+    else
+	d->stored.remove(abs_name);
 }
 
 
