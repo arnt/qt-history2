@@ -19,7 +19,6 @@ kernel {
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdesktopwidget.h \
-		  $$KERNEL_H/qdialog.h \
 		  $$KERNEL_H/qdragobject.h \
 		  $$KERNEL_H/qdrawutil.h \
 		  $$KERNEL_H/qdropsite.h \
@@ -66,7 +65,6 @@ kernel {
 		  $$KERNEL_H/qprocess.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
-		  $$KERNEL_H/qsemimodal.h \
 		  $$KERNEL_H/qsessionmanager.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
@@ -172,7 +170,6 @@ kernel {
 		  $$KERNEL_CPP/qcomponentfactory.cpp \
 		  $$KERNEL_CPP/qconnection.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \
-		  $$KERNEL_CPP/qdialog.cpp \
 		  $$KERNEL_CPP/qdragobject.cpp \
 		  $$KERNEL_CPP/qdrawutil.cpp \
 		  $$KERNEL_CPP/qdropsite.cpp \
