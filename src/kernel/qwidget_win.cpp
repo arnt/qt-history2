@@ -162,7 +162,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		style |= WS_MINIMIZEBOX;
 	    if ( testWFlags(WStyle_Maximize) )
 		style |= WS_MAXIMIZEBOX;
-	    if ( testWFlags(WStyle_Tool) )
+	    if ( testWFlags(WStyle_Tool) | testWFlags(WType_Popup) )
 		exsty |= WS_EX_TOOLWINDOW;
 	    if ( testWFlags(WStyle_ContextHelp) )
 		exsty |= WS_EX_CONTEXTHELP;
