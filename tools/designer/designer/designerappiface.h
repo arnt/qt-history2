@@ -94,6 +94,11 @@ public:
     DesignerApplicationInterface();
 
     QString interfaceID() const { return "DesignerApplicationInterface"; }
+
+    QString name() const { return "Qt Designer"; }
+    QString description() const { return "GUI Editor for the Qt Toolkit"; }
+    QString version() const { return "1.1"; }
+    QString author() const { return "Trolltech"; }
 };
 
 #endif
