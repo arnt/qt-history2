@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of Qt template library classes.
+** Definition of Qt generic algorithms.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTL_H
-#define QTL_H
+#ifndef QALGORITHMS_H
+#define QALGORITHMS_H
 
 #ifndef QT_H
 #include "qglobal.h"
