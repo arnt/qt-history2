@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#20 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#21 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -124,7 +124,8 @@ export QTDIR=$base/head/qt
 export PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH:/home/agulbra/bin
 
 # Generate and check-in [changes to] the X11 makefiles/build files
-rsync -avz --delete bahamas:/local/lib/cvs/qt/configs $base/cvs/qt
+rsync -avz --delete bahamas:/local/lib/cvs/qt $base/cvs
+find $base/cvs/qt -type f -print | grep -v /Makefile | grep -v /configs/ | grep -v /html/ | xargs rm -f
 cd $base/head/qt
 for B in `util/scripts/makeunixmake -p -s`
 do
@@ -136,12 +137,11 @@ done
 # Generate and check-in [changes to] the documentation
 if ( !$skipdoc ) {
     print SH "
-    for a in tutorial/t{,1}?*; do cp -f \$a/Makefile.in \$a/Makefile ; done
+    for a in tutorial/t{,1}[0-9]; do cp -f \$a/Makefile.in \$a/Makefile ; done
     perl util/qdoc/qdoc
     for a in tutorial/t{,1}?; do rm -f \$a/Makefile ; done
     cd doc/html
     mkdir -p $base/cvs/qt/html
-    rsync -avz --delete bahamas:/local/lib/cvs/qt/html $base/cvs/qt
     for B in *.html *.gif *.jpg
     do
       [ -f $base/cvs/qt/html/\${B},v ] && rcs -l $base/cvs/qt/html/\${B},v
@@ -165,7 +165,7 @@ rm -rf makefiles tmake
 rm -rf src/Makefile.win32-dll
 rm -rf src/*.pro
 chmod a+x $base/cvs/qt/bin/*,v
-rsync -avz --delete $base/cvs/qt bahamas:/local/lib/cvs
+#rsync -avz --delete $base/cvs/qt bahamas:/local/lib/cvs
 ";
 
 close(SH) # We want to wait for the script to complete.
