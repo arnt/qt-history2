@@ -1177,24 +1177,44 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
     case PE_IndicatorArrowLeft: {
-        QPolygon a;
+        QPoint points[7];
         switch (pe) {
             case PE_IndicatorArrowUp:
-                a.setPoints(7, -4, 1, 2, 1, -3, 0, 1, 0, -2, -1, 0, -1, -1, -2);
+                points[0] = QPoint(-4, 1);
+                points[1] = QPoint(2, 1);
+                points[2] = QPoint(-3, 0);
+                points[3] = QPoint(1, 0);
+                points[4] = QPoint(-2, -1);
+                points[5] = QPoint(0, -1);
+                points[6] = QPoint(-1, -2);
                 break;
-
             case PE_IndicatorArrowDown:
-                a.setPoints(7, -4, -2, 2, -2, -3, -1, 1, -1, -2, 0, 0, 0, -1, 1);
+                points[0] = QPoint(-4, -2);
+                points[1] = QPoint(2, -2);
+                points[2] = QPoint(-3, -1);
+                points[3] = QPoint(1, -1);
+                points[4] = QPoint(-2, 0);
+                points[5] = QPoint(0, 0);
+                points[6] = QPoint(-1, 1);
                 break;
-
             case PE_IndicatorArrowRight:
-                a.setPoints(7, -2, -3, -2, 3, -1, -2, -1, 2, 0, -1, 0, 1, 1, 0);
+                points[0] = QPoint(-2, -3);
+                points[1] = QPoint(-2, 3);
+                points[2] = QPoint(-1, -2);
+                points[3] = QPoint(-1, 2);
+                points[4] = QPoint(0, -1);
+                points[5] = QPoint(0, 1);
+                points[6] = QPoint(1, 0);
                 break;
-
             case PE_IndicatorArrowLeft:
-                a.setPoints(7, 0, -3, 0, 3, -1, -2, -1, 2, -2, -1, -2, 1, -3, 0);
+                points[0] = QPoint(0, -3);
+                points[1] = QPoint(0, 3);
+                points[2] = QPoint(-1, -2);
+                points[3] = QPoint(-1, 2);
+                points[4] = QPoint(-2, -1);
+                points[5] = QPoint(-2, 1);
+                points[6] = QPoint(-3, 0);
                 break;
-
             default:
                 break;
         }
@@ -1203,21 +1223,27 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->translate(pixelMetric(PM_ButtonShiftHorizontal),
                          pixelMetric(PM_ButtonShiftVertical));
         if (opt->state & Style_Enabled) {
-            a.translate(opt->rect.x() + opt->rect.width() / 2,
-                        opt->rect.y() + opt->rect.height() / 2);
+            p->translate(opt->rect.x() + opt->rect.width() / 2,
+                         opt->rect.y() + opt->rect.height() / 2);
             p->setPen(opt->palette.buttonText().color());
-            p->drawLineSegments(a, 0, 3);         // draw arrow
-            p->drawPoint(a[6]);
+            p->drawLine(points[0], points[1]);
+            p->drawLine(points[2], points[3]);
+            p->drawLine(points[4], points[5]);
+            p->drawPoint(points[6]);
         } else {
-            a.translate(opt->rect.x() + opt->rect.width() / 2 + 1,
-                        opt->rect.y() + opt->rect.height() / 2 + 1);
+            p->translate(opt->rect.x() + opt->rect.width() / 2 + 1,
+                         opt->rect.y() + opt->rect.height() / 2 + 1);
             p->setPen(opt->palette.light().color());
-            p->drawLineSegments(a, 0, 3);         // draw arrow
-            p->drawPoint(a[6]);
-            a.translate(-1, -1);
+            p->drawLine(points[0], points[1]);
+            p->drawLine(points[2], points[3]);
+            p->drawLine(points[4], points[5]);
+            p->drawPoint(points[6]);
+            p->translate(-1, -1);
             p->setPen(opt->palette.mid().color());
-            p->drawLineSegments(a, 0, 3);         // draw arrow
-            p->drawPoint(a[6]);
+            p->drawLine(points[0], points[1]);
+            p->drawLine(points[2], points[3]);
+            p->drawLine(points[4], points[5]);
+            p->drawPoint(points[6]);
         }
         p->restore();
         break; }
@@ -1254,24 +1280,22 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->drawRect(opt->rect.x() + 1, opt->rect.y() + 1, 11, 11);
         }
         if (!(opt->state & Style_Off)) {
-            QPolygon a(7 * 2);
+            QLineF lines[7];
             int i, xx, yy;
             xx = opt->rect.x() + 3;
             yy = opt->rect.y() + 5;
             for (i = 0; i < 3; ++i) {
-                a.setPoint(2 * i, xx, yy);
-                a.setPoint(2 * i + 1, xx, yy + 2);
+                lines[i] = QLineF(xx, yy, xx, yy + 2);
                 ++xx;
                 ++yy;
             }
             yy -= 2;
             for (i = 3; i < 7; ++i) {
-                a.setPoint(2 * i, xx, yy);
-                a.setPoint(2 * i + 1, xx, yy + 2);
+                lines[i] = QLineF(xx, yy, xx, yy + 2);
                 ++xx;
                 --yy;
             }
-            p->drawLineSegments(a);
+            p->drawLines(lines, 7);
         }
         if (doRestore)
             p->restore();

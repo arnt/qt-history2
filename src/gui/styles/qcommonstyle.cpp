@@ -422,20 +422,18 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         int posX = opt->rect.x() + (opt->rect.width() - markW)/2 + 1;
         int posY = opt->rect.y() + (opt->rect.height() - markH)/2;
 
-        QPolygon a(markH * 2);
+        QVector<QLineF> a(markH);
         int i, xx, yy;
         xx = posX;
         yy = 3 + posY;
-        for (i = 0; i < markW / 2; ++i) {
-            a.setPoint(2 * i, xx, yy);
-            a.setPoint(2 * i + 1, xx, yy + 2);
+        for (i = 0; i < markW; ++i) {
+            a << QLineF(xx, yy, xx, yy + 2);
             ++xx;
             ++yy;
         }
         yy -= 2;
         for (; i < markH; ++i) {
-            a.setPoint(2 * i,   xx, yy);
-            a.setPoint(2 * i + 1, xx, yy + 2);
+            a << QLineF(xx, yy, xx, yy + 2);
             ++xx;
             --yy;
         }
@@ -445,12 +443,12 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             QPoint offset(1, 1);
             for (pnt = 0; pnt < a.size(); ++pnt)
                 a[pnt] += offset;
-            p->drawLineSegments(a);
+            p->drawLines(a);
             for (pnt = 0; pnt < a.size(); ++pnt)
                 a[pnt] -= offset;
         }
         p->setPen(opt->palette.text().color());
-        p->drawLineSegments(a);
+        p->drawLines(a);
         break; }
     case PE_Frame:
     case PE_FrameMenu:
@@ -555,24 +553,22 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 ++x;
                 ++y;
                 if (lv->state & Style_On || lv->state & Style_NoChange) {
-                    QPolygon a(7 * 2);
+                    QLineF lines[7];
                     int i,
                         xx = x + 1 + marg,
                         yy = y + 5;
                     for (i = 0; i < 3; ++i) {
-                        a.setPoint(2 * i,   xx, yy);
-                        a.setPoint(2 * i + 1, xx, yy + 2);
+                        lines[i] = QLineF(xx, yy, xx, yy + 2);
                         ++xx;
                         ++yy;
                     }
                     yy -= 2;
                     for (i = 3; i < 7; ++i) {
-                        a.setPoint(2 * i,   xx, yy);
-                        a.setPoint(2 * i + 1, xx, yy + 2);
+                        lines[i] = QLineF(xx, yy, xx, yy + 2);
                         ++xx;
                         --yy;
                     }
-                    p->drawLineSegments(a);
+                    p->drawLines(lines, 7);
                 }
         }
         break;

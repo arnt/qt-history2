@@ -55,6 +55,7 @@ public:
     inline void translate(const QPointF &p);
 
     inline void operator+=(const QPointF &d);
+    inline void operator-=(const QPointF &d);
     inline bool operator==(const QLineF &d) const;
 
 private:
@@ -158,6 +159,12 @@ inline void QLineF::operator+=(const QPointF &point)
 {
     p1 += point;
     p2 += point;
+}
+
+inline void QLineF::operator-=(const QPointF &point)
+{
+    p1 -= point;
+    p2 -= point;
 }
 
 inline bool QLineF::operator==(const QLineF &d) const
