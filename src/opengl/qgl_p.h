@@ -37,6 +37,7 @@ public:
     QMap<QString, int> displayListCache;
 
 #if defined(Q_WS_WIN)
+    QGLContext* olcx;
 #elif defined(Q_WS_X11)
     QGLOverlayWidget*        olw;
 #elif defined(Q_WS_MAC)
