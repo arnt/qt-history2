@@ -383,6 +383,7 @@ int QKeySequence::decodeString( const QString& str )
 {
     int ret = 0;
     QString accel = str;
+#ifndef Q_OS_TEMP
     struct {
 	int qt_key;
 	QString name;
@@ -404,9 +405,20 @@ int QKeySequence::decodeString( const QString& str )
 	{ ALT, "alt+" }, { ALT, QAccel::tr("Alt").lower() + "+" },
 	{ META, "meta+" }, { ALT, QAccel::tr("Meta").lower() + "+" },
 	{ 0, QString::null } };
+#else
+    struct {
+	int qt_key;
+	const char *name;
+    } modifiers[] = {
+	{ CTRL, "ctrl+" }, 
+	{ SHIFT, "shift+" }, 
+	{ ALT, "alt+" }, 
+	{ META, "meta+" }, 
+	{ 0, 0 } };
+#endif
 
     QString sl = accel.lower();
-    for(int i = 0; !modifiers[i].name.isNull(); i++) {
+    for(int i = 0; !modifiers[i].qt_key; i++) {
 	if(sl.contains(modifiers[i].name)) {
 	    ret |= modifiers[i].qt_key;
 #ifndef QT_NO_REGEXP
