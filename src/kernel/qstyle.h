@@ -123,6 +123,9 @@ public:
 
 	PO_DockWindowHandle,
 	PO_DockWindowSeparator,
+	PO_DockWindowResizeHandle,
+
+	PO_Splitter,
 
 	PO_MenuBarItem,
 
@@ -193,8 +196,6 @@ public:
 	CE_RadioButtonLabel,
 
 	CE_TabBarTab,
-
-	CE_Splitter,
 
 	CE_ProgressBar,
 	CE_ProgressBarLabel,

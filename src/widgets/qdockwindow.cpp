@@ -240,7 +240,9 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 void QDockWindowResizeHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    style().drawControl( QStyle::CE_Splitter, &p, this, QRect(0, 0, width(), height()), colorGroup() );
+    style().drawPrimitive(QStyle::PO_DockWindowResizeHandle, &p, rect(), colorGroup(),
+			  (orientation() == Qt::Horizontal ?
+			   QStyle::PStyle_Vertical : QStyle::PStyle_Horizontal));
 }
 
 void QDockWindowResizeHandle::startLineDraw()
@@ -354,14 +356,14 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
 	return;
     QPainter p( this );
     QStyle::PFlags flags = QStyle::PStyle_Default;
-    
+
     if ( dockWindow->area()->orientation() == Horizontal )
 	flags |= QStyle::PStyle_Horizontal;
     else
 	flags |= QStyle::PStyle_Vertical;
-    
+
     style().drawPrimitive( QStyle::PO_DockWindowHandle, &p,
-			   style().subRect( QStyle::SR_DockWindowHandleRect, 
+			   style().subRect( QStyle::SR_DockWindowHandleRect,
 					    this ),
 			   colorGroup(), flags );
 
@@ -899,7 +901,7 @@ QWidget *QDockWindow::areaAt( const QPoint &gp )
 
     if ( w && ( w == this || w == titleBar ) && parentWidget() )
 	w = parentWidget()->childAt( parentWidget()->mapFromGlobal( gp ) );
-	
+
     QMainWindow *mw = 0;
     while ( w ) {
 	if ( w->inherits( "QDockArea" ) ) {

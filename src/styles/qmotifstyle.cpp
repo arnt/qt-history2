@@ -488,7 +488,6 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_DockWindowHandle: {
-
 	p->save();
 	p->translate( r.x(), r.y() );
 
@@ -554,6 +553,31 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	p->restore();
 	break; }
 
+    case PO_Splitter:
+    case PO_DockWindowResizeHandle: {
+	const int motifOffset = 10;
+ 	int sw = pixelMetric( PM_SplitterWidth );
+	if ( flags & PStyle_Horizontal ) {
+ 	    QCOORD xPos = r.x() + r.width() / 2;
+ 	    QCOORD kPos = motifOffset;
+ 	    QCOORD kSize = sw - 2;
+
+ 	    qDrawShadeLine( p, xPos, kPos + kSize - 1, xPos, r.height(), cg );
+ 	    qDrawShadePanel( p, xPos - sw / 2 + 1, kPos, kSize, kSize, cg,
+ 			     FALSE, 1, &cg.brush( QColorGroup::Button ) );
+ 	    qDrawShadeLine( p, xPos, 0, xPos, kPos, cg );
+ 	} else {
+ 	    QCOORD yPos = r.y() + r.height() / 2;
+ 	    QCOORD kPos = r.width() - motifOffset - sw;
+ 	    QCOORD kSize = sw - 2;
+
+ 	    qDrawShadeLine( p, 0, yPos, kPos, yPos, cg );
+ 	    qDrawShadePanel( p, kPos, yPos - sw / 2 + 1, kSize, kSize,
+ 			     cg, FALSE, 1, &cg.brush( QColorGroup::Button ) );
+ 	    qDrawShadeLine( p, kPos + kSize - 1, yPos, r.width(), yPos, cg );
+ 	}
+ 	break; }
+
     case PO_CheckMark: {
 	const int markW = 6;
 	const int markH = 6;
@@ -614,33 +638,6 @@ void QMotifStyle::drawControl( ControlElement element,
 			       void **data ) const
 {
     switch( element ) {
-    case CE_Splitter: {
-	const int motifOffset = 10;
-	int sw;
-	sw = pixelMetric( PM_SplitterWidth );
-	if ( !data )
-	    return;
-	int orient = *((int *) data[0]);
-	if ( orient == Horizontal ) {
-	    QCOORD xPos = r.x() + r.width() / 2;
-	    QCOORD kPos = motifOffset;
-	    QCOORD kSize = sw - 2;
-
-	    qDrawShadeLine( p, xPos, kPos + kSize - 1, xPos, r.height(), cg );
-	    qDrawShadePanel( p, xPos - sw / 2 + 1, kPos, kSize, kSize, cg,
-			     FALSE, 1, &cg.brush( QColorGroup::Button ) );
-	    qDrawShadeLine( p, xPos, 0, xPos, kPos, cg );
-	} else {
-	    QCOORD yPos = r.y() + r.height() / 2;
-	    QCOORD kPos = r.width() - motifOffset - sw;
-	    QCOORD kSize = sw - 2;
-
-	    qDrawShadeLine( p, 0, yPos, kPos, yPos, cg );
-	    qDrawShadePanel( p, kPos, yPos - sw / 2 + 1, kSize, kSize,
-			     cg, FALSE, 1, &cg.brush( QColorGroup::Button ) );
-	    qDrawShadeLine( p, kPos + kSize - 1, yPos, r.width(), yPos, cg );
-	}
-	break; }
     case CE_PushButton: {
  	int diw,
  	    x1, y1, x2, y2;

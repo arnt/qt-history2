@@ -341,6 +341,11 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	    QCommonStyle::drawPrimitive(op, p, r, cg, flags, data);
 	break; }
 
+    case PO_Splitter:
+    case PO_DockWindowResizeHandle:
+	qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg );
+ 	break;
+
     default:
 	if (op >= PO_ArrowUp && op <= PO_ArrowLeft) {
 	    QPointArray a;
@@ -408,10 +413,6 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 void **data ) const
 {
     switch (element) {
-    case CE_Splitter:
-        qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg );
-	break;
-
     case CE_PushButton: {
 	QPushButton *button = (QPushButton *) widget;
 	QRect br = r;
