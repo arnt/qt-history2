@@ -9,7 +9,6 @@ QCONFIG = kernel
 DEFINES += QT_BUILD_GUI_LIB
 
 #platforms
-include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
 x11:include($$KERNEL_CPP/qt_x11.pri)
 mac:include($$KERNEL_CPP/qt_mac.pri)
 embedded:include($$KERNEL_CPP/qt_qws.pri)

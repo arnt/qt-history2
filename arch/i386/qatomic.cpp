@@ -29,14 +29,14 @@ extern "C" {
      *
      * \sa q_cas_ptr()
      */
-    int q_cas_32(volatile int *ptr, int expected, int newval)
+    int q_cas_32(volatile int *pointer, int expected, int newval)
     {
 	__asm {
-	    mov ECX,ptr
+	    mov EBX,pointer
 	    mov EAX,expected
-	    mov EDX,newval
-	    lock cmpxchg dword EDX,ptr[ECX]
-	    mov value,EAX
+	    mov ECX,newval
+	    lock cmpxchg dword ptr[EBX],ECX
+	    mov newval,EAX
 	}
 	return newval;
     }
@@ -54,13 +54,13 @@ extern "C" {
      *
      * \sa q_cas_32()
      */
-    void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
+    void *q_cas_ptr(void * volatile *pointer, void *expected, void *newval)
     {
 	__asm {
-	    mov ECX,ptr
+	    mov EBX,pointer
 	    mov EAX,expected
-	    mov EDX,newval
-	    lock cmpxchg dword EDX,ptr[ECX]
+	    mov ECX,newval
+	    lock cmpxchg dword ptr[EBX],ECX
 	    mov newval,EAX
 	}
 	return newval;
