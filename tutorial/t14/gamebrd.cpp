@@ -13,6 +13,7 @@
 #include <qpushbutton.h>
 #include <qlcdnumber.h>
 #include <qlayout.h>
+#include <qvbox.h>
 
 #include "lcdrange.h"
 #include "cannon.h"
@@ -31,14 +32,11 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     LCDRange *force  = new LCDRange( "FORCE", this, "force" );
     force->setRange( 10, 50 );
 
-    QFrame *frame = new QFrame( this, "cannonFrame" );
-    frame->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
+    QVBox *box = new QVBox( this, "cannonFrame" );
+    box->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
 
-    cannonField = new CannonField( frame, "cannonField" );
+    cannonField = new CannonField( box, "cannonField" );
     cannonField->setBackgroundColor( QColor( 250, 250, 200) );
-    //### to use frameWidth is a hack, sort of
-    QHBoxLayout *frameLayout = new QHBoxLayout( frame, frame->frameWidth() );
-    frameLayout->addWidget( cannonField );
 
     connect( angle,SIGNAL(valueChanged(int)), cannonField,SLOT(setAngle(int)));
     connect( cannonField,SIGNAL(angleChanged(int)), angle,SLOT(setValue(int)));
@@ -73,7 +71,7 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
 
     QGridLayout *grid = new QGridLayout( this, 2, 2, 10 );
     grid->addWidget( quit, 0, 0 );
-    grid->addWidget( frame, 1, 1 );
+    grid->addWidget( box, 1, 1 );
     grid->setColStretch( 1, 10 );
 
     QVBoxLayout *leftBox = new QVBoxLayout;
