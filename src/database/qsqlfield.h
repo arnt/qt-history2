@@ -41,6 +41,14 @@ public:
     QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
     QSqlField( const QSqlField& other );
     QSqlField& operator=( const QSqlField& other );
+    bool operator==(const QSqlField& other) const {
+	return label == other.label &&
+	    ro == other.ro &&
+	    nul == other.nul &&
+	    pIdx == other.pIdx &&
+	    iv == other.iv &&
+	    cf == other.cf;
+    }
     ~QSqlField();
 
     void          setDisplayLabel( const QString& l ) { label = l; }
@@ -55,15 +63,22 @@ public:
     bool          isVisible() const { return iv; }
     void          setCalculated( bool calculated ) { cf = calculated; }
     bool          isCalculated() const { return cf; }
-
+    
 private:
     QString       label;
     bool          ro;
     bool          nul;
     bool          pIdx;
     bool          iv;
-    bool          cf;
+    bool          cf;    
 };
+
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QValueList< QSqlField >;
+template class Q_EXPORT QMap< QString, int >;
+// MOC_SKIP_END
+#endif
 
 class Q_EXPORT QSqlFieldList
 {
