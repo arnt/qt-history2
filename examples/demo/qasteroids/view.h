@@ -63,7 +63,7 @@ private slots:
     void hideShield();
 
 protected:
-    void readSprites();
+    bool readSprites();
     void wrapSprite( QCanvasItem * );
     void rockHit( QCanvasItem * );
     void reducePower( int val );
@@ -132,6 +132,7 @@ private:
     bool can_destroy_powerups;
 
     QTimer *shieldTimer;
+    bool initialized;
 };
 
 #endif

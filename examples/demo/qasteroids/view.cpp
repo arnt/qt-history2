@@ -78,6 +78,7 @@ KAsteroidsView::KAsteroidsView( QWidget *parent, const char *name )
     powerups.setAutoDelete( TRUE );
     exhaust.setAutoDelete( TRUE );
 
+    field.setBackgroundColor( black );
     QPixmap pm( IMG_BACKGROUND );
     field.setBackgroundPixmap( pm );
 
@@ -89,7 +90,7 @@ KAsteroidsView::KAsteroidsView( QWidget *parent, const char *name )
     shieldOn = FALSE;
     refreshRate = REFRESH_DELAY;
 
-    readSprites();
+    initialized = readSprites();
 
     shieldTimer = new QTimer( this );
     connect( shieldTimer, SIGNAL(timeout()), this, SLOT(hideShield()) );
@@ -100,6 +101,14 @@ KAsteroidsView::KAsteroidsView( QWidget *parent, const char *name )
     can_destroy_powerups = FALSE;
 
     mPaused = TRUE;
+
+    if ( !initialized ) {
+	textSprite->setText( tr("Error: Cannot read sprite images") );
+	textSprite->setColor( red );
+	textSprite->move( (field.width()-textSprite->boundingRect().width()) / 2,
+			  (field.height()-textSprite->boundingRect().height()) / 2 );
+	textSprite->show();
+    }
 }
 
 // - - -
@@ -112,6 +121,8 @@ KAsteroidsView::~KAsteroidsView()
 
 void KAsteroidsView::reset()
 {
+    if ( !initialized )
+	return;
     rocks.clear();
     missiles.clear();
     bits.clear();
@@ -140,6 +151,8 @@ void KAsteroidsView::reset()
 
 void KAsteroidsView::newGame()
 {
+    if ( !initialized )
+	return;
     if ( shieldOn )
     {
       shield->hide();
@@ -159,6 +172,8 @@ void KAsteroidsView::endGame()
 
 void KAsteroidsView::pause( bool p )
 {
+    if ( !initialized )
+	return;
     if ( !mPaused && p ) {
 	if ( mTimerId >= 0 ) {
 	    killTimer( mTimerId );
@@ -173,6 +188,8 @@ void KAsteroidsView::pause( bool p )
 
 void KAsteroidsView::newShip()
 {
+    if ( !initialized )
+	return;
     ship->move( width()/2, height()/2, 0 );
     shield->move( width()/2, height()/2, 0 );
     ship->setVelocity( 0.0, 0.0 );
@@ -203,6 +220,8 @@ void KAsteroidsView::newShip()
 
 void KAsteroidsView::setShield( bool s )
 {
+    if ( !initialized )
+	return;
     if ( shieldTimer->isActive() && !s ) {
 	shieldTimer->stop();
 	hideShield();
@@ -213,6 +232,8 @@ void KAsteroidsView::setShield( bool s )
 
 void KAsteroidsView::brake( bool b )
 {
+    if ( !initialized )
+	return;
     if ( mBrakeCount )
     {
 	if ( brakeShip && !b )
@@ -229,16 +250,19 @@ void KAsteroidsView::brake( bool b )
 
 // - - -
 
-void KAsteroidsView::readSprites()
+bool KAsteroidsView::readSprites()
 {
     QString sprites_prefix = "qasteroids/sprites/";
 
     int i = 0;
     while ( kas_animations[i].id )
     {
-	animation.insert( kas_animations[i].id,
+	QCanvasPixmapArray *anim = 
 	    new QCanvasPixmapArray( sprites_prefix + kas_animations[i].path,
-				    kas_animations[i].frames ) );
+				    kas_animations[i].frames );
+	if ( !anim->isValid() )
+	    return FALSE;
+	animation.insert( kas_animations[i].id, anim );
 	i++;
     }
 
@@ -247,12 +271,16 @@ void KAsteroidsView::readSprites()
 
     shield = new KShield( animation[ID_SHIELD], &field );
     shield->hide();
+
+    return (ship->image(0) && shield->image(0));
 }
 
 // - - -
 
 void KAsteroidsView::addRocks( int num )
 {
+    if ( !initialized )
+	return;
     for ( int i = 0; i < num; i++ )
     {
 	KRock *rock = new KRock( animation[ID_ROCK_LARGE], &field,
@@ -284,6 +312,8 @@ void KAsteroidsView::addRocks( int num )
 
 void KAsteroidsView::showText( const QString &text, const QColor &color, bool scroll )
 {
+    if ( !initialized )
+	return;
     textSprite->setText( text );
     textSprite->setColor( color );
 
