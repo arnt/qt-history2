@@ -7,7 +7,7 @@
 BASEDIR		= $(QTDIR)
 INCDIR		= $(BASEDIR)/include
 LIBDIR		= $(BASEDIR)/lib
-DISTDIR		= /tmp/qt-0.96
+DISTDIR		= /tmp/qt-0.98
 
 ####### Compiler
 
@@ -25,7 +25,7 @@ CC		= gcc
 ####### Targets
 
 STATICTARGET	= $(LIBDIR)/libqt.a
-SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.6
+SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.8
 
 #######	Sub directories (excluding moc)
 
@@ -119,9 +119,9 @@ dist:
 	chmod -R u+w $(DISTDIR)
 
 rpm:
-	rpm -bi --short-circuit qt-0.96-1.spec
-	rpm -bl qt-0.96-1.spec
-	rpm -bb qt-0.96-1.spec
+	rpm -bi --short-circuit qt-0.98-1.spec
+	rpm -bl qt-0.98-1.spec
+	rpm -bb qt-0.98-1.spec
 
 tar:
 	-rm $(DISTDIR).tar.gz
