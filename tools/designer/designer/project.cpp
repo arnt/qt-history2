@@ -267,12 +267,17 @@ void Project::setFileName( const QString &fn, bool doClear )
 	return;
 
     if ( singleProjectMode() ) {
+	QString qsa = QString( getenv( "HOME" ) ) + QString( "/.qsa" );
+	if ( !QFile::exists( qsa ) ) {
+	    QDir d;
+	    d.mkdir( qsa );
+	}
 	if ( fn == singleProFileName )
 	    return;
 	singleProFileName = fn;
 	static int counter = 0;
 	QString str_counter = QString::number( counter++ );
-	str_counter = "/." + str_counter;
+	str_counter = "/.qsa/" + str_counter;
 	LanguageInterface *iface = MetaDataBase::languageInterface( language() );
 	filename = QString( getenv( "HOME" ) + str_counter + QString( "tmp_" ) +
 			    QFileInfo( fn ).baseName() + "/" + QFileInfo( fn ).baseName() + ".pro" );
