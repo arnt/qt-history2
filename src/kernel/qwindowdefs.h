@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#120 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#121 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -39,7 +39,6 @@ class QPaintDevice;
 class QPaintDeviceMetrics;
 class QWidget;
 class QWidgetMapper;
-class QWindow;
 class QDialog;
 class QColor;
 class QColorGroup;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.h#13 $
+** $Id: //depot/qt/main/src/kernel/qwindow.h#14 $
 **
 ** Definition of QWindow class
 **
@@ -24,24 +24,6 @@
 #ifndef QWINDOW_H
 #define QWINDOW_H
 
-#ifndef QT_H
-#include "qwidget.h"
-#endif // QT_H
-
-
-class Q_EXPORT QWindow : public QWidget			// window widget class
-{
-    Q_OBJECT
-public:
-    QWindow( QWidget *parent=0, const char *name=0, WFlags f=0 );
-   ~QWindow();
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWindow( const QWindow & );
-    QWindow &operator=( const QWindow & );
-#endif
-};
-
+#error "QWindow has gone away"
 
 #endif // QWINDOW_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#275 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#276 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,6 @@
 **
 *****************************************************************************/
 
-#include "qwindow.h"
 #include "qapplication.h"
 #include "qpaintdevicedefs.h"
 #include "qpainter.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#136 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -21,7 +21,6 @@
 **
 *****************************************************************************/
 
-#include "qwindow.h"
 #include "qapplication.h"
 #include "qpaintdevicedefs.h"
 #include "qpainter.h"

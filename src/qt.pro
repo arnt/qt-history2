@@ -88,7 +88,6 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qwidgetintdict.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
-		  $$KERNEL_H/qwindow.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qbitarray.h \
@@ -211,7 +210,6 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qplatinumstyle.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
-		  kernel/qwindow.cpp \
 		  kernel/qwmatrix.cpp \
 		  tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
