@@ -339,18 +339,21 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 	    MetaDataBase::setMargin( gb, margin );
 	    MetaDataBase::setSpacing( gb, spacing );
 	    l->setAlignment( AlignTop );
+	    MetaDataBase::addEntry( l );
 	    return l;
 	case VBox:
 	    l = new QVBoxLayout( gb->layout(), spacing );
 	    MetaDataBase::setMargin( gb, margin );
 	    MetaDataBase::setSpacing( gb, spacing );
 	    l->setAlignment( AlignTop );
+	    MetaDataBase::addEntry( l );
 	    return l;
 	case Grid:
 	    l = new QDesignerGridLayout( gb->layout() );
 	    MetaDataBase::setMargin( gb, margin );
 	    MetaDataBase::setSpacing( gb, spacing );
 	    l->setAlignment( AlignTop );
+	    MetaDataBase::addEntry( l );
 	    return l;
 	default:
 	    return 0;
@@ -364,18 +367,21 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 		MetaDataBase::addEntry( l );
 		l->setSpacing( spacing );
 		l->setMargin( margin );
+		MetaDataBase::addEntry( l );
 		return l;
 	    case VBox:
 		l = new QVBoxLayout( layout );
 		MetaDataBase::addEntry( l );
 		l->setSpacing( spacing );
 		l->setMargin( margin );
+		MetaDataBase::addEntry( l );
 		return l;
 	    case Grid: {
 		l = new QDesignerGridLayout( layout );
 		MetaDataBase::addEntry( l );
 		l->setSpacing( spacing );
 		l->setMargin( margin );
+		MetaDataBase::addEntry( l );
 		return l;
 	    }
 	    default:
@@ -394,6 +400,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 		    l->setMargin( margin );
 		    l->setSpacing( margin );
 		}
+		MetaDataBase::addEntry( l );
 		return l;
 	    case VBox:
 		l = new QVBoxLayout( widget );
@@ -405,6 +412,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 		    l->setMargin( margin );
 		    l->setSpacing( margin );
 		}
+		MetaDataBase::addEntry( l );
 		return l;
 	    case Grid: {
 		l = new QDesignerGridLayout( widget );
@@ -416,6 +424,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 		    l->setMargin( margin );
 		    l->setSpacing( margin );
 		}
+		MetaDataBase::addEntry( l );
 		return l;
 	    }
 	    default:
