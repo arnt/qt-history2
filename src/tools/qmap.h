@@ -312,13 +312,13 @@ public:
      */
     QMapPrivate() {
 	header = new Node;
-	header->color = Node::Red; // Mark the header
+	header->color = QMapNodeBase::Red; // Mark the header
 	header->parent = 0;
 	header->left = header->right = header;
     }
     QMapPrivate( const QMapPrivate< Key, T >* _map ) : QMapPrivateBase( _map ) {
 	header = new Node;
-	header->color = Node::Red; // Mark the header
+	header->color = QMapNodeBase::Red; // Mark the header
 	if ( _map->header->parent == 0 ) {
 	    header->parent = 0;
 	    header->left = header->right = header;
@@ -352,7 +352,7 @@ public:
 
     void clear() {
 	clear( (NodePtr)(header->parent) );
-	header->color = Node::Red;
+	header->color = QMapNodeBase::Red;
 	header->parent = 0;
 	header->left = header->right = header;
 	node_count = 0;
