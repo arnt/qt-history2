@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#5 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#5 $";
 #endif
 
 
@@ -445,7 +445,6 @@ void QView::setIconText( const char *s )	// set icon text
 
 void QView::setIcon( QPixMap *pm )		// set icon pixmap
 {
-    CHECK_NULL( pm );
     if ( ipm != pm ) {
 	delete ipm;
 	ipm = pm;
