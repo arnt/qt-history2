@@ -73,5 +73,5 @@ QAXFACTORY_EXPORT( ActiveQtFactory, "{9e626211-be62-4d18-9483-9419358fbb03}", "{
 
 int main()
 {
-    return 1;
+    return 0;
 }
