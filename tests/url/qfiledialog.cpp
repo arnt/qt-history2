@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#31 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#32 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2541,8 +2541,10 @@ void QFileDialog::detailViewSelectionChanged()
     QString str;
     QListViewItem * i = files->firstChild();
     while( i ) {
-	if ( d->moreFiles && isVisible() )
-	    d->moreFiles->setSelected( ( (QFileDialogPrivate::File *)i )->i, i->isSelected() );
+	if ( d->moreFiles && isVisible() ) {
+	    if ( ( (QFileDialogPrivate::File *)i )->i->selected() != i->isSelected() )
+		d->moreFiles->setSelected( ( (QFileDialogPrivate::File *)i )->i, i->isSelected() );
+	}
 	if ( files->isSelected( i ) )
 	    str += QString( "\"%1\" " ).arg( i->text( 0 ) );
 	i = i->nextSibling();
@@ -2563,8 +2565,10 @@ void QFileDialog::listBoxSelectionChanged()
     QListBoxItem * i = d->moreFiles->item( 0 );
     int index = 0;
     while( i ) {
-	if ( files && isVisible() )
-	    files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->selected() );
+	if ( files && isVisible() ) {
+	    if ( ( (QFileDialogPrivate::MCItem *)i )->i->isSelected() != i->selected() )
+		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->selected() );
+	}
 	if ( d->moreFiles->isSelected( i ) )
 	    str += QString( "\"%1\" " ).arg( i->text() );
 	i = d->moreFiles->item( ++index );
