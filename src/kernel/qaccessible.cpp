@@ -49,6 +49,22 @@
   \brief The QAccessible class provides enums and static functions
   relating to accessibility.
 
+  Accessibility clients use implementations of the QAccessibleInterface to read information
+  an accessible object exposes, or to call methods to maniuplate the accessible object. Qt
+  provides implementations of the QAccessibleInterface for most widget classes in a plugin.
+  This plugin is located in the \e accessibility subdirectory of QTDIR/plugins. Calling
+  queryAccessibleInterface( QObject *object, QAccessibleInterface **iface ) will ask all
+  plugins located in this directory for an implementation that exposes the information for
+  objects of the class of \e object.
+
+  To make a Qt application accessible you have to distribute the accessibility plugin provded 
+  with Qt together with your application. Simply add the plugins created in QTDIR/plugins/accessibility 
+  to your distribution process. Use \l QApplication::addLibraryPath() to specify a plugin directory for 
+  your application, and copy the files into an \e accessibility subdirectory of one of those plugin directories. 
+  Qt's accessibility framework will load the plugins upon request and use the implementations provided
+  to expose an object's accessibility information.
+
+  See the \link plugins-howto.html plugin documentation \endlink for more details about how to redistribute Qt plugins.
 */
 
 /*!
@@ -247,9 +263,13 @@
 
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
 static QPtrDict<QAccessibleInterface> *qAccessibleInterface = 0;
+static bool cleanupAdded = FALSE;
 
-static void cleanup()
+static void qAccessibleCleanup()
 {
+    if ( qAccessibleInterface && qAccessibleInterface->count() && qAccessibleManager )
+	qAccessibleManager->setAutoUnload( FALSE );
+
     delete qAccessibleInterface;
     qAccessibleInterface = 0;
     delete qAccessibleManager;
@@ -284,7 +304,10 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 
     if ( !qAccessibleManager ) {
 	qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory, QApplication::libraryPaths(), "/accessible" );
-	qAddPostRoutine( cleanup );
+	if ( !cleanupAdded ) {
+	    qAddPostRoutine( qAccessibleCleanup );
+	    cleanupAdded = TRUE;
+	}
     }
 
     QInterfacePtr<QAccessibleFactoryInterface> factory = 0;
@@ -514,8 +537,12 @@ QAccessibleObject::QAccessibleObject( QObject *object )
 {
     if ( !qAccessibleInterface ) {
 	qAccessibleInterface = new QPtrDict<QAccessibleInterface>( 73 );
-	qAddPostRoutine( cleanup );
+	if ( !cleanupAdded ) {
+	    qAddPostRoutine( qAccessibleCleanup );
+	    cleanupAdded = TRUE;
+	}
     }
+
     qAccessibleInterface->insert( object, this );
 }
 
