@@ -1060,7 +1060,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
             return;
         }
 
-        if (timedOut) {
+        // if we timed out and there are no more address then report timeout error
+        if (timedOut && addresses.isEmpty()) {
 #if defined(QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::connectToNextAddress(), connection timed out");
 #endif
