@@ -94,6 +94,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_makeqmake.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
+	    debug_msg(0, "Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "QMAKE    = "	<< 
@@ -193,6 +194,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_preprocess.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
+	    debug_msg(0, "Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "MOC = " << var("QMAKE_MOC") << endl;
@@ -257,8 +259,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		QString lib("lib" + name  + ".");
 		for(QStringList::Iterator lit = libdirs.begin(); lit != libdirs.end(); ++lit) {
 		    QString extns[] = { "dylib", "so", "a", QString::null };
-		    for(int i = 0; !extns[i].isNull(); i++) {
-			QString tmp =  (*lit) + Option::dir_sep + lib + extns[i];
+		    for(int n = 0; !extns[n].isNull(); n++) {
+			QString tmp =  (*lit) + Option::dir_sep + lib + extns[n];
 			if(QFile::exists(tmp)) {
 			    library = tmp;
 			    //don't remove, so it gets into LDFLAGS for now -- FIXME
@@ -325,6 +327,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_sublibs.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
+	    debug_msg(0, "Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "SUBLIBS= ";
@@ -418,8 +421,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	} else if(!project->isActiveConfig("staticlib") && 
 	   !project->isActiveConfig("frameworklib")) {
 	    QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
-	    for(int i = 0; !li[i].isNull(); i++) {
-		QString t = project->first(li[i]);
+	    for(int n = 0; !li[i].isNull(); n++) {
+		QString t = project->first(li[n]);
 		slsh = t.findRev(Option::dir_sep);
 		if(slsh != -1)
 		    t = t.right(t.length() - slsh);
@@ -430,6 +433,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString script = Option::output_dir + Option::dir_sep + "qt_install.sh";
 	QFile shf(script);
 	if(shf.open(IO_WriteOnly | IO_Translate)) {
+	    debug_msg(0, "Creating file: %s", script.latin1());
 	    QString lib = project->first("QMAKE_ORIG_TARGET");
 	    if(project->first("TEMPLATE") == "app") {
 		lib += ".app";
