@@ -3252,7 +3252,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         QPoint oldPos = geometry().topLeft();
         QPoint newCPos(a, b);
         // Ignore silly Windows move event to wild pos after iconify.
-        if (!isMinimized() && newCPos != oldPos) {
+        if (!IsIconic(winId()) && newCPos != oldPos) {
             cr.moveTopLeft(newCPos);
             data->crect = cr;
             if (isVisible()) {
