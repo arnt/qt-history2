@@ -902,7 +902,9 @@ static void loadXft()
             = family->foundry(foundry_value ? QString::fromUtf8(foundry_value) : QString::null,  true);
         QtFontStyle *style = foundry->style(styleKey,  true);
 
-        family->fixedPitch = (spacing_value >= XFT_MONO);
+        if (spacing_value < XFT_MONO)
+            family->fixedPitch = false;
+
         QtFontSize *size;
         if (scalable) {
             style->smoothScalable = true;

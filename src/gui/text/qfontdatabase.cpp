@@ -306,9 +306,11 @@ struct QtFontFamily
                         UnSupported_Xft= 2, UnSupported_Xlfd = 4, UnSupported = 6 };
 
     QtFontFamily(const QString &n)
-        : fixedPitch(false),
+        :
 #ifdef Q_WS_X11
-        hasXft(false), xftScriptCheck(false), xlfdLoaded(false),
+        fixedPitch(true), hasXft(false), xftScriptCheck(false), xlfdLoaded(false),
+#else
+        fixedPitch(false),
 #endif
 #ifdef Q_WS_WIN
         scriptCheck(false),
