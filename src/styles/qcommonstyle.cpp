@@ -1463,7 +1463,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		QRect ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarLabel ), widget );
 
 		p->setPen( cgroup.highlightedText() );
-		p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
+		p->drawText(ir.x()+2, ir.y(), ir.width()-2, ir.height(),
 			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
 	    }
 
