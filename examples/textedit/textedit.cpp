@@ -30,8 +30,6 @@
 #include <qpainter.h>
 #include <qprintdialog.h>
 #include <qprinter.h>
-#include <qspinbox.h>
-#include <qspinbox.h>
 #include <qtabwidget.h>
 #include <qtextcodec.h>
 #include <qtextcursor.h>
@@ -120,8 +118,6 @@ void TextEdit::setupEditActions()
 {
     QToolBar *tb = new QToolBar(this);
 
-    QSpinBox *sb = new QSpinBox;
-    tb->addWidget(sb);
 //    tb->setLabel("Edit Actions");
     QMenu *menu = new QMenu(this);
     menuBar()->addMenu(tr("&Edit"), menu);
