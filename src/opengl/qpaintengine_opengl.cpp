@@ -644,14 +644,14 @@ static void qglDrawPoly(const QPointArray &pa, int index, int npoints)
 	qAddPostRoutine(qglCleanupTesselator);
     }
     QVarLengthArray<GLdouble> v(npoints*3);
-    gluTessCallback(qglTess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glBegin));
+    gluTessCallback(qglTess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)()>(&glBegin));
     gluTessCallback(qglTess, GLU_TESS_VERTEX,
-                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glVertex3dv));
-    gluTessCallback(qglTess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glEnd));
+                    reinterpret_cast<GLvoid (CALLBACK *)()>(&glVertex3dv));
+    gluTessCallback(qglTess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)()>(&glEnd));
     gluTessCallback(qglTess, GLU_TESS_COMBINE,
-                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&qglTessCombine));
+                    reinterpret_cast<GLvoid (CALLBACK *)()>(&qglTessCombine));
     gluTessCallback(qglTess, GLU_TESS_ERROR,
-                    reinterpret_cast<GLvoid (CALLBACK *) (...)>(&qglTessError));
+                    reinterpret_cast<GLvoid (CALLBACK *) ()>(&qglTessError));
     gluTessBeginPolygon(qglTess, NULL);
     {
 	gluTessBeginContour(qglTess);
