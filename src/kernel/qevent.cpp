@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#91 $
 **
 ** Implementation of event classes
 **
@@ -940,7 +940,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   \brief The event sent to widgets when a drag-and-drop first drags onto it.
 
   This event is always immediate followed by a QDragMoveEvent, thus you need
-  only respond to one or the other event.
+  only respond to one or the other event.  Note that this class inherits most
+  of its functionality from QDragMoveEvent.
 
   \sa QDragLeaveEvent, QDragMoveEvent, QDropEvent
 */

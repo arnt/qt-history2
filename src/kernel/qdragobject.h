@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#34 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#35 $
 **
 ** Definition of QDragObject
 **
@@ -151,6 +151,8 @@ private:
     ~QDragManager();
     // only friend classes can use QDragManager.
     friend class QDragObject;
+    friend class QDragMoveEvent;
+    friend class QDropEvent;
 
     bool eventFilter( QObject *, QEvent * );
 

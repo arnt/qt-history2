@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#76 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#77 $
 **
 ** Definition of event classes
 **
@@ -285,6 +285,7 @@ public:
     void   ignore( const QRect & r) { accpt =FALSE; rect = r; }
     QRect  answerRect() const { return rect; }
 
+    QWidget* source() const;
     const char* format( int n = 0 ) const;
     bool provides( const char* ) const;
     QByteArray encodedData( const char* ) const;
@@ -337,6 +338,7 @@ public:
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
 
+    QWidget* source() const;
     const char* format( int n = 0 ) const;
     QByteArray encodedData( const char* ) const;
 

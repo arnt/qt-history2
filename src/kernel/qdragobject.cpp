@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#71 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -1013,3 +1013,33 @@ bool QUrlDrag::decodeLocalFiles( QMimeSource* e, QStrList& l )
     return TRUE;
 }
 
+
+/*!
+  If the source of the drag operation is a widget in this application,
+  this function returns that source, otherwise 0.  The source of the
+  operation is the first parameter to to drag object subclass.
+
+  This is useful if your widget needs special behavior when dragging
+  to itelf, etc.
+
+  See QDragObject::QDragObject() and subclasses.
+*/
+QWidget* QDragMoveEvent::source() const
+{
+    return manager ? manager->dragSource : 0;
+}
+
+/*!
+  If the source of the drag operation is a widget in this application,
+  this function returns that source, otherwise 0.  The source of the
+  operation is the first parameter to to drag object subclass.
+
+  This is useful if your widget needs special behavior when dragging
+  to itelf, etc.
+
+  See QDragObject::QDragObject() and subclasses.
+*/
+QWidget* QDropEvent::source() const
+{
+    return manager ? manager->dragSource : 0;
+}
