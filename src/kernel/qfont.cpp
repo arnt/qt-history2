@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#147 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -211,24 +211,10 @@ void QFont::detach()
 
 QFont::QFont()
 {
-#if 0               // ###
-    const QFont * tmp = QApplication::font();
-
-    if ( tmp ) {
-	d = tmp->d;
-	d->ref();
-    } else {          // QApplication has not been constructed.
-	QFont f = QFont( "Helvetica" );
-	d = f.d;
-	d->ref();
-    }
-#else
     const QFont tmp = QApplication::font();
 
     d = tmp.d;
     d->ref();
-#endif
-
 }
 
 
@@ -788,31 +774,20 @@ bool QFont::rawMode() const
     return d->req.rawMode;
 }
 
-/*!
-  Turns raw mode on if \e enable is TRUE, or turns it off if \e enable is
-  FALSE.
 
-  Calling this function only has effect under X windows. If raw mode is
-  enabled, Qt will search for an X font with a complete font name matching
-  the family name, ignoring all other values set for the QFont.
-  If the font name matches several fonts, Qt will use the first font returned
-  by X. QFontInfo \e cannot be used to fetch information about a QFont using
-  raw mode (it will return the values set in the QFont for all parameters,
-  including the family name).
+/*!  Turns raw mode on if \a enable is TRUE, or turns it off if \a
+  enable is FALSE.
 
-  Example:
-  \code
-    #if defined(_WS_X11_)
-	QFont font( "-*-fixed-*-*-*-*-*-140-75-75-c-*-iso8859-1" );
-	font.setRawMode( TRUE );
-	if ( !font.exactMatch() )
-	    qFatal( "Sorry, could not find the X specific font" );
-    #endif
-  \endcode
+  Calling this function only has effect under X windows.  If raw mode
+  is enabled, Qt will search for an X font with a complete font name
+  matching the family name, ignoring all other values set for the
+  QFont.  If the font name matches several fonts, Qt will use the
+  first font returned by X.  QFontInfo \e cannot be used to fetch
+  information about a QFont using raw mode (it will return the values
+  set in the QFont for all parameters, including the family name).
 
   \warning Do not use raw mode unless you really, really need it! In
-  most (if not all") cases, setRawName() is a much better choise.
-
+  most (if not all) cases, setRawName() is a much better choise.
 
   \sa rawMode(), setRawName()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#72 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#73 $
 **
 ** Definition of QFont class
 **
@@ -116,7 +116,7 @@ public:
 
     static CharSet charSetForLocale();
 
-    bool	rawMode()	const;
+    bool	rawMode()      const;
     void	setRawMode( bool );
 
     bool	exactMatch()	const;
