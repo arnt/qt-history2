@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#199 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#200 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1852,7 +1852,7 @@ sub printclass {
 	print O "<hr><h2>Member Type Documentation</h2>\n";
 	foreach $url ( sort keys %enumdocs ) {
 	    print O "<h3 class=\"fn\"><a name=\"", $enumdocs{$url}, "\">";
-	    print O $class, "::", $enumdocs{$url}, "</h3>\n", $doc{$url};
+	    print O $class, "::", $enumdocs{$url}, "</a></h3>\n", $doc{$url};
 	}
     }
 
