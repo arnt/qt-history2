@@ -29,6 +29,7 @@
 
 #include <qglobal.h>
 #ifdef QT_COMPAT
+#include <qpointer.h>
 #include <qprintdialog.h>
 #endif
 
@@ -48,7 +49,7 @@ public:
     QPrintEngine *printEngine;
 
 #ifdef QT_COMPAT
-    QPrintDialog *printDialog;
+    QPointer<QPrintDialog> printDialog;
 #endif
 };
 
