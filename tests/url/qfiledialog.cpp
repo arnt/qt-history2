@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#9 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#10 $
 **
 ** Implementation of QFileDialog class
 **
@@ -299,152 +299,49 @@ static void makeVariables() {
  *
  ************************************************************************/
 
-class QCopyFileDialog : public QDialog
-{
-public:
-    QCopyFileDialog( QWidget *parent = 0, const char *name = 0 );
+// class QCopyFileDialog : public QDialog
+// {
+// public:
+//     QCopyFileDialog( QWidget *parent = 0, const char *name = 0 );
 
-    QLabel *from() { return lfrom; }
-    QLabel *to() { return lto; }
-    QProgressBar *progress() { return pprogress; }
+//     QLabel *from() { return lfrom; }
+//     QLabel *to() { return lto; }
+//     QProgressBar *progress() { return pprogress; }
 
-protected:
-    void resizeEvent( QResizeEvent *e ) {
-	QDialog::resizeEvent( e );
-	if ( back )
-	    back->setGeometry( QRect(QPoint(0,0), size()) );
-    }
+// protected:
+//     void resizeEvent( QResizeEvent *e ) {
+// 	QDialog::resizeEvent( e );
+// 	if ( back )
+// 	    back->setGeometry( QRect(QPoint(0,0), size()) );
+//     }
 
-private:
-    QVBox *back;
-    QLabel *lfrom, *lto;
-    QProgressBar *pprogress;
-    QPushButton *cancel;
-};
+// private:
+//     QVBox *back;
+//     QLabel *lfrom, *lto;
+//     QProgressBar *pprogress;
+//     QPushButton *cancel;
+// };
 
-QCopyFileDialog::QCopyFileDialog( QWidget *parent, const char *name )
-    : QDialog( parent, name, FALSE )
-{
-    back = new QVBox( this );
-    back->setMargin( 5 );
-    back->setSpacing( 5 );
-    lfrom = new QLabel( back );
-    lto = new QLabel( back );
-    pprogress = new QProgressBar( back );
-    QHBox *hbox = new QHBox( back );
-    (void)new QWidget( hbox );
-    cancel = new QPushButton( QFileDialog::tr( "&Cancel" ), hbox );
-    (void)new QWidget( hbox );
-    hbox->setMinimumHeight( cancel->height() );
+// QCopyFileDialog::QCopyFileDialog( QWidget *parent, const char *name )
+//     : QDialog( parent, name, FALSE )
+// {
+//     back = new QVBox( this );
+//     back->setMargin( 5 );
+//     back->setSpacing( 5 );
+//     lfrom = new QLabel( back );
+//     lto = new QLabel( back );
+//     pprogress = new QProgressBar( back );
+//     QHBox *hbox = new QHBox( back );
+//     (void)new QWidget( hbox );
+//     cancel = new QPushButton( QFileDialog::tr( "&Cancel" ), hbox );
+//     (void)new QWidget( hbox );
+//     hbox->setMinimumHeight( cancel->height() );
 
-    connect( cancel, SIGNAL( clicked() ),
-	     this, SLOT( reject() ) );
+//     connect( cancel, SIGNAL( clicked() ),
+// 	     this, SLOT( reject() ) );
 
-    setResult( Accepted );
-}
-
-/************************************************************************
- *
- * copying files
- *
- ************************************************************************/
-
-static bool copyFile( const QString &from, const QString &to, QCopyFileDialog *dia, bool &overwriteAll )
-{
-    QFile f( from );
-    if ( !f.open( IO_ReadOnly ) )
-	return FALSE;
-
-    QFileInfo fi( to );
-    if ( fi.exists() ) {
-	if ( !fi.isFile() ) {
-	    f.close();
-	    QMessageBox::critical( dia, QFileDialog::tr( "Error" ),
-				   QFileDialog::tr( "Couldn't write file\n%1" ).arg( to ) );
-	    return FALSE;
-	}
-	if ( !overwriteAll ) {
-	    int r = QMessageBox::warning( dia, QFileDialog::tr( "Overwrite file?" ),
-					  QFileDialog::tr( "The file\n%1\nalready exists. Do you want to overwrite it?" ).arg( to ),
-					  QFileDialog::tr( "&Yes" ),
-					  QFileDialog::tr( "&No" ),
-					  QFileDialog::tr( "Overwrite &All" ) );
-	    if ( r == 1 ) {
-		f.close();
-		return FALSE;
-	    } else if ( r == 2 )
-		overwriteAll = TRUE;
-	}
-    }
-
-    QFile f2( to );
-    if ( !f2.open( IO_WriteOnly ) ) {
-	f.close();
-	return FALSE;
-    }
-
-    dia->progress()->setTotalSteps( f.size() / 1024 );
-    dia->progress()->reset();
-    dia->from()->setText( QFileDialog::tr( "From: " ) + from );
-    dia->to()->setText( QFileDialog::tr( "To: " ) + to );
-
-    int w = QMAX( dia->from()->sizeHint().width(), dia->to()->sizeHint().width() ) + 10;
-    if ( dia->width() < w )
-	dia->resize( w, dia->height() );
-
-    char *block = new char[ 1024 ];
-    bool error = FALSE;
-    while ( !f.atEnd() ) {
-	int len = f.readBlock( block, 1024 );
-	if ( len == -1 || dia->result() == QDialog::Rejected ) {
-	    error = TRUE;
-	    break;
-	}
-
-	int p = dia->progress()->progress();
-	dia->progress()->setProgress( ++p );
-	f2.writeBlock( block, len );
-	qApp->processEvents();
-    }
-    delete[] block;
-
-    f.close();
-    f2.close();
-
-    return !error;
-}
-
-static bool copyFiles( const QStringList &files, const QString &dest, QWidget *parent, bool move )
-{
-    bool overwriteAll = FALSE;
-    QCopyFileDialog *dia = new QCopyFileDialog( parent );
-    dia->resize( 300, 120 );
-    dia->show();
-
-    if ( move )
-	dia->setCaption( QFileDialog::tr( "Move Files" ) );
-    else
-	dia->setCaption( QFileDialog::tr( "Copy Files" ) );
-
-    bool ok = TRUE;
-    QStringList::ConstIterator it = files.begin();
-    for ( ; it != files.end(); ++it ) {
-	QFileInfo fi( *it );
-	if ( fi.isFile() ) {
-	    if ( !copyFile( *it, dest + "/" + fi.fileName(), dia, overwriteAll ) )
-		ok = FALSE;
-	    else if ( move )
-		QFile::remove( *it );
-	}
-	if ( dia->result() == QDialog::Rejected ) {
-	    ok = FALSE;
-	    break;
-	}
-    }
-
-    delete dia;
-    return ok;
-}
+//     setResult( Accepted );
+// }
 
 /************************************************************************
  *
@@ -535,7 +432,7 @@ struct QFileDialogPrivate {
     QSplitter *splitter;
     QUrl url;
     QWidget *infoPreviewWidget, *contentsPreviewWidget;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -812,19 +709,15 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     else
 	supportAction = FALSE;
 
-    QString dest( filedialog->dirPath() );
+    
+    QUrl dest;
     if ( currDropItem )
-	dest += "/" + currDropItem->text();
-    if ( copyFiles( l, dest, this, move ) ) {
-	if ( supportAction )
-	    e->acceptAction();
-	else
-	    e->accept();
-    } else {
-	e->ignore();
-    }
+	dest = QUrl( filedialog->d->url, currDropItem->text() );
+    else
+	dest = QUrl( filedialog->d->url, "." );
+    filedialog->d->url.copy( l, dest, move );
 
-    filedialog->rereadDir();
+    e->acceptAction();
     currDropItem = 0;
 }
 
@@ -1191,19 +1084,15 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     else
 	supportAction = FALSE;
 
-    QString dest( filedialog->dirPath() );
+    QUrl dest;
     if ( currDropItem )
-	dest += "/" + currDropItem->text( 0 );
-    if ( copyFiles( l, dest, this, move ) ) {
-	if ( supportAction )
-	    e->acceptAction();
-	else
-	    e->accept();
-    } else {
-	e->ignore();
-    }
+	dest = QUrl( filedialog->d->url, currDropItem->text( 0 ) );
+    else
+	dest = QUrl( filedialog->d->url, "." );
+    filedialog->d->url.copy( l, dest, move );
 
-    filedialog->rereadDir();
+    e->acceptAction();
+
     currDropItem = 0;
 }
 
@@ -1941,7 +1830,7 @@ void QFileDialog::changeMode( int id )
 	d->preview->hide();
     } else {
 	if ( files->currentItem() )
-	    emit showPreview( QUrl( d->url, files->currentItem()->text( 0 ) ), 
+	    emit showPreview( QUrl( d->url, files->currentItem()->text( 0 ) ),
 			      QUrlInfo( d->url, files->currentItem()->text( 0 ) ) );
 	if ( pb == d->previewInfo )
 	    d->preview->raiseWidget( d->infoPreviewWidget );
@@ -3644,7 +3533,7 @@ void QFileDialog::setInfoPreviewWidget( QWidget *w )
 {
     if ( !w )
 	return;
-    
+
     if ( d->infoPreviewWidget ) {
 	d->preview->removeWidget( d->infoPreviewWidget );
 
@@ -3658,12 +3547,12 @@ void QFileDialog::setInfoPreviewWidget( QWidget *w )
 	     d->infoPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
- 
+
 void QFileDialog::setContentsPreviewWidget( QWidget *w )
 {
     if ( !w )
 	return;
-    
+
     if ( d->contentsPreviewWidget ) {
 	d->preview->removeWidget( d->contentsPreviewWidget );
 

@@ -7,6 +7,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+#include <qapplication.h>
+
 struct QUrlPrivate
 {
     QString protocol;
@@ -863,6 +865,75 @@ void QUrl::rename( const QString &oldname, const QString &newname )
     QDir dir( d->path );
     if ( dir.rename( oldname, newname ) )
 	emit itemChanged( oldname, newname );
+}
+
+void QUrl::copy( const QString &from, const QString &to )
+{
+    QFile f( from );
+    if ( !f.open( IO_ReadOnly ) )
+	return;
+
+    QFileInfo fi( to );
+    if ( FALSE /*fi.exists()*/ ) { // #### todo
+	if ( !fi.isFile() ) {
+	    f.close();
+	    qWarning( QString( "Couldn't write file\n%1" ).arg( to ) );
+	    return;
+	}
+// 	if ( !overwriteAll ) {
+// // 	    int r = QMessageBox::warning( dia, QFileDialog::tr( "Overwrite file?" ),
+// // 					  QFileDialog::tr( "The file\n%1\nalready exists. Do you want to overwrite it?" ).arg( to ),
+// // 					  QFileDialog::tr( "&Yes" ),
+// // 					  QFileDialog::tr( "&No" ),
+// // 					  QFileDialog::tr( "Overwrite &All" ) );
+// 	    if ( r == 1 ) {
+// 		f.close();
+// 		return FALSE;
+// 	    } else if ( r == 2 )
+// 		overwriteAll = TRUE;
+// 	}
+    }
+
+    QFile f2( to );
+    if ( !f2.open( IO_WriteOnly ) ) {
+	f.close();
+	return;
+    }
+
+    char *block = new char[ 1024 ];
+    bool error = FALSE;
+    while ( !f.atEnd() ) {
+	int len = f.readBlock( block, 1024 );
+	if ( len == -1 )
+	    error = TRUE;
+	    break;
+	f2.writeBlock( block, len );
+	qApp->processEvents();
+    }
+
+    delete[] block;
+
+    f.close();
+    f2.close();
+
+    return;
+}
+
+void QUrl::copy( const QStringList &files, const QString &dest, bool move )
+{
+    QString de = dest;
+    if ( de.left( QString( "file:" ).length() ) == "file:" )
+	de.remove( 0, QString( "file:" ).length() ); 
+    QStringList::ConstIterator it = files.begin();
+    for ( ; it != files.end(); ++it ) {
+	if ( TRUE /*isFile*/) {
+	    copy( *it, de + "/" + QFileInfo( *it ).fileName() );
+	    if ( move )
+		QFile::remove( *it );
+	}
+    }
+
+    return;
 }
 
 void QUrl::setNameFilter( const QString &nameFilter )

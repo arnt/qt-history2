@@ -83,6 +83,8 @@ public:
     void mkdir( const QString &dirname );
     void remove( const QString &filename );
     void rename( const QString &oldname, const QString &newname );
+    void copy( const QString &from, const QString &to );
+    void copy( const QStringList &files, const QString &dest, bool move );
     
     void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
