@@ -6,6 +6,9 @@
 #include "qtranslator.h"
 #include "qmetaobject.h"
 
+Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<int>;
+Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<QString>;
+
 class Q_KERNEL_EXPORT QTranslatorList : private QList<QTranslator*>
 {
 public:
