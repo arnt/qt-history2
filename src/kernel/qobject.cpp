@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#34 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#34 $";
 #endif
 
 
@@ -45,6 +45,14 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#33 $";
   useless in most cases but if you need it, it's there.
 
   */
+
+/*! \class QSenderObject qobject.h
+
+  \brief Internal object used for sending signals.
+
+  This class is not yet documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 /*! \fn QMetaObject *QObject::metaObject() const
   Returns a pointer to this object's meta object.  The meta object is
@@ -401,7 +409,7 @@ void QObject::blockSignals( bool b )
 }
 
 
-/*! Starts a timer.  A \link timerEvent() timer event \endlink will
+/*! Starts a timer.  A \link QTimerEvent timer event \endlink will
   happen every \e interval milliseconds until killTimer() is called.
 
   If \e interval is 0, the timer event happens as often as possible.
@@ -409,7 +417,7 @@ void QObject::blockSignals( bool b )
   The return value from startTimer() may be passed to killTimer() to
   kill this timer.
 
-  \sa QTimerEvent, timerEvent(), killTimer(), killTimers(). */
+  \sa QTimerEvent, QWidget::timerEvent(), killTimer(), killTimers(). */
 
 //
 // The timer flag hasTimer is set when startTimer is called.
@@ -425,7 +433,7 @@ int QObject::startTimer( long interval )	// start timer events
 /*! Kills timer \e id, which is the return value from the startTimer()
   call which created the timer.
 
-  \sa startTimer, QTimerEvent, timerEvent(), killTimers(). */
+  \sa startTimer, QTimerEvent, QWidget::timerEvent(), killTimers(). */
 
 void QObject::killTimer( int id )		// kill timer events
 {
@@ -434,7 +442,7 @@ void QObject::killTimer( int id )		// kill timer events
 
 /*! Kill all timers associated with this object.
 
-  \sa killTimer(), startTimer(), timerEvent(), QTimerEvent. */
+  \sa killTimer(), startTimer(), QWidget::timerEvent(), QTimerEvent. */
 
 void QObject::killTimers()			// kill all timers for object
 {
