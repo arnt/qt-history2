@@ -82,10 +82,13 @@ public:
     bool tabChangesFocus() const;
     void setTabChangesFocus(bool b);
 
-    QString documentTitle() const;
+    inline QString documentTitle() const
+    { return document()->documentTitle(); }
 
-    bool isUndoRedoEnabled();
-    void setUndoRedoEnabled(bool enable);
+    inline bool isUndoRedoEnabled() const
+    { return document()->isUndoRedoEnabled(); }
+    inline void setUndoRedoEnabled(bool enable)
+    { document()->setUndoRedoEnabled(enable); }
 
     WordWrap wordWrap() const;
     void setWordWrap(WordWrap wrap);

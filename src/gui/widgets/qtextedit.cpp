@@ -1428,21 +1428,6 @@ void QTextEdit::setTabChangesFocus(bool b)
     \brief the title of the document parsed from the text.
 */
 
-QString QTextEdit::documentTitle() const
-{
-    return d->doc->documentTitle();
-}
-
-bool QTextEdit::isUndoRedoEnabled()
-{
-    return d->doc->isUndoRedoEnabled();
-}
-
-void QTextEdit::setUndoRedoEnabled(bool enable)
-{
-    d->doc->setUndoRedoEnabled(enable);
-}
-
 /*!
     \property QTextEdit::wordWrap
     \brief the word wrap mode
