@@ -58,9 +58,13 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
 #define POW2(x) ( (x)*(x) )
 #define BEZIER_Q(t, tm, a, b, c, d) (a)*POW3(tm) + (b)*t*POW2(tm) + (c)*POW2(t)*tm + (d)*POW3(t)
 
-QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4)
+static QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2,
+                                   const QPointF &p3, const QPointF &p4)
 {
     QList<QPointF> a;
+
+    QLineF ab(p1, p2), bc(p2, p3), cd(p3, p4);
+    double stepFactor = ab.length()/4 + bc.length() / 8 + cd.length() / 4;
 
     double a_x = p1.x();
     double b_x = 3 * p2.x();
@@ -72,7 +76,7 @@ QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2, const QPointF 
     double c_y = 3 * p3.y();
     double d_y = p4.y();
 
-    double step = 0.025;
+    double step = 1 / stepFactor;
     double tm, x, y;
     for (double t = 0; t <= 1; t += step) {
         tm = 1 - t;
@@ -81,7 +85,9 @@ QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2, const QPointF 
         a << QPointF(x, y);
     }
 
-    a << p4;
+    if (t != 1)
+        a << p4;
+
     return a;
 }
 
@@ -94,10 +100,10 @@ void QPainterSubpath::close()
 
 void QPainterSubpath::lineTo(const QPointF &p)
 {
-#ifdef QPP_DEBUG
-    printf("   -> lineTo: (%.2f,%.2f), current=(%.2f, %.2f)\n",
-           p.x(), p.y(), currentPoint.x(), currentPoint.y());
-#endif
+// #ifdef QPP_DEBUG
+//     printf("   -> lineTo: (%.2f,%.2f), current=(%.2f, %.2f)\n",
+//            p.x(), p.y(), currentPoint.x(), currentPoint.y());
+// #endif
 
     elements.append(QPainterPathElement::line(p.x(), p.y()));
     currentPoint = p;
@@ -106,10 +112,10 @@ void QPainterSubpath::lineTo(const QPointF &p)
 
 void QPainterSubpath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &end)
 {
-#ifdef QPP_DEBUG
-    printf("   -> curveTo: end=(%.2f,%.2f), c1=(%.2f,%.2f), c2=(%.2f,%.2f)\n",
-           end.x(), end.y(), c1.x(), c1.y(), c2.x(), c2.y());
-#endif
+// #ifdef QPP_DEBUG
+//     printf("   -> curveTo: end=(%.2f,%.2f), c1=(%.2f,%.2f), c2=(%.2f,%.2f)\n",
+//            end.x(), end.y(), c1.x(), c1.y(), c2.x(), c2.y());
+// #endif
     elements.append(QPainterPathElement::curve(c1.x(), c1.y(), c2.x(), c2.y(),
                                                end.x(), end.y()));
     currentPoint = end;
@@ -117,11 +123,11 @@ void QPainterSubpath::curveTo(const QPointF &c1, const QPointF &c2, const QPoint
 
 void QPainterSubpath::arcTo(const QRectF &rect, float startAngle, float sweepLength)
 {
-#ifdef QPP_DEBUG
-    printf("   -> arcTo: rect=(%.1f,%.1f,%.1f,%.1f), angle=%.1f, len=%.1f\n",
-           rect.x(), rect.y(), rect.width(), rect.height(),
-           startAngle, sweepLength);
-#endif
+// #ifdef QPP_DEBUG
+//     printf("   -> arcTo: rect=(%.1f,%.1f,%.1f,%.1f), angle=%.1f, len=%.1f\n",
+//            rect.x(), rect.y(), rect.width(), rect.height(),
+//            startAngle, sweepLength);
+// #endif
 
 #define ANGLE(t) ((t) * 2 * M_PI / 360.0)
 #define SIGN(t) (t > 0 ? 1 : -1)
@@ -406,10 +412,18 @@ static void qt_path_debug_subpath(const QPainterSubpath &sp)
         case QPainterPathElement::Line:
             printf(" ---> LINE: (%.2f, %.2f)\n", elm.lineData.x, elm.lineData.y);
             break;
+        case QPainterPathElement::Curve:
+            printf(" ---> CURVE: cp1=(%.2f, %.2f), cp2=(%.2f, %.2f), end=(%.2f, %.2f)\n",
+                   elm.curveData.c1x, elm.curveData.c1y,
+                   elm.curveData.c2x, elm.curveData.c2y,
+                   elm.curveData.ex, elm.curveData.ey);
+            break;
         }
     }
 }
 #endif
+
+#define QT_PATH_NO_JOIN Qt::PenJoinStyle(0xffff)
 
 static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
                                 QPainterPathElement *prev,
@@ -432,9 +446,10 @@ static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
             prev->lineData.x = isect.x();
             prev->lineData.y = isect.y();
             break;
-        case Qt::RoundJoin:
+        case Qt::RoundJoin: {
             sp->curveTo(isect, isect, ml.start());
             break;
+        }
         default:
             break;
         }
@@ -442,34 +457,34 @@ static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
     return type;
 }
 
-static void qt_path_stroke_line(const QPainterPathElement &elm,
+static void qt_path_stroke_line(const QPointF &toPoint,
                                 QPainterSubpath *sp,
                                 const QPointF &lastPoint,
                                 float penWidth,
                                 Qt::PenJoinStyle joinStyle)
 {
 #ifdef QPP_DEBUG
-    printf(" -> stroking line from (%.2f, %.2f) -> (%.2f, %.2f)\n",
-           lastPoint.x(), lastPoint.y(), elm.lineData.x, elm.lineData.y);
+    printf(" -> stroking line from (%.2f, %.2f) -> (%.2f, %.2f), subpath.isEmpty=%d\n",
+           lastPoint.x(), lastPoint.y(), toPoint.x(), toPoint.y(), sp->elements.isEmpty());
 #endif
 
-    QLineF line(lastPoint, QPointF(elm.lineData.x, elm.lineData.y));
+    QLineF line(lastPoint, toPoint);
+    if (line.isNull())
+        return;
     QLineF normal = line.normalVector();
+    if (normal.isNull())
+        return;
     normal.setLength(penWidth);
     QLineF ml(line);
     ml.moveBy(normal);
 
     if (!sp->elements.isEmpty()) {
         QPainterPathElement &prev = sp->elements.last();
-        if (prev.type == QPainterPathElement::Line) {
-            if (sp->currentPoint != ml.start()) {
-                qt_path_stroke_join(sp, &prev, ml, joinStyle);
-            }
-        } else {
-            printf("%d : %s - curve not supported\n", __LINE__, __FILE__);
+        if (sp->currentPoint != ml.start() && joinStyle != QT_PATH_NO_JOIN) {
+            qt_path_stroke_join(sp, &prev, ml, joinStyle);
         }
     } else {
-        sp->startPoint = ml.start();
+        sp->currentPoint = sp->startPoint = ml.start();
     }
     sp->lineTo(ml.end());
 }
@@ -482,12 +497,27 @@ static QPointF qt_path_stroke_to_element(const QPainterPathElement &elm,
 {
     switch (elm.type) {
     case QPainterPathElement::Line: {
-        qt_path_stroke_line(elm, subpath, lastPoint, penWidth, joinStyle);
+        qt_path_stroke_line(elm.end(), subpath, lastPoint, penWidth, joinStyle);
         return QPointF(elm.lineData.x, elm.lineData.y);
     }
-    case QPainterPathElement::Curve:
-        // Nothing yet..
-        break;
+    case QPainterPathElement::Curve: {
+#ifdef QPP_DEBUG
+            printf(" ---> stroke to curve: cp1=(%.2f, %.2f), cp2=(%.2f, %.2f), end=(%.2f, %.2f)\n",
+                   elm.curveData.c1x, elm.curveData.c1y,
+                   elm.curveData.c2x, elm.curveData.c2y,
+                   elm.curveData.ex, elm.curveData.ey);
+#endif
+        QList<QPointF> curvePts = qBezierCurve(lastPoint,
+                                               QPointF(elm.curveData.c1x, elm.curveData.c1y),
+                                               QPointF(elm.curveData.c2x, elm.curveData.c2y),
+                                               QPointF(elm.curveData.ex, elm.curveData.ey));
+
+        qt_path_stroke_line(curvePts.at(1), subpath, lastPoint, penWidth, joinStyle);
+        for (int i=2; i<curvePts.size(); ++i)
+            qt_path_stroke_line(curvePts.at(i), subpath, curvePts.at(i-1), penWidth,
+                                QT_PATH_NO_JOIN);
+        return elm.end();
+    }
     default:
         // Nothing...
         break;
@@ -495,7 +525,30 @@ static QPointF qt_path_stroke_to_element(const QPainterPathElement &elm,
     return QPointF();
 }
 
+QPainterSubpath qt_path_reverse_subpath(const QPainterSubpath &subpath)
+{
+    QPainterSubpath rev;
+    rev.startPoint = subpath.elements.last().end();
+    QPointF rEndPoint;
 
+    for (int i=subpath.elements.size() - 1; i>=0; --i) {
+        const QPainterPathElement &elm = subpath.elements.at(i);
+
+        rEndPoint = i == 0 ? subpath.startPoint : subpath.elements.at(i-1).end();
+
+        switch (elm.type) {
+        case QPainterPathElement::Line:
+            rev.elements.append(QPainterPathElement::line(rEndPoint.x(), rEndPoint.y()));
+            break;
+        case QPainterPathElement::Curve:
+            rev.elements.append(QPainterPathElement::curve(elm.curveData.c2x, elm.curveData.c2y,
+                                                           elm.curveData.c1x, elm.curveData.c1y,
+                                                           rEndPoint.x(), rEndPoint.y()));
+            break;
+        }
+    }
+    return rev;
+}
 
 /*!
     \internal
@@ -504,7 +557,7 @@ static QPointF qt_path_stroke_to_element(const QPainterPathElement &elm,
 QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
 {
 #ifdef QPP_DEBUG
-    printf("QPainterPathPrivate::createStrok()\n");
+    printf("QPainterPathPrivate::createStroke()\n");
 #endif
 
     QPainterPath stroke;
@@ -515,28 +568,24 @@ QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
     for (int spi=0; spi<subpaths.size(); ++spi) {
         const QPainterSubpath &subpath = subpaths.at(spi);
 
+//         printf(" *** new subpath, elmCount=%d\n", subpath.elements.size());
+
         if (subpath.elements.isEmpty())
             continue;
 
+        QPainterSubpath reverse = qt_path_reverse_subpath(subpath);
+
         QPainterSubpath usegs; // "up" segments, positive offset
-        QPainterSubpath dsegs; // "down" segments, negative offset
+        QPainterSubpath dsegs;
 
         QPointF uLastPt = subpath.startPoint;
-        QPointF dLastPt = subpath.elements.last().end();
+        QPointF dLastPt = reverse.startPoint;
 
-        int nelms = subpath.elements.size()-1;
         for (int elmi=0; elmi<subpath.elements.size(); ++elmi) {
-            uLastPt = qt_path_stroke_to_element(subpath.elements.at(elmi), &usegs, uLastPt,
-                                                penWidth, joinStyle);
-            if (nelms<1) {
-                QPainterPathElement fakeLineToStart =
-                    QPainterPathElement::line(subpath.startPoint.x(), subpath.startPoint.y());
-                dLastPt = qt_path_stroke_to_element(fakeLineToStart, &dsegs, dLastPt,
-                                                    penWidth, joinStyle);
-            } else {
-                dLastPt = qt_path_stroke_to_element(subpath.elements.at(--nelms), &dsegs, dLastPt,
-                                                    penWidth, joinStyle);
-            }
+            uLastPt = qt_path_stroke_to_element(subpath.elements.at(elmi),
+                                                &usegs, uLastPt, penWidth, joinStyle);
+            dLastPt = qt_path_stroke_to_element(reverse.elements.at(elmi),
+                                                &dsegs, dLastPt, penWidth, joinStyle);
         }
 
         if (!subpath.isClosed()) {
