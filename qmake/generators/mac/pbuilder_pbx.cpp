@@ -737,7 +737,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	project->variables()["QMAKE_PBX_GROUPS"].append(key);
 	t << "\t\t" << key << " = {" << "\n"
 	  << "\t\t\t" << "children = (" << "\n"
-	  << "\t\t\t\t" << keyFor("QMAKE_PBX_REFERENCE") << "\n"
+	  << "\t\t\t\t" << keyFor(pbx_dir + "QMAKE_PBX_REFERENCE") << "\n"
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "isa = PBXGroup;" << "\n"
 	  << "\t\t\t" << "name = Products;" << "\n"
@@ -984,7 +984,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "dependencies = (" << "\n"
       << varGlue("QMAKE_PBX_TARGETDEPENDS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
-      << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_REFERENCE") << ";" << "\n"
+      << "\t\t\t" << "productReference = " << keyFor(pbx_dir + "QMAKE_PBX_REFERENCE") << ";" << "\n"
       << "\t\t\t" << "shouldUseHeadermap = 1;" << "\n";
     if(ideType() == MAC_XCODE)
 	t << "\t\t\t" << "isa = PBXNativeTarget;" << "\n";
