@@ -3,6 +3,7 @@ Boolean
 ByteArray
 Color
 Font
+Math
 Number
 Pixmap
 Point
