@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#280 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#281 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#280 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#281 $");
 
 
 /*****************************************************************************
@@ -249,7 +249,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	appForeignDpy = TRUE;
 	appName = "Qt-subapplication";
 	appDpy  = display;
-	app_Xfd = -1;
+	app_Xfd = XConnectionNumber( appDpy );
 
     } else {
       // Qt controls everything (default)
