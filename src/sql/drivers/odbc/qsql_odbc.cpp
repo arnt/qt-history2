@@ -993,6 +993,8 @@ bool QODBCResult::exec()
         qSqlWarning(QLatin1String("QODBCResult::exec: No statement handle available"), d);
         return false;
     }
+    if (isSelect())
+        SQLCloseCursor(d->hStmt);
 
     // bind parameters - only positional binding allowed
     QVector<QCoreVariant>& values = boundValues();
