@@ -942,7 +942,7 @@ void QTreeView::reopen()
 }
 
 /*!
-  Informs the view that the rows from the \a first to the \a last
+  Informs the view that the rows from the \a start row to the \a end row
   inclusive have been inserted into the \a parent model item.
 */
 
@@ -953,7 +953,7 @@ void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
 }
 
 /*!
-  Informs the view that the rows from the \a first to the \a last
+  Informs the view that the rows from the \a start row to the \a end row
   inclusive have been removed from the given \a parent model item.
 */
 
@@ -977,8 +977,8 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
 }
 
 /*!
-  Informs the tree view that the columns from the \a first to the
-  \a last inclusive as changed.
+  Informs the tree view that the number of columns in the tree view has
+  changed from \a oldCount to \a newCount.
 */
 
 void QTreeView::columnCountChanged(int, int)
@@ -997,6 +997,10 @@ void QTreeView::resizeColumnToContents(int column)
     int header = d->header->isHidden() ? 0 : d->header->sectionSizeHint(column);
     d->header->resizeSection(column, qMax(contents, header));
 }
+
+/*!
+    Selects all the items in the underlying model.
+*/
 
 void QTreeView::selectAll()
 {
