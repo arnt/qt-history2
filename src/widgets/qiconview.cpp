@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#138 $
 **
 ** Definition of QIconView widget class
 **
@@ -4435,21 +4435,22 @@ QSize QIconView::sizeHint() const
 {
     // should be mutable
     ( (QIconView*)this )->orderItemsInGrid();
-    
+
     int w = 100;
     int h = 100;
-    
+
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next ) {
 	w = QMAX( w, item->x() + item->width() );
 	h = QMAX( h, item->y() + item->height() );
     }
-    
+
     w += d->spacing;
     h += d->spacing;
+
+    d->dirty = TRUE;
     
-    return QSize( QMIN( 400, w ), 
-		  QMIN( 400, h ) );
+    return QSize( QMIN( 400, w ), QMIN( 400, h ) );
 }
 
 #include "qiconview.moc"
