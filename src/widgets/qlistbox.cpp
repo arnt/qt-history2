@@ -124,6 +124,7 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
     lbox = listbox;
     s = FALSE;
     dirty = TRUE;
+    custom_highlight = FALSE;
     p = n = 0;
 
     // just something that'll look noticeable in the debugger
@@ -143,6 +144,7 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
     lbox = listbox;
     s = FALSE;
     dirty = TRUE;
+    custom_highlight = FALSE;
     p = n = 0;
 
     // just something that'll look noticeable in the debugger
@@ -167,10 +169,10 @@ QListBoxItem::~QListBoxItem()
 /*!
   Defines whether the list box items is responsible to draw itself
   in a highlighted state when being selected.
-  
+
   If \b is FALSE (the default), then the listbox will draw some
   default highlight indicator before calling paint().
-  
+
   \sa selected(), paint()
  */
 void QListBoxItem::setCustomHighlighting( bool b )
@@ -330,7 +332,7 @@ int QListBoxText::width( const QListBox* lb ) const
 
 /*!
   \class QListBoxPixmap qlistbox.h
-  \brief The QListBoxPixmap class provides list box items with a pixmap 
+  \brief The QListBoxPixmap class provides list box items with a pixmap
   and an optional text.
 
   \sa QListBox, QListBoxItem
@@ -405,7 +407,7 @@ QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
   \a pixmap and the string \a text . The item gets inserted after the
   item \a after.
 */
-QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QString& text, 
+QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QString& text,
 				QListBoxItem *after )
     : QListBoxItem( listbox, after )
 {
@@ -460,7 +462,7 @@ int QListBoxPixmap::height( const QListBox* lb ) const
 
 int QListBoxPixmap::width( const QListBox* lb ) const
 {
-    
+
     if ( text().isEmpty() )
 	return pm.width() + 6;
     return pm.width() + lb->fontMetrics().width( text() ) + 6;
@@ -3229,7 +3231,7 @@ bool QListBox::itemYPos( int index, int *yPos ) const
 */
 bool QListBoxItem::current() const
 {
-    return listBox() && listBox()->hasFocus() && 
+    return listBox() && listBox()->hasFocus() &&
 	listBox()->item( listBox()->currentItem() ) == this;
 }
 
