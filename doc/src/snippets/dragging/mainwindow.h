@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPixmap>
+#include <QPoint>
 
 class QLabel;
 class QLineEdit;
@@ -17,13 +18,17 @@ public:
     MainWindow(QWidget *parent = 0);
 
 protected:
+    void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     QLabel *iconLabel;
     QLineEdit *nameEdit;
     QPixmap iconPixmap;
+    QPoint dragStartPosition;
     QTextEdit *commentEdit;
+    bool clicked;
 };
 
 #endif

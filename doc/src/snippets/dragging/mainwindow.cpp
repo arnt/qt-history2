@@ -5,6 +5,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    clicked = false;
+
     QFrame *centralFrame = new QFrame(this);
 
     QLabel *nameLabel = new QLabel(tr("Comment:"), centralFrame);
@@ -31,7 +33,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton
         && iconLabel->geometry().contains(event->pos())) {
+        clicked = true;
+        dragStartPosition = event->pos();
+    }
+}
 
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    if (clicked && (event->pos() - dragStartPosition).manhattanLength() > 16) {
         QDrag *drag = new QDrag(this);
         QMimeData *mimeData = new QMimeData;
 
@@ -59,5 +68,12 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 break;
         }
         statusBar()->message(actionText);
+        clicked = false;
     }
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+        clicked = false;
 }
