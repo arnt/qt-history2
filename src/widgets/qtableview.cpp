@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#16 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#16 $")
 
 
 const int sbDim = 16;
@@ -832,7 +832,9 @@ void QTableView::setAutoUpdate( bool enable )
 /*!  Repaints the cell at row \e row, column \e col if it is inside the view.
 
   If \e erase is TRUE, the relevant part of the view is cleared to the
-  background color/pixmap before the contents are repainted. */
+  background color/pixmap before the contents are repainted.
+
+  \sa isVisible() */
 
 void QTableView::updateCell( int row, int col, bool erase )
 {
@@ -871,7 +873,7 @@ QRect QTableView::viewRect() const
   If no rows are visible it returns -1.	 This can happen if the
   view is too small for the first row and Tbl_cutCellsV is set.
 
-  \sa lastColumnVisible() */
+  \sa lastColVisible() */
 
 int QTableView::lastRowVisible() const
 {
@@ -1274,6 +1276,7 @@ void QTableView::setHorScrollBar( bool on, bool update )
 		     SLOT(horSbSliding(int)));
 	    connect( hScrollBar, SIGNAL(sliderReleased()),
 		     SLOT(horSbSlidingDone()));
+	    hScrollBar->hide();
 	}
 	if ( update )
 	    updateScrollBars( horMask | verMask );
@@ -1282,7 +1285,7 @@ void QTableView::setHorScrollBar( bool on, bool update )
 	if ( testTableFlags( Tbl_vScrollBar ) )
 	    coverCornerSquare( TRUE );
 	if ( autoUpdate() ) {
-	    hScrollBar->show();
+	    sbDirty |= horMask; // so updateScrollBars will show()
 	    if ( isVisible() )
 		erase( frameWidth(), height() - sbDim - 1,
 		       viewWidth(), 1 );
@@ -1322,6 +1325,7 @@ void QTableView::setVerScrollBar( bool on, bool update )
 		     SLOT(verSbSliding(int)));
 	    connect( vScrollBar, SIGNAL(sliderReleased()),
 		     SLOT(verSbSlidingDone()));
+	    vScrollBar->hide();
 	}
 	if ( update )
 	    updateScrollBars( verMask | horMask );
@@ -1330,7 +1334,7 @@ void QTableView::setVerScrollBar( bool on, bool update )
 	if ( testTableFlags( Tbl_hScrollBar ) )
 	    coverCornerSquare( TRUE );
 	if ( autoUpdate() ) {
-	    vScrollBar->show();
+	    sbDirty |= verMask; // so updateScrollBars will show()
 	    if ( isVisible() )
 		erase( width() - sbDim - 1, frameWidth(),
 		       1, viewHeight() );
@@ -1522,7 +1526,7 @@ bool QTableView::rowYPos( int row, int *yPos ) const
 
   Returns TRUE and stores the result in \e *xPos if the column is
   visible.  Return FALSE and does not modify \e *xPos if \e is
-  invisible or invalid, or if \e xPos is 0.  \sa colYPos() findCol() */
+  invisible or invalid, or if \e xPos is 0.  \sa rowYPos() findCol() */
 
 bool QTableView::colXPos( int col, int *xPos ) const
 {
@@ -1809,6 +1813,10 @@ void QTableView::updateScrollBars( uint f )
 
 	if ( sbDirty & horValue )
 	    hScrollBar->setValue( xOffs );
+
+	// show scrollbar only when it has a sane geometry
+	if ( !hScrollBar->isVisible() )
+	    hScrollBar->show();
     }
 
     if ( testTableFlags(Tbl_vScrollBar) && (sbDirty & verMask) != 0 ) {
@@ -1828,6 +1836,10 @@ void QTableView::updateScrollBars( uint f )
 
 	if ( sbDirty & verValue )
 	    vScrollBar->setValue( yOffs );
+
+	// show scrollbar only when it has a sane geometry
+	if ( !vScrollBar->isVisible() )
+	    vScrollBar->show();
     }
     if ( coveringCornerSquare &&
 	 ( (sbDirty & verGeometry ) || (sbDirty & horGeometry)) )
@@ -1996,7 +2008,7 @@ void QTableView::showOrHideScrollBars()
     if ( vScrollBar ) {
 	if ( testTableFlags(Tbl_vScrollBar) ) {
 	    if ( !vScrollBar->isVisible() )
-		vScrollBar->show();
+		sbDirty |= verMask;
 	} else {
 	    if ( vScrollBar->isVisible() )
 	       vScrollBar->hide();
@@ -2005,7 +2017,7 @@ void QTableView::showOrHideScrollBars()
     if ( hScrollBar ) {
 	if ( testTableFlags(Tbl_hScrollBar) ) {
 	    if ( !hScrollBar->isVisible() )
-		hScrollBar->show();
+		sbDirty |= horMask;
 	} else {
 	    if ( hScrollBar->isVisible() )
 		hScrollBar->hide();
