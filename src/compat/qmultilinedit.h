@@ -22,5 +22,5 @@
 *****************************************************************************/
 #ifndef QMULTILINEDIT_H
 #define QMULTILINEDIT_H
-#include "qtmultilineedit.h"
+#include "qmultilineedit.h"
 #endif
