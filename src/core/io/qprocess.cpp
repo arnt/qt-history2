@@ -1066,7 +1066,7 @@ QByteArray QProcess::readAllStandardError()
 
 /*!
     Starts the program \a program in a new process, passing the
-    command line arguments in \a arguments. The openMode is set to \a
+    command line arguments in \a arguments. The OpenMode is set to \a
     mode. QProcess will immediately enter the Starting state. If the
     process starts successfully, QProcess will emit started();
     otherwise, error() will be emitted.
@@ -1101,6 +1101,31 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
 }
 
 /*!
+    \overload
+
+    Starts the program \a program in a new process. \a program is a
+    single string of text containing both the program name and its
+    arguments. The arguments are separated by one or more
+    spaces. Example:
+
+    \code
+        QProcess process;
+        process.start("del /s *.txt");
+        // same as process.start("del", QStringList() << "/s" << "*.txt");
+        ...
+    \endcode
+
+    The OpenMode is set to \a mode.
+*/
+void QProcess::start(const QString &program, OpenMode mode)
+{
+    QStringList args = program.split(QLatin1Char(' '));
+    QString prog = args.first();
+    args.removeFirst();
+    start(prog, args, mode);
+}
+
+/*!
     Terminates the current process, causing it to crash.
 */
 void QProcess::terminate()
@@ -1123,9 +1148,9 @@ int QProcess::exitCode() const
     \a arguments. It is also possible to modify the \a workingDir and
     \a environment for the process. The new process is detached and there
     is no way to interact with it from QProcess.
-    
-    This function will return true if the process was execute successfully, 
-    this does not reflect the exit vaue of the process. 
+
+    This function will return true if the process was execute successfully,
+    this does not reflect the exit vaue of the process.
 
     \sa start()
 */
