@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#6 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -62,6 +62,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
 
     menuBar()->insertItem( tr("&File"), file );
     menuBar()->insertItem( tr("&Navigate"), navigate );
+    menuBar()->insertSeparator();
     menuBar()->insertItem( tr("&Help"), help );
 
     menuBar()->setItemEnabled( forwardId, FALSE);
