@@ -50,16 +50,15 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-// Resolver functions are not implemented in Cygwin so <arpa/nameser.h>
-// and <resolv.h> are missing:
+// Resolver functions are not implemented in Cygwin, headers
+// <arpa/nameser.h> and <resolv.h> are missing:
 // 	http://cygwin.com//cgi-bin/cygwin-todo.cgi?20000426.105252
-// Try maybe bindlib_w32
+// Maybe bindlib_w32
 // 	http://www.php.net/extra/bindlib_w32.zip
 // or Don Berstein's djbdns:
 // 	http://cr.yp.to/djbdns.html
+// provide this functionality, but not necessarily under the Cygwin license...
 #include <netinet/in.h>
-#include <arpa/nameser.h>
-#include <resolv.h>
 
 
 #if !defined(QT_NO_COMPAT)
