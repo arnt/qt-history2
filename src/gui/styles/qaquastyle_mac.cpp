@@ -376,6 +376,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
         QWidget *top = w->parentWidget();
         while (!top->isTopLevel() && !top->testWFlags(WSubWindow))
             top = top->parentWidget();
+#ifndef QT_NO_MAINWINDOW
         if(::qt_cast<QMainWindow *>(top)) {
             QWidget *central = static_cast<QMainWindow *>(top)->centralWidget();
             for (const QWidget *par = w; par; par = par->parentWidget()) {
@@ -387,6 +388,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
                     break;
             }
         }
+#endif
         if(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)) {
             if(QComboBox *cmb = ::qt_cast<QComboBox *>(w)) {
                 if(cmb->editable())
@@ -443,12 +445,14 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
         return QAquaSizeLarge;
     }
 
+#ifndef QT_NO_MAINWINDOW
     if(::qt_cast<QDockWindow *>(widg->topLevelWidget()) || getenv("QWIDGET_ALL_SMALL")) {
         //if(small.width() != -1 || small.height() != -1)
             return QAquaSizeSmall;
     } else if(getenv("QWIDGET_ALL_MINI")) {
         return QAquaSizeMini;
     }
+#endif
 
 #if 0
     /* Figure out which size we're closer to, I just hacked this in, I haven't

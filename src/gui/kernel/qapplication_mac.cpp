@@ -1258,9 +1258,11 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
             set_active = !(GetCurrentKeyModifiers() & cmdKey);
         if(set_active) {
             widget->raise();
+#ifndef QT_NO_MAINWINDOW
             if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() &&
                !qt_mac_is_macsheet(widget) && (widget->isModal() || !::qt_cast<QDockWindow *>(widget)))
                 widget->setActiveWindow();
+#endif
         }
     }
     if(windowPart == inContent)
@@ -1286,15 +1288,12 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
         QObjectList chldrn = widget->children();
 #ifndef QT_NO_MAINWINDOW
         QMainWindow *mw = ::qt_cast<QMainWindow *>(widget);
-#endif
         for(int i = 0; i < chldrn.size(); i++) {
             QObject *obj = chldrn.at(i);
             QDockArea *area = ::qt_cast<QDockArea *>(obj);
             if (area) {
-#ifndef QT_NO_MAINWINDOW
                 if(mw && mw->topDock() != area)
                     continue;
-#endif
                 if(area->width() < area->height()) //only do horizontal orientations
                     continue;
                 int oh = area->sizeHint().height();
@@ -1312,6 +1311,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
                     h += (oh - nh);
             }
         }
+#endif
         if(h)
             widget->resize(widget->width(), widget->height() - h);
         break; }
@@ -1855,9 +1855,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     w = w->focusProxy();
                 QWidget *tlw = w->topLevelWidget();
                 tlw->raise();
+#ifndef QT_NO_MAINWINDOW
                 if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && !qt_mac_is_macsheet(tlw) &&
                    (tlw->isModal() || !::qt_cast<QDockWindow *>(tlw)))
                     tlw->setActiveWindow();
+#endif
             }
         }
         mouse_button_state = after_state;

@@ -345,11 +345,15 @@ void QMacStyleQD::polish(QWidget* w)
             btns->setButtonText(QDialogButtons::Help, "?");
     } else if(QToolButton *btn = ::qt_cast<QToolButton*>(w)) {
         btn->setAutoRaise(false);
-    } else if(QToolBar *bar = ::qt_cast<QToolBar*>(w)) {
+    }
+#ifndef QT_NO_MAINWINDOW
+    else if(QToolBar *bar = ::qt_cast<QToolBar*>(w)) {
         QBoxLayout * layout = bar->boxLayout();
         layout->setSpacing(0);
         layout->setMargin(0);
-    } else if(w->inherits("QTipLabel")) {   // QTipLabel is declared in qtooltip.cpp :-(
+    }
+#endif
+    else if(w->inherits("QTipLabel")) {   // QTipLabel is declared in qtooltip.cpp :-(
         QLabel *label = (QLabel*)w;
         label->setFrameStyle(QFrame::NoFrame);
         label->setLineWidth(1);
@@ -832,6 +836,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
                                         SCFlags subActive,
                                         const QStyleOption& opt) const
 {
+#if 0
     ThemeDrawState tds = kThemeStateActive;
     if(qAquaActive(pal)) {
         if(!(flags & Style_Enabled))
@@ -925,6 +930,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
         }
         break; }
     case CC_SpinWidget: {
+#if 0
         QSpinWidget * sw = (QSpinWidget *) widget;
         if(sub & SC_SpinWidgetFrame)
             drawPrimitive(PE_PanelLineEdit, p, querySubControlMetrics(CC_SpinWidget, sw, SC_SpinWidgetFrame),
@@ -969,6 +975,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
             DrawThemeButton(qt_glb_mac_rect(updown, p), kind, &info, NULL, NULL, NULL, 0);
         }
         break; }
+#endif
     case CC_TitleBar: {
         if(!widget)
             break;
@@ -1245,6 +1252,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
     default:
         QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
     }
+#endif
 }
 
 int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
@@ -1310,12 +1318,14 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #endif
         break;
     case PM_DefaultFrameWidth:
+#ifndef QT_NO_MAINWINDOW
         if(widget && (widget->isTopLevel() || !widget->parentWidget()
                 || (::qt_cast<QMainWindow*>(widget->parentWidget())
                    && ((QMainWindow*)widget->parentWidget())->centralWidget() == widget))
                 && (::qt_cast<QScrollView*>(widget) || widget->inherits("QWorkspaceChild")))
             ret = 0;
         else
+#endif
             ret = QWindowsStyle::pixelMetric(metric, widget);
         break;
     case PM_MaximumDragDistance:

@@ -132,9 +132,6 @@ int QMacPrintEngine::numCopies() const {return 0;}
 void QMacPrintEngine::setCollateCopies(bool) {}
 bool QMacPrintEngine::collateCopies() const {return false;}
 
-void QMacPrintEngine::setPrintRange(QPrinter::PrintRange ) {}
-QPrinter::PrintRange QMacPrintEngine::printRange() const {return (QPrinter::PrintRange) 0;}
-
 void QMacPrintEngine::setPaperSource(QPrinter::PaperSource) {}
 QPrinter::PaperSource QMacPrintEngine::paperSource()   const{return (QPrinter::PaperSource) 0;}
 

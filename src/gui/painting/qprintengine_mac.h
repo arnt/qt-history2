@@ -74,9 +74,6 @@ public:
     void setCollateCopies(bool);
     bool collateCopies() const;
 
-    void setPrintRange(QPrinter::PrintRange range);
-    QPrinter::PrintRange printRange() const;
-
     void setPaperSource(QPrinter::PaperSource);
     QPrinter::PaperSource paperSource()   const;
 

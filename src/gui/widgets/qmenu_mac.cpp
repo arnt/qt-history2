@@ -748,12 +748,14 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
         } else {
             QWidget *tlw = q->topLevelWidget();
             QMacMenuBarPrivate::menubars.ensure_constructed();
+#ifndef QT_NO_MAINWINDOW
             if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.find(tlw)) &&
                (((parent->isDialog() || ::qt_cast<QMainWindow *>(parent)) && parent == tlw) ||
                 ::qt_cast<QToolBar *>(parent) || tlw == qApp->mainWidget() || !qApp->mainWidget())) {
                 QMacMenuBarPrivate::menubars.insert(tlw, q);
                 mac_menubar = new QMacMenuBarPrivate;
             }
+#endif
         }
     }
 }
@@ -826,6 +828,7 @@ bool QMenuBar::macUpdateMenuBar()
         w = qApp->mainWidget();
     if(w) {
         mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(w);
+#ifndef QT_NO_MAINWINDOW
         if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) &&
            ::qt_cast<QDockWindow *>(w)) {
             if(QWidget *area = ((QDockWindow*)w)->area()) {
@@ -834,6 +837,7 @@ bool QMenuBar::macUpdateMenuBar()
                     w = areaTL;
             }
         }
+#endif
         while(w && !mb)
             mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value((w = w->parentWidget()));
     }
