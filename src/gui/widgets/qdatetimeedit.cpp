@@ -2094,9 +2094,13 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
             int tmp = findMonth(st);
             if (tmp != -1) {
                 num = tmp;
-                state = done ? QValidator::Acceptable : QValidator::Intermediate;
-                st[0] = st.at(0).toUpper();
-                text.replace(index, size, st);
+                if (done) {
+                    state = QValidator::Acceptable;
+                    st = QDate::shortMonthName(num);
+                    text.replace(index, size, st);
+                } else {
+                    state = QValidator::Intermediate;
+                }
             } else {
                 state = QValidator::Invalid;
                 QDTEDEBUG << "invalid because" << st << "doesn't match any month name";
