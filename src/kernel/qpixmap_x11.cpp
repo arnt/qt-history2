@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#9 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#9 $";
 #endif
 
 
@@ -167,26 +167,25 @@ QPixmap::QPixmap( int w, int h, int depth )
 {
     init();
     int dd = DefaultDepth( dpy, qt_xscreen() );
-    if ( w <= 0 || h <= 0 )
-	data->d = 0;
-    data->w = w;  data->h = h;
+    bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( depth == 1 )				// monocrome pixmap
 	data->d = 1;
     else if ( depth < 0 || depth == dd )	// compatible pixmap
 	data->d = dd;
-    else {					// unsupported depth
-	hd = 0;
+    else
 	data->d = 0;
+    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
+	data->w = data->h = 0;
+	data->d = 0;
+	hd = 0;
 #if defined(CHECK_RANGE)
-	warning( "QPixmap: Invalid depth %d.  Legal values are 1 and %d",
-		 depth, dd );
+	if ( !make_null )			// invalid parameters
+	    warning( "QPixmap: Invalid pixmap parameters" );
 #endif
 	return;
     }
-    if ( data->d != 0 ) {
-	data->w = w;
-	data->h = h;
-    }
+    data->w = w;
+    data->h = h;
     hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
@@ -612,10 +611,8 @@ bool QPixmap::convertToImage( QImage *image ) const
 /*!
 Converts the image data and sets this pixmap. Returns TRUE if successful.
 
-If \e image has more colors than the number of available colors, we
-pick the most important colors, using the diversity algorithm of
-XV (written by John Bradley). This algorithm chooses colors on basis of
-popularity and distance.
+If \e image has more colors than the number of available colors, we try
+to pick the most important colors.
 
 If this pixmap is an instance of QBitmap and \e image has 8 or 24 bits
 depth, then the image will be dithered using the Floyd-Steinberg dithering
@@ -1025,7 +1022,7 @@ Example of how to manually draw a rotated text at (100,200) in a widget:
 \bug 2 and 4 bits pixmaps not supported.
 */
 
-QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
+QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 {
     int	   w, h;				// size of target pixmap
     int	   ws, hs;				// size of source pixmap
@@ -1036,12 +1033,12 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     int	   bpp;					// bits per pixel
     bool   depth1 = depth() == 1;
 
+    if ( isNull() ) {				// this is a null pixmap
+	return copy();
+    }
+
     ws = width();
     hs = height();
-    if ( ws == 0 || hs == 0 ) {			// this is a null pixmap
-	QPixmap nullPixmap;
-	return nullPixmap;
-    }
 
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
     float xx = (float)ws;
@@ -1070,6 +1067,15 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     h = QMAX(h13,h24);				// size of target pixmap
     w = QMAX(w13,w24);
 
+    bool invertible;
+    mat = mat.invert( &invertible );		// invert matrix
+
+    if ( h == 0 || w == 0 || !invertible ) {	// null pixmap
+	QPixmap pm;
+	pm.data->bitmap = data->bitmap;
+	return pm;
+    }
+
     XImage *xi = 0;				// get bitmap data from server
     if ( data->optim ) {
 	if ( !data->dirty )
@@ -1091,8 +1097,6 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     else
 	dbpl = (((w*bpp)/8 + 3)/4)*4;
     dbytes = dbpl*h;
-    if ( dbytes == 0 )				// w and h could be zero
-	dbytes = 1;
     dptr   = (uchar *)malloc( dbytes );		// create buffer for bits
     CHECK_PTR( dptr );
     if ( depth1 )				// fill with zeros
@@ -1117,20 +1121,6 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     debug( "bits per pixel.... %d", xi->bits_per_pixel );
 #endif
 
-    bool invertible;
-    mat = mat.invert( &invertible );		// invert matrix
-    if ( !invertible ) {			// not invertible
-	QPixmap bm( w, h, 1 );			//   then return empty bitmap
-	bm.fill( color0 );
-	if ( data->optim ) {			// keep ximage that we fetched
-	    data->dirty	 = FALSE;
-	    data->ximage = xi;
-	}
-	else
-	    XDestroyImage( xi );
-	return bm;
-    }
-						// setup matrix elements
     int	  m11 = d2i_round((double)mat.m11()*65536.0);
     int	  m12 = d2i_round((double)mat.m12()*65536.0);
     int	  m21 = d2i_round((double)mat.m21()*65536.0);
@@ -1281,6 +1271,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 
     if ( depth1 ) {
 	QPixmap pm( w, h, (const char *)dptr, TRUE );
+	pm.data->bitmap = data->bitmap;
 	free( dptr );
 	return pm;
     }
@@ -1292,6 +1283,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 	xi = XCreateImage( dpy, DefaultVisual(dpy,scr), dd, ZPixmap, 0,
 			   (char *)dptr, w, h, 32, 0 );
 	QPixmap pm( w, h, dd );
+	pm.data->bitmap = data->bitmap;
 	XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
 	XDestroyImage( xi );	
 	return pm;
