@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#100 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#100 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -963,7 +963,7 @@ int QWidget::metric( int m ) const
     } else {
 	HDC gdc = GetDC( 0 );
 	switch ( m ) {
-	    // !!!hanord: return widget mm width/height
+	    //###H: return widget mm width/height
 	    case PDM_WIDTHMM:
 		val = GetDeviceCaps( gdc, HORZSIZE );
 		break;

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.h#2 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.h#3 $
 **
-** Definition of something or other
+** Definition of QStatusBar class
 **
-** Created : 979899
+** Created : 980316
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **

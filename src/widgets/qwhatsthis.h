@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#3 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#4 $
 **
-** Definition of
+** Definition of QWhatsThis class
 **
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **

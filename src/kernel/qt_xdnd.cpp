@@ -1,9 +1,9 @@
 /****************************************************************************
-* $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#6 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
-** Created : 979899
+** Created : 980320
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -22,7 +22,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#6 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -119,7 +119,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
 	    ++it;
 	    qt_xdnd_drag_types->insert( (long)(*a), s );
 	}
-	// ### hack!  treat XA_STRING as text/plain.  remove ASAP
+	// ### unfinished!  treat XA_STRING as text/plain.  remove ASAP
 	QString * s;
 	s = new QString( "text/plain" );
 	qt_xdnd_drag_types->insert( (long)XA_STRING, s );
@@ -240,7 +240,7 @@ void qt_handle_xdnd_drop( QWidget *w, const XEvent * xe )
 	return;
     }
 
-    // ### ugle hack follows.  beep beep beep.  ###
+    // ### ugle follows.  beep beep beep.  ###
 
     if ( XGetSelectionOwner(w->x11Display(), qt_xdnd_selection ) == None )
 	return;

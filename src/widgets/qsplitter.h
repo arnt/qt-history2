@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#4 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#5 $
 **
-**  Splitter widget
+** Defintion of  QSplitter class
 **
 **  Created:  980105
 **

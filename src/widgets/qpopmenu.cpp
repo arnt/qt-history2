@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#143 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#142 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#143 $");
 
 // Motif style parameters
 
@@ -1329,9 +1329,9 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
     if ( parentMenu && parentMenu->isPopupMenu &&
 	 (parentMenu->actItem != ((QPopupMenu *)parentMenu)->popupActive ) ) {
-	// hack: if there's a parent popup, and its active item is not
-	// the same as its popped-up child, make the popped-up child
-	// active
+	// hack it to work: if there's a parent popup, and its active
+	// item is not the same as its popped-up child, make the
+	// popped-up child active
 	QPopupMenu * p = (QPopupMenu *)parentMenu;
 	int lastActItem = p->actItem;
 	p->actItem = p->popupActive;

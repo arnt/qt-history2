@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#4 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#5 $
 **
-** Definition of
+** Definition of QDragObject
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#232 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#233 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#232 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#233 $");
 
 
 /*!
@@ -520,8 +520,8 @@ void QWidget::sendDeferredEvents()
     uint m = (uint)deferredMoves->find((long)this);
     uint r = (uint)deferredResizes->find((long)this);
     if ( m && r && decompress_a(r) < 0 ) {
-	// Hack: the old width is negative to indicate that we wanted
-	// to setGeometry and not move + resize.
+	// Hack it to work: the old width is negative to indicate that
+	// we wanted to setGeometry and not move + resize.
 	internalSetGeometry( x(), y(), width(), height() );
     } else {
 	if ( m )
@@ -2487,7 +2487,7 @@ void QWidget::hide()
     }
 
 #if QT_VERSION == 200
-#error "Do this inherits-hack by overriding hide() in QDialog"
+#error "Do this inherits-stuff by overriding hide() in QDialog"
 #error "Be sure to test for testWFlags(WState_Visible) or anything"
 #error " else that makes QWidget::hide() return early."
 #endif

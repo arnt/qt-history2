@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#25 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#26 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#26 $");
 
 
 struct QPrintDialogPrivate
@@ -111,7 +111,7 @@ static void parsePrintcap( QListView * printers )
 		int j = printerDesc.findRev( '|', i-1 );
 		printerName = printerDesc.mid( j+1, i-j-1 );
 		if ( j > 0 ) {
-		    // try hacking up a comment from the aliases...
+		    // try extracting a comment from the aliases...
 		    printerComment = "Aliases: ";
 		    printerComment += printerDesc.mid( 0, j );
 		    for( j=printerComment.length(); j>-1; j-- )

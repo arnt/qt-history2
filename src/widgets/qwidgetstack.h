@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#3 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#4 $
 **
-** Definition of something or other
+** Definition of QWidgetStack class
 **
-** Created : 979899
+** Created : 980306
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **

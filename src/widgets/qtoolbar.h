@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#4 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#5 $
 **
-** Definition of something or other
+** Definition of QToolBar class
 **
-** Created : 979899
+** Created : 980306
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#22 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#23 $
 **
-** Tool Tips (or Balloon Help) for any widget or rectangle
+** Definition of Tool Tips (or Balloon Help) for any widget or rectangle
 **
 ** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **

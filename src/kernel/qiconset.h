@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.h#1 $
+** $Id: //depot/qt/main/src/kernel/qiconset.h#2 $
 **
-** Definition of something or other
+** Definition of QIconSet class
 **
-** Created : 979899
+** Created : 980318
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **

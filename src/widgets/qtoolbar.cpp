@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#12 $
 **
-** Implementation of something useful.
+** Implementation of QToolBar class
 **
-** Created : 979899
+** Created : 980315
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#12 $");
 
 
 

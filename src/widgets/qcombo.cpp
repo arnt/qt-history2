@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#128 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#127 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#128 $");
 
 
 /*!
@@ -1414,7 +1414,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		return TRUE;
 	    case Key_Enter:
 	    case Key_Return:
-		// magic hack to work around QDialog's enter handling
+		// magic to work around QDialog's enter handling
 		((QKeyEvent*)event)->accept();
 		return FALSE;
 	    default:

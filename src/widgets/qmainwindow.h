@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#6 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#7 $
 **
-** Definition of something or other
+** Definition of QMainWindow class
 **
-** Created : 979899
+** Created : 980316
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **

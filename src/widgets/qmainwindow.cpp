@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#10 $
 **
-** Implementation of something useful.
+** Implementation of QMainWindow class
 **
-** Created : 979899
+** Created : 980312
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#10 $");
 
 
 class QMainWindowPrivate {
@@ -561,8 +561,10 @@ bool QMainWindow::event( QEvent * e )
 	    removeToolBar( (QToolBar *)(c->child()) );
 	    d->timer->start( 0, TRUE );
 	} else {
+	    /*
 	    debug( "unknown child went away - %p (%s)",
 		   c->child(), c->child()->name( "unnamed" ) );
+	    */
 	}
     }
     return QWidget::event( e );

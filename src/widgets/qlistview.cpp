@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#83 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#83 $");
 
 
 const int Unsorted = 32767;
@@ -2205,7 +2205,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 			    d->currentPrefix = input;
 			    d->currentPrefixTime = now;
 			    i = keyItem;
-			     // horrible hacked-up double-break...
+			     // nonoptimal double-break...
 			    keyItem = 0;
 			    input.detach();
 			    input.truncate( 0 );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#70 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#70 $");
 
 
 #if QT_VERSION == 200
@@ -517,7 +517,7 @@ void QLabel::drawContents( QPainter *p )
 
     QMovie *mov = movie();
     if ( mov ) {
-	// ### should add movie to qDrawItem when this Dict hack is gone
+	// ### should add movie to qDrawItem when this Dict workaround is gone
 	QRect r = qItemRect( p, style(),
 			cr.x(), cr.y(), cr.width(), cr.height(),
 			align, isEnabled(), &(mov->framePixmap()), ltext );
@@ -670,7 +670,7 @@ void QLabel::movieResized(const QSize& size)
 */
 void QLabel::setMovie( const QMovie& movie )
 {
-    // Foul and ugly private data hack.
+    //## ugle private data.
     if ( !qlabel_extraStuff ) {
 	qlabel_extraStuff = new QIntDict<QLabel_Private>;
 	CHECK_PTR( qlabel_extraStuff );

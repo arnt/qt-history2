@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#106 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#106 $");
 
 
 /*!
@@ -164,7 +164,7 @@ QMenuBar::~QMenuBar()
 */
 void QMenuBar::updateItem( int )
 {
- //   repaint( FALSE ); !!!hanord: avoid this until we get a better solution
+ //   repaint( FALSE ); //###H: avoid this until we get a better solution
 }
 
 
@@ -196,7 +196,7 @@ void QMenuBar::menuContentsChanged()
 
 void QMenuBar::menuStateChanged()
 {
- //   repaint(); ########hanord: avoid this until we get a better solution
+ //   repaint(); ###H: avoid this until we get a better solution
 }
 
 void QMenuBar::menuInsPopup( QPopupMenu *popup )
@@ -527,7 +527,7 @@ int QMenuBar::calculateRects( int max_width )
     int y = motifBarFrame + motifBarVMargin;
     int i = 0;
     int separator = -1;
-    if ( gs == WindowsStyle )	// !!!hanord
+    if ( gs == WindowsStyle )	//###H
 	x = y = 2;
     while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);

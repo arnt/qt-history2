@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#14 $
 **
-** Implementation of something useful.
+** Implementation of QToolButton class
 **
-** Created : 979899
+** Created : 980320
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#14 $");
 
 
 static QToolButton * threeDeeButton = 0;

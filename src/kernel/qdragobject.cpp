@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#8 $
 **
-** C++ file skeleton
+** Implementation of Drag and Drop support
 **
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
@@ -22,7 +22,7 @@
 extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#8 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting

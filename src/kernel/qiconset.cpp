@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#3 $
 **
-** Implementation of something useful.
+** Implementation of QIconSet class
 **
-** Created : 979899
+** Created : 980318
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#3 $");
 
 
 struct QIconSetPrivate: public QShared

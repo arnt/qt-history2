@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#2 $
 **
-** Implementation of something useful.
+** Implementation of QStatusBar class
 **
-** Created : 979899
+** Created : 980119
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -18,7 +18,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#2 $");
 
 
 /*! \class QStatusBar qstatusbar.h

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#3 $
 **
-** Implementation of something useful.
+** Implementation of QWidgetStack class
 **
-** Created : 979899
+** Created : 980128
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -14,7 +14,7 @@
 #include "qobjcoll.h"
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#3 $");
 
 
 class QWidgetStackPrivate {
