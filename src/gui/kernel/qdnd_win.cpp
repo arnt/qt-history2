@@ -41,11 +41,7 @@ static QDragPrivate *global_src = 0;
 static bool acceptact = false;
 
 
-class QWinMimeData : public QMimeData
-{
-};
 
-/*
 // Returns a LPFORMATETC enumerating all CF's that ms can be produced.
 static
 LPFORMATETC allFormats(int& n)
@@ -149,7 +145,7 @@ LPFORMATETC someFormats(const QMimeData* ms, int& n)
     return fmtetc;
 }
 
-*/
+
 
 class QOleDropSource : public IDropSource
 {
@@ -281,7 +277,7 @@ void QDragManager::drop()
 {
     // not used in windows implementation
 }
-/*
+
 static
 QString dnd_format(int fn)
 {
@@ -304,10 +300,10 @@ QString dnd_format(int fn)
 
     return fmt;
 }
-*/
+
 bool QDropData::hasFormat(const QString &mimeType) const
 {
-  /*  if (!current_dropobj) // Sanity
+    if (!current_dropobj) // Sanity
         return false;
 
     int n;
@@ -321,14 +317,14 @@ bool QDropData::hasFormat(const QString &mimeType) const
     }
     delete [] fmtetc;
     return does;
-    */
+    
     return false;
 }
 
 
 QStringList QDropData::formats() const
 {
-    /*
+    
     QStringList fmts;
     if (!current_dropobj) // Sanity
         return fmts;
@@ -343,10 +339,10 @@ QStringList QDropData::formats() const
     delete [] fmtetc;
 
     return fmts;
-    */
+    
     return QStringList();
 }
-/*
+
 QByteArray qt_olednd_obtain_data(const QString &format)
 {
     QByteArray result;
@@ -413,7 +409,7 @@ QByteArray qt_olednd_obtain_data(const QString &format)
 #endif
     return result;
 }
-*/
+
 
 QVariant QDropData::retrieveData(const QString &format, QVariant::Type) const
 {
@@ -421,42 +417,42 @@ QVariant QDropData::retrieveData(const QString &format, QVariant::Type) const
     return QVariant();
 }
 
-QDrag::DropAction QDragManager::drag(QDrag *drag)
+QDrag::DropAction QDragManager::drag(QDrag *o)
 {
 #ifdef QDND_DEBUG
     qDebug("QDragManager::drag(QDrag *drag)");
-    qDebug("actions = %s", dragActionsToString(dragPrivate(drag)->request_action).latin1());
+    qDebug("actions = %s", dragActionsToString(dragPrivate()->request_action).latin1());
 #endif
-  /*  if (object == o || !o->source)
-        return QDrag::NoAction;
+
+    if (object == o || !o || !source())
+        return QDrag::IgnoreAction;
 
     if (object) {
-        o->source->removeEventFilter(this);
         cancel();
+        qApp->removeEventFilter(this);
         beingCancelled = false;
     }
 
     object = o;
-    global_src = o;
-    o->target = 0;
-*/
+    dragPrivate()->target = 0;
+
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
 #endif
 
-  /*  QStringList fmts = o->data->formats();
+    QStringList fmts = o->mimeData()->formats();
     for(int i = 0; i < fmts.size(); ++i)
         QWindowsMime::registerMimeType(fmts.at(i).latin1());
-*/
+
     DWORD result_effect;
     QOleDropSource *src = new QOleDropSource();
-    QOleDataObject *obj = new QOleDataObject(drag->mimeData());
+    QOleDataObject *obj = new QOleDataObject(o->mimeData());
     DWORD allowed_effects = 0;
-    if (dragPrivate(drag)->request_action & QDrag::LinkAction)
+    if (dragPrivate()->possible_actions & QDrag::LinkAction)
         allowed_effects = DROPEFFECT_LINK;
-    if (dragPrivate(drag)->request_action & QDrag::CopyAction)
+    if (dragPrivate()->possible_actions & QDrag::CopyAction)
         allowed_effects = DROPEFFECT_COPY;
-    if (dragPrivate(drag)->request_action & QDrag::MoveAction)
+    if (dragPrivate()->possible_actions & QDrag::MoveAction)
         allowed_effects = DROPEFFECT_MOVE;
     
     updatePixmap();
@@ -859,8 +855,8 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     }
     */
 
-    QWinMimeData winMimeData;
-    QDragEnterEvent dragEnterEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), &winMimeData);
+    QMimeData * md = QDragManager::self()->source() ? QDragManager::self()->dragPrivate()->data : QDragManager::self()->dropData;
+    QDragEnterEvent dragEnterEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), md);
     QApplication::sendEvent(widget, &dragEnterEvent);
 
 
@@ -889,8 +885,8 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     }
     */
 
-    QWinMimeData winMimeData;
-    QDragMoveEvent dragMoveEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), &winMimeData);
+    QMimeData * md = QDragManager::self()->source() ? QDragManager::self()->dragPrivate()->data : QDragManager::self()->dropData;
+    QDragMoveEvent dragMoveEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), md);
     QApplication::sendEvent(widget, &dragMoveEvent);
 
     acceptRect = dragMoveEvent.answerRect();
@@ -925,8 +921,8 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
    //     return NOERROR;
    // }
 
-    QWinMimeData winMimeData;
-    QDragMoveEvent dropEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), &winMimeData);
+    QMimeData * md = QDragManager::self()->source() ? QDragManager::self()->dragPrivate()->data : QDragManager::self()->dropData;
+    QDragMoveEvent dropEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), md);
     QApplication::sendEvent(widget, &dropEvent);
 
     choosenEffect = translateToWinDragEffect(dropEvent.dropAction());

@@ -312,10 +312,15 @@ QByteArray QWindowsMimeText::convertToMime(const QByteArray &data, const QString
     return r;
 }
 
-extern QTextCodec* qt_findcharset(const QByteArray& mimetype);
+QTextCodec* qt_findcharset(const QByteArray& mimetype)
+{
+    QTextCodec * c =0;
+    return c; /// this will crash
+}
 
 QByteArray QWindowsMimeText::convertFromMime(const QByteArray &data, const QString &mime, int cf)
 {
+
     if (cf == CF_TEXT) {
         // Anticipate required space for CRLFs at 1/40
         int maxsize=data.size()+data.size()/40+3;
@@ -711,14 +716,14 @@ QByteArray QWindowsMimeUri::convertToMime(const QByteArray &data, const QString 
     if (hdrop->fWide) {
         while (filesw[i]) {
             QString fn = QString::fromUtf16(filesw+i);
-            texturi += QUriDrag::localFileToUri(fn);
+         //   texturi += QUriDrag::localFileToUri(fn);
             texturi += "\r\n";
             i += fn.length()+1;
         }
     } else {
         while (files[i]) {
             QString fn = QString::fromLocal8Bit(files+i);
-            texturi += QUriDrag::localFileToUri(fn);
+//            texturi += QUriDrag::localFileToUri(fn);
             texturi += "\r\n";
             i += strlen(files+i)+1;
         }
@@ -732,7 +737,7 @@ QByteArray QWindowsMimeUri::convertFromMime(const QByteArray &data, const QStrin
     if (mime != QLatin1String("text/uri-list") || cf != CF_HDROP)  // Sanity
         return QByteArray();
 
-    QStoredDrag t("text/uri-list");
+/*    QStoredDrag t("text/uri-list");
     t.setEncodedData(data);
     QStringList fn;
     QUriDrag::decodeLocalFiles(&t, fn);
@@ -783,7 +788,8 @@ QByteArray QWindowsMimeUri::convertFromMime(const QByteArray &data, const QStrin
         }
         *f = 0;
     });
-
+*/
+    QByteArray result(0, '\0');
     return result;
 }
 
