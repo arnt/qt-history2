@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#33 $
 **
 ** Implementation of QRangeControl class
 **
@@ -171,7 +171,7 @@ void QRangeControl::setValue( int value )
 void QRangeControl::directSetValue(int value)
 {
     prevVal = val;
-    val	    = bound( value );
+    val = bound( value );
 }
 
 /*!
@@ -380,7 +380,7 @@ int QRangeControl::bound( int v ) const
 /*!
   Converts \a logical_val to a pixel position. minValue() maps to 0, maxValue()
   maps to \a span, and other values are distributed evenly in between.
-  
+
   This function can handle the entire integer range without overflow.
 */
 
@@ -415,7 +415,7 @@ int QRangeControl::valueFromPosition( int pos, int span ) const
 	return maxValue();
 
     uint range = maxValue() - minValue();
-    return  minValue() +  pos*(range/span) 
+    return  minValue() +  pos*(range/span)
 	+ (2 * pos * (range%span) + span) / (2*span) ;
     //equiv. to minValue() + ( p * r) / span + 0.5;
 

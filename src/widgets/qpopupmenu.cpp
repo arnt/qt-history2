@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#236 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#237 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -61,8 +61,7 @@ static const int motifArrowVMargin	= 2;	// arrow vertical margin
 
 
 
-// used for internal communication - to be replaced with a class
-// members in 2.0
+// used for internal communication
 static QPopupMenu * syncMenu = 0;
 static int syncMenuId = 0;
 

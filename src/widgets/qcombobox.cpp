@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#219 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#220 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1372,11 +1372,10 @@ void QComboBox::currentChanged()
 
 
 
-/*!
-  This event filter is used to manipulate the line editor in magic
-  ways.  In Qt 2.0 it will all change, until then binary compatibility
-  lays down the law.
+/*! \reimp 
 
+  \internal
+  
   The event filter steals events from the popup or listbox when they
   are popped up. It makes the popup stay up after a short click in
   motif style. In windows style it toggles the arrow button of the

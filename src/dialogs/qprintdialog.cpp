@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#74 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#75 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -555,7 +555,7 @@ static void deleteGlobalPrintDialog()
 
   Note that in 1.40 the printer dialog is a little too high for
   comfortable use on a small-screen machine.  This will be improved on
-  in 2.0.
+  in 2.1.
 
   <img src="printerdialog.png"><br clear=all>
   The printer dialog, on a large screen, in Motif style.
