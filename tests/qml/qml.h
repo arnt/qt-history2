@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#7 $
+** $Id: //depot/qt/main/tests/qml/qml.h#8 $
 **
 ** Definition of something or other
 **
@@ -78,7 +78,7 @@ class QMLContainer;
 class QMLStyleSheet {
 public:
     QMLStyleSheet();
-    ~QMLStyleSheet();
+    virtual ~QMLStyleSheet();
 
     QMLStyle& defaultStyle() const;
     static QMLStyleSheet& defaultSheet();
@@ -143,7 +143,8 @@ public:
     int base;
     bool intersects(int xr, int yr, int wr, int hr);
     void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, bool onlyDirty = FALSE, bool onlySelection = FALSE);
+	      QRegion& backgroundRegion, QPixmap* backgroundPixmap,
+	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
     QMLNode* hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg);
 
 
@@ -154,10 +155,6 @@ public:
     QMLNode* start;
     QMLNode* end;
     QMLContainer* parent;
-
-    //avoid flickering
-//     int frameLeft;
-//     int frameRight;
 
 };
 
@@ -177,9 +174,9 @@ public:
     QMLNode* lastChild() const;
 
     void setParentPointersInSubtree();
-    
+
     virtual QMLContainer* copy();
-    
+
     void split(QMLNode* node);
 
 private:
@@ -196,7 +193,7 @@ public:
     ~QMLBox();
 
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, bool onlyDirty = FALSE, bool onlySelection = FALSE);
+	      QRegion& backgroundRegion, QPixmap* backgroundPixmap, bool onlyDirty = FALSE, bool onlySelection = FALSE);
     void resize (QPainter* p, int newWidth);
 
     void update(QPainter* p, QMLRow* r = 0);
@@ -311,6 +308,7 @@ protected:
 private:
     QMLDocument* doc;
     bool cursor_hidden;
+    QPixmap* backgroundPixmap;
 
 };
 
