@@ -126,6 +126,11 @@
   and QPushButton provides GUI logic.  See QButton for more
   information about the API.
 
+  \important text, setText, text, pixmap, setPixmap, accel, setAccel,
+  isToggleButton, setDown, isDown, isOn, state, autoRepeat,
+  isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released,
+  clicked, toggled, state stateChanged
+  
   \sa QToolButton, QRadioButton QCheckBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
