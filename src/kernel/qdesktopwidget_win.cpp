@@ -16,6 +16,9 @@
 #include "qt_windows.h"
 #include "qapplication_p.h"
 #include "qmemarray.h"
+#ifdef Q_OS_TEMP
+#include <sipapi.h>
+#endif
 
 class QDesktopWidgetPrivate
 {
@@ -93,11 +96,14 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 {
     if ( rects ) {
-	refcount++;
+	++refcount;
 	return;
     }
+
     rects = new QMemArray<QRect>();
     workrects = new QMemArray<QRect>();
+    ++refcount;
+
 #ifndef Q_OS_TEMP
     if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
 	screenCount = 0;
@@ -131,31 +137,37 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	workrects->at( 0 ) = that->rect();
     }
 #else
-    screenCount = 0;
-    user32hnd = LoadLibrary( L"user32.dll" );
+    screenCount = 1;
 
-    // CE < 4.0 case
-    if ( !user32hnd ) {
-	RECT r;
-	SystemParametersInfo( SPI_GETWORKAREA, 0, &r, 0 );
-	QRect qr = QRect( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );
-	rects->resize( 1 );
-	rects->at( 0 ) = that->rect();
-	workrects->resize( 1 );
-	workrects->at( 0 ) = qr;
-	screenCount = 1;
-	return;
+    if ( (user32hnd = LoadLibrary( L"user32.dll" )) ) {
+	// CE >= 4.0 case
+	enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, L"EnumDisplayMonitors" );
+	getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, L"GetMonitorInfoW" );
     }
 
-    // CE >= 4.0 case
-    enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, L"EnumDisplayMonitors" );
-    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, L"GetMonitorInfoW" );
-
-    if ( !enumDisplayMonitors || !getMonitorInfo ) {
+    if ( (!enumDisplayMonitors || !getMonitorInfo) && qt_cever >= 400 )
 	screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS, only in CE >= 4.0
+
+    if ( !user32hnd || !enumDisplayMonitors || !getMonitorInfo ) {
 	rects->resize( screenCount );
 	for ( int i = 0; i < screenCount; ++i )
 	    rects->at( i ) = that->rect();
+
+	RECT r;
+	SystemParametersInfo( SPI_GETWORKAREA, 0, &r, 0 );
+	QRect qr = QRect( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );
+
+	// Use SIP information, if available
+	SIPINFO sip;
+	memset(&sip, 0, sizeof(SIPINFO));
+	sip.cbSize = sizeof(SIPINFO);
+	if ( SipGetInfo( &sip ) )
+	    qr = QRect( QPoint( sip.rcVisibleDesktop.left, sip.rcVisibleDesktop.top ), 
+			QPoint( sip.rcVisibleDesktop.right - 1, sip.rcVisibleDesktop.bottom - 1 ) );
+
+	workrects->resize( screenCount );
+	for ( int j = 0; j < screenCount; ++j )
+	    workrects->at( j ) = qr;
 	return;
     }
 
@@ -165,7 +177,6 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
     getMonitorInfo = 0;
     FreeLibrary( user32hnd );
 #endif // Q_OS_TEMP
-    refcount++;
 }
 
 QDesktopWidgetPrivate::~QDesktopWidgetPrivate()

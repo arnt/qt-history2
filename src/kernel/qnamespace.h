@@ -707,7 +707,11 @@ public:
 	WV_NT 		= 0x0010,
 	WV_2000 	= 0x0020,
 	WV_XP		= 0x0030,
-	WV_NT_based	= 0x00f0
+	WV_NT_based	= 0x00f0,
+
+	WV_CE           = 0x0100,
+	WV_CENET	= 0x0200,
+	WV_CE_based	= 0x0f00
     };
 
     // documented in qstyle.cpp

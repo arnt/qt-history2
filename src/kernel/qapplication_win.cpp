@@ -3776,6 +3776,9 @@ void QSessionManager::cancel()
     \value WV_XP
     \value WV_NT_based
 
+    \value WV_CE
+    \value WV_CENET
+    \value WV_CE_based
 */
 
 

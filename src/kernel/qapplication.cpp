@@ -2773,6 +2773,8 @@ void QApplication::syncX()	{}		// do nothing
   \i Qt::WV_NT - Windows NT 4.x
   \i Qt::WV_2000 - Windows 2000 (NT5)
   \i Qt::WV_XP - Windows XP
+  \i Qt::WV_CE - Windows CE
+  \i Qt::WV_CENET - Windows CE.NET
   \endlist
 
   Note that this function is implemented for the Windows version
@@ -4270,7 +4272,7 @@ QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key 
 {
     qt_session_manager_self = this;
     d = new QSessionManagerData;
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     wchar_t guidstr[40];
     GUID guid;
     CoCreateGuid( &guid );

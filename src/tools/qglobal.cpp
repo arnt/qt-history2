@@ -157,8 +157,11 @@ int qMacVersion()
     return macver;
 }
 Qt::MacintoshVersion qt_macver = (Qt::MacintoshVersion)qMacVersion();
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN) || defined(Q_OS_TEMP)
 bool qt_winunicode;
+# ifdef Q_OS_TEMP
+  DWORD qt_cever = 0;
+# endif // Q_OS_TEMP
 
 #include "qt_windows.h"
 
@@ -173,19 +176,24 @@ int qWinVersion()
 #ifndef VER_PLATFORM_WIN32_NT
 #define VER_PLATFORM_WIN32_NT	    2
 #endif
+#ifndef VER_PLATFORM_WIN32_CE
+#define VER_PLATFORM_WIN32_CE	    3
+#endif
 
     static int winver = Qt::WV_NT;
     static int t=0;
     if ( !t ) {
 	t=1;
-#ifdef Q_OS_TEMP
-	OSVERSIONINFOW osver;
-	osver.dwOSVersionInfoSize = sizeof(osver);
-	GetVersionEx( &osver );
-#else
+#ifndef Q_OS_TEMP
 	OSVERSIONINFOA osver;
 	osver.dwOSVersionInfoSize = sizeof(osver);
 	GetVersionExA( &osver );
+#else
+	OSVERSIONINFOW osver;
+	osver.dwOSVersionInfoSize = sizeof(osver);
+	GetVersionEx( &osver );
+	qt_cever = osver.dwMajorVersion * 100;
+	qt_cever += osver.dwMinorVersion * 10;
 #endif
 	switch ( osver.dwPlatformId ) {
 	case VER_PLATFORM_WIN32s:
@@ -197,6 +205,12 @@ int qWinVersion()
 		winver = Qt::WV_98;
 	    else
 		winver = Qt::WV_95;
+	    break;
+	case VER_PLATFORM_WIN32_CE:
+	    if ( qt_cever >= 400 )
+		winver = Qt::WV_CENET;
+	    else
+		winver = Qt::WV_CE;
 	    break;
 	default: // VER_PLATFORM_WIN32_NT
 	    if ( osver.dwMajorVersion < 5 ) {
