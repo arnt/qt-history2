@@ -281,6 +281,9 @@ QListView::lastItem() (andy)
   Return the last item in the listview - I'll add this to the next version that I am 
   allowed since this missed 3.0.
 
+Services/Daemons (vohi, rms)
+  Platform independent API to install deamons on Unix and Services on NT. (support/arc-12/24505)
+
 New functionality
 -----------------
 
