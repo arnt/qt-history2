@@ -46,11 +46,11 @@
   to emit some index file, and by the Doc itself to know who it is.
 */
 static void setLink( DocEmitter *emitter, Doc *doc, const QString& link,
-		     const QString& text )
+		     const QString& text, bool addLink = TRUE )
 {
     if ( link.startsWith(".") )
 	return;
-    if ( !doc->isInternal() && !doc->isObsolete() )
+    if ( addLink && !doc->isInternal() && !doc->isObsolete() )
 	emitter->addLink( link, text );
     doc->setLink( link, text );
 }
@@ -746,7 +746,8 @@ static void matchDocsAndStuff( DocEmitter *emitter )
 				 config->classRefHref(
 					 decl->relatesContext()->name()) +
 					 QChar('#') + decl->ref(),
-				 decl->fullName() );
+				 decl->fullName(),
+				 !((FunctionDecl *) decl)->isConstructor() );
 			deleteDoc = FALSE;
 
 			((FunctionDecl *) decl)->borrowParameterNames(
