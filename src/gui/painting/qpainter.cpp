@@ -494,7 +494,6 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
         updateXForm();
 
     Q_ASSERT(d->engine->isActive());
-    d->engine->updateState(d->state);
     d->engine->setRenderHint(QPainter::LineAntialiasing, false);
     d->engine->setRenderHint(QPainter::TextAntialiasing, true);
     ++d->device->painters;
