@@ -24,6 +24,10 @@
 #define d d_func()
 #define q q_func()
 
+#ifndef Q_OS_WIN
+# define HAS_MKSTEMP
+#endif
+
 //************* QTemporaryFileEngine
 class QTemporaryFileEngine : public QFSFileEngine
 {
@@ -44,7 +48,14 @@ QTemporaryFileEngine::open(int flags)
         qfilename += ".XXXXXX";
     d->external_file = 0;
     char *filename = strdup(qfilename.latin1());
+#ifdef HAS_MKSTEMP
     d->fd = mkstemp(filename);
+#else
+    char *tempfilename = mktemp(filename);
+    free(filename);
+    filename = tempfilename;
+    d->fd = d->sysOpen(filename, QT_OPEN_RDWR | QT_OPEN_CREAT);
+#endif
     if(d->fd != -1) {
         d->file = filename; //changed now!
         free(filename);

@@ -67,12 +67,12 @@ public:
     mutable uint tried_stat : 1;
     mutable QT_STATBUF st;
     bool doStat() const;
+    int sysOpen(const QString &, int flags);
 
 protected:
     QFSFileEnginePrivate();
 
     void init();
-    int sysOpen(const QString &, int flags);
 
 #if defined(Q_OS_WIN32)
     uint getPermissions() const;
