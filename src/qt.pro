@@ -127,8 +127,6 @@ nis {
 }
 !nis:DEFINES += QT_NO_NIS
 
-shared: DEFINES += QT_SHARED
-
 #here for compatability, should go away ####
 include($$KERNEL_CPP/qt_compat.pri)
 
@@ -158,3 +156,4 @@ include($$REMOTE_CPP/qt_remote.pri)
 
 #install directives
 include(qt_install.pri)
+!staticlib:PRL_EXPORT_DEFINES += QT_SHARED
