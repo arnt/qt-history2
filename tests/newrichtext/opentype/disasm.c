@@ -159,6 +159,80 @@ DEF_DUMP (Coverage)
     }
 }
 
+DEF_DUMP (ClassDefinition)
+{
+    DUMP_FUINT( ClassDefinition, ClassFormat );
+    DUMP_FUINT( ClassDefinition, loaded );
+
+
+    if (ClassDefinition->ClassFormat == 1) {
+	int i;
+	TTO_ClassDefFormat1 *ClassDefFormat1 = &ClassDefinition->cd.cd1;
+	DUMP("<ClassDefinition>\n");
+	DUMP_FUINT( ClassDefFormat1, StartGlyph );
+	DUMP_FUINT( ClassDefFormat1, GlyphCount );
+	for ( i = 0; i < ClassDefFormat1->GlyphCount; i++ ) {
+	    DUMP("   <Class>%d</Class> <!-- %x -->", ClassDefFormat1->ClassValueArray[i],
+		 ClassDefFormat1->StartGlyph+i );
+	}
+    }
+    else if (ClassDefinition->ClassFormat == 2) {
+	int i;
+	TTO_ClassDefFormat2 *ClassDefFormat2 = &ClassDefinition->cd.cd2;
+	DUMP_FUINT (ClassDefFormat2, ClassRangeCount);
+
+	for (i = 0; i < ClassDefFormat2->ClassRangeCount; i++) {
+	    DUMP("<ClassRangeRecord> <!-- %d -->\n",  i);
+	    DUMP("   <Start>%#4x</Start> \n", ClassDefFormat2->ClassRangeRecord[i].Start);
+	    DUMP("   <End>%#4x</End>\n", ClassDefFormat2->ClassRangeRecord[i].End);
+	    DUMP("   <Class>%#4x</Class>\n", ClassDefFormat2->ClassRangeRecord[i].Class);
+	    DUMP("</ClassRangeRecord>\n");
+	}
+    } else {
+	printf("invalid class def table!!!\n");
+    }
+}
+
+DEF_DUMP (ChainSubClassSet)
+{
+    int i;
+    DUMP("<ChainSubClassSet>\n");
+    DUMP_FUINT( ChainSubClassSet, ChainSubClassRuleCount );
+    indent++;
+    for ( i = 0; i < ChainSubClassSet->ChainSubClassRuleCount; i++ ) {
+	int j;
+	TTO_ChainSubClassRule *rule = &ChainSubClassSet->ChainSubClassRule[i];
+	DUMP("<ChainSubClassRule> <!-- %d -->\n",  i );
+	indent++;
+	DUMP("<Backtrack> <!-- %d -->\n", rule->BacktrackGlyphCount );
+	for ( j = 0; j <  rule->BacktrackGlyphCount; j++ )
+	    DUMP("   %d\n", (int)(FT_UShort) rule->Backtrack[j] );
+	DUMP("</Backtrack>\n");
+	DUMP("<Input> <!-- %d -->\n", rule->InputGlyphCount );
+	for ( j = 0; j <  rule->InputGlyphCount-1; j++ )
+	    DUMP("   %d\n", (int)(FT_UShort) rule->Input[j] );
+	DUMP("</Input>\n");
+	DUMP("<Lookahead> <!-- %d -->\n", rule->LookaheadGlyphCount );
+	for ( j = 0; j <  rule->LookaheadGlyphCount; j++ )
+	    DUMP("   %d\n", (int) (FT_UShort) rule->Lookahead[j] );
+	DUMP("</Lookahead>\n");
+	for ( j = 0; j < rule->SubstCount; j++ ) {
+	    TTO_SubstLookupRecord *r = &rule->SubstLookupRecord[j];
+	    DUMP("<SubstLookupRecord> <!-- %d -->\n",  j);
+	    indent++;
+	    DUMP_FUINT( r, SequenceIndex );
+	    DUMP_FUINT( r, LookupListIndex );
+	    indent--;
+	    DUMP("</SubstLookupRecord>\n");
+	}
+	indent--;
+	DUMP("</ChainSubClassRule>\n");
+    }
+    indent--;
+    DUMP("</ChainSubClassSet>\n");
+}
+
+
 static void
 Dump_GSUB_Lookup_Single (TTO_SubTable *subtable, FILE *stream, int indent, FT_Bool is_gsub)
 {
@@ -220,33 +294,7 @@ Dump_GSUB_Lookup_Ligature (TTO_SubTable *subtable, FILE *stream, int indent, FT_
 static void
 Dump_GSUB_Lookup_ContextSubst1 (TTO_ContextSubstFormat1 *csf, FILE *stream, int indent, FT_Bool is_gsub)
 {
-
-}
-
-DEF_DUMP (ClassDefinition)
-{
-    DUMP_FUINT( ClassDefinition, ClassFormat );
-    DUMP_FUINT( ClassDefinition, loaded );
-
-
-    if (ClassDefinition->ClassFormat == 1) {
-    }
-    else if (ClassDefinition->ClassFormat == 2) {
-	int i;
-	TTO_ClassDefFormat2 *ClassDefFormat2 = &ClassDefinition->cd.cd2;
-	DUMP_FUINT (ClassDefFormat2, ClassRangeCount);
-
-	for (i = 0; i < ClassDefFormat2->ClassRangeCount; i++) {
-	    DUMP("<ClassRangeRecord> <!-- %d -->\n",  i);
-	    DUMP("   <Start>%#4x</Start> \n", ClassDefFormat2->ClassRangeRecord[i].Start);
-	    DUMP("   <End>%#4x</End>\n", ClassDefFormat2->ClassRangeRecord[i].End);
-	    DUMP("   <Class>%#4x</Class>\n", ClassDefFormat2->ClassRangeRecord[i].Class);
-	    DUMP("</ClassRangeRecord>\n");
-	}
-
-    } else {
-	printf("invalid class def table!!!\n");
-    }
+    DUMP("Not implemented!!!\n");
 }
 
 
@@ -261,7 +309,7 @@ Dump_GSUB_Lookup_ContextSubst2 (TTO_ContextSubstFormat2 *csf, FILE *stream, int 
 static void
 Dump_GSUB_Lookup_ContextSubst3 (TTO_ContextSubstFormat3 *csf, FILE *stream, int indent, FT_Bool is_gsub)
 {
-
+    DUMP("Not implemented!!!\n");
 }
 
 static void
@@ -285,6 +333,56 @@ Dump_GSUB_Lookup_Context (TTO_SubTable *subtable, FILE *stream, int indent, FT_B
       printf("invalid subformat!!!!!\n");
   }
 }
+
+static void
+Dump_GSUB_Lookup_ChainSubst1 (TTO_ChainContextSubstFormat1 *csf, FILE *stream, int indent, FT_Bool is_gsub)
+{
+    DUMP("Not implemented!!!\n");
+}
+static void
+Dump_GSUB_Lookup_ChainSubst2 (TTO_ChainContextSubstFormat2 *csf, FILE *stream, int indent, FT_Bool is_gsub)
+{
+    int i;
+    RECURSE (Coverage, Coverage, &csf->Coverage);
+    DUMP_FUINT( csf, MaxBacktrackLength );
+    RECURSE( ClassDefinition, ClassDefinition, &csf->BacktrackClassDef );
+    DUMP_FUINT( csf, MaxInputLength );
+    RECURSE( ClassDefinition, ClassDefinition, &csf->InputClassDef );
+    DUMP_FUINT( csf, MaxLookaheadLength );
+    RECURSE( ClassDefinition, ClassDefinition, &csf->LookaheadClassDef );
+
+    DUMP_FUINT( csf, ChainSubClassSetCount );
+    for ( i = 0; i < csf->ChainSubClassSetCount; i++ )
+	RECURSE( ChainSubClassSet, ChainSubClassSet, &csf->ChainSubClassSet[i] );
+}
+static void
+Dump_GSUB_Lookup_ChainSubst3 (TTO_ChainContextSubstFormat3 *csf, FILE *stream, int indent, FT_Bool is_gsub)
+{
+    DUMP("Not implemented!!!\n");
+}
+
+static void
+Dump_GSUB_Lookup_Chain (TTO_SubTable *subtable, FILE *stream, int indent, FT_Bool is_gsub)
+{
+  int i;
+  TTO_ChainContextSubst *chain = &subtable->st.gsub.chain;
+
+  DUMP_FUINT (chain, SubstFormat);
+  switch( chain->SubstFormat ) {
+  case 1:
+      Dump_GSUB_Lookup_ChainSubst1 (&chain->ccsf.ccsf1, stream, indent+2, is_gsub);
+      break;
+  case 2:
+      Dump_GSUB_Lookup_ChainSubst2 (&chain->ccsf.ccsf2, stream, indent+2, is_gsub);
+      break;
+  case 3:
+      Dump_GSUB_Lookup_ChainSubst3 (&chain->ccsf.ccsf3, stream, indent+2, is_gsub);
+      break;
+  default:
+      printf("invalid subformat!!!!!\n");
+  }
+}
+
 
 static void
 Dump_Device (TTO_Device *Device, FILE *stream, int indent, FT_Bool is_gsub)
@@ -459,6 +557,7 @@ DEF_DUMP (Lookup)
 	  break;
 	case  GSUB_LOOKUP_CHAIN:
 	  lookup_name = "CHAIN";
+	  lookup_func = Dump_GSUB_Lookup_Chain;
 	  break;
 	}
     }

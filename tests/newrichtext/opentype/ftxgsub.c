@@ -1688,10 +1688,11 @@
     {
       c[n] = GET_UShort();
 
+      // ### see comment in Load_ChainSubClassRule
       /* We check whether the specific class is used at all.  If not,
          class 0 is used instead.                                     */
-      if ( !d[c[n]] )
-        c[n] = 0;
+//       if ( !d[c[n]] )
+//         c[n] = 0;
     }
 
     FORGET_Frame();
@@ -2732,11 +2733,12 @@
     {
       b[n] = GET_UShort();
 
+      // ### no idea what these two lines were ment to do. The break eg. mangal.ttf.
+      // same is IMO true below.
       /* We check whether the specific class is used at all.  If not,
          class 0 is used instead.                                     */
-
-      if ( !d[b[n]] )
-        b[n] = 0;
+//       if ( !d[b[n]] )
+//         b[n] = 0;
     }
 
     FORGET_Frame();
@@ -2768,8 +2770,8 @@
     {
       i[n] = GET_UShort();
 
-      if ( !d[i[n]] )
-        i[n] = 0;
+//       if ( !d[i[n]] )
+//         i[n] = 0;
     }
 
     FORGET_Frame();
@@ -2801,8 +2803,8 @@
     {
       l[n] = GET_UShort();
 
-      if ( !d[l[n]] )
-        l[n] = 0;
+//       if ( !d[l[n]] )
+//         l[n] = 0;
     }
 
     FORGET_Frame();
