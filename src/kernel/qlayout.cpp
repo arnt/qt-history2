@@ -151,7 +151,7 @@ public:
     { return things.count() + ( multi ? multi->count() : 0 ); }
     QRect cellGeometry( int row, int col ) const;
 
-private:
+//private:
     void setNextPosAfter( int r, int c );
     void recalcHFW( int w, int s );
     void addHfwData ( QGridBox *box, int width );
@@ -816,11 +816,15 @@ public:
 	    return data->things.at( idx )->item();
 	}
     }
-    void toFirst() { multi = FALSE; idx = 0; }
+    void toFirst() {
+	multi = ( data->things.count() == 0 );
+	idx = 0;
+    }
     QLayoutItem *next() {
 	idx++;
 	if ( !multi && idx >= (int)data->things.count() ) {
-	    multi = TRUE; idx = 0;
+	    multi = TRUE;
+	    idx = 0;
 	}
 	return current();
     }
@@ -1261,7 +1265,7 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
   Places the \a layout at position (\a row, \a col) in the grid.
   The top-left position is (0, 0).
 */
-void QGridLayout::addLayout( QLayout *layout, int row, int col)
+void QGridLayout::addLayout( QLayout *layout, int row, int col )
 {
     addChildLayout( layout );
     add( layout, row, col );
@@ -1283,6 +1287,7 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
 void QGridLayout::addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
 				      int fromCol, int toCol, int alignment )
 {
+    addChildLayout( layout );
     QGridBox *b = new QGridBox( layout );
     b->setAlignment( alignment );
     data->add( b, fromRow, toRow, fromCol, toCol );
