@@ -789,7 +789,17 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 
   The return type \e QRgb is equivalent to \c unsigned \c int.
 
-  \sa qRed(), qGreen(), qBlue()
+  \sa qRgba(), qRed(), qGreen(), qBlue()
+*/
+
+/*!
+  \fn QRgb qRgba( int r, int g, int b, int a )
+  \relates QColor
+  Returns the RGBA triplet \a (r,g,b,a).
+
+  The return type \e QRgb is equivalent to \c unsigned \c int.
+
+  \sa qRgb(), qRed(), qGreen(), qBlue()
 */
 
 /*!
