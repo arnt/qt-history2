@@ -220,8 +220,8 @@ void QListModel::itemChanged(QListWidgetItem *item)
 */
 
 /*!
-    Creates a new list widget item that isEditable() and
-    isSelectable(), but which has no text() or icon().
+    Creates an empty list widget item and inserts it into \a view if
+    view is not 0.
 */
 
 QListWidgetItem::QListWidgetItem(QListWidget *view)
@@ -234,6 +234,11 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
     if (model)
         model->insert(model->rowCount(), this);
 }
+
+/*!
+    Creates a list widget item with text \a text and inserts it into
+    \a view if view is not 0.
+*/
 
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     : itemFlags(QAbstractItemModel::ItemIsSelectable
@@ -257,6 +262,12 @@ QListWidgetItem::~QListWidgetItem()
         model->remove(this);
 }
 
+/*!
+  This function sets \a value for a given \a role (see
+  {QAbstractItemModel::Role}). Reimplemnt this function if you need
+  extra roles or special behavior for certain roles.
+*/
+
 void QListWidgetItem::setData(int role, const QVariant &value)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
@@ -271,6 +282,11 @@ void QListWidgetItem::setData(int role, const QVariant &value)
         model->itemChanged(this);
 }
 
+/*!
+   This function returns the items data for a given \a role (see
+   {QAbstractItemModel::Role}). Reimplement this function if you need
+   extra roles or special behavior for certain roles.
+*/
 QVariant QListWidgetItem::data(int role) const
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
@@ -280,10 +296,20 @@ QVariant QListWidgetItem::data(int role) const
     return QVariant();
 }
 
+/*!
+  Returns true if this items text is less then \a other items text.
+*/
 bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 {
     return text() < other.text();
 }
+
+
+/*!
+  \fn QAbstractItemModel::ItemFlags QListWidgetItem::flags() const
+
+  Returns the item flags for this item (see {QAbstractItemModel::ItemFlags}).
+*/
 
 /*!
     \fn QString QListWidgetItem::text() const
@@ -326,6 +352,18 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 */
 
 /*!
+  \fn QFont QListWidgetItem::font() const
+
+  Returns the font set for this item.
+*/
+
+/*!
+  \fn int QListWidgetItem::textAlignment() const
+
+  This font returns the text alignment for this item (see {Qt::AlignmentFlag}).
+*/
+
+/*!
     \fn QColor QListWidgetItem::backgroundColor() const
 
     Returns the color used to display the list item's background.
@@ -343,24 +381,14 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 
 /*!
     \fn int QListWidgetItem::checked() const
+
+    Returns the checked state of the list widget item (see {QCheckBox::ToggleState}).
 */
 
 /*!
-    \fn bool QListWidgetItem::isEditable() const
+  \fn void QListWidgetItem::setFlags(QAbstractItemModel::ItemFlags flags)
 
-    Returns true if this list widget item is editable; otherwise
-    returns false.
-
-    \sa setEditable()
-*/
-
-/*!
-    \fn bool QListWidgetItem::isSelectable() const
-
-    Returns true if this list widget item is selectable; otherwise
-    returns false.
-
-    \sa setSelectable()
+  Sets the item flags for this item to \a flags (see {QAbstractItemModel::ItemFlags}).
 */
 
 /*!
@@ -405,6 +433,18 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 */
 
 /*!
+  \fn void QListWidgetItem::setFont(const QFont &font)
+
+  Sets the \a font used when painting this item.
+*/
+
+/*!
+  \fn void QListWidgetItem::setTextAlignment(int alignment)
+
+  Sets the item text alignment to \a alignment (see {Qt::AlignmentFlag}).
+*/
+
+/*!
     \fn void QListWidgetItem::setBackgroundColor(const QColor &color)
 
     Sets the background \a color of the list item.
@@ -427,37 +467,6 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
     will be shown as unchecked.
 
     \sa checked()
-*/
-
-/*!
-    \fn void QListWidgetItem::setEditable(bool editable)
-
-    If \a editable is true, this list widget item can be edited;
-    otherwise it cannot be edited.
-
-    \sa isEditable()
-*/
-
-/*!
-    \fn void QListWidgetItem::setSelectable(bool selectable)
-
-    If \a selectable is true, this list widget item can be selected;
-    otherwise it cannot be selected.
-
-    \sa isSelectable()
-*/
-
-/*!
-    \fn bool QListWidgetItem::operator!=(const QListWidgetItem &other) const
-
-    Returns true if this list widget item and the \a other list widget
-    item have at least one role for which their values differ;
-    otherwise returns false.
-*/
-
-/*!
-    Returns true if this list widget item and the \a other list widget
-    item have the same values for every role; otherwise returns false.
 */
 
 #define d d_func()
@@ -546,8 +555,41 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
     The number of items in the list can be found using the count() function
 */
 
+
 /*!
-    \fn void pressed(QListWidgetItem *item, int button)
+    \fn void QListWidget::insertItem(int row, const QString &label)
+
+    Inserts an item with the text \a label in the list widget at the
+    position given by \a row.
+
+    \sa appendItem()
+*/
+
+/*!
+    \fn void QListWidget::appendItem(QListWidgetItem *item)
+
+    Inserts the \a item at the the end of the list widget.
+
+    \sa insertItem()
+*/
+
+/*!
+    \fn void QListWidget::appendItem(const QString &label)
+
+    Inserts an item with the text \a label at the end of the list
+    widget.
+*/
+
+/*!
+    \fn void QListWidget::appendItems(const QStringList &labels)
+
+    Inserts items with the text \a labels at the end of the list widget.
+
+    \sa insertItems()
+*/
+
+/*!
+    \fn void QListWidget::pressed(QListWidgetItem *item, int button)
 
     This signal is emitted when a item has been pressed (mouse click
     and release). The \a item may be 0 if the mouse was not pressed on
@@ -573,22 +615,22 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void keyPressed(QListWidgetItem *item, Qt::Key key, Qt::ButtonState state)
+    \fn void QListWidget::keyPressed(QListWidgetItem *item, Qt::Key key, Qt::ButtonState state)
 
     This signal is emitted if keyTracking is turned on an a key was
-    pressed. The \item is the current item as the key was pressed, the
+    pressed. The \a item is the current item as the key was pressed, the
     \a key tells which key was pressed and \a state which modifier
     keys (see \l{Qt::ButtonState}).
 */
 
 /*!
-    \fn void returnPressed(QListWidgetItem *item)
+    \fn void QListWidget::returnPressed(QListWidgetItem *item)
 
     This signal is emitted when return has been pressed on an \a item.
 */
 
 /*!
-    \fn void currentChanged(QListWidgetItem *current, QListWidgetItem *previous)
+    \fn void QListWidget::currentChanged(QListWidgetItem *current, QListWidgetItem *previous)
 
     This signal is emitted whenever the current item changes. The \a
     previous item is the item that previously had the focus, \a
@@ -596,14 +638,14 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void selectionChanged()
+    \fn void QListWidget::selectionChanged()
 
     This signal is emitted whenever the selection changes. \sa selectedItems().
 
 */
 
 /*!
-    \fn void itemEntered(QListWidgetItem *item, Qt::ButtonState state)
+    \fn void QListWidget::itemEntered(QListWidgetItem *item, Qt::ButtonState state)
 
     This signal is emitted the mouse cursor enters an item. The \a
     item is the item entered and \a state specifies the mouse button
@@ -614,20 +656,22 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void aboutToShowContextMenu(QMenu *menu, QListWidgetItem *item)
+    \fn void QListWidget::aboutToShowContextMenu(QMenu *menu, QListWidgetItem *item)
 
     This signal is emitted when the widget is about to show a context
-    menu. The \menu is the menu about to be shown, and the item is the
-    clicked item as the context menu was called for.
+    menu. The \a menu is the menu about to be shown, and the \a item
+    is the clicked item as the context menu was called for.
 
     \sa QMenu::addAction()
 */
 
 /*!
-    \fn void itemChanged(QListWidgetItem *item)
+    \fn void QListWidget::itemChanged(QListWidgetItem *item)
 
     This signal is emitted whenever the data of \a item is changed.
 */
+
+
 
 /*!
     Constructs an empty QListWidget with the given \a parent.
@@ -860,7 +904,7 @@ void QListWidget::removeItem(QListWidgetItem *item)
 }
 
 /*!
-  \intern
+  \internal
 */
 void QListWidget::setModel(QAbstractItemModel *model)
 {
@@ -868,7 +912,7 @@ void QListWidget::setModel(QAbstractItemModel *model)
 }
 
 /*!
-  \intern
+  \internal
 */
 void QListWidget::setup()
 {
