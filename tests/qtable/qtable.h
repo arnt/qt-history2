@@ -21,6 +21,7 @@ class QTableHeader;
 class QValidator;
 class QTable;
 class QPaintEvent;
+class QTimer;
 
 class QTableItem : public Qt
 {
@@ -98,9 +99,10 @@ public:
     void setCurrentCell( int row, int col );
     int currentRow() const { return curRow; }
     int currentCol() const { return curCol; }
-
-    bool isSelected( int row, int col );
+    void ensureCellVisible( int row, int col );
     
+    bool isSelected( int row, int col );
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -123,11 +125,14 @@ protected slots:
 signals:
     void currentChanged( int row, int col );
 
+private slots:
+    void doAutoScroll();
+
 private:
     struct SelectionRange
     {
-	SelectionRange() 
-	    : active( FALSE ), topRow( -1 ), leftCol( -1 ), bottomRow( -1 ), 
+	SelectionRange()
+	    : active( FALSE ), topRow( -1 ), leftCol( -1 ), bottomRow( -1 ),
 	      rightCol( -1 ), anchorRow( -1 ), anchorCol( -1 ) {}
 	void init( int row, int col );
 	void expandTo( int row, int col );
@@ -144,6 +149,8 @@ private:
     void clearSelections();
     QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol );
     void activateNextCell();
+    void fixRow( int &row, int y );
+    void fixCol( int &col, int x );
     
 private:
     QVector<QTableItem> contents;
@@ -156,6 +163,7 @@ private:
     QWidget *editorWidget;
     QValueList<SelectionRange> selections;
     SelectionRange currentSelection;
+    QTimer *autoScrollTimer;
     
 };
 
