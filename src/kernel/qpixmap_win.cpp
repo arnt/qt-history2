@@ -887,9 +887,13 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	return pm;
     }
 
-    bpp  = depth();
-    if ( bpp > 1 && bpp < 8 )
-	bpp = 8;
+    if ( data->realAlphaBits ) {
+	bpp = 32;
+    } else {
+	bpp  = depth();
+	if ( bpp > 1 && bpp < 8 )
+	    bpp = 8;
+    }
 
     sbpl = ((ws*bpp+31)/32)*4;
     sptr = new uchar[hs*sbpl];
