@@ -1277,6 +1277,7 @@ bool QFont::exactMatch() const
 bool QFont::operator==(const QFont &f) const
 {
     return f.d == d || (f.d->request   == d->request   &&
+                        f.d->request.pointSize == d->request.pointSize &&
                          f.d->underline == d->underline &&
                          f.d->overline  == d->overline  &&
                          f.d->strikeOut == d->strikeOut &&
