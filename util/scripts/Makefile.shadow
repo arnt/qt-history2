@@ -24,43 +24,43 @@ qt-shared-debug-mt: qt-shared-debug-mt/.qmake.cache FORCE
 	$(MAKE) -C qt-shared-debug-mt$(MAKE_D)
 qt-shared-debug-mt/.qmake.cache:
 	[ -d qt-shared-debug-mt ] || mkdir qt-shared-debug-mt
-	@(cd qt-shared-debug-mt/; $(CONFG) -shared -debug)
+	@(cd qt-shared-debug-mt/; $(CONFG) -shared -debug -thread)
 
 qt-shared-release: qt-shared-release/.qmake.cache FORCE
 	$(MAKE) -C qt-shared-release$(MAKE_D)
 qt-shared-release/.qmake.cache:
 	[ -d qt-shared-release ] || mkdir qt-shared-release
-	@(cd qt-shared-release/; $(CONFG) -shared -debug)
+	@(cd qt-shared-release/; $(CONFG) -shared -release)
 
 qt-shared-release-mt: qt-shared-release-mt/.qmake.cache FORCE
 	$(MAKE) -C qt-shared-release-mt$(MAKE_D)
 qt-shared-release-mt/.qmake.cache:
 	[ -d qt-shared-release-mt ] || mkdir qt-shared-release-mt
-	@(cd qt-shared-release-mt/; $(CONFG) -shared -debug)
+	@(cd qt-shared-release-mt/; $(CONFG) -shared -release -thread)
 
 qt-static-debug: qt-static-debug/.qmake.cache FORCE
 	$(MAKE) -C qt-static-debug$(MAKE_D)
 qt-static-debug/.qmake.cache:
 	[ -d qt-static-debug ] || mkdir qt-static-debug
-	@(cd qt-static-debug/; $(CONFG) -shared -debug)
+	@(cd qt-static-debug/; $(CONFG) -static -debug)
 
 qt-static-debug-mt: qt-static-debug-mt/.qmake.cache FORCE
 	$(MAKE) -C qt-static-debug-mt$(MAKE_D)
 qt-static-debug-mt/.qmake.cache:
 	[ -d qt-static-debug-mt ] || mkdir qt-static-debug-mt
-	@(cd qt-static-debug-mt/; $(CONFG) -shared -debug)
+	@(cd qt-static-debug-mt/; $(CONFG) -static -debug -thread)
 
 qt-static-release: qt-static-release/.qmake.cache FORCE
 	$(MAKE) -C qt-static-release$(MAKE_D)
 qt-static-release/.qmake.cache:
 	[ -d qt-static-release ] || mkdir qt-static-release
-	@(cd qt-static-release/; $(CONFG) -shared -debug)
+	@(cd qt-static-release/; $(CONFG) -static -release)
 
 qt-static-release-mt: qt-static-release-mt/.qmake.cache FORCE
 	$(MAKE) -C qt-static-release-mt$(MAKE_D)
 qt-static-release-mt/.qmake.cache:
 	[ -d qt-static-release-mt ] || mkdir qt-static-release-mt
-	@(cd qt-static-release-mt/; $(CONFG) -shared -debug)
+	@(cd qt-static-release-mt/; $(CONFG) -static -release -thread)
 
 .DEFAULT: 
 	@echo "No such build has been defined yet"
