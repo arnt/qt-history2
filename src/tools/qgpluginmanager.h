@@ -58,7 +58,7 @@ public:
     void addLibraryPath( const QString& path );
     void setDefaultPolicy( QLibrary::Policy pol );
     QLibrary::Policy defaultPolicy() const;
-    QLibrary* library( const QString& feature ) const;
+    const QLibrary* library( const QString& feature ) const;
     QStringList featureList() const;
 
     virtual QLibrary* addLibrary( const QString& file ) = 0;

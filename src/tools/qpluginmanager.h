@@ -174,7 +174,7 @@ public:
     QRESULT queryInterface(const QString& feature, Type** iface) const
     {
 	QLibrary* plugin = 0;
-	plugin = library( feature );
+	plugin = (QLibrary*)library( feature );
 
 	return plugin ? plugin->queryInterface( interfaceId, (QUnknownInterface**)iface ) : QE_NOINTERFACE;
     }
@@ -184,7 +184,7 @@ public:
     void addLibraryPath( const QString& path );
     void setDefaultPolicy( QLibrary::Policy pol );
     QLibrary::Policy defaultPolicy() const;
-    QLibrary* library( const QString& feature ) const;
+    const QLibrary* library( const QString& feature ) const;
     QStringList featureList() const;
 #endif
 };

@@ -330,7 +330,7 @@ static int similarity( const QString& s1, const QString& s2 )
 */
 
 /*!
-  \fn QLibrary* QPluginManager::library( const QString& feature ) const
+  \fn const QLibrary* QPluginManager::library( const QString& feature ) const
 
   Returns a pointer to the QLibrary providing \a feature.
 
@@ -396,7 +396,7 @@ QLibrary::Policy QGPluginManager::defaultPolicy() const
     return defPol;
 }
 
-QLibrary* QGPluginManager::library( const QString& feature ) const
+const QLibrary* QGPluginManager::library( const QString& feature ) const
 {
     if ( feature.isEmpty() )
 	return 0;
