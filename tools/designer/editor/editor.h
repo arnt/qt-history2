@@ -66,6 +66,8 @@ public:
 
     void drawCursor( bool b ) { QTextEdit::drawCursor( b ); }
 
+    QPopupMenu *createPopupMenu();
+
 signals:
     void clearErrorMarker();
     void intervalChanged();
@@ -73,6 +75,8 @@ signals:
 private slots:
     void cursorPosChanged( QTextCursor *c );
     void doChangeInterval();
+    void commentSelection();
+    void uncommentSelection();
 
 protected:
     ParenMatcher *parenMatcher;

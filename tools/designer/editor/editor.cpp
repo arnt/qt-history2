@@ -24,6 +24,8 @@
 #include <qrichtext_p.h>
 #include "conf.h"
 #include <qapplication.h>
+#include <qpopupmenu.h>
+#include <qaccel.h>
 
 Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     : QTextEdit( parent, name ), hasError( FALSE )
@@ -50,6 +52,11 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     document()->setSelectionColor( ParenMatcher::Mismatch, Qt::magenta );
     document()->setInvertSelectionText( ParenMatcher::Match, FALSE );
     document()->setInvertSelectionText( ParenMatcher::Mismatch, FALSE );
+
+    QAccel *a = new QAccel( this );
+    a->connectItem( a->insertItem( ALT + Key_C ), this, SLOT( commentSelection() ) );
+    a = new QAccel( this );
+    a->connectItem( a->insertItem( ALT + Key_U ), this, SLOT( uncommentSelection() ) );
 }
 
 void Editor::cursorPosChanged( QTextCursor *c )
@@ -128,4 +135,46 @@ void Editor::doChangeInterval()
 {
     emit intervalChanged();
     QTextEdit::doChangeInterval();
+}
+
+void Editor::commentSelection()
+{
+    QTextParag *start = document()->selectionStart( QTextDocument::Standard );
+    QTextParag *end = document()->selectionEnd( QTextDocument::Standard );
+    if ( !start || !end )
+	start = end = textCursor()->parag();
+    while ( start ) {
+	start->insert( 0, "//" );
+	if ( start == end )
+	    break;
+	start = start->next();
+    }
+    document()->removeSelection( QTextDocument::Standard );
+    repaintChanged();
+}
+
+void Editor::uncommentSelection()
+{
+    QTextParag *start = document()->selectionStart( QTextDocument::Standard );
+    QTextParag *end = document()->selectionEnd( QTextDocument::Standard );
+    if ( !start || !end )
+	start = end = textCursor()->parag();
+    while ( start ) {
+	while ( start->at( 0 )->c == '/' )
+	    start->remove( 0, 1 );
+	if ( start == end )
+	    break;
+	start = start->next();
+    }
+    document()->removeSelection( QTextDocument::Standard );
+    repaintChanged();
+}
+
+QPopupMenu *Editor::createPopupMenu()
+{
+    QPopupMenu *menu = QTextEdit::createPopupMenu();
+    menu->insertSeparator();
+    menu->insertItem( tr( "C&omment Code\tALT+C" ), this, SLOT( commentSelection() ) );
+    menu->insertItem( tr( "Unco&mment Code\tALT+U" ), this, SLOT( uncommentSelection() ) );
+    return menu;
 }
