@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#4 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -13,12 +13,12 @@
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qpaintdc.h"
-#include "q2matrix.h"
+#include "qwmatrix.h"
 #include "qapp.h"
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_win.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_win.cpp#4 $";
 #endif
 
 
@@ -417,7 +417,7 @@ static inline int d2i_round( double d )		// double -> int, rounded
 }
 
 
-QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
+QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
     int	  w, h;					// size of target pixmap
     int	  ws, hs;				// size of source pixmap
@@ -457,7 +457,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 	if ( x3 < xmin ) xmin = x3;
 	if ( x4 < xmin ) xmin = x4;
 
-	Q2DMatrix mat( 1.0F, 0.0F, 0.0F, 1.0F, -xmin, -ymin );
+	QWMatrix mat( 1.0F, 0.0F, 0.0F, 1.0F, -xmin, -ymin );
 	mat = matrix * mat;
 
 	if ( mat.m12() != 0.0 || mat.m21() != 0.0 ) {
@@ -535,7 +535,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 }
 
 
-Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
+QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 {						// get true wxform matrix
     const float dt = 0.0001F;
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
@@ -556,7 +556,7 @@ Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
 
-    Q2DMatrix mat( 1.0F, 0.0F, 0.0F, 1.0F, -xmin, -ymin );
+    QWMatrix mat( 1.0F, 0.0F, 0.0F, 1.0F, -xmin, -ymin );
     mat = matrix * mat;
     return mat;
 }

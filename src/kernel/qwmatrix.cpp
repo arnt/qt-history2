@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#2 $
 **
 ** Implementation of QWMatrix class
 **
@@ -19,12 +19,12 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#2 $";
 #endif
 
 
 /*----------------------------------------------------------------------------
-  \class QWMatrix q2matrix.h
+  \class QWMatrix qwmatrix.h
   \brief The QWMatrix class specifies 2D transformations of a
   coordinate system.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#12 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#13 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -76,7 +76,7 @@ union QPDevCmdParam {
     const QPen		*pen;
     const QBrush	*brush;
     const QRegion	*rgn;
-    const Q2DMatrix	*matrix;
+    const QWMatrix	*matrix;
 };
 
 // Painter device metric() identifiers (for all devices)

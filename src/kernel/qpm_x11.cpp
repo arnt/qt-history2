@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#31 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -13,7 +13,7 @@
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qpaintdc.h"
-#include "q2matrix.h"
+#include "qwmatrix.h"
 #include "qapp.h"
 #include <malloc.h>
 #define	 GC GC_QQQ
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#31 $";
 #endif
 
 
@@ -941,11 +941,11 @@ static inline int d2i_round( double d )		// double -> int, rounded
     p.drawText( 0,bl, str );		// draw the text
     p.end();				// painting done
 
-    Q2DMatrix m;			// transformation matrix
+    QWMatrix m;				// transformation matrix
     m.rotate( -33.4 );			// rotate coordinate system
     QPixmap rp = pm.xForm( m );		// rp is rotated pixmap
 
-    Q2DMatrix t = QPixmap::trueMatrix( m, pm.width(), pm.height() );
+    QWMatrix t = QPixmap::trueMatrix( m, pm.width(), pm.height() );
     int x, y;
     t.map( bl.x(),bl.y(), &x,&y );	// get pm's baseline pos in rp
 
@@ -953,12 +953,12 @@ static inline int d2i_round( double d )		// double -> int, rounded
 	    &rp, 0, 0, -1, -1 );
   \endcode
 
-  \sa trueMatrix(), Q2DMatrix, QPainter::setWorldMatrix()
+  \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
 
   \bug 2 and 4 bits pixmaps not supported.
 */
 
-QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
+QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
     int	   w, h;				// size of target pixmap
     int	   ws, hs;				// size of source pixmap
@@ -994,7 +994,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
 
-    Q2DMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
+    QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
 
     if ( mat.m12() != 0.0 || mat.m21() != 0.0 ) {
@@ -1253,10 +1253,10 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 
   This function returns the modified matrix, which maps points
   correctly from the original pixmap into the new pixmap.
-  \sa xForm(), Q2DMatrix
+  \sa xForm(), QWMatrix
 */
 
-Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
+QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 {						// get true wxform matrix
     const float dt = 0.0001;
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
@@ -1277,7 +1277,7 @@ Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
 
-    Q2DMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
+    QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
     return mat;
 }
