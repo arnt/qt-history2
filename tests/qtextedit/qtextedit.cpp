@@ -141,8 +141,9 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     if ( lastFormatted == doc->lastParag() )
 	resizeContents( contentsWidth(), doc->height() );
 
-    if ( contentsHeight() < visibleHeight() )
-	p->fillRect( 0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
+    if ( contentsHeight() < visibleHeight() && drawAll )
+	p->fillRect( 0, contentsHeight(), visibleWidth(), 
+		     visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
 }
 
 void QTextEdit::keyPressEvent( QKeyEvent *e )

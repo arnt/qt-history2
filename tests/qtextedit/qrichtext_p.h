@@ -87,10 +87,10 @@ public:
     QTextParag *topParag() const { return parags.isEmpty() ? string : parags.first(); }
     int totalOffsetX() const;
     int totalOffsetY() const;
-    
+
     void place( const QPoint &pos, QTextParag *s );
     void restoreState();
-    
+
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
 
@@ -234,7 +234,7 @@ public:
     void load( const QString &fn, bool tabify = FALSE );
     QMap<QString, QString> attributes() const { return attribs; }
     void setAttributes( const QMap<QString, QString> &attr ) { attribs = attr; }
-    
+
     void save( const QString &fn = QString::null, bool untabify = FALSE );
     QString fileName() const;
     QString text( bool untabify = FALSE ) const;
@@ -248,7 +248,7 @@ public:
     void setWidth( int w );
     int minimumWidth() const;
     bool setMinimumWidth( int w, QTextParag *parag );
-    
+
     QTextParag *firstParag() const;
     QTextParag *lastParag() const;
     void setFirstParag( QTextParag *p );
@@ -418,7 +418,7 @@ private:
     const QMimeSourceFactory* factory_;
     QString contxt;
     QMap<QString, QString> attribs;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -823,7 +823,7 @@ public:
 
     virtual bool isNested() const { return FALSE; }
     virtual int minimumWidth() const { return 0; }
-    
+
     int xpos; // used for floating items
     int ypos; // used for floating items
     int width;
@@ -887,7 +887,7 @@ class QTextFlow
 {
     friend class QTextDocument;
     friend class QTextTableCell;
-    
+
 public:
     QTextFlow();
     ~QTextFlow();
@@ -895,7 +895,7 @@ public:
     void setWidth( int w );
     void setPageSize( int ps ) { pagesize = ps; }
     int pageSize() const { return pagesize; }
-    
+
     int adjustLMargin( int yp, int margin, int space );
     int adjustRMargin( int yp, int margin, int space );
 
@@ -1002,7 +1002,7 @@ public:
     virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
 
     int minimumWidth() const { return layout ? layout->minimumSize().width() : 0; }
-    
+
 private:
     QGridLayout* layout;
     QList<QTextTableCell> cells;
@@ -1991,7 +1991,7 @@ inline QTextString::Char::~Char()
     if ( format() )
 	format()->removeRef();
     if ( isCustom )
-	delete d;
+	delete (QTextCustomItem*)d;
 }
 
 inline QTextFormat *QTextString::Char::format() const
