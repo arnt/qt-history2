@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#281 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#282 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9638,10 +9638,12 @@ In Unicode, comparison is not necessarily possible, and case
 conversion is at best very hard.  Unicode, covering the "entire"
 globe, also includes a globe-sized collection of case and sorting
 problems.  Qt tries, but not very hard: operator== and friends will do
-some sort of comparison, and upper() and lower() will try to do case
-changes.  There is no provision for locale-dependent case folding
-rules or comparison: These functions are meant to be fast, so they can
-be used unambigiously in data structures.
+comparison based purely on the numeric Unicode value (code point) of
+the characters, and upper() and lower() will do case changes when the
+character has a well-defined upper/lower-case equivalent. There is no
+provision for locale-dependent case folding rules or comparison: These
+functions are meant to be fast, so they can be used unambigiously in
+data structures.
 
 The conversion functions include unicode() (to a scalar), latin1() (to
 scalar, but converts all non-Latin1 characters to 0), row() (gives the
@@ -10071,6 +10073,148 @@ QChar QChar::upper() const
   should use QChar objects as they are equivalent, but for some low-level
   tasks (eg. indexing into an array of Unicode information), this function
   is useful.
+*/
+
+/*****************************************************************************
+  Documentation of QChar related functions
+ *****************************************************************************/
+
+/*!
+  \fn int operator==( QChar c1, QChar c2 )
+  \relates QChar
+
+  Returns TRUE if \a c1 and \a c2 are the same Unicode character.
+*/
+
+/*!
+  \fn int operator==( char ch, QChar c )
+  \relates QChar
+
+  Returns TRUE if \a c is the ASCII/Latin1 character \a ch.
+*/
+
+/*!
+  \fn int operator==( QChar c, char ch )
+  \relates QChar
+
+  Returns TRUE if \a c is the ASCII/Latin1 character \a ch.
+*/
+
+/*!
+  \fn int operator!=( QChar c1, QChar c2 )
+  \relates QChar
+
+  Returns TRUE if \a c1 and \a c2 are not the same Unicode character.
+*/
+
+/*!
+  \fn int operator!=( char ch, QChar c )
+  \relates QChar
+
+  Returns TRUE if \a c is not the ASCII/Latin1 character \a ch.
+*/
+
+/*!
+  \fn int operator!=( QChar c, char ch )
+  \relates QChar
+
+  Returns TRUE if \a c is not the ASCII/Latin1 character \a ch.
+*/
+
+/*!
+  \fn int operator<=( QChar c1, QChar c2 )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of \a c1 is less than that
+  of \a c2, or they are the same Unicode character.
+*/
+
+/*!
+  \fn int operator<=( QChar c, char ch )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of \a c is less than or
+  equal to that of the ASCII/Latin1 character \a ch.
+*/
+
+/*!
+  \fn int operator<=( char ch, QChar c )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+  character \a ch is less than or equal to that of \a c.
+*/
+
+/*!
+  \fn int operator>=( QChar c1, QChar c2 )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of \a c1 is greater than that
+  of \a c2, or they are the same Unicode character.
+*/
+
+/*!
+  \fn int operator>=( QChar c, char ch )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of \a c is greater than or
+  equal to that of the ASCII/Latin1 character \a ch.
+*/
+
+/*!
+  \fn int operator>=( char ch, QChar c )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+  character \a ch is greater than or equal to that of \a c.
+*/
+
+/*!
+  \fn int operator<( QChar c1, QChar c2 )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of \a c1 is less than that
+  of \a c2.
+*/
+
+/*!
+  \fn int operator<( QChar c, char ch )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of \a c is less than that
+  of the ASCII/Latin1 character \a ch.
+*/
+
+/*!
+  \fn int operator<( char ch, QChar c )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+  character \a ch is less than that of \a c.
+*/
+
+/*!
+  \fn int operator>( QChar c1, QChar c2 )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of \a c1 is greater than
+  that of \a c2.
+*/
+
+/*!
+  \fn int operator>( QChar c, char ch )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of \a c is greater than
+  that of the ASCII/Latin1 character \a ch.
+*/
+
+/*!
+  \fn int operator>( char ch, QChar c )
+  \relates QChar
+
+  Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+  character \a ch is greater than that of \a c.
 */
 
 // small class used internally in QString::Compose()
@@ -13202,7 +13346,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
 
 /*****************************************************************************
-  Documentation for related functions
+  Documentation for QString related functions
  *****************************************************************************/
 
 /*!
