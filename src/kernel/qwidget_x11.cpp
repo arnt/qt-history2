@@ -1356,11 +1356,11 @@ void QWidget::hideWindow()
     if ( isTopLevel() ) {
 	qt_deferred_map_take( this );
 	XWithdrawWindow( x11Display(), winId(), x11Screen() );
-	fpos = crect.topLeft();
+	crect.moveTopLeft( fpos );
 	topData()->fsize = crect.size();
-    }
-    else
+    } else {
 	XUnmapWindow( x11Display(), winId() );
+    }
 }
 
 
