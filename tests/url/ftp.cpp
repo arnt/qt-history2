@@ -23,16 +23,19 @@ void FTP::dataHostFound()
 
 void FTP::dataConnected()
 {
+    qDebug( "data host connected" );
     QString cmd = "CWD " + path + "\r\n";
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
 void FTP::dataClosed()
 {
+    qDebug( "CLOOOOSED" );
 }
 
 void FTP::dataReadyRead()
 {
+    qDebug( "dataReadyRead" );
     QCString s;
     s.resize( dataSocket->bytesAvailable() );
     dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
@@ -96,11 +99,14 @@ void FTP::readyRead()
 	int i2 = s.find( ")" );
 	s = s.mid( i + 1, i2 - i - 1 );
 	if ( !dataSocket->host().isEmpty() )
-	    dataSocket->close();
+	    return;//dataSocket->close();
 	QStringList lst = QStringList::split( ',', s );
 	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
+	qDebug( "url: %s port: %d", QString( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3] ).latin1(),
+		port );
 	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
     } else if ( s.contains( "250" ) ) {
+	qDebug( "cwd successfully" );
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
     }
 }
@@ -132,6 +138,8 @@ FTP::FTP()
 void FTP::open( const QString &host_, int port, const QString &path_ )
 {
     commandSocket->connectToHost( host_, port );
+    if ( !dataSocket->host().isEmpty() )
+	dataSocket->close();
     host = host_;
     path = path_;
 }
@@ -173,9 +181,32 @@ FTP &FTP::operator=( const FTP &ftp )
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
+
+    disconnect( dataSocket, SIGNAL( hostFound() ),
+	     this, SLOT( dataHostFound() ) );
+    disconnect( dataSocket, SIGNAL( connected() ),
+	     this, SLOT( dataConnected() ) );
+    disconnect( dataSocket, SIGNAL( closed() ),
+	     this, SLOT( dataClosed() ) );
+    disconnect( dataSocket, SIGNAL( readyRead() ),
+	     this, SLOT( dataReadyRead() ) );
+    dataSocket = new QSocket( this );
+    connect( dataSocket, SIGNAL( hostFound() ),
+	     this, SLOT( dataHostFound() ) );
+    connect( dataSocket, SIGNAL( connected() ),
+	     this, SLOT( dataConnected() ) );
+    connect( dataSocket, SIGNAL( closed() ),
+	     this, SLOT( dataClosed() ) );
+    connect( dataSocket, SIGNAL( readyRead() ),
+	     this, SLOT( dataReadyRead() ) );
+
+    
     if ( !ftp.commandSocket->host().isEmpty() )
 	commandSocket->connectToHost( ftp.commandSocket->host(),
 				      ftp.commandSocket->port() );
+    if ( !ftp.dataSocket->host().isEmpty() )
+	dataSocket->connectToHost( ftp.dataSocket->host(),
+				   ftp.dataSocket->port() );
     host = ftp.host;
     path = ftp.path;
     buffer = ftp.buffer;
