@@ -86,10 +86,11 @@
     \section3 "_ucm_initialize already defined in ..."
 
     The server exports more than one implementation of a QAxFactory,
-    or the same implementation twice. The \c QAXFACTORY_EXPORT and \c
-    QAXFACTORY_DEFAULT macros must only be used once in the project.
-    Use a custom QAxFactory implementation if the server should
-    provide multiple ActiveX controls.
+    or the same implementation twice. If you use the default factory,
+    the \c QAXFACTORY_DEFAULT macro must only be used once in the 
+    project.
+    Use a custom QAxFactory implementation and the \c QAXFACTORY_EXPORT
+    macro if the server provides multiple ActiveX controls.
 
     \section3 "unresolved external symbol _main"
 
@@ -110,6 +111,14 @@
 
         return app.exec();
     }
+    \endcode
+
+    Note that even in-process servers need to implement a main function
+    to satisfy the linker, but in that case a dummy implementation is
+    sufficient (the function is never called).
+    \code
+    void main() 
+    {}
     \endcode
 
     \section3 "cannot open file ... "
@@ -133,19 +142,31 @@
     directory that is listed in the path as printed in the error
     message box.
 
-    \section3 The server does not respond
+    \section3 The Server does not respond
 
     If the system is unable to start the server (check with the task
-    manager whether the server runs a process). Make sure that no DLL
-    is missing from the system path.
+    manager whether the server runs a process), make sure that no DLL
+    the server depends on is missing from the system path (e.g. the Qt 
+    DLL!). Use a dependency walker to view all dependencies of the server 
+    binary.
 
     If the server runs (e.g. the task manager lists a process), see
     the following section to debug your server.
 
+    \section3 The Object cannot be created
+
+    If the server could be built and registered correctly during the build
+    process, but the object cannot be initiliazed e.g. by the OLE/COM Object 
+    Viewer application make sure that no DLL the server depends on is
+    missing from the system path (e.g. the Qt DLL!). Use a dependency walker
+    to view all dependencies of the server binary.
+
+    If the server runs, see the following section to debug your server.
+
     \section1 Debugging runtime errors
 
-    To debug an in-process server, set the server project as the
-    active project, and specify a client "executable for debug
+    To debug an in-process server in Visual Studio, set the server project 
+    as the active project, and specify a client "executable for debug
     session" in the project settings (e.g. use the ActiveX Test Container). 
     You can set breakpoints in your code, and also step into ActiveQt and 
     Qt code if you installed the debug version.
