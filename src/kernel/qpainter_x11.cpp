@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#257 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#258 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2555,6 +2555,13 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    map( x, y, &x, &y );
     }
 
+    // ####### translate from Unicode to font charset encoding
+
+    if ( bg_mode == TransparentMode )
+	XDrawString16( dpy, hd, gc, x, y, x2b, len );
+    else
+	XDrawImageString16( dpy, hd, gc, x, y, x2b, len );
+
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();
 	int lw = fm.lineWidth();
@@ -2568,10 +2575,4 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     }
     XChar2b* x2b = (XChar2b*)str.unicode();
 
-    // ####### translate from Unicode to font charset encoding
-
-    if ( bg_mode == TransparentMode )
-	XDrawString16( dpy, hd, gc, x, y, x2b, len );
-    else
-	XDrawImageString16( dpy, hd, gc, x, y, x2b, len );
 }
