@@ -128,6 +128,7 @@ public:
 
     ArrowButton( QWidget *parent, const char *name, Dir d );
     void drawButton( QPainter *p );
+    void drawButtonLabel( QPainter *p );
 
 private:
     QPixmap pix, pix_disabled;
@@ -153,6 +154,10 @@ void ArrowButton::drawButton( QPainter *p )
 	p->fillRect( 0, 0, width(), height(), darkGray );
     else
 	p->fillRect( 0, 0, width(), height(), lightGray );
+}
+
+void ArrowButton::drawButtonLabel( QPainter *p )
+{
     if ( isEnabled() )
 	p->drawPixmap( 0, 0, pix );
     else
