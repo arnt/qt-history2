@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#11 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#12 $
 **
 ** Definition of QMainWindow class
 **
@@ -53,7 +53,7 @@ public:
     void removeToolBar( QToolBar * );
 
     void show();
-    
+
     void setRightJustification( bool );
     bool rightJustification() const;
 
@@ -71,9 +71,10 @@ protected slots:
 protected:
     void paintEvent( QPaintEvent * );
     bool event( QEvent * );
-
+    
 private:
     QMainWindowPrivate * d;
+    void triggerLayout();
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#17 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#17 $");
 
 /*notready
   \class QMainWindow
@@ -139,7 +139,7 @@ void QMainWindow::setMenuBar( QMenuBar * newMenuBar )
     if ( d->mb )
 	delete d->mb;
     d->mb = newMenuBar;
-    d->timer->start( 0, TRUE );
+    triggerLayout();
 }
 
 
@@ -163,7 +163,7 @@ QMenuBar * QMainWindow::menuBar() const
 	b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
     delete l;
     ((QMainWindowPrivate*)d)->mb = b;
-    d->timer->start( 0, TRUE );
+    ((QMainWindow *)this)->triggerLayout();
     return b;
 }
 
@@ -187,7 +187,7 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
 	     d->sb, SLOT(message(const char *)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     d->sb, SLOT(clear()) );
-    d->timer->start( 0, TRUE );
+    triggerLayout();
 }
 
 
@@ -237,7 +237,7 @@ void QMainWindow::setToolTipGroup( QToolTipGroup * newToolTipGroup )
 	     statusBar(), SLOT(message(const char *)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     statusBar(), SLOT(clear()) );
-    d->timer->start( 0, TRUE );
+    triggerLayout();
 }
 
 
@@ -255,7 +255,7 @@ QToolTipGroup * QMainWindow::toolTipGroup() const
     QToolTipGroup * t = new QToolTipGroup( (QMainWindow*)this,
 					   "automatic tool tip group" );
     ((QMainWindowPrivate*)d)->ttg = t;
-    d->timer->start( 0, TRUE );
+    ((QMainWindow *)this)->triggerLayout();
     return t;
 }
 
@@ -361,7 +361,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const char * label,
 	return;
 
     dl->append( new QMainWindowPrivate::ToolBar( toolBar, label, nl ) );
-    d->timer->start( 0, TRUE );
+    triggerLayout();
 }
 
 
@@ -383,26 +383,21 @@ static bool removeToolBarFromDock( QToolBar * t,
 }
 
 
-/*!  Removes \a toolBar from this main window.  This
-
+/*!  Removes \a toolBar from this main window, if \a toolBar is
+  non-null and known by this main window.
 */
 
 void QMainWindow::removeToolBar( QToolBar * toolBar )
 {
     if ( !toolBar )
 	return;
-    if ( !removeToolBarFromDock( toolBar, d->top ) &&
-	 !removeToolBarFromDock( toolBar, d->left ) &&
-	 !removeToolBarFromDock( toolBar, d->right ) &&
-	 !removeToolBarFromDock( toolBar, d->bottom ) &&
-	 !removeToolBarFromDock( toolBar, d->tornOff ) &&
-	 !removeToolBarFromDock( toolBar, d->unmanaged ) ) {
-	debug( "QMainWindow::removeToolBar() (%s) not managing %p (%s/%s)",
-	       name( "unnamed" ), toolBar,
-	       toolBar->name( "unnamed" ), toolBar->className() );
-    } else {
-	d->timer->start( 0, TRUE );
-    }
+    if ( removeToolBarFromDock( toolBar, d->top ) ||
+	 removeToolBarFromDock( toolBar, d->left ) ||
+	 removeToolBarFromDock( toolBar, d->right ) ||
+	 removeToolBarFromDock( toolBar, d->bottom ) ||
+	 removeToolBarFromDock( toolBar, d->tornOff ) ||
+	 removeToolBarFromDock( toolBar, d->unmanaged ) )
+	triggerLayout();
 }
 
 
@@ -512,7 +507,7 @@ void QMainWindow::show()
 void QMainWindow::setCentralWidget( QWidget * w )
 {
     d->mc = w;
-    d->timer->start( 0, TRUE );
+    triggerLayout();
 }
 
 
@@ -555,21 +550,16 @@ bool QMainWindow::event( QEvent * e )
 	    // nothing
 	} else if ( c->child() == d->sb ) {
 	    d->sb = 0;
-	    d->timer->start( 0, TRUE );
+	    triggerLayout();
 	} else if ( c->child() == d->mb ) {
 	    d->mb = 0;
-	    d->timer->start( 0, TRUE );
+	    triggerLayout();
 	} else if ( c->child() == d->mc ) {
 	    d->mc = 0;
-	    d->timer->start( 0, TRUE );
-	} else if ( c->child()->inherits( "QToolBar" ) ) {
-	    removeToolBar( (QToolBar *)(c->child()) );
-	    d->timer->start( 0, TRUE );
+	    triggerLayout();
 	} else {
-	    /*
-	    debug( "unknown child went away - %p (%s)",
-		   c->child(), c->child()->name( "unnamed" ) );
-	    */
+	    removeToolBar( (QToolBar *)(c->child()) );
+	    triggerLayout();
 	}
     }
     return QWidget::event( e );
@@ -631,7 +621,7 @@ void QMainWindow::setRightJustification( bool enable )
     if ( enable == d->justify )
 	return;
     d->justify = enable;
-    d->timer->start( 0, TRUE );
+    triggerLayout();
 }
 
 
@@ -648,4 +638,15 @@ void QMainWindow::setRightJustification( bool enable )
 bool QMainWindow::rightJustification() const
 {
     return d->justify;
+}
+
+
+void QMainWindow::triggerLayout()
+{
+    if ( isVisibleToTLW() ) {
+	setUpLayout();
+	d->timer->stop();
+    } else {
+	d->timer->start( 0, TRUE );
+    }
 }
