@@ -1990,7 +1990,9 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
-        result = dlg->selectedFiles().first();
+        QStringList files = dlg->selectedFiles();
+        if (!files.isEmpty())
+            result = files.first();
 //        directory = result;
     }
     delete dlg;
