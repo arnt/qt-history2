@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#44 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#45 $
 **
 ** Definition of QTextStream class
 **
@@ -54,6 +54,7 @@ public:
 
     bool	 eof() const;
 
+    QTextStream &operator>>( QChar & );
     QTextStream &operator>>( char & );
     QTextStream &operator>>( signed short & );
     QTextStream &operator>>( unsigned short & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#72 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#73 $
 **
 ** Implementation of QTextStream class
 **
@@ -812,12 +812,25 @@ void QTextStream::unsetDevice()
 
 /*!
   Reads a \c char from the stream and returns a reference to the stream.
+  Note that whitespace is skipped.
 */
 
 QTextStream &QTextStream::operator>>( char &c )
 {
     CHECK_STREAM_PRECOND
     c = eat_ws();
+    return *this;
+}
+
+/*!
+  Reads a \c char from the stream and returns a reference to the stream.
+  Note that whitespace is \em not skipped.
+*/
+
+QTextStream &QTextStream::operator>>( QChar &c )
+{
+    CHECK_STREAM_PRECOND
+    c = ts_getc();
     return *this;
 }
 
