@@ -168,7 +168,7 @@ protected:
 
     bool focusNextPrevChild(bool);
 
-    void drawFrame(QPainter *);
+    void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
 
 private:
@@ -415,7 +415,7 @@ void QWorkspace::childEvent(QChildEvent * e)
         bool hasSize = w->testAttribute(Qt::WA_Resized);
         int x = w->x();
         int y = w->y();
-        bool hasPos = x != 0 || y != 0;
+        bool hasPos = w->testAttribute(Qt::WA_Moved);
         QSize s = w->size().expandedTo(w->minimumSizeHint());
         if (!hasSize && w->sizeHint().isValid())
             w->adjustSize();
@@ -2042,8 +2042,9 @@ void QWorkspaceChild::leaveEvent(QEvent *)
 #endif
 }
 
-void QWorkspaceChild::drawFrame(QPainter *p)
+void QWorkspaceChild::paintEvent(QPaintEvent *)
 {
+    QPainter p(this);
     QStyleOptionFrame opt(0);
     opt.rect = rect();
     opt.palette = palette();
@@ -2054,7 +2055,7 @@ void QWorkspaceChild::drawFrame(QPainter *p)
     if (titlebar && titlebar->isActive())
         opt.state |= QStyle::Style_Active;
 
-    style().drawPrimitive(QStyle::PE_WindowFrame, &opt, p, this);
+    style().drawPrimitive(QStyle::PE_WindowFrame, &opt, &p, this);
 }
 
 void QWorkspaceChild::changeEvent(QEvent *ev)
