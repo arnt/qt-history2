@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext_p.h#151 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.h#152 $
 **
 ** Definition of internal rich text classes
 **
@@ -1925,7 +1925,7 @@ inline int QTextParag::customItems() const
 inline QBrush *QTextParag::background() const
 {
     return tc ? tc->backGround() : 0;
-};
+}
 
 
 inline void QTextParag::setDocumentRect( const QRect &r )

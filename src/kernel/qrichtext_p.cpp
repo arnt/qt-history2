@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#11 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -40,7 +40,7 @@
 #ifndef QT_NO_RICHTEXT
 
 QTextCommand::~QTextCommand() {}
-QTextCommand::Commands QTextCommand::type() const { return Invalid; };
+QTextCommand::Commands QTextCommand::type() const { return Invalid; }
 
 
 QTextCustomItem::~QTextCustomItem() {}
@@ -48,8 +48,8 @@ void QTextCustomItem::adjustToPainter( QPainter* ) { width = 0; }
 QTextCustomItem::Placement QTextCustomItem::placement() const { return PlaceInline; }
 
 bool QTextCustomItem::ownLine() const { return FALSE; }
-void QTextCustomItem::resize( QPainter*, int nwidth ){ width = nwidth; };
-void QTextCustomItem::invalidate() {};
+void QTextCustomItem::resize( QPainter*, int nwidth ){ width = nwidth; }
+void QTextCustomItem::invalidate() {}
 
 bool QTextCustomItem::isNested() const { return FALSE; }
 int QTextCustomItem::minimumWidth() const { return 0; }
@@ -89,7 +89,7 @@ void QTextFlow::eraseAfter( QTextParag *, QPainter *, const QColorGroup & ) {}
 
 void QTextTableCell::invalidate() { cached_width = -1; cached_sizehint = -1; }
 
-void QTextTable::invalidate() { cachewidth = -1; };
+void QTextTable::invalidate() { cachewidth = -1; }
 
 QTextParagData::~QTextParagData() {}
 void QTextParagData::join( QTextParagData * ) {}
