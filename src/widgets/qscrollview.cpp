@@ -1,12 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#20 $
 **
 ** Implementation of QScrollView class
 **
 ** Created : 950524
 **
-** Copyright ( C ) 1995, 1996 by Warwick Allison.
-** Copyright ( C ) 1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
