@@ -34,7 +34,7 @@ public:
     explicit QTemporaryFile(const QString &templateName);
 #ifndef QT_NO_QOBJECT
     explicit QTemporaryFile(QObject *parent);
-    explicit QTemporaryFile(const QString &templateName, QObject *parent);
+    QTemporaryFile(const QString &templateName, QObject *parent);
 #endif
     ~QTemporaryFile();
 

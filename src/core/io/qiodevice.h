@@ -102,9 +102,9 @@ signals:
 
 protected:
 #ifdef QT_NO_QOBJECT
-    explicit QIODevice(QIODevicePrivate &d);
+    QIODevice(QIODevicePrivate &d);
 #else
-    explicit QIODevice(QIODevicePrivate &d, QObject *parent);
+    QIODevice(QIODevicePrivate &d, QObject *parent);
 #endif
 
     virtual Q_LONGLONG readData(char *data, Q_LONGLONG maxlen) = 0;

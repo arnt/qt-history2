@@ -115,7 +115,7 @@ public:
 
 protected:
     QFileEngine();
-    explicit QFileEngine(QFileEnginePrivate &);
+    QFileEngine(QFileEnginePrivate &);
 
     QFileEnginePrivate *d_ptr;
 private:
@@ -139,9 +139,9 @@ class QFSFileEnginePrivate;
 class QFSFileEngine : public QFileEngine
 {
 public:
-    ~QFSFileEngine();
-    QFSFileEngine(const QString &file);
     QFSFileEngine();
+    explicit QFSFileEngine(const QString &file);
+    ~QFSFileEngine();
 
     virtual void setFileName(const QString &file);
 

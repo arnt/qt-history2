@@ -66,26 +66,22 @@ public:
 
 
 #ifndef QT_NO_QOBJECT
-    explicit QSettings(const QString &organization,
-                       const QString &application = QString(),
-                       QObject *parent = 0);
-    explicit QSettings(Scope scope, const QString &organization,
-                       const QString &application = QString(),
-	               QObject *parent = 0);
-    explicit QSettings(Format format, Scope scope, const QString &organization,
-	               const QString &application = QString(),
-                       QObject *parent = 0);
-    explicit QSettings(const QString &fileName, Format format,
-                       QObject *parent = 0);
+    QSettings(const QString &organization,
+              const QString &application = QString(), QObject *parent = 0);
+    QSettings(Scope scope, const QString &organization,
+              const QString &application = QString(), QObject *parent = 0);
+    QSettings(Format format, Scope scope, const QString &organization,
+	      const QString &application = QString(), QObject *parent = 0);
+    QSettings(const QString &fileName, Format format, QObject *parent = 0);
     explicit QSettings(QObject *parent = 0);
 #else
-    explicit QSettings(const QString &organization,
-                       const QString &application = QString());
-    explicit QSettings(Scope scope, const QString &organization,
-                       const QString &application = QString());
-    explicit QSettings(Format format, Scope scope, const QString &organization,
-                       const QString &application = QString());
-    explicit QSettings(const QString &fileName, Format format);
+    QSettings(const QString &organization,
+              const QString &application = QString());
+    QSettings(Scope scope, const QString &organization,
+              const QString &application = QString());
+    QSettings(Format format, Scope scope, const QString &organization,
+              const QString &application = QString());
+    QSettings(const QString &fileName, Format format);
 #endif
     ~QSettings();
 

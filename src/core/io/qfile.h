@@ -67,7 +67,7 @@ public:
     QFile(const QString &name);
 #ifndef QT_NO_QOBJECT
     explicit QFile(QObject *parent);
-    explicit QFile(const QString &name, QObject *parent);
+    QFile(const QString &name, QObject *parent);
 #endif
     ~QFile();
 
@@ -136,9 +136,9 @@ public:
 
 protected:
 #ifdef QT_NO_QOBJECT
-    explicit QFile(QFilePrivate &d);
+    QFile(QFilePrivate &d);
 #else
-    explicit QFile(QFilePrivate &d, QObject *parent);
+    QFile(QFilePrivate &d, QObject *parent);
 #endif
 
     Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);

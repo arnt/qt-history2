@@ -42,10 +42,10 @@ public:
 
     QTextStream();
     explicit QTextStream(QIODevice *);
-    explicit QTextStream(QString *, QIODevice::OpenMode flags);
-    explicit QTextStream(QByteArray *, QIODevice::OpenMode flags);
-    explicit QTextStream(const QByteArray &, QIODevice::OpenMode flags);
-    explicit QTextStream(FILE *, QIODevice::OpenMode flags);
+    QTextStream(QString *, QIODevice::OpenMode flags);
+    QTextStream(QByteArray *, QIODevice::OpenMode flags);
+    QTextStream(const QByteArray &, QIODevice::OpenMode flags);
+    QTextStream(FILE *, QIODevice::OpenMode flags);
     virtual ~QTextStream();
 
     QIODevice *device() const;
@@ -157,8 +157,8 @@ typedef QTextStream QTS;
 class Q_CORE_EXPORT QTextIStream : public QTextStream
 {
 public:
-    QTextIStream(const QString *s) : QTextStream(const_cast<QString *>(s), QIODevice::ReadOnly) {}
-    QTextIStream(QByteArray *a) : QTextStream(a, QIODevice::ReadOnly) {}
+    explicit QTextIStream(const QString *s) : QTextStream(const_cast<QString *>(s), QIODevice::ReadOnly) {}
+    explicit QTextIStream(QByteArray *a) : QTextStream(a, QIODevice::ReadOnly) {}
     QTextIStream(FILE *f) : QTextStream(f, QIODevice::ReadOnly) {}
 
 private:
@@ -168,8 +168,8 @@ private:
 class Q_CORE_EXPORT QTextOStream : public QTextStream
 {
 public:
-    QTextOStream(QString *s) : QTextStream(s, QIODevice::WriteOnly) {}
-    QTextOStream(QByteArray *a) : QTextStream(a, QIODevice::WriteOnly) {}
+    explicit QTextOStream(QString *s) : QTextStream(s, QIODevice::WriteOnly) {}
+    explicit QTextOStream(QByteArray *a) : QTextStream(a, QIODevice::WriteOnly) {}
     QTextOStream(FILE *f) : QTextStream(f, QIODevice::WriteOnly) {}
 
 private:
