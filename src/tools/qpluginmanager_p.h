@@ -59,7 +59,7 @@
 #ifndef QT_NO_COMPONENT
 
 template<class Type>
-class Q_EXPORT QPluginManager : public QGPluginManager
+class QPluginManager : public QGPluginManager
 {
 public:
     QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE )

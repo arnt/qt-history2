@@ -43,7 +43,8 @@
 #endif // QT_H
 
 
-template<class type> class Q_EXPORT QMemArray : public QGArray
+template<class type> 
+class QMemArray : public QGArray
 {
 public:
     typedef type* Iterator;

@@ -56,7 +56,7 @@
 #endif
 
 template <class T>
-class Q_EXPORT QValueListNode
+class QValueListNode
 {
 public:
     QValueListNode( const T& t ) : data( t ) { }
@@ -72,7 +72,7 @@ public:
 };
 
 template<class T>
-class Q_EXPORT QValueListIterator
+class QValueListIterator
 {
  public:
     /**
@@ -135,7 +135,7 @@ class Q_EXPORT QValueListIterator
 };
 
 template<class T>
-class Q_EXPORT QValueListConstIterator
+class QValueListConstIterator
 {
  public:
     /**
@@ -198,7 +198,7 @@ class Q_EXPORT QValueListConstIterator
 };
 
 template <class T>
-class Q_EXPORT QValueListPrivate : public QShared
+class QValueListPrivate : public QShared
 {
 public:
     /**
@@ -351,7 +351,7 @@ public:
 #endif
 
 template <class T>
-class Q_EXPORT QValueList
+class QValueList
 {
 public:
     /**

@@ -47,7 +47,7 @@
 #endif
 
 template <class T>
-class Q_EXPORT QValueVectorPrivate : public QShared
+class QValueVectorPrivate : public QShared
 {
 public:
     typedef T value_type;
@@ -205,7 +205,7 @@ private:
 };
 
 template <class T>
-class Q_EXPORT QValueVector
+class QValueVector
 {
 public:
     typedef T value_type;

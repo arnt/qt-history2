@@ -43,7 +43,8 @@
 #endif // QT_H
 
 
-template<class type> class Q_EXPORT QSortedList : public QPtrList<type>
+template<class type> 
+class QSortedList : public QPtrList<type>
 {
 public:
     QSortedList() {}

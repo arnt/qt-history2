@@ -44,7 +44,7 @@
 
 
 template<class T>
-class Q_EXPORT QValueStack : public QValueList<T>
+class QValueStack : public QValueList<T>
 {
 public:
     QValueStack() {}

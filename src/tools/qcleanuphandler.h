@@ -6,7 +6,7 @@
 #endif // QT_H
 
 template<class Type>
-class Q_EXPORT QCleanupHandler
+class QCleanupHandler
 {
 public:
     QCleanupHandler() : cleanupObjects( 0 ) {}
@@ -49,7 +49,7 @@ private:
 };
 
 template<class Type>
-class Q_EXPORT QSingleCleanupHandler
+class QSingleCleanupHandler
 {
 public:
     QSingleCleanupHandler() : object( 0 ) {}
@@ -69,7 +69,7 @@ private:
 };
 
 template<class Type>
-class Q_EXPORT QSharedCleanupHandler
+class QSharedCleanupHandler
 {
 public:
     QSharedCleanupHandler() : object( 0 ) {}

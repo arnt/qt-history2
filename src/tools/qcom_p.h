@@ -73,7 +73,8 @@ struct Q_EXPORT QDispatchInterface : public QUnknownInterface
     virtual void removeListener( QDispatchInterface* listener ) = 0;
 };
 
-template <class T> class Q_EXPORT QInterfacePtr
+template <class T>
+class QInterfacePtr
 {
 public:
     QInterfacePtr():iface(0){}

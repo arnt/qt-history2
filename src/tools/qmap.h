@@ -52,7 +52,7 @@
 
 //#define QT_CHECK_MAP_RANGE
 
-struct QMapNodeBase
+struct Q_EXPORT QMapNodeBase
 {
     enum Color { Red, Black };
 
@@ -91,7 +91,7 @@ struct QMapNode : public QMapNodeBase
 
 
 template<class K, class T>
-class Q_EXPORT QMapIterator
+class QMapIterator
 {
  public:
     /**
@@ -200,7 +200,7 @@ public:
 };
 
 template<class K, class T>
-class Q_EXPORT QMapConstIterator
+class QMapConstIterator
 {
  public:
     /**
@@ -541,7 +541,7 @@ protected:
 #endif
 
 template<class Key, class T>
-class Q_EXPORT QMap
+class QMap
 {
 public:
     /**
