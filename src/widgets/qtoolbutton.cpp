@@ -439,7 +439,7 @@ void QToolButton::drawButton( QPainter * p )
     const QColorGroup &g = colorGroup();
 
     if ( uses3D() || ( isOn() && !son ) || isDown() ) {
-        style().drawToolButton( p, x, y, w, h, g, isOn(), isDown(), isEnabled(), autoRaise() && threeDeeButton == this );
+        style().drawToolButton( p, x, y, w, h, g, isOn(), isDown(), isEnabled(), autoRaise() );
     } else if ( parentWidget() && parentWidget()->backgroundPixmap() &&
               !parentWidget()->backgroundPixmap()->isNull() ) {
         p->drawTiledPixmap( 0, 0, width(), height(),
@@ -451,7 +451,7 @@ void QToolButton::drawButton( QPainter * p )
     if ( d->popup && !d->delay ) {
 	if ( uses3D() )
 	    style().drawDropDownButton( p, w, y, miw, h, g, 
-		    d->instantPopup || isDown() || isOn(), isEnabled(), autoRaise() && threeDeeButton == this );
+		    d->instantPopup || isDown() || isOn(), isEnabled(), autoRaise() );
 	style().drawArrow( p, DownArrow, d->instantPopup || isDown() || isOn(), w+2, y+4, 
 		miw-4, h-8, g, isEnabled() );
     }

@@ -57,6 +57,16 @@
 #include <limits.h>
 
 
+class QWindowsStyle::Private
+{
+public:
+    Private() : hotWidget( 0 )
+    {
+    }
+
+    QWidget *hotWidget;
+};
+
 // NOT REVISED
 /*!
   \class QWindowsStyle qwindowsstyle.h
@@ -72,13 +82,29 @@
 */
 QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 {
+    d = new Private;
 }
 
 /*!\reimp
 */
 QWindowsStyle::~QWindowsStyle()
 {
+    delete d;
 }
+
+/*!\reimp */
+void QWindowsStyle::polish( QWidget *widget )
+{
+    if ( widget->inherits( "QToolButton" ) )
+	widget->installEventFilter( this );
+}
+
+/*!\reimp */
+void QWindowsStyle::unPolish( QWidget *widget )
+{
+    widget->removeEventFilter( this );
+}
+
 
 /*!\reimp */
 int QWindowsStyle::buttonDefaultIndicatorWidth() const
@@ -1577,13 +1603,13 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 
     const QBrush *thefill = fill;
 #if defined(Q_WS_WIN)
-    if ( !thefill && on && !autoRaised && 
+    if ( !thefill && on && !d->hotWidget && 
 	( qWinVersion() == WV_2000 || 
 	  qWinVersion() == WV_98 ||
 	  qWinVersion() == WV_XP ) )
 	thefill = &onfill;
 #else
-    if ( !thefill && on && !autoRaised )
+    if ( !thefill && on && !d->hotWidget )
 	thefill = &onfill;
 #endif
 
@@ -1610,7 +1636,7 @@ void QWindowsStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
 		 const QColorGroup &g, bool down, bool /*enabled*/, bool autoRaised, const QBrush *fill )
 {
     if ( !autoRaised )
-	drawBevelButton( p, x, y, w, h, g, down, fill );
+	QCommonStyle::drawToolButton( p, x, y, w, h, g, down, fill );
     else
 	drawPanel( p, x, y, w, h, g, down, 1, fill );
 
@@ -1623,6 +1649,34 @@ void QWindowsStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
         p->drawRect( x + 1, y + 1, w - 2, h - 2 );
     }
 #endif
+}
+
+/*!
+  \reimp
+*/
+bool QWindowsStyle::eventFilter( QObject *o, QEvent *e )
+{
+    if ( e->type() != QEvent::Enter && e->type() != QEvent::Leave )
+	return QCommonStyle::eventFilter( o, e );
+    if ( !o || !o->inherits( "QToolButton" ) )
+	return QCommonStyle::eventFilter( o, e );
+
+    switch ( e->type() )
+    {
+    case QEvent::Enter:
+	d->hotWidget = (QWidget*)o;
+	d->hotWidget->update();
+	break;
+    case QEvent::Leave:
+	{
+	    QWidget *old = d->hotWidget;
+	    d->hotWidget = 0;
+	    old->update();
+	}
+	break;
+    }
+
+    return QCommonStyle::eventFilter( o, e );
 }
 
 #endif

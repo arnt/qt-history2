@@ -57,6 +57,9 @@ public:
     QWindowsStyle();
     virtual ~QWindowsStyle();
 
+    void polish( QWidget * );
+    void unPolish( QWidget * );
+
     void drawButton( QPainter *p, int x, int y, int w, int h,
                      const QColorGroup &g, bool sunken = FALSE,
                      const QBrush *fill = 0 );
@@ -171,7 +174,12 @@ protected:
                         const QColor &c3, const QColor &c4,
                         const QBrush *fill );
 
+    bool eventFilter( QObject *o, QEvent *e );
+
 private:        // Disabled copy constructor and operator=
+    class Private;
+    Private *d;
+
 #if defined(Q_DISABLE_COPY)
     QWindowsStyle( const QWindowsStyle & );
     QWindowsStyle& operator=( const QWindowsStyle & );
