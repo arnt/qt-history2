@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#90 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -24,6 +24,7 @@
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include "qt_windows.h"
+#include <limits.h>
 
 
 extern Qt::WindowsVersion qt_winver;
@@ -354,8 +355,9 @@ QImage QPixmap::convertToImage() const
     int	h = height();
     int	d = depth();
     int	ncols = 2;
+    const QBitmap *m = mask();
 
-    if ( d > 1 && d <= 8 ) {			// set to nearest valid depth
+    if ( d > 1 && d <= 8 || d == 1 && m ) {	// set to nearest valid depth
 	d = 8;					//   2..7 ==> 8
 	ncols = 256;
     } else if ( d > 8 ) {
@@ -388,19 +390,74 @@ QImage QPixmap::convertToImage() const
     if ( mcp )
 	((QPixmap*)this)->allocCell();
 
-#if 0
-    #error "Need to take QPixmap::mask() into account here, "\
-	    "by adding a transparent color (if possible), and "\
-	    "changing masked-out pixels to that color index."
-
-#endif
-
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
-	image.setColor( i, qRgb(r->rgbRed,
+	if ( m )
+	    image.setColor( i, qRgba(r->rgbRed,
+				r->rgbGreen,
+				r->rgbBlue,255) );
+	else
+	    image.setColor( i, qRgb(r->rgbRed,
 				r->rgbGreen,
 				r->rgbBlue) );
     }
+
+    if ( m ) {
+	image.setAlphaBuffer(TRUE);
+	QImage msk = m->convertToImage();
+
+	switch ( d ) {
+	  case 8: {
+	    int used[256];
+	    memset( used, 0, sizeof(int)*256 );
+	    uchar* p = image.bits();
+	    int l = image.numBytes();
+	    while (l--) {
+		used[*p++]++;
+	    }
+	    int trans=0;
+	    int bestn=INT_MAX;
+	    for ( int i=0; i<256; i++ ) {
+		if ( used[i] < bestn ) {
+		    bestn = used[i];
+		    trans = i;
+		    if ( !bestn )
+			break;
+		}
+	    }
+	    image.setColor( trans, image.color(trans)&0x00ffffff );
+	    for ( int y=0; y<image.height(); y++ ) {
+		uchar* mb = msk.scanLine(y);
+		uchar* ib = image.scanLine(y);
+		uchar bit = 0x80;
+		int i=image.width();
+		while (i--) {
+		    if ( !(*mb & bit) )
+			*ib = trans;
+		    bit /= 2; if ( !bit ) mb++,bit = 0x80; // ROL
+		    ib++;
+		}
+	    }
+	  } break;
+	  case 32: {
+	    for ( int y=0; y<image.height(); y++ ) {
+		uchar* mb = msk.scanLine(y);
+		QRgb* ib = (QRgb*)image.scanLine(y);
+		uchar bit = 0x80;
+		int i=image.width();
+		while (i--) {
+		    if ( *mb & bit )
+			*ib |= 0xff000000;
+		    else
+			*ib &= 0x00ffffff;
+		    bit /= 2; if ( !bit ) mb++,bit = 0x80; // ROL
+		    ib++;
+		}
+	    }
+	  } break;
+	}
+    }
+
     if ( d == 1 ) {
 	// Make image bit 0 come from color0, image bit 1 come form color1
 	image.invertPixels();
