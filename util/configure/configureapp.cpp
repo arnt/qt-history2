@@ -1481,8 +1481,8 @@ void Configure::generateMakefiles()
 	int i = 0;
 #if !defined(EVAL)
 	QStringList qtProjects;
-	qtProjects << "src" << "winmain" << "moc" << "core" << "gui" << "canvas" << "network" 
-		   << "opengl" << "sql" << "xml";
+	qtProjects << "winmain" << "moc" << "core" << "gui" << "canvas" << "network"
+		   << "opengl" << "sql" << "xml" << "src";
 	for (i=0;i<qtProjects.size();++i) {
 	    QString qtProject = qtProjects.at(i);
 	    QString dir;
@@ -1502,7 +1502,7 @@ void Configure::generateMakefiles()
 		makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
 		    qtProject + ".pro", qtProject + ".vcproj", Lib ) );
 	    }
-	}	
+	}
 #endif
 	if( dictionary[ "LEAN" ] == "no" )
 	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
