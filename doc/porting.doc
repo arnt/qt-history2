@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.18 1999/01/21 12:05:48 warwick Exp $
+** $Id: porting.doc,v 1.19 1999/01/21 13:42:28 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -18,12 +18,14 @@
 <h2>How to port code using Qt 1.x to use Qt 2.0</h2>
 
 <ul>
- <li> Read all the notes to get an idea of what to expect
+ <li> Breifly read the notes below to get an idea of what to expect.
  <li> Recompile.  For each error, search below for related identifiers
-	(eg. function names, class names).  Where possible, we have tried
-	to make problem code cause compile-time errors when compiled 
+	(eg. function names, class names).  Changes in Qt 2.0 are
+	arranged so that almost all prolem code will cause compile-time
+	errors when compiled 
 	with Qt 2.0.
- <li> To take full advantage of the Internationalization functionality in Qt 2.0:
+ <li> To take full advantage of the Internationalization
+	functionality in Qt 2.0:
     <ul>
      <li> Start converting all uses of "const char*" in parameters to
             "const QString&" - this can often be done mechanically, eg.
@@ -39,6 +41,8 @@
 	    object/widget names are <em>programmer-space</em> strings -
 	    translating these is pointless.  As your application matures,
 	    start producing translation files for other languages.
+     <li> See the Qt \link i18n.html Internationalization page\endlink 
+	    for more tips.
     </ul>
  <li> 
 </ul> 
@@ -153,50 +157,32 @@ QString has undergone major changes internally, and although it is highly
 backward compatible, it is worth studying in detail when porting to Qt 2.0.
 
 <dl compact>
-<dt><b>QString or STL string?</b></dt>
-<dd>
-<p>
-STL string is not Unicode, and is inefficient when used with Qt.
-For example, when using:
-<pre>
-    QLabel::setText( const QString& )
-</pre>
-if you use STL string, like this:
-<pre>
-    void myclass::dostuffwithtext( const string& str )
-    {
-	mylabel.setText( QString(str.c_str()) );
-    }
-</pre>
-that will create a (ASCII only) copy of str, stored in mylabel.
-But this:
-<pre>
-    void myclass::dostuffwithtext( const QString& str )
-    {
-	mylabel.setText( str );
-    }
-</pre>
-will make an implicitly shared reference to str in the QLabel - no copying
-at all.  This function might be 10 nested function calls away from something
-like this:
-<pre>
-    void toplevelclass::initializationstuff()
-    {
-	doStuff( tr("Okay") );
-    }
-</pre>
-At this point, in Qt 2.0, the tr() does a very fast dictionary lookup
-through memory-mapped message files, returning some Unicode QString for
-the appropriate language (the default being to just make a QString out
-of the text, of course - you're not FORCED to use any of these features),
-and that SAME memory mapped Unicode will be passed though the system.
-All occurrences of the translation of "Okay" will be shared.
-
+<dt><b>Unicode</b></dt>
 <dd>
 Now uses Unicode.  data() is obsolete - you cannot directly access the
  string as an array of bytes, because it isn't one.  Often, ascii() is
  what you want rather than data(), or just leave it to convert to
  const char* automatically.  data() is only used now to aide porting to Qt 2.0
+<dt><b>QString(int) is private</b></dt>
+<dd>
+The QString constructor taking an integer is now private.  This function
+is not meaningful anymore, since QString does all space allocation
+automatically.  99% of cases can simple be changed to use the
+default constructor, QString().
+<p>
+In Qt 1.x the constructor was used in two ways:  accidentally,
+by attempting to convert a char to a QString (the char converts to int!!) -
+giving strange bugs, and as a way to make a QString big enough prior to
+calling QString::sprintf().  Now in Qt 2.0, the accidental bug case is
+prevented (you will get a compilation error) and QString::sprintf has
+been made safe - you no longer need to pre-allocate space (though for
+other reasons, sprintf is still a poor choice - eg. it doesn't pass Unicode).
+The only remaining common case is conversion of 0 (NULL) to QString, which
+would usually give expected results in Qt 1.x.  For Qt 2.0 the correct
+syntax is to use QString::null, though this is rarely required since
+the default constructor, QString(), creates a null string, but you will
+need to change "const QString& param = 0" default constructors and
+"return 0" in functions returning a QString.
 <dt><b>Signals and Slots</b></dt>
 <dd>
 Many signal/slots have changed from const char* to QString.  You will
@@ -292,6 +278,45 @@ This means that inserting a 0-character
  This creates a string 2 characters long.
  To find these problems while converting, ASSERT(strlen(d->ascii)==d->len)
   inside QString::ascii().
+<dt><b>QString or STL string?</b></dt>
+<dd>
+<p>
+STL string is not Unicode, and is inefficient when used with Qt.
+For example, when using:
+<pre>
+    QLabel::setText( const QString& )
+</pre>
+if you use STL string, like this:
+<pre>
+    void myclass::dostuffwithtext( const string& str )
+    {
+	mylabel.setText( QString(str.c_str()) );
+    }
+</pre>
+that will create a (ASCII only) copy of str, stored in mylabel.
+But this:
+<pre>
+    void myclass::dostuffwithtext( const QString& str )
+    {
+	mylabel.setText( str );
+    }
+</pre>
+will make an implicitly shared reference to str in the QLabel - no copying
+at all.  This function might be 10 nested function calls away from something
+like this:
+<pre>
+    void toplevelclass::initializationstuff()
+    {
+	doStuff( tr("Okay") );
+    }
+</pre>
+At this point, in Qt 2.0, the tr() does a very fast dictionary lookup
+through memory-mapped message files, returning some Unicode QString for
+the appropriate language (the default being to just make a QString out
+of the text, of course - you're not FORCED to use any of these features),
+and that SAME memory mapped Unicode will be passed though the system.
+All occurrences of the translation of "Okay" will be shared.
+
 </dl>
 
 
