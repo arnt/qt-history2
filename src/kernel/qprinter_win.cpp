@@ -740,6 +740,8 @@ bool QPrinter::setup( QWidget *parent )
             pd.nToPage   = QMIN(to_pg,max_pg);
             if ( pd.nFromPage > pd.nToPage )
                 pd.nFromPage = pd.nToPage = 0;
+	    else
+		pd.Flags |= PD_PAGENUMS;
             pd.nMinPage  = min_pg;
             pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
@@ -803,6 +805,8 @@ bool QPrinter::setup( QWidget *parent )
             pd.nToPage   = QMIN(to_pg,max_pg);
             if ( pd.nFromPage > pd.nToPage )
                 pd.nFromPage = pd.nToPage = 0;
+	    else
+		pd.Flags |= PD_PAGENUMS;
             pd.nMinPage  = min_pg;
             pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
