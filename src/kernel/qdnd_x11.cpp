@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#79 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1266,6 +1266,16 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     // qt_xdnd_source_object persists for a while...
 }
 
+/*!
+  Returns TRUE if the event is part of a drag Move.  Note that
+  this should only be of interest to widgets which have detected
+  a drag-and-drop from themselves to themselves and which wish to
+  take special precautions.
+
+  See the \link dnd.html Drag-and-drop documentation\endlink for
+  an overview of how to provide drag-and-drop in your application,
+  including a use of this function.
+*/
 bool QDropEvent::movingData() const
 {
     return drag_mode_chosen == QDragObject::DragMove;
