@@ -290,9 +290,9 @@ bool QMenuBar::updateMenuBar()
 {
     if(this != activeMenuBar) 
 	qDebug("Shouldn't have happened! %s:%d", __FILE__, __LINE__);
+    ClearMenuBar();
     if(mac_d)
 	mac_d->clear();
-    mac_d->mac_menubar = GetNewMBar(128);
 
     for(int x = 0; x < (int)count(); x++) {
 	QMenuItem *item = findItem(idAt(x));
@@ -303,7 +303,52 @@ bool QMenuBar::updateMenuBar()
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 0);
     }
-    InvalMenuBar();
+
+#if 1
+    //Sanity check that the menubar looks like I want! Grrrr!
+    static bool checking = FALSE;
+    if(!checking) {
+	checking = TRUE;
+	bool valid = TRUE;
+	for(int ii = 0; ii < 30; ii++) {
+	    valid = TRUE;
+	    MenuRef mr = AcquireRootMenu();
+	    CFStringRef str = no_ampersands("Blah..");
+	    for(int x = 1, qx=0; qx < (int)count(); x++, qx++) {
+		QMenuItem *item = findItem(idAt(qx));
+		while(item && item->isSeparator()) 
+		    item = findItem(idAt(++qx));
+		if(!item)
+		    break;
+
+		
+		MenuRef sub;
+		OSStatus foo = GetMenuItemHierarchicalMenu(mr, x, &sub);
+		if(!foo) {
+		    CopyMenuTitleAsCFString(sub, &str);
+		    if(CFStringCompare(str, no_ampersands(item->text()), 0) != kCFCompareEqualTo) {
+			valid = FALSE;
+			break;
+		    }
+		} else {
+		    qDebug("Shouldn't happen! %s:%d %d", __FILE__, __LINE__, (int)foo);
+		}
+	    }
+	    ReleaseMenu(mr);
+	    if(valid)
+		break;
+	    updateMenuBar();
+	    qDebug("Trying to correct menubar...");
+	}
+	checking = FALSE;
+	if(!valid) {
+	    qDebug("Invalid after many attempts to correct, waazupwitdat!?");
+	    return FALSE;
+	}
+	InvalMenuBar();
+    }
+#endif
+
     return TRUE;
 }
 
@@ -440,6 +485,7 @@ void QMenuBar::macUpdateMenuBar()
 	    if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
 		mb->mac_d->dirty = 0;
 		mb->updateMenuBar();
+		mb->mac_d->mac_menubar = GetMenuBar();
 	    } else {
 		SetMenuBar(mb->mac_d->mac_menubar);
 		InvalMenuBar();
