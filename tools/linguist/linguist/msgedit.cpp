@@ -196,26 +196,17 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     QPalette p = palette();
     p.setColor( QPalette::Active, QColorGroup::Base, QColor( white ) );
     p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( white ) );
-
+    p.setColor( QPalette::Disabled, QColorGroup::Base, QColor( white ) );
     p.setColor( QPalette::Active, QColorGroup::Background,
 		p.active().color( QColorGroup::Base ) );
     p.setColor( QPalette::Inactive, QColorGroup::Background,
 		p.inactive().color( QColorGroup::Base ) );
-    p.setColor( QPalette::Disabled, QColorGroup::Background, 
+    p.setColor( QPalette::Disabled, QColorGroup::Background,
 		p.disabled().color( QColorGroup::Base ) );
     setPalette( p );
 
     srcTextLbl = new QLabel( tr("Source text"), this, "source text label" );
-    p = srcTextLbl->palette();
-    p.setColor( QPalette::Active, QColorGroup::Background, palette().active().base() );
-    p.setColor( QPalette::Inactive, QColorGroup::Background, palette().inactive().base() );
-    srcTextLbl->setPalette( p );
-
     transLbl   = new QLabel( tr("Translation"), this, "translation label" );
-    p = transLbl->palette();
-    p.setColor( QPalette::Active, QColorGroup::Background, palette().active().base() );
-    p.setColor( QPalette::Inactive, QColorGroup::Background, palette().inactive().base() );
-    transLbl->setPalette( p );
 
     QFont fnt = font();
     fnt.setBold( TRUE );
@@ -242,10 +233,8 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     cmtText->setHScrollBarMode( QScrollView::AlwaysOff );
     cmtText->setVScrollBarMode( QScrollView::AlwaysOff );
     p = cmtText->palette();
-    p.setColor( QPalette::Active, QColorGroup::Base,
- 		QColor( 236,245,255 ) );
-    p.setColor( QPalette::Inactive, QColorGroup::Base,
- 		QColor( 236,245,255 ) );
+    p.setColor( QPalette::Active, QColorGroup::Base, QColor( 236,245,255 ) );
+    p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( 236,245,255 ) );
     cmtText->setPalette( p );
     connect( cmtText, SIGNAL(textChanged()), SLOT(handleCommentChanges()) );
 
