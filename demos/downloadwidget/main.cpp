@@ -84,6 +84,7 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     QPen pen = painter->pen();
     painter->setPen(Qt::gray);
+    painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
     painter->drawLine(option.rect.topRight(), option.rect.bottomRight());
     painter->setPen(pen);
 }
@@ -138,7 +139,7 @@ int main(int argc, char *argv[])
       item->setText(0, "Song " + QString::number(i));
       item->setData(0, DownloadDelegate::CheckedRole, (i % 5) != 0);
       item->setData(1, DownloadDelegate::DateRole, QDate(2004, 9, 11 + i));
-      item->setData(2, DownloadDelegate::ProgressRole, (512.0 * (i % 4)) / 4096.0);
+      item->setData(2, DownloadDelegate::ProgressRole, 0.25 * (i % 4) + 0.10);
       item->setData(3, DownloadDelegate::RatingRole, (i % 6) + 1);
       item->setFlags(item->flags()|QAbstractItemModel::ItemIsEditable);
   }
