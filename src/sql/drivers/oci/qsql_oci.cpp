@@ -2034,6 +2034,7 @@ bool QOCIDriver::open( const QString & db,
 			db8.length() );
     if ( r != 0 ) {
 	setLastError( qMakeError("Unable to logon", QSqlError::Connection, d ) );
+	setOpenError( TRUE );
 	return FALSE;
     }
 
