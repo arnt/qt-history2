@@ -1327,21 +1327,8 @@ void QWidget::update(const QRegion &rgn)
 
 void QWidget::repaint(const QRegion &rgn)
 {
-    HIViewRef hiview = (HIViewRef)winId();
-    HIViewSetNeedsDisplayInRegion(hiview, rgn.handle(true), true);
-#if 0
-    qDebug("---> %d %d [%p %p] (%d %d)", HIViewGetNeedsDisplay((HIViewRef)winId()),
-           parentWidget() ? HIViewGetNeedsDisplay((HIViewRef)parentWidget()->winId()) : -1,
-           (void*)winId(), parentWidget() ? (void*)parentWidget()->winId() : (void*)1,
-           HIViewIsDrawingEnabled((HIViewRef)winId()), parentWidget() ? HIViewIsDrawingEnabled((HIViewRef)parentWidget()->winId()) : -1);
-    HIViewRender(hiview);
-    qDebug("<--- %d %d [%p %p] (%d %d)", HIViewGetNeedsDisplay((HIViewRef)winId()),
-           parentWidget() ? HIViewGetNeedsDisplay((HIViewRef)parentWidget()->winId()) : -1,
-           (void*)winId(), parentWidget() ? (void*)parentWidget()->winId() : (void*)1,
-           HIViewIsDrawingEnabled((HIViewRef)winId()), parentWidget() ? HIViewIsDrawingEnabled((HIViewRef)parentWidget()->winId()) : -1);
-#else
-# warning "I'm leaving repaint() as pretty stupid for now because HIViews seems to be broken, more on it later.."
-#endif
+    HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
+    HIViewRender((HIViewRef)topLevelWidget()->winId()); //yes the top level!!
 }
 
 void QWidget::show_sys()
