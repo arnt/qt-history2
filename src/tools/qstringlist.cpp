@@ -151,6 +151,10 @@ QStringList QStringList::split( const QChar &sep, const QString &str,
   If \a sep is an empty string, the return value is a list of
   one-character strings: split( QString( "" ), "mfc" ) returns the
   three-item list "m", "f", "c".
+
+  If \a allowEmptyEntries is TRUE, an empty string is inserted in the
+  list wherever the separator matches twice without intervening
+  text.
 */
 
 QStringList QStringList::split( const QString &sep, const QString &str,
