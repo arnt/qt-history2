@@ -143,7 +143,6 @@ void QAlphaWidget::run( int time )
     qApp->installEventFilter( this );
 
     widget->setWState( WState_Visible );
-    widget->clearWState( WState_ForceHide );
 
     move( widget->geometry().x(),widget->geometry().y() );
     resize( widget->size().width(), widget->size().height() );
@@ -211,6 +210,7 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 */
 void QAlphaWidget::closeEvent( QCloseEvent *e )
 {
+    e->accept();
     if ( !q_blend )
 	return;
 
@@ -252,7 +252,6 @@ void QAlphaWidget::render()
 		const QPixmap *erp = widget->erasePixmap();
 
 		widget->clearWState( WState_Visible );
-		widget->setWState( WState_ForceHide );
 		widget->setBackgroundMode( NoBackground );
 		widget->show();
 		if ( bgm != FixedColor && bgm != FixedPixmap ) {
@@ -455,6 +454,7 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 */
 void QRollEffect::closeEvent( QCloseEvent *e )
 {
+    e->accept();
     if ( done )
 	return;
 
@@ -485,7 +485,6 @@ void QRollEffect::run( int time )
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
 
     widget->setWState( WState_Visible );
-    widget->clearWState( WState_ForceHide );
 
     move( widget->geometry().x(),widget->geometry().y() );
     resize( QMIN( currentWidth, totalWidth ), QMIN( currentHeight, totalHeight ) );
@@ -566,7 +565,6 @@ void QRollEffect::scroll()
 		const QPixmap *erp = widget->erasePixmap();
 
 		widget->clearWState( WState_Visible );
-		widget->setWState( WState_ForceHide );
 		widget->setBackgroundMode( NoBackground );
 		widget->show();
 		if ( bgm != FixedColor && bgm != FixedPixmap ) {

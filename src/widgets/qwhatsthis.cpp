@@ -536,6 +536,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    if ( kev->key() == Qt::Key_Escape ) {
 		leaveWhatsThisMode();
 		return TRUE;
+	    } else if ( o->isWidgetType() && ((QWidget*)o)->customWhatsThis() ) {
+		return FALSE;
 	    } else if ( kev->key() == Key_Menu ||
 			( kev->key() == Key_F10 &&
 			  kev->state() == ShiftButton ) ) {

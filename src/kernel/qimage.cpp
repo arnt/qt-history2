@@ -2297,9 +2297,6 @@ bool QImage::isGrayscale() const
 static
 void pnmscale(const QImage& src, QImage& dst)
 {
-#define SCALE 4096
-#define HALFSCALE 2048
-
     QRgb* xelrow = 0;
     QRgb* tempxelrow = 0;
     register QRgb* xP;
@@ -2320,6 +2317,27 @@ void pnmscale(const QImage& src, QImage& dst)
     rows = src.height();
     newcols = dst.width();
     newrows = dst.height();
+
+    long SCALE;
+    long HALFSCALE;
+
+    if (cols > 4096)
+    {
+        SCALE = 4096;
+        HALFSCALE = 2048;
+    }
+    else
+    {
+        int fac = 4096;
+
+        while (cols * fac > 4096)
+        {
+            fac /= 2;
+        }
+
+        SCALE = fac * cols;
+        HALFSCALE = fac * cols / 2;
+    }
 
     xscale = (double) newcols / (double) cols;
     yscale = (double) newrows / (double) rows;
@@ -2540,9 +2558,6 @@ void pnmscale(const QImage& src, QImage& dst)
 	delete [] gs;
     if ( bs )				// Robust, bs might be 0 one day
 	delete [] bs;
-
-#undef SCALE
-#undef HALFSCALE
 }
 #endif
 
