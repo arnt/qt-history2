@@ -52,7 +52,6 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
 		  $$KERNEL_H/qfontdata.h \
-		  $$KERNEL_H/qfontdatabase.h \
 		  $$KERNEL_H/qfontinfo.h \
 		  $$KERNEL_H/qfontmetrics.h \
 		  $$KERNEL_H/qiconset.h \
@@ -260,7 +259,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qevent.cpp \
 		  kernel/qfocusdata.cpp \
 		  kernel/qfont.cpp \
-		  kernel/qfontdatabase.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
