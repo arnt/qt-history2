@@ -1,5 +1,6 @@
 #!/bin/sh
 
+STL=0
 QMKSPEC=$1
 VERBOSE=$2
 SRCDIR=$3
@@ -23,9 +24,17 @@ $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/unix
 cd $OUTDIR/config.tests/unix/stl
 
 if [ "$VERBOSE" = "yes" ]; then
-  make || exit 0
-  ./stltest
+  (make && ./stltest)
 else
-  make >/dev/null 2>&1 || exit 0
-  ./stltest >/dev/null 2>&1
+  (make && ./stltest) >/dev/null 2>&1
+fi
+STL=$?
+
+# done
+if [ "$STL" -ne 0 ]; then
+    [ "$VERBOSE" = "yes" ] && echo "STL support disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "STL support enabled."
+    exit 1
 fi

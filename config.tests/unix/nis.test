@@ -1,4 +1,5 @@
 #!/bin/sh
+
 NIS=yes
 XPLATFORM=`basename $1`
 XCONFIG=$1/qmake.conf
