@@ -70,6 +70,10 @@ public:
 
     bool dragEnabled;
     bool layoutPosted;
+
+    bool alternatingColors;
+    QColor oddColor;
+    QColor evenColor;
 };
 
 /*

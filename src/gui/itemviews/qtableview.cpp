@@ -808,56 +808,6 @@ void QTableView::setShowGrid(bool show)
 }
 
 /*!
-  \property QTableView::alternatingRowColors
-  \brief whether to draw the background using alternating colors
-  
-  If this property is true, the item background will be drawn using
-  alternating colors, otherwise the background will be drawn using the QPalette::Base color.
-*/
-
-bool QTableView::alternatingRowColors() const
-{
-    return d->alternatingColors;
-}
-
-void QTableView::setAlternatingRowColors(bool enable)
-{
-    d->alternatingColors = enable;
-    if (isVisible())
-        d->viewport->update();
-}
-
-/*!
-  \property QTableView::oddRowColor
-  \brief the color used to draw the background for odd rows
-*/
-
-QColor QTableView::oddRowColor() const
-{
-    return d->oddColor;
-}
-
-void QTableView::setOddRowColor(const QColor &odd)
-{
-    d->oddColor = odd;
-}
-
-/*!
-  \property QTableView::evenRowColor
-  \brief the color used to draw the background for even rows
-*/
-
-QColor QTableView::evenRowColor() const
-{
-    return d->evenColor;
-}
-
-void QTableView::setEvenRowColor(const QColor &even)
-{
-    d->evenColor = even;
-}
-
-/*!
     Sets the style used by the grid (see \l{showGrid}) to the given
     pen \a style.
 */

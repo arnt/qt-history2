@@ -58,7 +58,10 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollInterval(50),
         autoScrollCount(0),
         dragEnabled(false),
-        layoutPosted(false)
+        layoutPosted(false),
+        alternatingColors(false),
+        oddColor(Qt::lightGray),
+        evenColor(Qt::white)
 {
 }
 
@@ -701,6 +704,56 @@ void QAbstractItemView::setKeyTracking(bool enable)
 bool QAbstractItemView::hasKeyTracking() const
 {
     return d->hasKeyTracking;
+}
+
+/*!
+  \property QAbstractItemView::alternatingRowColors
+  \brief whether to draw the background using alternating colors
+  
+  If this property is true, the item background will be drawn using
+  alternating colors, otherwise the background will be drawn using the QPalette::Base color.
+*/
+
+bool QAbstractItemView::alternatingRowColors() const
+{
+    return d->alternatingColors;
+}
+
+void QAbstractItemView::setAlternatingRowColors(bool enable)
+{
+    d->alternatingColors = enable;
+    if (isVisible())
+        d->viewport->update();
+}
+
+/*!
+  \property QAbstractItemView::oddRowColor
+  \brief the color used to draw the background for odd rows
+*/
+
+QColor QAbstractItemView::oddRowColor() const
+{
+    return d->oddColor;
+}
+
+void QAbstractItemView::setOddRowColor(const QColor &odd)
+{
+    d->oddColor = odd;
+}
+
+/*!
+  \property QAbstractItemView::evenRowColor
+  \brief the color used to draw the background for even rows
+*/
+
+QColor QAbstractItemView::evenRowColor() const
+{
+    return d->evenColor;
+}
+
+void QAbstractItemView::setEvenRowColor(const QColor &even)
+{
+    d->evenColor = even;
 }
 
 /*!

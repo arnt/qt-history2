@@ -832,6 +832,9 @@ void QListView::paintEvent(QPaintEvent *e)
     QAbstractItemDelegate *delegate = itemDelegate();
     QItemSelectionModel *selections = selectionModel();
     bool focus = q->hasFocus() && current.isValid();
+    bool alternate = d->alternatingColors;
+    QColor oddColor = d->oddColor;
+    QColor evenColor = d->evenColor;
     QStyle::SFlags state = option.state;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
@@ -842,6 +845,8 @@ void QListView::paintEvent(QPaintEvent *e)
         if ((model()->flags(*it) & QAbstractItemModel::ItemIsEnabled) == 0)
             option.state &= ~QStyle::Style_Enabled;
         option.state |= (focus && current == *it ? QStyle::Style_HasFocus : QStyle::Style_Default);
+        if (alternate)
+            option.palette.setColor(QPalette::Base, (*it).row() & 1 ? oddColor : evenColor);
         delegate->paint(&painter, option, d->model, *it);
     }
 

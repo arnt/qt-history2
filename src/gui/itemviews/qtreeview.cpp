@@ -694,56 +694,6 @@ QModelIndex QTreeView::itemBelow(const QModelIndex &index) const
 }
 
 /*!
-  \property QTreeView::alternatingRowColors
-  \brief whether to draw the background using alternating colors
-  
-  If this property is true, the item background will be drawn using
-  alternating colors, otherwise the background will be drawn using the QPalette::Base color.
-*/
-
-bool QTreeView::alternatingRowColors() const
-{
-    return d->alternatingColors;
-}
-
-void QTreeView::setAlternatingRowColors(bool enable)
-{
-    d->alternatingColors = enable;
-    if (isVisible())
-        d->viewport->update();
-}
-
-/*!
-  \property QTreeView::oddRowColor
-  \brief the color used to draw the background for odd rows
-*/
-
-QColor QTreeView::oddRowColor() const
-{
-    return d->oddColor;
-}
-
-void QTreeView::setOddRowColor(const QColor &odd)
-{
-    d->oddColor = odd;
-}
-
-/*!
-  \property QTreeView::evenRowColor
-  \brief the color used to draw the background for even rows
-*/
-
-QColor QTreeView::evenRowColor() const
-{
-    return d->evenColor;
-}
-
-void QTreeView::setEvenRowColor(const QColor &even)
-{
-    d->evenColor = even;
-}
-
-/*!
   Lays out the items in the tree view.
 */
 

@@ -33,6 +33,9 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(BeginEditActions beginEditActions READ beginEditActions WRITE setBeginEditActions)
     Q_PROPERTY(bool keyTracking READ hasKeyTracking WRITE setKeyTracking)
+    Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
+    Q_PROPERTY(QColor oddRowColor READ oddRowColor WRITE setOddRowColor)
+    Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
     Q_ENUMS(SelectionMode SelectionBehaviour)
     Q_FLAGS(BeginEditActions)
 public:
@@ -90,6 +93,15 @@ public:
 
     void setKeyTracking(bool enable);
     bool hasKeyTracking() const;
+    
+    bool alternatingRowColors() const;
+    void setAlternatingRowColors(bool enable);
+
+    QColor oddRowColor() const;
+    void setOddRowColor(const QColor &odd);
+
+    QColor evenRowColor() const;
+    void setEvenRowColor(const QColor &even);
 
     virtual void keyboardSearch(const QString &search);
     void setKeyboardInputInterval(int msec);
