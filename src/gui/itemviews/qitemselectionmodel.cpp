@@ -705,7 +705,7 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFla
 */
 QModelIndex QItemSelectionModel::currentIndex() const
 {
-    return (QModelIndex)d->currentIndex;
+    return static_cast<QModelIndex>(d->currentIndex);
 }
 
 /*!

@@ -272,6 +272,17 @@ void *QPersistentModelIndex::data() const
 }
 
 /*!
+  \internal
+
+  Returns the parent QModelIndex for this persisten index.
+*/
+QModelIndex QPersistentModelIndex:: parent() const
+{
+    return d->index.parent();
+}
+
+
+/*!
   \fn QAbstractItemModel *QPersistentModelIndex::model() const
 
   \internal

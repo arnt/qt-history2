@@ -74,6 +74,7 @@ public:
     int row() const;
     int column() const;
     void *data() const;
+    QModelIndex parent() const;
     const QAbstractItemModel *model() const;
     bool isValid() const;
 private:
