@@ -1842,7 +1842,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
         case Qt::Key_End:
         case Qt::Key_PageUp:
         case Qt::Key_PageDown:
-            if (modifiers & Qt::ControlButton)
+            if (static_cast<const QKeyEvent*>(event)->modifiers() & Qt::ControlButton)
                 return QItemSelectionModel::NoUpdate;
             break;
         case Qt::Key_Space: // Select/Deselect on Space
@@ -1864,7 +1864,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
     default:
         break;
     } // switch
-    
+
 //    return QItemSelectionModel::NoUpdate;
     return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
 }
@@ -1926,7 +1926,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
     default:
         break;
     }
-    
+
     if (modifiers & Qt::ShiftButton)
         return QItemSelectionModel::SelectCurrent|selectionBehaviorFlags();
     if (modifiers & Qt::ControlButton)
