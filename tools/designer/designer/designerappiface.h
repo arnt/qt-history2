@@ -4,6 +4,7 @@
 #include <qapplicationinterface.h>
 #include <qguardedptr.h>
 #include <qobjectlist.h>
+#include <../plugins/designerinterface.h>
 
 class MainWindow;
 class FormList;
@@ -31,12 +32,12 @@ private:
 
 };
 
-class DesignerFormWindowInterface : public QComponentInterface
+class DesignerActiveFormWindowInterface : public QComponentInterface
 {
     Q_OBJECT
     
 public:
-    DesignerFormWindowInterface( FormList* );
+    DesignerActiveFormWindowInterface ( FormList* );
 
     QVariant requestProperty( const QCString& p );
     bool requestSetProperty( const QCString& p, const QVariant& v );
@@ -48,7 +49,6 @@ private slots:
     void reconnect();
     
 private:
-    FormList *formList;
     FormWindow *formWindow;
     struct Connect1 
     {
@@ -74,16 +74,22 @@ private:
     QObjectList filterObjects;
 };
 
-class DesignerFormListInterface : public QComponentInterface
+class DesignerFormListInterfaceImpl : public DesignerFormListInterface
 {
 public:
-    DesignerFormListInterface( FormList *fl );
+    DesignerFormListInterfaceImpl( FormList *fl );
 
     QComponentInterface *queryInterface( const QString &request );
-    QVariant requestProperty( const QCString &p );
+
+    const QPixmap* pixmap( QComponentInterface*, int col ) const;
+    void setPixmap( QComponentInterface*, int col, const QPixmap& );
+    QString text( QComponentInterface*, int col ) const;
+    void setText( QComponentInterface*, int col, const QString& );
+
+    QList<QComponentInterface> queryFormInterfaceList();
 
 private:
-    QGuardedPtr<DesignerFormWindowInterface> fwIface;
+    QGuardedPtr<DesignerActiveFormWindowInterface> fwIface;
 };
 
 class DesignerApplicationInterface : public QApplicationInterface
