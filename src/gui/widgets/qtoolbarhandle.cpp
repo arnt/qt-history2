@@ -81,7 +81,6 @@ void QToolBarHandle::mousePressEvent(QMouseEvent *event)
     Q_ASSERT(parentWidget());
     Q_ASSERT(!state);
     state = new DragState;
-
     state->offset = mapTo(parentWidget(), event->pos());
     if (orientation() == Qt::Horizontal) {
 	state->offset = QStyle::visualPos(QApplication::layoutDirection(),
@@ -93,7 +92,6 @@ void QToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton)
         return;
-
     delete state;
     state = 0;
 }
@@ -103,31 +101,25 @@ void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
     if (!state)
         return;
 
-    // see if there is a main window under us, and ask it to place the
-    // tool bar accordingly
-    QWidget *widget = QApplication::widgetAt(event->globalPos());
-    if (!widget)
-        return;
+    QToolBar *toolBar = qt_cast<QToolBar *>(parentWidget());
+    Q_ASSERT_X(toolBar != 0, "QToolBar", "internal error");
+    QMainWindow *mainWindow = qt_cast<QMainWindow *>(toolBar->parentWidget());
+    Q_ASSERT_X(mainWindow != 0, "QMainWindow", "internal error");
+    QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(mainWindow->layout());
+    Q_ASSERT_X(layout != 0, "QMainWindow", "internal error");
 
-    while (widget && (!qt_cast<QMainWindow *>(widget)))
-        widget = widget->parentWidget();
-
-    if (!widget)
-        return;
-
-    QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(widget->layout());
-    Q_ASSERT_X(layout != 0, "QMainWindow", "must have a layout");
-    QPoint p = parentWidget()->mapFromGlobal(event->globalPos());
+    QPoint p = toolBar->mapFromGlobal(event->globalPos());
     if (orientation() == Qt::Horizontal)
-	p = QStyle::visualPos(QApplication::layoutDirection(), parentWidget()->rect(), p);
+	p = QStyle::visualPos(QApplication::layoutDirection(), toolBar->rect(), p);
     p -= state->offset;
 
-    // ### the offset is measured from the widget origin
+    // offset is measured from the widget origin
     if (orientation() == Qt::Vertical)
         p.setX(state->offset.x() + p.x());
     else
         p.setY(state->offset.y() + p.y());
 
+    qDebug("dragging toolbar %p in mainwindow %p, layout %p", toolBar, mainWindow, layout);
     // re-position toolbar
-    layout->dropToolBar(qt_cast<QToolBar *>(parentWidget()), event->globalPos(), p);
+    layout->dropToolBar(toolBar, event->globalPos(), p);
 }
