@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#2 $
 **
 ** Implementation of QCursor class
 **
@@ -15,19 +15,19 @@
 *****************************************************************************/
 
 #include "qcursor.h"
-#include "qstream.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#2 $";
 #endif
 
 
-QStream &operator<<( QStream &s, const QCursor &c )
+QDataStream &operator<<( QDataStream &s, const QCursor &c )
 {
     return s << c.shape();			// write shape id to stream
 }
 
-QStream &operator>>( QStream &s, QCursor &c )
+QDataStream &operator>>( QDataStream &s, QCursor &c )
 {
     int shape;
     s >> shape;					// read shape id from stream

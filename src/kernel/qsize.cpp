@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#2 $
 **
 ** Implementation of QSize class
 **
@@ -12,9 +12,10 @@
 
 #define QSIZE_C
 #include "qsize.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#2 $";
 #endif
 
 
@@ -116,14 +117,12 @@ QSize operator/( const QSize &s, float c )
 // QSize stream functions
 //
 
-#include "qstream.h"
-
-QStream &operator<<( QStream &s, const QSize &sz )
+QDataStream &operator<<( QDataStream &s, const QSize &sz )
 {
     return s << (INT16)sz.getWidth() << (INT16)sz.getHeight();
 }
 
-QStream &operator>>( QStream &s, QSize &sz )
+QDataStream &operator>>( QDataStream &s, QSize &sz )
 {
     INT16 w, h;
     s >> w; sz.width() = w;

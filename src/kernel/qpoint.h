@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#2 $
 **
 ** Definition of QPoint class
 **
@@ -64,10 +64,8 @@ private:
 // QPoint stream functions
 //
 
-class QStream;
-
-QStream &operator<<( QStream &, const QPoint & );
-QStream &operator>>( QStream &, QPoint & );
+QDataStream &operator<<( QDataStream &, const QPoint & );
+QDataStream &operator>>( QDataStream &, QPoint & );
 
 
 #if !(defined(QPOINT_C) || defined(DEBUG))

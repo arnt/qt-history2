@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#1 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#2 $
 **
 ** Definition of QSize class
 **
@@ -31,10 +31,10 @@ public:
     QCOOT  getWidth()	const	{ return wd; }	// width, when const is needed
     QCOOT  getHeight()	const	{ return ht; }	// height, when const is needed
 
-    QSize  &operator*=( int c );		// multiply with scalar
-    QSize  &operator*=( float c );		// multiply with scalar float
-    QSize  &operator/=( int c );		// divide by scalar
-    QSize  &operator/=( float c );		// divide by scalar float
+    QSize &operator*=( int c );			// multiply with scalar
+    QSize &operator*=( float c );		// multiply with scalar float
+    QSize &operator/=( int c );			// divide by scalar
+    QSize &operator/=( float c );		// divide by scalar float
 
     friend bool	  operator==( const QSize &, const QSize & );
     friend bool	  operator!=( const QSize &, const QSize & );
@@ -55,8 +55,8 @@ private:
 // QSize stream functions
 //
 
-QStream &operator<<( QStream &, const QSize & );
-QStream &operator>>( QStream &, QSize & );
+QDataStream &operator<<( QDataStream &, const QSize & );
+QDataStream &operator>>( QDataStream &, QSize & );
 
 
 #if !(defined(QSIZE_C) || defined(DEBUG))

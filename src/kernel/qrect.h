@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#1 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#2 $
 **
 ** Definition of QRect class
 **
@@ -85,8 +85,8 @@ private:
 // QRect stream functions
 //
 
-QStream &operator<<( QStream &, const QRect & );
-QStream &operator>>( QStream &, QRect & );
+QDataStream &operator<<( QDataStream &, const QRect & );
+QDataStream &operator>>( QDataStream &, QRect & );
 
 
 #if !(defined(QRECT_C) || defined(DEBUG))

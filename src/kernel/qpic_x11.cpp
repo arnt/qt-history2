@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpic_x11.cpp#2 $
 **
 ** Implementation of QMetaFile class for X11
 **
@@ -14,13 +14,14 @@
 #include "qpainter.h"
 #include "qpntarry.h"
 #include "qfile.h"
+#include "qdstream.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpic_x11.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpic_x11.cpp#2 $";
 #endif
 
 
@@ -41,26 +42,30 @@ QMetaFile::~QMetaFile()
 
 bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 {
+    QDataStream s;
+    s.setDevice( &mfbuf );
     if ( c ==  PDC_BEGIN ) {			// begin; write header
-	s.open( Stream_WriteOnly );
+	QByteArray empty( 0 );
+	mfbuf.setBuffer( empty );		// reset byte array in buffer
+	mfbuf.open( IO_WriteOnly );
 	s << mfhdr_tag << (UINT16)0 << mfhdr_maj << mfhdr_min;
 	return TRUE;
     }
     else if ( c == PDC_END ) {			// end; calc checksum and close
 	s << c << (int)0;
-	QByteArray buf = s.buffer();
+	QByteArray buf = mfbuf.buffer();
 	int cs_start = sizeof(UINT32);		// pos of checksum word
 	int data_start = cs_start + sizeof(UINT16);
-	long pos = s.at();
-	s.at( cs_start );			// write checksum
+	long pos = mfbuf.at();
+	mfbuf.at( cs_start );			// write checksum
 	UINT16 cs = (UINT16)qchecksum( buf.data()+data_start, pos-data_start );
 	s << cs;
-	s.close();
+	mfbuf.close();
 	return TRUE;
     }
     s << c;					// write cmd to stream
     s << (int)0;				// write dummy length info
-    int pos = (int)s.at();			// save position
+    int pos = (int)mfbuf.at();			// save position
     switch ( c ) {
 	case PDC_DRAWPOINT:
 	case PDC_MOVETO:
@@ -123,9 +128,9 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 	    warning( "QMetaFile::cmd: Invalid command %d", c );
 #endif
     }
-    int newpos = (int)s.at();			// new position
-    s.at(pos - 4);				// set back and
+    int newpos = (int)mfbuf.at();		// new position
+    mfbuf.at(pos - 4);				// set back and
     s << (newpos - pos);			//   write size of data
-    s.at( newpos );				// set to new position
+    mfbuf.at( newpos );				// set to new position
     return TRUE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#2 $
 **
 ** Implementation of QMetaFile class
 **
@@ -14,9 +14,10 @@
 #include "qpainter.h"
 #include "qpntarry.h"
 #include "qfile.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#2 $";
 #endif
 
 
@@ -29,21 +30,21 @@ bool QMetaFile::load( const char *fileName )	// read from file
 {
     QByteArray a;
     QFile f( fileName );
-    if ( !f.open( Stream_ReadOnly ) )
+    if ( !f.open(IO_ReadOnly) )
 	return FALSE;
     a.resize( (uint)f.size() );
-    f.readBytes( a.data(), (uint)f.size() );
+    f.readBlock( a.data(), (uint)f.size() );	// read file into byte array
     f.close();
-    s.setBuffer( a );
+    mfbuf.setBuffer( a );			// set byte array in buffer
     return TRUE;
 }
 
 bool QMetaFile::save( const char *fileName )	// write to file
 {
     QFile f( fileName );
-    if ( !f.open( Stream_WriteOnly ) )
+    if ( !f.open( IO_WriteOnly ) )
 	return FALSE;
-    f.writeBytes( s.buffer().data(), s.buffer().size() );
+    f.writeBlock( mfbuf.buffer().data(), mfbuf.buffer().size() );
     f.close();
     return TRUE;
 }
@@ -51,10 +52,12 @@ bool QMetaFile::save( const char *fileName )	// write to file
 
 bool QMetaFile::play( QPainter *painter )
 {
-    if ( s.size() == 0 )			// nothing recorded
+    if ( mfbuf.size() == 0 )			// nothing recorded
 	return FALSE;
-    s.open( Stream_ReadOnly );			// open stream
-    QByteArray buf = s.buffer();
+    mfbuf.open( IO_ReadOnly );			// open buffer device
+    QDataStream s;
+    s.setDevice( &mfbuf );
+    QByteArray buf = mfbuf.buffer();
     int c, len, i1, i2;				// parameters
     ulong ul;
     char *str;
@@ -69,7 +72,7 @@ bool QMetaFile::play( QPainter *painter )
 #if defined(CHECK_RANGE)
 	warning( "QMetaFile::play: Incorrect header" );
 #endif
-	s.close();
+	mfbuf.close();
 	return FALSE;
     }
     int cs_start = sizeof(UINT32);		// pos of checksum word
@@ -80,7 +83,7 @@ bool QMetaFile::play( QPainter *painter )
 #if defined(CHECK_STATE)
 	warning( "QMetaFile::play: Invalid checksum" );
 #endif
-	s.close();
+	mfbuf.close();
 	return FALSE;
     }
     s >> major >> minor;			// read version number
@@ -89,10 +92,10 @@ bool QMetaFile::play( QPainter *painter )
 	warning( "QMetaFile::play: Incompatible version %d.%d",
 		 major, minor);
 #endif
-	s.close();
+	mfbuf.close();
 	return FALSE;
     }
-    while ( !s.atEnd() ) {
+    while ( !mfbuf.atEnd() ) {
 	s >> c;					// read cmd
 	s >> len;				// read param length
 	switch ( c ) {				// exec cmd
@@ -189,12 +192,13 @@ bool QMetaFile::play( QPainter *painter )
 		painter->setTargetView( r );
 		break;
 	    case PDC_END:
-		s.close();
+		mfbuf.close();
 		return TRUE;
 	    default:
 		if ( len )			// skip unknown command
-		    s.at( s.at()+len );
+		    mfbuf.at( mfbuf.at()+len );
 	}
     }
+    mfbuf.close();
     return FALSE;				// no end-command
 }

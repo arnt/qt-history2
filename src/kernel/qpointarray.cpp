@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#2 $
 **
 ** Implementation of QPointArray class
 **
@@ -11,9 +11,10 @@
 *****************************************************************************/
 
 #include "qpntarry.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#2 $";
 #endif
 
 
@@ -91,9 +92,7 @@ QPoint QPointArray::at( uint i ) const		// get i'th point in array
 // QPointArray stream functions
 //
 
-#include "qstream.h"
-
-QStream &operator<<( QStream &s, const QPointArray &a )
+QDataStream &operator<<( QDataStream &s, const QPointArray &a )
 {
     register uint i;
     uint len = a.size();
@@ -103,7 +102,7 @@ QStream &operator<<( QStream &s, const QPointArray &a )
     return s;
 }
 
-QStream &operator>>( QStream &s, QPointArray &a )
+QDataStream &operator>>( QDataStream &s, QPointArray &a )
 {
     register uint i;
     uint len;

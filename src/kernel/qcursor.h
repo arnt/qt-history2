@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#1 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#2 $
 **
 ** Definition of QCursor class
 **
@@ -89,10 +89,8 @@ extern const QCursor sizeAllCursor;		// all directions resize
 // QCursor stream functions
 //
 
-class QStream;
-
-QStream &operator<<( QStream &, const QCursor & );
-QStream &operator>>( QStream &, QCursor & );
+QDataStream &operator<<( QDataStream &, const QCursor & );
+QDataStream &operator>>( QDataStream &, QCursor & );
 
 
 #endif // QCURSOR_H

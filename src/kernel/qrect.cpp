@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#2 $
 **
 ** Implementation of QRect class
 **
@@ -12,9 +12,10 @@
 
 #define QRECT_C
 #include "qrect.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#2 $";
 #endif
 
 
@@ -285,15 +286,13 @@ bool operator!=( const QRect &r1, const QRect &r2 )
 // QRect stream functions
 //
 
-#include "qstream.h"
-
-QStream &operator<<( QStream &s, const QRect &r )
+QDataStream &operator<<( QDataStream &s, const QRect &r )
 {
     return s << (INT16)r.left() << (INT16)r.top()
 	     << (INT16)r.right() << (INT16)r.bottom();
 }
 
-QStream &operator>>( QStream &s, QRect &r )
+QDataStream &operator>>( QDataStream &s, QRect &r )
 {
     INT16 x1, y1, x2, y2;
     s >> x1; s >> y1; s >> x2; s >> y2;

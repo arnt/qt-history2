@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#2 $
 **
 ** Definition of QMetaFile class
 **
@@ -34,7 +34,7 @@ public:
 #endif
 
 private:
-    QBuffer s;
+    QBuffer mfbuf;
 };
 
 

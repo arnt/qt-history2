@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#3 $
 **
 ** Implementation of QColor class
 **
@@ -14,10 +14,10 @@
 *****************************************************************************/
 
 #include "qcolor.h"
-#include "qstream.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#3 $";
 #endif
 
 
@@ -109,12 +109,12 @@ QColor QColor::dark( double factor ) const	// get dark color
 // QColor stream functions
 //
 
-QStream &operator<<( QStream &s, const QColor &c )
+QDataStream &operator<<( QDataStream &s, const QColor &c )
 {
     return s << c.getRGB();
 }
 
-QStream &operator>>( QStream &s, QColor &c )
+QDataStream &operator>>( QDataStream &s, QColor &c )
 {
     ulong rgb;
     s >> rgb;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#2 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#3 $
 **
 ** Definition of QColor class
 **
@@ -14,8 +14,6 @@
 #define QCOLOR_H
 
 #include "qwindefs.h"
-
-class QStream;
 
 
 const ulong RGB_INVALID = 0x80000000;		// flags invalid color
@@ -96,8 +94,8 @@ extern const QColor darkYellow;
 // QColor stream functions
 //
 
-QStream &operator<<( QStream &, const QColor & );
-QStream &operator>>( QStream &, QColor & );
+QDataStream &operator<<( QDataStream &, const QColor & );
+QDataStream &operator>>( QDataStream &, QColor & );
 
 
 #endif // QCOLOR_H

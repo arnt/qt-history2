@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#2 $
 **
 ** Definition of QPointArray class
 **
@@ -101,8 +101,8 @@ public:
 // QPointArray stream functions
 //
 
-QStream &operator<<( QStream &, const QPointArray & );
-QStream &operator>>( QStream &, QPointArray & );
+QDataStream &operator<<( QDataStream &, const QPointArray & );
+QDataStream &operator>>( QDataStream &, QPointArray & );
 
 
 // --------------------------------------------------------------------------
