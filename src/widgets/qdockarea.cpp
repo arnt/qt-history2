@@ -382,7 +382,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	hadResizable = hadResizable || dw->isResizeEnabled();
 	dw->updateSplitterVisibility( !dw->area()->isLastDockWindow( dw ) );
     }
-    return sectionpos + linestrut + ( orientation() == Horizontal ? 2 : 0 );
+    return sectionpos + linestrut;
 }
 
 int QDockAreaLayout::heightForWidth( int w ) const
