@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#185 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#186 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1474,6 +1474,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    i = t.length();
 	    if ( i > (int) tbuf.length() ) {
 		tbuf = t;
+		ed = TRUE;
 	    } else {
 		while( i > maxP && t[i] == tbuf[i] )
 		    i--;
@@ -1484,6 +1485,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    if ( offset > cursorPos )
 		offset = cursorPos;
 	    tbuf = t;
+	    ed = TRUE;
 	    d->pmDirty = TRUE;
 	    QFontMetrics fm = fontMetrics();
 	    int x = offset > cursorPos ? 0 // ?: for scrolling
@@ -1673,4 +1675,38 @@ void QLineEdit::setPalette( const QPalette & p )
 {
     d->pmDirty = TRUE;
     QWidget::setPalette( p );
+}
+
+
+/*!  Sets the edited flag of this line edit to \a on.  The edited flag
+is never read by QLineEdit, and is changed to TRUE whenever the user
+changes its contents.
+
+This is useful e.g. for things that need to provide a default value,
+but cannot find the default at once.  Just open the line edit without
+the best default and when the default is known, check the edited()
+return value and set the line edit's contents if the user has not
+started editing the line edit.
+
+\sa edited()
+*/
+
+void QLineEdit::setEdited( bool on )
+{
+    ed = on;
+}
+
+
+/*!  Returns the edited flag of the line edit.  If this returns FALSE,
+the line edit's contents have not been changed since the construction
+of the QLineEdit (or the last call to setEdited( FALSE ), if any).  If
+it returns true, the contents have been edited, or setEdited( TRUE )
+has been called.
+
+\sa setEdited()
+*/
+
+bool QLineEdit::edited() const
+{
+    return ed;
 }

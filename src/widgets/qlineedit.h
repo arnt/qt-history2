@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#69 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#70 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -87,6 +87,12 @@ public:
     void	home( bool mark );
     void	end( bool mark );
 
+    void	setEdited( bool );
+    bool	edited() const;
+
+    bool	hasMarkedText() const;
+    QString	markedText() const;
+
 public slots:
     virtual void setText( const QString &);
     void	selectAll();
@@ -116,10 +122,6 @@ protected:
     void	leaveEvent( QEvent * );
     void	dragEnterEvent( QDragEnterEvent * );
     void	dropEvent( QDropEvent * );
-
-    bool	hasMarkedText() const;
-    QString	markedText() const;
-
 
     void	repaintArea( int, int );
 
@@ -156,6 +158,7 @@ private:
     bool	scrollingLeft;
     int		alignmentFlag;
     int 	alignOffset;
+    bool	ed;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
