@@ -123,14 +123,14 @@ public:
 #endif
 	classInfo(0), numClassInfo(0) {}
 #ifndef QT_NO_PROPERTIES
-    const QMetaEnum     *enumData;			// enumeration types
-    int		   numEnumData;
-    const QMetaProperty *propData;                    // property meta data
-    int            numPropData;
+    const QMetaEnum *enumData;
+    int numEnumData;
+    const QMetaProperty *propData;
+    int numPropData;
     bool (*qt_static_property)(QObject*, int, int, QVariant*);
 #endif
-    const QClassInfo    *classInfo;			// class information
-    int            numClassInfo;
+    const QClassInfo *classInfo;
+    int numClassInfo;
 };
 
 
@@ -828,17 +828,17 @@ bool QMetaObject::qt_static_property( QObject* o, int id, int f, QVariant* v)
 */
 QStrList QMetaProperty::enumKeys() const
 {
-     QStrList l( FALSE );
-     const QMetaEnum* ed = enumData;
-     if ( !enumData && meta )
-	 ed = (*meta)->enumerator( t, TRUE );
-     if ( !ed )
-	 return l;
-     if ( ed != 0 ) {
-	 for( uint i = 0; i < ed->count; ++i )
-	     l.append( ed->items[i].key );
-     }
-     return l;
+    StrList l( FALSE );
+    const QMetaEnum* ed = enumData;
+    if ( !enumData && meta )
+	ed = (*meta)->enumerator( t, TRUE );
+    if ( !ed )
+	return l;
+    if ( ed != 0 ) {
+	for( uint i = 0; i < ed->count; ++i )
+	    l.append( ed->items[i].key );
+    }
+    return l;
 }
 
 /*!
@@ -851,11 +851,11 @@ QStrList QMetaProperty::enumKeys() const
 int QMetaProperty::keyToValue( const char* key ) const
 {
     const QMetaEnum* ed = enumData;
-     if ( !enumData && meta )
-	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !enumData && meta )
+	ed = (*meta)->enumerator( t, TRUE );
     if ( !ed )
 	return -1;
-    for( uint i = ed->count; i > 0; --i ) {
+    for ( uint i = ed->count; i > 0; --i ) {
 	if ( !qstrcmp( key, ed->items[i-1].key) )
 	    return ed->items[i-1].value;
     }
@@ -872,11 +872,11 @@ int QMetaProperty::keyToValue( const char* key ) const
 const char* QMetaProperty::valueToKey( int value ) const
 {
     const QMetaEnum* ed = enumData;
-     if ( !enumData && meta )
-	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !enumData && meta )
+	ed = (*meta)->enumerator( t, TRUE );
     if ( !ed )
 	return 0;
-    for( uint i = ed->count; i > 0; --i ) {
+    for ( uint i = ed->count; i > 0; --i ) {
 	if ( value == ed->items[i-1].value )
 	    return ed->items[i-1].key ;
     }
@@ -892,8 +892,8 @@ const char* QMetaProperty::valueToKey( int value ) const
 int QMetaProperty::keysToValue( const QStrList& keys ) const
 {
     const QMetaEnum* ed = enumData;
-     if ( !enumData && meta )
-	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !enumData && meta )
+	ed = (*meta)->enumerator( t, TRUE );
     if ( !ed )
 	return -1;
     int value = 0;
@@ -920,8 +920,8 @@ QStrList QMetaProperty::valueToKeys( int value ) const
 {
     QStrList keys;
     const QMetaEnum* ed = enumData;
-     if ( !enumData && meta )
-	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !enumData && meta )
+	d = (*meta)->enumerator( t, TRUE );
     if ( !ed )
 	return keys;
 
@@ -990,8 +990,8 @@ bool QMetaProperty::isValid() const
 bool QMetaProperty::isSetType() const
 {
     const QMetaEnum* ed = enumData;
-     if ( !enumData && meta )
-	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !enumData && meta )
+	ed = (*meta)->enumerator( t, TRUE );
     return ( ed != 0 && ed->set );
 }
 
