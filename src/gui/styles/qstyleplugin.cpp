@@ -53,7 +53,7 @@
 */
 
 /*!
-    Constructs a style plugin. This is invoked automatically by the
+    Constructs a style plugin with parent \a parent. This is invoked automatically by the
     \c Q_EXPORT_PLUGIN macro.
 */
 QStylePlugin::QStylePlugin(QObject *parent)
