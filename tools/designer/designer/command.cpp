@@ -575,7 +575,14 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	QVariant ov;
 	if ( propName == "name" || propName == "itemName" )
 	    ov = widget->property( propName );
+	int oldSerNum = -1;
+	if ( v.type() == QVariant::Pixmap )
+	    oldSerNum = v.toPixmap().serialNumber();
 	widget->setProperty( propName, v );
+	if ( oldSerNum != -1 && oldSerNum != widget->property( propName ).toPixmap().serialNumber() )
+	    MetaDataBase::setPixmapKey( formWindow(),
+					widget->property( propName ).toPixmap().serialNumber(),
+					MetaDataBase::pixmapKey( formWindow(), oldSerNum ) );
 	if ( propName == "cursor" )
 	    MetaDataBase::setCursor( (QWidget*)widget, v.toCursor() );
 	if ( propName == "name" && widget->isWidgetType() ) {
