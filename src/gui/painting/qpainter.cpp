@@ -662,9 +662,16 @@ void QPainterPrivate::updateInvMatrix()
 /*!
     \enum QPainter::RenderHint
 
-    \internal
+    Renderhints are used to specify flags to QPainter that may or
+    may not be respected by any given engine.
 
-    \value Antialiasing
+    \value Antialiasing Indicates that the engine should antialias
+    edges if possible.
+
+    \value SmoothPixmapTransform Indicates that the engine should use
+    a smooth pixmap transformation algorithm (such as bilinear) rather
+    than nearest neighbor.
+
 */
 
 /*!

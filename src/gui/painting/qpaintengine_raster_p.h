@@ -152,6 +152,7 @@ public:
     uint opaqueBackground : 1;
     uint clipEnabled : 1;
     uint antialiased : 1;
+    uint bilinear : 1;
     uint flushOnEnd : 1;
 };
 

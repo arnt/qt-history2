@@ -134,9 +134,10 @@ struct TextureFillData
     bool hasAlpha;
     qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
 
-    BlendTransformedBilinear blendFunc;
+    BlendTransformed blendFunc;
 
-    void init(QRasterBuffer *rasterBuffer, QImage *image, const QMatrix &matrix);
+    void init(QRasterBuffer *rasterBuffer, QImage *image, const QMatrix &matrix,
+              BlendTransformed func);
 };
 
 struct FillData
@@ -508,6 +509,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     qInitAsm(&qDrawHelper);
     d->clipEnabled = false;
     d->antialiased = false;
+    d->bilinear = false;
     d->opaqueBackground = false;
     d->bgBrush = Qt::white;
     d->rasterOperation = device->depth() == 1
@@ -670,7 +672,8 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
 void QRasterPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     Q_D(QRasterPaintEngine);
-    d->antialiased = hints & QPainter::Antialiasing;
+    d->antialiased = bool(hints & QPainter::Antialiasing);
+    d->bilinear = bool(hints & QPainter::SmoothPixmapTransform);
 }
 
 
@@ -820,7 +823,7 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
         d->rasterBuffer,
         (ARGB*)image->bits(), image->width(), image->height(), image->hasAlphaBuffer(),
         0., 0., 0., 0., 0., 0.,
-        qDrawHelper.blendTransformedBilinear
+        d->bilinear ? qDrawHelper.blendTransformedBilinear : qDrawHelper.blendTransformed
     };
     FillData fillData = { d->rasterBuffer, 0, &textureData };
 
@@ -869,7 +872,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         d->rasterBuffer,
         (ARGB*)image->bits(), image->width(), image->height(), image->hasAlphaBuffer(),
         0., 0., 0., 0., 0., 0.,
-        qDrawHelper.blendTransformedBilinearTiled
+        d->bilinear ? qDrawHelper.blendTransformedBilinearTiled : qDrawHelper.blendTransformedTiled
     };
     FillData fillData = { d->rasterBuffer, 0, &textureData };
 
@@ -1164,7 +1167,10 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
-            textureFillData->init(rasterBuffer, image, matrix);
+            textureFillData->init(rasterBuffer, image, matrix,
+                                  bilinear
+                                  ? qDrawHelper.blendTransformedBilinearTiled
+                                  : qDrawHelper.blendTransformedTiled);
         }
         break;
 
@@ -1205,7 +1211,8 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
-            textureFillData->init(rasterBuffer, &tempImage, matrix);
+            textureFillData->init(rasterBuffer, &tempImage, matrix,
+                                  qDrawHelper.blendTransformedBilinearTiled);
         }
         break;
 
@@ -1229,7 +1236,8 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
-            textureFillData->init(rasterBuffer, &tempImage, matrix);
+            textureFillData->init(rasterBuffer, &tempImage, matrix,
+                                  qDrawHelper.blendTransformedBilinearTiled);
         }
         break;
 
@@ -1928,7 +1936,8 @@ QImage QRasterBuffer::clipImage() const
 #endif
 
 
-void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &matrix)
+void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &matrix,
+                           BlendTransformed func)
 {
     rasterBuffer = raster;
     imageData = (ARGB*) image->bits();
@@ -1944,7 +1953,7 @@ void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &
     dx = inv.dx();
     dy = inv.dy();
 
-    blendFunc = qDrawHelper.blendTransformedBilinearTiled;
+    blendFunc = func;
 }
 
 void LinearGradientData::init()

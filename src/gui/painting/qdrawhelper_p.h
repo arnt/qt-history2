@@ -37,14 +37,16 @@ struct QSpan
 
 
 typedef void (*BlendColor)(ARGB *target, const QSpan *span, ARGB color);
-typedef void (*BlendTransformedBilinear)(ARGB *target, const QSpan *span,
+typedef void (*BlendTransformed)(ARGB *target, const QSpan *span,
                                          qreal ix, qreal iy, qreal dx, qreal dy,
                                          ARGB *image_bits, int image_width, int image_height);
 
 struct DrawHelper {
     BlendColor blendColor;
-    BlendTransformedBilinear blendTransformedBilinear;
-    BlendTransformedBilinear blendTransformedBilinearTiled;
+    BlendTransformed blendTransformed;
+    BlendTransformed blendTransformedTiled;
+    BlendTransformed blendTransformedBilinear;
+    BlendTransformed blendTransformedBilinearTiled;
 };
 
 extern DrawHelper qDrawHelper;

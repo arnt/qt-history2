@@ -155,10 +155,75 @@ static void blend_transformed_bilinear_tiled(ARGB *target,
     }
 }
 
+static void blend_transformed(ARGB *target, const QSpan *span,
+                              qreal ix, qreal iy, qreal dx, qreal dy,
+                              ARGB *image_bits, int image_width, int image_height)
+{
+    const int fixed_scale = 1 << 16;
+    const int half_point = 1 << 15;
+
+    int x = int((ix + dx * span->x) * fixed_scale);
+    int y = int((iy + dy * span->x) * fixed_scale);
+
+    int fdx = (int)(dx * fixed_scale);
+    int fdy = (int)(dy * fixed_scale);
+
+    for (int i = 0; i < span->len; ++i) {
+        int px = (x + half_point) >> 16;
+        int py = (y + half_point) >> 16;
+
+        bool x_out = (px < 0) | (px >= image_width);
+        bool y_out = (py < 0) | (py >= image_height);
+
+        int y_offset = py * image_width;
+
+        ARGB pixel = (x_out | y_out) ? 0 : image_bits[y_offset + px];
+
+        qt_blend_pixel(pixel, target, span->coverage);
+        x += fdx;
+        y += fdy;
+        ++target;
+    }
+}
+
+static void blend_transformed_tiled(ARGB *target, const QSpan *span,
+                                    qreal ix, qreal iy, qreal dx, qreal dy,
+                                    ARGB *image_bits, int image_width, int image_height)
+{
+    const int fixed_scale = 1 << 16;
+    const int half_point = 1 << 15;
+
+    int x = int((ix + dx * span->x) * fixed_scale);
+    int y = int((iy + dy * span->x) * fixed_scale);
+
+    int fdx = (int)(dx * fixed_scale);
+    int fdy = (int)(dy * fixed_scale);
+
+    for (int i = 0; i < span->len; ++i) {
+        int px = (x + half_point) >> 16;
+        int py = (y + half_point) >> 16;
+        px %= image_width;
+        py %= image_height;
+        if (px < 0) px = image_width - px;
+        if (py < 0) py = image_height - py;
+        int y_offset = py * image_width;
+
+        Q_ASSERT(px >= 0 && px < image_width);
+        Q_ASSERT(py >= 0 && py < image_height);
+
+        qt_blend_pixel(image_bits[y_offset + px], target, span->coverage);
+        x += fdx;
+        y += fdy;
+        ++target;
+    }
+}
+
 
 DrawHelper qDrawHelper =
 {
     blend_color,
+    blend_transformed,
+    blend_transformed_tiled,
     blend_transformed_bilinear,
     blend_transformed_bilinear_tiled
 };

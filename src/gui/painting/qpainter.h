@@ -48,7 +48,8 @@ class Q_GUI_EXPORT QPainter
 public:
     enum RenderHint {
         Antialiasing = 0x01,
-        TextAntialiasing = 0x02
+        TextAntialiasing = 0x02,
+        SmoothPixmapTransform = 0x04
     };
 
     Q_DECLARE_FLAGS(RenderHints, RenderHint)
