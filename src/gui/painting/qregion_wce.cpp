@@ -290,6 +290,12 @@ void QRegion::translate(int dx, int dy)
 
 #define RGN_NOP -1
 
+// duplicates of those in qregion.cpp
+#define QRGN_OR               6
+#define QRGN_AND              7
+#define QRGN_SUB              8
+#define QRGN_XOR              9
+
 /*
   Performs the actual OR, AND, SUB and XOR operation between regions.
   Sets the resulting region handle to 0 to indicate an empty region.

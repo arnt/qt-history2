@@ -443,7 +443,7 @@ void QBrush::setColor(const QColor &c)
 QPixmap *QBrush::pixmap() const
 {
     return d->style == Qt::CustomPattern
-                     ? &static_cast<const QTexturedBrushData*>(d)->pixmap : 0;
+                     ? &static_cast<QTexturedBrushData*>(d)->pixmap : 0;
 }
 #endif
 

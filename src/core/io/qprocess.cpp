@@ -56,6 +56,9 @@ QProcessPrivate::QProcessPrivate()
     childStartedPipe[1] = INVALID_Q_PIPE;
     exitCode = 0;
     crashed = false;
+#ifdef Q_WS_WIN
+    pipeWriter = 0;
+#endif // Q_WS_WIN
 }
 
 QProcessPrivate::~QProcessPrivate()
