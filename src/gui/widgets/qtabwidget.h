@@ -28,6 +28,7 @@ class Q_GUI_EXPORT QTabWidget : public QWidget
     Q_ENUMS(TabPosition TabShape)
     Q_PROPERTY(TabPosition tabPosition READ tabPosition WRITE setTabPosition)
     Q_PROPERTY(TabShape tabShape READ tabShape WRITE setTabShape)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     Q_PROPERTY(int count READ count)
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
@@ -69,6 +70,9 @@ public:
     enum TabShape { Rounded, Triangular };
     TabShape tabShape() const;
     void setTabShape(TabShape s);
+
+    Qt::Orientation orientation() const;
+    void setOrientation(Qt::Orientation orientation);
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;

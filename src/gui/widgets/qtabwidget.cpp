@@ -19,10 +19,10 @@
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qlayout.h"
-#include "qpainter.h"
 #include "qstackedwidget.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
+#include "qstylepainter.h"
 #include "qtabbar.h"
 #include "qtoolbutton.h"
 
@@ -156,6 +156,7 @@ public:
     void init();
     QTabBar *tabs;
     QStackedWidget *stack;
+    QRect panelRect;
     bool dirty;
     QTabWidget::TabPosition pos;
     QTabWidget::TabShape shape;
@@ -531,14 +532,18 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         d->dirty = true;
         return; // we'll do it later
     }
-
-    QSize t(0, d->stack->frameWidth());
+    bool horiz = d->tabs->orientation() == Qt::Horizontal;
+    QSize t(0, d->stack->frameWidth()); // ###### why 0,frameWidth()? Isn't it always 0?
     if (d->tabs->isVisibleTo(this))
         t = d->tabs->sizeHint();
+    if (!horiz)
+        t.transpose();
     int lcw = 0;
-    if (d->leftCornerWidget && d->leftCornerWidget->isVisible() ) {
+    if (d->leftCornerWidget && d->leftCornerWidget->isVisible()) {
         QSize sz = d->leftCornerWidget->sizeHint();
         d->leftCornerWidget->resize(sz);
+        if (!horiz)
+            sz.transpose();
         lcw = sz.width();
         if (t.height() > lcw)
             lcw = t.height();
@@ -547,27 +552,31 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     if (d->rightCornerWidget && d->rightCornerWidget->isVisible()) {
         QSize sz = d->rightCornerWidget->sizeHint();
         d->rightCornerWidget->resize(sz);
+        if (!horiz)
+            sz.transpose();
         rcw = sz.width();
         if (t.height() > rcw)
             rcw = t.height();
     }
-    int tw = width() - lcw - rcw;
+    int availLength = horiz ? width() : height();
+    int availThickness = horiz ? height() : width();
+    int tw = availLength - lcw - rcw;
     if (t.width() > tw)
         t.setWidth(tw);
     int lw = d->stack->lineWidth();
-    bool reverse = isRightToLeft();
+    bool reverse = horiz && isRightToLeft();
     int tabx, taby, stacky, /*exty,*/ exth, overlap;
 
     exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
     overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
 
     if (reverse)
-        tabx = qMin(width() - t.width(), width() - t.width() - lw + 2) - lcw;
+        tabx = qMin(availLength - t.width(), availLength - t.width() - lw + 2) - lcw;
     else
         tabx = qMax(0, lw - 2) + lcw;
     if (d->pos == Bottom) {
-        taby = height() - t.height() - lw;
-        stacky = 0;
+        taby = availThickness - t.height() - lw;
+        stacky = 1;
         // exty = taby - (exth - overlap);
     } else { // Top
         taby = 0;
@@ -577,30 +586,54 @@ void QTabWidget::setUpLayout(bool onlyCheck)
 
     // do alignment
     int alignment = style()->styleHint(QStyle::SH_TabBar_Alignment, 0, this);
-    if (alignment != Qt::AlignLeft && t.width() < width()) {
+    if (alignment != Qt::AlignLeft && t.width() < availLength) {
         if (alignment == Qt::AlignHCenter)
-            tabx += (width()-lcw-rcw)/2 - t.width()/2;
+            tabx += (availLength-lcw-rcw)/2 - t.width()/2;
         else if (alignment == Qt::AlignRight)
-            tabx += width() - t.width() - rcw;
+            tabx += availLength - t.width() - rcw;
     }
-    d->tabs->setGeometry(tabx, taby, t.width(), t.height());
+    if (horiz) {
+        d->tabs->setGeometry(tabx, taby, t.width(), t.height());
+        d->panelRect.setRect(0, d->pos != Bottom ? stacky : 0, availLength, availThickness - (exth-overlap) -
+                          t.height()+qMax(0, lw-2));
+    }
+    else {
+        d->tabs->setGeometry(taby, tabx, t.height(), t.width()); // no typo
+        d->panelRect.setRect(stacky, 0, availThickness - (exth-overlap) -
+                          t.height()+qMax(0, lw-2), availLength);
+    }
 
-    const int BORDER = 2;
-    d->stack->setGeometry(BORDER, stacky, width() - 2 * BORDER, height() - (exth-overlap) -
-                           t.height()+qMax(0, lw-2));
+
+    const int BORDER = 1;
+    if (horiz)
+        d->stack->setGeometry(BORDER, stacky, availLength - 2 * BORDER, d->panelRect.height() - 2);
+    else
+        d->stack->setGeometry(stacky, BORDER, d->panelRect.width() - 2, availLength - 2 * BORDER);
 
     d->dirty = false;
 
     // move cornerwidgets
     if (d->leftCornerWidget) {
-        int y = ((t.height() - BORDER) / 2) - (d->leftCornerWidget->height() / 2);
-        int x = (reverse ? width() - lcw + y : y);
-        d->leftCornerWidget->move(x, y + taby);
+        int cwThickness = horiz ? d->leftCornerWidget->height() : d->leftCornerWidget->width();
+        int y = ((t.height() - BORDER) / 2) - (cwThickness / 2);
+        if (tabPosition() == QTabWidget::Bottom)
+            ++y;
+        int x = (reverse ? availLength - lcw + y : y);
+        if (horiz)
+            d->leftCornerWidget->move(x, y + taby);
+        else
+            d->leftCornerWidget->move(y + taby, x);
     }
     if (d->rightCornerWidget) {
-        int y = ((t.height() - BORDER) / 2) - (d->rightCornerWidget->height() / 2);
-        int x = (reverse ? y : width() - rcw + y);
-        d->rightCornerWidget->move(x, y + taby);
+        int cwThickness = horiz ? d->rightCornerWidget->height() : d->rightCornerWidget->width();
+        int y = ((t.height() - BORDER) / 2) - (cwThickness / 2);
+        if (tabPosition() == QTabWidget::Bottom)
+            ++y;
+        int x = (reverse ? y : availLength - rcw + y);
+        if (horiz)
+            d->rightCornerWidget->move(x, y + taby);
+        else
+            d->rightCornerWidget->move(y + taby, x);
     }
     if (!onlyCheck)
         update();
@@ -633,8 +666,13 @@ QSize QTabWidget::sizeHint() const
         t = t.boundedTo(QSize(200,200));
     else
         t = t.boundedTo(QApplication::desktop()->size());
-    QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
-              s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
+    QSize sz;
+    if (d->tabs->orientation() == Qt::Horizontal)
+        sz = QSize(qMax(s.width(), t.width() + rc.width() + lc.width()),
+                   s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
+    else
+        sz = QSize(s.width() + (qMax(rc.width(), qMax(lc.width(), t.width()))),
+                   qMax(s.height(), t.height() + rc.height() + lc.height()));
     return style()->sizeFromContents(QStyle::CT_TabWidget, &opt, sz, this)
                     .expandedTo(QApplication::globalStrut());
 }
@@ -744,6 +782,27 @@ void QTabWidget::setTabShape(TabShape s)
         else
             d->tabs->setShape(QTabBar::TriangularBelow);
     }
+    setUpLayout();
+}
+
+/*!
+    \property QTabWidget::orientation
+    \brief the orientation of the tabbar
+
+    The orientation must be \l Qt::Horizontal (the default) or \l
+    Qt::Vertical.
+*/
+
+Qt::Orientation QTabWidget::orientation() const
+{
+    return d->tabs->orientation();
+}
+
+void QTabWidget::setOrientation(Qt::Orientation orientation)
+{
+    if (d->tabs->orientation() == orientation)
+        return;
+    d->tabs->setOrientation( orientation );
     setUpLayout();
 }
 
@@ -870,9 +929,8 @@ void QTabWidget::tabRemoved(int index)
 */
 void QTabWidget::paintEvent(QPaintEvent *)
 {
-    QPainter p(this);
+    QStylePainter p(this);
     QStyleOptionFrame opt;
-    opt.rect = rect();
     opt.palette = palette();
     opt.fontMetrics = d->tabs->fontMetrics();
     opt.state = QStyle::Style_None;
@@ -884,8 +942,18 @@ void QTabWidget::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Top;
     else if (tabPosition() == QTabWidget::Bottom)
         opt.state |= QStyle::Style_Bottom;
-    opt.rect = style()->subRect(QStyle::SR_PanelTab, &opt, this);
-    style()->drawPrimitive(QStyle::PE_FrameTabWidget, &opt, &p, this);
+    opt.rect = d->panelRect;
+    p.drawPrimitive(QStyle::PE_FrameTabWidget, opt);
+    if (d->leftCornerWidget || d->rightCornerWidget) {
+        if (opt.state & QStyle::Style_Top) {
+            opt.rect.setTop(opt.rect.top() - 2);
+            opt.rect.setHeight(2);
+        } else {
+            opt.rect.setTop(opt.rect.bottom() + 1);
+            opt.rect.setHeight(2);
+        }
+        p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt);
+    }
 }
 
 /*!

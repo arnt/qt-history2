@@ -21,6 +21,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtabbar.h"
+#include "qtabwidget.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
 #include "qstylepainter.h"
@@ -39,11 +40,13 @@ class QTabBarPrivate  : public QWidgetPrivate
 public:
     QTabBarPrivate()
         :currentIndex(-1), pressedIndex(-1),
-         shape(QTabBar::RoundedAbove), layoutDirty(false), scrollOffset(0){}
+         shape(QTabBar::RoundedAbove), orientation(Qt::Horizontal),
+         layoutDirty(false), scrollOffset(0){}
 
     int currentIndex;
     int pressedIndex;
     QTabBar::Shape shape;
+    Qt::Orientation orientation;
     bool layoutDirty;
     int scrollOffset;
 
@@ -68,8 +71,8 @@ public:
 
     inline bool validIndex(int index) const { return index >= 0 && index < tabList.count(); }
 
-    QToolButton* rightB;
-    QToolButton* leftB;
+    QToolButton* rightB; // right or bottom
+    QToolButton* leftB; // left or top
     void scrollTabs(); // private slot
 
     void refresh();
@@ -106,6 +109,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     if (opt.rect.contains(q->mapFromGlobal(QCursor::pos())))
         opt.state |= QStyle::Style_MouseOver;
     opt.shape = shape;
+    opt.orientation = orientation;
     opt.text = ptab->text;
     opt.icon = ptab->icon;
 
@@ -264,21 +268,41 @@ void QTabBarPrivate::layoutTabs()
 {
     scrollOffset = 0;
     layoutDirty = false;
-    int x = 0;
-    for (int i = 0; i < tabList.count(); ++i) {
-        QSize sz = q->tabSizeHint(i);
-        tabList[i].rect = QRect(x, 0, sz.width(), sz.height());
-        x += sz.width();
+    QSize size = q->size();
+    int last, available;
+    if (orientation == Qt::Horizontal) {
+        int x = 0;
+        for (int i = 0; i < tabList.count(); ++i) {
+            QSize sz = q->tabSizeHint(i);
+            tabList[i].rect = QRect(x, 0, sz.width(), sz.height());
+            x += sz.width();
+        }
+        last = x;
+        available = size.width();
+    } else {
+        int y = 0;
+        for (int i = tabList.count()-1; i >=0;  --i) {
+            QSize sz = q->tabSizeHint(i);
+            tabList[i].rect = QRect(0, y, sz.width(), sz.height());
+            y += sz.height();
+        }
+        last = y;
+        available = size.height();
     }
 
-    QSize size = q->size();
-    if (tabList.count() && tabList.last().rect.right() > size.width()) {
+    if (tabList.count() && last > available) {
         int extra = extraWidth();
-        QRect arrows = QStyle::visualRect(q->layoutDirection(), q->rect(),  QRect(size.width() - extra, 0, extra, size.height()));
-        d->leftB->setGeometry(arrows.left(), arrows.top(), extra/2, arrows.height());
-        d->rightB->setGeometry(arrows.right() - extra/2 + 1, arrows.top(), extra/2, arrows.height());
+        if (orientation == Qt::Horizontal) {
+            QRect arrows = QStyle::visualRect(q->layoutDirection(), q->rect(), QRect(available - extra, 0, extra, size.height()));
+            d->leftB->setGeometry(arrows.left(), arrows.top(), extra/2, arrows.height());
+            d->rightB->setGeometry(arrows.right() - extra/2 + 1, arrows.top(), extra/2, arrows.height());
+        } else {
+            QRect arrows = QRect(0, available - extra, size.width(), extra );
+            d->leftB->setGeometry(arrows.left(), arrows.top(), arrows.width(), extra/2);
+            d->rightB->setGeometry(arrows.left(), arrows.bottom() - extra/2 + 1, arrows.width(), extra/2);
+        }
         d->leftB->setEnabled(scrollOffset > 0);
-        d->rightB->setEnabled(tabList.last().rect.right() - scrollOffset >= size.width() - extra);
+        d->rightB->setEnabled(last - scrollOffset >= available - extra);
         d->leftB->show();
         d->rightB->show();
     } else {
@@ -293,20 +317,24 @@ void QTabBarPrivate::makeVisible(int index)
 {
     if (!validIndex(index) || leftB->isHidden())
         return;
-    QRect tabRect = tabList.at(index).rect;
+    const QRect tabRect = tabList.at(index).rect;
 
-    int oldScrollOffset = scrollOffset;
-    int availableWidth = q->width() - extraWidth();
-    if (tabRect.left() < scrollOffset) // too far left
-        scrollOffset = tabRect.left() - (index?8:0);
-    else if (tabRect.right() > scrollOffset + availableWidth) // too far right
-        scrollOffset = tabRect.right() - availableWidth + 1;
+    const int oldScrollOffset = scrollOffset;
+    const bool horiz = orientation == Qt::Horizontal;
+    const int available = (horiz ? q->width() : q->height()) - extraWidth();
+    const int start = horiz ? tabRect.left() : tabRect.top();
+    const int end = horiz ? tabRect.right() : tabRect.bottom();
+    if (start < scrollOffset) // too far left
+        scrollOffset = start - (index?8:0);
+    else if (end > scrollOffset + available) // too far right
+        scrollOffset = end - available + 1;
 
-    if (scrollOffset && tabRect.right() < availableWidth)  // need scrolling at all?
+    if (scrollOffset && end < available)  // need scrolling at all?
         scrollOffset = 0;
 
     d->leftB->setEnabled(scrollOffset > 0);
-    d->rightB->setEnabled(tabList.last().rect.right() - scrollOffset >= availableWidth);
+    const int last = horiz ? tabList.last().rect.right() : tabList.first().rect.bottom();
+    d->rightB->setEnabled(last - scrollOffset >= available);
     if (oldScrollOffset != scrollOffset)
         q->update();
 
@@ -316,19 +344,38 @@ void QTabBarPrivate::scrollTabs()
 {
     const QObject *sender = q->sender();
     int i = -1;
-    if (sender == leftB) {
-        for (i = d->tabList.count() - 1; i >= 0; --i) {
-            if (tabList.at(i).rect.left() - scrollOffset < 0) {
-                makeVisible(i);
-                return;
+    if (orientation == Qt::Horizontal) {
+        if (sender == leftB) {
+            for (i = d->tabList.count() - 1; i >= 0; --i) {
+                if (tabList.at(i).rect.left() - scrollOffset < 0) {
+                    makeVisible(i);
+                    return;
+                }
+            }
+        } else if (sender == rightB) {
+            int availableWidth = q->width() - extraWidth();
+            for (i = 0; i < tabList.count(); ++i) {
+                if (tabList.at(i).rect.right() - scrollOffset > availableWidth) {
+                    makeVisible(i);
+                    return;
+                }
             }
         }
-    } else if (sender == rightB) {
-        int availableWidth = q->width() - extraWidth();
-        for (i = 0; i < tabList.count(); ++i) {
-            if (tabList.at(i).rect.right() - scrollOffset > availableWidth) {
-                makeVisible(i);
-                return;
+    } else { // vertical
+        if (sender == leftB) {
+            for (i = 0; i < tabList.count(); ++i) {
+                if (tabList.at(i).rect.top() - scrollOffset < 0) {
+                    makeVisible(i);
+                    return;
+                }
+            }
+        } else if (sender == rightB) {
+            int available = q->height() - extraWidth();
+            for (i = d->tabList.count() - 1; i >= 0; --i) {
+                if (tabList.at(i).rect.bottom() - scrollOffset > available) {
+                    makeVisible(i);
+                    return;
+                }
             }
         }
     }
@@ -384,6 +431,37 @@ void QTabBar::setShape(Shape shape)
     if (d->shape == shape)
         return;
     d->shape = shape;
+    d->refresh();
+}
+
+
+/*!
+    \property QTabBar::orientation
+    \brief the orientation of the tabbar
+
+    The orientation must be \l Qt::Horizontal (the default) or \l
+    Qt::Vertical.
+*/
+
+Qt::Orientation QTabBar::orientation() const
+{
+    return d->orientation;
+}
+
+void QTabBar::setOrientation(Qt::Orientation orientation)
+{
+    if (d->orientation == orientation)
+        return;
+    d->orientation = orientation;
+    if (!testWState(Qt::WState_OwnSizePolicy)) {
+        QSizePolicy sp = sizePolicy();
+        sp.transpose();
+        setSizePolicy(sp);
+        clearWState(Qt::WState_OwnSizePolicy);
+    }
+    d->leftB->setArrowType(orientation == Qt::Horizontal ? Qt::LeftArrow : Qt::UpArrow);
+    d->rightB->setArrowType(orientation == Qt::Horizontal ? Qt::RightArrow : Qt::DownArrow);
+
     d->refresh();
 }
 
@@ -559,7 +637,10 @@ QRect QTabBar::tabRect(int index) const
         if (d->layoutDirty)
             const_cast<QTabBarPrivate*>(d)->layoutTabs();
         QRect r = tab->rect;
-        r.translate(-d->scrollOffset, 0);
+        if (d->orientation == Qt::Horizontal)
+            r.translate(-d->scrollOffset, 0);
+        else
+            r.translate(0, -d->scrollOffset);
         return QStyle::visualRect(layoutDirection(), rect(), r);
     }
     return QRect();
@@ -612,7 +693,10 @@ QSize QTabBar::sizeHint() const
     QRect r;
     for (int i = 0; i < d->tabList.count(); ++i)
         r = r.unite(d->tabList.at(i).rect);
-    return r.size().expandedTo(QApplication::globalStrut());
+    QSize sz = QApplication::globalStrut();
+    if (QWidget *pw = parentWidget())
+        sz.rwidth() += pw->width();
+    return r.size().expandedTo(sz);
 }
 
 /*!\reimp
@@ -621,7 +705,10 @@ QSize QTabBar::minimumSizeHint() const
 {
     if (style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, this))
         return sizeHint();
-    return QSize(d->rightB->sizeHint().width() * 2 + 75, sizeHint().height());
+    if (d->orientation == Qt::Horizontal)
+        return QSize(d->rightB->sizeHint().width() * 2 + 75, sizeHint().height());
+    else
+        return QSize(sizeHint().width(), d->rightB->sizeHint().height() * 2 + 75);
 }
 
 /*!
@@ -638,6 +725,8 @@ QSize QTabBar::tabSizeHint(int index) const
         const QFontMetrics fm = fontMetrics();
         QSize csz(fm.size(Qt::TextShowMnemonic, tab->text).width() + iconSize.width() + hframe,
                   qMax(fm.height(), iconSize.height()) + vframe);
+        if (d->orientation == Qt::Vertical)
+            csz.transpose();
         return style()->sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, this);
     }
     return QSize();
@@ -719,7 +808,6 @@ void QTabBar::resizeEvent(QResizeEvent *)
     d->makeVisible(d->currentIndex);
 }
 
-
 /*!\reimp
  */
 void QTabBar::paintEvent(QPaintEvent *)
@@ -728,8 +816,19 @@ void QTabBar::paintEvent(QPaintEvent *)
 
     QStyleOptionTab opt;
     opt.init(this);
+    if (QTabWidget *tw = qt_cast<QTabWidget *>(parentWidget())) {
+        if (tw->cornerWidget(Qt::TopLeftCorner) || tw->cornerWidget(Qt::TopRightCorner)) {
+            opt.rect.setLeft(0 - (x() + tw->x()));
+            opt.rect.setWidth(tw->width());
+        }
+
+    }
+    if (d->shape == QTabBar::RoundedAbove)
+        opt.state |= QStyle::Style_Top;
+    else if (d->shape == QTabBar::RoundedBelow)
+        opt.state |= QStyle::Style_Bottom;
     opt.shape = d->shape;
-    p.drawControl(QStyle::CE_TabBar, opt);
+    p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt);
 
     int selected = -1;
     for (int i = 0; i < d->tabList.count(); ++i) {

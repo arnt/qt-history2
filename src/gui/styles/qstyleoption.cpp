@@ -399,6 +399,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
 QStyleOptionTab::QStyleOptionTab()
     : QStyleOption(QStyleOptionTab::Version, SO_Tab),
       shape(QTabBar::RoundedAbove),
+      orientation(Qt::Horizontal),
       row(0),
       position(Beginning),
       selectedPosition(NotAdjacent)
@@ -411,6 +412,7 @@ QStyleOptionTab::QStyleOptionTab()
 QStyleOptionTab::QStyleOptionTab(int version)
     : QStyleOption(version, SO_Tab),
       shape(QTabBar::RoundedAbove),
+      orientation(Qt::Horizontal),
       row(0),
       position(Beginning),
       selectedPosition(NotAdjacent)
@@ -449,6 +451,12 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \property QStyleOptionTab::shape
     \brief The tab shape used to draw the tab.
     \sa QTabBar::Shape
+*/
+
+/*!
+    \property QStyleOptionTab::orientation
+    \brief The orientation of the tab.
+    \sa Qt::Orientation
 */
 
 /*!
@@ -1493,3 +1501,15 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 
     Returns a T or 0 depending on the type of \a option.
 */
+
+QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame()
+    : QStyleOption(Version, SO_TabWidgetFrame), lineWidth(0), midLineWidth(0)
+{
+}
+
+/*! \internal */
+QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
+    : QStyleOption(version, SO_TabWidgetFrame), lineWidth(0), midLineWidth(0)
+{
+}
+

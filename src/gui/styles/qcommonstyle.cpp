@@ -632,9 +632,42 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         p->setPen(oldPen);
         break; }
-    case PE_FrameTabWidget:
-        qDrawShadePanel(p, opt->rect, opt->palette, opt->state & Style_Sunken, 1);
-        break;
+    case PE_FrameTabWidget: {
+        p->save();
+        p->setPen(opt->palette.light().color());
+        if (opt->state & Style_Top) {
+            QRect r2(opt->rect);
+            p->drawLine(opt->rect.topLeft(), opt->rect.bottomLeft() - QPoint(0, 1));
+            p->setPen(opt->palette.shadow().color());
+            p->drawLine(r2.left(), r2.bottom()+ 1, r2.right(), r2.bottom() + 1);
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(r2.left(), r2.bottom(), r2.right() - 1, r2.bottom());
+            p->drawLine(opt->rect.bottomRight() - QPoint(0, 1), opt->rect.topRight());
+        } else if (opt->state & Style_Bottom) {
+            int top = opt->rect.top();
+            p->drawLine(opt->rect.left(), opt->rect.bottom(), opt->rect.left(), top + 1);
+            p->drawLine(opt->rect.left(), top, opt->rect.right(), top);
+            p->drawLine(opt->rect.right(), top + 1, opt->rect.right(), opt->rect.bottom());
+        }
+        p->restore();
+        break; }
+    case PE_FrameTabBarBase: {
+        QPen oldPen = p->pen();
+        QRect r2 = opt->rect;
+        if (opt->state & Style_Top) {
+            p->setPen(opt->palette.light().color());
+            p->drawLine(r2.left(), r2.bottom() - 1, r2.left(), r2.bottom());
+            p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(r2.right(), r2.bottom() - 1, r2.right(), r2.bottom());
+        } else if (opt->state & Style_Bottom) {
+            p->setPen(opt->palette.shadow().color());
+            p->drawLine(r2.left(), r2.top()+ 1, r2.right(), r2.top() + 1);
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(r2.left(), r2.top(), r2.right()- 1, r2.top());
+        }
+        p->setPen(oldPen);
+        break; }
     case PE_FrameLineEdit:
     case PE_FrameWindow:
         drawPrimitive(PE_Frame, opt, p, widget);
@@ -1823,6 +1856,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
             }
             drawControl(CE_ToolButtonLabel, toolbutton, p, widget);
+
         }
         break;
     case CC_TitleBar:
@@ -2541,7 +2575,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_TabBarBaseHeight:
-        ret = 0;
+        ret = 1;
         break;
 
     case PM_TabBarBaseOverlap:

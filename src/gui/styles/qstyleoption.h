@@ -19,6 +19,7 @@
 #include "qslider.h"
 #include "qstyle.h"
 #include "qtabbar.h"
+#include "qtabwidget.h"
 
 class Q_GUI_EXPORT QStyleOption
 {
@@ -27,7 +28,7 @@ public:
                       // Standard controls
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
                       SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_Q3DockWindow,
-                      SO_DockWindow, SO_ListViewItem, SO_ViewItem,
+                      SO_DockWindow, SO_ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
 
                       // Complex controls
                       SO_Complex = 0xf000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
@@ -96,6 +97,24 @@ protected:
     QStyleOptionFrame(int version);
 };
 
+class Q_GUI_EXPORT QStyleOptionTabWidgetFrame : public QStyleOption
+{
+public:
+    enum { Type = SO_TabWidgetFrame };
+    enum { Version = 1 };
+
+    int lineWidth;
+    int midLineWidth;
+
+    QStyleOptionTabWidgetFrame();
+
+    QDOC_PROPERTY(int lineWidth)
+    QDOC_PROPERTY(int midLineWidth)
+
+protected:
+    QStyleOptionTabWidgetFrame(int version);
+};
+
 class Q_GUI_EXPORT QStyleOptionHeader : public QStyleOption
 {
 public:
@@ -155,6 +174,7 @@ public:
     enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected};
 
     QTabBar::Shape shape;
+    Qt::Orientation orientation;
     QString text;
     QIcon icon;
     int row;
@@ -164,6 +184,7 @@ public:
     QStyleOptionTab();
 
     QDOC_PROPERTY(QTabBar::Shape shape)
+    QDOC_PROPERTY(Qt::Orientation Orientation)
     QDOC_PROPERTY(QString text)
     QDOC_PROPERTY(QIcon icon)
     QDOC_PROPERTY(int row)
