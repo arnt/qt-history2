@@ -6,10 +6,10 @@
 class QPersistentModelIndexData
 {
 public:
-    QPersistentModelIndexData() : model(0) {}
+    QPersistentModelIndexData() : model(0), ref(0) {}
     QAbstractItemModel *model;
     QModelIndex index;
-    QAtomic ref;
+    /*QAtomic*/int ref;
     static QPersistentModelIndexData shared_null;
 };
 

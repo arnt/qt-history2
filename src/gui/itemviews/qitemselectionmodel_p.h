@@ -23,7 +23,7 @@ public:
     QAbstractItemModel *model;
     QItemSelection ranges;
     QItemSelection currentSelection;
-    QModelIndex currentItem;
+    QPersistentModelIndex currentItem;
     int currentCommand;
 };
 

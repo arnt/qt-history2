@@ -134,7 +134,11 @@ QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
 QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
     : d(&QPersistentModelIndexData::shared_null)
 {
-    // FIXME: this is too slow
+    if (!index.isValid()) {
+        ++d->ref;
+        return;
+    }
+    // FIXME: this is slow
     QList<QPersistentModelIndexData*> *persistentIndices = &(model->d_func()->persistentIndices);
     for (int i = 0; i < persistentIndices->count(); ++i) {
         if (persistentIndices->at(i)->index == index) {
@@ -142,12 +146,13 @@ QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstract
             break;
         }
     }
-    if (d == &QPersistentModelIndexData::shared_null)
+    if (d == &QPersistentModelIndexData::shared_null) {
         d = new QPersistentModelIndexData;
+        d->model = model;
+        d->index = index;
+        persistentIndices->append(d);
+    }
     ++d->ref;
-    d->model = model;
-    d->index = index;
-    persistentIndices->append(d);
 }
 
 QPersistentModelIndex::~QPersistentModelIndex()
@@ -156,6 +161,7 @@ QPersistentModelIndex::~QPersistentModelIndex()
         d->model->d_func()->persistentIndices.removeAll(d);
         delete d;
     }
+    d = 0;
 }
 
 bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
@@ -383,6 +389,7 @@ QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *p
 */
 QAbstractItemModel::~QAbstractItemModel()
 {
+    invalidatePersistentIndices();
 }
 
 /*!

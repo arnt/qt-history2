@@ -22,15 +22,17 @@
 #include <qevent.h>
 #endif
 
+class QAbstractItemModel;
+
 class Q_GUI_EXPORT QModelIndex
 {
 public:
     enum Type { View, HorizontalHeader, VerticalHeader };
-    inline QModelIndex(const QModelIndex &other)
-        : r(other.row()), c(other.column()), d(other.data()), t(other.t) {}
     inline QModelIndex(int row = -1, int column = -1, void *data = 0, Type type = View)
         : r(row), c(column), d(data), t(type) {}
-    inline ~QModelIndex() {}
+    inline QModelIndex(const QModelIndex &other)
+        : r(other.row()), c(other.column()), d(other.data()), t(other.t) {}
+    inline ~QModelIndex() { d = 0; }
     inline int row() const { return r; }
     inline int column() const { return c; }
     inline void *data() const { return d; }
@@ -49,7 +51,6 @@ private:
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
 #endif
 
-class QAbstractItemModel;
 class QPersistentModelIndexData;
 
 class Q_GUI_EXPORT QPersistentModelIndex
@@ -68,7 +69,6 @@ public:
     bool isValid() const;
     bool operator==(const QModelIndex &other) const;
     bool operator!=(const QModelIndex &other) const;
-//    bool operator<(const QModelIndex &other) const;
 private:
     QPersistentModelIndexData *d;
 };

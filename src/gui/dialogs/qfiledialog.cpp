@@ -440,14 +440,7 @@ void QFileDialog::setFileMode(FileMode mode)
         d->setSelectionMode(QAbstractItemView::Multi);
         spec = QDir::All;
     }
-    
-    // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is totally rebuilt, and
-    // so all QModelIndex objects are invalidated, including the root object.
-    QString path = d->model->path(d->root());
-    d->setRoot(QModelIndex());
     d->model->setFilter(spec);
-    d->setRoot(d->model->index(path));
 }
 
 QFileDialog::FileMode QFileDialog::fileMode() const
@@ -514,19 +507,12 @@ void QFileDialog::up()
 void QFileDialog::mkdir()
 {
     QModelIndex parent = d->root();
-    // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is totally rebuilt, and
-    // so all QModelIndex objects are invalidated, including the root object.
     QString path = d->model->path(parent);
-    d->setRoot(QModelIndex());
+    d->lview->clearSelections(); // FIXME: this is because the selection model doesn't use persistent indices yet
 
     QModelIndex index = d->model->mkdir(parent, "New Folder");
     if (!index.isValid())
         return;
-    QString cur = d->model->path(index);
-
-    setCurrentDir(path);
-    index = d->model->index(cur);
     if (!index.isValid()) {
         d->setCurrent(d->model->topLeft(d->root()));
         return;
@@ -570,16 +556,10 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
 
 void QFileDialog::deletePressed(const QModelIndex &index)
 {
-    // Save path to current root, set the filter and then set the rodot back.
-    // This is because the models internal data structure is totally rebuilt, and
-    // so all QModelIndex objects are invalidated, including the root object.
-    QString path = d->model->path(d->root());
-    d->setRoot(QModelIndex());
     if (d->model->isDir(index))
         d->model->rmdir(index);
     else
         d->model->remove(index);
-    setCurrentDir(path);
 }
 
 void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current)
@@ -653,13 +633,7 @@ void QFileDialog::useFilter(const QString &filter)
     if (i >= 0)
         f = regexp.cap(2);
     QStringList filters = f.split(' ', QString::SkipEmptyParts);
-    // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is rebuilt, and
-    // so all QModelIndex objects are invalidated, including the root object.
-    QString path = d->model->path(d->root());
-    d->setRoot(QModelIndex());
     d->model->setNameFilters(filters);
-    d->setRoot(d->model->index(path));
 }
 
 void QFileDialog::setCurrentDir(const QString &path)
@@ -746,13 +720,7 @@ void QFileDialog::deleteCurrent()
 
 void QFileDialog::reload()
 {
-    // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is rebuilt, and
-    // so all QModelIndex objects are invalidated, including the root object.
-    QString path = d->model->path(d->root());
-    d->setRoot(QModelIndex());
     d->model->refresh(d->root());
-    d->setRoot(d->model->index(path));
 }
 
 void QFileDialog::sortByName()
@@ -997,25 +965,13 @@ void QFileDialogPrivate::setDirSorting(int spec)
     sortBySizeAction->setChecked(sortBy == QDir::Size);
     sortByDateAction->setChecked(sortBy == QDir::Time);
     unsortedAction->setChecked(sortBy == QDir::Unsorted);
-    // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is rebuilt, and
-    // so all QModelIndex objects are invalidated, including the root object.
-    QString path = model->path(d->root());
-    setRoot(QModelIndex());
     model->setSorting(spec);
-    setRoot(model->index(path));
 }
 
 void QFileDialogPrivate::setDirFilter(int spec)
 {
     showHiddenAction->setChecked(spec & QDir::Hidden);
-    // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is rebuilt, and
-    // so all QModelIndex objects are invalidated, including the root object.
-    QString path = model->path(d->root());
-    setRoot(QModelIndex());
     model->setFilter(spec);
-    setRoot(model->index(path));
 }
 
 void QFileDialogPrivate::setSelectionMode(int mode)

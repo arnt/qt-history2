@@ -1,8 +1,3 @@
-#include "qgenerictreeview.h"
-#include "qgenericheader.h"
-#include <qitemdelegate.h>
-#include <qapplication.h>
-#include <qscrollbar.h>
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -14,7 +9,11 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
+#include "qgenerictreeview.h"
+#include "qgenericheader.h"
+#include <qitemdelegate.h>
+#include <qapplication.h>
+#include <qscrollbar.h>
 #include <qpainter.h>
 #include <qstack.h>
 #include <qstyle.h>
@@ -367,7 +366,8 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
         // start with the innermost branch
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         QStyle::SFlags flags = QStyle::Style_Item
-                               | (model()->rowCount(parent) - 1 > index.row() ? QStyle::Style_Sibling : 0)
+                               | (model()->rowCount(parent) - 1 > index.row()
+                                  ? QStyle::Style_Sibling : 0)
                                | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
                                | (d->items.at(d->current).open ? QStyle::Style_Open : 0);
         style().drawPrimitive(QStyle::PE_TreeBranch, painter, primitive, palette(), flags);
@@ -376,7 +376,8 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
     for (--level; level >= outer; --level) { // we have already drawn the innermost branch
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         style().drawPrimitive(QStyle::PE_TreeBranch, painter, primitive, palette(),
-                              model()->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling : 0);
+                              model()->rowCount(ancestor) - 1 > current.row()
+                              ? QStyle::Style_Sibling : 0);
         current = ancestor;
         ancestor = model()->parent(current);
     }
@@ -616,14 +617,12 @@ void QGenericTreeView::contentsChanged()
 
 void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &)
 {
-    if (isVisible())
-        d->relayout(model()->parent(topLeft));
+    d->relayout(model()->parent(topLeft));
 }
 
 void QGenericTreeView::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &)
 {
-    if (isVisible())
-        d->relayout(model()->parent(topLeft));
+    d->relayout(model()->parent(topLeft));
 }
 
 void QGenericTreeView::columnCountChanged(int, int)
@@ -806,6 +805,7 @@ void QGenericTreeViewPrivate::open(int i)
     items[i].open = true;
     if (q->model()->rowCount(index) <= 0)
         return;
+
     layout(i);
 
     q->updateGeometries();
@@ -1023,6 +1023,10 @@ int QGenericTreeViewPrivate::coordinateAt(int value, int iheight) const
 
 void QGenericTreeViewPrivate::relayout(const QModelIndex &parent)
 {
+    if (!q->isVisible()) {
+        items.resize(0);
+        return;
+    }
     // do a local relayout of the items
     if (parent.isValid()) {
         int p = viewIndex(parent);

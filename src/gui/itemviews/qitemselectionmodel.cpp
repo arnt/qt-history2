@@ -343,7 +343,7 @@ void QItemSelectionModel::clear()
     d->currentSelection.clear();
     emit selectionChanged(selection, QItemSelection());
     QModelIndex old = d->currentItem;
-    d->currentItem = QModelIndex();
+    d->currentItem = QPersistentModelIndex();
     emit currentChanged(old, d->currentItem);
 }
 
@@ -364,7 +364,7 @@ void QItemSelectionModel::setCurrentItem(const QModelIndex &item, int selectionC
     if (item == d->currentItem)
         return;
     QModelIndex old = d->currentItem;
-    d->currentItem = item; // set current
+    d->currentItem = QPersistentModelIndex(item, d->model); // set current
     emit currentChanged(old, item);
 }
 
