@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#44 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#44 $");
 
 
 const int sbDim = 16;
@@ -466,7 +466,7 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	    xCellDelta	= 0;
 	}
     } else {
-	int xn=0, xcd, col = 0;
+	int xn=0, xcd=0, col = 0;
 	while ( col < nCols && x >= xn+(xcd=cellWidth(col)) ) {
 	    xn += xcd;
 	    col++;
@@ -491,7 +491,7 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	}
 	yCellDelta  = (short)(y % cellH);
     } else {
-	int yn=0, yrd, row=0;
+	int yn=0, yrd=0, row=0;
 	while ( row < nRows && y >= yn+(yrd=cellHeight(row)) ) {
 	    yn += yrd;
 	    row++;

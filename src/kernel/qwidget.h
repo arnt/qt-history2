@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#103 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#104 $
 **
 ** Definition of QWidget class
 **
@@ -359,8 +359,8 @@ inline bool  QWidget::isFocusEnabled() const
 { return testWFlags(WState_TabToFocus|WState_ClickToFocus); }
 
 inline QWidget::FocusPolicy QWidget::focusPolicy() const
-{ return (FocusPolicy)((testWFlags(WState_TabToFocus) ? TabFocus : 0) +
-		       (testWFlags(WState_ClickToFocus) ? ClickFocus : 0)); }
+{ return (FocusPolicy)((testWFlags(WState_TabToFocus) ? (int)TabFocus : 0) +
+		       (testWFlags(WState_ClickToFocus)?(int)ClickFocus:0)); }
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWFlags(WState_BlockUpdates); }
