@@ -632,10 +632,11 @@ QDir::filePath(const QString &fileName, bool acceptAbsPath) const
         return QString(fileName);
 
     QString ret = d->data->path;
-    if (ret.isEmpty() 
-        || (ret[(int)ret.length()-1] != '/' && fileName.size() && fileName[0] != '/'))
-        ret += '/';
-    ret += fileName;
+    if(!fileName.isEmpty()) {
+        if (ret.isEmpty() || (ret[(int)ret.length()-1] != '/' && fileName[0] != '/'))
+            ret += '/';
+        ret += fileName;
+    }
     return ret;
 }
 
@@ -664,15 +665,13 @@ QDir::absFilePath(const QString &fileName, bool acceptAbsPath) const
     QString ret;
     if (isRelativePath(d->data->path)) //get pwd
         ret = QFSDirEngine::currentDirPath(fileName);
-    if (ret.right(1) != QString::fromLatin1("/"))
-        ret += '/';
     ret += d->data->path;
     if (!fileName.isEmpty()) {
         if (ret.right(1) != QString::fromLatin1("/"))
             ret += '/';
         ret += fileName;
     }
-    return cleanDirPath(ret);
+    return ret;
 }
 
 /*!
