@@ -805,11 +805,11 @@ void QFtp::dataBytesWritten( int nbytes )
 
 	putWritten = 0;
 	QByteArray ba( operationInProgress()->rawArg( 1 ) );
-	if ( putOffset + QFTP_MAX_BYTES < ba.size() - 1 ) {
+	if ( putOffset + QFTP_MAX_BYTES < (int)ba.size() - 1 ) {
 	    emit dataTransferProgress( putOffset, ba.size(), operationInProgress() );
 	    dataSocket->writeBlock( &ba.data()[ putOffset ], QFTP_MAX_BYTES );
 	    putOffset += QFTP_MAX_BYTES;
-	} else if ( putOffset < ba.size() - 1 ) {
+	} else if ( putOffset < (int)ba.size() - 1 ) {
 	    emit dataTransferProgress( putOffset, ba.size(), operationInProgress() );
 	    dataSocket->writeBlock( &ba.data()[ putOffset ], ba.size() - putOffset );
 	    putOffset = ba.size() - 1;

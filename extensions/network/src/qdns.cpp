@@ -1317,7 +1317,7 @@ void QDns::setLabel( const QString & label )
 #if defined(DEBUG_QDNS)
     qDebug( "QDns::setLabel: %d address(es) for %s", n.count(), l.ascii() );
     int i = 0;
-    for( i = 0; i < n.count(); i++ )
+    for( i = 0; i < (int)n.count(); i++ )
 	qDebug( "QDns::setLabel: %d: %s", i, n[i].ascii() );
 #endif
 }
