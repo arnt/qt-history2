@@ -1338,14 +1338,14 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
 
 /*!
   \fn void QMainWindow::startMovingToolbar( QToolBar *toolbar )
-  
+
   This signal is emitted when the \a toolbar starts moving because
   the user started dragging it.
 */
 
 /*!
   \fn void QMainWindow::endMovingToolbar( QToolBar *toolbar )
-  
+
   This signal is emitted if the \a toolbar has been moved by
   the user and he/she released the mouse button now, so he/she
   stopped the moving.
@@ -1631,6 +1631,11 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     return Unmanaged;
 }
 
+static QRect fixRect( const QRect &r )
+{
+    return QRect( r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2 ); 
+}
+
 /*!
   Handles mouse event \e e on behalf of tool bar \a t and does all
   the funky docking.
@@ -1666,7 +1671,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	QToolBar *covering;
 	d->origDock = findDockArea( pos, r, t, ipos, covering );
 	r = QRect( t->pos(), t->size() );
-	d->rectPainter->drawRect( r );
+	d->rectPainter->drawRect( fixRect( r ) );
 	d->oldPosRect = r;
 	d->origPosRect = r;
 	d->oldPosRectValid = TRUE;
@@ -1681,7 +1686,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	QApplication::restoreOverrideCursor();
 	if ( d->rectPainter ) {
 	    if ( d->oldPosRectValid )
-		d->rectPainter->drawRect( d->oldPosRect );
+		d->rectPainter->drawRect( fixRect( d->oldPosRect ) );
 	    d->rectPainter->end();
 	}
 	delete d->rectPainter;
@@ -1730,9 +1735,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     // draw the new rect where the toolbar would be moved
     if ( d->rectPainter ) {
 	if ( d->oldPosRectValid && d->oldPosRect != r )
-	    d->rectPainter->drawRect( d->oldPosRect );
+	    d->rectPainter->drawRect( fixRect( d->oldPosRect ) );
 	if ( d->oldPosRect != r )
-	    d->rectPainter->drawRect( r );
+	    d->rectPainter->drawRect( fixRect( r ) );
     }
     d->oldPosRect = r;
     d->oldPosRectValid = TRUE;
