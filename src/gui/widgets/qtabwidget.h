@@ -76,8 +76,8 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    void setCornerWidget(QWidget * w, Qt::Corner corner = Qt::TopRight);
-    QWidget * cornerWidget(Qt::Corner corner = Qt::TopRight) const;
+    void setCornerWidget(QWidget * w, Qt::Corner corner = Qt::TopRightCorner);
+    QWidget * cornerWidget(Qt::Corner corner = Qt::TopRightCorner) const;
 
 public slots:
     void setCurrentIndex(int index);
