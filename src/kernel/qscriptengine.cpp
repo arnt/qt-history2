@@ -33,6 +33,11 @@ static inline void positionCluster( QScriptItem *item, int gfrom,  int glast )
     QShapedItem *shaped = item->shaped;
     QFontEngine *f = item->fontEngine;
     glyph_metrics_t baseInfo = f->boundingBox( shaped->glyphs[gfrom] );
+
+    if ( item->analysis.script == QFont::Hebrew ) {
+	// we need to attach below the baseline, because of the hebrew iud.
+	baseInfo.height= QMAX( baseInfo.height, -baseInfo.y );
+    }
     QRect baseRect( baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height );
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
@@ -41,6 +46,8 @@ static inline void positionCluster( QScriptItem *item, int gfrom,  int glast )
     int size = f->ascent()/10;
     int offsetBase = (size - 4) / 4 + QMIN( size, 4 ) + 1;
 //     qDebug("offset = %d", offsetBase );
+
+    bool rightToLeft = item->analysis.bidiLevel % 2;
 
     int i;
     unsigned char lastCmb = 0;
@@ -148,8 +155,13 @@ static inline void positionCluster( QScriptItem *item, int gfrom,  int glast )
 	markRect.moveBy( p.x(), p.y() );
 	attachmentRect |= markRect;
 	lastCmb = cmb;
-	shaped->offsets[gfrom+i].x = p.x() - baseInfo.xoff;
-	shaped->offsets[gfrom+i].y = p.y() - baseInfo.yoff;
+	if ( rightToLeft ) {
+	    shaped->offsets[gfrom+i].x = p.x();
+	    shaped->offsets[gfrom+i].y = p.y() - baseInfo.yoff;
+	} else {
+	    shaped->offsets[gfrom+i].x = p.x() - baseInfo.xoff;
+	    shaped->offsets[gfrom+i].y = p.y() - baseInfo.yoff;
+	}
 	shaped->advances[gfrom+i] = 0;
     }
 }
@@ -169,6 +181,9 @@ void q_heuristicPosition( QScriptItem *item )
 	    cEnd = -1;
 	}
     }
+    item->width = 0;
+    for ( int i = 0; i < shaped->num_glyphs; i++ )
+	item->width += shaped->advances[i];
 }
 
 
