@@ -28,10 +28,7 @@
 #include <qpixmapcache.h>
 #include <qitemeditorfactory.h>
 #include <private/qobject_p.h>
-
-#ifdef Q_OS_WIN
 #include <private/qdnd_p.h>
-#endif
 
 static const int border = 1;
 static const int textMargin = 2;
@@ -616,12 +613,11 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             break;
         }
     } else if (event->type() == QEvent::FocusOut && !editor->isActiveWindow()) {
-#ifdef Q_OS_WIN
-        // On Windows the window may loose focus during an drag operation.
-        // i.e when dragging involves the task bar.
+        // The window may loose focus during an drag operation.
+        // i.e when dragging involves the task bar on Windows.
         if (QDragManager::self() && QDragManager::self()->object != 0)
             return false;
-#endif
+
         emit commitData(editor);
         emit closeEditor(editor, NoHint);
         return true;
