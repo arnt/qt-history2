@@ -483,7 +483,7 @@ void Uic::createFormDecl( const QDomElement &e )
 
     // database support
     if ( dbAware ) {
-	out << "    " << "virtual bool setCursor( QSqlCursor* cursor );" << endl;
+	out << "    " << "virtual void setCursor( QSqlCursor* cursor );" << endl;
 	out << "    " << "virtual QSqlCursor* createCursor( const QString& name );" << endl;
 	out << endl;
     }
@@ -1290,17 +1290,17 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 
     out << "/*  " << endl;
     out << " *  Sets the cursor identified by 'cursor' to be used" << endl;
-    out << " *  by the " << objName << ".  Returns TRUE if 'cursor' was recognized," << endl;
-    out << " *  otherwise FALSE is returned." << endl;
+    out << " *  by the " << objName << ".  If 'cursor' was not recognized," << endl;
+    out << " *  a warning is issued.." << endl;
     if ( dbForm ) {
-	out << " *  If the cursor is recognized, the appropriate form fields are" << endl;
+	out << " *  If 'cursor' is recognized, the appropriate form fields are" << endl;
 	out << " *  mapped to the cursor." << endl;
     }
     out << " */" << endl;
-    out << "bool " << nameOfClass << "::setCursor( QSqlCursor* cursor )" << endl;
+    out << "void " << nameOfClass << "::setCursor( QSqlCursor* cursor )" << endl;
     out << "{" << endl;
     out << indent << "if ( !cursor )" << endl;
-    out << indent << indent << "return FALSE;" << endl;
+    out << indent << indent << "return;" << endl;
     out << indent << "QString n = cursor->name();" << endl;
     out << indent << "bool recognized = FALSE;" << endl;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
@@ -1313,7 +1313,7 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 		out << indent << "if ( n == \"" << (*it2) << "\" ) {" << endl;
 		out << indent << indent << (*it2) << "Cursor = cursor;" << endl;
 		if ( (*it2) == defaultTable )
-		    out << indent << indent << "setSqlCursor( cursor );" << endl;
+		    out << indent << indent << objClass << "::setCursor( cursor );" << endl;
 		out << indent << indent << "recognized = TRUE;" << endl;
 		QStringList::Iterator it3;
 		dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
@@ -1332,30 +1332,8 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     }
     out << indent << "if ( !recognized )" << endl;
     out << indent << indent << "qWarning(\"" << nameOfClass << "::setCursor: unknown cursor:'\" + n + \"'\");" << endl;
-    out << indent << "return recognized;" << endl;
     out << "}" << endl;
     out << endl;
-
-//     out << "/*  " << endl;
-//     out << " *  Returns a pointer to the default cursor." << endl;
-//     if ( dbForm )
-//	out << " *  Reimplemented from QSqlNavigator which relies on a default cursor" << endl;
-//     out << " *  If the default cursor does not exist, it is first created with " << endl;
-//     out << " *  " << nameOfClass << "::createCursor()." << endl;
-//     out << " */" << endl;
-//     out << "QSqlCursor* " << nameOfClass << "::defaultCursor()" << endl;
-//     out << "{" << endl;
-//     if ( !defaultTable.isEmpty() ) {
-//	out << indent << "if ( !" << defaultTable << "Cursor ) {" << endl;
-//	out << indent << indent << defaultTable << "Cursor = createCursor( \"" << defaultTable << "\" );" << endl;
-//	out << indent << indent << "setCursor( " << defaultTable << "Cursor );" << endl;
-//	out << indent << "}" << endl;
-//	out << indent << "return " << defaultTable << "Cursor;" << endl;
-//     } else {
-//	out << indent << "return 0;" << endl;
-//     }
-//     out << "}" << endl;
-//     out << endl;
 
     out << "/*  " << endl;
     out << " *  Returns a pointer to a new cursor based on 'name'." << endl;

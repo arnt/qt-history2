@@ -46,7 +46,7 @@
 #include "qstring.h"
 #include "qstringlist.h"
 
-class QSqlCursorNavigatorPrivate
+class QSqlCursorNavigator::QSqlCursorNavigatorPrivate
 {
 public:
     QSqlCursorNavigatorPrivate() : cur(0) {}
@@ -117,7 +117,7 @@ QString QSqlCursorNavigator::filter() const
     return d->ftr;
 }
 
-void QSqlCursorNavigator::setSqlCursor( QSqlCursor* cursor )
+void QSqlCursorNavigator::setCursor( QSqlCursor* cursor )
 {
     d->cur = cursor;
 }
@@ -125,11 +125,11 @@ void QSqlCursorNavigator::setSqlCursor( QSqlCursor* cursor )
 /*! Returns a pointer to the default cursor used for navigation, or 0
   if there is no default cursor.
 
-  \sa setSqlCursor()
+  \sa setCursor()
 
 */
 
-QSqlCursor* QSqlCursorNavigator::sqlCursor() const
+QSqlCursor* QSqlCursorNavigator::cursor() const
 {
     return d->cur;
 }
@@ -146,7 +146,7 @@ QSqlCursor* QSqlCursorNavigator::sqlCursor() const
 
 void QSqlCursorNavigator::refresh()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     if ( !cur )
 	return;
     QString currentFilter = d->ftr;
@@ -234,7 +234,7 @@ to relocate a cursor to the correct position after an insert or
 update.  For example:
 
 \code
-    QSqlCursor* myCursor = myNavigator.sqlCursor();
+    QSqlCursor* myCursor = myNavigator.cursor();
     ...
     QSqlRecord* buf = myCursor->primeUpdate();
     buf->setValue( "name", "Dave" );
@@ -250,7 +250,7 @@ update.  For example:
 //## possibly add sizeHint parameter
 bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
     if ( !cur->isActive() )
@@ -353,11 +353,12 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
     return indexEquals;
 }
 
-class QSqlFormNavigatorPrivate
+class QSqlFormNavigator::QSqlFormNavigatorPrivate
 {
 public:
-    QSqlFormNavigatorPrivate() : frm(0) {}
+    QSqlFormNavigatorPrivate() : frm(0), boundryCheck( TRUE ) {}
     QSqlForm* frm;
+    bool boundryCheck;
 };
 
 
@@ -412,7 +413,7 @@ public:
 */
 
 QSqlFormNavigator::QSqlFormNavigator()
-    : QSqlCursorNavigator(), boundryCheck( TRUE )
+    : QSqlCursorNavigator()
 {
     d = new QSqlFormNavigatorPrivate();
 }
@@ -447,13 +448,13 @@ QSqlForm* QSqlFormNavigator::form()
   otherwise 0 is returned.  If an error occurred during the insert
   into the database, handleError() is called.
 
-  \sa sqlCursor() form() handleError()
+  \sa cursor() form() handleError()
 
 */
 
 int QSqlFormNavigator::insertRecord()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     QSqlForm* frm = form();
     if ( !cur || !frm )
 	return 0;
@@ -476,7 +477,7 @@ int QSqlFormNavigator::insertRecord()
 
 int QSqlFormNavigator::updateRecord()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     QSqlForm* frm = form();
     if ( !cur || !frm )
 	return 0;
@@ -503,7 +504,7 @@ int QSqlFormNavigator::updateRecord()
 
 int QSqlFormNavigator::deleteRecord()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     QSqlForm* frm = form();
     if ( !cur || !frm )
 	return 0;
@@ -534,7 +535,7 @@ first record, otherwise FALSE is returned.
 
 bool QSqlFormNavigator::firstRecord()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
     if ( cur->first() ) {
@@ -557,7 +558,7 @@ last record, otherwise FALSE is returned.
 
 bool QSqlFormNavigator::lastRecord()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
     if ( cur->last() ) {
@@ -581,7 +582,7 @@ last record and FALSE is returned.
 
 bool QSqlFormNavigator::nextRecord()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
     bool b = cur->next();
@@ -604,7 +605,7 @@ the first record and FALSE is returned.
 
 bool QSqlFormNavigator::prevRecord()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
     bool b = cur->prev();
@@ -625,7 +626,7 @@ default form.
 
 void QSqlFormNavigator::clearForm()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     if ( cur )
 	cur->editBuffer()->clearValues();
     QSqlForm* frm = form();
@@ -652,7 +653,7 @@ position.
 */
 QSqlFormNavigator::Boundry QSqlFormNavigator::boundry()
 {
-    QSqlCursor* cur = sqlCursor();
+    QSqlCursor* cur = cursor();
     if ( !cur )
 	return Unknown;
     if ( !cur->isActive() )
@@ -681,12 +682,12 @@ QSqlFormNavigator::Boundry QSqlFormNavigator::boundry()
 
 void QSqlFormNavigator::setBoundryChecking( bool active )
 {
-    boundryCheck = active;
+    d->boundryCheck = active;
 }
 
 bool QSqlFormNavigator::boundryChecking() const
 {
-    return boundryCheck;
+    return d->boundryCheck;
 }
 
 /*! If boundryChecking() is TRUE, checks the boundry of the current
@@ -696,7 +697,7 @@ classes can reimplement to emit signals.
 
 void QSqlFormNavigator::updateBoundry()
 {
-    if ( boundryCheck ) {
+    if ( d->boundryCheck ) {
 	Boundry bound = boundry();
 	switch ( bound ) {
 	case Unknown:

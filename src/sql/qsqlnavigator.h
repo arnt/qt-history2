@@ -47,7 +47,6 @@
 
 class QSqlCursor;
 class QSqlForm;
-class QSqlCursorNavigatorPrivate;
 
 class Q_EXPORT QSqlCursorNavigator
 {
@@ -60,17 +59,16 @@ public:
     QStringList  sort() const;
     void setFilter( const QString& filter );
     QString filter() const;
-    virtual void setSqlCursor( QSqlCursor* cursor );
-    QSqlCursor* sqlCursor() const;
+    virtual void setCursor( QSqlCursor* cursor );
+    QSqlCursor* cursor() const;
 
     virtual void refresh();
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
 
 private:
+    class QSqlCursorNavigatorPrivate;
     QSqlCursorNavigatorPrivate* d;
 };
-
-class QSqlFormNavigatorPrivate;
 
 class Q_EXPORT QSqlFormNavigator : public QSqlCursorNavigator
 {
@@ -113,7 +111,7 @@ protected:
 
 private:
     void updateBoundry();
-    bool boundryCheck;
+    class QSqlFormNavigatorPrivate;
     QSqlFormNavigatorPrivate* d;
 };
 

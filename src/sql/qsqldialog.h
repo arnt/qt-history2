@@ -47,6 +47,8 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+class QSqlCursor;
+
 class Q_EXPORT QSqlDialog : public QDialog, public QSqlFormNavigator
 {
     Q_OBJECT
@@ -65,6 +67,12 @@ public:
     QStringList  sort() const;
     virtual void setFilter( const QString& filter );
     QString filter() const;
+
+    void setCursor( QSqlCursor* cursor ) { QSqlFormNavigator::setCursor( cursor ); }
+    void setCursor ( const QCursor & cursor ) { QDialog::setCursor( cursor ); }
+    const QCursor& cursor () const { return QDialog::cursor(); }
+    void setSqlCursor( QSqlCursor* cursor ) { QSqlFormNavigator::setCursor( cursor ); }
+    QSqlCursor* sqlCursor() const { return QSqlFormNavigator::cursor(); }
 
 signals:
     void firstRecordAvailable( bool available );

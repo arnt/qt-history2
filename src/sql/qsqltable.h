@@ -92,8 +92,15 @@ public:
     bool         autoDelete() const;
     QString      filter() const;
     QStringList  sort() const;
+    void setCursor ( const QCursor & cursor ) { QTable::setCursor( cursor ); }
+    const QCursor& cursor () const { return QTable::cursor(); }
 
+    void setCursor( QSqlCursor* cursor ) { setCursor( cursor, FALSE, FALSE ); }
+    virtual void setSqlCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE ) { setCursor( cursor, autoPopulate, autoDelete ); }
+    virtual void setSqlCursor( QSqlCursor* cursor ) { setCursor( cursor, FALSE, FALSE ); }
     virtual void setCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE );
+    QSqlCursor* sqlCursor() const { return QSqlCursorNavigator::cursor(); }
+
     virtual void setNullText( const QString& nullText );
     virtual void setTrueText( const QString& trueText );
     virtual void setFalseText( const QString& falseText );

@@ -65,6 +65,12 @@ public:
     virtual void setFilter( const QString& filter );
     QString filter() const;
 
+    void setCursor( QSqlCursor* cursor ) { QSqlFormNavigator::setCursor( cursor ); }
+    void setCursor ( const QCursor & cursor ) { QWidget::setCursor( cursor ); }
+    const QCursor& cursor () const { return QWidget::cursor(); }
+    void setSqlCursor( QSqlCursor* cursor ) { QSqlFormNavigator::setCursor( cursor ); }
+    QSqlCursor* sqlCursor() const { return QSqlFormNavigator::cursor(); }
+
 signals:
     void firstRecordAvailable( bool available );
     void lastRecordAvailable( bool available );

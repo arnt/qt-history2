@@ -1074,7 +1074,7 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
     starting at the current cell and working forwards (or backwards if
     \a backwards is TRUE). If the string is found, the cell containing
     the string is set as the current cell. If \a caseSensitive is FALSE
-    the case of \a str will be ignored. 
+    the case of \a str will be ignored.
 
     The search will wrap, i.e. if the first (or if backwards is TRUE,
     last) cell is reached without finding \a str the search will
@@ -1579,7 +1579,7 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 	delete sqlCursor();
     if ( cursor ) {
 	//	reset(); ## needed here?
-	setSqlCursor( cursor );
+	QSqlCursorNavigator::setCursor( cursor );
 	if ( autoPopulate ) {
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->displayLabel( sqlCursor()->field( i )->name() ) );
