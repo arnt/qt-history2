@@ -1049,7 +1049,18 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		} else {
 		    if ( overWrite && !cursor->atParagEnd() )
 			cursor->remove();
-		    insert( e->text(), TRUE, FALSE );
+		    QString t = e->text();
+		    QTextParag *p = cursor->parag();
+		    if ( p && p->string() && p->string()->isRightToLeft() ) {
+			QChar *c = (QChar *)t.unicode();
+			int l = t.length();
+			while( l-- ) {
+			    if ( c->mirrored() )
+				*c = c->mirroredChar();
+			    c++;
+			}
+		    }
+		    insert( t, TRUE, FALSE );
 		}
 		break;
 	    } else if ( e->state() & ControlButton ) {

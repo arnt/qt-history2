@@ -643,6 +643,15 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	if ( !t.isEmpty() && (!e->ascii() || e->ascii()>=32) &&
 	     e->key() != Key_Delete &&
 	     e->key() != Key_Backspace ) {
+	    if ( d->parag && d->parag->string() && d->parag->string()->isRightToLeft() ) {
+		QChar *c = (QChar *)t.unicode();
+		int l = t.length();
+		while( l-- ) {
+		    if ( c->mirrored() )
+			*c = c->mirroredChar();
+		    c++;
+		}
+	    }
 	    insert( t );
 	    return;
 	}
