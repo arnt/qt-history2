@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#21 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#22 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -69,7 +69,10 @@ public:
 	KeyButtonMask   = 0x38
     };
 
-    enum Orientation { Horizontal, Vertical };
+    enum Orientation {
+        Horizontal,
+	Vertical
+    };
 
     // Text formatting flags for QPainter::drawText and QLabel
 
