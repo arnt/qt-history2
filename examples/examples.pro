@@ -45,7 +45,6 @@ SUBDIRS	 =	aclock \
 		qtl \
 		qwerty \
 		rangecontrols \
-		regexptester \
 		richtext \
 		rot13 \
 		scribble \
@@ -101,6 +100,7 @@ workspace:SUBDIRS+= mdi
 
 table:SUBDIRS +=    table/statistics \
 		    table/small-table-demo \
+		    regexptester \
 		    table/bigtable \
 			helpsystem
 
