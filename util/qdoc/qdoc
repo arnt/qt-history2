@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#92 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#93 $
 #
 # this is a massive hack, written very quickly
 #
@@ -80,18 +80,15 @@ sub processcode {
     s/\s+$/\n/s;
     s!\\/(.*?\n)!//$1!gs;
 
-    while ( m@(?:(?:^)|(?:[;\{\(]))(?:\s*//[^\n]*\n)*\s*([A-Za-z0-9_:]+)(?=\s*\*?\s*([A-Za-z0-9_]+))@gs ) {
+    while ( m@(?:(?:^)|(?:[;\{\(]))(?:\s*//[^\n]*\n)*\s*([A-Za-z0-9_:]+)(?=(?:\s*<[^>]*>)\s*\*?\s*([A-Za-z0-9_]+))@gs ) {
 	if ($type{$anchor{$1}} eq "class") {
-	    if (defined($types{$2})) {
-		print "confusion: ", $2, " seems to refer to both ", $1, 
-		" and ", $types{$2}, "\n" if ($1 ne $types{$2});
-	    } else {
-		$types{$2} = $1;
-	    }
+	    print "Changing type of $2 from ", $types{$2}, " to $1\n"
+		if (defined($types{$2}) && ($1 ne $types{$2}));
+	    $types{$2} = $1;
 	}
     }
 
-    s@([A-Za-z0-9_]+)(\s*(?:(?:\.)|(?:-&gt;))\s*)([A-Za-z0-9_]+)@
+    s@\b([A-Za-z0-9_]+)(\s*(?:(?:\.)|(?:-&gt;))\s*)([A-Za-z0-9_]+)@
 	if (defined($anchor{$types{$1} . "::" . $3})) {
 	    sprintf("%s%s<a href=%s>%s</a>", $1, $2,
 		    $anchor{$types{$1} . "::" . $3}, $3);
@@ -224,6 +221,7 @@ sub processdocs {
 	    $seealso = $1;
 
 	    $seealso =~ s/\s+/ sex /gs;
+
 	    $seealso =~ s/\\link(.*?)\\endlink/
 	    {
 		my($evilhack);
@@ -231,6 +229,14 @@ sub processdocs {
 		$evilhack =~ s- sex - -gs;
 		sprintf("\\link %s \\endlink", $evilhack);
 	    }/esg;
+
+	    $seealso =~ s!<a\b(.*?)</a?>!
+	    {
+		my($evilhack);
+		$evilhack = $1;
+		$evilhack =~ s- sex - -gs;
+		sprintf("<a%s</a>", $evilhack);
+	    }!esgi;
 
 	    $seealso =~ s/,? sex and sex / sex /;
 	    $seealso =~ s/\.?\s*(?:sex\s*)?$//;
@@ -314,7 +320,10 @@ sub processdocs {
 	s/:://;
 	$word{$_}++;
 
-	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})
+# used to be  s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})
+# ...
+
+	$doc =~ s-(?:(?:\b((?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
 			    |(?:[\w:]+(?:\.(?:h)|(?:cpp))?)))(\()?(?!</a>))
 		   |((?:(?:<pre>.*?</pre>)|(?:<a [^>]+>[^<]*</a>)|(?:<.*?>))))-
 	    if ($3 eq "") {
@@ -594,9 +603,10 @@ remains with Troll Tech.
 	my (%a, $a);
 
 	open(F, "expand < /local/qt/examples/$filename |")
-	    || die "can't open $filename for reading";
+	    || open(F, "expand < /local/qt/tutorial/$filename |")
+		|| die "can't open $filename for reading";
 	$htmlfilename = $filename;
-	$htmlfilename =~ s@.*/@@;
+	$htmlfilename =~ s@/@-@;
 	$htmlfilename =~ s/\.cpp/-cpp.html/;
 	open(H, "> $outputdir/$htmlfilename") 
 	    || die "can't open $outputdir/$htmlfilename for writing";
@@ -790,6 +800,8 @@ sub readc {
 
 	$doc = $1;
 	$def = $2;
+	$def =~ s/\):/\) :/gs; # add a space so next s/// works
+	$def =~ s/\s:\s*\b.*//s; # strip away constructor inheritance
 
 	if ($doc =~ m@^\\class\s+(\w+)\s+([\.\w]+)\s+(.*?)\s*$@s) {
 	    # it's a \class
@@ -834,8 +846,13 @@ sub readc {
 		$def = $1;
 		$doc = $2;
 	    }
-	    ($name, $args) = split(/\s*\(\s*/, $def);
-	    if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+[^\(\s\w]{0,3})$/s) {
+	    ($name, $args) = split(/\s*\((?=[^\(]+\s*$ )/x, $def);
+#	    ((?:\w+::)?\s*
+#	    if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+[^\(\s\w]{0,3})$/s) {
+	    if ($name =~ /^\s*(.*?[ \*\&])
+		\s*((?:\w+::)?)
+		((?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
+		  |(?:(?:\~?\w+))))$/sx) {
 		$type = $1;
 		$class = $2;
 		$name = $3;
@@ -956,7 +973,7 @@ sub makenames {
     foreach ( keys %examples ) {
 	next if (defined($anchor{$_}));
 	$dum = $_;
-	s@.*/@@;
+	s@/@-@;
 	s/\.cpp$/-cpp.html/;
 	$anchor{$_} = $dum;
     }
@@ -984,6 +1001,7 @@ sub al {
     $_;
 }
 
+
 #
 # add <a href> to args where appropriate and html-encode
 #
@@ -993,7 +1011,8 @@ sub makearglinks {
     foreach (sort keys %type) {
 	if ($type{$_} eq "fn" &&
 	    $def{$_} =~ /^([^\~\(:]*)\s+
-	    ((?:\w+::)?(?:(?:operator[^\(\s]{1,3})|(?:(?:\~?\w+))))\s*
+	    ((?:\w+::)?(?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
+			|(?:(?:\~?\w+))))\s*
 	    (\(.*)/sx) {
 	    $pre = $1;
 	    $name = $2;
@@ -1029,12 +1048,15 @@ sub fixdefvalues {
     local ($url, $args) = @_;
     local (@ha, @ca, $_, $changed);
 
+    return if ( $args eq ")(" ); # operator()()
+
     if (defined($def{$url})) {
 	@ha = split(/\,/, $args);
 	$_ = $def{$url};
 	s/.*\(//s;
 	s/\).*//s;
 	@ca = split(/\,/, $_);
+#print "url: ", $def{$url}, "\n";
 	die ("argument mismatch:\n" . $args . "\n" . $_ . "\n")
 	    if ($#ha != $#ca);
 
@@ -1047,13 +1069,14 @@ sub fixdefvalues {
 	}
 	if ($changed > 0) {
 #print "changed ", $def{$url};
-	    $_ = join(",", @ca);
-	    $def{$url} =~ s/\(.*?\)/($_)/s;
+	    $args = join(",", @ca);
+	    $def{$url} =~ s/\(.*?\)/($args)/s;
 #print " to ", $def{$url}, "\n";
 	} else {
 #print "unchanged: ", $def{$url}, "\n";
 	}
     }
+    $args;
 }
 
 
@@ -1160,11 +1183,8 @@ sub printclass {
     my ($i, $family);
     if (defined($brief{$url})) {
 	print O "<p>\n", $brief{$url}, "\n";
-	print O "<a href=#details>(details)</a>\n"
+	print O "<a href=#details>More...</a>\n"
 	    if ($doc{$url} ne "");
-	$_ = $file;
-	s/\.html/-members.html/;
-	print O "<a href=", $_, ">", " (complete member list)</a>\n";
     }
     print O "<p>\n<code>#include &lt;<a href=", $headerfiles{$includefile{$url}}, ">", $includefile{$url}, "</a>&gt;</code>\n" if (defined($includefile{$url}));
     if ($relations{$name{$url}} =~ /\S/s) {
@@ -1228,6 +1248,10 @@ sub printclass {
 	print O "<p>Inherited by ", $i, ".\n";
     }
 
+    $_ = $file;
+    s/\.html/-members.html/;
+    print O "<p><a href=", $_, ">List of all member functions.</a>\n";
+
     die "no members in class $class" unless (defined($members{$url}));
 
     my (%m, $mode, $foreplay, $afterglow);
@@ -1272,10 +1296,12 @@ sub printclass {
 	    s/\s+$//;
 	    s/\s+/ /g;
 	    s/\)\s*:\s*[A-Q].*/\)/;
+
 	    if (/^\s*((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
 							)
-		((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
-							   )
+		((?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
+		  |(?:\~?\w+)))                        (?# name
+							)
 		\s*\((.*?)\)\s*(const)?\s*$/x) {
 		my ($u,$t,$mt,$f,$a,$ma,$c);
 		$t = $1;
@@ -1640,7 +1666,7 @@ if ($#ARGV > -1) {
 	foreach $d ( split(/\s+/, $sources) ) {
 	    $_ = $d;
 	    &readc( $_ );
-	}
+ 	}
 	chdir( ".." ) || die "can't cd back to QTDIR";
     }
 }
