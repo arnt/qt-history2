@@ -2107,8 +2107,9 @@ void QLineEditPrivate::finishChange(int validateFromState, bool setModified)
 void QLineEditPrivate::emitCursorPositionChanged()
 {
     if (cursor != lastCursorPos) {
+        const int oldLast = lastCursorPos;
         lastCursorPos = cursor;
-        emit q->cursorPositionChanged(lastCursorPos, cursor);
+        emit q->cursorPositionChanged(oldLast, cursor);
     }
 }
 
