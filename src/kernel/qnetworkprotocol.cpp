@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#14 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,6 +28,14 @@
 #include "qtimer.h"
 
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;
+
+struct QNetworkProtocolPrivate
+{
+    QUrlOperator *url;
+    QQueue< QNetworkOperation > operationQueue;
+    QNetworkOperation *opInProgress;
+    QTimer *opStartTimer;
+};
 
 /*!
   \class QNetworkProtocol qnetworkprotocol.h
@@ -77,7 +85,7 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 */
 
 /*!
-  \fn void QNetworkProtocol::data( const QCString &data )
+  \fn void QNetworkProtocol::data( const QString &data )
 
   This signal is emitted when new \a data has been received.
 */
@@ -138,10 +146,18 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 */
 
 QNetworkProtocol::QNetworkProtocol()
-    : url( 0 ), opInProgress( 0 )
+    : QObject() 
 {
-    connect( this, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
-	     this, SLOT( emitData( const QCString &, QNetworkOperation * ) ) );
+    d = new QNetworkProtocolPrivate;
+    d->url = 0;
+    d->opInProgress = 0;
+    d->opStartTimer = new QTimer( this );
+    d->operationQueue.setAutoDelete( FALSE );
+    connect( d->opStartTimer, SIGNAL( timeout() ),
+	     this, SLOT( startOps() ) );
+    
+    connect( this, SIGNAL( data( const QString &, QNetworkOperation * ) ),
+	     this, SLOT( emitData( const QString &, QNetworkOperation * ) ) );
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( emitFinished( QNetworkOperation * ) ) );
     connect( this, SIGNAL( start( QNetworkOperation * ) ),
@@ -159,9 +175,6 @@ QNetworkProtocol::QNetworkProtocol()
 
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( processNextOperation( QNetworkOperation * ) ) );
-    opStartTimer = new QTimer( this );
-    connect( opStartTimer, SIGNAL( timeout() ),
-	     this, SLOT( startOps() ) );
 
 }
 
@@ -171,10 +184,11 @@ QNetworkProtocol::QNetworkProtocol()
 
 QNetworkProtocol::~QNetworkProtocol()
 {
-    url = 0;
-    if ( opInProgress )
-	delete opInProgress;
-    operationQueue.setAutoDelete( TRUE );
+    if ( d->opInProgress )
+	delete d->opInProgress;
+    d->operationQueue.setAutoDelete( TRUE );
+    delete d->opStartTimer;
+    delete d;
 }
 
 /*!
@@ -183,16 +197,16 @@ QNetworkProtocol::~QNetworkProtocol()
 
 void QNetworkProtocol::setUrl( QUrlOperator *u )
 {
-    url = u;
-    if ( !opInProgress && !operationQueue.isEmpty() )
-	opStartTimer->start( 1, TRUE );
+    d->url = u;
+    if ( !d->opInProgress && !d->operationQueue.isEmpty() )
+	d->opStartTimer->start( 1, TRUE );
 }
 
 /*!
   #### todo
 */
 
-QNetworkOperation *QNetworkProtocol::get( const QCString &d )
+const QNetworkOperation *QNetworkProtocol::get( const QString &d )
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
 						    QString::fromLatin1( d ),
@@ -205,7 +219,7 @@ QNetworkOperation *QNetworkProtocol::get( const QCString &d )
   #### todo
 */
 
-QNetworkOperation *QNetworkProtocol::listChildren()
+const QNetworkOperation *QNetworkProtocol::listChildren()
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpListChildren,
 						    QString::null,
@@ -218,7 +232,7 @@ QNetworkOperation *QNetworkProtocol::listChildren()
   #### todo
 */
 
-QNetworkOperation *QNetworkProtocol::mkdir( const QString &d )
+const QNetworkOperation *QNetworkProtocol::mkdir( const QString &d )
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpMkdir,
 						    d,
@@ -231,7 +245,7 @@ QNetworkOperation *QNetworkProtocol::mkdir( const QString &d )
   #### todo
 */
 
-QNetworkOperation *QNetworkProtocol::remove( const QString &d )
+const QNetworkOperation *QNetworkProtocol::remove( const QString &d )
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRemove,
 						    d,
@@ -244,7 +258,7 @@ QNetworkOperation *QNetworkProtocol::remove( const QString &d )
   #### todo
 */
 
-QNetworkOperation *QNetworkProtocol::rename( const QString &on, const QString &nn )
+const QNetworkOperation *QNetworkProtocol::rename( const QString &on, const QString &nn )
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRename,
 						    on, nn, QString::null );
@@ -256,7 +270,7 @@ QNetworkOperation *QNetworkProtocol::rename( const QString &on, const QString &n
   #### todo
 */
 
-QNetworkOperation *QNetworkProtocol::copy( const QString &from, const QString &to, bool move )
+const QNetworkOperation *QNetworkProtocol::copy( const QString &from, const QString &to, bool move )
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpCopy,
 						    from, to, QString::null );
@@ -291,9 +305,9 @@ int QNetworkProtocol::supportedOperations() const
 
 void QNetworkProtocol::addOperation( QNetworkOperation *op )
 {
-    operationQueue.enqueue( op );
-    if ( !opInProgress )
-	opStartTimer->start( 1, TRUE );
+    d->operationQueue.enqueue( op );
+    if ( !d->opInProgress )
+	d->opStartTimer->start( 1, TRUE );
 }
 
 /*!
@@ -435,30 +449,45 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
     if ( old )
 	delete old;
 
-    if ( operationQueue.isEmpty() ) {
-	opInProgress = 0;
+    if ( d->operationQueue.isEmpty() ) {
+	d->opInProgress = 0;
 	return;
     }
 
-    QNetworkOperation *op = operationQueue.head();
-    opInProgress = 0;
+    QNetworkOperation *op = d->operationQueue.head();
+    d->opInProgress = 0;
 
     if ( !checkConnection( op ) ) {
 	if ( op->state() != QNetworkProtocol::StFailed )
-	    opStartTimer->start( 1, TRUE );
+	    d->opStartTimer->start( 1, TRUE );
 	else {
 	    emit finished( op );
-	    operationQueue.clear();
+	    d->operationQueue.clear();
 	}
 	
 	return;
     }
 
-    opInProgress = op;
-    operationQueue.dequeue();
+    d->opInProgress = op;
+    d->operationQueue.dequeue();
     processOperation( op );
 }
 
+/*!
+ */
+
+QUrlOperator *QNetworkProtocol::url() const
+{
+    return d->url;
+}
+
+/*!
+ */
+
+QNetworkOperation *QNetworkProtocol::operationInProgress() const
+{
+    return d->opInProgress;
+}
 
 /*!
  *

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#11 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#12 $
 **
 ** Implementation of QFileDialog class
 **
@@ -39,6 +39,7 @@
 class QNetworkProtocol;
 class QNetworkOperation;
 class QTimer;
+struct QNetworkProtocolPrivate;
 
 class QNetworkProtocolFactoryBase
 {
@@ -87,7 +88,7 @@ public:
 	ConConnected,
 	ConClosed,
     };
-    
+
     enum Error {
 	NoError = 0,
 	ErrReadDir = -1,
@@ -108,23 +109,26 @@ public:
 
     virtual void setUrl( QUrlOperator *u );
 
-    virtual QNetworkOperation *listChildren();
-    virtual QNetworkOperation *mkdir( const QString &dirname );
-    virtual QNetworkOperation *remove( const QString &filename );
-    virtual QNetworkOperation *rename( const QString &oldname, const QString &newname );
-    virtual QNetworkOperation *copy( const QString &from, const QString &to, bool move );
-    virtual QNetworkOperation *get( const QCString &data );
+    virtual const QNetworkOperation *listChildren();
+    virtual const QNetworkOperation *mkdir( const QString &dirname );
+    virtual const QNetworkOperation *remove( const QString &filename );
+    virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
+    virtual const QNetworkOperation *copy( const QString &from, const QString &to, bool move );
+    virtual const QNetworkOperation *get( const QString &data );
 
     static void registerNetworkProtocol( const QString &protocol,
 					 QNetworkProtocolFactoryBase *protocolFactory );
     static QNetworkProtocol *getNetworkProtocol( const QString &protocol );
     static bool hasOnlyLocalFileSystem();
-    
+
     virtual int supportedOperations() const;
     virtual void addOperation( QNetworkOperation *op );
+
+    QUrlOperator *url() const;
+    QNetworkOperation *operationInProgress() const;
     
 signals:
-    void data( const QCString &, QNetworkOperation *res );
+    void data( const QString &, QNetworkOperation *res );
     void connectionStateChanged( int state, const QString &data );
     void finished( QNetworkOperation *res );
     void start( QNetworkOperation *res );
@@ -142,75 +146,72 @@ protected:
     virtual void operationRename( QNetworkOperation *op );
     virtual void operationCopy( QNetworkOperation *op );
     virtual void operationGet( QNetworkOperation *op );
-
     virtual bool checkConnection( QNetworkOperation *op );
-    
-    QUrlOperator *url;
-    QQueue< QNetworkOperation > operationQueue;
-    QNetworkOperation *opInProgress;
-    QTimer *opStartTimer;
+
+private:
+    QNetworkProtocolPrivate *d;
     
 private slots:
     void processNextOperation( QNetworkOperation *old );
     void startOps();
-    
+
     void emitNewChild( const QUrlInfo &, QNetworkOperation *res );
     void emitFinished( QNetworkOperation *res );
     void emitStart( QNetworkOperation *res );
     void emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *res );
     void emitRemoved( QNetworkOperation *res );
     void emitItemChanged( QNetworkOperation *res );
-    void emitData( const QCString &, QNetworkOperation *res );
+    void emitData( const QString &, QNetworkOperation *res );
     void emitCopyProgress( int step, int total, QNetworkOperation *res );
-    
+
 };
 
 inline void QNetworkProtocol::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
 {
-    if ( url )
-	url->emitNewChild( i, res );
+    if ( url() )
+	url()->emitNewChild( i, res );
 }
 
 inline void QNetworkProtocol::emitFinished( QNetworkOperation *res )
 {
-    if ( url )
-	url->emitFinished( res );
+    if ( url() )
+	url()->emitFinished( res );
 }
 
 inline void QNetworkProtocol::emitStart( QNetworkOperation *res )
 {
-    if ( url )
-	url->emitStart( res );
+    if ( url() )
+	url()->emitStart( res );
 }
 
 inline void QNetworkProtocol::emitCreatedDirectory( const QUrlInfo &i, QNetworkOperation *res )
 {
-    if ( url )
-	url->emitCreatedDirectory( i, res );
+    if ( url() )
+	url()->emitCreatedDirectory( i, res );
 }
 
 inline void QNetworkProtocol::emitRemoved( QNetworkOperation *res )
 {
-    if ( url )
-	url->emitRemoved( res );
+    if ( url() )
+	url()->emitRemoved( res );
 }
 
 inline void QNetworkProtocol::emitItemChanged( QNetworkOperation *res )
 {
-    if ( url )
-	url->emitItemChanged( res );
+    if ( url() )
+	url()->emitItemChanged( res );
 }
 
-inline void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *res )
+inline void QNetworkProtocol::emitData( const QString &d, QNetworkOperation *res )
 {
-    if ( url )
-	url->emitData( d, res );
+    if ( url() )
+	url()->emitData( d, res );
 }
 
 inline void QNetworkProtocol::emitCopyProgress( int step, int total, QNetworkOperation *res )
 {
-    if ( url )
-	url->emitCopyProgress( step, total, res );
+    if ( url() )
+	url()->emitCopyProgress( step, total, res );
 }
 
 
@@ -222,11 +223,11 @@ public:
 		    const QString &arg1, const QString &arg2,
 		    const QString &arg3 );
     ~QNetworkOperation();
-    
+
     void setState( QNetworkProtocol::State state );
     void setProtocolDetail( const QString &detail );
     void setErrorCode( QNetworkProtocol::Error ec );
-    
+
     QNetworkProtocol::Operation operation() const;
     QNetworkProtocol::State state() const;
     QString arg1() const;
@@ -234,7 +235,7 @@ public:
     QString arg3() const;
     QString protocolDetail() const;
     QNetworkProtocol::Error errorCode() const;
-    
+
 private:
     QNetworkOperationPrivate *d;
 

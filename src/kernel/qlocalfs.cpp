@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -36,7 +36,7 @@ QLocalFs::QLocalFs()
     : QNetworkProtocol()
 {
 }
-    
+
 /*!
  */
 
@@ -44,11 +44,11 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 {
     op->setState( StInProgress );
 	
-    dir = QDir( url->path( FALSE ) );
-    dir.setNameFilter( url->nameFilter() );
+    dir = QDir( url()->path( FALSE ) );
+    dir.setNameFilter( url()->nameFilter() );
     dir.setMatchAllDirs( TRUE );
     if ( !dir.isReadable() ) {
-	QString msg = tr( "Could not read directory\n" + url->path( FALSE ) );
+	QString msg = tr( "Could not read directory\n" + url()->path( FALSE ) );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrReadDir );
@@ -58,7 +58,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	
     const QFileInfoList *filist = dir.entryInfoList( QDir::All | QDir::Hidden );
     if ( !filist ) {
-	QString msg = tr( "Could not read directory\n" + url->path( FALSE ) );
+	QString msg = tr( "Could not read directory\n" + url()->path( FALSE ) );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrReadDir );
@@ -74,7 +74,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	QUrlInfo inf( fi->fileName(), 0/*permissions*/, fi->owner(), fi->group(),
 		      fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
 		      fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
-	url->emitNewChild( inf, op );
+	url()->emitNewChild( inf, op );
     }
     op->setState( StDone );
     emit finished( op );
@@ -87,8 +87,8 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 {
     op->setState( StInProgress );
     QString dirname = op->arg1();
-    
-    dir = QDir( url->path( FALSE ) );
+
+    dir = QDir( url()->path( FALSE ) );
     if ( dir.mkdir( dirname ) ) {
 	QFileInfo fi( dir, dirname );
 	QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
@@ -114,8 +114,8 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
 {
     op->setState( StInProgress );
     QString name = op->arg1();
-    
-    dir = QDir( url->path( FALSE ) );
+
+    dir = QDir( url()->path( FALSE ) );
     if ( dir.remove( name ) ) {
 	op->setState( StDone );
 	emit removed( op );
@@ -137,8 +137,8 @@ void QLocalFs::operationRename( QNetworkOperation *op )
     op->setState( StInProgress );
     QString oldname = op->arg1();
     QString newname = op->arg2();
-    
-    dir = QDir( url->path( FALSE ) );
+
+    dir = QDir( url()->path( FALSE ) );
     if ( dir.rename( oldname, newname ) ) {
 	op->setState( StDone );
 	emit itemChanged( op );
@@ -159,7 +159,7 @@ void QLocalFs::operationCopy( QNetworkOperation *op )
 {
     QString from = QUrl( op->arg1() ).path();
     QString to = QUrl( op->arg2() ).path();
-    
+
     QFile f( from );
     if ( !f.open( IO_ReadOnly ) ) {
 	QString msg = tr( "Could not open\n%1" ).arg( from );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -113,13 +113,13 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrlOperator::data( const QCString &data )
+  \fn void QUrlOperator::data( const QString &data )
 
   This signal is emitted when new \a data has been received.
 */
 
 /*!
-  \fn void QUrlOperator::putSuccessful( const QCString &data )
+  \fn void QUrlOperator::putSuccessful( const QString &data )
 
   This signal is emitted after successfully calling put(). \a data is the data
   which has been put.
@@ -203,7 +203,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrlOperator::emitData( const QCString &d )
+  \fn void QUrlOperator::emitData( const QString &d )
 
   Emits the signal data( const QString & ). This method is mainly
   provided for implementations of network protocols which are
@@ -211,7 +211,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrlOperator::emitPutSuccessful( const QCString &d )
+  \fn void QUrlOperator::emitPutSuccessful( const QString &d )
 
   Emits the signal putSuccessful( const QString & ). This method is mainly
   provided for implementations of network protocols which are
@@ -300,15 +300,15 @@ QUrlOperator::~QUrlOperator()
   using a network protocol.
 */
 
-QNetworkOperation *QUrlOperator::listChildren()
+const QNetworkOperation *QUrlOperator::listChildren()
 {
     if ( !checkValid() )
 	return 0;
 
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpListChildren,
 						    QString::null, QString::null, QString::null );
-    
-    if ( d->networkProtocol && 
+
+    if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpListChildren ) {
 	d->networkProtocol->addOperation( res );
 	clearEntries();
@@ -335,7 +335,7 @@ QNetworkOperation *QUrlOperator::listChildren()
   Else the error() signal is emitted.
 */
 
-QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
+const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
 {
     if ( !checkValid() )
 	return 0;
@@ -343,7 +343,7 @@ QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpMkdir,
 						    dirname, QString::null, QString::null );
 
-    if ( d->networkProtocol && 
+    if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpMkdir ) {
 	d->networkProtocol->addOperation( res );
 	return res;
@@ -368,7 +368,7 @@ QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
   Else the error() signal is emitted.
 */
 
-QNetworkOperation *QUrlOperator::remove( const QString &filename )
+const QNetworkOperation *QUrlOperator::remove( const QString &filename )
 {
     if ( !checkValid() )
 	return 0;
@@ -376,7 +376,7 @@ QNetworkOperation *QUrlOperator::remove( const QString &filename )
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRemove,
 						    filename, QString::null, QString::null );
 
-    if ( d->networkProtocol && 
+    if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRemove ) {
 	d->networkProtocol->addOperation( res );
 	return res;
@@ -401,7 +401,7 @@ QNetworkOperation *QUrlOperator::remove( const QString &filename )
   Else the error() signal is emitted.
 */
 
-QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QString &newname )
+const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QString &newname )
 {
     if ( !checkValid() )
 	return 0;
@@ -409,7 +409,7 @@ QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QString &
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRename,
 						    oldname, newname, QString::null );
 
-    if ( d->networkProtocol && 
+    if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRename ) {
 	d->networkProtocol->addOperation( res );
 	return res;
@@ -431,17 +431,17 @@ QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QString &
   Copies the file \a from to \a to on the local filesystem.
 */
 
-QNetworkOperation *QUrlOperator::copy( const QString &from, const QString &to, bool move )
+const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString &to, bool move )
 {
     if ( !checkValid() )
 	return 0;
 
-    QNetworkProtocol::Operation o = move ? QNetworkProtocol::OpMove 
+    QNetworkProtocol::Operation o = move ? QNetworkProtocol::OpMove
 				    : QNetworkProtocol::OpCopy;
 
     QNetworkOperation *res = new QNetworkOperation( o, from, to, QString::null );
 
-    if ( d->networkProtocol && 
+    if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & o ) {
 	d->networkProtocol->addOperation( res );
 	if ( move )
@@ -473,8 +473,8 @@ QList<QNetworkOperation> QUrlOperator::copy( const QStringList &files, const QSt
 	return QList<QNetworkOperation>();
     QNetworkProtocol::Operation o = move ? QNetworkProtocol::OpMove
 				    : QNetworkProtocol::OpCopy;
-    
-    if ( d->networkProtocol && 
+
+    if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & o ) {
 	QStringList::ConstIterator it = files.begin();
 	QList<QNetworkOperation> ops;
@@ -493,7 +493,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QStringList &files, const QSt
 	emit finished( res );
 	delete res;
     }
-    
+
     return QList<QNetworkOperation>();
 }
 
@@ -524,16 +524,15 @@ bool QUrlOperator::isDir()
 /*!
  */
 
-QNetworkOperation *QUrlOperator::get( const QCString &data )
+const QNetworkOperation *QUrlOperator::get( const QString &data )
 {
     if ( !checkValid() )
 	return 0;
 
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
-						    QString::fromLatin1( data ), 
-						    QString::null, QString::null );
+						    data, QString::null, QString::null );
 
-    if ( d->networkProtocol && 
+    if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpGet ) {
 	d->networkProtocol->addOperation( res );
 	return res;
