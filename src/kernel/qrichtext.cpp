@@ -4651,8 +4651,11 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	format.style = style->name();
 	if ( style->name() == "font") {
 	    if ( attr.contains("color") ) {
-		format.col.setNamedColor( attr["color"] );
-		format.linkColor = FALSE;
+		QString s = attr["color"];
+		if ( !s.isEmpty() ) {
+		    format.col.setNamedColor( s );
+		    format.linkColor = FALSE;
+		}
 	    }
 	    if ( attr.contains("size") ) {
 		QString a = attr["size"];
