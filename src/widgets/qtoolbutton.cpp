@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#32 $
 **
 ** Implementation of QToolButton class
 **
@@ -51,7 +51,7 @@ class QToolButtonPrivate
   This means that it implements the ridiculous Microsoft auto-raise
   feature using QIconSet.  Apart from that, it's pretty much like a
   QPushButton.  The two classes may at some point be merged.
-  
+
   \sa QPushButton QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
@@ -108,8 +108,8 @@ QToolButton::QToolButton( const QPixmap & pm, QString textLabel,
     } else {
 	setUsesBigPixmap( FALSE );
     }
-    if ( textLabel && *textLabel ) {
-	if ( grouptext && *grouptext )
+    if ( !textLabel.isEmpty() ) {
+	if ( !grouptext.isEmpty() )
 	    QToolTip::add( this, textLabel,
 			   parent->mainWindow()->toolTipGroup(), grouptext );
 	else
@@ -144,8 +144,8 @@ QToolButton::QToolButton( QIconSet iconSet, QString textLabel,
     } else {
 	setUsesBigPixmap( FALSE );
     }
-    if ( textLabel && *textLabel ) {
-	if ( grouptext && *grouptext )
+    if ( !textLabel.isEmpty() ) {
+	if ( !grouptext.isEmpty() )
 	    QToolTip::add( this, textLabel,
 			   parent->mainWindow()->toolTipGroup(), grouptext );
 	else

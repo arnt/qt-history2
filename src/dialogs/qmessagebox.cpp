@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#72 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#73 $
 **
 ** Implementation of QMessageBox class
 **
@@ -1025,9 +1025,9 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 		    int escapeButtonNumber )
 {
     int b[3];
-    b[0] = (button0Text && *button0Text) ? 1 : 0;
-    b[1] = (button1Text && *button1Text) ? 2 : 0;
-    b[2] = (button2Text && *button2Text) ? 3 : 0;
+    b[0] = button0Text.isEmpty() ? 0 : 1;
+    b[1] = button1Text.isEmpty() ? 0 : 2;
+    b[2] = button2Text.isEmpty() ? 0 : 3;
 
     int i;
     for( i=0; i<3; i++ ) {

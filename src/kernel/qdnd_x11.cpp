@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#49 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -172,7 +172,7 @@ QString qt_xdnd_atom_to_str( Atom a )
 
 Atom* qt_xdnd_str_to_atom( QString mimeType )
 {
-    if ( !mimeType || !*mimeType )
+    if ( mimeType.isEmpty() )
 	return 0;
     if ( !qt_xdnd_atom_numbers ) {
 	qt_xdnd_atom_numbers = new QDict<Atom>( 17 );
@@ -262,7 +262,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
 
     const long *l = xe->xclient.data.l;
     int version = (int)(((unsigned long)(l[1])) >> 24);
-    
+
     if ( version > 2 )
 	return;
 
@@ -285,7 +285,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
 void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
-    
+
     QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
     QWidget * c = find_child( w, p );
 
@@ -375,7 +375,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 	emask = EnterWindowMask;
 	source = 0;
     }
-    
+
     if ( source )
 	qt_handle_xdnd_status( source, (const XEvent *)&response );
     else

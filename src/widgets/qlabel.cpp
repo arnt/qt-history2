@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#83 $
 **
 ** Implementation of QLabel widget class
 **
@@ -219,9 +219,9 @@ void QLabel::setText( QString text )
     if ( extra ) {
 	extra->accel->clear();
 	QString p = strchr( ltext, '&' );
-	while( p && *p && p[1] == '&' )
+	while( !p.isEmpty() && p[1] == '&' )
 	    p = strchr( p+2, '&' );
-	if ( p && *p && isalpha(p[1]) ) {
+	if ( !p.isEmpty() && isalpha(p[1]) ) {
 	    extra->accel->connectItem(
 		extra->accel->insertItem( ALT+toupper(p[1]) ),
 	        this, SLOT(acceleratorSlot()) );
@@ -552,7 +552,7 @@ void QLabel::updateLabel()
 
 void QLabel::acceleratorSlot()
 {
-    if ( extra && extra->buddy && 
+    if ( extra && extra->buddy &&
 	 !extra->buddy->hasFocus() &&
 	 extra->buddy->isEnabledToTLW() &&
 	 extra->buddy->isVisibleToTLW() &&
@@ -603,9 +603,9 @@ void QLabel::setBuddy( QWidget *buddy )
 	return;
 
     QString p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
-    while( p && *p && p[1] == '&' )
+    while( !p.isEmpty() && p[1] == '&' )
 	p = strchr( p+2, '&' );
-    if ( p && *p && isalnum(p[1]) ) {
+    if ( !p.isEmpty() && isalnum(p[1]) ) {
 	extra->accel->connectItem( extra->accel->insertItem(ALT+
 							  toupper(p[1])),
 				  this, SLOT(acceleratorSlot()) );

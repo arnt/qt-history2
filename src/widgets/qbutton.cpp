@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#118 $
 **
 ** Implementation of QButton widget class
 **
@@ -108,9 +108,9 @@ QTimer *QButton::timer()
 static int shortcutChar( QString str )
 {
     QString p = str ? strchr(str, '&') : 0;
-    while ( p && *p && p[1] == '&' )
+    while ( !p.isEmpty() && p[1] == '&' )
 	p = strchr( p+2, '&' );
-    return (p && *p && p[1] && p[1] != '&') ? p[1] : QChar();
+    return (!p.isEmpty() && p[1] && p[1] != '&') ? p[1] : QChar();
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#60 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#61 $
 **
 ** Implementation of QTabDialog class
 **
@@ -149,13 +149,13 @@
   ought not to be joined in a tab dialog.
 
   </ol>
-  
+
   Most of the functionality in QTabDialog is provided by a QTabBar (at
   the top, providing the tabs) and a QWidgetStack (most of the area,
   organizing the individual pages).
 
   <img src=qtabdlg-m.gif> <img src=qtabdlg-w.gif>
-  
+
   \sa QDialog
 */
 
@@ -478,7 +478,7 @@ void QTabDialog::showPage( QWidget * w )
 
 bool QTabDialog::isTabEnabled( QString name ) const
 {
-    if ( !name || !*name )
+    if ( name.isEmpty() )
 	return FALSE;
 
     QObjectList * l
@@ -514,7 +514,7 @@ bool QTabDialog::isTabEnabled( QString name ) const
 
 void QTabDialog::setTabEnabled( QString name, bool enable )
 {
-    if ( !name || !*name )
+    if ( name.isEmpty() )
 	return;
     QObjectList * l = queryList( "QWidget", name, FALSE, FALSE );
     if ( l && l->first() ) {

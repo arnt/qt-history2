@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#143 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#144 $
 **
 ** Implementation of QListView widget class
 **
@@ -353,7 +353,7 @@ QListViewItem::QListViewItem( QListViewItem * parent,
 
 /*!  Creates a new list view item in the QListView \a parent,
   after item \a after, with at most 8 constant strings as contents.
-  
+
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
   QListView::setSorting( -1 ).
@@ -387,7 +387,7 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
 /*!  Creates a new list view item that's a child of the QListViewItem
   \a parent, after item \a after, with at most 8 constant strings as
   contents.
-  
+
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
   QListView::setSorting( -1 ).
@@ -2600,7 +2600,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		    keyItemKey = keyItem->text(0);
 		    for (int col=0; col < d->h->count() && !keyItemKey; col++ )
 			keyItemKey = keyItem->text( d->h->mapToLogical(col) );
-		    if ( keyItemKey && *keyItemKey ) {
+		    if ( !keyItemKey.isEmpty() ) {
 			prefix = keyItemKey;
 			prefix.truncate( input.length() );
 			prefix = prefix.lower();
@@ -2863,7 +2863,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 /*!  Set the list view to be sorted by \a column and to be sorted
   in ascending order if \a ascending is TRUE or descending order if it
   is FALSE.
-  
+
   If \a column is -1, sorting is disabled.
 */
 

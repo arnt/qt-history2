@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#119 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#120 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1185,7 +1185,7 @@ QString QFileDialog::getOpenFileName( QString startWith,
 {
     makeVariables();
     QString initialSelection;
-    if ( startWith && *startWith ) {
+    if ( !startWith.isEmpty() ) {
 	QFileInfo fi( startWith );
 	if ( fi.exists() && fi.isDir() ) {
 	    *workingDirectory = startWith;
@@ -1320,7 +1320,7 @@ QString QFileDialog::getSaveFileName( QString startWith,
 {
     makeVariables();
     QString initialSelection;
-    if ( startWith && *startWith ) {
+    if ( !startWith.isEmpty() ) {
 	QFileInfo fi( startWith );
 	if ( fi.exists() && fi.isDir() ) {
 	    *workingDirectory = startWith;
@@ -1736,7 +1736,7 @@ QString QFileDialog::getExistingDirectory( QString dir,
 	if ( f.isDir() )
 	    dialog->setDir( *workingDirectory );
     }	
-    if ( dir && *dir ) {
+    if ( !dir.isEmpty() ) {
 	QFileInfo f( dir );
 	if ( f.isDir() ) {
 	    *workingDirectory = dir;
