@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#31 $
 **
 ** Implementation of QRegion class
 **
@@ -96,18 +96,6 @@ void QRegion::detach()
 {
     if ( data->count != 1 )
 	*this = copy();
-}
-
-
-/*!
-  Obsolete function.
-*/
-
-void QRegion::cmd( int, void *, const QRegion *, const QRegion * )
-{
-#if defined(DEBUG)
-    debug( "QRegion::cmd: This is an obsolete function and should not be called" );
-#endif
 }
 
 

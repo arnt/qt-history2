@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#38 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#39 $
 **
 ** Definition of QFileDialog class
 **
@@ -140,7 +140,6 @@ private slots:
 
 private:
     void init();
-    void updatePathBox( const QString &);
     bool trySetSelection( const QFileInfo&, bool );
 
     QDir cwd;

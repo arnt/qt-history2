@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#70 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#71 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -131,11 +131,6 @@ private slots:
     void	dragScrollSlot();
 
 private:
-    // obsolete
-    void	paint( const QRect& clip, bool frame = FALSE );
-    void	pixmapPaint( const QRect& clip );
-    // kept
-    void	paintText( QPainter *, const QSize &, bool frame = FALSE );
     // kept
     void	newMark( int pos, bool copy=TRUE );
     void	markWord( int pos );

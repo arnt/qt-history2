@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#155 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#156 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1462,15 +1462,6 @@ void QFileDialog::cancelClicked()
 void QFileDialog::resizeEvent( QResizeEvent * )
 {
     updateGeometry();
-}
-
-/*! \internal
-
-  Obsolete.
-*/
-void QFileDialog::updatePathBox( const QString & )
-{
-    // unused
 }
 
 /*

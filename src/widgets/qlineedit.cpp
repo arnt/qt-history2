@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#193 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#194 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -857,35 +857,6 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
     markWord( cursorPos );
     repaint( FALSE ); // should use repaintArea()...
 }
-
-/*!
-  Obsolete.
-*/
-
-void QLineEdit::paint( const QRect&, bool )
-{
-    fatal( "go away" );
-}
-
-/*!
-  Obsolete.
-*/
-
-void QLineEdit::pixmapPaint( const QRect& )
-{
-    fatal( "go away" );
-}
-
-
-/*!
-  Obsolete.
-*/
-
-void QLineEdit::paintText( QPainter *, const QSize &, bool )
-{
-    fatal( "go away" );
-}
-
 
 /*!
   Moves the cursor leftwards one or more characters.
