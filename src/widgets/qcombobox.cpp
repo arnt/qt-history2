@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#175 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#176 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -982,7 +982,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	if ( d->ed )
 	    ax = d->ed->geometry().right() + 4;
 	else
-	    ax = width() - 3 - 21;
+	    ax = width() - 3 - awh;
 
 	if ( ax + awh + 2 < width() )
 	    ax += ( width() - 2 - ax - awh ) / 2;
