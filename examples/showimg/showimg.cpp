@@ -16,7 +16,6 @@
 #include <qpopupmenu.h>
 #include <qlabel.h>
 #include <qpainter.h>
-#include <qkeycode.h>
 #include <qapplication.h>
 #include <qclipboard.h>
 

@@ -10,7 +10,6 @@
 
 #include "popup.h"
 #include <qapplication.h>
-#include <qkeycode.h>
 #include <qlayout.h>
 
 FancyPopup::FancyPopup( QWidget* parent, const char*  name ):

@@ -15,7 +15,6 @@
 #include <qtoolbutton.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
-#include <qkeycode.h>
 #include <qstatusbar.h>
 #include <qapplication.h>
 #include <qfiledialog.h>

@@ -10,7 +10,6 @@
 
 #include "menu.h"
 #include <qpopupmenu.h>
-#include <qkeycode.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qpixmap.h>
@@ -155,7 +154,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
 
-    options->polish(); // adjust system settings 
+    options->polish(); // adjust system settings
     QFont f = options->font();
     f.setBold( TRUE );
     boldID = options->insertItem( new MyMenuItem( "&Bold", f ) );

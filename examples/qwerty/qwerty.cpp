@@ -12,7 +12,6 @@
 #include <qapplication.h>
 #include <qfile.h>
 #include <qfiledialog.h>
-#include <qkeycode.h>
 #include <qpopupmenu.h>
 #include <qtextstream.h>
 #include <qpainter.h>

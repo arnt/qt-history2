@@ -4,7 +4,6 @@
 #include <qmessagebox.h>
 #include <qmenubar.h>
 #include <qapplication.h>
-#include <qkeycode.h>
 #include <qpainter.h>
 #include <qprinter.h>
 #include <qlabel.h>

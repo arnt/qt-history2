@@ -16,7 +16,6 @@
 #include <qtoolbutton.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
-#include <qkeycode.h>
 #include <qtextedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
@@ -234,7 +233,7 @@ void ApplicationWindow::print()
 	statusBar()->message( "Printing..." );
 	QPainter p;
 	if( !p.begin( printer ) )              // paint on printer
-            return;			
+            return;
 
 	p.setFont( e->font() );
 	int yPos	= 0;			// y-position for each line

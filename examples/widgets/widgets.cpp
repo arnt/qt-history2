@@ -12,7 +12,6 @@
 #include <qpixmap.h>
 #include <qlayout.h>
 #include <qapplication.h>
-#include <qkeycode.h>
 
 // Standard Qt widgets
 

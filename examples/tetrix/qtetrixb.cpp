@@ -11,7 +11,6 @@
 #include "qtetrixb.h"
 #include "qtetrix.h"
 #include <qtimer.h>
-#include <qkeycode.h>
 #include <qpainter.h>
 
 const int waitAfterLineTime = 500;
@@ -80,7 +79,7 @@ void QTetrixBoard::drawSquare(int x,int y,int value)
     QPainter *p;
     QWidget *w;
     if ( localPainter ) {
-	p = new QPainter( this );    
+	p = new QPainter( this );
 	w = this;
     } else {
 	p = paint;
