@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#21 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#22 $
 **
 ** Definition of QFileDialog class
 **
@@ -17,6 +17,8 @@ class QLineEdit;
 class QPushButton;
 class QListView;
 class QListViewItem;
+class QLabel;
+class QWidget;
 
 #ifndef QT_H
 #include "qdir.h"
@@ -86,6 +88,8 @@ private slots:
 
 protected:
     void resizeEvent( QResizeEvent * );
+
+    void addWidgets( QLabel *, QWidget *, QPushButton * );
 
 private slots:
     void updateGeometry();
