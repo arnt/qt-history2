@@ -3452,6 +3452,18 @@ bool QAxBase::isNull() const
     return !d->ptr;
 }
 
+QVariant QAxBase::asVariant() const
+{
+    QVariant var;
+    if ( isNull() )
+	return var;
+
+    void *iface = d->dispatch();
+    if ( !iface ) 
+	iface = d->ptr;
+    var.rawAccess( iface, (QVariant::Type)1000 );
+    return var;
+}
 
 /*!
     \fn bool QAxBase::qt_emit( int, QUObject* );
@@ -3519,3 +3531,4 @@ IDispatch *create_object_wrapper( QObject * )
 {
     return 0;
 }
+

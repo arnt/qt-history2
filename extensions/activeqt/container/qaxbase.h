@@ -102,6 +102,8 @@ public:
 
     bool isNull() const;
 
+    QVariant asVariant() const;
+
 #ifdef Q_QDOC
 #error "The Symbol Q_QDOC is reserved for documentation purposes."
 signals:
