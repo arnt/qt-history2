@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#62 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#63 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -3845,7 +3845,10 @@ bool QXmlSimpleReader::parseDoctype()
 		break;
 	    case Doctype2:
 		d->parseName_useRef = FALSE;
-		parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		    return FALSE;
+		}
 		break;
 	    case Sys:
 		d->parseExternalID_allowPublicID = FALSE;
@@ -6379,7 +6382,10 @@ bool QXmlSimpleReader::parseReference()
 	    case Name:
 		// read the name into the ref
 		d->parseName_useRef = TRUE;
-		parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseReference, state );
+		    return FALSE;
+		}
 		break;
 	    case DoneD:
 		tmp = ref().toUInt( &ok, 10 );
