@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#151 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#152 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -993,6 +993,8 @@ void QPopupMenu::setEnabled( bool enable )
   Implementation of virtual QTableView functions
  *****************************************************************************/
 
+/*! \reimp */
+
 int QPopupMenu::cellHeight( int row )
 {
     QMenuItem *mi = mitems->at( row );
@@ -1017,6 +1019,7 @@ int QPopupMenu::cellHeight( int row )
 }
 
 
+/*! \reimp */
 
 int QPopupMenu::cellWidth( int col )
 {
@@ -1030,6 +1033,8 @@ int QPopupMenu::cellWidth( int col )
 	return width() - 2*frameWidth();	
 }
 
+
+/*! \reimp */
 
 void QPopupMenu::paintCell( QPainter *p, int row, int col )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#40 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -101,7 +101,7 @@ struct QHeaderData
   \class QHeader qheader.h
   \brief The QHeader class provides a table header.
   \ingroup realwidgets
-  
+
   This is a table heading of the type used in a list view. It gives
   the user the opportunity to resize and move the columns (or rows for
   vertical headings).
@@ -110,7 +110,7 @@ struct QHeaderData
   table-like structures.
 
   <img src=qheader-m.gif> <img src=qheader-w.gif>
-  
+
   \sa QListView QTableView
   <a href="http://www.microsoft.com/win32dev/uiguide/uigui181.htm">Microsoft Style Guide</a>
  */
@@ -813,6 +813,8 @@ int QHeader::offset() const
 }
 
 
+/*! \reimp */
+
 int QHeader::cellHeight( int row )
 {
     if ( orient == Vertical )
@@ -821,6 +823,8 @@ int QHeader::cellHeight( int row )
 	return QTableView::cellHeight();
 }
 
+
+/*! \reimp */
 
 int QHeader::cellWidth( int col )
 {
