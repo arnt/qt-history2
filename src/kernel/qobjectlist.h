@@ -60,6 +60,17 @@ public:
 	{ return (QObjectList&)QPtrList<QObject>::operator=(list); }
 };
 
+class Q_EXPORT QObjectListIterator : public QPtrListIterator<QObject>
+{
+public:
+    QObjectListIterator( const QObjectList &l )
+	: QPtrListIterator<QObject>( l ) { }
+    QObjectListIterator &operator=( const QObjectListIterator &i )
+	{ return (QObjectListIterator&)
+		 QPtrListIterator<QObject>::operator=( i ); }
+};
+
+#if QT_VERSION < 390
 class Q_EXPORT QObjectListIt : public QPtrListIterator<QObject>
 {
 public:
@@ -67,6 +78,10 @@ public:
     QObjectListIt &operator=(const QObjectListIt &i)
 	{ return (QObjectListIt&)QPtrListIterator<QObject>::operator=(i); }
 };
-
+#else
+// ### Qt 4.0: remove the QObjectListIt class above
+// ### remove this typedef too, maybe
+typedef QObjectListIterator QObjectListIt;
+#endif
 
 #endif // QOBJECTLIST_H
