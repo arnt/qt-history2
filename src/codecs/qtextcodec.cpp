@@ -1524,7 +1524,8 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 #endif //QT_NO_CODECS
 
 /*!
-    Returns a string representing the current language.
+    Returns a string representing the current language and 
+    sublanguage, e.g. "pt" for Portuguese, or "pt_br" for Portuguese/Brazil.
 */
 
 const char* QTextCodec::locale()
@@ -1548,25 +1549,25 @@ const char* QTextCodec::locale()
     QT_WA( {
 	TCHAR out[256];
 	QString language;
+	QString sublanguage;
 	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255 ) )
 	    language = QString::fromUcs2( (ushort*)out );
-	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
-	    language = QString::fromUcs2( (ushort*)out );
-	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, out, 255 ) )
-	    language = QString::fromUcs2( (ushort*)out );
-	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, out, 255 ) )
-	    language = QString::fromUcs2( (ushort*)out );
-	lang = language.local8Bit();
+	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
+	    sublanguage = QString::fromUcs2( (ushort*)out ).lower();
+	lang = language;
+	if ( sublanguage != language && !sublanguage.isEmpty() )
+	     lang += "_" + sublanguage;
     } , {
 	char out[256];
+	QString language;
+	QString sublanguage;
 	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, out, 255 ) )
-	    lang = QString::fromLocal8Bit( out );
-	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
-	    lang = QString::fromLocal8Bit( out );
-	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, out, 255 ) )
-	    lang = QString::fromLocal8Bit( out );
-	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, out, 255 ) )
-	    lang = QString::fromLocal8Bit( out );
+	    language = QString::fromLocal8Bit( out );
+	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
+	    sublanguage = QString::fromLocal8Bit( out ).lower();
+	lang = language;
+	if ( sublanguage != language && !sublanguage.isEmpty() )
+	    lang += "_" + sublanguage;
     } );
 #endif
     if ( lang.isEmpty() )
