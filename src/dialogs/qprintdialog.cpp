@@ -761,6 +761,9 @@ void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
   up the list of printers correctly and Qt does not need to scan for
   additional printers in the system.
 
+  \warning this function will change or disappear completely in the
+  final release of Qt 3.0.
+
   \sa setGlobalPrintDialog
 */
 // ### parameter exposing internal type without docu.
