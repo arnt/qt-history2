@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#180 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#181 $
 #
 # this is a massive hack, written very quickly
 #
@@ -100,7 +100,7 @@ sub processcode {
 	    #print "reading include file $h\n";
 	    $f = join( "\n", $f, &getfile( $h ) );
 	}
-	while ( $f =~ /(?:^|[\n\{])\s*class\s+(\w+)\s*:\s*public\s+(\w[\w\d+]*)\b/gs ) {
+	while ( $f =~ /(?:^|[\n\{])\s*class\s+(?:\w+\s+)?(\w+)\s*:\s*public\s+(\w[\w\d+]*)\b/gs ) {
 	    if (!defined( $anchor{$1} ) && 
 		defined( $anchor{$2} ) &&
 		!defined($inheritedtypes{$1})) {
@@ -111,7 +111,7 @@ sub processcode {
     }
 
     # look for own class definitions that inherit documented classes
-    while ( /(?:^|[\n\{])\s*(?:(?:class)|(?:struct))\s+(\w+)\s*:\s*public\s+(\w[\w\d+]*)\b/gs ) {
+    while ( /(?:^|[\n\{])\s*(?:(?:class)|(?:struct))\s+(?:\w+\s+)?(\w+)\s*:\s*public\s+(\w[\w\d+]*)\b/gs ) {
 	if (!defined( $anchor{$1} ) && 
 	    defined( $anchor{$2} ) &&
 	    !defined( $inheritedtypes{$1} ) ) {
@@ -916,7 +916,7 @@ sub readfiles {
 	$h = <F>;
 	close(F);
 	$h = &html($h);
-	$h =~ s@\n(?:(?:class)|(?:struct))\s+\w+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
+	$h =~ s@\n(?:(?:class)|(?:struct))\s+(?:\w+\s+)?\w+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
 	    $_ = "";
 	    foreach $w (split(/\b/, $&)) { # ARNTHER
 		if (defined($anchor{$w}) && $doc{$andchor{$w}} =~ /\S/) {
@@ -1025,13 +1025,13 @@ sub readh {
 	   (?:(?:class)|(?:struct))\s+([^\n]*?)\s+
 	   \x7b\s+(.*?)\n\x7d-xsg
 	   ) {
-	if ( $1 eq "" ) {
-	    &storeclass($filename, $2, $3);
+	my ($cookie, $sig, $def) = ($1,$2,$3);
+	$sig =~ s/\w+\s+(\w+)/$1/;
+	print "class $sig\n";
+	if ( $cookie eq "" ) {
+	    # Not a template
+	    &storeclass($filename, $sig, $def);
 	} else {
-	    my ($sig, $def, $cookie);
-	    $cookie = $1;
-	    $sig = $2;
-	    $def = $3;
 	    $sig =~ s/^(\w+)T\b/$1/gs;
 	    $_ = $sig;
 	    s/[:\s].*//;
