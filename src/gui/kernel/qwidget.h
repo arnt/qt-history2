@@ -100,11 +100,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWidget)
 
-    Q_PROPERTY(bool isTopLevel READ isTopLevel)
-    Q_PROPERTY(bool isDialog READ isDialog)
-    Q_PROPERTY(bool isModal READ isModal)
-    Q_PROPERTY(bool isPopup READ isPopup)
-    Q_PROPERTY(bool isDesktop READ isDesktop)
+    Q_PROPERTY(bool modal READ isModal)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(QRect geometry READ geometry WRITE setGeometry)
     Q_PROPERTY(QRect frameGeometry READ frameGeometry)

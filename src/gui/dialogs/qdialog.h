@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QDialog : public QWidget
     friend class QPushButton;
 
     Q_PROPERTY(bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled)
-    Q_OVERRIDE(bool isModal WRITE setModal)
+    Q_OVERRIDE(bool modal WRITE setModal)
 
 public:
     QDialog(QWidget *parent = 0, Qt::WFlags f = 0);
