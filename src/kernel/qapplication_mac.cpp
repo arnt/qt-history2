@@ -80,6 +80,7 @@
  *****************************************************************************/
 //#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
+//#define DEBUG_MODAL_EVENTS
 
 #define QMAC_SPEAK_TO_ME
 #ifdef QMAC_SPEAK_TO_ME
@@ -969,6 +970,10 @@ bool qt_modal_state()
 
 void qt_enter_modal(QWidget *widget)
 {
+#ifdef DEBUG_MODAL_EVENTS
+    qDebug("Entering modal state with %s::%s::%p (%d)", widget->className(), widget->name(), 
+	   widget, qt_modal_stack ? (int)qt_modal_stack->count() : -1);
+#endif
     if (!qt_modal_stack) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
 	Q_CHECK_PTR(qt_modal_stack);
@@ -981,33 +986,67 @@ void qt_enter_modal(QWidget *widget)
 void qt_leave_modal(QWidget *widget)
 {
     if(qt_modal_stack && qt_modal_stack->removeRef(widget)) {
+#ifdef DEBUG_MODAL_EVENTS
+	qDebug("Leaving modal state with %s::%s::%p (%d)", widget->className(), widget->name(), 
+	       widget, qt_modal_stack->count());
+#endif
 	if(qt_modal_stack->isEmpty()) {
 	    delete qt_modal_stack;
 	    qt_modal_stack = 0;
 	}
-    }
+    } 
+#ifdef DEBUG_MODAL_EVENTS
+    else qDebug("Failure to remove %s::%s::%p -- %p", widget->className(), widget->name(), widget, qt_modal_stack);
+#endif
     app_do_modal = qt_modal_stack != 0;
 }
 
 
 static bool qt_try_modal(QWidget *widget, EventRef event)
 {
-   if(qApp->activePopupWidget())
+#ifdef DEBUG_MODAL_EVENTS
+    qDebug("Deducing modality (qt_try_modal) %s::%s (%p)", widget ? widget->className() : "Unknown", 
+	   widget ? widget->name() : "Unknown", widget);
+#endif
+
+    if(qApp->activePopupWidget()) {
+#ifdef DEBUG_MODAL_EVENTS
+	qDebug("%s:%d -- Short circuit(TRUE)", __FILE__, __LINE__);
+#endif
 	return TRUE;
+    }
     // a bit of a hack: use WStyle_Tool as a general ignore-modality
     // allow tool windows; disallow tear off popups
-    if (widget->testWFlags(Qt::WStyle_Tool) && widget->inherits( "QPopupMenu"))
+   if (widget->testWFlags(Qt::WStyle_Tool) && widget->inherits( "QPopupMenu")) {
+#ifdef DEBUG_MODAL_EVENTS
+	qDebug("%s:%d -- Short circuit(TRUE)", __FILE__, __LINE__);
+#endif
 	return TRUE;
+   }
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
+    if(top && qt_mac_is_macsheet(top) && !MacIsWindowVisible((WindowPtr)top->handle())) {
+	if(WindowPtr wp = GetFrontWindowOfClass(kSheetWindowClass, true)) {
+	    if(QWidget *sheet = QWidget::find((WId)wp))
+		top = sheet;
+	}
+    }
 
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
 
     if (widget->testWFlags(Qt::WShowModal))	// widget is modal
 	modal = widget;
-    if (!top || modal == top)			// don't block event
+#ifdef DEBUG_MODAL_EVENTS
+    qDebug("%s:%d -- %s::%s(%p) -- %s::%s(%p)", __FILE__, __LINE__, modal ? modal->className() : "Unknown",
+	   modal ? modal->name() : "Unknown", modal, top ? top->className() : "Unknown", top ? top->name() : "Unknown", top);
+#endif
+    if (!top || modal == top) {			// don't block event
+#ifdef DEBUG_MODAL_EVENTS
+	qDebug("%s:%d -- Short circuit(TRUE)", __FILE__, __LINE__);
+#endif
 	return TRUE;
+    }
 
     while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
 	groupLeader = groupLeader->parentWidget();
@@ -1025,8 +1064,12 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 	    if (p == groupLeader) unrelated = FALSE;
 	}
 
-	if (unrelated)
+	if (unrelated) {
+#ifdef DEBUG_MODAL_EVENTS
+	    qDebug("%s:%d -- unrelated (TRUE)", __FILE__, __LINE__);
+#endif
 	    return TRUE;		// don't block event
+	}
     }
 
     bool block_event  = FALSE;
@@ -1035,13 +1078,13 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
     switch(eclass) {
     case kEventClassMouse:
-	block_event = ekind != kEventMouseMoved;
+	block_event = (ekind != kEventMouseMoved);
 	break;
     case kEventClassKeyboard:
 	block_event = TRUE;
 	break;
     case kEventClassWindow:
-	paint_event = ekind == kEventWindowUpdate;
+	paint_event = (ekind == kEventWindowUpdate);
 	break;
     }
 
@@ -1051,11 +1094,22 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     if(block_event && qt_mac_is_macsheet(top)) {
 	for(QWidget *w = top->parentWidget(); w; w = w->parentWidget()) {
 	    w = w->topLevelWidget();
-	    if(w == widget || w->isModal())
+	    if(w == widget || w->isModal()) {
+#ifdef DEBUG_MODAL_EVENTS
+		qDebug("%s:%d -- modal (FALSE)", __FILE__, __LINE__);
+#endif
 		return FALSE;
+	    }
 	}
+#ifdef DEBUG_MODAL_EVENTS
+	qDebug("%s:%d -- special mac-sheet (TRUE)", __FILE__, __LINE__);
+#endif
 	return TRUE;
     }
+#endif
+
+#ifdef DEBUG_MODAL_EVENTS
+    qDebug("%s:%d -- final decision! (%s)", __FILE__, __LINE__, block_event ? "FALSE" : "TRUE");
 #endif
     return !block_event;
 }
