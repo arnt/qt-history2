@@ -44,8 +44,6 @@
   \class QLNode qglist.h
   \brief The QLNode class is an internal class for the QList template collection.
 
-  \internal
-
   QLNode is a doubly-linked list node. It has three pointers:
   \list 1
   \i Pointer to the previous node.

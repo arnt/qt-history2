@@ -71,9 +71,9 @@
      fileMenu->insertItem( "Undo", parent, SLOT(undo()), CTRL+Key_Z );
   \endcode
 
-  A QAccel contains a list of accelerator items. The following
-  functions manipulate the list: insertItem(), removeItem(), clear(),
-  key(), findKey().
+  A QAccel contains a list of accelerator items that can be
+  manipulated using insertItem(), removeItem(), clear(),
+  key() and findKey().
 
   Each accelerator item consists of an identifier and a keyboard code
   combined with modifiers (\c SHIFT, \c CTRL, \c ALT or \c
@@ -94,8 +94,8 @@
   setItemEnabled() to enable/disable individual items.  An item is
   active only when the QAccel is enabled and the item itself is.
 
-  The function setWhatsThis() specifies the What's This text for an
-  accelerator item.
+  The function setWhatsThis() specifies a help text that appears when
+  the user presses an accelerator key in What's This mode.
 
   A QAccel object handles key events to the QWidget::topLevelWidget()
   containing \e parent, and hence to any child widgets of that window.
@@ -133,7 +133,7 @@ typedef QPtrList<QAccelItem> QAccelList; // internal accelerator list
 
 class QAccelPrivate {
 public:
-    QAccelPrivate() { aitems.setAutoDelete( TRUE ); ignorewhatsthis = FALSE;}
+    QAccelPrivate() { aitems.setAutoDelete( TRUE ); ignorewhatsthis = FALSE; }
     ~QAccelPrivate() {}
     QAccelList aitems;
     bool enabled;
@@ -164,7 +164,7 @@ static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 		// Modifiers must match...
 		QChar c;
 		if ( (key & Qt::CTRL) && (ch < ' ') )
-		    c = ch.unicode()+'@'+' '; // Ctrl-A is ASCII 001, etc.
+		    c = ch.unicode()+'@'+' '; // Ctrl+A is ASCII 001, etc.
 		else
 		    c = ch;
 		if ( kc.lower() == c.lower()
@@ -642,39 +642,46 @@ QString QAccel::keyToString( int k )
 }
 
 /*!
-   Returns an accelerator code for the string \a s.  For example
-   "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'.  The strings "Ctrl",
-   "Shift", "Alt" are recognized, as well as their translated
-   equivalents in the "QAccel" scope (using QObject::tr()). Returns 0
-   if \a s is not recognized.
+  Returns an accelerator code for the string \a s.  For example
+  "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'.  The strings "Ctrl",
+  "Shift", "Alt" are recognized, as well as their translated
+  equivalents in the "QAccel" scope (using QObject::tr()). Returns 0
+  if \a s is not recognized.
 
-   A common usage of this function is to provide
-   translatable accelerator values for menus:
+  This function is typically used with \link QObject::tr() tr
+  \endlink(), so that accelerator keys can be replaced in
+  translations:
 
-   \code
-	QPopupMenu* file = new QPopupMenu(this);
-	file->insertItem( p1, tr("&Open..."), this, SLOT(open()),
-	    QAccel::stringToKey(tr("Ctrl+O")) );
-   \endcode
+  \code
+    QPopupMenu *file = new QPopupMenu( this );
+    file->insertItem( p1, tr("&Open..."), this, SLOT(open()),
+		      QAccel::stringToKey(tr("Ctrl+O", "File|Open")) );
+  \endcode
+
+  Notice the \c "File|Open" translator comment. It is by no means
+  necessary, but it provides some context for the human translator.
+
+  \sa QObject::tr()
+      \link i18n.html Internationalization with Qt \endlink
 */
 int QAccel::stringToKey( const QString & s )
 {
     int k = 0;
-    int p = s.findRev('+',s.length()-2); // -2 so that Ctrl++ works
+    int p = s.findRev( '+', s.length() - 2 ); // -2 so that Ctrl++ works
     QString name;
     if ( p > 0 ) {
-	name = s.mid(p+1);
+	name = s.mid( p + 1 );
     } else {
 	name = s;
     }
     int fnum;
     if ( name.length() == 1 ) {
 	k = name[0].unicode() | UNICODE_ACCEL;
-    } else if ( name[0] == 'F' && (fnum=name.mid(1).toInt()) ) {
+    } else if ( name[0] == 'F' && (fnum = name.mid(1).toInt()) ) {
 	k = Key_F1 + fnum - 1;
     } else {
-	for (int tran=0; tran<=1; tran++) {
-	    for (int i=0; keyname[i].name; i++) {
+	for ( int tran = 0; tran < 2; tran++ ) {
+	    for ( int i = 0; keyname[i].name; i++ ) {
 		if ( tran ? name == tr(keyname[i].name)
 			  : name == keyname[i].name )
 		{
@@ -718,8 +725,9 @@ done:
   To set What's This help on a menu item (with or without an
   accelerator key), use QMenuData::setWhatsThis().
 
-  \sa whatsThis(), QWhatsThis::inWhatsThisMode(), QMenuData::setWhatsThis()
- */
+  \sa whatsThis(), QWhatsThis::inWhatsThisMode(), QMenuData::setWhatsThis(),
+      QAction::setWhatsThis()
+*/
 void QAccel::setWhatsThis( int id, const QString& text )
 {
 
@@ -754,14 +762,9 @@ bool QAccel::ignoreWhatsThis() const
 }
 
 
-
 /*! \page accelerators.html
 
-<title>Standard Accelerators</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align="center">Standard Accelerator Keys</h1>
+\title Standard Accelerator Keys
 
 Applications invariably need to define accelerator keys for actions,
 and Qt provides functions to help with that, most importantly \l
@@ -774,88 +777,86 @@ agrees with Microsoft.
 
 The boldfaced letter plus Alt is Microsoft's recommended choice, and
 we recommend supporting it.  For an Apply button, for example, we
-recommend \link QButton::setText() setText( \endlink \link
-QWidget::tr() tr( \endlink "&Apply" ) );
+recommend QButton::setText( \link QWidget::tr() tr \endlink("&Apply") );
 
 If you have conflicting commands (e.g. About and Apply buttons in the
 same dialog), you're on your own.
 
-<ul>
-<li><b><u>A</u></b>bout
-<li>Always on <b><u>T</u></b>op
-<li><b><u>A</u></b>pply
-<li><b><u>B</u></b>ack
-<li><b><u>B</u></b>rowse
-<li><b><u>C</u></b>lose (CDE: Alt-F4.  Alt-F4 is "close window" in Windows.)
-<li><b><u>C</u></b>opy (CDE: Ctrl-C, Ctrl-Insert)
-<li><b><u>C</u></b>opy Here
-<li>Create <b><u>S</u></b>hortcut
-<li>Create <b><u>S</u></b>hortcut Here
-<li>Cu<b><u>t</u></b>
-<li><b><u>D</u></b>elete
-<li><b><u>E</u></b>dit
-<li><b><u>E</u></b>xit
-<li><b><u>E</u></b>xplore
-<li><b><u>F</u></b>ile
-<li><b><u>F</u></b>ind
-<li><b><u>H</u></b>elp
-<li>Help <b><u>T</u></b>opics
-<li><b><u>H</u></b>ide
-<li><b><u>I</u></b>nsert
-<li>Insert <b><u>O</u></b>bject
-<li><b><u>L</u></b>ink Here
-<li>Ma<b><u>x</u></b>imize
-<li>Mi<b><u>n</u></b>imize
-<li><b><u>M</u></b>ove
-<li><b><u>M</u></b>ove Here
-<li><b><u>N</u></b>ew
-<li><b><u>N</u></b>ext
-<li><b><u>N</u></b>o
-<li><b><u>O</u></b>pen
-<li>Open <b><u>W</u></b>ith
-<li>Page Set<b><u>u</u></b>p
-<li><b><u>P</u></b>aste
-<li>Paste <b><u>L</u></b>ink
-<li>Paste <b><u>S</u></b>hortcut
-<li>Paste <b><u>S</u></b>pecial
-<li><b><u>P</u></b>ause
-<li><b><u>P</u></b>lay
-<li><b><u>P</u></b>rint
-<li><b><u>P</u></b>rint Here
-<li>P<b><u>r</u></b>operties
-<li><b><u>Q</u></b>uick View
-<li><b><u>R</u></b>edo (CDE: Ctrl-Y, Alt-Backspace)
-<li><b><u>R</u></b>epeat
-<li><b><u>R</u></b>estore
-<li><b><u>R</u></b>esume
-<li><b><u>R</u></b>etry
-<li><b><u>R</u></b>un
-<li><b><u>S</u></b>ave
-<li>Save <b><u>A</u></b>s
-<li>Select <b><u>A</u></b>ll
-<li>Se<b><u>n</u></b>d To
-<li><b><u>S</u></b>how
-<li><b><u>S</u></b>ize
-<li>S<b><u>p</u></b>lit
-<li><b><u>S</u></b>top
-<li><b><u>U</u></b>ndo (CDE: Ctrl-Z or Alt-Backspace)
-<li><b><u>V</u></b>iew
-<li><b><u>W</u></b>hat's This?
-<li><b><u>W</u></b>indow
-<li><b><u>Y</u></b>es
-</ul>
+\list
+\i <b><u>A</u></b>bout
+\i Always on <b><u>T</u></b>op
+\i <b><u>A</u></b>pply
+\i <b><u>B</u></b>ack
+\i <b><u>B</u></b>rowse
+\i <b><u>C</u></b>lose (CDE: Alt+F4; Alt+F4 is "close window" in Windows)
+\i <b><u>C</u></b>opy (CDE: Ctrl+C, Ctrl+Insert)
+\i <b><u>C</u></b>opy Here
+\i Create <b><u>S</u></b>hortcut
+\i Create <b><u>S</u></b>hortcut Here
+\i Cu<b><u>t</u></b>
+\i <b><u>D</u></b>elete
+\i <b><u>E</u></b>dit
+\i <b><u>E</u></b>xit
+\i <b><u>E</u></b>xplore
+\i <b><u>F</u></b>ile
+\i <b><u>F</u></b>ind
+\i <b><u>H</u></b>elp
+\i Help <b><u>T</u></b>opics
+\i <b><u>H</u></b>ide
+\i <b><u>I</u></b>nsert
+\i Insert <b><u>O</u></b>bject
+\i <b><u>L</u></b>ink Here
+\i Ma<b><u>x</u></b>imize
+\i Mi<b><u>n</u></b>imize
+\i <b><u>M</u></b>ove
+\i <b><u>M</u></b>ove Here
+\i <b><u>N</u></b>ew
+\i <b><u>N</u></b>ext
+\i <b><u>N</u></b>o
+\i <b><u>O</u></b>pen
+\i Open <b><u>W</u></b>ith
+\i Page Set<b><u>u</u></b>p
+\i <b><u>P</u></b>aste
+\i Paste <b><u>L</u></b>ink
+\i Paste <b><u>S</u></b>hortcut
+\i Paste <b><u>S</u></b>pecial
+\i <b><u>P</u></b>ause
+\i <b><u>P</u></b>lay
+\i <b><u>P</u></b>rint
+\i <b><u>P</u></b>rint Here
+\i P<b><u>r</u></b>operties
+\i <b><u>Q</u></b>uick View
+\i <b><u>R</u></b>edo (CDE: Ctrl+Y, Alt+Backspace)
+\i <b><u>R</u></b>epeat
+\i <b><u>R</u></b>estore
+\i <b><u>R</u></b>esume
+\i <b><u>R</u></b>etry
+\i <b><u>R</u></b>un
+\i <b><u>S</u></b>ave
+\i Save <b><u>A</u></b>s
+\i Select <b><u>A</u></b>ll
+\i Se<b><u>n</u></b>d To
+\i <b><u>S</u></b>how
+\i <b><u>S</u></b>ize
+\i S<b><u>p</u></b>lit
+\i <b><u>S</u></b>top
+\i <b><u>U</u></b>ndo (CDE: Ctrl+Z or Alt+Backspace)
+\i <b><u>V</u></b>iew
+\i <b><u>W</u></b>hat's This?
+\i <b><u>W</u></b>indow
+\i <b><u>Y</u></b>es
+\endlist
 
 There are also a lot of other keys and actions (that use other
-modifier keys).  See the Microsoft and Open Group documentation for
-details.
+modifier keys than Alt).  See the Microsoft and Open Group
+documentation for details.
 
-The <a
-href="http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t">
-Microsoft book</a> has ISBN 0735605661.  The corresponding Open Group
-book is \e very hard to find, rather expensive and we cannot recommend
-it. However, if you really want it, OGPubs@opengroup.org may be able
-to help. Ask then for ISBN 1859121047. (This ISBN is correct, but is
-not listed in any database we have seen.)
+The \link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t
+Microsoft book \endlink has ISBN 0735605661.  The corresponding Open Group
+book is very hard to find, rather expensive and we cannot recommend
+it. However, if you really want it, OGPubs@opengroup.org might be able
+to help. Ask then for ISBN 1859121047.
 
 */
+
 #endif // QT_NO_ACCEL

@@ -511,24 +511,24 @@ In the implementation of MainWindow,
 \link tt2-mainwindow-cpp.html mainwindow.cpp\endlink,
 we create an instance of our ArrowPad class
 
-\walkthrough  tt2/mainwindow.cpp
+\walkthrough tt2/mainwindow.cpp
 \skipto arrow pad
 \printline arrow pad
 
 We also call MainWindow::tr() twice, once for the menu item and once for
-the accelerator
+the accelerator.
 
 \skipto quit()
 \printline quit()
 \printuntil stringToKey
 
-Note the use of
-\link http://doc.trolltech.com/qaccel.html#stringToKey
-QAccel::stringToKey() \endlink to support different keys in other languages.
-"Ctrl+Q" is a good choice for Quit in English, but a Dutch translator
-might want to use "Ctrl+A" (for Afsluiten) and a German translator
-"Strg+E" (for, strangely, Beenden). When using \c tr() for Ctrl key
-accelerators the two argument form should always be used with the second
+Note the use of \link
+http://doc.trolltech.com/qaccel.html#stringToKey
+QAccel::stringToKey() \endlink to support different keys in other
+languages. "Ctrl+Q" is a good choice for Quit in English, but a Dutch
+translator might want to use "Ctrl+A" (for Afsluiten) and a German
+translator "Strg+E" (for Beenden). When using \c tr() for Ctrl key
+accelerators the two argument form should be used with the second
 argument describing the function that the accelerator performs.
 
 Our \c main() function is defined in
@@ -559,21 +559,21 @@ texts ("\&Up", "\&Left", etc.) grouped in two contexts ("ArrowPad" and
 
 Now, enter the following translations:
 
-<ul>
-<li> ArrowPad
-     <ul>
-     <li> \&Up - \&Haut
-     <li> \&Left - \&Gauche
-     <li> \&Right - \&Droite
-     <li> \&Down - \&Bas
-     </ul>
-<li> MainWindow
-     <ul>
-     <li> E\&xit - \&Quitter
-     <li> Ctrl+Q - Ctrl+Q
-     <li> \&File - \&Fichier
-     </ul>
-</ul>
+\list
+\i ArrowPad
+     \list
+     \i \&Up - \&Haut
+     \i \&Left - \&Gauche
+     \i \&Right - \&Droite
+     \i \&Down - \&Bas
+     \endlist
+\i MainWindow
+     \list
+     \i E\&xit - \&Quitter
+     \i Ctrl+Q - Ctrl+Q
+     \i \&File - \&Fichier
+     \endlist
+\endlist
 
 It's quickest to press Alt+D (which clicks the \e {Done & Next}
 button) after typing each translation, since this marks the translation
@@ -605,8 +605,8 @@ having to remember to load and \e File|Release each one
 individually from \e {Qt Linguist}.
 
 In practice we would include calls to \e lupdate and \e lrelease in the
-application's make file to ensure that the latest translations were
-always used automatically.
+application's makefile to ensure that the latest translations are
+used.
 
 <!-- an example of a makefile or .pro file that did this would be nice -->
 

@@ -45,8 +45,6 @@
   \class QGDict qgdict.h
   \brief The QGDict class is an internal class for implementing QDict template classes.
 
-  \internal
-
   QGDict is a strictly internal class that acts as a base class for the
   \link collection.html collection classes\endlink QDict and QIntDict.
 

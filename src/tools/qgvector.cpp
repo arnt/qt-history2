@@ -62,10 +62,8 @@
   \brief The QGVector class is an internal class for implementing Qt
   collection classes.
 
-  \internal
-
-  QGVector is a strictly internal class that acts as a base class for
-  the QVector collection class.
+  QGVector is an internal class that acts as a base class for the
+  QVector collection class.
 
   QGVector has some virtual functions that may be reimplemented in
   subclasses to customize behavior.
