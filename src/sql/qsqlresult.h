@@ -87,8 +87,13 @@ protected:
     virtual int     numRowsAffected() = 0;
 private:
     QSqlResultPrivate* d;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QSqlResult( const QSqlResult & );
     QSqlResult &operator=( const QSqlResult & );
+#endif
+
 };
 
 #endif	// QT_NO_SQL

@@ -48,6 +48,7 @@
 class Q_EXPORT QSql
 {
 public:
+    QSql() {}
     enum Op {
 	None = -1,
 	Insert = 0,
@@ -65,6 +66,12 @@ public:
 	No = 0,
 	Yes = 1
     };
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QSql( const QSql & );
+    QSql &operator=( const QSql & );
+#endif
 
 };
 

@@ -41,6 +41,13 @@
 #include "qwidget.h"
 #include "qcleanuphandler.h"
 #include "qobjcoll.h"
+#include "qmap.h"
+
+class QSqlPropertyMap::QSqlPropertyMapPrivate
+{
+public:
+    QMap< QString, QString > propertyMap;
+};
 
 /*!
   \class QSqlPropertyMap qsqlpropertymap.h
@@ -112,16 +119,16 @@
  */
 QSqlPropertyMap::QSqlPropertyMap()
 {
-    propertyMap["QLineEdit"]    = "text";
-    propertyMap["QSpinBox"]     = "value";
-    propertyMap["QDial"]        = "value";
-    propertyMap["QCheckButton"] = "checked";
-    propertyMap["QSlider"]      = "value";
-    propertyMap["QComboBox"]    = "currentItem";
-    propertyMap["QDateEdit"]    = "date";
-    propertyMap["QTimeEdit"]    = "time";
-    propertyMap["QDateTimeEdit"]= "dateTime";
-    propertyMap["QLabel"]       = "text";
+    d->propertyMap["QLineEdit"]    = "text";
+    d->propertyMap["QSpinBox"]     = "value";
+    d->propertyMap["QDial"]        = "value";
+    d->propertyMap["QCheckButton"] = "checked";
+    d->propertyMap["QSlider"]      = "value";
+    d->propertyMap["QComboBox"]    = "currentItem";
+    d->propertyMap["QDateEdit"]    = "date";
+    d->propertyMap["QTimeEdit"]    = "time";
+    d->propertyMap["QDateTimeEdit"]= "dateTime";
+    d->propertyMap["QLabel"]       = "text";
 }
 
 /*!
@@ -145,10 +152,10 @@ QVariant QSqlPropertyMap::property( QWidget * widget )
 {
     if( !widget ) return QVariant();
 #ifdef QT_CHECK_RANGE
-    if ( !propertyMap.contains( QString(widget->metaObject()->className()) ) )
+    if ( !d->propertyMap.contains( QString(widget->metaObject()->className()) ) )
 	qWarning("QSqlPropertyMap::property: %s does not exist", widget->metaObject()->className() );
 #endif
-    return widget->property( propertyMap[ widget->metaObject()->className() ] );
+    return widget->property( d->propertyMap[ widget->metaObject()->className() ] );
 }
 
 /*!
@@ -160,7 +167,7 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 {
     if( !widget ) return;
 
-    widget->setProperty( propertyMap[ widget->metaObject()->className() ],
+    widget->setProperty( d->propertyMap[ widget->metaObject()->className() ],
 			 value );
 }
 
@@ -174,7 +181,7 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 void QSqlPropertyMap::insert( const QString & classname,
 			      const QString & property )
 {
-    propertyMap[ classname ] = property;
+    d->propertyMap[ classname ] = property;
 }
 
 /*!
@@ -184,7 +191,7 @@ void QSqlPropertyMap::insert( const QString & classname,
 */
 void QSqlPropertyMap::remove( const QString & classname )
 {
-    propertyMap.remove( classname );
+    d->propertyMap.remove( classname );
 }
 
 static QSqlPropertyMap * defaultmap = 0;

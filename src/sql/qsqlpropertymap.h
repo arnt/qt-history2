@@ -43,16 +43,10 @@
 
 #ifndef QT_H
 #include "qvariant.h"
-#include "qmap.h"
+#include "qstring.h"
 #endif // QT_H
 
 class QWidget;
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<QString,QString>;
-// MOC_SKIP_END
-#endif
 
 class Q_EXPORT QSqlPropertyMap {
 public:
@@ -68,8 +62,14 @@ public:
     static QSqlPropertyMap * defaultMap();
     static void installDefaultMap( QSqlPropertyMap * map );
 
-private:
-    QMap< QString, QString > propertyMap;
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QSqlPropertyMap( const QSqlPropertyMap & );
+    QSqlPropertyMap &operator=( const QSqlPropertyMap & );
+#endif
+    class QSqlPropertyMapPrivate;
+    QSqlPropertyMapPrivate* d;
+
 };
 
 #endif // QT_NO_SQL
