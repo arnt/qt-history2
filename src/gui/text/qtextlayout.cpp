@@ -695,14 +695,13 @@ void QTextLine::layout(int width)
             break;
     }
 
-    const QCharAttributes *attributes = eng->attributes();
-
     Q26Dot6 minw, spacew;
 
 //     qDebug("from: %d:   item=%d, total %d width available %d/%d", line.from, item, eng->items.size(), line.width.value(), line.width.toInt());
 
     while (item < eng->items.size()) {
         eng->shape(item);
+        const QCharAttributes *attributes = eng->attributes();
         const QScriptItem &current = eng->items[item];
         line.ascent = qMax(line.ascent, current.ascent);
         line.descent = qMax(line.descent, current.descent);
