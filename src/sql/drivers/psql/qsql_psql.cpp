@@ -37,10 +37,10 @@
 #include "qsql_psql.h"
 #include <private/qsqlextension_p.h>
 
+#include <qpointarray.h>
 #include <qsqlrecord.h>
 #include <qregexp.h>
 #include <qdatetime.h>
-#include <qpointarray.h>
 // PostgreSQL header <utils/elog.h> included by <postgres.h> redefines DEBUG.
 #if defined(DEBUG)
 # undef DEBUG
@@ -134,18 +134,6 @@ QVariant::Type qDecodePSQLType( int t )
     case TIMESTAMPTZOID :
 #endif
 	type = QVariant::DateTime;
-	break;
-    case POINTOID       :
-	type = QVariant::Point;
-	break;
-    case BOXOID         :
-	type = QVariant::Rect;
-	break;
-    case POLYGONOID     :
-    case LINEOID        :
-    case LSEGOID        :
-    case PATHOID        :
-	type = QVariant::PointArray;
 	break;
 	//    case ZPBITOID	: // 7.x
 	//    case VARBITOID	: // 7.x
@@ -940,9 +928,39 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	    }
 	case QVariant::String:
 	case QVariant::CString: {
+	    switch ( field->value().type() ) {
+		case QVariant::Rect: {
+		    QRect rec = field->value().toRect();
+		    // upper right corner then lower left according to psql docs
+		    r = "'(" + QString::number( rec.right() ) +
+			"," + QString::number( rec.bottom() ) +
+			"),(" + QString::number( rec.left() ) +
+			"," + QString::number( rec.top() ) + ")'";
+		    break;
+		}
+		case QVariant::Point: {
+		    QPoint p = field->value().toPoint();
+		    r = "'(" + QString::number( p.x() ) +
+			"," + QString::number( p.y() ) + ")'";
+		    break;
+		}
+		case QVariant::PointArray: {
+		    QPointArray pa = field->value().toPointArray();
+		    r = "' ";
+		    for ( int i = 0; i < (int)pa.size(); ++i ) {
+			r += "(" + QString::number( pa[i].x() ) +
+			     "," + QString::number( pa[i].y() ) + "),";
+		    }
+		    r.truncate( r.length() - 1 );
+		    r += "'";
+		    break;
+		}
+		default:
 	    // Escape '\' characters
-	    r = QSqlDriver::formatValue( field );
-	    r.replace( "\\", "\\\\" );
+		    r = QSqlDriver::formatValue( field );
+		    r.replace( "\\", "\\\\" );
+		    break;
+	    }
 	    break;
 	}
 	case QVariant::Bool:
@@ -957,32 +975,6 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	    qWarning( "QPSQLDriver::formatValue: cannot format ByteArray." );
 #endif
 	    break;
-	case QVariant::Rect: {
-	    QRect rec = field->value().toRect();
-	    // upper right corner then lower left according to psql docs
-	    r = "'(" + QString::number( rec.right() ) +
-		"," + QString::number( rec.bottom() ) +
-		"),(" + QString::number( rec.left() ) +
-		"," + QString::number( rec.top() ) + ")'";
-	    break;
-	}
-	case QVariant::Point: {
-	    QPoint p = field->value().toPoint();
-	    r = "'(" + QString::number( p.x() ) +
-	        "," + QString::number( p.y() ) + ")'";
-	    break;
-	}
-	case QVariant::PointArray: {
-	    QPointArray pa = field->value().toPointArray();
-	    r = "' ";
-	    for ( int i = 0; i < (int)pa.size(); ++i ) {
-		r += "(" + QString::number( pa[i].x() ) +
-		     "," + QString::number( pa[i].y() ) + "),";
-	    }
-	    r.truncate( r.length() - 1 );
-	    r += "'";
-	    break;
-	}
 	default:
 	    r = QSqlDriver::formatValue( field );
 	    break;
