@@ -17,13 +17,18 @@
 #include "qpainter.h"
 #include "qpainterpath.h"
 
+void QFontEngine::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
+{
+    addBitmapFontToPath(x, y, glyphs, numGlyphs, path);
+}
+
 void QFontEngine::addBitmapFontToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs,
                                  QPainterPath *path)
 {
     glyph_metrics_t metrics = boundingBox(glyphs, numGlyphs);
-    QBitmap bm(metrics.width, metrics.height);
+    QBitmap bm(qRound(metrics.width), qRound(metrics.height));
     QPainter p(&bm);
-    p.fillRect(0, 0, metrics.width, metrics.height, Qt::color0);
+    p.fillRect(0, 0, qRound(metrics.width), qRound(metrics.height), Qt::color0);
     p.setPen(Qt::color1);
 
     QTextItem item;

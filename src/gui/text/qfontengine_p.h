@@ -99,7 +99,7 @@ public:
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si) = 0;
 #endif
-    virtual void addOutlineToPath(qReal, qReal, const QGlyphLayout *, int, QPainterPath *) { }
+    virtual void addOutlineToPath(qReal, qReal, const QGlyphLayout *, int, QPainterPath *);
     virtual void addBitmapFontToPath(qReal x, qReal y, const QGlyphLayout *, int, QPainterPath *);
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;

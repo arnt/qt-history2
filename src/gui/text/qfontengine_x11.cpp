@@ -1248,6 +1248,8 @@ void QFontEngineXft::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyp
                     path->lineTo(end + cp);
             }
         }
+    } else {
+        addBitmapFontToPath(x, y, glyphs, numGlyphs, path);
     }
     XftUnlockFace(_font);
 }
