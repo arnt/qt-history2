@@ -95,8 +95,6 @@ static bool qt_mac_use_qt_scroller_lines = false;
 #if defined(QT_TABLET_SUPPORT)
 static int tablet_button_state = 0;
 #endif
-static int mouse_button_state = 0;
-static int keyboard_modifiers_state = 0;
 static bool app_do_modal = false;       // modal mode
 extern QWidgetList *qt_modal_stack;     // stack of modal widgets
 extern bool qt_mac_in_drag;             // from qdnd_mac.cpp
@@ -298,11 +296,6 @@ bool qt_nograb()                                // application no-grab option
 #else
     return false;
 #endif
-}
-void qt_mac_clear_mouse_state()
-{
-    mouse_button_state = 0;
-    qt_button_down = 0;
 }
 
 void qt_mac_update_os_settings()
@@ -1088,12 +1081,12 @@ void QApplication::beep()
 
 /* key maps */
 #ifdef DEBUG_KEY_MAPS
-#define MAP_KEY(x) x, #x
+#define MAP_MAC_ENUM(x) x, #x
 #else
-#define MAP_KEY(x) x
+#define MAP_MAC_ENUM(x) x
 #endif
 
-struct key_sym
+struct mac_enum_mapper
 {
     int mac_code;
     int qt_code;
@@ -1102,17 +1095,19 @@ struct key_sym
 #endif
 };
 
-static key_sym modifier_syms[] = {
-{ shiftKey, MAP_KEY(Qt::ShiftButton) },
-{ rightShiftKeyBit, MAP_KEY(Qt::ShiftButton) },
-{ controlKey, MAP_KEY(Qt::MetaButton) },
-{ rightControlKey, MAP_KEY(Qt::MetaButton) },
-{ cmdKey, MAP_KEY(Qt::ControlButton) },
-{ optionKey, MAP_KEY(Qt::AltButton) },
-{ rightOptionKey, MAP_KEY(Qt::AltButton) },
-{ kEventKeyModifierNumLockMask, MAP_KEY(Qt::Keypad) },
-{   0, MAP_KEY(0) } };
-static int get_modifiers(int key, bool from_mouse=false)
+//modifiers
+static mac_enum_mapper modifier_symbols[] = {
+    { shiftKey, MAP_MAC_ENUM(Qt::ShiftButton) },
+    { rightShiftKeyBit, MAP_MAC_ENUM(Qt::ShiftButton) },
+    { controlKey, MAP_MAC_ENUM(Qt::MetaButton) },
+    { rightControlKey, MAP_MAC_ENUM(Qt::MetaButton) },
+    { cmdKey, MAP_MAC_ENUM(Qt::ControlButton) },
+    { optionKey, MAP_MAC_ENUM(Qt::AltButton) },
+    { rightOptionKey, MAP_MAC_ENUM(Qt::AltButton) },
+    { kEventKeyModifierNumLockMask, MAP_MAC_ENUM(Qt::Keypad) },
+    { 0, MAP_MAC_ENUM(0) } 
+};
+static Qt::KeyboardModifiers get_modifiers(int keys, bool from_mouse=false)
 {
 #if !defined(DEBUG_KEY_MAPS) || defined(DEBUG_MOUSE_MAPS)
     Q_UNUSED(from_mouse);
@@ -1121,90 +1116,133 @@ static int get_modifiers(int key, bool from_mouse=false)
 #ifndef DEBUG_MOUSE_MAPS
             if(!from_mouse)
 #endif
-                qDebug("Qt: internal: **Mapping modifier: %d (0x%04x) -- %d", key, key, from_mouse);
+                qDebug("Qt: internal: **Mapping modifiers: %d (0x%04x) -- %d", keys, keys, from_mouse);
 #endif
-    int ret = 0;
-    for(int i = 0; modifier_syms[i].qt_code; i++) {
-        if(key & modifier_syms[i].mac_code) {
+    Qt::KeyboardModifiers ret = Qt::NoModifier;
+    for(int i = 0; modifier_symbols[i].qt_code; i++) {
+        if(keys & modifier_symbols[i].mac_code) {
 #ifdef DEBUG_KEY_MAPS
 #ifndef DEBUG_MOUSE_MAPS
             if(!from_mouse)
 #endif
-                qDebug("Qt: internal: %d: got modifier: %s", from_mouse, modifier_syms[i].desc);
+                qDebug("Qt: internal: %d: got modifier: %s", from_mouse, modifier_symbols[i].desc);
 #endif
-            ret |= modifier_syms[i].qt_code;
+            ret |= Qt::KeyboardModifier(modifier_symbols[i].qt_code);
         }
     }
     return ret;
 }
 
-static key_sym key_syms[] = {
-{ kHomeCharCode, MAP_KEY(Qt::Key_Home) },
-{ kEnterCharCode, MAP_KEY(Qt::Key_Enter) },
-{ kEndCharCode, MAP_KEY(Qt::Key_End) },
-{ kBackspaceCharCode, MAP_KEY(Qt::Key_Backspace) },
-{ kTabCharCode, MAP_KEY(Qt::Key_Tab) },
-{ kPageUpCharCode, MAP_KEY(Qt::Key_PageUp) },
-{ kPageDownCharCode, MAP_KEY(Qt::Key_PageDown) },
-{ kReturnCharCode, MAP_KEY(Qt::Key_Return) },
-{ kEscapeCharCode, MAP_KEY(Qt::Key_Escape) },
-{ kLeftArrowCharCode, MAP_KEY(Qt::Key_Left) },
-{ kRightArrowCharCode, MAP_KEY(Qt::Key_Right) },
-{ kUpArrowCharCode, MAP_KEY(Qt::Key_Up) },
-{ kDownArrowCharCode, MAP_KEY(Qt::Key_Down) },
-{ kHelpCharCode, MAP_KEY(Qt::Key_Help) },
-{ kDeleteCharCode, MAP_KEY(Qt::Key_Delete) },
-//ascii maps, for debug
-{ ':', MAP_KEY(Qt::Key_Colon) },
-{ ';', MAP_KEY(Qt::Key_Semicolon) },
-{ '<', MAP_KEY(Qt::Key_Less) },
-{ '=', MAP_KEY(Qt::Key_Equal) },
-{ '>', MAP_KEY(Qt::Key_Greater) },
-{ '?', MAP_KEY(Qt::Key_Question) },
-{ '@', MAP_KEY(Qt::Key_At) },
-{ ' ', MAP_KEY(Qt::Key_Space) },
-{ '!', MAP_KEY(Qt::Key_Exclam) },
-{ '"', MAP_KEY(Qt::Key_QuoteDbl) },
-{ '#', MAP_KEY(Qt::Key_NumberSign) },
-{ '$', MAP_KEY(Qt::Key_Dollar) },
-{ '%', MAP_KEY(Qt::Key_Percent) },
-{ '&', MAP_KEY(Qt::Key_Ampersand) },
-{ '\'', MAP_KEY(Qt::Key_Apostrophe) },
-{ '(', MAP_KEY(Qt::Key_ParenLeft) },
-{ ')', MAP_KEY(Qt::Key_ParenRight) },
-{ '*', MAP_KEY(Qt::Key_Asterisk) },
-{ '+', MAP_KEY(Qt::Key_Plus) },
-{ ',', MAP_KEY(Qt::Key_Comma) },
-{ '-', MAP_KEY(Qt::Key_Minus) },
-{ '.', MAP_KEY(Qt::Key_Period) },
-{ '/', MAP_KEY(Qt::Key_Slash) },
-{ '[', MAP_KEY(Qt::Key_BracketLeft) },
-{ ']', MAP_KEY(Qt::Key_BracketRight) },
-{ '\\', MAP_KEY(Qt::Key_Backslash) },
-{ '_', MAP_KEY(Qt::Key_Underscore) },
-{ '`', MAP_KEY(Qt::Key_QuoteLeft) },
-{ '{', MAP_KEY(Qt::Key_BraceLeft) },
-{ '}', MAP_KEY(Qt::Key_BraceRight) },
-{ '|', MAP_KEY(Qt::Key_Bar) },
-{ '~', MAP_KEY(Qt::Key_AsciiTilde) },
-{ '^', MAP_KEY(Qt::Key_AsciiCircum) },
-//terminator
-{   0, MAP_KEY(0) } };
+//mouse buttons
+static mac_enum_mapper mouse_symbols[] = {
+    { kEventMouseButtonPrimary, MAP_MAC_ENUM(Qt::LeftButton) },
+    { kEventMouseButtonSecondary, MAP_MAC_ENUM(Qt::RightButton) },
+    { kEventMouseButtonTertiary, MAP_MAC_ENUM(Qt::MidButton) },
+    { 0, MAP_MAC_ENUM(0) } 
+};
+static Qt::MouseButtons get_buttons(int buttons)
+{
+#ifdef DEBUG_MOUSE_MAPS
+    qDebug("Qt: internal: **Mapping buttons: %d (0x%04x)", buttons, buttons);
+#endif
+    Qt::MouseButtons ret = Qt::NoButton;
+    for(int i = 0; mouse_symbols[i].qt_code; i++) {
+        if(buttons & (1<<mouse_symbols[i].mac_code)) {
+#ifdef DEBUG_MOUSE_MAPS
+            qDebug("Qt: internal: got button: %s", mouse_symbols[i].desc);
+#endif
+            ret |= Qt::MouseButtons(mouse_symbols[i].qt_code);
+        }
+    }
+    return ret;
+}
+static Qt::MouseButton get_button(EventMouseButton button)
+{
+#ifdef DEBUG_MOUSE_MAPS
+    qDebug("Qt: internal: **Mapping button: %d (0x%04x)", button, button);
+#endif
+    Qt::MouseButtons ret = 0;
+    for(int i = 0; mouse_symbols[i].qt_code; i++) {
+        if(button == mouse_symbols[i].mac_code) {
+#ifdef DEBUG_MOUSE_MAPS
+            qDebug("Qt: internal: got button: %s", mouse_symbols[i].desc);
+#endif
+            return Qt::MouseButton(mouse_symbols[i].qt_code);
+        }
+    }
+    return Qt::NoButton;
+}
 
-static key_sym keyscan_syms[] = { //real scan codes
-{ 122, MAP_KEY(Qt::Key_F1) },
-{ 120, MAP_KEY(Qt::Key_F2) },
-{ 99, MAP_KEY(Qt::Key_F3) },
-{ 118, MAP_KEY(Qt::Key_F4) },
-{ 96, MAP_KEY(Qt::Key_F5) },
-{ 97, MAP_KEY(Qt::Key_F6) },
-{ 98, MAP_KEY(Qt::Key_F7) },
-{ 100, MAP_KEY(Qt::Key_F8) },
-{ 101, MAP_KEY(Qt::Key_F9) },
-{ 109, MAP_KEY(Qt::Key_F10) },
-{ 103, MAP_KEY(Qt::Key_F11) },
-{ 111, MAP_KEY(Qt::Key_F12) },
-{   0, MAP_KEY(0) } };
+
+//keyboard keys (non-modifiers)
+static mac_enum_mapper keyboard_symbols[] = {
+    { kHomeCharCode, MAP_MAC_ENUM(Qt::Key_Home) },
+    { kEnterCharCode, MAP_MAC_ENUM(Qt::Key_Enter) },
+    { kEndCharCode, MAP_MAC_ENUM(Qt::Key_End) },
+    { kBackspaceCharCode, MAP_MAC_ENUM(Qt::Key_Backspace) },
+    { kTabCharCode, MAP_MAC_ENUM(Qt::Key_Tab) },
+    { kPageUpCharCode, MAP_MAC_ENUM(Qt::Key_PageUp) },
+    { kPageDownCharCode, MAP_MAC_ENUM(Qt::Key_PageDown) },
+    { kReturnCharCode, MAP_MAC_ENUM(Qt::Key_Return) },
+    { kEscapeCharCode, MAP_MAC_ENUM(Qt::Key_Escape) },
+    { kLeftArrowCharCode, MAP_MAC_ENUM(Qt::Key_Left) },
+    { kRightArrowCharCode, MAP_MAC_ENUM(Qt::Key_Right) },
+    { kUpArrowCharCode, MAP_MAC_ENUM(Qt::Key_Up) },
+    { kDownArrowCharCode, MAP_MAC_ENUM(Qt::Key_Down) },
+    { kHelpCharCode, MAP_MAC_ENUM(Qt::Key_Help) },
+    { kDeleteCharCode, MAP_MAC_ENUM(Qt::Key_Delete) },
+//ascii maps, for debug
+    { ':', MAP_MAC_ENUM(Qt::Key_Colon) },
+    { ';', MAP_MAC_ENUM(Qt::Key_Semicolon) },
+    { '<', MAP_MAC_ENUM(Qt::Key_Less) },
+    { '=', MAP_MAC_ENUM(Qt::Key_Equal) },
+    { '>', MAP_MAC_ENUM(Qt::Key_Greater) },
+    { '?', MAP_MAC_ENUM(Qt::Key_Question) },
+    { '@', MAP_MAC_ENUM(Qt::Key_At) },
+    { ' ', MAP_MAC_ENUM(Qt::Key_Space) },
+    { '!', MAP_MAC_ENUM(Qt::Key_Exclam) },
+    { '"', MAP_MAC_ENUM(Qt::Key_QuoteDbl) },
+    { '#', MAP_MAC_ENUM(Qt::Key_NumberSign) },
+    { '$', MAP_MAC_ENUM(Qt::Key_Dollar) },
+    { '%', MAP_MAC_ENUM(Qt::Key_Percent) },
+    { '&', MAP_MAC_ENUM(Qt::Key_Ampersand) },
+    { '\'', MAP_MAC_ENUM(Qt::Key_Apostrophe) },
+    { '(', MAP_MAC_ENUM(Qt::Key_ParenLeft) },
+    { ')', MAP_MAC_ENUM(Qt::Key_ParenRight) },
+    { '*', MAP_MAC_ENUM(Qt::Key_Asterisk) },
+    { '+', MAP_MAC_ENUM(Qt::Key_Plus) },
+    { ',', MAP_MAC_ENUM(Qt::Key_Comma) },
+    { '-', MAP_MAC_ENUM(Qt::Key_Minus) },
+    { '.', MAP_MAC_ENUM(Qt::Key_Period) },
+    { '/', MAP_MAC_ENUM(Qt::Key_Slash) },
+    { '[', MAP_MAC_ENUM(Qt::Key_BracketLeft) },
+    { ']', MAP_MAC_ENUM(Qt::Key_BracketRight) },
+    { '\\', MAP_MAC_ENUM(Qt::Key_Backslash) },
+    { '_', MAP_MAC_ENUM(Qt::Key_Underscore) },
+    { '`', MAP_MAC_ENUM(Qt::Key_QuoteLeft) },
+    { '{', MAP_MAC_ENUM(Qt::Key_BraceLeft) },
+    { '}', MAP_MAC_ENUM(Qt::Key_BraceRight) },
+    { '|', MAP_MAC_ENUM(Qt::Key_Bar) },
+    { '~', MAP_MAC_ENUM(Qt::Key_AsciiTilde) },
+    { '^', MAP_MAC_ENUM(Qt::Key_AsciiCircum) },
+    {   0, MAP_MAC_ENUM(0) }
+};
+
+static mac_enum_mapper keyscan_symbols[] = { //real scan codes
+    { 122, MAP_MAC_ENUM(Qt::Key_F1) },
+    { 120, MAP_MAC_ENUM(Qt::Key_F2) },
+    { 99,  MAP_MAC_ENUM(Qt::Key_F3) },
+    { 118, MAP_MAC_ENUM(Qt::Key_F4) },
+    { 96,  MAP_MAC_ENUM(Qt::Key_F5) },
+    { 97,  MAP_MAC_ENUM(Qt::Key_F6) },
+    { 98,  MAP_MAC_ENUM(Qt::Key_F7) },
+    { 100, MAP_MAC_ENUM(Qt::Key_F8) },
+    { 101, MAP_MAC_ENUM(Qt::Key_F9) },
+    { 109, MAP_MAC_ENUM(Qt::Key_F10) },
+    { 103, MAP_MAC_ENUM(Qt::Key_F11) },
+    { 111, MAP_MAC_ENUM(Qt::Key_F12) },
+    {   0, MAP_MAC_ENUM(0) } 
+};
 
 static int get_key(int modif, int key, int scan)
 {
@@ -1236,10 +1274,10 @@ static int get_key(int modif, int key, int scan)
         return (tup - 'A') + Qt::Key_A;
     }
 
-    for(int i = 0; key_syms[i].qt_code; i++) {
-        if(key_syms[i].mac_code == key) {
+    for(int i = 0; keyboard_symbols[i].qt_code; i++) {
+        if(keyboard_symbols[i].mac_code == key) {
             /* To work like Qt/X11 we issue Backtab when Shift + Tab are pressed */
-            if(key_syms[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftButton)) {
+            if(keyboard_symbols[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftButton)) {
 #ifdef DEBUG_KEY_MAPS
                 qDebug("%d: got key: Qt::Key_Backtab", __LINE__);
 #endif
@@ -1247,19 +1285,19 @@ static int get_key(int modif, int key, int scan)
             }
 
 #ifdef DEBUG_KEY_MAPS
-            qDebug("%d: got key: %s", __LINE__, key_syms[i].desc);
+            qDebug("%d: got key: %s", __LINE__, keyboard_symbols[i].desc);
 #endif
-            return key_syms[i].qt_code;
+            return keyboard_symbols[i].qt_code;
         }
     }
 
     //last ditch try to match the scan code
-    for(int i = 0; keyscan_syms[i].qt_code; i++) {
-        if(keyscan_syms[i].mac_code == scan) {
+    for(int i = 0; keyscan_symbols[i].qt_code; i++) {
+        if(keyscan_symbols[i].mac_code == scan) {
 #ifdef DEBUG_KEY_MAPS
-            qDebug("%d: got key: %s", __LINE__, keyscan_syms[i].desc);
+            qDebug("%d: got key: %s", __LINE__, keyscan_symbols[i].desc);
 #endif
-            return keyscan_syms[i].qt_code;
+            return keyscan_symbols[i].qt_code;
         }
     }
 
@@ -1653,20 +1691,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where, 0);
                     QApplication::sendEvent(widget, &qme);
                     if(qme.isAccepted()) { //once this happens the events before are pitched
-#if 0
-                        if(qt_button_down && mouse_button_state) {
-                            QMouseEvent qme(QEvent::MouseButtonRelease, plocal, where,
-                                             mouse_button_state, mouse_button_state);
-                            QApplication::sendSpontaneousEvent(qt_button_down, &qme);
-                        }
-                        mouse_button_state = 0;
-#endif
                         qt_button_down = 0;
                         qt_mac_dblclick.active = false;
-#ifdef DEBUG_MOUSE_MAPS
-                        qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__,
-                               mouse_button_state);
-#endif
                     }
                 } else {
                     handled_event = false;
@@ -1710,22 +1736,34 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             qDebug("Handling mouse: %s", edesc);
 #endif
         QEvent::Type etype = QEvent::None;
-        UInt32 modifiers;
-        GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
-                          sizeof(modifiers), 0, &modifiers);
-        int keys = get_modifiers(modifiers, true);
-        int button=Qt::NoButton, state=0, wheel_delta=0, after_state=mouse_button_state;
-        if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
-            EventMouseButton mb;
-            GetEventParameter(event, kEventParamMouseButton, typeMouseButton, 0,
-                              sizeof(mb), 0, &mb);
+        Qt::KeyboardModifiers modifiers;
+        { 
+            UInt32 mac_modifiers;
+            GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
+                              sizeof(mac_modifiers), 0, &mac_modifiers);
+            modifiers = get_modifiers(mac_modifiers, true);
+        }
+        Qt::MouseButtons buttons;
+        {
+            UInt32 mac_buttons;
+            GetEventParameter(event, kEventParamMouseChord, typeUInt32, 0,
+                              sizeof(mac_buttons), 0, &mac_buttons);
+            buttons = get_buttons(mac_buttons);
+        }
+        int wheel_delta=0;
+        if(ekind == kEventMouseWheelMoved) {
+            long int mdelt;
+            GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, 0,
+                              sizeof(mdelt), 0, &mdelt);
+            wheel_delta = mdelt * 120;
+        }
 
-            if(mb == kEventMouseButtonPrimary)
-                button = Qt::LeftButton;
-            else if(mb == kEventMouseButtonSecondary)
-                button = Qt::RightButton;
-            else
-                button = Qt::MidButton;
+        Qt::MouseButton button = Qt::NoButton;
+        if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
+            EventMouseButton mac_button;
+            GetEventParameter(event, kEventParamMouseButton, typeMouseButton, 0,
+                              sizeof(mac_button), 0, &mac_button);
+            button = get_button(mac_button);
         }
 
         switch(ekind) {
@@ -1742,35 +1780,22 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     UInt32 count;
                     GetEventParameter(event, kEventParamClickCount, typeUInt32, 0,
                                       sizeof(count), 0, &count);
-                    if(!(count % 2) && qt_mac_dblclick.last_modifiers == keys &&
+                    if(!(count % 2) && qt_mac_dblclick.last_modifiers == modifiers &&
                        qt_mac_dblclick.last_button == button)
                         etype = QEvent::MouseButtonDblClick;
                 }
                 if(etype == QEvent::MouseButtonDblClick)
                     qt_mac_dblclick.active = false;
             }
-            after_state = button;
             break;
         }
         case kEventMouseUp:
             etype = QEvent::MouseButtonRelease;
-            state = after_state;
-            after_state = 0;
             break;
         case kEventMouseDragged:
         case kEventMouseMoved:
             etype = QEvent::MouseMove;
-            state = after_state;
             break;
-        case kEventMouseWheelMoved:
-        {
-            long int mdelt;
-            GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, 0,
-                              sizeof(mdelt), 0, &mdelt);
-            wheel_delta = mdelt * 120;
-            state = after_state;
-            break;
-        }
         }
         //figure out which widget to send it to
         if(app->inPopupMode()) {
@@ -1806,11 +1831,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
                                           sizeof(count), NULL, &count);
                         if(count == 2 && qt_mac_collapse_on_dblclick) {
-                            mouse_button_state = 0;
-#ifdef DEBUG_MOUSE_MAPS
-                            qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
-#endif
-
                             widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
                             //we send a hide to be like X11/Windows
                             QEvent e(QEvent::Hide);
@@ -1845,15 +1865,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         //This mouse button state stuff looks like this on purpose
         //although it looks hacky it is VERY intentional..
         if(widget && app_do_modal && !qt_try_modal(widget, event)) {
-            mouse_button_state = after_state;
             if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget())) {
                 QApplication::activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
-                if(!app->d->do_mouse_down(&where, 0))
-                    mouse_button_state = 0;
+                app->d->do_mouse_down(&where, 0);
             }
-#ifdef DEBUG_MOUSE_MAPS
-            qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
-#endif
             break;
         }
 
@@ -1881,7 +1896,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QPair<int,int> uId((int)tabletPointRec.deviceID, (int)tabletPointRec.vendor1);
                 QPoint p(where.h, where.v);
                 QPoint plocal(widget->mapFromGlobal(p));
-                QTabletEvent e(t, plocal, p, p, 0, 0, 0, 0,  dev, pressure, 0, 0, tiltX, tiltY, uId);
+                QTabletEvent e(t, plocal, p, p, 0, 0, 0, 0,  dev, pressure, 0, 0, 
+                               tiltX, tiltY, modifiers, uId);
                 QApplication::sendSpontaneousEvent(widget, &e);
                 if (e.isAccepted())
                     break;
@@ -1896,17 +1912,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     handled_event = false;
                     break;
                 }
-                mouse_button_state = 0;
-#ifdef DEBUG_MOUSE_MAPS
-                qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
-#endif
                 break;
             }
        }
-        mouse_button_state = after_state;
-#ifdef DEBUG_MOUSE_MAPS
-        qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
-#endif
 
         switch(ekind) {
         case kEventMouseDragged:
@@ -1943,21 +1951,21 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             QPoint plocal(widget->mapFromGlobal(p));
             if(etype == QEvent::MouseButtonPress) {
                 qt_mac_dblclick.active = true;
-                qt_mac_dblclick.last_modifiers = keys;
+                qt_mac_dblclick.last_modifiers = modifiers;
                 qt_mac_dblclick.last_button = button;
                 qt_mac_dblclick.last_time = GetEventTime(event);
             }
             if(wheel_delta) {
-                QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
+                QWheelEvent qwe(plocal, p, wheel_delta, buttons, modifiers);
                 QApplication::sendSpontaneousEvent(widget, &qwe);
                 if(!qwe.isAccepted() && QApplicationPrivate::focus_widget && QApplicationPrivate::focus_widget != widget) {
                     QWheelEvent qwe2(QApplicationPrivate::focus_widget->mapFromGlobal(p), p,
-                                     wheel_delta, state | keys);
+                                     wheel_delta, buttons, modifiers);
                     QApplication::sendSpontaneousEvent(QApplicationPrivate::focus_widget, &qwe2);
                 }
             } else {
 #ifdef QMAC_SPEAK_TO_ME
-                if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
+                if(etype == QMouseEvent::MouseButtonDblClick && (modifiers & Qt::AltButton)) {
                     QVariant v = widget->property("text");
                     if(!v.isValid()) v = widget->property("caption");
                     if(v.isValid()) {
@@ -1969,33 +1977,33 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     }
                 }
 #endif
-                int macButton = button;
-                static bool macButtonModified = false;
+                Qt::MouseButton buttonToSend = button;
+                static bool lastButtonTranslated = false;
                 if(ekind == kEventMouseDown &&
-                   button == Qt::LeftButton &&
-                   (modifiers & controlKey)) {
-                    macButton = Qt::RightButton;
-                    macButtonModified = true;
+                   button == Qt::LeftButton && (modifiers & Qt::MetaButton)) {
+                    buttonToSend = Qt::RightButton;
+                    lastButtonTranslated = true;
+                } else if(ekind == kEventMouseUp && lastButtonTranslated) {
+                    buttonToSend = Qt::RightButton;
+                    lastButtonTranslated = false;
                 }
-                if(ekind == kEventMouseUp && macButtonModified) {
-                    macButtonModified = false;
-                    macButton = Qt::RightButton;
-                }
-                QMouseEvent qme(etype, plocal, p, macButton, state | keys);
+                QMouseEvent qme(etype, plocal, p, buttonToSend, buttons, modifiers);
                 QApplication::sendSpontaneousEvent(widget, &qme);
             }
             if(ekind == kEventMouseDown &&
                ((button == Qt::RightButton) ||
-                (button == Qt::LeftButton && (modifiers & controlKey))))
+                (button == Qt::LeftButton && (modifiers & Qt::MetaButton))))
                 qt_event_request_context();
 
 #ifdef DEBUG_MOUSE_MAPS
             const char *event_desc = edesc;
             if(etype == QEvent::MouseButtonDblClick)
                 event_desc = "Double Click";
-            qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d %d %d)", p.x(), p.y(),
-                   plocal.x(), plocal.y(), event_desc, (QWidget*)widget, widget ? widget->objectName().local8Bit() : "*Unknown*",
-                   widget ? widget->metaObject()->className() : "*Unknown*", button, state|keys, wheel_delta);
+            qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d 0x%08x 0x%08x %d)", p.x(), p.y(),
+                   plocal.x(), plocal.y(), event_desc, (QWidget*)widget, 
+                   widget ? widget->objectName().local8Bit() : "*Unknown*",
+                   widget ? widget->metaObject()->className() : "*Unknown*", 
+                   button, (int)buttons, (int)modifiers, wheel_delta);
 #endif
         } else {
             handled_event = false;
@@ -2110,47 +2118,51 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             return eventNotHandledErr;
         break;
     case kEventClassKeyboard: {
-        UInt32 modif;
-        GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
-                          sizeof(modif), 0, &modif);
+        // unfortunatly modifiers changed event looks quite different, so I have a separate
+        // code path 
+        if(ekind == kEventRawKeyModifiersChanged) { 
+            //figure out changed modifiers, wish Apple would just send a delta
+            UInt32 modifiers;
+            GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
+                              sizeof(modifiers), 0, &modifiers);
+            static UInt32 cachedModifiers = 0;
+            UInt32 lastModifiers = cachedModifiers, 
+                changedModifiers = lastModifiers ^ modifiers;
+            cachedModifiers = modifiers;
 
-        /*unfortunatly modifiers changed event looks quite different, so I have a separate
-          code path */
-        if(ekind == kEventRawKeyModifiersChanged) {
-            int changed_modifiers = keyboard_modifiers_state ^ modif,
-                   last_modifiers = keyboard_modifiers_state,
-                        modifiers = get_modifiers(last_modifiers);
-            keyboard_modifiers_state = modif;
+            //find which widget to send to
             if(mac_keyboard_grabber)
                 widget = mac_keyboard_grabber;
             else if(QApplicationPrivate::focus_widget)
                 widget = QApplicationPrivate::focus_widget;
             if(!widget || (app_do_modal && !qt_try_modal(widget, event)))
                 break;
-            static key_sym key_modif_syms[] = {
-                { shiftKeyBit, MAP_KEY(Qt::Key_Shift) },
-                { rightShiftKeyBit, MAP_KEY(Qt::Key_Shift) }, //???
-                { controlKeyBit, MAP_KEY(Qt::Key_Meta) },
-                { rightControlKeyBit, MAP_KEY(Qt::Key_Meta) }, //???
-                { cmdKeyBit, MAP_KEY(Qt::Key_Control) },
-                { optionKeyBit, MAP_KEY(Qt::Key_Alt) },
-                { rightOptionKeyBit, MAP_KEY(Qt::Key_Alt) }, //???
-                { alphaLockBit, MAP_KEY(Qt::Key_CapsLock) },
-                { kEventKeyModifierNumLockBit, MAP_KEY(Qt::Key_NumLock) },
-                {   0, MAP_KEY(0) } };
+
+            //check the bits
+            static mac_enum_mapper modifier_key_symbols[] = {
+                { shiftKeyBit, MAP_MAC_ENUM(Qt::Key_Shift) },
+                { rightShiftKeyBit, MAP_MAC_ENUM(Qt::Key_Shift) }, //???
+                { controlKeyBit, MAP_MAC_ENUM(Qt::Key_Meta) },
+                { rightControlKeyBit, MAP_MAC_ENUM(Qt::Key_Meta) }, //???
+                { cmdKeyBit, MAP_MAC_ENUM(Qt::Key_Control) },
+                { optionKeyBit, MAP_MAC_ENUM(Qt::Key_Alt) },
+                { rightOptionKeyBit, MAP_MAC_ENUM(Qt::Key_Alt) }, //???
+                { alphaLockBit, MAP_MAC_ENUM(Qt::Key_CapsLock) },
+                { kEventKeyModifierNumLockBit, MAP_MAC_ENUM(Qt::Key_NumLock) },
+                {   0, MAP_MAC_ENUM(0) } };
             for(int i = 0; i <= 32; i++) { //just check each bit
-                if(!(changed_modifiers & (1 << i)))
+                if(!(changedModifiers & (1 << i)))
                     continue;
                 QEvent::Type etype = QEvent::KeyPress;
-                if(last_modifiers & (1 << i))
+                if(lastModifiers & (1 << i))
                     etype = QEvent::KeyRelease;
                 int key = 0;
-                for(uint x = 0; key_modif_syms[x].mac_code; x++) {
-                    if(key_modif_syms[x].mac_code == i) {
+                for(uint x = 0; modifier_key_symbols[x].mac_code; x++) {
+                    if(modifier_key_symbols[x].mac_code == i) {
 #ifdef DEBUG_KEY_MAPS
-                        qDebug("got modifier changed: %s", key_modif_syms[x].desc);
+                        qDebug("got modifier changed: %s", modifier_key_symbols[x].desc);
 #endif
-                        key = key_modif_syms[x].qt_code;
+                        key = modifier_key_symbols[x].qt_code;
                         break;
                     }
                 }
@@ -2161,42 +2173,56 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     continue;
                 }
 #ifdef DEBUG_KEY_MAPS
-                qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - %d",
+                qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - 0x%08x",
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
                        widget ? widget->metaObject()->className() : "none",
                        widget ? widget->objectName().local8Bit() : "",
-                       key, modifiers);
+                       key, (int)modifiers);
 #endif
-                QKeyEvent ke(etype, key, modifiers, "", false);
+                QKeyEvent ke(etype, key, get_modifiers(modifiers ^ (1 << i)), "", false);
                 QApplication::sendSpontaneousEvent(widget,&ke);
             }
             break;
         }
 
-        UInt32 keyc;
-        GetEventParameter(event, kEventParamKeyCode, typeUInt32, 0, sizeof(keyc), 0, &keyc);
-        static UInt32 state = 0L;
-        char chr = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
-                   (modif & (kEventKeyModifierNumLockMask|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
-        if(!chr) {
+        //get modifiers
+        Qt::KeyboardModifiers modifiers;
+        {
+            UInt32 mac_modifiers;
+            GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
+                              sizeof(mac_modifiers), 0, &mac_modifiers);
+#ifdef DEBUG_KEY_MAPS
+            qDebug("************ Mapping modifiers and key ***********");
+#endif
+            modifiers = get_modifiers(mac_modifiers, false);
+#ifdef DEBUG_KEY_MAPS
+            qDebug("------------ Mapping modifiers and key -----------");
+#endif
+        }
+
+        //get keycode
+        UInt32 keycode;
+        GetEventParameter(event, kEventParamKeyCode, typeUInt32, 0, sizeof(keycode), 0, &keycode);
+
+        //get mac mapping
+        static UInt32 tmp_unused_state = 0L;
+        char translatedChar = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
+                                           (GetCurrentEventKeyModifiers() & 
+                                            (kEventKeyModifierNumLockMask|shiftKey|
+                                             rightShiftKey|alphaLock)) | keycode, 
+                                           &tmp_unused_state);
+        if(!translatedChar) {
             if(CallNextEventHandler(er, event) == noErr)
                 handled_event = true;
             break;
         }
 
         //map it into qt keys
-        QString mystr;
-
-#ifdef DEBUG_KEY_MAPS
-        qDebug("************ Mapping modifiers and key ***********");
-#endif
-        int modifiers = get_modifiers(modif), mychar=get_key(modifiers, chr, keyc);
-#ifdef DEBUG_KEY_MAPS
-        qDebug("------------ Mapping modifiers and key -----------");
-#endif
+        QString asString;
+        int asChar=get_key(modifiers, translatedChar, keycode);
         if(modifiers & (Qt::AltButton | Qt::ControlButton)) {
-            if(chr & (1 << 7))
-                chr = 0;
+            if(translatedChar & (1 << 7)) //high ascii
+                translatedChar = 0;
         } else {          //now get the real ascii value
             UInt32 tmp_mod = 0L;
             static UInt32 tmp_state = 0L;
@@ -2206,14 +2232,14 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 tmp_mod |= controlKey;
             if(modifiers & Qt::ControlButton)
                 tmp_mod |= cmdKey;
-            if(modif & alphaLock)
+            if(GetCurrentEventKeyModifiers() & alphaLock) //no Qt mapper
                 tmp_mod |= alphaLock;
             if(modifiers & Qt::AltButton)
                 tmp_mod |= optionKey;
             if(modifiers & Qt::Keypad)
                 tmp_mod |= kEventKeyModifierNumLockMask;
-            chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
-                               tmp_mod | keyc, &tmp_state);
+            translatedChar = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
+                                          tmp_mod | keycode, &tmp_state);
         }
         /* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
            is this a bug on X11? --Sam */
@@ -2223,13 +2249,13 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0) == noErr && unilen == 2) {
                 UniChar *unicode = (UniChar*)NewPtr(unilen);
                 GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, unicode);
-                mystr = QString((QChar*)unicode, unilen / sizeof(UniChar));
+                asString = QString((QChar*)unicode, unilen / sizeof(UniChar));
                 DisposePtr((char *)unicode);
-            } else if(chr) {
+            } else if(translatedChar) {
                 static QTextCodec *c = 0;
                 if(!c)
                     c = QTextCodec::codecForName("Apple Roman");
-                mystr = c->toUnicode(&chr, 1);
+                asString = c->toUnicode(&translatedChar, 1);
             }
         }
 
@@ -2250,13 +2276,13 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                    really mean that shortcuts should be mapped to the new key (or things could get
                    quite broken). */
                 QString accel_str;
-                if(chr) {
+                if(translatedChar) {
                     static QTextCodec *c = 0;
                     if(!c)
                         c = QTextCodec::codecForName("Apple Roman");
-                    accel_str = c->toUnicode(&chr, 1);
+                    accel_str = c->toUnicode(&translatedChar, 1);
                 }
-                QKeyEvent accel_ev(QEvent::ShortcutOverride, mychar, modifiers,
+                QKeyEvent accel_ev(QEvent::ShortcutOverride, asChar, modifiers,
                                    accel_str, ekind == kEventRawKeyRepeat,
                                    qMax(1, accel_str.length()));
                 if(static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(widget, &accel_ev)) {
@@ -2264,7 +2290,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
                            widget ? widget->metaObject()->className() : "none",
                            widget ? widget->objectName().local8Bit() : "",
-                           mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
+                           asChar, translatedChar, asString.latin1(), ekind == kEventRawKeyRepeat);
 #endif
                     key_event = false;
                 } else {
@@ -2273,7 +2299,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
                                widget ? widget->metaObject()->className() : "none",
                                widget ? widget->objectName().local8Bit() : "",
-                               mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
+                               asChar, translatedChar, asString.latin1(), ekind == kEventRawKeyRepeat);
 #endif
                     }
                 }
@@ -2288,22 +2314,22 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     break;
                 }
 #ifdef DEBUG_KEY_MAPS
-                qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) %d%s",
+                qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) 0x%08x%s",
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
                        widget ? widget->metaObject()->className() : "none",
                        widget ? widget->objectName().local8Bit() : "",
-                       mychar, chr, mystr.latin1(), modifiers,
+                       asChar, translatedChar, asString.latin1(), (int)modifiers,
                        ekind == kEventRawKeyRepeat ? " Repeat" : "");
 #endif
                 /* This is actually wrong - but unfortunatly it is the best that can be
                    done for now because of the Control/Meta mapping problems */
                 if(modifiers & (Qt::ControlButton | Qt::MetaButton)) {
-                    chr = 0;
-                    mystr = "";
+                    translatedChar = 0;
+                    asString = "";
                 }
-                QKeyEvent ke(etype, mychar, modifiers,
-                             mystr, ekind == kEventRawKeyRepeat,
-                             qMax(1, mystr.length()));
+                QKeyEvent ke(etype, asChar, modifiers,
+                             asString, ekind == kEventRawKeyRepeat,
+                             qMax(1, asString.length()));
                 QApplication::sendSpontaneousEvent(widget,&ke);
             }
         } else {
@@ -2635,10 +2661,8 @@ void QApplication::closePopup(QWidget *popup)
         popupButtonFocus = 0;
         popupOfPopupButtonFocus = 0;
     }
-    if(popup == qt_button_down) {
-        mouse_button_state = 0;
+    if(popup == qt_button_down) 
         qt_button_down = 0;
-    }
     if(QApplicationPrivate::popupWidgets->isEmpty()) {  // this was the last popup
         popupCloseDownMode = true;                      // control mouse events
         delete QApplicationPrivate::popupWidgets;
