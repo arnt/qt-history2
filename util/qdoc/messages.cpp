@@ -85,15 +85,28 @@ void warning( int level, const Location& loc, const char *message, ... )
     QString filenameBase = loc.filePath();
     filenameBase =
 	    filenameBase.left( filenameBase.length() - filename.length() - 1 );
-    if ( currentDirectory.length() > 5 &&
-	 currentDirectory.length() < filenameBase.length() &&
-	 filenameBase.left( currentDirectory.length() ) == currentDirectory &&
-	 filenameBase.length() < currentDirectory.length() + 32 ) {
-	// there are too many 'src' and 'doc' directories;
-	// qualification is in order.
-	QString extra = filenameBase.mid( currentDirectory.length() );
-	filenameBase = currentDirectory;
-	filename.prepend( extra.mid( 1 ) + extra[0] );
+    if ( !filenameBase.isEmpty() && currentDirectory != filenameBase ) {
+	// we changed directory; find the longest shared prefix
+	int i = 0;
+	int j;
+	do {
+	    j = currentDirectory.find( '/', i+1 );
+	    if ( j < 0 )
+		j = currentDirectory.length();
+	    if ( j > i && 
+		 ( filenameBase.length() == j || filenameBase[j] == '/' ) &&
+		 filenameBase.left( j ) == currentDirectory.left( j ) )
+		i = j;
+	    else
+		j = -1;
+	} while( j >= 0 );
+	// now, should we change to filenameBase or to the prefix? we
+	// change to the prefix if it's any good at all.
+	if ( i > 4 ) {
+	    QString extra = filenameBase.mid( i );
+	    filenameBase = filenameBase.left( i );
+	    filename.prepend( extra.mid( 1 ) + extra[0] );
+	}
     }
     if ( !filenameBase.isEmpty() &&
 	 currentDirectory != filenameBase ) {
