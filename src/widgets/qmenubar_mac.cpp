@@ -247,11 +247,12 @@ void QMenuBar::macCreateNativeMenubar()
 {
     mac_dirty_menubar = 1;
     QWidget *p = parentWidget();
-    if(p && (!menubars || !menubars->find((int)p)) && !p->parentWidget() && p->inherits("QMainWindow")) {
+    if(p && (!menubars || !menubars->find((int)topLevelWidget())) && 
+       ((p->inherits("QMainWindow") && !p->parentWidget()) || p->inherits("QToolBar"))) {
 	mac_eaten_menubar = 1;
 	if(!menubars)
 	    menubars = new QIntDict<QMenuBar>();
-	menubars->insert((int)p, this);
+	menubars->insert((int)topLevelWidget(), this);
     } else {
 	mac_eaten_menubar = 0;
     }
@@ -259,7 +260,7 @@ void QMenuBar::macCreateNativeMenubar()
 void QMenuBar::macRemoveNativeMenubar()
 {
     if(menubars)
-	menubars->remove((int)parentWidget());
+	menubars->remove((int)topLevelWidget());
 }
 
 void QMenuBar::cleanup()
@@ -290,7 +291,7 @@ void QMenuBar::macUpdateMenuBar()
 	    if(!w->testWFlags(WType_Dialog) && !w->testWFlags(WType_Popup) )
 		ClearMenuBar();
 	} 
-    }
+    } 
 }
 
 void QMenuBar::macUpdatePopup(MenuRef mr)
