@@ -496,7 +496,7 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
   \sa QApplication::setPalette(), QWidget::setPalette(), QColorGroup, QColor
 */ // ### should mention the constructors, copy stuff and isCopyOf()
 
-/*! \enum ColorGroup
+/*! \enum QPalette::ColorGroup
     \value Disabled
     \value Active
     \value Inactive

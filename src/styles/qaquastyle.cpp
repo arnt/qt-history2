@@ -1111,8 +1111,10 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
     return sz;
 }
 
-QRect 
-QAquaStyle::subRect( SubRect r, const QWidget *w ) const
+/*! 
+  \reimp
+*/
+QRect QAquaStyle::subRect( SubRect r, const QWidget *w ) const
 {
     QRect ret;
     switch(r) {
@@ -1585,6 +1587,9 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     }
 }
 
+/*! 
+  \reimp
+*/
 QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *w,
 					    SubControl sc,
@@ -1637,6 +1642,9 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
     return rect;
 }
 
+/*! 
+  \reimp
+*/
 int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, void ***d) const
 {
     int ret = 0;
@@ -1712,5 +1720,4 @@ void QAquaStyle::drawMenuBarPanel( QPainter * p, int x, int y,
 #endif
 
 #endif /* QT_NO_STYLE_AQUA */
-
 
