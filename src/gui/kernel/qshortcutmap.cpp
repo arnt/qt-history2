@@ -203,7 +203,6 @@ void QShortcutMap::resetState()
 {
     d->currentState = Qt::NoMatch;
     clearSequence(d->currentSequence);
-    d->identicals.resize(0);
 }
 
 /*! \internal
@@ -315,6 +314,9 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
                    "QShortcutMap::find", "New sequence to find identical to previous");
         return Qt::NoMatch;
     }
+
+    // Looking for new identicals, scrap old
+    d->identicals.resize(0);
 
     QList<QShortcutEntry>::ConstIterator it =
         qLowerBound(d->sequences.constBegin(), d->sequences.constEnd(), newEntry);
