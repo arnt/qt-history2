@@ -30,6 +30,7 @@
 #include <qmetaobject.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
+#include <qpixmap.h>
 #include <qptrdict.h>
 #include <qwhatsthis.h>
 #include <qt_windows.h>
@@ -935,7 +936,7 @@ HWND QAxServerBase::Create(HWND hWndParent, RECT& rcPos )
 	    wcTemp.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	    wcTemp.cbClsExtra = 0;
 	    wcTemp.cbWndExtra = 0;
-	    wcTemp.hbrBackground = 0;
+	    wcTemp.hbrBackground = HBRUSH(COLOR_WINDOW+1);
 	    wcTemp.hCursor = 0;
 	    wcTemp.hIcon = 0;
 	    wcTemp.hInstance = hInst;
@@ -951,7 +952,7 @@ HWND QAxServerBase::Create(HWND hWndParent, RECT& rcPos )
 	    wcTemp.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	    wcTemp.cbClsExtra = 0;
 	    wcTemp.cbWndExtra = 0;
-	    wcTemp.hbrBackground = 0;
+	    wcTemp.hbrBackground = HBRUSH(COLOR_WINDOW+1);
 	    wcTemp.hCursor = 0;
 	    wcTemp.hIcon = 0;
 	    wcTemp.hInstance = hInst;
@@ -1670,7 +1671,7 @@ HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARG
 
     bool bDeleteDC = FALSE;
     if ( !hicTargetDev ) {
-//###	AtlCreateTargetDC(hdcDraw, ptd);
+	hicTargetDev = ::CreateDCA("DISPLAY", NULL, NULL, NULL);
 	bDeleteDC = (hicTargetDev != hdcDraw);
     }
 
@@ -1686,7 +1687,10 @@ HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARG
     lprcBounds = &rectBoundsDP;
     RECTL rc = *lprcBounds;
 
-    {
+    QPixmap pm = QPixmap::grabWidget( activeqt );
+    BOOL res = ::BitBlt( hdcDraw, 0, 0, pm.width(), pm.height(), pm.handle(), 0, 0, SRCCOPY );
+
+    if ( !res ) {
 	QPainter painter( activeqt );
 	HDC oldDC = ((HackPainter*)&painter)->hdc;
 	((HackPainter*)&painter)->hdc = hdcDraw;
