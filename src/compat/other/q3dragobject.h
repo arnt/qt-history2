@@ -138,8 +138,10 @@ public:
     Q3UriDrag(QWidget * dragSource = 0, const char * name = 0);
     ~Q3UriDrag();
 
-    void setFilenames(const QStringList & fnames) { setFileNames(fnames); }
     void setFileNames(const QStringList & fnames);
+    inline void setFileNames(const QString & fname) { setFileNames(QStringList(fname)); }
+    void setFilenames(const QStringList & fnames) { setFileNames(fnames); }
+    inline void setFilenames(const QString & fname) { setFileNames(QStringList(fname)); }
     void setUnicodeUris(const QStringList & uuris);
     virtual void setUris(const QList<QByteArray> &uris);
 
