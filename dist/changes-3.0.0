@@ -50,7 +50,7 @@ library. A more detailed list mentioning every new method can be found
 further down.
 
 Database support
-------------------
+----------------
 
 One of the major new features in Qt 3.0 is the SQL module that
 provides cross-platform access to SQL databases, making database
@@ -83,7 +83,7 @@ Designer.
 
 
 Component model - plugins
-----------------
+-------------------------
 
 ### needs some more work
 
@@ -96,7 +96,7 @@ Pluggable style interface, database driver, custom widgets
 
 
 Rich text engine and editor
--------------------------------
+---------------------------
 
 The rich text engine originally introduced in in Qt 2.0 has been
 further optimized and extended to support editing. It allows editing
@@ -105,6 +105,7 @@ images. Different word wrap modes, command-based undo/redo, multiple
 selections, drag&drop, and other features are supported.  The engine
 is highly optimized for procesing and displaying large documents fast
 and efficiently.
+
 
 Unicode
 -------
@@ -125,8 +126,9 @@ application to work for people using writing systems different from
 Latin, without having to worry about the complexities involved with
 these scripts, as Qt hides these from the application developer.
 
+
 Docked & Floating Windows
--------------------------------
+-------------------------
 
 Qt 3.0 introduces the concept of Dock Windows and Dock Areas. Dock
 Windows are widgets, that can be attached to and detached from Dock
@@ -144,7 +146,7 @@ work.
 
 
 Regular Expresions
---------------
+------------------
 
 Qt always had regular expression support, but that support was pretty
 much limited to what was required in common GUI control elements such
@@ -155,7 +157,7 @@ backreferences.
 
 
 storing application settings
-------------------------
+----------------------------
 
 Most programs will need to remember some settings as for example user
 selected fonts, colors, preferences or a list of recently used files
@@ -165,24 +167,32 @@ retrieval of most of the basic data types used in Qt (such as basic
 C++ types, strings, lists, colors, etc). The class uses the registry
 on the Windows platform and traditional resource files on Unix.
 
+
 creating and controlling other processes
---------------------------------------
+----------------------------------------
 
 QProcess is a class to allow you to start other programs from within a Qt
 application in a platform independent manner. It gives you full control over
 the started program as for example redirection of input and output of console
 applications.
 
+
 acessibility
------------
+------------
 
 Qt-3.0 features better support for accessibility features, .....
 
 ### Volker, some words?
 
 
+Narrator, Windows accessibility
+-------------------------------
+
+########
+
+
 XML Improvements
-------------------
+----------------
 
 The XML framework introduced in Qt-2.2 has been vastly improved. Qt
 2.2 already supported level 1 of the Document Object Model (DOM), a
@@ -196,13 +206,15 @@ data is available.  This is especially useful if the XML document
 comes from a slow source, e.g. over the network, as it allows the
 application to start working on the data at a very early stage.
 
+
 SVG support
----------
+-----------
 
 SVG is a W3C standard for "Scalable Vector Graphics". XML support
 pre-requisited, QPicture can optionally generate and import static
 SVG documents. Supported are those SVG features that have an equivalent
 counterpart in QPainter.
+
 
 Multihead support
 -----------------
@@ -219,7 +231,7 @@ on X11.
 
 
 X11 specific enhancements
----------------
+-------------------------
 
 Qt 3.0 does now comply with the NET WM Specification, recently adopted
 by KDE 2.0.  This allows easy integration and proper execution with
@@ -239,14 +251,9 @@ recently. This adds support for anti aliased text and pixmaps with
 alpha channel (semi transparency) on the systems that support the
 rendering extension (at the moment XFree 4.0.3 and later).
 
-Narrator, Windows accessibility
--------------------------------
-
-########
-
 
 Printing
-----------
+--------
 
 Printing support has been enhanced on all platforms. The QPrinter
 class now supports setting a virtual resolution for the painting
@@ -261,14 +268,14 @@ fonts built into the printer has been enhanced and Qt does now know
 about the most common printer fonts used for Asian languages.
 
 
-QHttp:
-------
+QHttp
+-----
 
 This class provides a simple interface for HTTP down-/uploads.
 
 
 Qt Designer
-===============
+========================================
 
 The Qt Designer being a pure dialog editor in Qt 2.2 has been extended
 to now provide the full functionality of a GUI desig tool.
@@ -304,14 +311,14 @@ customers to do customizations on their own. Technically, the feature
 is provided by a new class QWidgetFactory in the QResource library.
 
 
-Qt Linguist =============
-
+Qt Linguist
+========================================
 
 ######
 
 
 Qt Assistant
-==========
+========================================
 
 Due to the positive feedback we got about the help system build into
 the Qt Designer, we decided to offer this part as a separate
@@ -324,7 +331,7 @@ for browsing the help documentation.
 
 
 QMake
-===========
+========================================
 
 #####
 
@@ -926,3 +933,27 @@ Removed preprocessor directives:
 	recommend to either make use of the safe qstr* variants or ensure
 	that no 0 pointer is passed to the standard C functions in your
 	current and future code base.
+
+	The name of some debugging macro variables has been changed.
+
+		DEBUG becomes QT_DEBUG 
+		NO_DEBUG becomes QT_NO_DEBUG 
+		NO_CHECK becomes QT_NO_CHECK 
+		CHECK_STATE becomes QT_CHECK_STATE 
+		CHECK_RANGE becomes QT_CHECK_RANGE 
+		CHECK_NULL becomes QT_CHECK_NULL 
+		CHECK_MATH becomes QT_CHECK_MATH 
+
+	The name of some other debugging macro functions has also been changed
+	but source compatibility should not be affected if the macro variable
+	QT_CLEAN_NAMESPACE is not defined: 
+
+		ASSERT becomes Q_ASSERT 
+		CHECK_PTR becomes Q_CHECK_PTR 
+
+	For the record these undocumented macro variables that are not part of
+	the API have been changed: 
+
+		_OS_*_ becomes Q_OS_* 
+		_WS_*_ becomes Q_WS_* 
+		_CC_*_ becomes Q_CC_* 
