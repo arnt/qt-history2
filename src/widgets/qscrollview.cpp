@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#225 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#226 $
 **
 ** Implementation of QScrollView class
 **
@@ -1827,7 +1827,7 @@ void QScrollView::moveContents(int x, int y)
     d->hideOrShowAll(this, TRUE );
 }
 
-#if QT_VERSION >= 300
+#if QT_VERSION >= 400
 #if defined(Q_CC_GNU)
 #warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
 #endif
