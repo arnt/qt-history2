@@ -7,11 +7,11 @@
 # ----------------------------------------------------------------
 #
 # Usage:
-#	mkdist.generic [options] {commercial|free} {distdir}
+#	mkdist.generic [options] {commercial|free} {version}
 #
 # Options:
 #	-nodoc	Don't generate documentation
-#	-local	Copy local distribution from $QTDIR, don't use cvs
+#	-local	Copy local distribution from $QTDIR, don't use p4
 #	-noch	Ignore the fact that the changes file doesn't exist
 #       -msonly Build Microsoft Visual C++ makefiles only (in win-mode)
 #
@@ -36,7 +36,7 @@ done
 
 disttype=$1
 platform=$2
-DISTDIR=$3
+VERSION=$3
 
 unset LANG || true
 unset goodparam1 || true
@@ -60,8 +60,8 @@ if [ "${platform}" = "x11" -o "${platform}" = "win" ]; then
   echo >&2
 fi
 
-if [ "${goodparam1}" = "" -o "${goodparam2}" = "" -o "${DISTDIR}" = "" ]; then
-  echo 'Usage: mkdist.generic commercial|free x11|win dist-dir' >&2
+if [ "${goodparam1}" = "" -o "${goodparam2}" = "" ]; then
+  echo 'Usage: mkdist.generic commercial|free x11|win' >&2
   exit
 fi
 
@@ -70,30 +70,74 @@ if [ "${disttype}" = "free" -a "${platform}" != "x11" ]; then
   exit
 fi
 
-echo "Removing and creating new ${DISTDIR}..." >&2
-rm -rf ${DISTDIR} || ( echo unable to remove ${DISTDIR} ; exit 1 )
-mkdir ${DISTDIR}
+DISTDIR=`p4 fstat //depot/qt/$VERSION/doc.conf | awk '/ clientFile / { gsub("doc.conf/",""); print $3 }'`
+if [ -z "$DISTDIR" ]
+then
+    T=`p4 fstat //depot/qt/$VERSION/doc.conf | awk '/ depotFile / { print $3 }'`
+    if [ -z "$T" ]
+    then
+	echo "\"//depot/qt/$VERSION/...\" is not in the depot."
+	echo "Branch it, then restart:"
+	echo "      p4 integrate //depot/qt/main/... //depot/qt/$VERSION/..."
+	echo "      p4 submit"
+    else
+	echo "\"//depot/qt/$VERSION/...\" is not in your client view."
+	echo "Add it, then restart:"
+	echo "      p4 client"
+    fi
+    exit 1
+fi
+
+echo "Ensuring ${DISTDIR} is up-to-date..." >&2
+p4 sync $DISTDIR/...
+T=`p4 opened /usr/local/qt-release/2.1/... 2>&1 | grep -v 'not opened on this client'`
+if [ -n "$T" ]
+then
+    echo "Some files are still opened.  Fix these:" >&2
+    echo $T >&2
+    exit 1
+fi
+
+echo "Checking that ${DISTDIR} is clean..." >&2
+
+TMP=/tmp/t$$
+p4 files $DISTDIR/... | perl -p -e "s{^//depot/qt/$VERSION}{$DISTDIR}" >$TMP
+BAD=`find $DISTDIR -type f | xargs fgrep -f $TMP`
+rm $TMP
+if [ -n "$BAD" ]
+then
+    echo "Not clean!  Remove these files...";
+    echo $BAD
+    exit 1
+fi
+
+# echo "Removing and creating new client repository..." >&2
+# rm -rf ${DISTDIR} || ( echo unable to remove ${DISTDIR} ; exit 1 )
+# mkdir ${DISTDIR}
+
 cd ${DISTDIR}
 
-if [ "$local" = "yes" ]; then
-  echo "Copying the local Qt archive (doesn't use CVS)..." >&2
-  cd ${QTDIR}
-  cd ..
-  find qt -path 'qt/doc/html' -prune -o \( \( \( -type f -o -type l \) -a ! \( -perm +011 -a \( -path '*examples*' -o -path '*tutorial*' \) \) \) \) -print | \
-    egrep -v 'CVS|.cvsignore|.depend|core$|\.o$|\.a$|\.so|~|#|\.debug|moc_|\.moc$' | \
-    tar cfT - - | ( cd ${DISTDIR} ; tar xf - )
-  rm -f ${DISTDIR}/qt/include/*
-  rm -f ${DISTDIR}/qt/bin/moc
-  rm -f ${DISTDIR}/qt/src/moc/moc
-else
-  echo "Exporting the entire Qt archive..." >&2
-  cvs -Q export -r$release qt
-  echo "Exporting the latest tmake" >&2
-  cvs -Q export -rHEAD tmake
-  export TMAKEDIR=$DISTDIR/tmake
-  export TMAKEPATH=$TMAKEDIR/lib/linux-g++
-  export PATH=${TMAKEDIR}/bin:${PATH}
-fi
+#if [ "$local" = "yes" ]; then
+#  echo "Copying the local Qt archive (doesn't use CVS)..." >&2
+#  cd ${QTDIR}
+#  cd ..
+#  find qt -path 'qt/doc/html' -prune -o \( \( \( -type f -o -type l \) -a ! \( -perm +011 -a \( -path '*examples*' -o -path '*tutorial*' \) \) \) \) -print | \
+#    egrep -v 'CVS|.cvsignore|.depend|core$|\.o$|\.a$|\.so|~|#|\.debug|moc_|\.moc$' | \
+#    tar cfT - - | ( cd ${DISTDIR} ; tar xf - )
+#  rm -f ${DISTDIR}/qt/include/*
+#  rm -f ${DISTDIR}/qt/bin/moc
+#  rm -f ${DISTDIR}/qt/src/moc/moc
+#else
+#  echo "Exporting the entire Qt and tmake depots..." >&2
+#  cvs -Q export -r$release qt
+#  p4 -c qt-release-$platform sync
+#  export TMAKEDIR=$DISTDIR/tmake
+#  export TMAKEPATH=$TMAKEDIR/lib/linux-g++
+#  export PATH=${TMAKEDIR}/bin:${PATH}
+#fi
+
+
+# At this point, $DISTDIR is a clean checkout
 
 echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
@@ -124,18 +168,23 @@ do
     echo "#error \"This file is provided by Netscape.  Please see documentation.\"" >$i
 done
 
-VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
-VERSIONMAJOR=`echo ${VERSION} | sed -e 's/\..*$//'`
-case "$VERSION" in
+SRC_VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
+VERSIONMAJOR=`echo ${SRC_VERSION} | sed -e 's/\..*$//'`
+case "$SRC_VERSION" in
   *-snapshot|*-somethingelse)
-    SPECIAL=${VERSION##*-}
+    SPECIAL=${SRC_VERSION##*-}
 
-    N=${VERSION%-$SPECIAL}-$(date +%Y%m%d)
-    perl -i -p -e "s/$VERSION/$N/" ${DISTDIR}/qt/src/tools/qglobal.h
-    VERSION=${N}
+    N=${SRC_VERSION%-$SPECIAL}-$(date +%Y%m%d)
+    perl -i -p -e "s/$SRC_VERSION/$N/" ${DISTDIR}/qt/src/tools/qglobal.h
+    SRC_VERSION=${N}
 ;; *)
     SPECIAL=stable
 esac
+if [ "$VERSION" -ne "$SRC_VERSION" ]
+then
+    echo "Version mismatch:   qglobal.h: $SRC_VERSION   argument: $VERSION"
+    exit 1
+fi
 VERSION_SHORT=`echo ${VERSION} | sed -e 's/\.\(.\).*/.\1/'`
 VERSIONWIN=`echo ${VERSION} | sed -e 's/\.//g'`
 
