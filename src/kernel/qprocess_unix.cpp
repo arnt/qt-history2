@@ -162,6 +162,11 @@ void QProcessPrivate::sigchldHnd()
 }
 
 
+/*!
+  Starts the program.
+
+  Returns TRUE on success, otherwise FALSE.
+*/
 bool QProcess::start()
 {
 #if defined(QPROCESS_DEBUG)
@@ -261,16 +266,31 @@ bool QProcess::start()
 }
 
 
+/*!
+  Asks the process to terminate. If this does not work you can try kill()
+  instead.
+
+  Returns TRUE on success, otherwise FALSE.
+*/
 bool QProcess::hangUp()
 {
     return ::kill( d->pid, SIGHUP ) == 0;
 }
 
+/*!
+  Terminates the process. This is not a safe way to end a process; you should
+  try hangUp() first and use this function only if it failed.
+
+  Returns TRUE on success, otherwise FALSE.
+*/
 bool QProcess::kill()
 {
     return ::kill( d->pid, SIGKILL ) == 0;
 }
 
+/*!
+  Returns TRUE if the process is running, otherwise FALSE.
+*/
 bool QProcess::isRunning()
 {
     if ( d->exitValuesCalculated ) {
@@ -301,6 +321,10 @@ bool QProcess::isRunning()
     }
 }
 
+/*!
+  Writes data to the stdin of the process. The process may or may not read this
+  data. If the data was read, the signal wroteStdin() is emitted.
+*/
 void QProcess::dataStdin( const QByteArray& buf )
 {
 #if defined(QPROCESS_DEBUG)
@@ -313,6 +337,11 @@ void QProcess::dataStdin( const QByteArray& buf )
 }
 
 
+/*!
+  Closes stdin.
+
+  If there is pending data, ### what happens with it?
+*/
 void QProcess::closeStdin()
 {
     if ( d->socketStdin[1] !=0 ) {
@@ -333,6 +362,9 @@ void QProcess::closeStdin()
 }
 
 
+/*!
+  The process has output data to either stdout or stderr.
+*/
 void QProcess::socketRead( int fd )
 {
 #if defined(QPROCESS_DEBUG)
@@ -409,6 +441,9 @@ void QProcess::socketRead( int fd )
 }
 
 
+/*!
+  The process tries to read data from stdin.
+*/
 void QProcess::socketWrite( int fd )
 {
     if ( fd != d->socketStdin[1] || d->socketStdin[1] == 0 )
