@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include "qstring.h"
 #include "qshared.h"
+#include "qmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_VARIANT
@@ -75,8 +76,6 @@ class QVariant;
 template <class T> class QValueList;
 template <class T> class QValueListConstIterator;
 template <class T> class QValueListNode;
-template <class Key, class T> class QMap;
-template <class Key, class T> class QMapConstIterator;
 #endif
 
 class Q_EXPORT QVariant
@@ -230,9 +229,9 @@ public:
     QValueListConstIterator<QString> stringListEnd() const;
     QValueListConstIterator<QVariant> listBegin() const;
     QValueListConstIterator<QVariant> listEnd() const;
-    QMapConstIterator<QString,QVariant> mapBegin() const;
-    QMapConstIterator<QString,QVariant> mapEnd() const;
-    QMapConstIterator<QString,QVariant> mapFind( const QString& ) const;
+    QMap<QString,QVariant>::ConstIterator mapBegin() const;
+    QMap<QString,QVariant>::ConstIterator mapEnd() const;
+    QMap<QString,QVariant>::ConstIterator mapFind( const QString& ) const;
 #endif
     QString& asString();
 #ifndef QT_NO_STRINGLIST
@@ -321,7 +320,6 @@ public:
 #ifndef QT_H
 #include "qvaluelist.h"
 #include "qstringlist.h"
-#include "qmap.h"
 #endif // QT_H
 
 inline QVariant::Type QVariant::type() const
@@ -363,24 +361,24 @@ inline QValueListConstIterator<QVariant> QVariant::listEnd() const
     return ((const QValueList<QVariant>*)d->value.ptr)->end();
 }
 
-inline QMapConstIterator<QString,QVariant> QVariant::mapBegin() const
+inline QMap<QString,QVariant>::ConstIterator QVariant::mapBegin() const
 {
     if ( d->typ != Map )
-	return QMapConstIterator<QString,QVariant>();
+	return QMap<QString,QVariant>::ConstIterator();
     return ((const QMap<QString,QVariant>*)d->value.ptr)->begin();
 }
 
-inline QMapConstIterator<QString,QVariant> QVariant::mapEnd() const
+inline QMap<QString,QVariant>::ConstIterator QVariant::mapEnd() const
 {
     if ( d->typ != Map )
-	return QMapConstIterator<QString,QVariant>();
+	return QMap<QString,QVariant>::ConstIterator();
     return ((const QMap<QString,QVariant>*)d->value.ptr)->end();
 }
 
-inline QMapConstIterator<QString,QVariant> QVariant::mapFind( const QString& key ) const
+inline QMap<QString,QVariant>::ConstIterator QVariant::mapFind( const QString& key ) const
 {
     if ( d->typ != Map )
-	return QMapConstIterator<QString,QVariant>();
+	return QMap<QString,QVariant>::ConstIterator();
     return ((const QMap<QString,QVariant>*)d->value.ptr)->find( key );
 }
 #endif
