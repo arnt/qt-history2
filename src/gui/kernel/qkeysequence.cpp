@@ -438,7 +438,7 @@ int QKeySequence::decodeString(const QString &str)
             for (int i = 0; keyname[i].name; ++i) {
                 QString keyName(tran
                                 ? QShortcut::tr(keyname[i].name)
-                                : QLatin1String(keyname[i].name));
+                                : QString::fromLatin1(keyname[i].name));
                 if (accel == keyName.toLower()) {
                     ret |= keyname[i].key;
                     found = true;
