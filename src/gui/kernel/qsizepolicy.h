@@ -30,7 +30,7 @@ private:
     enum {
         HSize = 4,
         HMask = 0x0f,
-        VMask = HMask << HSize,
+        VMask = HMask << HSize
     };
 public:
     enum PolicyFlag {
