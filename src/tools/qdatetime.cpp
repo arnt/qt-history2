@@ -424,6 +424,7 @@ QString QDate::shortMonthName( int month )
 	return QString::fromLocal8Bit( buffer );
 #else
     SYSTEMTIME st;
+    memset( &st, 0, sizeof(SYSTEMTIME) );
     st.wYear = 2000;
     st.wMonth = month;
     st.wDay = 1;
@@ -477,6 +478,7 @@ QString QDate::longMonthName( int month )
 	return QString::fromLocal8Bit( buffer );
 #else
     SYSTEMTIME st;
+    memset( &st, 0, sizeof(SYSTEMTIME) );
     st.wYear = 2000;
     st.wMonth = month;
     st.wDay = 1 ;
@@ -537,6 +539,7 @@ QString QDate::shortDayName( int weekday )
 	return QString::fromLocal8Bit( buffer );
 #else
     SYSTEMTIME st;
+    memset( &st, 0, sizeof(SYSTEMTIME) );
     st.wYear = 2001;
     st.wMonth = 10;
     st.wDayOfWeek = ( weekday == 7 ) ? 0 : weekday;
@@ -591,6 +594,7 @@ QString QDate::longDayName( int weekday )
 	return QString::fromLocal8Bit( buffer );
 #else
     SYSTEMTIME st;
+    memset( &st, 0, sizeof(SYSTEMTIME) );
     st.wYear = 2001;
     st.wMonth = 10;
     st.wDayOfWeek = ( weekday == 7 ) ? 0 : weekday;
@@ -660,6 +664,7 @@ QString QDate::toString( Qt::DateFormat f ) const
 		return QString::fromLocal8Bit( buf );
 #else
 	    SYSTEMTIME st;
+	    memset( &st, 0, sizeof(SYSTEMTIME) );
 	    st.wYear = year();
 	    st.wMonth = month();
 	    st.wDay = day();
@@ -948,6 +953,7 @@ QDate QDate::currentDate()
 #if defined(Q_OS_WIN32)
 
     SYSTEMTIME t;
+    memset( &t, 0, sizeof(SYSTEMTIME) );
     GetLocalTime( &t );
     QDate d;
     d.jd = gregorianToJulian( t.wYear, t.wMonth, t.wDay );
@@ -1291,6 +1297,7 @@ QString QTime::toString( Qt::DateFormat f ) const
 		return QString::fromLocal8Bit( buf );
 #else
 	    SYSTEMTIME st;
+	    memset( &st, 0, sizeof(SYSTEMTIME) );
 	    st.wHour = hour();
 	    st.wMinute = minute();
 	    st.wSecond = second();
