@@ -1023,5 +1023,7 @@ ProjectBuilderMakefileGenerator::pbxbuild()
 {
     if(QFile::exists("/usr/bin/pbbuild"))
 	return "pbbuild";
+    if(QFile::exists("/usr/bin/xcodebuild"))
+       return "xcodebuild";
     return "pbxbuild";
 }
