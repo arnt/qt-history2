@@ -310,6 +310,13 @@ QFontEngineXLFD::~QFontEngineXLFD()
 {
     XFreeFont( QPaintDevice::x11AppDisplay(), _fs );
     _fs = 0;
+    TransformedFont *trf = transformed_fonts;
+    while ( trf ) {
+	XUnloadFont( QPaintDevice::x11AppDisplay(), trf->xlfd_font );
+	TransformedFont *tmp = trf;
+	trf = trf->next;
+	delete tmp;
+    }
 }
 
 QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
@@ -400,27 +407,60 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    mat[1] = p->m21()*size*_scale;
 	    mat[2] = p->m12()*size*_scale;
 	    mat[3] = p->m22()*size*_scale;
-	    QCString matrix="[";
-	    for ( int i = 0; i < 4; i++ ) {
-		if ( mat[i] < 0 ) {
-		    matrix += '~';
-		    mat[i] = -mat[i];
-		}
-		matrix += QString::number( mat[i] ).latin1();
-		matrix += ' ';
-	    }
-	    matrix += ']';
-	    xlfd_transformed.replace( pos, endPos-pos, matrix );
 
-	    x_font_load_error = FALSE;
-	    XErrorHandler old_handler = XSetErrorHandler( x_font_errorhandler );
-	    font_id = XLoadFont( dpy, xlfd_transformed.data() );
-	    XSync( dpy, FALSE );
-	    XSetErrorHandler( old_handler );
-	    if ( x_font_load_error ) {
-		//qDebug( "couldn't load transformed font" );
-		font_id = _fs->fid;
-		xlfd_transformations = XlfdTrUnsupported;
+	    // check if we have it cached
+	    TransformedFont *trf = transformed_fonts;
+	    TransformedFont *prev = 0;
+	    while ( trf ) {
+		if ( trf->xx == mat[0] &&
+		     trf->xy == mat[1] &&
+		     trf->yx == mat[2] &&
+		     trf->yy == mat[3] )
+		    break;
+		prev = trf;
+		trf = trf->next;
+	    }
+	    if ( trf ) {
+		if ( prev ) {
+		    // move to beginning of list
+		    prev->next = trf->next;
+		    trf->next = transformed_fonts;
+		    transformed_fonts = trf;
+		}
+		font_id = trf->xlfd_font;
+	    } else {
+		QCString matrix="[";
+		for ( int i = 0; i < 4; i++ ) {
+		    float f = mat[i];
+		    if ( f < 0 ) {
+			matrix += '~';
+			f = -f;
+		    }
+		    matrix += QString::number( f ).latin1();
+		    matrix += ' ';
+		}
+		matrix += ']';
+		xlfd_transformed.replace( pos, endPos-pos, matrix );
+
+		x_font_load_error = FALSE;
+		XErrorHandler old_handler = XSetErrorHandler( x_font_errorhandler );
+		font_id = XLoadFont( dpy, xlfd_transformed.data() );
+		XSync( dpy, FALSE );
+		XSetErrorHandler( old_handler );
+		if ( x_font_load_error ) {
+		    //qDebug( "couldn't load transformed font" );
+		    font_id = _fs->fid;
+		    xlfd_transformations = XlfdTrUnsupported;
+		} else {
+		    TransformedFont *trf = new TransformedFont;
+		    trf->xx = mat[0];
+		    trf->xy = mat[1];
+		    trf->yx = mat[2];
+		    trf->yy = mat[3];
+		    trf->xlfd_font = font_id;
+		    trf->next = transformed_fonts;
+		    transformed_fonts = trf;
+		}
 	    }
 	}
 	if ( xlfd_transformations == XlfdTrUnsupported ) {
@@ -559,8 +599,6 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
     }
     p->restore();
 #endif
-    if ( font_id != _fs->fid )
-	XUnloadFont( dpy, font_id );
 }
 
 glyph_metrics_t QFontEngineXLFD::boundingBox( const glyph_t *glyphs, const advance_t *advances, const offset_t *offsets, int numGlyphs )
@@ -846,6 +884,13 @@ QFontEngineXft::~QFontEngineXft()
     XftPatternDestroy( _pattern );
     _font = 0;
     _pattern = 0;
+    TransformedFont *trf = transformed_fonts;
+    while ( trf ) {
+	XftFontClose( QPaintDevice::x11AppDisplay(), trf->xft_font );
+	TransformedFont *tmp = trf;
+	trf = trf->next;
+	delete tmp;
+    }
 }
 
 QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
@@ -921,24 +966,54 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	m2.xy = p->m12()*_scale;
 	m2.yx = p->m21()*_scale;
 	m2.yy = p->m22()*_scale;
-	if ( mat )
-	    XftMatrixMultiply( &m2, &m2, mat );
 
-	XftPatternDel( pattern, XFT_MATRIX );
-	XftPatternAddMatrix( pattern, XFT_MATRIX, &m2 );
-
-	fnt = XftFontOpenPattern( dpy, pattern );
-#ifndef QT_XFT2
-	XftFontStruct *xftfs = getFontStruct( fnt );
-	if ( xftfs ) {
-	    // dirty hack: we set the charmap in the Xftfreetype to -1, so
-	    // XftFreetype assumes no encoding and really draws glyph
-	    // indices. The FT_Face still has the Unicode encoding to we
-	    // can convert from Unicode to glyph index
-	    xftfs->charmap = -1;
+	// check if we have it cached
+	TransformedFont *trf = transformed_fonts;
+	TransformedFont *prev = 0;
+	while ( trf ) {
+	    if ( trf->xx == (float)m2.xx &&
+		 trf->xy == (float)m2.xy &&
+		 trf->yx == (float)m2.yx &&
+		 trf->yy == (float)m2.yy )
+		break;
+	    prev = trf;
+	    trf = trf->next;
 	}
-#endif // QT_XFT2
+	if ( trf ) {
+	    if ( prev ) {
+		// move to beginning of list
+		prev->next = trf->next;
+		trf->next = transformed_fonts;
+		transformed_fonts = trf;
+	    }
+	    fnt = trf->xft_font;
+	} else {
+	    if ( mat )
+		XftMatrixMultiply( &m2, &m2, mat );
 
+	    XftPatternDel( pattern, XFT_MATRIX );
+	    XftPatternAddMatrix( pattern, XFT_MATRIX, &m2 );
+
+	    fnt = XftFontOpenPattern( dpy, pattern );
+#ifndef QT_XFT2
+	    XftFontStruct *xftfs = getFontStruct( fnt );
+	    if ( xftfs ) {
+		// dirty hack: we set the charmap in the Xftfreetype to -1, so
+		// XftFreetype assumes no encoding and really draws glyph
+		// indices. The FT_Face still has the Unicode encoding to we
+		// can convert from Unicode to glyph index
+		xftfs->charmap = -1;
+	    }
+#endif // QT_XFT2
+	    TransformedFont *trf = new TransformedFont;
+	    trf->xx = (float)m2.xx;
+	    trf->xy = (float)m2.xy;
+	    trf->yx = (float)m2.yx;
+	    trf->yy = (float)m2.yy;
+	    trf->xft_font = fnt;
+	    trf->next = transformed_fonts;
+	    transformed_fonts = trf;
+	}
 	transform = TRUE;
     } else if ( p->txop == QPainter::TxTranslate ) {
 	p->map( x, y, &x, &y );
@@ -1014,9 +1089,6 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     if ( textFlags != 0 )
 	drawLines( p, this, yorig, xorig, x-xp, textFlags );
-
-    if ( fnt != _font )
-	XftFontClose( dpy, fnt );
 
 #ifdef FONTENGINE_DEBUG
     if ( !si->analysis.bidiLevel % 2 ) {
