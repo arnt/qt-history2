@@ -186,8 +186,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     id = popup->insertItem( openIcon, "&Open...", this, SLOT( open() ) );
 
     popup->insertSeparator();
-    popup->insertItem( "Quit", qApp, SLOT(quit()), QKeySequence(CTRL+Key_K, CTRL+Key_W) );
-
+    popup->insertItem( "Quit", qApp, SLOT(quit()), CTRL+Key_Q );
 
     textStylePopup = popup = new QPopupMenu( this );
     menuBar()->insertItem( "&Edit", popup );
