@@ -176,7 +176,7 @@ struct QLineEditPrivate {
     QTimer dragTimer;
     UndoRedoInfo undoRedoInfo;
     QPoint lastMovePos;
-    
+
 };
 
 
@@ -188,30 +188,30 @@ struct QLineEditPrivate {
 
   \ingroup basic
 
-  A line edit allows the user to enter and edit a single line of
-  plain text, with a useful collection of editing functions, including
-  undo & redo, cut & paste, and drag & drop.
+  A line edit allows the user to enter and edit a single line of plain
+  text, with a useful collection of editing functions, including undo
+  & redo, cut & paste, and drag & drop.
 
-  By changing the echoMode() of a line edit it can also be used
-  as a "write-only" field, for inputs such as passwords.
+  By changing the echoMode() of a line edit it can also be used as a
+  "write-only" field, for inputs such as passwords.
 
-  The length of the field can be constrained to a maxLength(),
-  or the value can be arbitrarily constrained by setting a validator().
+  The length of the field can be constrained to a maxLength(), or the
+  value can be arbitrarily constrained by setting a validator().
 
-  A closely related class is QMultiLineEdit which allows multi-line
-  editing.
+  A closely related class is QTextEdit which allows multi-line editing
+  including rich text formatting of the text.
 
   The default QLineEdit object has its own frame as specified by the
   Windows/Motif style guides, you can turn off the frame by calling
   setFrame( FALSE ).
 
-  The default key bindings are described in keyPressEvent().
-  A right-mouse-button menu presents a number of the editing commands
-  to the user.
+  The default key bindings are described in keyPressEvent().  A
+  right-mouse-button menu presents a number of the editing commands to
+  the user.
 
   <img src=qlined-m.png> <img src=qlined-w.png>
 
-  \sa QMultiLineEdit QLabel QComboBox
+  \sa QTextEdit QLabel QComboBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Field, Entry,</a>
   <a href="guibooks.html#fowler">GUI Design Handbook: Field, Required.</a>
 */
@@ -231,7 +231,7 @@ struct QLineEditPrivate {
 	actually entered.
   </ul>
 
-  \sa setEchoMode() echoMode() QMultiLineEdit::EchoMode
+  \sa setEchoMode() echoMode()
 */
 
 
