@@ -1826,7 +1826,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
 	    while ( w ) {
 		QContextMenuEvent *ce = new QContextMenuEvent( cevent->reason(), w->mapFromGlobal( cevent->globalPos() ), cevent->globalPos(), cevent->state() );
-		res = internalNotify( w, cevent );
+		res = internalNotify( w, ce );
 
 		if ( ce->isAccepted() )
 		    cevent->accept();

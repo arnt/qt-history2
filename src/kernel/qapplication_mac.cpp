@@ -1286,7 +1286,7 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
     //finally send the event to the widget if its not the popup
     if ( widget ) {
 	QPoint plocal(widget->mapFromGlobal( where ));
-	QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where );
+	QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
 	QApplication::sendEvent( widget, &qme );
 	if(qme.isAccepted()) { //once this happens the events before are pitched
 	    qt_button_down = NULL;
@@ -1400,7 +1400,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if(etype == QEvent::MouseButtonPress && 	
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p );
+		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
 		QApplication::sendEvent( popupwidget, &cme );
 		was_context = cme.isAccepted();
 	    }
@@ -1463,7 +1463,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	case kEventMouseDown:
 	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
 		remove_context_timer = FALSE;
-		InstallEventLoopTimer(GetMainEventLoop(), 1.0, 0, 
+		InstallEventLoopTimer(GetMainEventLoop(), .25, 0, 
 				      NewEventLoopTimerUPP(qt_trap_context_mouse), app, 
 				      &mac_trap_context);
 	    }
@@ -1509,7 +1509,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if(etype == QEvent::MouseButtonPress && 	
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p );
+		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
 		QApplication::sendEvent( widget, &cme );
 		was_context = cme.isAccepted();
 	    }
@@ -1631,6 +1631,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	}
 
 	if(ekind == kEventWindowUpdate) {
+	    remove_context_timer = FALSE;
 	    widget->propagateUpdates();
 	} else if(ekind == kEventWindowActivated) {
 	    if(widget) {
