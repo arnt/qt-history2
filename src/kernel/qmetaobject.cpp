@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#14 $
 **
 ** Implementation of QMetaObject class
 **
@@ -14,7 +14,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#14 $")
 
 /* not documented
   \class QMetaObject qmetaobj.h
@@ -206,7 +206,7 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 		continue;
 	    }
 	}
-	if ( index >= 0 || index < n ) {
+	if ( index >= 0 && index < n ) {
 	    switch ( code ) {			// find member
 		case SLOT_CODE:	  d = slotData;	  break;
 		case SIGNAL_CODE: d = signalData; break;
