@@ -787,7 +787,7 @@ void QWorkspace::handleUndock(QDockWindow *w)
 		if ( l != w && l->geometry().intersects(QRect(sc_pt, w->size()))) 
 		    sc.o++;
 	    }
-	    if(maxRect.contains(sc_pt) && 
+	    if(maxRect.contains(QRect(sc_pt, w->size())) && 
 	       (!possible || (sc.o < score.o) || 
 		((score.o || sc.o == score.o) && score.x < sc.x))) {
 		wpos = sc_pt;
@@ -891,13 +891,16 @@ void QWorkspace::showEvent( QShowEvent *e )
 			d->newdocks.prepend(tb);
 		    } else if(tb_list.count()) {
 			QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
-							  w->parentWidget(), "QMagicDock");
+							  w->parentWidget(), 
+							  QString("QMagicDock_") + w->name());
 			dw->setCloseMode( QDockWindow::Always );
-			dw->setResizeEnabled(TRUE);
+			dw->setResizeEnabled(FALSE);
 			dw->setCaption(o->caption());
 			QSize os(w->size());
-			if(w->layout() && w->layout()->hasHeightForWidth()) 
+			if(w->layout() && w->layout()->hasHeightForWidth()) {
+			    w->layout()->invalidate();
 			    os.setHeight(w->layout()->heightForWidth(os.width()));
+			}
 			if(!w->isHidden())
 			    dw->show();
 			w->reparent(dw, QPoint(0, 0));
