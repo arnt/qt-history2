@@ -1304,13 +1304,20 @@ void QListViewItem::setup()
 {
     widthChanged();
     QListView * v = listView();
+
     int ph = 0;
     for ( uint i = 0; i < v->d->column.size(); ++i ) {
 	if ( pixmap( i ) )
 	    ph = QMAX( ph, pixmap( i )->height() );
     }
-    int h = QMAX( v->d->fontMetricsHeight, ph ) + 2*v->itemMargin();
+    int h = ph;
+    for ( int c = 0; c < v->columns(); ++c ) {
+	int tmph = v->fontMetrics().size( AlignVCenter, text( c ) ).height();
+	h = QMAX( h, tmph );
+    }
+    h += 2*v->itemMargin();
     h = QMAX( h, QApplication::globalStrut().height());
+
     if ( h % 2 > 0 )
 	h++;
     setHeight( h );
@@ -1718,7 +1725,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    ci->truncated = FALSE;
 	    // if we have to do the ellipsis thingy calc the truncated text
 	    int pw = pixmap( column ) ? pixmap( column )->width() + lv->itemMargin() : lv->itemMargin();
-	    if ( fm.width( t ) + pw > width ) {
+	    if ( fm.size( align | AlignVCenter, t ).width() + pw > width ) {
 		// take care of arabic shaping in width calculation (lars)
 		ci->truncated = TRUE;
 		ci->tmpText = "...";
@@ -1778,7 +1785,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( !t.isEmpty() ) {
 	if ( !reverse )
 	    r += iconWidth;
-	p->drawText( r, 0, width-marg-r, height(), align | AlignVCenter | SingleLine, t );
+	p->drawText( r, 0, width-marg-r, height(), align | AlignVCenter, t );
     }
 }
 
@@ -1798,7 +1805,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 int QListViewItem::width( const QFontMetrics& fm,
 			  const QListView* lv, int c ) const
 {
-    int w = fm.width( text( c ) ) + lv->itemMargin() * 2
+    int w = fm.size( AlignVCenter, text( c ) ).width() + lv->itemMargin() * 2
 	    - lv->d->minLeftBearing - lv->d->minRightBearing;
     const QPixmap * pm = pixmap( c );
     if ( pm )
