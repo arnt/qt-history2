@@ -54,7 +54,7 @@ void RenderThread::run()
 
         int halfWidth = resultSize.width() / 2;
         int halfHeight = resultSize.height() / 2;
-        QImage image(resultSize, 32);
+        QImage image(resultSize, QImage::Format_ARGB32);
 
         const int NumPasses = 8;
         int pass = 0;
