@@ -322,9 +322,6 @@ static void     unregWinClasses();
 
 static int	translateKeyCode( int );
 
-// Detect the Windows version
-Qt::WindowsVersion qt_winver = (Qt::WindowsVersion) qWinVersion();
-
 extern QCursor *qt_grab_cursor();
 
 #if defined(Q_WS_WIN)

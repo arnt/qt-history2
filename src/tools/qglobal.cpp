@@ -141,11 +141,9 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     return TRUE;
 }
 
-#ifdef Q_WS_WIN
-bool qt_winunicode = TRUE;
-#endif
-
 #if defined(Q_OS_WIN32)
+bool qt_winunicode;
+
 #include "qt_windows.h"
 
 int qWinVersion()
@@ -195,9 +193,17 @@ int qWinVersion()
 	}
     }
 
-    qt_winunicode = (winver & Qt::WV_NT_based);
+#if defined(UNICODE)
+    if ( winver & Qt::WV_NT_based )
+	qt_winunicode = TRUE;
+    else
+#endif
+	qt_winunicode = FALSE;
+
     return winver;
 }
+
+Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
 #endif
 
 
@@ -770,4 +776,3 @@ QtMsgHandler qInstallMsgHandler( QtMsgHandler h )
     handler = h;
     return old;
 }
-
