@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#55 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -35,7 +35,7 @@ static const int QH_MARGIN = 4;
 struct QHeaderData
 {
     QArray<QCOORD>	sizes;
-    QArray<QString>	labels;
+    QArray<QString*>	labels;
     QArray<int>	        a2l;
     QArray<int>	        l2a;
 
@@ -206,7 +206,7 @@ void QHeader::init( int n )
     data->clicks.resize(n+1);
     data->resize.resize(n+1);
     for ( int i = 0; i < n ; i ++ ) {
-	data->labels[i] = QString::null;
+	data->labels[i] = new QString;
 	data->sizes[i] = 88;
 	data->a2l[i] = i;
 	data->l2a[i] = i;
@@ -230,7 +230,7 @@ void QHeader::init( int n )
     }
     handleIdx = 0;
     //################
-    data->labels[n] = QString::null;
+    data->labels[n] = new QString;
     data->sizes[n] = 0;
     data->a2l[n] = 0;
     data->l2a[n] = 0;
@@ -407,7 +407,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 
     int logIdx = mapToLogical(i);
 
-    QString s = data->labels[logIdx];
+    QString s = * data->labels[logIdx];
     int d = 0;
     if ( style() == WindowsStyle  &&
 	 i==handleIdx && ( state == Pressed || state == Moving ) )
@@ -607,7 +607,7 @@ QRect QHeader::sRect( int i )
 void QHeader::setLabel( int i, const QString &s, int size )
 {
     if ( i >= 0 && i < count() ) {
-	data->labels[i] = s;
+	*(data->labels[i]) = s;
 	if ( size >= 0 )
 	    data->sizes[i] = size;
     }
@@ -620,7 +620,7 @@ void QHeader::setLabel( int i, const QString &s, int size )
 */
 QString QHeader::label( int i )
 {
-    return data->labels[i];
+    return *(data->labels[i]);
 }
 
 /*!
@@ -633,7 +633,7 @@ int QHeader::addLabel( const QString &s, int size )
 {
     int n = count() + 1; //###########
     data->labels.resize( n + 1 );
-    data->labels[n-1] = s;
+    *(data->labels[n-1]) = s;
     data->sizes.resize( n + 1 );
     if ( size < 0 ) {
 	QFontMetrics fm = fontMetrics();
