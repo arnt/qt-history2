@@ -1395,7 +1395,7 @@ QString::QString( const QByteArray& ba )
 #ifndef QT_NO_TEXTCODEC
     if ( QTextCodec::codecForCStrings() ) {
 	d = 0;
-	*this = fromAscii( ba.data() );
+	*this = fromAscii( ba.data(), ba.size() );
 	return;
     }
 #endif
