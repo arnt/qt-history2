@@ -616,8 +616,11 @@ void QSpinBox::stepDown()
   passed as \a obj and the event is passed as \a ev.
 */
 
-bool QSpinBox::eventFilter( QObject* /* obj */, QEvent* ev )
+bool QSpinBox::eventFilter( QObject* o, QEvent* ev )
 {
+    if (o != vi)
+	return QWidget::eventFilter(o,ev);
+
     if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
 
