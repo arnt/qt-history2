@@ -81,7 +81,7 @@ QRESULT JPEGFormat::saveImage( const QString &format, const QString &filename, c
 
 QRESULT JPEGFormat::installIOHandler( const QString &name )
 {
-    if ( name.lower() != "JPEG" )
+    if ( name.upper() != "JPEG" )
 	return QE_INVALIDARG;
 
     qInitJpegIO();
