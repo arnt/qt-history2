@@ -377,8 +377,10 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         int columns = table->columns();
         QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
-        int row_start, col_start, num_rows, num_cols;
-        context.cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+        int row_start = -1, col_start = -1, num_rows = -1, num_cols = -1;
+
+        if (context.cursor.currentTable() == table)
+            context.cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
 
         for (int r = 0; r < rows; ++r) {
             for (int c = 0; c < columns; ++c) {
