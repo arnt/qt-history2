@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#103 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#103 $");
 
 
 /*!
@@ -99,14 +99,17 @@ static QPalette *stdPalette = 0;
 
 static void create_palettes()			// creates default palettes
 {
-    QColorGroup std_nor( black, lightGray,
-			 white, lightGray.dark(), gray,
+    QColor standardLightGray( 204, 204, 204 );
+    QColor light( standardLightGray.light( 121 ) );
+    QColor dark( standardLightGray.dark() );
+    QColorGroup std_nor( black, standardLightGray,
+			 light, dark, gray,
 			 black, white );
-    QColorGroup std_dis( darkGray, lightGray,
-			 white, lightGray.dark(), gray,
+    QColorGroup std_dis( darkGray, standardLightGray,
+			 light, dark, gray,
 			 darkGray, std_nor.background() );
-    QColorGroup std_act( black, lightGray,
-			 white, lightGray.dark(), gray,
+    QColorGroup std_act( black, standardLightGray,
+			 light, dark, gray,
 			 black, white );
     stdPalette = new QPalette( std_nor, std_dis, std_act );
 }

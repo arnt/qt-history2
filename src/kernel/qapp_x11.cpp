@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#232 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#233 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#232 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#233 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -369,9 +369,11 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    fg = QColor(appFGCol);
 	else
 	    fg = black;
-	QColorGroup cg( fg, bg, bg.light(), bg.dark(), bg.dark(150), fg,
-			white );
-	QPalette pal( cg, cg, cg );
+	QColorGroup cg( fg, bg, bg.light(), bg.dark(), bg.dark(150),
+			fg, white );
+	QColorGroup dcg( fg.light(), bg, bg.light(), bg.dark(), bg.dark(150),
+			 fg.light(), white );
+	QPalette pal( cg, cg, dcg );
 	QApplication::setPalette( pal );
     }
     setlocale( LC_ALL, "ISO-8859-1" );		// use correct char set mapping
