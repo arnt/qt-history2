@@ -486,6 +486,8 @@ public:
     void addCoords(float x1, float y1, float x2, float y2);
     void getCoords(float *x1, float *y1, float *x2, float *y2) const;
 
+    QRectF adjusted(float x1, float y1, float x2, float y2) const;
+
     QSizeF size() const;
     float width() const;
     float height() const;
@@ -630,6 +632,9 @@ inline void QRectF::addCoords(float xp1, float yp1, float xp2, float yp2)
     w += xp2 - xp1;
     h += yp2 - yp1;
 }
+
+inline QRectF QRectF::adjusted(float xp1, float yp1, float xp2, float yp2) const
+{ return QRectF(xp + xp1, yp + yp2, w + xp2 - xp1, h + yp2 - yp1); }
 
 inline void QRectF::setWidth(float w)
 { this->w = w; }

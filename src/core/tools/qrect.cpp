@@ -1187,6 +1187,12 @@ QRectF QRectF::normalize() const
     bottom-right corner.
 */
 
+/*! \fn QRectF QRectF::adjusted(float xp1, float yp1, float xp2, float yp2) const
+
+    Returns a new rectangle with (\a xp1, \a yp1) added to the
+    existing position of the rectangle's top-left corner, and (\a xp2,
+    \a yp2) added to the position of its bottom-right corner.
+*/
 
 /*!
     \fn QSizeF QRectF::size() const
