@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#30 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#31 $
 **
 ** Definition of QComboBox class
 **
@@ -18,7 +18,6 @@
 struct QComboData;
 class  QStrList;
 class  QLineEdit;
-class  QEditableComboBox;
 
 
 class QComboBox : public QWidget
@@ -26,6 +25,7 @@ class QComboBox : public QWidget
     Q_OBJECT
 public:
     QComboBox( QWidget *parent=0, const char *name=0 );
+    QComboBox( bool, QWidget *parent=0, const char *name=0 );
    ~QComboBox();
 
     int		count() const;
@@ -56,17 +56,30 @@ public:
     void	setPalette( const QPalette & );
     void	setFont( const QFont & );
 
+    void	setSizeLimit( int );
+    uint	sizeLimit() const;
+
+    enum	Policy { NoInsertion, AtBeginning,
+			 AtCurrent, AtEnd };
+
+    void	setPolicy( QComboBox::Policy policy );
+    QComboBox::Policy policy() const;
+
 signals:
     void	activated( int index );
     void	highlighted( int index );
+    void	activated( const char * );
+    void	highlighted( const char * );
 
 private slots:
     void	internalActivate( int );
     void	internalHighlight( int );
     void	internalClickTimeout();
+    void	returnPressed();
 
 protected:
     void	paintEvent( QPaintEvent * );
+    void	resizeEvent( QResizeEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
@@ -88,58 +101,6 @@ private:
 private:	// Disabled copy constructor and operator=
     QComboBox( const QComboBox & ) {}
     QComboBox &operator=( const QComboBox & ) { return *this; }
-
-    friend QEditableComboBox; // because eventFilter is private
-};
-
-
-class QEditableComboBox: public QComboBox
-{
-    Q_OBJECT
-public:
-    QEditableComboBox( QWidget *parent=0, const char *name=0 );
-    ~QEditableComboBox();
-
-    void	insertItem( const char *text, int index=-1 )
-		{ QComboBox::insertItem( text, index ); }
-    void	changeItem( const char *text, int index=-1 )
-		{ QComboBox::changeItem( text, index ); }
-
-    enum	Policy { NoInsertion, AtBeginning,
-			 AtCurrent, AtEnd };
-
-    void	setPolicy( QEditableComboBox::Policy policy ) { p = policy; }
-    QEditableComboBox::Policy policy() const { return p; }
-
-    void	setSizeLimit( int );
-    uint	sizeLimit() const { return maxCount; }
-
-signals:
-    void	activated( const char * );
-    void	highlighted( const char * );
-
-protected:
-    void	resizeEvent( QResizeEvent * );
-    bool	eventFilter( QObject *object, QEvent *event );
-
-private slots:
-    void	translateActivate( int );
-    void	translateHighlight( int );
-    void	returnPressed();
-
-private:
-    QLineEdit * ed;  // /bin/ed rules!
-    uint	maxCount;
-    Policy	p;
-    bool	edEmpty;
-
-private:	// Disabled functions
-    QEditableComboBox( const QEditableComboBox & ) {}
-    QEditableComboBox &operator=( const QEditableComboBox & ) { return *this; }
-
-    void insertItem( const QPixmap &, int =1 ) {}
-    const QPixmap *pixmap( int ) const { return 0; }
-    void changeItem( const QPixmap &, int ) {}
 };
 
 

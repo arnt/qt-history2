@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#56 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#56 $");
 
 
 /*!
@@ -32,9 +32,17 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#55 $");
 
   \ingroup realwidgets
 
-  A combo box is a kind of popup menu that is opened by pressing a button.
-  The popup list contains a number of text or pixmap items.
+  A combo box is a kind of popup menu that is opened by pressing a
+  button.  The popup list contains a number of text or pixmap items.
   The button displays the current item when the popup list is closed.
+
+  QComboBox supports three different appearances: Motif 1.x, Motif 2.0
+  and Windows 95.  In Motif 1.x, a combo box was called XmOptionMenu,
+  presumably because OSF's naming policy suffers from the NIH
+  syndrome.  In Motif 2.0, OSF introduced an improved combo box and
+  named that XmComboBox.  QComboBox provides both.
+
+  <more here>
 
   A combo box emits two signals, activated() and highlighted(), when
   a new item has been activated (selected) or highlighted (set to current).
@@ -47,45 +55,71 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#55 $");
   The \e index is the position of the item in the popup list.
 */
 
+/* \fn void QComboBox::activated( const char * )
+
+  This signal is emitted when a new item has been activated
+  (selected). The argument is the activated string.
+
+  You can also use activated(int) signal, but be aware that its
+  argument meaningful only for selected strings, not for typed
+  strings.
+*/
+
 /*!
   \fn void QComboBox::highlighted( int index )
   This signal is emitted when a new item has been set to current.
   The \e index is the position of the item in the popup list.
 */
 
+/* \fn void QComboBox::highlighted( const char * )
+
+  This signal is emitted when a new item has been highlighted. The
+  argument is the highlighted string.
+
+  You can also use highlighted(int) signal.
+*/
 
 struct QComboData
 {
     int		current;
-    uint	usingListBox          : 1;
-    uint	autoresize            : 1;
-    uint	poppedUp              : 1;
-    uint	mouseWasInsidePopup   : 1;
-    uint	arrowPressed          : 1;
-    uint	arrowDown             : 1;
-    uint	discardNextMousePress : 1;
-    uint	shortClick	      : 1;
+    uint	maxCount;
+    QLineEdit * ed;  // /bin/ed rules!
+    QComboBox::Policy p;
+    bool	edEmpty;
+    bool	usingListBox;
+    bool	autoresize;
+    bool	poppedUp;
+    bool	mouseWasInsidePopup;
+    bool	arrowPressed;
+    bool	arrowDown;
+    bool	discardNextMousePress;
+    bool	shortClick;
     union {
 	QPopupMenu *popup;
 	QListBox   *listBox;
     };
 };
 
+
 bool QComboBox::getMetrics( int *dist, int *buttonW, int *buttonH ) const
 {
-    if ( d->usingListBox ) {
+    if ( d->usingListBox && style() == WindowsStyle ) {
 	QRect r  = arrowRect();
 	*buttonW = r.width();
 	*buttonH = r.height();
 	*dist    = 4;
-	return TRUE;
+    } else if ( d->usingListBox ) {
+	*dist = 6;
+	*buttonW = 16;
+	*buttonH = 18;
     } else {
 	*dist     = 8;
 	*buttonH  = 7;
 	*buttonW  = 11;
-	return TRUE;
     }
+    return TRUE;
 }
+
 
 static inline bool checkInsertIndex( const char *method, int count, int *index)
 {
@@ -98,6 +132,7 @@ static inline bool checkInsertIndex( const char *method, int count, int *index)
 	*index = count;
     return !range_err;
 }
+
 
 static inline bool checkIndex( const char *method, int count, int index )
 {
@@ -112,42 +147,109 @@ static inline bool checkIndex( const char *method, int count, int index )
 
 /*!
   Constructs a combo box widget with a parent and a name.
+
+  This constructor creates a popup menu if the program uses Motif look
+  and feel; this is compatible with Motif 1.x.
 */
 
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     initMetaObject();
-    d		  = new QComboData;
+    d		             = new QComboData;
     if ( style() == WindowsStyle ) {
-	d->listBox      = new QListBox( 0, 0, WType_Popup );
+	d->listBox           = new QListBox( 0, 0, WType_Popup );
 	d->listBox->setAutoScrollBar( FALSE );
 	d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
 	d->listBox->setLineWidth( 1 );
 	d->listBox->resize( 100, 10 );
 	
-	d->usingListBox = TRUE;
+	d->usingListBox      = TRUE;
 	connect( d->listBox, SIGNAL(selected(int)),
 		             SLOT(internalActivate(int)) );
 	connect( d->listBox, SIGNAL(highlighted(int)),
 		             SLOT(internalHighlight(int)));
     } else {
-	d->popup        = new QPopupMenu;
-	d->usingListBox = FALSE;
+	d->popup             = new QPopupMenu;
+	d->usingListBox      = FALSE;
 	connect( d->popup, SIGNAL(activated(int)),
 		           SLOT(internalActivate(int)) );
 	connect( d->popup, SIGNAL(highlighted(int)),
 		           SLOT(internalHighlight(int)) );
     }
-    d->current	             = 0;
+    d->edEmpty               = TRUE;
+    d->ed                    = 0;
+    d->current               = 0;
+    d->maxCount              = UINT_MAX;
+    d->p = AtEnd;
     d->autoresize            = FALSE;
     d->poppedUp              = FALSE;
     d->arrowDown             = FALSE;
     d->discardNextMousePress = FALSE;
     d->shortClick            = FALSE;
-    
-    //setAcceptFocus( TRUE );
+
+    if ( style() == MotifStyle )
+	setAcceptFocus( TRUE );
 }
+
+
+/*!
+
+  Constructs a combo box with a maximum size and either Motif 2.0 or
+  Windows look and feel.
+
+  \a size is the maximum number of lines the list box will show at
+  once.  If the contents are any larger, it will scroll.
+*/
+
+
+QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
+    : QWidget( parent, name )
+{
+    initMetaObject();
+    d = new QComboData;
+    d->listBox = new QListBox( 0, 0, WType_Popup );
+    d->listBox->setAutoScrollBar( FALSE );
+    d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
+    d->listBox->setLineWidth( 1 );
+    d->listBox->resize( 100, 10 );
+	
+    d->usingListBox = TRUE;
+    connect( d->listBox, SIGNAL(selected(int)),
+	     SLOT(internalActivate(int)) );
+    connect( d->listBox, SIGNAL(highlighted(int)),
+	     SLOT(internalHighlight(int)));
+
+    d->edEmpty = TRUE;
+    d->current = 0;
+    d->maxCount = UINT_MAX;
+    d->p = AtEnd;
+    d->autoresize = FALSE;
+    d->poppedUp = FALSE;
+    d->arrowDown = FALSE;
+    d->discardNextMousePress = FALSE;
+    d->shortClick = FALSE;
+
+    if ( style() == MotifStyle )
+	setAcceptFocus( TRUE );
+
+    if ( rw ) {
+	d->ed = new QLineEdit( this, "this is not /bin/ed" );
+	if ( style() == WindowsStyle )
+	    d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
+	else
+	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+	d->ed->installEventFilter( this );
+    
+	connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
+    } else {
+	d->ed = 0;
+    }
+
+    
+}
+
+
 
 /*!
   Destroys the combo box.
@@ -272,10 +374,15 @@ void QComboBox::insertItem( const char *text, int index )
 /*!
   Inserts a pixmap item at position \e index. The item will be appended if
   \e index is negative.
+
+  If the combo box is writable, the pixmap is not inserted.
 */
 
 void QComboBox::insertItem( const QPixmap &pixmap, int index )
 {
+    if ( d->ed )
+	return;
+
     int cnt = count();
     bool append = index < 0 || index == cnt;
     if ( !checkInsertIndex( "insertItem", cnt, &index ) )
@@ -368,13 +475,16 @@ void QComboBox::changeItem( const char *text, int index )
 	d->popup->changeItem( text, index );
 }
 
-/*!
-  Replaces the item at position \e index with a pixmap.
+/*!  
+  Replaces the item at position \e index with a pixmap, unless the
+  combo box is writable.
+
+  \sa insertItem()
 */
 
 void QComboBox::changeItem( const QPixmap &im, int index )
 {
-    if ( !checkIndex( "changeItem", count(), index ) )
+    if ( d->ed != 0 || !checkIndex( "changeItem", count(), index ) )
 	return;
     if ( d->usingListBox )
 	d->listBox->changeItem( im, index );
@@ -499,6 +609,13 @@ void QComboBox::internalActivate( int index )
 	d->popup->removeEventFilter( this );
     d->poppedUp = FALSE;
     emit activated( index );
+
+    const char *t = text( index );
+    if ( !t )
+	return;					// shouldn't happen
+    if ( d->ed )
+	d->ed->setText( t );
+    emit activated( t );
 }
 
 /*!
@@ -510,6 +627,9 @@ void QComboBox::internalActivate( int index )
 void QComboBox::internalHighlight( int index )
 {
     emit highlighted( index );
+    const char *t = text( index );
+    if ( t )
+	emit highlighted( t );
 }
 
 /*!
@@ -575,6 +695,21 @@ void QComboBox::setFont( const QFont &font )
 
 
 /*!
+  Handles resize events for the combo box.
+*/
+
+void QComboBox::resizeEvent( QResizeEvent * )
+{
+    if ( !d->ed )
+	return;
+    else if ( style() == WindowsStyle )
+	d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
+    else
+	d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+}
+
+
+/*!
   Handles paint events for the combo box.
 */
 
@@ -591,7 +726,79 @@ void QComboBox::paintEvent( QPaintEvent * )
 	return;
     }
 
-    if ( d->usingListBox ) {		// windows style
+    if ( !d->usingListBox ) {		// motif 1.x style
+	int dist, buttonH, buttonW;
+
+	getMetrics( &dist, &buttonW, &buttonH );
+	int xPos = width() - dist - buttonW - 1;
+	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
+			 buttonW, buttonH, g, FALSE, 2 );
+	QFontMetrics fm = p.fontMetrics();
+	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
+	const char *str = d->popup->text( d->current );
+	if ( str ) {
+	    p.drawText( clip, AlignCenter | SingleLine, str );
+	} else {
+	    QPixmap *pix = d->popup->pixmap( d->current );
+	    if ( pix ) {
+		p.setClipRect( clip );
+		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
+		p.setClipping( FALSE );
+	    }
+	}
+	qDrawShadePanel( &p, rect(), g, FALSE, 2 );
+
+	if ( hasFocus() )
+	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
+
+    } else if ( style() == MotifStyle ) { // motif 2.0 style
+	int x1, y1;
+	QPointArray l;
+
+	x1 = width() - 2 - 5 - 15;
+
+	y1 = height()/2 - 9;
+
+	// light matter
+	l.setPoints( 20,
+		     x1,y1+17, x1,y1+17-2, 
+		     x1,y1+17-2, x1+15, y1+17-2,
+		     x1+1,y1, x1+14,y1,
+		     x1+1,y1+1, x1+12,y1+1,
+		     x1+2,y1+2, x1+2,y1+3,
+		     x1+3,y1+2, x1+3,y1+5,
+		     x1+4,y1+4, x1+4,y1+7,
+		     x1+5,y1+6, x1+5,y1+9,
+		     x1+6,y1+8, x1+6,y1+11,
+		     x1+7,y1+10, x1+7,y1+11 );
+	p.setPen( colorGroup().light() );
+	p.drawLineSegments( l );
+
+	// dark matter
+	l.setPoints( 18,
+		     x1+8,y1+10, x1+8,y1+11,
+		     x1+9,y1+8, x1+9,y1+11,
+		     x1+10,y1+6, x1+10,y1+9,
+		     x1+11,y1+4, x1+11,y1+7,
+		     x1+12,y1+2, x1+12,y1+5,
+		     x1+13,y1+1, x1+13,y1+3,
+		     x1+14,y1+1, x1+14,y1+1,
+		     x1+1,y1+17, x1+15,y1+17,
+		     x1+15,y1+16, x1+15,y1+16 );
+	p.setPen( colorGroup().dark() );
+	p.drawLineSegments( l );
+
+	QFontMetrics fm = p.fontMetrics();
+	QRect clip( 4, 2, x1 - 2 - 4, height() - 4 );
+	const char *str = d->listBox->text( d->current );
+	p.setPen( colorGroup().foreground() );
+	p.drawText( clip, AlignCenter | SingleLine, str );
+	qDrawShadePanel( &p, rect(), g, FALSE, 2 );
+
+	if ( hasFocus() )
+	    p.drawRect( x1 - 2, y1 - 2, 20, 22 );
+
+    } else {				// windows 95 style
 	QColor	  bg  = isEnabled() ? g.base() : g.background();
 	QFontMetrics  fm  = fontMetrics();
 	const char   *str = d->listBox->text( d->current );
@@ -618,27 +825,6 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    }
 	}
 	p.setClipping( FALSE );
-    } else {				// Motif style
-	int dist, buttonH, buttonW;
-
-	getMetrics( &dist, &buttonW, &buttonH );
-	int xPos = width() - dist - buttonW - 1;
-	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
-			 buttonW, buttonH, g, FALSE, 2 );
-	QFontMetrics fm = p.fontMetrics();
-	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
-	const char *str = d->popup->text( d->current );
-	if ( str ) {
-	    p.drawText( clip, AlignCenter | SingleLine, str );
-	} else {
-	    QPixmap *pix = d->popup->pixmap( d->current );
-	    if ( pix ) {
-		p.setClipRect( clip );
-		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
-		p.setClipping( FALSE );
-	    }
-	}
-	qDrawShadePanel( &p, rect(), g, FALSE, 2 );
     }
     p.end();
 }
@@ -662,8 +848,8 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	d->discardNextMousePress = FALSE;
 	return;
     }
-    popup();
     if ( style() == WindowsStyle ) {
+	popup();
 	if ( arrowRect().contains( e->pos() ) ) {
 	    d->arrowPressed = TRUE;
 	    d->arrowDown    = TRUE;
@@ -671,7 +857,14 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	} else {
 	    d->arrowPressed = FALSE;
 	}
+    } else if ( d->usingListBox ) {
+	if ( e->pos().x() >= width() - 23 ) {
+	    popup();
+	    QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
+	    d->shortClick = TRUE;
+	}
     } else {
+	popup();
 	QMouseEvent me1( Event_MouseButtonPress,
 			 d->popup->mapFromGlobal(mapToGlobal( QPoint(0,0) ) ),
 			 e->button(), e->state() );
@@ -711,22 +904,52 @@ void QComboBox::mouseDoubleClickEvent( QMouseEvent *e )
 }
 
 
-/*!
-  Handles key press events for the combo box.  Only Enter and Return
-  are accepted.
+/*!  Handles key press events for the combo box.  Enter and Return pop
+  up the list box/popup, and in Motif style Space pops it up too, and
+  up and down change the selected item.
 */
 
 void QComboBox::keyPressEvent( QKeyEvent *e )
 {
     switch ( e->key() ) {
-	case Key_Return:
-	case Key_Enter:
+    case Key_Return:
+    case Key_Enter:
+	e->accept();
+	popup();
+	break;
+    case Key_Space:
+	if ( style() == MotifStyle ) {
 	    e->accept();
 	    popup();
-	    break;
-	default:
+	} else {
 	    e->ignore();
-	    break;
+	}
+	break;
+    case Key_Up:
+	if ( style() == MotifStyle ) {
+	    int c = currentItem();
+	    if ( c > 0 )
+		setCurrentItem( c-1 );
+	    else
+		setCurrentItem( count()-1 );
+	    e->accept();
+	} else {
+	    e->ignore();
+	}
+    case Key_Down:
+	if ( style() == MotifStyle ) {
+	    int c = currentItem();
+	    if ( ++c < count() )
+		setCurrentItem( c );
+	    else
+		setCurrentItem( 0 );
+	    e->accept();
+	} else {
+	    e->ignore();
+	}
+    default:
+	e->ignore();
+	break;
     }
 }
 
@@ -827,8 +1050,11 @@ void QComboBox::currentChanged()
     repaint();
 }
 
-/* nobang
-  \internal 
+/*!
+  This event filter is used to manipulate the line editor in magic
+  ways.  In Qt 2.0 it will all change, until then binary compatibility
+  lays down the law.
+
    The event filter steals events from the popup or listbox
    when they are popped up. It makes the popup stay up after a short click
    in motif style. In windows style it toggles the arrow button of the
@@ -838,25 +1064,66 @@ void QComboBox::currentChanged()
 
 bool QComboBox::eventFilter( QObject *object, QEvent *event )
 {
-    if ( d->usingListBox )
-	ASSERT( object == d->listBox );
-    else
-	ASSERT( object == d->popup );
+    if ( !event )
+	return TRUE;
+    else if ( object == (QObject *)(d->ed) ) {
+	if ( event->type() == Event_Paint ) {
+	    if ( d->edEmpty ) {
+		d->edEmpty = FALSE;
+		d->ed->setText( text( currentItem() ) );
+		return TRUE; // we'll get another paint event right away
+	    }
 
-    QListBox *listB = d->listBox;
-    switch ( event->type() ) {
-        case Event_MouseMove: {
-	    if ( !d->usingListBox )
+	    if ( style() == WindowsStyle ) {
+		QLineEdit * le = (QLineEdit *) object;
+		QPainter p;
+		p.begin( le );
+		p.fillRect( 0, 0, le->width(), le->height(), isEnabled() 
+			    ? le->colorGroup().base() 
+			    : le->colorGroup().background() );
+		p.translate( 0, -4 ); // MAGIC! *_MARGIN from qlined.cpp
+		le->paintText( &p, QSize( le->width()+8, le->height()+8 ),
+			       FALSE );
+		p.end();
+		return TRUE;
+	    }
+	} else if ( event->type() == Event_KeyPress &&
+		    style() == MotifStyle ) {
+	    int c;
+	    switch( ((QKeyEvent *)event)->key() ) {
+	    case Key_Up:
+		c = currentItem();
+		if ( c > 0 )
+		    setCurrentItem( c-1 );
+		else
+		    setCurrentItem( count()-1 );
+		return TRUE;
 		break;
-	    QMouseEvent *e = Q_MOUSE_EVENT(event);
+	    case Key_Down:
+		c = currentItem();
+		if ( ++c < count() )
+		    setCurrentItem( c );
+		else
+		    setCurrentItem( 0 );
+		return TRUE;
+		break;
+	    default:
+		break;
+	    }
+	}
+    } else if ( d->usingListBox && object == d->listBox ) {
+	QMouseEvent *e = (QMouseEvent*)event;
+	switch( event->type() ) {
+        case Event_MouseMove:
 	    if ( !d->mouseWasInsidePopup  ) {
 		QPoint pos = e->pos();
-		if ( listB->rect().contains( pos ) )
+		if ( d->listBox->rect().contains( pos ) )
 		    d->mouseWasInsidePopup = TRUE;
-	                        // Check if arrow button should toggle:
+		// Check if arrow button should toggle
+		// this applies only to windows style
 		if ( d->arrowPressed ) {
-		    QPoint comboPos = 
-			mapFromGlobal( listB->mapToGlobal(pos) );
+		    QPoint comboPos;
+		    comboPos = mapFromGlobal( d->listBox->mapToGlobal(pos) );
 		    if ( arrowRect().contains( comboPos ) ) {
 			if ( !d->arrowDown  ) {
 			    d->arrowDown = TRUE;
@@ -871,23 +1138,13 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	    break;
-	}
-        case Event_MouseButtonRelease: {
-	    QMouseEvent *e = Q_MOUSE_EVENT(event);
-	    if ( !d->usingListBox ) {
-		if ( d->shortClick ) {
-		    QMouseEvent tmp( Event_MouseMove, 
-				     e->pos(), e->button(), e->state() ) ;
-		                  // highlight item, but don't pop down:
-		    QApplication::sendEvent( object, &tmp );
-		    return TRUE;			// Block the event
-		}
-		break;
-	    }
-	    if ( listB->rect().contains( e->pos() ) ) {
+	case Event_MouseButtonRelease:
+	    if ( d->listBox->rect().contains( e->pos() ) ) {
 		QMouseEvent tmp( Event_MouseButtonDblClick, 
 				 e->pos(), e->button(), e->state() ) ;
-		QApplication::sendEvent( object, &tmp );  // will hide popup
+		// will hide popup
+		QApplication::sendEvent( object, &tmp );
+		return TRUE;
 	    } else {
 		if ( d->mouseWasInsidePopup ) {
 		    popDownListBox();
@@ -900,158 +1157,128 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	    break;
-	}
         case Event_MouseButtonDblClick:
-        case Event_MouseButtonPress: {
-	    QMouseEvent *e = Q_MOUSE_EVENT(event);
-	    if ( !d->usingListBox ) {
-		if ( !d->popup->rect().contains( e->pos() ) ) {
-				 // remove filter, event will take down popup:
-		    d->listBox->removeEventFilter( this );
+        case Event_MouseButtonPress:
+	    if ( !d->listBox->rect().contains( e->pos() ) ) {
+		QPoint globalPos = d->listBox->mapToGlobal(e->pos());
+		if ( QApplication::widgetAt( globalPos, TRUE ) == this ) {
+		    d->discardNextMousePress = TRUE;
+		    // avoid popping up again
 		}
-		break;
+		popDownListBox();
+		return TRUE;
 	    }
-	    if ( !listB->rect().contains( e->pos() ) ) {
-		QPoint globalPos = listB->mapToGlobal(e->pos());
+	    break;
+	default:
+	    break;
+	}
+    } else if ( !d->usingListBox && object == d->popup ) {
+	QMouseEvent *e = (QMouseEvent*)event;
+	switch ( event->type() ) {
+        case Event_MouseButtonRelease:
+	    if ( d->shortClick ) {
+		QMouseEvent tmp( Event_MouseMove, 
+				 e->pos(), e->button(), e->state() ) ;
+		// highlight item, but don't pop down:
+		QApplication::sendEvent( object, &tmp );
+		return TRUE;
+	    }
+	    break;
+        case Event_MouseButtonDblClick:
+        case Event_MouseButtonPress:
+	    if ( !d->popup->rect().contains( e->pos() ) ) {
+		// remove filter, event will take down popup:
+		d->listBox->removeEventFilter( this );
+	    }
+	    break;
+	    if ( !d->listBox->rect().contains( e->pos() ) ) {
+		QPoint globalPos = d->listBox->mapToGlobal(e->pos());
 		if ( QApplication::widgetAt( globalPos, TRUE ) == this )
 		    d->discardNextMousePress = TRUE; // avoid popping up again
 		popDownListBox();
-		return TRUE;			// Block the event;
+		return TRUE;
 	    }
 	    break;
-	    }
 	default:
 	    break;
+	}
     }
-    return FALSE;				// Don't block the event
-}
-
-
-/*! \class QEditableComboBox qcombo.h
-
-  \brief QEditableComboBox provides an editable combo box.
-
-  An editable combo box is one where the user can select from a list
-  of provided strings, and also type in a string.  QEditableComboBox
-  inherits QComboBox and offers an API very like that class.
-
-  The simplest difference is that QEditableComboBox can not contain
-  pixmaps.
-
-  If the user types in a string, that string may be added to the list
-  box.  The \link setPolicy() insertion policy \endlink determines how
-  it is added.  The default policy is to add it after the existing
-  entries.
-
-  By default, the QEditableComboBox will grow without bounds.  Since
-  that may not be appropriate, we have provided setSizeLimit().
-
-  QEditableComboBox looks like shit if you ask for Motif look and
-  feel.  This will be corrected ASAP.
-
-*/
-
-
-/*! \fn void QEditableComboBox::activated( const char * )
-
-  This signal is emitted when a new item has been activated
-  (selected). The argument is the activated string.
-
-  You can also use activated(int) signal provided by QComboBox, but be
-  aware that its argument meaningful only for selected strings, not
-  for typed strings.
-*/
-
-/*! \fn void QEditableComboBox::highlighted( const char * )
-
-  This signal is emitted when a new item has been highlighted. The
-  argument is the highlighted string.
-
-  You can also use highlighted(int) signal provided by QComboBox.
-*/
-
-
-/*!
-  Creates a new editable combo box.
-
-  By default, the box has no size limit and the insertion policy is \c
-  QEditableComboBox::AtEnd.
-
-  \sa setPolicy() setSizeLimit()
-*/
-
-
-QEditableComboBox::QEditableComboBox( QWidget *parent, const char *name )
-    : QComboBox( parent, name )
-{
-    initMetaObject();
-    ed = new QLineEdit( this, "this is not /bin/ed" );
-    ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
-    ed->installEventFilter( this );
-    p = AtEnd;
-    maxCount = UINT_MAX;
-    edEmpty = TRUE;
-    
-    connect( ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
-    connect( this, SIGNAL(activated(int)), SLOT(translateActivate(int)) );
-    connect( this, SIGNAL(highlighted(int)), SLOT(translateHighlight(int)) );
+    return FALSE;
 }
 
 
 /*!
-  Destroys the QEditableComboBox.  A placeholder at present, really.
+  Returns the current maximum size of the combo box.  By default,
+  there is no limit, so this function returns UINT_MAX.
+
+  \sa setSizeLimit() count()
 */
 
-QEditableComboBox::~QEditableComboBox()
+uint QComboBox::sizeLimit() const
 {
-  delete ed;
+    return d ? d->maxCount : UINT_MAX;
 }
 
 
 /*!
-  Handles resize events for the editable combo box.
+  Sets the maximum number of items the combo box can hold to \a count.
+
+  If \a count is smaller than the current number of items, the list is
+  truncated at the end.  There is no limit by default.
+
+  \sa sizeLimit() count()
 */
 
-void QEditableComboBox::resizeEvent( QResizeEvent * )
+void QComboBox::setSizeLimit( int count )
 {
-    ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
+    int l = this->count();
+    while( --l > count )
+	removeItem( l );
+    d->maxCount = count;
 }
+
+/*!
+  Returns the current insertion policy of the combo box.
+
+  \sa setPolicy()
+*/
+
+QComboBox::Policy QComboBox::policy() const
+{
+    return d->p;
+}
+
+
+/*! 
+  Sets the insertion policy of the combo box to \a policy.
+
+  The insertion policy governs where items typed in by the user are
+  inserted in the list.  The possible values are <ul> <li> \c
+  NoInsertion: Strings typed by the user aren't inserted anywhere <li>
+  \c AtBeginning: Strings typed by the user are inserted before the
+  first item in the list <li> AtCurrent: Strings typed by the user
+  replace the last selected item <li> AtEnd: Strings typed by the user
+  are inserted at the end of the list. </ul>
+
+  The default insertion policy is \c AtEnd.
+
+  \sa policy()
+*/
+
+void QComboBox::setPolicy( QComboBox::Policy policy )
+{
+    d->p = policy;
+}
+
 
 
 /*!
   Internal slot to keep the line editor up to date.
 */
 
-void QEditableComboBox::translateActivate( int index )
+void QComboBox::returnPressed()
 {
-    const char *t = text( index );
-    if ( !t )
-	return;					// shouldn't happen
-    ed->setText( t );
-    emit activated( t );
-}
-
-
-/*!
-  Internal slot to translate QCombo::highlighted() from index to
-  string.
-*/
-
-void QEditableComboBox::translateHighlight( int index )
-{
-    const char *t = text( index );
-    if ( t )
-	emit highlighted( t );
-}
-
-
-/*!
-  Internal slot to keep the line editor up to date.
-*/
-
-void QEditableComboBox::returnPressed()
-{
-    const char * s = ed->text();
+    const char * s = d->ed->text();
     if ( s ) {
 	switch ( policy() ) {
 	case AtCurrent:
@@ -1072,96 +1299,5 @@ void QEditableComboBox::returnPressed()
 	    emit activated( s );
 	    break;
 	}
-    }
-}
-
-
-/*! \fn QEditableComboBox::Policy QEditableComboBox::policy() const
-
-  Returns the current insertion policy of the combo box.
-
-  \sa setPolicy()
-*/
-
-
-/*! \fn void QEditableComboBox::setPolicy( QEditableComboBox::Policy policy )
-  Sets the insertion policy of the combo box to \a policy.
-
-  The insertion policy governs where items typed in by the user are
-  inserted in the list.  The possible values are <ul> <li> \c
-  NoInsertion: Strings typed by the user aren't inserted anywhere <li>
-  \c AtBeginning: Strings typed by the user are inserted before the
-  first item in the list <li> AtCurrent: Strings typed by the user
-  replace the last selected item <li> AtEnd: Strings typed by the user
-  are inserted at the end of the list. </ul>
-
-  The default insertion policy is \c AtEnd.
-
-  \sa policy()
-*/
-
-
-/*! \fn uint QEditableComboBox::sizeLimit() const
-
-  Returns the current maximum size of the combo box.  By default,
-  there is no limit, so this function returns UINT_MAX.
-
-  \sa setSizeLimit() count()
-*/
-
-
-/*!
-  Sets the maximum number of items the combo box can hold to \a count.
-
-  If \a count is smaller than the current number of items, the list is
-  truncated at the end.  There is no limit by default.
-
-  \sa sizeLimit() count()
-*/
-
-void QEditableComboBox::setSizeLimit( int count )
-{
-    int l = this->count();
-    while( --l > count )
-	removeItem( l );
-    maxCount = count;
-}
-
-
-
-/*!
-  This event filter is used to manipulate the line editor in magic
-  ways.  In Qt 2.0 it will all change, until then binary compatibility
-  lays down the law.
-
-  \internal 
-  More hacks per line than in any other Qt member funcition, I think.
-*/
-
-bool QEditableComboBox::eventFilter( QObject *object, QEvent *event )
-{
-    if ( object == (QObject *)ed ) {
-	if ( event && event->type() == Event_Paint ) {
-	    if ( edEmpty ) {
-		edEmpty = FALSE;
-		ed->setText( text( currentItem() ) );
-		return TRUE; // we'll get another paint event right away
-	    }
-
-	    QLineEdit * le = (QLineEdit *) object;
-	    QPainter p;
-	    p.begin( le );
-	    p.fillRect( 0, 0, le->width(), le->height(), isEnabled() 
-			? le->colorGroup().base() 
-			: le->colorGroup().background() );
-	    p.translate( 0, -4 ); // MAGIC! this is *_MARGIN from qlined.cpp
-	    le->paintText( &p, QSize( le->width()+8, le->height()+8 ), FALSE );
-	    p.end();
-	    return TRUE;
-	} else {
-	    return FALSE;
-	}
-    } else {
-	return QComboBox::eventFilter( object, event );
     }
 }
