@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: headers.doc,v 1.7 1999/04/28 09:53:53 aavit Exp $
+** $Id: headers.doc,v 1.8 1999/10/25 14:49:28 arnt Exp $
 **
 ** Documentation for class overview
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: headers.doc,v 1.7 1999/04/28 09:53:53 aavit Exp $";
+static char ident[] = "$Id: headers.doc,v 1.8 1999/10/25 14:49:28 arnt Exp $";
 #endif
 
 
@@ -38,7 +38,7 @@ static char ident[] = "$Id: headers.doc,v 1.7 1999/04/28 09:53:53 aavit Exp $";
 
 <p>Here are the header files that make up the Qt API:
 
-<multicol cols=4>
+<multicol cols=3>
 \headerfilelist
 </multicol>
 */
