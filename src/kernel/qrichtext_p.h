@@ -116,6 +116,10 @@ class QTextCursor
 {
 public:
     QTextCursor( QTextDocument *d );
+    QTextCursor();
+    QTextCursor( const QTextCursor &c );
+    QTextCursor &operator=( const QTextCursor &c );
+    bool operator==( const QTextCursor &c ) const;
 
     QTextDocument *document() const { return doc; }
     void setDocument( QTextDocument *d );
@@ -162,6 +166,8 @@ public:
 
     int x() const;
     int y() const;
+
+    int nestedDepth() const { return indices.count(); }
 
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
@@ -312,22 +318,22 @@ public:
     int width;
     int height;
 
-    virtual void enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE ) {
+    virtual void enter( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE ) {
 	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; Q_UNUSED( atEnd )
     }
-    virtual void enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint & ) {
+    virtual void enterAt( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint & ) {
 	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
     }
-    virtual void next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
+    virtual void next( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
 	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
     }
-    virtual void prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
+    virtual void prev( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
 	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
     }
-    virtual void down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
+    virtual void down( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
 	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
     }
-    virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
+    virtual void up( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
 	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
     }
 
@@ -495,12 +501,12 @@ public:
     virtual void invalidate() { cachewidth = -1; };
     QString anchorAt( QPainter* p, int x, int y );
 
-    virtual void enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
-    virtual void enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos );
-    virtual void next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
-    virtual void prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
-    virtual void down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
-    virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void enter( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
+    virtual void enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos );
+    virtual void next( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void prev( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
 
     QString richText() const;
 
@@ -527,7 +533,7 @@ private:
     int lastX, lastY;
     QMap<QString, QString> attributes;
 
-    int currCell;
+    QMap<QTextCursor*, int> currCell;
 
     Placement place;
 };
@@ -565,6 +571,7 @@ public:
     QTextDocument( QTextDocument *p );
     ~QTextDocument();
     QTextDocument *parent() const { return par; }
+    QTextParag *parentParag() const { return parParag; }
 
     void setText( const QString &text, const QString &context );
     void load( const QString &fn );
@@ -709,7 +716,7 @@ private:
     // HTML parser
     bool hasPrefix(const QString& doc, int pos, QChar c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);
-    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt, const QString &doc, int& pos );
+    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt, const QString &doc, int& pos, QTextParag *curpar );
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);
     QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
@@ -720,8 +727,8 @@ private:
 
 private:
     struct Selection {
-	QTextParag *startParag, *endParag;
-	int startIndex;
+	QTextCursor startCursor, endCursor;
+	bool swapped;
     };
 
     struct Focus {
@@ -747,6 +754,7 @@ private:
     QList<QTextCustomItem> customItems;
     bool pages;
     QTextDocument *par;
+    QTextParag *parParag;
     bool useFC;
     QTextTableCell *tc;
     bool withoutDoubleBuffer;
@@ -781,7 +789,7 @@ public:
 	friend class QTextString;
     public:
 	// this is never called, initialize variables in QTextString::insert()!!!
-	Char() : lineStart( 0 ), type( Regular ) {d.format=0;} 
+	Char() : lineStart( 0 ), type( Regular ) {d.format=0;}
 	~Char();
 	QChar c;
 	enum Type { Regular, Custom, Mark, Shaped, LigatureFirst, Ligature };
@@ -966,7 +974,7 @@ public:
 
     bool isValid() const;
     bool hasChanged() const;
-    void setChanged( bool b );
+    void setChanged( bool b, bool recursive = FALSE );
 
     int lineHeightOfChar( int i, int *bl = 0, int *y = 0 ) const;
     QTextString::Char *lineStartOfChar( int i, int *index = 0, int *line = 0 ) const;
@@ -1489,10 +1497,9 @@ inline bool QTextDocument::hasSelection( int id ) const
 inline void QTextDocument::setSelectionStart( int id, QTextCursor *cursor )
 {
     Selection sel;
-    sel.startParag = cursor->parag();
-    sel.endParag = cursor->parag();
-    sel.startParag->setSelection( id, cursor->index(), cursor->index() );
-    sel.startIndex = cursor->index();
+    sel.startCursor = *cursor;
+    sel.endCursor = *cursor;
+    sel.swapped = FALSE;
     selections[ id ] = sel;
 }
 
@@ -1934,9 +1941,13 @@ inline bool QTextParag::hasChanged() const
     return changed;
 }
 
-inline void QTextParag::setChanged( bool b )
+inline void QTextParag::setChanged( bool b, bool recursive )
 {
     changed = b;
+    if ( recursive ) {
+	if ( doc && doc->parentParag() )
+	    doc->parentParag()->setChanged( b, recursive );
+    }
 }
 
 inline void QTextParag::append( const QString &s, bool reallyAtEnd )
@@ -1974,13 +1985,15 @@ inline void QTextParag::setSelection( int id, int start, int end )
     sel.start = start;
     sel.end = end;
     selections[ id ] = sel;
-    changed = TRUE;
+    setChanged( TRUE, TRUE );
 }
 
 inline void QTextParag::removeSelection( int id )
 {
+    if ( !hasSelection( id ) )
+	return;
     selections.remove( id );
-    changed = TRUE;
+    setChanged( TRUE, TRUE );
 }
 
 inline int QTextParag::selectionStart( int id ) const
