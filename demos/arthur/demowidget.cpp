@@ -70,8 +70,7 @@ void DemoWidget::timerEvent(QTimerEvent * e)
     if (e->timerId() == animationTimer.timerId()) {
         ++animationStep;
         update();
-        if ((animationStep % 10) == 0 )
-            QApplication::syncX();
+        QApplication::syncX();
     }
 }
 
