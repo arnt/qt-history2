@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#31 $
 **
 ** Implementation of QCursor class
 **
@@ -62,6 +62,9 @@
   <li> sizeFDiagCursor : diagonal resize (\)
   <li> sizeAllCursor : all directions resize
   <li> blankCursor : blank/invisible cursor
+  <li> splitVCursor :vertical splitting
+  <li> splitHCursor :horziontal splitting
+  <li> pointingHandCursor : a pointing hand
   </ul>
 
   \sa QWidget

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#21 $
 **
 ** Implementation of QML classes
 **
@@ -460,7 +460,7 @@ void QMLStyle::setListStyle( QMLStyle::ListStyle s)
   Returns a space separated list of names of styles that may contain
   elements of this style. As default, contexs() returns an empty
   string, which indicates that this style can be nested everywhere.
-  
+
   \sa setContexts()
  */
 QString QMLStyle::contexts() const
@@ -472,7 +472,7 @@ QString QMLStyle::contexts() const
   Sets a space separated list of names of styles that may contain
   elements of this style. If \a c is empty, the style can be nested
   everywhere.
-  
+
   \sa contexts()
  */
 void QMLStyle::setContexts( const QString& c)
@@ -481,9 +481,9 @@ void QMLStyle::setContexts( const QString& c)
 }
 
 /*!
-  Returns whether this style can be nested into an element 
+  Returns whether this style can be nested into an element
   of style \a s .
-  
+
   \sa contxts(), setContexts()
  */
 bool QMLStyle::allowedInContext( const QMLStyle* s) const
@@ -2991,6 +2991,8 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	
 	    const QMLStyle* nstyle = sheet_->style(tagname);
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
+		warning( "QML Warning: Document not valid ( '%s' not allowed in %s #%d)", 
+			 tagname.ascii(), current->style->name().ascii(), pos);
 		pos = beforePos;
 		return FALSE;
 	    }
@@ -3020,7 +3022,7 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		    lastChild = ctag;
 
 		    eatSpace(doc, pos); // no whitespace within an unknown container or box
-		    
+		
 		    bool ctagUnknown = ctag->style->name().isEmpty() ;
 		    if ( !cpre && (ctagUnknown || ctag->isBox) )
 			eatSpace(doc, pos); // no whitespace within an unknown container or box
@@ -4362,7 +4364,7 @@ void QMLBrowser::viewportMouseMoveEvent( QMouseEvent* e)
     const QMLContainer* act = anchor( e->pos() );
     if (d->highlight != act) {
 	QString href;
-	viewport()->setCursor( act?upArrowCursor:arrowCursor );
+	viewport()->setCursor( act?pointingHandCursor:arrowCursor );
 	if (act && act->attributes() && act->attributes()->find("href"))
 	    href = *act->attributes()->find("href");
 	emit highlighted( href );

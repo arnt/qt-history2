@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#19 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#20 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -523,6 +523,7 @@ public:
 						// arrows
     QT_STATIC_CONST QCursor & splitHCursor;	// horizontal bar with up-down
 						// arrows
+    QT_STATIC_CONST QCursor & pointingHandCursor;	// pointing hand
 
 };
 
