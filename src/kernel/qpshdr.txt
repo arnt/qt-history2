@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#8 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#9 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -32,7 +32,7 @@
 /PSt 1 def			% pen style
 /Cx  0 def			% current x position
 /Cy  0 def			% current y position
-/WFi true def			% winding fill
+/WFi false def			% winding fill
 /OMo false def			% opaque mode (not transparent)
 
 /BCol  [ 1 1 1 ] def		% brush color
@@ -42,7 +42,7 @@
 /nS 0 def			% number of saved painter states
 
 
-/QS {
+/QS {				% stroke command
     PSt 0 ne			% != NO_PEN
     { LWi SW			% set line width
       GS
@@ -56,7 +56,18 @@
     } if
 } D
 
-/QF {
+/QF {				% fill command
+    GS
+    BSt 2 ge BSt 8 le and	% dense pattern?
+    { BDArr BSt 2 sub get setgray fill } if
+    BSt 9 ge BSt 14 le and	% fill pattern?
+    { BF } if
+    BSt 1 eq			% solid brush?
+    { BCol SC WFi { fill } { eofill } ifelse } if
+    GR
+} D
+
+/PF {				% polygon fill command
     GS
     BSt 2 ge BSt 8 le and	% dense pattern?
     { BDArr BSt 2 sub get setgray WFi { fill } { eofill } ifelse } if

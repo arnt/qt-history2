@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#18 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#18 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -340,9 +340,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    if ( p[0].ptarr->size() > 2 ) {
 		QPointArray a = *p[0].ptarr;
 		if ( p[1].ival )
-		    stream << "/WFi true def";
-		else
-		    stream << "/WFi false def";
+		    stream << "/WFi true def\n";
 		QPoint pt = a.point(0);
 		stream << "NP\n";
 		stream << XCOORD(pt.x()) << ' '
@@ -352,9 +350,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		    stream << XCOORD(pt.x()) << ' '
 			   << YCOORD(pt.y()) << " LT\n";
 		}
-		stream << "CP\n";
-		stream << "QF\n";
-		stream << "QS\n";
+		stream << "CP PF QS\n";
+		if ( p[1].ival )
+		    stream << "/WFi false def\n";
 	    }
 	    break;
 	case PDC_DRAWBEZIER:
