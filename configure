@@ -8,7 +8,6 @@
 # WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
 
-
 #-------------------------------------------------------------------------------
 # script initialization
 #-------------------------------------------------------------------------------
@@ -1922,6 +1921,10 @@ fi
 if [ "$PLATFORM_QWS" = "yes" ]; then
     CFG_GFX_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
     CFG_GFX_AVAILABLE=`echo $CFG_GFX_AVAILABLE`
+    # No OpenGL for Qt/Embedded
+    if [ "$CFG_OPENGL" = "auto" ]; then
+	CFG_OPENGL=no
+    fi
 fi
 
 
