@@ -37,7 +37,6 @@
 
 \title Porting to Qt 3.x
 
-<p>
 You're probably looking at this page because you want to port
 your application from Qt 2.x to Qt 3.x, but to be sure, let's
 review the good reasons to do this:
@@ -45,10 +44,9 @@ review the good reasons to do this:
  <li>###
 </ul>
 
-<p>
 The Qt 3.x series is not binary compatible with the 2.x series.
 This means programs compiled for Qt 2.x must be recompiled to work
-with Qt 3.x.  Qt 3.x is also not completely <em>source</em> compatible
+with Qt 3.x.  Qt 3.x is also not completely \e source compatible
 with 2.x, however all points of incompatibility cause
 compiler errors (rather than mysterious results), or produce run-time
 messages.  The result is that Qt 3.x includes many additional features,
@@ -84,102 +82,102 @@ that is the Qt Developer Community!
 <h2 align=center>The Porting Notes</h2>
 
 <ul>
- <li><b><a href="#Headers">Header file inclusion changes</a></b>
- <li><b><a href="#Namespace">Namespace</a></b>
- <li><b><a href="#Removed">Removed functions</a></b>
- <li><b><a href="#QRegExp">QRegExp</a></b>
- <li><b><a href="#QTranslator">QTranslator</a></b>
- <li><b><a href="#Bezier">Bezier Curves</a></b>
+ <li><b>\link #Headers Header file inclusion changes \endlink</b>
+ <li><b>\link #Namespace Namespace \endlink</b>
+ <li><b>\link #Removed Removed functions \endlink</b>
+ <li><b>\link #QRegExp QRegExp \endlink</b>
+ <li><b>\link #QTranslator QTranslator \endlink</b>
+ <li><b>\link #Bezier Bezier Curves \endlink</b>
 </ul>
 
 <hr>
 
 <h3><a name="Headers">Header file inclusion changes</a></h3>
 
-<p> Qt 3.x remove some unnecessary nested #include directives from
+Qt 3.x remove some unnecessary nested #include directives from
 header files. This speeds up compilation when you don't need those
 nested header files. But in some cases you will find you need to add
 an extra #include to your files.
 
-<p> For example, if you get a message about QStringList or its functions
-not being defined, then add <code>#include &lt;qstringlist.h&gt;</code> at
+For example, if you get a message about QStringList or its functions
+not being defined, then add \c {#include <qstringlist.h>} at
 the top of the file giving the error.
 
-<p> Header files that you might need to add #include directives for include:
+Header files that you might need to add #include directives for include:
 <ul>
-    <li><code>&lt;qcursor.h&gt;</code>
-    <li><code>&lt;qregexp.h&gt;</code>
-    <li><code>&lt;qpainter.h&gt;</code>
-    <li><code>&lt;qstringlist.h&gt;</code>
-    <li><code>&lt;qstrlist.h&gt;</code>
-    <li><code>&lt;qvaluelist.h&gt;</code>
+    <li>\c <qcursor.h>
+    <li>\c <qregexp.h>
+    <li>\c <qpainter.h>
+    <li>\c <qstringlist.h>
+    <li>\c <qstrlist.h>
+    <li>\c <qvaluelist.h>
 </ul>
 
 <h3><a name="Namespace">Namespace</a></h3>
 
-<p> Qt 3.x is namespace-clean.  A few global identifiers that had been
+Qt 3.x is namespace-clean.  A few global identifiers that had been
 left in Qt 2.x have been discarded.
 
-<p> Enumeration <code>QCursorShape</code> and it values are now part of the
-special <code>Qt</code> class defined in qnamespace.h. If you get compilation
+Enumeration \c QCursorShape and it values are now part of the
+special \c Qt class defined in qnamespace.h. If you get compilation
 errors about these being missing (unlikely, since most of your code will
 be in classes that inherit from the Qt namespace class), then change:
 
 <ul>
-    <li><code>QCursorShape</code> becomes <code>Qt::CursorShape</code>
-    <li><code>ArrowCursor</code> becomes <code>Qt::ArrowCursor</code>
-    <li><code>UpArrowCursor</code> becomes <code>Qt::UpArrowCursor</code>
-    <li><code>CrossCursor</code> becomes <code>Qt::CrossCursor</code>
-    <li><code>WaitCursor</code> becomes <code>Qt::WaitCursor</code>
-    <li><code>IbeamCursor</code> becomes <code>Qt::IbeamCursor</code>
-    <li><code>SizeVerCursor</code> becomes <code>Qt::SizeVerCursor</code>
-    <li><code>SizeHorCursor</code> becomes <code>Qt::SizeHorCursor</code>
-    <li><code>SizeBDiagCursor</code> becomes <code>Qt::SizeBDiagCursor</code>
-    <li><code>SizeFDiagCursor</code> becomes <code>Qt::SizeFDiagCursor</code>
-    <li><code>SizeAllCursor</code> becomes <code>Qt::SizeAllCursor</code>
-    <li><code>BlankCursor</code> becomes <code>Qt::BlankCursor</code>
-    <li><code>SplitVCursor</code> becomes <code>Qt::SplitVCursor</code>
-    <li><code>SplitHCursor</code> becomes <code>Qt::SplitHCursor</code>
-    <li><code>PointingHandCursor</code> becomes <code>Qt::PointingHandCursor</code>
-    <li><code>BitmapCursor</code> becomes <code>Qt::BitmapCursor</code>
+    <li>\c QCursorShape becomes \c Qt::CursorShape
+    <li>\c ArrowCursor becomes \c Qt::ArrowCursor
+    <li>\c UpArrowCursor becomes \c Qt::UpArrowCursor
+    <li>\c CrossCursor becomes \c Qt::CrossCursor
+    <li>\c WaitCursor becomes \c Qt::WaitCursor
+    <li>\c IbeamCursor becomes \c Qt::IbeamCursor
+    <li>\c SizeVerCursor becomes \c Qt::SizeVerCursor
+    <li>\c SizeHorCursor becomes \c Qt::SizeHorCursor
+    <li>\c SizeBDiagCursor becomes \c Qt::SizeBDiagCursor
+    <li>\c SizeFDiagCursor becomes \c Qt::SizeFDiagCursor
+    <li>\c SizeAllCursor becomes \c Qt::SizeAllCursor
+    <li>\c BlankCursor becomes \c Qt::BlankCursor
+    <li>\c SplitVCursor becomes \c Qt::SplitVCursor
+    <li>\c SplitHCursor becomes \c Qt::SplitHCursor
+    <li>\c PointingHandCursor becomes \c Qt::PointingHandCursor
+    <li>\c BitmapCursor becomes \c Qt::BitmapCursor
 </ul>
 
-<p> The name of some debugging macro variables has been changed.  We have
+The name of some debugging macro variables has been changed.  We have
 tried not to break source compatibility as much as possible.  If you observe
 error messages on the UNIX console or the Windows debugging stream that were
 previously disabled, please check these macro variables:
 
 <ul>
-    <li><code>DEBUG</code> becomes <code>QT_DEBUG</code>
-    <li><code>NO_DEBUG</code> becomes <code>QT_NO_DEBUG</code>
-    <li><code>NO_CHECK</code> becomes <code>QT_NO_CHECK</code>
-    <li><code>CHECK_STATE</code> becomes <code>QT_CHECK_STATE</code>
-    <li><code>CHECK_RANGE</code> becomes <code>QT_CHECK_RANGE</code>
-    <li><code>CHECK_NULL</code> becomes <code>QT_CHECK_NULL</code>
-    <li><code>CHECK_MATH</code> becomes <code>QT_CHECK_MATH</code>
+    <li>\c DEBUG becomes \c QT_DEBUG
+    <li>\c NO_DEBUG becomes \c QT_NO_DEBUG
+    <li>\c NO_CHECK becomes \c QT_NO_CHECK
+    <li>\c CHECK_STATE becomes \c QT_CHECK_STATE
+    <li>\c CHECK_RANGE becomes \c QT_CHECK_RANGE
+    <li>\c CHECK_NULL becomes \c QT_CHECK_NULL
+    <li>\c CHECK_MATH becomes \c QT_CHECK_MATH
 </ul>
 
-<p> The name of some debugging macro functions has been changed as well
+The name of some debugging macro functions has been changed as well
 but source compatibility should not be affected if the macro variable
-<code>QT_CLEAN_NAMESPACE</code> is not defined:
+\c QT_CLEAN_NAMESPACE is not defined:
 
 <ul>
-    <li><code>ASSERT</code> becomes <code>Q_ASSERT</code>
-    <li><code>CHECK_PTR</code> becomes <code>Q_CHECK_PTR</code>
+    <li>\c ASSERT becomes \c Q_ASSERT
+    <li>\c CHECK_PTR becomes \c Q_CHECK_PTR
 </ul>
 
-<p> For the record, undocumented macro variables that are not part of the API
+For the record, undocumented macro variables that are not part of the API
 have been changed:
 
 <ul>
-    <li><code>_OS_*_</code> becomes <code>Q_OS_*</code>
-    <li><code>_WS_*_</code> becomes <code>Q_WS_*</code>
-    <li><code>_CC_*_</code> becomes <code>Q_CC_*</code>
+    <li>\c _OS_*_ becomes \c Q_OS_*
+    <li>\c _WS_*_ becomes \c Q_WS_*
+    <li>\c _CC_*_ becomes \c Q_CC_*
 </ul>
 
 <h3><a name="Removed">Removed functions</a></h3>
 
-All <a href="removed30.html">these functions</a> have been removed in Qt 3.x.
+All \link removed30.html these functions \endlink have been removed in Qt 3.x.
 <ul>
     <li>QWidget::setFontPropagation, QWidget::setPalettePropagation
     <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
@@ -194,9 +192,9 @@ The \l QRegExp class has been rewritten to support most of the features of Perl
 regular expressions.  Both the regular expression syntax and the QRegExp
 interface were modified.
 
-Be also aware that <code>&lt;qregexp.h&gt;</code> is no longer included
-automatically when you include <code>&lt;qstringlist.h&gt;</code>. See
-<a href="#Headers">above</a> for details.  <!-- In Qt 3.0, qregexp.h has to
+Be also aware that \c <qregexp.h> is no longer included
+automatically when you include \c <qstringlist.h>. See
+\link #Headers above \endlink for details.  <!-- In Qt 3.0, qregexp.h has to
 include qstringlist.h, so it's no good to have qstringlist.h include qregexp.h,
 unless one wants to achieve an Escher effect. -->
 
@@ -240,7 +238,7 @@ it is subtle: as first argument to \l QString::replace().  Code like
     text.replace( QString("([^)]*)"), "" );
 \endcode
 
-involves an implicit QRegExp (namely, <code>"([^)]*)"</code>) that should be
+involves an implicit QRegExp (namely, \c "([^)]*)") that should be
 changed.
 </dd>
 
@@ -274,30 +272,10 @@ which is what one would expect.
 <p><dt><b>bool QRegExp::match ( const QString & str, int index = 0,
     int * len = 0, bool indexIsStart = TRUE ) const</b></dt>
 <dd>
-This function has an unwieldy parameter list and a bad name.  If you see code
-like
-
-\code
-    QString bigText = getBigText();
-    QRegExp rx( "[Dd]og" );
-    int index = rx.match( bigText );
-\endcode
-
-(where match() takes one argument), change it to use QRegExp::search():
-
-\code
-    QString bigText = getBigText();
-    QRegExp rx( "[Dd]og" );
-    int index = rx.search( bigText );
-\endcode
-
-There is now a method \l QRegExp::match( const QString& str ) and it
-accomplishes something more fit for that name.
-
-For ease of porting, the old QRegExp::match( const QString&, int, int *, bool )
-is still available for those case where QRegExp::search() won't do.  Read its
-documentation for how to implement the same functionality with the new
-interface.
+This function is now obsolete, as it has an unwieldy parameter list
+and a bad name.  It will be removed in a future version of Qt.
+The documentation for \l QRegExp::match() explains how to accomplish
+the same.
 </dd>
 
 <p><dt><b>int QRegExp::find ( const QString & str, int index )</b></dt>
@@ -310,8 +288,8 @@ confusing.  Use \l QRegExp::search() or \l QString::find() instead.
 <h3><a name="QTranslator">QTranslator</a></h3>
 
 The \l QTranslator class was extended in Qt 2.2, and these extensions lead to a
-new interface.  This interface is used mainly by translation tools (such as <a
-href="http://www.trolltech.com/linguist/">Qt Linguist</a>).  For source
+new interface.  This interface is used mainly by translation tools (such as
+\link http://www.trolltech.com/linguist/ Qt Linguist \endlink).  For source
 compatibility, no member function was effectively removed.  The \l QTranslator
 documentation points out which functions are obsolete.
 
@@ -330,11 +308,11 @@ future extension.
 </dl>
 
 <h3><a name="Bezier">Bezier Curves</a></h3>
-The function names for Bezier curves in <code>QPainter</code> and
-<code>QPointArray</code> have been corrected. They now properly reflect their
+The function names for Bezier curves in \c QPainter and
+\c QPointArray have been corrected. They now properly reflect their
 cubic form instead of a quadratic one. If you have been using either
-<code>QPainter::drawQuadBezier()</code> or
-<code>QPointArray::quadBezier()</code> you will have to replace these calls
+\c QPainter::drawQuadBezier() or
+\c QPointArray::quadBezier() you will have to replace these calls
 with
 <ul>
  <li>void QPainter::drawCubicBezier( const QPointArray &, int index=0 ) and
