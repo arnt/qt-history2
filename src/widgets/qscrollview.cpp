@@ -231,9 +231,7 @@ void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
 	    clipped_viewport->repaint( TRUE );
 	else if ( ( !isScroll && !clipped_viewport->testAttribute(QWidget::WA_StaticContents) )
 		  || static_bg )
-	    QApplication::postEvent( clipped_viewport,
-		     new QPaintEvent( clipped_viewport->clipRegion(),
-			      !clipped_viewport->testAttribute(QWidget::WA_NoAutoErase) ) );
+	    QApplication::postEvent(clipped_viewport, new QPaintEvent(clipped_viewport->clipRegion()));
     } else {
 	// Re-center
 	int nx = ( viewport->width() - clipped_viewport->width() ) / 2;
@@ -2401,7 +2399,7 @@ void QScrollView::changeFrameRect(const QRect& r)
             fr = fr.unite( frameRect() );
             fr = fr.subtract( cr );
             if ( !fr.isEmpty() )
-                QApplication::postEvent( this, new QPaintEvent( fr, FALSE ) );
+                QApplication::postEvent(this, new QPaintEvent(fr));
         }
     }
 }

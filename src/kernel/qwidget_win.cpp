@@ -1307,7 +1307,7 @@ void QWidgetPrivate::erase_helper( const QRegion& rgn )
 	    QPainter::setRedirected(w, q, offset);
   	    QRect rr = q->rect();
  	    rr.moveBy(offset);
-	    QPaintEvent e(rr, true);
+	    QPaintEvent e(rr);
 	    QApplication::sendEvent(w, &e);
 	    QPainter::restoreRedirected(w);
 	}
