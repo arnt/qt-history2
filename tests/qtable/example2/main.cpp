@@ -16,8 +16,8 @@ class MyTable : public QTable
 {
     Q_OBJECT
 public:
-    MyTable() : QTable( 65535, 65535, 0, 0 ), items( 1000 ), theWidgets( 1000 ) { theWidgets.setAutoDelete( TRUE ); }
-    virtual void setItem( int row, int col, QTableItem *item ) { items.insert( indexOf( row, col ), item ); }
+    MyTable() : QTable( 6535, 6535, 0, 0 ), items( 1000 ), theWidgets( 1000 ) { theWidgets.setAutoDelete( TRUE ); }
+    virtual void setItem( int row, int col, QTableItem *item ) { items.insert( indexOf( row, col ), item ); item->setRow( row ); item->setCol( col ); }
     QTableItem *item( int row, int col ) const { return items[ indexOf( row, col ) ]; }
     virtual void clearCell( int row, int col ) { items.remove( indexOf( row, col ) ); };
 
@@ -36,6 +36,7 @@ int main( int argc, char **argv )
     QApplication a(argc,argv);			
 
     MyTable v;
+    v.setSorting( FALSE );
 
     a.setMainWidget( &v );
     v.show();

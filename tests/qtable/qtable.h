@@ -75,6 +75,11 @@ public:
     int rowSpan() const;
     int colSpan() const;
 
+    virtual void setRow( int r );
+    virtual void setCol( int c );
+    int row() const;
+    int col() const;
+    
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
@@ -87,7 +92,7 @@ private:
     EditType edType;
     uint wordwrap : 1;
     uint tcha : 1;
-    int row, col;
+    int rw, cl;
     int rowspan, colspan;
 
 };
@@ -157,7 +162,7 @@ public:
     void setRowMovingEnabled( bool b );
     bool rowMovingEnabled() const;
 
-    virtual void sortColumn( int col, bool ascending = TRUE );
+    virtual void sortColumn( int col, bool ascending = TRUE, bool wholeRows = FALSE );
     virtual void setSorting( bool b );
     bool sorting() const;
 
@@ -185,7 +190,8 @@ public:
 
     virtual void swapRows( int row1, int row2 );
     virtual void swapColumns( int col1, int col2 );
-
+    virtual void swapCells( int row1, int col1, int row2, int col2 );
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
@@ -250,6 +256,7 @@ private:
     void init( int numRows, int numCols );
     QSize tableSize() const;
     bool isEditing() const;
+    void repaintCell( int row, int col );
 
 private:
     QVector<QTableItem> contents;
