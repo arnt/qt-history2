@@ -68,4 +68,6 @@ private slots:
     void open();
     void save();
     void testAll();
+    void about();
+    void aboutQt();
 };

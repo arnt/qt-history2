@@ -296,9 +296,17 @@ Main::Main()
     file->insertSeparator();
     file->insertItem( "E&xit",  qApp, SLOT(quit()), CTRL+Key_Q );
 
-    menuBar()->insertItem("&File",file);
+    menuBar()->insertItem( "&File",file );
 
-    statusBar()->message("Ready");
+    menuBar()->insertSeparator();
+
+    QPopupMenu *help = new QPopupMenu( menuBar() );
+    help->insertItem( "&About", this, SLOT(about()) );
+    help->insertItem( "About &Qt", this, SLOT(aboutQt()) );
+
+    menuBar()->insertItem( "&Help", help );
+
+    statusBar()->message( "Ready" );
 }
 
 void Main::open()
@@ -664,6 +672,30 @@ void Info::setSource(const QString& name)
     }
 }
 
+void Main::about()
+{
+    QMessageBox::about(this, "About qconfig",
+	"<p><b><font size=+2>Qt/Embedded build configuration</font></b></p>"
+	"<p></p>"
+	"<p>Version 1.0</p>"
+	"<p>Copyright (C) 2001-2002 Trolltech AS. All rights reserved.</p>"
+	"<p></p>"
+	"<p>This program is licensed to you under the terms of the GNU General "
+	"Public License Version 2 as published by the Free Software Foundation. This "
+	"gives you legal permission to copy, distribute and/or modify this software "
+	"under certain conditions. For details, see the file 'LICENSE.GPL' that came with "
+	"this software distribution. If you did not get the file, send email to "
+	"info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY "
+	"OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS "
+	"FOR A PARTICULAR PURPOSE.</p>"
+    );
+}
+
+void Main::aboutQt()
+{
+    QMessageBox::aboutQt( this, tr("qconfig") );
+}
+
 int main(int argc, char** argv)
 {
     QApplication app(argc,argv);
@@ -687,4 +719,3 @@ int main(int argc, char** argv)
     m.show();
     return app.exec();
 }
-
