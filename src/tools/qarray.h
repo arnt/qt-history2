@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#23 $
+** $Id: //depot/qt/main/src/tools/qarray.h#24 $
 **
 ** Definition of QArray template/macro class
 **
@@ -50,7 +50,7 @@ public:
     // ### bug bug bug.  this does not call constructors/destructors
     bool  resize( uint size )	{ return QGArray::resize(size*sizeof(type)); }
     bool  truncate( uint pos )	{ return QGArray::resize(pos*sizeof(type)); }
-    // end if bug bug bug.  but the bug is in the constructur too.
+    // end of bug bug bug.  but the bug is in the constructur too.
     bool  fill( const type &d, int size=-1 )
 	{ return QGArray::fill((char*)&d,size,sizeof(type) ); }
     void  detach()		{ QGArray::detach(); }
