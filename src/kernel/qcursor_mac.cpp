@@ -459,6 +459,7 @@ void QCursor::update() const
 	d->type = QCursorData::TYPE_ThemeCursor;
 	d->curs.tc = kThemePlusCursor;
 	break;
+    case WhatsThisCursor: //for now jus tuse the pointing hand
     case PointingHandCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
 	d->curs.tc = kThemePointingHandCursor;
