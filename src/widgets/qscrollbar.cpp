@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#9 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwmatrix.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#9 $";
 #endif
 
 
@@ -439,193 +439,16 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
     switch ( style() ) {
 	default:
 	case MotifStyle: {
-	    QPointArray bFill;			// Button fill polygon
-	    QPointArray bTop;			// Button top shadow.
-	    QPointArray bBot;			// Button bottom shadow.
-	    QPointArray bLeft;			// Button left shadow.
-
-	    if ( (controls & (SUB_LINE | ADD_LINE)) && dimB > 1 ) {
-
-		if ( dimB > 6 )
-		    bFill.resize( dimB & 1 ? 3 : 4 );
-
-		if ( dimB > 3 ) {
-		    bTop.resize( ( dimB/2 )*2 );
-		    bBot.resize( dimB & 1 ? dimB + 1 : dimB );
-		    if ( dimB > 4 )
-			bLeft.resize( 4 );
-		    else
-			bLeft.resize( 2 );
-		} else {
-		    bTop.resize( 2 );
-		    bBot.resize( 2 );
-		    if ( dimB == 3 )
-			bLeft.resize( 4 );
-		    else
-			bLeft.resize( 2 );
-		}
-
-		bLeft.setPoint( 0, 0, 0 );
-		bLeft.setPoint( 1, 0, dimB - 1);
-		if ( dimB > 3 ) {
-		    if ( dimB > 4 ) {
-			bLeft.setPoint( 2, 1, 2 );
-			bLeft.setPoint( 3, 1, dimB - 3 );
-		    }
-		    bTop.setPoint( 0, 1, 0 );
-		    bTop.setPoint( 1, 1, 1 );
-		    bTop.setPoint( 2, 2, 1 );
-		    bTop.setPoint( 3, 3, 1 );
-
-		    bBot.setPoint( 0, 1, dimB - 1 );
-		    bBot.setPoint( 1, 1, dimB - 2 );
-		    bBot.setPoint( 2, 2, dimB - 2 );
-		    bBot.setPoint( 3, 3, dimB - 2 );
-
-		    for( i = 0 ; i < dimB / 2 - 2 ; i++ ) {
-			bTop.setPoint( i*2 + 4, 2 + i*2, 2 + i );
-			bTop.setPoint( i*2 + 5, 5 + i*2, 2 + i );
-			bBot.setPoint( i*2 + 4, 2 + i*2, dimB - 3 - i );
-			bBot.setPoint( i*2 + 5, 5 + i*2, dimB - 3 - i );
-		    }
-		    if ( dimB & 1 ) {  // Extra line if size is an odd number
-			bBot.setPoint( dimB - 1, dimB - 3, dimB / 2 );
-			bBot.setPoint( dimB, dimB - 1, dimB / 2 );
-		    }
-		    if ( dimB > 6 ) { // Must fill interior if dimB > 6
-			bFill.setPoint( 0, 1, dimB - 3 );
-			bFill.setPoint( 1, 1, 2 );
-			if ( dimB & 1 ) {  // If size is an odd number
-			    bFill.setPoint( 2, dimB - 3, dimB / 2 );
-			} else {
-			    bFill.setPoint( 2, dimB - 4, dimB / 2 - 1 );
-			    bFill.setPoint( 3, dimB - 4, dimB / 2 );
-			}
-		    }
-		} else {
-		    if ( dimB == 3 ) {	// Hardcoded pattern for 3x3 arrow
-			bLeft.setPoint( 2, 1, 1 );
-			bLeft.setPoint( 3, 1, 1 );
-			bTop .setPoint( 0, 1, 0 );
-			bTop .setPoint( 1, 1, 0 );
-			bBot .setPoint( 0, 1, 2 );
-			bBot .setPoint( 1, 2, 1 );
-		    } else {  // dimB must be 2, hardcoded pattern for 2x2
-			bTop .setPoint( 0, 1, 0 );
-			bTop .setPoint( 1, 1, 0 );
-			bBot .setPoint( 0, 1, 1 );
-			bBot .setPoint( 1, 1, 1 );
-		    }
-		}
-	    }
-
-	    if ( controls & SUB_LINE ) {
-		QWorldMatrix m;
-		m.translate( subB.x(), subB.y() );
-		if ( VERTICAL ) {
-		    m.translate( 0, addB.height() - 1 );
-		    m.rotate( -90 );
-		} else {
-		    m.translate( addB.width() - 1, addB.height() - 1 );
-		    m.rotate( 180 );
-		}
-		p.setWorldMatrix( m );
-
-		QColor cleft, ctop, cbot, cmid;
-
-		if ( SUB_LINE_ACTIVE ) {
-		    cmid = downC;
-		    if ( HORIZONTAL ) {
-			cleft = lightC;
-			ctop  = lightC;
-			cbot  = shadowC;
-		    } else {
-			cleft = lightC;
-			ctop  = shadowC;
-			cbot  = lightC;
-		    }
-		} else {
-		    cmid = upC;
-		    if ( HORIZONTAL ) {
-			cleft = shadowC;
-			ctop  = shadowC;
-			cbot  = lightC;
-		    } else {
-			cleft = shadowC;
-			ctop  = lightC;
-			cbot  = shadowC;
-		    }
-		}
-		QPen pen( NoPen );
-		QBrush brush( cmid );
-		p.setPen( pen );
-		p.setBrush( brush );
-		p.drawPolygon( bFill );
-		pen.setStyle( SolidLine );
-		brush.setStyle( NoBrush );
-
-		pen.setColor( cleft );
-		p.drawLineSegments( bLeft );
-		pen.setColor( ctop );
-		p.drawLineSegments( bTop );
-		pen.setColor( cbot );
-		p.drawLineSegments( bBot );
-
-		p.setWorldXForm( FALSE );
-	    }
-
-	    if ( controls & ADD_LINE ) {
-		QWorldMatrix m;
-		m.translate( addB.x(), addB.y() );
-		if ( VERTICAL ) {
-		    m.translate( addB.width()-1, 0 );
-		    m.rotate( 90 );
-		}
-		p.setWorldMatrix( m );
-		p.setWorldXForm( TRUE );
-
-		QColor cleft, ctop, cbot, cmid;
-
-		if ( ADD_LINE_ACTIVE ) {
-		    cmid = downC;
-		    if ( HORIZONTAL ) {
-			cleft = shadowC;
-			ctop  = shadowC;
-			cbot  = lightC;
-		    } else {
-			cleft = shadowC;
-			ctop  = lightC;
-			cbot  = shadowC;
-		    }
-		} else {
-		    cmid = upC;
-		    if ( HORIZONTAL ) {
-			cleft = lightC;
-			ctop  = lightC;
-			cbot  = shadowC;
-		    } else {
-			cleft = lightC;
-			ctop  = shadowC;
-			cbot  = lightC;
-		    }
-		}
-		QPen pen( NoPen );
-		QBrush brush( cmid );
-		p.setPen( pen );
-		p.setBrush( brush );
-		p.drawPolygon( bFill );
-		pen.setStyle( SolidLine );
-		brush.setStyle( NoBrush );
-
-		pen.setColor( cleft );
-		p.drawLineSegments( bLeft );
-		pen.setColor( ctop );
-		p.drawLineSegments( bTop );
-		pen.setColor( cbot );
-		p.drawLineSegments( bBot );
-
-		p.setWorldXForm( FALSE );
-	    }
+	    if ( controls & ADD_LINE )
+		qDrawMotifArrow( &p, VERTICAL ? MotifDownArrow:MotifRightArrow,
+				 ADD_LINE_ACTIVE, addB.x(), addB.y(),
+				 addB.width(), addB.height(),
+				 upC, downC, lightC, shadowC );
+	    if ( controls & SUB_LINE )
+		qDrawMotifArrow( &p, VERTICAL ? MotifUpArrow:MotifLeftArrow,
+				 SUB_LINE_ACTIVE, subB.x(), subB.y(),
+				 subB.width(), subB.height(),
+				 upC, downC, lightC, shadowC );
 	    if ( controls & SUB_PAGE )
 		p.fillRect( subPageR, backgroundColor() );
 	    if ( controls & ADD_PAGE )
@@ -641,4 +464,124 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
     }
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE
+}
+
+
+void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
+		      int x, int y, int w, int h,
+		      const QColor &upColor, const QColor &downColor,
+		      const QColor &lightShadow, const QColor &darkShadow )
+{
+    QPointArray bFill;				// fill polygon
+    QPointArray bTop;				// top shadow.
+    QPointArray bBot;				// bottom shadow.
+    QPointArray bLeft;				// left shadow.
+    QWorldMatrix matrix;				// xform matrix
+    bool vertical = style == MotifUpArrow || style == MotifDownArrow;
+    bool horizontal = !vertical;
+    int  dim = w < h ? w : h;
+    int  colspec = 0x0000;			// color specification array
+
+    if ( dim < 2 )				// too small arrow
+	return;
+
+    if ( dim > 3 ) {
+	if ( dim > 6 )
+	    bFill.resize( dim & 1 ? 3 : 4 );
+	bTop.resize( (dim/2)*2 );
+	bBot.resize( dim & 1 ? dim + 1 : dim );
+	bLeft.resize( dim > 4 ? 4 : 2 );
+	bLeft.putPoints( 0, 2, 0,0, 0,dim-1 );
+	if ( dim > 4 )
+	    bLeft.putPoints( 2, 2, 1,2, 1,dim-3 );
+	bTop.putPoints( 0, 4, 1,0, 1,1, 2,1, 3,1 );
+	bBot.putPoints( 0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2 );
+
+	for( int i=0; i<dim/2-2 ; i++ ) {
+	    bTop.putPoints( i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i );
+	    bBot.putPoints( i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i );
+	}
+	if ( dim & 1 )		// extra line if size is an odd number
+	    bBot.putPoints( dim-1, 2, dim-3,dim/2, dim-1,dim/2 );
+	if ( dim > 6 ) {	// must fill interior if dim > 6
+	    bFill.putPoints( 0, 2, 1,dim-3, 1,2 );
+	    if ( dim & 1 )	// if size is an odd number
+		bFill.setPoint( 2, dim - 3, dim / 2 );
+	    else
+		bFill.putPoints( 2, 2, dim-4,dim/2-1, dim-4,dim/2 );
+	}
+    }
+    else {
+	if ( dim == 3 ) {			// 3x3 arrow pattern
+	    bLeft.setPoints( 4, 0,0, 0,2, 1,1, 1,1 );
+	    bTop .setPoints( 2, 1,0, 1,0 );
+	    bBot .setPoints( 2, 1,2, 2,1 );
+	}
+	else {					// 2x2 arrow pattern
+	    bLeft.setPoints( 2, 0,0, 0,1 );
+	    bTop .setPoints( 2, 1,0, 1,0 );
+	    bBot .setPoints( 2, 1,1, 1,1 );
+	}
+    }
+
+    if ( style == MotifUpArrow || style == MotifLeftArrow ) {
+	matrix.translate( x, y );
+	if ( vertical ) {
+	    matrix.translate( 0, h - 1 );
+	    matrix.rotate( -90 );
+	} else {
+	    matrix.translate( w - 1, h - 1 );
+	    matrix.rotate( 180 );
+	}
+	if ( down )
+	    colspec = horizontal ? 0x2334 : 0x2343;
+	else
+	    colspec = horizontal ? 0x1443 : 0x1434;
+    }
+    else if ( style == MotifDownArrow || style == MotifRightArrow ) {
+	matrix.translate( x, y );
+	if ( vertical ) {
+	    matrix.translate( w-1, 0 );
+	    matrix.rotate( 90 );
+	}
+	if ( down )
+	    colspec = horizontal ? 0x2443 : 0x2434;
+	else
+	    colspec = horizontal ? 0x1334 : 0x1343;
+    }
+
+    QColor *cols[5];
+    cols[0] = 0;
+    cols[1] = (QColor *)&upColor;
+    cols[2] = (QColor *)&downColor;
+    cols[3] = (QColor *)&lightShadow;
+    cols[4] = (QColor *)&darkShadow;
+#define CMID	*cols[ (colspec>>12) & 15 ]
+#define CLEFT	*cols[ (colspec>>8) & 15 ]
+#define CTOP	*cols[ (colspec>>4) & 15 ]
+#define CBOT	*cols[ colspec & 15 ]
+
+    QPen   savePen   = p->pen();		// save current pen
+    QBrush saveBrush = p->brush();		// save current brush
+    QPen   pen( NoPen );
+    QBrush brush( CMID );
+
+    p->setPen( pen );
+    p->setBrush( brush );
+    p->setWorldMatrix( matrix );		// set transformation matrix
+    p->drawPolygon( bFill );			// fill arrow
+
+    pen.setStyle( SolidLine );			// draw outline
+    brush.setStyle( NoBrush );			// don't fill
+
+    pen.setColor( CLEFT );
+    p->drawLineSegments( bLeft );
+    pen.setColor( CTOP );
+    p->drawLineSegments( bTop );
+    pen.setColor( CBOT );
+    p->drawLineSegments( bBot );
+
+    p->setWorldXForm( FALSE );			// turn off xform
+    p->setBrush( saveBrush );			// restore brush
+    p->setPen( savePen );			// restore pen
 }
