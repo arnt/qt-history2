@@ -5184,33 +5184,38 @@ QString QTextEdit::optimizedSelectedText() const
 bool QTextEdit::optimizedFind( const QString & expr, bool cs, bool wo,
 			       bool fw, int * para, int * index )
 {
+    bool found = FALSE;
     int idx = *index, i;
 
     if ( od->len == 0 )
 	return FALSE;
 
-    
     if ( fw ) {
 	for ( i = *para; i < od->numLines; i++ ) {
 	    idx = od->lines[ i ].find( expr, idx, cs );
-	    if ( idx != -1 ) // fix word only
+	    if ( idx != -1 ) { // fix word only
+		found = TRUE;
 		break;
+	    } else {
+		idx = 0;
+	    }
 	}
     } else {
 	if ( *para == 0 )
 	    *para = od->numLines - 1;
 	for ( i = *para; i >= 0; i-- ) {
 	    idx = od->lines[ i ].findRev( expr, idx, cs );
-	    if ( idx != -1 ) // fix word only
+	    if ( idx != -1 ) { // fix word only
+		found = TRUE;
 		break;
+	    }
 	}
     }
-    if ( idx != -1 ) {
+    if ( found ) {
 	*index = od->search.index = idx;
 	*para = od->search.line = i;
-	return TRUE;
     }
-    return FALSE;
+    return found;
 }
 #endif // QT_TEXTEDIT_OPTIMIZATION
 #endif //QT_NO_TEXTEDIT
