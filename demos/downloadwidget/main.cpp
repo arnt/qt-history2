@@ -27,7 +27,7 @@ public:
     ~DownloadDelegate();
 
     enum Roles {
-        CheckedRole = QAbstractItemModel::DecorationRole,
+        CheckRole = QAbstractItemModel::CheckStateRole,
         DateRole = QAbstractItemModel::DisplayRole,
         ProgressRole = QAbstractItemModel::DisplayRole,
         RatingRole = QAbstractItemModel::DisplayRole
@@ -36,8 +36,6 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    bool editorEvent(QEvent *event, const QStyleOptionViewItem &option,
-                     const QModelIndex &index);
 
 private:
     QPixmap star;
@@ -95,25 +93,6 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->setPen(pen);
 }
 
-bool DownloadDelegate::editorEvent(QEvent *event, const QStyleOptionViewItem &option,
-                                   const QModelIndex &index)
-{
-    bool typeOk = event && (event->type() == QEvent::MouseButtonPress
-                            || event->type() == QEvent::MouseButtonDblClick);
-    if (!typeOk || index.column() != 0)
-        return QItemDelegate::editorEvent(event, option, index);
-
-    if ((static_cast<QMouseEvent*>(event)->x() - option.rect.x()) < 20) {
-        const QAbstractItemModel *model = index.model();
-        bool checked = model->data(index, DownloadDelegate::CheckedRole).toBool();
-        const_cast<QAbstractItemModel*>(model)->setData(index, !checked,
-                                                        DownloadDelegate::CheckedRole);
-        return true;
-    }
-
-    return false;
-}
-
 QSize DownloadDelegate::sizeHint(const QStyleOptionViewItem &option,
                                  const QModelIndex &index) const
 {
@@ -147,11 +126,13 @@ int main(int argc, char *argv[])
   for (int i = 0; i < 10; ++i) {
       QTreeWidgetItem *item = new QTreeWidgetItem(view);
       item->setText(0, "Song " + QString::number(i));
-      item->setData(0, DownloadDelegate::CheckedRole, (i % 5) != 0);
+      item->setData(0, DownloadDelegate::CheckRole, (i % 5) != 0);
       item->setData(1, DownloadDelegate::DateRole, QDate(2004, 9, 11 + i));
       item->setData(2, DownloadDelegate::ProgressRole, 0.25 * (i % 4) + 0.10);
       item->setData(3, DownloadDelegate::RatingRole, (i % 6) + 1);
-      item->setFlags(item->flags()|QAbstractItemModel::ItemIsEditable);
+      item->setFlags(item->flags()
+                     |QAbstractItemModel::ItemIsEditable
+                     |QAbstractItemModel::ItemIsCheckable);
   }
 
   view->setWindowIcon(QPixmap(":/images/interview.png"));

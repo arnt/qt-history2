@@ -61,14 +61,20 @@ protected:
                                 const QRect &rect, const QPixmap &pixmap) const;
     virtual void drawFocus(QPainter *painter, const QStyleOptionViewItem &option,
                            const QRect &rect) const;
+    virtual void drawCheck(QPainter *painter, const QStyleOptionViewItem &option,
+                           const QRect &rect, bool checked) const;
 
-    void doLayout(const QStyleOptionViewItem &option, QRect *iconRect, QRect *textRect,
+    void doLayout(const QStyleOptionViewItem &option,
+                  QRect *checkRect, QRect *iconRect, QRect *textRect,
                   bool hint) const;
-    void doAlignment(Qt::LayoutDirection direction, const QRect &boundingRect, int alignment, QRect *rect) const;
+    void doAlignment(Qt::LayoutDirection direction, const QRect &boundingRect, int alignment,
+                     QRect *rect) const;
     QPixmap decoration(const QStyleOptionViewItem &option, const QVariant &variant) const;
     QPixmap *selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const;
+    QRect check(const QStyleOptionViewItem &option, const QVariant &variant) const;
 
     bool eventFilter(QObject *object, QEvent *event);
+    bool editorEvent(QEvent *event, const QStyleOptionViewItem &option, const QModelIndex &index);
 
 private:
     Q_DECLARE_PRIVATE(QItemDelegate)

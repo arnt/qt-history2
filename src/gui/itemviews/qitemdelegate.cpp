@@ -141,7 +141,12 @@ void QItemDelegate::paint(QPainter *painter,
     QRect pixmapRect = pixmap.rect();
     QFontMetrics fontMetrics(opt.font);
     QRect textRect(pt, QSize(fontMetrics.width(text), fontMetrics.height()) + sz);
-    doLayout(opt, &pixmapRect, &textRect, false);
+
+    value = model->data(index, QAbstractItemModel::CheckStateRole);
+    QRect checkRect = check(opt, value);
+    bool checked = value.toBool();
+
+    doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
 
     // draw the background color
     value = model->data(index, QAbstractItemModel::BackgroundColorRole);
@@ -149,6 +154,7 @@ void QItemDelegate::paint(QPainter *painter,
         painter->fillRect(option.rect, value.toColor());
 
     // draw the item
+    drawCheck(painter, opt, checkRect, checked);
     drawDecoration(painter, opt, pixmapRect, pixmap);
     drawDisplay(painter, opt, textRect, text);
     drawFocus(painter, opt, textRect);
@@ -179,7 +185,8 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     QRect pixmapRect = pixmap.rect();
     QFontMetrics fontMetrics(fnt);
     QRect textRect(pt, QSize(fontMetrics.width(text), fontMetrics.height()) + sz);
-    doLayout(option, &pixmapRect, &textRect, true);
+    QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
+    doLayout(option, &checkRect, &pixmapRect, &textRect, true);
 
     return pixmapRect.unite(textRect).size();
 }
@@ -261,7 +268,8 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         QString text = model->data(index, QAbstractItemModel::EditRole).toString();
         QRect pixmapRect = pixmap.rect();
         QRect textRect(pt, editor->fontMetrics().size(0, text));
-        doLayout(option, &pixmapRect, &textRect, false);
+        QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
+        doLayout(option, &checkRect, &pixmapRect, &textRect, false);
         editor->setGeometry(textRect);
     }
 }
@@ -361,13 +369,33 @@ void QItemDelegate::drawFocus(QPainter *painter,
 }
 
 /*!
+    Renders a check indicator within the rectangle specified by \a rect,
+    using the given \a painter and style \a option.
+*/
+
+void QItemDelegate::drawCheck(QPainter *painter,
+                              const QStyleOptionViewItem &option,
+                              const QRect &rect, bool checked) const
+{
+    //Q_UNUSED(option);
+    if (rect.isValid()) {
+        //QStyleOptionListView opt;
+        //opt.rect = rect;
+        //opt.state |= (checked ? QStyle::Style_On : QStyle::Style_Off);
+        //QApplication::style()->drawPrimitive(QStyle::PE_Q3CheckListIndicator, &opt, painter);
+        painter->drawPixmap(rect, decoration(option, checked));
+    }
+}
+
+/*!
     \internal
 */
 
-void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRect,
-                             QRect *textRect, bool hint) const
+void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
+                             QRect *checkRect, QRect *pixmapRect, QRect *textRect,
+                             bool hint) const
 {
-    if (pixmapRect && textRect) {
+    if (checkRect && pixmapRect && textRect) {
         int x = option.rect.left();
         int y = option.rect.top();
         int bb = border * 2;
@@ -381,6 +409,15 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             w = option.rect.width() - bb;
             h = option.rect.height() - bb;
         }
+
+        int cw = 0;
+        QRect check; // FIXME: doesn't support RTL yet
+        if (checkRect->isValid()) {
+            check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
+            cw = checkRect->width() + border;
+            x += cw;
+        }
+
         QRect display;
         QRect decoration;
         switch (option.decorationPosition) {
@@ -388,40 +425,43 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             decoration.setRect(x, y, w, pixmapRect->height());
             h = hint ? textRect->height() : h - pixmapRect->height();
             display.setRect(x, y + pixmapRect->height(), w, h);
-            break;}
+            break; }
         case QStyleOptionViewItem::Bottom: {
             h = hint ? textRect->height() + pixmapRect->height() : h;
             decoration.setRect(x, y + h - pixmapRect->height(), w, pixmapRect->height());
             h = hint ? textRect->height() : h - pixmapRect->height();
             display.setRect(x, y, w, h);
-            break;}
+            break; }
         case QStyleOptionViewItem::Left: {
             if (option.direction == Qt::RightToLeft)
                 goto Right;
         Left:
             decoration.setRect(x, y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : w - pixmapRect->width();
+            w = hint ? textRect->width() : w - pixmapRect->width() - cw;
             display.setRect(x + pixmapRect->width(), y, w, h);
-            break;}
+            break; }
         case QStyleOptionViewItem::Right: {
             if (option.direction == Qt::RightToLeft)
                 goto Left;
         Right:
             w = hint ? textRect->width() + pixmapRect->width() : w;
             decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : w - pixmapRect->width();
+            w = hint ? textRect->width() : w - pixmapRect->width() - cw;
             display.setRect(x, y, w, h);
-            break;}
+            break; }
         default:
             qWarning("doLayout: decoration positon is invalid");
             decoration = *pixmapRect;
             break;
         }
 
-        if (!hint) // we only need to do the internal layout if we are going to paint
+        if (!hint) { // we only need to do the internal layout if we are going to paint
+            doAlignment(option.direction, check, Qt::AlignCenter, checkRect);
             doAlignment(option.direction, decoration, option.decorationAlignment, pixmapRect);
-        else
+        } else {
+            *checkRect = check;
             *pixmapRect = decoration;
+        }
         *textRect = display;
     }
 }
@@ -434,6 +474,8 @@ void QItemDelegate::doAlignment(Qt::LayoutDirection direction,
                                 const QRect &boundingRect,
                                 int alignment, QRect *rect) const
 {
+    if (!boundingRect.isValid())
+        return;
     if (alignment == Qt::AlignCenter) {
         rect->moveCenter(boundingRect.center());
         return;
@@ -546,6 +588,22 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
 }
 
 /*!
+  \internal
+*/
+
+QRect QItemDelegate::check(const QStyleOptionViewItem &option,
+                           const QVariant &value) const
+{
+    if (value.isValid()) {
+        //int size = QApplication::style()->pixelMetric(QStyle::PM_CheckListControllerSize);
+        //return QRect(option.rect.x(), option.rect.y(), size, size);
+        QPixmap pixmap = QApplication::style()->standardPixmap(QStyle::SP_ItemChecked, &option);
+        return QRect(option.rect.topLeft(), pixmap.size());
+    }
+    return QRect();
+}
+
+/*!
   If the \a object is the current editor: if the \a event is an Esc
   key press the current edit is cancelled and ended, or if the \a
   event is an Enter or Return key press the current edit is accepted
@@ -589,5 +647,35 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         emit closeEditor(editor, NoHint);
         return true;
     }
+    return false;
+}
+
+/*!
+  \reimp
+*/
+
+bool QItemDelegate::editorEvent(QEvent *event,
+                                const QStyleOptionViewItem &option,
+                                const QModelIndex &index)
+{
+    bool typeOk = event && (event->type() == QEvent::MouseButtonPress
+                            || event->type() == QEvent::MouseButtonDblClick);
+    if (!typeOk || index.column() != 0)
+        return false;
+
+    // FIXME: make model an argument, so we don't have to const cast
+    QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
+    Q_ASSERT(model);
+
+    // check if the item is checkable
+    if ((model->flags(index) & QAbstractItemModel::ItemIsCheckable) == 0)
+        return false;
+
+    // check if the event happened in the right place
+    QVariant value = model->data(index, QAbstractItemModel::CheckStateRole);
+    QRect checkRect = check(option, value);
+    if (checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
+        return model->setData(index, !value.toBool(), QAbstractItemModel::CheckStateRole);
+
     return false;
 }
