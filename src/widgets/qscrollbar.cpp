@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#139 $
 **
 ** Implementation of QScrollBar class
 **
@@ -316,10 +316,12 @@ void QScrollBar::setPalette( const QPalette &p )
 
 QSize QScrollBar::sizeHint() const
 {
+    int sbextent = style().scrollBarExtent();
+
     if ( orient == Horizontal ) {
-	return QSize( 30, 16 );
+	return QSize( 30, sbextent );
     } else {
-	return QSize( 16, 30 );
+	return QSize( sbextent, 30 );
     }
 }
 
@@ -773,6 +775,12 @@ void QScrollBar::styleChange( QStyle& old )
 
     QWidget::styleChange( old );
 }
+
+int QScrollBar::extent()
+{
+    return style().scrollBarExtent();
+}
+
 
 
 #undef ADD_LINE_ACTIVE

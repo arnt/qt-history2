@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#33 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#34 $
 **
 ** Definition of QStyle class
 **
@@ -117,7 +117,7 @@ public:
 		    int lineWidth = 1, const QBrush *fill = 0 );
 
     virtual void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-				 const QColorGroup &,  int lineWidth = 2, 
+				 const QColorGroup &,  int lineWidth = 2,
 				 const QBrush *fill = 0 );
 
     virtual void drawArrow( QPainter *p, Qt::ArrowType type, bool down,
@@ -218,6 +218,10 @@ public:
 				    const QPalette& pal,
 				    bool act, bool enabled, int x, int y, int w, int h) = 0;
 
+    // Binary compatibility contortions:    
+    int scrollBarExtent(); //to become virtual in 3.0
+protected:
+    void setScrollBarExtent( int ); //will be removed in 3.0
 };
 
 

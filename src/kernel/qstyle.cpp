@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#43 $
 **
 ** Implementation of QStyle class
 **
@@ -32,6 +32,7 @@
 #include "qwidget.h"
 #include "qimage.h"
 #include "qwidget.h"
+#include "qptrdict.h" //binary compatibility
 #include <limits.h>
 
 
@@ -630,3 +631,52 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
  enabled, respectively. Finally, \a x, \a y, \a w and \a h determine
  the geometry of the entire item.
 */
+
+
+class QStyleData
+{
+    int sbextent;
+};
+
+static QPtrDict<QStyleData> *extraData;
+//Hack: as long as we only have one value to store, we store it in the
+//pointer itself.
+
+static void cleanupStyleData()
+{
+    delete extraData;
+    extraData = 0;
+}
+
+
+/*!
+  Returns the width of a scrollbar in this style. In this version of
+  the Qt library, subclasses must call setScrollBarExtent() to change the
+  extent of scrollbars. In a future version of Qt, this function will 
+  become virtual.
+*/
+
+int QStyle::scrollBarExtent()
+{
+    QStyleData *d = extraData ? extraData->find( this ) : 0;
+    return d ? (int)d : 16;
+}
+
+
+/*!
+  Sets the width of a scrollbar in this style to \a ext. A value of 0
+  gives an undefined result.
+  
+  In a future version of the Qt library, this function will be removed
+  and subclasses will be able to reimplement scrollBarExtent().
+  
+*/
+
+void QStyle::setScrollBarExtent( int ext )
+{
+    if ( !extraData ) {
+	extraData = new QPtrDict<QStyleData>;
+	qAddPostRoutine( cleanupStyleData );
+    }
+    extraData->replace( this, (QStyleData*)ext );
+}

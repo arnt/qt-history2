@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#79 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2513,17 +2513,15 @@ QSize QMultiLineEdit::sizeHint() const
 
 QSize QMultiLineEdit::minimumSizeHint() const
 {
-    const int sbDim = 16; //###
-
-     QFontMetrics fm( font() );
+    QFontMetrics fm( font() );
     int h = fm.lineSpacing() + frameWidth()*2;
     int w = fm.maxWidth();
     h += frameWidth();
     w += frameWidth();
     if ( testTableFlags(Tbl_hScrollBar|Tbl_autoHScrollBar) )
-	w += sbDim;
+	w += verticalScrollBar()->extent();
     if ( testTableFlags(Tbl_vScrollBar|Tbl_autoVScrollBar) )
-	h += sbDim;
+	h += horizontalScrollBar()->extent();;
     return QSize(w,h);
 }
 
@@ -3091,18 +3089,18 @@ void QMultiLineEdit::rebreakAll()
 }
 
 /*!
-  Sets the word wrap mode. Possible values are 
-  
+  Sets the word wrap mode. Possible values are
+
     <ul>
     <li> \c NoWrap - no word wrap at all.
-    <li> \c DynamicWrap - word wrap depending on the current 
+    <li> \c DynamicWrap - word wrap depending on the current
      width of the editor widget
     <li> \c FixedWidthWrap - wrap according to a fix amount
      of pixels ( see wrapColumnOrWidth() )
     <li> \c FixedColumnWrap - wrap according to a fix character
-     column. This is useful whenever you need formatted text that 
-     can also be displayed gracefully on devices with monospaced 
-     fonts, for example a standard VT100 terminal. In that case 
+     column. This is useful whenever you need formatted text that
+     can also be displayed gracefully on devices with monospaced
+     fonts, for example a standard VT100 terminal. In that case
      wrapColumnOrWidth() should typically be set to 80.
   </ul>
 
