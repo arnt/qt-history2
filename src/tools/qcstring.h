@@ -74,6 +74,7 @@ Q_EXPORT inline uint cstrlen( const char *str )
 Q_EXPORT inline uint qstrlen( const char *str )
 { return str ? strlen(str) : 0; }
 
+// ### remove 3.0 ?
 #undef	strlen
 #define strlen qstrlen
 
@@ -83,6 +84,7 @@ Q_EXPORT inline char *cstrcpy( char *dst, const char *src )
 Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
 
+// ### remove 3.0 ?
 #undef	strcpy
 #define strcpy qstrcpy
 
@@ -94,6 +96,7 @@ Q_EXPORT inline int cstrcmp( const char *str1, const char *str2 )
 Q_EXPORT inline int qstrcmp( const char *str1, const char *str2 )
 { return (str1 && str2) ? strcmp(str1,str2) : (int)((long)str2 - (long)str1); }
 
+// ### remove 3.0 ?
 #undef	strcmp
 #define strcmp qstrcmp
 
@@ -103,13 +106,14 @@ Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
 Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
 { return (str1 && str2) ? strncmp(str1,str2,len) :
 			  (int)((long)str2 - (long)str1); }
-
+// ### remove 3.0 ?
 #undef	strncmp
 #define strncmp qstrncmp
 
 Q_EXPORT int qstricmp( const char *, const char * );
 Q_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
+// ### remove 3.0 ?
 #undef	stricmp
 #define stricmp	 qstricmp
 #undef	strnicmp
