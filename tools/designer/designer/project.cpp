@@ -458,6 +458,7 @@ void Project::save()
     remove_contents( contents, "IMAGEFILE" );
     remove_contents( contents, "PROJECTNAME" );
     remove_contents( contents, "LANGUAGE" );
+    remove_contents( contents, "{SOURCES+=" );
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
     if ( !imgFile.isEmpty() )
@@ -467,6 +468,9 @@ void Project::save()
 	contents += "PROJECTNAME\t= " + proName + "\n";
 
     contents += "LANGUAGE\t= " + lang + "\n";
+
+    if ( !imageFile().isEmpty() )
+	contents += "{SOURCES+=" + imageFile() + "}\n";
 
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
 	remove_contents( contents, *it );
