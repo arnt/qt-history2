@@ -474,12 +474,11 @@ void QPainter::drawRect(int x, int y, int w, int h)
     qt_fix_rect(ds, &x, &y, &w, &h);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	if (d->txop < TxRotShear) {
-	    map(x, y, w, h, &x, &y, &w, &h);
-	} else {
+	if (d->txop == TxRotShear) {
 	    drawPolygon(QPointArray(QRect(x, y, w, h)));
 	    return;
 	}
+	map(x, y, w, h, &x, &y, &w, &h);
     }
 
     dgc->drawRect(x, y, w, h);
@@ -537,19 +536,17 @@ void QPainter::drawWinFocusRect(int x, int y, int w, int h)
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    if (d->txop == TxRotShear) {
-		QPen cpen = ds->pen;
-		ds->pen = QPen(black, 0, DotLine);
-		dgc->updatePen(ds);
-		drawPolygon(QPointArray(QRect(x, y, w, h)));
-		ds->pen = cpen;
-		dgc->updatePen(ds);
-		return;
-	    }
-	    map(x, y, w, h, &x, &y, &w, &h);
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	if (d->txop == TxRotShear) {
+	    QPen cpen = ds->pen;
+	    ds->pen = QPen(black, 0, DotLine);
+	    dgc->updatePen(ds);
+	    drawPolygon(QPointArray(QRect(x, y, w, h)));
+	    ds->pen = cpen;
+	    dgc->updatePen(ds);
+	    return;
 	}
+	map(x, y, w, h, &x, &y, &w, &h);
     }
 
     dgc->drawWinFocusRect(x, y, w, h, true, color0);
