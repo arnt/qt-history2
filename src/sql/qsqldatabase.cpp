@@ -39,16 +39,16 @@
 #ifndef QT_NO_SQL
 
 #ifdef QT_SQL_POSTGRES
-#include "src/psql/qsql_psql.h"
+#include "drivers/psql/qsql_psql.h"
 #endif
 #ifdef QT_SQL_MYSQL
-#include "src/mysql/qsql_mysql.h"
+#include "drivers/mysql/qsql_mysql.h"
 #endif
 #ifdef QT_SQL_ODBC
-#include "src/odbc/qsql_odbc.h"
+#include "drivers/odbc/qsql_odbc.h"
 #endif
 #ifdef QT_SQL_OCI
-#include "src/oci/qsql_oci.h"
+#include "drivers/oci/qsql_oci.h"
 #endif
 
 #include "qapplication.h"
@@ -381,7 +381,7 @@ QStringList QSqlDatabase::drivers()
   \internal
 */
 void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* dcb )
-{   
+{
     QSqlDatabaseManager::driverDict()->remove( name );
     if ( dcb ) {
 	QSqlDatabaseManager::driverDict()->insert( name, dcb );
