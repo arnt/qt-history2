@@ -19,7 +19,6 @@
 \row \o QWidget::FocusPolicy \o Qt::FocusPolicy
 \row \o Q_LLONG \o Q_LONGLONG
 \row \o Q_ULLONG \o Q_ULONGLONG
-\row \o Qt::ButtonState \o Qt::KeyboardModifier
 \row \o Qt::Dock \o Qt::ToolBarDock
 \row \o Qt::MacintoshVersion \o QSysInfo::MacVersion
 \row \o Qt::TextFlags \o Qt::TextFlag
