@@ -217,15 +217,17 @@ void QRadioButton::drawButton( QPainter *paint )
 #endif
 
     QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
+    if ( isEnabled() )
 	flags |= QStyle::Style_Enabled;
-    if (hasFocus())
+    if ( hasFocus() )
 	flags |= QStyle::Style_HasFocus;
-    if (isDown())
+    if ( isDown() )
 	flags |= QStyle::Style_Down;
-    if (state() == QButton::On)
+    if ( hasMouse() )
+	flags |= QStyle::Style_MouseOver;
+    if ( state() == QButton::On )
 	flags |= QStyle::Style_On;
-    else if (state() == QButton::Off)
+    else if ( state() == QButton::Off )
 	flags |= QStyle::Style_Off;
 
     style().drawControl(QStyle::CE_RadioButton, p, this, irect, cg, flags);
