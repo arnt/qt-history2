@@ -9,6 +9,7 @@ divided into the following sections:
 \i Introduction to the Qt Reference Documentation
 \i The 1 Minute Guide to using Qt Assistant
 \i Qt Assistant in More Detail
+\i Adding none Qt Documentation
 \endlist
 
 \chapter Introduction to the Qt Reference Documentation
@@ -243,15 +244,129 @@ button to finish.
 
 \section2 The Settings Dialog
 
-This dialog is used to set your preferences for \QA. You can change
-the base font used throughout by choosing a new font from the Font
-combobox. You can choose a new fixed-width font, e.g. used to show
-code snippets, by choosing a new font from the 'Fixed font' combobox.
-You can change the color of hypertext links by clicking the 'Link
-color' color button. Uncheck the 'Underline links' checkbox if you
-don't want underlined links. Click \Button OK to confirm your changes or
-click \Button Cancel to keep the previous settings.
+This dialog is used to set your preferences for \QA. In order to 
+confirm your changes click \Button OK, respectively \Button Cancel
+if you want to keep the previous settings. \QA will remember your 
+settings between sessions, including window sizes and positions, 
+and which page(s) you have open. The dialog contains the following 
+tabs:
 
-\QA will remember your settings between sessions, including window
-sizes and positions, and which page(s) you have open.
+\list
+\i General Settings
+
+Here you can change the base font used throughout by choosing a 
+new font from the Font combobox. You can choose a new fixed-width 
+font, e.g. used to show code snippets, by choosing a new font from 
+the 'Fixed font' combobox. You can change the color of hypertext 
+links by clicking the 'Link color' color button. Uncheck the 
+'Underline links' checkbox if you don't want underlined links. 
+
+\i Web Settings 
+
+Some pages contain links to the World Wide Web. In order to get them
+displayed you have to specify a webbrowser. You can use either the 
+\Button Browse or the line edit to set your favourite browser.
+
+\i Documentation Path
+
+If you want to add your own documentation in the \QA, use the
+\Button Add and choose the directory in which the concerning files
+are. Read more about adding your own documentation in the next
+chapter. If a documentation is obsolete you can remove it by clicking
+the \Button Delete.
+
+\i Categories
+
+Every documentation belong to a certain category. Such categories could
+be e.g. development, office or multimedia. Since you can add your own
+documentation you can also add new categories. Enter in the line edit
+the category name and click the \Button Add. Now, the new category
+appears in the list on the left site. There is a checkbox in front of
+each category. If it is checked all available documentation of this
+category will be displayed. You can remove a category by selecting
+it and clicking the \Button Delete. For further information about
+categories read the next chapter.
+\endlist
+
+\chapter Adding none Qt Documentation
+
+If you want to add your own documentation you have to tell \QA where
+the new documentation is located and if it belongs to new category.
+Furthermore, \QA needs two special xml files. One for the contents 
+(contents.xml) and one for the indexwords (index.xml) of the new 
+documentation. The names of these files are fixed. Have a look at
+section Fileformats to learn more about these files.
+
+\section1 Set documentation path
+
+In order to set the documentation path use the settingsdialog. There 
+you can add or remove search paths for additional documentation. Be 
+sure that this path contains the files content.xml and index.xml.  
+
+\section1 Adding categories
+
+If the new documentation belongs to a category which is currently 
+unknown add this category in the settingsdialog. The spelling have
+to be the same as it have been specified in the xml files.
+
+\section1 Fileformats
+
+As mentioned before \QA needs one file for the contents and one for
+the index keywords. The only thing which have to be equal in these 
+two files is the category.
+
+\section2 Content file
+
+The content file contains the table of contents of the documentation.
+The sections can be nested as deep as neccessary. All references should
+be relatively. An example of a content file with all avialable tags is
+displayed below. 
+
+content.xml:
+\code
+<docu>
+<title ref="index.html" category="development">Development Demo Handbook</title>
+<section>
+    <title ref="./chap1/chap1.html">Chapter 1</title>
+    <section>
+        <title ref="./chap1/chap1.html#section1">Section 1</title>
+        <section>
+            <title ref="./chap1/chap1.html#subsection1">Subsecton 1</title>
+        </section>
+        <section>
+            <title ref="./chap1/chap1.html#subsection2">Subsection 2</title>
+        </section>
+    </section>
+</section>
+<section>
+    <title ref="./chap2.html">Chapter 2</title>
+    <section>
+        <title ref="./chap2.html#section1">Section 1</title>
+    </section>
+</section>
+</docu>
+\endcode
+
+
+\section2 Index file
+
+The index file contains all important keywords. Since one keyword
+may have more than one reference, add to each reference a description.
+This description appears later in the topicchooser. For the structure
+of the index file have a look at the following example.
+
+index.xml
+\code
+<docindex category="development">
+<item keyword="demofunction">
+    <link descr="Example for Democlass">./examples/democlass.html</link>
+    <link descr="Class">./democlass.html</link>
+    <link descr="Header">./headers/democlass.html</link>
+</item>
+<item keyword="another demo">
+    <link descr="Class">./anotherclass.html</link>
+    <link descr="Header">./headers/anotherclass.html</link>
+</item>
+</docindex>
+\endcode
 

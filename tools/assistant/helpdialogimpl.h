@@ -38,7 +38,6 @@ public:
 
     void addLink( const QString &link );
     QStringList links() const { return linkList; }
-
 private:
     QStringList linkList;
 
@@ -73,6 +72,8 @@ protected slots:
     void loadIndexFile();
     void currentTabChanged( const QString &s );
     void currentIndexChanged( QListBoxItem *i );
+    void generateNewDoc();
+    void showCatDoc();
     void showTopic();
     void searchInIndex( const QString &s );
     void addBookmark();
@@ -99,12 +100,17 @@ private:
     void setupTitleMap();
     void saveBookmarks();
     void showContentsTopic();
+    bool insertContents( QString additionalPath, const QString &filename, 
+			 HelpNavigationContentsItem *newEntry );
     void insertContents( const QString &filename, const QString &title,
 			 HelpNavigationContentsItem *lastItem,
 			 HelpNavigationContentsItem *handbook );
+    QString generateFileNumber();
+    bool isValidCategory( QString category );
 
 private:
     QMap<QString, QString> titleMap;
+    QMap<QString, uint> categoryMap;
     bool indexDone, bookmarksInserted, contentsDone, contentsInserted;
     bool lwClosed;
     MainWindow *help;

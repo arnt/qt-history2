@@ -21,6 +21,9 @@
 #ifndef SETTINGSDIALOGIMPL_H
 #define SETTINGSDIALOGIMPL_H
 
+#include <qstringlist.h>
+#include <qptrlist.h>
+#include <qlistview.h>
 #include "settingsdialog.h"
 
 class SettingsDialog : public SettingsDialogBase
@@ -32,7 +35,22 @@ public:
 
 protected slots:
     void selectColor();
-
+    void addPath();
+    void deletePath();
+    void addCategory();
+    void deleteCategory();
+    void browseWebApp();
+    void accept();
+    void reject();
+signals:
+    void changedPath();
+    void changedCategory();
+private:
+    void init();
+    bool newFilesExist( QString dir );
+    bool changed;
+    QStringList pathlist, catlistavail, catlistsel;
+    QPtrList<QCheckListItem> catitems;
 };
 
 #endif

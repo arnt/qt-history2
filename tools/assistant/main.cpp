@@ -4,6 +4,7 @@
 #include <qsocket.h>
 #include <qpixmap.h>
 #include <qptrlist.h>
+#include <qstringlist.h>
 #include <qsettings.h>
 #include "assistant.h"
 
@@ -218,31 +219,66 @@ int main( int argc, char ** argv )
 				      ".." + QDir::separator());
     setenv("QTDIR", qdir.latin1(), 0);
 #endif
-
-    if ( argc == 1 || QString( argv[1] ).left( 2 ) != "d:" ) {
-	MainWindow * mw = new MainWindow(0, "Assistant" );
-
+    
+    QStringList catlist;
+    QString file;
+    bool parsestdin = FALSE;
+    for ( int i = 1; i < a.argc(); i++ ) {
+	if ( QString( a.argv()[i] ) == "-file" ) {
+	    i++;
+	    file = a.argv()[i];
+	} else if ( QString( a.argv()[i] ) == "-stdin" ) {
+	    parsestdin = TRUE;
+	} else if ( QString( a.argv()[i] ) == "-category" ) {
+	    i++;
+	    catlist << a.argv()[i];	
+	} else if ( QString( a.argv()[i] ) == "-help" ) {
+	    printf( "Usage: assistant [option]\n" );
+	    printf( "Options:\n" );
+	    printf( " -file Filename      assistant opens the specified file\n" );
+	    printf( " -category Category  displays all documentations which\n" );
+	    printf( "                     belong to this category. This\n" );
+	    printf( "                     option can be set serveral times\n" );
+	    printf( " -stdin              reads commands from stdin after\n" );
+	    printf( "                     assistant has started\n" );
+	    printf( " -help               shows this help\n" );
+	    exit( 0 );  
+	}
+	else {
+	    printf( "Wrong options! Try -help to get help.\n" );
+	    exit( 1 );
+	}	
+    }
+        
+    if ( a.argc() >= 1 || file.left( 2 ) != "d:" ) {    
 	QString keybase("/Qt Assistant/3.1/");
-	QSettings config;
-	config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-	if ( config.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) )
+	QSettings *config = new QSettings();
+	config->insertSearchPath( QSettings::Windows, "/Trolltech" );
+	if( !catlist.isEmpty() ) { 
+	    config->writeEntry( "/Qt Assistant/categories/selected/", catlist );
+	}
+	bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ;
+	delete config;
+	config = 0;
+	MainWindow * mw = new MainWindow(0, "Assistant" );
+	
+	if ( max )
 	    mw->showMaximized();
 	else
 	    mw->show();
 
-	QString s;
-	if ( argc > 1 )
-	    s = QString( argv[1] );
-	if ( s.left( 2 ) == "d:" )
-	    s.remove( 0, 2 );
-	if ( s == "stdin" )
+	if ( file.left( 2 ) == "d:" )
+	    file.remove( 0, 2 );
+	if ( parsestdin )
 	    commandInput = new StdInParser(mw, &a);
-	else if ( !s.isEmpty() )
-	    mw->showLink( s, "" );
+	else if ( !file.isEmpty() )
+	    mw->showLink( file, "" );
+    
     } else {
 	Socket *s = new Socket( 0 );
 	s->start();
     }
+        
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
 
     // Now we need to setup read from stdin...

@@ -465,26 +465,26 @@
     <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
 </variables>
 <slots>
-    <slot>init()</slot>
-    <slot>destroy()</slot>
-    <slot>about()</slot>
-    <slot>aboutQt()</slot>
-    <slot>find()</slot>
-    <slot>goHome()</slot>
-    <slot>showLinguistHelp()</slot>
-    <slot>print()</slot>
-    <slot>updateBookmarkMenu()</slot>
-    <slot>setupBookmarkMenu()</slot>
-    <slot>showBookmark( int id )</slot>
-    <slot>showDesignerHelp()</slot>
-    <slot>showLink( const QString &amp; link, const QString &amp; title )</slot>
-    <slot>showQtHelp()</slot>
-    <slot>setFamily( const QString &amp; f )</slot>
-    <slot>showSettingsDialog()</slot>
-    <slot>hide()</slot>
-    <slot returnType="MainWindow *">newWindow()</slot>
-    <slot>saveSettings()</slot>
-    <slot>saveToolbarSettings()</slot>
+    <slot access="">init()</slot>
+    <slot access="">destroy()</slot>
+    <slot access="">about()</slot>
+    <slot access="">aboutQt()</slot>
+    <slot access="">find()</slot>
+    <slot access="">goHome()</slot>
+    <slot access="">showLinguistHelp()</slot>
+    <slot access="">print()</slot>
+    <slot access="">updateBookmarkMenu()</slot>
+    <slot access="">setupBookmarkMenu()</slot>
+    <slot access="">showBookmark( int id )</slot>
+    <slot access="">showDesignerHelp()</slot>
+    <slot access="">showLink( const QString &amp; link, const QString &amp; title )</slot>
+    <slot access="">showQtHelp()</slot>
+    <slot access="">setFamily( const QString &amp; f )</slot>
+    <slot access="">showSettingsDialog()</slot>
+    <slot access="">hide()</slot>
+    <slot access="" returnType="MainWindow *">newWindow()</slot>
+    <slot access="">saveSettings()</slot>
+    <slot access="">saveToolbarSettings()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

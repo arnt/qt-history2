@@ -1,5 +1,7 @@
-SOURCES	+= main.cpp helpwindow.cpp topicchooserimpl.cpp helpdialogimpl.cpp settingsdialogimpl.cpp assistant.cpp 
-HEADERS	+= helpwindow.h topicchooserimpl.h helpdialogimpl.h settingsdialogimpl.h assistant.h 
+SOURCES	+= main.cpp helpwindow.cpp topicchooserimpl.cpp docuparser.cpp \
+	   helpdialogimpl.cpp settingsdialogimpl.cpp assistant.cpp 
+HEADERS	+= helpwindow.h topicchooserimpl.h docuparser.h helpdialogimpl.h \
+	   settingsdialogimpl.h assistant.h 
 TARGET	= assistant
 
 DEFINES += QT_INTERNAL_NETWORK

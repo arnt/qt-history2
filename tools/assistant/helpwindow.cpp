@@ -4,9 +4,12 @@
 #include <qdragobject.h>
 #include <qdir.h>
 #include <qfile.h>
-#include "mainwindow.h"
+#include <qsettings.h>
+#include <qprocess.h>
 #include <qpopupmenu.h>
 #include <qaction.h>
+
+#include "mainwindow.h"
 
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
     : QTextBrowser( parent, name ), mw( w ), shiftPressed( FALSE )
@@ -33,7 +36,21 @@ void HelpWindow::setSource( const QString &name )
     }
 
     mw->setCaption( tr( "Qt Assistant by Trolltech - %1" ).arg( name ) );
-
+    
+    if ( name.left( 7 ) == "http://" || name.left( 6 ) == "ftp://" ) {
+	QSettings settings;
+	QString webbrowser = settings.readEntry( "/Qt Assistant/3.1/Webbrowser/" );
+	if ( webbrowser.isEmpty() ) {
+	    QMessageBox::information( this, tr( "Help" ), tr( "Currently no webbrowser is selected.\nPlease use the settingsdialog to specify one!\n" ) );
+	    return;
+	}
+	QProcess *proc = new QProcess();
+	proc->addArgument( webbrowser );
+	proc->addArgument( name );
+	proc->launch( "" );
+	return;
+    }
+    
     if ( name.left( 2 ) != "p:" ) {
 	QUrl u( context(), name );
 	if ( !u.isLocalFile() ) {

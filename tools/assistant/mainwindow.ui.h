@@ -520,7 +520,7 @@ void MainWindow::showDesignerHelp()
 }
 
 void MainWindow::showLink( const QString & link, const QString & title )
-{
+{    
     browser->setCaption( title );
     browser->setSource( link );
     browser->setFocus();
@@ -544,9 +544,11 @@ void MainWindow::setFamily( const QString & f )
 
 void MainWindow::showSettingsDialog()
 {
-    if ( !settings )
+    if ( !settings ){
 	settings = new SettingsDialog( this );
-
+	connect( settings, SIGNAL( changedPath() ), helpDock, SLOT( generateNewDoc() ));
+	connect( settings, SIGNAL( changedCategory() ), helpDock, SLOT( showCatDoc() ));
+    }
     QFontDatabase fonts;
     settings->fontCombo->insertStringList( fonts.families() );
     settings->fontCombo->lineEdit()->setText( browser->QWidget::font().family() );
