@@ -408,9 +408,10 @@ QSplitterLayoutStruct *QSplitter::findWidget( QWidget *w )
     Inserts the widget \a w at the end (or at the beginning if \a
     prepend is TRUE) of the splitter's list of widgets.
 
-    It is the responsibility of the caller of this function to make sure
-    that \a w is not already in the splitter and to call recalcId() as
-    needed.
+  It is the responsibility of the caller of this function to make sure
+  that \a w is not already in the splitter and to call recalcId() if
+  needed. (If \a prepend is TRUE, then recalcId() is very probably
+  needed.)
 */
 
 QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool prepend )
@@ -447,8 +448,8 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool prepend )
 
 
 /*!
-    Tells the splitter that a child widget has been inserted or
-    removed.
+    Tells the splitter that child widget described by \a c has been
+    inserted or removed.
 */
 
 void QSplitter::childEvent( QChildEvent *c )

@@ -176,13 +176,10 @@ it. The correct idiom is
 		      QKeySequence(tr("Ctrl+Q", "File|Quit")) );
 \endcode
 
-\section2 Use QString::arg() for Simple Arguments
+\section2 Use QString::arg() for Dynamic Text
 
-The printf() style of inserting arguments in strings
-is often a poor choice for internationalized text, as it is
-sometimes necessary to change the order of arguments when
-translating. Nonetheless, the QString::arg()
-functions offer a simple means for substituting arguments:
+The QString::arg() functions offer a simple means for substituting
+arguments:
 \code
     void FileCopier::showProgress( int done, int total,
 				   const QString& current_file )
@@ -192,6 +189,23 @@ functions offer a simple means for substituting arguments:
 			.arg(total)
 			.arg(current_file) );
     }
+\endcode
+
+In some languages the order of arguments may need to change, and this
+can easily be achieved by changing the order of the % arguments. For
+example:
+\code
+    QString s1 = "%1 of %2 files copied. Copying: %3";
+    QString s2 = "Kopierer nu %3. Av totalt %2 filer er %1 kopiert.";
+    
+    qDebug( s1.arg(5).arg(10).arg("somefile.txt").ascii() );
+    qDebug( s2.arg(5).arg(10).arg("somefile.txt").ascii() );
+\endcode
+
+produces the correct output in English and Norwegian:
+\code
+5 of 10 files copied. Copying: somefile.txt
+Kopierer nu somefile.txt. Av totalt 10 filer er 5 kopiert.
 \endcode
 
 \section2 Produce Translations
