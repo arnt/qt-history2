@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#80 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#81 $
 **
 ** Implementation of QTabDialog class
 **
@@ -502,7 +502,7 @@ bool QTabDialog::isTabEnabled( const char* name ) const
 
 
 /*!\obsolete
-  
+
   Finds the page with object name \a name, enables/disables it
   according to the value of \a enable, and redraws the page's tab
   appropriately.
@@ -527,14 +527,12 @@ void QTabDialog::setTabEnabled( const char* name, bool enable )
     QObjectList * l
 	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
     if ( l && l->first() ) {
-	QWidget * w;
-	while( l->current() ) {
-	    while( l->current() && !l->current()->isWidgetType() )
-		l->next();
-	    w = (QWidget *)(l->current());
-	    if ( w ) {
-		d->tw->setTabEnabled( w, enable );
-	    }
+	QObjectListIt it(*l);
+	QObject *o;
+	while( (o = it.current()) ) {
+	    ++it;
+	    if( o->isWidgetType() )
+		d->tw->setTabEnabled( (QWidget*)o, enable );
 	}
     }
 }
@@ -933,8 +931,8 @@ void QTabDialog::changeTab( QWidget *w, const QIconSet& iconset, const QString &
     d->tw->changeTab( w, iconset, label );
 }
 
-/*! Removes page \a w from this stack of widgets.  Does not 
-  delete \a w. 
+/*! Removes page \a w from this stack of widgets.  Does not
+  delete \a w.
   \sa showPage(), QTabWidget::removePage(), QWidgetStack::removeWidget()
 */
 void QTabDialog::removePage( QWidget * w )
