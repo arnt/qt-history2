@@ -636,6 +636,7 @@ void PropertyTextItem::childValueChanged( PropertyItem *child )
 					  PropertyItem::name(), child->value().toString() );
     else
 	MetaDataBase::setExportMacro( listview->propertyEditor()->widget(), child->value().toString() );
+    listview->propertyEditor()->formWindow()->commandHistory()->setModified( TRUE );
 }
 
 static QString to_string( const QVariant &v, bool accel )
