@@ -35,6 +35,14 @@
     <ul>
     <li><a href="#The_1_Minute_Guide_to_Using_Qt_Linguist">
     The One Minute Guide to Using Qt Linguist</a>
+    <li><a href="#Qt_Linguists_Main_Window">
+    <em>Qt Linguist</em>'s Main Window</a>
+	<ul>
+	<li><a href="#Context_List">Context List</a>
+	<li><a href="#Source_Text_Area">Source Text Area</a>
+	<li><a href="#Translation_Area">Translation Area</a>
+	<li><a href="#Phrases_and_Guesses_Area">Phrases and Guesses Area</a>
+	</ul>
     <li><a href="#Common_Tasks">Common Tasks</a>
 	<ul>
 	<li><a href="#Leaving_a_Translation_for_Later">Leaving a Translation for Later</a>
@@ -52,16 +60,8 @@
     <li><a href="#Qt_Linguist_Reference">Qt Linguist Reference</a>
 	<ul>
 	<li><a href="#File_Types">File Types</a>
-	<li><a href="#The_Main_Window">The Main Window</a>
 	<li><a href="#The_Menu_Bar">The Menu Bar</a>
 	<li><a href="#The_Toolbar">The Toolbar</a>
-	<li><a href="#The_Source_Text_Pane">The Source Text Pane</a>
-	<li><a href="#The_Source_Text_Comments_Pane">The Source Text and
-	Comments Pane</a>
-	<li><a href="#The_Translation_Pane">The Translation Pane</a>
-	<li><a href="#The_Phrasebook_Pane">The Phrase Book Pane</a>
-	<li><a href="#The_Done_Checkbox">The Done Checkbox</a>
-	<li><a href="#The_Command_Buttons">The Command Buttons</a>
 	<li><a href="#The_Find_Dialog">The Find Dialog</a>
 	<li><a href="#The_Phrase_Dialog">The Phrase Dialog</a>
 	</ul>
@@ -230,7 +230,7 @@ not marked as done, the original text will be used instead.
 language there must be an entry in the \c TRANSLATIONS section of the
 project file. A typical entry looks like this:
 
-\dontinclude tt2/tt2.pro
+\walkthrough tt2/tt2.pro
 \skip TRANSLATIONS
 \line TRANSLATIONS
 \until ^$
@@ -264,39 +264,104 @@ at the command line. Once <em>Qt Linguist</em> has started choose
 <em>File|Open</em> from the menu bar and select a \c .ts translation
 source file to work on.
 
-Click on one of the contexts in the source text area (the left hand
-pane) and then click on one of the phrases that appears. The phrase will
-be copied into the top right pane with two lines beneath it separating
-the context and comments from the phrase. Click in the translation area
-(the middle right pane) and type in the translation. Click the <em>Done &
-Next</em> button (or press Alt+D) to mark the translation as complete and
-move on to the next phrase. Enter the next translation and then press
-Alt+D repeating as often as necessary. At the end of the session choose
-<em>File|Save</em> from the menu bar and then <em>File|Exit</em> to quit.
+<em>Qt Linguist</em>'s main window is divided into four main areas.
+The left hand side contains the Context list, the top right is the
+Source text area, the middle right is the translation area and the
+bottom right is the phrases and guesses area. We'll describe them in
+detail later.
 
-Whilst the above is sufficient most of the time, some tasks require the
-use of other buttons or controls. The \e Skip button is covered in the 
-<a href="Leaving_a_Translation_for_Later">"Leaving a Translation for
-Later"</a> section. The <em>Start from Source</em> and the <em>Guess
-Again</em> buttons are described in the 
-<a href="Reusing_Translations">"Reusing Translations"</a> section. The
-phrase book pane is explained in the 
-<a href="#Creating_and_Using_Phrase_Books"> "Creating and Using Phrase
-Books"</a> section.
+Click on one of the contexts in the context list (left hand side) and
+then click on one of the phrases that appears in the Source text area
+(top right). The phrase will be copied into the translation area (middle
+right). Click under the word 'Translation' and type in the translation.
+Click <em>Ctrl+N</em> (Done & Next) to confirm that you have completed the
+translation and to move on to the next phrase that requires translation.
+The cycle of entering a translation then pressing <em>Ctrl+N</em> can be repeated
+until all the translations are done or until you finish the session. At
+the end of the session choose <em>File|Save</em> from the menu bar and
+then <em>File|Exit</em> to quit.
 
+<h2><a name="Qt_Linguists_Main_Window">
+<em>Qt Linguist</em>'s Main Window</a></h2>
+
+<h3><a name="Context_List">Context List</a></h3>
+
+This appears at the left hand side of the main window by default. The
+first column, 'Done', identifies whether or not the translations for the
+context have been done. A tick indicates that all the translations have
+been done and are valid. A question mark indicates that one or more
+translations have not been done or have failed validation. The second
+column, 'Context' is the name of the context in which the translation
+phrases appear. The third column, 'Items' shows two numbers, the first
+is the number of translations that have been done, and the second is the
+number of phrases that are in the context; if the numbers are equal then
+all the translations have been done. Note that a greyed out tick
+indicates an obsolete translation, i.e. a phrase that was translated in
+a previous version of the application but which does not occur in the
+new version.
+
+The contexts are ordered alphabetically. The phrases within each context
+are in the order in which they appear in the source program and this may
+not be the order in which they are shown on screen. 
+
+The Context List is a dockable window so it can be dragged to another
+position in the main window, or dragged out of the main window to be a
+window in its own right. If you move the Context List <em>Qt
+Linguist</em> will remember its position and restore it whenever you
+start the program.
+
+<h3><a name="Source_Text_Area">Source Text Area</a></h3>
+
+This appears at the top right of the main window by default. The first
+column, 'Done', signifies the status of the translation. A tick
+indicates that the phrase has been translated and passed validation. A
+question mark indicates that the translation has not been done. An
+exclamation mark indicates that the translation has failed validation.
+The second column 'Source text' shows the text that must be translated.
+The third column shows the translation.
+
+The Source Text Area is a dockable window.
+
+<h3><a name="Translation_Area">Translation Area</a></h3>
+
+This area appears at the middle right of the main window by default. It
+is comprised of three vertical sections. The first section is labelled
+'Source text' below which the source text appears. The second section
+contains contextual information on a light blue background that the
+programmer has added to assist the translator. If no contextual
+information has been given this section does not appear. The third
+section is labelled 'Translation' and this is where you enter the
+translation of the source text. 
+
+<h3><a name="Phrases_and_Guesses_Area">Phrases and Guesses Area</a></h3>
+
+This area appears at the bottom right of the main window by default.
+When you move to a new phrase if the phrase is in one of the phrase
+books that has been loaded the phrase will appear in this area with its
+translation. If the phrase is the same or similar to another phrase that
+has already been translated the phrase and translation will be shown in
+this area. To copy a translation from the phrases and guesses area press
+<em>F6</em> to move to the phrases and guesses area, use the up and down arrow
+keys to move to the phrase you want to use and press Return to copy it.
+If you decide that you don't want to copy a phrase after all, press Esc.
+In both cases the focus will return to the Translation area.
+Alternatively, double click the translation you want to use and it will
+be copied into the translation area.
+
+The Phrases and Guesses Area is a dockable window.
 
 <h2><a name="Common_Tasks">Common Tasks</a></h2>
 
 <h3><a name="Leaving_a_Translation_for_Later">
 Leaving a Translation for Later</a></h3>
 
-If you wish to leave a translation simply click the \e Skip button (or
-press Alt+K) to move on to the next phrase. To move to a different
-context and phrase altogether click in the left hand source text pane on
-the context you wish to work on and then click on a phrase. Phrases
-that are done have an "X" marked in the Done column of the source text
-pane. If all the phrases in a context are done the context itself will
-have an "X" marked in the Done column.
+If you wish to leave a translation press <em>Ctrl+L</em> (Next Unfinished) to
+move to the next unfinished translation. An unfinished translation is
+one that either has not been translated at all or one which fails
+validation. To move to the next phrase press <em>Shift+Ctrl+L</em>. You can also
+navigate using the Translation menu. If you want to go to a different
+context entirely, click the context you want to work on in the Context
+list, then click the source text in the Source Text area.
 
 <h3><a name="Phrases_That_Require_Multiple_Translations_Depending_on_Context">
 Phrases That Require Multiple Translations Depending on Context</a></h3>
@@ -305,19 +370,19 @@ The same phrase may occur in two or more contexts without conflict. Once
 a phrase has been translated in one context, <em>Qt Linguist</em> notes
 that the translation has been made and when the translator reaches a
 later occurrence of the same phrase <em>Qt Linguist</em> will provide
-the previous translation as a possible translation candidate. If the
+the previous translation as a possible translation candidate in the
+phrases and guesses area. If the
 previous translation is acceptable just click the <em>Done & Next</em>
-button (press Alt+D) to move on to the next phrase.
+button (press Alt+N) to move on to the next unfinished phrase.
 
 If a phrase occurs more than once in a particular context it will only
-be shown once in <em>Qt Linguist's</em> left hand source text pane and
+be shown once in <em>Qt Linguist's</em> context list and
 the translation will be applied to every occurrence within the context.
 If the same phrase needs to be translated differently within the same
 context the programmer must provide a distinguishing comment for each of
 the phrases concerned. If such comments are used the duplicate phrases
-will appear in the left hand source text pane whilst the phrase, the
-programmer's comment and the context are shown in the top right pane so
-that the translator can distinguish between the identical source texts.
+will appear in the context list. The programmers comments will appear in
+the translation area on a light blue background. 
 
 <h3><a name="Changing_Keyboard_Accelerators">
 Changing Keyboard Accelerators</a></h3>
@@ -353,7 +418,7 @@ called \e New. In many applications this will appear as
 <em><u>N</u>ew... Ctrl+N</em>. This menu option could be invoked by
 clicking \e File then clicking \e New with the mouse. Or you could press
 Alt+F then press N since these letters are underlined. But the same
-thing can be achieved simply by pressing Ctrl+N. Accelerators that use
+thing can be achieved simply by pressing <em>Ctrl+N</em>. Accelerators that use
 the Ctrl key are shown literally in the source text, e.g.
 <em>Ctrl+N</em>. Ctrl key accelerators have no phrase so the translator
 must rely on the programmer to add a "comment" which appears in the
@@ -390,18 +455,12 @@ and similarly \c %2, etc.
 <h3><a name="Reusing_Translations">Reusing Translations</a></h3>
 
 If the translated text is similar to the source text, click the
-<em>Start from Source</em> button (press Alt+S) which will copy the
-source text into the translation pane. 
+<em>Start from Source</em> button (press Alt+T) which will copy the
+source text into the translation area. 
 
-If you have translated a phrase that is the same or similar to one you
-are about to translate, click the <em>Guess Again</em> button (press
-Alt+G) to force <em>Qt Linguist</em> to try to find a close match to use
-as the initial translation.
-
-If the source phrase matches a source phrase in the current phrase book,
-<em>Qt Linguist</em> will display the phrase and its translation in the
-phrase book pane at the bottom right of the main window. Double clicking
-the target phrase will copy it to the translation pane. 
+<em>Qt Linguist</em> automatically lists phrases from the open phrase
+books and similar or identical phrases that have already been translated
+in the Phrases and guesses area.
 
 <h2><a name="Creating_and_Using_Phrase_Books">
 Creating and Using Phrase Books</a></h2>
@@ -418,12 +477,12 @@ If the translator reaches an untranslated phrase that is the same as a
 source phrase in the phrase book, <em>Qt Linguist</em> will show the
 phrase book entry in the <em>Relevant phrases</em> panel at the bottom
 right of the main window. Phrases which have translations that conflict
-with those given in the phrase book are marked "(?)" in the source text
-pane. Phrase Books are used to provide a common set of translations to
-help ensure consistency. They can also be used to avoid duplication of
-effort since the translations for a family of applications can be
-produced once in the phrase book and the phrase book used for the
-majority of translations in each application.
+with those given in the phrase book are marked with a question mark in
+the source text pane. Phrase Books are used to provide a common set of
+translations to help ensure consistency. They can also be used to avoid
+duplication of effort since the translations for a family of
+applications can be produced once in the phrase book and the phrase book
+used for the majority of translations in each application.
 
 Before a phrase book can be edited it must be created or if it already
 exists, opened. Create a new phrase book by selecting
@@ -472,18 +531,19 @@ the phrase book.
 
 Validation may be switched on or off from the menu bar's Validation item
 or using the toolbar buttons. Phrases that fail validation are marked
-with "(?)" in the source text pane. If you switch validation off and
-then switch it on later <em>Qt Linguist</em> will recheck all phrases
-and mark any that fail validation.
+with a question mark in the source text pane. If you switch validation
+off and then switch it on later <em>Qt Linguist</em> will recheck all
+phrases and mark any that fail validation.
 
 If any phrase in a context is invalid the context itself will be marked
-with "(?)"; if all the phrases in a context are done and valid the
-context will be marked with "X", otherwise the context is left unmarked.
+with a question mark; if all the phrases in a context are done and valid the
+context will be marked with a tick, otherwise the context has a question
+mark.
 
-Note that only phrases which are marked as done, "X", will be appear in
-the application. Invalid phrases and phrases which are translated but
-not marked as done are kept in the translation source file but are not
-used by the application.
+Note that only phrases which are marked as done, (with a tick), will be
+appear in the application. Invalid phrases and phrases which are
+translated but not marked as done are kept in the translation source
+file but are not used by the application.
 
 <h2><a name="Qt_Linguist_Reference">Qt Linguist Reference</a></h2>
 
@@ -505,27 +565,6 @@ files containing standard phrases and their translations. These files
 are created and updated by <em>Qt Linguist</em> and may be used by any
 number of projects and applications.
 </ul>
-
-<h3><a name="The_Main_Window">The Main Window</a></h3>
-
-The main window is divided into four main areas. 
-
-<ul>
-<li>The left of the window contains the 
-<a href="#The_Source_Text_Pane">Source Text Pane</a> that lists all the
-phrases in the \c .ts translations source file in a tree view grouped by
-contexts.
-<li>The top right area is the
-<a href="#The_Source_Text_Comments_Pane">Source Text and Comments
-Pane</a> for the current phrase.
-<li>The middle right area is the 
-<a href="#The_Translation_Pane">Translation Pane</a>.
-<li>The bottom right area contains the
-<a href="#The_Phrasebook_Pane">Phrase Book Pane</a>
-and the <a href="#The_Command_Buttons">Command Buttons</a>.
-</ul>
-
-These areas are described after the menu bar and toolbar descriptions. 
 
 <h3><a name="The_Menu_Bar">The Menu Bar</a></h3>
 
@@ -658,115 +697,13 @@ the clipboard.</dd>
 <dd>Set phrase book validation on or off.</dd>
 </dl>
 
-<h3><a name="The_Source_Text_Pane">The Source Text Pane</a></h3>
-
-<center><img src="images/sourcetext.png" alt="The Source Text Pane">
-<h5>The Source Text Pane</h5></center>
-
-This pane is on the left hand side of the main window. It shows a tree
-view of all the contexts and within each context its phrases. A second
-column called "Done" is used to mark the phrases and contexts. 
-
-An "X" next to a source phrase signifies that it has been translated and
-marked as "done". An "(?)" signifies a translation which has a
-validation conflict. An "(obs.)" signifies an obsolete translation, i.e.
-a translation used in a previous version of the application but which is
-not in the current version. 
-
-An "X" next to a context signifies that all the phrases in that context
-have been translated. A "(?)" next to a context signifies that one or
-more phrases in the context have a translation validation conflict. 
-
-The "X" mark is important since only source phrases that are marked with
-it have their translations used in the application. This mark can be
-added or removed from a source phrase by clicking in the "Done" column
-of the source text pane to the right of the source text or by clicking
-the "Done" checkbox above the command buttons. (The checkbox only
-affects the source text highlighted in the source text pane.)  The "X"
-mark can only be added to source texts which have a translation that
-passes validation. 
-
-The contexts are ordered alphabetically. The phrases within each context
-are in the order in which they appear in the source program and this may
-not be the order in which they are shown on screen. 
-
-<h3><a name="The_Source_Text_Comments_Pane">
-The Source Text and Comments Pane</a></h3>
-
-<center><img src="images/sourcetextandcomments.png" alt="The Source Text and
-Comments Pane"><h5>The Source Text and Comments Pane</h5></center>
-
-The source text and comments pane is at the top right of the main
-window. It is divided into three sections. The top section shows the
-source phrase. The middle section, between the two lines, shows the
-programmer's comment if there is one -- this is used to disambiguate
-between otherwise identical source texts. The bottom section, below
-the two lines, shows the context -- this is normally a single word (the
-class-name in programmer's parlance) and a comment that should contain
-information about the context, e.g. how to navigate to where the text
-appears in the application so that the translator can see what it looks
-like.
-
-<h3><a name="The_Translation_Pane">The Translation Pane</a></h3>
-
-<center><img src="images/translation.png" alt="The Translation Pane">
-<h5>The Translation Pane</h5></center>
-
-This is the middle right pane of the main window. Translations are
-entered and edited here.
-
-<h3><a name="The_Phrasebook_Pane">The Phrase Book List</a></h3>
-
-<center><img src="images/phrasebook.png" alt="The Phrase Book List">
-<h5>The Phrase Book List</h5></center>
-
-This is in the bottom right section of the main window. Whenever a
-source text appears in the <em>source text and comments pane</em> that
-has one or more translations in the current phrase book, these phrases
-automatically appear in the phrase book's <em>relevant phrases</em>
-list. See the <a href="#Creating_and_Using_Phrase_Books">
-"Creating and Using Phrase Books"</a> section.
-
-<h3><a name="The_Command_Buttons">The Command Buttons</a></h3>
-
-<!-- <img src="images/buttons.png"> -->
-
-<dl>
-<dt><img src="images/startfromsource.png"></dt>
-<dd>Copy the source text into the translation pane; see the 
-<a href="#Reusing_Translations">"Reusing Translations"</a> section.</dd>
-<dt><p><img src="images/guessagain.png"></dt>
-<dd>Force <em>Qt Linguist</em> to insert the translation of an identical
-or similar source text if any; see the 
-<a href="#Reusing_Translations">"Reusing Translations"</a> section.</dd>
-<dt><p><img src="images/skip.png"></dt>
-<dd>Skip the current source text and move onto the next source text; see
-the <a href="#Leaving_a_Translation_for_Later">"Leaving a Translation
-for Later"</a> section. </dd>
-<dt><p><img src="images/doneandnext.png"></dt>
-<dd>Mark the current source text's translation as "done" (place an "X"
-beside it and check the <a href="#The_Done_Checkbox">Done Checkbox</a>)
-and move on to the next source text.</dd>
-</dl>
-
-<h3><a name="The_Done_Checkbox">The Done Checkbox</a></h3>
-
-<center><img src="images/donecheckbox.png" alt="The Done Checkbox">
-<h5>The Done Checkbox</h5></center>
-
-This checkbox indicates whether or not a phrase has been translated
-performing the same function as the "X" in the <a
-href="#The_Source_Text_Pane">Source Text Pane</a>. This checkbox is
-checked automatically if you press the <em>Done & Next</em> button
-(press Alt+D) providing no validation error occurs.
-
 <h3><a name="The_Find_Dialog">The Find Dialog</a></h3>
 
 <center><img src="images/finddialog.png" alt="The Find Dialog">
 <h5>The Find Dialog</h5></center>
 
-Choose <em>Edit|Find</em> from the menu bar or press Ctrl+F to pop up
-the Find dialog. Press F3 to repeat the last search. By default the
+Choose <em>Edit|Find</em> from the menu bar or press <em>Ctrl+F</em> to pop up
+the Find dialog. Press <em>F3</em> to repeat the last search. By default the
 source phrases, translations and comments will all be searched and the
 search will be case-insensitive. These settings can be changed by
 checking or unchecking the checkboxes to reflect your preferences. 
@@ -836,7 +773,7 @@ produce the \c .qm files used by the application at runtime.
 For \e lupdate to work successfully, it must know which translation
 files to produce. The files are simply listed in the application's \c
 .pro Qt project file, for example:
-\dontinclude tt2/tt2.pro
+\walkthrough tt2/tt2.pro
 \skip TRANSLATIONS
 \line TRANSLATIONS
 \until ^$
@@ -846,14 +783,14 @@ See the <a href="#lupdate">"lupdate"</a> and
 
 <h3><a name="Loading_Translations">Loading Translations</a></h3>
 
-\dontinclude tt1/main.cpp
+\walkthrough tt1/main.cpp
 \skip main(
 \line main(
 \until QApplication
 
 This is how the \c main() function of a canonical Qt application begins.
 
-\dontinclude tt1/main.cpp
+\walkthrough tt1/main.cpp
 \skip main(
 \line main(
 \until app.installTrans
@@ -862,7 +799,7 @@ For a translation-aware application a translator object is created, a
 translation loaded and the translator object installed into the
 application.
 
-\dontinclude tt2/main.cpp
+\walkthrough tt2/main.cpp
 \skip main(
 \line main(
 \until app.installTrans
@@ -934,7 +871,7 @@ and
 
 Ctrl key accelerators are also translatable:
 
-\dontinclude tt3/mainwindow.cpp
+\walkthrough tt3/mainwindow.cpp
 \skip quit()
 \line quit()
 \until Quit
@@ -996,11 +933,11 @@ from the Qt tutorial, with a Latin translation.
 The <em>Tutorial 1 Screenshot, English version</em>, above, shows the
 English version.
 
-\dontinclude tt1/main.cpp
+\walkthrough tt1/main.cpp
 
 <h4>Line by Line Walk-Through</h4>
 
-\dontinclude tt1/main.cpp
+\walkthrough tt1/main.cpp
 
 \skip qtranslator
 \line qtranslator
@@ -1056,7 +993,7 @@ for the project.  The project file can be a
 <a href="http://www.trolltech.com/freebies/tmake.html">tmake</a>
 project file, or even an ordinary makefile.  Any file that contains
 
-\dontinclude tt1/tt1.pro
+\walkthrough tt1/tt1.pro
 
 \skip SOURCES
 \line SOURCES
@@ -1209,7 +1146,7 @@ ArrowPad subclass which is a subclass of
 <em>Tutorial 2 Screenshot, English version</em>, above, the central
 widget with the four buttons is an ArrowPad.
 
-\dontinclude tt2/arrowpad.h
+\walkthrough tt2/arrowpad.h
 \skip class ArrowPad
 \line class ArrowPad
 
@@ -1237,7 +1174,7 @@ conflicts.
 In \link tt2-arrowpad-cpp.html arrowpad.cpp\endlink we implement the
 ArrowPad class.
 
-\dontinclude tt2/arrowpad.cpp
+\walkthrough tt2/arrowpad.cpp
 \skip QPushButton
 \line QPushButton
 
@@ -1249,7 +1186,7 @@ user-visible text.
 alt="Screenshot of the English version of tutorial 2">
 <h5>Tutorial 2 Screenshot, English version</h5></center>
 
-\dontinclude tt2/mainwindow.h
+\walkthrough tt2/mainwindow.h
 \skip QMainWindow
 \line QMainWindow
 \until Q_OBJECT
@@ -1264,7 +1201,7 @@ In the implementation of MainWindow,
 \link tt2-mainwindow-cpp.html mainwindow.cpp\endlink,
 we create an instance of our ArrowPad class
 
-\dontinclude tt2/mainwindow.cpp
+\walkthrough tt2/mainwindow.cpp
 \skip arrow pad
 \line arrow pad
 
@@ -1287,7 +1224,7 @@ argument describing the function that the accelerator performs.
 Our \c main() function is defined in 
 \link tt2-main-cpp.html main.cpp\endlink as usual.
 
-\dontinclude tt2/main.cpp
+\walkthrough tt2/main.cpp
 \skip QTranslator
 \line QTranslator
 \until install
@@ -1459,7 +1396,7 @@ Version 1.0 consists of these files:
 The PrintPanel is defined in 
 \link tt3-printpanel-h.html printpanel.h\endlink.
 
-\dontinclude tt3/printpanel.h
+\walkthrough tt3/printpanel.h
 \skip QVBox
 \line QVBox
 \until Q_OBJECT
@@ -1470,7 +1407,7 @@ QWidget</a>.  It needs the Q_OBJECT macro for \c tr() to work properly.
 The implementation file is 
 \link tt3-printpanel-cpp.html printpanel.cpp\endlink.
 
-\dontinclude tt3/printpanel.cpp
+\walkthrough tt3/printpanel.cpp
 \skip setSpacing
 \skip /
 \line /
@@ -1482,7 +1419,7 @@ The implementation file is
 Some of the code is commented out in Troll Print 1.0; you will uncomment
 it later, for Troll Print 1.1.
 
-\dontinclude tt3/printpanel.cpp
+\walkthrough tt3/printpanel.cpp
 \skip twoSided
 \line twoSided
 \until \} 
@@ -1502,7 +1439,7 @@ In the implementation,
 \link tt3-mainwindow-cpp.html mainwindow.cpp\endlink, we have some
 user-visible source texts that must be marked for translation.
 
-\dontinclude tt3/mainwindow.cpp
+\walkthrough tt3/mainwindow.cpp
 \skip setCaption
 \line setCaption
 
@@ -1517,7 +1454,7 @@ form of \c tr() is used for the keyboard accelerator, Ctrl+Q, since the
 second argument is the only clue the translator has to indicate what
 function that accelerator will perform. 
 
-\dontinclude tt3/main.cpp
+\walkthrough tt3/main.cpp
 \skip QTranslator
 \until installTranslator
 
