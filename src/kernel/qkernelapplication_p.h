@@ -7,6 +7,7 @@
 #include "qmetaobject.h"
 
 #ifdef Q_OS_WIN32
+Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<bool>;
 Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<int>;
 Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<QString>;
 Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<QByteArray>;
