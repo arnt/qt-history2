@@ -179,13 +179,15 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
                 QString &buildStep = step.buildSteps[iconfig];
                 QStringList &buildOutput = step.buildOutputs[iconfig];
 
-                if (buildStep.isEmpty())
+                if (buildStep.isEmpty() && !i)
                     buildStep = "BuildCmds= \\\n\t";
                 else
                     buildStep += " \\\n\t";
                 QString command(compilerCommands.join(" "));
                 // Might be a macro, and not a valid filename, so the replaceExtraCompilerVariables() would eat it
                 command.replace("${QMAKE_FILE_IN}", fileIn);
+                command.replace("${QMAKE_FILE_BASE}", fileBase);
+                command.replace("${QMAKE_FILE_OUT}", fileOut);
                 command = replaceExtraCompilerVariables(command, fileIn, fileOut);
 
                 buildName = compilerName.first();
