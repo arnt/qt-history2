@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#184 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#183 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#184 $");
 
 
 /*!
@@ -617,7 +617,7 @@ QWidget::~QWidget()
     if ( testWFlags(WExportFontInfo) )		// remove references to this
 	QFontInfo::reset( this );
 
-    if ( isTopLevel() && isVisible() )
+    if ( isTopLevel() && isVisible() && winId() )
 	hide();					// emit lastWindowClosed?
 
     // A parent widget must destroy all its children before destroying itself
