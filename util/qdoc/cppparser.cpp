@@ -268,7 +268,7 @@ static bool matchFunctionDecl( Decl *context )
     bool gotFullName = FALSE;
 
     /*
-      Here is the complicated hack for 'Foo::operator int()'.
+      Here is the hack for 'Foo::operator int()'.
     */
     if ( yyTok == Tok_operator &&
 	 (returnType.isEmpty() ||
@@ -774,6 +774,44 @@ static void matchDocsAndStuff( Emitter *emitter )
 				     QChar('#') + decl->mangledName(),
 			     decl->fullName() );
 		    deleteDoc = FALSE;
+
+		    QMap<QString, QString> itemValues;
+		    StringSet itemNames;
+		    EnumDecl::ItemIterator ii;
+
+		    ii = ((EnumDecl *) decl)->itemBegin();
+		    while ( ii != ((EnumDecl *) decl)->itemEnd() ) {
+			itemValues.insert( (*ii)->name(),
+					   (*ii)->value().toString() );
+			itemNames.insert( (*ii)->name() );
+			++ii;
+		    }
+
+		    StringSet diff;
+		    StringSet::ConstIterator s;
+
+		    diff = difference( en->documentedValues(), itemNames );
+		    s = diff.begin();
+		    while ( s != diff.end() ) {
+			warning( 3, en->location(),
+				 "No such enum value '%s'", (*s).latin1() );
+			++s;
+		    }
+
+		    // the new syntax is not widely adopted yet
+		    if ( !en->documentedValues().isEmpty() ) {
+			diff = difference( itemNames, en->documentedValues() );
+			s = diff.begin();
+			while ( s != diff.end() ) {
+			    // it's OK to have Foo = Bar and only Bar documented
+			    if ( !en->documentedValues()
+					 .contains(itemValues[*s]) )
+				warning( 3, en->location(),
+					 "Undocumented enum value '%s'",
+					 (*s).latin1() );
+			    ++s;
+			}
+		    }
 		} else {
 		    warning( 1, doc->location(),
 			     "Enum or typedef '%s' specified with '\\enum' not"
