@@ -2284,6 +2284,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    }
 	    parag->append( parStr.mid( start ) );
 	    parag->setFormat( start - num, parStr.length() - start, f );
+	    ul->removeRef();
 	} else {
 	    parag->append( parStr );
 	    parag->setFormat( 0, parStr.length(), f );
@@ -2292,6 +2293,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    parag->setTabArray( tabarray );
 	    parag->setTabStops( tabstops );
 	}
+	f->removeRef();
 #if defined(FORMAT_TEXT_DEBUG)
 	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
 #endif

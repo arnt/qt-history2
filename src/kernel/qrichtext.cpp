@@ -59,7 +59,7 @@
 #include <stdlib.h>
 
 //#define PARSER_DEBUG
-//#define DEBUG_COLLECTION ---> also in qrichtext_p.h
+//#define DEBUG_COLLECTION// ---> also in qrichtext_p.h
 //#define DEBUG_TABLE_RENDERING
 
 static QTextFormatCollection *qFormatCollection = 0;
@@ -2224,6 +2224,8 @@ void QTextString::insert( int index, Char *c )
 
 void QTextString::truncate( int index )
 {
+    index = QMAX( index, 0 );
+    index = QMIN( index, (int)data.size() - 1 );
     data.truncate( index );
     textChanged = TRUE;
 }

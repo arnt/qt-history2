@@ -709,6 +709,7 @@ void QLineEdit::paintEvent( QPaintEvent * )
     d->getTextObjects( &parag, &cursor );
     QTextFormat *f = parag->formatCollection()->format( font(), p.pen().color() );
     parag->setFormat( 0, parag->length(), f );
+    f->removeRef();
     int fw = 0;
     if ( frame() )
 	fw = style().defaultFrameWidth();
