@@ -1529,7 +1529,6 @@ fi
 # find default thread option for target
 if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf; then
     AUTOTHREAD=yes
-    AUTOTHREAD=no  ### leave off for now
 else
     AUTOTHREAD=never
 fi
