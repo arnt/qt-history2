@@ -485,9 +485,12 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 	while ( (obj=it.current()) ) {
 	    if ( obj->isWidgetType() ) {
 		QWidget *w = (QWidget *)obj;
-		if ( !w->isPopup() ) {
+		if ( w->isPopup() )
+		    ;
+		else if ( w->isTopLevel() ) 
+		    w->reparent( this, w->getWFlags(), w->pos(), !w->isHidden() );
+		else 
 		    SetParent( w->winId(), winId() );
-		}
 	    }
 	    ++it;
 	}
