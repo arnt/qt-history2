@@ -112,6 +112,7 @@ void Smtp::readyRead()
 	emit status( tr( "Message sent" ) );
     } else if ( state == Close ) {
 	delete this;
+	return;
     } else {
 	// something broke.
 	QMessageBox::warning( qApp->activeWindow(),
