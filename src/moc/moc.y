@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#22 $
+** $Id: //depot/qt/main/src/moc/moc.y#23 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#23 $";
 #endif
 
 
@@ -667,10 +667,10 @@ void generate()                                 // generate C++ source code
     fprintf( out, "class QObject__%s : public QObject\n{\npublic:",
              (pcchar)className );
     fprintf( out, "\n    void setSender( QObject *s ) { sender=s; }\n};\n\n" );
-
+*/
     fprintf( out, "char *%s::className() const\n{\n    ", (pcchar)className );
     fprintf( out, "return \"%s\";\n}\n\n", (pcchar)className );
-*/
+
 //
 // Generate static metaObj variable
 //
