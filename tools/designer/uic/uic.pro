@@ -17,7 +17,8 @@ include( ../../../src/qt_professional.pri )
 
 TARGET		= uic
 INCLUDEPATH	+= ../shared ../../../src/3rdparty/zlib/
-!zlib:unix:LIBS	+= -lz
+unix:!zlib:LIBS	+= -lz
+unix:!system-zlib:LIBS	+= -lz
 DEFINES 	+= UIC
 DESTDIR		= ../../../bin
 
