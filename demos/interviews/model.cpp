@@ -92,9 +92,9 @@ bool Model::hasChildren(const QModelIndex &) const
 
 bool Model::isDragEnabled(const QModelIndex &index) const
 {
-    index.isValid();
+    return index.isValid();
 }
-    
+
 Model::Node *Model::node(int row, Node *parent) const
 {
     if (parent && !parent->children)
