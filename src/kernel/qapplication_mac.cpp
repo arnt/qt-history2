@@ -829,7 +829,7 @@ QSessionManager::~QSessionManager()
 
 QString QSessionManager::sessionId() const
 {
-    return QString;
+    return QString();
 }
 
 bool QSessionManager::allowsInteraction()
@@ -850,11 +850,11 @@ void QSessionManager::cancel()
 {
 }
 
-void QSessionManager::setRestartHint( RestartHint ) const
+void QSessionManager::setRestartHint( RestartHint )
 {
 }
 
-QSessionManager::RestartHint QSessionManager::restartHint()
+QSessionManager::RestartHint QSessionManager::restartHint() const
 {
     return QSessionManager::RestartIfRunning;
 }
@@ -865,7 +865,7 @@ void QSessionManager::setRestartCommand( const QStringList& )
 
 QStringList QSessionManager::restartCommand() const
 {
-    return QStringList;
+    return QStringList();
 }
 
 void QSessionManager::setDiscardCommand( const QStringList& )
@@ -874,7 +874,7 @@ void QSessionManager::setDiscardCommand( const QStringList& )
 
 QStringList QSessionManager::discardCommand() const
 {
-    return QStringList;
+    return QStringList();
 }
 
 void QSessionManager::setProperty( const QString& name, const QString& value )
