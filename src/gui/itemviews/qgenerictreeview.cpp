@@ -190,7 +190,7 @@ bool QGenericTreeView::isOpen(const QModelIndex &item) const
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
     QPainter painter(d->viewport);
-    QRect area = d->viewport->rect();//e->rect();
+    QRect area = e->rect();
 
     if (d->items.isEmpty())
         return;
@@ -211,7 +211,6 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
     QModelIndex current = selectionModel()->currentItem();
-    bool reverse = QApplication::reverseLayout();
 
     int v = verticalScrollBar()->value();
     int h = d->viewport->height();
@@ -272,7 +271,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 
 void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
-    painter->drawRect(rect);
+//    painter->drawRect(rect);
     
     QModelIndex parent = model()->parent(index);
     QModelIndex current = parent;
@@ -460,14 +459,29 @@ void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::Sele
 
 QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const
 {
-    int topPos = 0xFFFFFFFF; // FIXME: use Q_MAX_INT or something
-    int bottomPos = 0;
+    if (!selection.count())
+        return QRect();
+        
+    QModelIndex bottomRight = model()->bottomRight(root());
+    int top = d->items.count();
+    int bottom = 0;
+    int v = verticalScrollBar()->value();
     QItemSelectionRange r;
+    QModelIndex topIndex, bottomIndex;
     for (int i = 0; i < selection.count(); ++i) {
         r = selection.at(i);
-        topPos = qMin(itemViewportRect(model()->index(r.top(), r.left(), r.parent())).top(), topPos);
-        bottomPos = qMax(itemViewportRect(model()->index(r.bottom(), r.left(), r.parent())).bottom() + 1, bottomPos);
+        topIndex = model()->index(r.top(), r.left(), r.parent());
+        top = qMin(d->viewIndex(topIndex, v), top);
+        bottomIndex = model()->index(r.bottom(), r.left(), r.parent());
+        bottom = qMax(d->viewIndex(bottomIndex, v), bottom);
     }
+
+    QItemOptions options;
+    getViewOptions(&options);
+    int bottomHeight = itemDelegate()->sizeHint(fontMetrics(), options, bottomIndex).height();
+    int bottomPos = d->coordinate(bottom, v) + bottomHeight;
+    int topPos = d->coordinate(top, v);
+    
     return QRect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
 }
 
@@ -475,6 +489,7 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
     int hscroll = 0;
     int vscroll = 0;
+    bool reverse = QApplication::reverseLayout();
     if (dx) {
         int value = horizontalScrollBar()->value();
         int section = d->header->section(value / d->horizontalFactor);
@@ -482,6 +497,8 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
         int offset = (left / d->horizontalFactor) + d->header->sectionPosition(section);
         hscroll = d->header->offset() - offset;
         d->header->setOffset(offset);
+        //d->viewport->update();
+        //return;
     } else
     if (dy) {
         /*
@@ -634,10 +651,10 @@ void QGenericTreeView::updateGeometries()
     QSize hint = d->header->sizeHint();
     setViewportMargins(0, hint.height(), 0, 0);
 
-    bool reverse = QApplication::reverseLayout();
     QRect vg = d->viewport->geometry();
-    d->header->setGeometry(reverse ? vg.right() - hint.width() : vg.left(),
-                           vg.top() - hint.height() - 1, vg.width(), hint.height());
+    d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
+    if (QApplication::reverseLayout())
+        d->header->setOffset(vg.right() - hint.width() + vg.left()/* + d->header->offset()*/);
 
     // update sliders
     QItemOptions options;
@@ -655,8 +672,7 @@ void QGenericTreeView::updateGeometries()
          max += 1 + (verticalFactor() * -h /
                      itemDelegate()->sizeHint(fontMetrics(), options, d->modelIndex(item)).height());
     verticalScrollBar()->setRange(0, max);
-
-    // horizontal
+    
     int w = viewport()->width();
     int col = model()->columnCount(0);
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
@@ -713,6 +729,7 @@ void QGenericTreeView::verticalScrollbarAction(int action)
 
 void QGenericTreeView::horizontalScrollbarAction(int action)
 {
+    // horizontal
     int factor = d->horizontalFactor;
     int value = horizontalScrollBar()->value();
     int column = value / factor;

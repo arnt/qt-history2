@@ -157,7 +157,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 {
     QPainter painter(d->viewport);
     QRect area = e->rect();
-
+    
     int offset = this->offset();
 
     QItemOptions options;
@@ -720,11 +720,11 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
 {
     QModelIndex bottomRight = model()->bottomRight(0);
     if (orientation() == Horizontal) {
-        int left = bottomRight.row();
+        int left = bottomRight.column();
         int right = 0;
         int rangeLeft, rangeRight;
-        int i;
-        for (i = 0; i < selection.count(); ++i) {
+        
+        for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange r = selection.at(i);
             if (r.parent().isValid())
                 continue; // we only know about toplevel items
@@ -736,16 +736,21 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
             if (rangeRight > right)
                 right = rangeRight;
         }
-        int leftPos = sectionPosition(left) - offset();
-        int rightPos = sectionPosition(right) + sectionSize(right) - offset();
+
+        int leftSec = section(left);
+        int rightSec = section(right);
+        
+        int leftPos = sectionPosition(leftSec) - offset();
+        int rightPos = sectionPosition(rightSec) + sectionSize(rightSec) - offset();
+        
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
     // orientation() == Vertical
-    int top = bottomRight.column();
+    int top = bottomRight.row();
     int bottom = 0;
     int rangeTop, rangeBottom;
-    int i;
-    for (i = 0; i < selection.count(); ++i) {
+
+    for (int i = 0; i < selection.count(); ++i) {
         QItemSelectionRange r = selection.at(i);
         if (r.parent().isValid())
             continue; // we only know about toplevel items
@@ -757,8 +762,13 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
         if (rangeBottom > bottom)
             bottom = rangeBottom;
     }
-    int topPos = sectionPosition(top) - offset();
-    int bottomPos = sectionPosition(bottom) + sectionSize(bottom) - offset();
+
+    int topSec = section(top);
+    int bottomSec = section(bottom);
+    
+    int topPos = sectionPosition(topSec) - offset();
+    int bottomPos = sectionPosition(bottomSec) + sectionSize(bottomSec) - offset();
+    
     return QRect(0, topPos, width(), bottomPos - topPos);
 }
 

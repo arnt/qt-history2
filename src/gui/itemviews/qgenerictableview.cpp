@@ -323,9 +323,6 @@ void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::Sel
 
 QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) const
 {
-    // We only care about the root level in the model.
-    // Also, as the table displays the items as they are stored in the model,
-    // we only need the top ledf and bottom right items.
     QModelIndex bottomRight = model()->bottomRight(root());
     int top = bottomRight.row();
     int left = bottomRight.column();
@@ -336,7 +333,7 @@ QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) 
     for (i = 0; i < selection.count(); ++i) {
         QItemSelectionRange r = selection.at(i);
         if (r.parent().isValid())
-            continue; // FIXME: table don't know about anything but toplevel items
+            continue;
         rangeTop = d->leftHeader->index(r.top());
         rangeLeft = d->topHeader->index(r.left());
         rangeBottom = d->leftHeader->index(r.bottom());
@@ -350,10 +347,17 @@ QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) 
         if (rangeRight > right)
             right = rangeRight;
     }
-    int leftPos = columnViewportPosition(left);
-    int topPos = rowViewportPosition(top);
-    int rightPos = columnViewportPosition(right) + columnWidth(right);
-    int bottomPos = rowViewportPosition(bottom) + rowHeight(bottom);
+
+    int leftCol = d->topHeader->section(left);
+    int topRow = d->leftHeader->section(top);
+    int rightCol = d->topHeader->section(right);
+    int bottomRow = d->leftHeader->section(bottom);
+    
+    int leftPos = columnViewportPosition(leftCol);
+    int topPos = rowViewportPosition(topRow);
+    int rightPos = columnViewportPosition(rightCol) + columnWidth(rightCol);
+    int bottomPos = rowViewportPosition(bottomRow) + rowHeight(bottomRow);
+    
     return QRect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
 }
 
