@@ -10,7 +10,7 @@
 //
 // TeamPicker editor widget
 //
-TeamPicker::TeamPicker( QWidget * parent = 0, const char * name = 0 )
+TeamPicker::TeamPicker( QWidget * parent, const char * name )
     : QComboBox( parent, name )
 {
     QSqlCursor team( "team" );
@@ -114,7 +114,7 @@ void TeamEditor::removePlayer()
 //
 //  Statistics class
 //
-Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
+Statistics::Statistics( QWidget * parent, const char * name )
     : StatisticsBase( parent, name )
 {
     update();
@@ -222,7 +222,7 @@ void Statistics::update()
 //
 //  HighscoreList class
 //
-HighscoreList::HighscoreList( QWidget * parent = 0, const char * name = 0 )
+HighscoreList::HighscoreList( QWidget * parent, const char * name )
     : QWidget( parent, name )
 {
     QGridLayout * g = new QGridLayout( this );

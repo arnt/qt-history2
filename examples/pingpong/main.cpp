@@ -10,7 +10,7 @@ int main( int argc, char ** argv )
     db->setDatabaseName( "pingpong" );
     db->setUserName( "db" );
     db->setPassword( "db" );
-    db->setHostName( "silverfish" );
+    db->setHostName( "silverfish.troll.no" );
 
     if( !db->open() ){
 	qWarning( "Unable to open database: " + db->lastError().driverText());
