@@ -2933,7 +2933,7 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
 				      QTextFormat *lastFormat, int i, int *selectionStarts,
 				      int *selectionEnds, const QColorGroup &cg )
 {
-    qDebug("printing %s len=%d", buffer.utf8().data(), buffer.length());
+    //qDebug("printing %s len=%d", buffer.utf8().data(), buffer.length());
     painter.setPen( QPen( lastFormat->color() ) );
     painter.setFont( lastFormat->font() );
 
