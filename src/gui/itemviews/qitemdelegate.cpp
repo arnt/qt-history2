@@ -174,7 +174,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     const QPoint pt(0, 0);
     const QSize sz(border * 2, border * 2);
 
-    Q_ASSERT(index.isValid);
+    Q_ASSERT(index.isValid());
     const QAbstractItemModel *model = index.model();
     Q_ASSERT(model);
 
