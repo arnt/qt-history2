@@ -26,7 +26,7 @@ class Q_GUI_EXPORT QModelIndex
     friend class QAbstractItemModel;
 public:
     enum Type { Null };
-    inline QModelIndex(Type type = Null) : r(-1), c(-1), d(0) {}
+    inline QModelIndex(Type = Null) : r(-1), c(-1), d(0) {}
     inline QModelIndex(const QModelIndex &other)
         : r(other.row()), c(other.column()), d(other.data()) {}
     inline ~QModelIndex() { d = 0; }
@@ -194,7 +194,7 @@ signals:
 
 protected slots:
     void resetPresistentIndexes();
-    
+
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
@@ -246,9 +246,9 @@ public:
 
     virtual int rowCount() const = 0;
     int columnCount() const { return 1; }
-    
+
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::Null) const;
-    
+
 protected:
     QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
