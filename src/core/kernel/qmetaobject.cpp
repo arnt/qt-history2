@@ -1262,9 +1262,12 @@ int QMetaProperty::type() const
     int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
 
     uint type = flags >> 24;
-    if (!type)
-        type = QMetaType::type(typeName());
-    return type;
+    if (type)
+        return type;
+    if (isEnumType())
+        return QCoreVariant::Int;
+
+    return QCoreVariant::UserType;
 }
 
 
