@@ -2199,10 +2199,14 @@ void QApplication::openPopup(QWidget *popup)
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
     QFocusEvent::setReason(QFocusEvent::Popup);
-    if (popup->focusWidget())
+    if (popup->focusWidget()) {
         popup->focusWidget()->setFocus();
-    else
-        popup->setFocus();
+    } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
+        if (QWidget *fw = focusWidget()) {
+            QFocusEvent e(QEvent::FocusOut);
+            sendEvent(fw, &e);
+        }
+    }
     QFocusEvent::resetReason();
 }
 
@@ -2216,7 +2220,7 @@ void QApplication::closePopup(QWidget *popup)
     replayPopupMouseEvent = (!popup->geometry().contains(QPoint(curPos.x, curPos.y))
                              && !popup->testAttribute(Qt::WA_NoMouseReplay));
 
-    if (QApplicationPrivate::popupWidgets->count() == 0) { // this was the last popup
+    if (QApplicationPrivate::popupWidgets->isEmpty()) { // this was the last popup
         delete QApplicationPrivate::popupWidgets;
         QApplicationPrivate::popupWidgets = 0;
         if (!popup->isEnabled())
@@ -2225,10 +2229,14 @@ void QApplication::closePopup(QWidget *popup)
             releaseAutoCapture();
         if (QApplicationPrivate::active_window) {
             QFocusEvent::setReason(QFocusEvent::Popup);
-            if (QApplicationPrivate::active_window->focusWidget())
-                QApplicationPrivate::active_window->focusWidget()->setFocus();
-            else
-                QApplicationPrivate::active_window->setFocus();
+            if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
+                if (fw != focusWidget()) {
+                    fw->setFocus();
+                } else {
+                    QFocusEvent e(QEvent::FocusIn);
+                    sendEvent(fw, &e);
+                }
+            }
             QFocusEvent::resetReason();
         }
     } else {
@@ -2240,10 +2248,8 @@ void QApplication::closePopup(QWidget *popup)
         QWidget* aw = QApplicationPrivate::popupWidgets->last();
         if (QApplicationPrivate::popupWidgets->count() == 1)
             setAutoCapture(aw->winId());
-        if (aw->focusWidget())
-            aw->focusWidget()->setFocus();
-        else
-            aw->setFocus();
+        if (QWidget *fw = aw->focusWidget())
+            fw->setFocus();
         QFocusEvent::resetReason();
     }
 }
