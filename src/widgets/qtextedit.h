@@ -159,8 +159,9 @@ public:
     int paragraphLength( int para ) const;
 
     QStyleSheet* styleSheet() const;
+#ifndef QT_NO_MIME
     QMimeSourceFactory* mimeSourceFactory() const;
-
+#endif
     QBrush paper() const;
     bool linkUnderline() const;
 
@@ -209,7 +210,9 @@ public:
 
 public slots:
     void setEnabled( bool );
+#ifndef QT_NO_MIME
     virtual void setMimeSourceFactory( QMimeSourceFactory* factory );
+#endif
     virtual void setStyleSheet( QStyleSheet* styleSheet );
     virtual void scrollToAnchor( const QString& name );
     virtual void setPaper( const QBrush& pap );

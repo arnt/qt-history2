@@ -65,7 +65,6 @@
 #include "qvaluestack.h"
 #include "qobject.h"
 #include "qdict.h"
-#include "qtextstream.h"
 #include "qpixmap.h"
 #include "qstylesheet.h"
 #include "qptrvector.h"
@@ -91,7 +90,9 @@ class QTextFormatter;
 class QTextIndent;
 class QTextFormatCollection;
 class QStyleSheetItem;
+#ifndef QT_NO_TEXTCUSTOMITEM
 class QTextCustomItem;
+#endif
 class QTextFlow;
 struct QBidiContext;
 
@@ -121,16 +122,23 @@ public:
     int descent() const;
     bool isCustom() const { return type == Custom; }
     QTextFormat *format() const;
+#ifndef QT_NO_TEXTCUSTOMITEM
     QTextCustomItem *customItem() const;
+#endif
     void setFormat( QTextFormat *f );
+#ifndef QT_NO_TEXTCUSTOMITEM
     void setCustomItem( QTextCustomItem *i );
+#endif
     QTextStringChar *clone() const;
     struct CustomData
     {
 	QTextFormat *format;
+#ifndef QT_NO_TEXTCUSTOMITEM
 	QTextCustomItem *custom;
+#endif
     };
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     void loseCustomItem()
     {
 	if ( isCustom() ) {
@@ -141,6 +149,7 @@ public:
 	    d.format = f;
 	}
     }
+#endif
 
      struct MarkData
     {
@@ -314,8 +323,9 @@ private:
     void pop();
     void processNesting( Operation op );
     void invalidateNested();
+#ifndef QT_NO_TEXTCUSTOMITEM
     void gotoIntoNested( const QPoint &globalPos );
-
+#endif
     QTextParag *string;
     QTextDocument *doc;
     int idx, tmpIndex;
@@ -385,6 +395,7 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 class Q_EXPORT QTextCustomItem
 {
 public:
@@ -433,6 +444,7 @@ public:
 
     virtual void pageBreak( int  y, QTextFlow* flow );
 };
+#endif
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
@@ -440,6 +452,7 @@ template class Q_EXPORT QMap<QString, QString>;
 // MOC_SKIP_END
 #endif
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 class Q_EXPORT QTextImage : public QTextCustomItem
 {
 public:
@@ -465,7 +478,9 @@ private:
     QString imgId;
 
 };
+#endif
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 class Q_EXPORT QTextHorizontalLine : public QTextCustomItem
 {
 public:
@@ -484,17 +499,22 @@ private:
     QColor color;
 
 };
+#endif
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 template class Q_EXPORT QPtrList<QTextCustomItem>;
 // MOC_SKIP_END
 #endif
+#endif
 
 class Q_EXPORT QTextFlow
 {
     friend class QTextDocument;
+#ifndef QT_NO_TEXTCUSTOMITEM
     friend class QTextTableCell;
+#endif
 
 public:
     QTextFlow();
@@ -509,8 +529,10 @@ public:
     virtual int adjustLMargin( int yp, int h, int margin, int space );
     virtual int adjustRMargin( int yp, int h, int margin, int space );
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     virtual void registerFloatingItem( QTextCustomItem* item );
     virtual void unregisterFloatingItem( QTextCustomItem* item );
+#endif
     virtual QRect boundingRect() const;
     virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
 
@@ -524,13 +546,15 @@ private:
     int w;
     int pagesize;
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     QPtrList<QTextCustomItem> leftItems;
     QPtrList<QTextCustomItem> rightItems;
-
+#endif
 };
 
 inline int QTextFlow::width() const { return w; }
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 class QTextTable;
 
 class Q_EXPORT QTextTableCell : public QLayoutItem
@@ -596,6 +620,7 @@ private:
     QMap<QString, QString> attributes;
     int align;
 };
+#endif
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
@@ -604,6 +629,7 @@ template class Q_EXPORT QMap<QTextCursor*, int>;
 // MOC_SKIP_END
 #endif
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 class Q_EXPORT QTextTable: public QTextCustomItem
 {
     friend class QTextTableCell;
@@ -665,10 +691,12 @@ private:
     void adjustCells( int y , int shift );
     int pageBreakFor;
 };
-
+#endif
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 class QTextTableCell;
+#endif
 class QTextParag;
 
 struct Q_EXPORT QTextDocumentSelection
@@ -790,14 +818,18 @@ public:
     bool inSelection( int selId, const QPoint &pos ) const;
 
     QStyleSheet *styleSheet() const { return sheet_; }
+#ifndef QT_NO_MIME
     QMimeSourceFactory *mimeSourceFactory() const { return factory_; }
+#endif
     QString context() const { return contxt; }
 
     void setStyleSheet( QStyleSheet *s );
     void updateStyles();
     void updateFontSizes( int base );
     void updateFontAttributes( const QFont &f, const QFont &old );
+#ifndef QT_NO_MIME
     void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
+#endif
     void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
 
     void setUnderlineLinks( bool b ) { underlLinks = b; }
@@ -817,8 +849,10 @@ public:
 
     void setDefaultFont( const QFont &f );
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     void registerCustomItem( QTextCustomItem *i, QTextParag *p );
     void unregisterCustomItem( QTextCustomItem *i, QTextParag *p );
+#endif
 
     void setFlow( QTextFlow *f );
     void takeFlow();
@@ -877,7 +911,9 @@ private:
     // HTML parser
     bool hasPrefix(const QString& doc, int pos, QChar c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);
+#ifndef QT_NO_TEXTCUSTOMITEM
     QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt, const QString &doc, int& pos, QTextParag *curpar );
+#endif
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);
     QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
@@ -915,7 +951,9 @@ private:
     bool oTextValid : 1;
     int nSelections;
     QTextFlow *flow_;
+#ifndef QT_NO_TEXTCUSTOMITEM  
     QPtrList<QTextCustomItem> customItems;
+#endif
     QTextDocument *par;
     QTextParag *parParag;
     QTextTableCell *tc;
@@ -928,7 +966,9 @@ private:
     int rightmargin;
     QTextParag *minwParag;
     QStyleSheet* sheet_;
+#ifndef QT_NO_MIME
     QMimeSourceFactory* factory_;
+#endif
     QString contxt;
     QMap<QString, QString> attribs;
     int align;
@@ -1224,18 +1264,22 @@ public:
     virtual int lineSpacing() const;
 
     int numberOfSubParagraph() const;
+#ifndef QT_NO_TEXTCUSTOMITEM
     void registerFloatingItem( QTextCustomItem *i );
     void unregisterFloatingItem( QTextCustomItem *i );
+#endif
 
     void setFullWidth( bool b ) { fullWidth = b; }
     bool isFullWidth() const { return fullWidth; }
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     QTextTableCell *tableCell() const { return tc; }
     void setTableCell( QTextTableCell *c ) { tc = c; }
 
     void addCustomItem();
     void removeCustomItem();
     int customItems() const;
+#endif
 
     QBrush *background() const;
 
@@ -1317,9 +1361,11 @@ private:
     int numSubParag;
     int tm, bm, lm, rm, flm;
     QTextFormat *defFormat;
+#ifndef QT_NO_TEXTCUSTOMITEM
     QPtrList<QTextCustomItem> floatingItems;
     QTextTableCell *tc;
     int numCustomItems;
+#endif
     QRect docRect;
     QTextFormatter *pFormatter;
     int *tArray;
@@ -2056,6 +2102,7 @@ inline QTextFormat *QTextParag::paragFormat() const
     return defFormat;
 }
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 inline void QTextParag::registerFloatingItem( QTextCustomItem *i )
 {
     floatingItems.append( i );
@@ -2080,10 +2127,15 @@ inline int QTextParag::customItems() const
 {
     return numCustomItems;
 }
+#endif
 
 inline QBrush *QTextParag::background() const
 {
+#ifndef QT_NO_TEXTCUSTOMITEM
     return tc ? tc->backGround() : 0;
+#else
+    return 0;
+#endif
 }
 
 
@@ -2152,24 +2204,38 @@ inline QTextFormat *QTextStringChar::format() const
 }
 
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 inline QTextCustomItem *QTextStringChar::customItem() const
 {
     return isCustom() ? d.custom->custom : 0;
 }
+#endif
 
 inline int QTextStringChar::height() const
 {
+#ifndef QT_NO_TEXTCUSTOMITEM
     return !isCustom() ? format()->height() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
+#else
+    return format()->height();
+#endif
 }
 
 inline int QTextStringChar::ascent() const
 {
+#ifndef QT_NO_TEXTCUSTOMITEM
     return !isCustom() ? format()->ascent() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->ascent() : 0 );
+#else
+    return format()->ascent();
+#endif
 }
 
 inline int QTextStringChar::descent() const
 {
+#ifndef QT_NO_TEXTCUSTOMITEM
     return !isCustom() ? format()->descent() : 0;
+#else
+    return format()->descent();
+#endif
 }
 
 #endif //QT_NO_RICHTEXT

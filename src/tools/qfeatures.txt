@@ -174,7 +174,7 @@ SeeAlso: ???
 
 Feature: COMPONENT
 Section: File I/O
-Requires: QUUID_STRING DIR SETTINGS
+Requires: QUUID_STRING SETTINGS
 Name: Dynamic module linking
 SeeAlso: ???
 
@@ -318,9 +318,16 @@ SeeAlso: ???
 
 Feature: RICHTEXT
 Section: Widgets
-Requires: MIME TEXTSTREAM DRAWUTIL LAYOUT
+Requires: DRAWUTIL LAYOUT STRINGLIST TEXTSTREAM
 Name: RichText (HTML) display
 SeeAlso: ???
+
+Feature: TEXTCUSTOMITEM
+Section: Widgets
+Requires: RICHTEXT MIME
+Name: RichText (HTML) tables and images
+SeeAlso: ???
+
 
 Feature: COMPLEXTEXT
 Section: Internationalization
@@ -1014,7 +1021,7 @@ SeeAlso: ???
 
 Feature: TEXTBROWSER
 Section: Widgets
-Requires: TEXTVIEW
+Requires: TEXTVIEW MIME
 Name: QTextBrowser
 SeeAlso: ???
 

@@ -167,7 +167,9 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc->flow()->setPageSize( pageBreak );
     d->doc->setPageBreakEnabled( TRUE );
     d->doc->setStyleSheet( (QStyleSheet*)sheet );
+#ifndef QT_NO_MIME
     d->doc->setMimeSourceFactory( (QMimeSourceFactory*)factory );
+#endif
     d->doc->setUnderlineLinks( linkUnderline );
     d->doc->formatCollection()->defaultFormat()->setFont( fnt );
     d->doc->setText( text, context );

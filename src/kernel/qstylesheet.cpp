@@ -1255,6 +1255,7 @@ const QStyleSheetItem* QStyleSheet::item( const QString& name) const
 
   This function should not (yet) be used in application code.
 */
+#ifndef QT_NO_TEXTCUSTOMITEM
 QTextCustomItem* QStyleSheet::tag(  const QString& name,
 				   const QMap<QString, QString> &attr,
 				   const QString& context,
@@ -1274,6 +1275,7 @@ QTextCustomItem* QStyleSheet::tag(  const QString& name,
 	return new QTextHorizontalLine( doc, attr, context, (QMimeSourceFactory&)factory  );
    return 0;
 }
+#endif
 
 
 /*!

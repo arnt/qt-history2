@@ -176,7 +176,9 @@ template class Q_EXPORT QValueList<QStyleSheetItem::ListStyle>;
 // MOC_SKIP_END
 #endif
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 class QTextCustomItem;
+#endif
 
 class Q_EXPORT QStyleSheet : public QObject
 {
@@ -194,11 +196,13 @@ public:
 
     void insert( QStyleSheetItem* item);
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     virtual QTextCustomItem* tag( const QString& name,
 			    const QMap<QString, QString> &attr,
 			    const QString& context,
 			    const QMimeSourceFactory& factory,
 			    bool emptyTag, QTextDocument *doc ) const;
+#endif
 
     static QString escape( const QString& );
     static QString convertFromPlainText( const QString&, QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre );

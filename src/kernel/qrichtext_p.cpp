@@ -43,6 +43,7 @@ QTextCommand::~QTextCommand() {}
 QTextCommand::Commands QTextCommand::type() const { return Invalid; }
 
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 QTextCustomItem::~QTextCustomItem() {}
 void QTextCustomItem::setPainter( QPainter*, bool adjust ){ if ( adjust ) width = 0; }
 QTextCustomItem::Placement QTextCustomItem::placement() const { return PlaceInline; }
@@ -82,13 +83,20 @@ bool QTextCustomItem::up( QTextCursor *, QTextDocument *&doc, QTextParag *&parag
 {
     doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; return TRUE;
 }
+#endif // QT_NO_TEXTCUSTOMITEM
 
 void QTextFlow::setPageSize( int ps ) { pagesize = ps; }
+#ifndef QT_NO_TEXTCUSTOMITEM
 bool QTextFlow::isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
+#else
+bool QTextFlow::isEmpty() { return true; }
+#endif
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 void QTextTableCell::invalidate() { cached_width = -1; cached_sizehint = -1; }
 
 void QTextTable::invalidate() { cachewidth = -1; }
+#endif
 
 QTextParagData::~QTextParagData() {}
 void QTextParagData::join( QTextParagData * ) {}

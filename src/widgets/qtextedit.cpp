@@ -3337,7 +3337,7 @@ bool QTextEdit::linkUnderline() const
 
     \sa mimeSourceFactory()
  */
-
+#ifndef QT_NO_MIME
 void QTextEdit::setMimeSourceFactory( QMimeSourceFactory* factory )
 {
     doc->setMimeSourceFactory( factory );
@@ -3353,6 +3353,7 @@ QMimeSourceFactory* QTextEdit::mimeSourceFactory() const
 {
     return doc->mimeSourceFactory();
 }
+#endif
 
 /*!
     Returns how many pixels high the text edit needs to be to display

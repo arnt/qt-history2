@@ -1062,7 +1062,11 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	return;
 #ifndef QT_NO_CURSOR
     if ( !d->mousePressed ) {
-	if ( !isReadOnly() && dragEnabled() && !QWhatsThis::inWhatsThisMode() ) {
+	if ( !isReadOnly() && dragEnabled() 
+#ifndef QT_NO_WHATSTHIS
+	     && !QWhatsThis::inWhatsThisMode() 
+#endif
+	     ) {
 	    if ( hasSelectedText() &&
 		 inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) )
 		setCursor( arrowCursor );
