@@ -1266,9 +1266,10 @@ void QDnsDomain::add(const QString & label, QDnsRR * rr)
     rr->domain = d;
 }
 
-
 QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 {
+    // this is a tempoary list of resource records which will
+    // eventually be returned as the result of this function.
     QList<QDnsRR *> *l = new QList<QDnsRR *>;
 
     // test at first if you have to start a query at all
@@ -1323,16 +1324,27 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
         qDebug("looking at cache for %s (%s %d)",
                 s.ascii(), r->label().ascii(), r->recordType());
 #endif
+        // get or create a QDnsDomain in QDnsManager's cache for the
+        // current qualified name in the QDns passed as argument. The
+        // d points either to such a cached domain object, which may
+        // or may not have data in it already.
         QDnsDomain * d = m->domain(s);
 #if defined(QDNS_DEBUG)
         qDebug(" - found %d RRs", d ? d->rrs.count() : 0);
 #endif
         bool answer = false;
         int i = 0;
+
+        // check any resource records in the cached domain object
         while (i < d->rrs.count()) {
             QDnsRR *rr = d->rrs.at(i);
             ++i;
 
+            // if we have a Cname in the cache and the user (QDns) is
+            // not explicitly looking for Cname records, then replace
+            // our current query with this Cname. We eventually want
+            // to reach the end of the chain, but will not check more
+            // than 16 levels of Cname redirection.
             if (rr->t == QDns::Cname
                  && r->recordType() != QDns::Cname
                  && !rr->nxdomain && cnamecount < 16) {
@@ -1352,16 +1364,33 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
                 // fooled into an infinte loop as well.
                 cnamecount++;
             } else {
+                // what we have in cache is not a Cname. if this
+                // record's type doesn't match what we're looking for
+                // (r->recordType()), skip to the next record in this
+                // cached domain object. otherwise do this:
                 if (rr->t == r->recordType()) {
                     if (rr->nxdomain)
                         nxdomain = true;
                     else
                         answer = true;
+
+                    // add this record to the list of records to be
+                    // returned by this function.
                     l->append(rr);
+
+                    // this is to check if the record has expired,
+                    // according to our own timeout rules. if the
+                    // record _has_ expired, we issue a new request
+                    // for it, but we don't care about the
+                    // result. this is only to update our own cache,
+                    // assuming that since this record is in the cache
+                    // already, and the user obviously has done at
+                    // least two queries, then the user will want to
+                    // submit a new query soon.
                     if (rr->deleteTime <= lastSweep) {
                         // we're returning something that'll be
                         // deleted soon.  we assume that if the client
-                        // wanted it twice, it'll want it again, so we
+                         // wanted it twice, it'll want it again, so we
                         // ask the name server again right now.
                         QDnsQuery * query = new QDnsQuery;
                         query->started = now();
@@ -1374,14 +1403,16 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
                         // and few tramsissions.
                         query->step = ns->count();
                         QObject::connect(query, SIGNAL(timeout()),
-                                          QDnsManager::manager(),
-                                          SLOT(retransmit()));
+                                         QDnsManager::manager(),
+                                         SLOT(retransmit()));
                         QDnsManager::manager()->transmitQuery(query);
                     }
                 }
             }
         }
-        // if we found a positive result, return quickly
+
+        // if we found a positive result in the cache, return quickly.
+        // this does not report NXDOMAIN records, though.
         if (answer && l->count()) {
 #if defined(QDNS_DEBUG)
             qDebug("found %d records for %s",
@@ -1399,15 +1430,17 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 
             return l;
         }
-
+        
 #if defined(QDNS_DEBUG)
-        if (nxdomain)
-            qDebug("found NXDomain %s", s.ascii());
+            if (nxdomain)
+                qDebug("found NXDomain %s", s.ascii());
 #endif
-
+            
         if (!nxdomain) {
             // if we didn't, and not a negative result either, perhaps
-            // we need to transmit a query.
+            // we need to transmit a query. check the QDnsManager's
+            // list of existing queries to see if there is already
+            // something in progress.
             uint q = 0;
             while (q < (uint) m->queries.size() &&
                     (m->queries[q] == 0 ||
