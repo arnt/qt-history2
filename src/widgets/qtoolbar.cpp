@@ -729,7 +729,7 @@ void QToolBar::setupArrowMenu()
 	bool justHadSep = TRUE;
 	QObject *o = 0;
 	for ( o = childs->first(); o; o = childs->next() ) {
-	    if ( o->isWidgetType() && o->parent() == this &&
+	    if ( o->isWidgetType() && ( (QWidget*)o )->isVisible() && o->parent() == this &&
 		 o != d->arrow && o != d->menu && o->inherits( "QButton" ) ) {
 		QWidget *w = (QWidget*)o;
 		bool mv = FALSE;
