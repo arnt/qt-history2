@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#33 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -267,8 +267,9 @@ bool QProcess::isRunning() const
 {
     if ( WaitForSingleObject( d->pid.hProcess, 0) == WAIT_OBJECT_0 ) {
 	// there might be data to read
-	socketRead( 1 ); // try stdout
-	socketRead( 2 ); // try stderr
+	QProcess *that = (QProcess*)this;
+	that->socketRead( 1 ); // try stdout
+	that->socketRead( 2 ); // try stderr
 	// compute the exit values
 	if ( !d->exitValuesCalculated ) {
 	    DWORD exitCode;
