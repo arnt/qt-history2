@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#3 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#4 $
 **
 ** Definition of QFont class
 **
 ** Author  : Haavard Nord
 ** Created : 940514
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -31,12 +31,18 @@ public:
    ~QFont();
     QFont &operator=( const QFont & );
 
-    char  *name() const;			// get font name
+    QFont	copy() const;
 
-    bool   changeFont( const char *name );
+    char      *name() const;			// get font name
+
+    bool	changeFont( const char *name );
+
+    bool	operator==( const QFont &f ) const;
+    bool	operator!=( const QFont &f ) const
+					{ return !(operator==(f)); }
 
 #if defined(_WS_X11_)
-    Font   fontId() const;
+    Font	fontId() const;
 #endif
 
     static void initialize();			// initialize font system
@@ -44,9 +50,9 @@ public:
 
 private:
     struct QFontData : QShared {		// font data
-	QString  name;
+	QString name;
 #if defined(_WS_WIN_)
-	HANDLE hfont;
+	HANDLE	hfont;
 #elif defined(_WS_PM_)
 #elif defined(_WS_X11_)
 	QXFontStruct *f;
