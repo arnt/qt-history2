@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#23 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#24 $
 **
 ** Definition of QColor class
 **
@@ -90,8 +90,8 @@ public:
     static uint	  realizePal( QWidget * );
 #endif
 
-    static void initialize();			// initialize color system
-    static void cleanup();			// cleanup color system
+    static void initialize();
+    static void cleanup();
 
 private:
     static void initglobals();
