@@ -1184,6 +1184,7 @@ void Configure::displayConfig()
     cout << "PNG support................." << dictionary[ "PNG" ] << endl << endl;
 
     cout << "Styles:" << endl;
+WCE( { cout << "PocketPC...................." << dictionary[ "STYLE_POCKETPC" ] << endl; } );
     cout << "Windows....................." << dictionary[ "STYLE_WINDOWS" ] << endl;
     cout << "Windows XP.................." << dictionary[ "STYLE_WINDOWSXP" ] << endl;
     cout << "Motif......................." << dictionary[ "STYLE_MOTIF" ] << endl;
@@ -1192,7 +1193,6 @@ void Configure::displayConfig()
     cout << "CDE........................." << dictionary[ "STYLE_CDE" ] << endl;
     cout << "SGI........................." << dictionary[ "STYLE_SGI" ] << endl << endl;
     // Only show the PocketPC style option for CE users
-WCE( { cout << "PocketPC...................." << dictionary[ "STYLE_POCKETPC" ] << endl << endl; } );
 
     cout << "Sql Drivers:" << endl;
     cout << "ODBC........................" << dictionary[ "SQL_ODBC" ] << endl;
