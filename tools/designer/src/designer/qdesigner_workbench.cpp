@@ -210,8 +210,6 @@ void QDesignerWorkbench::initialize()
             m_formToolBar->addAction(action);
     }
 
-    changeToolBarIconSize(settings.useBigIcons());
-
     m_geometries.clear();
 
 
@@ -327,6 +325,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     mw->addToolBar(m_editToolBar);
     mw->addToolBar(m_toolToolBar);
     mw->addToolBar(m_formToolBar);
+    changeToolBarIconSize(QDesignerSettings().useBigIcons());
 
     qDesigner->setMainWindow(mw);
 
@@ -397,6 +396,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         widgetBoxWrapper->addToolBar(m_formToolBar);
 
         widgetBoxWrapper->insertToolBarBreak(m_formToolBar);
+        changeToolBarIconSize(QDesignerSettings().useBigIcons());
     }
 
     QDesignerSettings settings;
