@@ -3,6 +3,7 @@ Roadmap for Qt Designer Interface hierarchy
 
 General
 =======
+
 The Interface architecture of Qt's plugin system is based on three 
 classes:
 
@@ -39,13 +40,14 @@ subclassing.
 
   Similar to the QComponentInterface, the QPlugInInterface has to be 
 implemented on both sides, too. In the application module this is
-done using multiple inheritance from both QPlugIn and the custom
-Interface class. The queryPlugInInterface method has to be 
-reimplemented inline in the declaration of custom widgets AND in the
-QPlugIn subclass (even though it is inherited from the interface this
-seems to be necessary for most compilers). QPlugInInterface already
-provides some convenient functions that are not necessary to 
-reimplement in custom interfaces. All new functions should be abstract.
+done using multiple inheritance from both QPlugIn, which provides the
+basic loading and unloading functionality, and the custom Interface 
+class. The queryPlugInInterface method has to be reimplemented inline 
+in the declaration of custom widgets AND in the QPlugIn subclass (even 
+though it is inherited from the interface this seems to be necessary 
+for most compilers). QPlugInInterface already provides some convenient 
+functions that are not necessary to reimplement in custom interfaces. 
+All new functions should be pure virtual.
   The implementation has to use the plugInterface method of QPlugIn
 to access the implementation in the library, and just forward the
 functioncall. As the library may not be loaded in this moment it is 
@@ -59,6 +61,7 @@ independantly using the QT_EXPORT_INTERFACE macro.
 
 Difficulties using dynamic loading of libraries
 -----------------------------------------------
+
 A common problem with dynamic linking is that memory allocated in the
 library is likely to be referenced in some way within the application.
 When unloading the library, all pointers to such memory become invalid,
@@ -71,21 +74,73 @@ QGuardedCleanUpHandler for pointers to QObject derived classes. As
 long as those objects are not referenced to in any special way this is
 enough (e.g. the deletion of a QObject deletes all connections, parent
 children etc.).
-  There are more subtle problems associated with the usage of classes that provide 
-sharing, e.g. all QString related classes. Interface methods returning
-QString or QStringList return data that is allocated in the library's 
-memory, thus leaving even copies of the - shared - classes with 
-references to memory already deallocated when the library has been 
-unloaded. It is of critical importance to make either deep copies of 
-the returned values, or to guarantee that all references to this data 
-is destroyed before the library is unloaded. For copies on the stack
-this can be done using an additional scope.
+  There are more subtle problems associated with the usage of classes 
+that provide sharing, e.g. all QString related classes. Interface 
+methods returning QString or QStringList return data that is allocated 
+in the library's memory, thus leaving even copies of the - shared - 
+classes with references to memory already deallocated when the library 
+has been unloaded. It is of critical importance to make either deep 
+copies of the returned values, or to guarantee that all references to 
+this data is destroyed before the library is unloaded. For copies on 
+the stack this can be done using an additional scope.
 
 ### Qt's copy methods for those classes are very poor at the moment ###
 
 
-Interface Hierarchy for the Designer (sketch)
-=============================================
+Interfaces in the Qt Designer (sketch)
+======================================
+
+All interfaces for the Qt Designer are accessible by including a single
+header file, designerinterface.h, which is located in the
+tools\designer\plugins subdirectory of your local Qt installation.
+
+Supported PlugIn Interfaces:
+----------------------------
+
+  All Interfaces here are subclasses of QPlugInInterface, which provides
+a standard set of methods for convenience. 
+
+  The functions name(), author() and description() are implemented in
+QPlugInInterface and return QString::null, so it's not necessary, but
+useful to reimplement these in each plugin.
+Additionally, the featureList() function is supposed to return 
+the list of features the plugin is able to provide. 
+
+- ActionInterface
+
+  This subinterface provides a pure virtual function "create()" which 
+  has to be implemented in all plugins, so that it returns an instance
+  of the QAction class.
+  Additionally, the group function returns a name of a subset of 
+  actions which the created action belongs to, e.g. "File".
+  Note that you can use QActionGroup, which is a subclass of QAction,
+  to provide a set of related actions.
+
+- WidgetInterface
+
+  This subinterface provides a pure virtual function "create()" which 
+  has to be implemented in all plugins, so that it returns an instance 
+  of a subclass of QWidget. All properties, signals and slots the 
+  widget class provides will be fully integrated into the Qt Designer.
+  The Interface declares additional, pure virtual functions that are
+  used to provide more information about the widget. These are group,
+  toolTip and whatsThis that may return arbitrary strings, iconSet and 
+  includeFile that are supposed to return a filename, and isContainer,
+  which has to return TRUE when the widget is capable of nesting child
+  widgets.
+
+- FilterInterface
+
+  The featureList of this function can return a string describing a
+  filter as used by the QFileDialog class, e.g. My Filetype (*.mft).
+  The import function will get the desired filter and the filename
+  which it is supposed to convert into a list of UI files. The function
+  returns a QStringList with the filenames of the resulting files.
+
+
+Provided Application Interfaces:
+--------------------------------
+
 DesignerApplicationInterface
     |
     |-- DesignerPropertyEditorInterface 
