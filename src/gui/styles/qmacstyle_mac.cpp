@@ -1708,6 +1708,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     case QStyle::CE_MenuItem:
     case QStyle::CE_MenuEmptyArea:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+            p->fillRect(mi->rect, opt->palette.background());
+
             int tabwidth = mi->tabWidth;
             int maxpmw = mi->maxIconWidth;
             bool active = mi->state & QStyle::Style_Active;
@@ -1829,6 +1831,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     case QStyle::CE_MenuTearoff:
     case QStyle::CE_MenuScroller:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+            p->fillRect(mi->rect, opt->palette.background());
+
             HIRect menuRect = qt_hirectForQRect(mi->menuRect);
             HIRect itemRect = qt_hirectForQRect(mi->rect);
             HIThemeMenuItemDrawInfo mdi;

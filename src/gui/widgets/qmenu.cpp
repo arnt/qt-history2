@@ -467,7 +467,7 @@ void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool pag
                     act = actionList.at(i);
                     const int iHeight = actionRects.value(act).height();
                     visible += iHeight;
-                    if(visible >= scrollerArea) {
+                    if(visible >= scrollerArea-topScroll) {
                         scrollMenu(act, page ? QMenuScroller::ScrollTop : QMenuScroller::ScrollBottom, active);
                         break;
                     }
