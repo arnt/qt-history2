@@ -441,13 +441,13 @@ bool VCCLCompilerTool::parseOption(const char* option)
 	if(second != 'I') {
 	    found = FALSE; break;
 	}
-	AdditionalUsingDirectories += option+2;
+	AdditionalUsingDirectories += option+3;
 	break;
     case 'C':
 	KeepComments = _True;
 	break;
     case 'D':
-	PreprocessorDefinitions += option+1;
+	PreprocessorDefinitions += option+2;
 	break;
     case 'E':
 	if(second == 'H') {
