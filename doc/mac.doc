@@ -19,7 +19,12 @@
 
 This file will outline known issues and possible workarounds for
 limitations on Mac OS X with Qt. This list will not always be complete, so
-please contact Trolltech support with issues you find to be missing:
+please contact Trolltech support with issues you find to be missing.
+
+See also the document \link qtmac-as-native.html Qt/Mac is Mac OS X
+Native\endlink.
+
+\tableofcontents
 
 \section1 GUI Applications
 
@@ -28,7 +33,7 @@ or using the open(1) command. Mac OS X needs this to dispatch events correctly,
 as well as gaining access to the menubar. If using GDB you must run with the 
 full path to the executable.
 
-\section1 \link qcursor.html QCursor \endlink
+\section1 QCursor
 
 Due to Mac OS X having only 16x16 custom cursors QCursor is limited by this
 as well. For now the only workaround to this problem is to use a small
