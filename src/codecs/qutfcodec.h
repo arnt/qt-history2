@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QUtf{8,16}Codec class
 **
 ** Created : 981015
 **
-** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -51,6 +51,9 @@ public:
 
     QTextDecoder* makeDecoder() const;
 
+#ifdef Q_USING
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
 
     int heuristicContentMatch(const char* chars, int len) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QTSCIICodec class
 **
@@ -23,6 +23,9 @@ public:
     virtual int mibEnum() const;
     const char* name() const;
 
+#ifdef Q_USING
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
     QString toUnicode(const char* chars, int len) const;
 

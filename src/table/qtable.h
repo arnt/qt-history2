@@ -4,7 +4,7 @@
 **
 ** Created : 000607
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the table module of the Qt GUI Toolkit.
 **
@@ -170,6 +170,9 @@ public:
     int currentItem() const;
     QString currentText() const;
     int count() const;
+#if defined(Q_USING)
+    using QTableItem::text;
+#endif
     QString text( int i ) const;
     virtual void setEditable( bool b );
     bool isEditable() const;

@@ -1502,6 +1502,9 @@ public:
 	return result;
     }
 
+#if defined(Q_USING)
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& lenInOut) const
     {
 	if (lenInOut > (int)uc.length())
@@ -2450,6 +2453,9 @@ public:
     ~QLatin1Codec();
 
     QString toUnicode(const char* chars, int len) const;
+#if defined(Q_USING)
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 

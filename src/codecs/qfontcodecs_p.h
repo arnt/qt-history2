@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Font utilities for X11
 **
 ** Created : 20001101
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -82,11 +82,16 @@ public:
     // Converts lenInOut characters (of type QChar) from the start of
     // the string uc, returning a QCString result, and also returning
     // the length of the result in lenInOut.
+#ifdef Q_USING
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     int heuristicContentMatch(const char *, int) const;
+#ifdef Q_USING
+    using QTextCodec::canEncode;
+#endif
     bool canEncode( QChar ) const;
-
 
 private:
     QJpUnicodeConv *convJP;
@@ -113,9 +118,15 @@ public:
     // Converts lenInOut characters (of type QChar) from the start of
     // the string uc, returning a QCString result, and also returning
     // the length of the result in lenInOut.
+#ifdef Q_USING
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     int heuristicContentMatch(const char *, int) const;
+#ifdef Q_USING
+    using QTextCodec::canEncode;
+#endif
     bool canEncode( QChar ) const;
 };
 
@@ -140,9 +151,15 @@ public:
     // Converts lenInOut characters (of type QChar) from the start of
     // the string uc, returning a QCString result, and also returning
     // the length of the result in lenInOut.
+#ifdef Q_USING
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     int heuristicContentMatch(const char *, int) const;
+#ifdef Q_USING
+    using QTextCodec::canEncode;
+#endif
     bool canEncode( QChar ) const;
 };
 
@@ -167,9 +184,15 @@ public:
     // Converts lenInOut characters (of type QChar) from the start of
     // the string uc, returning a QCString result, and also returning
     // the length of the result in lenInOut.
+#ifdef Q_USING
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     int heuristicContentMatch(const char *, int) const;
+#ifdef Q_USING
+    using QTextCodec::canEncode;
+#endif
     bool canEncode( QChar ) const;
 };
 

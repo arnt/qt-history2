@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of SGI-like style class
 **
 ** Created : 981231
 **
-** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -61,6 +61,10 @@ public:
     QSGIStyle( bool useHighlightCols = FALSE );
     virtual ~QSGIStyle();
 
+#if defined(Q_USING)
+    using QStyle::polish;
+    using QMotifStyle::polish;
+#endif
     void polish( QWidget* );
     void unPolish( QWidget* );
     void polish( QApplication* );

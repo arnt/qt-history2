@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QMultiLineEdit widget class
 **
 ** Created : 961005
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -65,9 +65,15 @@ public:
     int numLines() const;
 
     virtual void insertLine( const QString &s, int line = -1 );
+#ifdef Q_USING
+     using QTextEdit::insertAt;
+#endif
     virtual void insertAt( const QString &s, int line, int col, bool mark = FALSE );
     virtual void removeLine( int line );
 
+#ifdef Q_USING
+    using QTextEdit::setCursorPosition;
+#endif
     virtual void setCursorPosition( int line, int col, bool mark = FALSE );
     bool atBeginning() const;
     bool atEnd() const;

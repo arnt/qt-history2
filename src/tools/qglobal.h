@@ -5,7 +5,7 @@
 **
 ** Created : 920529
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -306,8 +306,10 @@
 #      define Q_C_CALLBACKS
 #    elif defined(__KCC)
 #      define Q_CC_KAI
+/* The Intel compiler needs the `using' keyword */
 #    elif defined(__INTEL_COMPILER)
 #      define Q_CC_INTEL
+#      define Q_USING
 /* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #    elif defined(__USLC__)
 #      define Q_CC_EDG
