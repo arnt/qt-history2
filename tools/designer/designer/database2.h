@@ -32,11 +32,11 @@
 class QSqlDatabase;
 class QSqlForm;
 
-class DatabaseSupport
+class DatabaseSupport2
 {
 public:
-    DatabaseSupport();
-    virtual ~DatabaseSupport() {}
+    DatabaseSupport2();
+    virtual ~DatabaseSupport2() {}
 
     void initPreview( const QString &connection, const QString &table, QObject *o,
 		      const QMap<QString, QString> &databaseControls );
@@ -50,7 +50,7 @@ protected:
 
 };
 
-class QDesignerDataBrowser2 : public QDataBrowser, public DatabaseSupport
+class QDesignerDataBrowser2 : public QDataBrowser, public DatabaseSupport2
 {
     Q_OBJECT
 
@@ -61,7 +61,7 @@ protected:
     bool event( QEvent* e );
 };
 
-class QDesignerDataView2 : public QDataView, public DatabaseSupport
+class QDesignerDataView2 : public QDataView, public DatabaseSupport2
 {
     Q_OBJECT
 
@@ -73,6 +73,7 @@ protected:
 
 };
 
+#define DatabaseSupport DatabaseSupport2
 #define QDesignerDataBrowser QDesignerDataBrowser2
 #define QDesignerDataView QDesignerDataView2
 
