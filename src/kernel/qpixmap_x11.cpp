@@ -1459,8 +1459,20 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	setMask( m );
 
 #ifndef QT_NO_XFTFREETYPE
-	// ### only support 32bit images at the moment
-	if (X11->use_xrender && X11->has_xft && img.depth() == 32) {
+	// does this image have an alphamap (and not just a 1bpp mask)?
+	bool alphamap = img.depth() == 32;
+	if (img.depth() == 8) {
+	    const QRgb * const rgb = img.colorTable();
+	    for (int i = 0, count = img.numColors(); i < count; ++i) {
+		const int alpha = qAlpha(rgb[i]);
+		if (alpha != 0 && alpha != 0xff) {
+		    alphamap = true;
+		    break;
+		}
+	    }
+	}
+
+        if (X11->use_xrender && X11->has_xft && alphamap) {
 	    data->alphapm = new QPixmap; // create a null pixmap
 
 	    // setup pixmap data
@@ -1483,12 +1495,21 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		// the data is deleted by qSafeXDestroyImage
 		axi->data = (char *) malloc(h * axi->bytes_per_line);
 		Q_CHECK_PTR( axi->data );
-
 		char *aptr = axi->data;
-		int *iptr = (int *) image.bits();
-		int max = w * h;
-		for (int i = 0; i < max; i++)
-		    *aptr++ = *iptr++ >> 24; // squirt
+
+		if (img.depth() == 32) {
+		    const int *iptr = (const int *) img.bits();
+		    int max = w * h;
+		    while (max--)
+			*aptr++ = *iptr++ >> 24; // squirt
+		} else if (img.depth() == 8) {
+		    const QRgb * const rgb = img.colorTable();
+		    for (int y = 0; y < h; ++y) {
+			const uchar *iptr = image.scanLine(y);
+			for (int x = 0; x < w; ++x)
+			    *aptr++ = qAlpha(rgb[*iptr++]);
+		    }
+		}
 
 		GC gc = XCreateGC(x11Display(), data->alphapm->hd, 0, 0);
 		XPutImage(dpy, data->alphapm->hd, gc, axi, 0, 0, 0, 0, w, h);
