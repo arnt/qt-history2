@@ -417,7 +417,7 @@ QRichText
  - Improved table margin support.
  - Improved page break algorithm.
  - Do not eat '\n' in preformatted items.
- - Do not draw the internal trailing space at the end of a paragraph.q
+ - Do not draw the internal trailing space at the end of a paragraph.
  - Fixed link underlining in table cells and other subdocuments.
  - Use larger vertical margin between paragraphs.
  - Display paragraph spacing even when printing.
