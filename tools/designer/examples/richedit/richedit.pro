@@ -1,10 +1,10 @@
 SOURCES	+= main.cpp 
 TARGET	= richedit
-INTERFACES	= richedit.ui 
+IMAGEFILE	= images.cpp
+PROJECTNAME	= richedit
+FORMS	= richedit.ui 
+IMAGES	= images/editcopy images/editcut images/editpaste images/filenew images/fileopen images/filesave images/print images/redo images/searchfind images/textbold images/textcenter images/textitalic images/textleft images/textright images/textunder images/undo 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= richedit.db
-IMAGEFILE	= images.cpp
-PROJECTNAME	= richedit
 LANGUAGE	= C++
-{SOURCES+=images.cpp}
