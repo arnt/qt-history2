@@ -867,7 +867,8 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	    else
 		stateId = FS_INACTIVE;
 
-	    int fwidth = 2;
+	    int fwidth = pixelMetric( PM_MDIFrameWidth );
+
 	    if ( !opt.isDefault() )
 		fwidth = opt.lineWidth() + opt.midLineWidth();
 
@@ -878,11 +879,11 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	    theme.rec = QRect( r.x(), r.y()+fwidth, r.x()+fwidth, r.height()-fwidth );
 	    theme.partId = WP_FRAMELEFT;
 	    theme.drawBackground();
-	    theme.rec = QRect( r.x(), r.height()-fwidth, r.width(), r.height() );
-	    theme.partId = WP_FRAMEBOTTOM;
-	    theme.drawBackground();
-	    theme.rec = QRect( r.width()-fwidth, r.y()+fwidth, r.width(), r.height()-fwidth );
+	    theme.rec = QRect( r.width()-fwidth, r.y()+fwidth, fwidth, r.height()-fwidth );
 	    theme.partId = WP_FRAMERIGHT;
+	    theme.drawBackground();
+	    theme.rec = QRect( r.x(), r.height()-fwidth, r.width(), fwidth );
+	    theme.partId = WP_FRAMEBOTTOM;
 	    theme.drawBackground();
 	    theme.rec = QRect( r.x()-5, r.y()-5, r.width()+10, r.y()+fwidth+5 );
 	    theme.partId = WP_CAPTION;
