@@ -1028,7 +1028,6 @@ bool QODBCResult::exec()
     //get out parameters
     if ( extension()->index.count() > 0 ) {
 	QMap<int, QString>::Iterator it;
-	QVariant val;
 	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
 	
 	    SQLINTEGER* indPtr = qAutoDeleterData( (QAutoDeleter<SQLINTEGER>*)tmpStorage.getFirst() );
@@ -1045,7 +1044,7 @@ bool QODBCResult::exec()
 		continue;
 	    }
 
-	    switch ( val.type() ) {
+	    switch ( extension()->values[ it.data() ].value.type() ) {
 		case QVariant::Date: {
 		    DATE_STRUCT * ds = qAutoDeleterData( (QAutoDeleter<DATE_STRUCT>*)tmpStorage.getFirst() );
 		    extension()->values[ it.data() ].value = QVariant( QDate( ds->year, ds->month, ds->day ) );
