@@ -200,6 +200,7 @@ bool QPrinter::setup( QWidget *  )
         return FALSE;
     if( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) {
         Boolean ret;
+	QMacBlockingFunction block;
 	qt_release_app_proc_handler();
         //setup
         if(!prepare(&psettings)) {
