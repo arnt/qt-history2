@@ -247,14 +247,15 @@ enum {
     kEventParamTimer = 'qtim',     /* typeTimerInfo */
     kEventParamQWidget = 'qwid',   /* typeQWidget */
     //events
-    kEventQtRequestPropagate = 10,
-    kEventQtRequestSelect = 11,
-    kEventQtRequestContext = 12,
+    kEventQtRequestPropagateWindowUpdates = 10,
+    kEventQtRequestPropagateWidgetUpdates = 11,
+    kEventQtRequestSelect = 12,
+    kEventQtRequestContext = 13,
 #ifndef QMAC_QMENUBAR_NO_NATIVE
-    kEventQtRequestMenubarUpdate = 13,
+    kEventQtRequestMenubarUpdate = 14,
 #endif
-    kEventQtRequestTimer = 14,
-    kEventQtRequestWakeup = 15
+    kEventQtRequestTimer = 15,
+    kEventQtRequestWakeup = 16
 };
 static bool request_updates_pending = FALSE;
 void qt_event_request_updates()
@@ -264,30 +265,39 @@ void qt_event_request_updates()
     request_updates_pending = TRUE;
 
     EventRef upd = NULL;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &upd);
-    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityHigh );
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagateWindowUpdates, 
+		GetCurrentEventTime(), kEventAttributeUserEvent, &upd);
+    PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityHigh);
     ReleaseEvent(upd);
 }
-void qt_event_request_updates(QWidget *w, QRegion &r)
+static QValueList<WId> request_updates_pending_list;
+void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
     w->createExtra();
-    if(w->extra->has_dirty_area) {
+    if(subtract) {
+	if(w->extra->has_dirty_area) {
+	    w->extra->dirty_area -= r;
+	    if(w->extra->dirty_area.isEmpty()) {
+		request_updates_pending_list.remove(w->winId());
+		w->extra->has_dirty_area = FALSE;
+	    }
+	}
+	return;
+    } else if(w->extra->has_dirty_area) {
 	w->extra->dirty_area |= r;	
 	return;
     }
-
     w->extra->has_dirty_area = TRUE;
     w->extra->dirty_area = r;
-
-    EventRef upd = NULL;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &upd);
-    void *handle = w->handle();
-    SetEventParameter(upd, kEventParamDirectObject, typeWindowRef, sizeof(WindowRef), &handle);
-    SetEventParameter(upd, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityStandard );
-    ReleaseEvent(upd);
+    //now maintain the list of widgets to be updated
+    if(request_updates_pending_list.isEmpty()) {
+	EventRef upd = NULL;
+	CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagateWidgetUpdates, 
+		    GetCurrentEventTime(), kEventAttributeUserEvent, &upd);
+	PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityStandard);
+	ReleaseEvent(upd);
+    }
+    request_updates_pending_list.append(w->winId());
 }
 
 #ifndef QMAC_QMENUBAR_NO_NATIVE
@@ -301,7 +311,7 @@ void qt_event_request_menubarupdate()
     EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestMenubarUpdate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &upd);
-    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityHigh );
+    PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityHigh);
     ReleaseEvent(upd);
 }
 #endif
@@ -313,12 +323,13 @@ static EventTypeSpec events[] = {
        handler, if you add more to the top you must increase the 
        non_gui_event_count
     */
+    { kEventClassQt, kEventQtRequestTimer },
     { kEventClassQt, kEventQtRequestWakeup },
-    { kEventClassQt, kEventQtRequestMenubarUpdate },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestContext },
-    { kEventClassQt, kEventQtRequestTimer },
-    { kEventClassQt, kEventQtRequestPropagate },
+    { kEventClassQt, kEventQtRequestMenubarUpdate },
+    { kEventClassQt, kEventQtRequestPropagateWindowUpdates },
+    { kEventClassQt, kEventQtRequestPropagateWidgetUpdates },
 
     { kEventClassWindow, kEventWindowUpdate },
     { kEventClassWindow, kEventWindowActivated },
@@ -350,10 +361,10 @@ static EventTypeSpec events[] = {
 };
 
 /* platform specific implementations */
-void qt_init( int* argcptr, char **argv, QApplication::Type )
+void qt_init(int* argcptr, char **argv, QApplication::Type)
 {
 #ifdef Q_WS_MACX
-    if ( qt_is_gui_used ) {
+    if (qt_is_gui_used) {
 	ProcessSerialNumber psn;
 	GetCurrentProcess(&psn);
 	SetFrontProcess(&psn);
@@ -363,20 +374,20 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
     // Get command line params
     int argc = *argcptr;
     int i, j = 1;
-    for ( i=1; i<argc; i++ ) {
-	if ( argv[i] && *argv[i] != '-' ) {
+    for(i=1; i<argc; i++) {
+	if(argv[i] && *argv[i] != '-') {
 	    argv[j++] = argv[i];
 	    continue;
 	}
 	QCString arg = argv[i];
 #if defined(QT_DEBUG)
-	if ( arg == "-nograb" )
+	if (arg == "-nograb")
 	    appNoGrab = !appNoGrab;
 	else
 #endif // QT_DEBUG
 #ifdef Q_WS_MACX
 	//just ignore it, this seems to be passed from the finder (no clue what it does) FIXME
-	    if( arg.left(5) == "-psn_"); 
+	    if(arg.left(5) == "-psn_"); 
 	else
 #endif
 	    argv[j++] = argv[i];
@@ -384,7 +395,7 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
     *argcptr = j;
 
     // Set application name
-    char *p = strrchr( argv[0], '/' );
+    char *p = strrchr(argv[0], '/');
     appName = p ? p + 1 : argv[0];
 #ifdef Q_WS_MACX
     //special hack to change working directory to a resource fork when running from finder
@@ -396,8 +407,8 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
     }
 #endif
 
-    qApp->setName( appName );
-    if ( qt_is_gui_used ) {
+    qApp->setName(appName);
+    if (qt_is_gui_used) {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
 #endif
@@ -422,7 +433,7 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 
     if(!app_proc_handler) {
 	app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
-	InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
+	InstallEventHandler(GetApplicationEventTarget(), app_proc_handlerUPP,
 			     qt_is_gui_used ? GetEventTypeCount(events) : non_gui_event_count, 
 			     events, (void *)qApp, &app_proc_handler);
     }
@@ -450,11 +461,11 @@ void qt_cleanup()
 	app_proc_handlerUPP = NULL;
     }
 
-    if ( postRList ) {
+    if (postRList) {
 	QVFuncList::Iterator it = postRList->begin();
-	while ( it != postRList->end() ) {	// call post routines
+	while (it != postRList->end()) {	// call post routines
 	    (**it)();
-	    postRList->remove( it );
+	    postRList->remove(it);
 	    it = postRList->begin();
 	}
 	delete postRList;
@@ -480,24 +491,24 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-void qAddPostRoutine( QtCleanUpFunction p)
+void qAddPostRoutine(QtCleanUpFunction p)
 {
-    if ( !postRList ) {
+    if (!postRList) {
 	postRList = new QVFuncList;
-	Q_CHECK_PTR( postRList );
+	Q_CHECK_PTR(postRList);
     }
-    postRList->prepend( p );
+    postRList->prepend(p);
 }
 
-void qRemovePostRoutine( QtCleanUpFunction p )
+void qRemovePostRoutine(QtCleanUpFunction p)
 {
-    if ( !postRList ) return;
+    if(!postRList) return;
 
     QVFuncList::Iterator it = postRList->begin();
 
-    while ( it != postRList->end() ) {
-	if ( *it == p ) {
-	    postRList->remove( it );
+    while(it != postRList->end()) {
+	if (*it == p) {
+	    postRList->remove(it);
 	    it = postRList->begin();
 	}
     }
@@ -511,7 +522,7 @@ void qRemovePostRoutine( QtCleanUpFunction p )
 extern QWidget * mac_mouse_grabber;
 extern QWidget * mac_keyboard_grabber;
 
-void QApplication::setMainWidget( QWidget *mainWidget )
+void QApplication::setMainWidget(QWidget *mainWidget)
 {
     main_widget = mainWidget;
 }
@@ -525,7 +536,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 typedef QPtrList<QCursor> QCursorList;
 static QCursorList *cursorStack = 0;
 
-void QApplication::setOverrideCursor( const QCursor &cursor, bool replace)
+void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
@@ -666,9 +677,11 @@ QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 //central cleanup
 QMAC_PASCAL static Boolean find_timer_event(EventRef event, void *d)
 {
+    if(GetEventClass(event) != kEventClassQt || GetEventKind(event) != kEventQtRequestTimer)
+	return false; //short circuit our tests..
     TimerInfo *t;
     GetEventParameter(event, kEventParamTimer, typeTimerInfo, NULL, sizeof(t), NULL, &t);
-    if(t == ((TimerInfo *)d))
+    if(t == ((TimerInfo *)d)) 
 	return true;
     return false;
 }
@@ -1534,38 +1547,34 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     {
     case kEventClassQt:
 	remove_context_timer = FALSE;
-	if(ekind == kEventQtRequestPropagate) {
-	    bool send_to_window = TRUE;
-	    WindowRef wid;
-	    GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
-			      sizeof(WindowRef), NULL, &wid);
-	    if(QWidget *tl_widget = QWidget::find( (WId)wid )) {
-		send_to_window = FALSE;
-		QWidget *widget = NULL;
-		GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
-				  sizeof(widget), NULL, &widget);
+	if(ekind == kEventQtRequestPropagateWidgetUpdates) {
+	    for(QValueList<WId>::Iterator it = request_updates_pending_list.begin();
+		it != request_updates_pending_list.end(); ++it) {
+		QWidget *widget = QWidget::find((*it));
 		if(widget && widget->extra && widget->extra->has_dirty_area) {
 		    widget->extra->has_dirty_area = FALSE;
 		    QRegion r = widget->extra->dirty_area;
 		    widget->extra->dirty_area = QRegion();
-		    if(qt_paint_children(widget, r, 0)) {
-			QWidget *tlw = widget->topLevelWidget();
-			r.translate(tlw->x(), tlw->y());
-			qt_paint_children(tlw, r, 0);
+		    QRegion cr = widget->clippedRegion();
+		    if(!widget->isTopLevel()) {
+			QPoint point(posInWindow(widget));
+			cr.translate(-point.x(), -point.y());
 		    }
+		    r &= cr;
+		    if(!r.isEmpty()) 
+			widget->repaint(r, TRUE);
 		}
-	    } else {
-		request_updates_pending = FALSE;
 	    }
-	    if(send_to_window) {
-		QApplication::sendPostedEvents();
-		if(QWidgetList *list   = qApp->topLevelWidgets()) {
-		    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-			if ( !widget->isHidden() ) 
-			    widget->propagateUpdates();
-		    }
-		    delete list;
+	    request_updates_pending_list.clear();
+	} else if(ekind == kEventQtRequestPropagateWindowUpdates) {
+	    request_updates_pending = FALSE;
+	    QApplication::sendPostedEvents();
+	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
+		for (QWidget *widget = list->first(); widget; widget = list->next()) {
+		    if (!widget->isHidden()) 
+			widget->propagateUpdates();
 		}
+		delete list;
 	    } 
 	} else if(ekind == kEventQtRequestWakeup) {
 	    wakeup_pending = FALSE; 	    //do nothing else , we just woke up!

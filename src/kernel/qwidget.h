@@ -566,7 +566,7 @@ private:
     friend QPoint posInWindow(QWidget *);
     friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
     friend bool qt_paint_children(QWidget *,QRegion &, uchar ops);
-    friend void qt_event_request_updates(QWidget *, QRegion &);
+    friend void qt_event_request_updates(QWidget *, const QRegion &, bool subtract=FALSE);
     friend bool qt_window_rgn(WId, short, RgnHandle, bool);
     friend class QDragManager;
 #endif

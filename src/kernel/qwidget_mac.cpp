@@ -74,7 +74,6 @@ int mac_window_count = 0;
   Externals
  *****************************************************************************/
 void qt_event_request_updates();
-void qt_event_request_updates(QWidget *w, QRegion &r);
 bool qt_nograb();
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -157,7 +156,7 @@ enum paint_children_ops {
 };
 bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
 {
-    if(!p || !p->isVisible() || r.isEmpty() || qApp->closingDown() || qApp->startingUp())
+    if(qApp->closingDown() || qApp->startingUp() || !p || !p->isVisible() || r.isEmpty())
 	return FALSE;
     QPoint point(posInWindow(p));
     r.translate(point.x(), point.y());
@@ -184,9 +183,8 @@ bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
     }
 
     r.translate(-point.x(), -point.y());
-    if(p->extra && p->extra->has_dirty_area)
-	p->extra->dirty_area -= r;
-    bool erase = !(ops & PC_NoErase) && ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
+    bool erase = !(ops & PC_NoErase) && 
+		 ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
     if((ops & PC_NoPaint)) {
 	if(erase) 
 	    p->erase(r);
@@ -208,6 +206,8 @@ bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
 		QRegion pa(r);
 		pa.translate(point.x(), point.y());
 		p->update(pa.boundingRect()); //last try
+	    } else if(p->extra && p->extra->has_dirty_area) {
+		qt_event_request_updates(p, r, TRUE);
 	    }
 	}
     }
@@ -1072,14 +1072,9 @@ void QWidget::update( int x, int y, int w, int h )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	if ( w && h ) {
-#if 1
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
 	    debug_wndw_rgn("update", this, r);
-#else
-	    QPoint p(posInWindow(this));
-	    qt_dirty_wndw_rgn("update", this, mac_rect(QRect(p.x() + x, p.y() + y, w, h)));
-#endif
 	}
     }
 }
