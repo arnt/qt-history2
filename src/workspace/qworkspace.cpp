@@ -668,6 +668,10 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	return;
 
     if ( c ) {
+	QWorkspace *fake = (QWorkspace*)w;
+	fake->clearWState( WState_Maximized );
+	fake->setWState( WState_Minimized );
+
 	setUpdatesEnabled( FALSE );
 	bool wasMax = FALSE;
 	if ( c == d->maxWindow ) {
@@ -686,10 +690,6 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	d->focus.append( c );
 
 	setUpdatesEnabled( TRUE );
-	QWorkspace *fake = (QWorkspace*)w;
-	fake->clearWState( WState_Maximized );
-	fake->setWState( WState_Minimized );
-
 	updateWorkspace();
     }
 }
@@ -700,6 +700,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
     if ( !w || w && (!w->testWFlags( WStyle_MinMax ) || w->testWFlags( WStyle_Tool) ) )
 	return;
     if ( c ) {
+	QWorkspace *fake = (QWorkspace*)w;
+	fake->clearWState( WState_Minimized | WState_Maximized );
 	if ( d->maxWindow )
 	    hideMaximizeControls();
 	if ( c == d->maxWindow ) {
@@ -714,8 +716,6 @@ void QWorkspace::normalizeWindow( QWidget* w)
 		removeIcon( c->iconw->parentWidget() );
 	    c->show();
 	}
-	QWorkspace *fake = (QWorkspace*)w;
-	fake->clearWState( WState_Minimized | WState_Maximized );
 
 	hideMaximizeControls();
 	activateWindow( w, TRUE );
@@ -735,6 +735,10 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	setUpdatesEnabled( FALSE );
 	if (c->iconw && d->icons.contains( c->iconw->parentWidget() ) )
 	    normalizeWindow( w );
+	QWorkspace *fake = (QWorkspace*)w;
+	fake->clearWState( WState_Minimized );
+	fake->setWState( WState_Maximized );
+
 	QRect r( c->geometry() );
 	c->adjustToFullscreen();
 	c->show();
@@ -757,10 +761,6 @@ void QWorkspace::maximizeWindow( QWidget* w)
 		.arg(d->topCaption).arg(c->caption()) );
 	inCaptionChange = FALSE;
 	setUpdatesEnabled( TRUE );
-
-	QWorkspace *fake = (QWorkspace*)w;
-	fake->clearWState( WState_Minimized );
-	fake->setWState( WState_Maximized );
 
 	updateWorkspace();
     }
