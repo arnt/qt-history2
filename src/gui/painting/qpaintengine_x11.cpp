@@ -1188,53 +1188,6 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     }
 }
 
-//
-// Internal functions for simple GC caching for blt'ing masked pixmaps.
-// This cache is used when the pixmap optimization is set to Normal
-// and the pixmap size doesn't exceed 128x128.
-//
-
-static bool      init_mask_gc = false;
-static const int max_mask_gcs = 11;                // suitable for hashing
-
-struct mask_gc {
-    GC        gc;
-    int mask_no;
-};
-
-static mask_gc gc_vec[max_mask_gcs];
-
-
-static void cleanup_mask_gc()
-{
-    Display *dpy = QX11Info::display();
-    init_mask_gc = false;
-    for (int i=0; i<max_mask_gcs; i++) {
-        if (gc_vec[i].gc)
-            XFreeGC(dpy, gc_vec[i].gc);
-    }
-}
-
-static GC cache_mask_gc(Display *dpy, Drawable hd, int mask_no, Pixmap mask)
-{
-    if (!init_mask_gc) {                        // first time initialization
-        init_mask_gc = true;
-        qAddPostRoutine(cleanup_mask_gc);
-        for (int i=0; i<max_mask_gcs; i++)
-            gc_vec[i].gc = 0;
-    }
-    mask_gc *p = &gc_vec[mask_no % max_mask_gcs];
-    if (!p->gc || p->mask_no != mask_no) {        // not a perfect match
-        if (!p->gc) {                                // no GC
-            p->gc = XCreateGC(dpy, hd, 0, 0);
-            XSetGraphicsExposures(dpy, p->gc, False);
-        }
-        XSetClipMask(dpy, p->gc, mask);
-        p->mask_no = mask_no;
-    }
-    return p->gc;
-}
-
 void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 		const QPaintDevice *src, int sx, int sy, int sw, int sh,
 		bool ignoreMask = false)
