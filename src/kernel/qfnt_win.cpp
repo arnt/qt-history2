@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#47 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#47 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -517,7 +517,7 @@ int QFontMetrics::leftBearing(char ch) const
     } else {
 	ABCFLOAT abc;
 	GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
-	return abc.abcA;
+	return abc.abcfA;
     }
 }
 
@@ -531,7 +531,7 @@ int QFontMetrics::rightBearing(char ch) const
     } else {
 	ABCFLOAT abc;
 	GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
-	return abc.abcC;
+	return abc.abcfC;
     }
 }
 
@@ -562,14 +562,15 @@ int QFontMetrics::minRightBearing() const
 	if (tm->tmPitchAndFamily & TMPF_TRUETYPE ) {
 	    ABCFLOAT *abc = new ABCFLOAT[n];
 	    GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
-	    float fml = abc[0].abcA;
-	    float fmr = abc[0].abcC;
+	    float fml = abc[0].abcfA;
+	    float fmr = abc[0].abcfC;
 	    for (int i=1; i<n; i++) {
-		fml = QMIN(ml,abc[i].abcA);
-		fmr = QMIN(mr,abc[i].abcC);
+		fml = QMIN(ml,abc[i].abcfA);
+		fmr = QMIN(mr,abc[i].abcfC);
 	    }
 	    ml = int(fml-0.9999);
 	    mr = int(fmr-0.9999);
+	    delete [] abc;
 	} else {
 	    ABC *abc = new ABC[n];
 	    GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
@@ -579,10 +580,10 @@ int QFontMetrics::minRightBearing() const
 		ml = QMIN(ml,abc[i].abcA);
 		mr = QMIN(mr,abc[i].abcC);
 	    }
+	    delete [] abc;
 	}
 	def->lbearing = ml;
 	def->rbearing = mr;
-	delete [] abc;
     }
 
     return def->rbearing;
@@ -636,13 +637,13 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
     GetTextExtentPoint32( hdc(), str, len, &s );
 
     int l = len ? leftBearing(*str) : 0;
-    int r = len ? rightBearing(str[len-1]) : 0;
+    int r = len ? -rightBearing(str[len-1]) : 0;
     // To be safer, check bearings of next-to-end characters too.
     if (len > 1 ) {
 	int newl = width(*str)+leftBearing(str[1]);
-	int newr = rightBearing(str[len-2])-width(str[len-1]);
-	if ( l < newl ) l = newl;
-	if ( r > newr ) r = newr;
+	int newr = -width(str[len-1])-rightBearing(str[len-2]);
+	if ( newl < l ) l = newl;
+	if ( newr > r ) r = newr;
     }
 
     return QRect(l, -tm->tmAscent, s.cx+r-l, tm->tmAscent+tm->tmDescent);
