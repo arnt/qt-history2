@@ -12370,8 +12370,10 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     }
     char *a = new char[l+1];
     char *result = a;
-    while (l--)
-	*a++ = *uc++;
+    while (l--) {
+	*a++ = *uc > 0xff ? '?' : *uc;
+	uc++;
+    }
     *a = '\0';
     return result;
 }
