@@ -484,7 +484,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	needEventHandler = needEventHandler ||
 			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
 	QString s = getClassName( n );
-	if ( s == "QDataTable" || s == "QDataBrowser" )
+	if ( s == "QDataTable" || s == "QDataBrowser" || s == "QDataView" )
 	    needPolish = TRUE;
     }
 
@@ -1066,7 +1066,7 @@ void Uic::createFormImpl( const QDomElement &e )
     // handle application events if required
     bool needFontEventHandler = FALSE;
     bool needSqlTableEventHandler = FALSE;
-    bool needSqlDataFormEventHandler = FALSE;
+    bool needSqlDataBrowserEventHandler = FALSE;
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() )
@@ -1075,8 +1075,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( s == "QDataTable" )
 	    needSqlTableEventHandler = TRUE;
 	if ( s == "QDataBrowser" )
-	    needSqlDataFormEventHandler = TRUE;
-	if ( needFontEventHandler && needSqlTableEventHandler && needSqlDataFormEventHandler )
+	    needSqlDataBrowserEventHandler = TRUE;
+	if ( needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler )
 	    break;
     }
     if ( needFontEventHandler ) {
@@ -1102,11 +1102,13 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    if ( needSqlTableEventHandler || needSqlDataFormEventHandler ) {
+    if ( needSqlTableEventHandler || needSqlDataBrowserEventHandler ) {
 	out << "/*  " << endl;
 	out << " *  Widget polish.  Reimplemented to handle" << endl;
 	if ( needSqlTableEventHandler )
-	    out << " *  default SQL table initialization" << endl;
+	    out << " *  default data table initialization" << endl;
+	if ( needSqlDataBrowserEventHandler )
+	    out << " *  default data browser initialization" << endl;
 	out << " */" << endl;
 	out << "void " << nameOfClass  << "::polish()" << endl;
 	out << "{" << endl;
@@ -1135,14 +1137,16 @@ void Uic::createFormImpl( const QDomElement &e )
 		}
 	    }
 	}
-	if ( needSqlDataFormEventHandler ) {
+	if ( needSqlDataBrowserEventHandler ) {
 	    nl = e.elementsByTagName( "widget" );
 	    for ( i = 0; i < (int) nl.length(); i++ ) {
 		QString s = getClassName( nl.item(i).toElement() );
 		if ( s == "QDataBrowser" ) {
 		    QString obj = getObjectName( nl.item(i).toElement() );
-		    QString tab = getDatabaseInfo( nl.item(i).toElement(), "table" );
-		    QString conn = getDatabaseInfo( nl.item(i).toElement(), "connection" );
+		    QString tab = getDatabaseInfo( nl.item(i).toElement(),
+						   "table" );
+		    QString conn = getDatabaseInfo( nl.item(i).toElement(),
+						    "connection" );
 		    if ( !(tab).isEmpty() ) {
 			out << indent << "if ( " << obj << " ) {" << endl;
 			out << indent << indent << "if ( !" << obj << "->sqlCursor() ) {" << endl;

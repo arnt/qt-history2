@@ -4,7 +4,7 @@
 #include <qsqlcursor.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
-#include <qsqltable.h>
+#include <qdatatable.h>
 #include <qbuttongroup.h>
 #include <qpushbutton.h>
 #include <qtabwidget.h>
