@@ -680,6 +680,10 @@ QDateEdit *PropertyDateItem::lined()
     if ( lin )
 	return lin;
     lin = new QDateEdit( listview->viewport() );
+    QObjectList *l = lin->queryList( "QLineEdit" );
+    for ( QObject *o = l->first(); o; o = l->next() )
+	o->installEventFilter( listview );
+    delete l;
     connect( lin, SIGNAL( valueChanged( const QDate & ) ),
 	     this, SLOT( setValue() ) );
     return lin;
@@ -700,7 +704,7 @@ void PropertyDateItem::showEditor()
 	lined()->blockSignals( FALSE );
     }
     placeEditor( lin );
-    if ( !lin->isVisible() || !lin->hasFocus() ) {
+    if ( !lin->isVisible() ) {
 	lin->show();
 	setFocus( lin );
     }
@@ -715,19 +719,23 @@ void PropertyDateItem::hideEditor()
 
 void PropertyDateItem::setValue( const QVariant &v )
 {
+    if ( ( !hasSubItems() || !isOpen() )
+	 && value() == v )
+	return;
+
     if ( lin ) {
 	lined()->blockSignals( TRUE );
 	if ( lined()->date() != v.toDate() )
 	    lined()->setDate( v.toDate() );
 	lined()->blockSignals( FALSE );
     }
-    setText( 1, v.toDate().toString() );
+    setText( 1, v.toDate().toString( Qt::ISODate ) );
     PropertyItem::setValue( v );
 }
 
 void PropertyDateItem::setValue()
 {
-    setText( 1, lined()->date().toString() );
+    setText( 1, lined()->date().toString( Qt::ISODate ) );
     QVariant v;
     v = lined()->date();
     PropertyItem::setValue( v );
@@ -749,6 +757,10 @@ QTimeEdit *PropertyTimeItem::lined()
     lin = new QTimeEdit( listview->viewport() );
     connect( lin, SIGNAL( valueChanged( const QTime & ) ),
 	     this, SLOT( setValue() ) );
+    QObjectList *l = lin->queryList( "QLineEdit" );
+    for ( QObject *o = l->first(); o; o = l->next() )
+	o->installEventFilter( listview );
+    delete l;
     return lin;
 }
 
@@ -767,7 +779,7 @@ void PropertyTimeItem::showEditor()
 	lined()->blockSignals( FALSE );
     }
     placeEditor( lin );
-    if ( !lin->isVisible() || !lin->hasFocus() ) {
+    if ( !lin->isVisible() ) {
 	lin->show();
 	setFocus( lin );
     }
@@ -782,19 +794,23 @@ void PropertyTimeItem::hideEditor()
 
 void PropertyTimeItem::setValue( const QVariant &v )
 {
+    if ( ( !hasSubItems() || !isOpen() )
+	 && value() == v )
+	return;
+
     if ( lin ) {
 	lined()->blockSignals( TRUE );
 	if ( lined()->time() != v.toTime() )
 	    lined()->setTime( v.toTime() );
 	lined()->blockSignals( FALSE );
     }
-    setText( 1, v.toTime().toString() );
+    setText( 1, v.toTime().toString( Qt::ISODate ) );
     PropertyItem::setValue( v );
 }
 
 void PropertyTimeItem::setValue()
 {
-    setText( 1, lined()->time().toString() );
+    setText( 1, lined()->time().toString( Qt::ISODate ) );
     QVariant v;
     v = lined()->time();
     PropertyItem::setValue( v );
@@ -816,6 +832,10 @@ QDateTimeEdit *PropertyDateTimeItem::lined()
     lin = new QDateTimeEdit( listview->viewport() );
     connect( lin, SIGNAL( valueChanged( const QDateTime & ) ),
 	     this, SLOT( setValue() ) );
+    QObjectList *l = lin->queryList( "QLineEdit" );
+    for ( QObject *o = l->first(); o; o = l->next() )
+	o->installEventFilter( listview );
+    delete l;
     return lin;
 }
 
@@ -834,7 +854,7 @@ void PropertyDateTimeItem::showEditor()
 	lined()->blockSignals( FALSE );
     }
     placeEditor( lin );
-    if ( !lin->isVisible() || !lin->hasFocus() ) {
+    if ( !lin->isVisible() ) {
 	lin->show();
 	setFocus( lin );
     }
@@ -849,19 +869,23 @@ void PropertyDateTimeItem::hideEditor()
 
 void PropertyDateTimeItem::setValue( const QVariant &v )
 {
+    if ( ( !hasSubItems() || !isOpen() )
+	 && value() == v )
+	return;
+
     if ( lin ) {
 	lined()->blockSignals( TRUE );
 	if ( lined()->dateTime() != v.toDateTime() )
 	    lined()->setDateTime( v.toDateTime() );
 	lined()->blockSignals( FALSE );
     }
-    setText( 1, v.toDateTime().toString() );
+    setText( 1, v.toDateTime().toString( Qt::ISODate ) );
     PropertyItem::setValue( v );
 }
 
 void PropertyDateTimeItem::setValue()
 {
-    setText( 1, lined()->dateTime().toString() );
+    setText( 1, lined()->dateTime().toString( Qt::ISODate ) );
     QVariant v;
     v = lined()->dateTime();
     PropertyItem::setValue( v );
