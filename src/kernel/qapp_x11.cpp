@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#217 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#218 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#217 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#218 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -142,9 +142,10 @@ static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
 void		qt_reset_color_avail();		// defined in qcol_x11.cpp
 
-int		qt_ncols_option = 256;		// used in qcol_x11.cpp
+int		qt_ncols_option  = 256;		// used in qcol_x11.cpp
 int		qt_visual_option = -1;
-bool		qt_cmap_option = FALSE;
+bool		qt_cmap_option	 = FALSE;
+
 
 class QETWidget : public QWidget		// event translator widget
 {
@@ -1696,6 +1697,8 @@ void qt_leave_modal( QWidget *widget )
 static bool qt_try_modal( QWidget *widget, XEvent *event )
 {
     if ( popupWidgets )				// popup widget mode
+	return TRUE;
+    if ( widget->testWFlags(WStyle_Tool) )	// allow tool windows
 	return TRUE;
 
     QWidget *modal=0, *top=modal_stack->getFirst();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#90 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#90 $");
 
 
 /*****************************************************************************
@@ -1176,6 +1176,8 @@ void qt_leave_modal( QWidget *widget )
 static bool qt_try_modal( QWidget *widget, MSG *msg )
 {
     if ( popupWidgets )				// popup widget mode
+	return TRUE;
+    if ( widget->testWFlags(WStyle_Tool) )	// allow tool windows
 	return TRUE;
 
     QWidget *modal=0, *top=modal_stack->getFirst();
