@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#66 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#65 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#66 $")
 
 
 /*----------------------------------------------------------------------------
@@ -610,7 +610,7 @@ static void objSearch( QObjectList *result,
 
 /*----------------------------------------------------------------------------
   \fn const QObjectList *QObject::children() const
-  Returns a list of child objects.
+  Returns a list of child objects, or 0.
 
   The list of child objects contains all the child objects: That is
   the only guarantee this function gives.  Any undocumented behavior

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#97 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#96 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#97 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -232,7 +232,8 @@ bool QWidget::destroy()				// destroy widget
 
   If \e showIt is TRUE, show() is called once the widget has been
   recreated.
-*/
+
+  \sa getWFlags(). */
 
 void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
