@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#54 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -32,6 +32,10 @@ HPALETTE QColor::hpal = 0;			// application global palette
 
 static int  current_alloc_context = 0;
 
+inline COLORREF qrgb2colorref(QRgb rgb)
+{
+    return RGB(qRed(rgb),qGreen(rgb),qBlue(rgb));
+}
 
 int QColor::maxColors()
 {
@@ -182,7 +186,8 @@ uint QColor::alloc()
 	pix = 0;
     } else {
 	rgbVal &= RGB_MASK;
-	pix = hpal ? PALETTEINDEX(GetNearestPaletteIndex(hpal,rgbVal)) :rgbVal;
+	pix = hpal ? PALETTEINDEX(GetNearestPaletteIndex(hpal,qrgb2colorref(rgbVal))) :
+	    qrgb2colorref(rgbVal);
     }
     return pix;
 }
