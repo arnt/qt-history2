@@ -369,7 +369,7 @@ void MainWindow::showLinkFromClient( const QString &link )
 void MainWindow::showLink( const QString &link )
 {
     if( link.isEmpty() ) {
-	qDebug( "The link is empty!" );
+	qWarning( "The link is empty!" );
     }
 
     int find = link.find( '#' );
@@ -378,12 +378,6 @@ void MainWindow::showLink( const QString &link )
     QFileInfo fi( link );
     if( fi.exists() ) {
 	tabs->setSource( link );
-    /*
-    } else if ( link=="assistant_about_text" ) {
-	// No default startup text yet!!
-	QString docfile = Config::configuration()->docFiles()[0];
-	tabs->setSource( helpDock->docHomePage( docfile ) );
-    */
     } else {
 	// ### Default 404 site!
 	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ), 5000 );
@@ -585,7 +579,17 @@ void MainWindow::updateProfileSettings()
 #ifndef Q_WS_MACX
     setIcon( config->applicationIcon() );
 #endif
+    helpMenu->clear();
+    actionHelpAssistant->addTo( helpMenu );
+    helpMenu->insertSeparator();
+    helpAbout_Qt_AssistantAction->addTo( helpMenu );
+    if ( !config->aboutApplicationMenuText().isEmpty() )
+	actionAboutApplication->addTo( helpMenu );
+    helpMenu->insertSeparator();
+    actionHelpWhatsThis->addTo( helpMenu );
+
     actionAboutApplication->setMenuText( config->aboutApplicationMenuText() );
+
     if( !config->title().isNull() )
 	setCaption( config->title() );
 }

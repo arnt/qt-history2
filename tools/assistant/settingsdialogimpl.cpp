@@ -148,6 +148,10 @@ void SettingsDialog::setupProfiles()
 	    ci->setSelected( TRUE );
 	}
     }
+    if ( profs.count() > 1 )
+	buttonDelete->setEnabled( TRUE );
+    else
+	buttonDelete->setEnabled( FALSE );
 }
 
 void SettingsDialog::addProfile()
@@ -160,9 +164,17 @@ void SettingsDialog::addProfile()
 void SettingsDialog::removeProfile()
 {
     ProfileCheckItem *item = currentCheckedProfile();
+    if ( !item )
+	return;
     deleteProfilesList << item->profileName();
     delete item;
-    item = 0;
+    item = (ProfileCheckItem*)(profileView->firstChild()->firstChild());
+    if ( item ) {
+	item->activate();
+	item->setSelected( TRUE );
+    }
+    if ( profileView->firstChild()->childCount() < 2 )
+	buttonDelete->setDisabled( TRUE );
 }
 
 void SettingsDialog::modifyProfile()
