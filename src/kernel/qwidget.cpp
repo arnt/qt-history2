@@ -3215,6 +3215,7 @@ static bool noMoreToplevels()
 	    break;
 	widget = list->next();
     }
+    delete list;
     return widget == 0;
 }
 

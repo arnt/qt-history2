@@ -1626,6 +1626,8 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
 	    }
 	}
     }
+    delete l;
+
     if ( !id2Widget.isEmpty() )
 	d->rmbMenu->insertSeparator();
     int lineup = -2;
