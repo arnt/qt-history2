@@ -1,99 +1,16 @@
-#ifndef DATABASEAPP
-#define DATABASEAPP
+#ifndef DATABASEAPP_H
+#define DATABASEAPP_H
+
+#include "cursors.h"
 
 #include <qmainwindow.h>
 #include <qsqlcursor.h>
-#include <qdialog.h>
 #include <qsqltable.h>
 #include <qframe.h>
-#include <qmap.h>
 
 class QLabel;
-class QFrame;
 class QSplitter;
 class QSqlForm;
-
-
-class CustomerCursor : public QSqlCursor
-{
-public:
-    CustomerCursor();
-protected:
-    void primeInsert( QSqlRecord* buf );    
-};
-
-class ProductCursor : public QSqlCursor
-{
-public:
-    ProductCursor();
-protected:
-    void primeInsert( QSqlRecord* buf );    
-};
-
-class InvoiceCursor : public QSqlCursor
-{
-public:
-    InvoiceCursor();
-protected:
-    void primeInsert( QSqlRecord* buf );    
-};
-
-class InvoiceItemCursor : public QSqlCursor
-{
-public:
-    InvoiceItemCursor();
-protected:    
-    void primeInsert( QSqlRecord* buf );
-    QVariant  calculateField( uint fieldNumber );
-private:
-    ProductCursor pr;    
-};
-
-
-class DatabaseDlg : public QDialog
-{
-    Q_OBJECT
-
-public:
-    typedef enum Mode { Insert, Update, Delete };
-
-    DatabaseDlg( QSqlCursor * view, Mode mode, QWidget * parent = 0,
-		 const char * name = 0 );
-public slots:
-    void close();
-    void execute();
-
-private:
-    Mode mMode;
-    QSqlForm * mForm;
-};
-
-class InvoiceDlg : public QDialog
-{
-    Q_OBJECT
-
-public:
-    typedef enum Mode { Insert, Update, Delete };
-
-    InvoiceDlg( QSqlCursor * view, Mode mode, QWidget * parent = 0,
-		const char * name = 0 );
-public slots:
-    void updateInvoiceItem();
-    void insertInvoiceItem();
-    void deleteInvoiceItem();
-
-    void close();
-    void execute();
-    void updateProductTable( const QSqlRecord * r );
-
-private:
-    QVariant invoiceId;
-    Mode mMode;
-    QSqlForm   * invoiceForm;
-    QSqlTable  * invoiceItems;
-    QSqlCursor * productCr;
-    InvoiceItemCursor itemCursor;
-};
 
 class DatabaseWgt : public QFrame
 {
@@ -116,7 +33,7 @@ public slots:
     void insertInvoice();
     void updateInvoice();
     void deleteInvoice();
-
+    void insertingInvoice( QSqlRecord* buf );
 
 protected:
     void init();
@@ -144,5 +61,5 @@ private:
     InvoiceCursor invoiceCr;
 };
 
-#endif // DATABASEAPP
+#endif // DATABASEAPP_H
 
