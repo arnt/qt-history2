@@ -4988,9 +4988,15 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 				&& !hasPrefix( doc, end, "<tr")
 				&& !hasPrefix( doc, end, "</table") ) {
 			    if ( hasPrefix( doc, end, "<table" ) ) { // nested table
-				while ( end < (int)doc.length() &&
-					!hasPrefix( doc, end, "</table" ) )
+				int nested = 1;
+				++end;
+				while ( end < (int)doc.length() && nested != 0 ) {
+				    if ( hasPrefix( doc, end, "</table" ) )
+					nested--;
+				    if ( hasPrefix( doc, end, "<table" ) )
+					nested++;
 				    end++;
+				}
 			    }
 			    end++;
 			}
