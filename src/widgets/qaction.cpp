@@ -90,7 +90,7 @@
     the action. For example:
 
     \quotefile action/application.cpp
-    \skipto Save File
+    \skipto QPixmap( fileopen
     \printuntil connect
 
     We create a "File Save" action with a menu text of "&Save" and
@@ -398,17 +398,18 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
     keyboard accelerator \a accel. It is a child of \a parent and
     called \a name.
 
-    If  \a parent is a QActionGroup, the action automatically becomes
+    If \a parent is a QActionGroup, the action automatically becomes
     a member of it.
 
     For accelerators and status tips to work, \a parent must either be
     a widget, or an action group whose parent is a widget.
 
-    The action uses a stripped version of \a menuText as descriptive
-    text for toolbuttons, unless you set a specific description with
-    setText().  The same text and \a accel will be used for tool tips
-    and status tips unless you provide specific text for these using
-    setToolTip() and setStatusTip().
+    The action uses a stripped version of \a menuText (e.g. "\&Menu
+    Option..." becomes "Menu Option") as descriptive text for
+    toolbuttons. You can override this by setting a specific
+    description with setText(). The same text and \a accel will be
+    used for tool tips and status tips unless you provide text for
+    these using setToolTip() and setStatusTip().
 
     Call setToggleAction(TRUE) to make the action a toggle action.
 */
@@ -436,11 +437,12 @@ QAction::QAction( const QIconSet& icon, const QString& menuText, QKeySequence ac
     For accelerators and status tips to work, \a parent must either be
     a widget, or an action group whose parent is a widget.
 
-    The action uses a stripped version of \a menuText as descriptive
-    text for toolbuttons, unless you set a specific description with
-    setText().  The same text and \a accel will be used for tool tips
-    and status tips unless you provide specific text for these using
-    setToolTip() and setStatusTip().
+    The action uses a stripped version of \a menuText (e.g. "\&Menu
+    Option..." becomes "Menu Option") as descriptive text for
+    toolbuttons. You can override this by setting a specific
+    description with setText(). The same text and \a accel will be
+    used for tool tips and status tips unless you provide text for
+    these using setToolTip() and setStatusTip().
 
     Call setToggleAction(TRUE) to make the action a toggle action.
 */
