@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#1 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#2 $
 **
 ** Definition of QAccel class
 **
@@ -32,13 +32,10 @@ public:
     bool	isDisabled()	const	{ return !enabled; }
 
     void	insertItem( long key, int id=-1 );
-    void	insertItems( const QAccel * );
     void	removeItem( int id );
 
     long	key( int id );
-
-    bool	containsItem( long key ) const;
-    bool	containsItems( const QAccel * ) const;
+    int		findKey( long key ) const;
 
     bool	isItemDisabled( int id ) const;
     bool	isItemEnabled( int id )	 const	{ return !isItemDisabled(id); }

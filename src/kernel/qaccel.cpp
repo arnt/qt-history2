@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#2 $
 **
 ** Implementation of QAccel class
 **
@@ -12,23 +12,30 @@
 
 #define QAccelList QListM_QAccelItem
 #include "qaccel.h"
-#include "qwidget.h"
+#include "qapp.h"
 #include "qlist.h"
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#2 $";
 #endif
 
 
 /*!
 \class QAccel qaccel.h
 
-The QAccel class contains a number of accelerator items, which are
-activated when the user presses certain keys.  An accelerator must
-be associated with a widget in order to work.  A widget can have at
-most one accelerator object, however, several accelerators can be
-merged using the insertItems() function.
+The QAccel class contains a number of accelerator items. An accelerator item
+consists of a keyboard code combined with modifiers (SHIFT, CTRL and ALT),
+for example <code>CTRL + Key_P</code> could be a shortcut for printing a
+document.
+
+When pressed, an accelerator key sends out the signal activated() with a
+number that identifies this particular accelerator item.  Accelerator items
+can also be individually connected, so that two different keys will
+activate two different slots (see connectItem()).
+
+A QAccel object works for its parent widget and all children of this parent
+widget.
 */
 
 struct QAccelItem {				// accelerator item
@@ -45,7 +52,7 @@ typedef declare(QListM,QAccelItem) QAccelList;	// list of accelerators
 
 static QAccelItem *find_id( QAccelList *list, int id )
 {
-    QAccelItem *item = list->first();
+    register QAccelItem *item = list->first();
     while ( item && item->id != id )
 	item = list->next();
     return item;
@@ -53,32 +60,28 @@ static QAccelItem *find_id( QAccelList *list, int id )
 
 static QAccelItem *find_key( QAccelList *list, long key )
 {
-    QAccelItem *item = list->first();
+    register QAccelItem *item = list->first();
     while ( item && item->key != key )
 	item = list->next();
     return item;
 }
 
 
-class FriendlyWidget : public QWidget		// cheat to set WHasAccel flag
-{
-public:
-    void setAccelFlag() { setFlag( WHasAccel ); }
-};
-
-
 /*!
-Creates a QAccel object with a parent object and a name.
+Creates a QAccel object with a parent widget and a name.
 */
-QAccel::QAccel( QWidget *parent, const char *name ) : QObject( parent, name )
+
+QAccel::QAccel( QWidget *parent, const char *name ) : QObject( 0, name )
 {
+    hiPriority = TRUE;				// accel has high priority
     aitems = new QAccelList;
     CHECK_PTR( aitems );
     aitems->setAutoDelete( TRUE );
     enabled = TRUE;
-    if ( parent ) {				// set accelerator flag
-	FriendlyWidget *w = (FriendlyWidget *)parent;
-	w->setAccelFlag();
+    if ( parent ) {
+	parent->insertChild( this );		// insert as hi priority obj
+	QEvent e( Event_AccelInserted );
+	QApplication::sendEvent( parent, &e );	// notify parent about accel
     }
 #if defined(CHECK_NULL)
     else
@@ -89,6 +92,7 @@ QAccel::QAccel( QWidget *parent, const char *name ) : QObject( parent, name )
 /*!
 Destroys the accelerator object.
 */
+
 QAccel::~QAccel()
 {
     delete aitems;
@@ -96,16 +100,20 @@ QAccel::~QAccel()
 
 
 /*!
-Enables all accelerator keys.
+Enables the accelerator.  The accelerator is initially enabled.
+Individual keys can be enabled/disabled with the setItemEnabled(), enableItem()
+and disableItem() functions.
 */
+
 void QAccel::enable()
 {
     enabled = TRUE;
 }
 
 /*!
-Disables all accelerator keys.  Individual keys cannot be enabled in this mode.
+Disables the accelerator.  Individual keys cannot be enabled in this mode.
 */
+
 void QAccel::disable()
 {
     enabled = FALSE;
@@ -128,35 +136,22 @@ be assigned an identifer which is the number of accelerator items already
 defined.
 \code{{
 QAccel *a = new QAccel( mainView );	\/ mainView is a top level widget
-a->insertItem( Key_O | CTRL, 200 );	\/ Ctrl+O to open document
+a->insertItem( Key_P | CTRL, 200 );	\/ Ctrl+P to print document
 a->insertItem( Key_X | ALT , 201 );	\/ Alt+X  to quit
 a->insertItem( Key_D );			\/ gets id 2
 a->insertItem( Key_P | CTRL | SHIFT );	\/ gets id 3
 }}
 */
+
 void QAccel::insertItem( long key, int id )
 {
     aitems->insert( new QAccelItem(key,id) );
 }
 
 /*!
-Inserts all accelerator item from the other accelerator \e a.
-This functions lets you merge two accelerators.
-Individual connections for accelerator items in \e a will not be copied.
-*/
-void QAccel::insertItems( const QAccel *a )
-{
-    QAccelList *list = a->aitems;
-    QAccelItem *item = list->last();
-    while ( item ) {
-	aitems->insert( new QAccelItem(item->key,item->id) );
-	item = list->prev();
-    }
-}
-
-/*!
 Removes the accelerator item with the identifier \e id.
 */
+
 void QAccel::removeItem( int id )
 {
     if ( find_id(aitems, id) )
@@ -168,35 +163,22 @@ void QAccel::removeItem( int id )
 Returns the key code of the accelerator item with the identifier \e id,
 or zero if the id cannot be found.
 */
+
 long QAccel::key( int id )
 {
     QAccelItem *item = find_id(aitems, id);
     return item ? item->key : 0;
 }
 
-
 /*!
-Returns TRUE if this accelerator contains an item with the key code \e key.
+Returns the identifier of the accelerator item with the key code \e key, or
+-1 if the item cannot be found.
 */
-bool QAccel::containsItem( long key ) const
-{
-    return find_key(aitems,key) != 0;
-}
 
-/*!
-Returns TRUE if this accelerator contains one or more items that also can be
-found in another accelerator \e a.
-*/
-bool QAccel::containsItems( const QAccel *a ) const
+int QAccel::findKey( long key ) const
 {
-    QAccelList *list = a->aitems;
-    QAccelItem *item = list->first();
-    while ( item ) {
-	if ( find_key(aitems,item->key) != 0 )
-	    return TRUE;
-	item = list->next();
-    }
-    return FALSE;
+    QAccelItem *item = find_key(aitems, key);
+    return item ? item->id : -1;
 }
 
 
@@ -204,6 +186,7 @@ bool QAccel::containsItems( const QAccel *a ) const
 Returns TRUE if the accelerator items with the identifier \e id is disabled.
 Returns FALSE if the item is enabled or cannot be found.
 */
+
 bool QAccel::isItemDisabled( int id ) const
 {
     QAccelItem *item = find_id(aitems, id);
@@ -221,6 +204,7 @@ Enables or disables an accelerator item.
 \arg \e id is the item identifier.
 \arg \e enable specifies wether the item should be enabled or disabled.
 */
+
 void QAccel::setItemEnabled( int id, bool enable )
 {
     QAccelItem *item = find_id(aitems, id);
@@ -251,6 +235,7 @@ a->connectItem( 201, mainView, SLOT(quit()) );
 }}
 
 */
+
 bool QAccel::connectItem( int id, const QObject *receiver,
 			  const char *member )
 {
@@ -268,6 +253,7 @@ bool QAccel::connectItem( int id, const QObject *receiver,
 /*!
 Disconnects an accelerator item from a function in another object.
 */
+
 bool QAccel::disconnectItem( int id, const QObject *receiver,
 			     const char *member )
 {
