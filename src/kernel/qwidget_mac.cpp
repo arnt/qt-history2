@@ -374,8 +374,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
     QRect dskr;
     if(isDesktop()) {
-	if(GDHandle g = GetMainDevice()) 
-	    dskr = QRect(0, 0, (*g)->gdRect.right, (*g)->gdRect.bottom);
+	int w = 0, h = 0;
+	for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
+	    w = QMAX(w, (*g)->gdRect.right);
+	    h = QMAX(h, (*g)->gdRect.bottom);
+	}
+	dskr = QRect(0, 0, w, h);
     } else {
 	if(QDesktopWidget *dsk = QApplication::desktop()) {
 	    int d = dsk->primaryScreen();
