@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#15 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#16 $
 **
 ** Definition of QSize class
 **
@@ -22,7 +22,7 @@
 class QSize
 {
 public:
-    QSize()	{}
+    QSize()	{ wd = ht = -1; }
     QSize( int w, int h );
 
     bool   isNull()	const;
