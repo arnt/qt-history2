@@ -571,7 +571,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     \endcode
 
     To restore the dock window positions and sizes (normally when the
-    application is next started), do following:
+    application is next started), do the following:
 
     \code
     QFile file(filename);
