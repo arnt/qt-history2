@@ -554,6 +554,9 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
                 arg.pdispVal = *(IDispatch**)qvar.data();
                 if (arg.pdispVal)
                     arg.pdispVal->AddRef();
+            } else if (!qstrcmp(qvar.typeName(), "IDispatch**")) {
+                arg.vt = VT_DISPATCH;
+                arg.ppdispVal = *(IDispatch***)qvar.data();
             } else if (!qstrcmp(qvar.typeName(), "IUnknown*")) {
                 arg.vt = VT_UNKNOWN;
                 arg.punkVal = *(IUnknown**)qvar.data();
@@ -869,9 +872,13 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
 #endif
                 {
                     if (!typeName.isEmpty()) {
-                        if (disp)
-                            disp->AddRef();
-                        qVariantSet(var, disp, typeName);
+                        if (arg.vt & VT_BYREF) {
+                            qVariantSet(var, arg.ppdispVal, "IDispatch**");
+                        } else {
+                            if (disp)
+                                disp->AddRef();
+                            qVariantSet(var, disp, typeName);
+                        }
                     }
                 }
             }
