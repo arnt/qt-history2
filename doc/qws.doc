@@ -448,6 +448,14 @@ using \c #ifdef directives:
 \row \i Qt/Embedded \i Q_WS_QWS
 \endtable
 
+Qt/Embedded also requires the following flags to be defined when compiling
+applications:
+\code
+-DQWS -fno-exceptions -fno-rtti
+\endcode
+
+Exceptions and RTTI are disabled in Qt/Embedded because they incur a large
+overhead in both size and speed.
 */
 
 
