@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#27 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#28 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#28 $");
 
 
 /*!
@@ -621,7 +621,7 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 	}
 
 	if ( d->ab ) {
-	    d->ab->move( x - 5 - d->cb->width(), height() - 5 - d->bh );
+	    d->ab->move( x - 5 - d->ab->width(), height() - 5 - d->bh );
 	    x = d->ab->geometry().x();
 	}
 
