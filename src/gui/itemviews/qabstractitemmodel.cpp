@@ -1196,8 +1196,14 @@ void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream 
             stream << it2.key();
             stream << it2.value();
         }
-        stream << rowCount(*it); // children
-        stream << columnCount(*it); // children
+        if (hasChildren(*it)) { // encode children
+            stream << rowCount(*it);
+            stream << columnCount(*it);
+            encodeData(*it, stream);
+        } else { // no children
+            stream << 0;
+            stream << 0;
+        }
     }
 }
 
@@ -1216,10 +1222,14 @@ void QAbstractItemModel::encodeData(const QModelIndex &parent, QDataStream &stre
                 stream << it2.key();
                 stream << it2.value();
             }
-            stream << rowCount(idx); // children
-            stream << columnCount(idx); // children
-            if (hasChildren(idx)) // recursive
+            if (hasChildren(idx)) { // encode children
+                stream << rowCount(idx);
+                stream << columnCount(idx);
                 encodeData(idx, stream);
+            } else { // no children
+                stream << 0;
+                stream << 0;
+            }
         }
     }
 }
@@ -1244,8 +1254,10 @@ bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QDataStr
                 stream >> value;
                 setData(idx, value, role);
             }
-            stream >> rows; // children
-            stream >> columns; // children
+            stream >> rows;
+            stream >> columns;
+            if (rows && columns) // decode children
+                decodeData(0, idx, stream);
             ++column;
         }
         ++row;
