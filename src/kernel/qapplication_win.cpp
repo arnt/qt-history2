@@ -1833,6 +1833,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    result = FALSE;
 	    break;
 #endif
+	    case WM_SHOWWINDOW:
+		if ( lParam == SW_PARENTOPENING ) {
+		    if ( widget->testWState(Qt::WState_ForceHide) )
+			RETURN(0);
+		}
+		result = FALSE;
+		break;
 
 	case WM_PALETTECHANGED:			// our window changed palette
 	    if ( QColor::hPal() && (WId)wParam == widget->winId() )
@@ -1851,7 +1858,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		RETURN(n);
 	    }
 	    break;
-
 	case WM_CLOSE:				// close window
 	    widget->translateCloseEvent( msg );
 	    RETURN(0);				// always handled
