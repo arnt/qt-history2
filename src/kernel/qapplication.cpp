@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#290 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#291 $
 **
 ** Implementation of QApplication class
 **
@@ -997,20 +997,18 @@ QFont QApplication::font( const QWidget *w )
     return *app_font;
 }
 
-/*!
-  Changes the default application font to \e font.
+/*!  Changes the default application font to \e font.  If \e
+  updateAllWidgets is TRUE, then the font of all existing widgets is
+  set to \e font, otherwise the change only affects newly created
+  widgets.  If \a classNAme is passed, the change applies only to
+  classes that inherit \a className (as reported by
+  QObject::inherits()).
 
-  The default font depends on the underlying window system, under X
-  Windows on the X server in use.
-
-  If \e updateAllWidgets is TRUE, then the font of all existing
-  widgets is set to \e font.
-
-  If a className is passed, then the font is only set for widgets
-  that inherit this class in the sense of QObject::inherits()
-
-  Widgets created after this call get \e font as their \link
-  QWidget::font() font\endlink when they access it.
+  On application start-up, the default font depends on the window
+  system.  It can vary both with window system version and with
+  locale.  This function lets you override it.  Note that overriding
+  it may be a bad idea, for example some locales need extra-big fonts
+  to support their special characters.
 
   \sa font(), fontMetrics(), QWidget::setFont()
 */
@@ -2161,21 +2159,47 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 
   During a session management action, i.e. within one of the two
   mentioned functions, no user interaction is possible, \e unless the
-  application got explicit permission from the session manager. An
-  ordinary permission can be requested with allowsInteraction(). With
+  application got explicit permission from the session manager.  An
+  ordinary permission can be requested with allowsInteraction().  With
   allowsErrorInteraction(), applications can ask for a higher priority
   interaction permission in case an error occured.
 
   Another important function is cancel(), which asks the session
   manager to cancel the shutdown process.
 
-  For sophisticated session managers as provided on Unix,
-  QSessionManager offers further possibilites to finetune an
+  For sophisticated session managers as provided on Unix/X11,
+  QSessionManager offers further possibilites to fine-tune an
   application's session management behaviour: setRestartCommand(),
   setDiscardCommand(), setRestartHint(), setProperty(),
-  requestPhase2(). Please see the respective function descriptions for
-  further details.
+  requestPhase2().  Please see the respective function descriptions
+  for further details.
 */
+
+/*! \enum QSessionManager::RestartHint
+
+  This enum type defines the circumstances under which this
+  application wants to be restarted by the session manager.  The
+  current values are: <ul>
+  
+  <li> \c RestartIfRunning - if the application still runs by the time
+  the session is shut down, it wants to be restarted at the start of
+  the next session.
+
+  <li> \c RestartAnyway - the application wants to be started at the
+  start of the next session, no matter what.  (This is useful for
+  utilities that run just after startup, then quit.)
+
+  <li> \c RestartImmediately - the application wants to be started
+  immediately whenever it is not running.
+
+  <li> \c RestartNever - the application does not want to be restarted
+  automatically.
+  
+  </ul>
+
+  The default hint is \c RestartIfRunning. 
+*/
+
 
 /*!
   \fn QString QSessionManager::sessionId() const
@@ -2190,6 +2214,8 @@ void QApplication::saveState( QSessionManager& /* sm */ )
  */
 
 
+// ### Note: This function is undocumented, since it is #ifdef'd.
+
 /*!
   \fn HANDLE QSessionManager::handle() const
 
@@ -2201,22 +2227,22 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   \fn bool QSessionManager::allowsInteraction()
 
   Asks the session manager for permission to interact with the
-  user. Returns TRUE if the interaction was granted, FALSE
+  user.  Returns TRUE if the interaction was granted, FALSE
   otherwise.
 
   The rationale behind this is to make it possible to synchronize user
-  interaction during a shutdown. Fancy session managers on
+  interaction during a shutdown.  Advanced session managers on
   multitasking operating systems may ask all applications
   simultaniously to commit their data, which results in a much faster
   shutdown.
 
-  After the interaction is is recommended (though not necessary) to
-  release the session manager with a call to release(). This way,
-  other applications may get the chance to interact with the user
-  while your application is still busy saving data.
+  After the interaction we recommend releasing the user interaction
+  semaphore with a call to release().  This way, other applications
+  may get the chance to interact with the user while your application
+  is still busy saving data.
 
   If the user decides to cancel the shutdown process during the
-  interaction phase, inform the session manager with a call to
+  interaction phase, you must tell the session manager by calling to
   cancel().
 
   Here's an example usage of the mentioned functions that may occur
@@ -2249,7 +2275,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 \endcode
 
   If an error occured within the application while saving its data,
-  you may want to use allowsErrorInteraction() instead.
+  you may want to try allowsErrorInteraction() instead.
 
    \sa QApplication::commitData(), release(), cancel()
 */
@@ -2259,10 +2285,10 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \fn bool QSessionManager::allowsErrorInteraction()
 
   Like allowsInteraction() but tells the session manager in addition
-  that an error occured. Session managers may treat error interaction
-  requests with higher priority. That means it is more likely that an
-  error interaction is granted. However, you are still not guaranteed
-  that the session manager will follow your request.
+  that an error occured.  Session managers may treat error interaction
+  requests with higher priority.  That means it is more likely that an
+  error interaction is granted.  However, you are still not guaranteed
+  that the session manager will grant your request.
 
   \sa allowsInteraction(), release(), cancel()
 */
@@ -2270,7 +2296,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn void QSessionManager::release()
 
-  Releases the session manager after an interaction phase.
+  Releases the session manager's interaction semaphore after an
+  interaction phase.
 
   \sa allowsInteraction(), allowsErrorInteraction()
 */
@@ -2278,9 +2305,9 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn void QSessionManager::cancel()
 
-  Tells the session manager to cancel the shutdown
-  process. Applications should not call this function without asking
-  the user first.
+  Tells the session manager to cancel the shutdown process.
+  Applications should not call this function without asking the user
+  first.
 
   \sa allowsInteraction(), allowsErrorInteraction()
 
@@ -2289,38 +2316,15 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn void QSessionManager::setRestartHint( RestartHint hint )
 
-  Sets the application's restart hint to \a hint. The restart hint
-  defines, under what circumstances an application should be restarted
-  by the session manager in the next session.
+  Sets the application's restart hint to \a hint.  On application
+  start-up the hint is set to \c RestartIfRunning.
 
-  The following values are possible:
+  Note that these flags are only hints, a session manager may or may
+  not obey them.
 
-  <ul>
-  <li> \c RestartIfRunning
-	  - This is the default hint. If the application still
-	     runs by the time the session is shut down, it shall be
-	     restarted.
-  <li> \c RestartAnyway
-	    - Restart the application in the next session, regardless
-	    whether it runs at the end of this session or not. This is
-	    in particulary useful for configuration utilities that
-	    just run during startup and quit themselves after
-	    finishing their task.
-  <li> \c RestartImmediately
-	  - Ensure that the application runs all the time. If it exits during the
-	  session for whatever reason, restart it immediately.
-	  This might be useful for desktop utilities that are supposed
-	  to run permanentely, for example a file manager.
-  <li> \c RestartNever
-	  - Do not restart this application under any circumstances.
-  </ul>
-
-  The default hint is \c RestartIfRunning. Note that these flags are
-  only hints, a session manager may or may not obey them.
-
-  Preferrably, the restart hint shall be defined in
-  QApplication::saveState() since most session managers perform a
-  checkpoint immediately after an application's startup.
+  We recommend setting the restart hint in QApplication::saveState()
+  since most session managers perform a checkpoint shortly after an
+  application's startup.
 
   \sa restartHint()
 */
@@ -2338,7 +2342,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \fn void QSessionManager::setRestartCommand( const QStringList& command)
 
   If the session manager is capable of restoring sessions, it will
-  execute \a command in order to restore the application. The command
+  execute \a command in order to restore the application.  The command
   defaults to
 
   \code
@@ -2347,12 +2351,12 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   The \c -session option is mandatory, otherwise QApplication can not
   tell whether it has been restored or what the current session
-  identifier is. See QApplication::isSessionRestored() and
+  identifier is.  See QApplication::isSessionRestored() and
   QApplication::sessionId() for details.  If your application is very
-  simply, it may be possible to store the entire application state in
-  additional command line options. In general, this is a very bad
+  simple, it may be possible to store the entire application state in
+  additional command line options.  In general, this is a very bad
   idea, since command lines are often limited to a few hundred bytes.
-  Instead, use temporary files or a database for this purpose. By
+  Instead, use temporary files or a database for this purpose.  By
   marking the data with the unique sessionId(), you will be able to
   restore the application in a future session.
 
@@ -2408,12 +2412,12 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn void QSessionManager::requestPhase2()
 
-  Requests a second session management phase for the application. The
+  Requests a second session management phase for the application.  The
   application may then simply return from the
-  QApplication::commitData() or QApplication::saveState()
-  function. The respective function will be called again after the
-  first session management phase has been finished, this time with
-  isPhase2() returning TRUE.
+  QApplication::commitData() or QApplication::saveState() function.
+  The respective function will be called again after the first session
+  management phase has been finished, this time with isPhase2()
+  returning TRUE.
 
   The two phases are useful for applications like X11 window manager,
   that need to store informations about other application's windows

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#6 $
+** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#7 $
 **
 ** Definition of QSessionManager class
 **
@@ -53,7 +53,12 @@ public:
 
     void cancel();
 
-    enum RestartHint { RestartIfRunning, RestartAnyway, RestartImmediately, RestartNever };
+    enum RestartHint {
+	RestartIfRunning,
+	RestartAnyway,
+	RestartImmediately,
+	RestartNever
+    };
     void setRestartHint( RestartHint );
     RestartHint restartHint() const;
 
