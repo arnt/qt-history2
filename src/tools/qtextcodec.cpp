@@ -622,20 +622,27 @@ QTextCodec* QTextCodec::codecForLocale()
 
 
 /*!
-  Searches all installed QTextCodec objects, returning the one
-  which best matches given name.  Returns NULL if no codec has
-  a match closeness above \a accuracy.
+  Searches all installed QTextCodec objects and returns the one
+  which best matches \a name.  Returns a null pointer if no codec's
+  heuristicNameMatch() reports a match better than \a accuracy, or
+  if \a name is a null string.
 
   \sa heuristicNameMatch()
 */
-QTextCodec* QTextCodec::codecForName(const char* hint, int accuracy)
+
+QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
 {
+    if ( !name || !*name )
+	return 0;
+
     setup();
-    QListIterator<QTextCodec> i(*all);
+    QListIterator<QTextCodec> i( *all );
     QTextCodec* result = 0;
-    int best=accuracy;
-    for ( QTextCodec* cursor; (cursor=i); ++i ) {
-        int s = cursor->heuristicNameMatch(hint);
+    int best = accuracy;
+    QTextCodec* cursor;
+    while ( (cursor=i.current()) != 0 ) {
+	++i;
+        int s = cursor->heuristicNameMatch( name );
         if ( s > best ) {
             best = s;
             result = cursor;

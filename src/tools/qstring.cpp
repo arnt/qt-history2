@@ -12034,9 +12034,8 @@ QString &QString::operator=( const char *str )
   \sa isNull(), isEmpty()
 */
 
-/*!
-  Truncates the string at position \a newLen if newLen is less than the
-  current length . Otherwise, nothing happens.
+/*!  Truncates the string at position \a newLen if newLen is less than
+  the string's current length. Otherwise, nothing happens.
 
   Example:
   \code
@@ -12045,8 +12044,10 @@ QString &QString::operator=( const char *str )
   \endcode
 
   In Qt 1.x, it was possible to "truncate" a string to a longer
-  length.  This is no longer possible.
+  length.  This is no longer possible; use setLength() if you need to
+  do that.
 
+  \sa setLength()
 */
 
 void QString::truncate( uint newLen )
@@ -12055,16 +12056,34 @@ void QString::truncate( uint newLen )
 	setLength( newLen );
 }
 
-/*### Make this public in 3.0
-  Ensures that at least \a newLen characters are allocated, and
-  sets the length to \a newLen.  This function always detaches the
-  string from other references to the same data.  Any new space
-  allocated is \e not defined.
+/*!  Ensures that at least \a newLen characters are allocated, and
+  sets the length of the string to \a newLen.  Any new space allocated
+  contains arbitrary data.
 
   If \a newLen is 0, this string becomes empty, unless this string is
   null, in which case it remains null.
 
-  \sa truncate(), isNull(), isEmpty()
+  This function always detaches the string from other references to
+  the same data.
+
+  This function is chiefly useful for code that needs to build up a
+  long string and wants to avoid repeated reallocation. In this
+  example, we want to call add to the string until some condition is
+  true, and we're fairly sure that moreThanEnough is more than enough:
+  \code
+    QString result;
+    int resultLength = 0;
+    result.setLength( moreThanEnough ) // allocate some space
+    while ( ... ) {
+        result[resultLength++] = ... // fill (part of) the space with data
+    }
+    result.truncate[resultLength]; // and get rid of the undefined junk
+  \endcode
+
+  (Note that if moreThanEnough is an underestimate, the worst that'll
+  happen is that the loop will slow down.)
+
+  \sa truncate(), isNull(), isEmpty(), length()
 */
 
 void QString::setLength( uint newLen )

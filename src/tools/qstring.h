@@ -530,12 +530,13 @@ public:
 
     bool startsWith( const QString& ) const;
 
+    void setLength( uint newLength );
+
 private:
     QString( int size, bool dummy );		// allocate size incl. \0
 
     void deref();
     void real_detach();
-    void setLength( uint pos );
     void subat( uint );
     bool findArg(int& pos, int& len) const;
 
