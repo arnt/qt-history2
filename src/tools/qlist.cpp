@@ -17,9 +17,9 @@ list.
 
 */
 
-QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, 0, {0} };
+QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, { 0 } };
 
-int QListData::grow (int size)
+int QListData::grow(int size)
 {
     return qAllocMore(size * sizeof(void*), sizeof(DataHeader)) / sizeof(void*);
 }
@@ -30,8 +30,6 @@ QListData::Data *QListData::detach()
     Data *x = static_cast<Data*>(qMalloc(sizeof(DataHeader)+d->alloc*sizeof(void*)));
     ::memcpy(x, d, sizeof(DataHeader) + d->alloc*sizeof(void*));
     x->alloc = d->alloc;
-    if (x->autoDelete != this)
-	x->autoDelete = 0;
     x->ref = 1;
     if (!x->alloc)
 	x->begin = x->end = 0;
@@ -151,17 +149,40 @@ void QListData::remove(int i, int n)
 
 void QListData::move(int from, int to)
 {
-    // TODO: optimize by shifting the array if we've got space
     Q_ASSERT( d->ref == 1 );
+    if (from == to)
+	return;
+
     from += d->begin;
     to += d->begin;
-    void *t = d->array[from]; 
+    void *t = d->array[from];
+
     if (from < to) {
-	::memmove(d->array + from, d->array + from + 1, 
-		  (to - from) * sizeof(void*));
+	if (d->end == d->alloc || 3 * (to - from) < 2 * (d->end - d->begin)) {
+	    ::memmove(d->array + from, d->array + from + 1, (to - from) * sizeof(void *));
+        } else {
+	    // optimization
+	    if (int offset = from - d->begin)
+	        ::memmove(d->array + d->begin + 1, d->array + d->begin, offset * sizeof(void *));
+	    if (int offset = d->end - (to + 1))
+		::memmove(d->array + to + 2, d->array + to + 1, offset * sizeof(void *));
+	    ++d->begin;
+            ++d->end;
+            ++to;
+	}
     } else {
-	::memmove(d->array + to + 1, d->array + to, 
-		  (from - to) * sizeof(void*));
+	if (d->begin == 0 || 3 * (from - to) < 2 * (d->end - d->begin)) {
+	    ::memmove(d->array + to + 1, d->array + to, (from - to) * sizeof(void *));
+	} else {
+	    // optimization
+	    if (int offset = to - d->begin)
+		::memmove(d->array + d->begin - 1, d->array + d->begin, offset * sizeof(void *));
+	    if (int offset = d->end - (from + 1))
+		::memmove(d->array + from, d->array + from + 1, offset * sizeof(void *));
+	    --d->begin;
+            --d->end;
+            --to;
+	}
     }
     d->array[to] = t;
 }
