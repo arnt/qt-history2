@@ -115,7 +115,7 @@ void QEventLoopPrivate::timerInsert(QTimerInfo *ti)
 #if defined(QT_DEBUG)
     if (dangerCount > 16)
         qDebug("QObject: %d timers now exist for object %s::%s",
-                dangerCount, ti->obj->className(), ti->obj->objectName());
+                dangerCount, ti->obj->className(), ti->obj->objectName().local8Bit());
 #endif
 }
 

@@ -111,10 +111,8 @@ void QScrollViewPrivate::init()
     vx = vy = 0;
     vwidth = vheight = 1;
 #ifndef QT_NO_DRAGANDDROP
-    autoscroll_timer.setObjectNameConst("scrollview autoscroll timer");
     drag_autoscroll = true;
 #endif
-    scrollbar_timer.setObjectNameConst("scrollview scrollbar timer");
     inresize = false;
     use_cached_size_hint = true;
 
@@ -2032,12 +2030,6 @@ void QScrollView::moveContents(int x, int y)
     d->hideOrShowAll(this, true);
 }
 
-#if (QT_VERSION-0 >= 0x040000)
-#if defined(Q_CC_GNU)
-#warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
-#endif
-// Because it's the viewport rectangle that is "moving", not the contents.
-#endif
 
 /*!
     \property QScrollView::contentsX

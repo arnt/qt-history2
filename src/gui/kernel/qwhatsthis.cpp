@@ -139,7 +139,6 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
 {
     delete instance;
     instance = this;
-    setObjectNameConst("automatic what's this? widget");
     setAttribute(WA_NoSystemBackground, true);
     setPalette(QToolTip::palette());
     setMouseTracking(true);

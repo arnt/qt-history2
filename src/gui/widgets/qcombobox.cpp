@@ -422,26 +422,26 @@ void QComboBoxPrivate::updateLinedGeometry()
         ed->setGeometry(r);
 }
 
-static inline bool checkInsertIndex(const char *method, const char * name,
+static inline bool checkInsertIndex(const char *method, const QString& name,
                                      int count, int *index)
 {
     bool range_err = (*index > count);
     if (range_err)
         qWarning("QComboBox::%s: (%s) Index %d out of range",
-                 method, name ? name : "<no name>", *index);
+                 method, name.isEmpty() ? "<no name>" : name.local8Bit(), *index);
     if (*index < 0)                                // append
         *index = count;
     return !range_err;
 }
 
 
-static inline bool checkIndex(const char *method, const char * name,
+static inline bool checkIndex(const char *method, const QString &name,
                                int count, int index)
 {
     bool range_err = (index >= count);
     if (range_err)
         qWarning("QComboBox::%s: (%s) Index %i out of range",
-                 method, name ? name : "<no name>", index);
+                 method, name.isEmpty() ? "<no name>" : name.local8Bit(), index);
     return !range_err;
 }
 

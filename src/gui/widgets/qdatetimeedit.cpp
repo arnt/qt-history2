@@ -583,8 +583,7 @@ bool QDateTimeEditor::eventFilter(QObject *o, QEvent *e)
                 QWidget *w = this;
                 bool hadDateEdit = false;
                 while (w) {
-                    if (qt_cast<QDateTimeSpinWidget*>(w) && qstrcmp(w->objectName(), "qt_spin_widget") != 0 ||
-                         qt_cast<QDateTimeEdit*>(w))
+                    if (qt_cast<QDateTimeSpinWidget*>(w) || qt_cast<QDateTimeEdit*>(w))
                         break;
                     hadDateEdit = hadDateEdit || qt_cast<QDateEdit*>(w);
                     w = w->parentWidget();
@@ -905,8 +904,8 @@ QDateEdit::QDateEdit(const QDate& date, QWidget * parent, const char * name)
 void QDateEdit::init()
 {
     d = new QDateEditPrivate();
-    d->controls = new QDateTimeSpinWidget(this, qstrcmp(objectName(), "qt_datetime_dateedit") == 0 ? "qt_spin_widget" : "date edit controls");
-    d->ed = new QDateTimeEditor(this, "date editor");
+    d->controls = new QDateTimeSpinWidget(this, 0);
+    d->ed = new QDateTimeEditor(this);
     d->controls->setEditWidget(d->ed);
     setFocusProxy(d->ed);
     connect(d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()));
@@ -1808,7 +1807,7 @@ void QTimeEdit::init()
 {
     d = new QTimeEditPrivate();
     d->ed = new QDateTimeEditor(this, "time edit base");
-    d->controls = new QDateTimeSpinWidget(this, qstrcmp(objectName(), "qt_datetime_timeedit") == 0 ? "qt_spin_widget" : "time edit controls");
+    d->controls = new QDateTimeSpinWidget(this, 0);
     d->controls->setEditWidget(d->ed);
     setFocusProxy(d->ed);
     connect(d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()));

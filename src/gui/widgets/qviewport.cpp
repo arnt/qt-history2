@@ -124,17 +124,14 @@ void QViewportPrivate::init()
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     hbar = new QScrollBar(Horizontal,  q);
-    hbar->setObjectNameConst("qt_hbar");
     QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(hslide(int)));
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), QueuedConnection);
     vbar = new QScrollBar(Vertical, q);
-    vbar->setObjectNameConst("qt_vbar");
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), QueuedConnection);
     viewport = new QViewportHelper(q);
     viewport->setBackgroundRole(QPalette::Base);
     QApplication::sendEvent(viewport, new QEvent(QEvent::User));
-    viewport->setObjectNameConst("qt_viewport");
 }
 
 void QViewportPrivate::layoutChildren()

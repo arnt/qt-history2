@@ -169,10 +169,8 @@ QTabWidgetPrivate::~QTabWidgetPrivate()
 void QTabWidgetPrivate::init()
 {
     stack = new QStackedBox(q);
-    stack->setObjectNameConst("tab pages");
     QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(removeTab(int)));
     q->setTabBar(new QTabBar(q));
-    tabs->setObjectNameConst("tab constrol");
 
     stack->setFrameStyle(QFrame::Box | QFrame::Plain);
 #ifdef Q_OS_TEMP

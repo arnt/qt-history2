@@ -70,7 +70,7 @@ public:
 class Q_CORE_EXPORT QObject: public Qt
 {
     Q_OBJECT
-    Q_PROPERTY(QByteArray objectName READ objectName WRITE setObjectName)
+    Q_PROPERTY(QString objectName READ objectName WRITE setObjectName)
     Q_DECLARE_PRIVATE(QObject)
 
 public:
@@ -78,7 +78,6 @@ public:
     QObject(QObject *parent, const char *name); // deprecated
     virtual ~QObject();
 
-    const char *className() const;
 #ifdef Q_QDOC
     static QString tr(const char *, const char *);
     static QString trUtf8(const char *, const char *);
@@ -93,10 +92,8 @@ public:
 #endif
 #endif //QT_NO_TRANSLATION
 
-    const char *objectName() const;
-    const char *objectName(const char *defaultName) const;
-    void setObjectName(const char *name);
-    void setObjectNameConst(const char *name);
+    QString objectName() const;
+    void setObjectName(const QString &name);
 
     inline bool isWidgetType() const { return d_ptr->isWidget; }
 
@@ -109,8 +106,8 @@ public:
     int startTimer(int interval);
     void killTimer(int id);
 
-    QObject *findChild(const char *name) const;
-    QObjectList findChildren(const char *name) const;
+    QObject *findChild(const QString &name) const;
+    QObjectList findChildren(const QString &name) const;
 
 #ifndef QT_NO_REGEXP
     QObjectList findChildren(const QRegExp &re) const;
@@ -199,9 +196,11 @@ public:
         { if (o) o->setParent(0); }
     inline QT_COMPAT bool isA(const char *classname) const
         { return qstrcmp(classname, className()) == 0; }
-    inline QT_COMPAT const char *name() const { return objectName(); }
-    inline QT_COMPAT const char *name(const char *defaultName) const { return objectName(defaultName); }
-    inline QT_COMPAT void setName(const char *name) { setObjectName(name); }
+    inline QT_COMPAT const char *className() const { return metaObject()->className(); }
+    inline QT_COMPAT const char *name() const { return objectName().latin1(); }
+    inline QT_COMPAT const char *name(const char *defaultName) const
+        { QString s = objectName(); return s.isEmpty()?defaultName:s.latin1(); }
+    inline QT_COMPAT void setName(const char *name) { setObjectName(QLatin1String(name)); }
 protected:
     inline QT_COMPAT bool checkConnectArgs(const char *signal,
                                   const QObject *,
@@ -213,9 +212,9 @@ protected:
 
 public:
     // public because we can't make a template method a friend
-    void findChildren_helper(const char *name, const QRegExp *re,
+    void findChildren_helper(const QString &name, const QRegExp *re,
                              const QMetaObject &mo, QList<void*> *list) const;
-    QObject *findChild_helper(const char *name, const QMetaObject &mo) const;
+    QObject *findChild_helper(const QString &name, const QMetaObject &mo) const;
 
 
 protected:
@@ -261,11 +260,11 @@ public:
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 
 template<typename T>
-inline T qFindChild(const QObject *o, const char *name = 0, T = 0)
+inline T qFindChild(const QObject *o, const QString &name = QString(), T = 0)
 { return static_cast<T>(o->findChild_helper(name, ((T)0)->staticMetaObject)); }
 
 template<typename T>
-inline QList<T> qFindChildren(const QObject *o, const char *name = 0, T = 0)
+inline QList<T> qFindChildren(const QObject *o, const QString &name = QString(), T = 0)
 {
     QList<T> list;
     o->findChildren_helper(name, 0, ((T)0)->staticMetaObject,

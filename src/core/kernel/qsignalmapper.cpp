@@ -166,6 +166,7 @@ QObject *QSignalMapper::mapping(int id) const
             return const_cast<QObject*>(i.key());
         ++i;
     }
+    return 0;
 }
 
 QObject *QSignalMapper::mapping(const QString &id) const
@@ -176,6 +177,7 @@ QObject *QSignalMapper::mapping(const QString &id) const
             return const_cast<QObject*>(i.key());
         ++i;
     }
+    return 0;
 }
 
 /*!

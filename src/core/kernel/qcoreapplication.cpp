@@ -877,7 +877,7 @@ void QCoreApplication::removePostedEvent(QEvent * event)
             qWarning("QEvent: Warning: event of type %d deleted while posted to %s %s",
                      event->type(),
                      pe.receiver ? pe.receiver->className() : "null",
-                     pe.receiver ? pe.receiver->objectName() : "object");
+                     pe.receiver ? pe.receiver->objectName().local8Bit() : "object");
 #endif
             pe.event->posted = false;
             delete pe.event;

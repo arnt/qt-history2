@@ -264,7 +264,7 @@ QDragManager::~QDragManager()
 QDragObject::QDragObject(QWidget * dragSource, const char * name)
     : QObject(*(new QDragObjectPrivate), dragSource)
 {
-    setObjectNameConst(name);
+    setObjectName(QLatin1String(name));
     d->pm_cursor = 0;
 #ifndef QT_NO_DRAGANDDROP
     if (!qt_dnd_manager && qApp)
@@ -653,7 +653,7 @@ QTextDrag::QTextDrag(const QString &text,
                       QWidget * dragSource, const char * name)
     : QDragObject(*new QTextDragPrivate, dragSource)
 {
-    setObjectNameConst(name);
+    setObjectName(QLatin1String(name));
     setText(text);
 }
 
@@ -666,7 +666,7 @@ QTextDrag::QTextDrag(const QString &text,
 QTextDrag::QTextDrag(QWidget * dragSource, const char * name)
     : QDragObject(*(new QTextDragPrivate), dragSource)
 {
-    setObjectNameConst(name);
+    setObjectName(QLatin1String(name));
 }
 
 
@@ -957,7 +957,7 @@ QImageDrag::QImageDrag(QImage image,
                         QWidget * dragSource, const char * name)
     : QDragObject(*(new QImageDragPrivate), dragSource)
 {
-    setObjectNameConst(name);
+    setObjectName(QLatin1String(name));
     setImage(image);
 }
 
@@ -969,7 +969,7 @@ QImageDrag::QImageDrag(QImage image,
 QImageDrag::QImageDrag(QWidget * dragSource, const char * name)
     : QDragObject(*(new QImageDragPrivate), dragSource)
 {
-    setObjectNameConst(name);
+    setObjectName(QLatin1String(name));
 }
 
 /*! \internal */
@@ -1177,7 +1177,7 @@ bool QImageDrag::decode(const QMimeSource* e, QPixmap& pm)
 QStoredDrag::QStoredDrag(const char* mimeType, QWidget * dragSource, const char * name) :
     QDragObject(*new QStoredDragPrivate, dragSource)
 {
-    setObjectNameConst(name);
+    setObjectName(QLatin1String(name));
     d->fmt = qstrdup(mimeType);
 }
 

@@ -874,10 +874,11 @@ void QGLWidget::init(QGLContext *context, const QGLWidget *shareWidget)
     setAttribute(WA_NoSystemBackground, true);
 
     if (isValid() && context->format().hasOverlay()) {
-        QByteArray olwName(objectName());
+        QString olwName = objectName();
         olwName += "-QGL_internal_overlay_widget";
         d->olw = new QGLOverlayWidget(QGLFormat::defaultOverlayFormat(),
-                                       this, olwName, shareWidget);
+                                       this, 0, shareWidget);
+        d->olw->setObjectName(olwName);
         if (d->olw->isValid()) {
             d->olw->setAutoBufferSwap(false);
             d->olw->setFocusProxy(this);

@@ -104,8 +104,7 @@ public:
 #endif
 
     mutable const QMetaObject *polished;
-    const char *objectName;
-    uint ownObjectName : 1;
+    QString objectName;
 };
 
 class Q_CORE_EXPORT QMetaCallEvent : public QEvent

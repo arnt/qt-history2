@@ -1091,7 +1091,7 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
                 if (mi->text().isNull() && !mi->pixmap() && !mi->iconSet() &&
                      !mi->isSeparator() && !mi->widget() && !mi->custom())
                     qWarning("Q3PopupMenu: (%s) Popup has invalid menu item",
-                              objectName("unnamed"));
+                              objectName().local8Bit());
             }
             height += itemHeight;
             if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this)) {

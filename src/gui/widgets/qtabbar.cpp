@@ -171,11 +171,9 @@ int QTabBarPrivate::extraWidth() const
 void QTabBarPrivate::init()
 {
     leftB = new QToolButton(LeftArrow, q);
-    leftB->setObjectNameConst("qt_left_btn");
     QObject::connect(leftB, SIGNAL(clicked()), q, SLOT(scrollTabs()));
     leftB->hide();
     rightB = new QToolButton(RightArrow, q);
-    rightB->setObjectNameConst("qt_right_btn");
     QObject::connect(rightB, SIGNAL(clicked()), q, SLOT(scrollTabs()));
     rightB->hide();
     q->setFocusPolicy(TabFocus);

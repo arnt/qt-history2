@@ -659,7 +659,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         // declare the widget's object name as window role
         XChangeProperty(dpy, id,
                          ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
-                         (unsigned char *)objectName(), qstrlen(objectName()));
+                         (unsigned char *)objectName().local8Bit(), qstrlen(objectName().local8Bit()));
 
         // set client leader property
         XChangeProperty(dpy, id, ATOM(WM_CLIENT_LEADER),
@@ -2213,7 +2213,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
         qWarning("QWidget::setMaximumSize: (%s/%s) "
                 "The largest allowed size is (%d,%d)",
-                 objectName("unnamed"), className(), QWIDGETSIZE_MAX,
+                 objectName().local8Bit(), className(), QWIDGETSIZE_MAX,
                 QWIDGETSIZE_MAX);
         maxw = qMin(maxw, QWIDGETSIZE_MAX);
         maxh = qMin(maxh, QWIDGETSIZE_MAX);
@@ -2221,7 +2221,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                objectName("unnamed"), className(), maxw, maxh);
+                objectName().local8Bit(), className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);
     }

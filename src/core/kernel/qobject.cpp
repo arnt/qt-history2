@@ -42,9 +42,7 @@ QObjectPrivate::QObjectPrivate()
     thread(0),
     connections(0),
     senders(0),
-        polished(0),
-    objectName(0),
-    ownObjectName(false)
+    polished(0)
 {
     // QObjectData initialization
     q_ptr = 0;
@@ -248,13 +246,13 @@ static inline bool isSpace(char x)
     \endcode
 */
 
-void *qt_find_obj_child(QObject *parent, const char *type, const char *name)
+void *qt_find_obj_child(QObject *parent, const char *type, const QString &name)
 {
     QObjectList list = parent->children();
     if (list.size() == 0) return 0;
     for (int i = 0; i < list.size(); ++i) {
         QObject *obj = list.at(i);
-        if (qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type))
+        if (name == obj->objectName() && obj->inherits(type))
             return obj;
     }
     return 0;
@@ -432,11 +430,6 @@ QObject::~QObject()
     if (d->parent)                                // remove it from parent object
         setParent_helper(0);
 
-    if (d->objectName && d->ownObjectName) {
-        delete [] (char*)d->objectName;
-        d->objectName = 0;
-    }
-
     delete d;
 }
 
@@ -456,17 +449,6 @@ QObject::~QObject()
     and inherits() also make use of the meta object.
 */
 
-/*!
-    Returns the class name of this object.
-
-    \warning This function depends on the \link metaobjects.html Meta
-    Object Compiler. \endlink It will return the wrong name if the
-    class definion lacks the Q_OBJECT macro.
-*/
-const char *QObject::className() const
-{
-    return metaObject()->className();
-}
 
 /*!
     \fn bool QObject::isA(const char *clname) const
@@ -532,56 +514,25 @@ const char *QObject::className() const
     You can find an object by name (and type) using child(). You can
     find a set of objects with queryList().
 
-    If the object does not have a name, the objectName() function
-    returns "unnamed", so printf() (used in qDebug()) will not be
-    asked to output a null pointer. If you want a null pointer to be
-    returned for unnamed objects, you can call objectName(0).
-
     \code
         qDebug("MyClass::setPrecision(): (%s) invalid precision %f",
-                objectName(), newPrecision);
+                objectName().local8Bit(), newPrecision);
     \endcode
 
     \sa className(), child(), queryList()
 */
 
-const char * QObject::objectName() const
+QString QObject::objectName() const
 {
-    return d->objectName ? d->objectName : "unnamed";
+    return d->objectName;
 }
 
 /*!
     Sets the object's name to \a name.
 */
-void QObject::setObjectName(const char *name)
+void QObject::setObjectName(const QString &name)
 {
-    if (d->objectName && d->ownObjectName)
-        delete [] (char*) d->objectName;
-    d->ownObjectName = true;
-    d->objectName = name ? qstrdup(name) : 0;
-}
-
-/*!
-    Sets the object's name to \a name, not copying the string.
-*/
-void QObject::setObjectNameConst(const char *name)
-{
-    if (d->objectName && d->ownObjectName)
-        delete [] (char*) d->objectName;
-    d->ownObjectName = false;
     d->objectName = name;
-}
-
-/*!
-    \overload
-
-    Returns the name of this object, or \a defaultName if the object
-    does not have a name.
-*/
-
-const char * QObject::objectName(const char * defaultName) const
-{
-    return d->objectName ? d->objectName : defaultName;
 }
 
 
@@ -609,9 +560,9 @@ QObject* QObject::child(const char *objName, const char *inheritsClass,
     for (int i = 0; i < d->children.size(); ++i) {
         QObject *obj = d->children.at(i);
         if (onlyWidgets) {
-            if (obj->isWidgetType() && (!objName || qstrcmp(objName, obj->objectName()) == 0))
+            if (obj->isWidgetType() && (!objName || obj->objectName() == QLatin1String(objName)))
                 return obj;
-        } else if ((!inheritsClass || obj->inherits(inheritsClass)) && (!objName || qstrcmp(objName, obj->objectName()) == 0))
+        } else if ((!inheritsClass || obj->inherits(inheritsClass)) && (!objName || objName == QLatin1String(objName)))
             return obj;
         if (recursiveSearch && (obj = obj->child(objName, inheritsClass, recursiveSearch)))
             return obj;
@@ -1047,10 +998,10 @@ static void objSearch(QObjectList &result,
             ok = false;
         if (ok) {
             if (objName)
-                ok = (qstrcmp(objName,obj->objectName()) == 0);
+                ok = (obj->objectName() == QLatin1String(objName));
 #ifndef QT_NO_REGEXP
             else if (rx)
-                ok = (rx->indexIn(QString::fromLatin1(obj->objectName())) != -1);
+                ok = (rx->indexIn(obj->objectName()) != -1);
 #endif
         }
         if (ok)                                // match!
@@ -1166,12 +1117,12 @@ QObjectList QObject::queryList(const char *inheritsClass,
 }
 #endif
 
-QObject *QObject::findChild(const char *name) const
+QObject *QObject::findChild(const QString &name) const
 {
     return findChild_helper(name, QObject::staticMetaObject);
 }
 
-QObjectList QObject::findChildren(const char *name) const
+QObjectList QObject::findChildren(const QString &name) const
 {
     QList<QObject *> list;
     findChildren_helper(name, 0, QObject::staticMetaObject,
@@ -1191,7 +1142,7 @@ QObjectList QObject::findChildren(const QRegExp &re) const
 
 /*! \internal
  */
-void QObject::findChildren_helper(const char *name, const QRegExp *re,
+void QObject::findChildren_helper(const QString &name, const QRegExp *re,
                          const QMetaObject &mo, QList<void*> *list) const
 {
     QObject *obj;
@@ -1199,10 +1150,10 @@ void QObject::findChildren_helper(const char *name, const QRegExp *re,
         obj = d->children.at(i);
         if (mo.cast(obj)) {
             if (re) {
-                if (re->indexIn(QString::fromLatin1(obj->d->objectName)) != -1)
+                if (re->indexIn(obj->d->objectName) != -1)
                     list->append(obj);
             } else {
-                if (!name || qstrcmp(obj->d->objectName, name) == 0)
+                if (name.isEmpty() || obj->d->objectName == name)
                     list->append(obj);
             }
         }
@@ -1212,13 +1163,13 @@ void QObject::findChildren_helper(const char *name, const QRegExp *re,
 
 /*! \internal
  */
-QObject *QObject::findChild_helper(const char *name, const QMetaObject &mo) const
+QObject *QObject::findChild_helper(const QString &name, const QMetaObject &mo) const
 {
     QObject *obj;
     int i;
     for (i = 0; i < d->children.size(); ++i) {
         obj = d->children.at(i);
-        if (mo.cast(obj) && (!name || qstrcmp(obj->d->objectName, name) == 0))
+        if (mo.cast(obj) && (name.isEmpty() || obj->d->objectName == name))
             return obj;
     }
     for (i = 0; i < d->children.size(); ++i) {
@@ -1642,11 +1593,12 @@ static void err_info_about_objects(const char * func,
                                     const QObject * sender,
                                     const QObject * receiver)
 {
-    const char * a = sender->objectName(0), * b = receiver->objectName(0);
-    if (a)
-        qWarning("Object::%s:  (sender name:   '%s')", func, a);
-    if (b)
-        qWarning("Object::%s:  (receiver name: '%s')", func, b);
+    QString a = sender->objectName();
+    QString b = receiver->objectName();
+    if (!a.isEmpty())
+        qWarning("Object::%s:  (sender name:   '%s')", func, a.local8Bit());
+    if (!b.isEmpty())
+        qWarning("Object::%s:  (receiver name: '%s')", func, b.local8Bit());
 }
 
 #endif // !QT_NO_DEBUG
@@ -2341,7 +2293,7 @@ void QMetaObject::connectSlotsByName(const QObject *o)
         bool foundIt = false;
         for(int j = 0; j < list.count(); ++j) {
             const QObject *co = list.at(j);
-            const char *objName = co->objectName(0);
+            const char *objName = co->objectName().utf8();
             int len = qstrlen(objName);
             if (!len
                 || qstrncmp(sig + 3, objName, len)
@@ -2520,7 +2472,7 @@ static void dumpRecursive(int level, QObject *object)
         buf.fill('\t', level/2);
         if (level % 2)
             buf += "    ";
-        const char *name = object->objectName();
+        QString name = object->objectName();
         QString flags="";
 #if 0
         if (qApp->focusWidget() == object)
@@ -2535,7 +2487,7 @@ static void dumpRecursive(int level, QObject *object)
             }
         }
 #endif
-        qDebug("%s%s::%s %s", (const char*)buf, object->className(), name,
+        qDebug("%s%s::%s %s", (const char*)buf, object->className(), name.local8Bit(),
             flags.latin1());
         QObjectList children = object->children();
         if (!children.isEmpty()) {
@@ -2574,7 +2526,7 @@ void QObject::dumpObjectTree()
 void QObject::dumpObjectInfo()
 {
 #if defined(QT_DEBUG)
-    qDebug("OBJECT %s::%s", className(), objectName("unnamed"));
+    qDebug("OBJECT %s::%s", className(), objectName().isEmpty() ? "unnamed" : objectName().local8Bit());
     //#### signals and slots info missing
 #endif
 }
@@ -2619,8 +2571,8 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     if (!o)
         return dbg << "QObject(0x0) ";
     dbg.nospace() << o->className() << "(" << (void *)o;
-    if (o->objectName(0))
-        dbg << ", name = \"" << o->objectName(0) << '\"';
+    if (!o->objectName().isEmpty())
+        dbg << ", name = \"" << o->objectName() << '\"';
     dbg << ')';
     return dbg.space();
 }

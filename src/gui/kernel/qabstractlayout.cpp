@@ -590,8 +590,8 @@ QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
     if (parent) {
         if (parent->layout()) {
             qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                      " layout", QObject::objectName(), parent->className(),
-                      parent->objectName());
+                      " layout", QObject::objectName().local8Bit(), parent->className(),
+                      parent->objectName().local8Bit());
             parent->layout()->setParent(0);
         } else {
             topLevel = true;
@@ -1197,7 +1197,7 @@ bool QLayout::activate()
     QWidget *mw = static_cast<QWidget*>(parent());
     if (mw == 0) {
         qWarning("QLayout::activate: %s \"%s\" does not have a main widget",
-                  QObject::className(), QObject::objectName());
+                  QObject::className(), QObject::objectName().local8Bit());
         return false;
     }
     activateRecursiveHelper(this);

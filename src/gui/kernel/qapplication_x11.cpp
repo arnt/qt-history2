@@ -2372,7 +2372,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
          ! mainWidget->parentWidget()->isDesktop())
         qWarning("QApplication::setMainWidget(): New main widget (%s/%s) "
                   "has a parent!",
-                  mainWidget->className(), mainWidget->objectName());
+                  mainWidget->className(), mainWidget->objectName().local8Bit());
 #endif
     main_widget = mainWidget;
     if (main_widget) {                        // give WM command line
@@ -5698,7 +5698,6 @@ void QSmSocketReceiver::socketActivated(int)
 QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
     : QObject(*new QSessionManagerPrivate(this, id, key), app)
 {
-    setObjectNameConst("qt_sessionmanager");
     d->restartHint = RestartIfRunning;
 
     resetSmState();

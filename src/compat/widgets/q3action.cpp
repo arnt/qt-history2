@@ -806,7 +806,7 @@ void Q3Action::setAccel(const QKeySequence& key)
         d->accelid = d->accel->insertItem(d->key);
         d->accel->connectItem(d->accelid, this, SLOT(internalActivation()));
     } else
-        qWarning("Q3Action::setAccel() (%s) requires widget in parent chain", objectName());
+        qWarning("Q3Action::setAccel() (%s) requires widget in parent chain", objectName().local8Bit());
     d->update();
 }
 
@@ -862,7 +862,7 @@ void Q3Action::activate()
     if (isToggleAction()) {
 #if defined(QT_CHECK_STATE)
         qWarning("Q3Action::%s() (%s) Toggle actions "
-                  "can not be activated", "activate", objectName());
+                  "can not be activated", "activate", objectName().local8Bit());
 #endif
         return;
     }
@@ -878,7 +878,7 @@ void Q3Action::toggle()
 {
     if (!isToggleAction()) {
         qWarning("Q3Action::%s() (%s) Only toggle actions "
-                  "can be switched", "toggle", objectName());
+                  "can be switched", "toggle", objectName().local8Bit());
         return;
     }
     setOn(!isOn());
@@ -900,7 +900,7 @@ void Q3Action::setOn(bool enable)
     if (!isToggleAction()) {
         if (enable)
             qWarning("Q3Action::%s() (%s) Only toggle actions "
-                      "can be switched", "setOn", objectName());
+                      "can be switched", "setOn", objectName().local8Bit());
         return;
     }
     if (enable == (bool)d->on)
@@ -1021,11 +1021,12 @@ bool Q3Action::addTo(QWidget* w)
 {
 #ifndef QT_NO_TOOLBAR
     if (::qt_cast<QToolBar*>(w)) {
-        if (!qstrcmp(objectName(), "qt_separator_action")) {
+        if (objectName() == QLatin1String("qt_separator_action")) {
             ((QToolBar*)w)->addSeparator();
         } else {
-            QByteArray bname = objectName() + QByteArray("_action_button");
-            QToolButton* btn = new QToolButton((QToolBar*) w, bname);
+            QString bname = objectName() + QLatin1String("_action_button");
+            QToolButton* btn = new QToolButton((QToolBar*) w);
+            btn->setObjectName(bname);
             addedTo(btn, w);
             btn->setToggleButton(d->toggleaction);
             d->toolbuttons.append(btn);
@@ -1046,7 +1047,7 @@ bool Q3Action::addTo(QWidget* w)
         Q3ActionPrivate::MenuItem* mi = new Q3ActionPrivate::MenuItem;
         mi->popup = (Q3PopupMenu*) w;
         QIconSet* diconset = d->iconset;
-        if (!qstrcmp(objectName(), "qt_separator_action"))
+        if (objectName() == QLatin1String("qt_separator_action"))
             mi->id = ((Q3PopupMenu*)w)->insertSeparator();
         else if (diconset)
             mi->id = mi->popup->insertItem(*diconset, QString::fromLatin1(""));
@@ -1065,7 +1066,7 @@ bool Q3Action::addTo(QWidget* w)
         ci->combo = (QComboBox*)w;
         connect(ci->combo, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
         ci->id = ci->combo->count();
-        if (qstrcmp(objectName(), "qt_separator_action")) {
+        if (objectName() == QLatin1String("qt_separator_action")) {
             if (d->iconset)
                 ci->combo->insertItem(d->iconset->pixmap(), text());
             else
@@ -1079,7 +1080,7 @@ bool Q3Action::addTo(QWidget* w)
         Q3ActionPrivate::Action4Item *act = new Q3ActionPrivate::Action4Item;
         if(!act->action) { //static
             act->action = new QAction;
-            if (!qstrcmp(objectName(), "qt_separator_action"))
+            if (objectName() == QLatin1String("qt_separator_action"))
                 act->action->setSeparator(true);
         }
         act->widget = w;
@@ -1793,7 +1794,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
                     Q3Action *action = *it;
                     if (!foundOn)
                         foundOn = action->isOn();
-                    if (qstrcmp(action->objectName(), "qt_separator_action") && !foundOn)
+                    if (action->objectName() != QLatin1String("qt_separator_action") && !foundOn)
                         onIndex++;
                     action->addTo(box);
                 }
@@ -2139,7 +2140,7 @@ void Q3ActionGroup::internalComboBoxActivated(int index)
     Q3Action *a = 0;
     for (int i = 0; i <= index && i < (int)d->actions.count(); ++i) {
         a = d->actions.at(i);
-        if (a && !qstrcmp(a->objectName(), "qt_separator_action"))
+        if (a && a->objectName() == QLatin1String("qt_separator_action"))
             index++;
     }
     a = d->actions.at(index);
@@ -2174,7 +2175,7 @@ void Q3ActionGroup::internalComboBoxHighlighted(int index)
     Q3Action *a = 0;
     for (int i = 0; i <= index && i < (int)d->actions.count(); ++i) {
         a = d->actions.at(i);
-        if (a && !qstrcmp(a->objectName(), "qt_separator_action"))
+        if (a && a->objectName() == QLatin1String("qt_separator_action"))
             index++;
     }
     a = d->actions.at(index);
@@ -2195,7 +2196,7 @@ void Q3ActionGroup::internalToggle(Q3Action *a)
     int lastItem = index;
     for (int i=0; i<lastItem; ++i) {
         Q3Action *action = d->actions.at(i);
-        if (!qstrcmp(action->objectName(), "qt_separator_action"))
+        if (action->objectName() == QLatin1String("qt_separator_action"))
             --index;
     }
 

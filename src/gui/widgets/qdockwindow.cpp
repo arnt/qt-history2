@@ -1919,7 +1919,7 @@ void QDockWindow::hideEvent(QHideEvent *e)
 
 void QDockWindow::showEvent(QShowEvent *e)
 {
-    if (curPlace == OutsideDock && (parent() && strcmp(parent()->objectName(), "qt_hide_dock") != 0)) {
+    if (curPlace == OutsideDock && (parent() && parent()->objectName() == QLatin1String("qt_hide_dock"))) {
         QRect sr = qApp->desktop()->availableGeometry(this);
         if (!sr.contains(pos())) {
             int nx = qMin(qMax(x(), sr.x()), sr.right()-width());
