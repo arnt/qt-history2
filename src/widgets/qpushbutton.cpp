@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#37 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,13 +18,16 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#37 $";
 #endif
 
 
 /*!
 \class QPushButton qpushbt.h
+
 \brief The QPushButton widget provides a push button with a text label.
+
+\ingroup realwidgets
 
 A default push button in a dialog emits the clicked signal if the user
 presses the Enter key.
