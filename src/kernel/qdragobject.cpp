@@ -1077,11 +1077,13 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
     fileFormats.first();
     while ( fileFormats.current() ) {
 	QCString format = fileFormats.current();
-	QCString type = "image/" + format.lower();
+	fileFormats.next();
+
+       	QCString type = "image/" + format.lower();
+	if ( ! e->provides( type.data() ) ) continue;
 	payload = e->encodedData( type.data() );
 	if ( !payload.isEmpty() )
 	    break;
-	fileFormats.next();
     }
 
     if ( payload.isEmpty() )
