@@ -1461,14 +1461,14 @@ QFontEngine *loadEngine(int script,
         fe = new QFontEngineXLFD(xfs, xlfd, mib);
     } else {
         QList<int> encodings;
-        encodings.append(encoding->encoding);
+        encodings.append(int(encoding->encoding));
 
         // append all other encodings for the matched font
         for (int i = 0; i < style->count; ++i) {
             QtFontEncoding *e = size->encodings + i;
             if (e == encoding)
                 break;
-            encodings.append(e->encoding);
+            encodings.append(int(e->encoding));
         }
         // fill in the missing encodings
         const XlfdEncoding *enc = xlfd_encoding;
