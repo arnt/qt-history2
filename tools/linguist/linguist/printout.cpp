@@ -12,6 +12,8 @@
 
 #include "printout.h"
 
+#if 0 // ### enable me
+
 #include <qprinter.h>
 #include <qfontmetrics.h>
 
@@ -46,7 +48,7 @@ PrintOut::~PrintOut()
 void PrintOut::setRule( Rule rule )
 {
     if ( (int) nextRule < (int) rule )
-	nextRule = rule;
+        nextRule = rule;
 }
 
 void PrintOut::setGuide( const QString& guide )
@@ -57,22 +59,22 @@ void PrintOut::setGuide( const QString& guide )
 void PrintOut::vskip()
 {
     if ( !firstParagraph )
-	voffset += 14;
+        voffset += 14;
 }
 
 void PrintOut::flushLine( bool /* mayBreak */ )
 {
     if ( voffset + cp.rect.height() > vsize )
-	breakPage();
+        breakPage();
     else if ( !firstParagraph )
-	drawRule( nextRule );
+        drawRule( nextRule );
 
     for ( int i = 0; i < (int) cp.boxes.count(); i++ ) {
-	Box b = cp.boxes[i];
-	b.rect.moveBy( 0, voffset );
-	QRect r = b.rect;
-	p.setFont( b.font );
-	p.drawText( r, b.align, b.text );
+        Box b = cp.boxes[i];
+        b.rect.moveBy( 0, voffset );
+        QRect r = b.rect;
+        p.setFont( b.font );
+        p.drawText( r, b.align, b.text );
     }
     voffset += cp.rect.height();
 
@@ -82,14 +84,14 @@ void PrintOut::flushLine( bool /* mayBreak */ )
 }
 
 void PrintOut::addBox( int percent, const QString& text, Style style,
-		       int halign )
+                       int halign )
 {
     int align = halign | Qt::AlignTop;
     QFont f = f10;
     if ( style == Strong )
-	f.setBold( TRUE );
+        f.setBold( TRUE );
     else if ( style == Emphasis )
-	f.setItalic( TRUE );
+        f.setItalic( TRUE );
     int wd = hsize * percent / 100;
     QRect r( cp.rect.x() + cp.rect.width(), 0, wd, vsize );
     int ht = p.boundingRect( r, align, text ).height();
@@ -108,7 +110,7 @@ void PrintOut::breakPage()
     int h2 = 0;
 
     if ( page++ > 0 )
-	pr->newPage();
+        pr->newPage();
     voffset = 0;
 
     p.setFont( f10 );
@@ -139,23 +141,24 @@ void PrintOut::drawRule( Rule rule )
 
     switch ( rule ) {
     case NoRule:
-	voffset += 5;
-	break;
+        voffset += 5;
+        break;
     case ThinRule:
-	pen.setColor( QColor(192, 192, 192) );
-	pen.setStyle( QPen::DotLine );
-	pen.setWidth( 0 );
-	p.setPen( pen );
-	voffset += 5;
-	p.drawLine( QPoint(hmargin, voffset),
-		    QPoint(hmargin + hsize, voffset) );
-	p.setPen( QPen() );
-	voffset += 2;
-	break;
+        pen.setColor( QColor(192, 192, 192) );
+        pen.setStyle( QPen::DotLine );
+        pen.setWidth( 0 );
+        p.setPen( pen );
+        voffset += 5;
+        p.drawLine( QPoint(hmargin, voffset),
+                    QPoint(hmargin + hsize, voffset) );
+        p.setPen( QPen() );
+        voffset += 2;
+        break;
     case ThickRule:
-	voffset += 7;
-	p.drawLine( QPoint(hmargin, voffset),
-		    QPoint(hmargin + hsize, voffset) );
-	voffset += 4;
+        voffset += 7;
+        p.drawLine( QPoint(hmargin, voffset),
+                    QPoint(hmargin + hsize, voffset) );
+        voffset += 4;
     }
 }
+#endif

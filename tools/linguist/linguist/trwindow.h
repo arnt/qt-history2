@@ -20,17 +20,20 @@
 #include <qmainwindow.h>
 #include <qlist.h>
 #include <qhash.h>
-#include <qprinter.h>
 #include <qstringlist.h>
 #include <qpixmap.h>
 #include <qlistview.h>
+
+#if 0 /// ### enable me
+#include <qprinter.h>
+#endif
+
 
 class QAction;
 class QDialog;
 class QLabel;
 class QListView;
 class QListViewItem;
-class QPrinter;
 class QMenu;
 
 class FindDialog;
@@ -154,7 +157,9 @@ private:
     PBL phraseBooks;
     QStringList phraseBookNames;
 
+#if 0 /// ### enable me
     QPrinter printer;
+#endif
 
     FindDialog *f;
     FindDialog *h;

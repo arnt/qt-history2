@@ -13,6 +13,8 @@
 #ifndef PRINTOUT_H
 #define PRINTOUT_H
 
+#if 0 // ### enable me
+
 #include <qfont.h>
 #include <qpaintdevicemetrics.h>
 #include <qpainter.h>
@@ -37,37 +39,37 @@ public:
     void vskip();
     void flushLine( bool mayBreak = FALSE );
     void addBox( int percent, const QString& text = QString::null,
-		 Style style = Normal,
-		 int halign = Qt::AlignLeft | Qt::WordBreak );
+                 Style style = Normal,
+                 int halign = Qt::AlignLeft | Qt::WordBreak );
 
     int pageNum() const { return page; }
 
     struct Box
     {
-	QRect rect;
-	QString text;
-	QFont font;
-	int align;
+        QRect rect;
+        QString text;
+        QFont font;
+        int align;
 
-	Box() : align( 0 ) { }
-	Box( const QRect& r, const QString& t, const QFont& f, int a )
-	    : rect( r ), text( t ), font( f ), align( a ) { }
-	Box( const Box& b )
-	    : rect( b.rect ), text( b.text ), font( b.font ),
-	      align( b.align ) { }
+        Box() : align( 0 ) { }
+        Box( const QRect& r, const QString& t, const QFont& f, int a )
+            : rect( r ), text( t ), font( f ), align( a ) { }
+        Box( const Box& b )
+            : rect( b.rect ), text( b.text ), font( b.font ),
+              align( b.align ) { }
 
-	Box& operator=( const Box& b ) {
-	    rect = b.rect;
-	    text = b.text;
-	    font = b.font;
-	    align = b.align;
-	    return *this;
-	}
+        Box& operator=( const Box& b ) {
+            rect = b.rect;
+            text = b.text;
+            font = b.font;
+            align = b.align;
+            return *this;
+        }
 
-	bool operator==( const Box& b ) const {
+        bool operator==( const Box& b ) const {
             return rect == b.rect && text == b.text && font == b.font &&
-		   align == b.align;
-	}
+                   align == b.align;
+        }
     };
 
 private:
@@ -75,11 +77,11 @@ private:
     void drawRule( Rule rule );
 
     struct Paragraph {
-	QRect rect;
-	QList<Box> boxes;
+        QRect rect;
+        QList<Box> boxes;
 
-	Paragraph() { }
-	Paragraph( QPoint p ) : rect( p, QSize(0, 0) ) { }
+        Paragraph() { }
+        Paragraph( QPoint p ) : rect( p, QSize(0, 0) ) { }
     };
 
     QPrinter *pr;
@@ -101,5 +103,7 @@ private:
     int hsize;
     int vsize;
 };
+
+#endif
 
 #endif

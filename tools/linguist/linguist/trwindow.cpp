@@ -430,6 +430,7 @@ void TrWindow::release()
 
 void TrWindow::print()
 {
+#if 0 /// ### enable me
     int pageNum = 0;
 
     if ( printer.setup(this) ) {
@@ -496,6 +497,7 @@ void TrWindow::print()
     } else {
         statusBar()->message( tr("Printing aborted"), MessageMS );
     }
+#endif
 }
 
 void TrWindow::find()
@@ -726,6 +728,7 @@ void TrWindow::editPhraseBook( int id )
 
 void TrWindow::printPhraseBook( int id )
 {
+#if 0 /// ### enable me
     int index = printPhraseBookp->indexOf( id );
     int pageNum = 0;
 
@@ -756,6 +759,7 @@ void TrWindow::printPhraseBook( int id )
     } else {
         statusBar()->message( tr("Printing aborted"), MessageMS );
     }
+#endif
 }
 
 void TrWindow::revertSorting()
