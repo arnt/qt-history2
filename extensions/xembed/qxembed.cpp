@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xembed/qxembed.cpp#3 $
+** $Id: //depot/qt/main/extensions/xembed/qxembed.cpp#4 $
 **
 ** Implementation of QXEmbed class
 **
@@ -85,8 +85,8 @@ void QXEmbed::keyPressEvent( QKeyEvent *e )
 	ev.xclient.data.s[2] = e->state();
 	ev.xclient.data.s[3] = e->isAutoRepeat();
 	ev.xclient.data.s[4] = !text.isEmpty()?1:e->count();
-	ev.xclient.data.s[5] = !text.isEmpty()?text[i-1].row:QChar::null.row;
-	ev.xclient.data.s[6] = !text.isEmpty()?text[i-1].cell:QChar::null.cell;
+	ev.xclient.data.s[5] = !text.isEmpty()?text[i-1].row():QChar::null.row();
+	ev.xclient.data.s[6] = !text.isEmpty()?text[i-1].cell():QChar::null.cell();
 	ev.xclient.data.s[7] = i++;
 	ev.xclient.data.s[8] = m;
 	XSendEvent(qt_xdisplay(), window, FALSE, NoEventMask, &ev);
@@ -117,8 +117,8 @@ void QXEmbed::keyReleaseEvent( QKeyEvent *e )
 	ev.xclient.data.s[2] = e->state();
 	ev.xclient.data.s[3] = e->isAutoRepeat();
 	ev.xclient.data.s[4] = !text.isEmpty()?1:e->count();
-	ev.xclient.data.s[5] = !text.isEmpty()?text[i-1].row:QChar::null.row;
-	ev.xclient.data.s[6] = !text.isEmpty()?text[i-1].cell:QChar::null.cell;
+	ev.xclient.data.s[5] = !text.isEmpty()?text[i-1].row():QChar::null.row();
+	ev.xclient.data.s[6] = !text.isEmpty()?text[i-1].cell():QChar::null.cell();
 	ev.xclient.data.s[7] = i++;
 	ev.xclient.data.s[8] = m;
 	XSendEvent(qt_xdisplay(), window, FALSE, NoEventMask, &ev);
