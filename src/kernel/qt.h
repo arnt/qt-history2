@@ -40,6 +40,7 @@
 #include "qglist.h"
 #include "qdatastream.h"
 #include "qlist.h"
+#include "qptrstrlist.h"
 #include "qpair.h"
 #include "qmap.h"
 #include <qfont.h>

@@ -144,13 +144,14 @@
 */
 //#define QT_NO_DATASTREAM
 
-#if defined(QT_NO_STRINGLIST)
+#if defined(QT_NO_DIR)
 /*!
   Dynamic module linking
 */
 # define QT_NO_COMPONENT
 #endif
-#if defined QT_NO_STRINGLIST
+
+#if  defined(QT_NO_DIR)
 # define QT_NO_SETTINGS
 #endif
 
@@ -772,13 +773,6 @@
 #endif
 
 
-#if defined(QT_NO_RANGECONTROL) || defined(QT_NO_STYLE) || defined(QT_NO_RANGECONTROLWIDGET)
-/*!
-  Spin boxes
-*/
-# define QT_NO_SPINBOX
-#endif
-
 #if defined(QT_NO_SCROLLBAR) || defined(QT_NO_FRAME)
 /*!
   Scrollable view widgets
@@ -832,6 +826,15 @@
 */
 # define QT_NO_MULTILINEEDIT
 #endif
+
+
+#if defined(QT_NO_RANGECONTROL) || defined(QT_NO_STYLE) || defined(QT_NO_RANGECONTROLWIDGET) || defined(QT_NO_LINEEDIT)
+/*!
+  Spin boxes
+*/
+# define QT_NO_SPINBOX
+#endif
+
 
 /*!
   Splitters
@@ -946,7 +949,7 @@
 # endif
 #endif
 
-#if defined(QT_NO_LISTBOX)
+#if defined(QT_NO_LISTBOX) || defined(QT_NO_LINEEDIT)
     /*!
 	QComboBox
     */

@@ -338,6 +338,7 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
     QWidget* w = childAt( e->pos(), TRUE );
     if ( !w )
 	return;
+#ifndef QT_NO_WHATSTHIS
     QString s = QWhatsThis::textFor( w, e->pos(), TRUE );
     if ( !s.isEmpty() ) {
 	QPopupMenu p;
@@ -345,6 +346,7 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
 	if ( p.exec( e->globalPos() ) >= 42 )
 	    QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ) );
     }
+#endif
 }
 
 /*! \reimp */

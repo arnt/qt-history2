@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#73 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -584,7 +584,9 @@ bool QProcess::start()
 	::dup2( sStdin[0], STDIN_FILENO );
 	::dup2( sStdout[1], STDOUT_FILENO );
 	::dup2( sStderr[1], STDERR_FILENO );
+#ifndef QT_NO_DIR
 	::chdir( workingDir.absPath().latin1() );
+#endif
 	if ( fd[0] )
 	    ::close( fd[0] );
 	if ( fd[1] )

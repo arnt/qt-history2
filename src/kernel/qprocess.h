@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#31 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#32 $
 **
 ** Implementation of QProcess class
 **
@@ -62,9 +62,10 @@ public:
     QStringList arguments() const;
     virtual void setArguments( const QStringList& args );
     virtual void addArgument( const QString& arg );
+#ifndef QT_NO_DIR
     QDir workingDirectory() const;
     virtual void setWorkingDirectory( const QDir& dir );
-
+#endif
     // control the execution
     virtual bool start();
     virtual bool launch( const QString& buf );
@@ -125,8 +126,9 @@ private slots:
 
 private:
     QProcessPrivate *d;
-
+#ifndef QT_NO_DIR
     QDir        workingDir;
+#endif
     QStringList _arguments;
 
     int  exitStat; // exit status

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#37 $
 **
 ** Implementation of QProcess class
 **
@@ -213,7 +213,7 @@ void QProcess::addArgument( const QString& arg )
 {
     _arguments.append( arg );
 }
-
+#ifndef QT_NO_DIR
 /*!
   Returns the working directory that was set with setWorkingDirectory().
 
@@ -237,7 +237,7 @@ void QProcess::setWorkingDirectory( const QDir& dir )
 {
     workingDir = dir;
 }
-
+#endif //QT_NO_DIR
 
 /*!
   Returns TRUE if the process has exited normally, otherwise FALSE. This
