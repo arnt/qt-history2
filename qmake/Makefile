@@ -180,9 +180,6 @@ qmap.obj: ..\src\tools\qmap.cpp
 qunicodetables.obj: ..\src\tools\qunicodetables.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qunicodetables.cpp
 
-qlocale.obj: ..\src\tools\qlocale.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qlocale.cpp
-
 makefile.obj: generators\makefile.cpp
 	$(CXX) $(CXXFLAGS) generators\makefile.cpp
 
