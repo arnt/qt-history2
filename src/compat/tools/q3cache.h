@@ -54,12 +54,12 @@ private:
 };
 
 #if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
-template<> inline void Q3Cache<void>::deleteItem(QPtrCollection::Item)
+template<> inline void Q3Cache<void>::deleteItem(Q3PtrCollection::Item)
 {
 }
 #endif
 
-template<class type> inline void Q3Cache<type>::deleteItem(QPtrCollection::Item d)
+template<class type> inline void Q3Cache<type>::deleteItem(Q3PtrCollection::Item d)
 {
     if (del_item) delete (type *)d;
 }
