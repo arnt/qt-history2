@@ -735,7 +735,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	HGLRC dmy_rc = wglCreateContext(dmy_pdc);
 	wglMakeCurrent(dmy_pdc, dmy_rc);
 	wglChoosePixelFormatARB =
-	    (PFNWGLCHOOSEPIXELFORMATARB) wglGetProcAddress("wglChoosePixelFormatARB");
+	    (PFNWGLCHOOSEPIXELFORMATARB) getProcAddress("wglChoosePixelFormatARB");
  	wglGetPixelFormatAttribivARB =
 	    (PFNWGLGETPIXELFORMATATTRIBIVARB) getProcAddress("wglGetPixelFormatAttribivARB");
 	wglMakeCurrent(dmy_pdc, 0);
@@ -748,7 +748,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
     if (wglChoosePixelFormatARB) {
 	bool valid;
 	int pixelFormat = 0;
-	UINT numFormats = 0;
+	uint numFormats = 0;
 	float fAttributes[] = {0, 0};
 	QVarLengthArray<int> iAttributes(40);
 	int i = 0;
@@ -785,7 +785,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
  	    iAttributes[i++] = WGL_ACCUM_BITS_ARB;
  	    iAttributes[i++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
  	}
-	if (d->glFormat.stencil()) {
+ 	if (d->glFormat.stencil()) {
 	    iAttributes[i++] = WGL_STENCIL_BITS_ARB;
 	    iAttributes[i++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
 	}
@@ -800,11 +800,11 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	do {
 	    valid = wglChoosePixelFormatARB(pdc, iAttributes.constData(), fAttributes, 1,
 					    &pixelFormat, &numFormats);
-	    if (!valid && d->glFormat.sampleBuffers())
+	    if ((!valid || numFormats < 1) && d->glFormat.sampleBuffers())
 		iAttributes[i-1] /= 2;
 	    else
 		break;
-	} while (!valid && iAttributes[i-1] > 1);
+	} while ((!valid || numFormats < 1) && iAttributes[i-1] > 1);
 	chosenPfi = pixelFormat;
     } else {
 	int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
