@@ -405,7 +405,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
 
     textRect->adjust(-textMargin, 0, textMargin, 0);
 
-    QSize pm;
+    QSize pm(0, 0);
     if (pixmapRect->isValid())
         pm = option.decorationSize;
     if (hint) {
