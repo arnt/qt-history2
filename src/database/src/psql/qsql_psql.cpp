@@ -147,14 +147,12 @@ QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
 {
     d =   new QPSQLPrivate();
     (*d) = (*p);
-    qDebug("QPSQLResult::QPSQLResult");
 }
 
 QPSQLResult::~QPSQLResult()
 {
     cleanup();
     delete d;
-    qDebug("QPSQLResult::~QPSQLResult()");
 }
 
 void QPSQLResult::cleanup()
@@ -416,6 +414,7 @@ QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
 void QPSQLDriver::init()
 {
     setTransactionSupport( TRUE );
+    setQuerySizeSupport( TRUE );
     d = new QPSQLPrivate();
 }
 
@@ -455,7 +454,6 @@ bool QPSQLDriver::open( const QString & db,
 	qWarning( PQerrorMessage( d->connection ) );
 #endif
     setOpen( TRUE );
-    qDebug("QPSQLDriver::opened");
     return TRUE;
 }
 
