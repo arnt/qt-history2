@@ -81,6 +81,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
     const int hmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q),
               vmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q);
 
+    //for compatability now - will have to refactor this away..
     tabWidth = maxIconWidth = 0;
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
@@ -105,9 +106,15 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
             sz = QSize(2, 2);
         } else {
             QString s = action->menuText();
-            QKeySequence seq = action->shortcut();
-            if (!seq.isEmpty())
-                tabWidth = qMax((int)tabWidth, fm.width(seq));
+            int t = s.indexOf('\t');
+            if(t != -1) {
+                tabWidth = qMax((int)tabWidth, fm.width(s.mid(t+1)));
+                s = s.left(t);
+            } else {
+                QKeySequence seq = action->shortcut();
+                if (!seq.isEmpty())
+                    tabWidth = qMax((int)tabWidth, fm.width(seq));
+            }
             int w = fm.width(s);
             w -= s.count('&') * fm.width('&');
             w += s.count("&&") * fm.width('&');
@@ -516,9 +523,11 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
         opt.menuItemType = QStyleOptionMenuItem::Normal;
     opt.icon = action->icon();
     QString textAndAccel = action->text();
-    QKeySequence seq = action->shortcut();
-    if (!seq.isEmpty())
-        textAndAccel += '\t' + QString(seq);
+    if (textAndAccel.indexOf('\t') == -1) {
+        QKeySequence seq = action->shortcut();
+        if(!seq.isEmpty())
+            textAndAccel += '\t' + QString(seq);
+    }
     opt.text = textAndAccel;
     opt.tabWidth = tabWidth;
     opt.maxIconWidth = maxIconWidth;
