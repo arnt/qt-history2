@@ -139,6 +139,8 @@ QFileEngine::QFileEngine() : QIOEngine(*new QFileEnginePrivate)
 }
 
 /*!
+   \internal
+
    Constructs a QFileEngine.
  */
 QFileEngine::QFileEngine(QFileEnginePrivate &dd)  : QIOEngine(dd)

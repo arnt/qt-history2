@@ -44,13 +44,13 @@ public:
 
     virtual QIODevice::Offset size() const = 0;
     virtual QIODevice::Offset at() const = 0;
-    virtual bool seek(QIODevice::Offset) = 0;
+    virtual bool seek(QIODevice::Offset off) = 0;
     virtual bool atEnd() const;
 
     virtual bool isSequential() const = 0;
 
-    virtual uchar *map(QIODevice::Offset, Q_LONG len);
-    virtual void unmap(uchar *);
+    virtual uchar *map(QIODevice::Offset off, Q_LONG len);
+    virtual void unmap(uchar *data);
 
     virtual Q_LONG readBlock(char *data, Q_LONG maxlen) = 0;
     virtual Q_LONG writeBlock(const char *data, Q_LONG len) = 0;

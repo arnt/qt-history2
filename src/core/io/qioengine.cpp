@@ -20,22 +20,23 @@
 #define q q_func()
 
 /*!
-    \class QIOEngine
+    \class QIOEngine qioengine.h
     \reentrant
 
-    \brief The QIOEngine class provies an abstraction for block reading and writing.
+    \brief The QIOEngine class provides an abstraction for block reading and writing.
 
     \ingroup io
     \mainclass
 
-    ###
+    The QIOEngine class is used to directly read and write to the
+    backing store for a QIODevice. All read/write operations will be
+    based on simple char's thus completely platform independent,
+    QTextStream will in turn intrepret the bytes the same when read.
 */
 
 
 /*!
-
-    ###
-
+   Construct a QIOEngine.
  */
 QIOEngine::QIOEngine() : d_ptr(new QIOEnginePrivate)
 {
@@ -43,9 +44,9 @@ QIOEngine::QIOEngine() : d_ptr(new QIOEnginePrivate)
 }
 
 /*!
+   \internal
 
-    ###
-
+   Construct a QIOEngine.
  */
 QIOEngine::QIOEngine(QIOEnginePrivate &dd) : d_ptr(&dd)
 {
@@ -53,9 +54,7 @@ QIOEngine::QIOEngine(QIOEnginePrivate &dd) : d_ptr(&dd)
 }
 
 /*!
-
-    ###
-
+  Destroys a QIOEngine.
  */
 QIOEngine::~QIOEngine()
 {
@@ -64,9 +63,11 @@ QIOEngine::~QIOEngine()
 }
 
 /*!
+  Reads a single line (as ended with \\n) into \a data with a maximum
+  length of \a maxlen. The length of the data filled is returned.
 
-    ###
-
+  Many QIOEngine subclasses can be optimized for this function, the
+  base implementation will simply read a single character at a time.
  */
 Q_LONG QIOEngine::readLine(char *data, Q_LONG maxlen)
 {
@@ -85,9 +86,11 @@ Q_LONG QIOEngine::readLine(char *data, Q_LONG maxlen)
 }
 
 /*!
+  Gets a single character from a QIODevice, if the end of the file is
+  met EOF should be returned. The base implementation will simply
+  readBlock a single character.
 
-    ###
-
+  \sa readBlock
  */
 int QIOEngine::getch()
 {
@@ -98,9 +101,11 @@ int QIOEngine::getch()
 }
  
 /*!
+  Puts a single chacters into the QIODevice, if this fails EOF is
+  returned. The base implementation will simply writeBlock a single
+  character.
 
-    ###
-
+  \sa writeBlock
  */
 int QIOEngine::putch(int ch)
 {
@@ -111,9 +116,7 @@ int QIOEngine::putch(int ch)
 }
 
 /*!
-
-    ###
-
+   Returns true if the end of file has been reached; otherwise false.
  */
 bool QIOEngine::atEnd() const
 {
@@ -121,9 +124,11 @@ bool QIOEngine::atEnd() const
 }
 
 /*!
+  Returns the QIODevice::Status that resulted from the last failed
+  operation. If QIOevice::UnspecifiedError is returned QIODevice will
+  use its own idea of the error status.
 
-    ###
-
+  \sa QIODeivce::Status, errorString
  */
 QIODevice::Status QIOEngine::errorStatus() const
 {
@@ -131,9 +136,22 @@ QIODevice::Status QIOEngine::errorStatus() const
 }
 
 /*!
+  Returns the message that goes along with errorStatus. If there is no
+  string to display the error return QString::null.
 
-    ###
+  \sa errorStatus, QString::isNull()
+ */
+QString QIOEngine::errorString() const
+{
+    return QString::null;
+}
 
+/*!
+  Attempt to map the file contents from \a offset for \a len number of
+  bytes and return it as a uchar *. If this fails returning 0 will
+  fall back to block reading/writing.
+
+  \sa unmap
  */
 uchar *QIOEngine::map(QIODevice::Offset /*offset*/, Q_LONG /*len*/)
 {
@@ -141,31 +159,19 @@ uchar *QIOEngine::map(QIODevice::Offset /*offset*/, Q_LONG /*len*/)
 }
 
 /*!
+   Unmap previously mapped file contents from memory.
 
-    ###
-
+   \sa map
  */
 void QIOEngine::unmap(uchar */*data*/)
 {
 
 }
 
-/*!
-
-    ###
-
- */
-QString QIOEngine::errorString() const
-{
-    return QString::null;
-}
-
-
-
 /* 
     \fn QIOEngine::Type QIOEngine::type() const
   
-    ###
+    Return your IO type, this can be used as simple RTTI information.
 
     This virtual function must be reimplemented by all subclasses.
  */
@@ -173,15 +179,22 @@ QString QIOEngine::errorString() const
 /* 
     \fn bool QIOEngine::open(int flags)
   
-    ###
+    Requests the IO be opened with flags set to \a flags being a set
+    or or'd together members from QIODevice::OpenModes. Upon success
+    return true; otherwise false and if necessary set your
+    QIOEngine::errorStatus.
 
     This virtual function must be reimplemented by all subclasses.
+
+    \sa errorStatus, QIODevice::OpenModes, close
  */
 
 /* 
     \fn bool QIOEngine::close()
   
-    ###
+    Requests the a previously opened QIOEngine be closed, and
+    references into the IO be removed. Upon success return true;
+    otherwise false and if necessary set your QIOEngine::errorStatus.
 
     This virtual function must be reimplemented by all subclasses.
  */
@@ -189,7 +202,7 @@ QString QIOEngine::errorString() const
 /* 
     \fn void QIOEngine::flush()
   
-    ###
+    Requests the all read/write's be flushed to your destination.
 
     This virtual function must be reimplemented by all subclasses.
  */
@@ -197,7 +210,7 @@ QString QIOEngine::errorString() const
 /* 
     \fn QIODevice::Offset QIOEngine::size() const
   
-    ###
+    Requests the size of your IO destination.
 
     This virtual function must be reimplemented by all subclasses.
  */
@@ -205,23 +218,28 @@ QString QIOEngine::errorString() const
 /* 
     \fn QIODevice::Offset QIOEngine::at() const
   
-    ###
+    Requests the current position of your IO destination.
 
     This virtual function must be reimplemented by all subclasses.
  */
 
 /* 
-    \fn bool QIOEngine::seek(QIODevice::Offset)
+    \fn bool QIOEngine::seek(QIODevice::Offset off)
   
-    ###
+    Requests that the engine's position be set to \a off relative the
+    beginning of the line. If the engine is a sequential device then
+    \a off will be relative the current position.
 
     This virtual function must be reimplemented by all subclasses.
+
+    \sa at, isSequential
  */
 
 /* 
     \fn bool QIOEngine::isSequential() const
   
-    ###
+    If the engine cannot be used for random read/write access return
+    true; otherwise false.
 
     This virtual function must be reimplemented by all subclasses.
  */
@@ -229,7 +247,10 @@ QString QIOEngine::errorString() const
 /* 
     \fn Q_LONG QIOEngine::readBlock(char *data, Q_LONG maxlen)
   
-    ###
+    Requests that input from the source be read into the values
+    pointed to by \a data with a maximum length of \a maxlen. The
+    number of bytes read will be returned; if a failure occurs EOF is
+    returned.
 
     This virtual function must be reimplemented by all subclasses.
  */
@@ -237,7 +258,10 @@ QString QIOEngine::errorString() const
 /* 
     \fn Q_LONG QIOEngine::writeBlock(const char *data, Q_LONG len)
   
-    ###
+    Requests that values pointed to by \a data be written to the
+    destination with a maximum length of \a maxlen. The number of
+    bytes written will be returned; if a failure occurs EOF is
+    returned.
 
     This virtual function must be reimplemented by all subclasses.
  */
@@ -245,7 +269,8 @@ QString QIOEngine::errorString() const
 /* 
     \fn int QIOEngine::ungetch(int c)
   
-    ###
+    Places \a c back into the stream at the current posisition; upon
+    failure -1 is returned, otherwise \a c is returned.
 
     This virtual function must be reimplemented by all subclasses.
  */
