@@ -60,11 +60,17 @@ void setWarningLevel( int level )
 
 static QString currentDirectory;
 
+/*
+  Level 0 is used for errors and for messages in supervisor mode.
+  They don't go through omit() and it takes a warningLevel of -1
+  to disable them (impossible in qdoc)..
+*/
+
 void warning( int level, const Location& loc, const char *message, ... )
 {
     if ( warningLevel < level )
 	return;
-    if ( omit(message) )
+    if ( level > 0 && omit(message) )
 	return;
 
     QString filename = loc.shortFilePath();
@@ -102,7 +108,7 @@ void warning( int level, const Location& loc, const char *message, ... )
 
 void warning( int level, const char *message, ... )
 {
-    if ( warningLevel <= level )
+    if ( warningLevel < level )
 	return;
     if ( level > 0 && omit(message) )
 	return;

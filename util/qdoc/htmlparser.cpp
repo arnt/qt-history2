@@ -21,7 +21,7 @@
 
 /*
   The file is parsed directly from the characters its made of.  There is no
-  tokenizer.  The lookahead character is yyCh.
+  tokenizer.  The lookahead character is yyCh.  It is fairly fast.
 */
 static QString yyFileName;
 static FILE *yyIn;
@@ -90,8 +90,8 @@ static void parseClass( Steering *steering )
 
     while ( TRUE ) {
 	skipUntil( QString("3 class=fn>") );
-	skipUntil( QString("<a name=") );
-	QString anchor = getBefore( QChar('>') );
+	skipUntil( QString("<a name=\"") );
+	QString anchor = getBefore( QString("\">") );
 	skipUntil( QString("</h3>") );
 
 	html = getBefore( QString("<h") );

@@ -18,14 +18,13 @@ extern void parseCppSourceFile( Steering *steering, const QString& fileName );
 // defined in htmlparser.cpp
 extern void parseHtmlFile( Steering *steering, const QString& fileName );
 
-
 static int cmp( const void *n1, const void *n2 )
 {
-    if ( !n1 || !n2 )
+    if ( n1 == 0 || n2 == 0 )
 	return 0;
 
-    QFileInfo f1( *(QString *)n1 );
-    QFileInfo f2( *(QString *)n2 );
+    QFileInfo f1( *(QString *) n1 );
+    QFileInfo f2( *(QString *) n2 );
     if ( f1.lastModified() < f2.lastModified() )
 	return -1;
     else if ( f1.lastModified() > f2.lastModified() )
@@ -33,7 +32,6 @@ static int cmp( const void *n1, const void *n2 )
 
     return 0;
 }
-
 
 static QStringList find( const QString & rootDir, const QString & nameFilter )
 {
@@ -64,8 +62,6 @@ static QStringList find( const QString & rootDir, const QString & nameFilter )
 
     return result;
 }
-
-
 
 int main( int argc, char **argv )
 {
@@ -137,7 +133,7 @@ int main( int argc, char **argv )
     if ( config->supervisor() ) {
 	outputFiles = find( config->outputDir(), QString("*.html") );
 	s = outputFiles.begin();
-	while ( s != sourceFiles.end() ) {
+	while ( s != outputFiles.end() ) {
 	    parseHtmlFile( &steering, *s );
 	    ++s;
 	}

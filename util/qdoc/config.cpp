@@ -80,8 +80,10 @@ static const char *toYN( bool yes )
 
 static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
 {
+    static QRegExp separators( QString("[ \t\n]*[ \t\n,;][ \t\n]*") );
+
     QString t = pattern.stripWhiteSpace();
-    t.replace( QRegExp(QString("\\s*(?:\\s|[,;]\\s*)")), QChar('|') );
+    t.replace( separators, QChar('|') );
 
     if ( plus && !rx->pattern().isNull() && rx->isValid() )
 	rx->setPattern( rx->pattern() + QChar('|') + t );
@@ -211,14 +213,10 @@ Config::Config( int argc, char **argv )
 	if ( opt.left(2) == QString("--") ) {
 	    int k = opt.find( QChar('=') );
 	    if ( k == -1 ) {
-		i++;
-		if ( i == argc ) {
-		    warning( 0, "Expected '%s+=foo', '%s=foo' or '%s foo' on"
-			     "command line", opt.latin1() );
-		    showHelp();
-		    break;
-		}
-		val = argv[i++];
+		if ( i < argc && QString(argv[i]).left(1) != QChar('-') )
+		    val = QString( argv[i++] );
+		else
+		    val = QString( "yes" );
 	    } else {
 		val = opt.mid( k + 1 );
 		opt.truncate( k );
@@ -323,8 +321,10 @@ void Config::setVersion( const QString& version )
 
 QString Config::verbatimHref( const QString& sourceFileName ) const
 {
+    static QRegExp evil( QString("[./]") );
+
     QString t = sourceFileName;
-    t.replace( QRegExp(QString("[./]")), QChar('-') );
+    t.replace( evil, QChar('-') );
     t += dotHtml;
     return t;
 }
@@ -377,38 +377,31 @@ bool Config::processClass( const QString& className ) const
 
 bool Config::matchLine( QString *key, QStringList *val )
 {
-    static QRegExp *keyX = 0;
-    static QRegExp *valXOrY = 0;
-    static QRegExp *backslashX = 0;
+    QRegExp keyX( QString("^[ \t]*([A-Z_a-z][A-Z_a-z0-9]*)[ \t]*=[ \t]*") );
+    QRegExp valXOrY( QString(
+	    "^(?:([^\" \n\t]*)|\"((?:[^\"\\\\]|\\\\.)*)\")"
+	    "(?:[ \t]|\\\\[ \t]*\n)*") );
+    QRegExp backslashX( QString("\\\\(.)") );
 
-    if ( keyX == 0 ) {
-	keyX = new QRegExp( QString(
-		       "^[ \t]*([A-Z_a-z][A-Z_a-z0-9]*)[ \t]*=[ \t]*") );
-	valXOrY = new QRegExp( QString(
-			  "^(?:([^\" \n\t]*)|\"((?:[^\"\\\\]|\\\\.)*)\")"
-			  "(?:[ \t]|\\\\[ \t]*\n)*") );
-	backslashX = new QRegExp( QString("\\\\(.)") );
-    }
+    if ( keyX.search(yyIn.mid(yyPos)) != -1 ) {
+	*key = keyX.cap( 1 );
+	yyPos += keyX.matchedLength();
 
-    if ( keyX->search(yyIn.mid(yyPos)) != -1 ) {
-	*key = keyX->cap( 1 );
-	yyPos += keyX->matchedLength();
-
-	while ( valXOrY->search(yyIn.mid(yyPos)) != -1 ) {
-	    if ( !valXOrY->cap(1).isEmpty() ) {
-		val->append( eval(valXOrY->cap(1)) );
-	    } else if ( !valXOrY->cap(2).isEmpty() ) {
-		QString t = valXOrY->cap( 2 );
+	while ( valXOrY.search(yyIn.mid(yyPos)) != -1 ) {
+	    if ( !valXOrY.cap(1).isEmpty() ) {
+		val->append( eval(valXOrY.cap(1)) );
+	    } else if ( !valXOrY.cap(2).isEmpty() ) {
+		QString t = valXOrY.cap( 2 );
 		int k = 0;
-		while ( (k = t.find(*backslashX, k)) != -1 ) {
-		    t.replace( k, 2, backslashX->cap(1) );
+		while ( (k = backslashX.search(t, k)) != -1 ) {
+		    t.replace( k, 2, backslashX.cap(1) );
 		    k += 2;
 		}
 		val->append( t );
 	    }
-	    if ( valXOrY->matchedLength() == 0 )
+	    if ( valXOrY.matchedLength() == 0 )
 		break;
-	    yyPos += valXOrY->matchedLength();
+	    yyPos += valXOrY.matchedLength();
 	}
 	if ( yyIn.mid(yyPos, 1) == QChar('\n') ) {
 	    yyPos++;
