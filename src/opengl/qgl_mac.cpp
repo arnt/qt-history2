@@ -139,7 +139,6 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 #if 1
 	attribs[cnt++] = AGL_RENDERER_ID;
 	attribs[cnt++] = AGL_RENDERER_GENERIC_ID;
-	attribs[cnt++] = AGL_ACCELERATED;
 #else
 	attribs[cnt++] = AGL_ACCELERATED;
 #endif
@@ -171,8 +170,8 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     AGLPixelFormat fmt;
     if(deviceIsPixmap() || !device)
 	fmt = aglChoosePixelFormat(NULL, 0, attribs);
-    else
-	fmt = aglChoosePixelFormat( NULL, 0, attribs);
+    else 
+	fmt = aglChoosePixelFormat( &device, 1, attribs);
     if(!fmt) {
 	GLenum err = aglGetError();
 	qDebug("got an error tex: %d", (int)err);
@@ -183,7 +182,8 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	int x = 0;
 	for( AGLPixelFormat fmt2 = fmt; fmt2; fmt2 = aglNextPixelFormat(fmt2) ) {
 	    aglDescribePixelFormat( fmt2, AGL_RENDERER_ID, &res );
-	    qDebug("%d) %d %d", x++, res, AGL_RENDERER_GENERIC_ID);
+	    qDebug("%d) %d %d %d", x++, (int)res, 
+		   (int)AGL_RENDERER_GENERIC_ID, (int)AGL_RENDERER_ATI_ID);
 	}
     }
 #endif
