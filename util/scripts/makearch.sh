@@ -100,16 +100,15 @@ CC	= gcc
 CFLAGS	= -O2 -fno-strength-reduce -Wall
 LFLAGS	= -lqt
 
-all: moc library tutorial examples
+all: library tutorial examples
 
-moc library tutorial examples: variables
-
-library tutorial examples: FORCE
+library tutorial examples: moc
 	cd \$@; \$(MAKE)
 
-moc: FORCE
+moc: variables bin/moc
 	cd \$@; \$(MAKE)
-	cp moc/moc ../../bin/moc
+	[ -d bin ] || mkdir bin
+	cp moc/moc bin/moc
 
 clean:
 	rm variables

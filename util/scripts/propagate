@@ -15,7 +15,7 @@ INCDIR	=	${QTDIR}/include
 CFLAGS	=	${CFLAGS}
 LFLAGS	=	-L${QTDIR}/lib ${LFLAGS}
 CC	=	${CC}
-MOC	=	${QTDIR}/bin/moc
+MOC	=	`pwd`/bin/moc
 
 ####### End of automatically generated section
 #
