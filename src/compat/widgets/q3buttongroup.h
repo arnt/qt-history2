@@ -86,5 +86,38 @@ private:
 #endif
 };
 
+class Q_COMPAT_EXPORT QVButtonGroup : public Q3ButtonGroup
+{
+    Q_OBJECT
+public:
+    inline QVButtonGroup(QWidget* parent=0, const char* name=0)
+        : Q3ButtonGroup(1, Horizontal /* sic! */, parent, name) {}
+    inline QVButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
+        : Q3ButtonGroup(1, Horizontal /* sic! */, title, parent, name) {}
+
+private:        // Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QVButtonGroup(const QVButtonGroup &);
+    QVButtonGroup &operator=(const QVButtonGroup &);
+#endif
+};
+
+
+class Q_COMPAT_EXPORT QHButtonGroup : public Q3ButtonGroup
+{
+    Q_OBJECT
+public:
+    inline QHButtonGroup(QWidget* parent=0, const char* name=0)
+        : Q3ButtonGroup(1, Vertical /* sic! */, parent, name) {}
+    inline QHButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
+        : Q3ButtonGroup(1, Vertical /* sic! */, title, parent, name) {}
+
+private:        // Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QHButtonGroup(const QHButtonGroup &);
+    QHButtonGroup &operator=(const QHButtonGroup &);
+#endif
+};
+
 
 #endif // Q3BUTTONGROUP_H
