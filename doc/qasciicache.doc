@@ -72,10 +72,10 @@
 
   When inserting an item into the cache, only the pointer is copied, not
   the item itself. This is called a shallow copy. It is possible to make the
-  dictionary copy all of the item's data (known as a deep copy) when an
+  cache copy all of the item's data (known as a deep copy) when an
   item is inserted.  insert() calls the virtual function
   QPtrCollection::newItem() for the item to be inserted.
-  Inherit a dictionary and reimplement it if you want deep copies.
+  Inherit a cache and reimplement it if you want deep copies.
 
   When removing a cache item the virtual function
   QPtrCollection::deleteItem() is called.  Its default implementation
@@ -108,10 +108,11 @@
   best to make it prime and at least 50% bigger than the largest
   expected number of items in the cache.
 
-  Each inserted item is associated with a cost.  When inserting a new
+  Each inserted item has an associated cost.  When inserting a new
   item, if the total cost of all items in the cache will exceed
-  \a maxCost, the cache will start throwing out the older (recently least
-  used) items until there is enough room for the new item to be inserted.
+  \a maxCost, the cache will start throwing out the older (least
+  recently used) items until there is enough room for the new item to be
+  inserted.
 
   If \a caseSensitive is TRUE (the default), the cache keys are case
   sensitive; if it is FALSE, they are
