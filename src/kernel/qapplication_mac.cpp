@@ -1037,7 +1037,7 @@ bool QApplication::processNextEvent( bool canWait )
 	do {
 	    do {
 		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
-		if(ret != noErr) 
+		if(ret != noErr)
 		    break;
 		if(SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle()))
 		    nevents++;
@@ -1261,7 +1261,7 @@ bool QApplication::do_mouse_down( Point *pt )
 		int wstrut = tlextra->fleft + tlextra->fright;
 		int hstrut = tlextra->ftop + tlextra->fbottom;
 		SetRect( &limits, extra->minw+wstrut, extra->minh+hstrut,
-			 extra->maxw+wstrut < QWIDGETSIZE_MAX ? extra->maxw+wstrut : QWIDGETSIZE_MAX, 
+			 extra->maxw+wstrut < QWIDGETSIZE_MAX ? extra->maxw+wstrut : QWIDGETSIZE_MAX,
 			 extra->maxh+hstrut < QWIDGETSIZE_MAX ? extra->maxh+hstrut : QWIDGETSIZE_MAX);
 	    }
 	}
@@ -1444,7 +1444,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			widget->propagateUpdates();
 		}
 		delete list;
-	    } 
+	    }
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = FALSE;
@@ -1748,8 +1748,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		case kEventMouseDragged: case kEventMouseMoved: desc = "MouseMove"; break;
 		case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
 		}
-		qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(), 
-		       plocal.x(), plocal.y(), desc, widget->name(), widget->className(), 
+		qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(),
+		       plocal.x(), plocal.y(), desc, widget->name(), widget->className(),
 		       button|keys, state|keys, wheel_delta);
 #endif
 		if(wheel_delta) {
@@ -1791,12 +1791,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 	    QApplication::sendSpontaneousEvent(widget, &imstart);
 	    if(!imstart.isAccepted()) //doesn't want the event
-		return 1; 
+		return 1;
 	    EventRef key_ev;
-	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL, 
+	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL,
 			      sizeof(key_ev), NULL, &key_ev);
 	    UniChar unicode;
-	    GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, NULL, 
+	    GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, NULL,
 			      sizeof(unicode), NULL, &unicode);
 	    QString text = QChar(unicode);
 	    QIMEvent imend(QEvent::IMEnd, text, 1);
@@ -1858,7 +1858,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    if(etype == QEvent::KeyPress) {
 			QIMEvent event(QEvent::IMStart, QString::null, -1);
 			QApplication::sendSpontaneousEvent(widget, &event);
-			if(event.isAccepted()) 
+			if(event.isAccepted())
 			    qt_app_im.startCompose(widget);
 		    }
 		} else {
@@ -2181,6 +2181,11 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     }
 }
 
+void QApplication::flush()
+{
+    sendPostedEvents();
+    // #### Sam, do that
+}
 
 #if 0
 #include <stdlib.h>

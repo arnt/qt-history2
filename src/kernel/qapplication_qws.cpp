@@ -3490,3 +3490,9 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	return animate_ui;
     }
 }
+
+void QApplication::flush()
+{
+    sendPostedEvents();
+#error "flush the socket, how?"
+}

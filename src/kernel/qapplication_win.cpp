@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#486 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#487 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1269,7 +1269,7 @@ int QApplication::exec()
     quit_now = FALSE;
     quit_code = 0;
     qt_gui_thread = GetCurrentThreadId();
-#if defined(QT_THREAD_SUPPORT)    
+#if defined(QT_THREAD_SUPPORT)
     if (qt_is_gui_used)
 	qApp->unlock();
 #endif
@@ -3390,4 +3390,9 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    return animate_ui;
 	}
     }
+}
+
+void QApplication::flush()
+{
+    sendPostedEvents();
 }

@@ -159,6 +159,7 @@ public:
     static bool	     closingDown();
 
     static void	     flushX();
+    static void flush();
     static void	     syncX();
 
     static void	     beep();

@@ -2020,8 +2020,6 @@ void QApplication::syncX()	{}		// do nothing
 
 #endif
 
-
-
 /*!
   \fn void QApplication::setWinStyleHighlightColor( const QColor & )
   \obsolete
