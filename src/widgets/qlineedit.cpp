@@ -404,7 +404,7 @@ QString QLineEdit::text() const
 void QLineEdit::setText( const QString& text)
 {
     resetInputContext();
-    d->setText( text.left( d->maxLength ) );
+    d->setText( text );
     d->modified = FALSE;
     d->finishChange( -1, FALSE );
 }
@@ -1110,7 +1110,7 @@ void QLineEdit::insert( const QString &newText )
 //     q->resetInputContext(); //#### FIX ME IN QT
     int priorState = d->undoState;
     d->removeSelectedText();
-    d->insert( newText.left( d->maxLength - (d->maskData ? d->cursor : d->text.length()) ) );
+    d->insert( newText );
     d->finishChange( priorState );
 }
 
@@ -2157,7 +2157,7 @@ int QLineEditPrivate::xToPos( int x, QTextItem::CursorPosition betweenOrOn ) con
 QRect QLineEditPrivate::cursorRect() const
 {
     QRect cr = q->contentsRect();
-    int cix = cr.x() - hscroll + innerMargin;;
+    int cix = cr.x() - hscroll + innerMargin;
     QTextItem ci = textLayout.findItem( cursor );
     if ( ci.isValid() ) {
 	if ( cursor != (int)text.length() && cursor == ci.from() + ci.length()
@@ -2264,7 +2264,7 @@ void QLineEditPrivate::setText( const QString& txt )
 	text = maskString( 0, txt );
 	text += clearString( text.length(), maxLength - text.length() );
     } else {
-	text = txt;
+	text = txt.left( maxLength );
     }
     history.clear();
     undoState = 0;
@@ -2377,8 +2377,8 @@ void QLineEditPrivate::insert( const QString& s )
 	cursor += ms.length();
 	cursor = nextMaskBlank( cursor );
     } else {
-	text.insert( cursor, s );
-	for ( int i = 0; i < (int) s.length(); ++i )
+	text.insert( cursor, s.left(maxLength - text.length()) );
+	for ( int i = 0; i < (int) s.left( maxLength - text.length() ).length(); ++i )
 	    addCommand( Command( Insert, cursor++, s.at(i) ) );
     }
     textDirty = TRUE;
@@ -2593,12 +2593,14 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 
     uint strIndex = 0;
     QString s = QString::fromLatin1("");
-    for ( int i=pos; i < maxLength; i++) {
+    int i = pos;
+    while ( i < maxLength ) {
 	if ( strIndex < str.length() ) {
 	    if ( maskData[ i ].separator ) {
 		s += maskData[ i ].maskChar;
 		if ( str[(int)strIndex] == maskData[ i ].maskChar )
 		    strIndex++;
+		i++;
 	    } else {
 		if ( isValidInput( str[(int)strIndex], maskData[ i ].maskChar ) ) {
 		    switch ( maskData[ i ].caseMode ) {
@@ -2611,21 +2613,20 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 		    default:
 			s += str[(int)strIndex];
 		    }
+		    i++;
 		} else {
 		    // search for separator first
 		    int n = findInMask( i, TRUE, TRUE, str[(int)strIndex] );
 		    if ( n != -1 ) {
 			s += fill.mid( i, n-i+1 );
-			i = n; // updates new pos since we might have advanced more then one char
+			i = n + 1; // update i to find + 1
 		    } else {
 			// search for valid blank if not
 			n = findInMask( i, TRUE, FALSE, str[(int)strIndex] );
 			if ( n != -1 ) {
 			    s += fill.mid( i, n-i );
 			    s += str[(int)strIndex];
-			    i = n; // updates new pos since we might have advanced more then one char
-			} else if ( str.length() > 1 ) {
-			    s += blank; // only blanks if more then one char in str
+			    i = n + 1; // updates i to find + 1
 			}
 		    }
 		}
@@ -2634,6 +2635,7 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 	} else
 	    break;
     }
+
     return s;
 }
 
