@@ -38,6 +38,8 @@ class QUrlInfo;
 
 class Q_EXPORT QUrlOperator : public QObject, public QUrl
 {
+    friend class QNetworkProtocol;
+    
     Q_OBJECT
 
 public:
@@ -83,7 +85,6 @@ protected:
     virtual void reset();
     virtual bool parse( const QString& url );
     virtual bool checkValid();
-    virtual void addEntry( const QUrlInfo &i );
     virtual void clearEntries();
     void getNetworkProtocol();
     void deleteNetworkProtocol();
@@ -91,6 +92,7 @@ protected:
 private slots:
     void copyGotData( const QByteArray &data, QNetworkOperation *op );
     void continueCopy( QNetworkOperation *op );
+    virtual void addEntry( const QUrlInfo &i );
 
 private:
     QUrlOperatorPrivate *d;

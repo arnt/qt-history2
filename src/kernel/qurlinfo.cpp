@@ -65,6 +65,7 @@ QUrlInfo::QUrlInfo()
     d->isFile = TRUE;
     d->isReadable = TRUE;
     d->size = 0;
+    d->isWritable = TRUE;
 }
 
 /*!

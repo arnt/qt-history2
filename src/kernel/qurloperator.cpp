@@ -222,6 +222,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
     : QObject(), QUrl( url )
 {
     d = new QUrlOperatorPrivate;
+    *d = *url.d;
     d->networkProtocol = 0;
     getNetworkProtocol();
     d->nameFilter = "*";
@@ -235,6 +236,8 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
     : QUrl( url, relUrl_ )
 {
     d = new QUrlOperatorPrivate;
+    if ( relUrl_ == "." )
+	*d = *url.d;
     d->networkProtocol = 0;
     getNetworkProtocol();
 }
@@ -800,11 +803,10 @@ void QUrlOperator::addEntry( const QUrlInfo &i )
 
 QUrlInfo QUrlOperator::info( const QString &entry ) const
 {
-    if ( d->entryMap.contains( entry ) ) {
-	return d->entryMap[ entry ];
-    } else {
-	return QUrlInfo();
-    }
+    if ( d->entryMap.contains( entry.stripWhiteSpace() ) )
+	return d->entryMap[ entry.stripWhiteSpace() ];
+    
+    return QUrlInfo();
 }
 
 /*!

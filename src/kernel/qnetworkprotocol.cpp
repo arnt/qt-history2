@@ -314,6 +314,8 @@ QNetworkProtocol::QNetworkProtocol()
 		 url(), SIGNAL( start( QNetworkOperation * ) ) );
 	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
 		 url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+		 url(), SLOT( addEntry( const QUrlInfo & ) ) );
 	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
@@ -367,6 +369,8 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		    url(), SIGNAL( start( QNetworkOperation * ) ) );
 	disconnect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
 		    url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+		    url(), SLOT( addEntry( const QUrlInfo & ) ) );
 	disconnect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		    url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	disconnect( this, SIGNAL( removed( QNetworkOperation * ) ),
@@ -388,6 +392,8 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		 url(), SIGNAL( start( QNetworkOperation * ) ) );
 	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
 		 url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+		 url(), SLOT( addEntry( const QUrlInfo & ) ) );
 	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
