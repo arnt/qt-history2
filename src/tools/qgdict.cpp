@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#29 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,12 +16,12 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#29 $")
 
 
 /*----------------------------------------------------------------------------
   \class QGDict qgdict.h
-  \brief The QGDict class is an internal class for implementing Qt collection classes.
+  \brief The QGDict class is an internal class for implementing QDict and QIntDict.
 
   QGDict is a strictly internal class that acts as a base class for the
   \link collection.html collection classes\endlink QDict and QIntDict.

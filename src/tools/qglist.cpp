@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#34 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------
@@ -952,6 +952,19 @@ QGListIterator::~QGListIterator()
 
 
 /*----------------------------------------------------------------------------
+  \fn bool QGListIterator::atFirst() const
+  \internal
+  Returns TRUE if the iterator points to the first item, otherwise FALSE.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QGListIterator::atLast() const
+  \internal
+  Returns TRUE if the iterator points to the last item, otherwise FALSE.
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
   \internal
   Sets the list iterator to point to the first item in the list.
  ----------------------------------------------------------------------------*/
@@ -982,6 +995,13 @@ GCI QGListIterator::toLast()
     }
     return list->lastNode ? (curNode = list->lastNode)->getData() : 0;
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn GCI QGListIterator::get() const
+  \internal
+  Returns the iterator item.
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
