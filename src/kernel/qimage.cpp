@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#21 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,30 +21,17 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#21 $";
 #endif
 
 /*!
 \class QImage qimage.h
 
-\brief The QImage class provides a hardware-independent image representation
-which is useful for image processing.
+\brief The QImage class provides a hardware-independent pixmap representation
+with direct access to the pixel data.
 
-The QImage class uses explicit data sharing, similar to that of QArray and
-QString.
-This makes it easy to use images in your program, because you never need
-to worry about deleting an image because it is automatically deleted when
-the last reference to the data is lost.
-
-The disadvantage of explicit data sharing is that changing one image might
-affect others (when you do not want it).  Call the detach() function to
-make sure that you get your own copy of an image.
-
-The QPixmap class, on the other hand, uses implicit data sharing, which
-means that the object automatically detaches when it is about to change.
-Implicit data sharing is easy to implement for classes that can detect
-change through member functions, but impossible to implement for classes
-that export pointers to internal data.
+The direct pixel access functionality of QImage makes it very suitable for
+image processing and for pixmap archiving.
 
 An image contains the parameters width, height and depth (bits per
 pixel, bpp), a color table and the actual pixels.  QImage support 1 bit,
@@ -52,8 +39,8 @@ pixel, bpp), a color table and the actual pixels.  QImage support 1 bit,
 where the pixel value is the index of a color.
 
 An entry in the color table is an RGB triplet encoded as <code>ulong</code>.
-Use the QRED, QGREEN and QBLUE function (qcolor.h) to separate the components,
-and QRGB to set an RGB value.
+Use the QRED, QGREEN and QBLUE functions (qcolor.h) to separate the components,
+and QRGB to set an RGB value (see the QColor class documentation).
 
 1-bpp (monochrome) images have a color table with maximum 2 colors.
 There are two ways of encoding such images; big endian (MSB first) or
@@ -61,12 +48,12 @@ little endian bit order (LSB first).  To access a single bit, you will have
 to do some bitshifts:
 
 \code
-QImage *image;
-\/ sets bit at (x,y) to 1
-if ( image->bitOrder() == QImage::LittleEndian )
-    *(image->scanline(y) + x >> 8) |= 1 << (x & 7);
-else
-    *(image->scanline(y) + x >> 8) |= 1 << (7 -(x & 7));
+  QImage image;
+    \/ sets bit at (x,y) to 1
+  if ( image.bitOrder() == QImage::LittleEndian )
+      *(image.scanline(y) + x >> 8) |= 1 << (x & 7);
+  else
+      *(image.scanline(y) + x >> 8) |= 1 << (7 -(x & 7));
 \endcode
 
 If this looks complicated, it might be a good idea to convert the 1-bpp
@@ -76,21 +63,37 @@ image to an 8-bpp image using convertDepth().
 use a single byte per pixel:
 
 \code
-QImage *image;
-\/ set entry 19 in the color table to yellow
-image->setColor( 19, QRGB(255,255,0) );
-\/ set 8 bit pixel at (x,y) to value yellow (in color table)
-*(image->scanline(y) + x) = 19;
+  QImage image;
+    \/ set entry 19 in the color table to yellow
+  image.setColor( 19, QRGB(255,255,0) );
+    \/ set 8 bit pixel at (x,y) to value yellow (in color table)
+  *(image.scanline(y) + x) = 19;
 \endcode
 
 24-bpp images do not have a color table, instead each pixel is encoded
 as red + green + blue.
 
 \code
-QImage *image;
-\/ sets 24 bit pixel at (x,y) to yellow.
-*(image->scanline(y) + 3*x) = QRGB(255, 255, 0);
+  QImage image;
+    \/ sets 24 bit pixel at (x,y) to yellow.
+  *(image.scanline(y) + 3*x) = QRGB(255, 255, 0);
 \endcode
+
+The QImage class uses explicit data sharing, similar to that of QArray and
+QString.
+This makes it easy to use images in your program, because you never need
+to worry about deleting an image. An image is automatically deleted when
+the last reference to the data is lost.
+
+The disadvantage of explicit data sharing is that changing one image might
+affect others (when you do not want it).  Call the detach() function to
+make sure that you get your own private copy of an image.
+
+The QPixmap class, on the other hand, uses implicit data sharing, which
+means that the object automatically detaches when it is about to change.
+Implicit data sharing is easy to implement for classes that can detect
+change through member functions, but impossible to implement for classes
+that export pointers to internal data.
 */
 
 
@@ -142,18 +145,21 @@ QImage::QImage()
 }
 
 /*!
-Constructs an \e width X \e height X \e depth (bpp) image with \e numColors
-colors and the bit order \e bitOrder.
+Constructs an image with \e w width, \e h height, \e depth bits per
+pixel, \e numColors colors and bit order \e bitOrder.
+
 Using this constructor is the same as first constructing a null image and
 then calling the create() function.
+
+\sa create().
 */
 
-QImage::QImage( int width, int height, int depth, int numColors, int bitOrder )
+QImage::QImage( int w, int h, int depth, int numColors, int bitOrder )
 {
     data = new QImageData;
     CHECK_PTR( data );
     reset_data( data );
-    create( width, height, depth, numColors, bitOrder );
+    create( w, h, depth, numColors, bitOrder );
 }
 
 /*!
@@ -180,7 +186,10 @@ QImage::~QImage()
 
 
 /*!
-Assigns a shallow copy of \e image.
+Assigns a shallow copy of \e image to this image and returns a reference
+to this image.
+
+\sa copy().
 */
 
 QImage &QImage::operator=( const QImage &image )
@@ -199,7 +208,9 @@ Sets the image bits to the \e pixmap contents and returns a reference to
 the image.
 
 If the image shares data with other images, it will first dereference
-the common data.
+the shared data.
+
+Makes a call to QPixmap::convertToImage().
 */
 
 QImage &QImage::operator=( const QPixmap &pixmap )
@@ -211,11 +222,11 @@ QImage &QImage::operator=( const QPixmap &pixmap )
 }
 
 /*!
-Detaches from common data and makes sure that this image is the only one
-that references the data.
+Detaches from shared image data and makes sure that this image is the
+only one referring the data.
 
-If multiple images share common data, this image will dereference the
-data and get a copy of the data. Nothing will be done if there is just
+If multiple images share common data, this image dereferences the
+data and gets a copy of the data. Nothing will be done if there is just
 a single reference.
 */
 
@@ -228,7 +239,7 @@ void QImage::detach()
 }
 
 /*!
-Returns a copy of the image.
+Returns a deep copy of the image.
 */
 
 QImage QImage::copy() const
@@ -252,6 +263,7 @@ QImage QImage::copy() const
 /*!
 \fn bool QImage::isNull() const
 Returns TRUE if it is a null image.
+
 A null image has all parameters set to zero and no allocated data.
 */
 
@@ -289,7 +301,47 @@ The supported depths are 1, 8 and 24 bit.
 Returns the size of the color table for the image.
 
 Notice that numColors() returns 0 for 24-bit images, since these images
-do not use color tables, but instead encode pixel values are RGB triplets.
+do not use color tables, but instead encode pixel values as RGB triplets.
+*/
+
+/*!
+\fn int QImage::bitOrder() const
+Returns the bit order for the image.
+
+It it is a 1-bit image, this function returns either QImage::BigEndian or
+QImage::LittleEndian.
+
+If it is not a 1-bit image, this function returns QImage::IgnoreEndian.
+*/
+
+/*!
+\fn uchar **QImage::jumpTable() const
+Returns a pointer to the scanline pointer table.
+
+This is the beginning of the data block for contiguous images.
+*/
+
+/*!
+\fn bool QImage::contiguousBits() const
+Returns TRUE if the image data is encoded as a contiguous block, or
+FALSE if it is segmented.
+
+\sa create()
+*/
+
+/*!
+\fn ulong *QImage::colorTable() const
+Returns a pointer to the color table.
+*/
+
+/*!
+\fn long QImage::numBytes() const
+Returned the number of bytes occupied by the image data.
+*/
+
+/*!
+\fn int QImage::bytesPerLine() const
+Returns the number of bytes per image scanline.
 */
 
 
@@ -331,7 +383,7 @@ void QImage::setColor( int i, ulong c )
 }
 
 /*!
-Returns a pointer to the pixel data at the \e y'th scanline.
+Returns a pointer to the pixel data at the \e i'th scanline.
 
 \sa bits().
 */
@@ -374,7 +426,7 @@ void QImage::reset()				// resets params/deallocs
 
 
 /*!
-Determines the byte order of the computer.
+Determines the host computer byte order.
 Returns QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
 */
 
@@ -414,7 +466,8 @@ int QImage::systemBitOrder()			// determine hardware bit order
 
 /*!
 Resizes the color table to \e numColors colors.
-If the color table is expanded, then all colors will be set to black
+
+If the color table is expanded, then all new colors will be set to black
 (RGB 0,0,0).
 
 \sa color(), setColor().
@@ -456,13 +509,13 @@ If \e depth is 1, then \e bitOrder must be set to QImage::LittleEndian
 or QImage::BigEndian, otherwise \e bitOrder must be QImage::IgnoreEndian.
 
 On 32-bit systems, the image data is always allocated as one block
-(contigous data).
+(contiguous data).
 On Windows 3.x (16 bit) the image data is allocated in smaller chunks,
 (one block per scanline) when the image data occupies more than 64k.
 The image data structure ('bits' member of QImage) consists of a
 table of pointers to each scanline.
 
-\sa contigousBits().
+\sa contiguousBits().
 */
 
 bool QImage::create( int width, int height, int depth, int numColors,
@@ -546,7 +599,8 @@ bool QImage::create( int width, int height, int depth, int numColors,
 }
 
 /*!
-Deallocates the image data and sets the bits pointer to 0.
+Internal function that deallocates the image data and sets the bits pointer
+to 0.
 */
 
 void QImage::freeBits()

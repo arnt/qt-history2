@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#7 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,17 +22,17 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#7 $";
 #endif
 
 
 /*!
 \class QPixmap qpixmap.h
-\brief The QPixmap class is a off-screen paint device.
+\brief The QPixmap class is an off-screen buffer paint device.
 
-The normal use of a pixmap is to use it for smooth update of a widget.
+A standard use of the QPixmap class is to enable smooth updating of widgets.
 Whenever something complex needs to be drawn, you can use a pixmap to
-obtains flicker-free drawing:
+obtain flicker-free drawing.
 
 <ol plain>
 <li> Create a pixmap with the necessary size.
@@ -43,16 +43,56 @@ obtains flicker-free drawing:
 
 The code may look like this:
 \code
-QWidget	 w;		\/ widget to update
-QPixmap	 pm(100, 100);	\/ 100x100 pixmap
-QPainter p;		\/ painter
-
-p.begin( &pm );
-  \/ do complex drawing
-p.end();
-			\/ copy pixmap to widget
-bitBlt( &w, 0, 0, &pm, 0, 0, 0, 0 );
+  QWidget  w;				\/ any widget
+  QPixmap  pm( w.width(), w.height());	\/ create pixmap
+  QPainter p;				\/ our painter
+  pm.fill( w.backgroundColor() );	\/ initialize pixmap
+  p.begin( &pm );			\/ paint inside pixmap
+  ...					\/ do complex drawing
+  p.end();				\/ painting done
+  bitBlt( &w, 0, 0, &pm, 0, 0, -1, -1 );\/ copy pixmap to widget
 \endcode
+
+The bitBlt() function is expained in the QPaintDevice documentation.
+
+Pixel data in a pixmap is internal and managed by the underlying window system.
+Pixels can only be accessed through QPainter functions and the bitBlt.
+
+A pixmap can be converted to a QImage to get direct access to the pixels.
+A QImage can also be converted back to a pixmap.
+
+The QPixmap class is internally based on implicit data sharing.
+Shared classes contains a data block with a reference count.
+The reference count reports the number of objects that are referring
+to the data block.
+
+Making a copy of the object (called shallow copy) is accomplished
+just by setting a pointer and incrementing the reference count.
+An object that is destroyed decrements the reference count.
+If the reference count reaches zero, then the destructor deletes
+the data block.
+
+It is much more expensive to make a deep copy.  A deep copy requires that
+all data is copied.
+
+The advantages of data sharing is that objects can easily be assigned,
+sent as parameters to functions and returned from functions.
+Shared classes also allocates less memory and require less copying of data.
+
+The disadvantage of data sharing is that changing one object will
+automatically change all other objects that refer to the same data.
+This is always the case when using explicite sharing.  The programmer
+has to be careful when modifying objects, and in some cases, make
+copies or detach an object from the rest.
+
+Implicite sharing solves these problems. A class that uses implicit
+sharing knows when it is about to be modified, and then detaches
+itself from the rest.  Implicite sharing is only possible when the
+class has total control of the call interface.
+
+Implicite sharing cannot be done when a class exports some of its
+internal data. Therefore, classes like QString and QImage must be explicitly
+shared classes.
 */
 
 // --------------------------------------------------------------------------
@@ -85,7 +125,6 @@ static int highest_bit( ulong v )
 // QPixmap member functions
 //
 
-
 void QPixmap::init()
 {
     data = new QPixmapData;
@@ -100,8 +139,7 @@ void QPixmap::init()
 /*!
 Constructs a null pixmap.
 
-A null pixmap has zero width, zero height and no contents, and can therefore
-not be drawn or drawn into.
+\sa isNull().
 */
 
 QPixmap::QPixmap()
@@ -114,12 +152,14 @@ QPixmap::QPixmap()
 }
 
 /*!
-Constructs a \e w x \e h pixmap of \e depth bits per pixels.
+Constructs a pixmap with \e w width, \e h height and of \e depth bits per
+pixels.
+
 The contents of the pixmap is uninitialized.
 
 The \e depth can be either 1 (monochrome) or the default depth
 supported by the hardware (normally 8 bits).
-If \e depth is negative, the the hardware depth will be used.
+If \e depth is negative, then the hardware depth will be used.
 */
 
 QPixmap::QPixmap( int w, int h, int depth )
@@ -179,6 +219,7 @@ Constructs a pixmap which is a shallow copy of \e pm.
 */
 
 QPixmap::QPixmap( const QPixmap &pm )
+    : QPaintDevice( PDT_PIXMAP )
 {
     data = pm.data;
     data->ref();
@@ -205,10 +246,10 @@ QPixmap::~QPixmap()
 
 
 /*!
-Assigns \e p to this pixmap and returns a reference to the pixmap.
+Assigns a shallow copy of \e p to this pixmap and returns a reference
+to this pixmap.
 
-Since pixmaps share data, this assignment makes a shallow reference
-to \e p.
+\sa copy().
 */
 
 QPixmap &QPixmap::operator=( const QPixmap &p )
@@ -245,8 +286,56 @@ QPixmap &QPixmap::operator=( const QImage &im )
 
 
 /*!
+\fn bool QPixmap::isNull() const
+Returns TRUE if it is a null pixmap.
+
+A null pixmap has zero width, zero height and no contents.
+You cannot draw in a null pixmap or bitBlt anything to it.
+
+\sa isNull().
+*/
+
+
+/*!
+\fn int QPixmap::width() const
+Returns the width of the pixmap.
+*/
+
+/*!
+\fn int QPixmap::height() const
+Returns the height of the pixmap.
+*/
+
+/*!
+\fn QSize QPixmap::size() const
+Returns the size of the pixmap.
+*/
+
+/*!
+\fn QRect QPixmap::rect() const
+Returns the enclosing rectangle of the pixmap.
+*/
+
+/*!
+\fn int QPixmap::depth() const
+Returns the depth of the image.
+
+The pixmap depth is also called bits per pixel (bpp) or bit planes of a pixmap.
+*/
+
+/*!
+\fn int QPixmap::numColors() const
+Returns the maximum number of colors that can be used for the pixmap.
+
+Similar to 2^depth.
+*/
+
+
+/*!
 Enables the internal image cache if \e enable is TRUE, or disables it if
 \e enable is FALSE.  Returns the previous setting of the image cache.
+
+This cache is disabled by default.
 
 Enabling the internal image cache speeds up functions that fetch the
 pixmap contents; convertToImage() and xForm().
@@ -324,6 +413,12 @@ long QPixmap::metric( int m ) const		// get metric information
 
 /*!
 Converts the pixmap to an image and returns TRUE if successful.
+
+If the pixmap has 1 bit depth, \e image will also get 1 bit depth.
+
+If the pixmap has 2-8 bits depth, \e image gets 8 bit depth.
+
+If the pixmap has greater than 8 bits depth, \e image gets 24 bits.
 
 \bug Does not support 2 or 4 bit display hardware. This function needs
 to be tested on different types of X servers.
@@ -519,14 +614,15 @@ Converts the image data and sets this pixmap. Returns TRUE if successful.
 
 If \e image has more colors than the number of available colors, we
 pick the most important colors, using the diversity algorithm of
-John Bradley et. al. (author of XV). This algorithm chooses colors
-on basis of popularity and distance.
+XV (written by John Bradley). This algorithm chooses colors on basis of
+popularity and distance.
 
 If this pixmap is an instance of QBitmap and \e image has 8 or 24 bits
-depth, then the image will dithered using the Floyd-Steinberg dithering
+depth, then the image will be dithered using the Floyd-Steinberg dithering
 algorithm.
 
-\bug Does not support 2 or 4 bit display hardware. More testing needed.
+\bug Does not support 2 or 4 bit display hardware. This function needs
+to be tested on different types of X servers.
 */
 
 bool QPixmap::convertFromImage( const QImage *image )
@@ -545,7 +641,7 @@ bool QPixmap::convertFromImage( const QImage *image )
     int scr = qt_xscreen();
     int dd  = DefaultDepth(dpy,scr);
 
-    if ( (dd == 1 || isBitmap()) && d > 1 ) {	// force to bitmap
+    if ( (dd == 1 || data->bitmap) && d > 1 ) {	// force to bitmap
 	tmp_image = image->convertDepth( 1 );	// dither
 	image = &tmp_image;
 	d = 1;
@@ -843,10 +939,27 @@ bool QPixmap::convertFromImage( const QImage *image )
 }
 
 
+/*!
+Grabs the contents of a window and makes a pixmap out of it.
+Returns the pixmap.
+
+The argments \e x and \e y specify the offset in the window, while
+\e w and \e h specify the width and height of the area to be copied.
+
+If \e w is negative, the function copies everything to the right
+border of the window.
+If \e h is negative, the function copies everything to the bottom of
+the window. 
+*/
+
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
     Display *dpy = qt_xdisplay();
-    if ( w < 0 || h < 0 ) {
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 ) {
+	    QPixmap nullPixmap;
+	    return nullPixmap;
+	}
 	XWindowAttributes a;
 	XGetWindowAttributes( dpy, window, &a );
 	if ( w < 0 )
@@ -875,6 +988,22 @@ Transforms the pixmap using \e matrix, and returns the transformed pixmap.
 
 Qt uses this function to implemented rotated text on window systems that
 do not support such fancy features.
+
+Example of use:
+\code
+  QPixmap   p;				\/ our original pixmap
+  QPixmap   r;				\/ our rotated pixmap
+  Q2DMatrix m;				\/ transformation matrix
+  m.rotate( -33.4 );			\/ rotate coordinate system
+  m.scale( 1, -1 );			\/ turn up-side-down
+  r = p.xForm( m );			\/ r = transformed p
+  Q2DMatrix t;
+  t = QPixmap::trueMatrix( m );		\/ true transformation matrix
+  int x, y;
+  t.map( 0,0, &x,&y );			\/ (x,y) is p's (0,0) in r
+\endcode
+
+\sa trueMatrix().
 
 \bug 2 and 4 bits pixmaps not supported.
 */
@@ -1135,10 +1264,13 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 Returns the actual matrix used for transforming pixmaps.
 
 When transforming a pixmap with xForm(), the transformation matrix is
-translated to compensate for undesired vertical and horizontal displacement.
+internally adjusted to compensate for unwanted translation (xForm()
+minimizes the resulting pixmap).
 
 This function returns the modified matrix, which maps points correctly
 from the original pixmap into the new pixmap.
+
+\sa xForm().
 */
 
 Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )

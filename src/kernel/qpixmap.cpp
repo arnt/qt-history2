@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#12 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,9 +15,18 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#12 $";
 #endif
 
+
+/*!
+Detaches from shared pixmap data and makes sure that this pixmap is the
+only one referring the data.
+
+If multiple pixmaps share common data, this pixmap dereferences the
+data and gets a copy of the data. Nothing will be done if there is just
+a single reference.
+*/
 
 void QPixmap::detach()				// detach shared pixmap
 {
@@ -32,6 +41,8 @@ void QPixmap::detach()				// detach shared pixmap
 
 /*!
 Returns a deep copy of the pixmap. All pixels are copied using bitBlt.
+
+\sa operator=().
 */
 
 QPixmap QPixmap::copy() const			// deep copy
@@ -43,7 +54,16 @@ QPixmap QPixmap::copy() const			// deep copy
 
 
 /*!
-Resizes the pixmap to \e w X \e h.
+\fn void QPixmap::resize( const QSize &s )
+Synonymous resize() which takes a QSize parameter.
+*/
+
+/*!
+Resizes the pixmap to \e w width and \e h height.
+
+New pixels will be uninitialized (random) if the pixmap is expanded.
+
+A valid pixmap will be created if it is a null pixmap.
 */
 
 void QPixmap::resize( int w, int h )
@@ -61,19 +81,10 @@ void QPixmap::resize( int w, int h )
 
 
 /*!
-Returns FALSE for instances of QPixmap and returns TRUE for instances of
-QBitmap.
-*/
-
-bool QPixmap::isBitmap() const			// reimplemented in QBitmap
-{
-    return FALSE;
-}
-
-
-/*!
 Returns a string that specifies the image format of the file \e fileName,
-or null if the file could not be read or the format could not be recognized.
+or null if the file cannot be read or if the format cannot be recognized.
+
+\sa load() and save().
 */
 
 const char *QPixmap::imageFormat( const char *fileName )
@@ -91,6 +102,8 @@ using the specified format.  If \e format is not specified (default),
 the loader reads a few bytes from the header to guess the file format.
 
 The QImageIO documentation describes the different image formats.
+
+\sa save() and imageFormat().
 */
 
 bool QPixmap::load( const char *fileName, const char *format )
@@ -109,7 +122,10 @@ bool QPixmap::load( const char *fileName, const char *format )
 
 /*!
 Saves the pixmap to the file \e fileName, using the image file format
-\e format.
+\e format.  Returns TRUE if successful, or FALSE if the image could not
+be saved.
+
+\sa load() and imageFormat().
 */
 
 bool QPixmap::save( const char *fileName, const char *format ) const
