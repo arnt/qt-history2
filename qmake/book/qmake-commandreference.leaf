@@ -1705,7 +1705,7 @@ matches the regular expression specified.
 
 For example:
 \code
-exists( $(QTDIR)/lib/qt-mt* ) {
+exists( $(QTDIR)/lib/libqt-mt* ) {
       message( "Configuring for multi-threaded Qt..." )
       CONFIG += thread
 }
