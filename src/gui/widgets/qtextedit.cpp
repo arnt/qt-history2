@@ -330,7 +330,6 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
     selectionChanged();
 
-    // ####
     viewport->update();
 
     return true;
@@ -1259,14 +1258,8 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
 
 void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 {
-    int cursorPos = d->doc->documentLayout()->hitTest(d->translateCoordinates(ev->pos()), QText::FuzzyHit);
-    if (cursorPos == -1)
-	return;
-
-    if (!(ev->state() & Qt::LeftButton))
-	return;
-
-    if (!d->mousePressed)
+    if (!(ev->state() & Qt::LeftButton)
+        || !d->mousePressed)
         return;
 
     if (d->mightStartDrag) {
@@ -1277,6 +1270,10 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 
         return;
     }
+
+    int cursorPos = d->doc->documentLayout()->hitTest(d->translateCoordinates(ev->pos()), QText::FuzzyHit);
+    if (cursorPos == -1)
+        return;
 
     d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
     d->updateCurrentCharFormatAndSelection();
