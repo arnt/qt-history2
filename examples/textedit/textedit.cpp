@@ -332,7 +332,7 @@ void TextEdit::filePrint()
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc.documentLayout());
         layout->setPageSize(QSize(body.width(), INT_MAX));
 
-        QRect view(body);
+        QRect view(0, 0, body.width(), body.height());
         int page = 1;
         p.translate(body.left(), body.top());
         do {
