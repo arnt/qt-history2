@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#165 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#164 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#165 $")
 
 
 /*****************************************************************************
@@ -1498,6 +1498,35 @@ void QPainter::setClipRegion( const QRegion &rgn )
 
 
 /*----------------------------------------------------------------------------
+  Internal function for drawing a polygon.
+ ----------------------------------------------------------------------------*/
+
+void QPainter::drawPolyInternal( const QPointArray &a )
+{
+    int x1, y1, x2, y2;				// connect last to first point
+    a.point( a.size()-1, &x1, &y1 );
+    a.point( 0, &x2, &y2 );
+    bool closed = x1 == x2 && y1 == y2;
+
+    if ( cbrush.style() != NoBrush ) {		// draw filled polygon
+	XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(), a.size(),
+		      Nonconvex, CoordModeOrigin );
+	if ( cpen.style() == NoPen ) {		// draw fake outline
+	    XDrawLines( dpy, hd, gc_brush, (XPoint*)a.data(), a.size(),
+			CoordModeOrigin );
+	    if ( !closed )
+		XDrawLine( dpy, hd, gc_brush, x1, y1, x2, y2 );
+	}
+    }
+    if ( cpen.style() != NoPen ) {		// draw outline
+	XDrawLines( dpy, hd, gc, (XPoint*)a.data(), a.size(), CoordModeOrigin);
+	if ( !closed )
+	    XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
+    }
+}
+
+
+/*----------------------------------------------------------------------------
   Draws/plots a single point at \e (x,y) using the current pen.
  ----------------------------------------------------------------------------*/
 
@@ -1627,12 +1656,8 @@ void QPainter::drawRect( int x, int y, int w, int h )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
-	    QPointArray a( QRect(x,y,w,h) );
-	    a = xForm( a );
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to speed up
-	    drawPolygon( a );
-	    flags = tmpf;
+	    QPointArray a( QRect(x,y,w,h), TRUE );
+	    drawPolyInternal( xForm(a) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1719,11 +1744,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 		yy += h - ryy2;
 		a.setPoint( i++, xx, yy );
 	    }
-	    a = xForm( a );
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to speed up
-	    drawPolygon( a );
-	    flags = tmpf;
+	    drawPolyInternal( xForm(a) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1812,11 +1833,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
 	    QPointArray a;
 	    a.makeEllipse( x, y, w, h );
-	    a = xForm( a );
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to avoid overhead
-	    drawPolygon( a );
-	    flags = tmpf;
+	    drawPolyInternal( xForm(a) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1877,11 +1894,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	if ( txop == TxRotShear ) {		// rotate/shear
 	    QPointArray pa;
 	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
-	    pa = xForm( pa );			// xform polyline
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to speed up
-	    drawPolygon( pa );
-	    flags = tmpf;
+	    drawPolyInternal( xForm(pa) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1933,11 +1946,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	    pa.resize( n+2 );
 	    pa.setPoint( n, x+w/2, y+h/2 );	// add legs
 	    pa.setPoint( n+1, pa.at(0) );
-	    pa = xForm( pa );			// xform polygon
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to speed up
-	    drawPolygon( pa );
-	    flags = tmpf;
+	    drawPolyInternal( xForm(pa) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -2013,11 +2022,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	    int n = pa.size();
 	    pa.resize( n+1 );
 	    pa.setPoint( n, pa.at(0) );		// connect endpoints
-	    pa = xForm( pa );			// xform polygon
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to speed up
-	    drawPolygon( pa );
-	    flags = tmpf;
+	    drawPolyInternal( xForm(pa) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -2076,32 +2081,25 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	nlines = (a.size() - index)/2;
     if ( !isActive() || nlines < 1 || index < 0 )
 	return;
+    QPointArray pa = a;
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
-	    QPointArray tmp;
-	    if ( nlines == (int)a.size()/2 )
-		tmp = a;
-	    else {
-		tmp.resize( nlines*2 );
+	    if ( nlines != (int)pa.size()/2 ) {
+		pa.resize( nlines*2 );
 		for ( int i=0; i<nlines*2; i++ )
-		    tmp.setPoint( i, a.point(index+i) );
+		    pa.setPoint( i, a.point(index+i) );
+		index = 0;
 	    }
 	    QPDevCmdParam param[1];
-	    param[0].ptarr = (QPointArray*)&tmp;
+	    param[0].ptarr = (QPointArray*)&pa;
 	    if ( !pdev->cmd(PDC_DRAWLINESEGS,this,param) || !hd )
 		return;
 	}
-	if ( txop != TxNone ) {
-	    if ( cpen.style() != NoPen ) {
-		QPointArray axf = xForm( a );
-		XDrawSegments( dpy, hd, gc, (XSegment*)(axf.data()+index),
-			       nlines );
-	    }
-	    return;
-	}
+	if ( txop != TxNone && cpen.style() != NoPen )
+	    pa = xForm( a );
     }
     if ( cpen.style() != NoPen )
-	XDrawSegments( dpy, hd, gc, (XSegment*)(a.data()+index), nlines );
+	XDrawSegments( dpy, hd, gc, (XSegment*)(pa.data()+index), nlines );
 }
 
 
@@ -2123,32 +2121,25 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
+    QPointArray pa = a;
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
-	    QPointArray tmp;
-	    if ( npoints == (int)a.size() )
-		tmp = a;
-	    else {
-		tmp.resize( npoints );
+	    if ( npoints != (int)pa.size() ) {
+		pa.resize( npoints );
 		for ( int i=0; i<npoints; i++ )
-		    tmp.setPoint( i, a.point(index+i) );
+		    pa.setPoint( i, a.point(index+i) );
+		index = 0;
 	    }
 	    QPDevCmdParam param[1];
-	    param[0].ptarr = (QPointArray*)&tmp;
+	    param[0].ptarr = (QPointArray*)&pa;
 	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hd )
 		return;
 	}
-	if ( txop != TxNone ) {
-	    if ( cpen.style() != NoPen ) {
-		QPointArray axf = xForm( a );
-		XDrawLines( dpy, hd, gc, (XPoint*)(axf.data()+index), npoints,
-			    CoordModeOrigin );
-	    }
-	    return;
-	}
+	if ( txop != TxNone && cpen.style() != NoPen )
+	    pa = xForm( a );
     }
     if ( cpen.style() != NoPen )
-	XDrawLines( dpy, hd, gc, (XPoint*)(a.data()+index), npoints,
+	XDrawLines( dpy, hd, gc, (XPoint*)(pa.data()+index), npoints,
 		    CoordModeOrigin );
 }
 
@@ -2179,71 +2170,51 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    QPointArray axf;
-    QPointArray *pa = (QPointArray*)&a;
+    QPointArray pa = a;
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
-	    QPointArray tmp;
-	    if ( npoints == (int)a.size() )
-		tmp = a;
-	    else {
-		tmp.resize( npoints );
+	    if ( npoints != (int)a.size() ) {
+		pa.resize( npoints );
 		for ( int i=0; i<npoints; i++ )
-		    tmp.setPoint( i, a.point(index+i) );
+		    pa.setPoint( i, a.point(index+i) );
+		index = 0;
 	    }
 	    QPDevCmdParam param[2];
-	    param[0].ptarr = (QPointArray*)&tmp;
+	    param[0].ptarr = (QPointArray*)&pa;
 	    param[1].ival = winding;
 	    if ( !pdev->cmd(PDC_DRAWPOLYGON,this,param) || !hd )
 		return;
 	}
-	if ( txop != TxNone ) {
-	    axf = xForm( a );
-	    pa = &axf;
-	}
+	if ( txop != TxNone )
+	    pa = xForm( a );
     }
-    bool quickwxf = testf(SafePolygon);
-
-    if ( winding && !quickwxf )			// set to winding fill rule
+    if ( winding )				// set to winding fill rule
 	XSetFillRule( dpy, gc_brush, WindingRule );
+
+    int x1, y1, x2, y2;				// connect last to first point
+    a.point( index+npoints-1, &x1, &y1 );
+    a.point( index, &x2, &y2 );
+    bool closed = x1 == x2 && y1 == y2;
+
     if ( cbrush.style() != NoBrush ) {		// draw filled polygon
-	int shape = quickwxf ? Nonconvex : Complex;
-	XFillPolygon( dpy, hd, gc_brush, (XPoint*)(pa->data()+index),
-		      npoints, shape, CoordModeOrigin );
+	XFillPolygon( dpy, hd, gc_brush, (XPoint*)(pa.data()+index),
+		      npoints, Complex, CoordModeOrigin );
 	if ( cpen.style() == NoPen ) {		// draw fake outline
-	    XDrawLines( dpy, hd, gc_brush, (XPoint*)(pa->data()+index),
+	    XDrawLines( dpy, hd, gc_brush, (XPoint*)(pa.data()+index),
 			npoints, CoordModeOrigin );
-	    int x1, y1, x2, y2;			// connect last to first point
-	    pa->point( index+npoints-1, &x1, &y1 );
-	    pa->point( index, &x2, &y2 );
-	    XDrawLine( dpy, hd, gc_brush, x1, y1, x2, y2 );
+	    if ( !closed )
+		XDrawLine( dpy, hd, gc_brush, x1, y1, x2, y2 );
 	}
     }
     if ( cpen.style() != NoPen ) {		// draw outline
-	XDrawLines( dpy, hd, gc, (XPoint*)(pa->data()+index), npoints,
+	XDrawLines( dpy, hd, gc, (XPoint*)(pa.data()+index), npoints,
 		    CoordModeOrigin );
-	if ( pa->point(index) != a.point(index+npoints-1) ) {
-	    int x1, y1, x2, y2;			// connect last to first point
-	    pa->point( index+npoints-1, &x1, &y1 );
-	    pa->point( index, &x2, &y2 );
+	if ( !closed )
 	    XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
-	}
     }
-    if ( winding && !quickwxf )			// set to normal fill rule
+    if ( winding )				// set to normal fill rule
 	XSetFillRule( dpy, gc_brush, EvenOddRule );
 }
-
-
-#define BEZIER_CACHE
-
-#if defined(BEZIER_CACHE)
-struct QBezData {				// used for Bezier cache
-    QPointArray controls;
-    QPointArray points;
-};
-
-typedef declare(QListM,QBezData) QBezList;	// list of Bezier curves
-#endif
 
 
 /*----------------------------------------------------------------------------
@@ -2253,64 +2224,33 @@ typedef declare(QListM,QBezData) QBezList;	// list of Bezier curves
 
 void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 {
-#if defined(BEZIER_CACHE)
-    static QBezList *bezlist = 0;
-    if ( !bezlist ) {				// create Bezier cache
-	bezlist = new QBezList;
-	CHECK_PTR( bezlist );
-	bezlist->setAutoDelete( TRUE );
-    }
-#endif
     if ( npoints < 0 )
 	npoints = a.size() - index;
     if ( index + npoints > (int)a.size() )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    QPointArray a2;
-    if ( npoints == (int)a.size() )
-	a2 = a;
-    else {
+    QPointArray pa = a;
+    if ( npoints != (int)a.size() ) {
 	if ( npoints != (int)a.size() ) {
-	    a2.resize( npoints );
+	    pa.resize( npoints );
 	    for ( int i=0; i<npoints; i++ )
-		a2.setPoint( i, a.point(index+i) );
+		pa.setPoint( i, a.point(index+i) );
 	}
     }
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
-	    param[0].ptarr = (QPointArray*)&a2;
+	    param[0].ptarr = (QPointArray*)&pa;
 	    if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hd )
 		return;
 	}
 	if ( txop != TxNone )
-	    a2 = xForm( a2 );
+	    pa = xForm( pa );
     }
     if ( cpen.style() != NoPen ) {
-#if defined(BEZIER_CACHE)
-	int i;
-	for ( i=0; i<(int)bezlist->count(); i++ ) {
-	    if ( bezlist->at(i)->controls == a2 ) {
-		a2 = bezlist->at(i)->points;
-		i = -1;
-		break;
-	    }
-	}
-	if ( i >= 0 ) {				// not found in bezlist
-	    QBezData *bez = new QBezData;
-	    CHECK_PTR( bez );
-	    bez->controls = a2.copy();
-	    a2 = a2.bezier();
-	    bez->points	  = a2;
-	    if ( bezlist->count() > 13 )
-		bezlist->removeLast();
-	    bezlist->insert( 0, bez );
-	}
-#else
-	a2 = a2.bezier();
-#endif
-	XDrawLines( dpy, hd, gc, (XPoint*)a2.data(), a2.size(),
+	pa = pa.bezier();
+	XDrawLines( dpy, hd, gc, (XPoint*)pa.data(), pa.size(),
 		    CoordModeOrigin);
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#32 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#32 $")
 
 
 /*****************************************************************************
@@ -1158,6 +1158,16 @@ void QPainter::setClipRegion( const QRegion &rgn )
 }
 
 
+void QPainter::drawPolyInternal( const QPointArray &a )
+{
+    if ( nocolBrush )
+	SetTextColor( hdc, cbrush.color().pixel() );
+    Polygon( hdc, (POINT*)a.data(), a.size() );
+    if ( nocolBrush )
+	SetTextColor( hdc, cpen.color().pixel() );
+}
+
+
 void QPainter::drawPoint( int x, int y )
 {
     if ( !isActive() || cpen.style() == NoPen )
@@ -1283,11 +1293,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
 	    QPointArray a( QRect(x,y,w,h) );
-	    a = xForm( a );
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to speed up
-	    drawPolygon( a );
-	    flags = tmpf;
+	    drawPolyInternal( xForm(a) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1362,11 +1368,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 		yy += h - ryy2;
 		a.setPoint( i++, xx, yy );
 	    }
-	    a = xForm( a );
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to speed up
-	    drawPolygon( a );
-	    flags = tmpf;
+	    drawPolyInternal( xForm(a) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1406,11 +1408,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
 	    QPointArray a;
 	    a.makeEllipse( x, y, w, h );
-	    a = xForm( a );
-	    uint tmpf = flags;
-	    flags = IsActive | SafePolygon;	// fake flags to avoid overhead
-	    drawPolygon( a );
-	    flags = tmpf;
+	    drawPolyInternal( xForm(a) );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1432,14 +1430,23 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {
     if ( !isActive() )
 	return;
-    if ( testf(ExtDev) ) {
-	QPDevCmdParam param[3];
-	QRect r( x, y, w, h );
-	param[0].rect = &r;
-	param[1].ival = a;
-	param[2].ival = alen;
-	if ( !pdev->cmd(PDC_DRAWARC,this,param) || !hdc )
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[3];
+	    QRect r( x, y, w, h );
+	    param[0].rect = &r;
+	    param[1].ival = a;
+	    param[2].ival = alen;
+	    if ( !pdev->cmd(PDC_DRAWARC,this,param) || !hdc )
+		return;
+	}
+	if ( txop == TxRotShear ) {		// rotate/shear
+	    QPointArray pa;
+	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
+	    drawPolyInternal( xForm(pa) );
 	    return;
+	}
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
@@ -1468,14 +1475,27 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 {
     if ( !isActive() )
 	return;
-    if ( testf(ExtDev) ) {
-	QPDevCmdParam param[3];
-	QRect r( x, y, w, h );
-	param[0].rect = &r;
-	param[1].ival = a;
-	param[2].ival = alen;
-	if ( !pdev->cmd(PDC_DRAWPIE,this,param) || !hdc )
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[3];
+	    QRect r( x, y, w, h );
+	    param[0].rect = &r;
+	    param[1].ival = a;
+	    param[2].ival = alen;
+	    if ( !pdev->cmd(PDC_DRAWPIE,this,param) || !hdc )
+		return;
+	}
+	if ( txop == TxRotShear ) {		// rotate/shear
+	    QPointArray pa;
+	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
+	    int n = pa.size();
+	    pa.resize( n+2 );
+	    pa.setPoint( n, x+w/2, y+h/2 );	// add legs
+	    pa.setPoint( n+1, pa.at(0) );
+	    drawPolyInternal( xForm(pa) );
 	    return;
+	}
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     double ra1 = 1.09083078249645598e-3 * a;
     double ra2 = 1.09083078249645598e-3 * alen + ra1;
@@ -1503,14 +1523,26 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 {
     if ( !isActive() )
 	return;
-    if ( testf(ExtDev) ) {
-	QPDevCmdParam param[3];
-	QRect r( x, y, w, h );
-	param[0].rect = &r;
-	param[1].ival = a;
-	param[2].ival = alen;
-	if ( !pdev->cmd(PDC_DRAWPIE,this,param) || !hdc )
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[3];
+	    QRect r( x, y, w, h );
+	    param[0].rect = &r;
+	    param[1].ival = a;
+	    param[2].ival = alen;
+	    if ( !pdev->cmd(PDC_DRAWCHORD,this,param) || !hdc )
+		return;
+	}
+	if ( txop == TxRotShear ) {		// rotate/shear
+	    QPointArray pa;
+	    pa.makeArc( x, y, w-1, h-1, a, alen ); // arc polygon
+	    int n = pa.size();
+	    pa.resize( n+1 );
+	    pa.setPoint( n, pa.at(0) );		// connect endpoints
+	    drawPolyInternal( xForm(pa) );
 	    return;
+	}
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     double ra1 = 1.09083078249645598e-3 * a;
     double ra2 = 1.09083078249645598e-3 * alen + ra1;
@@ -1542,19 +1574,22 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	nlines = (a.size() - index)/2;
     if ( !isActive() || nlines < 1 || index < 0 )
 	return;
-    if ( testf(ExtDev) ) {
-	QPointArray tmp;
-	if ( nlines == (int)a.size()/2 )
-	    tmp = a;
-	else {
-	    tmp.resize( nlines*2 );
-	    for ( int i=0; i<nlines*2; i++ )
-		tmp.setPoint( i, a.point(index+i) );
+    QPointArray pa = a;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    if ( nlines != (int)pa.size()/2 ) {
+		pa.resize( nlines*2 );
+		for ( int i=0; i<nlines*2; i++ )
+		    pa.setPoint( i, a.point(index+i) );
+		index = 0;
+	    }
+	    QPDevCmdParam param[1];
+	    param[0].ptarr = (QPointArray*)&pa;
+	    if ( !pdev->cmd(PDC_DRAWLINESEGS,this,param) || !hdc )
+		return;
 	}
-	QPDevCmdParam param[1];
-	param[0].ptarr = (QPointArray*)&tmp;
-	if ( !pdev->cmd(PDC_DRAWLINESEGS,this,param) || !hdc )
-	    return;
+	if ( txop != TxNone && cpen.style() != NoPen )
+	    pa = xForm( a );
     }
 
     int x1, y1, x2, y2;
@@ -1563,22 +1598,19 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
     ulong pixel = cpen.color().pixel();
 
     while ( nlines-- ) {
-	a.point( i++, &x1, &y1 );
-	a.point( i++, &x2, &y2 );
+	pa.point( i++, &x1, &y1 );
+	pa.point( i++, &x2, &y2 );
 	if ( x1 == x2 ) {			// vertical
 	    if ( y1 < y2 )
 		y2++;
 	    else
 		y2--;
-	}
-	else
-	if ( y1 == y2 ) {			// horizontal
+	} else if ( y1 == y2 ) {		// horizontal
 	    if ( x1 < x2 )
 		x2++;
 	    else
 		x2--;
-	}
-	else if ( solid )			// draw last pixel
+	} else if ( solid )			// draw last pixel
 	    SetPixelV( hdc, x2, y2, pixel );
 #if defined(_WS_WIN32_)
 	MoveToEx( hdc, x1, y1, 0 );
@@ -1598,24 +1630,28 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    if ( testf(ExtDev) ) {
-	QPointArray tmp;
-	if ( npoints == (int)a.size() )
-	    tmp = a;
-	else {
-	    tmp.resize( npoints );
-	    for ( int i=0; i<npoints; i++ )
-		tmp.setPoint( i, a.point(index+i) );
+    QPointArray pa = a;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    if ( npoints != (int)pa.size() ) {
+		pa.resize( npoints );
+		for ( int i=0; i<npoints; i++ )
+		    pa.setPoint( i, a.point(index+i) );
+		index = 0;
+	    }
+	    QPDevCmdParam param[1];
+	    param[0].ptarr = (QPointArray*)&pa;
+	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hd )
+		return;
 	}
-	QPDevCmdParam param[1];
-	param[0].ptarr = (QPointArray*)&tmp;
-	if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hdc )
-	    return;
+	if ( txop != TxNone && cpen.style() != NoPen )
+	    pa = xForm( a );
     }
-    Polyline( hdc, (POINT*)(a.data()+index), npoints );
+    Polyline( hdc, (POINT*)(pa.data()+index), npoints );
     if ( cpen.style() == SolidLine ) {
-	QPoint p = a.point( index+npoints-1 );	// plot last point
-	SetPixelV( hdc, p.x(), p.y(), cpen.color().pixel() );
+	int x, y;
+	pa.point( index+npoints-1, &x, &y );	// plot last point
+	SetPixelV( hdc, x, y, cpen.color().pixel() );
     }
 }
 
@@ -1629,26 +1665,28 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    if ( testf(ExtDev) ) {
-	QPointArray tmp;
-	if ( npoints == (int)a.size() )
-	    tmp = a;
-	else {
-	    tmp.resize( npoints );
-	    for ( int i=0; i<npoints; i++ )
-		tmp.setPoint( i, a.point(index+i) );
+    QPointArray pa = a;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    if ( npoints != (int)a.size() ) {
+		pa.resize( npoints );
+		for ( int i=0; i<npoints; i++ )
+		    pa.setPoint( i, a.point(index+i) );
+	    }
+	    QPDevCmdParam param[2];
+	    param[0].ptarr = (QPointArray*)&pa;
+	    param[1].ival = winding;
+	    if ( !pdev->cmd(PDC_DRAWPOLYGON,this,param) || !hdc )
+		return;
 	}
-	QPDevCmdParam param[2];
-	param[0].ptarr = (QPointArray*)&tmp;
-	param[1].ival = winding;
-	if ( !pdev->cmd(PDC_DRAWPOLYGON,this,param) || !hdc )
-	    return;
+	if ( txop != TxNone )
+	    pa = xForm( a );
     }
     if ( winding )				// set to winding fill mode
 	SetPolyFillMode( hdc, WINDING );
     if ( nocolBrush )
 	SetTextColor( hdc, cbrush.color().pixel() );
-    Polygon( hdc, (POINT*)(a.data()+index), npoints );
+    Polygon( hdc, (POINT*)(pa.data()+index), npoints );
     if ( nocolBrush )
 	SetTextColor( hdc, cpen.color().pixel() );
     if ( winding )				// set to normal fill mode
@@ -1656,7 +1694,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 }
 
 
-void QPainter::drawBezier(  const QPointArray &a, int index, int npoints )
+void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 {
     if ( npoints < 0 )
 	npoints = a.size() - index;
@@ -1664,21 +1702,25 @@ void QPainter::drawBezier(  const QPointArray &a, int index, int npoints )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    if ( testf(ExtDev) ) {
-	QPointArray tmp;
-	if ( npoints == (int)a.size() )
-	    tmp = a;
-	else {
-	    tmp.resize( npoints );
-	    for ( int i=0; i<npoints; i++ )
-		tmp.setPoint( i, a.point(index+i) );
+    QPointArray pa = a;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPointArray tmp;
+	    if ( npoints != (int)a.size() ) {
+		pa.resize( npoints );
+		for ( int i=0; i<npoints; i++ )
+		    pa.setPoint( i, a.point(index+i) );
+		index = 0;
+	    }
+	    QPDevCmdParam param[1];
+	    param[0].ptarr = (QPointArray*)&pa;
+	    if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hdc )
+		return;
 	}
-	QPDevCmdParam param[1];
-	param[0].ptarr = (QPointArray*)&tmp;
-	if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hdc )
-	    return;
+	if ( txop != TxNone )
+	    pa = xForm( a );
     }
-    PolyBezier( hdc, (POINT*)(a.data()+index), npoints );
+    PolyBezier( hdc, (POINT*)(pa.data()+index), npoints );
 }
 
 
@@ -1691,20 +1733,25 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	sw = pixmap.width() - sx;
     if ( sh < 0 )
 	sh = pixmap.height() - sy;
-    if ( testf(ExtDev) ) {
-	if ( !hdc && (sx != 0 || sy != 0 ||
-	     sw != pixmap.width() || sh != pixmap.height()) ) {
-	    QPixmap tmp( sw, sh, pixmap.depth() );
-	    bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh );
-	    drawPixmap( x, y, tmp );
-	    return;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    if ( !hdc && (sx != 0 || sy != 0 ||
+			  sw != pixmap.width() || sh != pixmap.height()) ) {
+		QPixmap tmp( sw, sh, pixmap.depth() );
+		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh );
+		drawPixmap( x, y, tmp );
+		return;
+	    }
+	    QPDevCmdParam param[2];
+	    QPoint p(x,y);
+	    param[0].point  = &p;
+	    param[1].pixmap = &pixmap;
+	    if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hdc )
+		return;
 	}
-	QPDevCmdParam param[2];
-	QPoint p(x,y);
-	param[0].point	= &p;
-	param[1].pixmap = &pixmap;
-	if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hdc )
-	    return;
+	if ( txop == TxTranslate )
+	    map( x, y, &x, &y );
+	    
     }
     QPixmap *pm = (QPixmap*)&pixmap;
     bool tmp_dc = pm->handle() == 0;
@@ -1719,8 +1766,15 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCPAINT );
 #endif
     }
-    else
-	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
+    else {
+	if ( txop == TxScale ) {
+	    int w, h;
+	    map( x, y, w, h, &x, &y, &w, &h );
+	    StretchBlt( hdc, x, y, w, h, pm->handle(), sx,sy, sw,sh, SRCCOPY );
+	}
+	else
+	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
+    }
     if ( tmp_dc )
 	pm->freeMemDC();
 }
@@ -1735,15 +1789,18 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(ExtDev) ) {
-	QPDevCmdParam param[2];
-	QPoint p( x, y );
-	QString newstr = str;
-	newstr.truncate( len );
-	param[0].point = &p;
-	param[1].str = newstr.data();
-	if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hdc )
-	    return;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[2];
+	    QPoint p( x, y );
+	    QString newstr = str;
+	    newstr.truncate( len );
+	    param[0].point = &p;
+	    param[1].str = newstr.data();
+	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hdc )
+		return;
+	}
+	map( x, y, &x, &y );
     }
 
     TextOut( hdc, x, y, str, len );
