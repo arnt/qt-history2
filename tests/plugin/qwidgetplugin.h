@@ -1,8 +1,9 @@
 #ifndef QWIDGETPLUGIN_H
 #define QWIDGETPLUGIN_H
 
-#include "qplugin.h"
-#include "qpluginmanager.h"
+#include <qplugin.h>
+#include <qpluginmanager.h>
+
 #include "qwidgetinterface.h"
 #include "qwidgetfactory.h"
 

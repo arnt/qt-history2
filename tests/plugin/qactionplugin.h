@@ -1,8 +1,9 @@
 #ifndef QACTIONPLUGIN_H
 #define QACTIONPLUGIN_H
 
-#include "qplugin.h"
-#include "qpluginmanager.h"
+#include <qplugin.h>
+#include <qpluginmanager.h>
+
 #include "qactioninterface.h"
 #include "qactionfactory.h"
 

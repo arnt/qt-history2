@@ -1,7 +1,7 @@
 #ifndef QWIDGETINTERFACE_H
 #define QWIDGETINTERFACE_H
 
-#include "qplugininterface.h"
+#include <qplugininterface.h>
 
 class QWidget;
 

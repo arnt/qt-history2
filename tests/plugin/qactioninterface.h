@@ -1,7 +1,7 @@
 #ifndef QACTIONINTERFACE_H
 #define QACTIONINTERFACE_H
 
-#include "qplugininterface.h"
+#include <qplugininterface.h>
 
 class QAction;
 class QObject;
