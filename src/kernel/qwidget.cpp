@@ -688,6 +688,8 @@ same group.
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget )
 {
+    fstrut.left = fstrut.right = fstrut.top = fstrut.bottom = 0;
+
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
     widget_state = 0;
@@ -714,7 +716,10 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     if ( !isDesktop() )
 	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
     // make sure move/resize events are sent to all widgets
-    QApplication::postEvent( this, new QMoveEvent( fpos, fpos ) );
+    qDebug("posting move & resize events: pos %d %d size %d %d", crect.x(), crect.y(),
+	   crect.width(), crect.height());
+    QApplication::postEvent( this, new QMoveEvent( crect.topLeft(),
+						   crect.topLeft() ) );
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
 						    crect.size()) );
     if ( isTopLevel() ) {
@@ -1404,7 +1409,10 @@ void QWidget::enabledChange( bool )
 
 QRect QWidget::frameGeometry() const
 {
-    return QRect(fpos,frameSize());
+    return QRect(crect.x() - fstrut.left,
+		 crect.y() - fstrut.top,
+		 crect.width() + fstrut.left + fstrut.right,
+		 crect.height() + fstrut.top + fstrut.bottom);
 }
 
 
@@ -2958,16 +2966,16 @@ QSize QWidget::frameSize() const
 void QWidget::setFRect( const QRect &r )
 {
     if ( extra && extra->topextra ) {
-	QRect frect = frameGeometry();
-	crect.setLeft( crect.left() + r.left() - frect.left() );
-	crect.setTop( crect.top() + r.top() - frect.top() );
-	crect.setRight( crect.right() + r.right() - frect.right() );
-	crect.setBottom( crect.bottom() + r.bottom() - frect.bottom() );
-	fpos = r.topLeft();
-	extra->topextra->fsize = r.size();
+	fstrut.left   = crect.left() - r.left();
+	fstrut.right  = r.right()    - crect.right();
+	fstrut.top    = crect.top()  - r.top();
+	fstrut.bottom = r.bottom()   - crect.bottom();
+
+	extra->topextra->fsize = QSize(crect.width() + fstrut.left + fstrut.right,
+				       crect.height() + fstrut.top + fstrut.bottom);
     } else {
 	// One rect is both the same.
-	fpos = r.topLeft();
+	fstrut.left = fstrut.right = fstrut.top = fstrut.bottom = 0;
 	crect = r;
     }
 }
@@ -2985,18 +2993,6 @@ void QWidget::setFRect( const QRect &r )
 
 void QWidget::setCRect( const QRect &r )
 {
-    if ( extra && extra->topextra ) {
-	QRect frect = frameGeometry();
-	frect.setLeft( frect.left() + r.left() - crect.left() );
-	frect.setTop( frect.top() + r.top() - crect.top() );
-	frect.setRight( frect.right() + r.right() - crect.right() );
-	frect.setBottom( frect.bottom() + r.bottom() - crect.bottom() );
-	fpos = frect.topLeft();
-	extra->topextra->fsize = frect.size();
-    } else {
-	// One rect is both the same.
-	fpos = r.topLeft();
-    }
     crect = r;
 }
 
@@ -3608,7 +3604,7 @@ bool QWidget::close( bool alsoDelete )
 	emit qApp->lastWindowClosed();
     if ( isMain )
 	qApp->quit();
-    if ( deleted ) 
+    if ( deleted )
 	return TRUE;
     is_closing = 0;
     if ( alsoDelete || testWFlags(WDestructiveClose) )

@@ -559,7 +559,10 @@ private:
     uint 	 sizehint_forced :1;
     uint 	 is_closing :1;
     uint 	 in_show : 1;
-    QPoint	 fpos;
+    // QPoint	 fpos;
+    struct fstrut {
+	int left, right, top, bottom;
+    } fstrut;
     QRect	 crect;
     QColor	 bg_col;
 #ifndef QT_NO_PALETTE
@@ -662,13 +665,13 @@ inline const QRect &QWidget::geometry() const
 { return crect; }
 
 inline int QWidget::x() const
-{ return fpos.x(); }
+{ return crect.x() - fstrut.left; }
 
 inline int QWidget::y() const
-{ return fpos.y(); }
+{ return crect.y() - fstrut.top; }
 
 inline QPoint QWidget::pos() const
-{ return fpos; }
+{ return QPoint(crect.x() - fstrut.left, crect.y() - fstrut.top); }
 
 inline QSize QWidget::size() const
 { return crect.size(); }

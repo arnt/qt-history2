@@ -175,7 +175,7 @@ public:
 	WStyle_Customize	= 0x00000010,	// window style flags
 	WStyle_NormalBorder	= 0x00000020,
 	WStyle_DialogBorder	= 0x00000040, // MS-Windows only
-	WStyle_NoBorder		= 0x00000000,
+	WStyle_NoBorder		= 0x00002000,
 	WStyle_Title		= 0x00000080,
 	WStyle_SysMenu		= 0x00000100,
 	WStyle_Minimize		= 0x00000200,
@@ -183,8 +183,8 @@ public:
 	WStyle_MinMax		= WStyle_Minimize | WStyle_Maximize,
 	WStyle_Tool		= 0x00000800,
 	WStyle_StaysOnTop	= 0x00001000,
-	WStyle_Reserved 		= 0x00002000,
 	WStyle_ContextHelp	= 0x00004000,
+	WStyle_Reserved		= 0x00008000,
 	WStyle_Mask		= 0x0000fff0,
 
 	WDestructiveClose	= 0x00010000,	// misc flags

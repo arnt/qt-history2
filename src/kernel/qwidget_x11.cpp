@@ -209,8 +209,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else {					// child widget
 	crect.setRect( 0, 0, 100, 30 );
     }
-    fpos = crect.topLeft();			// default frame rect
-
+    // fpos = crect.topLeft();			// default frame rect
 
     parentw = topLevel ? root_win : parentWidget()->winId();
 
@@ -332,7 +331,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	size_hints.y = crect.top();
 	size_hints.width = crect.width();
 	size_hints.height = crect.height();
-	size_hints.win_gravity = QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
+	size_hints.win_gravity = QApplication::reverseLayout() ?
+				 NorthEastGravity : NorthWestGravity;
 	const char *title = qAppName();
 	XWMHints wm_hints;			// window manager hints
 	wm_hints.input = True;
@@ -376,8 +376,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    len = 2;
 	} else if (testWFlags(WStyle_Tool))
 	    wtype[0] = qt_net_wm_window_type_toolbar;
-	else if (testWFlags(WType_Dialog))
-	    wtype[0] = qt_net_wm_window_type_dialog;
+	// else if (testWFlags(WType_Dialog))
+	// wtype[0] = qt_net_wm_window_type_dialog;
 	else
 	    wtype[0] = qt_net_wm_window_type_normal;
 
@@ -400,7 +400,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XWindowAttributes a;
 	XGetWindowAttributes( dpy, window, &a );
 	crect.setRect( a.x, a.y, a.width, a.height );
-	fpos = crect.topLeft();
+	// fpos = crect.topLeft();
 	if ( a.map_state == IsUnmapped )
 	    clearWState( WState_Visible );
 	else
@@ -431,7 +431,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
-
 }
 
 
@@ -1455,7 +1454,8 @@ void QWidget::hideWindow()
 	qt_deferred_map_take( this );
 	if ( winId() ) // in nsplugin, may be 0
 	    XWithdrawWindow( x11Display(), winId(), x11Screen() );
-	crect.moveTopLeft( fpos );
+
+	crect.moveTopLeft( QPoint(crect.x() - fstrut.left, crect.y() - fstrut.top ));
 	topData()->fsize = crect.size();
     } else {
 	if ( winId() ) // in nsplugin, may be 0

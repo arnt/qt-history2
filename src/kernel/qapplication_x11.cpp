@@ -3336,7 +3336,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case XFocusIn: {				// got focus
-	if ( widget == (QWidget*)desktop() )
+	if ( widget->isDesktop() )
 	    break;
 	if ( inPopupMode() ) // some delayed focus event to ignore
 	    break;
@@ -3353,7 +3353,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case XFocusOut:				// lost focus
-	if ( widget == (QWidget*)desktop() )
+	if ( widget->isDesktop() )
 	    break;
 	if ( !widget->isTopLevel() )
 	    break;
@@ -3547,8 +3547,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    frect.setRect(r.left() - x, r.top() - y, a.width, a.height );
 		}
 
-		widget->fpos = frect.topLeft();
-		widget->topData()->fsize = frect.size();
+		// widget->fpos = frect.topLeft();
+		// widget->topData()->fsize = frect.size();
+		widget->setFRect(frect);
 
 		// store the parent. Useful for many things, embedding for instance.
 		widget->topData()->parentWinId = parent;
@@ -5108,10 +5109,12 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	QPoint newCPos( geometry().topLeft() );
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
-	bool trust =  topData()->parentWinId == None ||  topData()->parentWinId == appRootWin;
+	bool trust = (topData()->parentWinId == None ||
+		      topData()->parentWinId == appRootWin);
+
 	if (event->xconfigure.send_event || trust ) {
-	    /* if a ConfigureNotify comes from a real sendevent request, we can
-	       trust its values. */
+	    // if a ConfigureNotify comes from a real sendevent request, we can
+	    // trust its values.
 	    newCPos.rx() = event->xconfigure.x + event->xconfigure.border_width;
 	    newCPos.ry() = event->xconfigure.y + event->xconfigure.border_width;
 	}
@@ -5119,28 +5122,37 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	if ( isVisible() )
 	    QApplication::syncX();
 
+	// ConfigureNotify compression for faster opaque resizing
 	XEvent otherEvent;
-	while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
+	while ( XCheckTypedWindowEvent( x11Display(), winId(), ConfigureNotify,
+					&otherEvent ) ) {
 	    if ( qt_x11EventFilter( &otherEvent ) )
 		continue;
+
 	    if (x11Event( &otherEvent ) )
 		continue;
+
 	    if ( otherEvent.xconfigure.event != otherEvent.xconfigure.window )
 		continue;
+
 	    newSize.setWidth( otherEvent.xconfigure.width );
 	    newSize.setHeight( otherEvent.xconfigure.height );
+
 	    if ( otherEvent.xconfigure.send_event || trust ) {
-		newCPos.rx() = otherEvent.xconfigure.x + otherEvent.xconfigure.border_width;
-		newCPos.ry() = otherEvent.xconfigure.y + otherEvent.xconfigure.border_width;
+		newCPos.rx() = otherEvent.xconfigure.x +
+			       otherEvent.xconfigure.border_width;
+		newCPos.ry() = otherEvent.xconfigure.y +
+			       otherEvent.xconfigure.border_width;
 	    }
 	}
 
 	QRect cr ( geometry() );
-	if  (newSize != cr.size() ) { // size changed
+	if ( newSize != cr.size() ) { // size changed
 	    was_resize = TRUE;
 	    QSize oldSize = size();
 	    cr.setSize( newSize );
 	    setCRect( cr );
+
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendEvent( this, &e );
@@ -5172,12 +5184,15 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
     bool transbg = backgroundOrigin() != WidgetOrigin;
     // we ignore NorthWestGravity at the moment for reversed layout
-    if ( transbg || (!testWFlags( WNorthWestGravity ) && testWState( WState_Exposed ) && was_resize ) || QApplication::reverseLayout() ) {
+    if ( transbg ||
+	 (!testWFlags( WNorthWestGravity ) &&
+	  testWState( WState_Exposed ) && was_resize ) ||
+	 QApplication::reverseLayout() ) {
 	// remove unnecessary paint events from the queue
 	XEvent xevent;
-	while ( XCheckTypedWindowEvent(x11Display(),winId(), Expose,&xevent) &&
-		!qt_x11EventFilter(&xevent)  &&
-		!x11Event( &xevent ) ) // send event through filter
+	while ( XCheckTypedWindowEvent( x11Display(), winId(), Expose, &xevent ) &&
+		! qt_x11EventFilter( &xevent )  &&
+		! x11Event( &xevent ) ) // send event through filter
 	    ;
 	repaint( visibleRect(), !testWFlags(WResizeNoErase) || transbg );
     }
