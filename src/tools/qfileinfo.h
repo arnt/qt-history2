@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#3 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#4 $
 **
 ** Definition of QFileInfo class
 **
@@ -38,7 +38,7 @@ public:
     bool    exists()         const;
     void    refresh()        const;
     void    setCaching( bool );
-    bool    caching();	     const;
+    bool    caching()	     const;
 
     void setFile( const QFile & );
     void setFile( const QDir &, const char *fileName );
