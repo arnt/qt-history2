@@ -109,6 +109,8 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyph
 
 QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont )
 {
+    //qDebug("regular windows font engine created!");
+
     _name = name;
 
     hdc = _hdc;
@@ -139,11 +141,13 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
     getCMap();
 
     useTextOutA = FALSE;
+#ifndef Q_OS_TEMP
     // TextOutW doesn't work for symbol fonts on Windows 95!
     // since we're using glyph indices we don't care for ttfs about this!
     if ( qt_winver == Qt::WV_95 && !ttf &&
 	 ( _name == "Marlett" || _name == "Symbol" || _name == "Webdings" || _name == "Wingdings" ) )
 	    useTextOutA = TRUE;
+#endif
 }
 
 
@@ -177,46 +181,27 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     Q_UNUSED( p );
     HDC hdc = dc();
     SelectObject( hdc, hfont );
-    unsigned int options = 
-#ifdef Q_OS_TEMP
-	0;
-#else
-	ETO_NUMERICSLATIN;
-    if ( ttf )
-	options |= ETO_GLYPH_INDEX;
-#endif
+    unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
     if ( !reverse ) {
-	// hack to get symbol fonts working on Win95. See also QFontPrivate::load()
+	// hack to get symbol fonts working on Win95. See also QFontEngine constructor
+#ifndef Q_OS_TEMP
 	if ( useTextOutA ) {
 	    // can only happen if !ttf
 	    for( int i = 0; i < numGlyphs; i++ ) {
     		QChar chr = *glyphs;
 		QConstString str( &chr, 1 );
 		QCString cstr = str.string().local8Bit();
-#ifndef Q_OS_TEMP
 		TextOutA( hdc, x + offsets->x, y + offsets->y, cstr.data(), cstr.length() );
-#else
-		TextOut( hdc, x + offsets->x, y + offsets->y, QString(cstr).ucs2(), cstr.length() );
-#endif
 		x += *advances;
 		glyphs++;
 		offsets++;
 		advances++;
 	    }
-	} else {
-    		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
-#if 0
-	    for( int i = 0; i < numGlyphs; i++ ) {
-    		wchar_t chr = *glyphs;
-		TextOutW( hdc, x + offsets->x, y + offsets->y, &chr, 1 );
-//    		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, &chr, 1, 0 );
-		x += *advances;
-		glyphs++;
-		offsets++;
-		advances++;
-	    }
+	} else 
 #endif
+	{
+    	    ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
 	}
     } else {
 	offsets += numGlyphs;
@@ -484,6 +469,8 @@ QFontEngineBox::QFontEngineBox( int size )
 
     cmap = 0;
     script_cache = 0;
+
+    //qDebug("box font engine created!");
 }
 
 QFontEngineBox::~QFontEngineBox()
