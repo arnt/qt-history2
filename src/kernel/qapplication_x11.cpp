@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#39 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#39 $";
 #endif
 
 
@@ -46,6 +46,7 @@ static int	appArgc;			// argument count
 static char   **appArgv;			// argument vector
 static Display *appDpy;				// X11 application display
 static char    *appDpyName = 0;			// X11 display name
+static bool	appSync = FALSE;		// X11 synchronization
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
 static QWidget *desktopWidget = 0;		// root window widget
@@ -76,8 +77,6 @@ static void	cleanupTimers();
 static timeval *waitTimer();
 static bool	activateTimer();
 static timeval	watchtime;			// watch if time is turned back
-
-static void	cleanupGCCache();		// cleanup GC cache
 
 void		qResetColorAvailFlag();		// defined in qcolor.cpp
 
@@ -182,6 +181,8 @@ int main( int argc, char **argv )
 	}
 	else if ( arg == "-iconic" )
 	    tlwIconic = !tlwIconic;
+	else if ( arg == "-sync" )
+	    appSync = !appSync;
 	else
 	    break;
     }
@@ -198,6 +199,9 @@ int main( int argc, char **argv )
 	       XDisplayName(appDpyName) );
 	return 1;
     }
+
+    if ( appSync )				// if "-sync" argument
+	XSynchronize( appDpy, TRUE );
 
   // Get X parameters
 
@@ -239,7 +243,6 @@ int main( int argc, char **argv )
     QFont::cleanup();
     QColor::cleanup();
     cleanupTimers();
-    cleanupGCCache();
 
     XCloseDisplay( appDpy );			// close X display
 
@@ -309,6 +312,14 @@ int qXScreen()					// get current X screen
 Window qXRootWin()				// get X root window
 {
     return appRootWin;
+}
+
+GC qXGetReadOnlyGC()				// get read-only GC
+{
+    static GC gc = 0;
+    if ( !gc )
+	gc = XCreateGC( appDpy, appRootWin, 0, 0 );
+    return gc;
 }
 
 QWidget *QApplication::desktop()
@@ -1401,128 +1412,4 @@ bool QETWidget::translateCloseEvent( const XEvent * )
 	    return TRUE;			// delete widget
     }
     return FALSE;
-}
-
-
-// --------------------------------------------------------------------------
-// GC caching for widgets
-//
-
-struct GCInfo {					// information about GC
-    GC	  gc;					// GC handle
-    ulong bgc;					// background color
-    ulong fgc;					// foreground color
-    bool  shareable;				// shareable GC
-    int   refcount;				// number of owners
-};
-
-declare(QListM,GCInfo);
-static QListM(GCInfo) *gcList = 0;		// list of GCs
-static GC readOnlyGC = 0;			// a read-only GC
-
-static GCInfo *findGC( GC gc )			// find 'gc' in list
-{
-    if ( !gcList )
-	return 0;
-    register GCInfo *g = gcList->first();
-    while ( g && g->gc != gc )
-	g = gcList->next();
-    return g;
-}
-
-static GCInfo *matchGC( ulong bgc, ulong fgc, bool shareable )
-{						// find matching GC
-    if ( !gcList || !shareable )
-	return 0;
-    register GCInfo *g = gcList->first();
-    while ( g && !(g->bgc == bgc && g->fgc == fgc && g->shareable) )
-	g = gcList->next();
-    return g;
-}
-
-static GCInfo *createGC( ulong bgc, ulong fgc, bool shareable )
-{						// create new GC
-    register GCInfo *g = new GCInfo;
-    XGCValues v;
-    CHECK_PTR( g );
-    g->bgc = bgc;
-    g->fgc = fgc;
-    g->shareable = shareable;
-    g->refcount = 1;
-    v.background = bgc;
-    v.foreground = fgc;
-    g->gc = XCreateGC( appDpy, appRootWin, (GCBackground | GCForeground), &v );
-    gcList->insert( g );
-    return g;
-}
-
-GC qXAllocGC( ulong bgc, ulong fgc, bool shareable )
-{
-    if ( !gcList ) {
-	gcList = new QListM(GCInfo);
-	CHECK_PTR( gcList );
-    }
-    register GCInfo *g = matchGC( bgc, fgc, shareable );
-    if ( g )
-	g->refcount++;
-    else
-	g = createGC( bgc, fgc, shareable );
-    return g->gc;
-}
-
-GC qXGetReadOnlyGC()
-{
-    if ( !readOnlyGC )
-    	readOnlyGC = XCreateGC( appDpy, appRootWin, 0, 0 );
-    return readOnlyGC;
-}
-
-void qXFreeGC( GC gc )
-{
-    register GCInfo *g = findGC( gc );
-    ASSERT( g );
-    g->refcount--;
-}
-
-GC qXChangeGC( GC gc, ulong bgc, ulong fgc, bool shareable )
-{
-    GCInfo *gMatch = matchGC( bgc, fgc, shareable );
-    GCInfo *gThis = findGC( gc );
-    ASSERT( gThis );
-    if ( gMatch ) {				// found matching GC
-	gMatch->refcount++;
-	gThis->refcount--;
-	gc = gMatch->gc;
-    }
-    else {
-	if ( gThis->refcount == 1 ) {		// only this reference
-	    gc = gThis->gc;
-	    if ( bgc != gThis->bgc )
-		XSetBackground( appDpy, gc, bgc );
-	    if ( fgc != gThis->fgc )
-		XSetForeground( appDpy, gc, fgc );
-	}
-	else {					// create new GC
-	    gThis->refcount--;
-	    gThis = createGC( bgc, fgc, shareable );
-	    gc = gThis->gc;
-	}
-    }
-    return gc;
-}
-
-static void cleanupGCCache()			// cleanup the GC cache
-{
-    if ( !gcList )
-	return;
-    if ( readOnlyGC )
-    	XFreeGC( appDpy, readOnlyGC );
-    register GCInfo *g = gcList->first();
-    while ( g ) {
-	XFreeGC( appDpy, g->gc );
-	ASSERT( g->refcount == 0 );
-	g = gcList->next();
-    }
-    gcList->setAutoDelete( TRUE );
-    delete gcList;
 }
