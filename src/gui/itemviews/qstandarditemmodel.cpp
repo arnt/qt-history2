@@ -18,9 +18,6 @@
 
 #include <private/qstandarditemmodel_p.h>
 #include <qdebug.h>
-#define d d_func()
-#define q q_func()
-
 
 /*!
     \class QStandardItemModel
@@ -65,6 +62,7 @@ QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent)
 */
 QStandardItemModel::~QStandardItemModel()
 {
+    Q_D(QStandardItemModel);
     for (int i=0; i<d->topLevelRows.count(); ++i)
         delete d->topLevelRows.at(i);
     d->topLevelRows.clear();
@@ -81,6 +79,7 @@ QStandardItemModel::~QStandardItemModel()
 */
 QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &parent) const
 {
+    Q_D(const QStandardItemModel);
     if (hasIndex(row, column, parent)) {
         if (parent.isValid()) {
             QStdModelRow *parentRow = d->containedRow(parent, false);
@@ -97,6 +96,7 @@ QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &pa
 */
 QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 {
+    Q_D(const QStandardItemModel);
     if (child.isValid() && child.data()) {
         QStdModelRow *parentRow = static_cast<QStdModelRow*>(child.data());
         QStdModelRow *grandParentRow = parentRow ? parentRow->p : 0;
@@ -117,6 +117,7 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 */
 int QStandardItemModel::rowCount(const QModelIndex &parent) const
 {
+    Q_D(const QStandardItemModel);
     QStdModelRow *modelRow = d->containedRow(parent, false);
     if (modelRow)
         return modelRow->childrenRows.count();
@@ -130,6 +131,7 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
 */
 int QStandardItemModel::columnCount(const QModelIndex &parent) const
 {
+    Q_D(const QStandardItemModel);
     QStdModelRow *modelRow = d->containedRow(parent, false);
     if (modelRow)
         return modelRow->childrenColumns;
@@ -143,6 +145,7 @@ int QStandardItemModel::columnCount(const QModelIndex &parent) const
 */
 bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 {
+    Q_D(const QStandardItemModel);
     if (parent.isValid()) {
         QStdModelRow *modelRow = d->containedRow(parent, false);
         if (modelRow)
@@ -156,6 +159,7 @@ bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 */
 QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
+    Q_D(const QStandardItemModel);
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {
         QStdModelRow *modelRow = d->containedRow(index, false);
@@ -173,6 +177,7 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 */
 bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    Q_D(const QStandardItemModel);
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {
         QStdModelRow *modelRow = d->containedRow(index, true);
@@ -195,6 +200,7 @@ bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value
 */
 QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    Q_D(const QStandardItemModel);
     if (section < 0
         || (orientation == Qt::Horizontal && section >= columnCount())
         || (orientation == Qt::Vertical && section >= rowCount()))
@@ -219,6 +225,7 @@ QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation
 bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
                                        const QVariant &value, int role)
 {
+    Q_D(QStandardItemModel);
     if (section < 0
         || (orientation == Qt::Horizontal && section >= columnCount())
         || (orientation == Qt::Vertical && section >= rowCount()))
@@ -255,6 +262,7 @@ Returns true if the rows were successfully inserted; otherwise returns false.
 */
 bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+    Q_D(QStandardItemModel);
     if (count < 1 || row < 0 || row > rowCount(parent))
         return false;
 
@@ -285,6 +293,7 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
 */
 bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
+    Q_D(QStandardItemModel);
     if (count < 0 || column < 0 || column > columnCount(parent))
         return false;
 
@@ -323,6 +332,7 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
 */
 bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &parent)
 {
+    Q_D(QStandardItemModel);
     if (count < 1 || row < 0 || (row + count) > rowCount(parent))
         return false;
 
@@ -357,6 +367,7 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
 */
 bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
+    Q_D(QStandardItemModel);
     if (count < 1 || column < 0 || (column + count) > columnCount(parent))
         return false;
 
