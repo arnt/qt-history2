@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#32 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -69,7 +69,6 @@
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
-
 #if defined(Q_OS_OSF) || ( defined(Q_OS_IRIX) && defined(Q_CC_GNU) ) || defined(Q_OS_MACX)
 static void qt_C_sigign() { (*SIG_IGN)(SIGPIPE); }
 static void qt_C_sigchldHnd();
@@ -77,7 +76,6 @@ static void qt_C_sigchldHnd();
 #define qt_C_sigign SIG_IGN
 static void qt_C_sigchldHnd( int );
 #endif
-
 #if defined(Q_C_CALLBACKS)
 }
 #endif
@@ -128,17 +126,35 @@ public:
     bool remove( QProcess *d );
 
 public slots:
-    void sigchldHnd();
+    void sigchldHnd( int );
 
 public:
     struct sigaction *oldactChld;
     struct sigaction *oldactPipe;
     QList<QProcess> *procList;
+    int sigchldFd[2];
 };
 
 QProcessManager::QProcessManager()
 {
     procList = new QList<QProcess>;
+
+    // The SIGCHLD handler writes to a socket to tell the manager that
+    // something happened. This is done to get the processing in sync with the
+    // event reporting.
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sigchldFd ) ) {
+	sigchldFd[0] = 0;
+	sigchldFd[1] = 0;
+    } else {
+#if defined(QT_QPROCESS_DEBUG)
+	qDebug( "QProcessManager: install socket notifier (%d)", sigchldFd[1] );
+#endif
+	QSocketNotifier *sn = new QSocketNotifier( sigchldFd[1],
+		QSocketNotifier::Read, this );
+	connect( sn, SIGNAL(activated(int)),
+		this, SLOT(sigchldHnd(int)) );
+	sn->setEnabled( TRUE );
+    }
 
     // install a SIGCHLD handler and ignore SIGPIPE
     struct sigaction act;
@@ -169,6 +185,14 @@ QProcessManager::QProcessManager()
 
 QProcessManager::~QProcessManager()
 {
+    // ### delete the elements?
+    delete procList;
+
+    if ( sigchldFd[0] != 0 )
+	::close( sigchldFd[0] );
+    if ( sigchldFd[1] != 0 )
+	::close( sigchldFd[1] );
+
     // restore SIGCHLD handler
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: restore old sigchild handler" );
@@ -202,8 +226,10 @@ bool QProcessManager::remove( QProcess *d )
     return FALSE;
 }
 
-void QProcessManager::sigchldHnd()
+void QProcessManager::sigchldHnd( int fd )
 {
+    char tmp;
+    ::read( fd, &tmp, sizeof(tmp) );
     QProcessPrivate::sigchldHnd();
 }
 
@@ -251,8 +277,11 @@ QProcessPrivate::~QProcessPrivate()
 
     if ( procManager != 0 ) {
 	if ( procManager->remove( d ) ) {
+#if 0
+// ### why does it segfaults if I delete the procManager?
 	    delete procManager;
 	    procManager = 0;
+#endif
 	}
     }
 
@@ -260,15 +289,12 @@ QProcessPrivate::~QProcessPrivate()
 	delete stdinBuf.dequeue();
     }
     if ( notifierStdin ) {
-	notifierStdin->setEnabled( FALSE );
 	delete notifierStdin;
     }
     if ( notifierStdout ) {
-	notifierStdout->setEnabled( FALSE );
 	delete notifierStdout;
     }
     if ( notifierStderr ) {
-	notifierStderr->setEnabled( FALSE );
 	delete notifierStderr;
     }
     if( socketStdin[1] != 0 )
@@ -279,13 +305,21 @@ QProcessPrivate::~QProcessPrivate()
 	::close( socketStderr[0] );
 }
 
+/*
+  Closes all open sockets in the child process that are not needed by the child
+  process. Otherwise one child may have an open socket on stdin, etc. of
+  another child.
+*/
 void QProcessPrivate::closeOpenSocketsForChild()
 {
-    // Close all open sockets in the child process that are not needed by
-    // the child process. Otherwise one child may have an open socket on
-    // stdin, etc. of another child.
     if ( procManager == 0 )
 	return;
+
+    if ( procManager->sigchldFd[0] != 0 )
+	::close( procManager->sigchldFd[0] );
+    if ( procManager->sigchldFd[1] != 0 )
+	::close( procManager->sigchldFd[1] );
+
     QProcess *proc;
     for ( proc=procManager->procList->first(); proc!=0; proc=procManager->procList->next() ) {
 	::close( proc->d->socketStdin[1] );
@@ -334,7 +368,11 @@ void qt_C_sigchldHnd( int )
 {
     if ( QProcessPrivate::procManager == 0 )
 	return;
-    QTimer::singleShot( 0, QProcessPrivate::procManager, SLOT(sigchldHnd()) );
+    if ( QProcessPrivate::procManager->sigchldFd[0] == 0 )
+	return;
+
+    char a = 1;
+    ::write( QProcessPrivate::procManager->sigchldFd[0], &a, sizeof(a) );
 }
 
 
@@ -393,22 +431,22 @@ bool QProcess::start()
 #endif
     reset();
 
+#if 0
+    // ### this is not necessary, since reset() does all the cleanup?
     // cleanup the notifiers
     if ( d->notifierStdin ) {
-	d->notifierStdin->setEnabled( FALSE );
 	delete d->notifierStdin;
 	d->notifierStdin = 0;
     }
     if ( d->notifierStdout ) {
-	d->notifierStdout->setEnabled( FALSE );
 	delete d->notifierStdout;
 	d->notifierStdout = 0;
     }
     if ( d->notifierStderr ) {
-	d->notifierStderr->setEnabled( FALSE );
 	delete d->notifierStderr;
 	d->notifierStderr = 0;
     }
+#endif
 
     // open sockets for piping
     if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStdin ) ) {
@@ -494,11 +532,11 @@ bool QProcess::start()
 
     // setup notifiers for the sockets
     d->notifierStdin = new QSocketNotifier( d->socketStdin[1],
-	    QSocketNotifier::Write, this );
+	    QSocketNotifier::Write );
     d->notifierStdout = new QSocketNotifier( d->socketStdout[0],
-	    QSocketNotifier::Read, this );
+	    QSocketNotifier::Read );
     d->notifierStderr = new QSocketNotifier( d->socketStderr[0],
-	    QSocketNotifier::Read, this );
+	    QSocketNotifier::Read );
     connect( d->notifierStdin, SIGNAL(activated(int)),
 	    this, SLOT(socketWrite(int)) );
     connect( d->notifierStdout, SIGNAL(activated(int)),
@@ -619,7 +657,6 @@ void QProcess::closeStdin()
     if ( d->socketStdin[1] !=0 ) {
 	// ### what is with pending data?
 	if ( d->notifierStdin ) {
-	    d->notifierStdin->setEnabled( FALSE );
 	    delete d->notifierStdin;
 	    d->notifierStdin = 0;
 	}
