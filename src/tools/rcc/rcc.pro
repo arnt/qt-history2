@@ -55,7 +55,10 @@ SOURCES += \
 win32:SOURCES += ../../core/io/qfileengine_win.cpp
 else:unix:SOURCES += ../../core/io/qfileengine_unix.cpp
 mac:LIBS += -framework ApplicationServices
-mac:SOURCES += ../../core/kernel/qcore_mac.cpp
+mac { 
+   QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
+   SOURCES += ../../core/kernel/qcore_mac.cpp
+}
 
 #actual stuff in here
 SOURCES += main.cpp
