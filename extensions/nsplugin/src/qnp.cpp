@@ -82,6 +82,7 @@
 #include <limits.h>
 
 #ifdef Q_WS_X11
+#include "qxt.h"
 #define	 GC GC_QQQ
 #endif
 
@@ -127,9 +128,11 @@ extern "C" {
 #include "npwin.cpp"
 #endif
 
+static QEventLoop* event_loop = 0;
+static QApplication* application = 0;
+
 struct _NPInstance
 {
-    NPWindow*        fWindow;
     uint16            fMode;
 
 #ifdef Q_WS_WIN
@@ -161,123 +164,15 @@ struct _NPInstance
 static QNPlugin *qNP=0;
 static int instance_count=0;
 
-// The single global application
-static class PluginSDK_QApplication *piApp=0;
-
 // Temporary parameter passed `around the side' of calls to user functions
 static _NPInstance* next_pi=0;
 
 // To avoid looping when browser OR plugin can delete streams
 static int qnps_no_call_back = 0;
 
-// The currently in-focus widget.  This focus tracking is an auxiliary
-// service which we provide, since we know it anyway.
-static QNPWidget* focussedWidget=0;
-
 #ifdef Q_WS_WIN
 // defined in qapplication_win.cpp
 Q_EXPORT extern bool qt_win_use_simple_timers;
-#endif
-
-#ifdef Q_WS_X11
-static XtAppContext appcon;
-
-typedef void (*SameAsXtTimerCallbackProc)(void*,void*);
-typedef void (*IntervalSetter)(int);
-typedef void (*ForeignEventProc)(XEvent*);
-
-extern XtEventDispatchProc
- qt_np_cascade_event_handler[LASTEvent];      // defined in qnpsupport.cpp
-void            qt_reset_color_avail();       // defined in qcolor_x11.cpp
-int             qt_activate_timers();         // defined in qapplication_x11.cpp
-timeval        *qt_wait_timer();              // defined in qapplication_x11.cpp
-void		qt_x11SendPostedEvents();     // defined in qapplication_x11.cpp
-Boolean  qt_event_handler( XEvent* event );   // defined in qnpsupport.cpp
-extern int      qt_np_count;                  // defined in qnpsupport.cpp
-void qt_np_timeout( void* p, void* id );      // defined in qnpsupport.cpp
-void qt_np_add_timeoutcb(
-	SameAsXtTimerCallbackProc cb );       // defined in qnpsupport.cpp
-void qt_np_remove_timeoutcb(
-	SameAsXtTimerCallbackProc cb );       // defined in qnpsupport.cpp
-void qt_np_add_timer_setter(
-	IntervalSetter is );                  // defined in qnpsupport.cpp
-void qt_np_remove_timer_setter(
-	IntervalSetter is );                  // defined in qnpsupport.cpp
-extern XtIntervalId qt_np_timerid;            // defined in qnpsupport.cpp
-extern bool qt_np_filters_installed[3];       // defined in qnpsupport.cpp
-extern void (*qt_np_leave_cb)
-	      (XLeaveWindowEvent*);           // defined in qnpsupport.cpp
-void qt_np_add_event_proc(
-	    ForeignEventProc fep );           // defined in qnpsupport.cpp
-void qt_np_remove_event_proc(
-	    ForeignEventProc fep );           // defined in qnpsupport.cpp
-
-enum FilterType { Safe, Dangerous, Blocked };
-
-FilterType filterTypeFor(int event_type)
-{
-    switch (event_type) {
-      case KeymapNotify:
-      case Expose:
-      case GraphicsExpose:
-      case NoExpose:
-      case VisibilityNotify:
-      case PropertyNotify:
-      case SelectionClear:
-      case SelectionRequest:
-      case SelectionNotify:
-      case ColormapNotify:
-      case ClientMessage: // Hmm... is this safe?  I want the wm_deletes
-	return Safe;
-      default:
-	return Dangerous;
-    }
-}
-
-
-static
-void installXtEventFilters(FilterType t)
-{
-    if (qt_np_filters_installed[t]) return;
-    // Get Xt out of our face - install filter on every event type
-    for (int et=2; et < LASTEvent; et++) {
-	if ( filterTypeFor(et) == t )
-	    qt_np_cascade_event_handler[et] = XtSetEventDispatcher(
-		qt_xdisplay(), et, qt_event_handler );
-    }
-    qt_np_filters_installed[t] = TRUE;
-}
-
-static
-void removeXtEventFilters(FilterType t)
-{
-    if (!qt_np_filters_installed[t]) return;
-    // We aren't needed any more... slink back into the shadows.
-    for (int et=2; et < LASTEvent; et++) {
-	if ( filterTypeFor(et) == t )
-	    XtSetEventDispatcher(
-		qt_xdisplay(), et, qt_np_cascade_event_handler[et] );
-    }
-    qt_np_filters_installed[t] = FALSE;
-}
-
-// When we are in an event loop of QApplication rather than the browser's
-// event loop (eg. for a modal dialog), we still send repaint events to
-// the browser.
-static
-void np_event_proc( XEvent* e )
-{
-    Widget xtw = XtWindowToWidget( e->xany.display, e->xany.window );
-    if ( xtw && filterTypeFor( e->type ) == Safe ) {
-	// Graciously allow the browser to process the event
-	qt_np_cascade_event_handler[e->type]( e );
-    }
-}
-
-
-#endif
-
-#ifdef Q_WS_WIN
 static HHOOK hhook = 0;
 
 LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
@@ -288,191 +183,15 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
 
-class PluginSDK_QApplication : public QApplication {
 #endif
 
 #ifdef Q_WS_X11
-class PluginSDK_QApplication /* Not a QApplication */ {
-public:
-    PluginSDK_QApplication()
-    {
-	piApp = this;
-    }
-
-    ~PluginSDK_QApplication()
-    {
-	piApp = 0;
-    }
-
-#endif
-
-#ifdef Q_WS_WIN
-private:
-    static int argc;
-    static char** argv;
-
-public:
-    PluginSDK_QApplication() :
-	QApplication(argc, argv)
-    {
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    hhook = SetWindowsHookExW( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
-	else
-#endif
-	    hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
-    }
-
-    ~PluginSDK_QApplication()
-    {
-	if ( hhook )
-	    UnhookWindowsHookEx( hhook );
-	hhook = 0;
-    }
-
-    void checkFocussedWidget()
-    {
-	POINT curPos;
-	if ( GetCursorPos( &curPos ) ) {
-	    QPoint p(curPos.x, curPos.y);
-
-	    QNPWidget *newFocussedWidget = 0;
-	    for ( QNPWidget* npw = npwidgets.first();
-		npw; npw = npwidgets.next() )
-	    {
-		QRect r = npw->rect();
-		r.moveTopLeft( npw->mapToGlobal(QPoint(0,0)) );
-		if ( r.contains(p) ) {
-		    newFocussedWidget = npw;
-		    break;
-		}
-	    }
-	    if (newFocussedWidget != focussedWidget && focussedWidget)
-		focussedWidget->leaveInstance();
-
-	    if (newFocussedWidget) {
-		if (newFocussedWidget != focussedWidget)
-		    newFocussedWidget->enterInstance();
-	    }
-
-	    focussedWidget = newFocussedWidget;
-	}
-    }
-
-    bool notify( QObject* obj, QEvent* event )
-    {
-	if ( event->type() == QEvent::Enter ||
-	     event->type() == QEvent::Leave )
-	{
-	    checkFocussedWidget();
-	}
-	return QApplication::notify( obj, event );
-    }
-
-    bool winEventFilter( MSG *msg )
-    {
-	if ( msg->message == WM_QUERYENDSESSION ) {
-	    QNPWidget *npw;
-	    for ( npw = npwidgets.first(); npw; npw = npwidgets.next() )
-		delete npw;
-	}
-
-	return QApplication::winEventFilter( msg );
-    }
-#endif
-
-    void addQNPWidget(QNPWidget* w)
-    {
-	npwidgets.append(w);
-    }
-
-    void removeQNPWidget(QNPWidget* w)
-    {
-	if (w == focussedWidget) focussedWidget = 0;
-	npwidgets.remove(w);
-    }
-
-#ifdef Q_WS_X11
-    static void removeXtEventFiltersIfOutsideQNPWidget(XLeaveWindowEvent* e)
-    {
-	// If QApplication doesn't know about the widget at the
-	// event point, we must should remove our filters.
-	// ### is widgetAt efficient enough?
-	QWidget* w = QApplication::widgetAt(e->x_root, e->y_root);
-
-	if ( !w ) {
-	    if ( focussedWidget ) {
-		QPoint p(e->x_root, e->y_root);
-		QRect r = focussedWidget->rect();
-		r.moveTopLeft( focussedWidget->mapToGlobal(QPoint(0,0)) );
-		if (!r.contains(p) ) {
-		    focussedWidget->leaveInstance();
-		    focussedWidget = 0;
-		    removeXtEventFilters( Dangerous );
-		}
-	    }
-	} else if ( w->isTopLevel() ) {
-	    for ( QNPWidget* npw = npwidgets.first();
-		npw; npw = npwidgets.next())
-	    {
-		if ( npw == w ) {
-		    if ( focussedWidget != npw ) {
-			if ( focussedWidget ) {
-			    focussedWidget->leaveInstance();
-			}
-			focussedWidget = npw;
-			focussedWidget->enterInstance();
-		    }
-
-		    break;
-		}
-	    }
-	}
-    }
-#endif
-
-private:
-    static QPtrList<QNPWidget> npwidgets;
-};
-QPtrList<QNPWidget> PluginSDK_QApplication::npwidgets;
-
-#ifdef Q_WS_WIN
-int PluginSDK_QApplication::argc=0;
-char **PluginSDK_QApplication::argv={ 0 };
-#endif
-
-#ifdef Q_WS_X11
-static void np_set_timer( int interval )
+static int (*original_x_errhandler)( Display *dpy, XErrorEvent * ) = 0;
+static int dummy_x_errhandler( Display *, XErrorEvent * )
 {
-    // Ensure we only have one timeout in progress - QApplication is
-    // computing the one amount of time we need to wait.
-    if ( qt_np_timerid ) {
-	XtRemoveTimeOut( qt_np_timerid );
-    }
-    qt_np_timerid = XtAppAddTimeOut(appcon, interval,
-	(XtTimerCallbackProc)qt_np_timeout, 0);
-    /*
-    qt_np_timerid = XtAddTimeOut(interval,
-	(XtTimerCallbackProc)qt_np_timeout, 0);
-    */
-}
-
-static void np_do_timers( void*, void* )
-{
-    qt_np_timerid = 0; // It's us, and we just expired, that's why we are here.
-
-    qt_activate_timers();
-
-    timeval *tm = qt_wait_timer();
-
-    if (tm) {
-	int interval = QMIN(tm->tv_sec,INT_MAX/1000)*1000 + tm->tv_usec/1000;
-	np_set_timer( interval );
-    }
+    return 0;
 }
 #endif
-
-
 
 /******************************************************************************
  * Plug-in Calls - these are called by Netscape
@@ -559,31 +278,20 @@ NPP_Shutdown(void)
 	qNP = 0;
     }
 
-    if (piApp) {
 #ifdef Q_WS_X11
-	qt_np_remove_timeoutcb(np_do_timers);
-	qt_np_remove_timer_setter(np_set_timer);
-	qt_np_remove_event_proc(np_event_proc);
-	qt_np_count--;
-
-	if (qt_np_leave_cb == PluginSDK_QApplication::removeXtEventFiltersIfOutsideQNPWidget)
-	    qt_np_leave_cb = 0;
-	if ( qt_np_count == 0) {
-	    // We are the last Qt-based plugin to leave
-	    removeXtEventFilters(Safe);
-	    removeXtEventFilters(Dangerous);
-	    if (qt_np_timerid) {
-		XtRemoveTimeOut( qt_np_timerid );
-		qt_np_timerid = 0;
-	    }
-	    qt_np_leave_cb = 0;
-	}
-	delete piApp;
+    if ( original_x_errhandler )
+    	XSetErrorHandler( original_x_errhandler );
 #endif
-	piApp = 0;
-
-	delete qApp;
+    if ( qApp) {
+#ifdef Q_WS_WIN32
+	if ( hhook )
+	    UnhookWindowsHookEx( hhook );
+	hhook = 0;
+#endif
+	delete application;
+	delete event_loop;
     }
+
 }
 
 
@@ -621,7 +329,6 @@ NPP_New(NPMIMEType /*pluginType*/,
     This->npp = instance;
 
     /* mode is NP_EMBED, NP_FULL, or NP_BACKGROUND (see npapi.h) */
-    This->fWindow = NULL;
     This->fMode = mode;
 
     This->window = 0;
@@ -664,16 +371,7 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 		(LONG)This->fDefaultWindowProc );
 #endif
 
-	if (This->widget) {
-	    This->widget->unsetWindow();
-#ifdef _WS_WIN_ // needed?
-	    if (This->window)
-		NPP_SetWindow( instance, 0 ); // unset
-#endif
-	    This->window = 0;
-	    delete This->widget;
-	}
-
+	delete This->widget;
 	delete This->instance;
 	delete [] This->argn;
 	delete [] This->argv;
@@ -700,95 +398,70 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 
     This = (_NPInstance*) instance->pdata;
 
-    if (!window) {
+    delete This->widget;
 
-	if (This->widget) {
-	    This->widget->unsetWindow();
-	    This->window = 0;
-	    delete This->widget;
-	    This->widget = 0;
-	}
+#ifdef Q_WS_WIN
+    if (This->window)
+	SetWindowLong( This->window, GWL_WNDPROC,
+		       (LONG)This->fDefaultWindowProc );
+#endif
+    if ( !window )
+	return result;
+
 #ifdef Q_WS_X11
-    } else if (This->window != (Window) window->window) {
-	This->window = (Window) window->window;
+    This->window = (Window) window->window;
+    This->display =
+	((NPSetWindowCallbackStruct *)window->ws_info)->display;
 #endif
 #ifdef Q_WS_WIN
-    } else if (This->window != (HWND) window->window) {
-	if (This->window)
-	    SetWindowLong( This->window, GWL_WNDPROC,
-		(LONG)This->fDefaultWindowProc );
-	This->fDefaultWindowProc =
-	    (WNDPROC)GetWindowLong( (HWND)window->window, GWL_WNDPROC);
-	This->window = (HWND) window->window;
+    This->window = (HWND) window->window;
+    This->fDefaultWindowProc =
+	(WNDPROC)GetWindowLong( This->window, GWL_WNDPROC);
 #endif
-	This->x = window->x;
-	This->y = window->y;
-	This->width = window->width;
-	This->height = window->height;
 
+    This->x = window->x;
+    This->y = window->y;
+    This->width = window->width;
+    This->height = window->height;
+
+
+    if (!qApp) {
 #ifdef Q_WS_X11
-	This->display =
-	    ((NPSetWindowCallbackStruct *)window->ws_info)->display;
+	// We are the first Qt-based plugin to arrive
+	event_loop = new QXt( "qnp", XtDisplayToApplicationContext(This->display) );
+	application = new QApplication(This->display);
 #endif
-
-	if (!piApp) {
-#ifdef Q_WS_X11
-	    if (!qApp) {
-		// Thou Shalt Not Unload Qt
-		// Increment the reference count...
-		// dlopen("libqt.so.1", RTLD_LAZY);
-		// ... and never close it.
-		// Nice try.  Can't get that to work.
-
-		// We are the first Qt-based plugin to arrive
-		new QApplication(This->display);
-
-		// Helps debugging
-		//XSynchronize(This->display,True);
-		//XSetErrorHandler((int (*)(Display*dpy,XErrorEvent*))abort);
-
-		ASSERT(qt_np_count == 0);
-		Q_ASSERT(qt_np_count == 0);
-	    }
-	    installXtEventFilters(Safe);
-	    qt_np_add_timeoutcb(np_do_timers);
-	    qt_np_add_timer_setter(np_set_timer);
-	    qt_np_add_event_proc(np_event_proc);
-	    qt_np_count++;
-	    appcon = XtDisplayToApplicationContext(This->display);
-#endif
-	    piApp = new PluginSDK_QApplication();
-	}
-
-	if (!This->widget) {
 #ifdef Q_WS_WIN
-	    This->window = (HWND) window->window;
-
-	    InvalidateRect( This->window, NULL, TRUE );
-	    UpdateWindow( This->window );
+	static int argc=0;
+	static char **argv={ 0 };
+	application = new QApplication( argc, argv );
+#ifdef UNICODE
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    hhook = SetWindowsHookExW( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	else
 #endif
-	    // New widget on this new window.
-	    next_pi = This;
-	    /* This->widget = */ // (happens sooner - in QNPWidget constructor)
-		This->instance->newWindow();
-	    This->widget->show();
-	} else {
-	    // New window for existing widget, and all its children.
-	    This->widget->setWindow(FALSE);
-	}
-    } else if (This->widget) {
-	// ### Maybe need a geometry setter that bypasses some Qt code?
-	// ### position is always (0,0), so we get by by ignoring it.
-	if ( This->widget->width() != (int)window->width
-	  || This->widget->height() != (int)window->height )
-	{
-	    This->widget->setGeometry(window->x, window->y, window->width, window->height);
-	} else {
-	    This->widget->update();
-	}
+	    hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+#endif
     }
 
-    This->fWindow = window;
+#ifdef Q_WS_X11
+    if ( !original_x_errhandler )
+    	original_x_errhandler = XSetErrorHandler( dummy_x_errhandler );
+#endif
+
+    // New widget on this new window.
+    next_pi = This;
+    /* This->widget = */ // (happens sooner - in QNPWidget constructor)
+    This->instance->newWindow();
+
+#ifdef Q_WS_X11
+    This->widget->resize( This->width, This->height );
+    XReparentWindow( This->widget->x11Display(), This->widget->winId(), This->window, 0, 0 );
+    XSync( This->widget->x11Display(), False );
+#endif
+#ifdef Q_WS_WIN
+#endif
+    This->widget->show();
     return result;
 }
 
@@ -960,8 +633,8 @@ NPP_Print(NPP instance, NPPrint* printInfo)
 		printInfo->print.embedPrint.platformPrint;
 	    FILE* outfile = ((NPPrintCallbackStruct*)platformPrint)->fp;
 	    if (ftell(outfile)) {
-		NPWindow* w =
-		    &(printInfo->print.embedPrint.window);
+// 		NPWindow* w =
+// 		    &(printInfo->print.embedPrint.window);
 		QNPPrinter prn(outfile);
 		QPainter painter(&prn);
 		// #### config viewport with w->{x,y,width,height}
@@ -1008,140 +681,6 @@ NPP_URLNotify(NPP instance,
 	This->instance->notifyURL(url, r, notifyData);
     }
 }
-
-
-
-// Hackery for X11:  make Qt's toplevels widgets be Xt widgets too.
-
-#ifdef Q_WS_X11
-
-// Called when a top-level widget (which has an Xt widget's window) is entered.
-static
-void enter_event_handler(Widget, XtPointer xtp, XEvent* event, Boolean* cont)
-{
-    _NPInstance* This = (_NPInstance*)xtp;
-
-    if (piApp) {
-	installXtEventFilters(Dangerous);
-	if ( xtp ) {
-	    if ( focussedWidget )
-		focussedWidget->leaveInstance();
-
-	    focussedWidget = This->widget;
-
-	    if ( focussedWidget ) {
-		focussedWidget->enterInstance();
-		qt_np_leave_cb = PluginSDK_QApplication::removeXtEventFiltersIfOutsideQNPWidget;
-	    }
-	}
-	// Post the event
-	*cont = qt_event_handler(event);
-    } else {
-	*cont = FALSE;
-    }
-}
-
-// Called when a top-level widget (which has an Xt widget's window) is left.
-static
-void leave_event_handler(Widget, XtPointer, XEvent*, Boolean* cont)
-{
-    if (piApp) {
-	if ( !QApplication::activePopupWidget()
-	  && !QApplication::activeModalWidget() )
-	{
-	    if ( focussedWidget ) {
-		focussedWidget->leaveInstance();
-		focussedWidget = 0;
-	    }
-	    removeXtEventFilters(Dangerous);
-	}
-    }
-    *cont = FALSE;
-}
-
-// Relacement for Qt function - add Xt stuff for top-level widgets
-Window qt_XCreateWindow( const QWidget* qw, Display *display, Window parent,
-			 int x, int y, uint w, uint h,
-			 int borderwidth, int depth,
-			 uint windowclass, Visual *visual,
-			 ulong valuemask, XSetWindowAttributes *attributes )
-{
-    // ### This isA will not work - we are still in QWidget's constructor.
-    if ( qw->isTopLevel() && !qw->isA("QNPWidget") ) {
-	// ### not sure it is good to use name() and className().
-	bool cmap = valuemask & CWColormap;
-	Widget xtw = XtVaAppCreateShell( qw->name(), qw->className(),
-	    applicationShellWidgetClass, display,
-	    XtNx, x, XtNy, y, XtNwidth, w, XtNheight, h,
-	    XtNborderWidth, borderwidth, XtNdepth, depth,
-	    XtNvisual, visual,
-	    cmap ? XtNcolormap : 0, cmap ? attributes->colormap : 0,
-	    0, 0 );
-
-	// Ensure it has a window, and get it.
-	XtSetMappedWhenManaged( xtw, FALSE );
-	XtRealizeWidget( xtw );
-	Window xw = XtWindow( xtw );
-
-	// Set the attributes (directly)
-	XChangeWindowAttributes( display, xw, valuemask, attributes );
-
-	// Inform us on enter/leave
-	XtAddEventHandler( xtw, EnterWindowMask, TRUE, enter_event_handler, 0 );
-	XtAddEventHandler( xtw, LeaveWindowMask, TRUE, leave_event_handler, 0 );
-
-	// Return Xt's window for the widget
-	return xw;
-    } else {
-	Window window = XCreateWindow( display, parent, x, y, w, h, borderwidth, depth,
-			      windowclass, visual, valuemask, attributes );
-	return window;
-    }
-}
-
-
-// Relacement for Qt function - add Xt stuff for top-level widgets
-Window qt_XCreateSimpleWindow( const QWidget* qw, Display *display, Window parent,
-			       int x, int y, uint w, uint h, int borderwidth,
-			       ulong border, ulong background )
-{
-    // ### This isA will not work - we are still in QWidget's constructor.
-    Window window;
-    if ( qw->isTopLevel() && !qw->isA("QNPWidget") ) {
-	XSetWindowAttributes attributes;
-	attributes.border_pixel = border;
-	attributes.background_pixel = background;
-	window = qt_XCreateWindow (
-	    qw, display, parent, x, y, w, h, borderwidth,
-	    CopyFromParent, CopyFromParent, CopyFromParent,
-	    CWBackPixel | CWBorderPixel, &attributes );
-    } else {
-	window = XCreateSimpleWindow( display, parent, x, y, w, h, borderwidth,
-				    border, background );
-    }
-    return window;
-}
-
-
-// Relacement for Qt function - add Xt stuff for top-level widgets
-void qt_XDestroyWindow( const QWidget* qw, Display *display, Window window )
-{
-
-    if ( qw->isTopLevel() && !qw->isA("QNPWidget") ) {
-	Widget xtw = XtWindowToWidget( display, window );
-	if ( xtw ) {
-	    XtRemoveEventHandler(xtw, LeaveWindowMask, TRUE, leave_event_handler, 0);
-	    XtRemoveEventHandler(xtw, EnterWindowMask, TRUE, enter_event_handler, 0);
-	    XtDestroyWidget( xtw );
-	} else {
-	    XDestroyWindow( display, window );
-	}
-    } else {
-	XDestroyWindow( display, window );
-    }
-}
-
-#endif
 
 
 
@@ -1205,17 +744,13 @@ public:
     Creates a QNPWidget.
 */
 QNPWidget::QNPWidget() :
-    pi(next_pi)
+     pi(next_pi)
 {
     if (!next_pi) {
 	qFatal("QNPWidget must only be created within call to newWindow");
     }
     next_pi->widget = this;
     next_pi = 0;
-
-    setWindow(TRUE);
-
-    piApp->addQNPWidget(this);
 }
 
 /*!
@@ -1227,7 +762,23 @@ QNPWidget::QNPWidget() :
 */
 QNPWidget::~QNPWidget()
 {
-    piApp->removeQNPWidget(this);
+#ifdef Q_WS_X11
+    destroy( FALSE, FALSE ); // X has destroyed all windows
+#endif
+}
+
+
+/*!\internal */
+void QNPWidget::enterEvent(QEvent*)
+{
+    enterInstance();
+}
+
+/*!\internal */
+void QNPWidget:: leaveEvent(QEvent*)
+{
+    if ( !QApplication::activePopupWidget() )
+	leaveInstance();
 }
 
 /*!
@@ -1254,109 +805,7 @@ QNPInstance* QNPWidget::instance()
     return pi->instance;
 }
 
-class QFixableWidget : public QWidget {
-public:
-    void fix()
-    {
-	QRect g = geometry();
-	QColor bg = backgroundColor();
-	bool mt = hasMouseTracking();
-	bool hascurs = testWFlags( WState_OwnCursor );
-	QCursor curs = cursor();
-	clearWState( WState_Created );
-	clearWState( WState_Visible );
-	create( 0, TRUE, FALSE );
-	setGeometry(g);
-	setBackgroundColor( bg );
-	setMouseTracking( mt );
-	if ( hascurs ) {
-	    setCursor( curs );
-	}
-    }
-};
 
-static
-void createNewWindowsForAllChildren(QWidget* parent, int indent=0)
-{
-    QObjectList* list = parent->queryList("QWidget", 0, FALSE, FALSE);
-
-    if ( list ) {
-	QObjectListIt it( *list );
-	QFixableWidget* c;
-	while ( (c = (QFixableWidget*)it.current()) ) {
-	    bool vis = c->isVisible();
-	    // Fix children first, so propagation can work
-	    createNewWindowsForAllChildren(c,indent+1);
-	    c->fix();
-	    if ( vis )
-		c->show(); // Now that all children are valid.
-	    ++it;
-	}
-	delete list;
-    }
-}
-
-/*!
-    \internal
-  For internal use only.
-  If \a delold parameter is passed to the create() function.
-*/
-void QNPWidget::setWindow(bool delold)
-{
-    saveWId = winId(); // ### Don't need this anymore
-
-    create((WId)pi->window, FALSE, delold);
-
-   if ( delold ) {
-      // Make sure they get a show()
-      clearWState( WState_Visible );
-   }
-
-#ifdef Q_WS_X11
-    Widget w = XtWindowToWidget (qt_xdisplay(), pi->window);
-    XtAddEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
-    XtAddEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
-    Pixmap bgpm=0;
-    XColor col;
-    XtVaGetValues(w,
-	XtNbackground, &col.pixel,
-	XtNbackgroundPixmap, &bgpm,
-	0, 0);
-    XQueryColor(qt_xdisplay(), x11Colormap(), &col);
-    setBackgroundColor(QColor(col.red >> 8, col.green >> 8, col.blue >> 8));
-    if (bgpm) {
-	// ### Need an under-the-hood function here, or we have to
-	// ### rewrite lots of code from QPixmap::convertToImage().
-	// ### Doesn't matter yet, because Netscape doesn't ever set
-	// ### the background image of the window it gives us.
-    }
-#endif
-
-    createNewWindowsForAllChildren(this);
-
-    setGeometry( pi->x, pi->y, pi->width, pi->height );
-}
-
-/*!
-  For internal use only.
-  \internal
-*/
-void QNPWidget::unsetWindow()
-{
-#ifdef Q_WS_X11
-    WId wi = winId();
-    Widget w = XtWindowToWidget (qt_xdisplay(), wi);
-    if ( w ) {
-	XtRemoveEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
-	XtRemoveEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
-    }
-    destroy( FALSE, FALSE ); // Xt has already destroyed all the windows
-#endif
-#ifdef Q_WS_WIN
-    // Nothing special
-    destroy( FALSE, TRUE ); // Browser will the window, but not the subwindows
-#endif
-}
 
 
 
@@ -1633,7 +1082,7 @@ int QNPInstance::argc() const
 */
 const char* QNPInstance::argn(int i) const
 {
-    return pi->argn[i];
+    return pi->argv[i];
 }
 
 /*!

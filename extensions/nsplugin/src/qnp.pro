@@ -1,9 +1,11 @@
 TEMPLATE    	= lib
+CONFIG -= dll 
 CONFIG      	+= qt x11 release staticlib
-unix:HEADERS	= qnp.h
+SOURCES		= qnp.cpp
+x11:HEADERS += qnp.h qxt.h
+x11:SOURCES += qxt.cpp
 win32:HEADERS	= ../../../include/qnp.h
 win32:LIBS	+= $$QT_BUILD_TREE\lib\qtmain.lib
-SOURCES		= qnp.cpp
 MOC_DIR		= .
 TARGET		= qnp
 DESTINCDIR	= ../../../include

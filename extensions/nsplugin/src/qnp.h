@@ -82,16 +82,15 @@ class QNPWidget : public QWidget {
 public:
     QNPWidget();
     ~QNPWidget();
+    void enterEvent(QEvent*);
+    void leaveEvent(QEvent*);
 
-    void setWindow(bool);
-    void unsetWindow();
     virtual void enterInstance();
     virtual void leaveInstance();
 
     QNPInstance* instance();
 
 private:
-    WId saveWId;
     _NPInstance* pi;
 };
 

@@ -128,6 +128,7 @@ Graph::Graph( GraphModel& mdl ) :
     help->insertItem( "About plugin...", this, SIGNAL(aboutPlugin()) );
     help->insertItem( "About data...", this, SIGNAL(aboutData()) );
     menubar->insertItem("Help", help);
+    menubar->hide();
 }
 
 Graph::~Graph()
@@ -404,7 +405,6 @@ private:
     void consumeLine();
     QPtrList<Datum> data;
     QBuffer line;
-    bool firstline;
     int ncols;
     ColType *coltype;
 
@@ -418,7 +418,6 @@ private slots:
 Grapher::Grapher()
 {
     data.setAutoDelete(TRUE);
-    firstline = TRUE;
     ncols = 0;
     line.open(IO_WriteOnly|IO_Truncate);
 }
@@ -473,8 +472,7 @@ void Grapher::consumeLine()
 
     QTextStream ts( &line );
 
-    if (firstline) {
-	firstline = FALSE;
+    if (ncols == 0 ) {
 	ncols=0;
 	QPtrList<ColType> typelist;
 	typelist.setAutoDelete(TRUE);
@@ -543,17 +541,15 @@ int Grapher::write(QNPStream* /*str*/, int /*offset*/, int len, void* buffer)
 	    line.putch(ch);
 	}
     }
-
-    if ( widget() ) {
+    if ( widget() )
 	widget()->update();
-    }
 
     return len;
 }
 
 void Grapher::aboutPlugin()
 {
-    getURL( "http://www.trolltech.com/nsplugin/", "_blank" );
+    getURL( "http://doc.trolltech.com/nsplugin-examples.html", "_blank" );
 }
 
 void Grapher::aboutData()
