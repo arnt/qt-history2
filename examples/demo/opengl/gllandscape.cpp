@@ -624,7 +624,7 @@ void GLLandscape::timerEvent( QTimerEvent * )
     for ( i = 0; i < gridSize; i++ )
 	for ( j = 0; j < gridSize; j++ )
 	{
-	    s = sqrt( (double) (j - dx) * (j - dx) + (i - dy) * (i - dy));
+	    s = sqrt( (double) ( (j - dx) * (j - dx) + (i - dy) * (i - dy) ) );
 	    wt[i][j] += 0.1;
 	    t = s / v;
 
@@ -633,7 +633,7 @@ void GLLandscape::timerEvent( QTimerEvent * )
 		    landscape[i][j] -= wave[i][j];
 		if ( (dy - j != 0) || (dx - i != 0) )
 		    wave[i][j] = (3 * sin( 2 * PI * W * (wt[i][j] + t ))) / 
-				 (0.2*(sqrt( pow((double)dx-i, 2) + pow((double)dy-j, 2))+2));
+				 (0.2*(sqrt( pow((double)(dx-i), 2) + pow((double)(dy-j), 2))+2));
 		else
 		    wave[i][j] = ( 3 * sin( 2 * PI * W * ( wt[i][j] + t ) ) );
 		if ( landscape[i][j] + wave[i][j] < 0 )
