@@ -66,6 +66,8 @@ void P4Action::newData( const QString &s )
 void P4Action::newStats( const QString &s, P4Info *p4i )
 {
     emit finished( s, p4i );
+
+    delete this;
 }
 
 bool P4Action::success()
