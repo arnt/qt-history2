@@ -40,7 +40,6 @@
 #include "qglobal.h"
 #include <limits.h>
 
-// BEING REVISED: weis
 /*!
   \class QRangeControl qrangecontrol.h
   \brief The QRangeControl class provides an integer value within a range.
@@ -304,22 +303,22 @@ void QRangeControl::subtractLine()
 
 void QRangeControl::setRange( int minValue, int maxValue )
 {
-    if ( minValue == minVal && maxValue == maxVal )
-	return;
     if ( minValue > maxValue ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QRangeControl::setRange: minValue %d > maxValue %d",
-		 minValue, maxValue );
+		  minValue, maxValue );
 #endif
-	minVal = maxVal = minValue;
-    } else {
-	minVal = minValue;
-	maxVal = maxValue;
+	maxValue = minValue;
     }
+    if ( minValue == minVal && maxValue == maxVal )
+	return;
+    minVal = minValue;
+    maxVal = maxValue;
     int tmp = bound( val );
     rangeChange();
     if ( tmp != val ) {
-	prevVal = tmp;
+	prevVal = val;
+	val = tmp;
 	valueChange();
     }
 }
