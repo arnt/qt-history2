@@ -15015,8 +15015,14 @@ QString &QString::setNum( double n, char f, int prec )
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
+#ifndef QT_NO_SPRINTF
     sprintf( format, n );
     return *this;
+#else
+    char buf[512];
+    ::sprintf( buf, format, n );        // snprintf is unfortunately not portable
+    return setLatin1(buf);
+#endif
 }
 
 /*! \fn QString &QString::setNum( float n, char f, int prec )

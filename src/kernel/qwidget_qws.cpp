@@ -245,13 +245,13 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     }
 
     if ( topLevel ) {
-	if ( name( 0 ) )
 #ifndef QT_NO_WIDGET_TOPEXTRA
+	if ( name( 0 ) )
 	    qwsDisplay()->nameRegion( winId(), name(), caption() );
 	else
 	    qwsDisplay()->nameRegion( winId(), "", caption() );
 #else
-	    qwsDisplay()->nameRegion( winId(), name(), QString::null );
+	qwsDisplay()->nameRegion( winId(), name(), QString::null );
 #endif
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WStyle_DialogBorder)

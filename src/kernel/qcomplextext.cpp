@@ -525,27 +525,30 @@ static const ushort arabicUnicodeLamAlefMapping[6][4] = {
     { 0xfffd, 0xfffd, 0xfefb, 0xfefc } // 0x627         R       Alef
 };
 
-static inline int getShape( const QChar *base, uchar cell, int shape, const QFontMetrics *fm )
+static inline int getShape( const QChar * /* base */, uchar cell, int shape,
+			    const QFontMetrics * /* fm */ )
 {
     uint ch = arabicUnicodeMapping[cell][0] + shape;
+    /*
     // we revert to the unshaped glyph in case the shaped version doesn't exist
     if ( fm && !fm->inFont( ch ) ) {
-	switch( shape ) {
-	    case QComplexText::XIsolated:
-		break; // try base form
-	    case QComplexText::XFinal:
-		ch -= 1; // try isolated form
-		break;
-	    case QComplexText::XInitial:
-		ch += 1; // try medial form
-		break;
-	    case QComplexText::XMedial:
-		ch -= 1; // try initial form
-		break;
-	}
-	if ( !fm->inFont( ch ) )
-	    ch = *base;
+    switch( shape ) {
+    case QComplexText::XIsolated:
+    break; // try base form
+    case QComplexText::XFinal:
+    ch -= 1; // try isolated form
+    break;
+    case QComplexText::XInitial:
+    ch += 1; // try medial form
+    break;
+    case QComplexText::XMedial:
+    ch -= 1; // try initial form
+    break;
     }
+    if ( !fm->inFont( ch ) )
+    ch = *base;
+    }
+    */
     return ch;
 }
 

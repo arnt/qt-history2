@@ -61,6 +61,7 @@ win32 {
 		XML_H		= $$WIN_ALL_H
 		CANVAS_H	= $$WIN_ALL_H
 		STYLES_H	= $$WIN_ALL_H
+		CONFIG 		-= incremental
 	}
 
 	CONFIG	+= zlib
