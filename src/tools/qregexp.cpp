@@ -2113,7 +2113,6 @@ bool QRegExpEngine::matchHere()
 		    memcpy(mmNextCapEnd + m * ncap, capEnd,
 			    ncap * sizeof(int));
 		}
-		zzZ.clear();
 	    } else {
 		++j;
 	    }
