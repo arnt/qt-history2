@@ -2142,42 +2142,6 @@ bool QApplication::qt_mac_apply_settings()
       /qt/Font Substitutions/... - QStringList
     */
 
-    QString str;
-    QStringList strlist;
-    int i, num;
-    QPalette pal(QApplication::palette());
-    strlist = settings.readListEntry("/qt/Palette/active");
-    if (strlist.count() == QColorGroup::NColorRoles) {
-	for (i = 0; i < QColorGroup::NColorRoles; i++)
-	    pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
-			 QColor(strlist[i]));
-    }
-    strlist = settings.readListEntry("/qt/Palette/inactive");
-    if (strlist.count() == QColorGroup::NColorRoles) {
-	for (i = 0; i < QColorGroup::NColorRoles; i++)
-	    pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i,
-			 QColor(strlist[i]));
-    }
-    strlist = settings.readListEntry("/qt/Palette/disabled");
-    if (strlist.count() == QColorGroup::NColorRoles) {
-	for (i = 0; i < QColorGroup::NColorRoles; i++)
-	    pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
-			 QColor(strlist[i]));
-    }
-
-    if ( pal != QApplication::palette())
-	QApplication::setPalette(pal, TRUE);
-
-    QFont font(QApplication::font());
-    // read new font
-    str = settings.readEntry("/qt/font");
-    if (! str.isNull() && ! str.isEmpty()) {
-	font.fromString(str);
-
-	if (font != QApplication::font())
-	    QApplication::setFont(font, TRUE);
-    }
-
     // read library (ie. plugin) path list
     QString libpathkey =
 	QString("/qt/%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
@@ -2188,94 +2152,120 @@ bool QApplication::qt_mac_apply_settings()
 	    QApplication::addLibraryPath(*it++);
     }
 
-    // read new QStyle
-    QString stylename = settings.readEntry("/qt/style");
-    if (! stylename.isNull() && ! stylename.isEmpty()) {
-	QStyle *style = QStyleFactory::create(stylename);
-	if (style)
-	    QApplication::setStyle(style);
-	else
-	    stylename = "default";
-    } else
-	stylename = "default";
-
-    num = settings.readNumEntry("/qt/doubleClickInterval",
-				QApplication::doubleClickInterval());
-    if(num != QApplication::doubleClickInterval())
-	QApplication::setDoubleClickInterval(num);
-
-    num = settings.readNumEntry("/qt/cursorFlashTime",
-				QApplication::cursorFlashTime());
-    QApplication::setCursorFlashTime(num);
-
-    num = settings.readNumEntry("/qt/wheelScrollLines",
-				QApplication::wheelScrollLines());
-    QApplication::setWheelScrollLines(num);
-
-    QString colorspec = settings.readEntry("/qt/colorSpec",
-					   "default");
-    if (colorspec == "normal")
-	QApplication::setColorSpec(QApplication::NormalColor);
-    else if (colorspec == "custom")
-	QApplication::setColorSpec(QApplication::CustomColor);
-    else if (colorspec == "many")
-	QApplication::setColorSpec(QApplication::ManyColor);
-    else if (colorspec != "default")
-	colorspec = "default";
-
-    QString defaultcodec = settings.readEntry("/qt/defaultCodec",
-					      "none");
+    QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
     if (defaultcodec != "none") {
 	QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
 	if (codec)
 	    qApp->setDefaultCodec(codec);
     }
 
-    QStringList strut = settings.readListEntry("/qt/globalStrut");
-    if (! strut.isEmpty()) {
-	if (strut.count() == 2) {
-	    QSize sz(strut[0].toUInt(), strut[1].toUInt());
+    qt_resolve_symlinks = settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
 
-	    if (sz.isValid())
-		QApplication::setGlobalStrut(sz);
+    if(qt_is_gui_used) {
+	QString str;
+	QStringList strlist;
+	int i, num;
+	QPalette pal(QApplication::palette());
+	strlist = settings.readListEntry("/qt/Palette/active");
+	if (strlist.count() == QColorGroup::NColorRoles) {
+	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+		pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
+			     QColor(strlist[i]));
 	}
-    }
+	strlist = settings.readListEntry("/qt/Palette/inactive");
+	if (strlist.count() == QColorGroup::NColorRoles) {
+	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+		pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i, QColor(strlist[i]));
+	}
+	strlist = settings.readListEntry("/qt/Palette/disabled");
+	if (strlist.count() == QColorGroup::NColorRoles) {
+	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+		pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i, QColor(strlist[i]));
+	}
+	if ( pal != QApplication::palette())
+	    QApplication::setPalette(pal, TRUE);
 
-    QStringList effects = settings.readListEntry("/qt/GUIEffects");
-    if (! effects.isEmpty()) {
-	if ( effects.contains("none") )
+	QFont font(QApplication::font());     // read new font
+	str = settings.readEntry("/qt/font");
+	if (! str.isNull() && ! str.isEmpty()) {
+	    font.fromString(str);
+	    if (font != QApplication::font())
+		QApplication::setFont(font, TRUE);
+	}
+
+	// read new QStyle
+	QString stylename = settings.readEntry("/qt/style");
+	if (! stylename.isNull() && ! stylename.isEmpty()) {
+	    QStyle *style = QStyleFactory::create(stylename);
+	    if (style)
+		QApplication::setStyle(style);
+	    else
+		stylename = "default";
+	} else {
+	    stylename = "default";
+	}
+
+	num = settings.readNumEntry("/qt/doubleClickInterval",QApplication::doubleClickInterval());
+	if(num != QApplication::doubleClickInterval())
+	    QApplication::setDoubleClickInterval(num);
+
+	num = settings.readNumEntry("/qt/cursorFlashTime", QApplication::cursorFlashTime());
+	QApplication::setCursorFlashTime(num);
+
+	num = settings.readNumEntry("/qt/wheelScrollLines", QApplication::wheelScrollLines());
+	QApplication::setWheelScrollLines(num);
+
+	QString colorspec = settings.readEntry("/qt/colorSpec", "default");
+	if (colorspec == "normal")
+	    QApplication::setColorSpec(QApplication::NormalColor);
+	else if (colorspec == "custom")
+	    QApplication::setColorSpec(QApplication::CustomColor);
+	else if (colorspec == "many")
+	    QApplication::setColorSpec(QApplication::ManyColor);
+	else if (colorspec != "default")
+	    colorspec = "default";
+
+	QStringList strut = settings.readListEntry("/qt/globalStrut");
+	if (! strut.isEmpty()) {
+	    if (strut.count() == 2) {
+		QSize sz(strut[0].toUInt(), strut[1].toUInt());
+		if (sz.isValid())
+		    QApplication::setGlobalStrut(sz);
+	    }
+	}
+
+	QStringList effects = settings.readListEntry("/qt/GUIEffects");
+	if (! effects.isEmpty()) {
+	    if ( effects.contains("none") )
+		QApplication::setEffectEnabled( Qt::UI_General, FALSE);
+	    if ( effects.contains("general") )
+		QApplication::setEffectEnabled( Qt::UI_General, TRUE );
+	    if ( effects.contains("animatemenu") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
+	    if ( effects.contains("fademenu") )
+		QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
+	    if ( effects.contains("animatecombo") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
+	    if ( effects.contains("animatetooltip") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
+	    if ( effects.contains("fadetooltip") )
+		QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
+	} else {
 	    QApplication::setEffectEnabled( Qt::UI_General, FALSE);
-	if ( effects.contains("general") )
-	    QApplication::setEffectEnabled( Qt::UI_General, TRUE );
-	if ( effects.contains("animatemenu") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
-	if ( effects.contains("fademenu") )
-	    QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
-	if ( effects.contains("animatecombo") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
-	if ( effects.contains("animatetooltip") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
-	if ( effects.contains("fadetooltip") )
-	    QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
-    } else
-	QApplication::setEffectEnabled( Qt::UI_General, FALSE);
+	}
 
-    QStringList fontsubs =
-	settings.entryList("/qt/Font Substitutions");
-    if (!fontsubs.isEmpty()) {
-	QStringList subs;
-	QString fam, skey;
-	QStringList::Iterator it = fontsubs.begin();
-	while (it != fontsubs.end()) {
-	    fam = (*it++).latin1();
-	    skey = "/qt/Font Substitutions/" + fam;
-	    subs = settings.readListEntry(skey);
-	    QFont::insertSubstitutions(fam, subs);
+	QStringList fontsubs = settings.entryList("/qt/Font Substitutions");
+	if (!fontsubs.isEmpty()) {
+	    QStringList subs;
+	    QString fam, skey;
+	    QStringList::Iterator it = fontsubs.begin();
+	    while (it != fontsubs.end()) {
+		fam = (*it++).latin1();
+		skey = "/qt/Font Substitutions/" + fam;
+		subs = settings.readListEntry(skey);
+		QFont::insertSubstitutions(fam, subs);
+	    }
 	}
     }
-
-    qt_resolve_symlinks =
-	settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
-
     return TRUE;
 }
