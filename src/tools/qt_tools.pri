@@ -85,7 +85,7 @@ tools {
 
 	mac {
 	  SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 
-	  !embedded:$$TOOLS_CPP/qsettings_mac.cpp
+	  !embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp
         }
 	else:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp
 
