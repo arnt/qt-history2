@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#213 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#214 $
 **
 ** Implementation of QObject class
 **
@@ -2855,13 +2855,18 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
   QVariant::Type type = QVariant::nameToType( p->type );
   QString name( p->name );
 
+  // Enums are stored as attributes and not as extra tags like
+  // usual strings. But the element cant see from the type that
+  // we are interested in enums since an enum is of type string, too.
+  if ( p->enumType )
+    return setProperty( name, QVariant( element.attribute( name ) ) );
   return setProperty( name, element.property( name, type ) );
 }
 
 QDomElement& QObject::getConfiguration( QDomNode& parent, bool properties ) const
 {
     QDomElement e = parent.ownerDocument().createElement( className() );
-    
+
     if ( properties )
     {
 	QMetaObject* m = metaObject();
@@ -2873,10 +2878,15 @@ QDomElement& QObject::getConfiguration( QDomNode& parent, bool properties ) cons
 	    for( ; it != props.end(); ++it )
 	    {
 		QMetaProperty* p = m->property( *it, TRUE );
-		// Save only custom propertie values
 		QVariant prop;
 		if ( property( p->name, &prop ) )
-		    e.setProperty( p->name, prop );
+	        {
+		    // Save enums as attributes
+		    if ( p->enumType )
+			e.setAttribute( p->name, prop.stringValue() );
+		    else
+			e.setProperty( p->name, prop );
+		}
 	    }
 	}
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#457 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#458 $
 **
 ** Implementation of QWidget class
 **
@@ -4396,25 +4396,29 @@ void QWidget::setStyle( QStyle *style )
 
 bool QWidget::setConfiguration( const QDomElement& element )
 {
-  QDomElement e = element.firstChild().toElement();
-  for( ; !e.isNull(); e = e.nextSibling().toElement() )
-  {
-    if ( e.tagName() == "Widget" )
+    // Some widgets handle their children on their own.
+    if ( !inherits( "QGroupBox" ) )
     {
-      if ( !e.firstChild().toElement().toWidget( this ) )
-	return FALSE;
+	QDomElement e = element.firstChild().toElement();
+	for( ; !e.isNull(); e = e.nextSibling().toElement() )
+        {
+	    if ( e.tagName() == "Widget" )
+	    {
+		if ( !e.firstChild().toElement().toWidget( this ) )
+		    return FALSE;
+	    }
+	    else if ( e.tagName() == "Layout" )
+	    {
+		if ( !( e.firstChild().toElement().toLayout( this ) ) )
+		    return FALSE;
+	    }
+	}
     }
-    else if ( e.tagName() == "Layout" )
-    {
-      if ( !( e.firstChild().toElement().toLayout( this ) ) )
+    
+    if ( !QObject::setConfiguration( element ) )
 	return FALSE;
-    }
-  }
 
-  if ( !QObject::setConfiguration( element ) )
-    return FALSE;
-
-  return TRUE;
+    return TRUE;
 }
 
 #endif // QT_BUILDER

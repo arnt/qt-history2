@@ -2004,8 +2004,7 @@ void QDOM_ElementPrivate::save( QTextStream& s ) const
 {
   s << "<" << m_name;
 
-  uint len = length();
-  if ( len )
+  if ( !m_attr->m_map.isEmpty() )
   {
     s << " ";
     QDictIterator<QDOM_NodePrivate> it( m_attr->m_map );
@@ -3431,15 +3430,10 @@ QDomElement QDomDocument::createElement( const QString& tagname, const QRect& re
     return QDomElement();
   QDomElement e( createElement( tagname ) );
 
-  QString str;
-  str.setNum( rect.x() );
-  e.setAttribute( "x", str );
-  str.setNum( rect.y() );
-  e.setAttribute( "y", str );
-  str.setNum( rect.width() );
-  e.setAttribute( "width", str );
-  str.setNum( rect.height() );
-  e.setAttribute( "height", str );
+  e.setAttribute( "x", rect.x() );
+  e.setAttribute( "y", rect.y() );
+  e.setAttribute( "width", rect.width() );
+  e.setAttribute( "height", rect.height() );
 
   return e;
 }
@@ -3450,11 +3444,8 @@ QDomElement QDomDocument::createElement( const QString& tagname, const QPoint& p
     return QDomElement();
   QDomElement e( createElement( tagname ) );
 
-  QString str;
-  str.setNum( p.x() );
-  e.setAttribute( "x", str );
-  str.setNum( p.y() );
-  e.setAttribute( "y", str );
+  e.setAttribute( "x", p.x() );
+  e.setAttribute( "y", p.y() );
 
   return e;
 }
@@ -3465,11 +3456,8 @@ QDomElement QDomDocument::createElement( const QString& tagname, const QSize& s 
     return QDomElement();
   QDomElement e( createElement( tagname ) );
 
-  QString str;
-  str.setNum( s.width() );
-  e.setAttribute( "width", str );
-  str.setNum( s.height() );
-  e.setAttribute( "height", str );
+  e.setAttribute( "width", s.width() );
+  e.setAttribute( "height", s.height() );
 
   return e;
 }
