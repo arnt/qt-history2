@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#162 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#163 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -375,11 +375,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	e->ignore();
 	return;
     }
-    if ( e->ascii() >= 32 &&
+    QString t = e->text();
+    if ( !t.isEmpty() && (!e->ascii() || e->ascii()>=32) &&
 	 e->key() != Key_Delete &&
 	 e->key() != Key_Backspace ) {
-	QString t;
-	t += e->ascii();
 	insert( t );
 	return;
     }
