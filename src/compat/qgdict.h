@@ -177,7 +177,7 @@ inline QPtrCollection::Item QGDictIterator::get() const
 
 inline QString QGDictIterator::getKeyString() const
 {
-    return curNode ? ((QStringBucket*)curNode)->getKey() : QString::null;
+    return curNode ? ((QStringBucket*)curNode)->getKey() : QString();
 }
 
 inline const char *QGDictIterator::getKeyAscii() const

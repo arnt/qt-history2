@@ -299,7 +299,7 @@ QString QFileInfo::owner() const
 		wchar_t *domain = new wchar_t[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = QString::fromUcs2(owner);
+		    name = QString::fromUcs2((ushort*)owner);
 		}
 		LocalFree( pSD );
 		delete [] owner;
@@ -336,7 +336,7 @@ QString QFileInfo::group() const
 		wchar_t *domain = new wchar_t[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = QString::fromUcs2(group);
+		    name = QString::fromUcs2((ushort*)group);
 		}
 		LocalFree( pSD );
 		delete [] group;

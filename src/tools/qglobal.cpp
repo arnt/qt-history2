@@ -45,9 +45,9 @@ const char *qVersion()
 bool qSharedBuild()
 {
 #ifdef QT_SHARED
-    return TRUE;
+    return true;
 #else
-    return FALSE;
+    return false;
 #endif
 }
 
@@ -55,7 +55,7 @@ bool qSharedBuild()
   System detection routines
  *****************************************************************************/
 
-static bool si_alreadyDone = FALSE;
+static bool si_alreadyDone = false;
 static int  si_wordSize;
 static bool si_bigEndian;
 
@@ -65,12 +65,12 @@ static bool si_bigEndian;
     Obtains information about the system.
 
     The system's word size in bits (typically 32) is returned in \a
-    *wordSize. The \a *bigEndian is set to TRUE if this is a big-endian
-    machine, or to FALSE if this is a little-endian machine.
+    *wordSize. The \a *bigEndian is set to true if this is a big-endian
+    machine, or to false if this is a little-endian machine.
 
     In debug mode, this function calls qFatal() with a message if the
     computer is truly weird (i.e. different endianness for 16 bit and
-    32 bit integers); in release mode it returns FALSE.
+    32 bit integers); in release mode it returns false.
 */
 
 bool qSysInfo( int *wordSize, bool *bigEndian )
@@ -81,7 +81,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     if ( si_alreadyDone ) {			// run it only once
 	*wordSize  = si_wordSize;
 	*bigEndian = si_bigEndian;
-	return TRUE;
+	return true;
     }
 
     si_wordSize = 0;
@@ -96,12 +96,12 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 	 *wordSize != 32 &&
 	 *wordSize != 16 ) {			// word size: 16, 32 or 64
 	qFatal( "qSysInfo: Unsupported system word size %d", *wordSize );
-	return FALSE;
+	return false;
     }
     if ( sizeof(Q_INT8) != 1 || sizeof(Q_INT16) != 2 || sizeof(Q_INT32) != 4 ||
 	 sizeof(Q_ULONG)*8 != si_wordSize || sizeof(float) != 4 || sizeof(double) != 8 ) {
 	qFatal( "qSysInfo: Unsupported system data type size" );
-	return FALSE;
+	return false;
     }
 
     bool  be16, be32;				// determine byte ordering
@@ -113,21 +113,21 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
     p = (unsigned char *)(&nl);			// 32-bit integer
     if ( p[0] == 0x12 && p[1] == 0x34 && p[2] == 0x56 && p[3] == 0x78 )
-	be32 = TRUE;
+	be32 = true;
     else
     if ( p[0] == 0x78 && p[1] == 0x56 && p[2] == 0x34 && p[3] == 0x12 )
-	be32 = FALSE;
+	be32 = false;
     else
 	be32 = !be16;
 
     if ( be16 != be32 ) {			// strange machine!
 	qFatal( "qSysInfo: Inconsistent system byte order" );
-	return FALSE;
+	return false;
     }
 
     *bigEndian = si_bigEndian = be32;
-    si_alreadyDone = TRUE;
-    return TRUE;
+    si_alreadyDone = true;
+    return true;
 }
 
 #if !defined(QWS) && defined(Q_OS_MAC)
@@ -137,9 +137,9 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 int qMacVersion()
 {
     static int macver = Qt::MV_Unknown;
-    static bool first = TRUE;
+    static bool first = true;
     if(first) {
-	first = FALSE;
+	first = false;
 	long gestalt_version;
 	if(Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
 	    if(gestalt_version >= 0x1030 && gestalt_version < 0x1040)
@@ -229,10 +229,10 @@ int qWinVersion()
 
 #if defined(UNICODE)
     if ( winver & Qt::WV_NT_based )
-	qt_winunicode = TRUE;
+	qt_winunicode = true;
     else
 #endif
-	qt_winunicode = FALSE;
+	qt_winunicode = false;
 
     return winver;
 }
@@ -557,7 +557,7 @@ void qSystemWarning( const char *msg, ... )
     \relates QApplication
 
     Prints a warning message containing the source code file name and
-    line number if \a test is FALSE.
+    line number if \a test is false.
 
     This is really a macro defined in \c qglobal.h.
 
@@ -595,7 +595,7 @@ void qSystemWarning( const char *msg, ... )
     \relates QApplication
 
     Prints the message \msg together with the source code file name and
-    line number if \a test is FALSE.
+    line number if \a test is false.
 
     This is really a macro defined in \c qglobal.h.
 
@@ -697,12 +697,12 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     s += oldfunc;
     if ( obsoleteDict->find(s) == 0 ) {
 	obsoleteDict->insert( s, (int*)1 );	// anything different from 0
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
-static bool suppressObsolete = FALSE;
+static bool suppressObsolete = false;
 
 void qSuppressObsoleteWarnings( bool suppress )
 {

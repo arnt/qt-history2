@@ -68,6 +68,10 @@ public:
     typedef int difference_type;
 #endif
 
+    typedef QValueListIterator<T> Iterator;
+    typedef QValueListConstIterator<T> ConstIterator;
+    typedef QLinkedList<T>::size_type size_type;
+
     /**
      * API
      */

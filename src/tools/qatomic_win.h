@@ -4,10 +4,12 @@
 #endif // QT_H
 #define QATOMIC_WIN_H
 
-template <typename T>
-inline T qAtomicSetPtr(T * volatile pointer, T value)
+#if defined(Q_CC_BOR)
+static void *qAtomicSetPtr_helper(void ** volatile pointer, void* value)
+#else
+inline void *qAtomicSetPtr_helper(void ** volatile pointer, void* value)
+#endif
 {
-    Q_ASSERT(sizeof(T) == 4);
     __asm {
 	mov EAX, pointer
 	mov EDX, dword ptr [value]
@@ -18,18 +20,40 @@ inline T qAtomicSetPtr(T * volatile pointer, T value)
 }
 
 template <typename T>
-inline bool qAtomicCompareAndSetPtr(T * volatile pointer, T compare, T value)
+inline T qAtomicSetPtr(T * volatile pointer, T value)
 {
     Q_ASSERT(sizeof(T) == 4);
-    unsigned char result;
-    __asm {
-        mov ECX, pointer
-	mov EAX, compare
-	mov EDX, value
-	lock cmpxchg dword ptr[ECX], EDX
-	sete result
-    }
-    return (result != 0);
+    return static_cast<T>(qAtomicSetPtr_helper((void**volatile)pointer, value));
+}
+
+#if defined(Q_CC_BOR)
+static bool qAtomicInc_helper(volatile int * pointer)
+#else
+inline bool qAtomicInc_helper(volatile int * pointer)
+#endif
+{
+	unsigned char result;
+	__asm {
+            mov EDX,dword ptr [pointer]
+	    lock inc dword ptr [EDX]
+	    sete result
+	}
+	return (result == 0);
+}
+
+#if defined(Q_CC_BOR)
+static bool qAtomicDec_helper(volatile int * pointer)
+#else
+inline bool qAtomicDec_helper(volatile int * pointer)
+#endif
+{
+	unsigned char result;
+	__asm {
+            mov EDX,dword ptr [pointer]
+	    lock dec dword ptr [EDX]
+	    sete result
+	}
+	return (result == 0);
 }
 
 struct QAtomic {
@@ -38,25 +62,13 @@ struct QAtomic {
     inline bool operator++()
     {
 	volatile int *pointer = &atomic;
-	unsigned char result;
-	__asm {
-            mov EDX,dword ptr [pointer]
-	    lock inc dword ptr [EDX]
-	    sete result
-	}
-	return (result == 0);
+	return qAtomicInc_helper( pointer );
     }
 
     inline bool operator--()
     {
 	volatile int *pointer = &atomic;
-	unsigned char result;
-	__asm {
-            mov EDX, dword ptr [pointer]
-	    lock dec word ptr [EDX]
-	    sete result
-	}
-	return (result == 0);
+	return qAtomicDec_helper( pointer );
     }
 
     inline bool operator==(int x) const

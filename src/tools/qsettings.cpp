@@ -325,7 +325,7 @@ static void closelock( HANDLE fd )
 
 
 QSettingsGroup::QSettingsGroup()
-    : modified(FALSE)
+    : modified(false)
 {
 }
 
@@ -396,10 +396,10 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 	    QString key, value;
 	    key = line.left(i);
 	    value = "";
-	    bool esc=TRUE;
+	    bool esc=true;
 	    i++;
 	    while (esc) {
-		esc = FALSE;
+		esc = false;
 		for ( ; i < (int)line.length(); i++ ) {
 		    if ( esc ) {
 			if ( line[i] == 'n' )
@@ -408,9 +408,9 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 			    value = QString::null; // escaped empty string
 			else
 			    value.append(line[i]);
-			esc = FALSE;
+			esc = false;
 		    } else if ( line[i] == '\\' )
-			esc = TRUE;
+			esc = true;
 		    else
 			value.append(line[i]);
 		}
@@ -446,7 +446,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 #endif
 
 QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
-    : groupDirty( TRUE ), modified(FALSE), globalScope(TRUE)
+    : groupDirty( true ), modified(false), globalScope(true)
 {
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( format != QSettings::Ini )
@@ -460,21 +460,21 @@ QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
 #ifdef Q_WS_WIN
 #ifdef Q_OS_TEMP
 	TCHAR path[MAX_PATH];
-	SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, FALSE );
+	SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, false );
 	appSettings  = QString::fromUcs2( path );
-	SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
+	SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, false );
 	defPath = QString::fromUcs2( path );
 #else
     QLibrary library( "shell32" );
-    library.setAutoUnload( FALSE );
+    library.setAutoUnload( false );
     QT_WA( {
 	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
 	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve( "SHGetSpecialFolderPathW" );
 	if ( SHGetSpecialFolderPath ) {
 	    TCHAR path[MAX_PATH];
-	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, FALSE );
+	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, false );
 	    appSettings  = QString::fromUcs2( (ushort*)path );
-	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
+	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, false );
 	    defPath = QString::fromUcs2( (ushort*)path );
 	}
     } , {
@@ -482,9 +482,9 @@ QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
 	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve( "SHGetSpecialFolderPathA" );
 	if ( SHGetSpecialFolderPath ) {
 	    char path[MAX_PATH];
-	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, FALSE );
+	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, false );
 	    appSettings = QString::fromLocal8Bit( path );
-	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
+	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, false );
 	    defPath = QString::fromLocal8Bit( path );
 	}
     } );
@@ -546,7 +546,7 @@ void QSettingsPrivate::removeGroup(const QString &key)
 {
     QSettingsHeading hd;
     QSettingsGroup grp;
-    bool found = FALSE;
+    bool found = false;
 
     QMap<QString,QSettingsHeading>::Iterator headingsit = headings.find(heading);
     if (headingsit != headings.end())
@@ -570,11 +570,11 @@ void QSettingsPrivate::removeGroup(const QString &key)
 
 	grpit = hd.find(group);
 	if (grpit != hd.end()) {
-	    found = TRUE;
+	    found = true;
 	    grp = *grpit;
 	}
     } else if (hd.count() != 0) {
-	found = TRUE;
+	found = true;
 	grp = *grpit;
     }
 
@@ -591,7 +591,7 @@ void QSettingsPrivate::removeGroup(const QString &key)
 	else
 	    headings.remove(heading);
 
-	modified = TRUE;
+	modified = true;
     }
 }
 
@@ -627,12 +627,12 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
     } else if (hd.count() != 0)
 	grp = *grpit;
 
-    grp.modified = TRUE;
+    grp.modified = true;
     grp.replace(key, value);
     hd.replace(group, grp);
     headings.replace(heading, hd);
 
-    modified = TRUE;
+    modified = true;
 }
 
 
@@ -658,8 +658,8 @@ QDateTime QSettingsPrivate::modificationTime()
 bool qt_verify_key( const QString &key )
 {
     if ( key.isEmpty() || key[0] != '/' || (bool)key.contains( QRegExp("[=\\r\\n]" ) ) )
-	return FALSE;
-    return TRUE;
+	return false;
+    return true;
 }
 
 static QString groupKey( const QString &group, const QString &key )
@@ -705,7 +705,7 @@ static QString groupKey( const QString &group, const QString &key )
   \code
   QSettings settings;
   settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
-  settings.writeEntry( "/MyApplication/Tip of the day", TRUE );
+  settings.writeEntry( "/MyApplication/Tip of the day", true );
   \endcode
   The code above will write the subkey "Tip of the day" into the \e
   first of the registry folders listed below that is found and for
@@ -900,7 +900,7 @@ QSettings::~QSettings()
 
 /*! \internal
   Writes all modifications to the settings to disk.  If any errors are
-  encountered, this function returns FALSE, otherwise it will return TRUE.
+  encountered, this function returns false, otherwise it will return true.
 */
 bool QSettings::sync()
 {
@@ -910,9 +910,9 @@ bool QSettings::sync()
 #endif
     if (! d->modified)
 	// fake success
-	return TRUE;
+	return true;
 
-    bool success = TRUE;
+    bool success = true;
     QMap<QString,QSettingsHeading>::Iterator it = d->headings.begin();
 
     while (it != d->headings.end()) {
@@ -951,7 +951,7 @@ bool QSettings::sync()
 
 	if ( filename.isEmpty() ) {
 	    qWarning("QSettings::sync: filename is null/empty");
-	    success = FALSE;
+	    success = false;
 	    continue;
 	}
 
@@ -961,7 +961,7 @@ bool QSettings::sync()
 	if (! file.open(IO_WriteOnly)) {
 	    qWarning("QSettings::sync: failed to open '%s' for writing",
 		     file.name().latin1());
-	    success = FALSE;
+	    success = false;
 	    continue;
 	}
 
@@ -997,18 +997,18 @@ bool QSettings::sync()
 
 	if (file.status() != IO_Ok) {
 	    qWarning("QSettings::sync: error at end of write");
-	    success = FALSE;
+	    success = false;
 	}
 
 	file.close();
 
 	if ( success ) {
-	    QDir dir( QFileInfo( file ).dir( TRUE ) );
+	    QDir dir( QFileInfo( file ).dir( true ) );
 	    if ( dir.exists( filename ) && !dir.remove( filename ) ||
-		 !dir.rename( file.name(), filename, TRUE ) ) {
+		 !dir.rename( file.name(), filename, true ) ) {
 		qWarning( "QSettings::sync: error writing file '%s'",
 			  QFile::encodeName( filename ).constData() );
-		success = FALSE;
+		success = false;
 	    }
 	}
 
@@ -1018,7 +1018,7 @@ bool QSettings::sync()
 	closelock( lockfd );
     }
 
-    d->modified = FALSE;
+    d->modified = false;
 
     return success;
 }
@@ -1029,7 +1029,7 @@ bool QSettings::sync()
 
   Reads the entry specified by \a key, and returns a bool, or the
   default value, \a def, if the entry couldn't be read.
-  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  If \a ok is non-null, *ok is set to true if the key was read, false
   otherwise.
 
   \sa readEntry(), readNumEntry(), readDoubleEntry(), writeEntry(), removeEntry()
@@ -1044,7 +1044,7 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::readBoolEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
     	if ( ok )
-	    *ok = FALSE;
+	    *ok = false;
 
 	return def;
     }
@@ -1057,19 +1057,19 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
     QString value = readEntry( key, ( def ? "true" : "false" ), ok );
 
     if (value.lower() == "true")
-	return TRUE;
+	return true;
     else if (value.lower() == "false")
-	return FALSE;
+	return false;
     else if (value == "1")
-	return TRUE;
+	return true;
     else if (value == "0")
-	return FALSE;
+	return false;
 
     if (! value.isEmpty())
 	qWarning("QSettings::readBoolEntry: '%s' is not 'true' or 'false'",
 		 value.latin1());
     if ( ok )
-	*ok = FALSE;
+	*ok = false;
     return def;
 }
 
@@ -1079,7 +1079,7 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 
   Reads the entry specified by \a key, and returns a double, or the
   default value, \a def, if the entry couldn't be read.
-  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  If \a ok is non-null, *ok is set to true if the key was read, false
   otherwise.
 
   \sa readEntry(), readNumEntry(), readBoolEntry(), writeEntry(), removeEntry()
@@ -1094,7 +1094,7 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::readDoubleEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
     	if ( ok )
-	    *ok = FALSE;
+	    *ok = false;
 
 	return def;
     }
@@ -1113,7 +1113,7 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 	qWarning( "QSettings::readDoubleEntry: '%s' is not a number",
 		  value.latin1() );
     if ( ok )
-	*ok = FALSE;
+	*ok = false;
     return def;
 }
 
@@ -1123,7 +1123,7 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 
   Reads the entry specified by \a key, and returns an integer, or the
   default value, \a def, if the entry couldn't be read.
-  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  If \a ok is non-null, *ok is set to true if the key was read, false
   otherwise.
 
   \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry()
@@ -1138,7 +1138,7 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::readNumEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
 	if ( ok )
-	    *ok = FALSE;
+	    *ok = false;
 	return def;
     }
 
@@ -1156,7 +1156,7 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 	qWarning( "QSettings::readNumEntry: '%s' is not a number",
 		  value.latin1() );
     if ( ok )
-	*ok = FALSE;
+	*ok = false;
     return def;
 }
 
@@ -1166,7 +1166,7 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 
   Reads the entry specified by \a key, and returns a QString, or the
   default value, \a def, if the entry couldn't be read.
-  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  If \a ok is non-null, *ok is set to true if the key was read, false
   otherwise.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry()
@@ -1181,7 +1181,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::readEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
 	if ( ok )
-	    *ok = FALSE;
+	    *ok = false;
 
 	return def;
     }
@@ -1192,7 +1192,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 #endif
 
     if ( ok ) // no, everything is not ok
-	*ok = FALSE;
+	*ok = false;
 
     QString realkey;
 
@@ -1203,7 +1203,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 	if (list.count() < 2) {
 	    qWarning("QSettings::readEntry: invalid key '%s'", grp_key.latin1());
 	    if ( ok )
-		*ok = FALSE;
+		*ok = false;
 	    return def;
 	}
 
@@ -1232,7 +1232,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
     if ( it != end ) {
 	// found the value we needed
 	retval = *it;
-	if ( ok ) *ok = TRUE;
+	if ( ok ) *ok = true;
     }
     return retval;
 }
@@ -1244,8 +1244,8 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
     created if it doesn't exist. Any previous value is overwritten by \a
     value.
 
-    If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned.
+    If an error occurs the settings are left unchanged and false is
+    returned; otherwise true is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -1254,7 +1254,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return FALSE;
+	return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
@@ -1273,8 +1273,8 @@ bool QSettings::writeEntry(const QString &key, bool value)
     created if it doesn't exist. Any previous value is overwritten by \a
     value.
 
-    If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned.
+    If an error occurs the settings are left unchanged and false is
+    returned; otherwise true is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -1283,7 +1283,7 @@ bool QSettings::writeEntry(const QString &key, double value)
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return FALSE;
+	return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
@@ -1301,8 +1301,8 @@ bool QSettings::writeEntry(const QString &key, double value)
     created if it doesn't exist. Any previous value is overwritten by \a
     value.
 
-    If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned.
+    If an error occurs the settings are left unchanged and false is
+    returned; otherwise true is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -1311,7 +1311,7 @@ bool QSettings::writeEntry(const QString &key, int value)
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return FALSE;
+	return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
@@ -1334,7 +1334,7 @@ bool QSettings::writeEntry(const QString &key, int value)
   writeEntry (const QString &, bool) overload for this code:
   writeEntry ("/foo/bar", "baz")
 
-  If an error occurs, this functions returns FALSE and the object is left
+  If an error occurs, this functions returns false and the object is left
   unchanged.
 
   \sa readEntry(), removeEntry()
@@ -1352,8 +1352,8 @@ bool QSettings::writeEntry(const QString &key, const char *value)
     value. If \a value is an empty string or a null string the key's
     value will be an empty string.
 
-    If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned.
+    If an error occurs the settings are left unchanged and false is
+    returned; otherwise true is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -1362,7 +1362,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return FALSE;
+	return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
@@ -1380,7 +1380,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 	if (list.count() < 2) {
 	    qWarning("QSettings::writeEntry: invalid key '%s'", grp_key.latin1());
 
-	    return FALSE;
+	    return false;
 	}
 
 	if (list.count() == 2) {
@@ -1403,14 +1403,14 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
     }
 
     d->writeGroup(realkey, value);
-    return TRUE;
+    return true;
 }
 
 
 /*!
   Removes the entry specified by \a key.
 
-    Returns TRUE if the entry existed and was removed; otherwise returns FALSE.
+    Returns true if the entry existed and was removed; otherwise returns false.
 
   \sa readEntry(), writeEntry()
 */
@@ -1419,7 +1419,7 @@ bool QSettings::removeEntry(const QString &key)
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
 	qWarning( "QSettings::removeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return FALSE;
+	return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
@@ -1435,7 +1435,7 @@ bool QSettings::removeEntry(const QString &key)
 	if (list.count() < 2) {
 	    qWarning("QSettings::removeEntry: invalid key '%s'", grp_key.latin1());
 
-	    return FALSE;
+	    return false;
 	}
 
 	if (list.count() == 2) {
@@ -1458,7 +1458,7 @@ bool QSettings::removeEntry(const QString &key)
     }
 
     d->removeGroup(realkey);
-    return TRUE;
+    return true;
 }
 
 
@@ -1720,8 +1720,8 @@ QDateTime QSettings::lastModificationTime( const QString &key )
     and readListEntry() overloads that do not take a \a separator
     argument.
 
-    If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise returns TRUE.
+    If an error occurs the settings are left unchanged and false is
+    returned; otherwise returns true.
 
     \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -1739,8 +1739,8 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value,
     is created if it doesn't exist. Any previous value is overwritten
     by \a value.
 
-    If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise returns TRUE.
+    If an error occurs the settings are left unchanged and false is
+    returned; otherwise returns true.
 
     \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -1766,8 +1766,8 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 
     Reads the entry specified by \a key as a string. The \a separator
     is used to create a QStringList by calling QStringList::split(\a
-    separator, entry, TRUE). If \a ok is not 0: \a *ok is set to TRUE
-    if the key was read, otherwise \a *ok is set to FALSE.
+    separator, entry, true). If \a ok is not 0: \a *ok is set to true
+    if the key was read, otherwise \a *ok is set to false.
 
     \warning If the string list argument to the writeEntry() function
     contains null strings, the return value of this function will not
@@ -1799,14 +1799,14 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
     if ( ok && !*ok )
 	return QStringList();
 
-    return QStringList::split(separator, value, TRUE);
+    return QStringList::split(separator, value, true);
 }
 
 /*!
     \fn QStringList QSettings::readListEntry(const QString &key, bool *ok ) const
     Reads the entry specified by \a key as a string. If \a ok is not
-    0, \a *ok is set to TRUE if the key was read, otherwise \a *ok is
-    set to FALSE.
+    0, \a *ok is set to true if the key was read, otherwise \a *ok is
+    set to false.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
@@ -1832,7 +1832,7 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
 	return QStringList();
     QStringList l;
     QString s;
-    bool esc=FALSE;
+    bool esc=false;
     for (int i=0; i<(int)value.length(); i++) {
 	if ( esc ) {
 	    if ( value[i] == 'e' ) { // end-of-string
@@ -1843,9 +1843,9 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
 	    } else {
 		s.append(value[i]);
 	    }
-	    esc=FALSE;
+	    esc=false;
 	} else if ( value[i] == '^' ) {
-	    esc = TRUE;
+	    esc = true;
 	} else {
 	    s.append(value[i]);
 	    if ( i == (int)value.length()-1 )
@@ -1930,7 +1930,7 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
 void QSettings::beginGroup( const QString &group )
 {
     d->groupStack.push( group );
-    d->groupDirty = TRUE;
+    d->groupDirty = true;
 }
 
 /*!
@@ -1947,7 +1947,7 @@ void QSettings::beginGroup( const QString &group )
 void QSettings::endGroup()
 {
     d->groupStack.pop();
-    d->groupDirty = TRUE;
+    d->groupDirty = true;
 }
 
 /*!
@@ -1956,7 +1956,7 @@ void QSettings::endGroup()
 void QSettings::resetGroup()
 {
     d->groupStack.clear();
-    d->groupDirty = FALSE;
+    d->groupDirty = false;
     d->groupPrefix = QString::null;
 }
 
@@ -1968,7 +1968,7 @@ void QSettings::resetGroup()
 QString QSettings::group() const
 {
     if ( d->groupDirty ) {
-	d->groupDirty = FALSE;
+	d->groupDirty = false;
 	d->groupPrefix = QString::null;
 
 	QValueStack<QString>::Iterator it = d->groupStack.begin();

@@ -19,7 +19,7 @@
 
 
 // cannot delete this type
-template <> inline void qDelete(QGListIterator *&) { }
+template <> inline void qDelete<QGListIterator>(QGListIterator *&) { }
 
 
 /*!

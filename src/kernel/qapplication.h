@@ -461,7 +461,7 @@ inline QString QApplication::sessionId() const
 
 inline QString QApplication::sessionKey() const
 {
-    return session_key ? *session_key : QString::null;
+    return session_key ? *session_key : QString();
 }
 #endif
 inline QSize QApplication::globalStrut()

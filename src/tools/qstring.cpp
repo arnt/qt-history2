@@ -1662,7 +1662,7 @@ int QString::count(const QRegExp& rx) const
 
 QString QString::section( const QString &sep, int start, int end, int flags ) const
 {
-    QStringList sections = QStringList::split(sep, *this, TRUE);
+    QStringList sections = QStringList::split(sep, *this, true);
     if(sections.isEmpty())
 	return QString();
     if(!(flags & SectionSkipEmpty)) {

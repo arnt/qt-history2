@@ -723,7 +723,7 @@ QString QDir::operator[]( int index ) const
 {
     entryList();
     return fList && index >= 0 && index < (int)fList->count() ?
-	(*fList)[index] : QString::null;
+	(*fList)[index] : QString();
 }
 
 

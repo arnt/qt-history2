@@ -96,7 +96,7 @@ QMakeProperty::value(QString v, bool just_check)
 		}
 	    }
 	}
-	return ok ? ret : QString::null;
+	return ok ? ret : QString();
     }
     return QString::null;
 }

@@ -13,7 +13,7 @@
 #  endif
 #elif defined(__INTEL_COMPILER)
 #  include "qatomic_x86.h"
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) || defined(__BORLANDC__)
 #  include "qatomic_win.h"
 #elif defined(__sun) || defined(sun)
 #  include "qatomic_sun.h"

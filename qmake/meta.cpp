@@ -76,7 +76,7 @@ QMakeMetaInfo::findLib(const QString &lib)
     QString extns[] = { Option::prl_ext, /*Option::pkgcfg_ext, Option::libtool_ext,*/ QString::null };
     for(int extn = 0; !extns[extn].isNull(); extn++) {
 	if(lib.endsWith(extns[extn]))
-	    ret = QFile::exists(lib) ? lib : QString::null;
+	    ret = QFile::exists(lib) ? lib : QString();
     }
     if(ret.isNull()) {
 	for(int extn = 0; !extns[extn].isNull(); extn++) {

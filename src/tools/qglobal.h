@@ -582,10 +582,10 @@ typedef const char     *pcchar;
 // Constant bool values
 //
 
-#ifndef TRUE
+//#ifndef TRUE
 #define TRUE true
 #define FALSE false
-#endif
+//#endif
 
 //
 // Proper for-scoping in VC++6 and MIPSpro CC
@@ -1132,8 +1132,8 @@ Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
 template <> inline void qDelete<void*>(void *&) { }
 typedef void (*QFunctionPointer)();
 typedef void (*QFunctionPointerWithArgs)(...);
-template <> inline void qDelete(QFunctionPointer &) { }
-template <> inline void qDelete(QFunctionPointerWithArgs &) { }
+template <> inline void qDelete<QFunctionPointer>(QFunctionPointer &) { }
+template <> inline void qDelete<QFunctionPointerWithArgs>(QFunctionPointerWithArgs &) { }
 
 
 Q_EXPORT void *qMalloc(size_t size);

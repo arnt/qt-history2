@@ -46,7 +46,7 @@ static QMap<QString, LibInstance*> *map = 0;
 bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
-	return TRUE;
+	return true;
 
 #ifdef QT_THREAD_SUPPORT
     // protect map creation/access
@@ -86,7 +86,7 @@ bool QLibraryPrivate::loadLibrary()
 bool QLibraryPrivate::freeLibrary()
 {
     if ( !pHnd )
-	return TRUE;
+	return true;
 
 #ifdef QT_THREAD_SUPPORT
     // protect map access
@@ -94,7 +94,7 @@ bool QLibraryPrivate::freeLibrary()
 			 qt_global_mutexpool->get( &map ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
-    bool ok = FALSE;
+    bool ok = false;
     QMap<QString, LibInstance*>::iterator it;
     for ( it = map->begin(); it != map->end(); ++it ) {
 	LibInstance *lib = *it;
@@ -111,7 +111,7 @@ bool QLibraryPrivate::freeLibrary()
 		}
 		delete lib;
 	    } else
-		ok = TRUE;
+		ok = true;
 	    break;
 	}
     }

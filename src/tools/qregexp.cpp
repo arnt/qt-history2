@@ -2093,8 +2093,8 @@ bool QRegExpEngine::matchHere()
 		zzZ = mmSleeping[i];
 		mmSleeping.remove(i);
 		int next = zzZ[0];
-		const int *capBegin = zzZ + 1;
-		const int *capEnd = zzZ + 1 + ncap;
+		const int *capBegin = zzZ.data() + 1;
+		const int *capEnd = zzZ.data() + 1 + ncap;
 		bool copyOver = true;
 
 		if ((m = mmInNextStack[zzZ[0]]) == -1) {

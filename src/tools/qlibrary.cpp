@@ -109,7 +109,7 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
     \sa load() unload(), setAutoUnload()
 */
 QLibrary::QLibrary( const QString& filename )
-    : libfile( filename ), aunload( TRUE )
+    : libfile( filename ), aunload( true )
 {
     libfile.replace( '\\', '/' );
     d = new QLibraryPrivate( this );
@@ -118,7 +118,7 @@ QLibrary::QLibrary( const QString& filename )
 /*!
     Deletes the QLibrary object.
 
-    The library will be unloaded if autoUnload() is TRUE (the
+    The library will be unloaded if autoUnload() is true (the
     default), otherwise it stays in memory until the application
     exits.
 
@@ -177,7 +177,7 @@ void *QLibrary::resolve( const char* symb )
     \code
     typedef void (*FunctionType)();
     static FunctionType *ptrFunction = 0;
-    static bool triedResolve = FALSE;
+    static bool triedResolve = false;
     if ( !ptrFunction && !triedResolve )
 	ptrFunction = QLibrary::resolve( "mylib", "mysymb" );
 
@@ -195,12 +195,12 @@ void *QLibrary::resolve( const char* symb )
 void *QLibrary::resolve( const QString &filename, const char *symb )
 {
     QLibrary lib( filename );
-    lib.setAutoUnload( FALSE );
+    lib.setAutoUnload( false );
     return lib.resolve( symb );
 }
 
 /*!
-    Returns TRUE if the library is loaded; otherwise returns FALSE.
+    Returns true if the library is loaded; otherwise returns false.
 
     \sa unload()
 */
@@ -221,8 +221,8 @@ bool QLibrary::load()
 }
 
 /*!
-    Unloads the library and returns TRUE if the library could be
-    unloaded; otherwise returns FALSE.
+    Unloads the library and returns true if the library could be
+    unloaded; otherwise returns false.
 
     This function is called by the destructor if autoUnload() is
     enabled.
@@ -232,14 +232,14 @@ bool QLibrary::load()
 bool QLibrary::unload()
 {
     if ( !d->pHnd )
-	return TRUE;
+	return true;
 
 #if !defined(QT_NO_LIBRARY_UNLOAD)
     if ( !d->freeLibrary() ) {
 # if defined(QT_DEBUG_COMPONENT)
 	qWarning( "%s could not be unloaded", (const char*) QFile::encodeName(library()) );
 # endif
-	return FALSE;
+	return false;
     }
 
 # if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
@@ -247,13 +247,13 @@ bool QLibrary::unload()
 # endif
     d->pHnd = 0;
 #endif
-    return TRUE;
+    return true;
 }
 
 /*!
-    Returns TRUE if the library will be automatically unloaded when
-    this wrapper object is destructed; otherwise returns FALSE. The
-    default is TRUE.
+    Returns true if the library will be automatically unloaded when
+    this wrapper object is destructed; otherwise returns false. The
+    default is true.
 
     \sa setAutoUnload()
 */
@@ -263,9 +263,9 @@ bool QLibrary::autoUnload() const
 }
 
 /*!
-    If \a enabled is TRUE (the default), the wrapper object is set to
+    If \a enabled is true (the default), the wrapper object is set to
     automatically unload the library upon destruction. If \a enabled
-    is FALSE, the wrapper object is not unloaded unless you explicitly
+    is false, the wrapper object is not unloaded unless you explicitly
     call unload().
 
     \sa autoUnload()
