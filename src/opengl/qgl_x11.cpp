@@ -811,7 +811,7 @@ void *QGLContext::getProcAddress(const QString &proc) const
 		return 0;
 	}
     }
-    return glXGetProcAddressARB((GLubyte *) proc.latin1());
+    return glXGetProcAddressARB(reinterpret_cast<const GLubyte *>(proc.latin1()));
 }
 
 /*****************************************************************************
