@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#325 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#326 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2325,6 +2325,12 @@ void QFileDialog::okClicked()
     *workingDirectory = d->url.dirPath();
     detailViewMode = files->isVisible();
 
+    if ( d->mode == Directory ) {
+	d->currentFileName = d->url.dirPath();
+	accept();
+	return;
+    }
+    
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
@@ -2433,7 +2439,7 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 	    QString okt = mode() == AnyFile ? tr("Save") : tr("OK");
 	    okB->setText( okt );
 	}
-    } else {
+    } else if ( d->mode != Directory ) {
 	okB->setEnabled( FALSE );
     }	
 
@@ -2669,7 +2675,10 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	    emit fileSelected( d->currentFileName );
 	    accept();
 	}
-    }
+    } else if ( d->mode == Directory ) {
+	d->currentFileName = d->url.dirPath();
+	accept();
+    }	
 }
 
 
