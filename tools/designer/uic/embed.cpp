@@ -31,9 +31,7 @@
 // on embedded, we do not compress image data. Rationale: by mapping
 // the ready-only data directly into memory we are both faster and
 // more memory efficient
-#ifdef Q_WS_QWS
 #define QT_NO_IMAGE_COLLECTION_COMPRESSION
-#endif
 
 
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
