@@ -2936,7 +2936,8 @@ void QTable::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	return;
-    clearSelection();
+    if ( !isRowSelection( selectionMode() ) )
+	clearSelection();
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
     QTableItem *itm = item( tmpRow, tmpCol );
