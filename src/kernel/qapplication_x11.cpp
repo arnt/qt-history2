@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#403 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#404 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -267,7 +267,7 @@ public:
     bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, char& ascii, int &code );
     bool translateKeyEvent( const XEvent *, bool grab );
     bool translatePaintEvent( const XEvent * );
-    bool translateConfigEvent( const XEvent *, bool do_compress = TRUE  );
+    bool translateConfigEvent( const XEvent * );
     bool translateCloseEvent( const XEvent * );
     bool translateScrollDoneEvent( const XEvent * );
 };
@@ -3792,7 +3792,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	c->event  = info.window;
 	c->width  = info.w;
 	c->height = info.h;
-	translateConfigEvent( (XEvent*)c, TRUE );
+	translateConfigEvent( (XEvent*)c );
     }
 
     if ( should_clip ) {
@@ -3839,7 +3839,7 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 // always!  It is safer (but slower) to translate the window coordinates.
 //
 
-bool QETWidget::translateConfigEvent( const XEvent *event, bool do_compress )
+bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     if ( !testWFlags(WType_TopLevel) )
 	return TRUE;				// child widget
