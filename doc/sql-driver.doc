@@ -33,7 +33,7 @@
 **********************************************************************/
 
 /*! \page sql-driver.html
- 
+
 \title SQL Module - Drivers
 
 \tableofcontents
@@ -65,7 +65,7 @@ The currently available drivers shipped with Qt are:
 \endlist
 
 Note that not all of the plugins are shipped with the Qt Free Edition
-due to license incompatibilities with the GPL. 
+due to license incompatibilities with the GPL.
 
 \section1 Building the drivers using configure
 
@@ -88,7 +88,7 @@ include files are installed in /usr/local/mysql (or in C:\\mysql\\include
 on Windows), then pass the following parameter to configure:
 "-I/usr/local/mysql" (or "-I C:\\mysql\\include" for Windows).
 
-Note that on Windows the parameter -I doesn't allow spaces in filenames, 
+Note that on Windows the parameter -I doesn't allow spaces in filenames,
 so use the 8.3 name instead, i.e. use "C:\\progra~1\\mysql" instead of
 "C:\\program files\\mysql".
 
@@ -112,7 +112,7 @@ client libraries (>3.23.34) allow you to use transactions on those
 modified servers.
 
 If you have a recent client library and connect to a transaction-enabled MySQL
-server, a call to the QSqlDriver::hasFeature( QSqlDriver::Transactions ) 
+server, a call to the QSqlDriver::hasFeature( QSqlDriver::Transactions )
 function returns TRUE and SQL transactions can be used.
 
 You can find information about MySQL on \l http://www.mysql.com
@@ -380,6 +380,15 @@ qmake -o Makefile "INCLUDEPATH+=/usr/src/psql/src/include /usr/src/psql/src/inte
 make
 \endcode
 
+If you install the Su.S.E postgres development rpm package on
+S.u.S.E. Linux 8.0 , the correct commands are
+
+\code
+cd $QTDIR/plugins/src/sqldrivers/psql
+qmake -o Makefile "INCLUDEPATH+=/usr/include/pgsql /usr/include/pgsql/server" "LIBS+=-L/usr/lib -lpq" psql.pro
+make
+\endcode
+
 \target QTDS7
 \section2 QTDS7 - Sybase Adaptive Server and Microsoft SQL Server
 
@@ -444,10 +453,10 @@ make sure that the following requirements are met:
 \i Make sure that the environment variable QTDIR points to the right
     directory. Go to the $QTDIR/plugins/sqldrivers directory and make sure
     that the plugin exists in that directory.
-\i Make sure that the client libraries of the DBMS are available on the 
+\i Make sure that the client libraries of the DBMS are available on the
     system. On Unix, run the command \c{ldd} and pass the name of the
     plugin as parameter, for example \c{ldd libqsqlmysql.so}. You will
-    get a warning if any of the client libraries couldn't be found. 
+    get a warning if any of the client libraries couldn't be found.
     On Windows, you can use the dependency walker of Visual Studio.
 \endlist
 
@@ -479,7 +488,7 @@ which provides the concrete implementation.
 
 QSqlDriver and QSqlResult are closely connected.  When implementing a
 Qt SQL driver, both of these classes must to be subclassed and the
-abstract virtual methods in each class must be implemented.  
+abstract virtual methods in each class must be implemented.
 
 To implement a Qt SQL driver as a plugin (so that it is recognized and
 loaded by the Qt library at runtime), the driver must use the
