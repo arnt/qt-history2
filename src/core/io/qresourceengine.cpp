@@ -192,26 +192,36 @@ Q_LONGLONG QResourceFileEngine::size() const
 {
     Q_D(const QResourceFileEngine);
 
-    if(!d->resource)
-	d->resource = QResource::find(d->file);
+    if(!d->resource && !(d->resource = QResource::find(d->file)))
+        return 0;
+
     return d->resource->size();
 }
 
 Q_LONGLONG QResourceFileEngine::at() const
 {
     Q_D(const QResourceFileEngine);
+    if(!d->resource)
+        return 0;
+
     return d->offset;
 }
 
 bool QResourceFileEngine::atEnd() const
 {
     Q_D(const QResourceFileEngine);
+    if(!d->resource)
+        return true;
+
     return d->offset == d->resource->size();
 }
 
 bool QResourceFileEngine::seek(Q_LONGLONG pos)
 {
     Q_D(QResourceFileEngine);
+    if(!d->resource)
+        return false;
+
     if(d->offset > d->resource->size())
         return false;
     d->offset = pos;
@@ -279,7 +289,6 @@ QString QResourceFileEngine::fileName(FileName file) const
 	}
     }
     return d->file;
-
 }
 
 bool QResourceFileEngine::isRelativePath() const
