@@ -753,14 +753,14 @@ static void mergeInto(QVector<int> *a, const QVector<int>& b)
 		    c[k++] = b[j++];
 		}
 	    } else {
-		memcpy(c.detach() + k, (*a).data() + i,
+		memcpy(c.data() + k, (*a).data() + i,
 			(asize - i) * sizeof(int));
 		break;
 	    }
 	}
 	c.resize(csize);
 	if (j < bsize)
-	    memcpy(c.detach() + k, b.data() + j, (bsize - j) * sizeof(int));
+	    memcpy(c.data() + k, b.constData() + j, (bsize - j) * sizeof(int));
 	*a = c;
     }
 }
@@ -1330,7 +1330,7 @@ void QRegExpEngine::match(const QString& str, int pos, bool minimal,
 	}
     } else {
 	// we rely on 2's complement here
-	memset(captured.detach(), -1, capturedSize * sizeof(int));
+	memset(captured.data(), -1, capturedSize * sizeof(int));
     }
 }
 
@@ -2096,8 +2096,8 @@ bool QRegExpEngine::matchHere()
 			zzZ.resize(1 + 2 * ncap);
 			zzZ[0] = next;
 			if (ncap > 0) {
-			    memcpy(zzZ.detach() + 1, capBegin, ncap * sizeof(int));
-			    memcpy(zzZ.detach() + 1 + ncap, capEnd, ncap * sizeof(int));
+			    memcpy(zzZ.data() + 1, capBegin, ncap * sizeof(int));
+			    memcpy(zzZ.data() + 1 + ncap, capEnd, ncap * sizeof(int));
 			}
 			mmInNextStack[mmNextStack[--nnext]] = -1;
 			mmSleeping.insert(i + needSomeSleep, zzZ);
@@ -2957,7 +2957,7 @@ int QRegExpEngine::parse(const QChar *pattern, int len)
 #endif
     mmBigArray.resize((3 + 4 * ncap) * ns + 4 * ncap + mmSlideTabSize);
 
-    mmInNextStack = mmBigArray.detach();
+    mmInNextStack = mmBigArray.data();
     memset(mmInNextStack, -1, ns * sizeof(int));
     mmCurStack = mmInNextStack + ns;
     mmNextStack = mmInNextStack + 2 * ns;

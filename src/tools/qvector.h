@@ -39,10 +39,13 @@ class QVector
     void reserve(int size);
     inline int capacity() const { return d->alloc; }
 
-    inline operator const T*() const { return d->array; }
-    inline const T* data() const { return d->array; }
-    inline T* detach() { if (d->ref != 1) detach_helper(); return d->array; }
+    inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
+
+    inline operator const T*() const { return d->array; }
+    inline T* data() { detach(); return d->array; }
+    inline const T* data() const { return d->array; }
+    inline const T* constData() const { return d->array; }
     void clear();
 
     const T &at(int i) const;
@@ -154,7 +157,7 @@ inline const T &QVector<T>::operator[](int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->array[i]; }
 template <typename T>
 inline T &QVector<T>::operator[](int i)
-{ Q_ASSERT(i >= 0 && i < size()); return detach()[i]; }
+{ Q_ASSERT(i >= 0 && i < size()); return data()[i]; }
 template <typename T>
 QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 {

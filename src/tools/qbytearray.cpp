@@ -260,7 +260,7 @@ static void createCRC16Table()			// build CRC16 lookup table
 }
 
 /*!
-    \relates QMemArray
+    \relates QByteArray
 
     Returns the CRC-16 checksum of \a len bytes starting at \a data.
 

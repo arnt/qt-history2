@@ -41,6 +41,7 @@
 #include <qfileinfo.h>
 #include <qdatetime.h>
 #include <qcleanuphandler.h>
+#include <qvector.h>
 #ifndef NO_ERRNO_H
 #include <errno.h>
 #endif // NO_ERROR_H
@@ -141,8 +142,8 @@ struct qt_token_info
     const char *fields;
     const ulong field_count;
 
-    QMemArray<const char *> results;
-    QMemArray<ulong> lengths;
+    QVector<const char *> results;
+    QVector<ulong> lengths;
 };
 
 /*
@@ -152,7 +153,7 @@ struct qt_token_info
       -1 parse error
 */
 static int qt_tokenize( const char *s, ulong s_len, ulong *advance,
-			const qt_token_info &token_info )
+			qt_token_info &token_info )
 {
     ulong pos = 0, field = 0, fieldlen = 0;
     char current;
