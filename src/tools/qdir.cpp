@@ -1133,7 +1133,7 @@ int cmp_si_sortSpec;
 extern "C" {
 #endif
 
-static int cmp_si( const void *n1, const void *n2 )
+int cmp_si( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
 	return 0;
