@@ -12,6 +12,8 @@
 
 #include "qfontengine_p.h"
 #include <qglobal.h>
+#include "qpixmapcache.h"
+#include "qbitmap.h"
 #include "qapplication_p.h"
 #include "qcomplextext_p.h"
 
@@ -28,6 +30,9 @@
 //Externals
 QByteArray p2qstring(const unsigned char *c); //qglobal.cpp
 unsigned char * p_str(const QString &); //qglobal.cpp
+void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,
+		     const QPaintDevice *src, int sx, int sy, int sw, int sh,
+		     Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
 
 //Generic engine
 QFontEngine::~QFontEngine()
@@ -41,15 +46,16 @@ int QFontEngine::lineThickness() const
   int lth = score / 700;
 
   // looks better with thicker line for small pointsizes
-  if( lth < 2 && score >= 1050 ) lth = 2;
-  if( lth == 0 ) lth = 1;
-
+  if(lth < 2 && score >= 1050) 
+      lth = 2;
+  else if(lth == 0) 
+      lth = 1;
   return lth;
 }
 
 int QFontEngine::underlinePosition() const
 {
-  int pos = ( ( lineThickness() * 2 ) + 3 ) / 6;
+  int pos = ((lineThickness() * 2) + 3) / 6;
   return pos ? pos : 1;
 }
 
@@ -80,17 +86,46 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance
 
 void
 QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
-		     const QScriptItem *si, int textFlags )
+		     const QScriptItem *si, int textFlags)
 {
-    uchar task = DRAW;
-
-    if( textFlags != 0 )
-	task |= WIDTH; //I need the width for these..
-    int w = 0;
-
     if(p->txop >= QPainter::TxScale) {
-	qDebug("not yet implemented..");
-//	p->drawText(x, y, QString((QChar *)si->glyphPtr, si->numGlyphs...));
+	int aw = si->width, ah = si->ascent + si->descent + 1;
+	if(aw == 0 || ah == 0)
+	    return;
+	QWMatrix mat1 = p->xmat, mat2 = QPixmap::trueMatrix(mat1, aw, ah);
+	QBitmap *wx_bm = 0;
+	{
+	    QBitmap bm(aw, ah, TRUE);	// create bitmap
+	    QPainter paint;
+	    paint.begin(&bm);		// draw text in bitmap
+	    paint.setPen(Qt::color1);
+	    draw(&paint, 0, si->ascent, engine, si, textFlags);
+	    paint.end();
+	    wx_bm = new QBitmap(bm.xForm(mat2)); // transform bitmap
+	    if(wx_bm->isNull()) {
+		delete wx_bm;		// nothing to draw
+		return;
+	    }
+	}
+
+	QPixmap pm(wx_bm->width(), wx_bm->height());
+	if(p->backgroundMode() != QPainter::OpaqueMode) {
+	    QPainter paint(&pm);
+	    paint.fillRect(0, 0, pm.width(), pm.height(), p->pen().color());
+	    pm.setMask(*wx_bm);
+	} else { //This is untested code, I need to find a test case, FIXME --Sam
+	    pm = *wx_bm;
+	    QBitmap bm(pm.width(), pm.height(), TRUE);
+	    bm.fill(Qt::color1);
+	    bm = bm.xForm(mat2);
+	    pm.setMask(bm);
+	}
+	double nfx, nfy;
+	mat1.map(x, y - si->ascent, &nfx, &nfy);
+	double dx, dy;
+	mat2.map(0, 0, &dx, &dy);     // compute position of bitmap
+	unclippedBitBlt(p->device(), qRound(nfx-dx), qRound(nfy-dy), &pm, 0, 0, -1, -1, Qt::CopyROP, FALSE, FALSE );
+	delete wx_bm;
 	return;
     } else if(p->txop == QPainter::TxTranslate) {
 	p->map(x, y, &x, &y);
@@ -104,9 +139,13 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
     x += off.x();
     y += off.y();
 
-    glyph_t *glyphs = engine->glyphs( si );
-    advance_t *advances = engine->advances( si );
-    qoffset_t *offsets = engine->offsets( si );
+    uchar task = DRAW;
+    if(textFlags != 0)
+	task |= WIDTH; //I need the width for these..
+
+    glyph_t *glyphs = engine->glyphs(si);
+    advance_t *advances = engine->advances(si);
+    qoffset_t *offsets = engine->offsets(si);
 
     p->updateBrush();
     if(p->backgroundMode() == Qt::OpaqueMode) {
@@ -128,6 +167,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
     if(p->testf(QPainter::DirtyFont))
 	p->updateFont();
 
+    int w = 0;
     if(si->analysis.bidiLevel % 2 ) {
 	offsets += si->num_glyphs;
 	advances += si->num_glyphs;
@@ -205,7 +245,7 @@ QFontEngineMac::calculateCost()
 {
     // ### don't know how to get the number of glyphs from the font,
     // ### so default to 1024
-    cache_cost = ( ascent() + descent() ) * maxCharWidth() * 1024;
+    cache_cost = (ascent() + descent()) * maxCharWidth() * 1024;
 }
 
 int
