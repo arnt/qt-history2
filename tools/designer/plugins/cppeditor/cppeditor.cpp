@@ -71,6 +71,7 @@ void CppEditor::configChanged()
 	}
     }
 
+    setFont( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( 0 )->font() );
     Editor::configChanged();
 }
 
