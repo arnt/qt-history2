@@ -435,6 +435,7 @@ void QColor::setNamedColor( const QString &name )
 	QRgb rgb;
 	if (!qt_get_hex_rgb(name.latin1(), &rgb)) {
 	    qWarning( "QColor::setNamedColor: could not parse color '%s'", name.latin1() );
+	    invalidate();
 	} else {
 	    setRgb( rgb );
 	}
@@ -527,6 +528,7 @@ void QColor::setHsv( int h, int s, int v )
 {
     if ( h < -1 || (uint)s > 255 || (uint)v > 255 ) {
 	qWarning( "QColor::setHsv: HSV parameters out of range" );
+	invalidate();
 	return;
     }
     int r=v, g=v, b=v;
@@ -593,6 +595,7 @@ void QColor::setRgb( int r, int g, int b )
 {
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 ) {
 	qWarning( "QColor::setRgb: RGB parameter(s) out of range" );
+	invalidate();
 	return;
     }
     d.argb = qRgb( r, g, b );
@@ -617,6 +620,7 @@ void QColor::setRgba( int r, int g, int b, int a )
 {
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 || (uint)a > 255 ) {
 	qWarning( "QColor::setRgba: RGBA parameter(s) out of range" );
+	invalidate();
 	return;
     }
     d.argb = qRgba( r, g, b, a );

@@ -104,6 +104,7 @@ public:
 private:
     void setSystemNamedColor( const QString& name );
     void setPixel( uint pixel );
+    void invalidate();
     static uint argbToPix32(QRgb);
     static bool color_init;
 #if defined(Q_WS_WIN)
@@ -183,6 +184,16 @@ inline bool QColor::isValid() const
 	return !d.d8.invalid;
     else
 	return !d.d32.invalid();
+}
+
+inline void QColor::invalidate()
+{
+    if (colormodel == d8) {
+	d.d8.invalid = true;
+    } else {
+	d.d32.argb = Invalid;
+	d.d32.pix = Dirt;
+    }
 }
 
 inline bool QColor::operator==( const QColor &c ) const
