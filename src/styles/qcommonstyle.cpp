@@ -2283,7 +2283,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 	    QRect irect = subRect(SR_CheckBoxIndicator, widget);
 	    int h = pixelMetric( PM_IndicatorHeight, widget );
-	    sz += QSize(irect.right() + (checkbox->text().isEmpty() ? 0 : 10), 4 );
+	    int margins = (!checkbox->pixmap() && checkbox->text().isEmpty()) ? 0 : 10;
+	    sz += QSize(irect.right() + margins, 4 );
 	    sz.setHeight( QMAX( sz.height(), h ) );
 #endif
 	    break;
@@ -2295,7 +2296,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 	    QRect irect = subRect(SR_RadioButtonIndicator, widget);
 	    int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );
-	    sz += QSize(irect.right() + (radiobutton->text().isEmpty() ? 0 : 10), 4 );
+	    int margins = (!radiobutton->pixmap() && radiobutton->text().isEmpty()) ? 0 : 10;
+	    sz += QSize(irect.right() + margins, 4 );
 	    sz.setHeight( QMAX( sz.height(), h ) );
 #endif
 	    break;
