@@ -644,7 +644,13 @@ void
 QQuickDrawPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 {
     Q_ASSERT(isActive());
-    drawPolyline(pa.cubicBezier(), index);
+    QPointArray a(pa);
+    if(index != 0 || a.size() > 4) {
+        a = QPointArray(4);
+        for(int i=0; i<4; i++)
+            a.setPoint(i, pa.point(index+i));
+    }
+    drawPolyline(a.cubicBezier(), index);
 }
 #endif
 
