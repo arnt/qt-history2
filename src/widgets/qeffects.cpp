@@ -175,11 +175,15 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 {
     switch ( e->type() ) {
     case QEvent::Move:
+	if ( o != widget )
+	    break;
 	move( widget->geometry().x(),widget->geometry().y() );
 	update();
 	break;
     case QEvent::Hide:
     case QEvent::Close:
+	if ( o != widget )
+	    break;
 	showWidget = FALSE;
 	render();
 	break;
@@ -375,11 +379,15 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 {
     switch ( e->type() ) {
 	case QEvent::Move:
+	    if ( o != widget )
+		break;
 	    move( widget->geometry().x(),widget->geometry().y() );
 	    update();
 	    break;
 	case QEvent::Hide:
 	case QEvent::Close:
+	    if ( o != widget )
+		break;
 	    showWidget = FALSE;
 	    done = TRUE;
 	    scroll();
