@@ -34,10 +34,10 @@ int main(int argc, char **argv) {
 	settings.setPath(QSettings::Unix, "variantrc");
 	settings2.setPath(QSettings::Unix, "variantrc2");
 	settings3.setPath(QSettings::Unix, "variantrc3");
-	
-	settings.setOverride(&settings2);
-	settings2.setOverride(&settings3);
-	
+
+	settings.setFallback(&settings2);
+	settings2.setFallback(&settings3);
+
 	// String
 	QString vstring = "this is a string";
 	settings.writeEntry("/variant/string/string", vstring);
@@ -219,20 +219,25 @@ int main(int argc, char **argv) {
 	settings.removeEntry("/variant/list");
 	settings.removeEntry("/variant/map");
 	settings.removeEntry("/variant/string");
-	
-	// read the recently destroyed to see if override works
+
+	// read the recently destroyed to see if fallback works
 	QVariant v = settings.readEntry("/variant/string/string");
-	
+
 	if (v.isValid() && v.type() == QVariant::String)
 	    qDebug("  read /variant/string/string = '%s'", v.toString().latin1());
 	else
 	    qDebug("   failed to read /variant/string/string");
-	
-	settings3.setWritable(TRUE);
-	settings3.write();
-	
+
 	settings.write();
-	
+
+	settings3.setWritable(TRUE);
+	settings3.writeEntry("/variant/string/string",
+			     QVariant(QString("this is a string")));
+	settings3.write();
+
+	settings3.readEntry("////////");
+	settings3.removeEntry("/variant/");
+
 	qDebug("-- done");
     }
 
@@ -438,7 +443,7 @@ int main(int argc, char **argv) {
       }
       }
       }
-	  
+
       QVariant var1;
 
       long starts, startu;

@@ -38,24 +38,24 @@ class QSettings
 public:
     enum System { Unix, Windows };
 
-    QSettings(bool writable = FALSE, QSettings *override = 0);
+    QSettings(bool = FALSE, QSettings * = 0);
     ~QSettings();
 
     void setWritable(bool);
     bool writable() const;
 
-    void write();
+    bool write();
 
-    void setOverride(QSettings *);
-    const QSettings *override() const;
+    void setFallback(QSettings *);
+    const QSettings *fallback() const;
 
     void setPath(System, const QString &);
     const QString &path(System) const;
 
-    void writeEntry(const QString &, const QVariant &);
+    bool writeEntry(const QString &, const QVariant &);
     QVariant readEntry(const QString &);
 
-    void removeEntry(const QString &);
+    bool removeEntry(const QString &);
 
 
 protected:

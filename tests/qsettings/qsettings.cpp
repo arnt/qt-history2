@@ -65,34 +65,34 @@
   settings.  Writable settings are, of course, well-suited for user
   settings.
 
-  QSettings can chain together multiple settings objects. For example,
-  the user's setting ... blah... blah.
-  
-  It is possible to "chain" multiple QSettings together to allow searching
-  in multiple objects by specifying an \e override.  For example, if you
+  QSettings can chain together multiple settings objects to allow searching
+  in multiple objects by specifying a \e fallback.  For example, if you
   need to search system wide-defaults, per-application defaults and
   user-specific settings, something like this could be done:
 
   \code
-   // we can change the user settings
-  QSettings userSettings(TRUE);
-
   // we cannot change these (may not have write access to the files)
-  QSettings appWideSettings(FALSE, &userSettings);
-  QSettings sysWideSettings(FALSE, &appWideSettings);
+  QSettings sApp(FALSE);
+  QSettings sSys(FALSE);
+
+   // we can change the user settings
+  QSettings sUser(TRUE);
+
+  sUser.setFallback ( &sSys );
+  sSys.setFallback ( &sApp );
 
   // set the file paths with QSettings::setPath()
   ...
 
-  QVariant v = sysWideSettings.readEntry("/mysoft/myapp/recentdocs");
+  QVariant v = sUser.readEntry ( "/mysoft/myapp/showSplash" );
 
   // check the validity and type of the QVariant
   ...
 
   \endcode
 
-  The call to sysWideSettings.readEntry() above would first look in userSettings,
-  then appWideSettings, and finally in sysWideSettings.
+  The call to sUser.readEntry() above would first look in sUser,
+  then sSys, and finally in sApp.
 */
 
 
@@ -1766,7 +1766,7 @@ static inline void writeSizePolicy(QSettingsNode *e, const QSizePolicy &sizepoli
 static QMap<QString,QVariant> readMap(QSettingsNode *e);
 static void writeMap(QSettingsNode *e, const QMap<QString,QVariant> &map);
 
-static inline QValueList<QVariant> readList(QSettingsNode *e)
+static QValueList<QVariant> readList(QSettingsNode *e)
 {
     QValueList<QVariant> list;
     QSettingsNode *n = e->first;
@@ -1830,7 +1830,7 @@ static inline QValueList<QVariant> readList(QSettingsNode *e)
     return list;
 }
 
-static inline void writeList(QSettingsNode *e, const QValueList<QVariant> &list)
+static void writeList(QSettingsNode *e, const QValueList<QVariant> &list)
 {
     e->tagName = "list";
 
@@ -1958,7 +1958,7 @@ static inline void writeList(QSettingsNode *e, const QValueList<QVariant> &list)
 
 
 // QMap<QString,QVariant>
-static inline QMap<QString,QVariant> readMap(QSettingsNode *e)
+static QMap<QString,QVariant> readMap(QSettingsNode *e)
 {
     QMap<QString,QVariant> map;
     QSettingsNode *n = e->first;
@@ -2026,7 +2026,7 @@ static inline QMap<QString,QVariant> readMap(QSettingsNode *e)
     return map;
 }
 
-static inline void writeMap(QSettingsNode *e, const QMap<QString,QVariant> &map)
+static void writeMap(QSettingsNode *e, const QMap<QString,QVariant> &map)
 {
     e->tagName = "map";
 
@@ -2167,6 +2167,7 @@ static inline QSettingsNode *load(QIODevice *device)
 	setFeature("http://trolltech.com/xml/features/report-whitespace-only-CharData",
 		   FALSE);
     reader.setContentHandler(&handler);
+
     reader.parse(inputsource);
 
     return handler.tree;
@@ -2188,6 +2189,13 @@ static inline QSettingsNode *load(const QString &filename)
     return n;
 }
 
+// key checking
+static inline bool validKey(const QString &key) {
+    return (key[0] == '/' &&
+	    key[key.length() - 1] != '/' &&
+	    ! key.contains("//"));
+}
+
 
 
 
@@ -2198,8 +2206,8 @@ static inline QSettingsNode *load(const QString &filename)
 class QSettingsPrivate
 {
 public:
-    QSettingsPrivate(bool w, QSettings *o):
-	writable(w), override(o), node(0), tree(0)
+    QSettingsPrivate(bool w, QSettings *f):
+	writable(w), modified(FALSE), fallback(f), node(0), tree(0)
     {
     }
 
@@ -2210,8 +2218,8 @@ public:
 	}
     }
 
-    bool writable;
-    QSettings *override;
+    bool writable, modified;
+    QSettings *fallback;
     QSettingsNode *node, *tree;
     QMap<int, QString> pathMap;
 };
@@ -2227,14 +2235,14 @@ public:
   Construct a QSettings object.
 
   The object is modifiable if \a writable is specified and TRUE (the
-  default is FALSE), and uses \a override as read override if \a
-  override is specified and non-null (the default is null).
+  default is FALSE), and uses \a fallback as read fallback if \a
+  fallback is specified and non-null (the default is null).
 
-  \sa setWritable(), setOverride()
+  \sa setWritable(), setFallback()
  */
-QSettings::QSettings( bool writable, QSettings *override )
+QSettings::QSettings( bool writable, QSettings *fallback )
 {
-    d = new QSettingsPrivate(writable, override);
+    d = new QSettingsPrivate(writable, fallback);
     Q_CHECK_PTR(d);
 }
 
@@ -2260,7 +2268,7 @@ bool QSettings::writable() const {
 /*! Makes the object's settings writable if \a writable is TRUE, or
   read-only if \a writable is FALSE. Initially the object is
   read-only.
-  
+
   \sa writable()
 */
 void QSettings::setWritable( bool writable ) {
@@ -2268,29 +2276,29 @@ void QSettings::setWritable( bool writable ) {
 }
 
 
-/*!  Returns the override settings for the object, or a null pointer
-  if there is no override set.
+/*!  Returns the fallback settings for the object, or a null pointer
+  if there is no fallback set.
 
-  \sa setOverride(), readEntry()
+  \sa setFallback(), readEntry()
 */
-const QSettings *QSettings::override() const {
-    return (const QSettings *) d->override;
+const QSettings *QSettings::fallback() const {
+    return (const QSettings *) d->fallback;
 }
 
 
-/*!  Sets the override settings object to \a override, or removes any
-  override if \a override is null.
+/*!  Sets the fallback settings object to \a fallback, or removes any
+  fallback if \a fallback is null.
 
-  \sa override(), readEntry()
+  \sa fallback(), readEntry()
 */
-void QSettings::setOverride( QSettings *override ) {
-    d->override = override;
+void QSettings::setFallback( QSettings *fallback ) {
+    d->fallback = fallback;
 }
 
 
 /*!  Returns the file name where settings are stored when the
   application runs on \a system.
-  
+
   \sa setPath()
 */
 const QString &QSettings::path( System system ) const {
@@ -2320,7 +2328,7 @@ const QString &QSettings::path( System system ) const {
 
   There is no default path; if your application has not set a path for
   a given system, settings will never be written to disk on that system.
-  
+
   \sa path() System
  */
 void QSettings::setPath( System system, const QString &path )
@@ -2335,21 +2343,22 @@ void QSettings::setPath( System system, const QString &path )
 
 /*!
   Writes the settings to the location returned by QSettings::path().
+  This function returns TRUE if the settings were successfully written
+  to disk, and FALSE if an error occurred.
+
+  If the disk is full when writing the settings, a partial file will
+  be output.  QSettings will load as much of the partial file as the
+  QXml parser will allow.
 
   Qt never calls this function. We recommend that you call it before
   your application exits, deletes the QSettings object or similar.
 
   \sa path(), setPath()
 */
-void QSettings::write()
+bool QSettings::write()
 {
-    if (! writable()) {
-
-#ifdef Q_CHECK_STATE
-	qWarning("QSettings::write: object not writable");
-#endif // Q_CHECK_STATE
-
-	return;
+    if (! d->modified) {
+	return TRUE;
     }
 
     QString filename;
@@ -2364,7 +2373,7 @@ void QSettings::write()
 	qWarning("QSettings::write: path not set");
 #  endif // Q_CHECK_STATE
 
-	return;
+	return FALSE;
     }
 
     if (! d->tree) {
@@ -2407,7 +2416,7 @@ void QSettings::write()
 	qWarning("QSettings::write: failed to open file for writing");
 #endif // Q_CHECK_STATE
 
-	return;
+	return FALSE;
     }
 
     QTextStream ts(&file);
@@ -2445,7 +2454,11 @@ void QSettings::write()
     }
     ts << "</RC>" << endl;
 
+    bool success = file.status() == IO_Ok;
+
     file.close();
+
+    return success;
 }
 
 
@@ -2453,28 +2466,38 @@ void QSettings::write()
   previous setting.
 
   If the object is not writable, \a value is invalid or there is a
-  different error, the object is left unchanged.
+  different error, this function returns FALSE and the object is left
+  unchanged.
 
   \sa readEntry(), removeEntry()
 */
-void QSettings::writeEntry(const QString &key, const QVariant &value)
+bool QSettings::writeEntry(const QString &key, const QVariant &value)
 {
-    if (! writable()) { /// ### value.isValid() blah
+    if (! writable()) {
 
 #ifdef Q_CHECK_STATE
 	qWarning("QSettings::writeEntry: object is not writable");
 #endif // Q_CHECK_STATE
 
-	return;
+	return FALSE;
     }
 
-    if (key[0] != '/' || key[key.length() - 1] == '/') {
+    if (! value.isValid()) {
+
+#ifdef Q_CHECK_STATE
+	qWarning("QSettings::writeEntry: value is not valid");
+#endif // Q_CHECK_STATE
+
+	return FALSE;
+    }
+
+    if (! validKey(key)) {
 
 #ifdef Q_CHECK_STATE
 	qWarning("QSettings::writeEntry: malformed key '%s'", key.latin1());
 #endif // Q_CHECK_STATE
 
-	return;
+	return FALSE;
     }
 
     if (! d->tree) {
@@ -2527,14 +2550,17 @@ void QSettings::writeEntry(const QString &key, const QVariant &value)
 	    s = p + 1;
 	    p = key.find('/', s);
 
-	    if (p > 0)
+	    if (p > 0) {
 		strlist.append(key.mid(s, p - s));
+	    }
 	}
 
 	entry = key.right(key.length() - s);
     }
 
-    if (! d->node && d->tree->first) d->node = d->tree->first->first;
+    if (! d->node && d->tree->first) {
+	d->node = d->tree->first->first;
+    }
 
     QSettingsNode *n = d->node, *p = d->node ? d->node->parent : d->tree->first;
     QStringList::Iterator it = strlist.begin();
@@ -2567,14 +2593,14 @@ void QSettings::writeEntry(const QString &key, const QVariant &value)
 
     n = p->first;
 
-    QSettingsNode *d = 0;
+    QSettingsNode *t = 0;
 
     while (n) {
 	if (n && n->tagName == "entry") {
 	    if (n->first &&
 		n->first->tagName == "key" &&
 		n->first->data == entry) {
-		d = n->first->next;
+		t = n->first->next;
 		break;
 	    }
 	}
@@ -2582,7 +2608,7 @@ void QSettings::writeEntry(const QString &key, const QVariant &value)
 	n = n->next;
     }
 
-    if (! d) {
+    if (! t) {
 	QSettingsNode *e = new QSettingsNode;
 	e->tagName = "entry";
 	p->addChild(e);
@@ -2592,111 +2618,115 @@ void QSettings::writeEntry(const QString &key, const QVariant &value)
 	k->data = entry;
 	e->addChild(k);
 
-	d = new QSettingsNode;
-	e->addChild(d);
+	t = new QSettingsNode;
+	e->addChild(t);
     }
 
     switch (value.type()) {
     case QVariant::Color:
-	writeColor(d, value.toColor());
+	writeColor(t, value.toColor());
 	break;
 
     case QVariant::CString:
-	writeCString(d, value.toCString());
+	writeCString(t, value.toCString());
 	break;
 
     case QVariant::Point:
-	writePoint(d, value.toPoint());
+	writePoint(t, value.toPoint());
 	break;
 
     case QVariant::Size:
-	writeSize(d, value.toSize());
+	writeSize(t, value.toSize());
 	break;
 
     case QVariant::Font:
-	writeFont(d, value.toFont());
+	writeFont(t, value.toFont());
 	break;
 
     case QVariant::Pixmap:
-	writePixmap(d, value.toPixmap());
+	writePixmap(t, value.toPixmap());
 	break;
 
     case QVariant::Brush:
-	writeBrush(d, value.toBrush());
+	writeBrush(t, value.toBrush());
 	break;
 
     case QVariant::Rect:
-	writeRect(d, value.toRect());
+	writeRect(t, value.toRect());
 	break;
 
     case QVariant::Palette:
-	writePalette(d, value.toPalette());
+	writePalette(t, value.toPalette());
 	break;
 
     case QVariant::ColorGroup:
-	writeColorGroup(d, value.toColorGroup());
+	writeColorGroup(t, value.toColorGroup());
 	break;
 
     case QVariant::IconSet:
-	writeIconSet(d, value.toIconSet());
+	writeIconSet(t, value.toIconSet());
 	break;
 
     case QVariant::Image:
-	writeImage(d, value.toImage());
+	writeImage(t, value.toImage());
 	break;
 
     case QVariant::Int:
-	writeInt(d, value.toInt());
+	writeInt(t, value.toInt());
 	break;
 
     case QVariant::UInt:
-	writeUInt(d, value.toUInt());
+	writeUInt(t, value.toUInt());
 	break;
 
     case QVariant::Bool:
-	writeBool(d, value.toBool());
+	writeBool(t, value.toBool());
 	break;
 
     case QVariant::Double:
-	writeDouble(d, value.toDouble());
+	writeDouble(t, value.toDouble());
 	break;
 
     case QVariant::PointArray:
-	writePointArray(d, value.toPointArray());
+	writePointArray(t, value.toPointArray());
 	break;
 
     case QVariant::Region:
-	writeRegion(d, value.toRegion());
+	writeRegion(t, value.toRegion());
 	break;
 
     case QVariant::Bitmap:
-	writeBitmap(d, value.toBitmap());
+	writeBitmap(t, value.toBitmap());
 	break;
 
     case QVariant::Cursor:
-	writeCursor(d, value.toCursor());
+	writeCursor(t, value.toCursor());
 	break;
 
     case QVariant::List:
-	writeList(d, value.toList());
+	writeList(t, value.toList());
 	break;
 
     case QVariant::StringList:
-	writeStringList(d, value.toStringList());
+	writeStringList(t, value.toStringList());
 	break;
 
     case QVariant::Map:
-	writeMap(d, value.toMap());
+	writeMap(t, value.toMap());
 	break;
 
     case QVariant::SizePolicy:
-	writeSizePolicy(d, value.toSizePolicy());
+	writeSizePolicy(t, value.toSizePolicy());
 	break;
 
     case QVariant::String:
     default:
-	writeString(d, value.toString());
+	writeString(t, value.toString());
     }
+
+    d->modified = TRUE;
+
+    return TRUE;
 }
 
 
@@ -2708,15 +2738,7 @@ void QSettings::writeEntry(const QString &key, const QVariant &value)
 */
 QVariant QSettings::readEntry(const QString &key)
 {
-    if (d->override) {
-	QVariant v = d->override->readEntry(key);
-
-	if (v.isValid()) {
-	    return v;
-	}
-    }
-
-    if (key[0] != '/') {
+    if (! validKey(key)) {
 
 #ifdef Q_CHECK_STATE
 	qWarning("QSettings::readEntry: malformed key '%s'", key.latin1());
@@ -2853,16 +2875,23 @@ QVariant QSettings::readEntry(const QString &key)
 	}
     }
 
-    return QVariant();
+    QVariant v;
+
+    if (d->fallback) {
+	v = d->fallback->readEntry(key);
+    }
+
+    return v;
 }
 
 
 /*!
-  Removes the entry specified by \a key.
+  Removes the entry specified by \a key.  This function returns TRUE
+  if the entry was found and removed and returns FALSE otherwise.
 
   \sa readEntry(), writeEntry()
 */
-void QSettings::removeEntry(const QString &key)
+bool QSettings::removeEntry(const QString &key)
 {
     if (! writable()) {
 
@@ -2870,16 +2899,16 @@ void QSettings::removeEntry(const QString &key)
 	qWarning("QSettings::removeEntry: object not writable");
 #endif // Q_CHECK_STATE
 
-	return;
+	return FALSE;
     }
 
-    if (key[0] != '/') {
+    if (! validKey(key)) {
 
 #ifdef Q_CHECK_STATE
 	qWarning("QSettings::removeEntry: malformed key '%s'", key.latin1());
 #endif // Q_CHECK_STATE
 
-	return;
+	return FALSE;
     }
 
     if (! d->node) {
@@ -2957,9 +2986,12 @@ void QSettings::removeEntry(const QString &key)
 
 	    n->parent->removeChild(n);
 	    delete n;
-	    break;
+	    d->modified = TRUE;
+	    return TRUE;
 	}
 
 	n = n->next;
     }
+
+    return FALSE;
 }
