@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#53 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#54 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -2080,11 +2080,13 @@ QDomNode QDomNode::appendChild( const QDomNode& newChild )
 }
 
 /*!
-  fnord
+  Returns TRUE if the node has one or more children, otherwise FALSE.
 */
 bool QDomNode::hasChildNodes() const
 {
-    return FALSE;
+    if ( !impl )
+	return FALSE;
+    return !IMPL->first;
 }
 
 /*!
