@@ -13579,7 +13579,7 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
 	    if( *begin == sep )
 		match = TRUE;
 	}
-	if((flags & SectionSkipEmpty) && match && last_match)
+	if(start > 0 && (flags & SectionSkipEmpty) && match && last_match)
 	    match = FALSE;
 	last_match = match;
 
@@ -13632,7 +13632,7 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
 		if( *end == sep )
 		    match = TRUE;
 	    }
-	    if((flags & SectionSkipEmpty) && match && last_match)
+	    if(count > 0 && (flags & SectionSkipEmpty) && match && last_match)
 		match = FALSE;
 	    last_match = match;
 
@@ -13647,8 +13647,12 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
 		if(match && !--count)
 		    break;
 	    }
-	    if(end > uc + n || end < uc)
+	    if(end >= uc + n) {
+		end = uc + n;
+		break;
+	    } else if(end < uc) {
 		return QString();
+	    }
 	}
     }
     if(match && !(flags & SectionIncludeTrailingSep))
@@ -13735,7 +13739,7 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 		break;
 	    }
 	}
-	if((flags & SectionSkipEmpty) && match && last_match)
+	if(start > 0 && (flags & SectionSkipEmpty) && match && last_match)
 	    match = FALSE;
 	last_match = match;
 
@@ -13802,7 +13806,7 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 		    break;
 		}
 	    }
-	    if((flags & SectionSkipEmpty) && match && last_match)
+	    if(count > 0 && (flags & SectionSkipEmpty) && match && last_match)
 		match = FALSE;
 	    last_match = match;
 
@@ -13823,8 +13827,12 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 		    end++;
 		}
 	    }
-	    if(end > uc + n || end < uc)
+	    if(end >= uc + n) {
+		end = uc + n;
+		break;
+	    } else if(end < uc) {
 		return QString();
+	    }
 	}
     }
     if(match && !(flags & SectionIncludeTrailingSep))
@@ -13879,6 +13887,12 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 
     \sa simplifyWhiteSpace()
 */
+class section_chunk {
+public:
+    section_chunk(int l, QString s) { length = l; string = s; }
+    int length;
+    QString string;
+};
 
 QString QString::section( const QRegExp &reg, int start, int count, int flags ) const
 {
@@ -13889,80 +13903,46 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
     QRegExp sep(reg);
     sep.setCaseSensitive(!(flags & SectionCaseInsensitiveSeps));
 
-    int begin = 0, end = -1, n = length(), m = 0, real_begin = 0;
-    bool match = FALSE;
+    QList<section_chunk> l;
+    l.setAutoDelete(TRUE);
+    int n = length(), m = 0, last_m = 0, end = 0, last_len = 0;
 
-    //find begin
-    if(start < 0) {
-	begin = n;
-	if(count > 0)
-	    count = start + count > 0 ? 0 : start + count;
-	while(start) {
-	    if((begin = sep.searchRev(*this, begin-1)) == -1)
-		return QString();
-	    match = TRUE;
-	    if(count < 0 && m != count) {
-		m--;
-		end = begin;
-	    }
-	    start++;
-	}
-	real_begin = begin;
-	if(match && !(flags & SectionIncludeLeadingSep))
-	    	begin += sep.matchedLength();
-    } else {
-	while(start) {
-	    if((begin = sep.search(*this, begin)) == -1)
-		return QString();
-	    match = TRUE;
-	    begin += sep.matchedLength();
-	    start--;
-	}
-	real_begin = begin;
-	if(match && (flags & SectionIncludeLeadingSep))
-	    	begin -= sep.matchedLength();
-    }
-    if(begin < 0 || begin > n)
-	return QString();
-
-    //find end
-    match = m;
-    if(count == 0) {
-	end = n;
-    } else if(m != end) {
-	if(count < 0) {
-	    if(end == -1)
-		end = n;
-	    else
-		count += m;
-	    while(count) {
-		if((end = sep.searchRev(*this, end)) == -1)
-		    return QString();
-		match = TRUE;
-		count++;
-	    }
-	    end += sep.matchedLength();
-	} else {
-	    if(end == -1)
-		end = real_begin;
-	    else
-		count -= m;
-	    while(count) {
-		if((end = sep.search(*this, end)) == -1)
-		    return QString();
-		match = TRUE;
-		end += sep.matchedLength();
-		count--;
-	    }
+    while( ( m = sep.search( *this, m ) ) != -1 ) {
+	l.append(new section_chunk(last_len, QString(uc + last_m, m - last_m)));
+	last_m = m;
+	last_len = sep.matchedLength();
+	if((m += sep.matchedLength()) >= n) {
+	    end = 1;
+	    break;
 	}
     }
-    if(match && !(flags & SectionIncludeTrailingSep))
-	end -= sep.matchedLength();
-    if(end <= begin || end < 0 || end > n)
-	return QString();
+    if(!end) 
+	l.append(new section_chunk(last_len, QString(uc + last_m, n - last_m)));
 
-    //done
-    return QString(uc + begin, end - begin);
+    if(start < 0)
+	start = l.count() + start;
+    if(count == 0)
+	count = l.count();
+    else if(count < 0)
+	count = l.count() + (count - 1);
+    else
+	count = start + (count - 1);
+    
+    int i = 0;
+    QString ret;
+    for ( section_chunk *chk=l.first(); chk; chk=l.next(), i++ ) {
+	if(i == start) {
+	    ret = (flags & SectionIncludeLeadingSep) ? chk->string : chk->string.mid(chk->length);
+	} else if(i > start) {
+	    ret += chk->string;
+	}
+	if(i == count) {
+	    if((chk=l.next()) && flags & SectionIncludeTrailingSep) 
+		ret += chk->string.left(chk->length);
+	    break;
+	}
+    }
+    return ret;
 }
 #endif
 
