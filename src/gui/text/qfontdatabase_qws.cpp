@@ -19,8 +19,7 @@ static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bo
     QString familyname = QString::fromUtf8(family);
     QString foundryname = "";
     QtFontStyle::Key styleKey;
-    styleKey.italic = italic;
-    styleKey.oblique = false;
+    styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
     styleKey.weight = weight;
 
     QtFontFamily *f = db->family(familyname, true);
@@ -120,8 +119,7 @@ static void initializeDb()
         f->scripts[QFont::Unicode] = QtFontFamily::Supported;
         QtFontFoundry *foundry = f->foundry("qt", true);
         QtFontStyle::Key styleKey;
-        styleKey.italic = italic;
-        styleKey.oblique = false;
+        styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
         styleKey.weight = weight;
         QtFontStyle *style = foundry->style(styleKey,  true);
         style->smoothScalable = false;
@@ -146,9 +144,9 @@ static void initializeDb()
             FD_DEBUG("\t\t'%s'", foundry->name.latin1());
             for (int s = 0; s < foundry->count; s++) {
                 QtFontStyle *style = foundry->styles[s];
-                FD_DEBUG("\t\t\tstyle: italic=%d oblique=%d weight=%d\n"
+                FD_DEBUG("\t\t\tstyle: style=%d weight=%d\n"
                          "\t\t\tstretch=%d",
-                         style->key.italic, style->key.oblique, style->key.weight,
+                         style->key.style, style->key.weight,
                          style->key.stretch);
                 if (style->smoothScalable)
                     FD_DEBUG("\t\t\t\tsmooth scalable");
@@ -209,7 +207,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
     QFontEngine *fe = new QFontEngineFT(request, face);
     return fe;
     } else {
-        QString fn= QLatin1String(qInstallPath())+QLatin1String("/lib/fonts/") + family->name.toLower() + "_" + QString::number(pixelSize*10) + "_" + QString::number(style->key.weight) + (style->key.italic ? "i.qpf" : ".qpf");
+        QString fn= QLatin1String(qInstallPath())+QLatin1String("/lib/fonts/") + family->name.toLower() + "_" + QString::number(pixelSize*10) + "_" + QString::number(style->key.weight) + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
         //###rotation ###
 
         QFontEngine *fe = new QFontEngineQPF(request, fn);

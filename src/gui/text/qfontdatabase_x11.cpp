@@ -594,7 +594,7 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
     fd->styleHint = QFont::AnyStyle;        // ### any until we match families
 
     char slant = tolower((uchar) tokens[Slant][0]);
-    fd->italic = (slant == 'o' || slant == 'i');
+    fd->style = (slant == 'o' ? QFont::StyleOblique : (slant == 'i' ? QFont::StyleItalic : QFont::StyleNormal));
     char fixed = tolower((uchar) tokens[Spacing][0]);
     fd->fixedPitch = (fixed == 'm' || fixed == 'c');
     fd->weight = getFontWeight(tokens[Weight]);
@@ -646,14 +646,14 @@ static QtFontStyle::Key getStyle(char ** tokens)
             char slant1 = tolower((uchar) tokens[Slant][1]);
 
             if (slant1 == 'o')
-                key.oblique = true;
+                key.style = QFont::StyleOblique;
             else if (slant1 == 'i')
-                key.italic = true;
+                key.style = QFont::StyleItalic;
         }
     } else if (slant0 == 'o')
-        key.oblique = true;
+        key.style = QFont::StyleOblique;
     else if (slant0 == 'i')
-        key.italic = true;
+        key.style = QFont::StyleItalic;
 
     key.weight = getFontWeight(tokens[Weight]);
 
@@ -894,8 +894,8 @@ static void loadXft()
         family->fontFileIndex = index_value;
 
         QtFontStyle::Key styleKey;
-        styleKey.italic = (slant_value == FC_SLANT_ITALIC);
-        styleKey.oblique = (slant_value == FC_SLANT_OBLIQUE);
+        styleKey.style = (slant_value == FC_SLANT_ITALIC) ? QFont::StyleItalic
+                         : ((slant_value == FC_SLANT_OBLIQUE) ? QFont::StyleOblique : QFont::StyleNormal);
         styleKey.weight = getFCWeight(weight_value);
         if (!scalable) {
             int width = 100;
@@ -954,9 +954,8 @@ static void loadXft()
         }
 
         QtFontStyle::Key styleKey;
-        styleKey.oblique = false;
         for (int i = 0; i < 4; ++i) {
-            styleKey.italic = (i%2);
+            styleKey.style = (i%2) ? QFont::StyleNormal : QFont::StyleItalic;
             styleKey.weight = (i > 1) ? QFont::Bold : QFont::Normal;
             QtFontStyle *style = foundry->style(styleKey,  true);
             style->smoothScalable = true;
@@ -1031,7 +1030,7 @@ static void initializeDb()
             QtFontFoundry *foundry = db->families[i]->foundries[j];
             for (int k = 0; k < foundry->count; ++k) {
                 QtFontStyle *style = foundry->styles[k];
-                if (style->key.italic || style->key.oblique) continue;
+                if (style->key.style != QFont::StyleNormal) continue;
 
                 QtFontSize *size = style->pixelSize(SMOOTH_SCALABLE);
                 if (! size) continue; // should not happen
@@ -1041,13 +1040,12 @@ static void initializeDb()
                 QtFontStyle::Key key = style->key;
 
                 // does this style have an italic equivalent?
-                key.italic = true;
+                key.style = QFont::StyleItalic;
                 QtFontStyle *equiv = foundry->style(key);
                 if (equiv) continue;
 
                 // does this style have an oblique equivalent?
-                key.italic = false;
-                key.oblique = true;
+                key.style = QFont::StyleOblique;
                 equiv = foundry->style(key);
                 if (equiv) continue;
 
@@ -1092,9 +1090,9 @@ static void initializeDb()
             FD_DEBUG("\t\t'%s'", foundry->name.latin1());
             for (int s = 0; s < foundry->count; s++) {
                 QtFontStyle *style = foundry->styles[s];
-                FD_DEBUG("\t\t\tstyle: italic=%d oblique=%d weight=%d (%s)\n"
+                FD_DEBUG("\t\t\tstyle: style=%d weight=%d (%s)\n"
                          "\t\t\tstretch=%d (%s)",
-                         style->key.italic, style->key.oblique, style->key.weight,
+                         style->key.style, style->key.weight,
                          style->weightName, style->key.stretch,
                          style->setwidthName ? style->setwidthName : "nil");
                 if (style->smoothScalable)
@@ -1142,9 +1140,9 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key, b
     FcPatternAddInteger(pattern, FC_WEIGHT, weight_value);
 
     int slant_value = FC_SLANT_ROMAN;
-    if (key.italic)
+    if (key.style == QFont::StyleItalic)
         slant_value = FC_SLANT_ITALIC;
-    else if (key.oblique && !fakeOblique)
+    else if (key.style == QFont::StyleOblique && !fakeOblique)
         slant_value = FC_SLANT_OBLIQUE;
     FcPatternAddInteger(pattern, FC_SLANT, slant_value);
 
@@ -1176,13 +1174,13 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key, b
 	FcPatternAddInteger(pattern, FC_WIDTH, stretch);
 #endif
     } else if ((request.stretch > 0 && request.stretch != 100) ||
-               (key.oblique && fakeOblique)) {
+               (key.style == QFont::StyleOblique && fakeOblique)) {
         FcMatrix matrix;
         FcMatrixInit(&matrix);
 
         if (request.stretch > 0 && request.stretch != 100)
             FcMatrixScale(&matrix, double(request.stretch) / 100.0, 1.0);
-        if (key.oblique && fakeOblique)
+        if (key.style == QFont::StyleOblique && fakeOblique)
             FcMatrixShear(&matrix, 0.20, 0.0);
 
         FcPatternAddMatrix(pattern, FC_MATRIX, &matrix);
@@ -1322,7 +1320,7 @@ QFontEngine *loadEngine(QFont::Script script,
     xlfd += "-";
     xlfd += style->weightName ? style->weightName : "*";
     xlfd += "-";
-    xlfd += (style->key.italic ? "i" : (style->key.oblique ? "o" : "r"));
+    xlfd += (style->key.style == QFont::StyleItalic ? "i" : (style->key.style == QFont::StyleOblique ? "o" : "r"));
 
     xlfd += "-";
     xlfd += style->setwidthName ? style->setwidthName : "*";
@@ -1438,7 +1436,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
     }
 
     QtFontStyle::Key key;
-    key.italic = request.italic;
+    key.style = request.style;
     key.weight = request.weight;
     key.stretch = request.stretch;
 

@@ -160,18 +160,16 @@ struct QtFontStyle
 {
     struct Key {
         Key(const QString &styleString);
-        Key() : italic(false), oblique(false),
+        Key() : style(QFont::StyleNormal),
                 weight(QFont::Normal), stretch(0) { }
-        Key(const Key &o) : italic(o.italic), oblique(o.oblique),
+        Key(const Key &o) : style(o.style),
                               weight(o.weight), stretch(o.stretch) { }
-        uint italic : 1;
-        uint oblique : 1;
+        uint style : 2;
         signed int  weight : 8;
         signed int stretch : 12;
 
         bool operator==(const Key & other) {
-            return (italic == other.italic &&
-                     oblique == other.oblique &&
+            return (style == other.style &&
                      weight == other.weight &&
                      (stretch == 0 || other.stretch == 0 || stretch == other.stretch));
         }
@@ -179,8 +177,8 @@ struct QtFontStyle
             return !operator==(other);
         }
         bool operator <(const Key &o) {
-            int x = (italic << 13) + (oblique << 12) + (weight << 14) + stretch;
-            int y = (o.italic << 13) + (o.oblique << 12) + (o.weight << 14) + o.stretch;
+            int x = (style << 12) + (weight << 14) + stretch;
+            int y = (o.style << 12) + (o.weight << 14) + o.stretch;
             return (x < y);
         }
     };
@@ -220,14 +218,14 @@ struct QtFontStyle
 };
 
 QtFontStyle::Key::Key(const QString &styleString)
-    : italic(false), oblique(false), weight(QFont::Normal), stretch(0)
+    : style(QFont::StyleNormal), weight(QFont::Normal), stretch(0)
 {
     weight = getFontWeight(styleString);
 
     if (styleString.contains("Italic"))
-         italic = true;
+        style = QFont::StyleItalic;
     else if (styleString.contains("Oblique"))
-         oblique = true;
+        style = QFont::StyleOblique;
 }
 
 QtFontSize *QtFontStyle::pixelSize(unsigned short size, bool add)
@@ -291,7 +289,7 @@ QtFontStyle *QtFontFoundry::style(const QtFontStyle::Key &key, bool create)
     if (!create)
         return 0;
 
-//     qDebug("adding key (weight=%d, italic=%d, oblique=%d stretch=%d) at %d",  key.weight, key.italic, key.oblique, key.stretch, pos);
+//     qDebug("adding key (weight=%d, style=%d, oblique=%d stretch=%d) at %d",  key.weight, key.style, key.oblique, key.stretch, pos);
     if (!(count % 8))
         styles = (QtFontStyle **)
                  realloc(styles, (((count+8) >> 3) << 3) * sizeof(QtFontStyle *));
@@ -653,15 +651,13 @@ static QtFontStyle *bestStyle(QtFontFoundry *foundry, const QtFontStyle::Key &st
 	    d += qAbs( styleKey.stretch - style->key.stretch );
 	}
 
-	if ( styleKey.italic ) {
-	    if ( !style->key.italic )
-		d += style->key.oblique ? 0x0001 : 0x1000;
-	} else if ( styleKey.oblique ) {
-	    if (!style->key.oblique )
-		d += style->key.italic ? 0x0001 : 0x1000;
-	} else if ( style->key.italic || style->key.oblique ) {
-	    d += 0x1000;
-	}
+        if (styleKey.style != style->key.style) {
+            if (styleKey.style != QFont::StyleNormal && style->key.style != QFont::StyleNormal)
+                // one is italic, the other oblique
+                d += 0x0001;
+            else
+                d += 0x1000;
+        }
 
 	if ( d < dist ) {
 	    best = i;
@@ -937,7 +933,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 
     QString family_name, foundry_name;
     QtFontStyle::Key styleKey;
-    styleKey.italic = request.italic;
+    styleKey.style = request.style;
     styleKey.weight = request.weight;
     styleKey.stretch = request.stretch;
     char pitch = request.ignorePitch ? '*' : request.fixedPitch ? 'm' : 'p';
@@ -966,14 +962,14 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
     FM_DEBUG("QFontDatabase::findFont\n"
              "  request:\n"
              "    family: %s [%s], script: %d (%s)\n"
-             "    weight: %d, italic: %d\n"
+             "    weight: %d, style: %d\n"
              "    stretch: %d\n"
              "    pixelSize: %d\n"
              "    pitch: %c",
              family_name.isEmpty() ? "-- first in script --" : family_name.latin1(),
              foundry_name.isEmpty() ? "-- any --" : foundry_name.latin1(),
              script, scriptName(script).latin1(),
-             request.weight, request.italic, request.stretch, request.pixelSize, pitch);
+             request.weight, request.style, request.stretch, request.pixelSize, pitch);
 
     if (qt_enable_test_font && request.family == QLatin1String("__Qt__Box__Engine__")) {
         fe = new QTestFontEngine(request.pixelSize);
@@ -1112,14 +1108,14 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             ) {
             FM_DEBUG("  BEST:\n"
                      "    family: %s [%s]\n"
-                     "    weight: %d, italic: %d, oblique: %d\n"
+                     "    weight: %d, style: %d\n"
                      "    stretch: %d\n"
                      "    pixelSize: %d\n"
                      "    pitch: %c\n"
                      "    encoding: %d\n",
                      best_family->name.latin1(),
                      best_foundry->name.isEmpty() ? "-- none --" : best_foundry->name.latin1(),
-                     best_style->key.weight, best_style->key.italic, best_style->key.oblique,
+                     best_style->key.weight, best_style->key.style,
                      best_style->key.stretch, best_size ? best_size->pixelSize : 0xffff,
 #ifdef Q_WS_X11
                      best_encoding->pitch, best_encoding->encoding
@@ -1171,7 +1167,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             fe->fontDef.styleStrategy = request.styleStrategy;
 
             fe->fontDef.weight        = best_style->key.weight;
-            fe->fontDef.italic        = best_style->key.italic || best_style->key.oblique;
+            fe->fontDef.style         = best_style->key.style;
             fe->fontDef.fixedPitch    = best_family->fixedPitch;
             fe->fontDef.stretch       = best_style->key.stretch;
             fe->fontDef.ignorePitch   = false;
@@ -1250,7 +1246,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 }
 
 
-static QString styleString(int weight, bool italic, bool oblique)
+static QString styleString(int weight, QFont::Style style)
 {
     QString result;
     if (weight >= QFont::Black)
@@ -1262,9 +1258,9 @@ static QString styleString(int weight, bool italic, bool oblique)
     else if (weight < QFont::Normal)
         result = "Light";
 
-    if (italic)
+    if (style == QFont::StyleItalic)
         result += " Italic";
-    else if (oblique)
+    else if (style == QFont::StyleOblique)
         result += " Oblique";
 
     if (result.isEmpty())
@@ -1280,8 +1276,7 @@ static QString styleString(int weight, bool italic, bool oblique)
 */
 QString QFontDatabase::styleString(const QFont &f)
 {
-    // ### fix oblique here
-    return ::styleString(f.weight(), f.italic(), false);
+    return ::styleString(f.weight(), f.style());
 }
 
 
@@ -1470,9 +1465,7 @@ QStringList QFontDatabase::styles(const QString &family) const
     }
 
     for (int i = 0; i < allStyles.count; i++)
-        l.append(::styleString(allStyles.styles[i]->key.weight,
-                                 allStyles.styles[i]->key.italic,
-                                 allStyles.styles[i]->key.oblique));
+        l.append(::styleString(allStyles.styles[i]->key.weight, (QFont::Style)allStyles.styles[i]->key.style));
     return l;
 }
 
@@ -1686,8 +1679,9 @@ QFont QFontDatabase::font(const QString &family, const QString &style,
 
     if (!s) // no styles found?
         return QApplication::font();
-    return QFont(family, pointSize, s->key.weight,
-                  s->key.italic ? true : s->key.oblique ? true : false);
+    QFont fnt(family, pointSize, s->key.weight);
+    fnt.setStyle((QFont::Style)s->key.style);
+    return fnt;
 }
 
 
@@ -1780,8 +1774,7 @@ QList<int> QFontDatabase::standardSizes()
 
     \sa weight(), bold()
 */
-bool QFontDatabase::italic(const QString &family,
-                            const QString &style) const
+bool QFontDatabase::italic(const QString &family, const QString &style) const
 {
     QString familyName,  foundryName;
     parseFontName(family, foundryName, familyName);
@@ -1802,7 +1795,7 @@ bool QFontDatabase::italic(const QString &family,
 
     QtFontStyle::Key styleKey(style);
     QtFontStyle *s = allStyles.style(styleKey);
-    return s && s->key.italic;
+    return s && s->key.style == QFont::StyleItalic;
 }
 
 

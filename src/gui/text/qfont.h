@@ -55,6 +55,12 @@ public:
         Black         = 87
     };
 
+    enum Style {
+        StyleNormal,
+        StyleItalic,
+        StyleOblique
+    };
+
     enum Stretch {
         UltraCondensed =  50,
         ExtraCondensed =  62,
@@ -87,11 +93,14 @@ public:
     int weight() const;
     void setWeight(int);
 
-    bool bold() const;
-    void setBold(bool);
+    inline bool bold() const;
+    inline void setBold(bool);
 
-    bool italic() const;
-    void setItalic(bool);
+    void setStyle(Style style);
+    Style style() const;
+
+    inline bool italic() const;
+    inline void setItalic(bool b);
 
     bool underline() const;
     void setUnderline(bool);
@@ -316,6 +325,14 @@ inline bool QFont::bold() const
 inline void QFont::setBold(bool enable)
 { setWeight(enable ? Bold : Normal); }
 
+inline bool QFont::italic() const
+{
+    return (style() != StyleNormal);
+}
+
+inline void QFont::setItalic(bool b) {
+    setStyle(b ? StyleItalic : StyleOblique);
+}
 
 
 

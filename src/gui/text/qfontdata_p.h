@@ -36,8 +36,8 @@ struct QFontDef
 {
     inline QFontDef()
         : pointSize(-1), pixelSize(-1),
-          styleHint(QFont::AnyStyle), styleStrategy(QFont::PreferDefault),
-          weight(50), italic(false), fixedPitch(false), stretch(100),
+          styleStrategy(QFont::PreferDefault), styleHint(QFont::AnyStyle),
+          weight(50), fixedPitch(false), style(QFont::StyleNormal), stretch(100),
           ignorePitch(true)
 #ifdef Q_WS_MAC
           ,fixedPitchComputed(false)
@@ -54,24 +54,24 @@ struct QFontDef
     int pointSize;
     int pixelSize;
 
-    uint styleHint     : 8;
     uint styleStrategy : 16;
+    uint styleHint     : 8;
 
     uint weight     :  7; // 0-99
-    uint italic     :  1;
     uint fixedPitch :  1;
+    uint style      :  2;
     uint stretch    : 12; // 0-400
 
     uint ignorePitch : 1;
     uint fixedPitchComputed : 1; // for Mac OS X only
-    uint reserved   : 14; // for future extensions
+    uint reserved   : 16; // for future extensions
 
     bool exactMatch(const QFontDef &other) const;
     bool operator==(const QFontDef &other) const
     {
         return pixelSize == other.pixelSize
                     && weight == other.weight
-                    && italic == other.italic
+                    && style == other.style
                     && stretch == other.stretch
                     && styleHint == other.styleHint
                     && styleStrategy == other.styleStrategy
@@ -85,7 +85,7 @@ struct QFontDef
     {
         if (pixelSize != other.pixelSize) return pixelSize < other.pixelSize;
         if (weight != other.weight) return weight < other.weight;
-        if (italic != other.italic) return italic < other.italic;
+        if (style != other.style) return style < other.style;
         if (stretch != other.stretch) return stretch < other.stretch;
         if (styleHint != other.styleHint) return styleHint < other.styleHint;
         if (styleStrategy != other.styleStrategy) return styleStrategy < other.styleStrategy;
@@ -164,7 +164,7 @@ public:
         StyleHint     = 0x0004,
         StyleStrategy = 0x0008,
         Weight        = 0x0010,
-        Italic        = 0x0020,
+        Style         = 0x0020,
         Underline     = 0x0040,
         Overline      = 0x0080,
         StrikeOut     = 0x0100,

@@ -86,7 +86,7 @@ bool QFontDef::exactMatch(const QFontDef &other) const
     return (styleHint     == other.styleHint
             && styleStrategy == other.styleStrategy
             && weight        == other.weight
-            && italic        == other.italic
+            && style        == other.style
             && this_family   == other_family
             && (this_foundry.isEmpty()
                 || other_foundry.isEmpty()
@@ -172,8 +172,8 @@ void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
     if (! (mask & Weight))
         request.weight = other->request.weight;
 
-    if (! (mask & Italic))
-        request.italic = other->request.italic;
+    if (! (mask & Style))
+        request.style = other->request.style;
 
     if (! (mask & FixedPitch))
         request.fixedPitch = other->request.fixedPitch;
@@ -328,7 +328,7 @@ QFontEngineData::~QFontEngineData()
     \i fixedPitch()
     \i pointSize() (see below)
     \i weight()
-    \i italic()
+    \i style()
     \endlist
 
     If you have a font which matches on family, even if none of the
@@ -614,14 +614,14 @@ QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
     if (weight < 0) {
         weight = Normal;
     } else {
-        resolve_mask |= QFontPrivate::Weight | QFontPrivate::Italic;
+        resolve_mask |= QFontPrivate::Weight | QFontPrivate::Style;
     }
 
     d->request.family = family;
     d->request.pointSize = pointSize * 10;
     d->request.pixelSize = -1;
     d->request.weight = weight;
-    d->request.italic = italic;
+    d->request.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
 }
 
 /*!
@@ -798,27 +798,44 @@ void QFont::setPixelSizeFloat(float pixelSize)
 #endif
 
 /*!
-    Returns true if italic has been set; otherwise returns false.
+  \fn bool QFont::italic() const
 
-    \sa setItalic()
+    Returns true if the style() of the font is not QFont::StyleNormal
+
+    \sa setItalic() style()
 */
-bool QFont::italic() const
-{
-    return d->request.italic;
-}
 
 /*!
-    If \a enable is true, italic is set on; otherwise italic is set
-    off.
+  \fn void QFont::setItalic(bool enable)
 
-    \sa italic(), QFontInfo
+  Sets the style() of the font to QFont::StyleItalic if true, to
+  QFont::StyleNormal otherwise.
+
+  \sa italic(), QFontInfo
 */
-void QFont::setItalic(bool enable)
+
+/*!
+    Returns the style of the font.
+
+    \sa setStyle()
+*/
+QFont::Style QFont::style() const
+{
+    return (QFont::Style)d->request.style;
+}
+
+
+/*!
+  Sets the style of the font to \a style.
+
+  \sa italic(), QFontInfo
+*/
+void QFont::setStyle(QFont::Style style)
 {
     detach();
 
-    d->request.italic = enable;
-    resolve_mask |= QFontPrivate::Italic;
+    d->request.style = style;
+    resolve_mask |= QFontPrivate::Style;
 }
 
 /*!
@@ -1286,7 +1303,7 @@ bool QFont::operator<(const QFont &f) const
     if (r1.pointSize != r2.pointSize) return r1.pointSize < r2.pointSize;
     if (r1.pixelSize != r2.pixelSize) return r1.pixelSize < r2.pixelSize;
     if (r1.weight != r2.weight) return r1.weight < r2.weight;
-    if (r1.italic != r2.italic) return r1.italic < r2.italic;
+    if (r1.style != r2.style) return r1.style < r2.style;
     if (r1.stretch != r2.stretch) return r1.stretch < r2.stretch;
     if (r1.styleHint != r2.styleHint) return r1.styleHint < r2.styleHint;
     if (r1.styleStrategy != r2.styleStrategy) return r1.styleStrategy < r2.styleStrategy;
@@ -1571,7 +1588,7 @@ static Q_UINT8 get_font_bits(const QFontPrivate *f)
 {
     Q_ASSERT(f != 0);
     Q_UINT8 bits = 0;
-    if (f->request.italic)
+    if (f->request.style)
         bits |= 0x01;
     if (f->underline)
         bits |= 0x02;
@@ -1587,6 +1604,8 @@ static Q_UINT8 get_font_bits(const QFontPrivate *f)
         bits |= 0x20;
     if (f->kerning)
         bits |= 0x40;
+    if (f->request.style == QFont::StyleOblique)
+        bits |= 0x80;
     return bits;
 }
 
@@ -1600,7 +1619,7 @@ static Q_UINT8 get_font_bits(const QFontPrivate *f)
 static void set_font_bits(Q_UINT8 bits, QFontPrivate *f)
 {
     Q_ASSERT(f != 0);
-    f->request.italic        = (bits & 0x01) != 0;
+    f->request.style         = (bits & 0x01) != 0 ? QFont::StyleItalic : QFont::StyleNormal;
     f->underline             = (bits & 0x02) != 0;
     f->overline              = (bits & 0x40) != 0;
     f->strikeOut             = (bits & 0x04) != 0;
@@ -1608,6 +1627,8 @@ static void set_font_bits(Q_UINT8 bits, QFontPrivate *f)
     // f->hintSetByUser      = (bits & 0x10) != 0;
     f->rawMode               = (bits & 0x20) != 0;
     f->kerning               = (bits & 0x40) != 0;
+    if (bits & 0x80 != 0)
+        f->request.style         = QFont::StyleOblique;
 }
 
 #endif
@@ -1639,7 +1660,7 @@ QString QFont::toString() const
         QString::number(      pixelSize()) + comma +
         QString::number((int) styleHint()) + comma +
         QString::number(         weight()) + comma +
-        QString::number((int)    italic()) + comma +
+        QString::number((int)     style()) + comma +
         QString::number((int) underline()) + comma +
         QString::number((int) strikeOut()) + comma +
         QString::number((int)fixedPitch()) + comma +
@@ -1681,7 +1702,7 @@ bool QFont::fromString(const QString &descrip)
             setPixelSize(l[2].toInt());
         setStyleHint((StyleHint) l[3].toInt());
         setWeight(qMax(qMin(99, l[4].toInt()), 0));
-        setItalic(l[5].toInt());
+        setStyle((QFont::Style)l[5].toInt());
         setUnderline(l[6].toInt());
         setStrikeOut(l[7].toInt());
         setFixedPitch(l[8].toInt());
@@ -1966,7 +1987,19 @@ bool QFontInfo::italic() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     Q_ASSERT(engine != 0);
-    return engine->fontDef.italic;
+    return engine->fontDef.style != QFont::StyleNormal;
+}
+
+/*!
+    Returns the style value of the matched window system font.
+
+    \sa QFont::style()
+*/
+QFont::Style QFontInfo::style() const
+{
+    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    Q_ASSERT(engine != 0);
+    return (QFont::Style)engine->fontDef.style;
 }
 
 /*!
@@ -2149,7 +2182,7 @@ QFontCache::~QFontCache()
             if (--it.value().data->cache_count == 0) {
                 FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
                          it.value().data, it.key().script, it.key().def.pointSize,
-                         it.key().def.pixelSize, it.key().def.weight, it.key().def.italic,
+                         it.key().def.pixelSize, it.key().def.weight, it.key().def.style,
                          it.key().def.fixedPitch);
 
                 delete it.value().data;
@@ -2185,7 +2218,7 @@ void QFontCache::clear()
             if (--it.value().data->cache_count == 0) {
                 FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
                          it.value().data, it.key().script, it.key().def.pointSize,
-                         it.key().def.pixelSize, it.key().def.weight, it.key().def.italic,
+                         it.key().def.pixelSize, it.key().def.weight, it.key().def.style,
                          it.key().def.fixedPitch);
                 delete it.value().data;
             }

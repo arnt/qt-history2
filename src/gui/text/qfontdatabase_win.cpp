@@ -332,7 +332,6 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
     const int script = QFont::Unicode;
     const QString foundryName;
     const bool smoothScalable = true;
-    const bool oblique = false;
     Q_UNUSED(script);
     Q_UNUSED(smoothScalable);
 
@@ -363,8 +362,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
     // the "@family" fonts are just the same as "family". Ignore them.
     if (familyName[0] != '@') {
         QtFontStyle::Key styleKey;
-        styleKey.italic = italic;
-        styleKey.oblique = oblique;
+        styleKey.italic = italic ? QFont::StyleItalic : QFont::StyleNormal;
         if (weight < 400)
             styleKey.weight = QFont::Light;
         else if (weight < 600)
@@ -586,8 +584,7 @@ static void initializeDb()
             qDebug("        %s", foundry->name.latin1());
             for (int s = 0; s < foundry->count; s++) {
                 QtFontStyle *style = foundry->styles[s];
-                qDebug("            style: italic=%d oblique=%d weight=%d",  style->key.italic,
-                       style->key.oblique, style->key.weight);
+                qDebug("            style: style=%d weight=%d", style->key.style, style->key.weight);
             }
         }
     }
@@ -747,7 +744,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
             lf.lfWeight = FW_DONTCARE;
         else
             lf.lfWeight = (style->key.weight*900)/99;
-        lf.lfItalic                = (style->key.italic || style->key.oblique);
+        lf.lfItalic                = (style->key.style != QFont::StyleNormal);
         lf.lfCharSet        = DEFAULT_CHARSET;
 
         int strat = OUT_DEFAULT_PRECIS;

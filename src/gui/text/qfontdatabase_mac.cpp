@@ -72,8 +72,7 @@ static void initializeDb()
                     bool italic = (bool)(font_style & ::italic);
                     int weight = ((font_style & ::bold) ? QFont::Bold : QFont::Normal);
                     QtFontStyle::Key styleKey;
-                    styleKey.italic = italic;
-                    styleKey.oblique = false;
+                    styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
                     styleKey.weight = weight;
 
                     QtFontStyle *style = foundry->style(styleKey, true);
@@ -81,10 +80,10 @@ static void initializeDb()
                     style->smoothScalable = true;
 #if 0
                     if(!italic) {
-                        styleKey.oblique = true;
+                        styleKey.style = QFont::StyleOblique;
                         style = foundry->style(styleKey, true);
                         style->smoothScalable = true;
-                        styleKey.oblique = false;
+                        styleKey.style = QFont::StyleNormal;
                     }
                     if(weight < QFont::DemiBold) {
                         // Can make bolder
@@ -93,7 +92,7 @@ static void initializeDb()
                             style = foundry->style(styleKey, true);
                             style->smoothScalable = true;
                         } else {
-                            styleKey.oblique = true;
+                            styleKey.style = QFont::StyleOblique;
                             style = foundry->style(styleKey, true);
                             style->smoothScalable = true;
                         }

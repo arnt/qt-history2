@@ -900,7 +900,7 @@ QPSPrintEngineFontPrivate::~QPSPrintEngineFontPrivate()
 static int getPsFontType(const QFontEngine *fe)
 {
     int weight = fe->fontDef.weight;
-    bool italic = fe->fontDef.italic;
+    bool italic = fe->fontDef.style != QFont::StyleNormal;
 
     int type = 0; // used to look up in the psname array
     // get the right modification, or build something

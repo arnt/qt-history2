@@ -32,6 +32,7 @@ public:
     int pointSize() const;
     float pointSizeF() const;
     bool italic() const;
+    QFont::Style style() const;
     int weight() const;
     inline bool bold() const { return weight() > QFont::Normal; }
     bool underline() const;
