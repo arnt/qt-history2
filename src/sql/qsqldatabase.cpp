@@ -40,7 +40,6 @@
 #include "qsqldriver.h"
 #include "qsqldriverinterface_p.h"
 #include <private/qpluginmanager_p.h>
-#include <private/qsqlextension_p.h>
 #include "qobject.h"
 #include "qguardedptr.h"
 #include "qcleanuphandler.h"
