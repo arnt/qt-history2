@@ -72,7 +72,9 @@
 
 //#define QSOCKETLAYER_DEBUG
 
-#define VOID
+
+#define Q_VOID
+
 
 // Common constructs
 #define Q_CHECK_VALID_SOCKETLAYER(function, returnValue) do { \
@@ -758,7 +760,7 @@ Q_LLONG QSocketLayer::receiveBufferSize() const
 */
 void QSocketLayer::setReceiveBufferSize(Q_LLONG size)
 {
-    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setReceiveBufferSize(), VOID);
+    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setReceiveBufferSize(), Q_VOID);
     d->setOption(QSocketLayerPrivate::ReceiveBufferSocketOption, size);
 }
 
@@ -784,7 +786,7 @@ Q_LLONG QSocketLayer::sendBufferSize() const
 */
 void QSocketLayer::setSendBufferSize(Q_LLONG size)
 {
-    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setSendBufferSize(), VOID);
+    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setSendBufferSize(), Q_VOID);
     d->setOption(QSocketLayerPrivate::SendBufferSocketOption, size);
 }
 

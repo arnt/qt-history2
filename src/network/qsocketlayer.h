@@ -16,10 +16,16 @@
 #include <qstring.h>
 #include "qabstractsocket.h"
 
+#if defined(QT_LICENSE_PROFESSIONAL)
+#define QM_EXPORT_NETWORK
+#else
+#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
+#endif
+
 class QHostAddress;
 class QSocketLayerPrivate;
 
-class QSocketLayer
+class QM_EXPORT_NETWORK QSocketLayer
 {
 public:
     QSocketLayer();

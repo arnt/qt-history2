@@ -39,10 +39,16 @@ namespace Qt {
 #include <qiodevice.h>
 #include <qobject.h>
 
+#if defined(QT_LICENSE_PROFESSIONAL)
+#define QM_EXPORT_NETWORK
+#else
+#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
+#endif
+
 class QHostAddress;
 class QAbstractSocketPrivate;
 
-class QAbstractSocket : public QObject, public QIODevice
+class QM_EXPORT_NETWORK QAbstractSocket : public QObject, public QIODevice
 {
     Q_OBJECT
 public:

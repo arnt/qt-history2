@@ -16,10 +16,16 @@
 
 #include "qabstractsocket.h"
 
+#if defined(QT_LICENSE_PROFESSIONAL)
+#define QM_EXPORT_NETWORK
+#else
+#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
+#endif
+
 class QTcpSocketPrivate;
 class QHostAddress;
 
-class QTcpSocket : public QAbstractSocket
+class QM_EXPORT_NETWORK QTcpSocket : public QAbstractSocket
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTcpSocket)
