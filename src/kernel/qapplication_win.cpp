@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#211 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#212 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -329,6 +329,7 @@ static void qt_set_windows_resources()
 	cg.setButton(menu);
 	cg.setText(menuText);
 	cg.setForeground(menuText);
+	cg.setButtonText(menuText);
 	QColor disabled( (cg.foreground().red()+cg.button().red())/2,
 			 (cg.foreground().green()+cg.button().green())/2,
 			 (cg.foreground().blue()+cg.button().blue())/2);
@@ -336,8 +337,8 @@ static void qt_set_windows_resources()
 			 disabled, Qt::white, Qt::white, cg.background() );
 	
 	QPalette pal(cg, dcg, cg);
-	QApplication::setPalette( pal, FALSE, "QPopupMenu");
-	QApplication::setPalette( pal, TRUE, "QMenuBar");
+ 	QApplication::setPalette( pal, FALSE, "QPopupMenu");
+ 	QApplication::setPalette( pal, TRUE, "QMenuBar");
     }
 
 }
