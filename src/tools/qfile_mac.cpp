@@ -37,7 +37,21 @@ bool qt_file_access( const QString& fn, int t )
 
 bool QFile::remove( const QString &fileName )
 {
-    return true;
+    FSSpec myspec;
+    char bigbuf[257];
+    const char * wingle=fileName.ascii();
+    strcpy(bigbuf+1,wingle);
+    bigbuf[0]=strlen(wingle);
+    OSErr ret;
+    ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
+    if(ret!=noErr) {
+        qWarning("Make FS spec in QFile::remove error %d",ret);
+        return false;
+    }
+    ret=FSpDelete(&myspec);
+    if(ret==noErr)
+	return true;
+    return false;
 }
 
 bool QFile::open( int m )
