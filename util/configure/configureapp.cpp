@@ -356,19 +356,17 @@ void Configure::parseCmdLine()
     }
 
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
-	qmakeConfig += modules;
 	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
 	    qmakeConfig += "internal";
-    } else {
-	for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
-	    modules.remove( (*dis) );
-	}
-	for( QStringList::Iterator ena = enabledModules.begin(); ena != enabledModules.end(); ++ena ) {
-	    if( modules.findIndex( (*ena) ) == -1 )
-		modules += (*ena);
-	}
-	qmakeConfig += modules;
     }
+    for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
+	modules.remove( (*dis) );
+    }
+    for( QStringList::Iterator ena = enabledModules.begin(); ena != enabledModules.end(); ++ena ) {
+	if( modules.findIndex( (*ena) ) == -1 )
+	    modules += (*ena);
+    }
+    qmakeConfig += modules;
 
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
 	qmakeConfig.remove( (*it) );
@@ -721,8 +719,11 @@ void Configure::generateConfigfiles()
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
 
 	outFile.close();
-	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
-	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
+	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
+	    if ( !CopyFileA( outName, qtDir + "/include", FALSE ) )
+		qDebug("Couldn't copy %s to include", outName.latin1() );
+	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );	    
+	}
     }
     outName = outDir + "/qmodules.h";
 
@@ -745,8 +746,11 @@ void Configure::generateConfigfiles()
 	    outStream << "#endif" << endl;
 	}
 	outFile.close();
-	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
-	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
+	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
+	    if ( !CopyFileA( outName, qtDir + "/include/qmodules.h", FALSE ) )
+		qDebug("Couldn't copy %s to include", outName.latin1() );
+	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );	    
+	}
     }
 }
 
