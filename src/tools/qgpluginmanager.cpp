@@ -335,16 +335,36 @@ static int similarity( const QString& s1, const QString& s2 )
   \sa library(), queryInterface()
 */
 
+#include <qptrlist.h>
+#include <qcleanuphandler.h>
+
+static QPtrList<QGPluginManager> *pluginmanager_list = 0;
+QCleanupHandler< QPtrList<QGPluginManager> > qt_cleanup_pluginmanagers;
+static QPtrList<QGPluginManager> *pluginManagerList()
+{
+    if ( !pluginmanager_list ) {
+	pluginmanager_list = new QPtrList<QGPluginManager>();
+	pluginmanager_list->setAutoDelete( TRUE );
+	qt_cleanup_pluginmanagers.add( &pluginmanager_list );
+    }
+    return pluginmanager_list;
+}
 
 QGPluginManager::QGPluginManager( const QUuid& id, bool cs )
     : interfaceId( id ), plugDict( 17, cs ), casesens( cs ), autounload( TRUE )
 {
+    pluginManagerList()->prepend( this );
     // Every QLibrary object is destroyed on destruction of the manager
     libDict.setAutoDelete( TRUE );
 }
 
 QGPluginManager::~QGPluginManager()
 {
+    if ( pluginmanager_list ) {
+	pluginmanager_list->setAutoDelete( FALSE );
+	pluginmanager_list->removeRef( this );
+	pluginmanager_list->setAutoDelete( TRUE );
+    }
     if ( !autounload ) {
 	QDictIterator<QLibrary> it( libDict );
 	while ( it.current() ) {
