@@ -77,7 +77,7 @@ void CannonField::timerEvent( QTimerEvent * )
     erase( shotRect() );
     timerCount++;
 
-    QRect shotR   = shotRect();
+    QRect shotR = shotRect();
 
     if ( shotR.intersects( targetRect() ) ) {
 	stopShooting();
