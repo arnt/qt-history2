@@ -57,6 +57,7 @@ public:
 	PdcDrawLast = PdcDrawTextItem,
 	PdcDrawPoints = 22, // ptarr,ival,ival
 	PdcDrawWinFocusRect = 23, // rect,color
+	PdcDrawTiledPixmap = 24, // rect,pixmap,point
 
 	// no painting commands below PdcDrawLast.
 

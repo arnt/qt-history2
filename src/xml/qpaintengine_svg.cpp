@@ -505,6 +505,31 @@ void QSVGPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, con
 
 void QSVGPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
+    QDomElement e = d->doc.createElement("text");
+    int x, y;
+    const QRect r(p.x(), p.y(), ti.width, ti.ascent + ti.descent);
+    // horizontal text alignment
+    if ((textflags & Qt::AlignHCenter) != 0) {
+	x = r.x() + r.width() / 2;
+	e.setAttribute("text-anchor", "middle");
+    } else if ((textflags & Qt::AlignRight) != 0) {
+	x = r.right();
+	e.setAttribute("text-anchor", "end");
+    } else {
+	x = r.x();
+    }
+    // vertical text alignment
+    if ((textflags & Qt::AlignVCenter) != 0)
+	y = r.y() + (r.height() + ti.ascent) / 2;
+    else if ((textflags & Qt::AlignBottom) != 0)
+	y = r.bottom();
+    else
+	y = r.y() + ti.ascent;
+    if (x)
+	e.setAttribute("x", x);
+    if (y)
+	e.setAttribute("y", y);
+    e.appendChild(d->doc.createTextNode(QString(*ti.chars)));
 }
 
 /*!

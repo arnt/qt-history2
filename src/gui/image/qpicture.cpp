@@ -552,8 +552,14 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		    s >> r >> pixmap;
 		    painter->drawPixmap( r, pixmap );
 		}
-	                }
+	    }
 		break;
+	    case PdcDrawTiledPixmap: {
+		QPixmap pixmap;
+		s >> r >> pixmap >> p;
+		painter->drawTiledPixmap(r, pixmap, p);
+	    }
+	    	break;
 	    case PdcDrawImage: {
 		QImage image;
 		if ( d->formatMajor < 4 ) {
@@ -563,7 +569,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		    s >> r >> image;
 		    painter->drawImage( r, image );
 		}
-		}
+	    }
 		break;
 	    case PdcBegin:
 		s >> ul;			// number of records

@@ -351,8 +351,12 @@ void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     writeCmdLength(pos, r, false);
 }
 
-void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
+void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool)
 {
+    int pos;
+    SERIALIZE_CMD(PdcDrawTiledPixmap);
+    d->s << r << pixmap << s;
+    writeCmdLength(pos, r, false);
 }
 
 void QPicturePaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
