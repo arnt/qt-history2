@@ -177,7 +177,6 @@ public:
     int ref;
 };
 
-
 static LightStylePrivate *singleton = 0;
 
 
@@ -429,10 +428,10 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_Indicator:
 	if (flags & Style_Down)
-	    drawLightBevel(p, r, cg, flags | Style_Sunken, false,
+	    drawLightBevel(p, r, cg, flags | Style_Sunken, FALSE,
 			   &cg.brush(QColorGroup::Mid));
 	else
-	    drawLightBevel(p, r, cg, flags | Style_Sunken, true);
+	    drawLightBevel(p, r, cg, flags | Style_Sunken, TRUE);
 
 	p->setPen(cg.foreground());
 	if (flags & Style_NoChange) {
@@ -492,21 +491,65 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 	}
 
     case PE_DockWindowHandle:
-	flags |= Style_Raised;
-	if (flags & Style_Horizontal) {
-	    drawLightBevel(p, QRect(r.x() + 2, r.y() + 2, 8, r.height() - 4), cg, flags);
+	{
+	    QString title;
+	    bool drawTitle = FALSE;
+	    if ( p && p->device()->devType() == QInternal::Widget ) {
+		QWidget *w = (QWidget *) p->device();
+		QWidget *p = w->parentWidget();
+		if (p->inherits("QDockWindow") && ! p->inherits("QToolBar")) {
+		    drawTitle = TRUE;
+		    title = p->caption();
+		}
+	    }
 
-	    p->setPen(cg.dark());
-	    p->drawLine(r.left() + 5, r.top() + 5, r.left() + 6, r.top() + 5);
-	    p->drawLine(r.left() + 5, r.bottom() - 5, r.left() + 6, r.bottom() - 5);
-	} else {
-	    drawLightBevel(p, QRect(r.x() + 2, r.y() + 2, r.width() - 4, 8), cg, flags);
+	    flags |= Style_Raised;
+	    if (flags & Style_Horizontal) {
+		if (drawTitle) {
+		    QPixmap pm(r.height(), r.width());
+		    QPainter p2(&pm);
+		    p2.setPen(cg.background());
+		    p2.setBrush(cg.brush(QColorGroup::Highlight));
+		    p2.drawRect(0, 0, pm.width(), pm.height());
+		    p2.setPen(cg.highlightedText());
+		    p2.drawText(0, 0, pm.width(), pm.height(), AlignCenter, title);
+		    p2.end();
 
-	    p->setPen(cg.dark());
-	    p->drawLine(r.left() + 5, r.top() + 5, r.left() + 5, r.top() + 6);
-	    p->drawLine(r.right() - 5, r.top() + 5, r.right() - 5, r.top() + 6);
+		    QWMatrix m;
+		    m.rotate(270.0);
+		    pm = pm.xForm(m);
+		    p->drawPixmap(r.x(), r.y(), pm);
+		} else {
+		    drawLightBevel(p, QRect(r.x() + 2, r.y() + 2, 8, r.height() - 4),
+				   cg, flags);
+
+		    p->setPen(cg.dark());
+		    p->drawLine(r.left() + 5, r.top() + 5,
+				r.left() + 6, r.top() + 5);
+		    p->drawLine(r.left() + 5, r.bottom() - 5,
+				r.left() + 6, r.bottom() - 5);
+		}
+	    } else {
+		if (drawTitle) {
+		    p->setPen(cg.background());
+		    p->setBrush(cg.brush(QColorGroup::Highlight));
+		    p->drawRect(r);
+		    p->setPen(cg.highlightedText());
+		    p->drawText(r, AlignCenter, title);
+		} else {
+
+		    drawLightBevel(p, QRect(r.x() + 2, r.y() + 2, r.width() - 4, 8),
+				   cg, flags);
+
+		    p->setPen(cg.dark());
+		    p->drawLine(r.left() + 5, r.top() + 5,
+				r.left() + 5, r.top() + 6);
+		    p->drawLine(r.right() - 5, r.top() + 5,
+				r.right() - 5, r.top() + 6);
+		}
+	    }
+	    break;
 	}
-	break;
 
     case PE_Panel:
     case PE_PanelPopup:
@@ -516,7 +559,7 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		lw = *((int *) data[0]);
 
 	    if (lw == 2)
-		drawLightBevel(p, r, cg, flags, false,
+		drawLightBevel(p, r, cg, flags, FALSE,
 			       &cg.brush(QColorGroup::Background));
 	    else
 		QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
@@ -530,11 +573,12 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		lw = *((int *) data[0]);
 
 	    if (lw == 2)
-		drawLightBevel(p, r, cg, flags, false,
+		drawLightBevel(p, r, cg, flags, FALSE,
 			       &cg.brush(QColorGroup::Button));
 	    else
 		QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
-	    break; }
+	    break;
+	}
 
     case PE_PanelMenuBar:
 	{
@@ -543,7 +587,7 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		lw = *((int *) data[0]);
 
 	    if (lw == 2)
-		drawLightBevel(p, r, cg, flags, false,
+		drawLightBevel(p, r, cg, flags, FALSE,
 			       &cg.brush(QColorGroup::Button));
 	    else
 		QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
@@ -894,7 +938,7 @@ void LightStyle::drawControl( ControlElement control,
 	}
 
     case CE_ProgressBarGroove:
-	drawLightBevel(p, r, cg, Style_Sunken, false,
+	drawLightBevel(p, r, cg, Style_Sunken, FALSE,
 		       &cg.brush(QColorGroup::Background));
 	break;
 
@@ -988,7 +1032,7 @@ void LightStyle::drawComplexControl( ComplexControl control,
 					  SC_SpinWidgetDown, data);
 
 	    if ((controls & SC_SpinWidgetFrame) && frame.isValid())
-		drawLightBevel(p, frame, cg, flags | Style_Sunken, true);
+		drawLightBevel(p, frame, cg, flags | Style_Sunken, TRUE);
 
 	    if ((controls & SC_SpinWidgetUp) && up.isValid()) {
 		PrimitiveElement pe = PE_SpinWidgetUp;
