@@ -53,7 +53,6 @@ SUBDIRS	 =	aclock \
 		splitter \
 		tabdialog \
 		tetrix \
-		textedit \
 		themes \
 		tictac \
 		tooltip \
