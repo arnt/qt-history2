@@ -1669,6 +1669,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    }
 			} else if ( it.key() == "link" ) {
 			    linkColor = QColor( *it );
+			} else if ( it.key() == "title" ) {
+			    attribs.replace( it.key(), *it );
 			}
 		    }
 		} else {
