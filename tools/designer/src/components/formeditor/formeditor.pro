@@ -59,7 +59,6 @@ view3d {
 
 MOCABLE += formwindow.cpp
 
-QMAKE_MOD_RCC = rcc_resource
 RESOURCES += formeditor.qrc
 
 include(../../sharedcomponents.pri)
