@@ -24,6 +24,7 @@ HEADERS += button_taskmenu.h \
   label_taskmenu.h \
   lineedit_taskmenu.h \
   listwidget_taskmenu.h \
+  combobox_taskmenu.h \
   inplace_editor.h \
   taskmenu_component.h \
   listwidgeteditor.h
@@ -33,6 +34,7 @@ SOURCES += button_taskmenu.cpp \
   label_taskmenu.cpp \
   lineedit_taskmenu.cpp \
   listwidget_taskmenu.cpp \
+  combobox_taskmenu.cpp \
   inplace_editor.cpp \
   taskmenu_component.cpp \
   listwidgeteditor.cpp
