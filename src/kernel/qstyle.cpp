@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#48 $
 **
 ** Implementation of QStyle class
 **
@@ -56,27 +56,20 @@
   to modify the look of all widgets which utilize those functions.
 */
 
-#if defined(_CC_GNU_)
-#warning "Mathias, I'm dead tired of writing these.  Please fill this one in."
-#endif
 /*! \enum QStyle::ScrollControl
   This enum type defines :<ul>
 
-  <li> \c AddLine -
+  <li> \c AddLine - control to scroll one line down, usually an arrow button
 
-  <li> \c SubLine -
+  <li> \c SubLine - control to scroll one line up, usually an arrow button
 
-  <li> \c AddPage -
+  <li> \c AddPage - control to scroll one page down 
 
-  <li> \c SubPage -
+  <li> \c SubPage - control to scroll one page up
 
-  <li> \c First -
+  <li> \c Slider - the slider control
 
-  <li> \c Last -
-
-  <li> \c Slider -
-
-  <li> \c NoScroll -
+  <li> \c NoScroll - null value, indiciates none of the visible controls
 
   </ul>
 */

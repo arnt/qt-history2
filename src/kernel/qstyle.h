@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#36 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#37 $
 **
 ** Definition of QStyle class
 **
@@ -173,7 +173,7 @@ public:
 
     // scrollbars
     enum ScrollControl { AddLine = 0x1 , SubLine  = 0x2 , AddPage = 0x4,
-			 SubPage = 0x8 , First    = 0x10, Last	  = 0x20,
+			 SubPage = 0x8 ,
 			 Slider  = 0x40, NoScroll = 0x80 };
 
     virtual void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) = 0;
