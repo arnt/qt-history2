@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#30 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -17,14 +17,14 @@
 #include "qapp.h"
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#30 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -362,8 +362,6 @@ QImage QPixmap::convertToImage() const
 	ncols = 0;
     }
 
-#error Fix dette
-
     QImage image( w, h, d, ncols, QImage::BigEndian );
 
     int	  bmi_data_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
@@ -467,13 +465,13 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
-	QRgb     c = image.color(i);
+	QRgb	 c = image.color(i);
 	r->rgbBlue  = qBlue ( c );
 	r->rgbGreen = qGreen( c );
 	r->rgbRed   = qRed  ( c );
 	r->rgbReserved = 0;
     }
-#error Fix dette
+//#error Fix dette
     uchar *bits = image.bits();
     if ( image.depth() == 24 && !native ) {
 	ASSERT( ncols == 0 );

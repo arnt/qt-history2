@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#40 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -20,14 +20,14 @@
 #include <math.h>
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#40 $")
 
 
 /*****************************************************************************
@@ -648,7 +648,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	if ( w->testWFlags(WState_PaintEvent) ) // during paint event
 	    hdc = w->hdc;
 	else
-	    w->hdc = hdc = GetDC( w->id() );
+	    w->hdc = hdc = GetDC( w->winId() );
 	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
 	    // !!!hanord todo
 	}
@@ -752,7 +752,7 @@ bool QPainter::end()
     if ( pdev->devType() == PDT_WIDGET ) {
 	if ( !((QWidget*)pdev)->testWFlags(WState_PaintEvent) ) {
 	    QWidget *w = (QWidget*)pdev;
-	    ReleaseDC( w->id(), hdc );
+	    ReleaseDC( w->winId(), hdc );
 	    w->hdc = 0;
 	}
     }
@@ -1600,7 +1600,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    pa = xForm( a );
     }
 
-    int  x1, y1, x2, y2;
+    int	 x1, y1, x2, y2;
     uint i = index;
     bool solid = cpen.style() == SolidLine;
     uint pixel = cpen.color().pixel();
@@ -1705,28 +1705,28 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 void QPainter::drawBezier( const QPointArray &a, int index )
 {
     if ( !isActive() )
-        return;
+	return;
     if ( (int)a.size() - index < 4 ) {
 #if defined(CHECK_RANGE)
-        warning( "QPainter::drawBezier: Cubic Bezier needs 4 control points" );
+	warning( "QPainter::drawBezier: Cubic Bezier needs 4 control points" );
 #endif
-        return;
+	return;
     }
     QPointArray pa( a );
     if ( index != 0 || a.size() > 4 ) {
-        pa = QPointArray( 4 );
-        for ( int i=0; i<4; i++ )
-            pa.setPoint( i, a.point(index+i) );
+	pa = QPointArray( 4 );
+	for ( int i=0; i<4; i++ )
+	    pa.setPoint( i, a.point(index+i) );
     }
     if ( testf(ExtDev|VxF|WxF) ) {
-        if ( testf(ExtDev) ) {
-            QPDevCmdParam param[1];
-            param[0].ptarr = (QPointArray*)&pa;
-            if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hdc )
-                return;
-        }
-        if ( txop != TxNone )
-            pa = xForm( pa );
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    param[0].ptarr = (QPointArray*)&pa;
+	    if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hdc )
+		return;
+	}
+	if ( txop != TxNone )
+	    pa = xForm( pa );
     }
     PolyBezier( hdc, (POINT*)(pa.data()+index), 4 );
 }
@@ -1763,7 +1763,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     QPixmap *pm	  = (QPixmap*)&pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
-    bool tmp_dc   = pm->handle() == 0;
+    bool tmp_dc	  = pm->handle() == 0;
 
     if ( tmp_dc )
 	pm->allocMemDC();
@@ -2154,8 +2154,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	p = new char[len];			// buffer for printable string
 	CHECK_PTR( p );
 	p_alloc = TRUE;
-    }
-    else {
+    } else {
 	p = p_array;
 	p_alloc = FALSE;
     }
