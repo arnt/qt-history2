@@ -1120,8 +1120,8 @@ bool QWidgetPrivate::isTransparent() const
  */
 void QWidgetPrivate::updateInheritedBackground(bool force)
 {
-    Q_Q(QWidget);
 #ifndef Q_WS_MAC
+    Q_Q(QWidget);
     if (!q->isVisible() || !isBackgroundInherited())
         return;
 #ifndef QT_NO_PALETTE
