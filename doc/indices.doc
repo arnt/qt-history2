@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.33 1999/05/10 08:11:30 warwick Exp $
+** $Id: indices.doc,v 2.34 1999/06/14 12:31:19 warwick Exp $
 **
 ** Miscellaneous index pages
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.33 1999/05/10 08:11:30 warwick Exp $";
+static char ident[] = "$Id: indices.doc,v 2.34 1999/06/14 12:31:19 warwick Exp $";
 #endif
 
 /*! \page index.html
@@ -83,6 +83,17 @@ Reference Documentation
 </ul>
 
 </tr></table>
+
+<h2>Search the documentation</h2>
+<dl>
+<dt><dd>
+<form method=post action="http://www.troll.no/search.cgi">
+<input type=hidden name="version" value="2.00">
+<input type=hidden name="sections" value="api">
+<input size="50" name="search"><input type=submit value="Search">
+(uses <a href="http://www.troll.no">www.troll.no</a>)
+</nobr></form>
+</dl>
 
 <h2 align=center><u>About Qt</u></h2>
 
