@@ -1645,3 +1645,8 @@ void QTextView::setRealWidth( int w )
 {
     resizeContents( w, contentsHeight() );
 }
+
+void QTextView::updateStyles()
+{
+    doc->updateStyles();
+}

@@ -138,7 +138,8 @@ public:
     QString anchorAt(const QPoint& pos);
 
     void repaintChanged();
-
+    void updateStyles();
+    
 public slots:
     virtual void undo();
     virtual void redo();

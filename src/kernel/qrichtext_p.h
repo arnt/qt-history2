@@ -371,7 +371,8 @@ public:
     QMimeSourceFactory *mimeSourceFactory() const { return factory_; }
     QString context() const { return contxt; }
 
-    void setStyleSheet( QStyleSheet *s ) { if ( s ) sheet_ = s; }
+    void setStyleSheet( QStyleSheet *s );
+    void updateStyles();
     void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
     void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
 
@@ -849,6 +850,7 @@ class QTextFormat
 
 public:
     enum Flags {
+	NoFlags,
 	Bold = 1,
 	Italic = 2,
 	Underline = 4,
@@ -861,6 +863,7 @@ public:
     };
 
     QTextFormat();
+    QTextFormat( const QStyleSheetItem *s );
     QTextFormat( const QFont &f, const QColor &c );
     QTextFormat( const QTextFormat &fm );
     QTextFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr ) const;
@@ -878,7 +881,7 @@ public:
     QString anchorName() const;
     bool isAnchor() const;
     bool useLinkColor() const;
-    
+
     void setBold( bool b );
     void setItalic( bool b );
     void setUnderline( bool b );
@@ -901,7 +904,11 @@ public:
     QString makeFormatEndTags() const;
 
     void setPainter( QPainter *p );
-
+    void updateStyle();
+    void updateStyleFlags();
+    void setStyle( const QString &s );
+    QString styleName() const { return style; }
+    
 private:
     void update();
     void generateKey();
@@ -923,7 +930,9 @@ private:
     QString anchor_href;
     QString anchor_name;
     QPainter *painter;
-
+    QString style;
+    int different;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1182,7 +1191,10 @@ public:
     void debug();
 
     void setPainter( QPainter *p );
-
+    QStyleSheet *styleSheet() const { return sheet; }
+    void setStyleSheet( QStyleSheet *s ) { sheet = s; }
+    void updateStyles();
+    
 private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
     QDict<QTextFormat> cKey;
@@ -1191,7 +1203,8 @@ private:
     QColor ccol;
     QString kof, knf;
     int cflags;
-
+    QStyleSheet *sheet;
+    
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1404,16 +1417,43 @@ inline void QTextDocument::setTabStops( int tw )
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 inline QTextFormat::QTextFormat()
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( 12 ), 
-      painter( 0 )
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( 12 ),
+      painter( 0 ), different( NoFlags )
 {
     missp = FALSE;
     collection = 0;
 }
 
+inline QTextFormat::QTextFormat( const QStyleSheetItem *style )
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( 12 ),
+      painter( 0 ), different( NoFlags )
+{
+    this->style = style->name();
+    missp = FALSE;
+    collection = 0;
+    fn = QFont( style->fontFamily(),
+		style->fontSize(),
+		style->fontWeight(),
+		style->fontItalic() );
+    fn.setUnderline( style->fontUnderline() );
+    col = style->color();
+    fm = QFontMetrics( fn );
+    leftBearing = fm.minLeftBearing();
+    rightBearing = fm.minRightBearing();
+    hei = fm.height();
+    asc = fm.ascent() + fm.leading();
+    dsc = fm.descent();
+    missp = FALSE;
+    memset( widths, 0, 256 );
+    generateKey();
+    addRef();
+    updateStyleFlags();
+}
+
 inline QTextFormat::QTextFormat( const QFont &f, const QColor &c )
     : fn( f ), col( c ), fm( QFontMetrics( f ) ), linkColor( TRUE ),
-      logicalFontSize( 3 ), stdPointSize( f.pointSize() ), painter( 0 )
+      logicalFontSize( 3 ), stdPointSize( f.pointSize() ), painter( 0 ),
+      different( NoFlags )
 {
     collection = 0;
     leftBearing = fm.minLeftBearing();
@@ -1425,6 +1465,7 @@ inline QTextFormat::QTextFormat( const QFont &f, const QColor &c )
     memset( widths, 0, 256 );
     generateKey();
     addRef();
+    updateStyleFlags();
 }
 
 inline QTextFormat::QTextFormat( const QTextFormat &f )
@@ -1447,6 +1488,8 @@ inline QTextFormat::QTextFormat( const QTextFormat &f )
     anchor_name = f.anchor_name;
     anchor_href = f.anchor_href;
     linkColor = f.linkColor;
+    style = f.style;
+    different = f.different;
     addRef();
 }
 
@@ -1469,6 +1512,8 @@ inline QTextFormat& QTextFormat::operator=( const QTextFormat &f )
     anchor_name = f.anchor_name;
     anchor_href = f.anchor_href;
     linkColor = f.linkColor;
+    style = f.style;
+    different = f.different;
     addRef();
     return *this;
 }
@@ -1483,6 +1528,7 @@ inline void QTextFormat::update()
     dsc = fm.descent();
     memset( widths, 0, 256 );
     generateKey();
+    updateStyleFlags();
 }
 
 inline QColor QTextFormat::color() const
@@ -1643,6 +1689,58 @@ inline bool QTextFormat::isAnchor() const
 inline bool QTextFormat::useLinkColor() const
 {
     return linkColor;
+}
+
+inline void QTextFormat::setStyle( const QString &s )
+{
+    style = s;
+    updateStyleFlags();
+}
+
+inline void QTextFormat::updateStyle()
+{
+    if ( !collection || !collection->styleSheet() )
+	return;
+    QStyleSheetItem *item = collection->styleSheet()->item( style );
+    if ( !item )
+	return;
+    if ( !( different & Color ) && item->color().isValid() )
+	col = item->color();
+    if ( !( different & Size ) && item->fontSize() != -1 )
+	fn.setPointSize( item->fontSize() );
+    if ( !( different & Family ) && !item->fontFamily().isEmpty() )
+	fn.setFamily( item->fontFamily() );
+    if ( !( different & Bold ) && item->fontWeight() != -1 )
+	fn.setWeight( item->fontWeight() );
+    if ( !( different & Italic ) && item->definesFontItalic() )
+	fn.setItalic( item->fontItalic() );
+    if ( !( different & Underline ) && item->definesFontUnderline() )
+	fn.setUnderline( item->fontUnderline() );
+    generateKey();
+    update();
+    
+}
+
+inline void QTextFormat::updateStyleFlags()
+{
+    different = NoFlags;
+    if ( !collection || !collection->styleSheet() )
+	return;
+    QStyleSheetItem *item = collection->styleSheet()->item( style );
+    if ( !item )
+	return;
+    if ( item->color() != col )
+	different |= Color;
+    if ( item->fontSize() != fn.pointSize() )
+	different |= Size;
+    if ( item->fontFamily() != fn.family() )
+	different |= Family;
+    if ( item->fontItalic() != fn.italic() )
+	different |= Italic;
+    if ( item->fontUnderline() != fn.underline() )
+	different |= Underline;
+    if ( item->fontWeight() != fn.weight() )
+	different |= Bold;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2057,7 +2155,14 @@ inline QStyleSheetItem::ListStyle QTextParag::listStyle() const
 
 inline void QTextParag::setFormat( QTextFormat *fm )
 {
+    bool doUpdate = (bool)defFormat && defFormat != formatCollection()->defaultFormat();
     defFormat = formatCollection()->format( fm );
+    if ( !doUpdate )
+	return;
+    for ( int i = 0; i < length(); ++i ) {
+	if ( at( i )->format()->styleName() == defFormat->styleName() )
+	    at( i )->format()->updateStyle();
+    }
 }
 
 inline QTextFormat *QTextParag::paragFormat() const

@@ -886,7 +886,8 @@ QTextDocument::QTextDocument( QTextDocument *p )
     sheet_ = QStyleSheet::defaultSheet();
     factory_ = QMimeSourceFactory::defaultFactory();
     contxt = QString::null;
-
+    fCollection->setStyleSheet( sheet_ );
+    
     linkC = Qt::blue;
     underlLinks = TRUE;
     backBrush = 0;
@@ -2247,6 +2248,20 @@ void QTextString::basicDirection() const
 }
 
 
+void QTextDocument::setStyleSheet( QStyleSheet *s )
+{ 
+    if ( !s ) 
+	return;
+    sheet_ = s; 
+    fCollection->setStyleSheet( s );
+    updateStyles();
+}
+
+void QTextDocument::updateStyles()
+{
+    invalidate();
+    fCollection->updateStyles();
+}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -4041,6 +4056,7 @@ QTextIndent::QTextIndent()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatCollection::QTextFormatCollection()
+    : sheet( 0 )
 {
     defFormat = new QTextFormat( QApplication::font(),
 				     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
@@ -4214,6 +4230,16 @@ void QTextFormatCollection::debug()
 #endif
 }
 
+void QTextFormatCollection::updateStyles()
+{
+    QDictIterator<QTextFormat> it( cKey );
+    QTextFormat *f;
+    while ( ( f = it.current() ) ) {
+	++it;
+	f->updateStyle();
+    }
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void QTextFormat::setBold( bool b )
@@ -4376,6 +4402,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     QTextFormat format(*this);
     bool changed = FALSE;
     if ( style ) {
+	format.style = style->name();
 	if ( style->name() == "font") {
 	    if ( attr.contains("color") ) {
 		format.col.setNamedColor( attr["color"] );
