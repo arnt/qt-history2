@@ -90,7 +90,7 @@ public:
 
     QString mergePaths(const QString &relativePath) const;
 
-    void removeDotsFromPath();
+    static QString removeDotsFromPath(const QString &path);
 
     enum ParseOptions {
         ParseAndSet,
@@ -971,13 +971,13 @@ QString QUrlPrivate::mergePaths(const QString &relativePath) const
     Removes unnecessary ../ and ./ from the path. Used for normalizing
     the URL.
 */
-void QUrlPrivate::removeDotsFromPath()
+QString QUrlPrivate::removeDotsFromPath(const QString &dottedPath)
 {
     // The input buffer is initialized with the now-appended path
     // components and the output buffer is initialized to the empty
     // string.
-    QString origPath = path;
-    path.clear();
+    QString origPath = dottedPath;
+    QString path;
     path.reserve(origPath.length());
 
     //###
@@ -1053,6 +1053,8 @@ void QUrlPrivate::removeDotsFromPath()
             }
         }
     }
+
+    return path;
 }
 
 void QUrlPrivate::validate() const
@@ -1859,13 +1861,13 @@ QUrl QUrl::resolved(const QUrl &relative) const
         t.setScheme(r.scheme());
         t.setAuthority(r.authority());
         t.setPath(r.path());
-        t.d->removeDotsFromPath();
+        t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
         t.setEncodedQuery(r.encodedQuery());
     } else {
         if (!r.authority().isEmpty()) {
             t.setAuthority(r.authority());
             t.setPath(r.path());
-            t.d->removeDotsFromPath();
+            t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
             t.setEncodedQuery(r.encodedQuery());
         } else {
             if (r.path().isEmpty()) {
@@ -1877,10 +1879,10 @@ QUrl QUrl::resolved(const QUrl &relative) const
             } else {
                 if (r.path().startsWith("/")) {
                     t.setPath(r.path());
-                    t.d->removeDotsFromPath();
+                    t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
                 } else {
                     t.setPath(d->mergePaths(r.path()));
-                    t.d->removeDotsFromPath();
+                    t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
                 }
                 t.setEncodedQuery(r.encodedQuery());
             }
@@ -2271,10 +2273,15 @@ QString QUrl::fromPunycode(const QByteArray &pc)
 */
 bool QUrl::operator ==(const QUrl &url) const
 {
+    d->parse();
+    url.d->parse();
     return d->scheme.toLower() == url.d->scheme.toLower()
-          && d->userName == url.d->userName && d->password == url.d->password
-          && d->host.toLower() == url.d->host.toLower() && d->port == url.d->port
-          && d->path == url.d->path && d->query == url.d->query
+          && d->userName == url.d->userName
+          && d->password == url.d->password
+          && d->host.toLower() == url.d->host.toLower()
+          && d->port == url.d->port
+          && QUrlPrivate::removeDotsFromPath(d->path) == QUrlPrivate::removeDotsFromPath(url.d->path)
+          && d->query == url.d->query
           && d->fragment == url.d->fragment;
 }
 
