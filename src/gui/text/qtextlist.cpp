@@ -3,6 +3,7 @@
 #include "qtextformat_p.h"
 #include "qtextcursor.h"
 #include "qtextblockiterator.h"
+#include "qtextpiecetable_p.h"
 #include <qdebug.h>
 
 
@@ -112,3 +113,14 @@ QString QTextList::itemText(const QTextBlockIterator &blockIt) const
     return result + QChar('.');
 }
 
+void QTextList::removeItem(int i)
+{
+    if (i < 0 || i >= d->blocks.size())
+        return;
+
+    QTextBlockIterator block = d->blocks.at(i);
+    QTextBlockFormat fmt = block.blockFormat();
+    fmt.setIndent(fmt.indent() + format().indent());
+    fmt.setGroup(0);
+    const_cast<QTextPieceTable *>(block.pieceTable())->setBlockFormat(block, block, fmt, QTextPieceTable::SetFormat);
+}

@@ -26,6 +26,7 @@ public:
     int itemNumber(const QTextBlockIterator &) const;
     QString itemText(const QTextBlockIterator &) const;
 
+    void removeItem(int i);
 
     void setFormat(const QTextListFormat &format) { setCommonFormat(format); }
     QTextListFormat format() const { return commonFormat().toListFormat(); }
