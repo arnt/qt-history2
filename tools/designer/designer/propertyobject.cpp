@@ -1,5 +1,5 @@
 #include "propertyobject.h"
-#include <qvector.h>
+#include <qptrvector.h>
 #include <qptrlist.h>
 #include <qmetaobject.h>
 #include <qvariant.h>
@@ -8,7 +8,7 @@
 PropertyObject::PropertyObject( const QWidgetList &objs )
     : QObject(), objects( objs ), mobj( 0 )
 {
-    QVector<QPtrList<QMetaObject> > v;
+    QPtrVector<QPtrList<QMetaObject> > v;
     v.resize( objects.count() );
     v.setAutoDelete( TRUE );
 
