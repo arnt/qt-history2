@@ -464,12 +464,10 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
             cursor.setPosition(cursor.selectionStart());
         cursor.movePosition(QTextCursor::NextCharacter);
 
-        const QTextCharFormat fmt = cursor.charFormat();
-        const QString href = fmt.anchorHref();
-
         ev->accept();
-        d->activateAnchor(href);
 
+        const QString href = cursor.charFormat().anchorHref();
+        d->activateAnchor(href);
         return;
     }
     QTextEdit::keyPressEvent(ev);
