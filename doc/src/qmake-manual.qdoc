@@ -3047,8 +3047,8 @@
     used to assign contents of one variable to another:
 
     \quotefromfile snippets/qmake/functions.pro
-    \skipto CONFIG = release
-    \printuntil CONFIG = $$unique(
+    \skipto HEADERS =
+    \printuntil HEADERS = $$unique(
 
     This type of function should be used on the right-hand side of
     assignments (i.e, as an operand).
