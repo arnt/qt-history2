@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#253 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#254 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -530,7 +530,7 @@ QRect QPopupMenu::itemGeometry( int index )
     QMenuItemListIt it( *mitems );
     while ( (mi=it.current()) ) {
 	++it;
-	int itemh = itemHeight( row );
+	int itemh = itemHeight( mi );
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    y = contentsRect().y();
 	    x +=itemw;
