@@ -33,7 +33,7 @@ for $a ( @ARGV ) {
 	print "Will not generate documentation.\n";
     } elsif ( $a =~ /^-no(x11|qws|win)$/ ) {
 	$notplatform{$1}=1;
-	print "Will not generate \u$1\U platform.\n";
+	print "Will not generate \"$1\" platform.\n";
     } else {
 	$version = $a;
     }
@@ -351,6 +351,11 @@ for $platform ( "x11", "windows", "qws" ) {
 
 # X11 and QWS stuff.
 
+sub justunixfiles {
+    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
+		   ( /qt_[a-z]*.h$/ && !/^qt_$platform.h$/ ) );
+}
+
 for $platform ( "x11", "qws" ) {
     next if $notplatform{$platform};
 
@@ -361,10 +366,6 @@ for $platform ( "x11", "qws" ) {
     $ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
     $ENV{ "QTDIR" } = $qtdir;
 
-    sub justunixfiles {
-	unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
-		       ( /qt_[a-z]*.h$/ && !/^qt_$platform.h$/ ) );
-    }
     find( \&justunixfiles, $qtdir );
 
     # copy the dist things into a supplemental directory
@@ -446,7 +447,7 @@ for $platform ( "x11", "qws" ) {
     chdir( "$distdir/$platform-pro" );
     system( "tar cf ../qt-$platform-$version$type-commercial.tar ." );
 
-    # then run tar for real, on the x11 tree.
+    # then run tar for real, on the unix tree.
     chdir( "$distdir/$platform" );
     open( "TAR1$platform", "tar rf ../qt-$platform-$version$type.tar . |" );
     open( "TAR2$platform", "tar rf ../qt-$platform-$version$type-commercial.tar . |" );
