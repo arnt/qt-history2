@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#81 $
+** $Id: //depot/qt/main/src/moc/moc.y#82 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#81 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#82 $");
 
 static QString rmWS( const char * );
 
@@ -1222,9 +1222,9 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	    typstr += a->rightType;
 	    a = f->args->next();
 	}
-	fprintf( out, "    typedef %s(%s::*m%d_t%d)(%s);\n",
-		 (const char*)f->type,
-		 (const char*)className, num, list->at(),(const char*)typstr );
+	fprintf( out, "    typedef %s(%s::*m%d_t%d)(%s)%s;\n",
+		 (const char*)f->type, (const char*)className, num, list->at(),
+		 (const char*)typstr,  (const char*)f->qualifier );
 	f->type = f->name.copy();
 	f->type += "(";
 	f->type += typstr;
@@ -1250,7 +1250,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.15 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.16 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
