@@ -10,7 +10,7 @@
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses for Windows may use this file in accordance with the Qt Commercial
+** licenses for Macintosh may use this file in accordance with the Qt Commercial
 ** License Agreement provided with the Software.
 **
 ** This file is not available for use under any other license without
