@@ -352,7 +352,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>right_right.png</pixmap>
+                            <pixmap>small_right.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move right</string>
