@@ -339,8 +339,12 @@ LEXSOURCES = lexer.l
 \target LIBS
 \section3 LIBS
 
-This variable contains a list of libraries to be linked into the
-project.  
+This variable contains a list of libraries to be linked into the project.
+If you are more comfortable with the Unix convension of -L/-l flags you are
+free to use them in a cross-platform manner and qmake will do the correct
+thing with these libraries on Windows (namely this means passing the full
+path of the library to the linker). The only limitation to this is the
+library must exist, for qmake to find which directory a -l lib lives in.
 
 For example:
 
