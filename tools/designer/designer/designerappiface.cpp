@@ -173,6 +173,8 @@ QStringList DesignerProjectImpl::formNames() const
     for ( QPtrListIterator<FormFile> forms = project->formFiles();
 	  forms.current(); ++forms ) {
 	FormFile* f = forms.current();
+	if ( f->isFake() )
+	    continue;
 	l << f->formName();
     }
     return l;

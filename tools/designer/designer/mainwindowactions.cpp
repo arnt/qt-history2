@@ -877,6 +877,8 @@ void MainWindow::setupWindowActions()
 	QWidget *w = windows.at( i );
 	if ( !w->inherits( "FormWindow" ) && !w->inherits( "SourceEditor" ) )
 	    continue;
+	if ( w->inherits( "FormWindow" ) && ( ( (FormWindow*)w )->isFake() ) )
+	    continue;
 	j++;
 	QString itemText;
 	if ( j < 10 )
