@@ -335,13 +335,11 @@ void QTableView::paintEvent(QPaintEvent *e)
     QBrush base = option.palette.base();
     QRect area = e->rect();
 
+    QPainter painter(d->viewport);
     if (d->horizontalHeader->count() == 0 || d->verticalHeader->count() == 0) {
-        QPainter painter(d->viewport);
         painter.fillRect(area, base);
         return;
     }
-
-    QPainter painter(d->viewport);
 
     int colfirst = columnAt(area.left());
     int collast = columnAt(area.right() - 1);
@@ -350,8 +348,10 @@ void QTableView::paintEvent(QPaintEvent *e)
         colfirst = 0;
     if (collast == -1)
         collast = d->model->columnCount(root()) - 1;
-    if (collast < 0)
+    if (collast < 0) {
+        painter.fillRect(area, base);
         return;
+    }
     if (colfirst > collast) {
         int tmp = colfirst;
         colfirst = collast;
@@ -365,8 +365,10 @@ void QTableView::paintEvent(QPaintEvent *e)
         rowfirst = 0;
     if (rowlast == -1)
         rowlast = d->model->rowCount(root()) - 1;
-    if (rowlast < 0)
+    if (rowlast < 0) {
+        painter.fillRect(area, base);
         return;
+    }
     if (rowfirst > rowlast) {
         int tmp = rowfirst;
         rowfirst = rowlast;

@@ -709,7 +709,7 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
         if (it == joined.end())
             return false;
     }
-    return true;
+    return colCount > 0; // no columns means no selected items
 }
 
 /*!
@@ -762,8 +762,8 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
          }
          if (it == joined.end())
              return false;
-     }
-     return true;
+    }
+    return rowCount > 0; // no rows means no selected items
 }
 
 /*!
