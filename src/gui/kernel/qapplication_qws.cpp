@@ -3181,11 +3181,7 @@ bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event
         exposed |= extraExposed;
 #endif
 
-#ifdef QT_QWS_NO_BACKING_STORE
-        repaintHierarchy(exposed, false);
-#else
         d->bltToScreen(exposed);
-#endif
     }
     qws_regionRequest = false;
     return true;

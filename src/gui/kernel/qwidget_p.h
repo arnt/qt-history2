@@ -242,10 +242,8 @@ public:
 
     void doPaint(const QRegion &rgn);
 
-#ifndef QT_QWS_NO_BACKING_STORE
     void bltToScreen(const QRegion &rgn);
     void paintHierarchy();
-#endif
 #ifndef QT_NO_CURSOR
     void updateCursor(const QRegion &r) const;
 #endif

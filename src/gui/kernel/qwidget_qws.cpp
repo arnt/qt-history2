@@ -624,87 +624,6 @@ void QWidget::update(const QRect &r)
     }
 }
 
-#ifdef QT_QWS_NO_BACKING_STORE
-struct QWSDoubleBuffer
-{
-    enum {
-        MaxWidth = SHRT_MAX,
-        MaxHeight = SHRT_MAX
-    };
-
-    QPixmap *hd;
-    int depth;
-};
-
-static QWSDoubleBuffer *qt_global_double_buffer = 0;
-static bool qt_global_double_buffer_active = false;
-
-static void qt_discard_double_buffer(QWSDoubleBuffer **db)
-{
-    if (!*db)
-        return;
-
-    delete (*db)->hd;
-    delete *db;
-    *db = 0;
-}
-
-void qt_discard_double_buffer()
-{
-    qt_discard_double_buffer(&qt_global_double_buffer);
-}
-
-static QWSDoubleBuffer *qt_qws_create_double_buffer(int width, int height, int depth)
-{
-    QWSDoubleBuffer *db = new QWSDoubleBuffer;
-    db->depth = depth;
-    db->hd = new QPixmap(width, height, db->depth);
-    Q_ASSERT(db->hd);
-    return db;
-}
-
-static void qt_qws_get_double_buffer(QWSDoubleBuffer **db, int width, int height, int depth)
-{
-    // the db should consist of 128x128 chunks
-    width  = qMin(((width / 128) + 1) * 128, int(QWSDoubleBuffer::MaxWidth));
-    height = qMin(((height / 128) + 1) * 128, int(QWSDoubleBuffer::MaxHeight));
-
-    if (qt_global_double_buffer_active) {
-        *db = qt_qws_create_double_buffer(width, height, depth);
-        return;
-    }
-
-    qt_global_double_buffer_active = true;
-
-    if (qt_global_double_buffer) {
-        if (qt_global_double_buffer->hd->width() >= width
-            && qt_global_double_buffer->hd->height() >= height) {
-            *db = qt_global_double_buffer;
-            return;
-        }
-
-        width  = qMax(qt_global_double_buffer->hd->width(), width);
-        height = qMax(qt_global_double_buffer->hd->height(), height);
-
-        qt_discard_double_buffer(&qt_global_double_buffer);
-    }
-
-    qt_global_double_buffer = qt_qws_create_double_buffer(width, height, depth);
-    *db = qt_global_double_buffer;
-};
-
-static void qt_qws_release_double_buffer(QWSDoubleBuffer **db)
-{
-    if (*db != qt_global_double_buffer)
-        qt_discard_double_buffer(db);
-    else
-        qt_global_double_buffer_active = false;
-}
-
-#endif
-
-
-#ifndef QT_QWS_NO_BACKING_STORE
 void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
 {
     static QGfx *gfx = 0;
@@ -725,7 +644,30 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
 
     QPoint topLeft = win->pos();
 
+
+#if 0 //we should check to see that we're still allowed to paint to the screen
+    QRegion r(globalrgn);
+    int rgnIdx = d->managed->data->alloc_region_index;
+
+    if (rgnIdx >= 0) {
+        QRegion newRegion;
+        bool changed = false;
+        QWSDisplay::grab();
+        const int *rgnRev = qt_fbdpy->regionManager()->revision(rgnIdx);
+        if (d->managed->data->alloc_region_revision != *rgnRev) {
+             newRegion = qt_fbdpy->regionManager()->region(rgnIdx);
+             changed = true;
+        }
+        gfx->setGlobalRegionIndex(rgnIdx);
+        QWSDisplay::ungrab();
+        if (changed) {
+            r &= newRegion;
+        }
+    }
+    gfx->setWidgetDeviceRegion(r);
+#else
     gfx->setWidgetDeviceRegion(globalrgn);
+#endif
 
     gfx->setClipRegion(QRegion(), Qt::NoClip);
 
@@ -735,8 +677,6 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
 
     gfx->blt(topLeft.x(),topLeft.y(), buf->width(), buf->height(), 0, 0);
 }
-#endif
-
 
 void QWidgetPrivate::paintHierarchy()
 {
@@ -773,9 +713,6 @@ void QWidget::repaint(const QRegion& rgn)
 {
     if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
-#ifdef QT_QWS_NO_BACKING_STORE
-    d->doPaint(rgn);
-#else
     QRegion globalrgn = rgn;
     QPoint globalPos = mapToGlobal(QPoint(0,0));
     globalrgn.translate(globalPos);
@@ -787,7 +724,6 @@ void QWidget::repaint(const QRegion& rgn)
     d->doPaint(repaintRgn);
 
     d->bltToScreen(globalrgn);
-#endif
 
     if (testAttribute(Qt::WA_ContentsPropagated))
         d->updatePropagatedBackground(&rgn);
@@ -796,7 +732,7 @@ void QWidget::repaint(const QRegion& rgn)
 void QWidgetPrivate::doPaint(const QRegion &rgn)
 {
 
-    qDebug("doPaint %p child of %p", q, q->parentWidget());
+//    qDebug("doPaint %p child of %p", q, q->parentWidget());
 
 
     if (q->testAttribute(Qt::WA_WState_InPaintEvent))
@@ -806,88 +742,29 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
     QRect br = rgn.boundingRect();
     bool do_clipping = (br != QRect(0, 0, data.crect.width(), data.crect.height()));
-#ifdef QT_QWS_NO_BACKING_STORE
-    bool double_buffer = !qt_override_paint_on_screen &&
-                         (!testAttribute(Qt::WA_PaintOnScreen)
-                          && !testAttribute(Qt::WA_NoSystemBackground)
-                          && br.width()  <= QWSDoubleBuffer::MaxWidth
-                          && br.height() <= QWSDoubleBuffer::MaxHeight
-                          && !QPainter::redirected(this));
-
-    QPoint redirectionOffset;
-    QWSDoubleBuffer *qDoubleBuffer = 0;
-    if (double_buffer) {
-        qt_qws_get_double_buffer(&qDoubleBuffer, br.width(), br.height(), QPixmap::defaultDepth());
-        redirectionOffset = br.topLeft();
-        QPainter::setRedirected(this, qDoubleBuffer->hd, redirectionOffset);
-    }
-#else
     QWidget *tlw = q->window();
     QTLWExtra *topextra = tlw->d->extra->topextra;
     QPoint redirectionOffset = topextra->backingStoreOffset + q->mapFrom(tlw,QPoint(0,0));
     QPainter::setRedirected(q, &topextra->backingStore, redirectionOffset);
-#endif
 
     QPainter p; // We'll use it several times
-#ifdef QT_QWS_NO_BACKING_STORE
-    // Set clipping
-    if (do_clipping) {
-        if (redirectionOffset.isNull()) {
-            paintEngine()->setSystemClip(rgn);
-        } else {
-            QRegion redirectionRegion(rgn);
-            redirectionRegion.translate(-redirectionOffset);
-            paintEngine()->setSystemClip(redirectionRegion);
-        }
-    }
-#else
-    //###### clipping
+
+    //###### clipping does not seem to work
     QRegion clipRegion(rgn);
     clipRegion.translate(-redirectionOffset);
     topextra->backingStore.paintEngine()->setSystemClip(clipRegion);
 
-#endif
     if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground))
         composeBackground(br);
 
     // Send paint event to self
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(q, &e);
-#ifdef QT_QWS_NO_BACKING_STORE
+
     // Clear the clipping again
-    if (do_clipping)
-        paintEngine()->setSystemClip(QRegion());
-#else
     topextra->backingStore.paintEngine()->setSystemClip(QRegion());
-#endif
 
-#ifndef QT_QWS_NO_BACKING_STORE
     QPainter::restoreRedirected(q);
-#else
-    // Flush double buffer, if used
-    if (double_buffer) {
-        QPainter::restoreRedirected(this);
-
-        p.begin(this);
-        QVector<QRect> rects = rgn.rects();
-        for (int i = 0; i < rects.size(); ++i) {
-            QRect rr = rects.at(i);
-            p.drawPixmap(rr.topLeft(), *(qDoubleBuffer->hd),
-                         QRect(rr.topLeft() - redirectionOffset, rr.size()));
-        }
-        p.end();
-
-        qt_qws_release_double_buffer(&qDoubleBuffer);
-
-        // Delete double buffer if not used within timeout
-        if (!QApplicationPrivate::active_window) {
-            extern int qt_double_buffer_timer;
-            if (qt_double_buffer_timer)
-                qApp->killTimer(qt_double_buffer_timer);
-            qt_double_buffer_timer = qApp->startTimer(500);
-        }
-    }
-#endif
 
     // Clean out the temporary engine if used...
     if (extraPaintEngine) {
@@ -905,7 +782,6 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 void QWidgetPrivate::requestWindowRegion(const QRegion &r)
 {
     q->qwsDisplay()->requestRegion(data.winid, r);
-#ifndef QT_QWS_NO_BACKING_STORE
     Q_ASSERT(extra && extra->topextra);
     QRect br = r.boundingRect();
     if (extra->topextra->backingStore.size() != br.size()) {
@@ -917,7 +793,6 @@ void QWidgetPrivate::requestWindowRegion(const QRegion &r)
     }
     extra->topextra->backingStoreOffset = br.topLeft() - q->geometry().topLeft();
     paintHierarchy();
-#endif
 }
 
 void QWidgetPrivate::show_sys()

@@ -389,7 +389,6 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
         qWarning("QWSManager::paintEvent() recursive paint event detected");
     d->managed->setAttribute(Qt::WA_WState_InPaintEvent);
 
-#ifndef QT_QWS_NO_BACKING_STORE
     QTLWExtra *topextra = d->managed->d->extra->topextra;
     QPixmap *buf = &topextra->backingStore;
     if (buf->isNull()) {
@@ -400,43 +399,12 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     QPainter painter;
     painter.begin(buf);
     painter.setClipRegion(dec.region(d->managed, d->managed->rect().translated(-topextra->backingStoreOffset )));
-    //  painter.setClipRegion(QRect(QPoint(0,0),d->managed->frameSize()));//###
-
     painter.translate(-topextra->backingStoreOffset);
 
     result = dec.paint(&painter, d->managed, decorationRegion, state);
     painter.end();
 
     d->managed->d->bltToScreen(dec.region(d->managed, d->managed->geometry()) );
-#else
-    QPainter painter(d->managed);
-
-    // Adjust our widget region to contain the window
-    // manager decoration instead of the widget itself.
-    QRegion r = d->managed->d->topData()->decor_allocated_region;
-    int rgnIdx = d->managed->data->alloc_region_index;
-
-    QWSPaintEngine *pe = static_cast<QWSPaintEngine *>(painter.d->engine);
-    if (rgnIdx >= 0) {
-        QRegion newRegion;
-        bool changed = false;
-        QWSDisplay::grab();
-        const int *rgnRev = qt_fbdpy->regionManager()->revision(rgnIdx);
-        if (d->managed->data->alloc_region_revision != *rgnRev) {
-             newRegion = qt_fbdpy->regionManager()->region(rgnIdx);
-             changed = true;
-        }
-        pe->setGlobalRegionIndex(rgnIdx);
-        QWSDisplay::ungrab();
-        if (changed) {
-            r &= newRegion;
-        }
-    }
-    pe->setWidgetDeviceRegion(r);
-
-    painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
-    result = dec.paint(&painter, d->managed, decorationRegion, state);
-#endif
     d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
     return result;
 }
