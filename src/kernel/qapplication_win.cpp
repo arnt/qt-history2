@@ -524,6 +524,7 @@ static void qt_set_windows_resources()
     QFont menuFont;
     QFont messageFont;
     QFont statusFont;
+    QFont titleFont;
 
 #ifndef Q_OS_TEMP
 #if defined(UNICODE)
@@ -536,6 +537,7 @@ static void qt_set_windows_resources()
 	menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,TRUE);
 	messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,TRUE);
+	titleFont = qt_LOGFONTtoQFont(ncm.lfCaptionFont,TRUE);
     } else
 #endif
     {
@@ -547,14 +549,16 @@ static void qt_set_windows_resources()
 	menuFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMenuFont,TRUE);
 	messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,TRUE);
+	titleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfCaptionFont,TRUE);
     }
 #endif
 
-    QApplication::setFont( menuFont, TRUE, "QPopupMenu");
-    QApplication::setFont( menuFont, TRUE, "QMenuBar");
-    QApplication::setFont( messageFont, TRUE, "QMessageBox");
-    QApplication::setFont( statusFont, TRUE, "QTipLabel");
-    QApplication::setFont( statusFont, TRUE, "QStatusBar");
+    QApplication::setFont( menuFont, TRUE, "QPopupMenu" );
+    QApplication::setFont( menuFont, TRUE, "QMenuBar" );
+    QApplication::setFont( messageFont, TRUE, "QMessageBox" );
+    QApplication::setFont( statusFont, TRUE, "QTipLabel" );
+    QApplication::setFont( statusFont, TRUE, "QStatusBar" );
+    QApplication::setFont( titleFont, TRUE, "QTitleBar" );
 
     if ( qt_std_pal && *qt_std_pal != QApplication::palette() )
 	return;
