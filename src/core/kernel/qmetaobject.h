@@ -41,6 +41,7 @@ private:
     uint handle;
     friend struct QMetaObject;
 };
+Q_DECLARE_TYPEINFO(QMetaMember, Q_MOVABLE_TYPE);
 
 class Q_CORE_EXPORT QMetaEnum
 {
@@ -68,6 +69,7 @@ private:
     uint handle;
     friend struct QMetaObject;
 };
+Q_DECLARE_TYPEINFO(QMetaEnum, Q_MOVABLE_TYPE);
 
 class Q_CORE_EXPORT QMetaProperty
 {
@@ -114,5 +116,6 @@ private:
     uint handle;
     friend struct QMetaObject;
 };
+Q_DECLARE_TYPEINFO(QMetaMember, Q_MOVABLE_TYPE);
 
 #endif // QMETAOBJECT_H

@@ -69,6 +69,7 @@ private:
                Tag_Hash, Tag_SourceText, Tag_Context, Tag_Comment,
                Tag_Obsolete1 };
 };
+Q_DECLARE_TYPEINFO(QTranslatorMessage, Q_MOVABLE_TYPE);
 
 
 class Q_CORE_EXPORT QTranslator : public QObject

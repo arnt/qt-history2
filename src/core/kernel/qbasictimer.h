@@ -31,6 +31,6 @@ public:
     void start(int msec, QObject *obj);
     void stop();
 };
-
+Q_DECLARE_TYPEINFO(QBasicTimer, Q_MOVABLE_TYPE);
 
 #endif // QBASICTIMER_H

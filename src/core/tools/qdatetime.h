@@ -94,6 +94,7 @@ private:
     friend Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QDate &);
 #endif
 };
+Q_DECLARE_TYPEINFO(QDate, Q_MOVABLE_TYPE);
 
 class Q_CORE_EXPORT QTime
 {
@@ -152,6 +153,7 @@ private:
     friend Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QTime &);
 #endif
 };
+Q_DECLARE_TYPEINFO(QTime, Q_MOVABLE_TYPE);
 
 class QDateTimePrivate;
 
@@ -227,6 +229,7 @@ private:
     friend Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QDateTime &);
 #endif
 };
+Q_DECLARE_TYPEINFO(QDateTime, Q_MOVABLE_TYPE);
 
 #ifdef QT_COMPAT
 inline QDate QDate::currentDate(Qt::TimeSpec spec)

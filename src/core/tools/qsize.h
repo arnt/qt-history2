@@ -63,7 +63,7 @@ private:
     QCOORD wd;
     QCOORD ht;
 };
-
+Q_DECLARE_TYPEINFO(QSize, Q_MOVABLE_TYPE);
 
 /*****************************************************************************
   QSize stream functions
@@ -240,6 +240,7 @@ private:
     float wd;
     float ht;
 };
+Q_DECLARE_TYPEINFO(QSizeF, Q_MOVABLE_TYPE);
 
 
 /*****************************************************************************

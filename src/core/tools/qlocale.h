@@ -466,5 +466,6 @@ private:
     const QLocalePrivate *d;
     static const QLocalePrivate *default_d;
 };
+Q_DECLARE_TYPEINFO(QLocale, Q_MOVABLE_TYPE);
 
 #endif

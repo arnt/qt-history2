@@ -133,6 +133,8 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QFileInfo)
 };
+Q_DECLARE_TYPEINFO(QFileInfo, Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QFileInfo);
 
 #ifdef QT_COMPAT
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFileInfo::PermissionSpec)

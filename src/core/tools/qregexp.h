@@ -97,5 +97,6 @@ public:
 private:
     QRegExpPrivate *priv;
 };
+Q_DECLARE_TYPEINFO(QRegExp, Q_MOVABLE_TYPE);
 
 #endif // QREGEXP_H
