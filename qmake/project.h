@@ -60,15 +60,9 @@ protected:
 
 inline QString QMakeProject::projectFile()
 {
-#if defined(Q_CC_SUN) && (__SUNPRO_CC == 0x500) || defined(Q_CC_HP)
-    // workaround for Sun WorkShop 5.0 bug fixed in Forte 6
     if (pfile == "-")
 	return QString("(stdin)");
-    else
-	return pfile;
-#else
-    return pfile == "-" ? QString("(stdin)") : pfile;
-#endif
+    return pfile;
 }
 
 inline QString QMakeProject::configFile()
@@ -82,15 +76,9 @@ inline QStringList &QMakeProject::values(const QString &v)
 
 inline QString QMakeProject::first(const QString &v)
 {
-#if defined(Q_CC_SUN) && (__SUNPRO_CC == 0x500) || defined(Q_CC_HP)
-    // workaround for Sun WorkShop 5.0 bug fixed in Forte 6
-    if (isEmpty(v))
-	return QString("");
-    else
-	return vars[v].first();
-#else
-    return isEmpty(v) ? QString("") : vars[v].first();
-#endif
+    if (isEmpty(v)) 
+        return QString("");
+    return vars[v].first();
 }
 
 inline QMap<QString, QStringList> &QMakeProject::variables()

@@ -689,8 +689,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
     }
 
-    QString ddir = project->isEmpty("QMAKE_DISTDIR") ? project->first("QMAKE_ORIG_TARGET") :
-		   project->first("QMAKE_DISTDIR");
+    QString ddir;
+    if (project->isEmpty("QMAKE_DISTDIR"))
+	ddir = project->first("QMAKE_ORIG_TARGET");
+    else
+	ddir = project->first("QMAKE_DISTDIR");
+
     QString ddir_c = fileFixify((project->isEmpty("OBJECTS_DIR") ? QString(".tmp/") :
 				 project->first("OBJECTS_DIR")) + ddir);
     t << "dist: " << "\n\t"
