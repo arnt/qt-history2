@@ -1718,12 +1718,12 @@ QRegion QWidget::paintableRegion() const
 
 void QWidget::setMask(const QRegion& region)
 {
-    data->alloc_region_dirty = true;
-
     d->createExtra();
 
-    if (region.isEmpty() && d->extra->mask.isEmpty())
+    if (region == d->extra->mask)
         return;
+
+    data->alloc_region_dirty = true;
 
     d->extra->mask = region;
 
