@@ -1426,10 +1426,12 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
     QString pth = d->model->path(index);
-    if (!lookIn->contains(pth)) {
-        int insertRow = lookIn->count();
-        lookIn->insertItem(pth, insertRow);
-        lookIn->setCurrentItem(insertRow);
+    int i = lookIn->findItem(pth, QAbstractItemModel::Match_Exactly);
+    if (i > -1) {
+        lookIn->setCurrentItem(i);
+    } else {
+        lookIn->insertItem(pth);
+        lookIn->setCurrentItem(lookIn->count() - 1);
     }
 }
 

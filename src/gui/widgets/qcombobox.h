@@ -54,7 +54,9 @@ public:
 
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);
-    virtual bool contains(const QString &text);
+    
+    virtual bool contains(const QString &text) const;
+    virtual int findItem(const QString &text, QAbstractItemModel::MatchFlag flags) const;
 
     InsertionPolicy insertionPolicy() const;
     void setInsertionPolicy(InsertionPolicy policy);

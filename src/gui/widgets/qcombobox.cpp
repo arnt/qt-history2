@@ -431,11 +431,25 @@ void QComboBox::setDuplicatesEnabled(bool enable)
 /*!
   Returns true if any item in the combobox model matches \a text.
 */
-bool QComboBox::contains(const QString &text) {
+bool QComboBox::contains(const QString &text) const
+{
     return model()->match(model()->index(0, 0, root()),
                           QAbstractItemModel::Role_Edit, text, 1,
                           QAbstractItemModel::Match_Exactly
                           |QAbstractItemModel::Match_Case).count() > 0;
+}
+
+/*!
+  Returns the index of the item if it is found; otherwise -1;
+*/
+int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlag flags) const
+{
+    QModelIndexList result;
+    QModelIndex start = model()->index(0, 0, root());
+    result = model()->match(start, QAbstractItemModel::Role_Edit, text, 1, flags);
+    if (result.isEmpty())
+        return -1;
+    return result.first().row();
 }
 
 QComboBox::InsertionPolicy QComboBox::insertionPolicy() const
