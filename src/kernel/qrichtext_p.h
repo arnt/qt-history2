@@ -1543,7 +1543,10 @@ private:
     int stdSize;
     static QPainter *pntr;
     static QFontMetrics *pntr_fm;
-    static int pntr_asc, pntr_hei, pntr_ldg, pntr_dsc;
+    static int pntr_asc;
+    static int pntr_hei;
+    static int pntr_ldg;
+    static int pntr_dsc;
 
 };
 
