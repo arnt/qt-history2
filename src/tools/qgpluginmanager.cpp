@@ -451,8 +451,9 @@ bool QGPluginManager::enabled() const
 {
 #ifdef QT_SHARED
     return TRUE;
-#endif
+#else
     return FALSE;
+#endif
 }
 
 #endif //QT_NO_COMPONENT
