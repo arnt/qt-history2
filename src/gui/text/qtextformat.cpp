@@ -388,12 +388,14 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
             stream >> l;
             prop.type = QTextFormat::Undefined;
             prop = QTextFormatProperty(l);
+            break;
         }
         case QTextFormat::LengthVector: {
             QVector<QTextLength> v;
             stream >> v;
             prop.type = QTextFormat::Undefined;
             prop = QTextFormatProperty(v);
+            break;
         }
         default: Q_ASSERT(false); break;
     }
