@@ -1455,6 +1455,10 @@ void QTextEdit::removeSelectedText( int selNum )
 	    }
 	}
     } else {
+	cursor->setDocument( doc );
+	cursor->setParag( doc->firstParag() );
+	cursor->setIndex( 0 );
+	drawCursor( TRUE );
 	viewport()->repaint( TRUE );
     }
     setModified();
@@ -2083,9 +2087,9 @@ void QTextEdit::handleMouseMove( const QPoint& pos )
 
     drawCursor( FALSE );
     QTextCursor oldCursor = *cursor;
-    
+
     placeCursor( pos );
-    
+
     if ( inDoubleClick ) {
 	QTextCursor cl = *cursor;
 	cl.gotoPreviousWord();
