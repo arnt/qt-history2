@@ -1145,7 +1145,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    }
 	    p->restore();
 	}
-	if(sub & (SC_TitleBarCloseButton | SC_TitleBarMaxButton | SC_TitleBarMinButton)) {
+	if(sub & (SC_TitleBarCloseButton | SC_TitleBarMaxButton | SC_TitleBarMinButton | SC_TitleBarNormalButton)) {
 	    ThemeDrawState wtds = tds;
 	    if(flags & Style_MouseOver)
 		wtds = kThemeStateRollover;
@@ -1156,6 +1156,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		{ SC_TitleBarCloseButton, kThemeWidgetCloseBox },
 		{ SC_TitleBarMaxButton, kThemeWidgetZoomBox },
 		{ SC_TitleBarMinButton, kThemeWidgetCollapseBox },
+		{ SC_TitleBarNormalButton, kThemeWidgetCollapseBox },
 		{ (SubControl)0, 0 } };
 	    ThemeWindowMetrics tm;
 	    tm.metricSize = sizeof(tm);
