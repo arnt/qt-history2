@@ -136,7 +136,7 @@ static PtrSHGetPathFromIDListW ptrSHGetPathFromIDListW = 0;
 static void resolveLibs()
 {
     static bool triedResolve = FALSE;
-    
+
     if ( !triedResolve ) {
 	triedResolve = TRUE;
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
@@ -163,10 +163,10 @@ WinShell::WinShell()
     if( ptrSHGetPathFromIDListW && int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	ushort buffer[MAX_PATH];
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
-	    if( ptrSHGetPathFromIDListW( item, buffer ) ) {
+	    if( ptrSHGetPathFromIDListW( item, (wchar_t*) buffer ) ) {
 		localProgramsFolderName = QString::fromUcs2( buffer );
 		if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
-		    if( ptrSHGetPathFromIDListW( item, buffer ) )
+		    if( ptrSHGetPathFromIDListW( item, (wchar_t*) buffer ) )
 			commonProgramsFolderName = QString::fromUcs2( buffer );
 		    else
 			qDebug( "Could not get name of common programs folder" );
@@ -174,7 +174,7 @@ WinShell::WinShell()
 		else
 		    qDebug( "Could not get common programs folder location" );
 
-		if( GetWindowsDirectoryW( buffer, MAX_PATH ) )
+		if( GetWindowsDirectoryW( (wchar_t*) buffer, MAX_PATH ) )
 		    windowsFolderName = QString::fromUcs2( buffer );
 		else
 		    qDebug( "Could not get Windows directory" );
@@ -262,7 +262,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName
         IShellLinkW* link;
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
-		link->SetPath( target.ucs2() );
+		link->SetPath( (const wchar_t*) target.ucs2() );
 		QString _wrkDir = wrkDir;
 		if( !_wrkDir.length() ) {
 		    _wrkDir = QDir::convertSeparators( target );
@@ -274,13 +274,13 @@ HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName
 			_wrkDir = "";
 		}
 
-		link->SetWorkingDirectory( _wrkDir.ucs2() );
+		link->SetWorkingDirectory( (const wchar_t*) _wrkDir.ucs2() );
 		if( description.length() )
-		    link->SetDescription( description.ucs2() );
+		    link->SetDescription( (const wchar_t*) description.ucs2() );
 		if( arguments.length() )
-		    link->SetArguments( arguments.ucs2() );
+		    link->SetArguments( (const wchar_t*)  arguments.ucs2() );
 
-		hr = linkFile->Save( QString( folderName + QString( "\\" ) + shortcutName ).ucs2(), false );
+		hr = linkFile->Save( (const wchar_t*)  QString( folderName + QString( "\\" ) + shortcutName ).ucs2(), false );
 
 		linkFile->Release();
 	    }
@@ -312,7 +312,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName
 		if( arguments.length() )
 		    link->SetArguments( arguments.local8Bit() );
 
-		hr = linkFile->Save( QString( folderName + QString( "\\" ) + shortcutName ).ucs2(), false );
+		hr = linkFile->Save( (const wchar_t*)  QString( folderName + QString( "\\" ) + shortcutName ).ucs2(), false );
 
 		linkFile->Release();
 	    }

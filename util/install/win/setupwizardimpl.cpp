@@ -493,7 +493,7 @@ static bool copyFile( const QString& src, const QString& dest )
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	bool res;
 	TCHAR *tsrc = (TCHAR*)qt_winTchar_new( src );
-	res = CopyFileW( tsrc, dest.ucs2(), false );
+	res = CopyFileW( tsrc, (const wchar_t *) dest.ucs2(), false );
 	delete tsrc;
 	return res;
     } else {
@@ -1340,7 +1340,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     if ( currentPage() == configPage
 	 && newPage == progressPage
 	 && !verifyConfig() ) {
-	QMessageBox::warning( this, "Invalid Configuration", 
+	QMessageBox::warning( this, "Invalid Configuration",
 			      "One or more of your selected options do not fullfill given\n"
 			      "prerequisites. These options are marked with \"<--\"." );
 	return;
@@ -1416,7 +1416,7 @@ void SetupWizardImpl::showPageOptions()
 #  if defined(Q_OS_WIN32)
     // No need to offer the option of skipping the build on 9x, it's skipped anyway
     if ( qWinVersion() & WV_DOS_based )
-	optionsPage->skipBuild->setEnabled( FALSE ); 
+	optionsPage->skipBuild->setEnabled( FALSE );
 #  endif
 #endif
 }

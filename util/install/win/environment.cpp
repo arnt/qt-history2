@@ -38,9 +38,9 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 	    QString value;
 
 	    if( RegOpenKeyExW( hkKey, L"Environment", 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
-		RegQueryValueExW( env, varName.ucs2(), 0, NULL, NULL, &size );
+		RegQueryValueExW( env, (const wchar_t*) varName.ucs2(), 0, NULL, NULL, &size );
 		buffer.resize( size );
-		RegQueryValueExW( env, varName.ucs2(), 0, NULL, (unsigned char*)buffer.data(), &size );
+		RegQueryValueExW( env, (const wchar_t*) varName.ucs2(), 0, NULL, (unsigned char*)buffer.data(), &size );
 		for( int i = 0; i < ( int )buffer.size(); i += 2 ) {
 		    QChar c( buffer[ i ], buffer[ i + 1 ] );
 		    if( !c.isNull() )
@@ -126,7 +126,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	    buffer[ (2*i)+1 ] = 0;
 
 	    if( RegOpenKeyExW( hkKey, L"Environment", 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
-		RegSetValueExW( env, varName.ucs2(), 0, REG_EXPAND_SZ, (const unsigned char*)buffer.data(), buffer.size() );
+		RegSetValueExW( env, (const wchar_t*) varName.ucs2(), 0, REG_EXPAND_SZ, (const unsigned char*)buffer.data(), buffer.size() );
 		RegCloseKey( env );
 	    }
 	}
@@ -144,7 +144,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
     if( envBlock & LocalEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
-	    SetEnvironmentVariableW( varNameT, varValue.ucs2() );
+	    SetEnvironmentVariableW( varNameT, (const wchar_t*) varValue.ucs2() );
 	    delete varNameT;
 	} else {
 	    SetEnvironmentVariableA( varName.local8Bit(), varValue.local8Bit() );
@@ -169,7 +169,7 @@ void QEnvironment::removeEnv( QString varName, int envBlock )
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    HKEY env;
 	    if( RegOpenKeyExW( hkKey, L"Environment", 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
-		RegDeleteValue( env, varName.ucs2() );
+		RegDeleteValue( env, (const wchar_t*) varName.ucs2() );
 		RegCloseKey( env );
 	    }
 	}
@@ -204,7 +204,7 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
     QByteArray buffer;
 
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	if( RegCreateKeyExW( HKEY_LOCAL_MACHINE, QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + displayName ).ucs2(), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
+	if( RegCreateKeyExW( HKEY_LOCAL_MACHINE, (const wchar_t*) QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + displayName ).ucs2(), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
 	    const QChar* data;
 	    int i;
 
@@ -216,8 +216,8 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
 	    }
 	    buffer[ (2*i) ] = 0;
 	    buffer[ (2*i)+1 ] = 0;
-	    RegSetValueExW( key, QString("DisplayName").ucs2(), 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
-	    
+	    RegSetValueExW( key, (const wchar_t*) QString("DisplayName").ucs2(), 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
+
 	    buffer.resize( cmdString.length() * 2 + 2 );
 	    data = cmdString.unicode();
 	    for ( i = 0; i < (int)cmdString.length(); ++i ) {
@@ -227,7 +227,7 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
 	    buffer[ (2*i) ] = 0;
 	    buffer[ (2*i)+1 ] = 0;
 	    RegSetValueExW( key, L"UninstallString", 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
-	    
+
 	    RegCloseKey( key );
 	    return true;
 	}
@@ -253,10 +253,10 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
 bool QEnvironment::removeUninstall( QString displayName )
 {
     HKEY key;
-    
+
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	if( RegOpenKeyExW( HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
-	    RegDeleteKeyW( key, displayName.ucs2() );
+	    RegDeleteKeyW( key, (const wchar_t*) displayName.ucs2() );
 	return true;
     }
     else {
@@ -278,10 +278,10 @@ QString QEnvironment::getRegistryString( QString keyName, QString valueName, int
     QByteArray buffer, expBuffer;
 
     if( int( qWinVersion() ) & int(Qt::WV_NT_based) ) {
-	if( RegOpenKeyExW( scopeKeys[ scope ], keyName.ucs2(), 0, KEY_READ, &key ) == ERROR_SUCCESS ) {
-	    if( RegQueryValueExW( key, valueName.ucs2(), NULL, NULL, NULL, &valueSize ) == ERROR_SUCCESS ) {
+	if( RegOpenKeyExW( scopeKeys[ scope ], (const wchar_t*) keyName.ucs2(), 0, KEY_READ, &key ) == ERROR_SUCCESS ) {
+	    if( RegQueryValueExW( key, (const wchar_t*) valueName.ucs2(), NULL, NULL, NULL, &valueSize ) == ERROR_SUCCESS ) {
 		buffer.resize( valueSize );
-		if( RegQueryValueExW( key, valueName.ucs2(), NULL, NULL, (unsigned char*)buffer.data(), &valueSize ) == ERROR_SUCCESS ) {
+		if( RegQueryValueExW( key, (const wchar_t*) valueName.ucs2(), NULL, NULL, (unsigned char*)buffer.data(), &valueSize ) == ERROR_SUCCESS ) {
 		    valueSize = ExpandEnvironmentStringsW( (WCHAR*)buffer.data(), NULL, 0 );
 		    expBuffer.resize( valueSize * 2 );
 		    ExpandEnvironmentStringsW( (WCHAR*)buffer.data(), (WCHAR*)expBuffer.data(), valueSize );
@@ -311,7 +311,7 @@ QString QEnvironment::getRegistryString( QString keyName, QString valueName, int
     }
     return value;
 }
-#endif    
+#endif
 
 QString QEnvironment::getTempPath()
 {
@@ -352,7 +352,7 @@ QString QEnvironment::getFSFileName( const QString& fileName )
 #if defined(Q_OS_WIN32)
     QByteArray buffer( MAX_PATH );
     QString tmp( fileName );
-    
+
     GetVolumeInformationA( fileName.left( fileName.find( '\\' ) + 1 ).local8Bit(), NULL, NULL, NULL, NULL, NULL, buffer.data(), buffer.size() );
     if( QString( buffer.data() ) != "NTFS" ) {
 	DWORD dw;
