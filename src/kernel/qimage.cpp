@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#16 $
 **
 ** Implementation of QImage class
 **
@@ -20,9 +20,25 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#16 $";
 #endif
 
+/*!
+\class QImage qimage.h
+
+\brief This class reads and writes, but doesn't draw, pixmap images
+(e.g. GIF and  PBM files).
+
+QImage is where we've collected graphics format knowledge.  This class
+can (ok, will be able to) recognize and read several graphics formats,
+and write each of them.
+
+At present it handles Qt's internal format (which, personally, I don't
+even understand why we've defined), Microsoft's BMP format, various
+PBM, PGM and PNM formats, and XBM.  XPM, JPEG and PNG are next in
+line.  We're not sure whether we want to support GIF, legal brouhaha
+isn't our style, <a href=mailto:all@troll.no>comments are welcome</a>.
+*/
 
 static void read_qt_image( QImageIO * );	// standard image io handlers
 static void write_qt_image( QImageIO * );	//   (defined below)
@@ -130,6 +146,35 @@ static QImageHandler *get_image_handler( const char *format )
     }
     return 0;					// no such handler
 }
+
+/*!
+Defines a new image format IO handler.  The handler must be able to
+recognize its image format, read it, and write it: No half-supported
+hackery is allowed.
+
+\arg \e format is the name of the format
+\arg \e header is a regexp that matches images of this format
+\arg \e flags is "T" for text formats like PBM; generally you will
+want to use NULL.
+\arg \e read_image is a function to read an image of this format
+\arg \e write_image is a function to write an image of this format
+
+Both read_image and write_image are of type image_io_handler, which is
+defined as
+\code
+typedef void (*image_io_handler)( QImageIO * );
+\\endcode
+That is, image_io_handler returns nothing and takes a <code>QImageIO
+*</code> as its only argument.
+
+\todo explain about QImageIO
+
+This is how GIF could be supported:
+\code
+QImage::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", 0,
+                         read_gif_image, write_gif_image );
+\endcode
+*/
 
 void QImage::defineIOHandler( const char *format,
 			      const char *header,
@@ -483,8 +528,12 @@ static bool convert_1_to_8( const QImageData *src, QImageData *dst )
 
 //
 // dither_image:  Uses the Floyd-Steinberg error diffusion algorithm.
-// Floyd-Steinberg dithering is a one-pass algorithm that spreads errors
-// to neighbor pixels.
+// Floyd-Steinberg dithering is a one-pass algorithm that moves errors
+// rightwards.
+//
+// It happens to be the first dithering algorithm in most textbooks
+//
+// It loses badly and should be replaces ASAP
 //
 
 static bool dither_image( const QImageData *src, QImageData *dst )
@@ -801,6 +850,11 @@ bool QImageIO::write()
 // QImage member functions
 //
 
+/*!
+The default constructor does nothing except remember that the object
+isn't a valid image.
+*/
+
 QImage::QImage()
 {
     data = new QImagePix;
@@ -808,6 +862,12 @@ QImage::QImage()
     data->pm = 0;
 }
 
+/*!
+Initializes the object as an image of size \e w by \h
+<em>depth</em>-bit pixels.
+
+\todo Random pixels or zero pixels?  pallette?
+*/
 QImage::QImage( int w, int h, int depth )
 {
     data = new QImagePix;
@@ -815,12 +875,20 @@ QImage::QImage( int w, int h, int depth )
     data->pm = new QPixMap( w, h, depth );
 }
 
+/*!
+Initializes the object as containing \e pixmap.  (Not a deep copy.)
+*/
 QImage::QImage( QPixMap *pixmap )
 {
     data = new QImagePix;
     CHECK_PTR( data );
     data->pm = pixmap;
 }
+
+/*!
+Initializes the object as containing \e pixmap.  This one \e is a deep
+copy.
+*/
 
 QImage::QImage( const QPixMap &pixmap )
 {
@@ -832,12 +900,20 @@ QImage::QImage( const QPixMap &pixmap )
     bitBlt( data->pm, 0, 0, &pixmap, 0, 0, w, h );
 }
 
+/*!
+I have no idea of what this constructor does, but it's going to be
+documented before it goes public.
+*/
 QImage::QImage( const QImage &image )
 {
     data = image.data;
     data->ref();
 }
 
+/*!
+I have no idea of what this constructor does, but it's going to be
+documented before it goes public.
+*/
 QImage::QImage( const QImageData *image )
 {
     data = new QImagePix;
@@ -846,6 +922,10 @@ QImage::QImage( const QImageData *image )
     setImageData( image );
 }
 
+/*!
+Huh?
+*/
+
 QImage::~QImage()
 {
     if ( data->deref() ) {
@@ -853,6 +933,13 @@ QImage::~QImage()
 	delete data;
     }
 }
+
+/*!
+Deletes the old contents of the object, if appropriate, and does a
+shallow copy of \e pixmap.
+
+\todo shallow? deep?
+*/
 
 QImage &QImage::operator=( const QPixMap &pixmap )
 {
@@ -866,6 +953,13 @@ QImage &QImage::operator=( const QPixMap &pixmap )
     return *this;
 }
 
+/*!
+Deletes the old contents of the object, if appropriate, and does a
+shallow copy of \e pixmap.
+
+\todo shallow? deep?
+*/
+
 QImage &QImage::operator=( const QImage &image )
 {
     image.data->ref();
@@ -878,17 +972,35 @@ QImage &QImage::operator=( const QImage &image )
 }
 
 
+/*!
+Returns FALSE.  Unless, of course, it is called for an object of class
+QBitMAP, which reimplements this class.
+
+Of course it is very inefficient to have go through a jump table,
+stack frame creation, function prolog and epilog, all just to
+<code>return FALSE</code>.  It really is a pity that one can't declare
+<code>virtual inline</code> functions.
+*/
 bool QImage::isBitMap() const			// reimplemented in QBitMap
 {
     return FALSE;
 }
 
 
+/*!
+Returns FALSE if the images are different and TRUE if they're the
+same.
+*/
+
 bool QImage::operator==( const QImage &image ) const
 {
     return data == image.data;
 }
 
+
+/*!
+Returns a deep copy of the image.
+*/
 
 QImage QImage::copy() const
 {
@@ -902,38 +1014,65 @@ QImage QImage::copy() const
     }
 }
 
-
+/*!
+Returns the width of the image.  If the object isn't a valid image
+(for instance because it was created using the default constructor and
+never set to anything sane) width() returns 0.
+*/
 int QImage::width() const
 {
     return data->pm ? data->pm->width() : 0;
 }
 
+/*!
+Returns the height of the image.  If the object isn't a valid image
+(for instance because it was created using the default constructor and
+never set to anything sane) height() returns 0.
+*/
 int QImage::height() const
 {
     return data->pm ? data->pm->height() : 0;
 }
+
+/*!
+Returns the size of the image, or (0,0) in case the image isn't valid.
+*/
 
 QSize QImage::size() const
 {
     return data->pm ? data->pm->size() : QSize(0,0);
 }
 
+/*!
+Returns the enclosing rectangle of the image, or (0,0, 0,0) in case the
+image isn't valid.
+*/
+
 QRect QImage::rect() const
 {
     return data->pm ? data->pm->rect() : QRect(0,0,0,0);
 }
 
+/*!
+Returns the image's depth; 8 for a 256-color image, 1 for a monochroe
+image, and so on.  If the image isn't valid (see width()) 0 is
+returned.
+*/
 
 int QImage::depth() const
 {
     return data->pm ? data->pm->depth() : 0;
 }
 
+/*!
+Returns the number of colors the image may have.  If an image is
+created as 8-bit but only 147 colors are actually in use, numColoors()
+returns 256.
+*/
 int QImage::numColors() const
 {
     return data->pm ? (1 << data->pm->depth()) : 0;
 }
-
 
 QImage::operator QPixMap &() const
 {
