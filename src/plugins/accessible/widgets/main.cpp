@@ -5,6 +5,7 @@
 #include "complexwidgets.h"
 
 #include <qaccessibleplugin.h>
+#include <qplugin.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
 #include <qtoolbar.h>

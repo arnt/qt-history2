@@ -20,10 +20,10 @@ QAccessibleViewport::QAccessibleViewport(QWidget *o, QWidget *sv)
 
 QAccessibleScrollView *QAccessibleViewport::scrollView() const
 {
-    QAccessibleInterface *iface = 0;
-    queryAccessibleInterface(scrollview, &iface);
+    QAccessibleInterface *iface = queryAccessibleInterface(scrollview);
     Q_ASSERT(iface);
     return (QAccessibleScrollView *)iface;
+    // ### M E M L E A K
 }
 
 int QAccessibleViewport::childAt(int x, int y) const

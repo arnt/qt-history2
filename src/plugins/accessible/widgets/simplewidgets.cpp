@@ -427,7 +427,7 @@ int QAccessibleDisplay::navigate(Relation rel, int entry, QAccessibleInterface *
         } else if (groupbox && !groupbox->title().isEmpty()) {
             rel = Child;
         }
-        QAccessible::queryAccessibleInterface(targetObject, target);
+        *target = QAccessible::queryAccessibleInterface(targetObject);
         if (*target)
             return 0;
     }
