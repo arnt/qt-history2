@@ -1516,17 +1516,28 @@ void QDataTable::loadNextPage()
 	endIdx--;
     if ( endIdx != ( startIdx + pageSize + lookAhead ) )
 	d->haveAllRows = TRUE;
+    // small hack to prevent QTable from moving the view when a row
+    // is selected and the contents is resized
+    SelectionMode m = selectionMode();
+    clearSelection();
+    setSelectionMode( NoSelection );
     setNumRows( endIdx + 1 );
+    setSelectionMode( m );
 }
 
-/*! \internal
+/*! \internal */
+void QDataTable::sliderPressed()
+{
+    disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
+		this, SLOT( loadNextPage() ) );
+}
 
-  Loads a line of data at \a l.
-*/
-
-void QDataTable::loadLine( int )
+/*! \internal */
+void QDataTable::sliderReleased()
 {
     loadNextPage();
+    connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
+	     this, SLOT( loadNextPage() ) );
 }
 
 /*!  Sorts column \a col in ascending order if \a ascending is
@@ -1680,7 +1691,7 @@ int QDataTable::fieldAlignment( const QSqlField* /*field*/ )
 
 /*!  If the cursor's \a sql driver supports query sizes, the number of
     rows in the table is set to the size of the query.  Otherwise, the
-    table dynamically resizes itself as it is scrolled.  If \q sql is
+    table dynamically resizes itself as it is scrolled.  If \a sql is
     not active, it is made active by issuing a select() on the cursor
     using the \a sql cursor's current filter and current sort.
 
@@ -1691,13 +1702,21 @@ void QDataTable::setSize( QSqlCursor* sql )
     // ### what are the connect/disconnect calls doing here!? move to refresh()
     if ( sql->driver() && sql->driver()->hasFeature( QSqlDriver::QuerySize ) ) {
 	setVScrollBarMode( Auto );
+ 	disconnect( verticalScrollBar(), SIGNAL( sliderPressed() ),
+		    this, SLOT( sliderPressed() ) );
+ 	disconnect( verticalScrollBar(), SIGNAL( sliderReleased() ),
+		    this, SLOT( sliderReleased() ) );
 	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
-		 this, SLOT( loadLine(int) ) );
+		    this, SLOT( loadNextPage() ) );
 	setNumRows( sql->size() );
     } else {
 	setVScrollBarMode( AlwaysOn );
+ 	connect( verticalScrollBar(), SIGNAL( sliderPressed() ),
+ 		 this, SLOT( sliderPressed() ) );
+ 	connect( verticalScrollBar(), SIGNAL( sliderReleased() ),
+ 		 this, SLOT( sliderReleased() ) );
 	connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
-		 this, SLOT( loadLine(int) ) );
+		 this, SLOT( loadNextPage() ) );
 	verticalScrollBar()->setValue( 0 );
 	setNumRows( 0 );
 	loadNextPage();

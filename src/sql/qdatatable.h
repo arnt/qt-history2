@@ -207,9 +207,10 @@ protected:
 
 private slots:
     void         loadNextPage();
-    void         loadLine( int l );
     void         setCurrentSelection( int row, int col );
-
+    void 	 sliderPressed();
+    void 	 sliderReleased();
+    
 private:
     void         init();
     QWidget*     beginEdit ( int row, int col, bool replace );
