@@ -3659,6 +3659,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     }
 
     qint64 uid;
+    QRect screenArea = qApp->desktop()->screenGeometry(global);
 #if defined (Q_OS_IRIX)
     s = XQueryDeviceState(X11->display, static_cast<XDevice *>(tablet->device));
     if (!s)
@@ -3717,7 +3718,6 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
                                         / qreal(tablet->maxTanPressure - tablet->minTanPressure);
             }
 
-            QRect screenArea = qApp->desktop()->screenGeometry(global);
             hiRes = tablet->scaleCoord(vs->valuators[WAC_XCOORD_I], vs->valuators[WAC_YCOORD_I],
                                        screenArea.x(), screenArea.width(),
                                        screenArea.y(), screenArea.height());
@@ -3746,13 +3746,17 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         xTilt = short(motion->axis_data[3]);
         yTilt = short(motion->axis_data[4]);
         pressure = motion->axis_data[2];
-        hiRes = global;
         modifiers = translateModifiers(motion->state);
+        hiRes = tablet->scaleCoord(motion->axis_data[0], motion->axis_data[1],
+                                    screenArea.x(), screenArea.width(),
+                                    screenArea.y(), screenArea.height());
     } else {
         xTilt = short(button->axis_data[3]);
         yTilt = short(button->axis_data[4]);
         pressure = button->axis_data[2];
-        hiRes = global;
+        hiRes = tablet->scaleCoord(button->axis_data[0], button->axis_data[1],
+                                    screenArea.x(), screenArea.width(),
+                                    screenArea.y(), screenArea.height());
         modifiers = translateModifiers(button->state);
     }
     // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
