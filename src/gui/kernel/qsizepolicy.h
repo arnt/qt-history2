@@ -32,7 +32,7 @@ public:
                     Expanding = MayGrow | MayShrink | ExpMask,
                     Ignored = ExpMask /* magic value */ };
 
-    Q_DECLARE_FLAGS(SizeType, SizeTypeFlag);
+    Q_DECLARE_FLAGS(SizeType, SizeTypeFlag)
 
     enum ExpandData { NoDirection = 0,
                       Horizontally = 1,

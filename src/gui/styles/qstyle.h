@@ -105,7 +105,7 @@ public:
         Style_Sibling =       0x00200000,
         Style_Editing =       0x00400000
     };
-    Q_DECLARE_FLAGS(StyleFlags, StyleFlag);
+    Q_DECLARE_FLAGS(StyleFlags, StyleFlag)
 
 #ifdef QT_COMPAT
     typedef StyleFlags SFlags;
@@ -351,7 +351,7 @@ public:
 
         SC_All =                   0xffffffff
     };
-    Q_DECLARE_FLAGS(SubControls, SubControl);
+    Q_DECLARE_FLAGS(SubControls, SubControl)
 #ifdef QT_COMPAT
     typedef SubControls SCFlags;
 #endif
