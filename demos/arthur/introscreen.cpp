@@ -48,9 +48,8 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
     QPainter p(this);
 
-    p.setBrush(QColor(255, 255, 255, attributes->alpha ? (mouseDown ? 80 : 45) : 255));
+    p.fillRect(0, 0, w, h, Qt::white);
     p.setPen(Qt::NoPen);
-    p.drawRect(0, 0, w, h);
 
     QRect textRect(100, 0, w-200, h);
 
@@ -74,7 +73,6 @@ void IntroScreen::paintEvent(QPaintEvent *)
     QColor grey = palette().color(QPalette::Background);
     p.resetXForm();
 
-#if 0
     p.fillRect(0, 0, 100, h, QBrush(QPoint(0, 0), grey, QPoint(100, 0), Qt::white));
     p.fillRect(w-100, 0, 100, h, QBrush(QPoint(w, 0), grey, QPoint(w-100, 0), Qt::white));
 
@@ -82,7 +80,6 @@ void IntroScreen::paintEvent(QPaintEvent *)
         p.drawTiledPixmap(QRect(textRect.x(), 0, textRect.width(), 100), topGradient);
         p.drawTiledPixmap(QRect(textRect.x(), h-100, textRect.width(), 100), bottomGradient);
     }
-#endif
 }
 
 void IntroScreen::mousePressEvent(QMouseEvent *e)

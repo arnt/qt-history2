@@ -168,7 +168,6 @@ void DemoViewer::itemSelected()
     oldDemoWidget->stopAnimation();
 
     widgets->setCurrentIndex(widgets->indexOf(demoWidget));
-    qDebug("start animation");
     demoWidget->startAnimation();
 }
 
@@ -199,8 +198,5 @@ void DemoViewer::showEvent(QShowEvent *)
 void DemoViewer::hideEvent(QHideEvent *)
 {
     DemoWidget *demoWidget = reinterpret_cast<DemoWidget*>(widgets->currentWidget());
-    qDebug("stop animation");
     demoWidget->stopAnimation();
-
-
 }
