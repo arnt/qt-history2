@@ -1667,7 +1667,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 bdi.state = kThemeStateActive;
             bdi.adornment = kThemeAdornmentNone;
             bdi.value = kThemeButtonOff;
-            if (btn->features != QStyleOptionButton::None)
+            if (btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
                 bdi.kind = kThemeBevelButton;
             else
                 bdi.kind = kThemePushButton;
@@ -2115,9 +2115,9 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
 #endif
             false;
         if (opt->state & QStyle::Style_Bottom)
-            r.setHeight(r.height() - (newStyleTabs ? 3 : 11));
+            r.setHeight(r.height() - (newStyleTabs ? 3 : 3));
         else
-            r.setY(r.y() + (newStyleTabs ? 4 : 14));
+            r.setY(r.y() + (newStyleTabs ? 4 : 6));
         break; }
     case QStyle::SR_ToolBarButtonContents:
     case QStyle::SR_ToolBarButtonMenu:
@@ -3222,20 +3222,22 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         qt_mac_set_port(p);
         DrawThemePopupArrow(qt_glb_mac_rect(opt->rect, p), orientation, size, tds, 0, 0);
         break; }
-    case QStyle::PE_PanelTabWidget: {
-        p->save();
-        // Not great, but I can't seem to get Appearance Manager to flip for me.
-        QPixmap pix(opt->rect.size(), 32);
-        QPainter pixPainter(&pix);
-        qt_mac_set_port(&pixPainter);
-        DrawThemeTabPane(qt_glb_mac_rect(opt->rect, &pixPainter), tds);
+    case QStyle::PE_PanelTabWidget:
         if (opt->state & QStyle::Style_Bottom) {
+            p->save();
+            // Not great, but I can't seem to get Appearance Manager to flip for me.
+            QPixmap pix(opt->rect.size(), 32);
+            QPainter pixPainter(&pix);
+            qt_mac_set_port(&pixPainter);
+            DrawThemeTabPane(qt_glb_mac_rect(opt->rect, &pixPainter), tds);
             p->scale(1, -1);
             p->translate(0, -opt->rect.height());
+            p->drawPixmap(opt->rect, pix);
+            p->restore();
+        } else {
+            DrawThemeTabPane(qt_glb_mac_rect(opt->rect, p), tds);
         }
-        p->drawPixmap(opt->rect, pix);
-        p->restore();
-        break; }
+        break;
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
@@ -3281,7 +3283,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 }
             }
             ThemeButtonKind bkind;
-            if (btn->features != QStyleOptionButton::None)
+            if ((btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
                 bkind = kThemeBevelButton;
             else
                 bkind = kThemePushButton;
@@ -3656,10 +3658,10 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
         break;
     case QStyle::SR_PanelTab: {
         r = opt->rect;
-        int newOffset = q->pixelMetric(QStyle::PM_TabBarBaseHeight)
-                        + q->pixelMetric(QStyle::PM_TabBarBaseOverlap);
+        int newOffset = q->pixelMetric(QStyle::PM_TabBarBaseHeight, opt, widget)
+                        + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, opt, widget);
         if (opt->state & QStyle::Style_Bottom)
-            r.setHeight(r.height() - newOffset - 16);
+            r.setHeight(r.height() - newOffset - 11);
         else
             r.setY(r.y() + newOffset + 8);
         break; }
@@ -5041,38 +5043,42 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
     case QStyle::CT_TabWidget:
         sz.setWidth(sz.width() + 15);
         break;
-    case QStyle::CT_TabBarTab:
-        if (QSysInfo::MacintoshVersion < QSysInfo::MV_TIGER) {
-            SInt32 tabh = sz.height();
-            SInt32 overlap = 0;
-            switch (qt_aqua_size_constrain(widget)) {
-            case QAquaSizeUnknown:
-            case QAquaSizeLarge:
-                GetThemeMetric(kThemeLargeTabHeight, &tabh);
-                GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
-                break;
-            case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                    GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
-                    GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
-                    break;
-                }
-            case QAquaSizeSmall: {
-                GetThemeMetric(kThemeSmallTabHeight, &tabh);
-                GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
-            }
+    case QStyle::CT_TabBarTab: {
+            bool newStyleTabs =
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+                QSysInfo::MacintoshVersion >= QSysInfo::MV_TIGER ? true :
 #endif
-            default:
-                break;
+                false;
+            if (!newStyleTabs) {
+                SInt32 tabh = sz.height();
+                SInt32 overlap = 0;
+                switch (qt_aqua_size_constrain(widget)) {
+                case QAquaSizeUnknown:
+                case QAquaSizeLarge:
+                    GetThemeMetric(kThemeLargeTabHeight, &tabh);
+                    GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
+                    break;
+                case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
+                        GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
+                        break;
+                    }
+                case QAquaSizeSmall:
+                    GetThemeMetric(kThemeSmallTabHeight, &tabh);
+                    GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
+#endif
+                default:
+                     break;
+                }
+                tabh += overlap;
+                if (sz.height() > tabh)
+                    sz.rheight() = tabh;
+            } else {
+                QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
             }
-            tabh += overlap;
-            if(sz.height() > tabh)
-                sz.setHeight(tabh);
-        } else {
-            QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
-        }
-        break;
+        break; }
     case QStyle::CT_PushButton:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
         sz = QSize(sz.width() + 16, sz.height()); // No idea why, but it was in the old style.
