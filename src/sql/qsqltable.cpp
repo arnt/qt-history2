@@ -1349,7 +1349,7 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
 	if ( val.type() == QVariant::Bool )
 	    text = val.toBool() ? d->trueTxt : d->falseTxt;
     }
-    p->drawText( 0,0, cr.width(), cr.height(), fieldAlignment( field ), text );
+    p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
 }
 
 int QSqlTable::fieldAlignment( const QSqlField* field )
