@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#104 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#105 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -457,7 +457,7 @@ QString::QString( int size )
 {
     if ( size > 0 ) {
 	*data() = '\0';				// set terminator
-	*(data()+size-1) = '\0';
+	*(data()+(size-1)) = '\0';
     }
 }
 
