@@ -88,6 +88,9 @@ workspace:SUBDIRS+= mdi
 table:SUBDIRS +=    table/statistics \
 		    table/small-table-demo \
 		    table/bigtable
+
+tablet:SUBDIRS += tablet
+
 sql:SUBDIRS += sql
 
 xml:SUBDIRS +=	xml/outliner \
