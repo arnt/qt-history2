@@ -68,14 +68,15 @@
 
 //#define QTCPSERVER_DEBUG
 
-#include "qtcpserver.h"
-#include "qsocketlayer.h"
+#include "private/qobject_p.h"
+#include "qeventloop.h"
 #include "qhostaddress.h"
 #include "qlist.h"
-#include "qtcpsocket.h"
 #include "qpointer.h"
-#include "private/qobject_p.h"
+#include "qsocketlayer.h"
 #include "qsocketnotifier.h"
+#include "qtcpserver.h"
+#include "qtcpsocket.h"
 
 #define d d_func()
 #define q q_func()
@@ -225,9 +226,11 @@ bool QTcpServer::listen(const QHostAddress &address, Q_UINT16 port)
         return false;
     }
 
-    d->readSocketNotifier = new QSocketNotifier(d->socketLayer.socketDescriptor(),
-                                                QSocketNotifier::Read, this);
-    connect(d->readSocketNotifier, SIGNAL(activated(int)), SLOT(processIncomingConnection(int)));
+    if (QEventLoop::instance()) {
+        d->readSocketNotifier = new QSocketNotifier(d->socketLayer.socketDescriptor(),
+                                                    QSocketNotifier::Read, this);
+        connect(d->readSocketNotifier, SIGNAL(activated(int)), SLOT(processIncomingConnection(int)));
+    }
 
     d->state = Qt::ListeningState;
     d->address = address;
