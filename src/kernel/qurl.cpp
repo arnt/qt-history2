@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#30 $
 **
 ** Implementation of QFileDialog class
 **
@@ -286,7 +286,7 @@ QUrl::QUrl()
   This is dangerous since even this simple path is assumed to be
   encoded. For example "/home/Torben%20Weis" will be decoded to
   "/home/Torben Weis". This means: If you have a usual UNIX like
-  path, you have to use @ref encode first before you pass it to URL.
+  path, you have to use \link encode first before you pass it to URL.
 */
 
 QUrl::QUrl( const QString& url )
@@ -313,7 +313,7 @@ QUrl::QUrl( const QUrl& url )
 }
 
 /*!
-  #### todo
+  Returns TRUE, if \a url is relative, else it returns FALSE.
 */
 
 bool QUrl::isRelativeUrl( const QString &url )
@@ -325,8 +325,8 @@ bool QUrl::isRelativeUrl( const QString &url )
 }
 
 /*!
-  Constructs and URL for the file \a relUrl_ in the directory
-  \a url.
+  Constructs and URL taking \a url as base and \a relUrl_ as 
+  relative URL to \a url.
 */
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
@@ -512,7 +512,7 @@ bool QUrl::hasPath() const
 }
 
 /*!
-  #### todo
+  Sets the query of the URL. Must be encoded.
 */
 
 void QUrl::setQuery( const QString& txt )
@@ -521,7 +521,7 @@ void QUrl::setQuery( const QString& txt )
 }
 
 /*!
-  #### todo
+  Returns the query (encoded) of the URL.
 */
 
 QString QUrl::query() const
@@ -530,7 +530,7 @@ QString QUrl::query() const
 }
 
 /*!
-  #### todo
+  Returns the reference (encoded) of the URL.
 */
 
 QString QUrl::ref() const
@@ -539,7 +539,7 @@ QString QUrl::ref() const
 }
 
 /*!
-  #### todo
+  Sets the reference of the URL. Must be encoded.
 */
 
 void QUrl::setRef( const QString& txt )
@@ -548,7 +548,8 @@ void QUrl::setRef( const QString& txt )
 }
 
 /*!
-  #### todo
+  Returns TRUE, if the URL has a reference, else
+  it returnd FALSE;
 */
 
 bool QUrl::hasRef() const
@@ -557,7 +558,8 @@ bool QUrl::hasRef() const
 }
 
 /*!
-  #### todo
+  Returns TRUE if the URL is valid, else FALSE.
+  An URL is e.g. invalid if there was a parse error.
 */
 
 bool QUrl::isValid() const
@@ -566,12 +568,11 @@ bool QUrl::isValid() const
 }
 
 /*!
-  #### todo
+  Resets all values if the URL to its default values.
 */
 
 void QUrl::reset()
 {
-    // Assume the default protocol.
     d->protocol = "file";
     d->user = "";
     d->pass = "";
@@ -587,7 +588,7 @@ void QUrl::reset()
 }
 
 /*!
-  #### todo
+  Parses the \a url.
 */
 
 void QUrl::parse( const QString& url )
@@ -969,14 +970,14 @@ NodeErr:
 }
 
 /*!
-  #### todo
+  Assign operator.
 
   \a url is considered to be encoded. You can pass strings like
   "/home/weis", in this case the protocol "file" is assumed.
   This is dangerous since even this simple path is assumed to be
   encoded. For example "/home/Torben%20Weis" will be decoded to
   "/home/Torben Weis". This means: If you have a usual UNIX like
-  path, you have to use @ref encode first before you pass it to URL.
+  path, you have to use \link encode first before you pass it to URL.
 */
 
 QUrl& QUrl::operator=( const QString& url )
@@ -988,7 +989,7 @@ QUrl& QUrl::operator=( const QString& url )
 }
 
 /*!
-  #### todo
+  Assign operator.
 */
 
 QUrl& QUrl::operator=( const QUrl& url )
@@ -999,7 +1000,7 @@ QUrl& QUrl::operator=( const QUrl& url )
 }
 
 /*!
-  #### todo
+  Compares this URL with \a url.
 */
 
 bool QUrl::operator==( const QUrl& url ) const
@@ -1022,7 +1023,7 @@ bool QUrl::operator==( const QUrl& url ) const
 }
 
 /*!
-  #### todo
+  Compares this URL with \a url.
 */
 
 bool QUrl::operator==( const QString& url ) const
@@ -1032,7 +1033,7 @@ bool QUrl::operator==( const QString& url ) const
 }
 
 /*!
-  #### todo
+  Sets the filename of the URL to \a name.
 */
 
 void QUrl::setFileName( const QString& name )
@@ -1057,7 +1058,7 @@ void QUrl::setFileName( const QString& name )
 }
 
 /*!
-  #### todo
+  Returns the encoded path plus the query (encoded too).
 */
 
 QString QUrl::encodedPathAndQuery()
@@ -1077,7 +1078,7 @@ QString QUrl::encodedPathAndQuery()
 }
 
 /*!
-  #### todo
+  Sets path and query. Both have to be encoded.
 */
 
 void QUrl::setEncodedPathAndQuery( const QString& path )
@@ -1097,7 +1098,7 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
 }
 
 /*!
-  #### todo
+  Returns the path of the URL.
 */
 
 QString QUrl::path() const
@@ -1123,7 +1124,8 @@ QString QUrl::path() const
 }
 
 /*!
-  #### todo
+  Returns TRUE, if the URL is a local file, else
+  it returns FALSE;
 */
 
 bool QUrl::isLocalFile() const
@@ -1132,7 +1134,7 @@ bool QUrl::isLocalFile() const
 }
 
 /*!
-  #### todo
+  Returns the filename of the URL.
 */
 
 QString QUrl::fileName() const
@@ -1144,7 +1146,7 @@ QString QUrl::fileName() const
 }
 
 /*!
-  #### todo
+  Adds the path \a p to the path or the URL.
 */
 
 void QUrl::addPath( const QString& p )
@@ -1169,7 +1171,7 @@ void QUrl::addPath( const QString& p )
 }
 
 /*!
-  #### todo
+  Returns the directory path of the URL.
 */
 
 QString QUrl::dirPath() const
@@ -1181,7 +1183,7 @@ QString QUrl::dirPath() const
 }
 
 /*!
-  #### todo
+  Encodes the strung \a url.
 */
 
 void QUrl::encode( QString& url )
@@ -1213,7 +1215,6 @@ void QUrl::encode( QString& url )
 }
 
 /*!
-  #### todo
 */
 
 static ushort hex2int( ushort c )
@@ -1228,7 +1229,7 @@ static ushort hex2int( ushort c )
 }
 
 /*!
-  #### todo
+  Decodes the string \url.
 */
 
 void QUrl::decode( QString& url )
@@ -1484,7 +1485,8 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 }
 
 /*!
-  #### todo
+  Returns TRUE if the url is a directory, else
+  returns FALSE.
 */
 
 bool QUrl::isDir()
@@ -1513,8 +1515,7 @@ bool QUrl::isDir()
 }
 
 /*!
-  #### todo
-*/
+ */
 
 void QUrl::put( const QCString &data )
 {
@@ -1524,7 +1525,9 @@ void QUrl::put( const QCString &data )
 }
 
 /*!
-  #### todo
+  Sets the name filter of the URL
+  
+  \sa QDir::setNameFilter()
 */
 
 void QUrl::setNameFilter( const QString &nameFilter )
@@ -1533,7 +1536,9 @@ void QUrl::setNameFilter( const QString &nameFilter )
 }
 
 /*!
-  #### todo
+  Returns the name filter of the URL
+
+  \sa QUrl::setNameFilter() QDir::nameFilter()
 */
 
 QString QUrl::nameFilter() const
@@ -1542,7 +1547,7 @@ QString QUrl::nameFilter() const
 }
 
 /*!
-  #### todo
+  Composes a string of the URL and returns it.
 */
 
 QString QUrl::toString() const
@@ -1570,7 +1575,7 @@ QString QUrl::toString() const
 }
 
 /*!
-  #### todo
+  Composes a string of the URL and returns it.
 */
 
 QUrl::operator QString() const
@@ -1579,7 +1584,7 @@ QUrl::operator QString() const
 }
 
 /*!
-  #### todo
+  Goes one directory up.
 */
 
 bool QUrl::cdUp()
