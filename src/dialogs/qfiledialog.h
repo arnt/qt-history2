@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#12 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#13 $
 **
 ** Definition of QFileDialog class
 **
@@ -63,6 +63,7 @@ private slots:
 
     void updateFileNameEdit( QListViewItem *);
     void selectDirectoryOrFile( QListViewItem * );
+    void popupContextMenu( QListViewItem *, const QPoint &, int );
     void fileNameEditDone();
 
     void okClicked();
