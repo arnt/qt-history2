@@ -93,7 +93,6 @@ public:
         nocolBrush(false),
         pixmapBrush(false),
         usesWidgetDC(false),
-        antialiased(false),
         forceGdi(false),
         forceGdiplus(false),
         penAlphaColor(false),
@@ -124,7 +123,6 @@ public:
     uint pixmapBrush:1;
     uint usesWidgetDC:1;
 
-    uint antialiased:1;         // True if antialiased render hint is set.
     uint forceGdi:1;            // Used in drawTextItem to block GDI+
     uint forceGdiplus:1;        // Used in drawPixmap to force GDI+, foceGdi has presedence
     uint penAlphaColor:1;       // Set if pen has alpha color
@@ -158,7 +156,10 @@ public:
       use GDI+ for rendering
     */
     inline bool requiresGdiplus() {
-        return !forceGdi && (antialiased || penAlphaColor || brushAlphaColor || forceGdiplus);
+        return !forceGdi && (renderhints & QPainter::LineAntialiasing
+                             || penAlphaColor
+                             || brushAlphaColor
+                             || forceGdiplus);
     }
 
     /*!
