@@ -292,7 +292,7 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
             if(child) {
                 if(child == last)
                     break;
-                if(child->isVisible()) {
+                if(child->isVisible() && !child->isTopLevel()) {
                     GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
                     wpos = posInWindow(child);
                     OffsetRgn(macr, wpos.x(), wpos.y());
