@@ -383,9 +383,7 @@ QString QPlugIn::name()
     if ( !use() )
 	return QString::null;
 
-    QString str = plugInterface()->name();
-
-    return str;
+    return plugInterface()->name();
 }
 
 /*!
@@ -396,9 +394,7 @@ QString QPlugIn::description()
     if ( !use() )
 	return QString::null;
 
-    QString str = plugInterface()->description();
-
-    return str;
+    return plugInterface()->description();
 }
 
 /*!
@@ -409,9 +405,7 @@ QString QPlugIn::author()
     if ( !use() )
 	return QString::null;
 
-    QString str = plugInterface()->author();
-
-    return str;
+    return plugInterface()->author();
 }
 
 /*!
@@ -422,9 +416,7 @@ QStringList QPlugIn::featureList()
     if ( !use() )
 	return QStringList();
 
-    QStringList list = plugInterface()->featureList();
-
-    return list;
+    return plugInterface()->featureList();
 }
 
 /*!
@@ -597,4 +589,4 @@ QStringList QPlugIn::featureList()
   \sa selectFeature, featureList, plugIn
 */
 
-#endif
+#endif //QT_NO_PLUGIN
