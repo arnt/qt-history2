@@ -1056,55 +1056,68 @@ void QSqlTable::refresh( QSqlCursor* cursor, QSqlIndex idx )
     QApplication::restoreOverrideCursor();
 }
 
-/*! Searches the current result set for the string \a str. If the
- string is found, it will be selected as the current cell.
+/*! Searches the current cursor for the string \a str. If the string
+ is found, the cell containing the string is set as the current cell.
 */
-
-void QSqlTable::find( const QString & str, bool caseSensitive,
-			    bool backwards )
+void QSqlTable::find( const QString & str, bool caseSensitive, bool backwards )
 {
-    // ### Searching backwards is not implemented yet.
-    Q_UNUSED( backwards );
-
-    QSqlCursor * rset = d->cursor;
-    if ( !rset )
+    if ( !d->cursor ) 
 	return;
-    unsigned int  row = currentRow(), startRow = row,
-		  col = currentColumn() + 1;
-    bool  wrap = TRUE,
-	 found = FALSE;
 
+    QSqlCursor * r = d->cursor;
+    QString tmp, text;
+    uint  row = currentRow(), startRow = row, 
+	  col = backwards ? currentColumn() - 1 : currentColumn() + 1;
+    bool  wrap = TRUE, found = FALSE;
+    
     if( str.isEmpty() || str.isNull() )
 	return;
 
+    if( !caseSensitive )
+	tmp = str.lower();
+    else
+	tmp = str;
+
     QApplication::setOverrideCursor( Qt::waitCursor );
-    if( rset ){
-	while( wrap ){
-	    while( !found && rset->seek( row ) ){
-		for(unsigned int i = col; i < rset->count(); i++){
-		    // ## Sort out the colIndex stuff
-		    QString tmp, text = rset->value( i ).toString();
-		    if( !caseSensitive ){
-			text = text.lower();
-			tmp  = str.lower();
-		    }
-		    if( text.contains( tmp ) ){
-			setCurrentCell( row, i );
-			col = i;
-			found = TRUE;
-		    }
+    while( wrap ){
+	while( !found && r->seek( row ) ){
+	    for( int i = col; backwards ? (i >= 0) : (i < (int) numCols());
+		 backwards ? i-- : i++ )
+	    {
+		text = r->value( indexOf( i ) ).toString();
+		if( !caseSensitive ){
+		    text = text.lower();
 		}
+		if( text.contains( tmp ) ){
+		    setCurrentCell( row, i );
+		    col = i;
+		    found = TRUE;
+		}
+	    }
+	    if( !backwards ){
 		col = 0;
 		row++;
+	    } else {
+		col = numCols() - 1;
+		row--;
 	    }
-
+	}
+	if( !backwards ){
 	    if( startRow != 0 ){
 		startRow = 0;
 	    } else {
 		wrap = FALSE;
 	    }
-	    rset->first();
+	    r->first();
 	    row = 0;
+	} else {
+	    if( startRow != (uint) (numRows() - 1) ){
+		startRow = numRows() - 1;
+	    } else {
+		wrap = FALSE;
+	    }
+	    r->last();
+	    row = numRows() - 1;
 	}
     }
     QApplication::restoreOverrideCursor();

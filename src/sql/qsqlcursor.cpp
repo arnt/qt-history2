@@ -669,8 +669,8 @@ void QSqlCursor::primeEditBuffer()
 
 /*!  Returns a pointer to the internal edit buffer.  The edit buffer
   is valid as long as the cursor is valid. If \a prime is FALSE (the
-  default), the value of the cursor buffer is copied into the edit
-  buffer, and primeUpdate() is called. If \a prime is TRUE, the
+  default), the field values in the cursor buffer is copied into the
+  edit buffer, and primeUpdate() is called. If \a prime is TRUE, the
   current edit buffer values are cleared, the edit buffer is then
   primed using primeInsert().
 
