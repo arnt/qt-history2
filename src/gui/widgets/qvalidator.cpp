@@ -501,13 +501,15 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
     int nume = input.count('e', Qt::CaseInsensitive);
     if (!ok) {
         // explicit exponent regexp
-        QRegExp expexpexp(QString::fromLatin1("[Ee][+-]?\\d*$"));
+        QRegExp expexpexp(QString::fromLatin1("[Ee][+-]?(\\d*)$"));
         int eePos = expexpexp.indexIn(input);
         if (eePos > 0 && nume == 1) {
             QString mantissa = input.left(eePos);
             entered = mantissa.toDouble(&ok);
             if (!ok)
                 return Invalid;
+            if (expexpexp.cap(1).isEmpty())
+                return Intermediate;
         } else if (eePos == 0) {
             return Intermediate;
         } else {
