@@ -41,7 +41,7 @@ public:
         QBrush brush;
         QRegion clip;
         struct {
-            QPoint origin;
+            QPointF origin;
             Qt::BGMode mode;
             QBrush brush;
         } bg;
@@ -82,7 +82,7 @@ public:
     //internal functions
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
     void drawPath(uchar ops, CGMutablePathRef path = 0);
-    inline CGRect adjustedRect(const QRect &r) {
+    inline CGRect adjustedRect(const QRectF &r) {
         const int adjustment = (current.pen.style() != Qt::NoPen
                                 && !(renderhints & QPainter::LineAntialiasing)) ? 1 : 0;
         return CGRectMake(r.x(), r.y() + adjustment,

@@ -206,7 +206,7 @@ QQuickDrawPaintEngine::updatePen(const QPen &pen)
 
 
 void
-QQuickDrawPaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
+QQuickDrawPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
     d->current.brush = brush;
     d->current.bg.origin = origin;
@@ -252,19 +252,19 @@ QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, bool enable)
 }
 
 void
-QQuickDrawPaintEngine::drawLine(const QPoint &pt1, const QPoint &pt2)
+QQuickDrawPaintEngine::drawLine(const QLineF &line)
 {
     Q_ASSERT(isActive());
     setupQDPort();
     if(d->clip.paintable.isEmpty())
         return;
     setupQDPen();
-    MoveTo(pt1.x()+d->offx,pt1.y()+d->offy);
-    LineTo(pt2.x()+d->offx,pt2.y()+d->offy);
+    MoveTo(qRound(line.startX())+d->offx,qRound(line.startY())+d->offy);
+    LineTo(qRound(line.endX())+d->offx,qRound(line.endY())+d->offy);
 }
 
 void
-QQuickDrawPaintEngine::drawRect(const QRect &r)
+QQuickDrawPaintEngine::drawRect(const QRectF &r)
 {
     Q_ASSERT(isActive());
     setupQDPort();
@@ -272,7 +272,8 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
         return;
 
     Rect rect;
-    SetRect(&rect, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
+    SetRect(&rect, qRound(r.x())+d->offx, qRound(r.y())+d->offy, 
+            qRound(r.right())+d->offx+1, qRound(r.bottom())+d->offy+1);
     if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
         if(d->current.brush.style() == Qt::SolidPattern) {
@@ -298,7 +299,7 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
                 QRegion clip = d->current.clip;
 
                 //create the region
-                QRegion newclip(r);
+                QRegion newclip(r.toRect());
                 if(clipon)
                     newclip &= clip;
                 setClippedRegionInternal(&newclip);
@@ -318,7 +319,7 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
 }
 
 void
-QQuickDrawPaintEngine::drawPoint(const QPoint &pt)
+QQuickDrawPaintEngine::drawPoint(const QPointF &pt)
 {
     Q_ASSERT(isActive());
     if(d->current.pen.style() != Qt::NoPen) {
@@ -326,13 +327,13 @@ QQuickDrawPaintEngine::drawPoint(const QPoint &pt)
         if(d->clip.paintable.isEmpty())
             return;
         setupQDPen();
-        MoveTo(pt.x() + d->offx, pt.y() + d->offy);
-        Line(0,1);
+        MoveTo(qRound(pt.x()) + d->offx, qRound(pt.y()) + d->offy);
+        Line(0, 1);
     }
 }
 
 void
-QQuickDrawPaintEngine::drawPoints(const QPointArray &pa)
+QQuickDrawPaintEngine::drawPoints(const QPolygon &p)
 {
     Q_ASSERT(isActive());
 
@@ -341,79 +342,16 @@ QQuickDrawPaintEngine::drawPoints(const QPointArray &pa)
         if(d->clip.paintable.isEmpty())
             return;
         setupQDPen();
+        QPointArray pa = p.toPointArray();
         for(int i=0; i < pa.size(); i++) {
             MoveTo(pa[i].x()+d->offx, pa[i].y()+d->offy);
-            Line(0,1);
+            Line(0, 1);
         }
     }
 }
 
 void
-QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
-{
-    Q_ASSERT(isActive());
-
-    setupQDPort();
-    if(d->clip.paintable.isEmpty())
-        return;
-
-    PolyHandle polyHandle = OpenPoly();
-    MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
-    for(int x = 1; x < pa.size(); x++)
-        LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
-    if(close)
-        LineTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
-    ClosePoly();
-
-    if(close && d->current.brush.style() != Qt::NoBrush) {
-        setupQDBrush();
-        if(d->current.brush.style() == Qt::SolidPattern) {
-            PaintPoly(polyHandle);
-        } else {
-            QPixmap *pm = 0;
-            if(d->brush_style_pix) {
-                pm = d->brush_style_pix;
-                if(d->current.bg.mode == Qt::OpaqueMode) {
-                    ::RGBColor f;
-                    f.red = d->current.bg.brush.color().red()*256;
-                    f.green = d->current.bg.brush.color().green()*256;
-                    f.blue = d->current.bg.brush.color().blue()*256;
-                    RGBForeColor(&f);
-                    PaintPoly(polyHandle);
-                }
-            } else {
-                pm = d->current.brush.pixmap();
-            }
-
-            if(pm && !pm->isNull()) {
-                //save the clip
-                bool clipon = testf(ClipOn);
-                QRegion clip = d->current.clip;
-
-                //create the region
-                QRegion newclip(pa);
-                if(clipon)
-                    newclip &= clip;
-                setClippedRegionInternal(&newclip);
-
-                //draw the brush
-                QRect r(pa.boundingRect());
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
-
-                //restore the clip
-                setClippedRegionInternal(clipon ? &clip : 0);
-            }
-        }
-    }
-    if(d->current.pen.style() != Qt::NoPen) {
-        setupQDPen();
-        FramePoly(polyHandle);
-    }
-    KillPoly(polyHandle);
-}
-
-void
-QQuickDrawPaintEngine::drawEllipse(const QRect &r)
+QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
 {
     Q_ASSERT(isActive());
 
@@ -422,7 +360,8 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
         return;
 
     Rect mac_r;
-    SetRect(&mac_r, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
+    SetRect(&mac_r, qRound(r.x()) + d->offx, qRound(r.y()) + d->offy, 
+            qRound(r.right()) + d->offx+1, qRound(r.bottom()) + d->offy+1);
     if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
         if(d->current.brush.style() == Qt::SolidPattern) {
@@ -448,7 +387,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
                 QRegion clip = d->current.clip;
 
                 //create the region
-                QRegion newclip(r, QRegion::Ellipse);
+                QRegion newclip(r.toRect(), QRegion::Ellipse);
                 if(clipon)
                     newclip &= clip;
                 setClippedRegionInternal(&newclip);
@@ -469,7 +408,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
 }
 
 void
-QQuickDrawPaintEngine::drawLineSegments(const QPointArray &pa)
+QQuickDrawPaintEngine::drawLines(const QList<QLineF> &lines)
 {
     Q_ASSERT(isActive());
 
@@ -478,29 +417,24 @@ QQuickDrawPaintEngine::drawLineSegments(const QPointArray &pa)
         return;
 
     setupQDPen();
-    for(int i = 0, x1, x2, y1, y2; i < pa.size(); ) {
-        pa.point(i++, &x1, &y1);
-        pa.point(i++, &x2, &y2);
-        MoveTo(x1 + d->offx, y1 + d->offy);
-        LineTo(x2 + d->offx, y2 + d->offy);
+    for(int i = 0; i < lines.size(); i++) {
+        const QPointF start = lines[i].start(), end = lines[i].end();
+        MoveTo(qRound(start.x()) + d->offx, qRound(start.y()) + d->offy);
+        LineTo(qRound(end.x()) + d->offx, qRound(end.y()) + d->offy);
     }
 }
 
 void
-QQuickDrawPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
+QQuickDrawPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
     if (mode == PolylineMode) {
-        int npoints = a.size();
-        int index = 0;
-        if(npoints == -1)
-            npoints = a.size()-index;
-        if(a.size() < index+npoints || npoints < 2)
-            return;
-
         int x1, y1, x2, y2, xsave, ysave;
-        a.point(index+npoints-2, &x1, &y1);      // last line segment
-        a.point(index+npoints-1, &x2, &y2);
+        QPointArray pa = p.toPointArray();
+        if(pa.isEmpty())
+            return;
+        pa.point(pa.count()-2, &x1, &y1);      // last line segment
+        pa.point(pa.count()-1, &x2, &y2);
         xsave = x2; ysave = y2;
         bool plot_pixel = false;
         if(x1 == x2) {                           // vertical
@@ -522,14 +456,14 @@ QQuickDrawPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 
         setupQDPen();
         /* We draw 5000 chunks at a time because of limitations in QD */
-        for(int chunk = index; chunk < npoints;) {
+        for(int chunk = 0; chunk < pa.count();) {
             //make a region of it
             PolyHandle poly = OpenPoly();
-            MoveTo(a[chunk].x()+d->offx, a[chunk].y()+d->offy);
+            MoveTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
             for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
-                if(chunk == npoints)
+                if(chunk == pa.count())
                     break;
-                LineTo(a[chunk].x()+d->offx, a[chunk].y()+d->offy);
+                LineTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
             }
             ClosePoly();
             //now draw it
@@ -537,25 +471,81 @@ QQuickDrawPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
             KillPoly(poly);
         }
     } else {
-        drawPolyInternal(a, true);
+        setupQDPort();
+        if(d->clip.paintable.isEmpty())
+            return;
+
+        QPointArray pa = p.toPointArray();
+        PolyHandle polyHandle = OpenPoly();
+        MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
+        for(int x = 1; x < pa.size(); x++)
+            LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
+        LineTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
+        ClosePoly();
+
+        if(d->current.brush.style() != Qt::NoBrush) {
+            setupQDBrush();
+            if(d->current.brush.style() == Qt::SolidPattern) {
+                PaintPoly(polyHandle);
+            } else {
+                QPixmap *pm = 0;
+                if(d->brush_style_pix) {
+                    pm = d->brush_style_pix;
+                    if(d->current.bg.mode == Qt::OpaqueMode) {
+                        ::RGBColor f;
+                        f.red = d->current.bg.brush.color().red()*256;
+                        f.green = d->current.bg.brush.color().green()*256;
+                        f.blue = d->current.bg.brush.color().blue()*256;
+                        RGBForeColor(&f);
+                        PaintPoly(polyHandle);
+                    }
+                } else {
+                    pm = d->current.brush.pixmap();
+                }
+
+                if(pm && !pm->isNull()) {
+                    //save the clip
+                    bool clipon = testf(ClipOn);
+                    QRegion clip = d->current.clip;
+
+                    //create the region
+                    QRegion newclip(pa);
+                    if(clipon)
+                        newclip &= clip;
+                    setClippedRegionInternal(&newclip);
+
+                    //draw the brush
+                    QRect r(pa.boundingRect());
+                    drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
+
+                    //restore the clip
+                    setClippedRegionInternal(clipon ? &clip : 0);
+                }
+            }
+        }
+        if(d->current.pen.style() != Qt::NoPen) {
+            setupQDPen();
+            FramePoly(polyHandle);
+        }
+        KillPoly(polyHandle);
     }
 }
 
 void
-QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
+QQuickDrawPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
 				       Qt::PixmapDrawingMode mode)
 {
-    int yPos=r.y(), xPos, drawH, drawW, yOff=p.y(), xOff;
+    int yPos=qRound(r.y()), xPos, drawH, drawW, yOff=qRound(p.y()), xOff;
     while(yPos < r.bottom()) {
         drawH = pixmap.height() - yOff;    // Cropping first row
         if(yPos + drawH > r.bottom())        // Cropping last row
-            drawH = r.bottom() - yPos;
-        xPos = r.x();
-        xOff = p.x();
+            drawH = qRound(r.bottom()) - yPos;
+        xPos = qRound(r.x());
+        xOff = qRound(p.x());
         while(xPos < r.right()) {
             drawW = pixmap.width() - xOff; // Cropping first column
             if(xPos + drawW > r.right())    // Cropping last column
-                drawW = r.right() - xPos;
+                drawW = qRound(r.right()) - xPos;
             drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
                        mode);
             xPos += drawW;
@@ -567,7 +557,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
 }
 
 void
-QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
+QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                   Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());
@@ -621,15 +611,18 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
 
     //do the blt
     Rect srcr;
-    SetRect(&srcr, sr.x(), sr.y(), sr.x()+sr.width()+1, sr.y()+sr.height()+1);
+    SetRect(&srcr, qRound(sr.x()), qRound(sr.y()), 
+            qRound(sr.x() + sr.width()) + 1, qRound(sr.y()+sr.height()) + 1);
     Rect dstr;
-    SetRect(&dstr, d->offx+r.x(), d->offy+r.y(), d->offx+r.x()+r.width()+1, d->offy+r.y()+r.height()+1);
+    SetRect(&dstr, d->offx + qRound(r.x()), d->offy + qRound(r.y()), 
+            d->offx + qRound(r.x() + r.width()) + 1, 
+            d->offy + qRound(r.y() + r.height()) + 1);
     if(srcmask) {
         const BitMap *maskbits = GetPortBitMapForCopyBits(qt_macQDHandle(srcmask));
         if(d->pdev->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
-            QPixmap tmppix(r.width(), r.height(), pixmap.depth());
+            QPixmap tmppix(qRound(r.width()), qRound(r.height()), pixmap.depth());
             Rect pixr;
-            SetRect(&pixr, 0, 0, r.width()+1, r.height()+1);
+            SetRect(&pixr, 0, 0, qRound(r.width())+1, qRound(r.height()) + 1);
             const BitMap *pixbits = GetPortBitMapForCopyBits((GWorldPtr)tmppix.handle());
             {
                 QMacSavedPortInfo pi(&tmppix);
@@ -1090,7 +1083,7 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
 }
 
 void
-QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOrigin)
+QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushOrigin)
 {
     Q_ASSERT(isActive());
     d->current.brush = brush;
@@ -1204,13 +1197,13 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipE
 }
 
 void
-QCoreGraphicsPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+QCoreGraphicsPaintEngine::drawLine(const QLineF &line)
 {
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
-    CGContextMoveToPoint(d->hd, p1.x(), p1.y());
-    CGContextAddLineToPoint(d->hd, p2.x(), p2.y());
+    CGContextMoveToPoint(d->hd, line.startX(), line.startY());
+    CGContextAddLineToPoint(d->hd, line.endX(), line.endY());
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
@@ -1256,7 +1249,7 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 }
 
 void
-QCoreGraphicsPaintEngine::drawRect(const QRect &r)
+QCoreGraphicsPaintEngine::drawRect(const QRectF &r)
 {
     Q_ASSERT(isActive());
 
@@ -1275,7 +1268,7 @@ QCoreGraphicsPaintEngine::drawRect(const QRect &r)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
+QCoreGraphicsPaintEngine::drawPoint(const QPointF &p)
 {
     Q_ASSERT(isActive());
 
@@ -1286,7 +1279,7 @@ QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa)
+QCoreGraphicsPaintEngine::drawPoints(const QPolygon &pa)
 {
     Q_ASSERT(isActive());
 
@@ -1300,7 +1293,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa)
 }
 
 void
-QCoreGraphicsPaintEngine::drawEllipse(const QRect &rr)
+QCoreGraphicsPaintEngine::drawEllipse(const QRectF &rr)
 {
     Q_ASSERT(isActive());
 
@@ -1316,7 +1309,8 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRect &rr)
     CGPathRelease(path);
 }
 
-void QCoreGraphicsPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
+void 
+QCoreGraphicsPaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
 
@@ -1339,22 +1333,21 @@ void QCoreGraphicsPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode
 }
 
 void
-QCoreGraphicsPaintEngine::drawLineSegments(const QPointArray &pa)
+QCoreGraphicsPaintEngine::drawLines(const QList<QLineF> &lines)
 {
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
-    for(int i = 0, x1, x2, y1, y2; i < pa.size(); ) {
-        pa.point(i++, &x1, &y1);
-        pa.point(i++, &x2, &y2);
-        CGContextMoveToPoint(d->hd, x1, y1);
-        CGContextAddLineToPoint(d->hd, x2, y2);
+    for(int i = 0; i < lines.size(); i++) {
+        const QPointF start = lines[i].start(), end = lines[i].end();
+        CGContextMoveToPoint(d->hd, start.x(), start.y());
+        CGContextAddLineToPoint(d->hd, end.x(), end.y());
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
-QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                                      Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());
@@ -1378,7 +1371,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
         }
     }
     //set clip
-    QRegion rgn(r);
+    QRegion rgn(r.toRect());
     qt_mac_clip_cg(d->hd, rgn, 0, 0);
 
     //draw
@@ -1409,8 +1402,8 @@ QCoreGraphicsPaintEngine::handle() const
 }
 
 void
-QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
-					  Qt::PixmapDrawingMode)
+QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, 
+                                          const QPointF &p, Qt::PixmapDrawingMode)
 {
     Q_ASSERT(isActive());
 
@@ -1441,18 +1434,21 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     CGPatternRelease(pat);
 }
 
-QPainter::RenderHints QCoreGraphicsPaintEngine::supportedRenderHints() const
+QPainter::RenderHints 
+QCoreGraphicsPaintEngine::supportedRenderHints() const
 {
     return QPainter::RenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
 }
 
-void QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
+void 
+QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     CGContextSetShouldAntialias(d->hd, hints & QPainter::LineAntialiasing);
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }
 
-void QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
+void
+QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
 {
     if(hd) {
         qt_mac_clip_cg_reset(hd);

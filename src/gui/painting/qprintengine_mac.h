@@ -97,22 +97,22 @@ public:
 
     //forwarded functions
     virtual void updatePen(const QPen &pen);
-    virtual void updateBrush(const QBrush &brush, const QPoint &pt);
+    virtual void updateBrush(const QBrush &brush, const QPointF &pt);
     virtual void updateFont(const QFont &font);
     virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     virtual void updateMatrix(const QMatrix &matrix);
     virtual void updateClipRegion(const QRegion &region, bool clipEnabled);
     virtual void updateRenderHints(QPainter::RenderHints hints);
-    virtual void drawLine(const QPoint &p1, const QPoint &ps);
-    virtual void drawRect(const QRect &r);
-    virtual void drawPoint(const QPoint &p);
-    virtual void drawPoints(const QPointArray &pa);
-    virtual void drawEllipse(const QRect &r);
-    virtual void drawLineSegments(const QPointArray &);
-    virtual void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
-    virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
-    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+    virtual void drawLine(const QLineF &line);
+    virtual void drawLines(const QList<QLineF> &points);
+    virtual void drawRect(const QRectF &r);
+    virtual void drawPoint(const QPointF &p);
+    virtual void drawPoints(const QPolygon &p);
+    virtual void drawEllipse(const QRectF &r);
+    virtual void drawPolygon(const QPolygon &p, PolygonDrawMode mode);
+    virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
+    virtual void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
+    virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode);
     virtual void drawPath(const QPainterPath &);
     virtual QPainter::RenderHints supportedRenderHints() const;

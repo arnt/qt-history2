@@ -34,22 +34,22 @@ public:
     bool end();
 
     void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPoint &pt);
+    void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
 
-    void drawLine(const QPoint &pt1, const QPoint &pt2);
-    void drawRect(const QRect &r);
-    void drawPoint(const QPoint &p);
-    void drawPoints(const QPointArray &pa);
-    void drawEllipse(const QRect &r);
-    void drawLineSegments(const QPointArray &);
-    void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
+    void drawLine(const QLineF &line);
+    void drawLines(const QList<QLineF> &lines);
+    void drawRect(const QRectF &r);
+    void drawPoint(const QPointF &p);
+    void drawPoints(const QPolygon &pa);
+    void drawEllipse(const QRectF &r);
+    void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, Qt::PixmapDrawingMode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode);
 
     Type type() const { return QPaintEngine::QuickDraw; }
     static void initialize();
@@ -57,7 +57,6 @@ public:
 
 protected:
     QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures devcaps=0);
-    void drawPolyInternal(const QPointArray &a, bool close=true);
     void setClippedRegionInternal(QRegion *);
 
     void setupQDFont();
@@ -85,23 +84,23 @@ public:
     bool end();
 
     void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPoint &pt);
+    void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
     void updateRenderHints(QPainter::RenderHints hints);
 
-    void drawLine(const QPoint &pt1, const QPoint &pt2);
+    void drawLine(const QLineF &line);
+    void drawLines(const QList<QLineF> &lines);
     void drawPath(const QPainterPath &path);
-    void drawRect(const QRect &r);
-    void drawPoint(const QPoint &pt);
-    void drawPoints(const QPointArray &pa);
-    void drawEllipse(const QRect &r);
-    void drawLineSegments(const QPointArray &);
-    void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, Qt::PixmapDrawingMode mode);
+    void drawRect(const QRectF &r);
+    void drawPoint(const QPointF &pt);
+    void drawPoints(const QPolygon &pa);
+    void drawEllipse(const QRectF &r);
+    void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode mode);
 
     Type type() const { return QPaintEngine::CoreGraphics; }
 
@@ -116,7 +115,6 @@ protected:
     friend class QMacPrintEngine;
     friend class QMacPrintEnginePrivate;
     QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr);
-    void drawPolyInternal(const QPointArray &a, bool close=true);
 
 private:
     Q_DISABLE_COPY(QCoreGraphicsPaintEngine)

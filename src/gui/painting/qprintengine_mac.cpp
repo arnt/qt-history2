@@ -548,7 +548,7 @@ void QMacPrintEngine::updatePen(const QPen &pen)
     d->paintEngine->updatePen(pen);
 }
 
-void QMacPrintEngine::updateBrush(const QBrush &brush, const QPoint &pt)
+void QMacPrintEngine::updateBrush(const QBrush &brush, const QPointF &pt)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->updateBrush(brush, pt);
@@ -590,62 +590,63 @@ void QMacPrintEngine::updateRenderHints(QPainter::RenderHints hints)
     d->paintEngine->updateRenderHints(hints);
 }
 
-void QMacPrintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+void QMacPrintEngine::drawLine(const QLineF &line)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawLine(p1, p2);
+    d->paintEngine->drawLine(line);
 }
 
-void QMacPrintEngine::drawRect(const QRect &r)
+void QMacPrintEngine::drawRect(const QRectF &r)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawRect(r);
 }
 
-void QMacPrintEngine::drawPoint(const QPoint &p)
+void QMacPrintEngine::drawPoint(const QPointF &p)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPoint(p);
 }
 
-void QMacPrintEngine::drawPoints(const QPointArray &pa)
+void QMacPrintEngine::drawPoints(const QPolygon &p)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPoints(pa);
+    d->paintEngine->drawPoints(p);
 }
 
-void QMacPrintEngine::drawEllipse(const QRect &r)
+void QMacPrintEngine::drawEllipse(const QRectF &r)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawEllipse(r);
 }
 
-void QMacPrintEngine::drawLineSegments(const QPointArray &pa)
+void QMacPrintEngine::drawLines(const QList<QLineF> &lines)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawLineSegments(pa);
+    d->paintEngine->drawLines(lines);
 }
 
-void QMacPrintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
+void QMacPrintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPolygon(pa, mode);
+    d->paintEngine->drawPolygon(p, mode);
 }
 
-void QMacPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode)
+void QMacPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, 
+                                 const QRectF &sr, Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPixmap(r, pm, sr, mode);
 }
 
-void QMacPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+void QMacPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textflags)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawTextItem(p, ti, textflags);
 }
 
-void QMacPrintEngine::drawTiledPixmap(const QRect &dr, const QPixmap &pixmap, const QPoint &sr,
-                                      Qt::PixmapDrawingMode mode)
+void QMacPrintEngine::drawTiledPixmap(const QRectF &dr, const QPixmap &pixmap, 
+                                      const QPointF &sr, Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawTiledPixmap(dr, pixmap, sr, mode);
