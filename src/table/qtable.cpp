@@ -775,6 +775,13 @@ QSize QTableItem::sizeHint() const
 
 void QTableItem::setSpan( int rs, int cs )
 {
+    // return if we are thinking too big...
+    if ( rw + rs > table()->numRows() )
+	return;
+
+    if ( cl + cs > table()->numCols() )
+	return;
+
     if ( rw == -1 || cl == -1 )
 	return;
 
@@ -3950,8 +3957,11 @@ void QTable::setNumRows( int r )
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *it = tmp [ i ];
 	int idx = it ? indexOf( it->row(), it->col() ) : 0;
-	if ( it && (uint)idx < contents.size() )
+	if ( it && (uint)idx < contents.size() ) {
 	    contents.insert( idx, it );
+	    it->setSpan( it->rowSpan(), it->colSpan() );
+	} else
+	    delete it;
     }
 
     leftHeader->setUpdatesEnabled( isUpdatesEnabled );
@@ -4011,8 +4021,12 @@ void QTable::setNumCols( int c )
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *it = tmp[ i ];
 	int idx = it ? it->row() * nc + it->col() : 0;
-	if ( it && (uint)idx < contents.size() && ( !it || it->col() < numCols() ) )
+	if ( it && (uint)idx < contents.size()
+	     && ( !it || it->col() < numCols() ) ) {
 	    contents.insert( idx, it );
+	    it->setSpan( it->rowSpan(), it->colSpan() );
+	} else
+	    delete it;
     }
 
     topHeader->setUpdatesEnabled( isUpdatesEnabled );
@@ -4776,9 +4790,15 @@ void QTable::takeItem( QTableItem *i )
     if ( !i )
 	return;
     contents.setAutoDelete( FALSE );
-    for ( int r = 0; r < i->rowSpan(); ++r ) {
-	for ( int c = 0; c < i->colSpan(); ++c )
-	    clearCell( i->row() + r, i->col() + c );
+    int bottom = i->row() + i->rowSpan();
+    if ( bottom > numRows() )
+	bottom = numRows();
+    int right = i->col() + i->colSpan();
+    if ( right > numCols() )
+	right = numCols();
+    for ( int r = i->row(); r < bottom; ++r ) {
+	for ( int c = i->col(); c < right; ++c )
+	    clearCell( r, c );
     }
     contents.setAutoDelete( TRUE );
     repaintContents( rect, FALSE );
@@ -5750,7 +5770,7 @@ int QTableHeader::sectionSize( int section ) const
     if ( count() <= 0 || section < 0 )
 	return -1;
     if ( caching )
-	return sectionSizes[ section ];
+	 return sectionSizes[ section ];
     return QHeader::sectionSize( section );
 }
 
