@@ -122,7 +122,7 @@ clean:
 	    make clean \
 	) done
 
-depend:
+depend dep:
 	@for d in $(DIRS); \
 	do (cd $$d; echo "[--- $$d ---]"; \
 	    make depend \
