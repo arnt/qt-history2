@@ -415,7 +415,7 @@ public:
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
 #endif
 #if defined(Q_WS_MAC)
-    QRegion clippedRegion();
+    QRegion clippedRegion(bool do_children=TRUE);
     bool macDropEnabled;
 #endif
 

@@ -247,7 +247,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
 			      visible, procid, behind, goaway, 0);
 	hd = (void *)id;
-	qDebug("Creating %s %d", name(), id);
 	setWinId(id);
     } else {
 	while(QWidget::find(++serial_id));
@@ -270,8 +269,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     dirtyClippedRegion(TRUE);
     macDropEnabled = false;
 
-    if ( destroyw ) 
+    if ( destroyw ) {
+	qDebug("Disposing of window %d %s %s %s:%d", destroyw, name(), className(), __FILE__, __LINE__);
 	DisposeWindow((WindowPtr)destroyw);
+    }
 }
 
 void qt_mac_destroy_widget(QWidget *w);
@@ -304,8 +305,10 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
 	} else {
-	    if ( destroyWindow && isTopLevel() && hd && own_id) 
+	    if ( destroyWindow && isTopLevel() && hd && own_id) {
+		qDebug("Disposing of window %d %s %s %s:%d", hd, name(), className(), __FILE__, __LINE__);
 	        DisposeWindow( (WindowPtr)hd );
+	    }
 	}
 
     }
@@ -322,6 +325,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
+    dirtyClippedRegion(TRUE);
+
     QCursor oldcurs;
     bool setcurs=testWState(WState_OwnCursor);
     if ( setcurs ) {
@@ -343,8 +348,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    paint_children( ((QWidget *)oldp),geometry() );
     }
 
-    if ( old_winid && own_id && isTopLevel() ) 
+    if ( old_winid && own_id && isTopLevel() ) {
+	qDebug("Disposing of window %d %s %s %s:%d", old_winid, name(), className(), __FILE__, __LINE__);
 	DisposeWindow( (WindowPtr)old_winid );
+    }
 
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
@@ -740,6 +747,7 @@ void QWidget::showNormal()
 	    move( r.topLeft() );
 	}
     }
+    dirtyClippedRegion(TRUE);
     show();
     QEvent e( QEvent::ShowNormal );
     QApplication::sendEvent( this, &e );
@@ -748,8 +756,12 @@ void QWidget::showNormal()
 
 void QWidget::raise()
 {
-    if(isTopLevel())
+    if(isTopLevel()) {
 	SelectWindow((WindowPtr)hd);
+    } else {
+	//FIXME should probaably really "lower" a child
+	dirtyClippedRegion(TRUE);
+    }
 }
 
 void QWidget::lower()
@@ -759,8 +771,10 @@ void QWidget::lower()
 	p->childObjects->insert( 0, p->childObjects->take() );
     if ( isTopLevel() )
 	; //how do I lower a window?? FIXME
-    else if(p)
+    else if(p) {
+	dirtyClippedRegion(TRUE);
 	update(geometry());
+    }
 }
 
 
@@ -773,6 +787,7 @@ void QWidget::stackUnder( QWidget *w )
     if ( loc >= 0 && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->insert( loc, p->childObjects->take() );
     // #### excessive repaints
+    dirtyClippedRegion(TRUE);
     update( geometry() );
     w->update ( w->geometry() );
 }
@@ -782,7 +797,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
     if ( testWFlags(WType_Desktop) )
 	return;
-    dirtyClippedRegion(TRUE);
 
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
@@ -815,6 +829,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     setCRect( r );
     if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
+    dirtyClippedRegion(TRUE);
 
     if ( isTopLevel() && isMove && own_id )
 	MoveWindow( (WindowPtr)winid, x, y, 1);
@@ -1174,31 +1189,38 @@ bool QWidget::isClippedRegionDirty()
     return extra->clip_dirty || (isTopLevel() || (parentWidget() && parentWidget()->isClippedRegionDirty()));
 }
 
-QRegion QWidget::clippedRegion()
+QRegion QWidget::clippedRegion(bool do_children)
 {
-    if(!isClippedRegionDirty())
+    if(!isClippedRegionDirty()) 
 	return extra->clip_saved;
 
     createExtra();
     extra->clip_dirty = FALSE;
     QPoint mp = posInWindow(this);
-    QRegion mr(mp.x(), mp.y(), width(), height());
-    extra->clip_saved = QRegion();
+    extra->clip_saved = QRegion(mp.x(), mp.y(), width(), height());
+    //clip my rect with my mask
+    if(extra && !extra->mask.isNull()) {
+	QRegion mask = extra->mask;
+	mask.translate(mp.x(), mp.y());
+	extra->clip_saved &= mask;
+    }
 
     QPoint tmp;
     //clip out my children
-    if(const QObjectList *chldnlst=children()) {
-	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
-	    if((*it)->isWidgetType()) {
-		QWidget *cw = (QWidget *)(*it);
-		if( cw->isVisible() ) {
-		    QRegion childrgn(mp.x()+cw->x(), mp.y()+cw->y(), cw->width(), cw->height());
-		    if(cw->extra && !cw->extra->mask.isNull()) {
-			QRegion mask = cw->extra->mask;
-			mask.translate(mp.x()+cw->x(), mp.y()+cw->y());
-			childrgn &= mask;
+    if(do_children) {
+	if(const QObjectList *chldnlst=children()) {
+	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
+		if((*it)->isWidgetType()) {
+		    QWidget *cw = (QWidget *)(*it);
+		    if( cw->isVisible() ) {
+			QRegion childrgn(mp.x()+cw->x(), mp.y()+cw->y(), cw->width(), cw->height());
+			if(cw->extra && !cw->extra->mask.isNull()) {
+			    QRegion mask = cw->extra->mask;
+			    mask.translate(mp.x()+cw->x(), mp.y()+cw->y());
+			    childrgn &= mask;
+			}
+			extra->clip_saved -= childrgn;
 		    }
-		    extra->clip_saved += childrgn;
 		}
 	    }
 	}
@@ -1214,27 +1236,23 @@ QRegion QWidget::clippedRegion()
 		    QWidget *sw = (QWidget *)(*it);
 		    tmp = posInWindow(sw);
 		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
-		    if(sw->isVisible() && mr.contains(sr)) {
+		    if(sw->isVisible() && extra->clip_saved.contains(sr)) {
 			QRegion sibrgn(sr);
 			if(sw->extra && !sw->extra->mask.isNull()) {
 			    QRegion mask = sw->extra->mask;
 			    mask.translate(tmp.x(), tmp.y());
 			    sibrgn &= mask;
 			}
-			extra->clip_saved += sibrgn;
+			extra->clip_saved -= sibrgn;
 		    }
 		}
 	    }
 	}
     }
 
-    extra->clip_saved = (mr & extra->clip_saved) ^ mr;
-    //clip my rect with my mask
-    if(extra && !extra->mask.isNull()) {
-	QRegion mask = extra->mask;
-	mask.translate(mp.x(), mp.y());
-	extra->clip_saved &= mask;
-    }
+    if(!isTopLevel() && parentWidget()) 
+	extra->clip_saved &= parentWidget()->clippedRegion(FALSE);
+
     return extra->clip_saved;
 }
 
