@@ -77,8 +77,23 @@ private:
 
 static QString	*lDateSep = 0;
 static QString	*lTimeSep = 0;
+static bool	lAMPM	  = FALSE;
+static QString	*lAM	  = 0;
+static QString	*lPM	  = 0;
 static QDateEdit::Order	lOrder = QDateEdit::YMD;
 static int refcount = 0;
+
+static void cleanup()
+{
+    delete lDateSep;
+    lDateSep = 0;
+    delete lTimeSep;
+    lTimeSep = 0;
+    delete lAM;
+    lAM = 0;
+    delete lPM;
+    lPM = 0;
+}
 
 /*!
 \internal
@@ -87,10 +102,7 @@ try to get the order of DMY and the date/time separator from the locale settings
 static void readLocaleSettings()
 {
     int dpos, mpos, ypos;
-    if ( lDateSep )
-	delete lDateSep;
-    if ( lTimeSep )
-	delete lTimeSep;
+    cleanup();
 
     lDateSep = new QString();
     lTimeSep = new QString();
@@ -98,19 +110,35 @@ static void readLocaleSettings()
 #if defined(Q_WS_WIN)
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
-	TCHAR data[4];
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDATE, (TCHAR*)&data, 4 );
+	TCHAR data[10];
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDATE, (TCHAR*)&data, 10 );
 	*lDateSep = qt_winQString( data );
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_STIME, (TCHAR*)&data, 4 );
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_STIME, (TCHAR*)&data, 10 );
 	*lTimeSep = qt_winQString( data );
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ITIME, (TCHAR*)&data, 10 );
+	lAMPM = qt_winQString( data ).toInt()==0;
+	if ( lAMPM ) {
+	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S1159, (TCHAR*)&data, 10 );
+	    lAM = new QString( qt_winQString( data ) );
+	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S2359, (TCHAR*)&data, 10 );
+	    lPM = new QString( qt_winQString( data ) );
+	}
     } else
 #endif
     {
-	char data[4];
-	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SDATE, (char*)&data, 4 );
+	char data[10];
+	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SDATE, (char*)&data, 10 );
 	*lDateSep = data;
-	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_STIME, (char*)&data, 4 );
+	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_STIME, (char*)&data, 10 );
 	*lTimeSep = data;
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ITIME, (TCHAR*)&data, 10 );
+	lAMPM = QString( data ).toInt()==0;
+	if ( lAMPM ) {
+	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S1159, (TCHAR*)&data, 10 );
+	    lAM = new QString( data );
+	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S2359, (TCHAR*)&data, 10 );
+	    lPM = new QString( data );
+	}
     }
 #else
     *lDateSep = "-";
@@ -203,12 +231,8 @@ public:
 	delete parag;
 	delete cursor;
 	delete pm;
-	if ( !--refcount ) {
-	    delete lDateSep;
-	    lDateSep = 0;
-	    delete lTimeSep;
-	    lTimeSep = 0;
-	}
+	if ( !--refcount )
+	    cleanup();
     }
 
     void appendSection( const QNumberSection& sec )
@@ -843,12 +867,8 @@ void QDateEdit::init()
 QDateEdit::~QDateEdit()
 {
     delete d;
-    if ( !refcount-- ) {
-	delete lDateSep;
-	lDateSep = 0;
-	delete lTimeSep;
-	lTimeSep = 0;
-    }
+    if ( !refcount-- )
+	cleanup();
 }
 
 /*! \property QDateEdit::minValue
@@ -1691,12 +1711,8 @@ void QTimeEdit::init()
 QTimeEdit::~QTimeEdit()
 {
     delete d;
-    if ( !--refcount ) {
-	delete lDateSep;
-	lDateSep = 0;
-	delete lTimeSep;
-	lTimeSep = 0;
-    }
+    if ( !--refcount )
+	cleanup();
 }
 
 /*! \property QTimeEdit::minValue
@@ -1943,6 +1959,13 @@ QString QTimeEdit::sectionFormattedText( int sec )
     else
 	d->ed->setSectionSelection( sec, offset - 2, offset );
     txt = txt.rightJustify( 2, QDATETIMEEDIT_HIDDEN_CHAR );
+
+    if ( sec == 2 && lAMPM ) {
+	if ( d->h < 12 )
+	    txt += " " + *lAM;
+	else
+	    txt += " " + *lPM;
+    }
     return txt;
 }
 
@@ -2024,7 +2047,14 @@ QString QTimeEdit::sectionText( int sec )
     QString txt;
     switch( sec ) {
     case 0:
-	txt = QString::number( d->h );
+	if ( !lAMPM || ( d->h < 13 && d->h ) ) {    // I wished the day stared at 0:00 for everybody
+	    txt = QString::number( d->h );
+	} else {
+	    if ( d->h )
+		txt = QString::number( d->h - 12 );
+	    else
+		txt = "12";
+	}
 	break;
     case 1:
 	txt = QString::number( d->m );
