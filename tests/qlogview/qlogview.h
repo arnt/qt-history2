@@ -78,7 +78,15 @@ protected:
     
 private:
     QLogViewPrivate * d;
+    QPoint mousePos;
+    QPoint oldMousePos;
+    QTimer * scrollTimer;
+    bool mousePressed;
     void init();
+    int  charIndex( const QString & str );
+    
+private slots:
+    void doAutoScroll();
 };
 
 #endif // QT_NO_LOGVIEW

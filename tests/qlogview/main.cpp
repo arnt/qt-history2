@@ -12,8 +12,10 @@ int main( int argc, char ** argv )
 //    QTextView log;
     QTextView * log2 = new QTextView;
     QLogView * log = new QLogView;
+    log->resize(200,200 );
     app.setMainWidget( log );
     
+    log2->setWordWrap( QTextEdit::NoWrap );
     log->setText( "Per Kåre \n\n\nbottolfson jr.\n" );
   //  log->setPaletteBackgroundColor( Qt::black );
     log->append( "per kåre æøå knutsen\noddvar brå\n\n\nTrond Kjernåsen\n\n" );
@@ -21,10 +23,10 @@ int main( int argc, char ** argv )
     QString str;
     timeval st, et;
     gettimeofday( &st, 0 );
-    for ( int i = 0; i < 100; i++ ) {
+    for ( int i = 0; i < 200; i++ ) {
 	str.sprintf("%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n", i);
 	log->append( str );
-	log2->append( str );
+//	log2->append( str );
 // 	if ( (i % 2000) == 0 )
 // 	    fprintf(stderr,"\rLines done: %08d", i );
     }

@@ -1,5 +1,7 @@
 #include <private/qrichtext_p.h>
 #include <qpalette.h>
+#include <qtimer.h>
+#include <qcursor.h>
 #include "qlogview.h"
 
 /* \class QLogView qlogview.h
@@ -12,17 +14,16 @@
 class QLogViewPrivate
 {
 public:
-    QLogViewPrivate() : mousePressed( FALSE ), len( 0 ), numLines( 0 ) 
+    QLogViewPrivate() : len( 0 ), numLines( 0 ), maxLineLength( 0 )
     {
 	selStart.line = selStart.index = -1;
 	selEnd.line = selEnd.index = -1;
     }
     ~QLogViewPrivate() {}
-    QPoint oldCoord;
-    bool mousePressed;
     int anchorX;
     int len;
     int numLines;
+    int maxLineLength;
     struct selection {
 	int line;
 	int index;
@@ -59,6 +60,7 @@ QLogView::~QLogView()
 {
     d->lines.clear();
     delete d;
+    delete scrollTimer;
 }
 
 /*! \internal
@@ -66,10 +68,10 @@ QLogView::~QLogView()
 void QLogView::init()
 {
     d =  new QLogViewPrivate;
-    d->oldCoord.setX( 0 );
-    d->oldCoord.setY( 0 );
     d->anchorX = 0;
     viewport()->setBackgroundMode( PaletteBase );
+    scrollTimer = new QTimer( this );	
+    connect( scrollTimer, SIGNAL( timeout() ), this, SLOT( doAutoScroll() ) );
 }
 
 /*! 
@@ -105,11 +107,16 @@ void QLogView::setText( const QString & str )
     d->lines.clear();
     d->len = str.length();
     QStringList strl = QStringList::split( '\n', str, TRUE );
-    for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it )
-	d->lines[ d->numLines++ ] = *it;
-    
     QFontMetrics fm( font() );
-    resizeContents( contentsWidth(), d->numLines * fm.lineSpacing() + 
+    int lWidth;
+    for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
+	d->lines[ d->numLines++ ] = *it;
+	lWidth = fm.width( *it );
+	if ( lWidth > d->maxLineLength )
+	    d->maxLineLength = lWidth;
+    }
+    
+    resizeContents( d->maxLineLength + 4, d->numLines * fm.lineSpacing() + 
 		    fm.descent() + 1 );
 }
 
@@ -127,17 +134,25 @@ void QLogView::append( const QString & str )
     QStringList strl = QStringList::split( '\n', str, TRUE );
     QStringList::Iterator it = strl.begin();
     
+    QFontMetrics fm( font() );
+    int lWidth;
     // append first line in str to previous line in buffer
     if ( d->numLines > 0 ) {
 	d->lines[ d->numLines - 1 ].append( *it );
+	lWidth = fm.width( d->lines[ d->numLines -1 ] );
+	if ( lWidth > d->maxLineLength )
+	    d->maxLineLength = lWidth;
 	++it;
     }
     
-    for ( ; it != strl.end(); ++it )
+    for ( ; it != strl.end(); ++it ) {
 	d->lines[ d->numLines++ ] = *it;
+	lWidth = fm.width( *it );
+	if ( lWidth > d->maxLineLength )
+	    d->maxLineLength = lWidth;
+    }
 
-    QFontMetrics fm( font() );
-    resizeContents( contentsWidth(), d->numLines * fm.lineSpacing() + 
+    resizeContents( d->maxLineLength + 4, d->numLines * fm.lineSpacing() + 
 		    fm.descent() + 1 );
 }
 
@@ -211,9 +226,11 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
 	    if ( doc->text( paragS ).length() >= idxStart )
 		c1.setIndex( idxStart );
 	    parag = doc->paragAt( paragE );
-	    c2.setParag( parag );
-	    if ( doc->text( paragE ).length() >= idxEnd )
-		c2.setIndex( idxEnd );
+	    if ( parag ) {
+		c2.setParag( parag );
+		if ( doc->text( paragE ).length() >= idxEnd )
+		    c2.setIndex( idxEnd );
+	    }
 	    doc->setSelectionStart( QTextDocument::Standard, &c1 );
 	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
 	} else if ( startLine > selStart && endLine < selEnd )
@@ -229,9 +246,11 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
 	    c1.setIndex( 0 );
 	    int paragE = selEnd - startLine;
 	    QTextParag * parag = doc->paragAt( paragE );
-	    c2.setParag( parag );
-	    if ( doc->text( paragE ).length() >= idxEnd )
-		c2.setIndex( idxEnd );
+	    if ( parag ) {
+		c2.setParag( parag );
+		if ( doc->text( paragE ).length() >= idxEnd )
+		    c2.setIndex( idxEnd );
+	    }
 	    doc->setSelectionStart( QTextDocument::Standard, &c1 );
 	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
 	} else if ( startLine <= selStart && endLine < selEnd &&
@@ -250,19 +269,7 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
 	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
 	}
     }
-    
-//     static int pp = 0;
-//     QBrush br;
-//     if ( !pp ) {
-// 	pp = 1;
-// 	br = red;
-//     } else {
-// 	pp = 0;
-// 	br = green;
-//     }
-//     QColorGroup col = colorGroup();
-//     col.setBrush( QColorGroup::Base, br );
-    
+        
     // have to align the painter so that partly visible lines are
     // drawn at the correct position within the area that needs to be
     // painted
@@ -270,6 +277,7 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
     QRect r( clipx, 0, clipw, cliph + offset );
     p->translate( 0, clipy - offset );
     doc->draw( p, r.x(), r.y(), r.width(), r.height(), colorGroup() );
+
     p->translate( 0, -(clipy - offset) );
     delete doc;
 }
@@ -279,7 +287,7 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
 void QLogView::fontChange( const QFont & )
 {
     QFontMetrics fm( font() );
-    resizeContents( contentsWidth(), d->numLines * fm.lineSpacing() + 
+    resizeContents( d->maxLineLength + 4, d->numLines * fm.lineSpacing() + 
 		    fm.descent() + 1 );
 }
 
@@ -289,71 +297,29 @@ void QLogView::contentsMousePressEvent( QMouseEvent * e )
 	return;
     
     QFontMetrics fm( font() );
-    d->mousePressed = TRUE;
+    mousePressed = TRUE;
     d->selStart.line = e->y() / fm.lineSpacing();
     QString str = d->lines[ d->selStart.line ];
-    if ( e->x() > fm.width( str ) ) {
-	d->selStart.index = str.length();
-    } else {
-	int i = 0;
-	int dd, dist = 10000000;
-	int curpos = str.length();
-	while ( i < str.length() ) {
-	    dd = fm.width( str.right( i ) ) - e->x();
-	    if ( QABS(dd) < dist || dist == dd ) {
-		dist = QABS(dd);
-		if ( e->x() >= fm.width( str.right( i ) ) ) {
-		    if ( d->anchorX > e->x() )
-			curpos = i;
-		    else
-			curpos = i + 1;
-		}
-	    }
-	    i++;
-	}
-	d->selStart.index = curpos;
-// 	int i = 0;
-// 	while ( i < str.length() ) {
-// 	    if ( fm.width( str.right( i + 1 ) ) < e->x() )
-// 		i++;
-// 	    else
-// 		break;
-// 	}
-// 	d->selStart.index = i;
-    }
+    mousePos = e->pos();
+    d->selStart.index = charIndex( str );
     d->selEnd.line = d->selStart.line;
     d->selEnd.index = d->selStart.index;
     d->anchorX = e->x();
+    oldMousePos = e->pos();
     repaintContents( FALSE );
 }
 
 void QLogView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
+    if ( e->button() != LeftButton )
+	return;
+
     QFontMetrics fm( font() );
-    d->mousePressed = FALSE;
+    mousePressed = FALSE;
     d->selEnd.line = e->y() / fm.lineSpacing();
     QString str = d->lines[ d->selEnd.line ];
-    if ( e->x() > fm.width( str ) ) {
-	d->selEnd.index = str.length();
-    } else {
-	int i = 0;
-	int dd, dist = 10000000;
-	int curpos = str.length();
-	while ( i < str.length() ) {
-	    dd = fm.width( str.right( i ) ) - e->x();
-	    if ( QABS(dd) < dist || dist == dd ) {
-		dist = QABS(dd);
-		if ( e->x() >= fm.width( str.right( i ) ) ) {
-		    if ( d->anchorX > e->x() )
-			curpos = i;
-		    else
-			curpos = i + 1;
-		}
-	    }
-	    i++;
-	}
-	d->selEnd.index = curpos;
-    }
+    mousePos = e->pos();
+    d->selEnd.index = charIndex( str );
     if ( d->selEnd.line < d->selStart.line ) {
 	int tmp = d->selStart.line;
 	d->selStart.line = d->selEnd.line;
@@ -362,48 +328,102 @@ void QLogView::contentsMouseReleaseEvent( QMouseEvent * e )
 	d->selStart.index = d->selEnd.index;
 	d->selEnd.index = tmp;
     }
+    oldMousePos = e->pos();
     repaintContents( FALSE );
 }
 
 void QLogView::contentsMouseMoveEvent( QMouseEvent * e )
 {
+    mousePos = e->pos();
+    doAutoScroll();
+    oldMousePos = mousePos;
+}
+
+void QLogView::doAutoScroll()
+{
+    if ( !mousePressed )
+	return;
+    
     QFontMetrics fm( font() );
-    if ( d->mousePressed ) {
-	d->selEnd.line = e->y() / fm.lineSpacing();
-	if ( d->selEnd.line < 0 )
-	    d->selEnd.line = 0;
-	QString str = d->lines[ d->selEnd.line ];
-	if ( e->x() > fm.width( str ) ) {
-	    d->selEnd.index = str.length();
-	} else {
-	    int i = 0;
-	    int dd, dist = 10000000;
-	    int curpos = 0;
-	    while ( i < str.length() ) {
-		dd = fm.width( str.right( i ) ) - e->x();
-		if ( QABS(dd) < dist || dist == dd ) {
-		    dist = QABS(dd);
-		    if ( e->x() >= fm.width( str.right( i ) ) ) {
-			if ( d->anchorX > e->x() )
-			    curpos = i;
-			else
-			    curpos = i + 1;
-		    }
-		}
-		i++;
- 	    }
-	    d->selEnd.index = curpos;
-	}
-	// calc height of rect that needs redrawing
-	int h = QABS(e->y() - d->oldCoord.y()) + fm.lineSpacing() * 2;
-	int y;
-	if ( d->oldCoord.y() < e->y() )
-	    y = d->oldCoord.y() - fm.lineSpacing() * 1;
-	else
-	    y = e->y() - fm.lineSpacing() * 1;
-	if ( y < 0 )
-	    y = 0;
-	repaintContents( 0, y, width(), h, FALSE ); 
-	d->oldCoord = e->pos();
+    QPoint pos( mapFromGlobal( QCursor::pos() ) );
+    bool doScroll = FALSE;
+    int xx = contentsX() + pos.x();
+    int yy = contentsY() + pos.y();
+        
+    // find out how much we have to scroll in either dir.
+    if ( pos.x() < 0 || pos.x() > viewport()->width() ||
+	 pos.y() < 0 || pos.y() > viewport()->height() ) {
+	int my = contentsY() + pos.y();
+	
+	if ( pos.x() < 0 )
+	    xx = contentsX() - fm.width( 'w');
+	else if ( pos.x() > viewport()->width() )
+	    xx = contentsX() + viewport()->width() + fm.width('w');
+
+	if ( pos.y() < 0 ) {
+	    my = contentsY() - 1;
+	    yy = (my / fm.lineSpacing()) * fm.lineSpacing() + 1;
+	} else if ( pos.y() > viewport()->height() ) {
+	    my = contentsY() + viewport()->height() + 1;
+	    yy = (my / fm.lineSpacing() + 1) * fm.lineSpacing() - 1;
+	}	
+	d->selEnd.line = my / fm.lineSpacing();
+  	mousePos.setX( xx );
+ 	mousePos.setY( my );
+	doScroll = TRUE;
+    } else {
+	d->selEnd.line = mousePos.y() / fm.lineSpacing();
     }
+	
+    if ( d->selEnd.line < 0 )
+	d->selEnd.line = 0;
+    
+    QString str = d->lines[ d->selEnd.line ];
+    d->selEnd.index = charIndex( str );
+    
+    // have to have a valid index before generating a paint event
+    if ( doScroll )
+	ensureVisible( xx, yy, 1, 1 );
+
+    // calc pos and height of rect that needs redrawing
+    int h = QABS(mousePos.y() - oldMousePos.y()) + fm.lineSpacing() * 2;
+    int y;
+    if ( oldMousePos.y() < mousePos.y() )
+	y = oldMousePos.y() - fm.lineSpacing();
+    else
+	y = mousePos.y() - fm.lineSpacing();
+    if ( y < 0 )
+	y = 0;
+    repaintContents( contentsX(), y, width(), h, FALSE );
+
+    if ( !scrollTimer->isActive() && pos.y() < 0 || pos.y() > height() )
+	scrollTimer->start( 100, FALSE );
+    else if ( scrollTimer->isActive() && pos.y() >= 0 && pos.y() <= height() )
+	scrollTimer->stop();
+}
+
+int QLogView::charIndex( const QString & str )
+{
+    QFontMetrics fm( font() );
+    uint i = 0;
+    int dd, dist = 10000000;
+    int curpos = str.length();
+
+    if ( mousePos.x() > fm.width( str ) )
+	return str.length();
+    
+    while ( i < str.length() ) {
+	dd = fm.width( str.right( i ) ) - mousePos.x();
+	if ( QABS(dd) < dist || dist == dd ) {
+	    dist = QABS(dd);
+	    if ( mousePos.x() >= fm.width( str.right( i ) ) ) {
+		if ( d->anchorX > mousePos.x() )
+		    curpos = i;
+		else
+		    curpos = i + 1;
+	    }
+	}
+	i++;
+    }
+    return curpos;
 }
