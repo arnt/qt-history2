@@ -43,9 +43,6 @@ public:
     unsigned long addRef();
     unsigned long release();
 
-    virtual bool stayTopLevel() const;
-    virtual bool hasStockEvents() const;
-
 protected:
     bool requestPropertyChange( const char *property );
     void propertyChanged( const char *property );

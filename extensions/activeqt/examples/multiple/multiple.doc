@@ -78,7 +78,12 @@ Line width: <input type="edit" ID="widthEdit" value = "1">
   calls the default implementation otherwise. The QAxWidget2 control will not expose
   properties or methods of any parent class, while QAxWidget1 exposes all properties,
   signals and slots of QWidget and QObject, too.
+  \printto hasStockEvents
+  The \c hasStockEvents implementation returns TRUE for the "QAxWidget2", and FALSE
+  otherwise. The QAxWidget2 control will fire OLE stock events when the user interacts
+  with the control.
   \printuntil };
+
   The factory is exported from the server using the QAXFACTORY_EXPORT macro.
   The implementation of \c main is just a dummy, but required for the linker.
   \printuntil }

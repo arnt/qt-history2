@@ -230,33 +230,3 @@ unsigned long QAxBindable::release()
     return activex->Release();
 }
 
-/*!
-    Reimplement this function to return TRUE if the ActiveX control
-    should be a top level window, e.g. a dialog. The default
-    implementation returns FALSE.
-*/
-bool QAxBindable::stayTopLevel() const
-{
-    return FALSE;
-}
-
-/*!
-    Reimplement this function to return TRUE if the ActiveX control
-    should support the standard ActiveX events
-    \list
-    \i Click
-    \i DblClick
-    \i KeyDown
-    \i KeyPress
-    \i KeyUp
-    \i MouseDown
-    \i MouseUp
-    \i MouseMove
-    \endlist
-
-    The default implementation returns FALSE.
-*/
-bool QAxBindable::hasStockEvents() const
-{
-    return FALSE;
-}

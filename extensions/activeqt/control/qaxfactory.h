@@ -57,6 +57,8 @@ public:
     virtual void unregisterClass( const QString &key, QSettings * ) const = 0;
 
     virtual QString exposeToSuperClass( const QString &key ) const = 0;
+    virtual bool stayTopLevel( const QString &key ) const = 0;
+    virtual bool hasStockEvents( const QString &key ) const = 0;
 #endif
 };
 
@@ -86,6 +88,8 @@ public:
     void unregisterClass( const QString &key, QSettings * ) const;
 
     QString exposeToSuperClass( const QString &key ) const;
+    bool stayTopLevel( const QString &key ) const;
+    bool hasStockEvents( const QString &key ) const;
 
     static bool isServer();
 

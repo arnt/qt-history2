@@ -29,6 +29,7 @@
 #include <qbuffer.h>
 #include <qintdict.h>
 #include <qmetaobject.h>
+#include <qobjectlist.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qpixmap.h>
@@ -41,7 +42,8 @@
 
 #include "../shared/types.h"
 
-#define QAX_PROPERTYPAGES
+//#define QAX_PROPERTYPAGES
+//#define QAX_VIEWOBJECTEX
 
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
 struct IAxServerBase : public IUnknown
@@ -99,6 +101,7 @@ class QAxServerBase :
     public IViewObject2,
 #endif
     public IOleInPlaceObject,
+    public IOleInPlaceActiveObject,
     public IProvideClassInfo2,
     public IConnectionPointContainer,
     public IPersistStorage,
@@ -236,6 +239,13 @@ public:
     STDMETHOD(SetObjectRects)(LPCRECT lprcPosRect, LPCRECT lprcClipRect);
     STDMETHOD(ReactivateAndUndo)();
 
+// IOleInPlaceActiveObject
+    STDMETHOD(TranslateAccelerator)( MSG *pMsg );
+    STDMETHOD(OnFrameWindowActivate)( BOOL );
+    STDMETHOD(OnDocWindowActivate)( BOOL fActivate );
+    STDMETHOD(ResizeBorder)( LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fFrameWindow );
+    STDMETHOD(EnableModeless)( BOOL );
+
 // IConnectionPointContainer
     STDMETHOD(EnumConnectionPoints)(IEnumConnectionPoints**);
     STDMETHOD(FindConnectionPoint)(REFIID, IConnectionPoint**);
@@ -300,6 +310,7 @@ private:
     unsigned initNewCalled	:1;
     unsigned dirtyflag		:1;
     unsigned hasStockEvents	:1;
+    unsigned stayTopLevel	:1;
     unsigned isInPlaceActive	:1;
     unsigned isUIActive		:1;
     short freezeEvents;
@@ -697,6 +708,7 @@ QAxServerBase::QAxServerBase( const QString &classname )
     initNewCalled	= FALSE;
     dirtyflag		= FALSE;
     hasStockEvents	= FALSE;
+    stayTopLevel	= FALSE;
     isInPlaceActive	= FALSE;
     isUIActive		= FALSE;
     freezeEvents = 0;
@@ -803,11 +815,13 @@ HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
 #endif
     else if ( iid == IID_IOleControl)
 	*iface = (IOleControl*)this;
-    else if ( iid == IID_IOleWindow)
-	*iface = (IOleWindow*)this;
-    else if ( iid == IID_IOleInPlaceObject)
+    else if ( iid == IID_IOleWindow) 
+	*iface = (IOleWindow*)(IOleInPlaceObject*)this;
+    else if ( iid == IID_IOleInPlaceObject) 
 	*iface = (IOleInPlaceObject*)this;
-    else if ( iid == IID_IConnectionPointContainer)
+    else if ( iid == IID_IOleInPlaceActiveObject) 
+	*iface = (IOleInPlaceActiveObject*)this;
+    else if ( iid == IID_IConnectionPointContainer) 
 	*iface = (IConnectionPointContainer*)this;
     else if ( iid == IID_IProvideClassInfo)
 	*iface = (IProvideClassInfo*)this;
@@ -855,16 +869,17 @@ bool QAxServerBase::internalCreate()
     const QMetaObject *mo = qAxFactory()->metaObject( class_name );
 
     activeqt = qAxFactory()->create( class_name );
+    hasStockEvents = qAxFactory()->hasStockEvents( class_name );
+    stayTopLevel = qAxFactory()->stayTopLevel( class_name );
+
     Q_ASSERT(activeqt);
     if ( !activeqt )
 	return FALSE;
     QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
-    if ( axb ) {
+    if ( axb )
 	// no addref; this is aggregated
 	axb->activex = this;
-	hasStockEvents = axb->hasStockEvents();
-    }
-    if ( !axb || !axb->stayTopLevel() ) {
+    if ( !stayTopLevel ) {
 	((HackWidget*)activeqt)->clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
 	((HackWidget*)activeqt)->topData()->ftop = 0;
 	((HackWidget*)activeqt)->topData()->fright = 0;
@@ -958,8 +973,7 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
     case WM_SHOWWINDOW:
 	that->internalCreate();
 	if( wParam ) {
-	    QAxBindable *axb = (QAxBindable*)that->activeqt->qt_cast( "QAxBindable" );
-	    if ( !axb || !axb->stayTopLevel() ) {
+	    if ( !that->stayTopLevel ) {
 		::SetParent( that->activeqt->winId(), that->m_hWnd );
 		that->activeqt->raise();
 		that->activeqt->move( 0, 0 );
@@ -978,11 +992,13 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
     case WM_SETFOCUS:
 	if ( that->isInPlaceActive && that->m_spClientSite ) {
 	    that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWndCD, &that->rcPos);
-	    IOleControlSite *spSite = 0;
-	    that->m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&spSite );
-	    if ( spSite ) {
-		spSite->OnFocus(TRUE);
-		spSite->Release();
+	    if ( that->isUIActive ) {
+		IOleControlSite *spSite = 0;
+		that->m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&spSite );
+		if ( spSite ) {
+		    spSite->OnFocus(TRUE);
+		    spSite->Release();
+		}
 	    }
 	}
 	if ( that->activeqt ) {
@@ -996,7 +1012,7 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
 	break;
 
     case WM_KILLFOCUS:
-	if ( that->isInPlaceActive && that->m_spClientSite ) {
+	if ( that->isInPlaceActive && that->isUIActive && that->m_spClientSite ) {
 	    IOleControlSite *spSite = 0;
 	    that->m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&spSite );
 	    if ( spSite ) {
@@ -1313,7 +1329,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		int p;
 		for ( p = 0; p < signalcount; ++p ) {
 		    QUObject *obj = _o + p + 1;
-		    QUObjectToVARIANT( obj, arg, signal->method->parameters + p );
+		    QUObjectToVARIANT( obj, arg, signal ? signal->method->parameters + p : 0 );
 		    dispParams.rgvarg[ signalcount - p - 1 ] = arg;
 		}
 		// call listeners (through IDispatch)
@@ -2324,6 +2340,33 @@ HRESULT QAxServerBase::ReactivateAndUndo()
     return E_NOTIMPL;
 }
 
+//**** IOleInPlaceActiveObject
+
+HRESULT QAxServerBase::TranslateAccelerator( MSG *pMsg )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxServerBase::OnFrameWindowActivate( BOOL fActivate )
+{
+    return S_OK;
+}
+
+HRESULT QAxServerBase::OnDocWindowActivate( BOOL fActivate )
+{
+    return S_OK;
+}
+
+HRESULT QAxServerBase::ResizeBorder( LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fFrameWindow )
+{
+    return S_OK;
+}
+
+HRESULT QAxServerBase::EnableModeless( BOOL fEnable )
+{
+    return S_OK;
+}
+
 //**** IOleObject
 
 static inline LPOLESTR QStringToOLESTR( const QString &qstring )
@@ -2451,7 +2494,7 @@ HRESULT QAxServerBase::internalActivate()
 
 	if (m_hWndCD) {
 	    ::ShowWindow(m_hWndCD, SW_SHOW);
-	    if (!::IsChild(m_hWndCD, ::GetFocus()))
+	    if (!::IsChild(m_hWndCD, ::GetFocus()) && activeqt->focusPolicy() != QWidget::NoFocus )
 		::SetFocus(m_hWndCD);
 	} else {
 	    Create(hwndParent, rcPos);
@@ -2461,7 +2504,23 @@ HRESULT QAxServerBase::internalActivate()
     }
 
     // Gone active by now, take care of UIACTIVATE
-    if ( !isUIActive ) {
+    bool canTakeFocus = activeqt->focusPolicy() != QWidget::NoFocus;
+    if ( !canTakeFocus ) {
+	QObjectList *list = activeqt->queryList();
+	if ( list ) {
+	    QObjectListIt it( *list );
+	    QObject *o = 0;
+	    while ( ( o = it.current() ) && !canTakeFocus ) {
+		++it;
+		if ( !o->isWidgetType() )
+		    continue;
+		QWidget *w = (QWidget*)o;
+		canTakeFocus = w->focusPolicy() != QWidget::NoFocus;		    
+	    }
+	    delete list;
+	}
+    }
+    if ( !isUIActive && canTakeFocus ) {
 	isUIActive = TRUE;
 	hr = m_spInPlaceSite->OnUIActivate();
 	if ( FAILED(hr) ) {

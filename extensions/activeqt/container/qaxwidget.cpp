@@ -438,6 +438,36 @@ HRESULT QAxHostWindow::Invoke(DISPID dispIdMember,
 	return E_POINTER;
 
     switch( dispIdMember ) {
+    case DISPID_AMBIENT_AUTOCLIP:
+	pVarResult->vt = VT_BOOL;
+	pVarResult->boolVal = TRUE;
+	return S_OK;
+
+    case DISPID_AMBIENT_USERMODE:
+	pVarResult->vt = VT_BOOL;
+	pVarResult->boolVal = TRUE;
+	return S_OK;
+
+    case DISPID_AMBIENT_SUPPORTSMNEMONICS:
+	pVarResult->vt = VT_BOOL;
+	pVarResult->boolVal = TRUE;
+	return S_OK;
+
+    case DISPID_AMBIENT_DISPLAYASDEFAULT:
+	pVarResult->vt = VT_BOOL;
+	pVarResult->boolVal = FALSE;
+	return S_OK;
+
+    case DISPID_AMBIENT_DISPLAYNAME:
+	pVarResult->vt = VT_BSTR;
+	pVarResult->bstrVal = QStringToBSTR( widget->caption() );
+	return S_OK;
+
+    case DISPID_AMBIENT_MESSAGEREFLECT:
+	pVarResult->vt = VT_BOOL;
+	pVarResult->boolVal = FALSE;
+	return S_OK;
+
     case DISPID_AMBIENT_FONT:
 	pVarResult->vt = VT_DISPATCH;
 	pVarResult->pdispVal = QFontToIFont( widget->font() );

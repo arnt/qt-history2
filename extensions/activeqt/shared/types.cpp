@@ -454,7 +454,7 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
     } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
 	arg.vt = VT_UNKNOWN;
 	arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
-    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) ) {
+    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && param ) {
 	const char *type = (const char*)param->typeExtra;
 	if ( !qstrcmp( type, "int" ) ) {
 	    arg.vt = VT_I4;

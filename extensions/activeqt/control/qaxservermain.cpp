@@ -552,6 +552,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	    return E_FAIL;
 
 	QString topclass = qAxFactory()->exposeToSuperClass( className );
+	bool hasStockEvents = qAxFactory()->hasStockEvents( className );
 
 	QMetaObject *pmo = mo;
 	do {
@@ -564,9 +565,6 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
 	QAxBindable *bind = (QAxBindable*)w->qt_cast( "QAxBindable" );
 	bool isBindable =  bind != 0;
-	bool hasStockEvents = FALSE;
-	if ( bind )
-	    hasStockEvents = bind->hasStockEvents();
 
 	QString classID = qAxFactory()->classID( className ).toString().upper();
 	STRIPCB(classID);

@@ -327,6 +327,38 @@ QString QAxFactory::exposeToSuperClass( const QString &key ) const
     return "QWidget";
 }
 
+/*!
+    Reimplement this function to return TRUE if the ActiveX control \a key
+    should be a top level window, e.g. a dialog. The default implementation
+    returns FALSE.
+*/
+bool QAxFactory::stayTopLevel( const QString &key ) const
+{
+    return FALSE;
+}
+
+/*!
+    Reimplement this function to return TRUE if the ActiveX control
+     \a key should support the standard ActiveX events
+    \list
+    \i Click
+    \i DblClick
+    \i KeyDown
+    \i KeyPress
+    \i KeyUp
+    \i MouseDown
+    \i MouseUp
+    \i MouseMove
+    \endlist
+
+    The default implementation returns FALSE.
+*/
+bool QAxFactory::hasStockEvents( const QString &key ) const
+{
+    return FALSE;
+}
+
+
 extern bool qAxIsServer;
 
 /*!
