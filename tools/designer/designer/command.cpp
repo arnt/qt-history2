@@ -1479,6 +1479,15 @@ AddActionToToolBarCommand::AddActionToToolBarCommand( const QString &n, FormWind
 void AddActionToToolBarCommand::execute()
 {
     action->addTo( toolBar );
+
+    if ( action->inherits( "QDesignerAction" ) ) {
+	QString s = ( (QDesignerAction*)action )->widget()->name();
+	if ( s.startsWith( "qt_dead_widget_" ) ) {
+	    s.remove( 0, QString( "qt_dead_widget_" ).length() );
+	    ( (QDesignerAction*)action )->widget()->setName( s );
+	}
+    }
+
     if ( action->inherits( "QDesignerAction" ) ) {
 	toolBar->insertAction( ( (QDesignerAction*)action )->widget(), action );
 	( (QDesignerAction*)action )->widget()->installEventFilter( toolBar );
@@ -1526,6 +1535,12 @@ void AddActionToToolBarCommand::execute()
 
 void AddActionToToolBarCommand::unexecute()
 {
+    if ( action->inherits( "QDesignerAction" ) ) {
+	QString s = ( (QDesignerAction*)action )->widget()->name();
+	s.prepend( "qt_dead_widget_" );
+	( (QDesignerAction*)action )->widget()->setName( s );
+    }
+
     toolBar->removeAction( action );
     action->removeFrom( toolBar );
     QObject::disconnect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
