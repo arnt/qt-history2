@@ -1234,7 +1234,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             pos.setY(screen.top() + desktopFrame);
     }
     if(d->scroll && pos.y()+size.height() > screen.height()-(desktopFrame*2)) {
-        d->scroll->scrollFlags |= QMenuPrivate::QMenuScroller::ScrollDown;
+        d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
         size.setHeight(screen.height()-desktopFrame-pos.y());
     }
     setGeometry(QRect(pos, size));

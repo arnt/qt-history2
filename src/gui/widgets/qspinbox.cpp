@@ -18,7 +18,7 @@
 
 class QSpinBoxPrivate : public QAbstractSpinBoxPrivate
 {
-    Q_DECLARE_PUBLIC(QSpinBox);
+    Q_DECLARE_PUBLIC(QSpinBox)
 public:
     QSpinBoxPrivate();
     void emitSignals();
@@ -28,7 +28,7 @@ public:
 
 class QDoubleSpinBoxPrivate : public QAbstractSpinBoxPrivate
 {
-    Q_DECLARE_PUBLIC(QDoubleSpinBox);
+    Q_DECLARE_PUBLIC(QDoubleSpinBox)
 public:
     QDoubleSpinBoxPrivate();
     void emitSignals();

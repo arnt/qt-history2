@@ -18,6 +18,7 @@
 // qapplication_win.cpp, which suggest a unification.
 
 #include "qplatformdefs.h"
+#include <fcntl.h>
 
 // POSIX Large File Support redefines open -> open64
 #if defined(open)

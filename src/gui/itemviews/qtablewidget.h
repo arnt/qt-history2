@@ -32,6 +32,9 @@ private:
     int top, left, bottom, right;
 };
 
+class QTableWidget;
+class QTableModel;
+
 class Q_GUI_EXPORT QTableWidgetItem
 {
     friend class QTableWidget;

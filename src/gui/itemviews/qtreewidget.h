@@ -18,6 +18,7 @@
 #include <qlist.h>
 
 class QTreeWidget;
+class QTreeModel;
 
 class Q_GUI_EXPORT QTreeWidgetItem
 {
@@ -103,7 +104,7 @@ protected:
     QTreeWidgetItem();
     void sortChildren(int column, Qt::SortOrder order, bool climb);
 
-private:    
+private:
     struct Data {
         Data() : role(-1) {}
         Data(int r, QVariant v) : role(r), value(v) {}

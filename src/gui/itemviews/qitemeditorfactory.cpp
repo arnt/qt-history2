@@ -51,6 +51,8 @@ void QItemEditorFactory::registerEditor(QVariant::Type type, QItemEditorCreatorB
 class QDefaultItemEditorFactory: public QItemEditorFactory
 {
 public:
+    inline QDefaultItemEditorFactory()
+    {}
     QWidget *createEditor(QVariant::Type type, QWidget *parent) const;
     QByteArray valuePropertyName(QVariant::Type) const;
 };

@@ -283,7 +283,7 @@ private:
 
 class QFileDialogPrivate : public QDialogPrivate
 {
-    Q_DECLARE_PUBLIC(QFileDialog);
+    Q_DECLARE_PUBLIC(QFileDialog)
 public:
     QFileDialogPrivate()
         : QDialogPrivate(),

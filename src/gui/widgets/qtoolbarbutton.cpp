@@ -29,7 +29,7 @@
 
 class QToolBarButtonPrivate : public QAbstractButtonPrivate
 {
-    Q_DECLARE_PUBLIC(QToolBarButton);
+    Q_DECLARE_PUBLIC(QToolBarButton)
 
 public:
     QPointer<QMenu> menu;

@@ -11,19 +11,9 @@
 **
 ****************************************************************************/
 
-#include "qplatformdefs.h"
 
-// POSIX Large File Support redefines open -> open64
-static inline int qt_open(const char *pathname, int flags, mode_t mode)
-{ return ::open(pathname, flags, mode); }
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
-#endif
+// has to be included before qfontengine_p.h
+#include "qfile.h"
 
 #include "qprintengine_ps.h"
 #include <private/qpainter_p.h>
@@ -49,7 +39,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qstring.h"
 #include "qbytearray.h"
 #include "qhash.h"
-#include "qfile.h"
 #include "qbuffer.h"
 #include "qtextcodec.h"
 #include "qsettings.h"
@@ -75,6 +64,20 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)
 #include <private/qfontengine_p.h>
 #include <qtextlayout.h>
+#endif
+
+#include <fcntl.h>
+
+// POSIX Large File Support redefines open -> open64
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
+#if defined(open)
+# undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
 #endif
 
 #ifdef Q_WS_X11
@@ -4989,7 +4992,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     if (creator.count() == 0)                             // default creator
         creator = QLatin1String("Qt " QT_VERSION_STR);
     outDevice = new QFile();
-    (void)((QFile *)outDevice)->open(IO_WriteOnly, fd);
+    static_cast<QFile *>(outDevice)->open(QIODevice::WriteOnly, fd);
     outStream.setDevice(outDevice);
     outStream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m(printer);

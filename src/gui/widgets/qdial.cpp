@@ -37,7 +37,7 @@ static const double rad_factor = 180.0 / m_pi;
 
 class QDialPrivate : public QAbstractSliderPrivate
 {
-    Q_DECLARE_PUBLIC(QDial);
+    Q_DECLARE_PUBLIC(QDial)
 public:
     QDialPrivate()
     {

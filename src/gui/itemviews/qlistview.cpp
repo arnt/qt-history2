@@ -261,7 +261,7 @@ QListView::~QListView()
 */
 void QListView::setMovement(Movement movement)
 {
-    d->modeProperties |= QListViewPrivate::Movement;
+    d->modeProperties |= uint(QListViewPrivate::Movement);
     d->movement = movement;
     if (isVisible())
         doItemsLayout();
@@ -287,7 +287,7 @@ QListView::Movement QListView::movement() const
 */
 void QListView::setFlow(Flow flow)
 {
-    d->modeProperties |= QListViewPrivate::Flow;
+    d->modeProperties |= uint(QListViewPrivate::Flow);
     d->flow = flow;
     if (isVisible())
         doItemsLayout();
@@ -311,7 +311,7 @@ QListView::Flow QListView::flow() const
 */
 void QListView::setWrapping(bool enable)
 {
-    d->modeProperties |= QListViewPrivate::Movement;
+    d->modeProperties |= uint(QListViewPrivate::Movement);
     d->wrap = enable;
     if (isVisible())
         doItemsLayout();
@@ -339,7 +339,7 @@ bool QListView::isWrapping() const
 */
 void QListView::setIconSize(IconSize size)
 {
-    d->modeProperties |= QListViewPrivate::IconSize;
+    d->modeProperties |= uint(QListViewPrivate::IconSize);
     d->iconSize = size;
     if (isVisible())
         doItemsLayout();
@@ -402,7 +402,7 @@ QListView::LayoutMode QListView::layoutMode() const
 */
 void QListView::setSpacing(int space)
 {
-    d->modeProperties |= QListViewPrivate::Spacing;
+    d->modeProperties |= uint(QListViewPrivate::Spacing);
     d->spacing = space;
     if (isVisible())
         doItemsLayout();
@@ -428,7 +428,7 @@ int QListView::spacing() const
 */
 void QListView::setGridSize(const QSize &size)
 {
-    d->modeProperties |= QListViewPrivate::GridSize;
+    d->modeProperties |= uint(QListViewPrivate::GridSize);
     d->gridSize = size;
     if (isVisible())
         doItemsLayout();
