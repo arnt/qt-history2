@@ -130,10 +130,10 @@ qapp_x11.o: /usr/include/gnu/types.h /usr/include/linux/fcntl.h
 qapp_x11.o: /usr/include/unistd.h /usr/include/posix_opt.h
 qapp_x11.o: /usr/include/confname.h /usr/include/sys/time.h
 qapp_x11.o: /usr/include/linux/time.h /usr/include/sys/time.h
-qapp_x11.o: /home/popcorn/home/hanord/qt/include/qstack.h
-qapp_x11.o: /usr/include/X11/keysymdef.h qkeycode.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qintdict.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
+qapp_x11.o: /home/popcorn/home/hanord/qt/include/qstack.h
+qapp_x11.o: /usr/include/X11/keysymdef.h qkeycode.h
 qcol_x11.o: qcolor.h qwindefs.h qobjdefs.h
 qcol_x11.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 qcol_x11.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
@@ -309,12 +309,8 @@ qsignal.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qsignal.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qsignal.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qsignal.o: /usr/include/string.h /usr/include/features.h
-qsignal.o: /usr/include/sys/cdefs.h qobjcoll.h qmetaobj.h qconnect.h
-qsignal.o: /home/popcorn/home/hanord/qt/include/qlist.h
-qsignal.o: /home/popcorn/home/hanord/qt/include/qglist.h
-qsignal.o: /home/popcorn/home/hanord/qt/include/qcollect.h
-qsignal.o: /home/popcorn/home/hanord/qt/include/qdict.h
-qsignal.o: /home/popcorn/home/hanord/qt/include/qgdict.h /usr/include/ctype.h
+qsignal.o: /usr/include/sys/cdefs.h qmetaobj.h qconnect.h
+qsignal.o: /usr/include/ctype.h
 qpntarry.o: qpntarry.h /home/popcorn/home/hanord/qt/include/qarray.h
 qpntarry.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qpntarry.o: /home/popcorn/home/hanord/qt/include/qshared.h
