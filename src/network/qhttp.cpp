@@ -1018,13 +1018,10 @@ void QHttp::clientClosed()
   \sa finishedSuccess() response()
 */
 /*!
-  \fn void QHttp::responseHeader( const QHttpResponseHeader& resp )
+  \fn void QHttp::responseHeaderReceived( const QHttpResponseHeader& resp )
 
   This signal is emitted if the HTTP header of the response is available. The
   header is passed in \a resp.
-
-  It is now possible to decide wether the response data should be read in memory
-  or rather in some device by calling setDevice().
 
   \sa setDevice() response() responseChunk()
 */
@@ -1118,33 +1115,11 @@ void QHttp::setHost(const QString &hostname, Q_UINT16 port )
     d->port = port;
 }
 
-/*! \overload
-*/
-bool QHttp::request( const QHttpRequestHeader& header )
-{
-    return request( header, QByteArray(), 0 );
-}
-
-/*! \overload
-*/
-bool QHttp::request( const QHttpRequestHeader& header, const QByteArray& data )
-{
-    return request( header, data, data.size() );
-}
-
-/*! \overload
-*/
-bool QHttp::request( const QHttpRequestHeader& header, const QCString& data )
-{
-    return request( header, data, data.length() );
-}
-
 /*!
     Sends a request to the server set by setHost() or as specified in the
     constructor. Use the \a header as the HTTP request header. You are
     responsible for setting up a \a header that is appropriate appropriate for
-    your request. \a data is a char array of size \a size; it is used as the
-    content data of the HTTP request.
+    your request. \a data is used as the content data of the HTTP request.
 
     Call this function after the client was created or after the
     finishedSuccess() signal is emitted. Returns TRUE if it is able to make
@@ -1152,9 +1127,8 @@ bool QHttp::request( const QHttpRequestHeader& header, const QCString& data )
 
     \sa setHost()
 */
-bool QHttp::request( const QHttpRequestHeader& header, const char* data, uint size )
+bool QHttp::request( const QHttpRequestHeader& header, const QByteArray& data )
 {
-    // Is it allowed to make a new request now ?
     if ( d->state != Unconnected && d->state != Connected ) {
 	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
 	return FALSE;
@@ -1173,8 +1147,8 @@ bool QHttp::request( const QHttpRequestHeader& header, const char* data, uint si
 	d->socket->connectToHost( d->hostname, d->port );
     }
 
-    // Get a deep copy of the data
-    d->buffer.duplicate( data, size );
+    d->postDevice = 0;
+    d->buffer = data;
     d->header = header;
 
     if ( d->buffer.size() > 0 )
@@ -1183,14 +1157,14 @@ bool QHttp::request( const QHttpRequestHeader& header, const char* data, uint si
     return TRUE;
 }
 
-/*!
-    \overload
+/*!  \overload
 
     Sends a request to the server set by setHost() or as specified in the
     constructor. Use the \a header as the HTTP request header. You are
     responsible for setting up a \a header that is appropriate appropriate for
-    your request. The content data is read from \a device (the device must be
-    opened for reading).
+    your request. The content data is read from \a device.
+
+    If \a device is 0, no content data is used
 
     Call this function after the client was created or after the
     finishedSuccess() signal is emitted. Returns TRUE if it is able to make
@@ -1200,21 +1174,17 @@ bool QHttp::request( const QHttpRequestHeader& header, const char* data, uint si
 */
 bool QHttp::request( const QHttpRequestHeader& header, QIODevice* device )
 {
-    if ( d->state != Unconnected ) {
+    if ( d->state != Unconnected && d->state != Connected ) {
 	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
+	return FALSE;
+    }
+    if ( d->hostname.isNull() ) {
+	qWarning( "QHttp::request() - no server to set to connect to" );
 	return FALSE;
     }
 
     killIdleTimer();
     d->state = Connecting;
-
-    d->postDevice = device;
-    if ( !d->postDevice || !d->postDevice->isOpen() || !d->postDevice->isReadable() ) {
-	qWarning("The device passes to QHttp::request must be opened for reading");
-	return FALSE;
-    }
-
-    d->buffer = QByteArray();
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
@@ -1222,9 +1192,18 @@ bool QHttp::request( const QHttpRequestHeader& header, QIODevice* device )
 	d->socket->connectToHost( d->hostname, d->port );
     }
 
-    // Get a deep copy of the header
+    d->postDevice = device;
+    d->buffer = QByteArray();
     d->header = header;
-    d->header.setContentLength( d->postDevice->size() );
+
+    if ( d->postDevice ) {
+	if ( !d->postDevice || !d->postDevice->isOpen() || !d->postDevice->isReadable() ) {
+	    qWarning("The device passes to QHttp::request must be opened for reading");
+	    return FALSE;
+	}
+	if ( d->postDevice->size() > 0 )
+	    d->header.setContentLength( d->postDevice->size() );
+    }
 
     return TRUE;
 }
@@ -1368,7 +1347,7 @@ void QHttp::slotReadyRead()
 		close();
 		return;
 	    }
-	    emit responseHeader( d->response );
+	    emit responseHeaderReceived( d->response );
 
 	    // Handle data that was already read
 	    d->bytesRead = d->buffer.size() - i - 4;
@@ -1454,22 +1433,16 @@ void QHttp::slotReadyRead()
 
     This enum is used to specify the state the client is in.
 
-    \value Closing The connection is shutting down, but is still not
-    ready to accept new requests. (Wait until the client is Unconnected.)
-
-    \value Connecting A request was issued and the client is looking up
-    IP addresses or connecting to the remote host.
-
-    \value Sending  The client is sending its request to the server.
-
-    \value Reading The client has sent its request and is reading the
-    server's response.
-
-    \value Connected The connection to the host is open. It is possible to
-    make new requests.
-
-    \value Unconnected There is no open connection. It is possible to make new
-    requests.
+    \value Unconnected if there is no open connection
+    \value HostLookup if the client is doing a host name lookup
+    \value Connecting if the client is trying to connect to the host
+    \value Sending when the client is sending its request to the server
+    \value Reading when the client has sent its request and is reading the
+    server's response
+    \value Connected when the connection to the host is open, but the client is
+    neither sending a request, nor waiting for a response
+    \value Closing if the connection is closing down, but is not yet
+    unconnected
 */
 /*!
     Returns the state of the HTTP client.
