@@ -144,6 +144,7 @@ private:
     QPopupMenu* popup;
     QWorkspacePrivate* d;
 
+    friend class QWorkspacePrivate;
     friend class QWorkspaceChild;
 
 private:	// Disabled copy constructor and operator=
