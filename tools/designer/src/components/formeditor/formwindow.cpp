@@ -915,22 +915,19 @@ bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
     e->accept(); // we always accept!
 
     switch (e->key()) {
-        default:
-            break; // we don't care about the other keys
+        default: break; // we don't care about the other keys
+
         case Qt::Key_Backspace:
             deleteWidgets();
             break;
 
-
-#if 0 // ### enable me
         case Qt::Key_Left:
-            cursor()->movePosition(AbstractFormWindowCursor::Left);
+            cursor()->movePosition(AbstractFormWindowCursor::Prev);
             break;
 
         case Qt::Key_Right:
-            cursor()->movePosition(AbstractFormWindowCursor::Right);
+            cursor()->movePosition(AbstractFormWindowCursor::Next);
             break;
-#endif
     }
 
     return true;
