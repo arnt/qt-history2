@@ -1357,6 +1357,7 @@ public:
     inline QFlags operator|(Enum f) const { QFlags g; g.i = i | f; return g; }
     inline int operator|(int f) const { return i | f; }
     inline QFlags operator&(int mask) const { QFlags g; g.i = i & mask; return g; }
+    inline QFlags operator&(Enum f) const { QFlags g; g.i = i & f; return g; }
     inline QFlags operator~() const { QFlags g; g.i = ~i; return g; }
 
     inline bool operator!() const { return !i; }
