@@ -193,7 +193,7 @@ void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
   if(srcbitmask && !imask) {
       BitMap *maskbits = (BitMap *)*GetGWorldPixMap((GWorldPtr)srcbitmask->handle());
       Rect maskr;
-      SetRect(&maskr, 0, 0, srcbitmask->width(), srcbitmask->height());
+      SetRect(&maskr, 0, 0, sw, sh);
       CopyDeepMask(srcbitmap, maskbits, dstbitmap, &r, &maskr, &r2, copymode, 0);
   }
   else {
