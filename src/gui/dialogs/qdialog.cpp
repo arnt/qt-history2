@@ -32,10 +32,6 @@
 #include "qt_windows.h"
 #endif
 
-#if defined(Q_WS_X11)
-#include "private/qt_x11_p.h"
-#endif
-
 /*!
     \class QDialog
     \brief The QDialog class is the base class of dialog windows.
@@ -588,10 +584,6 @@ bool QDialog::event(QEvent *e)
   Geometry management.
  *****************************************************************************/
 
-#if defined(Q_WS_X11)
-extern "C" { int XSetTransientForHint(Display *, unsigned long, unsigned long); }
-#endif // Q_WS_X11
-
 /*!
     Shows the dialog as a \link #modeless modeless \endlink dialog.
     Control returns immediately to the calling code.
@@ -606,15 +598,6 @@ void QDialog::show()
 {
     if (testWState(Qt::WState_Visible))
         return;
-
-#if defined(Q_WS_X11)
-    if (!parentWidget() && testWFlags(Qt::WShowModal)
-        && qApp->mainWidget() && qApp->mainWidget()->isVisible()
-        && !qApp->mainWidget()->isMinimized()) {
-        // make sure the transient for hint is set properly for modal dialogs
-        XSetTransientForHint(X11->display, winId(), qApp->mainWidget()->winId());
-    }
-#endif // Q_WS_X11
 
 #ifdef Q_OS_TEMP
     hideSpecial();

@@ -557,20 +557,23 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         XChangeWindowAttributes(dpy, id, CWOverrideRedirect | CWSaveUnder,
                                 &wsa);
     } else if (topLevel && !desktop) {        // top-level widget
-        QWidget *p = parentWidget();        // real parent
+        if (!X11->wm_client_leader)
+            create_wm_client_leader();
+
+        // real parent
+        QWidget *p = parentWidget();
         if (p)
             p = p->topLevelWidget();
 
         if (dialog || testWFlags(Qt::WStyle_DialogBorder) || testWFlags(Qt::WStyle_Tool)) {
-            if (p)
+            if (p && p->testWFlags(Qt::WGroupLeader)) {
+                // transient for window
                 XSetTransientForHint(dpy, id, p->winId());
-            else                                // application-modal
-                XSetTransientForHint(dpy, id, root_win);
+            } else {
+                // transient for group
+                XSetTransientForHint(dpy, id, X11->wm_client_leader);
+            }
         }
-
-        // find the real client leader, i.e. a toplevel without parent
-        while (p && p->parentWidget())
-            p = p->parentWidget()->topLevelWidget();
 
         XSizeHints size_hints;
         size_hints.flags = USSize | PSize | PWinGravity;
@@ -582,15 +585,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
 
         XWMHints wm_hints;                        // window manager hints
+        wm_hints.flags = InputHint | StateHint | WindowGroupHint;
         wm_hints.input = True;
         wm_hints.initial_state = NormalState;
-        wm_hints.flags = InputHint | StateHint;
-
-        if (!X11->wm_client_leader)
-            create_wm_client_leader();
-
         wm_hints.window_group = X11->wm_client_leader;
-        wm_hints.flags |= WindowGroupHint;
 
         XClassHint class_hint;
         class_hint.res_name = (char *) qAppName(); // application name
