@@ -1,7 +1,7 @@
 TEMPLATE	= lib
 CONFIG+= qt warn_on debug plugin
 
-HEADERS		= ../../../../src/styles/qmotifstyle.h
+HEADERS		= ../../../../include/qmotifstyle.h
 
 SOURCES		= main.cpp \
 		  ../../../../src/styles/qmotifstyle.cpp

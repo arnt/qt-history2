@@ -1,7 +1,7 @@
 TEMPLATE	= lib
 CONFIG+= qt warn_on debug plugin
 
-HEADERS		= ../../../../src/styles/qwindowsstyle.h
+HEADERS		= ../../../../include/qwindowsstyle.h
 
 SOURCES		= main.cpp \
 		  ../../../../src/styles/qwindowsstyle.cpp
