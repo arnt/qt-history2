@@ -17,7 +17,7 @@ HEADERS +=  replacetoken.h            \
             logger.h                  \
             lexer.h                   \
             tokens.h                  \
-            filewriter.h              
+            filewriter.h
 
 SOURCES += port.cpp                  \
            replacetoken.cpp          \
@@ -30,8 +30,11 @@ SOURCES += port.cpp                  \
            fileporter.cpp            \
            logger.cpp                \
            lexer.cpp                 \
-           filewriter.cpp              
+           filewriter.cpp
 
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
 QT += xml
+
+target.path=$$bins.path
+INSTALLS += target
