@@ -85,18 +85,18 @@ public:
     QTextFrame *parentFrame();
 
     class iterator {
-        const QTextFrame *f;
-        const QTextFrame *cf;
+        QTextFrame *f;
+        QTextFrame *cf;
         int cb;
         friend class QTextFrame;
-        iterator(const QTextFrame *frame, int b);
+        iterator(QTextFrame *frame, int b);
     public:
         iterator();
         iterator(const iterator &o);
 
-        const QTextFrame *parentFrame() const { return f; }
+        QTextFrame *parentFrame() const { return f; }
 
-        const QTextFrame *currentFrame() const;
+        QTextFrame *currentFrame() const;
         QTextBlock currentBlock() const;
 
         inline bool operator==(const iterator &o) const { return f == o.f && cf == o.cf && cb == o.cb; }

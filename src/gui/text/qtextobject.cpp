@@ -233,12 +233,12 @@ QTextFrame::iterator QTextFrame::begin() const
 {
     const QTextDocumentPrivate *priv = docHandle();
     int b = priv->blockMap().findNode(firstPosition());
-    return iterator(this, b);
+    return iterator(const_cast<QTextFrame *>(this), b);
 }
 
 QTextFrame::iterator QTextFrame::end() const
 {
-    return iterator(this, 0);
+    return iterator(const_cast<QTextFrame *>(this), 0);
 }
 
 
@@ -249,7 +249,7 @@ QTextFrame::iterator::iterator()
     cb = 0;
 }
 
-QTextFrame::iterator::iterator(const QTextFrame *frame, int b)
+QTextFrame::iterator::iterator(QTextFrame *frame, int b)
 {
     f = frame;
     cf = 0;
@@ -263,7 +263,7 @@ QTextFrame::iterator::iterator(const iterator &o)
     cb = o.cb;
 }
 
-const QTextFrame *QTextFrame::iterator::currentFrame() const
+QTextFrame *QTextFrame::iterator::currentFrame() const
 {
     return cf;
 }
@@ -283,6 +283,9 @@ QTextFrame::iterator QTextFrame::iterator::operator++()
         cf = 0;
     } else if (cb) {
         cb = map.next(cb);
+        if (!cb)
+            return *this;
+
         int pos = map.position(cb);
         // check if we entered a frame
         QTextDocumentPrivate::FragmentIterator frag = priv->find(pos-1);
@@ -331,9 +334,12 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
         }
         cb = map.prev(cb);
     } else {
-        cb = map.findNode(f->lastPosition());
+        int pos = f->lastPosition();
+        if (pos == priv->length())
+            --pos;
+        cb = map.findNode(pos);
     }
-    end:
+ end:
     return *this;
 }
 

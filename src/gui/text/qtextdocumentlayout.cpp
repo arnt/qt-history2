@@ -158,7 +158,6 @@ public:
 int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, QText::HitTestAccuracy accuracy) const
 {
     QTextFrameData *fd = data(frame);
-    const QTextDocument *doc = q->document();
 
     LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point;
     if (!fd->boundingRect.contains(point) && frame != q->document()->rootFrame()) {
@@ -169,45 +168,30 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
 
     QPoint p = point - fd->boundingRect.topLeft();
 
-    QTextBlock it = doc->findBlock(frame->firstPosition());
-    QTextBlock end = doc->findBlock(frame->lastPosition()+1);
-
-    QList<QTextFrame *> children = frame->childFrames();
     int pos = -1;
-    for (int i = 0; i < children.size(); ++i) {
-        QTextFrame *c = children.at(i);
-        QTextBlock s = doc->findBlock(c->firstPosition());
-        while (it != s) {
-            pos = hitTest(it, p, accuracy);
-            if (pos != -1)
-                goto end;
-            it = it.next();
+    QTextFrame::Iterator end = frame->end();
+    for (QTextFrame::Iterator it = frame->begin(); it != end; ++it) {
+        QTextFrame *c = it.currentFrame();
+        if (c) {
+            pos = hitTest(c, p, accuracy);
+        } else {
+            pos = hitTest(it.currentBlock(), p, accuracy);
         }
-        pos = hitTest(c, p, accuracy);
         if (pos != -1)
-            goto end;
-        it = doc->findBlock(c->lastPosition()+1);
+            break;
     }
-    while (it != end) {
-        pos = hitTest(it, p, accuracy);
-        if (pos != -1)
-            goto end;
-        it = it.next();
-    }
- end:
+
     DEC_INDENT;
     if (pos == -1 && accuracy == QText::FuzzyHit) {
-        int p = frame->lastPosition();
-        QTextBlock it = doc->findBlock(frame->lastPosition());
-        if (it == doc->end())
-            it = it.previous();
-        QRect r = it.layout()->rect();
+        --end;
+        QTextBlock b = end.currentBlock();
+        QRect r = b.layout()->rect();
         QPoint relative(point.x(), r.bottom() - 1);
 
-        pos = d->hitTest(it, relative, accuracy);
+        pos = d->hitTest(b, relative, accuracy);
 
-        if (pos == -1 && p > 0)
-            pos = p - 1;
+        if (pos == -1)
+            pos = qMax(frame->lastPosition() - 1, 0);
     }
 
     return pos;
@@ -287,24 +271,13 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         painter->restore();
     }
 
-    const QTextDocument *doc = q->document();
-    QTextBlock it = doc->findBlock(frame->firstPosition());
-    QTextBlock end = doc->findBlock(frame->lastPosition()+1);
-
-    QList<QTextFrame *> children = frame->childFrames();
-    for (int i = 0; i < children.size(); ++i) {
-        QTextFrame *c = children.at(i);
-        QTextBlock s = doc->findBlock(c->firstPosition());
-        while (it != s) {
-            drawBlock(off, painter, context, it);
-            it = it.next();
-        }
-        drawFrame(off, painter, context, children.at(i));
-        it = doc->findBlock(c->lastPosition()+1);
-    }
-    while (it != end) {
-        drawBlock(off, painter, context, it);
-        it = it.next();
+    QTextFrame::Iterator end = frame->end();
+    for (QTextFrame::Iterator it = frame->begin(); it != end; ++it) {
+        QTextFrame *c = it.currentFrame();
+        if (c)
+            drawFrame(off, painter, context, c);
+        else
+            drawBlock(off, painter, context, it.currentBlock());
     }
 
 //     DEC_INDENT;
