@@ -113,7 +113,7 @@ apply to each patch:
   1. The patch must not modify copyright notices in the Software.
 
 <p>
-  2. The patch must licensed by the following clause without
+  2. The patch must be explicitly licensed by the following clause without
 	additional restriction:
 
 <blockquote>
