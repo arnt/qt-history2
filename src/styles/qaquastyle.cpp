@@ -500,7 +500,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
     case PE_TabBarBase: {
 	QPixmap px;
 	QString mod = "act";
-	if( qAquaActive( cg ) )
+	if( !qAquaActive( cg ) )
 	    mod = "dis";
 	if( flags & Style_Top )
 	    qAquaPixmap( "tab_t_top_" + mod, px );
