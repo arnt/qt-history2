@@ -155,7 +155,7 @@ QInputContext::QInputContext(QWidget *widget)
     XPoint spot;
     XRectangle rect;
     XVaNestedList preedit_attr = 0;
-    XICCallback startcallback, drawcallback, donecallback, caretcallback;
+    XIMCallback startcallback, drawcallback, donecallback, caretcallback;
 
     if (qt_xim_style & XIMPreeditArea) {
 	rect.x = 0;
@@ -175,13 +175,13 @@ QInputContext::QInputContext(QWidget *widget)
 					   0);
     } else if (qt_xim_style & XIMPreeditCallbacks) {
 	startcallback.client_data = (XPointer) this;
-	startcallback.callback = xic_start_callback;
+	startcallback.callback = (XIMProc) xic_start_callback;
 	drawcallback.client_data = (XPointer) this;
-	drawcallback.callback = xic_draw_callback;
+	drawcallback.callback = (XIMProc)xic_draw_callback;
 	donecallback.client_data = (XPointer) this;
-	donecallback.callback = xic_done_callback;
+	donecallback.callback = (XIMProc) xic_done_callback;
 	caretcallback.client_data = (XPointer) this;
-	caretcallback.callback = xic_caret_callback;
+	caretcallback.callback = (XIMProc) xic_caret_callback;
 
 	preedit_attr = XVaCreateNestedList(0,
 					   XNPreeditStartCallback, &startcallback,
