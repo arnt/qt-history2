@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#250 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#251 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1535,9 +1535,9 @@ static QStringList makeFiltersList( const QString &filter )
 
 static QString findNewFolderName( const QDir &dir )
 {
-    
+
     QStringList entries = dir.entryList( QFileDialog::tr( "New" ) );
-    
+
     int i = 1;
     while ( TRUE ) {
         QString fname = QFileDialog::tr( "New Folder %1" ).arg( i );
@@ -2748,28 +2748,31 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
     m.insertSeparator();
     int rename = m.insertItem( tr( "&Rename" ) );
     int del = m.insertItem( tr( "&Delete" ) );
-
     m.insertSeparator();
 
-    int sname = m.insertItem( tr( "Sort by &Name" ) );
-    int ssize = m.insertItem( tr( "Sort by &Size" ) );
-    int stype = m.insertItem( tr( "Sort by &Type" ) );
-    int sdate = m.insertItem( tr( "Sort by &Date" ) );
-    int sunsorted = m.insertItem( tr( "&Unsorted" ) );
+    QPopupMenu m2( files, "sort menu" );
+
+    int sname = m2.insertItem( tr( "Sort by &Name" ) );
+    int ssize = m2.insertItem( tr( "Sort by &Size" ) );
+    int stype = m2.insertItem( tr( "Sort by &Type" ) );
+    int sdate = m2.insertItem( tr( "Sort by &Date" ) );
+    int sunsorted = m2.insertItem( tr( "&Unsorted" ) );
 
     if ( sortFilesBy == QDir::Name )
-        m.setItemChecked( sname, TRUE );
+        m2.setItemChecked( sname, TRUE );
     else if ( sortFilesBy == QDir::Size )
-        m.setItemChecked( ssize, TRUE );
+        m2.setItemChecked( ssize, TRUE );
     else if ( sortFilesBy == QDir::SortByMask )
-        m.setItemChecked( stype, TRUE );
+        m2.setItemChecked( stype, TRUE );
     else if ( sortFilesBy == QDir::Time )
-        m.setItemChecked( sdate, TRUE );
+        m2.setItemChecked( sdate, TRUE );
     else if ( sortFilesBy == QDir::Unsorted )
-        m.setItemChecked( sunsorted, TRUE );
+        m2.setItemChecked( sunsorted, TRUE );
 
-    m.setItemEnabled( stype, FALSE );
+    m2.setItemEnabled( stype, FALSE );
 
+    m.insertItem( tr( "Sort" ), &m2 );
+    
     m.insertSeparator();
 
     int hidden = m.insertItem( tr( "Show &hidden files" ) );

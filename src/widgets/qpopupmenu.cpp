@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#239 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#240 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1283,18 +1283,18 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
 void QPopupMenu::connectModal( QPopupMenu* receiver, bool doConnect )
 {
     if ( doConnect )
-	connect( this, SIGNAL(activated(int)),
-		 receiver, SLOT(modalActivation(int)) );
+        connect( this, SIGNAL(activated(int)),
+                 receiver, SLOT(modalActivation(int)) );
     else
-	disconnect( this, SIGNAL(activated(int)),
-		    receiver, SLOT(modalActivation(int)) );
+        disconnect( this, SIGNAL(activated(int)),
+                    receiver, SLOT(modalActivation(int)) );
 
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
-	++it;
-	if ( mi->popup() && mi->popup() != receiver && mi->popup()->parentMenu == this ) //avoid circularity
-	    mi->popup()->connectModal( receiver, doConnect );
+        ++it;
+        if ( mi->popup() && mi->popup() != receiver )//&& mi->popup()->parentMenu == this ) //avoid circularity
+            mi->popup()->connectModal( receiver, doConnect );
     }
 }
 
