@@ -654,19 +654,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     } else
 	memset( dptr, 0xff, dbytes );
 
-    int m11 = qRound((double)mat.m11()*65536.0);
-    int m12 = qRound((double)mat.m12()*65536.0);
-    int m21 = qRound((double)mat.m21()*65536.0);
-    int m22 = qRound((double)mat.m22()*65536.0);
-    int dx  = qRound((double)mat.dx() *65536.0);
-    int dy  = qRound((double)mat.dy() *65536.0);
-
-    int	  m21ydx = dx, m22ydy = dy;
-    uint  trigx, trigy;
-    uint  maxws = ws<<16, maxhs=hs<<16;
-    uchar *p	= dptr;
-    int	  xbpl, p_inc;
-
     if ( depth1 ) {
 	xbpl  = (w+7)/8;
 	p_inc = dbpl - xbpl;
@@ -675,94 +662,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	p_inc = dbpl - xbpl;
     }
 
-    for ( y=0; y<h; y++ ) {			// for each target scanline
-	trigx = m21ydx;
-	trigy = m22ydy;
-	uchar *maxp = p + xbpl;
-	if ( !depth1 ) {
-	    switch ( bpp ) {
-		case 8:				// 8 bpp transform
-		while ( p < maxp ) {
-		    if ( trigx < maxws && trigy < maxhs )
-			*p = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
-		    trigx += m11;
-		    trigy += m12;
-		    p++;
-		}
-		break;
-
-		case 16:			// 16 bpp transform
-		while ( p < maxp ) {
-		    if ( trigx < maxws && trigy < maxhs )
-			*((ushort*)p) = *((ushort *)(sptr+sbpl*(trigy>>16) +
-						     ((trigx>>16)<<1)));
-		    trigx += m11;
-		    trigy += m12;
-		    p++;
-		    p++;
-		}
-		break;
-
-		case 24: {			// 24 bpp transform
-		uchar *p2;
-		while ( p < maxp ) {
-		    if ( trigx < maxws && trigy < maxhs ) {
-			p2 = sptr+sbpl*(trigy>>16) + ((trigx>>16)*3);
-			p[0] = p2[0];
-			p[1] = p2[1];
-			p[2] = p2[2];
-		    }
-		    trigx += m11;
-		    trigy += m12;
-		    p += 3;
-		}
-		}
-		break;
-
-		case 32:			// 32 bpp transform
-		while ( p < maxp ) {
-		    if ( trigx < maxws && trigy < maxhs )
-			*((uint*)p) = *((uint *)(sptr+sbpl*(trigy>>16) +
-						   ((trigx>>16)<<2)));
-		    trigx += m11;
-		    trigy += m12;
-		    p += 4;
-		}
-		break;
-
-		default: {
+    if ( !qt_xForm_helper( mat, 0, QT_XFORM_TYPE_LSBFIRST, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs ) ){
 #if defined(QT_CHECK_RANGE)
-		qWarning( "QPixmap::xForm: Display not supported (bpp=%d)",bpp);
+	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
 #endif
-		return QPixmap( 0, 0, 0, data->bitmap, data->optim );
-		}
-	    }
-	} else {
-	    // mono bitmap LSB first
-	    while ( p < maxp ) {
-#undef IWX
-#define IWX(b)  if ( trigx < maxws && trigy < maxhs ) {                       \
-		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &               \
-			 (1 << ((trigx>>16)&7)) )                             \
-			*p |= b;                                              \
-		}                                                             \
-		trigx += m11;                                                 \
-		trigy += m12;
-		// END OF MACRO
-		IWX(1)
-		IWX(2)
-		IWX(4)
-		IWX(8)
-		IWX(16)
-		IWX(32)
-		IWX(64)
-		IWX(128)
-		p++;
-	    }
-	}
-	m21ydx += m21;
-	m22ydy += m22;
-	p += p_inc;
+	QPixmap pm;
+	return pm;
     }
 
     if ( qt_screen->isTransformed() ) {
