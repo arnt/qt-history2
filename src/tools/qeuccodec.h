@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuccodec.h#4 $
+** $Id: //depot/qt/main/src/tools/qeuccodec.h#5 $
 **
 ** Definition of QEucCodec class
 **
 ** Created : 981015
 **
-** Copyright (C)1998-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1998-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **

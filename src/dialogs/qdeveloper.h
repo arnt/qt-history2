@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.h#3 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.h#4 $
 **
 ** Definition of QDeveloper class
 **
 ** Created : 980830
 **
-** Copyright (C)1998-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1998-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **

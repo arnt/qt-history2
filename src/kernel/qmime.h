@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.h#2 $
+** $Id: //depot/qt/main/src/kernel/qmime.h#3 $
 **
 ** Definition of mime classes
 **
 ** Created : 981204
 **
-** Copyright (C)1998-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1998-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
