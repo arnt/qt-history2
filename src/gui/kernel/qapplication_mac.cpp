@@ -955,8 +955,7 @@ void qt_cleanup()
         }
     }
 
-    for(QHash<WId, QTSMDocumentWrapper *>::ConstIterator it = qt_mac_tsm_hash.constBegin(); it != qt_mac_tsm_hash.end(); ++it)
-        delete it.value();
+    qDeleteAll(qt_mac_tsm_hash.constBegin(), qt_mac_tsm_hash.constEnd());
     qt_mac_tsm_hash.clear();
 }
 
