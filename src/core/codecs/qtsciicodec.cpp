@@ -134,11 +134,11 @@ QString QTsciiCodec::toUnicode(const char* chars, int len) const
             uint *p = s;
             while (u--) {
                 uint c = *p++;
-                result += c ? QChar(c) : QChar(QChar::replacement);
+                result += c ? QChar(c) : QChar(QChar::ReplacementCharacter);
             }
         } else {
             // Invalid
-            result += QChar(QChar::replacement);
+            result += QChar(QChar::ReplacementCharacter);
         }
     }
 

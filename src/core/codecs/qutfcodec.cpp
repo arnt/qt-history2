@@ -161,14 +161,14 @@ public:
                             *qch++ = QChar(low);
                             headerDone = true;
                         } else {
-                            if (headerDone || QChar(uc) != QChar(QChar::byteOrderMark))
+                            if (headerDone || QChar(uc) != QChar(QChar::ByteOrderMark))
                                 *qch++ = uc;
                             headerDone = true;
                         }
                     }
                 } else {
                     // error
-                    *qch++ = QChar::replacement;
+                    *qch++ = QChar::ReplacementCharacter;
                     need = 0;
                 }
             } else {
@@ -245,7 +245,7 @@ public:
             lenInOut = (1+uc.length())*sizeof(QChar);
             QByteArray d;
             d.resize(lenInOut);
-            QChar bom(QChar::byteOrderMark);
+            QChar bom(QChar::ByteOrderMark);
             memcpy(d.data(),&bom,sizeof(QChar));
             memcpy(d.data()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
             return d;
@@ -280,9 +280,9 @@ public:
                     ch.setCell(*chars++);
                 }
                 if (!headerdone) {
-                    if (ch == QChar::byteOrderSwapped) {
+                    if (ch == QChar::ByteOrderSwapped) {
                         swap = !swap;
-                    } else if (ch == QChar::byteOrderMark) {
+                    } else if (ch == QChar::ByteOrderMark) {
                         // Ignore ZWNBSP
                     } else {
                         *qch++ = ch;

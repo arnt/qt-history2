@@ -877,6 +877,7 @@ void QCoreApplication::quit()
     exit(0);
 }
 
+#ifdef QT_COMPAT
 // ########### shouldn't these be inline?
 void QCoreApplication::lock()
 {
@@ -895,6 +896,7 @@ bool QCoreApplication::tryLock()
 {
     return false;
 }
+#endif //QT_COMPAT
 
 /*!
   \fn void QCoreApplication::aboutToQuit()
