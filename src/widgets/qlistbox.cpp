@@ -2505,9 +2505,43 @@ void QListBox::focusInEvent( QFocusEvent *e )
 
 /*!\reimp
 */
-void QListBox::focusOutEvent( QFocusEvent * )
+void QListBox::focusOutEvent( QFocusEvent *e )
 {
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
+	if ( e->reason() != QFocusEvent::Popup ) {
+	    if ( d->numColumns == 1 ) {
+		for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
+		    QListBoxItem *it = item(i);
+		    if ( !it )
+			break;
+		    if ( it->isSelected() )
+			updateItem( it );
+		}
+	    } else {
+		for ( uint i = 0; i < count(); ++i ) {
+		    QListBoxItem *it = item(i);
+		    if ( !it )
+			break;
+		    if ( it->isSelected() )
+			updateItem( it );
+		}
+	    }
+	} else {
+	    QWidget *widget = qApp->focusWidget();
+	    if ( widget && widget->inherits( "QPopupMenu" ) )
+		widget->installEventFilter( this );
+	}
+    }
+
+    if ( d->current )
+	updateItem( currentItem() );
+}
+
+/*!\reimp
+*/
+bool QListBox::eventFilter( QObject *o, QEvent *e )
+{
+    if ( e->type() == QEvent::Hide && o->inherits( "QPopupMenu" ) ) {
 	if ( d->numColumns == 1 ) {
 	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
 		QListBoxItem *it = item(i);
@@ -2525,12 +2559,10 @@ void QListBox::focusOutEvent( QFocusEvent * )
 		    updateItem( it );
 	    }
 	}
+	o->removeEventFilter( this );
     }
-
-    if ( d->current )
-	updateItem( currentItem() );
+    return QScrollView::eventFilter( o, e );
 }
-
 
 /*!
   Repaints the item at position \a index in the list.

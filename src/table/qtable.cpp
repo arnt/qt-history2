@@ -3371,6 +3371,11 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    we->accept();
 	    return TRUE;
 	}
+    case QEvent::Hide:
+	if ( o->inherits( "QPopupMenu" ) ) {
+	    repaintSelections();
+ 	    o->removeEventFilter( this );
+	}
     default:
 	break;
     }
@@ -3508,10 +3513,17 @@ void QTable::keyPressEvent( QKeyEvent* e )
 /*! \reimp
 */
 
-void QTable::focusInEvent( QFocusEvent* )
+void QTable::focusInEvent( QFocusEvent *e )
 {
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
-	repaintSelections();
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
+	if ( e->reason() != QFocusEvent::Popup ) {
+	    repaintSelections();
+	} else {
+	    QWidget *widget = qApp->focusWidget();
+	    if ( widget && widget->inherits( "QPopupMenu" ) )
+		widget->installEventFilter( this );
+	}
+    }
     QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
     QTableItem *itm = item( curRow, curCol );
     setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
@@ -3521,9 +3533,9 @@ void QTable::focusInEvent( QFocusEvent* )
 /*! \reimp
 */
 
-void QTable::focusOutEvent( QFocusEvent* )
+void QTable::focusOutEvent( QFocusEvent *e )
 {
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
+    if ( e->reason() != QFocusEvent::Popup && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
 	repaintSelections();
 }
 

@@ -4900,16 +4900,22 @@ void QIconView::focusInEvent( QFocusEvent *e )
   \reimp
 */
 
-void QIconView::focusOutEvent( QFocusEvent * )
+void QIconView::focusOutEvent( QFocusEvent *e )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
 
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	QRect r = visibleRect();
-	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
-	    if ( item->isSelected() && item->rect().intersects( r ) )
-		repaintItem( item );
+	if ( e->reason() != QFocusEvent::Popup ) {
+	    QRect r = visibleRect();
+	    for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
+		if ( item->isSelected() && item->rect().intersects( r ) )
+		    repaintItem( item );
+	    }
+	} else {
+	    QWidget *widget = qApp->focusWidget();
+	    if ( widget && widget->inherits( "QPopupMenu" ) )
+		widget->installEventFilter( this );
 	}
     }
 }
@@ -5220,32 +5226,41 @@ bool QIconView::eventFilter( QObject * o, QEvent * e )
     if ( !o || !e )
 	return FALSE;
 
-    switch( e->type() ) {
-    case QEvent::FocusIn:
-	focusInEvent( (QFocusEvent*)e );
-	return TRUE;
-    case QEvent::FocusOut:
-	focusOutEvent( (QFocusEvent*)e );
-	return TRUE;
-    case QEvent::Enter:
-	enterEvent( e );
-	return TRUE;
-    case QEvent::Paint:
-	if ( o == viewport() ) {
-	    if ( d->dragging ) {
-		if ( !d->rubber )
-		    drawDragShapes( d->oldDragPos );
+    if ( o == viewport() ) {
+	switch( e->type() ) {
+	case QEvent::FocusIn:
+	    focusInEvent( (QFocusEvent*)e );
+	    return TRUE;
+	case QEvent::FocusOut:
+	    focusOutEvent( (QFocusEvent*)e );
+	    return TRUE;
+	case QEvent::Enter:
+	    enterEvent( e );
+	    return TRUE;
+	case QEvent::Paint:
+	    if ( o == viewport() ) {
+		if ( d->dragging ) {
+		    if ( !d->rubber )
+			drawDragShapes( d->oldDragPos );
+		}
+		viewportPaintEvent( (QPaintEvent*)e );
+		if ( d->dragging ) {
+		    if ( !d->rubber )
+			drawDragShapes( d->oldDragPos );
+		}
 	    }
-	    viewportPaintEvent( (QPaintEvent*)e );
-	    if ( d->dragging ) {
-		if ( !d->rubber )
-		    drawDragShapes( d->oldDragPos );
-	    }
+	    return TRUE;
+	default:
+	    // nothing
+	    break;
 	}
-	return TRUE;
-    default:
-	// nothing
-	break;
+    } else if ( e->type() == QEvent::Hide && o->inherits( "QPopupMenu" ) ) {
+	QRect r = visibleRect();
+	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
+	    if ( item->isSelected() && item->rect().intersects( r ) )
+		repaintItem( item );
+	}
+	o->removeEventFilter( this );
     }
 
     return QScrollView::eventFilter( o, e );

@@ -249,6 +249,8 @@ protected:
     void resizeEvent( QResizeEvent * );
     void showEvent( QShowEvent * );
 
+    bool eventFilter( QObject *o, QEvent *e );
+
     void updateItem( int index );
     void updateItem( QListBoxItem * );
 
