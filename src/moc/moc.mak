@@ -5,23 +5,35 @@
 #
 # You'll need the Win32 GNU package in order to compile the moc from scratch.
 # Get it from ftp://ftp.cygnus.com/pub/gnu-win32/win32
-#
 #############################################################################
 
 ####### Compiler, tools and options
 
 CC	=	cl
-CFLAGS	=	-O2 -nologo
-INCPATH	=	-I. -I..\..\include
+CFLAGS	=	-nologo -O2
+INCPATH	=	-I"." -I"..\..\include"
 LINK	=	link
-LFLAGS	=	/SUBSYSTEM:console /NOLOGO
+LFLAGS	=	/NOLOGO /SUBSYSTEM:console
 LIBS	=	
+MOC	=	moc
 
 ####### Files
 
 HEADERS =	
-SOURCES =	
-OBJECTS =	qbuffer.obj \
+SOURCES =	mocgen.cpp \
+		..\tools\qbuffer.cpp \
+		..\tools\qcollect.cpp \
+		..\tools\qdatetm.cpp \
+		..\tools\qdstream.cpp \
+		..\tools\qgarray.cpp \
+		..\tools\qgdict.cpp \
+		..\tools\qglist.cpp \
+		..\tools\qglobal.cpp \
+		..\tools\qgvector.cpp \
+		..\tools\qiodev.cpp \
+		..\tools\qstring.cpp
+OBJECTS =	mocgen.obj \
+		qbuffer.obj \
 		qcollect.obj \
 		qdatetm.obj \
 		qdstream.obj \
@@ -31,30 +43,45 @@ OBJECTS =	qbuffer.obj \
 		qglobal.obj \
 		qgvector.obj \
 		qiodev.obj \
-		qstring.obj \
-		mocgen.obj
+		qstring.obj
+SRCMOC	=	
+OBJMOC	=	
 TARGET	=	moc.exe
 
 ####### Implicit rules
 
-.SUFFIXES: .cpp .c
+.SUFFIXES: .cpp .cxx .cc .c
 
 .cpp.obj:
+	$(CC) -c $(CFLAGS) $(INCPATH) -Fo$@ $<
+
+.cxx.obj:
+	$(CC) -c $(CFLAGS) $(INCPATH) -Fo$@ $<
+
+.cc.obj:
 	$(CC) -c $(CFLAGS) $(INCPATH) -Fo$@ $<
 
 .c.obj:
 	$(CC) -c $(CFLAGS) $(INCPATH) -Fo$@ $<
 
-####### Make targets
+####### Build rules
 
 all: $(TARGET) 
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(OBJECTS) $(OBJMOC)
 	$(LINK) $(LFLAGS) /OUT:$(TARGET) @<<
-	    $(OBJECTS) $(LIBS)
+	    $(OBJECTS) $(OBJMOC) $(LIBS)
 <<
 
+moc: $(SRCMOC)
+
+tmake: moc.mak
+
+moc.mak: moc.pro
+	tmake moc.pro -o moc.mak
+
 clean:
+	-del mocgen.obj
 	-del qbuffer.obj
 	-del qcollect.obj
 	-del qdatetm.obj
@@ -66,10 +93,143 @@ clean:
 	-del qgvector.obj
 	-del qiodev.obj
 	-del qstring.obj
-	-del mocgen.obj
-	-del moc.exe
+	-del $(TARGET)
 
 ####### Compile
+
+mocgen.obj: mocgen.cpp \
+		..\..\include\qlist.h \
+		..\..\include\qglist.h \
+		..\..\include\qcollect.h \
+		..\..\include\qglobal.h \
+		..\..\include\qgeneric.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\..\include\qdatetm.h \
+		lex.yy.c
+	$(CC) -c $(CFLAGS) $(INCPATH) -Fomocgen.obj mocgen.cpp
+
+qbuffer.obj: ..\tools\qbuffer.cpp \
+		..\tools\qbuffer.h \
+		..\tools\qiodev.h \
+		..\tools\qglobal.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\..\include\qgeneric.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqbuffer.obj ..\tools\qbuffer.cpp
+
+qcollect.obj: ..\tools\qcollect.cpp \
+		..\..\include\qcollect.h \
+		..\tools\qglobal.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqcollect.obj ..\tools\qcollect.cpp
+
+qdatetm.obj: ..\tools\qdatetm.cpp \
+		..\..\include\qdatetm.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\tools\qglobal.h \
+		..\..\include\qgeneric.h \
+		..\tools\qdstream.h \
+		..\tools\qiodev.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqdatetm.obj ..\tools\qdatetm.cpp
+
+qdstream.obj: ..\tools\qdstream.cpp \
+		..\tools\qdstream.h \
+		..\tools\qiodev.h \
+		..\tools\qglobal.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\..\include\qgeneric.h \
+		..\tools\qbuffer.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqdstream.obj ..\tools\qdstream.cpp
+
+qgarray.obj: ..\tools\qgarray.cpp \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\tools\qglobal.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgeneric.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqgarray.obj ..\tools\qgarray.cpp
+
+qgdict.obj: ..\tools\qgdict.cpp \
+		..\tools\qgdict.h \
+		..\..\include\qcollect.h \
+		..\tools\qglobal.h \
+		..\..\include\qlist.h \
+		..\..\include\qglist.h \
+		..\..\include\qgeneric.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\tools\qdstream.h \
+		..\tools\qiodev.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqgdict.obj ..\tools\qgdict.cpp
+
+qglist.obj: ..\tools\qglist.cpp \
+		..\..\include\qglist.h \
+		..\..\include\qcollect.h \
+		..\tools\qglobal.h \
+		..\tools\qgvector.h \
+		..\tools\qdstream.h \
+		..\tools\qiodev.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\..\include\qgeneric.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqglist.obj ..\tools\qglist.cpp
+
+qglobal.obj: ..\tools\qglobal.cpp \
+		..\tools\qglobal.h \
+		..\tools\qdict.h \
+		..\tools\qgdict.h \
+		..\..\include\qcollect.h \
+		..\..\include\qgeneric.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqglobal.obj ..\tools\qglobal.cpp
+
+qgvector.obj: ..\tools\qgvector.cpp \
+		..\tools\qgvector.h \
+		..\..\include\qcollect.h \
+		..\tools\qglobal.h \
+		..\..\include\qglist.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\..\include\qgeneric.h \
+		..\tools\qdstream.h \
+		..\tools\qiodev.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqgvector.obj ..\tools\qgvector.cpp
+
+qiodev.obj: ..\tools\qiodev.cpp \
+		..\tools\qiodev.h \
+		..\tools\qglobal.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqiodev.obj ..\tools\qiodev.cpp
+
+qstring.obj: ..\tools\qstring.cpp \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\tools\qglobal.h \
+		..\..\include\qgeneric.h \
+		..\tools\qdstream.h \
+		..\tools\qiodev.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqstring.obj ..\tools\qstring.cpp
 
 
 ####### Lex/yacc programs and options
@@ -95,41 +255,3 @@ $(MOCGEN): $(YACCIN) $(LEXOUT)
 	$(YACC) $(YACCIN)
 	-del $(MOCGEN)
 	-ren $(YACCOUT) $(MOCGEN)
-
-####### Compile the C++ sources
-
-mocgen.obj: mocgen.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) $? -o $@
-
-qbuffer.obj: ..\tools\qbuffer.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qcollect.obj: ..\tools\qcollect.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qdatetm.obj: ..\tools\qdatetm.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qdstream.obj: ..\tools\qdstream.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qgarray.obj: ..\tools\qgarray.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qgdict.obj: ..\tools\qgdict.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qglist.obj: ..\tools\qglist.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qglobal.obj: ..\tools\qglobal.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qgvector.obj: ..\tools\qgvector.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qiodev.obj: ..\tools\qiodev.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-qstring.obj: ..\tools\qstring.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
