@@ -75,8 +75,8 @@ public:
     uint in_show : 1;
     uint in_set_window_state : 1;
     mutable uint fstrut_dirty : 1;
-    uint im_enabled : 1;
     uint context_menu_policy : 3;
+    uint unused : 16;
     QRect crect;
     mutable QPalette pal;
     QFont fnt;
