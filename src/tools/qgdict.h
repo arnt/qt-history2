@@ -27,7 +27,7 @@
 #define QGDICT_H
 
 #ifndef QT_H
-#include "qlist.h"
+#include "qcollection.h"
 #include "qstring.h"
 #endif // QT_H
 

@@ -22,18 +22,16 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-#include "qstring.h"
-#include "qmap.h"
+
 #include "qstylesheet.h"
+#include "qstring.h"
+#include "qpixmap.h"
+#include "qmap.h"
 #include "qapplication.h"
 #include "qmime.h"
-
-#include <qmap.h>
-#include <qdict.h>
-#include <qcolor.h>
-#include <qfont.h>
-#include <qstring.h>
-#include <qstack.h>
+#include "qdict.h"
+#include "qcolor.h"
+#include "qfont.h"
 
 
 class QStyleSheetItem;
@@ -52,6 +50,7 @@ public:
 bool operator!=( const QtTriple &t1, const QtTriple &t2 );
 bool operator<( const QtTriple &t1, const QtTriple &t2 );
 bool operator>=( const QtTriple &t1, const QtTriple &t2 );
+
 
 class QTextCharFormat
 {
@@ -112,6 +111,7 @@ protected:
     QTextCharFormat* lastRegisterFormat;
 };
 
+
 class QTextOptions {
 public:
     QTextOptions( const QBrush* p = 0, QColor lc = Qt::blue, bool lu = TRUE )
@@ -128,6 +128,7 @@ public:
     QtTriple selstart;
     QtTriple selend;
 };
+
 
 class QTextCustomItem : public Qt
 {
@@ -161,6 +162,7 @@ public:
     int height;
 };
 
+
 class QTextHorizontalLine : public QTextCustomItem
 {
 public:
@@ -173,6 +175,7 @@ public:
     bool expandsHorizontally() const { return TRUE; }
 private:
 };
+
 
 class QTextRichString
 {
@@ -221,6 +224,7 @@ public:
 private:
     void setLength( int l );
 };
+
 
 class QTextParagraph
 {
@@ -320,7 +324,6 @@ public:
 
     void invalidateLayout();
 
-
 private:
     void init();
     int align;
@@ -347,10 +350,12 @@ private:
     Placement place;
 };
 
+
 class QTextTable;
 
-class QRichTextFormatter {
- public:
+class QRichTextFormatter
+{
+public:
     QRichTextFormatter(QRichText& document );
     ~QRichTextFormatter();
 
@@ -424,6 +429,7 @@ private:
 
 
 class QTextTableCell;
+
 class QRichTextIterator
 {
 public:
@@ -453,9 +459,11 @@ private:
     void update();
 };
 
+
 bool operator>( const QRichTextIterator &i1, const QRichTextIterator &i2 );
 
-class QTextFlow {
+class QTextFlow
+{
 public:
     QTextFlow();
     ~QTextFlow();
@@ -482,6 +490,7 @@ private:
     QList<QTextCustomItem> rightItems;
 
 };
+
 
 class QRichText : public QTextParagraph
 {
@@ -542,6 +551,37 @@ private:
     QTextParagraph* b_cache;
 };
 
+
+inline QColor QTextCharFormat::color() const
+{
+    return color_;
+}
+
+inline QFont QTextCharFormat::font() const
+{
+    return font_;
+}
+
+inline QString QTextCharFormat::anchorHref() const
+{
+    return anchor_href;
+}
+
+inline QString QTextCharFormat::anchorName() const
+{
+    return anchor_name;
+}
+
+inline QTextCustomItem * QTextCharFormat::customItem() const
+{
+    return custom;
+}
+
+inline bool QTextCharFormat::isAnchor() const
+{
+    return !anchor_href.isEmpty()  || !anchor_href.isEmpty();
+}
+
 inline int QTextRichString::length() const
 {
     return len;
@@ -586,35 +626,3 @@ inline QTextCharFormat* QRichTextFormatter::format() const
 {
     return paragraph->text.formatAt( current );
 }
-
-inline QColor QTextCharFormat::color() const
-{
-    return color_;
-}
-
-inline QFont QTextCharFormat::font() const
-{
-    return font_;
-}
-
-inline QString QTextCharFormat::anchorHref() const
-{
-    return anchor_href;
-}
-
-inline QString QTextCharFormat::anchorName() const
-{
-    return anchor_name;
-}
-
-inline QTextCustomItem * QTextCharFormat::customItem() const
-{
-    return custom;
-}
-
-inline bool QTextCharFormat::isAnchor() const
-{
-    return !anchor_href.isEmpty()  || !anchor_href.isEmpty();
-}
-
-

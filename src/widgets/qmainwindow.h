@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qwidget.h"
+#include "qlist.h"
 #endif // QT_H
 
 class QMenuBar;
@@ -36,7 +37,6 @@ class QStatusBar;
 class QToolTipGroup;
 
 class QMainWindowPrivate;
-
 
 class Q_EXPORT QMainWindow: public QWidget
 {

@@ -26,6 +26,7 @@
 #include "qsimplerichtext.h"
 #include "qrichtextintern.cpp"
 #include "qapplication.h"
+#include "qpainter.h"
 
 
 // NOT REVISED

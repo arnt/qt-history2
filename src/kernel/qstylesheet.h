@@ -27,16 +27,14 @@
 #define QSTYLESHEET_H
 
 #ifndef QT_H
-#include "qlist.h"
+#include "qstring.h"
 #include "qdict.h"
-#include "qmap.h"
-#include "qpixmap.h"
-#include "qscrollview.h"
-#include "qcolor.h"
+#include "qobject.h"
 #endif // QT_H
 
 class QStyleSheet;
 class QStyleSheetItemData;
+template<class Key, class T> class QMap;
 
 
 class Q_EXPORT QStyleSheetItem : public Qt
