@@ -74,6 +74,7 @@ void QListModel::clear()
             delete lst.at(i);
         }
     }
+    lst.clear();
     emit reset();
 }
 
