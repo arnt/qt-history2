@@ -298,15 +298,13 @@ bool QAccelManager::tryAccelEvent( QWidget* w, QKeyEvent* e )
 {
     if ( Qt::NoMatch == currentState ) {
 	e->t = QEvent::AccelOverride;
-	e->spont = TRUE;
 	e->ignore();
-	QApplication::sendEvent( w, e );
+	QApplication::sendSpontaneousEvent( w, e );
 	if ( e->isAccepted() )
 	    return FALSE;
 	e->t = QEvent::Accel;
-	e->spont = TRUE;
 	e->ignore();
-	QApplication::sendEvent( w, e );
+	QApplication::sendSpontaneousEvent( w, e );
 	if ( e->isAccepted() )
 	    return TRUE;
     }
