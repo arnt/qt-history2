@@ -243,7 +243,7 @@ void ViewManager::emitMarkersChanged()
 
 void ViewManager::cursorPositionChanged( int row, int col )
 {
-    posLabel->setText( QString( " Line: %1 Col: %1" ).arg( row + 1 ).arg( col + 1 ) );
+    posLabel->setText( QString( " Line: %1 Col: %2" ).arg( row + 1 ).arg( col + 1 ) );
 }
 
 void ViewManager::showMessage( const QString &msg )
@@ -260,5 +260,5 @@ void ViewManager::clearStatusBar()
     int row;
     int col;
     ( (QTextEdit*)currentView() )->getCursorPosition( &row, &col );
-    posLabel->setText( QString( " Line: %1 Col: %1" ).arg( row + 1 ).arg( col + 1 ) );
+    posLabel->setText( QString( " Line: %1 Col: %2" ).arg( row + 1 ).arg( col + 1 ) );
 }
