@@ -203,6 +203,10 @@ void QSqlCursorManager::setCursor( QSqlCursor* cursor, bool autoDelete )
     if ( d->autoDelete )
 	delete d->cur;
     d->cur = cursor;
+    if ( cursor ) {
+	setSort( cursor->sort() );
+	setFilter( cursor->filter() );
+    }
     d->autoDelete = autoDelete;
 }
 
