@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#89 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#89 $");
 
 
 /*!
@@ -769,10 +769,8 @@ void QComboBox::internalActivate( int index )
 	d->popup->removeEventFilter( this );
     d->poppedUp = FALSE;
 
-    const char *t = text( index );
+    QString t( text( index ) );
     emit activated( index );
-    if ( !t )
-	return;					// shouldn't happen
     if ( d->ed )
 	d->ed->setText( t );
     emit activated( t );
@@ -914,11 +912,6 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
-
-	// ARNT!!! INITIALIZE x1, y1
-	int x1, y1;
-	QPointArray l;
-
 	int awh, ax, ay, sh, sy;
 
 	if ( height() < 6 ) {
@@ -979,10 +972,9 @@ void QComboBox::paintEvent( QPaintEvent * )
 	qDrawShadePanel( &p, rect(), g, FALSE, 2 );
 
 	if ( hasFocus() )
-	    p.drawRect( x1 - 2, y1 - 2, 20, 22 );
+	    p.drawRect( ax - 2, ay - 2, awh+4, sy+sh+4-ay );
 
     } else {					// windows 95 style
-
 	QColor	  bg  = isEnabled() ? g.base() : g.background();
 	QFontMetrics  fm  = fontMetrics();
 	const char   *str = d->listBox->text( d->current );
@@ -1043,11 +1035,9 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	    repaint( FALSE );
 	}
     } else if ( d->usingListBox ) {
-	if ( e->pos().x() >= width() - 23 ) {
-	    popup();
-	    QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
-	    d->shortClick = TRUE;
-	}
+	popup();
+	QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
+	d->shortClick = TRUE;
     } else {
 	popup();
 	QMouseEvent me1( Event_MouseButtonPress,
@@ -1480,39 +1470,37 @@ void QComboBox::setInsertionPolicy( QComboBox::Policy policy )
 
 void QComboBox::returnPressed()
 {
-    const char * s = d->ed->text();
-    if ( s ) {
-	int c = 0;
-	switch ( insertionPolicy() ) {
-	case AtCurrent:
-	    if ( qstrcmp( s, text( currentItem() ) ) )
-		changeItem( s, currentItem() );
-	    emit activated( currentItem() );
-	    emit activated( s );
-	    return;
-	case NoInsertion:
-	    emit activated( s );
-	    return;
-	case AtTop:
-	    c = 0;
-	    break;
-	case AtBottom:
-	    c = count() - 1;
-	    break;
-	case BeforeCurrent:
-	    c = currentItem();
-	    break;
-	case AfterCurrent:
-	    c = currentItem() + 1;
-	    break;
-	}
-	if ( count() == d->maxCount )
-	    removeItem( count() - 1 );
-	insertItem( s, c );
-	setCurrentItem( c );
-	emit activated( c );
+    QString s( d->ed->text() );
+    int c = 0;
+    switch ( insertionPolicy() ) {
+    case AtCurrent:
+	if ( qstrcmp( s, text( currentItem() ) ) )
+	    changeItem( s, currentItem() );
+	emit activated( currentItem() );
 	emit activated( s );
+	return;
+    case NoInsertion:
+	emit activated( s );
+	return;
+    case AtTop:
+	c = 0;
+	break;
+    case AtBottom:
+	c = count() - 1;
+	break;
+    case BeforeCurrent:
+	c = currentItem();
+	break;
+    case AfterCurrent:
+	c = currentItem() + 1;
+	break;
     }
+    if ( count() == d->maxCount )
+	removeItem( count() - 1 );
+    insertItem( s, c );
+    setCurrentItem( c );
+    emit activated( c );
+    emit activated( s );
 }
 
 
