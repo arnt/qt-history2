@@ -5,7 +5,7 @@ diff -ur template/library/Makefile linux-shared/library/Makefile
  	$(CC) -shared -Wl,-soname,libqt.so.0 \
  		-o ../../../lib/libqt.so.${VERSION} \
  		$(OBJECTS) $(METAOBJ) -lX11 -lgcc -lc
-+	ln -s libqt.so.${VERSION} ../../../libqt.so
++	ln -s libqt.so.${VERSION} ../../../lib/libqt.so
  
  depend:
  	makedepend $(SOURCES) 2> /dev/null
