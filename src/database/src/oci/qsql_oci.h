@@ -52,9 +52,12 @@ protected:
     int                 size() const;
     int                 affectedRows() const;
 private:
+    typedef QMap< uint, QVariant > RowCache;
+    typedef QMap< uint, RowCache > RowsetCache;
+    
     QOCIPrivate* 	d;
     QOCIResultPrivate*  cols;
-    QSqlRowset     	rowCache;
+    RowsetCache     	rowCache;
 };
 
 #endif
