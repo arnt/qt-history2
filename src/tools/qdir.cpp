@@ -1023,15 +1023,29 @@ QStringList qt_makeFilterList( const QString &filter )
 
     QStringList lst = QStringList::split( sep, filter );
     QStringList::Iterator it = lst.begin();
-    QStringList lst_two;
+    QStringList lst2;
 
     for ( ; it != lst.end(); ++it ) {
 	QString s = *it;
 	if ( s[ (int)s.length() - 1 ] == ';' )
 	    s.remove( s.length() - 1, 1 );
-	lst_two << s;
+
+	if ( s[0] == '\"' ) {
+	    s.remove( 0, 1 );
+	    while( ++it != lst.end() ) {
+		QString s2 = *it;
+		s += " "+s2;
+		if ( s2[(int)s2.length() -1] == '\"' ) {
+		    s.remove( s.length() -1, 1 );
+		    break;
+		}
+	    }
+	}
+	lst2 << s;
+	if ( it == lst.end() )
+	    break;
     }
-    return lst_two;
+    return lst2;
 }
 
 /*!
