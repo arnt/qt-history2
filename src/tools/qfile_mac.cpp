@@ -39,7 +39,7 @@
 
 #include "qfile.h"
 #include "qfiledefs_p.h"
-
+#include "qdir.h"
 
 bool qt_file_access( const QString& fn, int t )
 {
@@ -61,7 +61,7 @@ bool QFile::remove( const QString &fileName )
 #endif
 	return FALSE;
     }
-    return unlink( QFile::encodeName(fileName) ) == 0;	
+    return unlink( QFile::encodeName(QDir::convertSeparators(fileName)) ) == 0;	
 }
 
 #if defined(O_NONBLOCK)
@@ -124,7 +124,7 @@ bool QFile::open( int m )
 	if ( isAsynchronous() )
 	    oflags |= OPEN_ASYNC;
 #endif
-	fd = OPEN( QFile::encodeName(fn), oflags, 0666 );
+	fd = OPEN( QFile::encodeName(QDir::convertSeparators(fn)), oflags, 0666 );
 
 	if ( fd != -1 ) {			// open successful
 	    FSTAT( fd, &st ); // get the stat for later usage
@@ -161,7 +161,7 @@ bool QFile::open( int m )
 #endif
 	while (1) { // At most twice
 
-	    fh = fopen( QFile::encodeName(fn), perm2 );
+	    fh = fopen( QFile::encodeName(QDir::convertSeparators(fn)), perm2 );
 
 	    if ( !fh && try_create ) {
 		perm2[0] = 'w';			// try "w+" instead of "r+"
@@ -290,7 +290,7 @@ uint QFile::size() const
     if ( isOpen() ) {
 	FSTAT( fh ? FILENO(fh) : fd, &st );
     } else {
-	STAT( QFile::encodeName(fn), &st );
+	STAT( QFile::encodeName(QDir::convertSeparators(fn)), &st );
     }
     return st.st_size;
 }

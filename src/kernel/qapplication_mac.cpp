@@ -700,7 +700,7 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 {
     return FALSE;
 }
-#warning "need to implement sockets on mac9"
+//#warning "need to implement sockets on mac9"
 #endif
 
 
@@ -770,7 +770,7 @@ bool QApplication::processNextEvent( bool canWait )
 		       (sn_write  ? &app_writefds  : 0),
 		       (sn_except ? &app_exceptfds : 0), &tm );
 #else
-#warning "need to implement sockets on mac9"
+//#warning "need to implement sockets on mac9"
 #endif
 
     if ( qt_postselect_handler ) {
@@ -792,7 +792,7 @@ bool QApplication::processNextEvent( bool canWait )
 	nevents += sn_activate();
     }
 #else
-#warning "need to implement sockets on mac9"
+//#warning "need to implement sockets on mac9"
 #endif
 
     return (nevents > 0);
@@ -1372,8 +1372,14 @@ extern QPostEventList *qGlobalPostedEvents();
 
 bool QApplication::hasPendingEvents()
 {
-    #warning "Implement hasPendingEvents on Mac9/X"
-    return qGlobalPostedEvents();
+    if(qGlobalPostedEvents())
+        return TRUE;
+
+	EventRef event;
+	OSStatus ret = ReceiveNextEvent( 0, 0, 0.01, FALSE, &event );
+    if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr)
+		return TRUE;
+    return FALSE;
 }
 
 bool QApplication::macEventFilter( EventRef )

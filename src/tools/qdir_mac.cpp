@@ -122,7 +122,7 @@ bool QDir::isReadable() const
 
 bool QDir::isRoot() const
 {
-	return dPath == rootDirPath();
+    return convertSeparators(dPath).contains(':') == 1;
 }
 
 bool QDir::rename( const QString &name, const QString &newName,

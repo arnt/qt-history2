@@ -94,7 +94,7 @@ QString QFileInfo::readLink() const
     char s[PATH_MAX+1];
     if ( !isSymLink() )
 		return QString();
-    int len = readlink( QFile::encodeName(fn).data(), s, PATH_MAX );
+    int len = readlink( QFile::encodeName(QDir::convertSeparators(fn)).data(), s, PATH_MAX );
     if ( len >= 0 ) {
 		s[len] = '\0';
 		return QFile::decodeName(s);

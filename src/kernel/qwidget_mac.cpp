@@ -231,8 +231,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     } else {                                    // child widget
 	crect.setRect( 0, 0, 100, 30 );
     }
-    setFRect(crect);     // default frame rect
-
+    
     parentw = topLevel ? root_win : parentWidget()->winId();
 
     if ( window ) {				// override the old window
@@ -1279,6 +1278,15 @@ void QWidget::deleteTLSysExtra()
 bool QWidget::acceptDrops() const
 {
     return macDropEnabled;
+}
+
+void QWidget::updateFrameStrut()
+{
+        if(!isTopLevel() || !isVisible() || isDesktop()) {
+                fleft = fright = ftop = fbottom = 0;
+                return;
+        }
+        //FIXME: need to fill in frame strut info       
 }
 
 void qt_macdnd_unregister( QWidget *widget, QWExtra *extra ); //dnd_mac
