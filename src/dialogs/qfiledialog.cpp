@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#344 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#345 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1948,7 +1948,7 @@ void QFileDialog::changeMode( int id )
 {
     if ( !d->infoPreview && !d->contentsPreview )
 	return;
-    
+
     QPushButton *pb = (QPushButton*)d->modeButtons->find( id );
     if ( !pb )
 	return;
@@ -1957,7 +1957,7 @@ void QFileDialog::changeMode( int id )
 	return;
     if ( pb == d->previewInfo && !d->infoPreview )
 	return;
-    
+
     if ( pb != d->previewContents && pb != d->previewInfo ) {
 	d->preview->hide();
     } else {
@@ -3707,11 +3707,16 @@ QUrlOperator QFileDialog::url() const
 
 void QFileDialog::urlStart( QNetworkOperation *op )
 {
+    if ( !op )
+	return;
+    
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	d->moreFiles->clearSelection();
+	files->clearSelection();
 	d->moreFiles->clear();
 	files->clear();
 	files->setSorting( -1 );
-
+	
 	QString cp( d->url );
 	int i = d->paths->count() - 1;
 	while( i >= 0 && d->paths->text( i ) <= cp )
@@ -3740,6 +3745,9 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 
 void QFileDialog::urlFinished( QNetworkOperation *op )
 {
+    if ( !op )
+	return;
+    
     if ( op && op->state() == QNetworkProtocol::StFailed ) {
 	if ( d->paths->hasFocus() )
 	d->ignoreNextKeyPress = TRUE;
