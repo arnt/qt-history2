@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#18 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#18 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -555,8 +555,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	if ( mat.m12() != 0.0 || mat.m21() != 0.0 ) {
 	    QPointArray a( QRect(0,0,ws,hs) );
 	    a = mat.map( a );
-	    QRect r = a.boundingRect();
-	    r.normalize();
+	    QRect r = a.boundingRect().normalize();
 	    h = r.height();
 	    w = r.width();
 	}
