@@ -1,5 +1,7 @@
 #include "qapplicationinterface.h"
 
+#ifndef QT_NO_PROPERTIES
+
 /*!
   \class QApplicationInterface qapplicationinterface.h
 
@@ -104,3 +106,4 @@ QApplicationInterface* QApplicationInterface::requestInterface( const QCString& 
     return 0;
 }
 
+#endif

@@ -2,6 +2,9 @@
 #define QAPPLICATIONINTERFACES_H
 
 #include <qobject.h>
+
+#ifndef QT_NO_PROPERTIES
+
 #include <qvariant.h>
 
 class Q_EXPORT QApplicationInterface : public QObject
@@ -18,5 +21,7 @@ public:
 protected:
     QObject* parent() { return QObject::parent(); }
 };
+
+#endif
 
 #endif //QAPPLICATIONINTERFACES_H

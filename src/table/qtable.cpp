@@ -1180,10 +1180,9 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    }
 
 	    // Translate painter and draw the cell
-	    p->saveWorldMatrix();
 	    p->translate( colp, rowp );
 	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), isSelected( r, c ) );
-	    p->restoreWorldMatrix();
+	    p->translate( -colp, -rowp );
 
 	    rowp = oldrp;
 	    rowh = oldrh;
@@ -1191,11 +1190,10 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     }
 
     // draw indication of current cell
-    p->saveWorldMatrix();
     QRect focusRect = cellGeometry( curRow, curCol );
     p->translate( focusRect.x(), focusRect.y() );
     paintFocus( p, focusRect );
-    p->restoreWorldMatrix();
+    p->translate( -focusRect.x(), -focusRect.y() );
     
     // Paint empty rects
     paintEmptyArea( p, cx, cy, cw, ch );

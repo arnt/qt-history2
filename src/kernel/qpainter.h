@@ -139,6 +139,8 @@ public:
 #endif
     void	translate( double dx, double dy );
     void	resetXForm();
+    double	translationX() const;
+    double	translationY() const;
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
     QRect	xForm( const QRect & )	const;
@@ -445,6 +447,25 @@ inline bool QPainter::hasWorldXForm() const
     return xlatex || xlatey;
 #endif
 }
+
+inline double QPainter::translationX() const
+{
+#ifndef QT_NO_TRANSFORMATIONS
+    return worldMatrix().dx();
+#else
+    return xlatex;
+#endif
+}
+
+inline double QPainter::translationY() const
+{
+#ifndef QT_NO_TRANSFORMATIONS
+    return worldMatrix().dy();
+#else
+    return xlatey;
+#endif
+}
+
 
 inline bool QPainter::hasClipping() const
 {

@@ -153,10 +153,12 @@ protected:
     void contentsMouseMoveEvent( QMouseEvent *e );
     void contentsMouseReleaseEvent( QMouseEvent *e );
     void contentsMouseDoubleClickEvent( QMouseEvent *e );
+#ifndef QT_NO_DRAGANDDROP
     void contentsDragEnterEvent( QDragEnterEvent *e );
     void contentsDragMoveEvent( QDragMoveEvent *e );
     void contentsDragLeaveEvent( QDragLeaveEvent *e );
     void contentsDropEvent( QDropEvent *e );
+#endif
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
 #if !defined(QTEXTEDIT_OPEN_API)

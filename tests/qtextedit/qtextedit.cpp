@@ -82,9 +82,11 @@ void QTextEdit::init()
     connect( blinkTimer, SIGNAL( timeout() ),
 	     this, SLOT( blinkCursor() ) );
 
+#ifndef QT_NO_DRAGANDDROP
     dragStartTimer = new QTimer( this );
     connect( dragStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startDrag() ) );
+#endif
 
     resizeTimer = new QTimer( this );
     connect( resizeTimer, SIGNAL( timeout() ),
@@ -531,6 +533,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	placeCursor( e->pos() );
 	ensureCursorVisible();
 
+#ifndef QT_NO_DRAGANDDROP
 	if ( doc->inSelection( QTextDocument::Standard, e->pos() ) ) {
 	    mightStartDrag = TRUE;
 	    drawCursor( TRUE );
@@ -538,6 +541,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	    dragStartPos = e->pos();
 	    return;
 	}
+#endif
 	
 	bool redraw = FALSE;
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
@@ -573,12 +577,14 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 {
     if ( mousePressed ) {
+#ifndef QT_NO_DRAGANDDROP
 	if ( mightStartDrag ) {
 	    dragStartTimer->stop();
 	    if ( ( e->pos() - dragStartPos ).manhattanLength() > QApplication::startDragDistance() )
 		startDrag();
 	    return;
 	}
+#endif
 	mousePos = e->pos();
 	doAutoScroll();
 	oldMousePos = mousePos;
@@ -607,10 +613,12 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 	dragStartTimer->stop();
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
+#ifndef QT_NO_DRAGANDDROP
     if ( mightStartDrag ) {
 	selectAll( FALSE );
 	mousePressed = FALSE;
     }
+#endif
     if ( mousePressed ) {
 	if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
 	    doc->copySelectedText( QTextDocument::Standard );
@@ -647,6 +655,8 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
     mousePressed = TRUE;
 }
 
+#ifndef QT_NO_DRAGANDDROP
+
 void QTextEdit::contentsDragEnterEvent( QDragEnterEvent *e )
 {
     e->acceptAction();
@@ -680,6 +690,8 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 	insert( text, FALSE, TRUE );
     }
 }
+
+#endif
 
 void QTextEdit::doAutoScroll()
 {
@@ -758,7 +770,7 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
     int index;
     int i = 0;
     int cy;
-    int ch;
+    int ch=0;
     for ( ; i < lines; ++i ) {
 	chr = s->lineStartOfLine( i, &index );
 	cy = s->lineY( i );
@@ -1027,12 +1039,14 @@ void QTextEdit::redo()
 
 void QTextEdit::paste()
 {
+#ifndef QT_NO_CLIPBOARD
     if ( isReadOnly() )
 	return;
 
     QString s = QApplication::clipboard()->text();
     if ( !s.isEmpty() )
 	insert( s, FALSE, TRUE );
+#endif
 }
 
 void QTextEdit::checkUndoRedoInfo( UndoRedoInfo::Type t )
@@ -1487,6 +1501,7 @@ int QTextEdit::alignment() const
 
 void QTextEdit::startDrag()
 {
+#ifndef QT_NO_DRAGANDDROP
     mousePressed = FALSE;
     inDoubleClick = FALSE;
     QDragObject *drag = new QTextDrag( doc->selectedText( QTextDocument::Standard ), viewport() );
@@ -1498,6 +1513,7 @@ void QTextEdit::startDrag()
 	    repaintChanged();
 	}
     }
+#endif
 }
 
 void QTextEdit::selectAll( bool select )

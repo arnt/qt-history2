@@ -1629,10 +1629,12 @@ void QTextDocument::setFormat( int id, QTextFormat *f, int flags )
 
 void QTextDocument::copySelectedText( int id )
 {
+#ifndef QT_NO_CLIPBOARD
     if ( !hasSelection( id ) )
 	return;
 
     QApplication::clipboard()->setText( selectedText( id ) );
+#endif
 }
 
 void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
@@ -1910,8 +1912,8 @@ void QTextDocument::draw( QPainter *p, const QRegion &reg, const QColorGroup &cg
 	return;
 
     if ( paper ) {
-	p->setBrushOrigin( -p->worldMatrix().dx(),
-			   -p->worldMatrix().dy() );
+	p->setBrushOrigin( -p->translationX(),
+			   -p->translationY() );
 	p->fillRect( reg.boundingRect(), *paper );
     }
 
@@ -1958,7 +1960,6 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 	}
     } else {
 	painter = p;
-	painter->saveWorldMatrix();
 	painter->translate( ir.x(), ir.y() );
     }
 
@@ -1978,12 +1979,11 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 		       -( ir.y() - parag->rect().y() ) );
     parag->paint( *painter, cg, drawCursor ? cursor : 0, TRUE, cx, cy, cw, ch );
     if ( !flow()->isEmpty() ) {
-	painter->saveWorldMatrix();
 	painter->translate( 0, -parag->rect().y() );
 	QRect cr( cx, cy, cw, ch );
 	cr = cr.intersect( QRect( 0, parag->rect().y(), parag->rect().width(), parag->rect().height() ) );
 	flow()->drawFloatingItems( painter, cr.x(), cr.y(), cr.width(), cr.height(), cg );
-	painter->restoreWorldMatrix();
+	painter->translate( 0, +parag->rect().y() );
     }
 
 	
@@ -1991,7 +1991,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 	delete painter;
 	p->drawPixmap( ir.topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), ir.size() ) );
     } else {
-	painter->restoreWorldMatrix();
+	painter->translate( -ir.x(), -ir.y() );
     }
 
     if ( parag->rect().x() + parag->rect().width() < parag->document()->x() + parag->document()->width() ) {
