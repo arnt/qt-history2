@@ -83,7 +83,7 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
   \sa create()
 */
 
-/*! \fn QWidget *QWidgetPlugin::create( const QString, QWidget, const char )
+/*! \fn QWidget *QWidgetPlugin::create( const QString &, QWidget *, const char * )
 
   Creates and returns a QWidget object for the widget key \a key. The
   widget key is usually the class name of the required widget. The

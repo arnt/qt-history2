@@ -76,25 +76,28 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
 
   \mainclass
 
-  An instance of a QLibrary object can handle a single shared library and provide
-  access to the functionality in the library in a platform independent way. If the
-  library is a component server, QLibrary provides access to the exported component
-  and can directly query this component for interfaces.
+  An instance of a QLibrary object can handle a single shared library
+  and provide access to the functionality in the library in a platform
+  independent way. If the library is a component server, QLibrary
+  provides access to the exported component and can directly query
+  this component for interfaces.
 
-  QLibrary makes sure that the shared library is loaded and stays in memory for the
-  time it is being used, and can also unload the library upon destruction and thus
-  release unused resources.
+  QLibrary ensures that the shared library is loaded and stays in
+  memory whilst it is in use. QLibrary can also unload the library
+  on destruction and release unused resources.
 
-  A typical use of QLibrary is to resolve an exported symbol in a shared object, and
-  to e.g. call the function that this symbol represents. This is called "explicit
-  linking" in contrast to "implicit linking", which is done by the link step in the
-  build process when linking an executable against a library.
+  A typical use of QLibrary is to resolve an exported symbol in a
+  shared object, and to e.g. call the function that this symbol
+  represents. This is called "explicit linking" in contrast to
+  "implicit linking", which is done by the link step in the build
+  process when linking an executable against a library.
 
-  The following code snipplet will load a library, resolve the symbol "mysymbol",
-  and call the function if everything succeeded. If something went wrong, e.g. the
-  library file does not exist or the symbol is not defined, the function pointer
-  will become a null pointer. Upon destruction of the QLibrary object the library
-  will be unloaded again, making all referenced to memory allocated in the library
+  The following code snippet loads a library, resolves the symbol
+  "mysymbol", and calls the function if everything succeeded. If
+  something went wrong, e.g. the library file does not exist or the
+  symbol is not defined, the function pointer will become a null
+  pointer. Upon destruction of the QLibrary object the library will be
+  unloaded, making all references to memory allocated in the library
   invalid.
 
   \code
@@ -102,9 +105,9 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
   MyPrototype myFunction;
 
   QLibrary myLib( "mylib" );
-  myFunction = (MyProtoype)myLib.resolve( "mysymbol" );
+  myFunction = (MyProtoype) myLib.resolve( "mysymbol" );
   if ( myFunction ) {
-    myFunction();
+      myFunction();
   }
   \endcode
 */
@@ -114,18 +117,16 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
 
   Note that \a filename does not need to include the (platform specific)
   file extension, so calling
-
   \code
   QLibrary lib( "mylib" );
   \endcode
-
-  would be equivalent to
-
+  is equivalent to calling
   \code
   QLibrary lib( "mylib.dll" );
   \endcode
+  on Windows. Specifying the extension is not recommended, since doing
+  so introduces a platform dependency.
 
-  on Windows. But \e "mylib.dll" will obviously not work on other platforms.
   If \a filename does not include a path, the library loader will look for
   the file in the platform specific search paths.
 
@@ -140,6 +141,7 @@ QLibrary::QLibrary( const QString& filename )
 
 /*!
   Deletes the QLibrary object.
+
   The library will be unloaded if autoUnload() is TRUE, otherwise
   it stays in memory until the application is exited.
 
@@ -154,18 +156,18 @@ QLibrary::~QLibrary()
 }
 
 /*!
-  Returns the address of the exported symbol \a symb. The library gets
+  Returns the address of the exported symbol \a symb. The library is
   loaded if necessary. The function returns a null pointer if the symbol
   could not be resolved or the library could not be loaded.
 
   \code
-  typedef int (*addProc)( int, int );
+  typedef int (*avgProc)( int, int );
 
-  addProc add = (addProc) library->resolve( "add" );
-  if ( add )
-      return add( 5, 8 );
+  avgProc avg = (avgProc) library->resolve( "avg" );
+  if ( avg )
+      return avg( 5, 8 );
   else
-      return 5 + 8;
+      return -1;
   \endcode
 
 */
@@ -194,12 +196,13 @@ void *QLibrary::resolve( const char* symb )
 /*!
     \overload
 
-  Loads the library \a filename and returns the address of the exported symbol \a symb.
-  Note that like for the constructor, \a filename does not need to include the (platform specific)
-  file extension. The library keeps loaded until the process exits.
+  Loads the library \a filename and returns the address of the
+  exported symbol \a symb. Note that like the constructor, \a
+  filename does not need to include the (platform specific) file
+  extension. The library remains loaded until the process exits.
 
-  The function returns a null pointer if the symbol could not be resolved or the library could not
-  be loaded.
+  The function returns a null pointer if the symbol could not be
+  resolved or the library could not be loaded.
 */
 void *QLibrary::resolve( const QString &filename, const char *symb )
 {
@@ -209,7 +212,7 @@ void *QLibrary::resolve( const QString &filename, const char *symb )
 }
 
 /*!
-  Returns whether the library is loaded.
+  Returns TRUE if the library is loaded; otherwise returns FALSE.
 
   \sa unload()
 */
@@ -219,9 +222,10 @@ bool QLibrary::isLoaded() const
 }
 
 /*!
-  Loads the library. resolve() always calls this function before resolving
-  any symbols. Therefore you'll never have to call it yourself explicitly
-  unless you want to enforce it at an earlier point in time.
+  Loads the library. Since resolve() always calls this function before resolving
+  any symbols it is not necessary to call this function explicitly. In
+  some situations you might want the library loaded in advance, in
+  which case you would call this function.
 */
 bool QLibrary::load()
 {
@@ -229,7 +233,7 @@ bool QLibrary::load()
 }
 
 /*!
-  Unloads the library and returns TRUE if the library could be unloaded,
+  Unloads the library and returns TRUE if the library could be unloaded;
   otherwise returns FALSE.
 
   This function is called by the destructor if autoUnload() is enabled.
@@ -265,8 +269,8 @@ bool QLibrary::unload()
 }
 
 /*!
-  Returns whether the library will be automatically unloaded when this wrapper
-  object is destructed. The default is TRUE.
+  Returns TRUE if the library will be automatically unloaded when this wrapper
+  object is destructed; otherwise returns FALSE. The default is TRUE.
 
   \sa setAutoUnload()
 */
@@ -276,9 +280,10 @@ bool QLibrary::autoUnload() const
 }
 
 /*!
-  Set the wrapper object to automatically unload the library upon destruction.
-  Otherwise the library will stay in memory unless you have previously called
-  unload().
+    If \a enabled is TRUE, the wrapper object is set to automatically
+    unload the library upon destruction. If \a enabled is FALSE, the
+    wrapper object is not unloaded unless you explicitly call
+    unload().
 
   \sa autoUnload()
 */
@@ -291,6 +296,7 @@ void QLibrary::setAutoUnload( bool enabled )
   Returns the filename of the shared library this QLibrary object handles,
   including the platform specific file extension.
 
+    For example:
   \code
   QLibrary lib( "mylib" );
   QString str = lib.library();

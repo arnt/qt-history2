@@ -539,7 +539,8 @@ These classes and interfaces form the basis of the \link component.html Qt Compo
 
 \title Plugins
 
-These classes are used with Qt \link plugins-howto.html Plugins\endlink.
+These classes are used with Qt plugins. See the \link
+plugins-howto.html plugins documentation\endlink.
 
 */
 
