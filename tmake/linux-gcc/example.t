@@ -1,7 +1,6 @@
 #!
-#! This is the tmake template for building Qt example applications
+#! This is the tmake template for building Qt example programs
 #!
-
 ####### This section is automatically generated from
 #######    /home/hanord/qt/examples/Makefile
 
@@ -51,7 +50,7 @@ TARGET	=	#$ Expand("TARGET");
 all: $(TARGET) #$ Expand("ALL_DEPS");
 
 $(TARGET): $(OBJECTS) $(OBJMOC)
-	$(CC) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
+	$(CC) $(OBJECTS) $(OBJMOC) -o $(TARGET) $(LFLAGS) #$ Expand("UNIXLIBS");
 
 moc: $(SRCMOC)
 
