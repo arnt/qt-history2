@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: classes.doc,v 1.4 1998/03/31 09:05:35 aavit Exp $
+** $Id: classes.doc,v 1.5 1998/05/05 13:48:50 warwick Exp $
 **
 ** Documentation for class overview
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: classes.doc,v 1.4 1998/03/31 09:05:35 aavit Exp $";
+static char ident[] = "$Id: classes.doc,v 1.5 1998/05/05 13:48:50 warwick Exp $";
 #endif
 
 
@@ -22,7 +22,7 @@ static char ident[] = "$Id: classes.doc,v 1.4 1998/03/31 09:05:35 aavit Exp $";
 
 <h1 align=center>Class Index</h1><br clear="all">
 
-<multicol cols=3>
+<multicol cols=4>
   \classlist
 </multicol>
 */
