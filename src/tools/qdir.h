@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#14 $
+** $Id: //depot/qt/main/src/tools/qdir.h#15 $
 **
 ** Definition of QDir class
 **
@@ -144,8 +144,8 @@ private:
     QString	nameFilt;
     FilterSpec	filtS;
     SortSpec	sortS;
-    bool	dirty	: 1;
-    bool	allDirs : 1;
+    uint	dirty	: 1;
+    uint	allDirs : 1;
 };
 
 

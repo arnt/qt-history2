@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#13 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#14 $
 **
 ** Definition of QDialog class
 **
@@ -54,8 +54,8 @@ protected:
 private:
     void	setDefault( QPushButton * );
     int		rescode;
-    bool	did_move   : 1;
-    bool	did_resize : 1;
+    uint	did_move   : 1;
+    uint	did_resize : 1;
 };
 
 
