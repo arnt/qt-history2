@@ -7,12 +7,13 @@
 class OpenGLWidgetInterface : public WidgetInterface
 {
 public:
-    OpenGLWidgetInterface();
+    OpenGLWidgetInterface( QUnknownInterface *parent );
     ~OpenGLWidgetInterface();
 
     bool disconnectNotify();
 
-    QStringList featureList();
+    QStringList featureList() const;
+
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& );
     QString iconSet( const QString& );
@@ -26,7 +27,8 @@ private:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
-OpenGLWidgetInterface::OpenGLWidgetInterface()
+OpenGLWidgetInterface::OpenGLWidgetInterface( QUnknownInterface *parent )
+: WidgetInterface( parent )
 {
 }
 
@@ -41,7 +43,7 @@ bool OpenGLWidgetInterface::disconnectNotify()
     return TRUE;
 }
 
-QStringList OpenGLWidgetInterface::featureList()
+QStringList OpenGLWidgetInterface::featureList() const
 {
     QStringList list;
 
@@ -112,14 +114,14 @@ public:
     OpenGLPlugIn() {}
 
     QUnknownInterface* queryInterface( const QString& );
-    QStringList interfaceList();
+    QStringList interfaceList() const;
 
-    QString name() { return "QGLWidget"; }
-    QString description() { return "Qt Designer plugin for the OpenGL widget"; }
-    QString author() { return "Trolltech"; }
+    QString name() const { return "QGLWidget"; }
+    QString description() const { return "Qt Designer plugin for the OpenGL widget"; }
+    QString author() const { return "Trolltech"; }
 };
 
-QStringList OpenGLPlugIn::interfaceList()
+QStringList OpenGLPlugIn::interfaceList() const
 {
     QStringList list;
 
@@ -131,7 +133,7 @@ QStringList OpenGLPlugIn::interfaceList()
 QUnknownInterface* OpenGLPlugIn::queryInterface( const QString& request )
 {
     if ( request == "OpenGLWidgetInterface" )
-	return new OpenGLWidgetInterface;
+	return new OpenGLWidgetInterface( this );
     return 0;
 }
 
