@@ -41,6 +41,7 @@ public:
         QPalette palette;
         bool showCursor;
         bool textColorFromPalette;
+        QRect rect;
     };
 
     QAbstractTextDocumentLayout(QTextDocument *doc);

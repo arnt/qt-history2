@@ -1544,9 +1544,8 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     const int xOffset = d->hbar->value();
     const int yOffset = d->vbar->value();
 
-    p.translate(-xOffset, -yOffset);
-
     QRect r = ev->rect();
+    p.translate(-xOffset, -yOffset);
     r.translate(xOffset, yOffset);
     p.setClipRect(r);
 
@@ -1554,6 +1553,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     ctx.showCursor = (d->cursorOn && d->viewport->hasFocus());
     ctx.cursor = d->cursor;
     ctx.palette = palette();
+    ctx.rect = r;
 
     d->doc->documentLayout()->draw(&p, ctx);
 }

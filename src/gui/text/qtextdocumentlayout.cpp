@@ -28,7 +28,7 @@
 
 #include <qdebug.h>
 
-//#define LAYOUT_DEBUG
+// #define LAYOUT_DEBUG
 
 #ifdef LAYOUT_DEBUG
 #define LDEBUG qDebug()
@@ -371,8 +371,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                                            QTextFrame *frame) const
 {
     QTextFrameData *fd = data(frame);
-    if (painter->hasClipping()
-        && !fd->boundingRect.intersects(painter->clipRegion().boundingRect()))
+    if (!fd->boundingRect.intersects(context.rect))
         return;
 //     LDEBUG << debug_indent << "drawFrame" << frame->firstPosition() << "--" << frame->lastPosition() << "at" << offset;
 //     INC_INDENT;
@@ -458,7 +457,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                 cellRect.setHeight(td->rowPositions.at(r + rspan - 1) + td->heights.at(r + rspan - 1) - cellRect.top());
 
                 cellRect.translate(off);
-                if (!cellRect.intersects(painter->clipRegion().boundingRect()))
+                if (!cellRect.intersects(context.rect))
                     continue;
 
                 if (fd->border) {
@@ -531,8 +530,13 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
                                            QTextBlock bl) const
 {
     Q_Q(const QTextDocumentLayout);
-//     LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset;
     const QTextLayout *tl = bl.layout();
+    QRect r = tl->boundingRect();
+    r.translate(offset + tl->position());
+    if (!r.intersects(context.rect))
+        return;
+//      LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset << "br" << tl->boundingRect();
+
     QTextBlockFormat blockFormat = bl.blockFormat();
 
     int cursor = context.showCursor ? context.cursor.position() : -1;
@@ -566,7 +570,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     const_cast<QTextLayout *>(tl)->setPalette(context.palette,
                                               context.textColorFromPalette ? QTextLayout::UseTextColor : QTextLayout::None);
 
-    tl->draw(painter, offset, cursor, &s, nSel, painter->clipRegion().boundingRect());
+    tl->draw(painter, offset, cursor, &s, nSel, context.rect);
 }
 
 
