@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#234 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#235 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -484,6 +484,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 void QLineEdit::focusInEvent( QFocusEvent * )
 {
     d->pmDirty = TRUE;
+    cursorOn = FALSE;
     blinkOn();
 }
 
@@ -1552,7 +1553,8 @@ void QLineEdit::blinkOn()
     if ( !hasFocus() )
 	return;
 
-    d->blinkTimer.start( cursorOn?QApplication::cursorFlashTime()/2:0, TRUE );
+    d->blinkTimer.start( cursorOn?QApplication::cursorFlashTime() / 2 : 0, TRUE );
+    blinkSlot();
 }
 
 
