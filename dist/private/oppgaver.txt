@@ -10,8 +10,6 @@ Dokumentasjon:
 
 Støttefunksjoner:
 -----------------
-    make system
-    automatisk generere distribusjon
     lage en distribusjon checkliste/huskeliste
     lage en QA beskrivelse for Qt prosjektet
     porte til flere plattformer
@@ -27,7 +25,7 @@ PR:
 Bugs
 ----
 
-    QFileDialog bugen til Dan; klikker nederst og faar oeverste valgt.
+    Fikse fokus til å gå oppover på widget-treet rett måte.
 
 Funksjonalitet:
 ---------------
@@ -54,9 +52,9 @@ Funksjonalitet:
 
     Strengdatabase for flerspråklige applikasjoner
 
-    Støtte for å kunne sette andre fontfamilier enn ISO-8859-1
+    Støtte for å kunne sette annet enn ISO-8859-1
 
-    Widget-flagg offentliggjøres og bruker for å lage rammeløse
+    Widget-flagg offentliggjøres og brukes for å lage rammeløse
     vinduer osv.
 
     Dialoger:
@@ -131,8 +129,6 @@ Ferdigstilling:
 
     QWidget::raise() og QWidget::lower maa stokke om i lista
 
-    Tabbing bug
-
     Debug utskrifter fjernes (evt. warning)
 
     Scrollbars/knapper og tastaturfokus
@@ -148,7 +144,7 @@ Widgets:
     Windows lignende kontroller:
 	ListCtrl, TreeCtrl, TabCtrl, ToolTipCtrl, ToolBar
 
-
+	Wizard
 
 Gjort:
 ------
@@ -156,4 +152,6 @@ Gjort:
     Moc
 	-p "/usr/include"	path prefix for #include 
 	-i "hurra.h"		#include "hurra.h"
+
+    QFileDialog bugen til Dan; klikker nederst og faar oeverste valgt.
 
