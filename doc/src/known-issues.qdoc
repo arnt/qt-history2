@@ -1,0 +1,7 @@
+/*!
+    \page known-issues.html
+    \title Known Issues in Qt 4.0 Beta 1
+
+    This page will contain a list of issues that are known to
+    Trolltech and that we expect to fix in the next beta release.
+*/
