@@ -6,8 +6,10 @@ compatibility (source and binary) with Qt 3.2.2
 *                           General                                        *
 ****************************************************************************
 
+Compilers
+---------
 
-
+- Fix gcc 3.4 compile problems
 
 ****************************************************************************
 *                          Library                                         *
@@ -16,13 +18,122 @@ compatibility (source and binary) with Qt 3.2.2
 General Fixes
 -------------
 
+- QJpegIO
+	Fix memory leak when writing JPEG files.
+
+- QLineEdit
+	Preserve null and empty strings correctly in setText(). 
+
+- QMessageBox
+	Preserve undocumented behavior in 3.1: expand tabs.
+
+- QMimeSourceFactory
+	Don't crash when a factory use a pointer to a QMimeSource
+	which is owned by another factory.
+
+- QMovie
+	Respect background color of movie when loading animations with
+	transparent pixels.
+
+	Fix color mode if reading 1bpp images or frames.
+
+- QPainter
+	Fill complete bounding rect when rendering text with an opaque painter.
+
+- QRichtext
+	Fix special case where <nobr>/nfoo had an extra space.
+
+	Fix line breaking for Latin text.
+
+- QTextEdit
+	Improve spead of syntax highlighting.
+
+- QToolBar
+	Do not grow in height when put inside a normal widget.
+
+- QWheelEvent
+	Wheel events are now only sent to the focus widget if the widget
+	under the mouse doesn't handle the event.
+
+- QWMatrix 
+	Fix operator *(QRegion) when the world matrix is (-1 0 0 1 0 0) or similar.
+
 Platform-Specific Issues
 ------------------------
 
 Windows:
 
+- Fix resource leak when printing on Windows 9x
+
+- Fix crash for Win98 with HP OfficeJet Pro 1150C
+
+- QTextBrowser
+	Fixed weight problem in setFont()
+
+- QUriDrag
+	Fix bugs with encoding and separators.
 Mac:
 
+- Fix problem with popup windows and dual monitors.
+
+- Fix mouse release problem when control is used to emulate mouse
+  button 2.
+
+- Fix crash on exit problem (eg. with designer)
+
+- Fix case where clicking menu bar would stop timers firing.
+
+- QFont
+	Improve fixedPitch font handling.
+
+- QMenuBar
+	Fix crash with empty menus.
+
+	Make sure that when we show the apple menu, the items we
+	merged in from the other popup menu's follow the enabled
+	states.
+
+- QPushButton 
+	draw PushButtons vertically-centered on Panther.
+
+- Make the splash screen centered on Panther.
+	
 X11:
 
+- Solaris specific
+	Work around compiler bug affecting QString::operator=(const QString &)
+	when linking statically
+
+- QApplication
+	Avoid endless client message loops when replying to
+	_NET_WM_PING events.
+
+- QFont
+	Fix crash when using high latin characters with GNU unifont.
+
+	Fix scale factor for printing (rounding error).
+
+- QPainter
+
+	Fix an endless loop and a bug in the shaping engine for Hangul
+	Jamo. (Affects only ancient Korean texts.)
+
+- QPrinter
+	Work around bugs in Xft causing memory corruption in the
+	postscript printer when downloading certain fonts.
+
+- QSound
+	Fixed crash when deleting a QSound object while it was playing,
+
 Embedded:
+
+- Fix bug when applications connect then disconnect immediately.
+
+- Experimental code to handle 1bpp and 4bpp displays for big-endian architectures.
+  (turned off by default).
+
+- QEventLoop
+	Make processEvents(ExcludeUserInput) work.
+
+- QPrinter
+	Fix fontmetrics when printing with QPrinter::HighResolution.
