@@ -1,6 +1,9 @@
 #ifndef QGUID_DEFINED
 #define QGUID_DEFINED
 
+#include <qglobal.h>
+#include <memory.h>
+
 struct Q_EXPORT QGuid
 {
     unsigned int   data1;
