@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#42 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#43 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -58,7 +58,7 @@ public:
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
                      Text, BrightText, ButtonText, Base, Background, Shadow,
                      Highlight, HighlightedText,
-		     MaxColorRole = HighlightedText };
+		     NColorRoles };
 
     const QColor &color( ColorRole ) const;
     const QBrush &brush( ColorRole ) const;
@@ -81,29 +81,12 @@ public:
     const QColor &highlight()	const	{ return br[Highlight].color(); }
     const QColor &highlightedText() const{return br[HighlightedText].color(); }
 
-#if 0
-    void setForeground( const QBrush& b) { foreground_brush = b; }
-    void setButton( const QBrush& b) { button_brush = b; }
-    void setLight( const QBrush& b) { light_brush = b; }
-    void setMidlight( const QBrush& b) { midlight_brush = b; }
-    void setDark( const QBrush& b) { dark_brush = b; }
-    void setMid( const QBrush& b) { mid_brush = b; }
-    void setText( const QBrush& b) { text_brush = b; }
-    void setBrightText( const QBrush& b) { bright_text_brush = b; }
-    void setButtonText( const QBrush& b) { button_text_brush = b; }
-    void setBase( const QBrush& b) { base_brush = b; }
-    void setBackground( const QBrush& b) { background_brush = b; }
-    void setShadow( const QBrush& b) { shadow_brush = b; }
-    void setHighlight( const QBrush& b) { highlight_brush = b; }
-    void setHighlightedText( const QBrush& b) { highlighted_text_brush = b; }
-#endif
-
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
 	{ return !(operator==(g)); }
 
 private:
-    QBrush br[MaxColorRole + 1];
+    QBrush *br;
     QColorGroupPrivate * d;
 
     friend class QPalette;

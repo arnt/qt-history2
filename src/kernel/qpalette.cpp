@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#48 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -76,7 +76,14 @@
 */
 
 QColorGroup::QColorGroup()
-{						// all colors become black
+{
+    br = new QBrush[NColorRoles];	// all colors become black
+
+    // The d pointer may allow sharing in the future.  The br pointer
+    // then will be a redundant pointer that makes possible the inlines
+    // in the header file.  Don't forget to add delete d in the destructor.
+    // QPalette, the main QColorGroup user, is already shared though,
+    // so perhaps not much is to be gained.
     d = 0;
 }
 
@@ -85,7 +92,8 @@ QColorGroup::QColorGroup()
 */
 QColorGroup::QColorGroup(const QColorGroup& other)
 {
-    for (int i=0; i<=MaxColorRole; i++)
+    br = new QBrush[NColorRoles];
+    for (int i=0; i<NColorRoles; i++)
 	br[i] = other.br[i];
     d = 0;
 }
@@ -95,7 +103,7 @@ QColorGroup::QColorGroup(const QColorGroup& other)
 */
 QColorGroup& QColorGroup::operator =(const QColorGroup& other)
 {
-    for (int i=0; i<=MaxColorRole; i++)
+    for (int i=0; i<NColorRoles; i++)
 	br[i] = other.br[i];
     return *this;
 }
@@ -110,22 +118,23 @@ plain colors for each parameter.
 	  const QBrush &light, const QBrush &dark, const QBrush &mid,
 	  const QBrush &text,  const QBrush &bright_text, const QBrush &base,
 	  const QBrush &background)
- {
-     br[Foreground]      = foreground;
-     br[Button] 	 = button;
-     br[Light] 		 = light;
-     br[Dark] 		 = dark;
-     br[Mid] 		 = mid;
-     br[Text] 		 = text;
-     br[BrightText] 	 = bright_text;
-     br[ButtonText] 	 = text;
-     br[Base] 		 = base;
-     br[Background] 	 = background;
-     br[Midlight] 	 = QBrush( br[Button].color().light(115));
-     br[Shadow]          = Qt::black;
-     br[Highlight]       = Qt::darkBlue;
-     br[HighlightedText] = Qt::white;
- }
+{
+    br = new QBrush[NColorRoles];
+    br[Foreground]      = foreground;
+    br[Button] 	 = button;
+    br[Light] 		 = light;
+    br[Dark] 		 = dark;
+    br[Mid] 		 = mid;
+    br[Text] 		 = text;
+    br[BrightText] 	 = bright_text;
+    br[ButtonText] 	 = text;
+    br[Base] 		 = base;
+    br[Background] 	 = background;
+    br[Midlight] 	 = QBrush( br[Button].color().light(115));
+    br[Shadow]          = Qt::black;
+    br[Highlight]       = Qt::darkBlue;
+    br[HighlightedText] = Qt::white;
+}
 
 
 /*!\obsolete
@@ -138,6 +147,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
 			  const QColor &mid,
 			  const QColor &text, const QColor &base )
 {
+    br = new QBrush[NColorRoles];
     br[Foreground]      = QBrush(foreground);
     br[Button]          = QBrush(button);
     br[Light]           = QBrush(light);
@@ -160,6 +170,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
 
 QColorGroup::~QColorGroup()
 {
+    delete [] br;
 }
 
 /*!
@@ -426,7 +437,7 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 
 bool QColorGroup::operator==( const QColorGroup &g ) const
 {
-    for( int r = 0 ; r < MaxColorRole + 1 ; r++ )
+    for( int r = 0 ; r < NColorRoles ; r++ )
 	if ( br[r] != g.br[r] )
 	    return FALSE;
     return TRUE;
@@ -802,7 +813,7 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 	  << g.base();
     }
     else {
-	for( int r = 0 ; r < QColorGroup::MaxColorRole + 1 ; r++ )
+	for( int r = 0 ; r < QColorGroup::NColorRoles ; r++ )
 	    s << g.brush( (QColorGroup::ColorRole)r);
     }
     return s;
@@ -830,7 +841,7 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
     }
     else {
 	QBrush tmp;
-	for( int r = 0 ; r < QColorGroup::MaxColorRole + 1 ; r++ ) {
+	for( int r = 0 ; r < QColorGroup::NColorRoles; r++ ) {
 	    s >> tmp;
 	    g.setBrush( (QColorGroup::ColorRole)r, tmp);
 	}
@@ -929,7 +940,7 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 #endif
 	return data->normal.br[QColorGroup::Foreground];
     }
-    if ( (uint)r > (uint)QColorGroup::MaxColorRole ) {
+    if ( (uint)r >= (uint)QColorGroup::NColorRoles ) {
 #if defined(CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
 #endif
