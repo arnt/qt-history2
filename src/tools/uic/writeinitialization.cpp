@@ -734,8 +734,14 @@ void WriteInitialization::accept(DomTabStops *tabStops)
             continue;
         }
 
-        if (lastName.size())
-            output << option.indent << "QWidget::setTabOrder(" << name << ", " << lastName << ");\n";
+        if (i == 0) {
+            lastName = name;
+            continue;
+        } else if (name.isEmpty() || lastName.isEmpty()) {
+            continue;
+        }
+
+        output << option.indent << "QWidget::setTabOrder(" << lastName << ", " << name << ");\n";
 
         lastName = name;
     }
