@@ -232,6 +232,7 @@ QBitmap &QBitmap::operator=(const QPixmap &pixmap)
             QPixmap::operator=(pixmap);                // shallow assignment
         } else {                                // not a QBitmap, but 1-bit
             QBitmap bm(pixmap.size(), false);
+            bm.fill(Qt::color0);
             QPainter p(&bm);
             p.drawPixmap(0, 0, pixmap);
             p.end();

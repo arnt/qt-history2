@@ -1037,7 +1037,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                                                             bits, w, h);
 
 #ifndef QT_NO_XFT
-        if (X11->has_xft)
+        if (X11->has_xft && X11->use_xrender)
             pixmap.data->xft_hd = (Qt::HANDLE) XftDrawCreateBitmap(pixmap.data->xinfo.display(), pixmap.data->hd);
 #endif // QT_NO_XFT
 
