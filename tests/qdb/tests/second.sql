@@ -1,6 +1,3 @@
-insert into authors
-values(7, 'Bar');
-
-select id, name
-from authors
-order by id desc, name desc;
+select a.id, b.id, a.name, b.address
+from authors a, publishers b
+where a.id = 1 and a.id <= b.id;

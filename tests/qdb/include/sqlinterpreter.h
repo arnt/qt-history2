@@ -166,6 +166,7 @@ private:
     int yyNextLabel;
     bool yyOK;
     QMap<QString, int> yyOpenedTableMap;
+    QMap<QString, int> yyAliasTableMap;
     QMap<QString, int> yyActiveTableMap;
     QValueList<int> yyActiveTableIds;
     QMap<QString, int> yyLookedUpColumnMap;
