@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#185 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -122,7 +122,7 @@ void		qt_init_windows_mime();		// qdnd_win.cpp
 /*!
   Returns a static Windows TCHAR* from a QString, possibly adding NUL.
 */
-TCHAR* qt_winTchar(const QString& str, bool addnul)
+const TCHAR* qt_winTchar(const QString& str, bool addnul)
 {
 #ifdef UNICODE
     static uint buflen = 256;
@@ -185,7 +185,7 @@ QString qt_winQString(TCHAR* tc)
     }
 #undef EXTEND
 #else
-    return str.ascii();
+    return tc;
 #endif
 }
 
