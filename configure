@@ -56,7 +56,7 @@ PLATFORM_MAC=no
 # * mkspecs/qws must be present
 # * this is a free or commercial edition
 # * this is an internal edition and Qt/Embedded was somehow triggered
-[ "$PLATFORM_MAC" = "no" ] && [ -d mkspecs/qws ] && PLATFORM_QWS=maybe
+[ "$PLATFORM_MAC" = "no" ] && [ -d $relpath/mkspecs/qws ] && PLATFORM_QWS=maybe
 
 
 #-------------------------------------------------------------------------------
