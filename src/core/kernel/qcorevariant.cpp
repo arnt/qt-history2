@@ -1136,6 +1136,12 @@ QCoreVariant::QCoreVariant(QDataStream &s)
     If \a val is null, the resulting variant has type Invalid.
 */
 
+QCoreVariant::QCoreVariant(const char *val)
+{
+    QString s = QString::fromLatin1(val);
+    d = create(String, &s);
+}
+
 /*!
   \fn QCoreVariant::QCoreVariant(const QStringList &val)
 

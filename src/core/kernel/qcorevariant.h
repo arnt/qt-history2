@@ -100,7 +100,7 @@ class Q_CORE_EXPORT QCoreVariant
     inline QCoreVariant(bool b);
     inline QCoreVariant(double d);
 
-    inline QCoreVariant(const char *str);
+    QCoreVariant(const char *str);
     inline QCoreVariant(const QByteArray &bytearray);
     inline QCoreVariant(const QBitArray &bitarray);
     inline QCoreVariant(const QString &string);
@@ -293,8 +293,6 @@ inline QCoreVariant::QCoreVariant(bool val)
 inline QCoreVariant::QCoreVariant(double val)
 { d = create(Double, &val); }
 
-inline QCoreVariant::QCoreVariant(const char *val)
-{ QByteArray ba(val); d = create(ByteArray, &ba); }
 inline QCoreVariant::QCoreVariant(const QByteArray &val)
 { d = create(ByteArray, &val); }
 inline QCoreVariant::QCoreVariant(const QBitArray &val)
