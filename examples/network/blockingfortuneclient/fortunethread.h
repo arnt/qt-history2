@@ -3,12 +3,16 @@
 
 #include <QThread>
 #include <QMutex>
+#include <QWaitCondition>
 
 class FortuneThread : public QThread
 {
     Q_OBJECT
 
 public:
+    FortuneThread(QObject *parent = 0);
+    ~FortuneThread();
+
     void requestNewFortune(const QString &hostName, Q_UINT16 port);
     void run();
 
@@ -20,6 +24,8 @@ private:
     QString hostName;
     Q_UINT16 port;
     QMutex mutex;
+    QWaitCondition cond;
+    bool quit;
 };
 
 #endif

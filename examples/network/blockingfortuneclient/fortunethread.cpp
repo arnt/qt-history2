@@ -2,49 +2,71 @@
 
 #include "fortunethread.h"
 
+FortuneThread::FortuneThread(QObject *parent)
+    : QThread(parent), quit(false)
+{
+}
+
+FortuneThread::~FortuneThread()
+{
+    quit = true;
+    cond.wakeOne();
+    wait();
+}
+
 void FortuneThread::requestNewFortune(const QString &hostName, Q_UINT16 port)
 {
-    QMutexLocker lock(&mutex);
+    QMutexLocker locker(&mutex);
     this->hostName = hostName;
     this->port = port;
-    start();
+    if (!isRunning())
+        start();
+    else
+        cond.wakeOne();
 }
 
 void FortuneThread::run()
 {
-    const int Timeout = 5 * 1000;
+    QString serverName = hostName;
+    Q_UINT16 serverPort = port;
 
-    QTcpSocket socket;
+    while (!quit) {
+        const int Timeout = 5 * 1000;
 
-    mutex.lock();
-    socket.connectToHost(hostName, port);
-    mutex.unlock();
+        QTcpSocket socket;
+        socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(Timeout)) {
-        emit error(socket.socketError(), socket.errorString());
-        return;
-    }
-
-    while (socket.bytesAvailable() < sizeof(Q_UINT16)) {
-        if (!socket.waitForReadyRead(Timeout)) {
+        if (!socket.waitForConnected(Timeout)) {
             emit error(socket.socketError(), socket.errorString());
             return;
         }
-    }
 
-    Q_UINT16 blockSize;
-    QDataStream in(&socket);
-    in.setVersion(QDataStream::Qt_4_0);
-    in >> blockSize;
-
-    while (socket.bytesAvailable() < blockSize) {
-        if (!socket.waitForReadyRead(Timeout)) {
-            emit error(socket.socketError(), socket.errorString());
-            return;
+        while (socket.bytesAvailable() < sizeof(Q_UINT16)) {
+            if (!socket.waitForReadyRead(Timeout)) {
+                emit error(socket.socketError(), socket.errorString());
+                return;
+            }
         }
-    }
 
-    QString fortune;
-    in >> fortune;
-    emit newFortune(fortune);
+        Q_UINT16 blockSize;
+        QDataStream in(&socket);
+        in.setVersion(QDataStream::Qt_4_0);
+        in >> blockSize;
+
+        while (socket.bytesAvailable() < blockSize) {
+            if (!socket.waitForReadyRead(Timeout)) {
+                emit error(socket.socketError(), socket.errorString());
+                return;
+            }
+        }
+
+        QString fortune;
+        in >> fortune;
+        emit newFortune(fortune);
+
+        QMutexLocker locker(&mutex);
+        cond.wait(&mutex);
+        serverName = hostName;
+        serverPort = port;
+    }
 }
