@@ -410,9 +410,9 @@ LRESULT CALLBACK axc_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
                     gpos.y = HIWORD(ol_pos);
                     pos = widget->mapFromGlobal(QPoint(gpos.x, gpos.y));
 
-					QMouseEvent e(type, pos, QPoint(gpos.x, gpos.y), (Qt::MouseButton)button,
-						translateMouseButtonState(msg->wParam, type, button),
-						translateModifierState(msg->wParam));
+		    QMouseEvent e(type, pos, QPoint(gpos.x, gpos.y), (Qt::MouseButton)button,
+			    translateMouseButtonState(msg->wParam, type, button),
+			    translateModifierState(msg->wParam));
                     QApplication::sendEvent(ax, &e);
                 }
             }
