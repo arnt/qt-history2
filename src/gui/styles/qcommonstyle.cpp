@@ -1470,13 +1470,13 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    QRect addline, subline, addpage, subpage, slider, first, last;
 	    bool maxedOut = (scrollbar->minimum() == scrollbar->maximum());
 
-	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, opt);
-	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, opt);
-	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, opt);
-	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, opt);
-	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  opt);
-	    first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   opt);
-	    last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    opt);
+	    subline = visualRect(querySubControlMetrics(control, widget, SC_ScrollBarSubLine, opt), widget);
+	    addline = visualRect(querySubControlMetrics(control, widget, SC_ScrollBarAddLine, opt), widget);
+	    subpage = visualRect(querySubControlMetrics(control, widget, SC_ScrollBarSubPage, opt), widget);
+	    addpage = visualRect(querySubControlMetrics(control, widget, SC_ScrollBarAddPage, opt), widget);
+	    slider  = visualRect(querySubControlMetrics(control, widget, SC_ScrollBarSlider, opt), widget);
+	    first   = visualRect(querySubControlMetrics(control, widget, SC_ScrollBarFirst, opt), widget);
+	    last    = visualRect(querySubControlMetrics(control, widget, SC_ScrollBarLast, opt), widget);
 
        	    if ((controls & SC_ScrollBarSubLine) && subline.isValid())
 		drawPrimitive(PE_ScrollBarSubLine, p, subline, pal,
@@ -2167,8 +2167,8 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 
 	    // we can do this because subcontrols were designed to be masks as well...
 	    while (ret == SC_None && ctrl <= SC_ScrollBarGroove) {
-		r = querySubControlMetrics(control, widget,
-					   (QStyle::SubControl) ctrl, opt);
+		r = visualRect(querySubControlMetrics(control, widget,
+						      (QStyle::SubControl) ctrl, opt), widget);
 		if (r.isValid() && r.contains(pos))
 		    ret = (QStyle::SubControl) ctrl;
 
@@ -2432,7 +2432,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 12;
 	break;
 
-	
+
     case PM_MenuFrameHorizontalExtra:
     case PM_MenuFrameVerticalExtra:
 	ret = 0;

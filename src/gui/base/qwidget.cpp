@@ -792,6 +792,9 @@ void QWidgetPrivate::init(Qt::WFlags f)
 	focus_next = focus_handler;
     }
 
+    q->setAttribute(QWidget::WA_PendingMoveEvent);
+    q->setAttribute(QWidget::WA_PendingResizeEvent);
+
     if (++QWidget::instanceCounter > QWidget::maxInstances)
     	QWidget::maxInstances = QWidget::instanceCounter;
 

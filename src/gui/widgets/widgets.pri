@@ -39,6 +39,8 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qsizegrip.h \
 	widgets/qslider.h \
 	widgets/qabstractslider.h \
+	widgets/qviewport_p.h \
+	widgets/qviewport.h \
 	widgets/qsplashscreen.h \
 	widgets/qspinbox.h \
 	widgets/qsplitter.h \
@@ -96,6 +98,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qsizegrip.cpp \
 	widgets/qslider.cpp \
 	widgets/qabstractslider.cpp \
+	widgets/qviewport.cpp \
 	widgets/qsplashscreen.cpp \
 	widgets/qspinbox.cpp \
 	widgets/qspinwidget.cpp \

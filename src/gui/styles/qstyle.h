@@ -298,7 +298,7 @@ public:
 	CE_HeaderLabel,
 
 #ifdef QT_COMPAT
-	CE_Q3PopupMenuItem, 
+	CE_Q3PopupMenuItem,
 	CE_Q3PopupMenuScroller,
 	CE_Q3MenuBarItem,
 	CE_Q3MenuBarEmptyArea,
@@ -760,6 +760,8 @@ public:
 
     static QRect visualRect( const QRect &logical, const QWidget *w );
     static QRect visualRect( const QRect &logical, const QRect &bounding );
+    static QPoint visualPos( const QPoint &logical, const QWidget *w );
+    static QPoint visualPos( const QPoint &logical, const QRect &bounding );
     static int positionFromValue(int min, int max, int val, int space, bool upsideDown = false);
     static int valueFromPosition(int min, int max, int pos, int space, bool upsideDown = false);
 

@@ -1878,11 +1878,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
 {
+    if ( !QApplication::reverseLayout() )
+	return logical;
     QRect boundingRect = w->rect();
     QRect r = logical;
-    if ( QApplication::reverseLayout() )
-	r.moveBy( 2*(boundingRect.right() - logical.right()) +
-		  logical.width() - boundingRect.width(), 0 );
+    r.moveBy( 2*(boundingRect.right() - logical.right()) +
+	      logical.width() - boundingRect.width(), 0 );
     return r;
 }
 
@@ -1898,11 +1899,47 @@ QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
 */
 QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 {
+    if ( !QApplication::reverseLayout() )
+	return logical;
     QRect r = logical;
-    if ( QApplication::reverseLayout() )
-	r.moveBy( 2*(boundingRect.right() - logical.right()) +
-		  logical.width() - boundingRect.width(), 0 );
+    r.moveBy( 2*(boundingRect.right() - logical.right()) +
+	      logical.width() - boundingRect.width(), 0 );
     return r;
+}
+
+/*!
+    \fn QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w );
+
+    Returns the pos \a logical in screen coordinates. The bounding
+    rect for widget \a w is used to perform the translation. This
+    function is provided to aid style implementors in supporting
+    right-to-left mode.
+
+    \sa QApplication::reverseLayout()
+*/
+QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w )
+{
+    if ( !QApplication::reverseLayout() )
+	return logical;
+    QRect boundingRect = w->rect();
+    return QPoint( w->rect().right() - logical.x(), logical.y());
+}
+
+/*!
+    \overload QPoint QStyle::visualPos( const QPoint &logical, const QRect &bounding );
+
+    Returns the pos \a logical in screen coordinates. The pos \a
+    bounding is used to perform the translation. This function is
+    provided to aid style implementors in supporting right-to-left
+    mode.
+
+    \sa QApplication::reverseLayout()
+*/
+QPoint QStyle::visualPos( const QPoint &logical, const QRect &boundingRect )
+{
+    if ( !QApplication::reverseLayout() )
+	return logical;
+    return QPoint( boundingRect.right() - logical.x(), logical.y());
 }
 
 

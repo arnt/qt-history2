@@ -27,6 +27,8 @@ public:
     QAbstractSliderPrivate();
     ~QAbstractSliderPrivate();
 
+    void setSteps(int single, int page);
+
     int minimum, maximum, singleStep, pageStep, value, position;
     uint tracking : 1;
     uint blocktracking :1;

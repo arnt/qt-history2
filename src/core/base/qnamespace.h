@@ -24,7 +24,7 @@
 class Q_CORE_EXPORT Qt {
 #ifdef Q_MOC_RUN
     Q_OBJECT
-    Q_ENUMS( Orientation TextFormat BackgroundMode DateFormat )
+    Q_ENUMS( Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy)
     Q_FLAGS( AlignmentFlags )
 #endif
 public:
@@ -71,6 +71,15 @@ public:
     enum Orientation {
         Horizontal = 0,
 	Vertical
+    };
+
+    // documented in qwidget.cpp
+    enum FocusPolicy {
+	NoFocus = 0,
+	TabFocus = 0x1,
+	ClickFocus = 0x2,
+	StrongFocus = TabFocus | ClickFocus | 0x8,
+	WheelFocus = StrongFocus | 0x4
     };
 
     // documented in qlistview.cpp
@@ -856,6 +865,12 @@ public:
 	Sunday = 7
     };
 
+    // documented in qviewport.cpp
+    enum ScrollBarPolicy {
+	ScrollBarAsNeeded,
+	ScrollBarAlwaysOff,
+	ScrollBarAlwaysOn
+    };
 
 #ifdef QT_COMPAT
     enum BackgroundMode {

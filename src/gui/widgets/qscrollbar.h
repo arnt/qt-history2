@@ -48,7 +48,7 @@ protected:
 #ifdef QT_COMPAT
 public:
     QScrollBar( QWidget *parent, const char* name);
-    QScrollBar( Orientation, QWidget *parent=0, const char* name = 0 );
+    QScrollBar( Orientation, QWidget *parent, const char* name);
     QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
 		int value, Orientation, QWidget *parent=0, const char* name = 0 );
     inline QT_COMPAT bool draggingSlider() { return isSliderDown(); }

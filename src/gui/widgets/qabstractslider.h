@@ -50,6 +50,8 @@ public:
     void setMaximum(int);
     int maximum() const;
 
+    void setRange(int min, int max);
+
     void setSingleStep(int);
     int singleStep() const;
 
@@ -64,7 +66,7 @@ public:
 
     void setSliderPosition(int);
     int sliderPosition() const;
-    
+
     void setInvertedAppearance(bool);
     bool invertedAppearance() const;
 
@@ -96,6 +98,8 @@ signals:
     void sliderMoved(int position);
     void sliderReleased();
 
+    void rangeChanged(int min, int max);
+
     void actionTriggered(int action);
 
 protected:
@@ -126,7 +130,6 @@ public:
     inline QT_COMPAT void setMinValue(int v) { setMinimum(v); }
     inline QT_COMPAT void setMaxValue(int v) { setMaximum(v); }
     inline QT_COMPAT void setLineStep(int v) { setSingleStep(v); }
-    inline QT_COMPAT void setRange(int min, int max) { setMinimum(min); setMaximum(max); }
     inline QT_COMPAT void setSteps(int single, int page) { setSingleStep(single); setPageStep(page); }
     inline QT_COMPAT void addPage() { triggerAction(SliderPageStepAdd); }
     inline QT_COMPAT void subtractPage() { triggerAction(SliderPageStepSub); }

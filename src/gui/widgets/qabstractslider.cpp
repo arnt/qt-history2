@@ -77,6 +77,8 @@
 	 \i the user releases the slider.
     \row \i \l actionTriggered()
 	 \i a slider action was triggerd.
+    \row \i \l rangeChanged()
+	 \i a the range has changed.
     \endtable
 
     QAbstractSlider provides a virtual sliderChange() function that is
@@ -121,6 +123,15 @@
 */
 
 /*!
+    \fn void QAbstractSlider::rangeChanged(int min, int max)
+
+    This signal is emitted when the slider range has changed, with \a
+    min being the new minimum, and \a max being the new maximum.
+
+    \sa minimum, maximum
+*/
+
+/*!
     \fn void QAbstractSlider::actionTriggered(int action)
 
     This signal is emitted when the slider action \a action is
@@ -151,6 +162,32 @@ QAbstractSliderPrivate::QAbstractSliderPrivate()
 QAbstractSliderPrivate::~QAbstractSliderPrivate()
 {
 }
+
+/*!
+    Sets the slider's minimum to \a min and its maximum to \a max.
+
+    If \a max is smaller than \a min, \a min becomes the only legal
+    value.
+
+    \sa mininum maximum
+*/
+void QAbstractSlider::setRange(int min, int max)
+{
+    d->minimum = min;
+    d->maximum = qMax(min, max);
+    sliderChange(SliderRangeChange);
+    emit rangeChanged(d->minimum, d->maximum);
+    setValue(d->value); // re-bound
+}
+
+
+void QAbstractSliderPrivate::setSteps(int single, int page)
+{
+    singleStep = single;
+    pageStep = page;
+    q->sliderChange(QAbstractSlider::SliderStepsChange);
+}
+
 
 /*!
     Constructs an abstract slider.
@@ -212,16 +249,14 @@ Qt::Orientation QAbstractSlider::orientation() const
     \brief the sliders's minimum value
 
     When setting this property, the \l maximum is adjusted if
-    necessary to ensure that the range remains valid.
+    necessary to ensure that the range remains valid. Also the
+    slider's current value is adjusted to be within the new range.
 
 */
 
 void QAbstractSlider::setMinimum(int min)
 {
-    d->minimum = min;
-    d->maximum = qMax(d->maximum, d->minimum);
-    sliderChange(SliderRangeChange);
-    setValue(d->value); // re-bound
+    setRange(min, qMax(d->maximum, min));
 }
 
 int QAbstractSlider::minimum() const
@@ -235,22 +270,22 @@ int QAbstractSlider::minimum() const
     \brief the slider's maximum value
 
     When setting this property, the \l mininum is adjusted if
-    necessary to ensure that the range remains valid.
+    necessary to ensure that the range remains valid.  Also the
+    slider's current value is adjusted to be within the new range.
+
 
 */
 
 void QAbstractSlider::setMaximum(int max)
 {
-    d->maximum = max;
-    d->minimum = qMin(d->minimum, d->maximum);
-    sliderChange(SliderRangeChange);
-    setValue(d->value); // re-bound
+    setRange(qMin(d->minimum, max), max);
 }
 
 int QAbstractSlider::maximum() const
 {
     return d->maximum;
 }
+
 
 
 /*!
@@ -266,8 +301,7 @@ int QAbstractSlider::maximum() const
 
 void QAbstractSlider::setSingleStep(int step)
 {
-    d->singleStep = step;
-    sliderChange(SliderStepsChange);
+    d->setSteps(step, d->pageStep);
 }
 
 int QAbstractSlider::singleStep() const
@@ -288,15 +322,13 @@ int QAbstractSlider::singleStep() const
 
 void QAbstractSlider::setPageStep(int step)
 {
-    d->pageStep = step;
-    sliderChange(SliderStepsChange);
+    d->setSteps(d->singleStep, step);
 }
 
 int QAbstractSlider::pageStep() const
 {
     return d->pageStep;
 }
-
 
 /*!
     \property QAbstractSlider::tracking
@@ -404,9 +436,9 @@ void QAbstractSlider::setValue(int value)
 /*!
     \property QAbstractSlider::invertedAppearance
     \brief whether or not a slider shows its values inverted or not.
- 
+
     If this property is false (the default), the minimum and maximum will
-    be shown in its classic position for the inherited widget. If the 
+    be shown in its classic position for the inherited widget. If the
     value is true, the minimum and maximum appear at their opposite location.
 */
 
@@ -424,7 +456,7 @@ void QAbstractSlider::setInvertedAppearance(bool invert)
 /*!
     \property QAbstractSlider::invertedControls
     \brief whether or not the slider inverts its wheel and key events.
- 
+
     If this property is false, scrolling the mouse wheel "up" and using keys
     like page up will increase the slider's value towards its maximum. Otherwise
     pressing page up will move value towards the slider's minimum.
@@ -560,7 +592,7 @@ void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
 {
     SliderAction action = SliderNoAction;
     switch (ev->key()) {
-        
+
         // It seems we need to use invertedAppearance for Left and right, otherwise, things look weird.
         case Key_Left:
             if (d->orientation == Horizontal)

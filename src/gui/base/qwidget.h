@@ -97,7 +97,6 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_OBJECT
     Q_DECLARE_PRIVATE( QWidget );
 
-    Q_ENUMS( BackgroundMode FocusPolicy )
     Q_PROPERTY( bool isTopLevel READ isTopLevel )
     Q_PROPERTY( bool isDialog READ isDialog )
     Q_PROPERTY( bool isModal READ isModal )
@@ -309,14 +308,6 @@ public:
     void setActiveWindow();
     bool isFocusEnabled() const;
     void clearFocus();
-
-    enum FocusPolicy {
-	NoFocus = 0,
-	TabFocus = 0x1,
-	ClickFocus = 0x2,
-	StrongFocus = TabFocus | ClickFocus | 0x8,
-	WheelFocus = StrongFocus | 0x4
-    };
 
     FocusPolicy		focusPolicy() const;
     void setFocusPolicy( FocusPolicy );
