@@ -74,6 +74,7 @@
     \section1 Item View Examples
 
     \list
+    \o \l{itemviews/chart}{Chart}
     \o \l{itemviews/dirview}{Dir View}
     \o \l{itemviews/pixelator}{Pixelator}
     \endlist
