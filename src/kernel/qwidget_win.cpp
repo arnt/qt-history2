@@ -1029,6 +1029,8 @@ void QWidget::showMinimized()
 	    topData()->showMode = 1;
 	    show();
 	}
+    } else {
+	show();
     }
     QEvent e( QEvent::ShowMinimized );
     QApplication::sendEvent( this, &e );

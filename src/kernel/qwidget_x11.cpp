@@ -1513,6 +1513,8 @@ void QWidget::showMinimized()
 	    clearWState( WState_Visible );
 	    sendHideEventsToChildren(TRUE);
 	}
+    } else {
+	show();
     }
     QEvent e( QEvent::ShowMinimized );
     QApplication::sendEvent( this, &e );
