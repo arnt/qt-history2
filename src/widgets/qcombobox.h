@@ -42,6 +42,7 @@ class QListBox;
 class Q_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
+    Q_ENUMS( Policy )
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( QString currentText READ currentText )
     Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem )
@@ -51,7 +52,7 @@ class Q_EXPORT QComboBox : public QWidget
     Q_PROPERTY( Policy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy )
     Q_PROPERTY( bool autoCompletion READ autoCompletion WRITE setAutoCompletion )
     Q_PROPERTY( bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled )
-	
+
 public:
     QComboBox( QWidget *parent=0, const char *name=0 );
     QComboBox( bool rw, QWidget *parent=0, const char *name=0 );

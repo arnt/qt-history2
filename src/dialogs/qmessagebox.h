@@ -37,10 +37,11 @@ struct QMBData;
 class Q_EXPORT QMessageBox : public QDialog
 {
     Q_OBJECT
+    Q_ENUMS( Icon )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( Icon icon READ icon WRITE setIcon )
     Q_PROPERTY( QPixmap iconPixmap READ iconPixmap WRITE setIconPixmap )
-    // #### Add Qt::TextFormat
+	// ##### "Qt::" is in the way Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
 
 public:
     enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
@@ -124,7 +125,7 @@ public:
 
     Qt::TextFormat textFormat() const;
     void 	 setTextFormat( Qt::TextFormat );
-    
+
 protected:
     void	resizeEvent( QResizeEvent * );
     void	keyPressEvent( QKeyEvent * );

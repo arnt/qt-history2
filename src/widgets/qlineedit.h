@@ -37,14 +37,10 @@ class QValidator;
 #include "qstring.h"
 #endif // QT_H
 
-#if 0
-Q_OBJECT
-#endif
-
 class Q_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
-
+    Q_ENUMS( EchoMode )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( int maxLength READ maxLength WRITE setMaxLength )
     Q_PROPERTY( bool frame READ frame WRITE setFrame )

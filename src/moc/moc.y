@@ -109,6 +109,7 @@ class Enum : public QStrList
 {
 public:
     QCString name;
+    bool set;
 };
 
 class EnumList : public QList<Enum> {		// list of property enums
@@ -336,6 +337,8 @@ const int  formatRevision = 7;			// moc output format revision
 %token			Q_OBJECT
 %token			Q_PROPERTY
 %token			Q_CLASSINFO
+%token			Q_ENUMS
+%token			Q_SETS
 
 %token			READ
 %token			WRITE
@@ -810,6 +813,16 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 				      BEGIN tmpYYStart;
 				  }
 			  opt_property_candidates
+			| Q_ENUMS { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
+			  '(' qt_enums ')' {
+						BEGIN tmpYYStart;
+				   	   }
+			  opt_property_candidates
+			| Q_SETS { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
+			  '(' qt_sets ')' {
+						BEGIN tmpYYStart;
+				   	   }
+			  opt_property_candidates
 			| ENUM_IN_CLASS { BEGIN QT_DEF; }
 			  enum_in_class_tail { BEGIN IN_CLASS;}
 			  opt_semicolons
@@ -1093,6 +1106,14 @@ property:		  OVERRIDE IDENTIFIER IDENTIFIER { propWrite = ""; propRead = ""; pro
 				{ 				
 					checkIdentifier( $3 );
 					Q_PROPERTYdetected = TRUE;
+					// Avoid duplicates
+					for( QListIterator<Property> lit( props ); lit.current(); ++lit ) {
+					    if ( lit.current()->name == $3 )
+        				    {
+	    					if ( displayWarnings )
+						    moc_err( "Property '%s' defined twice.", (const char*)lit.current()->name );
+					    }
+					}
 					props.append( new Property( lineNo, $2, $3, propWrite, propRead, propStored,
 								    propDesignable, propDefault, propNoDefault, TRUE ) );
 				}
@@ -1104,6 +1125,14 @@ property:		  OVERRIDE IDENTIFIER IDENTIFIER { propWrite = ""; propRead = ""; pro
 						moc_err( "A property must at least feature a read method." );
 					checkIdentifier( $2 );
 					Q_PROPERTYdetected = TRUE;
+					// Avoid duplicates
+					for( QListIterator<Property> lit( props ); lit.current(); ++lit ) {
+					    if ( lit.current()->name == $2 )
+        				    {
+	    					if ( displayWarnings )
+						    moc_err( "Property '%s' defined twice.", (const char*)lit.current()->name );
+					    }
+					}
 					props.append( new Property( lineNo, $1, $2, propWrite, propRead, propStored,
 								    propDesignable, propDefault, propNoDefault, FALSE ) );
 				}
@@ -1137,7 +1166,15 @@ prop_statements:	  /* empty */
 			  prop_statements
 			;
 			
-prop_default:	  	 /* empty */  {  }
+prop_default:	  	  /* empty */ { }
+			;
+
+qt_enums:		  /* empty */ { }
+			| IDENTIFIER qt_enums { qtEnums.append( $1 ); }
+			;
+
+qt_sets:		  /* empty */ { }
+			| IDENTIFIER qt_sets { qtSets.append( $1 ); }
 			;
 
 %%
@@ -1188,6 +1225,9 @@ QCString propStored;				// "true", "false" or function or empty if not specified
 bool propOverride;				// Wether OVERRIDE was detected
 int propDesignable;				// Wether DESIGNABLE was TRUE or FALSE or not specified (-1)
 bool propNoDefault;				// No default given or NODEFAULT
+
+QStrList qtEnums;				// Used to store the contents of Q_ENUMS
+QStrList qtSets;				// Used to store the contents of Q_SETS
 
 FILE  *out;					// output file
 
@@ -1425,6 +1465,8 @@ void initClass()				 // prepare for new class
     funcs.clear();
     props.clear();
     infos.clear();
+    qtSets.clear();
+    qtEnums.clear();
 }
 
 struct NamespaceInfo
@@ -1846,6 +1888,12 @@ int generateEnums()
 	fprintf( out, "    enum_tbl[%i].count = %i;\n", i, (const char*)it.current()->count() );
 	fprintf( out, "    enum_tbl[%i].items = QMetaObject::new_metaenum_item( %i );\n",
 		 i,(const char*)it.current()->count() );
+
+	if ( it.current()->set )
+		fprintf( out, "    enum_tbl[%i].set = TRUE;\n", i );
+	else
+		fprintf( out, "    enum_tbl[%i].set = FALSE;\n", i );
+
 	int k = 0;
 	for( QStrListIterator eit( *it.current() ); eit.current(); ++eit, ++k ) {
 	    fprintf( out, "    enum_tbl[%i].items[%i].key = \"%s\";\n", i, k, eit.current() );
@@ -2506,7 +2554,26 @@ ArgList *addArg( Argument *a )			// add argument to list
 
 void addEnum()
 {
-    enums.append( tmpEnum );
+    // Avoid duplicates
+    for( QListIterator<Enum> lit( enums ); lit.current(); ++lit ) {
+	if ( lit.current()->name == tmpEnum->name )
+        {
+	    if ( displayWarnings )
+		moc_err( "Enum %s defined twice.", (const char*)tmpEnum->name );
+	}
+    }
+
+    // Only look at stuff in Q_ENUMS and Q_SETS
+    if ( qtEnums.contains( tmpEnum->name ) || qtSets.contains( tmpEnum->name ) )
+    {
+	enums.append( tmpEnum );
+	if ( qtSets.contains( tmpEnum->name ) )
+	    tmpEnum->set = TRUE;
+	else
+	    tmpEnum->set = FALSE;
+    }
+    else
+	delete tmpEnum;
     tmpEnum = new Enum;
 }
 

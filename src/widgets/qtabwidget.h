@@ -40,6 +40,7 @@ class QWidgetStack;
 class Q_EXPORT QTabWidget : public QWidget
 {
     Q_OBJECT
+    Q_ENUMS( TabPosition )
     Q_PROPERTY( TabPosition tabPosition READ tabPosition WRITE setTabPosition )
     Q_PROPERTY( int margin READ margin WRITE setMargin )
 	

@@ -68,6 +68,7 @@ class Q_EXPORT QFileDialog : public QDialog
     friend class QFileListView;
 
     Q_OBJECT
+    Q_ENUMS( Mode ViewMode PreviewMode )
     // ##### Why are this readonly properties ?
     Q_PROPERTY( QString selectedFile READ selectedFile )
     Q_PROPERTY( QString selectedFilter READ selectedFilter )
@@ -76,8 +77,6 @@ class Q_EXPORT QFileDialog : public QDialog
     Q_PROPERTY( QString dirPath READ dirPath )
     Q_PROPERTY( bool showHiddenFiles READ showHiddenFiles WRITE setShowHiddenFiles )
     Q_PROPERTY( Mode mode READ mode WRITE setMode )
-    // This property is broken! Since it uses int and not ViewMode.
-    // We are only interested in List or Detail View.
     Q_PROPERTY( ViewMode viewMode READ viewMode WRITE setViewMode )
     Q_PROPERTY( PreviewMode previewMode READ previewMode WRITE setPreviewMode )
     Q_PROPERTY( bool infoPreview READ isInfoPreviewEnabled WRITE setInfoPreviewEnabled )

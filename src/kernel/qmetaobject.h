@@ -50,6 +50,7 @@ struct QMetaEnum 				// enumerator meta data
 	int value;
     };
     Item *items;				// - the name/value pairs
+    bool set;					// Wether enum has to be treated as a set
 };
 
 class QMetaProperty 				// property meta data
@@ -59,7 +60,7 @@ public:
 	:t(0),n(0),
 	 get(0),set(0),store(0),enumData(0),
 	 gspec(Unspecified),sspec(Unspecified),
-	 /* dv(0),*/ flags(0)
+	 flags(0)
     {
     }
 
@@ -69,15 +70,13 @@ public:
     bool writeable() const { return set != 0; }
     bool isValid() const { return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStoreable ) ; }
 
-    bool isEnumType() const { return enumData != 0; }
+    bool isSetType() const { return ( enumData != 0 && enumData->set ); }
+    bool isEnumType() const { return ( enumData != 0 ); }
     QStrList enumKeys() const;			// enumeration names
 
-    // const QVariant* defaultValue() const { return dv; }
-    // bool hasDefaultValue() const { return ( dv && dv->isValid() ); }
-    
-    bool isStoreable() const { return !testFlags( NotStoreable | UnresolvedStoreable ); }
-    bool isDesignable() const { return !testFlags( NotDesignable | UnresolvedDesignable ); }
-    
+    bool isStoreable() const { return ( isValid() && set != 0 && !testFlags( NotStoreable | UnresolvedStoreable ) ); }
+    bool isDesignable() const { return ( isValid() && set != 0 && !testFlags( NotDesignable | UnresolvedDesignable ) ); }
+
     const char* t;
     const char* n;
     QMember 	get;				// get-function or 0 ( 0 indicates an error )
@@ -94,11 +93,9 @@ public:
 	UnresolvedStoreable  = 0x00000002,
 	UnresolvedDesignable = 0x00000004,
 	NotDesignable        = 0x00000008,
-	NotStoreable         = 0x00000010,
+	NotStoreable         = 0x00000010
     };
 
-    // QVariant* dv;
-    
     inline bool testFlags( uint f ) const
 	{ return (flags & (uint)f) != (uint)0; }
     inline void setFlags( uint f )

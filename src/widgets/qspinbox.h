@@ -41,6 +41,7 @@ struct QSpinBoxPrivate;
 class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
 {
     Q_OBJECT
+    Q_ENUMS( ButtonSymbols )
     Q_PROPERTY( QString text READ text )
     Q_PROPERTY( QString prefix READ prefix WRITE setPrefix )
     Q_PROPERTY( QString suffix READ suffix WRITE setSuffix )

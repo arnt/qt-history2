@@ -710,13 +710,13 @@ void QObject::timerEvent( QTimerEvent * )
   Note that events with QEvent::type() \c QEvent::ChildInserted are
   \e posted (with QApplication::postEvent()), to make sure that the
   child's construction is completed before this function is called.
-  
+
   If you change state based on \c ChildInserted events, call
-  QWidget::polish(), or do 
+  QWidget::polish(), or do
   <code>QApplication::sendPostedEvents( this, QEvent::ChildInserted );</code>
   in functions that depend on the state. One notable example is
   QWidget::sizeHint().
-  
+
   \sa event(), QChildEvent
 */
 
@@ -1819,11 +1819,48 @@ QMetaObject* QObject::staticMetaObject()
     props_tbl[0].enumData = 0;
     props_tbl[0].gspec = QMetaProperty::ConstCharStar;
     props_tbl[0].sspec = QMetaProperty::ConstCharStar;
+    QMetaEnum* enum_tbl = QMetaObject::new_metaenum( 3 );
+    enum_tbl[0].name = "Alignment";
+    enum_tbl[0].count = 7;
+    enum_tbl[0].set = TRUE;
+    enum_tbl[0].items = QMetaObject::new_metaenum_item( 7 );
+    enum_tbl[0].items[0].key = "AlignLeft";
+    enum_tbl[0].items[0].value = (int) Qt::AlignLeft;
+    enum_tbl[0].items[1].key = "AlignRight";
+    enum_tbl[0].items[1].value = (int) Qt::AlignRight;
+    enum_tbl[0].items[2].key = "AlignHCenter";
+    enum_tbl[0].items[2].value = (int) Qt::AlignHCenter;
+    enum_tbl[0].items[3].key = "AlignTop";
+    enum_tbl[0].items[3].value = (int) Qt::AlignTop;
+    enum_tbl[0].items[4].key = "AlignBottom";
+    enum_tbl[0].items[4].value = (int) Qt::AlignBottom;
+    enum_tbl[0].items[5].key = "AlignVCenter";
+    enum_tbl[0].items[5].value = (int) Qt::AlignVCenter;
+    enum_tbl[0].items[3].key = "WordBreak";
+    enum_tbl[0].items[3].value = (int) Qt::WordBreak;
+    enum_tbl[1].name = "Orientation";
+    enum_tbl[1].count = 2;
+    enum_tbl[1].set = FALSE;
+    enum_tbl[1].items = QMetaObject::new_metaenum_item( 2 );
+    enum_tbl[1].items[0].key = "Horizontal";
+    enum_tbl[1].items[0].value = (int) Qt::Horizontal;
+    enum_tbl[1].items[1].key = "Vertical";
+    enum_tbl[1].items[1].value = (int) Qt::Vertical;
+    enum_tbl[2].name = "TextFormat";
+    enum_tbl[2].count = 3;
+    enum_tbl[2].set = FALSE;
+    enum_tbl[2].items = QMetaObject::new_metaenum_item( 3 );
+    enum_tbl[2].items[0].key = "PlainText";
+    enum_tbl[2].items[0].value = (int) Qt::PlainText;
+    enum_tbl[2].items[1].key = "RichText";
+    enum_tbl[2].items[1].value = (int) Qt::RichText;
+    enum_tbl[2].items[2].key = "AutoText";
+    enum_tbl[2].items[2].value = (int) Qt::AutoText;    
     metaObj = new QMetaObject( "QObject", "",
 	slot_tbl, 1,
 	signal_tbl, 1,
 	props_tbl, 1,
-	0, 0,
+	enum_tbl, 3,
         0, 0 );
     return metaObj;
 }

@@ -35,6 +35,18 @@ struct QScrollViewData;
 class Q_EXPORT QScrollView : public QFrame
 {
     Q_OBJECT
+    Q_ENUMS( ResizePolicy ScrollBarMode )
+    Q_PROPERTY( ResizePolicy resizePolicy READ resizePolicy WRITE setResizePolicy )
+    Q_PROPERTY( ScrollBarMode vScrollBarMode READ vScrollBarMode WRITE setVScrollBarMode )
+    Q_PROPERTY( ScrollBarMode hScrollBarMode READ hScrollBarMode WRITE setHScrollBarMode )
+    Q_PROPERTY( int visibleWidth READ visibleWidth )
+    Q_PROPERTY( int visibleHeight READ visibleHeight )
+    Q_PROPERTY( int contentsWidth READ contentsWidth )
+    Q_PROPERTY( int contentsHeight READ contentsHeight )
+    Q_PROPERTY( int contentsX READ contentsX )
+    Q_PROPERTY( int contentsY READ contentsY )
+    Q_PROPERTY( bool dragAutoScroll READ dragAutoScroll WRITE setDragAutoScroll )
+
 public:
     QScrollView(QWidget *parent=0, const char *name=0, WFlags f=0);
     ~QScrollView();

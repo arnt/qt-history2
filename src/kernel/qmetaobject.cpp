@@ -412,6 +412,9 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
     while ( super ) {
 	const QMetaProperty* p = super->property( prop->n );
 	if( p ) {
+	    if ( strcmp( prop->type(), p->type() ) != 0 )
+		qDebug( "Attempt to override property type: %s %s::%s clashes with %s %s::%s", p->type(), super->className(), p->name(),
+			prop->type(), className(), prop->name() );
 	    if ( prop->get == 0 ) {
 		if ( p->get ) {
 		    prop->get = p->get;
@@ -454,7 +457,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	}
 	super = super->superclass;
     }
-	    
+	
     if ( !prop->isValid() )
 	qDebug("Could not resolve property %s::%s. Property not available.", className(), prop->name() );
 }

@@ -39,6 +39,7 @@ struct QSliderData;
 class Q_EXPORT QSlider : public QWidget, public QRangeControl
 {
     Q_OBJECT
+    Q_ENUMS( TickSetting )
     Q_PROPERTY( int minValue READ minValue WRITE setMinValue )
     Q_PROPERTY( int maxValue READ maxValue WRITE setMaxValue )
     Q_PROPERTY( int lineStep READ lineStep WRITE setLineStep )

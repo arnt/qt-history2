@@ -54,6 +54,7 @@ class QComboBox;
 class Q_EXPORT QLineDialog : public QDialog
 {
     Q_OBJECT
+    Q_ENUMS( Type )
     Q_PROPERTY( Type type READ type WRITE setType )
 	
 public:

@@ -38,6 +38,7 @@ struct QButtonData;
 class Q_EXPORT QButton : public QWidget
 {
     Q_OBJECT
+    Q_ENUMS( ToggleType ToggleState )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
     Q_PROPERTY( int accel READ accel WRITE setAccel )
@@ -49,6 +50,7 @@ class Q_EXPORT QButton : public QWidget
     Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize )
     Q_PROPERTY( bool autoRepeat READ autoRepeat WRITE setAutoRepeat )
     Q_PROPERTY( bool exclusiveToggle READ isExclusiveToggle )
+
 public:
     QButton( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QButton();

@@ -40,6 +40,8 @@
 
 #define Q_PROPERTY( text )			// property
 #define Q_CLASSINFO( name, value )		// class info
+#define Q_ENUMS( x )
+#define Q_SETS( x )
 
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT					\

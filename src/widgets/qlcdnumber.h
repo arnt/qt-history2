@@ -37,13 +37,14 @@ class QLCDNumberPrivate;
 class Q_EXPORT QLCDNumber : public QFrame		// LCD number widget
 {
     Q_OBJECT
+    Q_ENUMS( Mode SegmentStyle )
     Q_PROPERTY( bool smallDecimalPoint READ smallDecimalPoint WRITE setSmallDecimalPoint )
     Q_PROPERTY( int numDigits READ numDigits WRITE setNumDigits )
     Q_PROPERTY( Mode mode READ mode WRITE setMode )
     Q_PROPERTY( SegmentStyle segmentStyle READ segmentStyle WRITE setSegmentStyle )
     Q_PROPERTY( double value READ value WRITE display )
     Q_PROPERTY( int intValue READ intValue WRITE display )
-	
+
 public:
     QLCDNumber( QWidget *parent=0, const char *name=0 );
     QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );

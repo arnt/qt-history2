@@ -80,6 +80,8 @@ extern void moc_warn( const char *msg );
 <QT_DEF>"signals"		{ X; return SIGNALS; }
 <QT_DEF>"slots"			{ X; return SLOTS; }
 <QT_DEF>"Q_PROPERTY"		{ X; return Q_PROPERTY; }
+<QT_DEF>"Q_ENUMS"		{ X; return Q_ENUMS; }
+<QT_DEF>"Q_SETS"		{ X; return Q_SETS; }
 
 <IN_FCT>"{"			{ fctLevel++;Y; }
 <IN_FCT>"}"			{ fctLevel--;Y;if (fctLevel==0){X;return '}';}}
@@ -95,6 +97,8 @@ extern void moc_warn( const char *msg );
 <IN_CLASS>"Q_OBJECT"		{ X;if( classPLevel == 1 ) return Q_OBJECT; }
 <IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 ) return Q_PROPERTY; }
 <IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 ) return Q_CLASSINFO; }
+<IN_CLASS>"Q_ENUMS"		{ X;if( classPLevel == 1 ) return Q_ENUMS; }
+<IN_CLASS>"Q_SETS"		{ X;if( classPLevel == 1 ) return Q_SETS; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
 <IN_NAMESPACE>"}"		{ namespacePLevel--;Y;if (namespacePLevel == 0)

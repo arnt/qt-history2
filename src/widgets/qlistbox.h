@@ -45,6 +45,7 @@ class Q_EXPORT QListBox : public QScrollView
     friend class QListBoxItem;
 
     Q_OBJECT
+    Q_ENUMS( SelectionMode LayoutMode )
     Q_PROPERTY( uint count READ count )
     Q_PROPERTY( int numItemsVisible READ numItemsVisible )
     Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem )

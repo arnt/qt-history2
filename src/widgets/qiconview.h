@@ -292,6 +292,7 @@ class Q_EXPORT QIconView : public QScrollView
     Q_OBJECT
     // #### count does not work
     // #### sorting and soring direction dont work
+    Q_ENUMS( SelectionMode ItemTextPos Arrangement ResizeMode )
     Q_PROPERTY( bool sorting READ sorting )
     Q_PROPERTY( bool sortDirection READ sortDirection )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
@@ -308,7 +309,7 @@ class Q_EXPORT QIconView : public QScrollView
     Q_PROPERTY( bool itemsMovable READ itemsMovable WRITE setItemsMovable )
     Q_PROPERTY( bool wordWrapIconText READ wordWrapIconText WRITE setWordWrapIconText )
     Q_PROPERTY( uint count READ count )
-	
+
 public:
     enum SelectionMode {
 	Single = 0,

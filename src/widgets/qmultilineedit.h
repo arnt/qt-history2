@@ -39,6 +39,7 @@ class QValidator;
 class Q_EXPORT QMultiLineEdit : public QTableView
 {
     Q_OBJECT
+    Q_ENUMS( EchoMode WordWrap WrapPolicy )
     Q_PROPERTY( int numLines READ numLines )
     Q_PROPERTY( bool atBeginning READ atBeginning )
     Q_PROPERTY( bool atEnd READ atEnd )

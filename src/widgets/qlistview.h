@@ -171,6 +171,7 @@ class Q_EXPORT QListView: public QScrollView
     friend class QListViewItem;
 
     Q_OBJECT
+    Q_ENUMS( SelectionMode )
     Q_PROPERTY( int columns READ columns )
     Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )

@@ -33,6 +33,7 @@
 class Q_EXPORT QMenuBar : public QFrame, public QMenuData
 {
     Q_OBJECT
+    Q_ENUMS( Separator )
     Q_PROPERTY( Separator separator READ separator WRITE setSeparator )
 	
 public:
