@@ -19,7 +19,7 @@ $Id$
   \e http://xml.org/sax/features/namespace-prefixes are set.
 
   This example is thoroughly explained in a 
-  <a href="xml-sax-features-walkthrough.html">walkthrough</a>.
+  \link xml-sax-features-walkthrough.html walkthrough. \endlink
 
   <hr>
  

@@ -8,13 +8,13 @@ $Id$
 
   \title A tiny SAX2 parser
  
-  This example presents a small <a href="xml-sax.html">SAX2</a> 
+  This example presents a small \link xml-sax.html SAX2 \endlink
   reader that outputs the names of all elements in an
   XML document on the command line. The element names are 
   indented corresponding to their nesting
  
   This example is thoroughly explained in a 
-  <a href="xml-sax-walkthrough.html">walkthrough</a>.
+  \link xml-sax-walkthrough.html walkthrough. \endlink
  
   <hr>
  
