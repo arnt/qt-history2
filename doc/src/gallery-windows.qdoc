@@ -79,10 +79,6 @@
 
     The QTextEdit class provides a widget that is used to edit and
      display both plain and rich text.
-    \row \i \inlineimage windows-verticalscrollbar.png
-    \i QScrollBar
-
-    \l{QScrollBar}s can also be given a vertical orientation.
     \row \i \inlineimage windows-horizontalscrollbar.png
     \i QScrollBar
 
