@@ -322,29 +322,30 @@ void QDialog::reject()
     done( Rejected );
 }
 
+/*! \reimp */
+bool QDialog::eventFilter( QObject *o, QEvent *e )
+{
+    return QWidget::eventFilter( o, e );
+}
 
 /*****************************************************************************
   Event handlers
  *****************************************************************************/
 
 /*! \reimp */
-void QDialog::mousePressEvent( QMouseEvent * e)
+void QDialog::contextMenuEvent( QContextMenuEvent *e )
 {
-    if ( e->button() == RightButton ) {
-	QWidget* w = childAt( e->pos(), TRUE );
-	if ( !w )
-	    return;
-	QString s = QWhatsThis::textFor( w, e->pos(), TRUE );
-	if ( !s.isEmpty() ) {
-	    e->accept();
-	    QPopupMenu* p = new QPopupMenu;
-	    p->insertItem( tr("What's This?"), 42 );
-	    if ( p->exec( e->globalPos() ) == 42 )
-		QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ) );
-	}
+    QWidget* w = childAt( e->pos(), TRUE );
+    if ( !w )
+	return;
+    QString s = QWhatsThis::textFor( w, e->pos(), TRUE );
+    if ( !s.isEmpty() ) {
+	QPopupMenu p;
+	p.insertItem( tr("What's This?"), 42 );
+	if ( p.exec( e->globalPos() ) >= 42 )
+	    QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ) );
     }
 }
-
 
 /*! \reimp */
 void QDialog::keyPressEvent( QKeyEvent *e )
