@@ -648,6 +648,8 @@ QImage QImage::copy() const
 
 QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 {
+    int dx = 0;
+    int dy = 0;
     if ( w <= 0 || h <= 0 ) return QImage(); // Nothing to copy
 
     QImage image( w, h, depth(), numColors(), bitOrder() );
@@ -657,11 +659,19 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 	// bitBlt will not cover entire image - clear it.
 	// ### should deal with each side separately for efficiency
 	image.fill(0);
+	if ( x < 0 ) { 
+	    dx = -x;
+	    x = 0;
+	}
+	if ( y < 0 ) {
+	    dy = -y;	
+	    y = 0;
+	}
     }
 
     memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     image.setAlphaBuffer(hasAlphaBuffer());
-    bitBlt( &image, 0, 0, this, x, y, -1, -1, conversion_flags );
+    bitBlt( &image, dx, dy, this, x, y, -1, -1, conversion_flags );
     return image;
 }
 
