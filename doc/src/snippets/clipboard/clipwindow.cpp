@@ -47,6 +47,10 @@ void ClipWindow::updateClipboard()
     newItem->setText(tr("%1 (%2 bytes)").arg(formats[0]).arg(size));
 
     updateData(formats[0]);
+/*
+    QByteArray data = clipboard->mimeData()->data(format);
+    ...
+*/
 }
 
 void ClipWindow::updateData(const QString &format)
