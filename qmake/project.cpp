@@ -846,7 +846,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 		    parser.line_no);
 	    return FALSE;
 	}
-	return vars[args[0]].count() == args[1].toUInt();
+	return vars[args[0]].count() == args[1].toInt();
     } else if(func == "isEmpty") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%s:%d: isEmpty(var) requires one argument.\n", parser.file.latin1(),
