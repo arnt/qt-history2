@@ -341,9 +341,7 @@ void QDataTable::removeColumn( uint col )
     }
 }
 
-/*! \reimp
-
-  sets the column \a col to the width \a w. Note that opposed to
+/*!  Sets the column \a col to the width \a w. Note that opposed to
   QTable the QDataTable is not immediately redrawn, you have to
   call refresh() first.
 
