@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#92 $
 **
 ** Implementation of layout classes
 **
@@ -398,7 +398,7 @@ static inline void maxExpCalc( QCOORD & max, bool &exp,
 	    max = QMAX( max, boxmax );
 	else
 	    ; //nothing
-    else 
+    else
 	if ( boxexp )
 	    max = boxmax;
 	else
@@ -418,10 +418,10 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 				      colData[box->col].sizeHint );
     colData[box->col].minimumSize = QMAX( minS.width(),
 				      colData[box->col].minimumSize );
- 
+
     maxExpCalc( colData[box->col].maximumSize, colData[box->col].expansive,
 		maxS.width(), box->expanding() & QSizePolicy::Horizontal);
-    
+
     }
     if ( r ) {
     rowData[box->row].sizeHint = QMAX( hint.height(),
@@ -1044,9 +1044,7 @@ void QGridLayout::init( int nRows, int nCols )
 }
 
 /*!
-  Adds \a item to the end of this layout.
-
-  \warning This function is not yet finished.
+  Adds \a item to the next free position of this layout.
 */
 
 void QGridLayout::addItem( QLayoutItem *item )
@@ -1502,8 +1500,6 @@ void QBoxLayout::addStretch( int stretch )
 
 void QBoxLayout::addStrut( int size )
 {
-    warning( "QBoxLayout::addStrut( %d ), not yet tested", size );
-
     if ( horz( dir ) ) {
 	expand( 1, 1 );
 	QGridLayout::addRowSpacing( 0, size ) ;
