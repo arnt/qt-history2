@@ -137,6 +137,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     activePainter = p;
 
     switch (pe) {
+#ifndef QT_NO_LISTVIEW
     case PE_CheckListController: {
 	p->drawPixmap(r, QPixmap((const char **)check_list_controller_xpm));
 	break; }
@@ -237,6 +238,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	    p->drawLineSegments( a );
 	}
 	break; }
+#endif
     case PE_HeaderArrow:
 	p->save();
 	if ( flags & Style_Down ) {
