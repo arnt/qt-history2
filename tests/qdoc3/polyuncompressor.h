@@ -11,7 +11,7 @@ class PolyUncompressor : public Uncompressor
 {
 public:
     PolyUncompressor( const QStringList& extensions,
-		      const QString& commandLine );
+		      const QString& commandFormat );
     ~PolyUncompressor();
 
     virtual QString uncompressedFilePath( const QString& filePath );
