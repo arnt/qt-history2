@@ -227,9 +227,9 @@
     also reentrant, making it possible to use these classes from
     multiple threads simultaneously. The only constraint is that you
     must ensure that all objects created in a thread are deleted
-    before you delete the QThread. This can be done easily by passing
-    the QThread object as the parent for objects that otherwise
-    wouldn't have a parent.
+    before you delete the QThread. This can be done easily by
+    creating the objects on the stack in your
+    \l{QThread::run()}{run()} implementation.
 
     On the other hand, the GUI classes, notably QWidget and all its
     subclasses, are not reentrant. They can only be used from the
