@@ -842,6 +842,7 @@ void TrWindow::manual()
 void TrWindow::about()
 {
     AboutDialog about( this, 0, TRUE );
+    about.versionLabel->setText( tr("Version %1").arg(QT_VERSION_STR) );
     about.exec();
 }
 

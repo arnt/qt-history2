@@ -68,10 +68,7 @@
         </widget>
         <widget class="QLabel">
             <property name="name">
-                <cstring>TextLabel1</cstring>
-            </property>
-            <property name="text">
-                <string>Version 1.0</string>
+                <cstring>versionLabel</cstring>
             </property>
             <property name="alignment">
                 <set>AlignCenter</set>

@@ -6,10 +6,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Version 1.0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copyright (C) 2000-2002 Trolltech AS. All Rights Reserved.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -185,11 +181,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Guess (Ctrl+%1)</source>
+        <source>Guess</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Guess</source>
+        <source>Guess (%1)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -987,6 +983,10 @@ All files (*)</source>
     </message>
     <message>
         <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
