@@ -1198,6 +1198,7 @@ ExampleLocation& ExampleLocation::operator=( const ExampleLocation& el )
     ininc = el.ininc;
     exfile = el.exfile;
     ln = el.ln;
+    uniq = el.uniq;
     return *this;
 }
 
