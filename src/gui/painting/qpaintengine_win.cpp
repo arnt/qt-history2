@@ -323,9 +323,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
         return true;
     }
 
-    d->penAlphaColor = false;
-    d->brushAlphaColor = false;
-    d->advancedModeUsed = false;
+    d->forceGdiplus = false;
+    d->forceGdi = false;
 
     setActive(true);
     d->pdev = pdev;
@@ -383,8 +382,11 @@ bool QWin32PaintEngine::end()
         return false;
     }
 
-    if (d->gdiplusEngine)
-        d->endGdiplus();
+    if (d->gdiplusEngine) {
+        d->gdiplusEngine->end();
+        delete d->gdiplusEngine;
+        d->gdiplusEngine = 0;
+    }
 
     //     killPStack();
 
@@ -437,8 +439,6 @@ bool QWin32PaintEngine::end()
     d->hdc = 0;
 
     d->matrix = QMatrix();
-    d->penAlphaColor = false;
-    d->brushAlphaColor = false;
     d->noNativeXform = false;
     d->advancedMode = false;
     d->penStyle = Qt::SolidLine;
@@ -692,7 +692,7 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
 
     // Workaround for filling gradients
     if (d->brushStyle == Qt::LinearGradientPattern
-        || (d->brushStyle == Qt::SolidPattern && d->brushAlphaColor)) {
+        || (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255)) {
         HRGN oldRegion = 0;
         int gotRegion = GetClipRgn(d->hdc, oldRegion);
         Q_ASSERT(gotRegion >= 0);
@@ -858,23 +858,15 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
 
 void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
-    // We cannot render text in GDI+ mode, so turn it of if it is currently used...
-    bool usesGdiplus = d->usesGdiplus();
-    bool oldForceGdi = d->forceGdi;
-    if (usesGdiplus) {
-        d->forceGdi = true;
-        d->endGdiplus();
-        setDirty(AllDirty);
-        updateState(state);
+    if (d->tryGdiplus()) {
+        d->gdiplusEngine->drawTextItem(p, ti, textFlags);
+        return;
     }
 
     HDC oldHdc = ti.fontEngine->hdc;
     ti.fontEngine->hdc = d->hdc;
     QPaintEngine::drawTextItem(p, ti, textFlags);
     ti.fontEngine->hdc = oldHdc;
-
-    if (usesGdiplus)
-        d->forceGdi = oldForceGdi;
 }
 
 
@@ -882,7 +874,7 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
 {
     d->pen = pen;
     d->penStyle = pen.style();
-    d->penAlphaColor = d->penStyle != Qt::NoPen && pen.color().alpha() != 255;
+    d->forceGdiplus  |= d->penStyle != Qt::NoPen && pen.color().alpha() != 255;
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updatePen(pen);
         return;
@@ -978,9 +970,9 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
 {
     d->brush = brush;
     d->brushStyle = brush.style();
-    d->brushAlphaColor = (d->brushStyle != Qt::NoBrush
-                          && d->brushStyle != Qt::LinearGradientPattern
-                          && brush.color().alpha() != 255);
+    d->forceGdiplus |= (d->brushStyle != Qt::NoBrush
+                        && d->brushStyle != Qt::LinearGradientPattern
+                        && brush.color().alpha() != 255);
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateBrush(brush, bgOrigin);
         return;
@@ -1301,6 +1293,7 @@ void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, c
 
 void QWin32PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+    d->forceGdiplus |= (hints & QPainter::LineAntialiasing);
     if (d->tryGdiplus())
         d->gdiplusEngine->updateRenderHints(hints);
 }
@@ -1559,24 +1552,14 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     ModifyWorldTransform(hdc, 0, MWT_IDENTITY);
     SetGraphicsMode(hdc, GM_COMPATIBLE);
 
-    if (!gdiplusEngine)
-        gdiplusEngine = new QGdiplusPaintEngine();
+    Q_ASSERT(!gdiplusEngine);
+    gdiplusEngine = new QGdiplusPaintEngine();
     gdiplusEngine->begin(pdev);
     gdiplusEngine->state = q->state;
     gdiplusInUse = true;
     q->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::AllDirty&~QPaintEngine::DirtyClip));
     q->updateState(q->state);
 }
-
-void QWin32PaintEnginePrivate::endGdiplus()
-{
-    Q_ASSERT(gdiplusEngine);
-    gdiplusEngine->end();
-    gdiplusInUse = false;
-
-    q->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::AllDirty&~QPaintEngine::DirtyClip));
-}
-
 
 static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 {
@@ -2216,10 +2199,10 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
 
     GdipSetPathFillMode(path, p.fillMode() == QPainterPath::Winding ? 1 : 0);
 
-    if (d->usePen)
-        GdipDrawPath(d->graphics, d->pen, path);
     if (d->brush)
         GdipFillPath(d->graphics, d->brush, path);
+    if (d->usePen)
+        GdipDrawPath(d->graphics, d->pen, path);
 
     GdipDeletePath(path);
 }
@@ -2248,6 +2231,11 @@ void QGdiplusPaintEngine::initialize()
 void QGdiplusPaintEngine::cleanup()
 {
     GdiplusShutdown(gdiplusToken);
+}
+
+
+void QGdiplusPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
+{
 }
 
 static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *image)

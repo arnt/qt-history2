@@ -95,8 +95,6 @@ public:
         usesWidgetDC(false),
         forceGdi(false),
         forceGdiplus(false),
-        penAlphaColor(false),
-        brushAlphaColor(false),
         noNativeXform(false),
         advancedMode(false),
         advancedModeUsed(false),
@@ -126,10 +124,8 @@ public:
     uint pixmapBrush:1;
     uint usesWidgetDC:1;
 
-    uint forceGdi:1;            // Used in drawTextItem to block GDI+
-    uint forceGdiplus:1;        // Used in drawPixmap to force GDI+, foceGdi has presedence
-    uint penAlphaColor:1;       // Set if pen has alpha color
-    uint brushAlphaColor:1;     // Set if brush has alpha color
+    uint forceGdi:1;
+    uint forceGdiplus:1;
     uint noNativeXform:1;
     uint advancedMode:1;        // Set if running in advanced graphics mode
     uint advancedModeUsed:1;    // Set if advancedMode was used once.
@@ -152,11 +148,6 @@ public:
     void beginGdiplus();
 
     /*!
-      Switches the paint engine back from GDI+ mode.
-    */
-    void endGdiplus();
-
-    /*!
       Returns true if GDI+ is currently in use
     */
     inline bool usesGdiplus() { return gdiplusInUse && gdiplusEngine; }
@@ -166,10 +157,7 @@ public:
       use GDI+ for rendering
     */
     inline bool requiresGdiplus() {
-        return !forceGdi && ((renderhints & QPainter::LineAntialiasing)
-                             || penAlphaColor
-                             || brushAlphaColor
-                             || forceGdiplus);
+        return !forceGdi && forceGdiplus;
     }
 
     /*!
@@ -177,12 +165,8 @@ public:
       GDI+. Returns true if GDI+ is in use after the checking is done.
     */
     inline bool tryGdiplus() {
-        if (requiresGdiplus()) {
-            if (!usesGdiplus())
-                beginGdiplus();
-        } else {
-            if (usesGdiplus())
-                endGdiplus();
+        if (requiresGdiplus() && !usesGdiplus()) {
+            beginGdiplus();
         }
         return usesGdiplus();
     }
