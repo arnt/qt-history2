@@ -981,11 +981,6 @@ void TrWindow::findAgain()
     foundOffset = 0;
 }
 
-void TrWindow::setCodec()
-{
-    qWarning( "Not implemented yet" ); // ###
-}
-
 int TrWindow::itemToIndex( QListView * view, QListViewItem * item )
 {
     int no = 0;
@@ -1807,8 +1802,6 @@ void TrWindow::setupMenuBar()
 			       this, SLOT(findAgain()), Key_F3 );
     findAgainAct->setEnabled( FALSE );
     editp->insertSeparator();
-    setCodecAct = new Action( editp, tr("&Set Codec..."),
-			      this, SLOT(setCodec()) );
 
     // Translation menu
     startFromSourceAct = new Action( translationp, tr("&Start From Source"),
