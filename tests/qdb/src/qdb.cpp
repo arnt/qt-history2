@@ -66,9 +66,13 @@ void QDb::addResultSet( int id )
 }
 
 
-/*! Returns a reference to the file driver identified by \id
+/*! Returns a pointer to the file driver identified by \id.  A
+  previous call to addFileDriver() must have been made, otherwise the
+  pointer that is returned will point to a driver that has no
+  functionality.  This pointer is owned by the environment, so do not
+  delete it.
 
-  \sa addDriver()
+  \sa addFileDriver()
 
 */
 
@@ -78,7 +82,8 @@ qdb::FileDriver* QDb::fileDriver( int id )
 }
 
 
-/*! Returns a reference to the stack.
+/*! Returns a pointer to the stack.  This pointer is owned by the
+environment, so do not delete it.
 
 */
 
@@ -88,7 +93,8 @@ qdb::Stack* QDb::stack()
 }
 
 
-/*! Returns a reference to the program.
+/*! Returns a pointer to the program. This pointer is owned by the
+  environment, so do not delete it.
 
 */
 
@@ -97,6 +103,13 @@ qdb::Program* QDb::program()
     return &d->pgm;
 }
 
+/* Parses \a commands and creates a new program.  Any previous program
+   is first cleared.  If \a verbose is TRUE, each command processed
+   will be echoed.
+
+   \sa setOutput()
+
+*/
 
 bool QDb::parse( const QString& /*commands*/, bool verbose )
 {
@@ -106,7 +119,10 @@ bool QDb::parse( const QString& /*commands*/, bool verbose )
     return TRUE;
 }
 
-/*!
+/*! Executes the program produced by parse(). If an error is
+  encountered and \a verbose is TRUE, the error is echoed.
+
+  \sa parse() setOutput()
 
 */
 
@@ -127,7 +143,8 @@ bool QDb::execute( bool verbose )
 }
 
 
-/*!
+/*! Resets internal state (empties the stack, clears the program,
+closes and removed any file drivers, etc).
 
 */
 
@@ -142,7 +159,12 @@ void QDb::reset()
     d->results.clear();
 }
 
-/*!
+/*! Returns the result set identified by \a id.  The result set must
+  have been previously added with addresultSet(), otherwise the
+  pointer that is returned will have no functionality.  This pointer
+  is owned by the environment, so do not delete it.
+
+  \sa addResultSet()
 
 */
 
@@ -150,6 +172,10 @@ qdb::ResultSet* QDb::resultSet( int id )
 {
     return &d->results[id];
 }
+
+/*! Saves the contents of the program as a binary stream to the device
+\a dev.
+*/
 
 bool QDb::save( QIODevice *dev )
 {
@@ -173,6 +199,10 @@ bool QDb::save( QIODevice *dev )
     d->pgm.resetCounter();
     return TRUE;
 }
+
+/*! Saves the contents of the program as a binary stream to the file
+named \a filename.
+*/
 
 bool QDb::save( const QString& filename )
 {
@@ -203,6 +233,10 @@ static QString asListing( QVariant& v )
     return s;
 }
 
+/*! Saves the contents of the program as human readable text to the
+  text stream \a stream..
+*/
+
 bool QDb::saveListing( QTextStream& stream )
 {
     stream << "Program Listing" << endl;
@@ -221,6 +255,9 @@ bool QDb::saveListing( QTextStream& stream )
     return TRUE;
 }
 
+/*! Saves the contents of the program as human readable text to the
+  file named \a filename..
+*/
 
 bool QDb::saveListing( const QString& filename )
 {
@@ -233,20 +270,43 @@ bool QDb::saveListing( const QString& filename )
     return TRUE;
 }
 
+/*! Sets all output (debug messages and error text) to the text stream
+  \a stream.
+
+  \sa output()
+
+*/
+
 void QDb::setOutput( QTextStream& stream )
 {
     d->out = &stream;
 }
 
+/*! Returns a reference to the output stream used for debug messages
+  and error text.
+
+  \sa setOutput()
+
+*/
 QTextStream& QDb::output()
 {
     return *d->out;
 }
 
+/*! Sets the last error text to \a error.
+
+  \sa lastError()
+*/
+
 void QDb::setLastError( const QString& error )
 {
     d->err = error;
 }
+
+/*! Returns the last error.
+
+  \sa setLastError()
+*/
 
 QString QDb::lastError() const
 {
