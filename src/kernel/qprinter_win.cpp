@@ -422,6 +422,10 @@ void QPrinter::readPdlg( void* pdv )
                 usercolcopies = TRUE;
             else
                 usercolcopies = FALSE;
+	    if ( dm->dmColor == DMCOLOR_COLOR )
+		color_mode = Color;
+	    else
+		color_mode = GrayScale;
         }
         GlobalUnlock( pd->hDevMode );
     }
@@ -655,23 +659,27 @@ bool QPrinter::setup( QWidget *parent )
                 DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
                 if ( dm ) {
                     if ( orient == Portrait )
-                dm->dmOrientation = DMORIENT_PORTRAIT;
-            else
-                dm->dmOrientation = DMORIENT_LANDSCAPE;
-            dm->dmCopies = ncopies;
-            dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-                       int winPageSize = mapPageSizeDevmode( pageSize() );
-                       if ( winPageSize != 0 ) {
-                           dm->dmPaperSize = winPageSize;
-                       } else if ( pageSize() < Custom ) {
-                           dm->dmPaperSize = 0;
-                           dm->dmPaperLength = paperSizes[ pageSize() ].height;
-                           dm->dmPaperWidth = paperSizes[ pageSize() ].width;
-                       }            if ( colorMode() == Color )
-                dm->dmColor = DMCOLOR_COLOR;
-            else
-                dm->dmColor = DMCOLOR_MONOCHROME;
-            GlobalUnlock( pd.hDevMode );
+			dm->dmOrientation = DMORIENT_PORTRAIT;
+		    else
+			dm->dmOrientation = DMORIENT_LANDSCAPE;
+		    if ( color_mode == Color )
+			dm->dmColor = DMCOLOR_COLOR;
+		    else
+			dm->dmColor = DMCOLOR_MONOCHROME;
+		    dm->dmCopies = ncopies;
+		    dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
+		    int winPageSize = mapPageSizeDevmode( pageSize() );
+		    if ( winPageSize != 0 ) {
+			dm->dmPaperSize = winPageSize;
+		    } else if ( pageSize() < Custom ) {
+			dm->dmPaperSize = 0;
+			dm->dmPaperLength = paperSizes[ pageSize() ].height;
+			dm->dmPaperWidth = paperSizes[ pageSize() ].width;
+		    }            if ( colorMode() == Color )
+			dm->dmColor = DMCOLOR_COLOR;
+		    else
+			dm->dmColor = DMCOLOR_MONOCHROME;
+		    GlobalUnlock( pd.hDevMode );
                 }
             }
             // } writePdlg
