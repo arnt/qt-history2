@@ -51,8 +51,8 @@ public:
         : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) { }
     QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw = false);
 
-    SizeType horData() const { return static_cast<SizeType>(data & HMask); }
-    SizeType verData() const { return static_cast<SizeType>((data & VMask) >> HSize); }
+    SizeType horData() const { return static_cast<SizeTypeFlag>(data & HMask); }
+    SizeType verData() const { return static_cast<SizeTypeFlag>((data & VMask) >> HSize); }
 
     bool mayShrinkHorizontally() const { return horData() & MayShrink || horData() == Ignored; }
     bool mayShrinkVertically() const { return verData() & MayShrink || verData() == Ignored; }
