@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#44 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -26,434 +26,435 @@
 #include <unistd.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#44 $");
 
 
-// NOTE: the first word of ps_header MUST be shorter than 78 characters
-static char *ps_header =
-"/D  {bind def} bind def\n"
-"/ED {exch def} D\n"
-"/LT {lineto} D\n"
-"/MT {moveto} D\n"
-"/S  {stroke} D\n"
-"/SW {setlinewidth} D\n"
-"/CP {closepath} D\n"
-"/RL {rlineto} D\n"
-"/NP {newpath} D\n"
-"/CM {currentmatrix} D\n"
-"/SM {setmatrix} D\n"
-"/TR {translate} D\n"
-"/SRGB {setrgbcolor} D\n"
-"/SC {aload pop SRGB} D\n"
-"/GS {gsave} D\n"
-"/GR {grestore} D\n"
-"\n"
-"/BSt 0 def			% brush style\n"
-"/LWi 1 def			% line width\n"
-"/PSt 1 def			% pen style\n"
-"/Cx  0 def			% current x position\n"
-"/Cy  0 def			% current y position\n"
-"/WFi false def			% winding fill\n"
-"/OMo false def			% opaque mode (not transparent)\n"
-"\n"
-"/BCol  [ 1 1 1 ] def		% brush color\n"
-"/PCol  [ 0 0 0 ] def		% pen color\n"
-"/BkCol [ 1 1 1 ] def		% background color\n"
-"\n"
-"/nS 0 def			% number of saved painter states\n"
-"\n"
-"\n"
-"/QS {				% stroke command\n"
-"    PSt 0 ne			% != NO_PEN\n"
-"    { LWi SW			% set line width\n"
-"      GS\n"
-"      PCol SC			% set pen color\n"
-"      true GPS 0 setdash S	% draw line pattern\n"
-"      OMo PSt 1 ne and		% opaque mode and not solid line?\n"
-"      { GR BkCol SC\n"
-"	false GPS dup 0 get setdash S	% fill in opaque pattern\n"
-"      }\n"
-"      { GR } ifelse\n"
-"    } if\n"
-"} D\n"
-"\n"
-"/QF {				% fill command\n"
-"    GS\n"
-"    BSt 2 ge BSt 8 le and	% dense pattern?\n"
-"    { BDArr BSt 2 sub get setgray fill } if\n"
-"    BSt 9 ge BSt 14 le and	% fill pattern?\n"
-"    { BF } if\n"
-"    BSt 1 eq			% solid brush?\n"
-"    { BCol SC WFi { fill } { eofill } ifelse } if\n"
-"    GR\n"
-"} D\n"
-"\n"
-"/PF {				% polygon fill command\n"
-"    GS\n"
-"    BSt 2 ge BSt 8 le and	% dense pattern?\n"
-"    { BDArr BSt 2 sub get setgray WFi { fill } { eofill } ifelse } if\n"
-"    BSt 9 ge BSt 14 le and	% fill pattern?\n"
-"    { BF } if\n"
-"    BSt 1 eq			% solid brush?\n"
-"    { BCol SC WFi { fill } { eofill } ifelse } if\n"
-"    GR\n"
-"} D\n"
-"\n"
-"/BDArr[				% Brush dense patterns:\n"
-"    0.94 0.88 0.63 0.50 0.37 0.12 0.6\n"
-"] def\n"
-"\n"
-"/ArcDict 6 dict def\n"
-"ArcDict begin\n"
-"    /tmp matrix def\n"
-"end\n"
-"\n"
-"/ARC {				% Generic ARC function [ X Y W H ang1 ang2 ]\n"
-"    ArcDict begin\n"
-"    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED\n"
-"    tmp CM pop\n"
-"    x w 2 div add y h 2 div add TR\n"
-"    1 h w div neg scale\n"
-"    ang2 0 ge\n"
-"    {0 0 w 2 div ang1 ang1 ang2 add arc }\n"
-"    {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse\n"
-"    tmp SM\n"
-"    end\n"
-"} D\n"
-"\n"
-"\n"
-"/QI {\n"
-"    /savedContext save def\n"
-"    clippath pathbbox\n"
-"    3 index /PageX ED\n"
-"    0 index /PageY ED\n"
-"    3 2 roll\n"
-"    exch\n"
-"    sub neg /PageH ED\n"
-"    sub neg /PageW ED\n"
-"\n"
-"    PageX PageY TR\n"
-"    1 -1 scale\n"
-"    /defM matrix CM def		% default transformation matrix\n"
-"    /Cx  0 def			% reset current x position\n"
-"    /Cy  0 def			% reset current y position\n"
-"    255 255 255 BC\n"
-"    /OMo false def\n"
-"    1 0 0 0 0 PE\n"
-"    0 0 0 0 B\n"
-"} D\n"
-"\n"
-"/QP {				% show page\n"
-"    savedContext restore\n"
-"    showpage\n"
-"} D\n"
-"\n"
-"\n"
-"/P {				% PDC_DRAWPOINT [x y]\n"
-"    NP\n"
-"    MT\n"
-"    0.5 0.5 rmoveto\n"
-"    0  -1 RL\n"
-"    -1	0 RL\n"
-"    0	1 RL\n"
-"    CP\n"
-"    PCol SC\n"
-"    fill\n"
-"} D\n"
-"\n"
-"/M {				% PDC_MOVETO [x y]\n"
-"    /Cy ED /Cx ED\n"
-"} D\n"
-"\n"
-"/L {				% PDC_LINETO [x y]\n"
-"    NP\n"
-"    Cx Cy MT\n"
-"    /Cy ED /Cx ED\n"
-"    Cx Cy LT\n"
-"    QS\n"
-"} D\n"
-"\n"
-"/DL {				% PDC_DRAWLINE [x0 y0 x1 y1]\n"
-"    4 2 roll\n"
-"    NP\n"
-"    MT\n"
-"    LT\n"
-"    QS\n"
-"} D\n"
-"\n"
-"/RDict 4 dict def\n"
-"/R {				% PDC_DRAWRECT [x y w h]\n"
-"    RDict begin\n"
-"    /h ED /w ED /y ED /x ED\n"
-"    NP\n"
-"    x y MT\n"
-"    0 h RL\n"
-"    w 0 RL\n"
-"    0 h neg RL\n"
-"    CP\n"
-"    QF\n"
-"    QS\n"
-"    end\n"
-"} D\n"
-"\n"
-"/RRDict 6 dict def\n"
-"/RR {				% PDC_DRAWROUNDRECT [x y w h xr yr]\n"
-"    RRDict begin\n"
-"    /yr ED /xr ED /h ED /w ED /y ED /x ED\n"
-"    xr 0 le yr 0 le or\n"
-"    {x y w h R}	     % Do rect if one of rounding values is less than 0.\n"
-"    {xr 100 ge yr 100 ge or\n"
-"	{x y w h E}  % Do ellipse if both rounding values are larger than 100\n"
-"	{\n"
-"	 /rx xr w mul 200 div def\n"
-"	 /ry yr h mul 200 div def\n"
-"	 /rx2 rx 2 mul def\n"
-"	 /ry2 ry 2 mul def\n"
-"	 NP\n"
-"	 x rx add y MT\n"
-"	 x w add rx2 sub y		 rx2 ry2 90  -90 ARC\n"
-"	 x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90 ARC\n"
-"	 x		 y h add ry2 sub rx2 ry2 270 -90 ARC\n"
-"	 x		 y		 rx2 ry2 180 -90 ARC\n"
-"	 CP\n"
-"	 QF\n"
-"	 QS\n"
-"	} ifelse\n"
-"    } ifelse\n"
-"    end\n"
-"} D\n"
-"\n"
-"\n"
-"/EDict 5 dict def\n"
-"EDict begin\n"
-"/tmp matrix def\n"
-"end\n"
-"/E {				% PDC_DRAWELLIPSE [x y w h]\n"
-"    EDict begin\n"
-"    /h ED /w ED /y ED /x ED\n"
-"    tmp CM pop\n"
-"    x w 2 div add y h 2 div add translate\n"
-"    1 h w div scale\n"
-"    NP\n"
-"    0 0 w 2 div 0 360 arc\n"
-"    tmp SM\n"
-"    QF\n"
-"    QS\n"
-"    end\n"
-"} D\n"
-"\n"
-"\n"
-"/A {				% PDC_DRAWARC [x y w h ang1 ang2]\n"
-"    16 div exch 16 div exch\n"
-"    NP\n"
-"    ARC\n"
-"    QS\n"
-"} D\n"
-"\n"
-"\n"
-"/PieDict 6 dict def\n"
-"/PIE {				% PDC_DRAWPIE [x y w h ang1 ang2]\n"
-"    PieDict begin\n"
-"    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED\n"
-"    NP\n"
-"    x w 2 div add y h 2 div add MT\n"
-"    x y w h ang1 16 div ang2 16 div ARC\n"
-"    CP\n"
-"    QF\n"
-"    QS\n"
-"    end\n"
-"} D\n"
-"\n"
-"/CH {				% PDC_DRAWCHORD [x y w h ang1 ang2]\n"
-"    16 div exch 16 div exch\n"
-"    NP\n"
-"    ARC\n"
-"    CP\n"
-"    QF\n"
-"    QS\n"
-"} D\n"
-"\n"
-"\n"
-"/BZ {				% PDC_DRAWQUADBEZIER [3 points]\n"
-"    curveto\n"
-"    QS\n"
-"} D\n"
-"\n"
-"\n"
-"/CRGB {				% Compute RGB [R G B] => R/255 G/255 B/255\n"
-"    255 div 3 1 roll\n"
-"    255 div 3 1 roll\n"
-"    255 div 3 1 roll\n"
-"} D\n"
-"\n"
-"\n"
-"/SV {				% Save painter state\n"
-"    BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol\n"
-"    /nS nS 1 add def\n"
-"    GS\n"
-"} D\n"
-"\n"
-"/RS {				% Restore painter state\n"
-"    nS 0 gt\n"
-"    { GR\n"
-"      /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED\n"
-"      /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED\n"
-"      /nS nS 1 sub def\n"
-"    } if\n"
-"\n"
-"} D\n"
-"\n"
-"/BC {				% PDC_SETBKCOLOR [R G B]\n"
-"    CRGB\n"
-"    BkCol astore pop\n"
-"} D\n"
-"\n"
-"/B {				% PDC_SETBRUSH [style R G B]\n"
-"    CRGB\n"
-"    BCol astore pop\n"
-"    /BSt ED\n"
-"} D\n"
-"\n"
-"/PE {				% PDC_SETPEN [style width R G B]\n"
-"    CRGB\n"
-"    PCol astore pop\n"
-"    /LWi ED\n"
-"    /PSt ED\n"
-"    LWi 0 eq { 0.3 /LWi ED } if\n"
-"} D\n"
-"\n"
-"/ST {				% SET TRANSFORM [matrix]\n"
-"    defM setmatrix\n"
-"    concat\n"
-"} D\n"
-"\n"
-"\n"
-"% use MF like this make /F114 a 12 point font, preferably Univers, but\n"
-"% Helvetica if Univers is not available and Courier if all else fails:\n"
-"%\n"
-"% /F114 FE0 [ 12 0 0 -12 0 0 ] [ /Univers /Helvetica ] MF\n"
-"\n"
-"/F /Courier def\n"
-"/MF {			% make font [ newname encoding matrix fontlist ]\n"
-"  /F /Courier def\n"
-"  {\n"
-"    dup FontDirectory exch known\n"
-"    {\n"
-"      /F exch def\n"
-"      exit\n"
-"    } {\n"
-"      pop\n"
-"    } ifelse\n"
-"  } forall\n"
-"  F findfont dup length dict begin {\n"
-"    1 index /FID ne {\n"
-"      def\n"
-"    } {\n"
-"      pop pop\n"
-"    } ifelse\n"
-"  } forall\n"
-"  /Encoding 3 -1 roll def\n"
-"  currentdict\n"
-"  end\n"
-"  2 index exch definefont\n"
-"  exch makefont\n"
-"  definefont pop\n"
-"} D\n"
-"\n"
-"\n"
-"/SF {				% PDC_SETFONT [ fontname ]\n"
-"  findfont setfont\n"
-"} D\n"
-"\n"
-"\n"
-"% isn't this important enough to try to avoid the SC?\n"
-"\n"
-"/T {				% PDC_DRAWTEXT [x y string]\n"
-"    3 1 roll\n"
-"    MT				% !!!! Uff\n"
-"    PCol SC			% set pen/text color\n"
-"    show\n"
-"} D\n"
-"\n"
-"\n"
-"/BFDict 2 dict def\n"
-"/BF {				% brush fill\n"
-"    BSt 9 ge BSt 14 le and	% valid brush pattern?\n"
-"    {\n"
-"     BFDict begin\n"
-"     GS\n"
-"     WFi { clip } { eoclip } ifelse\n"
-"     defM SM\n"
-"     pathbbox			% left upper right lower\n"
-"     3 index 3 index translate\n"
-"     4 2 roll			% right lower left upper\n"
-"     3 2 roll			% right left upper lower\n"
-"     exch			% left right lower upper\n"
-"     sub /h ED\n"
-"     sub /w ED\n"
-"     OMo {\n"
-"	  NP\n"
-"	  0 0 MT\n"
-"	  0 h RL\n"
-"	  w 0 RL\n"
-"	  0 h neg RL\n"
-"	  CP\n"
-"	  BkCol SC\n"
-"	  fill\n"
-"     } if\n"
-"     BCol SC\n"
-"     0.3 SW\n"
-"     BSt 9 eq BSt 11 eq or	% horiz or cross pattern\n"
-"     { 0 4 h			% draw horiz lines !!! alignment\n"
-"       { NP dup 0 exch MT w exch LT S } for\n"
-"     } if\n"
-"     BSt 10 eq BSt 11 eq or	% vert or cross pattern\n"
-"     { 0 4 w			% draw vert lines !!! alignment\n"
-"       { NP dup 0 MT h LT S } for\n"
-"     } if\n"
-"     BSt 12 eq BSt 14 eq or	% F-diag or diag cross\n"
-"     { w h gt\n"
-"       { 0 6 w h add\n"
-"	{ NP dup h MT h sub 0 LT S } for }\n"
-"       { 0 6 w h add\n"
-"	 { NP dup w exch MT w add 0 exch LT S } for } ifelse\n"
-"     } if\n"
-"     BSt 13 eq BSt 14 eq or	% B-diag or diag cross\n"
-"     { w h gt\n"
-"       { 0 6 w h add\n"
-"	 { NP dup 0 MT h sub h LT S } for }\n"
-"       { 0 6 w h add\n"
-"	 { NP dup 0 exch MT w add w exch LT S } for } ifelse\n"
-"     } if\n"
-"     GR\n"
-"     end\n"
-"    } if\n"
-"} D\n"
-"\n"
-"/LArr[					% Pen styles:\n"
-"    []		     []			%   solid line\n"
-"    [ 10 3 ]	     [ 3 10 ]		%   dash line\n"
-"    [ 3 3 ]	     [ 3 3 ]		%   dot line\n"
-"    [ 5 3 3 3 ]	     [ 3 5 3 3 ]	%   dash dot line\n"
-"    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]	%   dash dot dot line\n"
-"] def\n"
-"\n"
-"%\n"
-"% Returns the line pattern (from pen style PSt).\n"
-"%\n"
-"% Argument:\n"
-"%   bool pattern\n"
-"%	true : draw pattern\n"
-"%	false: fill pattern\n"
-"%\n"
-"\n"
-"/GPS {\n"
-"  PSt 1 ge PSt 5 le and			% valid pen pattern?\n"
-"    { { LArr PSt 1 sub 2 mul get }	% draw pattern\n"
-"      { LArr PSt 2 mul 1 sub get } ifelse   % opaque pattern\n"
-"    }\n"
-"    { [] } ifelse			% out of range => solid line\n"
-"} D\n";
+// Note: this is comment-stripped and word-wrapped later.
+static const char *ps_header[] = {
+"/D  {bind def} bind def", // first word MUST be shorter than 78 characters
+"/ED {exch def} D",
+"/LT {lineto} D",
+"/MT {moveto} D",
+"/S  {stroke} D",
+"/SW {setlinewidth} D",
+"/CP {closepath} D",
+"/RL {rlineto} D",
+"/NP {newpath} D",
+"/CM {currentmatrix} D",
+"/SM {setmatrix} D",
+"/TR {translate} D",
+"/SRGB {setrgbcolor} D",
+"/SC {aload pop SRGB} D",
+"/GS {gsave} D",
+"/GR {grestore} D",
+"",
+"/BSt 0 def",				// brush style
+"/LWi 1 def",				// line width
+"/PSt 1 def",				// pen style
+"/Cx  0 def",				// current x position
+"/Cy  0 def",				// current y position
+"/WFi false def",			// winding fill
+"/OMo false def",			// opaque mode (not transparent)
+"",
+"/BCol  [ 1 1 1 ] def",			// brush color
+"/PCol  [ 0 0 0 ] def",			// pen color
+"/BkCol [ 1 1 1 ] def",			// background color
+"",
+"/nS 0 def",				// number of saved painter states
+"",
+"",
+"/QS {",				// stroke command
+"    PSt 0 ne",				// != NO_PEN
+"    { LWi SW",				// set line width
+"      GS",
+"      PCol SC",			// set pen color
+"      true GPS 0 setdash S",		// draw line pattern
+"      OMo PSt 1 ne and",		// opaque mode and not solid line?
+"      { GR BkCol SC",
+"	false GPS dup 0 get setdash S",	// fill in opaque pattern
+"      }",
+"      { GR } ifelse",
+"    } if",
+"} D",
+"",
+"/QF {",				// fill command
+"    GS",
+"    BSt 2 ge BSt 8 le and",		// dense pattern?
+"    { BDArr BSt 2 sub get setgray fill } if",
+"    BSt 9 ge BSt 14 le and",		// fill pattern?
+"    { BF } if",
+"    BSt 1 eq",				// solid brush?
+"    { BCol SC WFi { fill } { eofill } ifelse } if",
+"    GR",
+"} D",
+"",
+"/PF {",				// polygon fill command
+"    GS",
+"    BSt 2 ge BSt 8 le and",		// dense pattern?
+"    { BDArr BSt 2 sub get setgray WFi { fill } { eofill } ifelse } if",
+"    BSt 9 ge BSt 14 le and",		// fill pattern?
+"    { BF } if",
+"    BSt 1 eq",				// solid brush?
+"    { BCol SC WFi { fill } { eofill } ifelse } if",
+"    GR",
+"} D",
+"",
+"/BDArr[",				// Brush dense patterns:
+"    0.94 0.88 0.63 0.50 0.37 0.12 0.6",
+"] def",
+"",
+"/ArcDict 6 dict def",
+"ArcDict begin",
+"    /tmp matrix def",
+"end",
+"",
+"/ARC {",				// Generic ARC function [ X Y W H ang1 ang2 ]
+"    ArcDict begin",
+"    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
+"    tmp CM pop",
+"    x w 2 div add y h 2 div add TR",
+"    1 h w div neg scale",
+"    ang2 0 ge",
+"    {0 0 w 2 div ang1 ang1 ang2 add arc }",
+"    {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse",
+"    tmp SM",
+"    end",
+"} D",
+"",
+"",
+"/QI {",
+"    /savedContext save def",
+"    clippath pathbbox",
+"    3 index /PageX ED",
+"    0 index /PageY ED",
+"    3 2 roll",
+"    exch",
+"    sub neg /PageH ED",
+"    sub neg /PageW ED",
+"",
+"    PageX PageY TR",
+"    1 -1 scale",
+"    /defM matrix CM def",		// default transformation matrix
+"    /Cx  0 def",			// reset current x position
+"    /Cy  0 def",			// reset current y position
+"    255 255 255 BC",
+"    /OMo false def",
+"    1 0 0 0 0 PE",
+"    0 0 0 0 B",
+"} D",
+"",
+"/QP {",				// show page
+"    savedContext restore",
+"    showpage",
+"} D",
+"",
+"",
+"/P {",					// PDC_DRAWPOINT [x y]
+"    NP",
+"    MT",
+"    0.5 0.5 rmoveto",
+"    0  -1 RL",
+"    -1	0 RL",
+"    0	1 RL",
+"    CP",
+"    PCol SC",
+"    fill",
+"} D",
+"",
+"/M {",					// PDC_MOVETO [x y]
+"    /Cy ED /Cx ED",
+"} D",
+"",
+"/L {",					// PDC_LINETO [x y]
+"    NP",
+"    Cx Cy MT",
+"    /Cy ED /Cx ED",
+"    Cx Cy LT",
+"    QS",
+"} D",
+"",
+"/DL {",				// PDC_DRAWLINE [x0 y0 x1 y1]
+"    4 2 roll",
+"    NP",
+"    MT",
+"    LT",
+"    QS",
+"} D",
+"",
+"/RDict 4 dict def",
+"/R {",					// PDC_DRAWRECT [x y w h]
+"    RDict begin",
+"    /h ED /w ED /y ED /x ED",
+"    NP",
+"    x y MT",
+"    0 h RL",
+"    w 0 RL",
+"    0 h neg RL",
+"    CP",
+"    QF",
+"    QS",
+"    end",
+"} D",
+"",
+"/RRDict 6 dict def",
+"/RR {",				// PDC_DRAWROUNDRECT [x y w h xr yr]
+"    RRDict begin",
+"    /yr ED /xr ED /h ED /w ED /y ED /x ED",
+"    xr 0 le yr 0 le or",
+"    {x y w h R}",		    // Do rect if one of rounding values is less than 0.
+"    {xr 100 ge yr 100 ge or",
+"	{x y w h E}",			 // Do ellipse if both rounding values are larger than 100
+"	{",
+"	 /rx xr w mul 200 div def",
+"	 /ry yr h mul 200 div def",
+"	 /rx2 rx 2 mul def",
+"	 /ry2 ry 2 mul def",
+"	 NP",
+"	 x rx add y MT",
+"	 x w add rx2 sub y		 rx2 ry2 90  -90 ARC",
+"	 x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90 ARC",
+"	 x		 y h add ry2 sub rx2 ry2 270 -90 ARC",
+"	 x		 y		 rx2 ry2 180 -90 ARC",
+"	 CP",
+"	 QF",
+"	 QS",
+"	} ifelse",
+"    } ifelse",
+"    end",
+"} D",
+"",
+"",
+"/EDict 5 dict def",
+"EDict begin",
+"/tmp matrix def",
+"end",
+"/E {",				// PDC_DRAWELLIPSE [x y w h]
+"    EDict begin",
+"    /h ED /w ED /y ED /x ED",
+"    tmp CM pop",
+"    x w 2 div add y h 2 div add translate",
+"    1 h w div scale",
+"    NP",
+"    0 0 w 2 div 0 360 arc",
+"    tmp SM",
+"    QF",
+"    QS",
+"    end",
+"} D",
+"",
+"",
+"/A {",				// PDC_DRAWARC [x y w h ang1 ang2]
+"    16 div exch 16 div exch",
+"    NP",
+"    ARC",
+"    QS",
+"} D",
+"",
+"",
+"/PieDict 6 dict def",
+"/PIE {",				// PDC_DRAWPIE [x y w h ang1 ang2]
+"    PieDict begin",
+"    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
+"    NP",
+"    x w 2 div add y h 2 div add MT",
+"    x y w h ang1 16 div ang2 16 div ARC",
+"    CP",
+"    QF",
+"    QS",
+"    end",
+"} D",
+"",
+"/CH {",				// PDC_DRAWCHORD [x y w h ang1 ang2]
+"    16 div exch 16 div exch",
+"    NP",
+"    ARC",
+"    CP",
+"    QF",
+"    QS",
+"} D",
+"",
+"",
+"/BZ {",				// PDC_DRAWQUADBEZIER [3 points]
+"    curveto",
+"    QS",
+"} D",
+"",
+"",
+"/CRGB {",				// Compute RGB [R G B] => R/255 G/255 B/255
+"    255 div 3 1 roll",
+"    255 div 3 1 roll",
+"    255 div 3 1 roll",
+"} D",
+"",
+"",
+"/SV {",				// Save painter state
+"    BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol",
+"    /nS nS 1 add def",
+"    GS",
+"} D",
+"",
+"/RS {",				// Restore painter state
+"    nS 0 gt",
+"    { GR",
+"      /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED",
+"      /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED",
+"      /nS nS 1 sub def",
+"    } if",
+"",
+"} D",
+"",
+"/BC {",				// PDC_SETBKCOLOR [R G B]
+"    CRGB",
+"    BkCol astore pop",
+"} D",
+"",
+"/B {",					// PDC_SETBRUSH [style R G B]
+"    CRGB",
+"    BCol astore pop",
+"    /BSt ED",
+"} D",
+"",
+"/PE {",				// PDC_SETPEN [style width R G B]
+"    CRGB",
+"    PCol astore pop",
+"    /LWi ED",
+"    /PSt ED",
+"    LWi 0 eq { 0.3 /LWi ED } if",
+"} D",
+"",
+"/ST {",				// SET TRANSFORM [matrix]
+"    defM setmatrix",
+"    concat",
+"} D",
+"",
+"",
+"",// use MF like this make /F114 a 12 point font, preferably Univers, but
+"",// Helvetica if Univers is not available and Courier if all else fails:
+"",//
+"",// /F114 FE0 [ 12 0 0 -12 0 0 ] [ /Univers /Helvetica ] MF
+"",
+"/F /Courier def",
+"/MF {",				// make font [ newname encoding matrix fontlist ]
+"  /F /Courier def",
+"  {",
+"    dup FontDirectory exch known",
+"    {",
+"      /F exch def",
+"      exit",
+"    } {",
+"      pop",
+"    } ifelse",
+"  } forall",
+"  F findfont dup length dict begin {",
+"    1 index /FID ne {",
+"      def",
+"    } {",
+"      pop pop",
+"    } ifelse",
+"  } forall",
+"  /Encoding 3 -1 roll def",
+"  currentdict",
+"  end",
+"  2 index exch definefont",
+"  exch makefont",
+"  definefont pop",
+"} D",
+"",
+"",
+"/SF {",				// PDC_SETFONT [ fontname ]
+"  findfont setfont",
+"} D",
+"",
+"",
+"",// isn't this important enough to try to avoid the SC?
+"",
+"/T {",					// PDC_DRAWTEXT [x y string]
+"    3 1 roll",
+"    MT",				// !!!! Uff
+"    PCol SC",				// set pen/text color
+"    show",
+"} D",
+"",
+"",
+"/BFDict 2 dict def",
+"/BF {",				// brush fill
+"    BSt 9 ge BSt 14 le and",		// valid brush pattern?
+"    {",
+"     BFDict begin",
+"     GS",
+"     WFi { clip } { eoclip } ifelse",
+"     defM SM",
+"     pathbbox",			// left upper right lower
+"     3 index 3 index translate",
+"     4 2 roll",			// right lower left upper
+"     3 2 roll",			// right left upper lower
+"     exch",				// left right lower upper
+"     sub /h ED",
+"     sub /w ED",
+"     OMo {",
+"	  NP",
+"	  0 0 MT",
+"	  0 h RL",
+"	  w 0 RL",
+"	  0 h neg RL",
+"	  CP",
+"	  BkCol SC",
+"	  fill",
+"     } if",
+"     BCol SC",
+"     0.3 SW",
+"     BSt 9 eq BSt 11 eq or",		// horiz or cross pattern
+"     { 0 4 h",				// draw horiz lines !!! alignment
+"       { NP dup 0 exch MT w exch LT S } for",
+"     } if",
+"     BSt 10 eq BSt 11 eq or",		// vert or cross pattern
+"     { 0 4 w",				// draw vert lines !!! alignment
+"       { NP dup 0 MT h LT S } for",
+"     } if",
+"     BSt 12 eq BSt 14 eq or",		// F-diag or diag cross
+"     { w h gt",
+"       { 0 6 w h add",
+"	{ NP dup h MT h sub 0 LT S } for }",
+"       { 0 6 w h add",
+"	 { NP dup w exch MT w add 0 exch LT S } for } ifelse",
+"     } if",
+"     BSt 13 eq BSt 14 eq or",		// B-diag or diag cross
+"     { w h gt",
+"       { 0 6 w h add",
+"	 { NP dup 0 MT h sub h LT S } for }",
+"       { 0 6 w h add",
+"	 { NP dup 0 exch MT w add w exch LT S } for } ifelse",
+"     } if",
+"     GR",
+"     end",
+"    } if",
+"} D",
+"",
+"/LArr[",					// Pen styles:
+"    []		     []",			//   solid line
+"    [ 10 3 ]	     [ 3 10 ]",			//   dash line
+"    [ 3 3 ]	     [ 3 3 ]",			//   dot line
+"    [ 5 3 3 3 ]	     [ 3 5 3 3 ]",	//   dash dot line
+"    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]",		//   dash dot dot line
+"] def",
+"",
+"",//
+"",// Returns the line pattern (from pen style PSt).
+"",//
+"",// Argument:
+"",//   bool pattern
+"",//	true : draw pattern
+"",//	false: fill pattern
+"",//
+"",
+"/GPS {",
+"  PSt 1 ge PSt 5 le and",			// valid pen pattern?
+"    { { LArr PSt 1 sub 2 mul get }",		// draw pattern
+"      { LArr PSt 2 mul 1 sub get } ifelse",    // opaque pattern
+"    }",
+"    { [] } ifelse",				// out of range => solid line
+"} D",
+0};
 
 
 
@@ -1765,7 +1766,16 @@ static void makeFixedStrings()
     if ( fixed_ps_header )
 	return;
     qAddPostRoutine( cleanup );
-    fixed_ps_header = qstrdup( ps_header );
+
+    {
+	QString psh;
+	const char** l = ps_header;
+	while (*l) {
+	    psh += *l++;
+	    psh += '\n';
+	}
+	fixed_ps_header = qstrdup( psh );
+    }
     wordwrap( fixed_ps_header );
 
     // fonts.
