@@ -358,7 +358,7 @@ public:
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 30;
+static const int ntypes = 31;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -390,7 +390,8 @@ static const char* const type_map[ntypes] =
     "QDate",
     "QTime",
     "QDateTime",
-    "QByteArray"
+    "QByteArray",
+    "QBitArray"
 };
 
 int qvariant_nameToType( const char* name )

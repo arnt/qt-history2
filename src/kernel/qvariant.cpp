@@ -57,6 +57,7 @@
 #include "qdatetime.h"
 #include "qsizepolicy.h"
 #include "qshared.h"
+#include "qbitarray.h"
 
 // Uncomment to test for memory leaks or to run qt/test/qvariant/main.cpp
 // #define QVARIANT_DEBUG
@@ -167,6 +168,9 @@ QVariant::Private::Private( Private* d )
 	    break;
 	case QVariant::ByteArray:
 	    value.ptr = new QByteArray( *((QByteArray*)d->value.ptr) );
+	    break;
+	case QVariant::BitArray:
+	    value.ptr = new QBitArray( *((QBitArray*)d->value.ptr) );
 	    break;
 	case QVariant::Int:
 	    value.i = d->value.i;
@@ -288,6 +292,9 @@ void QVariant::Private::clear()
 	case QVariant::ByteArray:
 	    delete (QByteArray*)value.ptr;
 	    break;
+	case QVariant::BitArray:
+	    delete (QBitArray*)value.ptr;
+	    break;
 	case QVariant::Invalid:
 	case QVariant::Int:
 	case QVariant::UInt:
@@ -401,6 +408,7 @@ void QVariant::Private::clear()
   \value Time  a QTime
   \value DateTime  a QDateTime
   \value ByteArray  a QByteArray
+  \value BitArray  a QBitArray
   \value SizePolicy  a QSizePolicy
 
   Note that Qt's definition of bool depends on the compiler.
@@ -715,6 +723,16 @@ QVariant::QVariant( const QByteArray& val )
 }
 
 /*!
+  Constructs a new variant with a bitarray value, \a val.
+*/
+QVariant::QVariant( const QBitArray& val )
+{
+    d = new Private;
+    d->typ = BitArray;
+    d->value.ptr = new QBitArray( val );
+}
+
+/*!
   Constructs a new variant with an integer value, \a val.
 */
 QVariant::QVariant( int val )
@@ -844,7 +862,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 30;
+static const int ntypes = 31;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -876,7 +894,8 @@ static const char* const type_map[ntypes] =
     "QDate",
     "QTime",
     "QDateTime",
-    "QByteArray"
+    "QByteArray",
+    "QBitArray"
 };
 
 
@@ -1146,6 +1165,13 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+    case BitArray:
+	{
+	    QBitArray* x = new QBitArray;
+	    s >> *x;
+	    d->value.ptr = x;
+	}
+	break;
     }
     d->typ = t;
 }
@@ -1264,6 +1290,9 @@ void QVariant::save( QDataStream& s ) const
 	break;
     case ByteArray:
 	s << *((QByteArray*)d->value.ptr);
+	break;
+    case BitArray:
+	s << *((QBitArray*)d->value.ptr);
 	break;
     case Invalid:
 	s << QString(); // ### looks wrong.
@@ -1735,6 +1764,19 @@ const QByteArray QVariant::toByteArray() const
 }
 
 /*!
+  Returns the variant as a QBitArray if the variant has type()
+  BitArray, or an empty bitarray otherwise.
+
+  \sa asBitArray()
+*/
+const QBitArray QVariant::toBitArray() const
+{
+    if ( d->typ == BitArray )
+	return *((QBitArray*)d->value.ptr);
+    return QBitArray();
+}
+
+/*!
   Returns the variant as an int if the variant has type()
   String, CString, Int, UInt, Double or Bool; or 0 otherwise.
 
@@ -1911,6 +1953,7 @@ Q_VARIANT_AS(Date)
 Q_VARIANT_AS(Time)
 Q_VARIANT_AS(DateTime)
 Q_VARIANT_AS(ByteArray)
+Q_VARIANT_AS(BitArray)
 
 /*! \fn QString& QVariant::asString()
 
@@ -2138,6 +2181,16 @@ Q_VARIANT_AS(ByteArray)
   Returns a reference to the stored bytearray.
 
   \sa toByteArray()
+*/
+
+/*! \fn QBitArray& QVariant::asBitArray()
+
+  Tries to convert the variant to hold a QBitArray value. If that
+  is not possible then the variant is set to an empty bitarray.
+
+  Returns a reference to the stored bitarray.
+
+  \sa toBitArray()
 */
 
 /*!
@@ -2383,6 +2436,9 @@ bool QVariant::cast( Type t )
     case QVariant::ByteArray:
 	asByteArray();
 	break;
+    case QVariant::BitArray:
+	asBitArray();
+	break;
     default:
     case QVariant::Invalid:
 	(*this) = QVariant();
@@ -2475,6 +2531,8 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toDateTime() == toDateTime();
     case ByteArray:
 	return v.toByteArray() == toByteArray();
+    case BitArray:
+	return v.toBitArray() == toBitArray();
     case Invalid:
 	break;
     }
