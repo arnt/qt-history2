@@ -466,7 +466,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QString capt = windowCaption();
+    QString capt = windowTitle();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
@@ -594,7 +594,7 @@ void QWidget::setWindowModified(bool mod)
 {
     setAttribute(WA_WindowModified, mod);
     {
-	QString caption = QWidget::windowCaption();
+	QString caption = QWidget::windowTitle();
 #if defined(QT_NON_COMMERCIAL)
 	QT_NC_CAPTION
 #else

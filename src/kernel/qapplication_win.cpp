@@ -3197,8 +3197,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		txt = windowIconText();
 	    else
 #endif
-		if ( !windowCaption().isNull() )
-		    txt = windowCaption();
+		if ( !windowTitle().isNull() )
+		    txt = windowTitle();
 	    if(isWindowModified())
 		txt += " *";
 	    if ( !!txt ) {
