@@ -2011,7 +2011,8 @@ void QDataTable::sortDescending( int col )
 }
 
 /*!
-    \overload void QDataTable::refresh( Refresh mode )
+    \fn void QDataTable::refresh( Refresh mode )
+    \overload
 
     Refreshes the table. If there is no currently defined cursor (see
     setSqlCursor()), nothing happens. The \a mode parameter determines

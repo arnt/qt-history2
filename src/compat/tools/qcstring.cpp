@@ -168,7 +168,8 @@
 */
 
 /*!
-    \overload QCString &QCString::operator=( const char *str )
+    \fn QCString &QCString::operator=( const char *str )
+    \overload
 
     Assigns a deep copy of \a str to this string and returns a
     reference to this string.
@@ -590,28 +591,32 @@ QCString &QCString::setNum( ulong n )
 }
 
 /*!
-    \overload QCString &QCString::setNum( int n )
+    \fn QCString &QCString::setNum( int n )
+    \overload
 
     Sets the string to the string representation of the number \a n
     and returns a reference to the string.
 */
 
 /*!
-    \overload QCString &QCString::setNum( uint n )
+    \fn QCString &QCString::setNum( uint n )
+    \overload
 
     Sets the string to the string representation of the number \a n
     and returns a reference to the string.
 */
 
 /*!
-    \overload QCString &QCString::setNum( short n )
+    \fn QCString &QCString::setNum( short n )
+    \overload
 
     Sets the string to the string representation of the number \a n
     and returns a reference to the string.
 */
 
 /*!
-    \overload QCString &QCString::setNum( ushort n )
+    \fn QCString &QCString::setNum( ushort n )
+    \overload
 
     Sets the string to the string representation of the number \a n
     and returns a reference to the string.
@@ -654,8 +659,9 @@ QCString &QCString::setNum( double n, char f, int prec )
     return sprintf( format, n );
 }
 
-/*! \overload QCString &QCString::setNum( float n, char f, int prec ) */
-
+/*! \fn QCString &QCString::setNum(float n, char f, int prec)
+    \overload
+*/
 
 /*!
     Sets the character at position \a index to \a c and expands the
@@ -726,7 +732,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload bool operator==( const QCString &s1, const char *s2 )
+    \fn bool operator==( const QCString &s1, const char *s2 )
+    \overload
 
     \relates QCString
 
@@ -736,7 +743,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload bool operator==( const char *s1, const QCString &s2 )
+    \fn bool operator==( const char *s1, const QCString &s2 )
+    \overload
 
     \relates QCString
 
@@ -756,7 +764,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload bool operator!=( const QCString &s1, const char *s2 )
+    \fn bool operator!=( const QCString &s1, const char *s2 )
+    \overload
 
     \relates QCString
 
@@ -766,7 +775,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload bool operator!=( const char *s1, const QCString &s2 )
+    \fn bool operator!=( const char *s1, const QCString &s2 )
+    \overload
 
     \relates QCString
 
@@ -788,7 +798,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload bool operator<( const char *s1, const QCString &s2 )
+    \fn bool operator<( const char *s1, const QCString &s2 )
+    \overload
 
     \relates QCString
 
@@ -813,7 +824,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload bool operator<=( const char *s1, const QCString &s2 )
+    \fn bool operator<=( const char *s1, const QCString &s2 )
+    \overload
 
     \relates QCString
 
@@ -838,7 +850,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload bool operator>( const char *s1, const QCString &s2 )
+    \fn bool operator>( const char *s1, const QCString &s2 )
+    \overload
 
     \relates QCString
 
@@ -863,7 +876,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload bool operator>=( const char *s1, const QCString &s2 )
+    \fn bool operator>=( const char *s1, const QCString &s2 )
+    \overload
 
     \relates QCString
 
@@ -885,7 +899,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload const QCString operator+( const QCString &s1, const char *s2 )
+    \fn const QCString operator+( const QCString &s1, const char *s2 )
+    \overload
 
     \relates QCString
 
@@ -893,7 +908,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload const QCString operator+( const char *s1, const QCString &s2 )
+    \fn const QCString operator+( const char *s1, const QCString &s2 )
+    \overload
 
     \relates QCString
 
@@ -901,7 +917,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload const QCString operator+( const QCString &s, char c )
+    \fn const QCString operator+( const QCString &s, char c )
+    \overload
 
     \relates QCString
 
@@ -909,7 +926,8 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \overload const QCString operator+( char c, const QCString &s )
+    \fn const QCString operator+( char c, const QCString &s )
+    \overload
 
     \relates QCString
 

@@ -765,7 +765,8 @@ uint QGList::contains( QPtrCollection::Item d ) const
 
 
 /*!
-  \overload QPtrCollection::Item QGList::at( uint index )
+  \fn QPtrCollection::Item QGList::at( uint index )
+  \overload
 
   Sets the item at position \a index to the current item.
 */

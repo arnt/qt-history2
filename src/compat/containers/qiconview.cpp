@@ -2513,7 +2513,8 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-    \overload void QIconView::selectionChanged( QIconViewItem *item )
+    \fn void QIconView::selectionChanged( QIconViewItem *item )
+    \overload
 
     This signal is emitted when the selection changes. \a item is the
     newly selected item. This signal is emitted only in single
@@ -2549,7 +2550,8 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-    \overload void QIconView::itemRenamed (QIconViewItem * item)
+    \fn void QIconView::itemRenamed (QIconViewItem * item)
+    \overload
 
     This signal is emitted when \a item has been renamed, usually by
     in-place renaming.
@@ -2622,7 +2624,8 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-    \overload void QIconView::clicked ( QIconViewItem * item, const QPoint & pos )
+    \fn void QIconView::clicked ( QIconViewItem * item, const QPoint & pos )
+    \overload
 
     This signal is emitted when the user clicks any mouse button on an
     icon view item. \a item is a pointer to the item that has been
@@ -2636,7 +2639,8 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-    \overload void QIconView::pressed ( QIconViewItem * item, const QPoint & pos )
+    \fn void QIconView::pressed ( QIconViewItem * item, const QPoint & pos )
+    \overload
 
     This signal is emitted when the user presses any mouse button. If
     \a item is non-null, the cursor is on \a item. If \a item is null,
