@@ -22,9 +22,9 @@
 class TokenReplacement
 {
 public:
-    virtual bool doReplace(const TokenEngine::TokenContainer & /**/,
-                           int tokenIndex,
-                           TextReplacements &/*textReplacements*/){return false;};
+    virtual bool doReplace(const TokenEngine::TokenContainer& ,
+                           int /*tokenIndex*/,
+                           TextReplacements&){return false;};
     /*
         returns the replace key for this replacement. Every time a token matches the replace key,
         doReplace() will be called for this TokenReplacement.

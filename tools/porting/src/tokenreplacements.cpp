@@ -20,7 +20,9 @@ using namespace std;
 
 void TokenReplacement::addLogSourceEntry(const QString &text, const TokenContainer &tokenContainer, const int index) const
 {
-    Logger *logger = Logger::instance();
+    Q_UNUSED(tokenContainer);
+    Q_UNUSED(index);
+     Logger *logger = Logger::instance();
     //TODO: figue ut how to get line/col from a tokenContainer
     int line = 0;
     int col = 0;;
