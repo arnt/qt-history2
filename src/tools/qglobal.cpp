@@ -35,7 +35,7 @@
 /*!
   \relates QApplication
   Returns the Qt version number for the library, typically "1.30"
-  or "2.01".
+  or "2.1.0".
 */
 
 Q_EXPORT
