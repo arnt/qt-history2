@@ -31,7 +31,6 @@
 #include <qmap.h>
 #include <qstringlist.h>
 #include <qlist.h>
-#include <qcstring.h>
 #include <qobject.h>
 #include <qvariant.h>
 
@@ -51,6 +50,7 @@ class QObject;
 class QAction;
 class QIconSet;
 class QSqlDatabase;
+class QCString;
 
 // {0e661da-f45c-4830-af47-03ec53eb1633}
 #ifndef IID_Designer
