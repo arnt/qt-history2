@@ -99,14 +99,11 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     }
 
     QMacSavedPortInfo savedInfo;
-
-    if(sx+sw>src->metric(QPaintDeviceMetrics::PdmWidth)) {
+    const bool scalew = (dw != sw), scaleh = (dh != sh);
+    if(sx+sw>src->metric(QPaintDeviceMetrics::PdmWidth)) 
 	sw=src->metric(QPaintDeviceMetrics::PdmWidth)-sx;
-    }
-    if(sy+sh>src->metric(QPaintDeviceMetrics::PdmHeight)) {
+    if(sy+sh>src->metric(QPaintDeviceMetrics::PdmHeight)) 
 	sh=src->metric(QPaintDeviceMetrics::PdmHeight)-sy;
-    }
-
     if(!sw || !sh)
 	return;
 
@@ -185,9 +182,14 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	dstbitmap = GetPortBitMapForCopyBits(GetWindowPort((WindowPtr)w->handle()));
 	QMacSavedPortInfo::setPaintDevice(w); //wtf?
 
-	QPoint p(posInWindow(w));
-	dstoffx = p.x();
-	dstoffy = p.y();
+	if(src == dst) {
+	    dstoffx = srcoffx;
+	    dstoffy = srcoffy;
+	} else {
+	    QPoint p(posInWindow(w));
+	    dstoffx = p.x();
+	    dstoffy = p.y();
+	}
 
     } else if(dst->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)dst;
@@ -269,6 +271,11 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
   case NorROP:      dst = NOT (src OR dst)
 */
     }
+    //if we are not scaling and we've fixed number we should fix the destination
+    if(!scalew && sw != dw)
+	dw = sw;
+    if(!scaleh && sh != dh)
+	dh = sh;
 
     Rect r;
     SetRect(&r,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);
@@ -278,8 +285,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     if(srcbitmask && !imask) {
 	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcbitmask->handle());
 	CopyDeepMask(srcbitmap, maskbits, dstbitmap, &r, &r, &r2, copymode, 0);
-    }
-    else {
+    } else {
 	CopyBits(srcbitmap, dstbitmap, &r,&r2,copymode, 0);
     }
 
