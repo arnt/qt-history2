@@ -295,7 +295,11 @@ void QVFb::about()
     QString qt("X11");
 #endif
     QMessageBox::about(this, "About QVFB",
-	"<h2>The Qt/Embedded Virtual " + platform + " Framebuffer</h2>"
+	"<p><b><font size=+2>Qt/Embedded Virtual " + platform + " Framebuffer</font></b></p>"
+	"<p></p>"
+	"<p>Version 1.0</p>"
+	"<p>Copyright (C) 2001-2002 Trolltech AS. All rights reserved.</p>"
+	"<p></p>"
 	"<p>This application runs under Qt/" + qt + ", emulating a simple framebuffer, "
 	"which the Qt/Embedded server and clients can attach to just as if "
 	"it was a realframebuffer. "
