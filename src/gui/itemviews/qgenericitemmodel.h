@@ -25,8 +25,8 @@ public:
     inline void *data() const { return d; }
     inline Type type() const { return t; }
     inline bool isValid() const { return (r >= 0) && (c >= 0); }
-    inline bool QModelIndex::operator==(const QModelIndex &other) const
-	{ return (other.r == r && other.c == c && other.d == d && other.t == t); }
+    inline bool operator==(const QModelIndex &other) const
+    { return (other.r == r && other.c == c && other.d == d && other.t == t); }
     inline bool operator!=(const QModelIndex &other) const { return !(*this == other); }
 private:
     int r, c;
