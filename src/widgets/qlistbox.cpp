@@ -53,24 +53,10 @@ public:
 	selectionMode( QListBox::Single ),
 	count( 0 ),
 	ignoreMoves( FALSE )
-    { infoDict.setAutoDelete( FALSE ); }
+    {}
     ~QListBoxPrivate();
 
-    struct ItemInfo {
-	ItemInfo() {
-	    children.setAutoDelete( FALSE );
-	    dirty = TRUE;
-	    indent = 0;
-	}
-	ItemInfo *parent;
-	QListBoxItem *item, *p;
-	QList<ItemInfo> children;
-	int indent;
-	bool dirty;
-    };
-
     QListBoxItem * head;
-    QPtrDict<ItemInfo> infoDict;
     QListBoxItem * current;
     bool layoutDirty;
     bool mustPaintAll;
@@ -105,7 +91,6 @@ public:
     int count;
 
     bool ignoreMoves;
-    bool differentDepths;
     bool clearing;
 };
 
@@ -126,49 +111,6 @@ QListBoxPrivate::~QListBoxPrivate()
   need to insert customized items into a QListBox, you must inherit
   this class and reimplement paint(), height() and width().
 
-  The following shows how to define a list box item which shows a
-  pixmap and a text:
-  \code
-    class MyListBoxItem : public QListBoxItem
-    {
-    public:
-	MyListBoxItem( QString s, const QPixmap p )
-	    : QListBoxItem(), pm(p)
-	    { setText( s ); }
-
-    protected:
-	virtual void paint( QPainter * );
-	virtual int height( const QListBox* ) const;
-	virtual int width( const QListBox* ) const;
-	virtual const QPixmap *pixmap() { return &pm; }
-
-    private:
-	QPixmap pm;
-    };
-
-    void MyListBoxItem::paint( QPainter *p )
-    {
-	p->drawPixmap( 3, 0, pm );
-	QFontMetrics fm = p->fontMetrics();
-	int yPos;			// vertical text position
-	if ( pm.height() < fm.height() )
-	    yPos = fm.ascent() + fm.leading()/2;
-	else
-	    yPos = pm.height()/2 - fm.height()/2 + fm.ascent();
-	p->drawText( pm.width() + 5, yPos, text() );
-    }
-
-    int MyListBoxItem::height( const QListBox* lb ) const
-    {
-	return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
-    }
-
-    int MyListBoxItem::width( const QListBox* lb ) const
-    {
-	return pm.width() + lb->fontMetrics().width( text() ) + 6;
-    }
-  \endcode
-
   \sa QListBox
 */
 
@@ -187,14 +129,8 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
     // just something that'll look noticeable in the debugger
     x = y = 42;
 
-    if (listbox) {
+    if (listbox)
 	listbox->insertItem( this );
-	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
-	i->item = this;
-	i->parent = 0;
-	i->p = 0;
-	listbox->d->infoDict.insert( this, i );
-    }
 }
 
 /*!
@@ -212,59 +148,10 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
     // just something that'll look noticeable in the debugger
     x = y = 42;
 
-    if (listbox) {
+    if (listbox)
 	listbox->insertItem( this, after );
-	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
-	i->item = this;
-	i->parent = 0;
-	i->p = 0;
-	listbox->d->infoDict.insert( this, i );
-    }
 }
 
-/*!
-  Constructs and empty listbox item which will be inserted
-  as child of \a parent. Using this you can create a tree
-  structure in a listbox. It really you want to work with a
-  hirarchical structure (a tree) it큦 suggested to use
-  a QListView instead of a QListBox. The possibility to
-  create a tree structure in a listbox is very limited and
-  only supported because it큦 needed in comboboxes.
-
-  \sa QListView::QListView()
-*/
-
-QListBoxItem::QListBoxItem( QListBoxItem *parent )
-{
-    if ( !parent )
-	return;
-
-    lbox = parent->lbox;
-    s = FALSE;
-    dirty = TRUE;
-    p = n = 0;
-
-    // just something that'll look noticeable in the debugger
-    x = y = 42;
-
-    if ( lbox ) {
-	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
-	QListBoxPrivate::ItemInfo *pi = lbox->d->infoDict.find( parent );
-	i->item = this;
-	i->parent = pi;
-	i->p = parent;
-	lbox->d->infoDict.insert( this, i );
-	QListBoxItem *after = parent;
-	if ( parent && pi ) {
-	    if ( !pi->children.isEmpty() )
-		after = pi->children.last()->item;
-	    pi->children.append( i );
-	}
-	lbox->insertItem( this, after );
-	lbox->d->differentDepths = TRUE;
-    }
-	
-}
 
 /*!
   Destroys the list box item.
@@ -272,30 +159,24 @@ QListBoxItem::QListBoxItem( QListBoxItem *parent )
 
 QListBoxItem::~QListBoxItem()
 {
-    if ( lbox ) {
-	QListBoxPrivate::ItemInfo *i = lbox->d->infoDict[ this ];
-	QListBoxPrivate::ItemInfo *pi = !i ? 0 : lbox->d->infoDict.find( i->p );
-	if ( i ) {
-	    QList<QListBoxPrivate::ItemInfo> lst = i->children;
-	    lst.setAutoDelete( FALSE );
-	    for ( QListBoxPrivate::ItemInfo *i2 = lst.first(); i2; i2 = lst.next() ) {
-		i2->parent = pi;
-		i2->p = i->p;
-		if ( pi )
-		    pi->children.append( i2 );
-	    }
-	    delete i;
-	}
-	lbox->d->infoDict.remove( this );
-	
-	QPtrDictIterator<QListBoxPrivate::ItemInfo> it( lbox->d->infoDict );
-	for ( ; it.current(); ++it )
-	    it.current()->dirty = TRUE;
-	
+    if ( lbox )
 	lbox->takeItem( this );
-    }
 }
 
+
+/*!
+  Defines whether the list box items is responsible to draw itself
+  in a highlighted state when being selected.
+  
+  If \b is FALSE (the default), then the listbox will draw some
+  default highlight indicator before calling paint().
+  
+  \sa selected(), paint()
+ */
+void QListBoxItem::setCustomHighlighting( bool b )
+{
+    custom_highlight = b;
+}
 
 /*!
   \fn void QListBoxItem::paint( QPainter *p )
@@ -407,24 +288,6 @@ QListBoxText::QListBoxText( QListBox* listbox, const QString &text, QListBoxItem
 }
 
 /*!
-  Constructs a list box item showing the text \a text, which
-  will be inserted as child of \a parent. Using this you can
-  create a tree structure in a listbox. It really you want to
-  work with a  hirarchical structure (a tree) it큦 suggested to use
-  a QListView instead of a QListBox. The possibility to
-  create a tree structure in a listbox is very limited and
-  only supported because it큦 needed in comboboxes.
-
-  \sa QListView::QListView()
-*/
-
-QListBoxText::QListBoxText( QListBoxItem* parent, const QString &text )
-    : QListBoxItem( parent )
-{
-    setText( text );
-}
-
-/*!
   Destroys the item.
 */
 
@@ -467,7 +330,8 @@ int QListBoxText::width( const QListBox* lb ) const
 
 /*!
   \class QListBoxPixmap qlistbox.h
-  \brief The QListBoxPixmap class provides list box items with a pixmap.
+  \brief The QListBoxPixmap class provides list box items with a pixmap 
+  and an optional text.
 
   \sa QListBox, QListBoxItem
 */
@@ -504,23 +368,6 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap, QListB
     pm = pixmap;
 }
 
-/*!
-  Constructs a list box item showing the pixmap \a pixmap, which
-  will be inserted as child of \a parent. Using this you can
-  create a tree structure in a listbox. It really you want to
-  work with a  hirarchical structure (a tree) it큦 suggested to use
-  a QListView instead of a QListBox. The possibility to
-  create a tree structure in a listbox is very limited and
-  only supported because it큦 needed in comboboxes.
-
-  \sa QListView::QListView()
-*/
-
-QListBoxPixmap::QListBoxPixmap( QListBoxItem* parent, const QPixmap &pixmap )
-    : QListBoxItem( parent )
-{
-    pm = pixmap;
-}
 
 /*!
   Destroys the item.
@@ -528,6 +375,42 @@ QListBoxPixmap::QListBoxPixmap( QListBoxItem* parent, const QPixmap &pixmap )
 
 QListBoxPixmap::~QListBoxPixmap()
 {
+}
+
+
+/*!
+  Creates a new list box item in listbox \a listbox showing the pixmap
+  \a pixmap and the text \a text
+*/
+QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pix, const QString& text)
+    : QListBoxItem( listbox )
+{
+    pm = pix;
+    setText( text );
+}
+
+/*!
+  Creates a new list box item in listbox \a listbox showing the pixmap
+  \a pixmap. The item gets inserted after the item \a after.
+*/
+QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
+    : QListBoxItem()
+{
+    pm = pix;
+    setText( text );
+}
+
+/*!
+  Creates a new list box item in listbox \a listbox showing the pixmap
+  \a pixmap and the string \a text . The item gets inserted after the
+  item \a after.
+*/
+QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QString& text, 
+				QListBoxItem *after )
+    : QListBoxItem( listbox, after )
+{
+    pm = pix;
+    setText( text );
 }
 
 /*!
@@ -544,6 +427,15 @@ QListBoxPixmap::~QListBoxPixmap()
 void QListBoxPixmap::paint( QPainter *painter )
 {
     painter->drawPixmap( 3, 0, pm );
+    if ( !text().isEmpty() ) {
+	QFontMetrics fm = painter->fontMetrics();
+	int yPos;			// vertical text position
+	if ( pm.height() < fm.height() )
+	    yPos = fm.ascent() + fm.leading()/2;
+	else
+	    yPos = pm.height()/2 - fm.height()/2 + fm.ascent();
+	painter->drawText( pm.width() + 5, yPos, text() );
+    }
 }
 
 /*!
@@ -552,9 +444,12 @@ void QListBoxPixmap::paint( QPainter *painter )
   \sa paint(), width()
 */
 
-int QListBoxPixmap::height( const QListBox* ) const
+int QListBoxPixmap::height( const QListBox* lb ) const
 {
-    return pm.height();
+    if ( text().isEmpty() )
+	return pm.height();
+    else
+	return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
 }
 
 /*!
@@ -563,9 +458,12 @@ int QListBoxPixmap::height( const QListBox* ) const
   \sa paint(), height()
 */
 
-int QListBoxPixmap::width( const QListBox* ) const
+int QListBoxPixmap::width( const QListBox* lb ) const
 {
-    return pm.width() + 6;
+    
+    if ( text().isEmpty() )
+	return pm.width() + 6;
+    return pm.width() + lb->fontMetrics().width( text() ) + 6;
 }
 
 
@@ -751,7 +649,6 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d = new QListBoxPrivate;
     d->updateTimer = new QTimer( this, "listbox update timer" );
     d->visibleTimer = new QTimer( this, "listbox visible timer" );
-    d->differentDepths = FALSE;
     d->clearing = FALSE;
     connect( d->updateTimer, SIGNAL(timeout()),
 	     this, SLOT(refreshSlot()) );
@@ -1106,14 +1003,6 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 
     QListBoxItem * item = (QListBoxItem *)lbi;
 
-    if ( !item->lbox ) {
-	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
-	i->item = item;
-	i->parent = 0;
-	i->p = 0;
-	d->infoDict.insert( item, i );
-    }
-
     item->lbox = this;
     if ( !d->head || index == 0 ) {
 	item->n = d->head;
@@ -1162,14 +1051,6 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 #endif
 
     QListBoxItem * item = (QListBoxItem*)lbi;
-
-    if ( !item->lbox ) {
-	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
-	i->item = item;
-	i->parent = 0;
-	i->p = 0;
-	d->infoDict.insert( item, i );
-    }
 
     item->lbox = this;
     if ( !d->head || !after ) {
@@ -1224,6 +1105,18 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
     insertItem( new QListBoxPixmap(pixmap), index );
 }
 
+/*!
+  Inserts \a pixmap and \a text into the list at \a index.
+
+  If \a index is negative, \a pixmap is inserted at the end of the list.
+
+  \sa insertStrList()
+*/
+
+void QListBox::insertItem( const QPixmap &pixmap, const QString &text, int index=-1 )
+{
+    insertItem( new QListBoxPixmap(pixmap, text), index );
+}
 
 /*!  Removes and deletes the item at position \a index. If \a index is equal to
 currentItem(), a new item gets selected and the highlighted() signal
@@ -1254,7 +1147,6 @@ void QListBox::clear()
 	delete i;
 	i = n;
     }
-    d->infoDict.clear();
     d->count = 0;
     d->numRows = 1;
     d->numColumns = 1;
@@ -1327,6 +1219,20 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 {
     changeItem( new QListBoxPixmap(pixmap), index );
 }
+
+/*!
+  Replaces the item at position \a index with \a pixmap and \a text.
+
+  The operation is ignored if \a index is out of range.
+
+  \sa insertItem(), removeItem()
+*/
+
+void QListBox::changeItem( const QPixmap &pixmap, const QString &text, int index )
+{
+    changeItem( new QListBoxPixmap(pixmap, text), index );
+}
+
 
 
 /*!
@@ -2605,24 +2511,7 @@ void QListBox::tryGeometry( int rows, int columns ) const
 	    d->currentColumn = c;
 	}
 
-	int indent = 0;
-	if ( d->infoDict[ i ] ) {	
-	    QListBoxPrivate::ItemInfo *inf = d->infoDict[ i ];
-	    QListBoxPrivate::ItemInfo *inf2 = inf;
-	    if ( inf->dirty ) {
-		while ( inf ) {
-		    indent += 20;
-		    inf = inf->parent;
-		}
-		inf = inf2;
- 		if ( indent > 0 )
- 		    indent -= 20;
-		inf->indent = indent;
-		inf->dirty = FALSE;
-	    }
-	    indent = inf->indent;
-	}
-	int w = i->width(this) + indent;
+	int w = i->width(this);
 	if ( d->columnPos[c] < w )
 	    d->columnPos[c] = w;
 	int h = i->height(this);
@@ -3245,29 +3134,15 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     const QColorGroup & g = colorGroup();
     int cw = d->columnPos[col+1] - d->columnPos[col];
     int ch = d->rowPos[row+1] - d->rowPos[row];
-    int indent = 0;
     QListBoxItem * i = item( col*numRows()+row );
     p->save();
-    if ( d->infoDict[ i ] ) {
-	QListBoxPrivate::ItemInfo *inf = d->infoDict[ i ];
-	QListBoxPrivate::ItemInfo *inf2 = inf;
-	if ( inf->dirty ) {
-	    while ( inf ) {
-		indent += 20;
-		inf = inf->parent;
-	    }
-	    inf = inf2;
- 	    if ( indent > 0 )
- 		indent -= 20;
-	    inf->indent = indent;
-	    inf->dirty = FALSE;
-	}
-	indent = inf->indent;
-	if ( inf->indent != 0 )
-	    p->translate( inf->indent, 0 );
-    }
     if ( i->s ) {
-	if ( numColumns()  == 1 && !d->differentDepths ) {
+	if ( i->custom_highlight ) {
+	    p->fillRect( 0, 0, cw, ch, g.base() );
+	    p->setPen( g.highlightedText() );
+	    p->setBackgroundColor( g.highlight() );
+	}
+	else if ( numColumns()  == 1 ) {
 	    p->fillRect( 0, 0, cw, ch, g.brush( QColorGroup::Highlight ) );
 	    p->setPen( g.highlightedText() );
 	    p->setBackgroundColor( g.highlight() );
@@ -3284,8 +3159,8 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 
     i->paint( p );
 
-    if ( d->current == i && hasFocus() ) {
-	if ( numColumns() > 1 || d->differentDepths )
+    if ( d->current == i && hasFocus() && !i->custom_highlight ) {
+	if ( numColumns() > 1 )
 	    cw = i->width( this );
 	style().drawFocusRect( p, QRect( 0, 0, cw, ch ),
 			       g, i->selected() ? &g.highlight() : &g.base(),
@@ -3293,8 +3168,6 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     }
 
     p->restore();
-    if (  indent > 0 )
-	p->fillRect( 0, 0, indent, ch, g.base() );
 }
 
 /*!
@@ -3346,8 +3219,20 @@ bool QListBox::itemYPos( int index, int *yPos ) const
 /*! \fn bool QListBoxItem::selected() const
   Returns TRUE if the item is selected, else FALSE.
 
-  \sa QListBox::isSelected()
+  \sa QListBox::isSelected(), current()
 */
+
+/*!
+  Returns TRUE if the item is the current item, else FALSE.
+
+  \sa QListBox::currentItem(), QListBox::item(), selected()
+*/
+bool QListBoxItem::current() const
+{
+    return listBox() && listBox()->hasFocus() && 
+	listBox()->item( listBox()->currentItem() ) == this;
+}
+
 
 /*! \fn void QListBox::centerCurrentItem()
   If there is a current item, the listbox is scrolled,

@@ -1385,6 +1385,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->invisibleDrawArea->show();
 	d->rectPainter = new QPainter;
 	d->rectPainter->begin( d->invisibleDrawArea );
+	d->rectPainter->setPen( QPen( color0, 2 ) );
 	d->rectPainter->setRasterOp( NotROP );
 
 	QPoint pos = mapFromGlobal( QCursor::pos() );
@@ -1421,7 +1422,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
     QPoint p( QCursor::pos() );
     QPoint pos = mapFromGlobal( p );
-    if ( !d->movedEnough && 
+    if ( !d->movedEnough &&
 	 ( pos - d->pos ).manhattanLength() > 8 )
 	d->movedEnough = TRUE;
 

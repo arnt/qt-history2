@@ -56,6 +56,7 @@ public:
 
     void	insertItem( const QString &text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
+    void	insertItem( const QPixmap &pixmap, const QString &text, int index=-1 );
 
     void	removeItem( int index );
     void	clear();
@@ -66,6 +67,7 @@ public:
 
     void	changeItem( const QString &text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
+    void	changeItem( const QPixmap &pixmap, const QString &text, int index );
 
     int		currentItem() const;
     virtual void	setCurrentItem( int index );
@@ -105,7 +107,7 @@ public:
 
     void setEnableMultipleInsertion( bool enable );
     bool enableMultipleInsertion() const;
-    
+
 public slots:
     void	clearValidator();
     void	clearEdit();

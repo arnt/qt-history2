@@ -1,74 +1,60 @@
 #include <qapplication.h>
-#include <qdialog.h>
 #include <qcombobox.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qspinbox.h>
+#include <qlistbox.h>
+#include <qpixmap.h>
 
 
-class MyDialog : public QDialog
+class MyListBoxItem : public QListBoxPixmap
 {
 public:
-    MyDialog( QWidget *parent, bool modal );
-private:
-    QComboBox *combo;
-    QSpinBox  *spin;
-    QPushButton *ok;
-};
-
-MyDialog::MyDialog( QWidget *parent, bool modal )
-    : QDialog( parent, 0, modal )
-{
-    combo = new QComboBox( TRUE, this );
-    combo->insertItem( "First line" );
-    combo->insertItem( "Second line" );
-    combo->insertItem( "Third line" );
-    combo->setFocus();
-    combo->setGeometry( 20, 20, 120, 30 );
-    spin = new QSpinBox( 10, 20, 1, this );
-    spin->setGeometry( 20, 60, 120, 30 );
-    ok = new QPushButton( this );
-    ok->setText( "OK" );
-    ok->setGeometry( 20, 90, 120, 30 );
-    ok->setDefault( TRUE );
-    connect( ok, SIGNAL(clicked()), SLOT(accept()) );
-    adjustSize();
-}
-
-
-class MyWidget : public QLabel
-{
-public:
-    MyWidget();
-protected:
-    void keyPressEvent( QKeyEvent * );
-private:
-    MyDialog *dlg;
-};
-
-MyWidget::MyWidget()
-{
-    setText( "Press a key to open the dialog" );
-    setAlignment( AlignCenter );
-    dlg = 0;
-    resize( 200, 200 );
-}
-
-void MyWidget::keyPressEvent( QKeyEvent * )
-{
-    if ( !dlg ) {
-	dlg = new MyDialog(this,TRUE);
-	dlg->setCaption("MyDialog");
+    MyListBoxItem( int indentation, const QPixmap& pix, const QString& text )
+	: QListBoxPixmap( pix, text ), indent( indentation )
+    {
+	setCustomHighlighting( TRUE );
     }
-    dlg->exec();
+
+protected:
+    virtual void paint( QPainter * );
+    virtual int width( const QListBox* ) const;
+
+private:
+    int indent;
+};
+
+void MyListBoxItem::paint( QPainter *p )
+{
+    // evil trick: find out whether we are painted onto our listbox
+    bool in_list_box = listBox() && listBox()->viewport() == p->device();
+    // ingore the indentation if we are drawn somewhere else
+    int indentation = in_list_box?indent:0;
+    
+    p->translate( indentation, 0 );
+    QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
+    if ( in_list_box && selected() )
+	p->eraseRect( r );
+    QListBoxPixmap::paint( p );
+    if ( in_list_box && current() )
+	listBox()->style().drawFocusRect( p, r, listBox()->colorGroup(), &p->backgroundColor(), TRUE );
+
+    p->translate( -indentation, 0 );
 }
 
+int MyListBoxItem::width( const QListBox* lb ) const
+{
+    return QListBoxPixmap::width( lb ) + indent;
+}
 
 int main( int argc, char **argv )
 {
     QApplication a(argc,argv);
-    MyWidget w;
-    a.setMainWidget( &w );
-    w.show();
+    QComboBox combo( FALSE, 0 );
+    combo.insertItem( "First line" );
+    combo.insertItem( "Second line" );
+    combo.insertItem( "Third Line" );
+    combo.insertItem( QPixmap("fileopen.xpm"), "Normal item with pixmap" );
+    combo.listBox()->insertItem( new MyListBoxItem( 20, QPixmap("fileopen.xpm"), "Indented custom item" ) );
+    combo.adjustSize();
+    a.setMainWidget( &combo );
+    combo.show();
     return a.exec();
 }

@@ -63,6 +63,7 @@ public:
     void insertItem( const QListBoxItem *, const QListBoxItem *after );
     void insertItem( const QString &text, int index=-1 );
     void insertItem( const QPixmap &pixmap, int index=-1 );
+    void insertItem( const QPixmap &pixmap, const QString &text, int index=-1 );
 
     void removeItem( int index );
     void clear();
@@ -73,6 +74,7 @@ public:
     void changeItem( const QListBoxItem *, int index );
     void changeItem( const QString &text, int index );
     void changeItem( const QPixmap &pixmap, int index );
+    void changeItem( const QPixmap &pixmap, const QString &text, int index );
 
     void takeItem( const QListBoxItem * );
 
@@ -170,7 +172,7 @@ public slots:
     virtual void ensureCurrentVisible();
     virtual void clearSelection();
     void invertSelection(); // ######### make virtual
-    
+
 signals:
     void highlighted( int index );
     void selected( int index );
@@ -259,7 +261,6 @@ class Q_EXPORT QListBoxItem
 public:
     QListBoxItem( QListBox* listbox = 0);
     QListBoxItem( QListBox* listbox, QListBoxItem *after);
-    QListBoxItem( QListBoxItem *parent );
     virtual ~QListBoxItem();
 
     virtual QString text() const;
@@ -269,21 +270,25 @@ public:
     virtual int	 width( const QListBox * )  const;
 
     bool selected() const { return s; }
+    bool current() const;
 
     QListBox *listBox() const;
 
 protected:
     virtual void paint( QPainter * ) = 0;
     virtual void setText( const QString &text ) { txt = text; }
+    void setCustomHighlighting( bool );
 
 private:
     QString txt;
     uint s:1;
     uint dirty:1;
+    uint custom_highlight : 1;
     int x, y;
     QListBoxItem * p, * n;
     QListBox* lbox;
     friend class QListBox;
+    friend class QComboBox;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -299,7 +304,6 @@ public:
     QListBoxText( QListBox* listbox, const QString & text=QString::null );
     QListBoxText( const QString & text=QString::null );
     QListBoxText( QListBox* listbox, const QString & text, QListBoxItem *after );
-    QListBoxText( QListBoxItem* parent, const QString & text );
    ~QListBoxText();
 
     int	 height( const QListBox * ) const;
@@ -322,7 +326,9 @@ public:
     QListBoxPixmap( QListBox* listbox, const QPixmap & );
     QListBoxPixmap( const QPixmap & );
     QListBoxPixmap( QListBox* listbox, const QPixmap & pix, QListBoxItem *after );
-    QListBoxPixmap( QListBoxItem* parent, const QPixmap & pix );
+    QListBoxPixmap( QListBox* listbox, const QPixmap &, const QString& );
+    QListBoxPixmap( const QPixmap &, const QString& );
+    QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QString&, QListBoxItem *after );
    ~QListBoxPixmap();
 
     const QPixmap *pixmap() const { return &pm; }
