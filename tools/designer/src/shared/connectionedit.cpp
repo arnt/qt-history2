@@ -990,16 +990,22 @@ Connection *ConnectionEdit::createConnection(QWidget *source, QWidget *target)
     return con;
 }
 
-void ConnectionEdit::widgetRemoved(QWidget *w)
+void ConnectionEdit::widgetRemoved(QWidget *widget)
 {
-    ConnectionList remove_list;
-    foreach (Connection *con, m_con_list) {
-        if (con->widget(EndPoint::Source) == w || con->widget(EndPoint::Target) == w)
-            remove_list.append(con);
+    QList<QWidget*> child_list = qFindChildren<QWidget*>(widget);
+    child_list.prepend(widget);
+    
+    ConnectionSet remove_set;
+    foreach (QWidget *w, child_list) {
+        foreach (Connection *con, m_con_list) {
+            if (con->widget(EndPoint::Source) == w || con->widget(EndPoint::Target) == w)
+                remove_set.insert(con, con);
+        }
     }
-    if (!remove_list.isEmpty())
-        m_undo_stack->push(new DeleteConnectionsCommand(this, remove_list));
-        
+                    
+    if (!remove_set.isEmpty())
+        m_undo_stack->push(new DeleteConnectionsCommand(this, remove_set.keys()));
+    
     updateBackground();
 }
 
