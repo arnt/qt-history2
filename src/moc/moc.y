@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#3 $
+** $Id: //depot/qt/main/src/moc/moc.y#4 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -275,7 +275,7 @@ argument_declaration_list:  arg_declaration_list_opt triple_dot_opt
 			|   arg_declaration_list ',' TRIPLE_DOT
 			;
 
-arg_declaration_list_opt:	/* empty */	{ $$ = &tmpArgList; }
+arg_declaration_list_opt:	/* empty */	{ $$ = tmpArgList; }
 			| arg_declaration_list	{ $$ = $1; }
 			;
 
@@ -289,20 +289,20 @@ arg_declaration_list:	  arg_declaration_list
 			| argument_declaration	{ $$ = addArg($1); }
 
 argument_declaration:	  decl_specifiers declarator
-						{ tmpArg.typeName = $1;
-						  tmpArg.ptrType = $2;
+						{ tmpArg.typeName = strdup($1);
+						  tmpArg.ptrType = strdup($2);
 						  $$ = &tmpArg; }
 			| decl_specifiers declarator '=' expression
-						{ tmpArg.typeName = $1;
-						  tmpArg.ptrType = $2;
+						{ tmpArg.typeName = strdup($1);
+						  tmpArg.ptrType = strdup($2);
 						  $$ = &tmpArg; }
 			| decl_specifiers abstract_decl_opt
-						{ tmpArg.typeName = $1;
-						  tmpArg.ptrType = $2;
+						{ tmpArg.typeName = strdup($1);
+						  tmpArg.ptrType = strdup($2);
 						  $$ = &tmpArg; }
 			| decl_specifiers abstract_decl_opt '=' expression
-						{ tmpArg.typeName = $1;
-						  tmpArg.ptrType = $2;
+						{ tmpArg.typeName = strdup($1);
+						  tmpArg.ptrType = strdup($2);
 						  $$ = &tmpArg; }
 			;
 
@@ -525,7 +525,9 @@ void init()					// initialize
     methods.autoDelete( TRUE );
     signals.autoDelete( TRUE );
     slots.autoDelete( TRUE );
-    tmpArgList.autoDelete( FALSE );
+
+    tmpArgList = new ArgList;
+    tmpArgList->autoDelete( FALSE );
 }
 
 void yyerror( char *msg )			// print yacc error message
@@ -760,8 +762,8 @@ ArgList *addArg( Argument *a )			// add argument to list
     Argument *n = new Argument;
     n->typeName = a->typeName;
     n->ptrType = a->ptrType;
-    tmpArgList.append( n );
-    return &tmpArgList;
+    tmpArgList->append( n );
+    return tmpArgList;
 }
 
 void addMember( QString type, Function *f, char m )
@@ -771,10 +773,9 @@ void addMember( QString type, Function *f, char m )
     n->type = type;
     n->ptrType = f->ptrType;
     n->lineNo = f->lineNo;
-    n->args = new ArgList;
-    *n->args = tmpArgList; // *f->args;
-//    ArgList emptyArgList;
-//    tmpArgList = emptyArgList;			// set arg list empty
+    n->args = tmpArgList;
+    tmpArgList = new ArgList;
+    tmpArgList->autoDelete( FALSE );
     switch( m ) {
 	case 'm': methods.append( n ); break;
 	case 's': signals.append( n ); break;

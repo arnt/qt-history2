@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#2 $
+** $Id: //depot/qt/main/src/moc/moc.l#3 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -42,8 +42,8 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
 <OUTSIDE>"class" 		{ X;
 				  BEGIN CLASS_DEF;
 				  return CLASS; }
-<INSIDE>"public:"		{ X;return METHODS; }
-<CLASS_DEF>"public:"		{ X;return METHODS; }
+<INSIDE>"methods:"		{ X;return METHODS; }
+<CLASS_DEF>"methods:"		{ X;return METHODS; }
 <INSIDE>"signals:"              { X;return SIGNALS; }
 <CLASS_DEF>"signals:"           { X;return SIGNALS; }
 <INSIDE>"slots:"             	{ X;return SLOTS; }
@@ -83,18 +83,18 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
 <CLASS_DEF>"..."                { X;return TRIPLE_DOT; }
 
 <CLASS_DEF>[_a-zA-Z][_a-zA-Z0-9]* {
-				  X;
-                                  yylval.string = strdup(yytext);
-				  return IDENTIFIER;
-                                }
+			  X;
+                          yylval.string = strdup(yytext);
+			  return IDENTIFIER;
+                        }
 
-<INSIDE>\"[^"]*      	{			/* Discard strings */
+<INSIDE>\"[^"]*      	{			/* discard strings */
                           if (yytext[yyleng - 1] == '\\') {
-                              yymore();
+                            yymore();
        			  }
                           else {
-                              Z;
-                              input();   	/* discard the '"' */
+                            Z;
+                            input();   		/* discard the '"' */
                           }
                         }
 
@@ -104,7 +104,7 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
                           else {
                               X;
                               yylval.string = strdup(yytext);
-                              input();   /* discard the '"' */
+                              input();   	/* discard the '"' */
                               return STRING;
                          }
                         }
@@ -179,17 +179,16 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
                          return CHAR_VAL;
                        }
 
-<CLASS_DEF>'\\[0-9][0-9][0-9]' { X;
-                                 yylval.char_val  = yytext[2] * 100 +
-                                                    yytext[3] * 10  +
-                                                    yytext[4];
-                                 return CHAR_VAL;
+<CLASS_DEF>'\\[0-7]+'  { X;
+                         yylval.char_val = 
+			   (char)strtol( &yytext[1], 0, 8 );
+                         return CHAR_VAL;
                        }
 
-<CLASS_DEF>'\\x[0-9][0-9]' { X;
-                             yylval.char_val  = yytext[3] * 16 +
-                                                yytext[4];
-                             return CHAR_VAL;
+<CLASS_DEF>'\\x[0-9a-fA-F]+' { X;
+                         yylval.char_val = 
+			   (char)strtol( &yytext[2], 0, 16 );
+                         return CHAR_VAL;
                        }
 
 <CLASS_DEF>'\\.'       { X;
@@ -203,9 +202,9 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
                         }
 
 <CLASS_DEF>[0-9]+\.[0-9]* { X;
-                            yylval.double_val = atof(yytext);
-                            return DOUBLE_VAL;
-                          }
+                          yylval.double_val = atof(yytext);
+                          return DOUBLE_VAL;
+                        }
 
 <CLASS_DEF>\.[0-9]+     { X;
                           yylval.double_val = atof(yytext);
@@ -213,7 +212,7 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
                         }
 
 
-^#define.*\\$           { /*Skip multi-line macro-definitions.*/
+^#define.*\\$           { /* skip multi-line macro-definitions */
 			  char c, c1;
                           input();   /* Discard the '\n'. */
                           do {
@@ -224,7 +223,7 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
                           unput(c);  /* put back the '\n' or the EOF */
                         }
 
-^#.*                    { /* Preprocessor commands are skipped */}
+^#.*                    { /* preprocessor commands are skipped */}
 "//"[^\n]*              { /* C++ comment */ }
 "/*"                    { /* C   comment */
 			  char c;
@@ -241,9 +240,9 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
 <OUTSIDE>.              ;
 <FINISHED>.             ;
 <CLASS_DEF>.  		{
-			X;
-			return yytext[0];
+			  X;
+			  return yytext[0];
 			}
 \n 			{
-			lineNo++;
+			  lineNo++;
 			}
