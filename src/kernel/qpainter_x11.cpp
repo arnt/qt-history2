@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#167 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#166 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#167 $")
 
 
 /*****************************************************************************
@@ -684,11 +684,11 @@ static uchar *pat_tbl[] = {
 	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
     }
 
-    char *pat = 0;				// pattern
+    uchar *pat = 0;				// pattern
     int d = 0;					// defalt pattern size: d*d
     int s  = FillSolid;
     if ( bs >= Dense1Pattern && bs <= DiagCrossPattern ) {
-	pat = (char *)pat_tbl[ bs-Dense1Pattern ];
+	pat = pat_tbl[ bs-Dense1Pattern ];
 	if ( bs <= Dense7Pattern )
 	    d = 8;
 	else if ( bs <= CrossPattern )
