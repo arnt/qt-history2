@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#87 $
 **
 ** Implementation of font database class.
 **
@@ -925,6 +925,11 @@ void QFontDatabase::createDatabase()
 	    } else {
 		QCString ps = tokens[QFontPrivate::PointSize];
 		int pSize = ps.toInt()/10;
+                int r = atoi(tokens[QFontPrivate::ResolutionY]);
+                if ( r && QPaintDevice::x11AppDpiY() && r != QPaintDevice::x11AppDpiY() ) { // not "0" or "*", or required DPI
+                    // calculate actual pointsize for display DPI
+                    pSize = ( 2*pSize*r + QPaintDevice::x11AppDpiY() ) / (QPaintDevice::x11AppDpiY() * 2);
+                }
 
 		if ( pSize != 0 )
 		    style->addPointSize( pSize );
@@ -1146,7 +1151,7 @@ void populate_database(const QString& fam)
         EnumFontFamilies( dummy.handle(), (LPTSTR) 0,
             (FONTENUMPROC)storeFont, (LPARAM)db );
 #endif
-    } else 
+    } else
 #endif
     {
         LOGFONTA lf;
