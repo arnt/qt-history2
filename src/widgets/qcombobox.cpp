@@ -1486,9 +1486,11 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		    if ( it.length() >= ct.length() ) {
 			it.truncate( ct.length() );
 			int itlen = text( i ).length();
-			if ( it == ct && itlen < foundLength ) {
+			if ( (it == ct || it.lower() == ct ) 
+			    && itlen < foundLength ) {
 			    foundAt = i;
 			    foundLength = text( i ).length();
+			    break;
 			}
 		    }
 		    i++;
