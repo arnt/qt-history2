@@ -137,6 +137,7 @@ QIcon QFileIconProvider::icon(IconType type) const
 
 QIcon QFileIconProvider::icon(const QFileInfo &info) const
 {
+
     if (info.isRoot())
 #ifdef Q_OS_WIN
     {
@@ -933,12 +934,32 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
     QString absolutePath = QDir(path).absolutePath();
     QStringList pathElements = absolutePath.split(QChar('/'), QString::SkipEmptyParts);
-#ifdef Q_OS_WIN
-    Q_ASSERT(!pathElements.isEmpty()); // a path that only consists of  "/" is illegal on windows
-#else
-    pathElements.prepend("/"); // add the "/" item, since it is a valid path element on unix
-#endif
     QModelIndex idx; // start with "My Computer"
+#ifdef Q_OS_WIN
+    if (absolutePath.startsWith("//")) { // UNC path
+        QString host = pathElements.first();
+        int r = 0;
+        for (; r < d->root.children.count(); ++r) {
+            if (d->root.children.at(r).info.fileName() == host)
+                break;
+        }
+        if (r >= d->root.children.count()) {
+            QDirModelPrivate::QDirNode node;
+            node.parent = 0;
+            node.info = QFileInfo("//" + host);
+            node.populated = false;
+            d->root.children.append(node);
+        }
+        idx = index(r, 0, QModelIndex());
+        pathElements.pop_front();
+    } else {
+        // a path that only consists of "/" is illegal on windows
+        Q_ASSERT(!pathElements.isEmpty());
+    }
+#else
+    // add the "/" item, since it is a valid path element on unix
+    pathElements.prepend("/");
+#endif
     for (int i = 0; i < pathElements.count(); ++i) {
         QStringList entries;
         Q_ASSERT(!pathElements.at(i).isEmpty()); // we don't allow empty elements
