@@ -413,39 +413,11 @@ QTextCodec::~QTextCodec()
     The default implementation calls simpleHeuristicNameMatch() with
     the name of the codec.
 */
-int QTextCodec::heuristicNameMatch(const char* hint) const
+int QTextCodec::heuristicNameMatch(const char *hint) const
 {
-    return simpleHeuristicNameMatch(name(),hint);
+    return simpleHeuristicNameMatch(name(), hint);
 }
 
-
-// returns a string containing the letters and numbers from input,
-// with a space separating run of a character class. e.g. "iso8859-1"
-// becomes "iso 8859 1"
-static QString lettersAndNumbers(const char * input)
-{
-    QString result;
-    QChar c;
-
-    while(input && *input) {
-        c = *input;
-        if (c.isLetter() || c.isNumber())
-            result += c.toLower();
-        if (input[1]) {
-            // add space at character class transition, except
-            // transition from upper-case to lower-case letter
-            QChar n(input[1]);
-            if (c.isLetter() && n.isLetter()) {
-                if (c == c.toLower() && n == n.toUpper())
-                    result += ' ';
-            } else if (c.category() != n.category()) {
-                result += ' ';
-            }
-        }
-        input++;
-    }
-    return result.simplified();
-}
 
 /*!
     A simple utility function for heuristicNameMatch(): it does some
@@ -453,25 +425,33 @@ static QString lettersAndNumbers(const char * input)
     high. \a name is the text we're matching and \a hint is used for
     the comparison.
 */
-int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
+int QTextCodec::simpleHeuristicNameMatch(const char *name, const char *hint)
 {
-    // if they're the same, return a perfect score.
-    if (name && hint && *name && *hint && qstricmp(name, hint) == 0)
+    // if they're the same, return a perfect score
+    if (qstricmp(name, hint) == 0)
         return qstrlen(hint);
 
-    // if the letters and numbers are the same, we have an "almost"
-    // perfect match.
-    QString h(lettersAndNumbers(hint));
-    QString n(lettersAndNumbers(name));
-    if (h == n)
-        return qstrlen(hint)-1;
+    const char *n = name;
+    const char *h = hint;
 
-    if (h.trimmed() == n.trimmed())
-        return qstrlen(hint)-2;
-
-    // could do some more here, but I don't think it's worth it
-
-    return 0;
+    // if the letters and numbers are the same, we have an almost
+    // perfect match
+    while (*n != '\0') {
+        if (isalnum((uchar)*n)) {
+            for (;;) {
+                if (*h == '\0')
+                    return 0;
+                if (isalnum((uchar)*h))
+                    break;
+                ++h;
+            }
+            if (tolower((uchar)*n) != tolower((uchar)*h))
+                return 0;
+            ++h;
+        }
+        ++n;
+    }
+    return h - hint - 1;
 }
 
 
@@ -480,10 +460,10 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
     inserted codec, or 0 if there is no such QTextCodec. Thus,
     codecForIndex(0) returns the most recently created QTextCodec.
 */
-QTextCodec* QTextCodec::codecForIndex(int i)
+QTextCodec *QTextCodec::codecForIndex(int i)
 {
     setup();
-    return (int)i >= all->count() ? 0 : all->at(i);
+    return all->value(i);
 }
 
 
@@ -498,7 +478,7 @@ QTextCodec* QTextCodec::codecForMib(int mib)
     QTextCodec* result=0;
     for (i = all->begin(); i != all->end(); ++i) {
         result = *i;
-        if (result->mibEnum()==mib)
+        if (result->mibEnum() == mib)
             return result;
     }
 
@@ -512,9 +492,6 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 
     return result;
 }
-
-
-
 
 
 #ifdef Q_OS_WIN32
