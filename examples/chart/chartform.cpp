@@ -131,7 +131,7 @@ ChartForm::ChartForm( const QString& filename )
 
 
     QToolBar* fileTools = new QToolBar( this, "file operations" );
-    fileTools->setLabel( tr( "File Operations" ) );
+    fileTools->setLabel( "File Operations" );
     fileNewAction->addTo( fileTools );
     fileOpenAction->addTo( fileTools );
     fileSaveAction->addTo( fileTools );
@@ -139,7 +139,7 @@ ChartForm::ChartForm( const QString& filename )
     filePrintAction->addTo( fileTools );
 
     QToolBar *optionsTools = new QToolBar( this, "options operations" );
-    optionsTools->setLabel( tr( "Options Operations" ) );
+    optionsTools->setLabel( "Options Operations" );
     optionsSetDataAction->addTo( optionsTools );
     optionsTools->addSeparator();
     optionsPieChartAction->addTo( optionsTools );

@@ -21,9 +21,14 @@ void ChartForm::load( const QString& filename )
     m_filename = filename;
     QTextStream ts( &file );
     Element element;
+    int errors = 0;
     int i = 0;
     while ( !ts.eof() ) {
-	ts >> m_elements[i++];
+	ts >> element;
+	if ( element.isValid() )
+	    m_elements[i++] = element;
+	else
+	    errors++;
 	if ( i == MAX_ELEMENTS ) {
 	    statusBar()->message(
 		QString( "Read maximum number of elements (%1)"
@@ -34,8 +39,16 @@ void ChartForm::load( const QString& filename )
 
     file.close();
 
+    QString bad = "";
+    if ( errors ) {
+	bad = QString( "; skipped " ) + QString::number( errors ) + " bad record";
+	if ( errors > 1 )
+	    bad += "s";
+    }
+    statusBar()->message( QString( "Read %1 values from \'%2\'%3" ).
+			  arg( i ).arg( filename ).arg( bad ), 3000 );
+
     setCaption( QString( "Chart -- %1" ).arg( filename ) );
-    statusBar()->message( QString( "Read \'%1\'" ).arg( filename ), 2000 );
     updateRecentFiles( filename );
 
     drawElements();

@@ -45,7 +45,6 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
     table->setNumRows( ChartForm::MAX_ELEMENTS );
     table->setColumnReadOnly( 1, true );
     table->setColumnReadOnly( 2, true );
-    table->setColumnReadOnly( 3, true );
     table->setColumnReadOnly( 4, true );
     table->setColumnWidth( 0, 80 );
     table->setColumnWidth( 1, 60 ); // Columns 1 and 4 must be equal
