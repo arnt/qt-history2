@@ -85,6 +85,9 @@
 #  endif
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #  define Q_OS_WIN32
+#elif defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
+#  define Q_OS_WIN32
+#  define Q_OS_WIN64
 #elif defined(__MWERKS__) && defined(__INTEL__)
 #  define Q_OS_WIN32
 #elif defined(sun) || defined(__sun) || defined(__sun__)
@@ -276,6 +279,9 @@
 #  define Q_WS_X11
 #elif defined(Q_OS_WIN32)
 #  define Q_WS_WIN32
+#  if defined(Q_OS_WIN64)
+#    define Q_WS_WIN64
+#  endif
 #elif defined(Q_OS_OS2)
 #  define Q_WS_PM
 #  error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
