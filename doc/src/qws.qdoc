@@ -177,7 +177,7 @@ Mac OS X, and becoming popular on X11.
 are similar in functionality to TTF fonts and are not discussed
 further in this document.
 \row
-\i \bold{Bitmap Distribution Format<br>fonts (BDF)}
+\i \bold{Bitmap Distribution Format fonts (BDF)}
 \i A standard format for non-scalable fonts. A large number of BDF
 fonts are supplied as part of standard X11 distributions -- most of
 these can be used with Qt/Embedded. You should \e not use these in a
@@ -242,7 +242,7 @@ Most fonts available today use this encoding, but they usually don't
 contain all the Unicode characters. A \e complete 16-point Unicode
 font uses over 1 MB of memory.
 
-\section1 The font definition file
+\section1 Font Definition File
 
 When Qt/Embedded applications run, they look for a file called
 \c $QTDIR/lib/fonts/fontdir or
@@ -295,8 +295,8 @@ See QMemoryManager::savePrerenderedFont() for this functionality.
 
 \section1 Notes
 
-The font definition file, naming conventions for font files, and the format
-of QPF files may change in versions of Qt/Embedded after 3.
+The font definition file, naming conventions for font files, and the
+format of QPF files may change in future versions of Qt/Embedded.
 
 When enabled, Qt/Embedded uses the powerful FreeType2 library to implement
 TrueType and Type1 support.
@@ -519,7 +519,7 @@ Feature Definition File\endlink for details.
 \endlist
 
 \target general
-\section1 General programming style
+\section1 General Programming Style
 
 The following guidelines will improve CPU performance:
 \list
@@ -533,7 +533,7 @@ The following guidelines will improve CPU performance:
 \endlist
 
 \target static
-\section1 Static vs. Dynamic linking
+\section1 Static vs. Dynamic Linking
 
 A lot of CPU and memory is used by the ELF linking process. You can
 make significant savings by using a static build of your application
@@ -556,16 +556,16 @@ To build your application suite as an all-in-one application, design each
 application as a stand-alone widget or set of widgets, with only minimal
 code in the main() function. Then, write an application that provides
 a means of switching between the applications (e.g. a QIconView). The
-\link http://www.trolltech.com/products/qt/embedded/qpe.html QPE
+\link http://www.trolltech.com/products/qtopia/index.html Qtopia
 \endlink is an example of this. It can be built either as a set of
-dynamically-linked executables, or as a single static application.
+dynamically linked executables, or as a single static application.
 
 Note that you should generally still link dynamically against the
 standard C library and any other libraries which might be used by
 other applications on your device.
 
 \target alloc
-\section1 Alternative memory allocation
+\section1 Alternative Memory Allocation
 
 We have found that the libraries shipped with some C++ compilers on
 some platforms have poor performance in the built-in "new" and "delete"
