@@ -519,6 +519,7 @@ QWidget *QTableItem::createEditor() const
     QLineEdit *e = new QLineEdit( table()->viewport() );
     e->setFrame( FALSE );
     e->setText( text() );
+    QObject::connect( e, SIGNAL( returnPressed() ), table(), SLOT( doValueChanged() ) );
     return e;
 }
 
@@ -859,6 +860,7 @@ QWidget *QComboTableItem::createEditor() const
     ( (QComboTableItem*)this )->cb = new QComboBox( edit, table()->viewport() );
     cb->insertStringList( entries );
     cb->setCurrentItem( current );
+    QObject::connect( cb, SIGNAL( activated( int ) ), table(), SLOT( doValueChanged() ) );
     return cb;
 }
 
@@ -1006,6 +1008,7 @@ QWidget *QCheckTableItem::createEditor() const
     cb->setChecked( checked );
     cb->setText( text() );
     cb->setBackgroundMode( table()->viewport()->backgroundMode() );
+    QObject::connect( cb, SIGNAL( toggled( bool ) ), table(), SLOT( doValueChanged() ) );
     return cb;
 }
 
@@ -2606,6 +2609,15 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
     doAutoScroll();
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
 	autoScrollTimer->start( 100, TRUE );
+}
+
+/*! \internal
+ */
+
+void QTable::doValueChanged()
+{
+    emit valueChanged( ( (QTableItem*)sender() )->row(),
+		       ( (QTableItem*)sender() )->col() );
 }
 
 /*! \internal

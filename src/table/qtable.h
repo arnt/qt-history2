@@ -397,6 +397,7 @@ signals:
 
 private slots:
     void doAutoScroll();
+    void doValueChanged();
 
 private:
     void updateGeometries();
