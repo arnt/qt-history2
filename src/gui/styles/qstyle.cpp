@@ -816,6 +816,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     Draw the primitive option \a pe with painter \a p using the information passed in \a opt.
 
+    The \a w argument is optional and may contain a widget that may aid in drawing the primitive.
+
     The \a opt parameter can be qt_cast()'ed to the correct sub-class of the QStyleOption.
 
     What follows is a table of the elements and the QStyleOption structure they
@@ -845,8 +847,6 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \row \i PE_DockWindowSeparator \i (const QStyleOption *) \i Style_Horizontal \i Indicates the separator is horizontal instead of vertical.
     \row \i PE_SpinBoxPlus, PE_SpinBoxMinus, PE_SpinBoxUp, PE_SpinBoxDown, and PE_SpinBoxSlider \i (const QStyleOptionSpinBox *) \i Style_Sunken \i Indicates the button is pressed.
     \endtable
-
-    The \a w argument is optional and may contain a widget that may aid in drawing the primitive.
 
     \sa PrimitiveElement, StyleFlags, QStyleOption
 */
@@ -908,6 +908,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     Draws the ControlElement \a element with painter \a p with information
     described in option \a opt.
 
+    The \a widget argument is optional and may contain a widget that may aid in drawing the control.
+
+
     The \a opt parameter can be qt_cast()'ed to the correct sub-class of the QStyleOption.
 
     What follows is a table of the elements and the QStyleOption structure they
@@ -945,10 +948,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \row \i \i \i Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
     \row \i \i \i Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
     \row \i \i \i Style_Raised \i Set if the button is not down, not on and doesn't
-    \row \i \i \i CE_ToolBoxTab \i const QStyleOptionToolBox \i Style_Selected \i The tab is the currently selected tab.
+    \row \i CE_ToolBoxTab \i const QStyleOptionToolBox \i Style_Selected \i The tab is the currently selected tab.
     \endtable
-
-    The \a w argument is optional and may contain a widget that may aid in drawing the control.
 
     \sa ControlElement, StyleFlags, QStyleOption
 */
@@ -958,20 +959,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     Draw a bitmask for the ControlElement \a element using the painter \a p
     with the information passed in \a opt. See drawControl() for an explanation
-    of the use of \opt.
+    of the use of \a opt and \a widget.
 
-*/
-
-/*!
-    \fn void QStyle::drawControlMask(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const Q3StyleOption& opt = Q3StyleOption::Default) const;
-
-    Draw a bitmask for the ControlElement \a element using the pai
-    \a p in the area \a r. See drawControl() for an explanation of the
-    use of the \a widget and \a opt arguments.
-
-    The rect \a r should be in screen coordinates.
-
-    \sa drawControl(), ControlElement
 */
 
 /*!
@@ -1032,51 +1021,33 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /*!
     \fn QRect QStyle::subRect(SubRect subrect, const QStyleOption *opt, const QWidget *widget = 0) const = 0
-
-    \overload
-
-    The style options are given by \a opt.
-*/
-
-/*!
-    \fn QRect QStyle::subRect(SubRect subrect, const QWidget *widget) const;
-
-    Returns the sub-area \a subrect for the \a widget in logical
+    Returns the sub-area \a subrect as described in \a opt in logical
     coordinates.
 
-    The \a widget argument is a pointer to a QWidget or one of its
-    subclasses. The widget can be cast to the appropriate type based
+    The \a widget argument is optional and may contain a widget that may aid determining the subRect.
+
+    The QStyleOption can be qt_cast()'d to the appropriate type based
     on the value of \a subrect. See the table below for the
     appropriate \a widget casts:
 
     \table
     \header \i SubRect \i Widget Cast
-    \row \i \l SR_PushButtonContents        \i (const \l QPushButton *)
-    \row \i \l SR_PushButtonFocusRect        \i (const \l QPushButton *)
-    \row \i \l SR_CheckBoxIndicator        \i (const \l QCheckBox *)
-    \row \i \l SR_CheckBoxContents        \i (const \l QCheckBox *)
-    \row \i \l SR_CheckBoxFocusRect        \i (const \l QCheckBox *)
-    \row \i \l SR_RadioButtonIndicator        \i (const \l QRadioButton *)
-    \row \i \l SR_RadioButtonContents        \i (const \l QRadioButton *)
-    \row \i \l SR_RadioButtonFocusRect        \i (const \l QRadioButton *)
-    \row \i \l SR_ComboBoxFocusRect        \i (const \l QComboBox *)
-    \row \i \l SR_DockWindowHandleRect        \i (const \l QWidget *)
-    \row \i \l SR_ProgressBarGroove        \i (const \l QProgressBar *)
-    \row \i \l SR_ProgressBarContents        \i (const \l QProgressBar *)
-    \row \i \l SR_ProgressBarLabel        \i (const \l QProgressBar *)
+    \row \i \l SR_PushButtonContents        \i (const \l QStyleOptionButton *)
+    \row \i \l SR_PushButtonFocusRect        \i (const \l QStyleOptionButton *)
+    \row \i \l SR_CheckBoxIndicator        \i (const \l QStyleOptionButton *)
+    \row \i \l SR_CheckBoxContents        \i (const \l QStyleOptionButton *)
+    \row \i \l SR_CheckBoxFocusRect        \i (const \l QStyleOptionButton *)
+    \row \i \l SR_RadioButtonIndicator        \i (const \l QStyleOptionButton *)
+    \row \i \l SR_RadioButtonContents        \i (const \l QStyleOptionButton *)
+    \row \i \l SR_RadioButtonFocusRect        \i (const \l QStyleOptionButton *)
+    \row \i \l SR_ComboBoxFocusRect        \i (const \l QComboBoxOption *)
+    \row \i \l SR_DockWindowHandleRect        \i (const \l QStyleOptoinDockWindow *)
+    \row \i \l SR_ProgressBarGroove        \i (const \l QStyleOptionProgressBar *)
+    \row \i \l SR_ProgressBarContents        \i (const \l QStyleOptionProgressBar *)
+    \row \i \l SR_ProgressBarLabel        \i (const \l QStyleOptionProgressBar *)
     \endtable
 
-    The tear-off handle (SR_DockWindowHandleRect) for QDockWindow
-    is a private class. Use QWidget::parentWidget() to access the
-    QDockWindow:
-
-    \code
-        if (!widget->parentWidget())
-            return;
-        const QDockWindow *dw = (const QDockWindow *) widget->parentWidget();
-    \endcode
-
-    \sa SubRect
+    \sa SubRect QStyleOption
 */
 
 /*!
@@ -1167,178 +1138,110 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawComplexControl(ComplexControl control, const
-    QStyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
+    \fn void QStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
 
-    \overload
-*/
+    Draws the ComplexControl \a control using the painter \a p with the information
+    provided in \a opt.
 
-/*!
-    \fn void QStyle::drawComplexControl(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, SCFlags sub, SCFlags subActive, const Q3StyleOption& opt) const
+    The \a widget argument is optional and may contain a widget to aid in drawing the control.
 
-    Draws the ComplexControl \a control using the painter \a p in the
-    area \a r. Colors are used from the palette \a pal. The \a sub
-    argument specifies which SubControls to draw. Multiple SubControls
-    can be OR'ed together. The \a subActive argument specifies which
-    SubControl is active.
-
-    The rect \a r should be in logical coordinates. Reimplementations
+    The \a opt parameter is a pointer to a QStyleOptionComplex structure that
+    can be qt_cast'ed to the correct structure. Note that the rect member of \a opt
+    should be in logical coordinates. Reimplementations
     of this function should use visualRect() to change the logical
     coordinates into screen coordinates when using drawPrimitive() and
     drawControl().
 
-    The \a how argument is used to control how the ComplexControl is
-    drawn. Multiple flags can OR'ed together. See the table below for
-    an explanation of which flags are used with the various
-    ComplexControls.
-
-    The \a widget argument is a pointer to a QWidget or one of its
-    subclasses. The widget can be cast to the appropriate type based
-    on the value of \a control. The \a opt argument can be used to
-    pass extra information required when drawing the ComplexControl.
-    Note that \a opt may be the default value even for ComplexControls
-    that can make use of the extra options. See the table below for
-    the appropriate \a widget and \a opt usage:
+    Here is a table listing the element and what they can be cast to, along
+    with an explaination of the flags.
 
     \table
-    \header \i ComplexControl<br>\& Widget Cast
-            \i Style Flags
-            \i Notes
-            \i Options
-            \i Notes
-
-    \row \i12 \l{CC_SpinBox}(const QSpinBox *)
+    \header \i Complex Control \i Option Cast \i Style Flags \i Notes
+    \row \i \l{CC_SpinBox} \i (const QStyleOptionSpinBox *)
          \i \l Style_Enabled \i Set if the spinwidget is enabled.
-         \i12 Unused.
-         \i12 &nbsp;
-    \row \i \l Style_HasFocus \i Set if the spinwidget has input focus.
+    \row \i \i \i  Style_HasFocus \i Set if the spinwidget has input focus.
 
-    \row \i12 \l{CC_ComboBox}(const \l QComboBox *)
-         \i \l Style_Enabled \i Set if the combobox is enabled.
-         \i12 Unused.
-         \i12 &nbsp;
-    \row \i \l Style_HasFocus \i Set if the combobox has input focus.
+    \row \i {CC_ComboBox} \i (const \l QStyleOptionComboBox *)
+         \i Style_Enabled \i Set if the combobox is enabled.
+    \row \i \i \i Style_HasFocus \i Set if the combobox has input focus.
 
-    \row \i12 \l{CC_ScrollBar}(const \l QScrollBar *)
-         \i \l Style_Enabled \i Set if the scrollbar is enabled.
-         \i12 Unused.
-         \i12 &nbsp;
-    \row \i \l Style_HasFocus \i Set if the scrollbar has input focus.
+    \row \i {CC_ScrollBar} \i (const \l QStyleOptionSlider *)
+         \i Style_Enabled \i Set if the scrollbar is enabled.
+    \row \i \i \i \l Style_HasFocus \i Set if the scrollbar has input focus.
 
-    \row \i12 \l{CC_Slider}(const \l QSlider *)
-         \i \l Style_Enabled \i Set if the slider is enabled.
-         \i12 Unused.
-         \i12 &nbsp;
+    \row \i {CC_Slider} \i(const \l QStyleOptionSlider *)
+         \i Style_Enabled \i Set if the slider is enabled.
 
-    \row \i \l Style_HasFocus \i Set if the slider has input focus.
+    \row \i \i \i Style_HasFocus \i Set if the slider has input focus.
 
-    \row \i16 \l{CC_ToolButton}(const \l QToolButton *)
+    \row \i {CC_ToolButton} \i (const \l QStyleOptionToolButton *)
          \i \l Style_Enabled \i Set if the toolbutton is enabled.
-         \i16 \l Q3StyleOption (\l Qt::ArrowType t)
-                \list
-                \i opt.\link Q3StyleOption::arrowType() arrowType\endlink()
-                \endlist
-         \i16 When the tool button only contains an arrow, \e t is the
-                arrow's type.
-    \row \i \l Style_HasFocus \i Set if the toolbutton has input focus.
-    \row \i \l Style_Down \i Set if the toolbutton is down (ie. mouse
+    \row \i \i \i \l Style_HasFocus \i Set if the toolbutton has input focus.
+    \row \i \i \i \l Style_Down \i Set if the toolbutton is down (ie. mouse
         button or space pressed).
-    \row \i \l Style_On \i Set if the toolbutton is a toggle button
+    \row \i \i \i \l Style_On \i Set if the toolbutton is a toggle button
         and is toggled on.
-    \row \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
-    \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
+    \row \i \i \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
+    \row \i \i \i \l Style_Raised \i Set if the button is not down, not on and doesn't
         contain the mouse when auto-raise is enabled.
 
-    \row \i \l{CC_TitleBar}(const \l QWidget *)
+    \row \i \l{CC_TitleBar} \i (const \l QStyleOptionTitleBar *)
          \i \l Style_Enabled \i Set if the title bar is enabled.
-         \i Unused.
-         \i &nbsp;
 
-    \row \i \l{CC_ListView}(const \l QListView *)
-         \i \l Style_Enabled \i Set if the title bar is enabled.
-         \i \l Q3StyleOption (\l QListViewItem *item)
-            \list
-            \i opt.\link Q3StyleOption::listViewItem() listViewItem\endlink()
-            \endlist
-         \i \e item is the item that needs branches drawn
+    \row \i \l{CC_ListView} \i (const \l QStyleOptionListView *)
+         \i \l Style_Enabled \i Set if the listview is enabled.
     \endtable
 
-    \sa ComplexControl, SubControl
+    \sa ComplexControl, SubControl, QStyleOptionComplex
 */
 
 /*!
-    \fn void QStyle::drawComplexControlMask(ComplexControl control,
-    const QStyleOptionComplex *opt, QPainter *p, const QWidget
- *widget = 0) const = 0
+    \fn void QStyle::drawComplexControlMask(ComplexControl control, const QStyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
 
-    \overload
+    Draw a bitmask for the ComplexControl \a control using the painter \a p
+    with the information provided in \a opt. See drawComplexControl() for an
+    explanation of the use of the \a widget and \a opt arguments.
+
+    The rect int the QStyleOptionComplex \a opt should be in logical
+    coordinates. Reimplementations of this function should use visualRect() to
+    change the logical corrdinates into screen coordinates when using
+    drawPrimitive() and drawControl().
+
+    \sa drawComplexControl() ComplexControl, QStyleOptionComplex
 */
 
 /*!
-    \fn void QStyle::drawComplexControlMask(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const Q3StyleOption& opt) const
+    \fn QRect QStyle::querySubControlMetrics(ComplexControl control, const QStyleOptionComplex *opt, const QWidget *widget = 0) const = 0
 
-    Draw a bitmask for the ComplexControl \a control using the painter
-    \a p in the area \a r. See drawComplexControl() for an explanation
-    of the use of the \a widget and \a opt arguments.
+    Returns the rect for the SubControl \a subcontrol for the structure
+    described in \a opt in logical coordinates.
 
-    The rect \a r should be in logical coordinates. Reimplementations
-    of this function should use visualRect() to change the logical
-    corrdinates into screen coordinates when using drawPrimitive() and
-    drawControl().
+    The \a opt argument is a pointer to a QStyleOptionComplex or one of its
+    subclasses. The structure can be cast to the appropriate type based on the
+    value of \a control. The \a widget is optional and can contain additional
+    information for the function.  See drawComplexControl() for an explanation
+    of the \a widget and \a opt arguments.
 
-    \sa drawComplexControl() ComplexControl
+    \sa drawComplexControl(), ComplexControl, SubControl, QStyleOptionComplex
 */
 
 /*!
-    \fn QRect QStyle::querySubControlMetrics(ComplexControl control,
-    const QStyleOptionComplex *opt, const QWidget *widget) const = 0
+    \fn SubControl QStyle::querySubControl(ComplexControl control, const QStyleOptionComplex *opt, const QPoint &pos, const QWidget *widget = 0) const = 0
 
-    \overload
-*/
-
-/*!
-    \fn QRect QStyle::querySubControlMetrics(ComplexControl control, const QWidget *widget, SubControl subcontrol, const Q3StyleOption& opt = Q3StyleOption::Default) const;
-
-    Returns the rect for the SubControl \a subcontrol for \a widget in
-    logical coordinates.
-
-    The \a widget argument is a pointer to a QWidget or one of its
-    subclasses. The widget can be cast to the appropriate type based
-    on the value of \a control. The \a opt argument can be used to
-    pass extra information required when drawing the ComplexControl.
-    Note that \a opt may be the default value even for ComplexControls
-    that can make use of the extra options. See drawComplexControl()
-    for an explanation of the \a widget and \a opt arguments.
-
-    \sa drawComplexControl(), ComplexControl, SubControl
-*/
-
-/*!
-    \fn SubControl QStyle::querySubControl(ComplexControl control,
-    const QStyleOptionComplex *opt, const QPoint &pos, const QWidget
- *widget = 0) const = 0
-
-    \overload
-*/
-
-/*!
-    \fn SubControl QStyle::querySubControl(ComplexControl control, const QWidget *widget, const QPoint &pos, const Q3StyleOption& opt = Q3StyleOption::Default) const;
-
-    Returns the SubControl for \a widget at the point \a pos. The \a
-    widget argument is a pointer to a QWidget or one of its
-    subclasses. The widget can be cast to the appropriate type based
-    on the value of \a control. The \a opt argument can be used to
-    pass extra information required when drawing the ComplexControl.
-    Note that \a opt may be the default value even for ComplexControls
-    that can make use of the extra options. See drawComplexControl()
-    for an explanation of the \a widget and \a opt arguments.
+    Returns the SubControl for the structure described in \a opt at the point
+    \a pos. The \a opt argument is a pointer to a QStyleOptionComplex structure
+    or one of its subclasses. The structure can be cast to the appropriate type
+    based on the value of \a control. The \a widget argument is optional and
+    can contain additional information for the functions.  See
+    drawComplexControl() for an explanation of the \a widget and \a opt
+    arguments.
 
     Note that \a pos is passed in screen coordinates. When using
     querySubControlMetrics() to check for hits and misses, use
     visualRect() to change the logical coordinates into screen
     coordinates.
 
-    \sa drawComplexControl(), ComplexControl, SubControl, querySubControlMetrics()
+    \sa drawComplexControl(), ComplexControl, SubControl, querySubControlMetrics(), QStyleOptionComplex
 */
 
 /*!
