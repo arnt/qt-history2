@@ -16,10 +16,10 @@ qmake: $(OBJS) $(QTOBJS)
 	-copy qmake.exe $(QTDIR)\bin\qmake.exe
 
 clean::
-	rm -f $(OBJS) $(QTOBJS)
+	-del -f $(OBJS) $(QTOBJS)
 
 distclean:: clean
-	rm -rf qmake 
+	-del -rf qmake 
 
 .c.obj: 
 	$(CXX) /c /Fo$@ $(CFLAGS) $<
