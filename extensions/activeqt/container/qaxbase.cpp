@@ -445,6 +445,10 @@ public:
         if (signame.isEmpty())
             return S_OK;
 
+        index = meta->indexOfSignal(signame);
+        if (index == -1) // damn, bindable but not marked as bindable in typelib
+            return S_OK;
+
         // get the signal information from the metaobject
         if (((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame)) {
             index = meta->indexOfSignal(signame);
