@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#10 $
 **
 ** Implementation of QScrollView class
 **
@@ -21,9 +21,9 @@ const int sbDim = 16;
 
 struct QScrollViewData {
     QScrollViewData(QWidget* parent) :
-	hbar( QScrollBar::Horizontal, parent, "hbar" ),
-	vbar( QScrollBar::Vertical, parent, "vbar" ),
-	viewport( parent, "viewport" ),
+	hbar( QScrollBar::Horizontal, parent, "qt_hbar" ),
+	vbar( QScrollBar::Vertical, parent, "qt_vbar" ),
+	viewport( parent, "qt_viewport" ),
 	viewed( 0 ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
     {
