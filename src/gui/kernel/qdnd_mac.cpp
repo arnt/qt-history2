@@ -174,8 +174,14 @@ static void qt_mac_dnd_update_action(DragReference dragRef) {
         action = kDragActionMove;
     DragActions allowed = kDragActionNothing;
     GetDragAllowableActions(dragRef, &allowed);
-    if(allowed & action) 
-        SetDragDropAction(dragRef, action);
+    if(allowed & action) {
+        DragActions currentAction;
+        GetDragDropAction(dragRef, &currentAction);
+        if(currentAction != action) {
+            SetDragDropAction(dragRef, action);
+            QDragManager::self()->emitActionChanged(qt_mac_dnd_map_mac_preferred_action(action));
+        }
+    }
 }
 
 /*****************************************************************************
@@ -336,20 +342,27 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         }
     }
 
+    //lookup the action
     DragActions macActions = kDragActionNothing;
     GetDragDropAction(dragRef, &macActions);
     QDrag::DropAction qtAction = qt_mac_dnd_map_mac_preferred_action(macActions); 
+
+    //lookup the source
+    QMimeData *dropdata = QDragManager::self()->dropData;
+    if(QDragManager::self()->source()) 
+        dropdata = QDragManager::self()->dragPrivate()->data;
 
     //Dispatch events
     bool ret = true;
     if(kind == kEventControlDragWithin) {
         QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAction,
-                          QDragManager::self()->dropData);
+                          dropdata);
         de.accept();
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragEnter) {
+        QDragManager::self()->emitTargetChanged(q);
         QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAction,
-                           QDragManager::self()->dropData);
+                           dropdata);
         QApplication::sendEvent(q, &de);
         de.accept();
         if(!de.isAccepted())
@@ -359,7 +372,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragReceive) {
         QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAction,
-                      QDragManager::self()->dropData);
+                      dropdata);
         de.accept();
         if(QDragManager::self()->object) {
             QDragManager::self()->dragPrivate()->target = q;
