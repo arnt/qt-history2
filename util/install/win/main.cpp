@@ -2,6 +2,9 @@
 #include <qmessagebox.h>
 #include "setupwizardimpl.h"
 #include "resource.h"
+#include "globalinformation.h"
+
+GlobalInformation globalInformation;
 
 #if defined(Q_OS_WIN32)
 static bool addArchive( const QString& name )
@@ -78,12 +81,11 @@ int main( int argc, char** argv )
 {
     QApplication app( argc, argv );
     SetupWizardImpl* w;
-    bool reconfig( false );
     int res( -1 );
 
     for( int i = 0; i < app.argc(); i++ ) {
 	if( QString( app.argv()[i] ) == "-reconfig" ) {
-	    reconfig = true;
+	    globalInformation.setReconfig( TRUE );
 	    break;
 #if defined(Q_OS_WIN32)
 	} else if ( QString( app.argv()[i] ) == "-add-archive" ) {
@@ -98,7 +100,7 @@ int main( int argc, char** argv )
 	}
     }
 
-    if( w = new SetupWizardImpl( NULL, NULL, false, 0, reconfig ) ) {
+    if( w = new SetupWizardImpl( NULL, NULL, false, 0 ) ) {
 	w->show();
 
 	app.setMainWidget( w );

@@ -32,54 +32,10 @@
 #endif
 
 #include "resource.h"
-#include "pages/sidedecoration.h"
+#include "pages/sidedecorationimpl.h"
 
 #define FILESTOCOPY 4582
 
-/* XPM */
-static const char *bulletXpm[] = {
-/* width height num_colors chars_per_pixel */
-"    14    14       23            1",
-/* colors */
-". c #ccff99",
-"# c #bfbfbf",
-"a c #99ff99",
-"b c #99cc99",
-"c c #99cc66",
-"d c #66cc99",
-"e c #66cc66",
-"f c #669966",
-"g c #33ff66",
-"h c #33ff33",
-"i c #33cc66",
-"j c #33cc33",
-"k c #339933",
-"l c #00ff33",
-"m c #00ff00",
-"n c #00cc33",
-"o c #00cc00",
-"p c #009933",
-"q c #009900",
-"r c #006633",
-"s c #006600",
-"t c #003333",
-"u c #003300",
-/* pixels */
-"##############",
-"##############",
-"####djjnic####",
-"###eollmlne###",
-"##bnllhlonqd##",
-"##imla.lopqp##",
-"##nlmhgnnqqu##",
-"##nolnonqqrs##",
-"##iopopqrsur##",
-"##cpqpqssusf##",
-"###essrustk###",
-"####brssrk####",
-"##############",
-"##############"
-};
 
 static const char* const logo_data[] = { 
 "32 32 238 2",
@@ -373,15 +329,21 @@ static bool createDir( const QString& fullPath )
     return success;
 }
 
-SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags flag, bool reconfig ) :
+SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags flag ) :
     QWizard( pParent, pName, modal, flag ),
     sysID( 0 ),
     tmpPath( QEnvironment::getTempPath() ),
     filesCopied( false ),
     filesToCompile( 0 ),
     filesCompiled( 0 ),
-    reconfigMode( reconfig ),
-    bullet( bulletXpm )
+    licensePage( 0 ),
+    licenseAgreementPage( 0 ),
+    optionsPage( 0 ),
+    foldersPage( 0 ),
+    configPage( 0 ),
+    progressPage( 0 ),
+    buildPage( 0 ),
+    finishPage( 0 )
 {
     // initialize
     if ( !pName )
@@ -397,18 +359,11 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     f.setBold( TRUE );
     setTitleFont( f );
 
-    initPages();
-    initConnections();
-
 #ifdef Q_OS_MACX
     sysID = MACX;
-    optionsPage->sysGroup->hide();
 #endif
     totalFiles = 0;
-
     triedToIntegrate = false;
-
-    connect( &autoContTimer, SIGNAL( timeout() ), this, SLOT( timerFired() ) );
 
     // try to read the archive header information and use them instead of
     // QT_VERSION_STR if possible
@@ -433,191 +388,130 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	    archiveHeader = ar.readArchiveHeader();
 	}
     }
+    int sysGroupButton = 0;
     if ( archiveHeader ) {
-	qt_version_str = archiveHeader->description();
-	if ( qt_version_str.isEmpty() )
-	    qt_version_str = QT_VERSION_STR;
+	QString qt_version_str = archiveHeader->description();
+	if ( !qt_version_str.isEmpty() )
+	    globalInformation.setQtVersionStr( qt_version_str );
 #if defined(EVAL)
 	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
-	    optionsPage->sysGroup->setButton( 1 );
-	    clickedSystem( 1 );
-	} else
-#endif
-	{
-	    optionsPage->sysGroup->setButton( 0 );
-	    clickedSystem( 0 );
+	    sysGroupButton = 1;
 	}
+#endif
 	delete archiveHeader;
-    } else {
-	qt_version_str = QT_VERSION_STR;
     }
 
-    // Optionspage
-#if defined(Q_OS_WIN32)
-    optionsPage->installPath->setText( QString( "C:\\Qt\\" ) + QString( qt_version_str ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" ) );
-#elif defined(Q_OS_MACX)
-    // ### the replace for Windows is done because qmake has problems with
-    // spaces and Borland has problems with "-" in the filenames -- I don't
-    // think that there is a need for this on Mac (rms)
-    optionsPage->installPath->setText( QString( QDir::homeDirPath() + "/" ) + QString( qt_version_str ).replace( QRegExp("-"), "" ) );
-#endif
-#if defined(EVAL)
-    optionsPage->installDocs->setEnabled( FALSE );
-    // ### find out which evaluation package (MSVC or Borland) we have
-    sysMsvc->setEnabled( FALSE );
-    sysBorland->setEnabled( FALSE );
 
-    // Buildpage
-    setTitle( buildPage, "Building Qt Examples and Tutorial" );
-#endif
-    // Folderspage
-#if defined(Q_OS_WIN32)
-    QByteArray buffer( 256 );
-    unsigned long buffSize( buffer.size() );
-    GetUserNameA( buffer.data(), &buffSize );
-    foldersPage->folderGroups->insertItem( "Anyone who uses this computer (all users)" );
-    foldersPage->folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
-    foldersPage->folderPath->setText( QString( "Qt " ) + qt_version_str );
-    if( qWinVersion() & Qt::WV_NT_based )   // On NT we also have a common folder
-	foldersPage->folderGroups->setEnabled( true );
-    else
-	foldersPage->folderGroups->setDisabled( true );
-#elif defined(Q_OS_UNIX)
-    foldersPage->folderGroups->setDisabled( true );
-    removePage( foldersPage );
-#endif
-#if 0
-    //TODO: Confirm with rms these progress display changes are ok
-    // ### rms finds them ugly
-    progressPage->filesDisplay->setWordWrap( QTextView::WidgetWidth );
-    progressPage->filesDisplay->setWrapPolicy( QTextView::Anywhere );
-    buildPage->outputDisplay->setWordWrap( QTextView::WidgetWidth );
-    buildPage->outputDisplay->setWrapPolicy( QTextView::Anywhere );
-#endif
-
-    if( reconfig ) {
-	removePage( licenseAgreementPage );
-	removePage( licensePage );
-	removePage( foldersPage );
-	removePage( optionsPage );
-	removePage( progressPage );
-	setTitle( configPage, "Reconfigure Qt" );
-    }
-#if defined(EVAL)
-    // ### this page should probably not be removed but all options should be
-    // disabled so that the evaluation customer can see how he can configure Qt
-    removePage( configPage );
-#endif
-
-    // do this rather here than in the showPage() to keep the user's settings
-    // when he returns back to the page
-    foldersPage->qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
-
-    // License Page
-    setTitle( licensePage, tr("License Information to Install Qt %1").arg(qt_version_str) );
-    licensePage->customerID->setFocus();
-#if defined(EVAL)
-    // ### improve text
-    licensePage->licenseInfoHeader->setText( tr("Thank you for your interest in Qt.\n"
-		"Please enter the license information you got for this evaluation version of Qt.") );
-
-    customerIDLabel->setText( tr("Name") );
-    licenseIDLabel->setText( tr("Company name") );
-    licenseeLabel->setText( tr("Serial number") );
-    evalName = licensePage->customerID;
-    evalCompany = licensePage->licenseID;
-    evalSerialNumber = licensePage->licenseeName;
-
-    expiryLabel->hide();
-    licensePage->expiryDate->hide();
-    productsLabel->hide();
-    licensePage->productsString->hide();
-    licensePage->keyLabel->hide();
-    licensePage->key->hide();
-    readLicenseButton->hide();
-#else
-    licensePage->licenseID->setValidator( new QIntValidator( 100000, -1, licensePage->licenseID ) );
+    initPages();
+    initConnections();
+    optionsPage->sysGroup->setButton( sysGroupButton );
+    clickedSystem( sysGroupButton );
     readLicense( QDir::homeDirPath() + "/.qt-license" );
-
-    // expiryDate and productsString comes from the license key
-    licensePage->expiryDate->setEnabled( FALSE );
-    licensePage->productsString->setEnabled( FALSE );
-    licensePage->keyLabel->setText( tr("License key") );
-    licensePage->licenseInfoHeader->setText( tr("Please enter your license information.\n"
-		"The License key is required to be able to proceed with the installation process.") );
-#endif
 }
-
-#define ADD_PAGE( var, Class ) \
-    { \
-    var = new Class( this, #var ); \
-    SideDecoration *sideDeco = new SideDecoration( var ); \
-    \
-    Q_ASSERT( var->layout() != 0 ); \
-    if ( var->layout()->inherits("QBoxLayout") ) \
-	((QBoxLayout*)var->layout())->insertWidget( 0, sideDeco ); \
-    \
-    addPage( var, var->title() ); \
-    }
 
 void SetupWizardImpl::initPages()
 {
-    ADD_PAGE( licensePage,	    LicensePageImpl		)
-    ADD_PAGE( licenseAgreementPage, LicenseAgreementPageImpl	)
-    ADD_PAGE( optionsPage,	    OptionsPageImpl		)
-    ADD_PAGE( foldersPage,	    FoldersPageImpl		)
-    ADD_PAGE( configPage,	    ConfigPageImpl		)
-    ADD_PAGE( progressPage,	    ProgressPageImpl		)
-    ADD_PAGE( buildPage,	    BuildPageImpl		)
-    ADD_PAGE( finishPage,	    FinishPageImpl		)
+#define ADD_PAGE( var, Class ) \
+    { \
+    var = new Class( this, #var ); \
+    SideDecorationImpl *sideDeco = new SideDecorationImpl( var ); \
+    \
+    Q_ASSERT( var->layout() != 0 ); \
+    if ( var->layout()->inherits("QBoxLayout") ) { \
+	((QBoxLayout*)var->layout())->insertWidget( 0, sideDeco ); \
+	((QBoxLayout*)var->layout())->insertSpacing( 1, 10 ); \
+    } \
+    \
+    pages.append( var ); \
+    addPage( var, var->title() ); \
+    setHelpEnabled( var, false ); \
+    \
+    connect( this, SIGNAL(wizardPages(const QPtrList<Page>&)), \
+	    sideDeco, SLOT(wizardPages(const QPtrList<Page>&)) ); \
+    connect( this, SIGNAL(wizardPageShowed(int)), \
+	    sideDeco, SLOT(wizardPageShowed(int)) ); \
+    connect( this, SIGNAL(wizardPageFailed(int)), \
+	    sideDeco, SLOT(wizardPageFailed(int)) ); \
+    }
 
-    // Disable the HELP button
-    setHelpEnabled( licenseAgreementPage, false );
-    setHelpEnabled( licensePage, false );
-    setHelpEnabled( optionsPage, false );
-    setHelpEnabled( foldersPage, false );
-    setHelpEnabled( configPage, false );
-    setHelpEnabled( progressPage, false );
-    setHelpEnabled( buildPage, false );
-    setHelpEnabled( finishPage, false );
-
-    setNextEnabled( licenseAgreementPage, false );
-    setNextEnabled( licensePage, false );
-    setBackEnabled( progressPage, false );
-    setNextEnabled( progressPage, false );
-    setBackEnabled( buildPage, false );
-    setNextEnabled( buildPage, false );
-    setFinishEnabled( finishPage, true );
-    setBackEnabled( finishPage, false );
-}
-
+    QPtrList<Page> pages;
+    if( globalInformation.reconfig() ) {
+	ADD_PAGE( configPage,	ConfigPageImpl  )
+	ADD_PAGE( buildPage,	BuildPageImpl   )
+	ADD_PAGE( finishPage,	FinishPageImpl  )
+    } else {
+	ADD_PAGE( licensePage,		LicensePageImpl		)
+	ADD_PAGE( licenseAgreementPage, LicenseAgreementPageImpl	)
+	ADD_PAGE( optionsPage,		OptionsPageImpl		)
+#if !defined(Q_OS_UNIX)
+	ADD_PAGE( foldersPage,		FoldersPageImpl		)
+#endif
+#if !defined(EVAL)
+	// ### this page should probably be included but all options should be
+	// disabled so that the evaluation customer can see how he can
+	// configure Qt
+	ADD_PAGE( configPage,		ConfigPageImpl		)
+#endif
+	ADD_PAGE( progressPage,		ProgressPageImpl		)
+	ADD_PAGE( buildPage,		BuildPageImpl		)
+	ADD_PAGE( finishPage,		FinishPageImpl		)
+    }
 #undef ADD_PAGE
+
+    if ( licensePage ) {
+	setNextEnabled( licensePage, FALSE );
+    }
+    if ( licenseAgreementPage ) {
+	setNextEnabled( licenseAgreementPage, FALSE );
+    }
+    if ( progressPage ) {
+	setBackEnabled( progressPage, FALSE );
+	setNextEnabled( progressPage, FALSE );
+    }
+    if ( buildPage ) {
+	setBackEnabled( buildPage, FALSE );
+	setNextEnabled( buildPage, FALSE );
+    }
+    if ( finishPage ) {
+	setBackEnabled( finishPage, true );
+	setNextEnabled( finishPage, FALSE );
+    }
+    emit wizardPages( pages );
+}
 
 void SetupWizardImpl::initConnections()
 {
-    connect( optionsPage->sysGroup, SIGNAL(clicked(int)), SLOT(clickedSystem(int)));
-    connect( optionsPage->installPathButton, SIGNAL(clicked()), SLOT(clickedPath()));
+    connect( &autoContTimer, SIGNAL( timeout() ), this, SLOT( timerFired() ) );
 
-    connect( foldersPage->folderPathButton, SIGNAL(clicked()), SLOT(clickedFolderPath()));
-    connect( foldersPage->devSysPathButton, SIGNAL(clicked()), SLOT(clickedDevSysPath()));
-
-    connect( licenseAgreementPage->licenceButtons, SIGNAL(clicked(int)), SLOT(licenseAction(int)));
-
-    connect( licensePage->readLicenseButton, SIGNAL(clicked()), SLOT(clickedLicenseFile()));
-    connect( licensePage->customerID, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
-    connect( licensePage->licenseID, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
-    connect( licensePage->licenseeName, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
-    connect( licensePage->expiryDate, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
-    connect( licensePage->productsString, SIGNAL(activated(int)), SLOT(licenseChanged()));
-    connect( licensePage->key, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
-
-    connect( configPage->configList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-    connect( configPage->configList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-    connect( configPage->configList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
-    connect( configPage->advancedList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-    connect( configPage->advancedList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
-    connect( configPage->advancedList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-    connect( configPage->configTabs, SIGNAL(currentChanged(QWidget*)), SLOT(configPageChanged()));
+    if ( optionsPage ) {
+	connect( optionsPage->sysGroup, SIGNAL(clicked(int)), SLOT(clickedSystem(int)));
+	connect( optionsPage->installPathButton, SIGNAL(clicked()), SLOT(clickedPath()));
+    }
+    if ( foldersPage ) {
+	connect( foldersPage->folderPathButton, SIGNAL(clicked()), SLOT(clickedFolderPath()));
+	connect( foldersPage->devSysPathButton, SIGNAL(clicked()), SLOT(clickedDevSysPath()));
+    }
+    if ( licenseAgreementPage ) {
+	connect( licenseAgreementPage->licenceButtons, SIGNAL(clicked(int)), SLOT(licenseAction(int)));
+    }
+    if ( licensePage ) {
+	connect( licensePage->readLicenseButton, SIGNAL(clicked()), SLOT(clickedLicenseFile()));
+	connect( licensePage->customerID, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+	connect( licensePage->licenseID, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+	connect( licensePage->licenseeName, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+	connect( licensePage->expiryDate, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+	connect( licensePage->productsString, SIGNAL(activated(int)), SLOT(licenseChanged()));
+	connect( licensePage->key, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+    }
+    if ( configPage ) {
+	connect( configPage->configList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+	connect( configPage->configList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+	connect( configPage->configList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
+	connect( configPage->advancedList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+	connect( configPage->advancedList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
+	connect( configPage->advancedList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+	connect( configPage->configTabs, SIGNAL(currentChanged(QWidget*)), SLOT(configPageChanged()));
+    }
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -678,7 +572,9 @@ void SetupWizardImpl::clickedDevSysPath()
 
 void SetupWizardImpl::clickedSystem( int sys )
 {
+#ifndef Q_OS_MACX
     sysID = sys;
+#endif
 }
 
 void SetupWizardImpl::licenseAction( int act )
@@ -905,7 +801,7 @@ void SetupWizardImpl::doFinalIntegration()
 	buildQtShortcutText = "Build Qt Examples and Tutorials";
 	description = "Build the Qt Examples and Tutorials";
 #else
-	buildQtShortcutText = "Build Qt " + qt_version_str;
+	buildQtShortcutText = "Build Qt " + globalInformation.qtVersionStr();
 	description = "Build the Qt library";
 #endif
 	shell.createShortcut( dirName, common,
@@ -946,18 +842,19 @@ void SetupWizardImpl::doFinalIntegration()
     else
 	uninstaller << ( QString("\"") + shell.localProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
 
-    uninstaller << ( QString("\"") + qt_version_str + QString("\"") );
+    uninstaller << ( QString("\"") + globalInformation.qtVersionStr() + QString("\"") );
 
-    QEnvironment::recordUninstall( QString( "Qt " ) + qt_version_str, uninstaller.join( " " ) );
+    QEnvironment::recordUninstall( QString( "Qt " ) + globalInformation.qtVersionStr(), uninstaller.join( " " ) );
 #endif
 }
 
 void SetupWizardImpl::integratorDone()
 {
     buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
-    if( ( !integrator.normalExit() || ( integrator.normalExit() && integrator.exitStatus() ) ) && ( triedToIntegrate ) )
+    if( ( !integrator.normalExit() || ( integrator.normalExit() && integrator.exitStatus() ) ) && ( triedToIntegrate ) ) {
 	logOutput( "The integration process failed.\n", true );
-    else {
+	emit wizardPageFailed( indexOf(currentPage()) );
+    } else {
 	setNextEnabled( buildPage, true );
 
 	/*
@@ -978,14 +875,14 @@ void SetupWizardImpl::makeDone()
 {
     QStringList args;
 
-    if( reconfigMode )
+    if( globalInformation.reconfig() )
 	showPage( finishPage );
 
     if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
 	logOutput( "The build process failed!\n" );
 	QMessageBox::critical( this, "Error", "The build process failed!" );
-//	removePage( progressPage );
 	setAppropriate( progressPage, false );
+	emit wizardPageFailed( indexOf(currentPage()) );
     } else {
 	buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
 
@@ -1003,8 +900,10 @@ void SetupWizardImpl::makeDone()
 	    integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) + "\\Tools\\Designer\\Integration\\QMsDev" );
 	    integrator.setArguments( args );
 	    triedToIntegrate = true;
-	    if( !integrator.start() )
+	    if( !integrator.start() ) {
 		logOutput( "Could not start integrator process" );
+		emit wizardPageFailed( indexOf(currentPage()) );
+	    }
 	}
     }
 }
@@ -1014,13 +913,14 @@ void SetupWizardImpl::configDone()
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make" );
     QStringList args;
 
-    if( reconfigMode && !configPage->rebuildInstallation->isChecked() )
+    if( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
 	showPage( finishPage );
 
 #if !defined(EVAL)
-    if( !configure.normalExit() || ( configure.normalExit() && configure.exitStatus() ) )
+    if( !configure.normalExit() || ( configure.normalExit() && configure.exitStatus() ) ) {
 	logOutput( "The configure process failed.\n" );
-    else
+	emit wizardPageFailed( indexOf(currentPage()) );
+    } else
 #endif
     {
 	connect( &make, SIGNAL( processExited() ), this, SLOT( makeDone() ) );
@@ -1035,6 +935,7 @@ void SetupWizardImpl::configDone()
 	if( !make.start() ) {
 	    logOutput( "Could not start make process" );
 	    backButton()->setEnabled( TRUE );
+	    emit wizardPageFailed( indexOf(currentPage()) );
 	}
     }
 }
@@ -1247,9 +1148,10 @@ void SetupWizardImpl::showPageProgress()
         	    srcName2 += "-US";
     		if((!copyFile( srcName, optionsPage->installPath->text() + destName )) ||
        		   (!copyFile( srcName + "-US", optionsPage->installPath->text() + destName + "-US" )) ||
-       		   (!copyFile( srcName2, optionsPage->installPath->text() + "/LICENSE" )))
+       		   (!copyFile( srcName2, optionsPage->installPath->text() + "/LICENSE" ))) {
 		    QMessageBox::critical( this, "Installation Error",
 					   "License files could not be copied." );
+		}
 #endif
 	    } else {
 		// We were not able to find any qt.arq -- so assume we have
@@ -1340,6 +1242,7 @@ void SetupWizardImpl::showPageProgress()
 			 "This log has been saved to the installation directory.\n"
 			 "The build will start automatically in 30 seconds."), true );
 	} else {
+	    emit wizardPageFailed( indexOf(currentPage()) );
 	    logFiles( tr("One or more errors occurred during file installation.\n"
 			 "Please review the log and try to amend the situation.\n"), true );
 	}
@@ -1359,7 +1262,7 @@ void SetupWizardImpl::showPageFinish()
 #elif defined(Q_OS_UNIX)
     if( true ) {
 #endif
-	if( reconfigMode ) {
+	if( globalInformation.reconfig() ) {
 	    if( !configPage->rebuildInstallation->isChecked() )
 		finishMsg = "Qt has been reconfigured, and is ready to be rebuilt.";
 	    else
@@ -1373,12 +1276,12 @@ void SetupWizardImpl::showPageFinish()
 #endif
 	}
     } else {
-	if( reconfigMode ) {
+	if( globalInformation.reconfig() ) {
 		finishMsg = "The new configuration has been written.\nThe library needs to be rebuilt to activate the ";
 		finishMsg += "new configuration.";
 #if defined(Q_OS_WIN32)
                 finishMsg += "To rebuild it, use the \"Build Qt ";
-		finishMsg += qt_version_str;
+		finishMsg += globalInformation.qtVersionStr();
 		finishMsg += "\" icon in the Qt program group in the start menu.";
 #endif
 	}
@@ -1395,7 +1298,7 @@ void SetupWizardImpl::showPageFinish()
 				  "icon which has been installed into your Start-Menu." );
 #  else
 	    finishMsg += QString( "To build Qt, use the"
-				  "\"Build Qt " ) + qt_version_str + "\""
+				  "\"Build Qt " ) + globalInformation.qtVersionStr() + "\""
 				  "icon which has been installed into your Start-Menu.";
 #  endif
 #endif
@@ -1829,12 +1732,13 @@ void SetupWizardImpl::setInstallStep( int step )
 #if defined(EVAL)
     captionTxt = tr("Qt Evaluation Version Installation Wizard");
 #else
-    if( reconfigMode )
+    if( globalInformation.reconfig() )
 	captionTxt = tr("Qt Configuration Wizard");
     else
 	captionTxt = tr("Qt Installation Wizard");
 #endif
     setCaption( tr("%1 - Step %2 of %3").arg( captionTxt ).arg( step ).arg( pageCount() ) );
+    emit wizardPageShowed( step-1 );
 }
 
 void SetupWizardImpl::timerFired()

@@ -6,10 +6,10 @@
     </property>
     <property name="geometry">
         <rect>
-            <x>1</x>
+            <x>11</x>
             <y>0</y>
-            <width>122</width>
-            <height>262</height>
+            <width>102</width>
+            <height>209</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -28,7 +28,7 @@
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>11</number>
+            <number>0</number>
         </property>
         <property name="spacing">
             <number>6</number>

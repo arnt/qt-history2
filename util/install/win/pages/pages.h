@@ -8,6 +8,7 @@
 #include "licensepage.h"
 #include "optionspage.h"
 #include "progresspage.h"
+#include "../globalinformation.h"
 
 class Page
 {
@@ -16,31 +17,48 @@ public:
     virtual QString shortTitle() const = 0;
 };
 
-class BuildPageImpl : public BuildPage, Page
+class BuildPageImpl : public BuildPage, public Page
 {
     Q_OBJECT
 public:
     BuildPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
     ~BuildPageImpl() {}
     QString title() const
-    { return "Building Qt"; }
+    {
+#if defined(EVAL)
+	return "Building Qt Examples and Tutorial";
+#else
+	return "Building Qt";
+#endif
+    }
     QString shortTitle() const
-    { return "Build Qt"; }
+    {
+#if defined(EVAL)
+	return "Build Qt Examples";
+#else
+	return "Build Qt";
+#endif
+    }
 };
 
-class ConfigPageImpl : public ConfigPage, Page
+class ConfigPageImpl : public ConfigPage, public Page
 {
     Q_OBJECT
 public:
     ConfigPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
     ~ConfigPageImpl() {}
     QString title() const
-    { return "Configuration"; }
+    {
+	if( globalInformation.reconfig() )
+	    return "Reconfigure Qt";
+	else
+	    return "Configuration";
+    }
     QString shortTitle() const
     { return "Configure Qt"; }
 };
 
-class FinishPageImpl : public FinishPage, Page
+class FinishPageImpl : public FinishPage, public Page
 {
     Q_OBJECT
 public:
@@ -52,7 +70,7 @@ public:
     { return "Finish"; }
 };
 
-class FoldersPageImpl : public FoldersPage, Page
+class FoldersPageImpl : public FoldersPage, public Page
 {
     Q_OBJECT
 public:
@@ -64,7 +82,7 @@ public:
     { return "Choose folders"; }
 };
 
-class LicenseAgreementPageImpl : public LicenseAgreementPage, Page
+class LicenseAgreementPageImpl : public LicenseAgreementPage, public Page
 {
     Q_OBJECT
 public:
@@ -76,19 +94,19 @@ public:
     { return "License agreement"; }
 };
 
-class LicensePageImpl : public LicensePage, Page
+class LicensePageImpl : public LicensePage, public Page
 {
     Q_OBJECT
 public:
     LicensePageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
     ~LicensePageImpl() {}
     QString title() const
-    { return "License information"; }
+    { return QString("License Information to Install Qt %1").arg(globalInformation.qtVersionStr()); }
     QString shortTitle() const
     { return "License information"; }
 };
 
-class OptionsPageImpl : public OptionsPage, Page
+class OptionsPageImpl : public OptionsPage, public Page
 {
     Q_OBJECT
 public:
@@ -100,7 +118,7 @@ public:
     { return "Choose options"; }
 };
 
-class ProgressPageImpl : public ProgressPage, Page
+class ProgressPageImpl : public ProgressPage, public Page
 {
     Q_OBJECT
 public:

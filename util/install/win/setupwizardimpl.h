@@ -14,12 +14,15 @@ class SetupWizardImpl : public QWizard
 {
     Q_OBJECT
 public:
-    SetupWizardImpl( QWidget* pParent = NULL, const char* pName = NULL, bool modal = FALSE, WFlags f = 0, bool reconfig = false );
+    SetupWizardImpl( QWidget* pParent = NULL, const char* pName = NULL, bool modal = FALSE, WFlags f = 0 );
 
     void showPage( QWidget* );
     void stopProcesses();
 
-    void setReconfigMode( bool );
+signals:
+    void wizardPages( const QPtrList<Page>& );
+    void wizardPageShowed( int );
+    void wizardPageFailed( int );
 
 private:
     int sysID;
@@ -86,14 +89,12 @@ private:
     bool copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel );
     int totalRead;
 
-    QString qt_version_str;
     QString buildQtShortcutText;
 
     bool filesCopied;
     bool persistentEnv;
     int filesToCompile;
     int filesCompiled;
-    bool reconfigMode;
     bool usLicense;
 
     QString currentOLine;
@@ -125,7 +126,6 @@ private:
     int timeCounter;
     bool triedToIntegrate;
     QStringList allModules;
-    QPixmap bullet;
 
     QCheckListItem *accOn, *accOff;
     QCheckListItem *bigCodecsOn, *bigCodecsOff;

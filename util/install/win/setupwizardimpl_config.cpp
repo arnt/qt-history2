@@ -42,7 +42,7 @@ void SetupWizardImpl::cleanDone()
 
 	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
 	    outStream << "cd %QTDIR%" << endl;
-	    if( !reconfigMode ) {
+	    if( !globalInformation.reconfig() ) {
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 		outStream << makeCmds[ sysID ].latin1() << endl;
 	    }
@@ -293,8 +293,10 @@ void SetupWizardImpl::cleanDone()
 	configure.setArguments( args );
 	// Start the configure process
 	buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
-	if( !configure.start() )
+	if( !configure.start() ) {
 	    logOutput( "Could not start configure process" );
+	    emit wizardPageFailed( indexOf(currentPage()) );
+	}
     } else { // no proper process handling on DOS based systems - create a batch file instead
 	logOutput( "Generating batch file...\n" );
 	QFile outFile( optionsPage->installPath->text() + "\\build.bat" );
@@ -303,7 +305,7 @@ void SetupWizardImpl::cleanDone()
 	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
 	    outStream << "cd %QTDIR%" << endl;
 	    outStream << args.join( " " ) << endl;
-	    if( !reconfigMode ) {
+	    if( !globalInformation.reconfig() ) {
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 		outStream << makeCmds[ sysID ].latin1() << endl;
 	    }
@@ -324,7 +326,7 @@ void SetupWizardImpl::prepareEnvironment()
     QString qtDir;
     int envSpec = QEnvironment::LocalEnv;
 
-    if( reconfigMode ) {
+    if( globalInformation.reconfig() ) {
 	qtDir = QEnvironment::getEnv( "QTDIR" );
 	configPage->currentInstLabel->show();
 	configPage->currentInstallation->show();
@@ -779,7 +781,7 @@ void SetupWizardImpl::showPageBuild()
     nextButton()->setText( "Next >" );
     saveSettings();
 
-    if( reconfigMode ) {
+    if( globalInformation.reconfig() ) {
 	buildPage->compileProgress->hide();
 
     	args << makeCmds[ sysID ] << "clean";
@@ -789,8 +791,10 @@ void SetupWizardImpl::showPageBuild()
 	connect( &cleaner, SIGNAL( readyReadStderr() ), this, SLOT( readCleanerError() ) );
 	cleaner.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	cleaner.setArguments( args );
-	if( !cleaner.start() )
+	if( !cleaner.start() ) {
 	    logOutput( "Could not start cleaning process" );
+	    emit wizardPageFailed( indexOf(currentPage()) );
+	}
     }
     else
 	cleanDone();	// We're not doing a reconfig, so skip the clean step

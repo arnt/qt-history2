@@ -1,21 +1,25 @@
 TEMPLATE	= app
 CONFIG		+= windows qt
 
-HEADERS		= setupwizardimpl.h \
+HEADERS		= globalinformation.h \
+		  setupwizardimpl.h \
 		  environment.h \
 		  shell.h \
 		  resource.h \
 		  folderdlgimpl.h \
-		  pages/pages.h
+		  pages/pages.h \
+		  pages/sidedecorationimpl.h
 
 SOURCES		= main.cpp \
+		  globalinformation.cpp \
 		  setupwizardimpl.cpp \
 		  setupwizardimpl_config.cpp \
 		  environment.cpp \
 		  shell.cpp \
 		  resource.cpp \
 		  folderdlgimpl.cpp \
-		  pages/pages.cpp
+		  pages/pages.cpp \
+		  pages/sidedecorationimpl.cpp
 
 INTERFACES	= folderdlg.ui \
 		  pages/buildpage.ui \
