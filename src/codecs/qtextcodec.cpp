@@ -2481,8 +2481,7 @@ QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
 void QLatin1Codec::fromUnicode( const QChar *in, unsigned short *out, int length ) const
 {
     while ( length-- ) {
-	unsigned short u = in->unicode();
-	*out = u < 0xff ? u : 0;
+	*out = in->row() ? 0 : in->cell();
 	++in;
 	++out;
     }
