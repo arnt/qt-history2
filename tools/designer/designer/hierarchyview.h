@@ -160,6 +160,7 @@ public:
 
 protected slots:
     void jumpTo( const QString &func, const QString &clss,int type );
+    void showClassesTimeout();
 
 protected:
     void closeEvent( QCloseEvent *e );
@@ -180,6 +181,7 @@ private:
     FunctionList *fList;
     SourceEditor *editor;
     QMap<QString, ClassBrowser> classBrowsers;
+    SourceEditor *lastSourceEditor;
 
 };
 

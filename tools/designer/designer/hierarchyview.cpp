@@ -40,6 +40,7 @@
 #include <qtabbar.h>
 #include <qfeatures.h>
 #include <qapplication.h>
+#include <qtimer.h>
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/classbrowserinterface.h"
 
@@ -671,6 +672,7 @@ HierarchyView::HierarchyView( QWidget *parent )
 {
     formwindow = 0;
     editor = 0;
+    lastSourceEditor = 0;
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     listview = new HierarchyList( this, formWindow() );
     addTab( listview, tr( "Widgets" ) );
@@ -746,6 +748,16 @@ void HierarchyView::showClasses( SourceEditor *se )
 {
     if ( !se->object() )
 	return;
+    lastSourceEditor = se;
+    QTimer::singleShot( 100, this, SLOT( showClassesTimeout() ) );
+}
+
+void HierarchyView::showClassesTimeout()
+{
+    if ( !lastSourceEditor )
+	return;
+    SourceEditor *se = lastSourceEditor;
+    lastSourceEditor = 0;
     if ( se->object()->inherits( "FormWindow" ) ) {
 	setFormWindow( (FormWindow*)se->object(), ( (FormWindow*)se->object() )->currentWidget() );
 	MainWindow::self->propertyeditor()->setWidget( ( (FormWindow*)se->object() )->currentWidget(),
