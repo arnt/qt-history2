@@ -1384,8 +1384,7 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     // somebody tries to grab us!
     QPixmap pm(size());
     pm.fill();
-    QPainter painter(&pm);
-    HDC hdc = pm.winHDC();
+    HDC hdc = pm.getDC();
     
     RECTL bounds;
     bounds.left = 0;
@@ -1394,9 +1393,9 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     bounds.bottom = pm.height();
     view->Draw(DVASPECT_CONTENT, -1, 0, 0, 0, hdc, &bounds, 0, 0 /*fptr*/, 0);
     view->Release();
-    painter.end();
+    pm.releaseDC(hdc);
     
-    painter.begin(this);
+    QPainter painter(this);
     painter.drawPixmap(0, 0, pm);
 }
 

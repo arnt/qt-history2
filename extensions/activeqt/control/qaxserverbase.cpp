@@ -2865,7 +2865,9 @@ HRESULT WINAPI QAxServerBase::Draw(DWORD dwAspect, LONG lindex, void *pvAspect, 
 
     qt.widget->resize(rc.right - rc.left, rc.bottom - rc.top);
     QPixmap pm = QPixmap::grabWidget(qt.widget);
-    ::BitBlt(hdcDraw, rc.left, rc.top, pm.width(), pm.height(), pm.winHDC(), 0, 0, SRCCOPY);
+	HDC hdc = pm.getDC();
+    ::BitBlt(hdcDraw, rc.left, rc.top, pm.width(), pm.height(), hdc, 0, 0, SRCCOPY);
+	pm.releaseDC(hdc);
 
     if (bDeleteDC)
 	DeleteDC(hicTargetDev);
