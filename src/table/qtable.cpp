@@ -2785,7 +2785,7 @@ void QTable::paintCell( QPainter *p, int row, int col,
     if ( sGrid ) {
 	// Draw our lines
 	QPen pen( p->pen() );
-	p->setPen( cg.mid() );
+	p->setPen( (QRgb) style().styleHint( QStyle::SH_Table_GridLineColor, this ) );
 	p->drawLine( x2, 0, x2, y2 );
 	p->drawLine( 0, y2, x2, y2 );
 	p->setPen( pen );

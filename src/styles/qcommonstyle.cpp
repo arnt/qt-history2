@@ -2402,6 +2402,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	ret = 1;
 	break;
 
+    case SH_Table_GridLineColor:
+	return (int) ( w ? w->colorGroup().mid().rgb() : 0 );
+
     default:
 	ret = 0;
 	break;

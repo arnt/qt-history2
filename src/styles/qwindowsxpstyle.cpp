@@ -2046,6 +2046,9 @@ int QWindowsXPStyle::styleHint( StyleHint stylehint,
 	else
 	    return d->groupBoxTextColorDisabled;
 
+    case SH_Table_GridLineColor:
+	return 0xC0C0C0;
+
     default:
 	return QWindowsStyle::styleHint( stylehint, widget, opt, returnData );
     }

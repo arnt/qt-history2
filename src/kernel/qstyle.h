@@ -601,6 +601,9 @@ public:
 	// bool - popupmenu supports sloppy submenus
 	SH_PopupMenu_SloppySubMenus,
 
+	// Qt::QRgb - table grid color
+	SH_Table_GridLineColor,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };
