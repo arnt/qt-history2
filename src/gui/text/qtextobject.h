@@ -6,9 +6,11 @@
 
 class QTextObjectPrivate;
 class QTextDocument;
+class QTextDocumentPrivate;
 class QTextCursor;
 class QTextBlock;
 class QTextFragment;
+class QTextLayout;
 
 class Q_GUI_EXPORT QTextObject : public QObject
 {
