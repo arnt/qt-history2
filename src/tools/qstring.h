@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#6 $
+** $Id: //depot/qt/main/src/tools/qstring.h#7 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -49,6 +49,12 @@ extern "C" int strnicmp( const char *, const char *, uint );
 
 #endif
 
+
+void *qmemmove( void *dst, const void *src, uint len );
+
+#if defined(_OS_SUN_) || defined(_CC_OC_)
+#define memmove qmemmove
+#endif
 
 char *q_strdup( const char *src );		// safe duplicate string
 #define strdup q_strdup

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#10 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,13 +21,32 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#10 $";
 #endif
 
 
 // --------------------------------------------------------------------------
 // Safe and portable C string functions; extensions to standard string.h
 //
+
+void *qmemmove( void *dst, const void *src, uint len )
+{
+    register char *d;
+    register char *s;
+    if ( dst > src ) {
+	d = (char *)dst + len - 1;
+	s = (char *)src + len - 1;
+	while ( len-- )
+	    *d-- = *s--;
+    }
+    else if ( dst < src ) {
+	d = (char *)dst;
+	s = (char *)src;
+	while ( len-- )
+	    *d++ = *s++;
+    }
+    return dst;
+}
 
 char *q_strdup( const char *src )		// safe duplicate string
 {
@@ -219,15 +238,7 @@ bool QString::stripWhiteSpace()			// strip white space
     while ( end && isspace(s[end]) )		// skip white space from end
 	end--;
     end -= start - 1;
-#if defined(_OS_SUN_) || defined(_CC_OC_)
-    int n = end;				// no ANSI memmove
-    register char *p = data();
-    s = data() + start;
-    while ( n-- )
-	*p++ = *s++;
-#else
     memmove( data(), &s[start], end );
-#endif
     resize( end + 1 );
     return TRUE;
 }
@@ -502,15 +513,7 @@ QString &QString::insert( uint index, const char *s )
 	}
     }
     else if ( QByteArray::resize(nlen+1) ) {	// normal insert
-#if defined(_OS_SUN_) || defined(_CC_OC_)
-	register char *sd = data()+length();	// no ANSI memmove
-    	register char *ss = sd - len;
-	int cnt = olen - index + 1;
-	while ( cnt-- )
-	    *sd-- = *ss--;
-#else
 	memmove( data()+index+len, data()+index, olen-index+1 );
-#endif
 	memcpy( data()+index, s, len );
     }
     return *this;
@@ -532,15 +535,7 @@ QString &QString::remove( uint index, uint len )// remove part of string
 	    return *this;
 	len = olen - index;			// adjust len
     }
-#if defined(_OS_SUN_) || defined(_CC_OC_)
-    register char *sd = data()+index;		// no ANSI memmove
-    register char *ss = sd + len;
-    int cnt = olen - index + 1;
-    while ( cnt-- )
-	*sd++ = *ss++;
-#else
     memmove( data()+index, data()+index+len, olen-index+1 );
-#endif
     QByteArray::resize(size()-len);
     return *this;
 }
