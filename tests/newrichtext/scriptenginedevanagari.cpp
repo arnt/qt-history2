@@ -230,7 +230,8 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 
     // features that should always get applied
     for ( int i = 0; i < len; i++ )
-	featuresToApply[i] = AkhantFeature|PreSubstFeature;
+	featuresToApply[i] = AkhantFeature|VattuFeature|PreSubstFeature|AboveSubstFeature|
+			     BelowSubstFeature|PostSubstFeature;
 
     // nothing to do in this case!
     if ( len == 1 )
@@ -250,7 +251,9 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	    if ( form( uc[i] ) == Consonant ) {
 		if ( !lastConsonant )
 		    lastConsonant = i;
-		if ( !reph || !isRa( uc[i] ) ) {
+		// ### The MS specs says, that this should be done only if the syllable starts with a reph,
+		// but they seem to act differently.
+		if ( /*!reph ||*/ !isRa( uc[i] ) ) {
 		    base = i;
 		    break;
 		}
@@ -286,6 +289,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	    uc[toPos-1] = halant;
 	    featuresToApply[toPos-2] |= RephFeature;
 	    featuresToApply[toPos-1] |= RephFeature;
+	    base -= 2;
 	}
     }
 
@@ -313,9 +317,10 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
        { Matra, Below },
        { VowelMark, Below },
        { StressMark, Below },
-//        { Matra, Above },
-//        { Matra, Post },
-//        { Vattu }
+       { Matra, Above },
+       { Matra, Post },
+       { Consonant, None },
+       { Halant, None },
        { VowelMark, Above },
        { StressMark, Above },
        { VowelMark, Post },
@@ -362,13 +367,14 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	   }
        }
        toMove++;
-       if ( finalOrder[toMove].position == None )
+       if ( finalOrder[toMove].form == 0 )
 	   break;
    }
 
-   bool halantForm = (form( uc[len-1] ) == Halant);
+   bool halantForm = base < len-1 && (form( uc[base+1] ) == Halant);
    if ( halantForm ) {
        featuresToApply[base] |= HalantFeature;
+       featuresToApply[base+1] |= HalantFeature;
    }
 
    // set the features we need to apply in OT
@@ -383,18 +389,18 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	   featuresToApply[i] |= PreSubstFeature;
        switch( newState ) {
 	case Consonant:
-	    if ( i == base )
-		lastWasBase = TRUE;
+	    lastWasBase = (i == base);
 	    break;
 	case Halant:
 	    if ( state == Nukta || state == Consonant ) {
 		// vattu or halant feature
 		if ( isRa( uc[i-1] ) && len > 2 ) {
 		    if ( !(featuresToApply[i] & RephFeature) ) {
-			featuresToApply[i-1] |= VattuFeature|BelowFormFeature;
-			featuresToApply[i] |= VattuFeature|BelowFormFeature;
+			featuresToApply[i-1] |= BelowFormFeature;
+			featuresToApply[i] |= BelowFormFeature;
 		    }
-		} else if ( !lastWasBase  ) {
+		}
+		else if ( !lastWasBase  ) {
 		    if ( state == Nukta )
 			featuresToApply[i-2] |= HalfFormFeature;
 		    featuresToApply[i-1] |= HalfFormFeature;
@@ -479,8 +485,6 @@ void ScriptEngineDevanagari::position( ShapedItem *result )
     ScriptEngineBasic::position( result );
 }
 
-
-
 void ScriptEngineDevanagari::openTypeShape( int script, const OpenTypeIface *openType, ShapedItem *result, const QString &reordered, unsigned short *featuresToApply )
 {
     qDebug("ScriptEngineDevanagari::openTypeShape()");
@@ -495,6 +499,7 @@ void ScriptEngineDevanagari::openTypeShape( int script, const OpenTypeIface *ope
 	d->fontEngine->stringToCMap( reordered.unicode(), len, d->glyphs, &d->num_glyphs );
     }
 
+    // ###### FIXME
     heuristicSetGlyphAttributes( result );
 
 #if 0

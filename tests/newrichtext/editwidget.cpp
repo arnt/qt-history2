@@ -94,6 +94,7 @@ void EditWidget::keyPressEvent ( QKeyEvent *e )
 	break;
     }
     qDebug("cursorPos at %d",  d->cursorPos );
+    recalculate();
     repaint( TRUE );
 }
 
