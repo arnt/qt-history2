@@ -1026,7 +1026,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		}
 		if ( textFormat() == Qt::RichText && ( !cursor->parag()->style() ||
 		     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayBlock ) &&
-		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
+		     cursor->index() == 0 && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
 		    setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
 		    cursor->parag()->incDepth();
 		    drawCursor( FALSE );
