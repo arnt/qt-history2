@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#189 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#190 $
 **
 ** Implementation of QListView widget class
 **
@@ -475,14 +475,17 @@ void QListViewItem::init()
 
 QListViewItem::~QListViewItem()
 {
-    while ( childItem ) {
-	QListViewItem *nextChild = childItem->siblingItem;
-	delete childItem;
-	childItem = nextChild;
-    }
-    delete (QListViewPrivate::ItemColumnInfo *)columns;
     if ( parentItem )
 	parentItem->removeItem( this );
+    QListViewItem * i = childItem;
+    childItem = 0;
+    while ( i ) {
+	i->parentItem = 0;
+	QListViewItem * n = i->siblingItem;
+	delete i;
+	i = n;
+    }
+    delete (QListViewPrivate::ItemColumnInfo *)columns;
 }
 
 
@@ -527,33 +530,44 @@ void QListViewItem::removeItem( QListViewItem * tbg )
     if ( !tbg )
 	return;
 
-    invalidateHeight();
-
     QListView * lv = listView();
-    if ( lv && lv->d && lv->d->drawables ) {
-	delete lv->d->drawables;
-	lv->d->drawables = 0;
-    }
+    if ( lv ) {
 
-    if ( lv->d->dirtyItems )
-	lv->d->dirtyItems->take( (void *)tbg );
+	invalidateHeight();
 
-    if ( lv && lv->d->currentSelected ) {
-	QListViewItem * c = lv->d->currentSelected;
-	while( c && c != tbg )
-	    c = c->parentItem;
-	if ( c == tbg ) {
-	    lv->d->currentSelected = 0;
-	    emit lv->selectionChanged( 0 );
+	if ( lv->d && lv->d->drawables ) {
+	    delete lv->d->drawables;
+	    lv->d->drawables = 0;
 	}
-    }
 
-    if ( lv && lv->d->focusItem ) {
-	const QListViewItem * c = lv->d->focusItem;
-	while( c && c != tbg )
-	    c = c->parentItem;
-	if ( c == tbg )
-	    lv->d->focusItem = 0;
+	if ( lv->d->dirtyItems ) {
+	    if ( tbg->childItem ) {
+		delete lv->d->dirtyItems;
+		lv->d->dirtyItems = 0;
+		lv->d->dirtyItemTimer->stop();
+		lv->triggerUpdate();
+	    } else {
+		lv->d->dirtyItems->take( (void *)tbg );
+	    }
+	}
+
+	if ( lv->d->currentSelected ) {
+	    QListViewItem * c = lv->d->currentSelected;
+	    while( c && c != tbg )
+		c = c->parentItem;
+	    if ( c == tbg ) {
+		lv->d->currentSelected = 0;
+		emit lv->selectionChanged( 0 );
+	    }
+	}
+
+	if ( lv->d->focusItem ) {
+	    const QListViewItem * c = lv->d->focusItem;
+	    while( c && c != tbg )
+		c = c->parentItem;
+	    if ( c == tbg )
+		lv->d->focusItem = 0;
+	}
     }
 
     nChildren--;
@@ -1492,9 +1506,9 @@ QListView::~QListView()
 {
     d->focusItem = 0;
     d->currentSelected = 0;
+    delete d->r;
     delete d->dirtyItems;
     delete d->drawables;
-    delete d->r;
     delete d->vci;
     delete d;
 }
