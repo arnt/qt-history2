@@ -186,12 +186,7 @@ QImage QPixmap::convertToImage() const
 
     QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
 
-    if(hd) {
-	SetGWorld((GWorldPtr)hd,0);
-    } else {
-	QImage nullImage;
-	return nullImage;
-    }
+    ((QPixmap *)this)->lockPort();
 
     // Slow and icky, but the proper way crashed
     RGBColor r;
@@ -219,6 +214,7 @@ QImage QPixmap::convertToImage() const
     for ( int i=0; i<ncols; i++ ) // copy color table
 	image->setColor( i, qRgb(0, 0, 0));
 
+    ((QPixmap *)this)->unlockPort();
     return *image;
 }
 
@@ -227,15 +223,14 @@ void QPixmap::fill( const QColor &fillColor )
     if(hd) {
 	Rect r;
 	RGBColor rc;
-	if(hd) {
-	  SetGWorld((GWorldPtr)hd,0);
-	}
+	lockPort();
 	rc.red=fillColor.red()*256;
 	rc.green=fillColor.green()*256;
 	rc.blue=fillColor.blue()*256;
 	RGBForeColor(&rc);
 	SetRect(&r,0,0,width(),height());
 	PaintRect(&r);
+	unlockPort();
     }
 }
 
