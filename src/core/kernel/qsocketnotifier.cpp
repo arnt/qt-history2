@@ -145,7 +145,10 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent)
     sockfd = socket;
     sntype = type;
     snenabled = true;
-    QEventLoop::instance(thread())->registerSocketNotifier(this);
+    QEventLoop *ev = QEventLoop::instance(thread());
+    Q_ASSERT_X(ev, "QSocketNotifier::QSocketNotifier()",
+               "Cannot create a socket notifier without an eventloop");
+    ev->registerSocketNotifier(this);
 }
 
 #ifdef QT_COMPAT
