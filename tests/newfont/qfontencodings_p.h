@@ -113,15 +113,9 @@ class QArabicShaping {
 public:
     enum Shape {
 	XIsolated,
-	XLeft,
 	XRight,
+	XLeft,
 	XMedial,
-	// the next few describe lam-alef ligatures
-	// they exist in two forms, left and isolated
-	LaLeft_Alef,
-	LaIsolated_Alef,
-	LaLeft_Lam,
-	LaIsolated_Lam,
     };
     static Shape glyphVariant( const QString &str, int pos);
     static Shape glyphVariantLogical( const QString &str, int pos);
