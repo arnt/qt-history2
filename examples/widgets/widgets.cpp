@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#4 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -235,7 +235,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     movie.connectUpdate(this, SLOT(movieUpdate(const QRect&)));
     movielabel->setFrameStyle( QFrame::Box | QFrame::Plain );
     movielabel->setMovie( movie );
-    movielabel->setMargin( 0 );
+    movielabel->setIndent( 0 );
     movielabel->setFixedSize( 128+movielabel->frameWidth()*2,
 			      64+movielabel->frameWidth()*2 );
     grid->addWidget( movielabel, 0, 1, AlignCenter );

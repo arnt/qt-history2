@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/movies/main.cpp#2 $
+** $Id: //depot/qt/main/examples/movies/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
             "right-click to Unpause\n\n"
             "Windows may be resized to enlarge movie.", 0 );
         help->setCaption("movies - Help");
-        help->setMargin(10);
+        help->setIndent(10);
         help->adjustSize();
         help->show();
     }

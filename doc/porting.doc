@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.62 1999/06/07 13:36:47 warwick Exp $
+** $Id: porting.doc,v 1.63 1999/06/17 19:46:42 paul Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -614,6 +614,13 @@ a compiler will not always catch cases like \code(uint)index\endcode
 that need to be changed.
 
 <h3><a name=QLabel>QLabel</a></h3>
+
+<h4>\code QLabel::setMargin()\endcode</h4>
+<p>
+\code QLabel::setMargin()\endcode and\code QLabel::margin()\endcode
+have been renamed to \code QLabel::setIndent()\endcode and 
+\code QLabel::indent()\endcode, respectively. This was done to avoid 
+collision with QFrame::setMargin(), which is now virtual.
 
 <h4>\code QLabel::setMovie()\endcode</h4>
 <p>

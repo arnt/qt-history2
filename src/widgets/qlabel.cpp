@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#129 $
 **
 ** Implementation of QLabel widget class
 **
@@ -108,12 +108,12 @@ class QLabelPrivate
 
 /*!
   Constructs an empty label which is left-aligned, vertically centered,
-  has an automatic margin and with manual resizing.
+  has an automatic indent and with manual resizing.
 
   The \e parent, \e name and \e f arguments are passed to the QFrame
   constructor.
 
-  \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
+  \sa setAlignment(), setFrameStyle(), setIndent(), setAutoResize()
 */
 
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
@@ -125,12 +125,12 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 
 /*!
   Constructs a label with a text. The label is left-aligned, vertically
-  centered, has an automatic margin and with manual resizing.
+  centered, has an automatic indent and with manual resizing.
 
   The \e parent, \e name and \e f arguments are passed to the QFrame
   constructor.
 
-  \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
+  \sa setAlignment(), setFrameStyle(), setIndent(), setAutoResize()
 */
 
 QLabel::QLabel( const QString &text, QWidget *parent, const char *name, WFlags f )
@@ -430,35 +430,35 @@ void QLabel::setAlignment( int alignment )
 
 
 /*!
-  \fn int QLabel::margin() const
+  \fn int QLabel::indent() const
 
-  Returns the margin of the label.
+  Returns the indent of the label.
 
-  \sa setMargin()
+  \sa setIndent()
 */
 
 /*!
-  Sets the margin of the label to \e margin pixels.
+  Sets the indent of the label to \e indent pixels.
 
-  The margin applies to the left edge if alignment() is \c AlignLeft,
+  The indent applies to the left edge if alignment() is \c AlignLeft,
   to the right edge if alignment() is \c AlignRight, to the top edge
   if alignment() is \c AlignTop, and to to the bottom edge if
   alignment() is \c AlignBottom.
 
-  If \e margin is negative (as it is by default), the label computes the
-  margin as follows: If the \link frameWidth() frame width\endlink is zero,
-  the effective margin becomes 0. If the frame style is greater than zero,
-  the effective margin becomes half the width of the "x" character (of the
+  If \e indent is negative (as it is by default), the label computes the
+  indent as follows: If the \link frameWidth() frame width\endlink is zero,
+  the effective indent becomes 0. If the frame style is greater than zero,
+  the effective indent becomes half the width of the "x" character (of the
   widget's current \link font() font\endlink.
 
-  Setting a non-negative margin gives the specified margin in pixels.
+  Setting a non-negative indent gives the specified indent in pixels.
 
-  \sa margin(), frameWidth(), font()
+  \sa indent(), frameWidth(), font()
 */
 
-void QLabel::setMargin( int margin )
+void QLabel::setIndent( int indent )
 {
-    extraMargin = margin;
+    extraMargin = indent;
 }
 
 
@@ -535,7 +535,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	int h = fontMetrics().lineSpacing();
 	br.setHeight( ((br.height() + h-1) / h)*h - fontMetrics().leading() );
     }
-    int m  = 2*margin();
+    int m  = 2*indent();
     int fw = frameWidth();
     if ( m < 0 ) {
 	if ( fw > 0 )
@@ -598,7 +598,7 @@ QSizePolicy QLabel::sizePolicy() const
 void QLabel::drawContents( QPainter *p )
 {
     QRect cr = contentsRect();
-    int m = margin();
+    int m = indent();
     if ( m < 0 ) {
 	if ( frameWidth() > 0 )
 	    m = p->fontMetrics().width('x')/2;
@@ -619,7 +619,7 @@ void QLabel::drawContents( QPainter *p )
     QMovie *mov = movie();
     if ( mov ) {
 	// ### should add movie to qDrawItem
- 	QRect r = style().itemRect( p, 
+ 	QRect r = style().itemRect( p,
 				    cr.x(), cr.y(), cr.width(), cr.height(),
 				    align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point
@@ -672,7 +672,7 @@ void QLabel::setAutoMask(bool b)
 void QLabel::drawContentsMask( QPainter *p )
 {
     QRect cr = contentsRect();
-    int m = margin();
+    int m = indent();
     if ( m < 0 ) {
 	if ( frameWidth() > 0 )
 	    m = p->fontMetrics().width('x')/2;
@@ -693,7 +693,7 @@ void QLabel::drawContentsMask( QPainter *p )
     QMovie *mov = movie();
     if ( mov ) {
 	// ### could add movie to qDrawItem
-	QRect r = style().itemRect( p, 
+	QRect r = style().itemRect( p,
 				    cr.x(), cr.y(), cr.width(), cr.height(),
 				    align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point

@@ -6,3 +6,7 @@ The most important fixes since Beta 2:
 QLayoutIterator/QGLayoutIterator
 	The custom layout API has been changed: void removeCurrent()
 	has been replaced by QLayoutItem* takeCurrent().
+
+QLabel
+	The functions setMargin() and margin() have been renamed to
+	setIndent() and indent, to avoid collision with QFrame::setMargin()

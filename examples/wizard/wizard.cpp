@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/wizard/wizard.cpp#4 $
+** $Id: //depot/qt/main/examples/wizard/wizard.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -40,7 +40,7 @@ void Wizard::setupPage1()
                    "key here.\n\n"
                    "Your personal key\n"
                    "consists of 4 digits" );
-    info->setMargin( 8 );
+    info->setIndent( 8 );
     info->setMaximumWidth( info->sizeHint().width() );
 
     QVBox *page = new QVBox( page1 );
@@ -74,7 +74,7 @@ void Wizard::setupPage2()
                    "  The required fields are  \n"
                    "  First Name, Last Name \n"
                    "  and E-Mail.  \n" );
-    info->setMargin(8);
+    info->setIndent(8);
     info->setMaximumWidth( info->sizeHint().width() );
 
     QVBox *page = new QVBox( page2 );
@@ -130,7 +130,7 @@ void Wizard::setupPage3()
                    "  press the [Finish] button  \n"
                    "  else go back to correct  \n"
                    "  mistakes." );
-    info->setMargin(8);
+    info->setIndent(8);
     info->setAlignment( AlignTop|AlignLeft );
     info->setMaximumWidth( info->sizeHint().width() );
 

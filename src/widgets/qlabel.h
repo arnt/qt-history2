@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#54 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#55 $
 **
 ** Definition of QLabel widget class
 **
@@ -53,8 +53,8 @@ public:
 
     int		alignment()	const	{ return align; }
     virtual void setAlignment( int );
-    int		margin()	const	{ return extraMargin; }
-    void setMargin( int );
+    int		indent()	const	{ return extraMargin; }
+    void setIndent( int );
 
     bool	autoResize()	const	{ return autoresize; }
     virtual void setAutoResize( bool );

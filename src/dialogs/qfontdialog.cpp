@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#42 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#43 $
 **
 ** Implementation of QFontDialog
 **
@@ -157,7 +157,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->familyAccel
 	= new QLabel( d->familyEdit, tr("&Font"), this, "family accelerator" );
-    d->familyAccel->setMargin( 2 );
+    d->familyAccel->setIndent( 2 );
 
     d->styleEdit = new QExpandingLineEdit( this, "font style I", TRUE );
     d->styleEdit->setFocusPolicy( StrongFocus );
@@ -165,7 +165,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->styleList->setFocusPolicy( NoFocus );
     d->styleAccel
 	= new QLabel( d->styleEdit, tr("Font st&yle"), this, "style accelerator" );
-    d->styleAccel->setMargin( 2 );
+    d->styleAccel->setIndent( 2 );
 
     d->sizeEdit = new QExpandingLineEdit( this, "font size I", TRUE );
     d->sizeEdit->setFocusPolicy( StrongFocus );
@@ -173,7 +173,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeList->setFocusPolicy( NoFocus );
     d->sizeAccel
 	= new QLabel ( d->sizeEdit, tr("&Size"), this, "size accelerator" );
-    d->sizeAccel->setMargin( 2 );
+    d->sizeAccel->setIndent( 2 );
 
     // effects box
     d->effects = new QVGroupBox( tr("Effects"), this, "font effects" );
@@ -187,7 +187,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->color->setEnabled( FALSE );
     d->colorAccel
 	= new QLabel( d->color, tr("&Color"), d->effects, "color label" );
-    d->colorAccel->setMargin( 2 );
+    d->colorAccel->setIndent( 2 );
 #endif
 
     d->sample = new QHGroupBox( tr("Sample"), this, "sample text" );
@@ -204,7 +204,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->scriptAccel
 	= new QLabel( d->scriptCombo, tr("Scr&ipt"), this,"encoding label");
-    d->scriptAccel->setMargin( 2 );
+    d->scriptAccel->setIndent( 2 );
 
 #if 0
     connect( d->familyList, SIGNAL(highlighted(const QString&)),
