@@ -315,6 +315,7 @@ void ImageViewer::savePixmap( int item )
 void ImageViewer::newWindow()
 {
     ImageViewer* that = new ImageViewer(0, "new window", WDestructiveClose);
+    that->options->setItemChecked( that->cc, useColorContext() );
     that->show();
 }
 
