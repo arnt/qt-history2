@@ -1174,7 +1174,7 @@ QSize QHeader::sizeHint() const
     if ( d->heightDirty ) {
 	d->height = fm.lineSpacing() + 6;
 	for ( int i = 0; i < count(); i++ ) {
-	    int h = sectionSizeHint( i, fm ).height();
+	    int h = orient == Horizontal ? sectionSizeHint( i, fm ).height() : sectionSizeHint( i, fm ).width();
 	    d->height = QMAX( d->height, h );
 	}
 	d->heightDirty = FALSE;
@@ -1413,9 +1413,9 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if(isEnabled())
 	flags |= QStyle::Style_Enabled;
     if(isClickEnabled(section)) {
-	if(index == oldHandleIdx) 
+	if(index == oldHandleIdx)
 	    flags |= QStyle::Style_Sunken; //currently selected
-	if((state == Pressed || state == Moving) && index == handleIdx) 
+	if((state == Pressed || state == Moving) && index == handleIdx)
 	    flags |= QStyle::Style_Down; //currently pressed
     }
     if(!(flags & QStyle::Style_Down))
