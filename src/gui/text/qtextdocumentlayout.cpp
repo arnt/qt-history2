@@ -274,7 +274,8 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                                            QTextFrame *frame) const
 {
     QTextFrameData *fd = data(frame);
-    if (!fd->boundingRect.intersects(painter->clipRegion().boundingRect()))
+    if (painter->hasClipping()
+        && !fd->boundingRect.intersects(painter->clipRegion().boundingRect()))
         return;
 //     LDEBUG << debug_indent << "drawFrame" << frame->firstPosition() << "--" << frame->lastPosition() << "at" << offset;
 //     INC_INDENT;
