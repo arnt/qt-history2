@@ -304,22 +304,15 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     SetRect( &boundsRect, boundsPoint.h, boundsPoint.v, boundsPoint.h + pix.width(), boundsPoint.v + pix.height() );
     SetDragItemBounds( theDrag, (ItemReference)1 , &boundsRect );
 
-#if 0
+#ifdef Q_WS_MACX 
+    QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
+	QRegion r(0, 0, pix.width(), pix.height());
+	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), (RgnHandle)r.handle(), boundsPoint, 0);
+#else
     QBitmap pixbits;
     pixbits = pix;
     QRegion dragRegion(pixbits);
     dragRegion.translate(boundsPoint.h, boundsPoint.v);
-#else
-    QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
-    if(0 && pix.mask() && !pix.mask()->isNull()) {
-#ifdef Q_WS_MACX    
-		SetDragImageWithAlpha(theDrag,  GetGWorldPixMap((GWorldPtr)pix.handle()), 
-			       GetGWorldPixMap((GWorldPtr)pix.mask()->handle()), boundsPoint, 0);
-#endif
-    } else {
-	QRegion r(0, 0, pix.width(), pix.height());
-	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), (RgnHandle)r.handle(), boundsPoint, 0);
-    }
 #endif
 
     fakeEvent.what = 0;
