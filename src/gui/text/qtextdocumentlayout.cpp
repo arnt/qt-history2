@@ -311,6 +311,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
         line.layout(right-left);
 
         floatMargins(d->currentYPos, &left, &right);
+        left = qMax(left, l);
+        right = qMax(right, r);
+
         if (line.width() > right-left) {
             // float has been added in the meantime, redo
             line.layout(right-left);
