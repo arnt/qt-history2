@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#44 $
 **
 ** Implementation of QML classes
 **
@@ -4387,12 +4387,6 @@ void QMLBrowser::setContents( const QString& contents )
   \fn void QMLBrowser::contentsChanged()
   This signal is emitted whenever the setContents() changes the
   contents (eg. because the user clicked on a link).
-*/
-
-/*!
-  \fn void QMLBrowser::highlighted (const QString &)
-  This signal is emitted when the user has selected but not activated
-  a link in the document.
 */
 
 /*!
