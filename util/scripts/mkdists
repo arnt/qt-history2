@@ -759,7 +759,7 @@ for plat in mac win x11 qws; do
 	#remove platform specific files that don't belong
 	status "Final cleanup.."
 	if [ ! -e "$PLAT_RM_FILE" ]; then
-	    for file in `find $PLATDIR -name '*_[a-z0-9]*.cpp' -o -name '*_[a-z0-9]*.h' -o -name '*_[a-z0-9]*.c'`
+	    for file in `find $PLATDIR -name '*_[a-z0-9]*\.*'`
 	    do
 		[ -d $file ] && continue
 		match=`basename $file | sed "s,.*_,," | cut -d'.' -f1`
