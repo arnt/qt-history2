@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#10 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#11 $
 **
 **  Table header
 **
@@ -102,8 +102,8 @@ private:
     Orientation orient;
 
 private:	// Disabled copy constructor and operator=
-    QHeader( const QHeader & ) {}
-    QHeader &operator=( const QHeader & ) { return *this; }
+    QHeader( const QHeader & );
+    QHeader &operator=( const QHeader & );
 };
 
 

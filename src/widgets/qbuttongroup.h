@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#16 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#17 $
 **
 ** Definition of QButtonGroup class
 **
@@ -50,8 +50,8 @@ private:
     QButtonList *buttons;
 
 private:	// Disabled copy constructor and operator=
-    QButtonGroup( const QButtonGroup & ) {}
-    QButtonGroup &operator=( const QButtonGroup & ) { return *this; }
+    QButtonGroup( const QButtonGroup & );
+    QButtonGroup &operator=( const QButtonGroup & );
 };
 
 

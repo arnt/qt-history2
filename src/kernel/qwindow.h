@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.h#8 $
+** $Id: //depot/qt/main/src/kernel/qwindow.h#9 $
 **
 ** Definition of QWindow class
 **
@@ -23,8 +23,8 @@ public:
    ~QWindow();
 
 private:	// Disabled copy constructor and operator=
-    QWindow( const QWindow & ) {}
-    QWindow &operator=( const QWindow & ) { return *this; }
+    QWindow( const QWindow & );
+    QWindow &operator=( const QWindow & );
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#136 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#137 $
 **
 ** Definition of QWidget class
 **
@@ -80,7 +80,7 @@ public:
     void	 setFixedSize( int w, int h );
     void	 setFixedWidth( int w );
     void	 setFixedHeight( int h );
-    
+
     void	 setAutoMinimumSize( bool );
     bool	 autoMinimumSize() const;
 
@@ -330,8 +330,8 @@ private:
     friend class QETWidget;
 
 private:	// Disabled copy constructor and operator=
-    QWidget( const QWidget & ) :QPaintDevice(0) {}
-    QWidget &operator=( const QWidget & ) { return *this; }
+    QWidget( const QWidget & );
+    QWidget &operator=( const QWidget & );
 };
 
 

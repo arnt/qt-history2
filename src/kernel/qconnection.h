@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.h#13 $
+** $Id: //depot/qt/main/src/kernel/qconnection.h#14 $
 **
 ** Definition of QConnection class
 **
@@ -38,8 +38,8 @@ private:
     int	     nargs;
 
 private:	// Disabled copy constructor and operator=
-    QConnection( const QConnection & ) {}
-    QConnection &operator=( const QConnection & ) { return *this; }
+    QConnection( const QConnection & );
+    QConnection &operator=( const QConnection & );
 };
 
 

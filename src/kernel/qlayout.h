@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#14 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#15 $
 **
 ** Definition of layout classes
 **
@@ -36,7 +36,7 @@ public:
     void  setMenuBar( QMenuBar *w );
 
     QWidget *mainWidget();
-    
+
 protected:
     QLayout( QWidget *parent,  int border,
 	     int autoBorder, const char *name );
@@ -59,8 +59,8 @@ private:
 
     QLayoutData *extraData;
 private:	// Disabled copy constructor and operator=
-    QLayout( const QLayout & ) {}
-    QLayout &operator=( const QLayout & ) { return *this; }
+    QLayout( const QLayout & );
+    QLayout &operator=( const QLayout & );
 
 };
 
@@ -69,7 +69,7 @@ class QBoxLayout : public QLayout
 {
     Q_OBJECT
 public:
-    enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop, 
+    enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
 		     Down = TopToBottom, Up = BottomToTop };
 
     QBoxLayout( QWidget *parent, Direction, int border=0,
@@ -101,8 +101,8 @@ private:
     bool    pristine;
 
 private:	// Disabled copy constructor and operator=
-    QBoxLayout( const QBoxLayout & ) : QLayout(0) {}
-    QBoxLayout &operator=( const QBoxLayout & ) { return *this; }
+    QBoxLayout( const QBoxLayout & );
+    QBoxLayout &operator=( const QBoxLayout & );
 
 };
 
@@ -145,7 +145,7 @@ public:
 		 const char *name=0 );
     ~QGridLayout();
     void addWidget( QWidget *, int row, int col, int align = 0 );
-    void addMultiCellWidget( QWidget *, int fromRow, int toRow, 
+    void addMultiCellWidget( QWidget *, int fromRow, int toRow,
 			       int fromCol, int toCol, int align = 0 );
     void addLayout( QLayout *layout, int row, int col);
 
@@ -171,8 +171,8 @@ private:
     int cc;
 
 private:	// Disabled copy constructor and operator=
-    QGridLayout( const QGridLayout & ) :QLayout(0) {}
-    QGridLayout &operator=( const QGridLayout & ) { return *this; }
+    QGridLayout( const QGridLayout & );
+    QGridLayout &operator=( const QGridLayout & );
 };
 
 

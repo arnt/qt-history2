@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#32 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#33 $
 **
 ** Definition of QLabel widget class
 **
@@ -69,8 +69,8 @@ private:
     void	unsetMovie();
 
 private:	// Disabled copy constructor and operator=
-    QLabel( const QLabel & ) {}
-    QLabel &operator=( const QLabel & ) { return *this; }
+    QLabel( const QLabel & );
+    QLabel &operator=( const QLabel & );
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#17 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#18 $
 **
 ** Definition of QPicture class
 **
@@ -44,8 +44,8 @@ private:
     bool	formatOk;
 
 private:	// Disabled copy constructor and operator=
-    QPicture( const QPicture & ) :QPaintDevice(0) {}
-    QPicture &operator=( const QPicture & ) { return *this; }
+    QPicture( const QPicture & );
+    QPicture &operator=( const QPicture & );
 };
 
 

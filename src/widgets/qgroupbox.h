@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#10 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#11 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -38,8 +38,8 @@ private:
     int		align;
 
 private:	// Disabled copy constructor and operator=
-    QGroupBox( const QGroupBox & ) {}
-    QGroupBox &operator=( const QGroupBox & ) { return *this; }
+    QGroupBox( const QGroupBox & );
+    QGroupBox &operator=( const QGroupBox & );
 };
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#46 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#47 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -120,8 +120,8 @@ private:
     bool	scrollingLeft;
 
 private:	// Disabled copy constructor and operator=
-    QLineEdit( const QLineEdit & ) {}
-    QLineEdit &operator=( const QLineEdit & ) { return *this; }
+    QLineEdit( const QLineEdit & );
+    QLineEdit &operator=( const QLineEdit & );
 
     friend class QComboBox;
 };

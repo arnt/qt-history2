@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#53 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#54 $
 **
 ** Definition of QListBox widget class
 **
@@ -51,8 +51,8 @@ private:
     friend class QListBox;
 
 private:	// Disabled copy constructor and operator=
-    QListBoxItem( const QListBoxItem & ) {}
-    QListBoxItem &operator=( const QListBoxItem & ) { return *this; }
+    QListBoxItem( const QListBoxItem & );
+    QListBoxItem &operator=( const QListBoxItem & );
 };
 
 
@@ -65,8 +65,8 @@ public:
     int	  height( const QListBox * ) const;
     int	  width( const QListBox * )  const;
 private:	// Disabled copy constructor and operator=
-    QListBoxText( const QListBoxText & ) {}
-    QListBoxText &operator=( const QListBoxText & ) { return *this; }
+    QListBoxText( const QListBoxText & );
+    QListBoxText &operator=( const QListBoxText & );
 };
 
 
@@ -83,8 +83,8 @@ protected:
 private:
     QPixmap pm;
 private:	// Disabled copy constructor and operator=
-    QListBoxPixmap( const QListBoxPixmap & ) {}
-    QListBoxPixmap &operator=( const QListBoxPixmap & ) { return *this; }
+    QListBoxPixmap( const QListBoxPixmap & );
+    QListBoxPixmap &operator=( const QListBoxPixmap & );
 };
 
 
@@ -211,8 +211,8 @@ private:
     QLBItemList *itemList;
 
 private:	// Disabled copy constructor and operator=
-    QListBox( const QListBox & ) {}
-    QListBox &operator=( const QListBox & ) { return *this; }
+    QListBox( const QListBox & );
+    QListBox &operator=( const QListBox & );
 };
 
 

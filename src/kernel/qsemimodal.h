@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.h#1 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.h#2 $
 **
 ** Definition of QSemiModal class
 **
@@ -36,8 +36,8 @@ private:
     uint	did_resize : 1;
 
 private:	// Disabled copy constructor and operator=
-    QSemiModal( const QSemiModal & ) {}
-    QSemiModal &operator=( const QSemiModal & ) { return *this; }
+    QSemiModal( const QSemiModal & );
+    QSemiModal &operator=( const QSemiModal & );
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#44 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#45 $
 **
 ** Definition of QObject class
 **
@@ -126,8 +126,8 @@ private:
     friend class QSenderObject;
 
 private:	// Disabled copy constructor and operator=
-    QObject( const QObject & ) {}
-    QObject &operator=( const QObject & ) { return *this; }
+    QObject( const QObject & );
+    QObject &operator=( const QObject & );
 };
 
 

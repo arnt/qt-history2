@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#9 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#10 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -40,8 +40,8 @@ private:
     friend class QPrinter;
 
 private:	// Disabled copy constructor and operator=
-    QPSPrinter( const QPSPrinter & ):QPaintDevice(0) {}
-    QPSPrinter &operator=( const QPSPrinter & ) { return *this; }
+    QPSPrinter( const QPSPrinter & );
+    QPSPrinter &operator=( const QPSPrinter & );
 
     void matrixSetup( QPainter * );
     void orientationSetup();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#26 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#27 $
 **
 ** Definition of QAccel class
 **
@@ -63,8 +63,8 @@ private:
     QWidget    *tlw;
 
 private:	// Disabled copy constructor and operator=
-    QAccel( const QAccel & ) {}
-    QAccel &operator=( const QAccel & ) { return *this; }
+    QAccel( const QAccel & );
+    QAccel &operator=( const QAccel & );
 };
 
 

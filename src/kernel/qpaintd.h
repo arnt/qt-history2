@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#47 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#48 $
 **
 ** Definition of QPaintDevice class
 **
@@ -105,8 +105,8 @@ private:
 #endif
 
 private:	// Disabled copy constructor and operator=
-    QPaintDevice( const QPaintDevice & ) {}
-    QPaintDevice &operator=( const QPaintDevice & ) { return *this; }
+    QPaintDevice( const QPaintDevice & );
+    QPaintDevice &operator=( const QPaintDevice & );
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#7 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#8 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -72,8 +72,8 @@ private:
     bool frozen;
 
 private:	// Disabled copy constructor and operator=
-    QGManager( const QGManager & ) {}
-    QGManager &operator=( const QGManager & ) { return *this; }
+    QGManager( const QGManager & );
+    QGManager &operator=( const QGManager & );
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#96 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#97 $
 **
 ** Definition of QPainter class
 **
@@ -283,8 +283,8 @@ protected:
     friend class QFontInfo;
 
 private:	// Disabled copy constructor and operator=
-    QPainter( const QPainter & ) {}
-    QPainter &operator=( const QPainter & ) { return *this; }
+    QPainter( const QPainter & );
+    QPainter &operator=( const QPainter & );
 };
 
 

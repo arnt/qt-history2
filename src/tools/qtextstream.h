@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#22 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#23 $
 **
 ** Definition of QTextStream class
 **
@@ -109,8 +109,8 @@ private:
     bool	 owndev;
 
 private:	// Disabled copy constructor and operator=
-    QTextStream( const QTextStream & ) {}
-    QTextStream &operator=( const QTextStream & ) { return *this; }
+    QTextStream( const QTextStream & );
+    QTextStream &operator=( const QTextStream & );
 };
 
 typedef QTextStream QTS;
