@@ -222,7 +222,7 @@ QModelIndex topLevelIndex = model->index(2, 1, QModelIndex(), ...); // 'X'
 QModelIndex childIndex = model->index(3, 4, topLevelIndex, ...);
 \endcode
 
-Note that we used \c QModelIndex() to construct an invalid model index.
+Note that we used QModelIndex() to construct an invalid model index.
 
 \section2 Item types and roles
 
@@ -288,8 +288,8 @@ associated with an item.
 
 \section1 Using an existing model
 
-One of the models provided by Qt is the QDirModel, a model that maintains
-information about the contents of a directory. This provides a
+One of the models provided by Qt is the \l QDirModel, a model that
+maintains information about the contents of a directory. This provides a
 ready-to-use model to experiment with, and can be easily set up with
 existing data. Using this model, we can show how to set up a model for
 use with ready-made views, and explore how to manipulate data using
@@ -297,9 +297,9 @@ model indices.
 
 \section2 Using views with a model
 
-The QListView and QTreeView classes are the most suitable view to use with
-QDirModel. The example presented below displays the contents of a
-directory in a tree view next to the same information in a list view.
+The \l QListView and \l QTreeView classes are the most suitable view to
+use with QDirModel. The example presented below displays the contents
+of a directory in a tree view next to the same information in a list view.
 The views share the user's selection so that the selected items are
 highlighted in both views.
 
@@ -308,7 +308,7 @@ highlighted in both views.
 We will first set up a QDirModel so that it is ready for use then create
 some views to display the contents of a directory. This shows the simplest
 pattern of use of a model. The construction and use of the model is
-performed from within a single \c main() function:
+performed from within a single main() function:
 
 \quotefile shareddirmodel/main.cpp
 \skipto int main
@@ -342,9 +342,9 @@ document that deals with
 To demonstrate how data can be retrieved from a model, using model
 indices, we will set up a QDirModel without a view and print out the
 names of files and directories to a terminal. We will use the
-\c qDebug() function for this purpose.
+qDebug() function for this purpose.
 Although this does not show a normal way of using a model, it demonstrates
-the conventions used by models when dealing with QModelIndex instances.
+the conventions used by models when dealing with model indices.
 
 We construct a directory model in the same way as before:
 
@@ -353,8 +353,8 @@ We construct a directory model in the same way as before:
 \printuntil int numRows
 
 In this case, we ensure that all files and directories are reported by
-the model, and we count the number of rows in the model using the
-\l{QDirModel::rowCount()}{rowCount()} function.
+the model by setting the file filter, and we count the number of rows
+in the model using the \l{QDirModel::rowCount()}{rowCount()} function.
 
 For simplicity, we are only interested in the items in the first column
 of the model. We examine each row in turn, obtaining a model index for
@@ -367,7 +367,7 @@ in the model.
 To obtain a model index, we specify the row number, column number (zero
 for the first column), the appropriate parent model index for top-level
 model items (the default invalid model index), and the type of
-information required. The type of index we want is the \c View type
+information required. We want the \c View type of index
 because we need the information that would be displayed in a view,
 rather than the information used in a header.
 
@@ -385,13 +385,15 @@ The above example demonstrates the basic principles used to retrieve
 data from a model:
 
 \list
-\i The dimensions of a model can be found using the
+\i The dimensions of a model can be found using
    \l{QAbstractItemModel::rowCount()}{rowCount()} and
-   \l{QAbstractItemModel::columnCount()}{columnCount()} functions.
+   \l{QAbstractItemModel::columnCount()}{columnCount()}.
+   These functions generally require a parent model index to be
+   specified.
 \i Model indices are used to access items in the model. The row, column,
    parent model index, and item type are needed to specify the item.
 \i To access top-level items in a model, specify an invalid model index
-   as the parent index.
+   as the parent index with QModelIndex().
 \i Items contain data for different roles. To obtain the data for a
    particular role, both the model index and the role must be supplied
    to the model.
@@ -457,7 +459,7 @@ application. One result of this is that we must specify the model to
 the view, and not the view to 
 \endomit
 
-\section2 Using an existing view
+\section1 Using an existing view
 
 Qt provides three ready-to-use view classes that present data from
 models in ways that are familiar to most users.
@@ -475,7 +477,7 @@ sufficient for use in most applications. They provide basic editing
 facilities, and can be customized to suit the needs of more specialized
 user interfaces.
 
-\section3 Using a model 
+\section2 Using a model 
 
 We will take the \l{model-view-subclassing-model.html}{string list model}
 that we created as an example model, set it up with some data, and
@@ -515,7 +517,7 @@ The above image shows how a \l QListView represents the data in the
 string list model. Each item in the list can be edited with the default
 delegate.
 
-\section3 Using multiple views onto the same model
+\section2 Using multiple views onto the same model
 
 Providing multiple views onto the same model is simply a matter of
 setting the same model for each view. In the following code, we create
@@ -541,7 +543,7 @@ is shown consistently across view, each view maintains its own internal
 selection model. This can be useful in certain situations but, for
 many applications, a shared selection model is desirable.
 
-\section2 Handling selections of items
+\section1 Handling selections of items
 
 The mechanism for handling selections of items within views is provided
 by the \l QItemSelectionModel class. Each of the standard views construct
@@ -560,7 +562,7 @@ interface to the selection model can be accessed, if required, and
 this is explored in the section on
 \l{model-view-selection.html}{handling selections}.
 
-\section3 Sharing selections between views
+\section2 Sharing selections between views
 
 Although it is convenient that the view classes provide their own
 selection models by default, when we use more than one view onto the
@@ -1019,18 +1021,18 @@ indices.
     \section1 A read-only example model
 
     The model implemented here is a simple, non-hierarchical, read-only data
-    model. It has a \l QStringList as its internal data source, and implements
-    only what is needed for a functional model. To make the implementation
-    easier, we subclass \l QAbstractListModel because it provides default
-    behavior for list models, and it exposes a simpler interface than the
-    \l QAbstractItemModel class.
+    model. It has a \l QStringList as its internal data source, and
+    implements only what is needed to make a functioning model. To make the
+    implementation easier, we subclass \l QAbstractListModel because it
+    defines sensible default behavior for list models, and it exposes a
+    simpler interface than the \l QAbstractItemModel class.
 
-    When implementing a model it is important to remember that the
-    \l QAbstractItemModel class does not store any data itself, it merely
+    When implementing a model it is important to remember that
+    \l QAbstractItemModel does not store any data itself, it merely
     presents an interface that the views use to access the data.
     For a minimal read-only model it is only necessary to implement a few
     functions as there are default implementations for most of the
-    interface.
+    interface. The class declaration is as follows:
 
     \quotefile stringlistmodel/model.h
 
@@ -1040,18 +1042,22 @@ indices.
     \printuntil }
 
     Apart from the constructor of the model, we need to implement only two
-    functions: \c rowCount() returns the number of rows in the model, and
-    \c data() returns data corresponding to model item indices.
+    functions: \l{QAbstractItemModel::rowCount()}{rowCount()} returns the
+    number of rows in the model, and \l{QAbstractItemModel::data()}{data()}
+    returns data corresponding to model item indices.
 
     Note that this is a non-hierarchical model, so we don't have to worry
     about the parent-child relationships. If our model was hierarchical, we
-    would also have to implement the \c index() and \c parent() functions.
+    would also have to implement the
+    \l{QAbstractItemModel::index()}{index()} and
+    \l{QAbstractItemModel::parent()}{parent()} functions.
 
     \section2 Dimensions of the model
 
     We want the number of rows in the model to be the same as the number of
-    strings in the string list. We implement the \c rowCount() function with
-    this in mind:
+    strings in the string list. We implement the
+    \l{QAbstractItemModel::rowCount()}{rowCount()} function with this in
+    mind:
 
     \quotefile stringlistmodel/model.cpp
     \skipto int StringListModel
@@ -1060,16 +1066,19 @@ indices.
     Since the model is non-hierarchical, we can safely ignore the model index
     corresponding to the parent item. By default, models derived from
     \l QAbstractListModel only contain one column, so we do not need to
-    reimplement the \c columnCount() function.
+    reimplement the \l{QAbstractItemModel::columnCount()}{columnCount()}
+    function.
 
     \section2 Model data
 
-    The \c data() function is responsible for returning the data that
-    corresponds to the index argument. There are three types of indices:
-    \c View, \c HorizontalHeader, and \c VerticalHeader. If our model is
-    displayed in a view with headers, we want the headers to show the row and
-    column numbers. For \c View items, we want to return the strings in our
-    string list.
+    The \l{QAbstractItemModel::data()}{data()} function is responsible for
+    returning the data that corresponds to the index argument. There are
+    three types of indices: \l{QModelIndex::Type}{View},
+    \l{QModelIndex::Type}{HorizontalHeader}, and
+    \l{QModelIndex::Type}{VerticalHeader}. If our model
+    is displayed in a view with headers, we want the headers to show the
+    row and column numbers. For \l{QModelIndex::Type}{View} items,
+    we want to return the strings in our string list:
 
     \skipto QVariant
     \printuntil }
@@ -1078,17 +1087,21 @@ indices.
     role specified. The items in our model only have one role,
     \l{QAbstractItemModel::Role}{DisplayRole}, so we will return the data
     for items irrespective of the role specified.
-    However, we could reuse the data we provide for the \c DisplayRole in
-    other roles, such as the \c ToolTipRole that views can use to display
-    information about items in a tooltip.
+    However, we could reuse the data we provide for the
+    \l{QAbstractItemModel::Role}{DisplayRole} in
+    other roles, such as the
+    \l{QAbstractItemModel::Role}{ToolTipRole} that views can use to
+    display information about items in a tooltip.
 
     \section1 An editable model
 
-    The read-only model showed how simple choices could be presented to the
+    The read-only model shows how simple choices could be presented to the
     user but, for many applications, an editable list model is much more
     useful. We can modify the read-only model to make the items editable
-    by implementing two extra functions: \c isEditable() and \c setData().
-    These are declared in the header file:
+    by implementing two extra functions:
+    \l{QAbstractItemModel::isEditable()}{isEditable()} and
+    \l{QAbstractItemModel::setData()}{setData()}.
+    These are added to the class declaration:
 
     \quotefile stringlistmodel/model.h
     \skipto bool isEditable
@@ -1106,10 +1119,12 @@ indices.
 
     Note that we do not have to know how the delegate will perform the actual
     editing process. We only have to provide a way for the delegate to set the
-    data in the model. This is achieved through the \c setData() function:
+    data in the model. This is achieved through the
+    \l{QAbstractItemModel::setData()}{setData()} function:
 
     \quotefile stringlistmodel/model.cpp
     \skipto bool StringListModel::setData
+    \printuntil }
     \printuntil }
 
     In this model, the item in the string list that corresponds to the model
@@ -1124,8 +1139,9 @@ indices.
 
     When the data has been set, the model has to let the views know that the
     data in the model has changed. This is done by emitting the
-    \c dataChanged() signal. Since only one item has changed, the range of
-    items specified in the signal is limited to just one item.
+    \l{QAbstractItemModel::dataChanged()}{dataChanged()} signal. Since
+    only one item has changed, the range of items specified in the signal
+    is limited to just one item.
 
     \section2 Inserting and removing rows
 
