@@ -135,7 +135,16 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
     if ( !pHnd )
 	return 0;
 
+#if defined(QT_AOUT_UNDERSCORE)
+    // older a.out systems add an underscore in front of symbols
+    char* undrscr_symbol = new char[strlen(symbol)+2];
+    undrscr_symbol[0] = '_';
+    strcpy(undrscr_symbol+1, symbol);
+    void* address = dlsym( pHnd, undrscr_symbol );
+    delete [] undrscr_symbol;
+#else
     void* address = dlsym( pHnd, symbol );
+#endif
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     const char* error = dlerror();
     if ( error )
