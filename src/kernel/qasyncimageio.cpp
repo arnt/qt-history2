@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#52 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -65,6 +65,18 @@
   any further changes to the image until the next call to
   QImageFormat::decode().
 */
+
+/*!
+  \fn void QImageConsumer::frameDone( const QPoint&, const QRect& )
+
+  Called when a frame of an animated image has ended and been revealed
+  as changed().  The decoder will not make
+  any further changes to the image until the next call to
+  QImageFormat::decode().
+*/
+
+#warning "the two versions of frameDone() are related how? please document"
+
 
 /*!
   \fn void QImageConsumer::setLooping(int n)
