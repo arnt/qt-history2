@@ -567,8 +567,14 @@ void Project::save( bool onlyProjectFile )
     if ( isDummy() || filename.isEmpty() )
 	return;
 
-    if ( !modified )
+    if ( !modified ) {
+	if ( MainWindow::self->singleProjectMode() ) {
+	    LanguageInterface *iface = MetaDataBase::languageInterface( language() );
+	    if ( iface && iface->supports( LanguageInterface::CompressProject ) )
+		iface->compressProject( makeAbsolute( filename ), singleProFileName );
+	}
  	return;
+    }
 
     QFile f( filename );
     QString contents;
