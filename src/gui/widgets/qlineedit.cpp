@@ -93,7 +93,7 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     can be arbitrarily constrained using a validator() or an
     inputMask(), or both.
 
-    A related class is QTextEdit which allows multi-line, rich-text
+    A related class is QTextEdit which allows multi-line, rich text
     editing.
 
     You can change the text with setText() or insert(). The text is
