@@ -53,7 +53,8 @@ QString findRulesFile(QString fileName, QString programPath)
     }
     
     if(filePath.isEmpty()) {
-        filePath = QString (qgetenv("QTDIR")) + "/tools/porting/" + fileName;
+        filePath = QString(qInstallPathLibs()) + "/qt3to4/" + fileName;
+        qDebug(filePath.latin1());
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
