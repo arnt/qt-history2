@@ -159,11 +159,16 @@
 #  undef _XOPEN_SOURCE_EXTENDED	   // get rid of warnings
 #  define _XOPEN_SOURCE_EXTENDED 1 // fall back on XPG4-UNIX / SUS / UNIX 95
                                    // fall back on ol' XPG4 or XPG3
-// 2) POSIX standards more recent than the current X/Open specification are
-//    often available. Specify them separately.
+// 2) POSIX standards and X/Open drafts more recent than the current X/Open
+//    specification are often available. Specify them separately.
 #  define _POSIX_C_SOURCE 199506L  // IEEE Std 1003.1c (1995) / POSIX.1c
                                    // IEEE Std 1003.1b (1993) / POSIX.1b
                                    // IEEE Std 1003.1 (1990) / POSIX.1
+/* ### finalize before 3.0 ###
+#  define _FILE_OFFSET_BITS 64     // X/Open Large File Support (draft 8)
+                                   // choosing large file aware mode
+				   // vs. transitional mixed mode
+*/
 // 3) Some functions are neither in the current X/Open specification nor in
 //    any current POSIX standard. However they are still made available either
 //    by including specific platform-dependant header files (to be avoided)
