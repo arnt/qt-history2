@@ -271,6 +271,20 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeDrawPopupArrow(qt_glb_mac_rect(r, p), &info, static_cast<CGContextRef>(p->handle()),
                               kHIThemeOrientationNormal);
         break; }
+    case PE_TreeBranch: {
+        if (!(flags & Style_Children))
+            break;
+        HIThemeButtonDrawInfo bi;
+        bi.version = qt_mac_hitheme_version;
+        bi.state = flags & Style_Enabled ? kThemeStateActive : kThemeStateInactive;
+        if (flags & Style_Down)
+            bi.state |= kThemeStatePressed;
+        bi.kind = kThemeDisclosureButton;
+        bi.value = flags & Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
+        bi.adornment = kThemeAdornmentNone;
+        HIThemeDrawButton(qt_glb_mac_rect(r, p), &bi, static_cast<CGContextRef>(p->handle()),
+                          kHIThemeOrientationNormal, 0);
+        break; }
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;

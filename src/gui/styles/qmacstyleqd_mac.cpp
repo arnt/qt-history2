@@ -635,6 +635,19 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
     case PE_RubberBand:
 	p->fillRect(r, pal.highlight());
 	break;
+    case PE_TreeBranch: {
+        if (!(flags & Style_Children))
+            break;
+        ThemeButtonDrawInfo currentInfo;
+        currentInfo.state = (flags & Style_Enabled) ? kThemeStateActive : kThemeStateInactive;
+        if (flags & Style_Down)
+            currentInfo.state |= kThemeStatePressed;
+        currentInfo.value = flags & Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
+        currentInfo.adornment = kThemeAdornmentNone;
+        ((QMacStyleQDPainter *)p)->setport();
+        DrawThemeButton(qt_glb_mac_rect(r, p), kThemeDisclosureButton,
+                        &currentInfo, 0, 0, 0, 0);
+        break; }
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;
