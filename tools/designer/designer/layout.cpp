@@ -825,7 +825,7 @@ void GridLayout::buildGrid()
     grid = new Grid( y.size()-1, x.size()-1 );
 
     // Mark the cells in the grid that contains a widget
-    for ( QWidget* w = widgets.first(); w; w = widgets.next() ) {
+    for ( w = widgets.first(); w; w = widgets.next() ) {
 	QRect c(0,0,0,0), widgetPos = w->geometry();
 	// From left til right (not including)
 	for (uint cw=0; cw<x.size(); cw++) {
