@@ -428,8 +428,13 @@ QStringList Project::databaseFieldList( const QString &connection, const QString
     return conn->fields[ table ];
 }
 
+static bool inSaveConnections = FALSE;
+
 void Project::saveConnections()
 {
+    if ( inSaveConnections )
+	return;
+    inSaveConnections = TRUE;
     if ( !QFile::exists( dbFile ) )
 	setDatabaseDescription( QFileInfo( filename ).dirPath( TRUE ) + "/" + "database.db" );
 
@@ -450,6 +455,7 @@ void Project::saveConnections()
     }
 
     conf.write();
+    inSaveConnections = FALSE;
 }
 
 void Project::loadConnections()
