@@ -463,19 +463,10 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
     }
     offx = offy = wx = wy = vx = vy = 0;                      // default view origins
 
-    bool pdev_init = FALSE;
     unclipped = unclipp;
+    initPaintDevice(TRUE);
     if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
-
-	//offset painting in widget relative the tld
-	QPoint wp(posInWindow(w));
-	offx = wp.x();
-	offy = wp.y();
-
-	initPaintDevice(TRUE);
-	pdev_init = TRUE;
-	
         cfont = w->font();                      // use widget font
         cpen = QPen( w->foregroundColor() );    // use widget fg color
         if ( reinit ) {
@@ -499,8 +490,6 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
         ww = vw = pm->width();                  // default view size
         wh = vh = pm->height();
     } 
-    if(!pdev_init)
-	initPaintDevice(TRUE);
 
     if ( testf(ExtDev) ) {               // external device
         ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth ); // sanders
@@ -563,9 +552,9 @@ void QPainter::flush()
 	return;
 
     if ( pdev->devType() == QInternal::Widget ) 
-	QDFlushPortBuffer(GetWindowPort((WindowPtr)((QWidget *)pdev)->handle()), NULL);
-    else if( pdev->devType() == QInternal::Pixmap )
-	QDFlushPortBuffer((GWorldPtr)((QPixmap *)pdev)->handle(), NULL);
+	QDFlushPortBuffer(GetWindowPort((WindowPtr)pdev->handle()), NULL);
+    else if( pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Printer)
+	QDFlushPortBuffer((GWorldPtr)pdev->handle(), NULL);
 }
 
 void QPainter::setBackgroundColor( const QColor &c )
@@ -732,10 +721,8 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     OpenRgn();
     uint loopc;
     MoveTo( a[0].x()+offx, a[0].y()+offy );
-    for ( loopc = 1; loopc < a.size(); loopc++ ) {
+    for ( loopc = 1; loopc < a.size(); loopc++ ) 
 	LineTo( a[loopc].x()+offx, a[loopc].y()+offy );
-	MoveTo( a[loopc].x()+offx, a[loopc].y()+offy );
-    }
     LineTo( a[0].x()+offx, a[0].y()+offy );
     CloseRgn( polyRegion );
     if( close && this->brush().style() != NoBrush) {
@@ -882,8 +869,8 @@ void QPainter::moveTo( int x, int y )
     map( x, y, &x, &y );
   }
 
-  penx = x;
-  peny = y;
+  initPaintDevice();
+  MoveTo(x+offx, y+offy);
 }
 
 void QPainter::lineTo( int x, int y )
@@ -903,10 +890,7 @@ void QPainter::lineTo( int x, int y )
 
   initPaintDevice();
   updatePen();
-  MoveTo(penx+offx,peny+offy);
   LineTo(x+offx,y+offy);
-  penx = x;
-  peny = y;
 }
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
@@ -1645,12 +1629,12 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     drawTile( this, x, y, w, h, pixmap, sx, sy );
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int from, int len, QPainter::TextDirection dir) 
+void QPainter::drawText( int x, int y, const QString &str, int from, int len, QPainter::TextDirection) 
 {
     drawText(x, y, str.mid(from), len);
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection dir)
+void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection)
 {
     if ( !isActive() )
 	return;
@@ -1775,7 +1759,10 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 
 QPoint QPainter::pos() const
 {
-    return QPoint(penx, peny);
+    ((QPainter *)this)->initPaintDevice();
+    Point pt;
+    GetPen(&pt);
+    return QPoint(pt.h - offx, pt.v - offy);
 }
 
 #define TRY_CACHE 
@@ -1804,9 +1791,9 @@ void QPainter::initPaintDevice(bool force) {
 	    break;
 	    case QInternal::Widget:
 	    {
-		CGrafPtr p;
+		GrafPtr p;
 		GetPort(&p);
-		if(p == (CGrafPtr)pdev->handle())
+		if(p == GetWindowPort((WindowPtr)pdev->handle()))
 		    use_cache = TRUE;
 	    }
 	    break;
@@ -1815,7 +1802,6 @@ void QPainter::initPaintDevice(bool force) {
 	    }
 	    if(use_cache) 
 		return;
-//	    else qDebug("resetting..");
 	}
     }
 #endif
@@ -1829,6 +1815,11 @@ void QPainter::initPaintDevice(bool force) {
 	}
     } else if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
+
+	//offset painting in widget relative the tld
+	QPoint wp(posInWindow(w));
+	offx = wp.x();
+	offy = wp.y();
 
 	//set the correct window prot
 	SetPortWindowPort((WindowPtr)w->handle());

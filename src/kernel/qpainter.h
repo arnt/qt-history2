@@ -379,7 +379,6 @@ protected:
     void initPaintDevice(bool force=FALSE);
 
     int offx, offy;
-    int penx, peny;
     void * hd;
     QPixmap *brush_style_pix;
     bool unclipped;
