@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.h#7 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.h#8 $
 **
 ** Definition of QProgressDialog class
 **
 ** Created : 970520
 **
-** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,58 +13,61 @@
 #define QPROGDLG_H
 
 #include "qsemimodal.h"
-#include "qdatetm.h"
 #include "qpushbt.h"
 #include "qlabel.h"
 #include "qprogbar.h"
 
 struct QProgressData;
 
+
 class QProgressDialog : public QSemiModal
 {
     Q_OBJECT
 public:
-    QProgressDialog( const char* label, int totalsteps, QWidget *parent=0,
-	const char *name=0, bool modal=FALSE, WFlags f=0 );
-    ~QProgressDialog();
+    QProgressDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
+		     WFlags f=0 );
+    QProgressDialog( const char *labelText, const char *cancelButtonText,
+		     int totalSteps, QWidget *parent=0, const char *name=0,
+		     bool modal=FALSE, WFlags f=0 );
+   ~QProgressDialog();
 
-    void	setCancelButton( const char* );
-    void	reset( int totalsteps );
+    void	setLabel( QLabel * );
+    void	setCancelButton( QPushButton * );
+    void	setBar( QProgressBar * );
+
+    bool	wasCancelled() const;
+
+    int		totalSteps() const;
+    int		progress()   const;
 
     QSize	sizeHint() const;
 
-    int		totalSteps () const;
-    bool	setProgress( int progress );
-
 public slots:
-    void	setLabel( const char* );
     void	reset();
+    void	setTotalSteps( int totalSteps );
+    void	setProgress( int progress );
+    void	setLabelText( const char * );
+    void	setCancelButtonText( const char * );
 
 signals:
     void	cancelled();
 
 protected:
     void	resizeEvent( QResizeEvent * );
-    virtual QProgressBar*	createProgressBar(int totalsteps);
-    virtual QWidget*		createLabelWidget(const QString&);
     void	styleChange(GUIStyle);
 
 private:
-    void	layout();
-    QProgressBar*	the_bar;
-    QProgressData*	d;
-
-    int		totalsteps;
+    void	   center();
+    void	   layout();
+    QLabel	  *label()  const;
+    QPushButton	  *cancel() const;
+    QProgressBar  *bar()    const;
+    QProgressData *d;
 
 private:	// Disabled copy constructor and operator=
     QProgressDialog( const QProgressDialog & ) {}
     QProgressDialog &operator=( const QProgressDialog & ) { return *this; }
-    void center();
-    QProgressBar& bar() const;
-    const QWidget& label() const;
-    QWidget& label();
 };
 
-inline int QProgressDialog::totalSteps() const { return totalsteps; }
 
-#endif // QPROGBAR_H
+#endif // QPROGDLG_H
