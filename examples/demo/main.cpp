@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#4 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#5 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -11,6 +11,9 @@
 #include "frame.h"
 #include "graph.h"
 #include "textdrawing/textedit.h"
+#include "textdrawing/helpwindow.h"
+
+#include <stdlib.h>
 
 #include <qapplication.h>
 #include <qimage.h>
@@ -56,6 +59,9 @@ int main( int argc, char **argv )
     tab = new QTabWidget();
     w = new TextEdit( tab );
     tab->addTab( w, "Richtext Editor" );
+    QString home = QString(getenv("QTDIR")) + "/doc/html/index.html";
+    w = new HelpWindow( home, ".", 0, "helpviewer" );
+    tab->addTab( w, "Help Browser" );
     frame.addCategory( tab, pix, "Text Drawing/Editing" );
 
     a.setMainWidget( &frame );
