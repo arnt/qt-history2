@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/iconview/qiconview.cpp#92 $
+** $Id: //depot/qt/main/src/iconview/qiconview.cpp#93 $
 **
 ** Implementation of QIconView widget class
 **
@@ -4270,10 +4270,11 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
     if ( emitClicked ) {
 	emit mouseButtonClicked( e->button(), item, e->globalPos() );
-	emit clicked( item );
-	emit clicked( item, e->globalPos() );
 	if ( e->button() == RightButton ) {
 	    emit rightButtonClicked( item, e->globalPos() );
+	} else {
+	    emit clicked( item );
+	    emit clicked( item, e->globalPos() );
 	}
     }
 }
