@@ -120,12 +120,17 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 
     if (!o->isWidgetType())
         return false;
-    else if (isPassiveInteractor(w))
-        return false;
-
+        
     FormWindow *fw = FormWindow::findFormWindow(w);
     if (!fw)
         return false;
+
+    if (isPassiveInteractor(w)) {
+        if (fw->editMode() == FormWindow::TabOrderEditMode)
+            fw->updateOrderIndicators();
+            
+        return false;
+    }
 
     w = findManagedWidget(fw, w);
     if (!w)

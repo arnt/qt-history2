@@ -489,12 +489,10 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
     if ((e->buttons() & Qt::LeftButton) != Qt::LeftButton)
         return;
 
-    QWidget *newendWidget = endWidget, *wid = 0;
-    bool drawRecRect;
     QPoint pos = mapFromGlobal(e->globalPos());
 
-    switch (currentTool()) {
-    case PointerTool:
+    switch (editMode()) {
+    case WidgetEditMode:
         if (drawRubber) { // draw rubber if we are in rubber-selection mode
             continueRectDraw(e->globalPos(), this, Rubber);
         } else if ((e->modifiers() == 0 || e->modifiers() & Qt::ControlModifier) 
@@ -538,10 +536,14 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
         }
         break;
 
-    case OrderTool:
+    case TabOrderEditMode:
         break;
 
-    case BuddyTool:
+#if 0
+    case BuddyEditMode: {
+        bool drawRecRect;
+        QWidget *newendWidget = endWidget, *wid = 0;
+        
         if (!validForBuddy)
             break;
 
@@ -560,16 +562,15 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
         else if (isManaged(newendWidget) && !isCentralWidget(newendWidget))
             endWidget = newendWidget;
 
-#if 0 /// ### enable me
         if (endWidget)
             mainWindow()->statusBar()->message(tr("Set buddy '%1' to '%2'").arg(startWidget->name()).
                                                 arg(endWidget->name()));
         else
             mainWindow()->statusBar()->message(tr("Set buddy '%1' to ...").arg(startWidget->name()));
-#endif
 
         currentPos = mapFromGlobal(e->globalPos());
-        break;
+    } break;
+#endif
 
     default: // we are in an insert-widget tool
         break;
@@ -582,8 +583,8 @@ void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
     if (e->button() != Qt::LeftButton)
         return;
 
-    switch (currentTool()) {
-    case PointerTool:
+    switch (editMode()) {
+    case WidgetEditMode:
         if (drawRubber) { // we were drawing a rubber selection
             endRectDraw(); // get rid of the rectangle
             bool block = blockSignals(true);
@@ -593,30 +594,30 @@ void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
         }
         break;
 
-    case OrderTool:
+    case TabOrderEditMode:
         break;
 
-    case BuddyTool:
+#if 0
+    case BuddyEditMode:
         if (startWidget && endWidget) {
            if (validForBuddy && startWidget != endWidget) {
                 QString oldBuddy = startWidget->property("buddy").toString();
                 if (oldBuddy.isNull())
                     oldBuddy = QLatin1String("");
 
-#if 0 // ### port me [command]
                 SetPropertyCommand *cmd = new SetPropertyCommand(tr("Set buddy for " + startWidget->objectName()),
                                                                   this, startWidget,
                                                                   "buddy", startWidget->property("buddy"),
                                                                   endWidget->objectName());
                 commandHistory()->push(cmd);
-#endif
             }
         }
 
         startWidget = endWidget = 0;
         break;
+#endif
 
-    default: // any insert widget tool is active
+    default:
         break;
     }
     
@@ -1482,8 +1483,8 @@ void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent * /*e*/)
 
 void FormWindow::handleContextMenu(QWidget *w, QContextMenuEvent *e)
 {
-    switch (currentTool()) {
-    case PointerTool: {
+    switch (editMode()) {
+    case WidgetEditMode: {
         if (!isMainContainer(w)) { // press on a child widget
             raiseChildSelections(w); // raise selections and select widget
             selectWidget(w);
@@ -1805,7 +1806,8 @@ void FormWindow::repositionOrderIndicators()
 void FormWindow::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
-    if (currentTool() == OrderTool)
+    
+    if (editMode() == TabOrderEditMode)
         repositionOrderIndicators();
     
     if (m_mainContainer != 0)
@@ -1869,11 +1871,6 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
     }
     
     return container;
-}
-
-int FormWindow::currentTool() const
-{
-    return PointerTool;
 }
 
 void FormWindow::simplifySelection(QList<QWidget*> *sel)

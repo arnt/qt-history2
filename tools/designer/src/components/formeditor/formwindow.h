@@ -161,7 +161,6 @@ public:
 
     bool unify(QObject *w, QString &s, bool changeIt);
 
-    int currentTool() const;
     bool isDirty() const;
     void setDirty(bool dirty);
 
@@ -219,7 +218,6 @@ private:
     void init();
     QPoint gridPoint(const QPoint &p) const;
 
-    enum Tool { PointerTool, BuddyTool, OrderTool };
     enum RectType { Insert, Rubber };
 
     void startRectDraw(const QPoint &global, QWidget *, RectType t);
