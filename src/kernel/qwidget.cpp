@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#185 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#184 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#185 $");
 
 
 /*!
@@ -1337,6 +1337,14 @@ const QPixmap *QWidget::backgroundPixmap() const
     return (extra && extra->bg_pix) ? extra->bg_pix : 0;
 }
 
+/*!
+  Returns TRUE if the background has been set empty by a call to
+  setBackgroundEmpty().
+*/
+bool QWidget::backgroundEmpty() const
+{
+    return (extra && extra->bg_pix) ? extra->bg_pix->isNull() : FALSE;
+}
 
 /*!
   \fn void QWidget::backgroundPixmapChange( const QPixmap & oldBackgroundPixmap )

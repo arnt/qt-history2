@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#190 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#189 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#190 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -530,17 +530,15 @@ void QWidget::setBackgroundColor( const QColor &color )
     backgroundColorChange( old );
 }
 
-#if QT_VERSION == 200
-#error "Consider making setBackgroundEmpty virtual"
-#endif
 static int allow_null_pixmaps = 0;
-
 
 /*!
   Sets the background pixmap of the widget to \e pixmap.
 
   The background pixmap is tiled.  Some widgets (e.g. QLineEdit) do
   not work well with a background pixmap.
+
+  This function is call with a null pixmap by setBackgroundEmpty().
 
   \sa backgroundPixmap(), backgroundPixmapChange(), setBackgroundColor()
 */
@@ -577,10 +575,6 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 }
 
 
-#if QT_VERSION == 200
-#error "Make setBackgroundEmpty virtual"
-#endif
-
 /*!
   Sets the window-system background of the widget to nothing.
 
@@ -597,8 +591,12 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
   can check for an empty background by checking backgroundPixmap().
 
   \sa setBackgroundPixmap(), setBackgroundColor()
-*/
 
+  \internal
+
+  This class should \e NOT be made virtual - it is an alternate usage
+  of setBackgroundPixmap().
+*/
 void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
