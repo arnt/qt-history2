@@ -60,7 +60,7 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p )
     pro->addFormFile( this );
     loadCode();
     if ( !temp )
-	checkFileName();
+	checkFileName( FALSE );
 }
 
 FormFile::~FormFile()
@@ -262,12 +262,18 @@ bool FormFile::saveAs()
 		QMessageBox::Yes,
 		QMessageBox::No ) == QMessageBox::Yes ) {
 		saved = TRUE;
+	    } else {
+		filename = f;
 	    }
 
-	} else
+	} else {
 	    saved = TRUE;
+	}
     }
-    checkFileName();
+    if ( !checkFileName( TRUE ) ) {
+	filename = f;
+	return FALSE;
+    }
     pro->setModified( TRUE );
     timeStamp.setFileName( pro->makeAbsolute( codeFile() ) );
     if ( ed )
@@ -653,7 +659,7 @@ void FormFile::formWindowChangedSomehow()
     emit somethingChanged( this );
 }
 
-void FormFile::checkFileName()
+bool FormFile::checkFileName( bool allowBreak )
 {
     FormFile *ff = pro->findFormFile( filename, this );
     if ( ff )
@@ -662,14 +668,18 @@ void FormFile::checkFileName()
 				  "filename of '%1'. Please choose a new filename." ).arg( filename ) );
     while ( ff ) {
 	QString fn;
-	while ( fn.isEmpty() )
+	while ( fn.isEmpty() ) {
 	    fn = QFileDialog::getSaveFileName( pro->makeAbsolute( fileName() ),
 					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
 					       tr( "All Files (*)" ), MainWindow::self, 0,
 					       tr( "Save Form '%1' As ...").
 					       arg( formWindow()->name() ),
 					       &MainWindow::self->lastSaveFilter );
+	    if ( allowBreak && fn.isEmpty() )
+		return FALSE;
+	}
 	filename = pro->makeRelative( fn );
 	ff = pro->findFormFile( filename, this );
      }
- }
+    return TRUE;
+}

@@ -60,7 +60,7 @@ public:
     static QString createUnnamedFileName( const QString &extension );
 
 private:
-    void checkFileName();
+    bool checkFileName( bool allowBreak );
 
 private:
     QString filename;

@@ -92,7 +92,7 @@ private:
     void setCodeModified( bool m );
     QString codeExtension() const;
     void parseCode( const QString &txt );
-    void checkFileName();
+    bool checkFileName( bool allowBreak );
 
 private:
     QString filename;

@@ -38,7 +38,7 @@ SourceFile::SourceFile( const QString &fn, bool temp, Project *p )
     pro->addSourceFile( this );
     MetaDataBase::addEntry( this );
     if ( !temp )
-	checkFileName();
+	checkFileName( FALSE );
 }
 
 SourceFile::~SourceFile()
@@ -101,12 +101,16 @@ bool SourceFile::saveAs()
     if ( iface )
 	filter = iface->fileFilterList().join(";;");
 
+    QString old = filename;
     QString fn = QFileDialog::getSaveFileName( pro->makeAbsolute( filename ), filter );
     if ( fn.isEmpty() )
 	return FALSE;
     fileNameTemp = FALSE;
     filename = pro->makeRelative( fn );
-    checkFileName();
+    if ( !checkFileName( TRUE ) ) {
+	filename = old;
+	return FALSE;
+    }
     pro->setModified( TRUE );
     timeStamp.setFileName( pro->makeAbsolute( filename ) );
     if ( ed )
@@ -235,7 +239,7 @@ void SourceFile::checkTimeStamp()
     }
 }
 
-void SourceFile::checkFileName()
+bool SourceFile::checkFileName( bool allowBreak )
 {
     SourceFile *sf = pro->findSourceFile( filename, this );
     if ( sf )
@@ -248,9 +252,13 @@ void SourceFile::checkFileName()
 	if ( iface )
 	    filter = iface->fileFilterList().join(";;");
 	QString fn;
-	while ( fn.isEmpty() )
+	while ( fn.isEmpty() ) {
 	    fn = QFileDialog::getSaveFileName( pro->makeAbsolute( filename ), filter );
+	    if ( allowBreak && fn.isEmpty() )
+		return FALSE;
+	}
 	filename = pro->makeRelative( fn );
 	sf = pro->findSourceFile( filename, this );
     }
+    return TRUE;
 }
