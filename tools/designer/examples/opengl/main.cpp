@@ -245,7 +245,7 @@ QString OpenGLWidgetInterface::group( const QString &description ) const
 QIconSet OpenGLWidgetInterface::iconSet( const QString &description ) const
 {
     if ( description == "GLWidget" )
-	return QIconSet( (const char**)cube_xmp );
+	return QIconSet( QPixmap(cube_xmp) );
     return QIconSet();
 }
 
