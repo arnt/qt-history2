@@ -397,6 +397,15 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
 
     Q_ASSERT(newFormat.isValid());
 
+    /* if we have only one block then QTextCursor calls us with
+     * pos == length(), which is okay as-is, but also means we have
+     * to pass pos - 1 to blocksFind
+     */
+    if (pos >= this->length()) {
+	pos = this->length() - 1;
+	length = 1;
+    }
+
     int newFormatIdx = -1;
     if (mode == SetFormat)
 	newFormatIdx = formats->indexForFormat(newFormat);
@@ -404,7 +413,8 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
     BlockIterator blockIt = blocksFind(pos);
     BlockIterator endIt = blocksFind(pos + length);
 
-    const int startPos = blockIt.start();
+    /* subtract one as start() returns key() + 1 */
+    const int startPos = blockIt.start() - 1;
     const int endPos = endIt.end();
 
     if (!endIt.atEnd())
