@@ -1,13 +1,9 @@
-EXTENSIONS=imageio opengl xt nsplugin
+EXTENSIONS=xt nsplugin
 
 EXAMPLES=\
 	nsplugin/examples/grapher \
 	nsplugin/examples/qtimage \
 	nsplugin/examples/trivial \
-	\
-	opengl/examples/box \
-	opengl/examples/gear \
-	opengl/examples/sharedbox \
 	\
 	xt/examples/mainlyMotif \
 	xt/examples/mainlyQt \
