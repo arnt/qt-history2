@@ -40,7 +40,7 @@ extern "C" {
         asm volatile("lock cmpxchgq %2,%3\n"
                      "sete %1\n"
                      : "=a" (newval), "=qm" (ret)
-                     : "r" (newval), "m" (*((long *)ptr)), "0" (expected)
+                     : "r" (newval), "m" (*reinterpret_cast<volatile long *>(ptr)), "0" (expected)
                      : "memory");
         return static_cast<int>(ret);
     }
@@ -84,7 +84,7 @@ extern "C" {
     {
         asm volatile("xchgq %0,%1"
                      : "=r" (newval)
-                     : "m" (*((long *)ptr)), "0" (newval)
+                     : "m" (*reinterpret_cast<volatile long *>(ptr)), "0" (newval)
                      : "memory");
         return newval;
     }
