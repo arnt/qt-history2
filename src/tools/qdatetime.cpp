@@ -787,13 +787,12 @@ QDate QDate::currentDate()
   Returns the QDate represented by the string \a s, using the format \a
   f, or an invalid date if this is not possible.
 
-  Note that Qt::LocalDate cannot be used here.
+  Qt::LocalDate cannot be used here.
 
-  Note for Qt::TextDate: It is recommendet to use the english short monthnames
-  (Jan - Dec), which QT supports as default.
-  Localized monthnames may also be used, but they depend on the user's
-  locale settings.
- */
+  Note for Qt::TextDate: It is recommended to use the English short
+  month names (e.g. Jan). Localized month names may also be used, but
+  they depend on the user's locale settings.
+*/
 QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 {
     if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
@@ -1943,10 +1942,9 @@ QDateTime QDateTime::currentDateTime()
 
   Note that Qt::LocalDate cannot be used here.
 
-  Note for Qt::TextDate: It is recommendet to use the english short monthnames
-  (Jan - Dec), which QT supports as default.
-  Localized monthnames may also be used, but they depend on the user's
-  locale settings.
+  Note for Qt::TextDate: It is recommended to use the English short
+  month names (e.g. Jan). Localized month names may also be used, but
+  they depend on the user's locale settings.
  */
 QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 {
