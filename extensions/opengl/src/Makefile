@@ -17,9 +17,12 @@ SHELL =	/bin/sh
 
 ####### Compiler, tools and options
 
-INCPATH =	-I$(INCDIR) -I/usr/X11R6/include
+# Include path for Mesa.
+GL_INC	=	-I/usr/X11R6/include
+
+INCOPT =	-I$(INCDIR) $(GL_INC)
 MOC	=	moc
-AR	=	ar q
+AR	=	ar cqs
 
 ####### Files
 
@@ -28,24 +31,22 @@ SOURCES =	qgl.cpp
 OBJECTS =	qgl.o
 SRCMOC	=	moc_qgl.cpp
 OBJMOC	=	moc_qgl.o
-TARGET	=	libqgl.a
+TARGET	=	../../../lib/libqgl.a
 
 ####### Implicit rules
 
 .SUFFIXES: .cpp .c
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) $(INCPATH) $(LIBCFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) $(INCOPT) -o $@ $<
 
 ####### Build rules
 
-all: $(TARGET) include
+all: $(TARGET)
 
 $(TARGET): $(OBJECTS) $(OBJMOC)
 	-rm -f $(TARGET)
 	$(AR) $(TARGET) $(OBJECTS) $(OBJMOC)
-	-rm -f $(QTDIR)/lib/$(TARGET)
-	-mv $(TARGET)  $(QTDIR)/lib
 
 moc: $(SRCMOC)
 
