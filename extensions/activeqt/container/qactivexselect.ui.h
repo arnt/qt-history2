@@ -89,6 +89,10 @@ void QActiveXSelect::openLater()
 	DesignerFormWindow *form = designer->currentForm();
 	if ( form ) {
 	    form->setPropertyChanged( activex, "control", TRUE );
+	    form->clearSelection();
+	    qApp->processEvents();
+	    form->selectWidget( activex );
+	    form->setCurrentWidget( activex );
 	}
 	designer->release();
 	delete this;
