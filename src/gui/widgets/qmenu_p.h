@@ -49,7 +49,7 @@ class QMenuPrivate : public QWidgetPrivate
 public:
     QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0), hasHadMouse(0), motions(0),
                       currentAction(0), scroll(0), eventLoop(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
-                      checkable(0), sloppyAction(0)
+                      hasCheckableItems(0), sloppyAction(0)
 #ifdef Q_WS_MAC
                       ,mac_menu(0)
 #endif
@@ -114,8 +114,7 @@ public:
     uint tearoff : 1, tornoff : 1, tearoffHighlighted : 1;
     QPointer<QTornOffMenu> tornPopup;
 
-    //checkable
-    uint checkable : 1;
+    mutable bool hasCheckableItems;
 
     //sloppy selection
     QAction *sloppyAction;

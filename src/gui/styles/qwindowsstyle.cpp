@@ -180,8 +180,6 @@ void QWindowsStyle::unpolish(QApplication *)
 void QWindowsStyle::polish(QWidget *widget)
 {
     QCommonStyle::polish(widget);
-    if(QMenu *menu = qobject_cast<QMenu*>(widget))
-        menu->setCheckable(true);
     if (qobject_cast<QRubberBand*>(widget)) {
         widget->setWindowOpacity(0.7f);
         widget->setAttribute(Qt::WA_PaintOnScreen);
@@ -1311,21 +1309,14 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             int x, y, w, h;
             menuitem->rect.getRect(&x, &y, &w, &h);
             int tab = menuitem->tabWidth;
-            int maxpmw = menuitem->maxIconWidth;
             bool dis = !(menuitem->state & State_Enabled);
             bool checked = menuitem->checkType != QStyleOptionMenuItem::NotCheckable
                             ? menuitem->checked : false;
             bool act = menuitem->state & State_Selected;
 
-            if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable) {
-                // space for the checkmarks
-                if (use2000style)
-                    maxpmw = qMax(maxpmw, 20);
-                else
-                    maxpmw = qMax(maxpmw, 12);
-            }
+            // windows always has a check column, regardless whether we have an icon or not
+            int checkcol = qMax(menuitem->maxIconWidth, use2000style ? 20 : windowsCheckMarkWidth);
 
-            int checkcol = maxpmw;
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
                 p->setPen(menuitem->palette.dark().color());
                 p->drawLine(x, y, x + w, y);
@@ -2235,7 +2226,6 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                  sz.setHeight(qMax(sz.height(),
                               mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height()
                               + 2 * windowsItemFrame));
-            bool checkable = mi->checkType != QStyleOptionMenuItem::NotCheckable;
             int maxpmw = mi->maxIconWidth;
             int tabSpacing = use2000style ? 20 :windowsTabSpacing;
             if (mi->text.contains('\t'))
@@ -2252,12 +2242,9 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 w += fmBold.width(mi->text) - fm.width(mi->text);
             }
 
-            int checkMarkWidth = use2000style ? 20 : windowsCheckMarkWidth;
-            if (checkable && maxpmw < checkMarkWidth)
-                w += checkMarkWidth - maxpmw;
-            if (checkable || maxpmw > 0)
-                w += windowsCheckMarkWidth;
-	    w += windowsRightBorder + 10;
+            int checkcol = qMax(maxpmw, use2000style ? 20 : windowsCheckMarkWidth); // Windows always shows a check column
+            w += checkcol;
+            w += windowsRightBorder + 10;
             sz.setWidth(w);
         }
         break;

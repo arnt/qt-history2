@@ -123,7 +123,7 @@ QAccessible::State QAccessibleMenu::state(int child) const
         s |= HotTracked;
     if (action->isSeparator() || !action->isEnabled())
         s |= Unavailable;
-    if (menu()->isCheckable() && action->isChecked())
+    if (action->isChecked())
         s |= Checked;
     if (menu()->activeAction() == action)
         s |= Focused;

@@ -1228,13 +1228,11 @@ void TrWindow::setupMenuBar()
     QMenu *editp  = new QMenu(this);
     QMenu *translationp = new QMenu(this);
     QMenu *validationp = new QMenu(this);
-    validationp->setCheckable(true);
     phrasep = new QMenu(this);
     closePhraseBookp = new QMenu(this);
     editPhraseBookp = new QMenu(this);
     printPhraseBookp = new QMenu(this);
     QMenu *viewp = new QMenu(this);
-    viewp->setCheckable(true);
     QMenu *helpp = new QMenu(this);
 
     m->addMenu(filep)->setText(tr("&File"));

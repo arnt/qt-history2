@@ -674,29 +674,25 @@ bool QAction::isCheckable() const
 
 /*!
     \property QAction::checked
-    \brief whether a toggle action is on
+    \brief whether the action is checked.
 
-    This property is always on (true) for command actions and
-    \l{QActionGroup}s; setOn() has no effect on them. For actions
-    where isCheckable() is true, this property's default value is
-    off (false).
+    Only checkable actions can be checked.  By default, this is false
+    (the action is unchecked).
 
     \sa checkable
 */
 void QAction::setChecked(bool b)
 {
     Q_D(QAction);
-    if (d->checked == b)
+    if (!d->checkable || d->checked == b)
         return;
 
     d->checked = b;
     d->sendDataChanged();
-    if(d->checkable) {
-        emit checked(b);
+    emit checked(b);
 #ifdef QT3_SUPPORT
-        emit toggled(b);
+    emit toggled(b);
 #endif
-    }
 }
 
 bool QAction::isChecked() const

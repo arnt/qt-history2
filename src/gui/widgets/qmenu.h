@@ -32,7 +32,6 @@ private:
     Q_DECLARE_PRIVATE(QMenu)
 
     Q_PROPERTY(bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled)
-    Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
 
@@ -70,9 +69,6 @@ public:
 
     void setDefaultAction(QAction *);
     QAction *defaultAction() const;
-
-    void setCheckable(bool);
-    bool isCheckable() const;
 
     void setActiveAction(QAction *act);
     QAction *activeAction() const;
@@ -284,6 +280,9 @@ public:
     inline QT3_SUPPORT QMenuItem *findItem(int id) const {
         return reinterpret_cast<QMenuItem*>(findActionForId(id));
     }
+
+    inline QT3_SUPPORT void setCheckable(bool){}
+    inline QT3_SUPPORT bool isCheckable() const {return true;}
 
     QT3_SUPPORT QMenuItem *findPopup( QMenu *popup, int *index );
 

@@ -1169,13 +1169,12 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             int tab = menuitem->tabWidth;
             bool dis = !(menuitem->state & State_Enabled);
             bool act = menuitem->state & State_Selected;
-            bool checkable = menuitem->checkType != QStyleOptionMenuItem::NotCheckable;
+            bool checkable = menuitem->menuHasCheckableItems;
             bool checked = checkable ? menuitem->checked : false;
 
-            int maxpmw = menuitem->maxIconWidth;
-            if (checkable)
-                maxpmw = qMax(maxpmw, 20);
             int checkcol = maxpmw;
+            if (checkable)
+                checkcol = qMax(maxpmw, 20);
 
             int x, y, w, h;
             rect.getRect(&x, &y, &w, &h);

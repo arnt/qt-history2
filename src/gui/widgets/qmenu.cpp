@@ -97,10 +97,12 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     //for compatability now - will have to refactor this away..
     tabWidth = 0;
     maxIconWidth = 0;
+    hasCheckableItems = false;
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
         if (!action->isVisible())
             continue;
+        hasCheckableItems |= action->isCheckable();
         QIcon is = action->icon();
         if (!is.isNull()) {
             uint miw = maxIconWidth;
@@ -691,7 +693,8 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
         opt.state |= QStyle::State_Selected;
     if (mouseDown)
         opt.state |= QStyle::State_Down;
-    if (!checkable) {
+    opt.menuHasCheckableItems = hasCheckableItems;
+    if (!action->isCheckable()) {
         opt.checkType = QStyleOptionMenuItem::NotCheckable;
     } else {
         opt.checkType = (action->actionGroup() && action->actionGroup()->isExclusive())
@@ -759,9 +762,6 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 
     You clear a menu with clear() and remove individual action items
     with removeAction().
-
-    If isCheckable() is true (which is the default for Windows), any
-    of the menu's action items can be checked.
 
     A QMenu can also provide a tear-off menu. A tear-off menu is a
     top-level window that contains a copy of the menu. This makes it
@@ -1073,30 +1073,6 @@ void QMenu::hideTearOffMenu()
         d->tornPopup->close();
 }
 
-/*!
-    \property QMenu::checkable
-    \brief whether the display of check marks on menu items is enabled
-
-    When true, the display of check marks on menu items is enabled.
-    Checking is always enabled when in Windows-style.
-
-    \sa QAction::setChecked()
-*/
-void QMenu::setCheckable(bool b)
-{
-    if (b == d->checkable)
-        return;
-    d->checkable = b;
-
-    d->itemsDirty = true;
-    if (isVisible())
-        resize(sizeHint()+contentsMarginSize());
-}
-
-bool QMenu::isCheckable() const
-{
-    return d->checkable;
-}
 
 /*!
   Sets the currently highlighte daction to \a act.

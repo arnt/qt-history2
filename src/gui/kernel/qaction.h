@@ -28,8 +28,8 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAction)
 
-    Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
+    Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
     Q_PROPERTY(QString text READ text WRITE setText)
@@ -82,7 +82,7 @@ public:
 
     void setShortcut(const QKeySequence &shortcut);
     QKeySequence shortcut() const;
-    
+
     void setShortcutContext(Qt::ShortcutContext context);
     Qt::ShortcutContext shortcutContext() const;
 

@@ -3389,7 +3389,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             bool dis = !(mi->state & QStyle::State_Enabled);
             int tab = mi->tabWidth;
             int maxpmw = mi->maxIconWidth;
-            bool checkable = mi->checkType != QStyleOptionMenuItem::NotCheckable;
+            bool checkable = mi->menuHasCheckableItems;
             bool act = mi->state & QStyle::State_Selected;
             Rect mrect = *qt_glb_mac_rect(mi->menuRect, p),
             irect = *qt_glb_mac_rect(mi->rect, p, false);

@@ -276,6 +276,7 @@ public:
     MenuItemType menuItemType;
     CheckType checkType;
     bool checked;
+    bool menuHasCheckableItems;
     QRect menuRect;
     QString text;
     QIcon icon;
@@ -289,6 +290,7 @@ public:
     QDOC_PROPERTY(MenuItemType menuItemType)
     QDOC_PROPERTY(CheckType checkType)
     QDOC_PROPERTY(bool checked)
+    QDOC_PROPERTY(bool menuHasCheckableItems)
     QDOC_PROPERTY(QRect menuRect)
     QDOC_PROPERTY(QString text)
     QDOC_PROPERTY(QIcon icon)

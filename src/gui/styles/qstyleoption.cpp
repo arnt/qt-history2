@@ -620,7 +620,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 
 QStyleOptionMenuItem::QStyleOptionMenuItem()
     : QStyleOption(QStyleOptionMenuItem::Version, SO_MenuItem), menuItemType(Normal),
-      checkType(NotCheckable), checked(false), maxIconWidth(0), tabWidth(0)
+      checkType(NotCheckable), checked(false), menuHasCheckableItems(true), maxIconWidth(0), tabWidth(0)
 {
 }
 
@@ -629,7 +629,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem()
 */
 QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     : QStyleOption(version, SO_MenuItem), menuItemType(Normal),
-      checkType(NotCheckable), checked(false), maxIconWidth(0), tabWidth(0)
+      checkType(NotCheckable), checked(false), menuHasCheckableItems(true), maxIconWidth(0), tabWidth(0)
 {
 }
 
@@ -679,6 +679,15 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 /*!
     \property QStyleOptionMenuItem::checked
     \brief whether the menu item is checked or not.
+*/
+
+/*!
+    \property QStyleOptionMenuItem::menuHasCheckableItems
+    \brief whether the menu as a whole has checkable items or not.
+
+    If this option is set to false, then the menu has no checkable
+    items. This makes it possible for GUI styles to save some
+    horizontal space that would normally be used for the check column.
 */
 
 /*!

@@ -155,8 +155,6 @@ void QMotifStyle::polish(QPalette& pal)
 void QMotifStyle::polish(QWidget* w)
 {
     QStyle::polish(w);
-    if(QMenu *menu = qobject_cast<QMenu*>(w))
-        menu->setCheckable(false);
 }
 
 /*!
@@ -954,7 +952,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
     case CE_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int maxpmw = menuitem->maxIconWidth;
-            if(menuitem->checkType != QStyleOptionMenuItem::NotCheckable)
+            if(menuitem->menuHasCheckableItems)
                 maxpmw = qMax(maxpmw, motifCheckMarkSpace);
 
             int x, y, w, h;
@@ -1765,17 +1763,11 @@ QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 // submenu indicator needs some room if we don't have a tab column
                 w += motifArrowHMargin + 4*motifItemFrame;
 
-            if (mi->checkType != QStyleOptionMenuItem::NotCheckable && mi->maxIconWidth <= 0)
-                // if we are checkable and have no icons, add space for a checkmark
-                w += motifCheckMarkSpace;
-            else if (mi->checkType != QStyleOptionMenuItem::NotCheckable && mi->maxIconWidth < motifCheckMarkSpace)
-                // make sure the check-column is wide enough if we have icons
-                w += (motifCheckMarkSpace - mi->maxIconWidth);
-
-            // if we have a check-column (icons of checkmarks), add space
-            // to separate the columns
-            if (mi->maxIconWidth > 0 || mi->checkType != QStyleOptionMenuItem::NotCheckable)
-                w += motifCheckMarkHMargin;
+            int checkColumn = mi->maxIconWidth;
+            if (mi->menuHasCheckableItems)
+                checkColumn = qMax(checkColumn, motifCheckMarkSpace);
+            if (checkColumn > 0)
+                w += checkColumn + motifCheckMarkHMargin;
 
             sz = QSize(w, h);
         }

@@ -2642,7 +2642,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
-            bool checkable = mi->checkType != QStyleOptionMenuItem::NotCheckable;
+            bool checkable = mi->menuHasCheckableItems;
             int maxpmw = mi->maxIconWidth;
             int w = sz.width(), h = sz.height();
             if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
