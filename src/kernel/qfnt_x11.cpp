@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#59 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -12,6 +12,10 @@
 
 #include "qwidget.h"
 #include "qpainter.h"
+#include "qcache.h"
+#include "qdict.h"
+#include <ctype.h>
+#include <stdlib.h>
 #define GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -19,12 +23,8 @@
 #include <X11/Xatom.h>
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
-#include "qcache.h"
-#include "qdict.h"
-#include <ctype.h>
-#include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#58 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#59 $")
 
 
 static const int fontFields = 14;
@@ -150,6 +150,17 @@ QFontData &QFontData::operator=( const QFontData &d )
     lineW = d.lineW;
     xfd = d.xfd;				// safe to copy
     return *this;
+}
+
+
+//
+// This function returns the X font struct for a QFontData.
+// It is called from QPainter::drawText().
+//
+
+XFontStruct *qt_get_xfontstruct( QFontData *d )
+{
+    return d->xfd->f;
 }
 
 

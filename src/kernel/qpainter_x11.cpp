@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#178 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,8 +23,10 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#define QXFontStruct XFontStruct
+#include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#177 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#178 $")
 
 
 /*****************************************************************************
@@ -2527,13 +2529,14 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
+	    bool empty = w == 0 || h == 0;
 	    QWMatrix mat1( wm11/65536.0, wm12/65536.0,
 			   wm21/65536.0, wm22/65536.0,
 			   wdx /65536.0, wdy /65536.0 );
 	    QWMatrix mat = QPixmap::trueMatrix( mat1, w, h );
 	    QPixmap *wx_bm = get_text_bitmap( mat, fi, str, len );
 	    bool create_new_bm = wx_bm == 0;
-	    if ( create_new_bm ) {		// no such cached bitmap
+	    if ( create_new_bm && !empty ) {	// no such cached bitmap
 		QPixmap bm( w, h, 1 );		// create bitmap
 		bm.fill( color0 );
 		QPainter paint;
@@ -2547,21 +2550,27 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		    return;
 		}
 	    }
-	    float fx=x, fy=y, nfx, nfy;
-	    mat1.map( fx,fy, &nfx,&nfy );
-	    float tfx=tx, tfy=ty, dx, dy;
-	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
-	    x = qRound(nfx-dx);
-	    y = qRound(nfy-dy);
+
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
-		QPointArray a(5);
+		extern XFontStruct *qt_get_xfontstruct( QFontData * );
+		XFontStruct *fs = qt_get_xfontstruct( cfont.d );
+		int direction;
+		int ascent;
+		int descent;
+		XCharStruct overall;
+		XTextExtents( fs, str, len, &direction, &ascent, &descent,
+			      &overall );
+		int xx = x;
+		int yy = y - ascent;
+		int ww = overall.width;
+		int hh = ascent + descent;
 		int m, n;
-		mat.map(   0,	0, &m, &n );  a.setPoint( 0, m, n );
-					      a.setPoint( 4, m, n );
-		mat.map( w-1,	0, &m, &n );  a.setPoint( 1, m, n );
-		mat.map( w-1, h-1, &m, &n );  a.setPoint( 2, m, n );
-		mat.map(   0, h-1, &m, &n );  a.setPoint( 3, m, n );
-		a.translate( x, y );
+		QPointArray a(5);
+		mat1.map( xx,    yy,    &m, &n );  a.setPoint( 0, m, n );
+					           a.setPoint( 4, m, n );
+		mat1.map( xx+ww, yy,    &m, &n );  a.setPoint( 1, m, n );
+		mat1.map( xx+ww, yy+hh, &m, &n );  a.setPoint( 2, m, n );
+		mat1.map( xx,    yy+hh, &m, &n );  a.setPoint( 3, m, n );
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();
@@ -2571,6 +2580,14 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 			    CoordModeOrigin );
 		setBrush( oldBrush );
 	    }
+	    if ( empty )
+		return;
+	    float fx=x, fy=y, nfx, nfy;
+	    mat1.map( fx,fy, &nfx,&nfy );
+	    float tfx=tx, tfy=ty, dx, dy;
+	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
+	    x = qRound(nfx-dx);
+	    y = qRound(nfy-dy);
 	    XSetFillStyle( dpy, gc, FillStippled );
 	    XSetStipple( dpy, gc, wx_bm->handle() );
 	    XSetTSOrigin( dpy, gc, x, y );
