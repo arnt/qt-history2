@@ -746,7 +746,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 #endif
 	QGuardedPtr<QTimer> t = timer();
 	emit pressed();
-	if ( repeat && t )
+	if ( t && repeat )
 	    t->start( AUTO_REPEAT_DELAY, TRUE );
     }
 }
