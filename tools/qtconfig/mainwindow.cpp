@@ -40,7 +40,7 @@ static const char *appearance_text =
 "customize the colors.</p>"
 "<p>Any GUI Style plugins in your plugin path will automatically be added "
 "to the list of built-in Qt styles.</p>"
-"<p>Upon choosing 3-D Effects and Background colors, the Qt Configutaion "
+"<p>Upon choosing 3-D Effects and Background colors, the Qt Configuration "
 "program will automatically generate a palette for you.  To customize "
 "colors further, press the Tune Palette button to open the advanced "
 "palette editor."
