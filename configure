@@ -1437,7 +1437,7 @@ if [ "$UNAME_SYSTEM" = "HP-UX" ]; then
 fi
 if [ "$UNAME_SYSTEM" = "SunOS" ]; then
     # Solaris 2.5 and 2.6 have libposix4, which was renamed to librt for Solaris >=7
-    if echo $UNAME_RELEASE | grep -E "^5\.(5|6)" >/dev/null 2>&1; then
+    if echo $UNAME_RELEASE | grep "^5\.[5|6]" >/dev/null 2>&1; then
 	sed -e "s,-lrt,-lposix4," $XQMAKESPEC/qmake.conf > $XQMAKESPEC/qmake.conf.new
 	mv $XQMAKESPEC/qmake.conf.new $XQMAKESPEC/qmake.conf
     fi
