@@ -67,6 +67,10 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
     if(project->isEmpty("QMAKE_COPY_DIR"))
 	project->variables()["QMAKE_COPY_DIR"].append("$(COPY) -R");
+    if(project->isEmpty("QMAKE_INSTALL_FILE"))
+	project->variables()["QMAKE_INSTALL_FILE"].append("$(COPY_FILE)");
+    if(project->isEmpty("QMAKE_INSTALL_DIR"))
+	project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
     if(project->isEmpty("QMAKE_LIBTOOL"))
 	project->variables()["QMAKE_LIBTOOL"].append("libtool --silent");
     //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET
@@ -591,7 +595,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    if(slsh != -1)
 		dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
 	    dst_prl = root + targetdir + dst_prl;
-	    ret += "-$(COPY) \"" + project->first("QMAKE_INTERNAL_PRL_FILE") + "\" \"" + dst_prl + "\"";
+	    ret += "-$(INSTALL_FILE) \"" + project->first("QMAKE_INTERNAL_PRL_FILE") + "\" \"" + dst_prl + "\"";
 	    if(!uninst.isEmpty())
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
@@ -614,7 +618,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    }
 	    if(!ret.isEmpty())
 		ret += "\n\t";
-	    ret += "-$(COPY) \"" + src_lt + "\" \"" + dst_lt + "\"";
+	    ret += "-$(INSTALL_FILE) \"" + src_lt + "\" \"" + dst_lt + "\"";
 	    if(!uninst.isEmpty())
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_lt + "\"");
@@ -638,7 +642,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    if(!ret.isEmpty())
 		ret += "\n\t";
 	    ret += mkdir_p_asstring(d) + "\n\t";
-	    ret += "-$(COPY) \"" + src_pc + "\" \"" + dst_pc + "\"";
+	    ret += "-$(INSTALL_FILE) \"" + src_pc + "\" \"" + dst_pc + "\"";
 	    if(!uninst.isEmpty())
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_pc + "\"");
@@ -674,7 +678,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    ret += "$(DEL_FILE) -r \"" + dst_targ + "\"" + "\n\t";
 	if(!ret.isEmpty())
 	    ret += "\n\t";
-	ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
+	ret += QString(resource ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
 	       src_targ + "\" \"" + dst_targ + "\"";
 	if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP") &&
 	   (project->first("TEMPLATE") != "lib" || !project->isActiveConfig("staticlib"))) {

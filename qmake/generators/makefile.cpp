@@ -1171,7 +1171,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    QFileInfo fi(wild);
 		    if(!target.isEmpty())
 			target += "\t";
-		    QString cmd =  QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" +
+		    QString cmd =  QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
 				   Option::fixPathToTargetOS(fileFixify(wild, FileFixifyAbsolute, FALSE), FALSE) +
 				   "\" \"" + root + dst + "\"\n";
 		    target += cmd;
@@ -1210,7 +1210,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    QFileInfo fi(Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute), TRUE));
 		    if(!target.isEmpty())
 			target += "\t";
-		    QString cmd = QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" +
+		    QString cmd = QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
 				  Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute, FALSE), FALSE) +
 				  "\" \"" + root + fileFixify(dst, FileFixifyAbsolute) + "\"\n";
 		    target += cmd;
