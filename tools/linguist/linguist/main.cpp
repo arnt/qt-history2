@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
     app.installTranslator(&translator);
 
-    app.setOrganizationDomain("trolltech.com");
+    app.setOrganizationDomain("Trolltech");
     app.setApplicationName("Linguist");
     QString keybase("4.0/");
     QSettings config;

@@ -194,7 +194,7 @@ MainWindow::MainWindow()
     gstyles.sort();
     gstylecombo->insertStringList(gstyles);
 
-    QSettings settings("trolltech.com");
+    QSettings settings("Trolltech");
     settings.beginGroup("Qt");
 
     QString currentstyle = settings.value("style").toString();
@@ -386,7 +386,7 @@ void MainWindow::fileSave()
     statusBar()->showMessage("Saving changes...");
 
     {
-        QSettings settings("trolltech.com");
+        QSettings settings("Trolltech");
         settings.beginGroup("Qt");
         QFontDatabase db;
         QFont font = db.font(familycombo->currentText(),

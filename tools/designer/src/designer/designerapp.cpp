@@ -88,7 +88,7 @@ void DesignerServer::handleNewConnection()
 DesignerApplication::DesignerApplication(int &argc, char *argv[])
     : QApplication(argc, argv), mMainWindow(0)
 {
-    setOrganizationDomain("trolltech.com");
+    setOrganizationDomain("Trolltech");
     setApplicationName("Designer");
 }
 

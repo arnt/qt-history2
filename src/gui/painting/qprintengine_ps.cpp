@@ -2543,7 +2543,7 @@ QString QPSPrintEngineFontSimplifiedChinese::extension() const
 static QStringList fontPath()
 {
     // append qsettings fontpath
-    QSettings settings(QSettings::UserScope, QLatin1String("trolltech.com"));
+    QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
     settings.beginGroup(QLatin1String("Qt"));
 
     QStringList fontpath;
@@ -2675,7 +2675,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 
     scale = 1.;
 
-    QSettings settings(QSettings::UserScope, QLatin1String("trolltech.com"));
+    QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
     settings.beginGroup(QLatin1String("Qt"));
     embedFonts = settings.value(QLatin1String("embedFonts"), true).toBool();
 #if defined(Q_WS_X11) && defined(QT_NO_XFT)
