@@ -878,7 +878,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 
             p->setPen(Qt::black);
             p->drawLine(qRound(x), qRound(position.y() + sl.y + sl.ascent - ascent),
-                        qRound(x), qRound(position.y() + sl.y + sl.ascent + descent + 1));
+                        qRound(x), qRound(position.y() + sl.y + sl.ascent + descent));
         }
     }
 
