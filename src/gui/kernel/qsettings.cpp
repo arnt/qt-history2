@@ -7,7 +7,6 @@
 #include "qcolor.h"
 #include "qsize.h"
 
-QSETTINGS_DEFINE_CORE_PARSER_FUNCTIONS
 QSETTINGS_DEFINE_GUI_PARSER_FUNCTIONS
 
 // ************************************************************************
