@@ -1952,6 +1952,7 @@ CONFIG += $QMAKE_CONFIG dylib create_prl link_prl
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
+QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 EOF
 #cmdline args
 quoted=no
@@ -2221,7 +2222,6 @@ do
 	    [ "x$VERBOSE" = "xyes" ] && echo "  skipping $a"
 	    continue;
 	fi
-	QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
 	if [ "$SPEC" != "$QMAKESPEC" ] || [ -z "`ls -l mkspecs/default | grep $QMAKESPEC`" ]
 	then
 	    echo "USING $SPEC FOR QMAKE"
