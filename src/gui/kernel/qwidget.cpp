@@ -760,7 +760,9 @@ void QWidgetPrivate::init(Qt::WFlags f)
     q->create();                                        // platform-dependent init
     if (!q->isTopLevel()) {
         data.pal = q->parentWidget()->data->pal;
+        data.pal.resolve(0);
         data.fnt = q->parentWidget()->data->fnt;
+        data.fnt.resolve(0);
     }
 #if defined(Q_WS_X11)
     data.fnt.x11SetScreen(xinfo->screen());
@@ -1587,7 +1589,7 @@ void QWidget::showMaximized()
     bool isMax = isMaximized();
     if (isMax && isVisible())
         return;
-    
+
     if (!isMax)
         setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
     show();
