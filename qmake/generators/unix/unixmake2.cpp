@@ -681,8 +681,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl;
     }
 
-    t << "clean:" << clean_targets << "\n\t"
-      << "-$(DEL_FILE) $(OBJECTS) " << "\n\t";
+    t << "clean:" << clean_targets << "\n\t";
+    if(!project->isEmpty("OBJECTS"))
+	t << "-$(DEL_FILE) $(OBJECTS) " << "\n\t";
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-$(DEL_FILE) ", " ", "") << "\n\t";
     if(src_incremental)
@@ -773,9 +774,18 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 		} else {
 		    sd->profile = file;
 		}
-		sd->makefile += "." + sd->profile;
 	    } else {
 		sd->directory = file;
+	    }
+	    while(sd->directory.right(1) == Option::dir_sep)
+		sd->directory = sd->directory.left(sd->directory.length() - 1);
+	    if(!sd->profile.isEmpty()) {
+		QString basename = sd->directory;
+		int new_slsh = basename.findRev(Option::dir_sep);
+		if(new_slsh != -1)
+		    basename = basename.mid(new_slsh+1);
+		if(sd->profile != basename + ".pro")
+		    sd->makefile += "." + sd->profile.left(sd->profile.length() - 4); //no need for the .pro
 	    }
 	    sd->target = "sub-" + (*it);
 	    sd->target.replace('/', '-');
@@ -798,15 +808,22 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 
     // generate target rules
     for( it.toFirst(); it.current(); ++it) {
-	QString mkfile = (*it)->directory + Option::dir_sep + (*it)->makefile, out;
+	bool have_dir = !(*it)->directory.isEmpty();
+	QString mkfile = (*it)->makefile, out;
+	if(have_dir)
+	    mkfile.prepend((*it)->directory + Option::dir_sep);
 	if(direct || (*it)->makefile != "$(MAKEFILE)")
 	    out = " -o " + (*it)->makefile;
 	//qmake it
-	t << mkfile << ": " << "\n\t"
-	  << "cd " << (*it)->directory << " && $(QMAKE) " << (*it)->profile << buildArgs() << out << endl;
+	t << mkfile << ": " << "\n\t";
+	if(have_dir)
+	    t << "cd " << (*it)->directory << " && ";
+	t << "$(QMAKE) " << (*it)->profile << buildArgs() << out << endl;
 	//actually compile
-	t << (*it)->target << ": " << mkfile << " FORCE" << "\n\t"
-	  << "cd " << (*it)->directory << " && $(MAKE) -f " << (*it)->makefile << endl << endl;
+	t << (*it)->target << ": " << mkfile << " FORCE" << "\n\t";
+	if(have_dir)
+	    t << "cd " << (*it)->directory << " && ";
+	t << "$(MAKE) -f " << (*it)->makefile << endl << endl;
     }
 
     if (project->isActiveConfig("ordered")) { 	// generate dependencies
@@ -826,22 +843,35 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     } else {
 	t << "all: $(SUBTARGETS)" << endl;
 	t << "qmake_all:";
-	for( it.toFirst(); it.current(); ++it) 
-	    t << " " << (*it)->directory << Option::dir_sep + (*it)->makefile;
-	for( it.toFirst(); it.current(); ++it) 
-	    t << "\n\t" << "( [ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; "
-	      << "grep \"^qmake_all:\" " << (*it)->makefile 
+	for( it.toFirst(); it.current(); ++it) {
+	    t << " ";
+	    if(!(*it)->directory.isEmpty())
+		t << (*it)->directory << Option::dir_sep;
+	    t << (*it)->makefile;
+	}
+	for( it.toFirst(); it.current(); ++it) {
+	    t << "\n\t ( ";
+	    if(!(*it)->directory.isEmpty())
+		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
+	    t << "grep \"^qmake_all:\" " << (*it)->makefile 
 	      << " && $(MAKE) -f " << (*it)->makefile << " qmake_all" << "; ) || true";
+	}
 	t << endl;
 	t << "clean uninstall install uiclean mocclean: qmake_all FORCE";
-	for( it.toFirst(); it.current(); ++it) 
-	    t << "\n\t" << "( [ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; "
-	      << "$(MAKE) -f " << (*it)->makefile << " $@" << "; ) || true";
+	for( it.toFirst(); it.current(); ++it) {
+	    t << "\n\t ( ";
+	    if(!(*it)->directory.isEmpty())
+		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
+	    t << "$(MAKE) -f " << (*it)->makefile << " $@" << "; ) || true";
+	}
 	t << endl;
 	t << "distclean: qmake_all FORCE";
-	for( it.toFirst(); it.current(); ++it) 
-	    t << "\n\t" << "( [ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; "
-	      << "$(MAKE) -f " << (*it)->makefile << " $@; $(DEL_FILE) " << (*it)->makefile << "; ) || true";
+	for( it.toFirst(); it.current(); ++it) {
+	    t << "\n\t ( ";
+	    if(!(*it)->directory.isEmpty())
+		t << "( [ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
+	    t << "$(MAKE) -f " << (*it)->makefile << " $@; $(DEL_FILE) " << (*it)->makefile << "; ) || true";
+	}
 	t << endl << endl;
     }
     t <<"FORCE:" << endl << endl;

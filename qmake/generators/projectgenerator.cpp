@@ -157,9 +157,22 @@ ProjectGenerator::init()
 		QFileInfo fi(newdir);
 		if(fi.isDir()) {
 		    fileFixify(newdir);
+		    QStringList &subdirs = v["SUBDIRS"];
 		    if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + ".pro") &&
-		       !v["SUBDIRS"].contains(newdir))
-			v["SUBDIRS"].append(newdir);
+		       !subdirs.contains(newdir)) {
+			subdirs.append(newdir);
+		    } else {
+			QDir d(newdir, "*.pro");
+			d.setFilter(QDir::Files);
+			for(int i = 0; i < (int)d.count(); i++) {
+			    QString nd = newdir + QDir::separator() + d[i];
+			    fileFixify(nd);
+			    if(d[i] != "." && d[i] != ".." && !subdirs.contains(nd)) {
+				if(newdir + d[i] != Option::output_dir + Option::output.name())
+				    subdirs.append(nd);
+			    }
+			}
+		    }
 		    if(Option::projfile::do_recursive) {
 			QDir d(newdir);
 			d.setFilter(QDir::Dirs);
@@ -180,14 +193,27 @@ ProjectGenerator::init()
 		}
 		QDir d(dir, regx);
 		d.setFilter(QDir::Dirs);
+		QStringList &subdirs = v["SUBDIRS"];
 		for(int i = 0; i < (int)d.count(); i++) {
 		    QString newdir(dir + d[i]);
 		    QFileInfo fi(newdir);
 		    if(fi.fileName() != "." && fi.fileName() != "..") {
 			fileFixify(newdir);
 			if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + ".pro") &&
-			   !v["SUBDIRS"].contains(newdir))
-			   v["SUBDIRS"].append(newdir);
+			   !subdirs.contains(newdir)) {
+			   subdirs.append(newdir);
+			} else {
+			    QDir d(newdir, "*.pro");
+			    d.setFilter(QDir::Files);
+			    for(int i = 0; i < (int)d.count(); i++) {
+				QString nd = newdir + QDir::separator() + d[i];
+				fileFixify(nd);
+				if(d[i] != "." && d[i] != ".." && !subdirs.contains(nd)) {
+				    if(newdir + d[i] != Option::output_dir + Option::output.name())
+					subdirs.append(nd);
+				}
+			    }
+			}
 			if(Option::projfile::do_recursive && !dirs.contains(newdir))
 			    dirs.append(newdir);
 		    }

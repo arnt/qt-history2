@@ -1,3 +1,7 @@
+1.04a -
+
+  subdirs supports multiple project files in a single directory.
+
 1.03a -
 
   New function $$system() to extract the value of a shell call.
@@ -33,5 +37,4 @@
 
  First release, shipped with Qt 3.0.
 
- qmake ships with support for Unix make, MSVC (both dsp and nmake), Borland make, and
- CodeWarrior 7.0 for Mac OS X.
+ qmake ships with support for Unix make, MSVC (both dsp and nmake), Borland make.
