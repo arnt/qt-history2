@@ -430,7 +430,7 @@ static void setDefaultPrinter(const QString &printerName)
     // There are drivers with no pDevMode structure!
     if ( pinf2->pDevMode ) {
         // Allocate a global HANDLE for a DEVMODE Structure
-        SIZE_T szDEVMODE = sizeof(DEVMODE) + pinf2->pDevMode->dmDriverExtra;
+        size_t szDEVMODE = sizeof(DEVMODE) + pinf2->pDevMode->dmDriverExtra;
         if ( hdevmode ) {
             GlobalFree( hdevmode );
             hdevmode = 0;
