@@ -345,7 +345,7 @@ static QPtrList<QGPluginManager> *pluginManagerList()
     if ( !pluginmanager_list ) {
 	pluginmanager_list = new QPtrList<QGPluginManager>();
 	pluginmanager_list->setAutoDelete( TRUE );
-	//qt_cleanup_pluginmanagers.add( &pluginmanager_list );
+	qt_cleanup_pluginmanagers.add( &pluginmanager_list );
     }
     return pluginmanager_list;
 }
@@ -361,9 +361,15 @@ QGPluginManager::QGPluginManager( const QUuid& id, bool cs )
 QGPluginManager::~QGPluginManager()
 {
     if ( pluginmanager_list ) {
-	pluginmanager_list->setAutoDelete( FALSE );
-	pluginmanager_list->removeRef( this );
-	pluginmanager_list->setAutoDelete( TRUE );
+	if ( !pluginmanager_list->count() ) {
+#ifdef QT_CHECK_STATE
+	    qWarning( "Warning: Pluginmanager deleted unsafely." );
+#endif
+	} else {
+	    pluginmanager_list->setAutoDelete( FALSE );
+	    pluginmanager_list->removeRef( this );
+	    pluginmanager_list->setAutoDelete( TRUE );
+	}
     }
     if ( !autounload ) {
 	QDictIterator<QLibrary> it( libDict );
