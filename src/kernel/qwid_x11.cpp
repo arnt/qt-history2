@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#38 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -13,6 +13,7 @@
 #include "qview.h"
 #include "qapp.h"
 #include "qpaintdc.h"
+#include "qpainter.h"
 #include "qpixmap.h"
 #include "qobjcoll.h"
 #define	 GC GC_QQQ
@@ -21,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#38 $";
 #endif
 
 
@@ -277,9 +278,14 @@ QFont &QWidget::font()
 
 void QWidget::setFont( const QFont &font )	// set font
 {
+/* We probably don't need to set the font since we're using the
+   painter to draw text and not the widget's original GC */
+// TEST!!!
+/*
     Font fid = font.handle();
     gc = qXChangeGC( gc, fid, bg_col.pixel(), fg_col.pixel(),
 		     !testFlag(WPaintUnclipped) );
+*/
     fnt = font;
     update();
 }
@@ -654,11 +660,10 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 void QWidget::drawText( int x, int y, const char *str )
 {						// draw text in widget
     if ( testFlag( WState_Visible ) ) {
-/* TODO!!!
-	if ( fnt.dirty() )
-	    setFont( fnt );
-*/
-	XDrawString( dpy, ident, gc, x, y, str, strlen(str));
+	QPainter paint;
+	paint.begin( this );
+	paint.drawText( x, y, str );
+	paint.end();
     }
 }
 

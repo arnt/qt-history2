@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#34 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#34 $";
 #endif
 
 
@@ -383,9 +383,11 @@ void QPainter::updateFont()			// update after changed font
 	return;
     }
     if ( borrowWidgetGC ) {
+/* TEST!!! Don't know if this works??? 
 	QWidget *w = (QWidget *)pdev;
 	if ( cfont.handle() == w->fontRef().handle() )
 	    return;				// can still use widget's gc
+*/
 	createOwnGC();
     }
     XSetFont( dpy, gc, cfont.handle() );
@@ -584,7 +586,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else if ( pdev->devType() != PDT_WIDGET ) {	// i.e. pixmap device
 	if ( reinit ) {
-	    QFont  defaultFont(TRUE);			// default drawing tools
+	    QFont  defaultFont(TRUE);		// default drawing tools
 	    QPen   defaultPen;
 	    QBrush defaultBrush;
 	    cfont  = defaultFont;		// set these drawing tools
@@ -1835,11 +1837,14 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 #endif
     if ( len == 0 )				// empty string
 	return;
-    if ( testf(DirtyPen|DirtyFont|ExtDev|VxF|WxF) ) {
+
+    int underline, strikeout;			// font properties
+    if ( cfont.update_props( &underline, &strikeout ) )
+	updateFont();
+
+    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyPen) )
 	    updatePen();
-	if ( testf(DirtyFont) )
-	    updateFont();
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
@@ -1915,7 +1920,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		draw_bm = wx_bm;
 	    XSetClipMask( dpy, gc, draw_bm->handle() );
 	    XSetClipOrigin( dpy, gc, x, y );
-	    if ( cfont.underline() || cfont.strikeOut() ) {
+	    if ( underline || strikeout ) {	// underline or strikeout font
 		QFontMetrics fm( cfont );
 		int lw = fm.lineWidth();
 		int tw = fm.width( str, len );
@@ -1945,14 +1950,15 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	if ( testf(VxF) )
 	    VXFORM_P( x, y );
     }
-    if ( cfont.underline() || cfont.strikeOut() ) {
+
+    if ( underline || strikeout ) {
 	QFontMetrics fm( cfont );
 	int lw = fm.lineWidth();
 	int tw = fm.width( str, len );
-	if ( cfont.underline() )		// draw underline effect
+	if ( underline )			// draw underline effect
 	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(),
 			    tw, lw );
-	if ( cfont.strikeOut() )		// draw strikeout effect
+	if ( strikeout )			// draw strikeout effect
 	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),
 			    tw, lw );
     }
