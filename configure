@@ -973,7 +973,8 @@ unixtests=$relpath/config.tests/unix
 # Auto-detect SQL-modules support
 if echo $MODULES | grep sql >/dev/null
 then
-    SQL_AVAIL=`find $relpath/plugins/src/sqldrivers/ -type d -maxdepth 1 -not -name ".*" -printf "%f " 2>/dev/null`
+    SQL_AVAIL=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
+    SQL_AVAIL=`echo $SQL_AVAIL`
     MYSQL_REQ="-llibmysqlclient.* mysql.h"
     OCI_REQ="-llibclntsh.* -llibwtc8.* oci.h"
     PSQL_REQ="-llibpq.* postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
@@ -1172,7 +1173,7 @@ Installation options:
     -make directory .... This will generate makefiles for all project files
 			 in directory. You can specify this option multiple
 			 times so as to only make specific directories.
-    -nomake regexp ..... This will prevernt matches of regexp from being built
+    -nomake regexp ..... This will prevent matches of regexp from being built
 			 you may use this to exclude certain projects in a directory
 			 included in -make.
 
@@ -1206,7 +1207,7 @@ Installation options:
                                 to at run time.
     -no-sql-<driver> .......... Disable SQL <driver> entirely.
 
-                                Possible values for <driver>: [$SQL_AVAIL ]
+                                Possible values for <driver>: [ $SQL_AVAIL ]
                                 Auto-Detected on this system: [$SQL_AUTODETECTED ]
 
     -qt-style-<style> ......... Enable a GUI <style> in the Qt Library, by
