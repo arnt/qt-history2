@@ -53,7 +53,7 @@ The way that you launch \QD depends on your platform:
 \i On Windows, click the Start button, open the \e Programs submenu, open
 the \e{Qt 4} submenu, and click \e Designer.
 \i On Unix or Linux, you may find a \QD icon on the desktop background or
-in the desktop start menu under the \e Programming" or \e Development"
+in the desktop start menu under the \e Programming or \e Development
 submenus. You can launch \QD from this icon. Alternatively, you can
 enter \c{designer} in a terminal window.
 \i On Mac OS X, double click on \QD in the Finder.
@@ -70,26 +70,16 @@ widgets you can use to create your user interface.
 
 \table
 \row
-\i \inlineimage designer-menu-bar.png
-\i
+\i \inlineimage designer-main-window.png
+\i \bold{Designer's main window:}
 The menu bar provides all the standard functions for opening and closing
 forms, editing, and lets you control which of the tool panels are shown.
 When a new component is being designed, the form used to compose its
 user interface can also be managed from \QD's main menu.
-\endtable
 
-\table
-\row
-\i \inlineimage designer-tool-bar.png
-\i
 The tool bar displays common actions that are used when editing a form.
 These are also available via the main menu.
-\endtable
 
-\table
-\row
-\i \inlineimage designer-toolbox.png
-\i
 The toolbox provides common widgets that are used to design components.
 The toolbox contains groups of widgets in different categories.
 \omit
@@ -140,7 +130,9 @@ approach that suits them best.
 In this chapter, we show how to use Designer to create a simple dialog
 which we will later use in a simple application. This is not intended
 to be a tutorial; the dialog is just a useful example that will help
-explain certain features of the tool.
+explain certain features of the tool. General concepts are explained
+in the gray boxes in each section, and you can follow links from these
+to read more about the features being discussed.
 
 \target CreatingADialog
 \section1 Creating a Dialog
@@ -155,9 +147,9 @@ menu and selecting the \key{New Form...} option, or by pressing \key{Ctrl+N}.
 \table
 \row \i
 \inlineimage designer-choosing-form.png Choosing a form for the component you need.
-\i \bold{Choosing a form:} \QD provides a number of forms that are suitable for
-different kinds of components. You can either choose one of these forms or
-open an form that was saved earlier.
+\i \bold{Choosing a form:} \QD provides a number of template forms that are
+suitable for different kinds of components. You can either choose one of
+these templates or open an form that was saved earlier.
 \endtable
 
 If your requirements later change so that you need to supply a different
@@ -165,7 +157,9 @@ type of component, you can easily reuse the contents of your existing form.
 For our example, we select the form that is suitable for a dialog, and an
 empty form is created ready for use.
 
-\image designer-choosing-form.png Choosing a form for the component you need.
+\omit
+\image designer-empty-form.png
+\endomit
 
 \target ComposingTheDialog
 \section1 Composing The Dialog
@@ -177,16 +171,19 @@ be arranged, resized, and configured in the form; in connection editing mode,
 signals and slots connections can be made between the widgets.
 
 We ensure that \QD is in form editing mode by selecting the ### entry from
-the ### menu, or by pressing \key{Ctrl+A} while editing the form. This makes
-it possible to drag widgets from the main toolbox onto the form.
+the ### menu, or by giving keyboard focus to the form and pressing
+\key ###. This makes it possible to drag widgets from the main toolbox
+onto the form.
 
 \table
 \row \i
-\inlineimage designer-editing-connecting.png
-\i \bold{Editing modes:} In form editing mode, we can change the appearance
-of the form, add layouts, and edit the properties of each widget. In
-connection editing mode, we can connect widgets together using Qt's signals
-and slots mechanism.
+\l{designer-editing-mode.html}{\inlineimage designer-editing-modes.png}
+\i \bold{Editing modes:} In \l{designer-editing-mode.html}{form editing mode},
+we can change the appearance of the form, add layouts, and edit the properties
+of each widget.
+
+In \l{designer-connection-mode.html}{connection editing mode}, we can connect
+widgets together using Qt's signals and slots mechanism.
 \endtable
 
 For our example, we will create a dialog that lets the user create an image
@@ -198,27 +195,41 @@ Before we begin adding widgets to the form, it is useful to resize it to
 give us the required amount of space to work with. We can make the form
 larger than necessary because it can be resized again later.
 
-We start composing the dialog by placing four text labels onto the form
-We do this by dragging each \e TextLabel from the \e Display section of the
-toolbox onto the form.
+We start composing the dialog by placing some text labels onto the form.
+This is achieved by dragging each \e Label from the \e Display section
+of the toolbox onto the form. We add some spinboxes and a combobox from
+the \e Input section of the toolbox, some spacers from the \e Spacers
+section, and two push buttons from the \e Buttons section.
+It is useful to place the widgets where they are needed on the form
+because it helps visualize how it will appear when it is finished.
+
+\image designer-dialog-initial.png
+
+The label text and initial values are changed by using the Property
+Editor. This can be accessed by opening the \e Tools menu in \QD's main
+window and selecting \e{Property Editor}, or by pressing \key{Ctrl+I}.
+For the labels, we only need to change the \c text properties; for the
+spinboxes, we must change the \c value, \c minimum, and \c maximum
+properties.
 
 \table
 \row \i
-\inlineimage designer-dragging-onto-form.png
-\i \bold{Drag and drop:} Widgets can be dragged from the toolbox and dropped
-onto the form. We can also create a clone of a widget on the form by holding
-down \key Ctrl and dragging the widget to a new position. The original widget
-will remain in place, and the clone can be dropped at the required location.
+\l{designer-editing-mode.html#EditingWidgets}{\inlineimage designer-property-editor.png}
+\i \bold{The Property Editor:} Widgets
 \endtable
+
+Widgets and spacers can be moved around on the form by dragging them to
+their new locations. Widgets can be resized 
 
 
 \target CreatingALayout
 \section1 Creating a Layout
 
-In Qt, widget positions and sizes are organized by layouts. Before a form can
-be used, it is necessary to put each of the widgets into layouts, and set the
-form's overall layout. \QD provides all the standard types of layout, making
-it simple to experiment with different ways of laying out components.
+In Qt, widget positions and sizes are organized by layout managers. Before a
+form can be used, it is necessary to put each of the widgets into layouts,
+and set the form's overall layout. \QD provides all the standard types of
+layout, making it simple to experiment with different ways of arranging
+components.
 
 At any point during editing, we can experiment with the layout of the widgets
 on the form by selecting one of the standard Qt layouts. These can be selected
@@ -240,4 +251,68 @@ in \QD's tool bar or from the form's context menu.
 \l{designer-designing-a-component.html}{[Designing a Component]}
 \l{designer-manual.html}{[Up]}
 
+*/
+
+/*!
+\page designer-editing-mode.html
+
+\title Editing Mode
+
+\image designer-editing-mode.png
+
+\section1 Overview
+
+In \QD's editing mode, items can be dragged from the main window's toolbox to
+a form, edited, dragged around on the form, and even dragged between forms.
+The editing interface is intuitive for simple operations, and still provides
+support for flexible layout features.
+
+\target EditingWidgets
+\section1 Editing Widgets
+
+In editing mode
+
+\section2 Selecting
+
+Widgets are selected by clicking on them with the left mouse button. When
+selected, resize handles are shown at the corners and on each edge of the
+widget, indicating that the widget can be resized.
+
+The Property Editor always shows the properties of the currently selected
+widget.
+
+
+
+\section2 Dragging
+
+\section2 Resizing
+
+
+\table
+\row \i
+\inlineimage designer-dragging-onto-form.png
+\i \bold{Drag and drop:} \QD makes extensive use of the drag and drop
+facilities provided by Qt. Widgets can be dragged from the toolbox and dropped
+onto the form.
+
+Widgets can also be "cloned" on the form: Holding down \key Ctrl and dragging
+the widget creates a copy of the widget that can be dragged to a new position.
+\endtable
+
+\section1 Layout Managers
+
+Before the form can be used The widgets on the form are 
+
+\section2 Horizontal and Vertical Layouts
+
+\section2 Grid Layout
+
+*/
+
+/*!
+\page designer-connection-mode.html
+
+\title Connection Mode
+
+\image designer-connection-mode.png
 */
