@@ -5615,8 +5615,9 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
     // Some values of the floating-point control word can cause _qdtoa to crash with an underflow.
     // We set a safe value here.
 #ifdef Q_OS_WIN
+    _clear87();
     unsigned int oldbits = _control87(0, 0);
-    _control87(0x9001F, 0xFFFFF);
+    _control87(MCW_EM, MCW_EM);
 #endif
 
 #ifdef Q_OS_LINUX
