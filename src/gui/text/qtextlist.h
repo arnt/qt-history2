@@ -2,7 +2,7 @@
 #define QTEXTLIST_H
 
 #ifndef QT_H
-#include <qtextformat.h>
+#include <qtextobject.h>
 #include <qobject.h>
 #endif // QT_H
 

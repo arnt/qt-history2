@@ -13,6 +13,8 @@ HEADERS += \
 	text/qtextlayout.h \
 	text/qtextformat.h \
 	text/qtextformat_p.h \
+	text/qtextobject.h \
+	text/qtextobject_p.h \
 	text/qfragmentmap_p.h \
 	text/qtextdocument.h \
 	text/qtextdocument_p.h \
@@ -35,6 +37,7 @@ SOURCES += \
 	text/qtextengine.cpp \
 	text/qtextlayout.cpp \
 	text/qtextformat.cpp \
+	text/qtextobject.cpp \
 	text/qfragmentmap.cpp \
 	text/qtextblockiterator.cpp \
 	text/qtextdocument.cpp \

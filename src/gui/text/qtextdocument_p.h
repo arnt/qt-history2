@@ -8,9 +8,10 @@
 #include <qlist.h>
 #include <private/qobject_p.h>
 #include "qfragmentmap_p.h"
-#include <qtextlayout.h>
-#include <private/qtextformat_p.h>
-#include <qtextdocument.h>
+#include "qtextlayout.h"
+#include "qtextformat_p.h"
+#include "qtextdocument.h"
+#include <qmap.h>
 
 #include "qtextglobal_p.h"
 #include <qtextblockiterator.h>

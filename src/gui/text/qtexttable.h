@@ -5,7 +5,7 @@
 #include <qglobal.h>
 #include <qshareddata.h>
 #include <qobject.h>
-#include "qtextformat.h"
+#include "qtextobject.h"
 #endif // QT_H
 
 class QTextCursor;

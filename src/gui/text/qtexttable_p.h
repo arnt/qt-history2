@@ -2,7 +2,7 @@
 #define QTEXTTABLE_P_H
 
 #ifndef QT_H
-#include "qtextformat_p.h"
+#include "qtextobject_p.h"
 #include "qtextblockiterator.h"
 #include "qtextdocument_p.h"
 #endif

@@ -4,7 +4,8 @@
 #include "qtextdocument_p.h"
 #include "qtextdocument.h"
 #include <qtextformat.h>
-#include <private/qtextformat_p.h>
+#include "qtextformat_p.h"
+#include "qtextobject_p.h"
 #include "qtextcursor.h"
 #include "qtextimagehandler_p.h"
 #include "qtextcursor_p.h"

@@ -2,73 +2,7 @@
 #define QTEXTFORMAT_P_H
 
 #include "qtextformat.h"
-#include <private/qobject_p.h>
 #include <qvector.h>
-#include <qmap.h>
-#include <qrect.h>
-
-class QTextDocumentPrivate;
-
-class QTextFormatProperty
-{
-public:
-    inline QTextFormatProperty() : type(QTextFormat::Undefined) {}
-
-    inline QTextFormatProperty(bool value) : type(QTextFormat::Bool)
-    { data.boolValue = value; }
-
-    inline QTextFormatProperty(int value) : type(QTextFormat::Integer)
-    { data.intValue = value; }
-
-    inline QTextFormatProperty(float value) : type(QTextFormat::Float)
-    { data.floatValue = value; }
-
-    QTextFormatProperty(const QString &value);
-
-    QTextFormatProperty &operator=(const QTextFormatProperty &rhs);
-    inline QTextFormatProperty(const QTextFormatProperty &rhs) : type(QTextFormat::Undefined)
-    { (*this) = rhs; }
-
-
-    inline ~QTextFormatProperty()
-    { free(); }
-
-    bool operator==(const QTextFormatProperty &rhs) const;
-
-    QTextFormat::PropertyType type;
-    union {
-        bool boolValue;
-        int intValue;
-        float floatValue;
-        mutable void *ptr;
-    } data;
-
-    inline QString stringValue() const
-    { return *reinterpret_cast<QString *>(&data.ptr); }
-
-private:
-    void free();
-};
-
-QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop);
-QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop);
-
-class QTextFormatPrivate : public QSharedData
-{
-public:
-    // keep Q_INT* types here, so we can safely stream to a datastream
-    typedef QMap<Q_INT32, QTextFormatProperty> PropertyMap;
-
-    PropertyMap properties;
-    Q_INT32 type;
-
-    inline bool operator==(const QTextFormatPrivate &rhs) const {
-        if (type != rhs.type)
-            return false;
-
-        return properties == rhs.properties;
-    }
-};
 
 class Q_GUI_EXPORT QTextFormatCollection
 {
@@ -110,46 +44,7 @@ public:
     QVector<int> objFormats;
 };
 
-
 QDataStream &operator<<(QDataStream &stream, const QTextFormatCollection &collection);
 QDataStream &operator>>(QDataStream &stream, QTextFormatCollection &collection);
-
-class QTextObjectPrivate : public QObjectPrivate
-{
-    Q_DECLARE_PUBLIC(QTextObject)
-public:
-    QTextDocumentPrivate *pieceTable;
-    int objectIndex;
-};
-
-class QTextBlockGroupPrivate : public QTextObjectPrivate
-{
-    Q_DECLARE_PUBLIC(QTextBlockGroup)
-public:
-
-    typedef QList<QTextBlockIterator> BlockList;
-    BlockList blocks;
-};
-
-class QTextFrameLayoutData;
-
-class QTextFramePrivate : public QTextObjectPrivate
-{
-    friend class QTextDocumentPrivate;
-    Q_DECLARE_PUBLIC(QTextFrame)
-public:
-
-    virtual void fragmentAdded(const QChar &type, uint fragment);
-    virtual void fragmentRemoved(const QChar &type, uint fragment);
-    void remove_me();
-
-    uint fragment_start;
-    uint fragment_end;
-
-    QTextFrame *parentFrame;
-    QList<QTextFrame *> childFrames;
-    QTextFrameLayoutData *layoutData;
-};
-
 
 #endif // QTEXTFORMAT_P_H

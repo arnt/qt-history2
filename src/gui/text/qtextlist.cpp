@@ -1,6 +1,6 @@
 
 #include "qtextlist.h"
-#include "qtextformat_p.h"
+#include "qtextobject_p.h"
 #include "qtextcursor.h"
 #include "qtextblockiterator.h"
 #include "qtextdocument_p.h"
