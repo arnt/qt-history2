@@ -8,7 +8,7 @@
 @Diag
     font { Helvetica Base }
 {
-@HTree {
+@Tree {
     @CurveBox QObject
     @LeftSub @CurveBox QTimer
     @RightSub {

@@ -5,12 +5,12 @@
 @SysInclude { diag }
 @SysInclude { doc }
 @Doc @Text @Begin
-@Diag
+@Scale @Diag
     font { Helvetica Base }
 {
-@HTree {
+@Tree {
     @CurveBox QStyle 
-    @RightSub {
+    @FirstSub {
 	@CurveBox QCommonStyle
 	@LeftSub {
 	    @CurveBox QMotifStyle
