@@ -26,25 +26,6 @@
 
 #define COLOR_VALUE(c) ((d->flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
-static const short rasterOpCodes[] = {
-    R2_COPYPEN,        // CopyROP
-    R2_MERGEPEN,       // OrROP
-    R2_XORPEN,         // XorROP
-    R2_MASKNOTPEN,     // NotAndROP
-    R2_NOTCOPYPEN,     // NotCopyROP
-    R2_MERGENOTPEN,    // NotOrROP
-    R2_NOTXORPEN,      // NotXorROP
-    R2_MASKPEN,        // AndROP
-    R2_NOT,            // NotROP
-    R2_BLACK,          // ClearROP
-    R2_WHITE,          // SetROP
-    R2_NOP,            // NopROP
-    R2_MASKPENNOT,     // AndNotROP
-    R2_MERGEPENNOT,    // OrNotROP
-    R2_NOTMASKPEN,     // NandROP
-    R2_NOTMERGEPEN     // NorROP
-};
-
 class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QWin32PaintEngine);

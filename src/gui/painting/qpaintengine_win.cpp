@@ -40,6 +40,74 @@
 
 #define MY_DEBUG() printf("%s:%d\n", __FILE__, __LINE__);
 
+static const short qt_rop_codes_pen[] = {
+    R2_COPYPEN,        // CopyROP
+    R2_MERGEPEN,       // OrROP
+    R2_XORPEN,         // XorROP
+    R2_MASKNOTPEN,     // NotAndROP
+    R2_NOTCOPYPEN,     // NotCopyROP
+    R2_MERGENOTPEN,    // NotOrROP
+    R2_NOTXORPEN,      // NotXorROP
+    R2_MASKPEN,        // AndROP
+    R2_NOT,            // NotROP
+    R2_BLACK,          // ClearROP
+    R2_WHITE,          // SetROP
+    R2_NOP,            // NopROP
+    R2_MASKPENNOT,     // AndNotROP
+    R2_MERGEPENNOT,    // OrNotROP
+    R2_NOTMASKPEN,     // NandROP
+    R2_NOTMERGEPEN     // NorROP
+};
+
+static const uint qt_rop_codes_blt[] = {  // ROP translation table
+    SRCCOPY,                    // CopyROP
+    SRCPAINT,                   // OrROP
+    SRCINVERT,                  // XorROP
+    0x00220326 /* DSna */,      // NotAndROP
+    NOTSRCCOPY,                 // NotCopyROP
+    MERGEPAINT,                 // NotOrROP
+    0x00990066 /* DSnx */,      // NotXorROP
+    SRCAND,                     // AndROP
+    DSTINVERT,                  // NotROP
+    BLACKNESS,                  // ClearROP
+    WHITENESS,                  // SetROP
+    0x00AA0029 /* D */,         // NopROP
+    SRCERASE,                   // AndNotROP
+    0x00DD0228 /* SDno */,      // OrNotROP
+    0x007700E6 /* DSan */,      // NandROP
+    NOTSRCERASE                 // NorROP
+};
+
+/*
+  This function adjusts the raster operations for painting into a QBitmap on
+  Windows.
+
+  For bitmaps und Windows, color0 is 0xffffff and color1 is 0x000000 -- so we
+  have to use adjusted ROPs in this case to get the same effect as on Unix.
+*/
+Qt::RasterOp qt_map_rop_for_bitmaps(Qt::RasterOp op) {
+    static const Qt::RasterOp ropCodes[] = {
+        Qt::CopyROP,        // CopyROP
+        Qt::AndROP,         // OrROP
+        Qt::NotXorROP,      // XorROP
+        Qt::NotOrROP,       // NotAndROP
+        Qt::NotCopyROP,     // NotCopyROP
+        Qt::NotAndROP,      // NotOrROP
+        Qt::XorROP,         // NotXorROP
+        Qt::OrROP,          // AndROP
+        Qt::NotROP,         // NotROP
+        Qt::SetROP,         // ClearROP
+        Qt::ClearROP,       // SetROP
+        Qt::NopROP,         // NopROP
+        Qt::OrNotROP,       // AndNotROP
+        Qt::AndNotROP,      // OrNotROP
+        Qt::NorROP,         // NandROP
+        Qt::NandROP         // NorROP
+    };
+    return ropCodes[op];
+};
+
+
 static QSysInfo::WinVersion qt_winver = QSysInfo::WV_NT;
 
 /*****************************************************************************
@@ -361,7 +429,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unc
     SetTextAlign(d->hdc, TA_BASELINE);
     SetBkColor(d->hdc, COLOR_VALUE(state->bgBrush.color()));
     SetBkMode(d->hdc, state->bgMode == TransparentMode ? TRANSPARENT : OPAQUE);
-    SetROP2(d->hdc, rasterOpCodes[state->rasterOp]);
+    SetROP2(d->hdc, qt_rop_codes_pen[state->rasterOp]);
     SetTextColor(d->hdc, COLOR_VALUE(state->pen.color()));
     return true;
 }
@@ -991,23 +1059,23 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             updateState(state);
             StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
                        pixmap.handle(), sr.x(), sr.y(), sr.width(), sr.height(),
-                       SRCCOPY);
+                       qt_rop_codes_blt[d->rasterOp]);
             state->painter->restore();
         } else {
             MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
                     pm_dc, sr.x(), sr.y()+pm_offset,
                     mask->hbm(), sr.x(), sr.y()+pm_offset,
-                    MAKEROP4(0x00aa0000, SRCCOPY));
+                    MAKEROP4(0x00aa0000, ropCodes[qt_map_rop_for_bitmaps(d->rasterOp)]));
         }
     } else {
         if (stretch)
             StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
                        pixmap.handle(), sr.x(), sr.y(), sr.width(), sr.height(),
-                       SRCCOPY);
+                       qt_rop_codes_blt[d->rasterOp]);
         else
             BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
                    pixmap.handle(), sr.x(), sr.y(),
-                   SRCCOPY);
+                   qt_rop_codes_blt[d->rasterOp]);
     }
 }
 
@@ -1292,7 +1360,7 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
 void QWin32PaintEngine::updateRasterOp(QPainterState *state)
 {
     Q_ASSERT(isActive());
-    SetROP2(d->hdc, rasterOpCodes[state->rasterOp]);
+    SetROP2(d->hdc, qt_rop_codes_pen[state->rasterOp]);
     d->rasterOp = state->rasterOp;
 }
 
@@ -1371,36 +1439,6 @@ void QWin32PaintEngine::updateFont(QPainterState *state)
     if (f.underline()) d->fontFlags |= Qt::Underline;
     if (f.overline()) d->fontFlags |= Qt::Overline;
     if (f.strikeOut()) d->fontFlags |= Qt::StrikeOut;
-}
-
-/*
-  This function adjusts the raster operations for painting into a QBitmap on
-  Windows.
-
-  For bitmaps und Windows, color0 is 0xffffff and color1 is 0x000000 -- so we
-  have to use adjusted ROPs in this case to get the same effect as on Unix.
-*/
-Qt::RasterOp qt_map_rop_for_bitmaps(Qt::RasterOp r)
-{
-    static const Qt::RasterOp ropCodes[] = {
-        Qt::CopyROP,        // CopyROP
-        Qt::AndROP,                // OrROP
-        Qt::NotXorROP,        // XorROP
-        Qt::NotOrROP,        // NotAndROP
-        Qt::NotCopyROP,        // NotCopyROP
-        Qt::NotAndROP,        // NotOrROP
-        Qt::XorROP,        // NotXorROP
-        Qt::OrROP,        // AndROP
-        Qt::NotROP,        // NotROP
-        Qt::SetROP,        // ClearROP
-        Qt::ClearROP,        // SetROP
-        Qt::NopROP,        // NopROP
-        Qt::OrNotROP,        // AndNotROP
-        Qt::AndNotROP,        // OrNotROP
-        Qt::NorROP,        // NandROP
-        Qt::NandROP        // NorROP
-    };
-    return ropCodes[r];
 }
 
 extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);
