@@ -238,28 +238,14 @@ QTextCursor QTextDocument::find(const QString &expr, QString::CaseSensitivity cs
     if (expr.isEmpty())
         return QTextCursor();
 
-    const QString buffer = d->pieceTable->buffer();
-
     int pos = (start.isNull() ? 0 : start.selectionEnd());
-    const int end = d->pieceTable->length();
-    Q_ASSERT(pos >= 0 && pos < end);
 
-    while (pos < end) {
-        QTextPieceTable::FragmentIterator fragIt = d->pieceTable->find(pos);
-        const QTextFragment * const frag = fragIt.value();
-
-        const QString fragText = QString::fromRawData(buffer.constData() + frag->stringPosition, frag->size);
-
-        const int offsetInsideFragment = qMax(0, pos - fragIt.position());
-
-        // ### not imlpemented, yet
-        Q_ASSERT(offsetInsideFragment + expr.length() <= (int)frag->size);
-
-        const int index = fragText.indexOf(expr, offsetInsideFragment, cs);
-
-        if (index >= 0) {
-            QTextCursor cursor(d->pieceTable, fragIt.position() + index);
-
+    QTextBlockIterator block = d->pieceTable->blocksFind(pos);
+    while (!block.atEnd()) {
+        const int blockOffset = qMax(0, pos - block.position());
+        const int idx = block.blockText().indexOf(expr, blockOffset, cs);
+        if (idx >= 0) {
+            QTextCursor cursor(d->pieceTable, block.position() + blockOffset + idx);
             // ### testme
             if (mode == FindWords) {
                 const int findPos = cursor.position();
@@ -276,11 +262,9 @@ QTextCursor QTextDocument::find(const QString &expr, QString::CaseSensitivity cs
             } else {
                 cursor.moveTo(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
             }
-
             return cursor;
         }
-
-        pos += frag->size;
+        ++block;
     }
 
     return QTextCursor();
