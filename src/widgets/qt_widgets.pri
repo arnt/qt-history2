@@ -52,6 +52,7 @@ widgets {
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qaction.h \
+		  $$WIDGETS_H/qdatetimeedit.h \
 		  $$WIDGETS_H/qtextview.h \
 		  $$WIDGETS_H/qtextbrowser.h \
 		  $$WIDGETS_H/qtextedit.h
@@ -106,6 +107,7 @@ widgets {
 		  $$WIDGETS_CPP/qwhatsthis.cpp \
 		  $$WIDGETS_CPP/qwidgetstack.cpp \
 		  $$WIDGETS_CPP/qaction.cpp \
+		  $$WIDGETS_CPP/qdatetimeedit.cpp \
 		  $$WIDGETS_CPP/qeffects.cpp \
 		  $$WIDGETS_CPP/qtextview.cpp \
 		  $$WIDGETS_CPP/qtextbrowser.cpp \
