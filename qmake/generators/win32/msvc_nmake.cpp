@@ -251,6 +251,11 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_RELEASE"];
     }
 
+    if ( !project->variables()["DEFINES"].contains("QT_NO_STL") ) {
+	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_STL"];
+	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
+    }
+    
     if ( !project->variables()["QMAKE_INCDIR"].isEmpty()) {
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     }

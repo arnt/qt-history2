@@ -381,6 +381,9 @@ DspMakefileGenerator::init()
 	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
 	}
     }
+
+    if ( !project->variables()["DEFINES"].contains("QT_NO_STL") )
+	project->variables()["MSVCDSP_STL"].append("-GX");
     
     if ( project->isActiveConfig("accessibility" ) ) {
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
