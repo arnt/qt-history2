@@ -3410,16 +3410,25 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 //
 bool QETWidget::translatePaintEvent( const MSG & )
 {
-    PAINTSTRUCT ps;
     QRegion rgn(0,0,1,1); // trigger handle
     int res = GetUpdateRgn(winId(), (HRGN) rgn.handle(), FALSE);
+    if ( res == ERROR || res == NULLREGION )
+	return TRUE;
+
     setWState( WState_InPaintEvent );
+    PAINTSTRUCT ps;
     hdc = BeginPaint( winId(), &ps );
-    if ( res != COMPLEXREGION )
-	rgn = QRect(QPoint(ps.rcPaint.left,ps.rcPaint.top),
-		    QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1));
-    QPaintEvent e(rgn);
-    QApplication::sendSpontaneousEvent( this, (QEvent*) &e );
+    if ( res != COMPLEXREGION ) {
+	QRect psRect(QPoint(ps.rcPaint.left,ps.rcPaint.top), QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1));
+	if ( !psRect.isValid() )
+	    goto cleanup;
+	rgn = psRect;
+    }
+    {
+	QPaintEvent e(rgn);
+	QApplication::sendSpontaneousEvent( this, (QEvent*) &e );
+    }
+cleanup:
     hdc = 0;
     EndPaint( winId(), &ps );
     clearWState( WState_InPaintEvent );
