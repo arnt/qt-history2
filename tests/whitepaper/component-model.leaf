@@ -1,0 +1,111 @@
+\chapter Components and Interfaces
+
+\section1 Dynamic Library Loading
+
+Developers often know precisely the shared libraries they need when
+they create an application, and specify them at the linking step.
+This is not always practicable. With dynamic library loading, an
+application can attempt to load a shared library and continue without
+the functionality provided by the library if it could not be loaded.
+
+The \Class QLibrary class provides multi-platform, dynamic library
+loading. Here is how a developer would load a library at run time and
+call a library function called \c print_str:
+\code
+    typedef void (*Prototype)( const char *str );
+
+    QLibrary lib( "mylib" );
+    Prototype func = (Protoype) lib.resolve( "print_str" );
+    if ( func )
+	func( "Hello world!" );
+\endcode
+Unfortunately, calling a function this way is not type safe, and only
+functions with C linkage can be resolved this way because of C++ name
+mangling. These apparent limitations are lifted by the Qt Component
+Model.
+
+\section1 The Qt Component Model
+
+The Qt Component Model provides a portable component model similar to
+COM on Windows. It helps break monolithic applications into
+components that can be dynamically loaded and possibly used by other
+applications.
+
+The component model is built around two key concepts: \e interfaces
+and \e components. An interface is any class that exclusively
+provides pure virtual functions and that inherits \Class
+QUnknownInterface. A component is a class that implements one or more
+interfaces.
+
+Components are stored in shared libraries. Application programmers
+always use components through the interfaces they implement. A
+component can be replaced by another without binary compatibility
+worries, since only the interfaces are known to the application.
+
+  \index GUID
+  \index UUID
+  \index Universally Unique Identifier
+
+Type safety is achieved by using 128-bit integers known as
+Universally Unique Identifiers (UUIDs) to identify interfaces and
+components. Whenever an interface is modified, its UUID and that of
+the components that implement it must be changed. By following these
+conventions, binary compatibility is guaranteed.
+
+\section1 Using a Component
+
+Most applications use components in one of three ways.
+
+If the application knows where the shared library containing the
+interesting component is located, it can construct a \Class QLibrary
+object and query for an interface:
+\code
+    QLibrary lib( "mylib" );
+    FlyInterface *iface;
+    lib->queryInterface( IID_Fly,
+			(QUnknownInterface **) &iface );
+    if ( iface ) {
+	iface->fly();
+	iface->release();
+    }
+\endcode
+
+Applications that know which component they need but not its location
+in the file system can use the \e {registered components} approach.
+Components are registered and unregistered using static functions of
+the \Class QComponentFactory class. Registered components can be
+looked up by UUID. Here's, for example, how to make a helicopter fly:
+\code
+    const QUuid HelicopterComponentUuid =
+	    "{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}";
+
+    FlyInterface *iface;
+    QComponentFactory::createInstance( HelicopterComponentUuid,
+	    IID_Fly, (QUnknownInterface **) &iface );
+    if ( iface ) {
+	iface->fly();
+	iface->release();
+    }
+\endcode
+
+Finally, some applications are ready to load any number of \e plugin
+components that implement a certain interface defined by the
+application. Plugins are distinguished from each other by the feature
+(or features) they implement. The \Class QPluginManager\<T\> provides
+access to the available features. For example, if a 'Helicopter' and
+a 'Airplane' plugin are installed, the following code will execute
+the \Func fly() function on each:
+\code
+    QPluginManager<FlyInterface> manager( IID_Fly, "./plugins" );
+    QStringList features = manager->featureList();
+
+    for ( int i = 0; i < features.count(); i++ ) {
+	FlyInterface *iface;
+	manager->queryInterface( features[i],
+				 (QUnknownInterface **) &iface );
+	iface->fly();
+	iface->release();
+    }
+\endcode  
+
+\section1 Defining Interfaces and Components

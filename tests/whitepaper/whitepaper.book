@@ -1,0 +1,9 @@
+\title Qt Whitepaper
+
+\input signals-and-slots.leaf
+\input events.leaf
+\input gui-applications.leaf
+\omit
+\input layouts.leaf
+\input internationalization.leaf
+\input collection-classes.leaf

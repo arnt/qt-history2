@@ -338,8 +338,9 @@ Dialogs operate in one of three ways:
    same application. Users must close the dialog before they can
    access any other window in the application.
 
-\i A \e modeless dialog operates independly of other windows. There is little
-   difference between a modeless \Class QDialog and a \Class QWidget.
+\i A \e modeless dialog operates independly of other windows. There
+   is little difference between a modeless \Class QDialog and a
+   \Class QWidget.
 
 \i A \e semi-modal dialog returns control to the caller immediately.
    These dialogs behave like modal dialogs from the user's point of
