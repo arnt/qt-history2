@@ -152,9 +152,9 @@ unsigned long DesignerFormListInterfaceImpl::release()
     return ref;;
 }
 
-QString DesignerFormListInterfaceImpl::text( DesignerFormInterface * /*form*/, int /*col*/ ) const
+QString DesignerFormListInterfaceImpl::text( DesignerFormInterface *form, int col ) const
 {
-/*    QString formname = form->requestProperty( "name" ).toString();
+    QString formname = form->property( "name" ).toString();
     DesignerFormListInterfaceImpl* that = (DesignerFormListInterfaceImpl*)this;
     QListViewItemIterator it( formList );
     while ( it.current() ) {
@@ -162,14 +162,14 @@ QString DesignerFormListInterfaceImpl::text( DesignerFormInterface * /*form*/, i
 	++it;
 	if ( item->text( 0 ) == formname )
 	    return item->text( col );
-    }*/
+    }
     return QString::null;
 }
 
-void DesignerFormListInterfaceImpl::setText( DesignerFormInterface * /*form*/, int /*col*/, const QString& /*s*/ )
+void DesignerFormListInterfaceImpl::setText( DesignerFormInterface *form, int col, const QString& s )
 {
-/*    QString formname = form->requestProperty( "name" ).toString();
-    QListViewItemIterator it( (FormList*)component() );
+    QString formname = form->property( "name" ).toString();
+    QListViewItemIterator it( formList );
     while ( it.current() ) {
 	FormListItem* item = (FormListItem*)it.current();
 	++it;
@@ -177,35 +177,35 @@ void DesignerFormListInterfaceImpl::setText( DesignerFormInterface * /*form*/, i
 	    item->setText( col, s );
 	    return;
 	}
-    }*/
+    }
 }
 
-const QPixmap* DesignerFormListInterfaceImpl::pixmap( DesignerFormInterface * /*form*/, int /*col*/ ) const
+const QPixmap* DesignerFormListInterfaceImpl::pixmap( DesignerFormInterface *form, int col ) const
 {
-/*    QString formname = form->requestProperty( "name" ).toString();
+    QString formname = form->property( "name" ).toString();
     DesignerFormListInterfaceImpl* that = (DesignerFormListInterfaceImpl*)this;
-    QListViewItemIterator it( (FormList*)that->component() );
+    QListViewItemIterator it( formList );
     while ( it.current() ) {
 	FormListItem* item = (FormListItem*)it.current();
 	++it;
 	if ( item->text( 0 ) == formname )
 	    return item->pixmap( col );
-    }*/
+    }
     return 0;
 }
 
-void DesignerFormListInterfaceImpl::setPixmap( DesignerFormInterface * /*form*/, int /*col*/, const QPixmap& /*pix*/ )
+void DesignerFormListInterfaceImpl::setPixmap( DesignerFormInterface *form, int col, const QPixmap& pix )
 {
- /*   QString formname = form->requestProperty( "fileName" ).toString();
-    QListViewItemIterator it( (FormList*)component() );
+    QString formname = form->property( "name" ).toString();
+    QListViewItemIterator it( formList );
     while ( it.current() ) {
 	FormListItem* item = (FormListItem*)it.current();
 	++it;
-	if ( item->text( 1 ) == formname ) {
+	if ( item->text( 0 ) == formname ) {
 	    item->setPixmap( col, pix );
 	    return;
 	}
-    }*/
+    }
 }
 
 uint DesignerFormListInterfaceImpl::count() const
