@@ -8148,7 +8148,7 @@ static const char * const aqua_radio_psh_t_xpm[] = {
 "/ / . + $ g > > g $ f . / / ",
 ". . . . # + + + + # . . . . "};
 /* XPM */
-static const char * aqua_toolbtn_psh_mid_xpm[] = {
+static const char * const aqua_toolbtn_psh_mid_xpm[] = {
 "23 21 14 1",
 "       c None",
 ".      c #636363",
@@ -8186,7 +8186,7 @@ static const char * aqua_toolbtn_psh_mid_xpm[] = {
 ">>>>>>>>>>>>>>>>>>>>>>;",
 ",,,,,,,,,,,,,,+++++++,,"};
 /* XPM */
-static const char * aqua_toolbtn_psh_right_xpm[] = {
+static const char * const aqua_toolbtn_psh_right_xpm[] = {
 "23 21 18 1",
 "       c None",
 ".      c #636363",
@@ -8228,7 +8228,7 @@ static const char * aqua_toolbtn_psh_right_xpm[] = {
 "~~~~~~~~~~~~~~~~~~~-,.&",
 ">>>>>>>>>>>>>>>>>>++)&-"};
 /* XPM */
-static const char * aqua_toolbtn_psh_left_xpm[] = {
+static const char * const aqua_toolbtn_psh_left_xpm[] = {
 "23 21 18 1",
 "       c None",
 ".      c #DEDEDE",
@@ -8270,7 +8270,7 @@ static const char * aqua_toolbtn_psh_left_xpm[] = {
 "&#,;~~~~~~~~~~~~~~~~~~.",
 ";&)@@@@@@@@@@@@@@@@@@--"};
 /* XPM */
-static const char * aqua_toolbtn_act_left_xpm[] = {
+static const char * const aqua_toolbtn_act_left_xpm[] = {
 "23 21 109 2",
 "       c None",
 ".      c #DEDEDE",
@@ -8403,7 +8403,7 @@ static const char * aqua_toolbtn_act_left_xpm[] = {
 "x >.,.'.$.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.. ",
 "5 x ).- - !.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!."};
 /* XPM */
-static const char * aqua_toolbtn_act_right_xpm[] = {
+static const char * const aqua_toolbtn_act_right_xpm[] = {
 "23 21 110 2",
 "       c None",
 ".      c #1052AD",
@@ -8536,6 +8536,106 @@ static const char * aqua_toolbtn_act_right_xpm[] = {
 "@.@.@.%.@.@.@.@.@.@.@.@.@.@.@.%.@.&.&.W *.a =.",
 "@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.#.-.;.>.,.",
 "'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.).).!.,.~."};
+/* XPM */
+static const char * const aqua_tbar_hsep_xpm[] = {
+"8 22 32 1",
+"       c None",
+".      c #A5A5A5",
+"+      c #737373",
+"@      c #DBDBDB",
+"#      c #808080",
+"$      c #FFFFFF",
+"%      c #B9B9B9",
+"&      c #EDEDED",
+"*      c #CCCCCC",
+"=      c #EFEFEF",
+"-      c #C7C7C7",
+";      c #BEBEBE",
+">      c #E8E8E8",
+",      c #AAAAAA",
+"'      c #E7E7E7",
+")      c #9E9E9E",
+"!      c #9C9C9C",
+"~      c #EBEBEB",
+"{      c #A1A1A1",
+"]      c #A9A9A9",
+"^      c #F3F3F3",
+"/      c #B1B1B1",
+"(      c #F7F7F7",
+"_      c #B8B8B8",
+":      c #C0C0C0",
+"<      c #FAFAFA",
+"[      c #C9C9C9",
+"}      c #CECECE",
+"|      c #D2D2D2",
+"1      c #DEDEDE",
+"2      c #F8F8F8",
+"3      c #D8D8D8",
+".......+",
+"@@@#$@@%",
+"&&&#$&&*",
+"===#$==-",
+"===#$==;",
+">>>#$>>,",
+"'''#$'')",
+"'''#$''!",
+"~~~#$~~{",
+"===#$==]",
+"^^^#$^^/",
+"(((#$((_",
+"(((#$((:",
+"<<<#$<<[",
+"$$$#$$$}",
+"$$$#$$$|",
+"$$$#$$$1",
+"$$$#$$$1",
+"$$$#$$$1",
+"$$$#$$$1",
+"222#$223",
+"++++++++"};
+/* XPM */
+static const char * const aqua_tbar_vsep_xpm[] = {
+"22 8 32 1",
+"       c None",
+".      c #737373",
+"+      c #F8F8F8",
+"@      c #FFFFFF",
+"#      c #FAFAFA",
+"$      c #F7F7F7",
+"%      c #F3F3F3",
+"&      c #EFEFEF",
+"*      c #EBEBEB",
+"=      c #E7E7E7",
+"-      c #E8E8E8",
+";      c #EDEDED",
+">      c #DBDBDB",
+",      c #A5A5A5",
+"'      c #808080",
+")      c #D8D8D8",
+"!      c #DEDEDE",
+"~      c #D2D2D2",
+"{      c #CECECE",
+"]      c #C9C9C9",
+"^      c #C0C0C0",
+"/      c #B8B8B8",
+"(      c #B1B1B1",
+"_      c #A9A9A9",
+":      c #A1A1A1",
+"<      c #9C9C9C",
+"[      c #9E9E9E",
+"}      c #AAAAAA",
+"|      c #BEBEBE",
+"1      c #C7C7C7",
+"2      c #CCCCCC",
+"3      c #B9B9B9",
+".+@@@@@@#$$%&*==-&&;>,",
+".+@@@@@@#$$%&*==-&&;>,",
+".+@@@@@@#$$%&*==-&&;>,",
+".'''''''''''''''''''',",
+".@@@@@@@@@@@@@@@@@@@@,",
+".+@@@@@@#$$%&*==-&&;>,",
+".+@@@@@@#$$%&*==-&&;>,",
+".)!!!!~{]^/(_:<[}|123."};
 
 
 #include "qapplication.h"
@@ -8634,17 +8734,15 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     if( s.contains("gen_back") )
         QPixmapCache::insert( "$qt_aqua_gen_back",
-                              QPixmap((const char **) aqua_gen_back_xpm ) );
+                              QPixmap( (const char **) aqua_gen_back_xpm ) );
     if( s.contains("sel_back" ) )
         QPixmapCache::insert( "$qt_aqua_sel_back",
-                              QPixmap((const char **) aqua_sel_back_xpm ) );
+                              QPixmap( (const char **) aqua_sel_back_xpm ) );
     QPixmap px;
     QImage  im;
-    QBitmap left_mask( aqua_btn_mask_left_xbm_width,
-                       aqua_btn_mask_left_xbm_height,
+    QBitmap left_mask( aqua_btn_mask_left_xbm_width, aqua_btn_mask_left_xbm_height,
                        (const uchar *) aqua_btn_mask_left_xbm_bits, TRUE );
-    QBitmap right_mask( aqua_btn_mask_right_xbm_width,
-                        aqua_btn_mask_right_xbm_height,
+    QBitmap right_mask( aqua_btn_mask_right_xbm_width, aqua_btn_mask_right_xbm_height,
                         (const uchar *) aqua_btn_mask_right_xbm_bits, TRUE );
 
     // Scale the button pixmaps to cover height of area to paint
@@ -8722,57 +8820,51 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     // Pixmaps for normal buttons
     if( s.contains("btn_nrm_" ) ){
         size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
 
         QPixmap left( (const char **) aqua_btn_nrm_left_xpm );
         left.setMask( left_mask );
         im = left;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_btn_nrm_left_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_btn_nrm_left_" + sizestr, px );
 
         im = QImage( (const char **) aqua_btn_nrm_mid_xpm );
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_btn_nrm_mid_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_btn_nrm_mid_" + sizestr, px );
 
         QPixmap right( (const char **) aqua_btn_nrm_right_xpm );
         right.setMask( right_mask );
         im = right;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_btn_nrm_right_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_btn_nrm_right_"+ sizestr, px );
     }
 
     // Pixmaps for disabled buttons
     if( s.contains("btn_dis_" ) ){
         size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
 
         QPixmap left( (const char **) aqua_btn_dis_left_xpm );
         left.setMask( left_mask );
         im = left;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_btn_dis_left_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_btn_dis_left_" + sizestr, px );
 
         im = QImage( (const char **) aqua_btn_dis_mid_xpm );
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_btn_dis_mid_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_btn_dis_mid_" + sizestr, px );
 
         QPixmap right( (const char **) aqua_btn_dis_right_xpm );
         right.setMask( right_mask );
         im = right;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_btn_dis_right_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_btn_dis_right_" + sizestr, px );
     }
 
     // Radio buttons
     if( s.contains("radio_") ){
-        QPixmapCache::insert( "$qt_aqua_radio_f",
-                              (const char **) aqua_radio_f_xpm );
-        QPixmapCache::insert( "$qt_aqua_radio_t",
-                              (const char **) aqua_radio_t_xpm );
+        QPixmapCache::insert( "$qt_aqua_radio_f", (const char **) aqua_radio_f_xpm );
+        QPixmapCache::insert( "$qt_aqua_radio_t", (const char **) aqua_radio_t_xpm );
         QPixmapCache::insert( "$qt_aqua_radio_dis_t",
                               (const char **) aqua_radio_dis_t_xpm );
         QPixmapCache::insert( "$qt_aqua_radio_psh_t",
@@ -8783,9 +8875,9 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     // Small bevel buttons
     if( s.contains("bvlbtn_") ){
-        QPixmap off((const char **) aqua_bvlbtn_small_off_xpm);
-        QPixmap on((const char **) aqua_bvlbtn_small_on_xpm);
-        QPixmap dis((const char **) aqua_bvlbtn_small_dis_xpm);
+        QPixmap off( (const char **) aqua_bvlbtn_small_off_xpm );
+        QPixmap on( (const char **) aqua_bvlbtn_small_on_xpm );
+        QPixmap dis( (const char **) aqua_bvlbtn_small_dis_xpm );
 
         int width = 0, height = 0, j;
         i = s.findRev( '_' );
@@ -8801,30 +8893,27 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
         im = off;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_bvlbtn_small_off_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_bvlbtn_small_off_" + wstr + "_" + hstr, px );
         im = on;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_bvlbtn_small_on_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_bvlbtn_small_on_" + wstr + "_" + hstr, px );
         im = dis;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_bvlbtn_small_dis_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_bvlbtn_small_dis_" + wstr + "_" + hstr, px );
     }
 
     // Checkboxes
     if( s.contains("chk_") ){
         QPixmapCache::insert( "$qt_aqua_chk_act_f",
-                              (const char **) aqua_chk_act_f_xpm);
+                              (const char **) aqua_chk_act_f_xpm );
         QPixmapCache::insert( "$qt_aqua_chk_act_t",
-                              (const char **) aqua_chk_act_t_xpm);
+                              (const char **) aqua_chk_act_t_xpm );
         QPixmapCache::insert( "$qt_aqua_chk_dis_t",
-                              (const char **) aqua_chk_dis_t_xpm);
+                              (const char **) aqua_chk_dis_t_xpm );
         QPixmapCache::insert( "$qt_aqua_chk_psh_t",
-                              (const char **) aqua_chk_psh_t_xpm);
+                              (const char **) aqua_chk_psh_t_xpm );
         QPixmapCache::insert( "$qt_aqua_chk_psh_f",
-                              (const char **) aqua_chk_psh_f_xpm);
+                              (const char **) aqua_chk_psh_f_xpm );
     }
 
     // Horizontal scrollbar
@@ -8837,67 +8926,58 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                             aqua_hsbr_tip_right_mask_height,
                          (const uchar *) aqua_hsbr_tip_right_mask_bits, TRUE );
 
-        QPixmap a_left((const char **) aqua_hsbr_arw_left_xpm);
-        QPixmap a_right((const char **) aqua_hsbr_arw_right_xpm);
+        QPixmap a_left( (const char **) aqua_hsbr_arw_left_xpm );
+        QPixmap a_right( (const char **) aqua_hsbr_arw_right_xpm );
         QPixmap t_right( (const char **) aqua_hsbr_tip_right_xpm );
         t_right.setMask( right_mask );
         QPixmap t_left( (const char **) aqua_hsbr_tip_left_xpm );
         t_left.setMask( left_mask );
-        QPixmap fill((const char **) aqua_hsbr_fill_xpm);
+        QPixmap fill( (const char **) aqua_hsbr_fill_xpm );
         QPixmap t_right_dis( (const char **) aqua_hsbr_tip_dis_right_xpm );
         t_right_dis.setMask( right_mask );
         QPixmap t_left_dis( (const char **) aqua_hsbr_tip_dis_left_xpm );
         t_left_dis.setMask( left_mask );
-        QPixmap fill_dis((const char **) aqua_hsbr_dis_fill_xpm);
-        QPixmap back_fill((const char **) aqua_hsbr_back_fill_xpm);
+        QPixmap fill_dis( (const char **) aqua_hsbr_dis_fill_xpm );
+        QPixmap back_fill( (const char **) aqua_hsbr_back_fill_xpm );
 
         size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
 
         im = a_left;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_arw_left_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_arw_left_" + sizestr, px );
         im = a_right;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_arw_right_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_arw_right_" + sizestr, px );
 
         im = t_left;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_tip_left_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_tip_left_" + sizestr, px );
         im = t_right;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_tip_right_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_tip_right_" + sizestr, px );
 
         im = fill;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_fill_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_fill_" + sizestr, px );
         im = t_left_dis;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_tip_dis_left_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_tip_dis_left_" + sizestr, px );
         im = t_right_dis;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_tip_dis_right_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_tip_dis_right_" + sizestr, px );
 
         im = fill_dis;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_dis_fill_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_dis_fill_" + sizestr, px );
         im = back_fill;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_hsbr_back_fill_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_hsbr_back_fill_" + sizestr, px );
     }
 
     // Vertical scrollbar
     if( s.contains("vsbr_") ){
-        QBitmap up_mask( aqua_vsbr_tip_up_mask_width,
-                         aqua_vsbr_tip_up_mask_height,
+        QBitmap up_mask( aqua_vsbr_tip_up_mask_width, aqua_vsbr_tip_up_mask_height,
                          (const uchar *) aqua_vsbr_tip_up_mask_bits, TRUE );
 
         QBitmap down_mask( aqua_vsbr_tip_down_mask_width,
@@ -8905,150 +8985,139 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                           (const uchar *) aqua_vsbr_tip_down_mask_bits, TRUE );
 
 
-        QPixmap a_up((const char **) aqua_vsbr_arw_up_xpm);
-        QPixmap a_down((const char **) aqua_vsbr_arw_down_xpm);
+        QPixmap a_up( (const char **) aqua_vsbr_arw_up_xpm );
+        QPixmap a_down( (const char **) aqua_vsbr_arw_down_xpm );
         QPixmap t_down( (const char **) aqua_vsbr_tip_down_xpm );
         t_down.setMask( down_mask );
         QPixmap t_up( (const char **) aqua_vsbr_tip_up_xpm );
         t_up.setMask( up_mask );
-        QPixmap fill((const char **) aqua_vsbr_fill_xpm);
+        QPixmap fill( (const char **) aqua_vsbr_fill_xpm );
         QPixmap t_down_dis( (const char **) aqua_vsbr_tip_dis_down_xpm );
         t_down_dis.setMask( down_mask );
         QPixmap t_up_dis( (const char **) aqua_vsbr_tip_dis_up_xpm );
         t_up_dis.setMask( up_mask );
-        QPixmap fill_dis((const char **) aqua_vsbr_dis_fill_xpm);
-        QPixmap back_fill((const char **) aqua_vsbr_back_fill_xpm);
+        QPixmap fill_dis( (const char **) aqua_vsbr_dis_fill_xpm );
+        QPixmap back_fill( (const char **) aqua_vsbr_back_fill_xpm );
 
         size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
 
         im = a_up;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_arw_up_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_arw_up_" + sizestr, px );
         im = a_down;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_arw_down_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_arw_down_" + sizestr, px );
 
         im = t_up;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_tip_up_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_tip_up_" + sizestr, px );
         im = t_down;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_tip_down_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_tip_down_" + sizestr, px );
         im = t_up_dis;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_tip_dis_up_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_tip_dis_up_" + sizestr, px );
         im = t_down_dis;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_tip_dis_down_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_tip_dis_down_" + sizestr, px );
 
         im = fill;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_fill_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_fill_" + sizestr, px );
         im = fill_dis;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_dis_fill_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_dis_fill_" + sizestr, px );
         im = back_fill;
         px = im.smoothScale( size, im.height() );
-        QPixmapCache::insert( "$qt_aqua_vsbr_back_fill_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_vsbr_back_fill_" + sizestr, px );
     }
 
     // Sliders
     if( s.contains("sldr_") ){
         QPixmapCache::insert( "$qt_aqua_sldr_act_pty",
-                              (const char **) aqua_sldr_act_pty_xpm);
+                              (const char **) aqua_sldr_act_pty_xpm );
         QPixmapCache::insert( "$qt_aqua_sldr_dis_pty",
-                              (const char **) aqua_sldr_dis_pty_xpm);
+                              (const char **) aqua_sldr_dis_pty_xpm );
         QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left",
                               (const char **) aqua_sldr_grv_tip_left_xpm);
         QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right",
-                              (const char **) aqua_sldr_grv_tip_right_xpm);
+                              (const char **) aqua_sldr_grv_tip_right_xpm );
         QPixmapCache::insert( "$qt_aqua_sldr_grv_mid",
-                              (const char **) aqua_sldr_grv_mid_xpm);
+                              (const char **) aqua_sldr_grv_mid_xpm );
     }
 
     // Combobox buttons
     if( s.contains("cmb_") ){
-        QPixmap left((const char **) aqua_cmb_act_left_xpm);
-        QPixmap right((const char **) aqua_cmb_act_right_xpm);
-        QPixmap mid((const char **) aqua_cmb_act_mid_xpm);
-        QPixmap right_dis((const char **) aqua_cmb_dis_right_xpm);
+        QPixmap left( (const char **) aqua_cmb_act_left_xpm );
+        QPixmap right( (const char **) aqua_cmb_act_right_xpm );
+        QPixmap mid( (const char **) aqua_cmb_act_mid_xpm );
+        QPixmap right_dis( (const char **) aqua_cmb_dis_right_xpm );
 
         size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
 
         im = left;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_cmb_act_left_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_cmb_act_left_" + sizestr, px );
         im = right;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_cmb_act_right_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_cmb_act_right_" +sizestr, px );
         im = right_dis;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_cmb_dis_right_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_cmb_dis_right_" +sizestr, px );
         im = mid;
         px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_cmb_act_mid_" +
-                              QString::number( size ), px );
+        QPixmapCache::insert( "$qt_aqua_cmb_act_mid_" + sizestr, px );
     }
 
     // Tabs
     if( s.contains("tab_") ){
         QPixmapCache::insert( "$qt_aqua_tab_act_left",
-                              (const char **) aqua_tab_act_left_xpm);
+                              (const char **) aqua_tab_act_left_xpm );
         QPixmapCache::insert( "$qt_aqua_tab_act_mid",
-                              (const char **) aqua_tab_act_mid_xpm);
+                              (const char **) aqua_tab_act_mid_xpm );
         QPixmapCache::insert( "$qt_aqua_tab_act_right",
-                              (const char **) aqua_tab_act_right_xpm);
+                              (const char **) aqua_tab_act_right_xpm );
 
         QPixmapCache::insert( "$qt_aqua_tab_dis_left",
-                              (const char **) aqua_tab_dis_left_xpm);
+                              (const char **) aqua_tab_dis_left_xpm );
         QPixmapCache::insert( "$qt_aqua_tab_dis_mid",
-                              (const char **) aqua_tab_dis_mid_xpm);
+                              (const char **) aqua_tab_dis_mid_xpm );
         QPixmapCache::insert( "$qt_aqua_tab_dis_right",
-                              (const char **) aqua_tab_dis_right_xpm);
+                              (const char **) aqua_tab_dis_right_xpm );
 
         // Pixmaps for the inactive state
         QPixmapCache::insert( "$qt_aqua_tab_usel_dis_left",
-                              (const char **) aqua_tab_usel_dis_left_xpm);
+                              (const char **) aqua_tab_usel_dis_left_xpm );
         QPixmapCache::insert( "$qt_aqua_tab_usel_dis_mid",
-                              (const char **) aqua_tab_usel_dis_mid_xpm);
+                              (const char **) aqua_tab_usel_dis_mid_xpm );
         QPixmapCache::insert( "$qt_aqua_tab_usel_dis_right",
-                              (const char **) aqua_tab_usel_dis_right_xpm);
+                              (const char **) aqua_tab_usel_dis_right_xpm );
 
         QPixmapCache::insert( "$qt_aqua_tab_sel_dis_left",
-                              (const char **) aqua_tab_sel_dis_left_xpm);
+                              (const char **) aqua_tab_sel_dis_left_xpm );
         QPixmapCache::insert( "$qt_aqua_tab_sel_dis_mid",
-                              (const char **) aqua_tab_sel_dis_mid_xpm);
+                              (const char **) aqua_tab_sel_dis_mid_xpm );
         QPixmapCache::insert( "$qt_aqua_tab_sel_dis_right",
-                              (const char **) aqua_tab_sel_dis_right_xpm);
+                              (const char **) aqua_tab_sel_dis_right_xpm );
 
     }
 
     // Tool buttons
     if( s.contains("toolbtn_") ){
         // Normal state buttons
-        QPixmap right((const char **) aqua_toolbtn_nrm_right_xpm);
-        QPixmap left((const char **) aqua_toolbtn_nrm_left_xpm);
-        QPixmap mid((const char **) aqua_toolbtn_nrm_mid_xpm);
+        QPixmap right( (const char **) aqua_toolbtn_nrm_right_xpm );
+        QPixmap left( (const char **) aqua_toolbtn_nrm_left_xpm );
+        QPixmap mid( (const char **) aqua_toolbtn_nrm_mid_xpm );
         // Toggle buttons that are turned on
-        QPixmap act_left((const char **) aqua_toolbtn_act_left_xpm);
-        QPixmap act_right((const char **) aqua_toolbtn_act_right_xpm);
-        QPixmap act_mid((const char **) aqua_toolbtn_act_mid_xpm);
+        QPixmap act_left( (const char **) aqua_toolbtn_act_left_xpm );
+        QPixmap act_right( (const char **) aqua_toolbtn_act_right_xpm );
+        QPixmap act_mid( (const char **) aqua_toolbtn_act_mid_xpm );
         // Any button that is pushed down
-        QPixmap psh_left((const char **) aqua_toolbtn_psh_left_xpm);
-        QPixmap psh_right((const char **) aqua_toolbtn_psh_right_xpm);
-        QPixmap psh_mid((const char **) aqua_toolbtn_psh_mid_xpm);
+        QPixmap psh_left( (const char **) aqua_toolbtn_psh_left_xpm );
+        QPixmap psh_right( (const char **) aqua_toolbtn_psh_right_xpm );
+        QPixmap psh_mid( (const char **) aqua_toolbtn_psh_mid_xpm );
 
         int width = 0, height = 0, j;
         i = s.findRev( '_' );
@@ -9064,40 +9133,48 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
         im = left;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_left_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_left_" + wstr + "_" + hstr, px );
         im = right;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_right_" + wstr + "_" +
-                              hstr, px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_right_" + wstr + "_" + hstr, px );
         im = mid;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_mid_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_mid_" + wstr + "_" + hstr, px );
         im = act_mid;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_act_mid_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_act_mid_" + wstr + "_" + hstr, px );
         im = act_left;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_act_left_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_act_left_" + wstr + "_" + hstr, px );
         im = act_right;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_act_right_" + wstr + "_" +hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_act_right_" + wstr + "_" +hstr, px );
         im = psh_mid;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_mid_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_mid_" + wstr + "_" + hstr, px );
         im = psh_left;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_left_" + wstr + "_" + hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_left_" + wstr + "_" + hstr, px );
         im = psh_right;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_right_" + wstr + "_" +hstr,
-                              px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_right_" + wstr + "_" +hstr, px );
+    }
+
+    // Tool bar separators
+    if( s.contains("tbar_") ){
+        QPixmap hsep( (const char **) aqua_tbar_hsep_xpm );
+        QPixmap vsep( (const char **) aqua_tbar_vsep_xpm );
+
+        size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
+
+        im = hsep;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tbar_hsep_" + sizestr, px );
+
+        im = vsep;
+        px = im.smoothScale( size, im.width() );
+        QPixmapCache::insert( "$qt_aqua_tbar_vsep_" + sizestr, px );
     }
 
     QPixmapCache::find( str, p );
@@ -9185,12 +9262,12 @@ void QAquaStyle::polish( QWidget * w )
 //         }
     }
 
-//     if( w->inherits("QToolBar") ){
-//         QToolBar * bar = (QToolBar *) w;
-//         QBoxLayout * layout = bar->boxLayout();
-//         layout->setSpacing( 0 );
-//         layout->setMargin( 0 );
-//     }
+     if( w->inherits("QToolBar") ){
+         QToolBar * bar = (QToolBar *) w;
+         QBoxLayout * layout = bar->boxLayout();
+         layout->setSpacing( 0 );
+         layout->setMargin( 0 );
+     }
 
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
@@ -10440,6 +10517,34 @@ void QAquaStyle::drawToolBarPanel( QPainter * p, int x, int y,
 {
     p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ) );
 }
+
+/*
+  !\reimp
+*/
+void QAquaStyle::drawToolBarSeparator( QPainter * p, int, int, int w, int h,
+                                       const QColorGroup &,
+                                       Qt::Orientation orientation )
+{
+    QPixmap px;
+    if( orientation == Vertical ){
+        qAquaPixmap( "tbar_vsep_" + QString::number(w), px );
+    } else {
+        qAquaPixmap( "tbar_hsep_" + QString::number(h), px );
+    }
+    p->drawPixmap( 0, 0, px );
+}
+
+/*
+  !\reimp
+ */
+QSize QAquaStyle::toolBarSeparatorSize( Qt::Orientation orientation ) const
+{
+    if( orientation == Vertical )
+        return QSize( 0, 8 );
+    else
+        return QSize( 8, 0 );
+}
+
 
 /*
   !\reimp

@@ -154,6 +154,9 @@ public:
     void  drawToolBarPanel( QPainter *p, int x, int y, int w, int h,
                             const QColorGroup &, const QBrush * fill = 0 );
 
+    void  drawToolBarSeparator( QPainter * p, int x, int y, int w, int h,
+                                const QColorGroup & cg, Qt::Orientation orientation );
+    QSize toolBarSeparatorSize( Qt::Orientation orientation ) const;
     void  drawMenuBarPanel( QPainter *p, int x, int y, int w, int h,
                             const QColorGroup &, const QBrush * fill = 0 );
     void  drawFocusRect( QPainter*, const QRect &,
