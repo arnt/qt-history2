@@ -605,14 +605,31 @@ QPainterPath QMatrix::map(const QPainterPath &path) const
         return QPainterPath();
 
     QPainterPath copy = path;
-    copy.detach();
 
-    for (int i=0; i<path.elementCount(); ++i) {
-        QPainterPath::Element &e = copy.d_ptr->elements[i];
-        qreal fx = e.x, fy = e.y;
-        e.x = _m11*fx + _m21*fy + _dx;
-        e.y =  _m12*fx + _m22*fy + _dy;
+    // Translate or identity
+    if (_m11 == 1.0 && _m22 == 1.0 && _m12 == 0.0 && _m21 == 0.0) {
+
+        // Translate
+        if (_dx != 0.0 || _dy != 0.0) {
+            copy.detach();
+            for (int i=0; i<path.elementCount(); ++i) {
+                QPainterPath::Element &e = copy.d_ptr->elements[i];
+                e.x += _dx;
+                e.y += _dy;
+            }
+        }
+
+    // Full xform
+    } else {
+        copy.detach();
+        for (int i=0; i<path.elementCount(); ++i) {
+            QPainterPath::Element &e = copy.d_ptr->elements[i];
+            qreal fx = e.x, fy = e.y;
+            e.x = _m11*fx + _m21*fy + _dx;
+            e.y =  _m12*fx + _m22*fy + _dy;
+        }
     }
+
     return copy;
 }
 
