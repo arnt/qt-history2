@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#32 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#33 $
 **
 ** Implementation of Network Extension Library
 **
@@ -26,6 +26,7 @@
 #include "qftp.h"
 #include "qurlinfo.h"
 #include <stdlib.h>
+#include "qurloperator.h"
 
 #include <qstringlist.h>
 #include <qregexp.h>
