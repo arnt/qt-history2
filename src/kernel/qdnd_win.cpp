@@ -953,12 +953,13 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 	else if ( *pdwEffect & DROPEFFECT_LINK )
 	    de.setAction( QDropEvent::Link );
 	QApplication::sendEvent( widget, &de );
-	acceptact = de.isActionAccepted();
+	
 
 	// We won't get any mouserelease-event, so manually adjust qApp state:
 	QApplication::winMouseButtonUp();
 
-	DragLeave();
+	acceptfmt = FALSE;
+        current_dropobj = 0;
 	return NOERROR;
     }
 
