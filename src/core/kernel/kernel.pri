@@ -46,6 +46,8 @@ win32 {
 } 
 
 mac {
+       HEADERS += \
+                kernel/qcfhelper_mac.h
        SOURCES += \
                 kernel/qcoreapplication_mac.cpp
 }
