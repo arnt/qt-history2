@@ -32,6 +32,7 @@
 #include "asciivalidator.h"
 #include "paletteeditorimpl.h"
 #include "multilineeditorimpl.h"
+#include "mainwindow.h"
 
 #include <limits.h>
 
@@ -484,17 +485,8 @@ QString PropertyItem::currentItemFromObject() const
 
 void PropertyItem::setFocus( QWidget *w )
 {
-    QWorkspace *ws = 0;
-    QWidget *wid = listview->propertyEditor();
-    while ( wid ) {
-	if ( wid->inherits( "QWorkspace" ) )
-	    break;
-	wid = wid->parentWidget();
-    }
-    if ( !wid )
-	return;
-    ws = (QWorkspace*)wid;
-    if ( ws->activeWindow() == listview->propertyEditor() )
+    if ( !qApp->focusWidget() || 
+	 !listview->propertyEditor()->formWindow()->mainWindow()->isAFormWindowChild( qApp->focusWidget() ) )
 	w->setFocus();
 }
 
