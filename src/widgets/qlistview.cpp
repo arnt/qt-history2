@@ -269,7 +269,7 @@ static QPoint activatedP;
   \brief The QListViewItem class implements a list view item.
 
   A list view item is a multi-column object capable of displaying
-  itself.  Its design has the following main goals:
+  itself in a QListView.  Its design has the following main goals:
   \list
   \i Work quickly and well for \e large sets of data.
   \i Be easy to use in the simple case.
@@ -301,6 +301,9 @@ static QPoint activatedP;
   using QListView::selectedItem(), QListView::currentItem(),
   QListView::firstChild(), QListView::lastItem(),
   QListView::findItem().
+
+  \l{QCheckListItem}s are list view items that have a checkbox or
+  radio button and can be used in place of QListViewItems.
 
   You can traverse the tree as if it were a doubly-linked list using
   itemAbove() and itemBelow(); they return pointers to the items
@@ -352,6 +355,10 @@ static QPoint activatedP;
   called.  The dirview/dirview.cpp example program uses this
   technique to start up quickly: The files and subdirectories in a
   directory aren't inserted into the tree until they're actually needed.
+
+  \img qlistviewitems.png List View Items
+
+  \sa QCheckListItem QListView
 */
 
 /*!
@@ -2120,8 +2127,8 @@ void QListViewItem::ignoreDoubleClick()
   order by any column.
 
   The simplest mode of use is to create a QListView, add some column
-  headers using addColumn() and create one or more QListViewItem objects
-  with the QListView as parent:
+  headers using addColumn() and create one or more QListViewItem or
+  QCheckListItem objects with the QListView as parent:
 
   \quotefile xml/tagreader-with-features/structureparser.h
   \skipto QListView * table
@@ -2260,6 +2267,7 @@ void QListViewItem::ignoreDoubleClick()
 
   <img src=qlistview-m.png> <img src=qlistview-w.png>
 
+  \sa QListViewItem QCheckListItem
 */
 
 /*! \fn void QListView::itemRenamed (QListViewItem * item, int col )
@@ -2712,7 +2720,8 @@ void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 
     style().drawComplexControl( QStyle::CC_ListView, 
 				p, this, rect, colorGroup(), 
-				how, QStyle::SC_ListView, QStyle::SC_None );
+				how, QStyle::SC_ListView, QStyle::SC_None,
+				opt );
 }
 
 
@@ -5322,14 +5331,20 @@ void QListView::repaintItem( const QListViewItem * item ) const
   \ingroup advanced
   \brief The QCheckListItem class provides checkable list view items.
 
-  There are three types of check list items: checkboxes, radio buttons
-  and controllers.
+  QCheckListItems are used in \l{QListView}s to provide
+  \l{QListViewItem}s that are checkboxes, radio buttons or
+  controllers.
 
-  Checkboxes may be inserted at the top level in the list view. A radio
-  button must be the child of a controller.
+  Checkbox and controller check list items may be inserted at any
+  level in a list view. Radio button check list items must be children
+  of a controller check list item.
 
   The item can be checked or unchecked with setOn(). Its type can be
   retrieved with type() and its text retrieved with text().
+
+  \img qlistviewitems.png List View Items
+
+  \sa QListViewItem QListView
 */
 
 // ### obscenity is warranted.
