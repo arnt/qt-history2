@@ -737,7 +737,8 @@ QSplitterLayoutStruct *QSplitterPrivate::addWidget(QWidget *w, bool prepend)
     is also possible to reorder the widgets within the splitter using
     moveToFirst() and moveToLast().
 
-    <img src=qsplitter-m.png> <img src=qsplitter-w.png>
+    \inlineimage qsplitter-m.png Screenshot in Motif style
+    \inlineimage qsplitter-w.png Screenshot in Windows style
 
     \sa QTabBar
 */

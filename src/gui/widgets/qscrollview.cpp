@@ -506,7 +506,8 @@ void QScrollViewPrivate::viewportResized(int w, int h)
     scrollview subclasses. This will change in a future version of Qt
     and we recommend specifying the Qt::WNoAutoErase flag explicitly.
 
-    <img src=qscrollview-m.png> <img src=qscrollview-w.png>
+    \inlineimage qscrollview-m.png Screenshot in Motif style
+    \inlineimage qscrollview-w.png Screenshot in Windows style
 */
 
 

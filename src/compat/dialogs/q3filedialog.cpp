@@ -2228,9 +2228,6 @@ static QStringList makeFiltersList(const QString &filter)
 
   For more information about creating a Q3FilePreview widget see
   \l{Q3FilePreview}.
-
-  <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
-
 */
 
 

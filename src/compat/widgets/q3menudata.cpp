@@ -1464,8 +1464,6 @@ QString Q3MenuData::whatsThis(int id) const
     recognize shortcut keys that are from text with ampersands. Normal
     accelerators work though.
 
-    <img src=qpopmenu-fancy.png>
-
     \sa Q3MenuData, Q3PopupMenu
 */
 

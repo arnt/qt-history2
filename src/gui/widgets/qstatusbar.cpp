@@ -109,7 +109,8 @@ public:
     By default QStatusBar provides a QSizeGrip in the lower-right
     corner. You can disable it with setSizeGripEnabled(false);
 
-    <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
+    \inlineimage qstatusbar-m.png Screenshot in Motif style
+    \inlineimage qstatusbar-w.png Screenshot in Windows style
 
     \sa QToolBar QMainWindow QLabel
     \link guibooks.html#fowler GUI Design Handbook: Status Bar.\endlink

@@ -676,7 +676,8 @@ int QListBoxPixmap::rtti() const
     \warning The list box assumes ownership of all list box items and
     will delete them when it does not need them any more.
 
-    <img src=qlistbox-m.png> <img src=qlistbox-w.png>
+    \inlineimage qlistbox-m.png Screenshot in Motif style
+    \inlineimage qlistbox-w.png Screenshot in Windows style
 
     \sa QListView QComboBox QButtonGroup
     \link guibooks.html#fowler GUI Design Handbook: List Box (two

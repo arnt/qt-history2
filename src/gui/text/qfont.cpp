@@ -2208,7 +2208,7 @@ int QFontMetrics::width(const QString &str, int len) const
 
     \overload
 
-    <img src="bearings.png" align=right>
+    \img bearings.png Bearings
 
     Returns the logical width of character \a ch in pixels. This is a
     distance appropriate for drawing a subsequent character after \a
@@ -2222,7 +2222,7 @@ int QFontMetrics::width(const QString &str, int len) const
     "o" are both positive.
 
     \warning This function will produce incorrect results for Arabic
-    characters or non spacing marks in the middle of a string, as the
+    characters or non-spacing marks in the middle of a string, as the
     glyph shaping and positioning of marks that happens when
     processing strings cannot be taken into account. Use charWidth()
     instead if you aren't looking for the width of isolated

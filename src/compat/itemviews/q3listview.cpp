@@ -2543,8 +2543,6 @@ void Q3ListViewItem::ignoreDoubleClick()
     \warning The list view assumes ownership of all list view items
     and will delete them when it does not need them any more.
 
-    <img src=qlistview-m.png> <img src=qlistview-w.png>
-
     \sa Q3ListViewItem QCheckListItem
 */
 

@@ -208,8 +208,6 @@ static QStyleOptionMenuItem getStyleOption(const Q3PopupMenu *pop, const Q3MenuI
 
     \important insertItem removeItem removeItemAt clear text pixmap iconSet insertSeparator changeItem whatsThis setWhatsThis accel setAccel setItemEnabled isItemEnabled setItemVisible isItemVisible setItemChecked isItemChecked connectItem disconnectItem setItemParameter itemParameter
 
-    <img src=qpopmenu-m.png> <img src=qpopmenu-w.png>
-
     \sa Q3MenuBar
     \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and
     Pop-Up\endlink

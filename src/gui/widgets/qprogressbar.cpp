@@ -52,7 +52,8 @@
 
     \sa QProgressDialog
 
-    <img src=qprogbar-m.png> <img src=qprogbar-w.png>
+    \inlineimage qprogbar-m.png Screenshot in Motif style
+    \inlineimage qprogbar-w.png Screenshot in Windows style
 
     \sa QProgressDialog
     \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink

@@ -4128,9 +4128,11 @@ void QDomElement::setTagName(const QString& name)
 
 /*!
     Returns the tag name of this element. For an XML element like this:
+
     \code
     <img src="myimg.png">
     \endcode
+
     the tagname would return "img".
 
     \sa setTagName()

@@ -72,7 +72,8 @@ static QWidget* qt_sizegrip_workspace(QWidget* w)
     widget, so if you have a status bar (e.g. you are using
     QMainWindow), then you don't need to use this widget explicitly.
 
-    <img src=qsizegrip-m.png> <img src=qsizegrip-w.png>
+    \inlineimage qsizegrip-m.png Screenshot in Motif style
+    \inlineimage qsizegrip-w.png Screenshot in Windows style
 
     \sa QStatusBar
 */

@@ -132,7 +132,8 @@ public:
     buddy (the QLineEdit) when the user presses Alt+P. You can
     also use the setBuddy() function to accomplish the same thing.
 
-    <img src=qlabel-m.png> <img src=qlabel-w.png>
+    \inlineimage qlabel-m.png Screenshot in Motif style
+    \inlineimage qlabel-w.png Screenshot in Windows style
 
     \sa QLineEdit, QTextEdit, QPixmap, QMovie,
     \link guibooks.html#fowler GUI Design Handbook: Label\endlink

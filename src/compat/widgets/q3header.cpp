@@ -200,8 +200,6 @@ static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
     the resizing is finished), use setTracking(). If the user moves a
     section the indexChange() signal is emitted.
 
-    <img src=qheader-m.png> <img src=qheader-w.png>
-
     \sa QListView QTable
 */
 

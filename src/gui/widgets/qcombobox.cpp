@@ -127,14 +127,22 @@
     using setAutoCompletion() and whether or not the user can add
     duplicates is set with setDuplicatesEnabled().
 
-    <img src="qcombo1-m.png">(Motif 1, read-only)<br clear=all>
-    <img src="qcombo2-m.png">(Motif 2, editable)<br clear=all>
-    <img src="qcombo3-m.png">(Motif 2, read-only)<br clear=all>
-    <img src="qcombo1-w.png">(Windows style)
 
-    \sa QLineEdit QListBox QSpinBox QRadioButton QButtonGroup
-    \link guibooks.html#fowler GUI Design Handbook: Combo Box,\endlink
-    \link guibooks.html#fowler GUI Design Handbook: Drop-Down List Box.\endlink
+    \inlineimage qcombo1-m.png
+    (Motif 1, read-only)
+
+    \inlineimage qcombo2-m.png
+    (Motif 2, editable)
+
+    \inlineimage qcombo3-m.png
+    (Motif 2, read-only)
+
+    \inlineimage qcombo1-w.png
+    (Windows style)
+
+    \sa QLineEdit, QListBox, QSpinBox, QRadioButton, QButtonGroup,
+    \link guibooks.html#fowler GUI Design Handbook: Combo Box\endlink,
+    \link guibooks.html#fowler GUI Design Handbook: Drop-Down List Box\endlink
 */
 
 

@@ -110,8 +110,6 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
     disabled with \link Q3MenuData::setItemEnabled()
     setItemEnabled()\endlink.
 
-    <img src=q3menubar-m.png> <img src=q3menubar-w.png>
-
     \section1 Q3MenuBar on Qt/Mac
 
     Q3MenuBar on Qt/Mac is a wrapper for using the system-wide menubar.

@@ -56,8 +56,6 @@
   should still work without problems. Some odd usage will require some
   porting. In these cases, it may be better to use \l Q3TextEdit now.
 
-  <img src=qmlined-m.png> <img src=qmlined-w.png>
-
   \sa Q3TextEdit
 */
 

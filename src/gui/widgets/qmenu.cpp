@@ -588,7 +588,8 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 
     \important addAction removeAction clear addSeparator addMenu
 
-    <img src=qmenu-m.png> <img src=qmenu-w.png>
+    \inlineimage qmenu-m.png Screenshot in Motif style
+    \inlineimage qmenu-w.png Screenshot in Windows style
 
     \sa QMenuBar
     \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and

@@ -908,8 +908,9 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
   and add some custom buttons with addButton() to extend the
   functionality of the print dialog.
 
-  <img src="qprintdlg-m.png"><br clear=all>
-  The printer dialog, on a large screen, in Motif style.
+  The printer dialog in Motif style:
+
+  \img qprintdlg-m.png
 */
 
 

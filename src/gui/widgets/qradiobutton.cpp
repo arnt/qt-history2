@@ -48,7 +48,8 @@
     pixmap. The text can be set in the constructor or with setText();
     the pixmap is set with setPixmap().
 
-    <img src=qradiobt-m.png> <img src=qradiobt-w.png>
+    \inlineimage qradiobt-m.png Screenshot in Motif style
+    \inlineimage qradiobt-w.png Screenshot in Windows style
 
     \important text(), setText(), text(), setDown(), isDown(),
     autoRepeat(), group(), setAutoRepeat(), toggle(), pressed(),

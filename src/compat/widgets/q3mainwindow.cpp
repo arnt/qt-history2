@@ -691,8 +691,6 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     Q3MainWindow provides functionality specific to the standard dock
     areas it provides.
 
-    <img src=qmainwindow-m.png> <img src=qmainwindow-w.png>
-
     \sa Q3ToolBar Q3DockWindow QStatusBar QAction QMenuBar QPopupMenu QToolTipGroup QDialog
 */
 

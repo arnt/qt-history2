@@ -102,8 +102,6 @@
 
   Most of the functionality in QTabDialog is provided by a QTabWidget.
 
-  <img src=qtabdlg-m.png> <img src=qtabdlg-w.png>
-
   \sa QDialog
 */
 

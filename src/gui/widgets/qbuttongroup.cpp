@@ -35,7 +35,8 @@
     button is checked the buttonChecked() signal is emitted. The
     number of buttons in the group is returned by count().
 
-    <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
+    \inlineimage qbttngrp-m.png Screenshot in Motif style
+    \inlineimage qbttngrp-w.png Screenshot in Windows style
 
     \sa QPushButton, QCheckBox, QRadioButton
 */

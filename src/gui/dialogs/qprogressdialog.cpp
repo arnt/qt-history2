@@ -170,10 +170,11 @@ void Operation::cancel()
   The functions setLabelText() and setCancelButtonText()
   set the texts shown.
 
-  <img src=qprogdlg-m.png> <img src=qprogdlg-w.png>
+  \inlineimage qprogdlg-m.png Screenshot in Motif style
+  \inlineimage qprogdlg-w.png Screenshot in Windows style
 
-  \sa QDialog QProgressBar
-  \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
+  \sa QDialog, QProgressBar,
+      \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
 */
 
 

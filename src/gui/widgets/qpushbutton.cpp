@@ -139,7 +139,8 @@ public:
     Other classes of buttons are option buttons (see QRadioButton) and
     check boxes (see QCheckBox).
 
-    <img src="qpushbt-m.png"> <img src="qpushbt-w.png">
+    \inlineimage qpushbt-m.png Screenshot in Motif style
+    \inlineimage qpushbt-w.png Screenshot in Windows style
 
     In Qt, the QAbstractButton base class provides most of the modes
     and other API, and QPushButton provides GUI logic.

@@ -2396,8 +2396,6 @@ void QIconViewItem::checkRect()
 
     \sa QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(),
         QIconViewItem::acceptDrop(), QIconViewItem::dropped().
-
-    <img src=qiconview-m.png> <img src=qiconview-w.png>
 */
 
 /*! \enum QIconView::ResizeMode

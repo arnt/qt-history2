@@ -391,7 +391,8 @@ double QDialPrivate::angle(const QPoint &p1, const QPoint &p2) const
     right/down arrow keys move by lineStep(), page up and page down by
     pageStep() and Home and End to minValue() and maxValue().
 
-    <img src=qdial-m.png> <img src=qdial-w.png>
+    \inlineimage qdial-m.png Screenshot in Motif style
+    \inlineimage qdial-w.png Screenshot in Windows style
 
     \sa QScrollBar QSpinBox
     \link guibooks.html#fowler GUI Design Handbook: Slider\endlink

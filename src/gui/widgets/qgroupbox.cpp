@@ -84,7 +84,7 @@ public:
     To minimize space consumption, you can remove the right, left and
     bottom edges of the frame with setFlat().
 
-    <img src=qgrpbox-w.png>
+    \inlineimage qgrpbox-w.png Screenshot in Windows style
 
     \sa QButtonGroup
 */

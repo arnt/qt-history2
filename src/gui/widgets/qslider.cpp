@@ -164,7 +164,8 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
         \i End moves to the end (maximum).
     \endlist
 
-    <img src=qslider-m.png> <img src=qslider-w.png>
+    \inlineimage qslider-m.png Screenshot in Motif style
+    \inlineimage qslider-w.png Screenshot in Windows style
 
     \important setRange
 

@@ -85,8 +85,6 @@
     use Q3TextEdit, and use Q3TextEdit::setReadOnly() to disable
     editing. If you just need to display a small piece of rich text
     use QSimpleRichText or QLabel.
-
-    <img src=qtextbrowser-m.png> <img src=qtextbrowser-w.png>
 */
 
 class QTextBrowserData

@@ -62,8 +62,6 @@
     setButton(). The number of buttons in the group is returned by
     count().
 
-    <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
-
     \sa QPushButton, QCheckBox, QRadioButton
 */
 

@@ -133,7 +133,8 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
     Any other key sequence that represents a valid character, will
     cause the character to be inserted into the line edit.
 
-    <img src=qlined-m.png> <img src=qlined-w.png>
+    \inlineimage qlined-m.png Screenshot in Motif style
+    \inlineimage qlined-w.png Screenshot in Windows style
 
     \sa QTextEdit QLabel QComboBox
         \link guibooks.html#fowler GUI Design Handbook: Field, Entry\endlink

@@ -84,7 +84,8 @@
     (at the top, providing the tabs) and a QStackedBox (most of the
     area, organizing the individual pages).
 
-    <img src=qtabwidget-m.png> <img src=qtabwidget-w.png>
+    \inlineimage qtabwidget-m.png Screenshot in Motif style
+    \inlineimage qtabwidget-w.png Screenshot in Windows style
 
     \sa QTabBar QStackedBox QToolBox
 */

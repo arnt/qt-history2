@@ -63,9 +63,9 @@
   If the user clicks OK the font they chose will be used for myWidget,
   and if they click Cancel the original font is used.
 
-  \sa QFont QFontInfo QFontMetrics
+  \img qfontdlg-w.png Screenshot in Windows style
 
-  <img src=qfontdlg-w.png>
+  \sa QFont, QFontInfo, QFontMetrics
 */
 
 class QFontDialogPrivate

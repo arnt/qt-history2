@@ -74,7 +74,8 @@ public:
     setAutoRepeat(), toggle(), pressed(), released(), clicked(),
     toggled(), state() stateChanged()
 
-    <img src=qchkbox-m.png> <img src=qchkbox-w.png>
+    \inlineimage qchkbox-m.png Screenshot in Motif style
+    \inlineimage qchkbox-w.png Screenshot in Windows style
 
     \sa QButton QRadioButton
     \link guibooks.html#fowler Fowler: Check Box \endlink

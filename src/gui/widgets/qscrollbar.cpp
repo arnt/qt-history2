@@ -105,7 +105,8 @@
     QScrollView class, which encapsulates the common uses for scroll
     bars.
 
-    <img src=qscrbar-m.png> <img src=qscrbar-w.png>
+    \inlineimage qscrbar-m.png Screenshot in Motif style
+    \inlineimage qscrbar-w.png Screenshot in Windows style
 
     \sa QSlider QSpinBox QScrollView
     \link guibooks.html#fowler GUI Design Handbook: Scroll Bar\endlink

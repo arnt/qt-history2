@@ -142,7 +142,8 @@ public:
     For subclasses, you might also need the tabRect() functions which
     returns the visual geometry of a single tab.
 
-    <img src=qtabbar-m.png> <img src=qtabbar-w.png>
+    \inlineimage qtabbar-m.png Screenshot in Motif style
+    \inlineimage qtabbar-w.png Screenshot in Windows style
 */
 
 /*!

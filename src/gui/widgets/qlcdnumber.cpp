@@ -57,7 +57,8 @@
     http://www.nvg.ntnu.no/sinclair/computers/zxspectrum/zxspectrum.htm
     Sinclair Spectrum\endlink.
 
-    <img src=qlcdnum-m.png> <img src=qlcdnum-w.png>
+    \inlineimage qlcdnum-m.png Screenshot in Motif style
+    \inlineimage qlcdnum-w.png Screenshot in Windows style
 
     \sa QLabel, QFrame
 */

@@ -371,11 +371,11 @@ static const char * const qtlogo_xpm[] = {
 
     QMessageBox has no signals or slots.
 
-    <img src=qmsgbox-m.png> <img src=qmsgbox-w.png>
+    \inlineimage qmsgbox-m.png Screenshot in Motif style
+    \inlineimage qmsgbox-w.png Screenshot in Windows style
 
     \sa QDialog,
-        \link http://www.iarchitect.com/errormsg.htm
-            Isys on error messages \endlink,
+        \link http://www.iarchitect.com/errormsg.htm Isys on error messages \endlink,
         \link guibooks.html#fowler GUI Design Handbook: Message Box \endlink
 */
 
