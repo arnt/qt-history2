@@ -166,6 +166,8 @@ int QX11Info::appDpiX(int screen)
 }
 
 /*!
+    Sets the horizontal resolution of the given \a screen to the number of
+    dots per inch specified by \a xdpi.
 */
 
 void QX11Info::setAppDpiX(int screen, int xdpi)
