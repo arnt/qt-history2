@@ -2757,20 +2757,16 @@ void QApplication::setActiveWindow( QWidget* act )
 	QWidgetList deacts;
 #ifndef QT_NO_STYLE
 	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window ) ) {
-	    QWidgetList *list = topLevelWidgets();
-	    if ( list ) {
+	    if ( QWidgetList *list = topLevelWidgets() ) {
 		for ( QWidget *w = list->first(); w; w = list->next() ) {
 		    if ( w->isVisible() && w->isActiveWindow() )
 			deacts.append(w);
 		}
 		delete list;
 	    }
-	} else {
-	    deacts.append(active_window);
-	}
-#else
-	deacts.append(active_window);
+	} else 
 #endif
+	    deacts.append(active_window);
 	active_window = 0;
 	QEvent e( QEvent::WindowDeactivate );
 	for(QWidget *w = deacts.first(); w; w = deacts.next())
@@ -2780,7 +2776,21 @@ void QApplication::setActiveWindow( QWidget* act )
     active_window = window;
     if ( active_window ) {
 	QEvent e( QEvent::WindowActivate );
-	QApplication::sendSpontaneousEvent( active_window, &e );
+	QWidgetList acts;
+#ifndef QT_NO_STYLE
+	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window ) ) {
+	    if ( QWidgetList *list = topLevelWidgets() ) {
+		for ( QWidget *w = list->first(); w; w = list->next() ) {
+		    if ( w->isVisible() && w->isActiveWindow() )
+			acts.append(w);
+		}
+		delete list;
+	    }
+	} else 
+#endif
+	    acts.append(active_window);
+	for(QWidget *w = acts.first(); w; w = acts.next())
+	    QApplication::sendSpontaneousEvent( w, &e );
     }
 
     // then focus events
