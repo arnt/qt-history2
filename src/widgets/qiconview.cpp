@@ -2078,8 +2078,10 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 QIconView::~QIconView()
 {
     QIconViewItem *tmp, *item = d->firstItem;
+    d->clearing = TRUE;
     while ( item ) {
 	tmp = item->next;
+	item->view = 0;
 	delete item;
 	item = tmp;
     }
