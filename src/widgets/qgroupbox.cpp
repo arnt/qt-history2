@@ -898,10 +898,10 @@ void QGroupBox::setChildrenEnabled( bool b )
 }
 
 /*! \reimp */
-void QGroupBox::setEnabled(bool on)
+void QGroupBox::enabledChange(bool b)
 {
-    QFrame::setEnabled(on);
-    if ( !d->checkbox || !on )
+    QFrame::enabledChange(b);
+    if ( !d->checkbox || !isEnabled() )
 	return;
 
     // we are being enabled - disable children

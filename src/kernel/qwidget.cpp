@@ -1531,7 +1531,6 @@ void QWidget::setEnabled_helper(bool enable)
 
     setAttribute(WA_Disabled, !enable);
     d->updateSystemBackground();
-    enabledChange(!enable);
 
     if (!enable && focusWidget() == this && (!parentWidget()||parentWidget()->isEnabled()))
 	if (!focusNextPrevChild(true))
@@ -1554,6 +1553,7 @@ void QWidget::setEnabled_helper(bool enable)
 #ifdef Q_WS_WIN
     QInputContext::enable(this, im_enabled && enable);
 #endif
+    enabledChange(!enable); // compatibility
 }
 
 /*!

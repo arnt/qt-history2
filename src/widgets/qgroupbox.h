@@ -77,8 +77,6 @@ public:
     void setCheckable( bool b );
     bool isChecked() const;
 
-    void setEnabled(bool on);
-
 public slots:
     void setChecked( bool b );
 
@@ -92,6 +90,7 @@ protected:
     void paintEvent( QPaintEvent * );
     void focusInEvent( QFocusEvent * );
     void fontChange( const QFont & );
+    void enabledChange(bool);
 
 private slots:
     void fixFocus();
