@@ -184,6 +184,22 @@ bool QMutex::locked()
 }
 
 
+/*!
+  Attempt to lock the mutex.  If the lock was obtained, this function
+  returns TRUE.  If another thread has locked the mutex, this function
+  returns FALSE, instead of waiting for the mutex to become available.
+
+  The mutex must be unlocked with unlock() before another thread can
+  successfully lock it.
+
+  \sa lock(), unlock(), locked()
+*/
+bool QMutex::trylock()
+{
+    return d->trylock();
+}
+
+
 /**************************************************************************
  ** QThreadQtEvent
  *************************************************************************/
@@ -850,7 +866,7 @@ int QSemaphore::operator-=(int n)
 int QSemaphore::available() const {
     int ret;
 
-        d->mutex.lock();
+    d->mutex.lock();
     ret = d->max - d->value;
     d->mutex.unlock();
 
@@ -869,6 +885,37 @@ int QSemaphore::total() const {
     d->mutex.unlock();
 
     return ret;
+}
+
+
+/*!
+  Try to get access to the semaphore.  If \l available() is >= \l total(),
+  the calling thread blocks until it can get access.   The calling will
+  only get access from the semaphore if it can get all \a n accesses
+  at once.
+*/
+bool QSemaphore::tryAccess(int n)
+{
+    if (! d->mutex.trylock())
+	return FALSE;
+
+    if (d->value + n > d->max) {
+	d->mutex.unlock();
+	return FALSE;
+    }
+
+    d->value += n;
+
+#ifdef QT_CHECK_RANGE
+    if (d->value > d->max) {
+	qWarning("QSemaphore::operator+=: attempt to allocate more resources than available");
+	d->value = d->max;
+    }
+#endif
+
+    d->mutex.unlock();
+
+    return TRUE;
 }
 
 

@@ -260,6 +260,7 @@ public:
     void	     lock();
     void	     unlock(bool wakeUpGui = TRUE);
     bool 	     locked();
+    bool             trylock();
 #endif
 
 signals:

@@ -62,6 +62,7 @@ public:
     void lock();
     void unlock();
     bool locked();
+    bool trylock();
 
 private:
     QMutexPrivate * d;
@@ -152,6 +153,8 @@ public:
 
     int operator+=(int);
     int operator-=(int);
+
+    bool tryAccess(int);
 
 
 private:

@@ -2721,6 +2721,16 @@ int QApplication::loopLevel() const
   \sa lock() unlock()
 */
 
+/*! \fn bool QApplication::trylock()
+  Attempts to lock the Qt library mutex.  If the lock was obtained, this
+  function returns TRUE.  If another thread has locked the mutex, this
+  function returns FALSE, instead of waiting for the lock to become available.
+
+  The mutex must be unlocked with unlock() before another thread can
+  successfully lock it.
+
+  \sa lock(), unlock()
+*/
 
 /*! \fn void QApplication::wakeUpGuiThread()
   Wakes up the GUI thread.
@@ -2749,6 +2759,11 @@ void QApplication::unlock(bool wakeUpGui)
 bool QApplication::locked()
 {
     return qt_mutex->locked();
+}
+
+bool QApplication::trylock()
+{
+    return qt_mutex->trylock();
 }
 
 #endif

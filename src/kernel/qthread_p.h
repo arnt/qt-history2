@@ -217,6 +217,21 @@ public:
 	return FALSE;
     }
 
+    virtual bool trylock()
+    {
+	int ret = mutex_trylock(&mutex);
+	if (ret == EBUSY) {
+	    return FALSE;
+	} else if (ret) {
+#ifdef QT_CHECK_RANGE
+	    qWarning("QMutex::locked: try lock failed: %s", strerror(ret));
+#endif
+	    return FALSE;
+	}
+
+	return TRUE;
+    }
+
 #if defined(QT_CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
     virtual int type() const { return Q_MUTEX_NORMAL; }
 #endif
@@ -307,6 +322,19 @@ public:
     {
 	mutex_lock(&mutex2);
 	bool ret = QMutexPrivate::locked();
+	mutex_unlock(&mutex2);
+
+	return ret;
+    }
+
+    bool trylock()
+    {
+	mutex_lock(&mutex2);
+	bool ret = QMutexPrivate::trylock();
+
+	if (ret)
+	    count++;
+
 	mutex_unlock(&mutex2);
 
 	return ret;
@@ -550,11 +578,7 @@ public:
 
 class QMutexPrivate {
 public:
-#if defined (Q_OS_SOLARIS)
-    mutex_t mutex;
-#else
     pthread_mutex_t mutex;
-#endif
 
     QMutexPrivate(bool recursive = FALSE)
     {
@@ -656,6 +680,22 @@ public:
 	return FALSE;
     }
 
+    virtual bool trylock()
+    {
+	int ret = pthread_mutex_trylock(&mutex);
+
+	if (ret == EBUSY) {
+	    return FALSE;
+	} else if (ret) {
+#ifdef QT_CHECK_RANGE
+	    qWarning("QMutex::trylock: try lock failed: %s", strerror(ret));
+#endif
+	    return FALSE;
+	}
+
+	return TRUE;
+    }
+
 #if defined(QT_CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
     virtual int type() const { return Q_MUTEX_NORMAL; }
 #endif
@@ -731,6 +771,19 @@ public:
     {
 	pthread_mutex_lock(&mutex2);
 	bool ret = QMutexPrivate::locked();
+	pthread_mutex_unlock(&mutex2);
+
+	return ret;
+    }
+
+    bool trylock()
+    {
+	pthread_mutex_lock(&mutex2);
+	bool ret = QMutexPrivate::trylock();
+
+	if (ret)
+	    count++;
+
 	pthread_mutex_unlock(&mutex2);
 
 	return ret;

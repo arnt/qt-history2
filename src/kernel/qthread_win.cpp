@@ -61,7 +61,7 @@ void qSystemWarning( const QString& message, int code = -1 )
 
 	qWarning( message + QString("\tError code %1 - %2").arg( error ).arg( QString((const char*)string) ) );
     }
-    
+
     LocalFree( (HLOCAL)string );
 }
 
@@ -121,6 +121,7 @@ public:
     virtual void lock();
     virtual void unlock();
     virtual bool locked();
+    virtual bool trylock();
 #ifdef QT_CHECK_RANGE
     virtual int type() const { return QMUTEX_TYPE_RECURSIVE; }
 #endif
@@ -199,6 +200,25 @@ bool QMutexPrivate::locked()
     return TRUE;
 }
 
+bool QMutexPrivate::trylock()
+{
+    switch ( WaitForSingleObject( handle, 0) ) {
+    case WAIT_FAILED:
+    case WAIT_TIMEOUT:
+	return FALSE;
+    case WAIT_ABANDONED_0:
+#ifdef QT_CHECK_RANGE
+	qSystemWarning( "Mutex locktest failure" );
+#endif
+	return FALSE;
+    case WAIT_OBJECT_0:
+	break;
+    default:
+	break;
+    }
+    return TRUE;
+}
+
 /*
   QNonRecursiveMutexPrivate - implements a non-recursive mutex
 */
@@ -209,6 +229,7 @@ public:
     QNonRecursiveMutexPrivate();
     void lock();
     void unlock();
+    bool trylock();
 #ifdef QT_CHECK_RANGE
     virtual int type() const { return QMUTEX_TYPE_NORMAL; };
 #endif
@@ -262,6 +283,36 @@ void QNonRecursiveMutexPrivate::unlock()
     protect.leave();
 }
 
+bool QNonRecursiveMutexPrivate::trylock();
+{
+    protect.enter();
+
+    if (threadID == GetCurrentThreadId()) {
+	// locked by this thread already, return FALSE
+	return FALSE;
+    }
+
+    protect.leave();
+
+    switch (WaitForSingleObject(handle, 0)) {
+    case WAIT_TIMEOUT:
+    case WAIT_FAILED:
+	return FALSE;
+    case WAIT_ABANDONED_0:
+#ifdef QT_CHECK_RANGE
+	qSystemWarning( "Mutex locktest failure" );
+#endif
+	return FALSE;
+    default:
+	protect.enter();
+	threadID = GetCurrentThreadId();
+	protect.leave();
+	break;
+    }
+
+    return TRUE;
+}
+
 /*
   QMutex implementation
 */
@@ -292,6 +343,11 @@ void QMutex::unlock()
 bool QMutex::locked()
 {
     return d->locked();
+}
+
+bool QMutex::trylock()
+{
+    return d->trylock();
 }
 
 /*
@@ -683,7 +739,7 @@ QSemaphore::QSemaphore( int maxcount )
     } else {
 	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );
     }
-    
+
 #ifdef QT_CHECK_RANGE
     if ( !d->handle )
 	qSystemWarning( "Semaphore init failure" );
