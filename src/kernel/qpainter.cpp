@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#92 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#92 $");
 
 
 /*!
@@ -40,13 +40,27 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#91 $");
 
   The typical use of a painter is:
   <ol>
-  <li> Call begin() to begin painting on a device.
+  <li> Construct a painter.
   <li> Set a pen, a brush etc.
   <li> Draw.
-  <li> Call end() to finish painting.
+  <li> Destroy the painter.
   </ol>
 
   Example:
+  \code
+    void MyWidget::paintEvent()
+    {
+	QPainter paint( this );			// start painting widget
+	paint.setPen( blue );			// set blue pen
+	paint.drawText( rect(),			// draw a text, centered
+			AlignCenter,		//   in the widget
+			"The Text" );
+    }
+  \endcode
+
+  You can also use the begin() and end() functions to start and end
+  painting explicitly:
+
   \code
     void MyWidget::paintEvent()
     {
@@ -60,18 +74,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#91 $");
     }
   \endcode
 
-  If you use the QPainter constructor that takes a paint device argument,
-  begin() and end() become superfluous:
-  \code
-    void MyWidget::paintEvent()
-    {
-	QPainter paint( this );			// start painting widget
-	paint.setPen( blue );			// set blue pen
-	paint.drawText( rect(),			// draw a text, centered
-			AlignCenter,		//   in the widget
-			"The Text" );
-    }
-  \endcode
+  This can be useful, since it is not legal to have to painters active
+  on the same paint device at a time.
 
   QPainter is almost never used outside \link QWidget::paintEvent()
   paintEvent()\endlink.  Any widget <em>must</em> be able to repaint
