@@ -70,7 +70,7 @@ message box appears.
 
 See also the \l{The File Toolbar buttons}.
 
-The Edit Menu
+\section2 The Edit Menu
 
 This menu is invoked with \Key Alt+E, and provides the following
 options:
@@ -125,7 +125,7 @@ Settings Dialog}.
 
 See also the \l{The Edit Toolbar buttons}.
 
-The Project Menu
+\section2 The Project Menu
 
 This menu is invoked with \Key Alt+O, and provides the following
 options:
@@ -151,7 +151,7 @@ invoke the \l{Edit Database Connections Dialog}.
 
 See also the \l{The Project Toolbar buttons}.
 
-The Search Menu
+\section2 The Search Menu
 
 This menu is invoked with \Key Alt+S, and provides the following
 options:
@@ -179,7 +179,7 @@ in the file.
 
 See also the \l{The Search Toolbar buttons}.
 
-The Tools Menu
+\section2 The Tools Menu
 
 This menu is invoked with \Key Alt+T, and provides the following
 options:
@@ -312,7 +312,7 @@ Widgets.
 
 See also the \l{The Tools Toolbar buttons}.
 
-The Layout Menu 
+\section2 The Layout Menu 
 
 This menu is invoked with \Key Alt+L, and provides the following
 options:
@@ -363,7 +363,7 @@ to widgets that take up too much space on the form. The spacer consumes extra sp
 
 See also the \l{The Layout Toolbar buttons}.
 
-The Preview Menu \Key Alt+P
+\section2 The Preview Menu 
 
 This menu is invoked with \Key Alt+P, and provides the following
 options:
@@ -392,7 +392,7 @@ form in SGI style.
 
 \endlist
 
-The Window Menu
+\section2 The Window Menu
 
 This menu is invoked with \Key Alt+W, and provides the following
 options:
@@ -512,7 +512,7 @@ form or file from the list.
 
 \endlist
 
-The Help Menu
+\section2 The Help Menu
 
 This menu is invoked with \Key Alt+H, and provides the following
 options:

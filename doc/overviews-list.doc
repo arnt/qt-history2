@@ -8,7 +8,6 @@
 \row \i15
 <b>General</b><br>
 \list
-\i \link canvas.html Qt Canvas Module \endlink
 \i \link commonproblems.html Common Problems and Special Use Cases \endlink
 \i \link component.html The Qt Component Model \endlink
 \i \link datastreamformat.html Format of the QDataStream Operators \endlink
@@ -20,26 +19,19 @@
 \i \link features.html The Feature Definition File \endlink
 \i \link buyhowto.html How to Buy Qt \endlink
 \i \link bughowto.html How to Report A Bug \endlink
-\i \link iconview.html Qt IconView Module \endlink
 \i \link imageio.html Qt Image IO Extension \endlink
 \i \link focus.html Keyboard Focus Overview \endlink
 \i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
 \i \link mailinglists.html Mailing Lists \endlink
 \i \link opengl.html Qt OpenGL 3D Graphics \endlink
-\i \link network.html Qt Network Module \endlink
 \i \link porting.html Porting to Qt 3.x \endlink
 \i \link appicon.html Setting the Application Icon \endlink
 \i \link session.html Session Management \endlink
 \i \link shclass.html Shared Classes \endlink
-\i \link sql.html Qt SQL Module \endlink
-\i \link sql-driver.html Qt SQL Module - Drivers \endlink
 \i \link customstyles.html Style overview \endlink
-\i \link table.html Qt Table Module \endlink
 \i \link threads.html Thread Support in Qt \endlink
 \i \link timers.html Timers \endlink
 \i \link pictures.html Pictures of Most Qt Widgets \endlink
-\i \link workspace.html Qt Workspace Module \endlink
-\i \link xml.html Qt XML Module \endlink
 \i \link xt.html Qt Xt/Motif Support Extension \endlink
 \endlist
 
