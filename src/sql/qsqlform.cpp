@@ -177,7 +177,7 @@ void QSqlForm::remove( const QString& field )
     int i = d->fld.indexOf( field );
     if (i >= 0)
 	d->fld.removeAt(i);
-    d->wgt.remove( field );
+    d->wgt.erase( field );
 }
 
 /*!
@@ -199,7 +199,7 @@ void QSqlForm::insert( QWidget * widget, QSqlField * field )
 
 void QSqlForm::remove( QWidget * widget )
 {
-    d->map.remove( widget );
+    d->map.erase( widget );
 }
 
 /*!
@@ -232,7 +232,7 @@ void QSqlForm::clear()
 */
 int QSqlForm::count() const
 {
-    return d->map.count();
+    return d->map.size();
 }
 
 /*!
@@ -244,7 +244,7 @@ QWidget * QSqlForm::widget( int i ) const
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     int cnt = 0;
 
-    if( i > (int)d->map.count() )
+    if( i > (int)d->map.size() )
 	return 0;
     for( it = d->map.begin(); it != d->map.end(); ++it ){
 	if( cnt++ == i )

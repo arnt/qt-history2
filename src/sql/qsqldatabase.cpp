@@ -244,7 +244,7 @@ void QSqlDatabaseManager::removeDatabase( const QString& name )
 {
     QSqlDatabaseManager* sqlConnection = instance();
     sqlConnection->dbDict.setAutoDelete( TRUE );
-    sqlConnection->dbDict.remove( name );
+    sqlConnection->dbDict.erase( name );
     sqlConnection->dbDict.setAutoDelete( FALSE );
 }
 
@@ -266,7 +266,7 @@ void QSqlDatabaseManager::removeDatabase( QSqlDatabase* db )
     for (QHash<QString, QSqlDatabase*>::ConstIterator it = sqlConnection->dbDict.begin();
 	 it != sqlConnection->dbDict.end(); ++it) {
 	if ( *it == db ) {
-	    sqlConnection->dbDict.remove( it.key() );
+	    sqlConnection->dbDict.erase( it.key() );
 	    db->close();
 	    delete db;
 	    break;
@@ -488,7 +488,7 @@ QStringList QSqlDatabase::drivers()
 */
 void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* creator )
 {
-    QSqlDatabaseManager::driverDict()->remove( name );
+    QSqlDatabaseManager::driverDict()->erase( name );
     if ( creator )
 	QSqlDatabaseManager::driverDict()->insert( name, const_cast<QSqlDriverCreatorBase*>(creator) );
 }

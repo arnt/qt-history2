@@ -91,7 +91,7 @@ QString QSqlResultPrivate::holderAt( int pos ) const
 {
     IndexMap::ConstIterator it;
     for ( it = index.begin(); it != index.end(); ++it ) {
-	if ( it.data() == pos )
+	if ( it.value() == pos )
 	    return it.key();
     }
     return QString();
@@ -601,7 +601,7 @@ bool QSqlResult::hasOutValues() const
 	return FALSE;
     QMap<int, QSql::ParamType>::ConstIterator it;
     for ( it = d->types.constBegin(); it != d->types.constEnd(); ++it ) {
-	if ( it.data() != QSql::In )
+	if ( it.value() != QSql::In )
 	    return TRUE;
     }
     return FALSE;
