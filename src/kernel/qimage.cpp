@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#124 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#123 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#124 $");
 
 
 /*!
@@ -1425,7 +1425,7 @@ QImage QImage::convertDepth( int depth ) const
 
 /*!
   Returns the actual color of the pixel at the given coordinates.
-  If (x,y) is not \link onImage() on the image\endlink, the results
+  If (x,y) is not \link valid() on the image\endlink, the results
   are undefined.
 */
 QRgb QImage::pixel( int x, int y ) const
@@ -1500,7 +1500,7 @@ int QImage::pixelIndex( int x, int y ) const
 
 /*!
   Sets the pixel index or color at the given coordinates.
-  If (x,y) is not \link valie() valid\endlink, or if
+  If (x,y) is not \link valid() valid\endlink, or if
   the image is a paletted image (depth() \<= 8) and \a index_or_rgb
   \>= numColors(), the results
   are undefined.
