@@ -182,12 +182,7 @@ int main(int argc, char**argv)
     logBuffer.open(QIODevice::Text | QIODevice::WriteOnly);
     QTextStream logStream(&logBuffer);
     foreach(QString logLine, report) {
-//temporary workarond for missing Translate functionality in QTextStream
-#ifdef Q_OS_WIN
-        logStream << logLine << "\r\n";
-#else
         logStream << logLine << endl;
-#endif
     }
     FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
     fileWriter.writeFile(logFileName, logContents);
