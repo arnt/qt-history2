@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#109 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#108 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#109 $")
 
 
 /*----------------------------------------------------------------------------
@@ -651,6 +651,32 @@ bool QWidget::sizeIncrement( int *w, int *h ) const
 
 
 /*----------------------------------------------------------------------------
+  Translates the widget coordinate \e pos to a coordinate in the parent widget.
+
+  Same as mapToGlobal() if the widget has no parent.
+  \sa mapFromParent()
+ ----------------------------------------------------------------------------*/
+
+QPoint QWidget::mapToParent( const QPoint &p ) const
+{
+    return p + crect.topLeft();
+}
+
+/*----------------------------------------------------------------------------
+  Translates the parent widget coordinate \e pos to widget coordinates.
+
+  Same as mapFromGlobal() if the widget has no parent.
+
+  \sa mapToParent()
+ ----------------------------------------------------------------------------*/
+
+QPoint QWidget::mapFromParent( const QPoint &p ) const
+{
+    return p - crect.topLeft();
+}
+
+
+/*----------------------------------------------------------------------------
   Returns the top level widget for this widget.
 
   A top level widget is an overlapping widget. It usually has no parent.
@@ -1046,28 +1072,39 @@ void QWidget::setAcceptFocus( bool enable )
 
 
 /*----------------------------------------------------------------------------
-  Translates the widget coordinate \e pos to a coordinate in the parent widget.
-
-  Same as mapToGlobal() if the widget has no parent.
-  \sa mapFromParent()
+  \fn bool QWidget::isUpdatesEnabled() const
+  Returns TRUE if updates are enabled, otherwise FALSE.
+  \sa setUpdatesEnabled()
  ----------------------------------------------------------------------------*/
-
-QPoint QWidget::mapToParent( const QPoint &p ) const
-{
-    return p + crect.topLeft();
-}
 
 /*----------------------------------------------------------------------------
-  Translates the parent widget coordinate \e pos to widget coordinates.
+  Enables widget updates if \e enable is TRUE, or disables widget updates
+  if \e enable is FALSE.
 
-  Same as mapFromGlobal() if the widget has no parent.
+  Calling update() and repaint() has no effect if updates are disabled.
+  Paint events from the window system are processed as normally even if
+  updates are disabled.
 
-  \sa mapToParent()
+  This function is normally used to disable updates for a short period of
+  time, for instance to avoid screen flicker during large changes.
+
+  Example:
+  \code
+    setUpdatesEnabled( FALSE );
+    bigVisualChanges();
+    setUpdatesEnabled( TRUE );
+    repaint();
+  \endcode
+
+  \sa isUpdatesEnabled(), update(), repaint(), paintEvent()
  ----------------------------------------------------------------------------*/
 
-QPoint QWidget::mapFromParent( const QPoint &p ) const
+void QWidget::setUpdatesEnabled( bool enable )
 {
-    return p - crect.topLeft();
+    if ( enable )
+	clearWFlags( WState_DisUpdates );
+    else
+	setWFlags( WState_DisUpdates );
 }
 
 

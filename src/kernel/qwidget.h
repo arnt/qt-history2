@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#71 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#72 $
 **
 ** Definition of QWidget class
 **
@@ -129,7 +129,13 @@ public:
 
   // Update/refresh functions
 
-    bool	 enableUpdates( bool enable );
+    bool	 isUpdatesEnabled() const;
+    void	 setUpdatesEnabled( bool enable );
+#if defined(OBSOLETE)
+    bool	 enableUpdates( bool enable )
+    { bool last=isUpdatesEnabled(); setUpdatesEnabled(enable); return last; }
+#endif
+
     void	 update();
     void	 update( int x, int y, int w, int h);
     void	 repaint( bool erase=TRUE );
@@ -322,6 +328,9 @@ inline QFontMetrics QWidget::fontMetrics() const
 
 inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(this); }
+
+inline bool QWidget::isUpdatesEnabled() const
+{ return !testWFlags(WState_DisUpdates); }
 
 inline void QWidget::repaint( bool erase )
 { repaint( 0, 0, crect.width(), crect.height(), erase ); }

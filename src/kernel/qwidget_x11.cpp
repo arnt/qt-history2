@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#121 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#120 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#121 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -721,32 +721,13 @@ bool QWidget::focusPrevChild()
 
 
 /*----------------------------------------------------------------------------
-  Enables widget updates if \e enable is TRUE, or  disables widget updates
-  if \e enable is FALSE.
-
-  If updates are disabled,  repaint events for the widget will be discarded.
-  \sa update(), repaint(), paintEvent()
- ----------------------------------------------------------------------------*/
-
-bool QWidget::enableUpdates( bool enable )
-{
-    bool last = !testWFlags( WState_DisUpdates );
-    if ( enable )
-	clearWFlags( WState_DisUpdates );
-    else
-	setWFlags( WState_DisUpdates );
-    return last;
-}
-
-
-/*----------------------------------------------------------------------------
   Updates the widget unless updates are disabled.
 
   Updating the widget will erase the widget contents and generate a paint
   event from the window system. The paint event is processed after the
   program has returned to the main event loop.
 
-  \sa repaint(), paintEvent(), enableUpdates(), erase()
+  \sa repaint(), paintEvent(), setUpdatesEnabled(), erase()
  ----------------------------------------------------------------------------*/
 
 void QWidget::update()
@@ -766,7 +747,7 @@ void QWidget::update()
   If \e w is negative, it is replaced with <code>width() - x</code>.
   If \e h is negative, it is replaced width <code>height() - y</code>.
 
-  \sa repaint(), paintEvent(), enableUpdates(), erase()
+  \sa repaint(), paintEvent(), setUpdatesEnabled(), erase()
  ----------------------------------------------------------------------------*/
 
 void QWidget::update( int x, int y, int w, int h )
@@ -796,7 +777,7 @@ void QWidget::update( int x, int y, int w, int h )
   \warning If you call repaint() in a function which may itself be
   called from paintEvent(), you may see infinite recursion.
 
-  \sa update(), paintEvent(), enableUpdates(), erase()
+  \sa update(), paintEvent(), setUpdatesEnabled(), erase()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -816,7 +797,7 @@ void QWidget::update( int x, int y, int w, int h )
   from paintEvent(), you may see infinite recursion. The update() function
   never generates recursion.
 
-  \sa update(), paintEvent(), enableUpdates(), erase()
+  \sa update(), paintEvent(), setUpdatesEnabled(), erase()
  ----------------------------------------------------------------------------*/
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
