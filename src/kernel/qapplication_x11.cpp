@@ -4729,7 +4729,7 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 
     XDeviceMotionEvent *motion = (XDeviceMotionEvent*)ev;
     curr = QPoint( motion->x, motion->y );
-    QTabletEvent e( global, curr, deviceType, pressure, xTilt, yTilt );
+    QTabletEvent e( curr, global, deviceType, pressure, xTilt, yTilt );
     QApplication::sendSpontaneousEvent( w, &e );
     XFreeDeviceState( s );
     return TRUE;
