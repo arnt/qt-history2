@@ -530,14 +530,6 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
     QModelIndex tl = itemAt(rect.left(), rect.top());
     QModelIndex br = itemAt(rect.right(), rect.bottom());
 
-    if (d->topLeft == tl && d->bottomRight == br)
-        return;
-
-    if (tl.isValid() && br.isValid()) {
-        d->topLeft = tl;
-        d->bottomRight = br;
-    }
-
     selectionModel()->select(QItemSelection(tl, br, model()), command);
 }
 
@@ -624,7 +616,7 @@ void QTableView::updateGeometries()
     QRect vg = d->viewport->geometry();
 //     if (QApplication::reverseLayout())
 //         d->horizontalHeader->setOffset(vg.width() - topHint.width());
-    
+
     int verticalLeft = reverse ? vg.right() : (vg.left() - width);
     d->verticalHeader->setGeometry(verticalLeft, vg.top(), width, vg.height());
 
@@ -635,7 +627,7 @@ void QTableView::updateGeometries()
         d->updateVerticalScrollbar(d->verticalHeader->sectionSize(0));
         d->updateHorizontalScrollbar(d->horizontalHeader->sectionSize(0));
     }
- 
+
     QAbstractItemView::updateGeometries();
 }
 

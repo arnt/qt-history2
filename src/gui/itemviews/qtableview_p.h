@@ -30,7 +30,6 @@ public:
     Qt::PenStyle gridStyle;
     QHeaderView *horizontalHeader;
     QHeaderView *verticalHeader;
-    QModelIndex topLeft, bottomRight; // Used for optimization in setSelection
 };
 
 #endif
