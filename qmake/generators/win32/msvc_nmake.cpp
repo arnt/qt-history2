@@ -193,7 +193,7 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
 
         QHash<QString, void*> source_directories;
         source_directories.insertMulti(".", (void*)1);
-        QString directories[] = { QString("MOC_DIR"), QString("UI_SOURCES_DIR"), QString("UI_DIR"), QString::null };
+        QString directories[] = { QString("UI_SOURCES_DIR"), QString("UI_DIR"), QString::null };
         for(int y = 0; !directories[y].isNull(); y++) {
             QString dirTemp = project->first(directories[y]);
             if (dirTemp.endsWith("\\"))
