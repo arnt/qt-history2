@@ -558,13 +558,15 @@ static char * parseCupsOutput( QListView * printers )
 
     int n = 0;
     while( n < nd ) {
-	perhapsAddPrinter( printers, d[n].name, 
+	perhapsAddPrinter( printers, d[n].name,
 			   qApp->translate( "QPrintDialog",
 					    "Unknown Location" ), 0 );
 	if ( d[n].is_default && !defaultPrinter )
 	    defaultPrinter = qstrdup( d[n].instance );
 	n++;
     }
+#else
+    Q_UNUSED( printers );
 #endif
     return defaultPrinter;
 }
@@ -1098,6 +1100,19 @@ void QPrintDialog::printerOrFileSelected( int id )
     d->outputToFile = id ? TRUE : FALSE;
     if ( d->outputToFile ) {
 	fileNameEditChanged( d->fileName->text() );
+	if ( !d->fileName->edited() && d->fileName->text().isEmpty() ) {
+	    QString home = QString::fromLatin1( ::getenv( "HOME" ) );
+	    QString cur = QDir::currentDirPath();
+	    if ( home[home.length()-1] != '/' )
+		home += '/';
+	    if ( cur[cur.length()-1] != '/' )
+		cur += '/';
+	    if ( cur.left( home.length() ) != home )
+		cur = home;
+	    d->fileName->setText( cur );
+	    d->fileName->setCursorPosition( 32767 );
+	    d->fileName->selectAll();
+	}
 	d->browse->setEnabled( TRUE );
 	d->fileName->setEnabled( TRUE );
 	d->fileName->setFocus();
