@@ -192,8 +192,8 @@ sub do_headers
 map { $IGNORE_HEADERS{$_}=1; } @QWS_HEADERS;
 do_headers @QT_HEADERS;
 %IGNORE_HEADERS=();
-print QT_H "\n#ifdef _WS_QWS_\n";
+print QT_H "\n#ifdef Q_WS_QWS\n";
 do_headers @QWS_HEADERS;
-print QT_H "#endif // _WS_QWS_\n\n";
+print QT_H "#endif // Q_WS_QWS\n\n";
 
 print QT_H "$TAIL\n";
