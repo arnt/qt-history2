@@ -1,7 +1,6 @@
 high priority:
 -----------------
 - Implement selection in nested custom items (tables)
-- Cleanup formatcollection to make the memory handling of the formats (ownership, etc.) cleaner and fix mem leaks
 - Links in floating tables/items
 - Minimumwidth in BreakWords has to be one word, not one letter
 
