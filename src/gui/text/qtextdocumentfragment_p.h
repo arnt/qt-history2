@@ -16,16 +16,14 @@ class QTextFormatCollectionState
 {
 public:
     QTextFormatCollectionState() {}
-    QTextFormatCollectionState(const QTextHtmlParser &parser, int formatsNode);
+    QTextFormatCollectionState(QDataStream &stream);
     QTextFormatCollectionState(const QTextFormatCollection *collection, const QList<int> &formatIndices);
 
     QMap<int, int> insertIntoOtherCollection(QTextFormatCollection *collection) const;
 
-    void save(QTextStream &stream) const;
+    void save(QDataStream &stream) const;
 
 private:
-    static QTextFormat::PropertyType stringToPropertyType(const QString &typeString);
-
     typedef QMap<int, QTextFormat> FormatMap;
     typedef QMap<int, int> ReferenceMap;
 

@@ -7,6 +7,7 @@ class QTextStream;
 class QTextDocument;
 class QTextDocumentFragmentPrivate;
 class QTextCursor;
+class QByteArray;
 
 class Q_GUI_EXPORT QTextDocumentFragment
 {
@@ -22,11 +23,11 @@ public:
     bool isEmpty() const;
 
     QString toPlainText() const;
-    // ### reconsider
-    QString toXML() const;
 
-    void save(QTextStream &stream) const;
-    static QTextDocumentFragment fromXML(const QString &xml);
+    QByteArray toBinary() const;
+
+    void save(QDataStream &stream) const;
+    static QTextDocumentFragment fromBinary(const QByteArray &data);
     static QTextDocumentFragment fromPlainText(const QString &plainText);
     static QTextDocumentFragment fromHTML(const QString &html);
     static QTextDocumentFragment fromHTML(const QByteArray &html);

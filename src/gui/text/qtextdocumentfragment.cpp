@@ -6,87 +6,74 @@
 #include <qdebug.h>
 #include <qstylesheet.h>
 #include <qtextcodec.h>
+#include <qbytearray.h>
+#include <qdatastream.h>
 
-QTextFormatCollectionState::QTextFormatCollectionState(const QTextHtmlParser &parser, int formatsNode)
+QTextFormatCollectionState::QTextFormatCollectionState(QDataStream &stream)
 {
-    for (int formatNode = parser.findChild(formatsNode, "format");
-         formatNode != -1; formatNode = parser.findNextChild(formatsNode, formatNode)) {
+    int formatCount;
+    stream >> formatCount;
 
-        int formatIdx = parser.at(formatNode).formatIndex;
-        if (formatIdx == -1)
-            continue;
+    for (; formatCount > 0; --formatCount) {
+        int formatIdx;
+        stream >> formatIdx;
 
-        int typeNode = parser.findChild(formatNode, "type");
-        if (typeNode == -1)
-            continue;
-
-        bool ok = false;
-        int formatType = parser.at(typeNode).text.toInt(&ok);
-        if (!ok)
-            continue;
+        int formatType;
+        stream >> formatType;
 
         QTextFormat format(formatType);
 
-        for (int propertyNode = parser.findChild(formatNode, "property");
-             propertyNode != -1; propertyNode = parser.findNextChild(formatNode, propertyNode)) {
+        int propCount;
+        stream >> propCount;
 
-            const QTextHtmlParserNode &node = parser.at(propertyNode);
-            int propId = node.propertyId;
-            if (propId < 0)
-                continue;
+        for (; propCount > 0; --propCount) {
+            int propId, propType;
 
-            QString text = node.text;
+            Q_INT32 i;
+            QString s;
+            float f;
 
-            switch (stringToPropertyType(node.propertyType)) {
+            stream >> propId >> propType;
+
+            switch (propType) {
                 case QTextFormat::Undefined:
                     break;
                 case QTextFormat::Bool:
-                    format.setProperty(propId, (text.toLower() == "true" ? true : false));
+                    stream >> i;
+                    format.setProperty(propId, (bool)i);
                     break;
                 case QTextFormat::Integer:
-                    format.setProperty(propId, text.toInt());
+                    stream >> i;
+                    format.setProperty(propId, i);
                     break;
                 case QTextFormat::Float:
-                    format.setProperty(propId, text.toFloat());
+                    stream >> f;
+                    format.setProperty(propId, f);
                     break;
                 case QTextFormat::String:
-                    format.setProperty(propId, text);
+                    stream >> s;
+                    format.setProperty(propId, s);
                     break;
                 case QTextFormat::FormatGroup:
                     Q_ASSERT(propId == QTextFormat::GroupIndex);
-                    format.setGroupIndex(text.toInt());
+                    stream >> i;
+                    format.setGroupIndex(i);
                     break;
                 default:
                     Q_ASSERT(false);
             }
-
         }
 
         formats[formatIdx] = format;
     }
 
-    /* the formatgroup in the xml we dump looks like this:
-     * <FormatGroup ... />
-     * <FormatGroup ... />
-     * <FormatGroup ... />
-     *
-     * The html parser however puts them into a tree instead of flattening them out, so
-     * it looks like this when parsed:
-     *
-     * <FormatGroup ... >
-     *     <FormatGroup ... >
-     *         <FormatGroup ... />
-     *     </FormatGroup>
-     * </FormatGroup>
-     *
-     * That is why we have to traverse using findChild on our current node instead of
-     * doing a flat traversal like with the format or the fragment nodes!
-     */
-    for (int formatGroupNode = parser.findChild(formatsNode, "formatgroup");
-         formatGroupNode != -1; formatGroupNode = parser.findChild(formatGroupNode, "formatgroup")) {
+    int groupCount;
+    stream >> groupCount;
 
-        const QTextHtmlParserNode &n = parser.at(formatGroupNode);
-        references[n.formatGroupIndex] = n.formatIndex;
+    for (; groupCount > 0; --groupCount) {
+        int key, value;
+        stream >> key >> value;
+        references[key] = value;
     }
 }
 
@@ -137,68 +124,49 @@ QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormat
     return formatIndexMap;
 }
 
-void QTextFormatCollectionState::save(QTextStream &stream) const
+void QTextFormatCollectionState::save(QDataStream &stream) const
 {
-    stream << "<Formats>" << endl;
+    stream << formats.count();
 
     for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
-        stream << "<Format index=\"" << it.key() << "\">" << endl;
+        stream << it.key();
 
         const QTextFormat &format = *it;
-        stream << "<Type>" << format.type() << "</Type>" << endl;
+        stream << format.type();
 
-        Q_FOREACH(int propId, format.allPropertyIds())
+        QList<int> props = format.allPropertyIds();
+        stream << props.count();
+        Q_FOREACH(int propId, props) {
             if (format.propertyType(propId) != QTextFormat::Undefined) {
-                stream << "<Property id=\"" << propId << "\" type=\"";
+                stream << propId << format.propertyType(propId);
                 switch (format.propertyType(propId)) {
                     case QTextFormat::Undefined:
                         Q_ASSERT(false);
                         break;
                     case QTextFormat::Bool:
-                        stream << "Boolean\">" << (format.boolProperty(propId) ? QString::fromLatin1("true") : QString::fromLatin1("false"));
+                        stream << Q_INT32(format.boolProperty(propId));
                         break;
                     case QTextFormat::Integer:
-                        stream << "Integer\">" << format.intProperty(propId);
+                        stream << format.intProperty(propId);
                         break;
                     case QTextFormat::Float:
-                        stream << "Float\">" << format.floatProperty(propId);
+                        stream << format.floatProperty(propId);
                         break;
                     case QTextFormat::String:
-                        stream << "String\">" << QStyleSheet::escape(format.stringProperty(propId));
+                        stream << format.stringProperty(propId);
                         break;
                     case QTextFormat::FormatGroup:
                         Q_ASSERT(propId == QTextFormat::GroupIndex);
-                        stream << "FormatGroupIndex\">" << format.groupIndex();
+                        stream << format.groupIndex();
                         break;
                 }
-
-                stream << "</Property>" << endl;
             }
-
-        stream << "</Format>" << endl;
+        }
     }
 
+    stream << references.count();
     for (ReferenceMap::ConstIterator it = references.begin(); it != references.end(); ++it)
-        stream << "<FormatGroup groupIndex=\"" << it.key() << "\" index=\"" << it.value() << "\" />" << endl;
-
-    stream << "</Formats>" << endl;
-}
-
-QTextFormat::PropertyType QTextFormatCollectionState::stringToPropertyType(const QString &typeString)
-{
-    QString type = typeString.toLower();
-    if (type == QLatin1String("boolean"))
-        return QTextFormat::Bool;
-    else if (type == QLatin1String("integer"))
-        return QTextFormat::Integer;
-    else if (type == QLatin1String("float"))
-        return QTextFormat::Float;
-    else if (type == QLatin1String("string"))
-        return QTextFormat::String;
-    else if (type == QLatin1String("formatgroupindex"))
-        return QTextFormat::FormatGroup;
-
-    return QTextFormat::Undefined;
+        stream << it.key() << it.value();
 }
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
@@ -535,118 +503,78 @@ QString QTextDocumentFragment::toPlainText() const
 }
 
 /*!
-  Converts the fragment to an XML format.
+  Converts the fragment to an binary format.
 
-  \sa fromXML
+  \sa fromBinary
 */
-QString QTextDocumentFragment::toXML() const
+QByteArray QTextDocumentFragment::toBinary() const
 {
-    QString result;
-    QTextOStream stream(&result);
+    QByteArray result;
+    QDataStream stream(&result, IO_WriteOnly);
     save(stream);
     return result;
 }
 
 /*!
-  Saves the fragment to a QTextStream
+  Saves the fragment to a QDataStream.
 */
-void QTextDocumentFragment::save(QTextStream &stream) const
+void QTextDocumentFragment::save(QDataStream &stream) const
 {
     if (!d)
         return;
 
-    stream << "<?xml version=\"1.0\"?>" << endl
-           << "<!DOCTYPE QRichText>" << endl
-           << "<QRichText>" << endl;
     // ### version
-    // ### rethink xml format. use more attributes?
-    // ### clean up loading code, centralize read-node-text-and-turn-into-int alike
-    // duplicated code
 
     d->formatCollectionState().save(stream);
 
-    stream << "<Blocks>" << endl;
+    stream << d->blocks.count();
 
     Q_FOREACH(const QTextDocumentFragmentPrivate::Block &block, d->blocks) {
 
-        stream << "<Block>" << endl; // ### save block attributes
+        stream << block.blockFormat << block.charFormat;
 
-        if (block.blockFormat != -1)
-            stream << "<BlockFormatIndex>" << block.blockFormat << "</BlockFormatIndex>" << endl;
-        if (block.charFormat != -1)
-            stream << "<CharFormatIndex>" << block.charFormat << "</CharFormatIndex>" << endl;
-
+        stream << block.fragments.count();
         Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &fragment, block.fragments) {
-            stream << "<Fragment format=\"" << fragment.format << "\">";
-            stream << QStyleSheet::escape(QString::fromRawData(d->localBuffer.constData() + fragment.position, fragment.size));
-            stream << "</Fragment>" << endl;
+            stream << fragment.format;
+            stream << QString::fromRawData(d->localBuffer.constData() + fragment.position, fragment.size);
         }
-
-        stream << "</Block>" << endl;
     }
-
-    stream << "</Blocks>" << endl;
-
-    stream << "</QRichText>";
 }
 
 /*!
   Converts a fragment in XML format back to a QTextDocumentFragment.
 */
-QTextDocumentFragment QTextDocumentFragment::fromXML(const QString &xml)
+QTextDocumentFragment QTextDocumentFragment::fromBinary(const QByteArray &data)
 {
     QTextDocumentFragment res;
 
-    QTextHtmlParser parser;
-    parser.parse(xml);
-
-    int root = 0;
-    for (; root < parser.count(); ++root)
-        if (parser.at(root).tag == QLatin1String("qrichtext"))
-            break;
-
-    if (root >= parser.count())
-        return res;
-
-    int formatsNode = parser.findChild(root, "formats");
-    int blocksNode = parser.findChild(root, "blocks");
-    if (formatsNode == -1 || blocksNode == -1)
-        return res;
+    QDataStream stream(data, IO_ReadOnly);
 
     QTextDocumentFragmentPrivate *d = new QTextDocumentFragmentPrivate;
 
-    QTextFormatCollectionState collState(parser, formatsNode);
+    QTextFormatCollectionState collState(stream);
     QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(d->localFormatCollection);
 
-    for (int blockNode = parser.findChild(blocksNode, "block");
-         blockNode != -1; blockNode = parser.findNextChild(blocksNode, blockNode)) {
+    int blockCount;
+    stream >> blockCount;
 
+    for (; blockCount > 0; --blockCount) {
         QTextDocumentFragmentPrivate::Block b;
 
-        bool ok = false;
-
-        int blockFormatNode = parser.findChild(blockNode, "blockformatindex");
-        if (blockFormatNode != -1) {
-            int idx = parser.at(blockFormatNode).text.toInt(&ok);
-            if (ok)
-                b.blockFormat = formatIndexMap.value(idx, -1);
-        }
-
-        int charFormatNode = parser.findChild(blockNode, "charformatindex");
-        if (charFormatNode != -1) {
-            int idx = parser.at(charFormatNode).text.toInt(&ok);
-            if (ok)
-                b.charFormat = formatIndexMap.value(idx, -1);
-        }
+        stream >> b.blockFormat >> b.charFormat;
 
         if (b.blockFormat != -1)
             d->blocks.append(b);
 
-        for (int fragmentNode = parser.findChild(blockNode, "fragment");
-                fragmentNode != -1; fragmentNode = parser.findNextChild(blockNode, fragmentNode)) {
+        int fragmentCount;
+        stream >> fragmentCount;
 
-            const QTextHtmlParserNode &n = parser.at(fragmentNode);
-            d->appendText(n.text, formatIndexMap.value(n.formatIndex, -1));
+        for (; fragmentCount > 0; --fragmentCount) {
+            int format;
+            QString text;
+            stream >> format >> text;
+
+            d->appendText(text, formatIndexMap.value(format, -1));
         }
     }
 
