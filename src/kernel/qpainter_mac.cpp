@@ -663,7 +663,8 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	    }
 #ifndef QMAC_ONE_PIXEL_LOCK
 	    if(!d->locked) {
-		Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+		bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
+		Q_ASSERT(locked);
 		d->locked = true;
 	    }
 #endif

@@ -34,7 +34,8 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
 #ifndef QMAC_ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+    Q_ASSERT(locked);
 #endif
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow, q;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
@@ -161,7 +162,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
 #ifndef QMAC_ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+    Q_ASSERT(locked);
 #endif
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
@@ -236,7 +238,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	if(img.depth() == 32) {
 	    data->alphapm = new QPixmap(w, h, 32);
 #ifndef QMAC_ONE_PIXEL_LOCK
-	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)));
+	    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
+	    Q_ASSERT(locked);
 #endif
 	    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)), *drow;
 	    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
@@ -314,7 +317,8 @@ QImage QPixmap::convertToImage() const
 	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
 #ifndef QMAC_ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+    Q_ASSERT(locked);
 #endif
     QRgb q;
     long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *srow, r;
@@ -423,7 +427,8 @@ void QPixmap::fill(const QColor &fillColor)
     //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate(this);
 #ifndef QMAC_ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+    Q_ASSERT(locked);
 #endif
     detach();					// detach other references
     if(depth() == 1 || depth() == 32) { //small optimization over QD
@@ -590,7 +595,8 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     }
 
 #ifndef QMAC_ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+    Q_ASSERT(locked);
 #endif
     sptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd));
     sbpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
@@ -599,7 +605,8 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 
     QPixmap pm(w, h, depth(), optimization());
 #ifndef QMAC_ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm.handle())));
+    locked = LockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));
+    Q_ASSERT(locked);
 #endif
     dptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)pm.handle()));
     dbpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)pm.handle()));
@@ -705,7 +712,8 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 	Q_ASSERT(0);
     } else {
 #ifdef QMAC_ONE_PIXEL_LOCK
-	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+	bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+	Q_ASSERT(locked);
 #endif
 	data->w=w;
 	data->h=h;
