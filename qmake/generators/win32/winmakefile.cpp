@@ -49,7 +49,7 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
                                      regx.cap(2).isEmpty()) ? -1 : regx.cap(2).toInt());
     }
     QMakeMetaInfo libinfo;
-    if(libinfo.readLib(bd + dllStem)) {
+    if(libinfo.readLib(bd + Option::dir_sep + dllStem)) {
         if(!libinfo.isEmpty("QMAKE_PRL_VERSION"))
             biggest = qMax(biggest, libinfo.first("QMAKE_PRL_VERSION").replace(".", "").toInt());
     }
