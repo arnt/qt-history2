@@ -3594,9 +3594,10 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
+    if ( QColor::numBitPlanes() < 16 )
+	return FALSE;
+
     if ( !effect_override && desktopSettingsAware() && !( qt_winver == WV_95 || qt_winver == WV_NT ) ) {
-	if ( QColor::numBitPlanes() < 16 )
-	    return FALSE;
 	// we know that they can be used when we are here
 	BOOL enabled = FALSE;
 	UINT api;
@@ -3634,8 +3635,6 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	} );
 	return enabled;
     } else {
-	if ( QColor::numBitPlanes() < 16 )
-	    return FALSE;
 	switch( effect ) {
 	case UI_AnimateMenu:
 	    return animate_menu;
