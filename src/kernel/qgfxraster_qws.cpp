@@ -26,7 +26,7 @@
 
 extern bool qws_sw_cursor;
 
-#if !defined(_OS_FREEBSD_)
+#if !defined(_OS_FREEBSD_) && !defined(Q_OS_MAC)
 # include <endian.h>
 # if __BYTE_ORDER == __BIG_ENDIAN
 #  define QT_QWS_REVERSE_BYTE_ENDIANNESS
