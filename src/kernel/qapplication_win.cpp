@@ -3296,6 +3296,47 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, ch.row() ? 0 : ch.cell(), state, grab, s );
     }
     else {
+
+	// for Directionality changes (BiDi)
+        static int dirStatus = 0;
+        if ( !dirStatus && state == Qt::ControlButton && msg.wParam == VK_CONTROL && msg.message == WM_KEYDOWN ) {
+	    if ( GetKeyState( VK_LCONTROL ) < 0 ) {
+		dirStatus = VK_LCONTROL;
+	    } else if ( GetKeyState( VK_RCONTROL ) < 0 ) {
+		dirStatus = VK_RCONTROL;
+	    }
+	} else if ( dirStatus ) {
+	    if ( msg.message == WM_KEYDOWN ) {
+		if ( msg.wParam == VK_SHIFT ) {
+		    if ( dirStatus == VK_LCONTROL && GetKeyState( VK_LSHIFT ) < 0 ) {
+			    dirStatus = VK_LSHIFT;
+		    } else if ( dirStatus == VK_RCONTROL && GetKeyState( VK_RSHIFT ) < 0 ) {
+    			dirStatus = VK_RSHIFT;
+		    } 
+		} else {
+		    dirStatus = 0;
+		}
+	    } else if ( msg.message == WM_KEYUP ) {
+		if ( dirStatus == VK_LSHIFT && 
+		    ( msg.wParam == VK_SHIFT && GetKeyState( VK_LCONTROL )  ||
+		      msg.wParam == VK_CONTROL && GetKeyState( VK_LSHIFT ) ) ) {
+		    k0 = sendKeyEvent( QEvent::KeyPress, Qt::Key_Direction_L, 0, 0, grab, QString::null );
+		    k1 = sendKeyEvent( QEvent::KeyRelease, Qt::Key_Direction_L, 0, 0, grab, QString::null );
+		    dirStatus = 0;
+		} else if ( dirStatus == VK_RSHIFT && 
+		    ( msg.wParam == VK_SHIFT && GetKeyState( VK_RCONTROL ) ||
+		      msg.wParam == VK_CONTROL && GetKeyState( VK_RSHIFT ) ) ) {
+		    k0 = sendKeyEvent( QEvent::KeyPress, Qt::Key_Direction_R, 0, 0, grab, QString::null );
+		    k1 = sendKeyEvent( QEvent::KeyRelease, Qt::Key_Direction_R, 0, 0, grab, QString::null );
+		    dirStatus = 0;
+		} else {
+		    dirStatus = 0;
+		}
+	    } else {
+		dirStatus = 0;
+	    }
+	}
+
 	int code = translateKeyCode( msg.wParam );
 	// If the bit 24 of lParm is set you received a enter,
 	// otherwise a Return. (This is the extended key bit)
