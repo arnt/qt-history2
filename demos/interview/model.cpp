@@ -74,8 +74,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
     static QIconSet folder(QPixmap("folder.png"));
 
     if (role == DisplayRole)
-	return "Item " + QAbstractItemModelPrivate::i2s(strbuf, 65, index.row()) + ":"
-            + QAbstractItemModelPrivate::i2s(strbuf, 65, index.column());
+	return "Item " + QString::number(index.row()) + ":" + QString::number(index.column());
     if (role == DecorationRole)
 	return folder;
     return QVariant();
