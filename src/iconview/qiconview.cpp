@@ -459,6 +459,7 @@ QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *pare
 			    0 : item->pixmapRect().width() ) );
     document()->formatter()->setAllowBreakInWords( TRUE );
     resize( 200, 200 ); // ### some size, there should be a forceReformat()
+    setTextFormat( PlainText );
     setText( text );
     setAlignment( Qt::AlignCenter );
 
