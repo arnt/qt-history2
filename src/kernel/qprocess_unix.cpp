@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#29 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -70,8 +70,10 @@ extern "C" {
 #endif
 
 #if defined(Q_OS_OSF) || ( defined(Q_OS_IRIX) && defined(Q_CC_GNU) ) || defined(Q_OS_MACX)
+static void qt_C_sigign() { (*SIG_IGN)(SIGPIPE); }
 static void qt_C_sigchldHnd();
 #else
+#define qt_C_sigign SIG_IGN
 static void qt_C_sigchldHnd( int );
 #endif
 
@@ -130,7 +132,7 @@ public:
 #if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcessPrivate: install a sigpipe handler (SIG_IGN)" );
 #endif
-	    act.sa_handler = SIG_IGN;
+	    act.sa_handler = qt_C_sigign;
 	    sigemptyset( &(act.sa_mask) );
 	    sigaddset( &(act.sa_mask), SIGPIPE );
 	    act.sa_flags = 0;
