@@ -652,12 +652,19 @@ int QMenuBar::calculateRects( int max_width )
     int max_item_height = 0;
     int nlitems = 0;				// number on items on cur line
     int gs = style();
-    int x = style().defaultFrameWidth() + motifBarHMargin;
-    int y = style().defaultFrameWidth() + motifBarVMargin;
+    bool reverse = QApplication::reverseLayout();
+    int x = style().defaultFrameWidth();
+    int y = style().defaultFrameWidth();
+    if ( gs == MotifStyle ) {
+	x += motifBarHMargin;
+	y += motifBarVMargin;
+    }
+    if ( reverse ) 
+	x = max_width - x;
+	
     int i = 0;
     int separator = -1;
-    if ( gs == WindowsStyle )	//###
-	x = y = 2;
+    
     while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);
 	int w=0, h=0;
@@ -689,10 +696,18 @@ int QMenuBar::calculateRects( int max_width )
 		w += 2*motifItemFrame;
 		h += 2*motifItemFrame;
 	    }
-	    if ( x + w + style().defaultFrameWidth() - max_width > 0 && nlitems > 0 ) {
+	    if ( ( ( !reverse && x + w + style().defaultFrameWidth() - max_width > 0 ) ||
+		 ( reverse && x - w -style().defaultFrameWidth() < 0 ) )
+		 && nlitems > 0 ) {
 		nlitems = 0;
-		x = style().defaultFrameWidth() + motifBarHMargin;
-		y += h + motifBarHMargin;
+		x = style().defaultFrameWidth();
+		y += h;
+		if ( gs == MotifStyle ) {
+		    x += motifBarHMargin;
+		    y += motifBarVMargin;
+		}
+		if ( reverse )
+		    x = max_width - x;
 		separator = -1;
 	    }
 	    if ( y + h + 2*style().defaultFrameWidth() > max_height )
@@ -700,10 +715,13 @@ int QMenuBar::calculateRects( int max_width )
 	    if ( h > max_item_height )
 		max_item_height = h;
 	}
+	if( reverse )
+	    x -= w;
 	if ( update ) {
 	    irects[i].setRect( x, y, w, h );
 	}
-	x += w;
+	if ( !reverse )
+	    x += w;
 	nlitems++;
 	i++;
     }
