@@ -624,7 +624,7 @@ properties. Change the action's name to "optionsAction". Click the
 ellipsis button on the \Property{iconSet} property to pop up the
 \Widget{Choose an Image} dialog. Click the \Button{Add...} button to pop
 up the \Widget{Choose Images...} file selection dialog. Navigate to
-\c{qt/tools/designer/designer/images}; click the \c{tabwidget.png} image,
+\c{qt/tools/examples/colortool/images}; click the \c{tabwidget.png} image,
 then click \Button{Open}. The \c{tabwidget.png} image now appears
 highlighted in the \Widget{Choose an Image} dialog; click \OK to use
 it. Change the \Property{text} property to "Options" and change the

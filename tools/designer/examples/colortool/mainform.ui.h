@@ -471,9 +471,7 @@ bool MainForm::isWebColor( QColor color )
 void MainForm::editAdd()
 {
     QColor color = white;
-    int row = 0;
     if ( ! m_colors.isEmpty() ) {
-	row = colorTable->currentRow();
 	QWidget *visible = colorWidgetStack->visibleWidget();
 	if ( visible == tablePage )
 	    color = colorTable->text( colorTable->currentRow(),
@@ -493,6 +491,7 @@ void MainForm::editAdd()
 	    m_colors[name] = color;
 	    QPixmap pixmap( 22, 22 );
 	    pixmap.fill( color );
+	    int row = colorTable->currentRow();
 	    colorTable->insertRows( row, 1 );
 	    colorTable->setText( row, COL_NAME, name );
 	    colorTable->setPixmap( row, COL_NAME, pixmap );

@@ -1340,8 +1340,8 @@ Qt's SQL module provides two approaches to dealing with foreign
 
 	    \i
 
-	    Before we perform an update we need to know who the book's
-	    author is, and we need to update the combobox.
+	    Before we perform an update we must ensure that the author
+	    combobox shows the right author.
 
 \quotefile book/book8/editbook.ui.h
 \skipto ::primeUpdateBook
