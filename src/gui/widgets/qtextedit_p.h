@@ -98,12 +98,6 @@ public:
 
     void setBlinkingCursorEnabled(bool enable);
 
-    // input methods
-//     bool composeMode() const { return preeditLength(); }
-//     bool hasIMSelection() const { return imSelectionLength(); }
-//     int preeditLength() const { return ( imend - imstart ); }
-//     int imSelectionLength() const { return ( imselend - imselstart ); }
-
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
