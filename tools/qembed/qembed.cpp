@@ -179,7 +179,7 @@ int main( int argc, char **argv )
 	out << "    { 0, 0, 0 }\n};\n";
 
 	out << "\n"
-	    "inline const QByteArray& qembed_findData(const char* name)\n"
+	    "static const QByteArray& qembed_findData(const char* name)\n"
 	    "{\n"
 	    "    static QDict<QByteArray> dict;\n"
 	    "    QByteArray* ba = dict.find(name);\n"
