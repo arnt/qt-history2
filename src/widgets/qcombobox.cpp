@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#117 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#117 $");
 
 
 /*!
@@ -1583,4 +1583,54 @@ void QComboBox::clearValidator()
 {
     if ( d && d->ed )
 	d->ed->setValidator( 0 );
+}
+
+
+/*!  Sets the combo box to use \a newListBox instead of the current
+  list box or popup.  As a site effect, clears the combo box of its
+  current contents.
+
+  \warning QComboBox assumes that newListBox->text(n) returns
+  non-null for 0 \<= n \< newListbox->count().  This assumption is
+  necessary becuase of the line edit in QComboBox.
+*/
+
+void QComboBox::setListBox( QListBox * newListBox )
+{
+    clear();
+
+    if ( d->usingListBox )
+	delete d->listBox;
+    else
+	delete d->popup;
+
+    newListBox->recreate( 0, WType_Popup, QPoint(0,0), FALSE );
+
+    d->listBox = newListBox;
+    d->usingListBox = TRUE;
+
+    d->listBox->setAutoScrollBar( FALSE );
+    d->listBox->setBottomScrollBar( FALSE );
+    d->listBox->setAutoBottomScrollBar( FALSE );
+    d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
+    d->listBox->setLineWidth( 1 );
+    d->listBox->resize( 100, 10 );
+
+    connect( d->listBox, SIGNAL(selected(int)),
+	     SLOT(internalActivate(int)) );
+    connect( d->listBox, SIGNAL(highlighted(int)),
+	     SLOT(internalHighlight(int)));
+}
+
+
+/*!  Returns the current list box, or 0 if there is no list box
+  currently.  (QComboBox can use QPopupMenu instead of QListBox.)
+  Provided to match setListBox().
+
+  \sa setListBox()
+*/
+
+QListBox * QComboBox::listBox() const
+{
+    return d && d->usingListBox ? d->listBox : 0;
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#46 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#47 $
 **
 ** Definition of QComboBox class
 **
@@ -19,6 +19,7 @@ struct QComboData;
 class QStrList;
 class QLineEdit;
 class QValidator; 
+class QListBox;
 
 
 class QComboBox : public QWidget
@@ -75,6 +76,9 @@ public:
 
     void	setValidator( QValidator * );
     QValidator * validator() const;
+
+    void	setListBox( QListBox * );
+    QListBox * 	listBox() const;
 
 public slots:
     void	clearValidator();
