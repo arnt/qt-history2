@@ -315,6 +315,9 @@ rm -rf $DISTDIR/qt/tools/designer/plugins/qvim
 rm -rf $DISTDIR/qt/tools/designer/plugins/glade
 # clean tools
 rm -rf $DISTDIR/qt/tools/inspector
+# wipe out accessibility
+find $DESTDIR/src -name "*accessib*" | xargs rm -f
+find $DESTDIR/doc -name "*accessib*" | xargs rm -f
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
 for a in `find $DISTDIR/qt/extensions/nsplugin/src -name 'np*' -o -name 'jri*'`; do
