@@ -1234,7 +1234,7 @@ and clever code that works on a wide range of window managers that
 exist today. Don't be surprised if you find one where frameGeometry()
 returns bogus results though.
 
-Nore does X11 provide a way to maximize a window. The showMaximized()
+Nor does X11 provide a way to maximize a window. The showMaximized()
 function in Qt therefore has to emulate the feature. Its result
 depends on the result of frameGeometry() and the capability of the
 window manager to do proper window placement, neither of which can be
