@@ -2,6 +2,7 @@
 #include "qnp.h"
 #include <qpainter.h>
 #include <qmessagebox.h>
+#include <qevent.h>
 
 class Trivial : public QNPWidget {
     Q_OBJECT

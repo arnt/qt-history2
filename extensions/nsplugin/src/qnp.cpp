@@ -45,7 +45,6 @@
 #include <qapplication.h>
 #include <qeventloop.h>
 #include <qwidget.h>
-#include <qobjectlist.h>
 #include <qcursor.h>
 #include <qprinter.h>
 #include <qfile.h>
@@ -186,7 +185,7 @@ static int qnps_no_call_back = 0;
 
 #ifdef Q_WS_WIN
 // defined in qapplication_win.cpp
-Q_EXPORT extern bool qt_win_use_simple_timers;
+Q_CORE_EXPORT extern bool qt_win_use_simple_timers;
 static HHOOK hhook = 0;
 
 LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
@@ -449,12 +448,12 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	static int argc=0;
 	static char **argv={ 0 };
 	application = new QApplication( argc, argv );
-#ifdef UNICODE
-	if ( qWinVersion() & Qt::WV_NT_based )
+
+        QT_WA({
 	    hhook = SetWindowsHookExW( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
-	else
-#endif
+        }, {
 	    hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+        });
 #endif
     }
 
@@ -773,13 +772,8 @@ QNPWidget::QNPWidget() :
     next_pi->widget = this;
     next_pi = 0;
 
-#ifdef Q_WS_WIN
-    clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
-    topData()->ftop = 0;
-    topData()->fright = 0;
-    topData()->fleft = 0;
-    topData()->fbottom = 0;
-#endif
+    QEvent e(QEvent::EmbeddingControl);
+    QApplication::sendEvent(this, &e);
 }
 
 /*!
