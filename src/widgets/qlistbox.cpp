@@ -2767,9 +2767,6 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 
 bool QListBox::isSelected( int i ) const
 {
-    if ( selectionMode() == Single )
-	return i == currentItem();
-
     QListBoxItem * lbi = item( i );
     if ( !lbi )
 	return FALSE; // should not happen
