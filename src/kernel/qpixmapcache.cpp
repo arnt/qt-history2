@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#24 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -23,6 +23,7 @@
 
 #include "qpixmapcache.h"
 #include "qcache.h"
+#include "qobject.h"
 
 /*!
   \class QPixmapCache qpixmapcache.h
@@ -62,10 +63,75 @@
   See the QCache documentation for a more details about the cache mechanism.
 */
 
-typedef QCache<QPixmap> QPMCache;
-static QPMCache *pm_cache = 0;			// global pixmap cache
-const  int cache_size	  = 61;			// size of internal hash array
+const  int cache_size	  = 149;		// size of internal hash array
 static int cache_limit	  = 1024;		// 1024 KB cache limit
+
+void cleanup_pixmap_cache();
+
+class QPMCache: public QObject, public QCache<QPixmap>
+{
+public:
+    QPMCache():
+	QObject( 0, "global pixmap cache" ),
+	QCache<QPixmap>( cache_limit * 1024, cache_size ),
+	id( 0 ), ps( 0 );
+	{
+	    qAddPostRoutine( cleanup_pixmap_cache );
+	    setAutoDelete( TRUE );
+	}
+    void timerEvent( QTimerEvent * );
+    bool insert( const char *k, const QPixmap *d, int c, int p = 0 );
+private:
+    int id;
+    int ps;
+};
+
+
+/* If the cache hasn't grown since the last tick, cut it down a
+   little.  Remember its size anyway.
+   
+   This is supposed to cut the cache size down by about 80% in a
+   minute once the application becomes idle, to let any inserted
+   pixmap remain in the cache for 20 seconds before it becomes a
+   candidate for cleaning-up, and to not cut down the size of the
+   cache while the cache is in active use.
+
+   When the last pixmap has been deleted from the cache, kill the
+   timer so qt won't keep the CPU from going into sleep mode.
+*/
+
+void QPMCache::timerEvent( QTimerEvent * e )
+{
+    if ( totalCost() <= ps ) {
+	int mc = maxCost();
+	setMaxCost( totalCost() * 3 / 4 ); // arbitrary cut-down
+	setMaxCost( mc );
+    }
+
+    ps = totalCost();
+
+    if ( !count() {
+	killTimer( id );
+	id = 0;
+    }
+}
+
+bool QPMCache::insert( const char *k, const QPixmap *d, int c, int p )
+{
+    bool r = QCache<QPixmap>::insert( k, d, c, p );
+    if ( r && !id )
+	id = startTimer( 10000 );
+    return r;
+}
+    
+static QPMCache *pm_cache = 0;			// global pixmap cache
+
+
+void cleanup_pixmap_cache()
+{
+    delete pm_cache;
+    pm_cache = 0;
+}
 
 
 /*!
@@ -123,6 +189,7 @@ bool QPixmapCache::find( const QString &key, QPixmap& pm )
     return !!p;
 }
 
+
 /*!
   Inserts the pixmap \e pm associated with \e key into the cache.
   Returns TRUE if successful, or FALSE if the pixmap is too big for the cache.
@@ -142,9 +209,8 @@ bool QPixmapCache::find( const QString &key, QPixmap& pm )
 bool QPixmapCache::insert( const QString &key, QPixmap *pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
-	pm_cache = new QPMCache( 1024*cache_limit, cache_size );
+	pm_cache = new QPMCache;
 	CHECK_PTR( pm_cache );
-	pm_cache->setAutoDelete( TRUE );
     }
     return pm_cache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
 }
@@ -168,9 +234,8 @@ bool QPixmapCache::insert( const QString &key, QPixmap *pm )
 void QPixmapCache::insert( const QString &key, const QPixmap& pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
-	pm_cache = new QPMCache( 1024*cache_limit, cache_size );
+	pm_cache = new QPMCache;
 	CHECK_PTR( pm_cache );
-	pm_cache->setAutoDelete( TRUE );
     }
     QPixmap *p = new QPixmap(pm);
     if ( !pm_cache->insert( key, p, p->width()*p->height()*p->depth()/8 ) )
@@ -212,6 +277,6 @@ void QPixmapCache::setCacheLimit( int n )
 
 void QPixmapCache::clear()
 {
-    delete pm_cache;
-    pm_cache = 0;
+    if ( pm_cache )
+	pm_cache->clear();
 }
