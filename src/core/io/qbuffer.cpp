@@ -40,7 +40,7 @@ public:
     Q_LONGLONG writtenSinceLastEmit;
 #endif
 
-    int ioIndex;
+    Q_LONGLONG ioIndex;
     bool isOpen;
     QByteArray *buf;
 
@@ -281,7 +281,7 @@ bool QBuffer::open(OpenMode flags)
     if ((flags & QIODevice::Truncate) == QIODevice::Truncate)
         d->buf->resize(0);
     if ((flags & QIODevice::Append) == QIODevice::Append) // append to end of buffer
-        d->ioIndex = d->buf->size();
+        d->ioIndex = Q_LONGLONG(d->buf->size());
     else
         d->ioIndex = 0;
 
@@ -298,9 +298,9 @@ void QBuffer::close()
     if(!isOpen())
         return;
     d->isOpen = false;
-    if(d->ioIndex == -1)
+    if(d->ioIndex == Q_LONGLONG(-1))
         return;
-    d->ioIndex = -1;
+    d->ioIndex = Q_LONGLONG(-1);
     return;
 }
 
@@ -323,7 +323,7 @@ Q_LONGLONG QBuffer::pos() const
 Q_LONGLONG QBuffer::size() const
 {
     Q_D(const QBuffer);
-    return (Q_LONGLONG)d->buf->size();
+    return Q_LONGLONG(d->buf->size());
 }
 
 /*!
@@ -339,7 +339,7 @@ bool QBuffer::seek(Q_LONGLONG pos)
     }
 
     // #### maybe resize if not readonly?
-    if (pos > (Q_LONGLONG)d->buf->size()) {
+    if (pos > Q_LONGLONG(d->buf->size())) {
         qWarning("QBuffer::seek: Index %lld out of range", pos);
         return false;
     }
@@ -359,7 +359,7 @@ bool QBuffer::atEnd() const
     }
 
     QBuffer *that = const_cast<QBuffer *>(this);
-    return that->d_func()->ioIndex == that->d_func()->buf->size();
+    return that->d_func()->ioIndex == Q_LONGLONG(that->d_func()->buf->size());
 }
 
 /*!
@@ -369,14 +369,14 @@ bool QBuffer::atEnd() const
 Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 {
     Q_D(QBuffer);
-    if (d->ioIndex + len > d->buf->size()) {   // overflow
-        if ((int)d->ioIndex >= d->buf->size()) {
+    if (d->ioIndex + len > Q_LONGLONG(d->buf->size())) {   // overflow
+        if (d->ioIndex >= Q_LONGLONG(d->buf->size())) {
             return 0;
         } else {
-            len = d->buf->size() - d->ioIndex;
+            len = Q_LONGLONG(d->buf->size()) - d->ioIndex;
         }
     }
-    memcpy(data, d->buf->constData() + d->ioIndex, len);
+    memcpy(data, d->buf->constData() + int(d->ioIndex), int(len));
     d->ioIndex += len;
     return len;
 }
@@ -387,15 +387,15 @@ Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 Q_LONGLONG QBuffer::writeData(const char *data, Q_LONGLONG len)
 {
     Q_D(QBuffer);
-    if (d->ioIndex + len > d->buf->size()) {             // overflow
-        d->buf->resize(d->ioIndex + len);
-        if (d->buf->size() != (int)(d->ioIndex + len)) {           // could not resize
-            qWarning("QBuffer::writeBlock: Memory allocation error");
+    if (d->ioIndex + len > Q_LONGLONG(d->buf->size())) { // overflow
+        d->buf->resize(int(d->ioIndex + len));
+        if (Q_LONGLONG(d->buf->size()) != d->ioIndex + len) { // could not resize
+            qWarning("QBuffer::writeData: Memory allocation error");
             return -1;
         }
     }
 
-    memcpy(d->buf->data() + d->ioIndex, (uchar *)data, len);
+    memcpy(d->buf->data() + int(d->ioIndex), (uchar *)data, int(len));
     d->ioIndex += len;
 
 #ifndef QT_NO_QOBJECT
