@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#21 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#22 $
 **
 ** Definition of event classes
 **
@@ -36,7 +36,6 @@
 #define Event_Destroy		   16		// during object destruction
 #define Event_Close		   19		// request to close widget
 #define Event_Quit		   20		// request to quit application
-#define Event_AccelInserted	   50		// internal
 #define Event_User		 1000		// first user event id
 
 
@@ -99,7 +98,7 @@ class QKeyEvent : public QEvent			// keyboard event
 public:
     QKeyEvent( int type, int kc, uchar ac, int state )
 	: QEvent(type)		{ k=(ushort)kc; a=ac; st=(ushort)state;
-				  accpt=TRUE; accel=0; }
+				  accpt=TRUE; }
     int	   key()	const	{ return k; }	// key code
     uchar  ascii()	const	{ return (uchar )a; } // ascii value
     int	   state()	const	{ return st; }	// keyboard status
@@ -108,7 +107,7 @@ public:
     void   ignore()		{ accpt = FALSE; }
 protected:
     ushort k, st, a;
-    char   accpt, accel;
+    char   accpt;
 };
 
 #define Q_KEY_EVENT(x)		((QKeyEvent*)x)
