@@ -108,20 +108,15 @@ QSemaphore::~QSemaphore()
 */
 int QSemaphore::operator++(int)
 {
-    int ret;
-
-    d->mutex.lock();
-
+    QMutexLocker locker(&d->mutex);
     while (d->value >= d->max)
-	d->cond.wait(&(d->mutex));
+	d->cond.wait(locker.mutex());
 
-    ++(d->value);
-    if (d->value > d->max) d->value = d->max;
-    ret = d->value;
+    ++d->value;
+    if (d->value > d->max)
+	d->value = d->max;
 
-    d->mutex.unlock();
-
-    return ret;
+    return d->value;
 }
 
 
@@ -133,18 +128,15 @@ int QSemaphore::operator++(int)
 */
 int QSemaphore::operator--(int)
 {
-    int ret;
+    QMutexLocker locker(&d->mutex);
 
-    d->mutex.lock();
-
-    --(d->value);
-    if (d->value < 0) d->value = 0;
-    ret = d->value;
+    --d->value;
+    if (d->value < 0)
+	d->value = 0;
 
     d->cond.wakeAll();
-    d->mutex.unlock();
 
-    return ret;
+    return d->value;
 }
 
 
@@ -155,9 +147,7 @@ int QSemaphore::operator--(int)
 */
 int QSemaphore::operator+=(int n)
 {
-    int ret;
-
-    d->mutex.lock();
+    QMutexLocker locker(&d->mutex);
 
     if ( n < 0 || n > d->max ) {
 	qWarning( "QSemaphore::operator+=: parameter %d out of range", n );
@@ -165,14 +155,11 @@ int QSemaphore::operator+=(int n)
     }
 
     while (d->value + n > d->max)
-	d->cond.wait(&(d->mutex));
+	d->cond.wait(locker.mutex());
 
     d->value += n;
-    ret = d->value;
 
-    d->mutex.unlock();
-
-    return ret;
+    return d->value;
 }
 
 
@@ -181,9 +168,7 @@ int QSemaphore::operator+=(int n)
 */
 int QSemaphore::operator-=(int n)
 {
-    int ret;
-
-    d->mutex.lock();
+    QMutexLocker locker(&d->mutex);
 
     if ( n < 0 || n > d->value ) {
 	qWarning( "QSemaphore::operator-=: parameter %d out of range", n );
@@ -191,12 +176,9 @@ int QSemaphore::operator-=(int n)
     }
 
     d->value -= n;
-    ret = d->value;
-
     d->cond.wakeOne();
-    d->mutex.unlock();
 
-    return ret;
+    return d->value;
 }
 
 
@@ -204,28 +186,20 @@ int QSemaphore::operator-=(int n)
     Returns the number of accesses currently available to the
     semaphore.
 */
-int QSemaphore::available() const {
-    int ret;
-
-    d->mutex.lock();
-    ret = d->max - d->value;
-    d->mutex.unlock();
-
-    return ret;
+int QSemaphore::available() const
+{
+    QMutexLocker locker(&d->mutex);
+    return d->max - d->value;
 }
 
 
 /*!
     Returns the total number of accesses to the semaphore.
 */
-int QSemaphore::total() const {
-    int ret;
-
-    d->mutex.lock();
-    ret = d->max;
-    d->mutex.unlock();
-
-    return ret;
+int QSemaphore::total() const
+{
+    QMutexLocker locker(&d->mutex);
+    return d->max;
 }
 
 
@@ -237,22 +211,12 @@ int QSemaphore::total() const {
 */
 bool QSemaphore::tryAccess(int n)
 {
-    if (! d->mutex.tryLock())
-	return false;
+    QMutexLocker locker(&d->mutex);
 
-    if (d->value + n > d->max) {
-	d->mutex.unlock();
+    if (d->value + n > d->max)
 	return false;
-    }
 
     d->value += n;
-
-    if (d->value > d->max) {
-	qWarning("QSemaphore::operator+=: attempt to allocate more resources than available");
-	d->value = d->max;
-    }
-
-    d->mutex.unlock();
 
     return true;
 }
