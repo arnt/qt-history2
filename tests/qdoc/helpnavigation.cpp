@@ -258,7 +258,10 @@ void HelpNavigation::setIndexTopic( QListBoxItem *i )
 QString HelpNavigation::titleOfLink( const QString &link )
 {
     QUrl u( link );
-    return titleMap[ u.fileName() ];
+    QString s = titleMap[ u.fileName() ];
+    if ( s.isEmpty() )
+	return link;
+    return s;
 }
 
 void HelpNavigation::setupContentsView( const QString &titleFile )
