@@ -380,7 +380,7 @@ void QComLibrary::createInstanceInternal()
 		     .arg( ( QT_VERSION & 0xff00 ) >> 8 )
 		     .arg( library() );
     QStringList reg;
-    uint flags;
+    uint flags = 0;
     QCString key;
     bool query_done = FALSE;
     bool warn_mismatch = TRUE;
