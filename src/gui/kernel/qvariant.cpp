@@ -59,7 +59,7 @@ static void construct(QVariant::Private *x, const void *v)
             x->data.shared = new QCoreVariant::PrivateShared(
                     new QRegion(*static_cast<const QRegion *>(v)));
             break;
-        case QVariant::PointArray:
+        case QVariant::Polygon:
             x->data.shared = new QCoreVariant::PrivateShared(
                     new QPolygon(*static_cast<const QPolygon *>(v)));
             break;
@@ -135,7 +135,7 @@ static void construct(QVariant::Private *x, const void *v)
         case QVariant::Region:
             x->data.shared = new QCoreVariant::PrivateShared(new QRegion);
             break;
-        case QVariant::PointArray:
+        case QVariant::Polygon:
             x->data.shared = new QCoreVariant::PrivateShared(new QPolygon);
             break;
         case QVariant::Font:
@@ -211,7 +211,7 @@ static void clear(QVariant::Private *p)
     case QVariant::Region:
         delete static_cast<QRegion *>(p->data.shared->value.ptr);
         break;
-    case QVariant::PointArray:
+    case QVariant::Polygon:
         delete static_cast<QPolygon *>(p->data.shared->value.ptr);
         break;
     case QVariant::Font:
@@ -277,7 +277,7 @@ static bool isNull(const QVariant::Private *d)
         return static_cast<QBitmap *>(d->data.shared->value.ptr)->isNull();
     case QVariant::Region:
         return static_cast<QRegion *>(d->data.shared->value.ptr)->isEmpty();
-    case QVariant::PointArray:
+    case QVariant::Polygon:
         return static_cast<QPolygon *>(d->data.shared->value.ptr)->isEmpty();
     case QVariant::Pixmap:
         return static_cast<QPixmap *>(d->data.shared->value.ptr)->isNull();
@@ -328,7 +328,7 @@ static void load(QVariant::Private *d, QDataStream &s)
     case QVariant::Region:
         s >> *static_cast<QRegion *>(d->data.shared->value.ptr);
         break;
-    case QVariant::PointArray:
+    case QVariant::Polygon:
         s >> *static_cast<QPolygon *>(d->data.shared->value.ptr);
         break;
     case QVariant::Font:
@@ -407,7 +407,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
         s << *static_cast<QBitmap *>(d->data.shared->value.ptr);
 #endif
         break;
-    case QVariant::PointArray:
+    case QVariant::Polygon:
         s << *static_cast<QPolygon *>(d->data.shared->value.ptr);
         break;
     case QVariant::Region:
@@ -485,7 +485,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     case QVariant::Bitmap:
         return static_cast<QBitmap *>(a->data.shared->value.ptr)->serialNumber()
             == static_cast<QBitmap *>(b->data.shared->value.ptr)->serialNumber();
-    case QVariant::PointArray:
+    case QVariant::Polygon:
         return *static_cast<QPolygon *>(a->data.shared->value.ptr)
             == *static_cast<QPolygon *>(b->data.shared->value.ptr);
     case QVariant::Region:
@@ -959,7 +959,7 @@ QVariant::QVariant(const QColorGroup &val) { create(ColorGroup, &val); }
 QVariant::QVariant(const QIcon &val) { create(Icon, &val); }
 #endif //QT_NO_ICON
 QVariant::QVariant(const QTextLength &val) { create(TextLength, &val); }
-QVariant::QVariant(const QPolygon &val) { create(PointArray, &val); }
+QVariant::QVariant(const QPolygon &val) { create(Polygon, &val); }
 QVariant::QVariant(const QRegion &val) { create(Region, &val); }
 QVariant::QVariant(const QBitmap& val) { create(Bitmap, &val); }
 #ifndef QT_NO_CURSOR
@@ -1028,7 +1028,7 @@ QVariant::QVariant(const QSizePolicy &val) { create(SizePolicy, &val); }
     \fn QPolygon QVariant::toPolygon() const
 
     Returns the variant as a QPolygon if the variant has type()
-    PointArray; otherwise returns a null QPolygon.
+    Polygon; otherwise returns a null QPolygon.
 */
 
 /*!
@@ -1167,7 +1167,7 @@ QBitmap QVariant::toBitmap() const
 
 const QPolygon QVariant::toPolygon() const
 {
-    if (d.type != PointArray)
+    if (d.type != Polygon)
         return QPolygon();
 
     return *static_cast<QPolygon *>(d.data.shared->value.ptr);
@@ -1237,7 +1237,7 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
     case QVariant::Bitmap:
 //        dbg.nospace() << v.toBitmap(); //FIXME
         break;
-    case QVariant::PointArray:
+    case QVariant::Polygon:
         dbg.nospace() << v.toPolygon();
         break;
     case QVariant::Region:

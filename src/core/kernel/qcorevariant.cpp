@@ -2197,7 +2197,7 @@ bool QCoreVariant::canCast(Type t) const
     done, the variant is set to the default value of the requested
     type (e.g. an empty string if the requested type \a t is
     QCoreVariant::String, an empty point array if the requested type \a t
-    is QCoreVariant::PointArray, etc). Returns true if the current type of
+    is QCoreVariant::Polygon, etc). Returns true if the current type of
     the variant was successfully cast; otherwise returns false.
 
     \sa canCast()

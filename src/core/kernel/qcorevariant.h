@@ -57,7 +57,7 @@ class Q_CORE_EXPORT QCoreVariant
         UInt = 17,
         Bool = 18,
         Double = 19,
-        PointArray = 21,
+        Polygon = 21,
         Region = 22,
         Bitmap = 23,
         Cursor = 24,
@@ -79,7 +79,8 @@ class Q_CORE_EXPORT QCoreVariant
 #ifdef QT_COMPAT
         , ColorGroup = 12,
         IconSet = Icon,
-        CString = ByteArray
+        CString = ByteArray,
+        PointArray = Polygon
 #endif
     };
 

@@ -151,7 +151,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #ifndef QT_NO_ICON
     inline QT_COMPAT QIcon &asIconSet() { return *reinterpret_cast<QIcon *>(castOrDetach(IconSet)); }
 #endif
-    inline QT_COMPAT QPolygon& asPointArray() { return *reinterpret_cast<QPolygon *>(castOrDetach(PointArray)); }
+    inline QT_COMPAT QPolygon& asPointArray() { return *reinterpret_cast<QPolygon *>(castOrDetach(Polygon)); }
     inline QT_COMPAT QBitmap& asBitmap() { return *reinterpret_cast<QBitmap *>(castOrDetach(Bitmap)); }
     inline QT_COMPAT QRegion& asRegion() { return *reinterpret_cast<QRegion *>(castOrDetach(Region)); }
 #ifndef QT_NO_CURSOR
