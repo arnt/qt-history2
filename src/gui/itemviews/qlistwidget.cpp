@@ -225,9 +225,7 @@ void QListModel::itemChanged(QListWidgetItem *item)
 */
 
 QListWidgetItem::QListWidgetItem(QListWidget *view)
-    : itemFlags(QAbstractItemModel::ItemIsEditable
-                |QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsCheckable
+    : itemFlags(QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsEnabled),
       model(0)
 {
@@ -238,9 +236,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 }
 
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
-    : itemFlags(QAbstractItemModel::ItemIsEditable
-                |QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsCheckable
+    : itemFlags(QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsEnabled),
       model(0)
 {
