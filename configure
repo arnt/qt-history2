@@ -1205,7 +1205,7 @@ for e in gawk nawk awk; do
     fi
 done
 if [ "$OPT_FAST" = "auto" ]; then
-   if [ ! -z "$AWK" ] && [ "$Edition" = "troll" ]; then
+   if [ '!' -z "$AWK" ] && [ "$Edition" = "troll" ]; then
        OPT_FAST=yes
    else
        OPT_FAST=no
@@ -2543,12 +2543,12 @@ fi
 if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     echo "Creating qmake. Please wait..."
     OLD_QCONFIG_H=
-    if [ -e "$outpath/include/qconfig.h" ]; then
+    if [ -f "$outpath/include/qconfig.h" ]; then
          OLD_QCONFIG_H="$outpath/include/qconfig.h"
          mv -f "$OLD_QCONFIG_H" "${OLD_QCONFIG_H}.old"
     fi
     OLD_QMODULES_H=
-    if [ -e "$outpath/include/qmodules.h" ]; then
+    if [ -f "$outpath/include/qmodules.h" ]; then
          OLD_QMODULES_H="$outpath/include/qmodules.h"
          mv -f "$OLD_QMODULES_H" "${OLD_QMODULES_H}.old"
     fi
@@ -2630,8 +2630,8 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 
     QMAKE_BUILD_ERROR=no
     (cd $outpath/qmake; $MAKE) || QMAKE_BUILD_ERROR=yes
-    [ ! -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QCONFIG_H}.old" "$OLD_QCONFIG_H" #put back qconfig.h
-    [ ! -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QMODULES_H}.old" "$OLD_QMODULES_H" #put back qmodules.h
+    [ '!' -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QCONFIG_H}.old" "$OLD_QCONFIG_H" #put back qconfig.h
+    [ '!' -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QMODULES_H}.old" "$OLD_QMODULES_H" #put back qmodules.h
     [ "$QMAKE_BUILD_ERROR" = "yes" ] && exit 2
 fi
 
@@ -3067,7 +3067,7 @@ g++*)
     *)
 	;;
     esac
-    [ ! -z "$COMPILER_VERSION" ] && COMPILER="g++-${COMPILER_VERSION}"
+    [ '!' -z "$COMPILER_VERSION" ] && COMPILER="g++-${COMPILER_VERSION}"
     ;;
 *)
     #
@@ -3230,7 +3230,7 @@ fi
 $unixtests/ptrsize.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
 echo "#define QT_POINTER_SIZE $?" >>$outpath/include/qconfig.h.new
 
-if [ ! -z "$QT_MAC_VERSION" ]; then
+if [ '!' -z "$QT_MAC_VERSION" ]; then
     echo "#ifndef QT_MACOSX_VERSION" >>$outpath/include/qconfig.h.new
     echo "# define QT_MACOSX_VERSION  `printf 0x%x ${QT_MAC_VERSION}`  /*from config.tests*/" >>$outpath/include/qconfig.h.new
     echo "#endif QT_MACOSX_VERSION" >>$outpath/include/qconfig.h.new
@@ -3494,10 +3494,10 @@ else
 		break;
 	    fi
 	done
-	[ ! -z "$put_in" ] && QT_PROJECTS="$QT_PROJECTS $put_in"
+	[ '!' -z "$put_in" ] && QT_PROJECTS="$QT_PROJECTS $put_in"
     done
 fi
-if [ -e "${relpath}/projects.pro" ]; then
+if [ -f "${relpath}/projects.pro" ]; then
     mkfile="${outpath}/Makefile"
     [ -f "$mkfile" ] && chmod +w "$mkfile"
     $outpath/bin/qmake "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
