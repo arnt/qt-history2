@@ -818,28 +818,38 @@ bool QApplication::processNextEvent( bool  )
 }
 
 /* key maps */
+//#define DEBUG_KEY_MAPS
+#ifdef DEBUG_KEY_MAPS
+#define MAP_KEY(x) x, #x
+#else
+#define MAP_KEY(x) x
+#endif
+
 struct key_sym
 {
     int mac_code;
     int qt_code;
+#ifdef DEBUG_KEY_MAPS
     const char *desc;
+#endif
 };
 
 static key_sym modifier_syms[] = {
-{ shiftKey, Qt::ShiftButton, "Qt::Shift" },
-{ controlKey, Qt::ControlButton, "Qt::ControlButton" },
-{ rightControlKey, Qt::ControlButton, "Qt::ControlButton" },
-{ cmdKey, Qt::ControlButton, "Qt::ControlButton" },
-{ optionKey, Qt::AltButton, "Qt::AltButton" },
-{ rightOptionKey, Qt::AltButton, "Qt::AltButton" },
-{   0, 0, NULL }
-};
+{ shiftKey, MAP_KEY(Qt::ShiftButton) },
+{ controlKey, MAP_KEY(Qt::ControlButton) },
+{ rightControlKey, MAP_KEY(Qt::ControlButton) },
+{ cmdKey, MAP_KEY(Qt::ControlButton) },
+{ optionKey, MAP_KEY(Qt::AltButton) }, 
+{ rightOptionKey, MAP_KEY(Qt::AltButton) },
+{   0, MAP_KEY(0) } };
 static int get_modifiers(int key)
 {
     int ret = 0;
-    for(int i = 0; modifier_syms[i].desc; i++) {
+    for(int i = 0; modifier_syms[i].qt_code; i++) {
 	if(key & modifier_syms[i].mac_code) {
-//	    qDebug("got modifier: %s", modifier_syms[i].desc);
+#ifdef DEBUG_KEY_MAPS
+	    qDebug("got modifier: %s", modifier_syms[i].desc);
+#endif
 	    ret |= modifier_syms[i].qt_code;
 	}
     }
@@ -847,32 +857,88 @@ static int get_modifiers(int key)
 }
 
 static key_sym key_syms[] = {
-{ kHomeCharCode, Qt::Key_Home, "Qt::Home" },
-{ kEnterCharCode, Qt::Key_Enter, "Qt::Key_Enter" },
-{ kEndCharCode, Qt::Key_End, "Qt::Key_End" },
-{ kBackspaceCharCode, Qt::Key_Backspace, "Qt::Backspace" },
-{ kTabCharCode, Qt::Key_Tab, "Qt::Tab" },
-{ kPageUpCharCode, Qt::Key_PageUp, "Qt::PageUp" },
-{ kPageDownCharCode, Qt::Key_PageDown, "Qt::PageDown" },
-{ kReturnCharCode, Qt::Key_Return, "Qt::Key_Return" },
+{ kHomeCharCode, MAP_KEY(Qt::Key_Home) },
+{ kEnterCharCode, MAP_KEY(Qt::Key_Enter) },
+{ kEndCharCode, MAP_KEY(Qt::Key_End) },
+{ kBackspaceCharCode, MAP_KEY(Qt::Key_Backspace) },
+{ kTabCharCode, MAP_KEY(Qt::Key_Tab) },
+{ kPageUpCharCode, MAP_KEY(Qt::Key_PageUp) },
+{ kPageDownCharCode, MAP_KEY(Qt::Key_PageDown) },
+{ kReturnCharCode, MAP_KEY(Qt::Key_Return) },
 //function keys?
-{ kEscapeCharCode, Qt::Key_Escape, "Qt::Key_Escape" },
-{ kLeftArrowCharCode, Qt::Key_Left, "Qt::Key_Left" },
-{ kRightArrowCharCode, Qt::Key_Right, "Qt::Key_Right" },
-{ kUpArrowCharCode, Qt::Key_Up, "Qt::Key_Up" },
-{ kDownArrowCharCode, Qt::Key_Down, "Qt::Key_Down" },
-{ kDeleteCharCode, Qt::Key_Delete, "Qt::Key_Delete" }
-};
+{ kEscapeCharCode, MAP_KEY(Qt::Key_Escape) },
+{ kLeftArrowCharCode, MAP_KEY(Qt::Key_Left) },
+{ kRightArrowCharCode, MAP_KEY(Qt::Key_Right) },
+{ kUpArrowCharCode, MAP_KEY(Qt::Key_Up) },
+{ kDownArrowCharCode, MAP_KEY(Qt::Key_Down) },
+{ kDeleteCharCode, MAP_KEY(Qt::Key_Delete) },
+{ kHelpCharCode, MAP_KEY(Qt::Key_Help) },
+//ascii maps, for debug
+{ '-', MAP_KEY(Qt::Key_hyphen) },
+{ ':', MAP_KEY(Qt::Key_Colon) },
+{ ';', MAP_KEY(Qt::Key_Semicolon) },
+{ '<', MAP_KEY(Qt::Key_Less) },
+{ '=', MAP_KEY(Qt::Key_Equal) },
+{ '>', MAP_KEY(Qt::Key_Greater) },
+{ '?', MAP_KEY(Qt::Key_Question) },
+{ '@', MAP_KEY(Qt::Key_At) },
+{ ' ', MAP_KEY(Qt::Key_Space) },
+{ '!', MAP_KEY(Qt::Key_Exclam) },
+{ '"', MAP_KEY(Qt::Key_QuoteDbl) },
+{ '#', MAP_KEY(Qt::Key_NumberSign) },
+{ '$', MAP_KEY(Qt::Key_Dollar) },
+{ '%', MAP_KEY(Qt::Key_Percent) },
+{ '&', MAP_KEY(Qt::Key_Ampersand) },
+{ '\'', MAP_KEY(Qt::Key_Apostrophe) },
+{ '(', MAP_KEY(Qt::Key_ParenLeft) },
+{ ')', MAP_KEY(Qt::Key_ParenRight) },
+{ '*', MAP_KEY(Qt::Key_Asterisk) },
+{ '+', MAP_KEY(Qt::Key_Plus) },
+{ ',', MAP_KEY(Qt::Key_Comma) },
+{ '-', MAP_KEY(Qt::Key_Minus) },
+{ '.', MAP_KEY(Qt::Key_Period) },
+{ '/', MAP_KEY(Qt::Key_Slash) },
+{ '[', MAP_KEY(Qt::Key_BracketLeft) },
+{ ']', MAP_KEY(Qt::Key_BracketRight) },
+{ '\\', MAP_KEY(Qt::Key_Backslash) },
+{ '_', MAP_KEY(Qt::Key_Underscore) },
+{ '`', MAP_KEY(Qt::Key_QuoteLeft) },
+{ '{', MAP_KEY(Qt::Key_BraceLeft) },
+{ '}', MAP_KEY(Qt::Key_BraceRight) },
+{ '|', MAP_KEY(Qt::Key_Bar) },
+{ '~', MAP_KEY(Qt::Key_AsciiTilde) },
+//terminator
+{   0, MAP_KEY(0) } };
 static int get_key(int key)
 {
-    for(int i = 0; key_syms[i].desc; i++) {
+    for(int i = 0; key_syms[i].qt_code; i++) {
 	if(key_syms[i].mac_code == key) {
-//	    qDebug("got key: %s", key_syms[i].desc);
+#ifdef DEBUG_KEY_MAPS
+	    qDebug("got key: %s", key_syms[i].desc);
+#endif
 	    return key_syms[i].qt_code;
 	}
+    } 
+
+    //general cases..
+    if(key >= '0' && key <= '9') {
+#ifdef DEBUG_KEY_MAPS
+	qDebug("General case Qt::Key_%c", key);
+#endif
+	return (key - '0') + Qt::Key_0;
     }
-//    qDebug("Falling back to ::%d::", key);
-    return key;
+    char tup = toupper(key);
+    if(tup >= 'A' && tup <= 'Z') {
+#ifdef DEBUG_KEY_MAPS
+	qDebug("General case Qt::Key_%c %d", tup, (tup - 'A') + Qt::Key_A);
+#endif
+	return (tup - 'A') + Qt::Key_A;
+    } 
+
+#ifdef DEBUG_KEY_MAPS
+    qDebug("Unknown case.. %s:%d", __FILE__, __LINE__);
+#endif
+    return Qt::Key_unknown;
 }
 
 
@@ -1311,20 +1377,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	char chr;
 	GetEventParameter(event, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
 	int mychar=get_key(chr);
-	QString mystr = QChar(mychar);
-
+	QString mystr;
+	if(modif) 
+	    chr = 0;
+	else
+	    mystr = QChar(chr);
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
-
-#ifdef QMAC_QMENUBAR_NATIVE //In native menubar mode we offer the event to the menubar first..
-	if(etype == QEvent::KeyPress) {
-	    MenuRef menu;
-	    MenuItemIndex idx;
-	    if(IsMenuKeyEvent(NULL, event, kNilOptions, &menu, &idx)) {
-		QMenuBar::activate((((short)menu) << 16) | ((short)idx));
-		break;
-	    } 
-	}
-#endif
 
 	if( mac_keyboard_grabber )
 	    widget = mac_keyboard_grabber;
@@ -1337,21 +1395,31 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	    bool isAccel = FALSE;
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
-		QKeyEvent aa(QEvent::AccelOverride, mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat,
+		QKeyEvent aa(QEvent::AccelOverride, mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat,
 			     mystr.length());
 		aa.ignore();
 		QApplication::sendEvent( widget, &aa );
 		if ( !aa.isAccepted() ) {
-		    QKeyEvent a(QEvent::Accel, mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat,
+		    QKeyEvent a(QEvent::Accel, mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat,
 				mystr.length());
 		    a.ignore();
 		    QApplication::sendEvent( widget->topLevelWidget(), &a );
-		    if ( a.isAccepted() )
+		    if ( a.isAccepted() ) 
 			isAccel = TRUE;
+#ifdef QMAC_QMENUBAR_NATIVE //In native menubar mode we offer the event to the menubar...
+		    if( !isAccel ) {
+			MenuRef menu;
+			MenuItemIndex idx;
+			if(IsMenuKeyEvent(NULL, event, kNilOptions, &menu, &idx)) {
+			    QMenuBar::activate((((short)menu) << 16) | ((short)idx));
+			    isAccel = TRUE;
+			} 
+		    }
+#endif
 		}
 	    }
 	    if(!isAccel) {
-		QKeyEvent ke(etype,mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat, mystr.length());
+		QKeyEvent ke(etype,mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		QApplication::sendEvent(widget,&ke);
 	    }
 	}
@@ -1764,8 +1832,6 @@ struct QT_smcConn {
 void QSmSocketReceiver::socketActivated(int)
 {
 }
-
-#include <qapplication_mac.moc>
 
 class QSessionManagerData
 {
