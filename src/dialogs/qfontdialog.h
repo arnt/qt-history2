@@ -1,21 +1,23 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#2 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#3 $
 **
-** Definition of 
+** Definition of QFontDialog
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Created : 970605
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 ****************************************************************************/
 
 #ifndef QFONTDIALOG_H
 #define QFONTDIALOG_H
 
-class QListBox;
-
 #include "qdialog.h"
 #include "qfont.h"
 
-class QFontDialogPrivate;
+class  QListBox;
+struct QFontDialogPrivate;
+
 
 class QFontDialog: public QDialog
 {
@@ -23,7 +25,7 @@ class QFontDialog: public QDialog
 public:
     QFontDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		 WFlags f=0 );
-    ~QFontDialog();
+   ~QFontDialog();
 
     void show();
 
@@ -55,4 +57,5 @@ private:
     QFontDialogPrivate * d;
 };
 
-#endif
+
+#endif // QFONTDIALOG_H

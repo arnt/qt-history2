@@ -1,11 +1,14 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#8 $
+/****************************************************************************
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#9 $
 **
-** C++ file skeleton
+** Implementation of QFontDialog
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Created : 970605
 **
-*****************************************************************************/
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+**
+****************************************************************************/
 
 #include "qfontdialog.h"
 
@@ -20,7 +23,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#9 $");
 
 
 struct QFontDialogPrivate
