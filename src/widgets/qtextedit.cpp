@@ -2017,7 +2017,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 	doc->removeSelection( QTextDocument::Temp );
     }
 
-    if ( indent && ( txt == "{" || txt == "}" ) )
+    if ( indent && ( txt == "{" || txt == "}" || txt == ":" || txt == "#" ) )
 	cursor->indent();
     formatMore();
     repaintChanged();
