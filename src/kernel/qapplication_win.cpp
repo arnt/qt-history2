@@ -2277,6 +2277,8 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	    SetCursor( Qt::arrowCursor.handle() );
       }
       block_event = TRUE;
+    } else if ( type == WM_CLOSE ) {
+	block_event = TRUE;
     }
 #ifndef Q_OS_TEMP
     else if ( type == WM_MOUSEACTIVATE || type == WM_NCLBUTTONDOWN ){
@@ -2287,14 +2289,11 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	}
 	block_event = TRUE;
 	ret = MA_NOACTIVATEANDEAT;
-    }
-#endif
-    else if ( type == WM_CLOSE ) {
-	block_event = TRUE;
     } else if ( type == WM_SYSCOMMAND ) {
 	if ( !(msg->wParam == SC_RESTORE && widget->isMinimized()) )
 	    block_event = TRUE;
     }
+#endif
 
     return !block_event;
 }
