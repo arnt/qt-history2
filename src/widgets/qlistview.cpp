@@ -5637,7 +5637,8 @@ int QListView::itemMargin() const
     the right mouse button or with special system keys. If the
     keyboard was used \a item is the current item; if the mouse was
     used, \a item is the item under the mouse pointer or 0 if there is
-    no item under the mouse pointer.
+    no item under the mouse pointer. If no item is clicked, the column
+    index emitted is -1.
 
     \a pos is the position for the context menu in the global
     coordinate system.
