@@ -707,8 +707,8 @@ QRect QLayoutArray::cellGeometry( int row, int col ) const
 {
     if ( row < 0 || row >= rr || col < 0 || col >= cc )
 	return QRect();
-    return QRect( colData[col].pos, colData[col].size,
-		  rowData[row].pos, rowData[row].size );
+    return QRect( colData[col].pos, rowData[row].pos,
+		  colData[col].size, rowData[row].size );
 }
 
 
@@ -1006,7 +1006,7 @@ int QGridLayout::heightForWidth( int w ) const
   \a w is found, it sets \a row and \a col to the row and column and
   returns TRUE. If \a w is not found, FALSE is returned.
 
-  \warning If a widget spans  multiple rows/columns, the top-left cell is returne
+  \warning If a widget spans  multiple rows/columns, the top-left cell is returned.
 */
 
 bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
@@ -1029,12 +1029,12 @@ void QGridLayout::setGeometry( const QRect &s )
 /*!
   Returns the geometry of the cell with row \a row, and column
   \a col in the grid. Returns an invalid rectangle if \a row or
-  \a col is outsiude the grid.
-  
+  \a col is outside the grid.
+
   \warning in the current version of Qt, this function does not return
   valid results until setGeometry() has been called, ie. after the
   mainWidget() is visible.
-  
+
 */
 QRect QGridLayout::cellGeometry( int row, int col ) const
 {
@@ -1717,8 +1717,8 @@ void QBoxLayout::addItem( QLayoutItem *item )
 
 /*!
   Inserts \a item in this box layout at index \a index.  If \a index
-  is negative, the space is added at the end.  
-  
+  is negative, the space is added at the end.
+
   \sa addItem(), findWidget()
 */
 
@@ -1737,7 +1737,7 @@ void QBoxLayout::insertItem( int index, QLayoutItem *item )
 /*!
   Inserts a non-stretchable space at index \a index with size \a size.
   If \a index is negative, the space is added at the end.
-  
+
   QBoxLayout gives default border and spacing. This function adds
   additional space.
 
@@ -1751,7 +1751,7 @@ void QBoxLayout::insertSpacing( int index, int size )
     //hack in QLayoutArray: spacers do not get insideSpacing
 
     QLayoutItem *b;
-    if ( horz( dir ) ) 
+    if ( horz( dir ) )
 	b = new QSpacerItem( size, 0, QSizePolicy::Fixed,
 			     QSizePolicy::Minimum );
     else
@@ -1865,7 +1865,7 @@ alignment )
 
   \sa insertSpacing(), addStretch()
 */
-void QBoxLayout::addSpacing( int size ) 
+void QBoxLayout::addSpacing( int size )
 {
     insertSpacing( -1, size );
 }
@@ -1876,7 +1876,7 @@ void QBoxLayout::addSpacing( int size )
 
   \sa addSpacing()
 */
-void QBoxLayout::addStretch( int stretch ) 
+void QBoxLayout::addStretch( int stretch )
 {
     insertStretch( -1, stretch );
 }
@@ -1908,7 +1908,7 @@ void QBoxLayout::addStretch( int stretch )
 */
 
 void QBoxLayout::addWidget( QWidget *widget, int stretch, int
-alignment ) 
+alignment )
 {
     insertWidget( -1, widget, stretch, alignment );
 }
@@ -1918,7 +1918,7 @@ alignment )
 
   \sa insertLayout(), setAutoAdd(), addWidget(), addSpacing()
 */
-void QBoxLayout::addLayout( QLayout *layout, int stretch ) 
+void QBoxLayout::addLayout( QLayout *layout, int stretch )
 {
     insertLayout( -1, layout, stretch );
 }
