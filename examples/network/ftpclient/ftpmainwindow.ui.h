@@ -40,8 +40,8 @@ void FtpMainWindow::init()
 	    SLOT(ftp_start()) );
     connect( ftp, SIGNAL(doneError(const QString&)),
 	    SLOT(ftp_doneError(const QString&)) );
-    connect( ftp, SIGNAL(stateChanged(QFtp::State)),
-	    SLOT(ftp_stateChanged(QFtp::State)) );
+    connect( ftp, SIGNAL(stateChanged(int)),
+	    SLOT(ftp_stateChanged(int)) );
     connect( ftp, SIGNAL(listInfo(const QUrlInfo &)),
 	    SLOT(ftp_listInfo(const QUrlInfo &)) );
     connect( ftp, SIGNAL(rawCommandReply(int, const QString &)),
@@ -200,9 +200,9 @@ void FtpMainWindow::ftp_doneError( const QString &msg )
 	ftp->close();
 }
 
-void FtpMainWindow::ftp_stateChanged( QFtp::State state )
+void FtpMainWindow::ftp_stateChanged( int state )
 {
-    switch ( state ) {
+    switch ( (QFtp::State)state ) {
 	case QFtp::Unconnected:
 	    stateFtp->setText( tr("Unconnected") );
 	    break;
