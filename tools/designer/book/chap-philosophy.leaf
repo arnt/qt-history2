@@ -160,7 +160,7 @@ Makefiles.
 First let us look at a small figure that shows the relationship
 between \File{.ui} files, generated code and application code:
 
-\img designer1.png
+\img designer1.jpg
 
 \QD reads and writes \File{.ui} files, e.g. \File{form.ui}. The user
 interface compiler, \Cmd uic, creates both a header file, e.g.
@@ -200,7 +200,7 @@ next.
 A very clean way to implement custom slots for generated forms is
 via C++ inheritance as shown in the next figure:
 
-\img designer2.png
+\img designer2.jpg
 
 Here the user wrote an additional class \Class FormImpl, which is split
 into the header file \File{formimpl.h} and the implementation file
@@ -254,7 +254,7 @@ new concept, the \e{ui.h extension}.
 
 This is how it works:
 
-\img designer3.png
+\img designer3.jpg
 
 In addition to the \File{.ui} file, \File{form.ui}, \QD reads and
 writes another associated file \File{form.ui.h}. This \File{.ui.h} file is
