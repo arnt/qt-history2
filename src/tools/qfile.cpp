@@ -80,14 +80,14 @@ extern bool qt_file_access( const QString& fn, int t );
   Here is a code fragment that uses QTextStream to read a text
   file line by line. It prints each line with a line number.
   \code
-    QFile f("file.txt");
-    if ( f.open(IO_ReadOnly) ) {    // file opened successfully
-	QTextStream t( &f );	    // use a text stream
-	QString s;
+    QFile file("file.txt");
+    if ( file.open(IO_ReadOnly) ) {
+	QTextStream stream( &file );
+	QString line;
 	int n = 1;
-	while ( !t.eof() ) {	    // until end of file...
-	    s = t.readLine();	    // line of text excluding '\n'
-	    printf( "%3d: %s\n", n++, s.latin1() );
+	while ( !stream.eof() ) {
+	    line = stream.readLine(); // line of text excluding '\n'
+	    printf( "%3d: %s\n", n++, line.latin1() );
 	}
 	f.close();
     }

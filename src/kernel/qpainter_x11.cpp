@@ -555,7 +555,7 @@ static QPaintDeviceDict *pdev_dict = 0;
     If \a replacement is 0, the redirection for \a pdev is removed.
 
     In general, you'll probably find calling QPixmap::grabWidget() or
-    QPixmap::grapWindow() is an easier solution.
+    QPixmap::grabWindow() is an easier solution.
 */
 
 void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
