@@ -369,6 +369,9 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 		    }
 		}
 	    }
+	    while(x < buffer_len && //Skip spaces
+		  (*(buffer+x) == ' ' || *(buffer+x) == '\t'))
+		x++;
 	    if(*(buffer + x) == '#') {
 		x++;
 		while(x < buffer_len && //Skip spaces after hash
