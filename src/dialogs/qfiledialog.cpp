@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#13 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#14 $
 **
 ** Implementation of QFileDialog class
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#14 $")
 
 
 /*----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#13 $")
   \endcode
 
   \sa QPrintDialog
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -174,8 +174,7 @@ QString QFileDialog::selectedFile() const
 
 /*----------------------------------------------------------------------------
   Returns the active directory path string in the file dialog.
-
-  \sa setDir() set
+  \sa dir(), setDir()
  ----------------------------------------------------------------------------*/
 
 const char *QFileDialog::dirPath() const
@@ -228,9 +227,7 @@ void QFileDialog::setDir( const QDir &dir )
   It is seldom necessary to call this function.  It is provided in
   case the directory contents change and you want to refresh the
   directory list box.
-  ----------------------------------------------------------------------------*/
-  
-  
+ ----------------------------------------------------------------------------*/
 
 void QFileDialog::rereadDir()
 {
@@ -267,7 +264,7 @@ void QFileDialog::rereadDir()
   the dialog.
 
   \sa getSaveFileName()
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 #if defined(_WS_WIN_)
 static char *win_filter[] = {
@@ -328,8 +325,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
   the dialog.
 
   \sa getOpenFileName()
-  ----------------------------------------------------------------------------*/
-  
+ ----------------------------------------------------------------------------*/
 
 QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
@@ -353,7 +349,7 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
     ofn.lpstrInitialDir = dir ? dir : dirName;
-    ofn.lpstrTitle	= "Open";
+    ofn.lpstrTitle	= "Save";
     ofn.Flags		= OFN_CREATEPROMPT;
 
     QString result;
