@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#197 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#198 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -3127,3 +3127,4 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
 	b = QBrush( color, (Qt::BrushStyle)style );
     return s;
 }
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#313 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#314 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -1613,6 +1613,20 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 }
 
 
+/*! \overload void QPainter::drawRoundRect( int x, int y, int w, int h )
+
+  As the main version of the function, but with the roundness
+  arguments fixed at 25.
+*/
+
+
+/*! \overload void QPainter::drawRoundRect( const QRect & )
+
+  As the main version of the function, but with the roundness
+  arguments fixed at 25.
+*/
+
+
 /*!
   Draws a rectangle with round corners at \e (x,y), with width \e w
   and height \e h.
@@ -1620,7 +1634,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
   The \e xRnd and \e yRnd arguments specify how rounded the corners
   should be.  0 is angled corners, 99 is maximum roundedness.
 
-  The width and height include both lines.
+  The width and height include all of the drawn lines.
 
   \sa drawRect()
 */
