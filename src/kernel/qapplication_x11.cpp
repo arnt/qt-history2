@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#383 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#384 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -71,6 +71,11 @@
 
 #if defined(_OS_QNX_)
 #include <sys/select.h>
+#endif
+
+#if defined(_CC_MSVC_)
+#pragma warning(disable: 4018)
+#undef close
 #endif
 
 #if defined(_OS_WIN32_) && defined(gettimeofday)

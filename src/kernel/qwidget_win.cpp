@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#153 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -269,8 +269,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 }
 
-void QWidget::setSizeGrip(bool /* sizegrip */){
-}
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
@@ -388,6 +386,11 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
+void QWidget::setSizeGrip(bool /* sizegrip */)
+{
+}
+
+
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     QColor old = bg_col;
@@ -397,12 +400,6 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 	extra->bg_pix = 0;
     }
     backgroundColorChange( old );
-}
-
-void QWidget::setBackgroundColor( const QColor &color )
-{
-    setBackgroundModeDirect( FixedColor );
-    setBackgroundColorDirect( color );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#310 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#311 $
 **
 ** Implementation of QWidget class
 **
@@ -1422,6 +1422,35 @@ QWidget *QWidget::topLevelWidget() const
 }
 
 
+// Please do NOT remove the FAQ answer from this doc again.  It's a
+// FAQ, it remains a FAQ, and people apparently will not follow three
+// links to find the right answer.
+
+/*!
+  This function is deprecated.  Use setBackgroundMode() or setPalette(),
+  as they ensure the appropriate clearing color is used when the widget
+  is in the Active, Normal, or Disabled state.
+
+  If you want to change the color scheme of a widget, the setPalette()
+  function is better suited.  Here is how to set \e thatWidget to use a
+  light green (RGB value 80, 255, 80) as background color, with shades
+  of green used for all the 3D effects:
+
+  \code
+    thatWidget->setPalette( QPalette( QColor(80, 255, 80) ) );
+  \endcode
+
+  \sa setPalette(), QApplication::setPalette(), backgroundColor(),
+      setBackgroundPixmap(), setBackgroundMode()
+*/
+
+void QWidget::setBackgroundColor( const QColor &color )
+{
+    setBackgroundModeDirect( FixedColor );
+    setBackgroundColorDirect( color );
+}
+
+
 /*!
   Sets the background pixmap of the widget to \e pixmap.
 
@@ -1438,6 +1467,7 @@ QWidget *QWidget::topLevelWidget() const
   \internal
   This function is call with a null pixmap by setBackgroundEmpty().
 */
+
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
     setBackgroundPixmapDirect( pixmap );

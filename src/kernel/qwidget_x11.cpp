@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#290 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#291 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -310,17 +310,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 }
 
 
-void QWidget::setSizeGrip(bool sizegrip){
-    createExtra();
-    WId	   id = winId();
-    if (extra->sizegrip != sizegrip) {
-	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-			qt_sizegrip, qt_sizegrip, 32, PropModeReplace,
-			sizegrip?((unsigned char *)&id):(unsigned char*) None, 1);
-    }
-}
-
-
 /*!
   Frees up window system resources.
   Destroys the widget window if \a destroyWindow is TRUE.
@@ -495,33 +484,18 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-// Please do NOT remove the FAQ answer from this doc again.  It's a
-// FAQ, it remains a FAQ, and people apparently will not follow three
-// links to find the right answer.
-
-/*!
-  This function is deprecated.  Use setBackgroundMode() or setPalette(),
-  as they ensure the appropriate clearing color is used when the widget
-  is in the Active, Normal, or Disabled state.
-
-  If you want to change the color scheme of a widget, the setPalette()
-  function is better suited.  Here is how to set \e thatWidget to use a
-  light green (RGB value 80, 255, 80) as background color, with shades
-  of green used for all the 3D effects:
-
-  \code
-    thatWidget->setPalette( QPalette( QColor(80, 255, 80) ) );
-  \endcode
-
-  \sa setPalette(), QApplication::setPalette(), backgroundColor(),
-      setBackgroundPixmap(), setBackgroundMode()
-*/
-
-void QWidget::setBackgroundColor( const QColor &color )
+void QWidget::setSizeGrip( bool sizegrip )
 {
-    setBackgroundModeDirect( FixedColor );
-    setBackgroundColorDirect( color );
+    createExtra();
+    WId id = winId();
+    if ( (bool)extra->sizegrip != sizegrip ) {
+	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
+			qt_sizegrip, qt_sizegrip, 32, PropModeReplace,
+			sizegrip?((unsigned char *)&id):(unsigned char*) None,
+			1);
+    }
 }
+
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
@@ -1559,15 +1533,17 @@ void QWidget::erase( int x, int y, int w, int h )
 
   Child widgets are not affected.
 */
+
 void QWidget::erase( const QRegion& reg )
 {
     QArray<QRect> r = reg.rects();
     for (uint i=0; i<r.size(); i++) {
-	const QRect& rr = r[i];
+	const QRect& rr = r[(int)i];
 	XClearArea( dpy, winid,
 	    rr.x(), rr.y(), rr.width(), rr.height(), FALSE );
     }
 }
+
 
 /*!
   Scrolls the contents of the widget \e dx pixels rightwards and \e dy
@@ -1742,7 +1718,7 @@ void QWidget::deleteSysExtra()
 
 void QWidget::setAcceptDrops( bool on )
 {
-    if ( dnd != on ) {
+    if ( (bool)dnd != on ) {
 	dnd = on;
 
 	if ( on ) {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#79 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -36,8 +36,13 @@
 #include "qbuffer.h"
 #include "qintdict.h"
 
-#include <unistd.h>
 #include <ctype.h>
+#if defined(_OS_WIN32_)
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 
 // Note: this is comment-stripped and word-wrapped later.
 // Note: stripHeader() constrains the postscript used in this prolog.
@@ -1941,7 +1946,11 @@ QPSPrinter::QPSPrinter( QPrinter *prt, int fd )
 QPSPrinter::~QPSPrinter()
 {
     if ( d->fd >= 0 )
+#if defined(_OS_WIN32_)
+	::_close( d->fd );
+#else
 	::close( d->fd );
+#endif
     delete d;
 }
 

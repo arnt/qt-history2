@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#139 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,8 +21,14 @@
 **
 *****************************************************************************/
 
+#include "qglobal.h"
+
 // Uncomment the next line to enable the MIT Shared Memory extension
 #define MITSHM
+
+#if defined(_OS_WIN32_)
+#undef MITSHM
+#endif
 
 #include "qbitmap.h"
 #include "qimage.h"
@@ -1562,7 +1568,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    const float dt = 0.0001;
+    const float dt = (float)0.0001;
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
     float xx = (float)ws - 1;
     float yy = (float)hs - 1;
@@ -1867,7 +1873,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 {
-    const float dt = 0.0001;
+    const float dt = (float)0.0001;
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
     float xx = (float)w - 1;
     float yy = (float)h - 1;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#51 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -31,7 +31,13 @@
 #include "qapplication.h"
 #include <stdlib.h>
 
-#if !defined(_OS_WIN32_)
+#if defined(_OS_WIN32_)
+
+#include <io.h>
+#include <fcntl.h>
+
+#else
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -160,9 +166,14 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     if ( c ==  PDC_BEGIN ) {
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
+#if defined(_OS_WIN32_)
+		int fd = open( output_filename,
+				O_CREAT | O_BINARY | O_TRUNC | O_WRONLY );
+#else
 		int fd = ::open( output_filename,
 				 O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 				 0666 );
+#endif
 		if ( fd >= 0 ) {
 		    pdrv = new QPSPrinter( this, fd );
 		    state = PST_ACTIVE;

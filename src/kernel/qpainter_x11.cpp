@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#273 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#274 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -183,7 +183,7 @@ static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
 	    p->in_use = FALSE;
 	    p->mono   = monochrome;
 	}
-	if ( !p->in_use && p->mono == monochrome ) {
+	if ( !p->in_use && (bool)p->mono == monochrome ) {
 	    p->in_use = TRUE;			// available/compatible GC
 	    return p->gc;
 	}

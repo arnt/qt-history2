@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#66 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -38,8 +38,8 @@
 
 const int XKeyPress = KeyPress;
 const int XKeyRelease = KeyRelease;
-#undef KeyPress;
-#undef KeyRelease;
+#undef KeyPress
+#undef KeyRelease
 
 // this stuff is copied from qapp_x11.cpp
 
