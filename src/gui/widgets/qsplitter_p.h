@@ -37,7 +37,6 @@ public:
     void addContribution(int, int *, int *, bool);
     int adjustPos(int, int, int *, int *, int *, int *);
     bool collapsible(QSplitterLayoutStruct *);
-    void processChildEvents();
     QSplitterLayoutStruct *findWidget(QWidget *);
     QSplitterLayoutStruct *addWidget(QWidget *, bool prepend = false);
     void recalcId();

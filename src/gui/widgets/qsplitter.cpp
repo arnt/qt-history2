@@ -565,23 +565,8 @@ void QSplitterPrivate::recalcId()
     }
 }
 
-
-
-/*
-    Processes all posted child events, ensuring that the internal state of
-    the splitter is kept consistent.
-*/
-
-void QSplitterPrivate::processChildEvents()
-{
-#ifdef QT_COMPAT
-    QApplication::sendPostedEvents(q, QEvent::ChildInserted);
-#endif
-}
-
 QSplitterLayoutStruct *QSplitterPrivate::findWidget(QWidget *w)
 {
-    processChildEvents();
     for (int i = 0; i < list.size(); ++i) {
         if (list.at(i)->wid == w)
             return list.at(i);
@@ -880,8 +865,7 @@ void QSplitter::resizeEvent(QResizeEvent *)
 
 void QSplitter::childEvent(QChildEvent *c)
 {
-#ifdef QT_COMPAT
-    if (c->type() == QEvent::ChildInserted) {
+    if (c->type() == QEvent::ChildPolished) {
         if (!c->child()->isWidgetType())
             return;
 
@@ -896,9 +880,7 @@ void QSplitter::childEvent(QChildEvent *c)
         }
         d->addWidget(static_cast<QWidget *>(c->child()));
         d->recalc(isVisible());
-    } else
-#endif
-    if (c->type() == QEvent::ChildRemoved) {
+    } else if (c->type() == QEvent::ChildRemoved) {
         QSplitterLayoutStruct *prev = 0;
         if (d->list.count() > 1)
             prev = d->list.at(1);  // yes, this is correct
@@ -1082,7 +1064,6 @@ void QSplitter::setOpaqueResize(bool on)
 void QSplitter::moveToFirst(QWidget *w)
 {
     // ### Jasmin 4.0: use QList::move() instead of that stuff, and do the same with moveToLast()
-    d->processChildEvents();
     bool found = false;
     QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
     while (it != d->list.end()) {
@@ -1112,7 +1093,6 @@ void QSplitter::moveToFirst(QWidget *w)
 
 void QSplitter::moveToLast(QWidget *w)
 {
-    d->processChildEvents();
     bool found = false;
     QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
     while (it != d->list.end()) {
@@ -1241,7 +1221,6 @@ void QSplitter::setSizes(const QList<int> &list)
 {
     int j = 0;
 
-    d->processChildEvents();
     for (int i = 0; i < d->list.size(); ++i) {
         QSplitterLayoutStruct *s = d->list.at(i);
         if (s->isHandle)
@@ -1347,7 +1326,6 @@ QTextStream& operator>>(QTextStream& ts, QSplitter& splitter)
     while (line[i].isSpace()) \
         i++
 
-    splitter.d->processChildEvents();
     QList<QSplitterLayoutStruct*>::iterator it = splitter.d->list.begin();
     QString line = ts.readLine();
     int i = 0;
