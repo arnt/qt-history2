@@ -52,10 +52,10 @@ protected:
 	QPointArray a;
 	if ( orient == Horizontal ) {
 	    int h = height();
-	    a.setPoints( 5,  0, 2,  3, h / 4, 0, h / 2, 3,3 * h / 4, 0, h );
+	    a.setPoints( 5,  0, 0,  3, h / 4, 0, h / 2, 3,3 * h / 4, 0, h );
 	} else {
 	    int w = width();
-	    a.setPoints( 5,  2, 0,  w / 4, 3 , w / 2, 0 , 3 * w / 4, 3 , w, 0 );
+	    a.setPoints( 5,  0, 0,  w / 4, 3 , w / 2, 0 , 3 * w / 4, 3 , w, 0 );
 	}
 	p.setPen( colorGroup().light() );
 	p.drawPolyline( a );
@@ -826,7 +826,14 @@ void QToolBar::paintToolBar()
     if ( mw && !mw->toolBarsMovable() ) {
 	return;
     }
-    qDrawShadePanel( &p, 0, 0, width(), height(),
+    
+    int w = width();
+    int h = height();
+    if ( orientation() == Horizontal && w < sizeHint().width() )
+	w++;
+    else if ( orientation() == Vertical && h < sizeHint().height() )
+	h++;
+    qDrawShadePanel( &p, 0, 0, w, h,
 		     colorGroup(), FALSE, 1, 0 );
     style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
 			       orientation(), d->moving, colorGroup() );
