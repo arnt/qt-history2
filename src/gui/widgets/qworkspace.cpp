@@ -14,32 +14,32 @@
 
 #include "qworkspace.h"
 #ifndef QT_NO_WORKSPACE
-#include <private/qwidget_p.h>
 #include "qapplication.h"
-#include <private/qtitlebar_p.h>
-#include "qevent.h"
-#include "qdesktopwidget.h"
-#include "qlayout.h"
-#include "qtoolbutton.h"
-#include "qlabel.h"
-#include "qvbox.h"
-#include "qcursor.h"
-#include "qmenubar.h"
-#include "qpopupmenu.h"
-#include "qmenubar.h"
-#include "qpointer.h"
-#include "qiconset.h"
-#include "../widgets/qwidgetresizehandler_p.h"
-#include "qdatetime.h"
-#include "qtooltip.h"
-#include "qwmatrix.h"
-#include "qimage.h"
-#include "qscrollbar.h"
-#include "qstyle.h"
 #include "qbitmap.h"
-#include "qpainter.h"
+#include "qcursor.h"
+#include "qdatetime.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qhash.h"
+#include "qiconset.h"
+#include "qimage.h"
+#include "qlabel.h"
+#include "qlayout.h"
+#include "qmenubar.h"
+#include "qpainter.h"
+#include "qpointer.h"
+#include "qpopupmenu.h"
+#include "qscrollbar.h"
 #include "qsignal.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtoolbutton.h"
+#include "qtooltip.h"
+#include "qvbox.h"
+#include "qwmatrix.h"
+#include <private/qtitlebar_p.h>
+#include <private/qwidget_p.h>
+#include <private/qwidgetresizehandler_p.h>
 
 #define d d_func()
 #define q q_func()
@@ -1490,7 +1490,6 @@ void QWorkspace::cascade()
 
     setUpdatesEnabled(false);
     it = widgets.begin();
-    int children = d->windows.count() - 1;
     while (it != widgets.end()) {
         QWorkspaceChild *child = *it;
         ++it;
@@ -2012,13 +2011,17 @@ void QWorkspaceChild::leaveEvent(QEvent *)
 
 void QWorkspaceChild::drawFrame(QPainter *p)
 {
-    QStyle::SFlags flags = QStyle::Style_Default;
-    QStyleOption opt(lineWidth(),midLineWidth());
+    Q4StyleOptionFrame opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    opt.lineWidth = lineWidth();
+    opt.midLineWidth = midLineWidth();
 
     if (titlebar && titlebar->isActive())
-        flags |= QStyle::Style_Active;
+        opt.state |= QStyle::Style_Active;
 
-    style().drawPrimitive(QStyle::PE_WindowFrame, p, rect(), palette(), flags, opt);
+    style().drawPrimitive(QStyle::PE_WindowFrame, &opt, p, this);
 }
 
 void QWorkspaceChild::changeEvent(QEvent *ev)

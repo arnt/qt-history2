@@ -15,23 +15,23 @@
 #include "qdockwindow.h"
 
 #ifndef QT_NO_MAINWINDOW
+#include "qapplication.h"
+#include "qcursor.h"
 #include "qdesktopwidget.h"
 #include "qdockarea.h"
 #include "qevent.h"
-#include "qdesktopwidget.h"
-#include "qwidgetresizehandler_p.h"
-#include "qtitlebar_p.h"
-#include "qpainter.h"
-#include "qapplication.h"
-#include "qtoolbutton.h"
-#include "qtoolbar.h"
 #include "qlayout.h"
 #include "qmainwindow.h"
-#include "qtimer.h"
-#include "qtooltip.h"
+#include "qpainter.h"
 #include "qpointer.h"
-#include "qcursor.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtimer.h"
+#include "qtitlebar_p.h"
+#include "qtoolbar.h"
+#include "qtoolbutton.h"
+#include "qtooltip.h"
+#include "qwidgetresizehandler_p.h"
 
 #ifdef Q_WS_MAC
 static bool default_opaque = true;
@@ -1486,13 +1486,16 @@ void QDockWindow::drawFrame(QPainter *p)
         return;
     }
 
-    QStyle::SFlags flags = QStyle::Style_Default;
-    QStyleOption opt(lineWidth(),midLineWidth());
-
+    Q4StyleOptionFrame opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
     if (titleBar->isActive())
-        flags |= QStyle::Style_Active;
+        opt.state |= QStyle::Style_Active;
+    opt.lineWidth = lineWidth();
+    opt.midLineWidth = midLineWidth();
 
-    style().drawPrimitive(QStyle::PE_WindowFrame, p, rect(), palette(), flags, opt);
+    style().drawPrimitive(QStyle::PE_WindowFrame, &opt, p, this);
 }
 
 /*!

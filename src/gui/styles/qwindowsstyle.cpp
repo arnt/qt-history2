@@ -542,15 +542,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
             drawPrimitive(PE_ButtonBevel, p, r, pal, Style_Enabled | Style_Raised);
         break;
 
-    case PE_WindowFrame:
-        {
-            QPalette popupPal = pal;
-            popupPal.setColor(QPalette::Light, pal.background());
-            popupPal.setColor(QPalette::Midlight, pal.light());
-            qDrawWinPanel(p, r, popupPal, flags & Style_Sunken);
-        }
-        break;
-
     default:
         if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
             QPointArray a;
@@ -2038,6 +2029,12 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         }
         break;
 #endif
+    case PE_WindowFrame: {
+         QPalette popupPal = opt->palette;
+         popupPal.setColor(QPalette::Light, opt->palette.background());
+         popupPal.setColor(QPalette::Midlight, opt->palette.light());
+         qDrawWinPanel(p, opt->rect, popupPal, opt->state & Style_Sunken);
+        break; }
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }
