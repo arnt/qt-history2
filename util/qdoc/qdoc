@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#197 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#198 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1342,15 +1342,12 @@ sub makenames {
     local($_, $dum, $ferdig, $anchor);
 
     foreach ( sort keys %name ) {
-	next if /^globals.html/;
-	unless ( defined($anchor{$name{$_}}) ||
-		 defined($overload{$_}) ||
-		 (!defined($doc{$_})) ||
-		 ($doc{$_} =~ /^\s*$/s)) {
-	    $anchor{$name{$_}} = $_ ;
-	}
+	$anchor{$name{$_}} = $_ if ( (!/^globals.html/) &&
+				     !defined($anchor{$name{$_}}) &&
+				     !defined($overload{$_}) &&
+				     $doc{$_} =~ /\S*/s );
     }
-
+    
     # next, we do a good imitation of c++ inheritance... subclasses:
     foreach ( keys %inheritance ) {
 	my ($c, $i);
@@ -2398,7 +2395,14 @@ foreach $c ( sort keys %doc ) {
 	if ($anchor{$name{$c}} eq $c) {
 	    $classpool{$c}++;
 	} else {
-	    print "not printing $c\n";
+	    print "not printing $c";
+	    if ( defined( $name{$c} ) ) {
+		print " (named ", $name{$c};
+		print " -> ",$anchor{$name{$c}}, ""
+		  if ( defined( $anchor{$name{$c}} ) );
+		print ")";
+	    }
+	    print "\n";
 	}
     } elsif ( $type{$c} eq "example" || $type{$c} eq "header" ) {
 	# nothing
