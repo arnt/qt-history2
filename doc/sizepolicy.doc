@@ -53,51 +53,51 @@ present mostly for symmetry.)
 
 
 
-/*! QSizePolicy::QSizePolicy()
+/*! \fn QSizePolicy::QSizePolicy()
 
 Creates a QSizePolicy object indicating that the widget in question
 has in love with sizeHint().
 
 */
 
-/*! QSizePolicy( SizeType hor, SizeType ver )
+/*! \fn QSizePolicy( SizeType hor, SizeType ver )
 
 Constructs a QSizePolicy object with horizontal size policy \a hor and
 vertical policy \a ver.
 
 */
 
-/*! QSizePolicy::SizeType QSizePolicy::horData() const
+/*! \fn QSizePolicy::SizeType QSizePolicy::horData() const
 */
 
 
-/*! QSizePolicy::SizeType QSizePolicy::verData() const
+/*! \fn QSizePolicy::SizeType QSizePolicy::verData() const
 */
 
-/*! bool QSizePolicy::mayShrinkHorizontally() const
-*/
-
-
-/*! bool QSizePolicy::mayShrinkVertically() const
+/*! \fn bool QSizePolicy::mayShrinkHorizontally() const
 */
 
 
-/*! bool QSizePolicy::mayGrowHorizontally() const
+/*! \fn bool QSizePolicy::mayShrinkVertically() const
 */
 
 
-/*! bool QSizePolicy::mayGrowVertically() const
-*/
-
-/*! QSizePolicy::ExpandData QSizePolicy::expanding() const
-*/
-
-/*! void QSizePolicy::setHorData( SizeType d )
+/*! \fn bool QSizePolicy::mayGrowHorizontally() const
 */
 
 
-/*! void QSizePolicy::setVerData( SizeType d )
+/*! \fn bool QSizePolicy::mayGrowVertically() const
 */
 
-/*! bool QSizePolicy::hasWidthForHeight()
+/*! \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
+*/
+
+/*! \fn void QSizePolicy::setHorData( SizeType d )
+*/
+
+
+/*! \fn void QSizePolicy::setVerData( SizeType d )
+*/
+
+/*! \fn bool QSizePolicy::hasWidthForHeight()
 */
