@@ -265,10 +265,10 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
     \ingroup events
 
-    Wheel events occur when a mouse wheel is turned while the widget
-    has focus. The rotation distance is provided by delta(). The
-    functions pos() and globalPos() return the mouse pointer location
-    at the time of the event.
+    Wheel events are sent to the widget under the mouse, and if that widget
+    does not handle the event they are sent to the focus widget. The rotation 
+    distance is provided by delta(). The functions pos() and globalPos() return 
+    the mouse pointer location at the time of the event.
 
     A wheel event contains a special accept flag that indicates
     whether the receiver wants the event. You should call ignore() if
