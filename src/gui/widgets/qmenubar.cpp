@@ -1172,10 +1172,14 @@ int QMenuBar::insertSeparator(int index)
     return findIdForAction(act);
 }
 
+extern void qt_set_menuitem_signalvalue(QAction *action, int param);
+extern int qt_get_menuitem_signalvalue(QAction *action);
+extern int qt_get_menuitem_id(QAction *action);
+
 bool QMenuBar::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {
-        static_cast<QMenuItem*>(act)->setSignalValue(param);
+        qt_set_menuitem_signalvalue(act, param);
         return true;
     }
     return false;
@@ -1184,7 +1188,7 @@ bool QMenuBar::setItemParameter(int id, int param)
 int QMenuBar::itemParameter(int id) const
 {
     if(QAction *act = findActionForId(id))
-        return static_cast<QMenuItem*>(act)->signalValue();
+        return qt_get_menuitem_signalvalue(act);
     return id;
 }
 
@@ -1211,6 +1215,6 @@ void QMenuBar::compatHighlighted(QAction *act)
 
 int QMenuBar::findIdForAction(QAction *act) const
 {
-    return static_cast<QMenuItem*>(act)->id();
+    return qt_get_menuitem_id(act);
 }
 #endif

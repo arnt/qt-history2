@@ -40,17 +40,19 @@ struct QHackedAccessAction {
     QActionPrivate *d_ptr;
 };
 
-static inline int qt_get_menuitem_id(QAction *action)
+int qt_get_menuitem_id(QAction *action)
 {
     Q_ASSERT(action);
     return reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->id;
 }
-static inline int qt_get_menuitem_signalvalue(QAction *action)
+
+int qt_get_menuitem_signalvalue(QAction *action)
 {
     Q_ASSERT(action);
     return reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->param;
 }
-static inline void qt_set_menuitem_signalvalue(QAction *action, int param)
+
+void qt_set_menuitem_signalvalue(QAction *action, int param)
 {
     Q_ASSERT(action);
     reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->param = param;
