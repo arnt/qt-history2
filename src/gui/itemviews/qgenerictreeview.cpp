@@ -139,8 +139,10 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
 }
 
 /*!
-  Returns the indentation of the root items in the tree view.
+  \property QGenericTreeView::intentation
+  \brief indentation of the items in the tree view.
 
+  This property holds the indentation of the items for each level in the tree view.
   \sa setIndentation()
 */
 
@@ -149,37 +151,27 @@ int QGenericTreeView::indentation() const
     return d->indent;
 }
 
-/*!
-  \fn void QGenericTreeView::setIndentation(int amount)
-
-  Sets the indentation of items in the leftmost column to the \a amount
-  given.
-*/
-
 void QGenericTreeView::setIndentation(int i)
 {
     d->indent = i;
 }
 
 /*!
-  Returns true if root items are displayed with controls for opening and
-  closing them; otherwise returns false.
-
-  \sa setShowRootDecoration()
+  \property QGenericTreeView::showRootDecoration
+  \brief whether to show controls for opening and closing items
+  
+  This property holds whether root items are displayed with controls for opening and
+  closing them.
 */
 
-bool QGenericTreeView::showRootDecoration() const
+bool QGenericTreeView::isRootDecorationShown() const
 {
     return d->rootDecoration;
 }
 
-/*!
-  Controls whether to \a show controls for opening and closing items
-  alongside the items in the leftmost column.
-*/
-
-void QGenericTreeView::setShowRootDecoration(bool show)
+void QGenericTreeView::showRootDecoration(bool show)
 {
+    
     d->rootDecoration = show;
     d->viewport->update();
 }

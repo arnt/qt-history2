@@ -24,7 +24,7 @@ class Q_GUI_EXPORT QGenericTreeView : public QAbstractItemView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGenericTreeView)
-    Q_PROPERTY(bool showRootDecoration READ showRootDecoration WRITE setShowRootDecoration)
+    Q_PROPERTY(bool showRootDecoration READ isRootDecorationShown WRITE showRootDecoration)
     Q_PROPERTY(int indentation READ indentation WRITE setIndentation)
 
 public:
@@ -37,8 +37,8 @@ public:
     int indentation() const;
     void setIndentation(int i);
 
-    bool showRootDecoration() const;
-    void setShowRootDecoration(bool show);
+    bool isRootDecorationShown() const;
+    void showRootDecoration(bool show);
 
     int columnViewportPosition(int column) const;
     int columnWidth(int column) const;

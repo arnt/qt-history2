@@ -1337,7 +1337,7 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 }
 
 /*!
-    This signal is emitted when the selection is changed. The previous
+    This slot  is called when the selection is changed. The previous
     selection (which may be empty), is given by \a deselected, and the
     new selection by \a selected.
 */
@@ -1350,7 +1350,7 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
 }
 
 /*!
-    This signal is emitted when a new item becomes the current item.
+    This slot is called when a new item becomes the current item.
     The previous current item is given by \a old, and the new current
     item by \a current.
 
