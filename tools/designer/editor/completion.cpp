@@ -320,7 +320,8 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	if ( ke->key() == Key_Tab ) {
 	    QString s = curEditor->textCursor()->paragraph()->string()->toString().
 			left( curEditor->textCursor()->index() );
-	    if ( s.simplifyWhiteSpace().isEmpty() ) {
+	    if ( curEditor->document()->hasSelection( QTextDocument::Standard ) ||
+		 s.simplifyWhiteSpace().isEmpty() ) {
 		if ( curEditor->document()->indent() ) {
 		    curEditor->indent();
 		    int i = 0;
