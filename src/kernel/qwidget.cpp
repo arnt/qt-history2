@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#439 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#440 $
 **
 ** Implementation of QWidget class
 **
@@ -229,7 +229,7 @@
   <li> System functions:
 	parentWidget(),
 	topLevelWidget(),
-	reparent(),
+	reparentolish((),
 	winId(),
 	find(),
 	metric().
@@ -475,6 +475,13 @@ QPalette default_palette( QWidget *parent )
     return parent ? parent->palette()           // use parent's palette
            : QApplication::palette();
 }
+// helper function - borland needs it.
+static
+QFont default_font( QWidget *parent )
+{
+    return parent ? parent->font()           // use parent's font
+           : QApplication::font();
+}
 
 /*!
   Constructs a widget which is a child of \e parent, with the name \e name and
@@ -544,14 +551,14 @@ QPalette default_palette( QWidget *parent )
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget ),
-      pal( default_palette(parent) )
+      pal( default_palette(parent) ), fnt (default_font(parent) )
 {
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
     widget_state = WState_Withdrawn;
     widget_flags = f;
-    propagate_font = 0;
-    propagate_palette = 0;
+    propagate_font = SameFont;
+    propagate_palette = SamePalette;
     focus_policy = 0;
     lay_out = 0;
     extra = 0;					// no extra widget info
@@ -1789,13 +1796,6 @@ const QColorGroup &QWidget::colorGroup() const
   \sa setPalette(), colorGroup(), QApplication::palette()
 */
 
-const QPalette &QWidget::palette() const
-{
-    if ( !testWState(WState_PaletteSet) )
-	return QApplication::palette( this );
-    return pal;
-}
-
 
 /*! \enum Qt::PropagationMode
 
@@ -1819,8 +1819,7 @@ const QPalette &QWidget::palette() const
   If \a palettePropagation() is \c AllChildren or \c SamePalette,
   setPalette() calls setPalette() for children of the object, or those
   with whom the object shares the palette, respectively.  The default
-  for QWidget is \a NoChildren, so setPalette() will not change the children's
-  palettes.
+  for QWidget is \a SameChildren.
 
   \sa QApplication::setPalette(), palette(), paletteChange(),
   colorGroup(), setBackgroundColor(), setPalettePropagation()
@@ -1898,14 +1897,6 @@ void QWidget::paletteChange( const QPalette & )
   \sa setFont(), fontInfo(), fontMetrics(), QApplication::font()
 */
 
-const QFont &QWidget::font() const
-{
-    if ( !testWState(WState_FontSet) )
-	return QApplication::font( this );
-    return fnt;
-}
-
-
 
 /*!
   Sets the font for the widget.
@@ -1922,7 +1913,7 @@ const QFont &QWidget::font() const
   If \a fontPropagation() is \c AllChildren or \c SameFont, setFont()
   calls setFont() for children of the object, or those with whom the
   object shares the font, respectively.  The default for QWidget
-  is \a NoChildren, so setFont() will not change the children's fonts.
+  is \a SameChildren.
 
   \sa font(), fontChange(), fontInfo(), fontMetrics(), setFontPropagation()
 */

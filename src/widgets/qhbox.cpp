@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#16 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -26,7 +26,7 @@
   add space between the widgets.
 
   <img src=qhbox-m.png>
-  
+
   \sa QVBox and QGrid
 */
 

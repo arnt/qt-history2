@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#263 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#264 $
 **
 ** Implementation of QApplication class
 **
@@ -962,16 +962,24 @@ void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char
   Instead, based on meta information like \link QObject::className()
   you are able to customize any kind of widgets.
 
-  The default implementation calls QStyle::polish().
+  The default implementation sets a class specific font or palette if
+  available and no font or palette has been set yet. Then it calls
+  QStyle::polish().
 
-  \sa QStyle::polish(), QWidget::polish()
+  \sa QStyle::polish(), QWidget::polish(), setPalette(), setFont()
 */
 
 void QApplication::polish(QWidget* w)
 {
-    if ( !w->testWState( WState_PaletteSet ) &&
-	 w->palette() != palette() )
-	w->setPalette( w->palette() );
+    if ( !w->testWState( WState_PaletteSet ) ) {
+	if ( palette( w ) != palette() )
+	    w->setPalette( palette( w ) );
+    }
+    if ( !w->testWState( WState_FontSet ) ) {
+	if ( font( w ) != font() )
+	    w->setFont( font( w ) );
+    }
+    
     app_style->polish( w );
 }
 

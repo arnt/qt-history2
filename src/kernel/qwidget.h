@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#232 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#233 $
 **
 ** Definition of QWidget class
 **
@@ -348,7 +348,7 @@ protected:
   // Misc. protected functions
 
 protected:
-    virtual void styleChange( QStyle& ); 
+    virtual void styleChange( QStyle& );
     virtual void enabledChange( bool );
     virtual void backgroundColorChange( const QColor & );
     virtual void backgroundPixmapChange( const QPixmap & );
@@ -518,6 +518,12 @@ inline void QWidget::setBaseSize( const QSize &s )
 
 inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }
+
+inline const QPalette &QWidget::palette() const
+{ return pal; }
+
+inline const QFont &QWidget::font() const
+{ return fnt; }
 
 inline QFontMetrics QWidget::fontMetrics() const
 { return QFontMetrics(font()); }
