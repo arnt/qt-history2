@@ -4575,7 +4575,6 @@ QFileIconProvider * QFileDialog::iconProvider()
 
 
 #if defined(Q_WS_WIN)
-#include <windows.h>
 
 static QString getWindowsRegString( HKEY key, const char *subKey )
 {
