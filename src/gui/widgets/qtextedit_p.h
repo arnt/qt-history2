@@ -106,6 +106,8 @@ public:
     QTextCursor cursor;
     QTextCharFormat lastCharFormat;
 
+    QTextCursor dndFeedbackCursor;
+
     bool readOnly; /* ### move to document? */
 
     QTextEdit::AutoFormatting autoFormatting;

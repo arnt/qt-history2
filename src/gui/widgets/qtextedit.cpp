@@ -1648,6 +1648,15 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     ctx.clip = r;
 
     doc->documentLayout()->draw(p, ctx);
+
+    if (!dndFeedbackCursor.isNull()) {
+        QTextFrame *frame = dndFeedbackCursor.currentFrame();
+        QTextBlock block = dndFeedbackCursor.block();
+        const QPointF frameOffset = doc->documentLayout()->frameBoundingRect(frame).topLeft();
+
+        const int pos = dndFeedbackCursor.position() - block.position();
+        block.layout()->drawCursor(p, frameOffset, pos);
+    }
 }
 
 /*! \reimp
@@ -1876,7 +1885,22 @@ void QTextEdit::dragEnterEvent(QDragEnterEvent *e)
         return;
     }
 
+    d->dndFeedbackCursor = QTextCursor();
+
     e->acceptProposedAction();
+}
+
+/*! \reimp
+*/
+void QTextEdit::dragLeaveEvent(QDragLeaveEvent *e)
+{
+    Q_D(QTextEdit);
+
+    const QRect crect = cursorRect(d->dndFeedbackCursor);
+    d->dndFeedbackCursor = QTextCursor();
+
+    if (crect.isValid())
+        d->viewport->update(crect);
 }
 
 /*! \reimp
@@ -1889,13 +1913,18 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *e)
         return;
     }
 
-    // don't change the cursor position here, as that would
-    // destroy/change our visible selection and it would look ugly
-    // and inconsistent. In Qt3's textedit the selection is independent
-    // from the cursor, but now it's one thing. In Qt3 when dnd'ing
-    // the cursor gets placed at where the text can be dropped. We can't
-    // do this however, unless we introduce either a temporary selection
-    // or a temporary second cursor. (Simon)
+    const int cursorPos = d->doc->documentLayout()->hitTest(d->mapToContents(e->pos()), Qt::FuzzyHit);
+    if (cursorPos != -1) {
+        QRect crect = cursorRect(d->dndFeedbackCursor);
+        if (crect.isValid())
+            d->viewport->update(crect);
+
+        d->dndFeedbackCursor = d->cursor;
+        d->dndFeedbackCursor.setPosition(cursorPos);
+
+        crect = cursorRect(d->dndFeedbackCursor);
+        d->viewport->update(crect);
+    }
 
     e->acceptProposedAction();
 }
@@ -1905,6 +1934,8 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *e)
 void QTextEdit::dropEvent(QDropEvent *e)
 {
     Q_D(QTextEdit);
+    d->dndFeedbackCursor = QTextCursor();
+
     if (d->readOnly || !dataHasText(e->mimeData()))
         return;
 
@@ -2125,6 +2156,8 @@ QTextCursor QTextEdit::cursorForPosition(const QPoint &pos) const
 QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
 {
     Q_D(const QTextEdit);
+    if (cursor.isNull())
+        return QRect();
     QTextFrame *frame = cursor.currentFrame();
     const QAbstractTextDocumentLayout *docLayout = d->doc->documentLayout();
     QTextBlock block = cursor.block();

@@ -198,6 +198,7 @@ protected:
     virtual bool focusNextPrevChild(bool next);
     virtual void contextMenuEvent(QContextMenuEvent *e);
     virtual void dragEnterEvent(QDragEnterEvent *e);
+    virtual void dragLeaveEvent(QDragLeaveEvent *e);
     virtual void dragMoveEvent(QDragMoveEvent *e);
     virtual void dropEvent(QDropEvent *e);
     virtual void focusInEvent(QFocusEvent *e);
