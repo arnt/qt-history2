@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#184 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#185 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1833,10 +1833,10 @@ void QFileDialog::cdUpClicked()
 }
 
 // Internal
-class NewFolderDialog : public QDialog {
+class QtNewFolderDialog : public QDialog {
 public:
-	NewFolderDialog(QWidget *parent = 0, const char *name = 0);
-	~NewFolderDialog();
+	QtNewFolderDialog(QWidget *parent = 0, const char *name = 0);
+	~QtNewFolderDialog();
 
 	const QString dirname() { return nameEdit->text(); }
 
@@ -1855,7 +1855,7 @@ private:
 
 
 // This dialog should be rewritten using a layout (so can be resized)
-NewFolderDialog::NewFolderDialog(QWidget *parent, const char *name)
+QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
 	: QDialog(parent, name, TRUE)
 {
 	setCaption(tr("New Folder"));
@@ -1886,14 +1886,14 @@ NewFolderDialog::NewFolderDialog(QWidget *parent, const char *name)
     resize( 300, 100 );
 }
 
-NewFolderDialog::~NewFolderDialog()
+QtNewFolderDialog::~QtNewFolderDialog()
 {
 	//delete nameEdit;
 }
 
 void QFileDialog::newFolderClicked()
 {
-    NewFolderDialog *dialog = new NewFolderDialog(this, "new folder dialog");
+    QtNewFolderDialog *dialog = new QtNewFolderDialog(this, "new folder dialog");
     if ( dialog->exec() == QDialog::Accepted ) {
         QString dirname = dialog->dirname();
         delete dialog;
