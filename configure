@@ -29,7 +29,7 @@ MAC_PLATFORM=no
 QWS_PLATFORM=no
 
 mv $relpath/src/tools/qconfig.h qconfig.h-hold
-echo "# All features enabled while configuring" >$relpath/src/tools/qconfig.h
+echo "// All features enabled while configuring" >$relpath/src/tools/qconfig.h
 
 if [ -d mkspecs/qws ]
 then
