@@ -110,7 +110,7 @@ void qt_erase_region( QWidget* w, const QRegion& region)
         return;
     }
 
-    if ( w == paintEventDevice )
+    if ( w == paintEventDevice && paintEventClipRegion )
         reg = paintEventClipRegion->intersect( reg );
 
     QMemArray<QRect> r = reg.rects();
@@ -686,7 +686,7 @@ void QPainter::updatePen()
     }
 
     if ( !internclipok ) {
-        if ( pdev == paintEventDevice ) {
+        if ( pdev == paintEventDevice && paintEventClipRegion ) {
             if ( penRef &&((QGCC*)penRef)->clip_serial < gc_cache_clip_serial ) {
 #ifndef QT_NO_XRENDER
 		if (rendhd)
@@ -898,7 +898,7 @@ static uchar *pat_tbl[] = {
     }
 
     if ( !internclipok ) {
-        if ( pdev == paintEventDevice ) {
+        if ( pdev == paintEventDevice && paintEventClipRegion ) {
             if ( brushRef &&((QGCC*)brushRef)->clip_serial < gc_cache_clip_serial ) {
 #ifndef QT_NO_XRENDER
             if (rendhd)
@@ -1460,7 +1460,7 @@ void QPainter::setClipping( bool enable )
     }
     if ( enable ) {
         QRegion rgn = crgn;
-        if ( pdev == paintEventDevice )
+        if ( pdev == paintEventDevice && paintEventClipRegion )
             rgn = rgn.intersect( *paintEventClipRegion );
         if ( penRef )
             updatePen();
@@ -1475,7 +1475,7 @@ void QPainter::setClipping( bool enable )
 #endif // QT_NO_XRENDER
 
     } else {
-        if ( pdev == paintEventDevice ) {
+        if ( pdev == paintEventDevice && paintEventClipRegion ) {
             XSetRegion( dpy, gc, paintEventClipRegion->handle() );
             XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
 
@@ -2620,7 +2620,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
             XSetFillStyle( dpy, gc, FillSolid );
             if ( !selfmask ) {
                 XSetClipOrigin( dpy, gc, 0, 0 );
-                if ( pdev == paintEventDevice ) {
+                if ( pdev == paintEventDevice && paintEventClipRegion ) {
                     XSetRegion( dpy, gc, paintEventClipRegion->handle() );
 #ifndef QT_NO_XRENDER
 		    if (rendhd)
@@ -2649,7 +2649,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
         // Implies that clipping is on, either explicit or implicit
         // Create a new mask that combines the mask with the clip region
 
-        if ( pdev == paintEventDevice ) {
+        if ( pdev == paintEventDevice && paintEventClipRegion ) {
             if ( hasClipping() )
                 rgn = rgn.intersect( *paintEventClipRegion );
             else
