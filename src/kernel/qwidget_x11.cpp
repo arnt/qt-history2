@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#348 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#349 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -61,7 +61,6 @@ static QWidget *keyboardGrb = 0;
 
 
 extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
-extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 extern Atom qt_wm_client_leader;		// defined in qapplication_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
@@ -584,18 +583,6 @@ void QWidget::setFontSys()
 			XNPreeditAttributes, preedit_att,
 			XNStatusAttributes, status_att,
 		    0);
-    }
-}
-
-void QWidget::setSizeGrip( bool sizegrip )
-{
-    createExtra();
-    WId id = winId();
-    if ( (bool)extra->sizegrip != sizegrip ) {
-	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
-			sizegrip?((unsigned char *)&id):(unsigned char*) None,
-			1);
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#391 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#392 $
 **
 ** Implementation of QWidget class
 **
@@ -751,7 +751,6 @@ void QWidget::createExtra()
 	extra->curs = 0;
 	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
-	extra->sizegrip = 0;
 	extra->style = 0;
 	createSysExtra();
     }
@@ -2323,16 +2322,6 @@ QFocusData * QWidget::focusData( bool create )
     return ed->topextra->focusData;
 }
 
-/*!
-  \fn void QWidget::setSizeGrip(bool sizegrip)
-
-  Informs the underlying window system that this widget is a size grip
-  (if sizegrip is TRUE). An example is the nifty decoration in the
-  bottom right corner of a QStatusBar.
-
-  This function does yet nothing under Windows. Under X11, the window
-  manager has to support the QT_SIZEGRIP protocol.
-*/
 
 /*!
   Enables key event compression. Per default, the compression is
@@ -4107,7 +4096,7 @@ void QWidget::updateGeometry()
 /*!
   Sets the widget's GUI style to \e style. Ownership of the style
   object is not transfered.
-  
+
   If no style is set, the widget uses the application's style
   QApplication::style() instead.
 

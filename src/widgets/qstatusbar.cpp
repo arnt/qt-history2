@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#34 $
 **
 ** Implementation of QStatusBar class
 **
@@ -31,7 +31,7 @@
 #include "qtimer.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
-#include "qresizecorner.h"
+#include "qsizegrip.h"
 
 /*! \class QStatusBar qstatusbar.h
 
@@ -103,7 +103,7 @@ public:
     QBoxLayout * box;
     QTimer * timer;
 
-    QResizeCorner * resizer;
+    QSizeGrip * resizer;
 };
 
 
@@ -115,7 +115,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
     d = new QStatusBarPrivate;
     d->items.setAutoDelete( TRUE );
     d->box = 0;
-    d->resizer = new QResizeCorner( this );
+    d->resizer = new QSizeGrip( this );
     d->timer = 0;
     reformat();
 }

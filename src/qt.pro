@@ -99,6 +99,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsignalslotimp.h \
 		  $$KERNEL_H/qsize.h \
+		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
 		  $$KERNEL_H/qsocket.h \
 		  $$KERNEL_H/qsocketdevice.h \
@@ -184,7 +185,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qpushbutton.h \
 		  $$WIDGETS_H/qradiobutton.h \
 		  $$WIDGETS_H/qrangecontrol.h \
-		  $$WIDGETS_H/qresizecorner.h \
 		  $$WIDGETS_H/qscrollbar.h \
 		  $$WIDGETS_H/qscrollview.h \
 		  $$WIDGETS_H/qslider.h \
@@ -319,6 +319,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qsignal.cpp \
 		  kernel/qsignalmapper.cpp \
 		  kernel/qsize.cpp \
+		  kernel/qsizegrip.cpp \
 		  kernel/qsocket.cpp \
 		  kernel/qsocketdevice.cpp \
 		  kernel/qsocketnotifier.cpp \
@@ -353,7 +354,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qpushbutton.cpp \
 		  widgets/qradiobutton.cpp \
 		  widgets/qrangecontrol.cpp \
-		  widgets/qresizecorner.cpp \
 		  widgets/qscrollbar.cpp \
 		  widgets/qscrollview.cpp \
 		  widgets/qslider.cpp \

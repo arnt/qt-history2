@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#222 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#223 $
 **
 ** Definition of QWidget class
 **
@@ -370,7 +370,6 @@ protected:
     QWExtra	*extraData();
     QFocusData	*focusData();
 
-    virtual void setSizeGrip(bool);
     virtual void setKeyCompression(bool);
     virtual void setMicroFocusHint(int x, int y, int w, int h);
 
@@ -634,7 +633,6 @@ struct QWExtra {
     WId xDndProxy;				// XDND forwarding to embedded windows
 #endif
     char     bg_mode;				// background mode
-    uint     sizegrip : 1;			// size grip
     QStyle* style;
 };
 
