@@ -49,6 +49,7 @@ public:
     QTimer* popupTimer;
     int delay;
     bool autoraise;
+    bool repeat;
     Qt::ArrowType arrow;
 };
 
@@ -224,6 +225,10 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 
 QToolButton::~QToolButton()
 {
+    if ( d->popupTimer ) {
+	disconnect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
+	disconnect( d->popupTimer, SIGNAL( timeout() ), this, SLOT( popupTimerDone() ) );
+    }
     d->popupTimer = 0;
     d->popup = 0;
     delete d;
@@ -707,8 +712,6 @@ QIconSet QToolButton::iconSet( bool on ) const
  */
 void QToolButton::setPopup( QPopupMenu* popup )
 {
-    if ( popup )
-	setAutoRepeat( FALSE ); // #### else it crashes in the destructor
     if ( popup && !d->popupTimer ) {
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
 	d->popupTimer = new QTimer( this );
@@ -731,6 +734,9 @@ QPopupMenu* QToolButton::popup() const
 
 void QToolButton::popupPressed()
 {
+
+    d->repeat = autoRepeat();
+    setAutoRepeat( FALSE );
     if ( d->popupTimer )
 	d->popupTimer->start( d->delay, TRUE );
 }
@@ -772,6 +778,8 @@ void QToolButton::popupTimerDone()
 	}
 	setDown( FALSE );
     }
+    if ( d->repeat )
+	setAutoRepeat( TRUE );
 }
 
 /*!
