@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#83 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#82 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#83 $";
 #endif
 
 
@@ -469,7 +469,7 @@ Sets the brush style to \e s.
 
 The brush styles are:
 <dl compact>
-  <dt> NoBrush <dd> will not fill shapes (default).
+<dt> NoBrush <dd> will not fill shapes (default).
 <dt> SolidPattern <dd> solid (100%) fill pattern.
 <dt> Dense1Pattern <dd> 94% fill pattern.
 <dt> Dense2Pattern <dd> 88% fill pattern.
@@ -737,6 +737,10 @@ void QPainter::cleanup()
 }
 
 
+/*!
+Constructs a painter.
+*/
+
 QPainter::QPainter()
 {
     if ( !list ) {				// create list
@@ -754,6 +758,10 @@ QPainter::QPainter()
     list->insert( this );			// add to list of painters
 }
 
+/*!
+Destroys the painter.
+*/
+
 QPainter::~QPainter()
 {
     if ( isActive() ) {
@@ -770,10 +778,18 @@ QPainter::~QPainter()
 	list->remove();				// remove from painter list
 }
 
+/*!
+Returns the current painter font.
+*/
+
 QFont &QPainter::font()
 {
     return cfont;
 }
+
+/*!
+Sets a new painter font.
+*/
 
 void QPainter::setFont( const QFont &font )	// set current font
 {
@@ -782,6 +798,13 @@ void QPainter::setFont( const QFont &font )	// set current font
 	cfont = font;
     }
 }
+
+/*!
+Sets a new painter pen.
+
+The pen defines how to draw lines and outlines, and it also determines
+the text color.
+*/
 
 void QPainter::setPen( const QPen &pen )	// set current pen
 {
@@ -792,11 +815,25 @@ void QPainter::setPen( const QPen &pen )	// set current pen
     }
 }
 
+/*!
+Sets a new painter pen with black color, width 0 and the specified \e style.
+
+The pen defines how to draw lines and outlines, and it also determines
+the text color.
+*/
+
 void QPainter::setPen( PenStyle style )		// set solid pen with color
 {
     QPen pen( style );
     setPen( pen );
 }
+
+/*!
+Sets a new painter pen with style \c SolidLine, width 0 the specified \e color.
+
+The pen defines how to draw lines and outlines, and it also determines
+the text color.
+*/
 
 void QPainter::setPen( const QColor &color )	// set solid pen with color
 {
@@ -808,6 +845,12 @@ void QPainter::setPen( const QColor &color )	// set solid pen with color
     cpen = pen;
 }
 
+/*!
+Sets a new painter brush.
+
+The brush defines how to fill shapes.
+*/
+
 void QPainter::setBrush( const QBrush &brush )	// set current brush
 {
     if ( cbrush.data != brush.data ) {
@@ -818,11 +861,24 @@ void QPainter::setBrush( const QBrush &brush )	// set current brush
     }
 }
 
+/*!
+Sets a new painter brush with black color and the specified \e style.
+
+The brush defines how to fill shapes.
+*/
+
 void QPainter::setBrush( BrushStyle style )	// set brush
 {
     QBrush brush( style );
     setBrush( brush );
 }
+
+/*!
+Sets a new painter brush with the style \c SolidPattern and the specified
+\e color.
+
+The brush defines how to fill shapes.
+*/
 
 void QPainter::setBrush( const QColor &color )	// set solid brush width color
 {
@@ -1069,9 +1125,17 @@ static char *pat_tbl[] = {
     XSetFillStyle( dpy, gc_brush, s );
 }
 
-/*! Opens the painter on \e pd and returns TRUE if successful.  It may
-  return FALSE e.g. if the painter is already open, if \e pd is null, or
-  if the paint device is somehow unable to be painted on.  \sa end(). */
+/*!
+Begins painting the paint device \e pd and returns TRUE if successful,
+or FALSE if it cannot begin painting.
+
+\warning
+This function resets the pen, brush, font and all other painter settings
+to default values for the painter device.  That means any pen, brush etc.
+you set before calling begin() will be overwritten.
+
+\sa end().
+*/
 
 bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 {
@@ -1175,8 +1239,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     return TRUE;
 }
 
-/*! Closes the painter.  Any resources and files used while painting
-  are freed. \sa begin(). */
+/*!
+End painting.  Any resources used while painting are released.
+\sa begin().
+*/
 
 bool QPainter::end()				// end painting
 {
@@ -1204,10 +1270,10 @@ bool QPainter::end()				// end painting
     return TRUE;
 }
 
-/*! Sets the background \link QColor color \endlink of the painter to
-  \e c. \sa QColor, backgroundColor(), backgroundMode(),
-  setBackgroundMode(), brushOrigin(), setBrushOrigin(), setPen(),
-  setBrush(). */
+/*!
+Sets the background  color of the painter to \e c.
+\sa backgroundColor().
+*/
 
 void QPainter::setBackgroundColor( const QColor &c )
 {						// set background color
@@ -1225,9 +1291,16 @@ void QPainter::setBackgroundColor( const QColor &c )
 	updateBrush();				// update brush setting
 }
 
-/*! Sets the background mode to \e m, which must be one of \c
-  TransparentMode and \c OpaqueMode. \sa setBackgroundColor,
-  setBrush(), setBrushOrigin(), setPen(). */
+/*!
+Sets the background mode of the painter to \e m, which must be either
+
+The \e m parameter must be one of:
+<ul>
+<li> \c TransparentMode
+<li> \c OpaqueMode
+</ul>
+\sa backgroundMode().
+*/
 
 void QPainter::setBackgroundMode( BGMode m )	// set background mode
 {
@@ -1251,9 +1324,23 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
 	updateBrush();				// update brush setting
 }
 
-/*! Sets the raster operation to \e r, which must be one of <code>
-  GXcopy, GXor, GXxor, GXandInverted, GXcopyInverted, GXorInverted,
-  GXequiv, GXand</code> and \c GXinvert. */
+/*!
+Sets the raster operation to \e r.
+
+The \e r parameter must be one of:
+<ul>
+<li> \c CopyROP:     dst = src.
+<li> \c OrROP:       dst = dst OR src.
+<li> \c XorROP:      dst = dst XOR src.
+<li> \c EraseROP:    dst = (NOT src) AND dst
+<li> \c NotCopyROP:  dst = NOT src
+<li> \c NotOrROP:    dst = (NOT src) OR dst
+<li> \c NotXorROP:   dst = (NOT src) XOR dst
+<li> \c NotEraseROP: dst = src AND dst
+<li> \c NotROP:      dst = NOT dst
+</ul>
+\sa rasterOp().
+*/
 
 void QPainter::setRasterOp( RasterOp r )	// set raster operation
 {
@@ -1282,9 +1369,9 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	XSetFunction( dpy, gc_brush, ropCodes[rop] );
 }
 
-/*! Sets the brush origin to \e (x,y).  Changing the brush origin from
-  (0,0) to (1,1) and repainting will move the brush pattern one pixel
-  up and one pixel leftwards. */
+/*!
+Sets the brush origin to \e (x,y).
+*/
 
 void QPainter::setBrushOrigin( int x, int y )	// set brush origin
 {
@@ -1301,34 +1388,42 @@ void QPainter::setBrushOrigin( int x, int y )	// set brush origin
 	XSetTSOrigin( dpy, gc_brush, x, y );
 }
 
-void QPainter::setViewXForm( bool onOff )	// set xform on/off
+/*!
+Enables or disables view transformations.
+*/
+
+void QPainter::setViewXForm( bool enable )	// set xform
 {
     if ( !isActive() || onOff == testf(VxF) )
 	return;
-    setf( VxF, onOff );
+    setf( VxF, enable );
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
-	param[0].ival = onOff;
+	param[0].ival = enable;
 	pdev->cmd( PDC_SETVXFORM, param );
     }
     if ( testf(WxF) )
 	updateXForm();
 }
 
-/*! Returns the coordinate system you use to draw in the window.  \sa
-  setWindow(). */
+/*!
+Returns the window rectangle.
+\sa setWindow().
+*/
 
 QRect QPainter::window() const			// get window
 {
     return QRect( wx, wy, ww, wh );
 }
 
-/*! Sets the coordinate system of the widget.  \e x and \e y define
-  the top left corner, \e w and \e h describe the width and height of
-  the coordinate system.  This doesn't change the widget in any way,
-  it changes the coordinates you use to refer to points within the
-  widget.  Qt will translate to the underlying window system's
-  coordinates. \sa Q2DMatrix. */
+/*!
+Sets the window rectangle view transformation for the painter and
+enables view transformation.
+
+The window rectangle is part of the view transformation.
+View transformations can be combined with world transformations.
+\sa window(), setViewport() and setWorldMatrix().
+*/
 
 void QPainter::setWindow( int x, int y, int w, int h )
 {						// set window
@@ -1349,10 +1444,24 @@ void QPainter::setWindow( int x, int y, int w, int h )
 	setViewXForm( TRUE );
 }
 
+/*!
+Returns the viewport rectangle.
+\sa setViewport().
+*/
+
 QRect QPainter::viewport() const		// get viewport
 {
     return QRect( vx, vy, vw, vh );
 }
+
+/*!
+Sets the viewport rectangle view transformation for the painter and
+enables view transformation.
+
+The viewport rectangle is part of the view transformation.
+View transformations can be combined with world transformations.
+\sa viewport(), setViewport() and setWorldMatrix().
+*/
 
 void QPainter::setViewport( int x, int y, int w, int h )
 {						// set viewport
@@ -1371,28 +1480,45 @@ void QPainter::setViewport( int x, int y, int w, int h )
 	setViewXForm( TRUE );
 }
 
-void QPainter::setWorldXForm( bool onOff )	// set world xform on/off
+/*!
+Enables or disables world transformations.
+*/
+
+void QPainter::setWorldXForm( bool enable )	// set world transform
 {
-    if ( !isActive() || onOff == testf(WxF) )
+    if ( !isActive() || enable == testf(WxF) )
 	return;
-    setf( WxF, onOff );
+    setf( WxF, enable );
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
-	param[0].ival = onOff;
+	param[0].ival = enable;
 	pdev->cmd( PDC_SETWXFORM, param );
     }
     updateXForm();
 }
+
+/*!
+Returns the world transformation matrix.
+*/
 
 Q2DMatrix QPainter::worldMatrix() const		// get world xform matrix
 {
     return wxmat;
 }
 
-void QPainter::setWorldMatrix( const Q2DMatrix &m, bool concat )
+/*!
+Sets the world transformation matrix to \e m.
+
+If \e combine is TRUE, then \e m is combined with the
+current transformation matrix.
+
+\sa worldMatrix(), setWindow() and setViewport().
+*/
+
+void QPainter::setWorldMatrix( const Q2DMatrix &m, bool combine )
 {						// set world xform matrix
-    if ( concat )
-	wxmat = m * wxmat;			// concatenate
+    if ( combine )
+	wxmat = m * wxmat;			// combines
     else
 	wxmat = m;				// set new matrix
     if ( testf(ExtDev) ) {
@@ -1472,6 +1598,11 @@ void QPainter::updateXForm()			// update xform params
       x/=65536; y/=65536; w/=65536; h/=65536; }
 
 
+/*!
+Returns the point \e pv transformed from user coordinates to device
+coordinates.
+*/
+
 QPoint QPainter::xForm( const QPoint &pv ) const
 {						// map point, virtual -> device
     QPoint p = pv;
@@ -1483,6 +1614,14 @@ QPoint QPainter::xForm( const QPoint &pv ) const
     }
     return p;
 }
+
+/*!
+Returns the rectangle \e rv transformed from user coordinates to device
+coordinates.
+
+If world transformation is enabled and rotation or shearing is used,
+then the bounding rectangle will be returned.
+*/
 
 QRect QPainter::xForm( const QRect &rv ) const
 {						// map rect, virtual -> device
@@ -1508,6 +1647,11 @@ QRect QPainter::xForm( const QRect &rv ) const
     return QRect( x, y, w, h );
 }
 
+/*!
+Returns the point array \e av transformed from user coordinates to device
+coordinates.
+*/
+
 QPointArray QPainter::xForm( const QPointArray &av ) const
 {						// map point array, v -> d
     if ( !testf(VxF|WxF) )
@@ -1524,6 +1668,11 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
     }
     return a;
 }
+
+/*!
+Returns the point \e pv transformed from device coordinates to user
+coordinates.
+*/
 
 QPoint QPainter::xFormDev( const QPoint &pd ) const
 {						// map point, device -> virtual
@@ -1542,6 +1691,14 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
     }
     return p;
 }
+
+/*!
+Returns the rectangle \e rv transformed from device coordinates to user
+coordinates.
+
+If world transformation is enabled and rotation or shearing is used,
+then the bounding rectangle will be returned.
+*/
 
 QRect QPainter::xFormDev( const QRect &rd ) const
 {						// map rect, device -> virtual
@@ -1569,6 +1726,11 @@ QRect QPainter::xFormDev( const QRect &rd ) const
     return QRect( x, y, w, h );
 }
 
+/*!
+Returns the point array \e av transformed from device coordinates to user
+coordinates.
+*/
+
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 {						// map point array, d -> v
     if ( !testf(VxF|WxF) )
@@ -1595,14 +1757,19 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 }
 
 
-void QPainter::setClipping( bool onOff )	// set clipping on/off
+/*!
+Enables clipping if \e enable is TRUE, or disables clipping if \e enable
+is FALSE.
+*/
+
+void QPainter::setClipping( bool enable )	// set clipping
 {
-    if ( !isActive() || onOff == testf(ClipOn) )
+    if ( !isActive() || enable == testf(ClipOn) )
 	return;
-    setf( ClipOn, onOff );
+    setf( ClipOn, enable );
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
-	param[0].ival = onOff;
+	param[0].ival = enable;
 	pdev->cmd( PDC_SETCLIP, param );
 	return;
     }
@@ -1619,11 +1786,27 @@ void QPainter::setClipping( bool onOff )	// set clipping on/off
 }
 
 
+/*!
+Clips graphics to the rectangle \e rect.
+
+Clipping is automatically enabled.
+
+\sa setClipRegion().
+*/
+
 void QPainter::setClipRect( const QRect &rect )	// set clip rectangle
 {
     QRegion rgn( rect );
     setClipRegion( rgn );
 }
+
+/*!
+Clips graphics to the region \e rgn.
+
+Clipping is automatically enabled.
+
+\sa setClipRect().
+*/
 
 void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
 {
@@ -1638,8 +1821,9 @@ void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
     setClipping( TRUE );
 }
 
-/*! Draws a single point at \e (x,y) using the current pen and brush.
-  \sa setPen(), setBrush(), setBrushOrigin(). */
+/*!
+Draws/plots a single point at \e (x,y) using the current pen.
+*/
 
 void QPainter::drawPoint( int x, int y )	// draw a single point
 {
@@ -1665,7 +1849,10 @@ void QPainter::drawPoint( int x, int y )	// draw a single point
     XDrawPoint( dpy, hd, gc, x, y );
 }
 
-/*! Sets the current point, for lineTo(). */
+/*!
+Sets the current point.
+\sa lineTo().
+*/
 
 void QPainter::moveTo( int x, int y )		// set current point for lineTo
 {
@@ -1689,8 +1876,11 @@ void QPainter::moveTo( int x, int y )		// set current point for lineTo
     curPt = QPoint( x, y );
 }
 
-/*! Draws a line from the current point to \e (x,y) using the current
-  pen and brush. \sa setPen(), setBrush(), setBrushOrigin(). */ 
+/*!
+Draws a line from the current point to \e (x,y) and sets this to the new
+current point.
+\sa moveTo().
+*/ 
 
 void QPainter::lineTo( int x, int y )		// draw line from current point
 {
@@ -1718,8 +1908,9 @@ void QPainter::lineTo( int x, int y )		// draw line from current point
     curPt = QPoint( x, y );
 }
 
-/*! Draws a line from \e (x1,y2) to \e (x2,y2) using the current
-  pen and brush. \sa setPen(), setBrush(), setBrushOrigin(). */ 
+/*!
+Draws a line from \e (x1,y2) to \e (x2,y2).
+*/
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 {						// draw line
@@ -1764,13 +1955,12 @@ static void fix_neg_rect( int *x, int *y, int *w, int *h )
     }
 }
 
-/*! Draws a rectangle with upper left corner at \e (x,y) and with
-  width \e w and height \e h using the current pen and brush.
+/*!
+Draws a rectangle with upper left corner at \e (x,y) and with
+width \e w and height \e h.
 
-  The width and height include both lines.
-
-  \sa setPen(), setBrush(), setBrushOrigin(), drawRoundRect() and many
-  others. */
+The width and height include both lines.
+*/
 
 void QPainter::drawRect( int x, int y, int w, int h )
 {						// draw rectangle
@@ -1818,16 +2008,15 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
 }
 
-/*! Draws a rectangle with round corners at \e (x,y), with width \e w
-  and height \e h using the current pen and brush.
+/*!
+Draws a rectangle with round corners at \e (x,y), with width \e w
+and height \e h.
 
-  The \e xRnd and \e yRnd arguments indicate how rounded the corners
-  should be.  0 is angled corners, 99 is maximum roundedness.
+The \e xRnd and \e yRnd arguments indicate how rounded the corners
+should be.  0 is angled corners, 99 is maximum roundedness.
 
-  The width and height include both lines.
-
-  \sa setPen(), setBrush(), setBrushOrigin(), drawRect() and many
-  others. */
+The width and height include both lines.
+*/
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 {						// draw round rectangle
@@ -1967,8 +2156,10 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
     }
 }
 
-/*! Draws an ellipse with center at \e (x+w/2,y+h/2) and size \e
-  (w,h), using the current pen and brush. */
+/*!
+Draws an ellipse with center at \e (x+w/2,y+h/2) and size \e
+(w,h).
+*/
 
 void QPainter::drawEllipse( int x, int y, int w, int h )
 {						// draw ellipse
@@ -2018,6 +2209,11 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 }
 
 
+/*!
+Draws an arc defined by the rectangle \e (x,y,w,h) and the start
+angle \e a1 and the end angle \e a2.
+*/
+
 void QPainter::drawArc( int x, int y, int w, int h, int a1, int a2 )
 {						// draw arc
     if ( !isActive() )
@@ -2063,6 +2259,11 @@ void QPainter::drawArc( int x, int y, int w, int h, int a1, int a2 )
 	XDrawArc( dpy, hd, gc, x, y, w, h, a1*4, a2*4 );
 }
 
+
+/*!
+Draws a pie defined by the rectangle \e (x,y,w,h) and the start
+angle \e a1 and the end angle \e a2.
+*/
 
 void QPainter::drawPie( int x, int y, int w, int h, int a1, int a2 )
 {						// draw arc
@@ -2131,6 +2332,11 @@ void QPainter::drawPie( int x, int y, int w, int h, int a1, int a2 )
     }
 }
 
+
+/*!
+Draws a chord defined by the rectangle \e (x,y,w,h) and the start
+angle \e a1 and the end angle \e a2.
+*/
 
 void QPainter::drawChord( int x, int y, int w, int h, int a1, int a2 )
 {						// draw chord
@@ -2201,6 +2407,14 @@ void QPainter::drawChord( int x, int y, int w, int h, int a1, int a2 )
 }
 
 
+/*!
+Draws \e nlines separate lines from points defined in \e a, starting at
+a[\e index].
+
+Draws the 1st line from \e a[index] to \e a[index+1].
+Draws the 2nd line from \e a[index+2] to \e a[index+3] etc.
+*/
+
 void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 {						// draw line segments
     if ( nlines < 0 )
@@ -2239,6 +2453,11 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	XDrawSegments( dpy, hd, gc, (XSegment*)(a.data()+index), nlines );
 }
 
+
+/*!
+Draws the polyline defined by the \e npoints points in \e a starting at
+\e a[index].
+*/
 
 void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 {						// draw connected lines
@@ -2279,6 +2498,13 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 		    CoordModeOrigin );
 }
 
+
+/*!
+Draws the polygon defined by the \e npoints points in \e a starting at
+\e a[index].
+
+The first point is connected to the last point.
+*/
 
 void QPainter::drawPolygon( const QPointArray &a, bool winding,
 			    int index, int npoints )
@@ -2360,6 +2586,11 @@ typedef declare(QListM,QBezData) QBezList;	// list of Bezier curves
 #endif
 
 
+/*!
+Draws a Bezier curve defined by the \e npoints control points in \e a, starting
+at \e a[index].
+*/
+
 void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 {						// draw Bezier curve
 #if defined(BEZIER_CACHE)
@@ -2426,6 +2657,10 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
     }
 }
 
+
+/*!
+Draws a pixmap at \e (x,y).
+*/
 
 void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap )
 {						// draw pixmap
@@ -2553,13 +2788,11 @@ static void ins_text_bitmap( const Q2DMatrix &m, const QFont &f,
 	delete pm;
 }
 
-/*! Writes at most \e len characters from \e str to position \e (x,y)
-  using the current font.  \e x is the leftmost x coordinate at the
-  base line and \e y is the base line.  If the current font is
-  italicized, a part of the first character may be painted to the left
-  of \e x, see QFontMetrics for an explanation of thise.
+/*!
+Draws at most \e len characters from \e str at position \e (x,y).
 
-  \sa setFont(), QFont, QFontMetrics. */
+\e (x,y) is the base line position.
+*/
 
 void QPainter::drawText( int x, int y, const char *str, int len )
 {
@@ -2707,6 +2940,29 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 // If the 'brect parameter is a non-null pointer, then the bounding rectangle
 // of the text will be returned in 'brect'.
 //
+
+/*!
+Draws at most \e len characters from \e str in the rectangle \e (x,y,w,h).
+
+This function draws formatted text.
+
+The \e tf text formatting is the bitwise OR of the following flags:
+<ul>
+<li> \c AlignLeft aligns to the left border.
+<li> \c AlignRight aligns to the right border.
+<li> \c AlignHCenter aligns horizontally centered.
+<li> \c AlignTop aligns to the top border.
+<li> \c AlignBottom aligns to the bottom border.
+<li> \c AlignVCenter aligns vertically centered
+<li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
+<li> \c SingleLine ignores newline characters in the text.
+<li> \c DontClip never clips the text to the rectangle.
+<li> \c ExpandTabs expands tabulators.
+<li> \c ShowPrefix displays "&x" as "x" underlined.
+<li> \c WordBreak breaks the text to fit the rectangle.
+<li> \c GrayText grays out the text.
+</ul>
+*/
 
 void QPainter::drawText( int x, int y, int w, int h, int tf,
 			 const char *str, int len, QRect *brect,
@@ -3126,6 +3382,28 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	delete codes;
 }
 
+
+/*!
+Returns the bounding rectangle of the aligned text that would be
+printed with the corresponding drawText() function.
+
+The \e tf text formatting is the bitwise OR of the following flags:
+<ul>
+<li> \c AlignLeft aligns to the left border.
+<li> \c AlignRight aligns to the right border.
+<li> \c AlignHCenter aligns horizontally centered.
+<li> \c AlignTop aligns to the top border.
+<li> \c AlignBottom aligns to the bottom border.
+<li> \c AlignVCenter aligns vertically centered
+<li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
+<li> \c SingleLine ignores newline characters in the text.
+<li> \c DontClip never clips the text to the rectangle.
+<li> \c ExpandTabs expands tabulators.
+<li> \c ShowPrefix displays "&x" as "x" underlined.
+<li> \c WordBreak breaks the text to fit the rectangle.
+<li> \c GrayText grays out the text.
+</ul>
+*/
 
 QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
 			      const char *str, int len, char **internal )
