@@ -186,23 +186,20 @@ public:
 	if ( qobject->signalsBlocked() )
 	    return S_OK;
 
-	// emit the signal "as is"
-/*XXX
-	int index = meta->findSignal( "signal(const QString&,int,void*)" );
-	if ( index != -1 && ((QAxObject*)qobject)->receivers( index ) ) {
-	    QUObject o[4];
-	    static_QUType_QString.set(o+1,signame);
-	    static_QUType_int.set(o+2,pDispParams->cArgs);
-	    static_QUType_ptr.set(o+3,pDispParams->rgvarg);
-	    combase->qt_emit( index, o );
-	    static_QUType_ptr.clear(o+3);
-	    static_QUType_int.clear(o+2);
-	    static_QUType_QString.clear(o+1);
+	// emit the generic signal "as is"
+	int index = meta->indexOfSignal( "signal(QString,int,void*)" );
+	if (index != -1) {
+	    void *argv[] = {
+		&signame, &pDispParams->cArgs, &pDispParams->rgvarg, 0
+	    };
+	    combase->qt_metacall(QMetaObject::EmitSignal, index, argv );
 	}
 
 	// get the signal information from the metaobject
-	index = meta->findSignal( signame );
-	if ( index != -1 && ((QAxObject*)qobject)->receivers( index ) ) {
+	index = meta->indexOfSignal( signame );
+	if (index != -1 && ((QAxObject*)qobject)->receivers(signame)) {
+	    const QMetaMember signal = meta->signal(index);
+/*XXX
 	    const QMetaData *signal = meta->signal( index - meta->signalOffset() );
 	    if ( !signal )
 		return DISP_E_MEMBERNOTFOUND;
@@ -241,8 +238,8 @@ public:
 	    delete [] objects;
 
 	    return ret ? S_OK : ( ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH );
-	}
 */
+	}
 	return S_OK;
     }
 
@@ -263,41 +260,31 @@ public:
 	    return S_OK;
 
 	// emit the generic signal
-/* XXX
-	int index = meta->findSignal( "propertyChanged(const QString&)" );
-	if ( index != -1 && ((QAxObject*)qobject)->receivers( index ) ) {
-	    QUObject o[2];
-	    static_QUType_QString.set(o+1,propname);
-	    combase->qt_emit( index, o );
-	    static_QUType_QString.clear(o+1);
+	int index = meta->indexOfSignal( "propertyChanged(QString)" );
+	if (index != -1) {
+	    void *argv[] = {
+		&propname, 0
+	    };
+	    combase->qt_metacall(QMetaObject::EmitSignal, index, argv );
 	}
 
 	QString signame = propsigs[dispID];
 	if ( signame.isEmpty() )
 	    return S_OK;
-	// get the signal information from the metaobject
-	index = meta->findSignal( signame );
-	if ( index != -1 && ((QAxObject*)qobject)->receivers( index ) ) {
-	    const QMetaData *signal = meta->signal( index - meta->signalOffset() );
-	    if ( !signal || signal->method->count != 1 )
-		return S_OK;
 
+	// get the signal information from the metaobject
+	index = meta->indexOfSignal( signame );
+	if ( index != -1 && ((QAxObject*)qobject)->receivers( signame ) ) {
 	    // setup parameters
-	    int pindex = meta->findProperty( propname );
-	    QVariant var;
-	    combase->qt_property( pindex + meta->propertyOffset(), 1, &var );
+	    QVariant var = qobject->property(propname);
 	    if ( !var.isValid() )
 		return S_OK;
 
-	    QUObject o[2];
-	    o[1].payload.ptr = 0;
-	    QVariantToQUObject( var, o[1], signal->method->parameters );
+	    void *argv = var.data();
 
 	    // emit the "changed" signal
-	    combase->qt_emit( index, o );
-	    clearQUObject( o+1, signal->method->parameters );
+	    combase->qt_metacall(QMetaObject::EmitSignal, index, &argv );
 	}
-*/
 	return S_OK;
     }
     HRESULT __stdcall OnRequestEdit( DISPID dispID )
@@ -1423,12 +1410,6 @@ private:
 MetaObjectGenerator::MetaObjectGenerator( QAxBase *ax, QAxBasePrivate *dptr )
 : that( ax ), d( dptr ), typeinfo(0), typelib(0), enum_data(0)
 {
-    /* XXX
-    proplist.setAutoDelete( TRUE ); // deep copied when creating metaobject
-    infolist.setAutoDelete( TRUE ); // deep copied when creating metaobject
-    enumlist.setAutoDelete( TRUE ); // deep copied when creating metaobject
-    */
-
     if ( d->useClassInfo )
 	iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
 
@@ -1442,6 +1423,12 @@ MetaObjectGenerator::~MetaObjectGenerator()
 {
     if ( typeinfo ) typeinfo->Release();
     if ( typelib ) typelib->Release();
+    qDeleteAll(proplist);
+    proplist.clear();
+    qDeleteAll(infolist);
+    infolist.clear();
+    qDeleteAll(enumlist);
+    enumlist.clear();
 
 #ifndef QAX_NO_CLASSINFO
     if ( !!debugInfo && d->useClassInfo )
@@ -2323,36 +2310,6 @@ QMetaObject *MetaObjectGenerator::tryCache()
     }
     return 0;
 }
-/*
-// some signals and properties are always there
-static const QUParameter param_signal_0[] = {
-    { "name", &static_QUType_QString, 0, QUParameter::In },
-    { "argc", &static_QUType_int, 0, QUParameter::In },
-    { "argv", &static_QUType_ptr, "void", QUParameter::In }
-};
-static const QUMethod signal_0 = {"signal", 3, param_signal_0 };
-
-static const QUParameter param_signal_1[] = {
-    { "name", &static_QUType_QString, 0, QUParameter::In }
-};
-static const QUMethod signal_1 = {"propertyChanged", 1, param_signal_1 };
-
-static const QUParameter param_signal_2[] = {
-    { "code", &static_QUType_int, 0, QUParameter::In },
-    { "source", &static_QUType_QString, 0, QUParameter::In },
-    { "description", &static_QUType_QString, 0, QUParameter::In },
-    { "help", &static_QUType_QString, 0, QUParameter::In },
-};
-static const QUMethod signal_2 = {"exception", 4, param_signal_2 };
-static const QMetaData signal_tbl[] = {
-    { "signal(const QString&,int,void*)", &signal_0, QMetaData::Public },
-    { "propertyChanged(const QString&)", &signal_1, QMetaData::Public },
-    { "exception(int,const QString&,const QString&,const QString&)", &signal_2, QMetaData::Public }
-};
-static const QMetaProperty props_tbl[] = {
-    { "QString","control", 259, (QMetaObject**)&tempMetaObj, 0, -1 }
-};
-*/
 
 QMetaObject *MetaObjectGenerator::metaObject( const QMetaObject *parentObject )
 {
