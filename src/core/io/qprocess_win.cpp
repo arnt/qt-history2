@@ -23,6 +23,8 @@
 #include <private/qwineventnotifier_p.h>
 #include <qabstracteventdispatcher.h>
 
+//#define QPROCESS_DEBUG
+
 #define SLEEPMIN 10
 #define SLEEPMAX 500
 #define NOTIFYTIMEOUT 100
@@ -197,12 +199,16 @@ void QProcessPrivate::startProcess()
 
     // construct the arguments for CreateProcess()
 
+    QString programName = program;
+    if (programName.contains(" ") && programName.startsWith("\"") && programName.endsWith("\""))
+        programName = "\"" + programName + "\"";
+    programName.replace("/", "\\");
+
     QString args;
     // add the prgram as the first arrg ... it works better
-    args = program + " ";
+    args = programName + " ";
     for (int i=0; i<arguments.size(); ++i) {
-        ///### handle .bat files
-   	QString tmp = arguments.at(i);
+        QString tmp = arguments.at(i);
         // escape a single " because the arguments will be parsed
         tmp.replace( "\"", "\\\"" );
         if (tmp.isEmpty() || tmp.contains(' ') || tmp.contains('\t')) {
