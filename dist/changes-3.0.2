@@ -6,12 +6,12 @@ compatibility (source and binary) with Qt 3.0.1
 *			    General					   *
 ****************************************************************************
 
-- Improved build on SCO OpenServer 5.0.5, Sun WorkShop 4.2, MIPSpro
+- Improved building of Qt on SCO OpenServer 5.0.5, Sun WorkShop 4.2, MIPSpro
 7.2 and VC++.NET
 
 - Added support for NIS to the build system
 
-- Bidi on X11: direction key events for right-to-left are configurable
+- BiDi on X11: direction key events for right-to-left are configurable
 in QSettings via qt/useRtlExtensions. In 3.0.1 they were always turned
 on.
 
@@ -34,7 +34,7 @@ on throw() specifications.
 	X11 only: Stop compressing keys when a non printable key is
 	pressed. Fixed handling backtab (shift+tab) on HPUX. Better support
 	for currency symbol keys like the Euro key. Also fixed a crash when
-	tablet support is set up, but not device is attached.
+	tablet support is set up, but without a device attached.
 	Mac only: Adjust the desktop widget size when the display size
 	changes.
 
@@ -53,8 +53,8 @@ on throw() specifications.
 	Layout the popup listbox correctly before showing it. 
 
 - QContextMenuEvent
-	X11 only: Always both, the mouse press event and the context menu
-	are sent now.
+	X11 only: Both the mouse press event and the context menu
+	are always sent now.
 
 - QClipboard
 	Mac only: Fixed pasting text from non-Qt applications to Qt
@@ -73,14 +73,14 @@ on throw() specifications.
 
 - QDialog
 	On show(), send a tab-focus event to the focus widget, so that
-	e.g. lineedits select all when becoming visible.
+	e.g. in lineedits, all the text is selected when becoming visible.
 	Windows only: Position dialogs on the same screen as the mouse if
 	there is no parent widget that can be used.
 
 - QDockWindow
 	Use correct minimum size, taking frame into account. Less
 	flicker on (de)activation. undock() doesn't undock the window
-	if the TronOff dockarea is disabled.
+	if the TornOff dockarea is disabled.
 
 - QDragObject
 	Fixed crash when a drag object is created without parent.
@@ -92,7 +92,7 @@ on throw() specifications.
 	Mac only: Fixed filtering when using the native Mac filedialog.
 
 - QFileInfo
-	Windows only: Fixed isWriteable() to check windows permissions as
+	Windows only: Fixed isWriteable() to check Windows permissions as
 	well.
 
 - QFont
@@ -104,7 +104,7 @@ on throw() specifications.
 	ugly. Support for Ukranian fonts.
 
 - QFontDataBase
-	win9x only: Fixed problem with multiple entries.
+	Win9x only: Fixed problem with multiple entries.
 
 - QGLWidget
 	Fixed pixmap rendering. Fixed TrueColor visual problem
@@ -137,7 +137,7 @@ on throw() specifications.
 
 - QLibrary
 	Windows only: Use an internal cache and refcount to avoid loading
-	the same library multiple times into the memory on windows NT.
+	the same library multiple times into the memory on Windows NT.
 
 - QLineEdit
 	Ctrl-V now calls the virtual paste() rather than duplicating
@@ -171,14 +171,8 @@ on throw() specifications.
 - QMutex
 	Made tryLock() work on recursive mutexes.
 
-- QMYSQLResult
-	Major iteration speedup fix.
-
-- QODBCResult
-	Fixed isNull() for some cases.
-
 - QPainter
-	Return translated coordinates in pos(). Dixed translation in
+	Return translated coordinates in pos(). Fixed translation in
 	calls to clipRegion(CoordPainter).
 
 - QPopupMenu
@@ -187,11 +181,11 @@ on throw() specifications.
 	painting problems on content changes.
 
 - QPixmap
-	Make grabWidget() work with internally doublebuffered widgets
+	Make grabWidget() work with internally double-buffered widgets
 	X11 and Mac: Fixed a memory leak.
 
 - QPrinter
-	win32 only: Resolution fix.
+	Win32 only: Resolution fix.
 
 - QRichText
 	Fixed crash bug when clearing a document. Fixed various layout
@@ -216,7 +210,7 @@ on throw() specifications.
 	Minor visual improvements.
 
 - QSlider
-	Make setting a new size policy in designer work.
+	Make setting a new size policy in Designer work.
 
 - QSound
 	Stop sound playing when distroying a QSound object.
@@ -232,7 +226,6 @@ on throw() specifications.
 	mid() works savely now for len > length() && len !=
 	0xffffffff. Some speed optimizations. Replace non-latin1
 	characters with '?' in unicodeToAscii().
-
 
 - QStyle
 	Added a style hint for a blinking text cursor when text is
@@ -275,7 +268,7 @@ on throw() specifications.
 
 - QToolBar:
 	Hint about explicit show() call for child widgets to ensure
-	future operatibility.
+	future operability.
 
 - QToolTip
 	Fixed wordbreaking when using both rich text and plain text
@@ -320,8 +313,8 @@ on throw() specifications.
 ****************************************************************************
 
 ****************************************************************************
-*		    Qt/Mac-specific changes		           *
+*		    Qt/Mac-specific changes		           	   *
 ****************************************************************************
 
 Optimizations and fixes in QPainter and QFont fixed creation and
-raising of top level widgets fixed hovering over titlebar problems
+raising of top level widgets fixed hovering over titlebar problems.
