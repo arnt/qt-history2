@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     title->setMargin(8);
     layout->addWidget(title);
     
-    QDirModel *model = new QDirModel(QDir(), window);
+    QDirModel *model = new QDirModel;
     int numRows = model->rowCount(QModelIndex());
 
     for (int row = 0; row < numRows; ++row) {

@@ -19,7 +19,7 @@ SUBDIRS         = coordsys \
                   sharedemployee \
                   sharedtablemodel \
                   simplemodel-use \
-                  splitter \
+#                  splitter \
                   spinbox-delegate \
                   stringlistmodel \
                   textblock-formats \

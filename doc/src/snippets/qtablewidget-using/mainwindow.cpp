@@ -55,7 +55,7 @@ void MainWindow::setupTableItems()
     for (int column = 0; column < tableWidget->columnCount(); ++column) {
         QTableWidgetItem *newItem = new QTableWidgetItem;
         newItem->setFlags(QAbstractItemModel::ItemIsEnabled
-                          | QAbstractItemModel::ItemIsCheckable);
+                          | QAbstractItemModel::ItemIsUserCheckable);
         tableWidget->setItem(tableWidget->rowCount()-1, column, newItem);
     }
 }

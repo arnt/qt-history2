@@ -25,7 +25,7 @@ void EditorWindow::find()
 
     findDialog->show();
     findDialog->raise();
-    findDialog->setActiveWindow();
+    findDialog->activateWindow();
 }
 
 void EditorWindow::countWords()
