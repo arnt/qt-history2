@@ -3,6 +3,7 @@
 
 #include <qevent.h>
 #include <qwhatsthis.h>
+#include <qmenu.h>
 
 #define d d_func()
 #define q q_func()
@@ -62,19 +63,25 @@ public:
     bool sc_enabled;
     int sc_id;
     QString sc_whatsthis;
+    void redoGrab();
 
-    void redoGrab()
-    {
-        QWidget *parent = q->parentWidget();
-        if (!parent)
-            return;
-        if (sc_id)
-            parent->releaseShortcut(sc_id);
-        sc_id = parent->grabShortcut(sc_sequence, sc_context);
-        if (!sc_enabled)
-            parent->setShortcutEnabled(sc_id, false);
-    }
 };
+
+void QShortcutPrivate::redoGrab()
+{
+    QWidget *parent = q->parentWidget();
+    while (qt_cast<QMenu*>(parent))
+        parent = parent->parentWidget();
+    if (!parent) {
+        qWarning("QShortcut: no widget parent defined");
+        return;
+    }
+    if (sc_id)
+        parent->releaseShortcut(sc_id);
+    sc_id = parent->grabShortcut(sc_sequence, sc_context);
+    if (!sc_enabled)
+        parent->setShortcutEnabled(sc_id, false);
+}
 
 /*!
     Constructs a QShortcut object for the \a parent widget. Since no
