@@ -582,6 +582,8 @@
     <slot>showQtHelp()</slot>
     <slot>setFamily( const QString &amp; f )</slot>
     <slot>showSettingsDialog()</slot>
+    <slot>showSettingsDialog( int page )</slot>
+    <slot>showWebBrowserSettings()</slot>
     <slot>hide()</slot>
     <slot returnType="MainWindow *">newWindow()</slot>
     <slot>saveSettings()</slot>

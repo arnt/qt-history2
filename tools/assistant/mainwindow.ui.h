@@ -41,6 +41,7 @@ void MainWindow::init()
     setWFlags( WDestructiveClose );
     browser = new HelpWindow( this, this, "qt_assistant_helpwindow" );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+    connect( browser, SIGNAL(chooseWebBrowser()), this, SLOT(showWebBrowserSettings()) );
     setCentralWidget( browser );
     settingsDia = 0;
 
@@ -410,6 +411,15 @@ void MainWindow::setFamily( const QString & f )
 
 void MainWindow::showSettingsDialog()
 {
+    showSettingsDialog( -1 );
+} 
+void MainWindow::showWebBrowserSettings()
+{
+    showSettingsDialog( 1 );
+}
+
+void MainWindow::showSettingsDialog( int page )
+{
     if ( !settingsDia ){
 	settingsDia = new SettingsDialog( this );
 	connect( settingsDia, SIGNAL( docuFilesChanged() ), helpDock, SLOT( generateNewDocu() ));
@@ -421,6 +431,8 @@ void MainWindow::showSettingsDialog()
     settingsDia->fixedfontCombo->lineEdit()->setText( browser->styleSheet()->item( "pre" )->fontFamily() );
     settingsDia->linkUnderlineCB->setChecked( browser->linkUnderline() );
     settingsDia->colorButton->setPaletteBackgroundColor( browser->palette().color( QPalette::Active, QColorGroup::Link ) );
+    if ( page != -1 )
+	settingsDia->settingsTab->setCurrentPage( page );
 
     int ret = settingsDia->exec();
 

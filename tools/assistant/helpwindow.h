@@ -34,6 +34,9 @@ public:
     QPopupMenu *createPopupMenu( const QPoint& pos );
     void blockScrolling( bool b );
 
+signals:
+    void chooseWebBrowser();
+
 protected:
     void keyPressEvent( QKeyEvent *e );
     void keyReleaseEvent( QKeyEvent *e );
