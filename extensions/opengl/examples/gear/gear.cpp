@@ -181,6 +181,8 @@ static void draw()
 }
 
 
+static int timer_interval = 10;			// timer interval (millisec)
+
 
 class GearWidget : public QGLWidget
 {
@@ -196,7 +198,7 @@ protected:
 GearWidget::GearWidget( QWidget *parent, const char *name )
      : QGLWidget( parent, name )
 {
-    startTimer( 10 );
+    startTimer( timer_interval );
 }
 
 void GearWidget::initializeGL()
@@ -272,6 +274,8 @@ int main( int argc, char **argv )
 	return -1;
     }
 
+    if ( argc == 2 )
+	timer_interval = atoi(argv[1]);
     GearWidget w;
     a.setMainWidget( &w );
     w.show();
