@@ -39,6 +39,8 @@
 #include "qslider.h"
 
 
+// The Light Style, 3rd revision
+
 LightStyle::LightStyle()
     : QWindowsStyle()
 {
@@ -1048,7 +1050,9 @@ void LightStyle::drawComplexControl( ComplexControl control,
 
 	    if ((controls & SC_ComboBoxArrow) && arrow.isValid()) {
 		drawLightEtch( p, arrow, cg.button(), ( active == SC_ComboBoxArrow ) );
-		arrow.addCoords(4, 2, -2, -2);
+		arrow.addCoords( 1, 1, -1, -1 );
+		p->fillRect( arrow, cg.brush( QColorGroup::Button ) );
+		arrow.addCoords(3, 1, -1, -1);
 		drawPrimitive(PE_ArrowDown, p, arrow, cg, flags);
 	    }
 
