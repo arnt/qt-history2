@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#19 $
 **
 ** Implementation of QProcess class
 **
@@ -54,7 +54,7 @@
   \brief The QProcess class is used to start external programs and control
   their behavior.
 
-  \ingroup kernel
+  \ingroup misc
 
   You can start and finish an external program with this class. You can also
   write to stdin of the started program. You can read the output of the program
@@ -76,7 +76,8 @@
 */
 
 /*!
-  Constructs a QProcess.
+  Constructs a QProcess object. The parameters \a parent and \a name are passed
+  to the QObject constructor.
 */
 QProcess::QProcess( QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
@@ -86,7 +87,8 @@ QProcess::QProcess( QObject *parent, const char *name )
 }
 
 /*!
-  Constructs a QProcess with \a arg0 as the command to be executed.
+  Constructs a QProcess with \a arg0 as the command to be executed. The
+  parameters \a parent and \a name are passed to the QObject constructor.
 
   The process is not started. You have to call start() explicitly to start the
   process.
@@ -102,7 +104,8 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
 /*!
   Constructs a QProcess with \a args as the arguments of the process. The first
   element in the list is the command to be executed. The other elements in the
-  list are the arguments to this command.
+  list are the arguments to this command. The parameters \a parent and \a name
+  are passed to the QObject constructor.
 
   The process is not started. You have to call start() explicitly to start the
   process.
@@ -284,9 +287,7 @@ void QProcess::closeStdinLaunch()
 */
 
 
-/*!
-  \overload
-
+/*! \overload
   The string \a buf is handled as a text. So what is written to stdin is the
   QString::local8Bit() representation.
 

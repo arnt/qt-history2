@@ -54,7 +54,7 @@
 
 /*!
   \class QFtp qftp.h
-  \brief The QFtp class implements the FTP protocol
+  \brief The QFtp class implements the FTP protocol.
 
   \module network
 

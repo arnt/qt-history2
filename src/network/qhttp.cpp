@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id: //depot/qt/main/src/network/qhttp.cpp#27 $
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -1378,7 +1378,7 @@ QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
 
 /*!
   \class QHttpConnection qhttp.h
-  \brief The QHttpConnection class provides ???
+  \brief The QHttpConnection class provides ???.
 
   \module network
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#38 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -711,8 +711,8 @@ bool QProcess::isRunning()
 }
 
 /*!
-  Writes data to the stdin of the process. The process may or may not read this
-  data. If the data was read, the signal wroteStdin() is emitted.
+  Writes the data \a buf to the stdin of the process. The process may or may
+  not read this data. If the data was read, the signal wroteStdin() is emitted.
 */
 void QProcess::writeToStdin( const QByteArray& buf )
 {
@@ -749,7 +749,7 @@ void QProcess::closeStdin()
 }
 
 
-/*!
+/*
   The process has outputted data to either stdout or stderr.
 */
 void QProcess::socketRead( int fd )
@@ -824,7 +824,7 @@ void QProcess::socketRead( int fd )
 }
 
 
-/*!
+/*
   The process tries to read data from stdin.
 */
 void QProcess::socketWrite( int fd )
@@ -852,7 +852,7 @@ void QProcess::socketWrite( int fd )
     }
 }
 
-/*!
+/*
   Only used under Windows (but moc does not know about #if defined()).
 */
 void QProcess::timeout()
@@ -860,7 +860,7 @@ void QProcess::timeout()
 }
 
 
-/*!
+/*
   Used by connectNotify() and disconnectNotify() to change the value of
   ioRedirection (and related behaviour)
 */
@@ -880,7 +880,7 @@ void QProcess::setIoRedirection( bool value )
     }
 }
 
-/*!
+/*
   Used by connectNotify() and disconnectNotify() to change the value of
   notifyOnExit (and related behaviour)
 */
@@ -889,7 +889,7 @@ void QProcess::setNotifyOnExit( bool value )
     notifyOnExit = value;
 }
 
-/*!
+/*
   Used by connectNotify() and disconnectNotify() to change the value of
   wroteStdinConnected (and related behaviour)
 */

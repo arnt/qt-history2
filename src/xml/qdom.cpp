@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#44 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#45 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -1999,8 +1999,8 @@ QDomNode QDomNode::insertAfter( const QDomNode& newChild, const QDomNode& refChi
   If \a newChild is currently a child of this QDomNode, then its position in
   the list of children is changed.
 
-  If \a newChild is a QDomDocumentFragment, then the children of the fragment
-  are removed from the fragment and inserted after \a refChild.
+  If \a newChild is a QDomDocumentFragment, then \a oldChild is replaced by all
+  of the children of the fragment.
 
   Returns a new reference to \a oldChild on success or a null node an failure.
 
@@ -3402,7 +3402,7 @@ void QDomAttrPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomAttr qdom.h
-  \brief The QDomAttr class represents one attribute of a QDomElement
+  \brief The QDomAttr class represents one attribute of a QDomElement.
 
   \module XML
 

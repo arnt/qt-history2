@@ -360,10 +360,8 @@ private:
 class QM_EXPORT QXmlLocator
 {
 public:
-    QXmlLocator( QXmlSimpleReader* parent )
-    { reader = parent; }
-    ~QXmlLocator()
-    { }
+    QXmlLocator( QXmlSimpleReader* parent );
+    ~QXmlLocator();
 
     int columnNumber();
     int lineNumber();

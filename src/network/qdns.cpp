@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/extensions/network/src/qdns.cpp#1 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#15 $
 **
 ** Implementation of QDns class.
 **
@@ -1758,7 +1758,7 @@ bool QDns::isWorking() const
 
 /*!
   Returns a list of the addresses for this name if this QDns object
-  has a recordType() of \a QDns::A or \a QDns::Aaaa and the answer is
+  has a recordType() of \c QDns::A or \c QDns::Aaaa and the answer is
   available, or an empty list else.
 
   As a special case, if label() is a valid numeric IP address, this function
