@@ -13,36 +13,36 @@
 
 #include <qsqldriverplugin.h>
 #include <qstringlist.h>
-#include "../../../../src/sql/drivers/sqlite/qsql_sqlite.h"
+#include "../../../../src/sql/drivers/sqlite2/qsql_sqlite2.h"
 
-class QSQLiteDriverPlugin : public QSqlDriverPlugin
+class QSQLite2DriverPlugin : public QSqlDriverPlugin
 {
 public:
-    QSQLiteDriverPlugin();
+    QSQLite2DriverPlugin();
 
     QSqlDriver* create(const QString &);
     QStringList keys() const;
 };
 
-QSQLiteDriverPlugin::QSQLiteDriverPlugin()
+QSQLite2DriverPlugin::QSQLite2DriverPlugin()
     : QSqlDriverPlugin()
 {
 }
 
-QSqlDriver* QSQLiteDriverPlugin::create(const QString &name)
+QSqlDriver* QSQLite2DriverPlugin::create(const QString &name)
 {
-    if (name == QLatin1String("QSQLITE")) {
-        QSQLiteDriver* driver = new QSQLiteDriver();
+    if (name == QLatin1String("QSQLITE2")) {
+        QSQLite2Driver* driver = new QSQLite2Driver();
         return driver;
     }
     return 0;
 }
 
-QStringList QSQLiteDriverPlugin::keys() const
+QStringList QSQLite2DriverPlugin::keys() const
 {
     QStringList l;
-    l  << QLatin1String("QSQLITE");
+    l  << QLatin1String("QSQLITE2");
     return l;
 }
 
-Q_EXPORT_PLUGIN(QSQLiteDriverPlugin)
+Q_EXPORT_PLUGIN(QSQLite2DriverPlugin)
