@@ -4502,20 +4502,27 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( c->isCustom() && c->customItem()->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
-	    lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
+	    QTextParagLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 	    c->customItem()->resize( parag->painter(), dw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
 	    curLeft = x;
-	    y += QMAX( h, tmph );
-	    tmph = c->height() + ls;
-	    h = tmph;
-	    lineStart->y = y;
+	    if ( i == 0 || !isBreakable( string, i - 1 ) || string->at( i - 1 ).lineStart == 0 ) {
+		y += QMAX( h, tmph );
+		tmph = c->height() + ls;
+		h = tmph;
+		lineStart = lineStart2;
+		lineStart->y = y;
+		insertLineStart( parag, i, lineStart );
+		c->lineStart = 1;
+		firstChar = c;
+	    } else {
+		tmph = c->height() + ls;
+		h = tmph;
+		delete lineStart2;
+	    }
 	    lineStart->h = h;
 	    lineStart->baseLine = h;
-	    insertLineStart( parag, i, lineStart );
-	    c->lineStart = 1;
-	    firstChar = c;
 	    tmpBaseLine = lineStart->baseLine;
 	    lastBreak = -2;
 	    x = 0xffffff;
