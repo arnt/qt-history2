@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#165 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#166 $
 **
 ** Implementation of QListBox widget class
 **
@@ -896,8 +896,11 @@ void QListBox::setCurrentItem( int index )
 	return;
     int oldCurrent = current;
     current	   = index;
+    if ( itemVisible( current ) )
+	updateItem( current, FALSE );
+    else
+	centerCurrentItem();
     updateItem( oldCurrent );
-    updateItem( current, FALSE ); // Do not clear, current marker covers item
     QString tmp;
     if ( item( currentItem() ) )
 	tmp = item( currentItem() )->text();
