@@ -36,17 +36,17 @@ public slots:
 
 private:
     void createMenus();
-    QFrame* createCentralWidget();
+    QFrame *createCentralWidget();
     void openImageFile(QString &filePath);
 
-    QGridLayout* grid;
+    QGridLayout *grid;
     QImage scaledImage;
-    QLabel* finalWidget;
-    ScreenWidget* cyanWidget;
-    ScreenWidget* magentaWidget;
-    ScreenWidget* yellowWidget;
-    QPopupMenu* fileMenu;
-    QPopupMenu* brightnessMenu;
+    QLabel *finalWidget;
+    ScreenWidget *cyanWidget;
+    ScreenWidget *magentaWidget;
+    ScreenWidget *yellowWidget;
+    QPopupMenu *fileMenu;
+    QPopupMenu *brightnessMenu;
 
     int brightnessMenuId;
     int saveItemId;

@@ -13,8 +13,10 @@
 /*
 screenwidget.cpp
 
-Provides a widget for displaying overlaid color separations using user
-defined colors.
+A widget to display colour components from an image using independently
+selected colors. Controls are provided to allow the image to be inverted, and
+the color to be selection via a standard dialog. The image is displayed in a
+label widget.
 */
 
 #include <qcolor.h>
@@ -28,15 +30,6 @@ defined colors.
 #include <qwidget.h>
 
 #include "screenwidget.h"
-
-/*
-screenwidget.cpp
-
-A widget to display a colour component from an image using an independently
-selected color. Controls are provided to allow the image to be inverted, and
-the color to be selection via a standard dialog. The image is displayed in a
-label widget.
-*/
 
 /*!
 Constructor: initialises the paint color, the mask color (cyan, magenta,
@@ -168,6 +161,7 @@ void ScreenWidget::createImage()
 
     imageLabel->setPixmap(newImage);
 }
+
 /*!
     Sets whether the amount of ink applied to the canvas is to be inverted
     (subtracted from the maximum value) before the ink is applied.

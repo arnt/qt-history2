@@ -46,7 +46,7 @@ brightness of the separations.
 
 Viewer::Viewer() : QMainWindow()
 {
-    setCaption(tr("QImage Color Separations"));
+    setWindowTitle(tr("QImage Color Separations"));
 
     brightness = 255;
 
