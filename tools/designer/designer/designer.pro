@@ -9,9 +9,10 @@ CONFIG 		-= dll
 
 TARGET	= designercore
 
-DEFINES	+= DESIGNER
+DEFINES	+= DESIGNER QT_KEYWORDS
 !xml:DEFINES += QT_INTERNAL_XML
 else:QCONFIG += xml
+QCONFIG += compat
 network:QCONFIG += network
 !workspace:DEFINES += QT_INTERNAL_WORKSPACE
 !iconview:DEFINES += QT_INTERNAL_ICONVIEW

@@ -232,7 +232,8 @@ QWidgetFactory::QWidgetFactory()
     : d( new QWidgetFactoryPrivate() ), dbControls( 0 ),
       usePixmapCollection( FALSE ), defMargin( 11 ), defSpacing( 6 )
 {
-    widgetFactories.setAutoDelete( TRUE );
+    // disable autodeletion for now
+    //    widgetFactories.setAutoDelete( TRUE );
 }
 
 /*! \fn QWidgetFactory::~QWidgetFactory()

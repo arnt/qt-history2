@@ -17,27 +17,27 @@
 
 
 SyntaxHighlighter_HTML::SyntaxHighlighter_HTML()
-    : QTextPreProcessor(), lastFormat( 0 ), lastFormatId( -1 )
+    : Q3TextPreProcessor(), lastFormat( 0 ), lastFormatId( -1 )
 {
     QFont f( qApp->font() );
 
-    addFormat(Standard, new QTextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Text)));
-    addFormat(Keyword, new QTextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Midlight)));
-    addFormat(Attribute, new QTextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Light)));
-    addFormat(AttribValue, new QTextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::BrightText)));
+    addFormat(Standard, new Q3TextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Text)));
+    addFormat(Keyword, new Q3TextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Midlight)));
+    addFormat(Attribute, new Q3TextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Light)));
+    addFormat(AttribValue, new Q3TextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::BrightText)));
 }
 
 SyntaxHighlighter_HTML::~SyntaxHighlighter_HTML()
 {
 }
 
-void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParagraph *string, int, bool invalidate )
+void SyntaxHighlighter_HTML::process( Q3TextDocument *doc, Q3TextParagraph *string, int, bool invalidate )
 {
 
-    QTextFormat *formatStandard = format( Standard );
-    QTextFormat *formatKeyword = format( Keyword );
-    QTextFormat *formatAttribute = format( Attribute );
-    QTextFormat *formatAttribValue = format( AttribValue );
+    Q3TextFormat *formatStandard = format( Standard );
+    Q3TextFormat *formatKeyword = format( Keyword );
+    Q3TextFormat *formatAttribute = format( Attribute );
+    Q3TextFormat *formatAttribValue = format( AttribValue );
 
     const int StateStandard  = 0;
     const int StateTag       = 1;
@@ -59,7 +59,7 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParagraph *string
     int i = 0;
     for ( ;; ) {
 	QChar c = string->at( i )->c;
-	
+
 	if ( c == '<' ) {
 	    if ( state != StateStandard  )
 		string->setFormat( i - buffer.length(), buffer.length(), formatStandard, FALSE );
@@ -80,7 +80,7 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParagraph *string
 	else if ( c == '=' && state == StateAttribute ) {
 	    buffer += c;
 	    string->setFormat( i, 1, formatStandard, FALSE );
-	    state = StateAttribute;	
+	    state = StateAttribute;
 	}
 	else if ( c == '\"' && state == StateAttribute ) {
 	    buffer += c;
@@ -94,7 +94,7 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParagraph *string
 	}
 	else if ( state == StateAttribute ) {
 	    buffer += c;
-	    string->setFormat( i, 1, formatAttribute, FALSE );	
+	    string->setFormat( i, 1, formatAttribute, FALSE );
 	}
 	else if ( state == StateAttribVal ) {
 	    buffer += c;
@@ -107,8 +107,8 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParagraph *string
 	else if ( state == StateStandard ) {
 	    string->setFormat( i, 1, formatStandard, FALSE );
 	}
-	
-	i++;	
+
+	i++;
 	if ( i >= string->length() )
 	    break;
     }
@@ -118,7 +118,7 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParagraph *string
 
     if ( invalidate && string->next() &&
 	 !string->next()->firstPreProcess() && string->next()->endState() != -1 ) {
-	QTextParagraph *p = string->next();
+	Q3TextParagraph *p = string->next();
 	while ( p ) {
 	    if ( p->endState() == -1 )
 		return;
@@ -128,18 +128,18 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParagraph *string
     }
 }
 
-QTextFormat *SyntaxHighlighter_HTML::format( int id )
+Q3TextFormat *SyntaxHighlighter_HTML::format( int id )
 {
     if ( lastFormatId == id  && lastFormat )
 	return lastFormat;
 
-    QTextFormat *f = formats[ id ];
+    Q3TextFormat *f = formats[ id ];
     lastFormat = f ? f : formats[ 0 ];
     lastFormatId = id;
     return lastFormat;
 }
 
-void SyntaxHighlighter_HTML::addFormat( int id, QTextFormat *f )
+void SyntaxHighlighter_HTML::addFormat( int id, Q3TextFormat *f )
 {
     formats.insert( id, f );
 }

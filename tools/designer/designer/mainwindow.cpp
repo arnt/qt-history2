@@ -2458,7 +2458,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
     QWidgetList windows = qWorkspace()->windowList();
     for (int i = 0; i < windows.size(); ++i) {
 	QWidget *w = windows.at(i);
-	if ( ::qt_cast<FormWindow*>(w) ) {	    
+	if ( ::qt_cast<FormWindow*>(w) ) {
 	    if ( ( (FormWindow*)w )->formFile()->editor() )
 		windows.remove( ( (FormWindow*)w )->formFile()->editor() );
 	    if ( ( (FormWindow*)w )->formFile()->formWindow() )
@@ -2475,7 +2475,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	}
 	w->close();
     }
-    
+
     QMap<QAction*, Project*>::ConstIterator it = projects.begin();
     while( it != projects.end() ) {
 	Project *pro = it.data();
@@ -2941,7 +2941,7 @@ void MainWindow::editFunction( const QString &func, bool rereadSource )
 	return;
     }
 
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+    foreach ( SourceEditor *e, sourceEditors ) {
 	if ( e->language() == lang && e->formWindow() == formWindow() ) {
 	    e->show();
 	    e->setFunction( func );

@@ -56,9 +56,9 @@ TextEdit::TextEdit( QWidget *parent, const char *name )
     setTextFormat( Qt::PlainText );
 }
 
-QTextParagraph* TextEdit::paragraph()
+Q3TextParagraph* TextEdit::paragraph()
 {
-    QTextCursor *tc = new QTextCursor( QTextEdit::document() );
+    Q3TextCursor *tc = new Q3TextCursor( QTextEdit::document() );
     return tc->paragraph();
 }
 
@@ -204,7 +204,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	wrapAction->setOn( doWrap );
 
 	connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
-	textEdit->document()->setFormatter( new QTextFormatterBreakInWords );
+	textEdit->document()->setFormatter( new Q3TextFormatterBreakInWords );
 	textEdit->document()->setUseFormatCollection( FALSE );
 	textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
 

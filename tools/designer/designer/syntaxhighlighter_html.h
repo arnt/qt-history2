@@ -15,7 +15,7 @@
 
 #include <./private/qrichtext_p.h>
 
-class SyntaxHighlighter_HTML : public QTextPreProcessor
+class SyntaxHighlighter_HTML : public Q3TextPreProcessor
 {
 public:
 
@@ -28,15 +28,15 @@ public:
 
     SyntaxHighlighter_HTML();
     virtual ~SyntaxHighlighter_HTML();
-    void process( QTextDocument *doc, QTextParagraph *string, int start, bool invalidate = TRUE );
-    QTextFormat *format( int id );
+    void process( Q3TextDocument *doc, Q3TextParagraph *string, int start, bool invalidate = TRUE );
+    Q3TextFormat *format( int id );
 
 private:
-    void addFormat( int id, QTextFormat *f );
+    void addFormat( int id, Q3TextFormat *f );
 
-    QTextFormat *lastFormat;
+    Q3TextFormat *lastFormat;
     int lastFormatId;
-    QHash<int, QTextFormat*> formats;
+    QHash<int, Q3TextFormat*> formats;
 
 };
 

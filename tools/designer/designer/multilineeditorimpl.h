@@ -28,8 +28,8 @@ class TextEdit : public QTextEdit
 
 public:
     TextEdit( QWidget *parent = 0, const char *name = 0 );
-    QTextDocument *document() const { return QTextEdit::document(); }
-    QTextParagraph *paragraph();
+    Q3TextDocument *document() const { return QTextEdit::document(); }
+    Q3TextParagraph *paragraph();
 
 };
 

@@ -1224,7 +1224,7 @@ void PopupMenuEditor::dropInPlace( QActionGroup * g, int y )
 {
     if (!g->children())
 	return;
-    QObjectList l = *g->children();
+    QObjectList l = g->children();
     for ( int i = 0; i < l.count(); ++i ) {
 	QAction *a = ::qt_cast<QAction*>(l.at(i));
 	QActionGroup *g = ::qt_cast<QActionGroup*>(l.at(i));
