@@ -514,7 +514,7 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	if ( mode == QIconSet::Normal && btn->hasFocus() )
 	    mode = QIconSet::Active;
 	QIconSet::State state = QIconSet::Off;
-	if ( btn->isToggleButton() && btn->isOn )
+	if ( btn->isToggleButton() && btn->isOn() )
 	    state = QIconSet::On;
         QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode, state );
 	int pixw = pixmap.width();
