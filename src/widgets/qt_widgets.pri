@@ -55,7 +55,7 @@ widgets {
 		  $$WIDGETS_H/qaction.h \
 		  $$WIDGETS_H/qtextview.h \
 		  $$WIDGETS_H/qtextbrowser.h \
-		  $$WIDGETS_H/qtextedit.h \
+		  $$WIDGETS_H/qtextedit.h
 
 	SOURCES += $$WIDGETS_CPP/qbuttongroup.cpp \
 		  $$WIDGETS_CPP/qbutton.cpp \
