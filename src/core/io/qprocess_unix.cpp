@@ -365,7 +365,7 @@ void QProcessPrivate::execChild()
         // if LD_LIBRARY_PATH exists in the current environment, but
         // not in the environment list passed by the programmer, then
         // copy it over.
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MAC)
         static const char libraryPath[] = "DYLD_LIBRARY_PATH";
 #else
         static const char libraryPath[] = "LD_LIBRARY_PATH";
