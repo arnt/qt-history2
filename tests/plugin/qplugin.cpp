@@ -89,8 +89,8 @@
 /*!
   \fn QClientInterface* QPlugInInterface::clientInterface( const QCString& request ) const
 
-  Returns a pointer to the client interface the plugin can use to access the
-  application's interface \a request.
+  Returns a pointer to the client interface connected to the application's interface \a request,
+  or null if the application doesn't provide access to this interface.
   
   \warning
   This method returns null if the application does not provide an interface matching

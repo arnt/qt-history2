@@ -4,8 +4,6 @@
 #include <qdict.h>
 #include <qdir.h>
 
-typedef QDict<QPlugIn> QPlugInDict;
-
 template<class Type>
 class QPlugInManager
 {
@@ -14,8 +12,8 @@ public:
 	QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 )
 	: defPol( pol )
     {
-	// Every library is unloaded on destruction of the manager
 	defFunction = fn;
+	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
 	plugDict.setAutoDelete( FALSE );
 	if ( !path.isEmpty() )
@@ -164,8 +162,8 @@ public:
     }
 
 private:
-    QPlugInDict plugDict;	    // Dict to match requested interface with plugin
-    QPlugInDict libDict;	    // Dict to match library file with plugin
+    QDict<QPlugIn> plugDict;	    // Dict to match requested interface with plugin
+    QDict<QPlugIn> libDict;	    // Dict to match library file with plugin
 
     QPlugIn::LibraryPolicy defPol;
     QString defFunction;

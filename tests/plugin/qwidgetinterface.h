@@ -2,7 +2,6 @@
 #define QWIDGETINTERFACE_H
 
 #include "qplugininterface.h"
-#include <qstringlist.h>
 
 class QWidget;
 

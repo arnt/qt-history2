@@ -2,7 +2,6 @@
 #define QACTIONINTERFACE_H
 
 #include "qplugininterface.h"
-#include <qstringlist.h>
 
 class QAction;
 class QObject;
