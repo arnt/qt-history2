@@ -71,14 +71,8 @@ public:
 
     QString anchorAt(const QPoint& pos) const;
 
-    enum FindMode
-    {
-        FindWords,
-        FindAnything
-    };
-
-    QTextCursor find(const QString &exp, int from = 0, QString::CaseSensitivity cs = QString::CaseSensitive, FindMode mode = FindAnything) const;
-    QTextCursor find(const QString &exp, const QTextCursor &from, QString::CaseSensitivity cs, FindMode mode) const;
+    QTextCursor find(const QString &exp, int from = 0, StringComparison flags = (CaseSensitive | Contains)) const;
+    QTextCursor find(const QString &exp, const QTextCursor &from, StringComparison flags = (CaseSensitive | Contains)) const;
 
 signals:
     void contentsChanged();

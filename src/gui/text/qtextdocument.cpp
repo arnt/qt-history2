@@ -288,41 +288,33 @@ QString QTextDocument::anchorAt(const QPoint& pos) const
 
     If \a from is 0 (the default) the search begins from the beginning
     of the document; otherwise from the specified position.
-
-    If \a cs is QString::CaseSensitive (the default), the search is
-    case sensitive; otherwise the search is case insensitive. If \a
-    mode is \c FindAnything the default) the search looks for any
-    matching text; otherwise it only searches for whole word matches.
 */
-QTextCursor QTextDocument::find(const QString &expr, int from, QString::CaseSensitivity cs, FindMode mode) const
+QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison flags) const
 {
     if (expr.isEmpty())
         return QTextCursor();
 
     int pos = from;
 
+    QString::CaseSensitivity cs;
+    if (flags & CaseSensitive)
+        cs = QString::CaseSensitive;
+    else
+        cs = QString::CaseInsensitive;
+
     QTextBlockIterator block = d->pieceTable->blocksFind(pos);
     while (!block.atEnd()) {
         const int blockOffset = qMax(0, pos - block.position());
-        const int idx = block.blockText().indexOf(expr, blockOffset, cs);
+        int idx = -1;
+
+        if (flags & Contains)
+            idx = block.blockText().indexOf(expr, blockOffset, cs);
+
+        // #### need EndOfWord, etc.
+
         if (idx >= 0) {
             QTextCursor cursor(d->pieceTable, block.position() + blockOffset + idx);
-            // ### testme
-            if (mode == FindWords) {
-                const int findPos = cursor.position();
-                cursor.movePosition(QTextCursor::NextWord);
-                cursor.movePosition(QTextCursor::PreviousWord);
-                // ### test end of word, too - needs something like EndOfWord in API
-                if (cursor.position() != findPos) {
-                    pos = findPos + 1;
-                    continue;
-                }
-
-                // ### EndOfWord
-                cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-            } else {
-                cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
-            }
+            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
             return cursor;
         }
         ++block;
@@ -338,15 +330,10 @@ QTextCursor QTextDocument::find(const QString &expr, int from, QString::CaseSens
 
     If the \a from cursor has a selection the search begins after the
     selection; otherwise from the position of the cursor.
-
-    If \a cs is QString::CaseSensitive (the default), the search is
-    case sensitive; otherwise the search is case insensitive. If \a
-    mode is \c FindAnything the default) the search looks for any
-    matching text; otherwise it only searches for whole word matches.
 */
-QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, QString::CaseSensitivity cs, FindMode mode) const
+QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, StringComparison flags) const
 {
     const int pos = (from.isNull() ? 0 : from.selectionEnd());
-    return find(expr, pos, cs, mode);
+    return find(expr, pos, flags);
 }
 
