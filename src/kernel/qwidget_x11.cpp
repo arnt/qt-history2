@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#394 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#395 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -822,6 +822,8 @@ void QWidget::setCaption( const QString &caption )
     createTLExtra();
     extra->topextra->caption = caption;
     XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
+    QCustomEvent e( QEvent::CaptionChange, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 /*!

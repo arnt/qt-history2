@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#116 $
 **
 ** Implementation of QPixmap class
 **
@@ -32,7 +32,7 @@
 #include "qdatastream.h"
 #include "qbuffer.h"
 #include "qobjectlist.h"
-
+#include "qapplication.h"
 
 /*!
   \class QPixmap qpixmap.h
@@ -735,10 +735,10 @@ bool QPixmap::save( const QString &fileName, const char *format ) const
 /*!
   \fn int QPixmap::serialNumber() const
 
-  Returns a number that uniquely identifies the contents of this QPixmap object. 
+  Returns a number that uniquely identifies the contents of this QPixmap object.
   This means that multiple QPixmaps objects can have the same serial number
   as long as they refere to the same contents.
-  The serial number is for example very useful for caching. 
+  The serial number is for example very useful for caching.
 
   \sa QPixmapCache
 */
@@ -779,7 +779,8 @@ static QPixmap grabChildWidgets( QWidget * w )
     QPixmap res( w->width(), w->height() );
     res.fill( w, QPoint( 0, 0 ) );
     QPainter::redirect( w, &res ); // ### overwrites earlier redirect
-    w->repaint( FALSE );
+    QPaintEvent e( w->rect(), FALSE );
+    QApplication::sendEvent( w, &e );
     QPainter::redirect( w, 0 );
     debug( "arnt was here %s/%s", w->className(), w->name() );
 
@@ -790,7 +791,7 @@ static QPixmap grabChildWidgets( QWidget * w )
 	QObject * child;
 	while( (child=it.current()) != 0 ) {
 	    ++it;
-	    if ( child->isWidgetType() && ((QWidget *)child)->isVisible() &&
+	    if ( child->isWidgetType() && !((QWidget *)child)->testWState( Qt::WState_ForceHide ) &&
 		 ((QWidget *)child)->geometry().intersects( w->rect() ) ) {
 		// those conditions aren't quite right, it's possible
 		// to have a grandchild completely outside its
@@ -823,7 +824,7 @@ static QPixmap grabChildWidgets( QWidget * w )
   If \a widget is 0, or if the rectangle defined by \a x, \a y, the
   modified \a w and the modified \a h does not overlap the \a
   widget->rect(), this function returns a null QPixmap.
-  
+
   This function actually asks \a widget to paint itself (or
   themselves).  QPixmap::grabWindow() grabs pixels off the screen,
   which is a bit faster.  This function works by calling paintEvent()

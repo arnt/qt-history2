@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#225 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#226 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -541,6 +541,8 @@ void QWidget::setCaption( const QString &caption )
 	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
     else
 	SetWindowTextA( winId(), caption.ascii() );
+    QCustomEvent e( QEvent::CaptionChange, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 

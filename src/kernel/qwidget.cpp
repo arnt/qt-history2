@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#456 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#457 $
 **
 ** Implementation of QWidget class
 **
@@ -1028,13 +1028,13 @@ void QWidget::styleChange( QStyle& )
 bool QWidget::isEnabledTo(QWidget* ancestor) const
 {
     const QWidget * w = this;
-    while ( w && w->isEnabled()
+    while ( w && !w->testWFlags( WState_ForceDisabled )
 	    && !w->isTopLevel()
 	    && w->parentWidget()
 	    && w->parentWidget()!=ancestor
 	)
 	w = w->parentWidget();
-    return w->isEnabled();
+    return !w->testWFlags( WState_ForceDisabled );
 }
 
 
