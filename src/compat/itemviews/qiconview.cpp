@@ -4402,8 +4402,8 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
     if (item && item->isSelectable()) {
         if (d->selectionMode == Single)
             item->setSelected(true, e->state() & ControlButton);
-        else if (d->selectionMode == Multi)
-            item->setSelected(!item->isSelected(), e->state() & ControlButton);
+        else if (d->selectionMode == Multi && !item->isSelected())
+            item->setSelected(true, e->state() & ControlButton);
         else if (d->selectionMode == Extended) {
             if (e->state() & ShiftButton) {
                 d->pressedSelected = false;
@@ -4562,15 +4562,17 @@ void QIconView::contentsMouseReleaseEvent(QMouseEvent *e)
         d->scrollTimer = 0;
     }
 
-    if (d->selectionMode == Extended &&
+    if ((d->selectionMode == Extended || d->selectionMode == Multi) &&
          d->currentItem == d->pressedItem &&
-         d->pressedSelected && d->currentItem) {
-        bool block = signalsBlocked();
-        blockSignals(true);
-        clearSelection();
-        blockSignals(block);
+	 d->pressedSelected && d->currentItem) {
+        if (d->selectionMode == Extended) {
+            bool block = signalsBlocked();
+            blockSignals(true);
+            clearSelection();
+            blockSignals(block);
+        }
         if (d->currentItem->isSelectable()) {
-            d->currentItem->selected = true;
+            d->currentItem->selected = (d->selectionMode == Extended);
             repaintItem(d->currentItem);
         }
         emit selectionChanged();
