@@ -11,5 +11,5 @@ HEADERS		= qeuckrcodec.h
 SOURCES		= qeuckrcodec.cpp \
 		  main.cpp
 
-target.path += $$plugins.path/codecs
+target.path += $$[QT_INSTALL_PLUGINS]/codecs
 INSTALLS += target

@@ -48,14 +48,14 @@ mac {
 
 PROJECTNAME        = Qt Linguist
 
-target.path=$$bins.path
+target.path=$$[QT_INSTALL_BINS]
 INSTALLS        += target
 
 linguisttranslations.files = *.qm
-linguisttranslations.path = $$translations.path
+linguisttranslations.path = $$[QT_INSTALL_TRANSLATIONS]
 INSTALLS += linguisttranslations
 
-phrasebooks.path=$$data.path/phrasebooks
+phrasebooks.path=$$[QT_INSTALL_DATA]/phrasebooks
 phrasebooks.files = $$QT_SOURCE_TREE/tools/linguist/phrasebooks/*
 INSTALLS += phrasebooks
 FORMS     = about.ui \

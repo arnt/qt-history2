@@ -47,7 +47,7 @@ static void initializeDb()
     Q_ASSERT(!err);
 
     // Load in font definition file
-    QByteArray fn = qInstallPath();
+    QByteArray fn =  QLibraryInfo::location(QLibraryInfo::PrefixPath);
     fn += "/lib/fonts/fontdir";
     FILE* fontdef=fopen(fn,"r");
     if(!fontdef) {
@@ -69,7 +69,7 @@ static void initializeDb()
             sscanf(buf,"%s %s %s %s %d %d",name,file,render,isitalic,&weight,&size);
             QByteArray filename;
             if (file[0] != '/') {
-                filename = qInstallPath();
+                filename = QLibraryInfo::location(QLibraryInfo::PrefixPath);
                 filename += "/lib/fonts/";
             }
             filename += file;
@@ -82,7 +82,7 @@ static void initializeDb()
 
 #ifndef QT_NO_DIR
 
-    QDir dir(QString::fromLatin1(qInstallPath())+"/lib/fonts/","*.qpf");
+    QDir dir(QLibraryInfo::location(QLibraryInfo::Path)+"/lib/fonts/","*.qpf");
     for (int i=0; i<(int)dir.count(); i++) {
         int u0 = dir[i].indexOf('_');
         int u1 = dir[i].indexOf('_',u0+1);
@@ -193,7 +193,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
 
     FT_Face face;
 
-    QByteArray file = qInstallPath();
+    QByteArray file = QLibraryInfo::location(QLibraryInfo::Path);
     file += "/lib/fonts/";
     file += size->fileName;
     FT_Error err = FT_New_Face(QFontEngineFT::ft_library, file, 0, &face);
@@ -207,7 +207,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
     QFontEngine *fe = new QFontEngineFT(request, face);
     return fe;
     } else {
-        QString fn= QLatin1String(qInstallPath())+QLatin1String("/lib/fonts/") + family->name.toLower() + "_" + QString::number(pixelSize*10) + "_" + QString::number(style->key.weight) + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
+        QString fn= QLibraryInfo::location(QLibraryInfo::Path)+QLatin1String("/lib/fonts/") + family->name.toLower() + "_" + QString::number(pixelSize*10) + "_" + QString::number(style->key.weight) + (style->key.italic == QFont::StyleItalic ? "i.qpf" : ".qpf");
         //###rotation ###
 
         QFontEngine *fe = new QFontEngineQPF(request, fn);

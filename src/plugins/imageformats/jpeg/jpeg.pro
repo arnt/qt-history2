@@ -63,5 +63,5 @@ contains(QT_CONFIG, system-jpeg) {
 }
 
 
-target.path += $$plugins.path/imageformats
+target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target

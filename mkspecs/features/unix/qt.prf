@@ -7,7 +7,7 @@ no_keywords:DEFINES += QT_NO_KEYWORDS
 # prevents us from picking up "stale" includes
 INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
 
-!isEmpty(QMAKE_RTLDIR_QT):QMAKE_LIBDIR += $$QMAKE_RTLDIR_QT
+!isEmpty(QT_BUILD_TREE):QMAKE_LIBDIR += $$QT_BUILD_TREE/lib
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 for(QTLIB, $$list($$lower($$unique(QT)))) {
    qlib =

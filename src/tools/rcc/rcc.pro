@@ -9,5 +9,5 @@ unix:!contains(QT_CONFIG, zlib):LIBS        += -lz
 
 SOURCES += main.cpp
 
-target.path=$$bins.path
+target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target

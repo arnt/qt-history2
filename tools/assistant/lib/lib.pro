@@ -17,9 +17,10 @@ DESTDIR                = ../../../lib
 unix {
         QMAKE_CFLAGS += $$QMAKE_CFLAGS_SHLIB
         QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SHLIB
-        target.path=$$libs.path
-        INSTALLS        += target
 }
+
+target.path=$$[QT_INSTALL_LIBS]
+INSTALLS        += target
 
 !debug_and_release|build_pass {
    CONFIG(debug, debug|release) {

@@ -22,5 +22,5 @@ unix {
 	SOURCES += qfontjpcodec.cpp
 }
 
-target.path += $$plugins.path/codecs
+target.path += $$[QT_INSTALL_PLUGINS]/codecs
 INSTALLS += target

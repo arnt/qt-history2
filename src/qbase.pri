@@ -61,7 +61,7 @@ win32 {
 
 #other
 DESTDIR		= $$QMAKE_LIBDIR_QT
-DLLDESTDIR	= $$QT_INSTALL_PREFIX/bin
+DLLDESTDIR	= $$[QT_INSTALL_PREFIX]/bin
 
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt 
@@ -124,8 +124,8 @@ include(qt_install.pri)
 
 unix {
    CONFIG     += create_libtool create_pc
-   QMAKE_PKGCONFIG_LIBDIR = $$target.path
-   QMAKE_PKGCONFIG_INCDIR = $$headers.path
+   QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
+   QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]
 }
 
 DEFINES += QT_NO_CAST_TO_ASCII

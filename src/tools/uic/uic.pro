@@ -13,5 +13,5 @@ include(uic.pri)
 
 SOURCES += main.cpp
 
-target.path=$$bins.path
+target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target

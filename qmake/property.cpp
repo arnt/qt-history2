@@ -15,9 +15,10 @@
 #include "option.h"
 #include <qdir.h>
 #include <qmap.h>
+#include <stdio.h>
 #include <qsettings.h>
 #include <qstringlist.h>
-#include <stdio.h>
+#include <qlibraryinfo.h>
 
 QStringList qmake_mkspec_paths(); //project.cpp
 
@@ -50,69 +51,32 @@ QMakeProperty::keyBase(bool version) const
 QString
 QMakeProperty::value(QString v, bool just_check)
 {
-    if(v == "QT_INSTALL_PREFIX") {
-#ifdef QT_INSTALL_PREFIX
-        return QT_INSTALL_PREFIX;
-#elif defined(HAVE_QCONFIG_CPP)
-        return qInstallPath();
-#endif
-    } else if(v == "QT_INSTALL_DATA") {
-#if defined(HAVE_QCONFIG_CPP)
-        return qInstallPathData();
-#else
-        return QString();
-#endif
-    } else if(v == "QT_INSTALL_PREFIX") {
-#if defined(HAVE_QCONFIG_CPP)
-        return qInstallPath();
-#else
-        return QString();
-#endif
-    } else if(v == "QT_INSTALL_DOCS") {
-#if defined(HAVE_QCONFIG_CPP)
-        return qInstallPathDocs();
-#else
-        return QString();
-#endif
-    } else if(v == "QT_INSTALL_HEADERS") {
-#if defined(HAVE_QCONFIG_CPP)
-        return qInstallPathHeaders();
-#else
-        return QString();
-#endif
-    } else if(v == "QT_INSTALL_LIBS") {
-#if defined(HAVE_QCONFIG_CPP)
-        return qInstallPathLibs();
-#else
-        return QString();
-#endif
-    } else if(v == "QT_INSTALL_BINS") {
-#if defined(HAVE_QCONFIG_CPP)
-        return qInstallPathBins();
-#else
-        return QString();
-#endif
-    } else if(v == "QT_INSTALL_PLUGINS") {
-#if defined(HAVE_QCONFIG_CPP)
-        return qInstallPathPlugins();
-#else
-        return QString();
-#endif
-    } else if(v == "QT_INSTALL_TRANSLATIONS") {
-#if defined(HAVE_QCONFIG_CPP)
-        return qInstallPathTranslations();
-#else
-        return QString();
-#endif
-    } else if(v == "QMAKE_MKSPECS") {
+    if(v == "QT_INSTALL_PREFIX") 
+        return QLibraryInfo::location(QLibraryInfo::PrefixPath);
+    else if(v == "QT_INSTALL_DATA") 
+        return QLibraryInfo::location(QLibraryInfo::DataPath);
+    else if(v == "QT_INSTALL_DOCS")
+        return QLibraryInfo::location(QLibraryInfo::DocumentationPath);
+    else if(v == "QT_INSTALL_HEADERS") 
+        return QLibraryInfo::location(QLibraryInfo::HeadersPath);
+    else if(v == "QT_INSTALL_LIBS") 
+        return QLibraryInfo::location(QLibraryInfo::LibrariesPath);
+    else if(v == "QT_INSTALL_BINS") 
+        return QLibraryInfo::location(QLibraryInfo::BinariesPath);
+    else if(v == "QT_INSTALL_PLUGINS") 
+        return QLibraryInfo::location(QLibraryInfo::PluginsPath);
+    else if(v == "QT_INSTALL_TRANSLATIONS") 
+        return QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    else if(v == "QT_INSTALL_CONFIGURATION")
+        return QLibraryInfo::location(QLibraryInfo::SettingsPath);
+    else if(v == "QMAKE_MKSPECS") 
         return qmake_mkspec_paths().join(Option::target_mode == Option::TARG_WIN_MODE ? ";" : ":");
-    } else if(v == "QMAKE_VERSION") {
+    else if(v == "QMAKE_VERSION") 
         return qmake_version();
 #ifdef QT_VERSION_STR
-    } else if(v == "QT_VERSION") {
+    else if(v == "QT_VERSION") 
         return QT_VERSION_STR;
 #endif
-    }
 
     initSettings();
     int slash = v.lastIndexOf('/');

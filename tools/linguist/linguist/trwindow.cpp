@@ -48,6 +48,7 @@
 #include <qassistantclient.h>
 #include <qdesktopwidget.h>
 #include <qprintdialog.h>
+#include <qlibraryinfo.h>
 
 #define pagecurl_mask_width 53
 #define pagecurl_mask_height 51
@@ -722,7 +723,7 @@ PhraseBook TrWindow::phraseBookFromFileName(QString name) const
 
 void TrWindow::openPhraseBook()
 {
-    QString phrasebooks(qInstallPathData());
+    QString phrasebooks(QLibraryInfo::location(QLibraryInfo::DataPath));
     QString name = QFileDialog::getOpenFileName(this, tr("Open Phrase Book"),
         phrasebooks + "/phrasebooks", tr("Qt phrase books (*.qph)\nAll files (*)"));
     if (!name.isEmpty() && !phraseBooksContains(name)) {
@@ -829,10 +830,10 @@ void TrWindow::revertSorting()
 
 void TrWindow::manual()
 {
-    if (ac == 0)
-        ac = new QAssistantClient(qInstallPathBins(), this);
-
-    ac->showPage(QString(qInstallPathDocs()) + "/html/linguist-manual.html");
+    if (!ac)
+        ac = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
+    ac->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath) + 
+                 "/html/linguist-manual.html");
 }
 
 void TrWindow::about()

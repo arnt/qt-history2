@@ -24,6 +24,7 @@
 #include "qfileinfo.h"
 #include "qrect.h"
 #include "qmutex.h"
+#include "qlibraryinfo.h"
 
 
 #ifndef QT_NO_QOBJECT
@@ -819,7 +820,7 @@ static QString systemIniPath()
 	}
     } );
 #else
-    defPath = QLatin1String(qInstallPathSysconf());
+    defPath = QLibraryInfo::location(QLibraryInfo::SettingsPath);
 #endif // Q_OS_WIN
     return defPath + QDir::separator();
 }

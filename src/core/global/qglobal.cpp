@@ -776,3 +776,49 @@ char *qgetenv(const char *varName)
 	return getenv(varName);
 #endif
 }
+
+#ifdef QT_COMPAT
+#include <qlibraryinfo.h> 
+static const char *qInstallLocation(QLibraryInfo::LibraryLocation loc)
+{
+    static QByteArray ret; //yuck
+    ret = QByteArray(QLibraryInfo::location(loc).latin1());
+    return ret.data();
+}
+const char *qInstallPath()
+{ 
+    return qInstallLocation(QLibraryInfo::PrefixPath);
+}
+const char *qInstallPathDocs()
+{ 
+    return qInstallLocation(QLibraryInfo::DocumentationPath);
+}
+const char *qInstallPathHeaders()
+{ 
+    return qInstallLocation(QLibraryInfo::HeadersPath); 
+}
+const char *qInstallPathLibs()
+{ 
+    return qInstallLocation(QLibraryInfo::LibrariesPath); 
+}
+const char *qInstallPathBins()
+{ 
+    return qInstallLocation(QLibraryInfo::BinariesPath); 
+}
+const char *qInstallPathPlugins()
+{ 
+    return qInstallLocation(QLibraryInfo::PluginsPath); 
+}
+const char *qInstallPathData()
+{ 
+    return qInstallLocation(QLibraryInfo::DataPath); 
+}
+const char *qInstallPathTranslations()
+{ 
+    return qInstallLocation(QLibraryInfo::TranslationsPath); 
+}
+const char *qInstallPathSysconf()
+{ 
+    return qInstallLocation(QLibraryInfo::SettingsPath); 
+}
+#endif

@@ -36,10 +36,10 @@ OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
 QT += xml
 
-target.path=$$bins.path
+target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
 
 RULESXML = q3porting.xml
 RULESXML.files = q3porting.xml
-RULESXML.path = $$libs.path/qt3to4
+RULESXML.path = $$[QT_INSTALL_DATA]/qt3to4
 INSTALLS += RULESXML

@@ -16,6 +16,7 @@
 #include <qregexp.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <qlibraryinfo.h>
 
 //convenience
 QString Option::prf_ext;
@@ -55,6 +56,7 @@ QStringList Option::after_user_vars;
 QStringList Option::user_configs;
 QString Option::user_template;
 QString Option::user_template_prefix;
+QString Option::qtconfig_commandline;
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
 #elif defined(Q_OS_MAC)
@@ -159,9 +161,7 @@ enum {
 int
 Option::parseCommandLine(int argc, char **argv, int skip)
 {
-
-
-    bool before = true;
+    bool before = true, show_qtconfig = false;
     for(int x = skip; x < argc; x++) {
         if(*argv[x] == '-' && strlen(argv[x]) > 1) { /* options */
             QString opt = argv[x] + 1;
@@ -213,6 +213,12 @@ Option::parseCommandLine(int argc, char **argv, int skip)
                 fprintf(stderr, "Qmake is Open Source software from Trolltech AS.\n");
 #endif
                 return QMAKE_CMDLINE_BAIL;
+            } else if(opt == "qtconfig") {
+                extern QString qt_library_config_file; //qlibraryinfo.cpp
+                qt_library_config_file = argv[++x];
+                Option::qtconfig_commandline = qt_library_config_file;
+            } else if(opt == "show_qtconfig") {
+                show_qtconfig = true;
             } else if(opt == "h" || opt == "help") {
                 return QMAKE_CMDLINE_SHOW_USAGE;
             } else if(opt == "Wall") {
@@ -289,9 +295,59 @@ Option::parseCommandLine(int argc, char **argv, int skip)
             }
         }
     }
+    
+    QString qt_library_config = QLibraryInfo::configuration();
+    if(qt_library_config.isNull() && argv && argv[0]) {
+        bool trySearch = true;
+        QString exe = argv[0];
+        if(QDir::isRelativePath(exe)) {
+            if((exe.indexOf('/') != -1
+#ifdef Q_OS_WIN
+                || exe.indexOf('\\') != -1
+#endif
+                   ) && QFile::exists(exe)) {
+                exe.prepend(QDir::currentPath() + "/");
+            } else if(char *path = qgetenv("PATH")) {
+#ifdef Q_OS_WIN
+                QStringList paths = QString(path).split(';');
+#else
+                QStringList paths = QString(path).split(':');
+#endif
+                bool found = false;
+                for(int i = 0; i < paths.size(); ++i) {
+                    const QString fexe = paths.at(i) + "/" + exe;
+                    if(QFile::exists(fexe)) {
+                        found = true;
+                        exe = fexe;
+                        break;
+                    }
+                }
+                trySearch = found;
+            }
+        }
+        if(trySearch) {
+            QDir pwd(QFileInfo(exe).path());
+            while(1) {
+                if(pwd.exists("qt.conf")) {
+                    extern QString qt_library_config_file; //qlibraryinfo.cpp
+                    qt_library_config = qt_library_config_file = pwd.filePath("qt.conf");
+                    break;
+                }
+                if(pwd.isRoot())
+                    break;
+                pwd.cdUp();
+            }
+        }
+    }
+    if(qt_library_config.isNull()) {
+        fprintf(stderr, "Unable to find a Qt configuration.\n");
+        return QMAKE_CMDLINE_BAIL;
+    }
+    debug_msg(1, "Using Qt/configuration: %s\n", qt_library_config.toLatin1().constData());
+    if(show_qtconfig)
+        fprintf(stdout, "Using configuration: %s\n", qt_library_config.toLatin1().constData());
     return QMAKE_CMDLINE_SUCCESS;
 }
-
 
 bool
 Option::init(int argc, char **argv)
@@ -406,6 +462,7 @@ Option::init(int argc, char **argv)
         Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
         if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty())
             Option::mkfile::qmakespec = qgetenv("QMAKESPEC");
+
         //try REALLY hard to do it for them, lazy..
         if(Option::mkfile::project_files.isEmpty()) {
             QString pwd = QDir::currentPath(),

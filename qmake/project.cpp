@@ -19,6 +19,7 @@
 #include <qdir.h>
 #include <qregexp.h>
 #include <qtextstream.h>
+#include <qlibraryinfo.h>
 #include <qstack.h>
 #include <qhash.h>
 #ifdef Q_OS_UNIX
@@ -235,23 +236,12 @@ QStringList qmake_mkspec_paths()
     }
     if(const char *qtdir = qgetenv("QTDIR"))
         ret << (QString(qtdir) + concat);
-#ifdef QT_INSTALL_PREFIX
-    ret << (QT_INSTALL_PREFIX + concat);
-#endif
-#if defined(HAVE_QCONFIG_CPP)
-    ret << (qInstallPath() + concat);
-#endif
-#ifdef QT_INSTALL_DATA
-    ret << (QT_INSTALL_DATA + concat);
-#endif
-#if defined(HAVE_QCONFIG_CPP)
-    ret << (qInstallPathData() + concat);
-#endif
+    ret << QLibraryInfo::location(QLibraryInfo::PrefixPath) + concat;
+    ret << QLibraryInfo::location(QLibraryInfo::DataPath) + concat;
 
     // prefer $QTDIR if it is set
     if(qgetenv("QTDIR"))
         ret << qgetenv("QTDIR");
-    ret << qInstallPathData();
     return ret;
 }
 
@@ -1329,7 +1319,8 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                 }
 #endif
             }
-            feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
+            if(!Option::mkfile::qmakespec.isEmpty())
+                feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
             if(const char *qtdir = qgetenv("QTDIR")) {
                 for(QStringList::Iterator concat_it = concat.begin();
                     concat_it != concat.end(); ++concat_it)
@@ -1340,27 +1331,16 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                     concat_it != concat.end(); ++concat_it)
                     feature_roots << (QDir::cleanPath(Option::mkfile::qmakespec + "/../") + (*concat_it));
             }
-#ifdef QT_INSTALL_PREFIX
             for(QStringList::Iterator concat_it = concat.begin();
                 concat_it != concat.end(); ++concat_it)
-                feature_roots << (QT_INSTALL_PREFIX + mkspecs_concat + (*concat_it));
-#endif
-#if defined(HAVE_QCONFIG_CPP)
+                feature_roots << (QLibraryInfo::location(QLibraryInfo::PrefixPath) + 
+                                  mkspecs_concat + (*concat_it));
             for(QStringList::Iterator concat_it = concat.begin();
                 concat_it != concat.end(); ++concat_it)
-                feature_roots << (qInstallPath() + mkspecs_concat + (*concat_it));
-#endif
-#ifdef QT_INSTALL_DATA
-            for(QStringList::Iterator concat_it = concat.begin();
-                concat_it != concat.end(); ++concat_it)
-                feature_roots << (QT_INSTALL_DATA + mkspecs_concat + (*concat_it));
-#endif
-#if defined(HAVE_QCONFIG_CPP)
-            for(QStringList::Iterator concat_it = concat.begin();
-                concat_it != concat.end(); ++concat_it)
-                feature_roots << (qInstallPathData() + mkspecs_concat + (*concat_it));
-#endif
-            debug_msg(2, "Looking for feature '%s' in (%s)", file.toLatin1().constData(), feature_roots.join("::").toLatin1().constData());
+                feature_roots << (QLibraryInfo::location(QLibraryInfo::DataPath) + 
+                                  mkspecs_concat + (*concat_it));
+            debug_msg(2, "Looking for feature '%s' in (%s)", file.toLatin1().constData(), 
+			feature_roots.join("::").toLatin1().constData());
             int start_root = 0;
             if(parser.from_file) {
                 QFileInfo currFile(QFileInfo(parser.file).canonicalFilePath());
@@ -2094,6 +2074,16 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             }
             return false;
         }
+        return true;
+    } else if(func == "debug") {
+        if(args.count() != 2) {
+            fprintf(stderr, "%s:%d: debug(level, message) requires one argument.\n", parser.file.toLatin1().constData(),
+                    parser.line_no);
+            return false;
+        }
+        QString msg = args[1];
+        fixEnvVariables(msg);
+        debug_msg(args[0].toInt(), "Project DEBUG: %s", msg.toLatin1().constData());
         return true;
     } else if(func == "error" || func == "message" || func == "warning") {
         if(args.count() != 1) {

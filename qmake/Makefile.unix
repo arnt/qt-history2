@@ -9,8 +9,8 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfile.o \
       qfileengine_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qtemporaryfile.o \
-      qmap.o qconfig.o qunicodetables.o qmetatype.o qsettings.o qcorevariant.o \
-      qlocale.o qlinkedlist.o qpoint.o qrect.o qsize.o qurl.o qvsnprintf.o @QMAKE_QTOBJS@
+      qmap.o qunicodetables.o qmetatype.o qsettings.o qcorevariant.o qvsnprintf.o \
+      qlocale.o qlinkedlist.o qpoint.o qrect.o qsize.o qurl.o qlibraryinfo.o @QMAKE_QTOBJS@
 
 #all sources, used for the depend target
 DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
@@ -85,6 +85,9 @@ qiodevice.o: @SOURCE_PATH@/src/core/io/qiodevice.cpp
 
 qglobal.o: @SOURCE_PATH@/src/core/global/qglobal.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/global/qglobal.cpp
+
+qlibraryinfo.o: @SOURCE_PATH@/src/core/global/qlibraryinfo.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/global/qlibraryinfo.cpp
 
 qbytearray.o: @SOURCE_PATH@/src/core/tools/qbytearray.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qbytearray.cpp
@@ -169,9 +172,6 @@ qmap.o: @SOURCE_PATH@/src/core/tools/qmap.cpp
 
 qhash.o: @SOURCE_PATH@/src/core/tools/qhash.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qhash.cpp
-
-qconfig.o: @BUILD_PATH@/src/core/global/qconfig.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @BUILD_PATH@/src/core/global/qconfig.cpp
 
 qlinkedlist.o: @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp

@@ -15,6 +15,7 @@
 #include <qdir.h>
 #include <qlocale.h>
 #include <qbytearray.h>
+#include <qreadwritelock.h>
 
 #define d d_func()
 #define q q_func()
@@ -50,6 +51,8 @@ Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
 
 struct QResourceNode
 {
+    QReadWriteLock lock;
+
     QString name;
     QList<QResource*> resources;
     QResource *localeResource(); //find the resource for locale
@@ -60,6 +63,7 @@ struct QResourceNode
 
     inline QResourceNode() : container(0), parent(0) { }
     inline ~QResourceNode() {
+//        QReadWriteLockLocker locker(&lock, QReadWriteLock::WriteAccess);
         qDeleteAll(children);
         children.clear();
         for(int i = 0; i < resources.size(); i++)
@@ -102,13 +106,16 @@ QResource *QResourceNode::localeResource()
     if(container) {
         if(resources.isEmpty()) { //create a resource as needed
             QResource *ret = new QResource;
+//            QReadWriteLockLocker locker(&lock, QReadWriteLock::WriteAccess);
             ret->d->node = this;
             resources.append(ret);
             return ret;
         }
+//        QReadWriteLockLocker locker(&lock, QReadWriteLock::ReadAccess);
         Q_ASSERT(resources.count() == 1);
         return resources.first(); //containers do not get localized
     } else if(!resources.isEmpty()) {
+//        QReadWriteLockLocker locker(&lock, QReadWriteLock::ReadAccess);
         QResource *ret = 0;
         QLocale systemLocale = QLocale::system();
         for(int i = 0; i < resources.count(); i++) {
@@ -131,6 +138,7 @@ QResource *QResourcePrivate::locateResource(const QString &resource)
     QStringList chunks = QDir::cleanPath(resource).split(QLatin1Char('/'), QString::SkipEmptyParts);
     for(int i = 0; i < chunks.size(); i++) {
         QResourceNode *parent = ret;
+//        QReadWriteLockLocker locker(&parent->lock, QReadWriteLock::ReadAccess);
         ret = 0;
         for(int subi = 0; subi < parent->children.size(); subi++) {
             QResourceNode *child = parent->children.at(subi);
@@ -196,6 +204,7 @@ QResource::name() const
 const QResource
 *QResource::parent() const
 {
+//    QReadWriteLockLocker locker(&d->node->lock, QReadWriteLock::ReadAccess);
     if(QResourceNode *ret = d->node->parent)
         return ret->localeResource();
     return 0;
@@ -209,6 +218,7 @@ QResource::size() const
 {
     if(d->compressed) {
         if(!d->decompressed) {
+//            QReadWriteLockLocker locker(&d->node->lock, QReadWriteLock::WriteAccess);
             d->decompressed = new QByteArray;
             *d->decompressed = qUncompress(d->data, d->size);
         }
@@ -227,6 +237,7 @@ const uchar
 {
     if(d->compressed) {
         if(!d->decompressed) {
+//            QReadWriteLockLocker locker(&d->node->lock, QReadWriteLock::WriteAccess);
             d->decompressed = new QByteArray;
             *d->decompressed = qUncompress(d->data, d->size);
         }
@@ -243,6 +254,7 @@ const uchar
 */
 bool QResource::isContainer() const
 {
+//    QReadWriteLockLocker locker(&d->node->lock, QReadWriteLock::ReadAccess);
     return d->node->container;
 }
 
@@ -256,6 +268,7 @@ bool QResource::isContainer() const
 QList<QResource *>
 QResource::children() const
 {
+//    QReadWriteLockLocker locker(&d->node->lock, QReadWriteLock::ReadAccess);
     QList<QResource *> ret;
     if(d->node->container) {
         for(int i = 0; i < d->node->children.count(); i++)
@@ -405,6 +418,7 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
         QStringList chunks = QDir::cleanPath(name).split(QLatin1Char('/'), QString::SkipEmptyParts);
         for(int i = 0; i < chunks.size(); i++) {
             QResourceNode *parent = node;
+//            QReadWriteLockLocker locker(&parent->lock, QReadWriteLock::WriteAccess);
             node = 0;
             if(!creation_path) {
                 for(int subi = 0; subi < parent->children.size(); subi++) {
@@ -426,15 +440,17 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
 
         //create a resource for this node
         Q_ASSERT(node && !node->container);
-        QResource *resource = new QResource;
-        resource->d->node = node;
-        resource->d->lang = (QLocale::Language)lang;
-        resource->d->country = (QLocale::Country)country;
-        resource->d->size = len;
-        resource->d->data = bytes;
-        resource->d->compressed = flags & Compressed;
-        node->resources.append(resource);
-        d->resource = resource;
+        d->resource = new QResource;
+        d->resource->d->node = node;
+        d->resource->d->lang = (QLocale::Language)lang;
+        d->resource->d->country = (QLocale::Country)country;
+        d->resource->d->size = len;
+        d->resource->d->data = bytes;
+        d->resource->d->compressed = flags & Compressed;
+        {
+//            QReadWriteLockLocker locker(&node->lock, QReadWriteLock::WriteAccess);
+            node->resources.append(d->resource);
+        }
     }
 }
 

@@ -7,5 +7,5 @@ HEADERS		= ../../../gui/embedded/qdecorationwindows_qws.h
 SOURCES		= main.cpp \
 		  ../../../gui/embedded/qdecorationwindows_qws.cpp
 
-target.path += $$plugins.path/decorations
+target.path += $$[QT_INSTALL_PLUGINS]/decorations
 INSTALLS += target

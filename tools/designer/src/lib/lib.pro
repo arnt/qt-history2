@@ -9,7 +9,7 @@ DEFINES += QT_EXTENSION_LIBRARY
 include(extension/extension.pri)
 include(sdk/sdk.pri)
 
-target.path=$$libs.path
+target.path=$$[QT_INSTALL_LIBS]
 INSTALLS        += target
 
 include(../sharedcomponents.pri)

@@ -1,12 +1,12 @@
 
 isEmpty(QMAKE_UIC3) {
-    win32:QMAKE_UIC3 = $(QTDIR)\bin\uic3.exe
-    else:QMAKE_UIC3 = $(QTDIR)/bin/uic3
+    win32:QMAKE_UIC3 = $$[QT_INSTALL_BINS]\uic3.exe
+    else:QMAKE_UIC3 = $$[QT_INSTALL_BINS]/uic3
 }
 
 isEmpty(QMAKE_UIC) {
-   win32:QMAKE_UIC = $(QTDIR)\bin\uic.exe
-   else:QMAKE_UIC = $(QTDIR)/bin/uic
+   win32:QMAKE_UIC = $$[QT_INSTALL_BINS]\uic.exe
+   else:QMAKE_UIC = $$[QT_INSTALL_BINS]/uic
 }
 
 isEmpty(UI_DIR):UI_DIR = .

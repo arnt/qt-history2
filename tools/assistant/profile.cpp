@@ -18,6 +18,7 @@
 #include <qregexp.h>
 #include <qdir.h>
 #include <qlist.h>
+#include <qlibraryinfo.h>
 
 #define QT_TITLE         QLatin1String("Qt Reference Documentation")
 #define DESIGNER_TITLE   QLatin1String("Qt Designer Manual")
@@ -27,7 +28,7 @@
 
 Profile *Profile::createDefaultProfile()
 {
-    QString path = QFile::decodeName( qInstallPathDocs() ) + QLatin1String("/html/");
+    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath) + QLatin1String("/html/");
     Profile *profile = new Profile;
     profile->valid = true;
     profile->type = DefaultProfile;

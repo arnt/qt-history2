@@ -11,5 +11,5 @@ HEADERS  = qbig5codec.h
 SOURCES  = qbig5codec.cpp \
 	   main.cpp
 
-target.path += $$plugins.path/codecs
+target.path += $$[QT_INSTALL_PLUGINS]/codecs
 INSTALLS += target

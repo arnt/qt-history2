@@ -1,0 +1,10 @@
+!yacc_no_name_mangle:QMAKE_LEXFLAGS += -P${QMAKE_FILE_BASE}
+isEmpty(QMAKE_LEX_SOURCE) {
+  QMAKE_LEX_SOURCE = 
+lex.commands = $$QMAKE_LEX $$QMAKE_LEXFLAGS ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+isEmpty(QMAKE_MOD_LEX):QMAKE_MOD_LEX = _lex
+lex.output = ${QMAKE_FILE_BASE}$${QMAKE_MOD_LEX}$${first(QMAKE_EXT_CPP)}
+lex.input = LEXSOURCES
+lex.variable_out = SOURCES
+lex.name = LEX ${QMAKE_FILE_IN}
+QMAKE_EXTRA_COMPILERS += lex

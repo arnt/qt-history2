@@ -10,5 +10,5 @@ SOURCES		= main.cpp \
 		  ../../../../src/gui/embedded/qgfxtransformed_qws.cpp
 
 
-target.path=$$plugins.path/gfxdrivers
+target.path=$$[QT_INSTALL_PLUGINS]/gfxdrivers
 INSTALLS += target

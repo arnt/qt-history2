@@ -16,6 +16,7 @@
 #include "meta.h"
 #include <qregexp.h>
 #include <qbytearray.h>
+#include <qlibraryinfo.h>
 #include <qfile.h>
 #include <qdir.h>
 #include <time.h>
@@ -1190,7 +1191,7 @@ UnixMakefileGenerator::pkgConfigPrefix() const
 {
     if(!project->isEmpty("QMAKE_PKGCONFIG_PREFIX"))
         return project->first("QMAKE_PKGCONFIG_PREFIX");
-    return qInstallPath();
+    return QLibraryInfo::location(QLibraryInfo::PrefixPath);
 }
 
 QString

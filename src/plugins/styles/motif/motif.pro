@@ -7,5 +7,5 @@ HEADERS		= ../../../gui/styles/qmotifstyle.h
 SOURCES		= main.cpp \
 		  ../../../gui/styles/qmotifstyle.cpp
 
-target.path += $$plugins.path/styles
+target.path += $$[QT_INSTALL_PLUGINS]/styles
 INSTALLS += target

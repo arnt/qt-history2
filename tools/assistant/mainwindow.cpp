@@ -30,6 +30,7 @@
 #include <qfontdatabase.h>
 #include <qwhatsthis.h>
 #include <qtextdocumentfragment.h>
+#include <qlibraryinfo.h>
 #include <qprinter.h>
 #include <qprintdialog.h>
 
@@ -435,7 +436,8 @@ void MainWindow::timerEvent(QTimerEvent *e)
 
 void MainWindow::showQtHelp()
 {
-    showLink(QFile::decodeName(qInstallPathDocs()) + QLatin1String("/html/index.html"));
+    showLink(QLibraryInfo::location(QLibraryInfo::DocumentationPath) + 
+             QLatin1String("/html/index.html"));
 }
 
 void MainWindow::on_actionSettings_triggered()

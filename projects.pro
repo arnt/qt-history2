@@ -27,20 +27,28 @@ CONFIG -= qt
 
 #docs
 htmldocs.files = $$QT_BUILD_TREE/doc/html/*
-htmldocs.path = $$docs.path/html
+htmldocs.path = $$[QT_INSTALL_DOCS]/html
 INSTALLS += htmldocs
 
 #translations
+translations.path=$$[QT_INSTALL_TRANSLATIONS]
 translations.files = $$QT_BUILD_TREE/translations/*.qm
 INSTALLS += translations
 
+#qt.conf
+!isEmpty(QT_INSTALL_QTCONFIG) {
+    qt_conf.path=$$QT_INSTALL_QTCONFIG
+    qt_conf.files = $$QT_BUILD_TREE/qt.conf
+    INSTALLS += qt_conf
+}
+
 #qmake
-qmake.path=$$bins.path
+qmake.path=$$[QT_INSTALL_BINS]
 qmake.files=$$QT_BUILD_TREE/bin/qmake #exe itself
 INSTALLS += qmake
 
 #mkspecs
-mkspecs.path=$$data.path/mkspecs
+mkspecs.path=$$[QT_INSTALL_DATA]/mkspecs
 mkspecs.files=$$QT_SOURCE_TREE/mkspecs/* $$QT_BUILD_TREE/mkspecs/.qt.config
 mkspecs.commands = $(SYMLINK) $$QMAKESPEC $$mkspecs.path/default
 INSTALLS += mkspecs

@@ -82,7 +82,7 @@ mac {
     TARGET = Designer
 }
 
-target.path=$$bins.path
+target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
 
 include(../sharedcomponents.pri)

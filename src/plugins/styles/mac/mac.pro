@@ -12,5 +12,5 @@ SOURCES		= main.cpp \
 	SOURCES += ../../../gui/styles/qwindowsstyle.cpp
 }
 
-target.path += $$plugins.path/designer
+target.path += $$[QT_INSTALL_PLUGINS]/designer
 INSTALLS 	+= target

@@ -48,5 +48,5 @@ contains(QT_CONFIG, system-png) {
 contains(QT_CONFIG, system-zlib):unix:LIBS += -lz
 contains(QT_CONFIG, system-zlib):mac:LIBS += -lz
 
-target.path += $$plugins.path/imageformats
+target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target

@@ -312,6 +312,7 @@ OPT_HELP=
 
 # initalize variables used for installation
 QT_INSTALL_PREFIX=
+QT_INSTALL_QTCONFIG=
 QT_INSTALL_DOCS=
 QT_INSTALL_HEADERS=
 QT_INSTALL_LIBS=
@@ -319,7 +320,7 @@ QT_INSTALL_BINS=
 QT_INSTALL_PLUGINS=
 QT_INSTALL_DATA=
 QT_INSTALL_TRANSLATIONS=
-QT_INSTALL_SYSCONF=
+QT_INSTALL_SETTINGS=
 
 
 #-------------------------------------------------------------------------------
@@ -521,6 +522,9 @@ while [ "$#" -gt 0 ]; do
     prefix)
 	QT_INSTALL_PREFIX="$VAL"
 	;;
+    qtconfigdir)
+	QT_INSTALL_QTCONFIG="$VAL"
+	;;
     docdir)
 	QT_INSTALL_DOCS="$VAL"
 	;;
@@ -539,8 +543,8 @@ while [ "$#" -gt 0 ]; do
     translationdir)
 	QT_INSTALL_TRANSLATIONS="$VAL"
 	;;
-    sysconfdir)
-	QT_INSTALL_SYSCONF="$VAL"
+    sysconfdir|settingsdir)
+	QT_INSTALL_SETTINGS="$VAL"
 	;;
     qconfig)
 	CFG_QCONFIG="$VAL"
@@ -1052,7 +1056,32 @@ while [ "$#" -gt 0 ]; do
 done
 
 #-------------------------------------------------------------------------------
-# post initialize QT_INSTALL_* variables, and generate qconfig.cpp
+# generate qconfig.cpp
+#-------------------------------------------------------------------------------
+[ -d $outpath/src/core/global ] || mkdir -p $outpath/src/core/global
+
+LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsuser=$Licensee" "\\0"`
+LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsprod=$Products" "\\0"`
+cat > $outpath/src/core/global/qconfig.cpp.new <<EOF
+/* Licensed */
+static const char qt_configure_licensee_str           [256] = "$LICENSE_USER_STR";
+static const char qt_configure_licensed_products_str  [256] = "$LICENSE_PRODUCTS_STR";
+/* strlen( "qt_lcnsxxxx" ) == 12 */
+#define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;
+#define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;
+EOF
+
+# avoid unecessary rebuilds by copying only if qconfig.cpp has changed
+if cmp -s $outpath/src/core/global/qconfig.cpp $outpath/src/core/global/qconfig.cpp.new; then
+    rm -f $outpath/src/core/global/qconfig.cpp.new
+else
+    [ -f $outpath/src/core/global/qconfig.cpp ] && chmod +w $outpath/src/core/global/qconfig.cpp
+    mv $outpath/src/core/global/qconfig.cpp.new $outpath/src/core/global/qconfig.cpp
+    chmod -w $outpath/src/core/global/qconfig.cpp
+fi
+
+#-------------------------------------------------------------------------------
+# post initialize QT_INSTALL_* variables, and generate qt.conf
 #-------------------------------------------------------------------------------
 
 # default $outpath
@@ -1072,65 +1101,29 @@ done
 # default PREFIX/translations
 [ -z "$QT_INSTALL_TRANSLATIONS" ] && QT_INSTALL_TRANSLATIONS=$QT_INSTALL_PREFIX/translations
 # default PREFIX/etc/settings
-[ -z "$QT_INSTALL_SYSCONF" ]      && QT_INSTALL_SYSCONF=$QT_INSTALL_PREFIX/etc/settings
+[ -z "$QT_INSTALL_SETTINGS" ]     && QT_INSTALL_SETTINGS=$QT_INSTALL_PREFIX/etc/settings
 
-# generate qconfig.cpp
-[ -d $outpath/src/core/global ] || mkdir -p $outpath/src/core/global
-INSTALL_PREFIX_STR=`$relpath/config.tests/unix/padstring 256 "qt_nstpath=$QT_INSTALL_PREFIX" "\\0"`
-INSTALL_BINS_STR=`$relpath/config.tests/unix/padstring 256 "qt_binpath=$QT_INSTALL_BINS" "\\0"`
-INSTALL_DOCS_STR=`$relpath/config.tests/unix/padstring 256 "qt_docpath=$QT_INSTALL_DOCS" "\\0"`
-INSTALL_HEADERS_STR=`$relpath/config.tests/unix/padstring 256 "qt_hdrpath=$QT_INSTALL_HEADERS" "\\0"`
-INSTALL_LIBS_STR=`$relpath/config.tests/unix/padstring 256 "qt_libpath=$QT_INSTALL_LIBS" "\\0"`
-INSTALL_PLUGINS_STR=`$relpath/config.tests/unix/padstring 256 "qt_plgpath=$QT_INSTALL_PLUGINS" "\\0"`
-INSTALL_DATA_STR=`$relpath/config.tests/unix/padstring 256 "qt_datpath=$QT_INSTALL_DATA" "\\0"`
-INSTALL_TRANSLATIONS_STR=`$relpath/config.tests/unix/padstring 256 "qt_trnpath=$QT_INSTALL_TRANSLATIONS" "\\0"`
-INSTALL_SYSCONF_STR=`$relpath/config.tests/unix/padstring 256 "qt_cnfpath=$QT_INSTALL_SYSCONF" "\\0"`
-LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsuser=$Licensee" "\\0"`
-LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsprod=$Products" "\\0"`
-
-cat > $outpath/src/core/global/qconfig.cpp.new <<EOF
-#include <qglobal.h>
-
-/* Install paths from configure */
-static const char QT_INSTALL_PREFIX      [256] = "$INSTALL_PREFIX_STR";
-static const char QT_INSTALL_BINS        [256] = "$INSTALL_BINS_STR";
-static const char QT_INSTALL_DOCS        [256] = "$INSTALL_DOCS_STR";
-static const char QT_INSTALL_HEADERS     [256] = "$INSTALL_HEADERS_STR";
-static const char QT_INSTALL_LIBS        [256] = "$INSTALL_LIBS_STR";
-static const char QT_INSTALL_PLUGINS     [256] = "$INSTALL_PLUGINS_STR";
-static const char QT_INSTALL_DATA        [256] = "$INSTALL_DATA_STR";
-static const char QT_INSTALL_TRANSLATIONS[256] = "$INSTALL_TRANSLATIONS_STR";
-static const char QT_INSTALL_SYSCONF     [256] = "$INSTALL_SYSCONF_STR";
-
-/* strlen( "qt_xxxpath=" ) == 11 */
-const char *qInstallPath()             { return QT_INSTALL_PREFIX       + 11; }
-const char *qInstallPathDocs()         { return QT_INSTALL_DOCS         + 11; }
-const char *qInstallPathHeaders()      { return QT_INSTALL_HEADERS      + 11; }
-const char *qInstallPathLibs()         { return QT_INSTALL_LIBS         + 11; }
-const char *qInstallPathBins()         { return QT_INSTALL_BINS         + 11; }
-const char *qInstallPathPlugins()      { return QT_INSTALL_PLUGINS      + 11; }
-const char *qInstallPathData()         { return QT_INSTALL_DATA         + 11; }
-const char *qInstallPathTranslations() { return QT_INSTALL_TRANSLATIONS + 11; }
-const char *qInstallPathSysconf()      { return QT_INSTALL_SYSCONF      + 11; }
-
-/* Licensed */
-static const char QT_INSTALL_LICENSEE  [256] = "$LICENSE_USER_STR";
-static const char QT_INSTALL_PRODUCTS  [256] = "$LICENSE_PRODUCTS_STR";
-
-/* strlen( "qt_lcnsxxxx" ) == 12 */
-const char *qInstallLicensee()             { return QT_INSTALL_LICENSEE + 12; }
-const char *qInstallLicensedProducts()     { return QT_INSTALL_PRODUCTS + 12; }
+cat > $outpath/qt.conf.new <<EOF
+[QtCore]
+PrefixPath = $QT_INSTALL_PREFIX
+DocumentationPath = $QT_INSTALL_DOCS
+HeadersPath = $QT_INSTALL_HEADERS
+LibrariesPath = $QT_INSTALL_LIBS
+BinariesPath = $QT_INSTALL_BINS
+PluginsPath = $QT_INSTALL_PLUGINS
+DataPath = $QT_INSTALL_DATA
+TranslationsPath = $QT_INSTALL_TRANSLATIONS
+SettingsPath = $QT_INSTALL_SETTINGS
 EOF
 
-# avoid unecessary rebuilds by copying only if qconfig.cpp has changed
-if cmp -s $outpath/src/core/global/qconfig.cpp $outpath/src/core/global/qconfig.cpp.new; then
-    rm -f $outpath/src/core/global/qconfig.cpp.new
+# copy only if qt.conf has changed
+if cmp -s $outpath/qt.conf $outpath/qt.conf.new; then
+    rm -f $outpath/qt.conf.new
 else
-    [ -f $outpath/src/core/global/qconfig.cpp ] && chmod +w $outpath/src/core/global/qconfig.cpp
-    mv $outpath/src/core/global/qconfig.cpp.new $outpath/src/core/global/qconfig.cpp
-    chmod -w $outpath/src/core/global/qconfig.cpp
+    [ -f $outpath/qt.conf ] && chmod +w $outpath/qt.conf
+    mv $outpath/qt.conf.new $outpath/qt.conf
+    chmod -w $outpath/qt.conf
 fi
-
 
 #-------------------------------------------------------------------------------
 # build tree initialization
@@ -1270,15 +1263,6 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     rm -f $outpath/tools/porting/src/q3porting.xml
     ln -s $relpath/tools/porting/src/q3porting.xml $outpath/tools/porting/src
 fi
-
-# things used to build inside of QTDIR (without QTDIR set)
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC3=$outpath/bin/uic3\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_RCC=$outpath/bin/rcc\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_QT_CONFIG=$outpath/mkspecs/.qt.config\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$outpath/src/moc\""
 
 # find out which awk we want to use, prefer gawk, then nawk, then regular awk
 AWK=
@@ -1603,76 +1587,62 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
     echo "Determining system architecture... ($UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE)"
 fi
 
-if [ "$PLATFORM" != "$XPLATFORM" -a "$CFG_EMBEDDED" != "no" ]; then
-    case "$CFG_EMBEDDED" in
-    x86)
-        ARCH=i386
-        ;;
-    ipaq|sharp)
-        ARCH=arm
-        ;;
-    *)
-        ARCH="$CFG_EMBEDDED"
-        ;;
-    esac
-else
-    case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
-    IRIX*:*:*)
-        ARCH=`uname -p`
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-            echo "    SGI ($ARCH)"
-        fi
-        ;;
-    SunOS:5*:sun4*)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-    	echo "    Sun SPARC (sparc)"
-        fi
-        ARCH=sparc
-        ;;
-    Darwin:*:Power?Macintosh)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-    	echo "    32-bit Apple PowerPC (powerpc)"
-        fi
-        ARCH=powerpc
-        ;;
-    AIX:*:00????????00)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-            echo "    IBM POWER (powerpc)"
-        fi
-        ARCH=powerpc
-        ;;
-    HP-UX:*:9000*)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-    	echo "    HP PA-RISC (parisc)"
-        fi
-        ARCH=parisc
-        ;;
-    *:*:i?86)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-    	echo "    32-bit Intel 80x86 (i386)"
-        fi
-        ARCH=i386
-        ;;
-    *:*:x86_64)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-    	echo "    64-bit AMD 80x86 (x86_64)"
-        fi
-        ARCH=x86_64
-        ;;
-    *:*:ppc)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-    	echo "    32-bit PowerPC (powerpc)"
-        fi
-        ARCH=powerpc
-        ;;
-    *:*:*)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-    	echo "    Trying '$UNAME_MACHINE'..."
-        fi
-        ARCH="$UNAME_MACHINE"
-        ;;
-    esac
-fi
+case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
+IRIX*:*:*)
+    ARCH=`uname -p`
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+        echo "    SGI ($ARCH)"
+    fi
+    ;;
+SunOS:5*:sun4*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    Sun SPARC (sparc)"
+    fi
+    ARCH=sparc
+    ;;
+Darwin:*:Power?Macintosh)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit Apple PowerPC (powerpc)"
+    fi
+    ARCH=powerpc
+    ;;
+AIX:*:00????????00)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+       echo "    64-bit IBM PowerPC (powerpc)"
+    fi
+    ARCH=powerpc
+    ;;
+HP-UX:*:9000*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    HP PA-RISC (parisc)"
+    fi
+    ARCH=parisc
+    ;;
+*:*:i?86)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit Intel 80x86 (i386)"
+    fi
+    ARCH=i386
+    ;;
+*:*:x86_64)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    64-bit AMD 80x86 (x86_64)"
+    fi
+    ARCH=x86_64
+    ;;
+*:*:ppc)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit PowerPC (powerpc)"
+    fi
+    ARCH=powerpc
+    ;;
+*:*:*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    Trying '$UNAME_MACHINE'..."
+    fi
+    ARCH="$UNAME_MACHINE"
+    ;;
+esac
 
 if [ -d "$relpath/src/core/arch/$ARCH" ]; then
     if [ "$OPT_VERBOSE" = "yes" ]; then
@@ -2999,9 +2969,6 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
 fi
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_INCDIR_QT=$outpath/include\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_RTLDIR_QT=$QT_INSTALL_LIBS\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\""
 QMAKE_VARS="$QMAKE_VARS \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 QMAKE_VARS="$QMAKE_VARS \"RCC_DIR=.rcc/$QMAKE_OUTDIR\""
@@ -3138,16 +3105,6 @@ if [ '!' -z "$I_FLAGS" ]; then
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=$I_FLAGS\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
 fi
-
-# install things
-QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_PREFIX=${QT_INSTALL_PREFIX}\""
-QMAKE_VARS="$QMAKE_VARS \"docs.path=${QT_INSTALL_DOCS}\""
-QMAKE_VARS="$QMAKE_VARS \"headers.path=${QT_INSTALL_HEADERS}\""
-QMAKE_VARS="$QMAKE_VARS \"plugins.path=${QT_INSTALL_PLUGINS}\""
-QMAKE_VARS="$QMAKE_VARS \"libs.path=${QT_INSTALL_LIBS}\""
-QMAKE_VARS="$QMAKE_VARS \"bins.path=${QT_INSTALL_BINS}\""
-QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
-QMAKE_VARS="$QMAKE_VARS \"translations.path=${QT_INSTALL_TRANSLATIONS}\""
 
 # turn off exceptions for the compilers that support it
 COMPILER=`echo $PLATFORM | cut -f 2- -d-`
@@ -3340,11 +3297,6 @@ full)
 esac
 cat >> $outpath/src/core/global/qconfig.h.new <<EOF
 
-/* License information */
-#define QT_PRODUCT_LICENSEE qInstallLicensee()
-#define QT_PRODUCT_LICENSE  qInstallLicensedProducts()
-
-/* Build key */
 #define QT_BUILD_KEY "$QT_BUILD_KEY"
 
 /* Machine byte-order */
@@ -3550,8 +3502,12 @@ fi
 if [ "$CFG_STL" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG stl"
 fi
+if [ -z "$QT_INSTALL_QTCONF" ]; then
+    QT_INSTALL_QTCONFIG=$QT_INSTALL_PREFIX
+fi
 cat >>$QTCONFIG.tmp <<EOF
 CONFIG += $QTCONFIG_CONFIG qt_no_framework
+QT_INSTALL_QTCONFIG = $QT_INSTALL_QTCONFIG
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
 EOF
@@ -3986,7 +3942,7 @@ if [ "$ARCH" = "generic" ]; then
 cat <<EOF
 
 	NOTICE: Atomic operations are not yet supported for this
-	architecture.
+	architecture ($UNAME_MACHINE).
 
 	Qt will use the 'generic' architecture instead, which will use
 	non-atomic operations instead.  Applications that rely on atomic

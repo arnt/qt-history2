@@ -38,6 +38,7 @@
 #include <qtimer.h>
 #include <qapplication.h>
 #include <qstack.h>
+#include <qdesktopwidget.h>
 
 /*****************************************************************************
   QOpenGL debug facilities
@@ -303,7 +304,12 @@ void QGLContext::updatePaintDevice()
 #endif
 
         //update drawable
-        aglSetDrawable((AGLContext)d->cx, GetWindowPort(window));
+        if(w->isTopLevel() && w->isFullScreen()) {
+            aglSetFullScreen((AGLContext)d->cx, w->width(), w->height(), 0, QApplication::desktop()->screenNumber(w));
+            w->hide();
+        } else {
+            aglSetDrawable((AGLContext)d->cx, GetWindowPort(window));
+        }
 
         if(!w->isTopLevel()) {
             QRegion clp = qt_mac_get_widget_rgn(w); //get drawable area

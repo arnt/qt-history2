@@ -20,6 +20,7 @@
 #include <QBuffer>
 #include <QTextStream>
 #include <QApplication>
+#include <QLibraryInfo>
 
 #include "projectporter.h"
 #include "fileporter.h"
@@ -57,7 +58,7 @@ QString findRulesFile(QString fileName, QString programPath)
     }
 
     if(filePath.isEmpty()) {
-        filePath = QDir::cleanPath(QFile::decodeName(qInstallPathLibs()) + "/qt3to4/" + fileName);
+        filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/qt3to4/" + fileName);
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();

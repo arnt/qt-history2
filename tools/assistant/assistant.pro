@@ -60,11 +60,11 @@ mac {
     TARGET = Assistant
 }
 
-#target.path = $$bins.path
+#target.path = $$[QT_INSTALL_BINS]
 #INSTALLS += target
 
 #assistanttranslations.files = *.qm
-#assistanttranslations.path = $$translations.path
+#assistanttranslations.path = $$[QT_INSTALL_TRANSLATIONS]
 #INSTALLS += assistanttranslations
 
 TRANSLATIONS        = assistant_de.ts \
@@ -74,5 +74,5 @@ TRANSLATIONS        = assistant_de.ts \
 unix:!contains(QT_CONFIG, zlib):LIBS += -lz
 
 
-target.path=$$bins.path
+target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target

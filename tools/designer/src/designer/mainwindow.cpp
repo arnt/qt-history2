@@ -44,6 +44,7 @@
 #include <QtCore/QEvent>
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
+#include <QtCore/QLibraryInfo>
 #include <QtGui/QActionGroup>
 #include <QtGui/QApplication>
 #include <QtGui/QCloseEvent>
@@ -1137,9 +1138,9 @@ void MainWindow::showTheNewStuff()
 
 void MainWindow::showHelp(const QString &url)
 {
-    if (!assistant)
-        assistant = new QAssistantClient(qInstallPathBins(), this);
-    assistant->showPage(QString(qInstallPathDocs()) + "/html/" + url);
+    if (!assistant) 
+        assistant = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
+    assistant->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath) + "/html/" + url);    
 }
 
 void MainWindow::aboutDesigner()

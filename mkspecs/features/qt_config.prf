@@ -1,8 +1,11 @@
 exists($$_QMAKE_CACHE_):QMAKE_QT_CONFIG = $$fromfile($$_QMAKE_CACHE_, QMAKE_QT_CONFIG)
 isEmpty(QMAKE_QT_CONFIG)|!exists($$QMAKE_QT_CONFIG) {
-   exists($$[QT_INSTALL_DATA]/.qt.config):QMAKE_QT_CONFIG = $$[QT_INSTALL_DATA]/.qt.config
-   else:QMAKE_QT_CONFIG = $(QTDIR)/mkspecs/.qt.config
+   exists($$[QT_INSTALL_DATA]/mkspecs/.qt.config):QMAKE_QT_CONFIG = $$[QT_INSTALL_DATA]/mkspecs/.qt.config
+   else:!isEmpty(QT_BUILD_TREE):QMAKE_QT_CONFIG = $$QT_BUILD_TREE/mkspecs/.qt.config
+   else:exists($$_QMAKE_CACHE_):QMAKE_QT_CONFIG = $$fromfile($$_QMAKE_CACHE_, QT_BUILD_TREE)/mkspecs/.qt.config
 }
 !exists($$QMAKE_QT_CONFIG)|!include($$QMAKE_QT_CONFIG) {
-#   warning("Cannot load Qt's configuration!")
+   debug(1, "Cannot load .qt.config!")
+} else {
+   debug(1, "Loaded .qt.config from ($$QMAKE_QT_CONFIG)")
 }

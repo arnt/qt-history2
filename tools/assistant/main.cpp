@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <qtranslator.h>
 #include <qlocale.h>
+#include <qlibraryinfo.h>
 
 #ifdef Q_WS_WIN
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { QMessageBox::information( 0, "Qt Assistant", text ); return 1; }
@@ -251,7 +252,7 @@ int main( int argc, char ** argv )
     }
 
     if( resourceDir.isNull() )
-        resourceDir = QFile::decodeName(qInstallPathTranslations());
+        resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 
     QTranslator translator( 0 );
     translator.load( QLatin1String("assistant_") + QLatin1String(QLocale::system().name().toLower()), resourceDir );

@@ -17,6 +17,7 @@
 
 #include <qapplication.h>
 #include <qdesktopwidget.h>
+#include <qlibraryinfo.h>
 #include <qfont.h>
 #include <qfontinfo.h>
 #include <qdir.h>
@@ -362,6 +363,6 @@ bool Config::sideBarHidden() const
 QString Config::assistantDocPath() const
 {
     return profil->props[QLatin1String("assistantdocs")].isEmpty()
-        ? QFile::decodeName( qInstallPathDocs() ) + QLatin1String("/html")
+        ? QLibraryInfo::location(QLibraryInfo::DocumentationPath) + QLatin1String("/html")
         : profil->props[QLatin1String("assistantdocs")];
 }

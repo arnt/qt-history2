@@ -11,5 +11,5 @@ HEADERS		= qgb18030codec.h
 SOURCES		= qgb18030codec.cpp \
 		  main.cpp
 
-target.path += $$plugins.path/codecs
+target.path += $$[QT_INSTALL_PLUGINS]/codecs
 INSTALLS += target

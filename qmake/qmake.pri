@@ -43,6 +43,7 @@ bootstrap { #Qt code
         qfileengine.cpp \
         qfileinfo.cpp \
         qglobal.cpp \
+        qlibraryinfo.cpp \
         qhash.cpp \
         qiodevice.cpp \
         qlist.cpp \
@@ -79,6 +80,7 @@ bootstrap { #Qt code
         qfileengine.h \
         qfileinfo.h \
         qglobal.h \
+	qlibraryinfo.h \
         qhash.h \
         qiodevice.h \
         qlist.h \
@@ -95,11 +97,6 @@ bootstrap { #Qt code
         quuid.h \
         qvector.h
  
-    exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
-       DEFINES += HAVE_QCONFIG_CPP
-       SOURCES += $$QT_BUILD_TREE/src/core/global/qconfig.cpp
-    }
-
     unix {
         SOURCES += qfileengine_unix.cpp
         mac {

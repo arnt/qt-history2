@@ -11,7 +11,7 @@ PROJECTNAME        = Qt Configuration
 TARGET                = qtconfig
 DESTDIR                = ../../bin
 
-target.path=$$bins.path
+target.path=$$[QT_INSTALL_BINS]
 INSTALLS        += target
 INCLUDEPATH        += .
 DBFILE                 = qtconfig.db

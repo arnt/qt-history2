@@ -19,6 +19,7 @@
 #include <qtextstream.h>
 #include <qregexp.h>
 #include <qhash.h>
+#include <qlibraryinfo.h>
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #else
@@ -1675,6 +1676,10 @@ QString MakefileGenerator::buildArgs()
     //other options
     if(!Option::user_template.isEmpty())
         ret += " -t " + Option::user_template;
+    if(!Option::user_template_prefix.isEmpty())
+        ret += " -tp " + Option::user_template_prefix;
+    if(!Option::qtconfig_commandline.isEmpty())
+        ret += " -qtconfig " + Option::qtconfig_commandline;
     if(!Option::mkfile::do_cache)
         ret += " -nocache";
     if(!Option::mkfile::do_deps)
@@ -2088,7 +2093,8 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
                     t << specdir() << Option::dir_sep << "tmake.conf" << " ";
             }
             const QStringList &included = project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
-            t << included.join(" \\\n\t\t") << "\n\t"
+            t << QLibraryInfo::configuration() << " \\\n\t"
+              << included.join(" \\\n\t\t") << "\n\t"
               << qmake << endl;
             for(int include = 0; include < included.size(); ++include)
                 t << included.at(include) << ":" << endl;

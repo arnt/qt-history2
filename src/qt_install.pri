@@ -1,5 +1,5 @@
 #always install the library
-target.path=$$libs.path
+target.path=$$[QT_INSTALL_LIBS]
 INSTALLS += target
 
 #mac framework
@@ -16,7 +16,7 @@ false:macx {
 
 #headers
 INSTALL_HEADERS =
-HEADERS_PRI = $(QTDIR)/include/$$TARGET/install.pri
+HEADERS_PRI = $QT_BUILD_TREE/include/$$TARGET/install.pri
 exists($$HEADERS_PRI) {
     INSTALL_HEADERS = $$fromfile($$HEADERS_PRI, HEADER_FILES)
     equals(TARGET, QtCore) {
@@ -25,11 +25,11 @@ exists($$HEADERS_PRI) {
     }
 
     flat_headers.files = $$INSTALL_HEADERS
-    flat_headers.path = $$headers.path/Qt
+    flat_headers.path = $$[QT_INSTALL_HEADERS]/Qt
     INSTALLS += flat_headers
 
     targ_headers.files = $$INSTALL_HEADERS
-    targ_headers.path = $$headers.path/$$TARGET
+    targ_headers.path = $$[QT_INSTALL_HEADERS]/$$TARGET
     targ_headers.commands = $$fromfile($$HEADERS_PRI, CLASSES_COPY)
     targ_headers.commands ~= s,PREFIXPATH,$$targ_headers.path,g
     INSTALLS += targ_headers

@@ -21,6 +21,7 @@
 #include <QDir>
 #include <QFile>
 #include <QHash>
+#include <QLibraryInfo>
 #include <QXmlDefaultHandler>
 #include <QXmlSimpleReader>
 
@@ -122,8 +123,9 @@ void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *rena
     4. applicationDirPath()../tools/porting/src/
 */
     QString rulesFileName = "q3porting.xml";
+
     if(fileName.isEmpty()) {
-        fileName = QDir::cleanPath(QFile::decodeName(qInstallPathLibs()) + "/qt3to4/" + rulesFileName);
+        fileName = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/qt3to4/" + fileName);
         QFile f(fileName);
         if (!f.exists())
             fileName=QString();

@@ -14,5 +14,5 @@ TARGET          = lrelease
 INCLUDEPATH     += ../shared
 DESTDIR         = ../../../bin
 
-target.path=$$bins.path
+target.path=$$[QT_INSTALL_BINS]
 INSTALLS        += target

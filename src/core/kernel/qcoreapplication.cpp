@@ -27,6 +27,7 @@
 #include <qthread.h>
 #include <qthreadstorage.h>
 #include <private/qthread_p.h>
+#include <qlibraryinfo.h>
 
 #ifdef Q_OS_UNIX
 #  include "qeventdispatcher_unix.h"
@@ -260,7 +261,7 @@ QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p)
 
     If you are doing graphical changes inside a loop that does not
     return to the event loop on asynchronous window systems like X11
-    or double buffered window systems like MacOS X, and you want to
+    or double buffered window systems like Mac OS X, and you want to
     visualize these changes immediately (e.g. Splash Screens), call
     this function.
 
@@ -311,6 +312,30 @@ void QCoreApplication::init()
 
     QThreadData *data = mainData();
     data->eventDispatcher = QCoreApplicationPrivate::eventDispatcher;
+
+    if(d->argc) {
+        int j = 1;
+        for (int i=1; i<d->argc; i++) {
+            if (d->argv[i] && *d->argv[i] != '-') {
+                d->argv[j++] = d->argv[i];
+                continue;
+            }
+            QByteArray arg = d->argv[i];
+            if (arg.indexOf("-qtconfig=", 0) != -1) {
+                extern QString qt_library_config_file; //qlibraryinfo.cpp
+                qt_library_config_file = arg.right(arg.length() - 10);
+            } else if (arg == "-qtconfig" && i < d->argc-1) {
+                extern QString qt_library_config_file; //qlibraryinfo.cpp
+                qt_library_config_file = d->argv[++i];
+            } else {
+                d->argv[j++] = d->argv[i];
+            }
+        }
+        if(j < d->argc) {
+            d->argv[j] = 0;
+            d->argc = j;
+        }
+    }
 }
 
 /*!
@@ -1321,7 +1346,7 @@ QStringList QCoreApplication::libraryPaths()
         return QStringList();
     if (!self->d->app_libpaths) {
         QStringList *app_libpaths = self->d->app_libpaths = new QStringList;
-        QString installPathPlugins = QString::fromLocal8Bit(qInstallPathPlugins());
+        QString installPathPlugins =  QLibraryInfo::location(QLibraryInfo::PluginsPath);
         if (QFile::exists(installPathPlugins)) {
 #ifdef Q_WS_WIN
             installPathPlugins.replace(QLatin1Char('\\'), QLatin1Char('/'));
@@ -1331,7 +1356,7 @@ QStringList QCoreApplication::libraryPaths()
 
         QString app_location(self->applicationFilePath());
         app_location.truncate(app_location.lastIndexOf(QLatin1Char('/')));
-        if (app_location != QString::fromLocal8Bit(qInstallPathPlugins()) && QFile::exists(app_location))
+        if (app_location !=  QLibraryInfo::location(QLibraryInfo::PluginsPath) && QFile::exists(app_location))
             app_libpaths->append(app_location);
     }
     return *self->d->app_libpaths;
