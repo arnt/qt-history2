@@ -564,7 +564,7 @@ void QWSVFbKeyboardHandler::readKeyboardData()
     int idx = 0;
     while ( kbdIdx - idx >= sizeof( QVFbKeyData ) ) {
 	QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
-	server->processKeyEvent( kd->unicode, 0, kd->press, kd->repeat );
+	server->processKeyEvent( kd->unicode, kd->modifiers, kd->press, kd->repeat );
 	idx += sizeof( QVFbKeyData );
     }
 
