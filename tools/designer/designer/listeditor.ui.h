@@ -13,6 +13,7 @@ void ListEditor::init()
 {
     listview->header()->hide();
     listview->setSorting( -1 );
+    listview->setDefaultRenameAction( QListView::Accept );
 }
 
 void ListEditor::setList( const QStringList &l )
