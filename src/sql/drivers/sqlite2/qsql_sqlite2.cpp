@@ -22,6 +22,7 @@
 #include <qsqlfield.h>
 #include <qsqlindex.h>
 #include <qstringlist.h>
+#include <qvector.h>
 
 #if !defined Q_WS_WIN32
 # include <unistd.h>

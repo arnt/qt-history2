@@ -30,6 +30,7 @@
 #include <qsqlfield.h>
 #include <qsqlindex.h>
 #include <qstringlist.h>
+#include <qvector.h>
 
 #include <stdlib.h>
 

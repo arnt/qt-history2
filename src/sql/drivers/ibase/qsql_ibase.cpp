@@ -21,6 +21,7 @@
 #include <qsqlindex.h>
 #include <qstringlist.h>
 #include <qlist.h>
+#include <qvector.h>
 
 #include <qdebug.h>
 
