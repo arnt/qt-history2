@@ -740,10 +740,8 @@ void QDesignerMenuBar::mouseMoveEvent( QMouseEvent *e )
 	QMenuBar::mouseMoveEvent( e );
 	return;
     }
-    if ( QABS( QPoint( dragStartPos - e->pos() ).manhattanLength() ) < QApplication::startDragDistance() ) {
-	QMenuBar::mouseMoveEvent( e );
+    if ( QABS( QPoint( dragStartPos - e->pos() ).manhattanLength() ) < QApplication::startDragDistance() )
 	return;
-    }
     hidePopups();
     activateItemAt( -1 );
     int itm = itemAtPos( dragStartPos );
