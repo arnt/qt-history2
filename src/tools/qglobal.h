@@ -720,8 +720,12 @@ extern bool qt_winunicode;
 #  elif defined(QT_DLL)		/* use a Qt DLL library */
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
-#    define Q_TEMPLATE_EXTERN extern
-#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
+#    if defined(Q_CC_MSVC)
+#      define Q_TEMPLATE_EXTERN extern
+#    else
+#      define Q_TEMPLATE_EXTERN
+#    endif
+#    undef  Q_DISABLE_COPY  /* avoid unresolved externals */
 #  endif
 #else
 #  undef QT_MAKEDLL		/* ignore these for other platforms */
