@@ -1146,15 +1146,6 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     d->engine->drawTextItem(QPoint(x, y), ti, textFlags);
 }
 
-// void QPainter::drawGlyphs(const QPoint& p, const QGlyphFragment &gf, int textFlags)
-// {
-//     if (!isActive())
-// 	return;
-//     d->engine->updateState(d->state);
-//     gf.font->draw( this, p.x(),  p.y(), gf, textFlags );
-// }
-
-
 QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len)
 {
     QRect brect;
