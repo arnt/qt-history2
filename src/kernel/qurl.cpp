@@ -1007,7 +1007,7 @@ QString QUrl::dirPath() const
     QString s = path();
     // ### If anything is broken with regards to the directories in QFileDialog
     // et al, then this is probably the place to look
-    if ( s.right( 1 ) != '/' )
+    if ( s.right( 1 ) != "/" )
 	s += "/";
     s = QFileInfo( s ).dirPath();
 
