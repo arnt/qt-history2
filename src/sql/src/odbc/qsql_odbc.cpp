@@ -569,7 +569,7 @@ QVariant QODBCResult::data( int field )
     bool isNull = FALSE;
     int current = fieldCache.count();
     for ( ; current < (field + 1); ++current ) {
-	QSqlResultField info = qMakeField( d, field );
+	QSqlField info = qMakeField( d, field );
 	switch ( info.type() ) {
 	case QVariant::Int:
 	    isNull = FALSE;
@@ -672,7 +672,7 @@ QSqlFieldList QODBCResult::fields()
 	    QSqlField fi = qMakeField( d, i );
 	    if ( isActive() && isValid() )
 		fi.setValue( data( i ) );
-            fil.append( fi );
+            fil.append( &fi );
         }
     }
     return fil;
@@ -1047,7 +1047,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 	QString fieldVal = qGetStringData( hStmt, 3, lengthIndicator, isNull ); // column name
 	QSqlField f = qMakeField( d, tablename, fieldVal );
 	f.setFieldNumber( count );
-	index.append( f );
+	index.append( &f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
@@ -1120,7 +1120,7 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
 	QString fieldname = qGetStringData( hStmt, 3, lengthIndicator, isNull );
 	QSqlField f = qMakeField( d, tablename, fieldname );
 	f.setFieldNumber( count );
-	fil.append( f );
+	fil.append( &f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
