@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#167 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -2006,8 +2006,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     if ( !isActive() )
 	return;
 
-    bool nat_xf = ( qt_winver == WV_NT && txop >= TxScale ) ||
-                  ( txop == TxScale );
+    bool nat_xf = ( qt_winver == WV_NT && txop >= TxScale );
 
     if ( len < 0 )
 	len = str.length();
