@@ -263,14 +263,19 @@ void QDial::repaintScreen( const QRect *cr )
       p.setBrush( b );
       p.setBackgroundMode( OpaqueMode );
     }
+
+    QRect te = br;
+    te.setWidth(te.width()+2);
+    te.setHeight(te.height()+2);
     // erase background of dial
-    if ( !d->onlyOutside )
-	p.drawEllipse( br );
+    if ( !d->onlyOutside ) {
+	p.drawEllipse( te );
+    }
 
     // erase remaining space around the dial
     p.save();
     QRegion remaining( 0, 0, width(), height() );
-    remaining = remaining.subtract( QRegion( br, QRegion::Ellipse ) );
+    remaining = remaining.subtract( QRegion( te, QRegion::Ellipse ) );
     if ( p.hasClipping() )
 	remaining = remaining.intersect( p.clipRegion() );
     p.setClipRegion( remaining );
@@ -293,9 +298,9 @@ void QDial::repaintScreen( const QRect *cr )
 
     // calculate and paint arrow
     p.setPen( QPen( colorGroup().dark() ) );
-    p.drawArc( br, 60 * 16, 180 * 16 );
+    p.drawArc( te, 60 * 16, 180 * 16 );
     p.setPen( QPen( colorGroup().light() ) );
-    p.drawArc( br, 240 * 16, 180 * 16 );
+    p.drawArc( te, 240 * 16, 180 * 16 );
 
     double a;
     QPointArray arrow( calcArrow( a ) );
@@ -777,11 +782,12 @@ QPointArray QDial::calcArrow( double &a ) const
 
 QRect QDial::calcDial() const
 {
-    int r = QMIN( width(), height() ) / 2;
-    int d_ = r / 6;
-    int dx = d_ + ( width() - 2 * r ) / 2;
-    int dy = d_ + ( height() - 2 * r ) / 2;
-    return QRect( dx, dy, r * 2 - 2 * d_ - 2, r * 2 - 2 * d_ - 2 );
+    double r = QMIN( width(), height() ) / 2.0;
+    double d_ = r / 6.0;
+    double dx = d_ + ( width() - 2 * r ) / 2.0 + 1;
+    double dy = d_ + ( height() - 2 * r ) / 2.0 + 1;
+    return QRect( int(dx), int(dy),
+		int(r * 2 - 2 * d_ - 2), int(r * 2 - 2 * d_ - 2) );
 }
 
 /*!
@@ -806,10 +812,10 @@ int QDial::calcBigLineSize() const
 void QDial::calcLines()
 {
     if ( !d->lines.size() ) {
-	int r = QMIN( width(), height() ) / 2;
+	double r = QMIN( width(), height() ) / 2.0;
 	int bigLineSize = calcBigLineSize();
-	int xc = width() / 2;
-	int yc = height() / 2;
+	double xc = width() / 2.0;
+	double yc = height() / 2.0;
 	int ns = notchSize();
 	int notches = ( maxValue() + notchSize() - 1 - minValue() ) / ns;
 	d->lines.resize( 2 + 2 * notches );
@@ -823,15 +829,15 @@ void QDial::calcLines()
 	    double c = cos( angle );
 	    if ( i == 0 ||
 		 ns * i /pageStep() > ns*( i - 1) / pageStep() ) {
-		d->lines[ 2 * i ] = QPoint( (int)( 0.5 + xc + ( r - bigLineSize ) * c ),
-					(int)( 0.5 + yc - ( r - bigLineSize ) * s ) );
-		d->lines[2*i+1] = QPoint( (int)( 0.5 + xc + r * c ),
-					  (int)( 0.5 + yc - r * s ) );
+		d->lines[2*i] = QPoint( (int)( xc + ( r - bigLineSize ) * c ),
+					(int)( yc - ( r - bigLineSize ) * s ) );
+		d->lines[2*i+1] = QPoint( (int)( xc + r * c ),
+					  (int)( yc - r * s ) );
 	    } else {
-		d->lines[2*i] = QPoint( (int)( 0.5 + xc + ( r - 1 - smallLineSize ) * c ),
-					(int)( 0.5 + yc - ( r - 1 - smallLineSize ) * s ) );
-		d->lines[2*i+1] = QPoint( (int)( 0.5 + xc + ( r - 1 ) * c ),
-					  (int)( 0.5 + yc -( r - 1 ) * s ) );
+		d->lines[2*i] = QPoint( (int)( xc + ( r - 1 - smallLineSize ) * c ),
+					(int)( yc - ( r - 1 - smallLineSize ) * s ) );
+		d->lines[2*i+1] = QPoint( (int)( xc + ( r - 1 ) * c ),
+					  (int)( yc -( r - 1 ) * s ) );
 	    }
 	}
     }
