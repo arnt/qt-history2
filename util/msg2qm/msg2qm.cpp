@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#7 $
+** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#8 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -86,7 +86,7 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 
 	//int hash = translator->hash( scope.ascii(), id.ascii() );
 	if (translator->contains( /*hash,*/ scope.ascii(), id.ascii() ) ) {
-	    qDebug("Error: \"%s\" already in use", msgid.ascii() );
+	    qWarning("Error: \"%s\" already in use", msgid.ascii() );
 	}
 	else {
 	    // #### TODO: use encoding mentioned in msg file, if any,
@@ -94,12 +94,12 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
             QTextCodec *codec = QTextCodec::codecForLocale();
 
             if ( !codec ) {
-                qDebug("No QTextCodec for this locale.");
+                qWarning("No QTextCodec for this locale.");
                 exit(1);
             }
             QString u_msgstr = codec->toUnicode(msgstr.ascii(), msgstr.length());
-	    translator->insert( scope.latin1(), msgid.latin1(), u_msgstr );
-	    //debug("'%s':'%s'-->'%s'", scope.ascii(), msgid.ascii(), msgstr.ascii() );
+	    translator->insert( scope.latin1(), id.latin1(), u_msgstr );
+	    //debug("'%s':'%s'-->'%s'", scope.ascii(), id.ascii(), msgstr.ascii() );
 	}
     }
 }
