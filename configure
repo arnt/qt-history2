@@ -2108,8 +2108,8 @@ Configure options:
     -qt-gif ............ Compile in GIF reading support.
 			 See src/gui/image/qgif.h
 
- *  -qt-zlib ........... Use the zlib bundled with Qt.
-    -system-zlib ....... Use zlib from the operating system.
+    -qt-zlib ........... Use the zlib bundled with Qt.
+ *  -system-zlib ....... Use zlib from the operating system.
 			 See http://www.info-zip.org/pub/infozip/zlib
 
     -fast .............. Configure Qt quickly by generating Makefiles only for
