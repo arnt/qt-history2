@@ -214,7 +214,7 @@ void QGenericTreeView::hideColumn(int column)
     d->header->hideSection(column);
 }
 
-/*
+/*!
   Shows the \a column given.
 
   \sa hideColumn() */

@@ -629,17 +629,17 @@ bool QGenericTableView::isColumnHidden(int column) const
 }
 
 /*!
+  \property QGenericTableView::showGrid
+  \brief whether or not to show the grid.
+
+  This property is true if the table grid should be drawn
+  and false if it should not be drawn.
 */
 
 void QGenericTableView::setShowGrid(bool show)
 {
     d->showGrid = show;
 }
-
-/*!
-  Returns true if the table's grid is being displayed; otherwise
-  returns false.
-*/
 
 bool QGenericTableView::showGrid() const
 {

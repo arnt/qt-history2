@@ -264,6 +264,43 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
+  \enum QGenericListView::Movement
+
+  \value Static The items cannot be moved by the user.
+  \value Free The items can be moved freely by the user.
+  \value Snap The items snap to the specified grid when moved.
+*/
+
+/*!
+  \enum QGenericListView::Flow
+
+  \value LeftToRight The items are layed out in the view from the left to the right.
+  \value TopToBottom The items are layed out in the view from the top to the bottom.
+*/
+
+/*!
+  \enum QGenericListView::IconMode
+
+  \value Automatic The icon size is Small if the isWrapping property is true, otherwise Large.
+  \value Small The icons in the items are rendered as small icons.
+  \value Large The icons in the items are rendered as large icons.
+*/
+
+/*!
+  \enum QGenericListView::ResizeMode
+
+  \value Fixed The items will only be layed out the first time the view is shown.
+  \value Adjust The items will be layed out every time the view is resized.
+*/
+
+/*!
+  \enum QGenericListView::LayoutMode
+
+  \value Instant The items are layed out all at once.
+  \value Batched The items are layed out in batches of 100 items.
+*/
+
+/*!
   Creates a new QGenericListView to view the \a model, and with parent \a parent.
 */
 QGenericListView::QGenericListView(QAbstractItemModel *model, QWidget *parent)
