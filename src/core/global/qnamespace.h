@@ -204,7 +204,6 @@ public:
         WStyle_Mask             = 0x0000fff0,
 
         // misc flags
-        // reserved WDestructiveClose = 0x00010000,
         WPaintDesktop            = 0x00020000,
         // reserved WPaintUnclipped = 0x00040000,
         // reserved WPaintClever  = 0x00080000,
@@ -243,6 +242,7 @@ public:
 #endif
 #ifdef QT_COMPAT
         ,
+        WDestructiveClose      = 0x00010000,
         WStaticContents        = 0x00400000,
         WNoAutoErase           = 0x00800000,
         WRepaintNoErase        = WNoAutoErase,
