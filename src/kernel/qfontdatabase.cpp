@@ -1372,6 +1372,9 @@ static QString getCharSetName( QFont::CharSet cs )
     return qApp ? qApp->translate("QFont", name) : QString::fromLatin1(name);
 }
 
+/*!
+ */
+
 QString QFontDatabase::verboseCharSetName( const QString &charSetName )
 {
     QFont::CharSet cs = getCharSet( charSetName );
@@ -1381,6 +1384,9 @@ QString QFontDatabase::verboseCharSetName( const QString &charSetName )
 	return charSetName;
 }
 
+/*!
+  Returns a string which describes the charset \a cs.
+*/
 
 static QString getCharSetSample( QFont::CharSet cs )
 {
@@ -1492,6 +1498,10 @@ QString QFontDatabase::charSetSample( const QString &charSetName )
 }
 
 
+/*!
+  Returns a string with describes the style of the font \a f.
+*/
+
 QString QFontDatabase::styleString( const QFont &f )  // ### fttb
 {
 
@@ -1575,10 +1585,8 @@ static QStringList emptyList;
   This class can be used to get information about the available
   fonts. With the 4 public members families(), pointSizes(), styles()
   and charSets() it should be possible to get the most important
-  information about the installed fonts.
-
-  In later Qt releases QFontDatabase will offer event more
-  information about the available fonts.
+  information about the installed fonts. But you can get much more
+  information with other methods too.
 */
 
 /*!
@@ -1620,6 +1628,11 @@ QStringList QFontDatabase::styles( const QString &family,
     return chSet ? chSet->styles() : emptyList;
 }
 
+/*!
+  // #### TODO
+  
+  \sa isScalable(), isSmoothlyScalable()
+*/
 
 bool  QFontDatabase::isBitmapScalable( const QString &family,
 				       const QString &style,
@@ -1639,6 +1652,12 @@ bool  QFontDatabase::isBitmapScalable( const QString &family,
     return sty && sty->isBitmapScalable();
 }
 
+/*!
+  // #### TODO
+  
+  \sa isScalable(), isBitmapScalable()
+*/
+
 bool  QFontDatabase::isSmoothlyScalable( const QString &family,
 					 const QString &style,
 					 const QString &charSet ) const
@@ -1656,6 +1675,13 @@ bool  QFontDatabase::isSmoothlyScalable( const QString &family,
     const QtFontStyle *sty = chSet->style( style );
     return sty && sty->isSmoothlyScalable();
 }
+
+/*!
+  Returns TRUE if the font which matches the settings \a family, \a style and \a charSet
+  is scaleable.
+  
+  \sa isBitmapScalable(), isSmoothlyScalable()
+*/
 
 bool  QFontDatabase::isScalable( const QString &family,
 				 const QString &style,
@@ -1685,6 +1711,8 @@ static QValueList<int> emptySizeList;
 /*!
   Returns a list of all availabe sizes of the font \a family in the
   style \a style and the char set \a charSet.
+  
+  \sa smoothSizes(), standardSizes()
 */
 
 QValueList<int> QFontDatabase::pointSizes( const QString &family,
@@ -1706,6 +1734,12 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 }
 
 
+/*!
+  Returns a QFont object which matches the settings of \a family, \a style
+  \a pointsize and \a charSet. If no matching font could be created
+  an empty QFont object is returned.
+*/
+
 QFont QFontDatabase::font( const QString family, const QString &style,
 			   int pointSize, const QString charSet )
 {
@@ -1723,6 +1757,8 @@ QFont QFontDatabase::font( const QString family, const QString &style,
   Returns the point sizes of a font style that is guaranteed to look
   good. For non-scalable fonts and smoothly scalable fonts this function
   is equivalent to pointSizes().
+  
+  \sa pointSizes(), standardSizes()
 */
 
 QValueList<int> QFontDatabase::smoothSizes( const QString &family,
@@ -1733,11 +1769,23 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
     return sty ? sty->smoothSizes() : emptySizeList;
 }
 
+/*!
+  Returns a list of standard fontsizes.
+  
+  \sa smoothSizes(), pointSizes()
+*/
 
 QValueList<int> QFontDatabase::standardSizes()
 {
     return QtFontStyle::standardSizes();
 }
+
+/*!
+  Returns if the font witch mathes the settings \a family, \a style and
+  \a charSet is italic or not.
+
+  \sa weight(), bold()
+*/
 
 bool QFontDatabase::italic( const QString &family,
 			    const QString &style,
@@ -1747,6 +1795,13 @@ bool QFontDatabase::italic( const QString &family,
     return sty && sty->italic();
 }
 
+/*!
+  Returns if the font witch mathes the settings \a family, \a style and
+  \a charSet is bold or not.
+
+  \sa italic(), weight()
+*/
+
 bool QFontDatabase::bold( const QString &family,
 			    const QString &style,
 			    const QString &charSet ) const
@@ -1754,6 +1809,13 @@ bool QFontDatabase::bold( const QString &family,
     const QtFontStyle *sty = getStyle( d, family, style, charSet );
     return sty && sty->weight() >= QFont::Bold;
 }
+
+/*!
+  Returns the weight of the font witch mathes the settings \a family, \a style and
+  \a charSet.
+
+  \sa italic(), bold()
+*/
 
 int QFontDatabase::weight( const QString &family,
 			   const QString &style,
