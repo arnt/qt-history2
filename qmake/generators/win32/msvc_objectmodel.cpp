@@ -1906,7 +1906,7 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     strm << _CommandLine6;
     strm << uicApp << " " << str << " -o " << uiHeaders << fname << ".h &amp;&amp; ";				// Create .h from .ui file
     strm << uicApp << " " << str << " -i " << fname << ".h -o " << uiSources << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
-    strm << mocApp << " " << pname << fname << ".h -o " << mocDir << "moc_" << fname << ".cpp\"";
+    strm << mocApp << " " << uiHeaders << fname << ".h -o " << mocDir << "moc_" << fname << ".cpp\"";
     strm << _AdditionalDependencies6;
     strm << mocApp << ";" << uicApp << "\"";
     strm << _Outputs6;
