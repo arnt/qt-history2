@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#138 $
 **
 ** Implementation of QListView widget class
 **
@@ -481,12 +481,12 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     // we try HARD not to sort.  if we're already sorted, don't.
     if ( column == (int)lsc && ascending == (bool)lso )
 	return;
-
+    
     if ( column < 0 )
 	return;
 
     // more dubiously - only sort if the child items "exist"
-    if ( isOpen() || childCount() == 0 )
+    if ( !isOpen() || !childCount() )
 	return;
 
     lsc = column;
@@ -3654,7 +3654,7 @@ QHeader * QListView::header() const
 /*!  Returns the current number of parentless QListViewItem objects in
   this QListView, like QListViewItem::childCount() returns the number
   of child items for a QListViewItem.
-  
+
   \sa QListViewItem::childCount()
 */
 
