@@ -3104,7 +3104,6 @@ bool QWidget::focusNextPrevChild( bool next )
     QWidget *candidate = 0;
     QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
     do {
-	QWidget* i = w;
 	if ( w && w != startingPoint &&
 	     ( ( w->focusPolicy() & TabFocus ) == TabFocus )
 	     && !w->focusProxy() && w->isVisibleTo(this) && w->isEnabled())
@@ -3572,14 +3571,15 @@ void QWidget::show()
     bool postLayoutHint = !isTopLevel() && wasHidden;
     clearWState( WState_ForceHide | WState_CreatedHidden );
 
-    QEvent showToParentEvent( QEvent::ShowToParent );
-    QApplication::sendEvent( this, &showToParentEvent );
-
     if ( !isTopLevel() && !parentWidget()->isVisible() ) {
 	// we should become visible, but one of our ancestors is
 	// explicitly hidden. Since we cleared the ForceHide flag, our
 	// immediate parent will call show() on us again during his
 	// own processing of show().
+	if ( wasHidden ) {
+	    QEvent showToParentEvent( QEvent::ShowToParent );
+	    QApplication::sendEvent( this, &showToParentEvent );
+	}
 	return;
     }
 
@@ -3662,8 +3662,8 @@ void QWidget::show()
     if( isTopLevel() )
 	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
 
-    QShowEvent e;
-    QApplication::sendEvent( this, &e );
+    QShowEvent showEvent;
+    QApplication::sendEvent( this, &showEvent );
 
     if ( testWFlags(WShowModal) ) {
 	// qt_enter_modal *before* show, otherwise the initial
@@ -3725,9 +3725,6 @@ void QWidget::hide()
 
     hideWindow();
 
-    QEvent hideToParentEvent( QEvent::HideToParent );
-    QApplication::sendEvent( this, &hideToParentEvent );
-
     if ( testWState(WState_Visible) ) {
 	clearWState( WState_Visible );
 
@@ -3736,13 +3733,16 @@ void QWidget::hide()
 	if ( qApp && qApp->focusWidget() == this )
 	    focusNextPrevChild( TRUE );
 
-	QHideEvent e;
-	QApplication::sendEvent( this, &e );
+	QHideEvent hideEvent;
+	QApplication::sendEvent( this, &hideEvent );
 	hideChildren( FALSE );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
 #endif
+    } else {
+	QEvent hideToParentEvent( QEvent::HideToParent );
+	QApplication::sendEvent( this, &hideToParentEvent );
     }
 
     // post layout hint for non toplevels. The parent widget check is
