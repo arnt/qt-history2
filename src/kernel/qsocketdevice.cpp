@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#10 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -279,7 +279,7 @@ QSocketDevice::QSocketDevice( Type type )
 #if defined(QSOCKETDEVICE_DEBUG)
     debug( "QSocketDevice: Created QSocketDevice object %p, type %d",
 	   this, type );
-#endif    
+#endif
 #if defined(_OS_WIN32_)
     ::initWinSock();
 #endif
@@ -539,7 +539,7 @@ void QSocketDevice::setNonblocking( bool enable )
 	return;
 #if defined(_OS_WIN32_)
     // Do nothing
-#elif defin(UNIX)
+#elif defined(UNIX)
     int s = fcntl(sock_fd, F_GETFL, 0);
     if ( s >= 0 ) {
 	if ( enable )
@@ -690,7 +690,7 @@ bool QSocketDevice::connect( const QSocketAddress &addr )
   was successful, otherwise FALSE.
 
   bind() is used by servers for setting up incoming connections.
-  Call bind() before listen(). 
+  Call bind() before listen().
 */
 
 bool QSocketDevice::bind( const QSocketAddress &name )
