@@ -51,7 +51,7 @@ template<class Type>
 class Q_EXPORT QInterfaceManager
 {
 public:
-    QInterfaceManager( const QString& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Default )
+    QInterfaceManager( const QGuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Default )
 	: interfaceId( id ), defPol( pol )
     {
 	// Every library is unloaded on destruction of the manager
@@ -201,7 +201,7 @@ public:
     }
 
 private:
-    QString interfaceId;
+    QGuid interfaceId;
     QDict<QLibrary> plugDict;	    // Dict to match feature with library
     QDict<QLibrary> libDict;	    // Dict to match library file with library
 

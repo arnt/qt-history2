@@ -270,6 +270,8 @@ QUnknownInterface* QLibrary::load()
 	infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
 
 	info = infoProc ? infoProc() : 0;
+	if ( info )
+	    info->addRef();
     }
 
     return info;
@@ -298,11 +300,16 @@ bool QLibrary::unload( bool force )
 {
     if ( pHnd ) {
 	if ( info ) {
-	    if ( info->release() && !force )
-		return FALSE;
-
-	    delete info;
-	    info = 0;
+	    if ( info->release() ) {
+		if ( force ) {
+		    delete info;
+		    info = 0;
+		} else {
+		    return FALSE;
+		}
+	    } else {
+		info = 0;
+	    }
 	}
 	if ( !qt_free_library( pHnd ) )
 	    return FALSE;
@@ -347,7 +354,7 @@ QString QLibrary::library() const
 
   \sa QUnknownInterface::queryInterface
 */
-QUnknownInterface* QLibrary::queryInterface( const char *request )
+QUnknownInterface* QLibrary::queryInterface( const QGuid& request )
 {
     if ( !info ) {
 	if ( libPol != Manual )
