@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#13 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#14 $
 
 $base = "/tmp/striptree-$$";
 #$quiet=1;
@@ -146,10 +146,12 @@ do
   ci -mnone -t-'' -u \$B $base/cvs/qt/\$B,v
 done
 
-# Remove non-public files
+# Remove non-public files (mainly old CVS junk)
 cd $base/cvs/qt
 rm -rf bin/*.bat,v
 rm -rf bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printpicture reqs tests util
+rm -rf examples/dragdrop-tricky examples/layouts examples/network
+rm -rf examples/tellme examples/xshape
 ";
 
 close(SH) # We want to wait for the script to complete.
