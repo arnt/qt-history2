@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#46 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#46 $";
 #endif
 
 
@@ -273,16 +273,17 @@ inline double qcos( double a ) { return qsincos(a,TRUE); }
 
 struct QGC {
     GC	 gc;
-    bool in_use;
+    char in_use;
+    char mono;
 };
 
-const 	    gc_array_size = 16;
+const 	    gc_array_size = 32;
 static QGC  gc_array[gc_array_size];
 static bool gc_array_init = FALSE;
 
-#define SLOW_GC_ALLOC
+// #define SLOW_GC_ALLOC
 
-static GC alloc_painter_gc( Display *dpy, Drawable hd )
+static GC alloc_painter_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
 {
 #if defined(SLOW_GC_ALLOC)
     return XCreateGC( dpy, hd, 0, 0 );
@@ -303,9 +304,10 @@ static GC alloc_painter_gc( Display *dpy, Drawable hd )
 	if ( !p->gc ) {				// create GC (once)
 	    p->gc = XCreateGC( dpy, hd, 0, 0 );
 	    p->in_use = FALSE;
+	    p->mono   = monochrome;
 	}
-	if ( !p->in_use ) {			// available GC
-	    p->in_use = TRUE;
+	if ( !p->in_use && p->mono == monochrome ) {
+	    p->in_use = TRUE;			// available/compatible GC
 	    return p->gc;
 	}
 	p++;
@@ -652,7 +654,9 @@ static char *pat_tbl[] = {
 	    s = FillSolid;
     }
     if ( !gc_brush ) {				// brush not yet created
-	gc_brush = alloc_painter_gc( dpy, hd );
+	bool mono = pdev->devType() == PDT_PIXMAP &&
+	            ((QPixMap*)pdev)->depth() == 1;
+	gc_brush = alloc_painter_gc( dpy, hd, mono );
 	if ( rop != CopyROP )			// update raster op for brush
 	    setRasterOp( (RasterOp)rop );
 	if ( testf(ClipOn) )
@@ -713,17 +717,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( tabarray )				// update tabarray for device
 	    setTabArray( tabarray );
     }
-    else if ( pdev->devType() != PDT_WIDGET ) {	// i.e. pixmap device
-	if ( reinit ) {
-	    QFont  defaultFont(TRUE);		// default drawing tools
-	    QPen   defaultPen;
-	    QBrush defaultBrush;
-	    cfont  = defaultFont;		// set these drawing tools
-	    cpen   = defaultPen;
-	    cbrush = defaultBrush;
-	}
-	gc = alloc_painter_gc( dpy, hd );	// create GC
-    }
     setf( IsActive );				// painter becomes active
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
     gc_brush = 0;
@@ -754,9 +747,19 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	QPixMap *pm = (QPixMap*)pdev;
 	sw = tw = pm->size().width();		// default view size
 	sh = th = pm->size().height();
-	if ( pm->depth() == 1 ) {		// monochrome bitmap
+	bool mono = pm->depth() == 1;		// monochrome bitmap
+	if ( mono ) {
 	    bg_col = falseColor;
 	    cpen.setColor( trueColor );
+	}
+	gc = alloc_painter_gc( dpy, hd, mono );	// create GC
+	if ( reinit ) {
+	    QFont  defaultFont(TRUE);		// default drawing tools
+	    QPen   defaultPen;
+	    QBrush defaultBrush;
+	    cfont  = defaultFont;		// set these drawing tools
+	    cpen   = defaultPen;
+	    cbrush = defaultBrush;
 	}
     }
     else
@@ -2090,10 +2093,10 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    mat = eff_mat * mat;
 	    if ( create_new_bm ) {		// no such cached bitmap
 		QBitMap bm( w, h );		// create bitmap
+		bm.fill( falseColor );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setFont( cfont );
-		paint.eraseRect( bm.rect() );
 		paint.drawText( 0, asc, str, len );
 		paint.end();
 		wx_bm = bm.xForm( mat );	// transform bitmap
