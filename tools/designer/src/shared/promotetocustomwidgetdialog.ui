@@ -322,7 +322,7 @@
         </rect>
        </property>
        <property name="text" >
-        <string>Ok</string>
+        <string>OK</string>
        </property>
        <property name="default" >
         <bool>true</bool>
