@@ -150,6 +150,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 //		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl << endl;
 		    QString compilePCH;
+		    QStringList customDependencies;
 		    QString createMOC;
 		    QString buildCmdsR, buildCmdsD;
 		    QString buildCmds = "\nBuildCmds= \\\n";
@@ -191,13 +192,16 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 			compilePCH = precompPch + " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
 
+			QStringList &tmp = findDependencies(precompH);
+			if(!tmp.isEmpty()) // Got Deps for PCH
+			    customDependencies += tmp;
 		    }
 		    if (project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
 			QString mocpath = var( "QMAKE_MOC" );
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 			buildCmds += "\t" + mocpath + (*it)  + " -o " + findMocDestination((*it)) + " \\\n";
 			createMOC  = "\"" + findMocDestination((*it)) +	"\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
-			t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
+			customDependencies += "\"$(QTDIR)\\bin\\moc.exe\"";
 		    }
 		    if (!createMOC.isEmpty() || !compilePCH.isEmpty()) {
 			bool doMOC = !createMOC.isEmpty();
@@ -212,6 +216,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					compilePCH +
 					"# End Custom Build\n\n";
 
+			t << "USERDEP_" << base << "=" << valGlue(customDependencies, "\"", "\" \"", "\"") << endl << endl;
 			t << "!IF  \"$(CFG)\" == \""     << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build.arg(buildCmdsR)
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""   << build.arg(buildCmdsD)
 			  << "!ENDIF " << endl << endl;
