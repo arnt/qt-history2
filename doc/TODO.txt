@@ -135,6 +135,9 @@ QFile
 QTable
   Be able to set the whole table to be editable or not as well as the individual cells
 
+QLineEdit
+  Be able to use the "insert" key correctly
+
 Feature Requests
 ----------------
 
