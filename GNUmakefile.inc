@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#9 $
+# $Id: //depot/qt/main/GNUmakefile.inc#10 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -31,37 +31,12 @@ $(PROJECT).pro:
 	progen -o "$(PROJECT).pro" -n "$(PROJECT)"
 
 
-debug: GNUmakefile.debug $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.debug
-
-release: GNUmakefile.release $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.release
+%: GNUmakefile.% $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.$*
 
 static: static-debug
 
-static-debug: GNUmakefile.static-debug $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.static-debug
-
-static-release: GNUmakefile.static-release $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.static-release
-
-profile: GNUmakefile.profile $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.profile
-
 gcc: gcc-debug
-
-gcc-debug: GNUmakefile.gcc-debug $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.gcc-debug
-
-gcc-release: GNUmakefile.gcc-release $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.gcc-release
-
-gcc-static-debug: GNUmakefile.gcc-static-debug $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.gcc-static-debug
-
-gcc-static-release: GNUmakefile.gcc-static-release $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.gcc-static-release
-
 
 GNUmakefile.debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
@@ -78,6 +53,17 @@ endif
 	@mkdir -p .obj/release
 	tmake $(PROJECT).pro -o GNUmakefile.release \
 	    "CONFIG+=release" "OBJECTS_DIR=.obj/release"
+
+GNUmakefile.release-debug: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/release-debug
+	tmake $(PROJECT).pro -o GNUmakefile.release-debug \
+	    "CONFIG+=release" "OBJECTS_DIR=.obj/release-debug"
+	perl -pi \
+	    -e 's/^([CL]X*)FLAGS\s*=/$$1FLAGS=-g /' \
+		GNUmakefile.release-debug
 
 GNUmakefile.static-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
