@@ -15,6 +15,61 @@
 #include <qapplication.h>
 #include <qtimer.h>
 
+/*!
+  \class QTableItem qtable.h
+
+  \brief Implementation of a item for a QTable.
+
+  This item contains the data of a table cell, specifies the editor
+  and edit type for that cell and defines some other behaviour. By
+  default it can contain a text and pixmaps and offers a QLineEdit for
+  editing.
+  
+  By reimplementing paint(), editor() and setContentFromEditor() you
+  can change this.
+*/
+
+/*! \fn QTable *QTableItem::table() const
+  
+  Returns the QTable of this item.
+*/
+
+/*! \enum QTableItem::EditType
+  
+  <ul>
+  <li>\c Always
+  <li>\c OnActivate
+  <li>\c OnCurrent
+  <li>\c Never
+  </ul>
+*/
+
+/*!  Creates an item for the table \a table with the text \a t.
+*/
+
+QTableItem::QTableItem( QTable *table, const QString &t )
+    : txt( t ), pix(), t( table ), edType( OnActivate ), wordwrap( FALSE ),
+      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 ) 
+{
+}
+
+/*!  Creates an item for the table \a table with the text \a t and the
+  pixmap \a p.
+*/
+
+QTableItem::QTableItem( QTable *table, const QString &t, const QPixmap &p )
+    : txt( t ), pix( p ), t( table ), edType( OnActivate ), wordwrap( FALSE ),
+      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 ) 
+{
+}
+
+/*!  Destructor.
+*/
+
+QTableItem::~QTableItem() 
+{
+}
+
 /*!  Returns the pixmap of that item.
 */
 
@@ -74,6 +129,8 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, boo
   reimplement that to use a custom editor widget always create a new
   widget here as parent of table()->viewport(), as the ownership of it
   is trasferred to the caller.
+  
+  \sa QTable::editor()
 */
 
 QWidget *QTableItem::editor() const
@@ -86,6 +143,8 @@ QWidget *QTableItem::editor() const
 
 /*!  This function is called to set the cell contents from the editor
   \a w.
+  
+  \sa QTable::setContentFromEditor()
 */
 
 void QTableItem::setContentFromEditor( QWidget *w )
@@ -99,7 +158,6 @@ void QTableItem::setContentFromEditor( QWidget *w )
   normal text to the left and numbers to the right.
 */
 
-
 int QTableItem::alignment() const
 {
     bool num;
@@ -111,15 +169,28 @@ int QTableItem::alignment() const
     return ( num ? AlignRight : AlignLeft ) | AlignVCenter;
 }
 
+/*! If \a b is TRUE, the cell's text is wrapped into multible lines,
+  else not.
+*/
+
 void QTableItem::setWordWrap( bool b )
 {
     wordwrap = b;
 }
 
+/*! Returns TRUE, of word-wrap is turned on for this cell, else FALSE.
+ */
+
 bool QTableItem::wordWrap() const
 {
     return wordwrap;
 }
+
+/*!  Sets the edit type for that cell to \a t. This can be one of \c
+  Never (not editable), \c OnActivate (normal in-place editing), \c
+  OnCurrent (start in-place editing when this cell gets the current
+  one) and \c Always (always show the editor).
+*/
 
 void QTableItem::setEditType( EditType t )
 {
@@ -128,15 +199,31 @@ void QTableItem::setEditType( EditType t )
     table()->editTypeChanged( this, old );
 }
 
+/*!  Returns the edit type of that item
+  
+  \sa setEditType()
+*/
+
 QTableItem::EditType QTableItem::editType() const
 {
     return edType;
 }
 
+/*! If this item is set to a cell it might be that it should be not
+  possible anymore to replace the contents of that cell by another
+  QTableItem. If this should be the case, set \a b to TRUE here.
+*/
+
 void QTableItem::setTypeChangeAllowed( bool b )
 {
     tcha = b;
 }
+
+/*!  Returns if it is allowed to replace this item if it is set to a
+  cell once.
+  
+  \sa setTypeChangeAllowed()
+*/
 
 bool QTableItem::isTypeChangeAllowed() const
 {
@@ -167,39 +254,66 @@ bool QTableItem::isTypeChangeAllowed() const
   contents, you can reimplement QTable::paintCell() and draw there
   directly the contents without the need of any QTableItems. If you do
   this you can't of course use setCellText() and friends for these
-  cells. Also you have of course to repaint the cells which changed
-  yourself using updateCell().
+  cells (except you reimplement them and do something different). Also
+  you have of course to repaint the cells which changed yourself using
+  updateCell().
 
   The in-place editing is also made in an abstract way so that it is
   possible to have custom edit widgets for certain cells or types or
   cells. When in-plcae editing is started beginEdit() is called. This
   creates the editor widget for the required cell, places and shows
   it. To create an editor widget this function calls editor() for the
-  required cell. Now there exist two different ways to edit a
-  cell. Either offer an edit widget to enter a contents which should
-  replace the current cell's contents or offer an editor to edit the
-  current cell's contents. The edit-mode can be retrieved by the
-  editMode() function during editing. Now depending on that mode the
-  editor() function either looks if there is a contents to edit (a
-  QTableItem exists for that cell) and asks that item for an editor
-  (see QTableItem::editor()). If this is not possible, or the item
-  returns 0 as editor widget or we are in replace mode, the editor()
-  function creates an editor itself. That editor is a QLineEdit and
-  defaultValidator() is used as validator for the QLineEdit. Now when
-  the user finishes editing endEdit() is called. If the contents of
-  the editor should be accepted, and we are in edit mode and the
-  edited cell had already a QTableItem,
-  QTableItem::setContentFromEditor() is called to set the
-  contents. Else setContentFromEditor() is called to create a content
-  for the cell or replace the old cell's contents by the editor's one.
-
-  So to customize the in-place editing you can make a custom
-  QTableItem and reimplement QTableItem::editor(), also maybe
-  reimplement editor(), QTableItem::setContentFromEditor() and
-  setContentFromEditor().
-
-
+  required cell. See the documentation of editor() for more detailed
+  documentation of that.
+  
+  Now there exist two different ways to edit a cell. Either offer an
+  edit widget to enter a contents which should replace the current
+  cell's contents or offer an editor to edit the current cell's
+  contents. If it shouldn't be possible to replace the contents of a
+  cell, but just edit the current content, set a QTableItem for that
+  cell and set isTypeChangeAllowed() of that item to FALSE.
+  
+  There are also different ways for starting in-place
+  editing. Normally if the user starts typing text in-place editing
+  (Replacing) for the current cell is started. If the user
+  double-clicks on a cell also in-place editing is started for the
+  cell he doubleclicked on (Editing).  But it is sometimes required
+  that a cell always shows an editor, shows the editor as soon as it
+  gets the current cell or that it is not editable at all. Use
+  QTableItem::setEditType() for specifying this behaviour of a cell.
+  
+  Now when the user finishes editing endEdit() is called. Look at the
+  documentation of endEdit() for more information on that (e.g. how
+  the contents from the editor is transferred to the item.)
+  
+  If you want to make a cell not editable and do not want to waste a
+  QTableItem for this cell, reimplement editor() and return 0 there
+  for the cells which should be not editable.
 */
+
+/*! \fn void QTable::currentChanged( int row, int col )
+  
+  This signal is emitted if the current cell has been changed to \a
+  row, \a col.
+*/
+
+/*! \fn int QTable::currentRow() const
+  
+  Returns the current row.
+*/
+
+/*! \fn int QTable::currentCol() const
+  
+  Returns the current column.
+*/
+
+/*! \enum QTable::EditMode
+  <ul>
+  <li>\c NotEditing
+  <li>\c Editing
+  <li>\c Replacing
+  </ul>
+ */
 
 /*!  Constructs a table with a range of \a numRows * \a numCols cells.
 */
@@ -278,7 +392,27 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
 QTable::~QTable()
 {
+    contents.clear();
 }
+
+/*!  Returns the QHeader which is used on the top.
+*/
+
+QHeader *QTable::horizontalHeader() const 
+{ 
+    return (QHeader*)topHeader; 
+}
+
+/*!  Returns the QHeader which is used on the left side.
+*/
+
+QHeader *QTable::verticalHeader() const 
+{ 
+    return (QHeader*)leftHeader; 
+}
+
+/*!  If \a b is TRUE, the table grid is shown, else not.
+ */
 
 void QTable::setShowGrid( bool b )
 {
@@ -286,25 +420,42 @@ void QTable::setShowGrid( bool b )
     viewport()->repaint( FALSE );
 }
 
+/*!  Returns wheather the table grid is shown.
+ */
+
 bool QTable::showGrid() const
 {
     return sGrid;
 }
+
+/*!  If \a b is set to TRUE, the columns can be moved by the user,
+  else not.
+*/
 
 void QTable::setColsMovable( bool b )
 {
     mCols = b;
 }
 
+/*!  Returns wheather the columns can be moved by the user.
+ */
+
 bool QTable::colsMovable() const
 {
     return mCols;
 }
 
+/*!  If \a b is set to TRUE, the rows can be moved by the user, else
+  not.
+*/
+
 void QTable::setRowsMovable( bool b )
 {
     mRows = b;
 }
+
+/*!  Returns wheather the rows can be moved by the user.
+ */
 
 bool QTable::rowsMovable() const
 {
@@ -312,11 +463,10 @@ bool QTable::rowsMovable() const
 }
 
 /*!  Draws the contents of the table on the painter \a p. This
-function is optimized to only draw the relevant cells which are inside
-the clipping rectangle \a cx, \a cy, \a cw, \a ch.
+  function is optimized to only draw the relevant cells which are
+  inside the clipping rectangle \a cx, \a cy, \a cw, \a ch.
 
-This function also draws the indication of the current selection which
-is the same as the current cell if there is no selection available.
+  This function also draws also the indication of the current cell.
 */
 
 void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
@@ -389,17 +539,17 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!  Paints the cell at the position \a row, \a col on the painter \a
-p. \a cr describes the corrdinates of the cell in contents
-coordinates. But the painter is already translated so that the cells
-origin is at (0/0).
+  p. \a cr describes the corrdinates of the cell in contents
+  coordinates. But the painter is already translated so that the cells
+  origin is at (0/0).
 
-If you want to draw a custom cell content reimplement this functions
-and do the custom drwaing here. If you use a custom table item, the
-drawing for this item should be implemented there. See
-QTableItem::paint(). So only implement this function for drawing items
-if you e.g. directly retrieve the data which should be drawn from a
-database and should not be stored in an data structure in the table
-(which would be a custom table item).
+  If you want to draw a custom cell content reimplement this functions
+  and do the custom drwaing here. If you use a custom table item, the
+  drawing for this item should be implemented there. See
+  QTableItem::paint(). So only implement this function for drawing
+  items if you e.g. directly retrieve the data which should be drawn
+  from a database and should not be stored in an data structure in the
+  table (which would be a custom table item).
 */
 
 void QTable::paintCell( QPainter* p, int row, int col, const QRect &cr, bool selected )
@@ -437,7 +587,7 @@ void QTable::paintCell( QPainter* p, int row, int col, const QRect &cr, bool sel
 /*!  This function fills the rect \a cx, \a cy, \a cw, \a ch with the
   basecolor. This is used by drawContents() to erase or fill unused
   areas.
- */
+*/
 
 void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
 {
@@ -485,6 +635,10 @@ void QTable::setCellContent( int row, int col, QTableItem *item )
     item->col = col;
     updateCell( row, col ); // repaint
 }
+
+/*!  Clears the cell \p row, \a col. This means it removes the table
+  item of it if one exists.
+*/
 
 void QTable::clearCell( int row, int col )
 {
@@ -555,7 +709,7 @@ void QTable::setCurrentCell( int row, int col )
     if ( curRow != row || curCol != col ) {
 	QTableItem *item = cellContent( curRow, curCol );
 	if ( item && item->editType() == QTableItem::OnCurrent )
-	    endEdit( curRow, curCol, TRUE, item->lastEditor );
+	    endEdit( curRow, curCol, TRUE, item->lastEditor, Editing );
 	int oldRow = curRow;
 	int oldCol = curCol;
 	curRow = row;
@@ -580,12 +734,19 @@ void QTable::setCurrentCell( int row, int col )
     }
 }
 
+/*!  Scrolls the table so that the cell \a row, \a col is made
+  visible.
+*/
+
 void QTable::ensureCellVisible( int row, int col )
 {
     int cw = columnWidth( col );
     int rh = rowHeight( row );
     ensureVisible( columnPos( col ) + cw / 2, rowPos( row ) + rh / 2, cw / 2, rh / 2 );
 }
+
+/*!  Returns wheather the cell \a row, \a col is selected.
+ */
 
 bool QTable::isSelected( int row, int col ) const
 {
@@ -604,6 +765,11 @@ bool QTable::isSelected( int row, int col ) const
     }
     return FALSE;
 }
+
+/*!  Returns TRUE if the row \a row is selected. If \a full is FALSE,
+  TRUE is returned if at least one cell the row is selected, else TRUE
+  is only returned if all cells of the row are selected.
+*/
 
 bool QTable::isRowSelected( int row, bool full ) const
 {
@@ -635,6 +801,11 @@ bool QTable::isRowSelected( int row, bool full ) const
     return FALSE;
 }
 
+/*!  Returns TRUE if the columns \a col is selected. If \a full is
+  FALSE, TRUE is returned if at least one cell the column is selected,
+  else TRUE is only returned if all cells of the columns are selected.
+*/
+
 bool QTable::isColSelected( int col, bool full ) const
 {
     if ( !full ) {
@@ -665,10 +836,18 @@ bool QTable::isColSelected( int col, bool full ) const
     return FALSE;
 }
 
+/*!  Returns the number of selections.
+ */
+
 int QTable::selectionCount() const
 {
     return selections.count();
 }
+
+/*!  Sets \a topRow, \a leftCol, \a bottomRow and \a rightCol to the
+  edges of the selection \a num. If successful TRUE is returned, else
+  FALSE.
+*/
 
 bool QTable::selection( int num, int &topRow, int &leftCol, int &bottomRow, int &rightCol )
 {
@@ -691,7 +870,7 @@ bool QTable::selection( int num, int &topRow, int &leftCol, int &bottomRow, int 
 void QTable::contentsMousePressEvent( QMouseEvent* e )
 {
     if ( editorWidget && isEditing() )
- 	endEdit( editRow, editCol, TRUE, editorWidget );
+ 	endEdit( editRow, editCol, TRUE, editorWidget, edMode );
 
     int curRow = rowAt( e->pos().y() );
     int curCol = columnAt( e->pos().x() );
@@ -753,6 +932,9 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 	autoScrollTimer->start( 100, TRUE );
 }
 
+/*! \internal
+ */
+
 void QTable::doAutoScroll()
 {
     QPoint pos = QCursor::pos();
@@ -805,13 +987,13 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    if ( ke->key() == Key_Escape ) {
 		if ( !item || item->editType() == QTableItem::OnActivate )
-		    endEdit( editRow, editCol, FALSE, editorWidget );
+		    endEdit( editRow, editCol, FALSE, editorWidget, edMode );
 		return TRUE;
 	    }
 
 	    if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
 		if ( !item || item->editType() == QTableItem::OnActivate )
-		    endEdit( editRow, editCol, TRUE, editorWidget );
+		    endEdit( editRow, editCol, TRUE, editorWidget, edMode );
 		activateNextCell();
 		return TRUE;
 	    }
@@ -821,7 +1003,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		   ke->key() == Key_Down || ke->key() == Key_Next || ke->key() == Key_End ||
 		   ke->key() == Key_Left || ke->key() == Key_Right ) ) {
 		if ( !item || item->editType() == QTableItem::OnActivate )
-		    endEdit( editRow, editCol, TRUE, editorWidget );
+		    endEdit( editRow, editCol, TRUE, editorWidget, edMode );
 		keyPressEvent( ke );
 		return TRUE;
 	    }
@@ -846,7 +1028,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	if ( isEditing() && editorWidget && o == editorWidget ) {
 	    QTableItem *item = cellContent( editRow, editCol );
 	    if ( !item || item->editType() == QTableItem::OnActivate )
-		endEdit( editRow, editCol, TRUE, editorWidget );
+		endEdit( editRow, editCol, TRUE, editorWidget, edMode );
 	}
 	break;
     case QEvent::FocusIn:
@@ -975,10 +1157,10 @@ void QTable::showEvent( QShowEvent *e )
     updateGeometries();
 }
 
+static bool inUpdateCell = FALSE;
+
 /*!  Repaints the cell \a row, \a col.
 */
-
-static bool inUpdateCell = FALSE;
 
 void QTable::updateCell( int row, int col )
 {
@@ -1079,10 +1261,22 @@ void QTable::rowHeightChanged( int row, int, int )
     updateGeometries();
 }
 
+/*!  This function is called if the order of the columns has been
+  changed. If you want to change the order programmatically, call
+  QHeader::moveSection() on the horizontalHeader() or
+  verticalHeader().
+*/
+
 void QTable::columnIndexChanged( int, int, int )
 {
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
 }
+
+/*!  This function is called if the order of the rows has been
+  changed. If you want to change the order programmatically, call
+  QHeader::moveSection() on the horizontalHeader() or
+  verticalHeader().
+*/
 
 void QTable::rowIndexChanged( int, int, int )
 {
@@ -1196,6 +1390,9 @@ int QTable::cols() const
     return topHeader->count();
 }
 
+/*!  Sets the number of rows to \a r.
+ */
+
 void QTable::setRows( int r )
 {
     if ( r > rows() ) {
@@ -1214,6 +1411,9 @@ void QTable::setRows( int r )
     updateGeometries();
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
 }
+
+/*!  Sets the number of columns to \a c.
+ */
 
 void QTable::setCols( int c )
 {
@@ -1259,16 +1459,25 @@ QValidator *QTable::defaultValidator() const
   this cell will be replaced by a new content.
 
   The default implementation looks if there exists a QTableItem for
-  the cell and uses the editor of that (see QTableItem::editor()), if
-  \a initFromCell is TRUE, else a default editor which is a QLineEdit
-  is created.
+  the cell. If this is the case and \a initFromCell is TRUE or
+  QTableItem::isTypeChangeAllowed() of the cell is FALSE, the item of
+  that cell is asked to create the editor (using QTableItem::editor()).
+  
+  If this is not the case, defaultEditor() is called to get the editor
+  for that cell.
+  
+  So if you want to create your own editor for certain cells,
+  implement your own QTableItem and reimplement
+  QTableItem::editor(). If you want to use a different editor than a
+  QLineEdit as default editor, reimplement defaultEditor().
+  
+  So normally you do not need to reimplement this function.
 
   The ownership of the editor widget is transferred to the caller.
 
-  You can reimplement that if you want to create an own editor
-  depending on the cell.
-
   Returning 0 here means that the cell is not editable.
+  
+  \sa QTableItem::editor()
 */
 
 QWidget *QTable::editor( int row, int col, bool initFromCell ) const
@@ -1294,6 +1503,15 @@ QWidget *QTable::editor( int row, int col, bool initFromCell ) const
     return e;
 }
 
+/*! Returns the editor widget which should be used for editing cells
+  which have no QTableItem. The default implementation returns a
+  QLineEdit which has the defaultValidator() set.
+  
+  The ownership of the editor widget is transferred to the caller.
+  
+  \sa editor()
+*/
+
 QWidget *QTable::defaultEditor() const
 {
     QLineEdit *e = new QLineEdit( viewport() );
@@ -1304,9 +1522,12 @@ QWidget *QTable::defaultEditor() const
 
 /*!  This function is called to start in-place editing of the cell \a
   row, \a col. If \a replace is TRUE the content of this cell will be
-  replaced by the content of the editor, else the current content of
-  that cell (if existing) will be edited by the editor.
+  replaced by the content of the editor later, else the current
+  content of that cell (if existing) will be edited by the editor.
 
+  This function calls editor() to get the editor which should be used
+  for editing the cell.
+  
   This function is responsible for creating and placing the editor.
 */
 
@@ -1333,16 +1554,22 @@ void QTable::beginEdit( int row, int col, bool replace )
 
 /*!  This function is called if in-place editing of the cell \a row,
   \a col has to be ended. If \a accept is TRUE the content of the \a
-  editor has to be transferred to the cell. If editMode() is \c
-  Replacing the current content of that cell should be replaced by the
-  content of the editor (removing the QTableItem of this cell if one
-  exists), else (if possible) the content of the editor should just be
-  set to the QTableItem of this cell.
-
+  editor has to be transferred to the cell. If mode is \c Replacing
+  the current content of that cell should be replaced by the content
+  of the editor (this means removing the current QTableItem of the
+  cell and creating a new one for the cell), else (if possible) the
+  content of the editor should just be set to the QTableItem of this
+  cell.
+  
+  So, if the cell contents should be replaced or if no QTableItem
+  exists for the cell yet, setCellContentFromEditor() is called, else
+  QTableItem::setCellContentFromEditor() is called on the QTableItem
+  of the cell.
+  
   This function is also responsible for deleting the editor widget.
 */
 
-void QTable::endEdit( int row, int col, bool accept, QWidget *editor )
+void QTable::endEdit( int row, int col, bool accept, QWidget *editor, EditMode mode )
 {
     editRow = -1;
     editCol = -1;
@@ -1358,7 +1585,7 @@ void QTable::endEdit( int row, int col, bool accept, QWidget *editor )
     }
 
     QTableItem *i = cellContent( row, col );
-    if ( edMode == Replacing && i ) {
+    if ( mode == Replacing && i ) {
 	clearCell( row, col );
 	i = 0;
     }
@@ -1377,8 +1604,12 @@ void QTable::endEdit( int row, int col, bool accept, QWidget *editor )
 }
 
 /*!  This function is called to set the contents of the cell \a row,
-  \a col from the \a editor. If there existed already a contents, this
-  is removed first (see clearCell())
+  \a col from the \a editor. If there existed already a QTableItem for
+  this cell, this is removed first (see clearCell()).
+  
+  Reimplement this if you want to do something different here.
+  
+  \sa QTableItem::setContentFromEditor()
 */
 
 void QTable::setCellContentFromEditor( int row, int col, QWidget *editor )
@@ -1405,14 +1636,16 @@ QTable::EditMode QTable::editMode() const
     return edMode;
 }
 
-/*!
-  \a internal
+/*!  \internal
 */
 
 int QTable::indexOf( int row, int col ) const
 {
     return ( row * cols() ) + col; // mapping from 2D table to 1D array
 }
+
+/*!  \internal
+*/
 
 void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
 				bool updateVertical, bool updateHorizontal )
@@ -1455,6 +1688,9 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
     }
 }
 
+/*!  Clears all selections.
+ */
+
 void QTable::clearSelection()
 {
     bool needRepaint = !selections.isEmpty();
@@ -1492,6 +1728,9 @@ void QTable::clearSelection()
     }
 }
 
+/*!  \internal
+*/
+
 QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol )
 {
     int y = rowPos( topRow );
@@ -1502,6 +1741,13 @@ QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCo
     r.setCoords( x, y, x1, y1 );
     return r;
 }
+
+/*!  This is called to activate the next cell if in-place editing was
+  finished by pressing the Return key.
+  
+  If you want a different behaviour then going from top to bottom,
+  reimplement this function.
+*/
 
 void QTable::activateNextCell()
 {
@@ -1523,6 +1769,9 @@ void QTable::activateNextCell()
 
 }
 
+/*!  \internal
+*/
+
 void QTable::fixRow( int &row, int y )
 {
     if ( row == -1 ) {
@@ -1532,6 +1781,9 @@ void QTable::fixRow( int &row, int y )
 	    row = rows() - 1;
     }
 }
+
+/*!  \internal
+*/
 
 void QTable::fixCol( int &col, int x )
 {
@@ -1584,7 +1836,7 @@ bool QTable::SelectionRange::operator==( const SelectionRange &s ) const
 void QTable::editTypeChanged( QTableItem *i, QTableItem::EditType old )
 {
     if ( old == QTableItem::Always )
-	endEdit( i->row, i->col, TRUE, i->lastEditor );
+	endEdit( i->row, i->col, TRUE, i->lastEditor, Editing );
     updateCell( i->row, i->col );
 }
 

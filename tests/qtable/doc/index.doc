@@ -1,0 +1,14 @@
+/*!
+\page index.html
+
+<title>Qt Table Widget (QTable)</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+<h1 align=center>Qt Table Widget (QTable)</h1><br clear="all">
+
+<ul>
+<li><a href="qtable.html">QTable</a>
+<li><a href="qtableitem.html">QTableItem</a>
+</ul>
+*/

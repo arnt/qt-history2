@@ -32,10 +32,9 @@ class QTableItem : public Qt
 public:
     enum EditType { Never, OnCurrent, OnActivate, Always };
 
-    QTableItem( QTable *table, const QString &t, const QPixmap p )
-	: txt( t ), pix( p ), t( table ), edType( OnActivate ), wordwrap( FALSE ),
-	  tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 ) {}
-    virtual ~QTableItem() {}
+    QTableItem( QTable *table, const QString &t );
+    QTableItem( QTable *table, const QString &t, const QPixmap &p );
+    virtual ~QTableItem();
 
     virtual QPixmap pixmap() const;
     virtual QString text() const;
@@ -81,8 +80,8 @@ public:
     QTable( int numRows, int numCols, QWidget* parent=0, const char* name=0 );
     ~QTable();
 
-    QHeader *horizontalHeader() const { return (QHeader*)topHeader; }
-    QHeader *verticalHeader() const { return (QHeader*)leftHeader; }
+    QHeader *horizontalHeader() const;
+    QHeader *verticalHeader() const;
 
     virtual void setCellContent( int row, int col, QTableItem *item );
     virtual void setCellText( int row, int col, const QString &text );
@@ -113,7 +112,7 @@ public:
     virtual QWidget *defaultEditor() const;
     QWidget *editor( int row, int col, bool initFromCell ) const;
     virtual void beginEdit( int row, int col, bool replace );
-    virtual void endEdit( int row, int col, bool accept, QWidget *editor );
+    virtual void endEdit( int row, int col, bool accept, QWidget *editor, EditMode mode );
     virtual void setCellContentFromEditor( int row, int col, QWidget *editor );
     bool isEditing() const;
     EditMode editMode() const;
@@ -131,7 +130,7 @@ public:
     void clearSelection();
     int selectionCount() const;
     bool selection( int num, int &topRow, int &leftCol, int &bottomRow, int &rightCol );
-    
+
     void setShowGrid( bool b );
     bool showGrid() const;
 
@@ -153,6 +152,7 @@ protected:
     void showEvent( QShowEvent *e );
 
     virtual void paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch );
+    virtual void activateNextCell();
     bool focusNextPrevChild( bool next );
 
 protected slots:
@@ -188,7 +188,6 @@ private:
     void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
 			    bool updateVertical = TRUE, bool updateHorizontal = TRUE );
     QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol );
-    void activateNextCell();
     void fixRow( int &row, int y );
     void fixCol( int &col, int x );
     void editTypeChanged( QTableItem *i, QTableItem::EditType old );
