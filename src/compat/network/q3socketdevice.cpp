@@ -491,4 +491,18 @@ void Q3SocketDevice::setError( Error err )
     e = err;
 }
 
+/*! \fn Q3SocketDevice::readBlock(char *data, Q_ULONG maxlen)
+
+    Reads \a maxlen bytes from the socket into \a data and returns the
+    number of bytes read. Returns -1 if an error occurred.
+*/
+
+/*! \fn Q3SocketDevice::writeBlock(const char *data, Q_ULONG len)
+
+    Writes \a len bytes to the socket from \a data and returns the
+    number of bytes written. Returns -1 if an error occurred.
+
+    This is used for \c QSocketDevice::Stream sockets.
+*/
+
 #endif //QT_NO_NETWORK
