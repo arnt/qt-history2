@@ -18,25 +18,24 @@
 **
 **********************************************************************/
 
+#include "actiondnd.h"
 #include "command.h"
-#include "defs.h"
-#include "formwindow.h"
-#include "layout.h"
-#include "mainwindow.h"
-#include "metadatabase.h"
-#include "resource.h"
-#include "widgetfactory.h"
-#include <domtool.h>
-#include <widgetdatabase.h>
 #ifndef QT_NO_SQL
 #include "database.h"
 #endif
-#include "actiondnd.h"
 #include "formfile.h"
+#include "formwindow.h"
+#include "mainwindow.h"
 #include "menubareditor.h"
+#include "metadatabase.h"
 #include "pixmapcollection.h"
 #include "popupmenueditor.h"
 #include "project.h"
+#include "resource.h"
+#include "widgetfactory.h"
+
+#include <domtool.h>
+#include <widgetdatabase.h>
 
 #include <qapplication.h>
 #include <qbuffer.h>
@@ -61,6 +60,7 @@
 #include <qtable.h>
 #endif
 #include <qtabwidget.h>
+#include <qtabwidget.h>
 #include <qtextcodec.h>
 #include <qtextstream.h>
 #include <qtooltip.h>
@@ -69,8 +69,8 @@
 #include <qwidgetstack.h>
 #include <qwizard.h>
 #include <qworkspace.h>
+#include <qworkspace.h>
 #include <private/qucom_p.h>
-
 
 static QString makeIndent( int indent )
 {
@@ -2962,7 +2962,8 @@ bool Resource::saveFormCode( FormFile *formfile, LanguageInterface *langIface )
 	return FALSE;
     if ( formfile->hasTempFileName() ||
 	 formfile->code().isEmpty() ||
-	 !formfile->hasFormCode() )
+	 !formfile->hasFormCode() ||
+	 !formfile->isModified(FormFile::WFormCode) )
 	return TRUE;  // There is no code to be saved.
     return saveCode( formfile->project()->makeAbsolute(formfile->codeFile()),
 		     formfile->code() );
