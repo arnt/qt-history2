@@ -1024,7 +1024,7 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	if ( p ) {
 	    painter.setClipRect(QRect(0,0,area.width(),area.height()));
 	} else {
-	    //painter.setClipRegion(rgn);
+	    painter.setClipRegion(rgn);
 	}
 	drawBackground(painter,area);
 	allvisible.drawUnique(painter);
@@ -1842,7 +1842,7 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
     if ( s1 && s2 ) {
 	// a
 	return qt_testCollision(s1,s2);
-    } else if ( (r1 || t2 || s1) && (r2 || t2 || s2) ) {
+    } else if ( (r1 || t1 || s1) && (r2 || t2 || s2) ) {
 	// b
 	QRect rc1 = i1->boundingRectAdvanced();
 	QRect rc2 = i2->boundingRectAdvanced();
@@ -2400,7 +2400,7 @@ Returns the length of the array.
 
 
 /*!
-  Moves the item to (\a x,\a y) by calling the moveBy()
+  Moves the item to (\a x, \a y) by calling the moveBy()
   virtual function.
 */
 void QCanvasItem::move(double x, double y)
@@ -2775,8 +2775,6 @@ QSize QCanvasView::sizeHint() const
 
 /*!
   Constructs a QCanvasPolygonalItem on \a canvas.
-  Derived classes should call addToChunks()
-  in their constructor once numAreaPoints() and getAreaPoints() are valid.
 */
 QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
     QCanvasItem(canvas)
@@ -2785,10 +2783,9 @@ QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
 }
 
 /*!
-  Destruct the QCanvasPolygonalItem.  Derived classes \e must remove the area
-  from any chunks, as this destructor cannot call the virtual methods
-  required to do so.  That is, they must call hide() in their
-  destructor.
+  Destruct the QCanvasPolygonalItem.  Derived classes \e must 
+  call hide() in their
+  destructor, as this destructor cannot call the virtual methods.
 */
 QCanvasPolygonalItem::~QCanvasPolygonalItem()
 {
