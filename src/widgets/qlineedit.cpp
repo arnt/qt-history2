@@ -973,7 +973,19 @@ QString QLineEdit::selectedText() const
     return QString::null;
 }
 
-/*! \obsolete use selectedText() */
+/*!
+    selectionStart() returns the index of the first selected character in the
+    line edit or -1 if no text is selected.
+
+    \sa selectedText()
+*/
+
+int QLineEdit::selectionStart() const
+{
+    return d->hasSelectedText() ? d->selstart : -1;
+}
+
+/*! \obsolete use selectedText(), selectionStart() */
 bool QLineEdit::getSelection( int *start, int *end )
 {
     if ( d->hasSelectedText() && start && end ) {
