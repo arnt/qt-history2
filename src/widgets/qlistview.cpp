@@ -4565,12 +4565,24 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    QString input( d->currentPrefix );
 	    QListViewItem * keyItem = i;
 	    QTime now( QTime::currentTime() );
+	    bool tryFirst = TRUE;
 	    while( keyItem ) {
 		// try twice, first with the previous string and this char
-		input = input + e->text().lower();
+		if ( d->currentPrefixTime.msecsTo( now ) <= 1500 ) 
+		    input = input + e->text().lower();
+		else
+		    input = e->text().lower();
+		if ( input.length() == 1 ) {
+		    if ( keyItem->itemBelow() ) {
+			keyItem = keyItem->itemBelow();
+			tryFirst = TRUE;
+		    } else {
+			keyItem = firstChild();
+			tryFirst = FALSE;
+		    }
+		}
 		QString keyItemKey;
 		QString prefix;
-		bool tryFirst = TRUE;
 		while( keyItem ) {
 		    // Look for text in column 0, then left-to-right
 		    keyItemKey = keyItem->text(0);
@@ -4598,10 +4610,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		    }
 		}
 		// then, if appropriate, with just this character
-		if ( input.length() > 1 &&
-		     d->currentPrefixTime.msecsTo( now ) > 1500 ) {
-		    input.truncate( 0 );
-		    keyItem = d->r;
+		if ( input.length() > 1 ) {
+		    input.truncate(0);
+		    keyItem = i;
 		}
 	    }
 	} else {
