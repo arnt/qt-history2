@@ -8,6 +8,12 @@
 class QLabel;
 class QSqlForm;
 
+class MatchCursor : public QSqlCursor
+{
+public:
+    MatchCursor();
+};
+
 class PingPongApp : public QMainWindow
 {
     Q_OBJECT
@@ -16,6 +22,14 @@ public:
 
 protected:
     void init();
+    
+protected slots:
+    void updateMatch();
+    void insertMatch();
+    void deleteMatch();
+    
+    QSqlTable * matchTable;
+    MatchCursor matchCr;
 };
 
 #endif 

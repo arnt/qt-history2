@@ -1,4 +1,5 @@
 #include "pingpongapp.h"
+#include "dialogs.h"
 
 #include <qlayout.h>
 #include <qfile.h>
@@ -16,6 +17,18 @@
 #include <qapplication.h>
 #include <qfiledialog.h>
 
+MatchCursor::MatchCursor()
+    : QSqlCursor( "match" )
+{
+    field("winnerid")->setVisible( FALSE );
+    field("loserid")->setVisible( FALSE );
+
+    field("losses")->setDisplayLabel( "Losses" );
+    field("wins")->setDisplayLabel( "Wins" );
+    field("date")->setDisplayLabel( "Date" );
+    field("sets")->setDisplayLabel( "Sets" );
+}
+
 PingPongApp::PingPongApp( QWidget * parent, const char * name )
     : QMainWindow( parent, name )
 {
@@ -24,12 +37,7 @@ PingPongApp::PingPongApp( QWidget * parent, const char * name )
 
 void PingPongApp::init()
 {
-    setCaption( "PingPong" );
-
-    QWidget* w = new QWidget();
-    
-    
-    setCentralWidget( w );
+    setCaption( "PingPong Statistics" );
 
     // Setup menus
     QPopupMenu * menu = new QPopupMenu( this );
@@ -38,4 +46,94 @@ void PingPongApp::init()
     menuBar()->insertItem( "&File", menu );
 
     resize( 700, 400 );
+
+    QFrame * f1       = new QFrame( this );
+    QVBoxLayout * vb1 = new QVBoxLayout( f1 );
+
+    vb1->setMargin( 5 );
+    vb1->setSpacing( 5 );
+
+    //
+    // Set up the different widgets
+    //
+    QFont f = font();
+    f.setBold( TRUE );
+
+    QLabel * label = new QLabel( f1 );
+    label->setText( "Matches" );
+    label->setFont( f );
+    QFontMetrics fm = label->fontMetrics();
+
+    vb1->addWidget( label );
+
+    matchTable = new QSqlTable( f1 );
+    vb1->addWidget( matchTable );
+
+    // insert/update/delete buttons
+    QFrame * buttonFrame = new QFrame( f1 );
+    QHBoxLayout * chl = new QHBoxLayout( buttonFrame );
+    chl->setSpacing( 2 );
+
+    chl->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
+				   QSizePolicy::Minimum ) );
+
+    QPushButton * button = new QPushButton( "U&pdate", buttonFrame );
+    chl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( updateMatch() ) );
+
+    button = new QPushButton( "I&nsert", buttonFrame );
+    chl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( insertMatch() ) );
+
+    button = new QPushButton( "D&elete", buttonFrame );
+    chl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( deleteMatch() ) );
+
+    vb1->addWidget( buttonFrame );
+
+    setCentralWidget( f1 );
+
+    //
+    // Set up the initial tables
+    //
+    matchCr.select( matchCr.primaryIndex() );
+
+    // match table
+    matchTable->setConfirmEdits( TRUE );
+    matchTable->setConfirmCancels( TRUE );
+    matchTable->setCursor( &matchCr );
+
+}
+
+void PingPongApp::insertMatch()
+{
+     QSqlCursor * cr = matchTable->cursor();
+
+     GenericDialog dlg( cr->insertBuffer(), GenericDialog::Insert, this );
+     if( dlg.exec() == QDialog::Accepted ){
+ 	cr->insert();
+ 	matchTable->refresh();
+     }
+}
+
+void PingPongApp::updateMatch()
+{
+     QSqlCursor * cr = matchTable->cursor();
+
+     GenericDialog dlg( cr->updateBuffer(), GenericDialog::Update, this );
+     if( dlg.exec() == QDialog::Accepted ){
+ 	cr->update();
+ 	matchTable->refresh();
+     }
+}
+
+void PingPongApp::deleteMatch()
+{
+     QSqlCursor * cr = matchTable->cursor();
+
+     GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
+     if( dlg.exec() == QDialog::Accepted ){
+ 	cr->del();
+ 	matchTable->refresh();
+     }
 }
