@@ -53,7 +53,8 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     QList<DomInclude*> ui_includes;
     QList<DomWidget*> ui_toolbars;
     QList<DomWidget*> ui_menubars;
-    QList<DomActionGroup*> ui_action_list;
+    QList<DomAction*> ui_action_list;
+    QList<DomActionGroup*> ui_action_group_list;
     QList<DomCustomWidget*> ui_customwidget_list;
 
     for (QDomElement n = root.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
@@ -146,10 +147,28 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                 ui->setElementImages(images);
             }
         } else if (tagName == QLatin1String("actions")) {
-            DomActionGroup *g = new DomActionGroup();
-            g->read(n);
-            ui_action_list.append(g);
-            fixActionGroup(g);
+            QDomElement n2 = n.firstChild().toElement();
+            while (!n2.isNull()) {
+                QString tag = n2.tagName().toLower();
+
+                if (tag == QLatin1String("action")) {
+                    DomAction *action = new DomAction();
+                    action->read(n2);
+
+                    QList<DomProperty*> properties = action->elementProperty();
+                    action->setAttributeName(fixActionProperties(properties));
+                    action->setElementProperty(properties);
+                    ui_action_list.append(action);
+
+                } else if (tag == QLatin1String("actiongroup")) {
+                    DomActionGroup *g= new DomActionGroup();
+                    g->read(n2);
+
+                    fixActionGroup(g);
+                    ui_action_group_list.append(g);
+                }
+                n2 = n2.nextSibling().toElement();
+            }
         } else if (tagName == QLatin1String("toolbars")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
@@ -208,7 +227,12 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     l += ui_toolbars;
     l += ui_menubars;
     w->setElementWidget(l);
-    w->setElementActionGroup(w->elementActionGroup() + ui_action_list);
+
+    if (ui_action_group_list.size())
+        w->setElementActionGroup(ui_action_group_list);
+
+    if (ui_action_list.size())
+        w->setElementAction(ui_action_list);
 
     ui->setElementWidget(w);
     ui->setElementClass(w->attributeName()); // ### remove me!
