@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#82 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -17,8 +17,9 @@
 #include "qdrawutl.h"
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
+#include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#82 $");
 
 
 // Motif style parameters
@@ -900,48 +901,78 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     bool ok_key = TRUE;
 
     switch ( e->key() ) {
-	case Key_Up:
-	    d = -1;
-	    break;
+    case Key_Up:
+	d = -1;
+	break;
 
-	case Key_Down:
-	    d = 1;
-	    break;
+    case Key_Down:
+	d = 1;
+	break;
 
-	case Key_Escape:
+    case Key_Escape:
+	hideAllPopups();
+	byeMenuBar();
+	break;
+
+    case Key_Return:
+    case Key_Enter:
+	if ( actItem < 0 )
+	    break;
+	mi = mitems->at( actItem );
+	popup = mi->popup();
+	if ( popup ) {
+	    hidePopups();
+	    killTimers();
+	    startTimer( 20 );
+	    popup->setFirstItemActive();
+	} else {
 	    hideAllPopups();
 	    byeMenuBar();
-	    break;
-
-	case Key_Return:
-	case Key_Enter:
-	    if ( actItem < 0 )
-		break;
-	    mi = mitems->at( actItem );
-	    popup = mi->popup();
-	    if ( popup ) {
-		hidePopups();
-		killTimers();
-		startTimer( 20 );
-		popup->setFirstItemActive();
+	    if ( mi->isEnabled() ) {
+		if ( mi->signal() )
+		    mi->signal()->activate();
+		else
+		    actSig( mi->id() );
 	    }
-	    else {
-		hideAllPopups();
-		byeMenuBar();
-		if ( mi->isEnabled() ) {
-		    if ( mi->signal() )
-			mi->signal()->activate();
-		    else
-			actSig( mi->id() );
-		}
-	    }
-	    break;
+	}
+	break;
 
-	default:
-	    ok_key = FALSE;
+    default:
+	ok_key = FALSE;
 
     }
+#if 1
+    if ( !ok_key && !e->state() && e->key() >= Key_A && e->key() <= Key_Z ) {
+	char c = 'A' + e->key() - Key_A;
 
+	QMenuItemListIt it(*mitems);
+	register QMenuItem *m;
+	while ( (m=it.current()) ) {
+	    ++it;
+	    if ( m->text() ) {
+		QString s = m->text();
+		int i = s.find( '&' );
+		if ( i >= 0 && isalnum(s[i+1]) ) {
+		    int k = s[i+1];
+		    if ( toupper(k) == c ) {
+			mi = m;
+			break;
+		    }
+		}
+	    }
+	}
+	if ( mi ) {
+	    hideAllPopups();
+	    byeMenuBar();
+	    if ( mi->isEnabled() ) {
+		if ( mi->signal() )
+		    mi->signal()->activate();
+		else
+		    actSig( mi->id() );
+	    }
+	}
+    }
+#endif
     if ( !ok_key ) {				// send to menu bar
 	register QMenuData *top = this;		// find top level
 	while ( top->parentMenu )
