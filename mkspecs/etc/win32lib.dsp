@@ -63,8 +63,8 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo $$MSVCDSP_MTDEF /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /c
-# ADD CPP /nologo $$MSVCDSP_MTDEF /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od $$MSVCDSP_INCPATH /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" $$MSVCDSP_DEFINES /FD /c
+# ADD BASE CPP /nologo $$MSVCDSP_MTDEFD /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# ADD CPP /nologo $$MSVCDSP_MTDEFD /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od $$MSVCDSP_INCPATH /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" $$MSVCDSP_DEFINES /FD /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe

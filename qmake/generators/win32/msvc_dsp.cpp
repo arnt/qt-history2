@@ -367,20 +367,13 @@ DspMakefileGenerator::init()
     }
     if ( project->isActiveConfig("thread") ) {
 	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT" );
-	if ( project->isActiveConfig("debug") ) {
-            if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" 
-                || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		project->variables()["MSVCDSP_MTDEF"].append("-MDd");
-	    } else {
-		project->variables()["MSVCDSP_MTDEF"].append("-MTd");
-	    }
+        if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" 
+            || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
+	    project->variables()["MSVCDSP_MTDEFD"].append("-MDd");
+	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
 	} else {
-            if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" 
-                || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		project->variables()["MSVCDSP_MTDEF"].append("-MD");
-	    } else {
-		project->variables()["MSVCDSP_MTDEF"].append("-MT");
-	    }
+	    project->variables()["MSVCDSP_MTDEFD"].append("-MTd");
+	    project->variables()["MSVCDSP_MTDEF"].append("-MT");
 	}
     }
     if ( project->isActiveConfig("dll") ) {
