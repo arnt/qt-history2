@@ -175,7 +175,7 @@ void QMutex::lock()
         if (!d->recursive || d->owner != self) {
             if (d->owner == self) {
                 qWarning("QMutex::lock(): Deadlock detected in thread %p",
-                         static_cast<void *>(d->owner));
+                         static_cast<void *>(d->owner.atomic));
             }
 
             report_error(pthread_mutex_lock(&d->mutex), "QMutex::lock()", "mutex lock");
