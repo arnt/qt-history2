@@ -330,9 +330,10 @@ void QMacStyleQD::polish(QApplication* app)
     QColor pc(Qt::black);
     {
         QPainter p(&px);
-        ((QMacStyleQDPainter *)&p)->setport();
+        static_cast<QMacStyleQDPainter *>(&p)->setport();
         SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
-        EraseRect(qt_glb_mac_rect(QRect(0, 0, px.width(), px.height()), (QPaintDevice*)0, false));
+        EraseRect(qt_glb_mac_rect(QRect(0, 0, px.width(), px.height()),
+                  static_cast<QPaintDevice *>(0), false));
         RGBColor c;
         GetThemeBrushAsColor(kThemeBrushDialogBackgroundActive, 32, true, &c);
         pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
@@ -418,7 +419,7 @@ void QMacStyleQD::polish(QWidget* w)
 #endif
 */
     } else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
-        rubber->setWindowOpacity(0.75);
+        rubber->setWindowOpacity(0.25);
     } else if(QMenu *menu = qt_cast<QMenu*>(w)) {
         menu->setWindowOpacity(0.95);
     } else if(QTitleBar *tb = qt_cast<QTitleBar *>(w)) {
@@ -911,7 +912,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         p->fillRect(opt->rect, Qt::color1);
         break;
     case PE_RubberBand:
-        p->fillRect(opt->rect, opt->palette.highlight());
+        p->fillRect(opt->rect, opt->palette.brush(QPalette::Disabled, QPalette::Highlight));
         break;
     case PE_SizeGrip: {
         const Rect *rect = qt_glb_mac_rect(opt->rect, p);
