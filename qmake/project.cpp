@@ -1229,7 +1229,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		}
 	    } else if(val.lower() == "split") {
 		if(arg_list.count() < 2 || arg_list.count() > 3) {
-		    fprintf(stderr, "%s:%d join(var, sep, join) requires three arguments\n",
+		    fprintf(stderr, "%s:%d split(var, sep, join) requires three arguments\n",
 			    parser.file.latin1(), parser.line_no);
 		} else {
 		    QString sep = arg_list[1], join = " ";
