@@ -47,6 +47,7 @@ ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     popup->insertItem( tr( "New Action &Group" ), this, SLOT( newActionGroup() ) );
     popup->insertItem( tr( "New &Dropdown Action Group" ), this, SLOT( newDropDownActionGroup() ) );
     buttonNewAction->setPopup( popup );
+    buttonNewAction->setPopupDelay( 0 );
 
     connect( listActions, SIGNAL( insertAction() ), this, SLOT( newAction() ) );
     connect( listActions, SIGNAL( insertActionGroup() ), this, SLOT( newActionGroup() ) );
