@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xform/xform.cpp#4 $
+** $Id: //depot/qt/main/examples/xform/xform.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -51,6 +51,7 @@ signals:
     void newMode( int );
 private slots:
     void newMtx();
+    void newTxt(const QString&);
     void selectFont();
     void fontSelected( const QFont & );
     void changeMode(int);
@@ -69,7 +70,6 @@ private:
     QRadioButton *rb_txt;	       // Radio button for text
     QRadioButton *rb_img;	       // Radio button for image
     QRadioButton *rb_pic;	       // Radio button for picture
-    QFontDialog  *fd;		       // Standard font dialog
 };
 
 /*
@@ -117,6 +117,7 @@ XFormControl::XFormControl( QWidget *parent, const char *name )
 				  "shearSlider" );
     mirror	= new QCheckBox( this, "mirrorCheckBox" );
     textEd	= new QLineEdit( this, "text" );
+    textEd->setFocus();
     f		= new QPushButton( this, "text" );
     rb_txt = new QRadioButton( this, "text" );
     rb_img = new QRadioButton( this, "image" );
@@ -159,7 +160,7 @@ XFormControl::XFormControl( QWidget *parent, const char *name )
     textEd->setGeometry( 10, 275, 100, 20 );
     textEd->setText( "Troll" );
     connect( textEd, SIGNAL(textChanged(const QString&)),
-		     SIGNAL(newText(const QString&)) );
+		     SLOT(newTxt(const QString&)) );
 
     f->setGeometry( 10, 305, 100, 20 );
     f->setText( tr("Select font...") );
@@ -176,7 +177,7 @@ XFormControl::XFormControl( QWidget *parent, const char *name )
     magLCD->display( "100" );
     connect( magS, SIGNAL(valueChanged(int)), magLCD, SLOT(display(int)));
 
-    fd	    = 0;
+    changeMode(Image);
 
     startTimer(20); // start an initial animation
 }
@@ -201,6 +202,12 @@ void XFormControl::timerEvent(QTimerEvent*)
 void XFormControl::newMtx()
 {
     emit newMatrix( matrix() );
+}
+
+void XFormControl::newTxt(const QString& s)
+{
+    emit newText(s);
+    changeMode(Text);
 }
 
 /*
@@ -239,22 +246,10 @@ QWMatrix XFormControl::matrix()
 
 void XFormControl::selectFont()
 {
-#if 1
     bool ok;
     QFont f = QFontDialog::getFont( &ok );
     if ( ok )
 	fontSelected( f );
-#else
-    if (!fd) {
-	fd   = new QFontDialog(this);
-	connect( fd, SIGNAL(fontSelected(const QFont&)),
-		     SLOT(fontSelected(const QFont&)) );
-    }
-    if ( !fd->isVisible() )
-	fd->show();
-    else
-	fd->hide();
-#endif
 }
 
 void XFormControl::fontSelected( const QFont &font )
@@ -276,9 +271,16 @@ void XFormControl::changeMode(int m)
     if ( mode == Text ) {
 	magS->hide();
 	magLCD->hide();
+	f->show();
+	rb_txt->setChecked(TRUE);
     } else {
 	magS->show();
 	magLCD->show();
+	f->hide();
+	if ( mode == Image )
+	    rb_img->setChecked(TRUE);
+	else
+	    rb_pic->setChecked(TRUE);
     }
     qApp->flushX();
 }
