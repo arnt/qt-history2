@@ -377,14 +377,14 @@ sub symlinkFile
 
     if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
         if ( $copy > 0 ) {
-            open(O, "> " . $file) || die "Could not open $file for writing (no write persmission?)";
+            open(O, "> " . $file) || die "Could not open $file for writing (no write permission?)";
             local $/;
             binmode O;
             print O $ifilecontents;
             close O;
             print "$file written\n";
         } elsif ( $copy < 0 ) {
-            open(O, "> " . $ifile) || die "Could not open $ifile for writing (no write persmission?)";
+            open(O, "> " . $ifile) || die "Could not open $ifile for writing (no write permission?)";
             local $/;
             binmode O;
             print O $filecontents;
