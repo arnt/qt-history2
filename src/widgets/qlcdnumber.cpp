@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#80 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -708,7 +708,7 @@ void QLCDNumber::internalSetString( const QString& s, const QBitArray* newPoints
 	return;
 
     digitStr = t;
-    repaint();
+    repaint( contentsRect() );
 }
 
 
