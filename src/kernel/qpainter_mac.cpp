@@ -130,6 +130,34 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
     delete paintevents.pop();
 }
 
+static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *paint_d)
+{
+    CGContextRef ret = 0;
+    if(pdev->devType() == QInternal::Widget) 
+	ret = (CGContextRef)((QWidget*)pdev)->macCGHandle(!paint_d->unclipped);
+    else
+	ret = (CGContextRef)pdev->macCGHandle();
+#if 0
+    //apply paint event region
+    if(paintevent_item *pevent = paintevents.current()) {
+	if((*pevent) == pdev) {
+	    QVector<QRect> rects = pevent->region().rects();
+	    const int count = rects.size();
+	    CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
+	    for(int i = 0; i < count; i++) {
+		const QRect &r = rects[i];
+		paint_d->cg_mac_rect(r.x(), r.y(), r.width(), r.height(), cg_rects+i);
+	    }
+	    CGContextBeginPath(ret);
+	    CGContextAddRects(ret, cg_rects, count);
+	    CGContextClip(ret);
+	    free(cg_rects);
+	}
+    }
+#endif
+    return ret;
+}
+
 void QPainter::initialize()
 {
 }
@@ -627,9 +655,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 		qWarning("QPainter::begin: Does not support clipped desktop on MacOSX");
 	    ShowWindow((WindowPtr)w->handle());
 	}
-	hd = w->macCGHandle(!unclipped); // get handle to drawable
     } else {
-	hd = pdev->macCGHandle(); // get handle to drawable
 	if(pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
 	    QPixmap *pm = (QPixmap*)pdev;
 	    if(pm->isNull()) {
@@ -649,9 +675,10 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	    d->cg_info.height = pm->height();
 	} 
     }
+    d->unclipped = unclipped;
+    hd = qt_mac_get_cg(pdev, d); // get handle to drawable
     if(hd)
 	CGContextRetain((CGContextRef)hd);
-    d->unclipped = unclipped;
     initPaintDevice(TRUE); //force setting paint device, this does unclipped fu
 
     if(testf(ExtDev)) {               // external device
@@ -881,18 +908,16 @@ void QPainter::setClipping(bool b)
     //QuickDraw
     d->qd_info.crgn_dirty = TRUE;
 
-#if defined( USE_CORE_GRAPHICS ) && 0
+#ifdef USE_CORE_GRAPHICS
     //CoreGraphics
     if(hd) {
 	if(b || b != old_clipon) { //reset the clip
 	    CGContextRelease((CGContextRef)hd);
-	    if(pdev->devType() == QInternal::Widget)
-		hd = ((QWidget*)pdev)->macCGHandle(!d->unclipped);
-	    else 
-		hd = pdev->macCGHandle();
-	    CGContextRetain((CGContextRef)hd);
+	    hd = qt_mac_get_cg(pdev, d);
+	    if(hd)
+		CGContextRetain((CGContextRef)hd);
 	}
-	if(b) {
+	if(hd && b) {
 	    QVector<QRect> rects = crgn.rects();
 	    const int count = rects.size();
 	    CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
