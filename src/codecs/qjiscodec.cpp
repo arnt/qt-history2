@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QJisCodec class
 **
@@ -381,7 +381,7 @@ const char* QJisCodec::mimeName() const
 /*! \internal */
 int QJisCodec::heuristicNameMatch(const char* hint) const
 {
-    if ( strnicmp( hint, "ISO-2022-JP", 11 ) == 0 )
+    if ( qstrnicmp( hint, "ISO-2022-JP", 11 ) == 0 )
 	return 10000;
     
     int score = 0;
