@@ -23,7 +23,7 @@
 
 #include <qobject.h>
 
-class DesignerSourceFile;
+struct DesignerSourceFile;
 
 class SourceFile : public QObject
 {
