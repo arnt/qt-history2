@@ -16,20 +16,21 @@
 #include "qcolormap.h"
 #include "qlibrary.h"
 #include "qpaintdevice.h"
-#include <private/qpaintengine_win_p.h>
 #include "qpainter.h"
 #include "qpainter_p.h"
 #include "qpainterpath.h"
 #include "qpainterpath_p.h"
 #include "qpen.h"
 #include "qpixmap.h"
+#include "qpixmapcache.h"
 #include "qpolygon.h"
 #include "qt_windows.h"
 #include "qtextlayout.h"
-#include "qwidget.h"
 #include "qvarlengtharray.h"
+#include "qwidget.h"
 
 #include <private/qfontengine_p.h>
+#include <private/qpaintengine_win_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qwidget_p.h>
 
@@ -866,14 +867,14 @@ void QWin32PaintEngine::cleanup()
 }
 
 
-void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &pixmap, const QRectF &srf,
+void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, const QRectF &srf,
                                    Qt::PixmapDrawingMode mode)
 {
 #if defined QT_DEBUG_DRAW
     printf(" - QWin32PaintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], "
            "sr=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
            rf.x(), rf.y(), rf.width(), rf.height(),
-           pixmap.width(), pixmap.height(),
+           sourcePm.width(), sourcePm.height(),
            srf.x(), srf.y(), srf.width(), srf.height(),
            mode);
 #endif
@@ -886,8 +887,26 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &pixmap, cons
     bool stretch = r.width() != sr.width() || r.height() != sr.height();
 
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPixmap(r, pixmap, sr, mode);
+        d->gdiplusEngine->drawPixmap(r, sourcePm, sr, mode);
         return;
+    }
+
+    QPixmap pixmap = sourcePm;
+    bool srcIsAlpha = pixmap.hasAlphaChannel();
+    bool targetIsAlpha = d->pdev->devType() == QInternal::Pixmap
+                         && static_cast<QPixmap *>(d->pdev)->hasAlphaChannel();
+
+    // Source needs to be alpha if target is.
+    if (targetIsAlpha && !srcIsAlpha) {
+        QString key = QString("qt_src_not_alpha: sn=%1").arg(pixmap.serialNumber());
+        QPixmap *cached = QPixmapCache::find(key);
+        if (!cached) {
+            QImage im = pixmap.toImage();
+            im = im.convertDepth(32);
+            im.setAlphaBuffer(true);
+            pixmap = im;
+            QPixmapCache::insert(key, pixmap);
+        }
     }
 
     if (d->pen.color().alpha() != 255 && pixmap.isQBitmap()) {
@@ -896,6 +915,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &pixmap, cons
         updateClipRegion(region, Qt::IntersectClip);
         d->fillAlpha(r, d->pen.color());
         setDirty(DirtyClip);
+
         return;
     }
 
@@ -911,7 +931,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &pixmap, cons
 
     Q_ASSERT(pm_dc);
 
-    if (qAlphaBlend && pixmap.hasAlphaChannel() && mode == Qt::ComposePixmap) {
+    if (qAlphaBlend && (srcIsAlpha || targetIsAlpha) && mode == Qt::ComposePixmap) {
         const BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
                                    0,                 // BlendFlags, must be zero
                                    255,               // SourceConstantAlpha, we use pr pixel
