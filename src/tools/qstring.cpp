@@ -1493,6 +1493,27 @@ QString::QString( const std::string &str )
     QChar *uc = internalLatin1ToUnicode(str.c_str(),&l);
     d = new QStringData(uc,l,l);
 }
+
+/*!
+    Constructs a string that is a deep copy of \a str.
+
+    This is the same as QString( (QChar*)str.data(), str.lenght() ).
+*/
+QString::QString( const std::wstring &str )
+{
+    const wchar_t *unicode = str.data();
+    uint length = str.length();
+
+    if ( !unicode && !length ) {
+	d = shared_null ? shared_null : makeSharedNull();
+	d->ref();
+    } else {
+	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
+	if ( unicode )
+	    memcpy(uc, unicode, length*sizeof(QChar));
+	d = new QStringData(uc,unicode ? length : 0,length);
+    }
+}
 #endif
 
 /*!
@@ -1540,6 +1561,15 @@ void QStringData::deleteSelf()
 /*!
     \fn QString& QString::operator=( const std::string& s )
 
+    \overload
+
+    Makes a deep copy of \a s and returns a reference to the deep
+    copy.
+*/
+
+/*!
+    \fn QString& QString::operator=( const std::wstring& s )
+    
     \overload
 
     Makes a deep copy of \a s and returns a reference to the deep
@@ -3701,7 +3731,17 @@ QString &QString::insert( uint index, QChar c ) // insert char
   Equivalent to insert(0, \a s).
 
   \sa insert()
- */
+*/
+
+/*! \fn QString& QString::prepend( const std::wstring &s )
+  \overload
+
+  Inserts \a s at the beginning of the string and returns a reference to the string.
+
+  Equivalent to insert(0, \a s).
+
+  \sa insert()
+*/
 
 /*!
   \overload
@@ -5059,7 +5099,7 @@ void QString::setExpand( uint index, QChar c )
   Appends \a str to the string and returns a reference to the result.
 
   Equivalent to operator+=().
- */
+*/
 
 /*! \fn QString& QString::append( const std::string &str )
   \overload
@@ -5067,7 +5107,15 @@ void QString::setExpand( uint index, QChar c )
   Appends \a str to the string and returns a reference to the result.
 
   Equivalent to operator+=().
- */
+*/
+
+/*! \fn QString& QString::append( const std::wstring &str )
+  \overload
+
+  Appends \a str to the string and returns a reference to the result.
+
+  Equivalent to operator+=().
+*/
 
 
 /*! \fn QString& QString::append( const char *str )
@@ -5076,7 +5124,7 @@ void QString::setExpand( uint index, QChar c )
   Appends \a str to the string and returns a reference to the result.
 
   Equivalent to operator+=().
- */
+*/
 
 /*!
     Appends \a str to the string and returns a reference to the string.
@@ -5175,7 +5223,12 @@ QString &QString::operator+=( char c )
   Appends \a str to the string and returns a reference to the string.
 */
 
+/*!
+  \fn QString &QString::operator+=( const std::wstring &str )
+  \overload
 
+  Appends \a str to the string and returns a reference to the string.
+*/
 
 /*!
     \fn char QChar::latin1() const
@@ -5493,6 +5546,11 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
     Returns ascii().
 */
 
+/*!
+    \fn QString::operator std::wstring() const
+
+    Returns ucs2().
+*/
 
 /*!
     Returns the QString as a zero terminated array of unsigned shorts
