@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#273 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#274 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2588,4 +2588,3 @@ int QApplication::doubleClickInterval()
     return mouse_double_click_time;
 }
 
-}
