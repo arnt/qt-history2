@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#77 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#77 $");
 
 
 /*!
@@ -1709,3 +1709,111 @@ const QFont &QFontInfo::font() const
     static QFont f;
     return f;
 }
+
+// From qpainter.cpp
+void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
+		     int tf, const char *str, int len, QRect *brect,
+		     int tabstops, int* tabarray, int tabarraylen,
+		     char **internal, QPainter* painter );
+
+/*!
+  Returns the bounding rectangle of the first \e len characters of \e str,
+  which is the set of pixels the text would cover if drawn at (0,0).
+
+  If \a len is negative (default value), the whole string is used.
+
+  The \a flags argument is
+  the bitwise OR of the following flags:  <ul>
+  <li> \c AlignLeft aligns to the left border.
+  <li> \c AlignRight aligns to the right border.
+  <li> \c AlignHCenter aligns horizontally centered.
+  <li> \c AlignTop aligns to the top border.
+  <li> \c AlignBottom aligns to the bottom border.
+  <li> \c AlignVCenter aligns vertically centered
+  <li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
+  <li> \c SingleLine ignores newline characters in the text.
+  <li> \c ExpandTabs expands tabulators.
+  <li> \c ShowPrefix interprets "&x" as "x" underlined.
+  <li> \c WordBreak breaks the text to fit the rectangle.
+  </ul>
+
+  Horizontal alignment defaults to AlignLeft and vertical alignment
+  defaults to AlignTop.
+
+  If several of the horizontal or several of the vertical alignment flags   
+  are set, the resulting alignment is undefined.
+
+  These flags are defined in qwindefs.h.
+
+  If \c ExpandTabs is set in \a flags, then:
+  if \a tabarray is non.zero, it specifies a 0-terminated sequence
+  of pixel-positions for tabs; otherwise
+  if \a tabstops is non-zero, it is used as the tab spacing (in pixels).
+
+  Note that the bounding rectangle may extend to the left of (0,0),
+  e.g. for italicized fonts, and that the text output may cover \e all
+  pixels in the bounding rectangle.
+
+  Newline characters are processed as linebreaks.
+
+  Despite to the different actual character heights, the heights of the
+  bounding rectangles of "Yes" and "yes" will be the same.
+
+  The \a internal argument is for internal purposes.
+
+  \sa width(), QPainter::boundingRect() */
+
+QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
+				  const char *str, int len, int tabstops,
+				  int *tabarray, char **intern ) const
+{
+    if ( len < 0 )
+	len = strlen( str );
+
+    int tabarraylen=0;
+    if (tabarray)
+	while (tabarray[tabarraylen])
+	    tabarraylen++;
+
+    QRect r;
+    qt_format_text( *this, x, y, w, h, flags, str, len, &r,
+		    tabstops, tabarray, tabarraylen, intern, 0 );
+
+    return r;
+}
+
+/*!
+  Returns the size in pixels of the first \e len characters of \e str.
+
+  If \a len is negative (default value), the whole string is used.
+
+  The \a flags argument is
+  the bitwise OR of the following flags:  <ul>
+  <li> \c SingleLine ignores newline characters in the text.
+  <li> \c ExpandTabs expands tabulators.
+  <li> \c ShowPrefix interprets "&x" as "x" underlined.
+  <li> \c WordBreak breaks the text to fit the rectangle.
+  </ul>
+
+  These flags are defined in qwindefs.h.
+
+  If \c ExpandTabs is set in \a flags, then:
+  if \a tabarray is non.zero, it specifies a 0-terminated sequence
+  of pixel-positions for tabs; otherwise
+  if \a tabstops is non-zero, it is used as the tab spacing (in pixels).
+
+  Newline characters are processed as linebreaks.
+
+  Despite to the different actual character heights, the heights of the
+  bounding rectangles of "Yes" and "yes" will be the same.
+
+  The \a internal argument is for internal purposes.
+
+  \sa boundingRect() */
+
+QSize QFontMetrics::size( int flags, const char *str, int len, int tabstops,
+			  int *tabarray, char **intern ) const
+{
+    return boundingRect(0,0,1,1,flags,str,len,tabstops,tabarray,intern).size();
+}
+

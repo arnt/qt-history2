@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#68 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#68 $");
 
 
 /*!
@@ -32,17 +32,15 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#67 $");
 */
 
 
-static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
+static QSize sizeOfBitmap( GUIStyle gs )
 {
     switch ( gs ) {				// calculate coords
 	case WindowsStyle:
-	    *w = *h = 13;
-	    break;
+	    return QSize( 13, 13 );
 	case MotifStyle:
-	    *w = *h = 10;
-	    break;
+	    return QSize( 10, 10 );
 	default:
-	    *w = *h = 10;
+	    return QSize( 10, 10 );
     }
 }
 
@@ -105,23 +103,18 @@ QSize QCheckBox::sizeHint() const
     // Any more complex, and we will use qItemRect()
     // NB: QCheckBox::sizeHint() is similar
 
-    int w, h;
+    QSize sz;
     if (pixmap()) {
-	w = pixmap()->width();
-	h = pixmap()->height();
+	sz = pixmap()->size();
     } else {
-	QFontMetrics fm = fontMetrics();
-	w = fm.width( text() );
-	h = fm.height();
+	sz = fontMetrics().size( ShowPrefix, text() );
     }
     GUIStyle gs = style();
-    int wbm, hbm;
-    getSizeOfBitmap( gs, &wbm, &hbm );
-    if ( h < hbm )
-	h = hbm;
-    w += wbm+extraWidth( gs );
+    QSize bmsz = sizeOfBitmap( gs );
+    if ( sz.height() < bmsz.height() )
+	sz.setHeight( bmsz.height() );
 
-    return QSize( w+4, h+4 );
+    return sz + QSize( 4+bmsz.width() + extraWidth(gs), 4 );
 }
 
 
@@ -135,11 +128,13 @@ void QCheckBox::drawButton( QPainter *paint )
     QPainter	*p = paint;
     GUIStyle	 gs = style();
     QColorGroup	 g  = colorGroup();
-    int		 x, y, w, h;
+    int		 x, y;
 
-    getSizeOfBitmap( gs, &w, &h );
+    QFontMetrics fm = fontMetrics();
+    QSize lsz = fm.size(ShowPrefix, text());
+    QSize sz = sizeOfBitmap( gs );
     x = gs == MotifStyle ? 1 : 0;
-    y = height()/2 - h/2;
+    y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
 #define SAVE_CHECKBOX_PIXMAPS
 #if defined(SAVE_CHECKBOX_PIXMAPS)
@@ -162,7 +157,7 @@ void QCheckBox::drawButton( QPainter *paint )
     QPainter pmpaint;
     int wx, wy;
     if ( use_pm ) {
-	pm = new QPixmap( w, h );		// create new pixmap
+	pm = new QPixmap( sz );			// create new pixmap
 	CHECK_PTR( pm );
 	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
@@ -179,7 +174,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	else
 	    fillColor = g.base();
 	QBrush fill( fillColor );
-	qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
+	qDrawWinPanel( p, x, y, sz.width(), sz.height(), g, TRUE, &fill );
 	if ( isOn() ) {
 	    QPointArray a( 7*2 );
 	    int i, xx, yy;
@@ -203,7 +198,7 @@ void QCheckBox::drawButton( QPainter *paint )
     if ( gs == MotifStyle ) {			// Motif check box
 	bool showUp = !(isDown() ^ isOn());
 	QBrush fill( showUp ? g.background() : g.mid() );
-	qDrawShadePanel( p, x, y, w, h, g, !showUp, 2, &fill );
+	qDrawShadePanel( p, x, y, sz.width(), sz.height(), g, !showUp, 2, &fill );
     }
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)
@@ -211,7 +206,6 @@ void QCheckBox::drawButton( QPainter *paint )
 	pmpaint.end();
 	p = paint;				// draw in default device
 	p->drawPixmap( wx, wy, *pm );
-	w += wx;
 	if (!QPixmapCache::insert(pmkey, pm) )	// save in cache
 	    delete pm;
     }
@@ -229,9 +223,9 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;
     GUIStyle gs = style();
-    getSizeOfBitmap( gs, &w, &h );
+    QSize sz = sizeOfBitmap( gs );
     y = 0;
-    x = w + extraWidth( gs );
+    x = sz.width() + extraWidth( gs );
     w = width() - x;
     h = height();
 

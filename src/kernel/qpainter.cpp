@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#107 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#107 $");
 
 
 /*!
@@ -565,6 +565,7 @@ void QPainter::setTabArray( int *ta )
 	if ( ta ) {				// tabarray = copy of 'ta'
 	    while ( ta[tabarraylen] )
 		tabarraylen++;
+	    tabarraylen++; // and 0 terminator
 	    tabarray = new int[tabarraylen];	// duplicate ta
 	    memcpy( tabarray, ta, sizeof(int)*tabarraylen );
 	} else {
@@ -1515,7 +1516,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 */
 
 
-void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
+static inline void fix_neg_rect( int *x, int *y, int *w, int *h )
 {
     if ( *w < 0 ) {
 	*w = -*w;
@@ -1526,7 +1527,10 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
 	*y -= *h - 1;
     }
 }
-
+void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
+{
+    ::fix_neg_rect(x,y,w,h);
+}
 
 //
 // The drawText function takes two special parameters; 'internal' and 'brect'.
@@ -1623,10 +1627,20 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	}
     }
 
+    QFontMetrics fm = fontMetrics();		// get font metrics
+
+    qt_format_text(fm, x, y, w, h, tf, str, len, brect,
+		   tabstops, tabarray, tabarraylen, internal, this);
+}
+
+
+void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
+		     int tf, const char *str, int len, QRect *brect,
+		     int tabstops, int* tabarray, int tabarraylen,
+		     char **internal, QPainter* painter )
+{
     if ( w <= 0 || h <= 0 )
 	fix_neg_rect( &x, &y, &w, &h );
-
-    QFontMetrics fm = fontMetrics();		// get font metrics
 
     struct text_info {				// internal text info
 	char  tag[4];				// contains "qptr"
@@ -1838,8 +1852,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     int	    fascent  = fm.ascent();		// get font measurements
     int	    fheight  = fm.height();
-    QRegion save_rgn = crgn;			// save the current region
-    bool    clip_on  = testf(ClipOn);
     int	    xp, yp;
     int	    xc;					// character xp
     char    p_array[200];
@@ -1896,11 +1908,16 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( brect )				// set bounding rect
 	*brect = br;
 
-    if ( (tf & DontPrint) != 0 ) {		// don't print any text
+    if ( !painter || (tf & DontPrint) != 0 ) {	// can't/don't print any text
 	if ( code_alloc )
 	    free( codes );
 	return;
     }
+
+    // From here, we have a painter.
+
+    QRegion save_rgn = painter->crgn;		// save the current region
+    bool    clip_on  = painter->testf(QPainter::ClipOn);
 
     if ( len > 200 ) {
 	p = new char[len];			// buffer for printable string
@@ -1917,17 +1934,17 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( (tf & DontClip) == 0 ) {		// clip text
 	QRegion new_rgn;
 	QRect r( x, y, w, h );
-	if ( txop == TxRotShear ) {		// world xform active
+	if ( painter->txop == TxRotShear ) {		// world xform active
 	    QPointArray a( r );			// complex region
-	    a = xForm( a );
+	    a = painter->xForm( a );
 	    new_rgn = QRegion( a );
 	} else {
-	    r = xForm( r );
+	    r = painter->xForm( r );
 	    new_rgn = QRegion( r );
 	}
 	if ( clip_on )				// combine with existing region
-	    new_rgn = new_rgn.intersect( crgn );
-	setClipRegion( new_rgn );
+	    new_rgn = new_rgn.intersect( painter->crgn );
+	painter->setClipRegion( new_rgn );
     }
 
     QPixmap  *pm;
@@ -1939,11 +1956,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	pp = new QPainter;
 	CHECK_PTR( pp );
 	pp->begin( pm );
-	pp->setBackgroundColor( bg_col );
-	pp->setFont( cfont );
-	pp->setPen( cpen.color() );
+	pp->setBackgroundColor( painter->bg_col );
+	pp->setFont( painter->cfont );
+	pp->setPen( painter->cpen.color() );
 	pp->updatePen();
-	pp->setBrush( QBrush(bg_col, Dense4Pattern) );
+	pp->setBrush( QBrush(painter->bg_col, Dense4Pattern) );
 	pp->updateBrush();
     } else {
 	pm = 0;
@@ -1989,18 +2006,18 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		    if ( pp )			// gray text
 			pp->fillRect( xp+xcpos, fascent+fm.underlinePos(),
 				      CWIDTH( *cp&0xff ), fm.lineWidth(),
-				      cpen.color() );
+				      painter->cpen.color() );
 		    else
-			fillRect( x+xp+xcpos, y+yp+fm.underlinePos(),
+			painter->fillRect( x+xp+xcpos, y+yp+fm.underlinePos(),
 				  CWIDTH( *cp&0xff ), fm.lineWidth(),
-				  cpen.color() );
+				  painter->cpen.color() );
 		}
 		p[k++] = (char)*cp++;
 	    }
 	    if ( pp )				// gray text
 		pp->drawText( xc, fascent, p, k );
 	    else
-		drawText( x+xc, y+yp, p, k );	// draw the text
+		painter->drawText( x+xc, y+yp, p, k );	// draw the text
 	    if ( (*cp & TABSTOP) == TABSTOP ) {
 		xp = bxp + (*cp++ & WIDTHBITS);
 		xc = bxc + (*cp++ & WIDTHBITS);
@@ -2011,7 +2028,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	if ( pp ) {				// gray text
 	    pp->cpen.setStyle( NoPen );
 	    pp->drawRect( bxp, 0, tw, fheight );
-	    drawPixmap( x, y+yp-fascent, *pm );
+	    painter->drawPixmap( x, y+yp-fascent, *pm );
 	}
 
 	yp += fheight;
@@ -2025,10 +2042,10 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
 	if ( clip_on ) {			// set original region
-	    setClipRegion( save_rgn );
+	    painter->setClipRegion( save_rgn );
 	} else {				// clipping was off
-	    crgn = save_rgn;
-	    setClipping( FALSE );
+	    painter->crgn = save_rgn;
+	    painter->setClipping( FALSE );
 	}
     }
 

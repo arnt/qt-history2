@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#72 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#72 $");
 
 
 /*!
@@ -38,17 +38,15 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#71 $");
 */
 
 
-static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
+static QSize sizeOfBitmap( GUIStyle gs )
 {
     switch ( gs ) {
 	case WindowsStyle:
-	    *w = *h = 12;
-	    break;
+	    return QSize(12,12);
 	case MotifStyle:
-	    *w = *h = 13;
-	    break;
+	    return QSize(13,13);
 	default:
-	    *w = *h = 10;
+	    return QSize(10,10);
     }
 }
 
@@ -121,22 +119,18 @@ QSize QRadioButton::sizeHint() const
     // Any more complex, and we will use qItemRect()
     // NB: QCheckBox::sizeHint() is similar
 
-    int w, h;
+    QSize sz;
     if (pixmap()) {
-	w = pixmap()->width();
-	h = pixmap()->height();
+	sz = pixmap()->size();
     } else {
-	QFontMetrics fm = fontMetrics();
-	w = fm.width( text() );
-	h = fm.height();
+	sz = fontMetrics().size( ShowPrefix, text() );
     }
     GUIStyle gs = style();
-    int wbm, hbm;
-    getSizeOfBitmap( gs, &wbm, &hbm );
-    if ( h < hbm )
-	h = hbm;
+    QSize bmsz = sizeOfBitmap( gs );
+    if ( sz.height() < bmsz.height() )
+	sz.setHeight( bmsz.height() );
 
-    return QSize( w + wbm + 8, h + 4 );
+    return sz + QSize( 8+bmsz.width(), 4 );
 }
 
 
@@ -162,11 +156,13 @@ void QRadioButton::drawButton( QPainter *paint )
     QPainter	*p = paint;
     GUIStyle	 gs = style();
     QColorGroup	 g  = colorGroup();
-    int		 x, y, w, h;
+    int		 x, y;
 
-    getSizeOfBitmap( gs, &w, &h );
+    QFontMetrics fm = fontMetrics();
+    QSize lsz = fm.size(ShowPrefix, text());
+    QSize sz = sizeOfBitmap( gs );
     x = 0;
-    y = height()/2 - w/2;
+    y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
 #define SAVE_RADIOBUTTON_PIXMAPS
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
@@ -189,7 +185,7 @@ void QRadioButton::drawButton( QPainter *paint )
     QPainter pmpaint;
     int wx, wy;
     if ( use_pm ) {
-	pm = new QPixmap( w, h );		// create new pixmap
+	pm = new QPixmap( sz );			// create new pixmap
 	CHECK_PTR( pm );
 	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
@@ -213,7 +209,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    11,4, 10,3, 10,2 };
 	static QCOORD pts5[] = {		// inner fill
 	    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-	p->eraseRect( x, y, w, h );
+	p->eraseRect( x, y, sz.width(), sz.height() );
 	QPointArray a( QCOORDARRLEN(pts1), pts1 );
 	a.translate( x, y );
 	p->setPen( g.dark() );
@@ -251,7 +247,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
 	bool showUp = !(isDown() ^ isOn());
 	QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
-	p->eraseRect( x, y, w, h );
+	p->eraseRect( x, y, sz.width(), sz.height() );
 	p->setPen( NoPen );
 	p->setBrush( showUp ? g.background() : g.mid() );
 	a.translate( x, y );
@@ -272,7 +268,6 @@ void QRadioButton::drawButton( QPainter *paint )
 	pmpaint.end();
 	p = paint;				// draw in default device
 	p->drawPixmap( wx, wy, *pm );
-	w += wx;
 	if (!QPixmapCache::insert(pmkey, pm) )	// save in cache
 	    delete pm;
     }
@@ -290,11 +285,11 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;
     GUIStyle gs = style();
-    getSizeOfBitmap( gs, &w, &h );
+    QSize sz = sizeOfBitmap( gs );
     if ( gs == WindowsStyle )
-	w++;
+	sz.setWidth(sz.width()+1);
     y = 0;
-    x = w + 6;
+    x = sz.width() + 6;
     w = width() - x;
     h = height();
 

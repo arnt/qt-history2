@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#91 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#91 $");
 
 
 static const int fontFields = 14;
@@ -1131,7 +1131,7 @@ int QFontMetrics::width( const char *str, int len ) const
   Due to the different actual character heights, the height of the
   bounding rectangle of "Yes" and "yes" may be different.
 
-  \sa extent(), width(), QPainter::boundingRect() */
+  \sa width(), QPainter::boundingRect() */
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
