@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#5 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#6 $
 **
 ** Definition of QIntDict template/macro class
 **
@@ -36,7 +36,10 @@ class QIntDictM(type) : public QGDict					      \
 {									      \
 public:									      \
     QIntDictM(type)(int size=17):QGDict(size,0,0,TRUE) {}		      \
+    QIntDictM(type)( const QIntDictM(type) &d ) : QGDict(d) {}		      \
    ~QIntDictM(type)()		{ clear(); }				      \
+    QIntDictM(type) &operator=(const QIntDictM(type) &d)		      \
+			{ return (QIntDictM(type)&)QGDict::operator=(d); }    \
     uint  count()   const	{ return QGDict::count(); }		      \
     uint  size()    const	{ return QGDict::size(); }		      \
     bool  isEmpty() const	{ return QGDict::count() == 0; }	      \
@@ -93,7 +96,10 @@ template<class type> class QIntDictT : public QGDict
 {
 public:
     QIntDictT(int size=17) : QGDict(size,0,0,TRUE) {}
+    QIntDictT( const QIntDictT<type> &d ) : QGDict(d) {}
    ~QIntDictT()			{ clear(); }
+    QIntDictT<type> &operator=(const QIntDictT<type> &d)
+			{ return (QIntDictT<type>&)QGDict::operator=(d); }
     uint  count()   const	{ return QGDict::count(); }
     uint  size()    const	{ return QGDict::size(); }
     bool  isEmpty() const	{ return QGDict::count() == 0; }
