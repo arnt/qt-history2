@@ -1465,7 +1465,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	//set ascii/unicode
 	QString mystr;
-	if((modifiers & (Qt::ControlButton | Qt::AltButton)) || (mychar > 127 || mychar < 0))
+	if((modifiers & (Qt::ControlButton)) || (mychar > 127 || mychar < 0))
 	    chr = 0;
 	else 
 	    mystr = QChar(chr);
