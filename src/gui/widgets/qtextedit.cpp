@@ -1287,8 +1287,6 @@ QString QTextEdit::plainText() const
 }
 
 /*!
-    \overload
-
     Changes the text of the text edit to the string \a text.
     Any previous text is removed.
 
@@ -1299,24 +1297,6 @@ QString QTextEdit::plainText() const
 
 void QTextEdit::setHtml(const QString &text)
 {
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
-    d->init(fragment);
-}
-/*!
-    \overload
-
-    Changes the text of the text edit to the string \a text.
-    Any previous text is removed.
-
-    \a text is interpreted as rich text in html format. Any encoding
-    attribute specified in the header of the html is obeyed.
-
-    Note that the undo/redo history is cleared by this function.
-*/
-
-void QTextEdit::setHtml(const QByteArray &text)
-{
-    // use QByteArray overload that obeys html content encoding
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
     d->init(fragment);
 }

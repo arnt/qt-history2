@@ -153,7 +153,6 @@ public slots:
 
     void setPlainText(const QString &text);
     void setHtml(const QString &text);
-    void setHtml(const QByteArray &html);
 
     void cut();
     void copy();
