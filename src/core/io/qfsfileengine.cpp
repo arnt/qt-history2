@@ -90,8 +90,8 @@ QFSFileEngine::open(int mode, const QString &file)
     if (mode & QFile::Translate)
         oflags |= QT_OPEN_TEXT;
     else
-        oflags |= QT_OPEN_BINARY;
 #endif
+        oflags |= QT_OPEN_BINARY;
 #if defined(HAS_ASYNC_FILEMODE)
     if (mode & QFile::Async)
         oflags |= QT_OPEN_ASYNC;
