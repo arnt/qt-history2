@@ -1322,14 +1322,14 @@ bool QAxHostWidget::event(QEvent *e)
     case QEvent::WindowBlocked:
         if (IsWindowEnabled(winId())) {
             EnableWindow(winId(), false);
-            if (axhost->m_spInPlaceActiveObject)
+            if (axhost && axhost->m_spInPlaceActiveObject)
                 axhost->m_spInPlaceActiveObject->EnableModeless(false);
         }
         break;
     case QEvent::WindowUnblocked:
         if (!IsWindowEnabled(winId())) {
             EnableWindow(winId(), true);
-            if (axhost->m_spInPlaceActiveObject)
+            if (axhost && axhost->m_spInPlaceActiveObject)
                 axhost->m_spInPlaceActiveObject->EnableModeless(true);
         }
         break;
