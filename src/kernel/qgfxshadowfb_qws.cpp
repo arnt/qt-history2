@@ -1,6 +1,6 @@
 #include "qgfxshadowfb_qws.h"
 
-#ifndef QT_NO_QWS_VNC
+#ifndef QT_NO_QWS_SHADOWFB
 
 #ifndef QT_NO_QWS_CURSOR
 class QShadowScreenCursor : public QScreenCursor

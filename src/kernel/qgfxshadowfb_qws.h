@@ -3,7 +3,7 @@
 **
 ** Implementation of shadow framebuffer driver
 ** Designed for machines with slow framebuffers
-** 
+**
 ** Created : 20000703
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
@@ -34,7 +34,7 @@
 #ifndef QGFXSHADOWFB_QWS_H
 #define QGFXSHADOWFB_QWS_H
 
-#ifndef QT_NO_QWS_VNC
+#ifndef QT_NO_QWS_SHADOWFB
 
 #include "qgfxraster_qws.h"
 #include "qgfxlinuxfb_qws.h"
