@@ -41,7 +41,6 @@ void QFocusFramePrivate::update()
     if (q->parentWidget()->rect().contains(q->geometry())) {
         q->stackUnder(widget);
         q->show();
-        q->updateMask();
     } else {
         q->hide();
     }
@@ -55,6 +54,10 @@ void QFocusFramePrivate::updateSize()
     QRect geom(widget->x()-hmargin, widget->y()-vmargin,
                widget->width()+(hmargin*2), widget->height()+(vmargin*2));
     q->setGeometry(geom);
+    QStyleHintReturnMask mask;
+    QStyleOption opt = getStyleOption();
+    if (q->style()->styleHint(QStyle::SH_FocusFrame_Mask, &opt, q, &mask))
+        q->setMask(mask.region);
 }
 
 QStyleOption QFocusFramePrivate::getStyleOption() const
@@ -104,7 +107,6 @@ QFocusFrame::QFocusFrame(QWidget *parent)
     : QWidget(*new QFocusFramePrivate, parent, 0)
 {
     setAttribute(Qt::WA_TransparentForMouseEvents);
-    setAutoMask(true);
     setFocusPolicy(Qt::NoFocus);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setAttribute(Qt::WA_NoChildEventsForParent, true);
@@ -158,19 +160,6 @@ QFocusFrame::widget() const
 {
     Q_D(const QFocusFrame);
     return d->widget;
-}
-
-/*! \reimp */
-void
-QFocusFrame::updateMask()
-{
-    Q_D(QFocusFrame);
-    if (!d->widget)
-        return;
-    QStyleHintReturnMask mask;
-    QStyleOption opt = d->getStyleOption();
-    if (style()->styleHint(QStyle::SH_FocusFrame_Mask, &opt, this, &mask))
-        setMask(mask.region);
 }
 
 

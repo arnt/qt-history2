@@ -49,7 +49,6 @@ protected:
 
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
-    void updateMask();
 
 private:
     Q_DECLARE_PRIVATE(QRubberBand)

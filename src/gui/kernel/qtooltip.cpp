@@ -75,7 +75,6 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     delete instance;
     instance = this;
     setMargin(1);
-    setAutoMask(false);
     setFrameStyle(QFrame::Plain | QFrame::Box);
     setLineWidth(1);
     setAlignment(Qt::AlignAuto | Qt::AlignTop);

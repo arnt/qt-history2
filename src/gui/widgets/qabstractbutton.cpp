@@ -379,8 +379,6 @@ void QAbstractButtonPrivate::refresh()
 
     if (blockRefresh)
         return;
-    if (q->autoMask())
-        q->updateMask();
     q->repaint();
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(q, 0, QAccessible::StateChanged);
@@ -457,8 +455,6 @@ void QAbstractButton::setText(const QString &text)
     QKeySequence newMnemonic = QKeySequence::mnemonic(text);
     if (!newMnemonic.isEmpty())
         d->shortcutId = grabShortcut(newMnemonic);
-    if (autoMask())
-        updateMask();
     update();
     updateGeometry();
 #ifndef QT_NO_ACCESSIBILITY
@@ -481,8 +477,6 @@ void QAbstractButton::setIcon(const QIcon &icon)
 {
     Q_D(QAbstractButton);
     d->icon = icon;
-    if (autoMask())
-        updateMask();
     update();
     updateGeometry();
 }

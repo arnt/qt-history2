@@ -29,7 +29,6 @@ public:
 protected:
     bool eventFilter(QObject *, QEvent *);
     void paintEvent(QPaintEvent *);
-    void updateMask();
 
 private:
     Q_DECLARE_PRIVATE(QFocusFrame)

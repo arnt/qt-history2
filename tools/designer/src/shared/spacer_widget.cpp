@@ -28,7 +28,6 @@ Spacer::Spacer(QWidget *parent)
     m_formWindow = AbstractFormWindow::findFormWindow(this);
 
     setSizeType(Spacer::Expanding);
-    setAutoMask(true);
 }
 
 void Spacer::paintEvent(QPaintEvent *)
@@ -70,6 +69,7 @@ void Spacer::paintEvent(QPaintEvent *)
 void Spacer::resizeEvent(QResizeEvent* e)
 {
     QWidget::resizeEvent(e);
+    updateMask();
 
     if (!interactive)
         return;

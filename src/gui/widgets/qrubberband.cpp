@@ -31,6 +31,7 @@ public:
     QRect rect;
     QRubberBand::Shape shape;
     QStyleOption getStyleOption() const;
+    void updateMask();
 };
 
 #define d d_func()
@@ -87,7 +88,6 @@ QRubberBand::QRubberBand(Shape s, QWidget *p) :
 {
     d->shape = s;
     setAttribute(Qt::WA_TransparentForMouseEvents);
-    setAutoMask(true);
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
     ChangeWindowAttributes(qt_mac_window_for(this), kWindowNoShadowAttribute, 0);
@@ -117,15 +117,12 @@ QRubberBand::Shape QRubberBand::shape() const
     return d->shape;
 }
 
-/*!
-    \reimp
-*/
-void QRubberBand::updateMask()
+void QRubberBandPrivate::updateMask()
 {
     QStyleHintReturnMask mask;
-    QStyleOption opt = d->getStyleOption();
-    if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, q, &mask))
-        setMask(mask.region);
+    QStyleOption opt = getStyleOption();
+    if (q->style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, q, &mask))
+        q->setMask(mask.region);
 }
 
 /*!
@@ -140,10 +137,9 @@ void QRubberBand::paintEvent(QPaintEvent *)
 /*!
     \reimp
 */
-void QRubberBand::changeEvent(QEvent *ev)
+void QRubberBand::changeEvent(QEvent *)
 {
-    if(ev->type() == QEvent::StyleChange && autoMask())
-        updateMask();
+    d->updateMask();
 }
 
 /*!
@@ -224,11 +220,8 @@ void QRubberBand::setGeometry(const QRect &geom)
             }
         }
     }
-    if(mygeom != geometry()) {
-        QWidget::setGeometry(mygeom);
-    } else {
-        updateMask();
-    }
+    QWidget::setGeometry(mygeom);
+    d->updateMask();
     update();
 #else
     QWidget::setMygeometry(geom);
