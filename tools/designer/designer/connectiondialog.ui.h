@@ -259,12 +259,15 @@ void ConnectionDialog::editSlots()
 {
     EditSlots dlg( this, MainWindow::self->formWindow() );
     dlg.exec();
+    int currentCol = connectionsTable->currentColumn();
+    connectionsTable->setCurrentCell( connectionsTable->currentRow(), 0 );
     for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
 	if ( c->receiverItem()->currentText() !=
 	     QString( MainWindow::self->formWindow()->mainContainer()->name() ) )
 	    continue;
 	c->slotItem()->customSlotsChanged();
-    }	
+    }
+    connectionsTable->setCurrentCell( connectionsTable->currentRow(), currentCol );
 }
 
 void ConnectionDialog::setDefault( QObject *sender, QObject *receiver )
