@@ -1704,6 +1704,9 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
     case PM_TitleBarHeight:
 	return QWindowsStyle::pixelMetric( metric, widget ) + 4;
 
+    case PM_DefaultFrameWidth:
+	return 1;
+
     default:
 	break;	
     }
