@@ -16,6 +16,7 @@
 #include "option.h"
 #include <qdatetime.h>
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qdir.h>
 #include <qregexp.h>
 #include <qtextstream.h>
@@ -243,7 +244,7 @@ static void qmake_error_msg(const QString &msg)
    5) your QMAKESPEC/features dir
    6) your data_install/mkspecs/FEATURES_DIR
    7) environment variable QTDIR/mkspecs/FEATURES_DIR
-   8) your QMAKESPEC/../features dir
+   8) your QMAKESPEC/../FEATURES_DIR dir
 
    FEATURES_DIR is defined as:
 
@@ -333,9 +334,18 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
             feature_roots << (QString(qtdir) + mkspecs_concat + (*concat_it));
     }
     if(!Option::mkfile::qmakespec.isEmpty()) {
-        for(QStringList::Iterator concat_it = concat.begin();
-            concat_it != concat.end(); ++concat_it)
-            feature_roots << (QDir::cleanPath(Option::mkfile::qmakespec + "/../") + (*concat_it));
+        QFileInfo specfi(Option::mkfile::qmakespec);
+        QDir specdir(specfi.absolutePath());
+        while(!specdir.isRoot()) {
+            if(!specdir.cdUp() || specdir.isRoot())
+                break;
+            if(QFile::exists(specdir.path() + QDir::separator() + "features")) {
+                for(QStringList::Iterator concat_it = concat.begin();
+                    concat_it != concat.end(); ++concat_it)
+                    feature_roots << (specdir.path() + (*concat_it));
+                break;
+            }
+        }
     }
     for(QStringList::Iterator concat_it = concat.begin();
         concat_it != concat.end(); ++concat_it)
