@@ -1420,7 +1420,6 @@ static void doResInit( void )
 #elif defined(_OS_WIN32_)
 
 #include "qt_windows.h"
-#endif
 
 //
 // We need to get information about DNS etc. from the Windows
@@ -1497,6 +1496,6 @@ static void doResInit( void )
 	first = last+1;
     } while( first < nameServer.length() );
 }
-	
+
 
 #endif
