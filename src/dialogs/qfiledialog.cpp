@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#135 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#136 $
 **
 ** Implementation of QFileDialog class
 **
@@ -52,9 +52,9 @@
 #include <windows.h>
 #endif
 
-TCHAR* qt_winTchar(const QString& str, bool addnul);
-TCHAR* qt_winTchar_new(const QString& str);
-QString qt_winQString(TCHAR* tc);
+extern const TCHAR* qt_winTchar(const QString& str, bool addnul);
+extern TCHAR* qt_winTchar_new(const QString& str);
+extern QString qt_winQString(TCHAR* tc);
 
 #endif
 

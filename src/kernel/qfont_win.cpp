@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#70 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -42,7 +42,7 @@
 extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 extern QString qt_winQString(TCHAR* tc);
-extern TCHAR* qt_winTchar(const QString& str, bool addnul);
+extern const TCHAR* qt_winTchar(const QString& str, bool addnul);
 
 #if defined(Q_SHARED_FONTDC)
 static HANDLE shared_dc	     = 0;		// common dc for all fonts
@@ -762,7 +762,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 	len = str.length();
     SIZE s;
     HDC h = hdc();
-    TCHAR* tc = qt_winTchar(str,FALSE);
+    const TCHAR* tc = qt_winTchar(str,FALSE);
     GetTextExtentPoint32( h, tc, len, &s );
     return s.cx;
 }

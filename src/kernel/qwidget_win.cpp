@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#141 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -54,8 +54,8 @@ QOleDropTarget* qt_olednd_register( QWidget* widget );
 
 
 extern bool qt_nograb();
-extern TCHAR* qt_winTchar(const QString& str, bool addnul);
 extern TCHAR* qt_winTchar_new(const QString& str);
+extern const TCHAR* qt_winTchar(const QString& str, bool addnul);
 
 static QWidget *mouseGrb    = 0;
 static QCursor *mouseGrbCur = 0;

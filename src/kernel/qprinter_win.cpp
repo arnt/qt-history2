@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#30 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -36,7 +36,7 @@
 #include <windows.h>
 #endif
 
-extern TCHAR* qt_winTchar(const QString& str, bool addnul);
+extern const TCHAR* qt_winTchar(const QString& str, bool addnul);
 
 // QPrinter states
 
