@@ -57,8 +57,6 @@ void GLWidget::initializeGL()
     cubeList = glGenLists(1);
     glNewList(cubeList, GL_COMPILE);
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glEnable(GL_TEXTURE_2D);
