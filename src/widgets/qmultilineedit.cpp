@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#84 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2309,7 +2309,7 @@ void QMultiLineEdit::copy() const
     }
 }
 
-/* \obsolete
+/*! \obsolete
 
   Backward compatibility.
 */

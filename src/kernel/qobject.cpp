@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#227 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#228 $
 **
 ** Implementation of QObject class
 **
@@ -1918,6 +1918,16 @@ ACTIVATE_SIGNAL_WITH_PARAM( activate_signal, const char * )
 ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_bool, bool )
 ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_string, QString )
 ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_strref, const QString & )
+
+/*!
+  \internal void QObject::activate_signal_bool (const char * signal, bool) 
+*/
+/*!
+  \internal void QObject::activate_signal_string (const char * signal, QString) 
+*/
+/*!
+  \internal void QObject::activate_signal_strref (const char * signal, const QString & )
+*/
 
 
 /*****************************************************************************
