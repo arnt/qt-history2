@@ -333,16 +333,18 @@ void QSocket::tryConnecting()
 	    d->host.ascii(), d->port, l.count() );
 #endif
     if ( l.isEmpty() ) {
-	if ( !d->dns->isWorking() )
+	if ( !d->dns->isWorking() ) {
 	    d->state = Idle;
+	    emit error();
+	}
 	return;
     }
 
     // ### hack: just use the first address
     d->state = Connecting;
-    d->socket = new QSocketDevice;
     if ( d->socket->connect( l[0], d->port ) == FALSE ) {
-	// uhnm?
+	d->state = Idle;
+	emit error();
     }
 #if defined(QSOCKET_DEBUG)
     QString canonical = d->dns->canonicalName();
