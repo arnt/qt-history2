@@ -812,8 +812,6 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
             d->yposVector.push_back(y);
             dx = (hint.width() > dx ? hint.width() : dx);
             y += spacing + dy;
-
-            qDebug("row %d", i);
         }
         // used when laying out next batch
         d->yposVector.push_back(y);
@@ -1171,7 +1169,6 @@ void QGenericListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wrap
 void QGenericListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
                                                  const QRect &bounds, int spacing, int delta)
 {
-    qDebug("createStaticColumn");
     y = bounds.top() + spacing;
     x += spacing + dx;
     ++wraps;
