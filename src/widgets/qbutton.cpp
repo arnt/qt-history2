@@ -821,8 +821,8 @@ void QButton::mousePressEvent( QMouseEvent *e )
     if ( hit ) {				// mouse press on button
 	mlbDown = TRUE;				// left mouse button down
 	buttonDown = TRUE;
-    if ( autoMask() )
-        updateMask();
+	if ( autoMask() )
+	    updateMask();
 
 	repaint( FALSE );
 	emit pressed();
@@ -843,12 +843,12 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     mlbDown = FALSE;				// left mouse button up
     buttonDown = FALSE;
     if ( hitButton( e->pos() ) ) {		// mouse release on button
-    nextState();
-        emit released();
-    emit clicked();
+	nextState();
+	emit released();
+	emit clicked();
     } else {
-	    repaint( FALSE );
-	    emit released();
+	repaint( FALSE );
+	emit released();
     }
 }
 
