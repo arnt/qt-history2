@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#20 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#20 $")
 
 
 // --------------------------------------------------------------------------
@@ -285,7 +285,7 @@ void QGCache::clear()
 }
 
 
-GCI QGCache::reference( const char *key )
+GCI QGCache::find( const char *key, bool ref ) const
 {
 #if defined(CHECK_NULL)
     ASSERT( key != 0 );
@@ -293,32 +293,15 @@ GCI QGCache::reference( const char *key )
     QCacheItem *ci = dict->find( key );
 #if defined(DEBUG)
     lruList->finds++;
-#endif
     if ( ci ) {
-#if defined(DEBUG)
 	lruList->hits++;
 	lruList->hitCosts += ci->cost;
-#endif
-	lruList->reference( ci );
+	if ( ref )
+	    lruList->reference( ci );
 	return ci->data;
     }
+#endif
     return 0;
-}
-
-GCI QGCache::find( const char *key ) const
-{
-#if defined(CHECK_NULL)
-    ASSERT( key != 0 );
-#endif
-    QCacheItem *ci = dict->find( key );
-#if defined(DEBUG)
-    lruList->finds++;
-    if ( ci ) {
-	lruList->hits++;
-	lruList->hitCosts += ci->cost;
-    }
-#endif
-    return ci ? ci->data : 0;
 }
 
 
@@ -327,7 +310,7 @@ bool QGCache::makeRoomFor( long cost, int priority )
     if ( cost > mCost )				// cannot make room for more
 	return FALSE;				//   than maximum cost
     if ( priority == -1 )
-	priority = 32767;			// use const from qglobal.h???
+	priority = 32767;
     register QCacheItem *ci = lruList->last();
     long cntCost = 0;
     int	 dumps	 = 0;				// number of items to dump

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#7 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#8 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -46,8 +46,7 @@ protected:
     GCI	    take( const char *key );
     void    clear();
 
-    GCI	    reference( const char *key );
-    GCI	    find( const char *key ) const;
+    GCI	    find( const char *key, bool ref=TRUE ) const;
 
     void    statistics() const;			// output debug statistics
 
