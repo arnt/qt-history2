@@ -280,7 +280,7 @@ if [ "$REL_VERSION" = "0.0.0" ]; then
 	REL_VERSION=$V
     fi
 fi
-BRANCH_DIGITS=`echo $BRANCH | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
+BRANCH_DIGITS=`echo $REL_VERSION | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
 [ -z "$BRANCH_DIGITS" ] && BRANCH_DIGITS="000"
 
 #get include files
@@ -350,9 +350,9 @@ if [ "$TYPE" = "auto" ]; then
     TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*-\(.*\)",\1,'`
 fi
 TYPE="-${TYPE}"
-VERSION_STR=${BRANCH}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
+VERSION_STR=${REL_VERSION}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
 sed -e "s,\(\#define *QT_VERSION  *\)[0-9]*,\1${BRANCH_DIGITS},g" \
-    -e "s,\(\#define *QT_VERSION_STR  *\"\)\(.*\),\1${VERSION_STR}\",g" $qglobal >${TMP_FILE}
+    -e "s,\(\#define *QT_VERSION_STR  *\"\)\(.*\),\1${VERSION_STR}\",g" $qglobal #>${TMP_FILE}
 mv ${TMP_FILE} $qglobal
 if [ "$TYPE" != "-snapshot" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
     die "The qt version is ${REL_VERSION}${TYPE}, which confuses me terribly";
