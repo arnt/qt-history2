@@ -204,7 +204,6 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
     } else if ( e.tagName() == "cursor" ) {
 	v = QVariant( QCursor( e.firstChild().toText().data().toInt() ) );
     } else if ( e.tagName() == "connection" ) { // database control
-	qDebug( "here" );
 	QStringList lst;
 	lst << e.firstChild().toText().data();
 	lst << e.nextSibling().firstChild().toText().data();
