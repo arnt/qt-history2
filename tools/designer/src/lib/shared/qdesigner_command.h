@@ -39,7 +39,7 @@ class QStackedWidget;
 class QDockWidget;
 class QMainWindow;
 
-class AbstractFormEditorCommand: public QtCommand
+class QT_SHARED_EXPORT AbstractFormEditorCommand: public QtCommand
 {
     Q_OBJECT
 public:
@@ -51,7 +51,7 @@ private:
     QPointer<AbstractFormEditor> m_core;
 };
 
-class AbstractFormWindowManagerCommand: public QtCommand
+class QT_SHARED_EXPORT AbstractFormWindowManagerCommand: public QtCommand
 {
     Q_OBJECT
 public:
@@ -63,7 +63,7 @@ private:
     QPointer<AbstractFormWindowManager> m_formWindowManager;
 };
 
-class AbstractFormWindowCommand: public QtCommand
+class QT_SHARED_EXPORT AbstractFormWindowCommand: public QtCommand
 {
     Q_OBJECT
 public:
@@ -81,7 +81,7 @@ private:
     QPointer<AbstractFormWindow> m_formWindow;
 };
 
-class SetPropertyCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT SetPropertyCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -124,7 +124,7 @@ private:
     bool m_changed;
 };
 
-class InsertWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT InsertWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -141,7 +141,7 @@ private:
     QPair<int, int> m_cell;
 };
 
-class RaiseWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT RaiseWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -156,7 +156,7 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class LowerWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT LowerWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -171,7 +171,7 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class AdjustWidgetSizeCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT AdjustWidgetSizeCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -186,7 +186,7 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class DeleteWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT DeleteWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -207,7 +207,7 @@ private:
     int m_rowspan, m_colspan;
 };
 
-class ReparentWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT ReparentWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -226,7 +226,7 @@ private:
     QPointer<QWidget> m_newParentWidget;
 };
 
-class TabOrderCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT TabOrderCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -249,7 +249,7 @@ private:
     QList<QWidget*> m_newTabOrder;
 };
 
-class LayoutCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT LayoutCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -272,7 +272,7 @@ private:
     QPointer<Layout> m_layout;
 };
 
-class BreakLayoutCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT BreakLayoutCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -295,7 +295,7 @@ private:
     int m_spacing;
 };
 
-class ToolBoxCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT ToolBoxCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -315,7 +315,7 @@ protected:
     QIcon m_itemIcon;
 };
 
-class DeleteToolBoxPageCommand: public ToolBoxCommand
+class QT_SHARED_EXPORT DeleteToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
 public:
@@ -328,7 +328,7 @@ public:
     virtual void undo();
 };
 
-class AddToolBoxPageCommand: public ToolBoxCommand
+class QT_SHARED_EXPORT AddToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
 public:
@@ -341,7 +341,7 @@ public:
     virtual void undo();
 };
 
-class TabWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT TabWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -361,7 +361,7 @@ protected:
     QIcon m_itemIcon;
 };
 
-class DeleteTabPageCommand: public TabWidgetCommand
+class QT_SHARED_EXPORT DeleteTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
@@ -374,7 +374,7 @@ public:
     virtual void undo();
 };
 
-class AddTabPageCommand: public TabWidgetCommand
+class QT_SHARED_EXPORT AddTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
@@ -387,7 +387,7 @@ public:
     virtual void undo();
 };
 
-class MoveTabPageCommand: public TabWidgetCommand
+class QT_SHARED_EXPORT MoveTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
@@ -411,7 +411,7 @@ private:
     QIcon m_icon;
 };
 
-class StackedWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT StackedWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -429,7 +429,7 @@ protected:
     int m_index;
 };
 
-class DeleteStackedWidgetPageCommand: public StackedWidgetCommand
+class QT_SHARED_EXPORT DeleteStackedWidgetPageCommand: public StackedWidgetCommand
 {
     Q_OBJECT
 public:
@@ -442,7 +442,7 @@ public:
     virtual void undo();
 };
 
-class AddStackedWidgetPageCommand: public StackedWidgetCommand
+class QT_SHARED_EXPORT AddStackedWidgetPageCommand: public StackedWidgetCommand
 {
     Q_OBJECT
 public:
@@ -455,7 +455,7 @@ public:
     virtual void undo();
 };
 
-class DockWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT DockWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
@@ -468,7 +468,7 @@ protected:
     QPointer<QDockWidget> m_dockWidget;
 };
 
-class SetDockWidgetWidgetCommand: public DockWidgetCommand
+class QT_SHARED_EXPORT SetDockWidgetWidgetCommand: public DockWidgetCommand
 {
     Q_OBJECT
 public:
@@ -486,7 +486,7 @@ private:
     QPointer<QWidget> m_oldWidget;
 };
 
-class AddDockWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT AddDockWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:

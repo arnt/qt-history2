@@ -54,7 +54,7 @@ private:
     QAction *m_demoteFromCustomWidgetAction;
 };
 
-class QDesignerTaskMenuFactory: public DefaultExtensionFactory
+class QT_SHARED_EXPORT QDesignerTaskMenuFactory: public DefaultExtensionFactory
 {
     Q_OBJECT
 public:

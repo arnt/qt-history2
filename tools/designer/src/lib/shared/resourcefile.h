@@ -1,19 +1,21 @@
 #ifndef RESOURCEFILE_H
 #define RESOURCEFILE_H
 
+#include "shared_global.h"
+
 #include <QString>
 #include <QStringList>
 #include <QMap>
 #include <QFile>
 
-class ResourceFile
+class QT_SHARED_EXPORT ResourceFile
 {
 public:
     ResourceFile(const QString &file_name);
 
     bool load();
     bool save();
-    
+
     QString resolvePath(const QString &path) const;
 
     QStringList prefixList() const;
@@ -28,7 +30,7 @@ public:
 
     QString relativePath(const QString &abs_path) const;
     QString absolutePath(const QString &rel_path) const;
-        
+
     static QString fixPrefix(const QString &prefix);
 
 private:

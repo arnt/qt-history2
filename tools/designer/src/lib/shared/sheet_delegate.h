@@ -14,12 +14,14 @@
 #ifndef SHEET_DELEGATE_H
 #define SHEET_DELEGATE_H
 
+#include "shared_global.h"
+
 #include <QItemDelegate>
 #include <QTreeView>
 
 class QTreeView;
 
-class SheetDelegate: public QItemDelegate
+class QT_SHARED_EXPORT SheetDelegate: public QItemDelegate
 {
     Q_OBJECT
 public:

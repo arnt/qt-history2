@@ -19,7 +19,7 @@
 class FormWindow;
 class AbstractWidgetDataBaseItem;
 
-class QDesignerCustomWidget: public QDesignerWidget
+class QT_SHARED_EXPORT QDesignerCustomWidget: public QDesignerWidget
 {
     Q_OBJECT
     Q_PROPERTY(bool compat READ isCompat WRITE setCompat STORED false)
@@ -27,21 +27,21 @@ class QDesignerCustomWidget: public QDesignerWidget
 public:
     QDesignerCustomWidget(AbstractFormWindow *formWindow, QWidget *parent = 0);
     virtual ~QDesignerCustomWidget();
-    
+
     AbstractWidgetDataBaseItem *widgetItem() const;
 
     QString widgetClassName() const;
     void setWidgetClassName(const QString &widgetClassName);
-        
+
     bool isCompat() const;
     void setCompat(bool compat);
-    
+
     bool isContainer() const;
     void setContainer(bool container);
-    
+
 private:
     void createWidgetItem();
-    
+
 private:
     QString m_widgetClassName;
 };
