@@ -184,7 +184,8 @@ public:
 	int best = 0;
 	int worst = 15;
 	while ( it != libList.end() ) {
-	    QString lib = (*it).right( lib.length() - lib.findRev( "/" ) - 1 );
+	    QString lib = *it;
+	    lib = lib.right( lib.length() - lib.findRev( "/" ) - 1 );
 	    lib = lib.left( lib.findRev( "." ) );
 	    int s = feature.similarityWith( lib );
 	    if ( s < worst )
