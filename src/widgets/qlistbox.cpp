@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#286 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#287 $
 **
 ** Implementation of QListBox widget class
 **
@@ -857,16 +857,16 @@ void QListBox::removeItem( int index )
 
 void QListBox::clear()
 {
-    d->count = 0;
     d->current = 0;
     QListBoxItem * i = d->head;
     d->head = 0;
     while ( i ) {
-	QListBoxItem * n = i->n;
-	i->n = i->p = 0;
-	delete i;
-	i = n;
+        QListBoxItem * n = i->n;
+        i->n = i->p = 0;
+        delete i;
+        i = n;
     }
+    d->count = 0;
     triggerUpdate( TRUE );
 }
 
@@ -1403,7 +1403,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
                 else
                     setCurrentItem( i );
             }
-            
+
             if ( e->state() & ShiftButton )
                 toggleCurrentItem();
         } else if ( numColumns() > 1 && currentRow() < numRows() ) {
