@@ -68,12 +68,13 @@ public:
     int supportedOperations() const;
 
     // non-QNetworkProtocol functions:
-    enum ConnectState {
-	CsHostFound,
-	CsConnected,
-	CsClosed,
-	CsHostNotFound,
-	CsConnectionRefused
+    enum State {
+	Unconnected,
+	HostLookup,
+	Connecting,
+	Connected,
+	LoggedIn,
+	Closing
     };
     enum Command {
 	None,
@@ -108,7 +109,7 @@ public:
     Command currentCommand() const;
 
 signals:
-    void connectState( int );
+    void stateChanged( int );
     void listInfo( const QUrlInfo& );
     void newData( const QByteArray& );
     void dataSize( int );

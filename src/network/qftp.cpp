@@ -107,6 +107,14 @@ class QFtpDTP : public QSocket
     Q_OBJECT
 
 public:
+    enum ConnectState {
+	CsHostFound,
+	CsConnected,
+	CsClosed,
+	CsHostNotFound,
+	CsConnectionRefused
+    };
+
     QFtpDTP( QFtpPI *p, QObject *parent=0, const char *name=0 );
 
     void setData( QByteArray * );
@@ -445,7 +453,7 @@ void QFtpDTP::slotConnected()
 #if defined(QFTPDTP_DEBUG)
     qDebug( "QFtpDTP::connectState( CsConnected )" );
 #endif
-    emit connectState( QFtp::CsConnected );
+    emit connectState( QFtpDTP::CsConnected );
 }
 
 void QFtpDTP::slotReadyRead()
@@ -455,7 +463,7 @@ void QFtpDTP::slotReadyRead()
 #if defined(QFTPDTP_DEBUG)
 	qDebug( "QFtpDTP::connectState( CsClosed )" );
 #endif
-	emit connectState( QFtp::CsClosed );
+	emit connectState( QFtpDTP::CsClosed );
 	return;
     }
 
@@ -496,12 +504,12 @@ void QFtpDTP::slotError( int e )
 #if defined(QFTPDTP_DEBUG)
 	qDebug( "QFtpDTP::connectState( CsHostNotFound )" );
 #endif
-	emit connectState( QFtp::CsHostNotFound );
+	emit connectState( QFtpDTP::CsHostNotFound );
     } else if ( e == QSocket::ErrConnectionRefused ) {
 #if defined(QFTPDTP_DEBUG)
 	qDebug( "QFtpDTP::connectState( CsConnectionRefused )" );
 #endif
-	emit connectState( QFtp::CsConnectionRefused );
+	emit connectState( QFtpDTP::CsConnectionRefused );
     }
 }
 
@@ -510,7 +518,7 @@ void QFtpDTP::slotConnectionClosed()
 #if defined(QFTPDTP_DEBUG)
     qDebug( "QFtpDTP::connectState( CsClosed )" );
 #endif
-    emit connectState( QFtp::CsClosed );
+    emit connectState( QFtpDTP::CsClosed );
 }
 
 void QFtpDTP::slotBytesWritten( int bytes )
@@ -550,6 +558,7 @@ QFtpPI::QFtpPI( QObject *parent ) :
 
 void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
 {
+    emit connectState( QFtp::HostLookup );
     commandSocket.connectToHost( host, port );
 }
 
@@ -585,7 +594,7 @@ void QFtpPI::clearPendingCommands()
 
 void QFtpPI::hostFound()
 {
-    emit connectState( QFtp::CsHostFound );
+    emit connectState( QFtp::Connecting );
 }
 
 void QFtpPI::connected()
@@ -594,27 +603,27 @@ void QFtpPI::connected()
 #if defined(QFTPPI_DEBUG)
 //    qDebug( "QFtpPI state: %d [connected()]", state );
 #endif
-    emit connectState( QFtp::CsConnected );
+    emit connectState( QFtp::Connected );
 }
 
 void QFtpPI::connectionClosed()
 {
     commandSocket.close();
-    emit connectState( QFtp::CsClosed );
+    emit connectState( QFtp::Unconnected );
 }
 
 void QFtpPI::delayedCloseFinished()
 {
-    emit connectState( QFtp::CsClosed );
+    emit connectState( QFtp::Unconnected );
 }
 
 void QFtpPI::error( int e )
 {
     if ( e == QSocket::ErrHostNotFound ) {
-	emit connectState( QFtp::CsHostNotFound );
+	emit connectState( QFtp::Unconnected );
 	emit error( tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
     } else if ( e == QSocket::ErrConnectionRefused ) {
-	emit connectState( QFtp::CsConnectionRefused );
+	emit connectState( QFtp::Unconnected );
 	emit error( tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
     }
 }
@@ -743,7 +752,11 @@ bool QFtpPI::processReply()
 	    waitForDtpToConnect = TRUE;
 	    dtp.connectToHost( host, port );
 	}
+    } else if ( replyCodeInt == 230 ) {
+	// 230 User logged in, proceed.
+	emit connectState( QFtp::LoggedIn );
     } else if ( replyCodeInt == 213 ) {
+	// 213 File status.
 	if ( currentCmd.startsWith("SIZE ") )
 	    emit dataSize( replyText.simplifyWhiteSpace().toInt() );
     } else if ( replyCode[0]==1 && currentCmd.startsWith("STOR ") ) {
@@ -813,7 +826,7 @@ bool QFtpPI::startNextCmd()
 void QFtpPI::dtpConnectState( int s )
 {
     switch ( s ) {
-	case QFtp::CsClosed:
+	case QFtpDTP::CsClosed:
 	    if ( waitForDtpToClose ) {
 		// there is an unprocessed reply
 		if ( processReply() )
@@ -824,12 +837,12 @@ void QFtpPI::dtpConnectState( int s )
 	    waitForDtpToClose = FALSE;
 	    readyRead();
 	    return;
-	case QFtp::CsConnected:
+	case QFtpDTP::CsConnected:
 	    waitForDtpToConnect = FALSE;
 	    startNextCmd();
 	    return;
-	case QFtp::CsHostNotFound:
-	case QFtp::CsConnectionRefused:
+	case QFtpDTP::CsHostNotFound:
+	case QFtpDTP::CsConnectionRefused:
 	    emit error( tr( "Connection refused for data connection" ) );
 	    startNextCmd();
 	    return;
@@ -946,7 +959,7 @@ void QFtp::init()
     QFtpPrivate *d = ::d( this );
 
     connect( &d->pi, SIGNAL(connectState(int)),
-	    SIGNAL(connectState(int)) );
+	    SIGNAL(stateChanged(int)) );
     connect( &d->pi, SIGNAL(finished( const QString& )),
 	    SLOT(piFinished( const QString& )) );
     connect( &d->pi, SIGNAL(error(const QString&)),
@@ -963,32 +976,33 @@ void QFtp::init()
 }
 
 /*!
-  \enum QFtp::ConnectState
+  \enum QFtp::State
 
   This enum defines the changes of the connection state:
 
-  \value CsHostFound if the host name lookup was successful
-  \value CsConnected if the connection to the host was successful
-  \value CsClosed if the connection was closed
-  \value CsHostNotFound if the host name lookup failed
-  \value CsConnectionRefused if the connection to the host failed.
+  \value Unconnected if no connection to the host exists
+  \value HostLookup if it started a host name lookup
+  \value Connecting if it tries to connect to the host
+  \value Connected if a connection to the host exists
+  \value LoggedIn if a connection to the host exists and the user is logged in
+  \value Closing if the connection is closing down, but is not yet closed
 
-  \sa connectState()
+  \sa stateChanged()
 */
 /*!
   \enum QFtp::Command
 ###
 */
-/*!  \fn void QFtp::connectState( int state )
+/*!  \fn void QFtp::stateChanged( int state )
   This signal is emitted when the state of the connection changes. The argument
   \a state is the new state of the connection; it is one of the enum \l
-  ConnectState values.
+  State values.
 
   It is usually emitted in reaction of a connectToHost() or close() command,
   but it can also be emitted "spontaneous", e.g. when the server closes the
   connection unexpectedly.
 
-  \sa connectToHost() close() ConnectState
+  \sa connectToHost() close() State
 */
 /*!  \fn void QFtp::listInfo( const QUrlInfo &i );
   This signal is emitted for each directory entry the list() command can find.
@@ -1024,7 +1038,7 @@ void QFtp::init()
 /*!
   Connects to the FTP server \a host at the \a port. This function returns
   immediately and does not block until the connection succeeded. The
-  connectState() signal is emitted when the state of the connecting
+  stateChanged() signal is emitted when the state of the connecting
   process changes.
 
   This function returns immediately; it returns a unique identifier for the
@@ -1033,7 +1047,7 @@ void QFtp::init()
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
 
-  \sa connectState() start() finishedSuccess() finishedError()
+  \sa stateChanged() start() finishedSuccess() finishedError()
 */
 int QFtp::connectToHost( const QString &host, Q_UINT16 port )
 {
@@ -1072,7 +1086,7 @@ int QFtp::login( const QString &user, const QString &password )
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
 
-  \sa connectState() start() finishedSuccess() finishedError()
+  \sa stateChanged() start() finishedSuccess() finishedError()
 */
 int QFtp::close()
 {
@@ -1269,6 +1283,8 @@ void QFtp::startNextCommand()
 		d->pi.dtp.setData( c->data.ba );
 		emit dataSize( c->data.ba->size() );
 	    }
+	} else if ( c->command == Close ) {
+	    emit stateChanged( QFtp::Closing );
 	}
 	if ( !d->pi.sendCommands( c->rawCmds ) ) {
 	    // ### error handling (this case should not happen)
@@ -1286,18 +1302,18 @@ void QFtp::piFinished( const QString& )
     if ( c->command == Close ) {
 	// The order of in which the slots are called is arbitrary, so
 	// disconnect the SIGNAL-SIGNAL temporary to make sure that we
-	// don't get the finishedSuccess() signal before the connectState()
+	// don't get the finishedSuccess() signal before the stateChanged()
 	// signal.
 	if ( d->redirectConnectState ) {
 	    d->redirectConnectState = FALSE;
 	    connect( &d->pi, SIGNAL(connectState(int)),
-		    this, SIGNAL(connectState(int)) );
+		    this, SIGNAL(stateChanged(int)) );
 	    disconnect( &d->pi, SIGNAL(connectState(int)),
 		    this, SLOT(piConnectState(int)) );
 	} else {
 	    d->redirectConnectState = TRUE;
 	    disconnect( &d->pi, SIGNAL(connectState(int)),
-		    this, SIGNAL(connectState(int)) );
+		    this, SIGNAL(stateChanged(int)) );
 	    connect( &d->pi, SIGNAL(connectState(int)),
 		    this, SLOT(piConnectState(int)) );
 	    return;
@@ -1333,8 +1349,8 @@ void QFtp::piError( const QString &text )
 
 void QFtp::piConnectState( int state )
 {
-    emit connectState( state );
-    if ( state == CsClosed )
+    emit stateChanged( state );
+    if ( state == Unconnected )
 	piFinished( tr( "Connection closed" ) );
 }
 
