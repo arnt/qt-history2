@@ -122,7 +122,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face)
     _openType = 0;
     fontDef = d;
     face = ft_face;
-    _scale =  1<<8;
+    _scale =  1;
 
     smooth = FT_IS_SCALABLE(face);
     if (fontDef.styleStrategy & QFont::NoAntialias)
