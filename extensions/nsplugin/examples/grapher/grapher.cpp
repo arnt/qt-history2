@@ -488,7 +488,7 @@ void Grapher::consumeLine()
 		t = new ColType(Label);
 	    }
 	    if (t) typelist.append(t);
-	} while (!ts.eof());
+	} while (!ts.atEnd());
 	coltype = new ColType[ncols];
 	for (ColType* t = typelist.first(); t; t = typelist.next()) {
 	    coltype[ncols++] = *t;
@@ -496,7 +496,7 @@ void Grapher::consumeLine()
     } else {
 	int col=0;
 	Datum *rowdata = new Datum[ncols];
-	while ( col < ncols && !ts.eof() ) {
+	while ( col < ncols && !ts.atEnd() ) {
 	    switch (coltype[col]) {
 	      case Numeric: {
 		double value;

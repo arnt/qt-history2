@@ -284,7 +284,7 @@ void MDIWindow::load( const QString& fn )
 	medit->clear();
 
 	QTextStream t(&f);
-	while ( !t.eof() ) {
+	while ( !t.atEnd() ) {
 	    QString s = t.readLine();
 	    medit->append( s );
 	}
@@ -292,7 +292,7 @@ void MDIWindow::load( const QString& fn )
 
 	medit->setAutoUpdate( TRUE );
 	medit->repaint();
-	
+
     }
     setCaption( filename );
     emit message( QString("Loaded document %1").arg(filename), 2000 );

@@ -64,7 +64,7 @@ void ABCentralWidget::load( const QString &filename )
 
     QTextStream t( &f );
 
-    while ( !t.eof() ) {
+    while ( !t.atEnd() ) {
         QListViewItem *item = new QListViewItem( listView );
         for ( unsigned int i = 0; i < 4; i++ )
             item->setText( i, t.readLine() );
