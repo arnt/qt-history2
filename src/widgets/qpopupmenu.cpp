@@ -1172,6 +1172,8 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	autoaccel = new QAccel( parent, this );
 	connect( autoaccel, SIGNAL(activated(int)),
 		 SLOT(accelActivated(int)) );
+	connect( autoaccel, SIGNAL(activatedAmbiguously(int)),
+		 SLOT(accelActivated(int)) );
 	connect( autoaccel, SIGNAL(destroyed()),
 		 SLOT(accelDestroyed()) );
 	if ( accelDisabled )
