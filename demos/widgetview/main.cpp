@@ -59,9 +59,10 @@ int main( int argc, char ** argv ) {
     label->setAlignment(Qt::AlignCenter | Qt::TextWordBreak);
     label->setText(
         "This is an example for QWidgetView. "
-        "It shows that Qt breaks the 16-bit limit of the operation system for child widgets. "
+        "It shows that you can have Qt widgets that exceed the "
+        "built-in 16-bit limit of MS-Windows, X11 and MacOS X. "
         "The green grid is one big widget that is 128000 x 128000 pixels large. It contains "
-        "a magenta child widget that itself is 66560 pixels high. Click anywhere "
+        "a magenta child widget that itself has a height of 66560 pixels. Click anywhere "
         "to add small child widgets.");
     label->setFrameStyle(QFrame::Box);
     label->setMargin(8);
