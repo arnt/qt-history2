@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#89 $
+** $Id: //depot/qt/main/src/tools/qstring.h#90 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -198,10 +198,10 @@ public:
     friend int operator>( char ch, const QChar& c );
 
 #if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
-    // XChar2b on X11, ushort on(_OS_WIN32_BYTESWAP_
+    // XChar2b on X11, ushort on _OS_WIN32_BYTESWAP_
     uchar row;
     uchar cell;
-    enum { networkOrdered = 1 };
+    enum { networkOrdered = 1 }; // ### Net... or net...?
 #else
     // ushort on _OS_WIN32_
     uchar cell;

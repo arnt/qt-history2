@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#154 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#155 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -1043,9 +1043,9 @@ bool QString::findArg(int& pos, int& len) const
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
 
-  For text that is \link QObject::tr() translated\endlink, especially
+  For text that is \link QObject::tr() translated,\endlink especially
   if it contains more than one escape sequence, you should consider
-  using one of the arg() function:
+  using the arg() function:
 
   \code
     label.setText( tr("I have %1 to your %2").arg(mine).arg(yours) );
@@ -1054,9 +1054,10 @@ bool QString::findArg(int& pos, int& len) const
   This allows the order of the replacements to be controlled by the
   translator.
 
-  \b Note that sprintf also offers no Unicode support.  For typesafe
-  string building, with full Unicode support, you can use QTextOStream like
-  this:
+  Note that sprintf also offers no Unicode support.  For typesafe
+  string building, with full Unicode support, you can use QTextOStream
+  like this:
+
   \code
     int x = ...;
     QString y = ...;
@@ -1095,14 +1096,14 @@ QString &QString::sprintf( const char* cformat, ... )
     while ( 1 ) {
 	pos=escape.match( format, last, &len );
 	// Non-escaped text
-	if ( pos > last ) {
+	if ( pos > (int)last ) {
 	    result += format.mid(last,pos-last);
 //debug("%d UNESCAPED from %d = %s",pos-last,last,format.mid(last,pos-last).ascii());
 	}
 	if ( pos < 0 ) {
 	    // The rest
 //debug("THE REST = %s",format.mid(last).ascii());
-	    if ( last < (int)format.length() )
+	    if ( last < format.length() )
 		result += format.mid(last);
 	    break;
 	}
