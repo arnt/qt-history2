@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#340 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#347 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -120,7 +120,7 @@ static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG *, int& ret );
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
-QWidget	       *qt_spontaneous_show	 = 0;		// widget is shown spontaneously
+QWidget	       *qt_spontaneous_show = 0;	// widget is shown spontaneously
 
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
@@ -133,9 +133,9 @@ static QVFuncList *postRList = 0;		// list of post routines
 static void	msgHandler( QtMsgType, const char* );
 static void     unregWinClasses();
 
-// Simpler timers are needed when Qt does not have the
-// event loop (such as for plugins).
-Q_EXPORT bool	qt_win_use_simple_timers = TRUE; //FALSE;
+// Simpler timers are needed when Qt does not have the event loop,
+// such as for plugins.  We now use them by default.
+Q_EXPORT bool	qt_win_use_simple_timers = TRUE;
 void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
 
 static void	initTimers();
