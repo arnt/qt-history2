@@ -856,7 +856,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
                 if (s.from() + s.length() > from && s.from() < from+length) {
                     QRectF highlight = QRectF(QPointF(position.x() + l.cursorToX(qMax(s.from(), from)),
                                                      position.y() + sl.y),
-                                         QPointF(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
+                                         QPointF(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)),
                                                      position.y() + (sl.y + sl.height()))).normalize();
                     drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, position, j);
                 }
