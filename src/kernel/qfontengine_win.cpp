@@ -395,6 +395,8 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     }
 
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
+    if (p->backgroundMode() == Qt::OpaqueMode)
+	options |= ETO_OPAQUE;
 
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
@@ -464,7 +466,8 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		}
 	    } else {
 		// fast path
-		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, si->num_glyphs, advances );
+		RECT r = { x + offsets->x, y + offsets->y, r.left + w, r.top + tm.w.tmDescent + 1 };
+		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, &r, (wchar_t *)glyphs, si->num_glyphs, advances );		
 		x += w;
 	    }
 	}
@@ -481,7 +484,8 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    int yp = y + offsets->y;
 	    if ( transform )
 		p->map( xp, yp, &xp, &yp );
-    	    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
+	    RECT r = { xp, yp, r.left + *advances, r.top + tm.w.tmDescent + 1 };
+    	    ExtTextOutW( hdc, xp, yp, options, &r, &chr, 1, 0 );
 	    x += *advances;
 	}
     }
