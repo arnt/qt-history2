@@ -1407,9 +1407,10 @@ void QFileDialogPrivate::setup()
     QObject::connect(detailMode, SIGNAL(clicked()), q, SLOT(showDetail()));
     box->addWidget(detailMode);
 
+    // last init
     grid->addLayout(box, 0, 4);
-
     q->resize(550, 320);
+    fileName->setFocus();
 }
 
 void QFileDialogPrivate::updateButtons(const QModelIndex &index)
