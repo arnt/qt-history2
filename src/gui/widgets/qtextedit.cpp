@@ -349,6 +349,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         cursor = QTextCursor(doc);
 
         doc->documentLayout()->setDefaultFont(q->font());
+        doc->documentLayout()->setPaintDevice(viewport);
 
         hbar->setSingleStep(20);
         vbar->setSingleStep(20);
@@ -1023,6 +1024,7 @@ void QTextEdit::setDocument(QTextDocument *document)
     Q_D(QTextEdit);
     d->doc->disconnect(this);
     d->doc->documentLayout()->disconnect(this);
+    d->doc->documentLayout()->setPaintDevice(0);
 
     if (d->doc->parent() == this)
         delete d->doc;

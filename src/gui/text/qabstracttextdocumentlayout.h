@@ -73,6 +73,9 @@ public:
     void setDefaultFont(const QFont &font);
     QFont defaultFont() const;
 
+    void setPaintDevice(QPaintDevice *device);
+    QPaintDevice *paintDevice() const;
+
 protected:
     QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &, QTextDocument *);
 

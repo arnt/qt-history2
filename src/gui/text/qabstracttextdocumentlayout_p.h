@@ -41,11 +41,16 @@ class QAbstractTextDocumentLayoutPrivate : public QObjectPrivate
 public:
     Q_DECLARE_PUBLIC(QAbstractTextDocumentLayout)
 
+    inline QAbstractTextDocumentLayoutPrivate()
+        : paintDevice(0) {}
+
     HandlerHash handlers;
 
     void handlerDestroyed(QObject *obj);
 
     QFont defaultFont;
+
+    QPaintDevice *paintDevice;
 };
 
 #endif // QABSTRACTTEXTDOCUMENTLAYOUT_P_H

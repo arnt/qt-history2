@@ -17,8 +17,6 @@
 #include "qtextengine_p.h"
 
 #include "qabstracttextdocumentlayout_p.h"
-#define d d_func()
-#define q q_func()
 
 
 /*!
@@ -151,6 +149,8 @@ QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLa
 */
 void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *component)
 {
+    Q_D(QAbstractTextDocumentLayout);
+
     QTextObjectInterface *iface = qobject_cast<QTextObjectInterface *>(component);
     if (!iface)
         return; // ### print error message on terminal?
@@ -170,6 +170,8 @@ void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *compo
 */
 QTextObjectInterface *QAbstractTextDocumentLayout::handlerForObject(int objectType) const
 {
+    Q_D(const QAbstractTextDocumentLayout);
+
     QTextObjectHandler handler = d->handlers.value(objectType);
     if (!handler.component)
         return 0;
@@ -183,6 +185,8 @@ QTextObjectInterface *QAbstractTextDocumentLayout::handlerForObject(int objectTy
 */
 void QAbstractTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &format)
 {
+    Q_D(QAbstractTextDocumentLayout);
+
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextObjectHandler handler = d->handlers.value(f.objectType());
@@ -219,6 +223,8 @@ void QAbstractTextDocumentLayout::layoutObject(QTextInlineObject item, const QTe
 void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                                              const QTextFormat &format)
 {
+    Q_D(QAbstractTextDocumentLayout);
+
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextObjectHandler handler = d->handlers.value(f.objectType());
@@ -329,6 +335,7 @@ QRect QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 */
 void QAbstractTextDocumentLayout::setDefaultFont(const QFont &font)
 {
+    Q_D(QAbstractTextDocumentLayout);
     d->defaultFont = font;
 }
 
@@ -337,8 +344,23 @@ void QAbstractTextDocumentLayout::setDefaultFont(const QFont &font)
 */
 QFont QAbstractTextDocumentLayout::defaultFont() const
 {
+    Q_D(const QAbstractTextDocumentLayout);
     return d->defaultFont;
 }
 
+void QAbstractTextDocumentLayout::setPaintDevice(QPaintDevice *device)
+{
+    Q_D(QAbstractTextDocumentLayout);
+    d->paintDevice = device;
+}
+
+QPaintDevice *QAbstractTextDocumentLayout::paintDevice() const
+{
+    Q_D(const QAbstractTextDocumentLayout);
+    return d->paintDevice;
+}
+
+#define d d_func()
+#define q q_func()
 #include "moc_qabstracttextdocumentlayout.cpp"
 

@@ -748,6 +748,7 @@ void QTextDocument::print(QPrinter *printer) const
     QFont font(documentLayout()->defaultFont());
     font.setPointSize(10); // we define 10pt to be a nice base size for printing
     layout->setDefaultFont(font);
+    layout->setPaintDevice(printer);
     layout->setPageSize(QSize(body.width(), INT_MAX));
 
     QRect view(0, 0, body.width(), body.height());
