@@ -36,6 +36,7 @@
 #include "qwsmouse_qws.h"
 
 #include <qapplication.h>
+#include <qsocketnotifier.h>
 #include <qpointarray.h> //cursor test code
 #include <qimage.h>
 #include <qcursor.h>

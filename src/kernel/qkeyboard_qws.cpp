@@ -32,6 +32,7 @@
 #include "qgfx_qws.h"
 
 #include <qapplication.h>
+#include <qsocketnotifier.h>
 #include <qnamespace.h>
 
 #include <stdlib.h>

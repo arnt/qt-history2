@@ -34,7 +34,7 @@
 #include <qimage.h>
 #endif // QT_H
 
-class QWSCursor
+class QWSCursor : public Qt
 {
 public:
     QWSCursor() {}

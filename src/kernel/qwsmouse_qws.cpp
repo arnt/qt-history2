@@ -28,6 +28,7 @@
 **********************************************************************/
 
 #include "qwindowsystem_qws.h"
+#include "qsocketnotifier.h"
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsutils_qws.h"
