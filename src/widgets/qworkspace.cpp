@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#20 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -240,22 +240,22 @@ public:
 
 /*!
   \class QWorkspace qworkspace.h
-  
+
   \brief The QWorkspace class provides a workspace used to implement a
   multidocument interface (MDI).
 
   \ingroup realwidgets
-  
+
   An MDI application has one main window that has a menubar. The
   central widget of this main window is a workspace. The workspace
   itself contains zero, one or several document windows, each of which
   displays a document.
-  
+
   The menubar and the toolbars act as a roadmap to the
   application. You get to keep the same map all the time, even if you
   open three different documents in three different child windows and
   switch around among them.
-  
+
   The workspace itself is an ordinary Qt widget. It has a standard
   constructor that takes a parent widget and an object name.  Document
   windows, so-called MDI windows, are also ordinary Qt widgets.  They
@@ -266,7 +266,7 @@ public:
   you have to do is call QWidget::show() (as you would do with normal
   toplevel window) and the document window appears as MDI window
   inside the workspace.
-  
+
   In addition to show, QWidget::hide(), QWidget::showMaximized(),
   QWidget::showNormal(), QWidget::showMinimized() also work as
   expected for the document windows.
@@ -274,12 +274,12 @@ public:
   A document window becomes active when it gets the focus. This can be
   achieved by calling QWidget::setFocus(). The workspace emits a
   signal clientActivated() when it detects the activation change.  The
-  active client itself can be obtained with activeClient(). 
-  
+  active client itself can be obtained with activeClient().
+
   The convenience function clientList() returns a list of all document
   windows. This is especially useful to create a popup menu "&Windows"
   on the fly.
-  
+
   Multidocument interfaces have many friends, and almost as many
   opponents. Bascially, it's a matter of taste.  Although everybody
   agrees that it was the wrong choice for the Windows 3.1 file
@@ -291,14 +291,14 @@ public:
   something, an SDI counterpart does not provide. Furthermore, the
   user effort for window management tasks such as positioning,
   stacking and sizing is significantly reduced.
-  
+
   You may want to take MDI into consideration, if
   <ol>
   <li> your design goals include both ease of use and flexiblity.
   <li> your application centers around documents.
   <li> your users are already familiar with an MDI interface.
   </ol>
-  
+
   You do not want to take MDI into consideration, if
   <ol>
   <li> you do not like it.
@@ -373,6 +373,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	}
     }
 }
+
 
 
 void QWorkspace::activateClient( QWidget* w)
@@ -585,6 +586,8 @@ QWidgetList QWorkspace::clientList() const
     return clients;
 }
 
+/*!\reimp
+ */
 bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
     if ( d->maxhandle && e->type() == QEvent::Resize && o == topLevelWidget() )
@@ -640,6 +643,14 @@ void QWorkspace::normalizeActive()
 	d->active->showNormal();
 }
 
+
+/*!
+  \fn void QWorkspace::clientActivated( QWidget* w )
+
+  This signal is emitted when the client widget \a w becomes active.
+  
+  \sa activeClient(), clientList()
+*/
 
 
 #define TITLEBAR_HEIGHT 18
@@ -1216,5 +1227,6 @@ void QWorkspaceChild::adjustToFullscreen()
 		 parentWidget()->width() + width() - clientw->width(),
 		 parentWidget()->height() + height() - clientw->height() );
 }
+
 
 #include "qworkspace.moc"
