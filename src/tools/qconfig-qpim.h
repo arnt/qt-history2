@@ -9,14 +9,13 @@
 // supported on Qt/Embedded where reducing the library size is important
 // and where the application-suite is often a fixed set.
 
+#define QT_DEMO_LINUX
+//#define QT_DEMO_SINGLE_FLOPPY
+
 #ifndef QT_DLL
 #define QT_DLL // Internal
 #endif
 
-#define QT_NO_QWS_MACH64
-#define QT_NO_QWS_VOODOO3
-#define QT_NO_QWS_MATROX
-#define QT_NO_QWS_VGA16
 //#define QT_NO_QWS_CURSOR
 #define QT_NO_CODECS
 #define QT_NO_UNICODETABLES
@@ -36,6 +35,7 @@
 #define QT_NO_SOUND
 #define QT_NO_PROPERTIES
 #define QT_NO_DNS
+#define QT_NO_NETWORK
 #define QT_NO_NETWORKPROTOCOL
 #define QT_NO_COLORNAMES
 #define QT_NO_TRANSFORMATIONS
@@ -61,3 +61,24 @@
 #define QT_NO_EFFECTS
 #define QT_NO_PLUGIN
 #define QT_NO_DOM
+
+#define QT_NO_QWS_SAVEFONTS
+
+#if defined(QT_DEMO_LINUX) || defined(QT_DEMO_SINGLE_FLOPPY)
+#define QT_NO_QWS_VFB
+#define QT_NO_QWS_TRANSFORMED
+#endif
+
+#ifdef QT_DEMO_SINGLE_FLOPPY // VGA16 is all we need
+#define QT_NO_QWS_MACH64
+#define QT_NO_QWS_VOODOO3
+#define QT_NO_QWS_MATROX
+#define QT_NO_QWS_DEPTH_8
+#define QT_NO_QWS_DEPTH_16
+#define QT_NO_QWS_DEPTH_32
+#endif
+
+// Doesn't compile
+#ifndef QT_NO_QWS_VOODOO3
+#define QT_NO_QWS_VOODOO3
+#endif

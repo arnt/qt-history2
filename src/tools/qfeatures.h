@@ -42,7 +42,25 @@
     ...
 */
 
+// Qt ships with a number of pre-defined configurations. If none suit
+// your needs, define QCONFIG_LOCAL and create a "qconfig-local.h" file.
+//
+// Note that disabling some features will produce a libqt that is not
+// compatible with other libqt builds. Such modifications are only
+// supported on Qt/Embedded where reducing the library size is important
+// and where the application-suite is often a fixed set.
+//
+#if defined(QCONFIG_LOCAL)
+#include <qconfig-local.h>
+#elif defined(QCONFIG_QPIM)
+#include <qconfig-qpim.h>
+#elif defined(QCONFIG_MINIMAL)
+#include <qconfig-minimal.h>
+#elif defined(QCONFIG_EMBEDDED)
+#include <qconfig-embedded.h>
+#else
 #include <qconfig.h>
+#endif
 
 
 // Data structures
@@ -210,14 +228,17 @@
 # define QT_NO_RICHTEXT
 #endif
 
-//XML
-
+/*!
+  XML
+*/
 #if defined(QT_NO_STRINGLIST)
 # define QT_NO_XML
 #endif
 
-/*! Document Object Model */
-#if defined(QT_NO_XML) ||defined(QT_NO_MIME)
+/*!
+  Document Object Model
+*/
+#if defined(QT_NO_XML) || defined(QT_NO_MIME)
 # define QT_NO_DOM
 #endif
 
@@ -362,8 +383,10 @@
 */
 //#define QT_NO_QWS_PROPERTIES
 
-#if defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_MIME) && !defined(_WS_QWS_)
-/*! Cut and paste */
+#if defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_MIME)
+    /*!
+      Cut and paste
+    */
 # define QT_NO_CLIPBOARD
 #endif
 
@@ -480,6 +503,17 @@
 */
 //#define QT_NO_FRAME
 
+/*!
+  Special widget effects (fading, scrolling)
+*/
+//#define QT_NO_EFFECTS
+
+/*!
+  Dynamic module linking
+*/
+//#define QT_NO_PLUGIN
+
+
 #if defined(QT_NO_FRAME) ||defined(QT_NO_PALETTE) || defined(QT_NO_STYLE) ||defined(QT_NO_DRAWUTIL)
     /*! 
       Basic widgets: QLAbel, QPushbutton, ...
@@ -532,6 +566,9 @@
 #endif
 
 #if defined(QT_NO_STYLE_MOTIF)
+    /*!
+	Motif-plus style
+    */
 # define QT_NO_STYLE_MOTIFPLUS
 #endif
 
@@ -693,8 +730,5 @@
     /*! Session management support */
 # define QT_NO_SESSIONMANAGER
 #endif
-
-/*! Special widget effects (fading, scrolling) */
-//#define QT_NO_EFFECTS
 
 #endif // QFEATURES_H

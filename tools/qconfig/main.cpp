@@ -207,6 +207,7 @@ void Main::loadFeatures(const QString& filename)
 
     do {
 	QString line = s.readLine();
+	line.replace(QRegExp("# *define"),"#define");
 
 	QStringList token = QStringList::split(QChar(' '),line);
 	if ( on ) {

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#36 $
+# $Id: //depot/qt/main/GNUmakefile.inc#37 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -9,6 +9,14 @@
 
 ifdef INSURE
 TMAKEINSURE="TMAKE_LINK_SHLIB=insure" "TMAKE_LINK=insure" "TMAKE_CC=insure" "TMAKE_CXX=insure"
+endif
+
+ifdef CONFIG
+QCONFIG="DEFINES+=QCONFIG_$(CONFIG)"
+QCONFIGSUF=-$(CONFIG)
+else
+QCONFIG=
+QCONFIGSUF=
 endif
 
 ifdef QT_EMBEDDED
@@ -33,21 +41,21 @@ QT_TARGET=debug
 endif
 endif
 ifeq ($(LIBTARGET),1)
-TMAKEHACK=$(TMAKEINSURE) "DESTDIR=$(QTDIR)/lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
+TMAKEHACK=$(TMAKEINSURE) "DESTDIR=$(QTDIR)/lib-e-$(QT_EMBEDDED)$(QCONFIGSUF)" $(TMAKEHACKEXTRA)
 else
-TMAKEHACK=$(TMAKEINSURE) "TMAKE_LIBDIR_QT=$(QTDIR)/lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
+TMAKEHACK=$(TMAKEINSURE) "TMAKE_LIBDIR_QT=$(QTDIR)/lib-e-$(QT_EMBEDDED)$(QCONFIGSUF)" $(TMAKEHACKEXTRA)
 endif
-PROJOBJ=e-$(QT_EMBEDDED)/
+PROJOBJ=e-$(QT_EMBEDDED)$(QCONFIGSUF)/
 PROJMAK=-e-$(QT_EMBEDDED)
 TMAKEPATH=$(TMAKEDIR)/lib/qws/linux-$(QT_EMBEDDED)-g++
 export TMAKEPATH
 
-TMAKEPREHACK="CONFIG+=embedded" "CONFIG+=internal" "DASHCROSS=$(DASHCROSS)"
+TMAKEPREHACK=$(QCONFIG) "CONFIG+=embedded" "CONFIG+=internal" "DASHCROSS=$(DASHCROSS)"
 
 else
 
 TMAKEHACK=$(TMAKEINSURE)
-TMAKEPREHACK="CONFIG+=internal"
+TMAKEPREHACK=$(QCONFIG) "CONFIG+=internal"
 # Should do this too...
 #PROJOBJ=x11/
 #PROJMAK=-x11

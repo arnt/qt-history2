@@ -15,7 +15,7 @@ goto endofperl
 @rem ';
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt.bat#16 $
+# $Id: //depot/qt/main/bin/syncqt.bat#17 $
 #
 # Synchronizes Qt header files - internal Trolltech tool.
 #   - Creates symlinks on Unix.
@@ -54,7 +54,7 @@ closedir SRC;
 foreach $p ( @dirs ) {
     if ( -d "$basedir/$p" ) {
 	chdir "$basedir/$p";
-	@ff = find_files( ".", "^[a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
+	@ff = find_files( ".", "^[-a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
 	foreach ( @ff ) { $_ = "$p/$_"; }
 	push @files, @ff;
     }
