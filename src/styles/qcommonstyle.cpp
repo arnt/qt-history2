@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the QCommonStyle class
 **
@@ -766,12 +766,16 @@ void QCommonStyle::drawControl( ControlElement element,
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 	    QRect rect = r;
+#if 0 // ### not used?
 	    bool use3d = FALSE;
+#endif
 	    bool drawarrow = FALSE;
 	    Qt::ArrowType arrowType = Qt::DownArrow;
 
 	    if (data) {
+#if 0 // ### not used?
 		use3d      = *((bool *) data[0]);
+#endif
 		drawarrow  = *((bool *) data[1]);
 		arrowType  = *((Qt::ArrowType *) data[2]);
 	    }
@@ -1225,12 +1229,16 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
 	    menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, data);
 
+#if 0 // ### not used?
 	    bool use3d = FALSE;
+#endif
 	    bool drawarrow = FALSE;
 	    Qt::ArrowType arrowType = Qt::DownArrow;
 
 	    if (data) {
+#if 0 // ### not used?
 		use3d      = *((bool *) data[0]);
+#endif
 		drawarrow  = *((bool *) data[1]);
 		arrowType  = *((Qt::ArrowType *) data[2]);
 	    }
