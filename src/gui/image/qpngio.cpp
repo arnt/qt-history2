@@ -141,7 +141,7 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 		const int g = info_ptr->trans_values.gray;
 		if (g < ncols) {
 		    image.setAlphaBuffer(TRUE);
-		    image.setColor(transparent, image.color(g) & RGB_MASK);
+		    image.setColor(g, image.color(g) & RGB_MASK);
 		}
 	    }
 	}
