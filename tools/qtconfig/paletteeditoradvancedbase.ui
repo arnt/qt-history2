@@ -127,7 +127,7 @@
                         <cstring>checkBuildInactive</cstring>
                     </property>
                     <property name="text">
-                        <string>Build inactive palette from active.</string>
+                        <string>Build inactive palette from active</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>
@@ -138,7 +138,7 @@
                         <cstring>checkBuildDisabled</cstring>
                     </property>
                     <property name="text">
-                        <string>Build disabled palette from active.</string>
+                        <string>Build disabled palette from active</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>
