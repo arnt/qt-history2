@@ -111,7 +111,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->bitmap = bitmap;
     data->ser_no = ++serial;
     data->optim	 = optim;
-    data->hasAlpha = FALSE;
+    data->hasRealAlpha = FALSE;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -406,7 +406,7 @@ QImage QPixmap::convertToImage() const
 	((QPixmap*)this)->freeCell();
     GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi,
 	       DIB_RGB_COLORS );
-    if ( data->hasAlpha && d==32 ) {
+    if ( data->hasRealAlpha && d==32 ) {
 	// Windows has premultiplied alpha, so revert it
 	image.setAlphaBuffer( TRUE );
 	int l = image.numBytes();
@@ -609,12 +609,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	sy = 0;
     }
 
-    data->hasAlpha = img.hasAlphaBuffer() &&
+    data->hasRealAlpha = img.hasAlphaBuffer() &&
 	( QApplication::winVersion() == Qt::WV_98 ||
 	  QApplication::winVersion() == Qt::WV_2000 ||
 	  QApplication::winVersion() == Qt::WV_XP );
 
-    if ( data->hasAlpha && d==32 ) {
+    if ( data->hasRealAlpha && d==32 ) {
 	// ### can we have alpha channel with depth<32bpp?
 	// Windows expects premultiplied alpha
 	int l = image.numBytes();
@@ -623,6 +623,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	bool hasRealAlpha = FALSE;
 	for ( int i=0; i+3<l; i+=4 ) {
 	    if ( b[i+3]!=0 && b[i+3]!=255 ) {
+//qDebug( "hasRealAlpha %d", b[i+3] );
 		hasRealAlpha = TRUE;
 	    }
 	    b[i]   = (b[i]  *b[i+3]) / 255;
@@ -633,11 +634,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		    b, bmi, DIB_RGB_COLORS );
 	} else {
-	    data->hasAlpha = FALSE;
+	    data->hasRealAlpha = FALSE;
 	}
 	delete [] b;
     }
-    if ( !(data->hasAlpha && d==32) ) { // almost the else case of the above if
+//qDebug( "hasAlpha %d", data->hasAlpha );
+    if ( !(data->hasRealAlpha && d==32) ) {
+	// "else case" of the above if (but the above can change
+	// data->hasAlpha(), so we need another if for it)
 	SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		image.bits(), bmi, DIB_RGB_COLORS );
 	if ( img.hasAlphaBuffer() ) {
