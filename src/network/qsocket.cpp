@@ -591,6 +591,7 @@ void QSocket::close()
     }
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
+    setState( 0 );
     d->close();
     d->state = Idle;
 }
@@ -693,9 +694,15 @@ void QSocket::flush()
 #endif
 	setFlags( IO_Sequential );
 	setStatus( IO_Ok );
+	setState( 0 );
 	d->close();
 	d->state = Idle;
 	emit delayedCloseFinished();
+	return;
+    }
+    if ( !d->socket->isOpen() ) {
+	d->connectionClosed();
+	emit connectionClosed();
 	return;
     }
     if ( d->wsn )
@@ -1081,6 +1088,7 @@ void QSocket::sn_read( bool force )
 #if defined(QSOCKET_DEBUG)
 	    qDebug( "QSocket (%s): sn_read: Connection closed", name() );
 #endif
+	    // ### we should rather ask the socket device if it is closed
 	    d->connectionClosed();
 	    emit connectionClosed();
 	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
@@ -1119,13 +1127,14 @@ void QSocket::sn_read( bool force )
 	    if ( nread > 0 ) {
 		// ##### could setRawData
 		a = new QByteArray( nread );
-		memcpy(a->data(),buf,nread);
+		memcpy( a->data(), buf, nread );
 	    }
 	}
 	if ( nread == 0 ) {
 #if defined(QSOCKET_DEBUG)
 	    qDebug( "QSocket (%s): sn_read: Connection closed", name() );
 #endif
+	    // ### we should rather ask the socket device if it is closed
 	    d->connectionClosed();
 	    emit connectionClosed();
 	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );

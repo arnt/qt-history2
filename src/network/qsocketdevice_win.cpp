@@ -118,6 +118,7 @@ void QSocketDevice::close()
 	return;
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
+    setState( 0 );
     ::closesocket( fd );
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::close: Closed socket %x", fd );
@@ -532,6 +533,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    case WSAETIMEDOUT:
 	    case WSAECONNRESET:
 		// connection closed
+		close();
 		r = 0;
 		break;
 	    case WSAENETDOWN:
@@ -619,7 +621,8 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 		    break;
 		case WSAECONNABORTED:
 		case WSAECONNRESET:
-		    // connection closed -- detected by a later readBlock()
+		    // connection closed
+		    close();
 		    break;
 		case WSAEINTR:
 		    done = FALSE;
