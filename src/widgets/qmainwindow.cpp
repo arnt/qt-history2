@@ -569,15 +569,31 @@ private:
 
 QSize QMainWindowLayout::sizeHint() const
 {
-    // #### TODO
-    return minimumSize();
+    if ( !left && !right && !central )
+	return QSize( 0, 0 );
+
+    int w = 0, h = 0;
+    if ( left ) {
+	w = QMAX( w, left->sizeHint().width() );
+	h = QMAX( h, left->sizeHint().height() );
+    }
+    if ( right ) {
+	w = QMAX( w, right->sizeHint().width() );
+	h = QMAX( h, right->sizeHint().height() );
+    }
+    if ( central ) {
+	w = QMAX( w, central->sizeHint().width() );
+	h = QMAX( h, central->sizeHint().height() );
+    }
+
+    return QSize( w, h );
 }
 
 QSize QMainWindowLayout::minimumSize() const
 {
     if ( !left && !right && !central )
 	return QSize( 0, 0 );
-    
+
     int w = 0, h = 0;
     if ( left ) {
 	w = QMAX( w, left->minimumSize().width() );
@@ -591,7 +607,7 @@ QSize QMainWindowLayout::minimumSize() const
 	w = QMAX( w, central->minimumSize().width() );
 	h = QMAX( h, central->minimumSize().height() );
     }
-    
+
     return QSize( w, h );
 }
 
