@@ -515,4 +515,3 @@ void QMotifStyle::drawSliderGroove( QPainter *p,
 {
     qDrawShadePanel( p, x, y, w, h, g, TRUE );
 }
-

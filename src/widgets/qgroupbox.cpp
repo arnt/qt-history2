@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#45 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -142,6 +142,7 @@ void QGroupBox::resizeEvent( QResizeEvent *e )
 
 /*!
   Handles paint events for the group box.
+
   \internal
   overrides QFrame::paintEvent
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#10 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#11 $
 **
 ** Definition of QWhatsThis class
 **
@@ -40,7 +40,8 @@ public:
 
     // the common static functions
     static void add( QWidget *, const QString &);
-    static void add( QWidget *, const QPixmap &, const QString&, const QString &);
+    static void add( QWidget *, const QPixmap &,
+		     const QString&, const QString &);
     static void remove( QWidget * );
     static QString textFor( QWidget * );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#64 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -901,7 +901,7 @@ bool qt_xdnd_handle_badwindow()
   \class QDragMoveEvent qevent.h
   \brief Event sent as a drag-and-drop is in progress.
 
-  When a widgets \link QWidget::setAcceptDrops() accepts drop events\endlink,
+  When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
   it will receive this event repeatedly while the the drag is inside that
   widget.  The widget should examine the event, especially
   seeing what data it \link QDragMoveEvent::provides provides\endlink,
@@ -1079,7 +1079,7 @@ QByteArray QDragMoveEvent::data( const char *format )
   \class QDropEvent qevent.h
   \brief Event sent when a drag-and-drop is completed.
 
-  When a widgets \link QWidget::setAcceptDrops() accepts drop events\endlink,
+  When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
   it will receive this event if it has accepted the most recent
   QDragEnterEvent or QDragMoveEvent sent to it.
 

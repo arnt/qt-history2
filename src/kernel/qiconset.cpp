@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#19 $
 **
 ** Implementation of QIconSet class
 **
@@ -143,7 +143,7 @@ QIconSet::~QIconSet()
   icon set.
 
   This is very fast.
-  
+
   \sa detach()
 */
 
@@ -167,7 +167,7 @@ QIconSet &QIconSet::operator=( const QIconSet &p )
 
 /*!  Set this icon set to display \a pm, which is assumed to be in
   size \a s.  If \a s is \c Automatic, QIconSet guesses the size from
-  the size of \a pm using and unspecified algorithm.
+  the size of \a pm using and an unspecified algorithm.
 */
 
 void QIconSet::reset( const QPixmap & pm, Size s )
