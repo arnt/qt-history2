@@ -71,8 +71,11 @@
 #include "qregexp.h"
 
 #include <ctype.h>
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #include <io.h>
+#ifdef Q_PRINTER_USE_TYPE42
+#include <stdlib.h>
+#endif
 #else
 #include <unistd.h>
 #include <stdlib.h>
@@ -2162,10 +2165,6 @@ static const char * const Apple_CharStrings[]={
   "diamond","appleoutline"};
 #endif
 
-
-#ifdef Q_PRINTER_USE_TYPE42
-#include <stdlib.h>
-#endif
 
 QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 {
