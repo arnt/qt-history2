@@ -5,6 +5,8 @@
 #include <qpushbutton.h>
 #include <qmessagebox.h>
 #include <stdlib.h>
+#include <qinputdialog.h>
+#include <qregexp.h>
 
 QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindow( parent, name )
 {
@@ -58,32 +60,39 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
     classList->update();
     qApp->processEvents();
     if ( item->text(0).startsWith( "Line" ) ) {
-	if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
-	    subdir = "/doc/";
-	else if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
-	    subdir = "/example/";
-	else
-	    subdir = "/src/";
-	filename = qtdirenv + subdir + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
-	QFile f(filename);
-	if ( f.open( IO_ReadOnly ) ) {
-	    fileText->clear();
-	    QTextStream t(&f);
-	    while ( !t.eof() ) {
-		QString s = t.read();
-		fileText->append( s.latin1() );
+	bool ok = FALSE;
+	QString text = QInputDialog::getText( "Please enter your editor", "Enter editor", QLineEdit::Normal, QString::null, &ok, this );
+	if ( ok && !text.isEmpty() ) {
+	    if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
+		subdir = "/doc/";
+	    else if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
+		subdir = "/example/";
+	    else
+		subdir = "/src/";
+	    filename = qtdirenv + subdir + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
+	    QString itemtext = item->text(0);
+	    int hypenpos = itemtext.find( '-' );
+	    QRegExp rxp( "(\\d+)" );
+	    int foundpos = rxp.search( itemtext, 5 );
+	    if ( foundpos != -1 ) {
+		QString linenumber = rxp.cap( 0 );
+		qDebug("%s", linenumber.latin1() );
+		procedit = new QProcess( this );
+		procedit->addArgument( text );
+		procedit->addArgument( QString("+" + linenumber + " " + filename) );
+		connect( procedit, SIGNAL(processExited()), this, SLOT(editorFinished()));
+		if ( !procedit->start() )
+		    qWarning( "The editor could not be opened" );
 	    }
-	    f.close();
-	    int hypfind = item->text(0).find( '-' );
-	    QString number = item->text(0).mid( 5, (hypfind - 5 - 1));
-	    int line = number.toInt();
-	    fileText->setCursorPosition( line, 0, FALSE );
-	} else {
-	    qWarning("The file could not be opened");
 	}
-
     }
 }
+
+void QDocMainWindow::editorFinished()
+{
+    QMessageBox::information( this, "Finished editing!", "You can now submit the files into P4!" );
+}
+
 
 void QDocMainWindow::finished()
 {
