@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.10 1997/09/30 13:20:05 hanord Exp $
+** $Id: examples.doc,v 2.11 1998/03/26 15:47:08 warwick Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.10 1997/09/30 13:20:05 hanord Exp $";
+static char ident[] = "$Id: examples.doc,v 2.11 1998/03/26 15:47:08 warwick Exp $";
 #endif
 
 
@@ -168,20 +168,12 @@ static char ident[] = "$Id: examples.doc,v 2.10 1997/09/30 13:20:05 hanord Exp $
 */
 
 
-/*! \example picture/makepic.cpp
-  <h1 align=center>Make Picture</h1>
+/*! \example picture/picture.cpp
 
-  This example draws a car in a picture and writes it to a file.  The
-  examples/showpic.cpp example can read and display this file.
+  <h1 align=center>Picture</h1>
 
-*/
-
-
-/*! \example picture/showpic.cpp
-  <h1 align=center>Show Picture</h1>
-
-  This example loads a picture file (e.g written by the
-  picture/makepic.cpp example) and displays it in a window.
+  This example demonstrates how to create a picture and save it to a file,
+  and later read it back again.
 */
 
 
