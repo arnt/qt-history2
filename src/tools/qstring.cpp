@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#90 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#91 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#91 $");
 
 
 /*****************************************************************************
@@ -1040,12 +1040,13 @@ QString QString::stripWhiteSpace() const
 
     register char *s = data();
     QString result = s;
-    if ( !isspace(s[0]) && !isspace(s[length()-1]) )
+    int reslen = result.length();
+    if ( !isspace(s[0]) && !isspace(s[reslen-1]) )
 	return result;				// returns a copy
 
     s = result.data();
     int start = 0;
-    int end = result.length() - 1;
+    int end = reslen - 1;
     while ( isspace(s[start]) )			// skip white space from start
 	start++;
     if ( s[start] == '\0' ) {			// only white space
@@ -1527,7 +1528,7 @@ QString &QString::setNum( double n, char f, int prec )
 
 /*!
   Sets the character at position \e index to \e c and expands the
-  string if necessary.
+  string if necessary, filling with spaces.
 
   Returns FALSE if this \e index was out of range and the string could
   not be expanded, otherwise TRUE.
@@ -1535,12 +1536,13 @@ QString &QString::setNum( double n, char f, int prec )
 
 bool QString::setExpand( uint index, char c )
 {
-    if ( index >= length() ) {
-	uint oldlen = length();
+    uint oldlen = length();
+    if ( index >= oldlen ) {
 	if ( !QByteArray::resize( index+2 ) )	// no memory
 	    return FALSE;
-	memset( data() + oldlen, ' ', length() - oldlen );
-	*(data() + length()) = '\0';		// terminate padded string
+	if ( index > oldlen )
+	    memset( data() + oldlen, ' ', index - oldlen );
+	*(data() + index+1) = '\0';		// terminate padded string
     }
     *(data() + index) = c;
     return TRUE;
