@@ -75,9 +75,9 @@ Whitepaper\endlink
 </td>
 <td valign=top>
 \list
-\i \link keyfeatures30.html   Key Features in Qt 3.0 \endlink
+\i \link keyfeatures40.html   Key Features in Qt 4.0 \endlink
 \i \link http://www.trolltech.com/developer/changes/ Change History \endlink
-\i \link porting.html   Porting from Qt 2.x to Qt 3.x \endlink
+\i \link porting.html   Porting from Qt 3.x to Qt 4.x \endlink
 \endlist
 \list
 \i \link http://doc.trolltech.com/qq/index.html <i>Qt Quarterly</i>\endlink
