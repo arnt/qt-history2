@@ -378,7 +378,7 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
     QSqlRecord rec(values);
     emit beforeUpdate(row, rec);
 
-    const QSqlRecord whereValues(d->primaryValues(row));
+    const QSqlRecord whereValues = d->primaryValues(row);
     bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
     QString stmt = d->db.driver()->sqlStatement(QSqlDriver::UpdateStatement, d->tableName,
                                                 rec, prepStatement);
@@ -417,7 +417,7 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
             return false;
         }
     }
-    qDebug("executed: %s, %d", d->editQuery.executedQuery().ascii(), d->editQuery.numRowsAffected());
+    qDebug("executed: %s, %d", stmt.ascii(), d->editQuery.numRowsAffected());
     return true;
 }
 
