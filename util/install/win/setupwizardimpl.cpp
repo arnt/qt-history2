@@ -1076,6 +1076,8 @@ void SetupWizardImpl::saveSet( QListView* list )
 	    }
 	    if ( lst.count() )
 		settings.writeEntry( "/Trolltech/Qt/" + p->text(0), lst, ',' );
+	    else
+		settings.writeEntry( "/Trolltech/Qt/" + p->text(0), "Nothing selected" );
 	}
     }
 }
