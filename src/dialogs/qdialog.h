@@ -108,6 +108,7 @@ private:
     void		hideDefault();
     int		rescode;
     uint	did_move   : 1;
+    uint 	has_relpos : 1;
     uint	did_resize : 1;
     uint	in_loop: 1;
     QDialogPrivate* d;

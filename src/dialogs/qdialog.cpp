@@ -202,6 +202,7 @@ public:
     QSizeGrip* resizer;
 #endif
     QPoint lastRMBPress;
+    QPoint relPos; // relative position to the main window
 };
 
 /*!
@@ -231,6 +232,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     rescode = 0;
     did_move = FALSE;
     did_resize = FALSE;
+    has_relpos = FALSE;
     in_loop = FALSE;
     d = new QDialogPrivate;
 }
@@ -551,7 +553,10 @@ void QDialog::show()
 #endif
     if ( !did_resize )
 	adjustSize();
-    if ( !did_move ) {
+    if ( has_relpos ) {
+	if ( parentWidget() )
+	    move( parentWidget()->topLevelWidget()->pos() + d->relPos );
+    } else if ( !did_move ) {
 	QWidget *w = parentWidget();
 	QPoint p( 0, 0 );
 	int extraw = 0, extrah = 0;
@@ -615,10 +620,20 @@ void QDialog::show()
 /*! \reimp */
 void QDialog::hide()
 {
+    if ( isHidden() )
+	return;
+    
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if ( isVisible() )
 	QAccessible::updateAccessibility( this, 0, QAccessible::DialogEnd );
 #endif
+    
+    if ( parentWidget() ) {
+	d->relPos = pos() - parentWidget()->topLevelWidget()->pos();
+	has_relpos = 1;
+	did_move = 0;
+    }
+    
     // Reimplemented to exit a modal when the dialog is hidden.
     QWidget::hide();
     if ( in_loop ) {
