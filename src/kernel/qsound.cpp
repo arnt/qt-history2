@@ -180,6 +180,9 @@ QSound::~QSound()
 
 /*!
     Returns TRUE if the sound has finished playing; otherwise returns FALSE.
+
+    Note: On Windows this will always return FALSE as there is no way to determine
+    when the sound has finished.
 */
 bool QSound::isFinished() const
 {
