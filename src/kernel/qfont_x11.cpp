@@ -94,7 +94,6 @@ static const char *qt_x11encodings[][QFont::LastPrivateScript + 1] = {
 
     { "iso8859-8"      , 0 }, // Hebrew
     { "iso8859-6.8x"     , 0 }, // Arabic
-    // "iso8859-6" - commented for now since arabic doesn't work at all for iso8859-6
     { 0                      }, // Syriac
     { 0                      }, // Thaana
 
@@ -1878,13 +1877,12 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 }
 
 
-// Computes the line width (underline,strikeout) for the X font
-// and fills in the X resolution of the font.
+// Computes the line width (underline,strikeout)
 void QFontPrivate::computeLineWidth()
 {
     int nlw;
     int weight = request.weight;
-    int pSize  = request.pointSize / 10;
+    int pSize  = request.pixelSize;
 
     // ad hoc algorithm
     int score = pSize * weight;
@@ -2305,7 +2303,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	}
 
 	// get unicode -> font encoding codec
-	if (script < QFont::Unicode) {
+	if (script < QFont::Unicode || script > QFont::NoScript) {
 	    if ( script == QFont::Hebrew )
 		codec = QTextCodec::codecForName( "ISO 8859-8-I" );
 	    else
@@ -2985,7 +2983,7 @@ int QFontMetrics::lineSpacing() const
 
 /*! \fn int QFontMetrics::width( char c ) const
 
-  \overload 
+  \overload
   \obsolete
 
   Provided to aid porting from Qt 1.x.
@@ -2994,7 +2992,7 @@ int QFontMetrics::lineSpacing() const
 
 /*! \overload
 
-  <img src="bearings.png" align=right> 
+  <img src="bearings.png" align=right>
 
   Returns the logical width of a
   \a ch in pixels.  This is a distance appropriate for drawing a
