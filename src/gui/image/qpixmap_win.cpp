@@ -644,7 +644,7 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         if (d > 8 && dd <= 8) {                // convert to 8 bit
             if ((flags & Qt::DitherMode_Mask) == Qt::AutoDither)
                 flags = (flags & ~Qt::DitherMode_Mask)
-                                        | Qt::PreferDither;
+                        | Qt::PreferDither;
             conv8 = true;
         } else if ((flags & Qt::ColorMode_Mask) == Qt::ColorOnly) {
             conv8 = d == 1;                        // native depth wanted
@@ -679,12 +679,23 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 #ifndef Q_OS_TEMP
     bool hasRealAlpha = false;
     if (img.hasAlphaBuffer() &&
-            (QSysInfo::WindowsVersion != QSysInfo::WV_95 &&
-              QSysInfo::WindowsVersion != QSysInfo::WV_NT)) {
-        hasRealAlpha = true;
+        (QSysInfo::WindowsVersion != QSysInfo::WV_95 &&
+         QSysInfo::WindowsVersion != QSysInfo::WV_NT)) {
         if (image.depth() == 8) {
-            image = image.convertDepth(32, flags);
-            d = image.depth();
+            const QRgb * const rgb = img.colorTable();
+            for (int i = 0, count = img.numColors(); i < count; ++i) {
+                const int alpha = qAlpha(rgb[i]);
+                if (alpha != 0 && alpha != 0xff) {
+                    hasRealAlpha = true;
+                    break;
+                }
+            }
+            if (hasRealAlpha) {
+                image = image.convertDepth(32, flags);
+                d = image.depth();
+            }
+        } else {
+            hasRealAlpha = true;
         }
     }
 #endif
@@ -693,7 +704,7 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     int h = image.height();
 
     if (width() == w && height() == h && ((d == 1 && depth() == 1) ||
-                                            (d != 1 && depth() != 1))) {
+                                          (d != 1 && depth() != 1))) {
         if (data->realAlphaBits && !hasRealAlpha) {
             // pixmap uses a DIB section, but image has no alpha channel, so we
             // can't reuse the old pixmap
