@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/display.h#1 $
+** $Id: //depot/qt/main/examples/demo/display.h#2 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -63,7 +63,7 @@ public slots:
     void setStep( int s );
 
 protected:
-    virtual void paintEvent( QPaintEvent * );
+    virtual void drawContents( QPainter * );
 
 private:
     int yval[ MaxSamples ];

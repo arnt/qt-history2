@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/display.cpp#2 $
+** $Id: //depot/qt/main/examples/demo/display.cpp#3 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -81,10 +81,10 @@ void Screen::setStep( int s )
     step = s;
 }
 
-void Screen::paintEvent( QPaintEvent *e )
+void Screen::drawContents( QPainter *p )
 {
-    QRect r = e->rect();
-    QPainter p( this );
+    QRect r = p->hasClipping() ?
+	      p->clipRegion().boundingRect() : contentsRect();
 
     int x0 = ( r.left() < FrameWidth ) ? FrameWidth : r.left();
     int x1 = ( r.right() < MaxSamples+FrameWidth-1 ) ?
@@ -93,10 +93,9 @@ void Screen::paintEvent( QPaintEvent *e )
     int y0 = FrameWidth + Range/2;
 
     for ( int x = x0; x <= x1; x++ ) {
-	p.drawLine( x, y0 + yval[ vp ], x, Range + FrameWidth );
+	p->drawLine( x, y0 + yval[ vp ], x, Range + FrameWidth );
 	vp = ++vp % MaxSamples;
     }
-    drawFrame( &p );
 }
 
 /***********************************************************************/
