@@ -40,7 +40,9 @@ public:
     int closeMode() const;
 
     virtual void setResizeEnabled( bool b );
+    virtual void setMovingEnabled( bool b );
     bool isResizeEnabled() const;
+    bool isMovingEnabled() const;
 
     void setHorizontalStretchable( bool b );
     void setVerticalStretchable( bool b );
@@ -103,7 +105,7 @@ private:
     QRect currRect;
     Place state;
     QDockArea *dockArea, *tmpDockArea;
-    bool resizeEnabled;
+    bool resizeEnabled, moveEnabled;
     int cMode;
     Orientation startOrientation;
     QRect startRect;

@@ -562,8 +562,12 @@ QList<QDockWidget> QDockArea::dockWidgetList() const
 
 void QDockArea::lineUp( bool keepNewLines )
 {
-    Q_UNUSED( keepNewLines );
-    qDebug( "QDockArea::lineUp todo" );
+    for ( QDockWidget *dw = dockWidgets->first(); dw; dw = dockWidgets->next() ) {
+	dw->setOffset( 0 );
+	if ( !keepNewLines )
+	    dw->setNewLine( FALSE );
+    }
+    layout->activate();
 }
 
 void QDockArea::mousePressEvent( QMouseEvent *e )

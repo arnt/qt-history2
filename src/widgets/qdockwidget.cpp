@@ -412,8 +412,9 @@ void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
 QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
-      curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ), cMode( Never ),
-      offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ), lastPos( -1, -1 )
+      curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ), 
+      moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ), 
+      lastPos( -1, -1 )
 {
     hbox = new QVBoxLayout( this );
     hbox->setMargin( 2 );
@@ -534,7 +535,10 @@ void QDockWidget::updateGui()
     if ( curPlace == OutsideDock ) {
  	horHandle->hide();
  	verHandle->hide();
-	titleBar->show();
+	if ( moveEnabled )
+	    titleBar->show();
+	else 
+	    titleBar->hide();
 	titleBar->updateGui();
 	hHandleTop->hide();
 	vHandleLeft->hide();
@@ -545,10 +549,16 @@ void QDockWidget::updateGui()
 	titleBar->hide();
 	if ( orientation() == Horizontal ) {
 	    horHandle->hide();
-	    verHandle->show();
+	    if ( moveEnabled )
+		verHandle->show();
+	    else
+		verHandle->hide();
 	    verHandle->updateGui();
 	} else {
-	    horHandle->show();
+	    if ( moveEnabled )
+		horHandle->show();
+	    else
+		horHandle->hide();
 	    horHandle->updateGui();
 	    verHandle->hide();
 	}
@@ -585,7 +595,10 @@ void QDockWidget::updateGui()
 		}
 	    }
 	}
-	setLineWidth( 1 );
+	if ( moveEnabled )
+	    setLineWidth( 1 );
+	else 
+	    setLineWidth( 0 );
     }
 }
 
@@ -663,9 +676,21 @@ void QDockWidget::setResizeEnabled( bool b )
     updateGui();
 }
 
+void QDockWidget::setMovingEnabled( bool b )
+{
+    moveEnabled = b;
+    updateGui();
+}
+
+
 bool QDockWidget::isResizeEnabled() const
 {
     return resizeEnabled;
+}
+
+bool QDockWidget::isMovingEnabled() const
+{
+    return moveEnabled;
 }
 
 void QDockWidget::setCloseMode( int m )

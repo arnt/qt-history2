@@ -38,9 +38,7 @@
 // ####################
 /*
    -- Not working yet: --
-   - dockwidgets movable settings
    - opaque moving
-   - linup dockwidgets
 
 */
 // ####################
@@ -626,7 +624,7 @@ bool QMainWindow::isDockEnabled( QDockWidget *tb, QDockArea *area ) const
 	dock = Top;
     else if ( area == d->bottomDock )
 	dock = Bottom;
-    else 
+    else
 	return FALSE;
     return isDockEnabled( tb, dock );
 }
@@ -909,7 +907,8 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
     }
 
     if ( e->type() == QEvent::MouseButtonPress &&
-	 o->inherits( "QDockWidget" ) && d->dockMenu ) {
+	 o->inherits( "QDockWidget" ) && d->dockMenu &&
+	 hasDockWidget( (QDockWidget*)o ) ) {
 	if ( ( (QMouseEvent*)e )->button() == RightButton ) {
 	    if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) )
 		return TRUE;
@@ -1251,10 +1250,9 @@ void QMainWindow::setDockWidgetsMovable( bool enable )
     QObjectList *l = queryList( "QDockWidget" );
     if ( l ) {
 	for ( QObject *o = l->first(); o; o = l->next() )
-	    ( (QDockWidget*)o )->update();
+	    ( (QDockWidget*)o )->setMovingEnabled( enable );
     }
     delete l;
-    triggerLayout( TRUE );
 }
 
 /*!
@@ -1365,10 +1363,17 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
     }
     if ( !id2Widget.isEmpty() )
 	d->rmbMenu->insertSeparator();
+    int lineup = -2;
+    
+    if ( dockWidgetsMovable() )
+	lineup = d->rmbMenu->insertItem( tr( "Line up" ) );
     int config = d->rmbMenu->insertItem( tr( "Customize..." ) );
     int result = d->rmbMenu->exec( globalPos );
     if ( result == config ) {
 	qDebug( "todo: Action/Toolbar editing" );
+	return TRUE;
+    } else if ( result == lineup ) {
+	lineUpDockWidgets( TRUE );
 	return TRUE;
     }
 
