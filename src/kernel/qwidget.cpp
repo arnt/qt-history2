@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#378 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#379 $
 **
 ** Implementation of QWidget class
 **
@@ -570,17 +570,16 @@ QWidget::~QWidget()
     // remove myself and all children from the can-take-focus list
     QFocusData *f = focusData( FALSE );
     if ( f ) {
-	QWidget * home = f->home();
-	QWidget * w = home;
-	do {
+	QListIterator<QWidget> it(f->focusWidgets);
+	QWidget *w;
+	while ( w = it.current() ) {
+	    ++it;
 	    QWidget * p = w;
 	    while( p && p != this )
 		p = p->parentWidget();
-	    QWidget * t = w;
-	    w = f->next();
-	    if ( p == this )
-		f->focusWidgets.removeRef( t );
-	} while ( w && w != home );
+	    if ( p ) // my descendant
+		f->focusWidgets.removeRef( w );
+	}
     }
 
     if ( QApplication::main_widget == this ) {	// reset main widget
