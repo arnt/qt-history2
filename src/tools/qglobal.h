@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#157 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#158 $
 **
 ** Global type declarations and definitions
 **
@@ -336,6 +336,8 @@ inline int qRound( double d )
 // Size-dependent types (architechture-dependent byte order)
 //
 
+// QT_CLEAN_NAMESPACE is not defined by default; it would break too
+// much code.
 #if !defined(QT_CLEAN_NAMESPACE)
 typedef char		INT8;			// 8 bit signed
 typedef unsigned char	UINT8;			// 8 bit unsigned
@@ -444,6 +446,8 @@ Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 ;
 
 
+// QT_CLEAN_NAMESPACE is not defined by default; it would break too
+// much code.
 #if !defined(QT_CLEAN_NAMESPACE)
 // in that case, also define the old ones...
 
