@@ -134,7 +134,7 @@ void QSqlIndex::setDescending( int i, bool desc )
 }
 
 
-QString QSqlIndex::toString( const QString& prefix = QString::null ) const
+QString QSqlIndex::toString( const QString& prefix ) const
 {
     QString s;
     for ( uint i = 0; i < count(); ++i ) {

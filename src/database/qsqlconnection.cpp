@@ -4,6 +4,8 @@
 #include "qsqldatabase.h"
 #include "qapplication.h"
 
+char * const QSqlConnection::defaultDatabase = "qt_sql_default_database";
+
 /*!  Constructs a SQL connection manager.
 
 */

@@ -10,6 +10,13 @@
 #ifndef QT_NO_SQL
 
 class QSqlDatabase;
+
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QDict<QSqlDatabase>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QSqlConnection : public QObject
 {
 public:
@@ -22,7 +29,7 @@ public:
 				      const QString & name = defaultDatabase );
     static void          removeDatabase( const QString& name );
     static void          free();
-    QT_STATIC_CONST char * const defaultDatabase = "qt_sql_default_database";
+    QT_STATIC_CONST char * const defaultDatabase;
 private:
     static QSqlConnection* instance();
     QSqlConnection( QObject* parent=0, const char* name=0 );

@@ -9,7 +9,6 @@
 #include "qsqlindex.h"
 #include "qsql.h"
 #include "qstringlist.h"
-#include "qsqlconnection.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL

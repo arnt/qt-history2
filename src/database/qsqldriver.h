@@ -4,6 +4,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
+#include "qsqldatabase.h"
 #include "qsqlerror.h"
 #include "qsql.h"
 #include "qsqlfield.h"

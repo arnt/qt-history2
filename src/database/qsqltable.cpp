@@ -95,7 +95,7 @@ private:
 
 */
 
-QSqlTable::QSqlTable ( QWidget * parent = 0, const char * name = 0 )
+QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     : QTable(parent,name)
 {
     d = new QSqlTablePrivate();

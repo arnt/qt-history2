@@ -9,6 +9,12 @@
 
 #ifndef QT_NO_SQL
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QValueList<bool>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QSqlIndex : public QSqlFieldList
 {
 public:
