@@ -20,4 +20,3 @@ SOURCES		= $$MOCGEN		    \
 		  ../tools/qregexp.cpp	    \
 		  ../tools/qstring.cpp
 TARGET	    =	moc
-DESTDIR	    =	../../bin
