@@ -32,6 +32,7 @@ public:
     const char *tag() const;
     enum Access { Private, Protected, Public };
     Access access() const;
+    bool isCompat() const;
 
 private:
     const QMetaObject *mobj;

@@ -78,6 +78,7 @@ int main(int argc, char **argv)
 {
     bool autoInclude = true;
     Preprocessor::macros["Q_MOC_RUN"] = "";
+    Preprocessor::macros["__cplusplus"] = "";
     Moc moc;
     QByteArray filename;
     QByteArray output;

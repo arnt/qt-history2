@@ -5,23 +5,29 @@
 
 
 
-// if the flags change, you HAVE to change it in qmetaobject.h too
+// if the flags change, you MUST to change it in qmetaobject.h too
 enum ProperyFlags  {
-    Invalid                = 0x00000000,
-    Readable                = 0x00000001,
-    Writable                = 0x00000002,
-    Resetable                = 0x00000004,
-    EnumOrFlag                = 0x00000008,
-    StdCppSet                = 0x00000100,
-    Override                = 0x00000200,
-    Designable                = 0x00001000,
-    ResolveDesignable        = 0x00002000,
-    Scriptable                = 0x00004000,
-    ResolveScriptable        = 0x00008000,
-    Stored                = 0x00010000,
+    Invalid              = 0x00000000,
+    Readable             = 0x00000001,
+    Writable             = 0x00000002,
+    Resetable            = 0x00000004,
+    EnumOrFlag           = 0x00000008,
+    StdCppSet            = 0x00000100,
+    Override             = 0x00000200,
+    Designable           = 0x00001000,
+    ResolveDesignable    = 0x00002000,
+    Scriptable           = 0x00004000,
+    ResolveScriptable    = 0x00008000,
+    Stored               = 0x00010000,
     ResolveStored        = 0x00020000,
-    Editable                = 0x00040000,
-    ResolveEditable        = 0x00080000
+    Editable             = 0x00040000,
+    ResolveEditable      = 0x00080000
+};
+enum FunctionFlags {
+    AccessPrivate   = 0x01,
+    AccessPublic    = 0x02,
+    AccessProtected = 0x04,
+    Compatability   = 0x08
 };
 
 /*
@@ -343,8 +349,17 @@ void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype
         }
         sig += ')';
 
-        fprintf(out, "    %4d, %4d, %4d, %4d, 0x%.1x,\n", strreg(sig),
-                 strreg(arguments), strreg(f.normalizedType), strreg(f.tag), f.access);
+        char flags = 0;
+        if(f.access == FunctionDef::Private)
+            flags |= AccessPrivate;
+        else if(f.access == FunctionDef::Public)
+            flags |= AccessPublic;
+        else if(f.access == FunctionDef::Protected)
+            flags |= AccessProtected;
+        if(f.isCompat)
+            flags |= Compatability;
+        fprintf(out, "    %4d, %4d, %4d, %4d, 0x%02x,\n", strreg(sig),
+                strreg(arguments), strreg(f.normalizedType), strreg(f.tag), flags);
     }
 }
 
@@ -732,7 +747,7 @@ void Generator::generateMetacall()
  skip_properties:
     if (cdef->slotList.size() || cdef->signalList.size() || cdef->propertyList.size())
         fprintf(out, "\n    ");
-    fprintf(out,"return _id;\n};\n");
+    fprintf(out,"return _id;\n}\n");
 }
 
 

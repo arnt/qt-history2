@@ -1968,6 +1968,33 @@ bool QObject::connect(const QObject *sender, const char *signal,
     int *types = 0;
     if (type == QueuedConnection && !(types = QObjectPrivate::queuedConnectionTypes(signal)))
         return false;
+
+#ifndef QT_NO_DEBUG
+    {
+        QMetaMember smember = smeta->signal(signal_index), rmember;
+        switch (membcode) {
+        case QSLOT_CODE:
+            rmember = rmeta->slot(member_index);
+            break;
+        case QSIGNAL_CODE:
+            rmember = rmeta->signal(member_index);
+            break;
+        }
+        if(smember.isCompat()) 
+            qWarning("Object::connect: Connecting from COMPAT signal (%s).", signal);
+        if(rmember.isCompat())
+            qWarning("Object::connect: Connecting to COMPAT %s (%s).", 
+                     (membcode == QSLOT_CODE) ? "slot" : "signal", member);
+        switch(rmember.access()) {
+        case QMetaMember::Private:
+            break;
+        case QMetaMember::Protected:
+            break;
+        default:
+            break;
+        }
+    }
+#endif
     QMetaObject::connect(sender, signal_index, receiver, membcode, member_index, type, types);
     const_cast<QObject*>(sender)->connectNotify(signal - 1);
     return true;
@@ -2224,7 +2251,6 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
     QObject *r = const_cast<QObject*>(receiver);
     s->d->addConnection(signal_index, r, (member_index<<1)+membcode-1, type, types);
     r->d->refSender(s);
-
     return true;
 }
 

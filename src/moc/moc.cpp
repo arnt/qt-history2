@@ -339,6 +339,8 @@ void Moc::parseFunction(FunctionDef *def)
     default:
         ;
     }
+    if(test(QT_COMPAT_TOKEN))
+        def->isCompat = true;
     def->type = parseType();
     if (test(LPAREN)) {
         def->name = def->type;

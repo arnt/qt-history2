@@ -21,7 +21,7 @@ struct ArgumentDef
 
 struct FunctionDef
 {
-    FunctionDef():access(Private), isConst(false), inlineCode(false), wasCloned(false), inPrivateClass(false){}
+    FunctionDef(): access(Private), isConst(false), inlineCode(false), wasCloned(false), inPrivateClass(false), isCompat(false) {}
     QByteArray type, normalizedType;
     QByteArray tag;
     QByteArray name;
@@ -35,7 +35,7 @@ struct FunctionDef
     bool wasCloned;
 
     bool inPrivateClass;
-
+    bool isCompat;
 };
 
 struct PropertyDef
