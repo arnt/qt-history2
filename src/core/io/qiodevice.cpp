@@ -550,8 +550,11 @@ qint64 QIODevice::read(char *data, qint64 maxlen)
 
     if (int ungetSize = d->ungetBuffer.size()) {
         do {
-            if (readSoFar + 1 > maxlen)
+            if (readSoFar + 1 > maxlen) {
+                d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
                 return readSoFar;
+            }
+
             data[readSoFar++] = d->ungetBuffer[ungetSize-- - 1];
         } while (ungetSize > 0);
         d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
