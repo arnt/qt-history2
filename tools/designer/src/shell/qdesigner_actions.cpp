@@ -15,14 +15,18 @@
 #include "qdesigner_actions.h"
 #include "qdesigner_mainwindow.h"
 #include "qdesigner_workbench.h"
+#include "qdesigner_formwindow.h"
 
 // sdk
 #include <abstractformeditor.h>
+#include <abstractformwindow.h>
 #include <abstractformwindowmanager.h>
 #include <qtundo.h>
 
-#include <QAction>
-#include <QActionGroup>
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     : QObject(mainWindow),
@@ -59,12 +63,12 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 //
     m_newFormAction = new QAction(tr("&New Form..."), this);
     m_newFormAction->setShortcut(tr("CTRL+N"));
-    connect(m_newFormAction, SIGNAL(triggered()),
-            workbench(), SLOT(createFormWindow()));
+    connect(m_newFormAction, SIGNAL(triggered()), this, SLOT(createForm()));
     m_fileActions->addAction(m_newFormAction);
 
     m_openFormAction = new QAction(tr("&Open Form..."), this);
     m_openFormAction->setShortcut(tr("CTRL+O"));
+    connect(m_openFormAction, SIGNAL(triggered()), this, SLOT(openForm()));
     m_fileActions->addAction(m_openFormAction);
 
     m_fileActions->addSeparator();
@@ -337,5 +341,68 @@ void QDesignerActions::setWorkbenchVisible(bool visible)
     else
         workbench()->switchToTopLevelMode();
 }
+
+void QDesignerActions::createForm()
+{
+    QDesignerFormWindow *formWindow = workbench()->createFormWindow();
+    formWindow->setWindowTitle(tr("Untitled"));
+    if (AbstractFormWindow *editor = formWindow->editor()) {
+        editor->setContents(QString());
+    }
+}
+
+void QDesignerActions::openForm()
+{
+    QString fileName = QFileDialog::getOpenFileName(core()->topLevel(),
+            tr("Open Form"), QString(),
+            tr("Designer UI files (*.ui)"));
+
+    if (fileName.isEmpty() == false) {
+        readInForm(fileName);
+    }
+}
+
+bool QDesignerActions::readInForm(const QString &fileName)
+{
+    // First make sure that we don't have this one open already.
+    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
+    int totalWindows = formWindowManager->formWindowCount();
+    for (int i = 0; i < totalWindows; ++i) {
+        AbstractFormWindow *w = formWindowManager->formWindow(i);
+        if (w->fileName() == fileName) {
+            w->raise();
+            formWindowManager->setActiveFormWindow(w);
+            return true;
+        }
+    }
+
+    // Otherwise load it.
+    QFile f(fileName);
+    if (!f.open(QIODevice::ReadOnly)) {
+        QMessageBox::warning(core()->topLevel(), tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
+                .arg(f.fileName()).arg(f.errorString()));
+        return false;
+    }
+
+
+    QDesignerFormWindow *formWindow = workbench()->createFormWindow();
+    formWindow->setWindowTitle(fileName);
+    if (AbstractFormWindow *editor = formWindow->editor()) {
+        editor->setContents(&f);
+        editor->setFileName(fileName);
+        formWindowManager->setActiveFormWindow(editor);
+    }
+    formWindow->show();
+
+    return true;
+}
+
+
+
+
+
+
+
+
 
 

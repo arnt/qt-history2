@@ -286,7 +286,7 @@ void FormWindow::init()
 
     setGrid(QPoint(10,10));
 
-    setFocusPolicy(Qt::ClickFocus);
+    setFocusPolicy(Qt::StrongFocus);
 
     m_signalSlotEditor = 0;
     m_buddyEditor = 0;
@@ -1153,8 +1153,19 @@ void FormWindow::selectWidgets()
 
 void FormWindow::handleKeyPressEvent(QWidget *w, QKeyEvent *e)
 {
-    Q_UNUSED(w);
-    e->accept();
+    qDebug() << "handleKeyPressEvent:" << "widget:" << w << "event:" << e;
+    e->accept(); // we always accept!
+
+    switch (e->key()) {
+        default: break; // we don't care about the other keys
+
+        case Qt::Key_Left:
+            cursor()->movePosition(AbstractFormWindowCursor::Left);
+            break;
+        case Qt::Key_Right:
+            cursor()->movePosition(AbstractFormWindowCursor::Right);
+            break;
+    }
 }
 
 void FormWindow::handleKeyReleaseEvent(QWidget *w, QKeyEvent *e)

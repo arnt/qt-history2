@@ -92,6 +92,11 @@ public:
 private slots:
     void updateEditMode(QAction *action);
     void setWorkbenchVisible(bool visible);
+    void createForm();
+    void openForm();
+
+private:
+    bool readInForm(const QString &fileName);
 
 private:
     QDesignerMainWindow *m_mainWindow;

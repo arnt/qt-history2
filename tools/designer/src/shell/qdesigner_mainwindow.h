@@ -47,8 +47,12 @@ private slots:
     void addToolWindow(QDesignerToolWindow *toolWindow);
     void removeToolWindow(QDesignerToolWindow *toolWindow);
 
+protected:
+    virtual void changeEvent(QEvent *event);
+
 private:
     void initialize();
+    void updateWindowState();
 
 private:
     QDesignerWorkbench *m_workbench;

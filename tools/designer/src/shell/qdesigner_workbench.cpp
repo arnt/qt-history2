@@ -98,19 +98,6 @@ QDesignerFormWindow *QDesignerWorkbench::findFormWindow(QWidget *widget) const
     return 0;
 }
 
-QDesignerToolWindow *QDesignerWorkbench::createToolWindow(QWidget *widget, QWidget *parent, Qt::WFlags flags)
-{
-    QDesignerToolWindow *toolWindow = new QDesignerToolWindow(this, parent, flags);
-    widget->setParent(toolWindow);
-    toolWindow->setCentralWidget(widget);
-    widget->show();
-
-    toolWindow->setWindowTitle(widget->windowTitle()); // ### temp
-    addToolWindow(toolWindow);
-
-    return toolWindow;
-}
-
 void QDesignerWorkbench::initialize()
 {
     m_core = new FormEditor(this);
@@ -264,21 +251,23 @@ void QDesignerWorkbench::switchToTopLevelMode()
     mainWindow()->showNormal();
 }
 
-void QDesignerWorkbench::createFormWindow(const QString &contents)
+QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
 {
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(this);
-    formWindow->editor()->setContents(contents);
 
     Qt::WFlags flags = 0;
 
     if (m_mode == QDesignerWorkbench::TopLevelMode)
-        flags = Qt::WType_TopLevel;
-    formWindow->setParent(magicalParent(), flags);
+        flags |= Qt::WType_TopLevel;
 
+    formWindow->setParent(magicalParent(), flags);
     formWindow->setAttribute(Qt::WA_DeleteOnClose, true);
 
     addFormWindow(formWindow);
+
     formWindow->show();
+
+    return formWindow;
 }
 
 AbstractFormWindowManager *QDesignerWorkbench::formWindowManager() const

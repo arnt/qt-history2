@@ -60,7 +60,7 @@ public:
     QDesignerToolWindow *findToolWindow(QWidget *widget) const;
     QDesignerFormWindow *findFormWindow(QWidget *widget) const;
 
-    QDesignerToolWindow *createToolWindow(QWidget *widget, QWidget *parent = 0, Qt::WFlags flags = 0);
+    QDesignerFormWindow *createFormWindow();
 
     int toolWindowCount() const;
     QDesignerToolWindow *toolWindow(int index) const;
@@ -83,8 +83,6 @@ signals:
     void initialized();
 
 public slots:
-    void createFormWindow(const QString &contents = QString());
-
     void addToolWindow(QDesignerToolWindow *toolWindow);
     void addFormWindow(QDesignerFormWindow *formWindow);
 

@@ -22,6 +22,7 @@
 #include <abstractformeditor.h>
 #include <abstractmetadatabase.h>
 #include <abstractformwindow.h>
+#include <abstractformwindowcursor.h>
 #include <layoutinfo.h>
 #include <qtundo.h>
 
@@ -194,6 +195,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             return true;
 
         case QEvent::KeyPress:
+            qDebug() << "key-press-event:" << w;
             if (view_handles_events)
                 break;
             fw->handleKeyPressEvent(w, static_cast<QKeyEvent*>(e));
@@ -540,7 +542,11 @@ void FormWindowManager::slotActionBreakLayoutActivated()
 
 void FormWindowManager::slotActionAdjustSizeActivated()
 {
-    m_activeFormWindow->adjustSize();
+    AbstractFormWindowCursor *cursor = m_activeFormWindow->cursor();
+    for (int index = 0; index < cursor->selectedWidgetCount(); ++index) {
+        QWidget *widget = cursor->selectedWidget(index);
+        widget->adjustSize();
+    }
 }
 
 void FormWindowManager::slotActionSelectAllActivated()
@@ -571,7 +577,7 @@ void FormWindowManager::slotUpdateActions()
         m_actionLower->setEnabled(false);
         m_actionRaise->setEnabled(false);
         m_actionAdjustSize->setEnabled(false);
-        
+
         if (!m_activeFormWindow) {
             m_actionUndo->setText(tr("Undo"));
             m_actionUndo->setEnabled(false);

@@ -24,11 +24,14 @@
 #include <abstractformwindowmanager.h>
 
 // Qt
-#include <QAction>
-#include <QActionGroup>
-#include <QMenu>
-#include <QMenuBar>
-#include <QSignal>
+#include <QtCore/QEvent>
+
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
+#include <QtGui/QMenu>
+#include <QtGui/QMenuBar>
+#include <QtGui/QToolBar>
+
 #include <qdebug.h>
 
 QDesignerMainWindow::QDesignerMainWindow(QWidget *parent, Qt::WFlags flags)
@@ -36,6 +39,9 @@ QDesignerMainWindow::QDesignerMainWindow(QWidget *parent, Qt::WFlags flags)
       m_workbench(0)
 {
     initialize();
+
+    // ### from settings
+    m_actionManager->editWidgets()->setChecked(true);
 }
 
 QDesignerMainWindow::~QDesignerMainWindow()
@@ -81,6 +87,19 @@ void QDesignerMainWindow::initialize()
     m_windowMenu = menuBar()->addMenu(tr("&Window"));
     foreach (QAction *action, m_actionManager->windowActions()->actions()) {
         m_windowMenu->addAction(action);
+    }
+
+    // create the toolbars
+    QToolBar *editToolBar = addToolBar("Edit");
+    foreach (QAction *action, m_actionManager->editActions()->actions()) {
+        if (action->icon().isNull() == false)
+            editToolBar->addAction(action);
+    }
+
+    QToolBar *formToolBar = addToolBar("Form");
+    foreach (QAction *action, m_actionManager->formActions()->actions()) {
+        if (action->icon().isNull() == false)
+            formToolBar->addAction(action);
     }
 
     connect(workbench(), SIGNAL(formWindowAdded(QDesignerFormWindow*)),
@@ -145,5 +164,30 @@ QDesignerWorkbench *QDesignerMainWindow::workbench() const
 AbstractFormEditor *QDesignerMainWindow::core() const
 {
     return workbench()->core();
+}
+
+void QDesignerMainWindow::changeEvent(QEvent *event)
+{
+    switch (event->type()) {
+        case QEvent::WindowStateChange:
+            updateWindowState();
+            break;
+
+        default:
+            break;
+    }
+
+    QMainWindow::changeEvent(event);
+}
+
+void QDesignerMainWindow::updateWindowState()
+{
+#if 0
+    if ((windowState() & Qt::WindowMaximized) || (windowState() & Qt::WindowFullScreen)) {
+        workbench()->switchToWorkspaceMode();
+    } else if (windowState() & Qt::WindowNoState) {
+        workbench()->switchToTopLevelMode();
+    }
+#endif
 }
 
