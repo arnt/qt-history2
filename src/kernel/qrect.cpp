@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#50 $
 **
 ** Implementation of QRect class
 **
@@ -594,15 +594,28 @@ bool QRect::contains( const QRect &r, bool proper ) const
 	return r.x1 >= x1 && r.x2 <= x2 && r.y1 >= y1 && r.y2 <= y2;
 }
 
+QRect& QRect::operator|=(const QRect &r)
+{
+    return *this = *this | r;
+}
+
+QRect& QRect::operator&=(const QRect &r)
+{
+    return *this = *this & r;
+}
+
+
 /*!
-  Returns the union rectangle of this rectangle and \e r.  The union
+  Returns the bounding rectangle of this and \a r.
+
+  The bounding
   rectangle of a nonempty rectangle and an empty or invalid rectangle
   is defined to be the nonempty rectangle.
 
-  \sa intersect(), intersects(), contains()
+  \sa operator|=(), operator&(), intersects(), contains()
 */
 
-QRect QRect::unite( const QRect &r ) const
+QRect QRect::operator|(const QRect &r) const
 {
     if ( isValid() ) {
 	if ( r.isValid() ) {
@@ -620,16 +633,24 @@ QRect QRect::unite( const QRect &r ) const
     }
 }
 
+/*!
+  \code r.unite(s) \endcode is equivalent to \code r|s\endcode.
+*/
+QRect QRect::unite( const QRect &r ) const
+{
+    return *this | r;
+}
+
 
 /*!
-  Returns the intersection rectangle of this rectangle and \e r.
+  Returns the intersection of this rectangle and \e r.
 
   Returns an empty rectangle if there is no intersection.
 
-  \sa isEmpty(), intersects(), unite(), contains()
+  \sa operator&=(), operator|(), isEmpty(), intersects(), contains()
 */
 
-QRect QRect::intersect( const QRect &r ) const
+QRect QRect::operator&( const QRect &r ) const
 {
     QRect tmp;
     tmp.x1 = QMAX( x1, r.x1 );
@@ -637,6 +658,14 @@ QRect QRect::intersect( const QRect &r ) const
     tmp.y1 = QMAX( y1, r.y1 );
     tmp.y2 = QMIN( y2, r.y2 );
     return tmp;
+}
+
+/*!
+  \code r.intersect(s) \endcode is equivalent to \code r&s\endcode.
+*/
+QRect QRect::intersect( const QRect &r ) const
+{
+    return *this & r;
 }
 
 /*!

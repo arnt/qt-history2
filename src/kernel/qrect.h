@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#39 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#40 $
 **
 ** Definition of QRect class
 **
@@ -88,6 +88,11 @@ public:
     void   setWidth( int w );
     void   setHeight( int h );
     void   setSize( const QSize &s );
+
+    QRect  operator|(const QRect &r) const;
+    QRect  operator&(const QRect &r) const;
+    QRect&  operator|=(const QRect &r);
+    QRect&  operator&=(const QRect &r);
 
     bool   contains( const QPoint &p, bool proper=FALSE ) const;
     bool   contains( const QRect &r, bool proper=FALSE ) const;
