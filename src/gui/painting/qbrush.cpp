@@ -14,11 +14,10 @@
 #include "qbrush.h"
 #include "qcleanuphandler.h"
 #include "qpixmap.h"
+#include "qbitmap.h"
+#include "qpixmapcache.h"
 #include "qdatastream.h"
 #include "qdebug.h"
-
-#include "qpixmapcache.h"
-#include "qbitmap.h"
 
 const uchar *qt_patternForBrush(int brushStyle, bool invert)
 {
@@ -320,7 +319,7 @@ void QBrush::detach(Qt::BrushStyle newStyle)
     case Qt::TexturePattern:
         x = new QTexturedBrushData;
         static_cast<QTexturedBrushData*>(x)->pixmap =
-            d->style == Qt::TexturePattern ? static_cast<QTexturedBrushData *>(d)->pixmap : 0;
+            d->style == Qt::TexturePattern ? static_cast<QTexturedBrushData *>(d)->pixmap : QPixmap();
         break;
     case Qt::LinearGradientPattern:
         x = new QLinGradBrushData;
