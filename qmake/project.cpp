@@ -166,7 +166,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	}
 	while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
 	    QString rep_var = UN_TMAKEIFY(vals.mid(rep + left, rep_len - (left + right)));
-	    const QString &replacement = place[rep_var].join(" ");
+	    QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
 	    debug_msg(2, "Project parser: (%s) :: %s -> %s", vals.latin1(),
 		   vals.mid(rep, rep_len).latin1(), replacement.latin1());
 	    vals.replace(rep, rep_len, replacement);
@@ -452,8 +452,11 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 		left = 2;
 		right = 0;
 	    }
-	    while((rep = reg_var.match(file, 0, &rep_len)) != -1)
-		file.replace(rep, rep_len, place[file.mid(rep + left, rep_len - (left+right))].join(" "));
+	    while((rep = reg_var.match(file, 0, &rep_len)) != -1) {
+		QString rep_var = file.mid(rep + left, rep_len - (left+right));
+		QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
+		file.replace(rep, rep_len, replacement);
+	    }
 	}
 
 	debug_msg(1, "Project Parser: Including file %s.", file.latin1());
