@@ -340,7 +340,7 @@ int QMetaObject::indexOfSlot(const char *slot) const
     while (m && i < 0) {
 	for (i = priv(m->d.data)->slotCount-1; i >= 0; --i)
 	    if (strcmp(slot, m->d.stringdata
-		       + m->d.data[priv(m->d.data)->slotData + 4*i] ) == 0) {
+		       + m->d.data[priv(m->d.data)->slotData + 5*i] ) == 0) {
 		i += m->slotOffset();
 		break;
 	    }
@@ -362,7 +362,7 @@ int QMetaObject::indexOfSignal(const char *signal) const
     while (m && i < 0) {
 	for (i = priv(m->d.data)->signalCount-1; i >= 0; --i)
 	    if (strcmp(signal, m->d.stringdata
-		       + m->d.data[priv(m->d.data)->signalData + 4*i] ) == 0) {
+		       + m->d.data[priv(m->d.data)->signalData + 5*i] ) == 0) {
 		i += m->signalOffset();
 		break;
 	    }
@@ -460,7 +460,7 @@ QMetaMember QMetaObject::slot(int index) const
     QMetaMember result;
     if (i >= 0 && i <= priv(d.data)->slotCount ) {
 	result.mobj = this;
-	result.handle = priv(d.data)->slotData + 4*i;
+	result.handle = priv(d.data)->slotData + 5*i;
     }
     return result;
 }
@@ -478,7 +478,7 @@ QMetaMember QMetaObject::signal(int index) const
     QMetaMember result;
     if (i >= 0 && i <= priv(d.data)->signalCount ) {
 	result.mobj = this;
-	result.handle = priv(d.data)->signalData + 4*i;
+	result.handle = priv(d.data)->signalData + 5*i;
     }
     return result;
 }
@@ -809,6 +809,18 @@ const char *QMetaMember::type() const
 }
 
 /*!
+    Returns the tag associated with this member.
+*/
+
+const char *QMetaMember::tag() const
+{
+    if (!mobj)
+	return 0;
+    return mobj->d.stringdata + mobj->d.data[handle + 3];
+}
+
+
+/*!
     Returns the access specification of this member: private,
     protected, or public. Signals are always protected.
 */
@@ -817,9 +829,8 @@ QMetaMember::Access QMetaMember::access() const
 {
     if (!mobj)
 	return Private;
-    return (Access) mobj->d.data[handle + 3];
+    return (Access) mobj->d.data[handle + 4];
 }
-
 
 /*!
     \class QMetaEnum qmetaobject.h

@@ -20,7 +20,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 44
+#define Q_MOC_OUTPUT_REVISION 45
 #endif
 
 class QVariant;
@@ -33,6 +33,7 @@ public:
     const char *signature() const;
     const char *parameters() const;
     const char *type() const;
+    const char *tag() const;
     enum Access { Private, Protected, Public };
     Access access() const;
 

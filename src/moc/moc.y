@@ -368,6 +368,7 @@ struct Function					// member function meta data
     QByteArray name;
     QByteArray type;
     QByteArray rawType;
+    QByteArray tag;
     int lineNo;
     ArgList *args;
     Function() { args=0;}
@@ -540,7 +541,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 44;		// moc output format revision
+const int formatRevision = 45;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum ProperyFlags  {
@@ -1304,6 +1305,11 @@ opt_virtual:		  /* empty */
 type_and_name:		  type_name fct_name
 						{ tmpFunc->type = $1;
 						  tmpFunc->name = $2; }
+			| type_name IDENTIFIER fct_name
+						{ tmpFunc->type = $1;
+						  tmpFunc->tag = $2;
+						  tmpFunc->name = $3;
+						}
 			| fct_name
 						{ tmpFunc->type = "int";
 						  tmpFunc->name = $1;
@@ -2266,7 +2272,7 @@ void generateFuncs(FuncList *list, const char *functype)
 {
     if (list->isEmpty())
 	return;
-    fprintf(out, "\n // %ss: signature, parameters, type, flags\n", functype);
+    fprintf(out, "\n // %ss: signature, parameters, type, tag, flags\n", functype);
 
     Function *f;
     for (f=list->first(); f; f=list->next()) {
@@ -2287,8 +2293,8 @@ void generateFuncs(FuncList *list, const char *functype)
 	}
 	sig += ')';
 
-	fprintf(out, "    %4d, %4d, %4d, 0x%.1x,\n", strreg(sig),
-		 strreg(args), strreg(f->type), f->access);
+	fprintf(out, "    %4d, %4d, %4d, %4d, 0x%.1x,\n", strreg(sig),
+		 strreg(args), strreg(f->type), strreg(f->tag), f->access);
     }
 }
 
