@@ -433,6 +433,10 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
     hot.setY(hy);
 
     cursor.create(width, height, 8, 3);
+    
+    if ( !width || !height || !data || !mask )
+	return;
+
     cursor.setColor(0, 0xff000000);
     cursor.setColor(1, 0xffffffff);
     cursor.setColor(2, 0x00000000);
