@@ -244,12 +244,7 @@ QDateTimeEditBase::~QDateTimeEditBase()
 
 void QDateTimeEditBase::init()
 {
-    QPalette p = palette();
-    p.setColor( QPalette::Active, QColorGroup::Background,
-		palette().active().color( QColorGroup::Base ) );
-    p.setColor( QPalette::Inactive, QColorGroup::Background,
-		palette().inactive().color( QColorGroup::Base ) );
-    setPalette( p );
+    setBackgroundMode(PaletteBase);
 
     up   = new QPushButton( this );
     up->setFocusPolicy( QWidget::NoFocus );
@@ -638,6 +633,54 @@ void QDateTimeEditBase::removeLastNumber( int  )
 
 }
 
+/*!
+  \reimp
+*/
+const QColor & QDateTimeEditBase::foregroundColor() const
+{
+    return foregroundColorForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QDateTimeEditBase::setForegroundColor( const QColor & color )
+{
+    setForegroundColorForMode(PaletteBase, color);
+}
+
+/*!
+  \reimp
+*/
+const QColor & QDateTimeEditBase::backgroundColor() const
+{
+    return backgroundColorForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QDateTimeEditBase::setBackgroundColor( const QColor & color )
+{
+    setBackgroundColorForMode(PaletteBase, color);
+}
+
+/*!
+  \reimp
+*/
+const QPixmap* QDateTimeEditBase::backgroundPixmap() const
+{
+    return backgroundPixmapForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QDateTimeEditBase::setBackgroundPixmap( const QPixmap & pixmap )
+{
+    setBackgroundPixmapForMode(PaletteBase, pixmap);
+}
+
 ////////////////
 
 class QDateEdit::QDateEditPrivate
@@ -684,10 +727,10 @@ public:
     days. We've set the order to month, day, year. If the auto advance
     property is TRUE (as we've set it here) when the user completes a
     section of the date, e.g. enters two digits for the month, they are
-    automatically taken to the next section. 
+    automatically taken to the next section.
 
-  Terminology: A QDateEdit widget consists of three 'sections', one each
-  for the year, month and day. 
+  Terminology: A QDateEdit widget comprises three 'sections', one each
+  for the year, month and day.
 
   \sa QTimeEdit QDateTimeEdit
 */
@@ -796,7 +839,7 @@ QDate QDateEdit::maxValue() const
 
 /*! Sets the valid input range for the editor to be from \a min to \a
   max inclusive.  If \a min is invalid no minimum date will be set.
-  Similarly, if \a max is invalid no maximum date will be set.  
+  Similarly, if \a max is invalid no maximum date will be set.
 
 */
 
@@ -1239,15 +1282,15 @@ bool QDateEdit::setFocusSection( int s )
 }
 
 
-/*! Attempts to fix any invalid date entries. 
-    
+/*! Attempts to fix any invalid date entries.
+
     The rules applied are as follows:
 
     <ul>
     <li>If the year has four digits it is left unchanged.
     <li>If the year has two digits in the range 70..99, the previous
     century, i.e. 1900, will be added giving a year in the range
-    1970..1999. 
+    1970..1999.
     <li>If the year has two digits in the range 0..69, the current
     century, i.e. 2000, will be added giving a year in the range
     2000..2069.
@@ -1519,7 +1562,7 @@ QTime QTimeEdit::maxValue() const
 
 /*! Sets the valid input range for the editor to be from \a min to \a
   max inclusive.  If \a min is invalid no minimum time is set.
-  Similarly, if \a max is invalid no maximum time is set.  
+  Similarly, if \a max is invalid no maximum time is set.
 
 */
 
@@ -1956,7 +1999,7 @@ public:
 
     \code
     QDateTimeEdit *datetimeedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
-    dateedit->setRange( QDateTime::currentDateTime(), 
+    dateedit->setRange( QDateTime::currentDateTime(),
 			QDateTime::currentDateTime().addDays( 7 ) );
     \endcode
 
@@ -2179,6 +2222,54 @@ void QDateTimeEdit::setAutoAdvance( bool advance )
 bool QDateTimeEdit::autoAdvance() const
 {
     return de->autoAdvance();
+}
+
+/*!
+  \reimp
+*/
+const QColor & QDateTimeEdit::foregroundColor() const
+{
+    return foregroundColorForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QDateTimeEdit::setForegroundColor( const QColor & color )
+{
+    setForegroundColorForMode(PaletteBase, color);
+}
+
+/*!
+  \reimp
+*/
+const QColor & QDateTimeEdit::backgroundColor() const
+{
+    return backgroundColorForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QDateTimeEdit::setBackgroundColor( const QColor & color )
+{
+    setBackgroundColorForMode(PaletteBase, color);
+}
+
+/*!
+  \reimp
+*/
+const QPixmap* QDateTimeEdit::backgroundPixmap() const
+{
+    return backgroundPixmapForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QDateTimeEdit::setBackgroundPixmap( const QPixmap & pixmap )
+{
+    setBackgroundPixmapForMode(PaletteBase, pixmap);
 }
 
 
