@@ -853,7 +853,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if(testWFlags(Qt::WStyle_Tool) && testWFlags(Qt::WStyle_Splash) != Qt::WStyle_Splash && !isModal())
             wattr |= kWindowHideOnSuspendAttribute;
         wattr |= kWindowLiveResizeAttribute;
-
+        
 #ifdef DEBUG_WINDOW_CREATE
 #define ADD_DEBUG_WINDOW_NAME(x) { x, #x }
         struct {
@@ -1414,7 +1414,7 @@ void QWidget::show_sys()
         if(qt_mac_is_macsheet(this)) {
             qt_event_request_showsheet(this);
         } else if(qt_mac_is_macdrawer(this)) {
-            OpenDrawer(window, kWindowEdgeDefault, true);
+            OpenDrawer(window, kWindowEdgeDefault, false);
         } else {
             ShowHide(window, true); 
             d->toggleDrawers(true);
@@ -1442,7 +1442,7 @@ void QWidget::hide_sys()
             else
                 HideSheetWindow(window);
         } else if(qt_mac_is_macdrawer(this)) {
-            CloseDrawer(window, true);
+            CloseDrawer(window, false);
         } else {
             ShowHide(window, false);
             d->toggleDrawers(false);
