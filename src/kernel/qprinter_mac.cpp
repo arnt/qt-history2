@@ -64,10 +64,6 @@
 #define PST_ABORTED	3
 
 
-/*!
-  Constructs a printer paint device.
-*/
-
 QPrinter::QPrinter()
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
@@ -80,19 +76,10 @@ QPrinter::QPrinter()
     to_edge	= FALSE;
 }
 
-/*!
-  Destructs the printer paint device and cleans up.
-*/
-
 QPrinter::~QPrinter()
 {
 }
 
-
-/*!
-  Advances to a new page on the printer.
-  Returns TRUE if successful, otherwise FALSE.
-*/
 
 bool QPrinter::newPage()
 {
@@ -100,35 +87,16 @@ bool QPrinter::newPage()
 }
 
 
-/*!
-  Aborts the print job.
-  Returns TRUE if successful, otherwise FALSE.
-  \sa aborted()
-*/
-
 bool QPrinter::abort()
 {
     return FALSE;
 }
-
-/*!
-  Returns TRUE is the printer job was aborted, otherwise FALSE.
-  \sa abort()
-*/
 
 bool QPrinter::aborted() const
 {
     return FALSE;
 }
 
-
-/*!
-  Opens a printer setup dialog and asks the user to specify what printer
-  to use and miscellaneous printer settings.
-
-  Returns TRUE if the user pressed "OK" to print, or FALSE if the
-  user cancelled the operation.
-*/
 
 bool QPrinter::setup( QWidget * parent )
 {
@@ -137,45 +105,17 @@ bool QPrinter::setup( QWidget * parent )
 }
 
 
-/*!
-  \internal
-  Handles painter commands to the printer.
-*/
-
 bool QPrinter::cmd( int, QPainter *, QPDevCmdParam * )
 {
     return TRUE;
 }
 
 
-/*!
-  Internal implementation of the virtual QPaintDevice::metric() function.
-
-  Use the QPaintDeviceMetrics class instead.
-
-  \internal
-  Hard coded return values for PostScript under X.
-*/
-
 int QPrinter::metric( int ) const
 {
     return 1;
 }
 
-
-/*!  Returns the width of the left/right and top/bottom margins of the
-printer.  This is a best-effort guess, not based on perfect knowledge.
-
-If you have called setFullPage( TRUE ) (this is recommended for
-high-quality printing), margins().width() may be treated as the
-smallest sane left/right margin you can use, and margins().height() as
-the smallest sane top/bottom margins you can use.
-
-If you have called setFullPage( FALSE ) (this is the default),
-margins() is automatically subtracted from the pageSize() by QPrinter.
-
-\sa setFullPage() QPaintDeviceMetrics PageSize
-*/
 
 QSize QPrinter::margins() const
 {
