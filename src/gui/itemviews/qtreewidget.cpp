@@ -118,8 +118,6 @@ void QTreeModel::clear()
         delete tree.at(i);
     }
     tree.clear();
-    delete header;
-    header = 0;
     emit reset();
 }
 
