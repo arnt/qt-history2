@@ -1018,6 +1018,48 @@ void QMotifStyle::drawControl( ControlElement element,
     }
 }
 
+static int get_combo_extra_width( int h, int *return_awh=0 )
+{
+    int awh;
+    if ( h < 8 ) {
+        awh = 6;
+    } else if ( h < 14 ) {
+        awh = h - 2;
+    } else {
+        awh = h/2;
+    }
+    if ( return_awh )
+        *return_awh = awh;
+    return awh*3/2;
+}
+
+static void get_combo_parameters( const QRect &r,
+                                  int &ew, int &awh, int &ax,
+                                  int &ay, int &sh, int &dh,
+                                  int &sy )
+{
+    ew = get_combo_extra_width( r.height(), &awh );
+
+    sh = (awh+3)/4;
+    if ( sh < 3 )
+        sh = 3;
+    dh = sh/2 + 1;
+
+    ay = r.y() + (r.height()-awh-sh-dh)/2;
+    if ( ay < 0 ) {
+        //panic mode
+        ay = 0;
+        sy = r.height();
+    } else {
+        sy = ay+awh+dh;
+    }
+//     if( QApplication::reverseLayout() )
+//         ax = r.x();
+//     else
+    ax = r.x() + r.width() - ew;
+    ax  += (ew-awh)/2;
+}
+
 void QMotifStyle::drawComplexControl( ComplexControl control,
 				     QPainter *p,
 				     const QWidget *widget,
@@ -1038,26 +1080,116 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 			     pixelMetric( PM_DefaultFrameWidth) );
 	break;
 
-    case CC_Slider:
-	if ( sub & SC_SliderGroove )
-	    drawSubControl( SC_SliderGroove, p, widget, r, cg, flags, subActive,
-			    data );
-	if ( sub & SC_SliderTickmarks )
+    case CC_Slider:	
+	if ( sub == SC_All || sub & SC_SliderGroove ) {
+	    QSlider * sl = (QSlider *) widget;
+
+	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	    int mid   = thickness / 2;
+	    int ticks = sl->tickmarks();
+	    int len   = pixelMetric( PM_SliderLength, sl );
+	    int x, y, wi, he;
+
+	    if ( sl->orientation() == Horizontal ) {
+		x = 0;
+		y = tickOffset;
+		wi = sl->width();
+		he = thickness;
+	    } else {
+		x = tickOffset;
+		y = 0;
+		wi = thickness;
+		he = sl->height();
+	    }
+
+	    if ( ticks & QSlider::Above )
+		mid += len / 8;
+	    if ( ticks & QSlider::Below )
+		mid -= len / 8;
+
+	    p->setPen( cg.shadow() );
+	    if ( sl->orientation() == Horizontal ) {
+		qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
+				 &cg.brush( QColorGroup::Mid ) );
+		sl->erase( 0, 0, sl->width(), tickOffset );
+		sl->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
+	    } else {
+		qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
+				 &cg.brush( QColorGroup::Mid ) );
+		sl->erase( 0, 0,  tickOffset, sl->height() );
+		sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
+	    }
+	}
+
+	if ( sub == SC_All || sub & SC_SliderTickmarks )
 	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					      SC_SliderTickmarks, subActive,
 					      data );
-	if ( sub & SC_SliderHandle )
-	    drawSubControl( SC_SliderHandle, p, widget, r, cg, flags, subActive,
-			    data );
+
+	if ( sub == SC_All || sub & SC_SliderHandle ) {
+	    QSlider * sl = (QSlider *) widget;
+
+	    if ( sl->hasFocus() ) {
+		QRect re = subRect( SR_SliderFocusRect, sl );
+		drawPrimitive( PO_FocusRect, p, re, cg );
+	    }
+
+	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
+					       data );
+	    drawPrimitive( PO_ButtonBevel, p, re, cg );
+	    if ( sl->orientation() == Horizontal ) {
+		QCOORD mid = re.x() + re.width() / 2;
+		qDrawShadeLine( p, mid,  re.y(), mid,  re.y() + re.height() - 2,
+				cg, TRUE, 1);
+	    } else {
+		QCOORD mid = re.y() + re.height() / 2;
+		qDrawShadeLine( p, re.x(), mid,  re.x() + re.width() - 2, mid,
+				cg, TRUE, 1);
+	    }
+	}
+
 	break;
 
     case CC_ComboBox:
-	if ( sub & SC_ComboBoxArrow )
-	    drawSubControl( SC_ComboBoxArrow, p, widget, r, cg, flags, subActive,
-			    data );
-	if ( sub & SC_ComboBoxEditField )
-	    drawSubControl( SC_ComboBoxEditField, p, widget, r, cg, flags,
-			    subActive, data );
+	if ( sub == SC_All || sub & SC_ComboBoxArrow ) {
+	    QComboBox * cb = (QComboBox *) widget;
+	    int awh, ax, ay, sh, sy, dh, ew;
+	    int fw = pixelMetric( PM_DefaultFrameWidth, cb);
+
+	    drawPrimitive( PO_ButtonCommand, p, r, cg, flags );
+	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
+								   data ), cb );
+	    drawPrimitive( PO_ArrowDown, p, ar, cg, flags | PStyle_Enabled );
+
+	    QRect tr = r;
+	    tr.addCoords( fw, fw, -fw, -fw );
+	    get_combo_parameters( tr, ew, awh, ax, ay, sh, dh, sy );
+
+	    // draws the shaded line under the arrow
+	    p->setPen( cg.light() );
+	    p->drawLine( ar.x(), sy, ar.x()+awh-1, sy );
+	    p->drawLine( ar.x(), sy, ar.x(), sy+sh-1 );
+	    p->setPen( cg.dark() );
+	    p->drawLine( ar.x()+1, sy+sh-1, ar.x()+awh-1, sy+sh-1 );
+	    p->drawLine( ar.x()+awh-1, sy+1, ar.x()+awh-1, sy+sh-1 );
+
+	    if ( cb->hasFocus() ) {
+		QRect re = QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), cb );
+		drawPrimitive( PO_FocusRect, p, re, cg );
+	    }
+	}
+
+	if ( sub == SC_All || sub & SC_ComboBoxEditField ) {
+	    QComboBox * cb = (QComboBox *) widget;
+	    if ( cb->editable() ) {
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb,
+								       SC_ComboBoxEditField ), cb );
+		er.addCoords( -1, -1, 1, 1);
+		qDrawShadePanel( p, er, cg, TRUE, 1,
+				 &cg.brush( QColorGroup::Button ));
+	    }
+	}
 	break;
 
     case CC_ScrollBar:
@@ -1156,174 +1288,6 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
     }
 }
 
-static int get_combo_extra_width( int h, int *return_awh=0 )
-{
-    int awh;
-    if ( h < 8 ) {
-        awh = 6;
-    } else if ( h < 14 ) {
-        awh = h - 2;
-    } else {
-        awh = h/2;
-    }
-    if ( return_awh )
-        *return_awh = awh;
-    return awh*3/2;
-}
-
-static void get_combo_parameters( const QRect &r,
-                                  int &ew, int &awh, int &ax,
-                                  int &ay, int &sh, int &dh,
-                                  int &sy )
-{
-    ew = get_combo_extra_width( r.height(), &awh );
-
-    sh = (awh+3)/4;
-    if ( sh < 3 )
-        sh = 3;
-    dh = sh/2 + 1;
-
-    ay = r.y() + (r.height()-awh-sh-dh)/2;
-    if ( ay < 0 ) {
-        //panic mode
-        ay = 0;
-        sy = r.height();
-    } else {
-        sy = ay+awh+dh;
-    }
-//     if( QApplication::reverseLayout() )
-//         ax = r.x();
-//     else
-    ax = r.x() + r.width() - ew;
-    ax  += (ew-awh)/2;
-}
-
-
-void QMotifStyle::drawSubControl( SCFlags subCtrl,
-				  QPainter *p,
-				  const QWidget *widget,
-				  const QRect &r,
-				  const QColorGroup &cg,
-				  CFlags flags,
-				  SCFlags subActive,
-				  void **data ) const
-{
-    switch( subCtrl ) {
-    case SC_SliderGroove:
-	{
-	    QSlider * sl = (QSlider *) widget;
-
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
-	    int mid   = thickness / 2;
-	    int ticks = sl->tickmarks();
-	    int len   = pixelMetric( PM_SliderLength, sl );
-	    int x, y, wi, he;
-
-	    if ( sl->orientation() == Horizontal ) {
-		x = 0;
-		y = tickOffset;
-		wi = sl->width();
-		he = thickness;
-	    } else {
-		x = tickOffset;
-		y = 0;
-		wi = thickness;
-		he = sl->height();
-	    }
-
-	    if ( ticks & QSlider::Above )
-		mid += len / 8;
-	    if ( ticks & QSlider::Below )
-		mid -= len / 8;
-
-	    p->setPen( cg.shadow() );
-	    if ( sl->orientation() == Horizontal ) {
-		qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
-				 &cg.brush( QColorGroup::Mid ) );
-		sl->erase( 0, 0, sl->width(), tickOffset );
-		sl->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
-	    } else {
-		qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
-				 &cg.brush( QColorGroup::Mid ) );
-		sl->erase( 0, 0,  tickOffset, sl->height() );
-		sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
-	    }
-	    break;
-	}
-
-    case SC_SliderHandle:
-	{
-	    QSlider * sl = (QSlider *) widget;
-
-	    if ( sl->hasFocus() ) {
-		QRect re = subRect( SR_SliderFocusRect, sl );
-		drawPrimitive( PO_FocusRect, p, re, cg );
-	    }
-
-	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
-					       data );
-	    drawPrimitive( PO_ButtonBevel, p, re, cg );
-	    if ( sl->orientation() == Horizontal ) {
-		QCOORD mid = re.x() + re.width() / 2;
-		qDrawShadeLine( p, mid,  re.y(), mid,  re.y() + re.height() - 2,
-				cg, TRUE, 1);
-	    } else {
-		QCOORD mid = re.y() + re.height() / 2;
-		qDrawShadeLine( p, re.x(), mid,  re.x() + re.width() - 2, mid,
-				cg, TRUE, 1);
-	    }
-	    break;
-	}
-
-    case SC_ComboBoxArrow:
-	{
-	    QComboBox * cb = (QComboBox *) widget;
-	    int awh, ax, ay, sh, sy, dh, ew;
-	    int fw = pixelMetric( PM_DefaultFrameWidth, cb);
-
-	    drawPrimitive( PO_ButtonCommand, p, r, cg, flags );
-	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
-								   data ), cb );
-	    drawPrimitive( PO_ArrowDown, p, ar, cg, flags | PStyle_Enabled );
-
-	    QRect tr = r;
-	    tr.addCoords( fw, fw, -fw, -fw );
-	    get_combo_parameters( tr, ew, awh, ax, ay, sh, dh, sy );
-
-	    // draws the shaded line under the arrow
-	    p->setPen( cg.light() );
-	    p->drawLine( ar.x(), sy, ar.x()+awh-1, sy );
-	    p->drawLine( ar.x(), sy, ar.x(), sy+sh-1 );
-	    p->setPen( cg.dark() );
-	    p->drawLine( ar.x()+1, sy+sh-1, ar.x()+awh-1, sy+sh-1 );
-	    p->drawLine( ar.x()+awh-1, sy+1, ar.x()+awh-1, sy+sh-1 );
-
-	    if ( cb->hasFocus() ) {
-		QRect re = QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), cb );
-		drawPrimitive( PO_FocusRect, p, re, cg );
-	    }
-
-	    break;
-	}
-
-    case SC_ComboBoxEditField:
-	{
-	    QComboBox * cb = (QComboBox *) widget;
-	    if ( cb->editable() ) {
-		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb,
-								       SC_ComboBoxEditField ), cb );
-		er.addCoords( -1, -1, 1, 1);
-		qDrawShadePanel( p, er, cg, TRUE, 1,
-				 &cg.brush( QColorGroup::Button ));
-	    }
-	    break;
-	}
-
-    default:
-	break;
-    }
-}
 
 int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 {
@@ -1680,7 +1644,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
     switch ( r ) {
     case SR_SliderFocusRect:
 	rect = QCommonStyle::subRect( r, widget );
-	rect.addCoords( 2, 2, -2, -3 );
+	rect.addCoords( 2, 2, -2, -3 ); // ### fix this!
 	break;
 
     case SR_ComboBoxFocusRect:

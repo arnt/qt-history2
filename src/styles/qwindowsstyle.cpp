@@ -648,8 +648,6 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    if ( !mi )
 		return;
 
-	    const bool reverse = QApplication::reverseLayout();
-
 	    int xpos = x;
 	    if ( mi->isChecked() ) {
 		if ( act && !dis )
@@ -1305,47 +1303,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break;
 
     case CC_ComboBox:
-	if ( sub != SC_All ) {
-	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
-	} else {
-	    drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags,
-			    subActive, data );
-	    drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
-			    subActive, data );
-	}
-	break;
-
-    case CC_Slider:
-	if ( sub & SC_SliderGroove )
-	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags, subActive,
-			    data );
-	if ( sub & SC_SliderTickmarks )
-	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags,
-					      SC_SliderTickmarks, subActive,
-					      data );
-	if ( sub & SC_SliderHandle )
-	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags, subActive,
-			    data );
-	break;
-
-    default:
-	QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
-					  subActive, data );
-	break;
-    }
-}
-
-void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
-				    const QWidget * w,
-				    const QRect & r,
-				    const QColorGroup & cg,
-				    CFlags /*flags*/,
-				    SCFlags subActive,
-				    void **data ) const
-{
-    switch( subCtrl ) {
-    case SC_ComboBoxArrow:
-	{
+	if ( sub == SC_All || sub & SC_ComboBoxArrow ) {
 	    PFlags flags = PStyle_Default;
 
 	    qDrawWinPanel( p, r, cg, TRUE, w->isEnabled() ?
@@ -1370,11 +1328,9 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		flags |= PStyle_Sunken;
 	    }
 	    drawPrimitive( PO_ArrowDown, p, ar, cg, flags );
-	    break;
 	}
 
-    case SC_ComboBoxEditField:
-	{
+	if ( sub == SC_All || sub & SC_ComboBoxEditField ) {
 	    QComboBox * cb = (QComboBox *) w;
 	    QRect re = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, w,
 								   SC_ComboBoxEditField ), w );
@@ -1397,11 +1353,12 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		pdata[0] = (void *) &cg.highlight();
 		drawPrimitive( PO_FocusRect, p, re, cg, PStyle_FocusAtBorder, pdata);
 	    }
-	    break;
 	}
 
-    case SC_SliderGroove:
-	{
+	break;
+
+    case CC_Slider:
+	if ( sub == SC_All || sub & SC_SliderGroove ) {
 	    QSlider * sl = (QSlider *) w;
 
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
@@ -1440,11 +1397,14 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		sl->erase( 0, 0,  tickOffset, sl->height() );
 		sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
 	    }
-	    break;
 	}
 
-    case SC_SliderHandle:
-	{
+	if ( sub == SC_All || sub & SC_SliderTickmarks )
+	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags,
+					      SC_SliderTickmarks, subActive,
+					      data );
+
+	if ( sub == SC_All || sub & SC_SliderHandle ) {
 	    // 4444440
 	    // 4333310
 	    // 4322210
@@ -1648,11 +1608,11 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		p->drawLine( x2, y2-1, x2+d, y2-1-d);
 		break;
 	    }
-
-	    break;
 	}
 
-    default:
+	default:
+	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
+					      subActive, data );
 	break;
     }
 }

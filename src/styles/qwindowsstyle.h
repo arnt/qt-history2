@@ -86,15 +86,6 @@ public:
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;
 
-    void drawSubControl( SCFlags subCtrl,
-			 QPainter* p,
-			 const QWidget* w,
-			 const QRect& r,
-			 const QColorGroup& cg,
-			 CFlags flags = CStyle_Default,
-			 SCFlags subActive = SC_None,
-			 void **data = 0 ) const;
-
     int pixelMetric( PixelMetric metric,
 		     const QWidget *widget = 0 ) const;
 

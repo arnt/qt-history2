@@ -95,15 +95,6 @@ public:
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;
 
-    void drawSubControl( SCFlags subCtrl,
-			 QPainter* p,
-			 const QWidget* widget,
-			 const QRect& r,
-			 const QColorGroup& cg,
-			 CFlags flags = CStyle_Default,
-			 SCFlags subActive = SC_None,
-			 void **data = 0 ) const;
-
     QRect querySubControlMetrics( ComplexControl control,
 				  const QWidget *widget,
 				  SubControl sc,
