@@ -22,7 +22,7 @@
 
     \tableofcontents
 
-    \section1 FreeType 2 (freetype)
+    \section1 FreeType 2 (\c freetype)
 
     \e{The FreeType project is a team of volunteers who develop free, portable
     and high-quality software solutions for digital typography. We specifically
@@ -36,7 +36,7 @@
     FreeType.
 
 
-    \section1 The Independent JPEG Group's JPEG Software (libjpeg)
+    \section1 The Independent JPEG Group's JPEG Software (\c libjpeg)
 
     \e{This package contains C software to implement JPEG image compression and
     decompression.  JPEG (pronounced "jay-peg") is a standardized compression
@@ -49,7 +49,7 @@
     See \c src/3rdparty/libjpeg/README for license details.
 
 
-    \section1 PNG Reference Library (libpng)
+    \section1 PNG Reference Library (\c libpng)
 
     \e{Libpng was written as a companion to the PNG specification, as a way
     of reducing the amount of time and effort it takes to support the PNG
@@ -59,7 +59,7 @@
     See \c src/3rdparty/libpng/LICENSE for license details.
 
 
-    \section1 Data Compression Library (zlib)
+    \section1 Data Compression Library (\c zlib)
 
     \e{zlib is a general purpose data compression library.  All the code
     is thread safe.  The data format used by the zlib library is described
