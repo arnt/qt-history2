@@ -76,14 +76,22 @@ public:
 
     void setPath(const QString &path);
     QString path() const;
-    QString absPath() const;
+    QString absolutePath() const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT QString absPath() const { return absolutePath(); }
+#endif
     QString canonicalPath() const;
 
     QString dirName() const;
     QString filePath(const QString &fileName,
                      bool acceptAbsPath = true) const;
-    QString absFilePath(const QString &fileName,
-                        bool acceptAbsPath = true) const;
+    QString absoluteFilePath(const QString &fileName,
+                             bool acceptAbsPath = true) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT QString absFilePath(const QString &fileName,
+                                         bool acceptAbsPath = true) const 
+       { return absoluteFilePath(fileName, acceptAbsPath); }
+#endif
 
     static QString convertSeparators(const QString &pathName);
 
@@ -126,9 +134,9 @@ public:
     QFileInfoList entryInfoList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
                                 int sortSpec = DefaultSort) const;
 
-    enum Recursivity { Recursive = 0, NonRecursive = 1 };
-    bool mkdir(const QString &dirName, Recursivity recurse=NonRecursive, bool acceptAbsPath=true) const;
-    bool rmdir(const QString &dirName, Recursivity recurse=NonRecursive, bool acceptAbsPath=true) const;
+    enum Recursion { Recursive = 0, NonRecursive = 1 };
+    bool mkdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
+    bool rmdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
 #ifdef QT_COMPAT
     inline QT_COMPAT bool mkdir(const QString &dirName, bool acceptAbsPath) const 
         { return mkdir(dirName, NonRecursive, acceptAbsPath); }
@@ -141,8 +149,13 @@ public:
     bool isRoot() const;
 
     static bool isRelativePath(const QString &path);
+    inline static bool isAbsolutePath(const QString &path) { return !isRelativePath(path); }
     bool isRelative() const;
-    void convertToAbs();
+    inline bool isAbsolute() { return !isRelative(); }
+    bool makeAbsolute();
+#ifdef QT_COMPAT
+    inline QT_COMPAT void convertToAbs() { makeAbsolute(); }
+#endif
 
     bool operator==(const QDir &dir) const;
     inline bool operator!=(const QDir &dir) const {  return !operator==(dir); }
@@ -156,19 +169,34 @@ public:
     static QChar separator();
 
     static bool setCurrent(const QString &path);
-    static inline QDir current() { return QDir(currentDirPath()); }
-    static QString currentDirPath();
+    static inline QDir current() { return QDir(currentPath()); }
+    static QString currentPath();
+#ifdef QT_COMPAT
+    inline QT_COMPAT static QString currentDirPath() { return currentPath(); }
+#endif
 
-    static inline QDir home() { return QDir(homeDirPath()); }
-    static QString homeDirPath();
-    static inline QDir root() { return QDir(rootDirPath()); }
-    static QString rootDirPath();
+    static inline QDir home() { return QDir(homePath()); }
+    static QString homePath();
+    static inline QDir root() { return QDir(rootPath()); }
+    static QString rootPath();
+    static inline QDir temp() { return QDir(tempPath()); }
+    static QString tempPath();
+#ifdef QT_COMPAT
+    inline QT_COMPAT static QString homeDirPath() { return homePath(); }
+    inline QT_COMPAT static QString rootDirPath() { return rootPath(); }
+#endif
+
+
+
 
 #ifndef QT_NO_REGEXP
     bool match(const QStringList &filters, const QString &fileName);
     bool match(const QString &filter, const QString &fileName);
 #endif
-    static QString cleanDirPath(const QString &name);
+    static QString cleanPath(const QString &name);
+#ifdef QT_COMPAT
+    inline QT_COMPAT static QString cleanDirPath(const QString &name) { return cleanPath(name); }
+#endif
     void refresh() const;
 };
 

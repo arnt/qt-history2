@@ -262,7 +262,7 @@ uchar
 }
 
 bool
-QFSFileEngine::mkdir(const QString &dirName, QDir::Recursivity /*recurse*/) const
+QFSFileEngine::mkdir(const QString &dirName, QDir::Recursion /*recurse*/) const
 {
     QT_WA({
         return ::_wmkdir((TCHAR*)dirName.utf16()) == 0;
@@ -272,7 +272,7 @@ QFSFileEngine::mkdir(const QString &dirName, QDir::Recursivity /*recurse*/) cons
 }
 
 bool
-QFSFileEngine::rmdir(const QString &dirName, QDir::Recursivity /*recurse*/) const
+QFSFileEngine::rmdir(const QString &dirName, QDir::Recursion /*recurse*/) const
 {
  QT_WA({
         return ::_wrmdir((TCHAR*)dirName.utf16()) == 0;
@@ -441,7 +441,7 @@ QFSFileEngine::isRoot() const
 }
 
 bool
-QFSFileEngine::setCurrentDirPath(const QString &path)
+QFSFileEngine::setCurrentPath(const QString &path)
 {
     int r;
     QT_WA({
@@ -453,7 +453,7 @@ QFSFileEngine::setCurrentDirPath(const QString &path)
 }
 
 QString
-QFSFileEngine::currentDirPath(const QString &fileName)
+QFSFileEngine::currentPath(const QString &fileName)
 {
     QString ret;
     //if filename is a drive: then get the pwd of that drive
@@ -489,7 +489,7 @@ QFSFileEngine::currentDirPath(const QString &fileName)
 }
 
 QString
-QFSFileEngine::homeDirPath()
+QFSFileEngine::homePath()
 {
     QString ret = QString::fromLocal8Bit(getenv("HOME"));
     if (ret.isEmpty() || !QFile::exists(ret)) {
@@ -497,14 +497,14 @@ QFSFileEngine::homeDirPath()
         if (ret.isEmpty() || !QFile::exists(ret)) {
             ret = QString::fromLocal8Bit(getenv("HOMEDRIVE")) + QString::fromLocal8Bit(getenv("HOMEPATH"));
             if (ret.isEmpty() || !QFile::exists(ret))
-                ret = rootDirPath();
+                ret = rootPath();
         }
     }
     return QFSFileEnginePrivate::fixToQtSlashes(ret);
 }
 
 QString
-QFSFileEngine::rootDirPath()
+QFSFileEngine::rootPath()
 {
 #if defined(Q_FS_FAT)
     QString ret = QString::fromLatin1(getenv("SystemDrive"));
@@ -516,6 +516,17 @@ QFSFileEngine::rootDirPath()
     _abspath(dir, "/", _MAX_PATH);
     QString ret(dir);
 #endif
+    return ret;
+}
+
+QString
+QFSFileEngine::tempPath()
+{
+    char tempPath[MAX_PATH];
+    GetTempPath(tempPath, MAX_PATH);
+    QString ret = QString::fromLocal8Bit(tempPath);
+    if(ret.isEmpty())
+        ret = QString::fromLatin1("c:/tmp");
     return ret;
 }
 
@@ -841,7 +852,7 @@ QFSFileEngine::fileName(FileName file) const
 	    return d->file;
 	}
 	return d->file.mid(slash + 1);
-    } else if(file == DirPathName) {
+    } else if(file == PathName) {
         if (!d->file.size())
             return d->file;
 	int slash = d->file.lastIndexOf('/');
@@ -856,11 +867,11 @@ QFSFileEngine::fileName(FileName file) const
 		slash++;
 	    return d->file.left(slash);
 	}
-    } else if(file == AbsoluteName || file == AbsoluteDirPathName) {
+    } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
         if (d->file.isEmpty()
             || (d->file.length() >=2 && d->file.at(0) != '/' && d->file.at(1) != ':')) {
-            ret = QDir::currentDirPath();
+            ret = QDir::currentPath();
         }
         if(!d->file.isEmpty() && d->file != ".") {
             if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
@@ -875,7 +886,7 @@ QFSFileEngine::fileName(FileName file) const
 	    QString pwd = currentDirOfDrive((char)ret[0].latin1());
 	    ret = pwd + "/" + ret.mid(2, 0xFFFFFF);
 	}
-        if(file == AbsoluteDirPathName) {
+        if(file == AbsolutePathName) {
             int slash = ret.lastIndexOf('/');
             if (slash == -1)
                 return QString::fromLatin1(".");

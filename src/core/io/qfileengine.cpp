@@ -14,6 +14,7 @@
 
 #include "qfileengine.h"
 #include "qfileengine_p.h"
+#include <qdatetime.h>
 #include <qplatformdefs.h>
 
 #include <errno.h>

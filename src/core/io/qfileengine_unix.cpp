@@ -72,7 +72,7 @@ uchar
 }
 
 bool 
-QFSFileEngine::mkdir(const QString &dirName, QDir::Recursivity /*recurse*/) const
+QFSFileEngine::mkdir(const QString &dirName, QDir::Recursion /*recurse*/) const
 {
 #if defined(Q_OS_DARWIN)  // Mac X doesn't support trailing /'s
     QString name = dirName;
@@ -86,7 +86,7 @@ QFSFileEngine::mkdir(const QString &dirName, QDir::Recursivity /*recurse*/) cons
 }
 
 bool 
-QFSFileEngine::rmdir(const QString &dirName, QDir::Recursivity /*recurse*/) const
+QFSFileEngine::rmdir(const QString &dirName, QDir::Recursion /*recurse*/) const
 {
     return ::rmdir(QFile::encodeName(dirName)) == 0;
 }
@@ -170,7 +170,7 @@ QFSFileEngine::isRoot() const
 }
 
 bool 
-QFSFileEngine::setCurrentDirPath(const QString &path)
+QFSFileEngine::setCurrentPath(const QString &path)
 {
     int r;
     r = ::chdir(QFile::encodeName(path));
@@ -178,7 +178,7 @@ QFSFileEngine::setCurrentDirPath(const QString &path)
 }
 
 QString 
-QFSFileEngine::currentDirPath(const QString &)
+QFSFileEngine::currentPath(const QString &)
 {
     QString result;
     struct stat st;
@@ -188,36 +188,45 @@ QFSFileEngine::currentDirPath(const QString &)
             result = QFile::decodeName(QByteArray(currentName));
 #if defined(QT_DEBUG)
         if (result.isNull())
-            qWarning("QDir::currentDirPath: getcwd() failed");
+            qWarning("QDir::currentPath: getcwd() failed");
 #endif
     } else {
 #if defined(QT_DEBUG)
-        qWarning("QDir::currentDirPath: stat(\".\") failed");
+        qWarning("QDir::currentPath: stat(\".\") failed");
 #endif
     }
     return result;
 }
 
 QString 
-QFSFileEngine::homeDirPath()
+QFSFileEngine::homePath()
 {
     QString home = QFile::decodeName(QByteArray(getenv("HOME")));
     if (home.isNull())
-        home = rootDirPath();
+        home = rootPath();
     return home;
 }
 
 QString
-QFSFileEngine::rootDirPath()
+QFSFileEngine::rootPath()
 {
     return QString::fromLatin1("/");
+}
+
+QString
+QFSFileEngine::tempPath()
+{
+    QString temp = QFile::decodeName(QByteArray(getenv("TMPDIR")));
+    if (temp.isNull())
+        temp = QString::fromLatin1("/tmp");
+    return temp;
 }
 
 QFileInfoList
 QFSFileEngine::drives()
 {
     QFileInfoList ret;
-    ret.append(rootDirPath());
+    ret.append(rootPath());
     return ret;
 }
 
@@ -291,26 +300,26 @@ QFSFileEngine::fileName(FileName file) const
         int slash = d->file.lastIndexOf('/');
         if (slash != -1) 
             return d->file.mid(slash + 1);
-    } else if(file == DirPathName) {
+    } else if(file == PathName) {
         int slash = d->file.lastIndexOf('/');
         if (slash == -1)
             return QString::fromLatin1(".");
         else if (!slash)
             return QString::fromLatin1("/");
         return d->file.left(slash);
-    } else if(file == AbsoluteName || file == AbsoluteDirPathName) {
+    } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
         if(!d->file.length() || d->file[0] != '/') 
-            ret = QDir::currentDirPath();
+            ret = QDir::currentPath();
         if(!d->file.isEmpty() && d->file != ".") {
             if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
                 ret += '/';
             ret += d->file;
         }
-        if(file == AbsoluteDirPathName) {
+        if(file == AbsolutePathName) {
             int slash = ret.lastIndexOf('/');
             if (slash == -1)
-                return QDir::currentDirPath();
+                return QDir::currentPath();
             else if (!slash)
                 return QString::fromLatin1("/");
             return ret.left(slash);

@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qdir.h"
+#include <qdatetime.h>
 #include <qplatformdefs.h>
 #include <qglobal.h>
 #include <qstring.h>
@@ -274,18 +275,18 @@ inline static QStringList qt_makeFilterStringList(const QString &nameFilter)
     An example of an absolute path is the string "/tmp/quartz", a
     relative path might look like "src/fatlib". You can use the
     function isRelative() to check if a QDir is using a relative or an
-    absolute file path. Call convertToAbs() to convert a relative QDir
-    to an absolute one. For a simplified path use cleanDirPath(). To
+    absolute file path. Call makeAbsolute() to convert a relative QDir
+    to an absolute one. For a simplified path use cleanPath(). To
     obtain a path which has no symbolic links or redundant ".."
     elements use canonicalPath(). The path can be set with setPath(),
     and changed with cd() and cdUp().
 
     QDir provides several static functions, for example, setCurrent()
-    to set the application's working directory and currentDirPath() to
+    to set the application's working directory and currentPath() to
     retrieve the application's working directory. Access to some
     common paths is provided with the static functions, current(),
-    home() and root() which return QDir objects or currentDirPath(),
-    homeDirPath() and rootDirPath() which return the path as a string.
+    home() and root() which return QDir objects or currentPath(),
+    homePath() and rootPath() which return the path as a string.
     If you want to know about your application's path use
     \l{QApplication::applicationDirPath()}.
 
@@ -369,7 +370,7 @@ inline static QStringList qt_makeFilterStringList(const QString &nameFilter)
 /*!
     Constructs a QDir pointing to the current directory (".").
 
-    \sa currentDirPath()
+    \sa currentPath()
 */
 
 QDir::QDir() : d_ptr(new QDirPrivate(this))
@@ -467,8 +468,8 @@ QDir::~QDir()
     current directory. An example of an absolute path is the string
     "/tmp/quartz", a relative path might look like "src/fatlib".
 
-    \sa path(), absPath(), exists(), cleanDirPath(), dirName(),
-      absFilePath(), isRelative(), convertToAbs()
+    \sa path(), absolutePath(), exists(), cleanPath(), dirName(),
+      absoluteFilePath(), isRelative(), makeAbsolute()
 */
 
 void
@@ -484,8 +485,8 @@ QDir::setPath(const QString &path)
     The returned path can be either absolute or relative (see
     setPath()).
 
-    \sa setPath(), absPath(), exists(), cleanDirPath(), dirName(),
-    absFilePath(), convertSeparators()
+    \sa setPath(), absolutePath(), exists(), cleanPath(), dirName(),
+    absoluteFilePath(), convertSeparators()
 */
 
 QString
@@ -499,16 +500,16 @@ QDir::path() const
     drive specification), which may contain symbolic links, but never
     contains redundant ".", ".." or multiple separators.
 
-    \sa setPath(), canonicalPath(), exists(),  cleanDirPath(),
-    dirName(), absFilePath()
+    \sa setPath(), canonicalPath(), exists(),  cleanPath(),
+    dirName(), absoluteFilePath()
 */
 
 QString
-QDir::absPath() const
+QDir::absolutePath() const
 {
     if (QDir::isRelativePath(d->data->path)) 
-        return absFilePath("");
-    return cleanDirPath(d->data->path);
+        return absoluteFilePath("");
+    return cleanPath(d->data->path);
 }
 
 
@@ -517,12 +518,12 @@ QDir::absPath() const
     redundant "." or ".." elements.
 
     On systems that do not have symbolic links this function will
-    always return the same string that absPath() returns. If the
+    always return the same string that absolutePath() returns. If the
     canonical path does not exist (normally due to dangling symbolic
     links) canonicalPath() returns QString::null.
 
-    \sa path(), absPath(), exists(), cleanDirPath(), dirName(),
-        absFilePath(), QString::isNull()
+    \sa path(), absolutePath(), exists(), cleanPath(), dirName(),
+        absoluteFilePath(), QString::isNull()
 */
 
 QString
@@ -530,7 +531,7 @@ QDir::canonicalPath() const
 {
     if(!d->data->fileEngine)
         return "";
-    return cleanDirPath(d->data->fileEngine->fileName(QFileEngine::CanonicalName));
+    return cleanPath(d->data->fileEngine->fileName(QFileEngine::CanonicalName));
 }
 
 /*!
@@ -542,7 +543,7 @@ QDir::canonicalPath() const
     No check is made to ensure that a directory with this name
     actually exists.
 
-    \sa path(), absPath(), absFilePath(), exists(), QString::isNull()
+    \sa path(), absolutePath(), absoluteFilePath(), exists(), QString::isNull()
 */
 
 QString
@@ -559,20 +560,20 @@ QDir::dirName() const
     check if the file actually exists in the directory. If the QDir is
     relative the returned path name will also be relative. Redundant
     multiple separators or "." and ".." directories in \a fileName
-    will not be removed (see cleanDirPath()).
+    will not be removed (see cleanPath()).
 
     If \a acceptAbsPath is true a \a fileName starting with a
     separator "/" will be returned without change. If \a acceptAbsPath
     is false an absolute path will be prepended to the fileName and
     the resultant string returned.
 
-    \sa absFilePath(), isRelative(), canonicalPath()
+    \sa absoluteFilePath(), isRelative(), canonicalPath()
 */
 
 QString
 QDir::filePath(const QString &fileName, bool acceptAbsPath) const
 {
-    if (acceptAbsPath && !isRelativePath(fileName))
+    if (acceptAbsPath && isAbsolutePath(fileName))
         return QString(fileName);
 
     QString ret = d->data->path;
@@ -588,7 +589,7 @@ QDir::filePath(const QString &fileName, bool acceptAbsPath) const
     Returns the absolute path name of a file in the directory. Does \e
     not check if the file actually exists in the directory. Redundant
     multiple separators or "." and ".." directories in \a fileName
-    will not be removed (see cleanDirPath()).
+    will not be removed (see cleanPath()).
 
     If \a acceptAbsPath is true a \a fileName starting with a
     separator "/" will be returned without change. If \a acceptAbsPath
@@ -599,16 +600,16 @@ QDir::filePath(const QString &fileName, bool acceptAbsPath) const
 */
 
 QString
-QDir::absFilePath(const QString &fileName, bool acceptAbsPath) const
+QDir::absoluteFilePath(const QString &fileName, bool acceptAbsPath) const
 {
-    if (acceptAbsPath && !isRelativePath(fileName))
+    if (acceptAbsPath && isAbsolutePath(fileName))
         return fileName;
     if(!d->data->fileEngine)
         return fileName;
 
     QString ret;
     if (isRelativePath(d->data->path)) //get pwd
-        ret = QFSFileEngine::currentDirPath(fileName);
+        ret = QFSFileEngine::currentPath(fileName);
     if(!d->data->path.isEmpty() && d->data->path != ".") {
         if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
             ret += '/';
@@ -671,8 +672,8 @@ QDir::cd(const QString &dirName, bool acceptAbsPath)
     if (dirName.isEmpty() || dirName == QString::fromLatin1(".")) 
         return true;
     QString newPath = d->data->path;
-    if (acceptAbsPath && !isRelativePath(dirName)) {
-        newPath = cleanDirPath(dirName);
+    if (acceptAbsPath && isAbsolutePath(dirName)) {
+        newPath = cleanPath(dirName);
     } else {
         if (isRoot()) {
             if (dirName == "..") 
@@ -685,7 +686,7 @@ QDir::cd(const QString &dirName, bool acceptAbsPath)
         if (dirName.indexOf('/') >= 0
             || d->data->path == QString::fromLatin1(".")
             || dirName == QString::fromLatin1("..")) {
-            newPath = cleanDirPath(newPath);
+            newPath = cleanPath(newPath);
             /*
               If newPath starts with .., we convert it to absolute to
               avoid infinite looping on
@@ -696,7 +697,7 @@ QDir::cd(const QString &dirName, bool acceptAbsPath)
             */
             if (newPath[0] == QChar('.') && newPath[1] == QChar('.') &&
                 (newPath.length() == 2 || newPath[2] == QChar('/'))) 
-                newPath = QFileInfo(newPath).absFilePath();
+                newPath = QFileInfo(newPath).absoluteFilePath();
         }
     }
     {
@@ -1040,7 +1041,7 @@ QDir::entryInfoList(const QStringList &nameFilters, int filterSpec, int sortSpec
 */
 
 bool
-QDir::mkdir(const QString &dirName, Recursivity recurse, bool acceptAbsPath) const
+QDir::mkdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) const
 {
     if (dirName.isEmpty()) {
         qWarning("QDir::rename: Empty or null file name(s)");
@@ -1073,7 +1074,7 @@ QDir::mkdir(const QString &dirName, Recursivity recurse, bool acceptAbsPath) con
 */
 
 bool
-QDir::rmdir(const QString &dirName, Recursivity recurse, bool acceptAbsPath) const
+QDir::rmdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) const
 {
     if (dirName.isEmpty()) {
         qWarning("QDir::rename: Empty or null file name(s)");
@@ -1137,7 +1138,7 @@ QDir::exists() const
         qWarning("It is a root link");
     \endcode
 
-    \sa root(), rootDirPath()
+    \sa root(), rootPath()
 */
 
 bool
@@ -1149,11 +1150,20 @@ QDir::isRoot() const
 }
 
 /*!
+    \fn bool QDir::isAbsolute() const
+
+    Returns true if the directory path is absolute to the current
+    directory and returns false if the path is absolute.
+
+    \sa isRelative()
+*/
+
+/*!
     Returns true if the directory path is relative to the current
     directory and returns false if the path is absolute (e.g. under
     UNIX a path is relative if it does not start with a "/").
 
-    \sa convertToAbs()
+    \sa makeAbsolute()
 */
 
 bool
@@ -1172,19 +1182,20 @@ QDir::isRelative() const
     \sa isRelative()
 */
 
-void
-QDir::convertToAbs()
+bool
+QDir::makeAbsolute()
 {
     if(!d->data->fileEngine)
-        return;
-    QString absPath = d->data->fileEngine->fileName(QFileEngine::AbsoluteName);
-    if(QDir::isRelativePath(absPath)) 
-        return;
+        return false;
+    QString absolutePath = d->data->fileEngine->fileName(QFileEngine::AbsoluteName);
+    if(QDir::isRelativePath(absolutePath)) 
+        return false;
     d->detach();
-    d->data->path = absPath;
-    d->data->fileEngine->setFileName(absPath);
+    d->data->path = absolutePath;
+    d->data->fileEngine->setFileName(absolutePath);
     if(!(d->data->fileEngine->fileFlags(QFileEngine::TypeMask) & QFileEngine::Directory))
-        qWarning("Failure to convert to absolute!");
+        return false;
+    return true;
 }
 
 /*!
@@ -1197,7 +1208,7 @@ QDir::convertToAbs()
     // The current directory is "/usr/local"
     QDir d1("/usr/local/bin");
     QDir d2("bin");
-    d2.convertToAbs();
+    d2.makeAbsolute();
     if (d1 == d2)
         qDebug("They're the same");
     \endcode
@@ -1381,7 +1392,7 @@ QDir::separator()
 bool
 QDir::setCurrent(const QString &path)
 {
-    return QFSFileEngine::setCurrentDirPath(path);
+    return QFSFileEngine::setCurrentPath(path);
 }
 
 /*!
@@ -1390,7 +1401,7 @@ QDir::setCurrent(const QString &path)
 
     Use path() to access a QDir object's path.
 
-    \sa currentDirPath(), QDir::QDir()
+    \sa currentPath(), QDir::QDir()
 */
 
 /*!
@@ -1400,9 +1411,9 @@ QDir::setCurrent(const QString &path)
 */
 
 QString
-QDir::currentDirPath()
+QDir::currentPath()
 {
-    return QFSFileEngine::currentDirPath();    
+    return QFSFileEngine::currentPath();    
 }
 
 /*!
@@ -1414,19 +1425,19 @@ QDir::currentDirPath()
     does not exist the \c USERPROFILE environment variable is used. If
     that does not exist the path is formed by concatenating the \c
     HOMEDRIVE and \c HOMEPATH environment variables. If they don't
-    exist the rootDirPath() is used (this uses the \c SystemDrive
+    exist the rootPath() is used (this uses the \c SystemDrive
     environment variable). If none of these exist "C:\" is used.
 
     Under non-Windows operating systems the \c HOME environment
-    variable is used if it exists, otherwise rootDirPath() is used.
+    variable is used if it exists, otherwise rootPath() is used.
 
     \sa homeDir()
 */
 
 QString
-QDir::homeDirPath()
+QDir::homePath()
 {
-    return QFSFileEngine::homeDirPath();
+    return QFSFileEngine::homePath();
 }
 
 /*!
@@ -1434,7 +1445,7 @@ QDir::homeDirPath()
 
     Returns the root directory.
 
-    \sa rootDirPath() drives()
+    \sa rootPath() drives()
 */
 
 /*!
@@ -1447,9 +1458,9 @@ QDir::homeDirPath()
 */
 
 QString
-QDir::rootDirPath()
+QDir::rootPath()
 {
-    return QFSFileEngine::rootDirPath();
+    return QFSFileEngine::rootPath();
 }
 
 #ifndef QT_NO_REGEXP
@@ -1505,11 +1516,11 @@ QDir::match(const QString &filter, const QString &fileName)
     For example, "./local" becomes "local", "local/../bin" becomes
     "bin" and "/local/usr/../bin" becomes "/local/bin".
 
-    \sa absPath() canonicalPath()
+    \sa absolutePath() canonicalPath()
 */
 
 QString
-QDir::cleanDirPath(const QString &in)
+QDir::cleanPath(const QString &in)
 {
     if (in.isEmpty())
         return in;
@@ -1606,10 +1617,19 @@ QDir::cleanDirPath(const QString &in)
 }
 
 /*!
+   \fn bool QDir::isAbsolutePath(const QString &)
+
+    Returns true if \a path is absolute; returns false if it is
+    relative.
+
+    \sa isRelativePath()
+*/
+
+/*!
     Returns true if \a path is relative; returns false if it is
     absolute.
 
-    \sa isRelative()
+    \sa isRelative(), isAbsolutePath()
 */
 
 bool

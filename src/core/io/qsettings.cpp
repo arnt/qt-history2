@@ -245,7 +245,7 @@ static HANDLE openlock(const QString &name, int type)
 {
     QFileInfo info(name);
     // lockfile should be hidden, and never removed
-    QString lockfile = info.dirPath() + "/." + info.fileName() + ".lock";
+    QString lockfile = info.path() + "/." + info.fileName() + ".lock";
 
     // open the lockfile
     HANDLE fd = qt_open(QFile::encodeName(lockfile),
@@ -459,7 +459,7 @@ QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
     Q_UNUSED(format);
 #endif
 
-    QString appSettings(QDir::homeDirPath() + "/.qt/");
+    QString appSettings(QDir::homePath() + "/.qt/");
     QString defPath;
 #ifdef Q_WS_WIN
 #ifdef Q_OS_TEMP
@@ -1011,7 +1011,7 @@ bool QSettings::sync()
         file.close();
 
         if (success) {
-            QDir dir(QFileInfo(file).dir(true));
+            QDir dir(QFileInfo(file).absoluteDir());
             if (dir.exists(filename) && !dir.remove(filename) ||
                  !dir.rename(file.name(), filename, true)) {
                 qWarning("QSettings::sync: error writing file '%s'",

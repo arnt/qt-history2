@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 #include <private/qresourceengine_p.h>
+#include <qdatetime.h>
 #include "qresource.h"
 #include <qregexp.h>
 #include <private/qfileengine_p.h>
@@ -51,13 +52,13 @@ protected:
 };
 
 bool
-QResourceFileEngine::mkdir(const QString &, QDir::Recursivity) const
+QResourceFileEngine::mkdir(const QString &, QDir::Recursion) const
 {
     return false;
 }
 
 bool
-QResourceFileEngine::rmdir(const QString &, QDir::Recursivity) const
+QResourceFileEngine::rmdir(const QString &, QDir::Recursion) const
 {
     return false;
 }
@@ -269,7 +270,7 @@ QResourceFileEngine::fileName(FileName file) const
 	    return d->file;
 	}
 	return d->file.mid(slash + 1);
-    } else if(file == DirPathName || file == AbsoluteDirPathName) {
+    } else if(file == PathName || file == AbsolutePathName) {
         if (!d->file.size())
             return d->file;
 	int slash = d->file.lastIndexOf('/');

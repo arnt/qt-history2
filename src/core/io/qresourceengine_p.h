@@ -48,8 +48,8 @@ public:
 
     virtual uchar *map(Q_LONG len);
 
-    virtual bool mkdir(const QString &dirName, QDir::Recursivity recurse) const;
-    virtual bool rmdir(const QString &dirName, QDir::Recursivity recurse) const;
+    virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
+    virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
 

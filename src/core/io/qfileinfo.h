@@ -14,13 +14,13 @@
 #ifndef __QFILEINFO_H__
 #define __QFILEINFO_H__
 
-
 #ifndef QT_H
 #include "qfile.h"
-#include "qdatetime.h"
 #endif // QT_H
 
+class QFile;
 class QDir;
+class QDateTime;
 class QFileInfoPrivate;
 
 class Q_CORE_EXPORT QFileInfo
@@ -56,19 +56,41 @@ public:
     void refresh();
 
     QString filePath() const;
+    QString absoluteFilePath() const;
     QString fileName() const;
-#ifndef QT_NO_DIR //###
-    QString absFilePath() const;
+    QString baseName() const;
+    QString completeBaseName() const;
+    QString suffix() const;
+    QString completeSuffix() const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT QString baseName(bool complete) {
+        if(complete)
+            return completeBaseName();
+        return baseName();
+    }
+    inline QT_COMPAT QString extension(bool complete = true) const { 
+        if(complete)
+            return completeSuffix();
+        return suffix(); 
+    }
+    inline QT_COMPAT QString absFilePath() const { return absoluteFilePath(); }
 #endif
-    QString baseName(bool complete = false) const;
-    QString extension(bool complete = true) const;
 
-#ifndef QT_NO_DIR //###
-    QString dirPath(bool absPath = false) const;
-#endif
+    QString path() const;
+    QString absolutePath() const;
 #ifndef QT_NO_DIR
-    QDir dir(bool absPath = false) const;
+    QDir dir() const;
+    QDir absoluteDir() const;
 #endif
+#ifdef QT_COMPAT
+    inline QT_COMPAT QString dirPath(bool absPath = false) const {
+        if(absPath)
+            return absolutePath();
+        return path();
+    }
+    QT_COMPAT QDir dir(bool absPath) const;
+#endif
+
     QString canonicalPath() const;
 
     bool isReadable() const;
@@ -76,9 +98,11 @@ public:
     bool isExecutable() const;
     bool isHidden() const;
 
-#ifndef QT_NO_DIR //###
     bool isRelative() const;
-    bool convertToAbs();
+    inline bool isAbsolute() const { return !isRelative(); }
+    bool makeAbsolute();
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool convertToAbs() { return makeAbsolute(); }
 #endif
 
     bool isFile() const;
@@ -102,10 +126,8 @@ public:
 
     void detach();
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool caching() const { return true; }
-    inline QT_COMPAT void setCaching(bool /*on*/) {}
-#endif
+    bool caching() const;
+    void setCaching(bool on);
 };
 
 typedef QList<QFileInfo> QFileInfoList;

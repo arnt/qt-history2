@@ -35,8 +35,8 @@ public:
 
     virtual uchar *map(Q_LONG len) = 0; //can we implement an mmap?
 
-    virtual bool mkdir(const QString &dirName, QDir::Recursivity recurse) const = 0;
-    virtual bool rmdir(const QString &dirName, QDir::Recursivity recurse) const = 0;
+    virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const = 0;
+    virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const = 0;
 
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const = 0;
 
@@ -70,7 +70,7 @@ public:
     };
     virtual uint fileFlags(uint type=FileInfoAll) const = 0;
 
-    enum FileName { DefaultName, BaseName, DirPathName, AbsoluteName, AbsoluteDirPathName, LinkName, CanonicalName };
+    enum FileName { DefaultName, BaseName, PathName, AbsoluteName, AbsolutePathName, LinkName, CanonicalName };
     virtual QString fileName(FileName file=DefaultName) const = 0;
 
     enum FileOwner { User, Group };
@@ -126,8 +126,8 @@ public:
 
     virtual uchar *map(Q_LONG len);
 
-    virtual bool mkdir(const QString &dirName, QDir::Recursivity recurse) const;
-    virtual bool rmdir(const QString &dirName, QDir::Recursivity recurse) const;
+    virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
+    virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
 
@@ -148,10 +148,11 @@ public:
 
     //FS only!!
     bool open(int flags, int fd); 
-    static bool setCurrentDirPath(const QString &path);
-    static QString currentDirPath(const QString &path=QString::null);
-    static QString homeDirPath();
-    static QString rootDirPath();
+    static bool setCurrentPath(const QString &path);
+    static QString currentPath(const QString &path=QString::null);
+    static QString homePath();
+    static QString rootPath();
+    static QString tempPath();
     static QFileInfoList drives();
 };
 #endif /* __QFILEENGINE_H__ */

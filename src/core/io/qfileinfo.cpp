@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qfileinfo.h"
+#include <qdatetime.h>
 #include <qplatformdefs.h>
 #include <qglobal.h>
 #include <qatomic.h>
@@ -41,7 +42,7 @@ private:
            CachedMTime=0x10, CachedCTime=0x20, CachedATime=0x40,
            CachedSize =0x08 };
     struct Data {
-        inline Data() : fileEngine(0) { ref = 1; clear(); }
+        inline Data() : fileEngine(0), cache_enabled(1) { ref = 1; clear(); }
         inline ~Data() { delete fileEngine; }
         inline void clear() {
             fileInfo = 0;
@@ -52,10 +53,13 @@ private:
         QFileEngine *fileEngine;
         mutable QString fileName;
 
+        mutable uint cache_enabled : 1;
         mutable uint fileSize;
         mutable QDateTime fileTimes[3];
         mutable uint fileInfo;
         mutable uchar cached;
+        inline bool getCached(uchar c) const { return cache_enabled ? (cached&c) : 0; }
+        inline void setCached(uchar c) { if(cache_enabled) cached |= c; }
     } *data;
     inline void reset() {
         detach();
@@ -106,16 +110,16 @@ void QFileInfoPrivate::detach()
 uint QFileInfoPrivate::getFileInfo(QFileEngine::FileInfo request) const
 {
     uint masks = 0;
-    if((request & QFileEngine::TypeMask) && !(data->cached & CachedTypes)) {
-        data->cached |= CachedTypes;
+    if((request & QFileEngine::TypeMask) && !data->getCached(CachedTypes)) {
+        data->setCached(CachedTypes);
         masks |= QFileEngine::TypeMask;
     }
-    if((request & QFileEngine::PermsMask) && !(data->cached & CachedPerms)) {
-        data->cached |= CachedPerms;
+    if((request & QFileEngine::PermsMask) && !data->getCached(CachedPerms)) {
+        data->setCached(CachedPerms);
         masks |= QFileEngine::PermsMask;
     }
-    if((request & QFileEngine::FlagsMask) && !(data->cached & CachedFlags)) {
-        data->cached |= CachedFlags;
+    if((request & QFileEngine::FlagsMask) && !data->getCached(CachedFlags)) {
+        data->setCached(CachedFlags);
         masks |= QFileEngine::FlagsMask;
     }
     if(masks) 
@@ -126,17 +130,17 @@ uint QFileInfoPrivate::getFileInfo(QFileEngine::FileInfo request) const
 QDateTime &QFileInfoPrivate::getFileTime(QFileEngine::FileTime request) const
 {
     if(request == QFileEngine::CreationTime) {
-        if(data->cached & CachedCTime)
+        if(data->getCached(CachedCTime))
             return data->fileTimes[request];
         return (data->fileTimes[request] = data->fileEngine->fileTime(request));
     }
     if(request == QFileEngine::ModificationTime) {
-        if(data->cached & CachedMTime)
+        if(data->getCached(CachedMTime))
             return data->fileTimes[request];
         return (data->fileTimes[request] = data->fileEngine->fileTime(request));
     }
     if(request == QFileEngine::AccessTime) {
-        if(data->cached & CachedATime)
+        if(data->getCached(CachedATime))
             return data->fileTimes[request];
         return (data->fileTimes[request] = data->fileEngine->fileTime(request));
     }
@@ -165,7 +169,7 @@ QDateTime &QFileInfoPrivate::getFileTime(QFileEngine::FileTime request) const
     absolute path is the string "/tmp/quartz". A relative path might
     look like "src/fatlib". You can use the function isRelative() to
     check whether a QFileInfo is using a relative or an absolute file
-    path. You can call the function convertToAbs() to convert a
+    path. You can call the function makeAbsolute() to convert a
     relative QFileInfo's path to an absolute path.
 
     The file that the QFileInfo works on is set in the constructor or
@@ -327,7 +331,7 @@ QFileInfo &QFileInfo::operator=(const QFileInfo &fileinfo)
     QFileInfo absFile(absolute);
     QFileInfo relFile(relative);
 
-    QDir::setCurrent(QDir::rootDirPath());
+    QDir::setCurrent(QDir::rootPath());
     // absFile and relFile now point to the same file
 
     QDir::setCurrent("/tmp");
@@ -380,6 +384,7 @@ QFileInfo::setFile(const QDir &dir, const QString &file)
 {
     d->initFileEngine(dir.filePath(file));
 }
+#endif
 
 /*!
     Returns the absolute path including the file name.
@@ -393,7 +398,7 @@ QFileInfo::setFile(const QDir &dir, const QString &file)
     This function returns the same as filePath(), unless isRelative()
     is true.
 
-    If the QFileInfo is empty it returns QDir::currentDirPath().
+    If the QFileInfo is empty it returns QDir::currentPath().
 
     This function can be time consuming under Unix (in the order of
     milliseconds).
@@ -402,11 +407,26 @@ QFileInfo::setFile(const QDir &dir, const QString &file)
 */
 
 QString
-QFileInfo::absFilePath() const
+QFileInfo::absoluteFilePath() const
 {
     if(!d->data->fileEngine)
         return QString("");
     return d->data->fileEngine->fileName(QFileEngine::AbsoluteName);
+}
+
+
+/*!
+    Returns the file's path absolute path.
+
+    \sa dir(), filePath(), fileName(), isRelative(), path()
+*/
+
+QString
+QFileInfo::absolutePath() const
+{
+    if(!d->data->fileEngine)
+        return QString("");
+    return d->data->fileEngine->fileName(QFileEngine::AbsolutePathName);
 }
 
 /*!
@@ -414,15 +434,15 @@ QFileInfo::absFilePath() const
 
     If \a absPath is true an absolute path is returned.
 
-    \sa dir(), filePath(), fileName(), isRelative()
+    \sa dir(), filePath(), fileName(), isRelative(), absolutePath()
 */
 
 QString
-QFileInfo::dirPath(bool absPath) const
+QFileInfo::path() const
 {
     if(!d->data->fileEngine)
         return QString("");
-    return d->data->fileEngine->fileName(absPath ? QFileEngine::AbsoluteDirPathName : QFileEngine::DirPathName);
+    return d->data->fileEngine->fileName(QFileEngine::PathName);
 }
 
 /*!
@@ -430,11 +450,11 @@ QFileInfo::dirPath(bool absPath) const
     redundant "." or ".." elements.
 
     On systems that do not have symbolic links this function will
-    always return the same string that absFilePath() returns. If the
+    always return the same string that absoluteFilePath() returns. If the
     canonical path does not exist (normally due to dangling symbolic
     links) canonicalPath() returns QString::null.
 
-    \sa absFilePath(), QString::isNull()
+    \sa absoluteFilePath(), QString::isNull()
 */
 
 QString
@@ -446,9 +466,20 @@ QFileInfo::canonicalPath() const
 }
 
 /*!
-    Returns true if the file path name is relative. Returns false if
-    the path is absolute (e.g. under Unix a path is absolute if it
-    begins with a "/").
+    \fn bool QFileInfo::isAbsolute() const
+
+    Returns true if the file path name is absolute, otherwise returns
+    false if the path is relative.
+
+    \sa isRelative()
+*/
+
+/*!
+    Returns true if the file path name is relative, otherwise returns
+    false if the path is absolute (e.g. under Unix a path is absolute
+    if it begins with a "/").
+
+    \sa isAbsolute()
 */
 
 bool
@@ -469,19 +500,16 @@ QFileInfo::isRelative() const
 */
 
 bool
-QFileInfo::convertToAbs()
+QFileInfo::makeAbsolute()
 {
-    if(!d->data->fileEngine)
+    if(!d->data->fileEngine || !d->data->fileEngine->isRelativePath())
         return false;
     QString absFileName = d->data->fileEngine->fileName(QFileEngine::AbsoluteName);
-    if(QDir::isRelativePath(absFileName))
-        return false;
     d->detach();
     d->data->fileName = absFileName;
     d->data->fileEngine->setFileName(absFileName);
     return true;
 }
-#endif
 
 /*!
     Returns true if the file exists; otherwise returns false.
@@ -510,7 +538,7 @@ QFileInfo::refresh()
     Returns the file name, including the path (which may be absolute
     or relative).
 
-    \sa isRelative(), absFilePath()
+    \sa isRelative(), absoluteFilePath()
 */
 
 QString
@@ -542,87 +570,132 @@ QFileInfo::fileName() const
 }
 
 /*!
-    Returns the base name of the file.
+    Returns the base name of the file without the path.
 
-    If \a complete is false (the default) the base name consists of
-    all characters in the file name up to (but not including) the \e
-    first '.' character.
-
-    If \a complete is true the base name consists of all characters in
-    the file up to (but not including) the \e last '.' character.
-
-    The path is not included in either case.
+    The base name consists of all characters in the file up to (but
+    not including) the \e first '.' character.
 
     Example:
     \code
         QFileInfo fi("/tmp/archive.tar.gz");
         QString base = fi.baseName();  // base = "archive"
-        base = fi.baseName(true);    // base = "archive.tar"
     \endcode
 
-    \sa fileName(), extension()
+    \sa fileName(), suffix(), completeSuffix(), completeBaseName()
 */
 
 QString
-QFileInfo::baseName(bool complete) const
+QFileInfo::baseName() const
 {
     if(!d->data->fileEngine)
         return QString("");
-    QString ret = d->data->fileEngine->fileName(QFileEngine::BaseName);
-    int pos = complete ? ret.lastIndexOf('.') : ret.indexOf('.');
-    if(pos == -1)
-        return ret;
-    return ret.left(pos);
+    return d->data->fileEngine->fileName(QFileEngine::BaseName).section('.', 0, 0);
 }
 
 /*!
-    Returns the file's extension name.
+    Returns the complete base name of the file without the path.
 
-    If \a complete is true (the default), extension() returns the
-    string of all characters in the file name after (but not
-    including) the first '.'  character.
-
-    If \a complete is false, extension() returns the string of all
-    characters in the file name after (but not including) the last '.'
-    character.
+    The complete base name consists of all characters in the file up
+    to (but not including) the \e last '.' character.
 
     Example:
     \code
         QFileInfo fi("/tmp/archive.tar.gz");
-        QString ext = fi.extension();  // ext = "tar.gz"
-        ext = fi.extension(false);   // ext = "gz"
+        QString base = fi.completeBaseName();  // base = "archive.tar"
     \endcode
 
-    \sa fileName(), baseName()
+    \sa fileName(), suffix(), completeSuffix(), baseName()
 */
 
 QString
-QFileInfo::extension(bool complete) const
+QFileInfo::completeBaseName() const
 {
     if(!d->data->fileEngine)
         return QString("");
-    QString ret = d->data->fileEngine->fileName(QFileEngine::BaseName);
-    int pos = complete ? ret.indexOf('.') : ret.lastIndexOf('.');
-    if(pos == -1)
+    return d->data->fileEngine->fileName(QFileEngine::BaseName).section('.', 0, -2);
+}
+
+/*!
+    Returns the complete suffix of the file.
+
+    The complete suffix consists of all characters in the file after
+    (but not including) the first '.'.
+
+    Example:
+    \code
+        QFileInfo fi("/tmp/archive.tar.gz");
+        QString ext = fi.completeSuffix();  // ext = "tar.gz"
+    \endcode
+
+    \sa fileName(), suffix(), baseName(), completeBaseName()
+*/
+
+QString
+QFileInfo::completeSuffix() const
+{
+    if(!d->data->fileEngine)
         return QString("");
-    return ret.mid(pos + 1);
+    return d->data->fileEngine->fileName(QFileEngine::BaseName).section('.', 1, -1);
+}
+
+/*!
+    Returns the suffix of the file.
+
+    The suffix consists of all characters in the file after (but not
+    including) the last '.'.
+
+    Example:
+    \code
+        QFileInfo fi("/tmp/archive.tar.gz");
+        QString ext = fi.suffix();  // ext = "gz"
+    \endcode
+
+    \sa fileName(), completeSuffix(), baseName(), completeBaseName()
+*/
+
+QString
+QFileInfo::suffix() const
+{
+    if(!d->data->fileEngine)
+        return QString("");
+    return d->data->fileEngine->fileName(QFileEngine::BaseName).section('.', -1);
 }
 
 #ifndef QT_NO_DIR
+
 /*!
     Returns the file's path as a QDir object.
 
-    If the QFileInfo is relative and \a absPath is false, the QDir
-    will be relative; otherwise it will be absolute.
-
-    \sa dirPath(), filePath(), fileName(), isRelative()
+    \sa dirPath(), filePath(), fileName(), isRelative(), absoluteDir()
 */
 
+QDir 
+QFileInfo::dir() const 
+{ 
+    return QDir(path()); 
+}
+
+/*!
+    Returns the file's absolute path as a QDir object.
+
+    \sa dirPath(), filePath(), fileName(), isRelative(), dir()
+*/
+
+QDir 
+QFileInfo::absoluteDir() const 
+{ 
+    return QDir(absolutePath()); 
+}
+
+#ifdef QT_COMPAT
 QDir QFileInfo::dir(bool absPath) const
 {
-    return QDir(dirPath(absPath));
+    if(absPath)
+        return absoluteDir();
+    return dir();
 }
-#endif
+#endif //QT_COMPAT
+#endif //QT_NO_DIR
 
 /*!
     Returns true if the user can write to the file; otherwise returns false.
@@ -850,7 +923,7 @@ QFileInfo::size() const
 {
     if(!d->data->fileEngine)
         return 0;
-    if(!(d->data->cached & QFileInfoPrivate::CachedSize))
+    if(!d->data->getCached(QFileInfoPrivate::CachedSize))
         d->data->fileSize = d->data->fileEngine->size();
     return d->data->fileSize;
 }
@@ -911,4 +984,35 @@ void
 QFileInfo::detach()
 {
     d->detach();
+}
+
+/*!
+    Returns TRUE if caching is enabled; otherwise returns FALSE.
+
+    \sa setCaching(), refresh()
+*/
+
+bool QFileInfo::caching() const
+{
+    return d->data->cache_enabled;
+}
+
+/*!
+    If \a enable is TRUE, enables caching of file information. If \a
+    enable is FALSE caching is disabled.
+
+    When caching is enabled, QFileInfo reads the file information from
+    the file system the first time it's needed, but generally not
+    later.
+
+    Caching is enabled by default.
+
+    \sa refresh(), caching()
+*/
+
+void 
+QFileInfo::setCaching(bool enable)
+{
+    detach();
+    d->data->cache_enabled = enable;
 }
