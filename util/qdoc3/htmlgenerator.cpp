@@ -1148,17 +1148,23 @@ void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *mark
     out() << "<p><center><font size=+1><b>";
     for ( int i = 0; i < 26; i++ ) {
 	QChar ch( 'a' + i );
-	out() << QString("<a href=\"#%1\">%2</a> ").arg(ch).arg(ch.toUpper());
+	out() << QString("<a href=\"#%1\">%2</a>&nbsp;").arg(ch).arg(ch.toUpper());
     }
     out() << "</b></font></center>\n";
 
     char nextLetter = 'a';
     char currentLetter;
 
+#if 0
     out() << "<ul>\n";
+#endif
     QMap<QString, QMap<QString, const Node *> >::ConstIterator f = funcIndex.begin();
     while (f != funcIndex.end()) {
+#if 0
 	out() << "<li>";
+#else
+        out() << "<p>";
+#endif
 	out() << protect(f.key()) << ":";
 
 	currentLetter = f.key()[0].unicode();
@@ -1176,7 +1182,9 @@ void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *mark
         out() << "\n";
 	++f;
     }
+#if 0
     out() << "</ul>\n";
+#endif
 }
 
 void HtmlGenerator::generateLegaleseList(const Node *relative, CodeMarker *marker)
