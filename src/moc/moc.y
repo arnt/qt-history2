@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#55 $
+** $Id: //depot/qt/main/src/moc/moc.y#56 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -36,10 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#55 $";
-#endif
-
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#56 $")
 
 QString rmWS( const char * );
 
