@@ -1001,14 +1001,14 @@ MakefileGenerator::fileFixify(QString &file) const
 	if(file.left(match_dir.length()) == match_dir) {
 	    file = file.right(file.length() - match_dir.length());
 	} else {
-	    //try to make no more than two ..'s
-	    for(int i = 1; i <= 2; i++) {
+	    //try to make no more than five ..'s
+	    for(int i = 1; i <= 5; i++) {
 		int sl = match_dir.findRev(Option::dir_sep);
 		if(sl == -1)
 		    break;
-		match_dir = match_dir.left(sl + 1);
+		match_dir = match_dir.left(sl);
 		if(file.left(match_dir.length()) == match_dir) {
-		    file = file.right(file.length() - match_dir.length());
+		    file = file.right(file.length() - (match_dir.length() + 1));
 		    for(int o = 0; o < i; o++)
 			file.prepend(".." + Option::dir_sep);
 		}
