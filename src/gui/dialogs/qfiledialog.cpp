@@ -1468,9 +1468,9 @@ void QFileDialogPrivate::setup(const QString &directory,
     QObject::connect(unsortedAction, SIGNAL(triggered()), q, SLOT(setUnsorted()));
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(showHidden()));
 
-    QObject::connect(lview, SIGNAL(doubleClicked(const QModelIndex&, int)),
+    QObject::connect(lview, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
                      q, SLOT(doubleClicked(const QModelIndex&)));
-    QObject::connect(tview, SIGNAL(doubleClicked(const QModelIndex&, int)),
+    QObject::connect(tview, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
                      q, SLOT(doubleClicked(const QModelIndex&)));
     QObject::connect(selections, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
                      q, SLOT(currentChanged(const QModelIndex &, const QModelIndex &)));
