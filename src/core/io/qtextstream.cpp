@@ -168,9 +168,9 @@
 
 #ifndef QT_NO_DEBUG
 #undef  CHECK_STREAM_PRECOND
-#define CHECK_STREAM_PRECOND(x)  if (!x->d->dev) {                                \
-                                qWarning("QTextStream: No device");        \
-                                return *x; }
+#define CHECK_STREAM_PRECOND(x)  if (x->d->sourceType != QTextStreamPrivate::String && !x->d->dev) { \
+                                          qWarning("QTextStream: No device");                        \
+                                          return *x; }
 #else
 #define CHECK_STREAM_PRECOND(x)
 #endif
@@ -302,6 +302,7 @@ protected:
 
     inline void init() {
         dev = 0;
+        str = 0;
         owndev = false;
         doUnicodeHeader = true; // autodetect
         mapper = 0;
@@ -340,6 +341,9 @@ protected:
     SourceType sourceType;
 
     QIODevice *dev;
+
+    QString *str;
+    uint strOff;
 
     int fflags;
     int fwidth;
@@ -381,163 +385,6 @@ QTextStream::QTextStream(QIODevice *iod)
     d->sourceType = QTextStreamPrivate::IODevice;
 }
 
-class QStringBufferEngine : public QIOEngine
-{
-public:
-    QStringBufferEngine(QString *str) : s(str), ioIndex(0) { }
-
-    virtual bool open(int m);
-    virtual bool close();
-    virtual void flush();
-    virtual QIODevice::Offset  size() const;
-    virtual QIODevice::Offset  at()   const;
-    virtual bool seek(QIODevice::Offset pos);
-    virtual Q_LONG readBlock(char *p, Q_LONG len);
-    virtual bool isSequential() const;
-    virtual Q_LONG writeBlock(const char *p, Q_LONG len);
-    virtual int getch();
-    virtual int putch(int);
-    virtual int ungetch(int ch);
-    virtual Type type() const;
-
-    QString *s;
-    int ioIndex;
-};
-// TODO: use special-case handling of this case in QTextStream, and
-//         simplify this class to only deal with QChar or QString data.
-class QStringBuffer : public QIODevice {
-public:
-    QStringBuffer(QString* str) : bufferEngine(0), s(str) { }
-    ~QStringBuffer() { delete bufferEngine; }
-
-    QIOEngine *ioEngine() const { 
-        if(!bufferEngine)
-            bufferEngine = new QStringBufferEngine(s);
-        return bufferEngine; 
-    }
-
-protected:
-    mutable QStringBufferEngine *bufferEngine;
-    QString* s;
-
-private:
-    QStringBuffer(const QStringBuffer &);
-    QStringBuffer &operator=(const QStringBuffer &);
-};
-
-bool QStringBufferEngine::open(int flags)
-{
-    if (!s) {
-        qWarning("QStringBuffer::open: No string");
-        return false;
-    }
-    if (flags & QIODevice::Truncate)
-        s->truncate(0);
-
-    if (flags & QIODevice::Append)
-        ioIndex = s->length()*sizeof(QChar);
-    else 
-        ioIndex = 0;
-    return true;
-}
-
-bool QStringBufferEngine::isSequential() const
-{
-    return true;
-}
-
-bool QStringBufferEngine::close()
-{
-    ioIndex = -1;
-    return true;
-}
-
-void QStringBufferEngine::flush()
-{
-}
-
-QIODevice::Offset QStringBufferEngine::size() const
-{
-    return s ? s->length()*sizeof(QChar) : 0;
-}
-
-QIODevice::Offset  QStringBufferEngine::at()   const
-{
-    return ioIndex;
-}
-
-QIOEngine::Type QStringBufferEngine::type() const
-{
-    return QIOEngine::String;
-}
-
-
-bool QStringBufferEngine::seek(QIODevice::Offset pos)
-{
-    if (pos >= s->length()*2) {
-        qWarning("QStringBuffer::seek: Index %lld out of range", pos);
-        return false;
-    }
-    ioIndex = pos;
-    return true;
-}
-
-
-Q_LONG QStringBufferEngine::readBlock(char *p, Q_LONG len)
-{
-    if (ioIndex + len > (Q_LONG)(s->length()*sizeof(QChar))) {
-        // overflow
-        if (ioIndex >= (Q_LONG)(s->length()*sizeof(QChar))) 
-            return -1;
-        len = s->length()*2 - ioIndex;
-    }
-    memcpy(p, ((const char*)(s->unicode()))+ioIndex, len);
-    ioIndex += len;
-    return len;
-}
-
-Q_LONG QStringBufferEngine::writeBlock(const char *p, Q_LONG len)
-{
-    if (ioIndex&1) {
-        qWarning("QStringBuffer::writeBlock: non-even index - non Unicode");
-        return -1;
-    }
-    if (len&1) {
-        qWarning("QStringBuffer::writeBlock: non-even length - non Unicode");
-        return -1;
-    }
-    s->replace(ioIndex/2, len/2, (QChar*)p, len/2);
-    ioIndex += len;
-    return len;
-}
-
-int QStringBufferEngine::getch()
-{
-    if (ioIndex >= s->length()*2) // overflow
-        return -1;
-    return (int)((const uchar *)s->unicode())[ioIndex++];
-}
-
-int QStringBufferEngine::putch(int ch)
-{
-    char c = ch;
-    if (writeBlock(&c,1) < 0)
-        return -1;
-    else
-        return ch;
-}
-
-int QStringBufferEngine::ungetch(int ch)
-{
-    if (ch != -1) { // something to do with eof
-        if (ioIndex)
-            ioIndex--;
-        else
-            ch = -1;
-    }
-    return ch;
-}
-
 /*!
     Constructs a text stream that operates on the Unicode QString, \a
     str, through an internal device. The \a mode argument is passed
@@ -566,14 +413,11 @@ int QStringBufferEngine::ungetch(int ch)
     readRawBytes() or writeRawBytes() on such a stream.
 */
 
-QTextStream::QTextStream(QString *str, int mode)
+QTextStream::QTextStream(QString *str, int)
 {
-    // TODO: optimize for this case as it becomes more common
-    //        (see QStringBuffer above)
     init();
-    d->dev = new QStringBuffer(str);
-    ((QStringBuffer *)d->dev)->open(mode);
-    d->owndev = true;
+    d->str = str;
+    d->strOff = 0;
     setEncoding(RawUnicode);
     reset();
     d->sourceType = QTextStreamPrivate::String;
@@ -753,6 +597,33 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
         return false;
     }
 
+    //just read directly from the string (optimization)
+    if (d->sourceType == QTextStreamPrivate::String) {
+        const uint remaining = d->str->length()-(d->strOff/sizeof(QChar)); 
+        const QChar *data = (QChar*)((char*)d->str->unicode()+d->strOff);
+        for(uint i = 0; i < len; i++) {
+            if(i == remaining) {
+                if(l)
+                    *l = i;
+                d->strOff += i * sizeof(QChar);
+                return true;
+            } else if(int end = ts_end(data+i, remaining - i, end_flags)) {
+                i += end - 1;
+                if(l)
+                    *l = i;
+                d->strOff += i * sizeof(QChar);
+                return true;
+            }
+            if(buf)
+                buf[i] = data[i];
+        }
+        if(l)
+            *l = len;
+        d->strOff += len * sizeof(QChar);
+        return false;
+    }
+    
+    //read from the device
     enum { NO_FINISH, END_FOUND, END_BUFFER } ret = NO_FINISH;
     uint rnum = 0;   // the number of QChars really read
 
@@ -971,6 +842,13 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
 */
 void QTextStreamPrivate::ts_putc(QChar c)
 {
+    //just append directly onto the string (optimization)
+    if (d->sourceType == QTextStreamPrivate::String) {
+        d->str->append(c);
+        return;
+    }
+
+    //put it into the device
 #ifndef QT_NO_TEXTCODEC
     if (d->mapper) {
         if (!d->encoder)
@@ -1017,6 +895,13 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
 {
     if (c.unicode() == 0xffff)
         return;
+    //just append directly onto the string (optimization)
+    if (d->sourceType == QTextStreamPrivate::String) {
+        if(d->strOff > 0) 
+            *((QChar*)((char*)d->str->data()+(d->strOff-=2))) = c;
+        return;
+    }
+    //stick it into the buffer
     d->ungetcBuf.prepend(c);
 }
 
@@ -1038,6 +923,14 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
 
 QTextStream &QTextStream::readRawBytes(char *s, uint len)
 {
+    //just append directly onto the string (optimization)
+    if (d->sourceType == QTextStreamPrivate::String) {
+        len = qMin((d->str->length()*sizeof(QChar))-d->strOff, len);
+        memcpy(s, ((char *)d->str->unicode())+d->strOff, len);
+        d->strOff += len;
+        return *this;
+    }
+    //from device
     d->dev->readBlock(s, len);
     return *this;
 }
@@ -1053,6 +946,12 @@ QTextStream &QTextStream::readRawBytes(char *s, uint len)
 
 QTextStream &QTextStream::writeRawBytes(const char* s, uint len)
 {
+    //just append directly onto the string (optimization)
+    if (d->sourceType == QTextStreamPrivate::String) {
+        d->str->append(QString(QByteArray((const char*)s, len)));
+        return *this;
+    }
+    //from device
     d->dev->writeBlock(s, len);
     return *this;
 }
@@ -1060,6 +959,13 @@ QTextStream &QTextStream::writeRawBytes(const char* s, uint len)
 
 QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
 {
+    //just append directly onto the string (optimization)
+    if (d->sourceType == QTextStreamPrivate::String) {
+        d->str->append(QString(QByteArray(p, len)));
+        return *q;
+    }
+
+    //from device
     if (d->doUnicodeHeader) {
         d->doUnicodeHeader = false;
         if (!d->mapper && !d->latin1 && !d->dev->isSequentialAccess() && d->dev->at() == 0)
@@ -1094,6 +1000,13 @@ QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
 
 QTextStream &QTextStreamPrivate::writeBlock(const QChar* p, uint len)
 {
+    //just append directly onto the string (optimization)
+    if (d->sourceType == QTextStreamPrivate::String) {
+        d->str->append(QString(p, len));
+        return *q;
+    }
+
+    //from device
 #ifndef QT_NO_TEXTCODEC
     if (d->mapper) {
         if (!d->encoder)
@@ -1682,7 +1595,7 @@ QTextStream &QTextStream::operator>>(QByteArray &str)
 
 QString QTextStream::readLine()
 {
-    if (!d->dev) {
+    if (d->sourceType != QTextStreamPrivate::String && !d->dev) {
         qWarning("QTextStream::readLine: No device");
         return QString::null;
     }
@@ -1711,7 +1624,7 @@ QString QTextStream::readLine()
 
 QString QTextStream::read()
 {
-    if (!d->dev) {
+    if (d->sourceType != QTextStreamPrivate::String && !d->dev) {
         qWarning("QTextStream::read: No device");
         return QString::null;
     }
@@ -2587,6 +2500,10 @@ QTextCodec *QTextStream::codec()
 
 bool QTextStream::atEnd() const
 {
+    //just append directly onto the string (optimization)
+    if (d->sourceType == QTextStreamPrivate::String) 
+        return d->strOff == (d->str->length()*sizeof(QChar));
+    //device
     return ((!d->dev || d->dev->atEnd()) &&
             d->cacheReadBuf.isEmpty() && d->ungetcBuf.isEmpty());
 }

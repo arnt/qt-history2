@@ -39,7 +39,7 @@ public:
     virtual QIODevice::Offset at() const;
     virtual bool seek(QIODevice::Offset);
 
-    virtual bool isSequential() const { return false; }
+    virtual bool isSequential() const { return true; }
 
     virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
     virtual Q_LONG writeBlock(const char *data, Q_LONG len);
