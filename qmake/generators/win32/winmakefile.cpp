@@ -224,16 +224,17 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     QDir dir(bd);
     int biggest=-1;
     QStringList entries = dir.entryList();
-    QRegExp regx( "(" + stem + "([0-9]*)).lib", FALSE );
+    QString dllStem = stem + QTDLL_POSTFIX;
+    QRegExp regx( "(" + dllStem + "([0-9]*)).lib", FALSE );
     for(QStringList::Iterator it = entries.begin(); it != entries.end();
 	++it) {
 	if(regx.exactMatch((*it)))
-	    biggest = QMAX(biggest, (regx.cap(1) == stem ||
+	    biggest = QMAX(biggest, (regx.cap(1) == dllStem ||
 				     regx.cap(2).isEmpty()) ? 0 : regx.cap(2).toInt());
     }
-    if(dir.exists(stem + Option::prl_ext)) {
+    if(dir.exists(dllStem + Option::prl_ext)) {
 	QMakeProject proj;
-	if(proj.read(bd + stem + Option::prl_ext, QDir::currentDirPath(), TRUE)) {
+	if(proj.read(bd + dllStem + Option::prl_ext, QDir::currentDirPath(), TRUE)) {
 	    if(!proj.isEmpty("QMAKE_PRL_VERSION")) 
 		biggest = QMAX(biggest, proj.first("QMAKE_PRL_VERSION").replace(".", "").toInt());
 	}
