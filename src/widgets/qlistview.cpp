@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#53 $
 **
 ** Implementation of QListView widget class
 **
@@ -20,12 +20,13 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 #include "qdatetm.h"
+#include "qptrdict.h"
 
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#53 $");
 
 
 const int Unsorted = 32767;
@@ -74,11 +75,13 @@ struct QListViewPrivate
     // private variables used in QListView
     QHeader * h;
     Root * r;
+    uint rootIsExpandable : 1;
 
     QListViewItem * currentSelected;
     QListViewItem * focusItem;
 
     QTimer * timer;
+    QTimer * dirtyItemTimer;
     int levelWidth;
 
     // the list of drawables, and the range drawables covers entirely
@@ -86,6 +89,8 @@ struct QListViewPrivate
     QList<DrawableItem> * drawables;
     int topPixel;
     int bottomPixel;
+
+    QPtrDict<void> * dirtyItems;
 
     bool multi;
 
@@ -104,6 +109,7 @@ struct QListViewPrivate
     // of the last key-press
     QString currentPrefix;
     QTime currentPrefixTime;
+
 };
 
 
@@ -890,6 +896,10 @@ void QListViewPrivate::Root::setup()
   keyboard focus using all columns, or just column 0.  The default is
   to show focus using just column 0.
 
+  <li>setRootIsDecorated() - decides whether root items can be opened
+  and closed by the user, and have open/close decoration to their left.
+  The default is FALSE.
+
   <li>setTreeStepSize() - decides the how many pixels an item's
   children are indented relative to their parent.  The default is 20.
   This is mostly a matter of taste.
@@ -944,11 +954,14 @@ QListView::QListView( QWidget * parent, const char * name )
     d->timer = new QTimer( this );
     d->levelWidth = 20;
     d->r = 0;
+    d->rootIsExpandable = 0;
     d->h = new QHeader( this, "list view header" );
     d->h->installEventFilter( this );
     d->currentSelected = 0;
     d->focusItem = 0;
     d->drawables = 0;
+    d->dirtyItems = 0;
+    d->dirtyItemTimer = new QTimer( this );
     d->multi = 0;
     d->column = 0;
     d->ascending = TRUE;
@@ -957,6 +970,8 @@ QListView::QListView( QWidget * parent, const char * name )
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
+    connect( d->dirtyItemTimer, SIGNAL(timeout()),
+	     this, SLOT(updateDirtyItems()) );
     connect( d->h, SIGNAL(sizeChange( int, int )),
 	     this, SLOT(triggerUpdate()) );
     connect( d->h, SIGNAL(moved( int, int )),
@@ -1004,6 +1019,32 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	 d->bottomPixel < cy + ch - 1 ||
 	 d->r->maybeTotalHeight < 0 )
 	buildDrawableList();
+
+    if ( d->dirtyItems ) {
+	// make a new clip region, including the dirty items
+	QRect br( cx + ox, cy + oy, cw, ch );
+	QRegion r( br );
+	QPtrDictIterator<void> it( *(d->dirtyItems) );
+	QListViewItem * i;
+	while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
+	    ++it;
+	    QRect ir( itemRect( i ) );
+	    if ( !ir.isEmpty() ) {
+		br = br.unite( ir );
+		r = r.unite( QRegion( ir ) );
+	    }
+	}
+	p->setClipRegion( r );
+	// and change the "arguments".  naughty.
+	cx = br.left() - ox;
+	cy = br.top() - oy;
+	cw = br.width();
+	ch = br.height();
+	delete d->dirtyItems;
+	d->dirtyItems = 0;
+	d->dirtyItemTimer->stop();
+    }
+    
 
     QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
@@ -1080,6 +1121,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	// do any children of current need to be painted?
 	if ( current->i->isOpen() &&
+	     (current->i->parentItem != d->r || d->rootIsExpandable) &&
 	     current->y + ith > cy &&
 	     current->y + ih < cy + ch &&
 	     tx < cx + cw &&
@@ -1088,7 +1130,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    int rtop = current->y + ih;
 	    int rbottom = current->y + ith;
-	    int rleft = tx + (current->l-1)*treeStepSize();
+	    int rleft = tx + (current->l-d->rootIsExpandable)*treeStepSize();
 	    int rright = rleft + treeStepSize();
 
 	    int crtop = QMAX( rtop, cy );
@@ -1270,10 +1312,13 @@ void QListView::clear()
 {
     if ( d->drawables )
 	d->drawables->clear();
+    delete d->dirtyItems;
+    d->dirtyItems = 0;
+    d->dirtyItemTimer->stop();
 
     d->currentSelected = 0;
     d->focusItem = 0;
-    contentsResize( d->h->sizeHint().width(), viewport()->height() ); // ### ?
+    contentsResize( d->h->sizeHint().width(), viewport()->height(), FALSE );
 
     // if it's down its downness makes no sense, so undown it
     d->buttonDown = FALSE;
@@ -1307,13 +1352,18 @@ void QListView::setColumn( const char * label, int size, int column )
 
 void QListView::show()
 {
-    QWidget * v = viewport();
-    if ( v )
-	v->setBackgroundMode( NoBackground );
+    if ( !isVisible() ) {
+	QWidget * v = viewport();
+	if ( v )
+	    v->setBackgroundMode( NoBackground );
 
-    reconfigureItems();
+	reconfigureItems();
 
-    contentsResize( QMIN(20,d->h->sizeHint().width()), d->r->totalHeight() );
+	QSize s( d->h->sizeHint() );
+	contentsResize( QMIN(20,s.width()), d->r->totalHeight(), FALSE );
+	d->h->setGeometry( viewport()->x(), viewport()->y()-s.height(),
+			   viewport()->width(), s.height() );
+    }
     QScrollView::show();
 }
 
@@ -1330,9 +1380,35 @@ void QListView::updateContents()
 
     int h = d->h->sizeHint().height(); // ### slightly slow
     setMargins( 0, h, 0, 0 );
-    contentsResize( w, d->r->totalHeight() );  // repaints
+    contentsResize( w, d->r->totalHeight(), FALSE );
     d->h->setGeometry( viewport()->x(), viewport()->y()-h,
 		       viewport()->width(), h );
+    viewport()->repaint( FALSE );
+}
+
+
+/*!  Very smart internal slot that'll repaint JUST the items that need
+  to be repainted.  Don't use this directly; call repaintItem() and
+  this slot gets called by a null timer.
+*/
+
+void QListView::updateDirtyItems()
+{
+    if ( d->timer->isActive() )
+	return;
+    if ( d->dirtyItems ) {
+	QPtrDictIterator<void> it( *(d->dirtyItems) );
+	QListViewItem * i;
+	while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
+	    ++it;
+	    QRect ir( itemRect( i ) );
+	    if ( !ir.isEmpty() ) {
+		// we now have a rectangle to give to repaint() - so do it
+		viewport()->repaint( ir );
+		return;
+	    }
+	}
+    }
 }
 
 
@@ -1356,8 +1432,7 @@ void QListView::triggerUpdate()
 	delete d->drawables;
 	d->drawables = 0;
     }
-    d->timer->start( 0, TRUE );
-    viewport()->update();
+   d->timer->start( 0, TRUE );
 }
 
 
@@ -1412,10 +1487,10 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	    break;
 	case Event_FocusIn:
 	    focusInEvent( fe );
-	    break;
+	    return TRUE;
 	case Event_FocusOut:
 	    focusOutEvent( fe );
-	    break;
+	    return TRUE;
 	default:
 	    // nothing
 	    break;
@@ -1617,7 +1692,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 2);
 	    if ( x1 >= 0 && x1 < treeStepSize() )
-		i->setOpen( !i->isOpen() );
+		setOpen( i, !i->isOpen() );
 	}
     }
 
@@ -1691,15 +1766,12 @@ void QListView::mouseDoubleClickEvent( QMouseEvent * e )
 
     if ( !i ) {
 	// nothing
-    } else if ( i->isSelectable() ) {
+    } else if ( i->isSelectable() )
 	emit doubleClicked( i );
-    } else if ( !i->isOpen() && (i->isExpandable() || i->children()) ) {
-	i->setOpen( TRUE );
-	triggerUpdate(); // ### too slow
-    } else if ( i->isOpen() && i->childItem ) {
-	i->setOpen( FALSE );
-	triggerUpdate(); // ### too slow
-    }
+    else if ( !i->isOpen() && (i->isExpandable() || i->children()) )
+	setOpen( i, TRUE );
+    else if ( i->isOpen() && i->childItem )
+	setOpen( i, FALSE );
 }
 
 
@@ -1735,6 +1807,10 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
 
 void QListView::focusInEvent( QFocusEvent * )
 {
+    if ( d->focusItem )
+	repaintItem( d->focusItem );
+    else if ( !d->timer->isActive() )
+	viewport()->repaint();
     return;
 }
 
@@ -1748,6 +1824,10 @@ void QListView::focusInEvent( QFocusEvent * )
 
 void QListView::focusOutEvent( QFocusEvent * )
 {
+    if ( d->focusItem )
+	repaintItem( d->focusItem );
+    else if ( !d->timer->isActive() )
+	viewport()->repaint();
     return;
 }
 
@@ -1794,7 +1874,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	i2 = itemAt( QPoint( 0, viewport()->height()-1 ) );
 	if ( i2 == i || !r.isValid() ||
 	     viewport()->height() <= itemRect( i ).bottom() ) {
-	    i = i2;
+	    if ( i2 )
+		i = i2;
 	    int left = viewport()->height();
 	    while( (i2 = i->itemBelow()) != 0 && left > i2->height() ) {
 		left -= i2->height();
@@ -1808,7 +1889,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Prior:
 	i2 = itemAt( QPoint( 0, 0 ) );
 	if ( i == i2 || !r.isValid() || r.top() <= 0 ) {
-	    i = i2;
+	    if ( i2 )
+		i = i2;
 	    int left = viewport()->height();
 	    while( (i2 = i->itemAbove()) != 0 && left > i2->height() ) {
 		left -= i2->height();
@@ -1820,21 +1902,17 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Right:
-	if ( i->isOpen() && i->childItem ) {
+	if ( i->isOpen() && i->childItem )
 	    i = i->childItem;
-	} else if (  !i->isOpen() && (i->isExpandable() || i->children()) ) {
-	    i->setOpen( TRUE );
-	    triggerUpdate();
-	}
+	else if (  !i->isOpen() && (i->isExpandable() || i->children()) )
+	    setOpen( i, TRUE );
 	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Left:
-	if ( i->isOpen() && i->childItem ) {
-	    i->setOpen( FALSE );
-	    triggerUpdate();
-	} else if ( i->parentItem && i->parentItem != d->r ) {
+	if ( i->isOpen() && i->childItem )
+	    setOpen( i, FALSE );
+	else if ( i->parentItem && i->parentItem != d->r )
 	    i = i->parentItem;
-	}
 	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Space:
@@ -1997,26 +2075,17 @@ void QListView::setSelected( QListViewItem * item, bool selected )
     if ( !item || item->isSelected() == selected )
 	return;
 
-    QRect r( 0,0, -1,-1 );
-
     if ( selected && !isMultiSelection() && d->currentSelected ) {
 	d->currentSelected->setSelected( FALSE );
-	r = r.unite( itemRect( d->currentSelected ) );
+	repaintItem( d->currentSelected );
     }
 
     if ( item->isSelected() != selected ) {
 	item->setSelected( selected );
 	d->currentSelected = item;
-	viewport()->update( itemRect( item ) );
+	repaintItem( item );
     }
 
-    if ( !d->allColumnsShowFocus ) {
-	QRect col( d->h->cellPos(d->h->mapToActual(0)), r.top(),
-		   d->h->cellSize(d->h->mapToActual(0)), r.height() );
-	r = r.intersect( col );
-    }
-
-    viewport()->update( r );
     if ( !isMultiSelection() )
 	emit selectionChanged( item );
     emit selectionChanged();
@@ -2045,23 +2114,14 @@ bool QListView::isSelected( QListViewItem * i ) const
 void QListView::setCurrentItem( QListViewItem * i )
 {
     QListViewItem * prev = d->focusItem;
-    QRect r( 0, 0, -1, -1 );
     d->focusItem = i;
-    if ( prev && prev != i )
-	r = itemRect( prev );
 
-    if ( i )
-	viewport()->update( itemRect( i ) );
-
-    if ( !d->allColumnsShowFocus ) {
-	QRect col( d->h->cellPos(d->h->mapToActual(0)), r.top(),
-		   d->h->cellSize(d->h->mapToActual(0)), r.height() );
-	r = r.intersect( col );
-    }
-
-    viewport()->update( r );
-    if ( i != prev )
+    if ( i != prev ) {
 	emit currentChanged( i );
+	repaintItem( i );
+	if ( prev )
+	    repaintItem( prev );
+    }
 }
 
 
@@ -2273,13 +2333,15 @@ void QListViewItem::repaint() const
 }
 
 
-/*!  Repaints \a item on the screen, if \a item is currently visible. */
+/*!  Repaints \a item on the screen, if \a item is currently visible.
+  Takes care to avoid multiple repaints. */
 
 void QListView::repaintItem( const QListViewItem * item ) const
 {
-    QRect r( itemRect( item ) );
-    if ( r.isValid() )
-	((QListView *)this)->viewport()->repaint( r );
+    d->dirtyItemTimer->start( 0, TRUE );
+    if ( !d->dirtyItems )
+	d->dirtyItems = new QPtrDict<void>();
+    d->dirtyItems->insert( (void *)item, (void *)item );
 }
 
 
@@ -2693,7 +2755,7 @@ QSize QListView::sizeHint() const
 	s.setHeight( s.height() + 10 * l->height() );
     else
 	s.setHeight( s.height() + 140 );
-    
+
     if ( s.width() > s.height() * 3 )
 	s.setHeight( s.width() / 3 );
     else if ( s.width() > s.height() * 2 )
@@ -2702,4 +2764,78 @@ QSize QListView::sizeHint() const
 	s.setHeight( s.width() * 3 / 2 );
 
     return s;
+}
+
+
+/*!  Sets \a item to be open if \a open is TRUE and \item is
+  expandable, and to be closed if \a open is FALSE.  Repaints
+  accordingly.
+  
+  Does nothing if \a item is not expandable.
+  
+  \sa QListViewItem::setOpen() QListViewItem::setExpandable()
+*/
+
+void QListView::setOpen( QListViewItem * item, bool open )
+{
+    if ( !item || !item->isExpandable() || item->isOpen() == open )
+	return;
+
+    item->setOpen( open );
+    if ( d->drawables )
+	d->drawables->clear();
+    buildDrawableList();
+
+    QListViewPrivate::DrawableItem * c = d->drawables->first();
+
+    while( c && c->i && c->i != item )
+	c = d->drawables->next();
+
+    if ( c && c->i == item ) {
+	d->dirtyItemTimer->start( 0, TRUE );
+	if ( !d->dirtyItems )
+	    d->dirtyItems = new QPtrDict<void>();
+	while( c && c->i ) {
+	    d->dirtyItems->insert( (void *)(c->i), (void *)(c->i) );
+	    c = d->drawables->next();
+	}
+    }
+}
+
+
+/*!  Identical to \a item->isOpen().  Provided for completeness.
+  
+  \sa setOpen()
+*/
+
+bool QListView::isOpen( QListViewItem * item ) const
+{
+    return item->isOpen();
+}
+
+
+/*!  Sets this list view to show open/close signs on root items if \a
+  enable is TRUE, and to not show such signs if \a enable is FALSE.
+  
+  Open/close signs is a little + or - in windows style, an arrow in
+  Motif style.
+*/
+
+void QListView::setRootIsDecorated( bool enable )
+{
+    if ( enable != d->rootIsExpandable ) {
+	d->rootIsExpandable = enable;
+	if ( isVisible() )
+	    triggerUpdate();
+    }
+}
+
+
+/*!  Returns TRUE if root items can be opened and closed by the user,
+  FALSE if not.
+*/
+
+bool QListView::rootIsDecorated() const
+{
+    return d->rootIsExpandable;
 }

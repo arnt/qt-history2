@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#25 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#26 $
 **
 ** Definition of QListView widget class
 **
@@ -130,6 +130,8 @@ public:
     bool isMultiSelection() const;
     virtual void setSelected( QListViewItem *, bool );
     bool isSelected( QListViewItem * ) const;
+    virtual void setOpen( QListViewItem *, bool );
+    bool isOpen( QListViewItem * ) const;
 
     virtual void setCurrentItem( QListViewItem * );
     QListViewItem * currentItem() const;
@@ -138,6 +140,9 @@ public:
 
     virtual void setAllColumnsShowFocus( bool );
     bool allColumnsShowFocus() const;
+
+    virtual void setRootIsDecorated( bool );
+    bool rootIsDecorated() const;
 
     virtual void setSorting( int column, bool increasing = TRUE );
 
@@ -184,6 +189,7 @@ protected slots:
 
 private slots:
     void changeSortColumn( int );
+    void updateDirtyItems();
 
 private:
     void buildDrawableList() const;
