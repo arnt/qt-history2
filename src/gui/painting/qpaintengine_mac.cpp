@@ -947,7 +947,7 @@ static void qt_mac_dispose_pattern(void *info)
 static void qt_mac_color_gradient_function(void *info, const float *in, float *out)
 {
     QBrush *brush = static_cast<QBrush *>(info);
-    QGradientStop stops = brush->gradient()->stops();
+    QGradientStops stops = brush->gradient()->stops();
     QColor c1 = stops.first().second;
     QColor c2 = stops.last().second;
     const float red = qt_mac_convert_color_to_cg(c1.red());
@@ -1242,8 +1242,8 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
         CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)), 1, 0, 4, 0, &callbacks);
         CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
-        const QLinearGradient *linGrad = static_cast<QLinearGradient*>(brush.gradient());
-        const QPointF start = linGrad.start(), stop =  linGrad->finalStop();
+        const QLinearGradient *linGrad = static_cast<const QLinearGradient*>(brush.gradient());
+        const QPointF start = linGrad->start(), stop = linGrad->finalStop();
         d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(start.x(), start.y()),
                                           CGPointMake(stop.x(), stop.y()), fill_func, true, true);
         CGFunctionRelease(fill_func);
