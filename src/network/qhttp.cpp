@@ -1456,6 +1456,9 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port )
     Sends a get request for \a path to the server set by setHost() or as
     specified in the constructor.
 
+    \a path should be an absolute path like \c /index.html or it should be the
+    absolute URI like \c http://www.trolltech.com/index.html.
+
     If the IO device \a to is not 0, the content data of the response is
     written to it. Otherwise the readyRead() signal is emitted every time new
     content data is available to read.
@@ -1478,6 +1481,9 @@ int QHttp::get( const QString& path, QIODevice* to )
 /*!
     Sends a post request for \a path to the server set by setHost() or as
     specified in the constructor.
+
+    \a path should be an absolute path like \c /index.html or it should be the
+    absolute URI like \c http://www.trolltech.com/index.html.
 
     The content data is read from the device \a data. If \a data is 0, no
     content data is used.
@@ -1514,6 +1520,9 @@ int QHttp::post( const QString& path, const QByteArray& data, QIODevice* to )
 /*!
     Sends a head request for \a path to the server set by setHost() or as
     specified in the constructor.
+
+    \a path should be an absolute path like \c /index.html or it should be the
+    absolute URI like \c http://www.trolltech.com/index.html.
 
     This function returns immediately and does not wait for the request to
     finish; it is rather append to the queue of pending requests. It returns a
@@ -1806,11 +1815,11 @@ void QHttp::slotReadyRead()
 		else
 		    emit dataReadProgress( d->bytesDone, 0 );
 	    } else {
-		emit readyRead( d->response );
 		if ( d->response.hasContentLength() )
 		    emit dataReadProgress( d->bytesDone + n, d->response.contentLength() );
 		else
 		    emit dataReadProgress( d->bytesDone + n, 0 );
+		emit readyRead( d->response );
 	    }
 	}
 
