@@ -28,9 +28,6 @@ template <typename T> class QList;
 class Q_CORE_EXPORT QTextCodec
 {
 public:
-    // #### make protected
-    virtual ~QTextCodec();
-
     static QTextCodec* codecForName(const QByteArray &name);
     static QTextCodec* codecForName(const char *name) { return codecForName(QByteArray(name)); }
     static QTextCodec* codecForMib(int mib);
@@ -89,6 +86,7 @@ protected:
     virtual QByteArray convertFromUnicode(const QChar *in, int length, ConverterState *state) const = 0;
 
     QTextCodec();
+    virtual ~QTextCodec();
 
 public:
 #ifdef QT_COMPAT
@@ -101,6 +99,7 @@ public:
 #endif
 
 private:
+    friend class QTextCodecCleanup;
     static QTextCodec *cftr;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextCodec::ConversionFlags)
@@ -114,7 +113,11 @@ class Q_CORE_EXPORT QTextEncoder {
 public:
     QTextEncoder(const QTextCodec *codec) : c(codec) {}
     ~QTextEncoder();
+    QByteArray fromUnicode(const QString& str);
+    QByteArray fromUnicode(const QChar *uc, int len);
+#ifdef QT_COMPAT
     QByteArray fromUnicode(const QString& uc, int& lenInOut);
+#endif
 private:
     const QTextCodec *c;
     QTextCodec::ConverterState state;
@@ -125,6 +128,7 @@ public:
     QTextDecoder(const QTextCodec *codec) : c(codec) {}
     ~QTextDecoder();
     QString toUnicode(const char* chars, int len);
+    QString toUnicode(const QByteArray &ba);
 private:
     const QTextCodec *c;
     QTextCodec::ConverterState state;

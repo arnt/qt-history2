@@ -119,6 +119,7 @@ static bool destroying_is_ok = false;
 static QTextCodec *localeMapper = 0;
 QTextCodec *QTextCodec::cftr = 0;
 
+
 /*!
     Deletes all the created codecs.
 
@@ -129,26 +130,27 @@ QTextCodec *QTextCodec::cftr = 0;
     classes hold pointers to QTextCodec objects, it is not safe to
     call this function earlier.
 */
+class QTextCodecCleanup
+{
+public:
+    ~QTextCodecCleanup();
+};
 
-static void deleteAllCodecs()
+QTextCodecCleanup::~QTextCodecCleanup()
 {
     if (!all)
         return;
 
     destroying_is_ok = true;
 
-    qDeleteAll(*all);
+    for (int i = 0; i < all->size(); ++i)
+        delete all->at(i);
     delete all;
     all = 0;
 
     destroying_is_ok = false;
 }
 
-class QTextCodecCleanup
-{
-public:
-    ~QTextCodecCleanup() { deleteAllCodecs(); }
-};
 static QTextCodecCleanup qtextcodec_cleanup;
 
 
@@ -582,10 +584,6 @@ static void setup()
     Support for new text encodings can be added to Qt by creating
     QTextCodec subclasses.
 
-    Built-in codecs can be overridden by custom codecs since more
-    recently created QTextCodec objects take precedence over earlier
-    ones.
-
     You may find it more convenient to make your codec class available
     as a plugin; see the \link plugins-howto.html plugin
     documentation\endlink for more details.
@@ -595,13 +593,16 @@ static void setup()
     text file formats supported by QTextStream, and under X11, for the
     locale-specific character input and output.
 
-    To add support for another 8-bit encoding to Qt, make a subclass
+    To add support for another encoding to Qt, make a subclass
     of QTextCodec and implement at least the following methods:
 
     \code
-    const char* name() const
+    QByteArray name() const
     \endcode
-    Return the official name for the encoding.
+    Return the official name for the encoding. If the encoding is
+    listed in the \link http://www.iana.org/assignments/character-sets
+    IANA character-sets encoding file\endlink, the name should be the
+    preferred mime name for the encoding.
 
     \code
     int mibEnum() const
@@ -610,59 +611,30 @@ static void setup()
         \link http://www.iana.org/assignments/character-sets
         IANA character-sets encoding file\endlink.
 
-    If the encoding is multi-byte then it will have "state"; that is,
-    the interpretation of some bytes will be dependent on some preceding
-    bytes. For such encodings, you must implement:
+    \code
+    QString convertToUnicode(const char* chars, int len, ConverterState *state) const
+    \endcode
+    Converts \e len characters from \e chars to Unicode. The
+    ConverterState structure contains some conversion flags and is
+    used by the QTextDecoder to keep state. Some methods call the
+    method with a 0 state pointer.
 
     \code
-    QTextDecoder* makeDecoder() const
+    QByteArray convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
     \endcode
-    Return a QTextDecoder that remembers incomplete multi-byte sequence
-    prefixes or other required state.
 
-    If the encoding does \e not require state, you should implement:
+    Converts \e len characters (of type QChar) from the start of the
+    array \e uc, returning a QByteArray result.  ConverterState
+    structure contains some conversion flags and is used by the
+    QTextEncoder to keep state. Some methods call the method with a 0
+    state pointer.
 
     \code
-    QString toUnicode(const char* chars, int len) const
+    QList<QByteArray> aliases() const
     \endcode
-    Converts \e len characters from \e chars to Unicode.
-
-    The base QTextCodec class has default implementations of the above
-    two functions, \e{but they are mutually recursive}, so you must
-    re-implement at least one of them, or both for improved efficiency.
-
-    For conversion from Unicode to 8-bit encodings, it is rarely necessary
-    to maintain state. However, two functions similar to the two above
-    are used for encoding:
-
-    \code
-    QTextEncoder* makeEncoder() const
-    \endcode
-    Return a QTextEncoder.
-
-    \code
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const
-    \endcode
-    Converts \e lenInOut characters (of type QChar) from the start of
-    the string \e uc, returning a QByteArray result, and also returning
-    the \link QByteArray::length() length\endlink of the result in
-    \e lenInOut.
-
-    Again, these are mutually recursive so only one needs to be implemented,
-    or both if greater efficiency is possible.
-
-    A QTextCodec subclass might have improved performance if you also
-    re-implement:
-
-    \code
-    bool canEncode(QChar) const
-    \endcode
-    Test if a Unicode character can be encoded.
-
-    \code
-    bool canEncode(const QString&) const
-    \endcode
-    Test if a string of Unicode characters can be encoded.
+    This method can be reimplemented if your codec is known by several
+    names. The codec for "ISO-8859-1" does for example return (amongst
+    others) "latin1", "US_ASCII" and "iso-ir-100" as aliases.
 
     Codecs can also be created as \link plugins-howto.html plugins\endlink.
 */
@@ -768,7 +740,7 @@ QTextCodec* QTextCodec::codecForLocale()
 
 
 /*!
-    \fn const char* QTextCodec::name() const
+    \fn QByteArray QTextCodec::name() const
 
     QTextCodec subclasses must reimplement this function. It returns
     the name of the encoding supported by the subclass.
@@ -803,11 +775,36 @@ QList<QByteArray> QTextCodec::aliases() const
 }
 
 /*!
+  \fn QTextCodec::convertToUnicode(const char *chars, int len, ConverterState *state)
+
+    QTextCodec subclasses must reimplement this function.
+
+    It converts the first \a len characters of \a chars from the
+    encoding of the subclass to Unicode, producing a QString.
+
+    \a state can be 0 in which case the conversion is stateless and
+    default conversion rules should be used. If state is not 0, the
+    codec should save the state after the conversion in \a state, and
+    adjust the remainingChars and invalidChars members of the struct.
+*/
+
+/*!
+  \fn QTextCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state)
+
+    QTextCodec subclasses must reimplement this function.
+
+    It converts the first \a len characters of \a uc from Unicode to
+    the encoding of the subclass, producing a QByteArray.
+
+    \a state can be 0 in which case the conversion is stateless and
+    default conversion rules should be used. If state is not 0, the
+    codec should save the state after the conversion in \a state, and
+    adjust the remainingChars and invalidChars members of the struct.
+*/
+
+/*!
     Creates a QTextDecoder which stores enough state to decode chunks
-    of char* data to create chunks of Unicode data. The default
-    implementation creates a stateless decoder, which is only
-    sufficient for the simplest encodings where each byte corresponds
-    to exactly one Unicode character.
+    of char* data to create chunks of Unicode data.
 
     The caller is responsible for deleting the returned object.
 */
@@ -819,10 +816,7 @@ QTextDecoder* QTextCodec::makeDecoder() const
 
 /*!
     Creates a QTextEncoder which stores enough state to encode chunks
-    of Unicode data as char* data. The default implementation creates
-    a stateless encoder, which is only sufficient for the simplest
-    encodings where each Unicode character corresponds to exactly one
-    character.
+    of Unicode data as char* data.
 
     The caller is responsible for deleting the returned object.
 */
@@ -832,9 +826,8 @@ QTextEncoder* QTextCodec::makeEncoder() const
 }
 
 /*!
-    \overload
-
-    \a str is the unicode source string.
+    Converts \a str from Unicode to the encoding of this codec,
+    producing a QByteArray.
 */
 QByteArray QTextCodec::fromUnicode(const QString& str) const
 {
@@ -843,9 +836,8 @@ QByteArray QTextCodec::fromUnicode(const QString& str) const
 
 
 /*!
-    \overload
-
-    \a a contains the source characters.
+    Converts \a a from the encoding of this codec t Unicode,
+    producing a QString.
 */
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
@@ -855,10 +847,7 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 
 /*!
     Returns true if the Unicode character \a ch can be fully encoded
-    with this codec; otherwise returns false. The default
-    implementation tests if the result of toUnicode(fromUnicode(ch))
-    is the original \a ch. Subclasses may be able to provide a more
-    efficient algorithm.
+    with this codec; otherwise returns false.
 */
 bool QTextCodec::canEncode(QChar ch) const
 {
@@ -892,20 +881,7 @@ const char* QTextCodec::locale()
 }
 
 /*!
-    QTextCodec subclasses must reimplement either this function or
-    makeEncoder(). It converts the first \a lenInOut characters of \a
-    uc from Unicode to the encoding of the subclass. If \a lenInOut is
-    negative or too large, the length of \a uc is used instead.
-
-    Converts \a lenInOut characters (not bytes) from \a uc, producing
-    a QByteArray. \a lenInOut will be set to the \link
-    QByteArray::length() length\endlink of the result (in bytes).
-
-    The default implementation makes an encoder with makeEncoder() and
-    converts the input with that. Note that the default makeEncoder()
-    implementation makes an encoder that simply calls this function,
-    hence subclasses \e must reimplement one function or the other to
-    avoid infinite recursion.
+  \overload
 */
 
 QByteArray QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
@@ -964,11 +940,25 @@ QTextEncoder::~QTextEncoder()
     Converts \a lenInOut characters (not bytes) from \a uc, producing
     a QByteArray. \a lenInOut will be set to the \link
     QByteArray::length() length\endlink of the result (in bytes).
+*/
+QByteArray QTextEncoder::fromUnicode(const QString& str)
+{
+    QByteArray result = c->fromUnicode(str.constData(), str.length(), &state);
+    return result;
+}
 
-    The encoder is free to record state to use when subsequent calls
-    are made to this function (for example, it might change modes with
-    escape sequences if needed during the encoding of one string, then
-    assume that mode applies when a subsequent call begins).
+/*!
+  \overload
+*/
+QByteArray QTextEncoder::fromUnicode(const QChar *uc, int len)
+{
+    QByteArray result = c->fromUnicode(uc, len, &state);
+    return result;
+}
+
+#ifdef QT_COMPAT
+/*!
+  \overload
 */
 QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
 {
@@ -976,6 +966,7 @@ QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
     lenInOut = result.length();
     return result;
 }
+#endif
 
 /*!
     \class QTextDecoder qtextcodec.h
@@ -1012,6 +1003,13 @@ QString QTextDecoder::toUnicode(const char* chars, int len)
     return c->toUnicode(chars, len, &state);
 }
 
+/*!
+  \overload
+*/
+QString QTextDecoder::toUnicode(const QByteArray &ba)
+{
+    return c->toUnicode(ba.constData(), ba.length(), &state);
+}
 
 
 /*!
