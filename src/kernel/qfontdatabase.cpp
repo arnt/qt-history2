@@ -797,7 +797,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #endif
 			 )
 {
+#ifdef Q_WS_X11
     Q_UNUSED( force_encoding_id );
+#endif
 
     if ( !db )
 	initializeDb();
