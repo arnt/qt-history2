@@ -203,10 +203,17 @@ QMenuBar *QMainWindow::menuBar() const
 /*!
     Sets the menu bar for the main window to \a menubar.
 
+    Note: QMainWindow takes ownership of the \a menubar pointer and
+    deletes it at the appropriate time.
+
     \sa menuBar()
 */
 void QMainWindow::setMenuBar(QMenuBar *menubar)
-{ d->layout->setMenuBar(menubar); }
+{
+    if (d->layout->menuBar())
+        delete d->layout->menuBar();
+    d->layout->setMenuBar(menubar);
+}
 
 /*!
     Returns the status bar for the main window. This function creates
@@ -228,6 +235,9 @@ QStatusBar *QMainWindow::statusBar() const
 /*!
     Sets the status bar for the main window to \a statusbar.
 
+    Note: QMainWindow takes ownership of the \a statusbar pointer and
+    deletes it at the appropriate time.
+
     \sa statusBar()
 */
 void QMainWindow::setStatusBar(QStatusBar *statusbar)
@@ -247,6 +257,9 @@ QWidget *QMainWindow::centralWidget() const
 
     \warning This function should be called at most once for each main
     window instance
+
+    Note: QMainWindow takes ownership of the \a widget pointer and
+    deletes it at the appropriate time.
 
     \sa centralWidget()
 */
