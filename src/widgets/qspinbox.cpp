@@ -654,7 +654,6 @@ const QValidator * QSpinBox::validator() const
 
   \sa mapValueToText()
 */
-
 void QSpinBox::updateDisplay()
 {
     vi->setText( currentValueText() );
@@ -811,20 +810,6 @@ QString QSpinBox::currentValueText()
     }
     return s;
 }
-
-
-
-/*!
-  \reimp
-*/
-
-void QSpinBox::enabledChange( bool old )
-{
-    QWidget::enabledChange( old );
-    updateDisplay();
-}
-
-
 
 /*! \reimp */
 

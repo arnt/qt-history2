@@ -133,7 +133,6 @@ protected:
     void		leaveEvent( QEvent* );
 
     void		styleChange( QStyle& );
-    void 		enabledChange( bool old );
 
 protected slots:
     void		textChanged();
