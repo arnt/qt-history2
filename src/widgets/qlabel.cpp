@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#98 $
 **
 ** Implementation of QLabel widget class
 **
@@ -32,19 +32,11 @@
 #include "qimage.h"
 #include "qbitmap.h"
 
-class QLabelExtra
-{
-public:
-    QLabelExtra(QLabel* l) :
-	buddy(0),
-	accel(new QAccel( l, "label accel" )),
-	movie(0)
-    { }
 
-    QWidget * buddy;
-    QAccel * accel;  // NON NULL
-    QMovie * movie;
+class QLabelPrivate
+{
 };
+
 
 /*!
   \class QLabel qlabel.h
@@ -163,7 +155,7 @@ QLabel::QLabel( QWidget *buddy,  const QString &text,
     : QFrame( parent, name, f ), ltext("")
 {
     init();
-    align      = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
+    align = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
     setBuddy( buddy );
     setText( text );
 }
@@ -177,7 +169,7 @@ QLabel::~QLabel()
 {
     unsetMovie();
     delete lpixmap;
-    delete extra;
+    delete d;
 }
 
 
@@ -187,7 +179,7 @@ void QLabel::init()
     align      = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
-    extra      = 0;
+    d      = 0;
 }
 
 /*!
@@ -216,16 +208,14 @@ void QLabel::setText( const QString &text )
 	delete lpixmap;
 	lpixmap = 0;
     }
-    if ( extra ) {
-	extra->accel->clear();
-	QString p = strchr( ltext, '&' );
-	while( !p.isEmpty() && p[1] == '&' )
-	    p = strchr( ((const char*)p)+2, '&' );
-	if ( !p.isEmpty() && isalpha(p[1]) ) {
-	    extra->accel->connectItem(
-		extra->accel->insertItem( ALT+toupper(p[1]) ),
-	        this, SLOT(acceleratorSlot()) );
-	}
+    accel->clear();
+    QString p = strchr( ltext, '&' );
+    while( !p.isEmpty() && p[1] == '&' )
+	p = strchr( ((const char*)p)+2, '&' );
+    if ( !p.isEmpty() && isalpha(p[1]) ) {
+	accel->connectItem(
+			   accel->insertItem( ALT+toupper(p[1]) ),
+			   this, SLOT(acceleratorSlot()) );
     }
     if ( autoresize ) {
 	QSize s = sizeHint();
@@ -287,8 +277,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 	adjustSize();
     else
 	updateLabel();
-    if ( extra )
-	extra->accel->clear();
+    accel->clear();
 }
 
 
@@ -379,7 +368,7 @@ void QLabel::setNum( double num )
 
 void QLabel::setAlignment( int alignment )
 {
-    if ( extra && extra->buddy )
+    if ( lbuddy )
 	align = alignment | ShowPrefix;
     else
 	align = alignment;
@@ -596,7 +585,7 @@ void QLabel::drawContentsMask( QPainter *p )
     }
 
     QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
-    
+
     QBitmap bm;
     if (lpixmap) {
 	if (lpixmap->mask()) {
@@ -607,7 +596,7 @@ void QLabel::drawContentsMask( QPainter *p )
 	    bm.fill(color1);
 	}
     }
-    
+
     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
 	       align, g, isEnabled(), bm.isNull()?0:&bm, ltext );
 }
@@ -631,9 +620,9 @@ void QLabel::updateLabel()
 
 void QLabel::acceleratorSlot()
 {
-    if ( !extra || !extra->buddy )
+    if ( !lbuddy )
 	return;
-    QWidget * w = extra->buddy;
+    QWidget * w = lbuddy;
     while ( w->focusProxy() )
 	w = w->focusProxy();
     if ( !w->hasFocus() &&
@@ -650,8 +639,7 @@ void QLabel::acceleratorSlot()
 
 void QLabel::buddyDied() // I can't remember if I cried.
 {
-    if ( extra )
-	extra->buddy = 0;
+    lbuddy = 0;
 }
 
 
@@ -671,30 +659,24 @@ void QLabel::setBuddy( QWidget *buddy )
     else
 	setAlignment( alignment() & ~ShowPrefix );
 
-    if ( extra ) {
-	if ( extra->buddy )
-	    disconnect( extra->buddy, SIGNAL(destroyed()),
-			this, SLOT(buddyDied()) );
-    } else if ( buddy ) {
-	extra = new QLabelExtra(this);
-	extra->buddy = buddy;
-    }
+    if ( lbuddy )
+	disconnect( lbuddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
 
-    extra->buddy = buddy;
+    lbuddy = buddy;
 
-    if ( !buddy )
+    if ( !lbuddy )
 	return;
 
+    // ### the next bit is not terribly unicode-friendly...
     QString p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
     while( !p.isEmpty() && p[1] == '&' )
 	p = strchr( ((const char*)p)+2, '&' );
     if ( !p.isEmpty() && isalnum(p[1]) ) {
-	extra->accel->connectItem( extra->accel->insertItem(ALT+
-							  toupper(p[1])),
+	accel->connectItem( accel->insertItem(ALT+toupper(p[1])),
 				  this, SLOT(acceleratorSlot()) );
     }
 
-    connect( buddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
+    connect( lbuddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
 }
 
 
@@ -704,7 +686,7 @@ void QLabel::setBuddy( QWidget *buddy )
 
 QWidget * QLabel::buddy() const
 {
-    return extra ? extra->buddy : 0;
+    return lbuddy;
 }
 
 
@@ -743,27 +725,23 @@ void QLabel::setMovie( const QMovie& movie )
 {
     unsetMovie();
 
-    if ( !extra ) {
-	if ( movie.isNull() )
-	    return;
-	extra = new QLabelExtra(this);
+    if ( movie.isNull() ) {
+	return;
+    } else {
+	if ( !lmovie )
+	    lmovie = new QMovie;
+	*lmovie = movie;
     }
 
-    if ( !movie.isNull() ) {
-	if ( !extra->movie )
-	    extra->movie = new QMovie;
-	*extra->movie = movie;
-    }
-    extra->accel->clear();
+    delete accel;
+    accel = 0;
+    delete lpixmap;
+    lpixmap = 0;
+    ltext = QString::null;
 
-    if ( lpixmap ) {
-	delete lpixmap;
-	lpixmap = 0;
-    }
-
-    if ( extra->movie ) {
-	extra->movie->connectResize(this, SLOT(movieResized(const QSize&)));
-	extra->movie->connectUpdate(this, SLOT(movieUpdated(const QRect&)));
+    if ( lmovie ) {
+	lmovie->connectResize(this, SLOT(movieResized(const QSize&)));
+	lmovie->connectUpdate(this, SLOT(movieUpdated(const QRect&)));
     }
 }
 
@@ -772,11 +750,11 @@ void QLabel::setMovie( const QMovie& movie )
 */
 void QLabel::unsetMovie()
 {
-    if (extra && extra->movie) {
-	extra->movie->disconnectResize(this, SLOT(movieResized(const QSize&)));
-	extra->movie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
-	delete extra->movie;
-	extra->movie = 0;
+    if ( lmovie ) {
+	lmovie->disconnectResize(this, SLOT(movieResized(const QSize&)));
+	lmovie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
+	delete lmovie;
+	lmovie = 0;
     }
 }
 
@@ -786,5 +764,5 @@ void QLabel::unsetMovie()
 */
 QMovie* QLabel::movie() const
 {
-    return extra ? extra->movie : 0;
+    return lmovie;
 }

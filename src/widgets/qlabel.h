@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#43 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#44 $
 **
 ** Definition of QLabel widget class
 **
@@ -28,7 +28,7 @@
 #include "qframe.h"
 #endif // QT_H
 
-class QLabelExtra;
+class QLabelPrivate;
 
 class Q_EXPORT QLabel : public QFrame
 {
@@ -46,16 +46,16 @@ public:
     QMovie     *movie()		const;
 
     int		alignment()	const	{ return align; }
-    virtual void	setAlignment( int );
+    virtual void setAlignment( int );
     int		margin()	const	{ return extraMargin; }
-    virtual void	setMargin( int );
+    virtual void setMargin( int );
 
     bool	autoResize()	const	{ return autoresize; }
-    virtual void	setAutoResize( bool );
+    virtual void setAutoResize( bool );
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
 
-    virtual void	setBuddy( QWidget * );
+    virtual void setBuddy( QWidget * );
     QWidget    *buddy() const;
 
     void setAutoMask(bool);
@@ -83,10 +83,13 @@ private:
     void	updateLabel();
     QString	ltext;
     QPixmap    *lpixmap;
+    QWidget *	lbuddy;
+    QMovie *	lmovie;
     ushort	align;
     int		extraMargin:8;
     uint	autoresize:1;
-    QLabelExtra* extra;
+    QAccel *	accel;  // NON NULL
+    QLabelPrivate* d;
 
     void	unsetMovie();
 
