@@ -2,6 +2,8 @@
 
 HEADERS += widgets/qbuttongroup.h \
 	widgets/qbutton.h \
+	widgets/qabstractbutton.h \
+	widgets/qabstractbutton_p.h \
 	widgets/qdialogbuttons_p.h \
 	widgets/qcheckbox.h \
 	widgets/qcombobox.h \
@@ -68,6 +70,7 @@ HEADERS += widgets/qbuttongroup.h \
 
 SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qbutton.cpp \
+	widgets/qabstractbutton.cpp \
 	widgets/qdialogbuttons.cpp \
 	widgets/qcheckbox.cpp \
 	widgets/qcombobox.cpp \

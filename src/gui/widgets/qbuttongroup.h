@@ -15,6 +15,42 @@
 #ifndef QBUTTONGROUP_H
 #define QBUTTONGROUP_H
 
+
+#ifndef QT_H
+#include "qobject.h"
+#endif
+
+class QAbstractButton;
+class QAbstractButtonPrivate;
+class Q4ButtonGroupPrivate;
+
+class Q_GUI_EXPORT Q4ButtonGroup : public QObject
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(Q4ButtonGroup);
+    Q_PROPERTY(bool exlusive READ exclusive WRITE setExclusive)
+public:
+    Q4ButtonGroup(QObject *parent = 0);
+    ~Q4ButtonGroup();
+
+    void setExclusive(bool);
+    bool exclusive() const;
+
+    void addButton(QAbstractButton *);
+    void removeButton(QAbstractButton *);
+
+    QAbstractButton * checkedButton() const;
+    // no setter on purpose!
+
+signals:
+    void buttonChecked(QAbstractButton *);
+
+private:
+    friend class QAbstractButton;
+    friend class QAbstractButtonPrivate;
+};
+
+
 #ifndef QT_H
 #include "qgroupbox.h"
 #endif // QT_H

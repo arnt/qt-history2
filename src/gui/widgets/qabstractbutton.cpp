@@ -1,0 +1,891 @@
+/****************************************************************************
+**
+** Implementation of QAbstractButton  class.
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "qabstractbutton.h"
+#include "qbuttongroup.h"
+#include "qabstractbutton_p.h"
+#include "qevent.h"
+#include "qpainter.h"
+#include "qapplication.h"
+#include "qstyle.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessible.h"
+#endif
+
+#define AUTO_REPEAT_DELAY  300
+#define AUTO_REPEAT_PERIOD 100
+
+
+/*!
+  \class QAbstractButton qabstractbutton.h
+
+  \brief The QAbstractButton class is the abstract base class of
+  button widgets, providing functionality common to buttons.
+
+  \ingroup abstractwidgets
+
+  The QAbstractButton class implements an \e abstract button, and lets
+  subclasses specify how to reply to user actions and how to draw the
+  button.
+
+  QAbstractButton provides both push buttons and checkable buttons
+  that can be toggled. The QRadioButton and QCheckBox classes provide
+  only toggle buttons; QPushButton and QToolButton provide both toggle
+  and push buttons.
+
+  Any button can have either a text or pixmap label. setText() sets
+  the button to be a text button and setPixmap() sets it to be a
+  pixmap button. The text/pixmap is manipulated as necessary to create
+  the "disabled" appearance when the button is disabled.
+
+ QAbstractButton provides most of the states used for buttons:
+
+  \list
+
+  \i isDown() indicates whether the button is \e pressed down.
+
+  \i isChecked() indicates whether the button is \e checked.  Only
+  checkable buttons can be checked and unchecked (see below).
+
+  \i isEnabled() indicates whether the button can be pressed by the
+  user.
+
+  \i setAutoRepeat() sets whether the button will auto-repeat if the
+  user holds it down.
+
+  \i setCheckable() sets whether the button is a toggle button or not.
+
+  \endlist
+
+  The difference between isDown() and isChecked() is as follows: When
+  the user clicks a toggle button to check it, the button is first \e
+  pressed and then released into the \e checked state. When the user
+  clicks it again (to uncheck it), the button moves first to the \e
+  pressed state, then to the \e !checked state (isChecked() and
+  isDown() are both false).
+
+  Default buttons (as used in many dialogs) are provided by
+  QPushButton::setDefault() and QPushButton::setAutoDefault().
+
+  QButton provides five signals:
+
+  \list 1
+
+  \i pressed() is emitted when the left mouse button is pressed while
+  the mouse cursor is inside the button.
+
+  \i released() is emitted when the left mouse button is released.
+
+  \i clicked() is emitted when the button is first pressed and then
+  released when the accelerator key is typed, or when animateClick()
+  is called.
+
+  \i toggled(bool) is emitted when the state of a toggle button
+  changes.
+
+  \endlist
+
+  If the button is a text button with an ampersand (\&) in its text,
+  QButton creates an automatic accelerator key. This code creates a
+  push button labelled "Ro<u>c</u>k \& Roll" (where the c is
+  underlined). The button gets an automatic accelerator key, Alt+C:
+
+  \code
+        QPushButton *p = new QPushButton("Ro&ck && Roll", this);
+  \endcode
+
+  In this example, when the user presses Alt+C the button will call
+  animateClick().
+
+  You can also set a custom accelerator using the setMnemonic()
+  function. This is useful mostly for pixmap buttons because they have
+  no automatic accelerator.
+
+  \code
+        p->setPixmap(QPixmap("print.png"));
+        p->setMnemonic(ALT+Key_F7);
+  \endcode
+
+  All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
+  \l QCheckBox and \l QRadioButton) can display both text and
+  pixmaps.
+
+  To subclass QAbstractButton, you must reimplement at least
+  paintEvent() to draw the button's outline and its text or pixmap. It
+  is generally advisable to reimplement sizeHint() as well, and
+  sometimes hitButton() (to determine whether a button press is within
+  the button). For buttons with more than two states (like tri-state
+  buttons), you will also have to reimplement checkStateSet() and
+  nextCheckState().
+
+  \sa QButtonGroup
+*/
+
+class Q4ButtonGroupPrivate: public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(Q4ButtonGroup);
+
+public:
+    Q4ButtonGroupPrivate():exclusive(true){}
+    QList<QAbstractButton*> buttonList;
+    QPointer<QAbstractButton> checkedButton;
+    void notifyChecked(QAbstractButton *button);
+    bool exclusive;
+};
+
+#define d d_func()
+#define q q_func()
+
+
+Q4ButtonGroup::Q4ButtonGroup(QObject *parent)
+    : QObject(*new Q4ButtonGroupPrivate, parent)
+{
+}
+
+Q4ButtonGroup::~Q4ButtonGroup()
+{
+    for (int i = 0; i < d->buttonList.count(); ++i)
+        d->buttonList.at(i)->d->group = 0;
+}
+
+
+bool Q4ButtonGroup::exclusive() const
+{
+    return d->exclusive;
+}
+
+void Q4ButtonGroup::setExclusive(bool exclusive)
+{
+    d->exclusive = exclusive;
+}
+
+void Q4ButtonGroup::addButton(QAbstractButton *button)
+{
+    if (Q4ButtonGroup *previous = button->d->group)
+        if (previous && previous != this)
+            previous->removeButton(button);
+    button->d->group = this;
+    d->buttonList.append(button);
+    if (d->exclusive && button->isChecked())
+        button->d->notifyChecked();
+}
+
+void Q4ButtonGroup::removeButton(QAbstractButton *button)
+{
+    if (d->checkedButton == button)
+        d->checkedButton = 0;
+    if (button->d->group == this) {
+        button->d->group = 0;
+        d->buttonList.removeAll(button);
+    }
+}
+
+QAbstractButton * Q4ButtonGroup::checkedButton() const
+{
+    return d->checkedButton;
+}
+
+QList<QAbstractButton *>QAbstractButtonPrivate::queryButtonList() const
+{
+    if (group)
+        return group->d->buttonList;
+    if (q->parentWidget() && autoExclusive)
+        return qFindChildren<QAbstractButton*>(q->parentWidget());
+    return QList<QAbstractButton *>();
+}
+
+QAbstractButton *QAbstractButtonPrivate::queryCheckedButton() const
+{
+    if (group)
+        return group->d->checkedButton;
+    QList<QAbstractButton *> buttonList = queryButtonList();
+    if (buttonList.count() == 1) // no group
+        return 0;
+
+    for (int i = 0; i < buttonList.count(); ++i) {
+        QAbstractButton *b = buttonList.at(i);
+        if (b->d->checked && b != q)
+            return b;
+    }
+    return checked  ? const_cast<QAbstractButton*>(q) : 0;
+}
+
+void QAbstractButtonPrivate::notifyChecked()
+{
+    if (group) {
+        QAbstractButton *previous = group->d->checkedButton;
+        group->d->checkedButton = q;
+        if (group->d->exclusive && previous && previous != q)
+            previous->setChecked(false);
+        emit group->buttonChecked(q);
+    } else if (autoExclusive) {
+        if (QAbstractButton *b = queryCheckedButton())
+            b->setChecked(false);
+        }
+}
+
+
+void QAbstractButtonPrivate::moveFocus(int key)
+{
+    QList<QAbstractButton *> buttonList = queryButtonList();;
+    bool exclusive = group ? group->d->exclusive : autoExclusive;
+    QWidget *f = qApp->focusWidget();
+    QAbstractButton *fb = ::qt_cast<QAbstractButton *>(f);
+    if (!fb || !buttonList.contains(fb))
+        return;
+
+    QAbstractButton * candidate = 0;
+    int bestScore = -1;
+
+    QPoint goal(f->mapToGlobal(f->geometry().center()));
+
+    for (int i = 0; i < buttonList.count(); ++i) {
+        QAbstractButton *button = buttonList.at(i);
+        if (button != f && button->isEnabled()) {
+            QPoint p(button->mapToGlobal(button->geometry().center()));
+            int score = (p.y() - goal.y())*(p.y() - goal.y()) +
+                        (p.x() - goal.x())*(p.x() - goal.x());
+            bool betterScore = score < bestScore || !candidate;
+            switch(key) {
+            case Key_Up:
+                if (p.y() < goal.y() && betterScore) {
+                    if (QABS(p.x() - goal.x()) < QABS(p.y() - goal.y())) {
+                        candidate = button;
+                        bestScore = score;
+                    } else if (button->x() == f->x()) {
+                        candidate = button;
+                        bestScore = score/2;
+                    }
+                }
+                break;
+            case Key_Down:
+                if (p.y() > goal.y() && betterScore) {
+                    if (QABS(p.x() - goal.x()) < QABS(p.y() - goal.y())) {
+                        candidate = button;
+                        bestScore = score;
+                    } else if (button->x() == f->x()) {
+                        candidate = button;
+                        bestScore = score/2;
+                    }
+                }
+                break;
+            case Key_Left:
+                if (p.x() < goal.x() && betterScore) {
+                    if (QABS(p.y() - goal.y()) < QABS(p.x() - goal.x())) {
+                        candidate = button;
+                        bestScore = score;
+                    } else if (button->y() == f->y()) {
+                        candidate = button;
+                        bestScore = score/2;
+                    }
+                }
+                break;
+            case Key_Right:
+                if (p.x() > goal.x() && betterScore) {
+                    if (QABS(p.y() - goal.y()) < QABS(p.x() - goal.x())) {
+                        candidate = button;
+                        bestScore = score;
+                    } else if (button->y() == f->y()) {
+                        candidate = button;
+                        bestScore = score/2;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    if (exclusive
+        && candidate
+        && fb->isChecked()
+        && candidate->isCheckable())
+        candidate->setChecked(true);
+
+    if (candidate) {
+        if (key == Key_Up || key == Key_Left)
+            QFocusEvent::setReason(QFocusEvent::Backtab);
+        else
+            QFocusEvent::setReason(QFocusEvent::Tab);
+        candidate->setFocus();
+        QFocusEvent::resetReason();
+    }
+}
+
+void QAbstractButtonPrivate::fixFocusPolicy()
+{
+    QList<QAbstractButton *> buttonList = queryButtonList();;
+    for (int i = 0; i < buttonList.count(); ++i) {
+        QAbstractButton *b = buttonList.at(i);
+        if (!b->isCheckable())
+            continue;
+        b->setFocusPolicy((FocusPolicy) ((b == q)
+                                         ? (b->focusPolicy() | TabFocus)
+                                         :  (b->focusPolicy() & ~TabFocus)));
+    }
+}
+
+void QAbstractButtonPrivate::init()
+{
+    q->setFocusPolicy(StrongFocus);
+    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+}
+
+void QAbstractButtonPrivate::refresh()
+{
+    if (blockRefresh)
+        return;
+    if (q->autoMask())
+        q->updateMask();
+    q->repaint();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility(q, 0, QAccessible::StateChanged);
+#endif
+}
+
+void QAbstractButtonPrivate::click()
+{
+    if (checkable) {
+        blockRefresh = true;
+        q->nextCheckState();
+        blockRefresh = false;
+    }
+    refresh();
+    emit q->released();
+    emit q->clicked();
+}
+
+
+/*!
+    Constructs an abstract button with a \a parent.
+*/
+QAbstractButton::QAbstractButton(QWidget* parent)
+    :QWidget(*new QAbstractButtonPrivate, parent, 0)
+{
+    d->init();
+}
+
+/*!
+    Destroys the button.
+ */
+ QAbstractButton::~QAbstractButton()
+{
+    if (d->group)
+        d->group->removeButton(this);
+}
+
+
+/*! \internal
+ */
+QAbstractButton::QAbstractButton(QAbstractButtonPrivate &dd, QWidget* parent)
+    :QWidget(dd, parent, 0)
+{
+    d->init();
+}
+
+
+/*!
+  \property QAbstractButtonPrivate::text
+  \brief the text shown on the button
+
+  This property will return a QString::null if the button has no
+  text. If the text has an ampersand (\&) in it, then a mnemonic is
+  automatically created for it using the character that follows the
+  '\&' as the shortcut key. Any previous mnemonic will be overwritten,
+  or cleared if no mnemonic is defined by the text.
+
+  There is no default text.
+*/
+
+void QAbstractButton::setText(const QString &text)
+{
+    if (d->text == text)
+        return;
+    d->text = text;
+    d->pixmap = QPixmap();
+    if (q->autoMask())
+        q->updateMask();
+    update();
+    updateGeometry();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility(q, 0, QAccessible::NameChanged);
+#endif
+}
+
+QString QAbstractButton::text() const
+{
+    return d->text;
+}
+
+
+/*!
+  \property QAbstractButton::pixmap
+  \brief the pixmap shown on the button
+
+  If the pixmap is monochrome (i.e. it is a QBitmap or its \link
+  QPixmap::depth() depth\endlink is 1) and it does not have a mask,
+  this property will set the pixmap to be its own mask. The purpose
+  of this is to draw transparent bitmaps which are important for
+  toggle buttons, for example.
+*/
+void QAbstractButton::setPixmap(const QPixmap &pixmap)
+{
+    if (d->pixmap.serialNumber() == pixmap.serialNumber())
+        return;
+    d->pixmap = pixmap;
+    d->text = QString();
+    if (d->pixmap.depth() == 1 && !d->pixmap.mask())
+        d->pixmap.setMask(*((QBitmap *)&d->pixmap));
+    if (autoMask())
+        updateMask();
+    update();
+    updateGeometry();
+}
+
+QPixmap QAbstractButton::pixmap() const
+{
+    return d->pixmap;
+}
+
+/*!
+  \property QAbstractButton::mnemonic
+  \brief the mnemonic associated with the button
+*/
+
+void QAbstractButton::setMnemonic(const QKeySequence & mnemonic)
+{
+    d->mnemonic = mnemonic;
+}
+
+QKeySequence QAbstractButton::mnemonic() const
+{
+    return d->mnemonic;
+}
+/*!
+  \property QAbstractButton::checkable
+  \brief whether the button is checkable
+
+  The default is false.
+
+  \sa checked
+*/
+void QAbstractButton::setCheckable(bool checkable)
+{
+    d->checkable = checkable;
+}
+
+bool QAbstractButton::isCheckable() const
+{
+    return d->checkable;
+}
+
+/*!
+    \property QAbstractButton::checked
+    \brief whether the button is checked
+
+    Only checkable buttons can be checked.  The default is false.
+
+    \sa checkable
+*/
+void QAbstractButton::setChecked(bool checked)
+{
+    if (!d->checkable || d->checked == checked)
+        return;
+
+    if (!checked && d->queryCheckedButton() == this) {
+            // the checked button of an exclusive or autoexclusive group cannot be  unchecked
+            if ((d->group && d->group->d->exclusive) || d->autoExclusive )
+                return;
+    }
+
+    d->checked = checked;
+    d->refresh();
+
+    if (checked)
+        d->notifyChecked();
+    emit toggled(checked);
+}
+
+
+bool QAbstractButton::isChecked() const
+{
+    return d->checked;
+}
+
+/*!
+  \property QAbstractButton::down
+  \brief whether the button is pressed down
+
+  If this property is true, the button is pressed down. The signals
+  pressed() and clicked() are not emitted if you set this property
+  to true. The default is false.
+*/
+
+void QAbstractButton::setDown(bool down)
+{
+    if (d->down == down)
+        return;
+    d->down = down;
+    d->refresh();
+}
+
+bool QAbstractButton::isDown() const
+{
+    return d->down;
+}
+
+/*!
+  \property QAbstractButton::autoRepeat
+  \brief whether autoRepeat is enabled
+
+  If autoRepeat is enabled then the clicked() signal is emitted at
+  regular intervals if the button is down. This property has no
+  effect on toggle buttons. autoRepeat is off by default.
+*/
+
+void QAbstractButton::setAutoRepeat(bool autoRepeat)
+{
+    if (d->autoRepeat == autoRepeat)
+        return;
+    d->autoRepeat = autoRepeat;
+    if (d->autoRepeat && d->mlbDown)
+        d->repeatTimer.start(AUTO_REPEAT_DELAY, this);
+}
+
+bool QAbstractButton::autoRepeat() const
+{
+    return d->autoRepeat;
+}
+
+/*!
+  \property QAbstractButton::autoExclusive
+  \brief whether autoExclusive is enabled
+
+  If autoExclusive is enabled, checkable buttons that belong to the
+  same parent widget behave as if they were part of the same
+  exclusive button group: Only one button can be checked at the same
+  time, checking another button automatically unchecks the
+  previously checked one.
+
+  The property has no effect on buttons that belong to a button
+  group.
+
+  autoExclusive is off by default, except for radio buttons.
+
+  \sa QRadioButton
+*/
+void QAbstractButton::setAutoExclusive(bool autoExclusive)
+{
+    d->autoExclusive = autoExclusive;
+}
+
+bool QAbstractButton::autoExclusive() const
+{
+    return d->autoExclusive;
+}
+
+/*!
+  Returns the group that this button belongs to.
+
+  If the button is not a member of any QButtonGroup, this function
+  returns 0.
+
+  \sa QButtonGroup
+*/
+Q4ButtonGroup *QAbstractButton::group() const
+{
+    return d->group;
+}
+
+/*!
+  Performs an animated click: the button is pressed and released
+  \msec milliseconds later (the default is 100 msecs).
+
+  All signals are emmited as appropriate (pressed(), released(),
+  clicked(), toggled(), ...).
+
+  This function does nothing if the button is \link setEnabled()
+  disabled. \endlink
+
+  \sa click()
+*/
+void QAbstractButton::animateClick(int msec)
+{
+    Q_UNUSED(msec)
+}
+
+/*!
+  Performs a click.
+
+  All signals are emmited as appropriate (pressed(), released(),
+  clicked(), toggled(), ...).
+
+  This function does nothing if the button is \link setEnabled()
+  disabled. \endlink
+
+  \sa animateClick()
+ */
+void QAbstractButton::click()
+{
+    if (!isEnabled())
+        return;
+    d->down = true;
+    emit pressed();
+    d->down = false;
+    if (d->checkable) {
+        d->blockRefresh = true;
+        nextCheckState();
+        d->blockRefresh = false;
+    }
+    emit released();
+    emit clicked();
+}
+
+/*!
+    Toggles the state of a checkable button.
+
+    \sa checked
+*/
+void QAbstractButton::toggle()
+{
+    setChecked(!d->checked);
+}
+
+
+/*! This virtual handler is called then setChecked() was called. It
+  allows subclasses to reset their intermediate button states.
+
+  \sa nextCheckState()
+ */
+void QAbstractButton::checkStateSet()
+{
+}
+
+
+/*! This virtual handler is called when a checkable button was
+  clicked. The default implementation calls
+  setChecked(!isChecked()). It allows subclasses to implement
+  intermediate button states.
+
+  \sa checkStateSet()
+*/
+void QAbstractButton::nextCheckState()
+{
+    setChecked(!isChecked());
+}
+
+/*!
+    Returns true if \a pos is inside the clickable button rectangle;
+    otherwise returns false.
+
+    By default, the clickable area is the entire widget. Subclasses
+    may reimplement it, though.
+*/
+bool QAbstractButton::hitButton(const QPoint &pos) const
+{
+    return rect().contains(pos);
+}
+
+
+/*! \reimp */
+void QAbstractButton::mousePressEvent(QMouseEvent *e)
+{
+    if (e->button() != LeftButton) {
+        e->ignore();
+        return;
+    }
+    if (hitButton(e->pos())) {
+        d->mlbDown = true;
+        if (d->autoRepeat)
+            d->repeatTimer.start(AUTO_REPEAT_DELAY, this);
+        setDown(true);
+        emit pressed();
+    }
+}
+
+/*! \reimp */
+void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (e->button() != LeftButton) {
+        // clean up apperance if left button has been pressed
+        if (d->mlbDown || d->down) {
+            d->mlbDown = false;
+            setDown(false);
+        }
+        e->ignore();
+        return;
+    }
+
+    if (!d->mlbDown)
+        return;
+    d->mlbDown = false;
+
+    if (!d->down)
+        return;
+
+    if (hitButton(e->pos())) {
+        d->down = false;
+        d->click();
+    } else {
+        setDown(false);
+    }
+}
+
+/*! \reimp */
+void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
+{
+    if (!d->mlbDown || (e->state() & LeftButton) == 0) {
+        e->ignore();
+        return;
+    }
+
+    if (hitButton(e->pos()) != d->down) {
+        setDown(!d->down);
+        if (d->down)
+            emit pressed();
+        else
+            emit released();
+    }
+}
+
+/*! \reimp */
+void QAbstractButton::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    QRect r = rect();
+    p.fillRect(r, d->down ? black : (d->checked ? lightGray : white));
+    p.setPen(d->down ? white : black);
+    p.drawRect(r);
+    p.drawText(r, AlignCenter | ShowPrefix, d->text);
+    if (hasFocus()) {
+        r.addCoords(2, 2, -2, -2);
+        style().drawPrimitive(QStyle::PE_FocusRect, &p, r, palette());
+    }
+}
+
+
+/*!\reimp
+ */
+QSize QAbstractButton::sizeHint() const
+{
+    QSize sh(8, 8);
+    if (!d->text.isEmpty())
+        sh += fontMetrics().boundingRect(d->text).size();
+    else
+        sh += d->pixmap.size();
+    return sh;
+}
+
+/*! \reimp */
+void QAbstractButton::keyPressEvent(QKeyEvent *e)
+{
+    bool next = true;
+    switch (e->key()) {
+    case Key_Enter:
+    case Key_Return:
+        e->ignore();
+        break;
+    case Key_Space:
+        if (!e->isAutoRepeat()) {
+            setDown(true);
+            e->ignore();
+        }
+        break;
+    case Key_Up:
+    case Key_Left:
+        next = false;
+        // fall through
+    case Key_Right:
+    case Key_Down:
+        if (d->group || d->autoExclusive) {
+            d->moveFocus(e->key());
+            if (hasFocus()) // nothing happend, propagate
+                e->ignore();
+        } else {
+            QFocusEvent::setReason(next ? QFocusEvent::Tab : QFocusEvent::Backtab);
+            focusNextPrevChild(next);
+            QFocusEvent::resetReason();
+        }
+        break;
+    case Key_Escape:
+        if (d->down) {
+            setDown(false);
+            break;
+        }
+        // fall through
+    default:
+        e->ignore();
+    }
+}
+
+/*! \reimp */
+void QAbstractButton::keyReleaseEvent(QKeyEvent * e)
+{
+    switch (e->key()) {
+    case Key_Space:
+        if (!e->isAutoRepeat() && d->down) {
+            d->down = false;
+            d->click();
+        }
+        break;
+    default:
+        e->ignore();
+    }
+}
+
+/*!\reimp
+ */
+void QAbstractButton::timerEvent(QTimerEvent *e)
+{
+    if (e->timerId() == d->repeatTimer.timerId()) {
+        d->repeatTimer.start(AUTO_REPEAT_PERIOD, this);
+        if (d->mlbDown && d->down) {
+            emit released();
+            emit clicked();
+            emit pressed();
+        }
+    }
+}
+
+/*! \reimp */
+void QAbstractButton::focusInEvent(QFocusEvent * e)
+{
+    d->fixFocusPolicy();
+    QWidget::focusInEvent(e);
+}
+
+/*! \reimp */
+void QAbstractButton::focusOutEvent(QFocusEvent * e)
+{
+    d->down = false;
+    QWidget::focusOutEvent(e);
+}
+
+/*! \reimp */
+void QAbstractButton::changeEvent(QEvent *ev)
+{
+    if(ev->type() == QEvent::EnabledChange) {
+        if (!isEnabled())
+            setDown(false);
+    }
+    QWidget::changeEvent(ev);
+}
+
+#ifdef QT_COMPAT
+QAbstractButton::QAbstractButton(QWidget *parent, const char *name, WFlags f=0)
+    :QWidget(*new QAbstractButtonPrivate, parent, f)
+{
+    setObjectName(name);
+    d->init();
+}
+#endif
