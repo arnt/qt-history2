@@ -84,7 +84,8 @@
     \quotefromfile snippets/dropevents/window.cpp
     \skipto Window::Window
     \printuntil /^\{/
-    \skipto ...
+    \dots
+    \skipto setAcceptDrops(true);
     \printuntil setAcceptDrops(true);
     \skipto /^\}/
     \printuntil /^\}/
@@ -212,8 +213,7 @@
     \quotefromfile snippets/draganddrop/dragwidget.cpp
     \skipto mouseMoveEvent
     \printuntil drag->start
-    \skipto ...
-    \printuntil ...
+    \dots
     \skipto /^\}/
     \printuntil /^\}/
 
@@ -247,8 +247,7 @@
     \printuntil Process the data
     \skipto }
     \printto End of quote
-    \skipto ...
-    \printuntil ...
+    \dots
     \skipto /^\}/
     \printuntil /^\}/
 
@@ -319,8 +318,7 @@
 
     \skipto ClipWindow::updateClipboard
     \printuntil data =
-    \skipto ...
-    \printuntil ...
+    \dots
     \skipto /^\}/
     \printuntil /^\}/
 

@@ -48,9 +48,6 @@ void ClipWindow::updateClipboard()
     newItem->setText(tr("%1 (%2 bytes)").arg(formats[0]).arg(size));
 
     updateData(formats[0]);
-/*
-    ...
-*/
 }
 
 void ClipWindow::updateData(const QString &format)

@@ -16,10 +16,7 @@ Window::Window(QWidget *parent)
     layout->addWidget(textBrowser);
     layout->addWidget(mimeTypeLabel);
     layout->addWidget(mimeTypeCombo);
-/*
-    ...
-    setAcceptDrops(true);
-*/
+
     setAcceptDrops(true);
     setWindowTitle(tr("Drop Events"));
 }

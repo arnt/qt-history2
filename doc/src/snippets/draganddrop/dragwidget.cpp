@@ -45,9 +45,6 @@ void DragWidget::dropEvent(QDropEvent *event)
     emit mimeTypes(event->mimeData()->formats());
     setData(event->mimeData()->formats()[0],
             event->mimeData()->data(event->mimeData()->formats()[0]));
-/*
-    ...
-*/
 }
 
 void DragWidget::mousePressEvent(QMouseEvent *event)
@@ -88,9 +85,6 @@ void DragWidget::mouseMoveEvent(QMouseEvent *event)
             emit dragResult(tr("Unknown action."));
             break;
     }
-    /*
-    ...
-    */
 }
 
 void DragWidget::setData(const QString &mimetype, const QByteArray &newData)
