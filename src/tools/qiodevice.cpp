@@ -533,7 +533,7 @@ QIODevice::Offset QIODevice::at() const
 
 bool QIODevice::at( Offset pos )
 {
-    if ( pos > size() ) {
+    if ( pos >= 0 && pos > size() ) {
 	qWarning( "QIODevice::at: Index %lld out of range", pos );
 	return FALSE;
     }

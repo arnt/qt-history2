@@ -19,78 +19,82 @@
 #include "qglobal.h"
 #endif // QT_H
 
-
-// IO device access types
-
-#define IO_Direct		0x0100		// direct access device
-#define IO_Sequential		0x0200		// sequential access device
-#define IO_Combined		0x0300		// combined direct/sequential
-#define IO_TypeMask		0x0f00
-
-// IO handling modes
-
-#define IO_Raw			0x0040		// raw access (not buffered)
-#define IO_Async		0x0080		// asynchronous mode
-
-// IO device open modes
-
-#define IO_ReadOnly		0x0001		// readable device
-#define IO_WriteOnly		0x0002		// writable device
-#define IO_ReadWrite		0x0003		// read+write device
-#define IO_Append		0x0004		// append
-#define IO_Truncate		0x0008		// truncate device
-#define IO_Translate		0x0010		// translate CR+LF
-#define IO_ModeMask		0x00ff
-
-// IO device state
-
-#define IO_Open			0x1000		// device is open
-#define IO_StateMask		0xf000
-
-// IO device status
-
-#define IO_Ok			0
-#define IO_ReadError		1		// read error
-#define IO_WriteError		2		// write error
-#define IO_FatalError		3		// fatal unrecoverable error
-#define IO_ResourceError	4		// resource limitation
-#define IO_OpenError		5		// cannot open device
-#define IO_ConnectError		5		// cannot connect to device
-#define IO_AbortError		6		// abort error
-#define IO_TimeOutError		7		// time out
-#define IO_UnspecifiedError	8		// unspecified error
-
 class QByteArray;
-
 
 class Q_CORE_EXPORT QIODevice
 {
 public:
     typedef Q_LLONG Offset;
 
+    // IO device access types
+    enum AccessTypes {
+	Direct = 0x0100, 	// direct access device
+	Sequential = 0x0200, 	// sequential access device
+	Combined = 0x0300, 	// combined direct/sequential
+	TypeMask = 0x0f00
+    };
+
+    // IO handling modes
+    enum HandlingModes {
+	Raw = 0x0040, 		// raw access (not buffered)
+	Async = 0x0080		// asynchronous mode
+    };
+
+    // IO device open modes
+    enum OpenModes {
+	ReadOnly = 0x0001, 		// readable device
+	WriteOnly = 0x0002, 		// writable device
+	ReadWrite = 0x0003, 		// read+write device
+	Append = 0x0004, 	        // append
+	Truncate = 0x0008, 		// truncate device
+	Translate = 0x0010, 		// translate CR+LF
+	ModeMask = 0x00ff
+    };
+
+    // IO device state
+    enum State {
+	Open = 0x1000, 		// device is open
+	StateMask = 0xf000
+    };
+
+    // IO device status
+    enum Status {
+	Ok = 0,
+	ReadError = 1, 		// read error
+	WriteError = 2, 	// write error
+	FatalError = 3, 	// fatal unrecoverable error
+	ResourceError = 4, 	// resource limitation
+	// #### Qt4: should these two be still the same?
+	OpenError = 5, 		// cannot open device
+	ConnectError = 5, 	// cannot connect to device
+	AbortError = 6, 	// abort error
+	TimeOutError = 7, 	// time out
+	UnspecifiedError = 8	// unspecified error
+    };
+
     QIODevice();
     virtual ~QIODevice();
 
     int		 flags()  const { return ioMode; }
-    int		 mode()	  const { return ioMode & IO_ModeMask; }
-    int		 state()  const { return ioMode & IO_StateMask; }
+    int		 mode()	  const { return ioMode & ModeMask; }
+    int		 state()  const { return ioMode & StateMask; }
 
-    bool	 isDirectAccess()     const { return ((ioMode & IO_Direct)     == IO_Direct); }
-    bool	 isSequentialAccess() const { return ((ioMode & IO_Sequential) == IO_Sequential); }
-    bool	 isCombinedAccess()   const { return ((ioMode & IO_Combined)   == IO_Combined); }
-    bool	 isBuffered()	      const { return ((ioMode & IO_Raw)        != IO_Raw); }
-    bool	 isRaw()	      const { return ((ioMode & IO_Raw)        == IO_Raw); }
-    bool	 isSynchronous()      const { return ((ioMode & IO_Async)      != IO_Async); }
-    bool	 isAsynchronous()     const { return ((ioMode & IO_Async)      == IO_Async); }
-    bool	 isTranslated()	      const { return ((ioMode & IO_Translate)  == IO_Translate); }
-    bool	 isReadable()	      const { return ((ioMode & IO_ReadOnly)   == IO_ReadOnly); }
-    bool	 isWritable()	      const { return ((ioMode & IO_WriteOnly)  == IO_WriteOnly); }
-    bool	 isReadWrite()	      const { return ((ioMode & IO_ReadWrite)  == IO_ReadWrite); }
+    bool	 isDirectAccess()     const { return ((ioMode & Direct)     == Direct); }
+    bool	 isSequentialAccess() const { return ((ioMode & Sequential) == Sequential); }
+    bool	 isCombinedAccess()   const { return ((ioMode & Combined)   == Combined); }
+    bool	 isBuffered()	      const { return ((ioMode & Raw)        != Raw); }
+    bool	 isRaw()	      const { return ((ioMode & Raw)        == Raw); }
+    bool	 isSynchronous()      const { return ((ioMode & Async)      != Async); }
+    bool	 isAsynchronous()     const { return ((ioMode & Async)      == Async); }
+    bool	 isTranslated()	      const { return ((ioMode & Translate)  == Translate); }
+    bool	 isReadable()	      const { return ((ioMode & ReadOnly)   == ReadOnly); }
+    bool	 isWritable()	      const { return ((ioMode & WriteOnly)  == WriteOnly); }
+    bool	 isReadWrite()	      const { return ((ioMode & ReadWrite)  == ReadWrite); }
     bool	 isInactive()	      const { return state() == 0; }
-    bool	 isOpen()	      const { return state() == IO_Open; }
+    bool	 isOpen()	      const { return state() == Open; }
 
     int		 status() const { return ioSt; }
-    void	 resetStatus()	{ ioSt = IO_Ok; }
+    void	 resetStatus()	{ ioSt = Ok; }
 
     virtual bool open( int mode ) = 0;
     virtual void close() = 0;
@@ -131,5 +135,37 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+
+// Compatibility defines
+
+#define IO_Direct QIODevice::Direct
+#define IO_Sequential QIODevice::Sequential
+#define IO_Combined QIODevice::Combined
+#define IO_TypeMask QIODevice::TypeMask
+
+#define IO_Raw QIODevice::Raw
+#define IO_Async QIODevice::Async
+
+#define IO_ReadOnly QIODevice::ReadOnly
+#define IO_WriteOnly QIODevice::WriteOnly
+#define IO_ReadWrite QIODevice::ReadWrite
+#define IO_Append QIODevice::Append
+#define IO_Truncate QIODevice::Truncate
+#define IO_Translate QIODevice::Translate
+#define IO_ModeMask QIODevice::ModeMask
+
+#define IO_Open QIODevice::Open
+#define IO_StateMask QIODevice::StateMask
+
+#define IO_Ok QIODevice::Ok
+#define IO_ReadError QIODevice::ReadError
+#define IO_WriteError QIODevice::WriteError
+#define IO_FatalError QIODevice::FatalError
+#define IO_ResourceError QIODevice::ResourceError
+#define IO_OpenError QIODevice::OpenError
+#define IO_ConnectError QIODevice::ConnectError
+#define IO_AbortError QIODevice::AbortError
+#define IO_TimeOutError QIODevice::TimeOutError
+#define IO_UnspecifiedError QIODevice::UnspecifiedError
 
 #endif // QIODEVICE_H

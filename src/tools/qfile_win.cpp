@@ -26,9 +26,9 @@ extern const char* qt_fileerr_read;
 
 QByteArray qt_win95Name(const QString s)
 {
+    QString ss(s);
     if ( s[0] == '/' && s[1] == '/' ) {
 	// Win95 cannot handle slash-slash needs slosh-slosh.
-	QString ss(s);
 	ss[0] = '\\';
 	ss[1] = '\\';
 	int n = ss.indexOf('/');
@@ -36,16 +36,13 @@ QByteArray qt_win95Name(const QString s)
 	    ss[n] = '\\';
 	return ss.toLocal8Bit();
     } else if ( s.length() > 3 && s[2] == '/' && s[3] == '/' ) {
-	QString ss(s);
 	ss[2] = '\\';
 	ss.remove( 3, 1 );
 	int n = ss.indexOf('/');
 	if ( n >= 0 )
 	    ss[n] = '\\';
-	return ss.toLocal8Bit();
-    } else {
-	return s.toLocal8Bit();
     }
+    return ss.toLocal8Bit();
 }
 
 bool QFileInfoPrivate::access( const QString& fn, int t )
