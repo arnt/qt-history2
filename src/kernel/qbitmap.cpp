@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#7 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#7 $";
 #endif
 
 
@@ -103,6 +103,7 @@ QBitmap &QBitmap::operator=( const QImage &im )
 
 /*!
 Returns a deep copy of the bitmap.  All pixels are copied using bitBlt().
+\sa operator=().
 */
 
 QBitmap QBitmap::copy() const
