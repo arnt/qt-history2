@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.h#1 $
+** $Id: //depot/qt/main/etc/opengl/qgl.h#2 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -55,12 +55,12 @@ protected:
 #if defined(_OS_WIN32_)
     virtual HANDLE  getContext( QPaintDevice * ) const;
 #else
-    virtual void   *getVisual() const;
+    virtual void   *getVisualInfo() const;
     virtual uint    getContext( QPaintDevice * ) const;
 #endif
 
 public:
-    struct Internal : public QShared {
+    struct Internal : /* public */ QShared {
 	bool	    dirty;
 	bool        double_buffer;
 	ColorMode   color_mode;
@@ -76,18 +76,50 @@ private:
 };
 
 
+class QGLContext
+{
+public:
+    QGLContext( const QGLFormat &, QPaintDevice * );
+   ~QGLContext();
+
+    const QGLFormat &format() const;
+    QPaintDevice    *device() const;
+
+    void    makeCurrent();
+    void    swapBuffers();
+
+private:
+    void    init();
+    void    cleanup();
+    void    doneCurrent();
+
+    QGLFormat	  glFormat;
+    QPaintDevice *paintDevice;
+#if defined(_OS_WIN32_)
+    bool	  current, tmpdc;
+    HANDLE	  rc, win, dc;
+#endif
+
+private:	// Disabled copy constructor and operator=
+    QGLContext() {}
+    QGLContext( const QGLContext & ) {}
+    QGLContext &operator=( const QGLContext & ) { return *this; }
+
+    friend class QGLWidget;
+};
+
+
 class QGLWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QGLWidget( const QGLFormat &format, QWidget *parent=0, const char *name=0 );
     QGLWidget( QWidget *parent=0, const char *name=0 );
-   ~QGLWidget();
-
-    bool	doubleBuffer() const;
-    void	swapBuffers();
+    QGLWidget( const QGLFormat &format, QWidget *parent=0, const char *name=0 );
 
     void	makeCurrent();
+    void	swapBuffers();
+
+    QGLContext *context();
 
 public slots:
     void	updateGL();
@@ -98,12 +130,13 @@ protected:
 
     void	paintEvent( QPaintEvent * );
     void	resizeEvent( QResizeEvent * );
-#if defined(_OS_WIN32_)
-    bool	winEvent( MSG * );
-#endif
 
 private:
-    QGLFormat	glf;
+    QGLContext	glContext;
+
+private:	// Disabled copy constructor and operator=
+    QGLWidget( const QGLWidget & ) {}
+    QGLWidget &operator=( const QGLWidget & ) { return *this; }
 };
 
 
@@ -142,12 +175,36 @@ inline void QGLFormat::setDirty( bool dirty )
 }
 
 //
+// QGLContext inline functions
+//
+
+inline const QGLFormat &QGLContext::format() const
+{
+    return glFormat;
+}
+
+inline QPaintDevice *QGLContext::device() const
+{
+    return paintDevice;
+}
+
+//
 // QGLWidget inline functions
 //
 
-inline bool QGLWidget::doubleBuffer() const
+inline void QGLWidget::makeCurrent()
 {
-    return glf.doubleBuffer();
+    glContext.makeCurrent();
+}
+
+inline void QGLWidget::swapBuffers()
+{
+    glContext.swapBuffers();
+}
+
+inline QGLContext *QGLWidget::context()
+{
+    return &glContext;
 }
 
 inline void QGLWidget::updateGL()

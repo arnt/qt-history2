@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.cpp#1 $
+** $Id: //depot/qt/main/etc/opengl/qgl.cpp#2 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -10,13 +10,11 @@
 *****************************************************************************/
 
 #include "qgl.h"
-#undef WGL
-#undef GLX
 
 #if defined(_OS_WIN32_)
-#define WGL
+#define USE_WGL
 #else
-#define GLX
+#define USE_GLX
 #if defined(_OS_IRIX_)
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
@@ -25,11 +23,24 @@
 #undef INT32
 #else
 #include <GL/glx.h>
-#endif
+#endif // _OS_IRIX
+#define GLX
+#endif // _OS_WIN32_
+
+RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#2 $");
+
+
+#if defined(_CC_MSVC_)
+#pragma warning(disable:4355) // 'this' : used in base member initializer list
 #endif
 
 
-/*!
+/*****************************************************************************
+  QGLFormat implementation
+ *****************************************************************************/
+
+ 
+ /*!
   \class QGLFormat qgl.h
   \brief Specification of OpenGL rendering format for Qt programs.
 
@@ -183,7 +194,7 @@ void QGLFormat::setDepthBits( int n )
 
 bool QGLFormat::hasOpenGL()
 {
-#if defined(WGL)
+#if defined(USE_WGL)
     return TRUE;
 #else
     return glxQueryExtension(qt_xdisplay(),0,0) != 0;
@@ -199,7 +210,7 @@ static void cleanupGLFormat()
     default_format = 0;
 }
 
-const QGLFormat &defaultFormat()
+const QGLFormat &QGLFormat::defaultFormat()
 {
     if ( !default_format ) {
 	default_format = new QGLFormat;
@@ -208,7 +219,7 @@ const QGLFormat &defaultFormat()
     return *default_format;
 }
 
-void setDefaultFormat( const QGLFormat &f )
+void QGLFormat::setDefaultFormat( const QGLFormat &f )
 {
     delete default_format;
     default_format = new QGLFormat( f );
@@ -229,7 +240,7 @@ QString QGLFormat::createKey() const
 }
 
 
-#if defined(WGL)
+#if defined(USE_WGL)
 
 HANDLE QGLFormat::getContext( QPaintDevice *pdev ) const
 {
@@ -237,15 +248,16 @@ HANDLE QGLFormat::getContext( QPaintDevice *pdev ) const
     memset( &pfd, 0, sizeof(PIXELFORMATDESCRIPTOR) );
     pfd.nSize	 = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion = 1;
-    int f = PFD_SUPPORT_OPENGL;
-    if ( pdev->devType() == PDT_WIDGET )
-	f = PFD_DRAW_TO_WINDOW;
-    else if ( pdev->devType() == PDT_PIXMAP )
-	f = PFD_DRAW_TO_BITMAP;
+    int  f = PFD_SUPPORT_OPENGL;
+    if ( pdev->devType() == PDT_WIDGET ) {
+	f |= PFD_DRAW_TO_WINDOW;
+    } else if ( pdev->devType() == PDT_PIXMAP ) {
+	f |= PFD_DRAW_TO_BITMAP;
+    } else {
 #if defined(CHECK_RANGE)
-    else
 	warning( "QGLFormat::getContext: Bad paint device type" );
 #endif
+    }
     if ( doubleBuffer() )
 	f |= PFD_DOUBLEBUFFER;
     pfd.dwFlags = f;
@@ -257,25 +269,271 @@ HANDLE QGLFormat::getContext( QPaintDevice *pdev ) const
 
     HANDLE dc;
     HANDLE rc;
+    HANDLE win = 0;
     int pixelFormatId;
-    dc = pdev->handle();
+    if ( pdev->devType() == PDT_WIDGET ) {
+	win = ((QWidget *)pdev)->winId();
+	dc = GetDC( win );
+    } else {
+	dc = pdev->handle();
+    }
     pixelFormatId = ChoosePixelFormat( dc, &pfd );
     SetPixelFormat( dc, pixelFormatId, &pfd );
     rc = wglCreateContext( dc );
-//    ReleaseDC( winId(), hdc );
+    if ( win )
+	ReleaseDC( win, dc );
     return rc;
 }
 
 #endif // WGL
 
 
-#if defined(GLX)
+#if defined(USE_GLX)
+
+/*
+  Returns a score that describes how well the visual info matches
+  the requested QGLFormat.
+*/
 
 static int score( const QGLFormat *f, XDisplay *dpy, XVisualInfo *vi )
 {
     int doubleBuffer;
+    int rgbaMode;
+    int colorBits;
+    int depthBits;
     glXGetConfig( dpy, vi, GLX_DOUBLEBUFFER, &doubleBuffer );
-    ...
+    glXGetConfig( dpy, vi, GLX_RGBA,	     &rgbaMode );
+    glXGetConfig( dpy, vi, GLX_BUFFER_SIZE,  &colorBits );
+    glXGetConfig( dpy, vi, GLX_DEPTH_SIZE,   &depthBits );
+    int score = 0;
+    if ( (doubleBuffer && f->doubleBuffer()) ||
+	!(doubleBuffer || f->doubleBuffer()) )
+	score += 1000;
+    if ( (rgbaMode && f->colorMode() == QGLFormat::Rgba) ||
+	!(rgbaMode || f->colorMode() == QGLFormat::Rgba) )
+	score += 2000;
+    if ( colorBits < f->colorBits() )
+	score -= (f->colorBits() - colorBits)*10;
+    if ( depthBits < f->depthBits() )
+	score -= (f->depthBits() - depthBits)*10;
+    return score;
 }
 
+void *QGLFormat::getVisualInfo() const
+{
+
+}
+
+uint QGLFormat::getContext( QPaintDevice * ) const
+{
+}
+
+#endif // GLX
+
+
+
+/*****************************************************************************
+  QGLContext implementation
+ *****************************************************************************/
+
+
+QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
+    : glFormat(format), paintDevice(device)
+{
+    init();
+}
+
+QGLContext::~QGLContext()
+{
+    cleanup();
+}
+
+#if defined(USE_WGL)
+
+void QGLContext::init()
+{
+    PIXELFORMATDESCRIPTOR pfd;
+    memset( &pfd, 0, sizeof(PIXELFORMATDESCRIPTOR) );
+    pfd.nSize	 = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion = 1;
+    int f = PFD_SUPPORT_OPENGL;
+    if ( paintDevice->devType() == PDT_WIDGET ) {
+	f |= PFD_DRAW_TO_WINDOW;
+    } else if ( paintDevice->devType() == PDT_PIXMAP ) {
+	f |= PFD_DRAW_TO_BITMAP;
+    } else {
+#if defined(CHECK_RANGE)
+	warning( "QGLContext: Bad paint device type" );
 #endif
+    }
+    if ( glFormat.doubleBuffer() )
+	f |= PFD_DOUBLEBUFFER;
+    pfd.dwFlags = f;
+    pfd.iPixelType = glFormat.colorMode() == QGLFormat::Rgba ?
+	PFD_TYPE_RGBA : PFD_TYPE_COLORINDEX;
+    pfd.cColorBits = glFormat.colorBits();
+    pfd.cDepthBits = glFormat.depthBits();
+    pfd.iLayerType = PFD_MAIN_PLANE;
+
+    win = 0;
+    int pixelFormatId;
+    if ( paintDevice->devType() == PDT_WIDGET ) {
+	win = ((QWidget *)paintDevice)->winId();
+	dc = GetDC( win );
+    } else {
+	dc = paintDevice->handle();
+    }
+    pixelFormatId = ChoosePixelFormat( dc, &pfd );
+    SetPixelFormat( dc, pixelFormatId, &pfd );
+    rc = wglCreateContext( dc );
+    if ( win ) {
+	ReleaseDC( win, dc );
+	dc = 0;
+    }
+    current = FALSE;
+}
+
+void QGLContext::cleanup()
+{
+    if ( current )
+	doneCurrent();
+    wglDeleteContext( rc );
+}
+
+//
+// NOTE: In a multi-threaded environment, each thread has a current GL
+// context. If we want to make this code thread-safe, we probably
+// have to use TLS (thread local storage) for keeping current contexts.
+//
+
+static QGLContext *currentContext = 0;
+
+void QGLContext::makeCurrent()
+{
+    if ( currentContext ) {
+	if ( current )				// already current
+	    return;
+	currentContext->doneCurrent();
+    }
+    dc = paintDevice->handle();
+    if ( dc ) {
+	tmpdc = FALSE;
+    } else {
+	tmpdc = TRUE;
+	dc = GetDC( win );
+    }
+    wglMakeCurrent( dc, rc );
+    current = TRUE;
+    currentContext = this;
+}
+
+void QGLContext::doneCurrent()
+{
+    if ( !current )
+	return;
+    wglMakeCurrent( 0, 0 );
+    if ( tmpdc ) {
+#if defined(DEBUG)
+	ASSERT( win != 0 );
+#endif
+	ReleaseDC( win, dc );
+	dc = 0;
+    }
+    current = FALSE;
+    currentContext = 0;
+}
+
+void QGLContext::swapBuffers()
+{
+    if ( dc )
+	SwapBuffers( dc );
+}
+
+#endif // USE_WGL
+
+
+/*****************************************************************************
+  QGLWidget implementation
+ *****************************************************************************/
+
+
+/*!
+  Constructs an OpenGL widget with a \e parent widget and a \e name.
+
+  The \link QGLFormat::defaultFormat() default GL format\endlink is
+  used.
+
+  \sa QGLFormat::defaultFormat()
+*/
+
+QGLWidget::QGLWidget( QWidget *parent, const char *name )
+    : QWidget(parent, name), glContext(QGLFormat::defaultFormat(), this)
+{
+    setBackgroundColor( black );
+}
+
+
+/*!
+  Constructs an OpenGL widget with a \e parent widget and a \e name.
+
+  The \e format argument specifies the rendering capabilities.
+*/
+
+QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
+		      const char *name )
+    : QWidget(parent, name), glContext(format,this)
+{
+    setBackgroundColor( black );
+}
+
+
+/*!
+  \fn void GLWidget::updateGL()
+
+  Updates the widget by calling paintGL().
+*/
+
+
+/*!
+  This virtual function is called whenever the widget needs to be painted.
+  Reimplement it in a subclass.
+*/
+
+void QGLWidget::paintGL()
+{
+}
+
+
+/*!
+  This virtual function is called whenever the widget has been resized.
+  Reimplement it in a subclass.
+*/
+
+void QGLWidget::resizeGL( int, int )
+{
+}
+
+
+/*!
+  Handles paint events. Calls the virtual function paintGL().
+*/
+
+void QGLWidget::paintEvent( QPaintEvent * )
+{
+    glContext.makeCurrent();
+    paintGL();
+    glContext.swapBuffers();
+    glContext.doneCurrent();
+
+}
+
+/*!
+  Handles resize events. Calls the virtual function resizeGL().
+*/
+
+void QGLWidget::resizeEvent( QResizeEvent * )
+{
+    glContext.makeCurrent();
+    resizeGL( width(), height() );
+    glContext.doneCurrent();
+}
