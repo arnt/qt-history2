@@ -707,9 +707,10 @@ QDir::cd(const QString &dirName, bool acceptAbsPath)
                   while (dir.cdUp())
                       ;
             */
-            if (newPath[0] == QLatin1Char('.') && newPath[1] == QLatin1Char('.') &&
-                (newPath.length() == 2 || newPath[2] == QLatin1Char('/')))
+            if (newPath.startsWith(QLatin1String(".."))) {
                 newPath = QFileInfo(newPath).absoluteFilePath();
+                Q_ASSERT(QFileInfo(newPath).exists());
+            }
         }
     }
     {
@@ -1682,6 +1683,8 @@ QDir::cleanPath(const QString &path)
         ret = name;
     else
 	ret = QString(out.data(), used);
+    if (ret.endsWith("/") || ret.endsWith("//"))
+        ret = ret.left(ret.length() - 1);
     return ret;
 }
 
