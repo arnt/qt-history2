@@ -19,6 +19,7 @@
 #include <QtGui/qevent.h>
 
 class FormWindow;
+class QAction;
 
 class WidgetEditorTool: public AbstractFormWindowTool
 {
@@ -30,6 +31,7 @@ public:
     virtual AbstractFormEditor *core() const;
     virtual AbstractFormWindow *formWindow() const;
     virtual QWidget *editor() const;
+    virtual QAction *action() const;
 
     virtual void activated();
     virtual void deactivated();
@@ -47,6 +49,7 @@ public:
 
 private:
     FormWindow *m_formWindow;
+    QAction *m_action;
 };
 
 #endif // TOOL_WIDGETEDITOR_H

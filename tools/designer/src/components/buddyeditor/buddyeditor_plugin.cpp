@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtGui/QAction>
+
 #include "buddyeditor_plugin.h"
 #include "buddyeditor_tool.h"
 
@@ -37,6 +39,8 @@ void BuddyEditorPlugin::initialize(AbstractFormEditor *core)
 {
     Q_ASSERT(!isInitialized());
 
+    m_action = new QAction(tr("Edit Buddies"), this);
+    
     setParent(core);
     m_core = core;
     m_initialized = true;
@@ -60,6 +64,7 @@ void BuddyEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
 
     BuddyEditorTool *tool = new BuddyEditorTool(formWindow, this);
     m_tools[formWindow] = tool;
+    connect(m_action, SIGNAL(triggered()), tool->action(), SLOT(trigger()));
     formWindow->registerTool(tool);
 }
 
@@ -70,8 +75,14 @@ void BuddyEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
 
     BuddyEditorTool *tool = m_tools.value(formWindow);
     m_tools.remove(formWindow);
+    disconnect(m_action, SIGNAL(triggered()), tool->action(), SLOT(trigger()));
     // ### FIXME disable the tool
 
     delete tool;
+}
+
+QAction *BuddyEditorPlugin::action() const
+{
+    return m_action;
 }
 

@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtGui/QAction>
+
 #include "signalsloteditor_plugin.h"
 #include "signalsloteditor_tool.h"
 
@@ -20,7 +22,7 @@
 
 
 SignalSlotEditorPlugin::SignalSlotEditorPlugin()
-    : m_initialized(false)
+    : m_initialized(false), m_action(0)
 {
 }
 
@@ -37,6 +39,8 @@ void SignalSlotEditorPlugin::initialize(AbstractFormEditor *core)
 {
     Q_ASSERT(!isInitialized());
 
+    m_action = new QAction(tr("Edit Signals/Slots"), this);
+    
     setParent(core);
     m_core = core;
     m_initialized = true;
@@ -59,6 +63,7 @@ void SignalSlotEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
     Q_ASSERT(m_tools.contains(formWindow) == false);
 
     SignalSlotEditorTool *tool = new SignalSlotEditorTool(formWindow, this);
+    connect(m_action, SIGNAL(triggered()), tool->action(), SLOT(trigger()));
     m_tools[formWindow] = tool;
     formWindow->registerTool(tool);
 }
@@ -70,8 +75,13 @@ void SignalSlotEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
 
     SignalSlotEditorTool *tool = m_tools.value(formWindow);
     m_tools.remove(formWindow);
+    disconnect(m_action, SIGNAL(triggered()), tool->action(), SLOT(trigger()));
     // ### FIXME disable the tool
 
     delete tool;
 }
 
+QAction *SignalSlotEditorPlugin::action() const
+{
+    return m_action;
+}

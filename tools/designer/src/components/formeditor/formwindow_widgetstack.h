@@ -18,6 +18,8 @@
 
 #include <QtGui/QWidget>
 
+class AbstractFormWindowTool;
+
 class QT_FORMEDITOR_EXPORT FormWindowWidgetStack: public QWidget
 {
     Q_OBJECT
@@ -26,25 +28,26 @@ public:
     virtual ~FormWindowWidgetStack();
 
     int count() const;
-    QWidget *widget(int index) const;
-    int indexOf(QWidget *widget) const;
-
+    AbstractFormWindowTool *tool(int index) const;
+    AbstractFormWindowTool *currentTool() const;
     int currentIndex() const;
+    int indexOf(AbstractFormWindowTool *tool) const;
 
 signals:
-    void currentIndexChanged(int index);
+    void currentToolChanged(int index);
 
 public slots:
-    void setCurrentIndex(int index);
-    void addWidget(QWidget *widget);
-    void insertWidget(int index, QWidget *widget);
+    void addTool(AbstractFormWindowTool *tool);
+    void setCurrentTool(AbstractFormWindowTool *tool);
+    void setCurrentTool(int index);
+    void setSenderAsCurrentTool();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
 
 private:
-    QList<QWidget*> m_widgets;
-    int m_currentIndex;
+    QList<AbstractFormWindowTool*> m_tools;
+    int m_current_index;
 };
 
 #endif // FORMWINDOW_WIDGETSTACK_H

@@ -23,6 +23,7 @@
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
 #include <abstractformwindowmanager.h>
+#include <abstractformeditorplugin.h>
 #include <qdesigner_formbuilder.h>
 #include <qtundo.h>
 
@@ -33,6 +34,8 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+
+#include <QtCore/QPluginLoader>
 
 QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     : QObject(mainWindow),
@@ -64,6 +67,10 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_windowActions = new QActionGroup(this);
     m_windowActions->setExclusive(false);
 
+    m_toolActions = new QActionGroup(this);
+    m_toolActions->setExclusive(true);
+    
+    
 //
 // file actions
 //
@@ -153,6 +160,20 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 //
 // edit mode actions
 //
+
+    QAction *editWidgetsAction = new QAction(tr("Edit Widgets"), this);
+    editWidgetsAction->setCheckable(true);
+    connect(editWidgetsAction, SIGNAL(triggered()), this, SLOT(editWidgets()));
+    m_toolActions->addAction(editWidgetsAction);
+    editWidgetsAction->setChecked(true);
+    QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
+    foreach (QObject *plugin, builtinPlugins) {
+        if (AbstractFormEditorPlugin *formEditorPlugin = qt_cast<AbstractFormEditorPlugin*>(plugin)) {
+            m_toolActions->addAction(formEditorPlugin->action());
+            formEditorPlugin->action()->setCheckable(true);
+        }
+    }
+
     m_editWidgets = new QAction(tr("Edit Widgets"), this);
     m_editWidgets->setShortcut(tr("F2"));
     m_editWidgets->setCheckable(true);
@@ -224,6 +245,9 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 QDesignerActions::~QDesignerActions()
 {
 }
+
+QActionGroup *QDesignerActions::toolActions() const
+{ return m_toolActions; }
 
 QDesignerMainWindow *QDesignerActions::mainWindow() const
 { return m_mainWindow; }
@@ -341,6 +365,15 @@ QAction *QDesignerActions::editTabOrders() const
 
 QAction *QDesignerActions::showWorkbenchAction() const
 { return m_showWorkbenchAction; }
+
+void QDesignerActions::editWidgets()
+{
+    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
+    for (int i=0; i<formWindowManager->formWindowCount(); ++i) {
+        AbstractFormWindow *formWindow = formWindowManager->formWindow(i);
+        formWindow->editWidgets();
+    }
+}
 
 void QDesignerActions::updateEditMode(QAction *action)
 {

@@ -74,8 +74,7 @@ DropLine::DropLine(QWidget *parent)
 
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WFlags flags)
     : AbstractFormWindow(parent, flags),
-      m_core(core),
-      m_currentTool(-1)
+      m_core(core), m_widgetStack(0)
 {
     init();
 
@@ -200,9 +199,9 @@ void FormWindow::init()
     layout->setMargin(0);
 
     m_widgetStack = new FormWindowWidgetStack(this);
+    connect(m_widgetStack, SIGNAL(currentToolChanged(int)), this, SIGNAL(toolChanged(int)));
     layout->addWidget(m_widgetStack);
 
-    m_currentTool = -1;
     m_editMode = WidgetEditMode;
     m_feature = DefaultFeature;
 
@@ -260,27 +259,19 @@ void FormWindow::setMainContainer(QWidget *w)
         return;
     }
 
-    int indexOfMainContainer = -1;
-
     if (m_mainContainer) {
-        indexOfMainContainer = m_widgetStack->indexOf(m_mainContainer);
-        Q_ASSERT(indexOfMainContainer == 0);
-
         unmanageWidget(m_mainContainer);
-        setCurrentWidget(0);
         delete m_mainContainer;
         m_mainContainer = 0;
     }
 
     m_mainContainer = w;
 
-    m_mainContainer->setParent(0, 0);
-    m_widgetStack->insertWidget(0, m_mainContainer);
+    m_mainContainer->setParent(m_widgetStack, 0);
     m_mainContainer->raise();
     m_mainContainer->show();
 
-    m_widgetStack->setCurrentIndex(0);
-    m_currentTool = 0;
+    m_widgetStack->setCurrentTool(m_widgetEditor);
 
     setCurrentWidget(m_mainContainer);
 
@@ -1917,7 +1908,7 @@ void FormWindow::setEditMode(EditMode mode)
 
     switch (m_editMode) {
         case WidgetEditMode: {
-            setCurrentTool(0);
+            m_widgetStack->setCurrentTool(m_widgetEditor);
 
             QList<QWidget*> sel = selectedWidgets();
             foreach (QWidget *w, sel)
@@ -1927,11 +1918,11 @@ void FormWindow::setEditMode(EditMode mode)
         }
 
         case BuddyEditMode: {
-            setCurrentTool(1);
+//            setCurrentTool(1);
         } break;
 
         case ConnectionEditMode: {
-            setCurrentTool(2);
+//            setCurrentTool(2);
         } break;
 
         case TabOrderEditMode:
@@ -1975,26 +1966,19 @@ void FormWindow::createConnections(DomConnections *connections, QWidget *parent)
 
 int FormWindow::toolCount() const
 {
-    return m_tools.count();
+    return m_widgetStack->count();
 }
 
 AbstractFormWindowTool *FormWindow::tool(int index) const
 {
-    return m_tools.at(index);
+    return m_widgetStack->tool(index);
 }
 
 void FormWindow::registerTool(AbstractFormWindowTool *tool)
 {
     Q_ASSERT(tool != 0);
 
-    m_tools.append(tool);
-
-    if (QWidget *editor = tool->editor()) {
-        editor->setParent(m_widgetStack, 0);
-        m_widgetStack->insertWidget(-1, editor);
-        editor->show();
-        m_widgetStack->setCurrentIndex(0);
-    }
+    m_widgetStack->addTool(tool);
 
     if (m_mainContainer)
         m_mainContainer->update();
@@ -2002,40 +1986,22 @@ void FormWindow::registerTool(AbstractFormWindowTool *tool)
 
 void FormWindow::setCurrentTool(int index)
 {
-    if (m_currentTool == index) {
-        // nothing to do.
-        return;
-    }
-
-    if (m_currentTool != -1)
-        m_tools.at(m_currentTool)->deactivated();
-
-    m_currentTool = index;
-
-    AbstractFormWindowTool *tool = m_tools.at(m_currentTool);
-    Q_ASSERT(tool != 0);
-
-    m_widgetStack->setCurrentIndex(m_currentTool);
-
-    QWidget *editor = tool->editor();
-    editor->raise(); // ### remove me
-
-    tool->activated();
-
-    emit toolChanged(m_currentTool);
+    m_widgetStack->setCurrentTool(index);
 }
 
 int FormWindow::currentTool() const
 {
-    return m_currentTool;
+    return m_widgetStack->currentIndex();
 }
 
 bool FormWindow::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event)
 {
-    if (m_currentTool == -1)
+    if (m_widgetStack == 0)
         return false;
 
-    AbstractFormWindowTool *tool = m_tools.at(m_currentTool);
+    AbstractFormWindowTool *tool = m_widgetStack->currentTool();
+    if (tool == 0)
+        return false;
     bool handled = tool->handleEvent(widget, managedWidget, event);
 
     return handled;
@@ -2043,10 +2009,8 @@ bool FormWindow::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *ev
 
 void FormWindow::initializeCoreTools()
 {
-    WidgetEditorTool *widgetEditor = new WidgetEditorTool(this);
-    registerTool(widgetEditor);
-
-    m_currentTool = m_tools.indexOf(widgetEditor); // ### generalize
+    m_widgetEditor = new WidgetEditorTool(this);
+    registerTool(m_widgetEditor);
 }
 
 void FormWindow::checkSelection()
@@ -2084,6 +2048,11 @@ void FormWindow::setAuthor(const QString &author)
 void FormWindow::setComment(const QString &comment)
 {
     m_comment = comment;
+}
+
+void FormWindow::editWidgets()
+{
+    m_widgetEditor->action()->trigger();
 }
 
 #include "formwindow.moc"

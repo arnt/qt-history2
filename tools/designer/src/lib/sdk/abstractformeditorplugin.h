@@ -19,6 +19,7 @@
 #include <QtCore/QObject>
 
 class AbstractFormEditor;
+class QAction;
 
 struct QT_SDK_EXPORT AbstractFormEditorPlugin
 {
@@ -26,6 +27,7 @@ struct QT_SDK_EXPORT AbstractFormEditorPlugin
 
     virtual bool isInitialized() const = 0;
     virtual void initialize(AbstractFormEditor *core) = 0;
+    virtual QAction *action() const = 0;
 
     virtual AbstractFormEditor *core() const = 0;
 };

@@ -23,6 +23,7 @@
 class AbstractFormEditor;
 class AbstractFormWindow;
 class BuddyEditor;
+class QAction;
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditorTool: public AbstractFormWindowTool
 {
@@ -35,6 +36,7 @@ public:
     virtual AbstractFormWindow *formWindow() const;
 
     virtual QWidget *editor() const;
+    virtual QAction *action() const;
 
     virtual void activated();
     virtual void deactivated();
@@ -44,6 +46,7 @@ public:
 private:
     AbstractFormWindow *m_formWindow;
     mutable QPointer<BuddyEditor> m_editor;
+    QAction *m_action;
 };
 
 #endif // BUDDYEDITOR_TOOL_H

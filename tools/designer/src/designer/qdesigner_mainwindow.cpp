@@ -41,9 +41,6 @@ QDesignerMainWindow::QDesignerMainWindow(QWidget *parent, Qt::WFlags flags)
       m_workbench(0), m_savedAlready(false)
 {
     initialize();
-
-    // ### from settings
-    m_actionManager->editWidgets()->setChecked(true);
 }
 
 QDesignerMainWindow::~QDesignerMainWindow()
@@ -81,7 +78,7 @@ void QDesignerMainWindow::initialize()
 
     m_editMenu->addSeparator();
 
-    foreach (QAction *action, m_actionManager->editModeActions()->actions()) {
+    foreach (QAction *action, m_actionManager->toolActions()->actions()) {
         m_editMenu->addAction(action);
     }
 

@@ -11,17 +11,19 @@
 **
 ****************************************************************************/
 
+#include <abstractformwindowtool.h>
 #include "formwindow_widgetstack.h"
 
 #include <QtGui/QWidget>
 #include <QtGui/qevent.h>
+#include <QtGui/QAction>
 
 #include <QtCore/qdebug.h>
 
 
 FormWindowWidgetStack::FormWindowWidgetStack(QWidget *parent)
     : QWidget(parent),
-      m_currentIndex(-1)
+      m_current_index(-1)
 {
 }
 
@@ -31,59 +33,119 @@ FormWindowWidgetStack::~FormWindowWidgetStack()
 
 int FormWindowWidgetStack::count() const
 {
-    return m_widgets.count();
+    return m_tools.count();
 }
 
-QWidget *FormWindowWidgetStack::widget(int index) const
+AbstractFormWindowTool *FormWindowWidgetStack::currentTool() const
 {
-    return m_widgets.at(index);
+    if (m_current_index == -1)
+        return 0;
+    return m_tools.at(m_current_index);
 }
 
-int FormWindowWidgetStack::indexOf(QWidget *widget) const
+void FormWindowWidgetStack::setCurrentTool(int index)
 {
-    return m_widgets.indexOf(widget);
+    qDebug() << "FormWindowWidgetStack::setCurrentTool():" << index;
+    if (index < 0 || index >= count()) {
+        qWarning("FormWindowWidgetStack::setCurrentTool(): invalid index: %d", index);
+        return;
+    }
+    
+    if (index == m_current_index)
+        return;
+
+    if (m_current_index != -1)
+        m_tools.at(m_current_index)->deactivated();
+        
+    m_current_index = index;
+
+    AbstractFormWindowTool *tool = m_tools.at(m_current_index);
+    tool->activated();
+    QWidget *w = tool->editor();
+    if (w != 0) {
+        w->raise();
+        qDebug() << "Raising" << w;
+    }
+    
+    emit currentToolChanged(index);
 }
 
-int FormWindowWidgetStack::currentIndex() const
+void FormWindowWidgetStack::setSenderAsCurrentTool()
 {
-    return m_currentIndex;
-}
+    AbstractFormWindowTool *tool = 0;
+    QAction *action = qt_cast<QAction*>(sender());
+    if (action == 0) {
+        qWarning("FormWindowWidgetStack::setSenderAsCurrentTool(): sender is not a QAction");
+        return;
+    }
+    
+    foreach (AbstractFormWindowTool *t, m_tools) {
+        if (action == t->action()) {
+            tool = t;
+            break;
+        }
+    }
 
-void FormWindowWidgetStack::setCurrentIndex(int index)
-{
-    if (m_currentIndex == index) {
-        // nothing to do
+    if (tool == 0) {
+        qWarning("FormWindowWidgetStack::setSenderAsCurrentTool(): unknown tool");
         return;
     }
 
-    m_currentIndex = index;
-    m_widgets.at(m_currentIndex)->raise();
-    
-    emit currentIndexChanged(m_currentIndex);
+    setCurrentTool(tool);
 }
 
-void FormWindowWidgetStack::addWidget(QWidget *widget)
+int FormWindowWidgetStack::indexOf(AbstractFormWindowTool *tool) const
 {
-    insertWidget(-1, widget);
-    setCurrentIndex(count() - 1);
+    for (int i = 0; i < m_tools.size(); ++i) {
+        if (m_tools.at(i) == tool)
+            return i;
+    }
+
+    return -1;
 }
 
-void FormWindowWidgetStack::insertWidget(int index, QWidget *widget)
+void FormWindowWidgetStack::setCurrentTool(AbstractFormWindowTool *tool)
 {
-    widget->setParent(this, 0);
-    m_widgets.insert(index, widget);
+    int index = indexOf(tool);
+    if (index == -1) {
+        qWarning("FormWindowWidgetStack::setCurrentTool(): unknown tool");
+        return;
+    }
+
+    setCurrentTool(index);
+}
+
+void FormWindowWidgetStack::addTool(AbstractFormWindowTool *tool)
+{
+    QWidget *w = tool->editor();
+    if (w != 0)
+        w->setParent(this);
+
+    m_tools.append(tool);
+
+    connect(tool->action(), SIGNAL(triggered()), this, SLOT(setSenderAsCurrentTool()));
 }
 
 void FormWindowWidgetStack::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
-    foreach (QWidget *widget, m_widgets) {
-        widget->setGeometry(0, 0, event->size().width(), event->size().height());
-    }
-
-    if (m_currentIndex != -1) {
-        widget(m_currentIndex)->raise();
+    foreach (AbstractFormWindowTool *tool, m_tools) {
+        QWidget *w = tool->editor();
+        if (w != 0)
+            w->setGeometry(0, 0, event->size().width(), event->size().height());
     }
 }
 
+AbstractFormWindowTool *FormWindowWidgetStack::tool(int index) const
+{
+    if (index < 0 || index >= count())
+        return 0;
+
+    return m_tools.at(index);
+}
+
+int FormWindowWidgetStack::currentIndex() const
+{
+    return m_current_index;
+}

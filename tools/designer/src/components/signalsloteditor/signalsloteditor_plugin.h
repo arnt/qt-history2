@@ -34,6 +34,7 @@ public:
 
     virtual bool isInitialized() const;
     virtual void initialize(AbstractFormEditor *core);
+    virtual QAction *action() const;
 
     virtual AbstractFormEditor *core() const;
 
@@ -45,6 +46,7 @@ private:
     QPointer<AbstractFormEditor> m_core;
     QHash<AbstractFormWindow*, SignalSlotEditorTool*> m_tools;
     bool m_initialized;
+    QAction *m_action;
 };
 
 #endif // SIGNALSLOTEDITOR_PLUGIN_H

@@ -119,8 +119,6 @@ static bool signalMatchesSlot(const QString &signal, const QString &slot)
 
 void SignalSlotDialog::populateSlotList(const QString &signal)
 {
-    qDebug() << "SignalSlotDialog::populateSlotList()" << signal;
-
     QString selectedName;
     QList<QListWidgetItem *> list = m_slot_list->selectedItems();
     if (list.size() > 0) {
@@ -554,14 +552,16 @@ static bool skipWidget(QWidget *w)
 QWidget *SignalSlotEditor::widgetAt(const QPoint &pos) const
 {
     QWidget *widget = ConnectionEdit::widgetAt(pos);
+
     for (; widget != 0; widget = widget->parentWidget()) {
         AbstractMetaDataBaseItem *item = m_form_window->core()->metaDataBase()->item(widget);
         if (item == 0)
             continue;
         if (skipWidget(widget))
             continue;
-        return widget;
+        break;
     }
+    
     return widget;
 }
 

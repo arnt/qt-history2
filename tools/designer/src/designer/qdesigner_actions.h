@@ -46,6 +46,7 @@ public:
     QActionGroup *editModeActions() const;
     QActionGroup *formActions() const;
     QActionGroup *windowActions() const;
+    QActionGroup *toolActions() const;
 
 //
 // file actions
@@ -111,6 +112,7 @@ private slots:
     void notImplementedYet();
     void editPreferences();
     void shutdown();
+    void editWidgets();
 
 private:
     bool saveFormAs(AbstractFormWindow *fw);
@@ -126,6 +128,7 @@ private:
     QActionGroup *m_editModeActions;
     QActionGroup *m_formActions;
     QActionGroup *m_windowActions;
+    QActionGroup *m_toolActions;
 
     QAction *m_newFormAction;
     QAction *m_openFormAction;

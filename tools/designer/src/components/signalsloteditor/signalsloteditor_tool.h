@@ -23,6 +23,7 @@
 class AbstractFormEditor;
 class AbstractFormWindow;
 class SignalSlotEditor;
+class QAction;
 
 class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditorTool: public AbstractFormWindowTool
 {
@@ -36,6 +37,8 @@ public:
 
     virtual QWidget *editor() const;
 
+    QAction *action() const;
+
     virtual void activated();
     virtual void deactivated();
 
@@ -44,6 +47,7 @@ public:
 private:
     AbstractFormWindow *m_formWindow;
     mutable QPointer<SignalSlotEditor> m_editor;
+    QAction *m_action;
 };
 
 #endif // SIGNALSLOTEDITOR_TOOL_H

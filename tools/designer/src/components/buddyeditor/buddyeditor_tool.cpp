@@ -17,10 +17,13 @@
 #include <abstractformwindow.h>
 #include <abstractformeditor.h>
 
+#include <QtGui/QAction>
+
 BuddyEditorTool::BuddyEditorTool(AbstractFormWindow *formWindow, QObject *parent)
     : AbstractFormWindowTool(parent),
       m_formWindow(formWindow)
 {
+    m_action = new QAction(tr("Edit Buddies"), this);
 }
 
 BuddyEditorTool::~BuddyEditorTool()
@@ -66,4 +69,8 @@ void BuddyEditorTool::deactivated()
 {
 }
 
+QAction *BuddyEditorTool::action() const
+{
+    return m_action;
+}
 

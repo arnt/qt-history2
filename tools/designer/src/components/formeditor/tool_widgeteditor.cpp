@@ -19,11 +19,18 @@
 #include <layoutinfo.h>
 
 #include <QtGui/qevent.h>
+#include <QtGui/QAction>
 
 WidgetEditorTool::WidgetEditorTool(FormWindow *formWindow)
     : AbstractFormWindowTool(formWindow),
       m_formWindow(formWindow)
 {
+    m_action = new QAction(tr("Edit Widgets"), this);
+}
+
+QAction *WidgetEditorTool::action() const
+{
+    return m_action;
 }
 
 WidgetEditorTool::~WidgetEditorTool()

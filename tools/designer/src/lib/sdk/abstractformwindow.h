@@ -93,6 +93,8 @@ public:
     virtual void beginCommand(const QString &description) = 0;
     virtual void endCommand() = 0;
 
+    virtual void editWidgets() = 0;
+    
     // notifications
     virtual void emitSelectionChanged() = 0;
 

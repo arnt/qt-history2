@@ -23,6 +23,7 @@
 
 class BuddyEditorTool;
 class AbstractFormWindow;
+class QAction;
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditorPlugin: public QObject, public AbstractFormEditorPlugin
 {
@@ -34,7 +35,8 @@ public:
 
     virtual bool isInitialized() const;
     virtual void initialize(AbstractFormEditor *core);
-
+    QAction *action() const;
+    
     virtual AbstractFormEditor *core() const;
 
 private slots:
@@ -45,6 +47,7 @@ private:
     QPointer<AbstractFormEditor> m_core;
     QHash<AbstractFormWindow*, BuddyEditorTool*> m_tools;
     bool m_initialized;
+    QAction *m_action;
 };
 
 #endif // BUDDYEDITOR_PLUGIN_H

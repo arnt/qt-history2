@@ -47,6 +47,7 @@ class OrderIndicator;
 class FormEditor;
 class FormWindowDnDItem;
 class FormWindowWidgetStack;
+class WidgetEditorTool;
 
 // ### fake - remove when actions are implemented
 class QT_FORMEDITOR_EXPORT WidgetToActionMap
@@ -272,6 +273,8 @@ private:
     static int widgetDepth(QWidget *w);
     static bool isChildOf(QWidget *c, const QWidget *p);
 
+    void editWidgets();
+    
 private:
     Feature m_feature;
     FormEditor *m_core;
@@ -331,13 +334,11 @@ private:
     WidgetToActionMap m_widget_to_action_map;
     ActionList m_action_list;
 
-    int m_currentTool;
-    QList<AbstractFormWindowTool*> m_tools;
-
     QString m_comment;
     QString m_author;
 
     FormWindowWidgetStack *m_widgetStack;
+    WidgetEditorTool *m_widgetEditor;
 
 private:
 //    friend class FormWindowManager;

@@ -24,7 +24,6 @@
 
 #include "shared_global.h"
 
-class QTimer;
 class AbstractFormWindow;
 class QtUndoStack;
 class Connection;
@@ -118,7 +117,6 @@ public:
 public slots:
     void setBackground(QWidget *background);
     void updateBackground();
-    void updateBackgroundNow();
     void widgetRemoved(QWidget *w);
     void updateLines();
 
@@ -145,7 +143,6 @@ private:
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
     QPixmap m_bg_pixmap;
-    bool m_enabled;
 
     Connection *m_tmp_con; // the connection we are currently editing
     ConnectionList m_con_list;
@@ -177,8 +174,6 @@ private:
     void paintLabel(QPainter *p, EndPoint::Type type, Connection *con);
 
     QColor m_inactive_color, m_active_color;
-
-    QTimer *m_updateBackgroundTimer;
 
 private:
     friend class Connection;

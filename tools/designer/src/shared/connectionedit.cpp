@@ -18,7 +18,6 @@
 #include <QtGui/QMatrix>
 #include <QtGui/qevent.h>
 
-#include <QtCore/QTimer>
 #include <QtCore/qdebug.h>
 
 #include <abstractformwindow.h>
@@ -708,13 +707,8 @@ ConnectionEdit::ConnectionEdit(QWidget *parent, AbstractFormWindow *form)
     m_undo_stack = form->commandHistory();
     m_active_color = Qt::red;
     m_inactive_color = Qt::blue;
-    m_enabled = true;
     setAttribute(Qt::WA_MouseTracking, true);
     setFocusPolicy(Qt::ClickFocus);
-
-    m_updateBackgroundTimer = new QTimer(this);
-    m_updateBackgroundTimer->setSingleShot(true);
-    connect(m_updateBackgroundTimer, SIGNAL(timeout()), this, SLOT(updateBackgroundNow()));
 
     connect(form, SIGNAL(widgetRemoved(QWidget*)), this, SLOT(widgetRemoved(QWidget*)));
 }
@@ -740,22 +734,20 @@ void ConnectionEdit::setBackground(QWidget *background)
     updateBackground();
 }
 
-
 void ConnectionEdit::updateBackground()
 {
-    m_updateBackgroundTimer->start(10);
-}
-
-void ConnectionEdit::updateBackgroundNow()
-{
-    m_updateBackgroundTimer->stop();
-
     if (m_bg_widget == 0) {
         // nothing to do
         return;
     }
 
     m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
+
+    QPainter p(&m_bg_pixmap);
+    p.setPen(QColor(0, 0, 255, 22));
+    for (int y = 0; y < m_bg_pixmap.height(); y += 2)
+        p.drawLine(0, y, m_bg_pixmap.width(), y);
+    
     updateLines();
     update();
 }
@@ -767,6 +759,7 @@ QWidget *ConnectionEdit::widgetAt(const QPoint &pos) const
     QWidget *widget = m_bg_widget->childAt(pos);
     if (widget == 0)
         widget = m_bg_widget;
+
     return widget;
 }
 
@@ -827,7 +820,7 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
     p.setClipRegion(e->region());
 
     if (m_bg_pixmap.isNull())
-        updateBackgroundNow();
+        updateBackground();
     p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
 
     WidgetSet heavy_highlight_set, light_highlight_set;
@@ -876,9 +869,6 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
 
 void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 {
-    if (!m_enabled)
-        return;
-    
     e->accept();
 
     Connection *con_under_mouse = connectionAt(e->pos());
@@ -913,9 +903,6 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 
 void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (!m_enabled)
-        return;
-    
     e->accept();
 
     switch (state()) {
@@ -935,9 +922,6 @@ void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
 
 void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (!m_enabled)
-        return;
-    
     e->accept();
 
     switch (state()) {
@@ -964,6 +948,7 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 {
     Connection *con_under_mouse = connectionAt(pos);
     QWidget *w = con_under_mouse != 0 ? 0 : widgetAt(pos);
+
     if (w == m_bg_widget)
         w = 0;
     if (w != m_widget_under_mouse) {
@@ -987,9 +972,6 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 
 void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!m_enabled)
-        return;
-
     findObjectsUnderMouse(e->pos());
 
     switch (state()) {
@@ -1015,9 +997,6 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
 
 void ConnectionEdit::keyPressEvent(QKeyEvent *e)
 {
-    if (!m_enabled)
-        return;
-    
     switch (e->key()) {
         case Qt::Key_Delete:
             if (state() == Editing)
@@ -1045,9 +1024,9 @@ void ConnectionEdit::endConnection(QWidget *target, const QPoint &pos)
     QWidget *source = m_tmp_con->widget(EndPoint::Source);
     Q_ASSERT(source != 0);
     Q_ASSERT(target != 0);
-    m_enabled = false;
+    setEnabled(false);
     Connection *new_con = createConnection(source, target);
-    m_enabled = true;
+    setEnabled(true);
     if (new_con != 0) {
         new_con->setEndPoint(EndPoint::Source, source, m_tmp_con->endPointPos(EndPoint::Source));
         new_con->setEndPoint(EndPoint::Target, target, m_tmp_con->endPointPos(EndPoint::Target));
