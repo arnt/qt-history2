@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#2 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#3 $
 **
 ** Definition of keyboard codes
 **
@@ -12,6 +12,11 @@
 
 #ifndef QKEYCODE_H
 #define QKEYCODE_H
+
+
+const uint SHIFT = 0x2000;			// accelerator modifiers
+const uint CTRL  = 0x4000;
+const uint ALT   = 0x8000;
 
 
 #define Key_Escape		0x1000		// misc keys
