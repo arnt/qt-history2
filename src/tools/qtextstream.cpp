@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#54 $
 **
 ** Implementation of QTextStream class
 **
@@ -472,6 +472,16 @@ QTextStream::~QTextStream()
 /*!
   Sets the character mode for the stream to \a mode.
 
+  \define CharacterMode
+
+  The availables modes are:
+  <ol>
+    <li>Ascii - 8-bit text
+    <li>Unicode - big endian Unicode text
+    <li>UnicodeBigEndian - big endian Unicode text
+    <li>UnicodeLittleEndian - little endian Unicode text
+  </ol>
+
   This should only be done before any characters are written
   to or read from the stream.
 */
@@ -481,7 +491,13 @@ void QTextStream::setCharacterMode(CharacterMode mode)
 }
 
 /*!
-  \fn bool QTextStream::characterMode() const
+  \fn void QTextStream::eatWhiteSpace()
+
+  Equivalent to *this << ws.
+*/
+
+/*!
+  \fn CharacterMode QTextStream::characterMode() const
 
   Returns the character mode of the stream.
 

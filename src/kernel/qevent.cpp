@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#60 $
 **
 ** Implementation of event classes
 **
@@ -531,6 +531,11 @@ void QEvent::peErrMsg()				// posted event error message
 */
 
 /*!
+  \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion )
+  Constructs a paint event object with the region that should be updated.
+*/
+
+/*!
   \fn QPaintEvent::QPaintEvent( const QRect &paintRect )
   Constructs a paint event object with the rectangle that should be updated.
 */
@@ -538,6 +543,15 @@ void QEvent::peErrMsg()				// posted event error message
 /*!
   \fn const QRect &QPaintEvent::rect() const
   Returns the rectangle that should be updated.
+
+  \sa region(), QPainter::setClipRect()
+*/
+
+/*!
+  \fn const QRect &QPaintEvent::region() const
+  Returns the region that should be updated.
+
+  \sa rect(), QPainter::setClipRegion()
 */
 
 

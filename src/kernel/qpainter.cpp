@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#143 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1724,15 +1724,15 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-  \overload void QPainter::drawText( const QPoint &p, const char *s, int len )
+  \overload void QPainter::drawText( const QPoint &p, QString, int len )
 */
 
 /*!
-  \overload void QPainter::drawText( const QRect &r, int tf, const char *str, int len, QRect *br, char **i )
+  \overload void QPainter::drawText( const QRect &r, int tf, QString, int len, QRect *br, char **i )
 */
 
 /*!
-  \overload QRect QPainter::boundingRect( const QRect &r, int tf,const char *str, int len, char **i )
+  \overload QRect QPainter::boundingRect( const QRect &r, int tf, QString, int len, char **i )
 */
 
 
