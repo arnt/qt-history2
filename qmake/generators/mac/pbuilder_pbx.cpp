@@ -149,7 +149,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 			    if(!groups.contains(new_grp)) 
 				project->variables()["QMAKE_PBX_" + srcs[i]].append(new_grp_key);
 			} else {
-			    groups[last_grp] += new_grp_key;
+			    if(!groups[last_grp].contains(new_grp_key))
+				groups[last_grp] += new_grp_key;
 			}
 			last_grp = new_grp;
 		    }
@@ -333,7 +334,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
 		bool remove = FALSE;
 		QString library, name, opt = (*it).stripWhiteSpace();
-		qDebug("%s", opt.latin1());
 		if(opt.startsWith("-L")) {
 		    QString r = opt.right(opt.length() - 2);
 		    fixEnvVariables(r);
@@ -396,6 +396,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 			    break;
 			}
 		    }
+		} else if(opt == "-undefined") {
+		    ++it; //the next option is not a library..
 		} else if(opt.left(1) != "-") {
 		    remove = TRUE;
 		    library = opt;
@@ -667,6 +669,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "buildSettings = {" << "\n"
+      << "\t\t\t\t" << "CC = \"" << fixEnvsList("QMAKE_CC") << "\";" << "\n"
+      << "\t\t\t\t" << "CPLUSPLUS = \"" << fixEnvsList("QMAKE_CXX") << "\";" << "\n"
       << "\t\t\t\t" << "FRAMEWORK_SEARCH_PATHS = \"\";" << "\n"
       << "\t\t\t\t" << "HEADER_SEARCH_PATHS = \"" << fixEnvsList("INCLUDEPATH") << " " << fixEnvs(specdir()) << "\";" << "\n"
       << "\t\t\t\t" << "LIBRARY_SEARCH_PATHS = \"" << var("QMAKE_PBX_LIBPATHS") << "\";" << "\n"
