@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#14 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#14 $");
 
 
 /*!
@@ -188,7 +188,7 @@ bool QProgressBar::setIndicator( QString& indicator, int progress,
   Handles paint events for the progress bar.
   In WindowsStyle, \link QColorGroup::text() colorGroup().text()\endlink
   and QApplication::winStyleHighlightColor() are used.  In MotifStyle,
-  \link QColorGroup::text() colorGroup().base()\endlink is also used.
+  \link QColorGroup::base() colorGroup().base()\endlink is also used.
 */
 
 void QProgressBar::drawContents( QPainter *p )

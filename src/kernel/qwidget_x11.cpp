@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#216 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#217 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#216 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#217 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1431,8 +1431,9 @@ void QWidget::erase( int x, int y, int w, int h )
   pixels downwards.  If \e dx/dy is negative, the scroll direction is
   leftwards/upwards.  Child widgets are moved accordingly.
 
-  The areas of the widget that are exposed will be erased and a
-  \link paintEvent() paint event\endlink will be generated.
+  The areas of the widget that are exposed will be erased and
+  \link paintEvent() paint events\endlink may be generated immediately,
+  or after some further event processing.
 
   \warning If you call scroll() in a function which may itself be
   called from the moveEvent() or paintEvent() of a direct child of the

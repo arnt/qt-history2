@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#271 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#272 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#271 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#272 $");
 
 
 /*****************************************************************************
@@ -2897,7 +2897,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 				   xevent.xexpose.width,
 				   xevent.xexpose.height);
 		    if ( translateBySips( this, exposure ) )
-			should_clip = TRUE; // WARWICK! if !should_clip && ???
+			should_clip = TRUE;
 		    paintRect = paintRect.unite( exposure );
 		} else {
 		    translateScrollDoneEvent( &xevent );
