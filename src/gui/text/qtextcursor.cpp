@@ -438,7 +438,12 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         if (table && ((op >= QTextCursor::PreviousBlock && op <= QTextCursor::WordLeft)
                       || (op >= QTextCursor::NextBlock && op <= QTextCursor::WordRight))) {
             int oldColumn = table->cellAt(position).column();
-            int newColumn = table->cellAt(newPosition).column();
+
+            const QTextTableCell otherCell = table->cellAt(newPosition);
+            if (!otherCell.isValid())
+                return false;
+
+            int newColumn = otherCell.column();
             if ((oldColumn > newColumn && op >= QTextCursor::End)
                 || (oldColumn < newColumn && op <= QTextCursor::WordLeft))
                 return false;
