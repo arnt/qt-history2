@@ -1228,7 +1228,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	else if ( e->type() == QEvent::Move )
 	    d->autoMove(this);
     }
-    return FALSE;  // always continue with standard event processing
+    return QFrame::eventFilter( obj, e );  // always continue with standard event processing
 }
 
 /*!
