@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#26 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#27 $
 **
 ** Definition of QPoint class
 **
@@ -92,7 +92,7 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QPoint & );
  *****************************************************************************/
 
 inline QPoint::QPoint()
-{}
+{ xp=0; yp=0; }
 
 inline QPoint::QPoint( int xpos, int ypos )
 { xp=(QCOORD)xpos; yp=(QCOORD)ypos; }
