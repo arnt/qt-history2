@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#114 $
 **
 ** Implementation of QPixmap class
 **
@@ -23,12 +23,15 @@
 **
 *****************************************************************************/
 
+#include "qpixmap.h"
+
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qdatastream.h"
 #include "qbuffer.h"
+#include "qobjectlist.h"
 
 
 /*!
@@ -768,6 +771,98 @@ void QPixmap::setDefaultOptimization( Optimization optimization )
 }
 
 
+// helper for next function
+static QPixmap grabChildWidgets( QWidget * w )
+{
+    QPixmap res( w->width(), w->height() );
+    res.fill( w, QPoint( 0, 0 ) );
+    QPainter::redirect( w, &res ); // ### overwrites earlier redirect
+    w->repaint( FALSE );
+    QPainter::redirect( w, 0 );
+    debug( "arnt was here %s/%s", w->className(), w->name() );
+
+    const QObjectList * children = w->children();
+    if ( children ) {
+	QPainter p( &res );
+	QObjectListIt it( *children );
+	QObject * child;
+	while( (child=it.current()) != 0 ) {
+	    ++it;
+	    if ( child->isWidgetType() && ((QWidget *)child)->isVisible() &&
+		 ((QWidget *)child)->geometry().intersects( w->rect() ) ) {
+		// those conditions aren't quite right, it's possible
+		// to have a grandchild completely outside its
+		// grandparent, but partially inside its parent.  no
+		// point in optimizing for that.
+		
+		// make sure to evaluate pos() first - who knows what
+		// the paint event(s) inside grabChildWidgets() will do.
+		QPoint childpos = ((QWidget *)child)->pos();
+		p.drawPixmap( childpos, grabChildWidgets( (QWidget *)child ) );
+	    }
+	}
+    }
+    return res;
+}
+
+
+/*!  Creates a pixmap and paints \a widget in it.
+
+  If \a widget has children, they are painted too, appropriately located.
+
+  If you specify \a x, \a y, \a w or \a h, only the rectangle you
+  specify is painted.  The defaults are 0, 0 (top-left corner) and
+  -1,-1 (which means the entire widget).
+
+  (If \e w is negative, the function copies everything to the right
+  border of the window.  If \e h is negative, the function copies
+  everything to the bottom of the window.)
+
+  If \a widget is 0, or if the rectangle defined by \a x, \a y, the
+  modified \a w and the modified \a h does not overlap the \a
+  widget->rect(), this function returns a null QPixmap.
+  
+  This function actually asks \a widget to paint itself (or
+  themselves).  QPixmap::grabWindow() grabs pixels off the screen,
+  which is a bit faster.  This function works by calling paintEvent()
+  with painter redirection turned on.
+
+  If there is overlap, it returns a pixmap of the size you want,
+  containing a rendering of \a widget.  If the rectangle you ask for
+  is a superset of \a widget, the area outside \a widget are covered
+  with the widget's background.
+
+  \sa grabWindow() QPainter::redirect() QWidget::paintEvent()
+*/
+
+QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
+{
+    QPixmap res;
+    if ( !widget )
+	return res;
+
+    if ( w < 0 )
+	w = widget->width() - x;
+    if ( h < 0 )
+	h = widget->height() - y;
+
+    QRect wr( x, y, w, h );
+    if ( wr == widget->rect() )
+	return grabChildWidgets( widget );
+    if ( !wr.intersects( widget->rect() ) )
+	return res;
+
+    res.resize( w, h );
+    res.fill( widget, QPoint( w,h ) );
+    QPixmap tmp( grabChildWidgets( widget ) );
+    ::bitBlt( &res, 0, 0, &tmp, x, y, w, h );
+    return res;
+}
+
+
+
+
+
 /*****************************************************************************
   QPixmap stream functions
  *****************************************************************************/
@@ -805,3 +900,4 @@ QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 	pixmap.convertFromImage( io.image() );
     return s;
 }
+

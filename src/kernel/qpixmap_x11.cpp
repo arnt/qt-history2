@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#161 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1374,11 +1374,16 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   entirely over the one you grab, you get pixels from the overlying
   window too.
 
-  The reason we use a window identifier and not a QWidget is to enable
-  grabbing of windows that are not part of the application.
+  Note also that the mouse cursor is generally not grabbed.
 
-  \warning Grabbing an area outside the window, or screen, is not safe
-  in general.  This depends on the underlying window system.
+  The reason we use a window identifier and not a QWidget is to enable
+  grabbing of windows that are not part of the application, window
+  system frames, and so on.
+
+  \warning Grabbing an area outside the screen is not safe in general.
+  This depends on the underlying window system.
+
+  \sa grabWidget()
 */
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
