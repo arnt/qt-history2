@@ -781,24 +781,24 @@ void QTextDocument::print(QPrinter *printer) const
     \enum QTextDocument::ResourceType
 
     This enum describes the types of resources that can be loaded by
-    QTextDocument's loadResource function.
+    QTextDocument's loadResource() function.
 
     \value HtmlResource  The resource contains HTML.
     \value ImageResource The resource contains image data.
 
-    \sa loadResource
+    \sa loadResource()
 */
 
 /*!
-    This function is called by the richtext engine to request
-    data that isn't directly stored by QTextDocument but still
-    associated with it. For example images that are referenced
-    by the name attribute of a QTextImageFormat.
+    This function is called by the rich text engine to request data that isn't
+    directly stored by QTextDocument, but still associated with it. For example,
+    images are referenced indirectly by the name attribute of a QTextImageFormat
+    object.
 
-    When called from Qt \a type is one of the values of
-    QTextDocument::ResourceType .
+    When called by Qt, \a type is one of the values of
+    QTextDocument::ResourceType.
 
-    If the QTextDocument is a child object of a QTextEdit/QTextBrowser
+    If the QTextDocument is a child object of a QTextEdit, QTextBrowser,
     or a QTextDocument itself then the default implementation tries
     to retrieve the data from the parent.
 */

@@ -702,7 +702,7 @@ bool QTextBrowser::focusNextPrevChild(bool next)
     \table
     \header \i ResourceType  \i QVariant::Type
     \row    \i QTextDocument::HtmlResource  \i QString or QByteArray
-    \row    \i QTextDocument::ImageResource \i QImage or QPixmap or QByteArray
+    \row    \i QTextDocument::ImageResource \i QImage, QPixmap or QByteArray
     \endtable
 */
 QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
