@@ -1516,18 +1516,19 @@ void QCheckTableItem::paint(QPainter *p, const QPalette &pal,
                       table()->style().pixelMetric(QStyle::PM_IndicatorHeight));
     QPalette pal2(pal);
     pal2.setBrush(QPalette::Background, pal.brush(QPalette::Base));
-    QStyle::SFlags flags = QStyle::Style_Default;
+    Q4StyleOptionButton opt(0);
+    opt.rect.setRect(0, (cr.height() - sz.height()) / 2, sz.width(), sz.height());
+    opt.palette = pal2;
+    opt.state = QStyle::Style_Default;
     if(isEnabled())
-        flags |= QStyle::Style_Enabled;
+        opt.state |= QStyle::Style_Enabled;
     if (checked)
-        flags |= QStyle::Style_On;
+        opt.state |= QStyle::Style_On;
     else
-        flags |= QStyle::Style_Off;
+        opt.state |= QStyle::Style_Off;
     if (isEnabled() && table()->isEnabled())
-        flags |= QStyle::Style_Enabled;
-
-    table()->style().drawPrimitive(QStyle::PE_Indicator, p,
-                                    QRect(0, (cr.height() - sz.height()) / 2, sz.width(), sz.height()), pal2, flags);
+        opt.state |= QStyle::Style_Enabled;
+    table()->style().drawPrimitive(QStyle::PE_Indicator, &opt, p, table());
     int x = sz.width() + 6;
     w = w - x;
     if (selected)

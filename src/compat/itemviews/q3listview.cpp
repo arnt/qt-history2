@@ -6582,10 +6582,11 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
         if(!parentControl)
             x += 3;
         if (!pixmap(0)) {
-            lv->style().drawPrimitive(QStyle::PE_CheckListController, p,
-                                  QRect(x, 0, boxsize,
-                                        fm.height() + 2 + marg),
-                                  pal, styleflags, QStyleOption(this));
+            Q4StyleOptionListView opt = getStyleOption(lv, this);
+            opt.rect.setRect(x, 0, boxsize, fm.height() + 2 + marg);
+            opt.palette = pal;
+            opt.state = styleflags;
+            lv->style().drawPrimitive(QStyle::PE_CheckListController, &opt, p, lv);
             r += boxsize + 4;
         }
     } else {
