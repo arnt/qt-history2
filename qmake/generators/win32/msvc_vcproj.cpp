@@ -114,7 +114,8 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 		}
 		if(tmp_proj.read(fn, oldpwd)) {
 		    if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
-			subdirs += tmp_proj.variables()["SUBDIRS"];
+			QStringList tmp_subdirs = fileFixify(tmp_proj.variables()["SUBDIRS"]);
+			subdirs += tmp_subdirs;
 		    } else if(tmp_proj.first("TEMPLATE") == "vcapp" ||
 			      tmp_proj.first("TEMPLATE") == "vclib") {
 			QString vcproj = fi.baseName() + ".vcproj";
@@ -122,34 +123,31 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			    VcprojGenerator tmp_dsp(&tmp_proj);
 			    tmp_dsp.setNoIO(TRUE);
 			    tmp_dsp.init();
+			    if(Option::debug_level) {
+				QMap<QString, QStringList> &vars = tmp_proj.variables();
+				for(QMap<QString, QStringList>::Iterator it = vars.begin(); 
+				    it != vars.end(); ++it) {
+				    if(it.key().left(1) != "." && !it.data().isEmpty())
+					debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(), 
+						  it.data().join(" :: ").latin1());
+				}
+			    }
 			    VcsolutionDepend *newDep = new VcsolutionDepend;
 			    newDep->vcprojFile = fileFixify(vcproj);
 			    newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
 			    newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
-			    if(!tmp_proj.isEmpty("FORMS"))
-				newDep->dependencies << "uic";
+			    if(!tmp_proj.isEmpty("FORMS")) 
+				newDep->dependencies << "uic.exe";
 			    {
 				QStringList where("QMAKE_LIBS");
 				if(!tmp_proj.isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
 				    where = tmp_proj.variables()["QMAKE_INTERNAL_PRL_LIBS"];
-				QPtrList<MakefileDependDir> libdirs;
-				libdirs.setAutoDelete(TRUE);
-				{
-				    QStringList &libpaths = tmp_proj.variables()["QMAKE_LIBDIR"];
-				    for(QStringList::Iterator libpathit = libpaths.begin(); 
-					libpathit != libpaths.end(); ++libpathit) {
-					QString r = (*libpathit), l = r;
-					fixEnvVariables(l);
-					libdirs.append(new MakefileDependDir(r.replace("\"",""),
-									     l.replace("\"","")));
-				    }
-				}
 				for(QStringList::iterator wit = where.begin(); 
 				    wit != where.end(); ++wit) {
 				    QStringList &l = tmp_proj.variables()[(*wit)];
 				    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 					QString opt = (*it);
-					if(!opt.startsWith("/")) 
+					if(!opt.startsWith("/")) //Not a switch
 					    newDep->dependencies << opt.section(Option::dir_sep, -1);
 				    }
 				}
@@ -1032,8 +1030,10 @@ void VcprojGenerator::processPrlVariable(const QString &var, const QStringList &
 
 void VcprojGenerator::outputVariables()
 {
+#if 0
     debug_msg(3, "Generator: MSVC.NET: List of current variables:" );
     for ( QMap<QString, QStringList>::ConstIterator it = project->variables().begin(); it != project->variables().end(); ++it) {
 	debug_msg(3, "Generator: MSVC.NET: %s => %s", it.key().latin1(), it.data().join(" | ").latin1() );
     }
+#endif
 }
