@@ -59,8 +59,17 @@
 #include "qscrollbar.h"
 #include "qstyle.h"
 
+// magic non-mdi things
+#include "qstatusbar.h"
+#include "qmainwindow.h"
+#include "qdockwindow.h"
+#include "qtoolbar.h"
+
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
+
+enum { Yes, No, Default } toplevel = Default;
+static QGuardedPtr<QMainWindow> mainwindow = 0;
 
 
 /*!
@@ -140,6 +149,7 @@ public:
 
     void adjustToFullscreen();
 
+    void setStatusBar(QStatusBar *);
     QWidget* windowWidget() const;
     QWidget* iconWidget() const;
 
@@ -167,6 +177,7 @@ public slots:
     void move( int x, int y );
 
 protected:
+    bool event(QEvent * );
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );
     void childEvent( QChildEvent* );
@@ -181,7 +192,8 @@ private:
     QWidget* lastfocusw;
     QWidgetResizeHandler *widgetResizeHandler;
     QTitleBar* titlebar;
-    QGuardedPtr<QTitleBar> iconw;
+    QGuardedPtr<QStatusBar> statusbar;
+    QGuardedPtr<QTitleBar>  iconw;
     QSize windowSize;
     QSize shadeRestore;
     QSize shadeRestoreMin;
@@ -410,7 +422,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	emit windowActivated( 0 );
 	return;
     }
-    if ( !isVisibleTo( 0 ) ) {
+    if ( toplevel != Yes && !isVisibleTo( 0 ) ) {
 	d->becomeActive = w;
 	return;
     }
@@ -462,7 +474,6 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	    d->focus.append( d->active );
 	}
     }
-
     emit windowActivated( w );
 }
 
@@ -478,6 +489,9 @@ QWidget* QWorkspace::activeWindow() const
 
 void QWorkspace::place( QWidget* w)
 {
+    if(toplevel == Yes && w->isTopLevel())
+	return;
+
     int overlap, minOverlap = 0;
     int possible;
 
@@ -671,6 +685,93 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 /*! \reimp */
 void QWorkspace::showEvent( QShowEvent *e )
 {
+    /* This is all magic, be carefull when playing with this code - this tries to allow people to 
+       use QWorkspace as a high level abstraction for window management, but removes enforcement that
+       QWorkspace be used as an MDI. */
+    if(toplevel == Default) {
+	toplevel = No;
+#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
+	QWidget *o = topLevelWidget();
+	if(o->inherits("QMainWindow")) {
+	    mainwindow = (QMainWindow*)o;
+	    toplevel = Yes;
+	    const QObjectList *c = o->children();
+	    for(QObjectListIt it(*c); it; ++it) {
+		if((*it)->isWidgetType() && !((QWidget *)(*it))->isTopLevel() &&
+		   !(*it)->inherits("QHBox") && !(*it)->inherits("QVBox") && 
+		   !(*it)->inherits("QWorkspaceChild") && !(*it)->inherits("QHideDock") &&
+		   !(*it)->inherits("QDockArea") && !(*it)->inherits("QWorkspace") &&
+		   !(*it)->inherits("QMenuBar") &&
+		   !(*it)->inherits("QStatusBar") && !(*it)->inherits("QSizeHandle")) {
+		    toplevel = No;
+		    break;
+		}
+	    }
+	}
+#endif
+    }
+    if(toplevel == Yes) {
+	QWidget *o = topLevelWidget();
+	const QObjectList *c = o->children();
+	for(QObjectListIt it(*c); it; ++it) {	
+	    if(!(*it)->isWidgetType())
+		continue;
+	    QWidget *w = (QWidget *)(*it);
+	    if(!w->isVisible() || w->isTopLevel())
+		continue;
+	    if(w->inherits("QDockArea")) {
+		if(const QObjectList *dock_c = w->children()) {
+		    QPtrList<QToolBar> list;
+		    for(QObjectListIt dock_it(*dock_c); dock_it; ++dock_it) {
+			if(!(*dock_it)->isWidgetType() || !((QWidget*)(*dock_it))->isVisible())
+			    continue;
+			if((*dock_it)->inherits("QToolBar")) {
+			    list.append((QToolBar *)(*dock_it));
+			} else if ((*dock_it)->inherits("QDockWindow")) {
+			    QDockWindow *dw = (QDockWindow*)(*dock_it);
+			    QRect or(dw->mapTo(o, QPoint(0, 0)), dw->size());
+			    dw->undock();
+			    dw->setGeometry(or);
+			} else {
+			    qDebug("not sure what to do with %s %s", (*dock_it)->className(),
+				   (*dock_it)->name());
+			}
+		    }
+		    if(list.count()) {
+			if(list.count() == 1) {
+			    list.first()->undock();
+			} else {
+			    QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
+							      w->parentWidget(), "magicdock");
+			    dw->setResizeEnabled(TRUE);
+			    dw->setCaption(o->caption());
+//			    dw->setCloseMode(QDockWindow::Always);
+			    QSize os(w->size());
+			    w->reparent(dw, QPoint(0, 0));
+			    dw->setWidget(w);
+			    w->setMinimumSize(os);
+			    dw->show();
+			}
+		    }
+		}
+	    } else if(w->inherits("QStatusBar")) {
+		if(activeWindow()) {
+		    if(QWorkspaceChild *c = findChild(activeWindow()))
+			c->setStatusBar((QStatusBar*)w);
+		}
+	    } else if(w->inherits("QWorkspaceChild")) {
+		w->reparent(this, w->testWFlags(~(0)) | WType_TopLevel, w->pos());
+	    }
+	}
+	QWidget *w = new QWidget(NULL, "QDoesNotExist", WStyle_Customize | WStyle_NoBorder);
+	QDesktopWidget *dw = QApplication::desktop();
+	w->setGeometry(dw->screenGeometry(dw->screenNumber(topLevelWidget())));
+	topLevelWidget()->reparent(w, QPoint(0, 0));
+	reparent(w, QPoint(0,0));
+	setGeometry(0, 0, w->width(), w->height());
+    }
+
+    //done with that nastiness, onto your regularly schedualed television..
     if ( d->maxWindow && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
 	showMaximizeControls();
     QWidget::showEvent( e );
@@ -747,7 +848,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    hideMaximizeControls();
 	} else {
 	    c->widgetResizeHandler->setActive( TRUE );
-	    c->titlebar->setMovable(TRUE);
+	    if(c->titlebar)
+		c->titlebar->setMovable(TRUE);
 	}
 
 	if ( c == d->maxWindow ) {
@@ -769,11 +871,11 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    hideMaximizeControls();
 	for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
 	    QWorkspaceChild* c = it.current();
-	    c->titlebar->setMovable( TRUE );
+	    if(c->titlebar)
+		c->titlebar->setMovable( TRUE );
 	    c->widgetResizeHandler->setActive( TRUE );
 	}
 	activateWindow( w, TRUE );
-
 	updateWorkspace();
     }
 }
@@ -814,7 +916,8 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	    showMaximizeControls();
 	} else {
 	    c->widgetResizeHandler->setActive( FALSE );
-	    c->titlebar->setMovable( FALSE );
+	    if(c->titlebar)
+		c->titlebar->setMovable( FALSE );
 	}
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	inCaptionChange = TRUE;
@@ -856,7 +959,7 @@ QWorkspaceChild* QWorkspace::findChild( QWidget* w)
     return 0;
 }
 
-/*!
+/*! 
   Returns a list of all windows.
  */
 QWidgetList QWorkspace::windowList() const
@@ -934,7 +1037,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		if ( style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
 		    QWorkspaceChild *wc = (QWorkspaceChild *)o;
 		    wc->widgetResizeHandler->setActive( TRUE );
-		    wc->titlebar->setMovable( TRUE );
+		    if(wc->titlebar)
+			wc->titlebar->setMovable( TRUE );
 		} else {
 		    hideMaximizeControls();
 		}
@@ -1301,7 +1405,7 @@ void QWorkspace::activatePreviousWindow()
 
 
 /*!
-  \fn void QWorkspace::windowActivated( QWidget* w )
+  \fn void QWorkspace::windowAcytivated( QWidget* w )
 
   This signal is emitted when the window widget \a w becomes active.
   Note that \a w can be null, and that more than one signal may be
@@ -1463,8 +1567,10 @@ void QWorkspace::tile()
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
     : QFrame( parent, name,
-	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose | WNoMousePropagation | WSubWindow )
+	      (toplevel == Yes ? WType_TopLevel : 0 ) | 
+	      WStyle_Customize | WDestructiveClose | WNoMousePropagation | WSubWindow )
 {
+    statusbar = 0;
     setMouseTracking( TRUE );
     act = FALSE;
     iconw = 0;
@@ -1487,7 +1593,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	}
     }
 
-    if ( window && window->testWFlags( WStyle_Title ) ) {
+    if ( window && window->testWFlags( WStyle_Title ) && !testWFlags(WType_TopLevel) ) {
 	titlebar = new QTitleBar( window, this, "qt_ws_titlebar" );
 	connect( titlebar, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );
@@ -1573,6 +1679,46 @@ QWorkspaceChild::~QWorkspaceChild()
 	delete iconw->parentWidget();
 }
 
+bool QWorkspaceChild::event( QEvent *e )
+{
+    switch(e->type()) {
+    case QEvent::WindowDeactivate:
+	if(toplevel == Yes && statusbar) {
+	    QSize newsize(width(), height() - statusbar->height());
+	    if(statusbar->parentWidget() == this)
+		statusbar->hide();
+	    statusbar = 0;
+	    resize(newsize);
+	}
+	break;
+    case QEvent::WindowActivate:
+	activate();
+	if(toplevel == Yes && mainwindow) 
+	    setStatusBar( mainwindow->statusBar() );
+	break;
+    default:
+	break;
+    }
+    return QWidget::event(e);
+}
+
+void QWorkspaceChild::setStatusBar( QStatusBar *sb ) 
+{
+    if(toplevel == Yes) {
+	QSize newsize;
+	if(sb) {
+	    sb->show();
+	    if(sb != statusbar) {
+		sb->reparent(this, QPoint(0, height()), TRUE);
+		newsize = QSize(width(), height() + sb->height());
+	    }
+	}
+	statusbar = sb;
+	if(!newsize.isNull())
+	    resize(newsize);
+    }
+}
+
 void QWorkspaceChild::moveEvent( QMoveEvent * )
 {
     ((QWorkspace*) parentWidget() )->updateWorkspace();
@@ -1590,6 +1736,12 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 	    r.width(), r.height() - titlebar->height() - 2 );
     } else {
 	cr = r;
+    }
+
+    if(statusbar && statusbar->isVisible()) {
+	int sh = statusbar->height();
+	statusbar->setGeometry(r.x(), r.bottom() - sh, r.width(), sh);
+	cr.setBottom(cr.bottom() - sh);
     }
 
     if (!childWidget)
@@ -1736,11 +1888,13 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	break;
 
     case QEvent::WindowDeactivate:
-	titlebar->setActive( FALSE );
+	if(titlebar)
+	    titlebar->setActive( FALSE );
 	break;
 
     case QEvent::WindowActivate:
-	titlebar->setActive( act );
+	if(titlebar)
+	    titlebar->setActive( act );
 	break;
 
     default:
@@ -1942,7 +2096,8 @@ void QWorkspaceChild::showMinimized()
 {
     Q_ASSERT( windowWidget()->testWFlags( WStyle_Minimize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMinimized ) );
-    titlebar->setMovable( TRUE );
+    if(titlebar)
+	titlebar->setMovable( TRUE );
     widgetResizeHandler->setActive( FALSE );
 }
 
@@ -1955,7 +2110,8 @@ void QWorkspaceChild::showMaximized()
     }
     Q_ASSERT( windowWidget()->testWFlags( WStyle_Maximize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMaximized ) );
-    titlebar->setMovable( FALSE );
+    if(titlebar)
+	titlebar->setMovable( FALSE );
     widgetResizeHandler->setActive( FALSE );
 }
 
@@ -1963,7 +2119,8 @@ void QWorkspaceChild::showNormal()
 {
     Q_ASSERT( windowWidget()->testWFlags( WStyle_MinMax ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowNormal ) );
-    titlebar->setMovable( TRUE );
+    if(titlebar)
+	titlebar->setMovable( TRUE );
     widgetResizeHandler->setActive( TRUE );
 }
 

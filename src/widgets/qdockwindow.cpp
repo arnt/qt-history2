@@ -1028,19 +1028,21 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 	return;
     }
 
-    state = InDock;
     QDockArea *area = (QDockArea*)w;
-    if ( startOrientation != ( area ? area->orientation() : Horizontal ) )
+    if( area->isVisibleTo( 0 ) ) {
+	state = InDock;
+	if ( startOrientation != ( area ? area->orientation() : Horizontal ) )
 	    swapRect( currRect, orientation(), startOffset, area );
-    if ( drawRect ) {
-	unclippedPainter->setPen( QPen( gray, 1 ) );
-	QRect dr(currRect);
+	if ( drawRect ) {
+	    unclippedPainter->setPen( QPen( gray, 1 ) );
+	    QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
-	dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
+	    dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 #endif
-	unclippedPainter->drawRect( dr );
+	    unclippedPainter->drawRect( dr );
+	}
+	tmpDockArea = area;
     }
-    tmpDockArea = area;
 }
 
 void QDockWindow::updateGui()

@@ -1396,18 +1396,22 @@ void QMainWindow::setUpLayout()
 #endif
 
     d->tll->addWidget( d->hideDock );
-    d->tll->addWidget( d->topDock );
+    if(d->topDock->parentWidget() == this)
+	d->tll->addWidget( d->topDock );
 
     QMainWindowLayout *mwl = new QMainWindowLayout( this, d->tll );
 
-    mwl->setLeftDock( d->leftDock );
+    if(d->leftDock->parentWidget() == this)
+	mwl->setLeftDock( d->leftDock );
     if ( centralWidget() )
 	mwl->setCentralWidget( centralWidget() );
-    mwl->setRightDock( d->rightDock );
+    if(d->rightDock->parentWidget() == this)
+	mwl->setRightDock( d->rightDock );
 
-    d->tll->addWidget( d->bottomDock );
+    if(d->bottomDock->parentWidget() == this)
+	d->tll->addWidget( d->bottomDock );
 
-    if ( d->sb ) {
+    if ( d->sb && d->sb->parentWidget() == this) {
 	d->tll->addWidget( d->sb, 0 );
 	// make the sb stay on top of tool bars if there isn't enough space
 	d->sb->raise();
