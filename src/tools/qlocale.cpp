@@ -2566,7 +2566,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #endif
 
 #ifdef __ppc__
-# define IEEE_BIG_ENDIAN
+# define IEEE_BIG_OR_LITTLE_ENDIAN
 #endif
 
 #define Long	Q_INT32
