@@ -1372,13 +1372,12 @@ bool QODBCDriver::open( const QString & db,
     // Create the connection string
     QString connQStr;
     // support the "DRIVER={SQL SERVER};SERVER=blah;" syntax
-    if ( db.contains(".dsn") ) {
+    if ( db.contains(".dsn") )
 	connQStr = "FILEDSN=" + db;
-    } else if ( db.startsWith( "DRIVER" ) && db.contains( "SERVER" ) ) {
+    else if ( db.contains( "DRIVER" ) || db.contains( "SERVER" ) )
 	connQStr = db;
-    } else {
+    else
 	connQStr = "DSN=" + db;
-    }
     connQStr += ";UID=" + user + ";PWD=" + password + ";";
     SQLSMALLINT cb;
     SQLTCHAR connOut[1024];
