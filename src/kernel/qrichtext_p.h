@@ -820,6 +820,9 @@ public:
     void removeChild( QTextDocument *d ) { childList.removeRef( d ); }
     QList<QTextDocument> children() const { return childList; }
 
+    void setShowFirstTopMargin( bool b ) { showFirstM = b; }
+    int showFirstTopMargin() const { return showFirstM; }
+
 signals:
     void minimumWidthChanged( int );
 
@@ -885,6 +888,7 @@ private:
     QString oText;
     QList<QTextDocument> childList;
     int nSelections;
+    bool showFirstM;
 
 };
 
@@ -1123,12 +1127,12 @@ public:
     QVector<QStyleSheetItem> styleSheetItems() const;
     QStyleSheetItem *style() const;
 
-    int topMargin() const;
-    int bottomMargin() const;
-    int leftMargin() const;
-    int firstLineMargin() const;
-    int rightMargin() const;
-    int lineSpacing() const;
+    virtual int topMargin() const;
+    virtual int bottomMargin() const;
+    virtual int leftMargin() const;
+    virtual int firstLineMargin() const;
+    virtual int rightMargin() const;
+    virtual int lineSpacing() const;
 
     int numberOfSubParagraph() const;
     void registerFloatingItem( QTextCustomItem *i );

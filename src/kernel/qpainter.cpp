@@ -418,7 +418,7 @@ QPainter::QPainter( const QPaintDevice *pd, bool unclipped )
 /*!
   Constructs a painter that begins painting the paint device \a pd
   immediately, with the default arguments taken from \a copyAttributes.
-  The painting paint over children of the paint device if \a unclipped is 
+  The painting paint over children of the paint device if \a unclipped is
   TRUE (Note that this is not supported on all platforms).
 
   \sa begin()
@@ -2267,9 +2267,14 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    else if ( tf & Qt::AlignHCenter )
 		xoff += ( r.width() - w )/2;
 	    QRegion reg;
-	    if ( painter->hasClipping() )
+
+	    if ( painter->hasClipping() ) {
 		reg = painter->clipRegion();
-	    reg = reg.unite( r );
+		reg = reg.intersect( r );
+	    } else {
+		reg = r;
+	    }
+	
 	    reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	    painter->save();
 	    painter->setClipRegion( reg );
@@ -2388,9 +2393,14 @@ void qt_format_text( const QFont& font, const QRect &r,
 	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
 #endif
 	QRegion reg;
-	if ( painter->hasClipping() )
+
+	if ( painter->hasClipping() ) {
 	    reg = painter->clipRegion();
-	reg = reg.unite( rect );
+	    reg = reg.intersect( rect );
+	} else {
+	    reg = rect;
+	}
+	
 	reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	painter->setClipRegion( reg );
   	painter->translate( xoff, yoff);

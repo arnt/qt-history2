@@ -1203,6 +1203,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     minwParag = 0;
     align = AlignAuto;
     nSelections = 1;
+    showFirstM = FALSE;
 
     sheet_ = QStyleSheet::defaultSheet();
     factory_ = QMimeSourceFactory::defaultFactory();
@@ -3106,13 +3107,6 @@ void QTextParag::format( int start, bool doMove )
     QMap<int, QTextParagLineStart*> oldLineStarts = lineStarts;
     lineStarts.clear();
     int y = formatter()->format( doc, this, start, oldLineStarts );
-    if ( !prev() && topMargin() > 0 ) {
-	QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.find( 0 );
-	if ( it != lineStarts.end() ) {
-	    (*it)->h += topMargin();
-	    (*it)->baseLine += topMargin();
-	}
-    }
     r.setWidth( QMAX( r.width(), minimumWidth() ) );
     QMap<int, QTextParagLineStart*>::Iterator it = oldLineStarts.begin();
     for ( ; it != oldLineStarts.end(); ++it )
@@ -3131,6 +3125,9 @@ void QTextParag::format( int start, bool doMove )
 	    usedw = QMAX( usedw, (*it)->w );
 	r.setWidth( QMIN( usedw, r.width() ) );
     }
+
+    if ( !prev() && topMargin() > 0 )
+	r.setY( topMargin() );
 
     if ( y != r.height() )
 	r.setHeight( y );
@@ -3862,6 +3859,8 @@ QTextCursor *QTextParag::redo( QTextCursor *c )
 
 int QTextParag::topMargin() const
 {
+    if ( !p && ( !doc || !doc->showFirstTopMargin() ) )
+	return 0;
     if ( tm != -1 )
 	return tm;
     QStyleSheetItem *item = style();
