@@ -1,0 +1,118 @@
+/*!
+    \page exportedfunctions.html
+    \title Special-Purpose Global Functions Exported by Qt
+
+    Qt provides a few low-level global functions for fine-tuning
+    applications. Most of these perform very specific tasks and are
+    platform-specific. In general, we recommend that you try using
+    Qt's public API before resorting to using any functions mentioned
+    here.
+
+    These functions are exported by \l QtCore and \l QtGui, but most
+    of them aren't declared in Qt's header files. To use them in your
+    application, you must declare them before calling them. For
+    example:
+
+    \code
+        #ifdef Q_WS_X11
+        void qt_x11_wait_for_window_manager(QWidget *widget);
+        #endif
+
+        int main(int argc, char *argv[])
+        {
+            QApplication app(argc, argv);
+            ...
+            window.show();
+        #ifdef Q_WS_X11
+            qt_x11_wait_for_window_manager(&window);
+        #endif
+            ...
+            return app.exec();
+        }
+    \endcode
+
+    These functions will remain as part of Qt for the lifetime of Qt
+    4.
+
+    Functions:
+
+    \tableofcontents
+
+    \section1 void qt_set_library_config_file(const QString &\e{fileName})
+
+    Specifies the location of the Qt configuration file. You must
+    call this function before constructing a QApplication or
+    QCoreApplication object. If no location is specified, Qt
+    automatically finds an appropriate location.
+
+    \section1 void qt_set_sequence_auto_mnemonic(bool \e{enable})
+
+    Specifies whether mnemonics for menu items, labels, etc., should
+    be honored or not. On Windows, X11, and embedded, this feature is
+    on by default; on Mac OS X, it is off. When this feature is off,
+    the QKeySequence::mnemonic() function always returns an empty
+    string.
+
+    \section1 HDC qt_win_display_dc()
+
+    Returns the Windows device context for the display. Use this at
+    your own risks and perils.
+
+    \section1 void qt_x11_set_fallback_font_family(int \e{script}, const QString &\e{family})
+
+    Sets the font family to be used for a given script as the
+    fallback when the current font doesn't contain a character. The
+    values for the \e{script} parameter are defined by the \c Script
+    enum, located in \c <private/qunicodetable_p.h>.
+
+    \section1 void qt_x11_wait_for_window_manager(QWidget *\e{widget})
+
+    Blocks until the X11 window manager has shown the widget after a
+    call to QWidget::show().
+
+    \section1 void qt_mac_secure_keyboard(bool \e{enable})
+
+    Turns the Mac OS X secure keyboard feature on or off. QLineEdit
+    uses this when the echo mode is QLineEdit::Password or
+    QLineEdit::NoEcho to guard the editor against keyboard sniffing.
+    If you implement your own password editor, you might want to turn
+    on this feature in your editor's
+    \l{QWidget::focusInEvent()}{focusInEvent()} and turn it off in
+    \l{QWidget::focusOutEvent()}{focusOutEvent()}.
+
+    \section1 void qt_mac_set_dock_menu(QMenu *\e{menu})
+
+    Sets the menu to display in the Mac OS X Dock for the
+    application. This menu is shown when the user \key{Ctrl}-clicks
+    on the application's icon while it is running.
+
+    \section1 void qt_mac_set_menubar_icons(bool \e{enable})
+
+    Specifies whether icons associated to menu items for the
+    application's menu bar should be shown on Mac OS X. By default,
+    icons are shown on Mac OS X just like on the other platforms.
+
+    \section1 void qt_mac_set_menubar_merge(bool \e{enable})
+
+    Specifies whether Qt should attempt to relocate standard menu
+    items (such as \gui Quit, \gui Preferences, and \gui About) to
+    the application menu on Mac OS X. This feature is on by default.
+    See \l{Qt/Mac-Specific Issues} for the list of menu items for
+    which this applies.
+
+    \section1 void qt_mac_set_native_menubar(bool \e{enable})
+
+    Specifies whether the application should use the native menu bar
+    on Mac OS X or be part of the main window. This feature is on by
+    default.
+
+    \section1 void qt_mac_set_press_and_hold_context(bool \e{enable})
+
+    Turns emulation of the right mouse button by clicking and holding
+    the left mouse button on or off. This feature is off by default.
+*/
+
+/*
+    * link to this document from appropriate places: Jasmin
+    * find out about qt_find_ellipse_coords(): Jasmin
+*/
