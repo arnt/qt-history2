@@ -212,9 +212,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		// this code is still not used, and maybe it's not
 		// usable either, any more.  if you want to use it,
 		// you may need to fix it first.
-		
+
 		// old comment:
-		
+
 		// this code is usable but not in use.  spawn() is
 		// preferable to fork()/exec() for very large
 		// programs.  if fork()/exec() is a problem and you
@@ -278,7 +278,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			QString lprhack;
 			const char * lparg = 0;
 			QString lphack;
-			if ( pr && option_string ) {
+			if ( pr || option_string ) {
 			    lprhack = QString::fromLatin1( "-P" ) + pr;
 			    lprarg = lprhack.ascii();
 			    lphack = QString::fromLatin1( "-d" ) + pr;
