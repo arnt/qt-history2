@@ -21,8 +21,6 @@
 #include <abstractformwindowmanager.h>
 
 #include <QtCore/qdebug.h>
-#include <QtGui/QAction>
-#include <QtGui/QShortcut>
 
 QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
@@ -34,11 +32,6 @@ QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     setCentralWidget(widget);
 
     setWindowTitle(tr("Widget Box"));
-    QShortcut *shortcut = new QShortcut(this);
-    shortcut->setContext(Qt::ApplicationShortcut);
-    shortcut->setKey(QKeySequence(Qt::Key_Backspace));
-    connect(shortcut, SIGNAL(activated()),
-            workbench->core()->formWindowManager()->actionDelete(), SIGNAL(triggered()));
 }
 
 QDesignerWidgetBox::~QDesignerWidgetBox()
