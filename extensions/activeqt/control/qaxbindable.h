@@ -73,6 +73,8 @@ protected:
     bool requestPropertyChange( const char *property );
     void propertyChanged( const char *property );
 
+    IUnknown *clientSite() const;
+
 private:
     IAxServerBase *activex;
 };

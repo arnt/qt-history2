@@ -51,6 +51,7 @@ struct IAxServerBase : public IUnknown
 {
     virtual QObject *qObject() = 0;
     virtual QWidget *widget() = 0;
+    virtual IUnknown *clientSite() const = 0;
     virtual void emitPropertyChanged( const char*, long dispid = -1 ) = 0;
     virtual bool emitRequestPropertyChange( const char*, long dispid = -1 ) = 0;
 };
@@ -149,6 +150,10 @@ public:
     QWidget *widget()
     {
 	return activeqt;
+    }
+    IUnknown *clientSite() const
+    {
+	return m_spClientSite;
     }
 
     void emitPropertyChanged( const char*, long dispid = -1 );

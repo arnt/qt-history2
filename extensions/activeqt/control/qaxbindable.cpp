@@ -36,6 +36,7 @@ struct IAxServerBase : public IUnknown
 {
     virtual QObject *qObject() = 0;
     virtual QWidget *widget() = 0;
+    virtual IUnknown *clientSite() const = 0;
     virtual void emitPropertyChanged( const char*, long dispid = -1 ) = 0;
     virtual bool emitRequestPropertyChange( const char*, long dispid = -1 ) = 0;
 };
@@ -73,7 +74,8 @@ struct IAxServerBase : public IUnknown
     call propertyChanged() to notify the ActiveX client application
     about the change.
 
-    To implement additional COM interfaces in your ActiveX control, reimplement
+    Use the interface returned by clientSite() to call the ActiveX client. To 
+    implement additional COM interfaces in your ActiveX control, reimplement
     createAggregate() to return a new object of a QAxAggregated subclass.
 */
 
@@ -138,6 +140,21 @@ void QAxBindable::propertyChanged( const char *property )
 	return;
 
     activex->emitPropertyChanged( property );
+}
+
+/*!
+    Returns a pointer to the client site interface for this ActiveX object,
+    or null if no client site has been set.
+
+    Call QueryInterface on the returned interface to get the interface you
+    want to call.
+*/
+IUnknown *QAxBindable::clientSite() const
+{
+    if ( !activex )
+	return 0;
+
+    return activex->clientSite();
 }
 
 /*!
