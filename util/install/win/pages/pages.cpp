@@ -79,6 +79,10 @@ LicenseAgreementPageImpl::LicenseAgreementPageImpl( QWidget* parent, const char*
 LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
     : LicensePage( parent, name, fl )
 {
+#if defined(Q_OS_MACX)
+    // StyledPanel style looks very windowsish
+    customerID->setFrameShape( QFrame::LineEditPanel );
+#endif
     customerID->setFocus();
 #if defined(EVAL)
     // ### improve text
