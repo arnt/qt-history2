@@ -42,13 +42,41 @@
 */
 
 /*!
-    Constructs a grid widget with parent \a parent, called \a name.
+    Constructs a grid widget with parent \a parent.
     If \a orient is \c Qt::Horizontal, \a n specifies the number of
     columns. If \a orient is \c Qt::Vertical, \a n specifies the number of
     rows. The widget flags \a f are passed to the QFrame constructor.
 */
-QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name,
-              Qt::WFlags f)
+QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, Qt::WFlags f)
+    : QFrame(parent, f)
+{
+    int nCols, nRows;
+    if (orient == Qt::Horizontal) {
+        nCols = n;
+        nRows = -1;
+    } else {
+        nCols = -1;
+        nRows = n;
+    }
+    lay = new QGridLayout(this, nRows, nCols, 0, 0);
+}
+
+
+
+/*!
+    Constructs a grid widget with parent \a parent.
+    \a n specifies the number of columns. The widget flags \a f are
+    passed to the QFrame constructor.
+ */
+QGrid::QGrid(int n, QWidget *parent, Qt::WFlags f)
+    : QFrame(parent, f)
+{
+    lay = new QGridLayout(this, -1, n, 0, 0);
+}
+
+
+#ifdef QT_COMPAT
+QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, name, f)
 {
     int nCols, nRows;
@@ -62,18 +90,12 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name,
     lay = new QGridLayout(this, nRows, nCols, 0, 0, name);
 }
 
-
-
-/*!
-    Constructs a grid widget with parent \a parent, called \a name.
-    \a n specifies the number of columns. The widget flags \a f are
-    passed to the QFrame constructor.
- */
 QGrid::QGrid(int n, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, name, f)
 {
     lay = new QGridLayout(this, -1, n, 0, 0, name);
 }
+#endif
 
 /*!
     \internal

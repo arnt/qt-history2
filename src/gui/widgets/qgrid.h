@@ -25,13 +25,14 @@ class Q_GUI_EXPORT QGrid : public QFrame
 {
     Q_OBJECT
 public:
-    QGrid(int n, QWidget* parent=0, const char* name=0, Qt::WFlags f = 0);
-    QGrid(int n, Qt::Orientation orient, QWidget* parent=0, const char* name=0,
-           Qt::WFlags f = 0);
+    QGrid(int n, QWidget* parent=0, Qt::WFlags f = 0);
+    QGrid(int n, Qt::Orientation orient, QWidget* parent=0, Qt::WFlags f = 0);
 
     void setSpacing(int);
 
 #ifdef QT_COMPAT
+    QGrid(int n, QWidget* parent, const char* name, Qt::WFlags f);
+    QGrid(int n, Qt::Orientation orient, QWidget* parent, const char* name, Qt::WFlags f);
     typedef Qt::Orientation Direction;
 #endif
 
