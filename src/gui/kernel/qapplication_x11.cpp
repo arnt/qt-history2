@@ -17,9 +17,7 @@
 // provide a proper alternative for others. See also the exports in
 // qapplication_win.cpp, which suggest a unification.
 
-#if defined(QT_DEBUG) && defined(Q_OS_LINUX)
-# include "qfile.h"
-#endif
+#include "qfile.h"
 #include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
