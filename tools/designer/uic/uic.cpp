@@ -100,13 +100,6 @@ QString Uic::mkStdSet( const QString& prop )
 
 
 
-bool Uic::isEmptyFunction( const QString& )
-{
-    return TRUE;
-}
-
-
-
 /*!
   \class Uic uic.h
   \brief User Interface Compiler

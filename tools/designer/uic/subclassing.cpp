@@ -151,27 +151,15 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	}
     }
 
-    /* compatibility with early 3.0 betas ### not any longer supported!
-    nl = e.parentNode().toElement().elementsByTagName( "function" );
-    for ( i = 0; i < (int) nl.length(); i++ ) {
-	n = nl.item(i).toElement();
-	QString fname = n.attribute( "name" );
-	fname = Parser::cleanArgs( fname );
-	functionImpls.insert( fname, n.firstChild().toText().data() );
-    }
-    */
-
     if ( !publicFuncts.isEmpty() ) {
 	for ( it = publicFuncts.begin(), it2 = publicFunctRetTyp.begin(), it3 = publicFunctSpec.begin();
 	      it != publicFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) )
-		out << "    " << type << " " << (*it) << ";" << endl;
+	    out << "    " << type << " " << (*it) << ";" << endl;
 	}
 	out << endl;
     }
@@ -181,14 +169,12 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	out << "public slots:" << endl;
 	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
 	      it != publicSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) )
-		out << "    " << type << " " << (*it) << ";" << endl;
+	    out << "    " << type << " " << (*it) << ";" << endl;
 	}
 	out << endl;
     }
@@ -197,14 +183,12 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	out << "protected:" << endl;
 	for ( it = protectedFuncts.begin(), it2 = protectedFunctRetTyp.begin(), it3 = protectedFunctSpec.begin();
 	      it != protectedFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) )
-		out << "    " << type << " " << (*it) << ";" << endl;
+	    out << "    " << type << " " << (*it) << ";" << endl;
 	}
 	out << endl;
     }    
@@ -214,14 +198,12 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	out << "protected slots:" << endl;
 	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(), it3 = protectedSlotSpecifier.begin();
 	      it != protectedSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) )
-		out << "    " << type << " " << (*it) << ";" << endl;
+	    out << "    " << type << " " << (*it) << ";" << endl;
 	}
 	out << endl;
     }
@@ -230,14 +212,12 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	out << "private:" << endl;
 	for ( it = privateFuncts.begin(), it2 = privateFunctRetTyp.begin(), it3 = privateFunctSpec.begin();
 	      it != privateFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) )
-		out << "    " << type << " " << (*it) << ";" << endl;
+	    out << "    " << type << " " << (*it) << ";" << endl;
 	}
 	out << endl;
     }    
@@ -247,14 +227,12 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	out << "private slots:" << endl;
 	for ( it = privateSlots.begin(), it2 = privateSlotTypes.begin(), it3 = privateSlotSpecifier.begin();
 	      it != privateSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) )
-		out << "    " << type << " " << (*it) << ";" << endl;
+	    out << "    " << type << " " << (*it) << ";" << endl;
 	}
 	out << endl;
     }
@@ -397,33 +375,21 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	}
     }
 
-    /* compatibility with early 3.0 betas ### not any longer supported!
-    nl = e.parentNode().toElement().elementsByTagName( "function" );
-    for ( i = 0; i < (int) nl.length(); i++ ) {
-	QString fname = n.attribute( "name" );
-	fname = Parser::cleanArgs( fname );
-	functionImpls.insert( fname, n.firstChild().toText().data() );
-    }
-    */
-    
     if ( !publicFuncts.isEmpty() ) {
 	for ( it = publicFuncts.begin(), it2 = publicFunctRetTyp.begin(), it3 = publicFunctSpec.begin();
 	      it != publicFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) ) {
-		out << "/* " << endl;
-		out << " * public function" << endl;
-		out << " */" << endl;
-		out << type << " " << subClass << "::" << (*it) << endl;
-		out << "{" << endl;
-		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-		out << "}" << endl << endl;
-	    }
+	    out << "/* " << endl;
+	    out << " * public function" << endl;
+	    out << " */" << endl;
+	    out << type << " " << subClass << "::" << (*it) << endl;
+	    out << "{" << endl;
+	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+	    out << "}" << endl << endl;
 	}
 	out << endl;
     }    
@@ -432,21 +398,18 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     if ( !publicSlots.isEmpty() ) {
 	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
 	      it != publicSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) ) {
-		out << "/* " << endl;
-		out << " * public slot" << endl;
-		out << " */" << endl;
-		out << type << " " << subClass << "::" << (*it) << endl;
-		out << "{" << endl;
-		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-		out << "}" << endl << endl;
-	    }
+	    out << "/* " << endl;
+	    out << " * public slot" << endl;
+	    out << " */" << endl;
+	    out << type << " " << subClass << "::" << (*it) << endl;
+	    out << "{" << endl;
+	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+	    out << "}" << endl << endl;
 	}
 	out << endl;
     }
@@ -455,21 +418,18 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     if ( !protectedFuncts.isEmpty() ) {
 	for ( it = protectedFuncts.begin(), it2 = protectedFunctRetTyp.begin(), it3 = protectedFunctSpec.begin();
 	      it != protectedFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) ) {
-		out << "/* " << endl;
-		out << " * protected function" << endl;
-		out << " */" << endl;
-		out << type << " " << subClass << "::" << (*it) << endl;
-		out << "{" << endl;
-		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-		out << "}" << endl << endl;
-	    }
+	    out << "/* " << endl;
+	    out << " * protected function" << endl;
+	    out << " */" << endl;
+	    out << type << " " << subClass << "::" << (*it) << endl;
+	    out << "{" << endl;
+	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+	    out << "}" << endl << endl;
 	}
 	out << endl;
     }
@@ -479,21 +439,18 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     if ( !protectedSlots.isEmpty() ) {
 	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(), it3 = protectedSlotSpecifier.begin();
 	      it != protectedSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) ) {
-		out << "/* " << endl;
-		out << " * protected slot" << endl;
-		out << " */" << endl;
-		out << type << " " << subClass << "::" << (*it) << endl;
-		out << "{" << endl;
-		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-		out << "}" << endl << endl;
-	    }
+	    out << "/* " << endl;
+	    out << " * protected slot" << endl;
+	    out << " */" << endl;
+	    out << type << " " << subClass << "::" << (*it) << endl;
+	    out << "{" << endl;
+	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+	    out << "}" << endl << endl;
 	}
 	out << endl;
     }
@@ -502,21 +459,18 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     if ( !privateFuncts.isEmpty() ) {
 	for ( it = privateFuncts.begin(), it2 = privateFunctRetTyp.begin(), it3 = privateFunctSpec.begin();
 	      it != privateFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) ) {
-		out << "/* " << endl;
-		out << " * private function" << endl;
-		out << " */" << endl;
-		out << type << " " << subClass << "::" << (*it) << endl;
-		out << "{" << endl;
-		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-		out << "}" << endl << endl;
-	    }
+	    out << "/* " << endl;
+	    out << " * private function" << endl;
+	    out << " */" << endl;
+	    out << type << " " << subClass << "::" << (*it) << endl;
+	    out << "{" << endl;
+	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+	    out << "}" << endl << endl;
 	}
 	out << endl;
     }
@@ -525,21 +479,18 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     if ( !privateSlots.isEmpty() ) {
 	for ( it = privateSlots.begin(), it2 = privateSlotTypes.begin(), it3 = privateSlotSpecifier.begin();
 	      it != privateSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
 	    if ( *it3 == "non virtual" )
 		continue;
-	    if ( !isEmptyFunction( *it ) ) {
-		out << "/* " << endl;
-		out << " * private slot" << endl;
-		out << " */" << endl;
-		out << type << " " << subClass << "::" << (*it) << endl;
-		out << "{" << endl;
-		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-		out << "}" << endl << endl;
-	    }
+	    out << "/* " << endl;
+	    out << " * private slot" << endl;
+	    out << " */" << endl;
+	    out << type << " " << subClass << "::" << (*it) << endl;
+	    out << "{" << endl;
+	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+	    out << "}" << endl << endl;
 	}
 	out << endl;
     }

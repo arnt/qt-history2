@@ -146,8 +146,6 @@ private:
     QString fileName;
     bool writeFunctImpl;
 
-    bool isEmptyFunction( const QString& fname );
-
 };
 
 #endif
