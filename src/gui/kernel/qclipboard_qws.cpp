@@ -99,9 +99,9 @@ public:
     QClipboardData();
    ~QClipboardData();
 
-    void setSource(QMimeSource* s)
+    void setSource(QMimeData* s)
         { delete src; src = s; }
-    QMimeSource* source()
+    QMimeData* source()
         { return src; }
     void addTransferredPixmap(QPixmap pm)
         { /* TODO: queue them */
@@ -117,7 +117,7 @@ public:
     void clear();
 
 private:
-    QMimeSource* src;
+    QMimeData* src;
 
     QPixmap transferred[2];
     int tindex;
@@ -215,7 +215,7 @@ bool QClipboard::event(QEvent *e)
 }
 
 #ifndef QT_NO_MIMECLIPBOARD
-QMimeSource* QClipboard::data(Mode mode) const
+const QMimeData* QClipboard::mimeData(Mode mode) const
 {
     if (mode != Clipboard) return 0;
 
@@ -223,7 +223,7 @@ QMimeSource* QClipboard::data(Mode mode) const
     return d->source();
 }
 
-void QClipboard::setData(QMimeSource* src, Mode mode)
+void QClipboard::setMimeData(QMimeData* src, Mode mode)
 {
     if (mode != Clipboard) return;
 
