@@ -1686,6 +1686,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::Style_Raised | QStyle::Style_Down | QStyle::Style_On)))
                 break;
+            if(btn->state & QStyle::Style_On)
+                tds = kThemeStatePressed;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
