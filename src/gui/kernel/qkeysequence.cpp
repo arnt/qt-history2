@@ -69,87 +69,87 @@ static struct {
     int key;
     const char* name;
 } keyname[] = {
-    { Qt::Key_Space,            QT_TRANSLATE_NOOP("QAccel", "Space") },
-    { Qt::Key_Escape,            QT_TRANSLATE_NOOP("QAccel", "Esc") },
-    { Qt::Key_Tab,            QT_TRANSLATE_NOOP("QAccel", "Tab") },
-    { Qt::Key_Backtab,            QT_TRANSLATE_NOOP("QAccel", "Backtab") },
+    { Qt::Key_Space,        QT_TRANSLATE_NOOP("QAccel", "Space") },
+    { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QAccel", "Esc") },
+    { Qt::Key_Tab,          QT_TRANSLATE_NOOP("QAccel", "Tab") },
+    { Qt::Key_Backtab,      QT_TRANSLATE_NOOP("QAccel", "Backtab") },
     { Qt::Key_Backspace,    QT_TRANSLATE_NOOP("QAccel", "Backspace") },
-    { Qt::Key_Return,            QT_TRANSLATE_NOOP("QAccel", "Return") },
-    { Qt::Key_Enter,            QT_TRANSLATE_NOOP("QAccel", "Enter") },
-    { Qt::Key_Insert,            QT_TRANSLATE_NOOP("QAccel", "Ins") },
-    { Qt::Key_Delete,            QT_TRANSLATE_NOOP("QAccel", "Del") },
-    { Qt::Key_Pause,            QT_TRANSLATE_NOOP("QAccel", "Pause") },
-    { Qt::Key_Print,            QT_TRANSLATE_NOOP("QAccel", "Print") },
-    { Qt::Key_SysReq,            QT_TRANSLATE_NOOP("QAccel", "SysReq") },
-    { Qt::Key_Home,            QT_TRANSLATE_NOOP("QAccel", "Home") },
-    { Qt::Key_End,            QT_TRANSLATE_NOOP("QAccel", "End") },
-    { Qt::Key_Left,            QT_TRANSLATE_NOOP("QAccel", "Left") },
-    { Qt::Key_Up,            QT_TRANSLATE_NOOP("QAccel", "Up") },
-    { Qt::Key_Right,            QT_TRANSLATE_NOOP("QAccel", "Right") },
-    { Qt::Key_Down,            QT_TRANSLATE_NOOP("QAccel", "Down") },
-    { Qt::Key_Prior,            QT_TRANSLATE_NOOP("QAccel", "PgUp") },
-    { Qt::Key_Next,            QT_TRANSLATE_NOOP("QAccel", "PgDown") },
-    { Qt::Key_CapsLock,            QT_TRANSLATE_NOOP("QAccel", "CapsLock") },
-    { Qt::Key_NumLock,            QT_TRANSLATE_NOOP("QAccel", "NumLock") },
+    { Qt::Key_Return,       QT_TRANSLATE_NOOP("QAccel", "Return") },
+    { Qt::Key_Enter,        QT_TRANSLATE_NOOP("QAccel", "Enter") },
+    { Qt::Key_Insert,       QT_TRANSLATE_NOOP("QAccel", "Ins") },
+    { Qt::Key_Delete,       QT_TRANSLATE_NOOP("QAccel", "Del") },
+    { Qt::Key_Pause,        QT_TRANSLATE_NOOP("QAccel", "Pause") },
+    { Qt::Key_Print,        QT_TRANSLATE_NOOP("QAccel", "Print") },
+    { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QAccel", "SysReq") },
+    { Qt::Key_Home,         QT_TRANSLATE_NOOP("QAccel", "Home") },
+    { Qt::Key_End,          QT_TRANSLATE_NOOP("QAccel", "End") },
+    { Qt::Key_Left,         QT_TRANSLATE_NOOP("QAccel", "Left") },
+    { Qt::Key_Up,           QT_TRANSLATE_NOOP("QAccel", "Up") },
+    { Qt::Key_Right,        QT_TRANSLATE_NOOP("QAccel", "Right") },
+    { Qt::Key_Down,         QT_TRANSLATE_NOOP("QAccel", "Down") },
+    { Qt::Key_Prior,        QT_TRANSLATE_NOOP("QAccel", "PgUp") },
+    { Qt::Key_Next,         QT_TRANSLATE_NOOP("QAccel", "PgDown") },
+    { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QAccel", "CapsLock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QAccel", "NumLock") },
     { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QAccel", "ScrollLock") },
-    { Qt::Key_Menu,            QT_TRANSLATE_NOOP("QAccel", "Menu") },
-    { Qt::Key_Help,            QT_TRANSLATE_NOOP("QAccel", "Help") },
+    { Qt::Key_Menu,         QT_TRANSLATE_NOOP("QAccel", "Menu") },
+    { Qt::Key_Help,         QT_TRANSLATE_NOOP("QAccel", "Help") },
 
     // Multimedia keys
-    { Qt::Key_Back,            QT_TRANSLATE_NOOP("QAccel", "Back") },
-    { Qt::Key_Forward,            QT_TRANSLATE_NOOP("QAccel", "Forward") },
-    { Qt::Key_Stop,            QT_TRANSLATE_NOOP("QAccel", "Stop") },
-    { Qt::Key_Refresh,            QT_TRANSLATE_NOOP("QAccel", "Refresh") },
+    { Qt::Key_Back,         QT_TRANSLATE_NOOP("QAccel", "Back") },
+    { Qt::Key_Forward,      QT_TRANSLATE_NOOP("QAccel", "Forward") },
+    { Qt::Key_Stop,         QT_TRANSLATE_NOOP("QAccel", "Stop") },
+    { Qt::Key_Refresh,      QT_TRANSLATE_NOOP("QAccel", "Refresh") },
     { Qt::Key_VolumeDown,   QT_TRANSLATE_NOOP("QAccel", "Volume Down") },
     { Qt::Key_VolumeMute,   QT_TRANSLATE_NOOP("QAccel", "Volume Mute") },
-    { Qt::Key_VolumeUp,            QT_TRANSLATE_NOOP("QAccel", "Volume Up") },
+    { Qt::Key_VolumeUp,     QT_TRANSLATE_NOOP("QAccel", "Volume Up") },
     { Qt::Key_BassBoost,    QT_TRANSLATE_NOOP("QAccel", "Bass Boost") },
-    { Qt::Key_BassUp,            QT_TRANSLATE_NOOP("QAccel", "Bass Up") },
-    { Qt::Key_BassDown,            QT_TRANSLATE_NOOP("QAccel", "Bass Down") },
-    { Qt::Key_TrebleUp,            QT_TRANSLATE_NOOP("QAccel", "Treble Up") },
+    { Qt::Key_BassUp,       QT_TRANSLATE_NOOP("QAccel", "Bass Up") },
+    { Qt::Key_BassDown,     QT_TRANSLATE_NOOP("QAccel", "Bass Down") },
+    { Qt::Key_TrebleUp,     QT_TRANSLATE_NOOP("QAccel", "Treble Up") },
     { Qt::Key_TrebleDown,   QT_TRANSLATE_NOOP("QAccel", "Treble Down") },
     { Qt::Key_MediaPlay,    QT_TRANSLATE_NOOP("QAccel", "Media Play") },
     { Qt::Key_MediaStop,    QT_TRANSLATE_NOOP("QAccel", "Media Stop") },
     { Qt::Key_MediaPrev,    QT_TRANSLATE_NOOP("QAccel", "Media Previous") },
     { Qt::Key_MediaNext,    QT_TRANSLATE_NOOP("QAccel", "Media Next") },
     { Qt::Key_MediaRecord,  QT_TRANSLATE_NOOP("QAccel", "Media Record") },
-    { Qt::Key_HomePage,            QT_TRANSLATE_NOOP("QAccel", "Home") },
+    { Qt::Key_HomePage,     QT_TRANSLATE_NOOP("QAccel", "Home") },
     { Qt::Key_Favorites,    QT_TRANSLATE_NOOP("QAccel", "Favorites") },
-    { Qt::Key_Search,            QT_TRANSLATE_NOOP("QAccel", "Search") },
-    { Qt::Key_Standby,            QT_TRANSLATE_NOOP("QAccel", "Standby") },
-    { Qt::Key_OpenUrl,            QT_TRANSLATE_NOOP("QAccel", "Open URL") },
+    { Qt::Key_Search,       QT_TRANSLATE_NOOP("QAccel", "Search") },
+    { Qt::Key_Standby,      QT_TRANSLATE_NOOP("QAccel", "Standby") },
+    { Qt::Key_OpenUrl,      QT_TRANSLATE_NOOP("QAccel", "Open URL") },
     { Qt::Key_LaunchMail,   QT_TRANSLATE_NOOP("QAccel", "Launch Mail") },
     { Qt::Key_LaunchMedia,  QT_TRANSLATE_NOOP("QAccel", "Launch Media") },
-    { Qt::Key_Launch0,            QT_TRANSLATE_NOOP("QAccel", "Launch (0)") },
-    { Qt::Key_Launch1,            QT_TRANSLATE_NOOP("QAccel", "Launch (1)") },
-    { Qt::Key_Launch2,            QT_TRANSLATE_NOOP("QAccel", "Launch (2)") },
-    { Qt::Key_Launch3,            QT_TRANSLATE_NOOP("QAccel", "Launch (3)") },
-    { Qt::Key_Launch4,            QT_TRANSLATE_NOOP("QAccel", "Launch (4)") },
-    { Qt::Key_Launch5,            QT_TRANSLATE_NOOP("QAccel", "Launch (5)") },
-    { Qt::Key_Launch6,            QT_TRANSLATE_NOOP("QAccel", "Launch (6)") },
-    { Qt::Key_Launch7,            QT_TRANSLATE_NOOP("QAccel", "Launch (7)") },
-    { Qt::Key_Launch8,            QT_TRANSLATE_NOOP("QAccel", "Launch (8)") },
-    { Qt::Key_Launch9,            QT_TRANSLATE_NOOP("QAccel", "Launch (9)") },
-    { Qt::Key_LaunchA,            QT_TRANSLATE_NOOP("QAccel", "Launch (A)") },
-    { Qt::Key_LaunchB,            QT_TRANSLATE_NOOP("QAccel", "Launch (B)") },
-    { Qt::Key_LaunchC,            QT_TRANSLATE_NOOP("QAccel", "Launch (C)") },
-    { Qt::Key_LaunchD,            QT_TRANSLATE_NOOP("QAccel", "Launch (D)") },
-    { Qt::Key_LaunchE,            QT_TRANSLATE_NOOP("QAccel", "Launch (E)") },
-    { Qt::Key_LaunchF,            QT_TRANSLATE_NOOP("QAccel", "Launch (F)") },
+    { Qt::Key_Launch0,      QT_TRANSLATE_NOOP("QAccel", "Launch (0)") },
+    { Qt::Key_Launch1,      QT_TRANSLATE_NOOP("QAccel", "Launch (1)") },
+    { Qt::Key_Launch2,      QT_TRANSLATE_NOOP("QAccel", "Launch (2)") },
+    { Qt::Key_Launch3,      QT_TRANSLATE_NOOP("QAccel", "Launch (3)") },
+    { Qt::Key_Launch4,      QT_TRANSLATE_NOOP("QAccel", "Launch (4)") },
+    { Qt::Key_Launch5,      QT_TRANSLATE_NOOP("QAccel", "Launch (5)") },
+    { Qt::Key_Launch6,      QT_TRANSLATE_NOOP("QAccel", "Launch (6)") },
+    { Qt::Key_Launch7,      QT_TRANSLATE_NOOP("QAccel", "Launch (7)") },
+    { Qt::Key_Launch8,      QT_TRANSLATE_NOOP("QAccel", "Launch (8)") },
+    { Qt::Key_Launch9,      QT_TRANSLATE_NOOP("QAccel", "Launch (9)") },
+    { Qt::Key_LaunchA,      QT_TRANSLATE_NOOP("QAccel", "Launch (A)") },
+    { Qt::Key_LaunchB,      QT_TRANSLATE_NOOP("QAccel", "Launch (B)") },
+    { Qt::Key_LaunchC,      QT_TRANSLATE_NOOP("QAccel", "Launch (C)") },
+    { Qt::Key_LaunchD,      QT_TRANSLATE_NOOP("QAccel", "Launch (D)") },
+    { Qt::Key_LaunchE,      QT_TRANSLATE_NOOP("QAccel", "Launch (E)") },
+    { Qt::Key_LaunchF,      QT_TRANSLATE_NOOP("QAccel", "Launch (F)") },
 
     // --------------------------------------------------------------
     // More consistent namings
-    { Qt::Key_Print,            QT_TRANSLATE_NOOP("QAccel", "Print Screen") },
-    { Qt::Key_Prior,            QT_TRANSLATE_NOOP("QAccel", "Page Up") },
-    { Qt::Key_Next,            QT_TRANSLATE_NOOP("QAccel", "Page Down") },
-    { Qt::Key_CapsLock,            QT_TRANSLATE_NOOP("QAccel", "Caps Lock") },
-    { Qt::Key_NumLock,            QT_TRANSLATE_NOOP("QAccel", "Num Lock") },
-    { Qt::Key_NumLock,            QT_TRANSLATE_NOOP("QAccel", "Number Lock") },
+    { Qt::Key_Print,        QT_TRANSLATE_NOOP("QAccel", "Print Screen") },
+    { Qt::Key_Prior,        QT_TRANSLATE_NOOP("QAccel", "Page Up") },
+    { Qt::Key_Next,         QT_TRANSLATE_NOOP("QAccel", "Page Down") },
+    { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QAccel", "Caps Lock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QAccel", "Num Lock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QAccel", "Number Lock") },
     { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QAccel", "Scroll Lock") },
-    { Qt::Key_Insert,            QT_TRANSLATE_NOOP("QAccel", "Insert") },
-    { Qt::Key_Delete,            QT_TRANSLATE_NOOP("QAccel", "Delete") },
-    { Qt::Key_Escape,            QT_TRANSLATE_NOOP("QAccel", "Escape") },
-    { Qt::Key_SysReq,            QT_TRANSLATE_NOOP("QAccel", "System Request") },
+    { Qt::Key_Insert,       QT_TRANSLATE_NOOP("QAccel", "Insert") },
+    { Qt::Key_Delete,       QT_TRANSLATE_NOOP("QAccel", "Delete") },
+    { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QAccel", "Escape") },
+    { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QAccel", "System Request") },
 
     { 0, 0 }
 };
@@ -617,6 +617,25 @@ bool QKeySequence::operator!= (const QKeySequence& keysequence) const
     return !(*this == keysequence);
 }
 
+/*!
+    Provides an arbitrary comparison of this key sequence and
+    \a keysequence. All that is guaranteed is that the operator
+    returns FALSE if both key sequences are equal and that
+    (ks1 \< ks2) == !( ks2 \< ks1) if the key sequences are not
+    equal.
+
+    This function is useful in some circumstances, for example if you
+    want to use QKeySequence objects as keys in a QMap.
+
+    \sa operator==() operator!=()
+*/
+bool QKeySequence::operator< (const QKeySequence &keysequence) const
+{
+    return (d->key[0] < keysequence.d->key[0] ||
+            d->key[1] < keysequence.d->key[1] ||
+            d->key[2] < keysequence.d->key[2] ||
+            d->key[3] < keysequence.d->key[3]);
+}
 
 /*****************************************************************************
   QKeySequence stream functions

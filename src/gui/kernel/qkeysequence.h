@@ -54,6 +54,7 @@ public:
     QKeySequence &operator=(const QKeySequence &ks);
     bool operator==(const QKeySequence &ks) const;
     bool operator!= (const QKeySequence &ks) const;
+    bool operator< (const QKeySequence &ks) const;
 
 private:
     static int decodeString(const QString &ks);
