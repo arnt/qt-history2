@@ -89,7 +89,11 @@ struct QPixmapData { // internal pixmap data
 #endif
 
     static int allocCell(const QPixmap *p);
-    static void freeCell(const QPixmap *p, bool terminate = false);
+    static void freeCell(QPixmapData *data, bool terminate = false);
+
+#ifdef Q_WS_WIN
+    void releaseDC(HDC hdc) const;
+#endif
 };
 
 

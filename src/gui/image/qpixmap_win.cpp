@@ -26,9 +26,9 @@
 
 extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
 
-#define DATA_MCPI         data->mcpi
-#define DATA_MCPI_MCP         data->mcpi->mcp
-#define DATA_MCPI_OFFSET data->mcpi->offset
+#define DATA_MCPI               data->mcpi
+#define DATA_MCPI_MCP           data->mcpi->mcp
+#define DATA_MCPI_OFFSET        data->mcpi->offset
 
 static bool mcp_system_unstable = false;
 
@@ -91,7 +91,7 @@ inline HBITMAP QPixmapData::bm() const { return mcp ? mcpi->mcp->hbm() : hbm; }
 void QPixmap::initAlphaPixmap(uchar *bytes, int length, BITMAPINFO *bmi)
 {
     if (data->mcp)
-        data->freeCell(this, true);
+        QPixmapData::freeCell(data, true);
     DeleteObject(data->bm());
 
     HDC hdc = GetDC(0);
@@ -220,8 +220,8 @@ QPixmapData::~QPixmapData()
     if (mcp) {
         if (mcp_system_unstable) {        // all mcp's gone
             mcp = false;
-            delete DATA_MCPI;
-            DATA_MCPI = 0;
+            delete mcpi;
+            mcpi = 0;
             hbm = 0;
         } else {
             freeCell(this, true);
@@ -358,7 +358,7 @@ void QPixmap::setOptimization(Optimization optimization)
             data->allocCell(this);
     } else {
         if (data->mcp)
-            data->freeCell(this);
+            QPixmapData::freeCell(data);
     }
 }
 
@@ -529,7 +529,7 @@ QImage QPixmap::toImage() const
 #ifndef Q_OS_TEMP
     bool mcp = data->mcp;
     if (mcp)                                        // disable multi cell
-        data->freeCell(this);
+        QPixmapData::freeCell(data);
 
     GetDIBits(qt_display_dc(), data->bm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS);
 
@@ -993,7 +993,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     bool mcp = data->mcp;
     if (mcp)
-        data->freeCell(this);
+        QPixmapData::freeCell(data);
     int result;
 #ifndef Q_OS_TEMP
     if (data->realAlphaBits) {
@@ -1246,7 +1246,7 @@ int QPixmapData::allocCell(const QPixmap *p)
         init_mcp();
     QPixmapData *data = p->data;
     if (data->mcp)                                // cell already alloc'd
-        freeCell(p);
+        freeCell(data);
     int s;
     int i = index_of_mcp_list(data->w, (data->d == 1), &s);
     if (i < 0)                                // too large width
@@ -1306,9 +1306,8 @@ int QPixmapData::allocCell(const QPixmap *p)
 /*!
   \internal
 */
-void QPixmapData::freeCell(const QPixmap *p, bool terminate)
+void QPixmapData::freeCell(QPixmapData *data, bool terminate)
 {
-    QPixmapData *data = p->data;
     if (!mcp_lists_init || !data->mcp)
         return;
     QMultiCellPixmap *mcp = DATA_MCPI_MCP;
@@ -1319,11 +1318,11 @@ void QPixmapData::freeCell(const QPixmap *p, bool terminate)
     if (terminate) {                                // pixmap is being destroyed
         data->hbm = 0;
     } else {
-        if (data->d == p->defaultDepth())
+        if (data->d == QPixmap::defaultDepth())
             data->hbm = CreateCompatibleBitmap(qt_display_dc(), data->w, data->h);
         else
             data->hbm = CreateBitmap(data->w, data->h, 1, 1, 0);
-        HDC hdc = p->getDC();
+        HDC hdc = data->mem_dc.hdc;
         HDC mcp_dc = mcp->mem_dc.hdc;
         HGDIOBJ old_mcp_bm;
         if (!mcp->mem_dc.hdc) {
@@ -1333,7 +1332,7 @@ void QPixmapData::freeCell(const QPixmap *p, bool terminate)
             SetViewportOrgEx(mcp_dc, 0, 0, NULL);
         }
         BitBlt(hdc, 0, 0, data->w, data->h, mcp_dc, 0, offset, SRCCOPY);
-        p->releaseDC(hdc);
+        data->releaseDC(hdc);
         if(!mcp->mem_dc.hdc) {
             SelectObject(mcp_dc, old_mcp_bm);
             DeleteDC(mcp_dc);
@@ -1350,6 +1349,23 @@ void QPixmapData::freeCell(const QPixmap *p, bool terminate)
                 mcp_lists[i] = 0;
             }
         }
+    }
+}
+
+void QPixmapData::releaseDC(HDC hdc) const
+{
+    QPixmapData::MemDC *memdc = const_cast<QPixmapData::MemDC*>(mcp ? &mcpi->mcp->mem_dc : &mem_dc);
+
+    if(hdc != memdc->hdc) {
+        qWarning("QPixmap::releaseDC(): releasing wrong DC");
+        return;
+    }
+    --memdc->ref;
+    if(memdc->ref == 0) {
+        SelectObject(memdc->hdc, memdc->bm);
+        DeleteDC(memdc->hdc);
+        memdc->hdc = 0;
+        memdc->bm = 0;
     }
 }
 
@@ -1450,17 +1466,5 @@ HDC QPixmap::getDC() const
 */
 void QPixmap::releaseDC(HDC hdc) const
 {
-    QPixmapData::MemDC *mem_dc = data->mcp ? &data->mcpi->mcp->mem_dc : &data->mem_dc;
-
-    if(hdc != mem_dc->hdc) {
-        qWarning("QPixmap::releaseDC(): releasing wrong DC");
-        return;
-    }
-    --mem_dc->ref;
-    if(mem_dc->ref == 0) {
-        SelectObject(mem_dc->hdc, mem_dc->bm);
-        DeleteDC(mem_dc->hdc);
-        mem_dc->hdc = 0;
-        mem_dc->bm = 0;
-    }
+    data->releaseDC(hdc);
 }
