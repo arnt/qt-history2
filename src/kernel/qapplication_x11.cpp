@@ -431,7 +431,7 @@ public:
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );
-    bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, char& ascii, int &code );
+    bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, bool& keypad, char& ascii, int &code );
     bool translateKeyEvent( const XEvent *, bool grab );
     bool translatePaintEvent( const XEvent * );
     bool translateConfigEvent( const XEvent * );
@@ -3843,7 +3843,8 @@ static void deleteKeyDicts()
 
 
 bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
-					   QString& text, int& state,
+					   QString& text,
+					   int& state, bool& keypad,
 					   char& ascii, int &code )
 {
     QCString chars(64);
@@ -3922,6 +3923,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 #endif // !NO_XIM
 
     state = translateButtonState( event->xkey.state );
+    keypad = FALSE;
 
     // Commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes in ISO8859-1.
@@ -3934,8 +3936,9 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
     } else if ( key >= XK_F1 && key <= XK_F35 ) {
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
-    } else if ( key >= XK_KP_0 && key <= XK_KP_9){
+    } else if ( key >= XK_KP_0 && key <= XK_KP_9) {
 	code = Key_0 + ((int)key - XK_KP_0);	// numeric keypad keys
+	keypad = TRUE;
     } else {
 	int i = 0;				// any other keys
 	while ( KeyTbl[i] ) {
@@ -3944,6 +3947,32 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 		break;
 	    }
 	    i += 2;
+	}
+	switch ( key ) {
+	case XK_KP_Insert:
+	case XK_KP_Delete:
+	case XK_KP_Home:
+	case XK_KP_End:
+	case XK_KP_Left:
+	case XK_KP_Up:
+	case XK_KP_Right:
+	case XK_KP_Down:
+	case XK_KP_Prior:
+	case XK_KP_Next:
+	case XK_KP_Space:
+	case XK_KP_Tab:
+	case XK_KP_Enter:
+	case XK_KP_Equal:
+	case XK_KP_Multiply:
+	case XK_KP_Add:
+	case XK_KP_Separator:
+	case XK_KP_Subtract:
+	case XK_KP_Decimal:
+	case XK_KP_Divide:
+	    keypad = true;
+	    break;
+	default:
+	    break;
 	}
 	if ( code == Key_Tab &&
 	     (state & ShiftButton) == Qt::ShiftButton ) {
@@ -3974,7 +4003,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 #endif
 #endif
 
-
     // convert chars (8bit) to text (unicode).
     if ( input_mapper )
 	text = input_mapper->toUnicode(chars,count);
@@ -3989,6 +4017,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   code = -1;
     int	   count = 0;
     int	   state;
+    bool   keypad;
     char   ascii = 0;
 
     if ( sm_blockUserInput ) // block user interaction during session management
@@ -4004,7 +4033,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     bool    autor = FALSE;
     QString text;
 
-    translateKeyEventInternal( event, count, text, state, ascii, code );
+    translateKeyEventInternal( event, count, text, state, keypad, ascii, code );
     bool isAccel = FALSE;
     if (!grab) { // test for accel if the keyboard is not grabbed
 	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
@@ -4019,6 +4048,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	int	codeIntern = -1;
 	int	countIntern = 0;
 	int	stateIntern;
+	bool	keypadIntern;
 	char	asciiIntern = 0;
 	XEvent	evRelease;
 	XEvent	evPress;
@@ -4033,7 +4063,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		break;
 	    }
 	    translateKeyEventInternal( &evPress, countIntern, textIntern,
-				       stateIntern, asciiIntern, codeIntern);
+				       stateIntern, keypadIntern,
+				       asciiIntern, codeIntern);
 	    if ( stateIntern == state && !textIntern.isEmpty() ) {
 		if (!grab) { // test for accel if the keyboard is not grabbed
 		    QKeyEvent a( QEvent::AccelAvailable, codeIntern,
