@@ -120,6 +120,7 @@ Configure::Configure( int& argc, char** argv )
 	dictionary[ "QMAKE_INTERNAL" ]	= "no";
 	dictionary[ "BUILD_QMAKE" ]	= "no";
 	dictionary[ "ACCESSIBILITY" ]	= "no"; // < CE 4.0
+	dictionary[ "BIG_CODECS" ]	= "no"; // Keep small
 	dictionary[ "STL" ]		= "no"; // < CE 4.0
 	dictionary[ "OPENGL" ]		= "no"; // < CE 4.0
 	dictionary[ "STYLE_MOTIF" ]	= "no";
