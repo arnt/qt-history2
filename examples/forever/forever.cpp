@@ -38,7 +38,12 @@ Forever::Forever( QWidget *parent, const char *name )
 			    rand()&255 );
     }
     rectangles = 0;
-    startTimer( 0 );				// run continuous timer
+
+    QTimer * animation = new QTimer( this );
+    connect( animation, SIGNAL(timeout()),
+	     this, SLOT(repaint()) );
+    animation->start( 0 );
+
     QTimer * counter = new QTimer( this );
     connect( counter, SIGNAL(timeout()),
 	     this, SLOT(updateCaption()) );
@@ -61,33 +66,23 @@ void Forever::updateCaption()
 
 void Forever::paintEvent( QPaintEvent * )
 {
-    QPainter paint( this );			// painter object
     int w = width();
     int h = height();
     if(w <= 0 || h <= 0)
 	return;
+    QPainter paint( this );			// painter object
     paint.setPen( NoPen );			// do not draw outline
-    paint.setBrush( colors[rand() % numColors]);// set random brush color
+    for (int i = 0; i < 100; ++i) {
+	paint.setBrush(colors[rand() % numColors]);// set random brush color
 
-    QPoint p1( rand()%w, rand()%h );	// p1 = top left
-    QPoint p2( rand()%w, rand()%h );	// p2 = bottom right
+	QPoint p1( rand()%w, rand()%h );	// p1 = top left
+	QPoint p2( rand()%w, rand()%h );	// p2 = bottom right
 
-    QRect r( p1, p2 );
-    paint.drawRect( r );			// draw filled rectangle
-}
-
-//
-// Handles timer events for the Forever widget.
-//
-
-void Forever::timerEvent( QTimerEvent * )
-{
-    for ( int i=0; i<100; i++ ) {
-	repaint( FALSE );			// repaint, don't erase
+	QRect r( p1, p2 );
+	paint.drawRect( r );			// draw filled rectangle
 	rectangles++;
     }
 }
-
 
 //
 // Create and display Forever widget.

@@ -28,7 +28,6 @@ public:
     Forever( QWidget *parent=0, const char *name=0 );
 protected:
     void	paintEvent( QPaintEvent * );
-    void	timerEvent( QTimerEvent * );
 private slots:
     void	updateCaption();
 private:
