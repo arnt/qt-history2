@@ -11,18 +11,8 @@ int main( int /*argc*/, char** /*argv*/ )
 
 #if 0
     /* create a table */
-    QVariant name = "id";
-    QVariant value;
-    value.cast( QVariant::Int );
-    QValueList<QVariant> field;
-    field.append( name );
-    field.append( value );
-    env.program().append( new Push( field ) );
-    name = "name";
-    value.cast( QVariant::String );
-    field[0] = name;
-    field[1] = value;
-    env.program().append( new Push( field ) );
+    env.program().append( new PushField( "id", QVariant::Int ) );
+    env.program().append( new PushField( "name", QVariant::String ) );
     env.program().append( new PushList( 2 ) );
     env.program().append( new Create( FILENAME ) );
 #endif
@@ -191,6 +181,7 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new Close( 0 ) );
 #endif
 
+#if 0
     /* select some records using a range scan */
     env.program().append( new Open( 0, FILENAME ) );
     env.program().append( new PushFieldDesc( 0, "id", 19 ) );
@@ -212,7 +203,7 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new PushList( 1 ) );
     env.program().append( new Sort( 0 ) );
     env.program().append( new Close( 0 ) );
-
+#endif
 
 #if 0
     /* select all records and sort */

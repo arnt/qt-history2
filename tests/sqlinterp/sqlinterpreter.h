@@ -820,6 +820,35 @@ public:
     }
 };
 
+/* Push an artificial 'field description' (see PishFieldDesc) on to
+   the stack using 'name' and 'type.  Type must correspond to a
+   QVariant::Type. This op is useful for creating a field description
+   when there is no open file to use (e.g., when creating files, see
+   Create).
+*/
+
+class PushField : public Label
+{
+public:
+    PushField( const QVariant& name,
+	       const QVariant& type,
+	       const QString& label = QString::null )
+	: Label( name, type, label ) {}
+    QString name() const { return "PushField"; }
+    int exec( Interpreter::Environment* env )
+    {
+
+	QVariant& name = p1;
+	QVariant value;
+	value.cast( (QVariant::Type)p2.toInt() );
+	QValueList<QVariant> field;
+	field.append( name );
+	field.append( value );
+	env->stack().push( field );
+	return TRUE;
+    }
+};
+
 /* Push the value of field number P2 from the file identified by 'id' on to the
  top of the stack The file must be open and positioned on a valid
  record.
