@@ -86,7 +86,7 @@ public:
 	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE),
 	 allowTabs(TRUE)
 #ifndef QT_NO_CLIPBOARD
-	 ,clipboard_mode( QClipboard::Clipboard )
+	,clipboard_mode( QClipboard::Clipboard )
 #endif
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 	, od(0), optimMode( FALSE)
@@ -1044,7 +1044,6 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    l += v;
 	}
     }
-
 }
 
 /*!
@@ -5342,11 +5341,21 @@ void QTextEdit::zoomTo( int size )
 
 void QTextEdit::sync()
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( d->optimMode ) {
+	QFontMetrics fm( QScrollView::font() );
+	resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
+			fm.descent() + 1 );
+    } else {
+#endif
     while ( lastFormatted ) {
 	lastFormatted->format();
 	lastFormatted = lastFormatted->next();
     }
     resizeContents( contentsWidth(), doc->height() );
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    }
+#endif    
     updateScrollBars();
 }
 
@@ -5708,6 +5717,7 @@ bool QTextEdit::checkOptimMode()
 			this, SLOT( autoScrollTimerDone() ) );
 	    disconnect( formatTimer, SIGNAL( timeout() ),
 			this, SLOT( formatMore() ) );
+	    
  	    optimSetText( doc->originalText() );
     	    doc->clear( TRUE );
 	} else {
@@ -6536,5 +6546,14 @@ bool QTextEdit::optimFind( const QString & expr, bool cs, bool /*wo*/,
     }
     return found;
 }
+
+void QTextEdit::polish()
+{
+    // this will ensure that the last line is visible if text have
+    // been added to the widget before it is shown
+    if ( d->optimMode )
+	scrollToBottom();
+}
+
 #endif // QT_TEXTEDIT_OPTIMIZATION
 #endif //QT_NO_TEXTEDIT

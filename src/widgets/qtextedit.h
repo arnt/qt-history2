@@ -377,6 +377,10 @@ public slots:
     virtual void setUndoRedoEnabled( bool b );
     void setAllowTabs( bool b ); // ### make virtual in 4.0
 
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    void polish();
+#endif
+    
 signals:
     void textChanged();
     void selectionChanged();
