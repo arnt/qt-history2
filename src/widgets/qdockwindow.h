@@ -201,6 +201,7 @@ private:
     QBoxLayout *layout;
     void *dockWindowData;
     QPoint lastPos;
+    QSize lastSize;
     QWidgetResizeHandler *widgetResizeHandler;
     QDockWindowPrivate *d;
 

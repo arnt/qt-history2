@@ -845,7 +845,7 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
       wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), curPlace( p ), resizeEnabled( FALSE ),
       moveEnabled( TRUE ), nl( FALSE ), opaque( FALSE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ),
       dockWindowData( 0 ),
-      lastPos( -1, -1 )
+      lastPos( -1, -1 ), lastSize( -1, -1 )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this );
     widgetResizeHandler->setMovingEnabled( FALSE );
@@ -1546,6 +1546,8 @@ void QDockWindow::undock( QWidget *w )
 	move( lastPos );
     else
 	move( p );
+    if ( lastSize != QSize( -1, -1 ) )
+	resize( lastSize );
     curPlace = OutsideDock;
     updateGui();
     emit orientationChanged( orientation() );
@@ -1592,6 +1594,7 @@ void QDockWindow::dock()
 	return;
     curPlace = InDock;
     lastPos = pos();
+    lastSize = size();
     ( (QDockArea::DockWindowData*)dockWindowData )->
 	area->dockWindow( this, (QDockArea::DockWindowData*)dockWindowData );
     emit orientationChanged( orientation() );
