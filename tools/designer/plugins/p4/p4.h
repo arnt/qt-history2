@@ -1,7 +1,7 @@
 #ifndef P4_H
 #define P4_H
 
-#include <qstring.h>
+#include <qstringlist.h>
 #include <qobject.h>
 #include <qdict.h>
 
