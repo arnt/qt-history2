@@ -2599,10 +2599,10 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     int unused;
 
     // zero overall
-    overall.lbearing = 0;
-    overall.rbearing = 0;
-    overall.ascent = 0;
-    overall.descent = 0;
+    overall.lbearing = -0x4000;
+    overall.rbearing = -0x4000;
+    overall.ascent = -0x4000;
+    overall.descent = -0x4000;
     overall.width = 0;
 
     for (i = 0; i < len; i++) {
