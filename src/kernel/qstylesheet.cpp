@@ -1165,6 +1165,7 @@ void QStyleSheet::init()
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
      style = new QStyleSheetItem( this, QString::fromLatin1("div") );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock) ;
+     style = new QStyleSheetItem( this, QString::fromLatin1("span") );
      style = new QStyleSheetItem( this, QString::fromLatin1("dl") );
     style-> setMargin(QStyleSheetItem::MarginVertical, 8);
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);

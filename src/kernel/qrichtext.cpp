@@ -1631,6 +1631,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QString lastClose;
     QString anchorName;
 
+    NEWPAR;
+
     QString wellKnownTags = "br hr wsp table qt body meta title";
 
     while ( pos < length ) {
@@ -6447,7 +6449,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
 	if ( color().rgb() != defaultFormat->color().rgb() )
 	    s += QString(!!s?";":"") + "color:" + col.name();
 	if ( !s.isEmpty() )
-	    tag += "<font style=\"" + s + "\">";
+	    tag += "<span style=\"" + s + "\">";
     }
 
     return tag;
@@ -6463,7 +6465,7 @@ QString QTextFormat::makeFormatEndTags( QTextFormat* defaultFormat, const QStrin
 	 || font().underline() != defaultFormat->font().underline()
 	 || vAlign() != defaultFormat->vAlign()
 	 || color().rgb() != defaultFormat->color().rgb() )
-	tag += "</font>";
+	tag += "</span>";
     if ( !anchorHref.isEmpty() )
 	tag += "</a>";
     return tag;
