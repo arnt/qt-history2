@@ -507,6 +507,15 @@
   API of it might change in an incompatible manner in the future.
  */
 
+/*! \fn bool getFormat( int parag, int index, QFont &font, QColor &color )
+
+  This function sets \a font to the font and \a color to the color of
+  the character at position \a index in the paragraph \a parag.
+
+  If \a parag or \a index is out of range, FALSE is returned, else
+  TRUE is returned.
+*/
+
 /*! Constructs a QTextEdit */
 
 QTextEdit::QTextEdit( QWidget *parent, const char *name )
@@ -522,3 +531,4 @@ QTextEdit::QTextEdit( QWidget *parent, const char *name )
 QTextEdit::~QTextEdit()
 {
 }
+

@@ -70,6 +70,7 @@ public:
     bool isOverwriteMode() const;
     int undoDepth() const;
     virtual void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE );
+    virtual bool getFormat( int parag, int index, QFont &font, QColor &color );
 
 public slots:
     virtual void setOverwriteMode( bool b );
@@ -366,6 +367,10 @@ inline QTextCursor *QTextEdit::textCursor() const
     return cursor;
 }
 
+inline bool QTextEdit::getFormat( int parag, int index, QFont &font, QColor &color )
+{
+    return QTextView::getFormat( parag, index, font, color );
+}
 
 
 

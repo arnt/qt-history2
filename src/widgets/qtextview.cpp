@@ -2693,3 +2693,15 @@ void QTextView::clearUndoRedo()
     emitUndoAvailable( doc->commands()->isUndoAvailable() );
     emitRedoAvailable( doc->commands()->isRedoAvailable() );
 }
+
+bool QTextView::getFormat( int parag, int index, QFont &font, QColor &color )
+{
+    QTextParag *p = doc->paragAt( parag );
+    if ( !p )
+	return FALSE;
+    if ( index < 0 || index >= p->length() )
+	return FALSE;
+    font = p->at( index )->format()->font();
+    color = p->at( index )->format()->color();
+    return TRUE;
+}

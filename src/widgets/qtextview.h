@@ -324,6 +324,7 @@ private: // these are functions which actually do editing stuff, but
     void save( const QString &fn = QString::null );
     void readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text, bool fillStyles = FALSE );
     void clearUndoRedo();
+    bool getFormat( int parag, int index, QFont &font, QColor &color );
 
 private:
     QTextDocument *doc;
