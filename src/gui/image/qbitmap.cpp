@@ -271,6 +271,8 @@ QBitmap::operator QVariant() const
 
 QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
 {
+    if (image.isNull())
+        return QBitmap();
     QImage img = image.convertDepth(1, flags);
     return QBitmap(QPixmap::fromImage(img, flags));
 }
