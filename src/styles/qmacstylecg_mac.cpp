@@ -145,7 +145,37 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
 	}
 	break; }
     case PE_FocusRect:
-	break;     //This is not used because of the QAquaFocusWidget thingie..
+	break;     //This is not used because of the QAquaFocusWidget thingie...
+    case PE_ArrowUp:
+    case PE_ArrowDown:
+    case PE_ArrowRight:
+    case PE_ArrowLeft: {
+        HIThemePopupArrowDrawInfo info;
+        info.version = qt_mac_hitheme_version;
+        info.state = tds;
+        switch (pe) {
+        case PE_ArrowUp:
+            info.orientation = kThemeArrowUp;
+            break;
+        case PE_ArrowDown:
+            info.orientation = kThemeArrowDown;
+            break;
+        case PE_ArrowRight:
+            info.orientation = kThemeArrowRight;
+            break;
+        case PE_ArrowLeft:
+            info.orientation = kThemeArrowLeft;
+            break;
+        default:     // Stupid compiler should know better.
+            break;
+        }
+        if (r.width() < 8)
+            info.size = kThemeArrow5pt;
+        else
+            info.size = kThemeArrow9pt;
+        HIThemeDrawPopupArrow(qt_glb_mac_rect(r, p), &info, static_cast<CGContextRef>(p->handle()),
+                              kHIThemeOrientationNormal);
+        break; }
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;
