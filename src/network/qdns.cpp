@@ -53,7 +53,6 @@
 
 //#define QDNS_DEBUG
 
-
 static Q_UINT16 id; // ### seeded started by now()
 
 
@@ -865,13 +864,21 @@ QDnsManager::QDnsManager()
     connect( sweepTimer, SIGNAL(timeout()),
 	     this, SLOT(cleanCache()) );
 
-    QSocketNotifier * rn = new QSocketNotifier( socket->socket(),
-						QSocketNotifier::Read,
-						this, "dns socket watcher" );
-    socket->setAddressReusable( FALSE );
-    socket->setBlocking( FALSE );
-    connect( rn, SIGNAL(activated(int)),
-	     this, SLOT(answer()) );
+    QSocketNotifier * rn4 = new QSocketNotifier( ipv4Socket->socket(),
+						 QSocketNotifier::Read,
+						 this, "dns IPv4 socket watcher" );
+    ipv4Socket->setAddressReusable( FALSE );
+    ipv4Socket->setBlocking( FALSE );
+    connect( rn4, SIGNAL(activated(int)), SLOT(answer()) );
+
+#if !defined (QT_NO_IPV6)
+    QSocketNotifier * rn6 = new QSocketNotifier( ipv6Socket->socket(),
+						 QSocketNotifier::Read,
+						 this, "dns IPv6 socket watcher" );
+    ipv6Socket->setAddressReusable( FALSE );
+    ipv6Socket->setBlocking( FALSE );
+    connect( rn6, SIGNAL(activated(int)), SLOT(answer()) );
+#endif
 
     if ( !ns )
 	QDns::doResInit();
@@ -928,7 +935,10 @@ QDnsManager::~QDnsManager()
 	globalManager = 0;
     queries.setAutoDelete( TRUE );
     cache.setAutoDelete( TRUE );
-    delete socket;
+    delete ipv4Socket;
+#if !defined (QT_NO_IPV6)
+    delete ipv6Socket;
+#endif
 }
 
 static Q_UINT32 lastSweep = 0;
@@ -985,8 +995,15 @@ void QDnsManager::answer()
         r = ipv6Socket->readBlock(a.data(), a.size());
 #endif
 #if defined(QDNS_DEBUG)
+#if !defined (QT_NO_IPV6)
     qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
-	   socket->peerAddress().toString().ascii(), socket->peerPort() );
+	   useIpv4Socket ? ipv4Socket->peerAddress().toString().ascii()
+	   : ipv6Socket->peerAddress().toString().ascii(),
+	   useIpv4Socket ? ipv4Socket->peerPort() : ipv6Socket->peerPort() );
+#else
+    qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
+           ipv4Socket->peerAddress().toString().ascii(), ipv4Socket->peerPort());;
+#endif
 #endif
     if ( r < 12 )
 	return;
@@ -2412,6 +2429,7 @@ void QDns::doSynchronousLookup()
 
 #if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
 #define Q_MODERN_RES_API
+#else
 #endif
 
 void QDns::doResInit()
