@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#2 $
 **
 ** Implementation of movie classes
 **
@@ -46,8 +46,12 @@
   In Qt 1.3, the decoder factory interface is not 
   available for adding support for new formats. Only GIF support
   is installed.  The GIF decoder supports interlaced images,
-  transparency, looping, image-restore disposal, and background colors.
-  Local GIF color maps have limited support.
+  transparency, looping, image-restore disposal, local color maps,
+  and background colors.
+
+  We are required to state: The Graphics Interchange Format(c) is the
+  Copyright property of CompuServe Incorporated. GIF(sm) is a Service
+  Mark property of CompuServe Incorporated.
 
   \sa QLabel::setMovie()
 */
@@ -160,7 +164,7 @@ public: // for QMovie
 	// Convert to pixmap and paste that onto myself
 	QPixmap lines;
 	lines.convertFromImage(img);
-	bitBlt(&mypixmap, l, t, &lines, 0, 0, w, h, CopyROP, TRUE);
+	bitBlt(&mypixmap, l, t, &lines, 0, 0, w, h, CopyROP, !bg.isValid());
 
 	if (!bg.isValid() && gimg.hasAlphaBuffer()) {
 	    bitBlt(&mymask, l, t, lines.mask(), 0, 0, w, h, CopyROP, TRUE);
@@ -656,7 +660,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Fri Jun 20 20:19:36 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.1 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.2 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

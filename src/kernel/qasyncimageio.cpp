@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#2 $
 **
 ** Implementation of movie classes
 **
@@ -301,9 +301,19 @@ QImageFormatDecoderFactory::~QImageFormatDecoderFactory()
 */
 QImageFormatDecoderGIF::QImageFormatDecoderGIF()
 {
+    globalcmap_hold = 0;
     frame = -1;
     state = Header;
     count = 0;
+    lcmap = FALSE;
+}
+
+/*!
+  Destructs a QImageFormatDecoderGIF.
+*/
+QImageFormatDecoderGIF::~QImageFormatDecoderGIF()
+{
+    delete globalcmap_hold;
 }
 
 
@@ -340,11 +350,6 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
     //    "The Graphics Interchange Format(c) is the Copyright property of
     //    CompuServe Incorporated. GIF(sm) is a Service Mark property of
     //    CompuServe Incorporated."
-    //
-    // More importantly, this code was developed with the guidance of
-    // giftoppm.c by David Koblas.  It was a great help to have that
-    // code as a guide, although of course, this state machine implementation
-    // is very different.
 
     #define LM(l, m) ((m)<<8|l)
     digress = FALSE;
@@ -375,8 +380,8 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 		ncols=2<<(hold[4]&0x7);
 		bgcol=(gcmap && hold[5]) ? hold[5] : -1;
 		//aspect=hold[6] ? double(hold[6]+15)/64.0 : 1.0;
+//printf("%dx%d screen, bg=%d, ncols=%d, %sgcmap\n",swidth,sheight,bgcol,ncols,gcmap?"":"!");
 
-//printf("\n%dx%d in %d colours\n", swidth, sheight, ncols);
 		img.create(swidth, sheight, 8, gcmap ? ncols : 256);
 		if (consumer) digress = !consumer->setSize(swidth, sheight);
 
@@ -395,12 +400,13 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 	    hold[count++]=ch;
 	    if (count==3) {
 		img.setColor(ccount,
-		    0xff000000 | qRgb(hold[0], hold[1], hold[2]));
-		if (state==LocalColorMap) {
-		    // ### ???
-		}
-		if (++ccount==ncols) {
-		    state=Introducer;
+		    (ccount==trans ? 0 : 0xff000000)
+		    | qRgb(hold[0], hold[1], hold[2]));
+		if (++ccount==img.numColors()) {
+		    if ( state == LocalColorMap )
+			state=TableImageLZWSize;
+		    else
+			state=Introducer;
 		}
 		count=0;
 	    }
@@ -420,7 +426,7 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 		break;
 	      default:
 		digress=TRUE;
-		fatal("Unexpected Introducer: %c (0%o)", ch, ch);
+		// Unexpected Introducer - ignore block
 		state=Error;
 	    }
 	    break;
@@ -433,16 +439,18 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 		int height=LM(hold[7], hold[8]);
 		right=left+width-1;
 		bottom=top+height-1;
+		bool hadlcmap = lcmap;
 		lcmap=!!(hold[9]&0x80);
 		interlace=!!(hold[9]&0x40);
 		//bool lcmsortflag=!!(hold[9]&0x20);
-		ncols=lcmap ? (2<<(hold[9]&0x7)) : 0;
+		int lncols=lcmap ? (2<<(hold[9]&0x7)) : 0;
+		if (lncols > ncols) img.setNumColors(lncols);
 		frame++;
+//printf(" %dx%d+%d+%d, %slcmap, %sinterlace, %d lncols\n",width,height,left,top,lcmap?"":"!",interlace?"":"!",lncols);
 		if ( frame == 0 ) {
-		    if ( bgcol>=0 && (left || top || width!=swidth
-					   || height != sheight) )
+		    if ( bgcol>=0 && (left || top || width!=swidth || height!=sheight) )
 		    {
-			// Has background and not full-size image - erase
+			// Not full-size image - erase with bg or transparent
 			fillRect(img, 0, 0, swidth, sheight, bgcol);
 			if (consumer) digress = !consumer->changed(QRect(0,0,swidth,sheight));
 		    }
@@ -473,7 +481,16 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 		if (lcmap) {
 		    ccount=0;
 		    state=LocalColorMap;
+		    if (gcmap) {
+			if (!globalcmap_hold) globalcmap_hold = new QRgb[256];
+			memcpy(globalcmap_hold, img.colorTable(),
+			    ncols * sizeof(QRgb));
+		    }
 		} else {
+		    if (hadlcmap && gcmap) {
+			memcpy(img.colorTable(), globalcmap_hold,
+			    ncols * sizeof(QRgb));
+		    }
 		    state=TableImageLZWSize;
 		}
 		x = left;
@@ -688,6 +705,7 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 		int delay=count>3 ? LM(hold[2], hold[3]) : 0;
 		bool havetrans=hold[1]&0x1;
 		int newtrans=havetrans ? hold[4] : -1;
+//printf("%d disposal, %d delay, %d trans\n",disposal,delay,newtrans);
 		if (newtrans >= img.numColors()) {
 		    // Ignore invalid transparency.
 		    newtrans=-1;
@@ -696,11 +714,36 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 		if (trans >= 0) preserve_trans = TRUE;
 		if (newtrans != trans) {
 		    // Unset old transparency
-		    if (trans >= 0)
+		    if (trans >= 0) {
 			img.setColor(trans, 0xff000000|img.color(trans));
+			if ( newtrans >= 0 ) {
+			    // Changed transparency.  Groan.
+			    // Change all occurrence of old to new.
+			    uchar** line = img.jumpTable();
+			    for (int j=0; j<sheight; j++) {
+				for (int i=0; i<swidth; i++) {
+				    if (line[j][i]==trans) {
+					line[j][i]=newtrans;
+				    }
+				}
+			    }
+			}
+		    }
 		    trans = newtrans;
-		    if (trans >= 0)
+		    if (trans >= 0) {
+			if (globalcmap_hold) {
+			    globalcmap_hold[trans]&=0x00ffffff;
+			}
 			img.setColor(trans, 0x00ffffff&img.color(trans));
+		    }
+		    if ( frame == -1 && havetrans ) {
+			if ( left || top || right-1!=swidth || bottom-1!=sheight )
+			{
+			    // Not full-size image - erase with bg or transparent
+			    fillRect(img, 0, 0, swidth, sheight, trans);
+			    if (consumer) digress = !consumer->changed(QRect(0,0,swidth,sheight));
+			}
+		    }
 		}
 		img.setAlphaBuffer(havetrans);
 		if (consumer) consumer->setFramePeriod(delay*10);

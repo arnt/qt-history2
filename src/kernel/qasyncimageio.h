@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#1 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#2 $
 **
 ** Definition of asynchronous image/movie loading classes
 **
@@ -68,12 +68,18 @@ class QImageFormatDecoderGIF : QImageFormatDecoder {
     };
     static Factory factory;
 
+public:
+    QImageFormatDecoderGIF();
+    virtual ~QImageFormatDecoderGIF();
+
     int decode(QImage& img, QImageConsumer* consumer,
 	    const uchar* buffer, int length);
 
+private:
     void fillRect(QImage&, int x, int y, int w, int h, uchar col);
 
     // GIF specific stuff
+    QRgb* globalcmap_hold;
     QImage backingstore;
     unsigned char hold[16];
     bool gif89;
