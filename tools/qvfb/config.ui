@@ -34,6 +34,9 @@
     <property name="caption">
         <string>Configure</string>
     </property>
+    <property name="icon">
+        <pixmap>logo.png</pixmap>
+    </property>
     <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
@@ -1655,5 +1658,6 @@
         <slot>reject()</slot>
     </connection>
 </connections>
+<pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
