@@ -464,11 +464,11 @@ const unsigned char qt_otherScripts [128] = {
     0x06, Latin, 0x1c, Unicode, 0x4f, Hebrew,
     0xff, Arabic,                                                // row 0xfb, index 90
 #define SCRIPTS_fe 112
-    0x1f, Unicode, 0x2f, CombiningMarks, 0x6f, Unicode,
+    0x1f, Unicode, 0x2f, CombiningMarks, 0x6f, Han,
     0xff, Arabic,                                                // row 0xfe, index 98
 #define SCRIPTS_ff 120
-    0x5e, Katakana, 0x60, Unicode,                        // row 0xff, index 106
-    0x9f, KatakanaHalfWidth, 0xff, Unicode
+    0x60, Han,                        // row 0xff, index 106
+    0x9f, KatakanaHalfWidth, 0xef, Han, 0xff, Unicode
 };
 
 // (uc-0x0900)>>7
