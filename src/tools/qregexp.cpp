@@ -1739,7 +1739,7 @@ QRegExpEngine::CharClass& QRegExpEngine::CharClass::operator=(
 	const CharClass& cc )
 {
     c = cc.c;
-    r = cc.r;
+    r = cc.r.copy();
     n = cc.n;
 #ifndef QT_NO_REGEXP_OPTIM
     occ1 = cc.occ1;
@@ -1775,7 +1775,6 @@ void QRegExpEngine::CharClass::addRange( ushort from, ushort to )
     if ( from > to )
 	qSwap( from, to );
     int n = r.size();
-    r.detach();
     r.resize( n + 1 );
     r[n].from = from;
     r[n].to = to;
