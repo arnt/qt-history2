@@ -236,6 +236,7 @@ private slots:
     void okClicked();
     void filterClicked(); // not used
     void cancelClicked();
+    void finish();
 
     void cdUpClicked();
     void newFolderClicked();
@@ -273,7 +274,6 @@ private:
     void init();
     bool trySetSelection( bool isDir, const QUrlOperator &, bool );
     void deleteFile( const QString &filename );
-    bool isReadable( const QString & filename );
     void popupContextMenu( const QString &filename, bool withSort,
 			   PopupAction &action, const QPoint &p );
 
