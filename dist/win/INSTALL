@@ -10,6 +10,10 @@
     manual procedure as well, in case the installation should fail for some
     reason.
 
+*** NOTE about compiling the SQL drivers
+    If you intend to build the SQL drivers, please update the environment
+    variable %LIB% to include the path to your SQL libraries.
+
 A   USING THE INSTALLATION PROGRAM
 
     Start the install.exe program and go through all the steps of
