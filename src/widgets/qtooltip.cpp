@@ -482,6 +482,12 @@ void QTipManager::showTip()
 	 && label->x11Screen() == widget->x11Screen()
 #endif
 	 ) {
+	// the next two lines are a workaround for QLabel being to intelligent.
+	// QLabel turns on the wordbreak flag once it gets a richtext. The two lines below
+	// ensure we get correct textflags when switching back and forth between a richtext and
+	// non richtext tooltip
+	label->setText( "" );
+	label->setAlignment( AlignAuto | AlignTop );
 	label->setText( t->text );
 	label->adjustSize();
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
