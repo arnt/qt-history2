@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#168 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#167 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#168 $");
 
 
 /*!
@@ -476,9 +476,12 @@ void QWidget::sendDeferredEvents()
 {
     uint m = (uint)deferredMoves->find((long)this);
     uint r = (uint)deferredResizes->find((long)this);
-    if ( m || r ) {
+    if ( m && r )
 	internalSetGeometry( x(), y(), width(), height() );
-    }
+    else if ( m )
+	internalMove( x(), y() );
+    else if ( r )
+	internalResize( width(), height() );
     if ( m ) {
 	deferredMoves->take( (long)this );
 	QMoveEvent e( pos(), QPoint(decompress_a(m), decompress_b(m)) );
@@ -557,8 +560,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
     create();					// platform-dependent init
-    deferMove( frect.topLeft() );
-    deferResize( crect.size() );    
 }
 
 /*!
