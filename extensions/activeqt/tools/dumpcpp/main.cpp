@@ -90,6 +90,11 @@ void generateNameSpace(QTextStream &out, const QMetaObject *mo, const QByteArray
     out << "#ifndef QAX_DUMPCPP_" << nameSpace.toUpper() << "_H" << endl;
     out << "#define QAX_DUMPCPP_" << nameSpace.toUpper() << "_H" << endl;
     out << endl;
+    out << "// Define this symbol to __declspec(dllexport) or __declspec(dllimport)" << endl;
+    out << "#ifndef " << nameSpace.toUpper() << "_EXPORT" << endl;
+    out << "#define " << nameSpace.toUpper() << "_EXPORT" << endl;
+    out << "#endif" << endl;
+    out << endl;
     out << "#include <qaxobject.h>" << endl;
     out << "#include <qaxwidget.h>" << endl;
     out << "#include <qdatetime.h>" << endl;
@@ -134,7 +139,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
     QList<QByteArray> functions;
 
     // constructor
-    out << "class " << className << " : public ";
+    out << "class " << nameSpace.toUpper() << "_EXPORT " << className << " : public ";
     if (category & ActiveX)
         out << "QAxWidget";
     else
