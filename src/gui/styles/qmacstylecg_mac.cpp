@@ -3,11 +3,15 @@
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 
+#include <private/qt_mac_p.h>
+#include <private/qtitlebar_p.h>
 #include <qapplication.h>
 #include <qaquastyle_mac.h>
+#include <qbitmap.h>
 #include <qcombobox.h>
 #include <qevent.h>
 #include <qgroupbox.h>
+#include <qhash.h>
 #include <qmenu.h>
 #include <qpaintdevice.h>
 #include <qpainter.h>
@@ -15,13 +19,8 @@
 #include <qpushbutton.h>
 #include <qrubberband.h>
 #include <qstyleoption.h>
-#include <private/qt_mac_p.h>
 #include <qtabbar.h>
-#include <qaquastyle_mac.h>
-#include <qbitmap.h>
-
-#include <private/qtitlebar_p.h>
-#include <qdebug.h>
+#include <qviewport.h>
 
 /*****************************************************************************
   External functions
@@ -507,33 +506,84 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const Q3StyleOpt
 {
     SInt32 ret = 0;
     switch (sh) {
-    case SH_Widget_ShareActivation:
-        ret = true;
-        break;
-    case SH_UnderlineShortcut:
+    case SH_Menu_AllowActiveAndDisabled:
         ret = false;
         break;
+    case SH_Menu_SubMenuPopupDelay:
+        ret = 100;
+        break;
+    case SH_ScrollBar_LeftClickAbsolutePosition:
+        extern bool qt_scrollbar_jump_to_pos; //qapplication_mac.cpp
+        ret = qt_scrollbar_jump_to_pos;
+        break;
     case SH_TabBar_PreferNoArrows:
-        ret = true;
-        break;
-    case SH_TabBar_Alignment:
-        ret = Qt::AlignHCenter;
-        break;
-    case SH_TabBar_SelectMouseType:
-    case SH_ListViewExpand_SelectMouseType:
-        ret = QEvent::MouseButtonRelease;
-        break;
-    case SH_ComboBox_Popup:
-        ret = (!widget || !static_cast<const QComboBox *>(widget)->isEditable());
-        break;
-    case SH_Menu_Scrollable:
         ret = true;
         break;
     case SH_LineEdit_PasswordCharacter:
         ret = kBulletUnicode;
         break;
+    case SH_GroupBox_TextLabelColor:
+        ret = (int) (widget ? widget->palette().foreground().color().rgb() : 0);
+        break;
+    case SH_Menu_SloppySubMenus:
+        ret = true;
+        break;
+    case SH_GroupBox_TextLabelVerticalAlignment:
+        ret = Qt::AlignTop;
+        break;
+    case SH_ScrollView_FrameOnlyAroundContents:
+        if (widget
+            && (widget->isTopLevel() || !widget->parentWidget()
+                || widget->parentWidget()->isTopLevel())
+            && (qt_cast<QViewport *>(widget)
+#ifdef QT_COMPAT
+                || widget->inherits("QScrollView")
+#endif
+                || widget->inherits("QWorkspaceChild")))
+            ret = true;
+        else
+            ret = QWindowsStyle::styleHint(sh, widget, opt, d);
+        break;
+    case SH_Menu_FillScreenWithScroll:
+        ret = (QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER);
+        break;
+    case SH_Menu_Scrollable:
+        ret = true;
+        break;
+    case SH_RichText_FullWidthSelection:
+        ret = true;
+        break;
+    case SH_BlinkCursorWhenTextSelected:
+        ret = false;
+        break;
+    case SH_ScrollBar_StopMouseOverSlider:
+        ret = true;
+        break;
+    case SH_ListViewExpand_SelectMouseType:
+    case SH_TabBar_SelectMouseType:
+        ret = QEvent::MouseButtonRelease;
+        break;
+    case SH_ComboBox_Popup:
+        ret = (!widget || !static_cast<const QComboBox *>(widget)->isEditable());
+        break;
+    case SH_Workspace_FillSpaceOnMaximize:
+        ret = true;
+        break;
+    case SH_Widget_ShareActivation:
+        ret = true;
+        break;
+    case SH_Header_ArrowAlignment:
+        ret = Qt::AlignRight;
+        break;
+    case SH_TabBar_Alignment:
+        ret = Qt::AlignHCenter;
+        break;
+    case SH_UnderlineShortcut:
+        ret = false;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, widget, opt, d);
+        break;
     }
     return ret;
 }
@@ -891,7 +941,6 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 bdi.kind = kThemeBevelButton;
             else
                 bdi.kind = kThemePushButton;
-            HIRect newRect = qt_hirectForQRect(btn->rect, p);
             if (btn->state & Style_HasFocus
                     && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment |= kThemeAdornmentFocus;
@@ -901,8 +950,8 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 bdi.animation.time.start = d->defaultButtonStart;
                 bdi.animation.time.current = CFAbsoluteTimeGetCurrent();
             }
-            HIThemeDrawButton(&newRect, &bdi, cg,
-                              kHIThemeOrientationNormal, 0);
+            HIRect newRect = qt_hirectForQRect(btn->rect, p);
+            HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, w);
                 QRect ir = btn->rect;
@@ -1010,14 +1059,20 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 int t = s.indexOf('\t');
                 int m = 2;
                 int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::TextHideMnemonic | Qt::TextSingleLine;
+                p->save();
                 if (t >= 0) {
+                    extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
+                    p->setFont(qt_app_fonts_hash()->value("QMenuItem", p->font()));
                     int xp = x + w - tabwidth - macRightBorder
                              - macItemHMargin - macItemFrame + 1;
                     p->drawText(xp, y + m, tabwidth, h - 2 * m, text_flags, s.mid(t + 1));
                     s = s.left(t);
                 }
+
                 text_flags ^= Qt::AlignRight;
+                p->setFont(mi->font);
                 p->drawText(xpos, y + m, w - xm - tabwidth + 1, h - 2 * m, text_flags, s, t);
+                p->restore();
             }
         }
         break;

@@ -28,6 +28,7 @@
 #include <qcombobox.h>
 #include <qdrawutil.h>
 #include <qgroupbox.h>
+#include <qhash.h>
 #include <qimage.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -49,8 +50,8 @@
 #include <qsplitter.h>
 #include <qstyleoption.h>
 #include <qtabbar.h>
-#include <qtoolbutton.h>
 #include <qtoolbar.h>
+#include <qtoolbutton.h>
 #include <qviewport.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle rgn);
@@ -414,14 +415,6 @@ void QMacStyleQD::polish(QWidget* w)
         label->setFrameStyle(QFrame::NoFrame);
         label->setLineWidth(1);
         label->setWindowOpacity(0.95);
-        /*
-#ifdef QT_COMPAT
-    } else if(Q3PopupMenu *popup = qt_cast<Q3PopupMenu*>(w)) {
-        popup->setMargin(0);
-        popup->setLineWidth(0);
-        w->setWindowOpacity(0.95);
-#endif
-*/
     } else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.25);
     } else if(QMenu *menu = qt_cast<QMenu*>(w)) {
@@ -1275,8 +1268,11 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 int t = s.indexOf('\t');
                 int m = macItemVMargin;
                 int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::TextHideMnemonic | Qt::TextSingleLine;
+                p->save();
                 if (t >= 0) {                         // draw tab text
                     int xp;
+                    extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
+                    p->setFont(qt_app_fonts_hash()->value("QMenuItem", p->font()));
                     if (reverse)
                         xp = x + macRightBorder + macItemHMargin + macItemFrame - 1;
                     else
@@ -1285,7 +1281,9 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                     s = s.left(t);
                 }
                 text_flags ^= Qt::AlignRight;
+                p->setFont(mi->font);
                 p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
+                p->restore();
             }
         }
         break;

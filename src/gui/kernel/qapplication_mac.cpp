@@ -385,12 +385,12 @@ void qt_mac_update_os_settings()
             { "QMenuBar", kThemeMenuTitleFont },
             { "QMenu", kThemeMenuItemFont },
             { "Q3MenuBar", kThemeMenuTitleFont },
-            { "Q3PopupMenu", kThemeMenuItemFont },
             { "QHeader", kThemeSmallSystemFont },
             { "QTipLabel", kThemeSmallSystemFont },
             { "QMessageBoxLabel", kThemeEmphasizedSystemFont },
             { "QLabel", kThemeSystemFont },
             { "QToolBarButton", kThemeSmallSystemFont },
+            { "QMenuItem", kThemeMenuItemCmdKeyFont },  // It doesn't exist, but its unique.
             { 0, 0 } };
         Str255 f_name;
         SInt16 f_size;
@@ -433,7 +433,6 @@ void qt_mac_update_os_settings()
             { "QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
             { "QGroupBox", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
             { "QMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
-            { "Q3PopupMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
             { 0, 0, 0 } };
         QColor qc;
         RGBColor c;
@@ -455,8 +454,7 @@ void qt_mac_update_os_settings()
                 pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
                 pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
             }
-            if(!strcmp(mac_widget_colors[i].qt_class, "QMenu") ||
-               !strcmp(mac_widget_colors[i].qt_class, "Q3PopupMenu")) {
+            if(!strcmp(mac_widget_colors[i].qt_class, "QMenu")) {
                 GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
                 pal.setBrush(QPalette::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
                 GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
