@@ -668,7 +668,7 @@ bool QODBCResult::reset (const QString& query)
                             (SQLPOINTER)SQL_CURSOR_STATIC,
                             SQL_IS_UINTEGER);
     }
-    if (r != SQL_SUCCESS) {
+    if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         qSqlWarning(QLatin1String("QODBCResult::reset: Unable to set 'SQL_CURSOR_STATIC' as statement attribute. Please check your ODBC driver configuration"), d);
         return false;
     }
@@ -964,7 +964,7 @@ bool QODBCResult::prepare(const QString& query)
                             (SQLPOINTER)SQL_CURSOR_STATIC,
                             SQL_IS_UINTEGER);
     }
-    if (r != SQL_SUCCESS) {
+    if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         qSqlWarning(QLatin1String("QODBCResult::prepare: Unable to set 'SQL_CURSOR_STATIC' as statement attribute. Please check your ODBC driver configuration"), d);
         return false;
     }
