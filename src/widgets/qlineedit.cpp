@@ -1484,7 +1484,8 @@ void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 void QLineEdit::dropEvent( QDropEvent *e )
 {
     QString str;
-    if ( !d->readonly && QTextDrag::decode( e, str ) ) {
+    QCString plain = "plain";
+    if ( !d->readonly && QTextDrag::decode( e, str, plain ) ) {
 	if ( e->source() == this && hasMarkedText() )
 	    deselect();
 	if ( !hasMarkedText() )

@@ -164,6 +164,7 @@ public slots:
     void       selectAll();
 #ifndef QT_NO_CLIPBOARD
     void       paste();
+    void       pasteSubType(const QCString& subtype);
     void       copyText() const;
     void       copy() const;
     void       cut();
@@ -241,6 +242,8 @@ private slots:
     void	dndTimeout();
 
 private:
+    QCString pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
+    void       pasteSpecial(const QPoint&);
     struct QMultiLineEditRow {
 	QMultiLineEditRow( QString string, int width, bool nl = TRUE )
 	    :s(string), w(width), newline( nl )

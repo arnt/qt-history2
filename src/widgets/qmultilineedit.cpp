@@ -34,6 +34,7 @@
 #include "qdragobject.h"
 #include "qpopupmenu.h"
 #include "qtimer.h"
+#include "qdict.h"
 
 #include <ctype.h>
 
@@ -169,9 +170,11 @@ enum {
     IdCut,
     IdCopy,
     IdPaste,
+    IdPasteSpecial,
 #endif
     IdClear,
-    IdSelectAll
+    IdSelectAll,
+    IdCount
 };
 
 struct QMultiLineData
@@ -2000,7 +2003,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 
     if ( e->button() == RightButton ) {
 	QPopupMenu *popup = new QPopupMenu( this );
-	int id[ 7 ];
+	int id[ (int)IdCount ];
 	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
 	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
 	popup->insertSeparator();
@@ -2008,6 +2011,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
 	id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
 	id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
+	id[ IdPasteSpecial ] = popup->insertItem( tr( "Paste special..." ) );
 #endif
 	id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
 	popup->insertSeparator();
@@ -2022,6 +2026,19 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	popup->setItemEnabled( id[ IdCopy ], hasMarkedText() );
 	popup->setItemEnabled( id[ IdPaste ],
 	    !isReadOnly() && (bool)QApplication::clipboard()->text().length() );
+	// Any non-plain types?
+	QMimeSource* ms = QApplication::clipboard()->data();
+	bool ps = FALSE;
+	if ( ms )  {
+	    if ( !isReadOnly() ) {
+		const char* fmt;
+		for (int i=0; !ps && (fmt=ms->format(i)); i++) {
+		    ps = qstrnicmp(fmt,"text/",5)==0
+		      && qstrnicmp(fmt+5,"plain",5)!=0;
+		}
+	    }
+	}
+	popup->setItemEnabled( id[ IdPasteSpecial ], ps );
 #endif
 	popup->setItemEnabled( id[ IdClear ],
 				  !isReadOnly() && (bool)text().length() );
@@ -2044,6 +2061,8 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	    copy();
 	else if ( r == id[ IdPaste ] )
 	    paste();
+	else if ( r == id[ IdPasteSpecial ] )
+	    pasteSpecial(QCursor::pos());
 #endif
 	else if ( r == id[ IdClear ] )
 	    clear();
@@ -2318,7 +2337,8 @@ void QMultiLineEdit::dropEvent( QDropEvent* event )
 {
     if ( readOnly ) return;
     QString text;
-    if ( QTextDrag::decode(event, text) ) {
+    QCString fmt = pickSpecial(event,FALSE,event->pos());
+    if ( QTextDrag::decode(event, text, fmt) ) {
 	int i = -1;
 	while ( ( i = text.find( '\r' ) ) != -1 )
 	    text.replace( i,1,"" );
@@ -2492,17 +2512,20 @@ void QMultiLineEdit::setBottomCell( int line )
 }
 
 #ifndef QT_NO_CLIPBOARD
+
 /*!
-  Copies text from the clipboard onto the current cursor position.
+  Copies text in MIME subtype \a subtype from the clipboard onto the current
+  cursor position.
   Any marked text is first deleted.
 */
-void QMultiLineEdit::paste()
+void QMultiLineEdit::pasteSubType(const QCString& subtype)
 {
+    QCString st = subtype;
     addUndoCmd( new QBeginCommand );
 
     if ( hasMarkedText() )
 	del();
-    QString t = QApplication::clipboard()->text();
+    QString t = QApplication::clipboard()->text(st);
     if ( !t.isEmpty() ) {
 	if ( hasMarkedText() )
 	    turnMark( FALSE );
@@ -2526,6 +2549,56 @@ void QMultiLineEdit::paste()
 	emit textChanged();
 
     addUndoCmd( new QEndCommand );
+}
+
+/*!
+  Copies plain text from the clipboard onto the current cursor position.
+  Any marked text is first deleted.
+*/
+void QMultiLineEdit::paste()
+{
+    pasteSubType("plain");
+}
+
+/*!
+  Prompts the user for a type from a list of text types available,
+  Then copies text from the clipboard onto the current cursor position.
+  Any marked text is first deleted.
+*/
+void QMultiLineEdit::pasteSpecial(const QPoint& pt)
+{
+    QCString st = pickSpecial(QApplication::clipboard()->data(),TRUE,pt);
+    if ( !st.isEmpty() )
+	pasteSubType(st);
+}
+
+QCString QMultiLineEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint& pt)
+{
+    if ( ms )  {
+	QPopupMenu popup(this);
+	QString fmt;
+	int n=0;
+	QDict<void> done;
+	for (int i=0; !(fmt=ms->format(i)).isNull(); i++) {
+	    int semi=fmt.find(";");
+	    if ( semi >= 0 )
+		fmt = fmt.left(semi);
+	    if ( fmt.left(5) == "text/" ) {
+		fmt = fmt.mid(5);
+		if ( !done.find(fmt) ) {
+		    done.insert(fmt,(void*)1);
+		    popup.insertItem(fmt,i);
+		    n++;
+		}
+	    }
+	}
+	if ( n ) {
+	    int i = n==1 && !always_ask ? popup.idAt(0) : popup.exec(pt);
+	    if ( i >= 0 )
+		return popup.text(i).latin1();
+	}
+    }
+    return QCString();
 }
 #endif
 

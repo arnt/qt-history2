@@ -49,6 +49,7 @@ public:
     void  setData( QMimeSource* );
 
     QString     text()	 const;
+    QString     text(QCString& subtype) const;
     void	setText( const QString &);
     QImage	image() const;
     QPixmap	pixmap() const;

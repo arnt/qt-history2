@@ -482,6 +482,10 @@ const char * staticCharset(int i)
       case 0:
 	return "UTF-8";
       case 1:
+	return "ISO-10646-UCS-2";
+      case 2:
+	return ""; // in the 3rd place - some Xdnd targets might only look at 3
+      case 3:
 	if ( localcharset.isNull() ) {
 	    QTextCodec *localCodec = QTextCodec::codecForLocale();
 	    if ( localCodec ) {
@@ -493,10 +497,6 @@ const char * staticCharset(int i)
 	    }
 	}
 	return localcharset;
-      case 2:
-	return "ISO-10646-UCS-2";
-      case 3:
-	return "";
     }
     return 0;
 }

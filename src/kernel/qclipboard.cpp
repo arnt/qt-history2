@@ -142,7 +142,25 @@ QClipboard *QApplication::clipboard()
 
 
 /*!
-  Returns the clipboard text, or a null string
+  Returns the clipboard text in subtype \a subtype,
+  or a null string if the clipboard does not contain any text.
+  If \a subtype is null, any subtype is acceptable, and \a subtype
+  is set to the chosen subtype.
+
+  Common values for \a subtype are "plain" and "html".
+
+  \sa setText() data(), QString::operator!()
+*/
+
+QString QClipboard::text(QCString& subtype) const
+{
+    QString r;
+    QTextDrag::decode(data(),r,subtype);
+    return r;
+}
+
+/*!
+  Returns the clipboard as plain text, or a null string
   if the clipboard does not contain any text.
 
   \sa setText() data(), QString::operator!()
@@ -150,9 +168,8 @@ QClipboard *QApplication::clipboard()
 
 QString QClipboard::text() const
 {
-    QString r;
-    QTextDrag::decode(data(),r);
-    return r;
+    QCString subtype = "plain";
+    return text(subtype);
 }
 
 /*!
