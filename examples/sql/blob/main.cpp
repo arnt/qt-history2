@@ -21,7 +21,7 @@
 int main( int argc, char ** argv )
 {
 
-    QApplication a( argc, argv, TRUE );
+    QApplication a( argc, argv, FALSE );
     QSqlDatabase * db = QSqlDatabase::addDatabase( DRIVER );
     db->setDatabaseName( DATABASE );
     db->setUserName( USER );
@@ -32,10 +32,15 @@ int main( int argc, char ** argv )
 	return 1;
     }
 
+    if ( argc < 2 ) {
+	qWarning( "Usage: %s <filename>", argv[0] );
+	return 1;
+    }
+    
     // read a file which we want to insert into the database
-    QFile f( argv[0] );
+    QFile f( argv[1] );
     if ( !f.open( IO_ReadOnly ) ) {
-	qWarning( "Unable to open data file - exiting" );
+	qWarning( "Unable to open data file '%s' - exiting", argv[1] );
 	return 1;
     }
     QByteArray binaryData( f.size() );
@@ -73,4 +78,5 @@ int main( int argc, char ** argv )
 	qWarning( "Unable to drop table - exiting" );
 	return 1;
     }
+    return 0;
 }
