@@ -80,6 +80,8 @@ private:
 
 };
 
+#include "qthread_win.moc"
+
 QThreadPrivate::QThreadPrivate()
 {
     myevents.setAutoDelete( TRUE );
