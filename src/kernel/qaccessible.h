@@ -97,7 +97,7 @@ public:
 	AlertMessage	= 0x00000008,
 	Window		= 0x00000009,
 	Client		= 0x0000000A,
-	MenuPopup	= 0x0000000B,
+	PopupMenu	= 0x0000000B,
 	MenuItem	= 0x0000000C,
 	ToolTip		= 0x0000000D,
 	Application	= 0x0000000E,
