@@ -833,7 +833,7 @@ public:
   group is toggled off by another action being toggled on.
 
  */
-QActionGroup::QActionGroup( QWidget* parent, const char* name, bool exclusive )
+QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     : QAction( parent, name )
 {
     d = new QActionGroupPrivate;

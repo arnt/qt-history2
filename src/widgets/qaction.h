@@ -122,7 +122,7 @@ class Q_EXPORT QActionGroup : public QAction
     Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )
 
 public:
-    QActionGroup( QWidget* parent, const char* name = 0, bool exclusive = TRUE );
+    QActionGroup( QObject* parent, const char* name = 0, bool exclusive = TRUE );
     ~QActionGroup();
     void setExclusive( bool );
     bool isExclusive() const;
