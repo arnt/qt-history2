@@ -1187,6 +1187,13 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
     QMenuItem  *mi = 0;
     int dx = 0;
 
+    if ( e->state() & Qt::ControlButton && 
+	 ( e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab ) )
+    {
+	e->ignore();
+	return;	
+    }
+	
     switch ( e->key() ) {
      case Key_Left:
 	dx = QApplication::reverseLayout() ? 1 : -1;

@@ -2289,6 +2289,10 @@ void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 */
 void QListBox::keyPressEvent( QKeyEvent *e )
 {
+    if ( ( e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab ) 
+	 && e->state() & Qt::ControlButton )
+	e->ignore();
+    
     if ( count() == 0 ) {
 	e->ignore();
 	return;

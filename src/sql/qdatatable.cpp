@@ -601,6 +601,10 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::KeyPress: {
 	int conf = QSql::Yes;
 	QKeyEvent *ke = (QKeyEvent*)e;
+	if ( ( ke->key() == Key_Tab || ke->key() == Qt::Key_BackTab )
+	    && ke->state() & Qt::ControlButton )
+	    return FALSE;
+	
 	if ( ke->key() == Key_Escape && d->dat.mode() == QSql::Insert ){
 	    if ( confirmCancels() && !d->cancelMode ) {
 		d->cancelMode = TRUE;

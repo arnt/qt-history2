@@ -830,6 +830,28 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 	    setUpLayout();
 	    updateGeometry();
 	}
+	else if ( e->type() == QEvent::KeyPress ) {
+	    QKeyEvent *ke = (QKeyEvent*) e;
+	    if ( ( ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab ) && 
+		 count() > 1 && 
+		 ke->state() & Qt::ControlButton ) {
+		int page = currentPageIndex();
+		if ( ke->key() == Qt::Key_Backtab || ke->state() & Qt::ShiftButton ) {
+		    page--; 
+		    if ( page < 0 )
+			page = count() - 1;
+		} else {
+		    page++;
+		    if ( page >= count() )
+			page = 0;		    
+		}
+		setCurrentPage( page );
+		if ( !qApp->focusWidget() )
+		    d->tabs->setFocus();
+		return TRUE;
+	    }
+	}
+	
     } else if ( o == d->stack ) {
 	if ( e->type() == QEvent::ChildRemoved
 	     && ( (QChildEvent*)e )->child()->isWidgetType() ) {

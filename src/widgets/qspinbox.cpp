@@ -608,6 +608,8 @@ bool QSpinBox::eventFilter( QObject* /* obj */, QEvent* ev )
 	QKeyEvent* k = (QKeyEvent*)ev;
 
 	if( (k->key() == Key_Tab) || (k->key() == Key_BackTab) ){
+	    if ( k->state() & Qt::ControlButton )
+		return FALSE;
 	    if ( edited )
 		interpretText();
 	    qApp->sendEvent( this, ev );

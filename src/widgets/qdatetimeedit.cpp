@@ -543,6 +543,8 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    case Key_Tab:
 	    case Key_BackTab: {
+		if ( ke->state() == Qt::ControlButton )
+		    return FALSE;
 
 		QWidget *w = this;
 		bool hadDateEdit = FALSE;

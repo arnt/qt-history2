@@ -3450,6 +3450,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    }
 
 	    if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
+		if ( ke->state() & Qt::ControlButton )
+		    return FALSE;
 		if ( !itm || itm->editType() == QTableItem::OnTyping )
 		    endEdit( editRow, editCol, TRUE, edMode != Editing );
 		if ( ke->key() == Key_Tab && currentColumn() >= numCols() - 1 )

@@ -801,6 +801,10 @@ bool QTextEdit::event( QEvent *e )
 	    }
 	} else if ( ke->state() & ControlButton ) {
 	    switch ( ke->key() ) {
+	    case Key_Tab:
+	    case Key_Backtab:
+		ke->ignore();
+		break;
 // Those are too frequently used for application functionality
 /*	    case Key_A:
 	    case Key_B:
@@ -825,7 +829,6 @@ bool QTextEdit::event( QEvent *e )
 	    case Key_Down:
 	    case Key_Home:
 	    case Key_End:
-	    case Key_Tab:
 #if defined (Q_WS_WIN)
 	    case Key_Insert:
 	    case Key_Delete:
