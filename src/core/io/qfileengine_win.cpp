@@ -779,6 +779,7 @@ uint
 QFSFileEnginePrivate::getPermissions() const
 {
     int ret = 0;
+    
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
 	PSID pOwner = 0;
 	PSID pGroup = 0;
@@ -848,15 +849,25 @@ QFSFileEnginePrivate::getPermissions() const
                 LocalFree(pSD);
             }
         }
+    } else {
+	//### what to do with permissions if we don't use ntfs or are not on a NT system
+	// for now just add all permissions and what about exe missions ??
+	// also qt_ntfs_permission_lookup is now not set by defualt ... should it ?
+    	ret |= QFileEngine::ReadOtherPerm | QFileEngine::ReadGroupPerm 
+	    | QFileEngine::ReadOwnerPerm | QFileEngine::ReadUserPerm
+	    | QFileEngine::WriteUserPerm | QFileEngine::WriteOwnerPerm
+	    | QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm
+	    | QFileEngine::ExeUserPerm | QFileEngine::ExeOwnerPerm
+	    | QFileEngine::ExeGroupPerm | QFileEngine::ExeOtherPerm;
     }
+
     if(ret & (QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
 	      QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm)) {
 	QT_WA({
 	    DWORD attr = GetFileAttributes((TCHAR*)file.utf16());
 	    if(attr & FILE_ATTRIBUTE_READONLY)
-		if(attr & FILE_ATTRIBUTE_READONLY)
-		    ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
-			      QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
+	        ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
+		       QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
 	} , {
 	    DWORD attr = GetFileAttributesA(file.local8Bit());
 	    if(attr & FILE_ATTRIBUTE_READONLY)
@@ -864,6 +875,7 @@ QFSFileEnginePrivate::getPermissions() const
 			 QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
 	});
     }
+    
     return ret;
 }
 
