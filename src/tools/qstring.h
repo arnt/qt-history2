@@ -621,6 +621,7 @@ private:
     static QStringData* makeSharedNull();
 
     friend class QConstString;
+    friend class QTextStream;
     QString( QStringData* dd, bool /* dummy */ ) : d(dd) { }
 };
 

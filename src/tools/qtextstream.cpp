@@ -1065,7 +1065,21 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 
 QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 {
-    if ( !mapper && !latin1 && internalOrder ) {
+#ifndef QT_NO_TEXTCODEC
+    if ( mapper ) {
+	if ( !d->encoder )
+	    d->encoder = mapper->makeEncoder();
+	QConstString s( p, len );
+	int l = len;
+	QCString block = d->encoder->fromUnicode( s.string(), l );
+	dev->writeBlock( block, l );
+    } else
+#endif
+    if ( latin1 ) {
+	char *str = QString::unicodeToAscii( p, len );
+	dev->writeBlock( str, len );
+	delete [] str;
+    } else if ( internalOrder ) {
 	if ( doUnicodeHeader ) {
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
