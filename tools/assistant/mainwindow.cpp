@@ -34,7 +34,6 @@
 #include <qfontdatabase.h>
 #include <qwhatsthis.h>
 #include <qtextdocumentfragment.h>
-#include <qabstracttextdocumentlayout.h>
 
 #include <qprinter.h>
 #include <qprintdialog.h>
@@ -314,57 +313,8 @@ void MainWindow::on_actionFilePrint_triggered()
     printer.setFullPage(true);
 
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
-    if (dlg->exec() == QDialog::Accepted) {
-        QPainter p;
-        if (!p.begin(&printer))
-            return;
-
-        qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
-        qApp->processEvents(QEventLoop::ExcludeUserInput);
-
-        QPaintDeviceMetrics metrics(p.device());
-        const int dpiy = metrics.logicalDpiY();
-        const int margin = int((2/2.54)*dpiy); // 2 cm margins
-        QRect body(margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin);
-        QTextBrowser *browser = tabs->currentBrowser();
-        QFont font(browser->font());
-
-        QTextDocument doc;
-        QTextCursor(&doc).insertFragment(QTextDocumentFragment(browser->document()));
-        QAbstractTextDocumentLayout *layout = doc.documentLayout();
-        layout->setDefaultFont(font);
-        layout->setPageSize(QSize(body.width(), INT_MAX));
-
-        QRect view(0, 0, body.width(), body.height());
-        p.translate(body.left(), body.top());
-
-        int page = 1;
-        do {
-            qApp->processEvents(QEventLoop::ExcludeUserInput);
-
-            QAbstractTextDocumentLayout::PaintContext ctx;
-            ctx.palette = palette();
-            p.setClipRect(view);
-            layout->draw(&p, ctx);
-
-            p.setClipping(false);
-            p.setFont(font);
-            p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
-                       view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
-
-            view.translate(0, body.height());
-            p.translate(0 , -body.height());
-
-            if (view.top() >= layout->sizeUsed().height())
-                break;
-
-            printer.newPage();
-            page++;
-        } while (true);
-
-        qApp->processEvents(QEventLoop::ExcludeUserInput);
-        qApp->restoreOverrideCursor();
-    }
+    if (dlg->exec() == QDialog::Accepted)
+        tabs->currentBrowser()->document()->print(&printer);
     delete dlg;
 }
 
