@@ -4908,8 +4908,9 @@ void QTable::showRow( int row )
 {
     int *h = d->hiddenRows.find( row );
     if ( h ) {
-	setRowHeight( row, *h );
+	int rh = *h;
 	d->hiddenRows.remove( row );
+	setRowHeight( row, rh );
     } else if ( rowHeight( row ) == 0 ) {
 	setRowHeight( row, 20 );
     }
@@ -4925,8 +4926,9 @@ void QTable::showColumn( int col )
 {
     int *w = d->hiddenCols.find( col );
     if ( w ) {
-	setColumnWidth( col, *w );
+	int cw = *w;
 	d->hiddenCols.remove( col );
+	setColumnWidth( col, cw );
     } else if ( columnWidth( col ) == 0 ) {
 	setColumnWidth( col, 20 );
     }
