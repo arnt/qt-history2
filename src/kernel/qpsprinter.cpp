@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#95 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2265,7 +2265,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	dirtyMatrix         = TRUE;
 	d->dirtyClipping    = FALSE;		// No clipping is default.
 	dirtyNewPage        = FALSE;		// setup done by QPainter
-	                                        // for the first page.
+	// for the first page.
 	d->firstClipOnPage  = TRUE;
 	d->boundingBox = QRect( 0, 0, -1, -1 );
 	fontsUsed = QString::fromLatin1("");
@@ -2303,205 +2303,205 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     }
 
     switch( c ) {
-	case PDC_DRAWPOINT:
-	    stream << POINT(0) << "P\n";
-	    break;
-	case PDC_MOVETO:
-	    stream << POINT(0) << "M\n";
-	    break;
-	case PDC_LINETO:
-	    stream << POINT(0) << "L\n";
-	    break;
-	case PDC_DRAWLINE:
-	    stream << POINT(0) << POINT(1) << "DL\n";
-	    break;
-	case PDC_DRAWRECT:
-	    stream << RECT(0) << "R\n";
-	    break;
-	case PDC_DRAWROUNDRECT:
-	    stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "RR\n";
-	    break;
-	case PDC_DRAWELLIPSE:
-	    stream << RECT(0) << "E\n";
-	    break;
-	case PDC_DRAWARC:
-	    stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "A\n";
-	    break;
-	case PDC_DRAWPIE:
-	    stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "PIE\n";
-	    break;
-	case PDC_DRAWCHORD:
-	    stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
-	    break;
-	case PDC_DRAWLINESEGS:
-	    if ( p[0].ptarr->size() > 0 ) {
-		QPointArray a = *p[0].ptarr;
-		QPoint pt;
-		stream << "NP\n";
-		for ( int i=0; i<(int)a.size(); i+=2 ) {
-		    pt = a.point( i );
-		    stream << XCOORD(pt.x()) << ' '
-			   << YCOORD(pt.y()) << " MT\n";
-		    pt = a.point( i+1 );
-		    stream << XCOORD(pt.x()) << ' '
-			   << YCOORD(pt.y()) << " LT\n";
-		}
-		stream << "QS\n";
-	    }
-	    break;
-	case PDC_DRAWPOLYLINE:
-	    if ( p[0].ptarr->size() > 1 ) {
-		QPointArray a = *p[0].ptarr;
-		QPoint pt = a.point( 0 );
-		stream << "NP\n"
-		       << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
-		for ( int i=1; i<(int)a.size(); i++ ) {
-		    pt = a.point( i );
-		    stream << XCOORD(pt.x()) << ' '
-			   << YCOORD(pt.y()) << " LT\n";
-		}
-		stream << "QS\n";
-	    }
-	    break;
-	case PDC_DRAWPOLYGON:
-	    if ( p[0].ptarr->size() > 2 ) {
-		QPointArray a = *p[0].ptarr;
-		if ( p[1].ival )
-		    stream << "/WFi true d\n";
-		QPoint pt = a.point(0);
-		stream << "NP\n";
+    case PDC_DRAWPOINT:
+	stream << POINT(0) << "P\n";
+	break;
+    case PDC_MOVETO:
+	stream << POINT(0) << "M\n";
+	break;
+    case PDC_LINETO:
+	stream << POINT(0) << "L\n";
+	break;
+    case PDC_DRAWLINE:
+	stream << POINT(0) << POINT(1) << "DL\n";
+	break;
+    case PDC_DRAWRECT:
+	stream << RECT(0) << "R\n";
+	break;
+    case PDC_DRAWROUNDRECT:
+	stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "RR\n";
+	break;
+    case PDC_DRAWELLIPSE:
+	stream << RECT(0) << "E\n";
+	break;
+    case PDC_DRAWARC:
+	stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "A\n";
+	break;
+    case PDC_DRAWPIE:
+	stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "PIE\n";
+	break;
+    case PDC_DRAWCHORD:
+	stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
+	break;
+    case PDC_DRAWLINESEGS:
+	if ( p[0].ptarr->size() > 0 ) {
+	    QPointArray a = *p[0].ptarr;
+	    QPoint pt;
+	    stream << "NP\n";
+	    for ( int i=0; i<(int)a.size(); i+=2 ) {
+		pt = a.point( i );
 		stream << XCOORD(pt.x()) << ' '
 		       << YCOORD(pt.y()) << " MT\n";
-		for( int i=1; i<(int)a.size(); i++) {
-		    pt = a.point( i );
-		    stream << XCOORD(pt.x()) << ' '
-			   << YCOORD(pt.y()) << " LT\n";
-		}
-		stream << "CP PF QS\n";
-		if ( p[1].ival )
-		    stream << "/WFi false d\n";
+		pt = a.point( i+1 );
+		stream << XCOORD(pt.x()) << ' '
+		       << YCOORD(pt.y()) << " LT\n";
 	    }
-	    break;
-	case PDC_DRAWQUADBEZIER:
-	    if ( p[0].ptarr->size() == 4 ) {
-		stream << "NP\n";
-		QPointArray a = *p[0].ptarr;
-		stream << XCOORD(a[0].x()) << ' '
-		       << YCOORD(a[0].y()) << " MT ";
-		for ( int i=1; i<4; i++ ) {
-		    stream << XCOORD(a[i].x()) << ' '
-			   << YCOORD(a[i].y()) << ' ';
-		}
-		stream << "BZ\n";
+	    stream << "QS\n";
+	}
+	break;
+    case PDC_DRAWPOLYLINE:
+	if ( p[0].ptarr->size() > 1 ) {
+	    QPointArray a = *p[0].ptarr;
+	    QPoint pt = a.point( 0 );
+	    stream << "NP\n"
+		   << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
+	    for ( int i=1; i<(int)a.size(); i++ ) {
+		pt = a.point( i );
+		stream << XCOORD(pt.x()) << ' '
+		       << YCOORD(pt.y()) << " LT\n";
 	    }
-	    break;
-	case PDC_DRAWTEXT2:
-	    if ( !p[1].str->isEmpty() ) {
-		// #### Unicode ignored
+	    stream << "QS\n";
+	}
+	break;
+    case PDC_DRAWPOLYGON:
+	if ( p[0].ptarr->size() > 2 ) {
+	    QPointArray a = *p[0].ptarr;
+	    if ( p[1].ival )
+		stream << "/WFi true d\n";
+	    QPoint pt = a.point(0);
+	    stream << "NP\n";
+	    stream << XCOORD(pt.x()) << ' '
+		   << YCOORD(pt.y()) << " MT\n";
+	    for( int i=1; i<(int)a.size(); i++) {
+		pt = a.point( i );
+		stream << XCOORD(pt.x()) << ' '
+		       << YCOORD(pt.y()) << " LT\n";
+	    }
+	    stream << "CP PF QS\n";
+	    if ( p[1].ival )
+		stream << "/WFi false d\n";
+	}
+	break;
+    case PDC_DRAWQUADBEZIER:
+	if ( p[0].ptarr->size() == 4 ) {
+	    stream << "NP\n";
+	    QPointArray a = *p[0].ptarr;
+	    stream << XCOORD(a[0].x()) << ' '
+		   << YCOORD(a[0].y()) << " MT ";
+	    for ( int i=1; i<4; i++ ) {
+		stream << XCOORD(a[i].x()) << ' '
+		       << YCOORD(a[i].y()) << ' ';
+	    }
+	    stream << "BZ\n";
+	}
+	break;
+    case PDC_DRAWTEXT2:
+	if ( !p[1].str->isEmpty() ) {
+	    // #### Unicode ignored
 
-		char * tmp = new char[ p[1].str->length() * 2 + 2 ];
+	    char * tmp = new char[ p[1].str->length() * 2 + 2 ];
 #if defined(CHECK_NULL)
-		CHECK_PTR( tmp );
+	    CHECK_PTR( tmp );
 #endif
-		const char* from = p[1].str->ascii();
-		char * to = tmp;
-		while ( *from ) {
-		    if ( *from == '\\' || *from == '(' || *from == ')' )
-			*to++ = '\\';		// escape special chars
-		    *to++ = *from++;
-		}
-		*to = '\0';
-		stream<< "(" << tmp << ")" << POINT(0) << "T\n";
-		delete [] tmp;
+	    const char* from = p[1].str->ascii();
+	    char * to = tmp;
+	    while ( *from ) {
+		if ( *from == '\\' || *from == '(' || *from == ')' )
+		    *to++ = '\\';		// escape special chars
+		*to++ = *from++;
 	    }
-	    break;
-	case PDC_DRAWTEXT2FRMT:;
-	    return FALSE;			// uses QPainter instead
-	case PDC_DRAWPIXMAP: {
-	    if ( p[1].pixmap->isNull() )
-		break;
-	    QPoint pnt = *(p[0].point);
-	    QImage img;	
-	    img = *(p[1].pixmap);
-	    drawImage( paint, pnt, img );
-	    break;
+	    *to = '\0';
+	    stream<< "(" << tmp << ")" << POINT(0) << "T\n";
+	    delete [] tmp;
 	}
-	case PDC_DRAWIMAGE: {
-	    if ( p[1].image->isNull() )
-		break;
-	    QPoint pnt = *(p[0].point);
-	    QImage img = *(p[1].image);
-	    drawImage( paint, pnt, img );
+	break;
+    case PDC_DRAWTEXT2FRMT:;
+	return FALSE;			// uses QPainter instead
+    case PDC_DRAWPIXMAP: {
+	if ( p[1].pixmap->isNull() )
 	    break;
-	}
-	case PDC_SETBKCOLOR:
-	    stream << COLOR(*(p[0].color)) << "BC\n";
+	QPoint pnt = *(p[0].point);
+	QImage img;	
+	img = *(p[1].pixmap);
+	drawImage( paint, pnt, img );
+	break;
+    }
+    case PDC_DRAWIMAGE: {
+	if ( p[1].image->isNull() )
 	    break;
-	case PDC_SETBKMODE:
-	    if ( p[0].ival == Qt::TransparentMode )
-		stream << "/OMo false d\n";
-	    else
-		stream << "/OMo true d\n";
-	    break;
-	case PDC_SETROP:
+	QPoint pnt = *(p[0].point);
+	QImage img = *(p[1].image);
+	drawImage( paint, pnt, img );
+	break;
+    }
+    case PDC_SETBKCOLOR:
+	stream << COLOR(*(p[0].color)) << "BC\n";
+	break;
+    case PDC_SETBKMODE:
+	if ( p[0].ival == Qt::TransparentMode )
+	    stream << "/OMo false d\n";
+	else
+	    stream << "/OMo true d\n";
+	break;
+    case PDC_SETROP:
 #if defined(CHECK_RANGE)
-	    if ( p[0].ival != Qt::CopyROP )
-		warning( "QPrinter: Raster operation setting not supported" );
+	if ( p[0].ival != Qt::CopyROP )
+	    warning( "QPrinter: Raster operation setting not supported" );
 #endif
-	    break;
-	case PDC_SETBRUSHORIGIN:
-	    break;
-	case PDC_SETFONT:
-	    setFont( *(p[0].font) );
-	    break;
-	case PDC_SETPEN:
-	    stream << (int)p[0].pen->style() << ' ' << p[0].pen->width()
-		   << ' ' << COLOR(p[0].pen->color()) << "PE\n";
-	    break;
-	case PDC_SETBRUSH:
-	    if ( p[0].brush->style() == Qt::CustomPattern ) {
+	break;
+    case PDC_SETBRUSHORIGIN:
+	break;
+    case PDC_SETFONT:
+	setFont( *(p[0].font) );
+	break;
+    case PDC_SETPEN:
+	stream << (int)p[0].pen->style() << ' ' << p[0].pen->width()
+	       << ' ' << COLOR(p[0].pen->color()) << "PE\n";
+	break;
+    case PDC_SETBRUSH:
+	if ( p[0].brush->style() == Qt::CustomPattern ) {
 #if defined(CHECK_RANGE)
-		warning( "QPrinter: Pixmap brush not supported" );
+	    warning( "QPrinter: Pixmap brush not supported" );
 #endif
-		return FALSE;
-	    }
-	    stream << (int)p[0].brush->style()	 << ' '
-		   << COLOR(p[0].brush->color()) << "B\n";
-	    break;
-	case PDC_SETTABSTOPS:
-	case PDC_SETTABARRAY:
 	    return FALSE;
-	case PDC_SETUNIT:
-	    break;
-	case PDC_SETVXFORM:
-	case PDC_SETWINDOW:
-	case PDC_SETVIEWPORT:
-	case PDC_SETWXFORM:
-	case PDC_SETWMATRIX:
-	case PDC_RESTOREWMATRIX:
-	    dirtyMatrix = TRUE;
-	    break;
-	case PDC_SETCLIP:
-	    d->dirtyClipping = TRUE;
-	    break;
-	case PDC_SETCLIPRGN:
-	    d->dirtyClipping = TRUE;
-	    break;
-	case PDC_PRT_NEWPAGE:
-	    pageCount++;
-	    stream << "QP\n%%Page: "
-		   << pageCount << ' ' << pageCount
-		   << "\nQI\n";
-	    dirtyNewPage       = TRUE;
-	    d->dirtyClipping   = TRUE;
-	    d->firstClipOnPage = TRUE;
-	    delete d->savedImage;
-	    d->savedImage = 0;
-	    break;
-	case PDC_PRT_ABORT:
-	    break;
-	default:
-	    break;
+	}
+	stream << (int)p[0].brush->style()	 << ' '
+	       << COLOR(p[0].brush->color()) << "B\n";
+	break;
+    case PDC_SETTABSTOPS:
+    case PDC_SETTABARRAY:
+	return FALSE;
+    case PDC_SETUNIT:
+	break;
+    case PDC_SETVXFORM:
+    case PDC_SETWINDOW:
+    case PDC_SETVIEWPORT:
+    case PDC_SETWXFORM:
+    case PDC_SETWMATRIX:
+    case PDC_RESTOREWMATRIX:
+	dirtyMatrix = TRUE;
+	break;
+    case PDC_SETCLIP:
+	d->dirtyClipping = TRUE;
+	break;
+    case PDC_SETCLIPRGN:
+	d->dirtyClipping = TRUE;
+	break;
+    case PDC_PRT_NEWPAGE:
+	pageCount++;
+	stream << "QP\n%%Page: "
+	       << pageCount << ' ' << pageCount
+	       << "\nQI\n";
+	dirtyNewPage       = TRUE;
+	d->dirtyClipping   = TRUE;
+	d->firstClipOnPage = TRUE;
+	delete d->savedImage;
+	d->savedImage = 0;
+	break;
+    case PDC_PRT_ABORT:
+	break;
+    default:
+	break;
     }
     return TRUE;
 }
@@ -2775,12 +2775,12 @@ void QPSPrinter::emitHeader( bool finished )
 	QPaintDeviceMetrics m( printer );
 	if ( !d->boundingBox.isValid() )
 	    d->boundingBox.setRect( 0, 0, m.width(), m.height() );
-	if ( printer->orientation() == QPrinter::Landscape ) // ARNT
+	if ( printer->orientation() == QPrinter::Landscape )
 	    stream << " EPSF-3.0\n%%BoundingBox: "
-		   << d->boundingBox.left() << " "
-		   << m.height() - d->boundingBox.bottom() - 1 << " "
-		   << d->boundingBox.right() + 1 << " "
-		   << m.height() - d->boundingBox.top();
+		   << m.height() - d->boundingBox.bottom() << " " // llx
+		   << m.width() - d->boundingBox.right() << " " // lly
+		   << m.height() - d->boundingBox.top() << " " // urx
+		   << m.width() - d->boundingBox.left();// ury
 	else
 	    stream << " EPSF-3.0\n%%BoundingBox: "
 		   << d->boundingBox.left() << " "
@@ -2859,6 +2859,7 @@ void QPSPrinter::newPageSetup( QPainter *paint )
 	d->pageEncodings.clear();
 	d->pageFontNames.clear();
     }
+
     resetDrawingTools( paint );
     dirtyNewPage      = FALSE;
     d->pageFontNumber = d->headerFontNumber;
@@ -2898,6 +2899,7 @@ void QPSPrinter::resetDrawingTools( QPainter *paint )
 	matrixSetup( paint );
 }
 
+
 static void putRect( QTextStream &stream, const QRect &r )
 {
     stream << r.x() << " "
@@ -2906,18 +2908,19 @@ static void putRect( QTextStream &stream, const QRect &r )
 	   << r.height() << " ";
 }
 
+
 void QPSPrinter::setClippingOff( QPainter *paint )
 {
 	stream << "CLO\n";		// clipping off, includes a restore
 	resetDrawingTools( paint );     // so drawing tools must be reset
 }
 
+
 void QPSPrinter::clippingSetup( QPainter *paint )
 {
     if ( paint->hasClipping() ) {
-	if ( !d->firstClipOnPage ) {
+	if ( !d->firstClipOnPage )
 	    setClippingOff( paint );
-	}
 	const QRegion rgn = paint->clipRegion();
 	QArray<QRect> rects = rgn.rects();
 	int i;
@@ -2933,6 +2936,12 @@ void QPSPrinter::clippingSetup( QPainter *paint )
     } else {
 	if ( !d->firstClipOnPage )	// no need to turn off if first on page
 	    setClippingOff( paint );
+	// if we're painting without clipping, the bounding box must
+	// be everything.  NOTE: this assumes that this function is
+	// only ever called when something is to be painted.
+	QPaintDeviceMetrics m( printer );
+	if ( !d->boundingBox.isValid() )
+	    d->boundingBox.setRect( 0, 0, m.width(), m.height() );
     }
     d->dirtyClipping = FALSE;
 }
