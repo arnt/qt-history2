@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#32 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -229,7 +229,7 @@ QColorGroup::~QColorGroup()
 
 /*!
   \fn const QBrush& QColorGroup::fillMidlight() const
-  Returns the midlight brush of the color group. 
+  Returns the midlight brush of the color group.
 */
 
 /*!
@@ -306,8 +306,8 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
-  \fn const QBrush& QColorGroup::setMidlight( const QBrush& b)
-  Sets the midlight brush of the color group. Note that you can also pass a plain QColor instead of a QBrush. 
+  \fn void QColorGroup::setMidlight( const QBrush& b)
+  Sets the midlight brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
 */
 
 /*!
