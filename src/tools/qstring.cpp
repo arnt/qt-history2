@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#7 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#7 $";
 #endif
 
 
@@ -69,40 +69,58 @@ int qstrnicmp( const char *str1, const char *str2, uint len )
     return 0;
 }
 
-UINT16 qchecksum( const char *str, uint len )	// return IP checksum
+
+static UINT16 crc_tbl[16];
+static bool   crc_tbl_init = FALSE;
+
+static void createCRC16Table()			// build CRC16 lookup table
 {
-    int a = len/2;
-    register short *p = (short *)str;
-    register ulong b = 0;
-    switch ( a & 15 ) {				// sum words
-	while( a>15 ) {				// this is legal ANSI C !!!
-	    b += *p++;
-	    case 15: b += *p++;
-	    case 14: b += *p++;
-	    case 13: b += *p++;
-	    case 12: b += *p++;
-	    case 11: b += *p++;
-	    case 10: b += *p++;
-	    case  9: b += *p++;
-	    case  8: b += *p++;
-	    case  7: b += *p++;
-	    case  6: b += *p++;
-	    case  5: b += *p++;
-	    case  4: b += *p++;
-	    case  3: b += *p++;
-	    case  2: b += *p++;
-	    case  1: b += *p++;
-	    case  0:
-	    a -= 16;
-	    b = (b & 0xffff) + (b>>16);
-	}
+    register int i;
+    register int j;
+    int v0, v1, v2, v3;
+    for ( i=0; i<16; i++ ) {
+	v0 = i & 1;
+	v1 = (i >> 1) & 1;
+	v2 = (i >> 2) & 1;
+	v3 = (i >> 3) & 1;
+	j = 0;
+#undef  SET_BIT
+#define SET_BIT(x,b,v)	x |= v << b
+	SET_BIT(j, 0,v0);
+	SET_BIT(j, 7,v0);
+	SET_BIT(j,12,v0);
+	SET_BIT(j, 1,v1);
+	SET_BIT(j, 8,v1);
+	SET_BIT(j,13,v1);
+	SET_BIT(j, 2,v2);
+	SET_BIT(j, 9,v2);
+	SET_BIT(j,14,v2);
+	SET_BIT(j, 3,v3);
+	SET_BIT(j,10,v3);
+	SET_BIT(j,15,v3);
+	crc_tbl[i] = j;
     }
-    if ( len & 1 ) {
-	str = (const char *)p;
-	b += (255 & (*str));
-	b = (b & 0xffff) + (b>>16);
+}
+
+UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
+{
+    if ( !crc_tbl_init ) {			// create lookup table
+	createCRC16Table();
+	crc_tbl_init = TRUE;
     }
-    return UINT16(~b);
+    register UINT16 crc = 0xffff;
+    register int index;
+    uchar c;
+    uchar *p = (uchar *)data;
+    while ( len-- ) {
+	c = *p++;
+	index = ((crc ^ c) & 15);
+	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[index];
+	c >>= 4;
+	index = ((crc ^ c) & 15);
+	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[index];
+    }
+    return ~crc;
 }
 
 
