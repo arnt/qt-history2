@@ -70,6 +70,7 @@ public:
 	       QWidget* parent=0, const char* name=0 );
     QGroupBox( int strips, Orientation o, const QString &title,
 	       QWidget* parent=0, const char* name=0 );
+    ~QGroupBox();
 
     virtual void setColumnLayout(int strips, Orientation o);
 

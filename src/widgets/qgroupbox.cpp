@@ -166,6 +166,11 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
     setColumnLayout( strips, orientation );
 }
 
+QGroupBox::~QGroupBox()
+{
+    delete d;
+}
+
 void QGroupBox::init()
 {
     align = AlignAuto;
