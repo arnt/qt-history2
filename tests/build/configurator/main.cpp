@@ -1,37 +1,18 @@
-/*
-** Main startup code for the configurator tool
-*/
-
-#include <stdio.h>
 #include <qapplication.h>
-#include <qmainwindow.h>
 
-#include "dialogwidget.h"
-#include "menu.h"
-
-QApplication* pApp;
+#include "configure.h"
 
 int main( int argc, char** argv )
 {
-	QMainWindow* pMainWindow;
-	CDialogWidget* pDlgWidget;
-	CConfiguratorMenu* pMenu;
+    QApplication app( argc, argv );
+    QObject::connect( &app, SIGNAL( lastWindowClosed() ), &app, SLOT( quit() ) );
 
-	pApp = new QApplication( argc, argv );
-	QObject::connect( pApp, SIGNAL( lastWindowClosed() ), pApp, SLOT( quit() ) );
+    ConfigureQtDialogImpl* w = new ConfigureQtDialogImpl();
 
-	pMainWindow = new QMainWindow();
-	pMenu = new CConfiguratorMenu( pMainWindow );
+    w->show();
+    app.setMainWidget( w );
 
-	pDlgWidget = new CDialogWidget( pMainWindow );
+    app.exec();
 
-	pMainWindow->setCentralWidget( pDlgWidget );
-	pMainWindow->show();
-	pApp->setMainWidget( pMainWindow );
-
-	pApp->exec();
-	
-	delete pApp;
-
-	return 0;
+    return 0;
 }
