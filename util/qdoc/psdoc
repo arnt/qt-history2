@@ -11,7 +11,7 @@ $initstr =
 .nr bs 0
 .ad l
 .nh
-.ls 1.2
+.ls 1.3
 .nr \$v 120
 .sp 8
 .ft CR
@@ -20,14 +20,14 @@ $initstr =
 Troll Tech AS
 .sp 2
 .sz 36
-Qt 1.2
+Qt 1.3
 .sz 24
 Tutorial and Reference
 .sz 18
 Preliminary Version, \\*(td
 .sp 4\nhttp://www.troll.no/
 .br
-info\@troll.no / bugs\@troll.no
+sales\@troll.no / qt-bugs\@troll.no
 .br\nfax: +47 22646949
 .ce 0
 .pn 1
@@ -79,10 +79,8 @@ alphabetical order and lists the example program which uses each
 class.  Some information in the on-line documentation has been left
 out as we felt it was not worth the paper (several hundred pages).
 .pp
-This is a beta release of this manual, so it is less complete and
-polished than our HTML documentation.  We appreciate any comments and
-will change the format as well as extend the content in the next beta
-releases.  Please send comments to bugs\@troll.no.
+We appreciate any comments regarding the formatting or content of this
+manual.  Please send comments to qt-bugs\@troll.no.
 .bp
 ";
 
@@ -220,6 +218,9 @@ sub parseclassfile {
     s/^.*?<body[^>]*>\s*//s;
     s/<hr><p>\s+This file is part of the.*$//s;
 
+    # get rid of nonbreakspace
+    s/ / /gs;
+
     # paragraphs, lines
     s/\s*<p>\s*/\n\n.pp\n/gs;
     s/\s*<hr>\s*//gs;
@@ -230,7 +231,7 @@ sub parseclassfile {
     s-<a.*?>(.*?)</a>-$1-gs;
     s-\s*<h1\b.*?>\s*(.*?)</h1.*?>-\n.sh 1 "$1"\n-gs;
     s-\s*<h2\b.*?>\s*(.*?)</h2.*?>(\s*\.pp)?-\n.sh 2 "$1"\n.pp\n-gs;
-    s/\s*<h3>/\n.pp\n<h3>/gs;
+    s/\s*<h3\b.*?>/\n.pp\n<h3>/gs;
     s-(?:\s*\n\.pp)*\s*<h3\b.*?>\s*(.*?)</h3.*?>\s*(?:\.pp\s*)*(.*?)\n(?=\.(?:(?:pp)|(?:[us]h)|(?:$ )))-\n.(b\n.pp\n.sp\n.b\n.ti 0\n.nh\n$1\n.r\n.pp\n$2\n.)b\n-gsx;
 
     # fonts, code and emphasized text
@@ -253,9 +254,11 @@ sub parseclassfile {
     # make bulleted lists for the examples
     s-Examples:((?:\n [\w/\.]+)*)-{
 	my ($examples) = $&;
-	$examples =~ s/\n /\n/gs;
-	$examples =~ s/:\n/:\n.\(l\n/s;
-	$examples =~ s/\s*$/\n.\)l/s;
+	if ( $examples =~ /:.*\S/s ) {
+	    $examples =~ s/\n /\n/gs;
+	    $examples =~ s/:\n/:\n.\(l\n/s;
+	    $examples =~ s/\s*$/\n.\)l/s;
+	}
 	$examples;
     }-gse;
 
@@ -343,40 +346,40 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
 }
 closedir DIR;
 
-open( O, "> /tmp/qtdoc-1.2.me" ) || die;
+open( O, "> /tmp/qtdoc-1.3.me" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.2.me\n";
+print "/tmp/qtdoc-1.3.me\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-1.2-a4.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-1.3-a4.ps" ) || die;
 print O $a4, $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.2-a4.ps\n";
+print "/tmp/qtdoc-1.3-a4.ps\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-1.2-letter.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-1.3-letter.ps" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.2-letter.ps\n";
+print "/tmp/qtdoc-1.3-letter.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.2-a4.ps |" )
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.3-a4.ps |" )
     || die;
 $_ = <I>;
 close I;
 s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-1.2-a4-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-1.3-a4-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-1.2-a4-2.ps\n";
+print "/tmp/qtdoc-1.3-a4-2.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.2-letter.ps |" )
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.3-letter.ps |" )
     || die;
 $_ = <I>;
 close I;
 s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-1.2-letter-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-1.3-letter-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-1.2-letter-2.ps\n";
+print "/tmp/qtdoc-1.3-letter-2.ps\n";
 
 foreach ( keys %delete ) {
     unlink $_ if ( -f $_ );
