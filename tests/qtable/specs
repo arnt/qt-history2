@@ -55,7 +55,7 @@ DONE
 DONE
 
 18. Cell join.
-
+DONE
 
 19. Single click, double click, value change, traversal, focus change,
 selection change, activate (return key)
@@ -69,7 +69,7 @@ Known Bugs:
 - When reordering columns/rows seelctions don't work anymore - for
 selections and cursor-movement we have to use actual and not logical
 indices.
-
+- Selections do not work correctly with multi-cells
 
 
 Other todos:
@@ -77,3 +77,5 @@ Other todos:
 
 - Optimize for flicker freeness and speed (only redraw changing parts
 of selections if the user selects stuff, etc.)
+- Document that QTableItems are shared because of multicells, so don't delete, but deref()
+- Document that multicells only work with QTableItems

@@ -277,8 +277,22 @@ QSize QTableItem::sizeHint() const
     return s;
 }
 
+/*!  Sets this cell to fill \a rs rows and \a cs columns. Using that
+  you can make a QTableItem to a multi-cell.
+*/
+
 void QTableItem::setSpan( int rs, int cs )
 {
+    if ( rowspan > 1 || colspan > 1 ) {
+	for ( int r = 0; r < rowspan; ++r ) {
+	    for ( int c = 0; c < colspan; ++c ) {
+		if ( r == 0 && c == 0 )
+		    continue;
+		table()->clearCell( row, col );
+	    }
+	}
+    }
+    
     rowspan = rs;
     colspan = cs;
 
@@ -296,10 +310,16 @@ void QTableItem::setSpan( int rs, int cs )
     }
 }
 
+/*! Returns the row-span of this item
+ */
+
 int QTableItem::rowSpan() const
 {
     return rowspan;
 }
+
+/*! Returns the col-span of this item
+ */
 
 int QTableItem::colSpan() const
 {
@@ -604,7 +624,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 			colw += columnWidth( i + item->col );
 		}
 	    }
-	    
+	
 	    // Translate painter and draw the cell
 	    p->saveWorldMatrix();
 	    p->translate( colp, rowp );
@@ -1520,7 +1540,7 @@ QRect QTable::cellGeometry( int row, int col ) const
 	row--;
     while ( col != item->col )
 	col--;
-    
+
     QRect rect( columnPos( col ), rowPos( row ),
 		columnWidth( col ), rowHeight( row ) );
 	
@@ -1533,7 +1553,7 @@ QRect QTable::cellGeometry( int row, int col ) const
 	    rect.setWidth( rect.width() + columnWidth( c + col ) );
 	}
     }
-    
+
     return rect;
 }
 
