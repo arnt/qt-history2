@@ -11,7 +11,7 @@
 #include "main.h"
 
 
-StatusPicker::StatusPicker( QWidget *parent=0, const char *name=0 )
+StatusPicker::StatusPicker( QWidget *parent, const char *name )
     : QComboBox( parent, name )
 {
     QSqlCursor cur( "status" );
