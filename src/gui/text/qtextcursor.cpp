@@ -586,11 +586,12 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
     \i Lists are ordered sequences of block elements that are decorated with
        bullet points or symbols. These are inserted in a specified format
        with insertList().
-    \i Tables can be inserted in an optional format with the insertTable()
-       function. These contain an array of cells that can be traversed using
-       the cursor.
-    \i insertImage()
-    \i insertFrame()
+    \i Tables are inserted with the insertTable() function, and can be
+       given an optional format. These contain an array of cells that can
+       be traversed using the cursor.
+    \i Inline images are inserted with insertImage(). The image to be
+       used can be specified in an image format, or by name.
+    \i Frames are inserted by calling insertFrame() with a specified format.
     \endlist
 
     Actions can be grouped (i.e. treated as a single action for
