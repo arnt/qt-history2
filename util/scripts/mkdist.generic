@@ -179,6 +179,7 @@ echo "Finally packing the distribution, see ${DISTDIR}..." >&2
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}
   mkdir qt/src/tmp
+  touch qt/src/tmp/dummy
   v=`echo ${VERSION} | sed -e 's/\.//'`
   zip -r -9 qtwin${v}.zip qt
 fi
