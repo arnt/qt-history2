@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#69 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#70 $
 **
 ** Definition of QFileDialog class
 **
@@ -39,6 +39,8 @@ class QTimer;
 #include "qlistbox.h"
 #include "qlineedit.h"
 #include "qlistview.h"
+#include "qurl.h"
+#include "qurlinfo.h"
 #endif // QT_H
 
 
@@ -49,6 +51,7 @@ public:
     QFileIconProvider( QObject * parent = 0, const char* name = 0 );
 
     virtual const QPixmap * pixmap( const QFileInfo & );
+    virtual const QPixmap * pixmap( const QUrlInfo & );
 };
 
 class QRenameEdit : public QLineEdit
@@ -174,7 +177,6 @@ private:
     bool firstMousePressEvent;
 };
 
-
 class Q_EXPORT QFileDialog : public QDialog
 {
     friend class QFileListBox;
@@ -183,17 +185,17 @@ class Q_EXPORT QFileDialog : public QDialog
     Q_OBJECT
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
-                 QWidget *parent=0, const char *name=0, bool modal=FALSE );
-    QFileDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE );
+                 QWidget *parent=0, const char *name = 0, bool modal = FALSE );
+    QFileDialog( QWidget *parent=0, const char *name = 0, bool modal = FALSE );
     ~QFileDialog();
 
     // recommended static functions
 
     static QString getOpenFileName( const QString &initially = QString::null,
-                                    const QString &filter= QString::null,
+                                    const QString &filter = QString::null,
                                     QWidget *parent = 0, const char* name = 0);
     static QString getSaveFileName( const QString &initially = QString::null,
-                                    const QString &filter= QString::null,
+                                    const QString &filter = QString::null,
                                     QWidget *parent = 0, const char* name = 0);
     static QString getExistingDirectory( const QString &dir = QString::null,
                                          QWidget *parent = 0,
@@ -230,6 +232,13 @@ public:
 
     bool eventFilter( QObject *, QEvent * );
 
+    void setPreviewMode( bool info, bool contents );
+    void setInfoPreviewWidget( QWidget *w );
+    void setContentsPreviewWidget( QWidget *w );
+
+    QUrl url() const;
+    void setUrl( const QUrl &url );
+
 public slots:
     void setDir( const QString& );
     void setFilter( const QString& );
@@ -240,10 +249,14 @@ signals:
     void fileHighlighted( const QString& );
     void fileSelected( const QString& );
     void dirEntered( const QString& );
+    void showPreview( const QUrl & );
 
 protected slots:
     void detailViewSelectionChanged();
     void listBoxSelectionChanged();
+    void changeMode( int );
+    void slotIsDir();
+    void slotIsFile();
     
 private slots:
     void fileSelected( int );
@@ -279,6 +292,13 @@ protected:
 private slots:
     void updateGeometries();
     void modeButtonsDestroyed();
+    void clearView();
+    void polishDirectory();
+    void insertEntry( const QUrlInfo &fi );
+    void removeEntry( const QString &fi );
+    void createdDirectory( const QUrlInfo &info );
+    void error( int ecode, const QString &msg );
+    void itemChanged( const QString &oldname, const QString &newname );
 
 private:
     enum PopupAction {
@@ -296,12 +316,12 @@ private:
     };
 
     void init();
-    bool trySetSelection( const QFileInfo&, bool );
+    bool trySetSelection( bool isDir, const QUrl &, bool );
     void deleteFile( const QString &filename );
     void popupContextMenu( const QString &filename, bool withSort,
                            PopupAction &action, const QPoint &p );
 
-    QDir cwd;
+    QDir reserved; // was cwd
     QString fileName;
 
     QFileDialogPrivate *d;
