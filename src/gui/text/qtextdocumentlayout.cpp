@@ -276,8 +276,6 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
 
 void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
 {
-    inLayout = true;
-
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
     currentBlock = bl;
@@ -297,20 +295,30 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
         QTextLine line = tl->createLine();
         if (!line.isValid())
             break;
+        bool firstTime = true;
 
         int left, right;
         floatMargins(&left, &right);
+    redo:
         left = qMax(left, l);
         right = qMax(right, r);
+        inLayout = firstTime;
         line.layout(right-left);
+        inLayout = firstTime;
+
+        floatMargins(&left, &right);
+        if (line.width() > right-left) {
+            // float has been added in the meantime, redo
+            firstTime = false;
+            goto redo;
+        }
+
         line.setPosition(QPoint(left, currentYPos-cy));
         currentYPos += line.ascent() + line.descent() + 1;
     }
     tl->setPosition(QPoint(0, cy));
 
     currentYPos += blockFormat.bottomMargin();
-
-    inLayout = false;
 }
 
 void QTextDocumentLayoutPrivate::floatMargins(int *left, int *right)
@@ -318,7 +326,7 @@ void QTextDocumentLayoutPrivate::floatMargins(int *left, int *right)
     *left = 0;
     *right = d->pageSize.width();
     for (QHash<QTextFormatGroup *, Float>::const_iterator it = floats.constBegin(); it != floats.constEnd(); ++it) {
-        if (it->rect.y() < currentYPos && it->rect.bottom() > currentYPos) {
+        if (it->rect.y() <= currentYPos && it->rect.bottom() > currentYPos) {
             QTextFloatFormat::Position pos = it.key()->commonFormat().toFloatFormat().position();
             if (pos == QTextFloatFormat::Left)
                 *left = qMax(*left, it->rect.right());
@@ -414,17 +422,15 @@ void QTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
         pos = group->commonFormat().toFloatFormat().position();
 
     item.setDescent(0);
-    QSize inlineSize = (pos == QTextFloatFormat::None ? handler.iface->intrinsicSize(format) : QSize());
+    QSize inlineSize = (pos == QTextFloatFormat::None ? handler.iface->intrinsicSize(format) : QSize(0, 0));
     item.setWidth(inlineSize.width());
     item.setAscent(inlineSize.height());
 }
 
 void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
 {
-    if (item.width())
+    if (item.width() || !d->inLayout)
         return;
-
-    Q_ASSERT(d->inLayout);
 
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
@@ -443,7 +449,6 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
     QTextDocumentLayoutPrivate::Float fl;
     fl.rect = QRect((pos == QTextFloatFormat::Left ? 0 : d->pageSize.width() - s.width()), d->currentYPos,
                     s.width(), s.height());
-//     qDebug() << "layoutObject:" << fl.rect;
 
     d->floats[group] = fl;
 }
