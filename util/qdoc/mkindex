@@ -1,0 +1,10 @@
+#!/bin/sh
+if [  $# -gt 1 ]; then
+	rm -f $1
+	touch $1
+	for i in $@; do  
+		sed -ne "s/.*<a href=\"\([^\"]*\)\">\([^<]*\)<\/a>.*/\"\2\"\|$i\|\1/pg" < $i ; 
+	done | awk -F \| '{ s=$3; if (substr($3,1,1)=="#") s=$2$3; print $1,s }' | sort | uniq > $1
+else
+	echo Usage: $0 indexfile filenames
+fi
