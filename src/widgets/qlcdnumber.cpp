@@ -47,7 +47,7 @@
   \brief The QLCDNumber widget displays a number with LCD-like digits.
 
   \ingroup basic
-  \ingroup mainclasses
+  \mainclass
 
   It can display a number in just about any size. It can display decimal,
   hexadecimal, octal or binary numbers. It is easy to connect to

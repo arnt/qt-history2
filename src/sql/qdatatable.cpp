@@ -122,7 +122,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 /*!
   \class QDataTable qdatatable.h
     \ingroup database
-  \ingroup mainclasses
+  \mainclass
   \module sql
 
   \brief The QDataTable class provides a flexible SQL table widget that supports browsing and editing.

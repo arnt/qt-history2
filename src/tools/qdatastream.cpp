@@ -51,7 +51,7 @@
   binary data to a QIODevice.
 
   \ingroup io
-  \ingroup mainclasses
+  \mainclass
 
   A data stream is a binary stream of encoded information which is 100%
   independent of the host computer's operating system, CPU or byte

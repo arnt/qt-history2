@@ -58,7 +58,7 @@
   \brief The QComboBox widget is a combined button and popup list.
 
   \ingroup basic
-  \ingroup mainclasses
+  \mainclass
 
   A combobox is a selection widget which displays the current item and
   can pop up a list of items.  A combobox may be editable in which case

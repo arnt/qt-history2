@@ -62,7 +62,7 @@ public:
 
   \class QSqlForm qsqlform.h
     \ingroup database
-  \ingroup mainclasses
+  \mainclass
   \brief The QSqlForm class creates and manages data entry forms tied to SQL
   databases.
 

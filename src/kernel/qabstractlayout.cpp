@@ -538,7 +538,7 @@ bool QWidgetItem::isEmpty() const
 
   \ingroup appearance
   \ingroup geomanagement
-  \ingroup mainclasses
+  \mainclass
 
   This is an abstract base class inherited by the concrete classes,
   QBoxLayout and QGridLayout.

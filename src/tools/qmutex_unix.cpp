@@ -363,7 +363,7 @@ int QRecursiveMutexPrivate::type() const
 
   \ingroup thread
   \ingroup environment
-  \ingroup mainclasses
+  \mainclass
 
   The purpose of a QMutex is to protect an object, data structure
   or section of code so that only one thread can access it at a time

@@ -46,7 +46,7 @@
 
   \ingroup io
   \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
   If you want to send signals from a class that does not inherit
   QObject, you can create an internal QSignal object to emit the

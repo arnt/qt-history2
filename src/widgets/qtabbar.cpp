@@ -50,7 +50,7 @@
 /*!
   \class QTab qtabbar.h
   \ingroup advanced
-  \ingroup mainclasses
+  \mainclass
   \brief The QTab class provides the structures in a QTabBar.
 
 
@@ -155,7 +155,7 @@ QTab::~QTab()
   \brief The QTabBar class provides a tab bar, e.g. for use in tabbed dialogs.
 
   \ingroup advanced
-  \ingroup mainclasses
+  \mainclass
 
   QTabBar is straightforward to use; it draws the tabs using one of
   the predefined \link QTabBar::Shape shapes\endlink, and emits a

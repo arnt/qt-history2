@@ -55,7 +55,7 @@ public:
   \brief The QSimpleRichText class provides a small displayable piece of rich text.
 
   \ingroup text
-  \ingroup mainclasses
+  \mainclass
 
   This class encapsulates simple rich text usage in which a string is
   interpreted as rich text and can be drawn.  This is particularly useful

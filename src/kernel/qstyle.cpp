@@ -59,7 +59,7 @@ public:
   \brief The QStyleOption class specifies optional parameters for QStyle functions.
   \preliminary
   \ingroup appearance
-  \ingroup mainclasses
+  \mainclass
 
   Some QStyle functions take an optional argument specifying extra
   information that is required for a paritical primitive or control.
@@ -229,7 +229,7 @@ public:
   \brief The QStyle class specifies the look and feel of a GUI.
   \preliminary
   \ingroup appearance
-  \ingroup mainclasses
+  \mainclass
 
     A large number of GUI elements are common to many widgets. The
     QStyle class allows the look of these elements to be modified

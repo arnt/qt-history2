@@ -100,7 +100,7 @@ public:
   \class QProgressDialog qprogressdialog.h
   \brief The QProgressDialog class provides feedback on the progress of a slow operation.
   \ingroup dialogs
-  \ingroup mainclasses
+  \mainclass
 
   A progress dialog is used to give the user an indication of how long
   an operation is going to take to perform, and to indicate that

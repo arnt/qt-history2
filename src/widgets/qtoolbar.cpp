@@ -217,7 +217,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   widgets such as tool buttons.
 
   \ingroup application
-  \ingroup mainclasses
+  \mainclass
 
   A toolbar is a panel that contains a set of controls, usually
   represented by small icons.  It's purpose is to provide quick access

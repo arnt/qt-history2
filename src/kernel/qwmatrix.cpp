@@ -51,7 +51,7 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
   \class QWMatrix qwmatrix.h
   \ingroup graphics
   \ingroup images
-  \ingroup mainclasses
+  \mainclass
   \brief The QWMatrix class specifies 2D transformations of a
   coordinate system.
 

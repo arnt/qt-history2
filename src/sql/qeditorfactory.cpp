@@ -50,7 +50,7 @@
 /*!
   \class QEditorFactory qeditorfactory.h
     \ingroup advanced
-  \ingroup mainclasses
+  \mainclass
   \brief The QEditorFactory class is used to create editor widgets
   for QVariant data types.
 

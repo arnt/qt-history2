@@ -43,7 +43,7 @@
   \brief The QPtrStack class is a template class that provides a stack.
 
   \ingroup tools
-  \ingroup mainclasses
+  \mainclass
 
   Define a template instance QPtrStack\<X\> to create a stack that
   operates on pointers to X, (X*). 

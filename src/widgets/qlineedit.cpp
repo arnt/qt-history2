@@ -195,7 +195,7 @@ QPixmap* QLineEditPrivate::pm = 0;
   \brief The QLineEdit widget is a one-line text editor.
 
   \ingroup basic
-  \ingroup mainclasses
+  \mainclass
 
   A line edit allows the user to enter and edit a single line of plain
   text with a useful collection of editing functions, including undo and

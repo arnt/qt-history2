@@ -49,7 +49,7 @@
   \brief The QClipboard class provides access to the window system clipboard.
 
   \ingroup io environment
-  \ingroup mainclasses
+  \mainclass
 
   The clipboard offers a simple mechanism to copy and paste data between
   applications.

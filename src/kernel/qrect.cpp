@@ -45,7 +45,7 @@
 
   \ingroup images
   \ingroup graphics
-  \ingroup mainclasses
+  \mainclass
 
   A rectangle is internally represented as an upper-left corner and a
   bottom-right corner, but it is normally expressed as an upper-left

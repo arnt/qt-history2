@@ -57,7 +57,7 @@ static QPtrList<QWindowsMime> mimes;
   \ingroup io
   \ingroup draganddrop
   \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
   The drag-and-drop and clipboard facilities of Qt use the MIME standard.
   On X11, this maps trivially to the Xdnd protocol, but on Windows only

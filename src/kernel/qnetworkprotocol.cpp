@@ -100,7 +100,7 @@ public:
   \brief The QNetworkProtocol class provides a common API for network protocols.
 
   \ingroup io
-  \ingroup mainclasses
+  \mainclass
 
   This is a base class which should be used for implementations
   of network protocols that can then be used in Qt (e.g.

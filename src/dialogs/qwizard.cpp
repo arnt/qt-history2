@@ -56,7 +56,7 @@
 
   \ingroup abstractwidgets
   \ingroup organizers
-  \ingroup mainclasses
+  \mainclass
 
   \brief The QWizard class provides a framework for wizard dialogs.
 

@@ -138,7 +138,7 @@ public:
   \brief The QHeader class provides a header row or column, e.g. for
   tables and listviews.
   \ingroup advanced
-  \ingroup mainclasses
+  \mainclass
 
   This class provides a header, e.g. a vertical header to display row
   labels, or a horizontal header to display column labels. It is used by

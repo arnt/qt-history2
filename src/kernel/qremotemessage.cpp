@@ -48,7 +48,7 @@
   Qt application and it's remote control. A typical use of such a remote functionality
   is testing. Hence the msg_type QRemoteMessage.
 
-  \ingroup mainclasses
+  \mainclass
   \ingroup io
 
 \section1 Detailed description

@@ -43,7 +43,7 @@
   \brief The QMemArray class is a template class that provides arrays of simple types.
 
   \ingroup tools
-  \ingroup mainclasses
+  \mainclass
 
   QMemArray is implemented as a template class. Define a template
   instance QMemArray\<X\> to create an array that contains X items.

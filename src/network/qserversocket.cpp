@@ -54,7 +54,7 @@ public:
   \class QServerSocket qserversocket.h
   \brief The QServerSocket class provides a TCP-based server.
 
-  \ingroup mainclasses
+  \mainclass
   \ingroup io
 
   \module network

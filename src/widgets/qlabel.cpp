@@ -69,7 +69,7 @@ public:
 
   \ingroup basic
   \ingroup text
-  \ingroup mainclasses
+  \mainclass
 
   QLabel is used for displaying information in the form of text or
   an image. No user interaction functionality is

@@ -57,7 +57,7 @@ static int sliderStartVal = 0; //##### class member?
   \class QSlider qslider.h
   \brief The QSlider widget provides a vertical or horizontal slider.
   \ingroup basic
-  \ingroup mainclasses
+  \mainclass
 
   The slider is the classic widget for controlling a bounded value.
   It lets the user move a slider along a horizontal or vertical

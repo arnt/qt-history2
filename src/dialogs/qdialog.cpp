@@ -58,7 +58,7 @@
 
   \ingroup dialogs
   \ingroup abstractwidgets
-  \ingroup mainclasses
+  \mainclass
 
   A dialog window is a top-level window mostly used for short-term tasks
   and brief communications with the user. QDialogs may be modal or

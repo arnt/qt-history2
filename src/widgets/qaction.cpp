@@ -54,7 +54,7 @@
 /*! \class QAction qaction.h
     \ingroup basic
     \ingroup application
-  \ingroup mainclasses
+  \mainclass
   \brief The QAction class provides an abstract user interface action that can
   appear both in menus and tool bars.
 
@@ -1062,7 +1062,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 /*! \class QActionGroup qaction.h
     \ingroup basic
     \ingroup application
-  \ingroup mainclasses
+  \mainclass
 
   \brief The QActionGroup class groups actions together.
 

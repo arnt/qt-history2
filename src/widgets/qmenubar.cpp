@@ -73,7 +73,7 @@ static bool inMenu = FALSE;
   \brief The QMenuBar class provides a horizontal menu bar.
 
   \ingroup application
-  \ingroup mainclasses
+  \mainclass
 
   A menu bar consists of a list of pull-down menu items.
   You add menu items with \link QMenuData::insertItem()

@@ -53,7 +53,7 @@
   \brief The QDir class provides access to directory structures and their contents in a platform-independent way.
 
   \ingroup io
-  \ingroup mainclasses
+  \mainclass
 
     A QDir is used to manipulate path names, access information
     regarding paths and files, and manipulate the underlying file system.

@@ -58,7 +58,7 @@
 
 \ingroup dialogs
 \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
 This is basically a QLabel and a "show this message again" checkbox which
 remembers what not to show.

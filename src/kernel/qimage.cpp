@@ -72,7 +72,7 @@
 
   \ingroup images
   \ingroup graphics
-  \ingroup mainclasses
+  \mainclass
   \ingroup shared
 
   It is one of the two classes Qt provides for dealing with images,
@@ -3567,7 +3567,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   \ingroup images
   \ingroup graphics
   \ingroup io
-  \ingroup mainclasses
+  \mainclass
 
   QImageIO contains a QIODevice object that is used for image data I/O.
   The programmer can install new image file formats in addition to those

@@ -50,7 +50,7 @@ extern bool qt_file_access( const QString& fn, int t );
   \brief The QFileInfo class provides system-independent file information.
 
   \ingroup io
-  \ingroup mainclasses
+  \mainclass
 
   QFileInfo provides information about a file's name and position (path)
   in the file system, its access rights and whether it is a directory or

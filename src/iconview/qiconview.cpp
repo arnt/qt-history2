@@ -2134,7 +2134,7 @@ void QIconViewItem::checkRect()
   \module iconview
 
   \ingroup advanced
-  \ingroup mainclasses
+  \mainclass
 
     The QIconView can display and manage a grid or other
     2D layout of labelled icons. Each labelled icon is a QIconViewItem.

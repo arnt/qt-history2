@@ -45,7 +45,7 @@
   \ingroup qtl
   \ingroup tools
   \ingroup shared
-  \ingroup mainclasses
+  \mainclass
   
   QValueList is a Qt implementation of an STL-like list container.  It
   can be used in your application if the standard list<> is not

@@ -45,7 +45,7 @@
   \brief The QRangeControl class provides an integer value within a range.
 
   \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
   Although originally designed for the QScrollBar widget, the
   QRangeControl can also be used in conjunction with other widgets

@@ -45,7 +45,7 @@
   \ingroup qtl
   \ingroup tools
   \ingroup shared
-  \ingroup mainclasses
+  \mainclass
 
   QMap is a Qt implementation of an STL-like map container.  It
   can be used in your application if the standard map<> is not

@@ -173,7 +173,7 @@ public:
   \brief The QSplitter class implements a splitter widget.
 
   \ingroup organizers
-  \ingroup mainclasses
+  \mainclass
 
   A splitter lets the user control the size of child widgets by
   dragging the boundary between the children. Any number of widgets

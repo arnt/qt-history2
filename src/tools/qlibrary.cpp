@@ -131,7 +131,7 @@ void QLibraryPrivate::killTimer()
 
   \brief The QLibrary class provides a wrapper for handling shared libraries.
   \ingroup componentmodel
-  \ingroup mainclasses
+  \mainclass
 
   An instance of a QLibrary object can handle a single shared library and provide
   access to the functionality in the library in a platform independent way. If the

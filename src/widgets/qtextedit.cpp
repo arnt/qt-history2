@@ -89,7 +89,7 @@ static bool block_set_alignment = FALSE;
 
   \ingroup basic
   \ingroup text
-  \ingroup mainclasses
+  \mainclass
 
     QTextEdit is an advanced WYSIWYG editor supporting rich text
     formatting. It is optimized to handle large documents and to respond

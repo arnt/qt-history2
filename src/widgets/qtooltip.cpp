@@ -588,7 +588,7 @@ QString QTipManager::find( QWidget *w, const QPoint& pos )
   widget or rectangular part of a widget.
 
   \ingroup helpsystem
-  \ingroup mainclasses
+  \mainclass
 
   The tip is a short, single line of text reminding the user of the widget's
   or rectangle's function.  It is drawn immediately below the region

@@ -760,7 +760,7 @@ int QListBoxPixmap::rtti() const
   \brief The QListBox widget provides a list of selectable, read-only items.
 
   \ingroup advanced
-  \ingroup mainclasses
+  \mainclass
 
   This is typically a single-column list in which zero or one item
   is selected, but it can also be used in many other ways.

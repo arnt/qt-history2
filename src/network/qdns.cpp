@@ -1442,7 +1442,7 @@ void QDnsSocket::answer()
   \brief The QDns class provides asynchronous DNS lookups.
 
   \module network
-  \ingroup mainclasses
+  \mainclass
     \ingroup io
 
   Both Windows and Unix provide synchronous DNS lookups; Windows

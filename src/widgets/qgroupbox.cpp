@@ -58,7 +58,7 @@
   \ingroup organizers
   \ingroup geomanagement
   \ingroup appearance
-  \ingroup mainclasses
+  \mainclass
 
   A group box provides a frame, a title and a keyboard shortcut, and
   displays various other widgets inside itself.  The title is on top,

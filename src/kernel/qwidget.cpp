@@ -66,9 +66,9 @@
   \brief The QWidget class is the base class of all user interface objects.
 
   \ingroup abstractwidgets
-  \ingroup mainclasses
+  \mainclass
 
-  The widget is the atom of the user interface: It receives mouse,
+  The widget is the atom of the user interface: it receives mouse,
   keyboard and other events from the window system, and paints a
   representation of itself on the screen.  Every widget is
   rectangular, and they are sorted in a Z-order.  A widget is clipped
@@ -77,13 +77,14 @@
   A widget that isn't embedded in a parent widget is called a
   top-level widget. Usually, top-level widgets are windows with a
   frame and a title bar (though it is also possible to create top
-  level widgets without such decoration by the use of <a
-  href="qt.html#WidgetFlags">widget flags</a>).  In Qt, QMainWindow and the
-  various subclasses of QDialog are the most common top-level windows.
+  level widgets without such decoration by the use of \link
+  qt.html#WidgetFlags widget flags\endlink).  In Qt, QMainWindow and
+  the various subclasses of QDialog are the most common top-level
+  windows.
 
   A widget without a parent widget is always a top-level widget.
 
-  The opposite of top-level widgets are child widgets. Those are child
+  Non-top-level widgets are child widgets. These are child
   windows in their parent widgets.  You usually cannot distinguish a
   child widget from its parent visually.  Most other widgets in Qt are
   useful only as child widgets.  (You can make a e.g. button into a
@@ -91,11 +92,12 @@
   e.g. dialogs.)
 
   QWidget has many member functions, but some of them have little
-  direct functionality - for example it has a font but never uses it
-  itself. There are many subclasses which provide real functionality,
-  as diverse as QPushButton, QListBox and QTabDialog.
+  direct functionality: for example, QWidget it has a font property,
+  but never uses this itself. There are many subclasses which provide
+  real functionality, as diverse as QPushButton, QListBox and
+  QTabDialog.
 
-  <strong>Groups of functions:</strong>
+  \section1 Groups of functions:
   \list
 
   \i Window functions:
@@ -271,36 +273,38 @@
   widget flag).
   \i \c{const char *name = 0} is the widget name of the new
   widget.  You can access it using name().  The widget name is little
-  used by programmers but is quite useful with GUI builders such as the
-  Qt Designer (you can name a widget in the builder, and connect() to
-  it by name in your code).  The dumpObjectTree() debugging function also
-  uses it.
-  \i \c{WFlags f = 0} (where available) sets the <a
-  href="qt.html#WidgetFlags">widget flags</a>; the default is good for almost
-  all widgets, but to get e.g. top-level widgets without a window
-  system frame you must use special flags.
+  used by programmers but is quite useful with GUI builders such as
+  \e{Qt Designer} (you can name a widget in the builder, and connect() to
+  it using the name in your code).  The dumpObjectTree() debugging
+  function also uses it.
+  \i \c{WFlags f = 0} (where available) sets the
+  \link qt.html#WidgetFlags widget flags\endlink; the default is good
+  for almost all widgets, but to get e.g. top-level widgets without a
+  window system frame, you must use special flags.
   \endlist
 
   The tictac/tictac.cpp example program is good example of a simple
   widget.  It contains a few event handlers (as all widgets must), a
   few custom routines that are peculiar to it (as all useful widgets
-  must), and has a few children and connections.  Everything it does
-  is done in response to an event: This is by far the most common way
+  do), and has a few children and connections.  Everything it does
+  is done in response to an event: this is by far the most common way
   to design GUI applications.
 
   You will need to supply the content for your widgets yourself, but
   here is a brief run-down of the events, starting with the most common
-  ones: \list
+  ones:
+
+  \list
 
   \i paintEvent() - called whenever the widget needs to be
   repainted.  Every widget which displays output must implement it,
-  and it is sensible to \e never paint on the screen outside
+  and it is wise \e not to paint on the screen outside
   paintEvent().
 
   \i resizeEvent() - called when the widget has been resized.
 
   \i mousePressEvent() - called when a mouse button is pressed.
-  There are six mouse-related events, mouse press and mouse release
+  There are six mouse-related events, but mouse press and mouse release
   events are by far the most important.  A widget receives mouse press
   events when the widget is inside it, or when it has grabbed the
   mouse using grabMouse().
@@ -310,15 +314,15 @@
   corresponding mouse press event.  This means that if the user
   presses the mouse inside \e your widget, then drags the mouse to
   somewhere else, then releases, \e your widget receives the release
-  event.  There is one exception, however: If a popup menu appears
+  event.  There is one exception, however: if a popup menu appears
   while the mouse button is held down, that popup steals the mouse
   events at once.
 
   \i mouseDoubleClickEvent() - not quite as obvious as it might seem.
   If the user double-clicks, the widget receives a mouse press event
-  (perhaps a mouse move event or two if he/she does not hold the mouse
-  quite steady), a mouse release event and finally this event.  It is \e
-  not \e possible to distinguish a click from a double click until you've
+  (perhaps a mouse move event or two if they don't hold the mouse
+  quite steady), a mouse release event and finally this event.  It is
+  \e{not possible} to distinguish a click from a double click until you've
   seen whether the second click arrives.  (This is one reason why most GUI
   books recommend that double clicks be an extension of single clicks,
   rather than trigger a different action.)
@@ -328,11 +332,13 @@
   implement any event handlers.
 
   Widgets that accept keyboard input need to reimplement a few more
-  event handlers: \list
+  event handlers:
+
+  \list
 
   \i keyPressEvent() - called whenever a key is pressed, and again
   when a key has been held down long enough for it to auto-repeat.
-  Note that the Tab and shift-Tab keys are only passed to the widget
+  Note that the Tab and Shift+Tab keys are only passed to the widget
   if they are not used by the focus-change mechanisms.  To force those
   keys to be processed by your widget, you must reimplement
   QWidget::event().
@@ -347,19 +353,22 @@
   \endlist
 
   Some widgets will need to reimplement some more obscure event
-  handlers, too: \list
+  handlers, too:
+
+  \list
 
   \i mouseMoveEvent() - called whenever the mouse moves while a
   button is held down.  This is useful for e.g. dragging.  If you call
   setMouseTracking(TRUE), you get mouse move events even when no
   buttons are held down.  (Note that applications which make use of
   mouse tracking are often not very useful on low-bandwidth X
-  connections.)
+  connections.) (See also the \link dnd.html drag and drop\endlink
+  information.)
 
   \i keyReleaseEvent() - called whenever a key is released, and also
   while it is held down if the key is auto-repeating.  In that case
   the widget receives a key release event and immediately a key press
-  event for every repeat.  Note that the Tab and shift-Tab keys are
+  event for every repeat.  Note that the Tab and Shift+Tab keys are
   only passed to the widget if they are not used by the focus-change
   mechanisms.  To force those keys to be processed by your widget, you
   must reimplement QWidget::event().
@@ -383,12 +392,14 @@
 
   There are also some \e really obscure events.  They are listed in
   qevent.h and you need to reimplement event() to handle them.  The
-  default implementation of event() handles Tab and shift-Tab (to move
+  default implementation of event() handles Tab and Shift+Tab (to move
   the keyboard focus), and passes on most other events to one of the
   more specialized handlers above.
 
-  When writing a widget, there are a few more things to look out
-  for. \list
+  When implementing a widget, there are a few more things to look out
+  for.
+
+  \list
 
   \i In the constructor, be sure to set up your member variables
   early on, before there's any chance that you might receive an event.
@@ -490,27 +501,29 @@ inline bool QWidgetMapper::remove( WId id )
     Widget state flags:
   \list
   \i WState_Created The widget has a valid winId().
-  \i WState_Disabled The widget does not receive any mouse
-  \i  or keyboard events.
-  \i WState_ForceDisabled The widget is explicitly disabled, i.e. it will remain
-  \i   disabled even when all its ancestors are set to enabled
-  \i   state. This implies WState_Disabled.
+  \i WState_Disabled The widget does not receive any mouse or keyboard
+  events.
+  \i WState_ForceDisabled The widget is explicitly disabled, i.e. it
+  will remain disabled even when all its ancestors are set to the enabled
+  state. This implies WState_Disabled.
   \i WState_Visible The widget is currently visible.
-  \i WState_ForceHide The widget is explicitly hidden, i.e. it won't become
-  \i visible unless you call show() on it.  ForceHide implies !WState_Visible
+  \i WState_ForceHide The widget is explicitly hidden, i.e. it won't
+  become visible unless you call show() on it.  WState_ForceHide
+  implies WState_Visible.
   \i WState_OwnCursor A cursor has been set for this widget.
   \i WState_MouseTracking Mouse tracking is enabled.
   \i WState_CompressKeys Compress keyboard events.
   \i WState_BlockUpdates Repaints and updates are disabled.
   \i WState_InPaintEvent Currently processing a paint event.
   \i WState_Reparented The widget has been reparented.
-  \i WState_ConfigPending A config (resize/move) event is pending.
+  \i WState_ConfigPending A configuration (resize/move) event is pending.
   \i WState_Resized The widget has been resized.
   \i WState_AutoMask The widget has an automatic mask, see setAutoMask().
-  \i WState_Polished The widget has been "polished" (i.e. late initializated ) by a QStyle.
+  \i WState_Polished The widget has been "polished" (i.e. late
+  initialization) by a QStyle.
   \i WState_DND The widget supports drag and drop, see setAcceptDrops().
-  \i WState_Exposed the widget was finally exposed (x11 only,
-      helps avoiding paint event doubling).
+  \i WState_Exposed the widget was finally exposed (X11 only,
+      helps avoid paint event doubling).
   \i WState_HasMouse The widget is under the mouse cursor.
   \endlist
 */
@@ -547,8 +560,9 @@ for popup menus. \c WType_Popup implies WType_TopLevel.
 \value WType_Desktop  indicates that this widget is the desktop.
 See also \c WPaintDesktop below. \c WType_Desktop implies \c WType_TopLevel.
 
-There are also a number of flags to let you customize the appearance
-of top-level windows.  These have no effect on other windows:
+There are also a number of flags which you can use to customize the
+appearance of top-level windows.  These have no effect on other
+windows:
 
 \value WStyle_Customize  indicates that the \c WStyle_* flags should be
 used to build the window instead of the default flags.
@@ -565,9 +579,9 @@ Cannot be combined with \c WStyle_NormalBorder or \c
 WStyle_DialogBorder. On Windows, the flag works fine. On X11, it
 bypasses the window manager completely, which results in a borderless
 window, but also in a window that is not managed at all (i.e. for
-example no keyboard focus unless you call QWidget::setActiveWindow()
-manually.) For compatibility, the flag was not changed for Qt-2.1. We
-suggest using \c WStyle_NoBorderEx instead.
+example, no keyboard focus unless you call QWidget::setActiveWindow()
+manually.) For compatibility, the flag was not changed for Qt 2.1. We
+recommend using \c WStyle_NoBorderEx instead.
 
 \value WStyle_NoBorderEx  produces a borderless window.  Note that the user
 cannot move or resize a borderless window via the window system.  Cannot
@@ -608,7 +622,7 @@ should stay on top of all other windows.
 
 \value WStyle_Dialog  indicates that the window is a logical subwindow
 of its parent (in other words, a dialog).  The window will not get its own
-taskbar entry and be kept on top of its parent by the window system.
+taskbar entry and will be kept on top of its parent by the window system.
 Usually it will also be minimized when the parent is minimized.  If not
 customized, the window is decorated with a slightly simpler title bar.
 This is the flag QDialog uses.
@@ -649,6 +663,7 @@ leader. Modality of secondary windows only affects windows within the
 same group.
 
 Miscellaneous flags
+
 \value WShowModal see WType_Dialog
 
 Internal flags.
@@ -703,13 +718,13 @@ Internal flags.
 
   If \a parent is 0, the new widget becomes a top-level window.  If \a
   parent is another widget, this widget becomes a child window inside
-  \a parent.  The new widget is deleted when \a parent is.
+  \a parent.  The new widget is deleted when its \a parent is deleted.
 
   The \a name is sent to the QObject constructor.
 
-  The widget flags argument \a f is normally 0, but it can be set to
+  The widget flags argument, \a f, is normally 0, but it can be set to
   customize the window frame of a top-level widget (i.e. \a parent must be
-  zero). To customize the frame, set the \c WStyle_Customize flag OR'ed with
+  0). To customize the frame, set the \c WStyle_Customize flag OR'ed with
   any of the Qt::WidgetFlags.
 
     If you add a child widget to an already visible widget you must
@@ -784,8 +799,8 @@ static bool noMoreToplevels();
 /*!
   Destroys the widget.
 
-  All children of this widget are deleted first.
-  The application exits if this widget is (was) the main widget.
+  All this widget's children are deleted first.
+  The application exits if this widget is the main widget.
 */
 
 QWidget::~QWidget()
@@ -1075,7 +1090,7 @@ void QWidget::deactivateWidgetCleanup()
 /*!
   Returns a pointer to the widget with window identifer/handle \a id.
 
-  The window identifier type depends by the underlying window system,
+  The window identifier type depends on the underlying window system,
   see qwindowdefs.h for the actual definition.
   If there is no widget with this identifier, a null pointer is returned.
 */
@@ -1100,7 +1115,7 @@ QWidget *QWidget::find( WId id )
 
   Returns the widget flags for this this widget.
 
-  Widget flags are a combination of Qt::WidgetFlags.
+  Widget flags are a combination of \l{Qt::WidgetFlags}.
 
   \sa testWFlags(), setWFlags(), clearWFlags()
 */
@@ -1110,7 +1125,7 @@ QWidget *QWidget::find( WId id )
 
   Sets the widget flags \a f.
 
-  Widget flags are a combination of Qt::WidgetFlags.
+  Widget flags are a combination of \l{Qt::WidgetFlags}.
 
   \sa testWFlags(), getWFlags(), clearWFlags()
 */
@@ -1120,7 +1135,7 @@ QWidget *QWidget::find( WId id )
 
   Clears the widget flags \a f.
 
-  Widget flags are a combination of Qt::WidgetFlags.
+  Widget flags are a combination of \l{Qt::WidgetFlags}.
 
   \sa testWFlags(), getWFlags(), setWFlags()
 */
@@ -1166,8 +1181,8 @@ QStyle& QWidget::style() const
 
   \warning This function is particularly useful for demonstration
   purposes, where you want to show Qt's styling capabilities.  Real
-  applications should stay away from it and use one consistent GUI
-  style instead.
+  applications should avoid it and use one consistent GUI style
+  instead.
 
   \sa style(), QStyle, QApplication::style(), QApplication::setStyle()
 */
@@ -1199,7 +1214,7 @@ QStyle* QWidget::setStyle( const QString &style )
 
 /*!
   This virtual function is called when the style of the widgets.
-  changes.\a oldStyle is the
+  changes. \a oldStyle is the
   previous GUI style; you can get the new style from style().
 
   Reimplement this function if your widget needs to know when its GUI
@@ -1273,7 +1288,7 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
     \brief whether the widget is a modal widget
 
   This property only makes sense for top-level widgets. A modal
-  widget prevents widgets in all other top-level widget from getting
+  widget prevents widgets in all other top-level widgets from getting
   any input.
 
   \sa isTopLevel(), isDialog(), QDialog
@@ -1287,7 +1302,7 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
 
 /*!
   Returns TRUE if this widget would become enabled if \a ancestor is
-  enabled.
+  enabled; otherwise returns FALSE.
 
   This is the case if neither the widget itself nor every parent up to
   but excluding \a ancestor has been explicitly disabled.
@@ -1320,8 +1335,8 @@ bool QWidget::isEnabledTo( QWidget* ancestor ) const
     \brief whether the widget is enabled
 
   An enabled widget receives keyboard and mouse events; a disabled
-  widget does not. Incidentally, an enabled widget receives keyboard
-  events only when it is in focus.
+  widget does not. In fact, an enabled widget only receives keyboard
+  events when it is in focus.
 
   Some widgets display themselves differently when they are disabled.
   For example a button might draw its label grayed out. If your widget
@@ -1422,16 +1437,16 @@ void QWidget::enabledChange( bool )
 /*!
   \fn void QWidget::windowActivationChange( bool oldActive )
 
-  This virtual function is called for a widget when its window is activated or
-  deactivated by the windows system. \a oldActive is the previous state; you can
-  get the new setting from isActiveWindow().
+  This virtual function is called for a widget when its window is
+  activated or deactivated by the windows system. \a oldActive is the
+  previous state; you can get the new setting from isActiveWindow().
 
-  Reimplement this function if your widget needs to know when its window becomes
-  activated or deactivated.
+  Reimplement this function if your widget needs to know when its
+  window becomes activated or deactivated.
 
-  The default implementation updates the visible part of the widget if the inactive
-  and the active colorgroup are different for colors other than the highlight and link
-  colors.
+  The default implementation updates the visible part of the widget if
+  the inactive and the active colorgroup are different for colors
+  other than the highlight and link colors.
 
   \sa setActiveWindow(), isActiveWindow(), update(), palette()
 */
@@ -1533,17 +1548,14 @@ int QWidget::y() const
   widget on the desktop, including the frame.
 
   When changing the position, the widget, if visible, receives a move
-  event (moveEvent()) immediately. If the widget is not visible yet,
-  it is guaranteed to receive an event before it is shown.
+  event (moveEvent()) immediately. If the widget is not currently
+  visible, it is guaranteed to receive an event before it is shown.
 
   move() is virtual, and all other overloaded move() implementations
   in Qt call it.
 
   \warning If you call move() or setGeometry() from moveEvent(), you
-  may see infinite recursion.
-
-  See the \link geometry.html Window Geometry documentation\endlink
-  for an overview of geometry issues with top-level widgets.
+  may experience infinite recursion.
 
   See the \link geometry.html Window Geometry documentation\endlink
   for an overview of geometry issues with top-level widgets.
@@ -1568,8 +1580,8 @@ QPoint QWidget::pos() const
 
   When changing the geometry, the widget, if visible, receives a move
   event (moveEvent()) and/or a resize event (resizeEvent())
-  immediately. If the widget is not visible yet, it is guaranteed to
-  receive appropriate events before it is shown.
+  immediately. If the widget is not currently visible, it is
+  guaranteed to receive appropriate events before it is shown.
 
   The size component is adjusted if it lies outside the range defined
   by minimumSize() and maximumSize().
@@ -1578,7 +1590,7 @@ QPoint QWidget::pos() const
   implementations in Qt call it.
 
   \warning If you call setGeometry() from resizeEvent() or
-  moveEvent(), you may see infinite recursion.
+  moveEvent(), you may experience infinite recursion.
 
   See the \link geometry.html Window Geometry documentation\endlink
   for an overview of geometry issues with top-level widgets.
@@ -1591,8 +1603,8 @@ QPoint QWidget::pos() const
     \brief the size of the widget excluding any window frame
 
   When resizing, the widget, if visible, receives a resize event
-  (resizeEvent()) immediately. If the widget is not visible yet, it
-  is guaranteed to receive an event before it is shown.
+  (resizeEvent()) immediately. If the widget is not currently visible,
+  it is guaranteed to receive an event before it is shown.
 
   The size is adjusted if it lies outside the range defined by
   minimumSize() and maximumSize(). Furthermore, the size is always at
@@ -1602,7 +1614,7 @@ QPoint QWidget::pos() const
   implementations in Qt call it.
 
   \warning If you call resize() or setGeometry() from resizeEvent(),
-  you may see infinite recursion.
+  you may experience infinite recursion.
 
   \sa pos, geometry, minimumSize, maximumSize, resizeEvent()
 */
@@ -1759,7 +1771,7 @@ QSize QWidget::maximumSize() const
   When the user resizes the window, the size will move in steps of
   sizeIncrement().width() pixels horizontally and
   sizeIncrement.height() pixels vertically, with baseSize() as basis.
-  Preferred widget sizes are therefore for nonnegative integers \e i
+  Preferred widget sizes are for nonnegative integers \e i
   and \e j:
   \code
     width = baseSize().width() + i * sizeIncrement().width();
@@ -1767,7 +1779,7 @@ QSize QWidget::maximumSize() const
   \endcode
 
   Note that while you can set the size increment for all widgets, it
-  has no effect except for top-level widgets.
+  only effects top-level widgets.
 
   \warning The size increment has no effect under Windows, and may be
   disregarded by the window manager on X.
@@ -1814,7 +1826,8 @@ void QWidget::setFixedSize( const QSize & s)
 
 /*!
   \overload void QWidget::setFixedSize( int w, int h )
-  Sets the width fo the widget to \a w and the height to \a h.
+
+  Sets the width of the widget to \a w and the height to \a h.
 */
 
 void QWidget::setFixedSize( int w, int h )
@@ -1873,7 +1886,7 @@ void QWidget::setFixedHeight( int h )
 
 
 /*! Translates the widget coordinate \a pos to the coordinate system
-  of \a parent, which must be non-null and be a parent widget of this.
+  of \a parent, which must be non-null and be a parent of this widget.
 
   \sa mapFrom() mapToParent() mapToGlobal()
 */
@@ -1894,7 +1907,7 @@ QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
 
 /*! Translates the widget coordinate \a pos from the coordinate system
   of \a parent to this widget's coordinate system, which must be non-null
-  and be a parent widget of this.
+  and be a parent of this widget.
 
   \sa mapTo() mapFromParent() mapFromGlobal()
 */
@@ -1941,9 +1954,8 @@ QPoint QWidget::mapFromParent( const QPoint &pos ) const
 
 
 /*!
-
   Returns the top-level widget for this widget, i.e. the next ancestor
-  widget that has a window-system frame (or at least may have one).
+  widget that has (or may have) a window-system frame.
 
   If the widget is a top-level, the widget itself is returned.
 
@@ -2228,7 +2240,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
   spinbox, it defines PaletteBase to be its \a visual background
   mode. Changing the backgroundColor property thus changes the
   lineedit control's background, which is exactly what the user
-  expects in Qt Designer.
+  expects in \e{Qt Designer}.
  */
 void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode visual )
 {
@@ -2509,8 +2521,7 @@ void QWidget::unsetPalette()
   previous palette; you can get the new palette from palette().
 
   Reimplement this function if your widget needs to know when its
-  palette changes.  You will almost certainly need to call this
-  implementation of the function.
+  palette changes.
 
   \sa setPalette(), palette()
 */
@@ -2629,12 +2640,12 @@ void QWidget::fontChange( const QFont & )
     \brief the cursor shape for this widget
 
   The mouse cursor will assume this shape when it's over this widget.
-  See a list of predefined cursor objects with a range of useful
-  shapes in the QCursor documentation.
+  See the \link Qt::CursorShape list of predefined cursor
+  objects\endlink for a range of useful shapes.
 
   An editor widget would for example use an I-beam cursor:
   \code
-    setCursor( ibeamCursor );
+    setCursor( IbeamCursor );
   \endcode
 
   If no cursor has been set, or after a call to unsetCursor(), the
@@ -2675,7 +2686,7 @@ QString QWidget::caption() const
     \brief the widget icon pixmap
 
   This property makes sense only for top-level widgets. If no icon
-  has been set, icon() returns a null pointer.
+  has been set, icon() returns 0.
 
   \sa iconText, caption,
       \link appicon.html Setting the Application Icon\endlink
@@ -2724,19 +2735,19 @@ void QWidget::setMouseTracking( bool enable )
 }
 #endif // Q_WS_X11
 
-/*!  Sets this widget's focus proxy to \a w. If \a w is 0, this
-  function resets this widget to not have any focus proxy.
+/*!  Sets this widget's focus proxy to widget \a w. If \a w is 0, this
+  function resets this widget to have no focus proxy.
 
   Some widgets, such as QComboBox, can "have focus," but create a
   child widget to actually handle the focus.  QComboBox, for example,
-  creates a QLineEdit.
+  creates a QLineEdit which handles the focus.
 
   setFocusProxy() sets the widget which will actually get focus when
   "this widget" gets it.  If there is a focus proxy, focusPolicy(),
   setFocusPolicy(), setFocus() and hasFocus() all operate on the focus
   proxy.
 
-  \sa focusProxy()
+  \sa focusProxy() setBuddy()
 */
 
 void QWidget::setFocusProxy( QWidget * w )
@@ -2788,7 +2799,7 @@ void QWidget::focusProxyDestroyed()
     \brief whether this widget (or its focus proxy) has the keyboard
     input focus
 
-  Equivalent to \c {qApp->focusWidget() == this}.
+  Effectively equivalent to \c {qApp->focusWidget() == this}.
 
   \sa setFocus(), clearFocus(), setFocusPolicy(), QApplication::focusWidget()
 */
@@ -2805,15 +2816,16 @@ bool QWidget::hasFocus() const
 
   First, a focus out event is sent to the focus widget (if any) to
   tell it that it is about to lose the focus. Then a focus in event is
-  sent to this widget to tell it that it just received the focus. (Of
-  course, if the two are the same nothing happens.
+  sent to this widget to tell it that it just received the focus.
+  (If the focus in and focus out widgets are the same nothing
+  happens.)
 
   setFocus() gives focus to a widget regardless of its focus policy,
   but does not clear any keyboard grab (see grabKeyboard()).
 
   \warning If you call setFocus() in a function which may itself be
-  called from focusOutEvent() or focusInEvent(), you may see infinite
-  recursion.
+  called from focusOutEvent() or focusInEvent(), you may experience
+  infinite recursion.
 
   \sa hasFocus() clearFocus() focusInEvent() focusOutEvent()
   setFocusPolicy() QApplication::focusWidget() grabKeyboard()
@@ -2917,21 +2929,21 @@ void QWidget::clearFocus()
 
 /*!
   Finds a new widget to give the keyboard focus to, as appropriate for
-  Tab/shift-Tab, and returns TRUE if is can find a new widget and
+  Tab and Shift+Tab, and returns TRUE if is can find a new widget and
   FALSE if it can't,
 
-  If \a next is true, this function searches "forwards", if \a next is
-  FALSE, "backwards".
+  If \a next is TRUE, this function searches "forwards", if \a next is
+  FALSE, it searches "backwards".
 
   Sometimes, you will want to reimplement this function.  For example,
   a web browser might reimplement it to move its "current active link"
   forwards or backwards, and call QWidget::focusNextPrevChild() only
-  when it reaches the last/first.
+  when it reaches the last or first link on the "page".
 
-  Child widgets call focusNextPrevChild() on their parent widgets, and
-  only the top-level widget will thus make the choice of where to redirect
-  focus.  By overriding this method for an object, you thus gain control
-  of focus traversal for all child widgets.
+  Child widgets call focusNextPrevChild() on their parent widgets, but
+  only the top-level widget decides where to redirect focus.  By
+  overriding this method for an object, you thus gain control of focus
+  traversal for all child widgets.
 
   \sa focusData()
 */
@@ -2996,7 +3008,8 @@ QFocusData * QWidget::focusData()
 }
 
 /*!
-  Internal function which lets us not create it too.
+  Internal function which lets us ask for the focus data creating it
+  (or not if \a create is FALSE), if it doesn't exist.
 */
 QFocusData * QWidget::focusData( bool create )
 {
@@ -3049,7 +3062,7 @@ void QWidget::setKeyCompression(bool compress)
   The active window is the window that has keyboard focus.
 
   When popup windows are visible, this property is TRUE for both the
-  active window and the popup.
+  active window \a and for the popup.
 
   \sa setActiveWindow(), QApplication::activeWindow()
 */
@@ -3068,17 +3081,17 @@ bool QWidget::isActiveWindow() const
   you should order a chain like this:
 
   \code
-    setTabOrder(a, b ); // a to b
-    setTabOrder(b, c ); // a to b to c
-    setTabOrder(c, d ); // a to b to c to d
+    setTabOrder( a, b ); // a to b
+    setTabOrder( b, c ); // a to b to c
+    setTabOrder( c, d ); // a to b to c to d
   \endcode
 
-  not like this:
+  \e not like this:
 
   \code
-    setTabOrder(c, d); // c to d
-    setTabOrder(a, b); // a to b AND c to d
-    setTabOrder(b, c); // a to b to c, but not c to d
+    setTabOrder( c, d ); // c to d
+    setTabOrder( a, b ); // a to b AND c to d
+    setTabOrder( b, c ); // a to b to c, but not c to d
   \endcode
 
   If either \a first or \a second has a focus proxy, setTabOrder()
@@ -3257,7 +3270,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 /*! \property QWidget::focusEnabled
     \brief whether the widget accepts keyboard focus
 
-  Keyboard focus is initially disabled (i.e., focusPolicy() ==
+  Keyboard focus is initially disabled (i.e. focusPolicy() ==
   QWidget::NoFocus).
 
   You must enable keyboard focus for a widget if it processes keyboard
@@ -3327,7 +3340,7 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
   Paint events from the window system are processed normally even if
   updates are disabled.
 
-  setUpdatesEnabled() normally used to disable updates for a short
+  setUpdatesEnabled() is normally used to disable updates for a short
   period of time, for instance to avoid screen flicker during large
   changes.
 
@@ -3351,9 +3364,9 @@ void QWidget::setUpdatesEnabled( bool enable )
 
 /*
   Returns TRUE if there's no non-withdrawn top level window left
-  (except the desktop, dialogs or popups).  This is an internal
-  function used by QWidget::close() to decide whether to emit
-  QApplication::lastWindowClosed() or not.
+  (except the desktop, dialogs or popups); otherwise returns FALSE.
+  This is an internal function used by QWidget::close() to decide
+  whether to emit QApplication::lastWindowClosed() or not.
 */
 
 static bool noMoreToplevels()
@@ -3377,7 +3390,7 @@ static bool noMoreToplevels()
   Shows the widget and its child widgets.
 
   If its size or position has changed, Qt guarantees that a widget gets
-  move and resize events just before the widget is shown.
+  move and resize events just before it is shown.
 
   You almost never have to reimplement this function. If you need to
   change some settings before a widget is shown, use showEvent()
@@ -3716,8 +3729,8 @@ void QWidget::polish()
 
 /*!
     \overload
-  Closes this widget. Returns TRUE if the widget was closed, otherwise
-  FALSE.
+  Closes this widget. Returns TRUE if the widget was closed; otherwise
+  returns FALSE.
 
   If \a alsoDelete is TRUE or the widget has the \c WDestructiveClose
   widget flag, the widget is also deleted.  The widget can prevent
@@ -3767,8 +3780,9 @@ bool QWidget::close( bool alsoDelete )
 
 /*!
   \fn bool QWidget::close()
-  Closes this widget. Returns TRUE if the widget was closed, otherwise
-  FALSE.
+
+  Closes this widget. Returns TRUE if the widget was closed; otherwise
+  returns FALSE.
 
   First it sends the widget a QCloseEvent. The widget is \link hide()
   hidden\endlink if it \link QCloseEvent::accept() accepts\endlink the
@@ -3791,15 +3805,15 @@ bool QWidget::close( bool alsoDelete )
 
   Calling hide() hides a widget explicitly. An explicitly hidden
   widget will never become visible, even if all its ancestors become
-  visible.
+  visible, unless you show it.
 
   Iconified top-level widgets also have hidden status, as well as
-  having isMinimized() return TRUE. Windows that live on another
+  having isMinimized() return TRUE. Windows that exist on another
   virtual desktop (on platforms that support this concept) also have
   hidden status.
 
   A widget that happens to be obscured by other windows on the screen
-  is considered visible.
+  is considered to be visible.
 
   A widget receives show and hide events when its visibility status
   changes. Between a hide and a show event, there is no need in
@@ -3814,17 +3828,18 @@ bool QWidget::close( bool alsoDelete )
 
 /*!
   Returns TRUE if this widget would become visible if \a ancestor is
-  shown.
+  shown; otherwise returns FALSE.
 
-  This is the case if neither the widget itself nor every parent up to
-  but excluding \a ancestor has been explicitly hidden.
+  The TRUE case occurs if neither the widget itself nor any parent
+  up to but excluding \a ancestor has been explicitly hidden.
 
-  This function returns TRUE if the widget it is obscured by other
-  windows on the screen, but would be visible if moved.
+  This function will still return TRUE if the widget it is obscured by
+  other windows on the screen, but could be physically visible if it
+  or they were to be moved.
 
   isVisibleTo(0) is very similar to isVisible(), with the exception
   that it does not cover the iconfied-case or the situation where the
-  window lives on another virtual desktop.
+  window exists on another virtual desktop.
 
   \sa show() hide() isVisible()
 */
@@ -3862,7 +3877,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
     \brief the currently visible rectangle of the widget
 
   This property is useful to optimize immediate repainting of a
-  widget. Typical usage is
+  widget. Typical usage is:
   \code
     repaint( w->visibleRect() );
   \endcode
@@ -3928,8 +3943,8 @@ void QWidget::adjustSize()
   recommended.
 
   The default implementation of sizeHint() returns an invalid size if
-  there is no layout for this widget, the layout's preferred size
-  otherwise.
+  there is no layout for this widget, and returns the layout's
+  preferred size otherwise.
 
   \sa QSize::isValid(), minimumSizeHint(), sizePolicy(), setMinimumSize(),
       updateGeometry()
@@ -3952,8 +3967,9 @@ QSize QWidget::sizeHint() const
   is recommended.
 
   The default implementation of minimumSizeHint() returns an invalid
-  size if there is no layout for this widget, the layout's minimum
-  size otherwise. Most built-in widgets reimplement minimumSizeHint().
+  size if there is no layout for this widget, and returns the layout's
+  minimum size otherwise. Most built-in widgets reimplement
+  minimumSizeHint().
 
   \l QLayout will never resize a widget to a size smaller than
   minimumSizeHint.
@@ -3985,7 +4001,7 @@ QSize QWidget::minimumSizeHint() const
 
   Returns the logical AND of the widget flags and \a f.
 
-  Widget flags are a combination of Qt::WidgetFlags.
+  Widget flags are a combination of \l{Qt::WidgetFlags}.
 
   \sa getWFlags(), setWFlags(), clearWFlags()
 */
@@ -3999,18 +4015,23 @@ QSize QWidget::minimumSizeHint() const
 
 /*!
   \fn uint QWidget::getWState() const
+
   \internal
+
   Returns the current widget state.
 */
 /*!
   \fn void QWidget::clearWState( uint n )
+
   \internal
 
   Clears the widgets states \a n.
 */
 /*!
   \fn void QWidget::setWState( uint n )
+
   \internal
+
   Sets the widgets states \a n.
 */
 
@@ -4030,10 +4051,10 @@ QSize QWidget::minimumSizeHint() const
   installed.  If none of the filters intercept the event, it calls one
   of the specialized event handlers.
 
-  Key press/release events are treated differently from other events.
-  event() checks for Tab and shift-Tab and tries to move the focus
+  Key press and release events are treated differently from other events.
+  event() checks for Tab and Shift+Tab and tries to move the focus
   appropriately.  If there is no widget to move the focus to (or the
-  key press is not Tab or shift-Tab), event() calls keyPressEvent().
+  key press is not Tab or Shift+Tab), event() calls keyPressEvent().
 
   This function returns TRUE if it is able to pass the event over to
   someone, or FALSE if nobody wanted the event.

@@ -1546,7 +1546,7 @@ QIODevice* QHttpClient::device() const
 /*!
   \class QHttp qhttp.h
     \ingroup io
-  \ingroup mainclasses
+  \mainclass
   \brief The QHttp class provides an implementation of the HTTP protocol.
 
   \module network

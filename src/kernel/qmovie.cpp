@@ -65,7 +65,7 @@
   \ingroup images
   \ingroup graphics
   \ingroup multimedia
-  \ingroup mainclasses
+  \mainclass
 
   A QMovie provides a QPixmap as the framePixmap(); connections can
   be made via connectResize() and connectUpdate() to receive notification

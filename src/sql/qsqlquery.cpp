@@ -76,7 +76,7 @@ void QSqlResultShared::slotResultDestroyed()
 
 /*! \class QSqlQuery qsqlquery.h
     \ingroup database
-  \ingroup mainclasses
+  \mainclass
 
     \brief The QSqlQuery class provides a means of executing and
     manipulating SQL statements.

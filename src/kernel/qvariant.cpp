@@ -319,7 +319,7 @@ void QVariant::Private::clear()
 
   \ingroup objectmodel
   \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
   Because C++ forbids unions from including types that have non-default
   constructors or destructors, most interesting Qt classes cannot be used

@@ -647,7 +647,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   inside a QDockArea or floated as a top level window on the desktop.
 
   \ingroup application
-  \ingroup mainclasses
+  \mainclass
 
     This class handles moving, resizing, docking and undocking dock
     windows. QToolBar is a subclass of QDockWindow so the functionality

@@ -59,7 +59,7 @@
   widget, i.e. answering the question "What's this?".
 
   \ingroup helpsystem
-  \ingroup mainclasses
+  \mainclass
 
   "What's this?" help is part of an application's online help system
   that provides users with information about functionality, usage,

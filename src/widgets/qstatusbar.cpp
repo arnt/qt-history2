@@ -54,7 +54,7 @@
 
   \ingroup application
   \ingroup helpsystem
-  \ingroup mainclasses
+  \mainclass
 
   Each status indicator falls into one of three categories:
 

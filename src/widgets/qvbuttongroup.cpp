@@ -47,7 +47,7 @@
   \ingroup geomanagement
   \ingroup organizers
   \ingroup appearance
-  \ingroup mainclasses
+  \mainclass
 
   QVButtonGroup is a convenience class that offers a thin layer on top of
   QButtonGroup. Think of it as a QVBox that offers a frame with a title

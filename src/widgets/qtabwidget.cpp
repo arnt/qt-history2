@@ -52,7 +52,7 @@
   \brief The QTabWidget class provides a stack of tabbed widgets.
 
   \ingroup organizers
-  \ingroup mainclasses
+  \mainclass
   \ingroup advanced
 
   A tabbed widget is a widget that has a tab bar of tabs, and for each

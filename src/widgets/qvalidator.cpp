@@ -49,7 +49,7 @@
   \brief The QValidator class provides validation of input text.
 
   \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
   The class itself is abstract. Two subclasses, \l QIntValidator and
   \l QDoubleValidator, provide basic numeric-range checking,

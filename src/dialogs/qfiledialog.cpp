@@ -1978,7 +1978,7 @@ static QStringList makeFiltersList( const QString &filter )
   \class QFileDialog qfiledialog.h
   \brief The QFileDialog class provides dialogs that allow users to select files or directories.
   \ingroup dialogs
-  \ingroup mainclasses
+  \mainclass
 
   The QFileDialog class enables a user to traverse their file system in
   order to select one or many files or a directory.

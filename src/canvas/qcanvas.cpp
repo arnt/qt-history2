@@ -418,7 +418,7 @@ static int scm(int a, int b)
 \ingroup abstractwidgets
 \ingroup graphics
 \ingroup images
-\ingroup mainclasses
+\mainclass
 \module canvas
 
 The QCanvas class manages its 2D graphic area and all the canvas items

@@ -122,7 +122,7 @@ static bool preventAnimation = FALSE;
 
   \ingroup application
   \ingroup basic
-  \ingroup mainclasses
+  \mainclass
 
   A popup menu widget is a selection menu. It can be either a pull-down
   menu in a menu bar or a standalone context (popup) menu.  Pull-down menus

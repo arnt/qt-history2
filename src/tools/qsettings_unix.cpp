@@ -47,7 +47,7 @@
 
   \ingroup io
   \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
   On Unix systems, QSettings uses text files to store settings. On
   Windows systems, QSettings uses the system registry.

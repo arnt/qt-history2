@@ -45,7 +45,7 @@
 
   \ingroup images
   \ingroup graphics
-  \ingroup mainclasses
+  \mainclass
 
   On Windows it uses the built-in printer drivers.  On X11 it
   generates postscript and sends that to lpr, lp, or another print

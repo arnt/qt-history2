@@ -96,7 +96,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
   \ingroup io
   \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
   \module network
 

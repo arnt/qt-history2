@@ -67,7 +67,7 @@ public:
   user can see only the top widget.
 
   \ingroup organizers
-  \ingroup mainclasses
+  \mainclass
 
   The application programmer can move any widget to the top of the
   stack at any time using the slot raiseWidget(), and add or remove

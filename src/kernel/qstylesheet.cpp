@@ -727,7 +727,7 @@ int QStyleSheetItem::lineSpacing() const
 
   \ingroup graphics
   \ingroup helpsystem
-  \ingroup mainclasses
+  \mainclass
 
   By creating QStyleSheetItem objects for a style sheet you build a
   definition of a set of tags.  This definition will be used by the

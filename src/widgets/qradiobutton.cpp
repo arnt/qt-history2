@@ -52,7 +52,7 @@
   \brief The QRadioButton widget provides a radio button with a text or pixmap label.
 
   \ingroup basic
-  \ingroup mainclasses
+  \mainclass
 
   QRadioButton and QCheckBox are both option buttons. That is, they
   can be switched on (checked) or off (unchecked). The classes differ

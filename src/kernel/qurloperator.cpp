@@ -91,7 +91,7 @@ public:
 
   \ingroup io
   \ingroup misc
-  \ingroup mainclasses
+  \mainclass
 
   \module network
 

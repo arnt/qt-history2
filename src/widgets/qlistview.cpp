@@ -2084,7 +2084,7 @@ void QListViewItem::ignoreDoubleClick()
   \class QListView
   \brief The QListView class implements a list/tree view.
   \ingroup advanced
-  \ingroup mainclasses
+  \mainclass
 
   It can display and control a hierarchy of multi-column items, and
   provides the ability to add new items at any time. Among others the user

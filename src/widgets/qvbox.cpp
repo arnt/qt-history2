@@ -46,7 +46,7 @@
   \ingroup geomanagement
   \ingroup appearance
   \ingroup organizers
-  \ingroup mainclasses
+  \mainclass
 
   All its children will be placed vertically and sized
   according to their sizeHint()s.

@@ -11326,7 +11326,7 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 
 /*! \class QChar qstring.h
   \ingroup text
-  \ingroup mainclasses
+  \mainclass
 
 \brief The QChar class provides a lightweight Unicode character.
 
@@ -12380,7 +12380,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \ingroup tools
   \ingroup shared
   \ingroup text
-  \ingroup mainclasses
+  \mainclass
 
   QString uses \link shclass.html implicit sharing\endlink, which makes it
   very efficient and easy to use.
@@ -13493,8 +13493,10 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     are concerned.
 
 
-    \value SectionIncludeLeadingSep
-    \value SectionIncludeTrailingSep
+    \value SectionIncludeLeadingSep Include the leading separator (if
+    any) in the result string.
+    \value SectionIncludeTrailingSep Include the trailing separator
+    (if any) in the result string.
 
 
     \value SectionCaseInsensitiveSeps Compare the separator
@@ -13510,7 +13512,8 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 
     This string is treated as a sequence of fields separated by the
     character, \a sep. The returned string consists of \a count fields
-    from position \a start.
+    from position \a start. If \a count is greater than the number of
+    fields from \a start, then all fields from \a start are returned.
 
     The \a flag argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
@@ -13548,9 +13551,11 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     QString s = csv.section( ',', 1, -2 );   // s == "middlename"
 
     QString path( "/usr/local/bin/myapp" );  // First field is empty
-    QString s = path.section( '/', 1, 0 );   // s == "local/bin/myapp"
+    QString s = path.section( '/', 1, 0 );   // s == "usr/local/bin/myapp"
     QString s = path.section( '/', -3, -2 ); // s == "local"
     \endcode
+
+    \sa QStringList::split()
 */
 
 QString QString::section( QChar sep, int start, int count, int flags ) const
@@ -13669,7 +13674,8 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
 
     This string is treated as a sequence of fields separated by the
     string, \a sep. The returned string consists of \a count fields
-    from position \a start.
+    from position \a start. If \a count is greater than the number of
+    fields from \a start, then all fields from \a start are returned.
 
     The \a flag argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
@@ -13700,6 +13706,8 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
     QString s = data.section( "**", -2, 0 ); // s == "surname**phone"
     QString s = data.section( "**", 1, -2 ); // s == "middlename"
     \endcode
+
+    \sa QStringList::split()
 */
 
 QString QString::section( QString sep, int start, int count, int flags ) const
@@ -13850,7 +13858,9 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 
     This string is treated as a sequence of fields separated by the
     regular expression, \a sep. The returned string consists of \a
-    count fields from position \a start.
+    count fields from position \a start. If \a count is greater than
+    the number of fields from \a start, then all fields from \a start
+    are returned.
 
     The \a flag argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
@@ -13885,7 +13895,7 @@ QString QString::section( QString sep, int start, int count, int flags ) const
     QString s = line.section( sep, 1, -2 ); // s == "middlename"
     \endcode
 
-    \sa simplifyWhiteSpace()
+    \sa QStringList::split() simplifyWhiteSpace()
 */
 class section_chunk {
 public:
@@ -13916,7 +13926,7 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
 	    break;
 	}
     }
-    if(!end) 
+    if(!end)
 	l.append(new section_chunk(last_len, QString(uc + last_m, n - last_m)));
 
     if(start < 0)
@@ -13927,7 +13937,7 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
 	count = l.count() + (count - 1);
     else
 	count = start + (count - 1);
-    
+
     int i = 0;
     QString ret;
     for ( section_chunk *chk=l.first(); chk; chk=l.next(), i++ ) {
@@ -13937,7 +13947,7 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
 	    ret += chk->string;
 	}
 	if(i == count) {
-	    if((chk=l.next()) && flags & SectionIncludeTrailingSep) 
+	    if((chk=l.next()) && flags & SectionIncludeTrailingSep)
 		ret += chk->string.left(chk->length);
 	    break;
 	}
@@ -16262,7 +16272,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 /*!
   \class QConstString qstring.h
   \ingroup text
-  \ingroup mainclasses
+  \mainclass
   \brief The QConstString class provides string objects using constant Unicode data.
 
   In order to minimize copying, highly optimized applications can use

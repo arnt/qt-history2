@@ -600,7 +600,7 @@ void write_png_image(QImageIO* iio)
   \class QPNGImagePacker qpngio.h
   \ingroup images
   \ingroup graphics
-  \ingroup mainclasses
+  \mainclass
   \brief The QPNGImagePacker class creates well-compressed PNG animations.
 
   By using transparency, QPNGImagePacker allows you to build a PNG image

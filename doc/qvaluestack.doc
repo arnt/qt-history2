@@ -45,7 +45,7 @@
   \ingroup qtl
   \ingroup tools
   \ingroup shared
-  \ingroup mainclasses
+  \mainclass
 
   Define a template instance QValueStack\<X\> to create a stack of
   values that all have the class X. QValueStack is part of the 

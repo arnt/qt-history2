@@ -61,7 +61,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 
   \ingroup graphics
   \ingroup images
-  \ingroup mainclasses
+  \mainclass
 
   The painter provides highly optimized functions to do most of the
   drawing GUI programs require. QPainter can draw everything from
@@ -2841,7 +2841,7 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
   \ingroup graphics
   \ingroup images
   \ingroup shared
-  \ingroup mainclasses
+  \mainclass
 
   A pen has a style, width, color, cap style and join style.
 
@@ -3237,7 +3237,7 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
   \ingroup graphics
   \ingroup images
   \ingroup shared
-  \ingroup mainclasses
+  \mainclass
 
   A brush has a style and a color.  One of the brush styles is a custom
   pattern, which is defined by a QPixmap.

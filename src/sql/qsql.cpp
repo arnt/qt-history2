@@ -38,7 +38,7 @@
 /*!
   \class QSql qsql.h
   \ingroup database
-  \ingroup mainclasses
+  \mainclass
   \module sql
 
   \brief The QSql class is a namespace for Qt SQL identifiers that
