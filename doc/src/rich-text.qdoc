@@ -429,9 +429,13 @@ format, or in a custom format that is specified with the text:
 \skipto cursor.insertText
 \printuntil emphasisFormat
 
-Once the character format has been used, that format becomes the current
-format and will be used for any following text inserted into the document
-until another character format is specified.
+Once the character format has been used with a cursor, that format becomes
+the current format and will be used for any following text inserted into
+the document with that cursor until another character format is specified.
+
+If a cursor is used to insert text without specifying a character format,
+the text will be given the character format used at that position in the
+document.
 
 \section2 Blocks
 
