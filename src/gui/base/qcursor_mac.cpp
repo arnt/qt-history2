@@ -17,8 +17,6 @@
 #include <qbitmap.h>
 #include <qcursor.h>
 #include <qevent.h>
-#include <qt_mac.h>
-
 #include <string.h>
 
 extern QCursor cursorTable[Qt::LastCursor + 1];

@@ -29,6 +29,13 @@
 #include <qatomic.h>
 # if defined (Q_WS_MAC)
 #  include <qt_mac.h>
+#  if QT_MACOSX_VERSION >= 0x1030
+#    define QMAC_USE_BIG_CURSOR_API
+#  endif
+#  ifndef QMAC_NO_FAKECURSOR
+     class QMacCursorWidget;
+#  endif
+   class QMacAnimateCursor;
 # elif defined(Q_WS_X11)
 #  include <private/qt_x11_p.h>
 # elif defined(Q_WS_WIN)
@@ -36,14 +43,6 @@
 # endif
 #endif
 
-#ifdef Q_WS_MAC
-#  if QT_MACOSX_VERSION >= 0x1030
-#    define QMAC_USE_BIG_CURSOR_API
-#  else
-     class QMacCursorWidget;
-#  endif
-class QMacAnimateCursor;
-#endif
 class QBitmap;
 struct QCursorData {
     QCursorData(int s = 0);
