@@ -401,7 +401,10 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 */
 void QThread::sleep( unsigned long secs )
 {
-    ::sleep( secs );
+    struct timespec ts;
+    ts.tv_nsec = 0;
+    ts.tv_sec  = secs;
+    (void) ::nanosleep(&ts, NULL);
 }
 
 
@@ -421,9 +424,10 @@ void QThread::msleep( unsigned long msecs )
 */
 void QThread::usleep( unsigned long usecs )
 {
-    if ( usecs > 1000000 )
-	::sleep( usecs / 1000000 );
-    ::usleep( usecs % 1000000 );
+    struct timespec ts;
+    ts.tv_nsec = (usecs % 1000000) * 1000;
+    ts.tv_sec  = usecs / 1000000;
+    (void) ::nanosleep(&ts, NULL);
 }
 
 
