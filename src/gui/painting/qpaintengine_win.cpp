@@ -1774,13 +1774,12 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 
     ModifyWorldTransform(hdc, 0, MWT_IDENTITY);
     SetGraphicsMode(hdc, GM_COMPATIBLE);
-    SelectClipRgn(hdc, 0);
 
     if (!d->gdiplusEngine)
         d->gdiplusEngine = new QGdiplusPaintEngine();
     d->gdiplusEngine->begin(pdev);
     d->gdiplusInUse = true;
-    q->setDirty(QPaintEngine::AllDirty);
+    q->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::AllDirty&~QPaintEngine::DirtyClip));
     q->updateState(q->state);
 }
 
@@ -1790,7 +1789,7 @@ void QWin32PaintEnginePrivate::endGdiplus()
     gdiplusEngine->end();
     gdiplusInUse = false;
 
-    q->setDirty(QPaintEngine::AllDirty);
+    q->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::AllDirty&~QPaintEngine::DirtyClip));
 }
 
 
