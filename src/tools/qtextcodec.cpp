@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#30 $
 **
 ** Implementation of QTextCodec class
 **
@@ -32,7 +32,7 @@
 #include "qstring.h"
 
 static QList<QTextCodec> * all = 0;
-static destroying_is_ok = FALSE;
+static bool destroying_is_ok; // starts out as 0
 
 /*!  Deletes all the created codecs.
 
