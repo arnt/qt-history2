@@ -2007,7 +2007,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	if ( tbList.isEmpty() )
 	    continue;
 	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
-	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << tb->label() << "\">" << endl;
+	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label() ) << "\">" << endl;
 	    indent++;
 	    QList<QDesignerAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() )
@@ -2026,7 +2026,7 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
     indent++;
 
     for ( int i = 0; i < (int)mw->menuBar()->count(); ++i ) {
-	ts << makeIndent( indent ) << "<item text=\"" << mw->menuBar()->text( mw->menuBar()->idAt( i ) ) << "\">" << endl;
+	ts << makeIndent( indent ) << "<item text=\"" << entitize( mw->menuBar()->text( mw->menuBar()->idAt( i ) ) ) << "\">" << endl;
 	indent++;
 	QMenuItem *m = mw->menuBar()->findItem( mw->menuBar()->idAt( i ) );
 	if ( !m )
