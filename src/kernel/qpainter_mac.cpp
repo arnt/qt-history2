@@ -70,6 +70,12 @@ void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
 		      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 		      Qt::RasterOp rop, bool imask);
 
+
+#ifdef Q_WS_MAC9
+#define QMAC_NO_CACHE_TEXT_XFORM
+#endif
+
+#ifndef QMAC_NO_CACHE_TEXT_XFORM
 //
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
@@ -111,6 +117,7 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
     if ( !QPixmapCache::insert(key,bm) )	// cannot insert pixmap
 	delete bm;
 }
+#endif
 
 /* paintevent magic to provide Windows semantics on MAC
  */
@@ -1723,8 +1730,12 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		ah = h;
 	    }
 	    bool empty = aw == 0 || ah == 0;
+#ifndef QMAC_NO_CACHE_TEXT_XFORM	    
 	    QString bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
 	    QBitmap *wx_bm = get_text_bitmap( bm_key );
+#else
+            QBitmap *wx_bm = NULL;
+#endif            
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {    // no such cached bitmap
 		QBitmap bm( aw, ah, TRUE );	// create bitmap
@@ -1768,8 +1779,12 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    y = qRound(nfy-dy);
 	    unclippedBitBlt(pdev, x, y, wx_bm, 0, 0, wx_bm->width(), 
 			    wx_bm->height(), CopyROP, TRUE );
+#ifndef QMAC_NO_CACHE_TEXT_XFORM
 	    if(create_new_bm)
 		ins_text_bitmap( bm_key, wx_bm );
+#else
+            delete wx_bm;
+#endif		
 	    return;
 	}
 	if ( txop == TxTranslate )

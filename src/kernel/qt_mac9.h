@@ -23,7 +23,7 @@
 #define QT_NO_XINERAMA
 //mac thingy
 #ifndef ONE_PIXEL_LOCK
-#define ONE_PIXEL_LOCK
+//#define ONE_PIXEL_LOCK
 #endif
 //carbon things
 #define ALLOW_OLD_CARBON

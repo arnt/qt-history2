@@ -56,7 +56,6 @@ const unsigned char * p_str(const char * c); //qwidget_mac.cpp
 FSSpec *QDir::make_spec(const QString &f)
 {
 	static FSSpec ret;
-	const char *bk = f.latin1();
 	const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(f)) + ":");
 	if(FSMakeFSSpec(0, 0, p, &ret) != noErr)
 		return NULL;

@@ -40,16 +40,23 @@
 #include "qfile.h"
 #include "qfiledefs_p.h"
 #include "qdir.h"
+#include "qt_mac.h"
+
+const unsigned char * p_str(const char * c); //qwidget_mac.cpp
 
 bool qt_file_access( const QString& fn, int t )
 {
+	static FSSpec ret;
+	const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(fn)));
+	if(FSMakeFSSpec(0, 0, p, &ret) != noErr)
+        return FALSE;
 #ifdef Q_OS_MACX
     if ( fn.isEmpty() )
-	return FALSE;
+	    return FALSE;
     return ACCESS( QFile::encodeName(fn), t ) == 0;
- #else
- 	return TRUE;
- #endif
+#else
+    return TRUE;
+#endif
 }
 
 
