@@ -1,7 +1,6 @@
 #include "setupwizardimpl.h"
 #include "environment.h"
 #include "confirmdlg.h"
-#include "environmentdlg.h"
 #include <qfiledialog.h>
 #include <qlineedit.h>
 #include <qlabel.h>
@@ -404,12 +403,38 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	devSysPath->setEnabled( sysID == 0 );
 	devSysPathButton->setEnabled( sysID == 0 );
 	QString devdir = QEnvironment::getEnv( "MSDevDir" );
-	if( !devdir.length() ) {
-	    EnvironmentWarnDlg dlg;
+//	if( !devdir.length() ) {
+	    int envSpec = QEnvironment::LocalEnv;
+	    QString vsCommonDir, msDevDir, msVCDir, osDir;
 
-	    dlg.exec();
-	    reject();
-	}
+	    if( QMessageBox::warning( NULL, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 )
+		envSpec |= QEnvironment::PersistentEnv;
+
+	    vsCommonDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup", "VsCommonDir", QEnvironment::LocalMachine );
+	    msDevDir = vsCommonDir + "\\MSDev98";
+	    QEnvironment::putEnv( "MSDevDir", msDevDir, envSpec );
+	    msVCDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
+	    QEnvironment::putEnv( "MSVCDir", msVCDir, envSpec );
+	    if( int( qWinVersion() ) & int( WV_NT_based ) )
+		osDir = "WINNT";
+	    else
+		osDir = "WIN95";
+	    QStringList path = QStringList::split( ';', QEnvironment::getEnv( "PATH", envSpec ) );
+	    path.prepend( msDevDir + "\\BIN" );
+	    path.prepend( msVCDir + "\\BIN" );
+	    path.prepend( vsCommonDir + "\\Tools\\" + osDir );
+	    path.prepend( vsCommonDir + "\\Tools" );
+	    QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
+	    QStringList include = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
+	    include.prepend( msVCDir + "\\ATL\\INCLUDE" );
+	    include.prepend( msVCDir + "\\INCLUDE" );
+	    include.prepend( msVCDir + "\\MFC\\INCLUDE" );
+	    QEnvironment::putEnv( "INCLUDE", include.join( ";" ), envSpec );
+	    QStringList lib = QStringList::split( ';', QEnvironment::getEnv( "LIB", envSpec ) );
+	    lib.prepend( msVCDir + "\\LIB" );
+	    lib.prepend( msVCDir + "\\MFC\\LIB" );
+	    QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
+//	}
 	if( sysID == 0 )
 	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
