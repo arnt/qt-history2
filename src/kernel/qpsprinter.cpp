@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#104 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -135,6 +135,10 @@ static const char *ps_header[] = {
 "    GR",
 "} D",
 "",
+"/BDArr[",				// Brush dense patterns:
+"    0.94 0.88 0.63 0.50 0.37 0.12 0.6",
+"] d",
+"",
 "/PF {",				// polygon fill command
 "    GS",
 "    BSt 2 ge BSt 8 le and",		// dense pattern?
@@ -145,10 +149,6 @@ static const char *ps_header[] = {
 "    { BCol SC WFi { fill } { eofill } ifelse } if",
 "    GR",
 "} D",
-"",
-"/BDArr[",				// Brush dense patterns:
-"    0.94 0.88 0.63 0.50 0.37 0.12 0.6",
-"] d",
 "",
 "", // for arc
 "/mat matrix d",
@@ -2415,6 +2415,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		    *to++ = '\\';		// escape special chars
 		*to++ = *from++;
 	    }
+	    if ( to != tmp && to[-1] == ' ' )
+		to--;
 	    *to = '\0';
 	    stream<< "(" << tmp << ")" << POINT(0) << "T\n";
 	    delete [] tmp;
@@ -2597,22 +2599,22 @@ static QString stripHeader( const QString & header, const char * data,
     while( i < size ) {
 	while( i < size && header[i] != '/' )
 	    i++;
-	if ( header[i] == '/' && isalpha( header[i+1] ) ) {
+	if ( header[i] == '/' && isalpha( header[i+1].latin1() ) ) {
 	    i++;
 	    int j=i;
-	    while( j < size && isalnum( header[j] ) )
+	    while( j < size && isalnum( header[j].latin1() ) )
 		j++;
 	    char id[10];
 	    strncpy( id, header.ascii() + i, j-i );
 	    id[j-i] = '\0';
-	    while( j < size && isspace( header[j] ) )
+	    while( j < size && isspace( header[j].latin1() ) )
 		j++;
 	    if ( header[j] == '{' ) {
 		j++;
 		int k, l;
 		l = 1;
 		while( l && j < size ) {
-		    while( j < size && !isalpha( header[j] ) ) {
+		    while( j < size && !isalpha( header[j].latin1() ) ) {
 			if ( header[j] == '{' )
 			    l++;
 			else if ( header[j] == '}' )
@@ -2621,7 +2623,7 @@ static QString stripHeader( const QString & header, const char * data,
 		    }
 		    if ( l ) {
 			k = j;
-			while( j < size && isalnum( header[j] ) )
+			while( j < size && isalnum( header[j].latin1() ) )
 			    j++;
 			if( j - k < 10 ) {
 			    char id2[10];
@@ -2644,7 +2646,7 @@ static QString stripHeader( const QString & header, const char * data,
 		    j++;
 		} while( j < size && l );
 	    } else if ( header[j] == 'D' && header[j+1] == '0' &&
-			!isalnum( header[j+2] ) ) {
+			!isalnum( header[j+2].latin1() ) ) {
 		ids.insert( id, new int(i-1) );
 		used[i-1] = 0x20000000;
 		int *tmp = ids.find( "D0" );
@@ -2652,7 +2654,7 @@ static QString stripHeader( const QString & header, const char * data,
 		    used[j] = *tmp;
 		j = j+2;
 	    } else if ( header[j] == 'E' && header[j+1] == 'D' &&
-			!isalnum( header[j+2] ) ) {
+			!isalnum( header[j+2].latin1() ) ) {
 		ids.insert( id, new int(i-1) );
 		used[i-1] = 0x20000000;
 		int *tmp = ids.find( "ED" );
@@ -2661,23 +2663,23 @@ static QString stripHeader( const QString & header, const char * data,
 		j = j+2;
 	    } else {
 		// handle other variables.
-		while( j < size && !isspace( header[j] ) )
+		while( j < size && !isspace( header[j].latin1() ) )
 		    j++;
-		while( j < size && isspace( header[j] ) )
+		while( j < size && isspace( header[j].latin1() ) )
 		    j++;
 		// hack: then skip dict
 		if ( !qstrncmp( header.ascii()+j, "dict", 4 ) &&
-		     !isalnum( header[j+4] ) )
+		     !isalnum( header[j+4].latin1() ) )
 		    j += 4;
 	    }
-	    while( j < size && isspace( header[j] ) )
+	    while( j < size && isspace( header[j].latin1() ) )
 		j++;
-	    if ( header[j] == 'D' && !isalnum( header[j+1] ) ) {
+	    if ( header[j] == 'D' && !isalnum( header[j+1].latin1() ) ) {
 		ids.insert( id, new int(i-1) );
 		used[i-1] = 0x20000000;
 		i = j+1;
 	    } else if ( !qstrncmp( header.ascii()+j, "d", 1 ) &&
-			!isalnum( header[j+1] ) ) {
+			!isalnum( header[j+1].latin1() ) ) {
 		ids.insert( id, new int(i-1) );
 		used[i-1] = 0x20000000;
 		i = j+1;
