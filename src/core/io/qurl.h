@@ -5,7 +5,7 @@
 #include <qmap.h>
 #include <qstring.h>
 
-#if !defined QT_NO_COMPAT
+#if defined QT_COMPAT
 #include <qfileinfo.h>
 #endif
 
@@ -105,7 +105,7 @@ public:
     static QString fromPunycode(const QByteArray &);
     static QByteArray toPunycode(const QString &);
 
-#if !defined QT_NO_COMPAT
+#if defined QT_COMPAT
     inline QT_COMPAT QString protocol() const { return scheme(); }
     inline QT_COMPAT void setProtocol(const QString &s) { setScheme(s); }
     inline QT_COMPAT void setUser(const QString &s) { setUserName(s); }
@@ -162,7 +162,7 @@ public:
 #endif
 
 protected:
-#if !defined (QT_NO_COMPAT)
+#if defined (QT_COMPAT)
     inline QT_COMPAT void reset() { clear(); }
 #endif
 
