@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#368 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#369 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -131,9 +131,9 @@ typedef void  (*VFPTR)();
 typedef QList<void> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-VFPTR qt_set_preselect_handler (VFPTR);
+// VFPTR qt_set_preselect_handler (VFPTR);
 static VFPTR qt_preselect_handler = 0;
-VFPTR qt_set_postselect_handler (VFPTR);
+// VFPTR qt_set_postselect_handler (VFPTR);
 static VFPTR qt_postselect_handler = 0;
 Q_EXPORT VFPTR qt_set_preselect_handler (VFPTR handler)
 {
@@ -479,7 +479,11 @@ static void qt_set_windows_resources()
   qt_init() - initializes Qt for Windows
  *****************************************************************************/
 
+#if defined(DEBUG)
+void qt_init( int *argcptr, char **argv )
+#else
 void qt_init( int */*argcptr*/, char **/*argv*/ )
+#endif
 {
     // Detect the Windows version
     (void) QApplication::winVersion();
