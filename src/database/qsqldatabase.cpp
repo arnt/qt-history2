@@ -158,7 +158,7 @@ QSql QSqlDatabase::query( const QString & sqlquery ) const
 int QSqlDatabase::exec( const QString & sql ) const
 {
     QSql r = d->driver->createResult();
-    r << sql;
+    r.setQuery( sql );
     return r.affectedRows();
 }
 

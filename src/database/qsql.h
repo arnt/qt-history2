@@ -38,8 +38,7 @@ public:
     bool	    isNull( int field ) const;
     int             at() const;
     QString         query() const;
-    bool	    setQuery ( const QString& query );        
-    bool	    operator<< ( const QString& query );
+    bool	    setQuery ( const QString& query );
     QVariant 	    operator[] ( int i );
     QVariant        value( int i );
     bool	    seek( int i, bool relative = FALSE );
@@ -52,7 +51,7 @@ public:
     int             affectedRows() const;
     QSqlError	    lastError() const;
 protected:
-    const QSqlDriver*   driver() const;    
+    const QSqlDriver*   driver() const;
 private:
     void            deref();
     bool            checkDetach();

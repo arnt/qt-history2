@@ -309,7 +309,7 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     QSqlIndex idx;
     QSql i = createResult();
     QString stmt( "show index from %1;" );
-    i << stmt.arg( tablename );
+    i.setQuery( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	if ( i[2].toString() == "PRIMARY" ) {
 	    QSqlFieldList fil = fields( tablename );
@@ -325,7 +325,7 @@ QSqlFieldList QMySQLDriver::fields( const QString& tablename ) const
     QSqlFieldList fil;
     QString fieldStmt( "show columns from %1;");
     QSql i = createResult();
-    i << fieldStmt.arg( tablename );
+    i.setQuery( fieldStmt.arg( tablename ) );
     while ( i.isActive() && i.next() )
 	fil.append ( QSqlField( i[0].toString() , i.at(), qDecodeMYSQLType(i[1].toInt()) ) );
     return fil;

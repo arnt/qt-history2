@@ -78,8 +78,8 @@ QSql::~QSql()
     }
 }
 
-/*! 
-    Copy constructor.  
+/*!
+    Copy constructor.
 */
 
 QSql::QSql( const QSql& other )
@@ -98,18 +98,18 @@ QSql::QSql( QSqlResult * r )
 */
 QSql::QSql( const QString& databaseName )
 {
-    d = new QSqlResultShared( 0 );    
+    d = new QSqlResultShared( 0 );
     *this = ( QSqlConnection::database( databaseName )->driver()->createResult() );
 }
 
 //QSql::QSql( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase )
 //{
-//    d = new QSqlResultShared( 0 );        
+//    d = new QSqlResultShared( 0 );
 //    *this = ( QSqlConnection::database( databaseName )->driver()->createResult() );
 //    *this << query;
 //}
 
-/*! 
+/*!
     Assigns \a other.
 */
 
@@ -153,18 +153,13 @@ bool QSql::isNull( int field ) const
 bool QSql::setQuery ( const QString& query )
 {
     if ( d->count > 1 )
-	*this = driver()->createResult();	    
+	*this = driver()->createResult();
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setAt( QSqlResult::BeforeFirst );
     d->sqlResult->sql = query.stripWhiteSpace();
     if ( !driver()->isOpen() || driver()->isOpenError() )
 	return FALSE;
     return d->sqlResult->reset( query );
-}
-
-bool QSql::operator<< ( const QString& query )
-{
-    return setQuery( query );
 }
 
 /*! Returns the value of field \a i (zero based) in the result as reported by the database, or
@@ -471,7 +466,7 @@ bool QSql::isActive() const
 /*!
   \internal
 */
-  
+
 void QSql::deref()
 {
     if ( d->deref() ) {
@@ -483,13 +478,13 @@ void QSql::deref()
 /*!
   \internal
 */
-  
+
 bool QSql::checkDetach()
 {
     if ( d->count > 1 ) {
-	QString sql = d->sqlResult->sql;	
+	QString sql = d->sqlResult->sql;
 	qDebug("QSql::checkDetach():" + sql );
-	*this = driver()->createResult();	    
+	*this = driver()->createResult();
 	setQuery( sql );
 	return TRUE;
     }

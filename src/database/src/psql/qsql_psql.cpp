@@ -114,7 +114,7 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
 		  "and (x.indexrelid=c2.oid "
 		  "and a.attrelid=c2.oid);");
     QSql pIdxs = driver->createResult();
-    pIdxs << pIdx.arg( tablename ).arg( fieldname );
+    pIdxs.setQuery( pIdx.arg( tablename ).arg( fieldname ) );
     if ( pIdxs.next() )
 	ispIdx = pIdxs[0].toInt();
     return ispIdx;
@@ -131,7 +131,7 @@ QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const 
 		   "and a.atttypid = t.oid "
 		   "and (a.attnum > 0)");
     QSql fi = driver->createResult();
-    fi << stmt.arg( tablename ).arg( fieldname );
+    fi.setQuery( stmt.arg( tablename ).arg( fieldname ) );
     if ( fi.next() ) {
 	QSqlField f( fieldname, 0, qDecodePSQLType(fi[0].toInt()) );
 	f.setPrimaryIndex( qIsPrimaryIndex( driver, tablename, fieldname ) );
@@ -515,7 +515,7 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 		  "and relkind = 'r' "
 		  "and int4out(usesysid) = int4out(relowner) "
 		  "order by relname;" );
-    t << stmt.arg( user );
+    t.setQuery( stmt.arg( user ) );
     QStringList tl;
     while ( t.isActive() && t.next() )
 	tl.append( t[0].toString() );
@@ -530,7 +530,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 		  "pg_class c2, pg_index i where c1.relname = '%1' "
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
 		  "and a.attrelid = c2.oid;");
-    i << stmt.arg( tablename );
+    i.setQuery( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	QSqlField f = qMakeField( this, tablename,  i[0].toString() );
 	f.setFieldNumber( i.at() );
@@ -550,7 +550,7 @@ QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
 		   "and a.atttypid = t.oid "
 		   "and (a.attnum > 0)");
     QSql fi = createResult();
-    fi << stmt.arg( tablename );
+    fi.setQuery( stmt.arg( tablename ) );
     while ( fi.next() ) {
 	QSqlField f = qMakeField( this, tablename, fi[0].toString() );
 	f.setFieldNumber( fi.at() );

@@ -62,7 +62,7 @@ QSqlDriver::~QSqlDriver()
 QSql QSqlDriver::query( const QString & sqlquery ) const
 {
     QSql r = createResult();
-    r << sqlquery;
+    r.setQuery( sqlquery );
     return r;
 }
 

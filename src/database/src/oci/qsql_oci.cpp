@@ -616,7 +616,7 @@ bool QOCIDriver::endTrans()
 QStringList QOCIDriver::tables( const QString& user ) const
 {
     QSql t = createResult();
-    t << "select table_name from user_tables;";
+    t.setQuery( "select table_name from user_tables;" );
     QStringList tl;
     while ( t.next() )
 	tl.append( t[0].toString() );
@@ -630,7 +630,7 @@ QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
     QString stmt ("select column_name, data_type " //, data_length, data_precision  "
 		  "from user_tab_columns "
 		  "where table_name='%1';" );
-    t << stmt.arg( tablename );
+    t.setQuery( stmt.arg( tablename ) );
     QSqlFieldList fil;
     while ( t.next() )
 	fil.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
@@ -647,7 +647,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
-    t << stmt.arg( tablename );
+    t.setQuery( stmt.arg( tablename ) );
     QSqlIndex idx( tablename );
     if ( t.next() )
 	idx.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));

@@ -166,7 +166,7 @@ QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex &
 bool QSqlRowset::query( const QString & str )
 {
     qDebug( "\n### SQL: " + str );
-    *this << str;
+    setQuery( str );
     return isActive();
 }
 
