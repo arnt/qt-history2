@@ -2542,7 +2542,7 @@ void QPainter::drawText( const QRect &r, int tf,
 		   tabstops, tabarray, tabarraylen, internal, this);
 }
 
-#define QT_FORMAT_TEXT_DEBUG
+//#define QT_FORMAT_TEXT_DEBUG
 
 void qt_format_text( const QFont& font, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
