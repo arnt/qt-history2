@@ -1154,7 +1154,7 @@ template <const int depth, const int type>
 void QGfxVNC<depth,type>::drawPoint(int x, int y)
 {
     QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x+xoffs, y+yoffs, 1, 1) & clipbounds);
+    qvnc_screen->setDirty(QRect(x+this->xoffs, y+this->yoffs, 1, 1) & this->clipbounds);
     QGfxRaster<depth,type>::drawPoint(x, y);
     QWSDisplay::ungrab();
 }
@@ -1164,8 +1164,8 @@ void QGfxVNC<depth,type>::drawPoints(const QPointArray &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.translate(xoffs, yoffs);
-    qvnc_screen->setDirty(r & clipbounds);
+    r.translate(this->xoffs, this->yoffs);
+    qvnc_screen->setDirty(r & this->clipbounds);
     QGfxRaster<depth,type>::drawPoints(pa, x, y);
     QWSDisplay::ungrab();
 }
@@ -1175,9 +1175,9 @@ void QGfxVNC<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
     QWSDisplay::grab(true);
     QRect r;
-    r.setCoords(x1+xoffs, y1+yoffs, x2+xoffs, y2+yoffs);
+    r.setCoords(x1+this->xoffs, y1+this->yoffs, x2+this->xoffs, y2+this->yoffs);
     r.normalize();
-    qvnc_screen->setDirty(r & clipbounds);
+    qvnc_screen->setDirty(r & this->clipbounds);
     QGfxRaster<depth,type>::drawLine(x1, y1, x2, y2);
     QWSDisplay::ungrab();
 }
@@ -1186,7 +1186,7 @@ template <const int depth, const int type>
 void QGfxVNC<depth,type>::fillRect(int x,int y,int w,int h)
 {
     QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x+xoffs, y+yoffs, w, h) & clipbounds);
+    qvnc_screen->setDirty(QRect(x+this->xoffs, y+this->yoffs, w, h) & this->clipbounds);
     QGfxRaster<depth,type>::fillRect(x, y, w, h);
     QWSDisplay::ungrab();
 }
@@ -1196,8 +1196,8 @@ void QGfxVNC<depth,type>::drawPolyline(const QPointArray &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.translate(xoffs, yoffs);
-    qvnc_screen->setDirty(r & clipbounds);
+    r.translate(this->xoffs, this->yoffs);
+    qvnc_screen->setDirty(r & this->clipbounds);
     QGfxRaster<depth,type>::drawPolyline(pa, x, y);
     QWSDisplay::ungrab();
 }
@@ -1207,8 +1207,8 @@ void QGfxVNC<depth,type>::drawPolygon(const QPointArray &pa,bool w,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.translate(xoffs, yoffs);
-    qvnc_screen->setDirty(r & clipbounds);
+    r.translate(this->xoffs, this->yoffs);
+    qvnc_screen->setDirty(r & this->clipbounds);
     QGfxRaster<depth,type>::drawPolygon(pa, w, x, y);
     QWSDisplay::ungrab();
 }
@@ -1217,7 +1217,7 @@ template <const int depth, const int type>
 void QGfxVNC<depth,type>::blt(int x,int y,int w,int h, int sx, int sy)
 {
     QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x+xoffs, y+yoffs, w, h) & clipbounds);
+    qvnc_screen->setDirty(QRect(x+this->xoffs, y+this->yoffs, w, h) & this->clipbounds);
     QGfxRaster<depth,type>::blt(x, y, w, h, sx, sy);
     QWSDisplay::ungrab();
 }
@@ -1228,8 +1228,8 @@ void QGfxVNC<depth,type>::scroll(int x,int y,int w,int h,int sx,int sy)
     QWSDisplay::grab(true);
     int dy = sy - y;
     int dx = sx - x;
-    qvnc_screen->setDirty(QRect(qMin(x,sx) + xoffs, qMin(y,sy) + yoffs,
-                           w+abs(dx), h+abs(dy)) & clipbounds);
+    qvnc_screen->setDirty(QRect(qMin(x,sx) + this->xoffs, qMin(y,sy) + this->yoffs,
+                           w+abs(dx), h+abs(dy)) & this->clipbounds);
     QGfxRaster<depth,type>::scroll(x, y, w, h, sx, sy);
     QWSDisplay::ungrab();
 }
@@ -1239,7 +1239,7 @@ template <const int depth, const int type>
 void QGfxVNC<depth,type>::stretchBlt(int x,int y,int w,int h,int sx,int sy)
 {
     QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x + xoffs, y + yoffs, w, h) & clipbounds);
+    qvnc_screen->setDirty(QRect(x + this->xoffs, y + this->yoffs, w, h) & this->clipbounds);
     QGfxRaster<depth,type>::stretchBlt(x, y, w, h, sx, sy);
     QWSDisplay::ungrab();
 }
@@ -1249,7 +1249,7 @@ template <const int depth, const int type>
 void QGfxVNC<depth,type>::tiledBlt(int x,int y,int w,int h)
 {
     QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x + xoffs, y + yoffs, w, h) & clipbounds);
+    qvnc_screen->setDirty(QRect(x + this->xoffs, y + this->yoffs, w, h) & this->clipbounds);
     QGfxRaster<depth,type>::tiledBlt(x, y, w, h);
     QWSDisplay::ungrab();
 }
