@@ -366,7 +366,7 @@ SeeAlso: ???
 
 Feature: NETWORKPROTOCOL
 Section: Networking
-Requires: NETWORK DIR
+Requires: DIR
 Name: Network file access
 SeeAlso: ???
 

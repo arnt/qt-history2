@@ -107,6 +107,9 @@
 // Qt/Embedded window system properties.
 //#define QT_NO_QWS_PROPERTIES
 
+// Repeater display
+//#define QT_NO_QWS_REPEATER
+
 // Saving of fonts
 //#define QT_NO_QWS_SAVEFONTS
 
@@ -341,6 +344,11 @@
 #define QT_NO_IMAGEIO_BMP
 #endif
 
+// Network file access
+#if !defined(QT_NO_NETWORKPROTOCOL) && (defined(QT_NO_DIR))
+#define QT_NO_NETWORKPROTOCOL
+#endif
+
 // QPicture
 #if !defined(QT_NO_PICTURE) && (defined(QT_NO_DATASTREAM) || defined(QT_NO_IMAGEIO))
 #define QT_NO_PICTURE
@@ -404,11 +412,6 @@
 // Animated images
 #if !defined(QT_NO_MOVIE) && (defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO))
 #define QT_NO_MOVIE
-#endif
-
-// Network file access
-#if !defined(QT_NO_NETWORKPROTOCOL) && (defined(QT_NO_NETWORK) || defined(QT_NO_DIR))
-#define QT_NO_NETWORKPROTOCOL
 #endif
 
 // Printing
@@ -616,6 +619,11 @@
 #define QT_NO_BUTTONGROUP
 #endif
 
+// HTTP file access
+#if !defined(QT_NO_NETWORKPROTOCOL_HTTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS))
+#define QT_NO_NETWORKPROTOCOL_HTTP
+#endif
+
 // Server to play sound
 #if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_DIR) || defined(QT_NO_DNS))
 #define QT_NO_QWS_SOUNDSERVER
@@ -641,11 +649,6 @@
 #define QT_NO_HEADER
 #endif
 
-// HTTP file access
-#if !defined(QT_NO_NETWORKPROTOCOL_HTTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS))
-#define QT_NO_NETWORKPROTOCOL_HTTP
-#endif
-
 // Compact Windows style
 #if !defined(QT_NO_STYLE_COMPACT) && (defined(QT_NO_STYLE_WINDOWS))
 #define QT_NO_STYLE_COMPACT
@@ -659,6 +662,11 @@
 // Drag and drop
 #if !defined(QT_NO_DRAGANDDROP) && (defined(QT_NO_MIME) || defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_IMAGEIO_XPM))
 #define QT_NO_DRAGANDDROP
+#endif
+
+// FTP file access
+#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
+#define QT_NO_NETWORKPROTOCOL_FTP
 #endif
 
 // RichText (HTML) display
@@ -684,11 +692,6 @@
 // Document Object Model
 #if !defined(QT_NO_DOM) && (defined(QT_NO_XML) || defined(QT_NO_MIME))
 #define QT_NO_DOM
-#endif
-
-// FTP file access
-#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
-#define QT_NO_NETWORKPROTOCOL_FTP
 #endif
 
 // Scrollable view widgets
