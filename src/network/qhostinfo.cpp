@@ -36,38 +36,55 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
 
 /*!         
     \class QHostInfo
+    \brief The QHostInfo class provides static functions for host name lookups.
 
-    \brief The QHostInfo class provides static functions for host name lookups
-    via standard Domain Name System services.
     \reentrant
-
     \module network
     \ingroup io
 
-    QHostInfo uses the lookup mechanisms provided by the operating system
-    to find the IP addresses of a host name. It provides two static
-    convenience functions, one that works asynchronously and emits a
-    signal once the host is found, and one that blocks.
+    QHostInfo uses the lookup mechanisms provided by the operating
+    system to find the IP address(es) associated with a host name.
+    The class provides two static convenience functions: one that
+    works asynchronously and emits a signal once the host is found,
+    and one that blocks and returns a QHostInfo object.
 
-    To look up a host's IP address asynchronously, call lookupHost(), which
-    takes the host name and a slot signature as arguments, and returns an
-    ID. The lookup is asynchronous by default, and you can abort it by calling
-    abortHostLookup(), passing the lookup ID. If Qt is built without thread
-    support, lookupHost() blocks until the lookup has finished.
+    To look up a host's IP addresses asynchronously, call lookupHost(),
+    which takes the host name, a receiver object, and a slot
+    signature as arguments and returns an ID. You can abort the
+    lookup by calling abortHostLookup() with the lookup ID.
+
+    Example:
 
     \code
-        QHostInfo::lookupHost("www.example.com", this, SLOT(printResults(const QHostInfo &)));
+        QHostInfo::lookupHost("www.trolltech.com",
+                              this, SLOT(printResults(const QHostInfo &)));
     \endcode
 
-    The slot is invoked once the results are ready.
 
-    If you want a blocking lookup use the overloaded lookupHost()
-    that takes a single string argument (the hostname).
+    The slot is invoked when the results are ready. (If you use
+    Qt/Embedded and disabled multithread support by defining \c
+    QT_NO_THREAD, lookupHost() will block until the lookup has
+    finished.) The results are stored in a QHostInfo object. Call
+    addresses() to get the list of IP addresses for the host, and
+    hostName() to get the host name that was looked up.
+
+    If the lookup failed, error() returns the type of error that
+    occurred. errorString() gives a human-readable description of the
+    lookup error.
+
+    If you want a blocking lookup, use the QHostInfo::fromName() function:
+
+    \code
+        QHostInfo info = QHostInfo::fromName("www.trolltech.com");
+    \endcode
 
     QHostInfo supports Internationalized Domain Names (IDNs) through the
     IDNA and Punycode standards.
 
-    \sa QHostInfo \link http://ietf.org/rfc/rfc3492 RFC 3492\endlink
+    To retrieve the name of the current host, use the static
+    QHostInfo::getHostName() function.
+
+    \sa QAbstractSocket, {http://ietf.org/rfc/rfc3492}{RFC 3492}
 */
 
 static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);
@@ -83,18 +100,17 @@ static int qt_qhostinfo_newid()
 }
 
 /*!
-    Looks up the hostname (IP address) \a name, and returns an ID
-    for the lookup. When the result of the
-    lookup is ready, the slot or signal \a member in \a receiver is
-    called with a QHostInfo argument. The QHostInfo object can
-    then be inspected to get the results of the lookup.
+    Looks up the IP address(es) associated with host name \a name, and
+    returns an ID for the lookup. When the result of the lookup is
+    ready, the slot or signal \a member in \a receiver is called with
+    a QHostInfo argument. The QHostInfo object can then be inspected
+    to get the results of the lookup.
 
-    Example:
-
-    The lookup is performed by a single function call:
+    The lookup is performed by a single function call, for example:
 
     \code
-        QHostInfo::lookupHost("www.trolltech.com", this, SLOT(lookedUp(const QHostInfo &)));
+        QHostInfo::lookupHost("www.kde.org",
+                              this, SLOT(lookedUp(const QHostInfo &)));
     \endcode
 
     The implementation of the slot prints basic information about the
@@ -108,13 +124,12 @@ static int qt_qhostinfo_newid()
                 return;
             }
 
-            QList<QHostAddress> addresses = host.addresses();
-            for (int i = 0; i < addresses.count(); ++i)
-                qDebug() << "Got address:" << addresses.at(i).toString();
+            foreach (QHostAddress address, host.addresses())
+                qDebug() << "Found address:" << address.toString();
         }
     \endcode
 
-    \sa abortHostLookup(), fromName()
+    \sa abortHostLookup(), addresses(), error(), fromName()
 */
 int QHostInfo::lookupHost(const QString &name, QObject *receiver,
                           const char *member)
@@ -204,7 +219,7 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
 /*!
     Aborts the host lookup with the ID \a id, as returned by lookupHost().
 
-    \sa lookupHost()
+    \sa lookupHost(), lookupId()
 */
 void QHostInfo::abortHostLookup(int id)
 {
@@ -213,12 +228,12 @@ void QHostInfo::abortHostLookup(int id)
 }
 
 /*!
-    \overload
+    Looks up the IP address(es) for the given host \a name. The
+    function blocks during the lookup which means that execution of
+    the program is suspended until the results of the lookup are
+    ready. Returns the result of the lookup in a QHostInfo object.
 
-    This function looks up the IP address for the given host \a name.
-    The function blocks during the lookup which means that execution
-    of the program is suspended until the results of the lookup are
-    ready. Returns the result of the lookup.
+    \sa lookupHost()
 */
 QHostInfo QHostInfo::fromName(const QString &name)
 {
@@ -285,64 +300,45 @@ void QHostInfoAgent::run()
     }
 }
 
-/*! \class QHostInfo
-    \brief The QHostInfo class provides information about a host name lookup.
-    \reentrant
-
-    \module network
-    \ingroup io
-
-    A QHostInfo is passed to the slot invoked by
-    QHostInfo::lookupHost(). It contains the result of the lookup.
-
-    host() returns the host name that was looked up. Call addresses()
-    to get the list of IP addresses for the host.
-
-    If the lookup failed, error() returns the type of error that
-    occurred. errorString() gives a human-readable description of the
-    lookup error.
-
-    \sa QHostInfo
-*/
-
 /*!
-    \enum QHostInfo::Error
+    \enum QHostInfo::HostInfoError
+
+    This enum describes the various errors that can occur when trying
+    to resolve a host name.
 
     \value NoError The lookup was successful.
     \value HostNotFound No IP addresses were found for the host.
     \value UnknownError An unknown error occurred.
+
+    \sa error(), setError()
 */
 
 /*!
-    Constructs an empty host info object.
+    Constructs an empty host info object with lookup ID \a id.
+
+    \sa lookupId()
 */
-QHostInfo::QHostInfo(int lookupId)
+QHostInfo::QHostInfo(int id)
     : d(new QHostInfoPrivate)
 {
-    d->lookupId = lookupId;
+    d->lookupId = id;
 }
 
 /*!
-    Copy constructor. Copies the data of \a hostInfo.
+    Constructs a copy of \a other.
 */
-QHostInfo::QHostInfo(const QHostInfo &hostInfo)
+QHostInfo::QHostInfo(const QHostInfo &other)
+    : d(new QHostInfoPrivate(*other.d))
 {
-    QHostInfoPrivate *x = new QHostInfoPrivate;
-    *x = *hostInfo.d;
-    x = qAtomicSetPtr(&d, x);
 }
 
 /*!
-    Assigns the data of the \a hostInfo object to this host info object,
+    Assigns the data of the \a other object to this host info object,
     and returns a reference to it.
 */
-QHostInfo &QHostInfo::operator =(const QHostInfo &hostInfo)
+QHostInfo &QHostInfo::operator=(const QHostInfo &other)
 {
-    QHostInfoPrivate *x = new QHostInfoPrivate;
-    *x = *hostInfo.d;
-    x = qAtomicSetPtr(&d, x);
-    delete x;
-
+    *d = *other.d;
     return *this;
 }
 
@@ -355,10 +351,21 @@ QHostInfo::~QHostInfo()
 }
 
 /*!
-    Returns the list of IP addresses returned by the host name lookup;
-    this list may be empty.
+    Returns the list of IP addresses associated with hostName(). This
+    list may be empty.
 
-    \sa host()
+    Example:
+
+    \code
+        QHostInfo info;
+        ...
+        if (!info.addresses.isEmpty()) {
+            QHostAddress address = info.addresses().first();
+            // use the first IP address
+        }
+    \endcode
+
+    \sa hostName(), error()
 */
 QList<QHostAddress> QHostInfo::addresses() const
 {
@@ -377,6 +384,8 @@ void QHostInfo::setAddresses(const QList<QHostAddress> &addresses)
 
 /*!
     Returns the name of the host whose IP addresses were looked up.
+
+    \sa getHostName()
 */
 QString QHostInfo::hostName() const
 {
@@ -394,10 +403,10 @@ void QHostInfo::setHostName(const QString &hostName)
 }
 
 /*!
-    If the host name lookup failed, this function returns the type of
-    error that occurred; otherwise NoError is returned.
+    Returns the type of error that occurred if the host name lookup
+    failed; otherwise returns NoError.
 
-    \sa QHostInfo::Error errorString()
+    \sa setError(), errorString()
 */
 QHostInfo::HostInfoError QHostInfo::error() const
 {
@@ -407,7 +416,7 @@ QHostInfo::HostInfoError QHostInfo::error() const
 /*!
     Sets the error type of this QHostInfo to \a error.
 
-    \sa error()
+    \sa error(), errorString()
 */
 void QHostInfo::setError(HostInfoError error)
 {
@@ -417,7 +426,7 @@ void QHostInfo::setError(HostInfoError error)
 /*!
     Returns the ID of this lookup.
 
-    \sa setLookupId(), abortHostLookup()
+    \sa setLookupId(), abortHostLookup(), hostName()
 */
 int QHostInfo::lookupId() const
 {
@@ -438,7 +447,7 @@ void QHostInfo::setLookupId(int id)
     If the lookup failed, this function returns a human readable
     description of the error; otherwise "Unknown error" is returned.
 
-    \sa error()
+    \sa setErrorString(), error()
 */
 QString QHostInfo::errorString() const
 {
@@ -460,5 +469,6 @@ void QHostInfo::setErrorString(const QString &str)
     \fn QString QHostInfo::getHostName()
 
     Returns the host name of this machine.
-*/
 
+    \sa hostName()
+*/
