@@ -989,6 +989,7 @@ void VcprojGenerator::initResourceFiles()
     vcProject.ResourceFiles.Filter = "cpp;ico;png;jpg;jpeg;gif;xpm;bmp;rc;ts";
 
     vcProject.ResourceFiles.addFiles(project->variables()["RC_FILE"]);
+    vcProject.ResourceFiles.addFiles(project->variables()["RES_FILE"]);
     vcProject.ResourceFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);
     vcProject.ResourceFiles.addFiles(project->variables()["IMAGES"]);
     vcProject.ResourceFiles.addFiles(project->variables()["IDLSOURCES"]);
