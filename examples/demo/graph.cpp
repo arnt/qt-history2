@@ -1,13 +1,16 @@
 #include "graph.h"
+
 #include <qcanvas.h>
-#include <stdlib.h>
 #include <qdatetime.h>
 #include <qhbox.h>
-#include <qpushbutton.h>
-#include <qslider.h>
 #include <qlabel.h>
 #include <qlayout.h>
+#include <qmemarray.h>
+#include <qpushbutton.h>
+#include <qslider.h>
 #include <qvaluelist.h>
+
+#include <stdlib.h>
 
 const int bounce_rtti = 1234;
 

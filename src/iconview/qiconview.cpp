@@ -5427,11 +5427,10 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	    y = QMAX( y, i->y() + i->height() );
 	}
 
-	QMemArray<QRect> rects = r.rects();
-	QMemArray<QRect>::Iterator it = rects.begin();
+	QVector<QRect> rects = r.rects();
 	bool foundPlace = FALSE;
-	for ( ; it != rects.end(); ++it ) {
-	    QRect rect = *it;
+	for (int i = 0; i < rects.size(); ++i) {
+	    const QRect rect = rects.at(i);
 	    if ( rect.width() >= item->width() &&
 		 rect.height() >= item->height() ) {
 		int sx = 0, sy = 0;

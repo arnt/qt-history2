@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qdesktopwidget.h"
+#include "qmemarray.h"
 
 class QDesktopWidgetPrivate
 {

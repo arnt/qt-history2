@@ -163,7 +163,7 @@ inline bool qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r, bool 
 {
     if(qApp->closingDown())
 	return FALSE;
-    else if(r.isNull())
+    else if(r.isEmpty())
 	return FALSE;
     else if(!r.handle())
 	return qt_dirty_wndw_rgn_internal(p, mac_rect(r.boundingRect()), clean);
@@ -204,7 +204,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 	if(obj->isWidgetType()) {
 	    QWidget *w = (QWidget *)obj;
 	    QRegion clpr = w->clippedRegion(FALSE);
-	    if(!clpr.isNull() && !w->isTopLevel() &&
+	    if(!clpr.isEmpty() && !w->isTopLevel() &&
 	       w->isVisible() && clpr.contains(r.boundingRect())) {
 		QRegion wr = clpr & r;
 		r -= wr;
@@ -333,7 +333,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		    y = px.v;
 		}
 
-		if(widget->extra && !widget->extra->mask.isNull()) {
+		if(widget->extra && !widget->extra->mask.isEmpty()) {
 		    QRegion titlebar;
 		    {
 			RgnHandle rgn = qt_mac_get_rgn();
@@ -368,7 +368,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		    y = px.v;
 		}
 
-		if(widget->extra && !widget->extra->mask.isNull()) {
+		if(widget->extra && !widget->extra->mask.isEmpty()) {
 		    QRegion rpm = widget->extra->mask;
 		    rpm.translate(x, y);
 		    CopyRgn(rpm.handle(TRUE), rgn);
@@ -386,7 +386,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	case kWindowStructureRgn: {
 	    QRegion cr;
 	    if(widget) {
-		if(widget->extra && !widget->extra->mask.isNull()) {
+		if(widget->extra && !widget->extra->mask.isEmpty()) {
 		    QRegion rin;
 		    CopyRgn(rgn, rin.handle(TRUE));
 		    QPoint g(widget->x(), widget->y());
@@ -417,7 +417,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	    return TRUE; }
 	case kWindowContentRgn: {
 	    if(widget) {
-		if(widget->extra && !widget->extra->mask.isNull()) {
+		if(widget->extra && !widget->extra->mask.isEmpty()) {
 		    QRegion cr = widget->extra->mask;
 		    QPoint g(widget->x(), widget->y());
 		    if(!widget->testWFlags(Qt::WStyle_Customize) ||
@@ -1354,7 +1354,7 @@ void QWidget::update()
 
 void QWidget::update(int x, int y, int w, int h)
 {
-    if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isNull()) {
+    if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isEmpty()) {
 	if(w < 0)
 	    w = crect.width()  - x;
 	if(h < 0)
@@ -1371,7 +1371,7 @@ void QWidget::update(int x, int y, int w, int h)
 
 void QWidget::update(const QRegion &rgn)
 {
-    if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isNull()) {
+    if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isEmpty()) {
 	qt_event_request_updates(this, rgn);
 #ifdef DEBUG_WINDOW_RGN
 	debug_wndw_rgn("update2", this, rgn, FALSE, TRUE);
@@ -1743,7 +1743,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 		QApplication::postEvent(this, new QMoveEvent(pos(), oldp));
 	} else {
 	    QRegion bltregion, clpreg = clippedRegion(FALSE);
-	    const bool oldreg_empty=oldregion.isNull(), newreg_empty = clpreg.isNull();
+	    const bool oldreg_empty=oldregion.isEmpty(), newreg_empty = clpreg.isEmpty();
 	    if(!oldreg_empty) {
 		//setup the old clipped region..
 		bltregion = oldregion;
@@ -2097,7 +2097,7 @@ void QWidget::setAcceptDrops(bool on)
 void QWidget::setMask(const QRegion &region)
 {
     createExtra();
-    if(region.isNull() && extra->mask.isNull())
+    if(region.isEmpty() && extra->mask.isEmpty())
 	return;
 
     QRegion clp;
@@ -2394,7 +2394,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 		    QWidget *cw = (QWidget *)obj;
 		    if(cw->isVisible() && !cw->isTopLevel() && sr.intersects(cw->geometry())) {
 			QRegion childrgn(cw->x(), cw->y(), cw->width(), cw->height());
-			if(cw->extra && !cw->extra->mask.isNull()) {
+			if(cw->extra && !cw->extra->mask.isEmpty()) {
 			    mask = cw->extra->mask;
 			    mask.translate(cw->x(), cw->y());
 			    childrgn &= mask;
@@ -2410,7 +2410,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	extra->clip_dirty = FALSE;
 	extra->clip_sibs = QRegion(mp.x()+vis_x, mp.y()+vis_y, vis_width, vis_height);
 	//clip my rect with my mask
-	if(extra && !extra->mask.isNull() && (vis_width || vis_height)) {
+	if(extra && !extra->mask.isEmpty() && (vis_width || vis_height)) {
 	    mask = extra->mask;
 	    mask.translate(mp.x(), mp.y());
 	    extra->clip_sibs &= mask;
@@ -2430,7 +2430,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
 		    if(!sw->isTopLevel() && sw->isVisible() && extra->clip_sibs.contains(sr)) {
 			QRegion sibrgn(sr);
-			if(sw->extra && !sw->extra->mask.isNull()) {
+			if(sw->extra && !sw->extra->mask.isEmpty()) {
 			    mask = sw->extra->mask;
 			    mask.translate(tmp.x(), tmp.y());
 			    sibrgn &= mask;
@@ -2465,7 +2465,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	extra->clip_sibs = QRegion();
     if(no_children) {
 	extra->clip_children = extra->clip_saved = extra->clip_sibs;
-    } else if(extra->clip_children.isNull() || extra->clip_sibs.isNull()) {
+    } else if(extra->clip_children.isEmpty() || extra->clip_sibs.isEmpty()) {
 	extra->clip_saved = QRegion();
     } else {
 	QRegion chldrgns = extra->clip_children;

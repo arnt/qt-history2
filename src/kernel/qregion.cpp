@@ -17,7 +17,6 @@
 #include "qbuffer.h"
 #include "qdatastream.h"
 
-// BEING REVISED: paul
 /*!
     \class QRegion qregion.h
     \brief The QRegion class specifies a clip region for a painter.
@@ -95,11 +94,11 @@
     ellipse with center at (\a x + \a w / 2, \a y + \a h / 2) and size
     (\a w ,\a h ).
 */
-QRegion::QRegion( int x, int y, int w, int h, RegionType t )
+QRegion::QRegion(int x, int y, int w, int h, RegionType t)
 {
-    QRegion tmp(QRect(x,y,w,h),t);
-    tmp.data->ref();
-    data = tmp.data;
+    QRegion tmp(QRect(x, y, w, h), t);
+    ++tmp.d->ref;
+    d = tmp.d;
 }
 
 /*!
@@ -111,7 +110,7 @@ QRegion::QRegion( int x, int y, int w, int h, RegionType t )
 
 void QRegion::detach()
 {
-    if ( data->count != 1 )
+    if ( d->ref != 1 )
 	*this = copy();
 }
 
@@ -213,7 +212,7 @@ void QRegion::exec( const QByteArray &buffer, int ver )
 
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
 {
-    QMemArray<QRect> a = r.rects();
+    QVector<QRect> a = r.rects();
     if ( a.isEmpty() ) {
 	s << (Q_UINT32)0;
     } else {
@@ -354,4 +353,3 @@ QRegion& QRegion::operator-=( const QRegion &r )
 */
 QRegion& QRegion::operator^=( const QRegion &r )
     { return *this = *this ^ r; }
-

@@ -5937,7 +5937,7 @@ void QPSPrinterPrivate::clippingSetup( QPainter *paint )
         if ( !firstClipOnPage )
             setClippingOff( paint );
         const QRegion rgn = paint->clipRegion();
-        QMemArray<QRect> rects = rgn.rects();
+        QVector<QRect> rects = rgn.rects();
         int i;
         pageStream<< "CLSTART\n";           // start clipping
         for( i = 0 ; i < (int)rects.size() ; i++ ) {

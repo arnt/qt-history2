@@ -62,6 +62,7 @@
 #include <stdio.h>
 #include "qhostaddress.h"
 #include "qmemarray.h"
+#include "qvector.h"
 #include "qregion.h"
 #include <qdom.h>
 #include "qevent.h"
@@ -151,7 +152,6 @@
 #include "qasciidict.h"
 #include "qwindowsstyle.h"
 #include "qheader.h"
-#include "qvector.h"
 #include <qhttp.h>
 #include "qdockwindow.h"
 #include "qpointarray.h"

@@ -12,92 +12,58 @@
 **
 ****************************************************************************/
 
-#include "qregion.h"
-#include "qpointarray.h"
-#include "qbuffer.h"
+#include "qatomic_win.h"
 #include "qbitmap.h"
+#include "qbuffer.h"
 #include "qimage.h"
+#include "qpointarray.h"
+#include "qregion.h"
 #include "qt_windows.h"
 
-// NOT REVISED
 
-static QRegion *empty_region = 0;
-
-static void cleanup_empty_region()
-{
-    delete empty_region;
-    empty_region = 0;
-}
-
+QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0 };
 
 QRegion::QRegion()
+    : d(&shared_empty)
 {
-    if ( !empty_region ) {			// avoid too many allocs
-	qAddPostRoutine( cleanup_empty_region );
-	empty_region = new QRegion( TRUE );
-	Q_CHECK_PTR( empty_region );
-    }
-    data = empty_region->data;
-    data->ref();
+    ++d->ref;
 }
 
-QRegion::QRegion( bool is_null )
-{
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
-    data->rgn = 0;
-    data->is_null = is_null;
-}
-
-QRegion::QRegion( const QRect &r, RegionType t )
+QRegion::QRegion(const QRect &r, RegionType t)
 {
     if ( r.isEmpty() ) {
-	if ( !empty_region ) {			// avoid too many allocs
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
-	}
-	data = empty_region->data;
-	data->ref();
+	d = &shared_empty;
+	++d->ref;
     } else {
-	data = new QRegionData;
-	Q_CHECK_PTR( data );
-	data->is_null = FALSE;
-	if ( t == Rectangle ) {			// rectangular region
-	    data->rgn = CreateRectRgn( r.left(),	 r.top(),
-				       r.right()+1, r.bottom()+1 );
+	d = new QRegionData;
+	d->ref = 1;
+	Q_CHECK_PTR(d);
+	if (t == Rectangle)
+	    d->rgn = CreateRectRgn(r.left(), r.top(), r.right() + 1, r.bottom() + 1);
 #ifndef Q_OS_TEMP
-	} else if ( t == Ellipse ) {		// elliptic region
-	    data->rgn = CreateEllipticRgn( r.left(),    r.top(),
-					   r.right()+1, r.bottom()+1 );
+	else if (t == Ellipse)
+	    d->rgn = CreateEllipticRgn(r.left(), r.top(), r.right() + 1, r.bottom() + 1);
 #endif
-	}
     }
 }
 
-QRegion::QRegion( const QPointArray &a, bool winding )
+QRegion::QRegion(const QPointArray &a, bool winding)
 {
-    if ( a.isEmpty() ) {
-	if ( !empty_region ) {			// avoid too many allocs
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
-	}
-	data = empty_region->data;
-	data->ref();
+    if (a.isEmpty()) {
+	d = &shared_empty;
+	++d->ref;
     } else {
-	data = new QRegionData;
-	Q_CHECK_PTR( data );
-	data->is_null = FALSE;
-	data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(),
-				      winding ? WINDING : ALTERNATE );
+	d = new QRegionData;
+	d->ref = 1;
+	Q_CHECK_PTR(d);
+	d->rgn = CreatePolygonRgn(reinterpret_cast<const POINT*>(a.data()), a.size(), winding ? WINDING : ALTERNATE);
     }
 }
 
-QRegion::QRegion( const QRegion &r )
+QRegion::QRegion(const QRegion &r)
 {
-    data = r.data;
-    data->ref();
+    d = r.d;
+    ++d->ref;
 }
 
 HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
@@ -105,10 +71,10 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 #ifndef Q_OS_TEMP
     HRGN region=0;
     QImage image = bitmap.convertToImage();
-    const int maxrect=256;
+    const int MAXRECT = 256;
     struct RData {
 	RGNDATAHEADER header;
-	RECT rect[maxrect];
+	RECT rect[MAXRECT];
     };
     RData data;
 
@@ -137,7 +103,7 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 	    data.rect[n].right=x-1+1; \
 	    data.rect[n].bottom=y+1; \
 	    n++; \
-	    if ( n == maxrect ) { \
+	    if ( n == MAXRECT ) { \
 		FlushSpans \
 		n=0; \
 	    } \
@@ -146,27 +112,25 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
     data.header.rcBound.top = 0;
     data.header.rcBound.left = 0;
     data.header.rcBound.right = image.width()-1;
-    int n=0;
+    int n = 0;
 
-    // deal with 0<->1 problem (not on Windows anymore)
-    int zero=0x00; //(qGray(image.color(0)) < qGray(image.color(1))
-	    //? 0x00 : 0xff);
+    int zero = 0x00;
 
     int x, y;
-    for (y=0; y<image.height(); y++) {
+    for (y = 0; y < image.height(); ++y) {
 	uchar *line = image.scanLine(y);
 	int w = image.width();
 	uchar all=zero;
 	int prev1 = -1;
-	for (x=0; x<w; ) {
+	for (x = 0; x < w; ) {
 	    uchar byte = line[x/8];
-	    if ( x>w-8 || byte!=all ) {
-		for ( int b=8; b>0 && x<w; b-- ) {
-		    if ( !(byte&0x80) == !all ) {
+	    if ( x > w - 8 || byte != all ) {
+		for (int b = 8; b > 0 && x < w; --b) {
+		    if (!(byte & 0x80) == !all) {
 			// More of the same
 		    } else {
 			// A change.
-			if ( all!=zero ) {
+			if (all != zero) {
 			    AddSpan;
 			    all = zero;
 			} else {
@@ -175,26 +139,25 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 			}
 		    }
 		    byte <<= 1;
-		    x++;
+		    ++x;
 		}
 	    } else {
-		x+=8;
+		x += 8;
 	    }
 	}
-	if ( all != zero ) {
+	if (all != zero) {
 	    AddSpan;
 	}
     }
-    if ( n ) {
+    if (n) {
 	FlushSpans;
     }
 
-    if ( !region ) {
+    if (!region) {
 	// Surely there is some better way.
 	region = CreateRectRgn(0,0,1,1);
 	CombineRgn(region, region, region, RGN_XOR);
     }
-
     return region;
 #else
 	return NULL;
@@ -202,90 +165,85 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 }
 
 
-QRegion::QRegion( const QBitmap & bm )
+QRegion::QRegion(const QBitmap &bm)
 {
-    if ( bm.isNull() ) {
-	if ( !empty_region ) {			// avoid too many allocs
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
-	}
-	data = empty_region->data;
-	data->ref();
+    if (bm.isNull()) {
+	d = &shared_empty;
+	++d->ref;
     } else {
-	data = new QRegionData;
-	Q_CHECK_PTR( data );
-	data->is_null = FALSE;
-	data->rgn = qt_win_bitmapToRegion(bm);
+	d = new QRegionData;
+	d->ref = 1;
+	Q_CHECK_PTR(d);
+	d->rgn = qt_win_bitmapToRegion(bm);
     }
 }
 
+void QRegion::cleanUp(QRegion::QRegionData *x)
+{
+    if (x->rgn)
+	DeleteObject(x->rgn);
+    delete x;
+}
 
 QRegion::~QRegion()
 {
-    if ( data->deref() ) {
-	if ( data->rgn )
-	    DeleteObject( data->rgn );
-	delete data;
-    }
+    if (--d->ref)
+	cleanUp(d);
 }
 
 QRegion &QRegion::operator=( const QRegion &r )
 {
-    r.data->ref();				// beware of r = r
-    if ( data->deref() ) {
-	if ( data->rgn )
-	    DeleteObject( data->rgn );
-	delete data;
-    }
-    data = r.data;
+    QRegionData *x = r.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (--x->ref)
+	cleanUp(x);
     return *this;
 }
 
 
 QRegion QRegion::copy() const
 {
-    QRegion r( data->is_null );
-    if ( data->rgn ) {
-	r.data->rgn = CreateRectRgn( 0, 0, 2, 2 );
-	CombineRgn( r.data->rgn, data->rgn, 0, RGN_COPY );
+    QRegion r;
+    QRegionData *x = new QRegionData;
+    x->ref = 1;
+    if (d->rgn) {
+	x->rgn = CreateRectRgn(0, 0, 2, 2);
+	CombineRgn(x->rgn, d->rgn, 0, RGN_COPY);
     }
+    x = qAtomicSetPtr(&r.d, x);
+    if (--x->ref)
+	cleanUp(x);
     return r;
-}
-
-
-bool QRegion::isNull() const
-{
-    return data->is_null;
 }
 
 bool QRegion::isEmpty() const
 {
-    return data->is_null || data->rgn == 0;
+    return d == &shared_empty || d->rgn == 0;
 }
 
 
-bool QRegion::contains( const QPoint &p ) const
+bool QRegion::contains(const QPoint &p) const
 {
-    return data->rgn ? PtInRegion(data->rgn, p.x(), p.y()) : FALSE;
+    return d->rgn ? PtInRegion(d->rgn, p.x(), p.y()) : false;
 }
 
-bool QRegion::contains( const QRect &r ) const
+bool QRegion::contains(const QRect &r) const
 {
-    if ( !data->rgn )
-	return FALSE;
+    if (!d->rgn)
+	return false;
     RECT rect;
-    SetRect( &rect, r.left(), r.top(), r.right(), r.bottom() );
-    return RectInRegion( data->rgn, &rect );
+    SetRect(&rect, r.left(), r.top(), r.right(), r.bottom());
+    return RectInRegion(d->rgn, &rect);
 }
 
 
-void QRegion::translate( int dx, int dy )
+void QRegion::translate(int dx, int dy)
 {
-    if ( !data->rgn )
+    if (!d->rgn)
 	return;
     detach();
-    OffsetRgn( data->rgn, dx, dy );
+    OffsetRgn(d->rgn, dx, dy);
 }
 
 
@@ -296,10 +254,12 @@ void QRegion::translate( int dx, int dy )
   Sets the resulting region handle to 0 to indicate an empty region.
 */
 
-QRegion QRegion::winCombine( const QRegion &r, int op ) const
+QRegion QRegion::winCombine(const QRegion &r, int op) const
 {
-    int both=RGN_NOP, left=RGN_NOP, right=RGN_NOP;
-    switch ( op ) {
+    int both=RGN_NOP,
+	left=RGN_NOP,
+	right=RGN_NOP;
+    switch (op) {
 	case QRGN_OR:
 	    both = RGN_OR;
 	    left = right = RGN_COPY;
@@ -317,23 +277,24 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 	    break;
 	default:
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "QRegion: Internal error in winCombine" );
+	    qWarning("QRegion: Internal error in winCombine");
 #else
 	    ;
 #endif
     }
 
-    QRegion result( FALSE );
+    QRegion result(false);
     int allCombineRgnResults = NULLREGION;
-    result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
-    if ( data->rgn && r.data->rgn )
-	allCombineRgnResults = CombineRgn( result.data->rgn, data->rgn, r.data->rgn, both );
-    else if ( data->rgn && left != RGN_NOP )
-	allCombineRgnResults = CombineRgn( result.data->rgn, data->rgn, data->rgn, left ); // 3rd param not used, but must be non-0
-    else if ( r.data->rgn && right != RGN_NOP )
-	allCombineRgnResults = CombineRgn( result.data->rgn, r.data->rgn, r.data->rgn, right ); // 3rd param not used, but must be non-0
-    if ( allCombineRgnResults == NULLREGION || allCombineRgnResults == ERROR )
-	result.data->is_null = TRUE;
+    result.d->rgn = CreateRectRgn(0, 0, 0, 0);
+    if (d->rgn && r.d->rgn)
+	allCombineRgnResults = CombineRgn(result.d->rgn, d->rgn, r.d->rgn, both);
+    else if (d->rgn && left != RGN_NOP)
+	allCombineRgnResults = CombineRgn(result.d->rgn, d->rgn, d->rgn, left);
+    else if (r.d->rgn && right != RGN_NOP)
+	allCombineRgnResults = CombineRgn(result.d->rgn, r.d->rgn, r.d->rgn, right);
+    
+    if (allCombineRgnResults == NULLREGION || allCombineRgnResults == ERROR)
+	result = QRegion();
 
     //##### do not delete this. A null pointer is different from an empty region in SelectClipRgn in qpainter_win! (M)
 //     if ( allCombineRgnResults == NULLREGION ) {
@@ -344,63 +305,63 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
     return result;
 }
 
-QRegion QRegion::unite( const QRegion &r ) const
+QRegion QRegion::unite(const QRegion &r) const
 {
-    return winCombine( r, QRGN_OR );
+    return winCombine(r, QRGN_OR);
 }
 
-QRegion QRegion::intersect( const QRegion &r ) const
+QRegion QRegion::intersect(const QRegion &r) const
 {
-     return winCombine( r, QRGN_AND );
+     return winCombine(r, QRGN_AND);
 }
 
-QRegion QRegion::subtract( const QRegion &r ) const
+QRegion QRegion::subtract(const QRegion &r) const
 {
-    return winCombine( r, QRGN_SUB );
+    return winCombine(r, QRGN_SUB);
 }
 
-QRegion QRegion::eor( const QRegion &r ) const
+QRegion QRegion::eor(const QRegion &r) const
 {
-    return winCombine( r, QRGN_XOR );
+    return winCombine(r, QRGN_XOR);
 }
 
 
 QRect QRegion::boundingRect() const
 {
     RECT r;
-    int result = data->rgn ? GetRgnBox(data->rgn, &r) : 0;
-    if ( result == 0 || result == NULLREGION )
-	return QRect(0,0,0,0);
+    int result = d->rgn ? GetRgnBox(d->rgn, &r) : 0;
+    if (result == 0 || result == NULLREGION)
+	return QRect(0, 0, 0, 0);
     else
-	return QRect(r.left, r.top, r.right-r.left, r.bottom-r.top);
+	return QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
 }
 
 
-QMemArray<QRect> QRegion::rects() const
+QVector<QRect> QRegion::rects() const
 {
-    QMemArray<QRect> a;
-    if ( data->rgn == 0 )
+    QVector<QRect> a;
+    if (d->rgn == 0)
 	return a;
 
-    int numBytes = data->rgn ? GetRegionData( data->rgn, 0, 0 ) : 0;
-    if ( numBytes == 0 )
+    int numBytes = d->rgn ? GetRegionData(d->rgn, 0, 0) : 0;
+    if (numBytes == 0)
 	return a;
 
     char *buf = new char[numBytes];
-    if ( buf == 0 )
+    if (buf == 0)
 	return a;
 
-    RGNDATA *rd = (RGNDATA*)buf;
-    if ( GetRegionData(data->rgn, numBytes, rd) == 0 ) {
+    RGNDATA *rd = reinterpret_cast<RGNDATA*>(buf);
+    if (GetRegionData(d->rgn, numBytes, rd) == 0) {
 	delete [] buf;
 	return a;
     }
 
-    a = QMemArray<QRect>( rd->rdh.nCount );
-    RECT *r = (RECT*)rd->Buffer;
-    for ( int i=0; i<(int)a.size(); i++ ) {
-	a[i].setCoords( r->left, r->top, r->right-1, r->bottom-1);
-	r++;
+    a = QVector<QRect>(rd->rdh.nCount);
+    RECT *r = reinterpret_cast<RECT*>(rd->Buffer);
+    for (int i = 0; i<a.size(); ++i) {
+	a[i].setCoords(r->left, r->top, r->right - 1, r->bottom - 1);
+	++r;
     }
 
     delete [] buf;
@@ -408,22 +369,20 @@ QMemArray<QRect> QRegion::rects() const
     return a;
 }
 
-void QRegion::setRects( const QRect *rects, int num )
+void QRegion::setRects(const QRect *rects, int num)
 {
-    // Could be optimized
     *this = QRegion();
-    for (int i=0; i<num; i++)
+    for (int i = 0; i < num; ++i)
 	*this |= rects[i];
 }
 
 
-bool QRegion::operator==( const QRegion &r ) const
+bool QRegion::operator==(const QRegion &r) const
 {
-    if ( data == r.data )			// share the same data
-	return TRUE;
-    if ( (data->rgn == 0) ^ (r.data->rgn == 0)) // one is empty, not both
-	return FALSE;
-    return data->rgn == 0 ?
-	TRUE :					// both empty
-	EqualRgn( data->rgn, r.data->rgn );	// both non-empty
+    if (d == r.d)
+	return true;
+    if ( (d->rgn == 0) ^ (r.d->rgn == 0)) // one is empty, not both
+	return false;
+    return d->rgn == 0 ? true // both empty
+		       : EqualRgn(d->rgn, r.d->rgn); // both non-empty
 }

@@ -306,7 +306,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	port = (CGrafPtr)p->handle();
     }
     RgnHandle rgnh = NULL;
-    if(rgn && !rgn->isNull() && !rgn->isEmpty())
+    if(rgn && !rgn->isEmpty())
 	rgnh = rgn->handle(TRUE);
     if(OSStatus err = QDBeginCGContext(port, &ctx)) {
 	qDebug("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);

@@ -1172,7 +1172,7 @@ void QDragManager::move( const QPoint & globalPos )
 	qt_xdnd_current_target = target;
 	qt_xdnd_current_proxy_target = proxy_target;
 	if ( target ) {
-	    QMemArray<Atom> type;
+	    QVector<Atom> type;
 	    int flags = target_version << 24;
 	    const char* fmt;
 	    int nfmt=0;

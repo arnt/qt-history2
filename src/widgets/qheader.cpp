@@ -14,12 +14,13 @@
 
 #include "qheader.h"
 #ifndef QT_NO_HEADER
-#include "qpainter.h"
-#include "qdrawutil.h"
-#include "qpixmap.h"
-#include "qbitarray.h"
-#include "qptrvector.h"
 #include "qapplication.h"
+#include "qbitarray.h"
+#include "qdrawutil.h"
+#include "qmemarray.h"
+#include "qpainter.h"
+#include "qpixmap.h"
+#include "qptrvector.h"
 #include "qstyle.h"
 
 class QHeaderData

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QRegion class for X11.
+** Implementation of QRegion class for X11 and FB.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -17,18 +17,11 @@
 #include "qbuffer.h"
 #include "qimage.h"
 #include "qbitmap.h"
+#ifndef Q_WS_QWS
 #include "qt_x11_p.h"
+#endif
 
 #include <stdlib.h>
-
-// inline QRect::setCoords
-inline void qt_setCoords( QRect *r, int xp1, int yp1, int xp2, int yp2 )
-{
-    r->x1 = (QCOORD)xp1;
-    r->y1 = (QCOORD)yp1;
-    r->x2 = (QCOORD)xp2;
-    r->y2 = (QCOORD)yp2;
-}
 
 /*
  *   clip region
@@ -36,43 +29,52 @@ inline void qt_setCoords( QRect *r, int xp1, int yp1, int xp2, int yp2 )
 
 struct QRegionPrivate {
     int numRects;
-    QMemArray<QRect> rects;
+    QVector<QRect> rects;
     QRect extents;
 
-    QRegionPrivate() { numRects = 0; }
-    QRegionPrivate( const QRect &r ) : rects(1) {
+    inline QRegionPrivate() : numRects(0) {}
+    inline QRegionPrivate( const QRect &r ) : rects(1) {
 	numRects = 1;
 	rects[0] = r;
 	extents = r;
     }
 
-    QRegionPrivate( const QRegionPrivate &r ) {
-	rects = r.rects.copy();
+    inline QRegionPrivate( const QRegionPrivate &r ) {
+	rects = r.rects;
 	numRects = r.numRects;
 	extents = r.extents;
     }
 
-    QRegionPrivate &operator=( const QRegionPrivate &r ) {
-	rects = r.rects.copy();
+    inline QRegionPrivate &operator=( const QRegionPrivate &r ) {
+	rects = r.rects;
 	numRects = r.numRects;
 	extents = r.extents;
 	return *this;
     }
-
 };
 
+static bool isEmpty(QRegionPrivate *preg)
+{
+    return !preg || preg->numRects == 0;
+}
 
-static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg);
-static void IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, register QRegionPrivate *newReg);
-static void miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate *reg2,
-	void (*overlapFunc)(...),
-	void (*nonOverlap1Func)(...),
-	void (*nonOverlap2Func)(...));
+typedef void (*OverlapFunc)(register QRegionPrivate &dest, register QRect *r1, QRect *r1End,
+			    register QRect *r2, QRect *r2End, register int y1, register int y2);
+typedef void (*NonOverlapFunc)(register QRegionPrivate &dest, register QRect *r, QRect *rEnd,
+			       register int y1, register int y2);
+
+static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate &dest);
+static void IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2,
+			    register QRegionPrivate &dest);
+static void miRegionOp(register QRegionPrivate &dest, QRegionPrivate *reg1, QRegionPrivate *reg2,
+		       OverlapFunc overlapFunc, NonOverlapFunc nonOverlap1Func,
+		       NonOverlapFunc nonOverlap2Func);
+
 #define RectangleOut 0
-#define RectangleIn  1
+#define RectangleIn 1
 #define RectanglePart 2
-#define EvenOddRule             0
-#define WindingRule             1
+#define EvenOddRule 0
+#define WindingRule 1
 
 // START OF region.h extract
 /* $XConsortium: region.h,v 11.14 94/04/17 20:22:20 rws Exp $ */
@@ -129,14 +131,6 @@ SOFTWARE.
 
 #include <limits.h>
 
-#ifndef MAX
-#define MAX(a,b) (((a) > (b)) ? (a) : (b))
-#endif
-#ifndef MIN
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-
-
 /*  1 if two BOXs overlap.
  *  0 if two BOXs do not overlap.
  *  Remember, x2 and y2 are not in the region
@@ -164,21 +158,17 @@ SOFTWARE.
 /*
  *   Check to see if there is enough memory in the present region.
  */
-#define MEMCHECK(reg, rect, firstrect){\
-        if ((reg)->numRects >= (int)((reg)->rects.size()-1)){\
+#define MEMCHECK(dest, rect, firstrect){\
+        if ((dest).numRects >= ((dest).rects.size()-1)){\
 	  firstrect.resize(firstrect.size() * 2); \
-	  (rect) = (firstrect).data() + (reg)->numRects;\
+	  (rect) = (firstrect).data() + (dest).numRects;\
 	}\
       }
 
 
-#define EMPTY_REGION(pReg) pReg->numRects = 0
-
-#define REGION_NOT_EMPTY(pReg) pReg->numRects
-
 /*
  * number of points to buffer before sending them off
- * to scanlines() :  Must be an even number
+ * to scanlines(): Must be an even number
  */
 #define NUMPTSTOBUFFER 200
 
@@ -270,11 +260,8 @@ SOFTWARE.
  */
 /* $XFree86: xc/lib/X11/Region.c,v 1.1.1.2.2.2 1998/10/04 15:22:50 hohndel Exp $ */
 
-typedef void (*voidProcp)(...);
-
-
-static
-void UnionRectWithRegion(register const QRect *rect, QRegionPrivate *source, QRegionPrivate *dest)
+static void UnionRectWithRegion(register const QRect *rect, QRegionPrivate *source,
+				QRegionPrivate &dest)
 {
     QRegionPrivate region;
 
@@ -304,22 +291,20 @@ void UnionRectWithRegion(register const QRect *rect, QRegionPrivate *source, QRe
  *
  *-----------------------------------------------------------------------
  */
-static void
-miSetExtents (QRegionPrivate *pReg)
+static void miSetExtents(QRegionPrivate &dest)
 {
-    register QRect	*pBox,
-			*pBoxEnd,
-			*pExtents;
+    register const QRect *pBox,
+			 *pBoxEnd;
+    register QRect *pExtents;
 
-    if (pReg->numRects == 0)
-    {
-	qt_setCoords(&pReg->extents, 0, 0, 0, 0);
+    if (dest.numRects == 0) {
+	dest.extents.setCoords(0, 0, 0, 0);
 	return;
     }
 
-    pExtents = &pReg->extents;
-    pBox = pReg->rects.data();
-    pBoxEnd = &pBox[pReg->numRects - 1];
+    pExtents = &dest.extents;
+    pBox = dest.rects.constData();
+    pBoxEnd = &pBox[dest.numRects - 1];
 
     /*
      * Since pBox is the first rectangle in the region, it must have the
@@ -328,23 +313,18 @@ miSetExtents (QRegionPrivate *pReg)
      * x2 from  pBox and pBoxEnd, resp., as good things to initialize them
      * to...
      */
-    pExtents->setLeft( pBox->left() );
-    pExtents->setTop( pBox->top() );
-    pExtents->setRight( pBoxEnd->right() );
-    pExtents->setBottom( pBoxEnd->bottom() );
+    pExtents->setLeft(pBox->left());
+    pExtents->setTop(pBox->top());
+    pExtents->setRight(pBoxEnd->right());
+    pExtents->setBottom(pBoxEnd->bottom());
 
     Q_ASSERT(pExtents->top() <= pExtents->bottom());
-    while (pBox <= pBoxEnd)
-    {
+    while (pBox <= pBoxEnd) {
 	if (pBox->left() < pExtents->left())
-	{
 	    pExtents->setLeft( pBox->left() );
-	}
 	if (pBox->right() > pExtents->right())
-	{
 	    pExtents->setRight( pBox->right() );
-	}
-	pBox++;
+	++pBox;
     }
     Q_ASSERT(pExtents->left() <= pExtents->right());
 }
@@ -355,23 +335,19 @@ miSetExtents (QRegionPrivate *pReg)
    added by raymond
 */
 
-static
-int
-OffsetRegion(register QRegionPrivate *pRegion, register int x, register int y)
+static void OffsetRegion(register QRegionPrivate &region, register int x, register int y)
 {
     register int nbox;
     register QRect *pbox;
 
-    pbox = pRegion->rects.data();
-    nbox = pRegion->numRects;
+    pbox = region.rects.data();
+    nbox = region.numRects;
 
-    while(nbox--)
-    {
+    while (nbox--) {
 	pbox->moveBy(x, y);
-	pbox++;
+	++pbox;
     }
-    pRegion->extents.moveBy(x, y);
-    return 1;
+    region.extents.moveBy(x, y);
 }
 
 /*======================================================================
@@ -390,22 +366,18 @@ OffsetRegion(register QRegionPrivate *pRegion, register int x, register int y)
  *
  *-----------------------------------------------------------------------
  */
-/* static void*/
-static
-int
-miIntersectO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
-	register QRect *r2, QRect *r2End, int y1, int y2)
+static void miIntersectO(register QRegionPrivate &dest, register QRect *r1, QRect *r1End,
+			 register QRect *r2, QRect *r2End, int y1, int y2)
 {
-    register int  	x1;
-    register int  	x2;
-    register QRect	*pNextRect;
+    register int x1;
+    register int x2;
+    register QRect *pNextRect;
 
-    pNextRect = pReg->rects.data() + pReg->numRects;
+    pNextRect = dest.rects.data() + dest.numRects;
 
-    while ((r1 != r1End) && (r2 != r2End))
-    {
-	x1 = QMAX(r1->left(),r2->left());
-	x2 = QMIN(r1->right(),r2->right());
+    while (r1 != r1End && r2 != r2End) {
+	x1 = QMAX(r1->left(), r2->left());
+	x2 = QMIN(r1->right(), r2->right());
 
 	/*
 	 * If there's any overlap between the two rectangles, add that
@@ -414,14 +386,12 @@ miIntersectO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 	 * such a need could arise is if some region has two rectangles
 	 * right next to each other. Since that should never happen...
 	 */
-	if (x1 <= x2)
-	{
-	    Q_ASSERT(y1<=y2);
-
-	    MEMCHECK(pReg, pNextRect, pReg->rects)
-	    qt_setCoords( pNextRect, x1, y1, x2, y2 );
-	    pReg->numRects++;
-	    pNextRect++;
+	if (x1 <= x2) {
+	    Q_ASSERT(y1 <= y2);
+	    MEMCHECK(dest, pNextRect, dest.rects)
+	    pNextRect->setCoords(x1, y1, x2, y2);
+	    ++dest.numRects;
+	    ++pNextRect;
 	}
 
 	/*
@@ -429,44 +399,33 @@ miIntersectO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 	 * to the right the least, since the other still has a chance to
 	 * overlap with that region's next rectangle, if you see what I mean.
 	 */
-	if (r1->right() < r2->right())
-	{
-	    r1++;
-	}
-	else if (r2->right() < r1->right())
-	{
-	    r2++;
-	}
-	else
-	{
-	    r1++;
-	    r2++;
+	if (r1->right() < r2->right()) {
+	    ++r1;
+	} else if (r2->right() < r1->right()) {
+	    ++r2;
+	} else {
+	    ++r1;
+	    ++r2;
 	}
     }
-    return 0;	/* lint */
 }
 
-static
-void
-IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, register QRegionPrivate *newReg)
+static void IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2,
+			    register QRegionPrivate &dest)
 {
-   /* check for trivial reject */
-    if ( (!(reg1->numRects)) || (!(reg2->numRects))  ||
-	(!EXTENTCHECK(&reg1->extents, &reg2->extents)))
-        newReg->numRects = 0;
+    if (isEmpty(reg1) || isEmpty(reg2) || !EXTENTCHECK(&reg1->extents, &reg2->extents))
+        dest.numRects = 0;
     else
-	miRegionOp (newReg, reg1, reg2,
-    		(voidProcp) miIntersectO, (voidProcp) NULL, (voidProcp) NULL);
+	miRegionOp(dest, reg1, reg2, miIntersectO, 0, 0);
 
     /*
-     * Can't alter newReg's extents before we call miRegionOp because
+     * Can't alter dest's extents before we call miRegionOp because
      * it might be one of the source regions and miRegionOp depends
      * on the extents of those regions being the same. Besides, this
      * way there's no checking against rectangles that will be nuked
      * due to coalescing, so we have to examine fewer rectangles.
      */
-    miSetExtents(newReg);
-    return;
+    miSetExtents(dest);
 }
 
 /*======================================================================
@@ -486,30 +445,22 @@ IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, register QRegionPriv
  *	If coalescing takes place:
  *	    - rectangles in the previous band will have their y2 fields
  *	      altered.
- *	    - pReg->numRects will be decreased.
+ *	    - dest.numRects will be decreased.
  *
  *-----------------------------------------------------------------------
  */
-/* static int*/
-static
-int
-miCoalesce (register QRegionPrivate *pReg, int prevStart, int curStart)
-    //Region	pReg;	    	/* Region to coalesce */
-    //prevStart;  	/* Index of start of previous band */
-    //curStart;   	/* Index of start of current band */
+static int miCoalesce(register QRegionPrivate &dest, int prevStart, int curStart)
 {
-    register QRect	*pPrevBox;   	/* Current box in previous band */
-    register QRect	*pCurBox;    	/* Current box in current band */
-    register QRect	*pRegEnd;    	/* End of region */
-    int	    	  	curNumRects;	/* Number of rectangles in current
-					 * band */
-    int	    	  	prevNumRects;	/* Number of rectangles in previous
-					 * band */
-    int	    	  	bandY1;	    	/* Y1 coordinate for current band */
+    register QRect *pPrevBox;	/* Current box in previous band */
+    register QRect *pCurBox;	/* Current box in current band */
+    register QRect *pRegEnd;	/* End of region */
+    int	curNumRects;	/* Number of rectangles in current band */
+    int	prevNumRects;	/* Number of rectangles in previous band */
+    int	bandY1;		/* Y1 coordinate for current band */
 
-    pRegEnd = pReg->rects.data() + pReg->numRects;
+    pRegEnd = dest.rects.data() + dest.numRects;
 
-    pPrevBox = pReg->rects.data() + prevStart;
+    pPrevBox = dest.rects.data() + prevStart;
     prevNumRects = curStart - prevStart;
 
     /*
@@ -517,62 +468,50 @@ miCoalesce (register QRegionPrivate *pReg, int prevStart, int curStart)
      * this because multiple bands could have been added in miRegionOp
      * at the end when one region has been exhausted.
      */
-    pCurBox = pReg->rects.data() + curStart;
+    pCurBox = dest.rects.data() + curStart;
     bandY1 = pCurBox->top();
-    for (curNumRects = 0;
-	 (pCurBox != pRegEnd) && (pCurBox->top() == bandY1);
-	 curNumRects++)
-    {
-	pCurBox++;
+    for (curNumRects = 0; pCurBox != pRegEnd && pCurBox->top() == bandY1; ++curNumRects) {
+	++pCurBox;
     }
 
-    if (pCurBox != pRegEnd)
-    {
+    if (pCurBox != pRegEnd) {
 	/*
 	 * If more than one band was added, we have to find the start
 	 * of the last band added so the next coalescing job can start
 	 * at the right place... (given when multiple bands are added,
 	 * this may be pointless -- see above).
 	 */
-	pRegEnd--;
-	while ((pRegEnd-1)->top() == pRegEnd->top())
-	{
-	    pRegEnd--;
-	}
-	curStart = pRegEnd - pReg->rects.data();
-	pRegEnd = pReg->rects.data() + pReg->numRects;
+	--pRegEnd;
+	while ((pRegEnd - 1)->top() == pRegEnd->top())
+	    --pRegEnd;
+	curStart = pRegEnd - dest.rects.data();
+	pRegEnd = dest.rects.data() + dest.numRects;
     }
 
-    if ((curNumRects == prevNumRects) && (curNumRects != 0)) {
+    if (curNumRects == prevNumRects && curNumRects != 0) {
 	pCurBox -= curNumRects;
 	/*
 	 * The bands may only be coalesced if the bottom of the previous
 	 * matches the top scanline of the current.
 	 */
-	if (pPrevBox->bottom() == pCurBox->top() - 1)
-	{
+	if (pPrevBox->bottom() == pCurBox->top() - 1) {
 	    /*
 	     * Make sure the bands have boxes in the same places. This
 	     * assumes that boxes have been added in such a way that they
 	     * cover the most area possible. I.e. two boxes in a band must
 	     * have some horizontal space between them.
 	     */
-	    do
-	    {
-		if ((pPrevBox->left() != pCurBox->left()) ||
-		    (pPrevBox->right() != pCurBox->right()))
-		{
-		    /*
-		     * The bands don't line up so they can't be coalesced.
-		     */
-		    return (curStart);
+	    do {
+		if (pPrevBox->left() != pCurBox->left() || pPrevBox->right() != pCurBox->right()) {
+		     // The bands don't line up so they can't be coalesced.
+		    return curStart;
 		}
-		pPrevBox++;
-		pCurBox++;
-		prevNumRects -= 1;
+		++pPrevBox;
+		++pCurBox;
+		--prevNumRects;
 	    } while (prevNumRects != 0);
 
-	    pReg->numRects -= curNumRects;
+	    dest.numRects -= curNumRects;
 	    pCurBox -= curNumRects;
 	    pPrevBox -= curNumRects;
 
@@ -581,11 +520,10 @@ miCoalesce (register QRegionPrivate *pReg, int prevStart, int curStart)
 	     * in the previous band to that of the corresponding box in
 	     * the current band.
 	     */
-	    do
-	    {
-		pPrevBox->setBottom( pCurBox->bottom() );
-		pPrevBox++;
-		pCurBox++;
+	    do {
+		pPrevBox->setBottom(pCurBox->bottom());
+		++pPrevBox;
+		++pCurBox;
 		curNumRects -= 1;
 	    } while (curNumRects != 0);
 
@@ -599,21 +537,16 @@ miCoalesce (register QRegionPrivate *pReg, int prevStart, int curStart)
 	     * coalescing can be done on them since it's all been done
 	     * already... curStart is already in the right place.
 	     */
-	    if (pCurBox == pRegEnd)
-	    {
+	    if (pCurBox == pRegEnd) {
 		curStart = prevStart;
-	    }
-	    else
-	    {
-		do
-		{
+	    } else {
+		do {
 		    *pPrevBox++ = *pCurBox++;
 		} while (pCurBox != pRegEnd);
 	    }
-
 	}
     }
-    return (curStart);
+    return curStart;
 }
 
 /*-
@@ -642,40 +575,22 @@ miCoalesce (register QRegionPrivate *pReg, int prevStart, int curStart)
  *
  *-----------------------------------------------------------------------
  */
-/* static void*/
-static void
-miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate *reg2,
-	void (*overlapFunc)(...),
-	void (*nonOverlap1Func)(...),
-	void (*nonOverlap2Func)(...))
-    //register Region 	newReg;	    	    	/* Place to store result */
-    //Region	  	reg1;	    	    	/* First region in operation */
-    //Region	  	reg2;	    	    	/* 2d region in operation */
-    //void    	  	(*overlapFunc)();   	/* Function to call for over-
-						 //* lapping bands */
-    //void    	  	(*nonOverlap1Func)();	/* Function to call for non-
-						 //* overlapping bands in region
-						 //* 1 */
-    //void    	  	(*nonOverlap2Func)();	/* Function to call for non-
-						 //* overlapping bands in region
-						 //* 2 */
+static void miRegionOp(register QRegionPrivate &dest, QRegionPrivate *reg1, QRegionPrivate *reg2,
+		       OverlapFunc overlapFunc, NonOverlapFunc nonOverlap1Func,
+		       NonOverlapFunc nonOverlap2Func)
 {
-    register QRect	*r1; 	    	    	/* Pointer into first region */
-    register QRect	*r2; 	    	    	/* Pointer into 2d region */
-    QRect  	  	*r1End;	    	    	/* End of 1st region */
-    QRect  	  	*r2End;	    	    	/* End of 2d region */
-    register int  	ybot;	    	    	/* Bottom of intersection */
-    register int  	ytop;	    	    	/* Top of intersection */
-    int	    	  	prevBand;   	    	/* Index of start of
-						 * previous band in newReg */
-    int	    	  	curBand;    	    	/* Index of start of current
-						 * band in newReg */
-    register QRect 	*r1BandEnd;  	    	/* End of current band in r1 */
-    register QRect 	*r2BandEnd;  	    	/* End of current band in r2 */
-    int     	  	top;	    	    	/* Top of non-overlapping
-						 * band */
-    int     	  	bot;	    	    	/* Bottom of non-overlapping
-						 * band */
+    register QRect *r1;		// Pointer into first region
+    register QRect *r2;		// Pointer into 2d region
+    QRect *r1End;		// End of 1st region
+    QRect *r2End;		// End of 2d region
+    register int ybot;		// Bottom of intersection
+    register int ytop;		// Top of intersection
+    int	prevBand;		// Index of start of previous band in dest
+    int	curBand;		// Index of start of current band in dest
+    register QRect *r1BandEnd;	// End of current band in r1
+    register QRect *r2BandEnd;	// End of current band in r2
+    int top;			// Top of non-overlapping band
+    int bot;			// Bottom of non-overlapping band
 
     /*
      * Initialization:
@@ -689,10 +604,9 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
     r1End = r1 + reg1->numRects;
     r2End = r2 + reg2->numRects;
 
-    QMemArray<QRect> oldRects = newReg->rects;
+    QVector<QRect> oldRects = dest.rects;
 
-    newReg->rects.detach();
-    EMPTY_REGION(newReg);
+    dest.numRects = 0;
 
     /*
      * Allocate a reasonable number of rectangles for the new region. The idea
@@ -701,14 +615,14 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
      * have to worry about using too much memory. I hope to be able to
      * nuke the realloc() at the end of this function eventually.
      */
-    newReg->rects.resize( QMAX(reg1->numRects,reg2->numRects) * 2 );
+    dest.rects.resize(QMAX(reg1->numRects,reg2->numRects) * 2);
 
     /*
      * Initialize ybot and ytop.
      * In the upcoming loop, ybot and ytop serve different functions depending
      * on whether the band being handled is an overlapping or non-overlapping
      * band.
-     * 	In the case of a non-overlapping band (only one of the regions
+     *	In the case of a non-overlapping band (only one of the regions
      * has points in the band), ybot is the bottom of the most recent
      * intersection and thus clips the top of the rectangles in that band.
      * ytop is the top of the next intersection between the two regions and
@@ -732,9 +646,8 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
      */
     prevBand = 0;
 
-    do
-    {
-	curBand = newReg->numRects;
+    do {
+	curBand = dest.numRects;
 
 	/*
 	 * This algorithm proceeds one source-band (as opposed to a
@@ -744,16 +657,12 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
 	 * respective regions.
 	 */
 	r1BandEnd = r1;
-	while ((r1BandEnd != r1End) && (r1BandEnd->top() == r1->top()))
-	{
-	    r1BandEnd++;
-	}
+	while (r1BandEnd != r1End && r1BandEnd->top() == r1->top())
+	    ++r1BandEnd;
 
 	r2BandEnd = r2;
-	while ((r2BandEnd != r2End) && (r2BandEnd->top() == r2->top()))
-	{
-	    r2BandEnd++;
-	}
+	while (r2BandEnd != r2End && r2BandEnd->top() == r2->top())
+	    ++r2BandEnd;
 
 	/*
 	 * First handle the band that doesn't intersect, if any.
@@ -763,32 +672,21 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
 	 * bands between the current position and the next place it overlaps
 	 * the other, this entire loop will be passed through n times.
 	 */
-	if (r1->top() < r2->top())
-	{
-	    top = QMAX(r1->top(),ybot+1);
-	    bot = QMIN(r1->bottom(),r2->top()-1);
+	if (r1->top() < r2->top()) {
+	    top = QMAX(r1->top(), ybot + 1);
+	    bot = QMIN(r1->bottom(), r2->top() - 1);
 
-	    if ((nonOverlap1Func != (voidProcp)NULL) && bot >= top)
-	    {
-		(* nonOverlap1Func) (newReg, r1, r1BandEnd, top, bot);
-	    }
-
+	    if (nonOverlap1Func != 0 && bot >= top)
+		(*nonOverlap1Func)(dest, r1, r1BandEnd, top, bot);
 	    ytop = r2->top();
-	}
-	else if (r2->top() < r1->top())
-	{
-	    top = QMAX(r2->top(),ybot+1);
-	    bot = QMIN(r2->bottom(),r1->top()-1);
+	} else if (r2->top() < r1->top()) {
+	    top = QMAX(r2->top(), ybot + 1);
+	    bot = QMIN(r2->bottom(), r1->top() - 1);
 
-	    if ((nonOverlap2Func != (voidProcp)NULL) && bot >= top)
-	    {
-		(* nonOverlap2Func) (newReg, r2, r2BandEnd, top, bot);
-	    }
-
+	    if (nonOverlap2Func != 0 && bot >= top)
+		(*nonOverlap2Func)(dest, r2, r2BandEnd, top, bot);
 	    ytop = r1->top();
-	}
-	else
-	{
+	} else {
 	    ytop = r1->top();
 	}
 
@@ -798,110 +696,70 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
 	 * this test in miCoalesce, but some machines incur a not
 	 * inconsiderable cost for function calls, so...
 	 */
-	if (newReg->numRects != curBand)
-	{
-	    prevBand = miCoalesce (newReg, prevBand, curBand);
-	}
+	if (dest.numRects != curBand)
+	    prevBand = miCoalesce(dest, prevBand, curBand);
 
 	/*
 	 * Now see if we've hit an intersecting band. The two bands only
 	 * intersect if ybot >= ytop
 	 */
 	ybot = QMIN(r1->bottom(), r2->bottom());
-	curBand = newReg->numRects;
+	curBand = dest.numRects;
 	if (ybot >= ytop)
-	{
-	    (* overlapFunc) (newReg, r1, r1BandEnd, r2, r2BandEnd, ytop, ybot);
+	    (*overlapFunc)(dest, r1, r1BandEnd, r2, r2BandEnd, ytop, ybot);
 
-	}
-
-	if (newReg->numRects != curBand)
-	{
-	    prevBand = miCoalesce (newReg, prevBand, curBand);
-	}
+	if (dest.numRects != curBand)
+	    prevBand = miCoalesce(dest, prevBand, curBand);
 
 	/*
 	 * If we've finished with a band (y2 == ybot) we skip forward
 	 * in the region to the next band.
 	 */
 	if (r1->bottom() == ybot)
-	{
 	    r1 = r1BandEnd;
-	}
 	if (r2->bottom() == ybot)
-	{
 	    r2 = r2BandEnd;
-	}
-    } while ((r1 != r1End) && (r2 != r2End));
+    } while (r1 != r1End && r2 != r2End);
 
     /*
      * Deal with whichever region still has rectangles left.
      */
-    curBand = newReg->numRects;
-    if (r1 != r1End)
-    {
-	if (nonOverlap1Func != (voidProcp)NULL)
-	{
-	    do
-	    {
+    curBand = dest.numRects;
+    if (r1 != r1End) {
+	if (nonOverlap1Func != 0) {
+	    do {
 		r1BandEnd = r1;
-		while ((r1BandEnd < r1End) && (r1BandEnd->top() == r1->top()))
-		{
-		    r1BandEnd++;
-		}
-		(* nonOverlap1Func) (newReg, r1, r1BandEnd,
-				     QMAX(r1->top(),ybot+1), r1->bottom());
+		while (r1BandEnd < r1End && r1BandEnd->top() == r1->top())
+		    ++r1BandEnd;
+		(*nonOverlap1Func)(dest, r1, r1BandEnd, QMAX(r1->top(), ybot + 1), r1->bottom());
 		r1 = r1BandEnd;
 	    } while (r1 != r1End);
 	}
-    }
-    else if ((r2 != r2End) && (nonOverlap2Func != (voidProcp)NULL))
-    {
-	do
-	{
+    } else if ((r2 != r2End) && (nonOverlap2Func != 0)) {
+	do {
 	    r2BandEnd = r2;
-	    while ((r2BandEnd < r2End) && (r2BandEnd->top() == r2->top()))
-	    {
-		 r2BandEnd++;
-	    }
-	    (* nonOverlap2Func) (newReg, r2, r2BandEnd,
-				QMAX(r2->top(),ybot+1), r2->bottom());
+	    while (r2BandEnd < r2End && r2BandEnd->top() == r2->top())
+		 ++r2BandEnd;
+	    (*nonOverlap2Func)(dest, r2, r2BandEnd, QMAX(r2->top(), ybot + 1), r2->bottom());
 	    r2 = r2BandEnd;
 	} while (r2 != r2End);
     }
 
-    if (newReg->numRects != curBand)
-    {
-	(void) miCoalesce (newReg, prevBand, curBand);
-    }
+    if (dest.numRects != curBand)
+	(void)miCoalesce(dest, prevBand, curBand);
 
     /*
      * A bit of cleanup. To keep regions from growing without bound,
      * we shrink the array of rectangles to match the new number of
-     * rectangles in the region. This never goes to 0, however...
+     * rectangles in the region.
      *
      * Only do this stuff if the number of rectangles allocated is more than
-     * twice the number of rectangles in the region (a simple optimization...).
+     * twice the number of rectangles in the region (a simple optimization).
      */
-    if (newReg->numRects < (int)(newReg->rects.size() >> 1))
-    {
-	if (REGION_NOT_EMPTY(newReg))
-	{
-	    newReg->rects.resize(newReg->numRects);
-	}
-	else
-	{
-	    /*
-	     * No point in doing the extra work involved in an realloc if
-	     * the region is empty
-	     */
-	    newReg->rects.resize(1);
-	}
-    }
-    return;
+    if (dest.numRects < (dest.rects.size() >> 1))
+	dest.rects.resize(dest.numRects);
 }
 
-
 /*======================================================================
  *	    Region Union
  *====================================================================*/
@@ -917,34 +775,29 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
  *	None.
  *
  * Side Effects:
- *	pReg->numRects is incremented and the final rectangles overwritten
+ *	dest.numRects is incremented and the final rectangles overwritten
  *	with the rectangles we're passed.
  *
  *-----------------------------------------------------------------------
  */
-/* static void*/
-static
-int
-miUnionNonO (register QRegionPrivate *pReg, register QRect * r,
-	QRect * rEnd, register int y1, register int y2)
-{
-    register QRect *	pNextRect;
 
-    pNextRect = pReg->rects.data() + pReg->numRects;
+static void miUnionNonO(register QRegionPrivate &dest, register QRect *r, QRect *rEnd,
+			register int y1, register int y2)
+{
+    register QRect *pNextRect;
+
+    pNextRect = dest.rects.data() + dest.numRects;
 
     Q_ASSERT(y1 <= y2);
 
-    while (r != rEnd)
-    {
+    while (r != rEnd) {
 	Q_ASSERT(r->left() <= r->right());
-	MEMCHECK(pReg, pNextRect, pReg->rects)
-	qt_setCoords( pNextRect, r->left(), y1, r->right(), y2 );
-	pReg->numRects++;
-	pNextRect++;
-
-	r++;
+	MEMCHECK(dest, pNextRect, dest.rects)
+	pNextRect->setCoords(r->left(), y1, r->right(), y2);
+	dest.numRects++;
+	++pNextRect;
+	++r;
     }
-    return 0;	/* lint */
 }
 
 
@@ -958,24 +811,21 @@ miUnionNonO (register QRegionPrivate *pReg, register QRect * r,
  *	None.
  *
  * Side Effects:
- *	Rectangles are overwritten in pReg->rects and pReg->numRects will
+ *	Rectangles are overwritten in dest.rects and dest.numRects will
  *	be changed.
  *
  *-----------------------------------------------------------------------
  */
 
-/* static void*/
-static
-int
-miUnionO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
-	register QRect *r2, QRect *r2End, register int y1, register int y2)
+static void miUnionO(register QRegionPrivate &dest, register QRect *r1, QRect *r1End,
+		     register QRect *r2, QRect *r2End, register int y1, register int y2)
 {
     register QRect *pNextRect;
 
-    pNextRect = pReg->rects.data() + pReg->numRects;
+    pNextRect = dest.rects.data() + dest.numRects;
 
 #define MERGERECT(r) \
-    if ((pReg->numRects != 0) &&  \
+    if ((dest.numRects != 0) &&  \
 	(pNextRect[-1].top() == y1) &&  \
 	(pNextRect[-1].bottom() == y2) &&  \
 	(pNextRect[-1].right() >= r->left()-1)) { \
@@ -984,15 +834,15 @@ miUnionO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 	    Q_ASSERT(pNextRect[-1].left() <= pNextRect[-1].right()); \
 	}  \
     } else { \
-	MEMCHECK(pReg, pNextRect, pReg->rects)  \
-	qt_setCoords( pNextRect, r->left(), y1, r->right(), y2 ); \
-	pReg->numRects++;  \
+	MEMCHECK(dest, pNextRect, dest.rects)  \
+	pNextRect->setCoords(r->left(), y1, r->right(), y2); \
+	dest.numRects++;  \
         pNextRect++;  \
     }  \
     r++;
 
-    Q_ASSERT (y1<=y2);
-    while ((r1 != r1End) && (r2 != r2End)) {
+    Q_ASSERT(y1 <= y2);
+    while (r1 != r1End && r2 != r2End) {
 	if (r1->left() < r2->left()) {
 	    MERGERECT(r1)
 	} else {
@@ -1000,82 +850,68 @@ miUnionO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 	}
     }
 
-    if (r1 != r1End)
-    {
-	do
-	{
+    if (r1 != r1End) {
+	do {
 	    MERGERECT(r1)
 	} while (r1 != r1End);
+    } else {
+	while (r2 != r2End) {
+	    MERGERECT(r2)
+	}
     }
-    else while (r2 != r2End)
-    {
-	MERGERECT(r2)
-    }
-    return 0;	/* lint */
 }
 
-static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg)
+static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate &dest)
 {
-    /*  checks all the simple cases */
-
     /*
-     * Region 1 and 2 are the same or region 1 is empty
-     */
-    if ( (reg1 == reg2) || (!(reg1->numRects)) )
-    {
-	*newReg = *reg2;
+      Region 1 is empty or is equal to region 2.
+    */
+    if (reg1 == reg2 || isEmpty(reg1)) {
+	if (!isEmpty(reg2))
+	    dest = *reg2;
 	return;
     }
 
     /*
-     * if nothing to union (region 2 empty)
+      Region 2 is empty (and region 1 isn't).
+    */
+    if (isEmpty(reg2)) {
+	dest = *reg1;
+	return;
+    }
+
+    /*
+      Region 1 completely subsumes region 2.
      */
-    if (!(reg2->numRects))
-    {
-        *newReg = *reg1;
+    if (reg1->numRects == 1 && reg1->extents.left() <= reg2->extents.left()
+	    && reg1->extents.top() <= reg2->extents.top()
+	    && reg1->extents.right() >= reg2->extents.right()
+	    && reg1->extents.bottom() >= reg2->extents.bottom()) {
+	dest = *reg1;
         return;
     }
 
     /*
-     * Region 1 completely subsumes region 2
+      Region 2 completely subsumes region 1.
      */
-    if ((reg1->numRects == 1) &&
-	(reg1->extents.left() <= reg2->extents.left()) &&
-	(reg1->extents.top() <= reg2->extents.top()) &&
-	(reg1->extents.right() >= reg2->extents.right()) &&
-	(reg1->extents.bottom() >= reg2->extents.bottom()))
-    {
-	*newReg = *reg1;
+    if (reg2->numRects == 1 && reg2->extents.left() <= reg1->extents.left()
+	    && reg2->extents.top() <= reg1->extents.top()
+	    && reg2->extents.right() >= reg1->extents.right()
+	    && reg2->extents.bottom() >= reg1->extents.bottom()) {
+	dest = *reg2;
         return;
     }
 
-    /*
-     * Region 2 completely subsumes region 1
-     */
-    if ((reg2->numRects == 1) &&
-	(reg2->extents.left() <= reg1->extents.left()) &&
-	(reg2->extents.top() <= reg1->extents.top()) &&
-	(reg2->extents.right() >= reg1->extents.right()) &&
-	(reg2->extents.bottom() >= reg1->extents.bottom()))
-    {
-	*newReg = *reg2;
-        return;
-    }
+    miRegionOp(dest, reg1, reg2, miUnionO, miUnionNonO, miUnionNonO);
 
-    miRegionOp (newReg, reg1, reg2, (voidProcp) miUnionO,
-    		(voidProcp) miUnionNonO, (voidProcp) miUnionNonO);
-
-    qt_setCoords( &newReg->extents,
-		  QMIN(reg1->extents.left(), reg2->extents.left()),
-		  QMIN(reg1->extents.top(), reg2->extents.top()),
-		  QMAX(reg1->extents.right(), reg2->extents.right()),
-		  QMAX(reg1->extents.bottom(), reg2->extents.bottom()) );
-
-    return;
+    dest.extents.setCoords(QMIN(reg1->extents.left(), reg2->extents.left()),
+			   QMIN(reg1->extents.top(), reg2->extents.top()),
+			   QMAX(reg1->extents.right(), reg2->extents.right()),
+			   QMAX(reg1->extents.bottom(), reg2->extents.bottom()));
 }
 
 /*======================================================================
- * 	    	  Region Subtraction
+ *	  Region Subtraction
  *====================================================================*/
 
 /*-
@@ -1088,33 +924,28 @@ static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPriva
  *	None.
  *
  * Side Effects:
- *	pReg may be affected.
+ *	dest may be affected.
  *
  *-----------------------------------------------------------------------
  */
-/* static void*/
-static
-int
-miSubtractNonO1 (register QRegionPrivate *pReg, register QRect *r,
-		 QRect *rEnd, register int y1, register int y2)
+
+static void miSubtractNonO1(register QRegionPrivate &dest, register QRect *r,
+			    QRect *rEnd, register int y1, register int y2)
 {
     register QRect *pNextRect;
 
-    pNextRect = pReg->rects.data() + pReg->numRects;
+    pNextRect = dest.rects.data() + dest.numRects;
 
     Q_ASSERT(y1<=y2);
 
-    while (r != rEnd)
-    {
-	Q_ASSERT(r->left()<=r->right());
-	MEMCHECK(pReg, pNextRect, pReg->rects)
-	qt_setCoords( pNextRect, r->left(), y1, r->right(), y2 );
-	pReg->numRects++;
-	pNextRect++;
-
-	r++;
+    while (r != rEnd) {
+	Q_ASSERT(r->left() <= r->right());
+	MEMCHECK(dest, pNextRect, dest.rects)
+	pNextRect->setCoords(r->left(), y1, r->right(), y2);
+	++dest.numRects;
+	++pNextRect;
+	++r;
     }
-    return 0;	/* lint */
 }
 
 /*-
@@ -1127,101 +958,79 @@ miSubtractNonO1 (register QRegionPrivate *pReg, register QRect *r,
  *	None.
  *
  * Side Effects:
- *	pReg may have rectangles added to it.
+ *	dest may have rectangles added to it.
  *
  *-----------------------------------------------------------------------
  */
-/* static void*/
-static
-int
-miSubtractO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
-	     register QRect *r2, QRect *r2End, register int y1, register int y2)
+
+static void miSubtractO(register QRegionPrivate &dest, register QRect *r1, QRect *r1End,
+			register QRect *r2, QRect *r2End, register int y1, register int y2)
 {
     register QRect *pNextRect;
-    register int  	x1;
+    register int x1;
 
     x1 = r1->left();
 
-    Q_ASSERT(y1<=y2);
-    pNextRect = pReg->rects.data() + pReg->numRects;
+    Q_ASSERT(y1 <= y2);
+    pNextRect = dest.rects.data() + dest.numRects;
 
-    while ((r1 != r1End) && (r2 != r2End))
-    {
-	if (r2->right() < x1)
-	{
+    while (r1 != r1End && r2 != r2End) {
+	if (r2->right() < x1) {
 	    /*
 	     * Subtrahend missed the boat: go to next subtrahend.
 	     */
-	    r2++;
-	}
-	else if (r2->left() <= x1)
-	{
+	    ++r2;
+	} else if (r2->left() <= x1) {
 	    /*
 	     * Subtrahend precedes minuend: nuke left edge of minuend.
 	     */
-	    x1 = r2->right()+1;
-	    if (x1 > r1->right())
-	    {
+	    x1 = r2->right() + 1;
+	    if (x1 > r1->right()) {
 		/*
 		 * Minuend completely covered: advance to next minuend and
 		 * reset left fence to edge of new minuend.
 		 */
-		r1++;
+		++r1;
 		if (r1 != r1End)
 		    x1 = r1->left();
+	    } else {
+		// Subtrahend now used up since it doesn't extend beyond minuend
+		++r2;
 	    }
-	    else
-	    {
-		/*
-		 * Subtrahend now used up since it doesn't extend beyond
-		 * minuend
-		 */
-		r2++;
-	    }
-	}
-	else if (r2->left() <= r1->right())
-	{
+	} else if (r2->left() <= r1->right()) {
 	    /*
 	     * Left part of subtrahend covers part of minuend: add uncovered
 	     * part of minuend to region and skip to next subtrahend.
 	     */
-	    Q_ASSERT(x1<r2->left());
-	    MEMCHECK(pReg, pNextRect, pReg->rects)
-	    qt_setCoords( pNextRect, x1, y1, r2->left() - 1, y2 );
-	    pReg->numRects++;
-	    pNextRect++;
+	    Q_ASSERT(x1 < r2->left());
+	    MEMCHECK(dest, pNextRect, dest.rects)
+	    pNextRect->setCoords(x1, y1, r2->left() - 1, y2);
+	    ++dest.numRects;
+	    ++pNextRect;
 
 	    x1 = r2->right() + 1;
-	    if (x1 > r1->right())
-	    {
+	    if (x1 > r1->right()) {
 		/*
 		 * Minuend used up: advance to new...
 		 */
-		r1++;
+		++r1;
 		if (r1 != r1End)
 		    x1 = r1->left();
+	    } else {
+		// Subtrahend used up
+		++r2;
 	    }
-	    else
-	    {
-		/*
-		 * Subtrahend used up
-		 */
-		r2++;
-	    }
-	}
-	else
-	{
+	} else {
 	    /*
 	     * Minuend used up: add any remaining piece before advancing.
 	     */
-	    if (r1->right() >= x1)
-	    {
-		MEMCHECK(pReg, pNextRect, pReg->rects)
-		qt_setCoords( pNextRect, x1, y1, r1->right(), y2 );
-		pReg->numRects++;
-		pNextRect++;
+	    if (r1->right() >= x1) {
+		MEMCHECK(dest, pNextRect, dest.rects)
+		pNextRect->setCoords(x1, y1, r1->right(), y2);
+		++dest.numRects;
+		++pNextRect;
 	    }
-	    r1++;
+	    ++r1;
 	    if ( r1 != r1End )
 		x1 = r1->left();
 	}
@@ -1230,21 +1039,17 @@ miSubtractO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
     /*
      * Add remaining minuend rectangles to region.
      */
-    while (r1 != r1End)
-    {
-	Q_ASSERT(x1<=r1->right());
-	MEMCHECK(pReg, pNextRect, pReg->rects)
-	qt_setCoords( pNextRect, x1, y1, r1->right(), y2 );
-	pReg->numRects++;
-	pNextRect++;
+    while (r1 != r1End) {
+	Q_ASSERT(x1 <= r1->right());
+	MEMCHECK(dest, pNextRect, dest.rects)
+	pNextRect->setCoords(x1, y1, r1->right(), y2);
+	++dest.numRects;
+	++pNextRect;
 
-	r1++;
+	++r1;
 	if (r1 != r1End)
-	{
 	    x1 = r1->left();
-	}
     }
-    return 0;	/* lint */
 }
 
 /*-
@@ -1259,140 +1064,123 @@ miSubtractO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
  *-----------------------------------------------------------------------
  */
 
-static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS, register QRegionPrivate *regD)
+static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS,
+			   register QRegionPrivate &dest)
 {
    /* check for trivial reject */
-    if ( (!(regM->numRects)) || (!(regS->numRects))  ||
-	(!EXTENTCHECK(&regM->extents, &regS->extents)) )
-    {
-	*regD = *regM;
+    if (isEmpty(regM))
+	return;
+
+    if (isEmpty(regS) || !EXTENTCHECK(&regM->extents, &regS->extents)) {
+	dest = *regM;
 	return;
     }
-
-    miRegionOp (regD, regM, regS, (voidProcp) miSubtractO,
-    		(voidProcp) miSubtractNonO1, (voidProcp) NULL);
+    miRegionOp(dest, regM, regS, miSubtractO, miSubtractNonO1, 0);
 
     /*
-     * Can't alter newReg's extents before we call miRegionOp because
+     * Can't alter dest's extents before we call miRegionOp because
      * it might be one of the source regions and miRegionOp depends
      * on the extents of those regions being the unaltered. Besides, this
      * way there's no checking against rectangles that will be nuked
      * due to coalescing, so we have to examine fewer rectangles.
      */
-    miSetExtents (regD);
+    miSetExtents(dest);
 }
 
-static void XorRegion( QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate *dr )
+static void XorRegion(QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate &dest)
 {
     QRegionPrivate tra, trb;
 
-    SubtractRegion(sra,srb,&tra);
-    SubtractRegion(srb,sra,&trb);
-    UnionRegion(&tra,&trb,dr);
+    SubtractRegion(sra, srb, tra);
+    SubtractRegion(srb, sra, trb);
+    UnionRegion(&tra, &trb, dest);
 }
 
 /*
  *	Check to see if two regions are equal
  */
-static bool EqualRegion( QRegionPrivate *r1, QRegionPrivate *r2 )
+static bool EqualRegion(QRegionPrivate *r1, QRegionPrivate *r2)
 {
-    int i;
-
-    if( r1->numRects != r2->numRects ) return FALSE;
-    else if( r1->numRects == 0 ) return TRUE;
-    else if ( r1->extents.left() != r2->extents.left() ||
-	      r1->extents.right() != r2->extents.right() ||
-	      r1->extents.top() != r2->extents.top() ||
-	      r1->extents.bottom() != r2->extents.bottom() )
-	return FALSE;
-    else {
-	QRect *rr1 = r1->rects.data();
-	QRect *rr2 = r2->rects.data();
-	for( i=0; i < r1->numRects; i++, rr1++, rr2++ ) {
-	    if ( rr1->left() != rr2->left() ||
-		 rr1->right() != rr2->right() ||
-		 rr1->top() != rr2->top() ||
-		 rr1->bottom() != rr2->bottom() )
-		return FALSE;
+    if (r1->numRects != r2->numRects) {
+	return false;
+    } else if (r1->numRects == 0) {
+	return true;
+    } else if (r1->extents != r2->extents) {
+	return false;
+    } else {
+	const QRect *rr1 = r1->rects.constData();
+	const QRect *rr2 = r2->rects.constData();
+	for (int i = 0; i < r1->numRects; ++i, ++rr1, ++rr2) {
+	    if (*rr1 != *rr2)
+		return false;
 	}
     }
-    return TRUE;
+    return true;
 }
 
-static bool PointInRegion( QRegionPrivate *pRegion, int x, int y )
+static bool PointInRegion(QRegionPrivate *pRegion, int x, int y)
 {
     int i;
 
-    if (pRegion->numRects == 0)
-        return FALSE;
+    if (isEmpty(pRegion))
+        return false;
     if (!pRegion->extents.contains(x, y))
-        return FALSE;
-    for (i=0; i<pRegion->numRects; i++)
-    {
+        return false;
+    for (i = 0; i < pRegion->numRects; ++i) {
         if (pRegion->rects[i].contains(x, y))
-	    return TRUE;
+	    return true;
     }
-    return FALSE;
+    return false;
 }
 
-static bool RectInRegion(register QRegionPrivate *region,
-			 int rx, int ry, unsigned int rwidth, unsigned int rheight)
+static bool RectInRegion(register QRegionPrivate *region, int rx, int ry, uint rwidth, uint rheight)
 {
-    register QRect *pbox;
-    register QRect *pboxEnd;
+    register const QRect *pbox;
+    register const QRect *pboxEnd;
     QRect rect(rx, ry, rwidth, rheight);
     register QRect *prect = &rect;
-    int      partIn, partOut;
+    int partIn, partOut;
 
-    /* this is (just) a useful optimization */
-    if ((region->numRects == 0) || !EXTENTCHECK(&region->extents, prect))
-        return(RectangleOut);
+    if (region->numRects == 0 || !EXTENTCHECK(&region->extents, prect))
+        return RectangleOut;
 
-    partOut = FALSE;
-    partIn = FALSE;
+    partOut = false;
+    partIn = false;
 
-    /* can stop when both partOut and partIn are TRUE, or we reach prect->y2 */
-    for (pbox = region->rects.data(), pboxEnd = pbox + region->numRects;
-	 pbox < pboxEnd;
-	 pbox++)
-    {
-
+    /* can stop when both partOut and partIn are true, or we reach prect->y2 */
+    for (pbox = region->rects.constData(), pboxEnd = pbox + region->numRects;
+	 pbox < pboxEnd; ++pbox) {
 	if (pbox->bottom() < ry)
-	   continue;	/* getting up to speed or skipping remainder of band */
+	   continue;
 
-	if (pbox->top() > ry)
-	{
-	   partOut = TRUE;	/* missed part of rectangle above */
-	   if (partIn || (pbox->top() > prect->bottom()))
+	if (pbox->top() > ry) {
+	   partOut = true;
+	   if (partIn || pbox->top() > prect->bottom())
 	      break;
-	   ry = pbox->top();	/* x guaranteed to be == prect->x1 */
+	   ry = pbox->top();
 	}
 
 	if (pbox->right() < rx)
 	   continue;		/* not far enough over yet */
 
-	if (pbox->left() > rx)
-	{
-	   partOut = TRUE;	/* missed part of rectangle to left */
+	if (pbox->left() > rx) {
+	   partOut = true;	/* missed part of rectangle to left */
 	   if (partIn)
 	      break;
 	}
 
-	if (pbox->left() <= prect->right())
-	{
-	    partIn = TRUE;	/* definitely overlap */
+	if (pbox->left() <= prect->right()) {
+	    partIn = true;	/* definitely overlap */
 	    if (partOut)
 	       break;
 	}
 
-	if (pbox->right() >= prect->right())
-	{
+	if (pbox->right() >= prect->right()) {
 	   ry = pbox->bottom() + 1;	/* finished with this band */
 	   if (ry > prect->bottom())
 	      break;
 	   rx = prect->left();	/* reset x out to left again */
-	} else
-	{
+	} else {
 	    /*
 	     * Because boxes in a band are maximal width, if the first box
 	     * to overlap the rectangle doesn't completely cover it in that
@@ -1402,11 +1190,8 @@ static bool RectInRegion(register QRegionPrivate *region,
 	     */
 	    break;
 	}
-
     }
-
-    return(partIn ? ((ry <= prect->bottom()) ? RectanglePart : RectangleIn) :
-		RectangleOut);
+    return partIn ? ((ry <= prect->bottom()) ? RectanglePart : RectangleIn) : RectangleOut;
 }
 // END OF Region.c extract
 // START OF poly.h extract
@@ -1473,7 +1258,7 @@ SOFTWARE.
  *     overhead is out of the question.
  *     See the author for a derivation if needed.
  */
-
+
 
 /*
  *  In scan converting polygons, we want to choose those pixels
@@ -1519,7 +1304,7 @@ SOFTWARE.
         } \
     } \
 }
-
+
 #define BRESINCRPGON(d, minval, m, m1, incr1, incr2) { \
     if (m1 > 0) { \
         if (d > 0) { \
@@ -1542,7 +1327,7 @@ SOFTWARE.
     } \
 }
 
-
+
 /*
  *     This structure contains all of the information needed
  *     to run the bresenham algorithm.
@@ -1656,7 +1441,7 @@ typedef struct _ScanLineListBlock {
 } ScanLineListBlock;
 
 
-
+
 /*
  *
  *     a few macros for the inner loops of the fill code where
@@ -1770,9 +1555,8 @@ SOFTWARE.
  *     bucket.  Finally, we can insert it.
  *
  */
-static void
-InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
-		ScanLineListBlock **SLLBlock, int *iSLLBlock)
+static void InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
+			   ScanLineListBlock **SLLBlock, int *iSLLBlock)
 {
     register EdgeTableEntry *start, *prev;
     register ScanLineList *pSLL, *pPrevSLL;
@@ -1783,8 +1567,7 @@ InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
      */
     pPrevSLL = &ET->scanlines;
     pSLL = pPrevSLL->next;
-    while (pSLL && (pSLL->scanline < scanline))
-    {
+    while (pSLL && (pSLL->scanline < scanline)) {
         pPrevSLL = pSLL;
         pSLL = pSLL->next;
     }
@@ -1792,8 +1575,7 @@ InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
     /*
      * reassign pSLL (pointer to ScanLineList) if necessary
      */
-    if ((!pSLL) || (pSLL->scanline > scanline))
-    {
+    if ((!pSLL) || (pSLL->scanline > scanline)) {
         if (*iSLLBlock > SLLSPERBLOCK-1)
         {
             tmpSLLBlock =
@@ -1814,10 +1596,9 @@ InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
     /*
      * now insert the edge in the right bucket
      */
-    prev = (EdgeTableEntry *)NULL;
+    prev = 0;
     start = pSLL->edgelist;
-    while (start && (start->bres.minor_axis < ETE->bres.minor_axis))
-    {
+    while (start && (start->bres.minor_axis < ETE->bres.minor_axis)) {
         prev = start;
         start = start->next;
     }
@@ -1828,7 +1609,7 @@ InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
     else
         pSLL->edgelist = ETE;
 }
-
+
 /*
  *     CreateEdgeTable
  *
@@ -1854,65 +1635,64 @@ InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
  *
  */
 
-static void
-CreateETandAET(register int count, register QPoint *pts,
-	EdgeTable *ET, EdgeTableEntry *AET, register EdgeTableEntry *pETEs,
-	ScanLineListBlock   *pSLLBlock)
+static void CreateETandAET(register int count, register const QPoint *pts,
+			   EdgeTable *ET, EdgeTableEntry *AET, register EdgeTableEntry *pETEs,
+			   ScanLineListBlock *pSLLBlock)
 {
-    register QPoint *top, *bottom;
-    register QPoint *PrevPt, *CurrPt;
+    register const QPoint *top,
+		          *bottom,
+			  *PrevPt,
+			  *CurrPt;
     int iSLLBlock = 0;
     int dy;
 
-    if (count < 2)  return;
+    if (count < 2)
+	return;
 
     /*
      *  initialize the Active Edge Table
      */
-    AET->next = (EdgeTableEntry *)NULL;
-    AET->back = (EdgeTableEntry *)NULL;
-    AET->nextWETE = (EdgeTableEntry *)NULL;
+    AET->next = 0;
+    AET->back = 0;
+    AET->nextWETE = 0;
     AET->bres.minor_axis = SMALL_COORDINATE;
 
     /*
      *  initialize the Edge Table.
      */
-    ET->scanlines.next = (ScanLineList *)NULL;
+    ET->scanlines.next = 0;
     ET->ymax = SMALL_COORDINATE;
     ET->ymin = LARGE_COORDINATE;
-    pSLLBlock->next = (ScanLineListBlock *)NULL;
+    pSLLBlock->next = 0;
 
-    PrevPt = &pts[count-1];
+    PrevPt = &pts[count - 1];
 
     /*
      *  for each vertex in the array of points.
      *  In this loop we are dealing with two vertices at
      *  a time -- these make up one edge of the polygon.
      */
-    while (count--)
-    {
+    while (count--) {
         CurrPt = pts++;
 
         /*
          *  find out which point is above and which is below.
          */
-        if (PrevPt->y() > CurrPt->y() )
-        {
-            bottom = PrevPt, top = CurrPt;
+        if (PrevPt->y() > CurrPt->y()) {
+            bottom = PrevPt;
+	    top = CurrPt;
             pETEs->ClockWise = 0;
-        }
-        else
-        {
-            bottom = CurrPt, top = PrevPt;
+        } else {
+            bottom = CurrPt;
+	    top = PrevPt;
             pETEs->ClockWise = 1;
         }
 
         /*
          * don't add horizontal edges to the Edge table.
          */
-        if ( bottom->y() != top->y() )
-        {
-            pETEs->ymax = bottom->y()-1;  /* -1 so we don't get last scanline */
+        if (bottom->y() != top->y()) {
+            pETEs->ymax = bottom->y() - 1;  /* -1 so we don't get last scanline */
 
             /*
              *  initialize integer edge algorithm
@@ -1926,13 +1706,13 @@ CreateETandAET(register int count, register QPoint *pts,
 		ET->ymax = PrevPt->y();
 	    if (PrevPt->y() < ET->ymin)
 		ET->ymin = PrevPt->y();
-            pETEs++;
+            ++pETEs;
         }
 
         PrevPt = CurrPt;
     }
 }
-
+
 /*
  *     loadAET
  *
@@ -1942,18 +1722,15 @@ CreateETandAET(register int count, register QPoint *pts,
  *
  */
 
-static void
-loadAET(register EdgeTableEntry *AET, register EdgeTableEntry *ETEs)
+static void loadAET(register EdgeTableEntry *AET, register EdgeTableEntry *ETEs)
 {
     register EdgeTableEntry *pPrevAET;
     register EdgeTableEntry *tmp;
 
     pPrevAET = AET;
     AET = AET->next;
-    while (ETEs)
-    {
-        while (AET && (AET->bres.minor_axis < ETEs->bres.minor_axis))
-        {
+    while (ETEs) {
+        while (AET && AET->bres.minor_axis < ETEs->bres.minor_axis) {
             pPrevAET = AET;
             AET = AET->next;
         }
@@ -1968,7 +1745,7 @@ loadAET(register EdgeTableEntry *AET, register EdgeTableEntry *ETEs)
         ETEs = tmp;
     }
 }
-
+
 /*
  *     computeWAET
  *
@@ -1989,35 +1766,31 @@ loadAET(register EdgeTableEntry *AET, register EdgeTableEntry *ETEs)
  *         V------------------->       V---> ...
  *
  */
-static void
-computeWAET(register EdgeTableEntry *AET)
+static void computeWAET(register EdgeTableEntry *AET)
 {
     register EdgeTableEntry *pWETE;
     register int inside = 1;
     register int isInside = 0;
 
-    AET->nextWETE = (EdgeTableEntry *)NULL;
+    AET->nextWETE = 0;
     pWETE = AET;
     AET = AET->next;
-    while (AET)
-    {
+    while (AET) {
         if (AET->ClockWise)
-            isInside++;
+            ++isInside;
         else
-            isInside--;
+            --isInside;
 
-        if ((!inside && !isInside) ||
-            ( inside &&  isInside))
-        {
+        if (!inside && !isInside || inside && isInside) {
             pWETE->nextWETE = AET;
             pWETE = AET;
             inside = !inside;
         }
         AET = AET->next;
     }
-    pWETE->nextWETE = (EdgeTableEntry *)NULL;
+    pWETE->nextWETE = 0;
 }
-
+
 /*
  *     InsertionSort
  *
@@ -2027,8 +1800,7 @@ computeWAET(register EdgeTableEntry *AET)
  *
  */
 
-static int
-InsertionSort(register EdgeTableEntry *AET)
+static int InsertionSort(register EdgeTableEntry *AET)
 {
     register EdgeTableEntry *pETEchase;
     register EdgeTableEntry *pETEinsert;
@@ -2036,16 +1808,14 @@ InsertionSort(register EdgeTableEntry *AET)
     register int changed = 0;
 
     AET = AET->next;
-    while (AET)
-    {
+    while (AET) {
         pETEinsert = AET;
         pETEchase = AET;
         while (pETEchase->back->bres.minor_axis > AET->bres.minor_axis)
             pETEchase = pETEchase->back;
 
         AET = AET->next;
-        if (pETEchase != pETEinsert)
-        {
+        if (pETEchase != pETEinsert) {
             pETEchaseBackTMP = pETEchase->back;
             pETEinsert->back->next = AET;
             if (AET)
@@ -2057,21 +1827,19 @@ InsertionSort(register EdgeTableEntry *AET)
             changed = 1;
         }
     }
-    return(changed);
+    return changed;
 }
-
+
 /*
  *     Clean up our act.
  */
-static void
-FreeStorage(register ScanLineListBlock   *pSLLBlock)
+static void FreeStorage(register ScanLineListBlock *pSLLBlock)
 {
-    register ScanLineListBlock   *tmpSLLBlock;
+    register ScanLineListBlock *tmpSLLBlock;
 
-    while (pSLLBlock)
-    {
+    while (pSLLBlock) {
         tmpSLLBlock = pSLLBlock->next;
-        free((char *)pSLLBlock);
+        free(pSLLBlock);
         pSLLBlock = tmpSLLBlock;
     }
 }
@@ -2084,10 +1852,10 @@ FreeStorage(register ScanLineListBlock   *pSLLBlock)
  *     stack by the calling procedure.
  *
  */
-static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
-    POINTBLOCK *FirstPtBlock, QRegionPrivate *reg)
+static void PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
+		       POINTBLOCK *FirstPtBlock, QRegionPrivate *reg)
 {
-    register QRect  *rects;
+    register QRect *rects;
     register QPoint *pts;
     register POINTBLOCK *CurPtBlock;
     register int i;
@@ -2103,27 +1871,27 @@ static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
     CurPtBlock = FirstPtBlock;
     rects = reg->rects.data() - 1;
     numRects = 0;
-    extents->setLeft( INT_MAX );
-    extents->setRight( INT_MIN );
+    extents->setLeft(INT_MAX);
+    extents->setRight(INT_MIN);
 
-    for ( ; numFullPtBlocks >= 0; numFullPtBlocks--) {
+    for (; numFullPtBlocks >= 0; --numFullPtBlocks) {
 	/* the loop uses 2 points per iteration */
 	i = NUMPTSTOBUFFER >> 1;
 	if (!numFullPtBlocks)
 	    i = iCurPtBlock >> 1;
-	for (pts = CurPtBlock->pts; i--; pts += 2) {
-	    if ( pts->x() > pts[1].x() )
+	for (pts = CurPtBlock->pts; --i; pts += 2) {
+	    if (pts->x() > pts[1].x())
 		continue;
-	    if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom() &&
-		pts[1].x() == rects->right() &&
-		(numRects == 1 || rects[-1].top() != rects->top()) &&
-		(i && pts[2].y() > pts[1].y() )) {
-		rects->setBottom( pts[1].y() );
+	    if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom()
+		&& pts[1].x() == rects->right()
+		&& (numRects == 1 || rects[-1].top() != rects->top())
+		&& (i && pts[2].y() > pts[1].y() )) {
+		rects->setBottom(pts[1].y());
 		continue;
 	    }
-	    numRects++;
-	    rects++;
-	    qt_setCoords( rects, pts->x(), pts->y(), pts[1].x(), pts[1].y() );
+	    ++numRects;
+	    ++rects;
+	    rects->setCoords(pts->x(), pts->y(), pts[1].x(), pts[1].y());
 	    if (rects->left() < extents->left())
 		extents->setLeft( rects->left() );
 	    if (rects->right() > extents->right())
@@ -2133,14 +1901,12 @@ static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
     }
 
     if (numRects) {
-	extents->setTop( reg->rects[0].top() );
-	extents->setBottom( rects->bottom() );
+	extents->setTop(reg->rects[0].top());
+	extents->setBottom(rects->bottom());
     } else {
-	qt_setCoords(extents, 0, 0, 0, 0);
+	extents->setCoords(0, 0, 0, 0);
     }
     reg->numRects = numRects;
-
-    return(TRUE);
 }
 
 /*
@@ -2150,7 +1916,7 @@ static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
  *     encoding of the resultant bitmap -- the run-length
  *     encoding is in the form of an array of rectangles.
  */
-static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
+static QRegionPrivate *PolygonRegion(const QPoint *Pts, int Count, int rule)
     //Point     *Pts;		     /* the pts                 */
     //int       Count;                 /* number of pts           */
     //int	rule;			     /* winding rule */
@@ -2167,30 +1933,25 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
     EdgeTableEntry AET;              /* header node for AET     */
     EdgeTableEntry *pETEs;           /* EdgeTableEntries pool   */
     ScanLineListBlock SLLBlock;      /* header for scanlinelist */
-    int fixWAET = FALSE;
+    int fixWAET = false;
     POINTBLOCK FirstPtBlock, *curPtBlock; /* PtBlock buffers    */
     POINTBLOCK *tmpPtBlock;
     int numFullPtBlocks = 0;
 
-    if ( !(region = new QRegionPrivate) )
+    if (!(region = new QRegionPrivate) )
 	return 0;
 
     /* special case a rectangle */
-    pts = Pts;
     if (((Count == 4) ||
-	 ((Count == 5) && (pts[4].x() == pts[0].x() ) && (pts[4].y() == pts[0].y() ))) &&
-	(((pts[0].y() == pts[1].y()) &&
-	  (pts[1].x() == pts[2].x()) &&
-	  (pts[2].y() == pts[3].y()) &&
-	  (pts[3].x() == pts[0].x())) ||
-	 ((pts[0].x() == pts[1].x()) &&
-	  (pts[1].y() == pts[2].y()) &&
-	  (pts[2].x() == pts[3].x()) &&
-	  (pts[3].y() == pts[0].y())))) {
-	region->extents.setLeft( QMIN(pts[0].x(), pts[2].x()) );
-	region->extents.setTop( QMIN(pts[0].y(), pts[2].y()) );
-	region->extents.setRight( QMAX(pts[0].x(), pts[2].x()) );
-	region->extents.setBottom( QMAX(pts[0].y(), pts[2].y()) );
+	 ((Count == 5) && (Pts[4].x() == Pts[0].x() ) && (Pts[4].y() == Pts[0].y() )))
+	 && (((Pts[0].y() == Pts[1].y()) && (Pts[1].x() == Pts[2].x()) && (Pts[2].y() == Pts[3].y())
+	       && (Pts[3].x() == Pts[0].x())) || ((Pts[0].x() == Pts[1].x())
+	       && (Pts[1].y() == Pts[2].y()) && (Pts[2].x() == Pts[3].x())
+	       && (Pts[3].y() == Pts[0].y())))) {
+	region->extents.setLeft( QMIN(Pts[0].x(), Pts[2].x()) );
+	region->extents.setTop( QMIN(Pts[0].y(), Pts[2].y()) );
+	region->extents.setRight( QMAX(Pts[0].x(), Pts[2].x()) );
+	region->extents.setBottom( QMAX(Pts[0].y(), Pts[2].y()) );
 	if ((region->extents.left() <= region->extents.right()) &&
 	    (region->extents.top() <= region->extents.bottom())) {
 	    region->numRects = 1;
@@ -2200,8 +1961,7 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
 	return region;
     }
 
-    if (! (pETEs = (EdgeTableEntry *)
-	   malloc((unsigned) (sizeof(EdgeTableEntry) * Count))))
+    if (!(pETEs = static_cast<EdgeTableEntry *>(malloc(sizeof(EdgeTableEntry) * Count))))
 	return 0;
 
     pts = FirstPtBlock.pts;
@@ -2213,12 +1973,12 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
         /*
          *  for each scanline
          */
-        for (y = ET.ymin; y < ET.ymax; y++) {
+        for (y = ET.ymin; y < ET.ymax; ++y) {
             /*
              *  Add a new edge to the active edge table when we
              *  get to the next edge.
              */
-            if (pSLL != NULL && y == pSLL->scanline) {
+            if (pSLL && y == pSLL->scanline) {
                 loadAET(&AET, pSLL->edgelist);
                 pSLL = pSLL->next;
             }
@@ -2229,8 +1989,10 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
              *  for each active edge
              */
             while (pAET) {
-                pts->setX( pAET->bres.minor_axis ),  pts->setY( y );
-                pts++, iPts++;
+                pts->setX(pAET->bres.minor_axis);
+		pts->setY(y);
+                ++pts;
+		++iPts;
 
                 /*
                  *  send out the buffer
@@ -2240,24 +2002,23 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
                     curPtBlock->next = tmpPtBlock;
                     curPtBlock = tmpPtBlock;
                     pts = curPtBlock->pts;
-                    numFullPtBlocks++;
+                    ++numFullPtBlocks;
                     iPts = 0;
                 }
                 EVALUATEEDGEEVENODD(pAET, pPrevAET, y)
             }
-            (void) InsertionSort(&AET);
+            InsertionSort(&AET);
         }
-    }
-    else {
+    } else {
         /*
          *  for each scanline
          */
-        for (y = ET.ymin; y < ET.ymax; y++) {
+        for (y = ET.ymin; y < ET.ymax; ++y) {
             /*
              *  Add a new edge to the active edge table when we
              *  get to the next edge.
              */
-            if (pSLL != NULL && y == pSLL->scanline) {
+            if (pSLL && y == pSLL->scanline) {
                 loadAET(&AET, pSLL->edgelist);
                 computeWAET(&AET);
                 pSLL = pSLL->next;
@@ -2275,18 +2036,21 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
                  *  are in the Winding active edge table.
                  */
                 if (pWETE == pAET) {
-                    pts->setX( pAET->bres.minor_axis),  pts->setY( y );
-                    pts++, iPts++;
+                    pts->setX( pAET->bres.minor_axis);
+		    pts->setY(y);
+                    ++pts;
+		    ++iPts;
 
                     /*
                      *  send out the buffer
                      */
                     if (iPts == NUMPTSTOBUFFER) {
-                        tmpPtBlock = (POINTBLOCK *)malloc(sizeof(POINTBLOCK));
+                        tmpPtBlock = static_cast<POINTBLOCK *>(malloc(sizeof(POINTBLOCK)));
                         curPtBlock->next = tmpPtBlock;
                         curPtBlock = tmpPtBlock;
                         pts = curPtBlock->pts;
-                        numFullPtBlocks++;    iPts = 0;
+                        ++numFullPtBlocks;
+			iPts = 0;
                     }
                     pWETE = pWETE->nextWETE;
                 }
@@ -2299,18 +2063,18 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
              */
             if (InsertionSort(&AET) || fixWAET) {
                 computeWAET(&AET);
-                fixWAET = FALSE;
+                fixWAET = false;
             }
         }
     }
     FreeStorage(SLLBlock.next);
-    (void) PtsToRegion(numFullPtBlocks, iPts, &FirstPtBlock, region);
+    PtsToRegion(numFullPtBlocks, iPts, &FirstPtBlock, region);
     for (curPtBlock = FirstPtBlock.next; --numFullPtBlocks >= 0;) {
 	tmpPtBlock = curPtBlock->next;
-	free((char *)curPtBlock);
+	free(curPtBlock);
 	curPtBlock = tmpPtBlock;
     }
-    free((char *)pETEs);
+    free(pETEs);
     return region;
 }
 // END OF PolyReg.c extract
@@ -2324,29 +2088,30 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 
 #define AddSpan \
 	{ \
-	    qt_setCoords( &xr, prev1, y, x-1, y ); \
-	    UnionRectWithRegion( &xr, region, region ); \
+	    xr.setCoords(prev1, y, x-1, y ); \
+	    UnionRectWithRegion( &xr, region, *region ); \
 	}
 
-    const int zero=0;
+    const int zero = 0;
     bool little = image.bitOrder() == QImage::LittleEndian;
 
-    int x, y;
-    for (y=0; y<image.height(); y++) {
+    int x,
+	y;
+    for (y = 0; y < image.height(); ++y) {
 	uchar *line = image.scanLine(y);
 	int w = image.width();
 	uchar all=zero;
 	int prev1 = -1;
-	for (x=0; x<w; ) {
-	    uchar byte = line[x/8];
-	    if ( x>w-8 || byte!=all ) {
-		if ( little ) {
-		    for ( int b=8; b>0 && x<w; b-- ) {
-			if ( !(byte&0x01) == !all ) {
+	for (x = 0; x < w; ) {
+	    uchar byte = line[x / 8];
+	    if (x > w - 8 || byte!=all) {
+		if (little) {
+		    for (int b = 8; b > 0 && x < w; --b) {
+			if (!(byte & 0x01) == !all) {
 			    // More of the same
 			} else {
 			    // A change.
-			    if ( all!=zero ) {
+			    if (all!=zero) {
 				AddSpan
 				all = zero;
 			    } else {
@@ -2355,15 +2120,15 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 			    }
 			}
 			byte >>= 1;
-			x++;
+			++x;
 		    }
 		} else {
-		    for ( int b=8; b>0 && x<w; b-- ) {
-			if ( !(byte&0x80) == !all ) {
+		    for (int b = 8; b > 0 && x < w; --b ) {
+			if (!(byte & 0x80) == !all) {
 			    // More of the same
 			} else {
 			    // A change.
-			    if ( all!=zero ) {
+			    if (all != zero) {
 				AddSpan
 				all = zero;
 			    } else {
@@ -2372,31 +2137,23 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 			    }
 			}
 			byte <<= 1;
-			x++;
+			++x;
 		    }
 		}
 	    } else {
-		x+=8;
+		x += 8;
 	    }
 	}
-	if ( all != zero ) {
+	if (all != zero) {
 	    AddSpan
 	}
     }
+#undef AddSpan
 
     return region;
 }
 
-// NOT REVISED
-
-static QRegion *empty_region = 0;
-
-static void cleanup_empty_region()
-{
-    delete empty_region;
-    empty_region = 0;
-}
-
+QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), 0, 0, 0};
 
 /*!
     Constructs a null region.
@@ -2405,28 +2162,9 @@ static void cleanup_empty_region()
 */
 
 QRegion::QRegion()
+    : d(&shared_empty)
 {
-    if ( !empty_region ) {			// avoid too many allocs
-	qAddPostRoutine( cleanup_empty_region );
-	empty_region = new QRegion( TRUE );
-	Q_CHECK_PTR( empty_region );
-    }
-    data = empty_region->data;
-    data->ref();
-}
-
-/*! \internal
-  Internal constructor that creates a null region.
-*/
-
-QRegion::QRegion( bool is_null )
-{
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
-    data->region = new QRegionPrivate;
-    data->is_null = is_null;
-    data->rgn = 0;
-    data->xrectangles = 0;
+    ++d->ref;
 }
 
 /*!
@@ -2439,38 +2177,32 @@ QRegion::QRegion( bool is_null )
     \sa QRegion::RegionType
 */
 
-QRegion::QRegion( const QRect &r, RegionType t )
+QRegion::QRegion(const QRect &r, RegionType t)
 {
-    if ( r.isEmpty() ) {
-	if ( !empty_region ) {			// avoid too many allocs
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
-	}
-	data = empty_region->data;
-	data->ref();
+    if (r.isEmpty()) {
+	d = &shared_empty;
+	++d->ref;
     } else {
-	data = new QRegionData;
-	Q_CHECK_PTR( data );
-	data->is_null = FALSE;
-	data->rgn = 0;
-	data->xrectangles = 0;
-	if ( t == Rectangle ) {			// rectangular region
-	    data->region = new QRegionPrivate( r );
-	} else if ( t == Ellipse ) {		// elliptic region
+	d = new QRegionData;
+	d->ref = 1;
+#ifndef Q_WS_QWS
+	d->rgn = 0;
+	d->xrectangles = 0;
+#endif
+	if (t == Rectangle) {
+	    d->region = new QRegionPrivate(r);
+	} else if (t == Ellipse) {
 	    QPointArray a;
-	    a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
-	    data->region = PolygonRegion( (QPoint*)a.data(), a.size(),
-					  EvenOddRule );
+	    a.makeEllipse(r.x(), r.y(), r.width(), r.height());
+	    d->region = PolygonRegion(a.constData(), a.size(), EvenOddRule);
 	}
     }
 }
 
-
 /*!
     Constructs a polygon region from the point array \a a.
 
-    If \a winding is TRUE, the polygon region is filled using the
+    If \a winding is true, the polygon region is filled using the
     winding algorithm, otherwise the default even-odd fill algorithm
     is used.
 
@@ -2478,24 +2210,19 @@ QRegion::QRegion( const QRect &r, RegionType t )
     painting when used.
 */
 
-QRegion::QRegion( const QPointArray &a, bool winding )
+QRegion::QRegion(const QPointArray &a, bool winding)
 {
-    if (a.size() > 0) {
-	data = new QRegionData;
-	Q_CHECK_PTR( data );
-	data->is_null = FALSE;
-	data->rgn = 0;
-	data->xrectangles = 0;
-	data->region = PolygonRegion( (QPoint*)a.data(), a.size(),
-				    winding ? WindingRule : EvenOddRule );
+    if (!a.isEmpty()) {
+	d =  new QRegionData;
+	d->ref = 1;
+#ifndef Q_WS_QWS
+	d->rgn = 0;
+	d->xrectangles = 0;
+#endif
+	d->region = PolygonRegion(a.constData(), a.size(), winding ? WindingRule : EvenOddRule);
     } else {
-	if ( !empty_region ) {
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
-	}
-	data = empty_region->data;
-	data->ref();
+	d = &shared_empty;
+	++d->ref;
     }
 }
 
@@ -2504,10 +2231,10 @@ QRegion::QRegion( const QPointArray &a, bool winding )
     Constructs a new region which is equal to region \a r.
 */
 
-QRegion::QRegion( const QRegion &r )
+QRegion::QRegion(const QRegion &r)
 {
-    data = r.data;
-    data->ref();
+    d = r.d;
+    ++d->ref;
 }
 
 
@@ -2521,24 +2248,32 @@ QRegion::QRegion( const QRegion &r )
     painting when used. Note that drawing masked pixmaps can be done
     much faster using QPixmap::setMask().
 */
-QRegion::QRegion( const QBitmap & bm )
+QRegion::QRegion(const QBitmap &bm)
 {
-    if ( bm.isNull() ) {
-	if ( !empty_region ) {			// avoid too many allocs
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
-	}
-	data = empty_region->data;
-	data->ref();
+    if (bm.isNull()) {
+	d = &shared_empty;
+	++d->ref;
     } else {
-	data = new QRegionData;
-	Q_CHECK_PTR( data );
-	data->is_null = FALSE;
-	data->rgn = 0;
-	data->xrectangles = 0;
-	data->region = qt_bitmapToRegion(bm);
+	d = new QRegionData;
+	d->ref = 1;
+#ifndef Q_WS_QWS
+	d->rgn = 0;
+	d->xrectangles = 0;
+#endif
+	d->region = qt_bitmapToRegion(bm);
     }
+}
+
+void QRegion::cleanUp(QRegion::QRegionData *x)
+{
+    delete x->region;
+#ifndef Q_WS_QWS
+    if (x->rgn)
+	XDestroyRegion(x->rgn);
+    if (x->xrectangles)
+	free(x->xrectangles);
+#endif
+    delete x;
 }
 
 /*!
@@ -2547,14 +2282,8 @@ QRegion::QRegion( const QBitmap & bm )
 
 QRegion::~QRegion()
 {
-    if ( data->deref() ) {
-	delete data->region;
-	if ( data->rgn )
-	    XDestroyRegion( data->rgn );
-	if ( data->xrectangles )
-	    free( data->xrectangles );
-	delete data;
-    }
+    if (!--d->ref)
+	cleanUp(d);
 }
 
 
@@ -2562,18 +2291,13 @@ QRegion::~QRegion()
     Assigns \a r to this region and returns a reference to the region.
 */
 
-QRegion &QRegion::operator=( const QRegion &r )
+QRegion &QRegion::operator=(const QRegion &r)
 {
-    r.data->ref();				// beware of r = r
-    if ( data->deref() ) {
-	delete data->region;
-	if ( data->rgn )
-	    XDestroyRegion( data->rgn );
-	if ( data->xrectangles )
-	    free( data->xrectangles );
-	delete data;
-    }
-    data = r.data;
+    QRegionData *x = r.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	cleanUp(x);
     return *this;
 }
 
@@ -2586,14 +2310,27 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 QRegion QRegion::copy() const
 {
-    QRegion r( data->is_null );
-    *r.data->region = *data->region;
+    QRegion r;
+    QRegionData *x = new QRegionData;
+    x->ref = 1;
+#ifndef Q_WS_QWS
+    x->rgn = 0;
+    x->xrectangles = 0;
+#endif
+    if (d->region)
+	x->region = new QRegionPrivate(*d->region);
+    else
+	x->region = new QRegionPrivate;
+    x = qAtomicSetPtr(&r.d, x);
+    if (!--x->ref)
+	cleanUp(x);
     return r;
 }
 
 /*!
-    Returns TRUE if the region is a null region; otherwise returns
-    FALSE.
+    \fn bool QRegion::isNull() const
+    Returns true if the region is a null region; otherwise returns
+    false.
 
     A null region is a region that has not been initialized. A null
     region is always empty.
@@ -2601,14 +2338,8 @@ QRegion QRegion::copy() const
     \sa isEmpty()
 */
 
-bool QRegion::isNull() const
-{
-    return data->is_null;
-}
-
-
 /*!
-    Returns TRUE if the region is empty; otherwise returns FALSE. An
+    Returns true if the region is empty; otherwise returns false. An
     empty region is a region that contains no points.
 
     Example:
@@ -2616,16 +2347,16 @@ bool QRegion::isNull() const
 	QRegion r1( 10, 10, 20, 20 );
 	QRegion r2( 40, 40, 20, 20 );
 	QRegion r3;
-        r1.isNull();             // FALSE
-        r1.isEmpty();            // FALSE
-        r3.isNull();             // TRUE
-        r3.isEmpty();            // TRUE
+        r1.isNull();             // false
+        r1.isEmpty();            // false
+        r3.isNull();             // true
+        r3.isEmpty();            // true
         r3 = r1.intersect( r2 ); // r3 = intersection of r1 and r2
-        r3.isNull();             // FALSE
-        r3.isEmpty();            // TRUE
+        r3.isNull();             // false
+        r3.isEmpty();            // true
         r3 = r1.unite( r2 );     // r3 = union of r1 and r2
-        r3.isNull();             // FALSE
-        r3.isEmpty();            // FALSE
+        r3.isNull();             // false
+        r3.isEmpty();            // false
     \endcode
 
     \sa isNull()
@@ -2633,31 +2364,30 @@ bool QRegion::isNull() const
 
 bool QRegion::isEmpty() const
 {
-    return data->is_null || ( data->region->numRects == 0 );
+    return d == &shared_empty || d->region->numRects == 0;
 }
 
 
 /*!
-    Returns TRUE if the region contains the point \a p; otherwise
-    returns FALSE.
+    Returns true if the region contains the point \a p; otherwise
+    returns false.
 */
 
-bool QRegion::contains( const QPoint &p ) const
+bool QRegion::contains(const QPoint &p) const
 {
-    return PointInRegion( data->region, p.x(), p.y() );
+    return PointInRegion(d->region, p.x(), p.y());
 }
 
 /*!
     \overload
 
-    Returns TRUE if the region overlaps the rectangle \a r; otherwise
-    returns FALSE.
+    Returns true if the region overlaps the rectangle \a r; otherwise
+    returns false.
 */
 
-bool QRegion::contains( const QRect &r ) const
+bool QRegion::contains(const QRect &r) const
 {
-    return RectInRegion( data->region, r.left(), r.top(),
-			  r.width(), r.height() ) != RectangleOut;
+    return RectInRegion(d->region, r.left(), r.top(), r.width(), r.height()) != RectangleOut;
 }
 
 
@@ -2666,15 +2396,13 @@ bool QRegion::contains( const QRect &r ) const
     along the Y axis.
 */
 
-void QRegion::translate( int dx, int dy )
+void QRegion::translate(int dx, int dy)
 {
-    if ( empty_region && data == empty_region->data )
-	return;
     detach();
-    OffsetRegion( data->region, dx, dy );
-    if ( data->xrectangles ) {
-	free( data->xrectangles );
-	data->xrectangles = 0;
+    OffsetRegion(*d->region, dx, dy);
+    if (d->xrectangles) {
+	free(d->xrectangles);
+	d->xrectangles = 0;
     }
 }
 
@@ -2687,10 +2415,11 @@ void QRegion::translate( int dx, int dy )
     The figure shows the union of two elliptical regions.
 */
 
-QRegion QRegion::unite( const QRegion &r ) const
+QRegion QRegion::unite(const QRegion &r) const
 {
-    QRegion result( FALSE );
-    UnionRegion( data->region, r.data->region, result.data->region );
+    QRegion result;
+    result.detach();
+    UnionRegion(d->region, r.d->region, *result.d->region);
     return result;
 }
 
@@ -2702,10 +2431,11 @@ QRegion QRegion::unite( const QRegion &r ) const
     The figure shows the intersection of two elliptical regions.
 */
 
-QRegion QRegion::intersect( const QRegion &r ) const
+QRegion QRegion::intersect(const QRegion &r) const
 {
-    QRegion result( FALSE );
-    IntersectRegion( data->region, r.data->region, result.data->region );
+    QRegion result;
+    result.detach();
+    IntersectRegion(d->region, r.d->region, *result.d->region);
     return result;
 }
 
@@ -2718,10 +2448,11 @@ QRegion QRegion::intersect( const QRegion &r ) const
     subtracted from the ellipse on the left. (\c left-right )
 */
 
-QRegion QRegion::subtract( const QRegion &r ) const
+QRegion QRegion::subtract(const QRegion &r) const
 {
-    QRegion result( FALSE );
-    SubtractRegion( data->region, r.data->region, result.data->region );
+    QRegion result;
+    result.detach();
+    SubtractRegion(d->region, r.d->region, *result.d->region);
     return result;
 }
 
@@ -2734,10 +2465,11 @@ QRegion QRegion::subtract( const QRegion &r ) const
     The figure shows the exclusive or of two elliptical regions.
 */
 
-QRegion QRegion::eor( const QRegion &r ) const
+QRegion QRegion::eor(const QRegion &r) const
 {
-    QRegion result( FALSE );
-    XorRegion( data->region, r.data->region, result.data->region );
+    QRegion result;
+    result.detach();
+    XorRegion(d->region, r.d->region, *result.d->region);
     return result;
 }
 
@@ -2748,7 +2480,9 @@ QRegion QRegion::eor( const QRegion &r ) const
 
 QRect QRegion::boundingRect() const
 {
-    return data->region->extents;
+    if (isEmpty())
+	return QRect();
+    return d->region->extents;
 }
 
 
@@ -2759,11 +2493,14 @@ QRect QRegion::boundingRect() const
     The union of all the rectangles is equal to the original region.
 */
 
-QMemArray<QRect> QRegion::rects() const
+QVector<QRect> QRegion::rects() const
 {
-    QMemArray<QRect> rects;
-    rects.duplicate( data->region->rects, data->region->numRects );
-    return rects;
+    // copy only the rects we need
+    int totalRects = isEmpty() ? 0 : d->region->numRects;
+    QVector<QRect> tmpRects(totalRects);
+    for (int i = 0; i < totalRects; ++i)
+	tmpRects[i] = d->region->rects.at(i);
+    return tmpRects;
 }
 
 /*!
@@ -2780,47 +2517,59 @@ QMemArray<QRect> QRegion::rects() const
   \internal
   Only some platforms have that restriction (QWS and X11).
 */
-void QRegion::setRects( const QRect *rects, int num )
+void QRegion::setRects(const QRect *rects, int num)
 {
-    *this = QRegion( FALSE );
-    if ( !rects || (num == 1 && rects->isEmpty()) )
+    *this = QRegion();
+    detach();
+    if (!rects || (num == 1 && rects->isEmpty()))
 	num = 0;
 
-    data->region->rects.duplicate( rects, num );
-    data->region->numRects = num;
-    if ( num == 0 ) {
-	data->region->extents = QRect();
+    d->region->rects.resize(num);
+    d->region->numRects = num;
+    if (num == 0) {
+	d->region->extents = QRect();
     } else {
-	int left = INT_MAX, right = INT_MIN, top = INT_MAX, bottom = INT_MIN;
-	int i;
-	for ( i = 0; i < num; i++ ) {
-	    left = QMIN( rects[i].left(), left );
-	    right = QMAX( rects[i].right(), right );
-	    top = QMIN( rects[i].top(), top );
-	    bottom = QMAX( rects[i].bottom(), bottom );
+	int left = INT_MAX,
+	    right = INT_MIN,
+	    top = INT_MAX,
+	    bottom = INT_MIN;
+	for (int i = 0; i < num; ++i) {
+	    const QRect &rect = rects[i];
+	    d->region->rects[i] = rect;
+	    left = QMIN(rect.left(), left);
+	    right = QMAX(rect.right(), right);
+	    top = QMIN(rect.top(), top);
+	    bottom = QMAX(rect.bottom(), bottom);
 	}
-	data->region->extents = QRect( QPoint(left, top), QPoint(right, bottom) );
+	d->region->extents = QRect(QPoint(left, top), QPoint(right, bottom));
     }
 }
 
 /*!
-    Returns TRUE if the region is equal to \a r; otherwise returns
-    FALSE.
+    Returns true if the region is equal to \a r; otherwise returns
+    false.
 */
 
-bool QRegion::operator==( const QRegion &r ) const
+bool QRegion::operator==(const QRegion &r) const
 {
-    return data == r.data ?
-	TRUE : EqualRegion( data->region, r.data->region );
+    if (!d->region)
+	return !r.d->region;
+
+    if (d == r.d) {
+	return true;
+    } else {
+	return EqualRegion(d->region, r.d->region);
+    }
 }
 
 /*!
     \fn bool QRegion::operator!=( const QRegion &r ) const
 
-    Returns TRUE if the region is different from \a r; otherwise
-    returns FALSE.
+    Returns true if the region is different from \a r; otherwise
+    returns false.
 */
 
+#ifndef Q_WS_QWS
 /*
   This is how X represents regions internally.
 */
@@ -2839,34 +2588,37 @@ struct _XRegion {
 
 void QRegion::updateX11Region() const
 {
-    data->rgn = XCreateRegion();
+    d->rgn = XCreateRegion();
 
-    for( int i = 0; i < data->region->numRects; i++ ) {
+    for(int i = 0; i < d->region->numRects; ++i) {
 	XRectangle r;
-	const QRect &rect = data->region->rects[i];
-	r.x = QMAX( SHRT_MIN, rect.x() );
-	r.y = QMAX( SHRT_MIN, rect.y() );
-	r.width = QMIN( USHRT_MAX, rect.width() );
-	r.height = QMIN( USHRT_MAX, rect.height() );
-	XUnionRectWithRegion( &r, data->rgn, data->rgn );
+	const QRect &rect = d->region->rects[i];
+	r.x = QMAX(SHRT_MIN, rect.x());
+	r.y = QMAX(SHRT_MIN, rect.y());
+	r.width = QMIN(USHRT_MAX, rect.width());
+	r.height = QMIN(USHRT_MAX, rect.height());
+	XUnionRectWithRegion(&r, d->rgn, d->rgn);
     }
 }
 
-
-void *QRegion::clipRectangles( int &num ) const
+void *QRegion::clipRectangles(int &num) const
 {
-    if ( !data->xrectangles ) {
-	XRectangle *r = (XRectangle *) malloc( data->region->numRects * sizeof( XRectangle ) );
-	data->xrectangles = r;
-	for( int i = 0; i < data->region->numRects; i++ ) {
-	    const QRect &rect = data->region->rects[i];
-	    r->x = QMAX( SHRT_MIN, rect.x() );
-	    r->y = QMAX( SHRT_MIN, rect.y() );
-	    r->width = QMIN( USHRT_MAX, rect.width() );
-	    r->height = QMIN( USHRT_MAX, rect.height() );
-	    r++;
+    if (!d->xrectangles && !isNull()) {
+	XRectangle *r = static_cast<XRectangle*>(malloc(d->region->numRects * sizeof(XRectangle)));
+	d->xrectangles = r;
+	for(int i = 0; i < d->region->numRects; ++i) {
+	    const QRect &rect = d->region->rects[i];
+	    r->x = QMAX(SHRT_MIN, rect.x());
+	    r->y = QMAX(SHRT_MIN, rect.y());
+	    r->width = QMIN(USHRT_MAX, rect.width());
+	    r->height = QMIN(USHRT_MAX, rect.height());
+	    ++r;
 	}
     }
-    num = data->region->numRects;
-    return data->xrectangles;
+    if (isNull())
+	num = 0;
+    else
+	num = d->region->numRects;
+    return d->xrectangles;
 }
+#endif

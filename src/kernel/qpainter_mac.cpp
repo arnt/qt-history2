@@ -796,7 +796,7 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
 
 		//create the region
 		QRegion newclip(a);
-		if(clipon && !clip.isNull())
+		if(clipon)
 		    newclip &= clip;
 		setClipRegion(newclip);
 
@@ -1030,7 +1030,7 @@ void QPainter::drawRect(int x, int y, int w, int h)
 
 		//create the region
 		QRegion newclip(QRect(x, y, w, h));
-		if(clipon && !clip.isNull())
+		if(clipon)
 		    newclip &= clip;
 		setClipRegion(newclip);
 
@@ -1249,7 +1249,7 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 
 		//create the region
 		QRegion newclip(QRect(x, y, w, h), QRegion::Ellipse);
-		if(clipon && !clip.isNull())
+		if(clipon)
 		    newclip &= clip;
 		setClipRegion(newclip);
 
@@ -1948,11 +1948,10 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
     }
     if(remade_clip || d->cache.crgn_dirty) { 	//update clipped region
 	remade_clip = TRUE;
-	if(!d->cache.clippedreg.isEmpty() && testf(ClipOn) && !crgn.isNull()) {
+	if(!d->cache.clippedreg.isEmpty() && testf(ClipOn)) {
 	    d->cache.paintreg = crgn;
 	    d->cache.paintreg.translate(d->offx, d->offy);
-	    if(!d->cache.clippedreg.isNull())
-		d->cache.paintreg &= d->cache.clippedreg;
+	    d->cache.paintreg &= d->cache.clippedreg;
 	} else {
 	    d->cache.paintreg = d->cache.clippedreg;
 	}

@@ -2931,9 +2931,11 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
     reg = reg.subtract( QRect( QPoint( 0, 0 ), ts ) );
 
     // And draw the rectangles (transformed inc contents coordinates as needed)
-    QMemArray<QRect> r = reg.rects();
-    for ( int i = 0; i < (int)r.count(); ++i )
-	p->fillRect( QRect(viewportToContents2(r[i].topLeft()),r[i].size()), viewport()->backgroundBrush() );
+    QVector<QRect> r = reg.rects();
+    for ( int i = 0; i < r.count(); ++i ) {
+	const QRect tmpRect = r.at(i);
+	p->fillRect( QRect(viewportToContents2(tmpRect.topLeft()),tmpRect.size()), viewport()->backgroundBrush() );
+    }
 }
 
 /*!

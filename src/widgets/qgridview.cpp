@@ -212,7 +212,7 @@ void QGridView::paintEmptyArea( QPainter *p, int cx ,int cy, int cw, int ch)
     reg = reg.subtract( QRect( contentsToViewport( QPoint( 0, 0 ) ), gridSize() ) );
 
     // And draw the rectangles (transformed as needed)
-    QMemArray<QRect> r = reg.rects();
+    QVector<QRect> r = reg.rects();
     const QBrush &brush = backgroundBrush();
     for ( int i = 0; i < (int)r.count(); ++i)
 	p->fillRect( r[ i ], brush );

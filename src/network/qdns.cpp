@@ -1370,7 +1370,7 @@ QPtrList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	    // wait - if it's an unqualified name, only ask when all
 	    // the other alternatives are exhausted.
 	    if ( q == m->queries.size() && ( s.find( '.' ) >= 0 ||
-					     l->count() >= n.count()-1 ) ) {
+					     (int)l->count() >= n.count()-1 ) ) {
 		QDnsQuery * query = new QDnsQuery;
 		query->started = now();
 		query->id = ++::id;

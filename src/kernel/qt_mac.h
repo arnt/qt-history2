@@ -297,7 +297,7 @@ QMacSavedPortInfo::setClipRegion(const QRect &rect)
 inline bool 
 QMacSavedPortInfo::setClipRegion(const QRegion &r)
 {
-    if(r.isNull())
+    if(r.isEmpty())
 	return setClipRegion(QRect());
     else if(!r.handle())
 	return setClipRegion(r.boundingRect());

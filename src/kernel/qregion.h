@@ -16,12 +16,12 @@
 #define QREGION_H
 
 #ifndef QT_H
-#include "qshared.h"
+#include "qatomic.h"
 #include "qrect.h"
-#include "qmemarray.h"
+#include "qvector.h"
 #endif // QT_H
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_QWS) || defined(Q_WS_X11)
 struct QRegionPrivate;
 #endif
 
@@ -31,55 +31,56 @@ public:
     enum RegionType { Rectangle, Ellipse };
 
     QRegion();
-    QRegion( int x, int y, int w, int h, RegionType = Rectangle );
-    QRegion( const QRect &, RegionType = Rectangle );
-    QRegion( const QPointArray &, bool winding=FALSE );
-    QRegion( const QRegion & );
-    QRegion( const QBitmap & );
-   ~QRegion();
-    QRegion &operator=( const QRegion & );
+    QRegion(int x, int y, int w, int h, RegionType t = Rectangle);
+    QRegion(const QRect &r, RegionType t = Rectangle);
+    QRegion(const QPointArray &pa, bool winding=false);
+    QRegion(const QRegion &region);
+    QRegion(const QBitmap &bitmap);
+    ~QRegion();
+    QRegion &operator=(const QRegion &);
 
-    bool    isNull()   const;
-    bool    isEmpty()  const;
+#ifndef QT_NO_COMPAT
+    inline bool isNull() const { return isEmpty(); }
+#endif
+    bool isEmpty() const;
 
-    bool    contains( const QPoint &p ) const;
-    bool    contains( const QRect &r )	const;
+    bool contains(const QPoint &p) const;
+    bool contains(const QRect &r) const;
 
-    void    translate( int dx, int dy );
+    void translate(int dx, int dy);
 
-    QRegion unite( const QRegion & )	const;
-    QRegion intersect( const QRegion &) const;
-    QRegion subtract( const QRegion & ) const;
-    QRegion eor( const QRegion & )	const;
+    QRegion unite(const QRegion &r) const;
+    QRegion intersect(const QRegion &r) const;
+    QRegion subtract(const QRegion &r) const;
+    QRegion eor(const QRegion &r) const;
 
-    QRect   boundingRect() const;
-    QMemArray<QRect> rects() const;
-    void setRects( const QRect *, int );
+    QRect boundingRect() const;
+    QVector<QRect> rects() const;
+    void setRects(const QRect *rect, int num);
 
-    const QRegion operator|( const QRegion & ) const;
-    const QRegion operator+( const QRegion & ) const;
-    const QRegion operator&( const QRegion & ) const;
-    const QRegion operator-( const QRegion & ) const;
-    const QRegion operator^( const QRegion & ) const;
-    QRegion& operator|=( const QRegion & );
-    QRegion& operator+=( const QRegion & );
-    QRegion& operator&=( const QRegion & );
-    QRegion& operator-=( const QRegion & );
-    QRegion& operator^=( const QRegion & );
+    const QRegion operator|(const QRegion &r) const;
+    const QRegion operator+(const QRegion &r) const;
+    const QRegion operator&(const QRegion &r) const;
+    const QRegion operator-(const QRegion &r) const;
+    const QRegion operator^(const QRegion &r) const;
+    QRegion& operator|=(const QRegion &r);
+    QRegion& operator+=(const QRegion &r);
+    QRegion& operator&=(const QRegion &r);
+    QRegion& operator-=(const QRegion &r);
+    QRegion& operator^=(const QRegion &r);
 
-    bool    operator==( const QRegion & )  const;
-    bool    operator!=( const QRegion &r ) const
-			{ return !(operator==(r)); }
+    bool operator==(const QRegion &r) const;
+    inline bool operator!=(const QRegion &r) const { return !(operator==(r)); }
 
 #if defined(Q_WS_WIN)
-    HRGN    handle() const { return data->rgn; }
+    inline HRGN    handle() const { return data->rgn; }
 #elif defined(Q_WS_X11)
-    Region handle() const { if(!data->rgn) updateX11Region(); return data->rgn; }
+    inline Region handle() const { if(!d->rgn) updateX11Region(); return d->rgn; }
 #elif defined(Q_WS_MAC)
-    RgnHandle handle(bool require_rgn=FALSE) const;
+    inline RgnHandle handle(bool require_rgn=FALSE) const;
 #elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
-    void * handle() const { return data->rgn; }
+    inline void *handle() const { return d->region; }
 #endif
 
 #ifndef QT_NO_DATASTREAM
@@ -87,41 +88,42 @@ public:
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
 #endif
 private:
-    QRegion( bool );
-    QRegion copy() const;
-    void    detach();
+    QRegion copy() const;   // helper of detach.
+    void detach();
 #if defined(Q_WS_WIN)
-    QRegion winCombine( const QRegion &, int ) const;
+    QRegion winCombine(const QRegion &r, int num) const;
 #endif
 #if defined(Q_WS_X11)
     void updateX11Region() const;
-    void *clipRectangles( int &num ) const;
-    friend void *qt_getClipRects( const QRegion &, int & );
+    void *clipRectangles(int &num) const;
+    friend void *qt_getClipRects(const QRegion &r, int &num);
 #endif
-    void    exec( const QByteArray &, int ver = 0 );
-    struct QRegionData : public QShared {
-#if defined(Q_WS_WIN)
-	HRGN   rgn;
-#elif defined(Q_WS_X11)
-	Region rgn;
-	void *xrectangles;
-	QRegionPrivate *region;
-#elif defined(Q_WS_MAC)
-	uint is_rect:1;
-	QRect rect;
-	RgnHandle rgn;
-#elif defined(Q_WS_QWS)
-	void * rgn;
-#endif
-	bool   is_null;
-    } *data;
 #if defined(Q_WS_MAC)
     friend struct qt_mac_rgn_data_cache;
     friend QRegionData *qt_mac_get_rgn_data();
     friend void qt_mac_free_rgn_data(QRegionData *);
     void rectifyRegion();
 #endif
-
+    void exec(const QByteArray &ba, int ver = 0);
+    struct QRegionData {
+	QAtomic ref;
+#if defined(Q_WS_WIN)
+	HRGN   rgn;
+#elif defined(Q_WS_X11)
+	Region rgn;
+	void *xrectangles;
+#elif defined(Q_WS_MAC)
+	uint is_rect:1;
+	QRect rect;
+	RgnHandle rgn;
+#endif
+#if defined(Q_WS_QWS) || defined(Q_WS_X11)
+	QRegionPrivate *region;
+#endif
+    };
+    struct QRegionData *d;
+    static struct QRegionData shared_empty;
+    static void cleanUp(QRegionData *x);
 };
 
 
@@ -145,6 +147,5 @@ private:
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
 #endif
-
 
 #endif // QREGION_H

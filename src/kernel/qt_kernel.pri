@@ -134,7 +134,7 @@ kernel {
 			  $$KERNEL_CPP/qpixmap_x11.cpp \
 			  $$KERNEL_CPP/qpaintdevice_x11.cpp \
 			  $$KERNEL_CPP/qpainter_x11.cpp \
-			  $$KERNEL_CPP/qregion_x11.cpp \
+			  $$KERNEL_CPP/qregion_unix.cpp \
 			  $$KERNEL_CPP/qsound_x11.cpp \
 			  $$KERNEL_CPP/qwidget_x11.cpp \
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp \

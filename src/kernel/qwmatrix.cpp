@@ -588,7 +588,7 @@ QRegion QWMatrix::operator * (const QRect &rect ) const
 	    result = QRect( x, y, w, h );
 	}
     } else {
-	result = QRegion( mapToPolygon( rect ) );
+	result = QRegion(mapToPolygon(rect));
     }
     return result;
 
@@ -696,7 +696,7 @@ QRegion QWMatrix::operator * (const QRegion &r ) const
 {
     if ( isIdentity() )
 	return r;
-    QMemArray<QRect> rects = r.rects();
+    QVector<QRect> rects = r.rects();
     QRegion result;
     register QRect *rect = rects.data();
     register int i = rects.size();

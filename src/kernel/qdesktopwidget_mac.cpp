@@ -12,8 +12,9 @@
 **
 ****************************************************************************/
 
+#include "qapplication.h"
 #include "qdesktopwidget.h"
-#include <qapplication.h>
+#include "qmemarray.h"
 #include "qt_mac.h"
 
 class QDesktopWidgetPrivate
