@@ -17,13 +17,15 @@
 
 \title Style overview
 
+Note: This documentation is preliminary, QMotifStyle is not available in the first tech preview.
+
 A style in Qt implements the look and feel found in a GUI for a
 particular platform. For example, Windows platforms may use the
-Windows or Windows-XP style, Unix platforms may use the Motif style,
+Windows or Windows-XP style, Mac OS X uses the QMacStyle,
 and so on.
 
 This is a short guide that describes the steps that are necessary to
-get started creating and using custom styles with the Qt 3.x style
+get started creating and using custom styles with the Qt 4.x style
 API. First, we go through the steps necessary to create a style:
 \list 1
 \i Pick a base style to inherit from.
@@ -67,17 +69,13 @@ public:
     CustomStyle();
     ~CustomStyle();
 
-    void drawPrimitive( PrimitiveElement pe,
-			QPainter *p,
-			const QRect & r,
-			const QColorGroup & cg,
-			SFlags flags = Style_Default,
-			const QStyleOption & = QStyleOption::Default ) const;
+    void drawPrimitive(PrimitiveElement pe, QStyleOption *opt,
+                       QPainter *p, const QWidget *widget = 0) const;
 
 private:
     // Disabled copy constructor and operator=
-    CustomStyle( const CustomStyle & );
-    CustomStyle& operator=( const CustomStyle & );
+    CustomStyle(const CustomStyle &);
+    CustomStyle &operator=(const CustomStyle &);
 };
 \endcode
 
@@ -99,63 +97,59 @@ CustomStyle::~CustomStyle()
 {
 }
 
-void CustomStyle::drawPrimitive( PrimitiveElement pe,
-				 QPainter * p,
-				 const QRect & r,
-				 const QColorGroup & cg,
-				 SFlags flags,
-				 const QStyleOption & opt ) const
+void CustomStyle::drawPrimitive(PrimitiveElement pe, QStyleOption *opt, QPainter *p,
+				const QWidget *widget) const
 {
     // we are only interested in the arrows
     if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
 	QPointArray pa( 3 );
 	// make the arrow cover half the area it is supposed to be 
 	// painted on
-	int x = r.x();
-	int y = r.y();
-	int w = r.width() / 2;
-	int h = r.height() / 2;
-	x += (r.width() - w) / 2;
-	y += (r.height() - h) /2;
+	int x = opt->rect.x();
+	int y = opt->rect.y();
+	int w = opt->rect.width() / 2;
+	int h = opt->rect.height() / 2;
+	x += (opt->rect.width() - w) / 2;
+	y += (opt->rect.height() - h) /2;
 
 	switch( pe ) {
 	case PE_ArrowDown:
-	    pa.setPoint( 0, x, y );
-	    pa.setPoint( 1, x + w, y );
-	    pa.setPoint( 2, x + w / 2, y + h );
+	    pa.setPoint(0, x, y);
+	    pa.setPoint(1, x + w, y);
+	    pa.setPoint(2, x + w / 2, y + h);
 	    break;
 	case PE_ArrowUp:
-	    pa.setPoint( 0, x, y + h );
-	    pa.setPoint( 1, x + w, y + h );
-	    pa.setPoint( 2, x + w / 2, y );
+	    pa.setPoint(0, x, y + h);
+	    pa.setPoint(1, x + w, y + h);
+	    pa.setPoint(2, x + w / 2, y);
 	    break;
 	case PE_ArrowLeft:
-	    pa.setPoint( 0, x + w, y );
-	    pa.setPoint( 1, x + w, y + h );
-	    pa.setPoint( 2, x, y + h / 2 );
+	    pa.setPoint(0, x + w, y);
+	    pa.setPoint(1, x + w, y + h);
+	    pa.setPoint(2, x, y + h / 2);
 	    break;
 	case PE_ArrowRight:
-	    pa.setPoint( 0, x, y );
-	    pa.setPoint( 1, x, y + h );
-	    pa.setPoint( 2, x + w, y + h / 2 );
+	    pa.setPoint(0, x, y);
+	    pa.setPoint(1, x, y + h);
+	    pa.setPoint(2, x + w, y + h / 2);
 	    break;
-	default: break;
-	    
+	default:
+            break;
 	}
 
 	// use different colors to indicate that the arrow is 
 	// enabled/disabled
-	if ( flags & Style_Enabled ) {
-	    p->setPen( cg.mid() );
-	    p->setBrush( cg.brush( QColorGroup::ButtonText ) );
+	if (opt->state & Style_Enabled) {
+	    p->setPen(opt->palette.mid());
+	    p->setBrush(opt->palette.brush(QPalette::ButtonText));
 	} else {
-	    p->setPen( cg.buttonText() );
-	    p->setBrush( cg.brush( QColorGroup::Mid ) );
+	    p->setPen(opt->palette.buttonText());
+	    p->setBrush(opt->palette.brush(QColorGroup::Mid));
 	}
-	p->drawPolygon( pa );
+	p->drawPolygon(pa);
     } else {
 	// let the base style handle the other primitives
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	QWindowsStyle::drawPrimitive(pe, opt, p, widget);
     }
 }
 \endcode
@@ -169,9 +163,9 @@ application's main() function:
 \code
 #include "customstyle.h"
 
-int main( int argc, char ** argv )
+int main(int argc, char *argv[])
 {
-    QApplication::setStyle( new CustomStyle() );
+    QApplication::setStyle(new CustomStyle());
     // do the usual routine on creating your QApplication object etc.
 }
 \endcode
