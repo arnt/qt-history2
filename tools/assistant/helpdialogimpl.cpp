@@ -96,15 +96,10 @@ QDataStream &operator<<( QDataStream &s, const IndexKeyword &ik )
 QValidator::State SearchValidator::validate( QString &str, int & ) const
 {
     for ( int i = 0; i < (int) str.length(); ++i ) {
-	uchar r = str[i].row();
-	uchar c = str[i].cell();
-
-	if ( r != 0 || !( ( c >= '0' && c <= '9' ) ||
-	     ( c >= 'a' && c <= 'z' ) ||
-	     ( c >= 'A' && c <= 'Z' ) ||
-	     c == '\'' || c == '`' ||
-	     c == '\"' || c == ' ' ||
-	     c == '-' || c == '*' ) )
+	QChar c = str[i];
+	if ( !c.isLetterOrNumber() && c != '\'' && c != '`'
+	    && c != '\"' && c != ' ' && c != '-' && c != '_'
+	    && c!= '*' )
 	    return QValidator::Invalid;
     }
     return QValidator::Acceptable;
@@ -930,7 +925,7 @@ void HelpDialog::startSearch()
     str = str.replace( "`", "\"" );
     QString buf = str;
     str = str.replace( "-", " " );
-    str = str.replace( QRegExp( "\\s[A-Za-z0-9]?\\s" ), " " );
+    str = str.replace( QRegExp( "\\s[\\S]?\\s" ), " " );
     terms = QStringList::split( " ", str );
     QStringList termSeq;
     QStringList seqWords;

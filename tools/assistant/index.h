@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt Assistant.
 **
@@ -22,7 +22,7 @@
 #define INDEX_H
 
 #include <qstringlist.h>
-#include <qasciidict.h>
+#include <qdict.h>
 #include <qdatastream.h>
 #include <qobject.h>
 
@@ -81,17 +81,17 @@ private slots:
 private:
     void setupDocumentList();
     void parseDocument( const QString&, int );
-    void insertInDict( const char*, int );
+    void insertInDict( const QString&, int );
     void writeDocumentList();
     void readDocumentList();
     QStringList getWildcardTerms( const QString& );
-    QValueList<QCString> split( const QString& );
+    QStringList split( const QString& );
     QValueList<Document> setupDummyTerm( const QStringList& );
     bool searchForPattern( const QStringList&, const QStringList&, const QString& );
-    void buildMiniDict( const char* );
+    void buildMiniDict( const QString& );
     QStringList docList;
-    QAsciiDict<Entry> dict;
-    QAsciiDict<PosEntry> miniDict;
+    QDict<Entry> dict;
+    QDict<PosEntry> miniDict;
     uint wordNum;
     QString docPath, homePath;
     QString dictFile, docListFile;
@@ -100,9 +100,9 @@ private:
 };
 
 struct Term {
-    Term( const char *t, int f, QValueList<Document> l )
+    Term( const QString &t, int f, QValueList<Document> l )
 	: term( t ), frequency( f ), documents( l ) {}
-    const char* term;
+    QString term;
     int frequency;
     QValueList<Document>documents;
 };
