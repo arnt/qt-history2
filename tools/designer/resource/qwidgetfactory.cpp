@@ -1457,3 +1457,21 @@ QAction *QWidgetFactory::findAction( const QString &name )
     }
     return 0;
 }
+
+/* If the pixmaps of the form are not saved in the XML file, but you
+   used a project with a pixmap collection, you have to load this
+   pixmap collection. QWidgetFactory looks in the default
+   QMimeSourceFactory for the pixmaps. Either you add it there
+   manually, or call this function and specify the directory, where
+   the images can be found, as \a dir. This is normally the directory
+   \c images in the project directory.
+*/
+
+void QWidgetFactory::loadImages( const QString &dir )
+{
+    QDir d( dir );
+    QStringList l = d.entryList( QDir::Files );
+    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
+	QMimeSourceFactory::defaultFactory()->setPixmap( *it, QPixmap( d.path() + "/" + *it, "PNG" ) );
+
+}
