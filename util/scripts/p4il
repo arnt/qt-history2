@@ -23,6 +23,8 @@ for $arg ( @ARGV ) {
     exit( 0 );
   } elsif ( $arg eq "--force" ) {
     $force = 1;
+  } elsif ( $arg eq "-f" ) {
+    $force = 1;
   } else {
     $userName = $arg;
   }
