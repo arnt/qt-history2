@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#162 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#163 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1235,7 +1235,7 @@ sub readc {
 	} elsif ( $doc =~ m@^\\defgroup\s+([\w\.-]+)\s+(.*?)\s*$@s ) {
 	    # it's a \defgroup
 	    $pages{$1} = "<title>" . $module_long .
-		" - group index</title>", $style, "
+		" - group index</title>" . $style . "
 </head><body bgcolor=\"#ffffff\">\n"
 		    . $2;
 	    $classes{$1} = "";
