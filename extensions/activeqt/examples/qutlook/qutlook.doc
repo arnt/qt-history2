@@ -1,6 +1,79 @@
 /*!   \page qaxcontainer-example-qutlook.html
 
-  \ingroup examples
-  \title In sync with Outlook
+  \title In Sync with Outlook
+
+  This example is a modified version of the standard 
+  \link addressbook-example.html Qt addressbook \endlink example.
+  
+  It demonstrates the use of QAxObject and querySubObject to instantiate and
+  navigate the Outlook Object Model, and the use of the Qt property system to 
+  read and write values of items in the Outlook contact folder.
+
+  \quotefile qutlook/centralwidget.h
+  The modifications in the class declaration of the central widget are
+  a forward declaration of the QAxObject class, and a new member \c outlook
+  in the protected section. A new function \c setupOutlook implements
+  the instantiation of the Outlook.Application COM object.
+  \skipto class QAxObject
+  \printuntil Q_OBJECT
+  \c ...
+  \skipto protected:
+  \printuntil setupOutlook
+  \c ...
+  \skipto QCheckBox
+  \printuntil };
+
+  \quotefile qutlook/centralwidget.cpp
+  The ABCentralWidget constructor calls the \c setupOutlook function.
+  \skipto ABCentralWidget::ABCentralWidget
+  \printuntil mainGrid->
+  \skipto setupOutlook
+  The \c setupOutlook implementation creates a QAxObject to wrap the
+  Outlook.Application COM object.
+  \printuntil outlook =
+  The call to \c querySubObject returns a new QAxObject wrapper around the 
+  "Session" object of the Outlook Object hierarchy. If the call fails for 
+  some reason setupOutlook returns, otherwise it calls the "Logon" method 
+  of the Session object.
+  \printuntil "Logon()"
+  The following call to \c querySubObject returns a new QAxObject wrapper
+  around the default folder for "contacts".
+  \printto Get all items
+  \c querySubObject is then used again to get the list of all items in the
+  folder, and to iterate through the list. Since every call to \c querySubObject 
+  returns a new QAxObject the old item wrapper is deleted to reduce memory
+  consumption in case the folder contains a lot of items.
+  \printto "Logoff()"
+  The session is closed and the QAxObject wrapper is deleted before the function
+  returns. This also deletes all QAxObjects created through the \c querySubObject
+  function (e.g. defFolder).
+  \printto addEntry
+  
+  The \c addEntry implementation first creates a new QListViewItem if the data
+  entered is not empty.
+  \printuntil item->setText( 3
+  The CreateItem method of Outlook is called to create a new contact item. If
+  the call succeeds the properties of the item are set to the values entered,
+  and the item is saved.
+  \printto delete contactItem
+  Then the QAxObject wrapper for the contact item is deleted (and only the
+  wrapper object; the item itself is not deleted, of course).
+  \printto changeEntry
+
+  The \c changeEntry implementation uses the same way as \c setupOutlook to
+  connect to Outlook and to get the list of all contact items.
+  \printuntil "Items"
+  If the call to Outlook's "Find" method returns an item with the same values
+  for name this item is modified. (This is of course a insufficient way to
+  provide real synchronization, but servers the didactical purpose of the
+  example).
+  \printto "Logoff()"
+  The session is closed again and the QAxObject wrapper is deleted.
+  \printto selectionChanged
+
+  To build the example you must first build the
+  \link qaxcontainer.html QAxContainer \endlink library.
+  Then run your make tool in \c examples/webbrowser and
+  run the resulting \c webbrowser.exe.
 */
 

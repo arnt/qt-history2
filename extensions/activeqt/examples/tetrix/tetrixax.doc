@@ -38,10 +38,10 @@ End Sub
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/tetrix.
 
+  <hr>
+
   The \link qaxserver-demo-tetrix.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
-
-  <hr>
 
   \quotefile tetrix/tetrixax.doc
   \skipuntil raw html

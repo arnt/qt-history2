@@ -67,17 +67,17 @@ End Sub
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/simple.
 
+  <hr>
+
   The \link qaxserver-demo-simple.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-  The following HTML code is used on the demonstration page to instantiate
-  the object.
- 
-  \quotefile simple/simple.doc
+  The simple ActiveX control is embedded using the \c <object> tag.
+   \quotefile simple/simple.doc
   \skipto <object ID
   \printuntil </object>
 
-  A simple HTML form is connected to the ActiveQt's about() slot.
+  A simple HTML button is connected to the ActiveQt's about() slot.
   \printuntil </FORM>
 
   A second ActiveX control - the standard Calendar Control - is instantiated

@@ -9,14 +9,13 @@ Sub QPushButton_clicked()
 End Sub
 
 Sub QCheckBox_toggled( state )
-    if State = 0 then
+    if state = 0 then
         QCheckBox.text = "Check me!"
     else
         QCheckBox.text = "Uncheck me!"
     end if
 End Sub
 </SCRIPT>
-
 <p>
 A QPushButton:<br>
 <object ID="QPushButton" CLASSID="CLSID:2B262458-A4B6-468B-B7D4-CF5FEE0A7092">
@@ -53,14 +52,25 @@ A QRadioButton:<br>
   controls, and the use of QAxFactory together with the QAXFACTORY_EXPORT
   macro.
 
+  \quotefile wrapper/main.cpp 
+  The factory implementation returns the list of supported controls,
+  creates controls on request and provides information about the unique
+  IDs of the COM classes and interfaces for each control.
+  \skipto class
+  \printuntil };
+  The factory is exported using the QAXFACTORY_EXPORT macro
+  \printuntil QAXFACTORY_EXPORT
+  The implementation of \c main is just a dummy, but required for the linker.
+  \printuntil }
+
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/wrapper.
 
+  <hr>
+
   The \link qaxserver-demo-wrapper.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
-
-  <hr>
 
   \quotefile wrapper/wrapper.doc
   \skipuntil raw html

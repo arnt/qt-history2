@@ -46,10 +46,10 @@ Z:<input type="edit" name="ZEdit" value="0"><br>
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/wrapper.
 
+  <hr>
+
   The \link qaxserver-demo-opengl.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
-
-  <hr>
   
   \quotefile opengl/opengl.doc
   \skipuntil raw html
