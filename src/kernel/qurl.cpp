@@ -667,9 +667,11 @@ bool QUrl::parse( const QString& url )
 	d->host.remove( 0, 1 );
 
 #if defined(_OS_WIN32_)
-    // hack for windows
+    // hack for windows file://machine/path syntax
     if ( d->protocol == "file" ) { 	
-	if ( url.left( 7 ) == "file://" && d->path[ 1 ] != '/' )
+	if ( url.left( 7 ) == "file://" && 
+	     ( d->path.length() < 8 || d->path[ 7 ] != '/' ) && 
+	     d->path[ 1 ] != '/' )
 	    d->path.prepend( "/" );
     }
 #endif
