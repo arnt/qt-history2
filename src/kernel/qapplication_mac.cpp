@@ -497,7 +497,8 @@ enum {
     kEventQtRequestTimer = 15,
     kEventQtRequestWakeup = 16,
     kEventQtRequestShowSheet = 17,
-    kEventQtRequestActivate = 18
+    kEventQtRequestActivate = 18,
+    kEventQtRequestSocketAct = 19
 };
 static EventRef request_updates_pending = NULL;
 void qt_event_request_updates()
@@ -531,6 +532,23 @@ void qt_event_request_select(QEventLoop *loop) {
 		      kEventParamQEventLoop, typeQEventLoop, sizeof(loop), &loop);
     PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
     ReleaseEvent(request_select_pending);
+}
+static EventRef request_sockact_pending = NULL;
+void qt_event_request_sockact(QEventLoop *loop) {
+    if(request_sockact_pending) {
+	if(IsEventInQueue(GetMainEventQueue(), request_sockact_pending))
+	    return;
+#ifdef DEBUG_DROPPED_EVENTS
+	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
+    }
+
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestSocketAct, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &request_sockact_pending);
+    SetEventParameter(request_sockact_pending,
+		      kEventParamQEventLoop, typeQEventLoop, sizeof(loop), &loop);
+    PostEventToQueue(GetMainEventQueue(), request_sockact_pending, kEventPriorityStandard);
+    ReleaseEvent(request_sockact_pending);
 }
 void qt_event_request_showsheet(QWidget *w)
 {
@@ -654,6 +672,7 @@ static EventTypeSpec events[] = {
 #endif
     { kEventClassQt, kEventQtRequestPropagateWindowUpdates },
     { kEventClassQt, kEventQtRequestPropagateWidgetUpdates },
+    { kEventClassQt, kEventQtRequestSocketAct },
 
     { kEventClassWindow, kEventWindowInit },
     { kEventClassWindow, kEventWindowDispose },
@@ -1480,7 +1499,7 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
 	if(flags & QEventLoop::ExcludeSocketNotifiers) {
 	    switch(eclass) {
 	    case kEventClassQt:
-		if(ekind == kEventQtRequestSelect)
+		if(ekind == kEventQtRequestSelect || ekind == kEventQtRequestSocketAct)
 		    return FALSE;
 		break;
 	    }
@@ -1561,6 +1580,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    timeval tm;
 	    memset(&tm, '\0', sizeof(tm));
 	    l->macHandleSelect(&tm);
+	} else if(ekind == kEventQtRequestSocketAct) {
+	    request_sockact_pending = NULL;
+	    QEventLoop *l = NULL;
+	    if(GetEventParameter(event, kEventParamQEventLoop, typeQEventLoop, NULL, sizeof(l), NULL, &l))
+		l = app->eventLoop();
+	    l->activateSocketNotifiers();
 	} else if(ekind == kEventQtRequestActivate) {
 	    request_activate_pending = NULL;
 	    QWidget *widget = NULL;

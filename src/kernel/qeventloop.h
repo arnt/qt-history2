@@ -75,6 +75,7 @@ signals:
 
 private:
 #if defined(Q_WS_MAC)
+    friend void qt_mac_internal_select_callbk(int, int, QEventLoop *);
     friend QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *);
     int macHandleSelect(timeval *);
     void macHandleTimer(TimerInfo *);

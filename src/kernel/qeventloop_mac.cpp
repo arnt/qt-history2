@@ -34,6 +34,7 @@
 void qt_event_request_timer(TimerInfo *); //qapplication_mac.cpp
 TimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
 void qt_event_request_select(QEventLoop *); //qapplication_mac.cpp
+void qt_event_request_sockact(QEventLoop *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
 void qt_event_request_wakeup(); //qapplication_mac.cpp
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =NULL); //qapplication_mac.cpp
@@ -82,6 +83,11 @@ void qt_remove_postselect_handler(VFPTR handler)
 /*****************************************************************************
  Socket notifier type
  *****************************************************************************/
+class QMacSockNotPrivate {
+public:
+    CFSocketRef socknot;
+    CFRunLoopSourceRef event_source;
+};
 QSockNotType::QSockNotType()  : list(0)
 {
     FD_ZERO(&select_fds);
@@ -94,6 +100,15 @@ QSockNotType::~QSockNotType()
     if(list)
 	delete list;
     list = 0;
+}
+QSockNot::~QSockNot()
+{
+    if(mac_d) {
+	if(mac_d->socknot) 
+	    CFRelease(mac_d->socknot);
+	if(mac_d->event_source) 
+	    CFRelease(mac_d->event_source);
+    }
 }
 
 /*****************************************************************************
@@ -188,7 +203,7 @@ static void repairTimer(const timeval &time)	// repair broken timer
 	if(t->type == TimerInfo::TIMER_QT)
 	    t->u.qt_timer.timeout = t->u.qt_timer.timeout - diff;
 	else
-	    qDebug("Qt: internal: %s:%d This can't happen!", __FILE__, __LINE__);
+	    qWarning("Qt: internal: %s:%d This can't happen!", __FILE__, __LINE__);
 	t = timerList->next();
     }
 }
@@ -216,7 +231,7 @@ static timeval *qt_wait_timer()
 	    if(qt_wait_timer_max && *qt_wait_timer_max < tm)
 		tm = *qt_wait_timer_max;
 	} else {
-	    qDebug("Qt: internal: %s:%d Unexpected condition reached.", __FILE__, __LINE__);
+	    qWarning("Qt: internal: %s:%d Unexpected condition reached.", __FILE__, __LINE__);
 	}
 	return &tm;
     }
@@ -246,7 +261,7 @@ QMAC_PASCAL static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
     if(tmr->pending)
 	return;
     if(tmr->type != TimerInfo::TIMER_MAC) { //can't really happen, can it?
-	qDebug("Qt: internal %s: %d WH0A", __FILE__, __LINE__);
+	qWarning("Qt: internal %s: %d WH0A", __FILE__, __LINE__);
 	return;
     }
     if(QMacBlockingFunction::blocking()) { //just send it immediately
@@ -497,7 +512,7 @@ static void qt_mac_select_cleanup()
 }
 QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 {
-    QEventLoop *eloop = (QEventLoop *)me;
+    QEventLoop *eloop = (QEventLoop*)me;
     if(QMacBlockingFunction::blocking()) { //just send it immediately
 	timeval tm;
 	memset(&tm, '\0', sizeof(tm));
@@ -506,13 +521,40 @@ QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 	qt_event_request_select(eloop);
     }
 }
+/* This function just exists so that I can have the function as a friend, and not have to put all the types
+   that go into the real callback into qwindowdefs.h  --Sam */
+void qt_mac_internal_select_callbk(int sock, int type, QEventLoop *eloop)
+{
+     for(int i=0; i<3; i++) {
+	if(!eloop->d->sn_vec[i].list)
+	    continue;
+	QPtrList<QSockNot> *list = eloop->d->sn_vec[i].list;
+	for(QSockNot *sn = list->first(); sn; sn = list->next()) {
+	    if(sn->fd == sock && sn->obj->type() == type)
+		eloop->setSocketNotifierPending(sn->obj);
+	}
+    }
+    qt_event_request_sockact(eloop);
+}
+static void qt_mac_select_callbk(CFSocketRef s, CFSocketCallBackType t, CFDataRef, const void *, void *me)
+{
+    int in_type = 0;
+    if(t == kCFSocketReadCallBack) {
+	in_type = QSocketNotifier::Read;
+    } else if(t == kCFSocketWriteCallBack) {
+	in_type = QSocketNotifier::Write;
+    } else {
+	qWarning("Qt: internal: %s:%d This can't happen!", __FILE__, __LINE__);
+	return;
+    }
+    qt_mac_internal_select_callbk(CFSocketGetNative(s), in_type, (QEventLoop*)me);
+}
 
 int QEventLoop::macHandleSelect(timeval *tm)
 {
     if(qt_preselect_handler) {
 	QVFuncList::Iterator end = qt_preselect_handler->end();
-	for(QVFuncList::Iterator it = qt_preselect_handler->begin();
-	      it != end; ++it)
+	for(QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it)
 	    (**it)();
     }
 #ifdef Q_OS_MACX
@@ -547,8 +589,7 @@ int QEventLoop::macHandleSelect(timeval *tm)
 #endif
     if(qt_postselect_handler) {
 	QVFuncList::Iterator end = qt_postselect_handler->end();
-	for(QVFuncList::Iterator it = qt_postselect_handler->begin();
-	      it != end; ++it)
+	for(QVFuncList::Iterator it = qt_postselect_handler->begin(); it != end; ++it)
 	    (**it)();
     }
 #ifdef Q_OS_MACX
@@ -604,6 +645,7 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
     }
 
     sn = new QSockNot;
+    sn->mac_d = 0;
     sn->obj = notifier;
     sn->fd = sockfd;
     sn->queue = &d->sn_vec[type].pending_fds;
@@ -627,13 +669,34 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 
     FD_SET(sockfd, fds);
     d->sn_highest = QMAX(d->sn_highest, sockfd);
-    if(qt_is_gui_used && !d->select_timer) {
-	if(!mac_select_timerUPP) {
-	    mac_select_timerUPP = NewEventLoopTimerUPP(qt_mac_select_timer_callbk);
-	    qAddPostRoutine(qt_mac_select_cleanup);
+    if(qt_is_gui_used) {
+	bool create_timer = TRUE;
+	if(type == QSocketNotifier::Read || type == QSocketNotifier::Write) {
+	    CFSocketContext context;
+	    memset(&context, '\0', sizeof(context));
+	    context.info = this;
+	    sn->mac_d = new QMacSockNotPrivate;
+	    sn->mac_d->socknot = CFSocketCreateWithNative(NULL, sockfd, kCFSocketReadCallBack|kCFSocketWriteCallBack,
+							  qt_mac_select_callbk, &context);
+	    if(!sn->mac_d->socknot) {
+		delete sn->mac_d;
+		sn->mac_d = NULL;
+	    } else {
+		CFSocketSetSocketFlags(sn->mac_d->socknot, 
+					kCFSocketAutomaticallyReenableReadCallBack|kCFSocketAutomaticallyReenableWriteCallBack);
+		sn->mac_d->event_source = CFSocketCreateRunLoopSource(NULL, sn->mac_d->socknot, 0);
+		CFRunLoopAddSource(CFRunLoopGetCurrent(), sn->mac_d->event_source, kCFRunLoopCommonModes);
+		create_timer = FALSE;
+	    }
+	} 
+	if(create_timer && !d->select_timer) {
+	    if(!mac_select_timerUPP) {
+		mac_select_timerUPP = NewEventLoopTimerUPP(qt_mac_select_timer_callbk);
+		qAddPostRoutine(qt_mac_select_cleanup);
+	    }
+	    InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
+				  mac_select_timerUPP, (void *)this, &d->select_timer);
 	}
-	InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
-			      mac_select_timerUPP, (void *)this, &d->select_timer);
     }
 #endif
 }
@@ -716,9 +779,8 @@ void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
     sn = list->first();
     while(sn && !(sn->obj == notifier && sn->fd == sockfd))
 	sn = list->next();
-    if(!sn) { // not found
+    if(!sn) // not found
 	return;
-    }
 
     // We choose a random activation order to be more fair under high load.
     // If a constant order is used and a peer early in the list can
@@ -811,7 +873,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 #if defined(QT_THREAD_SUPPORT)
 	locker.mutex()->unlock();
 #endif
-#ifdef QMAC_USE_APPLICATION_EVENT_LOOP
+#if defined( QMAC_USE_APPLICATION_EVENT_LOOP ) 
 	RunApplicationEventLoop();
 #else
 	while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);

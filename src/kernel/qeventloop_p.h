@@ -39,6 +39,9 @@
 #include "qwindowdefs.h"
 
 class QSocketNotifier;
+#ifdef Q_OS_MAC
+class QMacSockNotPrivate;
+#endif
 
 #if defined(Q_OS_UNIX) || defined (Q_WS_WIN)
 #include "qptrlist.h"
@@ -52,6 +55,10 @@ struct QSockNot
     QSocketNotifier *obj;
     int fd;
     fd_set *queue;
+#ifdef Q_OS_MAC
+    ~QSockNot();
+    QMacSockNotPrivate *mac_d;
+#endif
 };
 
 class QSockNotType
