@@ -53,7 +53,6 @@ public:
     { return *static_cast<QString *>(data.ptr); }
 
 private:
-    void assign( const QTextFormatProperty &rhs);
     void free();
 };
 
@@ -86,7 +85,7 @@ public:
 
     bool operator==(const QTextFormatPrivate &rhs) const;
 
-    QTextFormatPropertyMap propertyMap() const { return properties; }
+    QList<int> propertyIds() const { return properties.keys(); }
 
 private:
     QTextFormatPropertyMap properties;
@@ -104,19 +103,15 @@ QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &r
 	return *this;
 
     free();
-    assign(rhs);
+
+    type = rhs.type;
+
+    if (type == QTextFormat::String)
+	data.ptr = new QString(rhs.stringValue());
+    else
+	data = rhs.data;
 
     return *this;
-}
-
-void QTextFormatProperty::assign(const QTextFormatProperty &rhs)
-{
-    type = rhs.type;
-    data = rhs.data;
-    switch (type) {
-	case QTextFormat::String: data.ptr = new QString(*static_cast<QString *>(rhs.data.ptr)); break;
-	default: break;
-    }
 }
 
 void QTextFormatProperty::free()
@@ -147,9 +142,9 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
 const QTextFormatProperty QTextFormatPrivate::property(int propertyId, QTextFormat::PropertyType propType) const
 {
     const QTextFormatProperty prop = properties.value(propertyId);
-    if (prop.isValid() && (prop.type == propType || propType == QTextFormat::Undefined))
-	return prop;
-    return QTextFormatProperty();
+    if (!prop.isValid() || (prop.type != propType && propType != QTextFormat::Undefined))
+	return QTextFormatProperty();
+    return prop;
 }
 
 bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
@@ -159,7 +154,7 @@ bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
 
     QTextFormatPropertyMap::ConstIterator lhsIt = properties.begin();
     QTextFormatPropertyMap::ConstIterator rhsIt = rhs.properties.begin();
-    for (; (lhsIt != properties.end()) && (rhsIt != rhs.properties.end()); ++lhsIt, ++rhsIt)
+    for (; lhsIt != properties.end(); ++lhsIt, ++rhsIt)
 	if ((lhsIt.key() != rhsIt.key()) ||
 	    (lhsIt.value() != rhsIt.value()))
 	    return false;
@@ -382,7 +377,7 @@ QList<int> QTextFormat::allPropertyIds() const
     if (!d)
 	return QList<int>();
 
-    return d->propertyMap().keys();
+    return d->propertyIds();
 }
 
 bool QTextFormat::operator==(const QTextFormat &rhs) const
