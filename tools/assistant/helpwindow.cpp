@@ -135,9 +135,11 @@ void HelpWindow::setSource(const QUrl &name)
             return;
         }
 
+        /*
         setHtml(QLatin1String("<body bgcolor=\"")
             + palette().color(backgroundRole()).name()
             + QLatin1String("\">"));
+            */
 
         QTextBrowser::setSource(name);
         return;
