@@ -483,15 +483,19 @@ void QDataBrowser::update()
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
 	return;
+    bool doUpd = TRUE;
     switch ( d->dat.mode() ){
     case QSql::Insert:
-	insertCurrent();
+	if ( autoEdit() && !insertCurrent() )
+	    doUpd = FALSE;
 	break;
     default:
-	updateCurrent();
 	break;
     }
-    d->dat.setMode( QSql::Update );
+    if ( doUpd ) {
+	d->dat.setMode( QSql::Update );
+	updateCurrent();
+    }
 }
 
 
@@ -536,17 +540,7 @@ void QDataBrowser::del()
 
 void QDataBrowser::first()
 {
-    QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
-    if ( !buf || !cur )
-	return;
-    if ( cur->first() ) {
-	currentChanged( cur );
-	cur->primeUpdate();
-	emit primeUpdate( buf );
-	readFields();
-    }
-    updateBoundary();
+    nav( First );
 }
 
 
@@ -560,17 +554,7 @@ void QDataBrowser::first()
 
 void QDataBrowser::last()
 {
-    QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
-    if ( !buf || !cur )
-	return;
-    if ( cur->last() ) {
-	currentChanged( cur );
-	cur->primeUpdate();
-	emit primeUpdate( buf );
-	readFields();
-    }
-    updateBoundary();
+    nav( Last );
 }
 
 
@@ -584,17 +568,7 @@ void QDataBrowser::last()
 
 void QDataBrowser::next()
 {
-    QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
-    if ( !buf || !cur )
-	return;
-    if ( cur->next() ) {
-	currentChanged( cur );
-	cur->primeUpdate();
-	emit primeUpdate( buf );
-	readFields();
-    }
-    updateBoundary();
+    nav( Next );
 }
 
 
@@ -608,17 +582,7 @@ void QDataBrowser::next()
 
 void QDataBrowser::prev()
 {
-    QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
-    if ( !buf || !cur )
-	return;
-    if ( cur->prev() ) {
-	currentChanged( cur );
-	cur->primeUpdate();
-	emit primeUpdate( buf );
-	readFields();
-    }
-    updateBoundary();
+    nav( Prev );
 }
 
 /*! Reads the fields from the default cursor edit buffer and displays
@@ -764,12 +728,71 @@ bool QDataBrowser::deleteCurrent()
 
 bool QDataBrowser::currentEdited()
 {
-    //## to do
-    return TRUE;
+    QSqlRecord* buf = d->frm.record();
+    QSqlCursor* cur = d->cur.cursor();
+    if ( !buf || !cur )
+	return FALSE;
+    if ( !cur->isActive() || !cur->isValid() )
+	return FALSE;
+    writeFields();
+    for ( uint i = 0; i < cur->count(); ++i ) {
+	if ( cur->value(i) != buf->value(i) )
+	    return TRUE;
+    }
+    return FALSE;
 }
 
+/*! \internal
 
-/*! If boundaryChecking() is TRUE, checks the boundary of the current
+*/
+void QDataBrowser::nav( Nav nav )
+{
+    QSqlRecord* buf = d->frm.record();
+    QSqlCursor* cur = d->cur.cursor();
+    if ( !buf || !cur )
+	return;
+
+    if ( autoEdit() && currentEdited() ) {
+	int ok = FALSE;
+	switch ( d->dat.mode() ) {
+	case QSql::Insert:
+	    ok = insertCurrent();
+	    break;
+	default:
+	    ok = updateCurrent();
+	    break;
+	}
+	if ( !ok )
+	    return;
+    }
+
+    int b = FALSE;
+    switch( nav ) {
+    case First:
+	b = cur->first();
+	break;
+    case Last:
+	b = cur->last();
+	break;
+    case Next:
+	b = cur->next();
+	break;
+    case Prev:
+	b = cur->prev();
+	break;
+    }
+    if ( b ) {
+	currentChanged( cur );
+	cur->primeUpdate();
+	emit primeUpdate( buf );
+	readFields();
+    }
+    updateBoundary();
+}
+
+/*! \internal
+
+  If boundaryChecking() is TRUE, checks the boundary of the current
   default cursor and emits signals which indicate the position of the
   cursor.
 */

@@ -129,6 +129,13 @@ protected:
     virtual void handleError( const QSqlError& error );
 
 private:
+    enum Nav {
+	First,
+	Last,
+	Next,
+	Prev
+    };
+    void nav( Nav nav );
     void updateBoundary();
     class QDataBrowserPrivate;
     QDataBrowserPrivate* d;
