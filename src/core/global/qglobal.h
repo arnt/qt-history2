@@ -568,7 +568,7 @@ typedef const char *pcchar;
 // Proper for-scoping in VC++6 and MIPSpro CC
 //
 
-#if (defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)) || defined(Q_CC_MIPS)
+#if (defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET) && !defined(Q_CC_INTEL)) || defined(Q_CC_MIPS)
 #  define for if(0){}else for
 #endif
 
