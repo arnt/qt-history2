@@ -159,14 +159,14 @@ public slots:
     virtual void copy();
 
     void setText( const QString &txt ) { setText( txt, QString::null ); }
-    virtual void setTextFormat( TextFormat f );
     virtual void setText( const QString &txt, const QString &context );
+    virtual void setTextFormat( TextFormat f );
 
     virtual void selectAll( bool select = TRUE );
     virtual void setTabStops( int ts );
     virtual void zoomIn( int range );
-    virtual void zoomOut( int range );
     virtual void zoomIn() { zoomIn( 1 ); }
+    virtual void zoomOut( int range );
     virtual void zoomOut() { zoomOut( 1 ); }
 
     virtual void sync();
