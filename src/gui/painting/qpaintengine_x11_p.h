@@ -51,7 +51,11 @@ public:
     Display *dpy;
     int scrn;
     Qt::HANDLE hd;
+#if !defined (QT_NO_XFT)
     XftDraw *xft_hd;
+#else
+    Qt::HANDLE xft_hd;
+#endif
     GC gc;
     GC gc_brush;
 

@@ -89,7 +89,13 @@ inline void *qt_getClipRects(const QRegion &r, int &num)
     return r.clipRectangles(num);
 }
 
-static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2, XftDraw *draw, const QRegion &r)
+static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2,
+#ifndef QT_NO_XFT
+                                    XftDraw *draw,
+#else
+                                    Qt::HANDLE draw,
+#endif
+                                    const QRegion &r)
 {
     int num;
     XRectangle *rects = (XRectangle *)qt_getClipRects(r, num);
@@ -107,7 +113,13 @@ static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2, XftDraw *draw, 
 #endif // QT_NO_XFT
 }
 
-static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2, XftDraw *draw)
+static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
+#ifndef QT_NO_XFT
+                                    XftDraw *draw
+#else
+                                    Qt::HANDLE draw
+#endif
+                                      )
 {
     if (gc)
         XSetClipMask(dpy, gc, XNone);
@@ -121,6 +133,7 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2, XftDraw *draw
     Q_UNUSED(draw);
 #endif // QT_NO_XFT
 }
+
 
 /*
  * GC cache stuff
@@ -542,11 +555,14 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->pdev = pdev;
     d->xinfo = qt_x11Info(pdev);
     d->hd = qt_x11Handle(pdev);
+#ifndef QT_NO_XFT
     if (pdev->devType() == QInternal::Widget)
         d->xft_hd = (XftDraw *)static_cast<const QWidget *>(pdev)->xftDrawHandle();
     else if (pdev->devType() == QInternal::Pixmap)
         d->xft_hd = (XftDraw *)static_cast<const QPixmap *>(pdev)->xftDrawHandle();
-
+#else
+    d->xft_hd = 0;
+#endif
     Q_ASSERT(d->xinfo != 0);
     d->dpy = d->xinfo->display(); // get display variable
     d->scrn = d->xinfo->screen(); // get screen variable
@@ -1766,9 +1782,11 @@ void QX11PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int tex
     case QFontEngine::LatinXLFD:
         drawLatinXLFD(p, ti, textFlags);
         break;
+#ifndef QT_NO_XFT
     case QFontEngine::Xft:
         drawXft(p, ti, textFlags);
         break;
+#endif
     default:
         Q_ASSERT(false);
     }
@@ -1991,6 +2009,7 @@ void QX11PaintEngine::drawLatinXLFD(const QPoint &p, const QTextItem &si, int te
 }
 
 
+#ifndef QT_NO_XFT
 void QX11PaintEngine::drawXft(const QPoint &p, const QTextItem &si, int textFlags)
 {
     float xpos = p.x();
@@ -2138,3 +2157,4 @@ void QX11PaintEngine::drawXft(const QPoint &p, const QTextItem &si, int textFlag
     }
 
 }
+#endif // !QT_NO_XFT

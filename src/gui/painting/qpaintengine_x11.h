@@ -67,8 +67,9 @@ protected:
     void drawBox(const QPoint &p, const QTextItem &si, int textFlags);
     void drawXLFD(const QPoint &p, const QTextItem &si, int textFlags);
     void drawLatinXLFD(const QPoint &p, const QTextItem &si, int textFlags);
+#ifndef QT_NO_XFT
     void drawXft(const QPoint &p, const QTextItem &si, int textFlags);
-
+#endif
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect(QPaintEngine *pp,  int x, int y, int w,  int h, bool fill);
     friend void qt_draw_background(QPaintEngine *pp, int x, int y, int w,  int h);
