@@ -235,7 +235,8 @@ void QDial::paintEvent( QPaintEvent * e )
 
 void QDial::repaintScreen( const QRect *cr )
 {
-    QPainter p( this );
+    QPainter p;
+    p.begin( this );
 
     bool resetClipping = FALSE;
 
@@ -346,14 +347,24 @@ void QDial::repaintScreen( const QRect *cr )
     // draw focus rect around the dial
     if ( hasFocus() ) {
 	p.setClipping( FALSE );
+	br.setWidth( br.width() + 2 );
+	br.setHeight( br.height() + 2 );
 	if ( d->showNotches ) {
 	    int r = QMIN( width(), height() ) / 2;
 	    br.moveBy( -r / 6, - r / 6 );
 	    br.setWidth( br.width() + r / 3 );
 	    br.setHeight( br.height() + r / 3 );
 	}
-	style().drawFocusRect( &p, br, colorGroup(), &backgroundColor() );
+	p.end();
+	p.begin( this );
+	p.save();
+	p.setPen( QPen( colorGroup().background() ) );
+	p.setBrush( NoBrush );
+	p.drawRect( br );
+	p.restore();
+	style().drawFocusRect( &p, br, colorGroup() , &colorGroup().background() );
     }
+    p.end();
 }
 
 
