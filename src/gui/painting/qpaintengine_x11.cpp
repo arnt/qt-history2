@@ -1517,7 +1517,7 @@ Qt::HANDLE QX11PaintEngine::handle() const
     return d->hd;
 }
 
-extern void drawTile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
+extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
 
 void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
 {
@@ -1568,6 +1568,6 @@ void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, con
 	XSetTSOrigin( d->dpy, d->gc, 0, 0 );
 	XSetFillStyle( d->dpy, d->gc, FillSolid );
     } else {
- 	drawTile(this, x, y, w, h, pixmap, sx, sy);
+ 	qt_draw_tile(this, x, y, w, h, pixmap, sx, sy);
     }
 }

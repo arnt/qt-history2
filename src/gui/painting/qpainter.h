@@ -154,7 +154,6 @@ public:
     void drawTiledPixmap( const QRect &, const QPixmap &, const QPoint & );
     void drawTiledPixmap( const QRect &, const QPixmap & );
 #ifndef QT_NO_PICTURE
-    void drawPicture( const QPicture & );
     void drawPicture( int x, int y, const QPicture & );
     void drawPicture( const QPoint &, const QPicture & );
 #endif
@@ -405,11 +404,6 @@ inline void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm, const Q
 inline void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm)
 {
     drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), pm, 0, 0);
-}
-
-inline void QPainter::drawPicture( const QPicture &pic )
-{
-    drawPicture(0, 0, pic);
 }
 
 inline void QPainter::drawPicture( const QPoint &p, const QPicture &pic )

@@ -2,7 +2,7 @@
 **
 ** Definition of QPainter class.
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS. All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
@@ -35,15 +35,450 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
 		    QPainter* painter);
 
 /*!
-    \class QPainter
+    \class QPainter qpainter.h
+    \brief The QPainter class does low-level painting e.g. on widgets.
+
+    \ingroup graphics
+    \ingroup images
+    \mainclass
+
+    The painter provides highly optimized functions to do most of the
+    drawing GUI programs require. QPainter can draw everything from
+    simple lines to complex shapes like pies and chords. It can also
+    draw aligned text and pixmaps. Normally, it draws in a "natural"
+    coordinate system, but it can also do view and world
+    transformation.
+
+    The typical use of a painter is:
+
+    \list
+    \i Construct a painter.
+    \i Set a pen, a brush etc.
+    \i Draw.
+    \i Destroy the painter.
+    \endlist
+
+    Mostly, all this is done inside a paint event. (In fact, 99% of
+    all QPainter use is in a reimplementation of
+    QWidget::paintEvent(), and the painter is heavily optimized for
+    such use.) Here's one very simple example:
+
+    \code
+    void SimpleExampleWidget::paintEvent()
+    {
+	QPainter paint( this );
+	paint.setPen( Qt::blue );
+	paint.drawText( rect(), AlignCenter, "The Text" );
+    }
+    \endcode
+
+    Usage is simple, and there are many settings you can use:
+
+    \list
+
+    \i font() is the currently set font. If you set a font that isn't
+    available, Qt finds a close match. In fact font() returns what
+    you set using setFont() and fontInfo() returns the font actually
+    being used (which may be the same).
+
+    \i brush() is the currently set brush; the color or pattern that's
+    used for filling e.g. circles.
+
+    \i pen() is the currently set pen; the color or stipple that's
+    used for drawing lines or boundaries.
+
+    \i backgroundMode() is \c Opaque or \c Transparent, i.e. whether
+    backgroundColor() is used or not.
+
+    \i backgroundColor() only applies when backgroundMode() is Opaque
+    and pen() is a stipple. In that case, it describes the color of
+    the background pixels in the stipple.
+
+    \i rasterOp() is how pixels drawn interact with the pixels already
+    there.
+
+    \i brushOrigin() is the origin of the tiled brushes, normally the
+    origin of the window.
+
+    \i viewport(), window(), worldMatrix() and many more make up the
+    painter's coordinate transformation system. See \link
+    coordsys.html The Coordinate System \endlink for an explanation of
+    this, or see below for a very brief overview of the functions.
+
+    \i hasClipping() is whether the painter clips at all. (The paint
+    device clips, too.) If the painter clips, it clips to clipRegion().
+
+    \i pos() is the current position, set by moveTo() and used by
+    lineTo().
+
+    \endlist
+
+    Note that some of these settings mirror settings in some paint
+    devices, e.g. QWidget::font(). QPainter::begin() (or the QPainter
+    constructor) copies these attributes from the paint device.
+    Calling, for example, QWidget::setFont() doesn't take effect until
+    the next time a painter begins painting on it.
+
+    save() saves all of these settings on an internal stack, restore()
+    pops them back.
+
+    The core functionality of QPainter is drawing, and there are
+    functions to draw most primitives: drawPoint(), drawPoints(),
+    drawLine(), drawRect(), drawWinFocusRect(), drawRoundRect(),
+    drawEllipse(), drawArc(), drawPie(), drawChord(),
+    drawLineSegments(), drawPolyline(), drawPolygon(),
+    drawConvexPolygon() and drawCubicBezier(). All of these functions
+    take integer coordinates; there are no floating-point versions
+    since we want drawing to be as fast as possible.
+
+    There are functions to draw pixmaps/images, namely drawPixmap(),
+    drawImage() and drawTiledPixmap(). drawPixmap() and drawImage()
+    produce the same result, except that drawPixmap() is faster
+    on-screen and drawImage() faster and sometimes better on QPrinter
+    and QPicture.
+
+    Text drawing is done using drawText(), and when you need
+    fine-grained positioning, boundingRect() tells you where a given
+    drawText() command would draw.
+
+    There is a drawPicture() function that draws the contents of an
+    entire QPicture using this painter. drawPicture() is the only
+    function that disregards all the painter's settings: the QPicture
+    has its own settings.
+
+    Normally, the QPainter operates on the device's own coordinate
+    system (usually pixels), but QPainter has good support for
+    coordinate transformation. See \link coordsys.html The Coordinate
+    System \endlink for a more general overview and a simple example.
+
+    The most common functions used are scale(), rotate(), translate()
+    and shear(), all of which operate on the worldMatrix().
+    setWorldMatrix() can replace or add to the currently set
+    worldMatrix().
+
+    setViewport() sets the rectangle on which QPainter operates. The
+    default is the entire device, which is usually fine, except on
+    printers. setWindow() sets the coordinate system, that is, the
+    rectangle that maps to viewport(). What's drawn inside the
+    window() ends up being inside the viewport(). The window's
+    default is the same as the viewport, and if you don't use the
+    transformations, they are optimized away, gaining another little
+    bit of speed.
+
+    After all the coordinate transformation is done, QPainter can clip
+    the drawing to an arbitrary rectangle or region. hasClipping() is
+    TRUE if QPainter clips, and clipRegion() returns the clip region.
+    You can set it using either setClipRegion() or setClipRect().
+    Note that the clipping can be slow. It's all system-dependent,
+    but as a rule of thumb, you can assume that drawing speed is
+    inversely proportional to the number of rectangles in the clip
+    region.
+
+    After QPainter's clipping, the paint device may also clip. For
+    example, most widgets clip away the pixels used by child widgets,
+    and most printers clip away an area near the edges of the paper.
+    This additional clipping is not reflected by the return value of
+    clipRegion() or hasClipping().
+
+    QPainter also includes some less-used functions that are very
+    useful on those occasions when they're needed.
+
+    isActive() indicates whether the painter is active. begin() (and
+    the most usual constructor) makes it active. end() (and the
+    destructor) deactivates it. If the painter is active, device()
+    returns the paint device on which the painter paints.
+
+    Sometimes it is desirable to make someone else paint on an unusual
+    QPaintDevice. QPainter supports a static function to do this,
+    redirect(). We recommend not using it, but for some hacks it's
+    perfect.
+
+    setTabStops() and setTabArray() can change where the tab stops
+    are, but these are very seldomly used.
+
+    \warning Note that QPainter does not attempt to work around
+    coordinate limitations in the underlying window system. Some
+    platforms may behave incorrectly with coordinates as small as
+    +/-4000.
+
+    \headerfile qdrawutil.h
+
+    \sa QPaintDevice QWidget QPixmap QPrinter QPicture
+	\link simple-application.html Application Walkthrough \endlink
+	\link coordsys.html Coordinate System Overview \endlink
 */
 
+/*!
+    \enum QPainter::CoordinateMode
+    \value CoordDevice
+    \value CoordPainter
+
+    \sa clipRegion()
+*/
+/*!
+    \enum QPainter::TextDirection
+    \value Auto
+    \value RTL right to left
+    \value LTR left to right
+
+    \sa drawText()
+*/
+
+/*!
+    \enum Qt::PaintUnit
+    \value PixelUnit
+    \value LoMetricUnit \e obsolete
+    \value HiMetricUnit \e obsolete
+    \value LoEnglishUnit \e obsolete
+    \value HiEnglishUnit \e obsolete
+    \value TwipsUnit \e obsolete
+*/
+
+/*!
+    \enum Qt::BrushStyle
+
+    \value NoBrush
+    \value SolidPattern
+    \value Dense1Pattern
+    \value Dense2Pattern
+    \value Dense3Pattern
+    \value Dense4Pattern
+    \value Dense5Pattern
+    \value Dense6Pattern
+    \value Dense7Pattern
+    \value HorPattern
+    \value VerPattern
+    \value CrossPattern
+    \value BDiagPattern
+    \value FDiagPattern
+    \value DiagCrossPattern
+    \value CustomPattern
+
+    \img brush-styles.png Brush Styles
+
+*/
+
+/*!
+    \enum Qt::RasterOp
+
+    \keyword raster operation
+    \keyword raster op
+
+    This enum type is used to describe the way things are written to
+    the paint device. Each bit of the \e src (what you write)
+    interacts with the corresponding bit of the \e dst pixel.
+
+    \value CopyROP  dst = src
+    \value OrROP   dst = src OR dst
+    \value XorROP   dst = src XOR dst
+    \value NotAndROP  dst = (NOT src) AND dst
+    \value EraseROP  an alias for \c NotAndROP
+    \value NotCopyROP  dst = NOT src
+    \value NotOrROP  dst = (NOT src) OR dst
+    \value NotXorROP  dst = (NOT src) XOR dst
+    \value AndROP  dst = src AND dst
+    \value NotEraseROP  an alias for \c AndROP
+    \value NotROP  dst = NOT dst
+    \value ClearROP  dst = 0
+    \value SetROP  dst = 1
+    \value NopROP  dst = dst
+    \value AndNotROP  dst = src AND (NOT dst)
+    \value OrNotROP  dst = src OR (NOT dst)
+    \value NandROP  dst = NOT (src AND dst)
+    \value NorROP  dst = NOT (src OR dst)
+
+    By far the most useful ones are \c CopyROP and \c XorROP.
+
+    On Qt/Mac, only \c CopyROP, \c OrROP, \c XorROP, \c NotAndROP,
+    \c NotCopyROP, \c NotOrROP, \c NotXorROP, and \c AndROP are
+    supported.
+
+    On Qt/Embedded, only \c CopyROP, \c XorROP, and \c NotROP are supported.
+*/
+
+/*!
+    \enum Qt::AlignmentFlags
+
+    This enum type is used to describe alignment. It contains
+    horizontal and vertical flags.
+
+    The horizontal flags are:
+
+    \value AlignAuto Aligns according to the language. Left for most,
+	right for Arabic and Hebrew.
+    \value AlignLeft Aligns with the left edge.
+    \value AlignRight Aligns with the right edge.
+    \value AlignHCenter Centers horizontally in the available space.
+    \value AlignJustify Justifies the text in the available space.
+	Does not work for everything and may be interpreted as
+	AlignAuto in some cases.
+
+    The vertical flags are:
+
+    \value AlignTop Aligns with the top.
+    \value AlignBottom Aligns with the bottom.
+    \value AlignVCenter Centers vertically in the available space.
+
+    You can use only one of the horizontal flags at a time. There is
+    one two-dimensional flag:
+
+    \value AlignCenter Centers in both dimensions.
+
+    You can use at most one horizontal and one vertical flag at a time. \c
+    AlignCenter counts as both horizontal and vertical.
+
+    Masks:
+
+    \value AlignHorizontal_Mask
+    \value AlignVertical_Mask
+
+    Conflicting combinations of flags have undefined meanings.
+*/
+
+/*!
+    \enum Qt::TextFlags
+
+    This enum type is used to define some modifier flags. Some of
+    these flags only make sense in the context of printing:
+
+    \value SingleLine Treats all whitespace as spaces and prints just
+	one line.
+    \value DontClip If it's impossible to stay within the given bounds,
+	it prints outside.
+    \value ExpandTabs Makes the U+0009 (ASCII tab) character move to
+	the next tab stop.
+    \value ShowPrefix Displays the string "\&P" as <u>P</u>
+	(see QButton for an example). For an ampersand, use "\&\&".
+    \value WordBreak Breaks lines at appropriate points, e.g. at word
+	boundaries.
+    \value BreakAnywhere Breaks lines anywhere, even within words.
+    \value NoAccel Same as ShowPrefix but doesn't draw the underlines.
+
+    You can use as many modifier flags as you want, except that \c
+    SingleLine and \c WordBreak cannot be combined.
+
+    Flags that are inappropriate for a given use (e.g. ShowPrefix to
+    QGridLayout::addWidget()) are generally ignored.
+
+*/
+
+/*!
+    \enum Qt::PenStyle
+
+    This enum type defines the pen styles that can be drawn using
+    QPainter. The styles are
+
+    \value NoPen  no line at all. For example, QPainter::drawRect()
+    fills but does not draw any boundary line.
+
+    \value SolidLine  a simple line.
+
+    \value DashLine  dashes separated by a few pixels.
+
+    \value DotLine  dots separated by a few pixels.
+
+    \value DashDotLine  alternate dots and dashes.
+
+    \value DashDotDotLine  one dash, two dots, one dash, two dots.
+
+    \value MPenStyle mask of the pen styles.
+
+    \img pen-styles.png Pen Styles
+*/
+
+/*!
+    \enum Qt::PenCapStyle
+
+    This enum type defines the pen cap styles supported by Qt, i.e.
+    the line end caps that can be drawn using QPainter.
+
+    \value FlatCap  a square line end that does not cover the end
+	point of the line.
+    \value SquareCap  a square line end that covers the end point and
+	extends beyond it with half the line width.
+    \value RoundCap  a rounded line end.
+    \value MPenCapStyle mask of the pen cap styles.
+
+    \img pen-cap-styles.png Pen Cap Styles
+*/
+
+/*!
+    \enum Qt::PenJoinStyle
+
+    This enum type defines the pen join styles supported by Qt, i.e.
+    which joins between two connected lines can be drawn using
+    QPainter.
+
+    \value MiterJoin  The outer edges of the lines are extended to
+	meet at an angle, and this area is filled.
+    \value BevelJoin  The triangular notch between the two lines is filled.
+    \value RoundJoin  A circular arc between the two lines is filled.
+    \value MPenJoinStyle mask of the pen join styles.
+
+    \img pen-join-styles.png Pen Join Styles
+*/
+
+/*!
+    \enum Qt::BGMode
+
+    Background mode
+
+    \value TransparentMode
+    \value OpaqueMode
+*/
+
+/*!
+    Constructs a painter.
+
+    Notice that all painter settings (setPen, setBrush etc.) are reset
+    to default values when begin() is called.
+
+    \sa begin(), end()
+*/
 
 QPainter::QPainter()
 {
     d = new QPainterPrivate;
     init();
 }
+
+/*!
+    Constructs a painter that begins painting the paint device \a pd
+    immediately. Depending on the underlying graphic system the
+    painter will paint over children of the paintdevice if \a
+    unclipped is TRUE.
+
+    This constructor is convenient for short-lived painters, e.g. in a
+    \link QWidget::paintEvent() paint event\endlink and should be used
+    only once. The constructor calls begin() for you and the QPainter
+    destructor automatically calls end().
+
+    Here's an example using begin() and end():
+    \code
+	void MyWidget::paintEvent( QPaintEvent * )
+	{
+	    QPainter p;
+	    p.begin( this );
+	    p.drawLine( ... );	// drawing code
+	    p.end();
+	}
+    \endcode
+
+    The same example using this constructor:
+    \code
+	void MyWidget::paintEvent( QPaintEvent * )
+	{
+	    QPainter p( this );
+	    p.drawLine( ... );	// drawing code
+	}
+    \endcode
+
+    Since the constructor cannot provide feedback when the initialization
+    of the painter failed you should rather use begin() and end() to paint
+    on external devices, e.g. printers.
+
+    \sa begin(), end()
+*/
 
 QPainter::QPainter(QPaintDevice *pd, bool unclipped)
 {
@@ -52,6 +487,10 @@ QPainter::QPainter(QPaintDevice *pd, bool unclipped)
     Q_ASSERT(pd != 0);
     begin(pd, unclipped);
 }
+
+/*!
+    Destroys the painter.
+*/
 
 QPainter::~QPainter()
 {
@@ -65,10 +504,25 @@ void QPainter::init()
     d->state->painter = this;
 }
 
+/*!
+    Returns the paint device on which this painter is currently
+    painting, or 0 if the painter is not active.
+
+    \sa QPaintDevice::paintingActive()
+*/
+
 QPaintDevice *QPainter::device() const
 {
     return d->device;
 }
+
+/*!
+    Returns TRUE if the painter is active painting, i.e. begin() has
+    been called and end() has not yet been called; otherwise returns
+    FALSE.
+
+    \sa QPaintDevice::paintingActive()
+*/
 
 bool QPainter::isActive() const
 {
@@ -78,6 +532,14 @@ bool QPainter::isActive() const
     return false;
 }
 
+/*!
+    Saves the current painter state (pushes the state onto a stack). A
+    save() must be followed by a corresponding restore(). end()
+    unwinds the stack.
+
+    \sa restore()
+*/
+
 void QPainter::save()
 {
     d->state = new QPainterState(d->states.back());
@@ -85,6 +547,13 @@ void QPainter::save()
     if (isActive())
 	d->engine->updateState(d->state, false);
 }
+
+/*!
+    Restores the current painter state (pops a saved state off the
+    stack).
+
+    \sa save()
+*/
 
 void QPainter::restore()
 {
@@ -102,6 +571,35 @@ void QPainter::restore()
 	d->engine->updateState(d->state);
     delete tmp;
 }
+
+
+/*!
+    Begins painting the paint device \a pd and returns TRUE if
+    successful; otherwise returns FALSE. If \a unclipped is TRUE, the
+    painting will not be clipped at the paint device's boundaries,
+    (although this is not supported by all platforms).
+
+    The errors that can occur are serious problems, such as these:
+
+    \code
+	p->begin( 0 ); // impossible - paint device cannot be 0
+
+	QPixmap pm( 0, 0 );
+	p->begin( pm ); // impossible - pm.isNull();
+
+	p->begin( myWidget );
+	p2->begin( myWidget ); // impossible - only one painter at a time
+    \endcode
+
+    Note that most of the time, you can use one of the constructors
+    instead of begin(), and that end() is automatically done at
+    destruction.
+
+    \warning A paint device can only be painted by one painter at a
+    time.
+
+    \sa end(), flush()
+*/
 
 bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 {
@@ -178,6 +676,27 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
     return true;
 }
 
+/*!
+    Ends painting. Any resources used while painting are released.
+
+    Note that while you mostly don't need to call end(), the
+    destructor will do it, there is at least one common case when it
+    is needed, namely double buffering.
+
+    \code
+	QPainter p( myPixmap, this )
+	// ...
+	p.end(); // stops drawing on myPixmap
+	p.begin( this );
+	p.drawPixmap( 0, 0, myPixmap );
+    \endcode
+
+    Since you can't draw a QPixmap while it is being painted, it is
+    necessary to close the active painter.
+
+    \sa begin(), isActive()
+*/
+
 bool QPainter::end()
 {
     if (!isActive()) {
@@ -200,6 +719,15 @@ bool QPainter::end()
 }
 
 
+/*!
+    Returns the font metrics for the painter, if the painter is
+    active. It is not possible to obtain metrics for an inactive
+    painter, so the return value is undefined if the painter is not
+    active.
+
+    \sa fontInfo(), isActive()
+*/
+
 QFontMetrics QPainter::fontMetrics() const
 {
     // ### port properly
@@ -210,6 +738,15 @@ QFontMetrics QPainter::fontMetrics() const
     return QFontMetrics(d->state->pfont ? *d->state->pfont : d->state->font);
 }
 
+
+/*!
+    Returns the font info for the painter, if the painter is active.
+    It is not possible to obtain font information for an inactive
+    painter, so the return value is undefined if the painter is not
+    active.
+
+    \sa fontMetrics(), isActive()
+*/
 
 QFontInfo QPainter::fontInfo() const
 {
@@ -222,10 +759,26 @@ QFontInfo QPainter::fontInfo() const
 }
 
 
+/*!
+    Returns the brush origin currently set.
+
+    \sa setBrushOrigin()
+*/
+
 QPoint QPainter::brushOrigin() const
 {
     return d->state->bgOrigin + d->redirection_offset;
 }
+
+/*!
+    Sets the brush origin to \a (x, y).
+
+    The brush origin specifies the (0, 0) coordinate of the painter's
+    brush. This setting only applies to pattern brushes and pixmap
+    brushes.
+
+    \sa brushOrigin()
+*/
 
 void QPainter::setBrushOrigin(int x, int y)
 {
@@ -235,17 +788,36 @@ void QPainter::setBrushOrigin(int x, int y)
 	d->engine->setDirty(QPaintEngine::DirtyBrush);
 }
 
+/*!
+    Returns the current background brush.
+
+    \sa setBackground() QBrush
+*/
+
 const QBrush &QPainter::background() const
 {
     return d->state->bgBrush;
 }
 
 
+/*!
+    Returns TRUE if clipping has been set; otherwise returns FALSE.
+
+    \sa setClipping()
+*/
+
 bool QPainter::hasClipping() const
 {
     return d->state->clipEnabled;
 }
 
+
+/*!
+    Enables clipping if \a enable is TRUE, or disables clipping if \a
+    enable is FALSE.
+
+    \sa hasClipping(), setClipRect(), setClipRegion()
+*/
 
 void QPainter::setClipping( bool enable )
 {
@@ -255,6 +827,16 @@ void QPainter::setClipping( bool enable )
 	d->engine->setDirty(QPaintEngine::DirtyClip);
 }
 
+
+/*!
+    Returns the currently set clip region. Note that the clip region
+    is given in physical device coordinates and \e not subject to any
+    \link coordsys.html coordinate transformation \endlink if \a m is
+    equal to \c CoordDevice (the default). If \a m equals \c
+    CoordPainter the returned region is in model coordinates.
+
+    \sa setClipRegion(), setClipRect(), setClipping() QPainter::CoordinateMode
+*/
 
 QRegion QPainter::clipRegion(CoordinateMode m) const
 {
@@ -269,10 +851,40 @@ QRegion QPainter::clipRegion(CoordinateMode m) const
     return d->state->clipRegion;
 }
 
+/*!
+    \fn void QPainter::setClipRect( int x, int y, int w, int h, CoordinateMode m)
+
+    Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
+    enables clipping. The clip mode is set to \a m.
+
+    If \a m is \c CoordDevice (the default), the coordinates given for
+    the clip region are taken to be physical device coordinates and
+    are \e not subject to any \link coordsys.html coordinate
+    transformations\endlink. If \a m is \c CoordPainter, the
+    coordinates given for the clip region are taken to be model
+    coordinates.
+
+    \sa setClipRegion(), clipRegion(), setClipping() QPainter::CoordinateMode
+*/
+
+/*!
+  \overload
+*/
 void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inline?
 {
     setClipRegion(QRegion(rect), mode);
 }
+
+/*!
+    Sets the clip region to \a r and enables clipping. The clip mode
+    is set to \a m.
+
+    Note that the clip region is given in physical device coordinates
+    and \e not subject to any \link coordsys.html coordinate
+    transformation.\endlink
+
+    \sa setClipRect(), clipRegion(), setClipping() CoordinateMode
+*/
 
 void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 {
@@ -290,6 +902,12 @@ void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 }
 
 
+/*!
+    Returns TRUE if view transformation is enabled; otherwise returns
+    FALSE.
+
+    \sa setViewXForm(), xForm()
+*/
 
 bool QPainter::hasViewXForm() const
 {
@@ -300,6 +918,13 @@ bool QPainter::hasViewXForm() const
 #endif
 }
 
+/*!
+    Returns TRUE if world transformation is enabled; otherwise returns
+    FALSE.
+
+    \sa setWorldXForm()
+*/
+
 bool QPainter::hasWorldXForm() const
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -308,6 +933,23 @@ bool QPainter::hasWorldXForm() const
     return d->state->xlatex || d->state->xlatey;
 #endif
 }
+
+/*!
+    Sets the window rectangle view transformation for the painter and
+    enables view transformation.
+
+    The window rectangle is part of the view transformation. The
+    window specifies the logical coordinate system and is specified by
+    the \a x, \a y, \a w width and \a h height parameters. Its sister,
+    the viewport(), specifies the device coordinate system.
+
+    The default window rectangle is the same as the device's
+    rectangle. See the \link coordsys.html Coordinate System Overview
+    \endlink for an overview of coordinate transformation.
+
+    \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
+    setWorldXForm()
+*/
 
 void QPainter::setWindow(int x, int y, int w, int h)
 {
@@ -323,10 +965,34 @@ void QPainter::setWindow(int x, int y, int w, int h)
 	setViewXForm(true);
 }
 
+/*!
+    Returns the window rectangle.
+
+    \sa setWindow(), setViewXForm()
+*/
+
 QRect QPainter::window() const
 {
     return QRect(d->state->wx, d->state->wy, d->state->ww, d->state->wh);
 }
+
+
+/*!
+    Sets the viewport rectangle view transformation for the painter
+    and enables view transformation.
+
+    The viewport rectangle is part of the view transformation. The
+    viewport specifies the device coordinate system and is specified
+    by the \a x, \a y, \a w width and \a h height parameters. Its
+    sister, the window(), specifies the logical coordinate system.
+
+    The default viewport rectangle is the same as the device's
+    rectangle. See the \link coordsys.html Coordinate System Overview
+    \endlink for an overview of coordinate transformation.
+
+    \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
+    setWorldXForm(), xForm()
+*/
 
 void QPainter::setViewport(int x, int y, int w, int h)
 {
@@ -342,10 +1008,24 @@ void QPainter::setViewport(int x, int y, int w, int h)
 	setViewXForm(true);
 }
 
+/*!
+    Returns the viewport rectangle.
+
+    \sa setViewport(), setViewXForm()
+*/
+
 QRect QPainter::viewport() const
 {
     return QRect(d->state->vx, d->state->vy, d->state->vw, d->state->vh);
 }
+
+/*!
+    Enables view transformations if \a enable is TRUE, or disables
+    view transformations if \a enable is FALSE.
+
+    \sa hasViewXForm(), setWindow(), setViewport(), setWorldMatrix(),
+    setWorldXForm(), xForm()
+*/
 
 void QPainter::setViewXForm(bool enable)
 {
@@ -356,6 +1036,55 @@ void QPainter::setViewXForm(bool enable)
     d->state->VxF = enable;
     updateXForm();
 }
+
+/*!
+    Sets the world transformation matrix to \a m and enables world
+    transformation.
+
+    If \a combine is TRUE, then \a m is combined with the current
+    transformation matrix, otherwise \a m replaces the current
+    transformation matrix.
+
+    If \a m is the identity matrix and \a combine is FALSE, this
+    function calls setWorldXForm(FALSE). (The identity matrix is the
+    matrix where QWMatrix::m11() and QWMatrix::m22() are 1.0 and the
+    rest are 0.0.)
+
+    World transformations are applied after the view transformations
+    (i.e. \link setWindow() window\endlink and \link setViewport()
+    viewport\endlink).
+
+    The following functions can transform the coordinate system without using
+    a QWMatrix:
+    \list
+    \i translate()
+    \i scale()
+    \i shear()
+    \i rotate()
+    \endlist
+
+    They operate on the painter's worldMatrix() and are implemented like this:
+
+    \code
+	void QPainter::rotate( double a )
+	{
+	    QWMatrix m;
+	    m.rotate( a );
+	    setWorldMatrix( m, TRUE );
+	}
+    \endcode
+
+    Note that you should always use \a combine when you are drawing
+    into a QPicture. Otherwise it may not be possible to replay the
+    picture with additional transformations. Using translate(),
+    scale(), etc., is safe.
+
+    For a brief overview of coordinate transformation, see the \link
+    coordsys.html Coordinate System Overview. \endlink
+
+    \sa worldMatrix() setWorldXForm() setWindow() setViewport()
+    setViewXForm() xForm() QWMatrix
+*/
 
 void QPainter::setWorldMatrix(const QWMatrix &wm, bool combine)
 {
@@ -375,10 +1104,25 @@ void QPainter::setWorldMatrix(const QWMatrix &wm, bool combine)
 	updateXForm();
 }
 
+/*!
+    Returns the world transformation matrix.
+
+    \sa setWorldMatrix()
+*/
+
 const QWMatrix &QPainter::worldMatrix() const
 {
     return d->state->worldMatrix;
 }
+
+/*!
+    Enables world transformations if \a enable is TRUE, or disables
+    world transformations if \a enable is FALSE. The world
+    transformation matrix is not changed.
+
+    \sa setWorldMatrix(), setWindow(), setViewport(), setViewXForm(),
+    xForm()
+*/
 
 void QPainter::setWorldXForm(bool enable)
 {
@@ -393,12 +1137,26 @@ void QPainter::setWorldXForm(bool enable)
 #include <private/qtextlayout_p.h>
 
 #ifndef QT_NO_TRANSFORMATIONS
+/*!
+    Scales the coordinate system by \a (sx, sy).
+
+    \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix(),
+    xForm()
+*/
+
 void QPainter::scale(double sx, double sy)
 {
     QWMatrix m;
     m.scale( sx, sy );
     setWorldMatrix( m, true );
 }
+
+/*!
+    Shears the coordinate system by \a (sh, sv).
+
+    \sa translate(), scale(), rotate(), resetXForm(), setWorldMatrix(),
+    xForm()
+*/
 
 void QPainter::shear(double sh, double sv)
 {
@@ -407,6 +1165,13 @@ void QPainter::shear(double sh, double sv)
     setWorldMatrix( m, true );
 }
 
+/*!
+    Rotates the coordinate system \a a degrees counterclockwise.
+
+    \sa translate(), scale(), shear(), resetXForm(), setWorldMatrix(),
+    xForm()
+*/
+
 void QPainter::rotate(double a)
 {
     QWMatrix m;
@@ -414,6 +1179,14 @@ void QPainter::rotate(double a)
     setWorldMatrix( m, true );
 }
 #endif
+
+/*!
+    Resets any transformations that were made using translate(), scale(),
+    shear(), rotate(), setWorldMatrix(), setViewport() and
+    setWindow().
+
+    \sa worldMatrix(), viewport(), window()
+*/
 
 void QPainter::resetXForm()
 {
@@ -429,6 +1202,26 @@ void QPainter::resetXForm()
 	d->engine->setDirty(QPaintEngine::DirtyTransform);
 }
 
+/*!
+    Translates the coordinate system by \a (dx, dy). After this call,
+    \a (dx, dy) is added to points.
+
+    For example, the following code draws the same point twice:
+    \code
+	void MyWidget::paintEvent()
+	{
+	    QPainter paint( this );
+
+	    paint.drawPoint( 0, 0 );
+
+	    paint.translate( 100.0, 40.0 );
+	    paint.drawPoint( -100, -40 );
+	}
+    \endcode
+
+    \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), xForm()
+*/
+
 void QPainter::translate(double dx, double dy)
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -442,6 +1235,10 @@ void QPainter::translate(double dx, double dy)
 #endif
 }
 
+/*!
+    \internal
+*/
+
 double QPainter::translationX() const
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -451,6 +1248,9 @@ double QPainter::translationX() const
 #endif
 }
 
+/*!
+    \internal
+*/
 double QPainter::translationY() const
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -459,6 +1259,19 @@ double QPainter::translationY() const
     return d->state->xlatey;
 #endif
 }
+
+/*!
+    \overload void QPainter::drawLine( int x1, int y1, int x2, int y2 )
+
+    Draws a line from (\a x1, \a y1) to (\a x2, \a y2) and sets the
+    current pen position to (\a x2, \a y2).
+*/
+
+/*!
+    Draws a line from point \a p1 to point \a p2.
+
+    \sa pen()
+*/
 
 void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 {
@@ -475,6 +1288,20 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
     d->engine->drawLine(p1, p2);
 }
 
+/*!
+    \fn void QPainter::drawRect( int x, int y, int w, int h )
+
+    \overload
+
+    Draws a rectangle with upper left corner at \a (x, y) and with
+    width \a w and height \a h.
+*/
+
+/*!
+    Draws the rectangle \a r.
+
+    \sa QPen, drawRoundRect()
+*/
 void QPainter::drawRect(const QRect &r)
 {
     if (!isActive() || r.isEmpty())
@@ -554,6 +1381,44 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     d->engine->drawPoints(pa, index, npoints);
 }
 
+/*! \fn void QPainter::drawWinFocusRect( int x, int y, int w, int h, const QColor &bgColor )
+
+    \overload
+
+    Draws a Windows focus rectangle with upper left corner at (\a x,
+    \a y) and with width \a w and height \a h using a pen color that
+    contrasts with \a bgColor.
+
+    This function draws a stippled rectangle (XOR is not used) that is
+    used to indicate keyboard focus (when the QApplication::style() is
+    \c WindowStyle).
+
+    The pen color used to draw the rectangle is either white or black
+    depending on the color of \a bgColor (see QColor::gray()).
+
+    \warning This function draws nothing if the coordinate system has
+    been \link rotate() rotated\endlink or \link shear()
+    sheared\endlink.
+
+    \sa drawRect(), QApplication::style()
+*/
+
+
+/*!
+    \overload
+
+    Draws the Windows focus rectangle \a r.
+
+    This function draws a stippled XOR rectangle that is used to
+    indicate keyboard focus (when QApplication::style() is \c
+    WindowStyle).
+
+    \warning This function draws nothing if the coordinate system has
+    been \link rotate() rotated\endlink or \link shear()
+    sheared\endlink.
+
+    \sa drawRect(), QApplication::style()
+*/
 
 void QPainter::drawWinFocusRect(const QRect &r)
 {
@@ -578,6 +1443,25 @@ void QPainter::drawWinFocusRect(const QRect &r)
 
     d->engine->drawWinFocusRect(rect, true, color0);
 }
+
+/*!
+    Draws a Windows focus rectangle with upper left corner at (\a x,
+    \a y) and with width \a w and height \a h using a pen color that
+    contrasts with \a bgColor.
+
+    This function draws a stippled rectangle (XOR is not used) that is
+    used to indicate keyboard focus (when the QApplication::style() is
+    \c WindowStyle).
+
+    The pen color used to draw the rectangle is either white or black
+    depending on the color of \a bgColor (see QColor::gray()).
+
+    \warning This function draws nothing if the coordinate system has
+    been \link rotate() rotated\endlink or \link shear()
+    sheared\endlink.
+
+    \sa drawRect(), QApplication::style()
+*/
 
 void QPainter::drawWinFocusRect(const QRect &r, const QColor &bgColor)
 {
@@ -604,6 +1488,20 @@ void QPainter::drawWinFocusRect(const QRect &r, const QColor &bgColor)
 }
 
 
+/*!
+    Sets the background mode of the painter to \a m, which must be
+    either \c TransparentMode (the default) or \c OpaqueMode.
+
+    Transparent mode draws stippled lines and text without setting the
+    background pixels. Opaque mode fills these space with the current
+    background color.
+
+    Note that in order to draw a bitmap or pixmap transparently, you
+    must use QPixmap::setMask().
+
+    \sa backgroundMode(), setBackground()
+*/
+
 void QPainter::setBackgroundMode(BGMode mode)
 {
     if (mode != TransparentMode && mode != OpaqueMode) {
@@ -615,11 +1513,25 @@ void QPainter::setBackgroundMode(BGMode mode)
 	d->engine->setDirty(QPaintEngine::DirtyBackground);
 }
 
+/*!
+    Returns the current background mode.
+
+    \sa setBackgroundMode() BGMode
+*/
 QPainter::BGMode QPainter::backgroundMode() const
 {
     return d->state->bgMode;
 }
 
+
+/*!
+    \overload
+
+    Sets the painter's pen to have style \c SolidLine, width 0 and the
+    specified \a color.
+
+    \sa pen(), QPen
+*/
 
 void QPainter::setPen(const QColor &color)
 {
@@ -628,12 +1540,30 @@ void QPainter::setPen(const QColor &color)
 	d->engine->setDirty(QPaintEngine::DirtyPen);
 }
 
+/*!
+    Sets a new painter pen.
+
+    The \a pen defines how to draw lines and outlines, and it also
+    defines the text color.
+
+    \sa pen()
+*/
+
 void QPainter::setPen(const QPen &pen)
 {
     d->state->pen = pen;
     if (d->engine)
 	d->engine->setDirty(QPaintEngine::DirtyPen);
 }
+
+/*!
+    \overload
+
+    Sets the painter's pen to have style \a style, width 0 and black
+    color.
+
+    \sa pen(), QPen
+*/
 
 void QPainter::setPen(PenStyle style)
 {
@@ -644,11 +1574,27 @@ void QPainter::setPen(PenStyle style)
 	d->engine->setDirty(QPaintEngine::DirtyPen);
 }
 
+/*!
+    Returns the painter's current pen.
+
+    \sa setPen()
+*/
+
 const QPen &QPainter::pen() const
 {
     return d->state->pen;
 }
 
+
+/*!
+    \overload
+
+    Sets the painter's brush to \a brush.
+
+    The \a brush defines how shapes are filled.
+
+    \sa brush()
+*/
 
 void QPainter::setBrush(const QBrush &brush)
 {
@@ -660,6 +1606,13 @@ void QPainter::setBrush(const QBrush &brush)
 }
 
 
+/*!
+    Sets the painter's brush to black color and the specified \a
+    style.
+
+    \sa brush(), QBrush
+*/
+
 void QPainter::setBrush(BrushStyle style)
 {
     // ### Missing optimization from qpainter.cpp
@@ -668,10 +1621,26 @@ void QPainter::setBrush(BrushStyle style)
 	d->engine->setDirty(QPaintEngine::DirtyBrush);
 }
 
+/*!
+    Returns the painter's current brush.
+
+    \sa QPainter::setBrush()
+*/
+
 const QBrush &QPainter::brush() const
 {
     return d->state->brush;
 }
+
+/*!
+    Sets the background brush of the painter to \a bg.
+
+    The background brush is the brush that is filled in when drawing
+    opaque text, stippled lines and bitmaps. The background brush has
+    no effect in transparent background mode (which is the default).
+
+    \sa background() setBackgroundMode() BackgroundMode
+*/
 
 void QPainter::setBackground(const QBrush &bg)
 {
@@ -679,6 +1648,12 @@ void QPainter::setBackground(const QBrush &bg)
     if (d->engine && d->engine->isActive())
 	d->engine->setDirty(QPaintEngine::DirtyBackground);
 }
+
+/*!
+    Sets the raster operation to \a r. The default is \c CopyROP.
+
+    \sa rasterOp() Qt::RasterOp
+*/
 
 void QPainter::setRasterOp(RasterOp op)
 {
@@ -691,10 +1666,25 @@ void QPainter::setRasterOp(RasterOp op)
 	d->engine->setDirty(QPaintEngine::DirtyRasterOp);
 }
 
+/*!
+    Returns the current raster operation.
+
+    \sa setRasterOp() RasterOp
+*/
+
 Qt::RasterOp QPainter::rasterOp() const
 {
     return d->state->rasterOp;
 }
+
+/*!
+    Sets the painter's font to \a font.
+
+    This font is used by subsequent drawText() functions. The text
+    color is the same as the pen color.
+
+    \sa font(), drawText()
+*/
 
 void QPainter::setFont(const QFont &font)
 {
@@ -703,10 +1693,41 @@ void QPainter::setFont(const QFont &font)
 	d->engine->setDirty(QPaintEngine::DirtyFont);
 }
 
+/*!
+    Returns the currently set painter font.
+
+    \sa setFont(), QFont
+*/
+
 const QFont &QPainter::font() const
 {
     return d->state->font;
 }
+/*! \fn void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
+
+    \overload
+
+    Draws a rectangle with rounded corners at \a (x, y), with width \a
+    w and height \a h.
+
+    The \a xRnd and \a yRnd arguments specify how rounded the corners
+    should be. 0 is angled corners, 99 is maximum roundedness.
+
+    The width and height include all of the drawn lines.
+
+    \sa drawRect(), QPen
+*/
+
+/*!
+    Draws a rectangle \a r with rounded corners.
+
+    The \a xRnd and \a yRnd arguments specify how rounded the corners
+    should be. 0 is angled corners, 99 is maximum roundedness.
+
+    The width and height include all of the drawn lines.
+
+    \sa drawRect(), QPen
+*/
 
 void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
@@ -767,6 +1788,18 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     d->engine->drawRoundRect(rect, xRnd, yRnd);
 }
 
+/*! \fn void QPainter::drawEllipse( int x, int y, int w, int h )
+
+    \overload
+
+    Draws an ellipse with center at \a (x + w/2, y + h/2) and size \a
+    (w, h).
+*/
+
+/*!
+    Draws the ellipse that fits inside rectangle \a r.
+*/
+
 void QPainter::drawEllipse(const QRect &r)
 {
     if (!isActive())
@@ -788,6 +1821,32 @@ void QPainter::drawEllipse(const QRect &r)
     d->engine->drawEllipse(rect);
 }
 
+/*! \fn void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
+
+    \overload
+
+    Draws the arc that fits inside the rectangle \a (x, y, w, h), with
+    start angle \a a and arc length \a alen.
+*/
+
+/*!
+    Draws an arc defined by the rectangle \a r, the start angle \a a
+    and the arc length \a alen.
+
+    The angles \a a and \a alen are 1/16th of a degree, i.e. a full
+    circle equals 5760 (16*360). Positive values of \a a and \a alen
+    mean counter-clockwise while negative values mean the clockwise
+    direction. Zero degrees is at the 3 o'clock position.
+
+    Example:
+    \code
+	QPainter p( myWidget );
+	p.drawArc( QRect(10,10, 70,100), 100*16, 160*16 ); // draws a "(" arc
+    \endcode
+
+    \sa drawPie(), drawChord()
+*/
+
 void QPainter::drawArc(const QRect &r, int a, int alen)
 {
     if (!isActive())
@@ -808,7 +1867,28 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
     d->engine->drawArc(rect, a, alen);
 }
 
- void QPainter::drawPie(const QRect &r, int a, int alen)
+
+/*!
+    \overload void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
+
+    Draws a pie segment that fits inside the rectangle \a (x, y, w, h)
+    with start angle \a a and arc length \a alen.
+*/
+
+/*!
+    Draws a pie defined by the rectangle \a r, the start angle \a a
+    and the arc length \a alen.
+
+    The pie is filled with the current brush().
+
+    The angles \a a and \a alen are 1/16th of a degree, i.e. a full
+    circle equals 5760 (16*360). Positive values of \a a and \a alen
+    mean counter-clockwise while negative values mean the clockwise
+    direction. Zero degrees is at the 3 o'clock position.
+
+    \sa drawArc(), drawChord()
+*/
+void QPainter::drawPie(const QRect &r, int a, int alen)
 {
     if (!isActive())
 	return;
@@ -841,6 +1921,30 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
     d->engine->drawPie(rect, a, alen);
 }
 
+/*!
+    \fn void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
+
+    \overload
+
+    Draws a chord that fits inside the rectangle \a (x, y, w, h) with
+    start angle \a a and arc length \a alen.
+*/
+
+
+/*!
+    Draws a chord defined by the rectangle \a r, the start angle \a a
+    and the arc length \a alen.
+
+    The chord is filled with the current brush().
+
+    The angles \a a and \a alen are 1/16th of a degree, i.e. a full
+    circle equals 5760 (16*360). Positive values of \a a and \a alen
+    mean counter-clockwise while negative values mean the clockwise
+    direction. Zero degrees is at the 3 o'clock position.
+
+    \sa drawArc(), drawPie()
+*/
+
 void QPainter::drawChord(const QRect &r, int a, int alen)
 {
     if ( !isActive() )
@@ -863,6 +1967,18 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
     }
     d->engine->drawChord(rect, a, alen);
 }
+
+/*!
+    Draws \a nlines separate lines from points defined in \a a,
+    starting at \a a[index] (\a index defaults to 0). If \a nlines is
+    -1 (the default) all points until the end of the array are used
+    (i.e. (a.size()-index)/2 lines are drawn).
+
+    Draws the 1st line from \a a[index] to \a a[index+1]. Draws the
+    2nd line from \a a[index+2] to \a a[index+3] etc.
+
+    \sa drawPolyline(), drawPolygon(), QPen
+*/
 
 void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
@@ -890,6 +2006,16 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     d->engine->drawLineSegments(a, index, nlines);
 }
 
+/*!
+    Draws the polyline defined by the \a npoints points in \a a
+    starting at \a a[index]. (\a index defaults to 0.)
+
+    If \a npoints is -1 (the default) all points until the end of the
+    array are used (i.e. a.size()-index-1 line segments are drawn).
+
+    \sa drawLineSegments(), drawPolygon(), QPen
+*/
+
 void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 {
     if (!isActive())
@@ -912,6 +2038,24 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     d->engine->drawPolyline(a, index, npoints);
 }
 
+/*!
+    Draws the polygon defined by the \a npoints points in \a a
+    starting at \a a[index]. (\a index defaults to 0.)
+
+    If \a npoints is -1 (the default) all points until the end of the
+    array are used (i.e. a.size()-index line segments define the
+    polygon).
+
+    The first point is always connected to the last point.
+
+    The polygon is filled with the current brush(). If \a winding is
+    TRUE, the polygon is filled using the winding fill algorithm. If
+    \a winding is FALSE, the polygon is filled using the even-odd
+    (alternative) fill algorithm.
+
+    \sa drawLineSegments(), drawPolyline(), QPen
+*/
+
 void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
     if (!isActive())
@@ -932,6 +2076,16 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
     }
     d->engine->drawPolygon(a, winding, index, npoints);
 }
+
+/*!
+    Draws the convex polygon defined by the \a npoints points in \a pa
+    starting at \a pa[index] (\a index defaults to 0).
+
+    If the supplied polygon is not convex, the results are undefined.
+
+    On some platforms (e.g. X Window), this is faster than
+    drawPolygon().
+*/
 
 void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 {
@@ -954,6 +2108,14 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
     d->engine->drawConvexPolygon(a, index, npoints);
 }
 
+/*!
+    Draws a cubic Bezier curve defined by the control points in \a a,
+    starting at \a a[index] (\a index defaults to 0).
+
+    Control points after \a a[index + 3] are ignored. Nothing happens
+    if there aren't enough control points.
+*/
+
 void QPainter::drawCubicBezier(const QPointArray &a, int index )
 {
     if ( !isActive() )
@@ -975,6 +2137,43 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
     d->engine->drawCubicBezier(a, index);
 }
 
+/*! \fn void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh )
+
+    \overload
+
+    Draws a pixmap at \a (x, y) by copying a part of \a pixmap into
+    the paint device.
+
+    \a (x, y) specifies the top-left point in the paint device that is
+    to be drawn onto. \a (sx, sy) specifies the top-left point in \a
+    pixmap that is to be drawn. The default is (0, 0).
+
+    \a (sw, sh) specifies the size of the pixmap that is to be drawn.
+    The default, (-1, -1), means all the way to the bottom right of
+    the pixmap.
+
+    Currently the mask of the pixmap or it's alpha channel are ignored
+    when painting on a QPrinter.
+
+    \sa bitBlt(), QPixmap::setMask()
+*/
+
+/*!
+    \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
+
+    Draws the rectangle \a sr of pixmap \a pm with its origin at point
+    \a p.
+*/
+
+/*!
+    \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
+
+    Draws the pixmap \a pm with its origin at point \a p.
+*/
+
+/*!
+   ### needs document'n
+*/
 void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 {
     if (!isActive() || pm.isNull())
@@ -1062,6 +2261,10 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
     return;
 }
 
+/*!
+  ### remove when combining QImage/QPixmap
+*/
+
 void QPainter::drawImage(int x, int y, const QImage &,
 			  int sx, int sy, int sw, int sh,
 			  int conversionFlags)
@@ -1073,6 +2276,10 @@ void QPainter::drawImage(int x, int y, const QImage &,
     qWarning("QPainter::drawImage(), %d", __LINE__);
 }
 
+
+/*!
+  ### remove when combining QImage/QPixmap
+*/
 void QPainter::drawImage(const QRect &, const QImage &)
 {
     if (!isActive())
@@ -1082,6 +2289,13 @@ void QPainter::drawImage(const QRect &, const QImage &)
     qWarning("QPainter::drawImage(), %d", __LINE__);
 }
 
+/*! \overload
+
+    Draws the given text at position \a x, \a y. The text's direction
+    is given by \a dir.
+
+    \sa QPainter::TextDirection
+*/
 
 void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
 {
@@ -1121,8 +2335,17 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
     line.draw(this, x, y - sl.ascent.toInt());
 }
 
-void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,
-			 QRect *br)
+/*!
+    \overload
+
+    Draws the given text within the rectangle \a r. If \a len is -1
+    (the default) all the text is drawn, otherwise the first \a len
+    characters are drawn. The text's flags that are given in the \a
+    flags parameter are \l{Qt::AlignmentFlags} and \l{Qt::TextFlags}
+    OR'd together. \a br (if not null) is set to the actual bounding
+    rectangle of the output.
+*/
+void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, QRect *br)
 {
     if (!isActive())
 	return;
@@ -1133,9 +2356,22 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,
     if ( len == 0 )				// empty string
 	return;
 
-    qt_format_text(font(), r, flags, str, len, br,
-		   0, 0, 0, this);
+    qt_format_text(font(), r, flags, str, len, br, 0, 0, 0, this);
 }
+
+/*! \internal
+    Draws the text item \a ti at position \a p.
+
+    This method ignores the painters background mode and
+    color. drawText and qt_format_text have to do it themselves, as
+    only they know the extents of the complete string.
+
+    It ignores the font set on the painter as the text item has one of its own.
+
+    The underline and strikeout parameters of the text items font are
+    ignored aswell. You'll need to pass in the correct flags to get
+    underlining and strikeout.
+*/
 
 void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
@@ -1199,6 +2435,46 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     drawPixmap(p.x(), p.y() - ti.ascent, pm);
 }
 
+/*!
+    \fn QRect QPainter::boundingRect( int x, int y, int w, int h, int flags, const QString&, int len = -1 );
+
+    Returns the bounding rectangle of the aligned text that would be
+    printed with the corresponding drawText() function using the first
+    \a len characters of the string if \a len is > -1, or the whole of
+    the string if \a len is -1. The drawing, and hence the bounding
+    rectangle, is constrained to the rectangle that begins at point \a
+    (x, y) with width \a w and hight \a h, or to the
+    rectangle required to draw the text, whichever is the larger.
+
+    The \a flags argument is
+    the bitwise OR of the following flags:
+    \table
+    \header \i Flag \i Meaning
+    \row \i \c AlignAuto \i aligns according to the language, usually left.
+    \row \i \c AlignLeft \i aligns to the left border.
+    \row \i \c AlignRight \i aligns to the right border.
+    \row \i \c AlignHCenter \i aligns horizontally centered.
+    \row \i \c AlignTop \i aligns to the top border.
+    \row \i \c AlignBottom \i aligns to the bottom border.
+    \row \i \c AlignVCenter \i aligns vertically centered.
+    \row \i \c AlignCenter \i (== \c AlignHCenter | \c AlignVCenter).
+    \row \i \c SingleLine \i ignores newline characters in the text.
+    \row \i \c ExpandTabs \i expands tabs.
+    \row \i \c ShowPrefix \i interprets "&x" as "<u>x</u>".
+    \row \i \c WordBreak \i breaks the text to fit the rectangle.
+    \endtable
+
+    Horizontal alignment defaults to \c AlignLeft and vertical
+    alignment defaults to \c AlignTop.
+
+    If several of the horizontal or several of the vertical alignment flags
+    are set, the resulting alignment is undefined.
+
+    The \a intern parameter should not be used.
+
+    \sa Qt::TextFlags
+*/
+
 QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len)
 {
     QRect brect;
@@ -1209,11 +2485,9 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
     return brect;
 }
 
-// ################### make static or prefix with qt_
-
-/* Internal, used by drawTiledPixmap */
-void drawTile( QPaintEngine *gc, int x, int y, int w, int h,
-	       const QPixmap &pixmap, int xOffset, int yOffset )
+/*!\internal internal, used by drawTiledPixmap */
+void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
+		  const QPixmap &pixmap, int xOffset, int yOffset)
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
@@ -1236,6 +2510,35 @@ void drawTile( QPaintEngine *gc, int x, int y, int w, int h,
 	yOff = 0;
     }
 }
+
+/*!
+    \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm, const QPoint &sp )
+
+    Draws a tiled pixmap, \a pm, inside rectangle \a r with its origin
+    at point \a sp.
+*/
+
+/*!
+    \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm )
+
+    Draws a tiled pixmap, \a pm, inside rectangle \a r.
+*/
+
+/*!
+    Draws a tiled \a pixmap in the specified rectangle.
+
+    \a (x, y) specifies the top-left point in the paint device that is
+    to be drawn onto; with the width and height given by \a w and \a
+    h. \a (sx, sy) specifies the top-left point in \a pixmap that is
+    to be drawn. The default is (0, 0).
+
+    Calling drawTiledPixmap() is similar to calling drawPixmap()
+    several times to fill (tile) an area with a pixmap, but is
+    potentially much more efficient depending on the underlying window
+    system.
+
+    \sa drawPixmap()
+*/
 
 void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy)
 {
@@ -1271,6 +2574,19 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
     d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), optim);
 }
 
+/*!
+    \overload void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+
+    Draws picture \a pic at point \a p.
+*/
+
+/*!
+    Replays the picture \a pic translated by (\a x, \a y).
+
+    This function does exactly the same as QPicture::play() when
+    called with (\a x, \a y) = (0, 0).
+*/
+
 void QPainter::drawPicture(int x, int y, const QPicture &p)
 {
     if (!isActive())
@@ -1281,6 +2597,20 @@ void QPainter::drawPicture(int x, int y, const QPicture &p)
     const_cast<QPicture *>(&p)->play(this);
     restore();
 }
+
+
+/*!
+    \fn void QPainter::eraseRect( const QRect &r )
+
+    \overload
+
+    Erases the area inside the rectangle \a r.
+*/
+
+/*!
+    Erases the area inside \a x, \a y, \a w, \a h. Equivalent to
+    \c{fillRect( x, y, w, h, backgroundColor() )}.
+*/
 
 void QPainter::eraseRect(int x, int y, int w, int h)
 {
@@ -1294,6 +2624,29 @@ void QPainter::eraseRect(int x, int y, int w, int h)
 	fillRect(x, y, w, h, d->state->bgBrush);
 }
 
+/*! \fn void QPainter::fillRect( const QRect &r, const QBrush &brush )
+
+    \overload
+
+    Fills the rectangle \a r with the \a brush.
+
+    You can specify a QColor as \a brush, since there is a QBrush
+    constructor that takes a QColor argument and creates a solid
+    pattern brush.
+
+    \sa drawRect()
+*/
+
+/*!
+    Fills the rectangle \a (x, y, w, h) with the \a brush.
+
+    You can specify a QColor as \a brush, since there is a QBrush
+    constructor that takes a QColor argument and creates a solid
+    pattern brush.
+
+    \sa drawRect()
+*/
+
 void QPainter::fillRect(int x, int y, int w, int h, const QBrush &brush)
 {
     QPen   oldPen   = pen();			// save pen
@@ -1305,6 +2658,10 @@ void QPainter::fillRect(int x, int y, int w, int h, const QBrush &brush)
     setPen( oldPen );				// restore pen
 }
 
+
+/*!
+  \internal
+*/
 
 void QPainter::updateXForm()
 {
@@ -1357,6 +2714,8 @@ void QPainter::updateXForm()
 // 	   d->state->matrix.dy() );
 }
 
+
+/*! \internal */
 void QPainter::updateInvXForm()
 {
     Q_ASSERT(d->txinv == false);
@@ -1378,6 +2737,13 @@ void QPainter::updateInvXForm()
 }
 
 
+/*!
+    Returns the point \a p transformed from model coordinates to
+    device coordinates.
+
+    \sa xFormDev(), QWMatrix::map()
+*/
+
 QPoint QPainter::xForm(const QPoint &p) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -1397,6 +2763,19 @@ QPoint QPainter::xForm(const QPoint &p) const
     return QPoint(p.x() + d->state->xlatex, p.y() + d->state->xlatey);
 #endif
 }
+
+
+/*!
+    \overload
+
+    Returns the rectangle \a r transformed from model coordinates to
+    device coordinates.
+
+    If world transformation is enabled and rotation or shearing has
+    been specified, then the bounding rectangle is returned.
+
+    \sa xFormDev(), QWMatrix::map()
+*/
 
 QRect QPainter::xForm(const QRect &r)	const
 {
@@ -1423,6 +2802,15 @@ QRect QPainter::xForm(const QRect &r)	const
 #endif
 }
 
+/*!
+    \overload
+
+    Returns the point array \a a transformed from model coordinates
+    to device coordinates.
+
+    \sa xFormDev(), QWMatrix::map()
+*/
+
 QPointArray QPainter::xForm(const QPointArray &a) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -1436,6 +2824,29 @@ QPointArray QPainter::xForm(const QPointArray &a) const
 #endif
 }
 
+/*!
+    \overload
+
+    Returns the point array \a av transformed from model coordinates
+    to device coordinates. The \a index is the first point in the
+    array and \a npoints denotes the number of points to be
+    transformed. If \a npoints is negative, all points from \a
+    av[index] until the last point in the array are transformed.
+
+    The returned point array consists of the number of points that
+    were transformed.
+
+    Example:
+    \code
+	QPointArray a(10);
+	QPointArray b;
+	b = painter.xForm(a, 2, 4);  // b.size() == 4
+	b = painter.xForm(a, 2, -1); // b.size() == 8
+    \endcode
+
+    \sa xFormDev(), QWMatrix::map()
+*/
+
 QPointArray QPainter::xForm( const QPointArray &av, int index, int npoints ) const
 {
     int lastPoint = npoints < 0 ? av.size() : index+npoints;
@@ -1448,6 +2859,15 @@ QPointArray QPainter::xForm( const QPointArray &av, int index, int npoints ) con
     return a;
 #endif
 }
+
+/*!
+    \overload
+
+    Returns the point \a p transformed from device coordinates to
+    model coordinates.
+
+    \sa xForm(), QWMatrix::map()
+*/
 
 QPoint QPainter::xFormDev( const QPoint &p ) const
 {
@@ -1464,6 +2884,16 @@ QPoint QPainter::xFormDev( const QPoint &p ) const
     return QPoint(p.x() - xlatex, p.y() - xlatey);
 #endif
 }
+
+/*!
+    Returns the rectangle \a rd transformed from device coordinates to
+    model coordinates.
+
+    If world transformation is enabled and rotation or shearing is
+    used, then the bounding rectangle is returned.
+
+    \sa xForm(), QWMatrix::map()
+*/
 
 QRect QPainter::xFormDev( const QRect &r )  const
 {
@@ -1487,6 +2917,15 @@ QRect QPainter::xFormDev( const QRect &r )  const
 #endif
 }
 
+/*!
+    \overload
+
+    Returns the point array \a a transformed from device coordinates
+    to model coordinates.
+
+    \sa xForm(), QWMatrix::map()
+*/
+
 QPointArray QPainter::xFormDev( const QPointArray &a ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -1504,6 +2943,29 @@ QPointArray QPainter::xFormDev( const QPointArray &a ) const
 #endif
 
 }
+
+/*!
+    \overload
+
+    Returns the point array \a ad transformed from device coordinates
+    to model coordinates. The \a index is the first point in the array
+    and \a npoints denotes the number of points to be transformed. If
+    \a npoints is negative, all points from \a ad[index] until the
+    last point in the array are transformed.
+
+    The returned point array consists of the number of points that
+    were transformed.
+
+    Example:
+    \code
+	QPointArray a(10);
+	QPointArray b;
+	b = painter.xFormDev(a, 1, 3);  // b.size() == 3
+	b = painter.xFormDev(a, 1, -1); // b.size() == 9
+    \endcode
+
+    \sa xForm(), QWMatrix::map()
+*/
 
 QPointArray QPainter::xFormDev( const QPointArray &ad, int index, int npoints ) const
 {
@@ -1579,8 +3041,8 @@ static QList<QPaintDeviceRedirection> redirections;
     \sa redirected()
 */
 void QPainter::setRedirected(const QPaintDevice *device,
-			      QPaintDevice *replacement,
-			      const QPoint &offset)
+			     QPaintDevice *replacement,
+			     const QPoint &offset)
 {
     Q_ASSERT(device != 0);
     redirections.ensure_constructed();

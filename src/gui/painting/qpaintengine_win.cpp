@@ -1369,7 +1369,7 @@ Qt::RasterOp qt_map_rop_for_bitmaps( Qt::RasterOp r )
 }
 
 extern void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap );
-extern void drawTile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
+extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
 
 void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
 {
@@ -1392,8 +1392,8 @@ void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, c
 	    qt_fill_tile( &tilemask, *mask );
 	    tile.setMask( tilemask );
 	}
-	drawTile( this, r.x(), r.y(), r.width(), r.height(), tile, p.x(), p.y() );
+	qt_draw_tile( this, r.x(), r.y(), r.width(), r.height(), tile, p.x(), p.y() );
     } else {
-	drawTile( this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y() );
+	qt_draw_tile( this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y() );
     }
 }
