@@ -715,7 +715,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
 void QWidget::repaint( const QRegion &reg , bool erase )
 {
-    if ( !testWState(WState_BlockUpdates) && testWState(WState_Visible) && isVisible() ) {
+    if ( !testWState(WState_BlockUpdates) && isVisible() ) {
 	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
 	    this->erase(reg);
@@ -724,7 +724,6 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping( this );
     }
-
 #if 0 //this is good for debugging and not much else, do not leave this in production
     GWorldPtr cgworld;
     GDHandle cghandle;
@@ -970,7 +969,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 			       QRegion(QRect(QPoint(0, 0), size()));
 		if(!newr.isEmpty()) 
 		    erase(newr);
-	    } else if( isMove && !isTopLevel() && !oldregion.isEmpty() ) {
+	    } else if( isMove && !isTopLevel() && oldp.x() && oldp.y() && !oldregion.isEmpty() ) {
 		//save the window state, and do the grunt work
 		int ow = olds.width(), oh = olds.height();
 		QMacSavedPortInfo saveportstate; 
@@ -993,27 +992,15 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		bltregion &= clippedRegion(FALSE);
 		SetClip((RgnHandle)bltregion.handle());
 		    
-		//create a temporary space
-		GWorldPtr tmppix;
-		Rect tmpr; SetRect(&tmpr, 0, 0, ow, oh);
-		NewGWorld( &tmppix, 0, &tmpr, NULL, 0, alignPix | stretchPix | newDepth );
-		LockPixels(GetGWorldPixMap(tmppix));
-
 		//now do the blt
 		BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-		BitMap *pixm = (BitMap *)*GetGWorldPixMap(tmppix);
-		CopyBits(scrn, pixm, &oldr, &tmpr, srcCopy, 0);
-		CopyBits(pixm, scrn, &tmpr, &newr, srcCopy, 0);
-
-		//cleanup
-		UnlockPixels(GetGWorldPixMap(tmppix));
-		DisposeGWorld(tmppix);
+		CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
 	    }
 
 	    //finally issue "expose" events if necesary
 	    QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
 	    upd.translate(-px, -py); //translate them from window to the parent
-	    paint_children( parentWidget() ? parentWidget() : this, upd, TRUE);
+	    paint_children( parentWidget() ? parentWidget() : this, upd, TRUE );
 	} else {
 	    if ( isMove )
 		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
