@@ -42,10 +42,6 @@
 #include <private/qmutexpool_p.h>
 #include <qthreadstorage.h>
 
-#ifndef QT_H
-#  include "qapplication.h"
-#endif // QT_H
-
 #include <errno.h>
 #include <sched.h>
 
@@ -219,14 +215,6 @@ void QThread::cleanup()
 void QThread::exit()
 {
     pthread_exit( 0 );
-}
-
-/*! \obsolete
-    Use QApplication::postEvent() instead.
-*/
-void QThread::postEvent( QObject * receiver, QEvent * event )
-{
-    QApplication::postEvent( receiver, event );
 }
 
 /*  \internal

@@ -40,6 +40,10 @@
 #include "qthread.h"
 #include <private/qthreadinstance_p.h>
 
+#ifndef QT_H
+#  include "qapplication.h"
+#endif // QT_H
+
 #if QT_VERSION >= 0x040000
 #  error "Remove QThread::QThread() and QThread::start()."
 #endif
@@ -219,5 +223,15 @@ bool QThread::running() const
 
     \sa wait()
 */
+
+#ifndef QT_NO_COMPAT
+/*! \obsolete
+    Use QApplication::postEvent() instead.
+*/
+void QThread::postEvent( QObject * receiver, QEvent * event )
+{
+    QApplication::postEvent( receiver, event );
+}
+#endif
 
 #endif // QT_THREAD_SUPPORT
