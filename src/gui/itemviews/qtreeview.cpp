@@ -496,7 +496,8 @@ public:
 */
 
 /*!
-  Constructs a tree view with a \a parent widget.*/
+  Constructs a tree view with the given \a parent widget, using the default
+  model.*/
 
 QTreeView::QTreeView(QWidget *parent)
     : QGenericTreeView(*new QGenericTreeViewPrivate(), parent)
