@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#80 $
 **
 ** Implementation of QSlider class
 **
@@ -1056,3 +1056,14 @@ void QSlider::setTickInterval( int i )
   chooses between pageStep() and lineStep().
   \sa setTickInterval()
 */
+
+
+/*\reimp
+ */
+void QSlider::styleChange( GUIStyle )
+{
+    if ( style() == MotifStyle )
+	setBackgroundMode( PaletteMid );
+    else
+	setBackgroundMode( PaletteBackground );
+}
