@@ -400,7 +400,7 @@ signals:
     void pressed( int row, int col, int button, const QPoint &mousePos );
     void selectionChanged();
     void valueChanged( int row, int col );
-    void contextMenu( int row, int col, const QPoint &pos );
+    void contextMenuRequested( int row, int col, const QPoint &pos );
 #ifndef QT_NO_DRAGANDDROP
     void dropped( QDropEvent *e );
 #endif

@@ -1457,7 +1457,7 @@ bool QCheckTableItem::isChecked() const
 */
 
 /*!
-  \fn void QTable::contextMenu( int row, int col, const QPoint & pos )
+  \fn void QTable::contextMenuRequested( int row, int col, const QPoint & pos )
 
   This signal is emitted when the user invokes a context menu with the
   right mouse button or with special system keys, with \a row and \a
@@ -2931,7 +2931,7 @@ void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QRect r = cellGeometry( curRow, curCol );
 	r.moveBy( -contentsX(), -contentsY() );
-	emit contextMenu( curRow, curCol, mapToGlobal( contentsToViewport( r.center() ) ) );
+	emit contextMenuRequested( curRow, curCol, mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
 	contentsMousePressEvent( &me );

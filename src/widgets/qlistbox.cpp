@@ -700,7 +700,7 @@ int QListBoxPixmap::width( const QListBox* lb ) const
   \value FitToWidth   There are as many columns as will fit on-screen.
 
   \value FitToHeight  There are as many rows as will fit on-screen.
-  
+
   \value Variable  There are as many rows as are required by the
   column mode.  (Or as many columns as required by the row mode.)
 
@@ -894,7 +894,7 @@ QListBox::~QListBox()
 */
 
 /*!
-  \fn void QListBox::contextMenu( QListBoxItem *item, const QPoint & pos )
+  \fn void QListBox::contextMenuRequested( QListBoxItem *item, const QPoint & pos )
 
   This signal is emitted when the user invokes a context menu with the right mouse button
   or with special system keys, with \a item being the item under the mouse cursor or the
@@ -1502,7 +1502,7 @@ int QListBox::currentItem() const
 
 /*! \overload
 
-  This is a bit slower than the QListBoxItem * version.  
+  This is a bit slower than the QListBoxItem * version.
 */
 
 void QListBox::setCurrentItem( int index )
@@ -1521,7 +1521,7 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 {
     if ( !i || d->current == i )
 	return;
-    
+
     QRect mfrect = itemRect( i );
     if ( mfrect.isValid() )
 	setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
@@ -1783,6 +1783,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
     emit pressed( i );
     emit pressed( i, e->globalPos() );
     emit mouseButtonPressed( e->button(), i, e->globalPos() );
+    emit contextMenuRequested( i, e->globalPos() );
 
     if ( e->button() == RightButton )
 	emit rightButtonPressed( i, e->globalPos() );
@@ -2011,7 +2012,7 @@ void QListBox::contextMenuEvent( QContextMenuEvent *e )
 	QListBoxItem *i = item( currentItem() );
 	if ( i ) {
 	    QRect r = itemRect( i );
-	    emit contextMenu( i, mapToGlobal( r.topLeft() + QPoint( width() / 2, r.height() / 2 ) ) );
+	    emit contextMenuRequested( i, mapToGlobal( r.topLeft() + QPoint( width() / 2, r.height() / 2 ) ) );
 	}
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
@@ -2232,7 +2233,7 @@ void QListBox::focusInEvent( QFocusEvent *e )
 	updateItem( currentItem() );
 	QRect mfrect = itemRect( d->current );
 	if ( mfrect.isValid() )
-	    setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );    
+	    setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
     }
 }
 
@@ -2373,7 +2374,7 @@ void QListBox::setSelected( int index, bool select )
   If the list box is a Single selection list box and \a select is TRUE,
   setSelected() calls setCurrentItem().
 
-  If the list box is a Single selection list box, \a select is FALSE, 
+  If the list box is a Single selection list box, \a select is FALSE,
   setSelected() calls clearSelection().
 
   Note that for this function NoSelection means Multi selection.  The user
@@ -3780,15 +3781,15 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 {
     if ( text.isEmpty() )
 	return 0;
-    
+
     if ( compare == CaseSensitive || compare == 0 )
         compare |= ExactMatch;
-    
+
     QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive ) )
         comtxt = text.lower();
-    
+
     QListBoxItem *item = d->current;
     if ( item ) {
         for ( ; item; item = item->n ) {
@@ -3796,52 +3797,52 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
                 itmtxt = item->text().lower();
 	    else
 		itmtxt = item->text();
-            
+
             if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt ) 
+                if ( itmtxt == comtxt )
                     return item;
             }
-            
+
             if ( compare & BeginsWith ) {
                 if ( itmtxt.startsWith( comtxt ) )
                     return item;
             }
-            
+
             if ( compare & EndsWith ) {
                 if ( itmtxt.right( comtxt.length() ) == comtxt )
                     return item;
             }
-            
+
             if ( compare & Contains ) {
                 if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;
             }
         }
-        
+
         item = d->head;
-        
+
         for ( ; item && item != d->current; item = item->n ) {
             if ( ! (compare & CaseSensitive) )
                 itmtxt = item->text().lower();
 	    else
 		itmtxt = item->text();
-	    
-            
+	
+
             if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt ) 
+                if ( itmtxt == comtxt )
                     return item;
             }
-            
+
             if ( compare & BeginsWith ) {
                 if ( itmtxt.startsWith( comtxt ) )
                     return item;
             }
-            
+
             if ( compare & EndsWith ) {
                 if ( itmtxt.right( comtxt.length() ) == comtxt )
                     return item;
             }
-            
+
             if ( compare & Contains ) {
                 if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;

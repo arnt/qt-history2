@@ -3929,13 +3929,13 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	if ( !i ) {
 	    clearSelection();
 	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
-	    emit contextMenu( 0, viewport()->mapToGlobal( vp ), -1 );
+	    emit contextMenuRequested( 0, viewport()->mapToGlobal( vp ), -1 );
 	    return;
 	}
 
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
-	emit contextMenu( i, viewport()->mapToGlobal( vp ), -1 );
+	emit contextMenuRequested( i, viewport()->mapToGlobal( vp ), -1 );
     }
 }
 
@@ -3954,7 +3954,7 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 		p += QPoint( width() / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
 	    else
 		p += QPoint( columnWidth( 0 ) / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
-	    emit contextMenu( item, mapToGlobal( p ), -1 );
+	    emit contextMenuRequested( item, mapToGlobal( p ), -1 );
 	}
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
@@ -4992,7 +4992,7 @@ int QListView::itemMargin() const
 */
 
 /*!
-  \fn void QListView::contextMenu( QListViewItem *item, const QPoint & pos, int col )
+  \fn void QListView::contextMenuRequested( QListViewItem *item, const QPoint & pos, int col )
 
   This signal is emitted when the user invokes a context menu with the right mouse button
   or with special system keys, with \a item being the item under the mouse cursor or the
@@ -5680,13 +5680,13 @@ void QListView::setOpen( QListViewItem * item, bool open )
 	item->isOpen() == open ||
 	(open && !item->childCount() && !item->isExpandable()) )
 	return;
-    
+
     QListViewItem* nextParent = NULL;
     if ( open && !(item->isOpen()) )
 	nextParent = item->itemBelow();
-    
+
     item->setOpen( open );
-    
+
     if ( open ) {
 	QListViewItem* lastChild;
 	if ( !nextParent ) {
@@ -5702,12 +5702,12 @@ void QListView::setOpen( QListViewItem * item, bool open )
     if ( d->drawables )
 	d->drawables->clear();
     buildDrawableList();
-    
+
     QListViewPrivate::DrawableItem * c = d->drawables->first();
-    
+
     while( c && c->i && c->i != item )
 	c = d->drawables->next();
-    
+
     if ( c && c->i == item ) {
 	d->dirtyItemTimer->start( 0, TRUE );
 	if ( !d->dirtyItems )

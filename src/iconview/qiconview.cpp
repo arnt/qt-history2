@@ -2391,7 +2391,7 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-  \fn void QIconView::contextMenu( QIconViewItem *item, const QPoint & pos )
+  \fn void QIconView::contextMenuRequested( QIconViewItem *item, const QPoint & pos )
 
   This signal is emitted when the user invokes a context menu with the right mouse button
   or with special system keys, with \a item being the item under the mouse cursor or the
@@ -4242,7 +4242,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
 	if ( e->button() == RightButton ) {
 	    emit rightButtonPressed( item, e->globalPos() );
-	    emit contextMenu( item, e->globalPos() );
+	    emit contextMenuRequested( item, e->globalPos() );
 	}
     }
 }
@@ -4256,7 +4256,7 @@ void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QIconViewItem *item = currentItem();
 	QRect r = item ? item->rect() : QRect( 0, 0, visibleWidth(), visibleHeight() );
-	emit contextMenu( item, mapToGlobal( contentsToViewport( r.center() ) ) );
+	emit contextMenuRequested( item, mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
 	contentsMousePressEvent( &me );

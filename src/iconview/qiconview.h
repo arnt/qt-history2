@@ -394,7 +394,7 @@ signals:
     void rightButtonPressed( QIconViewItem* item, const QPoint& pos );
     void mouseButtonPressed( int button, QIconViewItem* item, const QPoint& pos );
     void mouseButtonClicked( int button, QIconViewItem* item, const QPoint& pos );
-    void contextMenu( QIconViewItem* item, const QPoint &pos );
+    void contextMenuRequested( QIconViewItem* item, const QPoint &pos );
 
 #ifndef QT_NO_DRAGANDDROP
     void dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst );
