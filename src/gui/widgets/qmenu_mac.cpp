@@ -376,8 +376,6 @@ QMenuPrivate::QMacMenuPrivate::~QMacMenuPrivate()
 void
 QMenuPrivate::QMacMenuPrivate::addAction(QAction *a, QMacMenuAction *before)
 {
-    if(a->isSeparator())
-        return;
     QMacMenuAction *action = new QMacMenuAction;
     action->action = a;
     action->command = qt_mac_menu_static_cmd_id++;
