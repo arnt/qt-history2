@@ -291,10 +291,6 @@ bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
 
-#if defined(QT_THREAD_SUPPORT)
-QMutex * QApplication::qt_mutex		= 0;
-#endif
-
 #ifdef QT_THREAD_SUPPORT
 QMutex * QApplication::qt_mutex=0;
 #endif
@@ -1793,7 +1789,7 @@ void QApplication::installTranslator( QTranslator * mf )
 	translators = new QList<QTranslator>;
     if ( mf )
 	translators->insert( 0, mf );
-    
+
     // hook to set the layouting direction of dialogs.
     if( tr( "QT_LAYOUT_DIRECTION", "this should return the string 'RTL' for languages that "
 	    "are laid out from right to left as Hebrew and arabic. It has the effect to "
@@ -2826,17 +2822,17 @@ int QApplication::startDragDistance()
 /*!
   If set to true, all dialogs and widgets will be layouted in a mirrored fashion, as required by
   right to left languages as hebrew and arabic.
-  
+
   \sa reverseLayout()
 */
 void QApplication::setReverseLayout( bool b )
 {
     reverse_layout = b;
 }
-  
+
 /*!
   returns if all dialogs and widgets will be layouted in a mirrored fashion.
-  
+
   \sa setReverseLayout()
 */
 bool QApplication::reverseLayout()
