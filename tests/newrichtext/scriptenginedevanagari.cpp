@@ -9,7 +9,7 @@ enum Features {
     RephFeature = 0x0004,
     BelowFormFeature = 0x0008,
     HalfFormFeature = 0x0010,
-    PostBaseFormFeature = 0x0020,
+    PostFormFeature = 0x0020,
     VattuFeature = 0x0040,
     PreSubstFeature = 0x0080,
     BelowSubstFeature = 0x0100,
@@ -230,10 +230,8 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 
     QChar *uc = (QChar *)reordered.unicode();
 
-    // features that should always get applied
     for ( int i = 0; i < len; i++ )
-	featuresToApply[i] = AkhantFeature|VattuFeature|PreSubstFeature|AboveSubstFeature|
-			     BelowSubstFeature|PostSubstFeature;
+	featuresToApply[i] = 0;
 
     // nothing to do in this case!
     if ( len == 1 ) {
@@ -353,16 +351,16 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 		uc[to] = ch;
 		switch( finalOrder[toMove].position ) {
 		case Pre:
-		    feature |= PreSubstFeature;
+// 		    feature |= PreSubstFeature;
 		    break;
 		case Above:
-		    feature |= AboveSubstFeature;
+// 		    feature |= AboveSubstFeature;
 		    break;
 		case Below:
-		    feature |= BelowFormFeature|BelowSubstFeature;
+		    feature |= BelowFormFeature;//|BelowSubstFeature;
 		    break;
 		case Post:
-		    feature |= PostSubstFeature|PostBaseFormFeature;
+		    feature |= PostSubstFeature;//|PostFormFeature;
 		    break;
 		case None:
 		    break;
@@ -378,6 +376,9 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 
     bool halantForm = base < len-1 && (form( uc[base+1] ) == Halant);
     if ( halantForm ) {
+	// #### we have to take care this doesn't get applied to Akhant ligatures,
+	// but that's currently rather hard (without a bigger rewrite of the open type
+	// API (ftx*.c)
 	featuresToApply[base] |= HalantFeature;
 	featuresToApply[base+1] |= HalantFeature;
     }
@@ -385,24 +386,31 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
     // set the features we need to apply in OT
     int state = form( uc[0] );
     bool lastWasBase = (base == 0);
-    if ( base != 0 )
-	featuresToApply[0] |= PreSubstFeature;
+    if ( state == Consonant )
+	featuresToApply[0] |= AkhantFeature|NuktaFeature;
 
     for ( int i = 1; i < len; i++ ) {
 	int newState = form( uc[i] );
-	if ( i < base )
-	    featuresToApply[i] |= PreSubstFeature;
 	switch( newState ) {
 	case Consonant:
 	    lastWasBase = (i == base);
+	    featuresToApply[i] |= AkhantFeature|NuktaFeature;
 	    break;
 	case Halant:
 	    if ( state == Nukta || state == Consonant ) {
 		// vattu or halant feature
 		if ( isRa( uc[i-1] ) && len > 2 ) {
 		    if ( !(featuresToApply[i] & RephFeature) ) {
-			featuresToApply[i-1] |= BelowFormFeature;
-			featuresToApply[i] |= BelowFormFeature;
+			featuresToApply[i-1] |= BelowFormFeature|VattuFeature;
+			featuresToApply[i] |= BelowFormFeature|VattuFeature;
+			int j = i-2;
+			while ( j >= 0 ) {
+			    int f = form( uc[j] );
+			    featuresToApply[j] |= VattuFeature;
+			    if ( f == Consonant )
+				break;
+			    j--;
+			}
 		    }
 		}
 		else if ( !lastWasBase  ) {

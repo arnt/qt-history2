@@ -127,7 +127,7 @@ const SupportedScript supported_scripts [] = {
 // 	// South and Southeast Asian Scripts
 // 	Devanagari,
     // #### MS Mangal doens't have pstf. Required for Devanagari?
-    { FT_MAKE_TAG( 'd', 'e', 'v', 'a' ), devanagariFeatures, 0x0fdf, 0x8000 },
+    { FT_MAKE_TAG( 'd', 'e', 'v', 'a' ), devanagariFeatures, 0x0fdf, 0x8780 },
 // 	Bengali,
     { FT_MAKE_TAG( 'b', 'e', 'n', 'g' ), standardFeatures, 0x0000, 0x8000 },
 // 	Gurmukhi,
