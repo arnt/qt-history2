@@ -1128,15 +1128,18 @@ HRESULT WINAPI QAxHostWindow::SetStatusText(LPCOLESTR pszStatusText)
 
 extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
 extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
+extern Q_GUI_EXPORT bool qt_win_ignoreNextMouseReleaseEvent;
 
 HRESULT WINAPI QAxHostWindow::EnableModeless(BOOL fEnable)
 {
     EnableWindow(host->winId(), fEnable);
+
     if (!fEnable)
         qt_enter_modal(host);
     else 
         qt_leave_modal(host);
-    
+    qt_win_ignoreNextMouseReleaseEvent = false;
+
     return S_OK;
 }
 
