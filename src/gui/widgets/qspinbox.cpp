@@ -809,7 +809,7 @@ void QDoubleSpinBox::setPrecision(int precision)
 
 QString QDoubleSpinBox::mapValueToText(double v) const
 {
-    return QString::number(v, QLatin1Char('f'), d->precision);
+    return QString::number(v, 'f', d->precision);
 }
 
 /*!
