@@ -570,7 +570,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 #endif
     }
 
-    if(j >= argc) {
+    if(j < argc) {
 #ifdef Q_WS_MACX
 	static char* empty = "\0";
 	argv[j] = empty;

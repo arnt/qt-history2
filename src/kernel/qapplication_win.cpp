@@ -736,7 +736,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 
   // Get command line params
 
-    j = 1;
+    j = argc ? 1 : 0;
     for ( i=1; i<argc; i++ ) {
 	if ( argv[i] && *argv[i] != '-' ) {
 	    argv[j++] = argv[i];
