@@ -24,8 +24,6 @@ class QProgressBarPrivate;
 class Q_GUI_EXPORT QProgressBar : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QProgressBar)
-
     Q_PROPERTY(int minimum READ minimum WRITE setMinimum)
     Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
     Q_PROPERTY(QString text READ text)
@@ -34,8 +32,8 @@ class Q_GUI_EXPORT QProgressBar : public QWidget
     Q_PROPERTY(bool textVisible READ isTextVisible WRITE setTextVisible)
 
 public:
-    QProgressBar(QWidget *parent = 0, Qt::WFlags f = 0);
-    QProgressBar(int minimum, int maximum, QWidget *parent = 0, Qt::WFlags f = 0);
+    QProgressBar(QWidget *parent = 0);
+    QProgressBar(int minimum, int maximum, QWidget *parent = 0);
 
     void setMinimum(int minimum);
     int minimum() const;
@@ -67,6 +65,7 @@ protected:
     void paintEvent(QPaintEvent *);
 
 private:
+    Q_DECLARE_PRIVATE(QProgressBar)
     Q_DISABLE_COPY(QProgressBar)
 };
 

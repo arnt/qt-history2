@@ -112,8 +112,8 @@ QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
     \sa setTotalSteps()
 */
 
-QProgressBar::QProgressBar(QWidget *parent, Qt::WFlags f)
-    : QWidget(*(new QProgressBarPrivate), parent, f)
+QProgressBar::QProgressBar(QWidget *parent)
+    : QWidget(*(new QProgressBarPrivate), parent)
 {
     d->init();
 }
@@ -134,8 +134,8 @@ QProgressBar::QProgressBar(QWidget *parent, Qt::WFlags f)
     \sa setTotalSteps(), setProgress()
 */
 
-QProgressBar::QProgressBar(int minimum, int maximum, QWidget *parent, Qt::WFlags f)
-    : QWidget(*(new QProgressBarPrivate), parent, f)
+QProgressBar::QProgressBar(int minimum, int maximum, QWidget *parent)
+    : QWidget(*(new QProgressBarPrivate), parent)
 {
     d->init();
     setMinimum(minimum);
