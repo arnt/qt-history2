@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#11 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#12 $
 **
 ** Definition of QApplication class
 **
@@ -30,30 +30,39 @@ public:
     static GUIStyle style()	{ return appStyle; }
     static void	    setStyle( GUIStyle );
 
-    int		 exec( QWidget *mainWidget );	// start event handing
-    static void	 quit( int retcode = 0 );	// quit application
+    static QCursor  cursor()    { return appCursor; }
+    static void	    setCursor( const QCursor & );
+    static void	    restoreCursor();
 
-    static bool	 sendEvent( QObject *receiver, QEvent *event )
+    static QFont    font()	{ return appFont; }
+    static void	    setFont( const QFont & );
+
+    int		    exec( QWidget *mainWidget );// start event handing
+    static void	    quit( int retcode = 0 );	// quit application
+
+    static bool	    sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
-    static void	 postEvent( QObject *receiver, QEvent *event );
+    static void	    postEvent( QObject *receiver, QEvent *event );
 
     static QWidget *desktop();			// get desktop widget
-    QWidget	*mainWidget() const { return main_widget; }
+    QWidget	   *mainWidget() const { return main_widget; }
 
-    virtual bool notify( QObject *, QEvent * ); // send event to object
+    virtual bool    notify( QObject *, QEvent * ); // send event to object
 
-    static void  flushX();			// flush X output buffer
-    static void  syncX();			// syncronize with X server
+    static void     flushX();			// flush X output buffer
+    static void     syncX();			// syncronize with X server
 
-    static void	 cleanup();			// cleanup application
+    static void	    cleanup();			// cleanup application
 
 protected:
     static QWidget *main_widget;		// main application widget
 
 private:
-    bool     quit_now;				// quit flags
-    int	     quit_code;
+    bool     	    quit_now;			// quit flags
+    int	     	    quit_code;
     static GUIStyle appStyle;			// application GUI style
+    static QFont    appFont;			// application font
+    static QCursor  appCursor;			// application cursor
 
 public:
 #if defined(_WS_MAC_)
