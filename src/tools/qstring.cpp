@@ -3290,14 +3290,24 @@ QString QString::toUpper() const
 
 /*!
     Safely builds a formatted string from the format string \a cformat
-    and an arbitrary list of arguments. The format string supports all
-    the escape sequences of printf() in the standard C library.
+    and an arbitrary list of arguments.
 
-    The %s escape sequence expects a utf8() encoded string. The format
-    string \e cformat is expected to be in latin1. If you need a
-    Unicode format string, use arg() instead. For typesafe string
-    building, with full Unicode support, you can use QTextOStream like
-    this:
+    The format string supports most of the conversion specifiers of
+    printf() in the standard C library, but not all of them, and it
+    doesn't honor the length modifiers (e.g. \c h for \c short, \c ll for
+    \c{long long}). If you need those, use the standard sprintf()
+    function instead:
+
+    \code
+	char buf[BufSize];
+	::sprintf(buf, "%lld", 123456789LL);
+	QString str = QString::fromAscii(buf);
+    \endcode
+
+    \warning We do not recommend using QString::sprintf() in new Qt
+    code. Instead, consider using QTextOStream or arg(), both of
+    which support Unicode strings seamlessly and are type-safe.
+    Here's an example that uses QTextOStream:
 
     \code
 	QString str;
@@ -3309,8 +3319,7 @@ QString QString::toUpper() const
     For \link QObject::tr() translations,\endlink especially if the
     strings contains more than one escape sequence, you should
     consider using the arg() function instead. This allows the order
-    of the replacements to be controlled by the translator, and has
-    Unicode support.
+    of the replacements to be controlled by the translator.
 
     \sa arg()
 */
