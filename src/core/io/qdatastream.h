@@ -313,7 +313,9 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &ma
     in >> n;
 
     map.detach();
+#if !defined(Q_CC_BOR)
     map.d->insertInOrder = true;
+#endif
     for (Q_UINT32 i = 0; i < n; ++i) {
         if (in.status() != QDataStream::Ok)
             break;
@@ -323,8 +325,9 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &ma
         in >> key >> value;
         map.insert(key, value);
     }
+#if !defined(Q_CC_BOR)
     map.d->insertInOrder = false;
-
+#endif
     if (in.status() != QDataStream::Ok)
         map.clear();
     if (oldStatus != QDataStream::Ok)

@@ -278,11 +278,13 @@ private:
                                 const T &value);
 
 #if !defined(QT_NO_DATASTREAM)
+#if !defined(Q_CC_BOR)
 #if defined Q_CC_MSVC && _MSC_VER < 1300
     friend QDataStream &operator>> (QDataStream &in, QMap &map);
 #else
     template <class aKey, class aT>
     friend QDataStream &operator>> (QDataStream &in, QMap<aKey, aT> &map);
+#endif
 #endif
 #endif
 };
