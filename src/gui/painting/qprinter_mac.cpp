@@ -50,6 +50,28 @@ CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
 #define PST_ERROR       2
 #define PST_ABORTED     3
 
+static inline void qt_get_margins(PMPageFormat pformat, uint *top, uint *left,
+                                  uint *bottom, uint *right)
+{
+    PMRect paperr, pager;
+    if (PMGetAdjustedPaperRect(pformat, &paperr) != noErr) {
+        qWarning("Qt: QPrinter: Unexpected condition reached %s:%d", __FILE__, __LINE__);
+        return;
+    }
+    if (PMGetAdjustedPageRect(pformat, &pager) != noErr) {
+	qWarning("Qt: QPrinter: Unexpected condition reached %s:%d", __FILE__, __LINE__);
+	return;
+    }
+    if(top)
+	*top = (uint)(pager.top - paperr.top);
+    if(left)
+	*left = (uint)(pager.left - paperr.left);
+    if(bottom)
+	*bottom = (uint)(paperr.bottom - pager.bottom);
+    if(right)
+	*right = (uint)(paperr.right - pager.right);
+}
+
 class QPrinterPaintEngine : public QWrapperPaintEngine
 {
     QPrinter *print;
@@ -159,12 +181,18 @@ bool QPrinter::newPage()
         state = PST_ERROR;
         return false;
     }
-    PMRect rect;
-    if(PMGetAdjustedPageRect(pformat, &rect) != noErr)
-	return FALSE;
-    if(PMSessionBeginPage(psession, pformat, &rect) != noErr)  { //start a new one
+    if(PMSessionBeginPage(psession, pformat, 0) != noErr)  { //start a new one
         state = PST_ERROR;
         return false;
+    }
+    if (fullPage()) {
+	uint top, left, bottom, right;
+	qt_get_margins(pformat, &top, &left, &bottom, &right);
+	QMacSavedPortInfo mp(this);
+	SetOrigin(top, left);
+    } else {
+	QMacSavedPortInfo mp(this);
+	SetOrigin(0, 0);
     }
     return true;
 }
@@ -362,10 +390,12 @@ QPrinter::printerBegin()
 	return false;
 
     if(fullPage()) {
-	QSize marg(margins());
+	uint top, left, bottom, right;
+	qt_get_margins(pformat, &top, &left, &bottom, &right);
 	QMacSavedPortInfo mp(this);
-	SetOrigin(marg.width(), marg.height());
+	SetOrigin(top, left);
     } else {
+	QMacSavedPortInfo mp(this);
 	SetOrigin(0, 0);
     }
 
@@ -398,29 +428,67 @@ QPrinter::printerEnd()
     return false;
 }
 
+static inline int qt_get_PDMWidth(PMPageFormat pformat, bool fullPage)
+{
+    int val;
+    if(fullPage) {
+	PMRect r;
+	if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
+	    val = (int)(r.right - r.left);
+    } else {
+	PMRect r;
+	if(PMGetAdjustedPageRect(pformat, &r) == noErr)
+	    val = (int)(r.right - r.left);
+    }
+    return val;
+}
+
+static inline int qt_get_PDMHeight(PMPageFormat pformat, bool fullPage)
+{
+    int val;
+    if(fullPage) {
+	PMRect r;
+	if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
+	    val = (int)(r.bottom - r.top);
+    } else {
+	PMRect r;
+	if(PMGetAdjustedPageRect(pformat, &r) == noErr)
+	    val = (int)(r.bottom - r.top);
+    }
+    return val;
+}
 
 int QPrinter::metric(int m) const
 {
     int val = 1;
     switch(m) {
     case QPaintDeviceMetrics::PdmWidth:
-    case QPaintDeviceMetrics::PdmHeight:
     {
-	PMRect r;
-	if(fullPage()) {
-	    if(PMGetAdjustedPaperRect(pformat, &r) != noErr)
-		break;
-	} else {
-	    if(PMGetAdjustedPageRect(pformat, &r) != noErr)
-		break;
-	}
-	if((m == QPaintDeviceMetrics::PdmHeight && orientation() != Portrait) || 
-	   (m == QPaintDeviceMetrics::PdmWidth && orientation() == Portrait))
-	    val = (int)(r.bottom - r.top);
+	    val = qt_get_PDMWidth(pformat, fullPage());
+	if (state == PST_ACTIVE || orientation() == Portrait)
+	    val = qt_get_PDMWidth(pformat, fullPage());
 	else
-	    val = (int)(r.right - r.left);
+	    val = qt_get_PDMHeight(pformat, fullPage());
         break;
     }
+    case QPaintDeviceMetrics::PdmHeight:
+    {
+	    val = qt_get_PDMHeight(pformat, fullPage());
+	if (state == PST_ACTIVE || orientation() == Portrait)
+	    val = qt_get_PDMHeight(pformat, fullPage());
+	else
+	    val = qt_get_PDMWidth(pformat, fullPage());
+        break;
+    }
+    case QPaintDeviceMetrics::PdmWidthMM:
+        // double rounding error here.  hooray.
+        val = metric(QPaintDeviceMetrics::PdmWidth);
+        val = (val * 254 + 5*res) / (10*res);
+        break;
+    case QPaintDeviceMetrics::PdmHeightMM:
+        val = metric(QPaintDeviceMetrics::PdmHeight);
+        val = (val * 254 + 5*res) / (10*res);
+        break;
     case QPaintDeviceMetrics::PdmPhysicalDpiX:
     case QPaintDeviceMetrics::PdmPhysicalDpiY: {
 	PMPrinter printer;
@@ -436,15 +504,6 @@ int QPrinter::metric(int m) const
     case QPaintDeviceMetrics::PdmDpiX:
 	val = res;
 	break;
-    case QPaintDeviceMetrics::PdmWidthMM:
-        // double rounding error here.  hooray.
-        val = metric(QPaintDeviceMetrics::PdmWidth);
-        val = (val * 254 + 5*res) / (10*res);
-        break;
-    case QPaintDeviceMetrics::PdmHeightMM:
-        val = metric(QPaintDeviceMetrics::PdmHeight);
-        val = (val * 254 + 5*res) / (10*res);
-        break;
     case QPaintDeviceMetrics::PdmNumColors:
         val = (1 << metric(QPaintDeviceMetrics::PdmDepth));
         break;
@@ -484,19 +543,11 @@ void QPrinter::setMargins(uint, uint, uint, uint)
 
 void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 {
-    PMRect paperr, pager;
-    if(PMGetAdjustedPaperRect(pformat, &paperr) != noErr || PMGetAdjustedPageRect(pformat, &pager) != noErr) {
-	qWarning("Qt: QPrinter: Unexpected condition reached %s:%d", __FILE__, __LINE__);
-	return;
-    }
-    if(top)
-	*top = (uint)(pager.top - paperr.top);
-    if(left)
-	*left = (uint)(pager.left - paperr.left);
-    if(bottom)
-	*bottom = (uint)(paperr.bottom - pager.bottom);
-    if(right)
-	*right = (uint)(paperr.right - pager.right);
+    // If the printer is not active, we need to flip the values for the landscape case.
+    if (state == PST_ACTIVE || orientation() == Portrait)
+	qt_get_margins(pformat, top, left, bottom, right);
+    else
+	qt_get_margins(pformat, right, top, left, bottom);
 }
 
 QPaintEngine *QPrinter::engine() const
