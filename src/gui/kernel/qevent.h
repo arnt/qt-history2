@@ -31,7 +31,7 @@ class Q_GUI_EXPORT QInputEvent : public QEvent
 public:
     QInputEvent(Type type, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
     ~QInputEvent();
-    inline Qt::KeyboardModifiers modifiers() const {return modState; }
+    inline Qt::KeyboardModifiers modifiers() const { return modState; }
 protected:
     Qt::KeyboardModifiers modState;
 };
@@ -381,7 +381,9 @@ public:
     ~QDropEvent();
 
     inline const QPoint &pos() const { return p; }
-
+    inline Qt::MouseButtons mouseButtons() const { return mouseState; }
+    inline Qt::KeyboardModifiers keyboardModifiers() const { return modState; }
+    
     inline QDrag::DropActions possibleActions() const { return act; }
     inline QDrag::DropAction proposedAction() const { return default_action; }
     inline void acceptProposedAction() { drop_action = default_action; accept(); }
@@ -411,6 +413,8 @@ public:
 
 protected:
     QPoint p;
+    Qt::MouseButtons mouseState;
+    Qt::KeyboardModifiers modState;
     QDrag::DropActions act;
     QDrag::DropAction drop_action;
     QDrag::DropAction default_action;
@@ -422,7 +426,7 @@ protected:
 class Q_GUI_EXPORT QDragMoveEvent : public QDropEvent
 {
 public:
-    QDragMoveEvent(const QPoint &pos, QDrag::DropActions actions, const QMimeData *data, Type typ = DragMove);
+    QDragMoveEvent(const QPoint &pos, QDrag::DropActions actions, const QMimeData *data, Type type = DragMove);
     ~QDragMoveEvent();
 
     inline QRect answerRect() const { return rect; }

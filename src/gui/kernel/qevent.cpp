@@ -1580,6 +1580,8 @@ QDropEvent::QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMim
       drop_action(QDrag::CopyAction),
       mdata(data)
 {
+    mouseState = QApplication::mouseButtons();
+    modState = QApplication::keyboardModifiers();
     default_action = QDragManager::self()->defaultAction(act);
     ignore();
 }
@@ -1675,6 +1677,18 @@ void QDropEvent::setDropAction(QDrag::DropAction action)
     \fn const QPoint& QDropEvent::pos() const
 
     Returns the position where the drop was made.
+*/
+
+/*!
+    \fn Qt::MouseButtons QDropEvent::mouseButtons() const
+
+    Returns the mouse buttons that are pressed..
+*/
+
+/*!
+    \fn Qt::KeyboardModifiers QDropEvent::keyboardModifiers() const
+
+    Returns the modifier keys that are pressed.
 */
 
 /*!
