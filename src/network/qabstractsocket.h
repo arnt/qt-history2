@@ -89,9 +89,6 @@ public:
     bool waitForBytesWritten(int msecs = 30000);
     bool waitForClosed(int msecs = 30000);
 
-    void setDefaultTimeout(int msecs);
-    int defaultTimeout() const;
-
 signals:
     void hostFound();
     void connected();
@@ -111,8 +108,6 @@ protected:
     QAbstractSocket(Qt::SocketType socketType, QAbstractSocketPrivate &p, QObject *parent);
 
 private:
-    inline int state() {return 0;} //to help catch programming errors: socketState() is the function you want
-
     Q_DECLARE_PRIVATE(QAbstractSocket)
     Q_DISABLE_COPY(QAbstractSocket)
 
@@ -122,6 +117,40 @@ private:
     Q_PRIVATE_SLOT(d, void testConnection())
     Q_PRIVATE_SLOT(d, void canReadNotification(int))
     Q_PRIVATE_SLOT(d, void canWriteNotification(int))
+
+#ifdef QT_COMPAT
+public:
+    enum Error {
+        ErrConnectionRefused = Qt::ConnectionRefusedError,
+        ErrHostNotFound = Qt::HostNotFoundError,
+        ErrSocketRead = Qt::UnknownSocketError
+    };
+    enum State {
+        Idle = Qt::UnconnectedState,
+        HostLookup = Qt::HostLookupState,
+        Connecting = Qt::ConnectingState,
+        Connected = Qt::ConnectedState,
+        Closing = Qt::ClosingState,
+        Connection = Qt::ConnectedState
+    };
+    inline QT_COMPAT State state() const { return State(socketState()); }
+    inline QT_COMPAT int socket() const { return socketDescriptor(); }
+    inline QT_COMPAT void setSocket(int socket) { setSocketDescriptor(socket); }
+    inline QT_COMPAT Q_ULONG waitForMore(int msecs, bool *timeout = 0) const
+    {
+        QAbstractSocket *that = const_cast<QAbstractSocket *>(this);
+        if (that->waitForReadyRead(msecs))
+            return Q_ULONG(bytesAvailable());
+        if (socketError() == Qt::SocketTimeoutError && timeout)
+            *timeout = true;
+        return 0;
+    }
+signals:
+    QT_MOC_COMPAT void connectionClosed(); // same as closing()
+    QT_MOC_COMPAT void delayedCloseFinished(); // same as closed()
+#endif
+
+
 };
 
 #endif

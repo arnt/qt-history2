@@ -572,12 +572,13 @@ void QAbstractSocketPrivate::canWriteNotification(int)
 */
 bool QAbstractSocketPrivate::flush()
 {
+    if (!socketLayer.isValid() || writeBuffer.isEmpty()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocketPrivate::flush(), pending: %i bytes",
-           writeBuffer.size());
+    qDebug("QAbstractSocketPrivate::flush() nothing to do: valid ? %s, writeBuffer.isEmpty() ? %s",
+           socketLayer.isValid() ? "yes" : "no", writeBuffer.isEmpty() ? "yes" : "no");
 #endif
-    if (!socketLayer.isValid() || writeBuffer.isEmpty())
         return false;
+    }
 
     int nextSize = writeBuffer.nextDataBlockSize();
     char *ptr = writeBuffer.readPointer();
@@ -595,6 +596,11 @@ bool QAbstractSocketPrivate::flush()
         q->abort();
         return false;
     }
+
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocketPrivate::flush() %lld bytes written to the network",
+               written);
+#endif
 
     // Remove what we wrote so far.
     writeBuffer.free(written);
@@ -1179,8 +1185,8 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
         d->socketError = d->socketLayer.socketError();
         setErrorString(d->socketLayer.errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%s)",
-           msecs, errorString().latin1());
+    qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%i, %s)",
+           msecs, d->socketError, errorString().latin1());
 #endif
         emit error(d->socketError);
         close();
@@ -1198,8 +1204,30 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
  */
 bool QAbstractSocket::waitForBytesWritten(int msecs)
 {
-    Q_UNUSED(msecs);
-    return false;
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForBytesWritten(%i)", msecs);
+#endif
+
+    if (socketState() != Qt::ConnectedState && socketState() != Qt::BoundState) {
+        qWarning("QAbstractSocket::waitForBytesWritten() is only allowed in connected state");
+        return false;
+    }
+
+    bool timedOut = false;
+    if (!d->socketLayer.waitForWrite(msecs, &timedOut)) {
+        d->socketError = d->socketLayer.socketError();
+        setErrorString(d->socketLayer.errorString());
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%s)",
+           msecs, errorString().latin1());
+#endif
+        emit error(d->socketError);
+        close();
+        return false;
+    }
+
+    d->flush();
+    return true;
 }
 
 /*!
@@ -1343,7 +1371,7 @@ bool QAbstractSocket::flush()
            d->writeBuffer.size());
 #endif
     while (d->writeBuffer.size() > 0) {
-        if (!waitForReadyRead(1000) && d->socketError != Qt::SocketTimeoutError)
+        if (!d->socketLayer.waitForWrite(1000) && d->socketLayer.socketError() != Qt::SocketTimeoutError)
             return false;
         d->flush();
     }
@@ -1355,12 +1383,12 @@ bool QAbstractSocket::flush()
 */
 Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
 {
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::readData(%p, %lli), readBuffer.size() == %lli",
-           data, maxSize, Q_LONGLONG(d->readBuffer.size()));
-#endif
     if (!isValid()) {
         qWarning("QAbstractSocket::readData: Invalid socket");
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readData(%p, %lli) == -1 (%s)",
+               data, maxSize, errorString().latin1());
+#endif
         return -1;
     }
 
@@ -1368,6 +1396,11 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
         Q_LONGLONG readBytes = d->socketLayer.read(data, maxSize);
         if (d->readSocketNotifier)
             d->readSocketNotifier->setEnabled(true);
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
+               data, qt_prettyDebug(data, 32, readBytes).data(), maxSize,
+               readBytes);
+#endif
         return readBytes;
     }
 
@@ -1376,28 +1409,42 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
         // getch optimization
         if (maxSize == 1) {
             *data = d->readBuffer.getChar();
+#if defined (QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocket::readData(%p '%c (0x%.2x)', 1) == 1",
+                   data, isprint(*data) ? *data : '?', *data);
+#endif
             return 1;
         }
 
         if (d->readSocketNotifier)
             d->readSocketNotifier->setEnabled(true);
-        int bytesToRead = qMin(d->readBuffer.size(), (int)maxSize);
-        int readSoFar = 0;
+        Q_LONGLONG bytesToRead = qMin(Q_LONGLONG(d->readBuffer.size()), maxSize);
+        Q_LONGLONG readSoFar = 0;
         while (readSoFar < bytesToRead) {
             char *ptr = d->readBuffer.readPointer();
-            int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar,
+            int bytesToReadFromThisBlock = qMin(int(bytesToRead - readSoFar),
                                                 d->readBuffer.nextDataBlockSize());
             memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
             readSoFar += bytesToReadFromThisBlock;
             d->readBuffer.free(bytesToReadFromThisBlock);
         }
 
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
+               data, qt_prettyDebug(data, qMin(32, readSoFar), readSoFar).data(),
+               maxSize, readSoFar);
+#endif
         return readSoFar;
     }
 
     // Wait for more data to read.
-    if (!waitForReadyRead(d->blockingTimeout))
+    if (!waitForReadyRead(d->blockingTimeout)) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readData(%p, %lli) == -1 (%s)",
+               data, maxSize, errorString().latin1());
+#endif
         return -1;
+    }
 
     if (d->readSocketNotifier)
         d->readSocketNotifier->setEnabled(true);
@@ -1405,20 +1452,29 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
     // getch optimization
     if (maxSize == 1) {
         *data = d->readBuffer.getChar();
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readData(%p '%c (0x%.2x)', 1) == 1",
+               data, isprint(*data) ? *data : '?', *data);
+#endif
         return 1;
     }
 
-    int bytesToRead = qMin(d->readBuffer.size(), (int)maxSize);
-    int readSoFar = 0;
+    Q_LONGLONG bytesToRead = qMin(Q_LONGLONG(d->readBuffer.size()), maxSize);
+    Q_LONGLONG readSoFar = 0;
     while (readSoFar < bytesToRead) {
         char *ptr = d->readBuffer.readPointer();
-        int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar,
+        int bytesToReadFromThisBlock = qMin(int(bytesToRead - readSoFar),
                                             d->readBuffer.nextDataBlockSize());
         memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
         readSoFar += bytesToReadFromThisBlock;
         d->readBuffer.free(bytesToReadFromThisBlock);
     }
 
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
+           data, qt_prettyDebug(data, qMin(readSoFar, 32), readSoFar).data(),
+           maxSize, readSoFar);
+#endif
     return readSoFar;
 }
 
@@ -1427,7 +1483,12 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
 Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
 {
     if (!isValid()) {
-        qWarning("QAbstractSocket::write: Invalid socket");
+        qWarning("QAbstractSocket::writeData: Invalid socket");
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::writeData(%p \"%s\", %lli) == -1 (%s)", data,
+               qt_prettyDebug(data, qMin((int)size, 32), size).data(),
+               size, errorString().latin1());
+#endif
         return -1;
     }
 
@@ -1436,8 +1497,8 @@ Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
         emit bytesWritten(written);
 
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::write(%p \"%s\", %lli) == %lli", data,
-           qt_prettyDebug(data, qMin((int)size, 16), size).data(),
+    qDebug("QAbstractSocket::writeData(%p \"%s\", %lli) == %lli", data,
+           qt_prettyDebug(data, qMin((int)size, 32), size).data(),
            size, written);
 #endif
         return written;
@@ -1455,8 +1516,8 @@ Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
         d->writeSocketNotifier->setEnabled(true);
 
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::write(%p \"%s\", %lli) == %lli", data,
-           qt_prettyDebug(data, qMin((int)size, 16), size).data(),
+    qDebug("QAbstractSocket::writeData(%p \"%s\", %lli) == %lli", data,
+           qt_prettyDebug(data, qMin((int)size, 32), size).data(),
            size, written);
 #endif
     return written;
@@ -1493,6 +1554,7 @@ void QAbstractSocket::close()
         qDebug("QAbstractSocket::close() emits stateChanged(), then closing()");
 #endif
         emit stateChanged(d->state);
+        emit connectionClosed(); // compat signal
         emit closing();
     } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1531,6 +1593,7 @@ void QAbstractSocket::close()
     qDebug("QAbstractSocket::close() emits stateChanged(), then closed()");
 #endif
     emit stateChanged(d->state);
+    emit delayedCloseFinished(); // compat signal
     emit closed();
 }
 
@@ -1618,28 +1681,6 @@ Qt::SocketError QAbstractSocket::socketError() const
 void QAbstractSocket::setSocketError(Qt::SocketError socketError)
 {
     d->socketError = socketError;
-}
-
-/*!
-    Sets QAbstractSocket's internal timeout default value to \a msecs
-    milliseconds.  This timeout determines how long QAbstractSocket
-    should wait for operations such as connecting, reading, writing
-    and closing to finish before returning an error and setting
-    Qt::SocketTimeoutError.
-*/
-void QAbstractSocket::setDefaultTimeout(int msecs)
-{
-    d->blockingTimeout = msecs;
-}
-
-/*!
-    Returns the default internal timeout.
-
-    \sa setDefaultTimeout(), waitForReadyRead(), waitForConnected()
-*/
-int QAbstractSocket::defaultTimeout() const
-{
-    return d->blockingTimeout;
 }
 
 #include "moc_qabstractsocket.cpp"
