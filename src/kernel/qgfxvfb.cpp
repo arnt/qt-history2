@@ -195,7 +195,7 @@ bool QVFbScreen::connect()
     if ( shmId != -1 )
 	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
 
-    if ( (int)shmrgn == -1 ) {
+    if ( (int)shmrgn == -1 || shmrgn == 0 ) {
 	qWarning( "Cannot attach to VFB shared memory" );
 	return FALSE;
     }
