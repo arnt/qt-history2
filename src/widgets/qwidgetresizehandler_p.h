@@ -82,15 +82,16 @@ private:
 
     QWidget *widget;
     QWidget *childWidget;
-    bool buttonDown;
     QPoint moveOffset;
     QPoint invertedMoveOffset;
     MousePosition mode;
-    bool moveResizeMode;
-    bool active;
     int extrahei;
-    bool sizeprotect;
-    bool moving;
+    int range;
+    uint buttonDown	    :1;
+    uint moveResizeMode	    :1;
+    uint active		    :1;
+    uint sizeprotect	    :1;
+    uint moving		    :1; 
 
     void setMouseCursor( MousePosition m );
     bool isMove() const {

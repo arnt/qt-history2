@@ -56,6 +56,8 @@ QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const 
 {
     mode = Nowhere;
     widget->setMouseTracking( TRUE );
+    range = widget->inherits( "QFrame" ) ? ((QFrame*)widget)->frameWidth() : RANGE;
+    range = QMAX( RANGE, range );
     active = TRUE;
     qApp->installEventFilter( this );
 }
@@ -79,7 +81,6 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     if ( !w || o->inherits( "QSizeGrip" ) )
 	return FALSE;
 
-
     QMouseEvent *e = (QMouseEvent*)ee;
     switch ( e->type() ) {
     case QEvent::MouseButtonPress: {
@@ -90,8 +91,8 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	    mouseMoveEvent( e );
 	    setMovingEnabled( me );
 	    buttonDown = TRUE;
-	    moveOffset = e->pos();
-	    invertedMoveOffset = widget->rect().bottomRight() - e->pos();
+	    moveOffset = widget->mapFromGlobal( e->globalPos() );
+	    invertedMoveOffset = widget->rect().bottomRight() - moveOffset;
 	}
     } break;
     case QEvent::MouseButtonRelease:
@@ -122,21 +123,21 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 {
     QPoint pos = widget->mapFromGlobal( e->globalPos() );
     if ( !buttonDown || ( e->state() & LeftButton ) == 0 ) {
-	if ( pos.y() <= RANGE && pos.x() <= RANGE)
+	if ( pos.y() <= range && pos.x() <= range)
 	    mode = TopLeft;
-	else if ( pos.y() >= widget->height()-RANGE && pos.x() >= widget->width()-RANGE)
+	else if ( pos.y() >= widget->height()-range && pos.x() >= widget->width()-range)
 	    mode = BottomRight;
-	else if ( pos.y() >= widget->height()-RANGE && pos.x() <= RANGE)
+	else if ( pos.y() >= widget->height()-range && pos.x() <= range)
 	    mode = BottomLeft;
-	else if ( pos.y() <= RANGE && pos.x() >= widget->width()-RANGE)
+	else if ( pos.y() <= range && pos.x() >= widget->width()-range)
 	    mode = TopRight;
-	else if ( pos.y() <= RANGE )
+	else if ( pos.y() <= range )
 	    mode = Top;
-	else if ( pos.y() >= widget->height()-RANGE )
+	else if ( pos.y() >= widget->height()-range )
 	    mode = Bottom;
-	else if ( pos.x() <= RANGE )
+	else if ( pos.x() <= range )
 	    mode = Left;
-	else if (  pos.x() >= widget->width()-RANGE )
+	else if (  pos.x() >= widget->width()-range )
 	    mode = Right;
 	else
 	    mode = Center;
@@ -153,7 +154,7 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
  	return;
 
     QPoint globalPos = widget->parentWidget( TRUE ) ?
-		       widget->parentWidget( TRUE ) ->mapFromGlobal( e->globalPos() ) : e->globalPos();
+		       widget->parentWidget( TRUE )->mapFromGlobal( e->globalPos() ) : e->globalPos();
     if ( widget->parentWidget( TRUE ) && !widget->parentWidget( TRUE )->rect().contains( globalPos ) ) {
 	if ( globalPos.x() < 0 )
 	    globalPos.rx() = 0;
@@ -223,9 +224,18 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 
 #if defined(Q_WS_WIN)
     MSG msg;
-    while(PeekMessage( &msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
-	;
+#if defined(UNICODE)
+    if ( qWinVersion() & WV_NT_based ) {
+	while(PeekMessageW( &msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
+	    ;
+    } else
 #endif
+    {
+	while(PeekMessageA( &msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
+	    ;
+    }
+#endif
+
     QApplication::syncX();
 }
 

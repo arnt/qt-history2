@@ -1360,11 +1360,6 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     : QFrame( parent, name,
 	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose | WNoMousePropagation | WSubWindow )
 {
-    widgetResizeHandler = new QWidgetResizeHandler( this, window );
-    widgetResizeHandler->setMovingEnabled( FALSE );
-    widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
-    connect( widgetResizeHandler, SIGNAL( activate() ),
-	     this, SLOT( activate() ) );
     setMouseTracking( TRUE );
     act = FALSE;
     iconw = 0;
@@ -1412,7 +1407,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	setLineWidth( 2 );
 	setMinimumSize( 128, 0 );
     } else {
-	setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+	setFrameStyle( QFrame::Panel | QFrame::Raised );
+	setLineWidth( 2 );
 	setMinimumSize( 128, 0 );
     }
 
@@ -1453,6 +1449,11 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     childWidget->installEventFilter( this );
 
+    widgetResizeHandler = new QWidgetResizeHandler( this, window );
+    widgetResizeHandler->setMovingEnabled( FALSE );
+    widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
+    connect( widgetResizeHandler, SIGNAL( activate() ),
+	     this, SLOT( activate() ) );
     widgetResizeHandler->setExtraHeight( ( titlebar ? titlebar->sizeHint().height() : 0 ) + TITLEBAR_SEPARATION + 1 );
 }
 
@@ -1484,7 +1485,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
     if (!childWidget)
 	return;
 
-    windowSize = cr.size();
+    windowSize = cr.size();    
     childWidget->setGeometry( cr );
     ((QWorkspace*) parentWidget() )->updateWorkspace();
 
