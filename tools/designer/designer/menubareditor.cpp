@@ -647,7 +647,7 @@ void MenuBarEditor::mousePressEvent( QMouseEvent * e )
 void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * )
 {
     currentIndex = findItem( mousePressPos );
-    if ( currentIndex > itemList.count() ) {
+    if ( currentIndex > (int)itemList.count() ) {
 	insertSeparator();
 	update();
     } else {
@@ -721,7 +721,7 @@ void MenuBarEditor::dragMoveEvent( QDragMoveEvent * e )
     QPoint pos = e->pos();
     dropLine->move( snapToItem( pos ) );
 
-    uint idx = (uint)findItem( pos );
+    int idx = findItem( pos );
     if ( currentIndex != idx ) {
 	hideItem();
 	currentIndex = idx;
@@ -794,13 +794,13 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    return; // no update
 
 	case Qt::Key_C:
-	    if ( e->state() & Qt::ControlButton && currentIndex < itemList.count() ) {
+	    if ( e->state() & Qt::ControlButton && currentIndex < (int)itemList.count() ) {
 		copy( currentIndex );
 		break;
 	    }
 
 	case Qt::Key_X:
-	    if ( e->state() & Qt::ControlButton && currentIndex < itemList.count() ) {
+	    if ( e->state() & Qt::ControlButton && currentIndex < (int)itemList.count() ) {
 		hideItem();
 		cut( currentIndex );
 		showItem();
@@ -810,7 +810,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_V:
 	    if ( e->state() & Qt::ControlButton ) {
 		hideItem();
-		paste( currentIndex < itemList.count() ? currentIndex + 1: itemList.count() );
+		paste( currentIndex < (int)itemList.count() ? currentIndex + 1: itemList.count() );
 		showItem();
 		break;
 	    }
@@ -1059,7 +1059,7 @@ void MenuBarEditor::safeDec()
 
 void MenuBarEditor::safeInc()
 {
-    uint max = itemList.count();
+    int max = (int)itemList.count();
     if ( !hasSeparator )
 	max += 1;
     if ( currentIndex < max ) {
@@ -1097,7 +1097,7 @@ void MenuBarEditor::navigateRight( bool ctrl )
 // FIXME: handle invisible items
     hideItem();
     if ( ctrl ) {
-	if ( currentIndex < ( itemList.count() - 1 ) ) {
+	if ( currentIndex < ( (int)itemList.count() - 1 ) ) {
 	    ExchangeMenuCommand * cmd =	new ExchangeMenuCommand( "Move Menu Right",
 								 formWnd,
 								 this,
@@ -1116,7 +1116,7 @@ void MenuBarEditor::navigateRight( bool ctrl )
 
 void MenuBarEditor::enterEditMode()
 {
-    if ( currentIndex > itemList.count() ) {
+    if ( currentIndex > (int)itemList.count() ) {
 	insertSeparator();
     } else {
 	showLineEdit();
@@ -1126,7 +1126,7 @@ void MenuBarEditor::enterEditMode()
 void MenuBarEditor::leaveEditMode()
 {
     MenuBarEditorItem * i = 0;
-    if ( currentIndex >= itemList.count() ) {
+    if ( currentIndex >= (int)itemList.count() ) {
 	i = createItem();
 	// do not put rename on cmd stack
 	RenameMenuCommand rename( "Rename Menu", formWnd, this, lineEdit->text(), i );
