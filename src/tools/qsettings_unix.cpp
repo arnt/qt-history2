@@ -410,10 +410,15 @@ QDateTime QSettingsPrivate::modificationTime()
 
 /*!
   Inserts \a path into the settings search path. The semantics of \a
-  path depends on the system \a s:
+  path depends on the system \a s. 
 
-  When \a s is \e Windows, the search path list will be used as the
-  first subfolder of the "Software" folder in the registry. For example:
+  When \a s is \e Windows and the execution environment is \e not
+  Windows the function does nothing. Similarly when \a s is \e Unix and
+  the execution environment is \e not Unix the function does nothing.
+  
+  When \a s is \e Windows, and the execution environment is Windows, the
+  search path list will be used as the first subfolder of the "Software"
+  folder in the registry. For example:
 
   \code
   QSettings settings;
@@ -430,9 +435,10 @@ QDateTime QSettingsPrivate::modificationTime()
   <li>HKEY_CURRENT_USER/Software/MyApplication
   </ul>
 
-  When \a s is \e Unix, the search path list will be used when trying to
-  determine a suitable filename for reading and writing settings files.
-  By default, there are two entries in the search path:
+  When \a s is \e Unix, and the execution environment is Unix, the
+  search path list will be used when trying to determine a suitable
+  filename for reading and writing settings files. By default, there are
+  two entries in the search path:
 
   <ul>
   <li>$QTDIR/etc - where $QTDIR is the directory where Qt was installed.
