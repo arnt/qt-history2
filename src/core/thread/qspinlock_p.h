@@ -51,7 +51,7 @@ public:
 
 #ifdef Q_OS_WIN
 
-class QSpinLockPrivate
+class Q_CORE_EXPORT QSpinLockPrivate
 {
 public:
     HANDLE event;
@@ -69,7 +69,7 @@ public:
   rules that must be followed.  If you do not know these rules, do not
   use QSpinLock.
 */
-class QSpinLock
+class Q_CORE_EXPORT QSpinLock
 {
 public:
     inline QSpinLock()
@@ -98,7 +98,7 @@ private:
 
 #else // QT_NO_THREAD
 
-class QSpinLock
+class Q_CORE_EXPORT QSpinLock
 {
 public:
     inline QSpinLock() {}
