@@ -346,7 +346,7 @@ void SetupWizardImpl::cleanDone()
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 
-	    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
+	    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make make" );
 	    if ( globalInformation.reconfig() )
 		outStream << makeCmds[ globalInformation.sysId() ].latin1() << " clean" << endl;
 	    
@@ -1013,7 +1013,7 @@ void SetupWizardImpl::showPageBuild()
 
     if( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() && qWinVersion() & WV_NT_based ) {
 	QStringList args;
-	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
+	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make make" );
 
 	buildPage->compileProgress->hide();
 	buildPage->restartBuild->hide();

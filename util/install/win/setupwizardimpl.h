@@ -49,6 +49,7 @@ protected slots:
 private slots:
     void clickedPath();
     void clickedSystem( int );
+    void sysOtherComboChanged( int ); 
     void licenseAction( int );
     void clickedFolderPath();
     void clickedDevSysPath();

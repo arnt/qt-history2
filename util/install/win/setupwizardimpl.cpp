@@ -560,6 +560,7 @@ void SetupWizardImpl::initConnections()
 
     if ( optionsPage ) {
 	connect( optionsPage->sysGroup, SIGNAL(clicked(int)), SLOT(clickedSystem(int)));
+	connect( optionsPage->sysOtherCombo, SIGNAL(activated(int)), SLOT(sysOtherComboChanged(int)));
 	connect( optionsPage->installPathButton, SIGNAL(clicked()), SLOT(clickedPath()));
 	connect( optionsPage->skipBuild, SIGNAL(clicked()), SLOT(clickedSkipBuild()));
     }
@@ -660,6 +661,14 @@ void SetupWizardImpl::clickedDevSysPath()
     QString dest = QFileDialog::getExistingDirectory( dir.absPath(), this, 0, "Select the path to Microsoft Visual Studio" );
     if (!dest.isNull())
 	foldersPage->devSysPath->setText( dest );
+}
+
+void SetupWizardImpl::sysOtherComboChanged( int ) 
+{
+#ifndef Q_OS_MACX
+    if (optionsPage->sysOtherCombo->currentText() == "win32-g++" )
+	clickedSystem(MINGW_BUTTON);
+#endif
 }
 
 void SetupWizardImpl::clickedSystem( int sys )
