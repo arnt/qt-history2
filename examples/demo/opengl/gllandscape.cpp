@@ -265,7 +265,7 @@ void GLLandscape::drawSmoothShaded()
     GLfloat materialAmbient[]   = { 0.00, 0.00, 1.0, 0.0 };
 //    GLfloat materialDiffuse[]   = { 1.00, 1.00, 1.0, 0.0 };
     GLfloat materialShininess[] = { 128.0 };
-    GLfloat materialSpecular[]  = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat materialSpecular[]  = { 1.0, 1.0, 1.0, 0.0 };
 
     glMaterialfv( GL_FRONT, GL_SPECULAR, materialSpecular );
 //   glMaterialfv( GL_FRONT, GL_DIFFUSE, materialDiffuse );
@@ -642,7 +642,12 @@ void GLLandscape::timerEvent( QTimerEvent * )
 	    wt[i][j] += 0.1;
 	    t = s / v;
 	    landscape[i][j] -= wave[i][j];
-	    wave[i][j] = 2 * sin( 2 * PI * W * ( wt[i][j] + t ) );
+		if ( s != 0 )
+			wave[i][j] = 2 * sin(2 * PI * W * ( wt[i][j] + t )) / 
+						 (0.2*(s + 2));
+		else
+			wave[i][j] = 2 * sin( 2 * PI * W * ( wt[i][j] + t ) );
+
 	    landscape[i][j] += wave[i][j];
 	}
     if ( mode == Shaded )
