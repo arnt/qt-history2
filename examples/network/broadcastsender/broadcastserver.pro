@@ -1,4 +1,4 @@
-HEADERS       = server.h
-SOURCES       = server.cpp \
+HEADERS       = sender.h
+SOURCES       = sender.cpp \
                 main.cpp
 QT           += network
