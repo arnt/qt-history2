@@ -29,7 +29,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#ifdef Q_CC_GNU
+#if defined( Q_CC_GNU ) && defined(__i386__)
 #define FASTCALL __attribute__((regparm(3)))
 #else
 #define FASTCALL
