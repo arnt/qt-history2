@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#14 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#15 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -312,7 +312,10 @@ void QtFileIconViewItem::dropped( QDropEvent *e )
     QUriDrag::decodeLocalFiles( e, lst );
 
     QString str;
-    str = "Copy\n\n";
+    if ( e->action() == QDropEvent::Copy )
+	str = "Copy\n\n";
+    else
+	str = "Move\n\n";
     QStringList::Iterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
         str += QString( "   %1\n" ).arg( *it );
@@ -320,8 +323,10 @@ void QtFileIconViewItem::dropped( QDropEvent *e )
                     "To\n\n"
                     "   %1" ).arg( filename() );
 
-    QMessageBox::information( iconView(), "Copy", str, "Not Implemented" );
-    e->accept();
+    QMessageBox::information( iconView(), e->action() == QDropEvent::Copy ? "Copy" : "Move" , str, "Not Implemented" );
+    if ( e->action() == QDropEvent::Move )
+	QMessageBox::information( iconView(), "Remove" , str, "Not Implemented" );
+    e->acceptAction();
 }
 
 void QtFileIconViewItem::dragEntered()
@@ -360,7 +365,7 @@ void QtFileIconViewItem::openFolder()
 
 QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
                                 QWidget *parent, const char *name )
-    : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 ), 
+    : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 ),
       isDesktop( isdesktop ), makeNewGradient( TRUE )
 {
     setRastX( 100 );
@@ -411,7 +416,7 @@ void QtFileIconView::readDir( const QDir &dir )
 
     makeNewGradient = FALSE;
     QSize cs( contentsWidth(), contentsHeight() );
-    
+
     clear();
 
     emit directoryChanged( dir.absPath() );
@@ -509,7 +514,10 @@ void QtFileIconView::slotDropped( QDropEvent *e )
     QUriDrag::decodeLocalFiles( e, lst );
 
     QString str;
-    str = "Copy\n\n";
+    if ( e->action() == QDropEvent::Copy )
+	str = "Copy\n\n";
+    else
+	str = "Move\n\n";
     QStringList::Iterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
         str += QString( "   %1\n" ).arg( *it );
@@ -517,8 +525,10 @@ void QtFileIconView::slotDropped( QDropEvent *e )
                     "To\n\n"
                     "   %1" ).arg( viewDir.absPath() );
 
-    QMessageBox::information( this, "Copy", str, "Not Implemented" );
-    e->accept();
+    QMessageBox::information( this, e->action() == QDropEvent::Copy ? "Copy" : "Move" , str, "Not Implemented" );
+    if ( e->action() == QDropEvent::Move )
+	QMessageBox::information( this, "Remove" , str, "Not Implemented" );
+    e->acceptAction();
 }
 
 void QtFileIconView::viewLarge()
@@ -603,8 +613,8 @@ void QtFileIconView::drawBackground( QPainter *p, const QRect &r )
     } else {
         QRegion rg( r );
         p->setClipRegion( rg );
-        
-        p->drawTiledPixmap( 0, 0, viewport()->width(), viewport()->height(), pix, 
+
+        p->drawTiledPixmap( 0, 0, viewport()->width(), viewport()->height(), pix,
                             contentsX(), contentsY() );
     }
 
@@ -654,6 +664,6 @@ void QtFileIconView::resizeContents( int w, int h )
     QIconView::resizeContents( w, h );
     w = QMAX( w, viewport()->width() );
     h = QMAX( h, viewport()->height() );
-    if ( makeNewGradient )      
+    if ( makeNewGradient )
         makeGradient( pix, Qt::blue, Qt::yellow, w, h );
 }
