@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#46 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#46 $");
 
 
 const int sbDim = 16;
@@ -1783,7 +1783,10 @@ void QTableView::scroll( int xPixels, int yPixels )
 	// have to erase an area no longer used for
 	// cell drawing.
 
-	int oldLim = 0, newLim = 0; // both =0 just to get around -Wunused
+	int oldLim;
+#if 0
+	int newLim;
+#endif
 	if ( testTableFlags(Tbl_cutCellsH) ) {
 	    int maxX = maxViewX();
 	    int oldLastMaxX, oldLastMinX;
@@ -1794,7 +1797,9 @@ void QTableView::scroll( int xPixels, int yPixels )
 	    oldLastMaxX += xPixels;
 	    oldLastMinX += xPixels;
 	    oldLim = oldLastMaxX <= maxX ? oldLastMaxX : oldLastMinX - 1;
+#if 0
 	    newLim = newLastMaxX <= maxX ? newLastMaxX : newLastMinX - 1;
+#endif
 	    width -= maxX - oldLim;
 
 	    bitBlt( this, xStart - xPixels, yStart,
@@ -1828,7 +1833,10 @@ void QTableView::scroll( int xPixels, int yPixels )
       // have to erase an area no longer used for
       // cell drawing.
 
-	int oldLim = 0, newLim = 0; // both =0 just to get around -Wunused
+	int oldLim;
+#if 0
+	int newLim;
+#endif
 	if ( testTableFlags(Tbl_cutCellsV) ) {
 	    int maxY = maxViewY();
 	    int oldLastMaxY, oldLastMinY;
@@ -1839,7 +1847,9 @@ void QTableView::scroll( int xPixels, int yPixels )
 	    oldLastMaxY += yPixels;
 	    oldLastMinY += yPixels;
 	    oldLim = oldLastMaxY <= maxY ? oldLastMaxY : oldLastMinY - 1;
+#if 0
 	    newLim = newLastMaxY <= maxY ? newLastMaxY : newLastMinY - 1;
+#endif
 	    height -= maxY - oldLim;
 
 	    bitBlt( this, xStart, yStart - yPixels,
