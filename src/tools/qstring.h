@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#8 $
+** $Id: //depot/qt/main/src/tools/qstring.h#9 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -7,7 +7,7 @@
 ** Author  : Haavard Nord
 ** Created : 920609
 **
-** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -142,6 +142,8 @@ QDataStream &operator>>( QDataStream &, QByteArray & );
 // QString class
 //
 
+class QRegExp;
+
 class QString : public QByteArray		// string class
 {
 public:
@@ -167,10 +169,13 @@ public:
 
     int		find( char c, int index=0, bool cs=TRUE ) const;
     int		find( const char *str, int index=0, bool cs=TRUE ) const;
+    int		find( const QRegExp &, int index=0 ) const;
     int		findRev( char c, int index=-1, bool cs=TRUE) const;
     int		findRev( const char *str, int index=-1, bool cs=TRUE) const;
+    int		findRev( const QRegExp &, int index=-1 ) const;
     int		contains( char c, bool cs=TRUE ) const;
     int		contains( const char *str, bool cs=TRUE ) const;
+    int		contains( const QRegExp & ) const;
 
     QString	left( uint len )	const;	// get left substring
     QString	right( uint len )	const;	// get right substring
