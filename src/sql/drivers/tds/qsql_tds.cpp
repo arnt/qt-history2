@@ -38,16 +38,6 @@
 #define Q_USE_SYBASE
 #endif
 
-#ifdef Q_USE_SYBASE
-#include <sybfront.h>
-#include <sybdb.h>
-#else
-#define DBNTWIN32 // indicates 32bit windows dblib
-#include <sqlfront.h>
-#include <sqldb.h>
-#define CS_PUBLIC
-#endif //Q_OS_WIN32
-
 #ifdef DBNTWIN32
 #define QMSGHANDLE DBMSGHANDLE_PROC
 #define QERRHANDLE DBERRHANDLE_PROC
@@ -434,19 +424,41 @@ int QTDSResult::numRowsAffected()
 
 ///////////////////////////////////////////////////////////////////
 
-QTDSDriver::QTDSDriver( QObject * parent, const char * name )
-    : QSqlDriver(parent,name ? name : "QTDS"), inTransaction( FALSE )
+QTDSDriver::QTDSDriver( QObject* parent, const char* name )
+    : QSqlDriver( parent,name ? name : "QTDS" ), inTransaction( FALSE )
 {
     init();
-    // the following two code-lines will fail compilation on some FreeTDS versions
-    // just comment them out if you have FreeTDS (you won't get any errors and warnings then)
-    dberrhandle( (QERRHANDLE)qTdsErrHandler );
-    dbmsghandle( (QMSGHANDLE)qTdsMsgHandler );
+}
+
+QTDSDriver::QTDSDriver( LOGINREC* rec, DBPROCESS* proc, QObject* parent, const char* name )
+    : QSqlDriver( parent,name ? name : "QTDS" ), inTransaction( FALSE )
+{
+    init();    
+    d->login = rec;
+    d->dbproc = proc;
+    if ( rec && proc ) {
+	setOpen( TRUE );
+	setOpenError( FALSE );
+    }
+}
+
+LOGINREC* QTDSDriver::loginrec()
+{
+    return d->login;
+}
+
+DBPROCESS* QTDSDriver::dbprocess()
+{
+    return d->dbproc;
 }
 
 void QTDSDriver::init()
 {
     d = new QTDSPrivate();
+    // the following two code-lines will fail compilation on some FreeTDS versions
+    // just comment them out if you have FreeTDS (you won't get any errors and warnings then)
+    dberrhandle( (QERRHANDLE)qTdsErrHandler );
+    dbmsghandle( (QMSGHANDLE)qTdsMsgHandler );
 }
 
 QTDSDriver::~QTDSDriver()

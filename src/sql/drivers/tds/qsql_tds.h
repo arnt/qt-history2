@@ -34,6 +34,16 @@
 #include <qsqldriver.h>
 #include "../shared/qsql_result.h"
 
+#ifdef Q_OS_WIN32
+#define DBNTWIN32 // indicates 32bit windows dblib
+#include <sqlfront.h>
+#include <sqldb.h>
+#define CS_PUBLIC
+#else
+#include <sybfront.h>
+#include <sybdb.h>
+#endif //Q_OS_WIN32
+
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_TDS
 #else
@@ -62,7 +72,8 @@ private:
 class Q_EXPORT_SQLDRIVER_TDS QTDSDriver : public QSqlDriver
 {
 public:
-    QTDSDriver( QObject * parent=0, const char * name=0 );
+    QTDSDriver( QObject* parent = 0, const char* name = 0 );
+    QTDSDriver( LOGINREC* rec, DBPROCESS* proc, QObject* parent = 0, const char* name = 0 );
     ~QTDSDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool		open( const QString & db,
@@ -81,6 +92,9 @@ public:
 
     QString		formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
+    LOGINREC*    	loginrec();
+    DBPROCESS*   	dbprocess();
+
 protected:
     bool		beginTransaction();
     bool		commitTransaction();

@@ -1913,10 +1913,23 @@ bool QOCI9Result::exec()
 ////////////////////////////////////////////////////////////////////////////
 
 
-QOCIDriver::QOCIDriver( QObject * parent, const char * name )
-: QSqlDriver(parent, (name ? name : "QOCI"))
+QOCIDriver::QOCIDriver( QObject* parent, const char* name )
+    : QSqlDriver( parent, (name ? name : "QOCI") )
 {
     init();
+}
+
+QOCIDriver::QOCIDriver( OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent, const char* name )
+    : QSqlDriver( parent, (name ? name : "QOCI") )
+{
+    d = new QOCIPrivate();
+    d->env = env;
+    d->err = err;
+    d->svc = ctx;
+    if ( env && err && ctx ) {
+	setOpen( TRUE );
+	setOpenError( FALSE );
+    }
 }
 
 void QOCIDriver::init()
@@ -1943,9 +1956,9 @@ void QOCIDriver::init()
 	qWarning( "QOCIDriver: unable to initialize environment: " + qOraWarn( d ) );
 #endif
     r = OCIEnvInit( &d->env,
-			    OCI_DEFAULT,
-			    0,
-			    NULL );
+		    OCI_DEFAULT,
+		    0,
+		    NULL );
 #endif
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
