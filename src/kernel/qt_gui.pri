@@ -130,7 +130,6 @@ kernel {
 			  $$KERNEL_CPP/qguieventloop_mac.cpp \
 			  $$KERNEL_CPP/qfont_mac.cpp \
 			  $$KERNEL_CPP/qfontengine_mac.cpp
-             DEFINES += QMAC_ONE_PIXEL_LOCK
         } else:unix {
 	   SOURCES += $$KERNEL_CPP/qprinter_unix.cpp \
 	              $$KERNEL_CPP/qpsprinter.cpp 
