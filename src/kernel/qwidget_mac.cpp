@@ -495,7 +495,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
     if ( !window )                              // always initialize
 	initializeWindow=TRUE;
-    bg_col = pal.normal().background();
 
     if ( dialog || popup || desktop ) {          // these are top-level, too
 	topLevel = TRUE;
@@ -641,7 +640,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	setWinId(id);
     }
 
-    bg_col = pal.normal().background();
     setWState( WState_MouseTracking );
     setMouseTracking( FALSE );                  // also sets event mask
     if(desktop) { //immediatly "show" a "desktop"
