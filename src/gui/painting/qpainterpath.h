@@ -16,6 +16,7 @@
 
 #include "qrect.h"
 #include "qline.h"
+#include "qvector.h"
 
 class QPolygon;
 class QPainterPathPrivate;
