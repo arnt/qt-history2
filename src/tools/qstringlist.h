@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#11 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#12 $
 **
 ** Definition of QStringList class
 **
@@ -48,6 +48,9 @@ public:
     static QStringList split( const QString &sep, const QString &str );
     static QStringList split(  const QChar &sep, const QString &str );
     static QStringList split(  const QRegExp &sep, const QString &str );
+
+    QStringList grep( const QString &expr, bool cs = TRUE ) const;
+    QStringList grep( const QRegExp &expr ) const;
 };
 
 class QDataStream;

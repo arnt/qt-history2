@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#21 $
 **
 ** Implementation of QStringList
 **
@@ -162,6 +162,38 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str )
 
     return lst;
 }
+
+/*!
+  Greps in the stringlist for all strings, which contain the string \a expr and returns
+  a stringlist containing all that strings. If \a cs is TRUE, the grep is done case sensitive, 
+  else not.
+*/
+
+QStringList QStringList::grep( const QString &expr, bool cs ) const
+{
+    QStringList res;
+    for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
+	if ( (*it).contains( expr, cs ) )
+	    res << *it;
+
+    return res;
+}
+
+/*!
+  Greps in the stringlist for all strings, which contain the regular expression \a expr and returns
+  a stringlist containing all that strings.
+*/
+
+QStringList QStringList::grep( const QRegExp &expr ) const
+{
+    QStringList res;
+    for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
+	if ( (*it).contains( expr ) )
+	    res << *it;
+
+    return res;
+}
+
 
 Q_EXPORT QDataStream &operator>>( QDataStream & s, QStringList& l )
 {
