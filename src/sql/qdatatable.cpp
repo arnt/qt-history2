@@ -820,11 +820,7 @@ void QDataTable::endInsert()
     d->dat.setMode( QSql::None );
     int i;
     d->editBuffer = 0;
-    for ( i = d->editRow; i <= d->insertRowLast; ++i )
-	updateRow( i );
-    for ( i = d->editRow; i < d->insertRowLast; ++i )
-	verticalHeader()->setLabel( i, verticalHeader()->label( i+1 ) );
-    verticalHeader()->setLabel( d->insertRowLast, d->insertHeaderLabelLast );
+    verticalHeader()->setLabel( d->editRow, QString::number( d->editRow +1 ) );
     d->editRow = -1;
     d->editCol = -1;
     d->insertRowLast = -1;
@@ -889,12 +885,8 @@ bool QDataTable::beginInsert()
 	lastRow = numRows() - 1;
     d->insertRowLast = lastRow;
     d->insertHeaderLabelLast = verticalHeader()->label( d->insertRowLast );
-    for ( i = lastRow; i > row; --i )
-	verticalHeader()->setLabel( i, verticalHeader()->label( i-1 ) );
     verticalHeader()->setLabel( row, "*" );
     d->editRow = row;
-    for ( i = row; i <= d->insertRowLast; ++i )
-	updateRow( i );
     if ( QTable::beginEdit( row, 0, FALSE ) )
 	setEditMode( Editing, row, 0 );
     return TRUE;
@@ -1133,6 +1125,7 @@ bool QDataTable::deleteCurrent()
 	    emit cursorChanged( QSql::Delete );
 	    setCurrentCell( currentRow(), currentColumn() );
 	    updateRow( currentRow() );
+	    verticalHeader()->repaint(); // get rid of trailing garbage
 	}
 	break;
     case QSql::No:
