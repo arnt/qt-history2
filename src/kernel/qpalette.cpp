@@ -1195,9 +1195,9 @@ void QPalette::setBackgroundPixmapForMode( ColorGroup cg, Qt::BackgroundMode mod
 	break;
     }
 
-    QBrush brush(brush(cg, cr));
-    brush.setPixmap(pixmap);
-    setBrush(cg, cr, brush);
+    QBrush _brush(brush(cg, cr));
+    _brush.setPixmap(pixmap);
+    setBrush(cg, cr, _brush);
 }
 
 
