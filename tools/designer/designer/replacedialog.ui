@@ -2,9 +2,11 @@
 <class>ReplaceDialog</class>
 <include location="local" impldecl="in implementation">../interfaces/editorinterface.h</include>
 <include location="global" impldecl="in implementation">qlineedit.h</include>
+<include location="local" implDecl="in declaration">replacedialog.ui.h</include>
 <forward>struct EditorInterface;</forward>
 <variable>EditorInterface *editor;</variable>
 <variable>QObject *formWindow;</variable>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>ReplaceDialog</cstring>
@@ -13,8 +15,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>290</width>
-            <height>211</height>
+            <width>286</width>
+            <height>215</height>
         </rect>
     </property>
     <property name="caption">
@@ -111,7 +113,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">
@@ -164,6 +166,9 @@
                 <string>&amp;Options</string>
             </property>
             <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -204,6 +209,9 @@
                 <string>&amp;Direction</string>
             </property>
             <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -234,19 +242,19 @@
     </grid>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>buttonReplace</sender>
         <signal>clicked()</signal>
         <receiver>ReplaceDialog</receiver>
         <slot>doReplace()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonReplaceAll</sender>
         <signal>clicked()</signal>
         <receiver>ReplaceDialog</receiver>
         <slot>doReplaceAll()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>ReplaceDialog</receiver>
@@ -258,47 +266,6 @@
     <slot access="public" language="C++" returnType="void">doReplaceAll()</slot>
     <slot access="public" language="C++" returnType="void">setEditor( EditorInterface * e, QObject * fw )</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    editor = 0;
-    formWindow = 0;
-}</function>
-    <function name="destroy()" >{
-    if ( editor )
-	editor-&gt;release();
-    editor = 0;
-    formWindow = 0;
-}</function>
-    <function name="doReplace()" >{
-    if ( !editor ) 
-	return; 
-     
-    if ( !editor-&gt;replace( comboFind-&gt;currentText(), comboReplace-&gt;currentText(), checkCase-&gt;isChecked(), 
-	checkWords-&gt;isChecked(), radioForward-&gt;isChecked(), !checkBegin-&gt;isChecked(), FALSE ) ) 
-	checkBegin-&gt;setChecked( TRUE ); 
-    else 
-	checkBegin-&gt;setChecked( FALSE ); 
-}</function>
-    <function name="doReplaceAll()" >{
-    if ( !editor )  
-	return;  
-      
-    if ( !editor-&gt;replace( comboFind-&gt;currentText(), comboReplace-&gt;currentText(), checkCase-&gt;isChecked(),  
-	checkWords-&gt;isChecked(), radioForward-&gt;isChecked(), !checkBegin-&gt;isChecked(), TRUE ) )  
-	checkBegin-&gt;setChecked( TRUE );  
-    else  
-	checkBegin-&gt;setChecked( FALSE );  
-}</function>
-    <function name="setEditor(EditorInterface*,QObject*)" >{
-    if ( fw != formWindow )
-	checkBegin-&gt;setChecked( TRUE );
-    formWindow = fw;
-    if ( editor )
-	editor-&gt;release();
-    editor = e;
-    editor-&gt;addRef();
-}</function>
-</functions>
 <tabstops>
     <tabstop>comboFind</tabstop>
     <tabstop>comboReplace</tabstop>

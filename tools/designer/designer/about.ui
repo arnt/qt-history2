@@ -2,6 +2,7 @@
 <class>AboutDialog</class>
 <include location="local" impldecl="in declaration">splashloader.h</include>
 <pixmapfunction>splashScreen</pixmapfunction>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>AboutDialog</cstring>
@@ -10,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>484</width>
-            <height>562</height>
+            <width>480</width>
+            <height>560</height>
         </rect>
     </property>
     <property name="caption">
@@ -90,7 +91,7 @@
             </property>
         </widget>
         <spacer>
-            <property name="name" stdset="0">
+            <property name="name">
                 <cstring>Spacer3</cstring>
             </property>
             <property name="orientation">
@@ -121,7 +122,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer2</cstring>
                     </property>
                     <property name="orientation">
@@ -152,7 +153,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">
@@ -173,21 +174,11 @@
     </vbox>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>PushButton1</sender>
         <signal>clicked()</signal>
         <receiver>AboutDialog</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
 </connections>
-<functions>
-    <function name="destroy()" >{
-    
-}</function>
-    <function name="init()" >{
-    
-}</function>
-</functions>
 </UI>

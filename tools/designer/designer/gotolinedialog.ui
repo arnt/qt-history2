@@ -1,8 +1,10 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>GotoLineDialog</class>
 <include location="local" impldecl="in implementation">../interfaces/editorinterface.h</include>
+<include location="local" implDecl="in declaration">gotolinedialog.ui.h</include>
 <forward>struct EditorInterface;</forward>
 <variable>EditorInterface *editor;</variable>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>GotoLineDialog</cstring>
@@ -11,8 +13,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>247</width>
-            <height>87</height>
+            <width>243</width>
+            <height>85</height>
         </rect>
     </property>
     <property name="caption">
@@ -65,7 +67,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer2</cstring>
                     </property>
                     <property name="orientation">
@@ -103,7 +105,7 @@
             </hbox>
         </widget>
         <spacer row="1" column="1">
-            <property name="name" stdset="0">
+            <property name="name">
                 <cstring>Spacer3</cstring>
             </property>
             <property name="orientation">
@@ -122,39 +124,21 @@
     </grid>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>PushButton1</sender>
         <signal>clicked()</signal>
         <receiver>GotoLineDialog</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>GotoLineDialog</receiver>
         <slot>gotoLine()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">gotoLine()</slot>
-    <slot access="public" language="C++">setEditor( EditorInterface *e )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">gotoLine()</slot>
+    <slot access="public" language="C++" returnType="void">setEditor( EditorInterface * e )</slot>
 </connections>
-<functions>
-    <function name="destroy()" >{
-    if ( editor )
-	editor-&gt;release();
-}</function>
-    <function name="gotoLine()" >{
-    if ( editor )
-	editor-&gt;gotoLine( spinLine-&gt;value() );
-    accept();
-}</function>
-    <function name="init()" >{
-    editor = 0;
-}</function>
-    <function name="setEditor(EditorInterface*)" >{
-    editor = e;
-    editor-&gt;addRef();
-}</function>
-</functions>
 </UI>

@@ -19,6 +19,7 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>FormSettingsBase</cstring>
@@ -27,8 +28,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>501</width>
-            <height>364</height>
+            <width>497</width>
+            <height>362</height>
         </rect>
     </property>
     <property name="caption">
@@ -387,21 +388,8 @@
         <receiver>editPixmapFunction</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">okClicked()</slot>
+    <slot access="public" language="C++" returnType="void">okClicked()</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-    <function name="okClicked()" >{
-
-}</function>
-</functions>
 <tabstops>
     <tabstop>editClassName</tabstop>
     <tabstop>editComment</tabstop>

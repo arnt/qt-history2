@@ -6,10 +6,12 @@
 <include location="global" impldecl="in implementation">qfileinfo.h</include>
 <include location="global" impldecl="in implementation">qimage.h</include>
 <include location="global" impldecl="in declaration">qpixmap.h</include>
+<include location="local" implDecl="in declaration">pixmapcollectioneditor.ui.h</include>
 <forward>class Project;</forward>
 <variable>bool changed;</variable>
 <variable>Project *project;</variable>
 <variable>bool chooser;</variable>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>PixmapCollectionEditor</cstring>
@@ -18,8 +20,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>354</width>
-            <height>269</height>
+            <width>350</width>
+            <height>267</height>
         </rect>
     </property>
     <property name="caption">
@@ -211,106 +213,6 @@
     <slot access="public" language="C++" returnType="void">setProject( Project * pro )</slot>
     <slot access="public" language="C++" returnType="QPixmap">scaledPixmap( const QPixmap &amp; p )</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    project = 0;
-    setChooserMode( FALSE );
-    changed = FALSE;
-}</function>
-    <function name="destroy()" >{
-}</function>
-    <function name="save()" >{
-    if ( changed )
-	project-&gt;pixmapCollection()-&gt;createCppFile();     
-}</function>
-    <function name="addPixmap()" >{
-    if ( !project )
-	return;
-    
-    QString f;
-    QPixmap pix = qChoosePixmap( this, 0, QPixmap(), &amp;f ); 
-    if ( pix.isNull() )
-	return;
-    PixmapCollection::Pixmap pixmap;
-    pixmap.pix = pix;
-    pixmap.name = QFileInfo( f ).baseName();
-    project-&gt;pixmapCollection()-&gt;addPixmap( pixmap );
-    updateView();
-    changed = TRUE;
-    QIconViewItem *item = viewPixmaps-&gt;findItem( pixmap.name );
-    if ( item ) {
-	viewPixmaps-&gt;setCurrentItem( item );
-	viewPixmaps-&gt;ensureItemVisible( item );
-    }
-}</function>
-    <function name="removePixmap()" >{
-    if ( !project || !viewPixmaps-&gt;currentItem() )
-	return;
-    project-&gt;pixmapCollection()-&gt;removePixmap( viewPixmaps-&gt;currentItem()-&gt;text() );
-    updateView();
-    changed = TRUE;
-}</function>
-    <function name="updateView()" >{
-    if ( !project )
-	return;
- 
-    viewPixmaps-&gt;clear();
-    
-    QValueList&lt;PixmapCollection::Pixmap&gt; pixmaps = project-&gt;pixmapCollection()-&gt;pixmaps();
-    for ( QValueList&lt;PixmapCollection::Pixmap&gt;::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
-	// #### might need to scale down the pixmap
-	QIconViewItem *item = new QIconViewItem( viewPixmaps, (*it).name, scaledPixmap( (*it).pix ) );
-	//item-&gt;setRenameEnabled( TRUE ); // this will be a bit harder to implement
-	item-&gt;setDragEnabled( FALSE );
-	item-&gt;setDropEnabled( FALSE );
-    }
-    viewPixmaps-&gt;setCurrentItem( viewPixmaps-&gt;firstItem() );
-    currentChanged( viewPixmaps-&gt;firstItem() );
-}</function>
-    <function name="currentChanged(QIconViewItem*)" >{
-    buttonOk-&gt;setEnabled( !!i );
-}</function>
-    <function name="setChooserMode(bool)" >{
-    chooser = c;
-    if ( chooser ) {
-	buttonClose-&gt;hide();
-	buttonOk-&gt;show(); 
-	buttonCancel-&gt;show(); 
-	buttonOk-&gt;setEnabled( FALSE );
-	buttonOk-&gt;setDefault( TRUE );
-	connect( viewPixmaps, SIGNAL( doubleClicked( QIconViewItem * ) ), buttonOk, SIGNAL( clicked() ) );
-	connect( viewPixmaps, SIGNAL( returnPressed( QIconViewItem * ) ), buttonOk, SIGNAL( clicked() ) ); 
-	setCaption( tr( "Choose a Pixmap" ) );
-    } else {
-	buttonClose-&gt;show();
-	buttonOk-&gt;hide();
-	buttonCancel-&gt;hide();
-	buttonClose-&gt;setDefault( TRUE );
-    }
-    updateView();
-}</function>
-    <function name="setCurrentItem(const QString&amp;)" >{
-    QIconViewItem *i = viewPixmaps-&gt;findItem( name );
-    if ( i ) {
-	viewPixmaps-&gt;setCurrentItem( i );
-	currentChanged( i );
-    }
-}</function>
-    <function name="setProject(Project*)" >{
-    project = pro;
-    updateView();
-}</function>
-    <function name="scaledPixmap(const QPixmap&amp;)" >{
-    QPixmap pix( p );
-    if ( pix.width() &lt; 50 &amp;&amp; pix.height() &lt; 50 )
-	return pix;
-    QImage img;
-    img = pix;
-    img = img.smoothScale( 50, 50 );
-    pix.convertFromImage( img );
-    return pix;
-}</function>
-</functions>
 <tabstops>
     <tabstop>PushButton2</tabstop>
     <tabstop>PushButton3</tabstop>
