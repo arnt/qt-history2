@@ -3922,6 +3922,8 @@ bool QWidget::event( QEvent *e )
 		w->keyPressEvent( k );
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
+		if ( w->parentWidget() && w->parentWidget()->focusProxy() == this )
+		    w = w->parentWidget();
 		w = w->parentWidget();
 		k->accept();
 	    }
@@ -3936,6 +3938,8 @@ bool QWidget::event( QEvent *e )
 		w->keyReleaseEvent( k );
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
+		if ( w->parentWidget() && w->parentWidget()->focusProxy() == this )
+		    w = w->parentWidget();
 		w = w->parentWidget();
 	    }
 	    }
