@@ -50,7 +50,6 @@
 #include "qwidgetstack.h"
 #include "qlayout.h"
 
-// NOT REVISED
 /*!
   \class QTabDialog qtabdialog.h
 
@@ -60,26 +59,34 @@
 
   A tabbed dialog is one in which several "pages" are available;
   the user selects which page to see and use by clicking on its tab
-  or by pressing the indicated Alt-letter key combination.
+  or by pressing the indicated Alt+\e{letter} key combination.
 
-  QTabDialog does not provide more than one row of tabs and does not
-  provide tabs along the sides or bottom of the pages.  It also does
-  not offer any way to find out which page is currently visible or to
-  set the visible page.
+  QTabDialog provides a tab bar consisting of single row of tabs at
+  the top; each tab has an associated widget which is that tab's
+  "page". In addition, QTabDialog provides an OK button and the
+  following optional buttons: Apply, Cancel, Defaults, and Help.
 
-  QTabDialog provides an OK button and the following optional buttons: Apply, Cancel,
-  Defaults, and Help.
+  QTabDialog doesn't provide for tabs on the sides or bottom, nor can
+  you set or retrieve the visible page. If you need more functionality
+  than QTabDialog provides, consider creating a QDialog and using a
+  QTabBar with QTabWidgets.
 
   The normal way to use QTabDialog is to do the following in the
-  constructor: <ol> <li> Create a QTabDialog. <li> Create a QWidget
-  for each of the pages in the tab dialog, insert children into it,
-  set up geometry management for it, and use addTab() to set up a tab
-  and keyboard accelerator for it. <li> Set up the buttons for the tab
-  dialog (Apply, Cancel, and so on). <li> Connect to the
-  signals and slots. </ol>
+  constructor:
+  \list 1
+  \i Create a QTabDialog.
+  \i Create a QWidget for each of the pages in the tab dialog, insert
+  children into it, set up geometry management for it, and use
+  addTab() (or insertTab()) to set up a tab and keyboard accelerator
+  for it.
+  \i Set up the buttons for the tab dialog using setOkButton(),
+  setApplyButton(), setDefaultsButton(), setCancelButton() and
+  setHelpButton().
+  \i Connect to the signals and slots.
+  \endlist
 
   If you don't call addTab() the page you have created will not be
-  visible.  Please don't confuse the object name you supply to the
+  visible.  Don't confuse the object name you supply to the
   QWidget constructor and the tab label you supply to addTab();
   addTab() takes a name that indicates an accelerator and is
   meaningful and descriptive to the user, whereas the widget name is
@@ -90,24 +97,30 @@
   or Apply is clicked, and your slot must copy the dialog's state into
   the application.
 
-  There are also several other signals which may be useful: <ul> <li>
-  cancelButtonPressed() is emitted when the user clicks Cancel.  <li>
-  defaultButtonPressed() is emitted when the user clicks Defaults.
-  <li> helpButtonPressed() is emitted when the user clicks Help; the
-  slot it is connected to should reset the state of the dialog to the
-  application defaults.  <li> aboutToShow() is emitted at the start of
-  show(); if there is any chance that the state of the application may
-  change between the creation of the tab dialog and the time show() is
-  called, you must connect this signal to a slot that resets the state
-  of the dialog. <li> currentChanged() is emitted when the user
-  selects some page. </ul>
+  There are also several other signals which may be useful:
+  \list
+  \i cancelButtonPressed() is emitted when the user clicks Cancel.
+  \i defaultButtonPressed() is emitted when the user clicks Defaults;
+  the slot it is connected to should reset the state of the dialog to
+  the application defaults.
+  \i helpButtonPressed() is emitted when the user clicks Help.
+  \i aboutToShow() is emitted at the start of show(); if there is any
+  chance that the state of the application may change between the
+  creation of the tab dialog and the time show() is called, you must
+  connect this signal to a slot that resets the state of the dialog.
+  \i currentChanged() is emitted when the user selects some page.
+  \endlist
 
-  Each tab is either enabled or disabled at any given time.  If a tab
-  is enabled the tab text is drawn in black and the user can select
-  that tab.  If it is disabled the tab is drawn in a different way and
-  the user cannot select that tab.  Note that even if a tab is
-  disabled, the page can still be visible - for example, if all of the
-  tabs happen to be disabled.
+  Each tab is either enabled or disabled at any given time (see
+  setTabEnabled()).  If a tab is enabled the tab text is drawn in
+  black and the user can select that tab.  If it is disabled the tab
+  is drawn in a different way and the user cannot select that tab.
+  Note that even if a tab is disabled, the page can still be visible;
+  for example, if all of the tabs happen to be disabled.
+
+  You can change a tab's label and iconset using changeTab(). A tab
+  page can be removed with removePage() and shown with showPage(). The
+  current page is given by currentPage().
 
   Most of the functionality in QTabDialog is provided by a QTabWidget.
 
@@ -160,8 +173,8 @@ QTabDialogPrivate::QTabDialogPrivate()
 
 /*!
   Constructs a QTabDialog with only an OK button.
-  The \a parent, \a name, \a modal and \a f arguments are passed on to
-  the QDialog constructor.
+  The \a parent, \a name, \a modal and widget flag, \a f, arguments
+  are passed on to the QDialog constructor.
 */
 
 QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
@@ -224,7 +237,8 @@ void QTabDialog::setFont( const QFont & font )
 
 
 /*!
-  Returns TRUE if the tab dialog has a Defaults button, FALSE if not.
+  Returns TRUE if the tab dialog has a Defaults button; otherwise
+  returns FALSE.
 
   \sa setDefaultButton() defaultButtonPressed() hasApplyButton()
   hasCancelButton()
@@ -237,7 +251,8 @@ bool QTabDialog::hasDefaultButton() const
 
 
 /*!
-  Returns TRUE if the tab dialog has a Help button, FALSE if not.
+  Returns TRUE if the tab dialog has a Help button; otherwise returns
+  FALSE.
 
   \sa setHelpButton() helpButtonPressed() hasApplyButton()
   hasCancelButton()
@@ -264,7 +279,8 @@ bool QTabDialog::hasHelpButton() const
 
 
 /*!
-  Returns TRUE if the tab dialog has a Cancel button, FALSE if not.
+  Returns TRUE if the tab dialog has a Cancel button; otherwise
+  returns FALSE.
 
   \sa setCancelButton() cancelButtonPressed() hasApplyButton()
   hasDefaultButton()
@@ -281,7 +297,7 @@ bool QTabDialog::hasCancelButton() const
 
   This signal is emitted when the Defaults button is pressed.  It
   should reset the dialog (but not the application) to the "factory
-  defaults."
+  defaults".
 
   The application's state should not be changed until the user clicks
   Apply or OK.
@@ -294,14 +310,15 @@ bool QTabDialog::hasCancelButton() const
   \fn void QTabDialog::helpButtonPressed();
 
   This signal is emitted when the Help button is pressed.  It
-  should give instructions about how to use the dialog.
+  could be used to present information about how to use the dialog.
 
   \sa applyButtonPressed() cancelButtonPressed() setHelpButton()
 */
 
 
 /*!
-  Returns TRUE if the tab dialog has an Apply button, FALSE if not.
+  Returns TRUE if the tab dialog has an Apply button; otherwise
+  returns FALSE.
 
   \sa setApplyButton() applyButtonPressed() hasCancelButton()
   hasDefaultButton()
@@ -314,7 +331,8 @@ bool QTabDialog::hasApplyButton() const
 
 
 /*!
-  Returns TRUE if the tab dialog has an OK button, FALSE if not.
+  Returns TRUE if the tab dialog has an OK button; otherwise returns
+  FALSE.
 
   \sa setOkButton() hasApplyButton() hasCancelButton()
   hasDefaultButton()
@@ -331,13 +349,13 @@ bool QTabDialog::hasOkButton() const
 
   This signal is emitted by show() when it is time to set the state of
   the dialog's contents.  The dialog should reflect the current state
-  of the application when it appears; if there is any chance that the
-  state of the application can change between the time you call
+  of the application when it appears; if there is any possibility that
+  the state of the application may change between the time you call
   QTabDialog::QTabDialog() and QTabDialog::show(), you should set the
   dialog's state in a slot and connect this signal to it.
 
   This applies mainly to QTabDialog objects that are kept around
-  hidden, rather than being created, show()n, and deleted afterwards.
+  hidden, rather than being created, shown, and deleted afterwards.
 
   \sa applyButtonPressed(), show(), cancelButtonPressed()
 */
@@ -372,25 +390,22 @@ void QTabDialog::showTab( int i )
 /*!
   Adds another tab and page to the tab view.
 
-  The tab will be labeled \a label, \a child constitutes the new
-  page.  Note the difference between the widget name (which you supply
-  to widget constructors and to setTabEnabled(), for example) and the tab
-  label. The name is internal to the program and invariant, whereas the
-  label is shown on-screen and may vary according to language and other factors.
+    The new page is \a child; the tab's label is \a label.
+  Note the difference between the widget name (which you supply to
+  widget constructors and to setTabEnabled(), for example) and the tab
+  label. The name is internal to the program and invariant, whereas
+  the label is shown on-screen and may vary according to language and
+  other factors.
 
-  \a label is written in the QButton style in which &P makes Qt create
-  an accelerator key on Alt-P for this page.  For example:
-
-  \code
-    td->addTab( graphicsPane, "&Graphics" );
-    td->addTab( soundPane, "&Sound" );
-  \endcode
-
-  If the user presses Alt-S the sound page of the tab dialog is shown;
-  if the user presses Alt-P the graphics page is shown.
+    If the tab's \a label contains an ampersand, the letter following
+    the ampersand is used as an accelerator for the tab, e.g. if the
+    label is "Bro&wse" then Alt+W becomes an accelerator which will
+    move the focus to this tab.
 
   If you call addTab() after show() the screen will flicker and the
   user may be confused.
+
+  \sa insertTab()
 */
 
 void QTabDialog::addTab( QWidget * child, const QString &label )
@@ -431,28 +446,25 @@ void QTabDialog::addTab( QWidget * child, QTab* tab )
 /*!
   Inserts another tab and page to the tab view.
 
-  The tab will be labeled \a label; \a child constitutes the new
-  page.  Note the difference between the widget name (which you supply
-  to widget constructors and to setTabEnabled()), for example), and the tab
-  label. The name is internal to the program and invariant, whereas the
-  label is shown on-screen and may vary according to language and other factors.
+    The new page is \a child; the tab's label is \a label.
+  Note the difference between the widget name (which you supply to
+  widget constructors and to setTabEnabled(), for example) and the tab
+  label. The name is internal to the program and invariant, whereas
+  the label is shown on-screen and may vary according to language and
+  other factors.
 
-  \a label is written in the QButton style in which &P makes Qt create
-  an accelerator key on Alt-P for this page.  For example:
-
-  \code
-    td->insertTab( graphicsPane, "&Graphics" );
-    td->insertTab( soundPane, "&Sound" );
-  \endcode
+    If the tab's \a label contains an ampersand, the letter following
+    the ampersand is used as an accelerator for the tab, e.g. if the
+    label is "Bro&wse" then Alt+W becomes an accelerator which will
+    move the focus to this tab.
 
   If \a index is not specified, the tab is simply added. Otherwise
   it is inserted at the specified position.
 
-  If the user presses Alt-S the sound page of the tab dialog is shown;
-  if the user presses Alt-P the graphics page is shown.
-
   If you call insertTab() after show(), the screen will flicker and the
-  user will be confused.
+  user may be confused.
+
+  \sa addTab()
 */
 
 void QTabDialog::insertTab( QWidget * child, const QString &label, int index )
@@ -511,7 +523,7 @@ QTabBar* QTabDialog::tabBar() const
     return d->tw->tabBar();
 }
 
-/*!  Ensures that \a w is shown.  This is useful mainly for accelerators.
+/*!  Ensures that widget \a w is shown.  This is useful mainly for accelerators.
 
   \warning If used carelessly, this function can easily surprise or
   confuse the user.
@@ -611,8 +623,7 @@ void QTabDialog::setTabEnabled( const char* name, bool enable )
 
 
 /*!
-  Returns TRUE if the page \a w is enabled and
-  FALSE if it is disabled.
+  Returns TRUE if the page \a w is enabled; otherwise returns FALSE.
 
   \sa setTabEnabled(), QWidget::isEnabled()
 */
@@ -623,8 +634,8 @@ bool QTabDialog::isTabEnabled( QWidget* w ) const
 }
 
 /*!
-  Enables/disables page \a w according to the value of \a enable and
-  redraws the page's tab appropriately.
+    If \a enable is TRUE the page \a w is enabled; otherwise \a w is
+    disabled. The page's tab is redrawn appropriately.
 
   QTabWidget uses QWidget::setEnabled() internally, rather than keeping a
   separate flag.
@@ -650,6 +661,10 @@ void QTabDialog::setTabEnabled( QWidget* w, bool enable)
   to the application while keeping the dialog visible.
 
   When Apply is clicked, the applyButtonPressed() signal is emitted.
+
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
@@ -685,7 +700,7 @@ void QTabDialog::setApplyButton()
 
 
 /*!
-  Adds a Help button to the dialog.  The button's text is set to \e
+  Adds a Help button to the dialog.  The button's text is set to \a
   text.
 
   When Help is clicked, the helpButtonPressed() signal is emitted.
@@ -729,7 +744,7 @@ void QTabDialog::setHelpButton()
 }
 
 /*!
-  Adds a Defaults button to the dialog.  The button's text is set to \e
+  Adds a Defaults button to the dialog.  The button's text is set to \a
   text.
 
   The Defaults button should set the dialog (but not the application)
@@ -776,11 +791,11 @@ void QTabDialog::setDefaultButton()
 }
 
 /*!
-  Adds a Cancel button to the dialog.  The button's text is set to \e
+  Adds a Cancel button to the dialog.  The button's text is set to \a
   text.
 
   The cancel button should always return the application to the state
-  it was in before the tab view popped up; if the user has clicked
+  it was in before the tab view popped up, or if the user has clicked
   Apply, back to the state immediately after the last Apply.
 
   When Cancel is clicked, the cancelButtonPressed() signal is emitted.

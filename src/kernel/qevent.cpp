@@ -1604,19 +1604,21 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   \brief The QTabletEvent class contains parameters that describe a Tablet
    event.
 
-  Tablet Events are generated from a Wacom(c) tablet.  Most of the time
-  you will want to deal with events from the tablet as if they were events
-  from a mouse.  However, there are times when you may want the extra
-  information given by the tablet device driver, for example, adjusting
+  Tablet Events are generated from a Wacom(c) tablet.  Most of the
+  time you will want to deal with events from the tablet as if they
+  were events from a mouse, for example retrieving the position with
+  x(), y(), pos(), globalX(), globalY() and globalPos().  In some
+  situations you may wish to retrieve the extra information provided
+  by the tablet device driver, for example, you might want to adjust
   color brightness based on pressure.  QTabletEvent allows you to get
-  the position, pressure, X and Y tilt, and what type of device you are using
-  (stylus, eraser, puck, etc.).
+  the pressure(), the xTilt() and yTilt(), as well as the type of
+  device being used with device() (see \l{TabletDevices}).
 
   A tablet event contains a special accept flag that indicates whether the
   receiver wants the event.  You should call QTabletEvent::accept() if you
-  handle the wheel event; otherwise it will be sent to the parent widget.
+  handle the tablet event; otherwise it will be sent to the parent widget.
 
-  The QWidget::setEnable() function can be used to enable or disable mouse
+  The QWidget::setEnabled() function can be used to enable or disable mouse
   and keyboard events for a widget.
 
   The event handler QWidget::tabletEvent() receives tablet events.
@@ -1628,12 +1630,13 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
   This enum defines what type of device is generating the event.
 
-  \value NoDevice    No device, or an unknown device
-  \value Puck    A Puck.
-  \value Stylus  A Stylus (the narrow end of the pen)
-  \value Eraser  An Eraser (the broad end of the pen)
+  \value NoDevice    No device, or an unknown device.
+  \value Puck    A Puck (a device that is similar to a flat mouse with
+  a transparent circle with cross-hairs).
+  \value Stylus  A Stylus (the narrow end of the pen).
+  \value Eraser  An Eraser (the broad end of the pen).
   \omit
-  \value Menu  A menu button was pressed (currently unimplemented)
+  \value Menu  A menu button was pressed (currently unimplemented).
 */
 
 /*!
@@ -1644,9 +1647,9 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   The globalPos() is initialized to QCursor::pos(), i.e. \a pos, which is
   usually (but not always) correct.  Use the other constructor if you need
   to specify the global position explicitly.  \a device contains the
-  TabletDevice, \a pressure contains the pressure exerted on the \a device,
-  \a xTilt and \a yTilt contain the \a device's degrees of tilt from the
-  X and Y axis respectively.
+  \link TabletDevice device type\endlink, \a pressure contains the
+  pressure exerted on the \a device, \a xTilt and \a yTilt contain the
+  \a device's degrees of tilt from the X and Y axis respectively.
 
   \sa pos(), device(), pressure(), xTilt(), yTilt()
 */
@@ -1654,14 +1657,15 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn QTabletEvent::QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt )
 
-  Constructs a tablet event object.  The position when the event occurred is
-  is given in \a pos and \a globalPos.  \a device contains the device type,
-  \a pressure contains the pressure exerted on the \a device, \a xTilt and
-  \a yTilt contain the \a device's degrees of tilt from the X and Y axis
-  respectively.
+  Constructs a tablet event object.  The position when the event
+  occurred is is given in \a pos and \a globalPos.  \a device contains
+  the \link TabletDevice device type\endlink, \a pressure contains the
+  pressure exerted on the \a device, \a xTilt and \a yTilt contain the
+  \a device's degrees of tilt from the X and Y axis respectively.
 
-  On Irix, /a globalPos will contain the high-res coordinates received
-  from the tablet device driver, instead of from the windowing system.
+  On Irix, \a globalPos will contain the high-resolution coordinates
+  received from the tablet device driver, instead of from the
+  windowing system.
 
   \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt()
 */
@@ -1670,19 +1674,23 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   \fn TabletDevice QTabletEvent::device() const
   Returns the type of device that generated the event.  Useful if you
   want one end of the pen to do something different than the other.
+
+  \sa TabletDevice
 */
 
 /*!
   \fn int QTabletEvent::pressure() const
-  Returns the pressure that is exerted on the device.  This number is a value
-  from 0 (no pressure) to 255 (maximum pressure).  This is true regardless
-  of how many pressure levels the underlying hardware supports.
+  Returns the pressure that is exerted on the device.  This number is
+  a value from 0 (no pressure) to 255 (maximum pressure).  The
+  pressure is always scaled to be within this range no matter how many
+  pressure levels the underlying hardware supports.
 */
 
 /*!
   \fn int QTabletEvent::xTilt() const
-  Returns the difference from the perpendicular in the X Axis.  Positive values
-  are towards the tablet physical right; range is from -60 to +60 degrees.
+  Returns the difference from the perpendicular in the X Axis.
+  Positive values are towards the tablet's physical right. The angle
+  is in the range -60 to +60 degrees.
 
   \sa yTilt()
 */
@@ -1690,7 +1698,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn int QTabletEvent::yTilt() const
   Returns the difference from the perpendicular in the Y Axis.  Positive values
-  are toward the bottom of the tablet; range is from -60 to +60 degrees.
+  are towards the bottom of the tablet. The angle is within the range
+  -60 to +60 degrees.
 
   \sa xTilt()
 */
@@ -1725,10 +1734,10 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn const QPoint &QTabletEvent::globalPos() const
 
-  Returns global position of the device \e{at the time} of the event.
+  Returns the global position of the device \e{at the time} of the event.
   This is important on asynchronous windows systems like X11; whenever you
   move your widgets around in response to mouse events, globalPos() can differ
-  a lot from the current position QCursor::pos().
+  significantly from the current position QCursor::pos().
 
   \sa globalX(), globalY()
 */
@@ -1757,10 +1766,10 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   \fn void QTabletEvent::accept()
   Sets the accept flag of the tablet event object.
 
-  Setting the accept parameter indicates that the receiver of the event wants
-  the wheel event.  Unwanted wheel events are sent to the parent widget.
+  Setting the accept flag indicates that the receiver of the event wants
+  the tablet event.  Unwanted tablet events are sent to the parent widget.
 
-  the accept flag is set by default.
+  The accept flag is set by default.
 
   \sa ignore()
 */
@@ -1769,8 +1778,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   \fn void QTabletEvent::ignore()
   Clears the accept flag parameter of the wheel event object.
 
-  Clearing the accept parameter indicates that the event receiver does not
-  want the wheel event.  Unwanted wheel events are sent to the parent widget.
+  Clearing the accept flag indicates that the event receiver does not
+  want the tablet event.  Unwanted tablet events are sent to the parent widget.
 
   The accept flag is set by default.
 

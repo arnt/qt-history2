@@ -86,7 +86,7 @@ static bool destroying_is_ok; // starts out as 0
 
   If you are using the utility classes (like QString) but not using
   QApplication, calling this function at the very end of your
-  application can be helpful to chasing down memory leaks, as
+  application can be helpful to chase down memory leaks, as
   QTextCodec objects will not show up.
 */
 
@@ -166,7 +166,6 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
 
 
-// NOT REVISED
 /*!
   \class QTextCodec qtextcodec.h
     \ingroup i18n
@@ -177,11 +176,8 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
   The abstract virtual functions describe the encoder to the
   system and the coder is used as required in the different
-  text file formats supported QTextStream and, under X11 for the
-  locale-specific character input and output (under Windows NT
-  codecs are not needed for GUI I/O since the system works
-  with Unicode already, and Windows 95/98 has built-in convertors
-  for the 8-bit local encoding).
+  text file formats supported by QTextStream, and under X11, for the
+  locale-specific character input and output.
 
   More recently created QTextCodec objects take precedence
   over earlier ones.
@@ -900,7 +896,7 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 
 /*!
   \overload
-  \a a contains the source characters. 
+  \a a contains the source characters.
 */
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
@@ -922,7 +918,7 @@ QString QTextCodec::toUnicode(const QCString& a, int len) const
 
 /*!
   \overload
-  \a a contains the source characters. 
+  \a a contains the source characters.
 */
 QString QTextCodec::toUnicode(const QCString& a) const
 {
@@ -932,7 +928,7 @@ QString QTextCodec::toUnicode(const QCString& a) const
 
 /*!
   \overload
-  \a chars contains the source characters. 
+  \a chars contains the source characters.
 */
 QString QTextCodec::toUnicode(const char* chars) const
 {

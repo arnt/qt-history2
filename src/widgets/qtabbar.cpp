@@ -62,12 +62,12 @@
 
 
 /*! \fn QTab::QTab( const QString& text )
-  Constructs a tab with a \a text.
+  Constructs a tab with the text, \a text.
 */
 
 
 /*! \fn QTab::QTab( const QIconSet& icon, const QString& text )
-  Constructs a tab with an \a icon and a \a text.
+  Constructs a tab with an \a icon and the text, \a text.
 */
 
 
@@ -82,16 +82,16 @@ QTab::~QTab()
 /*!
   \class QTabBar qtabbar.h
 
-  \brief The QTabBar class provides a tab bar for use in tabbed
-  dialogs, for example.
+  \brief The QTabBar class provides a tab bar, e.g. for use in tabbed dialogs.
 
   \ingroup advanced
 
-  The class is quite simple: it draws the tabs in one of four shapes
-  (see QTabBar::Shape) and emits a signal when a tab is selected.  It
-  can be subclassed to tailor the look and feel.
+  QTabBar is straightforward to use; it draws the tabs using one of
+  the predefined \link QTabBar::Shape shapes\endlink, and emits a
+  signal when a tab is selected.  It can be subclassed to tailor the
+  look and feel.
 
-  The choice of tab shape is matter of taste, although tab dialogs
+  The choice of tab shape is a matter of taste, although tab dialogs
   (preferences and the like) invariably use \c RoundedAbove, and
   nobody uses \c TriangularAbove.  Tab controls in windows other than
   dialogs almost always use either \c RoundedBelow or \c
@@ -101,7 +101,7 @@ QTab::~QTab()
   (e.g. a multi-page tool palette).
 
   The most important part of QTabBar's API is the signal selected().
-  It is emitted whenever the selected page changes (even at startup,
+  This is emitted whenever the selected page changes (even at startup,
   when the selected page changes from 'none').  There is also a slot,
   setCurrentTab(), which can be used to select a page
   programmatically.
@@ -117,6 +117,12 @@ QTab::~QTab()
   \i addTab() creates a new tab and adds it to the bar.
   \i selectTab() decides which tab, if any, the user selects with the mouse.
   \endlist
+
+  The index of the current tab is returned by currentTab(). The tab
+  with a particular index is returned by tabAt(), the tab with a
+  particular id is returned by tab(). The index of a tab is returned
+  by indexOf(). The current tab can be set by index or tab pointer
+  using one of the setCurrentTab() functions.
 
   <img src=qtabbar-m.png> <img src=qtabbar-w.png>
 */
@@ -275,7 +281,7 @@ QTabBar::~QTabBar()
   existing tabs. If the tab's label contains an ampersand, the letter
   following the ampersand is used as an accelerator for the tab, e.g.
   if the label is "Bro&wse" then Alt+W becomes an accelerator which
-  will take the focus to this tab.
+  will move the focus to this tab.
   Returns the id.
 
   \sa insertTab()
@@ -296,7 +302,7 @@ int QTabBar::addTab( QTab * newTab )
   Sets \a newTab's id to a new id. If the tab's label contains an
   ampersand, the letter following the ampersand is used as an
   accelerator for the tab, e.g. if the label is "Bro&wse" then Alt+W
-  becomes an accelerator which will take the focus to this tab.
+  becomes an accelerator which will move the focus to this tab.
   Returns the id.
 
   \sa addTab()
@@ -432,7 +438,7 @@ QSize QTabBar::minimumSizeHint() const
     return QSize( d->rightB->sizeHint().width() * 2 + 75, sizeHint().height() );
 }
 
-/*!  Paints the single tab \a t using \a p.  If and only if \a selected
+/*!  Paints the tab \a t using painter \a p.  If and only if \a selected
   is TRUE, \a t is drawn currently selected.
 
   This virtual function may be reimplemented to change the look of
@@ -473,7 +479,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 
 /*!
   Paints the label of tab \a t centered in rectangle \a br using
-  painter \a p and draws a focus indication if \a has_focus is TRUE.
+  painter \a p. A focus indication is drawn if \a has_focus is TRUE.
 */
 
 void QTabBar::paintLabel( QPainter* p, const QRect& br,
@@ -647,7 +653,7 @@ void QTabBar::show()
 
   If no tab page is currently visible, -1 will be the current value
   for this property.
-  Even if the property value is not -1, you cannot assume either that
+  Even if the property value is not -1, you cannot assume that
   the user can see the relevant page, or that the tab is enabled.
   When you need to display something the value of this property
   represents the best page to display.
@@ -708,7 +714,7 @@ void QTabBar::setCurrentTab( QTab * tab )
     \brief the id of the tab that currently has the keyboard focus
 
   This property contains the id of the tab that currently has the
-  keyboard focus. If this tab bar does not have keyboard focus, the
+  keyboard focus. If the tab bar does not have keyboard focus, the
   value of this property will be -1.
 
 */
@@ -828,7 +834,7 @@ int QTabBar::count() const
 
 
 /*!
-  The list of QTab objects added.
+  The list of QTab objects in the tab bar.
 */
 QPtrList<QTab> * QTabBar::tabList()
 {
@@ -837,11 +843,13 @@ QPtrList<QTab> * QTabBar::tabList()
 
 
 /*! \property QTabBar::shape
-    \brief the shape of this tab bar
+    \brief the shape of the tabs in the tab bar
 
     The value of this property can be one of the following:
     \c RoundedAbove (default), \c RoundedBelow, \c TriangularAbove or \c
     TriangularBelow.
+
+    \sa Shape
 */
 QTabBar::Shape QTabBar::shape() const
 {
@@ -858,8 +866,8 @@ void QTabBar::setShape( Shape s )
 }
 
 /*!
-  Lays out all existing tabs (i.e., sets their \c r attribute) according
-  to their label and their iconset.
+  Lays out all existing tabs according to their label and their
+  iconset.
  */
 void QTabBar::layoutTabs()
 {

@@ -77,7 +77,8 @@
 
   QTextBrowser provides backward() and forward() slots which you can use
   to implement Back and Forward buttons. The home() slot sets the text
-  to the very first document displayed.
+  to the very first document displayed. The linkClicked() signal is
+  emitted when the user clicks a link.
 
   By using QTextEdit::setMimeSourceFactory() you can provide your own
   subclass of QMimeSourceFactory. This makes it possible to access

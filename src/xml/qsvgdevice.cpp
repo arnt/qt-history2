@@ -100,12 +100,11 @@ static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 /*!
   \internal
   \class QSvgDevice qsvgdevice.h
-  \ingroup xml-tools
-
   \brief The QSvgDevice class provides a paint device for SVG vector graphics.
 
+  \ingroup xml-tools
   \module XML
-  \ingroup xml
+  \internal
 
   SVG is an XML vector graphics format. This class supports the
   loading and saving of SVG files with load() and save(), and the
