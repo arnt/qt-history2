@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#49 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#50 $
 **
 ** Definition of QComboBox class
 **
@@ -80,6 +80,8 @@ public:
     void	setListBox( QListBox * );
     QListBox * 	listBox() const;
 
+    bool	eventFilter( QObject *object, QEvent *event );
+
 public slots:
     void	clearValidator();
 
@@ -113,7 +115,6 @@ private:
     void	currentChanged();
     QRect	arrowRect() const;
     bool	getMetrics( int *dist, int *buttonW, int *buttonH ) const;
-    bool	eventFilter( QObject *object, QEvent *event );
 
     QComboData	*d;
 
