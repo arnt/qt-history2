@@ -1618,7 +1618,8 @@ void QHttp::operationGet( QNetworkOperation *op )
 	return; // ### store the request for later?
 
     op->setState( StInProgress );
-    QHttpRequestHeader header( "GET", url()->toString() );
+    QHttpRequestHeader header( "GET", url()->encodedPathAndQuery() );
+    header.setValue( "Host", url()->host() );
     client->request( url()->host(), url()->port() != -1 ? url()->port() : 80, header );
 }
 
@@ -1631,8 +1632,9 @@ void QHttp::operationPut( QNetworkOperation *op )
 	return; // ### store the request for later?
 
     op->setState( StInProgress );
-    QHttpRequestHeader header( "POST", url()->toString() );
+    QHttpRequestHeader header( "POST", url()->encodedPathAndQuery() );
     //header.setContentType( "text/plain" );
+    header.setValue( "Host", url()->host() );
     client->request( url()->host(), url()->port() != -1 ? url()->port() : 80, header, op->rawArg(1) );
 }
 
