@@ -236,7 +236,7 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
 	return 0;
     }
 #if !defined(QMAC_NO_FAKECURSOR) && !defined(MACOSX_102)
-    if(wp && !unhandled_dialogs.find(wp)) {
+    if(wp && !unhandled_dialogs.contains(wp)) {
 	QWidget *tmp_w = QWidget::find((WId)wp);
 	if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
 	    tmp_w->hide();
@@ -247,7 +247,7 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
     }
 #endif
     if(w) {
-	if(wp && !unhandled_dialogs.find(wp)) {
+	if(wp && !unhandled_dialogs.contains(wp)) {
 	    *w = QWidget::find((WId)wp);
 	    if(!*w)
 		qWarning("Qt: qt_mac_find_window: Couldn't find %d",(int)wp);
@@ -2295,7 +2295,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	    if(!app->activeWindow()) {
 		WindowPtr wp = ActiveNonFloatingWindow();
-		if(wp && !unhandled_dialogs.find(wp)) {
+		if(wp && !unhandled_dialogs.contains(wp)) {
 		    if(QWidget *tmp_w = QWidget::find((WId)wp))
 			app->setActiveWindow(tmp_w);
 		}
