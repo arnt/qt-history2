@@ -436,8 +436,8 @@ QMetaCallEvent::~QMetaCallEvent()
     is much faster than inherits("QWidget").
 
     Some QObject functions, e.g. children(), objectTrees() and
-    findChildren() return a QObjectList. A QObjectList is a QList of
-    QObjects.
+    findChildren() return a QObjectList. QObjectList is a
+    typedef for QList<QObject *>.
 */
 
 /*!
@@ -1051,12 +1051,10 @@ QThread *QObject::thread() const
     }
     \endcode
 
-    There is practically no upper limit for the interval value (more
-    than one year is possible). Note that QTimer's accuracy depends on
-    the underlying operating system and hardware. Most platforms
-    support an accuracy of 20ms; some provide more. If Qt is unable to
-    deliver the requested number of timer clicks, it will silently
-    discard some.
+    Note that QTimer's accuracy depends on the underlying operating
+    system and hardware. Most platforms support an accuracy of 20ms;
+    some provide more. If Qt is unable to deliver the requested
+    number of timer clicks, it will silently discard some.
 
     The QTimer class provides a high-level programming interface with
     one-shot timers and timer signals instead of events.
