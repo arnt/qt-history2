@@ -1,0 +1,43 @@
+/****************************************************************************
+** $Id: porting.doc,v 1.1 1998/08/12 21:49:44 warwick Exp $
+**
+** Help with porting from Qt 1.x to Qt 2.0
+**
+** Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+/*! \page porting.html
+
+<title>Qt 2.0 - Porting</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center> Porting to Qt 2.0 </h1><br clear="all">
+
+<p>
+QApplication::setColorSpec()
+PrivateColor and TrueColor are obsolete.  Use ManyColor.
+
+<p>
+QDataStream &operator<<( QDataStream &s, const QRegion &r )
+QRegion data files now write in a more efficient form.  The new form
+cannot be read by Qt 1.x, but Qt 2.0 can still read old 1.x data.
+
+<p>
+QWidget::recreate()
+This function is now called reparent().
+
+<p>
+paintEvent() crashes
+Never pass 0 as the argument to paintEvent().
+
+<p>
+QLabel::setMovie()
+No longer changes the text.
+
+<p>
+<p>
+<p>
+
+*/
