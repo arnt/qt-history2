@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#12 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#13 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#13 $");
 
 // a small private class to show the tabs on top
 
@@ -241,7 +241,7 @@ void QTabDialog::setFont( const QFont & font )
 
   Returns TRUE if the tab dialog has a Apply button, FALSE if not.
 
-  \sa setApplysButton() applyButtonPressed() hasCancelButton()
+  \sa setApplyButton() applyButtonPressed() hasCancelButton()
   hasDefaultButton() */
 
 
@@ -336,7 +336,7 @@ void QTabDialog::showTab()
     
 /*! Add another tab and page to the tab view.
 
-  The tab will be labelled \e name and \e widget constitutes the new
+  The tab will be labelled \e name and \e child constitutes the new
   page.
 
   It's a fairly bad idea to do this after show(). */
