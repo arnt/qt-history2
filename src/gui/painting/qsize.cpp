@@ -185,8 +185,8 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
             wd = rw;
             ht = s.ht;
         } else {
-            wd = s.wd;
             ht = s.wd * ht / wd;
+            wd = s.wd;
         }
     }
 }
