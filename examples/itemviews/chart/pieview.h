@@ -29,7 +29,7 @@ class PieView : public QAbstractItemView
 public:
     PieView(QWidget *parent = 0);
 
-    QRect itemViewportRect(const QModelIndex &index) const;
+    QRect viewportRectForIndex(const QModelIndex &index) const;
     void ensureVisible(const QModelIndex &index);
     QModelIndex indexAt(int x, int y) const;
 

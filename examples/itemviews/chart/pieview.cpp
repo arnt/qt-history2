@@ -44,7 +44,7 @@ bool PieView::isIndexHidden(const QModelIndex & /*index*/) const
     Returns the position of the item in viewport coordinates.
 */
 
-QRect PieView::itemViewportRect(const QModelIndex &index) const
+QRect PieView::viewportRectForIndex(const QModelIndex &index) const
 {
     QRect rect = itemRect(index);
     if (rect.isValid())
@@ -70,7 +70,7 @@ QRect PieView::itemRect(const QModelIndex &index) const
     QModelIndex valueIndex;
 
     if (index.column() != 1)
-        valueIndex = model()->index(index.row(), 1, root());
+        valueIndex = model()->index(index.row(), 1, rootIndex());
     else
         valueIndex = index;
 
@@ -78,7 +78,7 @@ QRect PieView::itemRect(const QModelIndex &index) const
 
         int listItem = 0;
         for (int row = index.row()-1; row >= 0; --row) {
-            if (model()->data(model()->index(row, 1, root())).toDouble() > 0.0)
+            if (model()->data(model()->index(row, 1, rootIndex())).toDouble() > 0.0)
                 listItem++;
         }
 
@@ -109,7 +109,7 @@ QRect PieView::itemRect(const QModelIndex &index) const
 void PieView::ensureVisible(const QModelIndex &index)
 {
     QRect area = viewport()->rect();
-    QRect rect = itemViewportRect(index);
+    QRect rect = viewportRectForIndex(index);
 
     if (rect.left() < area.left())
         horizontalScrollBar()->setValue(
@@ -157,16 +157,16 @@ QModelIndex PieView::indexAt(int x, int y) const
         // Find the relevant slice of the pie.
         double startAngle = 0.0;
 
-        for (int row = 0; row < model()->rowCount(root()); ++row) {
+        for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
 
-            QModelIndex index = model()->index(row, 1, root());
+            QModelIndex index = model()->index(row, 1, rootIndex());
             double value = model()->data(index).toDouble();
 
             if (value > 0.0) {
                 double sliceAngle = 360*value/m_totalValue;
 
                 if (angle >= startAngle && angle < (startAngle + sliceAngle))
-                    return model()->index(row, 0, root());
+                    return model()->index(row, 0, rootIndex());
 
                 startAngle += sliceAngle;
             }
@@ -176,13 +176,13 @@ QModelIndex PieView::indexAt(int x, int y) const
         int listItem = int((wy - m_margin) / itemHeight);
         int validRow = 0;
 
-        for (int row = 0; row < model()->rowCount(root()); ++row) {
+        for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
 
-            QModelIndex index = model()->index(row, 1, root());
+            QModelIndex index = model()->index(row, 1, rootIndex());
             if (model()->data(index).toDouble() > 0.0) {
 
                 if (listItem == validRow)
-                    return model()->index(row, 0, root());
+                    return model()->index(row, 0, rootIndex());
 
                 // Update the list index that corresponds to the next valid row.
                 validRow++;
@@ -201,9 +201,9 @@ void PieView::dataChanged(const QModelIndex &topLeft,
     m_validItems = 0;
     m_totalValue = 0.0;
 
-    for (int row = 0; row < model()->rowCount(root()); ++row) {
+    for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
 
-        QModelIndex index = model()->index(row, 1, root());
+        QModelIndex index = model()->index(row, 1, rootIndex());
         double value = model()->data(index).toDouble();
 
         if (value > 0.0) {
@@ -217,7 +217,7 @@ void PieView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     for (int row = start; row <= end; ++row) {
 
-        QModelIndex index = model()->index(row, 1, root());
+        QModelIndex index = model()->index(row, 1, rootIndex());
         double value = model()->data(index).toDouble();
 
         if (value > 0.0) {
@@ -233,7 +233,7 @@ void PieView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end
 {
     for (int row = start; row <= end; ++row) {
 
-        QModelIndex index = model()->index(row, 1, root());
+        QModelIndex index = model()->index(row, 1, rootIndex());
         double value = model()->data(index).toDouble();
         if (value > 0.0) {
             m_totalValue -= value;
@@ -269,16 +269,16 @@ QModelIndex PieView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MoveLeft:
     case MoveUp:
         if (current.row() > 0)
-            return model()->index(current.row() - 1, 0, root());
+            return model()->index(current.row() - 1, 0, rootIndex());
         else
-            return model()->index(0, 0, root());
+            return model()->index(0, 0, rootIndex());
         break;
     case MoveRight:
     case MoveDown:
         if (current.row() < rows(current) - 1)
-            return model()->index(current.row() + 1, 0, root());
+            return model()->index(current.row() + 1, 0, rootIndex());
         else
-            return model()->index(rows(current) - 1, 0, root());
+            return model()->index(rows(current) - 1, 0, rootIndex());
         break;
     default:
         return current;
@@ -317,11 +317,11 @@ QRect PieView::selectionViewportRect(const QItemSelection &selection) const
         lastRow = qMax(lastRow, selection.at(i).bottom());
     }
 
-    QModelIndex firstItem = model()->index(qMin(firstRow, lastRow), 0, root());
-    QModelIndex lastItem = model()->index(qMax(firstRow, lastRow), 0, root());
+    QModelIndex firstItem = model()->index(qMin(firstRow, lastRow), 0, rootIndex());
+    QModelIndex lastItem = model()->index(qMax(firstRow, lastRow), 0, rootIndex());
 
-    QRect firstRect = itemViewportRect(firstItem);
-    QRect lastRect = itemViewportRect(lastItem);
+    QRect firstRect = viewportRectForIndex(firstItem);
+    QRect lastRect = viewportRectForIndex(lastItem);
 
     return firstRect.unite(lastRect);
 }
@@ -376,15 +376,15 @@ void PieView::paintEvent(QPaintEvent *event)
         double startAngle = 0.0;
         int row;
 
-        for (row = 0; row < model()->rowCount(root()); ++row) {
+        for (row = 0; row < model()->rowCount(rootIndex()); ++row) {
 
-            QModelIndex index = model()->index(row, 1, root());
+            QModelIndex index = model()->index(row, 1, rootIndex());
             double value = model()->data(index).toDouble();
 
             if (value > 0.0) {
                 double angle = 360*value/m_totalValue;
 
-                QModelIndex colorIndex = model()->index(row, 2, root());
+                QModelIndex colorIndex = model()->index(row, 2, rootIndex());
                 QColor color = QColor(model()->data(colorIndex).toString());
 
                 painter.setBrush(QBrush(color));
@@ -404,14 +404,14 @@ void PieView::paintEvent(QPaintEvent *event)
 
         painter.save();
 
-        for (row = 0; row < model()->rowCount(root()); ++row) {
+        for (row = 0; row < model()->rowCount(rootIndex()); ++row) {
 
-            QModelIndex index = model()->index(row, 1, root());
+            QModelIndex index = model()->index(row, 1, rootIndex());
             double value = model()->data(index).toDouble();
 
             if (value > 0.0) {
-                QModelIndex labelIndex = model()->index(row, 0, root());
-                QModelIndex colorIndex = model()->index(row, 2, root());
+                QModelIndex labelIndex = model()->index(row, 0, rootIndex());
+                QModelIndex colorIndex = model()->index(row, 2, rootIndex());
 
                 QString label = model()->data(labelIndex).toString();
                 QColor color = QColor(model()->data(colorIndex).toString());
