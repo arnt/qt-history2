@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#16 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#16 $";
 #endif
 
 
@@ -226,15 +226,17 @@ void QEvent::peErrMsg()				// posted event error message
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QKeyEvent::QKeyEvent( int type, int key, char ascii, int state )
+  \fn QKeyEvent::QKeyEvent( int type, int key, uchar ascii, int state )
   Constructs a key event object.
 
-  The type parameter must be \c Event_KeyPress or \c Event_KeyRelease.
+  The \e type parameter must be \c Event_KeyPress or \c Event_KeyRelease.
 
-  Sending \e key 0 meams that the event is not a result of a known key
-  (e.g. it may be the result of a compose sequence or keyboard macro).
+  If \e key is 0, the event is not a result of a known key (e.g. it
+  may be the result of a compose sequence or keyboard macro).
 
   The accept flag is set to TRUE.
+
+  \todo explain accept flag
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
