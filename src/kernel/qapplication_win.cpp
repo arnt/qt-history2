@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#254 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#255 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -241,6 +241,41 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 static void outColor(const char* s, const QColor& col) {
     debug("%s is %d %d %d", s, col.red(), col.green(), col.blue());
 }
+
+
+static void qt_show_system_menu( QWidget* tlw) 
+{
+    HMENU menu = GetSystemMenu( tlw->winId(), FALSE );
+    if ( !menu )
+	return; // no menu for this window
+    
+#define enabled (MF_BYCOMMAND | MF_ENABLED)
+#define disabled (MF_BYCOMMAND | MF_GRAYED)
+    
+    EnableMenuItem( menu, SC_MINIMIZE, enabled);
+    bool maximized  = IsZoomed( tlw->winId() );
+    
+    EnableMenuItem( menu, SC_MAXIMIZE, maximized?disabled:enabled);
+    EnableMenuItem( menu, SC_RESTORE, maximized?enabled:disabled);
+
+    EnableMenuItem( menu, SC_SIZE, enabled);
+    EnableMenuItem( menu, SC_MOVE, enabled);
+    EnableMenuItem( menu, SC_CLOSE, enabled);
+    EnableMenuItem( menu, SC_MINIMIZE, enabled);
+
+#undef enabled
+#undef disabled
+			
+    int ret = TrackPopupMenuEx( menu, 
+				TPM_LEFTALIGN  | TPM_TOPALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
+				tlw->geometry().x(), tlw->geometry().y(),
+				tlw->winId(),
+				0);
+    if (ret)
+	DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+}
+
+
 static void qt_set_windows_resources()
 {
 
@@ -1289,7 +1324,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		return n;
 	    }
 	    break;
-	    
+	
 	case WM_SETTINGCHANGE:
 	    qt_set_windows_resources();
 	    break;
@@ -2194,6 +2229,23 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		    code = asciiToKeycode( uch.cell, state);
 	    }
 
+	    if ( state == QMouseEvent::AltButton ) {
+		// Special handling of global Windows hotkeys
+		switch ( code ) {
+		case Qt::Key_Escape:
+		case Qt::Key_Tab:
+		case Qt::Key_Enter:
+		case Qt::Key_F4:
+		    return FALSE;		// Send the event on to Windows
+		case Qt::Key_Space:
+		    // do not pass this key to windows, we will process it ourselves
+		    qt_show_system_menu( topLevelWidget() );
+		    return TRUE;
+		default:
+		    break;
+		}
+	    }
+	    
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
@@ -2212,21 +2264,6 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 				   state, grab, text );
 	    }
 	
-	    if ( state == QMouseEvent::AltButton ) {
-		// Special handling of global Windows hotkeys
-		switch ( code ) {
-		case Qt::Key_Escape:
-		case Qt::Key_Tab:
-		case Qt::Key_Enter:
-		case Qt::Key_F4:
-		case Qt::Key_Space:
-		    k0 = FALSE;		// Send the event on to Windows
-		    k1 = FALSE;
-		    break;
-		default:
-		    break;
-		}
-	    }
 
         } else {
 	    // Must be KEYUP
@@ -2239,9 +2276,12 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 				state);
 		k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
 				    state, grab, rec->text);
+		if ( code == Qt::Key_Alt )
+		    k0 = TRUE; // don't let window see the meta key
 	    }
         }
     }
+    
     return k0 || k1;
 }
 
@@ -2303,8 +2343,9 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     QKeyEvent e( type, code, ascii, state, text, autor );
     QApplication::sendEvent( this, &e );
     if ( !isModifierKey(code) && state == QMouseEvent::AltButton
-      && type == QEvent::KeyPress && !e.isAccepted() )
-	QApplication::beep();  // emulate windows behavior
+	 && ((code>=Key_A && code<=Key_Z) || (code>=Key_0 && code<=Key_9))
+	 && type == QEvent::KeyPress && !e.isAccepted() )
+	QApplication::beep();  // emulate windows behavioar
     return e.isAccepted();
 }
 

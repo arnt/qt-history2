@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#136 $
 **
 ** Implementation of QMenuBar class
 **
@@ -275,6 +275,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	    if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
 		if ( windowsaltactive || actItem >= 0 ) {
 		    setWindowsAltMode( FALSE, -1 );
+ 		    ke->accept();
+ 		    return TRUE;
 		} else {
 		    windowsaltactive = 1;
 		    if ( f != object )
