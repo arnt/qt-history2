@@ -46,6 +46,7 @@ FormDialog::FormDialog()
     CustomEdit	*surnameEdit	= new CustomEdit( this );
     QLabel	*salaryLabel	= new QLabel( "Salary:", this );
     QLineEdit	*salaryEdit	= new QLineEdit( this );
+    salaryEdit->setAlignment( Qt::AlignRight );
     QPushButton *saveButton	= new QPushButton( "&Save", this );
     connect( saveButton, SIGNAL(clicked()), this, SLOT(save()) );
 
@@ -60,6 +61,8 @@ FormDialog::FormDialog()
     grid->activate();
 
     staffCursor = new QSqlCursor( "staff" );
+    staffCursor->setTrimmed( "forename", TRUE );
+    staffCursor->setTrimmed( "surname",  TRUE );
     idIndex = staffCursor->index( "id" );
     staffCursor->select( idIndex );
     staffCursor->first();
