@@ -832,10 +832,9 @@ bool QApplication::do_mouse_down(Point *pt)
     case inStructure:
     case inDesk:
 	break;
-    case inGoAway:
-	if(TrackBox( (WindowPtr)widget->handle(), *pt, windowPart))
-	    widget->close();
-	break;
+    case inGoAway: {
+	widget->close();
+	break; }
     case inToolbarButton: { //hide toolbars thing
 	if(const QObjectList *chldrn = widget->children()) {
 	    int h = 0;
@@ -916,12 +915,10 @@ bool QApplication::do_mouse_down(Point *pt)
 	widget->showMinimized();
 	break;
     case inZoomIn:
-	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
-	    widget->showNormal();
+	widget->showNormal();
 	break;
     case inZoomOut:
-	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
-	    widget->showMaximized();
+	widget->showMaximized();
 	break;
     default:
 	qDebug("Unhandled case in mouse_down.. %d", windowPart);
