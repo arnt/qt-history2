@@ -2424,8 +2424,6 @@ void PropertyList::setupProperties()
 	return;
     bool allProperties = !editor->widget()->inherits( "Spacer" );
     QStrList lst = editor->widget()->metaObject()->propertyNames( allProperties );
-    if ( showSorted )
-	lst.sort();
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
     QObject *w = editor->widget();
@@ -2663,6 +2661,12 @@ void PropertyList::setupProperties()
     }
 
     setCurrentItem( firstChild() );
+
+    if ( showSorted ) {
+	setSorting( 0 );
+	sort();
+	setSorting( -1 );
+    }
 
     updateEditorSize();
     updateEditorSize();
