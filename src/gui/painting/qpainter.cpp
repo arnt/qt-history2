@@ -897,6 +897,8 @@ void QPainter::save()
         return;
     }
 
+    d->engine->syncState();
+
     d->state = new QPainterState(d->states.back());
     // We need top propagate pending changes to the restore later..
     d->state->changeFlags = d->engine->dirtyFlag;
@@ -929,10 +931,6 @@ void QPainter::restore()
     d->states.pop_back();
     d->state = d->states.back();
     d->txinv = false;
-
-    // Propegate the changes since save to this one so that they can be dirtied and restored
-    d->state->changeFlags |= tmp->changeFlags;
-
 
     // trigger clip update if the clip path/region has changed since
     // last save
@@ -1515,11 +1513,6 @@ void QPainter::setMatrixEnabled(bool enable)
     }
     if (enable == d->state->WxF)
         return;
-
-    // Must update clip before changing matrix.
-    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
-        && d->engine->testDirty(QPaintEngine::DirtyClip))
-        d->engine->updateState(d->state);
 
     d->state->WxF = enable;
     d->updateMatrix();
