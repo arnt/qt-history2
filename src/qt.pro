@@ -9,6 +9,8 @@ DLLDESTDIR	= ../bin
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache
 
+win32:!shared:CONFIG += staticlib
+
 win32-borland {
 	mng:QMAKE_CFLAGS_WARN_ON	+= -w-par
 	mng:QMAKE_CXXFLAGS_WARN_ON	+= -w-par
