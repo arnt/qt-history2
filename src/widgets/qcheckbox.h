@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#2 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#3 $
 **
 ** Definition of QCheckBox class
 **
@@ -20,8 +20,8 @@ class QCheckBox : public QButton
 {
     Q_OBJECT
 public:
-    QCheckBox( QView *parent=0, const char *name=0 );
-    QCheckBox( const char *label, QView *parent, const char *name=0 );
+    QCheckBox( QWidget *parent=0, const char *name=0 );
+    QCheckBox( const char *label, QWidget *parent, const char *name=0 );
 
     void    setChecked( bool check );
     bool    isChecked() const { return isOn(); }

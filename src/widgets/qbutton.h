@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#5 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#6 $
 **
 ** Definition of QButton class
 **
@@ -23,7 +23,7 @@ class QButton : public QWidget			// button class
 {
     Q_OBJECT
 public:
-    QButton( QView *parent=0, const char *name=0 );
+    QButton( QWidget *parent=0, const char *name=0 );
 
     const char *label()		const;		// get/set button text
     void setLabel( const char *label, bool resize=FALSE );

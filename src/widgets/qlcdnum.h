@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#5 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#6 $
 **
 ** Definition of QLCDNumber class
 **
@@ -21,8 +21,8 @@ class QLCDNumber : public QWidget		// LCD number widget
 {
     Q_OBJECT
 public:
-    QLCDNumber( QView *parent=0, const char *name=0 );
-    QLCDNumber( uint numDigits, QView *parent=0, const char *name=0 );
+    QLCDNumber( QWidget *parent=0, const char *name=0 );
+    QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
    ~QLCDNumber();
 
     enum Mode { HEX, DEC, OCT, BIN };

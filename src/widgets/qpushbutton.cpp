@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#8 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#8 $";
 #endif
 
 
@@ -67,13 +67,14 @@ static void resizeDefButton( QPushButton *b )
 }
 
 
-QPushButton::QPushButton( QView *parent, const char *name )
+QPushButton::QPushButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
     init();
 }
 
-QPushButton::QPushButton( const char *label, QView *parent, const char *name )
+QPushButton::QPushButton( const char *label, QWidget *parent,
+			  const char *name )
 	: QButton( parent, name )
 {
     init();

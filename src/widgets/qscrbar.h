@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#3 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#4 $
 **
 ** Definition of QScrollBar class
 **
@@ -23,11 +23,11 @@ class QScrollBar : public QWidget, public QRangeControl
 public:
     enum Orientation{ Horizontal, Vertical };
 
-    QScrollBar( QView *parent=0, const char *name=0 );
-    QScrollBar( Orientation, QView *parent=0, const char *name=0 );
+    QScrollBar( QWidget *parent=0, const char *name=0 );
+    QScrollBar( Orientation, QWidget *parent=0, const char *name=0 );
     QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
 		int value, Orientation,
-		QView *parent=0, const char *name=0 );
+		QWidget *parent=0, const char *name=0 );
 
     void	setOrientation( Orientation );
     Orientation orientation() const;

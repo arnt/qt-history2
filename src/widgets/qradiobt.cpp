@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#8 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#8 $";
 #endif
 
 
@@ -37,7 +37,7 @@ static void getSizeOfBitMap( GUIStyle gs, int *w, int *h )
 }
 
 
-QRadioButton::QRadioButton( QView *parent, const char *name )
+QRadioButton::QRadioButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
     initMetaObject();
@@ -45,7 +45,8 @@ QRadioButton::QRadioButton( QView *parent, const char *name )
     noHit = FALSE;
 }
 
-QRadioButton::QRadioButton( const char *label, QView *parent, const char *name)
+QRadioButton::QRadioButton( const char *label, QWidget *parent,
+			    const char *name )
 	: QButton( parent, name )
 {
     initMetaObject();

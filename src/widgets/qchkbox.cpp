@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#7 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#7 $";
 #endif
 
 
@@ -36,14 +36,14 @@ static void getSizeOfBitMap( GUIStyle gs, int *w, int *h )
 }
 
 
-QCheckBox::QCheckBox( QView *parent, const char *name )
+QCheckBox::QCheckBox( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
     initMetaObject();
     setOnOffButton( TRUE );
 }
 
-QCheckBox::QCheckBox( const char *label, QView *parent, const char *name )
+QCheckBox::QCheckBox( const char *label, QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
     initMetaObject();

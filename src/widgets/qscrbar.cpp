@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#6 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwxfmat.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#6 $";
 #endif
 
 
@@ -60,14 +60,14 @@ const int repeatTime	= 100;
 #define SLIDER_MIN	6
 
 
-QScrollBar::QScrollBar( QView *parent, const char *name )
+QScrollBar::QScrollBar( QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
     orient = Vertical;
     init();
 }
 
-QScrollBar::QScrollBar( Orientation o, QView *parent, const char *name )
+QScrollBar::QScrollBar( Orientation o, QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
     orient = o;
@@ -76,7 +76,7 @@ QScrollBar::QScrollBar( Orientation o, QView *parent, const char *name )
 
 QScrollBar::QScrollBar( int minVal, int maxVal, int lineStep, int pageStep,
 			int value,  Orientation o,
-			QView *parent, const char *name )
+			QWidget *parent, const char *name )
 	: QWidget( parent, name ),
 	  QRangeControl( minVal, maxVal, lineStep, pageStep, value )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#6 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#6 $";
 #endif
 
 
@@ -177,14 +177,14 @@ char *getSegments( char ch )			// gets list of segments for ch
 }
 
 
-QLCDNumber::QLCDNumber( QView *parent, const char *name )
+QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
     ndigits = 1;
     init();
 }
 
-QLCDNumber::QLCDNumber( uint numDigits, QView *parent, const char *name )
+QLCDNumber::QLCDNumber( uint numDigits, QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
     ndigits = numDigits;
@@ -209,20 +209,20 @@ void QLCDNumber::setNumDigits( uint numDigits )
 {
     if ( numDigits > 99 ) {
 #if defined(CHECK_RANGE)
-	warning( "QLCDNumber: Maximum 99 digits allowed" );
+	warning( "QLCDNumber::setNumDigits: Maximum 99 digits allowed" );
 #endif
 	numDigits = 99;
     }
-    if ( numDigits == ndigits )			// no change
-	return;
-    if ( digitStr.isNull() ) {
+    if ( digitStr.isNull() ) {			// from constructor
 	ndigits = numDigits;
 	digitStr.fill( ' ', ndigits );
 	points.fill( 0, ndigits );
 	digitStr[ndigits - 1] = '0';		// "0" is the default number
     }
     else {
-	int i;
+	if ( numDigits == ndigits )		// no change
+	    return;
+	register int i;
 	int dif;
 	if ( numDigits > ndigits ) {		// expand
 	    dif = numDigits - ndigits;
@@ -238,7 +238,7 @@ void QLCDNumber::setNumDigits( uint numDigits )
 	else {					// shrink
 	    dif = ndigits - numDigits;
 	    digitStr = digitStr.right( numDigits );	    
-	    QBitArray tmpPoints = points;
+	    QBitArray tmpPoints = points.copy();
 	    points.resize( numDigits );
 	    for ( i=0; i<numDigits; i++ )
 		points.setBit( i, tmpPoints.testBit(i+dif) );

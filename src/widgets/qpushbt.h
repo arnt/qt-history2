@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.h#5 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.h#6 $
 **
 ** Definition of QPushButton class
 **
@@ -20,8 +20,8 @@ class QPushButton : public QButton
 {
     Q_OBJECT
 public:
-    QPushButton( QView *parent=0, const char *name=0 );
-    QPushButton( const char *label, QView *parent=0, const char *name=0 );
+    QPushButton( QWidget *parent=0, const char *name=0 );
+    QPushButton( const char *label, QWidget *parent=0, const char *name=0 );
 
     void    setAutoDefault( bool autoDef );
     bool    isAutoDefault() const { return autoDefButton; }

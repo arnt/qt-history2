@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#8 $
 **
 ** Implementation of QButton class
 **
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#8 $";
 #endif
 
 
@@ -26,7 +26,7 @@ QPixMapDict *QButton::pmdict = 0;		// pixmap dict
 long QButton::pmsize = 0;			// size of all pixmaps
 
 
-QButton::QButton( QView *parent, const char *name ) : QWidget( parent, name )
+QButton::QButton( QWidget *parent, const char *name ) : QWidget( parent, name )
 {
     initMetaObject();
     onOffButton = FALSE;			// button is not on/off
