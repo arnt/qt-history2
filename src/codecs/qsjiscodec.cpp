@@ -216,6 +216,11 @@ const char* QSjisCodec::name() const
     return "SJIS";
 }
 
+const char* QSjisCodec::mimeName() const
+{
+    return "Shift_JIS";
+}
+
 /*!
   \reimp
 */

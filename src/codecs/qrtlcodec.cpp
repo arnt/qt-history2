@@ -376,6 +376,11 @@ const char* QHebrewCodec::name() const
     return "ISO 8859-8";
 }
 
+const char* QHebrewCodec::mimeName() const
+{
+    return "ISO-8859-8";
+}
+
 
 /*! \reimp
   Since Hebrew (as well as Arabic) are written from left to right,

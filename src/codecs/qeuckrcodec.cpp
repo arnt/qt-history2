@@ -193,6 +193,11 @@ const char* QEucKrCodec::name() const
   return "eucKR";
 }
 
+const char* QEucKrCodec::mimeName() const
+{
+  return "EUC-KR";
+}
+
 /*!
   \reimp
 */

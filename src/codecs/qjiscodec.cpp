@@ -373,9 +373,17 @@ const char* QJisCodec::name() const
     return "JIS7";
 }
 
+const char* QJisCodec::mimeName() const
+{
+    return "ISO-2022-JP-2";
+}
+
 /*! \internal */
 int QJisCodec::heuristicNameMatch(const char* hint) const
 {
+    if ( strncasecmp( hint, "ISO-2022-JP", 11 ) == 0 )
+	return 10000;
+    
     int score = 0;
     bool ja = FALSE;
     if (qstrnicmp(hint, "ja_JP", 5) == 0 || qstrnicmp(hint, "japan", 5) == 0) {

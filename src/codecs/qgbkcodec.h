@@ -60,6 +60,7 @@ public:
 
     virtual int mibEnum() const;
     const char* name() const;
+    const char* mimeName() const;
 
     QTextDecoder* makeDecoder() const;
 

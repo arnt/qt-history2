@@ -80,6 +80,7 @@ public:
     static const char* locale();
 
     virtual const char* name() const = 0;
+    virtual const char* mimeName() const;
     virtual int mibEnum() const = 0;
 
     virtual QTextDecoder* makeDecoder() const;

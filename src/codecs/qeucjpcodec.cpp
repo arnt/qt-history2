@@ -287,6 +287,11 @@ const char* QEucJpCodec::name() const
     return "eucJP";
 }
 
+const char* QEucJpCodec::mimeName() const
+{
+    return "EUC-JP";
+}
+
 /*!
   \reimp
 */

@@ -47,6 +47,7 @@ class Q_EXPORT QHebrewCodec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;
+    const char* mimeName() const;
 
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
     QString toUnicode(const char* chars, int len) const;

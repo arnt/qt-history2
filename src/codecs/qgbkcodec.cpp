@@ -97,8 +97,7 @@ QGbkCodec::QGbkCodec()
 /*! \reimp */
 int QGbkCodec::mibEnum() const
 {
-    /* There is no MIBEnum for GBK now */
-    return 2027;
+    return 2025;
 }
 
 /*! \reimp */
@@ -164,6 +163,11 @@ QString QGbkCodec::toUnicode(const char* chars, int len) const
 const char* QGbkCodec::name() const
 {
     return "GBK";
+}
+
+const char* QGbkCodec::mimeName() const
+{
+    return "GB2312";
 }
 
 /*! \reimp */
