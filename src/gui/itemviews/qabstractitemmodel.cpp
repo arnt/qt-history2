@@ -1146,11 +1146,13 @@ void QAbstractItemModel::revert()
   with the specified \a orientation.
 */
 
-QVariant QAbstractItemModel::headerData(int section, Qt::Orientation, int role) const
+QVariant QAbstractItemModel::headerData(int section, Qt::Orientation o, int role) const
 {
-    if (role == DisplayRole)
-        return QString::number(section + 1);
-    if (role == TextAlignmentRole)
+    if (role == DisplayRole) {
+        if ((o == Qt::Horizontal && section < rowCount())
+            || (o == Qt::Vertical && section < columnCount()))
+            return QString::number(section + 1);
+    } else if (role == TextAlignmentRole)
         return Qt::AlignVCenter;
     return QVariant();
 }
