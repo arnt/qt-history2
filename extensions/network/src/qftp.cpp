@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#24 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#25 $
 **
 ** Implementation of Network Extension Library
 **
@@ -96,21 +96,21 @@ bool QFtp::checkConnection( QNetworkOperation *op )
     if ( !commandSocket->host().isEmpty() && connectionReady &&
 	 !passiveMode )
 	return TRUE;
-    
+
     if ( !commandSocket->host().isEmpty() )
 	return FALSE;
-    
+
     connectionReady = FALSE;
-    if ( commandSocket->connectToHost( url->host(), url->port() != -1 ? url->port() : 21 ) ) {
+    if ( commandSocket->connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 ) ) {
 	if ( !dataSocket->host().isEmpty() )
 	    dataSocket->close();
     } else {
-	QString msg = tr( "Host not found: \n" + url->host() );
+	QString msg = tr( "Host not found: \n" + url()->host() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrHostNotFound );
     }
-    
+
     return FALSE;
 }
 
@@ -182,24 +182,24 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 
 void QFtp::hostFound()
 {
-    if ( url )
-	emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url->host() ) );
+    if ( url() )
+	emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
     else
 	emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
 }
 
 void QFtp::connected()
 {
-    if ( url )
-	emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url->host() ) );
+    if ( url() )
+	emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
     else
 	emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
 }
 
 void QFtp::closed()
 {
-    if ( url )
-	emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url->host() ) );
+    if ( url() )
+	emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
     else
 	emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
 }
@@ -209,26 +209,26 @@ void QFtp::readyRead()
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
-    
-    emit data( s, opInProgress );
 
-    if ( !url )
+    emit data( QString::fromLatin1( s ), operationInProgress() );
+
+    if ( !url() )
 	return;
 
     if ( s.left( 3 ) == "220" ) { // expect USERNAME
-	QString user = url->user().isEmpty() ? QString( "anonymous" ) : url->user();
+	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
 	QString cmd = "USER " + user + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
     } else if ( s.left( 3 ) == "331" ) { // expect PASSWORD
-	QString pass = url->pass().isEmpty() ? QString( "info@troll.no" ) : url->pass();
+	QString pass = url()->pass().isEmpty() ? QString( "info@troll.no" ) : url()->pass();
 	QString cmd = "PASS " + pass + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
     } else if ( s.left( 3 ) == "230" ) { // succesfully logged in
 	connectionReady = TRUE;
-    } else if ( s.left( 3 ) == "227" && opInProgress && 
-		opInProgress->operation() == OpListChildren ) { // open the data connection for LIST
+    } else if ( s.left( 3 ) == "227" && operationInProgress() &&
+		operationInProgress()->operation() == OpListChildren ) { // open the data connection for LIST
 	int i = s.find( "(" );
 	int i2 = s.find( ")" );
 	s = s.mid( i + 1, i2 - i - 1 );
@@ -237,16 +237,16 @@ void QFtp::readyRead()
 	QStringList lst = QStringList::split( ',', s );
 	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
 	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
-    } else if ( s.left( 3 ) == "250" && opInProgress && 
-		opInProgress->operation() == OpListChildren ) { // cwd succesfully, list dir
+    } else if ( s.left( 3 ) == "250" && operationInProgress() &&
+		operationInProgress()->operation() == OpListChildren ) { // cwd succesfully, list dir
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
-	emit start( opInProgress );
+	emit start( operationInProgress() );
     } else if ( s.left( 3 ) == "530" ) { // Login incorrect
 	close();
 	QString msg( tr( "Login Incorrect" ) );
-	if ( opInProgress )
-	    opInProgress->setProtocolDetail( msg );
-	emit finished( opInProgress );
+	if ( operationInProgress() )
+	    operationInProgress()->setProtocolDetail( msg );
+	emit finished( operationInProgress() );
     } else
 	;//qWarning( "unknown result: %s", s.data() );
 }
@@ -257,8 +257,8 @@ void QFtp::dataHostFound()
 
 void QFtp::dataConnected()
 {
-    if ( opInProgress && opInProgress->operation() == OpListChildren ) {
-	QString path = url->path().isEmpty() ? QString( "/" ) : url->path();
+    if ( operationInProgress() && operationInProgress()->operation() == OpListChildren ) {
+	QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
 	QString cmd = "CWD " + path + "\r\n";
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 	tmp = QString::null;
@@ -269,17 +269,17 @@ void QFtp::dataClosed()
 {
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     passiveMode = FALSE;
-    emit finished( opInProgress );
+    emit finished( operationInProgress() );
 }
 
 void QFtp::dataReadyRead()
 {
-    if ( opInProgress && opInProgress->operation() == OpListChildren ) {
+    if ( operationInProgress() && operationInProgress()->operation() == OpListChildren ) {
 	QCString s;
 	s.resize( dataSocket->bytesAvailable() );
 	dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
 	QString ss = QString::fromLatin1( s.copy() );
-	emit data( s, opInProgress );
+	emit data( ss, operationInProgress() );
 	if ( !tmp.isEmpty() )
 	    ss.prepend( tmp );
 	tmp = QString::null;
@@ -289,10 +289,10 @@ void QFtp::dataReadyRead()
 	    QUrlInfo inf;
 	    parseDir( *it, inf );
 	    if ( !inf.name().isEmpty() ) {
-		if ( url ) {
-		    QRegExp filt( url->nameFilter(), FALSE, TRUE );
+		if ( url() ) {
+		    QRegExp filt( url()->nameFilter(), FALSE, TRUE );
 		    if ( inf.isDir() || filt.match( inf.name() ) != -1 ) {
-			emit newChild( inf, opInProgress );
+			emit newChild( inf, operationInProgress() );
 		    }
 		}
 	    }
