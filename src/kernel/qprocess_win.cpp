@@ -545,25 +545,26 @@ void QProcess::flushStdin()
 */
 void QProcess::timeout()
 {
+    // Disable the timer temporary since one of the slots that are connected to
+    // the readyRead...(), etc. signals might trigger recursion if
+    // processEvents() is called.
+    d->lookup->stop();
+
     // try to write pending data to stdin
-    if ( !d->stdinBuf.isEmpty() ) {
+    if ( !d->stdinBuf.isEmpty() )
 	socketWrite( 0 );
-	// stop timer if it is not needed any longer
-	if ( d->stdinBuf.isEmpty() && !ioRedirection && !notifyOnExit )
-	    d->lookup->stop();
-    }
 
     if ( ioRedirection ) {
 	socketRead( 1 ); // try stdout
 	socketRead( 2 ); // try stderr
     }
 
-    // stop timer if process is not running also emit processExited() signal
-    if ( !isRunning() ) {
-	d->lookup->stop();
-	if ( notifyOnExit ) {
-	    emit processExited();
-	}
+    if ( isRunning() ) {
+	// enable timer again, if needed
+	if ( !d->stdinBuf.isEmpty() || ioRedirection || notifyOnExit )
+	    d->lookup->start( 100 );
+    } else if ( notifyOnExit ) {
+	emit processExited();
     }
 }
 
