@@ -295,14 +295,14 @@ bool RC2UI::makeDialog()
 		break;
 	    space = c==' ';
 	}
-	
+
 	QString desc = line.left(endDesc-1);
 	line = line.right( line.length() - endDesc );
 
 	className = parseNext( desc, ' ' );
 
- 	count = sscanf( line, "%d, %d, %d, %d", &x, &y, &w, &h );
-	
+ 	count = sscanf( line, "%u, %u, %u, %u", &x, &y, &w, &h );
+
 	if ( !count && count == EOF )
 	    return FALSE;
 
@@ -424,7 +424,7 @@ bool RC2UI::makeDialog()
 		widgetID = parseNext( arguments );
 		controlType = stripQM(parseNext( arguments ));
 		styles = splitStyles(parseNext( arguments ));
-		
+
 		if ( controlType == "Static" ) {
 		    ID = IDLabel;
 		} else if ( controlType == "Button" ) {
@@ -821,7 +821,7 @@ bool RC2UI::makeStringTable()
 	    line = in->readLine().stripWhiteSpace();
 	    if ( line == "END" )
 		continue;
-	
+
 	    ID = parseNext(line, ' ');
 	    value = parseNext(line).stripWhiteSpace();
 
