@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#72 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#73 $
 **
 ** Definition of QIconView widget class
 **
@@ -345,6 +345,8 @@ public:
     int spacing() const;
     virtual void setItemTextPos( ItemTextPos pos );
     ItemTextPos itemTextPos() const;
+    virtual void setItemTextBackground( const QBrush &b );
+    QBrush itemTextBackground() const;
     virtual void setAlignMode( AlignMode am );
     AlignMode alignMode() const;
     virtual void setResizeMode( ResizeMode am );
