@@ -645,6 +645,7 @@ bool QFtpPI::sendCommands( const QStringList &cmds )
 void QFtpPI::clearPendingCommands()
 {
     pendingCommands.clear();
+    dtp.abortConnection();
     currentCmd = QString::null;
     state = Idle;
 }
