@@ -10,23 +10,23 @@ class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
     Q_DECLARE_PUBLIC(QDateTimeEdit);
 public:
     enum SectionFlags {
-	None = 0x0000,
-	AMPM = 0x0001,
-	MSecs = 0x0002,
-	Seconds = 0x0004,
-	Minutes = 0x0008,
-	Hours = 0x0010,
-        TimeMask = (AMPM|MSecs|Seconds|Hours),
+	NoSection = 0x0000,
+	AMPMSection = 0x0001,
+	MSecsSection = 0x0002,
+	SecondsSection = 0x0004,
+	MinutesSection = 0x0008,
+	HoursSection = 0x0010,
+        TimeMask = (AMPMSection|MSecsSection|SecondsSection|HoursSection),
 	Internal = 0x8000,
-	AMPMLowerCase = AMPM|Internal,
-	Days = 0x0100,
-	Months = 0x0200,
-	Years = 0x0400,
-	MonthsShortName = Months|Internal,
-	YearsTwoDigits = Years|Internal,
-        DateMask = (Days|Months|Years),
-        First = 0x1000|Internal,
-        Last = 0x2000|Internal
+	AMPMLowerCaseSection = AMPMSection|Internal,
+	DaysSection = 0x0100,
+	MonthsSection = 0x0200,
+	YearsSection = 0x0400,
+	MonthsShortNameSection = MonthsSection|Internal,
+	YearsTwoDigitsSection = YearsSection|Internal,
+        DateMask = (DaysSection|MonthsSection|YearsSection),
+        FirstSection = 0x1000|Internal,
+        LastSection = 0x2000|Internal
     }; // duplicated from qdatetimeedit.h
 
     struct SectionNode {
@@ -96,8 +96,8 @@ public:
 
     \code
     QDateTimeEdit *dateEdit = new QDateTimeEdit(QDate::currentDate());
-    dateEdit->setMinimumDate(QDate::currentDate().addDays(-365));
-    dateEdit->setMaximumDate(QDate::currentDate().addDays(365));
+    dateEdit->setMinimumDate(QDate::currentDate().addDaysSection(-365));
+    dateEdit->setMaximumDate(QDate::currentDate().addDaysSection(365));
     dateEdit->setFormat("yyyy.MM.dd");
     \endcode
 
@@ -233,7 +233,7 @@ void QDateTimeEdit::setTime(const QTime &time)
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(), setMaximumTime(),
-    clearMinimum()
+    clearMinimum(), setTimeRange(), setDateRange()
 */
 
 QDate QDateTimeEdit::minimumDate() const
@@ -264,7 +264,7 @@ void QDateTimeEdit::clearMinimumDate()
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(),
-    setMaximumTime(), clearMinimumTime()
+    setMaximumTime(), clearMinimumTime(), setTimeRange(), setDateRange()
 */
 
 QDate QDateTimeEdit::maximumDate() const
@@ -295,7 +295,7 @@ void QDateTimeEdit::clearMaximumDate()
 
     \sa setMinimumTime(), maximumTime(), setMaximumTime(),
     clearMinimumTime(), setMinimumDate(), maximumDate(), setMaximumDate(),
-    clearMinimumDate()
+    clearMinimumDate(), setTimeRange(), setDateRange()
 */
 
 QTime QDateTimeEdit::minimumTime() const
@@ -326,7 +326,8 @@ void QDateTimeEdit::clearMinimumTime()
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(),
-    setMaximumTime(), clearMinimumTime()
+    setMaximumTime(), clearMinimumTime(), setTimeRange(),
+    setDateRange()
 */
 
 QTime QDateTimeEdit::maximumTime() const
@@ -345,6 +346,49 @@ void QDateTimeEdit::clearMaximumTime()
     d->setBoundary(Maximum, QCoreVariant(QDateTime(d->maximum.toDate(), TIME_MAX)));
 }
 
+/*!
+    Convenience function to set minimum and maximum date with one
+    function call.
+
+    setDateRange(min, max);
+
+       is equivalent to:
+
+    setMinimumDate(min);
+    setMaximumDate(max);
+
+    \sa setMinimumDate(), maximumDate(), setMaximumDate(),
+    clearMinimumDate(), setMinimumTime(), maximumTime(),
+    setMaximumTime(), clearMinimumTime()
+*/
+
+void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
+{
+    setMinimumDate(min);
+    setMaximumDate(max);
+}
+
+/*!
+    Convenience function to set minimum and maximum time with one
+    function call.
+
+    setTimeRange(min, max);
+
+       is equivalent to:
+
+    setMinimumTime(min);
+    setMaximumTime(max);
+
+    \sa setMinimumDate(), maximumDate(), setMaximumDate(),
+    clearMinimumDate(), setMinimumTime(), maximumTime(),
+    setMaximumTime(), clearMinimumTime()
+*/
+
+void QDateTimeEdit::setTimeRange(const QTime &min, const QTime &max)
+{
+    setMinimumTime(min);
+    setMaximumTime(max);
+}
 
 /*!
     \property QDateTimeEdit::display
@@ -376,11 +420,22 @@ void QDateTimeEdit::setCurrentSection(SectionFlags section)
 {
     const QDateTimeEditPrivate::SectionFlags s = (QDateTimeEditPrivate::SectionFlags)section;
     switch (s) {
-    case QDateTimeEditPrivate::First: d->edit->setCursorPosition(0); break;
-    case QDateTimeEditPrivate::Last: d->edit->setCursorPosition(d->edit->text().size()); break;
-    case QDateTimeEditPrivate::None: break;
+    case QDateTimeEditPrivate::FirstSection: d->edit->setCursorPosition(0); break;
+    case QDateTimeEditPrivate::LastSection: d->edit->setCursorPosition(d->edit->text().size()); break;
+    case QDateTimeEditPrivate::NoSection: break;
     default: d->edit->setCursorPosition(d->sectionNode((QDateTimeEditPrivate::SectionFlags)section).pos);
     }
+}
+
+/*!
+    Returns a the text of \a section
+
+    \a text(), cleanText(), currentSection()
+*/
+
+QString QDateTimeEdit::sectionText(SectionFlags s) const
+{
+    return d->sectionText(d->edit->displayText(), (QDateTimeEditPrivate::SectionFlags)s);
 }
 
 /*!
@@ -446,7 +501,7 @@ bool QDateTimeEdit::setFormat(const QString &format)
     if (d->parseFormat(format)) {
         d->sizehintdirty = true;
 	d->update();
-        d->currentsection = (d->sections.front().pos > 0 ? QDateTimeEditPrivate::First : d->sections.front().section);
+        d->currentsection = (d->sections.front().pos > 0 ? QDateTimeEditPrivate::FirstSection : d->sections.front().section);
         d->edit->setCursorPosition(0);
 	return true;
     }
@@ -524,7 +579,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             d->nextPrevSection(d->currentsection,
                                (e->key() == Key_Right || (e->key() == Key_Tab && !(e->state() & ShiftButton))));
         switch (newSection.section) {
-        case QDateTimeEditPrivate::None: case QDateTimeEditPrivate::First: case QDateTimeEditPrivate::Last: break;
+        case QDateTimeEditPrivate::NoSection: case QDateTimeEditPrivate::FirstSection: case QDateTimeEditPrivate::LastSection: break;
         default:
             if (select) {
                 d->setSelected(newSection.section); break;
@@ -544,7 +599,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Key_Next:
         fixcursor = true;
     default:
-        if (fixcursor && d->currentsection == QDateTimeEditPrivate::First) {
+        if (fixcursor && d->currentsection == QDateTimeEditPrivate::FirstSection) {
             setCurrentSection((SectionFlags)d->sections.front().section);
         }
         break;
@@ -564,9 +619,9 @@ void QDateTimeEdit::wheelEvent(QWheelEvent *e)
     if (s != d->currentsection)
         d->edit->setCursorPosition(d->sectionNode(s).pos);
     switch (s) {
-    case QDateTimeEditPrivate::None:
-    case QDateTimeEditPrivate::First:
-    case QDateTimeEditPrivate::Last:
+    case QDateTimeEditPrivate::NoSection:
+    case QDateTimeEditPrivate::FirstSection:
+    case QDateTimeEditPrivate::LastSection:
         break;
     default:
         QAbstractSpinBox::wheelEvent(e);
@@ -600,12 +655,12 @@ bool QDateTimeEdit::focusNextPrevChild(bool next)
 {
     const QDateTimeEditPrivate::SectionFlags newSection = d->nextPrevSection(d->currentsection, next).section;
     switch (newSection) {
-    case QDateTimeEditPrivate::None:
-    case QDateTimeEditPrivate::First:
-    case QDateTimeEditPrivate::Last:
+    case QDateTimeEditPrivate::NoSection:
+    case QDateTimeEditPrivate::FirstSection:
+    case QDateTimeEditPrivate::LastSection:
         break;
     default:
-        if (newSection != QDateTimeEditPrivate::None) {
+        if (newSection != QDateTimeEditPrivate::NoSection) {
             d->setSelected(newSection);
             return true;
         }
@@ -631,7 +686,7 @@ void QDateTimeEdit::stepBy(int steps)
 QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 {
     switch (d->currentsection) {
-    case QDateTimeEditPrivate::None: case QDateTimeEditPrivate::First: case QDateTimeEditPrivate::Last: return 0;
+    case QDateTimeEditPrivate::NoSection: case QDateTimeEditPrivate::FirstSection: case QDateTimeEditPrivate::LastSection: return 0;
     default: break;
     }
     if (d->wrapping)
@@ -663,10 +718,10 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     type = QCoreVariant::DateTime;
     display = (QDateTimeEdit::Section)0;
     cachedday = -1;
-    currentsection = oldsection = None;
-    first.section = First;
+    currentsection = oldsection = NoSection;
+    first.section = FirstSection;
     first.pos = 0;
-    last.section = Last;
+    last.section = LastSection;
     last.pos = -1;
     useprivate = true;
 }
@@ -728,7 +783,7 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
         const SectionFlags selSection = sectionAt(selstart);
         const int l = sectionLength(selSection);
 
-        if (s == None) {
+        if (s == NoSection) {
             if (l > 0 && selstart == sectionPos(selSection) && d->edit->selectedText().length() == l) {
                 s = selSection;
                 setSelected(selSection, true);
@@ -776,22 +831,22 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, SectionFlags s) const
 {
     switch(s) {
-    case Hours: {
+    case HoursSection: {
         int h = t.toTime().hour();
-        if (display & AMPM) {
+        if (display & AMPMSection) {
             h = h % 12;
             return h == 0 ? 12 : h;
         } else {
             return t.toTime().hour();
         }
     }
-    case Minutes: return t.toTime().minute();
-    case Seconds: return t.toTime().second();
-    case MSecs: return t.toTime().msec();
-    case Years: return t.toDate().year();
-    case MonthsShortName:
-    case Months: return t.toDate().month();
-    case Days: return t.toDate().day();
+    case MinutesSection: return t.toTime().minute();
+    case SecondsSection: return t.toTime().second();
+    case MSecsSection: return t.toTime().msec();
+    case YearsSection: return t.toDate().year();
+    case MonthsShortNameSection:
+    case MonthsSection: return t.toDate().month();
+    case DaysSection: return t.toDate().day();
     default: break;
     }
     qFatal("%s passed to getDigit. This should never happen", sectionName(s).latin1());
@@ -823,22 +878,22 @@ void QDateTimeEditPrivate::setDigit(QCoreVariant *v, SectionFlags section, int n
     msec = dt.time().msec();
 
     switch(section) {
-    case Hours: hour = newVal; break;
-    case Minutes: minute = newVal; break;
-    case Seconds: second = newVal; break;
-    case MSecs: msec = newVal; break;
-    case Years: year = newVal; break;
-    case Months:
-    case MonthsShortName: month = newVal; break;
-    case Days: day = newVal; break;
-    case AMPM:
-    case AMPMLowerCase: hour = (newVal == 0 ? hour % 12 : (hour % 12) + 12); break;
+    case HoursSection: hour = newVal; break;
+    case MinutesSection: minute = newVal; break;
+    case SecondsSection: second = newVal; break;
+    case MSecsSection: msec = newVal; break;
+    case YearsSection: year = newVal; break;
+    case MonthsSection:
+    case MonthsShortNameSection: month = newVal; break;
+    case DaysSection: day = newVal; break;
+    case AMPMSection:
+    case AMPMLowerCaseSection: hour = (newVal == 0 ? hour % 12 : (hour % 12) + 12); break;
     default:
         qFatal("%s passed to setDigit. This should never happen", sectionName(section).latin1());
         break;
     }
 
-    if (section != Days)
+    if (section != DaysSection)
 	day = qMax(cachedday, day);
 
     if (!QDate::isValid(year, month, day)) {
@@ -850,7 +905,7 @@ void QDateTimeEditPrivate::setDigit(QCoreVariant *v, SectionFlags section, int n
 	}
     }
 
-    if (section == Days)
+    if (section == DaysSection)
 	cachedday = day;
 
     *v = QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
@@ -887,7 +942,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(SectionFlags s, int steps, bool test) 
         }
     }
 
-    if (s == Hours && display & AMPM) {
+    if (s == HoursSection && display & AMPMSection) {
 	if (val % 12 == 0 && steps < 0) {
 	    val = wrapping ? val + 12 + steps : 12;
 	} else if (val % 12 == 11 && steps > 0) {
@@ -908,7 +963,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(SectionFlags s, int steps, bool test) 
     }
 
     int tmp = v.toDate().day();
-    if (!test && s == Days)
+    if (!test && s == DaysSection)
 	cachedday = val;
 
     setDigit(&v, s, val); // if this sets year or month it will make sure that days is lowered if needed.
@@ -928,17 +983,17 @@ QCoreVariant QDateTimeEditPrivate::stepBy(SectionFlags s, int steps, bool test) 
 inline int QDateTimeEditPrivate::absoluteMax(SectionFlags s) const
 {
     switch(s) {
-    case Hours: return (display & AMPM ? 12 : 23);
-    case Minutes:
-    case Seconds: return 59;
-    case MSecs: return 999;
-    case YearsTwoDigits: return 99;
-    case Years: return 7999;
-    case Months:
-    case MonthsShortName: return 12;
-    case Days: return 31;
-    case AMPM:
-    case AMPMLowerCase: return 1;
+    case HoursSection: return (display & AMPMSection ? 12 : 23);
+    case MinutesSection:
+    case SecondsSection: return 59;
+    case MSecsSection: return 999;
+    case YearsTwoDigitsSection: return 99;
+    case YearsSection: return 7999;
+    case MonthsSection:
+    case MonthsShortNameSection: return 12;
+    case DaysSection: return 31;
+    case AMPMSection:
+    case AMPMLowerCaseSection: return 1;
     default: break;
     }
     qFatal("%s passed to max. This should never happen", sectionName(s).latin1());
@@ -955,17 +1010,17 @@ inline int QDateTimeEditPrivate::absoluteMax(SectionFlags s) const
 inline int QDateTimeEditPrivate::absoluteMin(SectionFlags s) const
 {
     switch(s) {
-    case Hours: return (display & AMPM ? 1 : 0);
-    case Minutes:
-    case Seconds:
-    case MSecs: return 0;
-    case YearsTwoDigits: return 0;
-    case Years: return 1752;
-    case Months:
-    case MonthsShortName:
-    case Days: return 1;
-    case AMPM:
-    case AMPMLowerCase: return 0;
+    case HoursSection: return (display & AMPMSection ? 1 : 0);
+    case MinutesSection:
+    case SecondsSection:
+    case MSecsSection: return 0;
+    case YearsTwoDigitsSection: return 0;
+    case YearsSection: return 1752;
+    case MonthsSection:
+    case MonthsShortNameSection:
+    case DaysSection: return 1;
+    case AMPMSection:
+    case AMPMLowerCaseSection: return 0;
     default: break;
     }
     qFatal("%s passed to min. This should never happen", sectionName(s).latin1());
@@ -980,9 +1035,9 @@ inline int QDateTimeEditPrivate::absoluteMin(SectionFlags s) const
 
 QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::sectionNode(SectionFlags s) const
 {
-    if (s == First) {
+    if (s == FirstSection) {
         return first;
-    } else if (s == Last) {
+    } else if (s == LastSection) {
         return last;
     }
 
@@ -990,7 +1045,7 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::sectionNode(SectionFlags
 	if (sections.at(i).section == s)
 	    return sections.at(i);
     SectionNode sn;
-    sn.section = None;
+    sn.section = NoSection;
     sn.pos = -1;
     return sn;
 }
@@ -1003,9 +1058,9 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::sectionNode(SectionFlags
 
 int QDateTimeEditPrivate::sectionPos(SectionFlags s) const
 {
-    if (s == First) {
+    if (s == FirstSection) {
         return first.pos;
-    } else if (s == Last) {
+    } else if (s == LastSection) {
         return last.pos;
     }
 
@@ -1031,7 +1086,7 @@ QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::addSection(QList<Sectio
     s.section = ds;
     s.pos = pos;
     *list << s;
-    return None;
+    return NoSection;
 }
 
 
@@ -1044,9 +1099,9 @@ QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::addSection(QList<Sectio
 void QDateTimeEditPrivate::setSelected(SectionFlags s, bool forward)
 {
     switch (s) {
-    case None:
-    case Last:
-    case First:
+    case NoSection:
+    case LastSection:
+    case FirstSection:
         return;
     default: break;
     }
@@ -1066,47 +1121,47 @@ void QDateTimeEditPrivate::setSelected(SectionFlags s, bool forward)
 
 bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not escape yet
 {
-    SectionFlags error = None;
+    SectionFlags error = NoSection;
     QList<SectionNode> list;
     QDateTimeEdit::Section newDisplay = 0;
     QStringList newSeparators;
     int i, index = 0;
-    for (i = 0; error == None && i<(int)newFormat.length(); ++i) {
+    for (i = 0; error == NoSection && i<(int)newFormat.length(); ++i) {
 	if (i + 1 < newFormat.length()) {
 	    switch (newFormat.at(i).cell()) {
 	    case 'h':
 		if (newFormat.at(i+1) == 'h') {
-                    error = addSection(&list, Hours, i);
+                    error = addSection(&list, HoursSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = ++i + 1;
-		    newDisplay |= QDateTimeEdit::Hours;
+		    newDisplay |= QDateTimeEdit::HoursSection;
 		    continue;
 		}
 		break;
 	    case 'm':
 		if (newFormat.at(i+1) == 'm') {
-                    error = addSection(&list, Minutes, i);
+                    error = addSection(&list, MinutesSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = ++i + 1;
-		    newDisplay |= QDateTimeEdit::Minutes;
+		    newDisplay |= QDateTimeEdit::MinutesSection;
 		    continue;
 		}
 		break;
 	    case 's':
 		if (newFormat.at(i+1) == 's') {
-                    error = addSection(&list, Seconds, i);
+                    error = addSection(&list, SecondsSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = ++i + 1;
-		    newDisplay |= QDateTimeEdit::Seconds;
+		    newDisplay |= QDateTimeEdit::SecondsSection;
 		    continue;
 		}
 		break;
 	    case 'z':
 		if (i + 2 <(int)newFormat.length() && newFormat.at(i+1) == 'z' && newFormat.at(i+2) == 'z') {
-		    error = addSection(&list, MSecs, i);
+		    error = addSection(&list, MSecsSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = (i += 2) + 1;
-		    newDisplay |= QDateTimeEdit::MSecs;
+		    newDisplay |= QDateTimeEdit::MSecsSection;
 		    continue;
 		}
 		break;
@@ -1114,40 +1169,40 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not
 	    case 'a': {
 		const bool cap = newFormat.at(i).latin1() == 'A';
 		if (newFormat.at(i+1) == (cap ? 'P' : 'p')) {
-		    error = addSection(&list, cap ? AMPM : AMPMLowerCase, i);
+		    error = addSection(&list, cap ? AMPMSection : AMPMLowerCaseSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = ++i + 1;
-		    newDisplay |= QDateTimeEdit::AMPM;
+		    newDisplay |= QDateTimeEdit::AMPMSection;
 		    continue;
 		}
 		break; }
 	    case 'y':
 		if (newFormat.at(i+1) == 'y') {
 		    const bool four = (i + 3 <(int)newFormat.length() && newFormat.at(i+2) == 'y' && newFormat.at(i+3) == 'y');
-		    error = addSection(&list, four ? Years : YearsTwoDigits, i);
+		    error = addSection(&list, four ? YearsSection : YearsTwoDigitsSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = (i += (four ? 3 : 1)) + 1;
-		    newDisplay |= QDateTimeEdit::Years;
+		    newDisplay |= QDateTimeEdit::YearsSection;
 		    continue;
 		}
 		break;
 	    case 'M':
 		if (newFormat.at(i+1) == 'M') {
 		    const bool three = (i + 2 <(int)newFormat.length() && newFormat.at(i+2) == 'M');
-		    error = addSection(&list, three ? MonthsShortName : Months, i);
+		    error = addSection(&list, three ? MonthsShortNameSection : MonthsSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = (i += (three ? 2 : 1)) + 1;
-		    newDisplay |= QDateTimeEdit::Months;
+		    newDisplay |= QDateTimeEdit::MonthsSection;
 		    continue;
 		}
 		break;
 
 	    case 'd':
 		if (newFormat.at(i+1) == 'd') {
-		    error = addSection(&list, Days, i);
+		    error = addSection(&list, DaysSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = ++i + 1;
-		    newDisplay |= QDateTimeEdit::Days;
+		    newDisplay |= QDateTimeEdit::DaysSection;
 		    continue;
 		}
 		break;
@@ -1155,7 +1210,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not
 	    }
 	}
     }
-    if (error != None) {
+    if (error != NoSection) {
 	qWarning("Could not parse format. '%s' occurs twice in '%s'.",
 		 sectionName(error).latin1(), newFormat.latin1());
 	return false;
@@ -1181,24 +1236,24 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not
 /*!
     \internal
 
-    Returns the section at index \a index or None if there are no sections there.
+    Returns the section at index \a index or NoSection if there are no sections there.
 */
 
 QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::sectionAt(int index) const
 {
     if (index < separators.front().size()) {
-        return (index == 0 ? First : None);
+        return (index == 0 ? FirstSection : NoSection);
     } else if (format.size() - index < separators.back().size() + 1) {
-        return (index == last.pos ? Last : None);
+        return (index == last.pos ? LastSection : NoSection);
     }
     for (int i=0; i<sections.size(); ++i) {
 	int tmp = sections.at(i).pos;
         if (index < tmp + sectionLength(sections.at(i).section)) {
-            return (index < tmp ? None : sections.at(i).section);
+            return (index < tmp ? NoSection : sections.at(i).section);
         }
     }
-    qWarning("%d index return None. This should not happen", index);
-    return None;
+    qWarning("%d index return NoSection. This should not happen", index);
+    return NoSection;
 }
 
 /*!
@@ -1211,9 +1266,9 @@ QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::sectionAt(int index) co
 QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::closestSection(int index, bool forward) const
 {
     if (index < separators.front().size()) {
-        return forward ? sections.front().section : First;
+        return forward ? sections.front().section : FirstSection;
     } else if (last.pos - index < separators.back().size() + 1) {
-        return forward ? Last : sections.back().section;
+        return forward ? LastSection : sections.back().section;
     }
     for (int i=0; i<sections.size(); ++i) {
 	int tmp = sections.at(i).pos;
@@ -1225,8 +1280,8 @@ QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::closestSection(int inde
             return sections.at(i).section;
         }
     }
-    qWarning("2index return None. This should not happen");
-    return None;
+    qWarning("2index return NoSection. This should not happen");
+    return NoSection;
 }
 
 /*!
@@ -1237,9 +1292,9 @@ QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::closestSection(int inde
 
 QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(SectionFlags current, bool forward) const
 {
-    if (current == First) {
+    if (current == FirstSection) {
         return (forward ? sections.front() : first);
-    } else if (current == Last) {
+    } else if (current == LastSection) {
         return (forward ? last : sections.back());
     }
     for (int i=0; i<sections.size(); ++i) {
@@ -1282,23 +1337,23 @@ void QDateTimeEditPrivate::clearSection(SectionFlags s)
 inline int QDateTimeEditPrivate::sectionLength(SectionFlags s) const
 {
     switch(s) {
-    case First:
-    case None:
-    case Last: return 0;
+    case FirstSection:
+    case NoSection:
+    case LastSection: return 0;
 
-    case Hours:
-    case Minutes:
-    case Seconds:
-    case AMPM:
-    case AMPMLowerCase:
-    case Days:
-    case Months:
-    case YearsTwoDigits: return 2;
+    case HoursSection:
+    case MinutesSection:
+    case SecondsSection:
+    case AMPMSection:
+    case AMPMLowerCaseSection:
+    case DaysSection:
+    case MonthsSection:
+    case YearsTwoDigitsSection: return 2;
 
-    case MonthsShortName:
-    case MSecs: return 3;
+    case MonthsShortNameSection:
+    case MSecsSection: return 3;
 
-    case Years: return 4;
+    case YearsSection: return 4;
 
     case Internal:
     case TimeMask:
@@ -1318,7 +1373,7 @@ inline int QDateTimeEditPrivate::sectionLength(SectionFlags s) const
 QString QDateTimeEditPrivate::sectionText(const QString &text, SectionFlags s) const
 {
     const SectionNode sn = sectionNode(s);
-    return sn.section == None ? QString() : text.mid(sn.pos, sectionLength(s));
+    return sn.section == NoSection ? QString() : text.mid(sn.pos, sectionLength(s));
 }
 
 /*!
@@ -1333,10 +1388,10 @@ QString QDateTimeEditPrivate::toString(const QCoreVariant &var) const
     for (int i=0; i<sections.size(); ++i) {
 	int l = sectionLength(sections.at(i).section);
 	ret.remove(sections.at(i).pos, l);
-	if (sections.at(i).section == AMPM || sections.at(i).section == AMPMLowerCase) {
+	if (sections.at(i).section == AMPMSection || sections.at(i).section == AMPMLowerCaseSection) {
 	    QString input = var.toTime().hour() > 11 ? "pm" : "am"; // ### might be wrong
-	    ret.insert(sections.at(i).pos, sections.at(i).section == AMPM ? input.toUpper() : input);
-	} else if (sections.at(i).section == MonthsShortName) {
+	    ret.insert(sections.at(i).pos, sections.at(i).section == AMPMSection ? input.toUpper() : input);
+	} else if (sections.at(i).section == MonthsShortNameSection) {
 	    ret.insert(sections.at(i).pos, QDate::shortMonthName(var.toDate().month()));
 	} else {
 	    ret.insert(sections.at(i).pos, QString::number(getDigit(var, sections.at(i).section)).rightJustified(l, '0'));
@@ -1368,7 +1423,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
         }
     }
 
-    if (oldsection != Days && day < cachedday)
+    if (oldsection != DaysSection && day < cachedday)
 	day = cachedday;
 
     if (state == QValidator::Acceptable && (display & DateMask) && !QDate::isValid(year, month, day)) {
@@ -1380,7 +1435,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
 	}
     }
 
-    if (oldsection == Days)
+    if (oldsection == DaysSection)
 	cachedday = day;
 
     if (stateptr)
@@ -1411,10 +1466,10 @@ inline int QDateTimeEditPrivate::sectionValue(SectionFlags s, QString *text, QVa
         const int length = sectionLength(s);
         const bool done = !st.contains(' ');
         switch(s) {
-        case AMPM:
-        case AMPMLowerCase: {
+        case AMPMSection:
+        case AMPMLowerCaseSection: {
             st = st.toLower();
-            text->replace(index, length, (s == AMPM ? text->mid(index, length).toUpper() : text->mid(index, length).toLower()));
+            text->replace(index, length, (s == AMPMSection ? text->mid(index, length).toUpper() : text->mid(index, length).toLower()));
             if (done) {
                 num = (st == "am" ? 0 : (st == "pm" ? 1 : -1));
                 state = (num == -1 ? QValidator::Invalid : QValidator::Acceptable);
@@ -1423,7 +1478,7 @@ inline int QDateTimeEditPrivate::sectionValue(SectionFlags s, QString *text, QVa
             }
             break;
         }
-        case MonthsShortName: {
+        case MonthsShortNameSection: {
             if (!done) {
                 state = QValidator::Intermediate;
                 for (int i=0; i<st.size(); ++i) {
@@ -1447,14 +1502,14 @@ inline int QDateTimeEditPrivate::sectionValue(SectionFlags s, QString *text, QVa
             }
             break;
         }
-        case YearsTwoDigits: num = 1900;
-        case Years:
-        case Months:
-        case Hours:
-        case Minutes:
-        case Seconds:
-        case MSecs:
-        case Days: {
+        case YearsTwoDigitsSection: num = 1900;
+        case YearsSection:
+        case MonthsSection:
+        case HoursSection:
+        case MinutesSection:
+        case SecondsSection:
+        case MSecsSection:
+        case DaysSection: {
             bool ok;
             num += (int)(st.toUInt(&ok));
             if (!ok) {
@@ -1470,7 +1525,7 @@ inline int QDateTimeEditPrivate::sectionValue(SectionFlags s, QString *text, QVa
             }
             break;
         }
-        default: qFatal("None or Internal. This should never happen"); break; }
+        default: qFatal("NoSection or Internal. This should never happen"); break; }
     }
 
     if (stateptr)
@@ -1490,7 +1545,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     int diff = input->size() - format.size();
     if (diff > 0) {
         const SectionFlags s = (pos ? closestSection(*pos - 1, false) : currentsection);
-        if (s == First && s == Last) {
+        if (s == FirstSection && s == LastSection) {
 //            qDebug("invalid because s == %s", sectionName(s).latin1());
             return QValidator::Invalid;
         }
@@ -1508,7 +1563,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
         input->replace(sectionstart, sectionlength + diff, sub.leftJustified(sectionlength, ' '));
     } else if (diff < 0) {
         const SectionFlags s = (pos ? closestSection(*pos, false) : currentsection);
-        if (s == First && s == Last) {
+        if (s == FirstSection && s == LastSection) {
 //            qDebug(".invalid because s == %s", sectionName(s).latin1());
             return QValidator::Invalid;
         }
@@ -1559,20 +1614,20 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
 QString QDateTimeEditPrivate::sectionName(int s)
 {
     switch(s) {
-    case QDateTimeEditPrivate::AMPM: return "AMPM";
-    case QDateTimeEditPrivate::AMPMLowerCase: return "AMPMLowerCase";
-    case QDateTimeEditPrivate::Days: return "Days";
-    case QDateTimeEditPrivate::Hours: return "Hours";
-    case QDateTimeEditPrivate::MSecs: return "MSecs";
-    case QDateTimeEditPrivate::Minutes: return "Minutes";
-    case QDateTimeEditPrivate::Months: return "Months";
-    case QDateTimeEditPrivate::MonthsShortName: return "MonthsShortName";
-    case QDateTimeEditPrivate::Seconds: return "Seconds";
-    case QDateTimeEditPrivate::Years: return "Years";
-    case QDateTimeEditPrivate::YearsTwoDigits: return "YearsTwoDigits";
-    case QDateTimeEditPrivate::None: return "None";
-    case QDateTimeEditPrivate::First: return "First";
-    case QDateTimeEditPrivate::Last: return "Last";
+    case QDateTimeEditPrivate::AMPMSection: return "AMPMSection";
+    case QDateTimeEditPrivate::AMPMLowerCaseSection: return "AMPMLowerCaseSection";
+    case QDateTimeEditPrivate::DaysSection: return "DaysSection";
+    case QDateTimeEditPrivate::HoursSection: return "HoursSection";
+    case QDateTimeEditPrivate::MSecsSection: return "MSecsSection";
+    case QDateTimeEditPrivate::MinutesSection: return "MinutesSection";
+    case QDateTimeEditPrivate::MonthsSection: return "MonthsSection";
+    case QDateTimeEditPrivate::MonthsShortNameSection: return "MonthsShortNameSection";
+    case QDateTimeEditPrivate::SecondsSection: return "SecondsSection";
+    case QDateTimeEditPrivate::YearsSection: return "YearsSection";
+    case QDateTimeEditPrivate::YearsTwoDigitsSection: return "YearsTwoDigitsSection";
+    case QDateTimeEditPrivate::NoSection: return "NoSection";
+    case QDateTimeEditPrivate::FirstSection: return "FirstSection";
+    case QDateTimeEditPrivate::LastSection: return "LastSection";
     default: return "Unknown section " + QString::number(s);
     }
 }

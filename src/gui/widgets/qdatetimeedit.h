@@ -23,15 +23,15 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 
 public:
     enum SectionFlags {
-	None = 0x0000,
-	AMPM = 0x0001,
-	MSecs = 0x0002,
-	Seconds = 0x0004,
-	Minutes = 0x0008,
-	Hours = 0x0010,
-	Days = 0x0100,
-	Months = 0x0200,
-	Years = 0x0400
+	NoSection = 0x0000,
+	AMPMSection = 0x0001,
+	MSecsSection = 0x0002,
+	SecondsSection = 0x0004,
+	MinutesSection = 0x0008,
+	HoursSection = 0x0010,
+	DaysSection = 0x0100,
+	MonthsSection = 0x0200,
+	YearsSection = 0x0400
     };
 
     Q_DECLARE_FLAGS(Section, SectionFlags);
@@ -52,6 +52,8 @@ public:
     void setMaximumDate(const QDate &max);
     void clearMaximumDate();
 
+    void setDateRange(const QDate &min, const QDate &max);
+
     QTime minimumTime() const;
     void setMinimumTime(const QTime &min);
     void clearMinimumTime();
@@ -60,10 +62,13 @@ public:
     void setMaximumTime(const QTime &max);
     void clearMaximumTime();
 
-    Section display() const;
+    void setTimeRange(const QTime &min, const QTime &max);
 
+    Section display() const;
     SectionFlags currentSection() const;
     void setCurrentSection(SectionFlags section);
+
+    QString sectionText(SectionFlags s) const;
 
     QString format() const;
     bool setFormat(const QString &format);
