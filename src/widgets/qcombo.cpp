@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#15 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#15 $";
 #endif
 
 /*!
@@ -418,10 +418,10 @@ void QComboBox::internalHighlight( int index )
 
 
 /*!
-Reimplements the virtual function QWidget::setBackgroundColor().
+  Reimplements QWidget::setBackgroundColor().
 
-Sets the background color for both the combo box button and the
-combo box popup list.
+  Sets the background color for both the combo box button and the
+  combo box popup list.
 */
 
 void QComboBox::setBackgroundColor( const QColor &color )
@@ -431,10 +431,10 @@ void QComboBox::setBackgroundColor( const QColor &color )
 }
 
 /*!
-Reimplementes the virtual function QWidget::setPalette().
+  Reimplements QWidget::setPalette().
 
-Sets the palette for both the combo box button and the
-combo box popup list.
+  Sets the palette for both the combo box button and the
+  combo box popup list.
 */
 
 void QComboBox::setPalette( const QPalette &palette )
@@ -444,10 +444,10 @@ void QComboBox::setPalette( const QPalette &palette )
 }
 
 /*!
-Reimplementes the virtual function QWidget::setFont().
+  Reimplements QWidget::setFont().
 
-Sets the font for both the combo box button and the
-combo box popup list.
+  Sets the font for both the combo box button and the
+  combo box popup list.
 */
 
 void QComboBox::setFont( const QFont &font )
