@@ -25,7 +25,7 @@
 \row \o QEvent::IMStart \o QCoreEvent::InputMethodStart
 \row \o QEvent::IconChange \o QCoreEvent::WindowIconChange
 \row \o QFileInfo::ExeGroup \o QFile::ExeGroup
-\row \o QFileInfo::ExeOther \o QFile::ExeOthe
+\row \o QFileInfo::ExeOther \o QFile::ExeOther
 \row \o QFileInfo::ExeOwner \o QFile::ExeOwner
 \row \o QFileInfo::ExeUser \o QFile::ExeUser
 \row \o QFileInfo::ReadGroup \o QFile::ReadGroup
