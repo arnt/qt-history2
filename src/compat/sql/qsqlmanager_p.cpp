@@ -20,6 +20,7 @@
 #include "qcursor.h"
 #include "qwidget.h"
 #include "qsqlcursor.h"
+#include "qsqlfield.h"
 #include "qsqlform.h"
 #include "qsqldriver.h"
 #include "qstring.h"

@@ -28,6 +28,7 @@
 //
 
 #ifndef QT_H
+#include "qcorevariant.h"
 #include "qglobal.h"
 #include "qstring.h"
 #include "qstringlist.h"

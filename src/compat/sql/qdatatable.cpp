@@ -19,6 +19,7 @@
 #include "qevent.h"
 #include "qsqldriver.h"
 #include "qsqleditorfactory.h"
+#include "qsqlfield.h"
 #include "qsqlpropertymap.h"
 #include "qapplication.h"
 #include "qlayout.h"

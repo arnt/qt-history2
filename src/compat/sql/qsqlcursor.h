@@ -16,6 +16,7 @@
 #define QSQLCURSOR_H
 
 #ifndef QT_H
+#include "qcorevariant.h"
 #include "qsqldatabase.h"
 #include "qsqlrecord.h"
 #include "qstringlist.h"
