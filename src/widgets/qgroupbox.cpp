@@ -354,6 +354,9 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     }
 }
 
+/*!
+  Reimplemented to layout new children as they are inserted.
+*/
 void QGroupBox::childEvent( QChildEvent *c )
 {
     // Similar to QGrid::childEvent()
