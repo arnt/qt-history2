@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#140 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#139 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#140 $");
 
 
 /*!
@@ -206,19 +206,17 @@ QWidget::~QWidget()
 	QFontMetrics::reset( this );
     if ( testWFlags(WExportFontInfo) )		// remove references to this
 	QFontInfo::reset( this );
-    if ( childObjects ) {			// widget has children
-	register QObject *obj = childObjects->first();
-	while ( obj ) {				// delete all child objects
-#if defined(_WS_WIN_)
-	    if ( obj->isWidgetType() ) {	// is child widget
-		QWidget *w = (QWidget *)obj;
-		w->clearWFlags( WState_Created );
-		w->setWinId( 0 );		// Windows destroys children
-	    }
-#endif
-	    obj->parentObj = 0;			// object should not remove
-	    delete obj;				//   itself from the list
-	    obj = childObjects->next();
+
+    // A parent widget must destroy all its children before destroying itself
+    if ( childObjects ) {			// delete children objects
+	QObjectListIt it(*childObjects);
+	QObject *obj;
+	while ( (obj=it.current()) ) {
+	    ++it;
+	    obj->parentObj = 0;
+	    delete obj;
+	    if ( !childObjects )		// removeChild resets it
+		break;
 	}
 	delete childObjects;
 	childObjects = 0;
