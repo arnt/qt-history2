@@ -18,7 +18,6 @@ libraries.
 \list
 \i \bold{QtCore}: core non-GUI functionality
 \i \bold{QtGui}: core GUI functionality
-\i \bold{QtCanvas}: canvas module
 \i \bold{QtNetwork}: network module
 \i \bold{QtOpenGL}: OpenGL module
 \i \bold{QtSql}: SQL module
@@ -54,7 +53,7 @@ dependency upon QtGui, add the line
 to your .pro file. To enable the other libraries, add the line
 
 \code
-    QT += canvas network opengl sql compat
+    QT += network opengl sql compat
 \endcode
 
 Another change to the build system is that moc now understands
@@ -95,7 +94,7 @@ still works for compatibility.
 
 If you attempt to include a header file from a library that isn't
 linked against the application, this will result in a compile-time
-warning (e.g., "QCanvas: No such file or directory"). You can remedy
+warning (e.g., "QSqlQuery: No such file or directory"). You can remedy
 to this problem either by removing the offending include or by
 specifying the missing library in the QT entry of your .pro file (see
 Build System above).
