@@ -112,8 +112,6 @@ New classes
 - QIconFactory
 - QOCI9Result
 - QMutexLocker
-A simple class to make handling of Mutex locking and unlocking easier.
-
 - QBackInsertIterator
 - QSyntaxHighlighter
 - QEventLoop
