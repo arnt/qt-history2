@@ -54,6 +54,7 @@ public:
 
     int findItemAt(const QPoint &pos) const;    
     QRect itemInfo(int index) const;
+    int indexOf(QWidget *widget) const;
 
     void adjustIndicator(const QPoint &pos, int index);
     

@@ -225,6 +225,10 @@ void InsertWidgetCommand::undo()
     if (QLayoutWidget *g = qt_cast<QLayoutWidget*>(parentWidget)) {
         g->removeWidget(m_widget);
         formWindow()->emitGeometryChanged(parentWidget);
+    } else if (hasLayout(parentWidget)) {
+        QLayoutSupport support(formWindow(), parentWidget);
+        support.removeWidget(m_widget);
+        formWindow()->emitGeometryChanged(parentWidget);
     }
     
     formWindow()->unmanageWidget(m_widget);
@@ -318,6 +322,13 @@ void DeleteWidgetCommand::init(QWidget *widget)
 
 void DeleteWidgetCommand::redo()
 {
+    if (QLayoutWidget *g = qt_cast<QLayoutWidget*>(m_parentWidget)) {
+        g->removeWidget(m_widget);
+    } else if (hasLayout(m_parentWidget)) {
+        QLayoutSupport support(formWindow(), m_parentWidget);
+        support.removeWidget(m_widget);
+    }
+
     formWindow()->unmanageWidget(m_widget);
     m_widget->hide();    
     m_widget->setParent(formWindow());

@@ -469,9 +469,34 @@ QLayoutSupport::~QLayoutSupport()
         m_indicatorBottom->deleteLater();
 }
 
+int QLayoutSupport::indexOf(QWidget *widget) const
+{
+    if (!layout())
+        return -1;
+        
+    int index = 0;
+    while (QLayoutItem *item = layout()->itemAt(index)) {        
+        if (item->widget() == widget)
+            return index;
+            
+        ++index;
+    }
+    
+    return -1;
+}
+
 void QLayoutSupport::removeWidget(QWidget *widget)
 {
-    qDebug() << "QLayoutSupport::removeWidget:" << widget;
+    int index = indexOf(widget);
+    if (index != -1) {
+        // ### take the item
+        if (QGridLayout *grid = qt_cast<QGridLayout*>(layout())) {
+            int row, column, rowspan, colspan;
+            grid->getItemPosition(index, &row, &column, &rowspan, &colspan);
+            QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum);
+            grid->addItem(spacer, row, column, rowspan, colspan);
+        }
+    }
 }
 
 QList<QWidget*> QLayoutSupport::widgets(QLayout *layout)
