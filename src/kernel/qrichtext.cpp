@@ -319,6 +319,42 @@ QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
     return c;
 }
 
+QTextAlignmentCommand::QTextAlignmentCommand( QTextDocument *d, int fParag, int lParag, int na, const QArray<int> &oa )
+    : QTextCommand( d ), firstParag( fParag ), lastParag( lParag ), newAlign( na ), oldAligns( oa )
+{
+}
+
+QTextCursor *QTextAlignmentCommand::execute( QTextCursor *c )
+{
+    QTextParag *p = doc->paragAt( firstParag );
+    if ( !p )
+	return c;
+    while ( p ) {
+	p->setAlignment( newAlign );
+	if ( p->paragId() == lastParag )
+	    break;
+	p = p->next();
+    }
+    return c;
+}
+
+QTextCursor *QTextAlignmentCommand::unexecute( QTextCursor *c )
+{
+    QTextParag *p = doc->paragAt( firstParag );
+    if ( !p )
+	return c;
+    int i = 0;
+    while ( p ) {
+	if ( i < (int)oldAligns.size() )
+	    p->setAlignment( oldAligns.at( i ) );
+	if ( p->paragId() == lastParag )
+	    break;
+	p = p->next();
+	++i;
+    }
+    return c;
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextCursor::QTextCursor( QTextDocument *d )

@@ -65,6 +65,8 @@ struct QUndoRedoInfoPrivate
     QTextString text;
 };
 
+static bool block_set_alignment = FALSE;
+
 /*!
   \class QTextView qtextview.h
   \brief The QTextView class provides a sophisticated, single-page rich text viewer.
@@ -522,11 +524,8 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	}
     }	
 
-    if ( clearUndoRedoInfo ) {
-	undoRedoInfo.clear();
-	emitUndoAvailable( doc->commands()->isUndoAvailable() );
-	emitRedoAvailable( doc->commands()->isRedoAvailable() );
-    }
+    if ( clearUndoRedoInfo )
+	clearUndoRedo();
     changeIntervalTimer->start( 100, TRUE );
 }
 
@@ -700,9 +699,7 @@ void QTextView::removeSelectedText()
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
-    undoRedoInfo.clear();
-    emitUndoAvailable( doc->commands()->isUndoAvailable() );
-    emitRedoAvailable( doc->commands()->isRedoAvailable() );
+    clearUndoRedo();
     emit textChanged();
 #if defined(Q_WS_WIN)
     // there seems to be a problem with repainting or erasing the area
@@ -865,9 +862,7 @@ enum {
 
 void QTextView::contentsMousePressEvent( QMouseEvent *e )
 {
-    undoRedoInfo.clear();
-    emitUndoAvailable( doc->commands()->isUndoAvailable() );
-    emitRedoAvailable( doc->commands()->isRedoAvailable() );
+    clearUndoRedo();
     QTextCursor c = *cursor;
     mousePos = e->pos();
     mightStartDrag = FALSE;
@@ -1315,9 +1310,7 @@ void QTextView::undo()
     if ( isReadOnly() )
 	return;
 
-    undoRedoInfo.clear();
-    emitUndoAvailable( doc->commands()->isUndoAvailable() );
-    emitRedoAvailable( doc->commands()->isRedoAvailable() );
+    clearUndoRedo();
     drawCursor( FALSE );
     QTextCursor *c = doc->undo( cursor );
     if ( !c ) {
@@ -1335,9 +1328,7 @@ void QTextView::redo()
     if ( isReadOnly() )
 	return;
 
-    undoRedoInfo.clear();
-    emitUndoAvailable( doc->commands()->isUndoAvailable() );
-    emitRedoAvailable( doc->commands()->isRedoAvailable() );
+    clearUndoRedo();
     drawCursor( FALSE );
     QTextCursor *c = doc->redo( cursor );
     if ( !c ) {
@@ -1363,9 +1354,7 @@ void QTextView::paste()
 void QTextView::checkUndoRedoInfo( UndoRedoInfo::Type t )
 {
     if ( undoRedoInfo.valid() && t != undoRedoInfo.type ) {
-	undoRedoInfo.clear();
-	emitUndoAvailable( doc->commands()->isUndoAvailable() );
-	emitRedoAvailable( doc->commands()->isRedoAvailable() );
+	clearUndoRedo();
     }
     undoRedoInfo.type = t;
 }
@@ -1441,9 +1430,7 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 	QString str = doc->selectedText( QTextDocument::Standard );
 	QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
 	QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
-	undoRedoInfo.clear();
-	emitUndoAvailable( doc->commands()->isUndoAvailable() );
-	emitRedoAvailable( doc->commands()->isRedoAvailable() );
+	clearUndoRedo();
 	undoRedoInfo.type = UndoRedoInfo::Format;
 	undoRedoInfo.id = c1.parag()->paragId();
 	undoRedoInfo.index = c1.index();
@@ -1453,9 +1440,7 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 	readFormats( c1, c2, 0, undoRedoInfo.d->text );
 	undoRedoInfo.format = f;
 	undoRedoInfo.flags = flags;
-	undoRedoInfo.clear();
-	emitUndoAvailable( doc->commands()->isUndoAvailable() );
-	emitRedoAvailable( doc->commands()->isRedoAvailable() );
+	clearUndoRedo();
 	doc->setFormat( QTextDocument::Standard, f, flags );
 	repaintChanged();
 	formatMore();
@@ -1514,23 +1499,51 @@ void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::
 
 void QTextView::setAlignment( int a )
 {
-    if ( isReadOnly() )
+    if ( isReadOnly() || block_set_alignment )
 	return;
 
     drawCursor( FALSE );
     if ( !doc->hasSelection( QTextDocument::Standard ) ) {
-	cursor->parag()->setAlignment( a );
-	repaintChanged();
+	if ( cursor->parag()->alignment() != a ) {
+	    clearUndoRedo();
+	    undoRedoInfo.type = UndoRedoInfo::Alignment;
+	    QArray<int> oa( 1 );
+	    oa[ 0 ] = cursor->parag()->alignment();
+	    undoRedoInfo.oldAligns = oa;
+	    undoRedoInfo.newAlign = a;
+	    undoRedoInfo.id = cursor->parag()->paragId();
+	    undoRedoInfo.eid = cursor->parag()->paragId();
+	    undoRedoInfo.d->text = " ";
+	    undoRedoInfo.index = 1;
+	    clearUndoRedo();
+	    cursor->parag()->setAlignment( a );
+	    repaintChanged();
+	}
     } else {
 	QTextParag *start = doc->selectionStart( QTextDocument::Standard );
 	QTextParag *end = doc->selectionEnd( QTextDocument::Standard );
 	lastFormatted = start;
+	int len = end->paragId() - start->paragId() + 1;
+	clearUndoRedo();
+	undoRedoInfo.type = UndoRedoInfo::Alignment;
+	undoRedoInfo.id = start->paragId();
+	undoRedoInfo.eid = end->paragId();
+	QArray<int> oa( len );
+	int i = 0;
 	while ( start ) {
+	    if ( i < (int)oa.size() )
+		oa[ i ] = start->alignment();
 	    start->setAlignment( a );
 	    if ( start == end )
 		break;
 	    start = start->next();
+	    ++i;
 	}
+	undoRedoInfo.oldAligns = oa;
+	undoRedoInfo.newAlign = a;
+	undoRedoInfo.d->text = " ";
+	undoRedoInfo.index = 1;
+	clearUndoRedo();
 	repaintChanged();
 	formatMore();
     }
@@ -1561,7 +1574,9 @@ void QTextView::updateCurrentFormat()
 
     if ( currentAlignment != cursor->parag()->alignment() ) {
 	currentAlignment = cursor->parag()->alignment();
+	block_set_alignment = TRUE;
 	emitCurrentAlignmentChanged( currentAlignment );
+	block_set_alignment = FALSE;
     }
 }
 
@@ -1991,10 +2006,13 @@ void QTextView::selectAll( bool select )
 void QTextView::UndoRedoInfo::clear()
 {
     if ( valid() ) {
+	if ( type == Alignment )
 	if ( type == Insert || type == Return )
 	    doc->addCommand( new QTextInsertCommand( doc, id, index, d->text.rawData() ) );
 	else if ( type == Format )
 	    doc->addCommand( new QTextFormatCommand( doc, id, index, eid, eindex, d->text.rawData(), format, flags ) );
+	else if ( type == Alignment )
+	    doc->addCommand( new QTextAlignmentCommand( doc, id, eid, newAlign, oldAligns ) );
 	else if ( type != Invalid )
 	    doc->addCommand( new QTextDeleteCommand( doc, id, index, d->text.rawData() ) );
     }
@@ -2019,7 +2037,7 @@ QTextView::UndoRedoInfo::~UndoRedoInfo()
 
 bool QTextView::UndoRedoInfo::valid() const
 {
-    return d->text.length() > 0  && id >= 0&& index >= 0;
+    return d->text.length() > 0  && id >= 0 && index >= 0;
 }
 
 void QTextView::resetFormat()
@@ -2282,9 +2300,7 @@ void QTextView::setDocument( QTextDocument *dc )
 	return;
     doc = dc;
     cursor->setDocument( doc );
-    undoRedoInfo.clear();
-    emitUndoAvailable( doc->commands()->isUndoAvailable() );
-    emitRedoAvailable( doc->commands()->isRedoAvailable() );
+    clearUndoRedo();
     lastFormatted = 0;
 }
 
@@ -2569,4 +2585,11 @@ QSize QTextView::sizeHint() const
 {
     // ### calculate a reasonable one
     return QSize( 100, 100 );
+}
+
+void QTextView::clearUndoRedo()
+{
+    undoRedoInfo.clear();
+    emitUndoAvailable( doc->commands()->isUndoAvailable() );
+    emitRedoAvailable( doc->commands()->isRedoAvailable() );
 }

@@ -356,7 +356,8 @@ private:
 class Q_EXPORT QTextCommand
 {
 public:
-    enum Commands { Invalid, Insert, Delete, Format };
+    enum Commands { Invalid, Insert, Delete, Format, Alignment, ParagType };
+
     QTextCommand( QTextDocument *d ) : doc( d ), cursor( d ) {}
     virtual ~QTextCommand() {}
     virtual Commands type() const { return Invalid; };
@@ -932,10 +933,9 @@ public:
     QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str );
     QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextStringChar> &str );
     ~QTextDeleteCommand();
-    virtual Commands type() const { return Delete; };
-
-    virtual QTextCursor *execute( QTextCursor *c );
-    virtual QTextCursor *unexecute( QTextCursor *c );
+    Commands type() const { return Delete; };
+    QTextCursor *execute( QTextCursor *c );
+    QTextCursor *unexecute( QTextCursor *c );
 
 protected:
     int id, index;
@@ -952,9 +952,8 @@ public:
     QTextInsertCommand( QTextParag *p, int idx, const QArray<QTextStringChar> &str )
 	: QTextDeleteCommand( p, idx, str ) {}
     Commands type() const { return Insert; };
-
-    virtual QTextCursor *execute( QTextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
-    virtual QTextCursor *unexecute( QTextCursor *c ) { return QTextDeleteCommand::execute( c ); }
+    QTextCursor *execute( QTextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
+    QTextCursor *unexecute( QTextCursor *c ) { return QTextDeleteCommand::execute( c ); }
 
 };
 
@@ -964,15 +963,29 @@ public:
     QTextFormatCommand( QTextDocument *d, int sid, int sidx, int eid, int eidx, const QArray<QTextStringChar> &old, QTextFormat *f, int fl );
     ~QTextFormatCommand();
     Commands type() const { return Format; }
-
-    virtual QTextCursor *execute( QTextCursor *c );
-    virtual QTextCursor *unexecute( QTextCursor *c );
+    QTextCursor *execute( QTextCursor *c );
+    QTextCursor *unexecute( QTextCursor *c );
 
 protected:
     int startId, startIndex, endId, endIndex;
     QTextFormat *format;
     QArray<QTextStringChar> oldFormats;
     int flags;
+
+};
+
+class Q_EXPORT QTextAlignmentCommand : public QTextCommand
+{
+public:
+    QTextAlignmentCommand( QTextDocument *d, int fParag, int lParag, int na, const QArray<int> &oa );
+    Commands type() const { return Alignment; }
+    QTextCursor *execute( QTextCursor *c );
+    QTextCursor *unexecute( QTextCursor *c );
+
+private:
+    int firstParag, lastParag;
+    int newAlign;
+    QArray<int> oldAligns;
 
 };
 
