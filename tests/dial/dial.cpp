@@ -12,6 +12,8 @@ main(int argc, char** argv)
     QVBox box;
     QLCDNumber lcd( &box );
     QDial dial( &box );
+    dial.setFocusPolicy(QWidget::StrongFocus);
+    dial.setFocus();
     box.show();
  
     QObject::connect(&dial, SIGNAL(valueChanged(int)), &lcd, SLOT(display(int)));
