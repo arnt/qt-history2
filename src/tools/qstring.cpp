@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#242 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#243 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11712,7 +11712,7 @@ QString &QString::insert( uint index, QChar c )	// insert char
 /*!
   \fn QString &QString::prepend( const QString &s )
 
-  Prepend \s to the string. Equivalent to insert(0,s).
+  Prepend \a s to the string. Equivalent to insert(0,s).
 
   \sa insert()
 */

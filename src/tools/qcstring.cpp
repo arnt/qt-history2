@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qcstring.cpp#10 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -1216,7 +1216,7 @@ QCString &QCString::insert( uint index, char c )	// insert char
 /*!
   \fn QCString &QCString::prepend( const char *s )
 
-  Prepend \s to the string. Equivalent to insert(0,s).
+  Prepend \a s to the string. Equivalent to insert(0,s).
 
   \sa insert()
 */
