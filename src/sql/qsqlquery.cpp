@@ -934,7 +934,8 @@ bool QSqlQuery::prepare( const QString& query )
     } else {
 	int i = 0;
 	while ( (i = rx.search( q, i )) != -1 ) {
-	    d->sqlResult->extension()->holders.append( Holder( rx.cap(0), i ) );
+	    if ( !rx.cap(1).isEmpty() )
+		d->sqlResult->extension()->holders.append( Holder( rx.cap(0), i ) );
 	    i += rx.matchedLength();
 	}
 	return TRUE; // fake prepares should always succeed
@@ -975,7 +976,7 @@ bool QSqlQuery::exec()
 			holder.length(), driver()->formatValue( &f ) ); 
 	    }
 	} else {
-	    QMap<int, QString>::Iterator it;
+	    QMap<int, QString>::ConstIterator it;
 	    QString val;
 	    int i = 0;
 	    for ( it = d->sqlResult->extension()->index.begin();
