@@ -1858,7 +1858,17 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	}
 
 	if(!target.isEmpty()) {
-	    t << "install_" << (*it) << ": " << "\n\t";
+	    t << "install_" << (*it) << ": ";
+	    const QStringList &deps = project->variables()[(*it) + ".depends"];
+	    if(!deps.isEmpty()) {
+		for(QStringList::ConstIterator dep_it = deps.begin(); dep_it != deps.end(); ++dep_it) {
+		    QString targ = var((*dep_it) + ".target");
+		    if(targ.isEmpty())
+			targ = (*dep_it);
+		    t << targ;
+		}
+	    }
+	    t << "\n\t";
 	    const QStringList &dirs = project->variables()[pvar];
 	    for(QStringList::ConstIterator pit = dirs.begin(); pit != dirs.end(); ++pit) {
 		QString tmp_dst = fileFixify((*pit));
