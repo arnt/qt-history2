@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#18 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#19 $
 **
 **  Geometry Management
 **
@@ -15,6 +15,7 @@
 #include "qbasic.h"
 #include "qlist.h"
 
+struct QLayoutData;
 class QLayout
 {
 public:
@@ -22,8 +23,12 @@ public:
     int defaultBorder() const { return defBorder; }
 
     virtual bool activate();
+    virtual bool deactivate();
     void freeze( int w, int h );
     void freeze() { freeze( 0, 0 ); }
+
+    void  setMenuBar( QWidget *w );
+
     
     const char *name() const { return objName; }
 
@@ -50,6 +55,7 @@ private:
     int defBorder;
     bool    topLevel;
 
+    QLayoutData *extraData;
 private:	// Disabled copy constructor and operator=
     QLayout( const QLayout & ) {}
     QLayout &operator=( const QLayout & ) { return *this; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#25 $
 **
 **  Geometry Management
 **
@@ -10,10 +10,7 @@
 *****************************************************************************/
 #include "qgeom.h"
 
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#24 $");
-
-
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#25 $");
 
 /*!
   \class QLayout qgeom.h
@@ -33,7 +30,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#24 $");
 
 
 /*!
-  Creates a new QLayout with main widget \a
+  Creates a new top-level QLayout with main widget \a
   parent.  \a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and
@@ -42,6 +39,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#24 $");
   of \a border is used.
 
   \a name is the internal object name
+
+  Having several 
 
   \sa direction()
 */
@@ -68,7 +67,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
   */
 
 /*!
-  Constructs a new QLayout, within another QLayout \a parent.
+  Constructs a new child QLayout, 
   If \a autoBorder is -1, this QLayout inherits \a parent's
   defaultBorder(), otherwise \a autoBorder is used.
 */
@@ -168,7 +167,7 @@ void QLayout::addChildLayout( QLayout *l )
   \fn int QLayout::defaultBorder() const
   Returns the default border for the geometry manager.
 */
-
+ 
 /*!
   Starts geometry management - analogous to show() for widgets.
   This function should only be called for top level layouts.
@@ -182,6 +181,33 @@ bool QLayout::activate()
 #endif
     return FALSE;
 }
+
+ 
+/*!
+  Stops geometry management. This function should be used if the main widget
+  no longer is to be under geometry management, or if a different layout
+  is desired.
+
+  This function should only be called for top level layouts.
+
+  \warning A deactivated layout cannot be reactivated. Delete the layout
+  immediately after it has been deactivated.
+*/
+bool QLayout::deactivate()
+{ 
+    if ( topLevel ) 
+	if ( bm ) {
+	    delete bm;
+	    bm = 0;
+	    return TRUE;
+	} else
+	    return FALSE;
+#if defined(DEBUG)
+    warning("QLayout::deactivate() for child layout");
+#endif
+    return FALSE;
+}
+
 
 /*!
   \overload void QLayout::freeze()
@@ -207,10 +233,32 @@ void QLayout::freeze( int w, int h )
 	warning( "Only top-level QLayout can be frozen." );
 	return;
     }
+    ASSERT( bm );
     bm->freeze( w, h );
     delete bm;
     bm = 0;
 }
+
+
+
+/*!
+  Makes the geometry manager take account of the menu bar \a w. All
+  child widgets are placed below the bottom edge of the menu bar.
+
+  Depending on the size of your generative organs, you may use this
+  function with other classes than QMenuBar.
+*/
+
+void QLayout::setMenuBar( QWidget *w )
+{
+    if ( !topLevel ) {
+	warning( "QLayout::setMenuBar(), called for sublayout." );
+	return;
+    }
+    ASSERT( bm );
+    bm->setMenuBar( w );
+}
+
 
 /*!
   \class QBoxLayout qgeom.h

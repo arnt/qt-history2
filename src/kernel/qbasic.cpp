@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#27 $
 **
 **  Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#27 $");
 
 
 
@@ -497,6 +497,7 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
     main = parent;
     border = 0;
     frozen = FALSE;
+    menuBar = 0;
 
     xC = new QParChain( LeftToRight );
     yC = new QParChain( Down );
@@ -605,7 +606,7 @@ bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize
 
 bool QBasicManager::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o->inherits( "QWidget" ))
+    if ( !o->isWidgetType() )
 	return FALSE;
 
     QWidget *w = (QWidget*)o;
@@ -635,13 +636,15 @@ bool QBasicManager::activate()
 
     yC->recalc();
     xC->recalc();
+    
+    int mbh = menuBar ? menuBar->height() + 3 : 0;
 
-    int ys = yC->minSize() + 2*border;
+    int ys = yC->minSize() + 2*border + mbh;
     int xs = xC->minSize() + 2*border;
 
     main->setMinimumSize( xs, ys );
 
-    ys = yC->maxSize() + 2*border;
+    ys = yC->maxSize() + 2*border + mbh;
     if ( ys > QBasicManager::unlimited )
 	ys = QBasicManager::unlimited;
     xs = xC->maxSize() + 2*border;
@@ -691,9 +694,10 @@ void QBasicManager::resizeAll()
     // size may not be set yet
     int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
     int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
+    int mbh = menuBar ? menuBar->height() : 0;
     
     xC->distribute( lookupTable, border, ww - 2*border );
-    yC->distribute( lookupTable, border, hh - 2*border );
+    yC->distribute( lookupTable, mbh + border, hh - 2*border - mbh );
 
     QIntDictIterator<WidgetInfo> it( lookupTable );
 
@@ -706,9 +710,7 @@ void QBasicManager::resizeAll()
     }
 }
 
-
 /*!
-
   Adds \a branch to \a destination as a branch going from \a fromIndex
   to \a toIndex. A branch is a chain that is anchored at two locations
   in a serial chain. The branch does not influence the main chain;
