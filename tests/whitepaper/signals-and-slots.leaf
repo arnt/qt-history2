@@ -140,9 +140,9 @@ are compatible.
 \section1 Meta Object Compiler
 
 \index Meta Object Compiler
-\index Moc
 \index compiler features
 \index header files
+\index moc
 \index qmake
 
 The signals and slots mechanism is implemented in pure standard C++.

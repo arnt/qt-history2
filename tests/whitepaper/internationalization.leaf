@@ -135,7 +135,7 @@ separators and ordering.
 
 \omit ### Mark, I edited the following paragraph \endomit
 
-\index translation
+\index translations
 
 Qt provides functions and tools to help you provide applications
 translated to many languages.
