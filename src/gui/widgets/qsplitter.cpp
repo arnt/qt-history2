@@ -759,11 +759,11 @@ QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
 
 #ifdef QT_COMPAT
         if (compatMode) {
-            int sf = getStretch(s->widget);
+            int sf = getStretch(sls->widget);
             if (sf == 243)
-                setStretch(s->widget, 0);
+                setStretch(sls->widget, 0);
             else if (sf == 0)
-                setStretch(s->widget, 1);
+                setStretch(sls->widget, 1);
         }
 #endif
     }
