@@ -318,7 +318,7 @@
 
     \quotefromfile dialogs/complexwizard/licensewizard.cpp
     \skipto FinishPage::resetPage
-    \printuntil }
+    \printuntil /^\}$/
 
     We use \c historyPages() to determine the type of license
     agreement the user has chosen. If the user filled the \c

@@ -88,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     readSettings();
 }
 
-void MainWindow::closeEvent(QCloseEvent * /* event */)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (userReallyWantsToQuit()) {
         writeSettings();

@@ -176,6 +176,59 @@
     \sa QVectorIterator, QVector::const_iterator
 */
 
+/*! \class QSetIterator
+    \brief The QSetIterator class provides a Java-style const iterator for QSet.
+
+    QSet supports both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QSetIterator\<T\> allows you to iterate over a QSet\<T\>.
+    The constructor takes a QSet as argument. After construction, the
+    iterator is located at the very beginning of the set (before
+    the first item). Here's how to iterate over all the elements
+    sequentially:
+
+    \code
+	QSet<QString> set;
+        ...
+	QSetIterator<QString> i(set);
+        while (i.hasNext())
+	    qDebug() << i.next();
+    \endcode
+
+    The next() function returns the next item in the set and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, returning the second
+    item; and so on.
+
+    \img javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \code
+	QSetIterator<QString> i(set);
+        i.toBack();
+        while (i.hasPrevious())
+	    qDebug() << i.previous();
+    \endcode
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop.
+
+    Multiple iterators can be used on the same set. If the set
+    is modified while a QSetIterator is active, the QSetIterator
+    will continue iterating over the original set, ignoring the
+    modified copy.
+
+    \sa QSet::const_iterator
+*/
+
 /*! \class QMutableListIterator
     \brief The QMutableListIterator class provides a Java-style non-const iterator for QList and QQueue.
 
@@ -423,7 +476,8 @@
     \sa QVectorIterator, QVector::iterator
 */
 
-/*! \fn QListIterator::QListIterator(const QList<T> &list)
+/*!
+    \fn QListIterator::QListIterator(const QList<T> &list)
     \fn QLinkedListIterator::QLinkedListIterator(const QLinkedList<T> &list)
     \fn QMutableListIterator::QMutableListIterator(QList<T> &list)
     \fn QMutableLinkedListIterator::QMutableLinkedListIterator(QLinkedList<T> &list)
@@ -434,11 +488,21 @@
     \sa operator=()
 */
 
-/*! \fn QVectorIterator::QVectorIterator(const QVector<T> &vector)
+/*!
+    \fn QVectorIterator::QVectorIterator(const QVector<T> &vector)
     \fn QMutableVectorIterator::QMutableVectorIterator(QVector<T> &vector)
 
     Constructs an iterator for traversing \a vector. The iterator is
     set to be at the front of the vector (before the first item).
+
+    \sa operator=()
+*/
+
+/*!
+    \fn QSetIterator::QSetIterator(const QSet<T> &set)
+
+    Constructs an iterator for traversing \a set. The iterator is
+    set to be at the front of the set (before the first item).
 
     \sa operator=()
 */
@@ -473,9 +537,18 @@
     \sa toFront(), toBack()
 */
 
+/*! \fn void QSetIterator::operator=(const QSet<T> &set)
+
+    Makes the iterator operate on \a set. The iterator is set to be
+    at the front of the set (before the first item).
+
+    \sa toFront(), toBack()
+*/
+
 /*! \fn void QListIterator::toFront()
     \fn void QLinkedListIterator::toFront()
     \fn void QVectorIterator::toFront()
+    \fn void QSetIterator::toFront()
     \fn void QMutableListIterator::toFront()
     \fn void QMutableLinkedListIterator::toFront()
     \fn void QMutableVectorIterator::toFront()
@@ -488,9 +561,10 @@
 
 /*! \fn void QListIterator::toBack()
     \fn void QLinkedListIterator::toBack()
+    \fn void QVectorIterator::toBack()
+    \fn void QSetIterator::toBack()
     \fn void QMutableListIterator::toBack()
     \fn void QMutableLinkedListIterator::toBack()
-    \fn void QVectorIterator::toBack()
     \fn void QMutableVectorIterator::toBack()
 
     Moves the iterator to the back of the container (after the last
@@ -502,6 +576,7 @@
 /*! \fn bool QListIterator::hasNext() const
     \fn bool QLinkedListIterator::hasNext() const
     \fn bool QVectorIterator::hasNext() const
+    \fn bool QSetIterator::hasNext() const
     \fn bool QMutableListIterator::hasNext() const
     \fn bool QMutableLinkedListIterator::hasNext() const
     \fn bool QMutableVectorIterator::hasNext() const
@@ -516,6 +591,7 @@
 /*! \fn const T &QListIterator::next()
     \fn const T &QLinkedListIterator::next()
     \fn const T &QVectorIterator::next()
+    \fn const T &QSetIterator::next()
 
     Returns the next item and advances the iterator by one position.
 
@@ -541,6 +617,7 @@
 /*! \fn const T &QListIterator::peekNext() const
     \fn const T &QLinkedListIterator::peekNext() const
     \fn const T &QVectorIterator::peekNext() const
+    \fn const T &QSetIterator::peekNext() const
 
     Returns the next item without moving the iterator.
 
@@ -565,6 +642,7 @@
 /*! \fn bool QListIterator::hasPrevious() const
     \fn bool QLinkedListIterator::hasPrevious() const
     \fn bool QVectorIterator::hasPrevious() const
+    \fn bool QSetIterator::hasPrevious() const
     \fn bool QMutableListIterator::hasPrevious() const
     \fn bool QMutableLinkedListIterator::hasPrevious() const
     \fn bool QMutableVectorIterator::hasPrevious() const
@@ -579,6 +657,7 @@
 /*! \fn const T &QListIterator::previous()
     \fn const T &QLinkedListIterator::previous()
     \fn const T &QVectorIterator::previous()
+    \fn const T &QSetIterator::previous()
 
     Returns the previous item and moves the iterator back by one
     position.
@@ -608,6 +687,7 @@
 /*! \fn const T &QListIterator::peekPrevious() const
     \fn const T &QLinkedListIterator::peekPrevious() const
     \fn const T &QVectorIterator::peekPrevious() const
+    \fn const T &QSetIterator::peekPrevious() const
 
     Returns the previous item without moving the iterator.
 
@@ -620,6 +700,7 @@
 /*! \fn bool QListIterator::findNext(const T &value)
     \fn bool QLinkedListIterator::findNext(const T &value)
     \fn bool QVectorIterator::findNext(const T &value)
+    \fn bool QSetIterator::findNext(const T &value)
     \fn bool QMutableListIterator::findNext(const T &value)
     \fn bool QMutableLinkedListIterator::findNext(const T &value)
     \fn bool QMutableVectorIterator::findNext(const T &value)
@@ -637,6 +718,7 @@
 /*! \fn bool QListIterator::findPrevious(const T &value)
     \fn bool QLinkedListIterator::findPrevious(const T &value)
     \fn bool QVectorIterator::findPrevious(const T &value)
+    \fn bool QSetIterator::findPrevious(const T &value)
     \fn bool QMutableListIterator::findPrevious(const T &value)
     \fn bool QMutableLinkedListIterator::findPrevious(const T &value)
     \fn bool QMutableVectorIterator::findPrevious(const T &value)
