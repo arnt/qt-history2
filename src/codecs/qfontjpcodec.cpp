@@ -202,7 +202,6 @@ QByteArray QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) con
 
 void QFontJis0208Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
 {
-    uint ch;
     while (length--) {
 	*out++ = convJP->unicodeToJisx0208(in->unicode());
 	++in;
