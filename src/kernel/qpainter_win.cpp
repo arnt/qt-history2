@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#139 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -358,9 +358,11 @@ void *QPainter::textMetric()
 	return 0;
     if ( winFont == 0 || testf(DirtyFont) )
 	updateFont();
+#ifdef UNICODE
     if ( qt_winver == WV_NT )
 	return &winFont->tm.w;
     else
+#endif
 	return &winFont->tm.a;
 }
 
