@@ -7074,7 +7074,10 @@ static void addGroupItems(QDomDocument *doc, QDomElement *parentElt, const KeyMa
 extern "C" bool qSettingsWriteXmlFile(QIODevice &device, const KeyMap &keys)
 {
     QDomDocument doc(QLatin1String("settings"));
-
+    QDomProcessingInstruction inst
+        = doc.createProcessingInstruction(QLatin1String("xml"),
+                                          QLatin1String("version='1.0' encoding='UTF-8'"));
+    doc.appendChild(inst);
     QDomElement root = doc.createElement(QLatin1String("settings"));
     doc.appendChild(root);
 
