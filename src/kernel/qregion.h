@@ -119,7 +119,7 @@ private:
 #elif defined(_WS_X11_)
 	Region rgn;
 #elif defined(_WS_MAC_)
-        void * rgn;
+        RgnHandle rgn;
 #elif defined(_WS_QWS_)
         void * rgn;
 #endif

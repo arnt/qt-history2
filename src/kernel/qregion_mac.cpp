@@ -40,8 +40,17 @@
 #include "qbuffer.h"
 #include "qimage.h"
 #include "qbitmap.h"
+#include "qt_mac.h"
 
 // NOT REVISED
+
+static QRegion *empty_region = 0;
+
+static void cleanup_empty_region()
+{
+    delete empty_region;
+    empty_region = 0;
+}
 
 /*!
   Constructs a null region.
@@ -50,23 +59,49 @@
 
 QRegion::QRegion()
 {
+    if ( !empty_region ) {			// avoid too many allocs
+	qAddPostRoutine( cleanup_empty_region );
+	empty_region = new QRegion( TRUE );
+	CHECK_PTR( empty_region );
+    }
+    data = empty_region->data;
+    data->ref();
 }
 
 /*!
   Internal constructor that creates a null region.
 */
 
-QRegion::QRegion( bool )
+QRegion::QRegion( bool is_null )
 {
+    data = new QRegionData;
+    CHECK_PTR( data );
+    data->rgn = NewRgn();
+    data->is_null = is_null;
 }
 
 /*!
 \overload
  */
 
-QRegion::QRegion( const QRect &, RegionType )
+QRegion::QRegion( const QRect &r, RegionType t )
 {
+    QRect rr = r.normalize();
+    data = new QRegionData;
+    CHECK_PTR( data );
+    data->is_null = FALSE;
+    data->rgn = NewRgn();
+
+    Rect rect;
+    SetRect(&rect, rr.x(), rr.y(), rr.x()+rr.x()+rr.width(), rr.y()+rr.height());
+    OpenRgn();
+    if ( t == Rectangle )			// rectangular region
+	FrameRect(&rect);
+    else if ( t == Ellipse )		// elliptic region
+	FrameOval(&rect);
+    CloseRgn(data->rgn);
 }
+
 
 
 /*!
@@ -80,8 +115,23 @@ QRegion::QRegion( const QRect &, RegionType )
   down painting when used.
 */
 
-QRegion::QRegion( const QPointArray &, bool )
+QRegion::QRegion( const QPointArray &a, bool winding)
 {
+    qDebug("Need to fill this in %s:%d", __FILE__, __LINE__);
+    data = new QRegionData;
+    CHECK_PTR( data );
+    data->is_null = FALSE;
+    data->rgn = NewRgn();
+
+    PolyHandle poly = OpenPoly();
+    //do the drawing
+    ClosePoly();
+
+    OpenRgn();
+    FramePoly(poly);
+    CloseRgn(data->rgn);
+    KillPoly(poly);
+    
 }
 
 
@@ -89,8 +139,10 @@ QRegion::QRegion( const QPointArray &, bool )
   Constructs a new region which is equal to \a r.
 */
 
-QRegion::QRegion( const QRegion & )
+QRegion::QRegion( const QRegion &r )
 {
+    data = r.data;
+    data->ref();
 }
 
 /*!
@@ -106,6 +158,7 @@ QRegion::QRegion( const QRegion & )
 */
 QRegion::QRegion( const QBitmap & )
 {
+    qDebug("Need to fill this in %s:%d", __FILE__, __LINE__);
 }
 
 /*!
@@ -114,6 +167,10 @@ QRegion::QRegion( const QBitmap & )
 
 QRegion::~QRegion()
 {
+    if ( data->deref() ) {
+	DisposeRgn( data->rgn );
+	delete data;
+    }
 }
 
 
@@ -123,8 +180,14 @@ QRegion::~QRegion()
 
 */
 
-QRegion &QRegion::operator=( const QRegion & )
+QRegion &QRegion::operator=( const QRegion &r )
 {
+    r.data->ref();				// beware of r = r
+    if ( data->deref() ) {
+	DisposeRgn( data->rgn );
+	delete data;
+    }
+    data = r.data;
     return *this;
 }
 
@@ -138,6 +201,7 @@ QRegion &QRegion::operator=( const QRegion & )
 QRegion QRegion::copy() const
 {
     QRegion r( data->is_null );
+    UnionRgn( data->rgn, r.data->rgn, r.data->rgn);
     return r;
 }
 
@@ -182,7 +246,7 @@ bool QRegion::isNull() const
 
 bool QRegion::isEmpty() const
 {
-    return false;
+    return data->is_null || EmptyRgn(data->rgn);
 }
 
 
@@ -191,9 +255,12 @@ bool QRegion::isEmpty() const
   outside the region.
 */
 
-bool QRegion::contains( const QPoint & ) const
+bool QRegion::contains( const QPoint &p ) const
 {
-    return false;
+    Point point;
+    point.h = p.x();
+    point.v = p.y();
+    return PtInRgn(point, data->rgn);
 }
 
 /*!
@@ -201,9 +268,11 @@ bool QRegion::contains( const QPoint & ) const
   completely outside the region.
 */
 
-bool QRegion::contains( const QRect & ) const
+bool QRegion::contains( const QRect &r ) const
 {
-    return false;
+    Rect rect;
+    SetRect(&rect, r.x(), r.y(), r.x() + r.width(), r.y() + r.height());
+    return RectInRgn( &rect, data->rgn );
 }
 
 
@@ -211,8 +280,12 @@ bool QRegion::contains( const QRect & ) const
   Translates (moves) the region \a dx along the X axis and \a dy along the Y axis.
 */
 
-void QRegion::translate( int, int )
+void QRegion::translate( int x, int y )
 {
+    if ( data == empty_region->data )
+	return;
+    detach();
+    OffsetRgn( data->rgn, x, y);
 }
 
 
@@ -224,9 +297,10 @@ void QRegion::translate( int, int )
   The figure shows the union of two elliptical regions.
 */
 
-QRegion QRegion::unite( const QRegion & ) const
+QRegion QRegion::unite( const QRegion &r ) const
 {
     QRegion result( FALSE );
+    UnionRgn(data->rgn, r.data->rgn, result.data->rgn);
     return result;
 }
 
@@ -238,9 +312,10 @@ QRegion QRegion::unite( const QRegion & ) const
   The figure shows the intersection of two elliptical regions.
 */
 
-QRegion QRegion::intersect( const QRegion & ) const
+QRegion QRegion::intersect( const QRegion &r ) const
 {
     QRegion result( FALSE );
+    SectRgn( data->rgn, r.data->rgn, result.data->rgn );
     return result;
 }
 
@@ -253,9 +328,10 @@ QRegion QRegion::intersect( const QRegion & ) const
   from the ellipse on the left. (\c left-right )
 */
 
-QRegion QRegion::subtract( const QRegion & ) const
+QRegion QRegion::subtract( const QRegion &r ) const
 {
     QRegion result( FALSE );
+    DiffRgn( data->rgn, r.data->rgn, result.data->rgn );
     return result;
 }
 
@@ -267,9 +343,10 @@ QRegion QRegion::subtract( const QRegion & ) const
   The figure shows the exclusive or of two elliptical regions.
 */
 
-QRegion QRegion::eor( const QRegion & ) const
+QRegion QRegion::eor( const QRegion &r ) const
 {
     QRegion result( FALSE );
+    XorRgn( data->rgn, r.data->rgn, result.data->rgn );
     return result;
 }
 
@@ -281,6 +358,7 @@ QRegion QRegion::eor( const QRegion & ) const
 
 QRect QRegion::boundingRect() const
 {
+    qDebug("Need to do this %s:%d", __FILE__, __LINE__);
     return QRect();
 }
 
@@ -288,18 +366,6 @@ QRect QRegion::boundingRect() const
 /*
   This is how X represents regions internally.
 */
-
-struct BOX {
-    short x1, x2, y1, y2;
-};
-
-struct _XRegion {
-    long size;
-    long numRects;
-    BOX *rects;
-    BOX  extents;
-};
-
 
 /*!
   Returns an array of non-overlapping rectangles that make up the region.
@@ -309,6 +375,7 @@ struct _XRegion {
 
 QArray<QRect> QRegion::rects() const
 {
+    qDebug("I need to do this %s:%d", __FILE__, __LINE__);
     QArray<QRect> a( (int)1 );
     return a;
 }
@@ -340,9 +407,9 @@ void QRegion::setRects( const QRect *rects, int num )
   different.
 */
 
-bool QRegion::operator==( const QRegion & ) const
+bool QRegion::operator==( const QRegion &r ) const
 {
-    return false;
+    return data == r.data ? TRUE : EqualRgn( data->rgn, r.data->rgn );
 }
 
 /*!
