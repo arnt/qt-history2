@@ -1274,30 +1274,30 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 	}
 	//figure out which widget to send it to
-	if(ekind != kEventMouseDown && qt_button_down)
+	if(ekind != kEventMouseDown && qt_button_down) 
 	    widget = qt_button_down;
-	else if(mac_mouse_grabber)
+	else if(mac_mouse_grabber) 
 	    widget = mac_mouse_grabber;
-	else
+	else 
 	    widget = QApplication::widgetAt(where.h, where.v, true);
-
-	//set the cursor up
-	const QCursor *n = NULL;
-	if(widget) { //only over the app, do we set a cursor..
-	    if(cursorStack) {
-		n = app_cursor;
-	    } else {
-		for(QWidget *p = widget; p; p = p->parentWidget()) {
-		    if(p->extra && p->extra->curs) {
-			n = p->extra->curs;
-			break;
+	if(!QMacBlockingFunction::blocking()) { //set the cursor up
+	    const QCursor *n = NULL;
+	    if(widget) { //only over the app, do we set a cursor..
+		if(cursorStack) {
+		    n = app_cursor;
+		} else {
+		    for(QWidget *p = widget; p; p = p->parentWidget()) {
+			if(p->extra && p->extra->curs) {
+			    n = p->extra->curs;
+			    break;
+			}
 		    }
 		}
 	    }
+	    if(!n)
+		n = &arrowCursor; //I give up..
+	    qt_mac_set_cursor(n, &where);
 	}
-	if(!n)
-	    n = &arrowCursor; //I give up..
-	qt_mac_set_cursor(n, &where);
 
 	//This mouse button state stuff looks like this on purpose
 	//although it looks hacky it is VERY intentional..

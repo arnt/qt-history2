@@ -67,7 +67,11 @@ QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )
     Point place;
     place.h = p.h == -1 ? 0 : p.h;
     place.v = p.v == -1 ? 0 : p.v;
-    Boolean rval = GetColor(place, pstr, &rgb, &rgbout);
+    Boolean rval = FALSE;
+    {
+	QMacBlockingFunction block;
+	rval = GetColor(place, pstr, &rgb, &rgbout);
+    }
 #else
     ColorPickerInfo     cpInfo;
     // Set the input color to be an RGB color in system space.
@@ -90,7 +94,11 @@ QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )
     cpInfo.colorProcData = 0L;
     memcpy(cpInfo.prompt, pstr, pstr[0]+1);
     Boolean rval = FALSE;
-    if (PickColor(&cpInfo) == noErr && cpInfo.newColorChosen) {
+    {
+	QMacBlockingFunction block;
+	rval = (PickColor(&cpInfo) == noErr && cpInfo.newColorChosen);
+    }
+    if(rval) {
 	rval = TRUE;
 	if(!cpInfo.theColor.profile) {
 	    rgbout.red = cpInfo.theColor.color.rgb.red;
