@@ -376,13 +376,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		briefEnd = INT_MAX;
 		setKindHasToBe( Doc::Class, command );
 		break;
-	    case HASH( 'c', 1 ):
-		CONSUME( "c" );
-		arg = htmlProtect( getArgument(yyIn, yyPos) );
-		yyOut += QString( "<tt>" );
-		yyOut += arg;
-		yyOut += QString( "</tt>" );
-		break;
 	    case HASH( 'c', 4 ):
 		CONSUME( "code" );
 		begin = yyPos;
@@ -2075,6 +2068,22 @@ QString Doc::finalHtml() const
 	    case HASH( 'a', 18 ):
 		CONSUME( "annotatedclasslist" );
 		yyOut += htmlAnnotatedClassList();
+		break;
+	    case HASH( 'c', 1 ):
+		/*
+		  We try to turn '\c MyEnumValue' into a link.
+		  Otherwise, '\c' means monospace.
+		*/
+		CONSUME( "c" );
+		name = getArgument( yyIn, yyPos );
+		ahref = href( name );
+		if ( ahref.length() == name.length() ) {
+		    yyOut += QString( "<tt>" );
+		    yyOut += htmlProtect( name );
+		    yyOut += QString( "</tt>" );
+		} else {
+		    yyOut += ahref;
+		}
 		break;
 	    case HASH( 'c', 4 ):
 		CONSUME( "code" );
