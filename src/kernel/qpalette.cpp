@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#2 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#2 $");
 
 
 /*****************************************************************************
@@ -191,6 +191,33 @@ QPalette::QPalette()
     data = new QPalData;
     CHECK_PTR( data );
     data->ser_num = palette_count++;
+}
+
+/*!
+  Constructs a palette from the \e background color. The other colors are
+  automatically calculated, based on this color.
+*/
+
+QPalette::QPalette( const QColor &background )
+{
+    data = new QPalData;
+    CHECK_PTR( data );
+    data->ser_num = palette_count++;
+    QColor bg = background, fg, base;
+    int h, s, v;
+    bg.hsv( &h, &s, &v );
+    if ( v > 128 ) {				// light background
+	fg   = black;
+	base = white;
+    } else {					// dark background
+	fg   = white;
+	base = black;
+    }
+    QColor light=bg.light(), dark=bg.dark(), mid=bg.dark(150);
+    data->normal   = QColorGroup( fg, bg, bg.light(), bg.dark(),
+				  bg.dark(150), fg, base );
+    data->active   = data->normal;
+    data->disabled = data->normal;
 }
 
 /*!

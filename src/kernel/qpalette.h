@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#14 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#15 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -52,6 +52,7 @@ class QPalette					// palette class
 {
 public:
     QPalette();
+    QPalette( const QColor &background );
     QPalette( const QColorGroup &normal, const QColorGroup &disabled,
 	      const QColorGroup &active );
     QPalette( const QPalette & );
