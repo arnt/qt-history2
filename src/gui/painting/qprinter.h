@@ -186,14 +186,14 @@ private:
 };
 
 #ifdef QT3_SUPPORT
-QSize QPrinter::margins() const
+inline QSize QPrinter::margins() const
 {
     QRect page = pageRect();
     QRect paper = paperRect();
     return QSize(page.left() - paper.left(), page.top() - paper.top());
 }
 
-void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
+inline void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 {
     QRect page = pageRect();
     QRect paper = paperRect();
