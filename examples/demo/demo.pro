@@ -11,7 +11,10 @@ HEADERS		= frame.h \
 		  dnd/iconview.h \
 		  dnd/listview.h \
 		  i18n/i18n.h \
-		  i18n/wrapper.h
+		  i18n/wrapper.h \
+		  qasteroids/toplevel.h \
+		  qasteroids/view.h \
+		  qasteroids/ledmeter.h
 SOURCES		= frame.cpp \
 		  qthumbwheel.cpp \
 		  graph.cpp \
@@ -23,6 +26,9 @@ SOURCES		= frame.cpp \
 		  dnd/iconview.cpp \
 		  dnd/listview.cpp \
 		  i18n/i18n.cpp \
+		  qasteroids/toplevel.cpp \
+		  qasteroids/view.cpp \
+		  qasteroids/ledmeter.cpp \
 		  main.cpp
 
 opengl {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#30 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#31 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -18,6 +18,7 @@
 #include "dnd/dnd.h"
 #include "i18n/i18n.h"
 #include "widgets/widgetsbase.h"
+#include "qasteroids/toplevel.h"
 
 
 #include <qmodules.h>
@@ -114,6 +115,11 @@ int main( int argc, char **argv )
     w = new I18nDemo(tab);
     tab->addTab(w, "Internationalization");
     frame.addCategory( tab, textpix, textpix_sel, "Internationalization");
+
+    tab = new QTabWidget();
+    w = new KAstTopLevel(tab);
+    tab->addTab(w, "Asteroids");
+    frame.addCategory( tab, textpix, textpix_sel, "Asteroids");
 
     a.setMainWidget( &frame );
     frame.show();
