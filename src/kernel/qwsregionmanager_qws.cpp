@@ -176,7 +176,7 @@ void QWSRegionManager::commit()
 {
     if ( client ) return;
 
-    QWSDisplay::grab();
+    QWSDisplay::grab( TRUE );
 
     // copy region rects first
     int numRects;

@@ -71,7 +71,9 @@ public:
     // Lock display for access only by this process
     static bool initLock( const QString &filename, bool create = FALSE );
     static bool grabbed() { return lock->locked(); }
-    static void grab() { lock->lock( QLock::Write ); }
+    static void grab() { lock->lock( QLock::Read ); }
+    static void grab( bool write )
+	{ lock->lock( write ? QLock::Write : QLock::Read ); }
     static void ungrab() { lock->unlock(); }
 
 private:

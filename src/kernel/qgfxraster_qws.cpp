@@ -95,14 +95,14 @@ struct SWCursorData {
 #ifndef QT_NO_QWS_CURSOR
  #define GFX_START(r) bool swc_do_save=FALSE; \
 		     if(is_screen_gfx) { \
-			beginDraw(); \
 			if(qt_sw_cursor) \
 			    swc_do_save = qt_screencursor->restoreUnder(r,this); \
+			beginDraw(); \
 		     }
  #define GFX_END if(is_screen_gfx) { \
+		    endDraw(); \
 		    if(swc_do_save) \
 			qt_screencursor->saveUnder(); \
-		    endDraw(); \
 		}
 #else //QT_NO_QWS_CURSOR
 
@@ -165,7 +165,7 @@ bool QScreenCursor::supportsAlphaCursor()
 
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
-    QWSDisplay::grab();
+    QWSDisplay::grab( TRUE );
     bool save = restoreUnder(data->bound);
     data->hotx = hotx;
     data->hoty = hoty;
@@ -193,7 +193,7 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 
 void QScreenCursor::move(int x, int y)
 {
-    QWSDisplay::grab();
+    QWSDisplay::grab( TRUE );
     bool save = restoreUnder(data->bound);
     data->x = x;
     data->y = y;
@@ -221,7 +221,7 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 	return FALSE;
 
     if (!save_under) {
-	QWSDisplay::grab();
+	QWSDisplay::grab( TRUE );
 
 	int x = data->x - data->hotx;
 	int y = data->y - data->hoty;
@@ -1800,14 +1800,19 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	y1=y3;
     }
 
-#ifdef QWS_EXPERIMENTAL_FASTPATH //BUG: does not clip properly
-                         // Probably because of the changes in qregion_qws
+    int dx=x2-x1;
+    int dy=y2-y1;
+
+    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+
+#ifdef QWS_EXPERIMENTAL_FASTPATH
     // Fast path
-    if (y1 == y2 && ncliprect == 1 && !dashedLines) {
+    if (y1 == y2 && !dashedLines && ncliprect == 1) {
 	if ( x1 > cliprect[0].right() || x2 < cliprect[0].left()
-	     || y1 < cliprect[0].top() || y1 > cliprect[0].bottom() )
+	     || y1 < cliprect[0].top() || y1 > cliprect[0].bottom() ) {
+	    GFX_END
 	    return;
-	GFX_START(QRect(x1, y1, x2 - x1 + 1, 1))
+	}
 	x1 = x1 > cliprect[0].left() ? x1 : cliprect[0].left();
 	x2 = x2 > cliprect[0].right() ? cliprect[0].right() : x2;
 	unsigned char *l = scanLine(y1);
@@ -1818,18 +1823,14 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 #endif
     // Bresenham algorithm from Graphics Gems
 
-    int dx=x2-x1;
     int ax=abs(dx)*2;
-    int sx=dx>0 ? 1 : -1;
-    int dy=y2-y1;
     int ay=abs(dy)*2;
+    int sx=dx>0 ? 1 : -1;
     int sy=dy>0 ? 1 : -1;
     int x=x1;
     int y=y1;
 
     int d;
-
-    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, abs(dy)+1))
 
     QRect cr;
     bool inside = inClip(x,y,&cr);

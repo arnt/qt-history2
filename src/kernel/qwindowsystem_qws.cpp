@@ -1144,7 +1144,7 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
     // add exposed areas
     changingw->exposed = changingw->allocation() - oldAlloc;
 
-    QWSDisplay::grab();
+    QWSDisplay::grab( TRUE );
     rgnMan->commit();
 
     // safe to blt now
