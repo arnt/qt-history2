@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#15 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#16 $
 **
 ** Defintion of  QSplitter class
 **
@@ -55,6 +55,8 @@ public:
     //bool isHidden( QWidget *) const;
 
     void refresh() { recalc( TRUE ); }
+    QSize sizeHint() const;
+    QSizePolicy sizePolicy() const;
 
 protected:
     void childInsertEvent( QChildEvent * );
