@@ -851,7 +851,9 @@ void QTextCursor::indent()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-const int QTextDocument::numSelections = 9; // Don't count the Temp one!
+// the "static const int numSelections" is a hack for Borland
+static const int numSelections = 9; // Don't count the Temp one!
+const int QTextDocument::numSelections = numSelections;
 
 QTextDocument::QTextDocument( QTextDocument *p )
     : par( p ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
@@ -2624,11 +2626,11 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int curx = -1, cury, curh;
     bool lastDirection = 0;
 
-    int selectionStarts[ QTextDocument::numSelections ];
-    int selectionEnds[ QTextDocument::numSelections ];
+    int selectionStarts[ numSelections ];
+    int selectionEnds[ numSelections ];
     if ( drawSelections ) {
 	bool hasASelection = FALSE;
-	for ( i = 0; i < QTextDocument::numSelections; ++i ) {
+	for ( i = 0; i < numSelections; ++i ) {
 	    if ( !hasSelection( i ) ) {
 		selectionStarts[ i ] = -1;
 		selectionEnds[ i ] = -1;
@@ -2692,7 +2694,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	// check if selection state changed
 	bool selectionChange = FALSE;
 	if ( drawSelections ) {
-	    for ( int j = 0; j < QTextDocument::numSelections; ++j ) {
+	    for ( int j = 0; j < numSelections; ++j ) {
 		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
 		if ( selectionChange )
 		    break;
@@ -2741,7 +2743,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     if ( !buffer.isEmpty() ) {
 	bool selectionChange = FALSE;
 	if ( drawSelections ) {
-	    for ( int j = 0; j < QTextDocument::numSelections; ++j ) {
+	    for ( int j = 0; j < numSelections; ++j ) {
 		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
 		if ( selectionChange )
 		    break;
@@ -2790,7 +2792,7 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
     }
 
     if ( drawSelections ) {
-	for ( int j = 0; j < QTextDocument::numSelections; ++j ) {
+	for ( int j = 0; j < numSelections; ++j ) {
 	    if ( doc && i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
 		if ( doc->invertSelectionText( j ) )
 		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
