@@ -159,13 +159,8 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	} else if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dl>\n";
 	} else if ( atom->string() == ATOM_LIST_VALUE ) {
-#if OLDSTYLE
-	    out() << "<ul>\n";
-#else
-	    out() << "<table"
-		     " border=\"1\" cellpadding=\"2\" cellspacing=\"1\""
+	    out() << "<table border=\"1\" cellpadding=\"2\" cellspacing=\"1\""
 		     " width=\"100%\">\n";
-#endif
 	} else {
             out() << "<ol type=";
             if ( atom->string() == ATOM_LIST_UPPERALPHA ) {
@@ -190,11 +185,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dt>";
 	} else { // ( atom->string() == ATOM_LIST_VALUE )
-#if OLDSTYLE
-	    out() << "<li>";
-#else
 	    out() << "<tr><td valign=\"top\" width=\"20%\">";
-#endif
 	}
 	break;
     case Atom::ListTagRight:
@@ -205,14 +196,9 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dd>";
 	} else if ( atom->string() == ATOM_LIST_VALUE ) {
-#if OLDSTYLE
-	    if ( !matchAhead(atom, Atom::ListItemRight) )
-		out() << " -- ";
-#else
-	    if ( !matchAhead(atom, Atom::ListItemRight) )
-		out() << "&nbsp;"; // Needed for old browsers
-	    out() << "</td><td>"; // Need a cell, empty or not, for the border
-#endif
+	    out() << "</td><td>";
+	    if ( matchAhead(atom, Atom::ListItemRight) )
+		out() << "&nbsp;";
 	} else {
 	    out() << "<li>";
 	}
@@ -223,11 +209,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "</dd>\n";
 	} else if ( atom->string() == ATOM_LIST_VALUE ) {
-#if OLDSTYLE
-	    out() << "</li>\n";
-#else
 	    out() << "</td></tr>\n";
-#endif
 	} else {
 	    out() << "</li>\n";
 	}
@@ -238,11 +220,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	} else if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "</dl>\n";
 	} else if ( atom->string() == ATOM_LIST_VALUE ) {
-#if OLDSTYLE
-	    out() << "</ul>\n";
-#else
 	    out() << "</table>\n";
-#endif
 	} else {
 	    out() << "</ol>\n";
 	}
@@ -337,8 +315,7 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     generateHeader( title, classe );
     generateTitle( title );
 
-    Text brief = classe->doc().body().subText( Atom::BriefLeft,
-					       Atom::BriefRight );
+    Text brief = classe->doc().briefText();
     if ( !brief.isEmpty() ) {
 	out() << "<p>";
 	generateText( brief, classe, marker );
@@ -562,19 +539,6 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     marked.replace( QRegExp("</@extra>"), "</tt>" );
 
     out() << highlightedCode( marked, relative );
-
-#if 0
-    if ( node->type() == Node::Property ) {
-	Text brief = node->doc().body().subText( Atom::BriefLeft,
-						 Atom::BriefRight );
-	if ( style == CodeMarker::Summary ) {
-	    if ( !brief.isEmpty() ) {
-		out() << " - ";
-		generateText( brief, node, marker );
-	    }
-	}
-    }
-#endif
 }
 
 QString HtmlGenerator::cleanRef( const QString& ref )

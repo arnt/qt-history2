@@ -69,6 +69,7 @@ private:
     static int columnForIndex( const QString& str, int index );
 
     QMap<QString, Node::Type> nodeTypeMap;
+    QMap<QString, Node *> classesWithNoQuickDoc;
     Tree *cppTre;
     Tree *qsTre;
     QRegExp replaceRegExp;

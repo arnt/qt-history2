@@ -1682,6 +1682,11 @@ const Text& Doc::body() const
     return priv->text;
 }
 
+Text Doc::briefText() const
+{
+    return body().subText( Atom::BriefLeft, Atom::BriefRight );
+}
+
 const QString& Doc::baseName() const
 {
     if ( priv->extra == 0 ) {

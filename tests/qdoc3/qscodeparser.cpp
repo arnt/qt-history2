@@ -7,13 +7,14 @@
 
 #include "config.h"
 #include "qscodeparser.h"
+#include "text.h"
 #include "tokenizer.h"
 #include "tree.h"
 
 #define CONFIG_QUICK                "quick"
-
 #define CONFIG_REPLACES             "replaces"
 
+#define COMMAND_BRIEF               Doc::alias( "brief" )
 #define COMMAND_FILE                Doc::alias( "file" )
 #define COMMAND_GROUP               Doc::alias( "group" )
 #define COMMAND_MODULE              Doc::alias( "module" )
@@ -81,6 +82,7 @@ void QsCodeParser::initializeParser( const Config& config )
 void QsCodeParser::terminateParser()
 {
     nodeTypeMap.clear();
+    classesWithNoQuickDoc.clear();
     tabSize = 0;
     replaceBefores.clear();
     replaceAfters.clear();
@@ -153,7 +155,24 @@ void QsCodeParser::doneParsingHeaderFiles( Tree *tree )
 void QsCodeParser::doneParsingSourceFiles( Tree *tree )
 {
     tree->root()->normalizeOverloads();
-    // ### check which enums are used
+
+    NodeList::ConstIterator c = tree->root()->childNodes().begin();
+    while ( c != tree->root()->childNodes().end() ) {
+	if ( (*c)->type() == Node::Class ) {
+	    QMap<QString, Node *>::ConstIterator cwnqd =
+		    classesWithNoQuickDoc.find( (*c)->name() );
+	    if ( cwnqd != classesWithNoQuickDoc.end() ) {
+		(*cwnqd)->location().warning( tr("No '\\%1' documentation for"
+						 " class '%2'")
+					      .arg(COMMAND_QUICKCLASS)
+					      .arg(cwnqd.key()) );
+		(*cwnqd)->setDoc( Doc(), TRUE );
+	    }
+	}
+	++c;
+    }
+
+    // ### check which enum types are used
 }
 
 FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
@@ -214,6 +233,13 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 				    .arg(arg).arg(command) );
 	} else {
 	    setQuickDoc( quickNode, doc );
+	    if ( quickNode->type() == Node::Class ) {
+		classesWithNoQuickDoc.remove( quickNode->name() );
+		if ( doc.briefText().isEmpty() )
+		    doc.location().warning( tr("Missing '\\%1' for class '%3'")
+					    .arg(COMMAND_BRIEF)
+					    .arg(quickNode->name()) );
+	    }
 	}
 	return 0;
     } else {
@@ -425,6 +451,7 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	}
     }
     setQtDoc( quickClass, qtClass->doc() );
+    classesWithNoQuickDoc.insert( quickClass->name(), quickClass );
 }
 
 void QsCodeParser::quickifyEnum( ClassNode *quickClass, EnumNode *enume )

@@ -33,6 +33,7 @@ public:
     bool isEmpty() const;
     const QString& source() const;
     const Text& body() const;
+    Text briefText() const;
     const QString& baseName() const;
     SectioningUnit granularity() const;
     const Set<QString> *parameterNames() const;
