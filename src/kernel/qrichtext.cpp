@@ -1432,6 +1432,7 @@ struct Q_EXPORT QTextDocumentTag {
 		    curpar->litem = ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ); \
 		    curpar->str->setDirection( (QChar::Direction)curtag.direction ); \
 		    space = TRUE; \
+		    tabExpansionColumn = 0; \
 		    delete vec; vec = new QPtrVector<QStyleSheetItem>( (uint)tags.count() + 1); \
 		    int i = 0; \
 		    for ( QValueStack<QTextDocumentTag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
@@ -1463,6 +1464,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
     bool canMergeLi = FALSE;
 
     bool textEditMode = FALSE;
+    int tabExpansionColumn = 0;
 
     const QChar* doc = text.unicode();
     int length = text.length();
@@ -1833,10 +1835,22 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    int l = pos;
 		    c = parseChar( doc, length, pos, curtag.wsm );
 
-		    // in white space pre mode: treat any space as non  breakable
-		    if ( c == ' ' && curtag.wsm == QStyleSheetItem::WhiteSpacePre )
-			c = QChar::nbsp;
-
+		    // in white space pre mode: treat any space as non breakable
+		    // and expand tabs to eight character wide columns.
+		    if ( curtag.wsm == QStyleSheetItem::WhiteSpacePre ) {
+			if ( c == ' ' ) {
+			    c = QChar::nbsp;
+			} else if  ( c == '\t' ) {
+			    c = QChar::nbsp;
+			    while( (++tabExpansionColumn)%8 )
+				s += c;
+			}
+			if ( c == QChar_linesep )
+			    tabExpansionColumn = 0;
+			else
+			    tabExpansionColumn++;
+			
+		    }
 		    if ( c == ' ' || c == QChar_linesep ) {
 			/* avoid overlong paragraphs by forcing a new
 			       paragraph after 4096 characters. This case can
@@ -3366,7 +3380,7 @@ int QTextFormat::width( const QChar &c ) const
 	return 0;
     if ( !pntr || !pntr->isActive() ) {
 	if ( c == '\t' )
-	    return fm.width( 'x' ) * 8;
+	    return fm.width( ' ' );
 	if ( ha == AlignNormal ) {
 	    int w;
 	    if ( c.row() )
