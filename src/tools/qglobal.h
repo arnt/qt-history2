@@ -225,6 +225,7 @@
 /* Visual C++.Net issues for _MSC_VER >= 1300 */
 #  if _MSC_VER >= 1300
 #    define Q_CC_MSVC_NET
+#    define Q_TYPENAME
 #  endif
 #  define Q_NO_USING_KEYWORD /* ### check "using" status */
 
