@@ -2,6 +2,134 @@
     \page known-issues.html
     \title Known Issues in Qt 4.0 Beta 1
 
+    \omit
+    ###########################################################################
+    ### When adding the first issue to a section, remove the omit...endomit ###
+    ### commands around the empty table in that section, and make sure that ###
+    ### you add complete rows to the table. Remove the "No current issues"  ###
+    ### line as well, or it will all look really stupid.                    ###
+    ###########################################################################
+    \endomit
+
     This page will contain a list of issues that are known to
     Trolltech and that we expect to fix in the next beta release.
+
+    \section1 Build Issues
+
+    \section2 General
+
+    \table
+    \header \i Description \i Resolution
+    \row \i When Qt has been built in both debug and release modes, the object files for
+    the demos will be built in debug mode regardless.
+    \i Fix scheduled for beta 2.
+    \row \i All tools are compiled in debug mode with no optimizations.
+    \i Fix scheduled for beta 2.
+    \row \i \c{make install} don't work with \c{configure -fast}.
+    \i Fix scheduled for beta 2.
+    \endtable
+
+    \section2 Windows
+
+    No current issues.
+
+    \omit
+    \table
+    \header \i Description \i Resolution
+    \row \i <description goes here> \i <resolution goes here>
+    \endtable
+    \endomit
+
+    \section2 X11
+
+    No current issues.
+
+    \omit
+    \table
+    \header \i Description \i Resolution
+    \row \i <description goes here> \i <resolution goes here>
+    \endtable
+    \endomit
+
+    \section2 Embedded
+
+    No current issues.
+
+    \omit
+    \table
+    \header \i Description \i Resolution
+    \row \i <description goes here> \i <resolution goes here>
+    \endtable
+    \endomit
+
+    \section2 Mac OS X
+
+    No current issues.
+
+    \omit
+    \table
+    \header \i Description \i Resolution
+    \row \i <description goes here> \i <resolution goes here>
+    \endtable
+    \endomit
+
+
+    \section1 Bugs
+
+    \section2 General
+
+    No current issues.
+
+    \omit
+    \table
+    \header \i Description \i Resolution
+    \row \i <description goes here> \i <resolution goes here>
+    \endtable
+    \endomit
+
+    \section2 Windows
+
+    \table
+    \header \i Description \i Resolution
+    \row \i More or less all applications crash if it try to print (2005 only).
+    \i Fix scheduled for beta 2.
+    \row \i Printing doesn't work. \i Fix scheduled for beta 2.
+    \row \i QTextEdit crashes when pasting in lots of text; for example, see examples/sdi.
+    \i Fix scheduled for beta 2.
+    \endtable
+
+    \section2 X11
+
+    \table
+    \header \i Description \i Resolution
+    \row \i Assistant and the \c mainwindow demo segfault on exit.
+    \i Fix scheduled for beta 2.
+    \row \i \bold{Solaris, AIX}: Shortcuts don't work.
+    \i Fix scheduled for beta 2.
+    \row \bold{AIX xlC}: \c foreach is broken in release mode.
+    \i Fix scheduled for beta 2.
+    \endtable
+
+    \section2 Embedded
+
+    \table
+    \header \i Description \i Resolution
+    \row \i Designer runs, but is completely unusable since drag and drop doesn't work.
+    (Drag and drop is not implemented on embedded.)
+    \i Fix scheduled for beta 2.
+    \endtable
+
+    \section2 Mac OS X
+
+    \table
+    \header \i Description \i Resolution
+    \row \i \bold{Jaguar}: The Arthur example doesn't let me click through the focus
+    widget. \i Fix scheduled for beta 2.
+    \row \i \bold{Jaguar}: It seems any of the network examples lock up whenever they
+    try to do some type of look up.
+    \i Fix scheduled for beta 2.
+    \row \i \bold{Jaguar}: Charactermap example doesn't show anything.
+    \i Fix scheduled for beta 2.
+    \endtable
+
 */
