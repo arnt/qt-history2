@@ -1371,7 +1371,7 @@ double QTextStream::input_double()
 	c = ts_getc();
     }
 
-#if !defined(Q_CC_EGG) && !defined(Q_CC_KAI)
+#if !defined(Q_CC_EGG) && !defined(Q_CC_KAI) && !defined(Q_CC_USLC)
     return 0.0;
 #endif
 }
