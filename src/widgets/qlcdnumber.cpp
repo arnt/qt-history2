@@ -588,7 +588,7 @@ void QLCDNumber::setMode( Mode m )
 {
     base = m;
 
-    repaint( contentsRect() );
+    display( val );
 }
 
 
