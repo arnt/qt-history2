@@ -899,17 +899,20 @@ Q_GUI_EXPORT void qWinProcessConfigRequests()                // perform requests
             break;
         r = configRequests->takeLast();
         QWidget *w = QWidget::find(r->id);
-        if (w) {                                // widget exists
-            if (w->testWState(Qt::WState_ConfigPending))
-                return;                                // biting our tail
-            if (r->req == 0)
-                w->move(r->x, r->y);
-            else if (r->req == 1)
-                w->resize(r->w, r->h);
-            else
-                w->setGeometry(r->x, r->y, r->w, r->h);
-        }
+        QRect rect(r->x, r->y, r->w, r->h);
+        int req = r->req;
         delete r;
+
+	if ( w ) {				// widget exists
+	    if (w->testWState(Qt::WState_ConfigPending))
+		return;				// biting our tail
+	    if (req == 0)
+		w->move(rect.topLeft());
+	    else if (req == 1)
+		w->resize(rect.size());
+	    else
+		w->setGeometry(rect);
+	}
     }
     delete configRequests;
     configRequests = 0;
