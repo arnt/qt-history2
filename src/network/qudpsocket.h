@@ -44,7 +44,7 @@ public:
                              const QHostAddress &host, Q_UINT16 port);
     inline Q_LONGLONG writeDatagram(const QByteArray &datagram,
                                     const QHostAddress &host, Q_UINT16 port)
-        { return writeDatagram(ba.data(), ba.size(), host, port); }
+        { return writeDatagram(datagram.data(), datagram.size(), host, port); }
 
 private:
     Q_DISABLE_COPY(QUdpSocket)
