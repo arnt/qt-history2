@@ -826,7 +826,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
     setFontFamily(), setFontPointSize(), setFontWeight() (for bold),
     setFontItalic(), setFontUnderline(), setFontOverline(),
     setFontStrikeOut(), and setFontFixedPitch(). The color is set with
-    setColor(), and the anchor (for hyperlinks) with setAnchor(),
+    setTextColor(), and the anchor (for hyperlinks) with setAnchor(),
     setAnchorHref(), setAnchorName(). The characters can be marked as
     non-deletable with setNonDeletable().
 
@@ -1005,20 +1005,20 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 
 
 /*!
-    \fn void QTextCharFormat::setColor(const QColor &color)
+    \fn void QTextCharFormat::setTextColor(const QColor &color)
 
     Sets the text format's font color to \a color.
 
-    \sa color()
+    \sa textColor()
 */
 
 
 /*!
-    \fn QColor QTextCharFormat::color() const
+    \fn QColor QTextCharFormat::textColor() const
 
     Returns the text format's font color.
 
-    \sa setColor()
+    \sa setTextColor()
 */
 
 
