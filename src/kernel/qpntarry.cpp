@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#29 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#29 $")
 
 
 /*----------------------------------------------------------------------------
@@ -556,45 +556,6 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
     delete[] py;
 }
 #endif
-
-
-const max_bezcontrols = 20;			// max Bezier control points
-
-//
-// We're using Pascal's triangle to calculate the binomial
-// coefficients C(n,k) once.
-// The advantages are that it is much faster than calculating on demand,
-// and that we don't get any numerical overflow.
-//
-
-const max_bico	= max_bezcontrols;		// max binomial coefficient n
-const num_bicos = max_bico*(max_bico+1)/2;	// 1+2+3+...+max_bico
-static long bicot[num_bicos];			// Pascal's triangle
-
-#define BICO(n,k) bicot[ (n)*((n)+1)/2 + (k) ];
-
-static void init_bicot()			// initialize Pascal's triangle
-{
-    static bool initialized = FALSE;
-    if ( initialized )
-	return;
-    initialized = TRUE;
-    long *p, *c;
-    int n, k;
-    memset( bicot, sizeof(bicot), 0 );
-    for ( n=0; n<max_bico; n++ ) {		// fill edges with 1's
-	c = &BICO(n,0);
-	c[0] = c[n] = 1;
-    }
-    for ( n=2; n<max_bico; n++ ) {		// compute sums
-	p = &BICO(n-1,0);
-	c = &BICO(n,1);
-	for ( k=1; k<n; k++ ) {
-	    *c++ = *p + *(p+1);
-	    p++;
-	}
-    }
-}
 
 
 /*----------------------------------------------------------------------------
