@@ -39,95 +39,205 @@
 
 #ifndef QT_NO_SQL
 
-#include "qtoolbutton.h"
-#include "qpainter.h"
-#include "qpushbutton.h"
-#include "qpixmapcache.h"
-#include "qbitmap.h"
-#include "qframe.h"
-#include "qlabel.h"
+#include "../kernel/qrichtext_p.h"
 #include "qapplication.h"
+#include "qpushbutton.h"
+#include "qbitmap.h"
+#include "qpixmap.h"
+#include "qpixmapcache.h"
+#include "qapplication.h"
+#include "qvaluelist.h"
+#include "qstring.h"
 
-class QNumEditPrivate : public QLineEdit
+#include "math.h" // floor()
+
+// ## todo: implement valueChanged signals
+
+#define HIDDEN_CHAR '0'
+
+class QDateTimeEditBase::QDateTimeEditBasePrivate
 {
 public:
-    QNumEditPrivate( QWidget * parent, const char * name = 0 )
-	: QLineEdit( parent, name )
+    QDateTimeEditBasePrivate()
+	: frm( TRUE ),
+	  parag( new QTextParag( 0, 0, 0, FALSE ) ),
+	  pm(0),
+	  focusSec(0),
+	  sep("-")
     {
-	setFrame( FALSE );
-	setAlignment( AlignRight );
+	parag->formatter()->setWrapEnabled( FALSE );
+	cursor = new QTextCursor( 0 );
+	cursor->setParag( parag );
+	pm = new QPixmap;
+    }
+    ~QDateTimeEditBasePrivate()
+    {
+	delete parag;
+	delete cursor;
+	delete pm;
     }
 
-    void setRange( int min, int max )
+    void appendSection( const QNumberSection& sec )
     {
-	QIntValidator * v = new QIntValidator( this );
-	v->setRange( min, max );
-	setValidator( v );
+	sections.append( sec );
     }
-};
+    void setSectionSelection( int sec, int selstart, int selend )
+    {
+	if ( sec < 0 || sec > (int)sections.count() )
+	    return;
+	sections[sec].setSelectionStart( selstart );
+	sections[sec].setSelectionEnd( selend );
+    }
+    uint sectionCount() const { return sections.count(); }
+    void setSeparator( const QString& s ) { sep = s; }
+    QString separator() const { return sep; }
 
-class QDateTimeEditLabelPrivate : public QLabel
-{
-public:
-    QDateTimeEditLabelPrivate( QWidget * parent = 0, const char * name = 0,
-			WFlags f = 0 )
-	: QLabel( parent, name, f){}
+    void setFrame( bool f ) { frm = f; }
+    bool frame() const { return frm; }
+
+    int focusSection() const { return focusSec; }
+    int section( const QPoint& p )
+    {
+	cursor->place( p, parag );
+	int idx = cursor->index();
+	for ( uint i = 0; i < sections.count(); ++i ) {
+	    if ( idx >= sections[i].selectionStart() &&
+		 idx <= sections[i].selectionEnd() )
+		return i;
+	}
+	return -1;
+    }
+    bool setFocusSection( int idx )
+    {
+	if ( idx > (int)sections.count()-1 || idx < 0 )
+	    return FALSE;
+	if ( idx != focusSec ) {
+	    focusSec = idx;
+	    applyFocusSelection();
+	    return TRUE;
+	}
+	return FALSE;
+    }
+
+    bool inSectionSelection( int idx )
+    {
+	for ( uint i = 0; i < sections.count(); ++i ) {
+	    if ( idx >= sections[i].selectionStart() &&
+		 idx <= sections[i].selectionEnd() )
+		return TRUE;
+	}
+	return FALSE;
+    }
+
+    void paint( const QString& txt, bool focus, QPainter& p,
+		const QColorGroup& cg, const QRect& rect, QStyle& style )
+    {
+	int fw = 0;
+	if ( frm )
+	    fw = style.defaultFrameWidth();
+
+	parag->truncate( 0 );
+	parag->append( txt );
+	if ( !focus )
+	    parag->removeSelection( QTextDocument::Standard );
+	else {
+	    applyFocusSelection();
+	}
+
+	/* color all HIDDEN_CHAR chars to background color */
+	QTextFormat *fb = parag->formatCollection()->format( p.font(),
+							    cg.background() );
+	for ( uint i = 0; i < txt.length(); ++i ) {
+	    if ( inSectionSelection( i ) )
+		continue;
+	    if ( txt.at(i) == HIDDEN_CHAR )
+		parag->setFormat( i, 1, fb );
+	}
+	fb->removeRef();
+
+
+	QRect r( rect.x(), rect.y(), rect.width() - 2 * ( 2 + fw ), rect.height() );
+	parag->setDocumentRect( r );
+	parag->invalidate(0);
+	parag->format();
+
+	int xoff = 2 + fw;
+	int yoff = (rect.height() - parag->rect().height())/2;
+	if ( yoff < 0 )
+	    yoff = 0;
+
+	p.translate( xoff, yoff );
+	parag->paint( p, cg, 0, TRUE );
+	if ( frm ) {
+	    p.translate( -xoff, -yoff );
+	    style.drawPanel( &p, 0, 0, rect.width(), rect.height(), cg,
+			       TRUE, style.defaultFrameWidth() );
+	}
+    }
+
+    void resize( const QSize& size )
+    {
+	pm->resize( size );
+    }
+
+    QPixmap* pixmap() { return pm; }
 
 protected:
-    void drawContents( QPainter * p )
+    void applyFocusSelection()
     {
-	p->fillRect( contentsRect(), colorGroup().background() );
-	QLabel::drawContents( p );
+	if ( focusSec > -1 ) {
+	    int selstart = sections[ focusSec ].selectionStart();
+	    int selend = sections[ focusSec ].selectionEnd();
+	    parag->setSelection( QTextDocument::Standard, selstart, selend );
+	}
     }
+private:
+    bool frm;
+    QTextParag *parag;
+    QTextCursor *cursor;
+    QPixmap *pm;
+    int focusSec;
+    QValueList< QNumberSection > sections;
+    QString sep;
 };
 
-/*!
 
-  Base class for the QTimeEdit and QDateEdit widgets.
- */
+
+
+/*!  Constructs an empty
+
+*/
+
 QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
-    : QFrame( parent, name )
+    : QWidget( parent, name )
 {
+    d = new QDateTimeEditBasePrivate();
     init();
 }
 
+
+/*! Destroys the object and frees any allocated resources.
+
+*/
+
+QDateTimeEditBase::~QDateTimeEditBase()
+{
+    delete d;
+}
+
+
 /*!
 
-  \internal Initialization.
 */
+
 void QDateTimeEditBase::init()
 {
-    if( style() == WindowsStyle )
-	setFrameStyle( WinPanel | Sunken );
-    else
-	setFrameStyle( Panel | Sunken );
-    setLineWidth( 2 );
-
     QPalette p = palette();
     p.setColor( QPalette::Active, QColorGroup::Background,
 		palette().active().color( QColorGroup::Base ) );
     p.setColor( QPalette::Inactive, QColorGroup::Background,
 		palette().inactive().color( QColorGroup::Base ) );
     setPalette( p );
-
-    ed[0] = new QNumEditPrivate( this, "Ed_1" );
-    ed[1] = new QNumEditPrivate( this, "Ed_2" );
-    ed[2] = new QNumEditPrivate( this, "Ed_3" );
-
-    ed[0]->setMaxLength( 2 );
-    ed[1]->setMaxLength( 2 );
-    ed[2]->setMaxLength( 2 );
-
-    //### necessary?
-//     connect( ed[0], SIGNAL( textChanged( const QString & ) ),
-//           this, SIGNAL( valueChanged() ) );
-//     connect( ed[1], SIGNAL( textChanged( const QString & ) ),
-//           this, SIGNAL( valueChanged() ) );
-//     connect( ed[2], SIGNAL( textChanged( const QString & ) ),
-//           this, SIGNAL( valueChanged() ) );
-
-    sep[0] = new QDateTimeEditLabelPrivate( this );
-    sep[1] = new QDateTimeEditLabelPrivate( this );
 
     up   = new QPushButton( this );
     up->setFocusPolicy( QWidget::NoFocus );
@@ -142,27 +252,34 @@ void QDateTimeEditBase::init()
     connect( up, SIGNAL( clicked() ), SLOT( stepUp() ) );
     connect( down, SIGNAL( clicked() ), SLOT( stepDown() ) );
 
-    ed[0]->installEventFilter( this );
-    ed[1]->installEventFilter( this );
-    ed[2]->installEventFilter( this );
-
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
-    setFocusProxy( ed[0] );
+
     setFocusPolicy( StrongFocus );
+    setFocusSection( -1 );
+    setKeyCompression( TRUE );
 }
 
+
 /*!
-  \reimp
+
 */
-void QDateTimeEditBase::drawContents( QPainter * p )
+
+bool QDateTimeEditBase::event( QEvent *e )
 {
-    p->fillRect( contentsRect(), colorGroup().background() );
+    if ( e->type() == QEvent::FocusIn ) {
+	repaint( rect(), FALSE);
+    }
+    if( e->type() == QEvent::FocusOut ){
+	repaint( rect(), FALSE );
+    }
+    return QWidget::event( e );
 }
 
-/*!
 
-  Draws the arrow buttons.
- */
+/*! \internal
+
+*/
+
 void QDateTimeEditBase::updateArrows()
 {
     QString key( QString::fromLatin1( "$qt$qdatetimeedit$" ) );
@@ -211,144 +328,36 @@ void QDateTimeEditBase::updateArrows()
     }
     down->setPixmap( dnBm );
     up->setPixmap( upBm );
+
 }
 
-/*!
 
-  Increase the current value one step. This slot is called when the
-  up button is clicked.
- */
-void QDateTimeEditBase::stepUp()
+
+/*! \internal
+
+*/
+
+void QDateTimeEditBase::layoutArrows( const QSize& s )
 {
-    int i = 0;
-    int focus = 0;
+    int fw = 0;
+    if ( frame() )
+	fw = style().defaultFrameWidth();
 
-    for( i = 0; i < 3; i++)
-	if( ed[i]->hasFocus() )
-	    focus = i;
-
-    QNumEditPrivate * e = ed[focus];
-    QIntValidator * v = (QIntValidator *) e->validator();
-
-    if( !v ) return;
-    int n = e->text().toInt();
-    n++;
-
-    if( n > v->top() )
-	n = v->top();
-    else if( n < v->bottom() )
-	n = v->bottom();
-
-    e->setText( QString::number( n ) );
-}
-
-/*!
-
-  Decrease the current value one step. This slot is called when the
-  down button is clicked.
- */
-void QDateTimeEditBase::stepDown()
-{
-    int i = 0;
-    int focus = 0;
-
-    for( i = 0; i < 3; i++)
-	if( ed[i]->hasFocus() )
-	    focus = i;
-
-    QNumEditPrivate * e = ed[focus];
-    QIntValidator * v = (QIntValidator *) e->validator();
-
-    if( !v ) return;
-    int n = e->text().toInt();
-    n--;
-
-    if( n > v->top() )
-	n = v->top();
-    else if( n < v->bottom() )
-	n = v->bottom();
-
-    e->setText( QString::number( n ) );
-}
-
-/*!
-
-  \reimp
- */
-bool QDateTimeEditBase::eventFilter( QObject * o, QEvent * e )
-{
-    if( e->type() == QEvent::KeyPress ){
-	QKeyEvent * k = (QKeyEvent *) e;
-	// This hack is needed to handle TAB focusing properly
-	if( (k->key() == Key_Tab) ) {
-	    if( o == ed[2] ){
-		qApp->sendEvent( this, e );
-		return TRUE;
-	    }
-	}
-	if( k->key() == Key_BackTab ){
-	    if( o == ed[0] ){
-		qApp->sendEvent( this, e );
-		return TRUE;
-	    }
-	}
-	if( (k->key() == Key_Up) ){
-	    stepUp();
-	    return TRUE;
-	}
-	if( (k->key() == Key_Down) ){
-	    stepDown();
-	    return TRUE;
-	}
-    }
-
-    if( e->type() == QEvent::FocusOut ){
-	for(int i = 0; i < 3; i++){
-	    QString s = ed[i]->text();
-	    int pos = 0;
-
-	    if( ed[i]->validator()->validate( s, pos ) !=
-		QValidator::Acceptable )
-	    {
-		ed[i]->setText( lastValid[i] );
-	    } else {
-		lastValid[i] = ed[i]->text();
-	    }
-	}
-    }
-    return QFrame::eventFilter( o, e );;
-}
-
-/*!
-
-  Layout the arrow buttons.
- */
-void QDateTimeEditBase::layoutArrows()
-{
     QSize bs;
-    if ( style() == WindowsStyle )
-	bs.setHeight( height()/2 - frameWidth() );
-    else
-	bs.setHeight( height()/2 );
-    if ( bs.height() < 8 )
-	bs.setHeight( 8 );
+    bs.setHeight( height()/2 - fw );
+    if ( bs.height() < 6 )
+	bs.setHeight( 6 );
     bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
 
-    int y = style() == WindowsStyle ? frameWidth() : 0;
+    int y = fw;
     int x, lx;
     if ( QApplication::reverseLayout() ) {
 	x = y;
-	lx = x + bs.width() + frameWidth();
+	lx = x + bs.width() + fw;
     } else {
 	x = width() - y - bs.width();
-	lx = frameWidth();
+	lx = fw;
     }
-
-    if ( style() == WindowsStyle )
-	setFrameRect( QRect( 0, 0, 0, 0 ) );
-    else
-	setFrameRect( QRect( lx - frameWidth(), 0, width() - bs.width(),
-			     height() ) );
 
     if ( up->size() != bs || down->size() != bs ) {
 	up->resize( bs );
@@ -358,531 +367,1123 @@ void QDateTimeEditBase::layoutArrows()
 
     up->move( x, y );
     down->move( x, height() - y - up->height() );
+    QSize pmSize( s.width() - (s.width()-x), s.height() );
+    d->resize( pmSize );
 }
 
-
-
-/*!
-  \class QDateEdit qdatetimeedit.h
-
-  \brief The QDateEdit class provides a combined line edit box and
-  spin box to edit dates.
-
-  QDateEdit allows the user to edit dates by using the keyboard or the
-  arrow keys to increase/decrease date values.  The Tab key can be
-  used to move from field to field within the QDateEdit box. Dates
-  appear in year, month, day order by default. It is recommended that
-  the QDateEdit is initialised with a date, e.g.
-
-    \dontinclude datetime/main.cpp
-    \skipto QDateEdit
-    \printline
-    <h5 align="center">From \l datetime/main.cpp </h5>
-
-  If illegal values are entered, they will be reverted to the last
-  known legal value when the user presses Return. For example if the
-  user enters 5000 for the year value, and it was 2000 before they
-  started editing, the value will be reverted to 2000.
-
-  See \l examples/datetime for an example.
-
-  \sa QTimeEdit QDateTimeEdit
+/*! \reimp
 
 */
 
+void QDateTimeEditBase::resizeEvent( QResizeEvent *e )
+{
+    layoutArrows( e->size() );
+
+#if 0
+    int fw       = 0;
+    if ( frame() )
+	fw = style().defaultFrameWidth();
+    int h        = height() - fw*2;
+    int numWidth = QFontMetrics(font()).width("X");
+    int offset   = width() - up->width() - fw;
+    int sepWidth = QFontMetrics(font()).width( separator );
+#endif
+}
+
+
+/*! \reimp
+
+*/
+
+void QDateTimeEditBase::paintEvent( QPaintEvent * )
+{
+    if ( d->pixmap()->isNull() )
+	return;
+    QString txt;
+    for ( uint i = 0; i < d->sectionCount(); ++i ) {
+	txt += sectionFormattedText( i );
+	if ( i < d->sectionCount()-1 )
+	    txt += d->separator();
+    }
+    const QColorGroup & g = colorGroup();
+    QPainter p( d->pixmap() );
+    p.setPen( colorGroup().text() );
+    QBrush bg = g.brush( QColorGroup::Base );
+    p.fillRect( 0, 0, width(), height(), bg );
+    d->paint( txt, hasFocus(), p, colorGroup(), rect(), style() );
+    p.end();
+    bitBlt( this, 0, 0, d->pixmap() );
+}
+
+
+/*! \reimp
+
+*/
+
+void QDateTimeEditBase::mousePressEvent( QMouseEvent *e )
+{
+    QPoint p( e->pos().x(), 0 );
+    int sec = d->section( p );
+    if ( sec != -1 ) {
+	setFocusSection( sec );
+	repaint( rect(), FALSE );
+    }
+}
+
+/*!  Returns TRUE if the ### edit draws itself inside a frame, FALSE
+  if it draws itself without any frame.
+
+  The default is to use a frame.
+
+  \sa setFrame()
+*/
+
+bool QDateTimeEditBase::frame() const
+{
+    return d ? d->frame() : TRUE;
+}
+
+/*!  Sets the ### edit to draw itself inside a two-pixel frame if \a
+  enable is TRUE and to draw itself without any frame if \a enable is
+  FALSE.
+
+  The default is TRUE.
+
+  \sa frame()
+*/
+
+void QDateTimeEditBase::setFrame( bool enable )
+{
+    if ( d->frame() == enable )
+	return;
+
+    d->setFrame( enable );
+    update();
+}
 
 /*!
 
-  Constructs an empty QDateEdit widget.
- */
+*/
+
+void QDateTimeEditBase::keyPressEvent( QKeyEvent *e )
+{
+    switch ( e->key() ) {
+    case Key_Right:
+	if ( d->focusSection() < 2 ) {
+	    if ( setFocusSection( focusSection()+1 ) ) {
+		repaint( rect(), FALSE );
+		return;
+	    }
+	}
+	break;
+    case Key_Left:
+	if ( d->focusSection() > 0 ) {
+	    if ( setFocusSection( focusSection()-1 ) ) {
+		repaint( rect(), FALSE );
+		return;
+	    }
+	}
+	break;
+    case Key_Up:
+	stepUp();
+	break;
+    case Key_Down:
+	stepDown();
+	break;
+    case Key_Backspace:
+    case Key_Delete:
+	removeLastNumber( d->focusSection() );
+	break;
+    default:
+	QString txt = e->text();
+	int num = txt[0].digitValue();
+	if ( num != -1 ) {
+	    addNumber( d->focusSection(), num );
+	    return;
+	}
+    }
+    QWidget::keyPressEvent( e );
+}
+
+
+/*!
+
+*/
+
+void QDateTimeEditBase::appendSection( const QNumberSection& sec )
+{
+    d->appendSection( sec );
+}
+
+
+/*!
+
+*/
+
+QString QDateTimeEditBase::sectionFormattedText( int )
+{
+    return QString::null;
+}
+
+
+/*!
+
+*/
+
+void QDateTimeEditBase::setSectionSelection( int sec, int selstart, int selend )
+{
+    d->setSectionSelection( sec, selstart, selend );
+}
+
+/*!
+
+*/
+
+void QDateTimeEditBase::setSeparator( const QString& s )
+{
+    d->setSeparator( s );
+}
+
+
+/*!
+
+*/
+
+QString QDateTimeEditBase::separator() const
+{
+    return d->separator();
+}
+
+/*!
+
+*/
+
+int QDateTimeEditBase::focusSection() const
+{
+    return d->focusSection();
+}
+
+
+/*!
+
+*/
+
+bool QDateTimeEditBase::setFocusSection( int s )
+{
+    return d->setFocusSection( s );
+}
+
+/*!
+
+*/
+
+void QDateTimeEditBase::stepUp()
+{
+
+}
+
+
+/*!
+
+*/
+
+void QDateTimeEditBase::stepDown()
+{
+
+}
+
+/*!
+
+*/
+
+void QDateTimeEditBase::addNumber( int , int  )
+{
+
+}
+
+/*!
+
+*/
+
+void QDateTimeEditBase::removeLastNumber( int  )
+{
+
+}
+
+////////////////
+
+class QDateEdit::QDateEditPrivate
+{
+public:
+    int y;
+    int m;
+    int d;
+    int yearSection;
+    int monthSection;
+    int daySection;
+    Order ord;
+    bool overwrite;
+    bool adv;
+    int timerId;
+};
+
+/*!  Constructs an empty
+
+*/
+
 QDateEdit::QDateEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
 {
-    init();
+    d = new QDateEditPrivate();
+    appendSection( QNumberSection( 0,4 ) );
+    appendSection( QNumberSection( 5,7 ) );
+    appendSection( QNumberSection( 8,10 ) );
+
+    d->yearSection = -1;
+    d->monthSection = -1;
+    d->daySection = -1;
+
+    d->y = 0;
+    d->m = 0;
+    d->d = 0;
+    setOrder( YMD );
+    setFocusSection( 0 );
+    d->overwrite = TRUE;
+    d->adv = FALSE;
+    d->timerId = 0;
 }
 
-/*!
+/*! Destroys the object and frees any allocated resources.
 
-  Constructs a QDateEdit widget and initializes it with the QDate \a d.
- */
-QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
-    : QDateTimeEditBase( parent, name ), oldDate(d)
-{
-    init();
-    setDate( d );
-}
+*/
 
-/*!
-  \internal Initialization.
- */
-void QDateEdit::init()
+QDateEdit::~QDateEdit()
 {
-    setDateSeparator( "-" );
-    setOrder( YMD ); // ## ISO default
-    //    connect( this, SIGNAL( valueChanged() ),
-    //    this, SLOT( someValueChanged() ) ); ## why?
+    delete d;
 }
 
 /*! \reimp
+
 */
+
 QSize QDateEdit::sizeHint() const
 {
-    constPolish();
-    QFontMetrics fm = fontMetrics();
+    QFontMetrics fm( font() );
     int h = fm.height();
-    if ( h < 12 )       // ensure enough space for the button pixmaps
-	h = 12;
-    int w = 85; // minimum width for the value
-    QString s;
-    s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
-	ed[2]->text();
-    w = QMAX( w, fm.width( s ) );
-    QSize r( h // buttons AND frame both sides - see resizeevent()
-	     + 6 // right/left margins
-	     + w, // widest value
-	     frameWidth() * 2 // top/bottom frame
-	     + 4 // top/bottom margins
-	     + h // font height
-	     );
-    return r;
+    int w = fm.width( 'x' ) * 14;
+    if ( frame() ) {
+	h += 8;
+	if ( style() == WindowsStyle && h < 22 )
+	    h = 22;
+	return QSize( w + 8, h ).expandedTo( QApplication::globalStrut() );
+    } else {
+	return QSize( w + 4, h + 4 ).expandedTo( QApplication::globalStrut() );
+    }
 }
 
-/*! \reimp
+
+/*!
+
 */
-QSize QDateEdit::minimumSizeHint() const
+
+QString QDateEdit::sectionFormattedText( int sec )
 {
-    int w = 85 // minimum for value
-	    + 6; // arrows
-    int h = 12; // arrow pixmaps
-    return QSize( w, h );
+    QString txt;
+    txt = sectionText( sec );
+    setSectionSelection( sec, sectionOffsetEnd( sec ) - txt.length(),
+			 sectionOffsetEnd( sec ) );
+    txt = txt.rightJustify( sectionLength( sec ), HIDDEN_CHAR );
+    return txt;
 }
 
+
+/*!
+
+*/
+
+int QDateEdit::sectionLength( int sec )
+{
+    int val = 0;
+    if ( sec == d->yearSection ) {
+	val = 4;
+    } else if ( sec == d->monthSection ) {
+	val = 2;
+    } else if ( sec == d->daySection ) {
+	val = 2;
+    }
+    return val;
+}
+/*! \internal
+
+*/
+
+QString QDateEdit::sectionText( int sec )
+{
+    int val = 0;
+    if ( sec == d->yearSection ) {
+	val = d->y;
+    } else if ( sec == d->monthSection ) {
+	val = d->m;
+    } else if ( sec == d->daySection ) {
+	val = d->d;
+    }
+    return QString::number( val );
+}
 
 /*! \internal
- */
-
-void QDateEdit::someValueChanged()
-{
-    emit valueChanged( date() );
-}
-
-/*!  Set the date in the editor to \a d.
 
 */
 
-void QDateEdit::setDate( const QDate & d )
+int QDateEdit::sectionOffsetEnd( int sec )
 {
-    if ( !d.isValid() ) {
-	/* invalid */
-	ed[0]->setText( "" );
-	ed[1]->setText( "" );
-	ed[2]->setText( "" );
-	oldDate = QDate();
-	return;
-    }
-
-    QIntValidator * v[3];
-    int yy = d.year();
-    int mm = d.month();
-    int dd = d.day();
-
-    v[0] = (QIntValidator *) ed[0]->validator();
-    v[1] = (QIntValidator *) ed[1]->validator();
-    v[2] = (QIntValidator *) ed[2]->validator();
-
-    if( (yy > v[yearPos]->top()) || (yy < v[yearPos]->bottom()) ||
-	(mm > v[monthPos]->top()) || (mm < v[monthPos]->bottom()) ||
-	(dd > v[dayPos]->top()) || (dd < v[dayPos]->bottom()) ) {
-	/* Date out of range - leave blank */
-	ed[0]->setText( "" );
-	ed[1]->setText( "" );
-	ed[2]->setText( "" );
-	/* do not touch oldDate, since it is our fallback */
-    } else {
-	ed[yearPos]->setText( QString::number( yy ) );
-	ed[monthPos]->setText( QString::number( mm ) );
-	ed[dayPos]->setText( QString::number( dd ) );
-	if ( oldDate != d ) {
-	    oldDate = d;
-	    emit valueChanged( d ); /* our new value */
+    if ( sec == d->yearSection ) {
+	switch( d->ord ) {
+	case DMY:
+	case MDY:
+	    return 10;
+	case YMD:
+	case YDM:
+	    return 4;
+	}
+    } else if ( sec == d->monthSection ) {
+	switch( d->ord ) {
+	case DMY:
+	    return 5;
+	case YMD:
+	    return 7;
+	case MDY:
+	    return 2;
+	case YDM:
+	    return 10;
+	}
+    } else if ( sec == d->daySection ) {
+	switch( d->ord ) {
+	case DMY:
+	    return 2;
+	case YMD:
+	    return 10;
+	case MDY:
+	    return 5;
+	case YDM:
+	    return 7;
 	}
     }
+    return 0;
 }
 
-/*! Returns the date in editor.
- */
+
+/*!
+
+*/
+
+void QDateEdit::setOrder( QDateEdit::Order order )
+{
+    d->ord = order;
+    switch( d->ord ) {
+    case DMY:
+	d->yearSection = 2;
+	d->monthSection = 1;
+	d->daySection = 0;
+	break;
+    case MDY:
+	d->yearSection = 2;
+	d->monthSection = 0;
+	d->daySection = 1;
+	break;
+    case YMD:
+	d->yearSection = 0;
+	d->monthSection = 1;
+	d->daySection = 2;
+	break;
+    case YDM:
+	d->yearSection = 0;
+	d->monthSection = 2;
+	d->daySection = 1;
+	break;
+    }
+    if ( isVisible() )
+	repaint( rect(), FALSE );
+}
+
+
+/*!
+
+*/
+
+QDateEdit::Order QDateEdit::order() const
+{
+    return d->ord;
+}
+
+
+/*!
+
+*/
+
+void QDateEdit::stepUp()
+{
+    int sec = focusSection();
+    if ( sec == d->yearSection )
+	setYear( d->y+1 );
+    else if ( sec == d->monthSection )
+	setMonth( d->m+1 );
+    else if ( sec == d->daySection )
+	setDay( d->d+1 );
+    repaint( rect(), FALSE );
+}
+
+
+
+/*!
+
+*/
+
+void QDateEdit::stepDown()
+{
+    int sec = focusSection();
+    if ( sec == d->yearSection )
+	setYear( d->y-1 );
+    else if ( sec == d->monthSection )
+	setMonth( d->m-1 );
+    else if ( sec == d->daySection )
+	setDay( d->d-1 );
+    repaint( rect(), FALSE );
+}
+
+
+/*!
+
+*/
+
+void QDateEdit::setYear( int year )
+{
+    if ( year < 1752 )
+	year = 1752;
+    if ( year > 8000 )
+	year = 8000;
+    d->y = year;
+    setMonth( d->m );
+    setDay( d->d );
+}
+
+
+/*!
+
+*/
+
+void QDateEdit::setMonth( int month )
+{
+    if ( month < 1 )
+	month = 1;
+    if ( month > 12 )
+	month = 12;
+    d->m = month;
+    setDay( d->d );
+}
+
+
+/*!
+
+*/
+
+void QDateEdit::setDay( int day )
+{
+    if ( day < 1 )
+	day = 1;
+    if ( day > 31 )
+	day = 31;
+    if ( d->m > 0 && d->y > 1752 ) {
+	bool valid = FALSE;
+	while ( !(valid = QDate::isValid( d->y, d->m, day ) ) )
+	    --day;
+	d->d = day;
+    } else if ( d->m > 0 ) {
+	if ( day > 0 && day < 32 )
+	    d->d = day;
+    }
+}
+
+
+/*!
+
+*/
+
+void QDateEdit::setDate( const QDate& date )
+{
+    if ( !date.isValid() ) {
+	d->y = 0;
+	d->m = 0;
+	d->d = 0;
+	return;
+    }
+    d->y = date.year();
+    d->m =  date.month();
+    d->d = date.day();
+    repaint( rect(), FALSE );
+}
+
+/*!
+
+*/
+
 QDate QDateEdit::date() const
 {
-    int yy = ed[yearPos]->text().toInt();
-    int mm = ed[monthPos]->text().toInt();
-    int dd = ed[dayPos]->text().toInt();
-
-    if ( !QDate::isValid( yy, mm, dd ) )
-	return QDate();
-
-    return QDate( yy, mm, dd );
+    if ( QDate::isValid( d->y, d->m, d->d ) )
+	return QDate( d->y, d->m, d->d );
+    return QDate();
 }
+
+
+/*!
+
+*/
+
+void QDateEdit::addNumber( int sec, int num )
+{
+    if ( sec == -1 )
+	return;
+    killTimer( d->timerId );
+    QString txt;
+    if ( sec == d->yearSection ) {
+	txt = QString::number( d->y );
+	if ( d->overwrite || txt.length() == 4 ) {
+	    d->y = num;
+	} else {
+	    txt += QString::number( num );
+	    d->y = txt.toInt();
+	    if ( d->adv && txt.length() == 4 )
+		setFocusSection( focusSection()+1 );
+	}
+    } else if ( sec == d->monthSection ) {
+	txt = QString::number( d->m );
+	if ( d->overwrite || txt.length() == 2 )
+	    d->m = num;
+	else {
+	    txt += QString::number( num );
+	    int temp = txt.toInt();
+	    if ( temp > 12 )
+		d->m = num;
+	    else
+		d->m = temp;
+	    txt = QString::number( d->m );
+	    if ( d->adv && txt.length() == 2 )
+		setFocusSection( focusSection()+1 );
+	}
+    } else if ( sec == d->daySection ) {
+	txt = QString::number( d->d );
+	if ( d->overwrite || txt.length() == 2 )
+	    d->d = num;
+	else {
+	    txt += QString::number( num );
+	    int temp = txt.toInt();
+	    if ( temp > 31 )
+		d->d = num;
+	    else
+		d->d = temp;
+	    txt = QString::number( d->d );
+	    if ( d->adv && txt.length() == 2 )
+		setFocusSection( focusSection()+1 );
+	}
+    }
+    d->overwrite = FALSE;
+    d->timerId = startTimer( qApp->doubleClickInterval()*4 );
+    repaint( rect(), FALSE );
+}
+
+
+/*!
+
+*/
+
+bool QDateEdit::setFocusSection( int s )
+{
+    if ( s != focusSection() ) {
+	d->overwrite = TRUE;
+	killTimer( d->timerId );
+	fix();
+    }
+    return QDateTimeEditBase::setFocusSection( s );
+}
+
+
+/*!
+
+*/
+
+void QDateEdit::fix()
+{
+    QDate date = QDate::currentDate();
+    int year = d->y;
+    if ( year < 100 ) {
+	int currentCentury = (int) floor( (double)date.year()/100 );
+	int loFullYear = date.year() - 70;
+	int loCentury = (int) ( floor(loFullYear/100 ) < currentCentury ) ?
+			(int) floor( loFullYear/100 ) : currentCentury;
+	int loYear = loFullYear - ( loCentury * 100 );
+	int hiCentury = currentCentury;
+	if ( loCentury == currentCentury )
+	    ++hiCentury;
+	if ( year >= loYear )
+	    year = ( loCentury*100 ) + year;
+	else
+	    year = ( hiCentury*100 ) + year;
+    }
+    setYear( year );
+}
+
+
+/*!
+
+*/
+
+bool QDateEdit::event( QEvent *e )
+{
+    if( e->type() == QEvent::FocusOut )
+	fix();
+    return QDateTimeEditBase::event( e );
+}
+
+/*!
+
+*/
+
+void QDateEdit::removeLastNumber( int sec )
+{
+    if ( sec == -1 )
+	return;
+    QString txt;
+    if ( sec == d->yearSection ) {
+	txt = QString::number( d->y );
+	txt = txt.mid( 0, txt.length()-1 );
+	d->y = txt.toInt();
+    } else if ( sec == d->monthSection ) {
+	txt = QString::number( d->m );
+	txt = txt.mid( 0, txt.length()-1 );
+	d->m = txt.toInt();
+    } else if ( sec == d->daySection ) {
+	txt = QString::number( d->d );
+	txt = txt.mid( 0, txt.length()-1 );
+	d->d = txt.toInt();
+    }
+    repaint( rect(), FALSE );
+}
+
+/*!
+
+*/
+
+void QDateEdit::setAutoAdvance( bool advance )
+{
+    d->adv = advance;
+}
+
+
+/*!
+
+*/
+
+bool QDateEdit::autoAdvance() const
+{
+    return d->adv;
+}
+
+/*!
+
+*/
+
+void QDateEdit::timerEvent( QTimerEvent * )
+{
+    d->overwrite = TRUE;
+}
+
 
 /*! \fn void QDateEdit::valueChanged( const QDate& )
 
-  This signal is emitted every time the date changes.  The argument is
-  the new date.
 */
 
-/*!
+///////////
 
-  Set the order in which each part of the date should appear in the edit
-  box according to the \a order enum.
-
-  \sa order
-*/
-void QDateEdit::setOrder( QDateEdit::Order order )
+class QTimeEdit::QTimeEditPrivate
 {
-    switch ( order ) {
-    case DMY:
-	yearPos  = 2;
-	monthPos = 1;
-	dayPos   = 0;
-	break;
-    case MDY:
-	yearPos  = 2;
-	monthPos = 0;
-	dayPos   = 1;
-	break;
-    case YMD:
-	yearPos  = 0;
-	monthPos = 1;
-	dayPos   = 2;
-	break;
-    case YDM:
-	yearPos  = 0;
-	monthPos = 2;
-	dayPos   = 1;
-	break;
-    };
+public:
+    int h;
+    int m;
+    int s;
+    bool adv;
+    bool overwrite;
+    int timerId;
+};
 
-    ed[yearPos]->setRange( 1753, 3000 );
-    ed[monthPos]->setRange( 1, 12 );
-    ed[dayPos]->setRange( 1, 31 );
-
-    ed[yearPos]->setMaxLength( 4 );
-    ed[monthPos]->setMaxLength( 2 );
-    ed[dayPos]->setMaxLength( 2 );
-
-    format = order;
-}
-
-/*!
-
-  Returns an enum indicating the order in which each part of the date
-  appears in the editor.
-
-  \sa setOrder
-*/
-QDateEdit::Order QDateEdit::order() const
-{
-    return format;
-}
-
-/*!
-  Set the separator string for this date editor to \a s.
-
- */
-void QDateEdit::setDateSeparator( const QString & s )
-{
-    separator = s;
-    sep[0]->setText( separator );
-    sep[1]->setText( separator );
-}
-
-/*!
-  Returns the separator string for this date editor. The default is "-".
-
- */
-QString QDateEdit::dateSeparator() const
-{
-    return separator;
-}
-
-/*! \reimp
-*/
-bool QDateEdit::event( QEvent* e )
-{
-    switch ( e->type() ) {
-    case QEvent::KeyPress: {
-	QKeyEvent *ke = (QKeyEvent*)e;
-	QDate newDate = date();
-	if ( newDate.isValid() ) {
-	    if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-		if ( newDate != oldDate ) {
-		    oldDate = newDate;
-		    emit valueChanged( newDate );
-		}
-	    } else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-		if ( newDate != oldDate ) {
-		    oldDate = newDate;
-		    emit valueChanged( newDate );
-		}
-	    }
-	}
-    }
-    break;
-    default:
-	break;
-    }
-    return QDateTimeEditBase::event( e );
-}
-
-
-/*! \reimp
-*/
-void QDateEdit::resizeEvent( QResizeEvent * )
-{
-    layoutArrows();
-
-    int fw       = frameWidth();
-    int h        = height() - fw*2;
-    int numWidth = QFontMetrics(font()).width("X");
-    int offset   = width() - up->width() - fw;
-    int sepWidth = QFontMetrics(font()).width( separator );
-
-    ed[yearPos]->resize( numWidth*4, h );
-    ed[monthPos]->resize( numWidth*2, h );
-    ed[dayPos]->resize( numWidth*2, h );
-
-    // ### alignment?
-    ed[2]->move( offset - ed[2]->width(), fw );
-    ed[1]->move( ed[2]->x() - ed[1]->width() - sepWidth, fw );
-    ed[0]->move( ed[1]->x() - ed[0]->width() - sepWidth, fw );
-
-    sep[0]->resize( sepWidth, h - 2);
-    sep[1]->resize( sepWidth, h - 2);
-    sep[0]->move( ed[0]->x() + ed[0]->width() + 1, fw );
-    sep[1]->move( ed[1]->x() + ed[1]->width() + 1, fw );
-}
-
-/*!
-
-  \class QTimeEdit qdatetimeedit.h
-
-  \brief The QTimeEdit class provides a combined line edit box and
-  spin box to edit times.
-
-  QTimeEdit allows the user to edit times by using the keyboard or the
-  arrow buttons to increase/decrease time values. Times appear in the
-  order hours, minutes, seconds using the 24 hour clock. The Tab key
-  can be used to move from field to field within the QTimeEdit box. It
-  is recommended that the QTimeEdit is initialised with a time, e.g.
-
-    \dontinclude datetime/main.cpp
-    \skipto QTimeEdit
-    \printline
-    <h5 align="center">From \l datetime/main.cpp </h5>
-
-  If illegal values are entered, these will be reverted to the last
-  known legal value when the user presses Return. For example if the
-  user entered 99 for the hour value, and it was 12 before they started
-  editing, the value will be reverted to 12.
-
-  See \l examples/datetime for an example.
-
-  \sa QDateEdit QDateTimeEdit
+/*!  Constructs an empty
 
 */
 
-/*!
-
-  Constructs an empty QTimeEdit widget.
-*/
 QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
 {
-    init();
+    d = new QTimeEditPrivate();
+    appendSection( QNumberSection( 0,0 ) );
+    appendSection( QNumberSection( 0,0 ) );
+    appendSection( QNumberSection( 0,0 ) );
+    setSeparator( ":" );
+
+    d->h = 0;
+    d->m = 0;
+    d->s = 0;
+    d->adv = FALSE;
+    d->overwrite = FALSE;
+    d->timerId = 0;
 }
 
-/*!
 
-  Constructs a QTimeEdit widget, and initializes it with the QTime \a t.
+/*! Destroys the object and frees any allocated resources.
+
 */
-QTimeEdit::QTimeEdit( const QTime & t, QWidget * parent, const char * name )
-    : QDateTimeEditBase( parent, name )
+
+QTimeEdit::~QTimeEdit()
 {
-    init();
-    setTime( t );
+    delete d;
 }
 
-/*! \internal
- */
-
-void QTimeEdit::someValueChanged()
-{
-    emit valueChanged( time() );
-}
 
 /*!
 
-  \internal Initialization.
- */
-void QTimeEdit::init()
-{
-    ed[0]->setRange( 0, 23 );
-    ed[1]->setRange( 0, 59 );
-    ed[2]->setRange( 0, 59 );
-    setTimeSeparator( ":" );
-    connect( this, SIGNAL( valueChanged() ), this, SLOT( someValueChanged() ) );
-}
-
-QSize QTimeEdit::sizeHint() const
-{
-    constPolish();
-    QFontMetrics fm = fontMetrics();
-    int h = fm.height();
-    if ( h < 12 )       // ensure enough space for the button pixmaps
-	h = 12;
-    int w = 65; // minimum width for the value
-    QString s;
-    s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
-	ed[2]->text();
-    w = QMAX( w, fm.width( s ) );
-    QSize r( h // buttons AND frame both sides - see resizeevent()
-	     + 6 // right/left margins
-	     + w, // widest value
-	     frameWidth() * 2 // top/bottom frame
-	     + 4 // top/bottom margins
-	     + h // font height
-	     );
-    return r;
-}
-
-/*! \reimp
 */
-QSize QTimeEdit::minimumSizeHint() const
-{
-    int w = 65 // minimum for value
-	    + 6; // arrows
-    int h = 12; // arrow pixmaps
-    return QSize( w, h );
-}
 
-/*!
-
-  Set the time in this QTimeEdit to time \a t.
- */
-void QTimeEdit::setTime( const QTime & t )
+void QTimeEdit::setTime( const QTime& time )
 {
-    if ( t.isValid() ) {
-	ed[0]->setText( QString::number( t.hour() ) );
-	ed[1]->setText( QString::number( t.minute() ) );
-	ed[2]->setText( QString::number( t.second() ) );
-	if ( oldTime != time() ) {
-	    oldTime = time();
-	    emit valueChanged( t );
-	}
-    } else {
-	ed[0]->setText( "" );
-	ed[1]->setText( "" );
-	ed[2]->setText( "" );
+    if ( !time.isValid() ) {
+	d->h = 0;
+	d->m = 0;
+	d->s = 0;
+	return;
     }
-
+    d->h = time.hour();
+    d->m = time.minute();
+    d->s = time.second();
+    repaint( rect(), FALSE );
 }
+
 
 /*!
 
-  Returns the time in this QTimeEdit.
- */
+*/
+
 QTime QTimeEdit::time() const
 {
-    int h = ed[0]->text().toInt();
-    int m = ed[1]->text().toInt();
-    int s = ed[2]->text().toInt();
-
-    if ( !QTime::isValid( h, m, s ) )
-	return QTime();
-
-    return QTime( h, m, s );
+    if ( QTime::isValid( d->h, d->m, d->s ) )
+	return QTime( d->h, d->m, d->s );
+    return QTime();
 }
+
+
+/*!
+
+*/
+
+void QTimeEdit::setAutoAdvance( bool advance )
+{
+    d->adv = advance;
+}
+
+
+/*!
+
+*/
+
+bool QTimeEdit::autoAdvance() const
+{
+    return d->adv;
+}
+
 
 /*! \fn void QTimeEdit::valueChanged( const QTime& )
 
-    This signal is emitted every time the time changes.  The argument is
-    the new time.
 */
 
 
 /*!
-  Set the separator string for this time editor to \a s.
- */
-void QTimeEdit::setTimeSeparator( const QString & s )
+
+*/
+
+void QTimeEdit::timerEvent( QTimerEvent * )
 {
-    separator = s;
-    sep[0]->setText( separator );
-    sep[1]->setText( separator );
+    d->overwrite = TRUE;
 }
+
 
 /*!
-  Returns the separator string for this time editor. The default is ":".
 
- */
-QString QTimeEdit::timeSeparator() const
-{
-    return separator;
-}
-
-/*! \reimp
 */
-bool QTimeEdit::event( QEvent* e )
+
+void QTimeEdit::stepUp()
 {
-    switch ( e->type() ) {
-    case QEvent::KeyPress: {
-	QKeyEvent *ke = (QKeyEvent*)e;
-	QTime newTime = time();
-	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-	    if ( newTime != oldTime ) {
-		oldTime = newTime;
-		emit valueChanged( newTime );
-	    }
-	} else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-	    if ( newTime != oldTime ) {
-		oldTime = newTime;
-		emit valueChanged( newTime );
-	    }
-	}
-    }
-    break;
-    default:
+    int sec = focusSection();
+    switch( sec ) {
+    case 0:
+	setHour( d->h+1 );
+	break;
+    case 1:
+	setMinute( d->m+1 );
+	break;
+    case 2:
+	setSecond( d->s+1 );
 	break;
     }
-    return QDateTimeEditBase::event( e );
+    repaint( rect(), FALSE );
+}
+
+
+/*!
+
+*/
+
+void QTimeEdit::stepDown()
+{
+    int sec = focusSection();
+    switch( sec ) {
+    case 0:
+	setHour( d->h-1 );
+	break;
+    case 1:
+	setMinute( d->m-1 );
+	break;
+    case 2:
+	setSecond( d->s-1 );
+	break;
+    }
+    repaint( rect(), FALSE );
+}
+
+
+/*!
+
+*/
+
+QString QTimeEdit::sectionFormattedText( int sec )
+{
+    QString txt;
+    txt = sectionText( sec );
+    int offset = 0;
+    switch( sec ) {
+    case 0:
+	offset = 2;
+	break;
+    case 1:
+	offset = 5;
+	break;
+    case 2:
+	offset = 8;
+	break;
+    }
+    setSectionSelection( sec, offset - txt.length(), offset );
+    txt = txt.rightJustify( 2, HIDDEN_CHAR );
+    return txt;
+}
+
+
+/*!
+
+*/
+
+bool QTimeEdit::setFocusSection( int s )
+{
+    if ( s != focusSection() ) {
+	killTimer( d->timerId );
+	d->overwrite = TRUE;
+    }
+    return QDateTimeEditBase::setFocusSection( s );
+}
+
+
+
+/*!
+
+*/
+
+void QTimeEdit::setHour( int h )
+{
+    if ( h < 0 )
+	h = 0;
+    if ( h > 23 )
+	h = 23;
+    d->h = h;
+}
+
+
+/*!
+
+*/
+
+void QTimeEdit::setMinute( int m )
+{
+    if ( m < 0 )
+	m = 0;
+    if ( m > 59 )
+	m = 59;
+    d->m = m;
+}
+
+
+/*!
+
+*/
+
+void QTimeEdit::setSecond( int s )
+{
+    if ( s < 0 )
+	s = 0;
+    if ( s > 59 )
+	s = 59;
+    d->s = s;
+}
+
+
+/*!
+
+*/
+
+QString QTimeEdit::sectionText( int sec )
+{
+    QString txt;
+    switch( sec ) {
+    case 0:
+	txt = QString::number( d->h );
+	break;
+    case 1:
+	txt = QString::number( d->m );
+	break;
+    case 2:
+	txt = QString::number( d->s );
+	break;
+    }
+    return txt;
+}
+
+
+/*!
+
+*/
+
+void QTimeEdit::addNumber( int sec, int num )
+{
+    if ( sec == -1 )
+	return;
+    killTimer( d->timerId );
+    QString txt;
+    if ( sec == 0 ) {
+	txt = QString::number( d->h );
+	if ( d->overwrite || txt.length() == 2 )
+	    d->h = num;
+	else {
+	    txt += QString::number( num );
+	    int temp = txt.toInt();
+	    if ( temp > 23 )
+		d->h = num;
+	    else
+		d->h = temp;
+	    txt = QString::number( d->h );
+	    if ( d->adv && txt.length() == 2 )
+		setFocusSection( focusSection()+1 );
+	}
+    } else if ( sec == 1 ) {
+	txt = QString::number( d->m );
+	if ( d->overwrite || txt.length() == 2 )
+	    d->m = num;
+	else {
+	    txt += QString::number( num );
+	    int temp = txt.toInt();
+	    if ( temp > 59 )
+		d->m = num;
+	    else
+		d->m = temp;
+	    txt = QString::number( d->m );
+	    if ( d->adv && txt.length() == 2 )
+		setFocusSection( focusSection()+1 );
+	}
+    } else if ( sec == 2 ) {
+	txt = QString::number( d->s );
+	if ( d->overwrite || txt.length() == 2 )
+	    d->s = num;
+	else {
+	    txt += QString::number( num );
+	    int temp = txt.toInt();
+	    if ( temp > 59 )
+		d->s = num;
+	    else
+		d->s = temp;
+	    txt = QString::number( d->s );
+	    if ( d->adv && txt.length() == 2 )
+		setFocusSection( focusSection()+1 );
+	}
+    }
+    d->overwrite = FALSE;
+    d->timerId = startTimer( qApp->doubleClickInterval()*4 );
+    repaint( rect(), FALSE );
+}
+
+
+/*!
+
+*/
+
+void QTimeEdit::removeLastNumber( int sec )
+{
+    if ( sec == -1 )
+	return;
+    QString txt;
+    switch( sec ) {
+    case 0:
+	txt = QString::number( d->h );
+	break;
+    case 1:
+	txt = QString::number( d->m );
+	break;
+    case 2:
+	txt = QString::number( d->s );
+	break;
+    }
+    txt = txt.mid( 0, txt.length()-1 );
+    switch( sec ) {
+    case 0:
+	d->h = txt.toInt();
+	break;
+    case 1:
+	d->m = txt.toInt();
+	break;
+    case 2:
+	d->s = txt.toInt();
+	break;
+    }
+    repaint( rect(), FALSE );
 }
 
 
 /*! \reimp
- */
-void QTimeEdit::resizeEvent( QResizeEvent * )
+
+*/
+
+QSize QTimeEdit::sizeHint() const
 {
-    layoutArrows();
-
-    int fw       = frameWidth();
-    int h        = height() - fw*2;
-    int numWidth = QFontMetrics(font()).width("X");
-    int offset   = width() - up->width() - fw;
-    int sepWidth = QFontMetrics(font()).width( separator );
-
-    ed[0]->resize( numWidth*2, h );
-    ed[1]->resize( numWidth*2, h );
-    ed[2]->resize( numWidth*2, h );
-
-    // ### alignment?
-    ed[2]->move( offset - ed[2]->width(), fw );
-    ed[1]->move( ed[2]->x() - ed[1]->width() - sepWidth, fw );
-    ed[0]->move( ed[1]->x() - ed[0]->width() - sepWidth, fw );
-
-    sep[0]->resize( sepWidth, h - 2);
-    sep[1]->resize( sepWidth, h - 2);
-    sep[0]->move( ed[0]->x() + ed[0]->width() + 1, fw );
-    sep[1]->move( ed[1]->x() + ed[1]->width() + 1, fw );
+    QFontMetrics fm( font() );
+    int h = fm.height();
+    int w = fm.width( 'x' ) * 10;
+    if ( frame() ) {
+	h += 8;
+	if ( style() == WindowsStyle && h < 22 )
+	    h = 22;
+	return QSize( w + 8, h ).expandedTo( QApplication::globalStrut() );
+    } else {
+	return QSize( w + 4, h + 4 ).expandedTo( QApplication::globalStrut() );
+    }
 }
 
+
+class QDateTimeEdit::QDateTimeEditPrivate
+{
+public:
+    bool adv;
+};
 
 /*!
 
@@ -925,20 +1526,21 @@ QDateTimeEdit::QDateTimeEdit( QWidget * parent, const char * name )
     init();
 }
 
-/*!
 
-  Constructs a QDateTimeEdit widget, and initializes it with the QDateTime \a dt.
+/*! Destroys the object and frees any allocated resources.
+
 */
-QDateTimeEdit::QDateTimeEdit( const QDateTime & dt, QWidget * parent, const char * name )
-    : QFrame( parent, name )
+
+QDateTimeEdit::~QDateTimeEdit()
 {
-    init();
-    setDateTime( dt );
+    delete d;
 }
+
 
 /*! \reimp
 
-   Intercepts and handles resize events which have special meaning for the QDateTimeEdit.
+   Intercepts and handles resize events which have special meaning for
+   the QDateTimeEdit.
 
 */
 
@@ -980,8 +1582,10 @@ void QDateTimeEdit::layoutEditors()
 
 void QDateTimeEdit::init()
 {
+    d = new QDateTimeEditPrivate();
     de = new QDateEdit( this );
     te = new QTimeEdit( this );
+    d->adv = FALSE;
     connect( de, SIGNAL( valueChanged( const QDate& ) ),
 	     this, SLOT( newValue( const QDate& ) ) );
     connect( te, SIGNAL( valueChanged( const QTime& ) ),
@@ -1022,7 +1626,7 @@ QDateTime QDateTimeEdit::dateTime() const
  */
 void QDateTimeEdit::setDateSeparator( const QString & s )
 {
-    de->setDateSeparator( s );
+    de->setSeparator( s );
 }
 
 /*!  Returns the separator for the date in this QDateTimeEdit.
@@ -1031,14 +1635,14 @@ void QDateTimeEdit::setDateSeparator( const QString & s )
  */
 QString QDateTimeEdit::dateSeparator() const
 {
-    return de->dateSeparator();
+    return de->separator();
 }
 
 /*!  Set the separator for the time in this QDateTimeEdit to \a s.
  */
 void QDateTimeEdit::setTimeSeparator( const QString & s )
 {
-    te->setTimeSeparator( s );
+    te->setSeparator( s );
 }
 
 /*!  Returns the separator for the time in this QDateTimeEdit. The
@@ -1046,7 +1650,7 @@ void QDateTimeEdit::setTimeSeparator( const QString & s )
  */
 QString QDateTimeEdit::timeSeparator() const
 {
-    return te->timeSeparator();
+    return te->separator();
 }
 
 /*! \fn void QDateTimeEdit::valueChanged( const QDateTime& )
@@ -1074,6 +1678,25 @@ void QDateTimeEdit::newValue( const QTime& )
     emit valueChanged( dt );
 }
 
+
+/*!
+
+*/
+
+void QDateTimeEdit::setAutoAdvance( bool advance )
+{
+    de->setAutoAdvance( advance );
+    te->setAutoAdvance( advance );
+}
+
+/*!
+
+*/
+
+bool QDateTimeEdit::autoAdvance() const
+{
+    return de->autoAdvance();
+}
 
 
 #endif

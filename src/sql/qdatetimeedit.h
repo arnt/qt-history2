@@ -43,52 +43,93 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qvalidator.h"
 #include "qstring.h"
 #include "qdatetime.h"
 #include "qlineedit.h"
 #include "qframe.h"
+#include "qtimer.h"
 #endif // QT_H
 
-class QNumEditPrivate;
-class QDateTimeEditLabelPrivate;
+class QPushButton;
 
-class Q_EXPORT QDateTimeEditBase : public QFrame
+
+//## todo multiple ctor taking data types
+
+class Q_EXPORT QNumberSection
+{
+public:
+    QNumberSection( int selStart = 0, int selEnd = 0 )
+	: selstart( selStart ), selend( selEnd )
+    {}
+    int selectionStart() const { return selstart; }
+    void setSelectionStart( int s ) { selstart = s; }
+    int selectionEnd() const { return selend; }
+    void setSelectionEnd( int s ) { selend = s; }
+    int width() const { return selend - selstart; }
+private:
+    int selstart;
+    int selend;
+};
+
+class Q_EXPORT QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY( bool frame READ frame WRITE setFrame )
+
 public:
     QDateTimeEditBase( QWidget * parent = 0,
-		       const char * name = "QDateTimeEditBase" );
+		       const char * name = 0 );
+    ~QDateTimeEditBase();
+
+
+    bool frame() const;
+    void setSeparator( const QString& s );
+    QString separator() const;
 
 public slots:
-    void stepUp();
-    void stepDown();
+    virtual void stepUp();
+    virtual void stepDown();
+    virtual void setFrame( bool );
 
 signals:
     void valueChanged();
 
 protected:
     void init();
-    bool eventFilter( QObject *, QEvent * );
+    bool event( QEvent *e );
+    void resizeEvent( QResizeEvent * );
+    void paintEvent( QPaintEvent * );
+    void mousePressEvent( QMouseEvent *e );
+    void keyPressEvent( QKeyEvent *e );
     void updateArrows();
-    void layoutArrows();
-    void drawContents( QPainter * );
+    void layoutArrows( const QSize& s );
+    int focusSection() const;
 
+    void setSectionSelection( int sec, int selstart, int selend );
+    void appendSection( const QNumberSection& sec );
+    virtual bool setFocusSection( int s );
+    virtual QString sectionFormattedText( int sec );
+    virtual void addNumber( int sec, int num );
+    virtual void removeLastNumber( int sec );
+
+private:
     QPushButton        * up, * down;
-    QNumEditPrivate    * ed[3];
-    QDateTimeEditLabelPrivate * sep[2];
-    QString lastValid[3];
-    QString separator;
+    class QDateTimeEditBasePrivate;
+    QDateTimeEditBasePrivate* d;
 };
-
 
 class Q_EXPORT QDateEdit : public QDateTimeEditBase
 {
     Q_OBJECT
-    Q_PROPERTY( QDate date READ date WRITE setDate )
+    Q_ENUMS( Order )
     Q_PROPERTY( Order order READ order WRITE setOrder )
+    Q_PROPERTY( QDate date READ date WRITE setDate )
+    Q_PROPERTY( bool autoAdvance READ autoAdvance WRITE setAutoAdvance )
 
 public:
+    QDateEdit( QWidget * parent = 0,  const char * name = 0 );
+    ~QDateEdit();
+
     enum Order {
 	DMY,
 	MDY,
@@ -96,61 +137,78 @@ public:
 	YDM
     };
 
-    QDateEdit( QWidget * parent = 0, const char * name = 0 );
-    QDateEdit( const QDate & d, QWidget * parent = 0, const char * name = 0 );
-    void    setDate( const QDate & d );
-    QDate   date() const;
-    void    setDateSeparator( const QString & separator );
-    QString dateSeparator() const;
     QSize sizeHint() const;
-    QSize minimumSizeHint() const;
-
+    void setDate( const QDate& date );
+    QDate date() const;
     void setOrder( Order order );
     Order order() const;
+    void setAutoAdvance( bool advance );
+    bool autoAdvance() const;
 
 signals:
     void valueChanged( const QDate& );
 
-protected slots:
-    void someValueChanged();
-
 protected:
-    void init();
-    void resizeEvent( QResizeEvent * );
-    bool event( QEvent * );
-    int yearPos, monthPos, dayPos;
-    QDate oldDate;
-    Order format;
-private:
+    bool event( QEvent *e );
+    void timerEvent ( QTimerEvent *e );
+    void stepUp();
+    void stepDown();
+    QString sectionFormattedText( int sec );
+    void addNumber( int sec, int num );
+    void removeLastNumber( int sec );
+    bool setFocusSection( int s );
 
+    virtual void setYear( int year );
+    virtual void setMonth( int month );
+    virtual void setDay( int day );
+    virtual void fix();
+
+private:
+    int sectionOffsetEnd( int sec );
+    int sectionLength( int sec );
+    QString sectionText( int sec );
+    class QDateEditPrivate;
+    QDateEditPrivate* d;
 };
 
 class Q_EXPORT QTimeEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_PROPERTY( QTime time READ time WRITE setTime )
+    Q_PROPERTY( bool autoAdvance READ autoAdvance WRITE setAutoAdvance )
+
 public:
-    QTimeEdit( QWidget * parent = 0, const char * name = 0 );
-    QTimeEdit( const QTime & d, QWidget * parent = 0, const char * name = 0 );
-    void    setTime( const QTime & t );
-    QTime   time() const;
-    void    setTimeSeparator( const QString & separator );
-    QString timeSeparator() const;
+    QTimeEdit( QWidget * parent = 0,  const char * name = 0 );
+    ~QTimeEdit();
+
     QSize sizeHint() const;
-    QSize minimumSizeHint() const;
+    void setTime( const QTime& time );
+    QTime time() const;
+    void setAutoAdvance( bool advance );
+    bool autoAdvance() const;
 
 signals:
     void valueChanged( const QTime& );
 
-protected slots:
-    void someValueChanged();
-
 protected:
-    void init();
-    void resizeEvent( QResizeEvent * );
-    bool event( QEvent * );
-    QTime oldTime;
+    void timerEvent ( QTimerEvent *e );
+    void stepUp();
+    void stepDown();
+    QString sectionFormattedText( int sec );
+    void addNumber( int sec, int num );
+    void removeLastNumber( int sec );
+    bool setFocusSection( int s );
+
+    void setHour( int h );
+    void setMinute( int m );
+    void setSecond( int s );
+    QString sectionText( int sec );
+
+private:
+    class QTimeEditPrivate;
+    QTimeEditPrivate* d;
 };
+
 
 class Q_EXPORT QDateTimeEdit : public QFrame
 {
@@ -158,7 +216,7 @@ class Q_EXPORT QDateTimeEdit : public QFrame
     Q_PROPERTY( QDateTime dateTime READ dateTime WRITE setDateTime )
 public:
     QDateTimeEdit( QWidget * parent = 0, const char * name = 0 );
-    QDateTimeEdit( const QDateTime & dt, QWidget * parent = 0, const char * name = 0 );
+    ~QDateTimeEdit();
     QSize sizeHint() const;
     void  setDateTime( const QDateTime & dt );
     QDateTime dateTime() const;
@@ -168,6 +226,8 @@ public:
     void    setDateSeparator( const QString & separator );
     QString dateSeparator() const;
 
+    void setAutoAdvance( bool advance );
+    bool autoAdvance() const;
 
 signals:
     void valueChanged( const QDateTime& );
@@ -185,7 +245,10 @@ protected slots:
 private:
     QDateEdit* de;
     QTimeEdit* te;
+    class QDateTimeEditPrivate;
+    QDateTimeEditPrivate* d;
 };
+
 
 #endif
 #endif
