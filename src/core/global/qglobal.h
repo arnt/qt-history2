@@ -680,6 +680,12 @@ typedef unsigned long Q_ULONG;      // word up to 64 bit unsigned
 #endif
 #endif
 
+#if defined(Q_OS_WIN64)
+# define QT_POINTER_SIZE 8
+#elif defined(Q_OS_WIN32)
+# define QT_POINTER_SIZE 4
+#endif
+
 typedef int QNoImplicitBoolCast;
 
 //
