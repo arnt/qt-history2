@@ -19,7 +19,7 @@ type LICENSE.TROLL > LICENSE.TROLL
 if not %errorlevel%==0 goto error
 configure.exe
 if not %errorlevel%==0 goto error
-nmake sub-src sub-tools
+nmake sub-src-all sub-tools
 if not %errorlevel%==0 goto error
 
 :error
