@@ -875,12 +875,10 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
         QString m = QMakeSourceFileInfo::mocFile(*it);
         if(!m.isEmpty()) {
-            if(!m.endsWith(Option::cpp_moc_ext)) 
-                t << (*it) << ": " << valList(findDependencies((*it))) << endl;
             QString deps;
             if(!project->isActiveConfig("no_mocdepend"))
                 deps += "$(MOC) ";
-            deps += (*it);
+            deps += (*it) + " " + findDependencies((*it)).join(" ");
             t << m << ": " << deps << "\n\t"
               << "$(MOC)" << " $(DEFINES) $(INCPATH) " << varGlue("QMAKE_COMPILER_DEFINES","-D"," -D"," ")
               << (*it) << " -o " << m << endl << endl;
