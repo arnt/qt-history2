@@ -510,7 +510,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     to the toolbar and menu.
 
     \quotefile action/application.cpp
-    \skipto QAction * fileOpen
+    \skipto Action * fileOpen
     \printline
     \skipto fileOpenAction
     \printuntil choose
@@ -740,50 +740,74 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 */
 
 /*!
+    \fn void Q3MainWindow::addToolBar(Q3DockWindow *dockWindow,
+    Qt::Dock position, bool newLine);
     \obsolete
-    \fn void Q3MainWindow::addToolBar(Q3DockWindow *, Qt::Dock = Top, bool newLine = false);
+
+    Adds a new toolbar to the \a dockWindow. The toolbar is placed in
+    the given \a position. If \a newLine is true the toolbar is put on
+    a new line.
 */
 
 /*!
+    \fn void Q3MainWindow::addToolBar(Q3DockWindow *dockWindow, const
+    QString &label, Qt::Dock position, bool newLine)
     \obsolete
-    \fn void Q3MainWindow::addToolBar(Q3DockWindow *, const QString &label, Qt::Dock = Top, bool newLine = false)
     \overload
+
+    The toolbar has the caption \a label and is placed in the given \a
+    position.
 */
 
 /*!
+    \fn void Q3MainWindow::moveToolBar(Q3DockWindow *dockWindow, Qt::Dock position);
     \obsolete
-    \fn void Q3MainWindow::moveToolBar(Q3DockWindow *, Qt::Dock = Top);
+
+    Moves the given \a dockWindow into the given \a position.
 */
 
 /*!
+    \fn void Q3MainWindow::moveToolBar(Q3DockWindow *dockWindow,
+    Qt::Dock position, bool nl, int index, int extraOffset)
     \obsolete
-    \fn void Q3MainWindow::moveToolBar(Q3DockWindow *, Qt::Dock, bool nl, int index, int extraOffset = -1)
     \overload
+
+    The \a dockWindow is made the \a{index}-th item in the toolbar,
+    moved over by \a extraOffset. If \a nl is true, the dock window is
+    put on a new line.
 */
 
 /*!
+    \fn void Q3MainWindow::removeToolBar(Q3DockWindow *dockWindow);
     \obsolete
-    \fn void Q3MainWindow::removeToolBar(Q3DockWindow *);
+
+    Removes the toolbar from the given \a dockWindow.
 */
 
 /*!
+    \fn void Q3MainWindow::lineUpToolBars(bool keepNewLines);
     \obsolete
-    \fn void Q3MainWindow::lineUpToolBars(bool keepNewLines = false);
+
+    Lines up the toolbars. Line breaks are preserved if \a
+    keepNewLines is true.
 */
 
 /*!
+    \fn void Q3MainWindow::toolBarPositionChanged(Q3ToolBar *toolbar);
     \obsolete
-    \fn void Q3MainWindow::toolBarPositionChanged(Q3ToolBar *);
+
+    This signal is emitted when a \a toolbar is moved.
 */
 
 /*!
-    \obsolete
     \fn bool Q3MainWindow::toolBarsMovable() const
+    \obsolete
 */
 
 /*!
+    \fn void Q3MainWindow::setToolBarsMovable(bool b)
     \obsolete
-    \fn void Q3MainWindow::setToolBarsMovable(bool)
+    If \a b is true the tool bars can be moved.
 */
 
 /*!
@@ -1668,21 +1692,21 @@ void Q3MainWindow::setUsesTextLabel(bool enable)
 
 
 /*!
-    \fn void Q3MainWindow::pixmapSizeChanged(bool)
+    \fn void Q3MainWindow::pixmapSizeChanged(bool b)
 
     This signal is emitted whenever the setUsesBigPixmaps() is called
-    with a value different to the current setting. All widgets that
-    should respond to such changes, e.g. toolbar buttons, must connect
-    to this signal.
+    with a value different to the current setting. The new value is
+    passed in \a b. All widgets that should respond to such changes,
+    e.g. toolbar buttons, must connect to this signal.
 */
 
 /*!
-    \fn void Q3MainWindow::usesTextLabelChanged(bool)
+    \fn void Q3MainWindow::usesTextLabelChanged(bool b)
 
     This signal is emitted whenever the setUsesTextLabel() is called
-    with a value different to the current setting. All widgets that
-    should respond to such changes, e.g. toolbar buttons, must connect
-    to this signal.
+    with a value different to the current setting. The new value is
+    passed in \a b. All widgets that should respond to such changes,
+    e.g. toolbar buttons, must connect to this signal.
 */
 
 /*!

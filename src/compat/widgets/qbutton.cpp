@@ -51,10 +51,12 @@ QButton::~QButton()
 }
 
 /*!
-    Handles paint events for buttons. Small and typically complex
-    buttons are painted double-buffered to reduce flicker. The
-    actually drawing is done in the virtual functions drawButton() and
-    drawButtonLabel().
+    \fn void QButton::paintEvent( QPaintEvent *event)
+
+    Handles paint events, received in \a event, for buttons. Small and
+    typically complex buttons are painted double-buffered to reduce
+    flicker. The actually drawing is done in the virtual functions
+    drawButton() and drawButtonLabel().
 
     \sa drawButton(), drawButtonLabel()
 */
@@ -65,7 +67,10 @@ void QButton::paintEvent( QPaintEvent *)
 }
 
 /*!
-    Draws the button. The default implementation does nothing.
+    \fn void QButton::drawButton( QPainter *painter)
+
+    Draws the button on the given \a painter. The default
+    implementation does nothing.
 
     This virtual function is reimplemented by subclasses to draw real
     buttons. At some point, these reimplementations should call
@@ -78,7 +83,9 @@ void QButton::drawButton( QPainter * )
 }
 
 /*!
-    Draws the button text or pixmap.
+    \fn void QButton::drawButtonLabel( QPainter *painter )
+
+    Draws the button text or pixmap on the given \a painter.
 
     This virtual function is reimplemented by subclasses to draw real
     buttons. It is invoked by drawButton().

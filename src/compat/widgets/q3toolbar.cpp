@@ -272,13 +272,6 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 */
 
 /*!
-    \fn Q3ToolBar::Q3ToolBar(const QString &label,
-              Q3MainWindow *, ToolBarDock = Top,
-              bool newLine = false, const char * name = 0);
-    \obsolete
-*/
-
-/*!
     Constructs an empty toolbar.
 
     The toolbar is called \a name and is a child of \a parent and is

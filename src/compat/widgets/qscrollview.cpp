@@ -709,7 +709,7 @@ void QScrollView::setVBarGeometry(QScrollBar& vbar,
 /*!
     Returns the viewport size for size (\a x, \a y).
 
-    The viewport size depends on \a (x, y) (the size of the contents),
+    The viewport size depends on (\a{x}, \a{y}) (the size of the contents),
     the size of this widget and the modes of the horizontal and
     vertical scroll bars.
 
@@ -1381,7 +1381,7 @@ int QScrollView::childY(QWidget* child)
 /*! \fn void QScrollView::showChild(QWidget* child, bool y)
   \obsolete
 
-  Sets the visibility of \a child. Equivalent to
+  Sets the visibility of \a child to \a y. Equivalent to
   QWidget::show() or QWidget::hide().
 */
 
@@ -1521,8 +1521,10 @@ void QScrollView::contentsMouseMoveEvent(QMouseEvent* e)
 #ifndef QT_NO_DRAGANDDROP
 
 /*!
+    \fn void QScrollView::contentsDragEnterEvent(QDragEnterEvent *event)
+
     This event handler is called whenever the QScrollView receives a
-    dragEnterEvent(): the drag position is translated to be a point
+    drag enter \a event: the drag position is translated to be a point
     on the contents.
 */
 void QScrollView::contentsDragEnterEvent(QDragEnterEvent *)
@@ -1530,8 +1532,10 @@ void QScrollView::contentsDragEnterEvent(QDragEnterEvent *)
 }
 
 /*!
+    \fn void QScrollView::contentsDragMoveEvent(QDragMoveEvent *event)
+
     This event handler is called whenever the QScrollView receives a
-    dragMoveEvent(): the drag position is translated to be a point on
+    drag move \a event: the drag position is translated to be a point on
     the contents.
 */
 void QScrollView::contentsDragMoveEvent(QDragMoveEvent *)
@@ -1539,8 +1543,10 @@ void QScrollView::contentsDragMoveEvent(QDragMoveEvent *)
 }
 
 /*!
+    \fn void QScrollView::contentsDragLeaveEvent(QDragLeaveEvent *event)
+
     This event handler is called whenever the QScrollView receives a
-    dragLeaveEvent(): the drag position is translated to be a point
+    drag leave \a event: the drag position is translated to be a point
     on the contents.
 */
 void QScrollView::contentsDragLeaveEvent(QDragLeaveEvent *)
@@ -1548,9 +1554,11 @@ void QScrollView::contentsDragLeaveEvent(QDragLeaveEvent *)
 }
 
 /*!
+    \fn void QScrollView::contentsDropEvent(QDropEvent *event)
+
     This event handler is called whenever the QScrollView receives a
-    dropEvent(): the drop position is translated to be a point on the
-    contents.
+    drop \a event: the drop position is translated to be a point on
+    the contents.
 */
 void QScrollView::contentsDropEvent(QDropEvent *)
 {
@@ -1620,8 +1628,10 @@ void QScrollView::viewportPaintEvent(QPaintEvent* pe)
 
 
 /*!
+    \fn void QScrollView::viewportResizeEvent(QResizeEvent *event)
+
     To provide simple processing of events on the contents, this
-    function receives all resize events sent to the viewport.
+    function receives all resize \a{event}s sent to the viewport.
 
     \sa QWidget::resizeEvent()
 */
@@ -1828,7 +1838,7 @@ QScrollBar* QScrollView::verticalScrollBar() const {
 
 
 /*!
-    Scrolls the content so that the point \a (x, y) is visible with at
+    Scrolls the content so that the point (\a{x}, \a{y}) is visible with at
     least 50-pixel margins (if possible, otherwise centered).
 */
 void QScrollView::ensureVisible(int x, int y)
@@ -1839,7 +1849,7 @@ void QScrollView::ensureVisible(int x, int y)
 /*!
     \overload
 
-    Scrolls the content so that the point \a (x, y) is visible with at
+    Scrolls the content so that the point (\a{x}, \a{y}) is visible with at
     least the \a xmargin and \a ymargin margins (if possible,
     otherwise centered).
 */
@@ -1891,7 +1901,7 @@ void QScrollView::ensureVisible(int x, int y, int xmargin, int ymargin)
 }
 
 /*!
-    Scrolls the content so that the point \a (x, y) is in the top-left
+    Scrolls the content so that the point (\a{x}, \a{y}) is in the top-left
     corner.
 */
 void QScrollView::setContentsPos(int x, int y)
@@ -1921,7 +1931,7 @@ void QScrollView::scrollBy(int dx, int dy)
 }
 
 /*!
-    Scrolls the content so that the point \a (x, y) is in the center
+    Scrolls the content so that the point (\a{x}, \a{y}) is in the center
     of visible area.
 */
 void QScrollView::center(int x, int y)
@@ -1932,7 +1942,7 @@ void QScrollView::center(int x, int y)
 /*!
     \overload
 
-    Scrolls the content so that the point \a (x, y) is visible with
+    Scrolls the content so that the point (\a{x}, \a{y}) is visible with
     the \a xmargin and \a ymargin margins (as fractions of visible
     the area).
 
@@ -1955,13 +1965,13 @@ void QScrollView::center(int x, int y, float xmargin, float ymargin)
     \fn void QScrollView::contentsMoving(int x, int y)
 
     This signal is emitted just before the contents are moved to
-    position \a (x, y).
+    position (\a{x}, \a{y}).
 
     \sa contentsX(), contentsY()
 */
 
 /*!
-    Moves the contents by \a (x, y).
+    Moves the contents by (\a{x}, \a{y}).
 */
 void QScrollView::moveContents(int x, int y)
 {

@@ -1302,8 +1302,8 @@ void Q3Action::objectDestroyed()
     indicate the state, e.g.
 
     \quotefile action/toggleaction/toggleaction.cpp
-    \skipto QMainWindow * window
-    \printline QMainWindow * window
+    \skipto MainWindow * window
+    \printline MainWindow * window
     \skipto labelonoffaction
     \printline labelonoffaction
     \skipto connect
@@ -1417,9 +1417,9 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
     single unit, with all the actions within the action group
     appearing as separate menu options and toolbar buttons.
 
-    Here's an example from examples/textedit:
+    Here's an example from demos/textedit:
     \quotefile textedit/textedit.cpp
-    \skipto Q3ActionGroup
+    \skipto ActionGroup
     \printuntil connect
 
     Here we create a new action group. Since the action group is exclusive
@@ -1427,7 +1427,7 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
     one time. We then connect the group's selected() signal to our
     textAlign() slot.
 
-    \printuntil actionAlignLeft->setToggleAction
+    \printuntil actionAlignLeft->setCheckable
 
     We create a left align action, add it to the toolbar and the menu
     and make it a toggle action. We create center and right align
@@ -2066,23 +2066,23 @@ void Q3ActionGroup::childEvent(QChildEvent *e)
 }
 
 /*!
-    \fn void Q3ActionGroup::selected(Q3Action*)
+    \fn void Q3ActionGroup::selected(Q3Action* action)
 
     This signal is emitted from exclusive groups when toggle actions
     change state.
 
-    The argument is the action whose state changed to "on".
+    The argument is the \a action whose state changed to "on".
 
     \sa setExclusive(), isOn() Q3Action::toggled()
 */
 
 /*!
-    \fn void Q3ActionGroup::activated(Q3Action*)
+    \fn void Q3ActionGroup::activated(Q3Action* action)
 
     This signal is emitted from groups when one of it's actions gets
     activated.
 
-    The argument is the action which got activated.
+    The argument is the \a action which was activated.
 
     \sa setExclusive(), isOn() Q3Action::toggled()
 */

@@ -383,11 +383,11 @@ QWidget * QWidgetStack::visibleWidget() const
 
 
 /*!
-    \fn void QWidgetStack::aboutToShow(int)
+    \fn void QWidgetStack::aboutToShow(int id)
 
     This signal is emitted just before a managed widget is shown if
     that managed widget has an ID != -1. The argument is the numeric
-    ID of the widget.
+    \a id of the widget.
 
     If you call visibleWidget() in a slot connected to aboutToShow(),
     the widget it returns is the one that is currently visible, not
@@ -396,12 +396,12 @@ QWidget * QWidgetStack::visibleWidget() const
 
 
 /*!
-    \fn void QWidgetStack::aboutToShow(QWidget *)
+    \fn void QWidgetStack::aboutToShow(QWidget *widget)
 
     \overload
 
     This signal is emitted just before a managed widget is shown. The
-    argument is a pointer to the widget.
+    argument is a pointer to the \a widget.
 
     If you call visibleWidget() in a slot connected to aboutToShow(),
     the widget returned is the one that is currently visible, not the

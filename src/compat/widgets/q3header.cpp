@@ -1620,9 +1620,11 @@ void Q3Header::paintEvent(QPaintEvent *e)
     }
 }
 
-/*! \overload
-  \obsolete
-  Use the other overload instead.
+/*!
+    \overload
+    \obsolete
+
+    Sets the sort indicator to \a ascending. Use the other overload instead.
 */
 
 void Q3Header::setSortIndicator(int section, bool ascending)

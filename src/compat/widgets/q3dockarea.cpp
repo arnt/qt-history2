@@ -602,8 +602,8 @@ void Q3DockArea::moveDockWindow(Q3DockWindow *w, int index)
 /*!
     Returns true if the dock area contains the dock window \a w;
     otherwise returns false. If \a index is not 0 it will be set as
-    follows: if the dock area contains the dock window \a *index is
-    set to \a w's index position; otherwise \a *index is set to -1.
+    follows: if the dock area contains the dock window *\a{index} is
+    set to \a w's index position; otherwise *\a{index} is set to -1.
 */
 
 bool Q3DockArea::hasDockWindow(Q3DockWindow *w, int *index)
