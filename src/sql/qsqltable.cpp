@@ -4,16 +4,25 @@
 #include "qsqleditorfactory.h"
 #include "qsqlform.h"
 #include "qlayout.h"
+#include "qpopupmenu.h"
 
 #ifndef QT_NO_SQL
 
 void qt_debug_buffer( const QString& msg, QSqlView* view )
 {
-    qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    qDebug(msg);
-    for ( uint j = 0; j < view->count(); ++j )
-	qDebug(view->field(j)->name() + " value:" + view->field(j)->value().toString() );
+    //qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    //qDebug(msg);
+    for ( uint j = 0; j < view->count(); ++j ) {
+	//qDebug(view->field(j)->name() + " value:" + view->field(j)->value().toString() );
+    }
 }
+
+enum {
+    IdInsert,
+    IdUpdate,
+    IdDelete
+};
+
 
 class QSqlTablePrivate
 {
@@ -60,7 +69,7 @@ public:
 
   \brief A flexible and editable SQL table widget.
 
-  QSqlTable supports various methods for presenting SQL data.
+  QSqlTable supports various methods for presenting and editing SQL data.
 
   When displaying data, QSqlTable only retrieves data for visible
   rows.  If drivers do not support the 'query size' property, rows are
@@ -69,16 +78,13 @@ public:
   possible, with limited memory usage.
 
   QSqlTable also offers an API for sorting columns. See setSorting()
-  and sortColumn().  When displaying QSql data, sorting is disabled
-  since it is not always possible to sort on the fields within QSql,
-  or the QSql query may already contain an ORDER BY.
-
-  When displaying QSqlView, cell editing can be enabled with
+  and sortColumn(). 
+  
+  When displaying QSqlViews, cell editing can be enabled with
   setCellEditing().  QSqlTable creates editors.... ### The user can
   create their own special editors by ... ###
 
 */
-
 
 /*!
   Constructs a SQL table.
@@ -205,14 +211,15 @@ bool QSqlTable::isReadOnly() const
 
 */
 
-QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
+QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
 {
+    //qDebug("QSqlTable::createEditor( int , int col, bool initFromCell ) const");
     if ( !d->insertMode && !d->updateMode )
 	return 0;
     QWidget * w = 0;
     if( initFromCell ){
-	qDebug("creating editor from factory for row:" + QString::number(row) + " col:" + QString::number(col) + " indexOf(col):" + QString::number(indexOf(col)));
 	w = d->editorFactory->createEditor( viewport(), d->editBuffer.value( indexOf( col ) ) );
+	//qDebug("editor factory returned:" + QString::number((int)w));	
 	d->propertyMap->setProperty( w, d->editBuffer.value( indexOf( col ) ) );
     }
     return w;
@@ -226,7 +233,6 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     int r = currentRow();
     int c = currentColumn();
     QWidget *editorWidget = cellWidget( r, c );
-    d->continuousEdit = FALSE;
     switch ( e->type() ) {
     case QEvent::KeyPress: {
 	QKeyEvent *ke = (QKeyEvent*)e;
@@ -234,19 +240,21 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	    endInsert();
 	if ( ke->key() == Key_Escape && d->updateMode )
 	    endUpdate();
-	if ( ke->key() == Key_Insert ) {
+	if ( ke->key() == Key_Insert && !d->insertMode && !d->updateMode ) {
 	    beginInsert();
 	    return TRUE;
 	}
-	if ( ke->key() == Key_Delete ) {
+	if ( ke->key() == Key_Delete && !d->insertMode && !d->updateMode ) {
 	    deleteCurrent();
 	    return TRUE;
 	}
 	if ( editorWidget && o == editorWidget ) {
 	    if ( ( ke->key() == Key_Tab ) && ( c < numCols() - 1 ) )
 		d->continuousEdit = TRUE;
-	    if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) )
+	    else if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) )
 		d->continuousEdit = TRUE;
+	    else 
+		d->continuousEdit = FALSE;
 	}
 	break;
     }
@@ -261,15 +269,50 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 
 */
 
+void QSqlTable::mousePressEvent( QMouseEvent *e )
+{
+    if ( !d->view )
+	return;
+    if ( e->button() == RightButton ) {
+	QPopupMenu *popup = new QPopupMenu( this );
+	int id[ 3 ];
+	id[ IdInsert ] = popup->insertItem( tr( "Insert" ) );
+	id[ IdUpdate ] = popup->insertItem( tr( "Update" ) );
+	id[ IdDelete ] = popup->insertItem( tr( "Delete" ) );
+	popup->setItemEnabled( id[ IdInsert ], !isReadOnly() && d->view->canInsert() );
+	popup->setItemEnabled( id[ IdUpdate ], !isReadOnly() && d->view->canUpdate() );
+	popup->setItemEnabled( id[ IdDelete ], !isReadOnly() && d->view->canDelete() );	
+	int r = popup->exec( e->globalPos() );
+	delete popup;
+	if ( r == id[ IdInsert ] )
+	    beginInsert();
+	else if ( r == id[ IdUpdate ] ) {
+	    if ( beginUpdate( currentRow(), currentColumn(), TRUE ) )
+		 setEditMode( Editing, currentRow(), currentColumn() );
+	}	
+	else if ( r == id[ IdDelete ] )
+	    deleteCurrent();
+	return;
+    }
+}
+
+/*
+  \reimpl
+
+*/
+
 QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 {
     if ( !d->view )
 	return 0;
-    if ( !d->insertMode && !d->updateMode ) 
-	beginUpdate();
-    qDebug("about to edit row:" + QString::number( row ) + " with view at:" + QString::number(d->view->at()));
-    qt_debug_buffer("beginEdit: edit buffer", &d->editBuffer);
-    return QTable::beginEdit( row, col, replace );
+    //qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));    
+    //qDebug("continuousEdit:" + QString::number(d->continuousEdit));
+    if ( d->continuousEdit )
+	return QTable::beginEdit( row, col, replace );
+    if ( !d->insertMode && !d->updateMode )
+	return beginUpdate( row, col, replace );
+    //qDebug("NO EDIT, returning 0");
+    return 0;
 }
 
 /*
@@ -279,6 +322,7 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 
 void QSqlTable::endInsert()
 {
+    //qDebug("QSqlTable::endInsert()");
     d->insertMode = FALSE;
     d->editBuffer.clear();
     int i;
@@ -294,6 +338,7 @@ void QSqlTable::endInsert()
 
 void QSqlTable::endUpdate()
 {
+    //qDebug("endUpdate()");
     d->updateMode = FALSE;
     updateRow( d->editRow );
     d->editRow = -1;
@@ -304,14 +349,18 @@ bool QSqlTable::beginInsert()
     QSqlView* vw = d->view;
     if ( !vw || isReadOnly() || ! numCols() )
 	return FALSE;
-    int i = 0;    
+    int i = 0;
+    int row = currentRow();
+    if ( row < 0 )
+	return FALSE;
+    ensureCellVisible( row, 0 );    
+    setCurrentCell( row, 0 );
     d->editBuffer.clear();
     d->editBuffer = *vw;
+    d->editBuffer.detach();
     d->editBuffer.clearValues();
     if ( !primeInsert( &d->editBuffer ) )
 	return FALSE;
-    int row = currentRow();
-    ensureCellVisible( row, 0 );
     d->editRow = row;
     d->insertMode = TRUE;
     int lastRow = row;
@@ -330,18 +379,23 @@ bool QSqlTable::beginInsert()
     verticalHeader()->setLabel( row, "*" );
     for ( i = d->editRow; i <= d->insertRowLast; ++i )
 	updateRow( i );
-    if ( beginEdit( row, 0, FALSE ) )
+    //qDebug("QSqlTable::beginInsert(), about to begin edit");
+    if ( QTable::beginEdit( row, 0, FALSE ) )
 	setEditMode( Editing, row, 0 );
+    //qDebug("QSqlTable::beginInsert(), DONE");    
     return TRUE;
 }
 
-bool QSqlTable::beginUpdate()
+QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
+    ensureCellVisible( row, col );    
+    setCurrentSelection( row, col );
     d->updateMode = TRUE;
-    d->editRow = currentRow();
+    d->editRow = row;
     d->editBuffer.clear();
     d->editBuffer = *d->view;
-    return TRUE;
+    d->editBuffer.detach();    
+    return QTable::beginEdit( row, col, replace );
 }
 
 /*!  Protected virtual method which is called to "prime" the fields of
@@ -369,12 +423,13 @@ bool QSqlTable::primeInsert( QSqlView* )
 
 bool QSqlTable::insertCurrent()
 {
+    //qDebug("QSqlTable::insertCurrent()");
     if ( !d->view || isReadOnly() || ! numCols() )
 	return FALSE;
     if ( !d->editBuffer.canInsert() ) {
 #ifdef CHECK_RANGE
-	qWarning("QSqlTable::insertCurrent: insert not allowed for " + d->editBuffer.name() );	
-#endif    
+	qWarning("QSqlTable::insertCurrent: insert not allowed for " + d->editBuffer.name() );
+#endif
 	return FALSE;
     }
     bool b = d->editBuffer.insert();
@@ -392,7 +447,7 @@ void QSqlTable::updateRow( int row )
 
 void QSqlTable::columnWidthChanged( int col )
 {
-    qDebug(QString(name()) + "QSqlTable::columnWidthChanged( int col )");
+    //qDebug(QString(name()) + "QSqlTable::columnWidthChanged( int col )");
     QTable::columnWidthChanged(col);
 }
 
@@ -436,7 +491,7 @@ bool QSqlTable::updateCurrent()
     if ( !d->editBuffer.canUpdate() ) {
 #ifdef CHECK_RANGE
 	qWarning("QSqlTable::updateCurrent: updates not allowed for " + d->editBuffer.name() );
-#endif    
+#endif
 	return FALSE;
     }
     if ( !primeUpdate( &d->editBuffer ) )
@@ -492,6 +547,7 @@ bool QSqlTable::deleteCurrent()
     bool b = vw->del( vw->primaryIndex() );
     refresh( vw );
     setCurrentSelection( currentRow(), currentColumn() );
+    updateRow( currentRow() );
     return b;
 }
 
@@ -502,11 +558,14 @@ bool QSqlTable::deleteCurrent()
 */
 
 
-void QSqlTable::refresh( QSqlView* view )
+void QSqlTable::refresh( QSqlView* view, bool seekPrimary )
 {
+    QSqlIndex pi;
+    if ( seekPrimary ) 
+	pi = view->primaryIndex( TRUE );
     view->select( view->filter(), view->sort() );
-    viewport()->repaint();
     setSize( view );
+    //    viewport()->repaint();    
 }
 
 /*!
@@ -516,13 +575,13 @@ void QSqlTable::refresh( QSqlView* view )
 
 void QSqlTable::setCellContentFromEditor( int row, int col )
 {
-    qDebug("setCellContentFromEditor( int row, int col )");
+    //qDebug("setCellContentFromEditor( int row, int col )");
     if ( !d->insertMode && !d->updateMode )
 	return;
     QWidget * editor = cellWidget( row, col );
     if ( !editor )
 	return;
-    qDebug("setting edit buffer value to :" + d->propertyMap->property( editor ).toString() );
+    //qDebug("setting edit buffer value to :" + d->propertyMap->property( editor ).toString() );
     d->editBuffer.setValue( indexOf( col ),  d->propertyMap->property( editor ) );
     qt_debug_buffer("setCellContentFromEditor: edit buffer", &d->editBuffer);
     if ( !d->continuousEdit ) {
@@ -741,6 +800,7 @@ void QSqlTable::setNumCols ( int r )
 
 QString QSqlTable::text ( int row, int col ) const
 {
+    //qDebug("QSqlTable::text ( int row, int col ) const");
     QSql* sql = d->view;
     if ( !sql )
 	return QString::null;
@@ -758,6 +818,7 @@ QString QSqlTable::text ( int row, int col ) const
 
 QVariant QSqlTable::value ( int row, int col ) const
 {
+    //qDebug("QSqlTable::value ( int row, int col ) const");
     QSql* sql = d->view;
     if ( !sql )
 	return QVariant();
@@ -868,24 +929,26 @@ void QSqlTable::columnClicked ( int col )
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
+    //    //qDebug("QSqlTable::paintCell");
     QTable::paintCell(p,row,col,cr,selected);  // empty cell
     if ( !d->view )
 	return;
     if ( d->insertMode || d->updateMode ) {
 	if ( row == d->editRow ) {
-	    //	    qDebug("painting editRow:" + QString::number(row));
+	    //    //qDebug("painting editRow:" + QString::number(row));
 	    paintField( p, d->editBuffer.field( indexOf( col ) ), cr, selected );
 	} else if ( row > d->editRow && d->insertMode ) {
-	    qDebug("trying to paint row:" + QString::number(row));
+	    //	    //qDebug("trying to paint row:" + QString::number(row));
 	    if ( d->view->seek( row - 1 ) )
 		paintField( p, d->view->field( indexOf( col ) ), cr, selected );
 	} else {
+	    //	    //qDebug("seeking in update mode");
 	    if ( d->view->seek( row ) )
 		paintField( p, d->view->field( indexOf( col ) ), cr, selected );
 	}
     }
     else {
-	//	qDebug("paint SEEKing row:" + QString::number(row));
+	//	//qDebug("paint SEEKing row:" + QString::number(row));
 	if ( d->view->seek( row ) )
 	    paintField( p, d->view->field( indexOf( col ) ), cr, selected );
     }
@@ -1115,10 +1178,8 @@ void QSqlTable::setCurrentSelection( int row, int )
     QSql* sql = d->view;
     if ( !sql )
 	return;
-    if ( ! (d->insertMode || d->updateMode) ) {
-	if ( !sql->seek( row ) )
-	    return;
-    }
+    if ( !sql->seek( row ) )
+	return;
     QSqlFieldList fil = sql->fields();
     emit currentChanged( &fil );
 }
@@ -1135,11 +1196,9 @@ QSqlFieldList QSqlTable::currentFieldSelection() const
     QSql* sql = d->view;
     if ( !sql || currentRow() < 0 )
 	return fil;
-    if ( ! (d->insertMode || d->updateMode) ) {
-	int row = currentRow();
-	if ( !sql->seek( row ) )
-	    return fil;
-    }
+    int row = currentRow();
+    if ( !sql->seek( row ) )
+	return fil;
     fil = sql->fields();
     return fil;
 }

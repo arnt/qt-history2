@@ -136,14 +136,21 @@ QSqlFieldList & QSqlView::operator=( const QSqlFieldList & list )
     return QSqlFieldList::operator=( list );
 }
 
-/*!
-  Returns the primary index associated with the view, or an empty
-  index if there is no primary index.
+/*!  Returns the primary index associated with the view, or an empty
+  index if there is no primary index.  If \a prime is TRUE, the index
+  fields are set with the current value of the view fields they
+  correspond to.
 
 */
 
-QSqlIndex QSqlView::primaryIndex() const
+QSqlIndex QSqlView::primaryIndex( bool prime ) const
 {
+    if ( prime ) {
+	for ( uint i = 0; i < d->priIndx.count(); ++i ) {
+	    const QString fn = d->priIndx.field( i )->name();
+	    d->priIndx.field( i )->setValue( field( fn )->value() );
+	}
+    }
     return d->priIndx;
 }
 
@@ -517,6 +524,11 @@ bool QSqlView::setQuery( const QString & str )
 QVariant QSqlView::calculateField( uint )
 {
     return QVariant();
+}
+
+void QSqlView::detach()
+{
+    setQuery( QString::null );
 }
 
 /*

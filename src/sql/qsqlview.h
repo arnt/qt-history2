@@ -29,7 +29,7 @@ public:
     ~QSqlView();
 
     QVariant          value( int i );
-    QSqlIndex         primaryIndex() const;
+    QSqlIndex         primaryIndex( bool prime = FALSE ) const;
     void              setPrimaryIndex( QSqlIndex idx );
     virtual int       insert( bool invalidate = TRUE );
     virtual int       update( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
@@ -41,6 +41,7 @@ public:
     bool              canInsert() const;
     bool              canUpdate() const;
     bool              canDelete() const;
+    void              detach();
 
     bool              select();
     bool              select( const QSqlIndex& sort );

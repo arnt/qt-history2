@@ -63,11 +63,11 @@ protected slots:
     virtual bool insertCurrent();
     virtual bool updateCurrent();
     virtual bool deleteCurrent();
-    virtual bool beginInsert();
-    virtual bool beginUpdate();
 
 protected:
-    QWidget*     beginEdit ( int row, int col, bool replace );
+    virtual bool beginInsert();
+    virtual QWidget* beginUpdate ( int row, int col, bool replace );        
+   
     void         columnWidthChanged( int col );
 
     virtual bool primeInsert( QSqlView* view );
@@ -75,6 +75,7 @@ protected:
     virtual bool primeDelete( QSqlView* view );
 
     bool         eventFilter( QObject *o, QEvent *e );
+    void         mousePressEvent( QMouseEvent *e );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     int          indexOf( uint i ) const;
     void         reset();
@@ -100,7 +101,8 @@ private slots:
     void         setCurrentSelection( int row, int col );
 
 private:
-    void         refresh( QSqlView* view );
+    QWidget*     beginEdit ( int row, int col, bool replace );    
+    void         refresh( QSqlView* view, bool seekPrimary = FALSE );
     void         setNumCols ( int r );
     void         updateRow( int row );
     void         endInsert();
