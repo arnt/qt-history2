@@ -114,9 +114,11 @@ void QItemDelegate::paint(QPainter *painter,
     const QPoint pt(0, 0);
     const QSize sz(border * 2, border * 2);
 
-    QStyleOptionViewItem opt = option;
+    Q_ASSERT(index.isValid());
     const QAbstractItemModel *model = index.model();
     Q_ASSERT(model);
+
+    QStyleOptionViewItem opt = option;
 
     // set font
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
@@ -172,6 +174,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     const QPoint pt(0, 0);
     const QSize sz(border * 2, border * 2);
 
+    Q_ASSERT(index.isValid);
     const QAbstractItemModel *model = index.model();
     Q_ASSERT(model);
 
@@ -262,6 +265,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
 {
     const QPoint pt(0, 0);
     if (editor) {
+        Q_ASSERT(index.isValid());
         const QAbstractItemModel *model = index.model();
         Q_ASSERT(model);
         QPixmap pixmap = decoration(option, model->data(index, QAbstractItemModel::DecorationRole));
@@ -377,14 +381,8 @@ void QItemDelegate::drawCheck(QPainter *painter,
                               const QStyleOptionViewItem &option,
                               const QRect &rect, bool checked) const
 {
-    //Q_UNUSED(option);
-    if (rect.isValid()) {
-        //QStyleOptionListView opt;
-        //opt.rect = rect;
-        //opt.state |= (checked ? QStyle::Style_On : QStyle::Style_Off);
-        //QApplication::style()->drawPrimitive(QStyle::PE_Q3CheckListIndicator, &opt, painter);
+    if (rect.isValid())
         painter->drawPixmap(rect, decoration(option, checked));
-    }
 }
 
 /*!
@@ -595,8 +593,6 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
                            const QVariant &value) const
 {
     if (value.isValid()) {
-        //int size = QApplication::style()->pixelMetric(QStyle::PM_CheckListControllerSize);
-        //return QRect(option.rect.x(), option.rect.y(), size, size);
         QPixmap pixmap = QApplication::style()->standardPixmap(QStyle::SP_ItemChecked, &option);
         return QRect(option.rect.topLeft(), pixmap.size());
     }
