@@ -144,6 +144,7 @@ qbutton.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qbutton.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -173,6 +174,7 @@ qbttngrp.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qbttngrp.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qbttngrp.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qbttngrp.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qbttngrp.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qbttngrp.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qbttngrp.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qbttngrp.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -198,6 +200,7 @@ qchkbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qchkbox.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -227,6 +230,7 @@ qlabel.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qlabel.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qlabel.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qlabel.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qlabel.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qlabel.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qlabel.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qlabel.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -255,6 +259,7 @@ qlcdnum.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qlcdnum.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -285,6 +290,7 @@ qlined.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qlined.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -316,6 +322,7 @@ qlistbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -352,6 +359,7 @@ qmenubar.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qmenubar.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -395,6 +403,7 @@ qmenudta.o: /home/popcorn/home/hanord/qt/include/qlist.h
 qmenudta.o: /home/popcorn/home/hanord/qt/include/qglist.h
 qmenudta.o: /home/popcorn/home/hanord/qt/include/qcollect.h qpopmenu.h
 qmenudta.o: qtablew.h /home/popcorn/home/hanord/qt/include/qwidget.h
+qmenudta.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qmenudta.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qmenudta.o: /home/popcorn/home/hanord/qt/include/qfont.h
 qmenudta.o: /home/popcorn/home/hanord/qt/include/qfontinf.h
@@ -418,6 +427,7 @@ qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -454,6 +464,7 @@ qpushbt.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qpushbt.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -484,6 +495,7 @@ qradiobt.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qradiobt.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -514,6 +526,7 @@ qscrbar.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qscrbar.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -542,6 +555,7 @@ qtablew.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qtablew.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qtablew.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qtablew.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qtablew.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qtablew.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qtablew.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qtablew.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -570,6 +584,7 @@ qframe.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qframe.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qframe.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qframe.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qframe.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qframe.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qframe.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qframe.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -598,6 +613,7 @@ qgrpbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qgrpbox.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -628,6 +644,7 @@ mbutton.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mbutton.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -652,6 +669,7 @@ mbttngrp.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mbttngrp.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mbttngrp.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mbttngrp.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mbttngrp.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mbttngrp.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mbttngrp.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mbttngrp.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -676,6 +694,7 @@ mchkbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mchkbox.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -700,6 +719,7 @@ mlabel.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mlabel.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mlabel.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mlabel.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mlabel.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mlabel.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mlabel.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mlabel.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -724,6 +744,7 @@ mlcdnum.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -749,6 +770,7 @@ mlined.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -773,6 +795,7 @@ mlistbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mlistbox.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -797,6 +820,7 @@ mmenubar.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mmenubar.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -827,6 +851,7 @@ mpopmenu.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mpopmenu.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mpopmenu.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mpopmenu.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mpopmenu.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mpopmenu.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mpopmenu.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -857,6 +882,7 @@ mpushbt.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mpushbt.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -881,6 +907,7 @@ mradiobt.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mradiobt.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -905,6 +932,7 @@ mscrbar.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mscrbar.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -929,6 +957,7 @@ mtablew.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mtablew.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mtablew.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mtablew.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mtablew.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mtablew.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mtablew.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mtablew.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -953,6 +982,7 @@ mframe.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mframe.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mframe.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mframe.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mframe.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mframe.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mframe.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mframe.o: /home/popcorn/home/hanord/qt/include/qfont.h
@@ -977,6 +1007,7 @@ mgrpbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mgrpbox.o: /home/popcorn/home/hanord/qt/include/qpalette.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
