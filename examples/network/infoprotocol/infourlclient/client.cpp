@@ -19,7 +19,8 @@
 
 
 
-ClientInfo::ClientInfo()
+ClientInfo::ClientInfo( QWidget *parent, const char *name ) :
+    ClientInfoBase( parent, name )
 {
     connect( btnOpen, SIGNAL(clicked()), SLOT(downloadFile()) );
     connect( btnQuit, SIGNAL(clicked()), qApp, SLOT(quit()) );

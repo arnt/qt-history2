@@ -25,7 +25,7 @@ class ClientInfo : public ClientInfoBase
 {
     Q_OBJECT
 public:
-    ClientInfo( QWidget *parent = 0, const char *name = 0);
+    ClientInfo( QWidget *parent = 0, const char *name = 0 );
 
 private:
     enum Operation { List, Get };

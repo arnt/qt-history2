@@ -21,7 +21,7 @@ class ClientInfo : public ClientInfoBase
     Q_OBJECT
 
 public:
-    ClientInfo();
+    ClientInfo( QWidget *parent = 0, const char *name = 0 );
 
 private slots:
     void downloadFile();

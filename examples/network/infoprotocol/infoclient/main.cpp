@@ -15,7 +15,7 @@
 int main( int argc, char** argv )
 {
     QApplication app( argc, argv );
-    ClientInfo info( "localhost", infoPort );
+    ClientInfo info;
     app.setMainWidget( &info );
     info.show();
     return app.exec();
