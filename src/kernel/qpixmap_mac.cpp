@@ -16,11 +16,15 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
   data->h = h;
   data->d = 1;
 
-  GWorldPtr savedworld;
-  GDHandle savedhandle;
-  GetGWorld(&savedworld, &savedhandle);
+  //at the end of this function this will go out of scope and the destructor will restore the state
+  QMacSavedPortInfo saveportstate; 
+
   SetGWorld((GWorldPtr)hd,0);
   Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+
+  RGBColor tmpc;
+  tmpc.red = tmpc.green = tmpc.blue = 0;
+  RGBForeColor(&tmpc);
 
   // Slow and icky
   RGBColor r;
@@ -37,7 +41,6 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     }
   }
   UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-  SetGWorld(savedworld,savedhandle);
 }
 
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
@@ -114,12 +117,16 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
 
-    GWorldPtr savedworld;
-    GDHandle savedhandle;
-    GetGWorld(&savedworld, &savedhandle);
+    //at the end of this function this will go out of scope and the destructor will restore the state
+    QMacSavedPortInfo saveportstate; 
+
     SetGWorld((GWorldPtr)hd,0);
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
-  
+
+    RGBColor tmpc;
+    tmpc.red = tmpc.green = tmpc.blue = 0;
+    RGBForeColor(&tmpc);
+
     //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
     RGBColor r;
     int loopc,loopc2;
@@ -142,8 +149,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-    SetGWorld(savedworld,savedhandle);
-
     return TRUE;
 }
 
@@ -205,12 +210,15 @@ QImage QPixmap::convertToImage() const
 	//figure out how to copy clut into image FIXME???
     }
 
-    //setup destination gworld
-    GWorldPtr savedworld;
-    GDHandle savedhandle;
-    GetGWorld(&savedworld, &savedhandle);
+    //at the end of this function this will go out of scope and the destructor will restore the state
+    QMacSavedPortInfo saveportstate; 
+
     SetGWorld((GWorldPtr)hd,0);
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+
+    RGBColor tmpc;
+    tmpc.red = tmpc.green = tmpc.blue = 0;
+    RGBForeColor(&tmpc);
 
     //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
     RGBColor r;
@@ -238,9 +246,7 @@ QImage QPixmap::convertToImage() const
     }
     bool ale = alpha.bitOrder() == QImage::LittleEndian;
 
-   //now restore the old settings
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-    SetGWorld(savedworld,savedhandle);
     return *image;
 }
 
@@ -250,9 +256,9 @@ void QPixmap::fill( const QColor &fillColor )
 	Rect r;
 	RGBColor rc;
 
-	GWorldPtr savedworld;
-	GDHandle savedhandle;
-	GetGWorld(&savedworld, &savedhandle);
+	//at the end of this function this will go out of scope and the destructor will restore the state
+	QMacSavedPortInfo saveportstate; 
+
 	SetGWorld((GWorldPtr)hd,0);
 	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 
@@ -264,7 +270,6 @@ void QPixmap::fill( const QColor &fillColor )
 	PaintRect(&r);
 
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-	SetGWorld(savedworld,savedhandle);
     }
 }
 
