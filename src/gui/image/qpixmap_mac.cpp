@@ -790,7 +790,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             { 0, 0, 0, 0, false } };
         for(int i = 0; images[i].mac_type; i++) {
             const QPixmap *in_pix = NULL;
-            if(images[i].mask)
+            if(images[i].mask) 
                 in_pix = px.mask();
             else
                 in_pix = &px;
@@ -855,25 +855,25 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
 {
     const uint bpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)px.handle()));
     char *addr = GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)px.handle()));
-#if 0 //not really needed it seems, something like it is right (but the code is untested) --Sam
-    if(!imask && px.mask()) {
-        const QBitmap *mask = px.mask();
-        char *pix_addr = addr;
-        long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)mask->handle())), *drow;
-        unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)mask->handle()));
-        const int h = mask->height(), w = mask->width();
-        for(int yy=0; yy<h; yy++) {
-            drow = (long *)((char *)dptr + (yy * dbpr));
-            for(int xx=0;xx<w;xx++) {
-                if((*(drow + (xx / 8)) >> (7 - (xx % 8))) & 0x01)
-                    *(pix_addr+4) = 255;
-                else
-                    *(pix_addr+4) = 0;
-                pix_addr += 4;
+    if(!imask) {
+        if(const QPixmap *alpha = px.data->alphapm) {
+            imask = true; //for now
+            qWarning("need to implement this (alpha fu %p)!!!", alphapm);
+        } else if(const QBitmap *mask = px.mask()) {
+            char *drow;
+            long *mptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)mask->handle())), *mrow;
+            unsigned short mbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)mask->handle()));
+            const int h = mask->height(), w = mask->width();
+            for(int yy=0; yy<h; yy++) {
+                mrow = (long*)(((char*)mptr) + (yy * mbpr));
+                drow = addr + (yy * bpl);
+                for(int xx=0;xx<w;xx++) 
+                    *(drow + (xx*4)) = *(mrow + xx) ? 0 : 255;
             }
+        } else {
+            imask = true;
         }
     }
-#endif
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
     CGDataProviderRef provider = CGDataProviderCreateWithData(0, addr, bpl*px.height(), 0);
     CGImageRef image = CGImageCreate(px.width(), px.height(), 8, 32, bpl, colorspace,

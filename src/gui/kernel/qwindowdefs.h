@@ -76,6 +76,7 @@ typedef char **MenuBarHandle;
 typedef struct OpaqueDragRef *DragRef;
 typedef struct OpaqueControlRef* ControlRef;
 typedef ControlRef HIViewRef;
+typedef struct CGImage *CGImageRef;
 typedef struct CGContext *CGContextRef;
 typedef struct OpaqueWindowGroupRef *WindowGroupRef;
 typedef struct OpaqueGrafPtr *CGrafPtr;

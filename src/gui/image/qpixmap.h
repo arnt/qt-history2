@@ -256,6 +256,7 @@ private:
     friend class QX11PaintEngine;
 #endif
 #if defined(Q_WS_MAC)
+    friend CGImageRef qt_mac_create_cgimage(const QPixmap &, bool);
     friend class QQuickDrawPaintEngine;
     friend class QCoreGraphicsPaintEngine;
 #endif
