@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#39 $
 **
 ** Implementation of QProgressBar class
 **
@@ -330,7 +330,7 @@ void QProgressBar::drawContents( QPainter *p )
 	    // ### This part doesn't change as often as percentage does.
 	    int p_v = progress_val;
 	    int t_s = total_steps;
-	    if ( progress_val >= INT_MAX / u && t_s >= u ) {
+	    if ( u > 0 && progress_val >= INT_MAX / u && t_s >= u ) {
 		// scale down to something usable.
 		p_v /= u;
 		t_s /= u;
