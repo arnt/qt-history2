@@ -3213,7 +3213,7 @@ bool QWidget::focusNextPrevChild(bool next)
 
     QWidget *w = f;
     QWidget *test = f->d->focus_next;
-    while (test != f) {
+    while (test && test != f) {
         if ((test->focusPolicy() & focus_flag) == focus_flag
             && !(test->d->extra && test->d->extra->focus_proxy)
             && test->isVisibleTo(this) && test->isEnabled()) {
