@@ -444,7 +444,7 @@ void qFatal( const char *msg, ... )
     QString fstr;
     fstr.sprintf( "%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf );
     OutputDebugString( fstr.ucs2() );
-#elif defined(Q_CC_MSVC) && defined(QT_DEBUG)
+#elif defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG)
     _CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
     exit( 1 );				// goodbye cruel world
@@ -892,7 +892,7 @@ void qWarning( const char *msg, ... )
 	QString fstr;
 	fstr.sprintf( "%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf );
 	OutputDebugString( fstr.ucs2() );
-#elif defined(Q_CC_MSVC) && defined(QT_DEBUG)
+#elif defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG)
 	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #endif
     }
