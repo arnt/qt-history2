@@ -2855,7 +2855,7 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dt)
     instead.
 */
 
-#if !defined( QT_NO_DEBUG ) && !defined( QT_NO_TEXTSTREAM )
+#if !defined( QT_NO_DEBUG ) && !defined( QT_NO_TEXTSTREAM ) && !defined( QT_NO_SPRINTF )
 QDebug operator<<(QDebug dbg, const QDate &date)
 {
     dbg.nospace() << "QDate(" << date.toString() << ")";
