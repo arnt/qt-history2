@@ -234,6 +234,36 @@ static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, cons
 #define qt_mac_debug_palette(x, y, z)
 #endif
 
+//raise a notification
+static NMRecPtr qt_mac_notification = 0;
+void qt_mac_send_notification()
+{
+    if(qt_mac_notification)
+        return;
+
+    //only if we are inactive
+    ProcessSerialNumber mine, front;
+    if(GetCurrentProcess(&mine) == noErr && GetFrontProcess(&front) == noErr) {
+        Boolean same;
+        if(SameProcess(&mine, &front, &same) == noErr && same)
+            return;
+    }
+
+    //send it
+    qt_mac_notification = (NMRecPtr)malloc(sizeof(NMRec));
+    memset(qt_mac_notification, '\0', sizeof(NMRec));
+    qt_mac_notification->nmMark = 1; //non-zero magic number
+    qt_mac_notification->qType = nmType;
+}
+void qt_mac_cancel_notification()
+{
+     if(!qt_mac_notification)
+	return;
+     NMRemove(qt_mac_notification);
+     free(qt_mac_notification);
+     qt_mac_notification = 0;
+}
+
 //find widget (and part) at a given point
 static short qt_mac_window_at(int x, int y, QWidget **w=0)
 {
@@ -2460,6 +2490,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         break; }
     case kEventClassApplication:
         if(ekind == kEventAppActivated) {
+            qt_mac_cancel_notification();
+
             if(QApplication::desktopSettingsAware())
                 qt_mac_update_os_settings();
             app->clipboard()->loadScrap(false);
