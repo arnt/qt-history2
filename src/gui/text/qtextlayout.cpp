@@ -834,9 +834,19 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
         }
         if ((sl.from <= cursorPos && sl.from + (int)sl.length > cursorPos)
             || (sl.from + (int)sl.length == cursorPos && cursorPos == d->string.length())) {
-            int x = l.cursorToX(cursorPos);
+
+            const int x = position.x() + l.cursorToX(cursorPos);
+
+            int itm = d->findItem(cursorPos);
+            if (cursorPos == sl.from + (int)sl.length) {
+                // end of line ensure we have the last item on the line
+                itm = d->findItem(cursorPos-1);
+            }
+            const QScriptItem &si = d->items[itm];
+
             p->setPen(Qt::black);
-            p->drawLine(position.x() + x, position.y() + sl.y.toInt(), position.x() + x, position.y() + (sl.y + sl.ascent + sl.descent).toInt());
+            p->drawLine(x, position.y() + (sl.y + sl.ascent - si.ascent).toInt(), 
+                        x, position.y() + (sl.y + sl.ascent + si.descent).toInt());
         }
     }
 
