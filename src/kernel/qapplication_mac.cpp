@@ -367,29 +367,28 @@ static EventTypeSpec events[] = {
 /* platform specific implementations */
 void qt_init( int* argcptr, char **argv, QApplication::Type )
 {
-#if defined(QT_DEBUG)
+    // Get command line params
     int argc = *argcptr;
-    int i, j;
-
-  // Get command line params
-
-    j = 1;
+    int i, j = 1;
     for ( i=1; i<argc; i++ ) {
 	if ( argv[i] && *argv[i] != '-' ) {
 	    argv[j++] = argv[i];
 	    continue;
 	}
 	QCString arg = argv[i];
+#if defined(QT_DEBUG)
 	if ( arg == "-nograb" )
 	    appNoGrab = !appNoGrab;
 	else
+#endif // QT_DEBUG
+#ifdef Q_WS_MACX
+	//just ignore it, this seems to be passed from the finder (no clue what it does) FIXME
+	    if( arg.left(5) == "-psn_"); 
+	else
+#endif
 	    argv[j++] = argv[i];
     }
     *argcptr = j;
-#else
-    Q_UNUSED( argcptr );
-    Q_UNUSED( argv );
-#endif // QT_DEBUG
 
     // Set application name
     char *p = strrchr( argv[0], '/' );
