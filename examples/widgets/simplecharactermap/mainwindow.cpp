@@ -59,7 +59,7 @@ MainWindow::MainWindow()
     centralLayout->addLayout(lineLayout);
 
     setCentralWidget(centralWidget);
-    setWindowTitle(tr("Character Map"));
+    setWindowTitle(tr("Simple Character Map"));
 }
 
 void MainWindow::updateClipboard()

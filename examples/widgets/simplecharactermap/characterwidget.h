@@ -26,10 +26,13 @@ signals:
     void characterSelected(const QString &character);
 
 protected:
+    void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
 
 private:
+    void showToolTip(const QPoint &position);
+
     QFont displayFont;
     int currentKey;
 };

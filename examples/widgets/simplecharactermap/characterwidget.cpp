@@ -29,6 +29,11 @@ QSize CharacterWidget::sizeHint() const
     return QSize(32*24, (65536/32)*24);
 }
 
+void CharacterWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    showToolTip(event->globalPos());
+}
+
 void CharacterWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
@@ -79,4 +84,11 @@ void CharacterWidget::paintEvent(QPaintEvent *event)
                              QString(QChar(key)));
         }
     }
+}
+
+void CharacterWidget::showToolTip(const QPoint &position)
+{
+    QPoint widgetPosition = mapFromGlobal(position);
+    int key = (widgetPosition.y()/24)*32 + widgetPosition.x()/24;
+    QToolTip::showText(position, QString::number(key), this);
 }
