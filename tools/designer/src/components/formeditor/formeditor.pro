@@ -24,7 +24,6 @@ HEADERS += \
            formwindowcursor.h \
            widgetselection.h \
            formwindowmanager.h \
-           orderindicator.h \
            formeditor.h \
            iconloader.h \
            formeditor_global.h \
@@ -43,7 +42,6 @@ SOURCES += \
            formwindowcursor.cpp \
            widgetselection.cpp \
            formwindowmanager.cpp \
-           orderindicator.cpp \
            formeditor.cpp \
            qlayoutwidget_propertysheet.cpp \
            spacer_propertysheet.cpp \

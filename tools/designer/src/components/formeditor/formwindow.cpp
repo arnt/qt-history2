@@ -18,7 +18,6 @@
 #include "formwindowmanager.h"
 #include "tool_widgeteditor.h"
 
-#include "orderindicator.h"
 #include "widgetselection.h"
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
@@ -87,8 +86,6 @@ FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WFlags flags)
 
 FormWindow::~FormWindow()
 {
-    hideOrderIndicators();
-
     core()->formWindowManager()->removeFormWindow(this);
     core()->metaDataBase()->remove(this);
 
@@ -346,36 +343,6 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
             }
         }
     }
-
-/*
-    case TabOrderEditMode:
-        if (!isMainContainer(w)) { // press on a child widget
-
-            if (OrderIndicator *i = qobject_cast<OrderIndicator*>(w)) {
-                w = i->widget();
-            }
-
-            int idx = orderedWidgets.indexOf(w);
-            orderedWidgets.removeAt(idx);
-            orderedWidgets.append(w);
-
-            QListIterator<QWidget*> it(orderedWidgets);
-            it.toBack();
-            while (it.hasPrevious()) {
-                QWidget *wid = it.previous();
-                int j = stackedWidgets.indexOf(wid);
-                if (j > 0) {
-                    stackedWidgets.removeAt(j);
-                    stackedWidgets.insert(0, wid);
-                }
-            }
-
-            TabOrderCommand *cmd = new TabOrderCommand(this);
-            cmd->init(stackedWidgets);
-            commandHistory()->push(cmd);
-        }
-        break;
-*/
 }
 
 void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
@@ -1563,57 +1530,6 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
     popup->addAction(manager->actionBreakLayout());
 
     return popup;
-}
-
-void FormWindow::showOrderIndicators()
-{
-    hideOrderIndicators();
-
-    stackedWidgets.clear();
-    if (AbstractMetaDataBaseItem *item = core()->metaDataBase()->item(this)) {
-        stackedWidgets = item->tabOrder();
-    }
-    int order = 1;
-
-    foreach (QWidget *widget, widgets()) {
-        if (qobject_cast<QLayoutWidget*>(widget)
-                || widget == mainContainer()
-                || !widget->isExplicitlyHidden()
-                || !canBeBuddy(widget))
-            continue;
-
-        OrderIndicator* ind = new OrderIndicator(order++, widget, this);
-        orderIndicators.append(ind);
-
-        if (!stackedWidgets.contains(widget))
-            stackedWidgets.append(widget);
-    }
-
-    updateOrderIndicators();
-}
-
-void FormWindow::hideOrderIndicators()
-{
-    while (!orderIndicators.isEmpty())
-        delete orderIndicators.takeFirst();
-}
-
-void FormWindow::updateOrderIndicators()
-{
-    int order = 1;
-    foreach (QWidget *w, stackedWidgets) {
-        foreach (OrderIndicator *indicator, orderIndicators) {
-            indicator->setOrder(order, w);
-        }
-
-        ++order;
-    }
-}
-
-void FormWindow::repositionOrderIndicators()
-{
-    foreach (OrderIndicator *indicator, orderIndicators)
-        indicator->reposition();
 }
 
 void FormWindow::resizeEvent(QResizeEvent *e)

@@ -43,7 +43,6 @@ class QRubberBand;
 class WidgetSelection;
 class BreakLayoutCommand;
 class FormWindowManager;
-class OrderIndicator;
 class FormEditor;
 class FormWindowDnDItem;
 class FormWindowWidgetStack;
@@ -253,10 +252,6 @@ private:
 
     BreakLayoutCommand *breakLayoutCommand(QWidget *w);
 
-    void showOrderIndicators();
-    void hideOrderIndicators();
-    void repositionOrderIndicators();
-
     void setCursorToAll(const QCursor &c, QWidget *start);
     void restoreCursors(QWidget *start, FormWindow *fw);
 
@@ -270,7 +265,7 @@ private:
     static bool isChildOf(QWidget *c, const QWidget *p);
 
     void editWidgets();
-    
+
 private:
     Feature m_feature;
     FormEditor *m_core;
@@ -309,7 +304,6 @@ private:
     QString m_fileName;
     QString pixLoader;
 
-    QList<OrderIndicator*> orderIndicators;
     QList<QWidget*> orderedWidgets;
     QList<QWidget*> stackedWidgets;
 

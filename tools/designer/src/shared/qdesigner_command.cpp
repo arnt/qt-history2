@@ -931,13 +931,11 @@ void TabOrderCommand::init(const QList<QWidget*> &newTabOrder)
 void TabOrderCommand::redo()
 {
     m_widgetItem->setTabOrder(m_newTabOrder);
-    // ### formWindow()->updateOrderIndicators();
 }
 
 void TabOrderCommand::undo()
 {
     m_widgetItem->setTabOrder(m_oldTabOrder);
-    // ### formWindow()->updateOrderIndicators();
 }
 
 // ---- DockWidgetCommand:: ----

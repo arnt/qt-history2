@@ -17,7 +17,6 @@
 #include "iconloader.h"
 #include "widgetselection.h"
 #include "connectionedit.h"
-#include "orderindicator.h"
 
 #include <abstractwidgetfactory.h>
 #include <abstractformeditor.h>
@@ -233,8 +232,6 @@ void FormWindowManager::setActiveFormWindow(AbstractFormWindow *w)
 QWidget *FormWindowManager::findManagedWidget(FormWindow *fw, QWidget *w)
 {
     while (w && w != fw) {
-        if (qobject_cast<OrderIndicator*>(w))
-            break;
         if (fw->isManaged(w))
             break;
         w = w->parentWidget();
