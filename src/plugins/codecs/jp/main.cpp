@@ -27,8 +27,20 @@ class JPTextCodecs : public QTextCodecPlugin
 public:
     JPTextCodecs() {}
 
-    QStringList names() const { return QStringList() << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0"; }
-    QList<int> mibEnums() const { return QList<int>() << 16 << 17 << 18 << 63; }
+    QStringList names() const {
+        return QStringList() << "eucJP" << "JIS7" << "SJIS"
+#ifdef Q_WS_X11
+                             << "jisx0201*-0" << "jisx0208.1983-0"
+#endif
+        ;
+    }
+    QList<int> mibEnums() const {
+        return QList<int>() << 16 << 17 << 18
+#ifdef Q_WS_X11
+                            << 15 << 63
+#endif
+            ;
+    }
     QTextCodec *createForMib(int);
     QTextCodec *createForName(const QString &);
 };

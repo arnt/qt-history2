@@ -15,8 +15,7 @@
 #include <qtextcodec.h>
 #include <qstringlist.h>
 
-#include <private/qeuckrcodec_p.h>
-#include <private/qfontcodecs_p.h>
+#include "qeuckrcodec.h"
 
 
 class KRTextCodecs : public QTextCodecPlugin
@@ -24,8 +23,16 @@ class KRTextCodecs : public QTextCodecPlugin
 public:
     KRTextCodecs() {}
 
-    QStringList names() const { return QStringList() << "eucKR" << "ksc5601.1987-0"; }
-    QList<int> mibEnums() const { return QList<int>() << 38 << 36; }
+    QStringList names() const { return QStringList() << "eucKR"
+#ifdef Q_WS_X11
+                                                     << "ksc5601.1987-0"
+#endif
+            ; }
+    QList<int> mibEnums() const { return QList<int>() << 38
+#ifdef Q_WS_X11
+                                                      << 36
+#endif
+            ; }
     QTextCodec *createForMib(int);
     QTextCodec *createForName(const QString &);
 };
@@ -34,8 +41,10 @@ public:
 QTextCodec *KRTextCodecs::createForMib(int mib)
 {
     switch (mib) {
+#ifdef Q_WS_X11
     case 36:
         return new QFontKsc5601Codec;
+#endif
     case 38:
         return new QEucKrCodec;
     default:
@@ -50,9 +59,10 @@ QTextCodec *KRTextCodecs::createForName(const QString &name)
 {
     if (name == "eucKR")
         return new QEucKrCodec;
+#ifdef Q_WS_X11
     if (name == "ksc5601.1987-0")
         return new QFontKsc5601Codec;
-
+#endif
     return 0;
 }
 

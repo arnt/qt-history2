@@ -71,7 +71,7 @@
   SUCH DAMAGE.
 */
 
-#include "qbig5codec_p.h"
+#include "qbig5codec.h"
 
 #ifndef QT_NO_BIG_CODECS
 
@@ -398,6 +398,126 @@ QByteArray QBig5hkscsCodec::convertFromUnicode(const QChar *uc, int len, Convert
 }
 
 
+
+#ifdef Q_WS_X11
+QFontBig5Codec::QFontBig5Codec()
+{
+    //qDebug("QFontBig5Codec::QFontBig5Codec()");
+}
+
+
+const char* QFontBig5Codec::name() const
+{
+    //qDebug("QFontBig5Codec::name() = \"big5-0\"");
+    return "big5-0";
+}
+
+
+int QFontBig5Codec::mibEnum() const
+{
+    //qDebug("QFontBig5Codec::mibEnum() = -2026");
+    return -2026;
+}
+
+
+QString QFontBig5Codec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const
+{
+    return QString::null;
+}
+
+QByteArray QFontBig5Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
+{
+    //qDebug("QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
+    QByteArray result;
+    result.resize(len * 2);
+    uchar *rdata = (uchar *) result.data();
+    const QChar *ucp = uc;
+
+    for (int i = 0; i < len; i++) {
+        QChar ch(*ucp++);
+        uchar c[2];
+
+#if 0
+        if (ch.row() == 0) {
+            if (ch.cell() == ' ')
+                ch = QChar(0x3000);
+            else if (ch.cell() > ' ' && ch.cell() < 127)
+                ch = QChar(ch.cell()-' ', 255);
+        }
+#endif
+        if (qt_UnicodeToBig5hkscs(ch.unicode(), c) == 2 &&
+             c[0] >= 0xa1 && c[0] <= 0xf9) {
+            *rdata++ = c[0];
+            *rdata++ = c[1];
+        } else {
+            *rdata++ = 0;
+            *rdata++ = 0;
+        }
+    }
+    return result;
+}
+
+
+
+QFontBig5hkscsCodec::QFontBig5hkscsCodec()
+{
+    //qDebug("QFontBig5hkscsCodec::QFontBig5hkscsCodec()");
+}
+
+
+const char* QFontBig5hkscsCodec::name() const
+{
+    //qDebug("QFontBig5hkscsCodec::name() = \"big5hkscs-0\"");
+    return "big5hkscs-0";
+}
+
+
+int QFontBig5hkscsCodec::mibEnum() const
+{
+    //qDebug("QFontBig5hkscsCodec::mibEnum() = -2101");
+    return -2101;
+}
+
+
+QString QFontBig5hkscsCodec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const
+{
+    return QString::null;
+}
+
+QByteArray QFontBig5hkscsCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
+{
+    //qDebug("QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
+    QByteArray result;
+    result.resize(len * 2);
+    uchar *rdata = (uchar *) result.data();
+    const QChar *ucp = uc;
+
+    for (int i = 0; i < len; i++) {
+        QChar ch(*ucp++);
+        uchar c[2];
+
+#if 0
+        if (ch.row() == 0) {
+            if (ch.cell() == ' ')
+                ch = QChar(0x3000);
+            else if (ch.cell() > ' ' && ch.cell() < 127)
+                ch = QChar(ch.cell()-' ', 255);
+        }
+#endif
+        if (qt_UnicodeToBig5hkscs(ch.unicode(), c) == 2) {
+            *rdata++ = c[0];
+            *rdata++ = c[1];
+        } else {
+            //white square
+            *rdata++ = 0;
+            *rdata++ = 0;
+        }
+    }
+    return result;
+}
+
+
+#endif // Q_WS_X11
 
 /* ====================================================================== */
 

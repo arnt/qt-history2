@@ -1,8 +1,6 @@
 # Qt core library codecs module
 
 HEADERS += \
-	codecs/qbig5codec_p.h \
-	codecs/qeuckrcodec_p.h \
 	codecs/qisciicodec_p.h \
 	codecs/qlatincodec_p.h \
 	codecs/qsimplecodec_p.h \
@@ -13,8 +11,6 @@ HEADERS += \
 	codecs/qtextcodecplugin.h
 
 SOURCES += \
-	codecs/qbig5codec.cpp \
-	codecs/qeuckrcodec.cpp \
 	codecs/qisciicodec.cpp \
 	codecs/qlatincodec.cpp \
 	codecs/qsimplecodec.cpp \
@@ -26,11 +22,6 @@ SOURCES += \
 
 #unix {
 #	SOURCES += \
-#		codecs/qfontcncodec.cpp \
-#		codecs/qfontjpcodec.cpp \
-#		codecs/qfonttwcodec.cpp \
-#		codecs/qfontkrcodec.cpp \
-#		codecs/qfonthkcodec.cpp \
 #		codecs/qfontlaocodec.cpp
 #
 #}

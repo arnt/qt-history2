@@ -15,8 +15,7 @@
 #include <qtextcodec.h>
 #include <qstringlist.h>
 
-#include <private/qbig5codec_p.h>
-#include <private/qfontcodecs_p.h>
+#include "qbig5codec.h"
 
 
 class TWTextCodecs : public QTextCodecPlugin
@@ -24,8 +23,20 @@ class TWTextCodecs : public QTextCodecPlugin
 public:
     TWTextCodecs() {}
 
-    QStringList names() const { return QStringList() << "Big5" << "big5*-0"; }
-    QList<int> mibEnums() const { return QList<int>() << 2026 << -2026; }
+    QStringList names() const { return QStringList() << "Big5"
+#ifdef Q_WS_X11
+                                                     << "big5*-0"
+                                                     << "big5hkscs-0"
+#endif
+            ;
+    }
+    QList<int> mibEnums() const { return QList<int>() << 2026
+#ifdef Q_WS_X11
+                                                      << -2026
+                                                      << -2101
+#endif
+            ;
+    }
     QTextCodec *createForMib(int);
     QTextCodec *createForName(const QString &);
 };
@@ -33,8 +44,12 @@ public:
 QTextCodec *TWTextCodecs::createForMib(int mib)
 {
     switch (mib) {
+#ifdef Q_WS_X11
     case -2026:
         return new QFontBig5Codec;
+    case -2101:
+        return new QFontBig5hkscsCodec;
+#endif
     case 2026:
         return new QBig5Codec;
     default:
@@ -49,9 +64,12 @@ QTextCodec *TWTextCodecs::createForName(const QString &name)
 {
     if (name == "Big5")
         return new QBig5Codec;
+#ifdef Q_WS_X11
     if (name == "big5*-0")
         return new QFontBig5Codec;
-
+    if (name ==  "big5hkscs-0")
+        return new QFontBig5hkscsCodec;
+#endif
     return 0;
 }
 

@@ -41,15 +41,7 @@
 
 #include "qtextcodec.h"
 
-#ifndef QT_NO_BIG_CODECS
-
-#if defined(QT_PLUGIN)
-#define Q_EXPORT_CODECS_KR
-#else
-#define Q_EXPORT_CODECS_KR Q_CORE_EXPORT
-#endif
-
-class Q_EXPORT_CODECS_KR QEucKrCodec : public QTextCodec {
+class QEucKrCodec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;
@@ -59,5 +51,20 @@ public:
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
+
+#ifdef Q_WS_X11
+class QFontKsc5601Codec : public QTextCodec
+{
+public:
+    QFontKsc5601Codec();
+
+    const char* name() const ;
+    int mibEnum() const ;
+
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+
+};
 #endif
+
 #endif

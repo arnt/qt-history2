@@ -29,14 +29,6 @@
 #include "qtsciicodec_p.h"
 #include "qisciicodec_p.h"
 #endif // QT_NO_CODECS
-#ifndef QT_NO_BIG_CODECS
-#include "qbig5codec_p.h"
-#include "qeucjpcodec_p.h"
-#include "qeuckrcodec_p.h"
-#include "qgb18030codec_p.h"
-#include "qjiscodec_p.h"
-#include "qsjiscodec_p.h"
-#endif // QT_NO_BIG_CODECS
 
 #include <private/qlocale_p.h>
 #include <private/qmutexpool_p.h>
@@ -1007,17 +999,6 @@ static void realSetup()
     for (int i = 0; i < 9; ++i)
         (void)new QIsciiCodec(i);
 #endif // QT_NO_CODECS
-#ifndef QT_NO_BIG_CODECS
-    (void)new QBig5Codec;
-    (void)new QBig5hkscsCodec;
-    (void)new QEucJpCodec;
-    (void)new QEucKrCodec;
-    (void)new QGb2312Codec;
-    (void)new QGbkCodec;
-    (void)new QGb18030Codec;
-    (void)new QJisCodec;
-    (void)new QSjisCodec;
-#endif // QT_NO_BIG_CODECS
 
 #ifdef Q_OS_WIN32
     (void) new QWindowsLocalCodec;

@@ -20,8 +20,6 @@
 
 #include "qtextcodec.h"
 
-#ifndef QT_NO_BIG_CODECS
-
 class QBig5Codec : public QTextCodec {
 public:
     virtual int mibEnum() const;
@@ -40,5 +38,33 @@ public:
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
-#endif
+
+
+#ifdef Q_WS_X11
+class Q_CORE_EXPORT QFontBig5Codec : public QTextCodec
+{
+public:
+    QFontBig5Codec();
+
+    const char* name() const ;
+    int mibEnum() const ;
+
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+};
+
+class Q_CORE_EXPORT QFontBig5hkscsCodec : public QTextCodec
+{
+public:
+    QFontBig5hkscsCodec();
+
+    const char* name() const ;
+    int mibEnum() const ;
+
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+};
+
+#endif // Q_WS_X11
+
 #endif
