@@ -264,25 +264,25 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 
   A QTableItem contains the data of a table cell and provides
   means to change them. It specifies whether
-  and under which circumstances the cell might be edited by the user 
-  (see EditType) and the kind of editor that is used for changing its 
-  content. 
+  and under which circumstances the cell might be edited by the user
+  (see EditType) and the kind of editor that is used for changing its
+  content.
 
-  Items may contain a text string and one pixmap each. By default 
-  a QLineEdit is provided for editing. 
+  Items may contain a text string and one pixmap each. By default
+  a QLineEdit is provided for editing.
 
-  Furthermore, a QTableItem defines the cell size and the alignment of 
-  the displayed data. The item defines whether the respective cell 
+  Furthermore, a QTableItem defines the cell size and the alignment of
+  the displayed data. The item defines whether the respective cell
   data can be replaced, and whether word wrapping is desired when
-  cell contents exceed the width of the cell. 
-  In addition the QTableItem class provides the API 
+  cell contents exceed the width of the cell.
+  In addition the QTableItem class provides the API
   needed for sorting table items.
 
   To define another editor you have to reimplement createEditor() and
   setContentFromEditor(). By reimplementing paint() and adding
   the relevant set- and "get"-functions custom subclasses of QTableItem
-  may overcome the restriction of one text string and one pixmap per cell.  
-  If sorting is required reimplementing the 
+  may overcome the restriction of one text string and one pixmap per cell.
+  If sorting is required reimplementing the
   key() function might be neccessary.
 
   To get rid of an item, simply delete it. By doing so, all required
@@ -1862,6 +1862,8 @@ void QTable::paintCell( QPainter* p, int row, int col,
 
 void QTable::paintFocus( QPainter *p, const QRect &cr )
 {
+    if ( !hasFocus() && !viewport()->hasFocus() )
+	return;
     QRect focusRect( 0, 0, cr.width(), cr.height() );
     p->setPen( QPen( black, 1 ) );
     p->setBrush( NoBrush );
@@ -1940,8 +1942,8 @@ QTableItem *QTable::item( int row, int col ) const
   being 0.
 
   A QTableItem might be set to serve as cell content in a table which is
-  not its parent but it can't be set in two or more QTables at the same time. 
-  If it is unavoidable to use the same item in more than one tables remember 
+  not its parent but it can't be set in two or more QTables at the same time.
+  If it is unavoidable to use the same item in more than one tables remember
   to take the item out of the old table using takeItem() before setting it
   into the new one.
 
@@ -2631,8 +2633,10 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 
 	} break;
     case QEvent::FocusOut:
-	if ( o == this || o == viewport() )
+	if ( o == this || o == viewport() ) {
+	    updateCell( curRow, curCol );
 	    return TRUE;
+	}
 	if ( isEditing() && editorWidget && o == editorWidget && ( (QFocusEvent*)e )->reason() != QFocusEvent::Popup ) {
 	    QTableItem *itm = item( editRow, editCol );
  	    if ( !itm || itm->editType() == QTableItem::OnTyping ) {
@@ -2643,6 +2647,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::FocusIn:
  	if ( o == this || o == viewport() ) {
+	    updateCell( curRow, curCol );
 	    if ( isEditing() && editorWidget )
 		editorWidget->setFocus();
 	    return TRUE;
@@ -3838,7 +3843,7 @@ void QTable::showColumn( int col )
 
 /*! Resizes the column \a col to \a w pixel width.
 
-  \sa columnWidth() setRowHeight() 
+  \sa columnWidth() setRowHeight()
 */
 
 void QTable::setColumnWidth( int col, int w )
@@ -4089,7 +4094,7 @@ bool QTable::dragEnabled() const
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*! Inserts an empty row at the index \a row. 
+/*! Inserts an empty row at the index \a row.
 */
 
 void QTable::insertRow( int row )
@@ -4105,7 +4110,7 @@ void QTable::insertRow( int row )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
-/*! Inserts an empty column at the index \a col. 
+/*! Inserts an empty column at the index \a col.
 */
 
 void QTable::insertColumn( int col )
@@ -4121,7 +4126,7 @@ void QTable::insertColumn( int col )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
-/*! Removes the row \a row. 
+/*! Removes the row \a row.
 */
 
 void QTable::removeRow( int row )
@@ -4135,7 +4140,7 @@ void QTable::removeRow( int row )
     setNumRows( numRows() - 1 );
 }
 
-/*! Removes the column \a col. 
+/*! Removes the column \a col.
 */
 
 void QTable::removeColumn( int col )
