@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#11 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#12 $
 **
 **  Table header
 **
@@ -44,7 +44,6 @@ public:
     int 	offset() const;
 
     QSize	sizeHint() const;
-
 
     int		mapToLogical( int ) const;
     int		mapToActual( int ) const;
@@ -92,7 +91,7 @@ private:
     State	state;
     QCOORD	clickPos;
     bool	trackingIsOn;
-    
+
     QArray<QCOORD>	sizes;
     QArray<const char*>	labels;
     QArray<int>	        a2l;

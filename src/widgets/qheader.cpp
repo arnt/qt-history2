@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#26 $
 **
 **  Table header
 **
@@ -468,6 +468,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
     }
 }
 
+
 void QHeader::mousePressEvent( QMouseEvent *m )
 {
     handleIdx = 0;
@@ -678,16 +679,17 @@ void QHeader::resizeEvent( QResizeEvent * )
 }
 
 /*!
-  Returns the recommended size of the QHeader. Only the thickness is
-  interesting, the other dimension is taken from the current size.
+  Returns the recommended size of the QHeader.
 */
 QSize QHeader::sizeHint() const
 {
     QFontMetrics fm( font() );
     if ( orient == Horizontal )
-	return QSize( width(), fm.lineSpacing() + 6 );
+	return QSize( cellSize( count()-1 ) + cellPos( count()-1 ),
+		      fm.lineSpacing() + 6 );
     else
-	return QSize( fm.lineSpacing() + 6, height() );
+	return QSize( fm.lineSpacing() + 6,
+		      cellSize( count()-1 ) + cellPos( count()-1 ) );
 }
 
 
