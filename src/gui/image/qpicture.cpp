@@ -227,20 +227,6 @@ bool QPicture::load( const QString &fileName, const char *format )
 bool QPicture::load( QIODevice *dev, const char *format )
 {
     if(format) {
-#if 0
-	// ### disabled for now due to xml dependency
-#ifndef QT_NO_SVG
-	if ( qstrcmp( format, "svg" ) == 0 ) {
-	    QSVGPaintEngine svg;
-	    if ( !svg.load( dev ) )
-		return false;
-	    QPainter p( this );
-	    bool b = svg.play( &p );
-	    d->brect = svg.boundingRect();
-	    return b;
-	}
-#endif
-#endif
 #ifndef QT_NO_PICTUREIO
 	QPictureIO io( dev, format );
 	bool result = io.read();
@@ -284,11 +270,6 @@ bool QPicture::load( QIODevice *dev, const char *format )
     recommended unless you intend to export the picture data for
     use by a third party reader. By default the data will be saved in
     the native QPicture file format.
-
-    Currently, the only external format supported is the \link
-    http://www.w3.org/Graphics/SVG/ W3C SVG \endlink format which
-    requires the \link xml.html Qt XML module \endlink. The
-    corresponding \a format string is "svg".
 
     \sa load()
 */
@@ -1340,7 +1321,8 @@ QList<QByteArray> QPicture::outputFormats()
     I/O. The programmer can install new picture file formats in addition
     to those that Qt provides.
 
-    Qt currently supports only SVG picture file formats.
+    Qt currently supports only \link http://www.w3.org/Graphics/SVG/
+    W3C SVG \endlink picture file formats (with type string svg).
 
     You don't normally need to use this class; QPicture::load(),
     QPiicture::save().
@@ -1545,7 +1527,7 @@ static QPictureHandler *get_picture_handler( const char *format )
 	// write the picture using the picture->ioDevice()
 	}
 
-	// add the GIF picture handler
+	// add the SVG picture handler
 
 	QPictureIO::defineIOHandler( "SVG",
 				   0, 0,
