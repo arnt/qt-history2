@@ -32,10 +32,10 @@ enum Form {
 };
 
 static int devanagariForms[0x80] = {
-    Invalid, VowelMark, StressMark, StressMark,
-    Nukta, IndependentVowel, IndependentVowel, IndependentVowel,
-    IndependentVowel, IndependentVowel, IndependentVowel, Unknown,
-    Unknown, IndependentVowel, IndependentVowel, IndependentVowel,
+    Invalid, VowelMark, VowelMark, VowelMark,
+    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
 
     IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
     IndependentVowel, Consonant, Consonant, Consonant,
@@ -50,20 +50,20 @@ static int devanagariForms[0x80] = {
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Unknown, Unknown,
-    Nukta, Unknown, Matra, Matra,
+    Nukta, Other, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
     Matra, Matra, Matra, Matra,
     Matra, Matra, Matra, Matra,
     Matra, Halant, Unknown, Unknown,
 
-    Unknown, Unknown, Unknown, Unknown,
-    Unknown, Unknown, Unknown, Unknown,
+    Other, StressMark, StressMark, StressMark,
+    StressMark, Unknown, Unknown, Unknown,
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
 
-    Unknown, Unknown, Unknown, Unknown,
-    Unknown, Unknown, Other, Other,
+    Other, Other, VowelMark, VowelMark,
+    Other, Other, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
@@ -97,11 +97,6 @@ enum Position {
 
 static int devanagariPosition[0x80] = {
     None, Above, Above, Post,
-    Below, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-
-    None, None, None, None,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -114,15 +109,20 @@ static int devanagariPosition[0x80] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, Post, Post, Pre,
+    None, None, None, None,
+
+    None, None, None, None,
+    None, None, None, None,
+    None, None, None, None,
+    None, None, Post, Pre,
 
     Post, Below, Below, Below,
     Below, Above, Above, Above,
     Above, Post, Post, Post,
     Post, None, None, None,
 
-    None, None, None, None,
-    None, None, None, None,
+    None, Above, Below, Above,
+    Above, None, None, None,
     None, None, None, None,
     None, None, None, None,
 
