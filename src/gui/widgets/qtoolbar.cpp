@@ -627,9 +627,22 @@ void QToolBar::actionEvent(QActionEvent *event)
 /*! \reimp */
 void QToolBar::childEvent(QChildEvent *event)
 {
-    if (event->type() == QEvent::ChildRemoved) {
-        QWidget *widget = qt_cast<QWidget *>(event->child());
-        if (widget) {
+    QWidget *widget = qt_cast<QWidget *>(event->child());
+    if (widget) {
+#if !defined(QT_NO_DEBUG)
+        if (event->type() == QEvent::ChildPolished) {
+            bool found = (d->handle == widget || d->extension == widget);
+            for (int i = 0; !found && i < d->items.size(); ++i) {
+                const QToolBarItem &item = d->items.at(i);
+                if (item.widget == widget)
+                    found = true;
+            }
+            if (!found)
+                qWarning("QToolBar: child widget '%s::%s' not added, use QToolBar::addWidget()",
+                         widget->objectName().local8Bit(), widget->className());
+        } else
+#endif
+        if (event->type() == QEvent::ChildRemoved) {
             for (int i = 0; i < d->items.size(); ++i) {
                 const QToolBarItem &item = d->items.at(i);
                 QToolBarWidgetAction *widgetAction = 0;
