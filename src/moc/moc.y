@@ -425,7 +425,7 @@ struct Property
 	  scriptable(scriptable),
 	  stored(stored),
 	  editable(editable),
-	  override(override),d
+	  override(override),
 	  gspec(ValueSpec)
     {
 	/*
