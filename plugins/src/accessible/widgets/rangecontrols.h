@@ -55,6 +55,8 @@ public:
     QString	text(Text t, int child) const;
     Role	role(int child) const;
 
+    int		defaultAction(int child) const;
+    QString	actionText(int action, Text t, int child);
     bool	doAction(int action, int child);
 
 protected:

@@ -355,11 +355,13 @@ QString	QAccessibleSlider::text(Text t, int child) const
     case Name:
 	switch (child) {
 	case 1:
-	    return QSlider::tr("Page down");
+	    return slider()->orientation() == Horizontal ? 
+		QSlider::tr("Page left") : QSlider::tr("Page up");
 	case 2:
 	    return QSlider::tr("Position");
 	case 3:
-	    return QSlider::tr("Page up");
+	    return slider()->orientation() == Horizontal ? 
+		QSlider::tr("Page right") : QSlider::tr("Page down");
 	}
 	break;
     default:
@@ -383,15 +385,50 @@ QAccessible::Role QAccessibleSlider::role(int child) const
 }
 
 /*! \reimp */
+int QAccessibleSlider::defaultAction(int child) const
+{
+    switch (child) {
+    case 0:
+	return SetFocus;
+    case 1:
+	return Press;
+    case 3:
+	return Press;
+    }
+    return NoAction;
+}
+
+/*! \reimp */
 bool QAccessibleSlider::doAction(int action, int child)
 {
-    if (action == Press) switch (child) {
+    switch(child) {
+    case 0:
+	if (action == SetFocus) {
+	    slider()->setFocus();
+	    return true;
+	}
+	break;
     case 1:
-	slider()->subtractLine();
-	return TRUE;
+	if (action == Press) {
+	    slider()->subtractPage();
+	    return true;
+	}
+	break;
+    case 2:
+	if (action == Increase) {
+	    slider()->addLine();
+	    return true;
+	} else if (action == Decrease) {
+	    slider()->subtractLine();
+	    return true;
+	}
+	break;
     case 3:
-	slider()->addLine();
-	return TRUE;
+	if (action == Press) {
+	    slider()->addPage();
+	    return true;
+	}
+	break;
     }
-    return FALSE;
+    return false;
 }
