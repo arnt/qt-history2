@@ -23,14 +23,11 @@ for PARAM in $PARAMS; do
 done
 
 # debuggery
-
-if [ "$VERBOSE" = "yes" ]; then
-    echo "NIS auto-detection... ($*)"
-fi
+[ "$VERBOSE" = "yes" ] && echo "NIS auto-detection... ($*)"
 
 # check for the NIS library
-# on Solaris it's -lnsl, it's not specified because X11 already links it
 if echo $XPLATFORM | grep '^solaris-' >/dev/null; then
+    # on Solaris it's -lnsl, it's not specified because X11 already links it
     LIBS=nsl
 else
     LIBS=`sed -n -e '/^QMAKE_LIBS_NIS[	 ]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`

@@ -1453,18 +1453,18 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     # auto-detect XftFreeType support
     if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_FREETYPE" != "no" ]; then
 	CFG_FREETYPE=yes
-	$x11tests/xfreetype.test $XQMAKESPEC $OPT_VERBOSE $x11tests $L_FLAGS $I_FLAGS && CFG_FREETYPE=no
+	$x11tests/xfreetype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS && CFG_FREETYPE=no
     fi
     # add freetype2 include path
-    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $x11tests/xfreetype.inc ];then
-	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $x11tests/xfreetype.inc`\""
+    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xfreetype.inc ];then
+	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $outpath/config.tests/x11/xfreetype.inc`\""
     fi
-    rm -f $x11tests/xfreetype.inc
+    rm -f $outpath/config.tests/x11/xfreetype.inc
     # add XftFreetype specific config options
-    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $x11tests/xfreetype.cfg ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG `cat $x11tests/xfreetype.cfg`"
+    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xfreetype.cfg ]; then
+	QMAKE_CONFIG="$QMAKE_CONFIG `cat $outpath/config.tests/x11/xfreetype.cfg`"
     fi
-    rm -f $x11tests/xfreetype.cfg
+    rm -f $outpath/config.tests/x11/xfreetype.cfg
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
 	CFG_SM=yes

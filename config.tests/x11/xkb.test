@@ -1,4 +1,5 @@
 #!/bin/sh
+
 XKB=yes
 XPLATFORM=`basename $1`
 XCONFIG=$1/qmake.conf
@@ -6,8 +7,7 @@ VERBOSE=$2
 shift 2
 IN_INCDIRS=""
 PARAMS=$@
-for PARAM in $PARAMS
-do
+for PARAM in $PARAMS; do
     PREFIX=`echo $PARAM | sed 's/^\(..\).*/\1/'`
     case $PREFIX in
     -I)
@@ -19,7 +19,7 @@ do
 done
 
 # debuggery
-[ "$VERBOSE" = "yes" ] && echo "XKB auto-detection..."
+[ "$VERBOSE" = "yes" ] && echo "XKB auto-detection... ($*)"
 
 # some platforms are known to be broken
 #   Solaris 7 + Xsun
@@ -52,16 +52,13 @@ esac
     
 # check for headers
 XKBLIB_H=
-if [ "$XKB" = "yes" ]
-then
+if [ "$XKB" = "yes" ]; then
     INC="X11/XKBlib.h"
     XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
     INCDIRS="$IN_INCDIRS $XDIRS /usr/include /include"
     F=
-    for INCDIR in $INCDIRS
-    do
-	if [ -f $INCDIR/$INC ]
-	then
+    for INCDIR in $INCDIRS; do
+	if [ -f $INCDIR/$INC ]; then
 	    F=yes
 	    XKBLIB_H=$INCDIR/$INC
 	    if [ "$VERBOSE" = "yes" ]
@@ -71,11 +68,9 @@ then
 	    break
 	fi
     done
-    if [ -z "$F" ]
-    then
+    if [ -z "$F" ]; then
 	XKB=no
-	if [ "$VERBOSE" = "yes" ]
-	then
+	if [ "$VERBOSE" = "yes" ]; then
 	    echo "  Could not find $INC anywhere in $INCDIRS"
 	fi
     fi
@@ -83,13 +78,10 @@ fi
 
 # check for XkbSetPerClientControls in X11/XKBlib.h
 # if it is not found, we disable xkb support
-if [ "$XKB" = "yes" ] && [ -f "$XKBLIB_H" ]
-then
+if [ "$XKB" = "yes" ] && [ -f "$XKBLIB_H" ]; then
     grep XkbSetPerClientControls $XKBLIB_H >/dev/null || XKB=no
-    if [ "$VERBOSE" = "yes" ]
-    then
-	if [ "$XKB" = "yes" ]
-	then
+    if [ "$VERBOSE" = "yes" ]; then
+	if [ "$XKB" = "yes" ]; then
 	    echo "  XkbSetPerClientControls found."
 	else
 	    echo "  XkbSetPerClientControls not found."
@@ -99,8 +91,7 @@ fi
 
 
 # done
-if [ "$XKB" != "yes" ]
-then
+if [ "$XKB" != "yes" ]; then
     [ "$VERBOSE" = "yes" ] && echo "XKB disabled."
     exit 0
 else

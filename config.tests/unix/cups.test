@@ -23,10 +23,7 @@ for PARAM in $PARAMS; do
 done
 
 # debuggery
-
-if [ "$VERBOSE" = "yes" ]; then
-    echo "CUPS auto-detection... ($*)"
-fi
+[ "$VERBOSE" = "yes" ] && echo "CUPS auto-detection... ($*)"
 
 # check for the CUPS library
 LIBS=cups

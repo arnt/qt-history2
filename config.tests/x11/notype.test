@@ -24,8 +24,7 @@ OUTDIR=$4
 #   	work for us with gcc 2.95.2.
 NOTYPE=no
 
-if [ $XPLATFORM = "solaris-g++" -o $XPLATFORM = "hpux-g++" -o $XPLATFORM = "aix-g++" ]
-then
+if [ $XPLATFORM = "solaris-g++" -o $XPLATFORM = "hpux-g++" -o $XPLATFORM = "aix-g++" ]; then
     NOTYPE=yes
 
     test -d $OUTDIR/config.tests/x11/notype || mkdir -p $OUTDIR/config.tests/x11/notype
@@ -42,8 +41,7 @@ then
 fi
 
 # done
-if [ "$NOTYPE" = "yes" ]
-then
+if [ "$NOTYPE" = "yes" ]; then
     [ "$VERBOSE" = "yes" ] && echo "Broken X11 headers detected."
     exit 0
 else
