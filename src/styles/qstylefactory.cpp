@@ -163,7 +163,7 @@ QStyle *QStyleFactory::create( const QString& key )
 #endif
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
     if( style.left(9) == "macintosh" )
-	return new QMacStyle;
+	ret = new QMacStyle;
 #endif
     { } // Keep these here - they make the #ifdefery above work
 
