@@ -1343,7 +1343,6 @@ QCoreGraphicsPaintEngine::drawLineSegments(const QPointArray &pa)
 {
     Q_ASSERT(isActive());
 
-    qDebug("boink..");
     CGContextBeginPath(d->hd);
     for(int i = 0, x1, x2, y1, y2; i < pa.size(); ) {
         pa.point(i++, &x1, &y1);
@@ -1369,7 +1368,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     bool asMask = pm.isQBitmap() || pm.depth() == 1;
     if(asMask) {     //set colour
         if(d->pdev->devType() == QInternal::Pixmap && static_cast<QPixmap*>(d->pdev)->isQBitmap()) {
-            asMask = false;
+            asMask = false; //if the destination is a bitmap no need for the colour tricks --Sam
         } else {
             const QColor &col = d->current.pen.color();
             CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
