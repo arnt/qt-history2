@@ -116,8 +116,7 @@ QFramePrivate::QFramePrivate()
 
     When it does not call QStyle, Shape interacts with QFrame::Shadow,
     the lineWidth() and the midLineWidth() to create the total result.
-    See the \link #picture picture of the frames\endlink in the class
-    description.
+    See the picture of the frames in the main class documentation.
 
     \sa QFrame::Shadow QFrame::style() QStyle::drawPrimitive()
 */
@@ -140,8 +139,8 @@ QFramePrivate::QFramePrivate()
     \omitvalue MShadow
 
     Shadow interacts with QFrame::Shape, the lineWidth() and the
-    midLineWidth(). See the \link #picture picture of the frames\endlink
-    in the class description.
+    midLineWidth(). See the picture of the frames in the main class
+    documentation.
 
     \sa QFrame::Shape lineWidth() midLineWidth()
 */
@@ -235,8 +234,8 @@ void QFrame::setFrameShadow(QFrame::Shadow s)
     Sets the frame style to \a style.
 
     The \a style is the bitwise OR between a frame shape and a frame
-    shadow style. See the \link #picture illustration\endlink in the
-    class documentation.
+    shadow style. See the picture of the frames in the main class
+    documentation.
 
     The frame shapes are given in \l{QFrame::Shape} and the shadow
     styles in \l{QFrame::Shadow}.
@@ -246,7 +245,7 @@ void QFrame::setFrameShadow(QFrame::Shadow s)
     VLine frames. The mid-color of the current color group is used for
     drawing middle lines.
 
-    \sa \link #picture Illustration\endlink, frameStyle()
+    \sa frameStyle()
 */
 
 void QFrame::setFrameStyle(int style)

@@ -773,8 +773,8 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     some users may not be familiar with it. Consider using a QToolBar
     instead.
 
-    \link menu-example.html menu/menu.cpp\endlink is an example of
-    QMenuBar and QMenu use.
+    See the \l{mainwindows/menus}{Menus Example} for an example of how
+    to use QMenuBar and QMenu in your application.
 
     Important inherited functions: addAction(), removeAction(), clear(),
     addSeparator(), and addMenu().
