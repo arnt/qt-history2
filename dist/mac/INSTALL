@@ -102,9 +102,9 @@ the directories where you choose to install Qt.
     Finder, you must place the relevant libraries in a directory where
     they can be found. We recommend making these symbolic links:
 
-    ln -s $QTDIR/lib/libqt.dylib.%VERSION_NUMBER% /usr/lib
-    ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib
-    ln -s $QTDIR/lib/libeditor.dylib.1.0.0 /usr/lib
+    ln -s $QTDIR/lib/libqt.%VERSION_NUMBER%.dylib /usr/lib
+    ln -s $QTDIR/lib/libqui.1.0.0.dylib /usr/lib
+    ln -s $QTDIR/lib/libeditor.1.0.0.dylib /usr/lib
 
     You may need to have 'administrator' access to do this, (in which
     case, precede each command with 'sudo', e.g. 'sudo ln -s ...'). If
