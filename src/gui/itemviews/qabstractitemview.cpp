@@ -1633,7 +1633,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::BeginEditAction
         return true;
     if (action & beginEditActions)
         return true;
-    if (delegate->editorType(index) == QAbstractItemDelegate::Events)
+    if (delegate && delegate->editorType(index) == QAbstractItemDelegate::Events)
         return true;
     return persistentEditor(index) != 0;
 }
