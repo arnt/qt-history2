@@ -802,7 +802,7 @@ void QApplication::initialize()
 #endif
 #ifndef QT_NO_VARIANT
     // trigger registering of QVariant's GUI types
-    const QVariant v = QVariant(int(QMetaType::Int), static_cast<const void *>(0));
+    const QVariant v = QVariant(int(QMetaType::Int), (void *)0);
     Q_UNUSED(v)
 #endif
     is_app_running = true; // no longer starting up
