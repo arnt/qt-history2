@@ -2325,186 +2325,209 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	e->ignore();
     
     if ( count() == 0 ) {
-	e->ignore();
-	return;
+		e->ignore();
+		return;
     }
-    QListBoxItem *old = d->current;
+
+	QListBoxItem *old = d->current;
     if ( !old ) {
-	setCurrentItem( d->head );
-	if ( d->selectionMode == Single )
-	    setSelected( d->head, TRUE );
-	e->ignore();
-	return;
+		setCurrentItem( d->head );
+		if ( d->selectionMode == Single )
+			setSelected( d->head, TRUE );
+		e->ignore();
+		return;
     }
 
     bool selectCurrent = FALSE;
     switch ( e->key() ) {
-    case Key_Up:
-	d->currInputString = QString::null;
-	if ( currentItem() > 0 ) {
-	    setCurrentItem( currentItem() - 1 );
-	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	}
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-	break;
-    case Key_Down:
-	d->currInputString = QString::null;
-	if ( currentItem() < (int)count() - 1 ) {
-	    setCurrentItem( currentItem() + 1 );
-	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	}
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-	break;
-    case Key_Left:
-	d->currInputString = QString::null;
-	if ( currentColumn() > 0 ) {
-	    setCurrentItem( currentItem() - numRows() );
-	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	} else if ( numColumns() > 1 && currentItem() > 0 ) {
-	    int row = currentRow();
-	    setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
+	case Key_Up:
+		{
+			d->currInputString = QString::null;
+			if ( currentItem() > 0 ) {
+				setCurrentItem( currentItem() - 1 );
+				handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			}
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+		}
+		break;
+	case Key_Down:
+		{
+			d->currInputString = QString::null;
+			if ( currentItem() < (int)count() - 1 ) {
+				setCurrentItem( currentItem() + 1 );
+				handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			}
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+		}
+		break;
+	case Key_Left:
+		{
+			d->currInputString = QString::null;
+			if ( currentColumn() > 0 ) {
+				setCurrentItem( currentItem() - numRows() );
+				handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			} else if ( numColumns() > 1 && currentItem() > 0 ) {
+				int row = currentRow();
+				setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
 
-	    if ( currentItem() == -1 )
-		setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
+				if ( currentItem() == -1 )
+					setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
 
-	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	} else {
-	    QApplication::sendEvent( horizontalScrollBar(), e );
-	}
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-	break;
-    case Key_Right:
-	d->currInputString = QString::null;
-	if ( currentColumn() < numColumns()-1 ) {
-	    int row = currentRow();
-	    int i = currentItem();
-	    setCurrentItem( currentItem() + numRows() );
+				handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			} else {
+				QApplication::sendEvent( horizontalScrollBar(), e );
+			}
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+		}
+		break;
+	case Key_Right:
+		{
+			d->currInputString = QString::null;
+			if ( currentColumn() < numColumns()-1 ) {
+				int row = currentRow();
+				int i = currentItem();
+				setCurrentItem( currentItem() + numRows() );
 
-	    if ( currentItem() == -1 ) {
-		if ( row < numRows() - 1 )
-		    setCurrentItem( row + 1 );
-		else
-		    setCurrentItem( i );
-	    }
+				if ( currentItem() == -1 ) {
+				if ( row < numRows() - 1 )
+					setCurrentItem( row + 1 );
+				else
+					setCurrentItem( i );
+				}
 
-	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	} else if ( numColumns() > 1 && currentRow() < numRows() ) {
-	    if ( currentRow() + 1 < numRows() ) {
-		setCurrentItem( currentRow() + 1 );
-		handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	    }
-	} else {
-	    QApplication::sendEvent( horizontalScrollBar(), e );
-	}
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-	break;
-    case Key_Next: {
-	d->currInputString = QString::null;
-	int i = 0;
-	if ( numColumns() == 1 ) {
-	    i = currentItem() + numItemsVisible();
-	    i = i > (int)count() - 1 ? (int)count() - 1 : i;
-	    setCurrentItem( i );
-	    setBottomItem( i );
-	} else {
-	    // I'm not sure about this behavior...
-	    if ( currentRow() == numRows() - 1 )
-		i = currentItem() + numRows();
-	    else
-		i = currentItem() + numRows() - currentRow() - 1;
-	    i = i > (int)count() - 1 ? (int)count() - 1 : i;
-	    setCurrentItem( i );
-	}
-	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-    } break;
-    case Key_Prior: {
-	selectCurrent = TRUE;
-	d->currInputString = QString::null;
-	int i;
-	if ( numColumns() == 1 ) {
-	    i = currentItem() - numItemsVisible();
-	    i = i < 0 ? 0 : i;
-	    setCurrentItem( i );
-	    setTopItem( i );
-	} else {
-	    // I'm not sure about this behavior...
-	    if ( currentRow() == 0 )
-		i = currentItem() - numRows();
-	    else
-		i = currentItem() - currentRow();
-	    i = i < 0 ? 0 : i;
-	    setCurrentItem( i );
-	}
-	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-    } break;
+				handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			} else if ( numColumns() > 1 && currentRow() < numRows() ) {
+				if ( currentRow() + 1 < numRows() ) {
+					setCurrentItem( currentRow() + 1 );
+					handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+				}
+			} else {
+				QApplication::sendEvent( horizontalScrollBar(), e );
+			}
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+		}
+		break;
+    case Key_Next:
+		{
+			d->currInputString = QString::null;
+			int i = 0;
+			if ( numColumns() == 1 ) {
+				i = currentItem() + numItemsVisible();
+				i = i > (int)count() - 1 ? (int)count() - 1 : i;
+				setCurrentItem( i );
+				setBottomItem( i );
+			} else {
+				// I'm not sure about this behavior...
+				if ( currentRow() == numRows() - 1 )
+					i = currentItem() + numRows();
+				else
+					i = currentItem() + numRows() - currentRow() - 1;
+				i = i > (int)count() - 1 ? (int)count() - 1 : i;
+				setCurrentItem( i );
+			}
+			handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+	    } 
+		break;
+    case Key_Prior:
+		{
+			selectCurrent = TRUE;
+			d->currInputString = QString::null;
+			int i;
+			if ( numColumns() == 1 ) {
+				i = currentItem() - numItemsVisible();
+				i = i < 0 ? 0 : i;
+				setCurrentItem( i );
+				setTopItem( i );
+			} else {
+				// I'm not sure about this behavior...
+				if ( currentRow() == 0 )
+					i = currentItem() - numRows();
+				else
+					i = currentItem() - currentRow();
+				i = i < 0 ? 0 : i;
+				setCurrentItem( i );
+			}
+			handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+	    } 
+		break;
     case Key_Space:
-	selectCurrent = TRUE;
-	d->currInputString = QString::null;
-	toggleCurrentItem();
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-	break;
+		{
+			selectCurrent = TRUE;
+			d->currInputString = QString::null;
+			toggleCurrentItem();
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+		}
+		break;
     case Key_Return:
     case Key_Enter:
-	selectCurrent = TRUE;
-	d->currInputString = QString::null;
-	if ( currentItem() >= 0 && selectionMode() != NoSelection ) {
-	    QString tmp = item( currentItem() )->text();
-	    emit selected( currentItem());
-	    emit selected( item( currentItem() ) );
-	    if ( !tmp.isEmpty() )
-		emit selected( tmp );
-	    emit returnPressed( item( currentItem() ) );
-	}
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-	break;
-    case Key_Home: {
-	selectCurrent = TRUE;
-	d->currInputString = QString::null;
-	setCurrentItem( 0 );
-	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-    } break;
-    case Key_End: {
-	selectCurrent = TRUE;
-	d->currInputString = QString::null;
-	int i = (int)count() - 1;
-	setCurrentItem( i );
-	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
-	    d->selectAnchor = d->current;
-    } break;
-    default:
-	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
-	    d->findItemByName( e->text() );
-	} else {
-	    d->currInputString = QString::null;
-	    if ( e->state() & ControlButton ) {
-		switch ( e->key() ) {
-		case Key_A:
-		    selectAll( TRUE );
-		    break;
+		{
+			selectCurrent = TRUE;
+			d->currInputString = QString::null;
+			if ( currentItem() >= 0 && selectionMode() != NoSelection ) {
+				QString tmp = item( currentItem() )->text();
+				emit selected( currentItem());
+				emit selected( item( currentItem() ) );
+				if ( !tmp.isEmpty() )
+					emit selected( tmp );
+				emit returnPressed( item( currentItem() ) );
+			}
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
 		}
-	    } else {
-		e->ignore();
-	    }
-	}
+		break;
+    case Key_Home:
+		{
+			selectCurrent = TRUE;
+			d->currInputString = QString::null;
+			setCurrentItem( 0 );
+			handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+		}
+		break;
+    case Key_End: 
+		{
+			selectCurrent = TRUE;
+			d->currInputString = QString::null;
+			int i = (int)count() - 1;
+			setCurrentItem( i );
+			handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+			if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+				d->selectAnchor = d->current;
+		}
+		break;
+    default: 
+		{
+			if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
+				d->findItemByName( e->text() );
+			} else {
+				d->currInputString = QString::null;
+				if ( e->state() & ControlButton ) {
+					switch ( e->key() ) {
+					case Key_A:
+					selectAll( TRUE );
+					break;
+					}
+				} else {
+					e->ignore();
+				}
+			}
+		}
     }
 
     if ( selectCurrent && selectionMode() == Single &&
-	 d->current && !d->current->s ) {
-	updateItem( d->current );
-	setSelected( d->current, TRUE );
+		 d->current && !d->current->s ) {
+		updateItem( d->current );
+		setSelected( d->current, TRUE );
     }
 }
 
