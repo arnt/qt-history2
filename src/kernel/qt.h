@@ -56,6 +56,7 @@
 #include "qdict.h"
 #include "qtl.h"
 #include "qhostaddress.h"
+#include "qvaluelist.h"
 #include "qmap.h"
 #include "qmime.h"
 #include <qdom.h>
@@ -73,7 +74,6 @@
 #include "qurlinfo.h"
 #include <qwidgetlist.h>
 #include <qcombobox.h>
-#include "qvaluelist.h"
 #include <qfontdialog.h>
 #include <qdataview.h>
 #include "qstyle.h"
