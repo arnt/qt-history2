@@ -195,7 +195,7 @@ public:
     inline void drawChord(const QRect &, int a, int alen);
 
     void drawLines(const QList<QLineF> lines, int index = 0, int nlines = -1);
-    inline void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
+    void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
 
     void drawPolyline(const QPolygon &polyline, int index = 0, int npoints = -1);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
