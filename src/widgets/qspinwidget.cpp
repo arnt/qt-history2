@@ -282,7 +282,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				d->up,
-				d->downEnabled ? colorGroup() :
+				d->upEnabled ? colorGroup() :
 				palette().disabled(),
 				QStyle::CStyle_Default,
 				QStyle::SC_SpinWidgetUp,
