@@ -1,6 +1,5 @@
 #include "complexwidgets.h"
 
-#include <qaccel.h>
 #include <qapplication.h>
 #include <qevent.h>
 #include <qheader.h>

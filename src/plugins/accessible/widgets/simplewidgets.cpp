@@ -1,7 +1,6 @@
 #include "simplewidgets.h"
 
 #include <qabstractbutton.h>
-#include <qaccel.h>
 #include <qbutton.h>
 #include <qcheckbox.h>
 #include <qpushbutton.h>

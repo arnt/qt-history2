@@ -1,6 +1,5 @@
 #include "qaccessiblemenu.h"
 
-#include <qaccel.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qstyle.h>
