@@ -1087,7 +1087,7 @@ QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
     for ( QDockWindow *dw = l.first(); dw; dw = l.next() )
 	str += "[" + QString( dw->caption() ) + "," + QString::number( (int)dw->offset() ) +
 	       "," + QString::number( (int)dw->newLine() ) + "," + QString::number( dw->fixedExtent().width() ) +
-	       "," + QString::number( dw->fixedExtent().height() ) + "," + QString::number( !(int)dw->isHidden() ) + "]";
+	       "," + QString::number( dw->fixedExtent().height() ) + "," + QString::number( (int)!dw->isHidden() ) + "]";
     ts << str << endl;
 
     return ts;

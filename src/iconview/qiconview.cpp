@@ -4788,8 +4788,8 @@ QDragObject *QIconView::dragObject()
     QPoint orig = d->dragStartPos;
 
     QIconDrag *drag = new QIconDrag( viewport() );
-    drag->setPixmap( d->currentItem->pixmap() ?
-		     *d->currentItem->pixmap() : QPixmap(), // ### QPicture
+    drag->setPixmap( ( d->currentItem->pixmap() ?
+		     *d->currentItem->pixmap() : QPixmap() ), // ### QPicture
  		     QPoint( d->currentItem->pixmapRect().width() / 2,
 			     d->currentItem->pixmapRect().height() / 2 ) );
 
