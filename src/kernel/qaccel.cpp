@@ -96,7 +96,7 @@
     matching accelerators. Some standard controls like QPushButton and
     QCheckBox connect the activatedAmbiguously() signal to the
     harmless setFocus() slot, whereas activated() is connected to a
-    slot invoking the button's action.  Most controls, like QLabel and
+    slot invoking the button's action.	Most controls, like QLabel and
     QTabBar, treat activated() and activatedAmbiguously() as
     equivalent.
 
@@ -331,7 +331,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	return FALSE;
     } else if ( n == 0 ) { // found exactly one match
 	clash = -1; // reset
-        currentState = Qt::NoMatch; // Free sequence keylock
+	currentState = Qt::NoMatch; // Free sequence keylock
 	intermediate = QKeySequence();
 	lastaccel->activate( lastitem );
 	return TRUE;
@@ -340,12 +340,12 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
  doclash: // found more than one match
     if ( clash >= 0 && n > clash ) { // pick next  match
 	intermediate = QKeySequence();
-        currentState = Qt::NoMatch; // Free sequence keylock
+	currentState = Qt::NoMatch; // Free sequence keylock
 	clash++;
 	lastaccel->activateAmbiguously( lastitem );
     } else { // start (or wrap) with the first matching
 	intermediate = QKeySequence();
-        currentState = Qt::NoMatch; // Free sequence keylock
+	currentState = Qt::NoMatch; // Free sequence keylock
 	clash = 0;
 	firstaccel->activateAmbiguously( firstitem );
     }
@@ -501,12 +501,12 @@ static int get_seq_id()
     negative identifier less than -1.
 
     \code
-	QAccel *a = new QAccel( myWindow );        // create accels for myWindow
-	a->insertItem( CTRL + Key_P, 200 );        // Ctrl+P, e.g. to print document
-	a->insertItem( ALT + Key_X, 201 );         // Alt+X, e.g. to quit
+	QAccel *a = new QAccel( myWindow );	   // create accels for myWindow
+	a->insertItem( CTRL + Key_P, 200 );	   // Ctrl+P, e.g. to print document
+	a->insertItem( ALT + Key_X, 201 );	   // Alt+X, e.g. to quit
 	a->insertItem( UNICODE_ACCEL + 'q', 202 ); // Unicode 'q', e.g. to quit
-	a->insertItem( Key_D );                    // gets a unique negative id < -1
-	a->insertItem( CTRL + SHIFT + Key_P );     // gets a unique negative id < -1
+	a->insertItem( Key_D );			   // gets a unique negative id < -1
+	a->insertItem( CTRL + SHIFT + Key_P );	   // gets a unique negative id < -1
     \endcode
 */
 
@@ -888,6 +888,6 @@ to help. Ask them for ISBN 1859121047.
 
 /*! \obsolete  serves no purpose anymore */
 void QAccel::repairEventFilter() {}
-/*! \obsolete   serves no purpose anymore */
+/*! \obsolete	serves no purpose anymore */
 bool QAccel::eventFilter( QObject *, QEvent * ) { return FALSE; }
 #endif // QT_NO_ACCEL
