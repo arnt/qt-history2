@@ -1112,8 +1112,7 @@ void QCanvas::update()
 {
     QCanvasClusterizer clusterizer(d->viewList.size());
 #ifndef QT_NO_TRANSFORMATIONS
-    QList<QRect*> doneareas;
-    doneareas.setAutoDelete(TRUE);
+    QList<QRect> doneareas;
 #endif
 
     for (int i = 0; i < 0; ++i) {
@@ -1130,7 +1129,7 @@ void QCanvas::update()
 		QRect r = changeBounds(view->inverseWorldMatrix().map(area));
 		if ( !r.isEmpty() ) {
 		    view->repaint(r);
-		    doneareas.append(new QRect(r));
+		    doneareas.append(r);
 		}
 	    } else
 #endif
@@ -1147,7 +1146,7 @@ void QCanvas::update()
     }
 #ifndef QT_NO_TRANSFORMATIONS
     for (int i = 0; i < doneareas.size(); ++i)
-	setUnchanged(*doneareas.at(i));
+	setUnchanged(doneareas.at(i));
 #endif
 }
 
@@ -4219,8 +4218,7 @@ bool QCanvasSpline::closed() const
 
 void QCanvasSpline::recalcPoly()
 {
-    QList<QPointArray*> segs;
-    segs.setAutoDelete(TRUE);
+    QList<QPointArray> segs;
     int n=0;
     for (int i=0; i<(int)bez.count()-1; i+=3) {
 	QPointArray ctrl(4);
@@ -4231,18 +4229,18 @@ void QCanvasSpline::recalcPoly()
 	    ctrl[3] = bez[(i+3)%(int)bez.count()];
 	else
 	    ctrl[3] = bez[i+3];
-	QPointArray *seg = new QPointArray(ctrl.cubicBezier());
-	n += seg->count()-1;
+	QPointArray seg = ctrl.cubicBezier();
+	n += seg.count()-1;
 	segs.append(seg);
     }
     QPointArray p(n+1);
     n=0;
     for (int i = 0; i < segs.size(); ++i) {
-	QPointArray* seg = segs.at(i);
-	for (int i=0; i<(int)seg->count()-1; i++)
-	    p[n++] = seg->point(i);
+	const QPointArray &seg = segs.at(i);
+	for (int i=0; i<(int)seg.count()-1; i++)
+	    p[n++] = seg.point(i);
 	if ( n == (int)p.count()-1 )
-	    p[n] = seg->point(seg->count()-1);
+	    p[n] = seg.point(seg.count()-1);
     }
     QCanvasPolygon::setPoints(p);
 }
