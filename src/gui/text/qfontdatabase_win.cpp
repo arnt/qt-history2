@@ -362,7 +362,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
     // the "@family" fonts are just the same as "family". Ignore them.
     if (familyName[0] != '@') {
         QtFontStyle::Key styleKey;
-        styleKey.italic = italic ? QFont::StyleItalic : QFont::StyleNormal;
+        styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
         if (weight < 400)
             styleKey.weight = QFont::Light;
         else if (weight < 600)
@@ -395,17 +395,17 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
             style->smoothScalable = true;
             style->pixelSize(SMOOTH_SCALABLE, true);
         }
-        if (!styleKey.italic) {
+        if (!styleKey.style == QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
-            key.italic = true;
+            key.style = QFont::StyleItalic;
             QtFontStyle *style = foundry->style(key,  true);
             style->smoothScalable = true;
             style->pixelSize(SMOOTH_SCALABLE, true);
         }
-        if (styleKey.weight <= QFont::DemiBold && !styleKey.italic) {
+        if (styleKey.weight <= QFont::DemiBold && !styleKey.style == QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
             key.weight = QFont::Bold;
-            key.italic = true;
+            key.style = QFont::StyleItalic;
             QtFontStyle *style = foundry->style(key,  true);
             style->smoothScalable = true;
             style->pixelSize(SMOOTH_SCALABLE, true);
@@ -806,9 +806,10 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
             }
         }
 
-        if ((fam == "MS Sans Serif") && (request.italic || (-lf.lfHeight > 18 && -lf.lfHeight != 24)))
+        if ((fam == "MS Sans Serif") 
+            && (request.style == QFont::StyleItalic || (-lf.lfHeight > 18 && -lf.lfHeight != 24))) {
             fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
-
+        }
         QT_WA({
             memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
             hfont = CreateFontIndirect(&lf);
