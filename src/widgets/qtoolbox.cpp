@@ -187,6 +187,8 @@ void QToolBoxButton::drawButton( QPainter *p )
 	flags |= QStyle::Style_Selected;
     if ( hasFocus() )
 	flags |= QStyle::Style_HasFocus;
+    if (isDown())
+	flags |= QStyle::Style_Down;
     style().drawControl( QStyle::CE_ToolBoxTab, p, parentWidget(), rect(),
 			 cg, flags );
 
