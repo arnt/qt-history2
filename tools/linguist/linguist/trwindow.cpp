@@ -224,7 +224,7 @@ TrWindow::TrWindow()
     // Create the application global listview symbols
     pxOn  = new QPixmap( QPixmap::fromMimeSource( "s_check_on.png" ) );
     pxOff = new QPixmap( QPixmap::fromMimeSource( "s_check_off.png" ) );
-    pxObsolete = new QPixmap( QPixmap::fromMimeSource( "s_check_obs.png" ) );
+    pxObsolete = new QPixmap( QPixmap::fromMimeSource( "d_s_check_obs.png" ) );
     pxDanger = new QPixmap( QPixmap::fromMimeSource( "s_check_danger.png" ) );
 
     // Set up the Scope dock window
