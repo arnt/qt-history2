@@ -38,8 +38,6 @@ HEADERS += \
         widgets/qradiobutton.h \
         widgets/qrubberband.h \
         widgets/qscrollbar.h \
-        widgets/qscrollview.h \
-        widgets/qscrollview_p.h \
         widgets/qsizegrip.h \
         widgets/qslider.h \
         widgets/qspinbox.h \
@@ -97,7 +95,6 @@ SOURCES += \
         widgets/qradiobutton.cpp \
         widgets/qrubberband.cpp \
         widgets/qscrollbar.cpp \
-        widgets/qscrollview.cpp \
         widgets/qsizegrip.cpp \
         widgets/qslider.cpp \
         widgets/qspinbox.cpp \
