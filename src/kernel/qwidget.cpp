@@ -3908,6 +3908,8 @@ bool QWidget::event( QEvent *e )
 
 	case QEvent::MouseButtonDblClick:
 	    mouseDoubleClickEvent( (QMouseEvent*)e );
+	    if ( ! ((QMouseEvent*)e)->isAccepted() )
+		return FALSE;
 	    break;
 
 	case QEvent::Wheel:
