@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#27 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#28 $
 **
 ** Definition of QLabel widget class
 **
@@ -22,6 +22,8 @@ public:
     QLabel( QWidget *parent=0, const char *name=0, WFlags f=0 );
     QLabel( const char *text, QWidget *parent=0, const char *name=0,
 	    WFlags f=0 );
+    QLabel( QWidget * buddy, const char * text,
+	    QWidget * parent, const char * name=0, WFlags f=0 );
    ~QLabel();
 
     const char *text()		const	{ return ltext; }
@@ -36,6 +38,9 @@ public:
     void	setAutoResize( bool );
     QSize	sizeHint() const;
 
+    void	setBuddy( QWidget * );
+    QWidget *   buddy() const;
+
 public slots:
     void	setText( const char * );
     void	setPixmap( const QPixmap & );
@@ -44,6 +49,10 @@ public slots:
 
 protected:
     void	drawContents( QPainter * );
+
+private slots:
+    void	acceleratorSlot();
+    void	buddyDied();
 
 private:
     void	updateLabel();

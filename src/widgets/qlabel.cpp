@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#47 $
 **
 ** Implementation of QLabel widget class
 **
@@ -13,9 +13,29 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 #include "qdrawutl.h"
+#include "qaccel.h"
+#include "qkeycode.h"
+#include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#47 $");
 
+// ### clean up for 2.0
+
+#include <qintdict.h>
+
+struct QLabel_Private
+{
+    QWidget * buddy;
+    QAccel * accel;
+};
+
+static QIntDict<QLabel_Private> *qlabel_extraStuff = 0;
+
+static void cleanupLabel()
+{
+    delete qlabel_extraStuff;
+    qlabel_extraStuff = 0;
+}
 
 /*!
   \class QLabel qlabel.h
@@ -23,27 +43,45 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#46 $");
 
   \ingroup realwidgets
 
-  A label is a text or pixmap field that can have an optional frame
-  (since QLabel inherits QFrame).
+  A label is a static text or pixmap field.
+
+  It can have a frame (since QLabel inherits QFrame) and a "buddy" and
+  an accelerator for moving keyboard focus to the buddy.
 
   The contents of a label can be specified as a normal text, as a
   numeric value (which is internally converted to a text) or, as a
-  pixmap.
+  pixmap.  If the label is normal text and one of the letters is
+  prefixed with '&', you can also specify a \e buddy for the label:
+
+  \code
+     QLineEdit * phone = new QLineEdit( this, "phone number" );
+     QLabel * phoneLabel = new QLineEdit( phone, "&Phone", this );
+  \endcode
+
+  In this example, keyboard focus is transferred to the label's buddy
+  (the QLineEdit) when the user presses <dfn>Alt-P.</dfn> This is
+  handy for many dialogs.  You can also use the setBuddy() function to
+  accomplish the same means.
 
   A label can be aligned in many different ways. The alignment setting
   specifies where to position the contents relative to the frame
-  rectangle. See setAlignment() for a description of the alignment flags.
+  rectangle.  See setAlignment() for a description of the alignment
+  flags.
 
-  Enabling auto-resizing will make a label resize itself whenever the
-  contents change.  The top left corner is kept unchanged.
+  Enabling auto-resizing make the label resize itself whenever the
+  contents change.  The top left corner does not move.
 
-  Example of use:
+  This code sets up a sunken panel with a two-line text in the bottom
+  right corner:
+
   \code
     QLabel *label = new QLabel;
     label->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     label->setText( "first line\nsecond line" );
     label->setAlignment( AlignBottom | AlignRight );
   \endcode
+
+  Both lines are flush with the right side of the label.
 */
 
 /*!
@@ -86,14 +124,61 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
     autoresize = FALSE;
 }
 
+
+/*!  Constructs a label with an accelerator key.
+
+  The \a parent, \a name and \a f arguments are passed to the QFrame
+  constructor.  Note that the \a parent argument does \e not default
+  to 0.
+
+  In a dialog, you might create three data entry widgets and a label
+  for each, and set up the geometry so each label is just to the left
+  of its data entry widget (its "buddy"), somewhat like this:
+
+  \code
+    QLineEdit * name( this, "customer name" );
+    QLabel * alName( name, "&Name:", this );
+    QLineEdit * phone( this, "customer telephone number" );
+    QLabel * alPhone( phone, "&Phone:", this );
+    QMultiLineEdit * address( this, "customer address:" );
+    QLabel * alAddress( address, "&Address", this );
+    // geometry management setup not shown
+  \\endcode
+
+  With the code above, the focus jumps to the Address field when the
+  user presses Alt-A, to the Name field when the user presses Alt-N,
+  and to the Phone field when the user presses Alt-P.
+
+  \sa setText() setBuddy()
+*/
+
+QLabel::QLabel( QWidget * buddy, const char * text,
+		QWidget *parent, const char *name, WFlags f )
+    : QFrame( parent, name, f ), ltext("")
+{
+    initMetaObject();
+    lpixmap    = 0;
+    align      = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
+    extraMargin= -1;
+    autoresize = FALSE;
+
+    setBuddy( buddy );
+    setText( text );
+}
+
+
 /*!
   Destroys the label.
 */
 
 QLabel::~QLabel()
 {
-    if ( lpixmap )
-	delete lpixmap;
+    delete lpixmap;
+    QLabel_Private * d;
+    if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) ) {
+	qlabel_extraStuff->take( (long)this );
+	delete d;
+    }
 }
 
 
@@ -103,8 +188,8 @@ QLabel::~QLabel()
   \sa setText()
 */
 
-/*!
-  Sets the label contents to \e text and redraws the contents.
+/*!  Sets the label contents to \e text, updates the optional
+  accelerator and redraws the contents.
 
   The label resizes itself if auto-resizing is enabled.	 Nothing
   happens if \e text is the same as the current label.
@@ -120,6 +205,15 @@ void QLabel::setText( const char *text )
     if ( lpixmap ) {
 	delete lpixmap;
 	lpixmap = 0;
+    }
+    QLabel_Private * d;
+    if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) ) {
+	const char * p = strchr( ltext, '&' );
+	d->accel->clear();
+	if ( p && isalpha(p[1]) ) {
+	    d->accel->connectItem( d->accel->insertItem( ALT+toupper(p[1]) ),
+				   this, SLOT(acceleratorSlot()) );
+	}
     }
     if ( autoresize ) {
 	QSize s = sizeHint();
@@ -140,6 +234,9 @@ void QLabel::setText( const char *text )
 
 /*!
   Sets the label contents to \e pixmap and redraws the contents.
+
+  If the label has a buddy, the accelerator is disabled since the
+  pixmap doesn't contain any suitable character.
 
   The label resizes itself if auto-resizing is enabled.	 Nothing
   happens if \e pixmap is the same as the current label.
@@ -168,12 +265,18 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 	adjustSize();
     else
 	updateLabel();
+    QLabel_Private * d;
+    if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) )
+	d->accel->clear();
 }
 
 
 /*!
   Sets the label contents to \e num (converts it to text) and redraws the
   contents.
+
+  If the label has a buddy, the accelerator is disabled since the
+  number doesn't contain any suitable character.
 
   The label resizes itself if auto-resizing is enabled.	 Nothing
   happens if \e num reads the same as the current label.
@@ -186,7 +289,7 @@ void QLabel::setNum( int num )
     QString str;
     str.setNum( num );
     if ( str != ltext ) {
-	ltext = str;
+	setText( str );
 	if ( autoresize )
 	    adjustSize();
 	else
@@ -198,6 +301,9 @@ void QLabel::setNum( int num )
   Sets the label contents to \e num (converts it to text) and redraws the
   contents.
 
+  If the label has a buddy, the accelerator is disabled since the
+  number doesn't contain any suitable character.
+
   The label resizes itself if auto-resizing is enabled.
 
   \sa setAutoResize()
@@ -208,7 +314,7 @@ void QLabel::setNum( double num )
     QString str;
     str.sprintf( "%g", num );
     if ( str != ltext ) {
-	ltext = str;
+	setText( str );
 	if ( autoresize )
 	    adjustSize();
 	else
@@ -221,7 +327,10 @@ void QLabel::setNum( double num )
   \fn int QLabel::alignment() const
   Returns the alignment setting.
 
-  The default alignment is <code>AlignLeft | AlignVCenter | ExpandTabs</code>.
+  The default alignment is <code>AlignLeft | AlignVCenter |
+  ExpandTabs</code> if the label doesn't have a buddy and
+  <code>AlignLeft | AlignVCenter | ExpandTabs | ShowPrefix </code> if
+  the label has a buddy.
 
   \sa setAlignment()
 */
@@ -242,12 +351,19 @@ void QLabel::setNum( double num )
   <li> \c WordBreak enables automatic word breaking.
   </ul>
 
-  \sa alignment()
+  If the label has a buddy, \c ShowPrefix is forced to TRUE.
+
+  \sa alignment() setBuddy() setText()
 */
 
 void QLabel::setAlignment( int alignment )
 {
-    align = alignment;
+    if ( !(align & ShowPrefix)
+	 && qlabel_extraStuff
+	 && qlabel_extraStuff->find( (long)this ) )
+	align = alignment | ShowPrefix;
+    else
+	align = alignment;
     updateLabel();
 }
 
@@ -386,4 +502,97 @@ void QLabel::updateLabel()
     paint.eraseRect( contentsRect() );
     drawContents( &paint );
     paint.end();
+}
+
+
+
+/*!
+  Internal slot, used to set focus for accelerator labels.
+*/
+
+void QLabel::acceleratorSlot()
+{
+    if ( !qlabel_extraStuff )
+	return;
+
+    QLabel_Private * that = qlabel_extraStuff->find( (long)this );
+    if ( that && that->buddy && !that->buddy->hasFocus() ) {
+	QWidget * w = that->buddy;
+	while ( w ) {
+	    if ( !w->isVisible() )
+		return;
+	    w = w->parentWidget();
+	}
+	that->buddy->setFocus();
+    }
+}
+
+
+/*!
+  Internal slot, used to clean up if the buddy widget dies.
+*/
+
+void QLabel::buddyDied()
+{
+    if ( !qlabel_extraStuff )
+	return;
+
+    QLabel_Private * that = qlabel_extraStuff->find( (long)this );
+    if ( that )
+	that->buddy = 0;
+}
+
+
+/*!
+  Sets the buddy of this label to \a buddy.
+
+  When the user presses the accelerator key indicated by this label,
+  the keyboard focus is transferred to the label's buddy.
+
+  \sa label() setText()
+*/
+
+void QLabel::setBuddy( QWidget * buddy )
+{
+    setAlignment( alignment() | ShowPrefix );
+
+    if ( !qlabel_extraStuff ) {
+	qlabel_extraStuff = new QIntDict<QLabel_Private>;
+	CHECK_PTR( qlabel_extraStuff );
+	qAddPostRoutine( cleanupLabel );
+    }
+    QLabel_Private * that = qlabel_extraStuff->find( (long)this );
+    if ( that ) {
+	if ( that->buddy )
+	    disconnect( that->buddy, SIGNAL(destroyed()),
+			this, SLOT(buddyDied()) );
+    } else {
+	that = new QLabel_Private;
+	that->buddy = buddy;
+	that->accel = new QAccel( this, "accel label accel" );
+	const char * p = strchr( ltext, '&' );
+	if ( p && isalpha(p[1]) ) {
+	    that->accel->connectItem( that->accel->insertItem(ALT+
+							      toupper(p[1])),
+				      this, SLOT(acceleratorSlot()) );
+	}
+	qlabel_extraStuff->insert( (long)this, that );
+    }
+
+    that->buddy = buddy;
+    connect( buddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
+}
+
+
+/*!
+  Returns the buddy of this label.
+*/
+
+QWidget * QLabel::buddy() const
+{
+    if ( !qlabel_extraStuff )
+	return 0;
+
+    QLabel_Private * that = qlabel_extraStuff->find( (long)this );
+    return that && that->buddy ? that->buddy : 0;
 }
