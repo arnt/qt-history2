@@ -131,7 +131,7 @@ QWidget *Resource::widget() const
     return toplevel;
 }
 
-bool Resource::load( const QString& filename )
+bool Resource::load( const QString& filename, bool keepname )
 {
     if ( filename.isEmpty() )
 	return FALSE;
@@ -140,13 +140,13 @@ bool Resource::load( const QString& filename )
     QFile f( filename );
     f.open( IO_ReadOnly );
 
-    bool b = load( &f, filename );
+    bool b = load( &f, filename, keepname );
     f.close();
 
     return b;
 }
 
-bool Resource::load( QIODevice* dev, const QString& filename )
+bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 {
     QDomDocument doc;
     if ( !doc.setContent( dev ) ) {
@@ -255,7 +255,7 @@ bool Resource::load( QIODevice* dev, const QString& filename )
 	MetaDataBase::setMetaInfo( formwindow, metaInfo );
     }
 
-    if ( formwindow && !filename.isEmpty() )
+    if ( formwindow && !filename.isEmpty() && keepname )
 	formwindow->setFileName( filename );
 
     if ( mainwindow && formwindow )

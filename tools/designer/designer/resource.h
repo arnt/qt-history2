@@ -60,8 +60,8 @@ public:
     void setWidget( FormWindow *w );
     QWidget *widget() const;
 
-    bool load( const QString& filename );
-    bool load( QIODevice*, const QString& filename = QString::null );
+    bool load( const QString& filename, bool keepname = TRUE );
+    bool load( QIODevice*, const QString& filename = QString::null, bool keepname = TRUE );
     QString copy();
 
     bool save( const QString& filename);

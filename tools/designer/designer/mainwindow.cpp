@@ -1368,7 +1368,7 @@ void MainWindow::fileNew()
 	    QString filename = dlg.templateFile();
 	    if ( !filename.isEmpty() && QFile::exists( filename ) ) {
 		Resource resource( this );
-		if ( !resource.load( filename ) ) {
+		if ( !resource.load( filename, FALSE ) ) {
 		    QMessageBox::information( this, tr("Load Template"),
 			tr("Couldn't load form description from template "+ filename ) );
 		    return;
@@ -3489,6 +3489,7 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "SplashScreen", splashScreen );
     config.writeEntry( keybase + "DocPath", docPath );
     config.writeEntry( keybase + "FileFilter", fileFilter );
+    config.writeEntry( keybase + "TemplatePath", templPath );
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentlyFiles, ',' );
     config.writeEntry( keybase + "RecentlyOpenedProjects", recentlyProjects, ',' );
     config.writeEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
