@@ -5,7 +5,9 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
-class ResourceFile
+#include "shared_global.h"
+
+class QT_SHARED_EXPORT ResourceFile
 {
 public:
     ResourceFile(const QString &file_name = QString());
