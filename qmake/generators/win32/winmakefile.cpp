@@ -698,6 +698,8 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 
 void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 {
+    // Needed for slight difference in lflags line
+    bool isBorland = Option::mkfile::qmakespec == "win32-borland";
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC		=	" << var("QMAKE_CC") << endl;
@@ -727,8 +729,12 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "LINK	=	" << var("QMAKE_LINK") << endl;
 	t << "LFLAGS	=	";
-	if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
-	    t << varGlue("QMAKE_LIBDIR","-L\"","\" -L\"","\"") << " ";
+	if(!project->variables()["QMAKE_LIBDIR"].isEmpty()) {
+	    if (isBorland)
+		t << varGlue("QMAKE_LIBDIR","-L\"","\" -L\"","\"") << " ";
+	    else
+		t << varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\"") << " ";
+	}
 	t << var("QMAKE_LFLAGS") << endl;
 	t << "LIBS	=	" << var("QMAKE_LIBS") << endl;
     } else {
