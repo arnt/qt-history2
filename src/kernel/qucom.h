@@ -1,5 +1,5 @@
-#ifndef QUTYPES_H
-#define QUTYPES_H
+#ifndef QUCOM_H
+#define QUCOM_H
 
 #include <qstring.h>
 #ifndef UCOM_EXPORT
@@ -31,5 +31,5 @@ extern Q_EXPORT UType_QString * pUType_QString;
 
 
 
-#endif //QUTYPES_H
+#endif // QUCOM_H
 
