@@ -289,13 +289,16 @@ public:
 /*!
   \class QDirModel qdirmodel.h
 
-  \brief data model for browsing the local filesystem.
+  \brief The QDirModel class provides a data model for the local filesystem.
 
   \ingroup model-view
 
-  This class provides access to the local filesystem,
-  providing functions for renaming and removing files
-  and directories, and for creating new directories.
+  This class provides access to the local filesystem, providing functions
+  for renaming and removing files and directories, and for creating new
+  directories.
+
+  In the simplest case, it can be used with a suitable display widget as
+  part of a browser or filer.
 
   \omit
   Decoding
@@ -763,7 +766,7 @@ void QDirModel::setFilter(int spec)
 }
 
 /*!
-  Returns a filter specification for the directory model.
+  Returns the filter specification for the directory model.
 
   \sa QDir::FilterSpec
 
