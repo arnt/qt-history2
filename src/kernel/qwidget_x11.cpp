@@ -562,9 +562,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( desktop ) {
 	setWState( WState_Visible );
     } else if ( topLevel ) {			// set X cursor
+	setWState( WState_OwnCursor );
 	if ( initializeWindow )
 	    qt_x11_enforce_cursor( this );
-	setWState( WState_OwnCursor );
     }
 
     if ( destroyw )
