@@ -143,8 +143,10 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     // if before the insertion the document was empty then we consider the
     // insertion as a replacement and must now also remove the initial block
     // that existed before, in case our fragment started with a block
-    if (documentWasEmpty && firstFragmentWasBlock)
-        destPieceTable->remove(0, 1);
+    // #### wrong, if cursor.position() == 0 at the beginning -> causes removal
+    // of wrong blocks or added block at the end.
+//    if (documentWasEmpty && firstFragmentWasBlock)
+ //       destPieceTable->remove(0, 1);
 
     // ### UNDO
     if (hasTitle)
