@@ -6062,6 +6062,14 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     wused += rm;
     if ( !wrapEnabled || wrapAtColumn() != -1 )
 	minw = QMAX(minw, wused);
+
+    // This is the case where we are breaking wherever we darn well please
+    // in cases like that, the minw should not be the length of the entire
+    // word, because we necessarily want to show the word on the whole line.
+    // example: word wrap in iconview
+    if ( allowBreakInWords() && minw > wused )
+	minw = wused;
+
     thisminw = minw;
     thiswused = wused;
     return y;
