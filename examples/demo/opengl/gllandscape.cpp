@@ -103,7 +103,7 @@ void GLLandscape::paintGL()
     if ( lighting )
 	glDisable( GL_LIGHTING );
     qglColor( white );
-    renderText( 15, height() - 15, str );
+    renderText(15, height() - 15, str);
     drawAxis();
     drawCube();
     if ( lighting )
@@ -126,7 +126,11 @@ void GLLandscape::drawAxis()
     glLoadMatrixf((GLfloat *) views[AxisView].model);
 
     glCallList(axisList);
-
+    qglColor(white);
+    renderText(1.1f, 0, 0, "x");
+    renderText(0, 1.1f, 0, "y");
+    renderText(0, 0, 1.1f, "z");
+    
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
@@ -799,10 +803,6 @@ void GLLandscape::initDisplayLists()
 	glVertex3f(0,-0.2f, 0.8f);
     }
     glEnd();
-    qglColor(white);
-    renderText(1.1f, 0, 0, "x");
-    renderText(0, 1.1f, 0, "y");
-    renderText(0, 0, 1.1f, "z");
 
     glEndList();
 
@@ -816,7 +816,7 @@ void GLLandscape::initDisplayLists()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_SRC_COLOR);
 
-    glBegin( GL_POLYGON );
+    glBegin( GL_QUADS );
     {
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
@@ -826,10 +826,7 @@ void GLLandscape::initDisplayLists()
 	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 0.0 );
 	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 0.0 );
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
-    }
-    glEnd();
-    glBegin( GL_POLYGON );
-    {
+
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
 	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
 	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
@@ -838,10 +835,7 @@ void GLLandscape::initDisplayLists()
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
-    }
-    glEnd();
-    glBegin( GL_POLYGON );
-    {
+
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
@@ -850,10 +844,7 @@ void GLLandscape::initDisplayLists()
 	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 0.0, 0.0 );
 	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 0.0, 0.0 );
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
-    }
-    glEnd();
-    glBegin( GL_POLYGON );
-    {
+
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 1.0, 0.0 );
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 1.0, 0.0 );
@@ -862,10 +853,7 @@ void GLLandscape::initDisplayLists()
 	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
 	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
-    }
-    glEnd();
-    glBegin( GL_POLYGON );
-    {
+
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
@@ -874,10 +862,7 @@ void GLLandscape::initDisplayLists()
 	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
 	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
-    }
-    glEnd();
-    glBegin( GL_POLYGON );
-    {
+
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );

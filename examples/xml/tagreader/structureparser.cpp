@@ -32,6 +32,6 @@ bool StructureParser::startElement( const QString&, const QString&,
 
 bool StructureParser::endElement( const QString&, const QString&, const QString& )
 {
-    indent.remove( 0, 4 );
+    indent.remove( (uint)0, 4 );
     return TRUE;
 }
