@@ -59,6 +59,7 @@ protected slots:
     void optionClicked( QListViewItem * );
     void configPageChanged();
     void archiveMsg(const QString &);
+    void licenseChanged( const QString & );
 //    virtual void envDone();
 
 private:

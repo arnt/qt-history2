@@ -20,6 +20,7 @@
 #include <qregexp.h>
 #include <qtabwidget.h>
 #include <qarchive.h>
+#include <qvalidator.h>
 
 #define FILESTOCOPY 4582
 
@@ -109,6 +110,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	removePage( progressPage );
 	setTitle( configPage, "Reconfigure Qt" );
     }
+    licenseID->setValidator( new QIntValidator( 100000, -1, licenseID ) );
     readLicense( QDir::homeDirPath() + "/.qt-license" );
 }
 
@@ -1617,6 +1619,19 @@ void SetupWizardImpl::configPageChanged()
 	advancedList->setSelected( advancedList->currentItem(), true );
 	optionSelected( advancedList->currentItem() );
     }
+}
+
+void SetupWizardImpl::licenseChanged( const QString & )
+{
+    QString customer = customerID->text();
+    QString license = licenseID->text();
+    QString name = licenseeName->text();
+    QString date = expiryDate->text();
+
+    setNextEnabled( licensePage, !customer.isEmpty() && 
+				 !license.isEmpty() && 
+				 !name.isEmpty() && 
+				 !date.isEmpty() );
 }
 
 void SetupWizardImpl::logFiles( const QString& entry, bool close )
