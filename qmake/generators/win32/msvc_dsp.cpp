@@ -360,7 +360,7 @@ DspMakefileGenerator::init()
         if (!project->variables()["HEADERS"].contains(precompH))
             project->variables()["HEADERS"] += precompH;
         // Add precompile compiler options
-        project->variables()["PRECOMPILED_FLAGS"]  = QStringList("/Yu\"" + namePCH + "\" /FI\"" + namePCH + "\" ");
+        project->variables()["PRECOMPILED_FLAGS"]  = QStringList("/Fp\"" + precompPch + "\" /Yu\"" + namePCH + "\" /FI\"" + namePCH + "\" ");
         // Return to variable pool
         project->variables()["PRECOMPILED_OBJECT"] = QStringList(precompObj);
         project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
