@@ -33,7 +33,7 @@ static QByteArray protect(const QByteArray& str)
 
 Phrase::Phrase(const QString &source, const QString &target,
                const QString &definition, int sc)
-    : s(source), t(target), d(definition), shrtc(sc)
+    : shrtc(sc), s(source), t(target), d(definition)
 {
 }
 
