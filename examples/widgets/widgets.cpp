@@ -95,13 +95,13 @@ public:
     MyMenuItem( const QString& s, const QFont& f )
 	: string( s ), font( f ){};
     ~MyMenuItem(){}
-    
+
     void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
     {
 	p->setFont ( font );
 	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | ShowPrefix | DontClip, string );
     }
-    
+
     QSize sizeHint()
     {
 	return QFontMetrics( font ).size( AlignLeft | AlignVCenter | ShowPrefix | DontClip,  string );
@@ -196,7 +196,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     popup = new QPopupMenu( this );
     menuBar()->insertItem( "&Edit", popup );
-    
+
     id = popup->insertItem( "&Plain" );
     popup->setAccel( CTRL+Key_T, id );
 
@@ -218,7 +218,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     fnt.setStrikeOut( TRUE );
     id = popup->insertItem( new MyMenuItem( "&Strike", fnt ) );
     popup->insertSeparator();
-			    
+			
     well = new QWellArray(0,0, TRUE );
     connect( well, SIGNAL( selected(int,int) ), this, SLOT( wellArraySelected(int,int)) );
     popup->insertItem( well );
@@ -448,8 +448,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     grid->addMultiCellWidget( tabs, 3, 3, 1, 2 );
     QMultiLineEdit *mle = new QMultiLineEdit( tabs, "multiLineEdit" );
     edit = mle;
-    mle->setText("This is a QMultiLineEdit widget,\n"
-	         "useful for small multi-line\n"
+    mle->setWordWrap( QMultiLineEdit::DynamicWrap );
+    mle->setText("This is a QMultiLineEdit widget, "
+	         "useful for small multi-line "
 		 "input fields.");
     QToolTip::add( mle, "multi line editor" );
 
