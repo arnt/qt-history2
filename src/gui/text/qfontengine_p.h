@@ -100,6 +100,7 @@ public:
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si) = 0;
 #endif
     virtual void addOutlineToPath(qReal, qReal, const QGlyphLayout *, int, QPainterPath *) { }
+    virtual void addBitmapFontToPath(qReal x, qReal y, const QGlyphLayout *, int, QPainterPath *);
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;

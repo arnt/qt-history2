@@ -218,7 +218,7 @@ public:
 
 void qt_vectorize_region(const QRegion &region, QPainterPath *path)
 {
-    if (region.isEmpty())
+    if (region.isEmpty() || region.boundingRect().isEmpty())
         return;
 
     QVLineSets sets;

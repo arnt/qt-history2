@@ -504,6 +504,8 @@ void QFontEngineWin::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyp
     GLYPHMETRICS gMetric;
     uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX | GGO_UNHINTED;
 
+    bool useFallback = false;
+
     for (int i=0; i<numGlyphs; ++i) {
         memset(&gMetric, 0, sizeof(GLYPHMETRICS));
         int bufferSize;
@@ -512,90 +514,96 @@ void QFontEngineWin::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyp
         }, {
             bufferSize = GetGlyphOutlineA(hdc, glyphs[i].glyph, glyphFormat, &gMetric, 0, 0, &mat);
         });
-        if ((DWORD)bufferSize != GDI_ERROR) {
-
-            void *dataBuffer = new char[bufferSize];
-            DWORD ret;
-            QT_WA( {
-                ret = GetGlyphOutlineW(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
-                                 dataBuffer, &mat);
-            }, {
-                ret = GetGlyphOutlineA(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
-                                 dataBuffer, &mat);
-            } );
-
-            if (ret == GDI_ERROR) {
-                qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(2) failed");
-                return;
-            }
-
-            int offset = 0;
-            int headerOffset = 0;
-            TTPOLYGONHEADER *ttph = 0;
-
-            while (headerOffset < bufferSize) {
-                ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
-
-                QPointF lastPoint(qt_to_qpointf(ttph->pfxStart));
-                path->moveTo(lastPoint + oset);
-                offset += sizeof(TTPOLYGONHEADER);
-                TTPOLYCURVE *curve;
-                while (offset<int(headerOffset + ttph->cb)) {
-                    curve = (TTPOLYCURVE*)((char*)(dataBuffer) + offset);
-                    switch (curve->wType) {
-                    case TT_PRIM_LINE: {
-                        for (int i=0; i<curve->cpfx; ++i) {
-                            QPointF p = qt_to_qpointf(curve->apfx[i]) + oset;
-                            path->lineTo(p);
-                        }
-                        break;
-                    }
-                    case TT_PRIM_QSPLINE: {
-                        const QPainterPath::Element &elm = path->elementAt(path->elementCount()-1);
-                        QPointF prev(elm.x, elm.y);
-                        QPointF endPoint;
-                        for (int i=0; i<curve->cpfx - 1; ++i) {
-                            QPointF p1 = qt_to_qpointf(curve->apfx[i]) + oset;
-                            QPointF p2 = qt_to_qpointf(curve->apfx[i+1]) + oset;
-                            if (i < curve->cpfx - 2) {
-                                endPoint = QPointF((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
-                            } else {
-                                endPoint = p2;
-                            }
-
-                            QPointF c1((prev.x() + 2*p1.x()) / 3, (prev.y() + 2*p1.y()) / 3);
-                            QPointF c2((endPoint.x() + 2*p1.x()) / 3, (endPoint.y() + 2*p1.y()) / 3);
-                            path->curveTo(c1, c2, endPoint);
-
-                            prev = endPoint;
-                        }
-
-                        break;
-                    }
-                    case TT_PRIM_CSPLINE: {
-                        for (int i=0; i<curve->cpfx; ) {
-                            QPointF p2 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                            QPointF p3 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                            QPointF p4 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                            path->curveTo(p2, p3, p4);
-                        }
-                        break;
-                    }
-                    default:
-                        qWarning("QFontEngineWin::addOutlineToPath, unhandled switch case");
-                    }
-                    offset += sizeof(TTPOLYCURVE) + (curve->cpfx-1) * sizeof(POINTFX);
-                }
-                path->closeSubpath();
-                headerOffset += ttph->cb;
-            }
-            delete [] (char*)dataBuffer;
+        if ((DWORD)bufferSize == GDI_ERROR) {
+            if (i == 0)
+                useFallback = true;
+            else
+                qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(1) failed");
+            break;
         }
 
-        oset += glyphs[i].advance;
+        void *dataBuffer = new char[bufferSize];
+        DWORD ret;
+        QT_WA( {
+            ret = GetGlyphOutlineW(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
+                                   dataBuffer, &mat);
+        }, {
+            ret = GetGlyphOutlineA(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
+                                   dataBuffer, &mat);
+        } );
 
+        if (ret == GDI_ERROR) {
+            qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(2) failed");
+            return;
+        }
+
+        int offset = 0;
+        int headerOffset = 0;
+        TTPOLYGONHEADER *ttph = 0;
+
+        while (headerOffset < bufferSize) {
+            ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
+
+            QPointF lastPoint(qt_to_qpointf(ttph->pfxStart));
+            path->moveTo(lastPoint + oset);
+            offset += sizeof(TTPOLYGONHEADER);
+            TTPOLYCURVE *curve;
+            while (offset<int(headerOffset + ttph->cb)) {
+                curve = (TTPOLYCURVE*)((char*)(dataBuffer) + offset);
+                switch (curve->wType) {
+                case TT_PRIM_LINE: {
+                    for (int i=0; i<curve->cpfx; ++i) {
+                        QPointF p = qt_to_qpointf(curve->apfx[i]) + oset;
+                        path->lineTo(p);
+                    }
+                    break;
+                }
+                case TT_PRIM_QSPLINE: {
+                    const QPainterPath::Element &elm = path->elementAt(path->elementCount()-1);
+                    QPointF prev(elm.x, elm.y);
+                    QPointF endPoint;
+                    for (int i=0; i<curve->cpfx - 1; ++i) {
+                        QPointF p1 = qt_to_qpointf(curve->apfx[i]) + oset;
+                        QPointF p2 = qt_to_qpointf(curve->apfx[i+1]) + oset;
+                        if (i < curve->cpfx - 2) {
+                            endPoint = QPointF((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
+                        } else {
+                            endPoint = p2;
+                        }
+
+                        QPointF c1((prev.x() + 2*p1.x()) / 3, (prev.y() + 2*p1.y()) / 3);
+                        QPointF c2((endPoint.x() + 2*p1.x()) / 3, (endPoint.y() + 2*p1.y()) / 3);
+                        path->curveTo(c1, c2, endPoint);
+
+                        prev = endPoint;
+                    }
+
+                    break;
+                }
+                case TT_PRIM_CSPLINE: {
+                    for (int i=0; i<curve->cpfx; ) {
+                        QPointF p2 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                        QPointF p3 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                        QPointF p4 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                        path->curveTo(p2, p3, p4);
+                    }
+                    break;
+                }
+                default:
+                    qWarning("QFontEngineWin::addOutlineToPath, unhandled switch case");
+                }
+                offset += sizeof(TTPOLYCURVE) + (curve->cpfx-1) * sizeof(POINTFX);
+            }
+            path->closeSubpath();
+            headerOffset += ttph->cb;
+        }
+        delete [] (char*)dataBuffer;
+        oset += glyphs[i].advance;
     }
 
+    if (useFallback) {
+        addBitmapFontToPath(x, y, glyphs, numGlyphs, path);
+    }
 }
 
 
