@@ -1512,6 +1512,7 @@ void QAbstractSocket::close()
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::close()");
 #endif
+    QIODevice::close();
     if (d->state != UnconnectedState) {
         d->closeCalled = true;
         disconnectFromHost();

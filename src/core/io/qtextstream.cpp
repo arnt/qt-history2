@@ -134,6 +134,26 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     f = d->getReal(&tmp) ? (type)tmp : (type)0; \
     return *this; } while (0)
 
+class DeviceClosedNotifier : public QObject
+{
+    Q_OBJECT
+public:
+    inline DeviceClosedNotifier()
+    { }
+
+    inline void setupDevice(QTextStream *stream, QIODevice *device)
+    {
+        connect(device, SIGNAL(aboutToClose()), this, SLOT(flushStream()));
+        this->stream = stream;
+    }
+
+public slots:
+    inline void flushStream() { stream->flush(); }
+
+private:
+    QTextStream *stream;
+};
+
 //-------------------------------------------------------------------
 class QTextStreamPrivate
 {
@@ -145,6 +165,7 @@ public:
 
     // device
     QIODevice *device;
+    DeviceClosedNotifier deviceClosedNotifier;
     bool deleteDevice;
 
     // string
@@ -588,6 +609,7 @@ QTextStream::QTextStream(QIODevice *device)
 #endif
     Q_D(QTextStream);
     d->device = device;
+    d->deviceClosedNotifier.setupDevice(this, d->device);
 }
 
 /*!
@@ -677,6 +699,7 @@ QTextStream::QTextStream(QByteArray *array, QIODevice::OpenMode openMode)
     d->device = new QBuffer(array);
     d->device->open(openMode);
     d->deleteDevice = true;
+    d->deviceClosedNotifier.setupDevice(this, d->device);
 }
 
 /*!
@@ -705,6 +728,7 @@ QTextStream::QTextStream(const QByteArray &array, QIODevice::OpenMode openMode)
     Q_D(QTextStream);
     d->device = buffer;
     d->deleteDevice = true;
+    d->deviceClosedNotifier.setupDevice(this, d->device);
 }
 
 /*!
@@ -733,6 +757,7 @@ QTextStream::QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode)
     Q_D(QTextStream);
     d->device = file;
     d->deleteDevice = true;
+    d->deviceClosedNotifier.setupDevice(this, d->device);
 }
 
 /*!
@@ -802,10 +827,12 @@ void QTextStream::setDevice(QIODevice *device)
     Q_D(QTextStream);
     flush();
     if (d->deleteDevice) {
+        d->deviceClosedNotifier.disconnect();
         delete d->device;
         d->deleteDevice = false;
     }
     d->device = device;
+    d->deviceClosedNotifier.setupDevice(this, d->device);
 }
 
 QString *QTextStream::string() const
@@ -2118,5 +2145,7 @@ void QTextStream::setEncoding(Encoding encoding)
     }
 }
 #endif
+
+#include "qtextstream.moc"
 
 #endif

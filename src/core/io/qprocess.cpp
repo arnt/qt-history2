@@ -151,7 +151,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QBuffer, QFile, QTcpSocket
 */
 
-/*! 
+/*!
     \enum QProcess::ProcessChannel
 
     This enum describes the process channels used by the running process.
@@ -167,7 +167,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::setReadChannel()
 */
 
-/*! 
+/*!
     \enum QProcess::ProcessChannelMode
 
     This enum describes the process channel modes of QProcess. Pass
@@ -193,7 +193,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::setReadChannelMode()
 */
 
-/*! 
+/*!
     \enum QProcess::ProcessError
 
     This enum describes the different types of errors that are
@@ -223,7 +223,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::error()
 */
 
-/*! 
+/*!
     \enum QProcess::ProcessState
 
     This enum describes the different states of QProcess.
@@ -239,7 +239,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::state()
 */
 
-/*! 
+/*!
     \fn QProcess::error(ProcessError error)
 
     This signal is emitted when an error occurs with the process. The
@@ -248,7 +248,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::ProcessError
 */
 
-/*! 
+/*!
     \fn QProcess::started()
 
     This signal is emitted by QProcess when the process has started,
@@ -257,14 +257,14 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::ProcessState
 */
 
-/*! 
+/*!
     \fn QProcess::stateChanged(ProcessState newState)
 
     This signal is emitted whenever the state of QProcess changes. The
     \a newState argument is the state QProcess changed to.
 */
 
-/*! 
+/*!
     \fn QProcess::finished(int exitCode)
 
     This signal is emitted when the process finishes. \a exitCode is
@@ -273,7 +273,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     that the process may have written before it finished.
 */
 
-/*! 
+/*!
     \fn QProcess::readyReadStandardOutput()
 
     This signal is emitted when new data has arrived in the standard
@@ -283,7 +283,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::readAllStandardOutput()
 */
 
-/*! 
+/*!
     \fn QProcess::readyReadStandardError()
 
     This signal is emitted when new data has arrived in the standard
@@ -761,10 +761,10 @@ bool QProcess::canReadLine() const
 */
 void QProcess::close()
 {
+    QIODevice::close();
     flush();
     terminate();
     waitForFinished(-1);
-    QIODevice::close();
 }
 
 /*! \reimp

@@ -406,13 +406,17 @@ bool QIODevice::open(OpenMode mode)
 }
 
 /*!
-    Closes the device and sets its OpenMode to NotOpen. The error
-    string is also reset.
+    First emits aboutToClose(), then closes the device and sets its
+    OpenMode to NotOpen. The error string is also reset.
 
     \sa setOpenMode() OpenMode
 */
 void QIODevice::close()
 {
+    if (d->openMode == NotOpen)
+        return;
+
+    emit aboutToClose();
     d->openMode = NotOpen;
 #ifdef QT_NO_QOBJECT
     d->errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");

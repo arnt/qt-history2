@@ -1045,6 +1045,7 @@ QFile::close()
 {
     if(!isOpen())
         return;
+    QIODevice::close();
 
     unsetError();
 #ifndef QT_NO_FILE_BUFFER
@@ -1052,7 +1053,6 @@ QFile::close()
 #endif
     if(!fileEngine()->close())
         d->setError(fileEngine()->error(), fileEngine()->errorString());
-    QIODevice::close();
 }
 
 /*!

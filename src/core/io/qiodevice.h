@@ -101,6 +101,7 @@ public:
 signals:
     void readyRead();
     void bytesWritten(qint64 bytes);
+    void aboutToClose();
 #endif
 
 protected:

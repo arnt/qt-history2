@@ -319,14 +319,15 @@ bool QBuffer::open(OpenMode flags)
 */
 void QBuffer::close()
 {
-    Q_D(QBuffer);
     if(!isOpen())
         return;
+    QIODevice::close();
+
+    Q_D(QBuffer);
     d->isOpen = false;
     if(d->ioIndex == qint64(-1))
         return;
     d->ioIndex = qint64(-1);
-    QIODevice::close();
     return;
 }
 
