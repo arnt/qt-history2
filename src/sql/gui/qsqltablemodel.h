@@ -91,9 +91,9 @@ signals:
 protected:
     QSqlTableModel(QSqlTableModelPrivate &dd, QObject *parent, QSqlDatabase db);
 
-    virtual bool updateRow(int row, const QSqlRecord &values);
-    virtual bool insertRow(const QSqlRecord &values);
-    virtual bool deleteRow(int row);
+    virtual bool updateRowInTable(int row, const QSqlRecord &values);
+    virtual bool insertRowIntoTable(const QSqlRecord &values);
+    virtual bool deleteRowFromTable(int row);
     virtual QString orderByStatement() const;
     virtual QString selectStatement() const;
 

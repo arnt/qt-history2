@@ -404,7 +404,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
         }
         d->clearEditBuffer();
         d->editBuffer.setValue(index.column(), value);
-        isOk = updateRow(index.row(), d->editBuffer);
+        isOk = updateRowInTable(index.row(), d->editBuffer);
         if (isOk)
             select();
         break; }
@@ -447,13 +447,18 @@ void QSqlTableModel::setQuery(const QSqlQuery &query)
     Updates the row \a row in the currently active database table
     with the values from \a values.
 
+    This is a low-level method that operates directly on the database
+    and should not be called directly. Use setData() to update values.
+    The model will decide depending on its edit strategy when to modify
+    the database.
+
     Note that only values that have the generated-flag set are updated.
     The generated-flag can be set with QSqlRecord::setGenerated() and
     tested with QSqlRecord::isGenerated().
 
-    \sa QSqlRecord::isGenerated()
+    \sa QSqlRecord::isGenerated(), setData()
  */
-bool QSqlTableModel::updateRow(int row, const QSqlRecord &values)
+bool QSqlTableModel::updateRowInTable(int row, const QSqlRecord &values)
 {
     QSqlRecord rec(values);
     emit beforeUpdate(row, rec);
@@ -477,13 +482,19 @@ bool QSqlTableModel::updateRow(int row, const QSqlRecord &values)
 
 
 /*!
-   Inserts the values \a values into the database table.
-   Returns true if the values could be inserted, otherwise false.
-   Error information can be retrieved with \l lastError().
+    Inserts the values \a values into the currently active database table.
 
-   \sa lastError()
+    This is a low-level method that operates directly on the database
+    and should not be called directly. Use insertRow() and setData()
+    to insert values. The model will decide depending on its edit strategy
+    when to modify the database.
+
+    Returns true if the values could be inserted, otherwise false.
+    Error information can be retrieved with \l lastError().
+
+    \sa lastError(), insertRow(), insertRows()
  */
-bool QSqlTableModel::insertRow(const QSqlRecord &values)
+bool QSqlTableModel::insertRowIntoTable(const QSqlRecord &values)
 {
     QSqlRecord rec(values);
     emit beforeInsert(rec);
@@ -496,10 +507,18 @@ bool QSqlTableModel::insertRow(const QSqlRecord &values)
 }
 
 /*!
-    Deletes the given \a row in the model. Returns true if the row was
-    deleted; otherwise returns false.
+    Deletes the given \a row from the currently active database table.
+
+    This is a low-level method that operates directly on the database
+    and should not be called directly. Use removeRow() or removeRows()
+    to delete values. The model will decide depending on its edit strategy
+    when to modify the database.
+
+    Returns true if the row was deleted; otherwise returns false.
+
+    \sa removeRow(), removeRows()
 */
-bool QSqlTableModel::deleteRow(int row)
+bool QSqlTableModel::deleteRowFromTable(int row)
 {
     emit beforeDelete(row);
 
@@ -535,10 +554,10 @@ bool QSqlTableModel::submitChanges()
         if (d->editBuffer.isEmpty())
             return true;
         if (d->insertIndex != -1) {
-            if (!insertRow(d->editBuffer))
+            if (!insertRowIntoTable(d->editBuffer))
                 return false;
         } else {
-            if (!updateRow(d->editIndex, d->editBuffer))
+            if (!updateRowInTable(d->editIndex, d->editBuffer))
                 return false;
         }
         d->clearEditBuffer();
@@ -551,13 +570,13 @@ bool QSqlTableModel::submitChanges()
         while (it != d->cache.constEnd()) {
             switch (it.value().op) {
             case QSql::Insert:
-                isOk |= insertRow(it.value().rec);
+                isOk |= insertRowIntoTable(it.value().rec);
                 break;
             case QSql::Update:
-                isOk |= updateRow(it.key(), it.value().rec);
+                isOk |= updateRowInTable(it.key(), it.value().rec);
                 break;
             case QSql::Delete:
-                isOk |= deleteRow(it.key());
+                isOk |= deleteRowFromTable(it.key());
                 break;
             case QSql::None:
                 qWarning("QSqlTableModel::submitChanges: Invalid operation");
@@ -810,7 +829,7 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
         for (i = 0; i < count; ++i) {
             if (row + i == d->insertIndex)
                 d->revertInsertedRow();
-            else if (!deleteRow(row + i))
+            else if (!deleteRowFromTable(row + i))
                 return false;
         }
         select();
