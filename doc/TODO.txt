@@ -239,6 +239,9 @@ QDialog:
   Have a function called setValidator() so that the user can validate the output of the dialog
   before it hides the dialog.
 
+QListView
+  Have a function which will return the column which is sorted and the sort order 
+
 
 New functionality
 -----------------
