@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#14 $
 **
 ** Implementation of QScrollView class
 **
@@ -24,7 +24,7 @@ struct QScrollViewData {
 	hbar( QScrollBar::Horizontal, parent, "qt_hbar" ),
 	vbar( QScrollBar::Vertical, parent, "qt_vbar" ),
 	viewport( parent, "qt_viewport" ),
-	viewed( 0 ),
+	contents( 0 ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
@@ -39,7 +39,7 @@ struct QScrollViewData {
     QScrollBar	hbar;
     QScrollBar	vbar;
     QWidget	viewport;
-    QWidget*	viewed;
+    QWidget*	contents;
     QWidget*	corner;
     int		vx, vy, vwidth, vheight; // for drawContents-style usage
     int		l_marg, r_marg, t_marg, b_marg;
@@ -58,11 +58,11 @@ The QScrollView can be used in two ways:
  <li> to view a (large) object with an arbitrary display requirement.
 </ol>
 
-To use a QScrollView in the first way, use view(QWidget*) to set the large
+To use a QScrollView in the first way, use setContents(QWidget*) to set the large
 widget to be viewed.
 
 For the second technique, you must inherit from QScrollView and override
-drawContentsOffset(), and use viewResized() to set
+drawContentsOffset(), and use contentsResize() to set
 the size of the viewed area.
 
 QWidgets have a maximum size, limited by the underlying window system,
@@ -75,7 +75,7 @@ this limitation, but currently the scrollbars fail beyond about
 
 
 /*!
-Constructs a QScrollView.  A single child can then be added with the view()
+Constructs a QScrollView.  A single child can then be set with the setContents()
 method.
 */
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
@@ -91,14 +91,14 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 }
 
 /*!
-Destructs the QScrollView.  Any QWidget set as viewed will be destructed.
+Destructs the QScrollView.  Any QWidget set with setContents() will be destructed.
 */
 QScrollView::~QScrollView()
 {
     delete d;
 }
 
-// This variable allows ensureVisible to move the viewed widget then
+// This variable allows ensureVisible to move the contents widget then
 // update both the sliders.  Otherwise, updating the sliders would
 // cause two image scrolls, creating ugly flashing.
 //
@@ -107,14 +107,14 @@ static bool signal_choke=FALSE;
 void QScrollView::hslide( int pos )
 {
     if ( !signal_choke ) {
-	moveView( -pos, viewY() );
+	moveContents( -pos, contentsY() );
     }
 }
 
 void QScrollView::vslide( int pos )
 {
     if ( !signal_choke ) {
-	moveView( viewX(), -pos );
+	moveContents( contentsX(), -pos );
     }
 }
 
@@ -139,10 +139,10 @@ void QScrollView::updateScrollBars()
     bool showh;
     bool showv;
 
-    if ( !d->viewed || d->viewed->isVisible() ) {
+    if ( !d->contents || d->contents->isVisible() ) {
 	// Do we definately need the scrollbar?
-	needh = w-lmarg-rmarg < viewWidth();
-	needv = h-tmarg-bmarg < viewHeight();
+	needh = w-lmarg-rmarg < contentsWidth();
+	needv = h-tmarg-bmarg < contentsHeight();
 
 	// Do we intend to show the scrollbar?
 	if (d->hMode == AlwaysOn) showh = TRUE;
@@ -153,10 +153,10 @@ void QScrollView::updateScrollBars()
 	else showv = needv;
 
 	// Given other scrollbar will be shown, NOW do we need one?
-	if ( showh && h-sbDim-tmarg-bmarg < viewHeight() ) {
+	if ( showh && h-sbDim-tmarg-bmarg < contentsHeight() ) {
 	    needv=TRUE; if (d->vMode == Auto) showv=TRUE;
 	}
-	if ( showv && w-sbDim-lmarg-rmarg < viewWidth() ) {
+	if ( showv && w-sbDim-lmarg-rmarg < contentsWidth() ) {
 	    needh=TRUE; if (d->hMode == Auto) showh=TRUE;
 	}
     } else {
@@ -185,7 +185,7 @@ void QScrollView::updateScrollBars()
     // Configure scrollbars that we will show
     if ( showv ) {
 	if ( needv ) {
-	    d->vbar.setRange( 0, viewHeight()-porth );
+	    d->vbar.setRange( 0, contentsHeight()-porth );
 	    d->vbar.setSteps( d->vbar.lineStep(), porth );
 	} else {
 	    d->vbar.setRange( 0, 0 );
@@ -193,7 +193,7 @@ void QScrollView::updateScrollBars()
     }
     if ( showh ) {
 	if ( needh ) {
-	    d->hbar.setRange( 0, viewWidth()-portw );
+	    d->hbar.setRange( 0, contentsWidth()-portw );
 	    d->hbar.setSteps( d->hbar.lineStep(), portw );
 	} else {
 	    d->hbar.setRange( 0, 0 );
@@ -344,7 +344,7 @@ QWidget* QScrollView::cornerWidget() const
   unless you seperately
   recreate the widget after setting some other corner widget (or 0).
 
-  Any \e newly viewed widget should have no current parent.
+  Any \e newly set widget should have no current parent.
 
   By default, no corner widget is present.
 
@@ -367,25 +367,25 @@ void QScrollView::setCornerWidget(QWidget* corner)
   Sets the widget to appear in the scrolling area.
   Passing 0 shows no widget in the scrolling area.
   Any previous widget is hidden.
-  You may call view() with the same widget at different times.
+  You may call setContents() with the same widget at different times.
 
   All widgets set here will be deleted by the QScrollView when it destructs
   unless you seperately
-  recreate the widget after viewing some other widget (or 0).
+  recreate the widget after setting some other widget (or 0).
 
-  Any \e newly viewed widget should have no current parent.
+  Any \e newly set widget should have no current parent.
 
   \code
     QScrollView vp(...);
-    vp.view(new MyLargeWidget);
+    vp.setContents(new MyLargeWidget);
   \endcode
 */
 
-void QScrollView::view(QWidget* w)
+void QScrollView::setContents(QWidget* w)
 {
-    if ( d->viewed ) {
+    if ( d->contents ) {
 	w->removeEventFilter( this );
-	d->viewed->hide(); // Don't delete - allow using any of a set of widgets
+	d->contents->hide(); // Don't delete - allow using any of a set of widgets
     }
     if ( w ) {
 	if ( w->parentWidget() != &d->viewport ) {
@@ -395,18 +395,18 @@ void QScrollView::view(QWidget* w)
 	}
 	w->installEventFilter( this );
     }
-    d->viewed = w;
+    d->contents = w;
     updateScrollBars();
 }
 
 /*!
   This event filter ensures the scrollbars are updated when the
-  viewed widget is resized, shown, hidden, or destroyed.
+  contents widget is resized, shown, hidden, or destroyed.
 */
 
 bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 {
-    if ( obj == d->viewed ) {
+    if ( obj == d->contents ) {
 	switch ( e->type() ) {
 	  case Event_Move:
 	    {
@@ -424,13 +424,13 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 			cy=0;
 		    }
 		    signal_choke=TRUE;
-		    moveView( cx, cy );
+		    moveContents( cx, cy );
 		    d->vbar.setValue( -cy );
 		    d->hbar.setValue( -cx );
 		    updateScrollBars();
 		    signal_choke=FALSE;
 		    if (fix)
-			d->viewed->move(cx,cy);
+			d->contents->move(cx,cy);
 		}
 		break;
 	    }
@@ -440,7 +440,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    updateScrollBars();
 	    break;
 	  case Event_Destroy:
-	    view(0);
+	    setContents(0);
 	}
     } else if ( obj == &d->viewport ) {
 	if ( e->type() == Event_Paint ) {
@@ -448,11 +448,11 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    p.begin(&d->viewport);
 	    QPaintEvent* pe = (QPaintEvent*)e;
 	    p.setClipRect(pe->rect());
-	    int ex = pe->rect().x() - viewX();
-	    int ey = pe->rect().y() - viewY();
+	    int ex = pe->rect().x() - contentsX();
+	    int ey = pe->rect().y() - contentsY();
 	    int ew = pe->rect().width();
 	    int eh = pe->rect().height();
-	    drawContentsOffset(&p, viewX(), viewY(), ex, ey, ew, eh);
+	    drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
 	    p.end();
 	}
     }
@@ -497,10 +497,10 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
     int pw=d->viewport.width();
     int ph=d->viewport.height();
 
-    int cx=viewX();
-    int cy=viewY();
-    int cw=viewWidth();
-    int ch=viewHeight();
+    int cx=contentsX();
+    int cy=contentsY();
+    int cw=contentsWidth();
+    int ch=contentsHeight();
 
     if ( pw < xmargin*2 ) xmargin=pw/2;
     if ( ph < ymargin*2 ) ymargin=ph/2;
@@ -527,7 +527,7 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 
     // Choke signal handling while we update BOTH sliders.
     signal_choke=TRUE;
-    moveView( cx, cy );
+    moveContents( cx, cy );
     d->vbar.setValue( -cy );
     d->hbar.setValue( -cx );
     updateScrollBars();
@@ -551,7 +551,7 @@ void QScrollView::center( int x, int y )
  <ul>
    <li>Margin 0.0 allows (x,y) to be on edge of visible area.
    <li>Margin 0.5 ensures (x,y) is in middle 50% of visible area.
-   <li>Margin 1.0 ensures (x,y) is in the center of the viewing area.
+   <li>Margin 1.0 ensures (x,y) is in the center of the visible area.
  </ul>
 */
 void QScrollView::center( int x, int y, float xmargin, float ymargin )
@@ -563,23 +563,23 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 
 
 /*!
-  \fn void QScrollView::viewMoved(int x, int y)
+  \fn void QScrollView::contentsMoved(int x, int y)
 
-  This signal is emitted after the view is moved.
+  This signal is emitted after the contents is moved.
 
-  \sa viewX(), viewY()
+  \sa contentsX(), contentsY()
 */
 
 /*!
-  Moves the viewed widget or area.
+  Moves the contents widget or area.
 */
-void QScrollView::moveView(int x, int y)
+void QScrollView::moveContents(int x, int y)
 {
-    if (d->viewed) {
-	if (d->viewed->pos() == QPoint(x,y))
+    if (d->contents) {
+	if (d->contents->pos() == QPoint(x,y))
 	    return; // Nothing to do
 
-	d->viewed->move( x, y );
+	d->contents->move( x, y );
     } else {
 	int dx = x - d->vx;
 	int dy = y - d->vy;
@@ -593,53 +593,53 @@ void QScrollView::moveView(int x, int y)
 	d->viewport.scroll(dx,dy);
     }
 
-    emit viewMoved( x, y );
+    emit contentsMoved( x, y );
 }
 
 /*!
-  Returns the horizontal position of the viewed widget/area.
+  Returns the horizontal position of the contents widget/area.
   Note that this is normally a negative value - the origin of the
-  viewed area is to the left and above the viewport containing it.
+  contents is to the left and above the viewport containing it.
 */
-int QScrollView::viewX() const
+int QScrollView::contentsX() const
 {
-    return d->viewed ? d->viewed->x() : d->vx;
+    return d->contents ? d->contents->x() : d->vx;
 }
 
 /*!
-  Returns the vertical position of the viewed widget/area.
+  Returns the vertical position of the contents widget/area.
   Note that this is normally a negative value - the origin of the
-  viewed area is to the left and above the viewport containing it.
+  contents area is to the left and above the viewport containing it.
 */
-int QScrollView::viewY() const
+int QScrollView::contentsY() const
 {
-    return d->viewed ? d->viewed->y() : d->vy;
+    return d->contents ? d->contents->y() : d->vy;
 }
 
 /*!
-  Returns the width of the viewed area.
+  Returns the width of the contents area.
 */
-int QScrollView::viewWidth() const
+int QScrollView::contentsWidth() const
 {
-    return d->viewed ? d->viewed->width() : d->vwidth;
+    return d->contents ? d->contents->width() : d->vwidth;
 }
 
 /*!
-  Returns the height of the viewed area.
+  Returns the height of the contents area.
 */
-int QScrollView::viewHeight() const
+int QScrollView::contentsHeight() const
 {
-    return d->viewed ? d->viewed->height() : d->vheight;
+    return d->contents ? d->contents->height() : d->vheight;
 }
 
 /*!
-  Set the size of the viewed area.
+  Set the size of the contents area.
 */
-void QScrollView::viewResize( int w, int h )
+void QScrollView::contentsResize( int w, int h )
 {
-    if ( d->viewed ) {
+    if ( d->contents ) {
 	// Strange.  Why did the programmer do that.  Oh well, do it.
-	d->viewed->resize(w,h);
+	d->contents->resize(w,h);
     }
     d->vwidth = w;
     d->vheight = h;
@@ -655,7 +655,7 @@ void QScrollView::viewResize( int w, int h )
 
   Override this method if you are viewing a drawing area rather than a widget.
 
-  Draws a clipped area of the viewed area, offset by the given
+  Draws a clipped area of the contents, offset by the given
   amount. Note that the final coordinates
   you give to QPainter methods must be within the range supported
   by the underlying window system - about +/- 32000.
@@ -713,7 +713,7 @@ void QScrollView::frameChanged()
 
 /*!
   Returns the viewport widget of the scrollview.  This is the widget
-  containing the viewed widget or which is the drawing area.
+  containing the contents widget or which is the drawing area.
 */
 QWidget* QScrollView::viewport()
 {

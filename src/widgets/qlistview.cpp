@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#21 $
 **
 ** Implementation of something useful
 **
@@ -21,7 +21,7 @@
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#21 $");
 
 
 struct QListViewPrivate
@@ -809,7 +809,7 @@ void QListView::buildDrawableList() const
 
     // could mess with cy and ch in order to speed up vertical
     // scrolling
-    int cy = -viewY();
+    int cy = -contentsY();
     int ch = ((QListView *)this)->viewport()->height();
     d->topPixel = cy + ch; // one below bottom
     d->bottomPixel = cy - 1; // one above top
@@ -957,7 +957,7 @@ void QListView::show()
     if ( v )
 	v->setBackgroundMode( NoBackground );
 
-    viewResize( 250, d->r->totalHeight() ); // ### 250
+    contentsResize( 250, d->r->totalHeight() ); // ### 250
     QScrollView::show();
 }
 
@@ -977,7 +977,7 @@ void QListView::updateContents()
 		       frameRect().width(), h );
     setMargins( 0, h, 0, 0 );
 
-    viewResize( w, d->r->totalHeight() );  // repaints
+    contentsResize( w, d->r->totalHeight() );  // repaints
     viewport()->repaint();
 }
 
@@ -1293,7 +1293,7 @@ QListViewItem * QListView::itemAt( QPoint screenPos ) const
 	buildDrawableList();
 
     QListViewPrivate::DrawableItem * c = d->drawables->first();
-    int g = screenPos.y() - viewY();
+    int g = screenPos.y() - contentsY();
 
     while( c && c->i && c->y + c->i->height() < g )
 	c = d->drawables->next();
@@ -1432,7 +1432,7 @@ QRect QListView::itemRect( QListViewItem * i ) const
 	c = d->drawables->next();
 
     if ( c && c->i == i ) {
-	int y = c->y + viewY();
+	int y = c->y + contentsY();
 	if ( y + c->i->height() >= 0 &&
 	     y < ((QListView *)this)->viewport()->height() ) {
 	    QRect r( 0, y, d->h->width(), i->height() );

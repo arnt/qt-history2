@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#6 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#7 $
 **
 ** Definition of QScrollView class
 **
@@ -23,7 +23,7 @@ public:
     QScrollView(QWidget *parent=0, const char *name=0, WFlags f=0);
     ~QScrollView();
 
-    void view(QWidget* child);
+    void setContents(QWidget* child);
 
     enum ScrollBarMode { Auto, AlwaysOff, AlwaysOn };
 
@@ -39,17 +39,17 @@ public:
     QScrollBar*  horizontalScrollBar();
     QScrollBar*  verticalScrollBar();
 
-    void	viewResize( int w, int h );
-    int		viewWidth() const;
-    int		viewHeight() const;
-    int		viewX() const;
-    int		viewY() const;
+    void	contentsResize( int w, int h );
+    int		contentsWidth() const;
+    int		contentsHeight() const;
+    int		contentsX() const;
+    int		contentsY() const;
 
     void	resize( int w, int h );
     void	show();
 
 signals:
-    void	viewMoved(int x, int y);
+    void	contentsMoved(int x, int y);
 
 public slots:
     void	ensureVisible(int x, int y);
@@ -76,7 +76,7 @@ protected:
     int bottomMargin() const;
 
 private:
-    void moveView(int x, int y);
+    void moveContents(int x, int y);
 
     QScrollViewData* d;
 
