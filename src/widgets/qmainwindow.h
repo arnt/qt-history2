@@ -176,6 +176,7 @@ private slots:
 private:
     QMainWindowPrivate * d;
     void triggerLayout( bool deleteLayout = TRUE);
+    bool dockMainWindow( QObject *dock );
 
 #ifndef QT_NO_MENUBAR
     virtual void setMenuBar( QMenuBar * );

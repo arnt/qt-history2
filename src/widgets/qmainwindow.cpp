@@ -1385,10 +1385,10 @@ void QMainWindow::paintEvent( QPaintEvent * )
 }
 
 
-static bool dockMainWindow( QObject *dock, QWidget *mw )
+bool QMainWindow::dockMainWindow( QObject *dock )
 {
     while ( dock ) {
-	if ( dock->parent() && dock->parent() == mw )
+	if ( dock->parent() && dock->parent() == this )
 	    return TRUE;
 	if ( dock->parent() && dock->parent()->inherits( "QMainWindow" ) )
 	    return FALSE;
@@ -1410,7 +1410,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
     }
 
     if ( e->type() == QEvent::ContextMenu && d->dockMenu &&
-	 ( o->inherits( "QDockArea" ) && dockMainWindow( o,this ) || o == d->hideDock ) ) {
+	 ( o->inherits( "QDockArea" ) && dockMainWindow( o ) || o == d->hideDock ) ) {
 	if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) ) {
 	    ( (QContextMenuEvent*)e )->accept();
 	    return TRUE;
@@ -1951,7 +1951,7 @@ void QMainWindow::menuAboutToShow()
 	if ( dockWindows == AllDockWindows || dockWindows == NoToolBars ) {
 	    for ( o = l->first(); o; o = l->next() ) {
 		QDockWindow *dw = (QDockWindow*)o;
-		if ( !appropriate( dw ) || dw->inherits( "QToolBar" ) )
+		if ( !appropriate( dw ) || dw->inherits( "QToolBar" ) || !dockMainWindow( dw ) )
 		    continue;
 		QString label = dw->caption();
 		if ( !label.isEmpty() ) {
@@ -1967,7 +1967,7 @@ void QMainWindow::menuAboutToShow()
 	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
 	    for ( o = l->first(); o; o = l->next() ) {
 		QDockWindow *dw = (QDockWindow*)o;
-		if ( !appropriate( dw ) || !dw->inherits( "QToolBar" ) )
+		if ( !appropriate( dw ) || !dw->inherits( "QToolBar" ) || !dockMainWindow( dw ) )
 		    continue;
 		QString label = ( (QToolBar*)dw )->label();
 		if ( !label.isEmpty() ) {
