@@ -169,8 +169,8 @@ The KDE developer website is \l{http://developer.kde.org/}.
 
 Application icons are stored within a standard system-wide directory containing
 architecture-independent files. This location can be determined by
-using \link http://developer.gnome.org/ gnome-config\endlink, for
-example by typing the following in a terminal window:
+using gnome-config, for example by typing the following in a terminal
+window:
 
 \code
 gnome-config --datadir
@@ -182,8 +182,10 @@ directory is described in the \link
 http://www.freedesktop.org/Standards/icon-theme-spec Icon Theme
 Specification \endlink.
 
-If you are developing exclusively for GNOME, you may wish to arrange
-your project in a source tree as described in the relevant section of
+If you are developing exclusively for GNOME, you may wish to use
+the standard set of \link
+http://developer.gnome.org/tools/build.html GNU Build Tools\endlink,
+also described in the relevant section of
 the \link http://developer.gnome.org/doc/GGAD/ggad.html GTK+/Gnome
 Application Development book\endlink. This ensures that your icons are
 installed in the appropriate locations for GNOME.
