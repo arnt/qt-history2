@@ -1,0 +1,156 @@
+\chapter Using Precompiled Headers
+
+\target About
+\section1 About Precompiled Headers
+\index About Precompiled Headers
+\index Using Precompiled Headers
+\index Precompiled Headers
+\index PCH
+
+Precompiled headers are a performance feature, supported by some
+compilers, to compile stable body of code, and store the compiled
+state of the code in a binary file. During subsequent compilations,
+the compiler will load the stored state, and continue compiling the
+specified file. Each subsequent compilation is faster because the
+stable code does not need to be recompiled.
+
+\e qmake supports the usage of precompiled headers (PCH) on some
+platforms and build environments, including:
+\list
+\i Windows - NMake
+\i Windows - Dsp projects (VC 6.0)
+\i Windows - Vcproj projects (VC 7.0 \& 7.1)
+\i Mac OS X - Makefile
+\i Mac OS X - Xcode
+\endlist
+
+\target Rules
+\section1 Rules for using PCH
+
+Since compilers solve the usage of PCH differently, you have to take
+certain measures to be able to use precompiled headers on all
+supported platforms.
+There are currently two schemes:
+
+\target GCC_scheme
+\section2 GCC scheme
+
+\list
+\i Load PCH
+\i Compile sourcefile from start
+\endlist
+
+\target MSVC_scheme
+\section2 MSVC scheme
+
+\list
+\i Load PCH
+\i Skip code in sourcefile until marker (include file, or pragma)
+\i If no markers found, fail
+\i If skipped code break \link #MSVC_RULES consistency rules \endlink,
+   rewind to start of file
+\i Compile rest of sourcefile
+\endlist
+
+
+For your sourcecode to be cross platform, it needs to follow the MSVC
+scheme. \Menu {This means that every sourcefile has to contain an
+include statement to the header file being precompiled.}
+\e qmake will ensure that all generated files from \e uic and \e moc
+will also contain include statements to this header file.
+
+\sidebar Precompiled Headers Consistency Rules using Microsoft Visual
+C++ 
+
+\target MSVC_RULES
+Here is a selection of important rules when using PCH in your project.
+\list 1
+\i Macros created using the Preprocessor (/D) option must be the same
+   between the compilation that created the PCH and the current
+   compilation. The state of defined constants is not checked, but
+   unpredictable results can occur if these change.
+\i PCHs do not work when preprocessing a sourcefile.
+\i The compiler ignores all preprocessor directives (including
+   pragmas) that appear in the source code that will be precompiled.
+   The compilation specified by such preprocessor directives must be
+   the same as the compilation creating the PCH. 
+\i The PCH must be compiled with debug, to get debug information for
+   local symbols in object file.
+\endlist
+A more complete set of rules can be found at 
+\link http://msdn.microsoft.com/library/en-us/vccore/html/vclrfprecompiledheaderconsistencyrules.asp \endlink
+
+\e {NOTE: Not all rules on described in the Microsoft documentation are
+important, since qmake will enforce them automatically.}
+\endsidebar
+
+\target ADD_PCH
+\section1 Adding PCH to your project
+
+
+\target PCH_CONTENTS
+\section2 Contents of the precompiled header file
+
+The precompiled header is supposed to contain code which is \e stable
+and \e static throughout your project. When compiling Qt programs, it
+many be wise to add an include to \e qt.h in your precompiled header,
+to increase compilation significantly. A typical PCH may look like
+this:
+\section3 stable.h
+
+\code
+	#include <stdlib>
+	#include <iostream>
+	#include <vector>
+	#include <qt.h> // Includes all of Qt
+	#include "thirdparty\include\libmain.h"
+	#include "my_stable_class.h"
+	...
+\endcode
+
+
+\target SORT_INCLUDES
+\section2 Sorting include statements
+
+Since some compilers skip code in your sourcefiles until they hit the
+include statement for the precompiled header file, you have to order
+your include statements in a \Menu stable and \Menu unstable fashion,
+devided by the include statement for the precompiled header file, like
+this:
+\section3 mydialog.cpp
+
+\code
+	#include <qlabel.h>
+	#include <qtextedit.h>
+	#include <qpushbutton.h>
+	#include "stable.h"   // PCH, compiler stops skipping here
+	#include "mydialog.h" // MyDialogs own header file
+	#include "code_under_development.h"
+	#include "very_unstable_code.h"
+	...
+\endcode
+
+Note that a class' own header file \Menu must be included after the
+PCH include statement. If not, the compiler will on some platforms
+skip the code, and miss the class definition.
+
+
+\target PROJECT_OPTIONS
+\section2 Project options
+
+blah blah blah blah
+blah blah blah blah
+blah blah blah blah
+blah blah blah blah
+blah blah blah blah
+
+
+\target ADD_PCH
+\section1 Example projectA
+
+blah blah blah blah
+blah blah blah blah
+blah blah blah blah
+blah blah blah blah
+blah blah blah blah
+
