@@ -1056,8 +1056,9 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
 }
 
 /*!
-  Sets d->sizes[\a section] to the bounding rect of \a s with the
-  constraint \a size, and update d->height.
+    Sets d->sizes[\a section] to a bounding rect based on its size
+    hint and font metrics, but constrained by \a size. It also updates
+    d->height.
 */
 void QHeader::setSectionSizeAndHeight( int section, int size )
 {

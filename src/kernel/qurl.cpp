@@ -59,8 +59,8 @@ public:
 };
 
 /*!
-  Replaces backslashes with slashes and removes multiple occurrences
-  of slashes or backslashes if \c allowMultiple is FALSE.
+    Replaces backslashes with slashes and removes multiple occurrences
+    of slashes or backslashes if \c allowMultiple is FALSE.
 */
 
 static void slashify( QString& s, bool allowMultiple = TRUE )
@@ -89,105 +89,94 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
 
 /*!
-  \class QUrl qurl.h
+    \class QUrl qurl.h
 
-  \brief The QUrl class provides a URL parser and simplifies working with URLs.
+    \brief The QUrl class provides a URL parser and simplifies working with URLs.
 
-  \ingroup io
-  \ingroup misc
-  \mainclass
+    \ingroup io
+    \ingroup misc
+    \mainclass
 
-  \module network
+    \module network
 
-  The QUrl class is provided for simple work with URLs.
-  It can parse, decode, encode, etc.
+    The QUrl class is provided for simple work with URLs. It can
+    parse, decode, encode, etc.
 
-  QUrl works with the decoded path and encoded query in turn.
+    QUrl works with the decoded path and encoded query in turn.
 
-  Example:
+    Example:
 
-  <tt>http://www.trolltech.com:80/cgi-bin/test%20me.pl?cmd=Hello%20you</tt>
+    <tt>http://www.trolltech.com:80/cgi-bin/test%20me.pl?cmd=Hello%20you</tt>
 
-  \table
-  \header \i Function
-	  \i Returns
-  \row \i protocol()
-       \i "http"
-  \row \i host()
-       \i "www.trolltech.com"
-  \row \i port()
-       \i 80
-  \row \i path()
-       \i "cgi-bin"
-  \row \i fileName()
-       \i "test&nbsp;me.pl"
-  \row \i query()
-       \i "cmd=Hello%20you"
-  \endtable
+    \table
+    \header \i Function	    \i Returns
+    \row \i \l protocol()   \i "http"
+    \row \i \l host()	    \i "www.trolltech.com"
+    \row \i \l port()	    \i 80
+    \row \i \l path()	    \i "cgi-bin"
+    \row \i \l fileName()   \i "test&nbsp;me.pl"
+    \row \i \l query()	    \i "cmd=Hello%20you"
+    \endtable
 
-  Example:
+    Example:
 
-  \c http://doc.trolltech.com/qdockarea.html#lines
+    <tt>http://doc.trolltech.com/qdockarea.html#lines</tt>
 
-  \table
-  \header \i Function
-	  \i Returns
-  \row \i \l protocol()
-       \i "http"
-  \row \i \l host()
-       \i "doc.trolltech.com"
-  \row \i \l fileName()
-       \i "qdockarea.html"
-  \row \i \l ref()
-       \i "lines"
-  \endtable
+    \table
+    \header \i Function	    \i Returns
+    \row \i \l protocol()   \i "http"
+    \row \i \l host()	    \i "doc.trolltech.com"
+    \row \i \l fileName()   \i "qdockarea.html"
+    \row \i \l ref()	    \i "lines"
+    \endtable
 
-  The individual parts of a URL can be set with setProtocol(),
-  setHost(), setPort(), setPath(), setFileName(), setRef() and
-  setQuery(). A URL could contain, for example, an ftp address which
-  requires a user name and password; these can be set with setUser()
-  and setPassword().
+    The individual parts of a URL can be set with setProtocol(),
+    setHost(), setPort(), setPath(), setFileName(), setRef() and
+    setQuery(). A URL could contain, for example, an ftp address which
+    requires a user name and password; these can be set with setUser()
+    and setPassword().
 
-  Because path is always encoded internally you must not use "%00"
-  in the path, although this is okay (but not recommended) for the
-  query.
+    Because path is always encoded internally you must not use "%00"
+    in the path, although this is okay (but not recommended) for the
+    query.
 
-  QUrl is normally used like this:
+    QUrl is normally used like this:
 
-  \code
-  QUrl u( "http://www.trolltech.com" );
-  // or
-  QUrl u( "file:/home/myself/Mail", "Inbox" );
-  \endcode
+    \code
+    QUrl url( "http://www.trolltech.com" );
+    // or
+    QUrl url( "file:/home/myself/Mail", "Inbox" );
+    \endcode
 
-  You can then access and manipulate the various parts of the URL.
+    You can then access and manipulate the various parts of the URL.
 
-  To make it easy to work with QUrls and QStrings, QUrl implements
-  the necessary cast and assignment operators so you can do following:
+    To make it easy to work with QUrls and QStrings, QUrl implements
+    the necessary cast and assignment operators so you can do
+    following:
 
-  \code
-  QUrl u( "http://www.trolltech.com" );
-  QString s = u;
-  // or
-  QString s( "http://www.trolltech.com" );
-  QUrl u( s );
-  \endcode
+    \code
+    QUrl url( "http://www.trolltech.com" );
+    QString s = url;
+    // or
+    QString s( "http://www.trolltech.com" );
+    QUrl url( s );
+    \endcode
 
     Use the static functions, encode() and decode() to encode or
     decode a URL in a string. (They operate on the string in-place.)
     The isRelativeUrl() static function returns TRUE if the given
     string is a relative URL.
 
-  If you want to use an URL to work on a hierarchical structure (e.g.
-  a local or remote filesystem), you might want to use the subclass
-  QUrlOperator.
+    If you want to use a URL to work on a hierarchical structure (e.g.
+    a local or remote filesystem), you might want to use the subclass
+    QUrlOperator.
 
-  \sa QUrlOperator
+    \sa QUrlOperator
 */
 
 
 /*!
-  Constructs an empty URL that is invalid.
+    Constructs an empty URL that is invalid.
 */
 
 QUrl::QUrl()
@@ -199,10 +188,10 @@ QUrl::QUrl()
 }
 
 /*!
-  Constructs a URL by parsing the string \a url.
+    Constructs a URL by parsing the string \a url.
 
-  If you pass a string like "/home/qt", the "file" protocol is
-  assumed.
+    If you pass a string like "/home/qt", the "file" protocol is
+    assumed.
 */
 
 QUrl::QUrl( const QString& url )
@@ -214,7 +203,7 @@ QUrl::QUrl( const QString& url )
 }
 
 /*!
-  Copy constructor. Copies the data of \a url.
+    Copy constructor. Copies the data of \a url.
 */
 
 QUrl::QUrl( const QUrl& url )
@@ -224,7 +213,7 @@ QUrl::QUrl( const QUrl& url )
 }
 
 /*!
-  Returns TRUE if \a url is relative; otherwise returns FALSE.
+    Returns TRUE if \a url is relative; otherwise returns FALSE.
 */
 
 bool QUrl::isRelativeUrl( const QString &url )
@@ -236,36 +225,36 @@ bool QUrl::isRelativeUrl( const QString &url )
 }
 
 /*!
-  Constructs an URL taking \a url as the base (context) and
-  \a relUrl as a relative URL to \a url. If \a relUrl is not relative,
-  \a relUrl is taken as the new URL.
+    Constructs an URL taking \a url as the base (context) and
+    \a relUrl as a relative URL to \a url. If \a relUrl is not relative,
+    \a relUrl is taken as the new URL.
 
-  For example, the path of
-  \code
-  QUrl u( "ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz" );
-  \endcode
-  will be "/qt/srource/qt-2.1.0.tar.gz".
+    For example, the path of
+    \code
+    QUrl url( "ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz" );
+    \endcode
+    will be "/qt/srource/qt-2.1.0.tar.gz".
 
-  On the other hand,
-  \code
-  QUrl u( "ftp://ftp.trolltech.com/qt/source", "/usr/local" );
-  \endcode
-  will result in a new URL, "ftp://ftp.trolltech.com/usr/local",
-  because "/usr/local" isn't relative.
+    On the other hand,
+    \code
+    QUrl url( "ftp://ftp.trolltech.com/qt/source", "/usr/local" );
+    \endcode
+    will result in a new URL, "ftp://ftp.trolltech.com/usr/local",
+    because "/usr/local" isn't relative.
 
-  Similarly,
-  \code
-  QUrl u( "ftp://ftp.trolltech.com/qt/source", "file:/usr/local" );
-  \endcode
-  will result in a new URL, with "/usr/local" as the path
-  and "file" as the protocol.
+    Similarly,
+    \code
+    QUrl url( "ftp://ftp.trolltech.com/qt/source", "file:/usr/local" );
+    \endcode
+    will result in a new URL, with "/usr/local" as the path
+    and "file" as the protocol.
 
-  Normally it is expected that the path of \a url points to
-  a directory, even if the path has no slash at the end. But
-  if you want the constructor to handle the last
-  part of the path as a file name if there is no slash at the end,
-  and to let it be replaced by the file name of \a relUrl
-  (if it contains one), set \a checkSlash to TRUE.
+    Normally it is expected that the path of \a url points to a
+    directory, even if the path has no slash at the end. But if you
+    want the constructor to handle the last part of the path as a file
+    name if there is no slash at the end, and to let it be replaced by
+    the file name of \a relUrl (if it contains one), set \a checkSlash
+    to TRUE.
 */
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
@@ -322,7 +311,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 }
 
 /*!
-  Destructor.
+    Destructor.
 */
 
 QUrl::~QUrl()
@@ -332,10 +321,10 @@ QUrl::~QUrl()
 }
 
 /*!
-  Returns the protocol of the URL. Typically,
-  "file", "http", or "ftp", etc.
+    Returns the protocol of the URL. Typically, "file", "http", "ftp",
+    etc.
 
-  \sa setProtocol()
+    \sa setProtocol()
 */
 
 QString QUrl::protocol() const
@@ -344,10 +333,10 @@ QString QUrl::protocol() const
 }
 
 /*!
-  Sets the protocol of the URL to \a protocol. Typically,
-  "file", "http", or "ftp", etc.
+    Sets the protocol of the URL to \a protocol. Typically, "file",
+    "http", "ftp", etc.
 
-  \sa protocol()
+    \sa protocol()
 */
 
 void QUrl::setProtocol( const QString& protocol )
@@ -356,9 +345,9 @@ void QUrl::setProtocol( const QString& protocol )
 }
 
 /*!
-  Returns the username of the URL.
+    Returns the username of the URL.
 
-  \sa setUser() setPassword()
+    \sa setUser() setPassword()
 */
 
 QString QUrl::user() const
@@ -367,9 +356,9 @@ QString QUrl::user() const
 }
 
 /*!
-  Sets the username of the URL to \a user.
+    Sets the username of the URL to \a user.
 
-  \sa user() setPassword()
+    \sa user() setPassword()
 */
 
 void QUrl::setUser( const QString& user )
@@ -378,10 +367,10 @@ void QUrl::setUser( const QString& user )
 }
 
 /*!
-  Returns TRUE if the URL contains a username;
-  otherwise returns FALSE.
+    Returns TRUE if the URL contains a username; otherwise returns
+    FALSE.
 
-  \sa setUser() setPassword()
+    \sa setUser() setPassword()
 */
 
 bool QUrl::hasUser() const
@@ -390,12 +379,12 @@ bool QUrl::hasUser() const
 }
 
 /*!
-  Returns the password of the URL.
+    Returns the password of the URL.
 
-  \warning Passwords passed in URLs are normally \e insecure; this is
-  due to the mechanism, not because of Qt.
+    \warning Passwords passed in URLs are normally \e insecure; this
+    is due to the mechanism, not because of Qt.
 
-  \sa setPassword() setUser()
+    \sa setPassword() setUser()
 */
 
 QString QUrl::password() const
@@ -404,12 +393,12 @@ QString QUrl::password() const
 }
 
 /*!
-  Sets the password of the URL to \a pass.
+    Sets the password of the URL to \a pass.
 
-  \warning Passwords passed in URLs are normally \e insecure; this is
-  due to the mechanism, not because of Qt.
+    \warning Passwords passed in URLs are normally \e insecure; this
+    is due to the mechanism, not because of Qt.
 
-  \sa password() setUser()
+    \sa password() setUser()
 */
 
 void QUrl::setPassword( const QString& pass )
@@ -418,13 +407,13 @@ void QUrl::setPassword( const QString& pass )
 }
 
 /*!
-  Returns TRUE if the URL contains a password;
-  otherise returns FALSE.
+    Returns TRUE if the URL contains a password; otherwise returns
+    FALSE.
 
-  \warning Passwords passed in URLs are normally \e insecure; this is
-  due to the mechanism, not because of Qt.
+    \warning Passwords passed in URLs are normally \e insecure; this
+    is due to the mechanism, not because of Qt.
 
-  \sa setPassword() setUser()
+    \sa setPassword() setUser()
 */
 
 bool QUrl::hasPassword() const
@@ -433,9 +422,9 @@ bool QUrl::hasPassword() const
 }
 
 /*!
-  Returns the hostname of the URL.
+    Returns the hostname of the URL.
 
-  \sa setHost() hasHost()
+    \sa setHost() hasHost()
 */
 
 QString QUrl::host() const
@@ -444,9 +433,9 @@ QString QUrl::host() const
 }
 
 /*!
-  Sets the hostname of the URL to \a host.
+    Sets the hostname of the URL to \a host.
 
-  \sa host() hasHost()
+    \sa host() hasHost()
 */
 
 void QUrl::setHost( const QString& host )
@@ -455,10 +444,10 @@ void QUrl::setHost( const QString& host )
 }
 
 /*!
-  Returns TRUE if the URL contains a hostname;
-  otherwise returns FALSE.
+    Returns TRUE if the URL contains a hostname; otherwise returns
+    FALSE.
 
-  \sa setHost()
+    \sa setHost()
 */
 
 bool QUrl::hasHost() const
@@ -467,9 +456,9 @@ bool QUrl::hasHost() const
 }
 
 /*!
-  Returns the port of the URL or -1 if no port has been set.
+    Returns the port of the URL or -1 if no port has been set.
 
-  \sa setPort()
+    \sa setPort()
 */
 
 int QUrl::port() const
@@ -478,9 +467,9 @@ int QUrl::port() const
 }
 
 /*!
-  Sets the port of the URL to \a port.
+    Sets the port of the URL to \a port.
 
-  \sa port()
+    \sa port()
 */
 
 void QUrl::setPort( int port )
@@ -489,10 +478,9 @@ void QUrl::setPort( int port )
 }
 
 /*!
-  Returns TRUE if the URL contains a port;
-  otherwise returns FALSE.
+    Returns TRUE if the URL contains a port; otherwise returns FALSE.
 
-  \sa setPort()
+    \sa setPort()
 */
 
 bool QUrl::hasPort() const
@@ -501,9 +489,9 @@ bool QUrl::hasPort() const
 }
 
 /*!
-  Sets the path of the URL to \a path.
+    Sets the path of the URL to \a path.
 
-  \sa path() hasPath()
+    \sa path() hasPath()
 */
 
 void QUrl::setPath( const QString& path )
@@ -514,10 +502,9 @@ void QUrl::setPath( const QString& path )
 }
 
 /*!
-  Returns TRUE if the URL contains a path,
-  otherwise FALSE.
+    Returns TRUE if the URL contains a path; otherwise returns FALSE.
 
-  \sa path() setPath()
+    \sa path() setPath()
 */
 
 bool QUrl::hasPath() const
@@ -526,9 +513,9 @@ bool QUrl::hasPath() const
 }
 
 /*!
-  Sets the query of the URL to \a txt. \a txt must be encoded.
+    Sets the query of the URL to \a txt. \a txt must be encoded.
 
-  \sa query() encode()
+    \sa query() encode()
 */
 
 void QUrl::setQuery( const QString& txt )
@@ -537,9 +524,9 @@ void QUrl::setQuery( const QString& txt )
 }
 
 /*!
-  Returns the (encoded) query of the URL.
+    Returns the (encoded) query of the URL.
 
-  \sa setQuery() decode()
+    \sa setQuery() decode()
 */
 
 QString QUrl::query() const
@@ -548,9 +535,9 @@ QString QUrl::query() const
 }
 
 /*!
-  Returns the (encoded) reference of the URL.
+    Returns the (encoded) reference of the URL.
 
-  \sa setRef() hasRef() decode()
+    \sa setRef() hasRef() decode()
 */
 
 QString QUrl::ref() const
@@ -559,9 +546,9 @@ QString QUrl::ref() const
 }
 
 /*!
-  Sets the reference of the URL to \a txt. \a txt must be encoded.
+    Sets the reference of the URL to \a txt. \a txt must be encoded.
 
-  \sa ref() hasRef() encode()
+    \sa ref() hasRef() encode()
 */
 
 void QUrl::setRef( const QString& txt )
@@ -570,9 +557,9 @@ void QUrl::setRef( const QString& txt )
 }
 
 /*!
-  Returns TRUE if the URL has a reference; otherwise returns FALSE.
+    Returns TRUE if the URL has a reference; otherwise returns FALSE.
 
-  \sa setRef()
+    \sa setRef()
 */
 
 bool QUrl::hasRef() const
@@ -581,8 +568,8 @@ bool QUrl::hasRef() const
 }
 
 /*!
-  Returns TRUE if the URL is valid; otherwise returns FALSE.
-  A URL is invalid if it cannot be parsed, for example.
+    Returns TRUE if the URL is valid; otherwise returns FALSE. A URL
+    is invalid if it cannot be parsed, for example.
 */
 
 bool QUrl::isValid() const
@@ -591,8 +578,8 @@ bool QUrl::isValid() const
 }
 
 /*!
-  Resets all parts of the URL to their default values
-  and invalidates it.
+    Resets all parts of the URL to their default values and
+    invalidates it.
 */
 
 void QUrl::reset()
@@ -610,7 +597,7 @@ void QUrl::reset()
 }
 
 /*!
-  Parses the \a url.
+    Parses the \a url.
 */
 
 bool QUrl::parse( const QString& url )
@@ -865,11 +852,13 @@ bool QUrl::parse( const QString& url )
     return TRUE;
 }
 
-/*! \overload
-  Parses \a url and assigns the resulting data to this class.
+/*!
+    \overload
 
-  If you pass a string like "/home/qt" the "file" protocol will be
-  assumed.
+    Parses \a url and assigns the resulting data to this class.
+
+    If you pass a string like "/home/qt" the "file" protocol will be
+    assumed.
 */
 
 QUrl& QUrl::operator=( const QString& url )
@@ -881,7 +870,7 @@ QUrl& QUrl::operator=( const QString& url )
 }
 
 /*!
-  Assigns the data of \a url to this class.
+    Assigns the data of \a url to this class.
 */
 
 QUrl& QUrl::operator=( const QUrl& url )
@@ -890,8 +879,9 @@ QUrl& QUrl::operator=( const QUrl& url )
     return *this;
 }
 
-/*!  Compares this URL with \a url and returns TRUE if they are equal;
-  otherwise returns FALSE.
+/*!
+    Compares this URL with \a url and returns TRUE if they are equal;
+    otherwise returns FALSE.
 */
 
 bool QUrl::operator==( const QUrl& url ) const
@@ -913,10 +903,11 @@ bool QUrl::operator==( const QUrl& url ) const
     return FALSE;
 }
 
-/*! \overload
-  Compares this URL with \a url. \a url is parsed
-  first. Returns TRUE if \a url is equal to this url;
-  otherwise returns FALSE.
+/*!
+    \overload
+
+    Compares this URL with \a url. \a url is parsed first. Returns
+    TRUE if \a url is equal to this url; otherwise returns FALSE.
 */
 
 bool QUrl::operator==( const QString& url ) const
@@ -926,15 +917,14 @@ bool QUrl::operator==( const QString& url ) const
 }
 
 /*!
-  Sets the file name of the URL to \a name. If this
-  URL contains a fileName(), the original file name is replaced by
-  \a name.
+    Sets the file name of the URL to \a name. If this URL contains a
+    fileName(), the original file name is replaced by \a name.
 
-  See the documentation of fileName() for a more detailed discussion
-  of what is handled as file name and what is handled as a directory
-  path.
+    See the documentation of fileName() for a more detailed discussion
+    of what is handled as file name and what is handled as a directory
+    path.
 
-  \sa fileName()
+    \sa fileName()
 */
 
 void QUrl::setFileName( const QString& name )
@@ -965,9 +955,9 @@ void QUrl::setFileName( const QString& name )
 }
 
 /*!
-  Returns the encoded path and query.
+    Returns the encoded path and query.
 
-  \sa decode()
+    \sa decode()
 */
 
 QString QUrl::encodedPathAndQuery()
@@ -987,10 +977,10 @@ QString QUrl::encodedPathAndQuery()
 }
 
 /*!
-  Parses \a pathAndQuery for a path and query and sets those values. The whole
-  string has to be encoded.
+    Parses \a pathAndQuery for a path and query and sets those values.
+    The whole string must be encoded.
 
-  \sa encode()
+    \sa encode()
 */
 
 void QUrl::setEncodedPathAndQuery( const QString& pathAndQuery )
@@ -1082,7 +1072,7 @@ QString QUrl::path( bool correct ) const
 }
 
 /*!
-  Returns TRUE if the URL is a local file, otherwise FALSE.
+    Returns TRUE if the URL is a local file; otherwise returns FALSE.
 */
 
 bool QUrl::isLocalFile() const
@@ -1091,12 +1081,12 @@ bool QUrl::isLocalFile() const
 }
 
 /*!
-  Returns the file name of the URL. If the path of the URL
-  doesn't have a slash at the end, the part between the last slash
-  and the end of the path string is considered to be the file name. If
-  the path has a slash at the end, an empty string is returned here.
+    Returns the file name of the URL. If the path of the URL doesn't
+    have a slash at the end, the part between the last slash and the
+    end of the path string is considered to be the file name. If the
+    path has a slash at the end, an empty string is returned here.
 
-  \sa setFileName()
+    \sa setFileName()
 */
 
 QString QUrl::fileName() const
@@ -1108,9 +1098,9 @@ QString QUrl::fileName() const
 }
 
 /*!
-  Adds the path \a pa to the path of the URL.
+    Adds the path \a pa to the path of the URL.
 
-  \sa setPath() hasPath()
+    \sa setPath() hasPath()
 */
 
 void QUrl::addPath( const QString& pa )
@@ -1136,12 +1126,12 @@ void QUrl::addPath( const QString& pa )
 }
 
 /*!
-  Returns the directory path of the URL. This is the part
-  of the path of the URL without the fileName(). See
-  the documentation of fileName() for a discussion of
-  what is handled as file name and what is handled as directory path.
+    Returns the directory path of the URL. This is the part of the
+    path of the URL without the fileName(). See the documentation of
+    fileName() for a discussion of what is handled as file name and
+    what is handled as directory path.
 
-  \sa setPath() hasPath()
+    \sa setPath() hasPath()
 */
 
 QString QUrl::dirPath() const
@@ -1161,9 +1151,9 @@ QString QUrl::dirPath() const
 }
 
 /*!
-  Encodes the string \a url in-place.
+    Encodes the string \a url \e in-place.
 
-  \sa decode()
+    \sa decode()
 */
 
 void QUrl::encode( QString& url )
@@ -1211,9 +1201,9 @@ static uchar hex_to_int( uchar c )
 }
 
 /*!
-  Decodes the string \a url in-place.
+    Decodes the string \a url \e in-place.
 
-  \sa encode()
+    \sa encode()
 */
 
 void QUrl::decode( QString& url )
@@ -1224,7 +1214,7 @@ void QUrl::decode( QString& url )
     int newlen = 0;
     QCString curl = url.utf8();
     int oldlen = curl.length();
-    
+
     QCString newUrl(oldlen);
 
     int i = 0;
@@ -1237,7 +1227,7 @@ void QUrl::decode( QString& url )
 	newUrl [ newlen++ ] = c;
     }
     newUrl.truncate( newlen );
-    
+
     url = QString::fromUtf8(newUrl.data());
 }
 
@@ -1299,9 +1289,9 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 }
 
 /*!
-  Composes a string version of the URL and returns it.
+    Composes a string version of the URL and returns it.
 
-  \sa QUrl::toString()
+    \sa QUrl::toString()
 */
 
 QUrl::operator QString() const
@@ -1310,9 +1300,9 @@ QUrl::operator QString() const
 }
 
 /*!
-   Changes the directory to one directory up.
+    Changes the directory to one directory up.
 
-   \sa setPath()
+    \sa setPath()
 */
 
 bool QUrl::cdUp()
