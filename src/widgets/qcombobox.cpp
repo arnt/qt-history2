@@ -1649,8 +1649,9 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    } else if ( ke->key() != Key_End ) {
 		d->completeNow = TRUE;
 		d->completeAt = d->ed->cursorPosition();
-	    } else if ( ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return ) {
-
+	    }
+	    if ( ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return ) {
+		return TRUE;
 	    }
 	    if ( isAccepted )
 		ke->accept();
