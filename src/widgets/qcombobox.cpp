@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QComboBox widget class
 **
@@ -1717,6 +1717,13 @@ void QComboBox::setInsertionPolicy( Policy policy )
 void QComboBox::returnPressed()
 {
     QString s( d->ed->text() );
+
+    if ( s.isEmpty() ) {
+	d->ed->setText( text( currentItem() ) );
+	d->ed->selectAll();
+	return;
+    }
+
     int c = 0;
     bool doInsert = TRUE;
     if ( !d->duplicatesEnabled ) {
