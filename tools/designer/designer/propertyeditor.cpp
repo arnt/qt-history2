@@ -3158,7 +3158,7 @@ void PropertyList::readPropertyDocs()
 	    else if ( n.tagName() == "doc" )
 		doc = n.firstChild().toText().data();
 	}
-	doc.insert( 0, "<p><b>" + name + "</b></b>" );
+	doc.insert( 0, "<p><b>" + name + "</b></p>" );
 	propertyDocs.insert( name, doc );
     }
 }
