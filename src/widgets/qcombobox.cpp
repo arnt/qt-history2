@@ -125,16 +125,17 @@
   clicked.
 
   A combobox can be populated using the insert functions,
-  insertStringList() and insertItem() for example. Items can be changed
-  with changeItem(). An item can be removed with removeItem() and all
-  items can be removed with clear(). The text of the current item is
-  returned by currentText(), and the text of a numbered item is returned
-  with text(). The current item can be set with setCurrentItem(). The
-  number of items in the combobox is returned by count(); the maximum
-  number of items can be set with setMaxCount(). You can allow editing
-  using setEditable(). For editable comboboxes you can set
-  auto-completion using setAutoCompletion() and whether or not the user
-  can add duplicates is set with setDuplicatesEnabled().
+  insertStringList() and insertItem() for example. Items can be
+  changed with changeItem(). An item can be removed with removeItem()
+  and all items can be removed with clear(). The text of the current
+  item is returned by currentText(), and the text of a numbered item
+  is returned with text(). The current item can be set with
+  setCurrentItem() or setCurrentText(). The number of items in the
+  combobox is returned by count(); the maximum number of items can be
+  set with setMaxCount(). You can allow editing using
+  setEditable(). For editable comboboxes you can set auto-completion
+  using setAutoCompletion() and whether or not the user can add
+  duplicates is set with setDuplicatesEnabled().
 
   <img src="qcombo1-m.png">(Motif 1, read-only)<br clear=all>
   <img src="qcombo2-m.png">(Motif 2, read-write)<br clear=all>
@@ -309,9 +310,9 @@ public:
 	cb->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     }
 
-    bool usingListBox()  { return usingLBox; }
-    QListBox * listBox() { Q_ASSERT(usingLBox); return lBox; }
-    QComboBoxPopup * popup() { Q_ASSERT(!usingLBox); return pop; }
+    inline bool usingListBox()  { return usingLBox; }
+    inline QListBox * listBox() { return lBox; }
+    inline QComboBoxPopup * popup() { return pop; }
     void updateLinedGeometry();
 
     void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE;
@@ -795,6 +796,20 @@ QString QComboBox::currentText() const
 	return text( currentItem() );
     else
 	return QString::null;
+}
+
+void QComboBox::setCurrentText( const QString& txt )
+{
+    int i;
+    for ( i = 0; i < count(); i++)
+	if ( text( i ) == txt )
+	    break;
+    if ( i < count() )
+	setCurrentItem( i );
+    else if ( d->ed )
+	d->ed->setText( txt );
+    else 
+	changeItem( txt, currentItem() );
 }
 
 

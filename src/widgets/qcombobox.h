@@ -58,7 +58,7 @@ class Q_EXPORT QComboBox : public QWidget
     Q_ENUMS( Policy )
     Q_PROPERTY( bool editable READ editable WRITE setEditable )
     Q_PROPERTY( int count READ count )
-    Q_PROPERTY( QString currentText READ currentText )
+    Q_PROPERTY( QString currentText READ currentText WRITE setCurrentText DESIGNABLE false )
     Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem )
     Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize DESIGNABLE false )
     Q_PROPERTY( int sizeLimit READ sizeLimit WRITE setSizeLimit )
@@ -86,16 +86,18 @@ public:
 
     void	removeItem( int index );
 
-    QString currentText() const;
-    QString text( int index ) const;
+    int		currentItem() const;
+    virtual void setCurrentItem( int index );
+
+    QString 	currentText() const;
+    virtual void setCurrentText( const QString& );
+
+    QString 	text( int index ) const;
     const QPixmap *pixmap( int index ) const;
 
     void	changeItem( const QString &text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
     void	changeItem( const QPixmap &pixmap, const QString &text, int index );
-
-    int		currentItem() const;
-    virtual void setCurrentItem( int index );
 
     bool	autoResize()	const;
     virtual void setAutoResize( bool );
