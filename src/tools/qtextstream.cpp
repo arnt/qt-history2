@@ -1579,8 +1579,11 @@ QTextStream &QTextStream::operator>>( char *s )
     skipWhiteSpace();
 
     uint maxlen = width( 0 ), l, total=0;
-    uint buf_len = maxlen ? maxlen : getstr_tmp_size;
-    QChar buf[buf_len];
+    const uint buf_len = maxlen ? maxlen : getstr_tmp_size;
+    QChar stackbuf[getstr_tmp_size];
+    QChar *buf = stackbuf;
+    if ( buf_len > getstr_tmp_size )
+	buf = new QChar[buf_len];
     while(1) {
 	bool sr = ts_getbuf(buf, buf_len, TS_SPACE, &l);
 	for(uint i = 0; i < l; i++)
@@ -1589,6 +1592,8 @@ QTextStream &QTextStream::operator>>( char *s )
 	if(sr || (maxlen && total >= maxlen-1)) 
 	   break;
     }
+    if ( buf != stackbuf )
+	delete[] buf;
     *s = '\0';
     return *this;
 }
@@ -1637,14 +1642,14 @@ QTextStream &QTextStream::operator>>( QCString &str )
     uint used = 0, l;
     const int buf_size = getstr_tmp_size;
     str.resize(buf_size);
-    QChar buf[buf_size];
+    QChar buf[getstr_tmp_size];
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_SPACE, &l);
 	if(l) {
 	    if(used+l >= str.size())
 		str.resize(used+l+1);
 	    for(uint i = 0; i < l; i++)
-		str[used+i] = buf[i];
+		str[(int)(used+i)] = buf[i];
 	    used += l;
 	}
 	if(sr)
