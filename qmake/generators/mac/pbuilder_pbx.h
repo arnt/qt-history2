@@ -43,9 +43,12 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 {
     bool init_flag;
     bool writeMakeParts(QTextStream &);
-    bool writeSubDirs(QTextStream &);
     bool writeMakefile(QTextStream &);
     void init();
+
+    QMap<QString, QString> keys;
+    QString keyFor(QString file);
+    QString fixEnvs(QString where);
 
 public:
     ProjectBuilderMakefileGenerator(QMakeProject *p);

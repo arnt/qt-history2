@@ -60,6 +60,21 @@ extern "C" void yyerror(const char *foo)
     fprintf(stderr, "%d: %s\n", line_count, foo);
 }
 
+static bool createDir( const QString& fullPath )
+{
+    QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );
+    QString pathComponent, tmpPath;
+    QDir dirTmp;
+    bool success;
+
+    for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
+	pathComponent = *it + QDir::separator();
+	tmpPath += pathComponent;
+	success = dirTmp.mkdir( tmpPath );
+    }
+    return success;
+}
+
 // for Borland, main is defined to qMain which breaks qmake
 #undef main
 
@@ -125,7 +140,7 @@ int main(int argc, char **argv)
 		def_mkfile = proj.first("TARGET") + ".xml";
 		mkfile = new MetrowerksMakefileGenerator(&proj);
 	    } else if(gen == "PROJECTBUILDER") {
-		def_mkfile = proj.first("TARGET") + ".pbxproj";
+		def_mkfile = proj.first("TARGET") + ".pbproj/project.pbxproj";
 		mkfile = new ProjectBuilderMakefileGenerator(&proj);
 	    } else {
 		fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
@@ -144,8 +159,11 @@ int main(int argc, char **argv)
 			    default_makefile = "Makefile";
 			proj.variables()["QMAKE_MAKEFILE"].append(default_makefile);
 		    }
-		    if(Option::output.name().isEmpty())
+		    if(Option::output.name().isEmpty()) {
+			if(default_makefile.findRev(Option::dir_sep) != -1) //yes, it can (see pbuilder)..
+			    createDir(default_makefile.left(default_makefile.findRev(Option::dir_sep)));
 			Option::output.setName(default_makefile);
+		    }
 		    if(Option::output.name().isEmpty() || Option::output.name() == "-") {
 			Option::output.setName("");
 			Option::output.open(IO_WriteOnly | IO_Translate, stdout);
