@@ -87,6 +87,8 @@ that is the Qt Developer Community!
  <li><b><a href="#Headers">Header file inclusion changes</a></b>
  <li><b><a href="#Namespace">Namespace</a></b>
  <li><b><a href="#Removed">Removed functions</a></b>
+ <li><b><a href="#QRegExp">QRegExp</a></b>
+ <li><b><a href="#QTranslator">QTranslator</a></b>
 </ul>
 
 <hr>
@@ -102,11 +104,12 @@ an extra #include to your files.
 not being defined, then add <code>#include &lt;qstring.h&gt;</code> at
 the top of the file giving the error.
 
-<p> Headers that have been moved around include:
+<p> Headers that have been moved around include
 <ul>
     <li><code>&lt;qcursor.h&gt;</code>
-    <li><code>&lt;qvaluelist.h&gt;</code>
+    <li><code>&lt;qregexp.h&gt;</code>
     <li><code>&lt;qstringlist.h&gt;</code>
+    <li><code>&lt;qvaluelist.h&gt;</code>
 </ul>
 
 <h3><a name="Namespace">Namespace</a></h3>
@@ -137,7 +140,7 @@ be in classes that inherit from the Qt namespace class), then change:
     <li><code>BitmapCursor</code> becomes <code>Qt::BitmapCursor</code>
 </ul>
 
-<h3><a name="Renamed">Removed functions</a></h3>
+<h3><a name="Removed">Removed functions</a></h3>
 
 All <a href="removed30.html">these functions</a> have been removed in Qt 3.x.
 <ul>
@@ -145,7 +148,157 @@ All <a href="removed30.html">these functions</a> have been removed in Qt 3.x.
     <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
     <li>QCheckListItem::paintBranches
     <li>QString::visual, QString::basicDirection
+    <li>QRegExp::isEmpty
 </ul>
+
+<h3><a name="QRegExp">QRegExp</a></h3>
+
+The \l QRegExp class has been rewritten to support most of the features of Perl
+regular expressions.  Both the regular expression syntax and the QRegExp
+interface were modified.
+
+<dl>
+<p><dt><b>New special characters</b></dt>
+<dd> There are five new special characters: <tt>(</tt>, <tt>)</tt>, <tt>{</tt>,
+<tt>|</tt> and <tt>}</tt> (parentheses, braces and pipe).  When porting old
+regular expressions, you have to add <tt>&#92;</tt> (backslash) in front of it
+(actually, <tt>&#92;&#92;</tt>), unless it is already there.
+
+Example:  Old code like
+
+\code
+    QRegExp rx( "([0-9|]*\\)" );        // works in Qt 2.x
+\endcode
+
+should be converted into
+
+\code
+    QRegExp rx( "\\([0-9]\\|]*\\)" );   // works in Qt 2.x and 3.x
+\endcode
+
+However, wildcard patterns need no conversion.  Here are two examples:
+
+\code
+    QRegExp wild( "(*.*)" );
+    wild.setWildcard( TRUE );
+\endcode
+
+\code
+    // TRUE as third argument means wildcard
+    QRegExp wild( "(*.*)", FALSE, TRUE );
+\endcode
+
+Usually, QRegExp is easy to spot in programs.  However, in one unfortunate case,
+it is subtle: as first argument to \l QString::replace().  Code like
+
+\code
+    QString text = fetch_it_from_somewhere();
+    text.replace( "([^)]*)", "" );
+\endcode
+
+involves an implicit QRegExp (namely, <code>"([^)]*)"</code>) that should be
+changed.
+</dd>
+
+<p><dt><b>QRegExp::QRegExp ()</b></dt>
+<dd>
+This function used to create a regular expression that matches anywhere (i.e,
+whose pattern is "").  Now it creates one that matches nowhere (i.e., whose
+pattern is QString::null).
+</dd>
+
+<p><dt><b>QRegExp& QRegExp::operator= ( const QString & pattern )</b></dt>
+<dd>
+This function has been replaced by \l QRegExp::setPattern() in Qt 2.2.  Old code
+such as
+
+\code
+    QRegExp rx( "alpha" );
+    rx.setCaseSensitive( FALSE );
+    rx.setWildcard( TRUE );
+    rx = "beta";
+\endcode
+
+still compiles with Qt 3, but produces a different result (the case sensitivity
+and wildcard options are forgotten).  This way,
+
+\code
+    rx = "beta";
+\endcode
+
+is the same as
+
+\code
+    rx = QRegExp( "beta" );
+\endcode
+</dd>
+
+<p><dt><b>bool QRegExp::isEmpty () const</b></dt>
+<dd>
+This function was removed.  Use
+\l QRegExp::pattern()\link QString::isEmpty() .isEmpty\endlink() instead.
+</dd>
+
+<p><dt><b>bool QRegExp::match ( const QString & str, int index = 0,
+    int * len = 0, bool indexIsStart = TRUE ) const</b></dt>
+<dd>
+This function has an unwieldy parameter list and the wrong name.  If you see
+code like
+
+\code
+    QString bigText = getBigText();
+    QRegExp rx( "[Dd]og" );
+    int index = rx.match( bigText );
+\endcode
+
+(where match() takes only one argument), change it to
+
+\code
+    QString bigText = getBigText();
+    QRegExp rx( "[Dd]og" );
+    int index = rx.search( bigText );
+\endcode
+
+There is now a method \l QRegExp::match( const QString& str ) and it
+accomplishes something more fit for that name.
+
+For ease of porting, the old QRegExp::match( const QString&, int, int *, bool )
+is still available for those case where QRegExp::search() won't do.  Read its
+documentation for how to implement the same functionality with the new
+interface. </dd>
+
+<p><dt><b>int QRegExp::find ( const QString & str, int index )</b></dt>
+<dd> This function was removed, after a brief appearance in Qt 2.2.  Use
+\l QRegExp::search() or \l QString::find() instead.
+</dd>
+</dl>
+
+Be also aware that <code>&lt;qregexp.h&gt;</code> is no longer included
+automatically when you include <code>&lt;qstringlist.h&gt;</code>. See
+<a href="#Headers">above</a> for details.
+
+<h3><a name="QTranslator">QTranslator</a></h3>
+
+The \l QTranslator class was extended in Qt 2.2, and these extensions lead to a
+new interface.  This interface is used mainly by translation tools (such as Qt
+Linguist).  For source compatibility, no member function was effectively
+removed.  The \l QTranslator documentation points out which functions are
+obsolete.
+
+However, the following function is no longer virtual:
+
+<dl>
+<p><dt><b>QString QTranslator::find ( const char * context,
+    const char * sourceText ) const</b></dt>
+<dd>
+If you have a class that inherits QTranslator and that reimplements
+QTranslator::find(), you should reimplement QTranslator::findMessage() instead.
+In fact, find() is defined in terms of QTranslator::findMessage().  By doing the
+conversion, you will gain support for translator comments and for any future
+extension.
+</dd>
+</dl>
+
 */
 
 // I split this to work around limitations in perl's regexp parser. --Arnt

@@ -99,6 +99,11 @@ static bool match( const char* found, const char* target )
 extern "C" {
 #endif
 
+/*
+  Yes, unfortunately, we have code here that depends on endianness.  The
+  candidate is big endian (it comes from a .qm file) whereas the target
+  endianness depends on the system Qt is running on.
+*/
 static int cmp_uint32_little( const void* target, const void* candidate )
 {
     const uchar* t = (const uchar*) target;
@@ -640,10 +645,10 @@ void QTranslator::squeeze( SaveMode mode )
 
     if ( mode == Stripped ) {
 	QAsciiDict<int> contextSet( 1511 );
-	int strindberg;
+	int baudelaire;
 
 	for ( it = messages->begin(); it != messages->end(); ++it )
-	    contextSet.replace( it.key().context(), &strindberg );
+	    contextSet.replace( it.key().context(), &baudelaire );
 
 	Q_UINT16 hTableSize;
 	if ( contextSet.count() < 200 )
@@ -669,7 +674,7 @@ void QTranslator::squeeze( SaveMode mode )
 	      Q_UINT16 hTable[hTableSize];
 	      Q_UINT8  contextPool[...];
 
-	  The context pool stores the contexts as Pascal strings (au da!):
+	  The context pool stores the contexts as Pascal strings:
 
 	      Q_UINT8  len;
 	      Q_UINT8  data[len];
@@ -770,17 +775,6 @@ bool QTranslator::contains( const char* context, const char* sourceText,
 }
 
 
-/*! \overload
-  \obsolete
-
-  This version of the function assumes that the comment is "".
-*/
-
-bool QTranslator::contains( const char* context, const char* sourceText ) const
-{
-    return contains( context, sourceText, "" );
-}
-
 /*!  Inserts \a message into this message file.
 
   This function does \e not work with stripped translator files.  It
@@ -835,34 +829,18 @@ void QTranslator::remove( const char *context, const char *sourceText )
 }
 
 
-/*!  Returns the translation for the key ( \a context, \a sourceText,
+/*! \obsolete
+
+  Returns the translation for the key ( \a context, \a sourceText,
   \a comment ), or QString::null if there is none in this translator.
 
-  This function works with stripped translator files.
-
-  \sa findMessage
+  Please use findMessage() instead.
 */
 
 QString QTranslator::find( const char* context, const char* sourceText,
 			   const char* comment ) const
 {
-    if ( comment == 0 || comment[0] == '\0' )
-	return find( context, sourceText );
-    else
-	return findMessage( context, sourceText, comment ).translation();
-}
-
-
-/*! \overload
-  \obsolete
-
-  Returns the translation for the key ( \a context, \a sourceText, "" ), or
-  QString::null if there is none in this translator.
-*/
-
-QString QTranslator::find( const char* context, const char* sourceText ) const
-{
-    return findMessage( context, sourceText, "" ).translation();
+    return findMessage( context, sourceText, comment ).translation();
 }
 
 
@@ -894,7 +872,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 	return QTranslatorMessage();
 
     /*
-      Check if that belongs to this QTranslator.  If many translators are
+      Check if the context belongs to this QTranslator.  If many translators are
       installed, this step is necessary.
     */
     if ( d->contextArray ) {
@@ -940,6 +918,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
     if ( r == 0 )
 	return QTranslatorMessage();
 
+    // go back on equal key
     while( r != d->offsetArray->data() && cmp_uint32_big( r - 8, r ) == 0 )
 	r -= 8;
 

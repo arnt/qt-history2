@@ -107,10 +107,7 @@ public:
     QTranslator( QObject * parent, const char * name = 0 );
     ~QTranslator();
 
-// ### find( const char *, const char *, const char * ) obsolete in Qt 3.0 ?
-    QString find( const char *, const char *, const char * ) const;
-// ### find( const char *, const char * ) obsolete in Qt 3.0
-    virtual QString find( const char *, const char * ) const;
+    QString find( const char *, const char *, const char * comment = 0 ) const;
     virtual QTranslatorMessage findMessage( const char *, const char *,
 				    const char * ) const;
 
@@ -126,17 +123,12 @@ public:
     void clear();
 
     void insert( const QTranslatorMessage& );
-// ### insert() obsolete in Qt 3.0
     void insert( const char *, const char *, const QString & );
     void remove( const QTranslatorMessage& );
-// ### first remove obsolete in Qt 3.0
     void remove( const char *, const char * );
-    bool contains( const char *, const char *, const char * ) const;
-// ### contains removed in Qt 3.0
-    bool contains( const char *, const char * ) const;
+    bool contains( const char *, const char *, const char * comment = 0 ) const;
 
     void squeeze( SaveMode = Everything );
-    void squeeze();
     void unsqueeze();
 
     QValueList<QTranslatorMessage> messages() const;
