@@ -71,9 +71,10 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
     extractCppFunctions( code, &l );
     for ( QValueList<CppFunction>::Iterator it = l.begin(); it != l.end(); ++it ) {
 	Function func;
-	if ( (*it).prototype().find( "::" ) == -1 )
-	    continue;
 	func.name = (*it).prototype();
+	func.name.remove( 0, (*it).returnType().length() );
+	if ( func.name.find( "::" ) == -1 )
+	    continue;
 	func.name.remove( 0, func.name.find( "::" ) + 2 );
 	func.body = (*it).body();
 	func.returnType = (*it).returnType();
