@@ -1036,7 +1036,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
 */
 QObject *QObject::findChild(const QString &name) const
 {
-    return qFindChild_helper(this, name, QObject::staticMetaObject);
+    return qt_qFindChild_helper(this, name, QObject::staticMetaObject);
 }
 
 /*!
@@ -1099,7 +1099,7 @@ void qt_qFindChildren_helper(const QObject *parent, const QString &name, const Q
 
 /*! \internal
  */
-QObject *qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo)
+QObject *qt_qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo)
 {
     if (!parent)
         return 0;
@@ -1112,7 +1112,7 @@ QObject *qFindChild_helper(const QObject *parent, const QString &name, const QMe
             return obj;
     }
     for (i = 0; i < children.size(); ++i) {
-        obj = qFindChild_helper(children.at(i), name, mo);
+        obj = qt_qFindChild_helper(children.at(i), name, mo);
         if (obj)
             return obj;
     }

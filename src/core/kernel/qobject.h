@@ -249,14 +249,14 @@ public:
 
 Q_CORE_EXPORT void qt_qFindChildren_helper(const QObject *parent, const QString &name, const QRegExp *re,
                          const QMetaObject &mo, QList<void*> *list);
-Q_CORE_EXPORT QObject *qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo);
+Q_CORE_EXPORT QObject *qt_qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo);
 
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 
 template<typename T>
 inline T qFindChild(const QObject *o, const QString &name = QString(), T = 0)
-{ return static_cast<T>(qFindChild_helper(o, name, ((T)0)->staticMetaObject)); }
+{ return static_cast<T>(qt_qFindChild_helper(o, name, ((T)0)->staticMetaObject)); }
 
 template<typename T>
 inline QList<T> qFindChildren(const QObject *o, const QString &name = QString(), T = 0)
@@ -304,7 +304,7 @@ template <> inline IFace *qt_cast_helper<IFace *>(const QObject *object, IFace *
 
 template<typename T>
 inline T qFindChild(const QObject *o, const QString &name = QString())
-{ return static_cast<T>(qFindChild_helper(o, name, ((T)0)->staticMetaObject)); }
+{ return static_cast<T>(qt_qFindChild_helper(o, name, ((T)0)->staticMetaObject)); }
 
 template<typename T>
 inline QList<T> qFindChildren(const QObject *o, const QString &name = QString())
