@@ -44,21 +44,15 @@ public:
     bool isExtDev() const;
     bool paintingActive() const;
 
-    virtual void setResolution(int);
-    virtual int resolution() const;
-
-    // Windows:          get device context
-    // X-Windows: get drawable
 #if defined(Q_WS_WIN)
     virtual HDC handle() const;
-#elif defined(Q_WS_X11)
+#else
     virtual Qt::HANDLE handle() const;
+#endif
+#if defined(Q_WS_X11)
     virtual Qt::HANDLE x11RenderHandle() const;
 #elif defined(Q_WS_MAC)
-    virtual Qt::HANDLE handle() const;
     virtual Qt::HANDLE macCGHandle() const;
-#elif defined(Q_WS_QWS)
-    virtual Qt::HANDLE handle() const;
 #endif
     virtual QPaintEngine *paintEngine() const = 0;
 
@@ -76,19 +70,16 @@ protected:
 
 #if defined(Q_WS_WIN)
     HDC                hdc;                                // device context
-#elif defined(Q_WS_X11)
+#else
     Qt::HANDLE        hd;                                // handle to drawable
+#endif
+#if defined(Q_WS_X11)
     Qt::HANDLE  rendhd;                         // handle to RENDER pict
 #elif defined(Q_WS_MAC)
-    Qt::HANDLE hd;
     Qt::HANDLE cg_hd;
-#elif defined(Q_WS_QWS)
-    Qt::HANDLE hd;
 #endif
 
     virtual int         metric(int) const;
-    virtual int         fontMet(QFont *, int, const char * = 0, int = 0) const;
-    virtual int         fontInf(QFont *, int) const;
 
     ushort        devFlags;                        // device flags
     ushort        painters;                        // refcount
@@ -102,9 +93,8 @@ protected:
     friend class QQuickDrawPaintEngine;
 #endif
 #if !defined(Q_WS_MAC)
-    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
-                                     const QPaintDevice *,
-                                     int, int, int, int, bool);
+    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int, const QPaintDevice *,
+				    int, int, int, int, bool);
 #endif
 #if defined(Q_WS_X11)
     friend void qt_init(QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE);

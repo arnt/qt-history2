@@ -301,12 +301,3 @@ QGfx * QPaintDevice::graphicsContext(bool) const
     return 0;
 }
 #endif
-
-void QPaintDevice::setResolution(int)
-{
-}
-
-int QPaintDevice::resolution() const
-{
-    return metric(QPaintDeviceMetrics::PdmDpiY);
-}

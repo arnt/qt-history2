@@ -60,16 +60,6 @@ int QPaintDevice::metric(int) const
     return 0;
 }
 
-int QPaintDevice::fontMet(QFont *, int, const char *, int) const
-{
-    return 0;
-}
-
-int QPaintDevice::fontInf(QFont *, int) const
-{
-    return 0;
-}
-
 void bitBlt(QPaintDevice *dst, int dx, int dy,
             const QPaintDevice *src, int sx, int sy, int sw, int sh,
             bool imask)
@@ -131,13 +121,3 @@ Qt::HANDLE QPaintDevice::handle() const
 {
     return hd;
 }
-
-void QPaintDevice::setResolution(int)
-{
-}
-
-int QPaintDevice::resolution() const
-{
-    return metric(QPaintDeviceMetrics::PdmDpiY);
-}
-

@@ -173,33 +173,6 @@ int QPaintDevice::metric(int) const
     return 0;
 }
 
-/*!
-    \internal
-
-    Internal virtual function. Reserved for future use.
-
-    Please use the QFontMetrics class instead.
-*/
-
-int QPaintDevice::fontMet(QFont *, int, const char *, int) const
-{
-    return 0;
-}
-
-/*!
-    \internal
-
-    Internal virtual function. Reserved for future use.
-
-    Please use the QFontInfo class instead.
-*/
-
-int QPaintDevice::fontInf(QFont *, int) const
-{
-    return 0;
-}
-
-
 //
 // Internal functions for simple GC caching for blt'ing masked pixmaps.
 // This cache is used when the pixmap optimization is set to Normal
@@ -583,23 +556,6 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     Overloaded bitBlt() with the destination point \a dp and source
     rectangle \a sr.
 */
-
-
-/*!
-  \internal
-*/
-// makes it possible to add a setResolution as we have in QPrinter for all
-// paintdevices without breaking bin compatibility.
-void QPaintDevice::setResolution(int)
-{
-}
-
-/*!\internal
-*/
-int QPaintDevice::resolution() const
-{
-    return metric(QPaintDeviceMetrics::PdmDpiY);
-}
 
 #ifdef QT_COMPAT
 

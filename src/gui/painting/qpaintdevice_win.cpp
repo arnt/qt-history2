@@ -52,17 +52,6 @@ int QPaintDevice::metric(int) const
     return 0;
 }
 
-int QPaintDevice::fontMet(QFont *, int, const char*, int) const
-{
-    return 0;
-}
-
-int QPaintDevice::fontInf(QFont *, int) const
-{
-    return 0;
-}
-
-
 bool qt_bitblt_bsm = false;                // use black source method
 uint qt_bitblt_foreground = 0;                        // bitBlt foreground color
 
@@ -427,14 +416,4 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         ReleaseDC(((QWidget*)src)->winId(), src_dc);
     if (dst_tmp)
         ReleaseDC(((QWidget*)dst)->winId(), dst_dc);
-}
-
-
-void QPaintDevice::setResolution(int)
-{
-}
-
-int QPaintDevice::resolution() const
-{
-    return metric(QPaintDeviceMetrics::PdmDpiY);
 }
