@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#18 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#19 $
 **
 ** Definition of QSignal class
 **
@@ -45,10 +45,14 @@ public:
     bool    isBlocked()	 const		{ return QObject::signalsBlocked(); }
     void    block( bool b )		{ QObject::blockSignals( b ); }
 
-    void    activate()			{ activate_signal("x()"); }
+    void    activate();
+    
+    void     setParameter( int value );
+    int     parameter() const;
 
 private:
     void    dummy();
+    void    dummy2(int);
     Q_OBJECT_FAKE
 
 private:	// Disabled copy constructor and operator=
@@ -56,6 +60,7 @@ private:	// Disabled copy constructor and operator=
     QSignal( const QSignal & );
     QSignal &operator=( const QSignal & );
 #endif
+    int val;
 };
 
 

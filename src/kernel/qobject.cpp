@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#213 $
 **
 ** Implementation of QObject class
 **
@@ -215,7 +215,7 @@ static inline bool isSpace( char x )
 #endif
 }
 
-static QCString rmWS( const char *src )
+QCString qt_rmWS( const char *src )
 {
     QCString result( strlen(src)+1 );
     char *d = result.data();
@@ -992,7 +992,7 @@ QConnectionList *QObject::receivers( const char *signal ) const
 {
     if ( connections && signal ) {
 	if ( *signal == '2' ) {			// tag == 2, i.e. signal
-	    QCString s = rmWS( signal+1 );
+	    QCString s = qt_rmWS( signal+1 );
 	    return connections->find( (const char*)s );
 	} else {
 	    return connections->find( signal );
@@ -1439,8 +1439,8 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
     }
 #endif
-    QCString signal_name = rmWS( signal );	// white space stripped
-    QCString member_name = rmWS( member );
+    QCString signal_name = qt_rmWS( signal );	// white space stripped
+    QCString member_name = qt_rmWS( member );
     signal = signal_name;
     member = member_name;
 
@@ -1604,7 +1604,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
     QObject *s = (QObject *)sender;
     QObject *r = (QObject *)receiver;
     if ( member ) {
-	member_name = rmWS( member );
+	member_name = qt_rmWS( member );
 	member = member_name.data();
 	int membcode = member[0] - '0';
 #if defined(CHECK_RANGE)
@@ -1659,7 +1659,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
     }
 
     else {					// specific signal
-	signal_name = rmWS( signal );
+	signal_name = qt_rmWS( signal );
 	signal = signal_name.data();
 #if defined(CHECK_RANGE)
 	if ( !check_signal_macro( s, signal, "disconnect", "unbind" ) )
