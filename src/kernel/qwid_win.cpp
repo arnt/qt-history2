@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#20 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#20 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -598,8 +598,8 @@ void QWidget::erase( int x, int y, int w, int h )
     RECT r;
     r.left = x;
     r.top  = y;
-    r.right  = x + w - 1;
-    r.bottom = y + h - 1;
+    r.right  = x + w;
+    r.bottom = y + h;
     FillRect( tmphdc, &r, hbrush );
     DeleteObject( hbrush );
     if ( !hdc )
