@@ -79,8 +79,6 @@ struct QIconSetPrivate: public QShared
     Variant on_largeActive;
     Variant on_smallDisabled;
     Variant on_largeDisabled;
-    
-    QPixmap on_defpm;
 };
 
 
@@ -119,8 +117,13 @@ struct QIconSetPrivate: public QShared
   <li> <i>Large Active</i> - same as Large Normal unless you set it.
   </ul>
 
+  An additional set of six icons can be provided for widgets that have an "On" or 
+  "Off" state, like checkable menuitems or toggleable toolbuttons. An QIconSet
+  cannot only have pixmaps for the "On" state, and those pixmaps have to be
+  set explicitely using setPixmap().
+
   You can set any of the icons using setPixmap(). When you retrieve
-  one using pixmap(Size,Mode), QIconSet will compute it from the
+  one using pixmap(Size,Mode,State), QIconSet will compute it from the
   closest other icon and cache it for later.
 
   The \c Disabled appearance is computed using a "shadow" algorithm
@@ -159,7 +162,8 @@ struct QIconSetPrivate: public QShared
   You might also make use of the Active mode, perhaps making your widget
   Active when the mouse in inside the widget (see QWidget::enterEvent),
   while the mouse is pressed pending the release that will activate
-  the function, or when it is the currently selected item.
+  the function, or when it is the currently selected item. If you widget
+  can be toggled, the On mode might be used to draw a different icon.
 
   \sa QPixmap QLabel QToolButton QPopupMenu
 	QIconViewItem::setViewMode() QMainWindow::setUsesBigPixmaps()
@@ -215,6 +219,17 @@ struct QIconSetPrivate: public QShared
   </ul>
 */
 
+/*!
+  \enum QIconSet::On
+
+  This enum describes the state for which a pixmap is intended to be provided.
+  The \e state can be:
+
+  \value Off - the pixmap to be displayed when the widget is in an Off state
+  \value On - the pixmap to be displayed when the widget is in an On state
+
+  \sa setPixmap() pixmap()
+*/
 
 /*!
   Constructs an icon set of \link QPixmap::isNull() null\endlink pixmaps.
@@ -239,10 +254,10 @@ QIconSet::QIconSet()
 
   \sa reset()
 */
-QIconSet::QIconSet( const QPixmap& pixmap, Size size, State state )
+QIconSet::QIconSet( const QPixmap& pixmap, Size size )
 {
     d = 0;
-    reset( pixmap, size, state );
+    reset( pixmap, size );
 }
 
 
@@ -312,24 +327,24 @@ bool QIconSet::isNull() const
 
 /*!
   Sets this icon set to provide \a pm for the Normal pixmap,
-  assuming it to be of size \a s.
+  assuming it to be of \a size.
 
-  This is equivalent to assigning QIconSet(pm,s) to this icon set.
+  This is equivalent to assigning QIconSet(pm,size) to this icon set.
 */
-void QIconSet::reset( const QPixmap & pm, Size s, State state )
+void QIconSet::reset( const QPixmap & pm, Size size )
 {
     detach();
-    if ( s == Small ||
-	 (s == Automatic && pm.width() <= 22 ) )
-	setPixmap( pm, Small, Normal, state );
+    if ( size == Small ||
+	 ( size == Automatic && pm.width() <= 22 ) )
+	setPixmap( pm, Small, Normal );
     else
-	setPixmap( pm, Large, Normal, state );
+	setPixmap( pm, Large, Normal );
     d->defpm = pm;
 }
 
 
 /*!
-  Sets this icon set to provide \a pm for a \a size and \a mode.
+  Sets this icon set to provide \a pm for a \a size, \a mode and \a state.
   It may also use \a pm for deriving some other varieties if those
   are not set.
 
@@ -445,7 +460,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 
 /*!
   Sets this icon set to load \a fileName as a pixmap and provide it
-  for size \a s and mode \a m.
+  for size \a s, mode \a m and \a state.
   It may also use the pixmap for deriving some other varieties if those
   are not set.
 
@@ -463,7 +478,7 @@ void QIconSet::setPixmap( const QString &fileName, Size s, Mode m, State state )
 
 
 /*!
-  Returns a pixmap with size \a s and mode \a m, generating one if
+  Returns a pixmap with size \a s, mode \a m and \a state, generating one if
   needed. Generated pixmaps are cached.
 */
 QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
@@ -819,17 +834,17 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 
 
 /*!
-  Returns a pixmap with size \a s and Mode either Normal or Disabled,
+  Returns a pixmap with \a size, \a state and Mode either Normal or Disabled,
   depending on the value of \a enabled.
 */
-QPixmap QIconSet::pixmap( Size s, bool enabled, State state ) const
+QPixmap QIconSet::pixmap( Size size, bool enabled, State state ) const
 {
-    return pixmap( s, enabled ? Normal : Disabled, state );
+    return pixmap( size, enabled ? Normal : Disabled, state );
 }
 
 
 /*!
-  Returns TRUE if the variant with size \a s and mode \a m was
+  Returns TRUE if the variant with size \a s, mode \a m and \a state was
   automatically generated, and FALSE if it was not. This is mainly
   useful for development purposes.
 */
@@ -882,12 +897,12 @@ bool QIconSet::isGenerated( Size s, Mode m, State state ) const
   \sa reset()
 */
 
-QPixmap QIconSet::pixmap( State state ) const
+QPixmap QIconSet::pixmap() const
 {
     if ( !d )
 	return QPixmap();
 
-    return ( state == Off ) ? d->defpm : d->on_defpm;
+    return d->defpm;
 }
 
 
@@ -935,7 +950,6 @@ void QIconSet::detach()
     p->on_largeActive.generated = d->on_largeActive.generated;
     p->on_largeDisabled.pm = d->on_largeDisabled.pm;
     p->on_largeDisabled.generated = d->on_largeDisabled.generated;
-    p->on_defpm = d->on_defpm;
 
     d->deref();
     d = p;
