@@ -95,6 +95,8 @@ class QDesignerPopupMenu : public QPopupMenu
 
 public:
     QDesignerPopupMenu( QWidget *w );
+    QList<QDesignerAction> insertedActions() const { return actionList; }
+    void addAction( QDesignerAction *a );
 
 protected:
 #ifndef QT_NO_DRAGANDDROP
@@ -112,7 +114,7 @@ private:
 private:
     QPoint lastIndicatorPos;
     int insertAt;
-    QList<QAction> actionList;
+    QList<QDesignerAction> actionList;
 
 };
 

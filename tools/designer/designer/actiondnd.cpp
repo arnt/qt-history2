@@ -267,7 +267,7 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
     else
 	return;
     QString s( e->encodedData( "application/x-designer-actions" ) );
-    QAction *a = (QAction*)s.toLong(); // #### huha, that is evil
+    QDesignerAction *a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
     a->addTo( this );
     actionList.insert( insertAt, a );
     ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
@@ -314,4 +314,9 @@ QPoint QDesignerPopupMenu::calcIndicatorPos( const QPoint &pos )
     }
 
     return QPoint( 0, h );
+}
+
+void QDesignerPopupMenu::addAction( QDesignerAction *a )
+{
+    actionList.append( a );
 }

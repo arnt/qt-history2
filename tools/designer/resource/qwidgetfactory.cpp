@@ -53,6 +53,8 @@
 #include <qsqltable.h>
 #include <qsplitter.h>
 #include <qaction.h>
+#include <qpopupmenu.h>
+#include <qmenubar.h>
 
 static QList<QWidgetFactory> widgetFactories;
 
@@ -153,6 +155,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
 	toolbars = toolbars.nextSibling().toElement();
 
+    QDomElement menubar = firstWidget;
+    while ( menubar.tagName() != "menubar" && !menubar.isNull() )
+	menubar = menubar.nextSibling().toElement();
+
     if ( !imageCollection.isNull() )
 	widgetFactory->loadImageCollection( imageCollection );
 
@@ -167,6 +173,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	widgetFactory->loadActions( actions );
     if ( !toolbars.isNull() )
 	widgetFactory->loadToolBars( toolbars );
+    if ( !menubar.isNull() )
+	widgetFactory->loadMenuBar( menubar );
 
     if ( w && name && qstrlen( name ) > 0 )
 	w->setName( name );
@@ -1255,6 +1263,32 @@ void QWidgetFactory::loadToolBars( const QDomElement &e )
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
+	}
+	n = n.nextSibling().toElement();
+    }
+}
+
+void QWidgetFactory::loadMenuBar( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    QMainWindow *mw = ( (QMainWindow*)toplevel );
+    QMenuBar *mb = mw->menuBar();
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "item" ) {
+	    QPopupMenu *popup = new QPopupMenu( mw );
+	    QDomElement n2 = n.firstChild().toElement();
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "action" ) {
+		    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
+			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
+			    a->addTo( popup );
+			    break;
+			}
+		    }
+		}
+		n2 = n2.nextSibling().toElement();
+	    }
+	    mb->insertItem( n.attribute( "text" ), popup );
 	}
 	n = n.nextSibling().toElement();
     }

@@ -18,6 +18,8 @@
 **
 **********************************************************************/
 
+#define INCLUDE_MENUITEM_DEF
+#include <qmenudata.h>
 #include "resource.h"
 #include "defs.h"
 #include "metadatabase.h"
@@ -209,6 +211,10 @@ bool Resource::load( QIODevice* dev, const QString& filename )
     while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
 	toolbars = toolbars.nextSibling().toElement();
 
+    QDomElement menubar = firstWidget;
+    while ( menubar.tagName() != "menubar" && !menubar.isNull() )
+	menubar = menubar.nextSibling().toElement();
+
     QDomElement functions = firstWidget;
     while ( functions.tagName() != "functions" && !functions.isNull() )
 	functions = functions.nextSibling().toElement();
@@ -226,6 +232,8 @@ bool Resource::load( QIODevice* dev, const QString& filename )
 	loadActions( actions );
     if ( !toolbars.isNull() )
 	loadToolBars( toolbars );
+    if ( !menubar.isNull() )
+	loadMenuBar( menubar );
 
     if ( !connections.isNull() )
 	loadConnections( connections );
@@ -275,7 +283,7 @@ bool Resource::save( QIODevice* dev )
     saveMetaInfo( ts, 0 );
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
     if ( formwindow->mainContainer()->inherits( "QMainWindow" ) ) {
-	// ## save menu
+	saveMenuBar( (QMainWindow*)formwindow->mainContainer(), ts, 0 );
 	saveToolBars( (QMainWindow*)formwindow->mainContainer(), ts, 0 );
     }
     if ( !MetaDataBase::customWidgets()->isEmpty() && !usedCustomWidgets.isEmpty() )
@@ -2012,6 +2020,27 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
     ts << makeIndent( indent ) << "</toolbars>" << endl;
 }
 
+void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
+{
+    ts << makeIndent( indent ) << "<menubar>" << endl;
+    indent++;
+
+    for ( int i = 0; i < (int)mw->menuBar()->count(); ++i ) {
+	ts << makeIndent( indent ) << "<item text=\"" << mw->menuBar()->text( mw->menuBar()->idAt( i ) ) << "\">" << endl;
+	indent++;
+	QMenuItem *m = mw->menuBar()->findItem( mw->menuBar()->idAt( i ) );
+	if ( !m )
+	    continue;
+	QList<QDesignerAction> actionList = ( (QDesignerPopupMenu*)m->popup() )->insertedActions();
+	for ( QAction *a = actionList.first(); a; a = actionList.next() )
+	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+	indent--;
+	ts << makeIndent( indent ) << "</item>" << endl;
+    }
+    indent--;
+    ts << makeIndent( indent ) << "</menubar>" << endl;
+}
+
 void Resource::loadToolBars( const QDomElement &e )
 {
     QDomElement n = e.firstChild().toElement();
@@ -2034,6 +2063,33 @@ void Resource::loadToolBars( const QDomElement &e )
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
+	}
+	n = n.nextSibling().toElement();
+    }
+}
+
+void Resource::loadMenuBar( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    QMainWindow *mw = ( (QMainWindow*)formwindow->mainContainer() );
+    QDesignerMenuBar *mb = new QDesignerMenuBar( mw );
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "item" ) {
+	    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
+	    QDomElement n2 = n.firstChild().toElement();
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "action" ) {
+		    for ( QDesignerAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
+			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
+			    a->addTo( popup );
+			    popup->addAction( a );
+			    break;
+			}
+		    }
+		}
+		n2 = n2.nextSibling().toElement();
+	    }
+	    mb->insertItem( n.attribute( "text" ), popup );
 	}
 	n = n.nextSibling().toElement();
     }

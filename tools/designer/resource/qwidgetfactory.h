@@ -49,6 +49,7 @@ private:
     void createItem( const QDomElement &e, QWidget *widget, QListViewItem *i = 0 );
     void loadActions( const QDomElement &e );
     void loadToolBars( const QDomElement &e );
+    void loadMenuBar( const QDomElement &e );
 
 private:
     struct Image {
