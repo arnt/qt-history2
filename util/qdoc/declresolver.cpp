@@ -70,7 +70,7 @@ bool DeclResolver::changedSinceLastRun( const QString& link,
     return chk == chkmap.end() || !(*chk).isSame( html );
 }
 
-void DeclResolver::warnChangedSinceLastRun( const Location& loc,
+bool DeclResolver::warnChangedSinceLastRun( const Location& loc,
 					    const QString& link,
 					    const QString& html ) const
 {
@@ -79,10 +79,14 @@ void DeclResolver::warnChangedSinceLastRun( const Location& loc,
 	warning( 0, loc, "New documentation at %s%s (%d byte%s)",
 		 config->base().latin1(), link.latin1(), html.length(),
 		 html.length() == 1 ? "" : "s" );
+	return TRUE;
     } else if ( !(*chk).isSame(html) ) {
 	int delta = html.length() - (*chk).length();
 	warning( 0, loc, "Editorial changes at %s%s (%+d byte%s)",
 		 config->base().latin1(), link.latin1(), delta,
 		 abs(delta) == 1 ? "" : "s" );
+	return TRUE;
+    } else {
+	return FALSE;
     }
 }

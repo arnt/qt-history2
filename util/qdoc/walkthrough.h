@@ -43,6 +43,8 @@ public:
     void skipto( const QString& substr, const Location& docLoc );
     void skipuntil( const QString& substr, const Location& docLoc );
 
+    const QString& filePath() const { return fpath; }
+
 private:
 #if defined(QT_DISABLE_COPY)
     Walkthrough( const Walkthrough& w );
@@ -60,7 +62,7 @@ private:
 		   const QString& command );
     QString getNextLine( const Location& docLoc );
 
-    QString currentFilePath;
+    QString fpath;
     QString fancyText;
     QStringList plainlines;
     QStringList fancylines;

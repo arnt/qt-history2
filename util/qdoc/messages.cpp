@@ -13,8 +13,6 @@
 
 #include "location.h"
 
-static bool paranoia = FALSE;
-
 static QMap<QString, int> *msgMap = 0;
 static int warningLevel = INT_MAX;
 static int numAll = 0;
@@ -23,7 +21,7 @@ static int numOmitted = 0;
 static int maxSame = INT_MAX;
 static int maxAll = INT_MAX;
 
-static bool omit( const char *message )
+static bool tooMany( const char *message )
 {
     numAll++;
 
@@ -39,15 +37,10 @@ static bool omit( const char *message )
 	numOmitted++;
 	return TRUE;
     } else if ( count == maxSame ) {
-	fprintf( stderr, "qdoc warning: "
-		 "Omitting further similar warnings after this:\n" );
+	fprintf( stderr,
+		 "qdoc: Omitting further similar warnings after this:\n" );
     }
     return FALSE;
-}
-
-void setParanoiaEnabled( bool on )
-{
-    paranoia = on;
 }
 
 void setMaxSimilarMessages( int n )
@@ -69,21 +62,29 @@ static QString currentDirectory;
 
 /*
   Level 0 is used for errors and for messages in supervisor mode.
-  They don't go through omit() and it takes a warningLevel of -1
-  to disable them (impossible in qdoc)..
+  These are not really warnings.
+
+  They don't go through tooMany() and it takes a warningLevel of -1
+  to disable them (impossible in qdoc).
 */
 
 void warning( int level, const Location& loc, const char *message, ... )
 {
-    if ( warningLevel < level && !paranoia )
+    static bool previousWasEmitted = TRUE;
+
+    if ( message[0] == '(' ) {
+	// parenthesized warnings have the same fate as the previous warning
+	if ( !previousWasEmitted )
+	    return;
+    } else if ( warningLevel < level || (level > 0 && tooMany(message)) ) {
+	previousWasEmitted = FALSE;
 	return;
-    if ( level > 0 && omit(message) )
-	return;
+    }
 
     QString filename = loc.shortFilePath();
     QString filenameBase = loc.filePath();
-    filenameBase
-	= filenameBase.left( filenameBase.length() - filename.length() - 1 );
+    filenameBase =
+	    filenameBase.left( filenameBase.length() - filename.length() - 1 );
     if ( currentDirectory.length() > 5 &&
 	 currentDirectory.length() < filenameBase.length() &&
 	 filenameBase.left( currentDirectory.length() ) == currentDirectory &&
@@ -111,13 +112,14 @@ void warning( int level, const Location& loc, const char *message, ... )
     vfprintf( stderr, message, ap );
     fprintf( stderr, "\n" );
     va_end( ap );
+    previousWasEmitted = TRUE;
 }
 
 void warning( int level, const char *message, ... )
 {
     if ( warningLevel < level )
 	return;
-    if ( level > 0 && omit(message) )
+    if ( level > 0 && tooMany(message) )
 	return;
 
     va_list ap;
@@ -131,7 +133,7 @@ void warning( int level, const char *message, ... )
 
 void syswarning( const char *message, ... )
 {
-    if ( omit(message) )
+    if ( tooMany(message) )
 	return;
 
     va_list ap;
@@ -155,13 +157,13 @@ void warnAboutOmitted()
 		omitted++;
 	    ++it;
 	}
-	fprintf( stderr, "qdoc warning: gave %d warning%s of %d type%s\n",
+	fprintf( stderr, "qdoc: Gave %d warning%s of %d type%s\n",
 		 numAll - numOmitted, (numAll - numOmitted) == 1 ? "" : "s",
 		 types, types == 1 ? "" : "s" );
     }
     if ( numOmitted > 0 )
 	fprintf( stderr,
-		 "qdoc warning: omitted %d more warning%s of %d type%s\n",
+		 "qdoc: Omitted %d more warning%s of %d type%s\n",
 		 numOmitted, numOmitted == 1 ? "" : "s",
 		 omitted, omitted == 1 ? "" : "s" );
 }

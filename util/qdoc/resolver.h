@@ -20,6 +20,7 @@ class Location;
   convenience.  It returns a string of the style
   '<a href=qregexp.html#search>QRegExp::search</a>()'.
 
+  ### get rid of one of the two
   Finally, the functions changedSinceLastRun() and warnChangedSinceLastRun()
   hardly belong here.  They are reimplemented in DeclResolver to check whether
   a piece of documentation has changed since the last qdoc run.
@@ -34,7 +35,7 @@ public:
     virtual QString resolvefn( const QString& name ) const;
     virtual bool changedSinceLastRun( const QString& link,
 				      const QString& html ) const;
-    virtual void warnChangedSinceLastRun( const Location& loc,
+    virtual bool warnChangedSinceLastRun( const Location& loc,
 					  const QString& link,
 					  const QString& html ) const;
 

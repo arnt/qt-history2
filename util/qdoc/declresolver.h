@@ -27,7 +27,7 @@ public:
     virtual QString resolvefn( const QString& name ) const;
     virtual bool changedSinceLastRun( const QString& link,
 				      const QString& html ) const;
-    virtual void warnChangedSinceLastRun( const Location& loc,
+    virtual bool warnChangedSinceLastRun( const Location& loc,
 					  const QString& link,
 					  const QString& html ) const;
 

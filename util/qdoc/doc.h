@@ -57,6 +57,7 @@ public:
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
     void setKeywords( const StringSet& keywords ) { kwords = keywords; }
     void setGroups( const StringSet& groups ) { gr = groups; }
+    void setDependsOn( const StringSet& dependsOn ) { deps = dependsOn; }
     void setHtmlMustQuote( const QString& quote ) { q = quote; }
     void setLink( const QString& link, const QString& title );
 
@@ -67,9 +68,9 @@ public:
     const QString& fileName() const { return fnam; }
     bool internal() const { return inter; }
     bool obsolete() const { return obs; }
-    bool changedSinceLastRun() const;
     QString htmlSeeAlso() const;
     const StringSet& groups() const { return gr; }
+    const StringSet& dependsOn() const { return deps; }
 
     void printHtml( HtmlWriter& out ) const;
 
@@ -96,6 +97,7 @@ private:
     QString q;
     StringSet kwords;
     StringSet gr;
+    StringSet deps;
     QString lnk;
 
     static const Resolver *res;

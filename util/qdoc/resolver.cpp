@@ -23,10 +23,11 @@ bool Resolver::changedSinceLastRun( const QString& /* link */,
     return FALSE;
 }
 
-void Resolver::warnChangedSinceLastRun( const Location& /* loc */,
+bool Resolver::warnChangedSinceLastRun( const Location& /* loc */,
 					const QString& /* link */,
 					const QString& /* html */ ) const
 {
+    return FALSE;
 }
 
 QString Resolver::href( const QString& name, const QString& text ) const

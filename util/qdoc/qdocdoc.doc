@@ -394,24 +394,23 @@
   <ul>
    <p><li><a name="code"></a>
     <b>\\code ... \\endcode</b> delimits example C++ code. Within the
-    block, every character stands for itself, including qdoc or HTML
-    metacharacters. It's a good idea to indent the code one step (four
-    spaces) from the absolute left.
+    block, there are no special characters anymore. It's a good idea
+    to indent the code one step (four spaces) from the absolute left.
 
     Here's how to use the command:
     <pre>
     /*!
       <u>\\code</u>
-	QString s = "Ys";
-	s.insert( 1, 'e' ); // s == "Yes"
-	s.insert( 3, '!');  // s == "Yes!"
+	QString s = "\<r";
+	s.insert( 1, 'b' ); // s == "\<br"
+	s.insert( 3, '\>');  // s == "\<br\>"
       <u>\\endcode</u>
     *&#47;</pre>
     This will be rendered as
     <pre>
-    <a href="#fnord">QString</a> s = "Ys";
-    s.<a href="#fnord">insert</a>( 1, 'e' ); // s == "Yes"
-    s.<a href="#fnord">insert</a>( 3, '!');  // s == "Yes!"</pre>
+    <a href="#fnord">QString</a> s = "\<r";
+    s.<a href="#fnord">insert</a>( 1, 'b' ); // s == "\<br"
+    s.<a href="#fnord">insert</a>( 3, '\>');  // s == "\<br\>"</pre>
 
     Theoreticians have shown that C-style comments cannot appear in
     example code.
@@ -1203,6 +1202,8 @@
   arguments. Most of these duplicate functionality found in qdoc.conf,
   because it would be annoying to modify that file too often.
 
+  <!-- ### explain the += syntax -->
+
   Both short and long options are provided, to please both the casual
   user and the arthritic. Let's first cover the long ones:
 
@@ -1330,7 +1331,7 @@
     internal documentation.
 
    <p><li><a name="-I"></a>
-    <b>-I</b> produces public documentation.
+    <b>-I</b> (capital i) produces public documentation.
 
    <p><li><a name="-m"></a>
     <b>-m</b> (cf. <a href="#--max-similar">--max-similar</a>) limits

@@ -71,7 +71,8 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
     static QRegExp manyNLs( QString("\n+") );
     static QRegExp aname( QString("<a name=[^>]*></a>") );
 
-    if ( justIncluded && fileName == currentFilePath ) {
+    QString filePath = config->findDepth( fileName, config->exampleDirList() );
+    if ( justIncluded && filePath == fpath ) {
 	/*
 	  It's already started. This happens with \include followed with
 	  \walkthrough. If we restarted again, we would lose the local links.
@@ -79,9 +80,8 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
 	justIncluded = FALSE;
 	return fancyText;
     }
-    currentFilePath = fileName;
+    fpath = filePath;
 
-    QString filePath = config->findDepth( fileName, config->exampleDirList() );
     if ( filePath.isEmpty() ) {
 	warning( 1, "Cannot find example file '%s'", filePath.latin1() );
 	return QString::null;

@@ -1579,11 +1579,6 @@ void Doc::setLink( const QString& link, const QString& title )
     lnk = link;
 }
 
-bool Doc::changedSinceLastRun() const
-{
-    return resolver()->changedSinceLastRun( lnk, html );
-}
-
 QString Doc::htmlSeeAlso() const
 {
     QValueStack<QString> seps = separators( sa.count(), QString(".\n") );
@@ -1627,7 +1622,7 @@ void Doc::printHtml( HtmlWriter& out ) const
     out.putsMeta( t.latin1() );
     if ( config->supervisor() && !lnk.isEmpty() ) {
 	/*
-	  This does not belong here. It's an easy solution to problems caused by
+	  This belongs elsewhere. It's an easy solution to problems caused by
 	  '\important'.
 	*/
 	QString fileName = lnk;
@@ -1635,8 +1630,16 @@ void Doc::printHtml( HtmlWriter& out ) const
 	if ( k != -1 )
 	    fileName.truncate( k );
 
-	if ( fileName == out.fileName() )
-	    resolver()->warnChangedSinceLastRun( location(), lnk, t );
+	if ( fileName == out.fileName() ) {
+	    if ( resolver()->warnChangedSinceLastRun(location(), lnk, t)
+		 && !dependsOn().isEmpty() ) {
+		StringSet::ConstIterator d = dependsOn().begin();
+		while ( d != dependsOn().end() ) {
+		    warning( 0, Location(*d), "(influences the above)" );
+		    ++d;
+		}
+	    }
+	}
     }
 }
 
@@ -1657,6 +1660,7 @@ QString Doc::finalHtml() const
     QString link;
     QString name, ahref;
     QString substr;
+    StringSet dependsOn;
     bool metSpace = TRUE;
 
     while ( yyPos < yyLen ) {
@@ -1735,6 +1739,7 @@ QString Doc::finalHtml() const
 		    yyOut += QString( "<pre>" );
 		    yyOut += walkthrough.include( fileName, resolver() );
 		    yyOut += QString( "</pre>" );
+		    dependsOn.insert( walkthrough.filePath() );
 		}
 		break;
 	    case hash( 'l', 1 ):
@@ -1806,7 +1811,7 @@ QString Doc::finalHtml() const
 		consume( "version" );
 		yyOut += config->version();
 		break;
-#if 1
+#if 1 // ### remove once Qt is clean
 	    case hash( 'd', 11 ):
 		consume( "dontinclude" );
 		warning( 2, location(),
@@ -1820,11 +1825,13 @@ QString Doc::finalHtml() const
 		fileName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
-		if ( fileName.isEmpty() )
+		if ( fileName.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected file name after '\\walkthrough'" );
-		else
+		} else {
 		    walkthrough.start( fileName, resolver() );
+		    dependsOn.insert( walkthrough.filePath() );
+		}
 	    }
 	    if ( !consumed ) {
 		yyOut += QString( "\\" );
@@ -1909,6 +1916,8 @@ QString Doc::finalHtml() const
 	    k += megaRegExp->matchedLength() + 1;
 	}
     }
+
+    setDependsOn( dependsOn );
 
     /*
       Complain before it's too late.
