@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#37 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#38 $
 **
 ** Implementation of Network Extension Library
 **
@@ -76,10 +76,19 @@ void QFtp::operationMkDir( QNetworkOperation *op )
 
 void QFtp::operationRemove( QNetworkOperation *op )
 {
+    QString cmd( "DELE " + op->arg1() + "\r\n" );
+    commandSocket->writeBlock( cmd, cmd.length() );
 }
 
 void QFtp::operationRename( QNetworkOperation *op )
 {
+    QString oldname = op->arg1();
+    QString newname = op->arg2();
+
+    QString cmd( "RNFR " + oldname + "\r\n" );
+    commandSocket->writeBlock( cmd, cmd.length() );
+    cmd = "RNTO " + newname + "\r\n";
+    commandSocket->writeBlock( cmd, cmd.length() );
 }
 
 void QFtp::operationGet( QNetworkOperation *op )
@@ -167,6 +176,9 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	return;
     }
 
+    info.setWritable( TRUE );
+    info.setReadable( TRUE );
+    
     if ( lst.count() > 9 && QString( "dl-" ).find( tmp_[ 0 ] ) == -1 ) {
 	return;
     }
@@ -234,6 +246,9 @@ void QFtp::readyRead()
     int code = s.left( 3 ).toInt( &ok );
     if ( !ok )
 	return;
+
+    //qDebug( "%s", s.data() );
+    
     if ( s.left( 1 ) == "1" )
 	okButTryLater( code, s );
     else if ( s.left( 1 ) == "2" )
@@ -286,11 +301,21 @@ void QFtp::okGoOn( int code, const QCString &data )
 	    commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
 	    emit start( operationInProgress() );
 	    passiveMode = TRUE;
+	} else if ( operationInProgress() &&
+		    operationInProgress()->operation() == OpRename ) { // rename successfull
+	    operationInProgress()->setState( StDone );
+	    emit itemChanged( operationInProgress() );
+	    emit finished( operationInProgress() );
+	} else if ( operationInProgress() &&
+		    operationInProgress()->operation() == OpRemove ) { // remove successful
+	    operationInProgress()->setState( StDone );
+	    emit removed( operationInProgress() );
+	    emit finished( operationInProgress() );
 	}
     } break;
     case 226: // listing directory (in passive mode) finished and data socket closing
 	break;
-    case 257: { // mkdir worked 
+    case 257: { // mkdir worked
 	if ( operationInProgress() && operationInProgress()->operation() == OpMkdir ) {
 	    operationInProgress()->setState( StDone );
 	    // ######## todo get correct info
