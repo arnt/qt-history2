@@ -64,6 +64,6 @@ IMAGES	= images/editcopy.png \
 	images/appicon.png
 	
 TEMPLATE	=app
-CONFIG	+= qt console
+CONFIG	+= qt warn_off
 DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 LANGUAGE	= C++

@@ -38,6 +38,8 @@
 
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { printf( text "\n" ); return 1; }
 
+static bool allowFirstRun = TRUE;
+
 class AssistantSocket : public QSocket
 {
     Q_OBJECT
@@ -88,6 +90,7 @@ void AssistantSocket::readClient()
 	link = readLine();
     if ( !link.isNull() ) {
 	link = link.replace( "\n", "" );
+	link = link.replace( "\r", "" );
 	emit showLinkRequest( link );
     }
 }
@@ -150,6 +153,8 @@ int main( int argc, char ** argv )
 		file = argv[i];
 	    } else if ( QString( argv[i] ).lower() == "-server" ) {
 	        server = TRUE;
+	    } else if ( QString( argv[i] ).lower() == "-disablefirstrun" ) {
+	        allowFirstRun = FALSE;
 	    } else if ( QString( argv[i] ).lower() == "-addprofile" ) {
 		INDEX_CHECK( "Missing profile argument!" );
 		QString path = "";
@@ -166,6 +171,7 @@ int main( int argc, char ** argv )
 		printf( "Usage: assistant [option]\n" );
 		printf( "Options:\n" );
 		printf( " -file Filename          assistant opens the specified file\n" );
+		printf( " -disableFirstRun        assistant will not try to register defaults.\n" );
 		printf( " -server                 reads commands from a socket after\n" );
 		printf( "                         assistant has started\n" );
 		printf( " -profile Name           starts assistant and displays the\n" );
@@ -190,7 +196,7 @@ int main( int argc, char ** argv )
     }
 
     if( resourceDir.isNull() )
-	resourceDir = qInstallPath() + QString( "/tools/assistant/" );
+	resourceDir = qInstallPath() + QString( "/translations/" );
     if( !QFile::exists( resourceDir ) ) {
 	printf( "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
     }
