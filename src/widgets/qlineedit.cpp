@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#139 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1220,6 +1220,13 @@ bool QLineEdit::event( QEvent * e )
 	if ( payload.isNull() ) {
 	    de->ignore();
 	    return TRUE;
+	}
+	if ( !hasMarkedText() ) {
+	    int margin = frame() ? 2 : 0;
+	    setCursorPosition( xPosToCursorPos( &tbuf[(int)offset],
+						fontMetrics(),
+						de->pos().x() - margin,
+						width() - 2*margin ) );
 	}
 	insert( payload.data() );
 	de->accept();
