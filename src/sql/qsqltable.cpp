@@ -815,6 +815,9 @@ bool QSqlTable::beginInsert()
 
    \a row and \a col refer to the row and column in the QSqlTable.
 
+   (\a replace is provided for reimplementors and reflects the API of
+   QTable::beginEdit().)
+
 */
 
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
@@ -1068,12 +1071,10 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
 
 
 /*! Searches the current cursor for a cell containing the string \a str
-    starting at the current cell and working forwards. If the string is
-    found, the cell containing the string is set as the current cell.
-
-    If \a caseSensitive is FALSE the case of \a str will be ignored. If
-    \a backwards is TRUE the search will start at the current cell and
-    work backwards.
+    starting at the current cell and working forwards (or backwards if
+    \a backwards is TRUE). If the string is found, the cell containing
+    the string is set as the current cell. If \a caseSensitive is FALSE
+    the case of \a str will be ignored. 
 
     The search will wrap, i.e. if the first (or if backwards is TRUE,
     last) cell is reached without finding \a str the search will
