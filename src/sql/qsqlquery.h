@@ -42,6 +42,7 @@
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
+#include "qobject.h"
 #include "qstring.h"
 #include "qvariant.h"
 #include "qvaluelist.h"
@@ -54,13 +55,15 @@ class QSqlResult;
 class QSqlResultInfo;
 class QSqlDatabase;
 
-struct Q_EXPORT QSqlResultShared : public QShared
+class Q_EXPORT QSqlResultShared : public QObject, public QShared
 {
-    QSqlResultShared( QSqlResult* result )
-    : sqlResult(result)
-    {}
+    Q_OBJECT
+public:
+    QSqlResultShared( QSqlResult* result );
     virtual ~QSqlResultShared();
     QSqlResult* sqlResult;
+private slots:
+    void slotResultDestroyed();
 };
 
 class Q_EXPORT QSqlQuery

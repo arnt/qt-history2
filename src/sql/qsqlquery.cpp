@@ -45,12 +45,33 @@
 #include "qsqldatabase.h"
 #include "qsql.h"
 
+
+/*!
+\internal
+*/
+QSqlResultShared::QSqlResultShared( QSqlResult* result ): sqlResult(result)
+{
+    if ( result )
+	connect( result->driver(), SIGNAL(destroyed()), this, SLOT(slotResultDestroyed()) );
+}
+
+/*!
+\internal
+*/
 QSqlResultShared::~QSqlResultShared()
 {
-    if ( sqlResult ) {
-	delete sqlResult;
-	sqlResult = 0;
-    }
+    delete sqlResult;
+}
+
+/*!
+\internal
+
+In case a plugin gets unloaded the pointer to the sqlResult gets invalid
+*/
+void QSqlResultShared::slotResultDestroyed()
+{
+    delete sqlResult;
+    sqlResult = 0;
 }
 
 /*! \class QSqlQuery qsqlquery.h
@@ -159,8 +180,6 @@ QSqlQuery::QSqlQuery( const QString& query, QSqlDatabase* db )
 	database = QSqlDatabase::database();
     if ( database )
 	*this = database->driver()->createQuery();
-    else
-	d = new QSqlResultShared( 0 );
     if ( !query.isNull() )
 	exec( query );
 }
