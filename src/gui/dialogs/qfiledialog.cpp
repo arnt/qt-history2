@@ -2019,8 +2019,10 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle && (options & ShowDirsOnly))
         return qt_win_get_existing_directory(initialDir, parent, caption);
 #elif defined(Q_WS_MAC)
-    if (::qt_cast<QMacStyle*>(&qApp->style()))
-        return qt_mac_get_open_file_names("", 0, parent, caption, NULL, false, true).first();
+    if (::qt_cast<QMacStyle*>(&qApp->style())) {
+        QStringList files = qt_mac_get_open_file_names("", 0, parent, caption, 0, false, true);
+        return files.isEmpty() ? QString::null : files.first();
+    }
 #endif
 
     qt_get_dir_and_selection(dir, &qt_working_dir, 0);
