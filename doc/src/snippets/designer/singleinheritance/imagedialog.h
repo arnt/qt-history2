@@ -10,10 +10,6 @@ class ImageDialog : public QDialog
 public:
     ImageDialog(QWidget *parent = 0);
 
-private slots:
-    void on_cancelButton_clicked();
-    void on_okButton_clicked();
-
 private:
     Ui::ImageDialog ui;
 };
