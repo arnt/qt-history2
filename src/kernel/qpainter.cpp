@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#6 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#6 $";
 #endif
 
 
@@ -112,8 +112,12 @@ void QPainter::restore()			// restore/pop painter state
 	return;
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
-    if ( pss == 0 || pss->isEmpty() )
+    if ( pss == 0 || pss->isEmpty() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::restore: Empty stack error" );
+#endif
 	return;
+    }
     register QPState *ps = pss->top();
     if ( ps->font != cfont )
 	setFont( ps->font );
