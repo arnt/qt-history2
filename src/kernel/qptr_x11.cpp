@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#166 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#165 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#166 $")
 
 
 /*****************************************************************************
@@ -2192,8 +2192,8 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	XSetFillRule( dpy, gc_brush, WindingRule );
 
     int x1, y1, x2, y2;				// connect last to first point
-    a.point( index+npoints-1, &x1, &y1 );
-    a.point( index, &x2, &y2 );
+    pa.point( index+npoints-1, &x1, &y1 );
+    pa.point( index, &x2, &y2 );
     bool closed = x1 == x2 && y1 == y2;
 
     if ( cbrush.style() != NoBrush ) {		// draw filled polygon
