@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#13 $
 **
 ** Implementation of the QWorkspace class
 **

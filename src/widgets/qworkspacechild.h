@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#11 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#12 $
 **
 ** Definition of the QChildWindow class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#16 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#17 $
 **
 ** Definition of the QWorkspace class
 **
