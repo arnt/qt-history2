@@ -901,6 +901,7 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
     len = qMin(a.size(), len);
     return convertToUnicode(a.constData(), len, 0);
 }
+#endif
 
 /*!
     \overload
@@ -912,7 +913,7 @@ QString QTextCodec::toUnicode(const char* chars) const
     int len = qstrlen(chars);
     return convertToUnicode(chars, len, 0);
 }
-#endif
+
 
 /*!
     \class QTextEncoder qtextcodec.h

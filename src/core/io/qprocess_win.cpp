@@ -243,11 +243,11 @@ void QProcessPrivate::startProcess()
 	    int pos = 0;
 	    // add PATH if necessary (for DLL loading)
 	    char *path = qgetenv("PATH");
-	    if (environment.grep(QRegExp("^PATH=",FALSE)).empty() && path) {
+	    if (environment.find(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
                 QString tmp = QString("PATH=%1").arg(qgetenv("PATH"));
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize );
-                memcpy(envlist.data()+pos, tmp.ucs2(), tmpSize);
+                memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
                 pos += tmpSize;
 	    }
 	    // add the user environment
@@ -255,7 +255,7 @@ void QProcessPrivate::startProcess()
                 QString tmp = *it;
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize);
-                memcpy(envlist.data()+pos, tmp.ucs2(), tmpSize);
+                memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
                 pos += tmpSize;
 	    }
 	    // add the 2 terminating 0 (actually 4, just to be on the safe side)
@@ -274,7 +274,7 @@ void QProcessPrivate::startProcess()
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
                                  0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
                                  environment.isEmpty() ? 0 : envlist.data(),
-                                 workingDirectory.isEmpty() ? 0 : (WCHAR*)workingDirectory.ucs2(),
+                                 workingDirectory.isEmpty() ? 0 : (WCHAR*)workingDirectory.utf16(),
                                  &startupInfo, (PROCESS_INFORMATION*)pid);
     } else
 #endif // UNICODE
@@ -293,7 +293,7 @@ void QProcessPrivate::startProcess()
             int pos = 0;
             // add PATH if necessary (for DLL loading)
             char *path = qgetenv("PATH");
-            if (environment.grep( QRegExp("^PATH=",FALSE) ).empty() && path ) {
+            if (environment.find(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
                 QByteArray tmp = QString("PATH=%1").arg(qgetenv("PATH")).local8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);
