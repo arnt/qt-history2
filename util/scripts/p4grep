@@ -68,11 +68,11 @@ while (<p4>) {
     ($change) = ($_ =~ /Change (\d+)/);
     #print STDERR "$change\n";
     my $fh;
-    open $fh, "p4 describe $change |";
+    open $fh, "p4 describe $change & |";
     $c{$n} = $change;
     $fh{$n} = $fh;
     $n++;
-    if ( $n = $maxsim ) {
+    if ( $n == $maxsim ) {
       flush();
       $n=0;
     }
