@@ -526,15 +526,15 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     p->setClipping( FALSE );
 
 
-    const int pagesize = 100000;
+//     const int pagesize = 100000;
 
-     for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
+//      for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
 
-	 p->setPen( DotLine );
+// 	 p->setPen( DotLine );
 
-	 p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
-		      pagesize - oy );
-     }
+// 	 p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
+// 		      pagesize - oy );
+//      }
 }
 
 /*!
