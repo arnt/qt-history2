@@ -1208,7 +1208,7 @@ MakefileGenerator::processPrlFile(QString &file)
 	QMakeProject proj;
 	debug_msg(1, "Processing PRL file: %s", real_prl_file.latin1());
 	if(!proj.read(fileFixify(real_prl_file, QDir::currentDirPath(), Option::output_dir),
-		      QDir::currentDirPath(), TRUE)) {
+		      QDir::currentDirPath(), QMakeProject::ReadProFile)) {
 	    fprintf(stderr, "Error processing prl file: %s\n", real_prl_file.latin1());
 	} else {
 	    ret = TRUE;

@@ -80,6 +80,9 @@ Option::TARG_MODE Option::target_mode = Option::TARG_QNX6_MODE;
 Option::TARG_MODE Option::target_mode = Option::TARG_UNIX_MODE;
 #endif
 
+//QMAKE_*_PROPERTY stuff
+QStringList Option::prop::properties;
+
 //QMAKE_GENERATE_PROJECT stuff
 bool Option::projfile::do_pwd = TRUE;
 bool Option::projfile::do_recursive = TRUE;
@@ -104,6 +107,8 @@ static Option::QMAKE_MODE default_mode(QString progname)
 	progname = progname.right(progname.length() - (s + 1));
     if(progname == "qmakegen")
 	return Option::QMAKE_GENERATE_PROJECT;
+    else if(progname == "qt-config")
+	return Option::QMAKE_QUERY_PROPERTY;
     return Option::QMAKE_GENERATE_MAKEFILE;
 }
 
@@ -178,6 +183,10 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 		    Option::mkfile::do_deps = FALSE;
 		    Option::mkfile::do_mocs = FALSE;
 		    Option::qmake_mode = Option::QMAKE_GENERATE_PRL;
+		} else if(opt == "set") {
+		    Option::qmake_mode = Option::QMAKE_SET_PROPERTY;
+		} else if(opt == "query") {
+		    Option::qmake_mode = Option::QMAKE_QUERY_PROPERTY;
 		} else if(opt == "makefile") {
 		    Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
 		} else {
@@ -262,14 +271,24 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 		else
 		    Option::after_user_vars.append(arg);
 	    } else {
-		QFileInfo fi(arg);
-		if(!fi.convertToAbs()) //strange
-		    arg = fi.filePath();
-		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
-		   Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
-		    Option::mkfile::project_files.append(arg);
-		else
-		    Option::projfile::project_dirs.append(arg);
+		bool handled = TRUE;
+		if(Option::qmake_mode == Option::QMAKE_QUERY_PROPERTY ||
+		    Option::qmake_mode == Option::QMAKE_SET_PROPERTY) {
+		    Option::prop::properties.append(arg);
+		} else {
+		    QFileInfo fi(arg);
+		    if(!fi.convertToAbs()) //strange
+			arg = fi.filePath();
+		    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
+		       Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
+			Option::mkfile::project_files.append(arg);
+		    else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
+			Option::projfile::project_dirs.append(arg);
+		    else 
+			handled = FALSE;
+		}
+		if(!handled)
+		    return usage(argv[0]);
 	    }
 	}
     }

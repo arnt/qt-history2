@@ -1,5 +1,5 @@
 #qmake code
-OBJS=project.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o \
+OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o \
      borland_bmake.o mingw_make.o msvc_dsp.o msvc_vcproj.o option.o \
      winmakefile.o projectgenerator.o metrowerks_xml.o  pbuilder_pbx.o \
      msvc_objectmodel.o
@@ -9,13 +9,13 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
       qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
       qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o quuid.o \
       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
-      qconfig.o qunicodetables.o
+      qconfig.o qunicodetables.o qsettings.o @QMAKE_QTOBJS@
 
 CFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
 	-I@BUILD_PATH@/include/qmake -I@BUILD_PATH@/include -I@SOURCE_PATH@/include \
 	-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_STL \
-	-DQT_NO_COMPRESS -I@QMAKESPEC@
+	-DQT_NO_COMPRESS -I@QMAKESPEC@ -DHAVE_QCONFIG_CPP
 CXXFLAGS= $(CFLAGS)
 LFLAGS=@QMAKE_LFLAGS@
 
@@ -51,6 +51,15 @@ qgdict.o: @SOURCE_PATH@/src/tools/qgdict.cpp
 
 qcstring.o: @SOURCE_PATH@/src/tools/qcstring.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qcstring.cpp
+
+qsettings.o: @SOURCE_PATH@/src/tools/qsettings.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qsettings.cpp
+
+qsettings_mac.o: @SOURCE_PATH@/src/tools/qsettings_mac.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qsettings_mac.cpp
+
+qurl.o: @SOURCE_PATH@/src/kernel/qurl.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/kernel/qurl.cpp
 
 qstring.o: @SOURCE_PATH@/src/tools/qstring.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qstring.cpp
@@ -123,6 +132,9 @@ winmakefile.o: generators/win32/winmakefile.cpp
 
 project.o: project.cpp project.h option.h
 	$(CXX) -c -o $@ $(CXXFLAGS) project.cpp
+
+proprerty.o: property.cpp project.h option.h
+	$(CXX) -c -o $@ $(CXXFLAGS) property.cpp
 
 main.o: main.cpp project.h
 	$(CXX) -c -o $@ $(CXXFLAGS) main.cpp

@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "project.h"
+#include "property.h"
 #include "option.h"
 #include <qfile.h>
 #include <qdir.h>
@@ -125,7 +126,14 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE
 
 QMakeProject::QMakeProject()
 {
+    prop = NULL;
 }
+
+QMakeProject::QMakeProject(QMakeProperty *p)
+{
+    prop = p;
+}
+
 
 bool
 QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
@@ -425,15 +433,15 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(const QString &project, const QString &, bool just_project)
+QMakeProject::read(const QString &project, const QString &, uchar cmd)
 {
-    if(just_project) { //nothing more, nothing less
-	pfile = project;
-	if(pfile != "-" && !QFile::exists(pfile) && pfile.right(4) != ".pro")
-	    pfile += ".pro";
-	return read(pfile, vars);
-    }
+    pfile = project;
+    return read(cmd);
+}
 
+bool
+QMakeProject::read(uchar cmd)
+{
     if(cfile.isEmpty()) {
 	// hack to get the Option stuff in there
 	base_vars["QMAKE_EXT_CPP"] = Option::cpp_ext;
@@ -441,8 +449,7 @@ QMakeProject::read(const QString &project, const QString &, bool just_project)
 	if(!Option::user_template_prefix.isEmpty())
 	    base_vars["TEMPLATE_PREFIX"] = Option::user_template_prefix;
 
-	/* parse the cache */
-	if(Option::mkfile::do_cache) {
+	if(cmd & ReadCache && Option::mkfile::do_cache) {	/* parse the cache */
 	    if(Option::mkfile::cachefile.isEmpty())  { //find it as it has not been specified
 		QString dir = QDir::convertSeparators(Option::output_dir);
 		while(!QFile::exists((Option::mkfile::cachefile = dir +
@@ -464,64 +471,117 @@ QMakeProject::read(const QString &project, const QString &, bool just_project)
 		    Option::mkfile::qmakespec = cache["QMAKESPEC"].first();
 	    }
 	}
-	/* parse mkspec */
-	QStringList mkspec_roots;
-	/* prefer $QTDIR if it is set */
-	if (getenv("QTDIR"))
-	    mkspec_roots << getenv("QTDIR");
-	mkspec_roots << qInstallPathData();
-	if(Option::mkfile::qmakespec.isEmpty()) {
-	    for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
-		QString mkspec = (*it) + QDir::separator() + QString("mkspecs") +
-				 QDir::separator() + "default";
-		if(QFile::exists(mkspec)) {
-		    Option::mkfile::qmakespec = mkspec;
-		    break;
+	if(cmd & ReadConf) { 	    /* parse mkspec */
+	    const QString concat = QDir::separator() + QString("mkspecs");
+	    QStringList mkspec_roots;
+	    if(const char *qmakepath = getenv("QMAKEPATH")) {
+#ifdef Q_OS_WIN
+		QStringList lst = QStringList::split(';', qmakepath);
+		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
+		    QStringList lst2 = QStringList::split(':', (*it));
+		    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
+			mkspec_roots << ((*it2) + concat);
 		}
+#else
+		QStringList lst = QStringList::split(':', qmakepath);
+		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) 
+		    mkspec_roots << ((*it) + concat);
+#endif
 	    }
+	    if(const char *qtdir = getenv("QTDIR"))
+		mkspec_roots << (QString(qtdir) + concat);
+#ifdef QT_INSTALL_PREFIX
+	    mkspec_roots << (QT_INSTALL_PREFIX + concat);
+#endif
+#if defined(HAVE_QCONFIG_CPP)
+	    mkspec_roots << (qInstallPath() + concat);
+#endif
+#ifdef QT_INSTALL_DATA
+	    mkspec_roots << (QT_INSTALL_DATA + concat);
+#endif
+#if defined(HAVE_QCONFIG_CPP)
+	    mkspec_roots << (qInstallPathData() + concat);
+#endif
+
+	    /* prefer $QTDIR if it is set */
+	    if (getenv("QTDIR"))
+		mkspec_roots << getenv("QTDIR");
+	    mkspec_roots << qInstallPathData();
 	    if(Option::mkfile::qmakespec.isEmpty()) {
-		fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
-		return FALSE;
-	    }
-	}
-
-	if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
-	    bool found_mkspec = FALSE;
-	    for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
-		QString mkspec = (*it) + QDir::separator() + QString("mkspecs") +
-				 QDir::separator() + Option::mkfile::qmakespec;
-		if(QFile::exists(mkspec)) {
-		    found_mkspec = TRUE;
-		    Option::mkfile::qmakespec = mkspec;
-		    break;
+		for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
+		    QString mkspec = (*it) + QDir::separator() + "default";
+		    if(QFile::exists(mkspec)) {
+			Option::mkfile::qmakespec = mkspec;
+			break;
+		    }
+		}
+		if(Option::mkfile::qmakespec.isEmpty()) {
+		    fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
+		    return FALSE;
 		}
 	    }
-	    if(!found_mkspec) {
-		fprintf(stderr, "Could not find mkspecs for your QMAKESPEC after trying:\n\t%s\n",
-			mkspec_roots.join("\n\t").latin1());
+	    
+	    if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
+		bool found_mkspec = FALSE;
+		for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
+		    QString mkspec = (*it) + QDir::separator() + Option::mkfile::qmakespec;
+		    if(QFile::exists(mkspec)) {
+			found_mkspec = TRUE;
+			Option::mkfile::qmakespec = mkspec;
+			break;
+		    }
+		}
+		if(!found_mkspec) {
+		    fprintf(stderr, "Could not find mkspecs for your QMAKESPEC after trying:\n\t%s\n",
+			    mkspec_roots.join("\n\t").latin1());
+		    return FALSE;
+		}
+	    }
+
+	    /* parse qmake configuration */
+	    QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
+	    debug_msg(1, "QMAKESPEC conf: reading %s", spec.latin1());
+	    if(!read(spec, base_vars)) {
+		fprintf(stderr, "Failure to read QMAKESPEC conf file %s.\n", spec.latin1());
 		return FALSE;
 	    }
+	    if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty()) {
+		debug_msg(1, "QMAKECACHE file: reading %s", Option::mkfile::cachefile.latin1());
+		read(Option::mkfile::cachefile, base_vars);
+	    }
 	}
+	if(cmd & ReadCmdLine) {
+	    /* commandline */
+	    cfile = pfile;
+	    parser.line_no = 1; //really arg count now.. duh
+	    parser.file = "(internal)";
+	    for(QStringList::Iterator it = Option::before_user_vars.begin();
+		it != Option::before_user_vars.end(); ++it) {
+		if(!parse((*it), base_vars)) {
+		    fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
+		    return FALSE;
+		}
+		parser.line_no++;
+	    }
+	}
+    }
 
-        /* parse qmake configuration */
-	QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
-	debug_msg(1, "QMAKESPEC conf: reading %s", spec.latin1());
-	if(!read(spec, base_vars)) {
-	    fprintf(stderr, "Failure to read QMAKESPEC conf file %s.\n", spec.latin1());
+    vars = base_vars; /* start with the base */
+
+    if(cmd & ReadProFile) { /* parse project file */
+	debug_msg(1, "Project file: reading %s", pfile.latin1());
+	if(pfile != "-" && !QFile::exists(pfile) && !pfile.endsWith(".pro"))
+	    pfile += ".pro";
+	if(!read(pfile, vars))
 	    return FALSE;
-	}
-	if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty()) {
-	    debug_msg(1, "QMAKECACHE file: reading %s", Option::mkfile::cachefile.latin1());
-	    read(Option::mkfile::cachefile, base_vars);
-	}
+    }
 
-	/* commandline */
-	cfile = project;
+    if(cmd & ReadCmdLine) {
 	parser.line_no = 1; //really arg count now.. duh
 	parser.file = "(internal)";
-	for(QStringList::Iterator it = Option::before_user_vars.begin();
-	    it != Option::before_user_vars.end(); ++it) {
-	    if(!parse((*it), base_vars)) {
+	for(QStringList::Iterator it = Option::after_user_vars.begin();
+	    it != Option::after_user_vars.end(); ++it) {
+	    if(!parse((*it), vars)) {
 		fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
 		return FALSE;
 	    }
@@ -529,31 +589,10 @@ QMakeProject::read(const QString &project, const QString &, bool just_project)
 	}
     }
 
-    /* parse project file */
-    debug_msg(1, "Project file: reading %s", project.latin1());
-    vars = base_vars; /* start with the base */
-
-    pfile = project;
-    if(pfile != "-" && !QFile::exists(pfile) && pfile.right(4) != ".pro")
-	pfile += ".pro";
-
-    if(!read(pfile, vars))
-	return FALSE;
-
-    parser.line_no = 1; //really arg count now.. duh
-    parser.file = "(internal)";
-    for(QStringList::Iterator it = Option::after_user_vars.begin();
-	it != Option::after_user_vars.end(); ++it) {
-	if(!parse((*it), vars)) {
-	    fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
-	    return FALSE;
-	}
-	parser.line_no++;
-    }
-
     /* now let the user override the template from an option.. */
     if(!Option::user_template.isEmpty()) {
-	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(), Option::user_template.latin1());
+	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(), 
+		  Option::user_template.latin1());
 	vars["TEMPLATE"].clear();
 	vars["TEMPLATE"].append(Option::user_template);
     }
@@ -796,32 +835,59 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    if(!file.endsWith(Option::prf_ext))
 		file += Option::prf_ext;
 	    if(file.find(Option::dir_sep) == -1 || !QFile::exists(file)) {
-		if(QFile::exists(Option::mkfile::qmakespec + QDir::separator() + file)) {
-		    file.prepend(Option::mkfile::qmakespec + QDir::separator());
-		} else {
-		    bool found = FALSE;
-		    QStringList feature_roots;
-		    if(getenv("QTDIR"))
-			feature_roots << getenv("QTDIR");
+		bool found = FALSE;
+		const QString concat = QDir::separator() + QString("mkspecs") +
+				       QDir::separator() + QString("features");
+		QStringList feature_roots;
+		if(const char *mkspec_path = getenv("QMAKEFEATURES")) {
+#ifdef Q_OS_WIN
+		    QStringList lst = QStringList::split(';', mkspec_path);
+		    for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
+			feature_roots += QStringList::split(':', (*it));
+#else
+		    feature_roots += QStringList::split(':', mkspec_path);
+#endif
+		}
+		if(const char *qmakepath = getenv("QMAKEPATH")) {
+#ifdef Q_OS_WIN
+		    QStringList lst = QStringList::split(';', qmakepath);
+		    for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
+			QStringList lst2 = QStringList::split(':', (*it));
+			for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
+			    feature_roots << ((*it2) + concat);
+		    }
+#else
+		    QStringList lst = QStringList::split(':', qmakepath);
+		    for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) 
+			feature_roots << ((*it) + concat);
+#endif
+		}
+		feature_roots << Option::mkfile::qmakespec;
+		if(const char *qtdir = getenv("QTDIR"))
+		    feature_roots << (qtdir + concat);
 #ifdef QT_INSTALL_PREFIX
-		    feature_roots << QT_INSTALL_PREFIX;
+		feature_roots << (QT_INSTALL_PREFIX + concat);
+#endif
+#if defined(HAVE_QCONFIG_CPP)
+		feature_roots << (qInstallPath() + concat);
 #endif
 #ifdef QT_INSTALL_DATA
-		    feature_roots << QT_INSTALL_DATA;
+		feature_roots << (QT_INSTALL_DATA + concat);
 #endif
-		    for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
-			QString prf = (*it) + QDir::separator() + QString("mkspecs") +
-				      QDir::separator() + QString("features") + QDir::separator() + file;
-			if(QFile::exists(prf)) {
-			    found = TRUE;
-			    file = prf;
-			    break;
-			}
+#if defined(HAVE_QCONFIG_CPP)
+		feature_roots << (qInstallPathData() + concat);
+#endif
+		for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
+		    QString prf = (*it) + QDir::separator() + file;
+		    if(QFile::exists(prf)) {
+			found = TRUE;
+			file = prf;
+			break;
 		    }
-		    if(!found) {
-			printf("Project LOAD(): Feature %s cannot be found.\n", args.first().latin1());
-			exit(3);
-		    }
+		}
+		if(!found) {
+		    printf("Project LOAD(): Feature %s cannot be found.\n", args.first().latin1());
+		    exit(3);
 		}
 	    }
 	}
@@ -922,7 +988,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	}
 
 	int var_incr = var_begin + 2;
-	bool in_braces = FALSE, as_env = FALSE;
+	bool in_braces = FALSE, as_env = FALSE, as_prop = FALSE;
 	if(str[var_incr] == '{') {
 	    in_braces = TRUE;
 	    var_incr++;
@@ -932,6 +998,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	}
 	if(str[var_incr] == '(') {
 	    as_env = TRUE;
+	    var_incr++;
+	} else if(str[var_incr] == '[') {
+	    as_prop = TRUE;
 	    var_incr++;
 	}
 	QString val, args;
@@ -945,6 +1014,16 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			 parser.file.latin1(), parser.line_no,
 			 str.mid(var_begin, QMAX(var_incr - var_begin,
 						 (int)str.length())).latin1(), str.latin1());
+		var_begin += var_incr;
+		continue;
+	    }
+	    var_incr++;
+	} else if(as_prop) {
+	    if(str[var_incr] != ']') {
+		var_incr++;
+		warn_msg(WarnParser, "%s:%d: Unterminated prop-variable replacement '%s' (%s)",
+			 parser.file.latin1(), parser.line_no,
+			 str.mid(var_begin, QMAX(var_incr - var_begin, int(str.length()))).latin1(), str.latin1());
 		var_begin += var_incr;
 		continue;
 	    }
@@ -980,6 +1059,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	QString replacement;
 	if(as_env) {
 	    replacement = getenv(val);
+	} else if(as_prop) {
+	    if(prop)
+		replacement = prop->value(val);
 	} else if(args.isEmpty()) {
 	    if(val.left(1) == ".")
 		replacement = "";

@@ -41,12 +41,15 @@
 #include <qstring.h>
 #include <qmap.h>
 
+class QMakeProperty;
+
 class QMakeProject
 {
     enum TestStatus { TestNone, TestFound, TestSeek } test_status;
     int scope_block, scope_flag;
 
     QString pfile, cfile;
+    QMakeProperty *prop;
     QMap<QString, QStringList> vars, base_vars, cache;
     bool parse(const QString &text, QMap<QString, QStringList> &place);
     bool doProjectTest(const QString &func, const QString &params, QMap<QString, QStringList> &place);
@@ -56,8 +59,12 @@ class QMakeProject
 
 public:
     QMakeProject();
+    QMakeProject(QMakeProperty *);
 
-    bool read(const QString &project, const QString &pwd, bool just_project=FALSE);
+    enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08, ReadAll=0xFF };
+    bool read(const QString &project, const QString &pwd, uchar cmd=ReadAll);
+    bool read(uchar cmd=ReadAll);
+
     QString projectFile();
     QString configFile();
 

@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "project.h"
+#include "property.h"
 #include "option.h"
 #include "makefile.h"
 #include <qnamespace.h>
@@ -50,6 +51,10 @@
 
 // for Borland, main is defined to qMain which breaks qmake
 #undef main
+#ifdef Q_OS_MAC
+// for qurl
+bool qt_resolve_symlinks = FALSE;
+#endif
 
 int main(int argc, char **argv)
 {
@@ -67,7 +72,12 @@ int main(int argc, char **argv)
 	if(Option::output_dir.right(1) != QString(QChar(QDir::separator())))
 	    Option::output_dir += QDir::separator();
     }
-    QMakeProject proj;
+
+    QMakeProperty prop;
+    if(Option::qmake_mode == Option::QMAKE_QUERY_PROPERTY || Option::qmake_mode == Option::QMAKE_SET_PROPERTY) 
+	return prop.exec() ? 0 : 101;
+
+    QMakeProject proj(&prop);
     int exit_val = 0;
     QStringList files;
     if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
@@ -149,7 +159,7 @@ int main(int argc, char **argv)
 	if(Option::debug_level) {
 	    QMap<QString, QStringList> &vars = proj.variables();
 	    for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
-		if(it.key().left(1) != "." && !it.data().isEmpty())
+		if(!it.key().startsWith(".") && !it.data().isEmpty())
 		    debug_msg(1, "%s === %s", it.key().latin1(), it.data().join(" :: ").latin1());
 	    }
 	}

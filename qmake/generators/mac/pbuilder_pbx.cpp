@@ -360,7 +360,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 			    QString prl_file = (*lit) + Option::dir_sep + lib + Option::prl_ext;
 			    if(QFile::exists(prl_file)) {
 				QMakeProject proj;
-				if(proj.read(prl_file, QDir::currentDirPath(), TRUE)) {
+				if(proj.read(prl_file, QDir::currentDirPath(), QMakeProject::ReadProFile)) {
 				    if(!proj.isEmpty("QMAKE_PRL_TARGET")) {
 					library = (*lit) + Option::dir_sep + proj.first("QMAKE_PRL_TARGET");
 					debug_msg(1, "pbuilder: Found library (%s) via PRL %s (%s)", 

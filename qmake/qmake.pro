@@ -14,7 +14,7 @@ DEFINES += QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNIC
 DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES QT_NODLL
 
 #qmake code
-SOURCES+=project.cpp main.cpp makefile.cpp \
+SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
          unixmake2.cpp unixmake.cpp \
          borland_bmake.cpp msvc_nmake.cpp \
 	 msvc_dsp.cpp msvc_vcproj.cpp option.cpp winmakefile.cpp \
@@ -32,8 +32,10 @@ SOURCES+=qstring.cpp qtextstream.cpp \
 	 qgvector.cpp qgcache.cpp \
 	 qbitarray.cpp qdir.cpp \
 	 qfileinfo.cpp qdatetime.cpp \
-	 qstringlist.cpp qmap.cpp qunicodetables.cpp
+	 qstringlist.cpp qmap.cpp \
+         qsettings.cpp qunicodetables.cpp
 exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
+    DEFINES += HAVE_QCONFIG_CPP                                           
     SOURCES += $$QT_BUILD_TREE/src/tools/qconfig.cpp
 }
 
@@ -41,10 +43,11 @@ exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
 unix {
    VPATH = $$QT_SOURCE_TREE/src/tools
    SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp
+   mac:SOURCES += qsettings_mac.cpp
 }
 win32 {
    VPATH = $$QT_SOURCE_TREE/src/tools
-   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp
+   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp qsettings_win.cpp
    *-msvc:LIBS += ole32.lib
 }
 macx-*: LIBS += -framework CoreServices

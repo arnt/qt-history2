@@ -323,7 +323,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QStringList::Iterator it;
 	for(it = l.begin(); it != l.end(); ++it) {
 	    QMakeProject proj;
-	    if(proj.read((*it), QDir::currentDirPath()) && !proj.isEmpty("QMAKE_PRL_BUILD_DIR")) {
+	    if(proj.read((*it), QDir::currentDirPath(), QMakeProject::ReadProFile) && 
+	       !proj.isEmpty("QMAKE_PRL_BUILD_DIR")) {
 		QString dir;
 		int slsh = (*it).findRev(Option::dir_sep);
 		if(slsh != -1)

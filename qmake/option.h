@@ -43,7 +43,7 @@
 #include <qfile.h>
 
 #define QMAKE_VERSION_MAJOR 1
-#define QMAKE_VERSION_MINOR 5
+#define QMAKE_VERSION_MINOR 6
 #define QMAKE_VERSION_PATCH 0
 const char *qmake_version();
 
@@ -83,7 +83,7 @@ struct Option
 
     //global qmake mode, can only be in one mode per invocation!
     enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE, 
-		      QMAKE_GENERATE_PRL };
+		      QMAKE_GENERATE_PRL, QMAKE_SET_PROPERTY, QMAKE_QUERY_PROPERTY };
     static QMAKE_MODE qmake_mode;
 
     //all modes
@@ -95,6 +95,12 @@ struct Option
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
     static TARG_MODE target_mode;
     static QString user_template, user_template_prefix;
+
+    
+    //QMAKE_*_PROPERTY options
+    struct prop {
+	static QStringList properties;
+    };
 
     //QMAKE_GENERATE_PROJECT options
     struct projfile {

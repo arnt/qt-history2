@@ -2228,6 +2228,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    echo "CARBON_LFLAGS +=-framework CoreServices" >>$mkfile
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
+	    EXTRA_SOURCES="qurl.o qsettings_mac.o"
         elif [ "$PLATFORM_QNX" = "yes" ]; then
 	  echo "QNX_LFLAGS += -fhonor-std -fno-builtins -pipe" >>$mkfile
 	  echo "QNX_CFLAGS += -lcpp" >>$mkfile
@@ -2246,10 +2247,10 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	[ -z "$QMAKE_DATA_DIR" ] && QMAKE_DATA_DIR="${QT_INSTALL_PREFIX}"
         echo >>$mkfile
 	sed -e "s,@SOURCE_PATH@,$relpath,g" -e "s,@BUILD_PATH@,$outpath,g" \
-	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS," -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS," \
+	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS,g" -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS,g" \
 	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$QMAKE_BIN_DIR,g" \
 	    -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
-	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
+	    -e "s,@QMAKE_QTOBJS@,$EXTRA_SOURCES,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
 
     (cd $outpath/qmake; $MAKE || (echo "qmake failed to build. Aborting." && exit 2)) || exit 2

@@ -1,5 +1,5 @@
 #qmake code
-OBJS=project.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o \
+OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o \
      borland_bmake.o mingw_make.o msvc_dsp.o msvc_vcproj.o option.o \
      winmakefile.o projectgenerator.o metrowerks_xml.o pbuilder_pbx.o \
      msvc_objectmodel.o
@@ -10,14 +10,14 @@ QTOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
        qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
        qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o quuid.o \
        qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
-       qconfig.o qunicodetables.o
+       qconfig.o qunicodetables.o qsettings.o @QMAKE_QTOBJS@
 vpath %.cpp @SOURCE_PATH@/src/tools:@SOURCE_PATH@/src/codecs:@SOURCE_PATH@/src/kernel:@BUILD_PATH@/src/tools
 
 CFLAGS=@QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
 	-I@BUILD_PATH@/include/qmake -I@BUILD_PATH@/include -I@SOURCE_PATH@/include \
 	-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_STL \
-	-DQT_NO_COMPRESS -I@QMAKESPEC@
+	-DQT_NO_COMPRESS -I@QMAKESPEC@ -DHAVE_QCONFIG_CPP
 CXXFLAGS= $(CFLAGS)
 LFLAGS=@QMAKE_LFLAGS@
 
