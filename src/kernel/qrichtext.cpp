@@ -77,6 +77,8 @@ static QString debug_indent;
 #include "qt_windows.h"
 #endif
 
+#define REGGIE_CORRECTION_VALUE 0
+
 static inline bool is_printer( QPainter *p )
 {
     if ( !p || !p->device() )
@@ -1326,7 +1328,7 @@ void QTextDocument::init()
     flow_->setWidth( cw );
 
     leftmargin = 4;
-    rightmargin = 8;
+    rightmargin = 4 + REGGIE_CORRECTION_VALUE;
 
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
     selectionText[ Standard ] = TRUE;
@@ -3400,7 +3402,7 @@ QTextStringChar *QTextStringChar::clone() const
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
     : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), numSubParag( -1 ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ), tc( 0 ),
-      numCustomItems( 0 ), pFormatter( 0 ), tArray( 0 ), tabStopWidth( 0 ), 
+      numCustomItems( 0 ), pFormatter( 0 ), tArray( 0 ), tabStopWidth( 0 ),
       eData( 0 ), pntr( 0 ), commandHistory( 0 )
 {
     bgcol = 0;
@@ -5101,14 +5103,14 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int h = y;
     int len = parag->length();
     if ( doc )
-	x = doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), x, 4 );
+	x = doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), x, REGGIE_CORRECTION_VALUE );
     // ##### Todo before final: This -4 should be 0, else we have some
     // wordwrap bugs. But if I set it to 0 now, it doesn't work correctly either
-    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : doc->rightMargin() ) : -4 );
+    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : doc->rightMargin() ) : -REGGIE_CORRECTION_VALUE );
 
     int curLeft = x;
     int rm = parag->rightMargin();
-    int rdiff = doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0;
+    int rdiff = doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, REGGIE_CORRECTION_VALUE ) : 0;
     int w = dw - rdiff;
     bool fullWidth = TRUE;
     int marg = left + rdiff;

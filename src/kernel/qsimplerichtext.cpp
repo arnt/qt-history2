@@ -114,6 +114,8 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->font = fnt;
     d->doc = new QTextDocument( 0 );
     d->doc->setTextFormat( Qt::RichText );
+    d->doc->setLeftMargin( 0 );
+    d->doc->setRightMargin( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords );
     d->doc->setDefaultFont( fnt );
     d->doc->setStyleSheet( (QStyleSheet*)sheet );

@@ -217,14 +217,7 @@ void QLabel::init()
     lpicture = 0;
 #endif
     align = AlignAuto | AlignVCenter | ExpandTabs;
-    if ( frameWidth() == 0 ) {
-	extraMargin = 0;
-    } else if ( frameWidth() > 0 ) {
-	QFontMetrics f( font() );
-	extraMargin = f.width( 'x' ) / 2;
-    } else {
-	extraMargin = -1;
-    }
+    extraMargin = -1;
     autoresize = FALSE;
     scaledcontents = FALSE;
     textformat = Qt::AutoText;
@@ -436,14 +429,14 @@ void QLabel::setAlignment( int alignment )
 #endif
 	align = alignment;
 
-#ifndef QT_NO_RICHTEXT    
+#ifndef QT_NO_RICHTEXT
     QString t = ltext;
     if ( !t.isNull() ) {
 	ltext = QString::null;
 	setText( t );
     }
-#endif    
-    
+#endif
+
     updateLabel( osh );
 }
 
@@ -715,7 +708,6 @@ void QLabel::drawContents( QPainter *p )
 
     int m = indent();
     if ( m < 0 && !mov ) {
-	// This is ugly.
 	if ( frameWidth() > 0 )
 	    m = p->fontMetrics().width('x')/2;
 	else
@@ -817,8 +809,13 @@ void QLabel::drawContents( QPainter *p )
 void QLabel::updateLabel( QSize oldSizeHint )
 {
     QSizePolicy policy = sizePolicy();
-    bool wordBreak = align & WordBreak;
-    policy.setHeightForWidth( wordBreak );
+    if ( align & WordBreak ) {
+	if ( policy == QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) )
+	    policy = QSizePolicy( QSizePolicy::Preferred,  QSizePolicy::Preferred, TRUE );
+    } else {
+	if ( policy == QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE ) )
+	    policy = QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+    }
     if ( policy != sizePolicy() )
 	setSizePolicy( policy );
     if ( sizeHint() != oldSizeHint )
