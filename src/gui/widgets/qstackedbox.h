@@ -40,6 +40,10 @@ public:
 public slots:
     void setCurrentIndex(int);
 
+signals:
+    void currentChanged(int);
+    void widgetRemoved(int index);
+
 protected:
     void childEvent(QChildEvent *e);
 

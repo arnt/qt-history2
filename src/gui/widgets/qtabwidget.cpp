@@ -25,6 +25,7 @@
 #include "qstyle.h"
 #include "qpainter.h"
 #include "qtoolbutton.h"
+#include "private/qwidget_p.h"
 
 /*!
     \class QTabWidget qtabwidget.h
@@ -145,14 +146,15 @@
 */
 
 
-class QTabWidgetData
+class QTabWidgetPrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QTabWidget)
 public:
-    QTabWidgetData()
-        : tabs(0), stack(0), dirty(true),
-          pos(QTabWidget::Top), shape(QTabWidget::Rounded),
-          leftCornerWidget(0), rightCornerWidget(0) {};
-    ~QTabWidgetData(){};
+    QTabWidgetPrivate();
+    ~QTabWidgetPrivate();
+    void showTab(int);
+    void removeTab(int);
+    void init();
     QTabBar* tabs;
     QStackedBox* stack;
     bool dirty;
@@ -163,30 +165,54 @@ public:
     QWidget* rightCornerWidget;
 };
 
+#define d d_func()
+#define q q_func()
+
+QTabWidgetPrivate::QTabWidgetPrivate()
+    : tabs(0), stack(0), dirty(true),
+      pos(QTabWidget::Top), shape(QTabWidget::Rounded),
+      leftCornerWidget(0), rightCornerWidget(0)
+{}
+QTabWidgetPrivate::~QTabWidgetPrivate()
+{}
+
+void QTabWidgetPrivate::init()
+{
+    stack = new QStackedBox(q);
+    stack->setObjectNameConst("tab pages");
+    QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(tabRemoved(int)));
+    q->setTabBar(new QTabBar(q));
+    tabs->setObjectNameConst("tab constrol");
+
+    stack->setFrameStyle(QFrame::Box | QFrame::Plain);
+#ifdef Q_OS_TEMP
+    pos = QTabWidget::Bottom;
+#endif
+
+    q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    q->setFocusPolicy(TabFocus);
+    q->setFocusProxy(tabs);
+}
+
+/*!
+    Constructs a tabbed widget with parent \a parent.
+*/
+QTabWidget::QTabWidget(QWidget *parent)
+    : QWidget(*new QTabWidgetPrivate, parent, 0)
+{
+    d->init();
+}
+
+
 /*!
     Constructs a tabbed widget called \a name with parent \a parent,
     and widget flags \a f.
 */
 QTabWidget::QTabWidget(QWidget *parent, const char *name, WFlags f)
-    : QWidget(parent, name, f)
+    : QWidget(*new QTabWidgetPrivate, parent, f)
 {
-    d = new QTabWidgetData;
-    d->stack = new QStackedBox(this);
-    d->stack->setObjectNameConst("tab pages");
-    d->stack->installEventFilter(this);
-    setTabBar(new QTabBar(this));
-    d->tabs->setObjectNameConst("tab constrol");
-
-    d->stack->setFrameStyle(QFrame::Box | QFrame::Plain);
-#ifdef Q_OS_TEMP
-    d->pos = Bottom;
-#endif
-
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setFocusPolicy(TabFocus);
-    setFocusProxy(d->tabs);
-
-    installEventFilter(this);
+    setObjectName(name);
+    d->init();
 }
 
 /*!
@@ -194,7 +220,6 @@ QTabWidget::QTabWidget(QWidget *parent, const char *name, WFlags f)
 */
 QTabWidget::~QTabWidget()
 {
-    delete d;
 }
 
 /*!
@@ -217,9 +242,9 @@ QTabWidget::~QTabWidget()
 
     \sa insertTab()
 */
-void QTabWidget::addTab(QWidget *child, const QString &label)
+int QTabWidget::addTab(QWidget *child, const QString &label)
 {
-    insertTab(child, label);
+    return insertTab(-1, child, label);
 }
 
 
@@ -231,9 +256,9 @@ void QTabWidget::addTab(QWidget *child, const QString &label)
     This function is the same as addTab(), but with an additional \a
     iconset.
 */
-void QTabWidget::addTab(QWidget *child, const QIconSet& iconset, const QString &label)
+int QTabWidget::addTab(QWidget *child, const QIconSet& iconset, const QString &label)
 {
-    insertTab(child, iconset, label);
+    return insertTab(-1, child, iconset, label);
 }
 
 
@@ -260,9 +285,9 @@ void QTabWidget::addTab(QWidget *child, const QIconSet& iconset, const QString &
 
     \sa addTab()
 */
-void QTabWidget::insertTab(QWidget *child, const QString &label, int index)
+int QTabWidget::insertTab(int index, QWidget *child, const QString &label)
 {
-    insertTab(child, QIconSet(), label, index);
+    return insertTab(index, child, QIconSet(), label);
 }
 
 
@@ -274,21 +299,32 @@ void QTabWidget::insertTab(QWidget *child, const QString &label, int index)
     This function is the same as insertTab(), but with an additional
     \a iconset.
 */
-void QTabWidget::insertTab(QWidget *child, const QIconSet& iconset, const QString &label, int index)
+int QTabWidget::insertTab(int index, QWidget *child, const QIconSet& iconset, const QString &label)
 {
     index = d->tabs->insertTab(index, iconset, label);
     d->stack->insertWidget(index, child);
     setUpLayout();
+    tabInserted(index);
+    return index;
 }
 
 
 /*!
     Defines a new \a label for page \a{w}'s tab.
 */
-void QTabWidget::changeTab(QWidget *w, const QString &label)
+void QTabWidget::setTabText(int index, const QString &label)
 {
-    d->tabs->setTabText(d->stack->indexOf(w), label);
+    d->tabs->setTabText(index, label);
     setUpLayout();
+}
+
+/*!
+    Returns the label text for the tab on page \a w.
+*/
+
+QString QTabWidget::tabText(int index) const
+{
+    return d->tabs->tabText(index);
 }
 
 /*!
@@ -296,11 +332,19 @@ void QTabWidget::changeTab(QWidget *w, const QString &label)
 
     Defines a new \a iconset and a new \a label for page \a{w}'s tab.
 */
-void QTabWidget::changeTab(QWidget *w, const QIconSet& iconset, const QString &label)
+void QTabWidget::setTabIcon(int index, const QIconSet &icon)
 {
-    d->tabs->setTabIcon(d->stack->indexOf(w), iconset);
-    d->tabs->setTabText(d->stack->indexOf(w), label);
+    d->tabs->setTabIcon(index, icon);
     setUpLayout();
+}
+
+/*!
+    Returns the label text for the tab on page \a w.
+*/
+
+QIconSet QTabWidget::tabIcon(int index) const
+{
+    return d->tabs->tabIcon(index);
 }
 
 /*!
@@ -309,9 +353,9 @@ void QTabWidget::changeTab(QWidget *w, const QIconSet& iconset, const QString &l
     \sa setTabEnabled(), QWidget::isEnabled()
 */
 
-bool QTabWidget::isTabEnabled(QWidget* w) const
+bool QTabWidget::isTabEnabled(int index) const
 {
-    return d->tabs->isTabEnabled(d->stack->indexOf(w));
+    return d->tabs->isTabEnabled(index);
 }
 
 /*!
@@ -328,9 +372,9 @@ bool QTabWidget::isTabEnabled(QWidget* w) const
     \sa isTabEnabled(), QWidget::setEnabled()
 */
 
-void QTabWidget::setTabEnabled(QWidget* w, bool enable)
+void QTabWidget::setTabEnabled(int index, bool enable)
 {
-    d->tabs->setTabEnabled(d->stack->indexOf(w), enable);
+    d->tabs->setTabEnabled(index, enable);
 }
 
 /*!
@@ -362,52 +406,13 @@ QWidget * QTabWidget::cornerWidget(Qt::Corner corner) const
 }
 
 /*!
-    Ensures that page \a w is shown. This is useful mainly for
-    accelerators.
-
-    \warning Used carelessly, this function can easily surprise or
-    confuse the user.
-
-    \sa QTabBar::setCurrentTab()
+   Removes page \a w from this stack of widgets. Does not delete \a
+   w.
 */
-void QTabWidget::showPage(QWidget * w)
+void QTabWidget::removeTab(int index)
 {
-    d->tabs->setCurrentIndex(d->stack->indexOf(w));
-}
-
-/*!
-    Removes page \a w from this stack of widgets. Does not delete \a
-    w.
-
-    \sa addTab(), showPage(), QWidgetStack::removeWidget()
-*/
-void QTabWidget::removePage(QWidget * w)
-{
-    int index = d->stack->indexOf(w);
-    if (index >= 0) {
-        d->stack->layout()->removeWidget(w);
-        d->tabs->removeTab(index);
-    }
-    setUpLayout();
-}
-
-/*!
-    Returns the label text for the tab on page \a w.
-*/
-
-QString QTabWidget::tabLabel(QWidget * w) const
-{
-    return d->tabs->tabText(d->stack->indexOf(w));
-}
-
-/*!
-    Sets the tab label for page \a w to \a l
-*/
-
-void QTabWidget::setTabLabel(QWidget * w, const QString &l)
-{
-    d->tabs->setTabText(d->stack->indexOf(w), l);
-    setUpLayout();
+    if (QWidget *w = d->stack->widget(index))
+        d->stack->removeWidget(w);
 }
 
 /*!
@@ -416,7 +421,7 @@ void QTabWidget::setTabLabel(QWidget * w, const QString &l)
     is never 0 (but if you try hard enough, it can be).
 */
 
-QWidget * QTabWidget::currentPage() const
+QWidget * QTabWidget::currentWidget() const
 {
     return d->stack->currentWidget();
 }
@@ -429,18 +434,17 @@ QWidget * QTabWidget::currentPage() const
 */
 
 /*!
-    \property QTabWidget::currentPage
+    \property QTabWidget::currentIndex
     \brief the index position of the current tab page
 
-  \sa QTabBar::currentTab()
 */
 
-int QTabWidget::currentPageIndex() const
+int QTabWidget::currentIndex() const
 {
     return d->tabs->currentIndex();
 }
 
-void QTabWidget::setCurrentPage(int index)
+void QTabWidget::setCurrentIndex(int index)
 {
     d->tabs->setCurrentIndex(index);
 }
@@ -502,13 +506,20 @@ QTabBar* QTabWidget::tabBar() const
     sized.
 */
 
-void QTabWidget::showTab(int i)
+void QTabWidgetPrivate::showTab(int index)
 {
-    if (d->stack->widget(i)) {
-        d->stack->setCurrentIndex(i);
-        emit selected(d->tabs->tabText(i));
-        emit currentChanged(d->stack->widget(i));
+    if (QWidget *w = stack->widget(index)) {
+        stack->setCurrentIndex(index);
+        emit q->currentChanged(index);
+        emit q->currentChanged(w);
     }
+}
+
+void QTabWidgetPrivate::removeTab(int index)
+{
+    tabs->removeTab(index);
+    q->setUpLayout();
+    q->tabRemoved(index);
 }
 
 /*
@@ -762,63 +773,34 @@ void QTabWidget::updateMask()
 /*!
     \reimp
  */
-bool QTabWidget::eventFilter(QObject *o, QEvent * e)
+void QTabWidget::keyPressEvent(QKeyEvent *e)
 {
-    if (o == this) {
-        if (e->type() == QEvent::LanguageChange || e->type() == QEvent::LayoutHint) {
-            d->dirty = true;
-            setUpLayout();
-            updateGeometry();
-        } else if (e->type() == QEvent::KeyPress) {
-            QKeyEvent *ke = (QKeyEvent*) e;
-            if ((ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) &&
-                 count() > 1 &&
-                 ke->state() & Qt::ControlButton) {
-                int page = currentPageIndex();
-                if (ke->key() == Qt::Key_Backtab || ke->state() & Qt::ShiftButton) {
-                    page--;
-                    if (page < 0)
-                        page = count() - 1;
-                } else {
-                    page++;
-                    if (page >= count())
-                        page = 0;
-                }
-                setCurrentPage(page);
-                if (!qApp->focusWidget())
-                    d->tabs->setFocus();
-                return true;
-            }
+    if ((e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab) &&
+        count() > 1 &&
+        e->state() & Qt::ControlButton) {
+        int page = currentIndex();
+        if (e->key() == Qt::Key_Backtab || e->state() & Qt::ShiftButton) {
+            page--;
+            if (page < 0)
+                page = count() - 1;
+        } else {
+            page++;
+            if (page >= count())
+                page = 0;
         }
-
-    } else if (o == d->stack) {
-        if (e->type() == QEvent::ChildRemoved
-             && ((QChildEvent*)e)->child()->isWidgetType()) {
-            removePage((QWidget*)  ((QChildEvent*)e)->child());
-            return true;
-        } else if (e->type() == QEvent::LayoutHint) {
-            updateGeometry();
-        }
+        setCurrentIndex(page);
+        if (!qApp->focusWidget())
+            d->tabs->setFocus();
     }
-    return false;
 }
 
 /*!
     Returns the tab page at index position \a index or 0 if the \a
     index is out of range.
 */
-QWidget *QTabWidget::page(int index) const
+QWidget *QTabWidget::widget(int index) const
 {
     return d->stack->widget(index);
-}
-
-/*!
-    Returns the label of the tab at index position \a index or
-    QString::null if the \a index is out of range.
-*/
-QString QTabWidget::label(int index) const
-{
-    return d->tabs->tabText(index);
 }
 
 /*!
@@ -830,55 +812,49 @@ int QTabWidget::count() const
     return d->tabs->count();
 }
 
-/*!
-    Returns the iconset of page \a w or a \link QIconSet::QIconSet()
-    null iconset\endlink if \a w is not a tab page or does not have an
-    iconset.
-*/
-QIconSet QTabWidget::tabIconSet(QWidget * w) const
-{
-    return d->tabs->tabIcon(d->stack->indexOf(w));
-}
-
-/*!
-    Sets the iconset for page \a w to \a iconset.
-*/
-void QTabWidget::setTabIconSet(QWidget * w, const QIconSet & iconset)
-{
-    d->tabs->setTabIcon(d->stack->indexOf(w), iconset);
-    setUpLayout();
-}
 
 /*!
     Sets the tab tool tip for page \a w to \a tip.
 
-    \sa removeTabToolTip(), tabToolTip()
+    \sa  tabToolTip()
 */
-void QTabWidget::setTabToolTip(QWidget * w, const QString & tip)
+void QTabWidget::setTabToolTip(int index, const QString & tip)
 {
-    d->tabs->setTabToolTip(d->stack->indexOf(w), tip);
+    d->tabs->setTabToolTip(index, tip);
 }
 
 /*!
     Returns the tab tool tip for page \a w or QString::null if no tool
     tip has been set.
 
-    \sa setTabToolTip(), removeTabToolTip()
+    \sa setTabToolTip()
 */
-QString QTabWidget::tabToolTip(QWidget * w) const
+QString QTabWidget::tabToolTip(int index) const
 {
-    return d->tabs->tabToolTip(d->stack->indexOf(w));
+    return d->tabs->tabToolTip(index);
 }
 
 /*!
-    Removes the tab tool tip for page \a w. If the page does not have
-    a tip, nothing happens.
+  This virtual handler is called after a new tab was added or
+  inserted at position \a index.
 
-    \sa setTabToolTip(), tabToolTip()
-*/
-void QTabWidget::removeTabToolTip(QWidget * w)
+  \sa tabRemoved()
+ */
+void QTabWidget::tabInserted(int index)
 {
-    d->tabs->setTabToolTip(d->stack->indexOf(w), QString());
+    Q_UNUSED(index)
 }
 
+/*!
+  This virtual handler is called after a tab was removed from
+  position \a index.
+
+  \sa tabInserted()
+ */
+void QTabWidget::tabRemoved(int index)
+{
+    Q_UNUSED(index)
+}
+
+#include "moc_qtabwidget.cpp"
 #endif

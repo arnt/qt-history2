@@ -85,7 +85,9 @@ int QStackedBox::insertWidget(int index, QWidget *w)
  */
 void QStackedBox::removeWidget(QWidget *w)
 {
+    int index = d->layout->indexOf(w);
     d->layout->removeWidget(w);
+    emit widgetRemoved(index);
 }
 
 
@@ -97,9 +99,10 @@ The current index is -1 if there is no current widget.
 \sa currentWidget() indexOf()
 */
 
-void QStackedBox::setCurrentIndex(int idx)
+void QStackedBox::setCurrentIndex(int index)
 {
-    d->layout->setCurrentIndex(idx);
+    d->layout->setCurrentIndex(index);
+    emit currentChanged(index);
 }
 
 int QStackedBox::currentIndex() const
@@ -152,5 +155,5 @@ void QStackedBox::childEvent(QChildEvent *e)
     if (e->added() && !d->blockChildAdd && !w->isTopLevel() && d->layout->indexOf(w) < 0)
         d->layout->addWidget(w);
     else if (e->removed())
-        d->layout->removeWidget(w);
+        removeWidget(w);
 }

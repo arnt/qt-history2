@@ -330,7 +330,7 @@ void QTabBar::setShape(Shape shape)
 */
 int QTabBar::addTab(const QString &text)
 {
-    return insertTab(d->tabList.count(), text);
+    return insertTab(-1, text);
 }
 
 /*!
@@ -341,7 +341,7 @@ int QTabBar::addTab(const QString &text)
 */
 int QTabBar::addTab(const QIconSet& icon, const QString &text)
 {
-    return insertTab(d->tabList.count(), icon, text);
+    return insertTab(-1, icon, text);
 }
 
 /*!
@@ -370,6 +370,7 @@ int QTabBar::insertTab(int index, const QIconSet& icon, const QString &text)
     }
     d->tabList[index].shortcutId = grabShortcut(QKeySequence::mnemonic(text));
     d->refresh();
+    tabInserted(index);
     return index;
 }
 
@@ -385,6 +386,7 @@ void QTabBar::removeTab(int index)
         if (index == d->currentIndex)
             setCurrentIndex(d->validIndex(index+1)?index+1:0);
         d->refresh();
+        tabRemoved(index);
     }
 }
 

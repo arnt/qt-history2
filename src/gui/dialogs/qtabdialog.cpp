@@ -359,7 +359,7 @@ void QTabDialog::show()
 
 void QTabDialog::showTab(int i)
 {
-    d->tw->showTab(i);
+    d->tw->setCurrentIndex(i);
 }
 
 
