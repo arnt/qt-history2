@@ -35,7 +35,7 @@ my %modules = ( # path to module name map
 	    "NsPlugin" => "$basedir/extensions/nsplugin/src",
 	    "QXT" => "$basedir/extensions/xt/src",
 );
-$modules{"QCore"} .= ";mkspecs" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
+$modules{"QtCore"} .= ";mkspecs" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 
 # global variables (modified by options)
 my $module = 0;
@@ -103,6 +103,7 @@ sub checkUnix {
 sub shouldMasterInclude {
     my ($iheader) = @_;
     return 0 if($iheader =~ /_/);
+    return 0 if($iheader =~ /qconfig/);
     if(open(F, "<$iheader")) {
         while(<F>) {
 	    chomp;
