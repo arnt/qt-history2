@@ -94,8 +94,6 @@ public:
     QT_COMPAT QDir dir(bool absPath) const;
 #endif
 
-    QString canonicalPath() const;
-
     bool isReadable() const;
     bool isWritable() const;
     bool isExecutable() const;
