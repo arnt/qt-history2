@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#224 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#225 $
 **
 ** Implementation of QFileDialog class
 **
@@ -479,7 +479,6 @@ struct QFileDialogPrivate {
     QString special;
 
 };
-
 
 QFileDialogPrivate::~QFileDialogPrivate()
 {
@@ -1777,7 +1776,7 @@ void QFileDialog::setFilter( const QString & newFilter )
     if ( !newFilter )
         return;
     QString f = newFilter;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?]*)$") );
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+]*)$") );
     int len;
     int index = r.match( f, 0, &len );
     if ( index >= 0 )
@@ -1897,7 +1896,7 @@ void QFileDialog::rereadDir()
             // ...
 
             // but for now
-	    // QString tmp( cwd.absPath() );
+            // QString tmp( cwd.absPath() );
 
             return;
         }
@@ -1910,6 +1909,7 @@ void QFileDialog::rereadDir()
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
         ++it;
+
         if ( fi->fileName() != QString::fromLatin1(".") &&
              ( !cwd.isRoot() ||
                fi->fileName() != QString::fromLatin1("..") ) ) {
