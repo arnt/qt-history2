@@ -198,11 +198,12 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 				column+1,
 				SQL_C_CHAR,
 				(SQLPOINTER)buf,
-				sizeof(buf),
+				colSize + 1,
 				&lengthIndicator );
 		if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-			if ( lengthIndicator == SQL_NO_TOTAL )
+			if ( lengthIndicator == SQL_NO_TOTAL ){
 				fieldVal += QString( (char*)buf );  // keep going
+			}
 			else if ( lengthIndicator == SQL_NULL_DATA ) {
 				fieldVal = QString::null;
 				isNull = TRUE;
@@ -211,8 +212,11 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 				if ( r == SQL_SUCCESS ) {
 					fieldVal += QString( (char*)buf );
 					break;
-				} else
+				} else {
+					if( fieldVal.length() >= lengthIndicator ) // ### HACK - remove asap
+						break;
 					fieldVal += QString( (char*)buf );
+				}
 			}
 		} else {
 			fieldVal += QString::null;
@@ -317,11 +321,6 @@ bool QODBCResult::reset ( const QString& query )
 
 	// If a statement handle exists - reuse it
     if ( d->hStmt ) {
-//		r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
-//		if ( r != SQL_SUCCESS ) {
-//#ifdef QT_CHECK_RANGE
-//			qSqlWarning( "Unable to free statement handle", d );
-//#endif
 		r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
 		if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
@@ -360,7 +359,7 @@ bool QODBCResult::reset ( const QString& query )
     SQLSMALLINT count;
     r = SQLNumResultCols( d->hStmt, &count );
     setSelect( count != 0 );
-    setActive( TRUE) ;
+    setActive( TRUE );
     return FALSE;
 }
 
