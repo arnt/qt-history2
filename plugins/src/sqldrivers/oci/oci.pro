@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {f4f4f446-b804-4f69-b19e-ee26ffeb3b86}
 TEMPLATE = lib
 TARGET	 = qsqloci
 

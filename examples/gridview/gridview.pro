@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {26ac9318-90fc-48ff-b8a4-bc4cd38c0e66}
 TEMPLATE	= app
 TARGET		= gridview
 

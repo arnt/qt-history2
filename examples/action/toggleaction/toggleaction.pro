@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {611933fa-91cf-4aa3-809f-f80b3c095b4c}
 TEMPLATE	= app
 TARGET		= toggleaction
 

@@ -1,7 +1,9 @@
-# Project ID used by some IDEs
-GUID 	 = {887a0765-173d-41e9-931c-a82463ee3c8e}
-TEMPLATE	= lib
-CONFIG		+= qt plugin
+TEMPLATE = lib
+TARGET	 = qsqlite
+
+CONFIG	+= qt plugin
+DESTDIR	 = ../../../sqldrivers
+
 HEADERS		= ../../../../src/sql/drivers/sqlite/qsql_sqlite.h 
 SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/sqlite/qsql_sqlite.cpp 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {19098bbe-685c-45de-b58e-a4909329ca9d}
 TEMPLATE	= lib
 CONFIG		+= qt warn_on staticlib
 CONFIG		-= dll

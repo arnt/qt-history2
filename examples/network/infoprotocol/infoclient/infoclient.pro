@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {db3794f0-bb7c-4170-8160-e2b8a296c435}
 TEMPLATE	= app
 TARGET		= infoclient
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {c10f8393-b66f-42e2-8d81-c1b0c0ff58f9}
 TEMPLATE	= app
 TARGET		= glpixmap
 

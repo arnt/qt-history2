@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {f4a5f55a-e09b-485c-b9b7-8c9f5b9ae81e}
 TEMPLATE = app
 TARGET	 = qutlook
 

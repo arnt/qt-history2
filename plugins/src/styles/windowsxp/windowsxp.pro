@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {ad5fcaa1-5602-4160-bf1f-0abab44cc72d}
 TEMPLATE = lib
 TARGET	 = qwindowsxpstyle
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {7e5dfbed-64f6-4c1a-bebe-cbdb12ea0911}
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release plugin
 HEADERS		= p4.h

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {3736e171-457d-4570-8c96-7a9348118a54}
 TEMPLATE	= app
 TARGET		= trayicon
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {9527f117-586b-47bb-bb67-384662e1ef3f}
 TEMPLATE	= app
 TARGET		= mail
 

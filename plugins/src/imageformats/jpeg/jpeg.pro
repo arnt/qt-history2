@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {f6c96310-e670-4b72-af7b-b7c181975032}
 TEMPLATE = lib
 TARGET  += qjpeg
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {d2208650-a3b7-4b00-beed-298598ff8a09}
 TEMPLATE	= app
 TARGET		= showimg
 

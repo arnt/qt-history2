@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {f34fbdf0-70e7-4a41-bf1c-632a198b1f09}
 TEMPLATE	= app
 TARGET		= ftpclient
 

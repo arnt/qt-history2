@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {c626b434-48b0-4853-a979-9179cdfc2dde}
 TEMPLATE = lib
 TARGET	 = qgfxvoodoo
 

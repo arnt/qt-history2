@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {64f7e3c4-56ac-44a5-898c-7f338d693d35}
 TEMPLATE = app
 TARGET 	 = unpackage
 mac:TARGET = qt-mac-commercial-3.0.0

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {4332b8fc-d254-49b5-a65a-0ca2e0f2e0db}
 TEMPLATE = lib
 TARGET	 = qgfxshadowfb
 

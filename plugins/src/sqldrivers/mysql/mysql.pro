@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {0beec0b5-2c6f-4420-8a98-b7555099c8ea}
 TEMPLATE = lib
 TARGET	 = qsqlmysql
 

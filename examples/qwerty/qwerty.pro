@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {3e957b43-c67a-4120-b59c-40957339dfb2}
 TEMPLATE	= app
 TARGET		= qwerty
 

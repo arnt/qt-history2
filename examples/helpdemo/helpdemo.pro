@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {2a668b0a-eddc-4c7f-bd14-4506968a68ec}
 TEMPLATE = app
 
 CONFIG	+= qt warn_on debug

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {1793df1e-dd51-4d23-bf8e-bf99aef757db}
 TEMPLATE = lib
 TARGET	 = qsqlibase
 

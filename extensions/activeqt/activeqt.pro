@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {557d8dbf-98ed-43a6-aacf-8a7949a95186}
 TEMPLATE = subdirs
 
 CONFIG	+= ordered

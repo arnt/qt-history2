@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {9b9dec2e-1118-4666-979e-3acf319893d8}
 TEMPLATE = lib
 TARGET	 = qgfxmatrox
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {a66a76b9-90b9-49d9-b5fb-6366e9aea0ef}
 TEMPLATE = subdirs
 contains(gfx-plugins, qvfb)	    :SUBDIRS += qvfb
 contains(gfx-plugins, vnc)	    :SUBDIRS += vnc

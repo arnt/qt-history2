@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {81d20869-90db-413c-978b-f00e0818144a}
 TEMPLATE = subdirs
 
 contains(sql-plugins, psql)	: SUBDIRS += psql

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {770136d6-f89f-4f25-8699-6b6a0726d6a9}
 TEMPLATE = lib
 TARGET  += qmng
 

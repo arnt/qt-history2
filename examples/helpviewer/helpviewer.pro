@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {cd5dfcf3-2a63-4d2f-896b-4a388ebaf90c}
 TEMPLATE	= app
 TARGET		= helpviewer
 

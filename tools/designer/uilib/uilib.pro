@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {97583350-cc36-42f3-a891-a942a535ad8d}
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release
 win32:CONFIG	+= static

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {06389a79-2706-4f91-9fbd-8db657ffecd0}
 TEMPLATE = lib
 TARGET   = qaxcontainer
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {0870e913-4812-4534-8c58-70a655348852}
 TEMPLATE	= app
 TARGET		= moc
 

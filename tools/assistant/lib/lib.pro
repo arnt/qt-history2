@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {499e909c-2474-44b1-b51c-c2ade7331b97}
 TEMPLATE        = lib
 TARGET		= qassistantclient
 VERSION		= 1.0

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {4ba67b65-d82f-4694-b724-4ae46d6c09d4}
 TEMPLATE	= app
 TARGET		= smalltable
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {826ddfe6-a4a8-44da-89e4-7967766aa5f7}
 TEMPLATE	= app
 TARGET		= mdi
 

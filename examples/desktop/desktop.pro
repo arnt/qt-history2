@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {c838a818-0824-4738-a8c9-40e5317af2e1}
 TEMPLATE	= app
 TARGET		= desktop
 

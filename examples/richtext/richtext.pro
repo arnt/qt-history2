@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {6e73fc5c-4c0c-42f9-8a09-eb7f69e949fd}
 TEMPLATE	= app
 TARGET		= richtext
 

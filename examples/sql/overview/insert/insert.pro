@@ -1,5 +1,4 @@
-# Project ID used by some IDEs
-GUID 		= {109c5c65-ddec-426e-83cb-45091267cd04}
+TEMPLATE	= app
 
 QCONFIG		+= sql
 CONFIG		+= qt warn_on release

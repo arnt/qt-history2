@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {dbf9f81d-bb97-42c8-8a9b-dc45f4c28e27}
 TEMPLATE	= app
 TARGET		= addressbook
 

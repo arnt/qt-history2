@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {0fb7cc47-d181-4013-afb2-1783a5ca64e2}
 TEMPLATE	= app
 TARGET		= kiosk
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {178f3b0f-6f9a-4d1a-8e3f-8f198ecbbc11}
 TEMPLATE = lib
 TARGET	 = wrapperax
 

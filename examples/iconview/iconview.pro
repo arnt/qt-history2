@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {5d678075-7595-4193-8768-b8855c5fa3cb}
 TEMPLATE	= app
 TARGET		= iconview
 

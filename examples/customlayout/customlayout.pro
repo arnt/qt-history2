@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {5e14164e-1a08-46e2-adf3-f44776b48b1c}
 TEMPLATE	= app
 TARGET		= customlayout
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {591c1681-a844-4145-81f6-6a04ac75f048}
 TEMPLATE	= app
 
 QCONFIG		+= sql

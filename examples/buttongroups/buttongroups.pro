@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {206c7ae9-f162-49ce-b0e7-f6a1c76b36a7}
 TEMPLATE	= app
 TARGET		= buttongroups
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {a2407a6e-4030-4b93-a52d-35d517086eb3}
 TEMPLATE = app
 TARGET	 = openglax
 

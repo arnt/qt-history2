@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {157a23b3-1788-4f56-bd23-95ecb4123f3d}
 TEMPLATE	= app
 TARGET		= launcher
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {97b4534d-598b-49bf-a287-584f14d8ddfd}
 TEMPLATE	= app
 TARGET		= listviews
 

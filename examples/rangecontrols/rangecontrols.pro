@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {a46c90aa-1945-4d5a-973b-acb29e2d061d}
 TEMPLATE	= app
 TARGET		= rangecontrols
 

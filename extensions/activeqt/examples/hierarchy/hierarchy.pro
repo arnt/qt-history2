@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {5147ece1-3d65-490d-9954-043a11de24a3}
 TEMPLATE = lib
 TARGET	 = hierarchyax
 

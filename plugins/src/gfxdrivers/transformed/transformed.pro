@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {79291524-969e-42b0-ab96-a82d4360875a}
 TEMPLATE = lib
 TARGET	 = qgfxtransformed
 

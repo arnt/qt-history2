@@ -1,6 +1,4 @@
 # Additional Qt project file for qtmain lib on Windows
-# Project ID used by some IDEs
-GUID 	 = {4424a41a-c101-4676-8150-51c2d5b0260a}
 TEMPLATE = lib
 TARGET	 = qtmain
 VERSION	 = 3.1.0

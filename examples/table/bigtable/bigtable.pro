@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {f2f4a41c-7602-4fb3-b62c-f61f9856a8fe}
 TEMPLATE	= app
 TARGET		= bigtable
 

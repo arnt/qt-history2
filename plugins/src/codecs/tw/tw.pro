@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {fdc72441-9cbf-41e7-b2fd-365599493185}
 TEMPLATE = lib
 TARGET   = qtwcodecs
 

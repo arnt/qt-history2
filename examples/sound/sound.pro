@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {8a42d838-be4f-4e2f-8f74-0051f19ee4f8}
 TEMPLATE	= app
 TARGET		= sound
 

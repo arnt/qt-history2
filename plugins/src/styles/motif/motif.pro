@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {4f4defd7-c35b-44e5-a898-d809e26f2645}
 TEMPLATE = lib
 TARGET	 = qmotifstyle
 

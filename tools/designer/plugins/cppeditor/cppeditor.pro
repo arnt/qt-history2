@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {384193c4-fe22-4710-a04b-572d5303eb35}
 TEMPLATE 	= lib
 CONFIG		+= qt warn_on plugin
 

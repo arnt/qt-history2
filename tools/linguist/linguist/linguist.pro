@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {a395d837-05a1-49ec-9037-7526332d4f94}
 TEMPLATE = app
 LANGUAGE = C++
 CONFIG	+= qt warn_on

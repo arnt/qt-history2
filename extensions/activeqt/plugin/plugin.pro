@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {53a64bf3-48e7-43e8-b046-c3a61c4ed9a1}
 TEMPLATE = lib
 TARGET   = qaxwidget
 

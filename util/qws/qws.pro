@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {391f43e1-129f-44a5-87ad-42e1ac195851}
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 DEFINES 	+= QWS

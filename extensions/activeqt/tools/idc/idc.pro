@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {6619b429-4254-42d5-a917-6f42b0708bc4}
 TEMPLATE        = app
 TARGET          = idc
 

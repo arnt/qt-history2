@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {6515a4af-0f2c-411f-ac8c-cfff1f4741c5}
 TEMPLATE	= app
 TARGET		= prodcons
 

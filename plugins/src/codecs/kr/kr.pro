@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {cf9d81fa-a1bb-4f8d-8670-fa3f0042a7d3}
 TEMPLATE = lib
 TARGET	 = qkrcodecs
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {6d446255-88fb-43a1-b395-7311395bbdbf}
 TEMPLATE	= app
 TARGET		= overlayrubber
 

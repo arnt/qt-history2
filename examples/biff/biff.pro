@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {73790d4a-7ea4-400f-ae2c-e36298806b44}
 TEMPLATE	= app
 TARGET		= biff
 

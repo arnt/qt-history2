@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID	 = {9a9583c7-de87-4ad8-9746-0d553ef8462d}
 TEMPLATE = lib
 TARGET	 = qsqltds
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {8e5eb874-838c-4a4a-b750-d6964c69ed10}
 TEMPLATE	= lib
 TARGET		= grapher
 win32:TARGET	= npgrapher

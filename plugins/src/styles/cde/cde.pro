@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {56972c67-ca0d-496e-a3fe-5e33e4c11227}
 TEMPLATE = lib
 TARGET	 = qcdestyle
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {e7b392ac-2263-40c5-8ad8-bde9a4d9e40f}
 TEMPLATE	= app
 TARGET		= dclock
 

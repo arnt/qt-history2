@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {aabfa176-c307-4445-80c8-18affd13c6e4}
 TEMPLATE	= app
 TARGET		= scrollview
 

@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 		= {92ac8d5c-b76d-484c-8d2b-b12aae8b094e}
 TEMPLATE	= app
 TARGET		= textedit
 

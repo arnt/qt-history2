@@ -1,5 +1,3 @@
-# Project ID used by some IDEs
-GUID 	 = {4528b5b1-d46e-4753-a455-61c168bd2f0b}
 TEMPLATE = app
 LANGUAGE = C++
 TARGET	 = multiclip
