@@ -124,6 +124,13 @@ bool SourceFile::saveAs( bool ignoreModified )
     if ( ed )
 	ed->setCaption( tr( "Edit %1" ).arg( filename ) );
     setModified( TRUE );
+    if ( pro->isDummy() ) {
+	QObject *o = ed->parent();
+	while ( o && !o->isA( "MainWindow" ) )
+	    o = o->parent();
+	if ( o )
+	    ((MainWindow *)o)->addRecentlyOpenedFile( fn );
+    }
     return save( ignoreModified );
 }
 

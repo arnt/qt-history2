@@ -242,12 +242,13 @@ bool FormFile::saveAs( bool ignoreModified )
 	f = QFileInfo( f ).fileName();
 	f.prepend( dir + "/" );
     }
+    QString fn;
     while ( !saved ) {
-	QString fn = QFileDialog::getSaveFileName( f,
-					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
-					       tr( "All Files (*)" ), MainWindow::self, 0,
-					       tr( "Save Form '%1' As ...").arg( formName() ),
-					       MainWindow::self ? &MainWindow::self->lastSaveFilter : 0 );
+	fn = QFileDialog::getSaveFileName( f,
+					   tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
+					   tr( "All Files (*)" ), MainWindow::self, 0,
+					   tr( "Save Form '%1' As ...").arg( formName() ),
+					   MainWindow::self ? &MainWindow::self->lastSaveFilter : 0 );
 	if ( fn.isEmpty() )
 	    return FALSE;
 	QFileInfo fi( fn );
@@ -279,6 +280,8 @@ bool FormFile::saveAs( bool ignoreModified )
     if ( ed && formWindow() )
 	ed->setCaption( tr( "Edit %1" ).arg( formWindow()->name() ) );
     setModified( TRUE );
+    if ( pro->isDummy() )
+	fw->mainWindow()->addRecentlyOpenedFile( fn );
     return save( TRUE, ignoreModified );
 }
 

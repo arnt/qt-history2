@@ -179,6 +179,8 @@ public:
 
     QAssistantClient* assistantClient() const { return assistant; }
 
+    void addRecentlyOpenedFile( const QString &fn ) { addRecentlyOpened( fn, recentlyFiles ); }
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
