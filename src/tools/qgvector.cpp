@@ -432,7 +432,7 @@ int QGVector::bsearch( Item d ) const		// binary search; when sorted
 int QGVector::findRef( Item d, uint index) const // find exact item in vector
 {
 #if defined(QT_CHECK_RANGE)
-    if ( index >= len ) {			// range error
+    if ( index > len ) {			// range error
 	qWarning( "QGVector::findRef: Index %d out of range", index );
 	return -1;
     }
