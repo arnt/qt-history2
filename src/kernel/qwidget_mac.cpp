@@ -84,6 +84,22 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 	return;
 
     QPoint point(posInWindow(p));
+    if(QObjectList * childObjects=(QObjectList*)p->children()) {
+	QObjectListIt it(*childObjects);
+	for(it.toLast(); it.current(); --it) {
+	    if( (*it)->isWidgetType() ) {
+		QWidget *w = (QWidget *)(*it);
+		if ( w->topLevelWidget() == p->topLevelWidget() && w->isVisible() ) {
+		    QRegion wr = QRegion(w->geometry()) & r;
+		    if ( !wr.isEmpty() ) {
+			wr.translate( -w->x(), -w->y() );
+			paint_children(w, wr, now, force_erase);
+		    }
+		}
+	    }
+	}
+    }
+
     QRegion pa(p->clippedRegion());
     pa.translate( -point.x(), -point.y() );
     pa &= r;
@@ -102,22 +118,6 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 	    QRegion pa2(pa);
 	    pa2.translate(point.x(), point.y());
 	    InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)pa2.handle());
-	}
-    }
-
-    if(QObjectList * childObjects=(QObjectList*)p->children()) {
-	QObjectListIt it(*childObjects);
-	for(it.toLast(); it.current(); --it) {
-	    if( (*it)->isWidgetType() ) {
-		QWidget *w = (QWidget *)(*it);
-		if ( w->topLevelWidget() == p->topLevelWidget() && w->isVisible() ) {
-		    QRegion wr = QRegion(w->geometry()) & r;
-		    if ( !wr.isEmpty() ) {
-			wr.translate( -w->x(), -w->y() );
-			paint_children(w, wr, now, force_erase);
-		    }
-		}
-	    }
 	}
     }
 }
@@ -718,7 +718,7 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	clean &= clippedRegion();
 	ValidWindowRgn((WindowPtr)hd, (RgnHandle)clean.handle());
 	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
-	   QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
+	    QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
     }
 }
 
@@ -1120,7 +1120,7 @@ void QWidget::erase( const QRegion& reg )
 
     bool unclipped = testWFlags( WPaintUnclipped );
     clearWFlags( WPaintUnclipped );
-    QPainter p(this );
+    QPainter p( this );
     if ( unclipped )
 	setWFlags( WPaintUnclipped );
 
