@@ -14,8 +14,7 @@
 #ifndef SPARC_QATOMIC_H
 #define SPARC_QATOMIC_H
 
-#  include <qglobal.h>
-#endif
+#include <qglobal.h>
 
 extern "C" {
 
