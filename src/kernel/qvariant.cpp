@@ -2608,6 +2608,8 @@ bool QVariant::cast( Type t )
 
 bool QVariant::operator==( const QVariant &v ) const
 {
+    if ( !v.canCast( type() ) )
+	return FALSE;    
     switch( d->typ ) {
     case Cursor:
 #ifndef QT_NO_CURSOR
