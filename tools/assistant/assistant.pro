@@ -53,6 +53,6 @@ IMAGES	= images/appicon.png \
 	images/splash.png
 	
 TEMPLATE	=app
-CONFIG	+= qt console
+CONFIG	+= qt
 DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 LANGUAGE	= C++
