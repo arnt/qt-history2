@@ -437,7 +437,7 @@ void MainWindow::setupMenuBar()
     m_actionMinimize->setShortcutContext(Qt::ShortcutOnApplication);
 
     menu = mb->addMenu(tr("&Help"));
-    act = menu->addAction(tr("Designer Help"), this, SLOT(showDesignerHelp()),
+    act = menu->addAction(tr("Qt Designer Help"), this, SLOT(showDesignerHelp()),
 #ifdef Q_WS_MAC
                     Qt::CTRL + Qt::Key_Question
 #else
@@ -453,7 +453,7 @@ void MainWindow::setupMenuBar()
 #ifndef Q_WS_MAC // No need to show this on the mac since it is merged away.
     menu->addSeparator();
 #endif
-    act = menu->addAction(tr("About Designer"), this, SLOT(aboutDesigner()));
+    act = menu->addAction(tr("About Qt Designer"), this, SLOT(aboutDesigner()));
     act->setShortcutContext(Qt::ShortcutOnApplication);
     act = menu->addAction(tr("About Qt"), qApp, SLOT(aboutQt()));
     act->setShortcutContext(Qt::ShortcutOnApplication);
@@ -1068,7 +1068,7 @@ void MainWindow::aboutDesigner()
                       "<b>### Insert license information here ###</b>")
                       .arg(tr("Qt Designer")).arg("4.0");
     QMessageBox mb;
-    mb.setWindowTitle(tr("Qt Designer"));
+    mb.setWindowTitle(tr("About Qt Designer"));
     mb.setText(text);
     mb.setIconPixmap(QPixmap(":/images/designer.png"));
     mb.exec();

@@ -74,7 +74,6 @@ private slots:
     void readOnly(bool b);
     void onActivated(QWidget *w);
     void showDesignerHelp();
-    void showTheNewStuff();
     void aboutDesigner();
     void editMode(QAction *action);
     void showPreferenceDialog();
