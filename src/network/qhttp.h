@@ -153,10 +153,35 @@ private:
     int m_version;
 };
 
-class QM_EXPORT_HTTP QHttpClient : public QObject
+class QM_EXPORT_HTTP QHttp : public QNetworkProtocol
 {
     Q_OBJECT
 
+public:
+    QHttp();
+    QHttp( QObject* parent, const char* name = 0 ); // ### Qt 4.0: join the two constructors
+    virtual ~QHttp();
+
+    int supportedOperations() const;
+
+protected:
+    void operationGet( QNetworkOperation *op );
+    void operationPut( QNetworkOperation *op );
+
+private slots:
+    void clientReply( const QHttpResponseHeader & rep, const QByteArray & dataA );
+    void clientFinishedSuccess();
+    void clientFinishedError( const QString &detail, int );
+    void clientConnected();
+    void clientClosed();
+    void clientHostFound();
+
+private:
+    QHttpPrivate *d;
+    void *unused; // ### Qt 4.0: remove this (in for binary compatibility)
+    int bytesRead;
+
+    // new API
 public:
     enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
     enum Error {
@@ -167,9 +192,6 @@ public:
 	InvalidResponseHeader,
 	WrongContentLength
     };
-
-    QHttpClient( QObject* parent = 0, const char* name = 0 );
-    ~QHttpClient();
 
     bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size );
     bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QByteArray& data );
@@ -210,56 +232,8 @@ private slots:
 private:
     void killIdleTimer();
 
-    QSocket* m_socket;
-    QByteArray m_buffer;
-    uint m_bytesRead;
-    QHttpRequestHeader m_header;
-    State m_state;
-    bool m_readHeader;
-    QHttpResponseHeader m_response;
-
-    int m_idleTimer;
-
-    QIODevice* m_device;
-    QIODevice* m_postDevice;
+    void init();
 };
-
-class QM_EXPORT_HTTP QHttp : public QNetworkProtocol
-{
-    Q_OBJECT
-
-public:
-    QHttp();
-    virtual ~QHttp();
-
-    int supportedOperations() const;
-
-protected:
-    void operationGet( QNetworkOperation *op );
-    void operationPut( QNetworkOperation *op );
-
-private slots:
-    void reply( const QHttpResponseHeader & rep, const QByteArray & dataA );
-    void finishedSuccess();
-    void finishedError( const QString &detail, int );
-    void connected();
-    void closed();
-    void hostFound();
-
-private:
-    QHttpPrivate *d;
-    QHttpClient *client;
-    int bytesRead;
-};
-
-
-#if 0
-QM_EXPORT_HTTP QTextStream& operator>>( QTextStream&, QHttpRequestHeader& );
-QM_EXPORT_HTTP QTextStream& operator<<( QTextStream&, const QHttpRequestHeader& );
-
-QM_EXPORT_HTTP QTextStream& operator>>( QTextStream&, QHttpResponseHeader& );
-QM_EXPORT_HTTP QTextStream& operator<<( QTextStream&, const QHttpResponseHeader& );
-#endif
 
 #endif
 #endif
