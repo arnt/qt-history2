@@ -5,6 +5,7 @@
 
 CONFIG += console
 CONFIG -= qt shared resource_fork uic
+DEFINES += QT_BUILD_QMAKE 
 DESTDIR = ../bin/
 
 OBJECTS_DIR = .
