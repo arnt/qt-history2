@@ -3160,9 +3160,12 @@ void QFileDialog::okClicked()
 	    d->ignoreReturn = FALSE;
 	    return;
 	}
-        d->currentFileName = d->url.toString();//dirPath();
-	accept();
-	return;
+        QUrlInfo f( d->url, nameEdit->text() );
+        if ( f.isDir() ) {
+            d->currentFileName = d->url + f.name();
+	    accept();
+	    return;
+        }
     }
 
     // if we're in multi-selection mode and something is selected,
