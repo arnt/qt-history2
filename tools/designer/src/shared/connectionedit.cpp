@@ -911,9 +911,10 @@ ConnectionEdit::ConnectionEdit(QWidget *parent)
     m_bg_widget = 0;
     m_dragged_item = 0;
     m_start_drag_on_move = false;
+    m_start_draw_on_move = false;
     m_current_line = NoLine;
     m_old_target = 0;
-
+    
     new SignalDumper(this);
 }
 
