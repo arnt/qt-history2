@@ -514,7 +514,9 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		}
 	    } else {
 		ToolBarLayoutInfo &prev = tb_layout_info[k][i-1];
-		QSize min = info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint();
+		QSize min(0, 0);
+                if(info.item->widget()->layout()->itemAt(1)) 
+                    min = info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint();
 		set_perp(where, min, pick_perp(where, min) + tb_fill);
  		const int cur_pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);
 		const int prev_min = pick_perp(where, get_min_item_sz(prev.item->widget()->layout())) + tb_fill;
