@@ -395,9 +395,6 @@ QImage QPixmap::convertToImage() const
     QImage image;
     if ( isNull() ) {
 	qWarning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
-#if defined(NASTY)
-	abort();
-#endif
 	return image;
     }
 
@@ -548,9 +545,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
 	qWarning( "QPixmap::convertFromImage: Cannot convert a null image" );
-#if defined(NASTY)
-	abort();
-#endif
 	return FALSE;
     }
 

@@ -597,7 +597,6 @@ void QWidget::grabKeyboard()
 {
     if ( keyboardGrb )
 	keyboardGrb->releaseKeyboard();
-    // XXX XGrabKeyboard( x11Display(), winid, TRUE, GrabModeAsync, GrabModeAsync, CurrentTime );
     qwsDisplay()->grabKeyboard(this, TRUE);
     keyboardGrb = this;
 }
@@ -605,7 +604,6 @@ void QWidget::grabKeyboard()
 void QWidget::releaseKeyboard()
 {
     if ( keyboardGrb == this ) {
-	// XXX XUngrabKeyboard( x11Display(), CurrentTime );
 	qwsDisplay()->grabKeyboard(this, FALSE);
 	keyboardGrb = 0;
     }
@@ -1190,9 +1188,6 @@ void QWidget::setMinimumSize( int minw, int minh )
     d->extra->minh = minh;
     if ( minw > width() || minh > height() )
 	resize( qMax(minw,width()), qMax(minh,height()) );
-    if ( testWFlags(WType_TopLevel) ) {
-	// XXX
-    }
     updateGeometry();
 }
 
@@ -1220,9 +1215,6 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     d->extra->maxh = maxh;
     if ( maxw < width() || maxh < height() )
 	resize( qMin(maxw,width()), qMin(maxh,height()) );
-    if ( testWFlags(WType_TopLevel) ) {
-	// XXX
-    }
     updateGeometry();
 }
 
