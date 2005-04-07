@@ -442,7 +442,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                        !widget->d->isBackgroundInherited()) {
                         if (!redirectionOffset.isNull())
                             QPainter::setRedirected(widget, widget, redirectionOffset);
-                        QBrush bg = widget->palette().brush(widget->d->bg_role);
+                        QBrush bg = widget->palette().brush(widget->backgroundRole());
                         QRect rr = qrgn.boundingRect();
                         bool was_unclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
                         widget->setAttribute(Qt::WA_PaintUnclipped, false);
