@@ -237,18 +237,20 @@ bool AbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget
         }
     }
 
-    if (QMenuBar *mb = qobject_cast<QMenuBar*>(parentWidget)) {
-        if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
-            qDebug() << "=========> added menu:" << menu << "to" << mb;
-            mb->addMenu(menu);
-            return true;
-        }
-    }
+    if (QMenu *menu = qobject_cast<QMenu*>(widget)){
+        QMenuBar *parentMenuBar = qobject_cast<QMenuBar*>(parentWidget);
+        QMenu *parentMenu = qobject_cast<QMenu*>(parentWidget);
 
-    if (QMenu *parentMenu = qobject_cast<QMenu*>(parentWidget)) {
-        if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
-            qDebug() << "=========> added menu:" << menu << "to" << parentMenu;
-            parentMenu->addMenu(menu);
+        menu->hide();
+
+        if (parentMenuBar || parentMenu) {
+            menu->setParent(0, Qt::Popup);
+
+            if (parentMenuBar)
+                parentMenuBar->addMenu(menu);
+            else
+                parentMenu->addMenu(menu);
+
             return true;
         }
     }
