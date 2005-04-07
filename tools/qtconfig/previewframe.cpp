@@ -24,7 +24,8 @@ PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
     setLineWidth(1);
 
     Workspace * w = new Workspace( this );
-    previewWidget = new PreviewWidget( w );
+    previewWidget = new PreviewWidget;
+    w->addWindow(previewWidget);
     previewWidget->move( 10, 10 );
 }
 
@@ -34,7 +35,7 @@ void PreviewFrame::setPreviewPalette(QPalette pal)
 }
 
 Workspace::Workspace( QWidget* parent, const char* name)
-    : Q3Workspace( parent, name )
+    : QWorkspace( parent, name )
 {
 }
 

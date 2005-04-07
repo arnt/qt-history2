@@ -17,9 +17,9 @@
 #include "previewwidget.h"
 
 #include <qvboxwidget.h>
-#include <q3workspace.h>
+#include <qworkspace.h>
 
-class Workspace : public Q3Workspace
+class Workspace : public QWorkspace
 {
     Q_OBJECT
 

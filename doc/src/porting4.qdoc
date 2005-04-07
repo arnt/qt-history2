@@ -3756,12 +3756,8 @@
 
     \section1 QWorkspace
 
-    The \c QWorkspace class has been renamed Q3Workspace and moved to the
-    Qt3Support library.
-
-    Qt 4.1 is expected to provide a replacement for this class, based
-    on Qt 4's powerful new 2D paint system. If you need MDI
-    functionality in Qt 4.0, you can use Q3Workspace.
+    The \c QWorkspace in Qt 4 class requires explicit adding of MDI
+    windows with QWorkspace::addWindow().
 
     \target virtual.functions
     \section1 Virtual Functions
