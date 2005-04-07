@@ -974,8 +974,7 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
             else
                 pantherTabStart = TabSelectedActiveLeft;
         }
-    } else if ((tabOpt->state & (QStyle::State_Sunken | QStyle::State_MouseOver))
-                == (QStyle::State_Sunken | QStyle::State_MouseOver)) {
+    } else if (tabOpt->state & QStyle::State_Sunken) {
         pantherTabStart = TabPressedLeft;
     } else {
         pantherTabStart = TabNormalLeft;

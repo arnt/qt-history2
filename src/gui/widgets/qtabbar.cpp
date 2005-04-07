@@ -981,8 +981,10 @@ void QTabBar::mouseMoveEvent (QMouseEvent *e)
             == QEvent::MouseButtonRelease) {
         int i = d->indexAtPos(e->pos());
         if (i != d->pressedIndex) {
-            if (d->pressedIndex >= 0)
-                repaint(tabRect(d->pressedIndex));
+            int oldIndex = d->pressedIndex;
+            d->pressedIndex = -1;
+            if (oldIndex >= 0)
+                repaint(tabRect(oldIndex));
             if ((d->pressedIndex = i) >= 0)
                 repaint(tabRect(i));
         }
