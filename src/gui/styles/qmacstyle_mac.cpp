@@ -2833,7 +2833,9 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
             HIThemeGetButtonContentBounds(&hirect, &bdi, &outrect);
             ret = qt_qrectForHIRect(outrect);
             if (combo->editable) {
-                ret.setRect(ret.x() - 5, ret.y() + 2, ret.width() + 13, ret.height() - 3);
+                ret.adjust(-5, 2, 8, -3);
+            } else {
+                ret.adjust(0, -1, 0, 0);
             }
             switch (sc) {
             default:
@@ -4350,7 +4352,7 @@ QRect QMacStylePrivate::AppManSubControlRect(QStyle::ComplexControl cc,
                                             kThemeAdornmentNone };
                 GetThemeButtonContentBounds(&macRect, kThemePopupButton, &bdi, &outRect);
                 if (combo->editable) {
-                    ret.setRect(outRect.left - 6, outRect.top + 2, (outRect.right - outRect.left) + 12,
+                    ret.setRect(outRect.left - 6, outRect.top + 2, (outRect.right - outRect.left) + 10,
                                 (outRect.bottom - outRect.top) - 3);
                 } else {
                     ret.setRect(outRect.left, outRect.top - 1, outRect.right - outRect.left,
@@ -5661,6 +5663,9 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         sz.rwidth() += 10;
         sz.rheight() += 10;
         return sz;
+    case CT_ComboBox:
+        sz.rwidth() += 37;
+        break;
     default:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
     }
