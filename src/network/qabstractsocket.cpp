@@ -253,6 +253,10 @@
 #include <qsignal.h>
 #include <qtimer.h>
 
+#ifdef QABSTRACTSOCKET_DEBUG
+#include <qdebug.h>
+#endif
+
 #include <time.h>
 
 #define QABSTRACTSOCKET_BUFFERSIZE 32768
@@ -420,16 +424,23 @@ bool QAbstractSocketPrivate::initSocketLayer(QAbstractSocket::SocketType type,
     return true;
 }
 
+//#define QT_NETWORK_WORKAROUND
 /*! \internal
 
     Slot connected to the read socket notifier. This slot is called
     when new data is available for reading, or when the socket has
     been closed. Handles recursive calls.
 */
-bool QAbstractSocketPrivate::canReadNotification(int)
+bool QAbstractSocketPrivate::canReadNotification(int fd)
 {
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocketPrivate::canReadNotification()");
+    qDebug("QAbstractSocketPrivate::canReadNotification(%d)", fd);
+#else
+    Q_UNUSED(fd);
+#endif
+
+#ifdef QT_NETWORK_WORKAROUND
+    readSocketNotifier->setEnabled(false);
 #endif
 
     // Prevent recursive calls
@@ -473,6 +484,15 @@ bool QAbstractSocketPrivate::canReadNotification(int)
         }
     }
 
+#ifdef QT_NETWORK_WORKAROUND
+    // only emit readyRead() when not recursing.
+    if (!emittedReadyRead) {
+        emittedReadyRead = true;
+        emit q->readyRead();
+        emittedReadyRead = false;
+    }
+#endif
+
     // If we were closed as a result of the readyRead() signal,
     // return.
     if (state == QAbstractSocket::UnconnectedState || state == QAbstractSocket::ClosingState) {
@@ -482,14 +502,14 @@ bool QAbstractSocketPrivate::canReadNotification(int)
         readSocketNotifierCalled = false;
         return true;
     }
-
+#ifndef QT_NETWORK_WORKAROUND
     // only emit readyRead() when not recursing.
     if (!emittedReadyRead) {
         emittedReadyRead = true;
         emit q->readyRead();
         emittedReadyRead = false;
     }
-
+#endif
     // reset the read socket notifier state if we reentered inside the
     // readyRead() connected slot.
     if (readSocketNotifier && readSocketNotifierStateSet
@@ -497,7 +517,9 @@ bool QAbstractSocketPrivate::canReadNotification(int)
         readSocketNotifier->setEnabled(readSocketNotifierState);
         readSocketNotifierStateSet = false;
     }
-
+#ifdef QT_NETWORK_WORKAROUND
+    readSocketNotifier->setEnabled(true);
+#endif
     readSocketNotifierCalled = false;
     return true;
 }
@@ -572,7 +594,7 @@ bool QAbstractSocketPrivate::flush()
         emit q->error(socketError);
         // an unexpected error so close the socket.
 #if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::flush() write error, aborting.");
+        qDebug() << "QAbstractSocketPrivate::flush() write error, aborting." << socketLayer.errorString();
 #endif
         q->abort();
         return false;
@@ -1323,12 +1345,21 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
             return false;
         }
 
-        if (readyToRead)
+        if (readyToRead) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocket::waitForBytesWritten calls canReadNotification");
+#endif
             d->canReadNotification(0);
+        }
+
 
         if (readyToWrite) {
-            if (d->canWriteNotification(0))
+            if (d->canWriteNotification(0)) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+                qDebug("QAbstractSocket::waitForBytesWritten returns true");
+#endif
                 return true;
+            }
         }
 
         if (state() != ConnectedState)
