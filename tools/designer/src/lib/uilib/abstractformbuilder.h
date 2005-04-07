@@ -116,7 +116,6 @@ protected:
     virtual bool checkProperty(QObject *obj, const QString &prop) const;
     virtual DomProperty *createProperty(QObject *object, const QString &propertyName, const QVariant &value);
 
-    virtual void layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing);
     virtual void layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing);
 
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);

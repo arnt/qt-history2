@@ -53,7 +53,6 @@ public:
 protected:
     using AbstractFormBuilder::create;
     using AbstractFormBuilder::createDom;
-    using AbstractFormBuilder::layoutInfo;
 
     virtual void saveDom(DomUI *ui, QWidget *widget);
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
@@ -104,7 +103,7 @@ protected:
     virtual QString saveComment();
     virtual DomResources *saveResources();
 
-    void layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing);
+    virtual void layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing);
 
     void changeObjectName(QObject *o, QString name);
     static QString qtify(const QString &name);

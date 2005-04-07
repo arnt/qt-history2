@@ -335,6 +335,12 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             int index = sheet->indexOf(propertyName);
             if (index != -1) {
                 QVariant v = toVariant(o->metaObject(), p);
+
+                // ### move me
+                if (qobject_cast<QLayout*>(o) && propertyName == QLatin1String("margin")) {
+                    v = v.toInt() + 1;
+                }
+
                 sheet->setProperty(index, v);
                 sheet->setChanged(index, true);
             }
@@ -915,12 +921,17 @@ QList<QWidget*> QDesignerResource::paste(QIODevice *dev, QWidget *parentWidget)
     return paste(&ui, parentWidget);
 }
 
-void QDesignerResource::layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing)
+void QDesignerResource::layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing)
 {
-    AbstractFormBuilder::layoutInfo(widget, parent, margin, spacing);
+    AbstractFormBuilder::layoutInfo(layout, parent, margin, spacing);
 
-    if (margin && qobject_cast<QLayoutWidget*>(parent))
-        *margin = 0;
+    QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(parent);
+    if (layoutWidget && margin) {
+        if (*margin == INT_MIN)
+            *margin = 1;
+        else
+            *margin = *margin + 1;
+    }
 }
 
 QString QDesignerResource::qtify(const QString &name)

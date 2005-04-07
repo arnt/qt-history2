@@ -110,21 +110,6 @@ QWidget *AbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget
 
     applyProperties(w, ui_widget->elementProperty());
 
-#if 0 // ### implement me
-    if (Q3GroupBox *g = qobject_cast<Q3GroupBox*>(w)) {
-        g->setColumnLayout(0, Qt::Vertical);
-
-        int margin, spacing;
-        layoutInfo(ui_widget, parentWidget, &margin, &spacing);
-
-        if (margin != INT_MIN)
-            g->layout()->setSpacing(margin);
-
-        if (spacing != INT_MIN)
-            g->layout()->setMargin(spacing);
-    }
-#endif
-
     foreach (DomAction *ui_action, ui_widget->elementAction()) {
         QAction *child_action = create(ui_action, w);
         Q_UNUSED( child_action );
@@ -258,23 +243,6 @@ bool AbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget
     return false;
 }
 
-void AbstractFormBuilder::layoutInfo(DomWidget *ui_widget, QObject *parent, int *margin, int *spacing)
-{
-    Q_UNUSED(parent);
-
-    QHash<QString, DomProperty*> properties = propertyMap(ui_widget->elementProperty());
-
-    if (margin)
-        *margin = properties.contains("margin")
-            ? properties.value("margin")->elementNumber()
-            : m_defaultMargin;
-
-    if (spacing)
-        *spacing = properties.contains("spacing")
-            ? properties.value("spacing")->elementNumber()
-            : m_defaultSpacing;
-}
-
 void AbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int *margin, int *spacing)
 {
     QHash<QString, DomProperty*> properties = propertyMap(ui_layout->elementProperty());
@@ -302,13 +270,8 @@ QLayout *AbstractFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWid
             ? static_cast<QObject*>(layout)
             : static_cast<QObject*>(parentWidget);
 
-#if 0 // ### enable me
-    Q3GroupBox *g = qobject_cast<Q3GroupBox*>(parentWidget);
-    QLayout *lay = createLayout(ui_layout->attributeClass(), g ? g->layout() : p, 0);
-#else
     QLayout *lay = createLayout(ui_layout->attributeClass(), p, 0);
-#endif
-    if (!lay)
+    if (lay == 0)
         return 0;
 
     QObject *parent = parentWidget;
