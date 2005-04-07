@@ -222,7 +222,9 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size()) {
         // ### check if elementLayout.size() == 1
 
-        if (qt_extension<IContainer*>(core()->extensionManager(), parentWidget) == 0) {
+        IContainer *container = qt_extension<IContainer*>(core()->extensionManager(), parentWidget);
+
+        if (container == 0) {
             // generate a QLayoutWidget iff the parent is not an IContainer.
             ui_widget->setAttributeClass("QLayoutWidget");
         }
@@ -803,12 +805,16 @@ bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &p
 bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
     QGridLayout *grid = qobject_cast<QGridLayout*>(layout);
+    QBoxLayout *box = qobject_cast<QBoxLayout*>(layout);
 
     if (grid && item->widget()) {
         int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
         int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
-        grid->addWidget(item->widget(), ui_item->attributeRow(), ui_item->attributeColumn(),
+        add_to_grid_layout(grid, item->widget(), ui_item->attributeRow(), ui_item->attributeColumn(),
                         rowSpan, colSpan, item->alignment());
+        return true;
+    } else if (box && item->widget()) {
+        add_to_box_layout(box, item->widget());
         return true;
     }
 

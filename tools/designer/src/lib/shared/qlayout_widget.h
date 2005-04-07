@@ -172,7 +172,7 @@ private:
 class QLayoutWidgetItem: public QWidgetItem
 {
 public:
-    QLayoutWidgetItem(QWidget *widget): QWidgetItem(widget) {}
+    QLayoutWidgetItem(QWidget *widget);
 
     virtual void setGeometry(const QRect &r);
     virtual QSize sizeHint() const;

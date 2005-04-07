@@ -736,22 +736,11 @@ DomWidget *AbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentW
 
     if (widget->layout()) {
         DomLayout *ui_layout = createDom(widget->layout(), 0, ui_parentWidget);
+        Q_ASSERT(ui_layout != 0);
 
-        // layouts
         QList<DomLayout*> ui_layouts;
-        QMutableListIterator<QObject*> lay_it(children);
-        while (lay_it.hasNext()) {
-            QObject *obj = lay_it.next();
-            if (!qobject_cast<QLayout*>(obj))
-                continue;
+        ui_layouts.append(ui_layout);
 
-            DomLayout *ui_child = createDom(static_cast<QLayout*>(obj), ui_layout, ui_widget);
-            if (!ui_child) {
-                // ### error message
-            } else {
-                ui_layouts.append(ui_child);
-            }
-        }
         ui_widget->setElementLayout(ui_layouts);
     }
 

@@ -457,6 +457,11 @@ int QLayoutSupport::findItemAt(QGridLayout *gridLayout, int at_row, int at_colum
     return -1;
 }
 
+QLayoutWidgetItem::QLayoutWidgetItem(QWidget *widget)
+    : QWidgetItem(widget)
+{
+}
+
 void QLayoutWidgetItem::setGeometry(const QRect &r)
 {
     widget()->setGeometry(r);

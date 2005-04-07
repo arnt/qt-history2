@@ -471,7 +471,7 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
         int index = grid->indexOf(wid);
         if (index == -1) {
             qWarning("unexpected call to WidgetSelection::setWidget()");
-            Q_ASSERT(0);
+            // Q_ASSERT(0);
             return;
         }
 
