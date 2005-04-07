@@ -430,16 +430,12 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 /*!
     \fn void *QModelIndex::internalPointer() const
 
-    \internal
-
     Returns a \c{void} \c{*} pointer used by the model to associate
     the index with the internal data structure.
 */
 
 /*!
     \fn void *QModelIndex::internalId() const
-
-    \internal
 
     Returns a \c{qint64} used by the model to associate
     the index with the internal data structure.
