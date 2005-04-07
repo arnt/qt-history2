@@ -2375,9 +2375,10 @@ void QRasterBuffer::flushTo1BitImage(QImage *target) const
     // ### Direct scanline access
     for (int y=0; y<h; ++y) {
         uint *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
+        int y_mod_16 = y & 15;
         for (int x=0; x<w; ++x) {
             uint p = sourceLine[x];
-            target->setPixel(x, y, qGray(p) > 127 ? 0 : 1);
+            target->setPixel(x, y, qGray(p) >= int(qt_bayer_matrix[y_mod_16][x&15]) ? 0 : 1);
         }
     }
 
