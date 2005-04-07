@@ -38,6 +38,7 @@
 #include <qpair.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
+#include <qtimer.h>
 
 #include <limits.h>
 
@@ -93,15 +94,16 @@ private:
     QBasicTimer timer;
 };
 
-class ItemViewContainer : public QFrame
+class QComboBoxPrivateContainer : public QFrame
 {
     Q_OBJECT
 
 public:
-    ItemViewContainer(QAbstractItemView *itemView, QComboBox *parent);
+    QComboBoxPrivateContainer(QAbstractItemView *itemView, QComboBox *parent);
     QAbstractItemView *itemView() const;
     void setItemView(QAbstractItemView *itemView);
     int spacing() const;
+    QTimer blockMouseReleaseTimer;
 
 public slots:
     void scrollItemView(int action);
@@ -162,7 +164,7 @@ public:
     QComboBoxPrivate();
     ~QComboBoxPrivate() {}
     void init();
-    ItemViewContainer* viewContainer();
+    QComboBoxPrivateContainer* viewContainer();
     QStyleOptionComboBox getStyleOption() const;
     void updateLineEditGeometry();
     void returnPressed();
@@ -181,7 +183,7 @@ public:
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
-    ItemViewContainer *container;
+    QComboBoxPrivateContainer *container;
     QComboBox::InsertPolicy insertPolicy;
     QComboBox::SizeAdjustPolicy sizeAdjustPolicy;
     int minimumContentsLength;

@@ -137,7 +137,7 @@ QStyle::SubControl QComboBoxPrivate::newHoverControl(const QPoint &pos)
     \internal
 */
 
-ItemViewContainer::ItemViewContainer(QAbstractItemView *itemView, QComboBox *parent)
+QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView, QComboBox *parent)
     : QFrame(parent, Qt::Popup), combo(parent), view(0), top(0), bottom(0)
 {
     // we need the combobox and itemview
@@ -147,6 +147,7 @@ ItemViewContainer::ItemViewContainer(QAbstractItemView *itemView, QComboBox *par
     // setup container
     setFrameStyle(QFrame::Box|QFrame::Plain);
     setLineWidth(1);
+    blockMouseReleaseTimer.setSingleShot(true);
 
     // we need a vertical layout
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
@@ -176,7 +177,7 @@ ItemViewContainer::ItemViewContainer(QAbstractItemView *itemView, QComboBox *par
     \internal
 */
 
-void ItemViewContainer::scrollItemView(int action)
+void QComboBoxPrivateContainer::scrollItemView(int action)
 {
     if (view->verticalScrollBar())
         view->verticalScrollBar()->triggerAction(static_cast<QAbstractSlider::SliderAction>(action));
@@ -187,7 +188,7 @@ void ItemViewContainer::scrollItemView(int action)
 
   Hides or shows the scrollers when we emulate a popupmenu
 */
-void ItemViewContainer::updateScrollers()
+void QComboBoxPrivateContainer::updateScrollers()
 {
     if (!top || !bottom)
         return;
@@ -221,7 +222,7 @@ void ItemViewContainer::updateScrollers()
   means that if mouseTracking(...) is on, we setCurrentIndex and select
   even when LeftButton is not pressed.
 */
-void ItemViewContainer::setCurrentIndex(const QModelIndex &index)
+void QComboBoxPrivateContainer::setCurrentIndex(const QModelIndex &index)
 {
     view->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 }
@@ -231,7 +232,7 @@ void ItemViewContainer::setCurrentIndex(const QModelIndex &index)
 
   Returns the item view used for the combobox popup.
 */
-QAbstractItemView *ItemViewContainer::itemView() const
+QAbstractItemView *QComboBoxPrivateContainer::itemView() const
 {
     return view;
 }
@@ -241,7 +242,7 @@ QAbstractItemView *ItemViewContainer::itemView() const
 
   Sets the item view to be used for the combobox popup.
 */
-void ItemViewContainer::setItemView(QAbstractItemView *itemView)
+void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
 {
     Q_ASSERT(itemView);
 
@@ -292,7 +293,7 @@ void ItemViewContainer::setItemView(QAbstractItemView *itemView)
 
   returns the spacing between the items in the view
 */
-int ItemViewContainer::spacing() const
+int QComboBoxPrivateContainer::spacing() const
 {
     QListView *lview = qobject_cast<QListView*>(view);
     if (lview)
@@ -304,7 +305,7 @@ int ItemViewContainer::spacing() const
     \internal
 */
 
-bool ItemViewContainer::eventFilter(QObject *o, QEvent *e)
+bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::KeyPress:
@@ -330,7 +331,8 @@ bool ItemViewContainer::eventFilter(QObject *o, QEvent *e)
     break;
     case QEvent::MouseButtonRelease: {
         QMouseEvent *m = static_cast<QMouseEvent *>(e);
-        if (isVisible() && view->rect().contains(m->pos()) && view->currentIndex().isValid()) {
+        if (isVisible() && view->rect().contains(m->pos()) && view->currentIndex().isValid()
+            && !blockMouseReleaseTimer.isActive()) {
             combo->hidePopup();
             emit itemSelected(view->currentIndex());
             return true;
@@ -347,12 +349,12 @@ bool ItemViewContainer::eventFilter(QObject *o, QEvent *e)
 /*!
     \internal
 */
-void ItemViewContainer::hideEvent(QHideEvent *)
+void QComboBoxPrivateContainer::hideEvent(QHideEvent *)
 {
     emit resetButton();
 }
 
-void ItemViewContainer::mousePressEvent(QMouseEvent *e)
+void QComboBoxPrivateContainer::mousePressEvent(QMouseEvent *e)
 {
     QRect ignoreRect = combo->rect();
     if (combo->isEditable()) {
@@ -371,7 +373,7 @@ void ItemViewContainer::mousePressEvent(QMouseEvent *e)
     QFrame::mousePressEvent(e);
 }
 
-void ItemViewContainer::mouseReleaseEvent(QMouseEvent *e)
+void QComboBoxPrivateContainer::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_UNUSED(e);
     emit resetButton();
@@ -380,7 +382,7 @@ void ItemViewContainer::mouseReleaseEvent(QMouseEvent *e)
 /*!
   \internal
 */
-QStyleOptionComboBox ItemViewContainer::comboStyleOption() const
+QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
 {
     QStyleOptionComboBox opt;
     opt.state = QStyle::State_None;
@@ -594,13 +596,13 @@ void QComboBoxPrivate::init()
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
-ItemViewContainer* QComboBoxPrivate::viewContainer()
+QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
 {
     if (container)
         return container;
 
     Q_Q(QComboBox);
-    container = new ItemViewContainer(new QListView(), q);
+    container = new QComboBoxPrivateContainer(new QListView(), q);
     container->itemView()->setModel(model);
     QStyleOptionComboBox opt = getStyleOption();
     if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q) && !q->isEditable())
@@ -1522,7 +1524,7 @@ void QComboBox::showPopup()
     // set current item and select it
     view()->selectionModel()->setCurrentIndex(d->currentIndex,
                                               QItemSelectionModel::ClearAndSelect);
-    ItemViewContainer* container = d->viewContainer();
+    QComboBoxPrivateContainer* container = d->viewContainer();
     // use top item as height for complete listView
     int itemHeight = view()->sizeHintForIndex(model()->index(0, d->modelColumn, rootModelIndex())).height()
                      + container->spacing();
@@ -1779,6 +1781,7 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
         && !d->viewContainer()->isVisible()) {
         if (sc == QStyle::SC_ComboBoxArrow)
             d->updateArrow(QStyle::State_Sunken);
+        d->viewContainer()->blockMouseReleaseTimer.start(QApplication::doubleClickInterval());
         showPopup();
     }
 }
