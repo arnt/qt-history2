@@ -3911,11 +3911,11 @@ int QString::localeAwareCompare(const QString &other) const
     QT_WA({
         const TCHAR* s1 = (TCHAR*)utf16();
         const TCHAR* s2 = (TCHAR*)other.utf16();
-        res = CompareStringW(LOCALE_USER_DEFAULT, 0, s1, length(), s2, other.length());
+        res = CompareStringW(GetThreadLocale(), 0, s1, length(), s2, other.length());
     } , {
         QByteArray s1 = toLocal8Bit();
         QByteArray s2 = other.toLocal8Bit();
-        res = CompareStringA(LOCALE_USER_DEFAULT, 0, s1.data(), s1.length(), s2.data(), s2.length());
+        res = CompareStringA(GetThreadLocale(), 0, s1.data(), s1.length(), s2.data(), s2.length());
     });
 
     switch (res) {
