@@ -577,7 +577,7 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
 {
 //    qDebug("QWidgetPrivate::bltToScreen");
     QWidget *win = q->window();
-    QBrush bgBrush = win->palette().brush(win->d->bg_role);
+    QBrush bgBrush = win->palette().brush(win->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
     q->qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
 }
@@ -668,10 +668,11 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
     if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
         const QPalette &pal = q->palette();
+	QPalette::ColorRole bg_role = q->backgroundRole();
         QBrush bgBrush = pal.brush(bg_role);
         //##### put in an isBackgroundSpecified() function ???
         bool hasBackground = (q->isWindow() || q->windowType() == Qt::SubWindow)
-                             || (q->testAttribute(Qt::WA_SetBackgroundRole) || (pal.resolve() & (1<<bg_role))) ;
+                             || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg_role))) ;
 
         if (hasBackground && bgBrush.style() != Qt::NoBrush) {
             QPainter p(q); // We shall use it only once
@@ -819,7 +820,7 @@ void QWidgetPrivate::requestWindowRegion(const QRegion &r)
     }
 #endif
 
-    QBrush bgBrush = q->palette().brush(bg_role);
+    QBrush bgBrush = q->palette().brush(q->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque(); //### duplicated in bltToScreen
 
 
