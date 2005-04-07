@@ -123,7 +123,7 @@
     </widget>
       <action name="actionFilePrint" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/print.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/print.png</iconset>
         </property>
         <property name="whatsThis" >
           <string>Print the currently displayed page.</string>
@@ -148,7 +148,7 @@
       </action>
       <action name="actionEditCopy" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/editcopy.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/editcopy.png</iconset>
         </property>
         <property name="whatsThis" >
           <string>Copy the selected text to the clipboard.</string>
@@ -162,7 +162,7 @@
       </action>
       <action name="actionEditFind" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/find.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/find.png</iconset>
         </property>
         <property name="whatsThis" >
           <string>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
@@ -192,7 +192,7 @@
       </action>
       <action name="actionGoHome" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/home.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/home.png</iconset>
         </property>
         <property name="whatsThis" >
           <string>Go to the home page. Qt Assistant's home page is the Qt Reference Documentation.</string>
@@ -206,7 +206,7 @@
       </action>
       <action name="actionGoPrevious" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/previous.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/previous.png</iconset>
         </property>
         <property name="whatsThis" >
           <string>Go to the previous page.</string>
@@ -220,7 +220,7 @@
       </action>
       <action name="actionGoNext" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/next.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/next.png</iconset>
         </property>
         <property name="whatsThis" >
           <string>Go to the next page.</string>
@@ -247,7 +247,7 @@
       </action>
       <action name="actionZoomIn" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/zoomin.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/zoomin.png</iconset>
         </property>
         <property name="whatsThis" >
           <string>Zoom in on the document, i.e. increase the font size.</string>
@@ -261,7 +261,7 @@
       </action>
       <action name="actionZoomOut" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/zoomout.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/zoomout.png</iconset>
         </property>
         <property name="whatsThis" >
           <string>Zoom out on the document, i.e. decrease the font size.</string>
@@ -310,7 +310,7 @@
       </action>
       <action name="actionHelpWhatsThis" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/whatsthis.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/win/whatsthis.png</iconset>
         </property>
         <property name="statusTip" >
           <string>&quot;What's This?&quot; context sensitive help.</string>
@@ -359,7 +359,7 @@
       </action>
       <action name="actionHelpAssistant" >
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/assistant.png</iconset>
+          <iconset resource="assistant.qrc">:/trolltech/assistant/images/assistant.png</iconset>
         </property>
         <property name="shortcut" >
           <string>F1</string>
@@ -369,4 +369,7 @@
         </property>
       </action>
   </widget>
+  <resources>
+      <include location="assistant.qrc" />
+  </resources>
 </UI>
