@@ -1894,6 +1894,11 @@
 
     QLayout setSupportsMargin()
 
+    The deleteAllItems() function is now only available if
+    \c QT3_SUPPORT is defined. If you maintain a QList of layout
+    items, you can use qDeleteAll() to remove all the items in one
+    go.
+
     See also the \l{#qlayoutiterator.section}{section on
     QLayoutIterator} and the \l{#qglayoutiterator.section}{section on
     QGLayoutIterator}.
