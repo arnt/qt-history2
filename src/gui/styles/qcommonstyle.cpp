@@ -28,6 +28,7 @@
 #include <qstyleoption.h>
 #include <qtabbar.h>
 #include <qtoolbutton.h>
+#include <qrubberband.h>
 #include <private/qcommonstylepixmaps_p.h>
 #include <private/qdialogbuttons_p.h>
 #include <private/qmath_p.h>
@@ -1089,18 +1090,20 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         p->restore();
         break; }
     case CE_RubberBand: {
-        p->save();
-        QRect r = opt->rect.adjusted(0,0,-1,-1);
-        p->setBrush(Qt::Dense4Pattern);
-        p->setBackground(QBrush(opt->palette.base()));
-        p->setBackgroundMode(Qt::OpaqueMode);
-        p->setPen(opt->palette.color(QPalette::Active, QPalette::Foreground));
-        p->drawRect(r);
-        if (opt->state & State_Rectangle) {
-            r.adjust(3,3, -3,-3);
+        if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
+            p->save();
+            QRect r = opt->rect.adjusted(0,0,-1,-1);
+            p->setBrush(Qt::Dense4Pattern);
+            p->setBackground(QBrush(opt->palette.base()));
+            p->setBackgroundMode(Qt::OpaqueMode);
+            p->setPen(opt->palette.color(QPalette::Active, QPalette::Foreground));
             p->drawRect(r);
+            if (rbOpt->shape == QRubberBand::Rectangle) {
+                r.adjust(3,3, -3,-3);
+                p->drawRect(r);
+            }
+            p->restore();
         }
-        p->restore();
         break; }
     case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
@@ -2903,7 +2906,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *widget,
                             QStyleHintReturn *hret) const
 {
-    int ret;
+    int ret = 0;
 
     switch (sh) {
 #ifndef QT_NO_DIALOGBUTTONS
@@ -3015,13 +3018,15 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_RubberBand_Mask:
-        ret = 0;
-        if (opt->state & State_Rectangle) {
-            ret = true;
-            if(QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask*>(hret)) {
-                mask->region = opt->rect;
-                int margin = pixelMetric(PM_DefaultFrameWidth) * 2;
-                mask->region -= opt->rect.adjusted(margin, margin, -margin, -margin);
+        if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
+            ret = 0;
+            if (rbOpt->shape == QRubberBand::Rectangle) {
+                ret = true;
+                if(QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask*>(hret)) {
+                    mask->region = opt->rect;
+                    int margin = pixelMetric(PM_DefaultFrameWidth) * 2;
+                    mask->region -= opt->rect.adjusted(margin, margin, -margin, -margin);
+                }
             }
         }
         break;

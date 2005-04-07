@@ -546,7 +546,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_On
     \value State_Open
     \value State_Raised
-    \value State_Rectangle
     \value State_Selected
     \value State_Sibling
     \value State_Sunken

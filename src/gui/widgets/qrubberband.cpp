@@ -30,17 +30,17 @@ class QRubberBandPrivate : public QWidgetPrivate
 public:
     QRect rect;
     QRubberBand::Shape shape;
-    QStyleOption getStyleOption() const;
+    QStyleOptionRubberBand getStyleOption() const;
     void updateMask();
 };
 
-QStyleOption QRubberBandPrivate::getStyleOption() const
+QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
 {
     Q_Q(const QRubberBand);
-    QStyleOption opt;
+    QStyleOptionRubberBand opt;
     opt.init(q);
-    if (shape == QRubberBand::Rectangle)
-        opt.state |= QStyle::State_Rectangle;
+    opt.shape = shape;
+    opt.opaque = true;
     return opt;
 }
 
@@ -121,7 +121,7 @@ void QRubberBandPrivate::updateMask()
 {
     Q_Q(QRubberBand);
     QStyleHintReturnMask mask;
-    QStyleOption opt = getStyleOption();
+    QStyleOptionRubberBand opt = getStyleOption();
     if (q->style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, q, &mask))
         q->setMask(mask.region);
 }

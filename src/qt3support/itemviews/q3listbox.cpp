@@ -4115,10 +4115,11 @@ void Q3ListBox::drawRubber()
         return;
     QPainter p(viewport());
     // p.setRasterOp(NotROP); // ### fix - use qrubberband instead
-    QStyleOption opt(0);
+    QStyleOptionRubberBand opt;
     opt.rect = d->rubber->normalize();
     opt.palette = palette();
-    opt.state = QStyle::State_Rectangle;
+    opt.shape = QRubberBand::Rectangle;
+    opt.opaque = false;
     style()->drawControl(QStyle::CE_RubberBand, &opt, &p, this);
     p.end();
 }

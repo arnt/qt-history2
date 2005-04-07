@@ -83,7 +83,6 @@ public:
         State_UpArrow =       0x00004000,
         State_Selected =      0x00008000,
         State_Active =        0x00010000,
-        State_Rectangle =     0x00020000,
         State_Open =          0x00040000,
         State_Children =      0x00080000,
         State_Item =          0x00100000,

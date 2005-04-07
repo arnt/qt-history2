@@ -117,6 +117,7 @@
     \value SO_ToolButton \l QStyleOptionToolButton
     \value SO_ComboBox \l QStyleOptionComboBox
     \value SO_ToolBox \l QStyleOptionToolBox
+    \value SO_RubberBand \l QStyleOptionRubberBand
     \value SO_TitleBar \l QStyleOptionTitleBar
     \value SO_ViewItem \l QStyleOptionViewItem (used in Interviews)
     \value SO_CustomBase Reserved for custom QStyleOptions;
@@ -1439,6 +1440,43 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 /*!
     \property QStyleOptionToolBox::text
     \brief The text for the tool box tab.
+*/
+
+
+/*!
+    \class QStyleOptionRubberBand
+    \brief The QStyleOptionRubberBand class is used to describe the
+    parameters needed for drawing a rubber band.
+
+    The QStyleOptionRubberBand class is used for drawing QRubberBand.
+*/
+
+/*!
+    Creates a QStyleOptionRubberBand. The members variables are
+    initialized to default values.
+*/
+
+QStyleOptionRubberBand::QStyleOptionRubberBand()
+    : QStyleOption(Version, SO_RubberBand)
+{
+}
+
+/*!
+    \internal
+*/
+QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
+    : QStyleOption(version, SO_RubberBand)
+{
+}
+
+/*!
+    \property QStyleOptionRubberBand::shape
+    \brief The shape of the rubber band.
+*/
+
+/*!
+    \property QStyleOptionRubberBand::opaque
+    \brief Whether the rubber band is required to be drawn in an opque style.
 */
 
 /*!

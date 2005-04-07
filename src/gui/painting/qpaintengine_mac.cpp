@@ -1448,7 +1448,9 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
     CGImageRef image = (CGImageRef)pm.macCGHandle();
+#if 1
     HIViewDrawCGImage(d->hd, &rect, image); //top left
+#endif
 
     //restore
     CGContextRestoreGState(d->hd);

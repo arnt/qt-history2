@@ -20,6 +20,7 @@
 #include <qstyle.h>
 #include <qevent.h>
 #include <qscrollbar.h>
+#include <qrubberband.h>
 #include <private/qlistview_p.h>
 #include <qdebug.h>
 
@@ -876,9 +877,10 @@ void QListView::paintEvent(QPaintEvent *e)
 
     if (d->elasticBand.isValid()) {
         QStyleHintReturnMask mask;
-        QStyleOption opt;
+        QStyleOptionRubberBand opt;
         opt.init(this);
-        opt.state |= QStyle::State_Rectangle;
+        opt.shape |= QRubberBand::Rectangle;
+        opt.opaque = false;
         opt.rect = d->mapToViewport(d->elasticBand).intersect(d->viewport->rect().adjusted(-16, -16, 16, 16));
         painter.save();
         if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, this, &mask))

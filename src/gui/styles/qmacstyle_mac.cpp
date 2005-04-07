@@ -2076,7 +2076,12 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         HIThemeDrawPaneSplitter(&hirect, &sdi, cg, kHIThemeOrientationNormal);
         break; }
     case QStyle::CE_RubberBand:
-        p->fillRect(opt->rect, opt->palette.brush(QPalette::Disabled, QPalette::Highlight));
+        if (const QStyleOptionRubberBand *rubber = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
+            QColor highlight(opt->palette.color(QPalette::Disabled, QPalette::Highlight));
+            if(!rubber->opaque)
+                highlight.setAlphaF(0.75);
+            p->fillRect(opt->rect, highlight);
+        }
         break;
     case QStyle::CE_HeaderSection:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
@@ -3650,8 +3655,14 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
 #endif
         DrawThemeStandaloneGrowBox(orig, dir, false, kThemeStateActive);
         break; }
+
     case QStyle::CE_RubberBand:
-        p->fillRect(opt->rect, opt->palette.brush(QPalette::Disabled, QPalette::Highlight));
+        if (const QStyleOptionRubberBand *rubber = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
+            QColor highlight(opt->palette.color(QPalette::Disabled, QPalette::Highlight));
+            if(!rubber->opaque)
+                highlight.setAlphaF(0.75);
+            p->fillRect(opt->rect, highlight);
+        }
         break;
     case QStyle::CE_HeaderSection:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
