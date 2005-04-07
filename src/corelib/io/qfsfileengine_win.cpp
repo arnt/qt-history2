@@ -265,7 +265,7 @@ static bool uncShareExists(const QString &server)
         QStringList shares;
         if (uncListSharesOnServer("\\\\" + parts.at(0), &shares)) {
             if (parts.count() >= 2)
-                return shares.contains(parts.at(1));
+                return shares.contains(parts.at(1), Qt::CaseInsensitive);
             else
                 return true;
         }
