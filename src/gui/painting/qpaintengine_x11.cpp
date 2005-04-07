@@ -768,7 +768,8 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyTransform) updateMatrix(state.matrix());
     if (flags & DirtyPen) updatePen(state.pen());
     if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if ((flags & DirtyBackground) || (flags & DirtyBackgroundMode))
+        updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyFont) updateFont(state.font());
     if (flags & DirtyClipPath) {
         updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
@@ -1009,7 +1010,7 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
 }
 
 #ifndef QT_NO_XRENDER
-::Picture getSolidFill(int screen, const XRenderColor &color)
+Picture getSolidFill(int screen, const XRenderColor &color)
 {
     for (int i = 0; i < X11->solid_fill_count; ++i) {
         if (X11->solid_fills[i].screen == screen
@@ -1041,6 +1042,34 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
     X11->solid_fills[i].screen = screen;
     XRenderFillRectangle (X11->display, PictOpSrc, X11->solid_fills[i].picture, &color, 0, 0, 1, 1);
     return X11->solid_fills[i].picture;
+}
+
+Picture getSolidFill(int scrn, const QColor &c)
+{
+    XRenderColor color;
+    const uint A = c.alpha(),
+               R = c.red(),
+               G = c.green(),
+               B = c.blue();
+    color.alpha = (A | A << 8);
+    color.red   = (R | R << 8) * color.alpha / 0x10000;
+    color.green = (B | G << 8) * color.alpha / 0x10000;
+    color.blue  = (B | B << 8) * color.alpha / 0x10000;
+    return getSolidFill(scrn, color);
+}
+
+void qt_render_bitmap(Display *dpy, int scrn, Picture src, Picture dst,
+                      int sx, int sy, int x, int y, int sw, int sh,
+                      const QPen &pen, const QBrush &brush, bool opaque_bg)
+{
+    if (opaque_bg) {
+        Picture fill_bg = getSolidFill(scrn, brush.color());
+        XRenderComposite(dpy, PictOpOver,
+                         fill_bg, 0, dst, sx, sy, sx, sy, x, y, sw, sh);
+    }
+    Picture fill_fg = getSolidFill(scrn, pen.color());
+    XRenderComposite(dpy, PictOpOver,
+                     fill_fg, src, dst, sx, sy, sx, sy, x, y, sw, sh);
 }
 #endif
 
@@ -1202,9 +1231,6 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
 
 void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &_sr)
 {
-    // since we can't scale pixmaps this should always hold
-    // #####
-    //Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
     QPixmap pixmap = pm;
     QRectF sr = _sr;
     if (r.size() != sr.size()) {
@@ -1234,8 +1260,14 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRect
 #if !defined(QT_NO_XRENDER)
     ::Picture src_pict = pixmap.x11PictureHandle();
     if (X11->use_xrender && src_pict && d->picture) {
-        XRenderComposite(d->dpy, PictOpOver,
-                         src_pict, 0, d->picture, sx, sy, sx, sy, x, y, sw, sh);
+        if (pixmap.depth() == 1) {
+            qt_render_bitmap(d->dpy, d->scrn, src_pict, d->picture,
+                             sx, sy, x, y, sw, sh, d->cpen, d->bg_brush,
+                             d->bg_mode == Qt::OpaqueMode);
+        } else {
+            XRenderComposite(d->dpy, PictOpOver,
+                             src_pict, 0, d->picture, sx, sy, 0, 0, x, y, sw, sh);
+        }
         return;
     }
 #endif
@@ -1268,6 +1300,13 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRect
     }
 
     if (mono_src) {
+        if (d->bg_mode == Qt::OpaqueMode) {
+            if (mono_dst)
+                XSetForeground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
+            else
+                XSetForeground(d->dpy, d->gc, QColormap::instance(d->scrn).pixel(d->bg_brush.color()));
+            XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
+        }
         XSetClipMask(d->dpy, d->gc, pixmap.handle());
         XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
         if (mono_dst) {
@@ -1422,9 +1461,15 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
                 drawW = pixmap.width() - xOff; // Cropping first column
                 if (xPos + drawW > x + w)    // Cropping last column
                     drawW = x + w - xPos;
-                XRenderComposite(d->dpy, PictOpOver,
-                                 pixmap.x11PictureHandle(), XNone,
-                                 d->picture, xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
+                if (pixmap.depth() == 1) {
+                    qt_render_bitmap(d->dpy, d->scrn, pixmap.x11PictureHandle(), d->picture,
+                                     xOff, yOff, xPos, yPos, drawW, drawH, d->cpen, d->bg_brush,
+                                     d->bg_mode == Qt::OpaqueMode);
+                } else {
+                    XRenderComposite(d->dpy, PictOpOver,
+                                     pixmap.x11PictureHandle(), XNone, d->picture,
+                                     xOff, yOff, 0, 0, xPos, yPos, drawW, drawH);
+                }
                 xPos += drawW;
                 xOff = 0;
             }

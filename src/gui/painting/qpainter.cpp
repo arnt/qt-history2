@@ -3514,10 +3514,8 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         QPixmap pm;
         if (pixmap.hasAlphaChannel()) {
-            // Needed to preserve the alpha channel in the pixmap
-            // While setPixel() is needed to switch on alpha buffer on Embedded
             QImage img(qRound(r.width()), qRound(r.height()), QImage::Format_ARGB32_Premultiplied);
-            img.setPixel(0, 0, qRgba(127, 0, 0, 127));
+            img.fill(0);
             pm = QPixmap::fromImage(img);
         } else {
             pm = QPixmap(qRound(r.width()), qRound(r.height()));
@@ -3529,7 +3527,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         p.setBackgroundMode(backgroundMode());
         p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
         p.end();
-        if (pixmap.depth() == 1) {
+        if (backgroundMode() == Qt::TransparentMode && pixmap.depth() == 1) {
             QBitmap mask(pm.width(), pm.height(), true);
             p.begin(&mask);
             p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
