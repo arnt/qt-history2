@@ -16,35 +16,9 @@
 #include <QtGui/QPainter>
 #include <QtGui/QBitmap>
 #include <QtGui/QLabel>
+#include <QtCore/qdebug.h>
 
 #include <ui4.h>
-
-// This is necessary because we want the widgets under the decoration to receive
-// mouse events
-static void makeHoleInDecoration(QWidget *deco, const QPoint &globalPos)
-{
-    QRect geometry = deco->geometry();
-    geometry.moveTopLeft(deco->mapToGlobal(QPoint(0, 0)));
-    if (!geometry.contains(globalPos)) {
-        // nothing to do
-        return;
-    }
-
-    QPoint pos = deco->mapFromGlobal(globalPos);
-
-    QBitmap bitmap(deco->size());
-
-    QPainter p(&bitmap);
-    p.fillRect(bitmap.rect(), Qt::color1);
-    p.setPen(Qt::color0);
-    p.drawPoint(pos);
-    p.end();
-
-    deco->setMask(bitmap);
-
-    deco->setWindowOpacity(0.8);
-    deco->show();
-}
 
 QDesignerDnDItem::QDesignerDnDItem(DropType type, QWidget *source)
 {
@@ -64,8 +38,6 @@ void QDesignerDnDItem::init(DomUI *ui, QWidget *widget, QWidget *decoration,
     m_dom_ui = ui;
     m_widget = widget;
     m_decoration = decoration;
-
-    makeHoleInDecoration(m_decoration, global_mouse_pos);
 
     QRect geometry = m_decoration->geometry();
     m_hot_spot = global_mouse_pos - m_decoration->geometry().topLeft();
