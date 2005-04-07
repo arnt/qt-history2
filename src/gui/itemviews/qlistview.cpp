@@ -627,8 +627,9 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
         && d->selectionMode != SingleSelection) {
         QRect rect(d->pressedPosition, e->pos() +  QPoint(horizontalOffset(), verticalOffset()));
         rect = rect.normalize();
-        d->viewport->update(d->mapToViewport(rect.unite(d->elasticBand)));
+        QRect dirtyRect = d->mapToViewport(rect.unite(d->elasticBand));
         d->elasticBand = rect;
+        d->viewport->repaint(dirtyRect);
     }
 }
 
@@ -878,7 +879,7 @@ void QListView::paintEvent(QPaintEvent *e)
         QStyleOption opt;
         opt.init(this);
         opt.state |= QStyle::State_Rectangle;
-        opt.rect = d->mapToViewport(d->elasticBand);
+        opt.rect = d->mapToViewport(d->elasticBand).intersect(d->viewport->rect().adjusted(-16, -16, 16, 16));
         painter.save();
         if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, this, &mask))
             painter.setClipRegion(mask.region);
