@@ -109,6 +109,24 @@ Layout::~Layout()
 {
 }
 
+int Layout::margin() const
+{
+    if (layoutBase && layoutBase->layout())
+        return layoutBase->layout()->margin();
+
+    qWarning("unknown margin");
+    return 0;
+}
+
+int Layout::spacing() const
+{
+    if (layoutBase && layoutBase->layout())
+        return layoutBase->layout()->spacing();
+
+    qWarning("unknown spacing");
+    return 0;
+}
+
 /*!  The widget list we got in the constructor might contain too much
   widgets (like widgets with different parents, already laid out
   widgets, etc.). Here we set up the list and so the only the "best"

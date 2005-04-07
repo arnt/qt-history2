@@ -863,16 +863,16 @@ bool QLayoutWidget::event(QEvent *e)
 int QLayoutWidget::layoutMargin() const
 {
     if (layout())
-        return layout()->margin();
+        return layout()->margin() - 1;
 
     qWarning("unknown margin!");
-    return 0;
+    return 0 - 1;
 }
 
 void QLayoutWidget::setLayoutMargin(int layoutMargin)
 {
     if (layout())
-        layout()->setMargin(layoutMargin);
+        layout()->setMargin(layoutMargin + 1);
 
     QList<QLayoutWidget*> lst = qFindChildren<QLayoutWidget*>(this);
     foreach (QLayoutWidget *lay, lst)

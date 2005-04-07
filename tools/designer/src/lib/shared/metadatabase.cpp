@@ -23,8 +23,6 @@
 
 MetaDataBaseItem::MetaDataBaseItem(QObject *object)
     : m_object(object),
-      m_spacing(0),
-      m_margin(0),
       m_enabled(true)
 {
 }
@@ -83,26 +81,6 @@ QList<QWidget*> MetaDataBaseItem::tabOrder() const
 void MetaDataBaseItem::setTabOrder(const QList<QWidget*> &tabOrder)
 {
     m_tabOrder = tabOrder;
-}
-
-int MetaDataBaseItem::spacing() const
-{
-    return m_spacing;
-}
-
-void MetaDataBaseItem::setSpacing(int spacing)
-{
-    m_spacing = spacing;
-}
-
-int MetaDataBaseItem::margin() const
-{
-    return m_margin;
-}
-
-void MetaDataBaseItem::setMargin(int margin)
-{
-    m_margin = margin;
 }
 
 bool MetaDataBaseItem::enabled() const

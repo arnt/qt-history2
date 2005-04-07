@@ -39,6 +39,9 @@ public:
     Layout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
     virtual ~Layout();
 
+    int margin() const;
+    int spacing() const;
+
     virtual void setup();
 
     virtual void doLayout() = 0;
@@ -73,7 +76,6 @@ public:
 
 protected:
     void setup();
-
 };
 
 class QT_SHARED_EXPORT VerticalLayout : public Layout
@@ -85,7 +87,6 @@ public:
 
 protected:
     void setup();
-
 };
 
 class QT_SHARED_EXPORT StackedLayout : public Layout
@@ -97,7 +98,6 @@ public:
 
 protected:
     void setup();
-
 };
 
 

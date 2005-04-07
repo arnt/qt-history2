@@ -229,7 +229,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type)
     }
 
     if (QLayoutWidget *l = qobject_cast<QLayoutWidget*>(widget)) {
-        l->layout()->setMargin(1); // ### this should be 0
+        l->setLayoutMargin(0);
     }
 
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), l)) {

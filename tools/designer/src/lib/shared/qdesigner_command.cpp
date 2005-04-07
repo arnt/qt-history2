@@ -656,12 +656,6 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
     AbstractFormEditor *core = formWindow()->core();
     LayoutInfo::Type lay = LayoutInfo::layoutType(core, m_layoutBase);
 
-    AbstractMetaDataBase *metaDataBase = core->metaDataBase();
-    if (AbstractMetaDataBaseItem *item = metaDataBase->item(m_layoutBase)) {
-        m_margin = item->margin();
-        m_spacing = item->spacing();
-    }
-
     QPoint grid = formWindow()->grid();
 
     m_layout = 0;
@@ -673,6 +667,10 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
         m_layout = new GridLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, QSize(qMax(5, grid.x()), qMax(5, grid.y())));
     // ### StackedLayout
 
+    Q_ASSERT(m_layout != 0);
+
+    m_margin = m_layout->margin();
+    m_spacing = m_layout->spacing();
 }
 
 void BreakLayoutCommand::redo()
@@ -701,13 +699,9 @@ void BreakLayoutCommand::undo()
     formWindow()->clearSelection(false);
     m_layout->doLayout();
 
-    AbstractFormEditor *core = formWindow()->core();
-
-    QWidget *container = core->widgetFactory()->containerOfWidget(m_layoutBase);
-
-    if (AbstractMetaDataBaseItem *item = core->metaDataBase()->item(container)) {
-        item->setSpacing(m_spacing);
-        item->setMargin(m_margin);
+    if (m_layoutBase && m_layoutBase->layout()) {
+        m_layoutBase->layout()->setSpacing(m_spacing);
+        m_layoutBase->layout()->setMargin(m_margin);
     }
 }
 

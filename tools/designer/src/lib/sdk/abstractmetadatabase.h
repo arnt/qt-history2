@@ -44,12 +44,6 @@ public:
     virtual QList<QWidget*> tabOrder() const = 0;
     virtual void setTabOrder(const QList<QWidget*> &tabOrder) = 0;
 
-    virtual int spacing() const = 0;
-    virtual void setSpacing(int spacing) = 0;
-
-    virtual int margin() const = 0;
-    virtual void setMargin(int margin) = 0;
-
     virtual bool enabled() const = 0;
     virtual void setEnabled(bool b) = 0;
 };
