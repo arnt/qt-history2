@@ -701,6 +701,7 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 }
 
+//#define QT_SHAREDMEM_DEBUG
 
 QWSBackingStore::QWSBackingStore()
     :pix(0), shmid(-1), shmaddr(0)
@@ -723,10 +724,14 @@ QPixmap *QWSBackingStore::pixmap()
 }
 void QWSBackingStore::detach()
 {
+#ifdef QT_SHAREDMEM_DEBUG
+    qDebug() << "QWSBackingStore::detach shmid" << shmid << "shmaddr" << shmaddr;
+#endif
     delete pix;
     pix =0;
     if (shmid != -1) {
-        shmctl(shmid, IPC_RMID, 0);
+        //we don't IPC_RMID it here; we do it in attach() instead. Otherwise the server could get a
+        //region event with a shmid that's already deleted
         shmdt(shmaddr);
         shmid = -1;
         shmaddr = 0;
@@ -735,12 +740,17 @@ void QWSBackingStore::detach()
 
 void QWSBackingStore::create(QSize s)
 {
-    if (size() == s)
+    if (size() == s) {
         return;
+    }
     detach();
     pix = new QPixmap;
-    if (s.isNull())
+    if (s.isNull()) {
+#ifdef QT_SHAREDMEM_DEBUG
+        qDebug() << "QWSBackingStore::create null size";
+#endif
         return;
+    }
     int extradatasize = 0;//2 * sizeof(int); //store height and width ???
     int datasize = 4 * s.width() * s.height() + extradatasize;
     shmid = shmget(IPC_PRIVATE, datasize,  IPC_CREAT|0600);
@@ -748,6 +758,9 @@ void QWSBackingStore::create(QSize s)
     QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
     *pix = QPixmap::fromImage(img);
+#ifdef QT_SHAREDMEM_DEBUG
+    qDebug() << "QWSBackingStore::create size" << s << "shmid" << shmid << "shmaddr" << shmaddr;
+#endif
 }
 
 void QWSBackingStore::attach(int id, QSize s)
@@ -757,11 +770,19 @@ void QWSBackingStore::attach(int id, QSize s)
     detach();
     shmid = id;
     pix = new QPixmap;
-    if (id == -1)
+    if (id == -1) {
+#ifdef QT_SHAREDMEM_DEBUG
+        qDebug() << "QWSBackingStore::attach no id, size" << s;
+#endif
         return;
+    }
     shmaddr = shmat(shmid,0,0);
-    if (shmaddr == (void*)-1)
+    if (shmaddr == (void*)-1) {
+#ifdef QT_SHAREDMEM_DEBUG
+        qDebug() << "QWSBackingStore::attach COULD NOT ATTACH TO SHARED MEMORY size" << s << "shmid" << shmid;
+#endif
         return;
+    }
     // IPC_RMID only marks for deletion, so we know that the segment will be removed on exit
     // we do it in attach instead of create in order to allow on-demand (single use) backing store
     shmctl(shmid, IPC_RMID, 0);
@@ -770,6 +791,9 @@ void QWSBackingStore::attach(int id, QSize s)
     QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
     *pix = QPixmap::fromImage(img);
+#ifdef QT_SHAREDMEM_DEBUG
+    qDebug() << "QWSBackingStore::attach size" << s << "shmid" << shmid << "shmaddr" << shmaddr;
+#endif
 }
 
 
