@@ -250,8 +250,8 @@ void QWidget::resetInputContext()
         lower(),
         close().
 
-    \row \i Top level windows \i
-        windowModified(),
+    \row \i Top-level windows \i
+        isWindowModified(),
         setWindowModified(),
         windowTitle(),
         setWindowTitle(),
