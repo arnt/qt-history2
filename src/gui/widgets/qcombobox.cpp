@@ -2083,6 +2083,9 @@ void QComboBox::setColumn(int displayColumn)
 {
     Q_D(QComboBox);
     d->modelColumn = displayColumn;
+    QListView *lv = qobject_cast<QListView *>(d->viewContainer()->itemView());
+    if (lv)
+        lv->setColumn(displayColumn);
 }
 
 #define d d_func()
