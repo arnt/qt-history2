@@ -19,294 +19,266 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>373</width>
-    <height>158</height>
+    <width>388</width>
+    <height>164</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Qt Assistant - Find Text</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QGridLayout" >
    <property name="margin" >
-    <number>0</number>
+    <number>9</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item>
-    <layout class="QGridLayout" >
+   <item row="3" column="0" >
+    <spacer>
+     <property name="geometry" >
+      <rect>
+       <x>27</x>
+       <y>133</y>
+       <width>110</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>110</width>
+       <height>31</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="2" >
+    <spacer>
+     <property name="geometry" >
+      <rect>
+       <x>269</x>
+       <y>75</y>
+       <width>110</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>110</width>
+       <height>31</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="2" >
+    <widget class="QPushButton" name="findButton" >
+     <property name="geometry" >
+      <rect>
+       <x>269</x>
+       <y>9</y>
+       <width>110</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>&amp;Find</string>
+     </property>
+     <property name="shortcut" >
+      <string>Alt+F</string>
+     </property>
+     <property name="default" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2" >
+    <widget class="QPushButton" name="closeButton" >
+     <property name="geometry" >
+      <rect>
+       <x>269</x>
+       <y>43</y>
+       <width>110</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>C&amp;lose</string>
+     </property>
+     <property name="shortcut" >
+      <string>Alt+L</string>
+     </property>
+    </widget>
+   </item>
+   <item rowspan="2" row="1" column="0" >
+    <widget class="QGroupBox" name="ButtonGroup1" >
+     <property name="geometry" >
+      <rect>
+       <x>9</x>
+       <y>43</y>
+       <width>146</width>
+       <height>84</height>
+      </rect>
+     </property>
+     <property name="title" >
+      <string>&amp;Options</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>11</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="checkWords" >
+        <property name="geometry" >
+         <rect>
+          <x>13</x>
+          <y>23</y>
+          <width>120</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>&amp;Whole words only</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkCase" >
+        <property name="geometry" >
+         <rect>
+          <x>13</x>
+          <y>50</y>
+          <width>120</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>&amp;Case sensitive</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item rowspan="2" row="1" column="1" >
+    <widget class="QGroupBox" name="ButtonGroup2" >
+     <property name="geometry" >
+      <rect>
+       <x>161</x>
+       <y>43</y>
+       <width>102</width>
+       <height>84</height>
+      </rect>
+     </property>
+     <property name="title" >
+      <string>&amp;Direction</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>11</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QRadioButton" name="radioForward" >
+        <property name="geometry" >
+         <rect>
+          <x>13</x>
+          <y>23</y>
+          <width>76</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>Fo&amp;rward</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioBackward" >
+        <property name="geometry" >
+         <rect>
+          <x>13</x>
+          <y>50</y>
+          <width>76</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>&amp;Backward</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2" >
+    <layout class="QHBoxLayout" >
      <property name="margin" >
-      <number>11</number>
+      <number>0</number>
      </property>
      <property name="spacing" >
       <number>6</number>
      </property>
-     <item row="2" column="2" >
-      <spacer>
+     <item>
+      <widget class="QLabel" name="TextLabel1" >
        <property name="geometry" >
         <rect>
-         <x>271</x>
-         <y>77</y>
-         <width>91</width>
-         <height>70</height>
-        </rect>
-       </property>
-       <property name="orientation" >
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType" >
-        <enum>QSizePolicy::Expanding</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>31</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="2" >
-      <widget class="QPushButton" name="closeButton" >
-       <property name="geometry" >
-        <rect>
-         <x>271</x>
-         <y>45</y>
-         <width>91</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <property name="text" >
-        <string>C&amp;lose</string>
-       </property>
-       <property name="shortcut" >
-        <string>Alt+L</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2" >
-      <widget class="QPushButton" name="findButton" >
-       <property name="geometry" >
-        <rect>
-         <x>271</x>
-         <y>11</y>
-         <width>91</width>
+         <x>0</x>
+         <y>0</y>
+         <width>27</width>
          <height>28</height>
         </rect>
        </property>
        <property name="text" >
-        <string>&amp;Find</string>
+        <string>F&amp;ind:</string>
        </property>
-       <property name="shortcut" >
-        <string>Alt+F</string>
+       <property name="buddy" >
+        <cstring>comboFind</cstring>
        </property>
-       <property name="default" >
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboFind" >
+       <property name="geometry" >
+        <rect>
+         <x>33</x>
+         <y>1</y>
+         <width>221</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>0</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editable" >
         <bool>true</bool>
        </property>
-      </widget>
-     </item>
-     <item rowspan="2" row="1" column="1" >
-      <widget class="QGroupBox" name="ButtonGroup2" >
-       <property name="geometry" >
-        <rect>
-         <x>163</x>
-         <y>45</y>
-         <width>102</width>
-         <height>102</height>
-        </rect>
+       <property name="duplicatesEnabled" >
+        <bool>false</bool>
        </property>
-       <property name="title" >
-        <string>&amp;Direction</string>
-       </property>
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>11</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QRadioButton" name="radioForward" >
-          <property name="geometry" >
-           <rect>
-            <x>13</x>
-            <y>23</y>
-            <width>76</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>Fo&amp;rward</string>
-          </property>
-          <property name="checked" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioBackward" >
-          <property name="geometry" >
-           <rect>
-            <x>13</x>
-            <y>50</y>
-            <width>76</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>&amp;Backward</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="geometry" >
-           <rect>
-            <x>13</x>
-            <y>77</y>
-            <width>76</width>
-            <height>12</height>
-           </rect>
-          </property>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="2" >
-      <layout class="QHBoxLayout" >
-       <property name="margin" >
-        <number>0</number>
-       </property>
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="TextLabel1" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>27</width>
-           <height>28</height>
-          </rect>
-         </property>
-         <property name="text" >
-          <string>F&amp;ind:</string>
-         </property>
-         <property name="buddy" >
-          <cstring>comboFind</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboFind" >
-         <property name="geometry" >
-          <rect>
-           <x>33</x>
-           <y>1</y>
-           <width>221</width>
-           <height>25</height>
-          </rect>
-         </property>
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>7</hsizetype>
-           <vsizetype>0</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="editable" >
-          <bool>true</bool>
-         </property>
-         <property name="duplicatesEnabled" >
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item rowspan="2" row="1" column="0" >
-      <widget class="QGroupBox" name="ButtonGroup1" >
-       <property name="geometry" >
-        <rect>
-         <x>11</x>
-         <y>45</y>
-         <width>146</width>
-         <height>102</height>
-        </rect>
-       </property>
-       <property name="title" >
-        <string>&amp;Options</string>
-       </property>
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>11</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QCheckBox" name="checkWords" >
-          <property name="geometry" >
-           <rect>
-            <x>13</x>
-            <y>23</y>
-            <width>120</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>&amp;Whole words only</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkCase" >
-          <property name="geometry" >
-           <rect>
-            <x>13</x>
-            <y>50</y>
-            <width>120</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>&amp;Case sensitive</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="geometry" >
-           <rect>
-            <x>13</x>
-            <y>77</y>
-            <width>120</width>
-            <height>12</height>
-           </rect>
-          </property>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
       </widget>
      </item>
     </layout>
