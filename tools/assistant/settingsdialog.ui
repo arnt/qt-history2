@@ -1,5 +1,5 @@
-<UI version="4.0" stdsetdef="1" >
- <class>SettingsDialog</class>
+<ui version="4.0" >
+ <author></author>
  <comment>*********************************************************************
  **
  ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -12,16 +12,15 @@
  ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  **
  *********************************************************************</comment>
+ <exportmacro></exportmacro>
+ <class>SettingsDialog</class>
  <widget class="QDialog" name="SettingsDialog" >
-  <property name="objectName" >
-   <string notr="true">SettingsDialog</string>
-  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
-    <height>253</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -31,440 +30,595 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="objectName" >
-    <string notr="true">unnamed</string>
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
    </property>
    <item>
     <widget class="QTabWidget" name="settingsTab" >
-     <property name="objectName" >
-      <string notr="true">settingsTab</string>
+     <property name="geometry" >
+      <rect>
+       <x>9</x>
+       <y>9</y>
+       <width>382</width>
+       <height>246</height>
+      </rect>
      </property>
      <property name="sizePolicy" >
-      <sizePolicy>
-       <hSizeType>5</hSizeType>
-       <vSizeType>5</vSizeType>
-       <horStretch>0</horStretch>
-       <verStretch>0</verStretch>
-      </sizePolicy>
+      <sizepolicy>
+       <hsizetype>5</hsizetype>
+       <vsizetype>5</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
      <widget class="QWidget" name="tab" >
-      <property name="objectName" >
-       <string notr="true">tab</string>
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>378</width>
+        <height>219</height>
+       </rect>
       </property>
       <attribute name="title" >
        <string>&amp;General</string>
       </attribute>
-      <layout class="QVBoxLayout" >
-       <property name="objectName" >
-        <string notr="true">unnamed</string>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
        </property>
-       <item>
-        <widget class="QWidget" name="Layout2" >
-         <property name="objectName" >
-          <string notr="true">Layout2</string>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="2" column="1" >
+        <widget class="QToolButton" name="colorButton" >
+         <property name="geometry" >
+          <rect>
+           <x>120</x>
+           <y>71</y>
+           <width>40</width>
+           <height>21</height>
+          </rect>
          </property>
-         <layout class="QGridLayout" >
-          <property name="objectName" >
-           <string notr="true">unnamed</string>
-          </property>
-          <item row="1" column="1" >
-           <widget class="QComboBox" name="fixedfontCombo" >
-            <property name="objectName" >
-             <string notr="true">fixedfontCombo</string>
-            </property>
-            <property name="sizePolicy" >
-             <sizePolicy>
-              <hSizeType>7</hSizeType>
-              <vSizeType>0</vSizeType>
-              <horStretch>0</horStretch>
-              <verStretch>0</verStretch>
-             </sizePolicy>
-            </property>
-            <property name="editable" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="TextLabel1" >
-            <property name="objectName" >
-             <string notr="true">TextLabel1</string>
-            </property>
-            <property name="text" >
-             <string>Fix&amp;ed font:</string>
-            </property>
-            <property name="buddy" stdset="0" >
-             <cstring>fixedfontCombo</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" >
-           <widget class="QLabel" name="TextLabel2" >
-            <property name="objectName" >
-             <string notr="true">TextLabel2</string>
-            </property>
-            <property name="text" >
-             <string>Link color:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" >
-           <widget class="QComboBox" name="fontCombo" >
-            <property name="objectName" >
-             <string notr="true">fontCombo</string>
-            </property>
-            <property name="sizePolicy" >
-             <sizePolicy>
-              <hSizeType>7</hSizeType>
-              <vSizeType>0</vSizeType>
-              <horStretch>0</horStretch>
-              <verStretch>0</verStretch>
-             </sizePolicy>
-            </property>
-            <property name="editable" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="fontLabel" >
-            <property name="objectName" >
-             <string notr="true">fontLabel</string>
-            </property>
-            <property name="text" >
-             <string>&amp;Font:</string>
-            </property>
-            <property name="buddy" stdset="0" >
-             <cstring>fontCombo</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" >
-           <widget class="QCheckBox" name="linkUnderlineCB" >
-            <property name="objectName" >
-             <string notr="true">linkUnderlineCB</string>
-            </property>
-            <property name="text" >
-             <string>&amp;Underline links</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" >
-           <widget class="QToolButton" name="colorButton" >
-            <property name="objectName" >
-             <string notr="true">colorButton</string>
-            </property>
-            <property name="sizePolicy" >
-             <sizePolicy>
-              <hSizeType>0</hSizeType>
-              <vSizeType>0</vSizeType>
-              <horStretch>0</horStretch>
-              <verStretch>0</verStretch>
-             </sizePolicy>
-            </property>
-            <property name="minimumSize" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="focusPolicy" >
-             <enum>Qt::TabFocus</enum>
-            </property>
-            <property name="text" />
-           </widget>
-          </item>
-         </layout>
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>0</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="focusPolicy" >
+          <enum>Qt::TabFocus</enum>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
         </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="TextLabel1" >
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>40</y>
+           <width>105</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>Fix&amp;ed font:</string>
+         </property>
+         <property name="buddy" >
+          <cstring>fixedfontCombo</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QComboBox" name="fontCombo" >
+         <property name="geometry" >
+          <rect>
+           <x>120</x>
+           <y>9</y>
+           <width>249</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>7</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editable" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <widget class="QCheckBox" name="linkUnderlineCB" >
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>98</y>
+           <width>105</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>&amp;Underline links</string>
+         </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" >
+        <widget class="QLabel" name="fontLabel" >
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>9</y>
+           <width>105</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>&amp;Font:</string>
+         </property>
+         <property name="buddy" >
+          <cstring>fontCombo</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QLabel" name="TextLabel2" >
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>71</y>
+           <width>105</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>Link color:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QComboBox" name="fixedfontCombo" >
+         <property name="geometry" >
+          <rect>
+           <x>120</x>
+           <y>40</y>
+           <width>249</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>7</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editable" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" >
+        <spacer>
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>125</y>
+           <width>105</width>
+           <height>85</height>
+          </rect>
+         </property>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab" >
-      <property name="objectName" >
-       <string notr="true">tab</string>
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>378</width>
+        <height>219</height>
+       </rect>
       </property>
       <attribute name="title" >
        <string>&amp;Web</string>
       </attribute>
-      <layout class="QGridLayout" >
-       <property name="objectName" >
-        <string notr="true">unnamed</string>
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>9</number>
        </property>
-       <item row="4" column="0" >
-        <spacer name="Spacer11" >
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="TextLabel1_3" >
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>9</y>
+           <width>360</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>Web &amp;Browser Application:</string>
+         </property>
+         <property name="buddy" >
+          <cstring>browserApp</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>1</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="browserApp" >
+           <property name="geometry" >
+            <rect>
+             <x>1</x>
+             <y>2</y>
+             <width>322</width>
+             <height>23</height>
+            </rect>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonBrowse" >
+           <property name="geometry" >
+            <rect>
+             <x>329</x>
+             <y>1</y>
+             <width>30</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>1</hsizetype>
+             <vsizetype>0</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>30</width>
+             <height>32767</height>
+            </size>
+           </property>
+           <property name="text" >
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="TextLabel1_3_3" >
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>65</y>
+           <width>360</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>&amp;Home page</string>
+         </property>
+         <property name="buddy" >
+          <cstring>homePage</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>1</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="homePage" >
+           <property name="geometry" >
+            <rect>
+             <x>1</x>
+             <y>2</y>
+             <width>322</width>
+             <height>23</height>
+            </rect>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonHome" >
+           <property name="geometry" >
+            <rect>
+             <x>329</x>
+             <y>1</y>
+             <width>30</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>1</hsizetype>
+             <vsizetype>0</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>30</width>
+             <height>32767</height>
+            </size>
+           </property>
+           <property name="text" >
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer>
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>121</y>
+           <width>360</width>
+           <height>89</height>
+          </rect>
+         </property>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
          <property name="sizeHint" >
           <size>
            <width>20</width>
            <height>30</height>
           </size>
          </property>
-         <property name="sizeType" >
-          <enum>Expanding</enum>
-         </property>
-         <property name="orientation" >
-          <enum>Vertical</enum>
-         </property>
         </spacer>
-       </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="TextLabel1_3" >
-         <property name="objectName" >
-          <string notr="true">TextLabel1_3</string>
-         </property>
-         <property name="text" >
-          <string>Web &amp;Browser Application:</string>
-         </property>
-         <property name="buddy" stdset="0" >
-          <cstring>browserApp</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QWidget" name="Layout9" >
-         <property name="objectName" >
-          <string notr="true">Layout9</string>
-         </property>
-         <layout class="QHBoxLayout" >
-          <property name="objectName" >
-           <string notr="true">unnamed</string>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="browserApp" >
-            <property name="objectName" >
-             <string notr="true">browserApp</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="buttonBrowse" >
-            <property name="objectName" >
-             <string notr="true">buttonBrowse</string>
-            </property>
-            <property name="sizePolicy" >
-             <sizePolicy>
-              <hSizeType>1</hSizeType>
-              <vSizeType>0</vSizeType>
-              <horStretch>0</horStretch>
-              <verStretch>0</verStretch>
-             </sizePolicy>
-            </property>
-            <property name="maximumSize" >
-             <size>
-              <width>30</width>
-              <height>32767</height>
-             </size>
-            </property>
-            <property name="text" >
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="TextLabel1_3_3" >
-         <property name="objectName" >
-          <string notr="true">TextLabel1_3_3</string>
-         </property>
-         <property name="text" >
-          <string>&amp;Home page</string>
-         </property>
-         <property name="buddy" stdset="0" >
-          <cstring>homePage</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" >
-        <widget class="QWidget" name="layout8" >
-         <property name="objectName" >
-          <string notr="true">layout8</string>
-         </property>
-         <layout class="QHBoxLayout" >
-          <property name="objectName" >
-           <string notr="true">unnamed</string>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="homePage" >
-            <property name="objectName" >
-             <string notr="true">homePage</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="buttonHome" >
-            <property name="objectName" >
-             <string notr="true">buttonHome</string>
-            </property>
-            <property name="sizePolicy" >
-             <sizePolicy>
-              <hSizeType>1</hSizeType>
-              <vSizeType>0</vSizeType>
-              <horStretch>0</horStretch>
-              <verStretch>0</verStretch>
-             </sizePolicy>
-            </property>
-            <property name="maximumSize" >
-             <size>
-              <width>30</width>
-              <height>32767</height>
-             </size>
-            </property>
-            <property name="text" >
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="pdfTab" >
-      <property name="objectName" >
-       <string notr="true">pdfTab</string>
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>378</width>
+        <height>219</height>
+       </rect>
       </property>
       <attribute name="title" >
        <string>&amp;PDF</string>
       </attribute>
-      <layout class="QGridLayout" >
-       <property name="objectName" >
-        <string notr="true">unnamed</string>
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>9</number>
        </property>
-       <item row="0" column="0" >
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
         <widget class="QLabel" name="TextLabel1_3_2" >
-         <property name="objectName" >
-          <string notr="true">TextLabel1_3_2</string>
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>9</y>
+           <width>360</width>
+           <height>16</height>
+          </rect>
          </property>
          <property name="text" >
           <string>PDF &amp;Application</string>
          </property>
-         <property name="buddy" stdset="0" >
+         <property name="buddy" >
           <cstring>pdfApp</cstring>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <spacer name="spacer10" >
+       <item>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>1</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="pdfApp" >
+           <property name="geometry" >
+            <rect>
+             <x>1</x>
+             <y>2</y>
+             <width>322</width>
+             <height>23</height>
+            </rect>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonPDF" >
+           <property name="geometry" >
+            <rect>
+             <x>329</x>
+             <y>1</y>
+             <width>30</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>1</hsizetype>
+             <vsizetype>0</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>30</width>
+             <height>32767</height>
+            </size>
+           </property>
+           <property name="text" >
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer>
+         <property name="geometry" >
+          <rect>
+           <x>9</x>
+           <y>65</y>
+           <width>360</width>
+           <height>145</height>
+          </rect>
+         </property>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
          <property name="sizeHint" >
           <size>
            <width>20</width>
            <height>81</height>
           </size>
          </property>
-         <property name="sizeType" >
-          <enum>Expanding</enum>
-         </property>
-         <property name="orientation" >
-          <enum>Vertical</enum>
-         </property>
         </spacer>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QWidget" name="layout9" >
-         <property name="objectName" >
-          <string notr="true">layout9</string>
-         </property>
-         <layout class="QHBoxLayout" >
-          <property name="objectName" >
-           <string notr="true">unnamed</string>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="pdfApp" >
-            <property name="objectName" >
-             <string notr="true">pdfApp</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="buttonPDF" >
-            <property name="objectName" >
-             <string notr="true">buttonPDF</string>
-            </property>
-            <property name="sizePolicy" >
-             <sizePolicy>
-              <hSizeType>1</hSizeType>
-              <vSizeType>0</vSizeType>
-              <horStretch>0</horStretch>
-              <verStretch>0</verStretch>
-             </sizePolicy>
-            </property>
-            <property name="maximumSize" >
-             <size>
-              <width>30</width>
-              <height>32767</height>
-             </size>
-            </property>
-            <property name="text" >
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
        </item>
       </layout>
      </widget>
     </widget>
    </item>
    <item>
-     <layout class="QHBoxLayout" >
-      <property name="objectName" >
-       <string notr="true">unnamed</string>
-      </property>
-      <item>
-       <spacer name="Horizontal Spacing2" >
-        <property name="sizeHint" >
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="sizeType" >
-         <enum>Expanding</enum>
-        </property>
-        <property name="orientation" >
-         <enum>Horizontal</enum>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="buttonOk" >
-        <property name="objectName" >
-         <string notr="true">buttonOk</string>
-        </property>
-        <property name="text" >
-         <string>&amp;OK</string>
-        </property>
-        <property name="autoDefault" >
-         <bool>true</bool>
-        </property>
-        <property name="default" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="buttonCancel" >
-        <property name="objectName" >
-         <string notr="true">buttonCancel</string>
-        </property>
-        <property name="text" >
-         <string>&amp;Cancel</string>
-        </property>
-        <property name="autoDefault" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>1</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>1</y>
+         <width>214</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>0</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonOk" >
+       <property name="geometry" >
+        <rect>
+         <x>221</x>
+         <y>1</y>
+         <width>77</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>&amp;OK</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonCancel" >
+       <property name="geometry" >
+        <rect>
+         <x>304</x>
+         <y>1</y>
+         <width>77</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>&amp;Cancel</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
- <tabStops>
+ <pixmapfunction></pixmapfunction>
+ <tabstops>
   <tabstop>settingsTab</tabstop>
   <tabstop>fontCombo</tabstop>
   <tabstop>fixedfontCombo</tabstop>
@@ -478,5 +632,7 @@
   <tabstop>buttonPDF</tabstop>
   <tabstop>buttonOk</tabstop>
   <tabstop>buttonCancel</tabstop>
- </tabStops>
-</UI>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
