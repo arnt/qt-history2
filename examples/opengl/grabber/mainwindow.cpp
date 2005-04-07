@@ -72,7 +72,7 @@ void MainWindow::clearPixmap()
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("Grabber"),
+    QMessageBox::about(this, tr("About Grabber"),
             tr("The <b>Grabber</b> example demonstrates two approaches for "
                "rendering OpenGL into a Qt pixmap."));
 }
