@@ -306,12 +306,7 @@ void QMimeData::setData(const QString &mimetype, const QByteArray &data)
 */
 bool QMimeData::hasFormat(const QString &mimetype) const
 {
-    Q_D(const QMimeData);
-    for (int i=0; i<d->dataList.size(); i++) {
-        if (d->dataList.at(i).format == mimetype)
-            return true;
-    }
-    return false;
+    return formats().contains(mimetype);
 }
 
 /*!
