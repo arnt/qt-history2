@@ -595,7 +595,7 @@ void QComboBoxPrivate::init()
 {
     Q_Q(QComboBox);
     q->setModel(new QStandardItemModel(0, 1, q));
-    q->setFocusPolicy(Qt::TabFocus);
+    q->setFocusPolicy(Qt::WheelFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
