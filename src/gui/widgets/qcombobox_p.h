@@ -178,7 +178,6 @@ public:
     void updateArrow(QStyle::StateFlag state);
     bool updateHoverControl(const QPoint &pos);
     QStyle::SubControl newHoverControl(const QPoint &pos);
-    int modelColumn() const;
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
@@ -195,6 +194,7 @@ public:
     uint padding : 26;
     int maxVisibleItems;
     int maxCount;
+    int modelColumn;
     mutable QSize sizeHint;
     QStyle::StateFlag arrowState;
     QStyle::SubControl hoverControl;
