@@ -23,7 +23,8 @@ HEADERS += \
 	itemviews/qproxymodel_p.h \
 	itemviews/qitemeditorfactory.h \
 	itemviews/qstandarditemmodel.h \
-	itemviews/qstandarditemmodel_p.h
+	itemviews/qstandarditemmodel_p.h \
+	itemviews/qstringlistmodel.h
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
@@ -40,5 +41,6 @@ SOURCES += \
 	itemviews/qtreewidget.cpp \
 	itemviews/qproxymodel.cpp \
 	itemviews/qitemeditorfactory.cpp \
-	itemviews/qstandarditemmodel.cpp
+	itemviews/qstandarditemmodel.cpp \
+	itemviews/qstringlistmodel.cpp
 
