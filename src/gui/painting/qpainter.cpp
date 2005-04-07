@@ -371,7 +371,8 @@ void QPainterPrivate::updateState(QPainterState *newState)
 
 /*!
     \class QPainter
-    \brief The QPainter class does low-level painting e.g. on widgets.
+    \brief The QPainter class performs low-level painting on widgets and
+    other paint devices.
 
     \ingroup multimedia
     \mainclass
