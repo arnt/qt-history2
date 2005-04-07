@@ -1874,6 +1874,29 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
     }
 }
 
+/*!
+    Draws the first \a rectCount rectangles in the array \a rects
+    using the current pen and brush.
+
+    \sa drawRect()
+*/
+void QPainter::drawRects(const QRect *rects, int rectCount)
+{
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawRects(), count=%d\n", rectCount);
+#endif
+    if (!isActive() || rectCount <= 0)
+        return;
+
+    Q_D(QPainter);
+    d->updateState(d->state);
+
+    // ### Dummy implementation for now.
+    for (int i = 0; i < rectCount; ++i)
+        drawRect(QRectF(rects[i]));
+}
+
 
 /*! \fn void QPainter::drawPoint(const QPoint &p)
     Draws a single point at position \a p using the current pen's color.
@@ -2592,6 +2615,18 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
         drawLine(lines[i]);
 }
 
+/*!
+    Draws the first \a lineCount lines in the array \a lines
+    using the current pen.
+*/
+void QPainter::drawLines(const QLine *lines, int lineCount)
+{
+    Q_ASSERT_X(lines, "QPainter::drawLines", "lines array cannot be 0");
+    // This will go horribly wrong if the layout of QLineF changes!
+    for (int i=0; i<lineCount; ++i)
+        drawLine(QLineF(lines[i]));
+}
+
 
 /*!
     \fn void QPainter::drawLines(const QVector<QPointF> &pointPairs)
@@ -2639,7 +2674,7 @@ void QPainter::drawLines(const QPoint *pointPairs, int lineCount)
     Q_ASSERT_X(pointPairs, "QPainter::drawLines", "pointPairs array cannot be 0");
     QVector<QPointF> pts = qt_convert_points(pointPairs, lineCount * 2, QPointF());
     // This will go horribly wrong if the layout of QLineF changes!
-    drawLines((QLineF*)pointPairs, pts.size() / 2);
+    drawLines((QLineF*)pts.constData(), pts.size() / 2);
 }
 
 

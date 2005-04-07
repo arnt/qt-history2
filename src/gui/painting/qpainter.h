@@ -163,26 +163,6 @@ public:
     void fillPath(const QPainterPath &path, const QBrush &brush);
     void drawPath(const QPainterPath &path);
 
-    void drawLine(const QLineF &line);
-    inline void drawLine(int x1, int y1, int x2, int y2);
-    inline void drawLine(const QPoint &p1, const QPoint &p2);
-    inline void drawLine(const QPointF &p1, const QPointF &p2);
-
-    void drawRects(const QRectF *rects, int rectCount);
-    inline void drawRects(const QVector<QRectF> &rectangles);
-
-    void drawRect(const QRectF &rect);
-    inline void drawRect(int x1, int y1, int w, int h);
-    inline void drawRect(const QRect &rect);
-
-    void drawRoundRect(const QRectF &r, int xround = 25, int yround = 25);
-    inline void drawRoundRect(int x, int y, int w, int h, int = 25, int = 25);
-    inline void drawRoundRect(const QRect &r, int xround = 25, int yround = 25);
-
-    void drawEllipse(const QRectF &r);
-    inline void drawEllipse(const QRect &r);
-    inline void drawEllipse(int x, int y, int w, int h);
-
     void drawPoint(const QPointF &pt);
     inline void drawPoint(const QPoint &p);
     inline void drawPoint(int x, int y);
@@ -192,24 +172,33 @@ public:
     void drawPoints(const QPoint *points, int pointCount);
     inline void drawPoints(const QPolygon &points);
 
-    void drawArc(const QRectF &rect, int a, int alen);
-    inline void drawArc(const QRect &, int a, int alen);
-    inline void drawArc(int x, int y, int w, int h, int a, int alen);
-
-    void drawPie(const QRectF &rect, int a, int alen);
-    inline void drawPie(int x, int y, int w, int h, int a, int alen);
-    inline void drawPie(const QRect &, int a, int alen);
-
-    void drawChord(const QRectF &rect, int a, int alen);
-    inline void drawChord(int x, int y, int w, int h, int a, int alen);
-    inline void drawChord(const QRect &, int a, int alen);
+    void drawLine(const QLineF &line);
+    inline void drawLine(const QLine &line);
+    inline void drawLine(int x1, int y1, int x2, int y2);
+    inline void drawLine(const QPoint &p1, const QPoint &p2);
+    inline void drawLine(const QPointF &p1, const QPointF &p2);
 
     void drawLines(const QLineF *lines, int lineCount);
     inline void drawLines(const QVector<QLineF> &lines);
     void drawLines(const QPointF *pointPairs, int lineCount);
     inline void drawLines(const QVector<QPointF> &pointPairs);
+    void drawLines(const QLine *lines, int lineCount);
+    inline void drawLines(const QVector<QLine> &lines);
     void drawLines(const QPoint *pointPairs, int lineCount);
     inline void drawLines(const QVector<QPoint> &pointPairs);
+
+    void drawRect(const QRectF &rect);
+    inline void drawRect(int x1, int y1, int w, int h);
+    inline void drawRect(const QRect &rect);
+
+    void drawRects(const QRectF *rects, int rectCount);
+    inline void drawRects(const QVector<QRectF> &rectangles);
+    void drawRects(const QRect *rects, int rectCount);
+    inline void drawRects(const QVector<QRect> &rectangles);
+
+    void drawEllipse(const QRectF &r);
+    inline void drawEllipse(const QRect &r);
+    inline void drawEllipse(int x, int y, int w, int h);
 
     void drawPolyline(const QPointF *points, int pointCount);
     inline void drawPolyline(const QPolygonF &polyline);
@@ -225,6 +214,22 @@ public:
     inline void drawConvexPolygon(const QPolygonF &polygon);
     void drawConvexPolygon(const QPoint *points, int pointCount);
     inline void drawConvexPolygon(const QPolygon &polygon);
+
+    void drawArc(const QRectF &rect, int a, int alen);
+    inline void drawArc(const QRect &, int a, int alen);
+    inline void drawArc(int x, int y, int w, int h, int a, int alen);
+
+    void drawPie(const QRectF &rect, int a, int alen);
+    inline void drawPie(int x, int y, int w, int h, int a, int alen);
+    inline void drawPie(const QRect &, int a, int alen);
+
+    void drawChord(const QRectF &rect, int a, int alen);
+    inline void drawChord(int x, int y, int w, int h, int a, int alen);
+    inline void drawChord(const QRect &, int a, int alen);
+
+    void drawRoundRect(const QRectF &r, int xround = 25, int yround = 25);
+    inline void drawRoundRect(int x, int y, int w, int h, int = 25, int = 25);
+    inline void drawRoundRect(const QRect &r, int xround = 25, int yround = 25);
 
     void drawTiledPixmap(const QRectF &rect, const QPixmap &pm, const QPointF &offset = QPointF());
     inline void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0);
@@ -405,6 +410,10 @@ private:
 //
 // functions
 //
+inline void QPainter::drawLine(const QLine &line)
+{
+    drawLines(&line, 1);
+}
 
 inline void QPainter::drawLine(int x1, int y1, int x2, int y2)
 {
@@ -422,6 +431,11 @@ inline void QPainter::drawLine(const QPointF &p1, const QPointF &p2)
 }
 
 inline void QPainter::drawLines(const QVector<QLineF> &lines)
+{
+    drawLines(lines.data(), lines.size());
+}
+
+inline void QPainter::drawLines(const QVector<QLine> &lines)
 {
     drawLines(lines.data(), lines.size());
 }
@@ -477,6 +491,11 @@ inline void QPainter::drawRect(const QRect &r)
 }
 
 inline void QPainter::drawRects(const QVector<QRectF> &rects)
+{
+    drawRects(rects.data(), rects.size());
+}
+
+inline void QPainter::drawRects(const QVector<QRect> &rects)
 {
     drawRects(rects.data(), rects.size());
 }
