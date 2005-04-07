@@ -15,6 +15,7 @@ public:
 
 private slots:
     void currentBookChanged(const QModelIndex &index);
+    void dataChanged(const QModelIndex &index);
     void on_authorEdit_activated(const QString &text);
     void on_genreEdit_activated(const QString &text);
     void on_titleEdit_textChanged(const QString &text);

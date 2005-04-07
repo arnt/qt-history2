@@ -50,7 +50,9 @@ BookWindow::BookWindow()
     ui.genreEdit->setModel(model->relationModel(genreIdx));
     ui.genreEdit->setModelColumn(model->relationModel(genreIdx)->fieldIndex("name"));
 
-    connect(ui.bookTable->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(dataChanged(QModelIndex)));
+    connect(ui.bookTable->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(currentBookChanged(QModelIndex)));
 }
 
@@ -103,5 +105,11 @@ void BookWindow::on_yearEdit_valueChanged(int value)
             model->fieldIndex("year"));
     if (model->data(currentIndex).toInt() != value)
         model->setData(currentIndex, value);
+}
+
+void BookWindow::dataChanged(const QModelIndex &index)
+{
+    if (index.row() == ui.bookTable->currentIndex().row())
+        currentBookChanged(index);
 }
 
