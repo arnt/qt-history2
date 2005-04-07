@@ -221,7 +221,11 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     QString className = ui_widget->attributeClass();
     if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size()) {
         // ### check if elementLayout.size() == 1
-        ui_widget->setAttributeClass("QLayoutWidget");
+
+        if (qt_extension<IContainer*>(core()->extensionManager(), parentWidget) == 0) {
+            // generate a QLayoutWidget iff the parent is not an IContainer.
+            ui_widget->setAttributeClass("QLayoutWidget");
+        }
     }
 
     QWidget *w = AbstractFormBuilder::create(ui_widget, parentWidget);
