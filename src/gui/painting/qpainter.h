@@ -335,28 +335,28 @@ public:
     inline QT3_SUPPORT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
     QT3_SUPPORT void drawPoints(const QPolygon &pa, int index, int npoints = -1)
-    { drawPoints(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
+    { drawPoints(pa.constData() + index, npoints == -1 ? pa.size() - index : npoints); }
 
     QT3_SUPPORT void drawCubicBezier(const QPolygon &pa, int index = 0);
 
     QT3_SUPPORT void drawLineSegments(const QPolygon &points, int index = 0, int nlines = -1);
 
     inline QT3_SUPPORT void drawPolyline(const QPolygon &pa, int index, int npoints = -1)
-    { drawPolyline(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
+    { drawPolyline(pa.constData() + index, npoints == -1 ? pa.size() - index : npoints); }
 
     inline QT3_SUPPORT void drawPolygon(const QPolygon &pa, bool winding, int index = 0, int npoints = -1)
-    { drawPolygon(pa.data() + index, npoints == -1 ? pa.size() - index : npoints,
+    { drawPolygon(pa.constData() + index, npoints == -1 ? pa.size() - index : npoints,
                   winding ? Qt::WindingFill : Qt::OddEvenFill); }
 
     inline QT3_SUPPORT void drawPolygon(const QPolygonF &polygon, bool winding, int index = 0,
                                       int npoints = -1)
-    { drawPolygon(polygon.data() + index, npoints == -1 ? polygon.size() - index : npoints,
+    { drawPolygon(polygon.constData() + index, npoints == -1 ? polygon.size() - index : npoints,
                   winding ? Qt::WindingFill : Qt::OddEvenFill); }
 
     inline QT3_SUPPORT void drawConvexPolygon(const QPolygonF &polygon, int index, int npoints = -1)
-    { drawConvexPolygon(polygon.data() + index, npoints == -1 ? polygon.size() - index : npoints); }
+    { drawConvexPolygon(polygon.constData() + index, npoints == -1 ? polygon.size() - index : npoints); }
     inline QT3_SUPPORT void drawConvexPolygon(const QPolygon &pa, int index, int npoints = -1)
-    { drawConvexPolygon(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
+    { drawConvexPolygon(pa.constData() + index, npoints == -1 ? pa.size() - index : npoints); }
 
     static inline QT3_SUPPORT void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
     { setRedirected(pdev, replacement); }
@@ -417,12 +417,14 @@ inline void QPainter::drawLine(const QLine &line)
 
 inline void QPainter::drawLine(int x1, int y1, int x2, int y2)
 {
-    drawLine(QLineF(x1, y1, x2, y2));
+    QLine l(x1, y1, x2, y2);
+    drawLines(&l, 1);
 }
 
 inline void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 {
-    drawLine(QLineF(p1, p2));
+    QLine l(p1, p2);
+    drawLines(&l, 1);
 }
 
 inline void QPainter::drawLine(const QPointF &p1, const QPointF &p2)
@@ -432,92 +434,94 @@ inline void QPainter::drawLine(const QPointF &p1, const QPointF &p2)
 
 inline void QPainter::drawLines(const QVector<QLineF> &lines)
 {
-    drawLines(lines.data(), lines.size());
+    drawLines(lines.constData(), lines.size());
 }
 
 inline void QPainter::drawLines(const QVector<QLine> &lines)
 {
-    drawLines(lines.data(), lines.size());
+    drawLines(lines.constData(), lines.size());
 }
 
 inline void QPainter::drawLines(const QVector<QPointF> &pointPairs)
 {
-    drawLines(pointPairs.data(), pointPairs.size() / 2);
+    drawLines(pointPairs.constData(), pointPairs.size() / 2);
 }
 
 inline void QPainter::drawLines(const QVector<QPoint> &pointPairs)
 {
-    drawLines(pointPairs.data(), pointPairs.size() / 2);
+    drawLines(pointPairs.constData(), pointPairs.size() / 2);
 }
 
 inline void QPainter::drawPolyline(const QPolygonF &polyline)
 {
-    drawPolyline(polyline.data(), polyline.size());
+    drawPolyline(polyline.constData(), polyline.size());
 }
 
 inline void QPainter::drawPolyline(const QPolygon &polyline)
 {
-    drawPolyline(polyline.data(), polyline.size());
+    drawPolyline(polyline.constData(), polyline.size());
 }
 
 inline void QPainter::drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule)
 {
-    drawPolygon(polygon.data(), polygon.size(), fillRule);
+    drawPolygon(polygon.constData(), polygon.size(), fillRule);
 }
 
 inline void QPainter::drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule)
 {
-    drawPolygon(polygon.data(), polygon.size(), fillRule);
+    drawPolygon(polygon.constData(), polygon.size(), fillRule);
 }
 
 inline void QPainter::drawConvexPolygon(const QPolygonF &poly)
 {
-    drawConvexPolygon(poly.data(), poly.size());
+    drawConvexPolygon(poly.constData(), poly.size());
 }
 
 inline void QPainter::drawConvexPolygon(const QPolygon &poly)
 {
-    drawConvexPolygon(poly.data(), poly.size());
+    drawConvexPolygon(poly.constData(), poly.size());
 }
 
 inline void QPainter::drawRect(int x, int y, int w, int h)
 {
-    drawRect(QRectF(x, y, w, h));
+    QRect r(x, y, w, h);
+    drawRects(&r, 1);
 }
 
 inline void QPainter::drawRect(const QRect &r)
 {
-    drawRect(QRectF(r));
+    drawRects(&r, 1);
 }
 
 inline void QPainter::drawRects(const QVector<QRectF> &rects)
 {
-    drawRects(rects.data(), rects.size());
+    drawRects(rects.constData(), rects.size());
 }
 
 inline void QPainter::drawRects(const QVector<QRect> &rects)
 {
-    drawRects(rects.data(), rects.size());
+    drawRects(rects.constData(), rects.size());
 }
 
 inline void QPainter::drawPoint(int x, int y)
 {
-    drawPoint(QPointF(x, y));
+    QPoint p(x, y);
+    drawPoints(&p, 1);
 }
 
 inline void QPainter::drawPoint(const QPoint &p)
 {
-    drawPoint(QPointF(p));
+    drawPoints(&p, 1);
 }
 
 inline void QPainter::drawPoints(const QPolygonF &points)
 {
-    drawPoints(points.data(), points.size());
+    drawPoints(points.constData(), points.size());
 }
 
 inline void QPainter::drawPoints(const QPolygon &points)
 {
-    drawPoints(points.data(), points.size());
+    drawPoints(points.constData(), points.size());
 }
 
 inline void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)

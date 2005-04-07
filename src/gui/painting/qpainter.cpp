@@ -1892,9 +1892,21 @@ void QPainter::drawRects(const QRect *rects, int rectCount)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    // ### Dummy implementation for now.
-    for (int i = 0; i < rectCount; ++i)
-        drawRect(QRectF(rects[i]));
+    if (d->state->txop == QPainterPrivate::TxTranslate
+        && !d->engine->hasFeature(QPaintEngine::PrimitiveTransform)) {
+        for (int i=0; i<rectCount; ++i) {
+            QRectF r(rects[i].x() + d->state->matrix.dx(),
+                     rects[i].y() + d->state->matrix.dy(),
+                     rects[i].width(),
+                     rects[i].height());
+            d->engine->drawRects(&r, 1);
+        }
+    } else if (d->state->emulationSpecifier) {
+        for (int i=0; i<rectCount; ++i)
+            drawRect(QRectF(rects[i]));
+    } else {
+        d->engine->drawRects(rects, rectCount);
+    }
 }
 
 
