@@ -5355,6 +5355,33 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             }
         }
         break;
+    case CE_PushButtonLabel:
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
+            // We really don't want the label to be drawn the same as on
+            // windows style if it has an icon, then it should be more like a
+            // tab. So, cheat a little here.
+            if (btn->icon.isNull()) {
+                QWindowsStyle::drawControl(ce, btn, p, w);
+            } else {
+                QRect br = p->boundingRect(btn->rect, Qt::AlignCenter, btn->text);
+                QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal
+                                                              : QIcon::Disabled;
+                if (mode == QIcon::Normal && btn->state & State_HasFocus)
+                    mode = QIcon::Active;
+                QIcon::State state = QIcon::Off;
+                if (btn->state & State_On)
+                    state = QIcon::On;
+                QPixmap pixmap = btn->icon.pixmap(pixelMetric(PM_SmallIconSize), mode, state);
+                int pixw = pixmap.width();
+                int pixh = pixmap.height();
+                QPoint btl = br.isEmpty() ? QPoint(btn->rect.center().x() + pixw / 2 + 2, btn->rect.center().y())
+                                          : QPoint(br.x(), br.y() + br.height() / 2);
+                QPoint pixTL(btl.x() - pixw - 2, btl.y() - pixh / 2);
+                p->drawPixmap(pixTL, pixmap);
+                p->drawText(br, btn->text);
+            }
+        }
+        break;
     case CE_TabBarTabLabel:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
