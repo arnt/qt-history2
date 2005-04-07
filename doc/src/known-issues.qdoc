@@ -1,6 +1,6 @@
 /*!
     \page known-issues.html
-    \title Known Issues in Qt 4.0 Beta 1
+    \title Known Issues in Qt 4.0 Beta 2
 
     \omit
     ###########################################################################
@@ -11,9 +11,6 @@
     ###########################################################################
     \endomit
 
-    This page will contain a list of issues that are known to
-    Trolltech and that we expect to fix in the next beta release.
-
     \section1 Build Issues
 
     \section2 General
@@ -21,45 +18,35 @@
     \table 100%
     \header \i Description \i Resolution
 
-    \row \i When Qt has been built in both debug and release modes, the object files for
-    the demos will be built in debug mode regardless.
-    \i Fix scheduled for beta 2.
-
     \row \i All tools are compiled in debug mode with no optimizations.
-    \i Fix scheduled for beta 2.
+    \i Fix scheduled for Release Candidate.
 
-    \row \i \c{make install} doesn't work with \c{configure -fast}.
-    \i Fix scheduled for beta 2.
-
-    \row \i Static builds are untested for beta 1. In the mean time,
+    \row \i Static builds are untested for beta 2. In the mean time,
     you should be able to make use of the dynamic build. \i Fix
-    scheduled for beta 2.
-
-
+    scheduled for Release Candidate.
 
     \endtable
 
     \section2 Windows
 
-    No current issues.
-
-    \omit
     \table 100%
     \header \i Description \i Resolution
-    \row \i <description goes here> \i <resolution goes here>
+
+    \row \i Beta 2 has issues when compiled with -debug on Windows
+    98/ME. In the mean time use release builds on this platform. \i
+    Fix scheduled for Release Candidate.
+
     \endtable
-    \endomit
 
     \section2 X11
 
-    No current issues.
-
-    \omit
     \table 100%
     \header \i Description \i Resolution
-    \row \i <description goes here> \i <resolution goes here>
+
+    \row \i Beta 2 does not compile with Irix MIPS Pro CC. In the
+    mean time use GCC \i Fix scheduled for Release Candidate.
+
     \endtable
-    \endomit
 
     \section2 Embedded
 
@@ -91,22 +78,13 @@
     \table 100%
     \header \i Description \i Resolution
 
-    \row \i The Qt Motif Extension has not yet been ported to Qt 4.0,
-    and as such is not available in any of the technical previews or
-    the first beta. \i Fix scheduled for beta 2.
-
     \row \i The Visual Studio (v6) integration plugin does
-    not work with Qt 4 beta 1 release. \i Fix scheduled for beta 2.
+    not work with Qt 4 beta 2 release. \i Fix scheduled for Release Candidate.
 
-    \row \i The ActiveQt integration plugin is not yet ported to the
-    new Designer plugin system. \i Fix scheduled for beta 2.
-
-    \row \i The SQLite driver doesn't at the moment support BLOBs,
-    despite SQLite itself supporting them as of version 3. \i Fix
-    scheduled for beta 2.
-
-    \row \i Qt 3 SVG support is not yet ported to Qt 4. \i Fix
-    scheduled for beta 2.
+    \row \i Some widgets does not completely support reverse
+    layout. There are also some problems with text rendering of
+    some special characters and RTL . \i Fix scheduled for Release
+    Candidate.
 
     \endtable
 
@@ -114,48 +92,40 @@
 
     \table 100%
     \header \i Description \i Resolution
-    \row \i More or less all applications crash if it try to print (2005 only).
-    \i Fix scheduled for beta 2.
-    \row \i Printing doesn't work. \i Fix scheduled for beta 2.
-    \row \i QTextEdit crashes when pasting in lots of text; for example, see examples/sdi.
-    \i Fix scheduled for beta 2.
-    \row \i Windows XP style not ported to Qt 4. \i Fix scheduled for beta 2.
+
+    \row \i Printing only partially completed. \i Fix scheduled for
+    Release Candidate.
+
     \endtable
 
     \section2 X11
 
     \table 100%
     \header \i Description \i Resolution
-    \row \i Assistant and the \c mainwindow demo segfault on exit.
-    \i Fix scheduled for beta 2.
-    \row \i \bold{Solaris, AIX}: Shortcuts don't work.
-    \i Fix scheduled for beta 2.
     \row \i \bold{AIX xlC}: \c foreach is broken in release mode.
-    \i Fix scheduled for beta 2.
-    \row \i The Motif extension is not available in beta 1.
-    \i Scheduled for beta 2.
+    \i Fix scheduled for Release Candidate.
     \endtable
 
     \section2 Embedded
 
+    No current issues.
+
+    \omit
     \table 100%
     \header \i Description \i Resolution
-    \row \i Designer runs, but is completely unusable since drag and drop doesn't work.
-    (Drag and drop is not implemented on embedded.)
-    \i Fix scheduled for beta 2.
+    \row \i <description goes here> \i <resolution goes here>
     \endtable
+    \endomit
 
     \section2 Mac OS X
 
+    No current issues.
+
+    \omit
     \table 100%
     \header \i Description \i Resolution
-    \row \i \bold{Jaguar}: The \c arthur example doesn't let me click through the focus
-    widget. \i Fix scheduled for beta 2.
-    \row \i \bold{Jaguar}: It seems any of the network examples lock up whenever they
-    try to do some type of look up.
-    \i Fix scheduled for beta 2.
-    \row \i \bold{Jaguar}: The \c charactermap example doesn't show anything.
-    \i Fix scheduled for beta 2.
+    \row \i <description goes here> \i <resolution goes here>
     \endtable
+    \endomit
 
 */
