@@ -1668,3 +1668,20 @@ int QCoreApplication::loopLevel()
     return data->eventLoops.size();
 }
 #endif
+
+/*!
+    \fn bool QCoreApplication::winEventFilter(MSG *message, long *result)
+    \internal
+*/
+
+/*!
+    \fn void QCoreApplication::watchUnixSignal(int signal, bool watch)
+    \internal
+*/
+
+/*!
+    \fn void QCoreApplication::unixSignal(int number)
+
+    This signal is emitted whenever a Unix signal is received by the
+    application. The Unix signal received is specified by its \a number.
+*/
