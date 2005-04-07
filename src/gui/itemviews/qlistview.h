@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QListView : public QAbstractItemView
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
     Q_PROPERTY(QSize gridSize READ gridSize WRITE setGridSize)
     Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
-    Q_PROPERTY(int column READ column WRITE setColumn)
+    Q_PROPERTY(int modelColumn READ modelColumn WRITE setModelColumn)
 
 public:
     enum Movement { Static, Free, Snap };
@@ -71,8 +71,8 @@ public:
     bool isRowHidden(int row) const;
     void setRowHidden(int row, bool hide);
 
-    void setColumn(int column);
-    int column() const;
+    void setModelColumn(int column);
+    int modelColumn() const;
 
     QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index);

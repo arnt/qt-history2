@@ -42,7 +42,7 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
-    Q_PROPERTY(bool column READ column WRITE setColumn)
+    Q_PROPERTY(bool modelColumn READ modelColumn WRITE setModelColumn)
 
 public:
     explicit QComboBox(QWidget *parent = 0);
@@ -125,8 +125,8 @@ public:
     QModelIndex rootModelIndex() const;
     void setRootModelIndex(const QModelIndex &index);
 
-    int column() const; // ### FIND A BETTER NAME AND FIX LISTVIEW AS WELL
-    void setColumn(int displayColumn);
+    int modelColumn() const;
+    void setModelColumn(int visibleColumn);
 
     int currentIndex() const;
     void setCurrentIndex(int index);

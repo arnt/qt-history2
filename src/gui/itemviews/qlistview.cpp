@@ -1142,17 +1142,17 @@ bool QListView::isIndexHidden(const QModelIndex &index) const
 }
 
 /*!
-    \property QListView::column
+    \property QListView::modelColumn
     \brief the column in the model that is visible
 */
-void QListView::setColumn(int column)
+void QListView::setModelColumn(int column)
 {
     Q_D(QListView);
     d->column = column;
     d->doDelayedItemsLayout();
 }
 
-int QListView::column() const
+int QListView::modelColumn() const
 {
     Q_D(const QListView);
     return d->column;

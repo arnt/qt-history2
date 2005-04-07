@@ -2069,23 +2069,23 @@ void QComboBox::setFrame(bool enable)
 }
 
 /*!
-    \property QComboBox::column
+    \property QComboBox::modelColumn
     \brief the column in the model that is visible
 */
 
-int QComboBox::column() const
+int QComboBox::modelColumn() const
 {
     Q_D(const QComboBox);
     return d->modelColumn;
 }
 
-void QComboBox::setColumn(int displayColumn)
+void QComboBox::setModelColumn(int visibleColumn)
 {
     Q_D(QComboBox);
-    d->modelColumn = displayColumn;
+    d->modelColumn = visibleColumn;
     QListView *lv = qobject_cast<QListView *>(d->viewContainer()->itemView());
     if (lv)
-        lv->setColumn(displayColumn);
+        lv->setModelColumn(visibleColumn);
 }
 
 #define d d_func()
