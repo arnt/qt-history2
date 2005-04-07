@@ -385,14 +385,14 @@ void QGroupBox::focusInEvent(QFocusEvent *)
 QSize QGroupBox::minimumSizeHint() const
 {
     Q_D(const QGroupBox);
-    QSize sh = QWidget::minimumSizeHint();
+    QSize sh(d->leftmargin + d->rightmargin + 2, d->topmargin + d->bottommargin + 2);
     QSize m((d->bFlat ? 0 : 2*8), 0);
     if (d->checkbox) {
         if (!d->bFlat)
             m.rwidth() += fontMetrics().width(QLatin1Char(' '));
         sh = sh.expandedTo(d->checkbox->sizeHint() + m);
-    } else if (d->title.size()) {
-        sh = sh.expandedTo(QSize(fontMetrics().width(d->title + QLatin1Char(' ')), -1) + m);
+    } else if (!d->title.isEmpty()) {
+        sh += fontMetrics().size(0, d->title + QLatin1Char(' ')) + m;
     }
     return sh;
 }
