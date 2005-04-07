@@ -391,10 +391,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         break;
     case PE_FrameTabWidget:
+    case PE_FrameWindow:
         qDrawWinPanel(p, opt->rect, opt->palette, false, 0);
         break;
     case PE_FrameLineEdit:
-    case PE_FrameWindow:
         drawPrimitive(PE_Frame, opt, p, widget);
         break;
     case PE_FrameGroupBox:
@@ -606,7 +606,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 tf |= Qt::AlignHCenter;
             }
             drawItemText(p, ir, tf, btn->palette, (btn->state & State_Enabled),
-                         btn->text, &(btn->palette.buttonText().color()));
+                         btn->text, QPalette::ButtonText);
         }
         break;
     case CE_RadioButton:
@@ -680,7 +680,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 drawItemPixmap(p,mbi->rect, alignment, pix);
             else
                 drawItemText(p, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled,
-                             mbi->text, &mbi->palette.buttonText().color());
+                             mbi->text, QPalette::ButtonText);
         }
         break;
     case CE_MenuBarEmptyArea:
@@ -709,13 +709,12 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         break;
     case CE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
-            QColor penColor = pb->palette.highlightedText().color();
-            QColor *pColor = 0;
+            QPalette::ColorRole textRole = QPalette::NoRole;
             if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible
                 && pb->progress * 2 >= pb->maximum)
-                pColor = &penColor;
+                textRole = QPalette::HighlightedText;
             drawItemText(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
-                         pb->state & State_Enabled, pb->text, pColor);
+                         pb->state & State_Enabled, pb->text, textRole);
         }
         break;
     case CE_ProgressBarContents:
@@ -803,8 +802,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     rect.setRight(rect.right() - pixw - 2);
             }
             drawItemText(p, rect, header->textAlignment, header->palette,
-                         (header->state & State_Enabled), header->text,
-                         &(header->palette.buttonText().color()));
+                         (header->state & State_Enabled), header->text, QPalette::ButtonText);
         }
         break;
 
@@ -843,7 +841,6 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 arrowOpt.state = toolbutton->state;
                 drawPrimitive(pe, &arrowOpt, p, widget);
             } else {
-                QColor btext = toolbutton->palette.foreground().color();
                 if (toolbutton->icon.isNull() && !toolbutton->text.isEmpty()
                     || toolbutton->toolButtonStyle == Qt::ToolButtonTextOnly) {
                     int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
@@ -851,7 +848,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         alignment |= Qt::TextHideMnemonic;
                     rect.translate(shiftX, shiftY);
                     drawItemText(p, rect, alignment, toolbutton->palette,
-                                 opt->state & State_Enabled, toolbutton->text, &btext);
+                                 opt->state & State_Enabled, toolbutton->text,
+                                 QPalette::Foreground);
                 } else {
                     QPixmap pm;
                     QIcon::State state = toolbutton->state & State_On ? QIcon::On : QIcon::Off;
@@ -888,7 +886,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         }
                         tr.translate(shiftX, shiftY);
                         drawItemText(p, tr, alignment, toolbutton->palette,
-                                     toolbutton->state & State_Enabled, toolbutton->text, &btext);
+                                     toolbutton->state & State_Enabled, toolbutton->text,
+                                     QPalette::Foreground);
                     } else {
                         rect.translate(shiftX, shiftY);
                         drawItemPixmap(p, rect, Qt::AlignCenter, pm);
@@ -2917,7 +2916,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_GroupBox_TextLabelColor:
-        ret = int(opt ? opt->palette.foreground().color().rgb() : 0);
+        ret = 0;
         break;
 
     case SH_Q3ListViewExpand_SelectMouseType:

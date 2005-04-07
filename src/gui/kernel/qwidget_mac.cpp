@@ -111,7 +111,10 @@ static QSize qt_initial_size(QWidget *w) {
 #endif
     s.setWidth(qMin(s.width(), screen.width()*2/3));
     s.setHeight(qMin(s.height(), screen.height()*2/3));
-    return s + w->contentsMarginSize();    //account for the margins
+    int left, top, right, bottom;
+    w->getContentsMargins(&left, &top, &right, &bottom);
+    s += QSize(left + right, top + bottom);
+    return s;
 }
 
 QPoint posInWindow(const QWidget *w)

@@ -228,6 +228,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         break;
 
     case PE_FrameTabWidget:
+    case PE_FrameWindow:
         qDrawShadePanel(p, opt->rect, opt->palette, QStyle::State_None, pixelMetric(PM_DefaultFrameWidth));
         break;
     case PE_FrameFocusRect:

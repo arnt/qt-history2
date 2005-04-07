@@ -237,11 +237,13 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         int va = style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
         if(va & Qt::AlignTop)
             r.translate(0, -fm.descent());
-        QColor pen((QRgb) style()->styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
+        int textColor = style()->styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this);
+        if (textColor != 0 && !testAttribute(Qt::WA_SetPalette))
+            paint.setPen(QColor::fromRgba((QRgb)textColor));
         if (!style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             va |= Qt::TextHideMnemonic;
         style()->drawItemText(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
-                              isEnabled(), d->title, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
+                              isEnabled(), d->title);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
         QRect cbClip = d->checkbox->geometry();

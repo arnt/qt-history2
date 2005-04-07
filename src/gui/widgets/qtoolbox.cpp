@@ -220,16 +220,10 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
 
     QToolBox *tb = (QToolBox*)parentWidget();
 
-    const QColor* fill = 0;
-    if (selected &&
-         style()->styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, &opt, this) &&
-         !tb->testAttribute(Qt::WA_NoSystemBackground))
-        fill = &pal.color(foregroundRole());
-
     int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
     if (!style()->styleHint(QStyle::SH_UnderlineShortcut, 0, this))
         alignment |= Qt::TextHideMnemonic;
-    style()->drawItemText(p, tr, alignment, pal, isEnabled(), txt, fill);
+    style()->drawItemText(p, tr, alignment, pal, isEnabled(), txt, foregroundRole());
 
     if (!txt.isEmpty() && hasFocus()) {
         QStyleOptionFocusRect opt;

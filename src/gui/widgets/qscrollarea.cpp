@@ -61,11 +61,9 @@ QScrollArea::QScrollArea(QWidget *parent)
     :QAbstractScrollArea(*new QScrollAreaPrivate,parent)
 {
     Q_D(QScrollArea);
-    d->viewport->setAttribute(Qt::WA_SetBackgroundRole, false);
+    d->viewport->setBackgroundRole(QPalette::NoRole);
     d->vbar->setSingleStep(20);
     d->hbar->setSingleStep(20);
-//     d->vbar->setRange(0,0);
-//     d->hbar->setRange(0,0);
     d->layoutChildren();
 }
 

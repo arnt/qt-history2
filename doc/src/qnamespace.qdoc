@@ -678,13 +678,6 @@
     own. This is set/cleared by QWidget::setCursor() and
     QWidget::unsetCursor().
 
-    \value WA_SetForegroundRole Indicates that the widgets has an
-    explicit foreground role. This is set/cleared by
-    QWidget::setForegroundRole().
-
-    \value WA_SetBackgroundRole Indicates that the widgets has an
-    explicit background role. This is set/cleared by
-    QWidget::setBackgroundRole().
 
     \value WA_NoBackground Indicates that the widget paints all its
     pixels when it receives a paint event. It is thus not required for
@@ -816,7 +809,6 @@
     \omitvalue WA_WState_Polished
     \omitvalue WA_WState_Reparented
     \omitvalue WA_WState_Visible
-    \omitvalue WA_ForegroundInherited
     \omitvalue WA_SetWindowIcon
     \omitvalue WA_PendingUpdate
     \omitvalue WA_LaidOut

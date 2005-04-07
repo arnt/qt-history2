@@ -414,8 +414,8 @@ public:
     QRegion visibleRegion() const;
 
     void setContentsMargins(int left, int top, int right, int bottom);
+    void getContentsMargins(int *left, int *top, int *right, int *bottom) const;
     QRect contentsRect() const;
-    QSize contentsMarginSize() const;
 
 public:
 #ifndef QT_NO_LAYOUT

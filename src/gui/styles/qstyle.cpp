@@ -170,7 +170,7 @@
     \endcode
 
     When implementing a custom style, you cannot assume that the
-    widget is a QSpinBox just because the enum value is called 
+    widget is a QSpinBox just because the enum value is called
     PE_IndicatorSpinUp or PE_IndicatorSpinUp.
 
     The documentation for the \l{widgets/styles}{Styles} example
@@ -387,34 +387,41 @@ QRect QStyle::itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pi
     Draws the \a text in rectangle \a rect using \a painter and
     palette \a pal.
 
-    The pen color is specified with \a penColor. The
-    \a enabled bool indicates whether or not the item is enabled;
-    when reimplementing this bool should influence how the item is
-    drawn.
+    Text is drawn using the painter's pen. If an explicit \a textRole
+    is specified, then the text is drawn using the color specified in
+    \a pal for the specified role.  The \a enabled bool indicates
+    whether or not the item is enabled; when reimplementing this bool
+    should influence how the item is drawn.
 
     The text is aligned and wrapped according to \a alignment.
 
     \sa Qt::Alignment
 */
 void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
-                          bool enabled, const QString& text, const QColor *penColor) const
+                          bool enabled, const QString& text, QPalette::ColorRole textRole) const
 {
-    painter->setPen(penColor ? *penColor : pal.foreground().color());
-    if (!text.isEmpty()) {
-        if (!enabled) {
-            if (styleHint(SH_DitherDisabledText)) {
-                painter->drawText(rect, alignment, text);
-                painter->fillRect(painter->boundingRect(rect, alignment, text), QBrush(painter->background().color(), Qt::Dense5Pattern));
-                return;
-            } else if (styleHint(SH_EtchDisabledText)) {
-                QPen pen = painter->pen();
-                painter->setPen(pal.light().color());
-                painter->drawText(rect.adjusted(1, 1, 1, 1), alignment, text);
-                painter->setPen(pen);
-            }
-        }
-        painter->drawText(rect, alignment, text);
+    if (text.isEmpty())
+        return;
+    QPen savedPen;
+    if (textRole != QPalette::NoRole) {
+        savedPen = painter->pen();
+        painter->setPen(pal.color(textRole));
     }
+    if (!enabled) {
+        if (styleHint(SH_DitherDisabledText)) {
+            painter->drawText(rect, alignment, text);
+            painter->fillRect(painter->boundingRect(rect, alignment, text), QBrush(painter->background().color(), Qt::Dense5Pattern));
+            return;
+        } else if (styleHint(SH_EtchDisabledText)) {
+            QPen pen = painter->pen();
+            painter->setPen(pal.light().color());
+            painter->drawText(rect.adjusted(1, 1, 1, 1), alignment, text);
+            painter->setPen(pen);
+        }
+    }
+    painter->drawText(rect, alignment, text);
+    if (textRole != QPalette::NoRole)
+        painter->setPen(savedPen);
 }
 
 /*!
@@ -459,7 +466,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_IndicatorSpinMinus  Decrease symbol for a spin widget.
 
     \value PE_IndicatorViewItemCheck On/off indicator for a view item
-    
+
     \value PE_IndicatorCheckBox  On/off indicator, for example, a QCheckBox.
     \value PE_IndicatorRadioButton  Exclusive on/off indicator, for example, a QRadioButton.
 
@@ -807,7 +814,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_ToolBoxTabContents  Area for a toolbox tab's icon and label
 
     \value SE_ViewItemCheckIndicator Area for a view item's check mark
-    
+
     \value SE_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value
 
@@ -1757,7 +1764,7 @@ QPalette QStyle::standardPalette()
         background = QColor(192, 192, 192);
 #else
     QColor background(0xd4, 0xd0, 0xc8); // win 2000 grey
-#endif        
+#endif
     QColor light(background.light());
     QColor dark(background.dark());
     QColor mid(Qt::gray);

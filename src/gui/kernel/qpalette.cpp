@@ -439,6 +439,7 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
                         By default, the linkvisited color is \c Qt::magenta.
 
     \omitvalue NColorRoles
+    \omitvalue NoRole
 
     Note that text colors can be used for things other than just
     words; text colors are \e usually used for text, but it's quite

@@ -748,8 +748,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             } else {
                 drawItemText(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
 
-                         pal, flags & State_Enabled, text, -1,
-                         &pal.buttonText().color());
+                             pal, flags & State_Enabled, text, -1, QPalette::ButtonText);
             }
 #endif
             break;
@@ -774,8 +773,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                          &pal.buttonText().color());
             } else {
                 drawItemText(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
-                         pal, flags & State_Enabled, *mi->pixmap(), -1,
-                         &pal.buttonText().color());
+                             pal, flags & State_Enabled, *mi->pixmap(), -1, QPalette::ButtonText);
             }
 #endif
             break;

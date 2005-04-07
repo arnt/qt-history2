@@ -1916,7 +1916,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                 Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                                 | Qt::TextSingleLine,
                                 mi->palette, mi->state & QStyle::State_Enabled,
-                                mi->text, &mi->palette.buttonText().color());
+                                mi->text, QPalette::ButtonText);
             }
         }
         break;
@@ -3563,7 +3563,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                                 Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                                 | Qt::TextSingleLine,
                                 mi->palette, mi->state & QStyle::State_Enabled,
-                                mi->text, &mi->palette.buttonText().color());
+                                mi->text, QPalette::ButtonText);
             }
         }
         break;
@@ -5254,7 +5254,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 textr.translate(pixmap.width() + 2, 0);
             }
 
-            QColor penColor = header->palette.buttonText().color();
+            QPalette::ColorRole textRole = QPalette::ButtonText;
             if (p->font().bold()) {
                 // If it's a table, use the bright text instead.
                 if (!(w && (qobject_cast<QTreeView *>(w->parentWidget())
@@ -5262,10 +5262,10 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                             || w->parentWidget()->inherits("Q3ListView")
 #endif
                           )))
-                    penColor = header->palette.color(QPalette::BrightText);
+                    textRole = QPalette::BrightText;
             }
             drawItemText(p, textr, Qt::AlignVCenter, header->palette,
-                         header->state & QStyle::State_Enabled, header->text, &penColor);
+                         header->state & QStyle::State_Enabled, header->text, textRole);
         }
         break;
     case CE_ToolButtonLabel:
@@ -5691,11 +5691,11 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     \reimp
 */
 void QMacStyle::drawItemText(QPainter *p, const QRect &r, int flags, const QPalette &pal,
-                             bool enabled, const QString &text, const QColor *penColor) const
+                             bool enabled, const QString &text, QPalette::ColorRole textRole) const
 {
     if(flags & Qt::TextShowMnemonic)
         flags |= Qt::TextHideMnemonic;
-    QWindowsStyle::drawItemText(p, r, flags, pal, enabled, text, penColor);
+    QWindowsStyle::drawItemText(p, r, flags, pal, enabled, text, textRole);
 }
 
 #endif

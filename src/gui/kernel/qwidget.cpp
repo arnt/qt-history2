@@ -66,8 +66,8 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         ,layout(0)
 #endif
         ,leftmargin(0), topmargin(0), rightmargin(0), bottommargin(0)
-        ,fg_role(QPalette::Foreground)
-        ,bg_role(QPalette::Background)
+        ,fg_role(QPalette::NoRole)
+        ,bg_role(QPalette::NoRole)
         ,hd(0)
 #if defined(Q_WS_X11)
         ,picture(0)
@@ -1014,7 +1014,7 @@ bool QWidgetPrivate::isBackgroundInherited() const
 
     // if we have a background role set, or a custom brush for the
     // background role, then the background is not inherited
-    if (q->testAttribute(Qt::WA_SetBackgroundRole) || (pal.resolve() & (1<<bg)))
+    if (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))
         return false;
 
     if (brush.style() == Qt::SolidPattern) {
@@ -2481,8 +2481,8 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
         return;
     }
     setAttribute(Qt::WA_NoSystemBackground, false);
-    setAttribute(Qt::WA_SetForegroundRole, false);
-    QPalette::ColorRole role = d->bg_role;;
+    d->fg_role = QPalette::NoRole;
+    QPalette::ColorRole role = d->bg_role;
     switch(m) {
     case Qt::FixedColor:
     case Qt::FixedPixmap:
@@ -2536,9 +2536,7 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
         role = QPalette::LinkVisited;
         break;
     case Qt::X11ParentRelative:
-        d->fg_role = QPalette::Foreground;
-        d->bg_role = QPalette::Background;
-        setAttribute(Qt::WA_SetBackgroundRole, false);
+        d->fg_role = role = QPalette::NoRole;
     default:
         break;
     }
@@ -2559,16 +2557,24 @@ QT3_SUPPORT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
   The background role defines the brush from the widget's \l palette that
   is used to render the background.
 
+  If no explicit background role is set, the widget inherts its parent
+  widget's background role.
+
   \sa setBackgroundRole(), foregroundRole()
  */
 QPalette::ColorRole QWidget::backgroundRole() const
 {
-    const QWidget *w = this;
 
-    while (!w->isWindow() && w->windowType() != Qt::SubWindow
-           && !w->testAttribute(Qt::WA_SetBackgroundRole))
+    const QWidget *w = this;
+    do {
+        QPalette::ColorRole role = w->d_func()->bg_role;
+        if (role != QPalette::NoRole)
+            return role;
+        if (w->isWindow() || w->windowType() == Qt::SubWindow)
+            break;
         w = w->parentWidget();
-    return w->d_func()->bg_role;
+    } while (w);
+    return QPalette::Background;
 }
 
 /*!
@@ -2577,36 +2583,18 @@ QPalette::ColorRole QWidget::backgroundRole() const
   The background role defines the brush from the widget's \l palette that
   is used to render the background.
 
+  If \a role is \c QPalette::NoRole, then the widget inherits its
+  parent's background role.
+
   \sa backgroundRole(), foregroundRole()
  */
 
 void QWidget::setBackgroundRole(QPalette::ColorRole role)
 {
     Q_D(QWidget);
-    QWidgetPrivate *dd = d; //### workaround for gcc 3.3.x compiler bug
-    dd->bg_role = role;
-    setAttribute(Qt::WA_SetBackgroundRole);
-    if (!testAttribute(Qt::WA_SetForegroundRole))
-        switch (role) {
-        case QPalette::Button:
-            dd->fg_role = QPalette::ButtonText;
-            break;
-        case QPalette::Base:
-            dd->fg_role = QPalette::Text;
-            break;
-        case QPalette::Dark:
-        case QPalette::Shadow:
-            dd->fg_role = QPalette::Light;
-            break;
-        case QPalette::Highlight:
-            dd->fg_role = QPalette::HighlightedText;
-            break;
-        default:
-            dd->fg_role = QPalette::Foreground;
-            break;
-        }
-    dd->updateSystemBackground();
-    dd->propagatePaletteChange();
+    d->bg_role = role;
+    d->updateSystemBackground();
+    d->propagatePaletteChange();
 }
 
 /*!
@@ -2615,20 +2603,35 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
   The foreground role defines the color from the widget's \l palette that
   is used to draw the foreground.
 
-  If no explicit foreground role is set, returns a role that contrasts
-  with the backgroundRole().
+  If no explicit foreground role is set, the function returns a role
+  that contrasts with the background role.
 
   \sa setForegroundRole(), backgroundRole()
  */
 QPalette::ColorRole QWidget::foregroundRole() const
 {
-    const QWidget *w = this;
-    while (!w->isWindow() && w->windowType() != Qt::SubWindow
-           && (w->testAttribute(Qt::WA_ForegroundInherited)
-               || (!w->testAttribute(Qt::WA_SetBackgroundRole)
-                   && !w->testAttribute(Qt::WA_SetForegroundRole))))
-        w = w->parentWidget();
-    return w->d_func()->fg_role;
+    Q_D(const QWidget);
+    if (d->fg_role != QPalette::NoRole)
+        return d->fg_role;
+    QPalette::ColorRole role = QPalette::Foreground;
+    switch (backgroundRole()) {
+    case QPalette::Button:
+        role = QPalette::ButtonText;
+        break;
+    case QPalette::Base:
+        role = QPalette::Text;
+        break;
+    case QPalette::Dark:
+    case QPalette::Shadow:
+        role = QPalette::Light;
+        break;
+    case QPalette::Highlight:
+        role = QPalette::HighlightedText;
+        break;
+    default:
+        ;
+    }
+    return role;
 }
 
 /*!
@@ -2637,13 +2640,15 @@ QPalette::ColorRole QWidget::foregroundRole() const
   The foreground role defines the color from the widget's \l palette that
   is used to draw the foreground.
 
+  If \a role is \c QPalette::NoRole, the widget uses a foreground role
+  that contrasts with the background role.
+
   \sa backgroundRole(), setForegroundRole()
  */
 void QWidget::setForegroundRole(QPalette::ColorRole role)
 {
     Q_D(QWidget);
-    d->bg_role = role;
-    setAttribute(Qt::WA_SetForegroundRole);
+    d->fg_role = role;
     d->updateSystemBackground();
     d->propagatePaletteChange();
 }
@@ -3549,7 +3554,7 @@ void QWidget::setGeometry(const QRect &r)
 
     Changing the margins will trigger a resizeEvent().
 
-    \sa contentsRect()
+    \sa contentsRect(), getContentsMargins()
 */
 void QWidget::setContentsMargins(int left, int top, int right, int bottom)
 {
@@ -3576,10 +3581,28 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
     }
 }
 
+/*!  Returns the widget's contents margins for \a left, \a top, \a
+  right, and \a bottom.
+
+  \sa setContentsMargins(), contentsRect()
+ */
+void QWidget::getContentsMargins(int *left, int *top, int *right, int *bottom) const
+{
+    Q_D(const QWidget);
+    if (left)
+        *left = d->leftmargin;
+    if (top)
+        *top = d->topmargin;
+    if (right)
+        *right = d->rightmargin;
+    if (bottom)
+        *bottom = d->bottommargin;
+}
+
 /*!
     Returns the area inside the widget's margins.
 
-    \sa setContentsMargins() contentsMarginSize()
+    \sa setContentsMargins(), getContentsMargins()
 */
 QRect QWidget::contentsRect() const
 {
@@ -3590,17 +3613,6 @@ QRect QWidget::contentsRect() const
 
 }
 
-/*!
-    Returns the size of the widget's margin. This is the same as
-    size() - contentsRect().size().
-
-    \sa setContentsMargins() contentsRect()
-*/
-QSize QWidget::contentsMarginSize() const
-{
-    Q_D(const QWidget);
-    return QSize(d->leftmargin + d->rightmargin, d->topmargin + d->bottommargin);
-}
 
 /*!
   \fn void QWidget::customContextMenuRequested(const QPoint &pos)

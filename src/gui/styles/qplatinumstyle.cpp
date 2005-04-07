@@ -891,8 +891,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
                       Qt::AlignCenter | Qt::TextShowMnemonic,
                       btn->palette(), btn->isEnabled(),
                       btn->text(), -1,
-                      on ? &btn->palette().brightText().color()
-                      : &btn->palette().buttonText().color());
+                         on ? QPalette::BrightText : QPalette::ButtonText);
             if (btn->hasFocus())
                 drawPrimitive(PE_FocusRect, p,
                                subRect(SR_PushButtonFocusRect, widget),

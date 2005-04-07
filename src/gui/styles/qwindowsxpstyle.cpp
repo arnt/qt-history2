@@ -1271,8 +1271,8 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             bool dis = !(mbi->state & State_Enabled);
 
             QBrush fill = mbi->palette.brush(act ? QPalette::Highlight : QPalette::Button);
-            QColor textColor = dis ? mbi->palette.text().color() :
-                               act ? mbi->palette.highlightedText().color() : mbi->palette.buttonText().color();
+            QPalette::ColorRole textRole = dis ? QPalette::Text:
+                                           act ? QPalette::HighlightedText : QPalette::ButtonText;
             QPixmap pix = mbi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal);
 
             uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
@@ -1283,7 +1283,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             if (!pix.isNull())
                 drawItemPixmap(p, mbi->rect, alignment, pix);
             else
-                drawItemText(p, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, &textColor);
+                drawItemText(p, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, textRole);
         }
         return;
 

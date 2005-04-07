@@ -582,7 +582,7 @@ void QLabel::setMargin(int margin)
 QSize QLabelPrivate::sizeForWidth(int w) const
 {
     Q_Q(const QLabel);
-    QSize contentsMargin = q->contentsMarginSize();
+    QSize contentsMargin(leftmargin + rightmargin, topmargin + bottommargin);
     w -= contentsMargin.width();
     QRect br;
     QPixmap *pix = lpixmap;

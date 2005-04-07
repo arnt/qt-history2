@@ -19,6 +19,7 @@
 #include <QtCore/qsize.h>
 #include <QtGui/qicon.h>
 #include <QtGui/qpixmap.h>
+#include <QtGui/qpalette.h>
 
 #ifndef QT_NO_STYLE
 
@@ -53,7 +54,7 @@ public:
 
     virtual void drawItemText(QPainter *painter, const QRect &rect,
                               int flags, const QPalette &pal, bool enabled,
-                              const QString &text, const QColor *penColor = 0) const;
+                              const QString &text, QPalette::ColorRole textRole = QPalette::NoRole) const;
 
     virtual void drawItemPixmap(QPainter *painter, const QRect &rect,
                                 int alignment, const QPixmap &pixmap) const;

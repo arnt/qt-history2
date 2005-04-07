@@ -73,7 +73,7 @@ public:
     void actionEvent(QActionEvent *e)
     {
         QMenu::actionEvent(e);
-        resize(sizeHint()+contentsMarginSize());
+        resize(sizeHint());
     }
 };
 #include "qmenu.moc"
@@ -1039,7 +1039,7 @@ void QMenu::setTearOffEnabled(bool b)
 
     d->itemsDirty = true;
     if (isVisible())
-        resize(sizeHint()+contentsMarginSize());
+        resize(sizeHint());
 }
 
 bool QMenu::isTearOffEnabled() const
@@ -1173,6 +1173,8 @@ QSize QMenu::sizeHint() const
     s.rwidth() += 2 * style()->pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
     s.rheight() += 2 * style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
 
+    s += QSize(d->leftmargin + d->rightmargin, d->topmargin + d->bottommargin);
+
     return style()->sizeFromContents(QStyle::CT_Menu, &opt,
                                     s.expandedTo(QApplication::globalStrut()), this);
 }
@@ -1204,7 +1206,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     ensurePolished(); // Get the right font
     d->updateActions();
     QPoint pos = p;
-    QSize size = sizeHint() + contentsMarginSize();
+    QSize size = sizeHint();
     QRect screen = QApplication::desktop()->availableGeometry(p);
     const int desktopFrame = style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, this);
     if (d->ncols != 1) {
@@ -1288,7 +1290,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             doChildEffects = m->d->doChildEffects;
             m->d->doChildEffects = false;
         }
-        
+
         if (doChildEffects) {
             if (QApplication::isEffectEnabled(Qt::UI_FadeMenu))
                 qFadeEffect(this);
@@ -1610,7 +1612,7 @@ void QMenu::changeEvent(QEvent *e)
         d->itemsDirty = 1;
         setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
         if (isVisible())
-            resize(sizeHint() + contentsMarginSize());
+            resize(sizeHint());
         if (!style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
             delete d->scroll;
             d->scroll = 0;
@@ -2048,7 +2050,7 @@ void QMenu::internalDelayedPopup()
     d->activeMenu->d->causedPopup = this;
 
     bool on_left = false;     //find "best" position
-    const QSize menuSize(d->activeMenu->sizeHint() + d->activeMenu->contentsMarginSize());
+    const QSize menuSize(d->activeMenu->sizeHint());
     if (isRightToLeft()) {
         on_left = true;
         QMenu *caused = qobject_cast<QMenu*>(d->causedPopup);
