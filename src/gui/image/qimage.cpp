@@ -156,7 +156,6 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
         depth = 1;
-        numColors = 2;
         break;
     case QImage::Format_Indexed8:
         depth = 8;
@@ -173,13 +172,8 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
 
     QImageData *d = new QImageData;
     d->colortable.resize(numColors);
-    if (depth == 1) {
-        d->colortable[0] = QColor(Qt::color0).rgba();
-        d->colortable[1] = QColor(Qt::color1).rgba();
-    } else {
-        for (int i = 0; i < numColors; ++i)
-            d->colortable[i] = 0;
-    }
+    for (int i = 0; i < numColors; ++i)
+        d->colortable[i] = 0;
 
     d->width = width;
     d->height = height;
@@ -1588,6 +1582,8 @@ static void swap_bit_order(QImageData *dest, const QImageData *src, Qt::ImageCon
     Q_ASSERT(src->nbytes == dest->nbytes);
     Q_ASSERT(src->bytes_per_line == dest->bytes_per_line);
 
+    dest->colortable = src->colortable;
+
     const uchar *src_data = src->data;
     const uchar *end = src->data + src->nbytes;
     uchar *dest_data = dest->data;
@@ -1908,6 +1904,14 @@ static void convert_X_to_Mono(QImageData *dst, const QImageData *src, Qt::ImageC
     dither_to_Mono(dst, src, flags, false);
 }
 
+static void convert_ARGB_PM_to_Mono(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
+{
+    QImageData *tmp = QImageData::create(QSize(src->width, src->height), QImage::Format_ARGB32);
+    convert_ARGB_PM_to_ARGB(tmp, src, flags);
+    dither_to_Mono(dst, tmp, flags, false);
+    delete tmp;
+}
+
 //
 // convert_32_to_8:  Converts a 32 bits depth (true color) to an 8 bit
 // image with a colormap. If the 32 bit image has more than 256 colors,
@@ -2226,6 +2230,13 @@ static void convert_Mono_to_X32(QImageData *dest, const QImageData *src, Qt::Ima
 
     QVector<QRgb> colorTable = fix_color_table(src->colortable, dest->format);
 
+    // Default to black / white colors
+    if (colorTable.size() < 2) {
+        if (colorTable.size() == 0)
+            colorTable << 0xff000000;
+        colorTable << 0xffffffff;
+    }
+
     const uchar *src_data = src->data;
     uchar *dest_data = dest->data;
     if (src->format == QImage::Format_Mono) {
@@ -2262,8 +2273,8 @@ static void convert_Mono_to_Indexed8(QImageData *dest, const QImageData *src, Qt
         ctbl.resize(2);
     } else if (ctbl.size() < 2) {
         if (ctbl.size() == 0)
-            ctbl.append(0xffffffff);
-        ctbl.append(0xff000000);
+            ctbl << 0xff000000;
+        ctbl << 0xffffffff;
     }
     dest->colortable = ctbl;
 
@@ -2336,8 +2347,8 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
     }, // Format_ARGB32
 
     {
-        convert_X_to_Mono,
-        convert_X_to_Mono,
+        convert_ARGB_PM_to_Mono,
+        convert_ARGB_PM_to_Mono,
         convert_X32_to_Indexed8,
         convert_ARGB_PM_to_RGB,
         convert_ARGB_PM_to_ARGB,
