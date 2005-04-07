@@ -511,7 +511,7 @@ QSize QWidgetItem::sizeHint() const
     if (isEmpty()) {
         s = QSize(0, 0);
     } else {
-        s = wid->sizeHint();
+        s = wid->sizeHint().expandedTo(wid->minimumSizeHint());
         if (wid->sizePolicy().horizontalPolicy() == QSizePolicy::Ignored)
             s.setWidth(0);
         if (wid->sizePolicy().verticalPolicy() == QSizePolicy::Ignored)
