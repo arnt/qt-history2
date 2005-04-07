@@ -18,8 +18,6 @@
 #include <ActiveQt>
 #include <QtGui>
 
-#include <q3workspace.h>
-
 #include "../../shared/qaxtypes.h"
 
 #include <qt_windows.h>
@@ -50,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     debuglog = logDebug;
     oldDebugHandler = qInstallMsgHandler(redirectDebugOutput);
     QHBoxLayout *layout = new QHBoxLayout(Workbase);
-    workspace = new Q3Workspace(Workbase);
+    workspace = new QWorkspace(Workbase);
     layout->addWidget(workspace);
     layout->setMargin(0);
 

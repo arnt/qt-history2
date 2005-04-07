@@ -8,7 +8,7 @@ class ChangeProperties;
 class AmbientProperties;
 class QAxScriptManager;
 
-class Q3Workspace;
+class QWorkspace;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -40,7 +40,7 @@ private:
     ChangeProperties *dlgProperties;
     AmbientProperties *dlgAmbient;
     QAxScriptManager *scripts;
-    Q3Workspace *workspace;
+    QWorkspace *workspace;
 
     QtMsgHandler oldDebugHandler;
 
