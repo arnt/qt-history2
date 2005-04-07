@@ -1004,6 +1004,9 @@ bool QWidgetPrivate::isBackgroundInherited() const
     if (q->isWindow() || q->windowType() == Qt::SubWindow)
         return false;
 
+    if (q->testAttribute(Qt::WA_NoSystemBackground) || q->testAttribute(Qt::WA_NoBackground))
+        return false;
+
     const QPalette &pal = q->palette();
     QPalette::ColorRole bg = q->backgroundRole();
     QBrush brush = pal.brush(bg);

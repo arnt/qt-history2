@@ -315,9 +315,7 @@ public:
 
     QModelIndex closestIndex(const QPoint &target, const QVector<QModelIndex> &candidates) const;
 
-    inline QRubberBand *elasticBand()
-        { if (rubberBand) return rubberBand;
-          return rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport); }
+    QRect elasticBand;
 
     bool wrap;
     int spacing;

@@ -3016,10 +3016,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 
     case SH_RubberBand_Mask:
         ret = 0;
-        if (widget && (opt->state & State_Rectangle)) {
+        if (opt->state & State_Rectangle) {
             ret = true;
             if(QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask*>(hret)) {
-                mask->region = widget->rect();
+                mask->region = opt->rect;
                 int margin = pixelMetric(PM_DefaultFrameWidth) * 2;
                 mask->region -= opt->rect.adjusted(margin, margin, -margin, -margin);
             }

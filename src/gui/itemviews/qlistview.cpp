@@ -20,7 +20,6 @@
 #include <qstyle.h>
 #include <qevent.h>
 #include <qscrollbar.h>
-#include <qrubberband.h>
 #include <private/qlistview_p.h>
 #include <qdebug.h>
 
@@ -623,17 +622,13 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::mouseMoveEvent(e);
-    if (state() == QAbstractItemView::DragSelectingState
+    if (d->viewMode == IconMode
+        && state() == QAbstractItemView::DragSelectingState
         && d->selectionMode != SingleSelection) {
-        QPoint topLeft(d->pressedPosition.x() - horizontalOffset(),
-                       d->pressedPosition.y() - verticalOffset());
-        QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
-        if (d->viewMode == IconMode) {
-            QRubberBand *rb = d->elasticBand();
-            rb->setGeometry(rect.normalize());
-            rb->show();
-            rb->raise();
-        }
+        QRect rect(d->pressedPosition, e->pos() +  QPoint(horizontalOffset(), verticalOffset()));
+        rect = rect.normalize();
+        d->viewport->update(d->mapToViewport(rect.unite(d->elasticBand)));
+        d->elasticBand = rect;
     }
 }
 
@@ -644,8 +639,10 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::mouseReleaseEvent(e);
-    if (d->viewMode == IconMode)
-        d->elasticBand()->hide();
+    if (d->elasticBand.isValid()) {
+        d->viewport->update(d->mapToViewport(d->elasticBand));
+        d->elasticBand = QRect();
+    }
 }
 
 /*!
@@ -874,6 +871,19 @@ void QListView::paintEvent(QPaintEvent *e)
         QPoint delta = d->draggedItemsDelta();
         painter.translate(delta.x(), delta.y());
         d->drawItems(&painter, d->draggedItems);
+    }
+
+    if (d->elasticBand.isValid()) {
+        QStyleHintReturnMask mask;
+        QStyleOption opt;
+        opt.init(this);
+        opt.state |= QStyle::State_Rectangle;
+        opt.rect = d->mapToViewport(d->elasticBand);
+        painter.save();
+        if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, this, &mask))
+            painter.setClipRegion(mask.region);
+        style()->drawControl(QStyle::CE_RubberBand, &opt, &painter);
+        painter.restore();
     }
 }
 
@@ -1769,7 +1779,7 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
         if (!(*it).isValid())
             continue;
         distance = (indexToListViewItem(*it).rect().center() - target).manhattanLength();
-        if (distance < shortest || shortest == -1) { 
+        if (distance < shortest || shortest == -1) {
             shortest = distance;
             closest = *it;
         }

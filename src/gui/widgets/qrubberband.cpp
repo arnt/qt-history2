@@ -37,10 +37,8 @@ public:
 QStyleOption QRubberBandPrivate::getStyleOption() const
 {
     Q_Q(const QRubberBand);
-    QStyleOption opt(0);
-    opt.rect = rect;
-    opt.palette = q->palette();
-    opt.state = QStyle::State_None;
+    QStyleOption opt;
+    opt.init(q);
     if (shape == QRubberBand::Rectangle)
         opt.state |= QStyle::State_Rectangle;
     return opt;
@@ -88,6 +86,7 @@ QRubberBand::QRubberBand(Shape s, QWidget *p) :
     Q_D(QRubberBand);
     d->shape = s;
     setAttribute(Qt::WA_TransparentForMouseEvents);
+    setAttribute(Qt::WA_NoSystemBackground);
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
     ChangeWindowAttributes(qt_mac_window_for(this), kWindowNoShadowAttribute, 0);
@@ -133,6 +132,7 @@ void QRubberBandPrivate::updateMask()
 void QRubberBand::paintEvent(QPaintEvent *)
 {
     Q_D(QRubberBand);
+    d->updateMask();
     QStylePainter painter(this);
     painter.drawControl(QStyle::CE_RubberBand, d->getStyleOption());
 }
@@ -140,10 +140,9 @@ void QRubberBand::paintEvent(QPaintEvent *)
 /*!
     \reimp
 */
-void QRubberBand::changeEvent(QEvent *)
+void QRubberBand::changeEvent(QEvent *e)
 {
-    Q_D(QRubberBand);
-    d->updateMask();
+    QWidget::changeEvent(e);
 }
 
 /*!
@@ -226,7 +225,6 @@ void QRubberBand::setGeometry(const QRect &geom)
         }
     }
     QWidget::setGeometry(mygeom);
-    d->updateMask();
     update();
 #else
     QWidget::setMygeometry(geom);
