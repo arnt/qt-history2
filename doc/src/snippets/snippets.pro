@@ -36,7 +36,7 @@ SUBDIRS         = buffer \
                   separations \
                   scribe-overview \
                   separations \
-                  settings \
+#                  settings \               # not designed to be built
                   shareddirmodel \
                   sharedemployee \
                   sharedtablemodel \
