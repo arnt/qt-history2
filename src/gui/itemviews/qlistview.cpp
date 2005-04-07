@@ -879,7 +879,7 @@ void QListView::paintEvent(QPaintEvent *e)
         QStyleHintReturnMask mask;
         QStyleOptionRubberBand opt;
         opt.init(this);
-        opt.shape |= QRubberBand::Rectangle;
+        opt.shape = QRubberBand::Rectangle;
         opt.opaque = false;
         opt.rect = d->mapToViewport(d->elasticBand).intersect(d->viewport->rect().adjusted(-16, -16, 16, 16));
         painter.save();
