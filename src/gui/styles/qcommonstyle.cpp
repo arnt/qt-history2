@@ -1028,7 +1028,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 p->drawPixmap(tr.left() + 6, tr.center().y() - tabIcon.height() / 2, tabIcon);
                 tr.setLeft(tr.left() + tabIcon.width() + 4);
             }
-            drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text);
+            drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
 
             if (verticalTabs)
                 p->restore();
@@ -1116,7 +1116,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 const int indent = p->fontMetrics().descent();
                 drawItemText(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
                              Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
-                             dwOpt->state & State_Enabled, dwOpt->title);
+                             dwOpt->state & State_Enabled, dwOpt->title,
+                             QPalette::Foreground);
             }
         }
         break;
