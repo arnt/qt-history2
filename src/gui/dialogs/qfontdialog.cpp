@@ -31,52 +31,17 @@
 #include "qstyle.h"
 #include <private/qfont_p.h>
 #include <qvalidator.h>
-#include <qabstractitemmodel.h>
+#include <qstringlistmodel.h>
 #include <qlistview.h>
 #include <qheaderview.h>
-
-class QFontListModel : public QAbstractListModel
-{
-public:
-    QFontListModel(QObject *parent);
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role) const;
-
-    inline QStringList list()  const { return lst; }
-    inline void setList(const QStringList &l) {
-        lst = l;
-        emit reset();
-    }
-
-private:
-    QStringList lst;
-};
-
-QFontListModel::QFontListModel(QObject *parent)
-    : QAbstractListModel(parent)
-{
-}
-
-int QFontListModel::rowCount(const QModelIndex &) const
-{
-    return lst.count();
-}
-
-QVariant QFontListModel::data(const QModelIndex &index, int role) const
-{
-    if (role == Qt::DisplayRole)
-        return lst.at(index.row());
-    return QVariant();
-}
 
 class QFontListView : public QListView
 {
     Q_OBJECT
 public:
     QFontListView(QWidget *parent);
-    inline QFontListModel *model() const {
-        return static_cast<QFontListModel *>(QListView::model());
+    inline QStringListModel *model() const {
+        return static_cast<QStringListModel *>(QListView::model());
     }
     inline void setCurrentItem(int item) {
         QListView::setCurrentIndex(static_cast<QAbstractListModel*>(model())->index(item));
@@ -89,7 +54,7 @@ public:
     }
     inline QString currentText() const {
         int row = QListView::currentIndex().row();
-        return row < 0 ? QString() : model()->list().at(row);
+        return row < 0 ? QString() : model()->stringList().at(row);
     }
     void currentChanged(const QModelIndex &current, const QModelIndex &previous) {
         QListView::currentChanged(current, previous);
@@ -97,7 +62,7 @@ public:
             emit highlighted(current.row());
     }
     QString text(int i) const {
-        return model()->list().at(i);
+        return model()->stringList().at(i);
     }
 signals:
     void highlighted(int);
@@ -106,7 +71,7 @@ signals:
 QFontListView::QFontListView(QWidget *parent)
     : QListView(parent)
 {
-    setModel(new QFontListModel(parent));
+    setModel(new QStringListModel(parent));
 }
 
 /*!
@@ -548,7 +513,7 @@ void QFontDialog::updateFamilies()
 
     familyNames.sort();
 
-    d->familyList->model()->setList(familyNames);
+    d->familyList->model()->setStringList(familyNames);
 
     QString foundryName1, familyName1, foundryName2, familyName2;
     int bestFamilyMatch = -1;
@@ -615,7 +580,7 @@ void QFontDialog::updateStyles()
 
 
     QStringList styles = d->fdb.styles(d->familyList->currentText());
-    d->styleList->model()->setList(styles);
+    d->styleList->model()->setStringList(styles);
 
     if (styles.isEmpty()) {
         d->styleEdit->clear();
@@ -684,7 +649,7 @@ void QFontDialog::updateSizes()
                 current = i;
             ++i;
         }
-        d->sizeList->model()->setList(str_sizes);
+        d->sizeList->model()->setStringList(str_sizes);
         if (current == -1)
             // we request a size bigger than the ones in the list, select the biggest one
             current = d->sizeList->count() - 1;

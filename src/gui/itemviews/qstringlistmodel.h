@@ -21,7 +21,8 @@ class Q_GUI_EXPORT QStringListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit QStringListModel(const QStringList &strings, QObject *parent = 0);
+    explicit QStringListModel(QObject *parent = 0);
+    QStringListModel(const QStringList &strings, QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
@@ -33,9 +34,12 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
+    QStringList stringList() const;
+    void setStringList(const QStringList &strings);
+
 private:
     Q_DISABLE_COPY(QStringListModel)
-    QStringList stringList;
+    QStringList lst;
 };
 
 #endif // QSTRINGLISTMODEL_H

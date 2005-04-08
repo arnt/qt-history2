@@ -23,8 +23,13 @@
 
 */
 
+QStringListModel::QStringListModel(QObject *parent)
+    : QAbstractListModel(parent)
+{
+}
+
 QStringListModel::QStringListModel(const QStringList &strings, QObject *parent)
-    : QAbstractListModel(parent), stringList(strings)
+    : QAbstractListModel(parent), lst(strings)
 {
 }
 
@@ -35,7 +40,7 @@ QStringListModel::QStringListModel(const QStringList &strings, QObject *parent)
 
 int QStringListModel::rowCount(const QModelIndex &parent) const
 {
-    return stringList.count();
+    return lst.count();
 }
 
 /*!
@@ -49,11 +54,11 @@ int QStringListModel::rowCount(const QModelIndex &parent) const
 
 QVariant QStringListModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() < 0 || index.row() >= stringList.size())
+    if (index.row() < 0 || index.row() >= lst.size())
         return QVariant();
 
     if (role == Qt::DisplayRole || role == Qt::EditRole)
-        return stringList.at(index.row());
+        return lst.at(index.row());
 
     return QVariant();
 }
@@ -82,7 +87,7 @@ Qt::ItemFlags QStringListModel::flags(const QModelIndex &index) const
 bool QStringListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole) {
-        stringList.replace(index.row(), value.toString());
+        lst.replace(index.row(), value.toString());
         emit dataChanged(index, index);
         return true;
     }
@@ -100,7 +105,7 @@ bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
     emit rowsAboutToBeInserted(QModelIndex(), row, row + count - 1);
     
     for (int r = 0; r < count; ++r)
-        stringList.insert(row, QString());
+        lst.insert(row, QString());
 
     emit rowsInserted(QModelIndex(), row, row + count - 1);
 
@@ -118,9 +123,20 @@ bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)
     emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
 
     for (int r = 0; r < count; ++r)
-        stringList.removeAt(row);
+        lst.removeAt(row);
 
     emit rowsRemoved(QModelIndex(), row, row + count - 1);
         
     return true;
+}
+
+QStringList QStringListModel::stringList() const
+{
+    return lst;
+}
+
+void QStringListModel::setStringList(const QStringList &strings)
+{
+    lst = strings;
+    emit reset();
 }
