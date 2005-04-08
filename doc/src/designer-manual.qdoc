@@ -1129,15 +1129,15 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
 
     \section2 User Defined Custom Widgets
 
-    \image customwidget-example.png
+    \image customwidgetplugin-example.png
 
     Custom widgets can be adapted for use with \QD, giving designers the
     opportunity to configure the user interface using the actual widgets
     that will be used in an application rather than placeholder widgets.
 
     The process of creating a custom widget plugin is described in the
-    \l{designer/customwidget}{Custom Widget} example. To use a plugin,
-    it is necessary to ensure that it is located on a path that \QD
+    \l{designer/customwidgetplugin}{Custom Widget Plugin} example. To use a
+    plugin, it is necessary to ensure that it is located on a path that \QD
     searches for plugins. Generally, plugins stored in
     \c{$QTDIR/plugins/designer} will be loaded when \QD starts.
 */
@@ -1408,6 +1408,6 @@ without having to write code themselves.
     \image designer-creating-custom-widgets.png
 
     The documentation for this chapter is currently being revised. Please see
-    the \l{designer/customwidget}{Custom Widget} example for more information
-    about using custom widgets in \QD.
+    the \l{designer/customwidgetplugin}{Custom Widget Plugin} example for more
+    information about using custom widgets in \QD.
 */

@@ -1,10 +1,10 @@
 /*!
-    \example designer/customwidget
+    \example designer/customwidgetplugin
     \title Custom Widget Example
 
     The Custom Widget example shows how to create a custom widget plugin for \QD.
 
-    \image customwidget-example.png
+    \image customwidgetplugin-example.png
 
     In this example, the custom widget used is based on the
     \l{widgets/analogclock}{Analog Clock example}, and does not provide any custom
@@ -21,7 +21,7 @@
     project file that we use needs to contain information about \QD's
     library components:
 
-    \quotefromfile designer/customwidget/customwidget.pro
+    \quotefromfile designer/customwidgetplugin/customwidgetplugin.pro
     \skipto CONFIG
     \printuntil DESTDIR
 
@@ -48,7 +48,7 @@
     class. This class inherits from both QObject and the \c ICustomWidget class,
     and implements an interface defined by \c ICustomWidget:
 
-    \quotefromfile designer/customwidget/plugin.h
+    \quotefromfile designer/customwidgetplugin/customwidgetplugin.h
     \skipto class AnalogClockPlugin
     \printuntil /^\};/
 
@@ -65,7 +65,7 @@
     The class constructor simply calls the QObject base class constructor
     and sets the \c initialized variable to \c false.
 
-    \quotefromfile designer/customwidget/plugin.cpp
+    \quotefromfile designer/customwidgetplugin/customwidgetplugin.cpp
     \skipto AnalogClockPlugin::AnalogClockPlugin
     \printuntil /^\}/
 

@@ -142,6 +142,7 @@
     \list
     \o \l{designer/calculatorbuilder}{Calculator Builder}\raisedaster
     \o \l{designer/calculatorform}{Calculator Form}\raisedaster
-    \o \l{designer/customwidget}{Custom Widget}\raisedaster
+    \o \l{designer/customwidgetplugin}{Custom Widget Plugin}\raisedaster
+    \o \l{designer/worldtimeclockplugin}{World Time Clock Plugin}
     \endlist
 */
