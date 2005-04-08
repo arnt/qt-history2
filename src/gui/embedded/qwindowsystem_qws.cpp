@@ -209,10 +209,8 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
     }
     if (!win) {
         paintBackground(exposed-blend);
-        //buffer.paintBackground(
     } else if (!above_changing) {
         win->bltToScreen(exposed-blend);
-        //win->bltTobuffer(exposed&blend);
     }
     QRegion blendRegion = exposed&blend;
     if (win)
@@ -223,11 +221,15 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
         QPoint blendOffset = blend.boundingRect().topLeft();
         clipRgn.translate(-blendOffset);
         p.setClipRegion(clipRgn); //or should we translate the painter instead???
-        if (!win) {
+        if (!win) { //background
             if (!bgImage) {
                 p.fillRect(clipRgn.boundingRect(), *bgColor);
-            } // else ### do bgImage
-
+            }  else if (!bgImage->isNull()) {
+                QPixmap pix(*bgImage);
+                QBrush brush(pix);
+                p.setBrushOrigin(-blendOffset);
+                p.fillRect(clipRgn.boundingRect(), brush);
+            }
         } else {
             uchar opacity = win->opacity;
             QPixmap *buf = win->backingStore->pixmap();
@@ -238,7 +240,7 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
             } else {
                 QPixmap yuck(blendRegion.boundingRect().size());
                 yuck.fill(QColor(0,0,0,opacity));
- //@@@@@ Use the gfx instead ....
+                //### Use the gfx instead ???
                 QPainter pp;
                 pp.begin(&yuck);
                 pp.setCompositionMode(QPainter::CompositionMode_SourceIn);
@@ -1729,6 +1731,7 @@ void QWSServer::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
     changingw->backingStore->attach(cmd->simpleData.shmid, region.boundingRect().size());
+    changingw->opaque = cmd->simpleData.opaque;
 
     setWindowRegion(changingw, region);
 
