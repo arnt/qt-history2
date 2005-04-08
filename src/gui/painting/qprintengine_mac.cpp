@@ -25,6 +25,7 @@ QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode) : QPaintEngine(*(ne
 
 bool QMacPrintEngine::begin(QPaintDevice *dev)
 {
+    d->paintEngine->state = state;
     d->paintEngine->begin(dev);
     Q_ASSERT_X(d->state == QPrinter::Idle, "QMacPrintEngine", "printer already active");
 
