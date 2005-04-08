@@ -2174,7 +2174,8 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
 #ifndef QT_NO_IMAGE_DITHER_TO_1
         if (src->format != QImage::Format_RGB32) {
             const int trans = 216;
-            dst->colortable.append(0x00000000);
+            Q_ASSERT(dst->colortable.size() > trans);
+            dst->colortable[trans] = 0;
             QImageData *mask = QImageData::create(QSize(src->width, src->height), QImage::Format_MonoLSB);
             dither_to_Mono(mask, src, flags, true);
             uchar *dst_data = dst->data;
