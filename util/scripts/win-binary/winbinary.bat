@@ -1,26 +1,31 @@
+@echo off
 rem ***********************************************
 rem creates a binary package from a src package
 rem requires that perl and unzip are in your path
 rem %1 = working directory
 rem %2 = package name (without extension)
-rem %3 = compiler (VS2003, optional)
-rem %4 = build directory (optional, default compile)
-rem %5 = NSIS directory (optional)
+rem %3 = version
+rem %4 = options (release|full, default release)
+rem %5 = compiler (VS2003, optional, default VS2003)
+rem %6 = build directory (optional, default compile)
+rem %7 = NSIS directory (optional)
 rem ***********************************************
 
-set TMP_COMPILER=%3
-set TMP_BUILDDIR=%4
-set TMP_NSISDIR=%5
+set TMP_QTVERSION=%3
+set TMP_QTCONFIG=%4
+set TMP_COMPILER=%5
+set TMP_BUILDDIR=%6
+set TMP_NSISDIR=%7
 
-if "%3"=="" set TMP_COMPILER=VS2003
-if "%4"=="" set TMP_BUILDDIR=compile
-if "%5"=="" set TMP_NSISDIR="C:\Program Files\NSIS"
+if "%4"=="" set TMP_QTCONFIG=release
+if "%5"=="" set TMP_COMPILER=VS2003
+if "%6"=="" set TMP_BUILDDIR=compile
+if "%7"=="" set TMP_NSISDIR=C:\Program Files\NSIS
 
 call :ExtractAndCopy %1 %2
-
-rem call :Compile %1
-
+call :Compile %1
 call :OrganizeClean %1
+call :CreateNSISPackage %1 %2
 
 echo Done!
 goto END
@@ -35,6 +40,12 @@ rem ***********************************************
 echo Organizing the binary package...
 cd %1\clean
 
+if "%TMP_QTCONFIG%"=="release" goto ReleaseConfig
+echo - Copying symbols
+xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.pdb %1\clean\bin >> %1\log.txt
+goto CopyFiles
+
+:ReleaseConfig
 echo - Regenerate include directory
 rd /S /Q include
 set TMP_QTDIR=%QTDIR%
@@ -46,23 +57,22 @@ set TMP_QTDIR=
 echo - Removing source dir in clean
 rd /S /Q src
 
+:CopyFiles
 echo - Copying the binaries
-del /S /Q bin\*.exe
-xcopy /E /Q /I %1\%TMP_BUILDDIR%\bin\*.exe %1\clean\bin
+del /S /Q bin\*.exe >> %1\log.txt
+xcopy /Q /I %1\%TMP_BUILDDIR%\bin\*.exe %1\clean\bin >> %1\log.txt
 
 echo - Copying the dll's
-xcopy /E /Q /I %1\%TMP_BUILDDIR%\lib\*.dll %1\clean\bin
+xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.dll %1\clean\bin >> %1\log.txt
 
 echo - Copying the lib's
-xcopy /E /Q /I %1\%TMP_BUILDDIR%\lib\*.lib %1\clean\lib
-
-echo - Copying the pdb's
-xcopy /E /Q /I %1\%TMP_BUILDDIR%\lib\*.pdb %1\clean\bin
+xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.lib %1\clean\lib >> %1\log.txt
 
 echo - Copying additional files
-xcopy /E /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\QtCore\
+xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\QtCore\ >> %1\log.txt
 mkdir %1\clean\include\QtCore\arch
-xcopy /E /Q %1\%TMP_BUILDDIR%\src\corelib\arch\windows\arch\qatomic.h %1\clean\include\QtCore\arch\
+xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\arch\windows\arch\qatomic.h %1\clean\include\QtCore\arch\ >> %1\log.txt
+
 goto :EOF
 
 
@@ -70,6 +80,7 @@ goto :EOF
 rem ***********************************************
 rem Create NSIS package
 rem %1 = working directory
+rem %2 = package name
 rem ***********************************************
 :CreateNSISPackage
 echo Creating NSIS Package
@@ -77,10 +88,12 @@ cd %1
 
 echo - Updating the NSIS Qt Plugin
 if exist "%TMP_NSISDIR%\Plugins\qtnsisext.dll" del /Q "%TMP_NSISDIR%\Plugins\qtnsisext.dll"
-xcopy /E /Q %1\qtnsisext\qtnsisext.dll %TMP_NSISDIR%\Plugins\
+xcopy /Q "%1\qtnsisext\qtnsisext.dll" "%TMP_NSISDIR%\Plugins\" >> %1\log.txt
+if not %errorlevel%==0 goto FAILED
 
 echo - Running makensis
-"%TMP_NSISDIR%\makensis.exe" installscriptwin.nsi
+"%TMP_NSISDIR%\makensis.exe" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2" installscriptwin.nsi >> %1\log.txt
+if not %errorlevel%==0 goto FAILED
 
 goto :EOF
 
@@ -103,9 +116,17 @@ configure -release -qt-sql-sqlite -no-style-windowsxp -qt-zlib -qt-png -qt-jpeg 
 if not %errorlevel%==0 goto FAILED
 
 echo - Building...
-echo   * Qt (debug and release)
+echo   * Qt (%TMP_QTCONFIG%)
+
+if "%TMP_QTCONFIG%"=="release" goto ReleaseBuild
+
 nmake sub-src-all >> %1\log.txt 2>&1
-if not %errorlevel%==0 goto FAILED
+goto BuildTools
+
+:ReleaseBuild
+nmake sub-src >> %1\log.txt 2>&1
+
+:BuildTools
 echo   * Tools (release)
 nmake sub-tools >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
@@ -169,7 +190,7 @@ if exist log.txt del log.txt
 
 echo - Creating directories
 if exist clean rd /S /Q clean
-if exist %3 rd /S /Q %TMP_BUILDDIR%
+if exist %TMP_BUILDDIR% rd /S /Q %TMP_BUILDDIR%
 if exist %2 rd /S /Q %2
 
 mkdir clean
@@ -181,7 +202,7 @@ if not %errorlevel%==0 goto FAILED
 rename %2 %TMP_BUILDDIR%
 
 echo - Copying directories
-xcopy /E /Q %TMP_BUILDDIR% clean
+xcopy /E /Q %TMP_BUILDDIR% clean >> %1\log.txt
 if not %errorlevel%==0 goto FAILED
 goto :EOF
 
@@ -191,11 +212,14 @@ goto :EOF
 echo Failed!
 
 :END
+cd %1
 set OLD_PATH=
 set OLD_QMAKESPEC=
 set OLD_QTDIR=
 set OLD_INCLUDE=
 set OLD_LIB=
+set TMP_QTVERSION=
+set TMP_QTCONFIG=
 set TMP_COMPILER=
 set TMP_BUILDDIR=
 set TMP_NSISDIR=

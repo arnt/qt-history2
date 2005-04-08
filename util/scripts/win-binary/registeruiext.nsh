@@ -1,5 +1,3 @@
-!include "MUI.nsh"
-
 !define UI_EXT_INI_FILE "registeruiext.ini"
 
 !define UI_FILE_INTERNAL_DESC "TrolltechDesignerUI"
@@ -9,24 +7,26 @@
 !define DESIGNER_CMD "bin\designer.exe $\"%1$\""
 !define DESIGNER_CMD_SHORT "designer.exe"
 
-
 var REGISTER_UI_EXT_STATE
 
 LangString RegisterUIExtTitle ${LANG_ENGLISH} "File Extension"
 LangString RegisterUIExtTitleDescription ${LANG_ENGLISH} "Setting up the File Extension"
 
-!macro TT_PAGES_INIT
+!macro TT_UI_PAGE_INIT
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${UI_EXT_INI_FILE}"
-  
   strcpy $REGISTER_UI_EXT_STATE "1"
 !macroend
 
-!macro TT_PAGE_REGISTER_UI_EXT
-  Page custom ShowUIExtPage RegisterUIExtension
+!macro TT_UI_PAGE_SHOW
+  Page custom ShowUIExtPage SetRegisterUIExtension
 !macroend
 
-!macro TT_UNREGISTER_UI_EXT
+!macro TT_UI_UNREGISTER
   call un.UnregisterUIExtension
+!macroend
+
+!macro TT_UI_REGISTER
+  call RegisterUIExtension
 !macroend
 
 Function ShowUIExtPage
@@ -43,11 +43,14 @@ Function ShowUIExtPage
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "${UI_EXT_INI_FILE}"
 FunctionEnd
 
+Function SetRegisterUIExtension
+  !insertmacro MUI_INSTALLOPTIONS_READ $REGISTER_UI_EXT_STATE "${UI_EXT_INI_FILE}" "Field 2" "State"
+FunctionEnd
+
 Function RegisterUIExtension
   ; todo: where do we get the icon from?
   ;SetOutPath "$INSTDIR"
   ;File "${PATH_TO_ICON}\${UI_FILE_ICON}"
-  !insertmacro MUI_INSTALLOPTIONS_READ $REGISTER_UI_EXT_STATE "${UI_EXT_INI_FILE}" "Field 2" "State"
   strcmp $REGISTER_UI_EXT_STATE "1" 0 end
     WriteRegStr "HKCR" "${UI_FILE_INTERNAL_DESC}" "" ""
     WriteRegStr "HKCR" "${UI_FILE_INTERNAL_DESC}\DefaultIcon" "" "$INSTDIR\${UI_FILE_ICON}"

@@ -69,7 +69,7 @@ uint KeyCheck::featuresForKey()
 
 uint KeyCheck::codeForKey()
 {
-    int len = strlen(k1) + strlen(k2);
+    int len = int(strlen(k1) + strlen(k2));
     char *u = new char[sizeof(char)*len];
     strcpy(u, k1+1);
     strcat(u, k2);
@@ -111,7 +111,7 @@ uint KeyCheck::codeForKey()
 uint KeyCheck::decodeBaseZ(const char *str)
 {
     uint k = 0;
-    int i = strlen(str);
+    int i = int(strlen(str));
     while ( i > 0 ) {
         i--;
         const char *p = strchr(alphabet, str[i]);

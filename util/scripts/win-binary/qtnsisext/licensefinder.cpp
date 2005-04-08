@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "licensefinder.h"
-#include "binpatch.h"
 
 LicenseFinder::LicenseFinder()
 {
@@ -67,7 +66,7 @@ bool LicenseFinder::lookInDirectory(const char *dir)
         buf[r] = '\0';
         
         char *n = "LicenseKey=";        
-        char *key = BinPatch::findPattern(buf, n, r);
+        char *key = findPattern(buf, n, ulong(r));
 
         if (key && (strlen(key) > 14)) {
             strncpy(key1, key, 4);
@@ -79,4 +78,28 @@ bool LicenseFinder::lookInDirectory(const char *dir)
     }
     delete file;
     return false;
+}
+
+/* copied from binpatch.cpp */
+char *LicenseFinder::findPattern(char *h, const char *n, ulong hlen)
+{
+    if (!h || !n || hlen == 0)
+	return 0;
+
+    ulong nlen;
+
+    char nc = *n++;
+    nlen = ulong(strlen(n));
+    char hc;
+
+    do {
+        do {
+            hc = *h++;
+            if (hlen-- < 1)
+                return 0;
+        } while (hc != nc);
+        if (nlen > hlen)
+            return 0;
+    } while (strncmp(h, n, nlen) != 0);
+    return h + nlen;
 }
