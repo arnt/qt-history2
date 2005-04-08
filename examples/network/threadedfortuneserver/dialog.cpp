@@ -14,7 +14,7 @@ Dialog::Dialog(QWidget *parent)
     quitButton->setAutoDefault(false);
 
     if (!server.listen()) {
-        QMessageBox::critical(this, tr("Fortune Server"),
+        QMessageBox::critical(this, tr("Threaded Fortune Server"),
                               tr("Unable to start the server: %1.")
                               .arg(server.errorString()));
         close();
@@ -35,5 +35,5 @@ Dialog::Dialog(QWidget *parent)
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
 
-    setWindowTitle(tr("Fortune Server"));
+    setWindowTitle(tr("Threaded Fortune Server"));
 }

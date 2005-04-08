@@ -39,7 +39,7 @@ ConfigDialog::ConfigDialog()
     mainLayout->addSpacing(12);
     mainLayout->addLayout(buttonsLayout);
 
-    setWindowTitle(tr("Configuration Dialog"));
+    setWindowTitle(tr("Config Dialog"));
 }
 
 void ConfigDialog::createIcons()

@@ -254,8 +254,8 @@ void MainWindow::setCurrentFile(const QString &fileName)
     if (curFile.isEmpty())
         setWindowTitle(tr("Application"));
     else
-        setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
-                                    .arg(tr("Application")));
+        setWindowTitle(tr("%1[*] - %2").arg(strippedName(curFile))
+                                       .arg(tr("Application")));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

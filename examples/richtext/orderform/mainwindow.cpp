@@ -21,7 +21,7 @@ MainWindow::MainWindow()
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
     setCentralWidget(letters);
-    setWindowTitle(tr("Letter Creator"));
+    setWindowTitle(tr("Order Form"));
 }
 
 void MainWindow::createLetter(const QString &name, const QString &address,

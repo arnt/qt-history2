@@ -185,7 +185,7 @@ void NorwegianWoodStyle::drawControl(ControlElement element,
                                      QPainter *painter,
                                      const QWidget *widget) const
 {
-    switch(element) {
+    switch (element) {
     case CE_PushButtonLabel:
         {
             QStyleOptionButton myButtonOption;

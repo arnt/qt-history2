@@ -13,7 +13,7 @@ Window::Window()
     layout->addWidget(editsGroup);
     layout->addWidget(doubleSpinBoxesGroup);
 
-    setWindowTitle(tr("Spinboxes"));
+    setWindowTitle(tr("Spin Boxes"));
 }
 
 void Window::createSpinBoxes()

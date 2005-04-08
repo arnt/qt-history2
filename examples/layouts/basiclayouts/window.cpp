@@ -61,5 +61,5 @@ Window::Window()
     mainLayout->addWidget(bigEditor);
     mainLayout->addLayout(paddedLayout);
 
-    setWindowTitle(tr("Basic layouts"));
+    setWindowTitle(tr("Basic Layouts"));
 }
