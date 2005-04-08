@@ -166,11 +166,12 @@ void QWSWindow::bltToScreen(const QRegion &globalrgn)
     gfx->setClipRegion(globalrgn, Qt::ReplaceClip);
 
 
+    backingStore->lock();
     gfx->setSource(buf);
     gfx->setAlphaType(QGfx::IgnoreAlpha);
 
     gfx->blt(topLeft.x(),topLeft.y(), buf->width(), buf->height(), 0, 0);
-
+    backingStore->unlock();
 #if 0
     static int i=0;
     QString fn = QString("screen_%1.png").arg(i);
@@ -236,7 +237,9 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
             QPoint topLeft = win->requested_region.boundingRect().topLeft();
             Q_ASSERT (buf && !buf->isNull());
             if (opacity == 255) {
+                win->backingStore->lock();
                 p.drawPixmap(topLeft-blendOffset,*buf);
+                win->backingStore->unlock();
             } else {
                 QPixmap yuck(blendRegion.boundingRect().size());
                 yuck.fill(QColor(0,0,0,opacity));
@@ -244,7 +247,9 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
                 QPainter pp;
                 pp.begin(&yuck);
                 pp.setCompositionMode(QPainter::CompositionMode_SourceIn);
+                win->backingStore->lock();
                 pp.drawPixmap(topLeft-blendRegion.boundingRect().topLeft(), *buf);
+                win->backingStore->unlock();
                 pp.end();
 
                 p.drawPixmap(blendRegion.boundingRect().topLeft()-blendOffset, yuck);

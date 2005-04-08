@@ -632,7 +632,10 @@ void QWidget::repaint(const QRegion& rgn)
     QPoint globalPos = mapToGlobal(QPoint(0,0));
     globalrgn.translate(globalPos);
 
+    QWSBackingStore *bs = window()->d->extra->topextra->backingStore;
+    bs->lock(true);
     window()->d->paintHierarchy(globalrgn); //optimizable...
+    bs->unlock();
     window()->d->bltToScreen(globalrgn);
 }
 
@@ -798,6 +801,17 @@ void QWSBackingStore::attach(int id, QSize s)
 }
 
 
+// TODO: one lock per buffer (or client)
+// also: no need to lock in server
+void QWSBackingStore::lock(bool write)
+{
+    QWSDisplay::grab(write);
+}
+
+void QWSBackingStore::unlock()
+{
+    QWSDisplay::ungrab();
+}
 
 void QWidgetPrivate::requestWindowRegion(const QRegion &r)
 {
@@ -1032,16 +1046,16 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 myregion = localRequestedRegion();
                 myregion.translate(x,y);
 #ifndef QT_NO_QWS_MANAGER
-                if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
-                    myregion += d->extra->topextra->qwsManager->region();
+                if (topextra && topextra->qwsManager) {
+                    myregion += topextra->qwsManager->region();
                 }
 #endif
-                if (d->extra && d->extra->topextra) {
+                if (topextra) {
                     QRect br(myregion.boundingRect());
-                    d->extra->topextra->fleft = data.crect.x()-br.x();
-                    d->extra->topextra->ftop = data.crect.y()-br.y();
-                    d->extra->topextra->fright = br.right()-data.crect.right();
-                    d->extra->topextra->fbottom = br.bottom()-data.crect.bottom();
+                    topextra->fleft = data.crect.x()-br.x();
+                    topextra->ftop = data.crect.y()-br.y();
+                    topextra->fright = br.right()-data.crect.right();
+                    topextra->fbottom = br.bottom()-data.crect.bottom();
                 }
             }
         }
@@ -1070,7 +1084,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
         if (!inTransaction && !topextra->dirtyRegion.isEmpty()) {
             if (!q->isWindow()) {
+                topextra->backingStore->lock(true);
                 q->window()->d->paintHierarchy(topextra->dirtyRegion);
+                topextra->backingStore->unlock();
             }
             bltToScreen(topextra->dirtyRegion);
             topextra->dirtyRegion = QRegion();
