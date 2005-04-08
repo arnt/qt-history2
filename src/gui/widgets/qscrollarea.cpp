@@ -220,6 +220,7 @@ void QScrollArea::setWidgetResizable(bool resizable)
     Q_D(QScrollArea);
     d->resizable = resizable;
     updateGeometry();
+    d->updateScrollBars();
 }
 
 /*!\reimp
