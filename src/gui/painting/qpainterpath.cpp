@@ -591,6 +591,9 @@ void QPainterPath::addRect(const QRectF &r)
     if (qIsNan(r.x()) || qIsNan(r.y()) || qIsNan(r.width()) || qIsNan(r.height()))
         qWarning("QPainterPath::addRect(): adding rect where a parameter is nan, results are undefined.");
 #endif
+    if (r.isEmpty())
+        return;
+
     ensureData();
     detach();
 
@@ -643,6 +646,9 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
         || qIsNan(boundingRect.width()) || qIsNan(boundingRect.height()))
         qWarning("QPainterPath::addEllipse(): adding ellipse where a parameter is nan, results are undefined.");
 #endif
+    if (boundingRect.isEmpty())
+        return;
+
     ensureData();
     detach();
 
