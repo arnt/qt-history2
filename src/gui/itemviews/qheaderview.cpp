@@ -581,6 +581,8 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
 {
     Q_D(QHeaderView);
     // FIXME: if the size of the table changes, the hidden sections are forgotten
+    if (logicalIndex < 0 || logicalIndex >= d->sections.count())
+        return;
     if (hide) {
         resizeSection(logicalIndex, 0);
         d->sections[visualIndex(logicalIndex)].hidden = true;
