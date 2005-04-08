@@ -163,7 +163,7 @@ public:
     void fillPath(const QPainterPath &path, const QBrush &brush);
     void drawPath(const QPainterPath &path);
 
-    void drawPoint(const QPointF &pt);
+    inline void drawPoint(const QPointF &pt);
     inline void drawPoint(const QPoint &p);
     inline void drawPoint(int x, int y);
 
@@ -172,7 +172,7 @@ public:
     void drawPoints(const QPoint *points, int pointCount);
     inline void drawPoints(const QPolygon &points);
 
-    void drawLine(const QLineF &line);
+    inline void drawLine(const QLineF &line);
     inline void drawLine(const QLine &line);
     inline void drawLine(int x1, int y1, int x2, int y2);
     inline void drawLine(const QPoint &p1, const QPoint &p2);
@@ -187,7 +187,7 @@ public:
     void drawLines(const QPoint *pointPairs, int lineCount);
     inline void drawLines(const QVector<QPoint> &pointPairs);
 
-    void drawRect(const QRectF &rect);
+    inline void drawRect(const QRectF &rect);
     inline void drawRect(int x1, int y1, int w, int h);
     inline void drawRect(const QRect &rect);
 
@@ -410,6 +410,11 @@ private:
 //
 // functions
 //
+inline void QPainter::drawLine(const QLineF &l)
+{
+    drawLines(&l, 1);
+}
+
 inline void QPainter::drawLine(const QLine &line)
 {
     drawLines(&line, 1);
@@ -482,6 +487,11 @@ inline void QPainter::drawConvexPolygon(const QPolygon &poly)
     drawConvexPolygon(poly.constData(), poly.size());
 }
 
+inline void QPainter::drawRect(const QRectF &rect)
+{
+    drawRects(&rect, 1);
+}
+
 inline void QPainter::drawRect(int x, int y, int w, int h)
 {
     QRect r(x, y, w, h);
@@ -501,6 +511,11 @@ inline void QPainter::drawRects(const QVector<QRectF> &rects)
 inline void QPainter::drawRects(const QVector<QRect> &rects)
 {
     drawRects(rects.constData(), rects.size());
+}
+
+inline void QPainter::drawPoint(const QPointF &p)
+{
+    drawPoints(&p, 1);
 }
 
 inline void QPainter::drawPoint(int x, int y)

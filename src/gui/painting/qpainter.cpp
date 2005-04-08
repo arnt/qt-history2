@@ -1740,44 +1740,12 @@ void QPainter::drawPath(const QPainterPath &path)
 */
 
 /*!
+  \fn void QPainter::drawLine(const QLineF &l)
+
     Draws a line defined by \a l.
 
     \sa pen()
 */
-
-void QPainter::drawLine(const QLineF &l)
-{
-#ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::drawLine(), p1=(%.2f,%.2f), p2=(%.2f,%.2f)\n",
-               l.x1(), l.y1(), l.x2(), l.y2());
-#endif
-
-    if (!isActive())
-        return;
-
-    Q_D(QPainter);
-    d->updateState(d->state);
-
-    uint lineEmulation = d->state->emulationSpecifier
-                         & (QPaintEngine::PrimitiveTransform
-                            | QPaintEngine::AlphaBlend
-                            | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke);
-    QLineF line(l);
-    if (lineEmulation) {
-        if (lineEmulation == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
-            line.translate(d->state->matrix.dx(), d->state->matrix.dy());
-        } else {
-            QPainterPath linePath(line.p1());
-            linePath.lineTo(line.p2());
-            d->draw_helper(linePath, QPainterPrivate::StrokeDraw);
-            return;
-        }
-    }
-    d->engine->drawLines(&line, 1);
-}
 
 /*!
     \fn void QPainter::drawRect(int x, int y, int w, int h)
@@ -1797,39 +1765,13 @@ void QPainter::drawLine(const QLineF &l)
 */
 
 /*!
+  \fn void QPainter::drawRect(const QRectF &r)
+
   Draws the rectangle \a r with the current pen and brush.
 
   A filled rectangle has a size of r.size(). A stroked rectangle
   has a size of r.size() plus the pen width.
 */
-void QPainter::drawRect(const QRectF &r)
-{
-#ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::drawRect(), [%.2f,%.2f,%.2f,%.2f]\n", r.x(), r.y(), r.width(), r.height());
-#endif
-    QRectF rect = r.normalize();
-
-    if (!isActive() || rect.isEmpty())
-        return;
-    Q_D(QPainter);
-    d->updateState(d->state);
-
-    uint emulationSpecifier = d->state->emulationSpecifier;
-
-    if (emulationSpecifier) {
-        if (emulationSpecifier == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
-            rect.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
-        } else {
-            QPainterPath rectPath;
-            rectPath.addRect(rect);
-            d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
-            return;
-        }
-    }
-    d->engine->drawRects(&rect, 1);
-}
 
 /*!
     \fn void QPainter::drawRects(const QVector<QRectF> &rectangles)
@@ -1857,8 +1799,13 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    if (d->state->txop == QPainterPrivate::TxTranslate
-        && !d->engine->hasFeature(QPaintEngine::PrimitiveTransform)) {
+    if (!d->state->emulationSpecifier) {
+        d->engine->drawRects(rects, rectCount);
+        return;
+    }
+
+    if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
+        && d->state->txop == QPainterPrivate::TxTranslate) {
         for (int i=0; i<rectCount; ++i) {
             QRectF r(rects[i].x() + d->state->matrix.dx(),
                      rects[i].y() + d->state->matrix.dy(),
@@ -1866,11 +1813,11 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
                      rects[i].height());
             d->engine->drawRects(&r, 1);
         }
-    } else if (d->state->emulationSpecifier) {
-        for (int i=0; i<rectCount; ++i)
-            drawRect(rects[i]);
     } else {
-        d->engine->drawRects(rects, rectCount);
+        QPainterPath rectPath;
+        for (int i=0; i<rectCount; ++i)
+            rectPath.addRect(rects[i]);
+        d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
     }
 }
 
@@ -1892,8 +1839,13 @@ void QPainter::drawRects(const QRect *rects, int rectCount)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    if (d->state->txop == QPainterPrivate::TxTranslate
-        && !d->engine->hasFeature(QPaintEngine::PrimitiveTransform)) {
+    if (!d->state->emulationSpecifier) {
+        d->engine->drawRects(rects, rectCount);
+        return;
+    }
+
+    if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
+        && d->state->txop == QPainterPrivate::TxTranslate) {
         for (int i=0; i<rectCount; ++i) {
             QRectF r(rects[i].x() + d->state->matrix.dx(),
                      rects[i].y() + d->state->matrix.dy(),
@@ -1901,11 +1853,11 @@ void QPainter::drawRects(const QRect *rects, int rectCount)
                      rects[i].height());
             d->engine->drawRects(&r, 1);
         }
-    } else if (d->state->emulationSpecifier) {
-        for (int i=0; i<rectCount; ++i)
-            drawRect(QRectF(rects[i]));
     } else {
-        d->engine->drawRects(rects, rectCount);
+        QPainterPath rectPath;
+        for (int i=0; i<rectCount; ++i)
+            rectPath.addRect(rects[i]);
+        d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
     }
 }
 
@@ -1917,38 +1869,12 @@ void QPainter::drawRects(const QRect *rects, int rectCount)
 */
 
 /*!
+  \fn void QPainter::drawPoint(const QPointF &p)
+
     Draws a single point at position \a p using the current pen's color.
 
     \sa QPen
 */
-void QPainter::drawPoint(const QPointF &p)
-{
-#ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::drawPoint(), p=(%.2f,%.2f)\n", p.x(), p.y());
-#endif
-    if (!isActive())
-        return;
-    Q_D(QPainter);
-    d->updateState(d->state);
-
-    QPointF pt(p);
-    if (d->state->emulationSpecifier) {
-        if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
-            pt += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
-        } else {
-            save();
-            setBrush(d->state->pen.color());
-            QPainterPath pointPath;
-            pointPath.addRect(pt.x(), pt.y(), 1, 1);
-            d->draw_helper(pointPath, QPainterPrivate::FillDraw);
-            restore();
-            return;
-        }
-    }
-    d->engine->drawPoints(&pt, 1);
-}
 
 /*! \fn void QPainter::drawPoint(int x, int y)
 
@@ -1994,23 +1920,27 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    if (d->state->emulationSpecifier) {
-        if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
-            // ### use drawPoints function
-            for (int i=0; i<pointCount; ++i) {
-                QPointF pt(points[i].x() + d->state->matrix.dx(),
-                           points[i].y() + d->state->matrix.dy());
-                d->engine->drawPoints(&pt, 1);
-            }
-        } else {
-            QPainterPath path;
-            for (int i=0; i<pointCount; ++i)
-                path.addRect(points[i].x(), points[i].y(), 1, 1);
-            d->draw_helper(path);
+    if (!d->state->emulationSpecifier) {
+        d->engine->drawPoints(points, pointCount);
+        return;
+    }
+
+    if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
+        && d->state->txop == QPainterPrivate::TxTranslate) {
+        // ### use drawPoints function
+        for (int i=0; i<pointCount; ++i) {
+            QPointF pt(points[i].x() + d->state->matrix.dx(),
+                       points[i].y() + d->state->matrix.dy());
+            d->engine->drawPoints(&pt, 1);
         }
     } else {
-        d->engine->drawPoints(points, pointCount);
+        save();
+        setBrush(d->state->pen.color());
+        QPainterPath path;
+        for (int i=0; i<pointCount; ++i)
+            path.addRect(points[i].x(), points[i].y(), 1, 1);
+        d->draw_helper(path, QPainterPrivate::FillDraw);
+        restore();
     }
 }
 
@@ -2025,9 +1955,37 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
 
 void QPainter::drawPoints(const QPoint *points, int pointCount)
 {
-    // ###
-    QVector<QPointF> pts = qt_convert_points(points, pointCount, QPointF());
-    drawPoints(pts.data(), pts.size());
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawPoints(), count=%d\n", pointCount);
+#endif
+    if (!isActive() || pointCount <= 0)
+        return;
+    Q_D(QPainter);
+    d->updateState(d->state);
+
+    if (!d->state->emulationSpecifier) {
+        d->engine->drawPoints(points, pointCount);
+        return;
+    }
+
+    if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
+        && d->state->txop == QPainterPrivate::TxTranslate) {
+        // ### use drawPoints function
+        for (int i=0; i<pointCount; ++i) {
+            QPointF pt(points[i].x() + d->state->matrix.dx(),
+                       points[i].y() + d->state->matrix.dy());
+            d->engine->drawPoints(&pt, 1);
+        }
+    } else {
+        save();
+        setBrush(d->state->pen.color());
+        QPainterPath path;
+        for (int i=0; i<pointCount; ++i)
+            path.addRect(points[i].x(), points[i].y(), 1, 1);
+        d->draw_helper(path, QPainterPrivate::FillDraw);
+        restore();
+    }
 }
 
 /*!
@@ -2619,12 +2577,42 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
 */
 void QPainter::drawLines(const QLineF *lines, int lineCount)
 {
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawLine(), p1=(%.2f,%.2f), p2=(%.2f,%.2f)\n",
+               l.x1(), l.y1(), l.x2(), l.y2());
+#endif
+
+    if (!isActive())
+        return;
+
     Q_D(QPainter);
     d->updateState(d->state);
 
-    // Dummy implementation for now.
-    for (int i=0; i<lineCount; ++i)
-        drawLine(lines[i]);
+    uint lineEmulation = d->state->emulationSpecifier
+                         & (QPaintEngine::PrimitiveTransform
+                            | QPaintEngine::AlphaBlend
+                            | QPaintEngine::Antialiasing
+                            | QPaintEngine::BrushStroke);
+    if (lineEmulation) {
+        if (lineEmulation == QPaintEngine::PrimitiveTransform
+            && d->state->txop == QPainterPrivate::TxTranslate) {
+            for (int i = 0; i < lineCount; ++i) {
+                QLineF line = lines[i];
+                line.translate(d->state->matrix.dx(), d->state->matrix.dy());
+                d->engine->drawLines(&line, 1);
+            }
+        } else {
+            QPainterPath linePath;
+            for (int i = 0; i < lineCount; ++i) {
+                linePath.moveTo(lines[i].p1());
+                linePath.lineTo(lines[i].p2());
+            }
+            d->draw_helper(linePath, QPainterPrivate::StrokeDraw);
+        }
+        return;
+    }
+    d->engine->drawLines(lines, lineCount);
 }
 
 /*!
@@ -2633,10 +2621,42 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
 */
 void QPainter::drawLines(const QLine *lines, int lineCount)
 {
-    Q_ASSERT_X(lines, "QPainter::drawLines", "lines array cannot be 0");
-    // This will go horribly wrong if the layout of QLineF changes!
-    for (int i=0; i<lineCount; ++i)
-        drawLine(QLineF(lines[i]));
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawLine(), p1=(%.2f,%.2f), p2=(%.2f,%.2f)\n",
+               l.x1(), l.y1(), l.x2(), l.y2());
+#endif
+
+    if (!isActive())
+        return;
+
+    Q_D(QPainter);
+    d->updateState(d->state);
+
+    uint lineEmulation = d->state->emulationSpecifier
+                         & (QPaintEngine::PrimitiveTransform
+                            | QPaintEngine::AlphaBlend
+                            | QPaintEngine::Antialiasing
+                            | QPaintEngine::BrushStroke);
+    if (lineEmulation) {
+        if (lineEmulation == QPaintEngine::PrimitiveTransform
+            && d->state->txop == QPainterPrivate::TxTranslate) {
+            for (int i = 0; i < lineCount; ++i) {
+                QLineF line = lines[i];
+                line.translate(d->state->matrix.dx(), d->state->matrix.dy());
+                d->engine->drawLines(&line, 1);
+            }
+        } else {
+            QPainterPath linePath;
+            for (int i = 0; i < lineCount; ++i) {
+                linePath.moveTo(lines[i].p1());
+                linePath.lineTo(lines[i].p2());
+            }
+            d->draw_helper(linePath, QPainterPrivate::StrokeDraw);
+        }
+        return;
+    }
+    d->engine->drawLines(lines, lineCount);
 }
 
 
@@ -3119,7 +3139,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         mat.map(0, 0, &dx, &dy);
         if (pmx.depth() == 1) {
             save();
-            setClipRect(r.x(), r.y(), w, h, Qt::IntersectClip);
+            setClipRect(QRectF(r.x(), r.y(), w, h), Qt::IntersectClip);
         }
         d->engine->drawPixmap(QRectF(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
                               QRectF(0, 0, pmx.width(), pmx.height()));
