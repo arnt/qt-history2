@@ -156,6 +156,7 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
         depth = 1;
+        numColors = 2;
         break;
     case QImage::Format_Indexed8:
         depth = 8;
@@ -172,8 +173,13 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
 
     QImageData *d = new QImageData;
     d->colortable.resize(numColors);
-    for (int i = 0; i < numColors; ++i)
-        d->colortable[i] = 0;
+    if (depth == 1) {
+        d->colortable[0] = QColor(Qt::black).rgba();
+        d->colortable[1] = QColor(Qt::white).rgba();
+    } else {
+        for (int i = 0; i < numColors; ++i)
+            d->colortable[i] = 0;
+    }
 
     d->width = width;
     d->height = height;
