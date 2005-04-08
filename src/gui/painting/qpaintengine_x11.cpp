@@ -272,7 +272,6 @@ static void dump_trap(const XTrapezoid &t)
 }
 #endif
 
-
 static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgSize,
                                  bool winding)
 {
@@ -311,10 +310,12 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
     // eliminate shared edges
     for (int i = 0; i < et.size(); ++i) {
 	for (int k = i+1; k < et.size(); ++k) {
-            if (et.at(k)->p1.y() > et.at(i)->p1.y() + 0.0001)
+            const QEdge *edgeI = et.at(i);
+            const QEdge *edgeK = et.at(k);
+            if (edgeK->p1.y() > edgeI->p1.y() + 0.0001)
                 break;
-   	    if (et.at(i)->winding != et.at(k)->winding &&
-                isEqual(et.at(i)->p1, et.at(k)->p1) && isEqual(et.at(i)->p2, et.at(k)->p2)
+   	    if (edgeI->winding != edgeK->winding &&
+                isEqual(edgeI->p1, edgeK->p1) && isEqual(edgeI->p2, edgeK->p2)
 		) {
  		et.removeAt(k);
 		et.removeAt(i);
@@ -341,9 +342,10 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
     for (qreal y = ymin; y < ymax;) {
 	// fill active edge table with edges that intersect the current line
 	for (int i = 0; i < et.size(); ++i) {
-            if (et.at(i)->p1.y() > y)
+            const QEdge *edge = et.at(i);
+            if (edge->p1.y() > y)
                 break;
-            aet.append(et.at(i));
+            aet.append(edge);
             et.removeAt(i);
             --i;
 	}
@@ -352,7 +354,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 	for (int i = 0; i < aet.size(); ++i) {
 	    if (aet.at(i)->p2.y() <= y) {
 		aet.removeAt(i);
- 	       --i;
+ 		--i;
 	    }
 	}
         if (aet.size()%2 != 0) {
@@ -374,19 +376,24 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 
         // calculate the next y where we have to start a new set of trapezoids
 	qreal next_y(INT_MAX/256);
- 	for (int i = 0; i < aet.size(); ++i)
- 	    if (aet.at(i)->p2.y() < next_y)
- 		next_y = aet.at(i)->p2.y();
+ 	for (int i = 0; i < aet.size(); ++i) {
+            const QEdge *edge = aet.at(i);
+ 	    if (edge->p2.y() < next_y)
+ 		next_y = edge->p2.y();
+        }
 
 	if (et.size() && next_y > et.at(0)->p1.y())
 	    next_y = et.at(0)->p1.y();
 
-	for (int i = 0; i < aet.size(); ++i) {
-	    for (int k = i+1; k < aet.size(); ++k) {
-		qreal m1 = aet.at(i)->m;
-		qreal b1 = aet.at(i)->b;
-		qreal m2 = aet.at(k)->m;
-		qreal b2 = aet.at(k)->b;
+        int aetSize = aet.size();
+	for (int i = 0; i < aetSize; ++i) {
+	    for (int k = i+1; k < aetSize; ++k) {
+                const QEdge *edgeI = aet.at(i);
+                const QEdge *edgeK = aet.at(k);
+		qreal m1 = edgeI->m;
+		qreal b1 = edgeI->b;
+		qreal m2 = edgeK->m;
+		qreal b2 = edgeK->b;
 
 		if (qAbs(m1 - m2) < 0.001)
                     continue;
@@ -397,9 +404,9 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 #endif
                     qreal intersect;
                 if (!qIsFinite(b1))
-                    intersect = (1.f / m2) * aet.at(i)->p1.x() + b2;
+                    intersect = (1.f / m2) * edgeI->p1.x() + b2;
                 else if (!qIsFinite(b2))
-                    intersect = (1.f / m1) * aet.at(k)->p1.x() + b1;
+                    intersect = (1.f / m1) * edgeK->p1.x() + b1;
                 else
                     intersect = (b1*m1 - b2*m2) / (m1 - m2);
 
@@ -427,9 +434,10 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 	// calc intersection points
  	QVarLengthArray<QIntersectionPoint> isects(aet.size()+1);
  	for (int i = 0; i < isects.size()-1; ++i) {
- 	    isects[i].x = qAbs(aet.at(i)->p1.x() - aet.at(i)->p2.x()) > 0.0001 ?
-			  ((y - aet.at(i)->b)*aet.at(i)->m) : aet.at(i)->p1.x();
-	    isects[i].edge = aet.at(i);
+            const QEdge *edge = aet.at(i);
+ 	    isects[i].x = qAbs(edge->p1.x() - edge->p2.x()) > 0.0001 ?
+			  ((y - edge->b)*edge->m) : edge->p1.x();
+	    isects[i].edge = edge;
 	}
 
 	Q_ASSERT(isects.size()%2 == 1);
