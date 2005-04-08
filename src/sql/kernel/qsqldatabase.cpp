@@ -192,7 +192,7 @@ void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString & na
 QSqlDatabase QSqlDatabasePrivate::database(const QString& name, bool open)
 {
     QSqlDatabase db = dbDict().value(name);
-    if (!db.isOpen() && open) {
+    if (db.isValid() && !db.isOpen() && open) {
         db.open();
         if (!db.isOpen())
             qWarning("QSqlDatabasePrivate::database: unable to open database: %s",
