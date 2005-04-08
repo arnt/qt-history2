@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "analogclock.h"
-#include "plugin.h"
+#include "customwidgetplugin.h"
 
 AnalogClockPlugin::AnalogClockPlugin(QObject *parent)
     : QObject(parent)
