@@ -152,7 +152,6 @@ QWidget *WidgetBoxItemDelegate::createEditor(QWidget *parent,
         return result;
     line_edit->setValidator(new QRegExpValidator(QRegExp("[_a-zA-Z][_a-zA-Z0-9]*"),
                                                     line_edit));
-
     return result;
 }
 
@@ -750,6 +749,7 @@ void WidgetBoxTreeView::dropWidgets(const QList<AbstractDnDItem*> &item_list)
 
     if (last_item != 0) {
         save();
+        QApplication::setActiveWindow(this);
         setCurrentItem(last_item);
         editCurrentItem();
     }
