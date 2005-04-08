@@ -32,6 +32,8 @@ class QRubberBand;
 #include <qevent.h>
 #include <qmime.h>
 #include <qmap.h>
+#include <qtimer.h>
+#include <qdebug.h>
 
 class Q_GUI_EXPORT QAbstractItemViewPrivate : public QAbstractScrollAreaPrivate
 {
@@ -103,6 +105,12 @@ public:
         if (layoutPosted) const_cast<QAbstractItemView*>(q_func())->doItemsLayout();
     }
 
+    inline void setDirtyRect(const QRect &visualRect) {
+        updateRect |= visualRect;
+        if (!updateTimer.isActive())
+            updateTimer.start(0, q_func());
+    }
+
     void removeSelectedRows();
 
     QPointer<QAbstractItemModel> model;
@@ -149,6 +157,9 @@ public:
     QSize iconSize;
 
     QRubberBand *dropIndicator;
+
+    QRect updateRect; // used for the internal update system
+    QBasicTimer updateTimer;
 };
 
 /*

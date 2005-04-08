@@ -211,6 +211,8 @@ protected:
     void stopAutoScroll();
     void doAutoScroll();
 
+    void scrollContentsBy(int dx, int dy);
+
     bool event(QEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);

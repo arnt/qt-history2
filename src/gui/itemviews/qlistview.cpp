@@ -518,6 +518,7 @@ QRect QListView::visualRect(const QModelIndex &index) const
 void QListView::scrollTo(const QModelIndex &index)
 {
     Q_D(QListView);
+    
     QRect area = d->viewport->rect();
     QRect rect = visualRect(index);
 
@@ -570,13 +571,15 @@ void QListView::reset()
 void QListView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QListView);
-    d->viewport->scroll(isRightToLeft() ? -dx : dx, dy);
+
+    dx = isRightToLeft() ? -dx : dx;
+    QAbstractItemView::scrollContentsBy(dx, dy);
+    d->viewport->scroll(dx, dy);
+
     // update the dragged items
     if (d->draggedItems.isEmpty())
         return;
-    QRect rect = d->draggedItemsRect();
-    rect.translate(dx, dy);
-    d->viewport->repaint(rect); //FIXME: d->viewport->update(rect);
+    d->setDirtyRect(d->draggedItemsRect().translated(dx, dy));
 }
 
 /*!
@@ -626,11 +629,10 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
     if (d->viewMode == IconMode
         && state() == QAbstractItemView::DragSelectingState
         && d->selectionMode != SingleSelection) {
-        QRect rect(d->pressedPosition, e->pos() +  QPoint(horizontalOffset(), verticalOffset()));
+        QRect rect(d->pressedPosition, e->pos() + QPoint(horizontalOffset(), verticalOffset()));
         rect = rect.normalize();
-        QRect dirtyRect = d->mapToViewport(rect.unite(d->elasticBand));
+        d->setDirtyRect(d->mapToViewport(rect.unite(d->elasticBand)));
         d->elasticBand = rect;
-        d->viewport->repaint(dirtyRect);
     }
 }
 
@@ -642,7 +644,7 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QListView);
     QAbstractItemView::mouseReleaseEvent(e);
     if (d->elasticBand.isValid()) {
-        d->viewport->update(d->mapToViewport(d->elasticBand));
+        d->setDirtyRect(d->mapToViewport(d->elasticBand));
         d->elasticBand = QRect();
     }
 }
@@ -703,7 +705,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
             // get new items rect
             QRect newRect = itemsRect;
             newRect.translate(d->draggedItemsDelta());
-            d->viewport->repaint(oldRect|newRect);
+            d->setDirtyRect(oldRect|newRect);
             // set the item under the cursor to current
             QModelIndex index = indexAt(e->pos());
             // check if we allow drops here

@@ -802,6 +802,16 @@ QSize QAbstractItemView::iconSize() const
 }
 
 /*!
+  \reimp
+*/
+
+void QAbstractItemView::scrollContentsBy(int dx, int dy)
+{
+    if (d->updateRect.isValid())
+        d->updateRect.translate(dx, dy);
+}
+
+/*!
     \fn bool QAbstractItemView::event(QEvent *event)
 
     This function is used to handle tool tips, status tips, and What's
@@ -953,7 +963,8 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     setState(DragSelectingState);
     if (selectionModel())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-    setSelection(QRect(topLeft, bottomRight).normalize(), selectionCommand(index, e));
+    QRect selectionRect = QRect(topLeft, bottomRight).normalize();
+    setSelection(selectionRect, selectionCommand(index, e));
 }
 
 /*!
@@ -1286,8 +1297,13 @@ void QAbstractItemView::resizeEvent(QResizeEvent *e)
 */
 void QAbstractItemView::timerEvent(QTimerEvent *e)
 {
-    if (e->timerId() == d->autoScrollTimer)
+    if (e->timerId() == d->autoScrollTimer) {
         doAutoScroll();
+    } else if (e->timerId() == d->updateTimer.timerId()) {
+        d->updateTimer.stop();
+        d->viewport->repaint(d->updateRect);
+        d->updateRect = QRect();
+    }
 }
 
 /*!
@@ -1734,7 +1750,7 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 {
     QRect deselectedRect = visualRectForSelection(deselected);
     QRect selectedRect = visualRectForSelection(selected);
-    viewport()->update(deselectedRect.unite(selectedRect));
+    d->setDirtyRect(deselectedRect.unite(selectedRect));
 }
 
 /*!
@@ -1760,7 +1776,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
             rect.setBottom(d->viewport->height());
         }
         // painting in the next paint event is too late (because of scrolling)
-        d->viewport->repaint(rect);
+        d->setDirtyRect(rect);
         // if we are editing, commit the data and close the editor
         QModelIndex buddy = model()->buddy(previous);
         QWidget *editor = d->editors.value(buddy);

@@ -1009,6 +1009,7 @@ QModelIndexList QTreeView::selectedIndexes() const
 void QTreeView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTreeView);
+    
     // guestimate the number of items in the viewport
     int viewCount = d->viewport->height() / d->itemHeight;
     int maxDeltaY = verticalStepsPerItem() * qMin(d->viewItems.count(), viewCount);
@@ -1055,6 +1056,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         }
     }
 
+    QAbstractItemView::scrollContentsBy(dx, dy);
     d->viewport->scroll(dx, dy);
 }
 
