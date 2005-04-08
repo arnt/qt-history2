@@ -20,7 +20,6 @@
 #include <qdesigner_taskmenu.h>
 #include <default_extensionfactory.h>
 
-class QLineEdit;
 class AbstractFormWindow;
 
 class LabelTaskMenu: public QDesignerTaskMenu
@@ -37,12 +36,10 @@ private slots:
     void editText();
     void editIcon();
     void updateText(const QString &text);
-    void updateSelection();
 
 private:
     QLabel *m_label;
     QPointer<AbstractFormWindow> m_formWindow;
-    QPointer<QLineEdit> m_editor;
     mutable QList<QAction*> m_taskActions;
     QAction *m_editTextAction;
 };

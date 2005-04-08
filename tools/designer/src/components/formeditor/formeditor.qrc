@@ -92,6 +92,13 @@
     <file>images/win/resourceeditortool.png</file>
     <file>images/win/plus.png</file>
     <file>images/win/minus.png</file>
+    <file>images/win/textbold.png</file>
+    <file>images/win/textitalic.png</file>
+    <file>images/win/textunder.png</file>
+    <file>images/mac/textbold.png</file>
+    <file>images/mac/textitalic.png</file>
+    <file>images/mac/textunder.png</file>
+
 
   </qresource>
 </RCC>

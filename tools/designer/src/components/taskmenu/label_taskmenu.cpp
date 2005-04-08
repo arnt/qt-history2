@@ -18,6 +18,7 @@
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
 #include <abstractformwindowmanager.h>
+#include <richtexteditor.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>
@@ -55,26 +56,26 @@ void LabelTaskMenu::editText()
 {
     m_formWindow = AbstractFormWindow::findFormWindow(m_label);
     if (!m_formWindow.isNull()) {
-        connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
+        RichTextEditor *editor = new RichTextEditor(m_formWindow);
+        connect(m_formWindow, SIGNAL(selectionChanged()), editor, SLOT(deleteLater()));
+
         Q_ASSERT(m_label->parentWidget() != 0);
+        editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
 
-        m_editor = new InPlaceEditor(m_label, m_formWindow);
-        m_editor->setObjectName("__qt__passive_m_editor");
-
-        m_editor->setFrame(false);
-        m_editor->setText(m_label->text());
-        m_editor->selectAll();
-        m_editor->setBackgroundRole(m_label->backgroundRole());
-        connect(m_editor, SIGNAL(returnPressed()), m_editor, SLOT(deleteLater()));
-        connect(m_editor, SIGNAL(textChanged(const QString &)), this, SLOT(updateText(const QString&)));
+        editor->setText(m_label->text());
+        editor->setFormat(m_label->textFormat());
+        editor->setDefaultFont(m_label->font());
+        editor->selectAll();
+        connect(editor, SIGNAL(textChanged(const QString &)), this,
+                    SLOT(updateText(const QString&)));
 
         QStyleOption opt;
         opt.init(m_label);
         QRect r = opt.rect;
 
-        m_editor->setGeometry(QRect(m_label->mapTo(m_label->window(), r.topLeft()), r.size()));
-        m_editor->setFocus();
-        m_editor->show();
+        editor->setGeometry(QRect(m_label->mapTo(m_label->window(), r.topLeft()), r.size()));
+        editor->setFocus();
+        editor->show();
     }
 }
 
@@ -102,11 +103,5 @@ QObject *LabelTaskMenuFactory::createExtension(QObject *object, const QString &i
 void LabelTaskMenu::updateText(const QString &text)
 {
     m_formWindow->cursor()->setWidgetProperty(m_label, QLatin1String("text"), QVariant(text));
-}
-
-void LabelTaskMenu::updateSelection()
-{
-    if (m_editor)
-        m_editor->deleteLater();
 }
 

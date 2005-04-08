@@ -38,7 +38,9 @@ HEADERS += \
     $$PWD/resourcefile.h \
     $$PWD/iconloader.h \
     $$PWD/resourceeditor.h \
-    $$PWD/findicondialog.h
+    $$PWD/findicondialog.h \
+    $$PWD/richtexteditor.h
+
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -69,5 +71,6 @@ SOURCES += \
     $$PWD/promotetocustomwidgetdialog.cpp \
     $$PWD/resourcefile.cpp \
     $$PWD/resourceeditor.cpp \
-    $$PWD/findicondialog.cpp
+    $$PWD/findicondialog.cpp \
+    $$PWD/richtexteditor.cpp
 

@@ -57,8 +57,6 @@ FormWindowManager::FormWindowManager(AbstractFormEditor *core, QObject *parent)
       m_core(core),
       m_activeFormWindow(0)
 {
-    lastWasAPassiveInteractor = false;
-
     m_layoutChilds = false;
     m_layoutSelected = false;
     m_breakLayout = false;
@@ -131,10 +129,6 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 
     FormWindow *fw = FormWindow::findFormWindow(widget);
     if (fw == 0) {
-        return false;
-    }
-
-    if (isPassiveInteractor(widget)) {
         return false;
     }
 
@@ -804,31 +798,3 @@ bool FormWindowManager::isDecoration(QWidget *widget) const
     return false;
 }
 
-bool FormWindowManager::isPassiveInteractor(QWidget *o) const
-{
-    if (lastPassiveInteractor && lastPassiveInteractor == o)
-        return lastWasAPassiveInteractor;
-
-    lastWasAPassiveInteractor = false;
-    lastPassiveInteractor = o;
-
-    if (qobject_cast<QTabBar*>(o))
-        return (lastWasAPassiveInteractor = true);
-    else if (qobject_cast<QSizeGrip*>(o))
-        return (lastWasAPassiveInteractor = true);
-    else if (qobject_cast<QAbstractButton*>(o)
-            && (qobject_cast<QTabBar*>(o->parent()) || qobject_cast<QToolBox*>(o->parent())))
-        return (lastWasAPassiveInteractor = true);
-    else if (qobject_cast<QMenuBar*>(o) && qobject_cast<QMainWindow*>(o->parent()))
-        return (lastWasAPassiveInteractor = true);
-    else if (qstrcmp(o->metaObject()->className(), "QDockSeparator") == 0)
-        return (lastWasAPassiveInteractor = true);
-    else if (qstrcmp(o->metaObject()->className(), "QDockWindowSeparator") == 0)
-        return (lastWasAPassiveInteractor = true);
-    else if (o->objectName() == QLatin1String("designer_wizardstack_button"))
-        return (lastWasAPassiveInteractor = true);
-    else if (o->objectName().startsWith("__qt__passive_"))
-        return (lastWasAPassiveInteractor = true);
-
-    return lastWasAPassiveInteractor;
-}

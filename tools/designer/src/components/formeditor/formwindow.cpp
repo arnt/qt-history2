@@ -1657,20 +1657,9 @@ void FormWindow::simplifySelection(QList<QWidget*> *sel) const
     }
 }
 
-// This is very similar to the static AbstractFormWindow::findFormWindow(), please KEEP IN SYNC.
 FormWindow *FormWindow::findFormWindow(QWidget *w)
 {
-    while (w) {
-        if (FormWindow *fw = qobject_cast<FormWindow*>(w)) {
-            return fw;
-        } else if (w->isWindow()) {
-            break;
-        }
-
-        w = w->parentWidget();
-    }
-
-    return 0;
+    return qobject_cast<FormWindow*>(AbstractFormWindow::findFormWindow(w));
 }
 
 void FormWindow::repaintSelection()

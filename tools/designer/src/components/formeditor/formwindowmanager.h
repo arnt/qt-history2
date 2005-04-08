@@ -104,8 +104,6 @@ private:
 
     void setCurrentUndoStack(QtUndoStack *stack);
 
-    bool isPassiveInteractor(QWidget *w) const;
-
 private:
     AbstractFormEditor *m_core;
     FormWindow *m_activeFormWindow;
@@ -146,9 +144,6 @@ private:
     QWidget *m_last_widget_under_mouse;
     FormWindow *m_last_form_under_mouse;
     AbstractWidgetBox *m_widget_box_under_mouse;
-
-    mutable QPointer<QWidget> lastPassiveInteractor;
-    mutable bool lastWasAPassiveInteractor;
 };
 
 #endif // FORMWINDOWMANAGER_H
