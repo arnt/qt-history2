@@ -7,6 +7,7 @@ SUBDIRS       = designer \
                 network \
                 opengl \
                 painting \
+                richtext \
                 sql \
                 threads \
                 tools \
