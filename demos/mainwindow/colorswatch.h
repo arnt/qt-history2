@@ -48,7 +48,7 @@ public:
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
-    virtual void polishEvent(QEvent *);
+    virtual bool event(QEvent *);
 
 private:
     void allow(Qt::DockWidgetArea area, bool allow);

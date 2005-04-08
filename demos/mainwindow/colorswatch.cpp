@@ -18,6 +18,7 @@
 #include <qframe.h>
 #include <qmainwindow.h>
 #include <qmenu.h>
+#include <qdebug.h>
 
 ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags flags)
     : QDockWidget(parent, flags)
@@ -133,8 +134,11 @@ void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
     menu->exec(event->globalPos());
 }
 
-void ColorSwatch::polishEvent(QEvent *)
+bool ColorSwatch::event(QEvent *e)
 {
+    if (e->type() != QEvent::Polish)
+        return QDockWidget::event(e);
+
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
     const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
     const Qt::DockWidgetAreas areas = allowedAreas();
@@ -184,6 +188,7 @@ void ColorSwatch::polishEvent(QEvent *)
         topAction->setEnabled(areas & Qt::TopDockWidgetArea);
         bottomAction->setEnabled(areas & Qt::BottomDockWidgetArea);
     }
+    return QDockWidget::event(e);
 }
 
 void ColorSwatch::allow(Qt::DockWidgetArea area, bool a)
