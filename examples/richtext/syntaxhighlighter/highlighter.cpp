@@ -26,11 +26,10 @@ void Highlighter::addToDocument(QTextDocument *doc)
             this, SLOT(highlight(int, int, int)));
 }
 
-void Highlighter::addMapping(const QStringList &patterns,
-                                 const QTextCharFormat &format)
+void Highlighter::addMapping(const QString &pattern,
+                             const QTextCharFormat &format)
 {
-    foreach (QString pattern, patterns)
-        mappings[pattern] = format;
+    mappings[pattern] = format;
 }
 
 void Highlighter::highlight(int position, int removed, int added)

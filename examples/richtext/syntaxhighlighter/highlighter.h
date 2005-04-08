@@ -29,7 +29,7 @@ public:
     Highlighter(QObject *parent = 0);
 
     void addToDocument(QTextDocument *doc);
-    void addMapping(const QStringList &patterns, const QTextCharFormat &format);
+    void addMapping(const QString &pattern, const QTextCharFormat &format);
 
 private slots:
     void highlight(int from, int removed, int added);

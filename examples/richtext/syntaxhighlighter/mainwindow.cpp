@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupEditor();
 
     setCentralWidget(editor);
-    setWindowTitle(tr("Simple Highlighter"));
+    setWindowTitle(tr("Syntax Highlighter"));
 }
 
 void MainWindow::fileNew()
@@ -33,7 +33,7 @@ void MainWindow::fileNew()
 void MainWindow::fileOpen()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open File"), "", "*.py");
+        tr("Open File"), "", "qmake files (*.pro *.prf *.pri)");
 
     if (!fileName.isEmpty()) {
         QFile file(fileName);
@@ -44,43 +44,32 @@ void MainWindow::fileOpen()
 
 void MainWindow::setupEditor()
 {
-    QTextCharFormat keywordFormat;
-    keywordFormat.setForeground(Qt::red);
-    keywordFormat.setFontWeight(QFont::Bold);
-    QStringList keywordStrings;
-    keywordStrings << "\\band\\b" << "\\bdel\\b" << "\\bfor\\b" << "\\bis\\b"
-                   << "\\braise\\b" << "\\bassert\\b" << "\\belif\\b"
-                   << "\\bfrom\\b" << "\\blambda\\b" << "\\breturn\\b"
-                   << "\\bbreak\\b" << "\\belse\\b" << "\\bglobal\\b"
-                   << "\\bnot\\b" << "\\btry\\b" << "\\bclass\\b"
-                   << "\\bexcept\\b" << "\\bif\\b" << "\\bor\\b"
-                   << "\\bwhile\\b" << "\\bcontinue\\b" << "\\bexec\\b"
-                   << "\\bimport\\b" << "\\bpass\\b" << "\\byield\\b"
-                   << "\\bdef\\b" << "\\bfinally\\b" << "\\bin\\b"
-                   << "\\bprint\\b";
-    highlighter.addMapping(keywordStrings, keywordFormat);
+    QTextCharFormat defaultFormat;
+    defaultFormat.setFontFamily("Courier");
+    defaultFormat.setFontPointSize(10);
+    
+    QTextCharFormat variableFormat = defaultFormat;
+    variableFormat.setFontWeight(QFont::Bold);
+    variableFormat.setForeground(Qt::blue);
+    highlighter.addMapping("\\b[A-Z_]+\\b", variableFormat);
 
-    QTextCharFormat singleLineCommentFormat;
-    singleLineCommentFormat.setBackground(Qt::green);
-    singleLineCommentFormat.setFontItalic(true);
-    QStringList singleLineCommentStrings;
-    singleLineCommentStrings << "#[^\n]*";
-    highlighter.addMapping(singleLineCommentStrings, singleLineCommentFormat);
+    QTextCharFormat singleLineCommentFormat = defaultFormat;
+    singleLineCommentFormat.setBackground(QColor("#77ff77"));
+    highlighter.addMapping("#[^\n]*", singleLineCommentFormat);
 
-    QTextCharFormat quotationFormat;
+    QTextCharFormat quotationFormat = defaultFormat;
     quotationFormat.setBackground(Qt::cyan);
     quotationFormat.setForeground(Qt::blue);
-    QStringList quotationStrings;
-    quotationStrings << "\".*\"" << "'.*'";
-    highlighter.addMapping(quotationStrings, quotationFormat);
+    highlighter.addMapping("\".*\"", quotationFormat);
 
-    QTextCharFormat functionFormat;
+    QTextCharFormat functionFormat = defaultFormat;
+    functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
-    QStringList functionStrings;
-    functionStrings << "\\b[A-z0-9_]*\\(.*\\)";
-    highlighter.addMapping(functionStrings, functionFormat);
+    highlighter.addMapping("\\b[a-z0-9_]+\\(.*\\)", functionFormat);
 
     editor = new QTextEdit(this);
+    editor->setFont(defaultFormat.font());
+    editor->document()->setDefaultFont(defaultFormat.font());
     highlighter.addToDocument(editor->document());
 }
 
