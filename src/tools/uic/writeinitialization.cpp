@@ -859,7 +859,7 @@ void WriteInitialization::initializeQ3IconView(DomWidget *w)
 
         QString itemName = driver->unique(QLatin1String("__item"));
         refreshOut << "\n";
-        refreshOut << option.indent << "QIconViewItem *" << itemName << " = new QIconViewItem(" << varName << ");\n";
+        refreshOut << option.indent << "Q3IconViewItem *" << itemName << " = new Q3IconViewItem(" << varName << ");\n";
 
         if (pixmap) {
             refreshOut << option.indent << itemName << "->setPixmap(" << pixCall(pixmap->elementPixmap()) << ");\n";
