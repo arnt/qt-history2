@@ -2,10 +2,11 @@
 #define RICHTEXTEDITOR_H
 
 #include <QtGui/QTextEdit>
+#include "shared_global.h"
 
 class RichTextEditorToolBar;
 
-class RichTextEditor : public QTextEdit
+class QT_SHARED_EXPORT RichTextEditor : public QTextEdit
 {
     Q_OBJECT
 public:

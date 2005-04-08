@@ -24,6 +24,7 @@ struct QT_SDK_EXPORT AbstractDnDItem
 {
     enum DropType { MoveDrop, CopyDrop };
 
+    AbstractDnDItem() {}
     virtual ~AbstractDnDItem() {}
 
     virtual DomUI *domUi() const = 0;

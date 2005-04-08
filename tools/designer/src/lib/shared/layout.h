@@ -28,9 +28,9 @@
 
 class AbstractFormWindow;
 
-void add_to_box_layout(QBoxLayout *box, QWidget *widget);
-void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
-void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align = 0);
+void QT_SHARED_EXPORT add_to_box_layout(QBoxLayout *box, QWidget *widget);
+void QT_SHARED_EXPORT insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
+void QT_SHARED_EXPORT add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align = 0);
 
 class QT_SHARED_EXPORT Layout : public QObject
 {
