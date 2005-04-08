@@ -54,6 +54,22 @@ public:
     friend class AbstractFormBuilder;
 };
 
+class AbstractFormBuilderGadget: public QWidget
+{
+    Q_OBJECT
+    Q_PROPERTY(Qt::Orientation orientation READ fakeOrientation)
+    Q_PROPERTY(QSizePolicy::Policy sizeType READ fakeSizeType)
+    Q_PROPERTY(QPalette::ColorRole colorRole READ fakeColorRole)
+    Q_PROPERTY(QPalette::ColorGroup colorGroup READ fakeColorGroup)
+public:
+    AbstractFormBuilderGadget() { Q_ASSERT(0); }
+
+    Qt::Orientation fakeOrientation() const     { Q_ASSERT(0); return Qt::Horizontal; }
+    QSizePolicy::Policy fakeSizeType() const    { Q_ASSERT(0); return QSizePolicy::Expanding; }
+    QPalette::ColorGroup fakeColorGroup() const { Q_ASSERT(0); return static_cast<QPalette::ColorGroup>(0); }
+    QPalette::ColorRole fakeColorRole() const   { Q_ASSERT(0); return static_cast<QPalette::ColorRole>(0); }
+};
+
 AbstractFormBuilder::AbstractFormBuilder()
 {
     m_defaultMargin = INT_MIN;
@@ -323,18 +339,6 @@ bool AbstractFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLa
     return true;
 }
 
-class FakeSpacer: public QWidget
-{
-    Q_OBJECT
-    Q_PROPERTY(Qt::Orientation orientation READ fakeOrientation)
-    Q_PROPERTY(QSizePolicy::Policy sizeType READ fakeSizeType)
-public:
-    FakeSpacer() { Q_ASSERT(0); }
-
-    Qt::Orientation fakeOrientation() const { Q_ASSERT(0); return Qt::Horizontal; }
-    QSizePolicy::Policy fakeSizeType() const { Q_ASSERT(0); return QSizePolicy::Expanding; }
-};
-
 QLayoutItem *AbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
     switch (ui_layoutItem->kind()) {
@@ -348,18 +352,18 @@ QLayoutItem *AbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout *
 
         DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
 
-        int e_index = FakeSpacer::staticMetaObject.indexOfEnumerator("QSizePolicy::Policy");
+        int e_index = AbstractFormBuilderGadget::staticMetaObject.indexOfEnumerator("QSizePolicy::Policy");
         Q_ASSERT(e_index != -1);
 
-        QMetaEnum sizePolicy_enum = FakeSpacer::staticMetaObject.enumerator(e_index);
+        QMetaEnum sizePolicy_enum = AbstractFormBuilderGadget::staticMetaObject.enumerator(e_index);
 
-        e_index = FakeSpacer::staticMetaObject.indexOfEnumerator("Qt::Orientation");
+        e_index = AbstractFormBuilderGadget::staticMetaObject.indexOfEnumerator("Qt::Orientation");
         Q_ASSERT(e_index != -1);
 
-        QMetaEnum orientation_enum = FakeSpacer::staticMetaObject.enumerator(e_index);
+        QMetaEnum orientation_enum = AbstractFormBuilderGadget::staticMetaObject.enumerator(e_index);
 
         foreach (DomProperty *p, ui_spacer->elementProperty()) {
-            QVariant v = toVariant(&FakeSpacer::staticMetaObject, p); // ### remove me
+            QVariant v = toVariant(&AbstractFormBuilderGadget::staticMetaObject, p); // ### remove me
             if (v.isNull())
                 continue;
 
@@ -581,6 +585,8 @@ QVariant AbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p)
 
 void AbstractFormBuilder::setupColorGroup(QPalette &palette, DomColorGroup *group)
 {
+    const QMetaObject meta = AbstractFormBuilderGadget::staticMetaObject;
+
     QList<DomColor*> colors = group->elementColor();
     for (int role = 0; role < colors.size(); ++role) {
         DomColor *color = colors.at(role);
