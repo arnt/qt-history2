@@ -22,10 +22,8 @@
     library components:
 
     \quotefromfile designer/customwidget/customwidget.pro
-    \skipto SDK
-    \printuntil /^\}/
-    \printline
-    \printuntil /^\}/
+    \skipto CONFIG
+    \printuntil DESTDIR
 
     The header and source files for the widget are declared in the usual way,
     and we provide an implementation of the plugin interface so that \QD can
