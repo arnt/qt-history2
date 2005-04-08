@@ -22,8 +22,6 @@ private slots:
     void brushChanged();
 
 private:
-    void addItem(QComboBox *comboBox, const QString &text, int id);
-
     RenderArea *renderArea;
     QLabel *shapeLabel;
     QLabel *penWidthLabel;

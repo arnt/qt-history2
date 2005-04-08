@@ -10,19 +10,19 @@ Window::Window()
     renderArea = new RenderArea(this);
 
     shapeComboBox = new QComboBox(this);
-    addItem(shapeComboBox, tr("Rectangle"), RenderArea::Rect);
-    addItem(shapeComboBox, tr("Round Rectangle"), RenderArea::RoundRect);
-    addItem(shapeComboBox, tr("Ellipse"), RenderArea::Ellipse);
-    addItem(shapeComboBox, tr("Pie"), RenderArea::Pie);
-    addItem(shapeComboBox, tr("Chord"), RenderArea::Chord);
-    addItem(shapeComboBox, tr("Polygon"), RenderArea::Polygon);
-    addItem(shapeComboBox, tr("Path"), RenderArea::Path);
-    addItem(shapeComboBox, tr("Line"), RenderArea::Line);
-    addItem(shapeComboBox, tr("Polyline"), RenderArea::Polyline);
-    addItem(shapeComboBox, tr("Arc"), RenderArea::Arc);
-    addItem(shapeComboBox, tr("Points"), RenderArea::Points);
-    addItem(shapeComboBox, tr("Text"), RenderArea::Text);
-    addItem(shapeComboBox, tr("Pixmap"), RenderArea::Pixmap);
+    shapeComboBox->addItem(tr("Rectangle"), RenderArea::Rect);
+    shapeComboBox->addItem(tr("Round Rectangle"), RenderArea::RoundRect);
+    shapeComboBox->addItem(tr("Ellipse"), RenderArea::Ellipse);
+    shapeComboBox->addItem(tr("Pie"), RenderArea::Pie);
+    shapeComboBox->addItem(tr("Chord"), RenderArea::Chord);
+    shapeComboBox->addItem(tr("Polygon"), RenderArea::Polygon);
+    shapeComboBox->addItem(tr("Path"), RenderArea::Path);
+    shapeComboBox->addItem(tr("Line"), RenderArea::Line);
+    shapeComboBox->addItem(tr("Polyline"), RenderArea::Polyline);
+    shapeComboBox->addItem(tr("Arc"), RenderArea::Arc);
+    shapeComboBox->addItem(tr("Points"), RenderArea::Points);
+    shapeComboBox->addItem(tr("Text"), RenderArea::Text);
+    shapeComboBox->addItem(tr("Pixmap"), RenderArea::Pixmap);
 
     shapeLabel = new QLabel(tr("&Shape:"), this);
     shapeLabel->setBuddy(shapeComboBox);
@@ -34,51 +34,51 @@ Window::Window()
     penWidthLabel->setBuddy(penWidthSpinBox);
 
     penStyleComboBox = new QComboBox(this);
-    addItem(penStyleComboBox, tr("Solid"), Qt::SolidLine);
-    addItem(penStyleComboBox, tr("Dash"), Qt::DashLine);
-    addItem(penStyleComboBox, tr("Dot"), Qt::DotLine);
-    addItem(penStyleComboBox, tr("Dash Dot"), Qt::DashDotLine);
-    addItem(penStyleComboBox, tr("Dash Dot Dot"), Qt::DashDotDotLine);
-    addItem(penStyleComboBox, tr("None"), Qt::NoPen);
+    penStyleComboBox->addItem(tr("Solid"), Qt::SolidLine);
+    penStyleComboBox->addItem(tr("Dash"), Qt::DashLine);
+    penStyleComboBox->addItem(tr("Dot"), Qt::DotLine);
+    penStyleComboBox->addItem(tr("Dash Dot"), Qt::DashDotLine);
+    penStyleComboBox->addItem(tr("Dash Dot Dot"), Qt::DashDotDotLine);
+    penStyleComboBox->addItem(tr("None"), Qt::NoPen);
 
     penStyleLabel = new QLabel(tr("&Pen Style:"), this);
     penStyleLabel->setBuddy(penStyleComboBox);
 
     penCapComboBox = new QComboBox(this);
-    addItem(penCapComboBox, tr("Flat"), Qt::FlatCap);
-    addItem(penCapComboBox, tr("Square"), Qt::SquareCap);
-    addItem(penCapComboBox, tr("Round"), Qt::RoundCap);
+    penCapComboBox->addItem(tr("Flat"), Qt::FlatCap);
+    penCapComboBox->addItem(tr("Square"), Qt::SquareCap);
+    penCapComboBox->addItem(tr("Round"), Qt::RoundCap);
 
     penCapLabel = new QLabel(tr("Pen &Cap:"), this);
     penCapLabel->setBuddy(penCapComboBox);
 
     penJoinComboBox = new QComboBox(this);
-    addItem(penJoinComboBox, tr("Miter"), Qt::MiterJoin);
-    addItem(penJoinComboBox, tr("Bevel"), Qt::BevelJoin);
-    addItem(penJoinComboBox, tr("Round"), Qt::RoundJoin);
+    penJoinComboBox->addItem(tr("Miter"), Qt::MiterJoin);
+    penJoinComboBox->addItem(tr("Bevel"), Qt::BevelJoin);
+    penJoinComboBox->addItem(tr("Round"), Qt::RoundJoin);
 
     penJoinLabel = new QLabel(tr("Pen &Join:"), this);
     penJoinLabel->setBuddy(penJoinComboBox);
 
     brushStyleComboBox = new QComboBox(this);
-    addItem(brushStyleComboBox, tr("Linear Gradient"),
+    brushStyleComboBox->addItem(tr("Linear Gradient"),
             Qt::LinearGradientPattern);
-    addItem(brushStyleComboBox, tr("Texture"), Qt::TexturePattern);
-    addItem(brushStyleComboBox, tr("Solid"), Qt::SolidPattern);
-    addItem(brushStyleComboBox, tr("Horizontal"), Qt::HorPattern);
-    addItem(brushStyleComboBox, tr("Verical"), Qt::VerPattern);
-    addItem(brushStyleComboBox, tr("Cross"), Qt::CrossPattern);
-    addItem(brushStyleComboBox, tr("Backward Diagonal"), Qt::BDiagPattern);
-    addItem(brushStyleComboBox, tr("Forward Diagonal"), Qt::FDiagPattern);
-    addItem(brushStyleComboBox, tr("Diagonal Cross"), Qt::DiagCrossPattern);
-    addItem(brushStyleComboBox, tr("Dense 1"), Qt::Dense1Pattern);
-    addItem(brushStyleComboBox, tr("Dense 2"), Qt::Dense2Pattern);
-    addItem(brushStyleComboBox, tr("Dense 3"), Qt::Dense3Pattern);
-    addItem(brushStyleComboBox, tr("Dense 4"), Qt::Dense4Pattern);
-    addItem(brushStyleComboBox, tr("Dense 5"), Qt::Dense5Pattern);
-    addItem(brushStyleComboBox, tr("Dense 6"), Qt::Dense6Pattern);
-    addItem(brushStyleComboBox, tr("Dense 7"), Qt::Dense7Pattern);
-    addItem(brushStyleComboBox, tr("None"), Qt::NoBrush);
+    brushStyleComboBox->addItem(tr("Texture"), Qt::TexturePattern);
+    brushStyleComboBox->addItem(tr("Solid"), Qt::SolidPattern);
+    brushStyleComboBox->addItem(tr("Horizontal"), Qt::HorPattern);
+    brushStyleComboBox->addItem(tr("Verical"), Qt::VerPattern);
+    brushStyleComboBox->addItem(tr("Cross"), Qt::CrossPattern);
+    brushStyleComboBox->addItem(tr("Backward Diagonal"), Qt::BDiagPattern);
+    brushStyleComboBox->addItem(tr("Forward Diagonal"), Qt::FDiagPattern);
+    brushStyleComboBox->addItem(tr("Diagonal Cross"), Qt::DiagCrossPattern);
+    brushStyleComboBox->addItem(tr("Dense 1"), Qt::Dense1Pattern);
+    brushStyleComboBox->addItem(tr("Dense 2"), Qt::Dense2Pattern);
+    brushStyleComboBox->addItem(tr("Dense 3"), Qt::Dense3Pattern);
+    brushStyleComboBox->addItem(tr("Dense 4"), Qt::Dense4Pattern);
+    brushStyleComboBox->addItem(tr("Dense 5"), Qt::Dense5Pattern);
+    brushStyleComboBox->addItem(tr("Dense 6"), Qt::Dense6Pattern);
+    brushStyleComboBox->addItem(tr("Dense 7"), Qt::Dense7Pattern);
+    brushStyleComboBox->addItem(tr("None"), Qt::NoBrush);
 
     brushStyleLabel = new QLabel(tr("&Brush Style:"), this);
     brushStyleLabel->setBuddy(brushStyleComboBox);
@@ -168,11 +168,4 @@ void Window::brushChanged()
     } else {
         renderArea->setBrush(QBrush(Qt::red, style));
     }
-}
-
-void Window::addItem(QComboBox *comboBox, const QString &text, int id)
-{
-    int row = comboBox->count();
-    comboBox->insertItem(row, text);
-    comboBox->setItemData(row, id, IdRole);
 }

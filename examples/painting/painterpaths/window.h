@@ -21,10 +21,8 @@ private slots:
     void penColorChanged();
 
 private:
-    void addItem(QComboBox *comboBox, const QString &text, int id);
-    void addColor(QComboBox *comboBox, const QString &text,
-                  const QColor &color);
     void populateWithColors(QComboBox *comboBox);
+    QVariant currentItemData(QComboBox *comboBox);
 
     enum { NumRenderAreas = 9 };
 

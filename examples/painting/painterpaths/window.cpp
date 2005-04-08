@@ -5,8 +5,6 @@
 #include "renderarea.h"
 #include "window.h"
 
-const int IdRole = Qt::UserRole;
-const int ColorRole = Qt::UserRole + 1;
 const float Pi = 3.14159;
 
 Window::Window()
@@ -56,7 +54,7 @@ Window::Window()
     groupPath.closeSubpath();
 
     QPainterPath textPath;
-    QFont timesFont("Times", 60);
+    QFont timesFont("Times", 50);
     timesFont.setStyleStrategy(QFont::ForceOutline);
     textPath.addText(10, 70, timesFont, tr("Qt"));
 
@@ -72,60 +70,60 @@ Window::Window()
     }
     starPath.closeSubpath();
 
-    renderAreas[0] = new RenderArea(rectPath, this);
-    renderAreas[1] = new RenderArea(roundRectPath, this);
-    renderAreas[2] = new RenderArea(ellipsePath, this);
-    renderAreas[3] = new RenderArea(piePath, this);
-    renderAreas[4] = new RenderArea(polygonPath, this);
-    renderAreas[5] = new RenderArea(groupPath, this);
-    renderAreas[6] = new RenderArea(textPath, this);
-    renderAreas[7] = new RenderArea(bezierPath, this);
-    renderAreas[8] = new RenderArea(starPath, this);
+    renderAreas[0] = new RenderArea(rectPath);
+    renderAreas[1] = new RenderArea(roundRectPath);
+    renderAreas[2] = new RenderArea(ellipsePath);
+    renderAreas[3] = new RenderArea(piePath);
+    renderAreas[4] = new RenderArea(polygonPath);
+    renderAreas[5] = new RenderArea(groupPath);
+    renderAreas[6] = new RenderArea(textPath);
+    renderAreas[7] = new RenderArea(bezierPath);
+    renderAreas[8] = new RenderArea(starPath);
     Q_ASSERT(NumRenderAreas == 9);
 
-    fillRuleComboBox = new QComboBox(this);
-    addItem(fillRuleComboBox, tr("Odd Even"), Qt::OddEvenFill);
-    addItem(fillRuleComboBox, tr("Winding"), Qt::WindingFill);
+    fillRuleComboBox = new QComboBox;
+    fillRuleComboBox->addItem(tr("Odd Even"), Qt::OddEvenFill);
+    fillRuleComboBox->addItem(tr("Winding"), Qt::WindingFill);
 
-    fillRuleLabel = new QLabel(tr("Fill &Rule:"), this);
+    fillRuleLabel = new QLabel(tr("Fill &Rule:"));
     fillRuleLabel->setBuddy(fillRuleComboBox);
 
-    fillColor1ComboBox = new QComboBox(this);
+    fillColor1ComboBox = new QComboBox;
     populateWithColors(fillColor1ComboBox);
     fillColor1ComboBox->setCurrentIndex(
             fillColor1ComboBox->findText("mediumslateblue"));
 
-    fillColor2ComboBox = new QComboBox(this);
+    fillColor2ComboBox = new QComboBox;
     populateWithColors(fillColor2ComboBox);
     fillColor2ComboBox->setCurrentIndex(
             fillColor2ComboBox->findText("cornsilk"));
 
-    fillGradientLabel = new QLabel(tr("&Fill Gradient:"), this);
+    fillGradientLabel = new QLabel(tr("&Fill Gradient:"));
     fillGradientLabel->setBuddy(fillColor1ComboBox);
 
-    fillToLabel = new QLabel(tr("to"), this);
+    fillToLabel = new QLabel(tr("to"));
     fillToLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    penWidthSpinBox = new QSpinBox(this);
+    penWidthSpinBox = new QSpinBox;
     penWidthSpinBox->setRange(0, 20);
 
-    penWidthLabel = new QLabel(tr("&Pen Width:"), this);
+    penWidthLabel = new QLabel(tr("&Pen Width:"));
     penWidthLabel->setBuddy(penWidthSpinBox);
 
-    penColorComboBox = new QComboBox(this);
+    penColorComboBox = new QComboBox;
     populateWithColors(penColorComboBox);
     penColorComboBox->setCurrentIndex(
             penColorComboBox->findText("darkslateblue"));
 
-    penColorLabel = new QLabel(tr("Pen &Color:"), this);
+    penColorLabel = new QLabel(tr("Pen &Color:"));
     penColorLabel->setBuddy(penColorComboBox);
 
-    rotationAngleSpinBox = new QSpinBox(this);
+    rotationAngleSpinBox = new QSpinBox;
     rotationAngleSpinBox->setRange(0, 359);
     rotationAngleSpinBox->setWrapping(true);
     rotationAngleSpinBox->setSuffix("\xB0");
 
-    rotationAngleLabel = new QLabel(tr("&Rotation Angle:"), this);
+    rotationAngleLabel = new QLabel(tr("&Rotation Angle:"));
     rotationAngleLabel->setBuddy(rotationAngleSpinBox);
 
     connect(fillRuleComboBox, SIGNAL(activated(int)),
@@ -173,8 +171,7 @@ Window::Window()
 
 void Window::fillRuleChanged()
 {
-    Qt::FillRule rule =
-        (Qt::FillRule)fillRuleComboBox->itemData(fillRuleComboBox->currentIndex(), IdRole).toInt();
+    Qt::FillRule rule = (Qt::FillRule)currentItemData(fillRuleComboBox).toInt();
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setFillRule(rule);
@@ -182,10 +179,8 @@ void Window::fillRuleChanged()
 
 void Window::fillGradientChanged()
 {
-    QColor color1 = qvariant_cast<QColor>(fillColor1ComboBox->itemData(
-                fillColor1ComboBox->currentIndex(), ColorRole));
-    QColor color2 = qvariant_cast<QColor>(fillColor2ComboBox->itemData(
-            fillColor2ComboBox->currentIndex(), ColorRole));
+    QColor color1 = qvariant_cast<QColor>(currentItemData(fillColor1ComboBox));
+    QColor color2 = qvariant_cast<QColor>(currentItemData(fillColor2ComboBox));
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setFillGradient(color1, color2);
@@ -193,31 +188,20 @@ void Window::fillGradientChanged()
 
 void Window::penColorChanged()
 {
-    QColor color =
-        qvariant_cast<QColor>(penColorComboBox->itemData(penColorComboBox->currentIndex(), ColorRole));
+    QColor color = qvariant_cast<QColor>(currentItemData(penColorComboBox));
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setPenColor(color);
-}
-
-void Window::addItem(QComboBox *comboBox, const QString &text, int id)
-{
-    int row = comboBox->count();
-    comboBox->insertItem(row, text);
-    comboBox->setItemData(row, id, IdRole);
-}
-
-void Window::addColor(QComboBox *comboBox, const QString &text,
-                      const QColor &color)
-{
-    int row = comboBox->count();
-    comboBox->insertItem(row, text);
-    comboBox->setItemData(row, qVariantFromValue(color), ColorRole);
 }
 
 void Window::populateWithColors(QComboBox *comboBox)
 {
     QStringList colorNames = QColor::colorNames();
     foreach (QString name, colorNames)
-        addColor(comboBox, name, QColor(name));
+        comboBox->addItem(name, QColor(name));
+}
+
+QVariant Window::currentItemData(QComboBox *comboBox)
+{
+    return comboBox->itemData(comboBox->currentIndex());
 }
