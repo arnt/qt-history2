@@ -20,6 +20,7 @@ class QStandardItemModelPrivate;
 
 class Q_GUI_EXPORT QStandardItemModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     explicit QStandardItemModel(QObject *parent = 0);
     QStandardItemModel(int rows, int columns, QObject *parent = 0);

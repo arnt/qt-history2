@@ -106,6 +106,7 @@ class Q_CORE_EXPORT QAbstractItemModel : public QObject
 {
     Q_OBJECT
 
+    friend class QPersistentModelIndexData;
 public:
 
     enum MatchFlag {
@@ -173,18 +174,19 @@ public:
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void headerDataChanged(Qt::Orientation orientation, int first, int last);
+    void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
     void rowsInserted(const QModelIndex &parent, int first, int last);
     void rowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
+    void rowsRemoved(const QModelIndex &parent, int first, int last);
+    void columnsAboutToBeInserted(const QModelIndex &parent, int first, int last);
     void columnsInserted(const QModelIndex &parent, int first, int last);
     void columnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
+    void columnsRemoved(const QModelIndex &parent, int first, int last);
     void reset();
 
 public slots:
     virtual bool submit();
     virtual void revert();
-
-protected slots:
-    void resetPersistentIndexes();
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent = 0);
@@ -195,16 +197,6 @@ protected:
     void encodeData(const QModelIndexList &indexes, QDataStream &stream) const;
     void encodeData(const QModelIndex &parent, QDataStream &stream) const;
     bool decodeData(int row, const QModelIndex &parent, QDataStream &stream);
-
-    // Persistent indexes
-    void invalidatePersistentIndex(const QModelIndex &index);
-    void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex());
-    int persistentIndexesCount() const;
-    QModelIndex persistentIndexAt(int position) const;
-    void setPersistentIndex(int position, const QModelIndex &index);
-    int persistentIndexPosition(const QModelIndex &index, int from = 0) const;
-
-    friend class QPersistentModelIndexData;
 
 private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)

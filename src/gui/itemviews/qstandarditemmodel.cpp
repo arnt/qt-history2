@@ -272,23 +272,12 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
     if (!parent.isValid() && d->verticalHeader.size() > row)
         d->verticalHeader.insert(row, count, 0);
 
-    // find all affected persistent indexes
-    QList<int> affectedIndexes;
-    for (int i=0; i<persistentIndexesCount(); ++i) {
-        QModelIndex index = persistentIndexAt(i);
-        if (index.isValid() && index.parent() == parent && index.row() >= row)
-            affectedIndexes.append(i);
-    }
+    emit rowsAboutToBeInserted(parent, row, row + count - 1);
 
     rows.insert(row, count, 0);
 
-    // update persistent indexes
-    for (int i=0; i<affectedIndexes.count(); ++i) {
-        int position = affectedIndexes.at(i);
-        QModelIndex oldIndex = persistentIndexAt(position);
-        setPersistentIndex(position, index(oldIndex.row() + count, oldIndex.column(), parent));
-    }
     emit rowsInserted(parent, row, row + count - 1);
+    
     return true;
 }
 
@@ -312,13 +301,7 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
     if (count < 0 || column < 0 || column > columnCount(parent))
         return false;
 
-    // find all affected persisten indexes
-    QList<int> affectedIndexes;
-    for (int i=0; i<persistentIndexesCount(); ++i) {
-        QModelIndex index = persistentIndexAt(i);
-        if (index.isValid() && index.parent() == parent && index.column() >= column)
-            affectedIndexes.append(i);
-    }
+    emit columnsAboutToBeInserted(parent, column, column + count - 1);
 
     QVector<QStdModelRow*> *rows = &d->topLevelRows;
     // update the column counters
@@ -341,14 +324,8 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
             modelRow->items.insert(column, count, 0);
     }
 
-    // update persistent indexes
-    for (int i=0; i<affectedIndexes.count(); ++i) {
-        int position = affectedIndexes.at(i);
-        QModelIndex oldIndex = persistentIndexAt(position);
-        setPersistentIndex(position, index(oldIndex.row(), oldIndex.column() + count, parent));
-    }
-
     emit columnsInserted(parent, column, column + count - 1);
+
     return true;
 }
 
@@ -369,18 +346,6 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
 
     emit rowsAboutToBeRemoved(parent, row, row + count - 1);
 
-    // find all affected persistent indexes
-    QList<int> affectedIndexes;
-    for (int i=0; i<persistentIndexesCount(); ++i) {
-        QModelIndex index = persistentIndexAt(i);
-        if (index.isValid() && index.parent() == parent) {
-            if (index.row() >= row + count)
-                affectedIndexes.append(i);
-            else if (index.row() >= row)
-                invalidatePersistentIndex(index);
-        }
-    }
-
     QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, false)->childrenRows
                                : d->topLevelRows;
 
@@ -397,12 +362,7 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
     // resize row vector
     rows.remove(row, count);
 
-    // update persistent indexes
-    for (int i=0; i<affectedIndexes.count(); ++i) {
-        int position = affectedIndexes.at(i);
-        QModelIndex oldIndex = persistentIndexAt(position);
-        setPersistentIndex(position, index(oldIndex.row() - count, oldIndex.column(), parent));
-    }
+    emit rowsRemoved(parent, row, row + count - 1);
 
     return true;
 }
@@ -423,18 +383,6 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
         return false;
 
     emit columnsAboutToBeRemoved(parent, column, column + count - 1);
-
-    // find all affected persistent indexes
-    QList<int> affectedIndexes;
-    for (int i=0; i<persistentIndexesCount(); ++i) {
-        QModelIndex index = persistentIndexAt(i);
-        if (index.isValid() && index.parent() == parent) {
-            if (index.column() >= column + count)
-                affectedIndexes.append(i);
-            else if (index.column() >= column)
-                invalidatePersistentIndex(index);
-        }
-    }
 
     QVector<QStdModelRow*> *rows = &d->topLevelRows;
     // update the column counters
@@ -464,12 +412,7 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
         }
     }
 
-    // update persistent indexes
-    for (int i=0; i<affectedIndexes.count(); ++i) {
-        int position = affectedIndexes.at(i);
-        QModelIndex oldIndex = persistentIndexAt(position);
-        setPersistentIndex(position, index(oldIndex.row(), oldIndex.column() - count, parent));
-    }
+    emit columnsRemoved(parent, column, column + count - 1);
 
     return true;
 }

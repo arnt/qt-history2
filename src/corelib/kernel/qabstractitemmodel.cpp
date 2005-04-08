@@ -20,6 +20,7 @@
 #include <qdebug.h>
 #include <qvector.h>
 #include <private/qabstractitemmodel_p.h>
+#include <private/qpersistentmodelindex_p.h>
 
 QPersistentModelIndexData QPersistentModelIndexData::shared_null;
 
@@ -29,7 +30,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
     QPersistentModelIndexData *d = &QPersistentModelIndexData::shared_null;
     QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
     QList<QPersistentModelIndexData*> *persistentIndexes =
-        &(model->d_func()->persistentIndexes);
+        &(model->d_func()->manager->indexes);
     for (int i = 0; i < persistentIndexes->count(); ++i) {
         if (persistentIndexes->at(i)->index == index) {
             d = persistentIndexes->at(i);
@@ -51,7 +52,7 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
         QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->model);
         // a valid persistent model index with a null model pointer can only happen if the model was destroyed
         if (model)
-            model->d_func()->persistentIndexes.removeAll(data);
+            model->d_func()->manager->indexes.removeAll(data);
         delete data;
     }
 }
@@ -340,6 +341,176 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     return dbg;
 }
 #endif
+
+
+QPersistentModelIndexManager::QPersistentModelIndexManager(QAbstractItemModel *parent)
+    : QObject(parent), model(parent)
+{
+    QObject::connect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+                     this, SLOT(rowsAboutToBeInserted(QModelIndex,int,int)));
+    QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                     this, SLOT(rowsInserted(QModelIndex,int,int)));
+    
+    QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                     this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+    QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                     this, SLOT(rowsRemoved(QModelIndex,int,int)));
+
+    QObject::connect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+                     this, SLOT(rowsAboutToBeInserted(QModelIndex,int,int)));
+    QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                     this, SLOT(rowsInserted(QModelIndex,int,int)));
+    
+    QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                     this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+    QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                     this, SLOT(rowsRemoved(QModelIndex,int,int)));
+
+    QObject::connect(model, SIGNAL(reset()), this, SLOT(reset()));
+}
+
+QPersistentModelIndexManager::~QPersistentModelIndexManager()
+{
+    QList<QPersistentModelIndexData*>::iterator it = indexes.begin();
+    for (; it != indexes.end(); ++it) {
+        Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
+        (*it)->index = QModelIndex();
+        (*it)->model = 0;
+    }
+}
+
+void QPersistentModelIndexManager::invalidateIndex(const QModelIndex &index)
+{
+    QList<QPersistentModelIndexData*>::iterator it = indexes.begin();
+    for (; it != indexes.end(); ++it) {
+        if ((*it)->index == index) {
+            (*it)->index = QModelIndex();
+            if (model->hasChildren(index))
+                invalidateIndex(index);
+            return;
+        }
+    }
+}
+
+void QPersistentModelIndexManager::invalidateChildren(const QModelIndex &parent)
+{
+    bool all = !parent.isValid();
+    QList<QPersistentModelIndexData*>::iterator it = indexes.begin();
+    for (; it != indexes.end(); ++it) {
+        if (all || (*it)->index.parent() == parent) {
+            Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
+            if (!all) invalidateChildren((*it)->index); // recursive
+            (*it)->index = QModelIndex();
+        }
+    }
+}
+
+void QPersistentModelIndexManager::rowsAboutToBeInserted(const QModelIndex &parent,
+                                                           int first, int last)
+{
+    Q_UNUSED(last);
+    affected.clear();
+    for (int position = 0; position < indexes.count(); ++position) {
+        QModelIndex index = indexes.at(position)->index;
+        if (index.isValid() && index.parent() == parent && index.row() >= first)
+            affected.append(position);
+    }
+}
+
+void QPersistentModelIndexManager::rowsInserted(const QModelIndex &parent,
+                                                  int first, int last)
+{
+    int count = last - first;
+    for (int i = 0; i < affected.count(); ++i) {
+        int position = affected.at(i);
+        QModelIndex old = indexes.at(position)->index;
+        indexes[position]->index = model->index(old.row() + count, old.column(), parent);
+    }
+    affected.clear();
+}
+
+void QPersistentModelIndexManager::rowsAboutToBeRemoved(const QModelIndex &parent,
+                                                        int first, int last)
+{
+    affected.clear();
+    for (int position = 0; position < indexes.count(); ++position) {
+        QModelIndex index = indexes.at(position)->index;
+        if (index.isValid() && index.parent() == parent) {
+            if (index.row() > last) // below the removed rows
+                affected.append(position);
+            else if (index.row() >= first) // about to be removed
+                invalidateIndex(index);
+        }
+    }
+}
+
+void QPersistentModelIndexManager::rowsRemoved(const QModelIndex &parent,
+                                               int first, int last)
+{
+    int count = last - first;
+    for (int i = 0; i < affected.count(); ++i) {
+        int position = affected.at(i);
+        QModelIndex old = indexes.at(position)->index;
+        indexes[position]->index = model->index(old.row() - count, old.column(), parent);
+    }
+    affected.clear();
+}
+
+void QPersistentModelIndexManager::columnsAboutToBeInserted(const QModelIndex &parent,
+                                                            int first, int last)
+{
+    Q_UNUSED(last);
+    affected.clear();
+    for (int position = 0; position < indexes.count(); ++position) {
+        QModelIndex index = indexes.at(position)->index;
+        if (index.isValid() && index.parent() == parent && index.column() >= first)
+            affected.append(position);
+    }
+}
+
+void QPersistentModelIndexManager::columnsInserted(const QModelIndex &parent,
+                                                   int first, int last)
+{
+    int count = last - first;
+    for (int i = 0; i < affected.count(); ++i) {
+        int position = affected.at(i);
+        QModelIndex old = indexes.at(position)->index;
+        indexes[position]->index = model->index(old.row(), old.column() + count, parent);
+    }
+    affected.clear();
+}
+
+void QPersistentModelIndexManager::columnsAboutToBeRemoved(const QModelIndex &parent,
+                                                           int first, int last)
+{
+    affected.clear();
+    for (int position = 0; position < indexes.count(); ++position) {
+        QModelIndex index = indexes.at(position)->index;
+        if (index.isValid() && index.parent() == parent) {
+            if (index.column() > last) // after the removed columns
+                affected.append(position);
+            else if (index.column() >= first) // about to be removed
+                invalidateIndex(index);
+        }
+    }
+}
+
+void QPersistentModelIndexManager::columnsRemoved(const QModelIndex &parent,
+                                                  int first, int last)
+{
+    int count = last - first;
+    for (int i = 0; i < affected.count(); ++i) {
+        int position = affected.at(i);
+        QModelIndex old = indexes.at(position)->index;
+        indexes[position]->index = model->index(old.row(), old.column() - count, parent);
+    }
+    affected.clear();
+}
+
+void QPersistentModelIndexManager::reset()
+{
+    invalidateChildren(QModelIndex());
+}
 
 /*!
     \class QModelIndex qabstractitemmodel.h
@@ -655,7 +826,8 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 QAbstractItemModel::QAbstractItemModel(QObject *parent)
     : QObject(*new QAbstractItemModelPrivate, parent)
 {
-    QObject::connect(this, SIGNAL(reset()), this, SLOT(resetPersistentIndexes()));
+    Q_D(QAbstractItemModel);
+    d->manager = new QPersistentModelIndexManager(this);
 }
 
 /*!
@@ -664,7 +836,8 @@ QAbstractItemModel::QAbstractItemModel(QObject *parent)
 QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent)
     : QObject(dd, parent)
 {
-    QObject::connect(this, SIGNAL(reset()), this, SLOT(resetPersistentIndexes()));
+    Q_D(QAbstractItemModel);
+    d->manager = new QPersistentModelIndexManager(this);
 }
 
 /*!
@@ -673,12 +846,7 @@ QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *p
 QAbstractItemModel::~QAbstractItemModel()
 {
     Q_D(QAbstractItemModel);
-    QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
-    for (; it != d->persistentIndexes.end(); ++it) {
-        Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
-        (*it)->index = QModelIndex();
-        (*it)->model = 0;
-    }
+    d->manager = new QPersistentModelIndexManager(this);
 }
 
 /*!
@@ -1314,108 +1482,6 @@ bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QDataStr
         ++row;
     }
     return true;
-}
-
-/*!
-  \internal
-*/
-void QAbstractItemModel::resetPersistentIndexes()
-{
-    invalidatePersistentIndexes();
-}
-
-/*!
-  \internal
-*/
-void QAbstractItemModel::invalidatePersistentIndex(const QModelIndex &index)
-{
-    Q_D(QAbstractItemModel);
-    // FIXME: make this a QMap<QModelIndex, QPresistentModelIndexData*> or something similar
-    QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
-    for (; it != d->persistentIndexes.end(); ++it) {
-        if ((*it)->index == index) {
-            (*it)->index = QModelIndex();
-            if (hasChildren(index))
-                invalidatePersistentIndexes(index);
-            return;
-        }
-    }
-}
-
-/*!
-    \internal
-
-    Invalidates the persistent indexes by setting them to invalid
-    model indexes. Affects the given \a parent index, or if the \a
-    parent is invalid affects all indexes.
-
-    This function is used in model subclasses that can manage persistent
-    model indexes.
-
-    NOTE: this function is recursive
-*/
-void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
-{
-    Q_D(QAbstractItemModel);
-    bool all = !parent.isValid();
-    QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
-    for (; it != d->persistentIndexes.end(); ++it) {
-        if (all || (*it)->index.parent() == parent) {
-            Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
-            if (!all) invalidatePersistentIndexes((*it)->index); // recursive
-            (*it)->index = QModelIndex();
-        }
-    }
-}
-
-
-
-/*!
-    \internal
-
-    Returns the number of persistent indexes held by this model.
-*/
-int QAbstractItemModel::persistentIndexesCount() const
-{
-    Q_D(const QAbstractItemModel);
-    return d->persistentIndexes.count();
-}
-
-/*!
-    \internal
-
-    Returns the persistent index at the given \a position.
-*/
-QModelIndex QAbstractItemModel::persistentIndexAt(int position) const
-{
-    Q_D(const QAbstractItemModel);
-    return d->persistentIndexes.at(position)->index;
-}
-
-/*!
-    \internal
-
-    Sets the model's persistent index at position \a position to \a
-    index.
-*/
-void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &index)
-{
-    Q_D(QAbstractItemModel);
-    d->persistentIndexes[position]->index = index;
-}
-
-/*!
-  \internal
-
-  Returns the position of \a index in the list of persistent indexes.
-*/
-int QAbstractItemModel::persistentIndexPosition(const QModelIndex &index, int from) const
-{
-    Q_D(const QAbstractItemModel);
-    for (int i = from; i < d->persistentIndexes.count(); ++i)
-        if (d->persistentIndexes.at(i)->index == index)
-            return i;
-    return -1;
 }
 
 /*!

@@ -107,6 +107,7 @@ QTableModel::~QTableModel()
 
 bool QTableModel::insertRows(int row, int count, const QModelIndex &)
 {
+    emit rowsAboutToBeInserted(QModelIndex(), row, row + count - 1);
     // insert rows
     int rc = vertical.count();
     int cc = horizontal.count();
@@ -115,18 +116,13 @@ bool QTableModel::insertRows(int row, int count, const QModelIndex &)
         table.resize(cc * count);
     else
         table.insert(tableIndex(row, 0), cc * count, 0);
-    // update persistent model indexes
-    for (int i = 0; i < persistentIndexesCount(); ++i) {
-        QModelIndex idx = persistentIndexAt(i);
-        if (idx.row() >= row)
-            setPersistentIndex(i, index(idx.row() + count, idx.column()));
-    }
     emit rowsInserted(QModelIndex(), row, row + count - 1);
     return true;
 }
 
 bool QTableModel::insertColumns(int column, int count, const QModelIndex &)
 {
+    emit columnsAboutToBeInserted(QModelIndex(), column, column + count - 1);
     // insert columns
     int rc = vertical.count();
     int cc = horizontal.count();
@@ -136,12 +132,7 @@ bool QTableModel::insertColumns(int column, int count, const QModelIndex &)
     else
         for (int row = 0; row < rc; ++row)
             table.insert(tableIndex(row, column), count, 0);
-    // update persistent model indexes
-    for (int i = 0; i < persistentIndexesCount(); ++i) {
-        QModelIndex idx = persistentIndexAt(i);
-        if (idx.column() >= column)
-            setPersistentIndex(i, index(idx.row(), idx.column() + count));
-    }
+
     emit columnsInserted(QModelIndex(), column, column + count - 1);
     return true;
 }
@@ -149,20 +140,13 @@ bool QTableModel::insertColumns(int column, int count, const QModelIndex &)
 bool QTableModel::removeRows(int row, int count, const QModelIndex &)
 {
     if (row >= 0 && row < vertical.count()) {
-        emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
         // remove rows
+        emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
         int i = tableIndex(row, 0);
         int n = count * columnCount();
         table.remove(qMax(i, 0), n);
         vertical.remove(row, count);
-        // update persistent model indexes
-        for (int j = 0; j < persistentIndexesCount(); ++j) {
-            QModelIndex idx = persistentIndexAt(j);
-            if (idx.row() >= vertical.count())
-                setPersistentIndex(j, QModelIndex());
-            else if (idx.row() >= row)
-                setPersistentIndex(j, index(idx.row() - count, idx.column()));
-        }
+        emit rowsRemoved(QModelIndex(), row, row + count - 1);
         return true;
     }
     return false;
@@ -171,19 +155,12 @@ bool QTableModel::removeRows(int row, int count, const QModelIndex &)
 bool QTableModel::removeColumns(int column, int count, const QModelIndex &)
 {
     if (column >= 0 && column < horizontal.count()) {
-        emit columnsAboutToBeRemoved(QModelIndex(), column, column + count - 1);
         // remove columns
+        emit columnsAboutToBeRemoved(QModelIndex(), column, column + count - 1);
         for (int row = rowCount() - 1; row >= 0; --row)
             table.remove(tableIndex(row, column), count);
         horizontal.remove(column, count);
-        // update persistent model indexes
-        for (int i = 0; i < persistentIndexesCount(); ++i) {
-            QModelIndex idx = persistentIndexAt(i);
-            if (idx.column() >= horizontal.count())
-                setPersistentIndex(i, QModelIndex());
-            else if (idx.column() >= column)
-                setPersistentIndex(i, index(idx.row(), idx.column() - count));
-        }
+        emit columnsRemoved(QModelIndex(), column, column + count - 1);
         return true;
     }
     return false;

@@ -95,14 +95,12 @@ bool QStringListModel::setData(const QModelIndex &index, const QVariant &value, 
 
 bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+    Q_UNUSED(parent);
+
+    emit rowsAboutToBeInserted(QModelIndex(), row, row + count - 1);
+    
     for (int r = 0; r < count; ++r)
         stringList.insert(row, QString());
-
-    for (int i = 0; i < persistentIndexesCount(); ++i) {
-        int r = persistentIndexAt(i).row();
-        if (r >= row)
-            setPersistentIndex(i, index(r + count, 0, parent));
-    }
 
     emit rowsInserted(QModelIndex(), row, row + count - 1);
 
@@ -115,21 +113,14 @@ bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
+    Q_UNUSED(parent);
+
     emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
 
     for (int r = 0; r < count; ++r)
         stringList.removeAt(row);
 
-    int last = row + count - 1;
-    for (int i = 0; i < persistentIndexesCount(); ++i) {
-        int r = persistentIndexAt(i).row();
-        if (r >= row) {
-            if (r <= last)
-                setPersistentIndex(i, QModelIndex());
-            else
-                setPersistentIndex(i, index(r - count, 0, parent));
-        }
-    }
-
+    emit rowsRemoved(QModelIndex(), row, row + count - 1);
+        
     return true;
 }

@@ -4,6 +4,7 @@ HEADERS += \
 	kernel/qabstracteventdispatcher.h \
         kernel/qabstractitemmodel.h \
         kernel/qabstractitemmodel_p.h \
+	kernel/qpersistentmodelindex_p.h \
 	kernel/qbasictimer.h \
 	kernel/qeventloop.h\
 	kernel/qpointer.h \

@@ -28,24 +28,13 @@
 
 #include <private/qobject_p.h>
 
-class Q_CORE_EXPORT QPersistentModelIndexData
-{
-public:
-    QPersistentModelIndexData() : model (0) { ref = 0; }
-    QModelIndex index;
-    QAtomic ref;
-    const QAbstractItemModel *model;
-    static QPersistentModelIndexData shared_null;
-    static QPersistentModelIndexData *create(const QModelIndex &index);
-    static void destroy(QPersistentModelIndexData *data);
-};
+class QPersistentModelIndexManager;
 
 class Q_CORE_EXPORT QAbstractItemModelPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemModel)
-
 public:
-    QList<QPersistentModelIndexData*> persistentIndexes;
+    QPersistentModelIndexManager *manager;
 };
 
 #endif // QABSTRACTITEMMODEL_P_H
