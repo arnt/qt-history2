@@ -3472,10 +3472,11 @@ void QETWidget::eraseWindowBackground(HDC hdc)
 
     QWidget *that = const_cast<QWidget*>(w);
     that->setAttribute(Qt::WA_WState_InPaintEvent);
+
     qt_erase_background
         (hdc, r.left, r.top,
           r.right-r.left, r.bottom-r.top,
-          data->pal.brush(w->d->bg_role),
+          data->pal.brush(w->backgroundRole()),
           offset.x(), offset.y(), const_cast<QWidget*>(w));
     that->setAttribute(Qt::WA_WState_InPaintEvent, false);
 }
