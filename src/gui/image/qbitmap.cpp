@@ -274,7 +274,13 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
     if (image.isNull())
         return QBitmap();
     QImage img = image.convertToFormat(QImage::Format_MonoLSB, flags);
+#if defined (Q_WS_WIN) || defined (Q_WS_QWS)
+    QBitmap bm;
+    bm.data->image = img;
+    return bm;
+#else
     return QBitmap(QPixmap::fromImage(img, flags));
+#endif
 }
 
 

@@ -34,7 +34,7 @@
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS)
 
 struct QPixmapData { // internal pixmap data
-    QPixmapData() : count(1) { }
+    QPixmapData() : count(1), bitmap(false) { }
     ~QPixmapData(){};
     void ref() { ++count; }
     bool deref() { return !--count; }

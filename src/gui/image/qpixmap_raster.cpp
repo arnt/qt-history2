@@ -429,8 +429,7 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
     switch (image.format()) {
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
-        pixmap.data->image = image.convertToFormat(QImage::Format_MonoLSB);
-        pixmap.data->bitmap = true;
+        pixmap.data->image = image.convertToFormat(QImage::Format_RGB32);
         break;
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32_Premultiplied:
@@ -447,14 +446,14 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
 bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConversionFlags flags )
 {
     QFileInfo info(fileName);
-    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString();
+    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') + QString::number(data->bitmap);
 
     if (QPixmapCache::find(key, *this))
             return true;
     QImage image = QImageReader(fileName, format).read();
 
     if (!image.isNull()) {
-        *this = fromImage(image, flags);
+        *this = data->bitmap ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
         if (!isNull()) {
             QPixmapCache::insert(key, *this);
             return true;
@@ -471,7 +470,7 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char* format, Qt::I
 
     QImage image = QImageReader(&b, format).read();
     if (!image.isNull())
-        *this = fromImage(image, flags);
+        *this = data->bitmap ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
     return !isNull();
 }
 
@@ -585,13 +584,7 @@ void QPixmap::init(int w, int h, int d, bool)
     Q_ASSERT(d == 1 || d == 32);
 
     data = new QPixmapData;
-    if (d == 1) {
-        data->image = data->createBitmapImage(w, h);
-        data->bitmap = true;
-    } else {
-        data->image = QImage(w, h, QImage::Format_RGB32);
-        data->bitmap = false;
-    }
+    data->image = QImage(w, h, QImage::Format_RGB32);
 }
 
 void QPixmap::deref()
