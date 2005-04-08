@@ -26,6 +26,7 @@ HEADERS += \
 	kernel/qshortcut.h \
 	kernel/qshortcutmap_p.h \
 	kernel/qsizepolicy.h \
+	kernel/qpalette.h \
 	kernel/qsound.h \
 	kernel/qsound_p.h \
 	kernel/qstackedlayout.h \
@@ -59,10 +60,6 @@ SOURCES += \
 	kernel/qguivariant.cpp \
 	kernel/qwhatsthis.cpp \
 	kernel/qwidget.cpp
-
-
-MOCABLE += kernel/qsizepolicy.h \
-	kernel/qpalette.h
 
 win32 {
 	SOURCES += \
