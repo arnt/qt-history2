@@ -48,11 +48,17 @@ void DragWidget::dragEnterEvent(QDragEnterEvent *event)
 void DragWidget::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasText()) {
-        QString text = event->mimeData()->text();
+        QStringList pieces = event->mimeData()->text().split(QRegExp("\\s+"),
+                             QString::SkipEmptyParts);
+        QPoint position = event->pos();
 
-        DragLabel *newLabel = new DragLabel(text, this);
-        newLabel->move(event->pos());
-        newLabel->show();
+        foreach (QString piece, pieces) {
+            DragLabel *newLabel = new DragLabel(piece, this);
+            newLabel->move(position);
+            newLabel->show();
+
+            position += QPoint(newLabel->width(), 0);
+        }
 
         if (children().contains(event->source())) {
             event->setDropAction(Qt::MoveAction);
