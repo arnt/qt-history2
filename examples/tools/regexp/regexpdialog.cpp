@@ -5,16 +5,24 @@ RegExpDialog::RegExpDialog(QWidget *parent)
 {
     patternComboBox = new QComboBox(this);
     patternComboBox->setEditable(true);
-    patternComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    patternComboBox->addItem(tr("([A-Za-z_])([A-Za-z_0-9]*)"));
+    patternComboBox->setSizePolicy(QSizePolicy::Expanding,
+                                   QSizePolicy::Preferred);
 
     patternLabel = new QLabel(tr("&Pattern:"), this);
     patternLabel->setBuddy(patternComboBox);
 
+    escapedPatternLineEdit = new QLineEdit(this);
+    escapedPatternLineEdit->setReadOnly(true);
+    QPalette palette = escapedPatternLineEdit->palette();
+    palette.setBrush(QPalette::Base, palette.brush(QPalette::Disabled, QPalette::Base));
+    escapedPatternLineEdit->setPalette(palette);
+
+    escapedPatternLabel = new QLabel(tr("&Escaped Pattern:"), this);
+    escapedPatternLabel->setBuddy(escapedPatternLineEdit);
+
     textComboBox = new QComboBox(this);
     textComboBox->setEditable(true);
     textComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    textComboBox->addItem(tr("(10 + delta4) * 32"));
 
     textLabel = new QLabel(tr("&Text:"), this);
     textLabel->setBuddy(textComboBox);
@@ -39,51 +47,42 @@ RegExpDialog::RegExpDialog(QWidget *parent)
     }
     captureLabels[0]->setText(tr("Match:"));
 
-    copyButton = new QPushButton(tr("&Copy"), this);
-    quitButton = new QPushButton(tr("&Quit"), this);
+    QHBoxLayout *checkBoxLayout = new QHBoxLayout;
+    checkBoxLayout->addWidget(caseSensitiveCheckBox);
+    checkBoxLayout->addWidget(minimalCheckBox);
+    checkBoxLayout->addWidget(wildcardCheckBox);
+    checkBoxLayout->addStretch(1);
 
-    QGridLayout *gridLayout = new QGridLayout;
-    gridLayout->addWidget(patternLabel, 0, 0);
-    gridLayout->addWidget(patternComboBox, 0, 1);
-    gridLayout->addWidget(textLabel, 1, 0);
-    gridLayout->addWidget(textComboBox, 1, 1);
-
-    QHBoxLayout *checkboxLayout = new QHBoxLayout;
-    checkboxLayout->addWidget(caseSensitiveCheckBox);
-    checkboxLayout->addWidget(minimalCheckBox);
-    checkboxLayout->addWidget(wildcardCheckBox);
-    checkboxLayout->addStretch(1);
-
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(copyButton);
-    buttonLayout->addWidget(quitButton);
-
-    QGridLayout *middleLayout = new QGridLayout;
-    middleLayout->addWidget(indexLabel, 0, 0);
-    middleLayout->addWidget(indexEdit, 0, 1);
-    middleLayout->addWidget(matchedLengthLabel, 1, 0);
-    middleLayout->addWidget(matchedLengthEdit, 1, 1);
+    QGridLayout *mainLayout = new QGridLayout(this);
+    mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+    mainLayout->addWidget(patternLabel, 0, 0);
+    mainLayout->addWidget(patternComboBox, 0, 1);
+    mainLayout->addWidget(escapedPatternLabel, 1, 0);
+    mainLayout->addWidget(escapedPatternLineEdit, 1, 1);
+    mainLayout->addWidget(textLabel, 2, 0);
+    mainLayout->addWidget(textComboBox, 2, 1);
+    mainLayout->addLayout(checkBoxLayout, 3, 0, 1, 2);
+    mainLayout->addWidget(indexLabel, 4, 0);
+    mainLayout->addWidget(indexEdit, 4, 1);
+    mainLayout->addWidget(matchedLengthLabel, 5, 0);
+    mainLayout->addWidget(matchedLengthEdit, 5, 1);
 
     for (int j = 0; j < MaxCaptures; ++j) {
-        middleLayout->addWidget(captureLabels[j], j + 2, 0);
-        middleLayout->addWidget(captureEdits[j], j + 2, 1);
+        mainLayout->addWidget(captureLabels[j], 6 + j, 0);
+        mainLayout->addWidget(captureEdits[j], 6 + j, 1);
     }
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addLayout(gridLayout);
-    mainLayout->addLayout(checkboxLayout);
-    mainLayout->addLayout(middleLayout);
-    mainLayout->addLayout(buttonLayout);
-
-    connect(patternComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(refresh()));
-    connect(textComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(refresh()));
-    connect(caseSensitiveCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
+    connect(patternComboBox, SIGNAL(editTextChanged(const QString &)),
+            this, SLOT(refresh()));
+    connect(textComboBox, SIGNAL(editTextChanged(const QString &)),
+            this, SLOT(refresh()));
+    connect(caseSensitiveCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(refresh()));
     connect(minimalCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
     connect(wildcardCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
 
-    connect(copyButton, SIGNAL(clicked()), this, SLOT(copy()));
-    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
+    patternComboBox->addItem(tr("([A-Za-z_])([A-Za-z_0-9]*)"));
+    textComboBox->addItem(tr("(10 + delta4) * 32"));
 
     setWindowTitle(tr("RegExp"));
     refresh();
@@ -93,6 +92,11 @@ void RegExpDialog::refresh()
 {
     QString pattern = patternComboBox->currentText();
     QString text = textComboBox->currentText();
+
+    QString escaped = patternComboBox->currentText();
+    escaped = escaped.replace("\\", "\\\\");
+    escaped = "\"" + escaped + "\"";
+    escapedPatternLineEdit->setText(escaped);
 
     QRegExp rx(pattern);
     Qt::CaseSensitivity cs = Qt::CaseInsensitive;
@@ -104,12 +108,14 @@ void RegExpDialog::refresh()
             wildcardCheckBox->isChecked() ? QRegExp::Wildcard : QRegExp::RegExp;
     rx.setPatternSyntax(syntax);
 
-    QPalette pal = patternComboBox->palette();
-    if (rx.isValid())
-        pal.setColor(QPalette::Text, palette().color(QPalette::Text));
-    else
-        pal.setColor(QPalette::Text, Qt::red);
-    patternComboBox->setPalette(pal);
+    QPalette palette = patternComboBox->palette();
+    if (rx.isValid()) {
+        palette.setColor(QPalette::Text,
+                         textComboBox->palette().color(QPalette::Text));
+    } else {
+        palette.setColor(QPalette::Text, Qt::red);
+    }
+    patternComboBox->setPalette(palette);
 
     indexEdit->setText(QString::number(rx.indexIn(text)));
     matchedLengthEdit->setText(QString::number(rx.matchedLength()));
@@ -118,16 +124,4 @@ void RegExpDialog::refresh()
         captureEdits[i]->setEnabled(i <= rx.numCaptures());
         captureEdits[i]->setText(rx.cap(i));
     }
-}
-
-void RegExpDialog::copy()
-{
-    QString escaped = patternComboBox->currentText();
-    escaped = escaped.replace("\\", "\\\\");
-    escaped = "\"" + escaped + "\"";
-
-    QClipboard *cb = QApplication::clipboard();
-    cb->setText(escaped, QClipboard::Clipboard);
-    if (cb->supportsSelection())
-	cb->setText(escaped, QClipboard::Selection);
 }

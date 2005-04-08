@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QApplication>
 
 #include "regexpdialog.h"
 

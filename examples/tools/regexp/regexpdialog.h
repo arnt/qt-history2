@@ -12,22 +12,21 @@ public:
 
 private slots:
     void refresh();
-    void copy();
 
 private:
     QLabel *patternLabel;
-    QComboBox *patternComboBox;
+    QLabel *escapedPatternLabel;
     QLabel *textLabel;
+    QComboBox *patternComboBox;
+    QLineEdit *escapedPatternLineEdit;
     QComboBox *textComboBox;
     QCheckBox *caseSensitiveCheckBox;
     QCheckBox *minimalCheckBox;
     QCheckBox *wildcardCheckBox;
-    QPushButton *copyButton;
-    QPushButton *quitButton;
 
     QLabel *indexLabel;
-    QLineEdit *indexEdit;
     QLabel *matchedLengthLabel;
+    QLineEdit *indexEdit;
     QLineEdit *matchedLengthEdit;
 
     enum { MaxCaptures = 6 };
