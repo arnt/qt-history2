@@ -1,5 +1,5 @@
 TEMPLATE    = subdirs
 SUBDIRS     = calculatorbuilder \
               calculatorform \
-              customwidget \
+              customwidgetplugin \
               worldtimeclockplugin
