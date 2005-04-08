@@ -20,7 +20,6 @@ DragLabel::DragLabel(const QString &text, QWidget *parent)
     painter.drawRoundRect(0, 0, image.width()-1, image.height()-1, 25, 25);
 
     painter.setFont(font());
-    painter.setPen(Qt::black);
     painter.setBrush(Qt::black);
     painter.drawText(QRect(QPoint(6, 6), size), Qt::AlignCenter, text);
     painter.end();

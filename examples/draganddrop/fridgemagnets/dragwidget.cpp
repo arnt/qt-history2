@@ -90,9 +90,17 @@ void DragWidget::dropEvent(QDropEvent *event)
             event->acceptProposedAction();
         }
     } else if (event->mimeData()->hasText()) {
-        DragLabel *newLabel = new DragLabel(event->mimeData()->text(), this);
-        newLabel->move(event->pos());
-        newLabel->show();
+        QStringList pieces = event->mimeData()->text().split(QRegExp("\\s+"),
+                             QString::SkipEmptyParts);
+        QPoint position = event->pos();
+
+        foreach (QString piece, pieces) {
+            DragLabel *newLabel = new DragLabel(piece, this);
+            newLabel->move(position);
+            newLabel->show();
+
+            position += QPoint(newLabel->width(), 0);
+        }
 
         event->acceptProposedAction();
     } else {
