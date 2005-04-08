@@ -130,11 +130,6 @@ static inline uint QT_FASTCALL comp_func_XOR(uint dest, uint src)
     int src_ia = (255 - src_a);
     int dest_ia = (255 - dest_a);
 
-    int res_alpha = src_a + dest_a - 2*qt_div_255(src_a*dest_a);
-    int r = 255*res_alpha;
-    if (r == 0)
-        return 0;
-
     return (qt_div_255(dest_ia * qRed(src) + src_ia * qRed(dest)) << 16)
         | (qt_div_255(dest_ia * qGreen(src) + src_ia * qGreen(dest)) << 8)
         | qt_div_255(dest_ia * qBlue(src) + src_ia * qBlue(dest))
