@@ -7,10 +7,11 @@ INCLUDEPATH += \
     $$SDK/uilib
 
 CONFIG      += designer
+QT          += xml
+TEMPLATE    = lib
+
 DESTDIR     = $(QTDIR)/plugins/designer   
 HEADERS     = worldtimeclock.h \
-              plugin.h
-QT          += xml
+              worldtimeclockplugin.h
 SOURCES     = worldtimeclock.cpp \
-              plugin.cpp
-TEMPLATE    = lib
+              worldtimeclockplugin.cpp
