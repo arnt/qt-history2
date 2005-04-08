@@ -35,6 +35,8 @@ public:
 
     void doResize(const QSize &);
 
+    void reparentChildWidgets(QWidget *mw);
+
     int insideSpacing;
     int outsideBorder;
     uint topLevel : 1;

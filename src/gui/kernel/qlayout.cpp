@@ -702,6 +702,32 @@ void QLayout::addChildLayout(QLayout *l)
         return;
     }
     l->setParent(this);
+
+    if (QWidget *mw = parentWidget()) {
+        l->d_func()->reparentChildWidgets(mw);
+    }
+
+}
+
+void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
+{
+    Q_Q(QLayout);
+    int n =  q->count();
+    for (int i = 0; i < n; ++i) {
+        QLayoutItem *item = q->itemAt(i);
+        if (QWidget *w = item->widget()) {
+            QWidget *pw = w->parentWidget();
+#ifdef QT_DEBUG
+            if (pw && pw != mw) {
+                qWarning("QLayout::addChildLayout: widget %s in wrong parent; moved to correct parent", w->metaObject()->className());
+            }
+#endif
+            if (pw != mw)
+                w->setParent(mw);
+        } else if (QLayout *l = item->layout()) {
+            l->d_func()->reparentChildWidgets(mw);
+        }
+    }
 }
 
 /*!
@@ -724,9 +750,7 @@ void QLayout::addChildWidget(QWidget *w)
         if (l && removeWidgetRecursively(l, w))
             qWarning("QLayout::addChildWidget: %s is already in a layout; moved to new layout", w->metaObject()->className());
     }
-    if (!pw && !mw) {
-        qWarning("QLayout::addChildWidget: add layout to parent before adding children to layout.");
-    } else if (pw && mw && pw != mw) {
+    if (pw && mw && pw != mw) {
         qWarning("QLayout::addChildWidget: %s in wrong parent; moved to correct parent", w->metaObject()->className());
         pw = 0;
     }
