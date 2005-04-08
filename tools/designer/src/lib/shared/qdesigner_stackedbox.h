@@ -16,8 +16,8 @@
 
 #include "shared_global.h"
 
-#include <QStackedWidget>
-#include <QList>
+#include <QtGui/QStackedWidget>
+#include <QtCore/QList>
 
 class QAction;
 class QToolButton;
@@ -25,8 +25,6 @@ class QToolButton;
 class QT_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
 {
     Q_OBJECT
-    Q_OVERRIDE(int currentIndex READ currentIndex DESIGNABLE true)
-
 public:
     QDesignerStackedWidget(QWidget *parent);
 

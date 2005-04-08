@@ -104,10 +104,15 @@ void QDesignerStackedWidget::updateButtons()
 
 void QDesignerStackedWidget::prevPage()
 {
+    if (count() == 0) {
+        // nothing to do
+        return;
+    }
+
     if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
         int newIndex = currentIndex() - 1;
         if (newIndex < 0)
-            newIndex = count() -1;
+            newIndex = count() - 1;
 
         SetPropertyCommand *cmd = new SetPropertyCommand(fw);
         cmd->init(this, "currentIndex", newIndex);
@@ -118,6 +123,11 @@ void QDesignerStackedWidget::prevPage()
 
 void QDesignerStackedWidget::nextPage()
 {
+    if (count() == 0) {
+        // nothing to do
+        return;
+    }
+
     if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
         SetPropertyCommand *cmd = new SetPropertyCommand(fw);
         cmd->init(this, "currentIndex", (currentIndex() + 1) % count());
