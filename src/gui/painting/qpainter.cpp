@@ -3117,8 +3117,14 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         d->state->matrix.map(x, y, &x, &y);        // compute position of pixmap
         qreal dx, dy;
         mat.map(0, 0, &dx, &dy);
+        if (pmx.depth() == 1) {
+            save();
+            setClipRect(r.x(), r.y(), w, h, Qt::IntersectClip);
+        }
         d->engine->drawPixmap(QRectF(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
                               QRectF(0, 0, pmx.width(), pmx.height()));
+        if (pmx.depth() == 1)
+            restore();
     } else {
         if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
             x += qRound(d->state->matrix.dx());

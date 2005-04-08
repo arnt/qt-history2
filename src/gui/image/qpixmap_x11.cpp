@@ -1949,8 +1949,6 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         QPixmap pm(w, h, dptr, BitmapBitOrder(X11->display) != MSBFirst);
         pm.data->bitmap = data->bitmap;
         free(dptr);
-        if (data->x11_mask)
-            pm.setMask(data->mask_to_bitmap().transformed(matrix));
         return pm;
     } else {                                        // color pixmap
         QPixmap pm(w, h);
