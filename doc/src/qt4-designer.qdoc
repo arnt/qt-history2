@@ -153,7 +153,7 @@ required resources are embedded in the application.
 
 \table
 \row
-\i \inlineimage designer-creating-custom-widgets.png
+\i \inlineimage worldtimeclockplugin-example.png
 \i \bold{Custom Widgets}
 
 Plugins can be used to add new custom widgets, special editors, and

@@ -1405,7 +1405,7 @@ without having to write code themselves.
     properties, signals, and slots. Since \QD uses real widgets during the form
     design process, custom widgets will appear the same as they do when previewed.
 
-    \image designer-creating-custom-widgets.png
+    \image worldtimeclockplugin-example.png
 
     The documentation for this chapter is currently being revised. Please see
     the \l{designer/customwidgetplugin}{Custom Widget Plugin} example for more
