@@ -1,4 +1,4 @@
-CONFIG += designer
+CONFIG      += designer
 
 HEADERS     = calculatorform.h
 SOURCES     = calculatorform.cpp \
