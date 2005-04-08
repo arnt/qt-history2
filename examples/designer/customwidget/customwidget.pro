@@ -1,4 +1,4 @@
-CONFIG += designer
+CONFIG      += designer
 
 TEMPLATE    = lib
 DESTDIR     = $(QTDIR)/plugins/designer   
