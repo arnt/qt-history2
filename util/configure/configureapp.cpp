@@ -1680,7 +1680,7 @@ void Configure::generateMakefiles()
                     QTextStream txt(&file);
                     txt << "all:\n";
                     txt << "\t" << args.join(" ") << "\n";
-                    txt << "\t" << dictionary[ "MAKE" ] << " -f " << makefileName << "\n";
+                    txt << "\t$(MAKE) -f " << makefileName << "\n";
                     txt << "first: all\n";
                 } else {
                     if( int r = system( qPrintable(args.join( " " )) ) ) {
