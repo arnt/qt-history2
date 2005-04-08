@@ -238,9 +238,9 @@ QWidget * Q3SqlForm::widget(int i) const
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     int cnt = 0;
 
-    if(i > (int)d->map.size())
+    if(i > d->map.size())
         return 0;
-    for(it = d->map.begin(); it != d->map.end(); ++it){
+    for(it = d->map.constBegin(); it != d->map.constEnd(); ++it){
         if(cnt++ == i)
             return it.key();
     }
@@ -253,7 +253,7 @@ QWidget * Q3SqlForm::widget(int i) const
 QWidget * Q3SqlForm::fieldToWidget(QSqlField * field) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
-    for(it = d->map.begin(); it != d->map.end(); ++it){
+    for(it = d->map.constBegin(); it != d->map.constEnd(); ++it){
         if(*it == field)
             return it.key();
     }
@@ -265,10 +265,7 @@ QWidget * Q3SqlForm::fieldToWidget(QSqlField * field) const
 */
 QSqlField * Q3SqlForm::widgetToField(QWidget * widget) const
 {
-    if(d->map.contains(widget))
-        return d->map[widget];
-    else
-        return 0;
+    return d->map.value(widget, 0);
 }
 
 /*!
@@ -353,8 +350,8 @@ void Q3SqlForm::sync()
         clearMap();
         if (d->buf) {
             for (int i = 0; i < d->fld.count(); ++i) {
-                QSqlField field = d->buf->field(d->fld[i]);
-                insert(d->wgt.value(d->fld[i]), &field);
+                const QSqlField *field = d->buf->fieldPtr(d->fld.at(i));
+                insert(d->wgt.value(d->fld.at(i)), const_cast<QSqlField *>(field));
             }
         }
     }
