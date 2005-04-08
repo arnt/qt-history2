@@ -32,7 +32,7 @@ HEADERS += \
 	kernel/qtooltip.h \
 	kernel/qwhatsthis.h \
 	kernel/qwidget.h \
-	kernel/qwindowdefs.h 
+	kernel/qwindowdefs.h
 
 SOURCES += \
 	kernel/qaction.cpp \
@@ -58,10 +58,11 @@ SOURCES += \
 	kernel/qtooltip.cpp \
 	kernel/qguivariant.cpp \
 	kernel/qwhatsthis.cpp \
-	kernel/qwidget.cpp 
+	kernel/qwidget.cpp
 
 
-MOCABLE += kernel/qsizepolicy.h
+MOCABLE += kernel/qsizepolicy.h \
+	kernel/qpalette.h
 
 win32 {
 	SOURCES += \
@@ -79,7 +80,7 @@ win32 {
 unix:x11 {
 	HEADERS += \
 		kernel/qeventdispatcher_x11_p.h \
-		kernel/qx11info_x11.h 
+		kernel/qx11info_x11.h
 
 	SOURCES += \
 		kernel/qapplication_x11.cpp \
@@ -97,7 +98,7 @@ unix:x11 {
 
 embedded {
 	HEADERS += \
-		kernel/qeventdispatcher_qws_p.h 
+		kernel/qeventdispatcher_qws_p.h
 
 	SOURCES += \
 		kernel/qapplication_qws.cpp \
@@ -127,7 +128,7 @@ embedded {
 		kernel/qdesktopwidget_mac.cpp \
 		kernel/qwidget_mac.cpp
         HEADERS += \
-                kernel/qeventdispatcher_mac_p.h 
+                kernel/qeventdispatcher_mac_p.h
 }
 
 wince-* {

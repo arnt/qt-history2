@@ -26,6 +26,8 @@ class QVariant;
 
 class Q_GUI_EXPORT QPalette
 {
+    Q_GADGET
+    Q_ENUMS(ColorGroup ColorRole)
 public:
     QPalette();
     QPalette(const QColor &button);
