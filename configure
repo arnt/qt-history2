@@ -1737,6 +1737,7 @@ ODBC_REQ="-lodbc sql.h sqlext.h"
 TDS_REQ="-lsybdb sybfront.h sybdb.h"
 DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
 IBASE_REQ="-lgds ibase.h"
+SQLITE2_REQ="-lsqlite sqlite.h"
 for _SQLDR in $CFG_SQL_AVAILABLE; do
 	case $_SQLDR in
 	mysql)
@@ -1760,6 +1761,9 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
 	ibase)
 	    $unixtests/checkavail "IBASE" $OPT_VERBOSE $IBASE_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED ibase"
 	    ;;
+        sqlite2)
+            $unixtests/checkavail "SQLite" $OPT_VERBOSE $SQLITE2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite2"
+            ;;
 	sqlite)
 	    if [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
 		CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite"
