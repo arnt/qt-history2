@@ -57,7 +57,6 @@ enum {
     kEventQtRequestContext = 13,
     kEventQtRequestMenubarUpdate = 14,
     kEventQtRequestTimer = 15,
-    kEventQtRequestWakeup = 16,
     kEventQtRequestShowSheet = 17,
     kEventQtRequestActivate = 18,
     kEventQtRequestSocketAct = 19,

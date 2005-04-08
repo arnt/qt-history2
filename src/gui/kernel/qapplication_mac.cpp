@@ -587,25 +587,6 @@ void qt_event_request_window_change()
                      kEventPriorityHigh);
 }
 
-
-/* wakeup */
-static EventRef request_wakeup_pending = 0;
-void qt_event_request_wakeup()
-{
-    if(request_wakeup_pending) {
-        if(IsEventInQueue(GetMainEventQueue(), request_wakeup_pending))
-            return;
-#ifdef DEBUG_DROPPED_EVENTS
-        qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
-#endif
-    }
-
-    CreateEvent(0, kEventClassQt, kEventQtRequestWakeup, GetCurrentEventTime(),
-                kEventAttributeUserEvent, &request_wakeup_pending);
-    PostEventToQueue(GetMainEventQueue(), request_wakeup_pending,
-                     kEventPriorityHigh);
-}
-
 /* activation */
 static struct {
     QPointer<QWidget> widget;
@@ -757,7 +738,6 @@ void qt_mac_event_release(QWidget *w)
 /* watched events */
 static EventTypeSpec app_events[] = {
     { kEventClassQt, kEventQtRequestTimer },
-    { kEventClassQt, kEventQtRequestWakeup },
     { kEventClassQt, kEventQtRequestWindowChange },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestShowSheet },
@@ -1663,8 +1643,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventQtRequestWindowChange) {
             qt_mac_event_release(request_window_change_pending);
             QMacWindowChangeEvent::exec();
-        } else if(ekind == kEventQtRequestWakeup) {
-            qt_mac_event_release(request_wakeup_pending);             //do nothing else, we just woke up!
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             qt_mac_event_release(request_menubarupdate_pending);
             QMenuBar::macUpdateMenuBar();

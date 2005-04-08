@@ -1,4 +1,3 @@
-//depot/qt/main/src/gui/kernel/qeventdispatcher_mac.cpp#3 - edit change 157883 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -38,7 +37,6 @@ extern MacTimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
 extern void qt_event_request_select(QEventDispatcherMac *); //qapplication_mac.cpp
 extern void qt_event_request_sockact(QEventDispatcherMac *); //qapplication_mac.cpp
 extern void qt_event_request_updates(); //qapplication_mac.cpp
-extern void qt_event_request_wakeup(); //qapplication_mac.cpp
 extern bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =0); //qapplication_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern bool qt_is_gui_used; //qapplication.cpp
@@ -94,7 +92,7 @@ void QEventDispatcherMac::registerTimer(int timerId, int interval, QObject *obj)
     } else {
         d->zero_timer_count++;
         if(d->zero_timer_count == 1)
-            qt_event_request_wakeup(); //if we are blocking we need to come out of that state
+            wakeUp(); //if we are blocking we need to come out of that state
         d->macTimerList->prepend(t); //zero timers come first
         d->macTimerList->first().pending = false;
     }
@@ -375,9 +373,13 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
     }
 
     bool retVal = false;
-    while(1) {
+    for (;;) {
+        QThreadData *threadData = QThreadData::get(thread());
+        if (threadData->postEventList.size() > 0)
+            retVal = true;
         QApplication::sendPostedEvents();
-        retVal = d->activateTimers() > 0; //send null timers
+        if (d->activateTimers() > 0) //send null timers
+            retVal = true;
 
         do {
             EventRef event;
@@ -414,7 +416,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         QApplication::sendPostedEvents();
 
         bool canWait = (!retVal
-                        && QThreadData::get(thread())->postEventList.size() == 0
+                        && threadData->postEventList.size() == 0
                         && !d->interrupt
                         && (flags & QEventLoop::WaitForMoreEvents)
                         && !d->zero_timer_count);
@@ -447,7 +449,7 @@ int QEventDispatcherMacPrivate::activateTimers()
 
 void QEventDispatcherMac::wakeUp()
 {
-    qt_event_request_wakeup();
+    CFRunLoopStop((CFRunLoopRef)GetCFRunLoopFromEventLoop(GetMainEventLoop()));
 }
 
 void QEventDispatcherMac::flush()
