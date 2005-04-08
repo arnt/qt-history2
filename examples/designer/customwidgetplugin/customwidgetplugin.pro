@@ -3,6 +3,6 @@ TEMPLATE    = lib
 DESTDIR     = $(QTDIR)/plugins/designer
 
 HEADERS     = analogclock.h \
-              plugin.h
+              customwidgetplugin.h
 SOURCES     = analogclock.cpp \
-              plugin.cpp
+              customwidgetplugin.cpp
