@@ -6,12 +6,7 @@ INCLUDEPATH += \
     $$SDK/sdk \
     $$SDK/uilib
 
-contains(CONFIG, "debug") {
-    LIBS += -lQtDesigner_debug
-} else {
-    LIBS += -lQtDesigner
-}
-
+CONFIG      += designer
 DESTDIR     = $(QTDIR)/plugins/designer   
 HEADERS     = worldtimeclock.h \
               plugin.h
