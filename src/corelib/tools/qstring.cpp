@@ -2008,7 +2008,7 @@ int QString::lastIndexOf(const QString &str, int from, Qt::CaseSensitivity cs) c
         from += l;
     const int sl = str.d->size;
     int delta = l-sl;
-    if (from < 0 || from > l || delta < 0)
+    if (from < 0 || from >= l || delta < 0)
         return -1;
     if (from > delta)
         from = delta;
@@ -2069,8 +2069,8 @@ int QString::lastIndexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
 {
     if (from < 0)
         from += d->size;
-    else if (from > d->size)
-        from = d->size-1;
+    if (from < 0 || from >= d->size)
+        return -1;
     if (from >= 0) {
         const QChar *n =  (const QChar*)d->data + from;
         const QChar *b = (const QChar*)d->data;
