@@ -926,8 +926,8 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         textureData.dy = inv.dy();
     } else {
         fillData.callback = qt_span_texturefill;
-        textureData.dx = -( + d->matrix.dx()) + sr.x();
-        textureData.dy = -( + d->matrix.dy()) + sr.y();
+        textureData.dx = -( r.x() + d->matrix.dx()) + sr.x();
+        textureData.dy = -( r.y() + d->matrix.dy()) + sr.y();
     }
 
     FillData clippedFill = d->clipForFill(&fillData);
