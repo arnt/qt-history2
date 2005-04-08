@@ -197,6 +197,10 @@ QFont QTextItem::font() const
 */
 
 static int qt_polygon_recursion;
+struct QT_Point {
+    int x;
+    int y;
+};
 
 /*!
     \fn void QPaintEngine::drawPolygon(const QPointF *points, int pointCount,
@@ -215,14 +219,20 @@ void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDra
     Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
                "At least one drawPolygon function must be implemented");
     qt_polygon_recursion = 1;
-    QPolygon p;
-    p.reserve(pointCount);
-    for (int i=0; i<pointCount; ++i)
-        p << points[i].toPoint();
-    drawPolygon(p.data(), pointCount, mode);
+    Q_ASSERT(sizeof(QT_Point) == sizeof(QPoint));
+    QVarLengthArray<QT_Point> p(pointCount);
+    for (int i = 0; i < pointCount; ++i) {
+        p[i].x = qRound(points[i].x());
+        p[i].y = qRound(points[i].y());
+    }
+    drawPolygon((QPoint *)p.data(), pointCount, mode);
     qt_polygon_recursion = 0;
 }
 
+struct QT_PointF {
+    qreal x;
+    qreal y;
+};
 /*!
     \overload
 
@@ -238,11 +248,13 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
     Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
                "At least one drawPolygon function must be implemented");
     qt_polygon_recursion = 1;
-    QPolygonF p;
-    p.reserve(pointCount);
-    for (int i=0; i<pointCount; ++i)
-        p << points[i];
-    drawPolygon(p.data(), pointCount, mode);
+    Q_ASSERT(sizeof(QT_PointF) == sizeof(QPointF));
+    QVarLengthArray<QT_PointF> p(pointCount);
+    for (int i=0; i<pointCount; ++i) {
+        p[i].x = points[i].x();
+        p[i].y = points[i].y();
+    }
+    drawPolygon((QPointF *)p.data(), pointCount, mode);
     qt_polygon_recursion = 0;
 }
 
@@ -324,10 +336,19 @@ void QPaintEngine::drawPoints(const QPointF *points, int pointCount)
 */
 void QPaintEngine::drawPoints(const QPoint *points, int pointCount)
 {
-    QVarLengthArray<QPointF> floatPoints(pointCount);
-    for (int i=0; i<pointCount; ++i)
-        floatPoints[i] = QPointF(points[i]);
-    drawPoints(floatPoints.constData(), pointCount);
+    Q_ASSERT(sizeof(QT_PointF) == sizeof(QPointF));
+    QT_PointF fp[256];
+    while (pointCount) {
+        int i = 0;
+        while (i < pointCount && i < 256) {
+            fp[i].x = points[i].x();
+            fp[i].y = points[i].y();
+            ++i;
+        }
+        drawPoints((QPointF *)fp, i);
+        points += i;
+        pointCount -= i;
+    }
 }
 
 
@@ -668,10 +689,30 @@ void QPaintEngine::drawLines(const QLineF *lines, int lineCount)
 */
 void QPaintEngine::drawLines(const QLine *lines, int lineCount)
 {
-    QVarLengthArray<QLineF, 32> floatLines(lineCount);
-    for (int i=0; i<lineCount; ++i)
-        floatLines[i] = QLineF(lines[i]);
-    drawLines(floatLines.constData(), lineCount);
+    struct PointF {
+        qreal x;
+        qreal y;
+    };
+    struct LineF {
+        PointF p1;
+        PointF p2;
+    };
+    Q_ASSERT(sizeof(PointF) == sizeof(QPointF));
+    Q_ASSERT(sizeof(LineF) == sizeof(QLineF));
+    LineF fl[256];
+    while (lineCount) {
+        int i = 0;
+        while (i < lineCount && i < 256) {
+            fl[i].p1.x = lines[i].x1();
+            fl[i].p1.y = lines[i].y1();
+            fl[i].p2.x = lines[i].x2();
+            fl[i].p2.y = lines[i].y2();
+            ++i;
+        }
+        drawLines((QLineF *)fl, i);
+        lines += i;
+        lineCount -= i;
+    }
 }
 
 
@@ -684,10 +725,27 @@ void QPaintEngine::drawLines(const QLine *lines, int lineCount)
 */
 void QPaintEngine::drawRects(const QRect *rects, int rectCount)
 {
-    QVarLengthArray<QRectF, 32> floatRects(rectCount);
-    for (int i=0; i<rectCount; ++i)
-        floatRects[i] = QRectF(rects[i]);
-    drawRects(floatRects.constData(), rectCount);
+    struct RectF {
+        qreal x;
+        qreal y;
+        qreal w;
+        qreal h;
+    };
+    Q_ASSERT(sizeof(RectF) == sizeof(QRectF));
+    RectF fr[256];
+    while (rectCount) {
+        int i = 0;
+        while (i < rectCount && i < 256) {
+            fr[i].x = rects[i].x();
+            fr[i].y = rects[i].y();
+            fr[i].w = rects[i].width();
+            fr[i].h = rects[i].height();
+            ++i;
+        }
+        drawRects((QRectF *)fr, i);
+        rects += i;
+        rectCount -= i;
+    }
 }
 
 /*!
