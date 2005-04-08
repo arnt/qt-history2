@@ -10,13 +10,6 @@
 **
 ****************************************************************************/
 
-/*
-    pieview.cpp
-
-    Provides a view to represent a one-dimensional sequence of integers
-    obtained from a list model as a series of rows.
-*/
-
 #include <math.h>
 #include <QtGui>
 
