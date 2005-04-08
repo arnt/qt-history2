@@ -1,6 +1,7 @@
 TEMPLATE      = subdirs
 SUBDIRS       = designer \
                 dialogs \
+                draganddrop \
                 itemviews \
                 layouts \
                 mainwindows \
