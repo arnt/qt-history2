@@ -28,22 +28,26 @@ void QSqlQueryModelPrivate::prefetch(int limit)
         return;
 
     QModelIndex oldBottom = q->createIndex(bottom.row(), 0);
+    QModelIndex newBottom;
 
     // try to seek directly
     if (query.seek(limit)) {
-        bottom = q->createIndex(limit, bottom.column());
+        newBottom = q->createIndex(limit, bottom.column());
     } else {
         // fetch as far as we can
         if (query.last()) {
-            bottom = q->createIndex(query.at(), bottom.column());
+            newBottom = q->createIndex(query.at(), bottom.column());
         } else {
             error = query.lastError();
-            bottom = q->createIndex(-1, bottom.column());
+            newBottom = q->createIndex(-1, bottom.column());
         }
         atEnd = true; // this is the end.
     }
-    if (bottom.row() > oldBottom.row())
+    if (newBottom.row() > oldBottom.row()) {
+        emit q->rowsAboutToBeInserted(QModelIndex(), oldBottom.row(), newBottom.row());
+        bottom = newBottom;
         emit q->rowsInserted(QModelIndex(), oldBottom.row(), bottom.row());
+    }
 }
 
 QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
@@ -96,7 +100,7 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
     read-write model based on QSqlQueryModel.
 
     \sa QSqlTableModel, QSqlRelationalTableModel, QSqlQuery,
-        {Model/View Programming} 
+        {Model/View Programming}
 */
 
 /*!
@@ -232,6 +236,7 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     Q_D(QSqlQueryModel);
     QSqlRecord newRec = query.record();
     bool columnsChanged = (newRec != d->rec);
+    bool hasQuerySize = d->query.driver()->hasFeature(QSqlDriver::QuerySize);
 
     if (d->bottom.isValid()) {
         emit rowsAboutToBeRemoved(QModelIndex(), 0, d->bottom.row());
@@ -260,20 +265,26 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
             d->error = query.lastError();
         return;
     }
-    if (d->query.driver()->hasFeature(QSqlDriver::QuerySize)) {
+    QModelIndex newBottom;
+    if (hasQuerySize) {
+        newBottom = createIndex(d->query.size() - 1, d->rec.count() - 1);
+        emit rowsAboutToBeInserted(QModelIndex(), 0, newBottom.row());
         d->atEnd = true;
-        d->bottom = createIndex(d->query.size() - 1, d->rec.count() - 1);
     } else {
-        d->bottom = createIndex(0, d->rec.count() - 1);
+        newBottom = createIndex(0, d->rec.count() - 1);
     }
+    if (columnsChanged)
+        emit columnsAboutToBeInserted(QModelIndex(), 0, newBottom.column());
+    d->bottom = newBottom;
 
     queryChange();
 
-    if (!d->query.driver()->hasFeature(QSqlDriver::QuerySize)) {
+    if (hasQuerySize) {
+        emit rowsInserted(QModelIndex(), 0, d->bottom.row());
+    } else {
+        // fetchMore does the rowsInserted stuff
         fetchMore();
     }
-
-    emit rowsInserted(QModelIndex(), 0, d->bottom.row());
     if (columnsChanged)
         emit columnsInserted(QModelIndex(), 0, d->bottom.column());
 }
@@ -427,6 +438,7 @@ bool QSqlQueryModel::insertColumns(int column, int count, const QModelIndex &par
     if (count <= 0 || parent.isValid() || column < 0 || column > d->rec.count())
         return false;
 
+    emit columnsAboutToBeInserted(parent, column, column + count - 1);
     for (int c = 0; c < count; ++c) {
         QSqlField field;
         field.setReadOnly(true);
@@ -461,19 +473,21 @@ bool QSqlQueryModel::removeColumns(int column, int count, const QModelIndex &par
     if (count <= 0 || parent.isValid() || column < 0 || column >= d->rec.count())
         return false;
 
+    emit columnsAboutToBeRemoved(parent, column, column + count - 1);
+
     int i;
     for (i = 0; i < count; ++i)
         d->rec.remove(column);
     for (i = column; i < d->colOffsets.count(); ++i)
         d->colOffsets[i] -= count;
-    emit columnsAboutToBeRemoved(parent, column, column + count - 1);
+    emit columnsRemoved(parent, column, column + count - 1);
     return true;
 }
 
 /*!
     Returns the index of the value in the database result set for the
     given \a item in the model.
-    
+
     The return value is identical to \a item if no columns or rows
     have been inserted, removed, or moved around.
 
@@ -491,3 +505,4 @@ QModelIndex QSqlQueryModel::indexInQuery(const QModelIndex &item) const
     return createIndex(item.row(), item.column() - d->colOffsets[item.column()],
                        item.internalPointer());
 }
+

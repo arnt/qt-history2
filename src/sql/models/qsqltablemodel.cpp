@@ -56,9 +56,10 @@ void QSqlTableModelPrivate::revertInsertedRow()
     if (insertIndex == -1)
         return;
 
+    emit q->rowsAboutToBeRemoved(QModelIndex(), insertIndex, insertIndex);
     int oldIndex = insertIndex;
     insertIndex = -1;
-    emit q->rowsAboutToBeRemoved(QModelIndex(), oldIndex, oldIndex);
+    emit q->rowsRemoved(QModelIndex(), oldIndex, oldIndex);
 }
 
 void QSqlTableModelPrivate::clearEditBuffer()
@@ -83,6 +84,7 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
             QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = cache.find(row);
             if (it == cache.end())
                 return;
+            emit q->rowsAboutToBeRemoved(QModelIndex(), row, row);
             it = cache.erase(it);
             while (it != cache.end()) {
                 int oldKey = it.key();
@@ -91,7 +93,7 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
                 it = cache.insert(oldKey - 1, oldValue);
                 ++it;
             }
-            emit q->rowsAboutToBeRemoved(QModelIndex(), row, row);
+            emit q->rowsRemoved(QModelIndex(), row, row);
         break; }
     }
 }
@@ -994,12 +996,14 @@ bool QSqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
     case OnRowChange:
         if (count != 1)
             return false;
+        emit rowsAboutToBeInserted(parent, row, row + 1);
         d->insertIndex = row;
         // ### apply dangling changes...
         d->clearEditBuffer();
         emit primeInsert(row, d->editBuffer);
         break;
     case OnManualSubmit:
+        emit rowsAboutToBeInserted(parent, row, row + count);
         if (!d->cache.isEmpty()) {
             QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = d->cache.end();
             while (it != d->cache.begin() && (--it).key() >= row) {
