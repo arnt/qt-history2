@@ -66,6 +66,7 @@ public:
     void fillPath(const QPainterPath &path, FillData *fillData);
 
     void drawEllipse(const QRectF &rect);
+    void drawRects(const QRectF *rects, int rectCount);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,

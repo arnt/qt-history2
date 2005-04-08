@@ -750,6 +750,57 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, FillData *fillData)
 }
 
 
+void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
+{
+#ifdef QT_DEBUG_DRAW
+    qDebug(" - QRasterPaintEngine::drawRect(), x=%.2f, y=%.2f, width=%.2f, height=%.2f",
+           r.x(), r.y(), r.width(), r.height());
+#endif
+    Q_D(QRasterPaintEngine);
+    if (!d->antialiased
+        && d->txop <= QPainterPrivate::TxTranslate) {
+
+        bool hasPen = d->pen.style() != Qt::NoPen;
+        int offset_x = d->matrix.dx();
+        int offset_y = d->matrix.dy();
+
+        QBrush oldBrush = d->brush;
+        d->brush = QBrush();
+
+        for (int i=0; i<rectCount; ++i) {
+            QRectF rect(rects[i]);
+            rect.translate(offset_x, offset_y);
+
+            FillData fillData = d->fillForBrush(oldBrush, 0);
+            int x1 = qMax(qRound(rect.x()), 0);
+            int x2 = qMin(qRound(rect.width() + rect.x()), d->rasterBuffer->width());
+            int y1 = qMax(qRound(rect.y()), 0);
+            int y2 = qMin(qRound(rect.height() + rect.y()), d->rasterBuffer->height());;
+
+            int len = x2 - x1;
+
+            if (fillData.callback && len >= 0) {
+                QT_FT_Span span;
+                span.x = x1;
+                span.len = x2 - x1;
+                span.coverage = 255;
+
+                // draw the fill
+                for (int y=y1; y<y2; ++y) {
+                    fillData.callback(y, 1, &span, fillData.data);
+                }
+            }
+
+            if (hasPen)
+                QPaintEngine::drawRects(&rects[i], 1);
+        }
+
+        d->brush = oldBrush;
+    } else {
+        QPaintEngine::drawRects(rects, rectCount);
+    }
+}
+
 void QRasterPaintEngine::drawPath(const QPainterPath &path)
 {
 #ifdef QT_DEBUG_DRAW
