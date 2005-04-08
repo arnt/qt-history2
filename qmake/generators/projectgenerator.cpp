@@ -220,8 +220,6 @@ ProjectGenerator::init()
     for(int i = 0; !srcs[i].isNull(); i++) {
         QStringList &l = v[srcs[i]];
         QMakeSourceFileInfo::SourceFileType type = QMakeSourceFileInfo::TYPE_C;
-        if(srcs[i] == "FORMS")
-            type = QMakeSourceFileInfo::TYPE_UI;
         QMakeSourceFileInfo::addSourceFiles(l, QMakeSourceFileInfo::SEEK_DEPS, type);
         for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
             QStringList tmp = QMakeSourceFileInfo::dependencies((*val_it));

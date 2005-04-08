@@ -480,10 +480,8 @@ MakefileGenerator::init()
                     QString dep_type;
                     if(!project->isEmpty((*it) + ".dependency_type"))
                         dep_type = project->first((*it) + ".dependency_type");
-                    if(dep_type == "TYPE_UI")
-                        compiler.type = QMakeSourceFileInfo::TYPE_UI;
-                    else
-                        compiler.type = QMakeSourceFileInfo::TYPE_C;
+
+                    compiler.type = QMakeSourceFileInfo::TYPE_C;
                     compilers.append(compiler);
                 }
             }
@@ -1868,10 +1866,6 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                                     break;
                                 }
                             }
-                        }
-                        if(type == TYPE_UNKNOWN) {
-                            if(dep.endsWith(Option::ui_ext))
-                                type = TYPE_UI;
                         }
                         if(type != TYPE_UNKNOWN && !QMakeSourceFileInfo::containsSourceFile(dep, type)) {
                             QMakeSourceFileInfo::addSourceFile(dep, type);
