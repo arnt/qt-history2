@@ -219,6 +219,15 @@ void QStackedLayout::setCurrentIndex(int index)
     QWidget *next = widget(index);
     if (!next || next == prev)
         return;
+
+    bool updatesEnabled = false;
+    QWidget *parent = parentWidget();
+
+    if (parent) {
+        updatesEnabled =  parent->updatesEnabled();
+        parent->setUpdatesEnabled(false);
+    }
+
     d->index = index;
     next->raise();
     next->show();
@@ -226,8 +235,8 @@ void QStackedLayout::setCurrentIndex(int index)
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
 
-    if (parentWidget()) {
-        QWidget * fw = parentWidget()->window()->focusWidget();
+    if (parent) {
+        QWidget * fw = parent->window()->focusWidget();
         if (prev->isAncestorOf(fw)) { // focus was on old page
             // look for the best focus widget we can find
             if (QWidget *nfw = next->focusWidget())
@@ -251,6 +260,9 @@ void QStackedLayout::setCurrentIndex(int index)
     }
     if (prev)
         prev->hide();
+    if (parent)
+        parent->setUpdatesEnabled(updatesEnabled);
+    emit currentChanged(index);
 }
 
 int QStackedLayout::currentIndex() const
@@ -259,10 +271,24 @@ int QStackedLayout::currentIndex() const
     return d->index;
 }
 
+
+/*!
+   Sets \w to be the current widget. \w must be contained in this
+   stacked layout.
+
+  \sa setCurrentIndex(), currentWidget()
+ */
+void QStackedLayout::setCurrentWidget(QWidget *w)
+{
+    Q_ASSERT_X(indexOf(w) >= 0, "QStackedLayout::setCurrentWidget", "widget not contained in stack");
+    setCurrentIndex(indexOf(w));
+}
+
+
 /*!
     Returns the current widget, or 0 if there are no widgets in this
     layout.
-    
+
     Equivalent to widget(currentIndex()).
 
     \sa currentIndex()

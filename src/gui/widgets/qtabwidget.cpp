@@ -65,8 +65,8 @@
     The current page index is available as currentIndex(), the current
     page widget with currentWidget().  You can retrieve a pointer to a
     page widget with a given index using widget(), and can find the
-    index position of a widget with indexOf(). Use setCurrentIndex()
-    to show a particular page.
+    index position of a widget with indexOf(). Use setCurrentWidget()
+    or setCurrentIndex() to show a particular page.
 
     You can change a tab's text and icon using setTabText() or
     setTabIcon(). A tab can be removed with removeTab().
@@ -464,6 +464,8 @@ void QTabWidget::removeTab(int index)
     Returns a pointer to the page currently being displayed by the tab
     dialog. The tab dialog does its best to make sure that this value
     is never 0 (but if you try hard enough, it can be).
+
+    \sa currentIndex(), setCurrentWidget()
 */
 
 QWidget * QTabWidget::currentWidget() const
@@ -471,6 +473,19 @@ QWidget * QTabWidget::currentWidget() const
     Q_D(const QTabWidget);
     return d->stack->currentWidget();
 }
+
+/*!
+    Makes\a widget the current widget. The \a widget must be a page in
+    this tab widget.
+
+    \sa addTab(), setCurrentIndex(), currentWidget()
+ */
+void QTabWidget::setCurrentWidget(QWidget *widget)
+{
+    Q_D(const QTabWidget);
+    d->stack->setCurrentWidget(widget);
+}
+
 
 /*!
     \property QTabWidget::currentIndex

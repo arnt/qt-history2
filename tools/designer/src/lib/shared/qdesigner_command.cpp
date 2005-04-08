@@ -962,7 +962,6 @@ void StackedWidgetCommand::removePage()
 
 void StackedWidgetCommand::addPage()
 {
-    m_widget->setParent(m_stackedWidget);
     m_stackedWidget->insertWidget(m_index, m_widget);
 
     m_widget->show();

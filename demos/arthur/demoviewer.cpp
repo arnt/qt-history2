@@ -154,7 +154,8 @@ DemoViewer::DemoViewer(QWidget *parent)
     viewSourceButton = new QPushButton("View Source", vbox);
     viewSourceButton->setCheckable(true);
 
-    sourceViewer = new QTextEdit(widgets);
+    sourceViewer = new QTextEdit;
+    widgets->addWidget(sourceViewer);
     sourceViewer->setReadOnly(true);
     QPalette pal = sourceViewer->palette();
 
@@ -195,7 +196,7 @@ DemoViewer::DemoViewer(QWidget *parent)
 void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget, const QString &file)
 {
     listWidget->addItem(name);
-    widget->setParent(widgets);
+    widgets->addWidget(widget);
     widget->setAttributes(attributes);
 
     widgetByName[name] = widget;

@@ -33,6 +33,7 @@ public:
     void removeWidget(QWidget *w);
 
     QWidget *currentWidget() const;
+    void setCurrentWidget(QWidget *w);
     int currentIndex() const;
 
     int indexOf(QWidget *) const;
@@ -46,8 +47,6 @@ signals:
     void currentChanged(int);
     void widgetRemoved(int index);
 
-protected:
-    void childEvent(QChildEvent *e);
 
 private:
     Q_DISABLE_COPY(QStackedWidget)

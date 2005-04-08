@@ -54,9 +54,6 @@ public slots:
     void setVisible(bool);
     void setExclusive(bool);
 
-protected:
-    void childEvent(QChildEvent*);
-
 signals:
     void triggered(QAction *);
     QT_MOC_COMPAT void selected(QAction *);

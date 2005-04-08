@@ -313,21 +313,6 @@ bool QActionGroup::isVisible() const
 }
 
 /*!
-  \reimp
-*/
-void QActionGroup::childEvent(QChildEvent* e)
-{
-    if(e->type() == QEvent::ChildAdded) {
-        if(QAction *action = qobject_cast<QAction*>(e->child()))
-            addAction(action);
-    } else if(e->type() == QEvent::ChildRemoved) {
-        if(QAction *action = qobject_cast<QAction*>(e->child()))
-            removeAction(action);
-    }
-    QObject::childEvent(e);
-}
-
-/*!
     \fn void QActionGroup::triggered(QAction *action)
 
     This signal is emitted when the given \a action in the action

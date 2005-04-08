@@ -56,7 +56,8 @@ public:
     QString tabToolTip(int index) const;
 
     int currentIndex() const;
-    QWidget *currentWidget() const; // no setter on purpose
+    QWidget *currentWidget() const;
+    void setCurrentWidget(QWidget *widget);
     QWidget *widget(int index) const;
     int indexOf(QWidget *widget) const;
     int count() const;

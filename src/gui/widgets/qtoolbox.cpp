@@ -218,8 +218,6 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     if (ih)
         p->drawPixmap(ir.left(), (height() - ih) / 2, pm);
 
-    QToolBox *tb = (QToolBox*)parentWidget();
-
     int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
     if (!style()->styleHint(QStyle::SH_UnderlineShortcut, 0, this))
         alignment |= Qt::TextHideMnemonic;
@@ -502,6 +500,30 @@ int QToolBox::currentIndex() const
 {
     Q_D(const QToolBox);
     return d->currentPage ? indexOf(d->currentPage->widget) : -1;
+}
+
+/*!
+    Returns a pointer to the current widget, or 0 if there is no such item.
+
+    \sa currentIndex(), setCurrentWidget()
+*/
+
+QWidget * QToolBox::currentWidget() const
+{
+    Q_D(const QToolBox);
+    return d->currentPage ? d->currentPage->widget : 0;
+}
+
+/*!
+  Makes\a widget the current widget. The \a widget must be an item in this tool box.
+
+  \sa addItem(), setCurrentIndex(), currentWidget()
+ */
+void QToolBox::setCurrentWidget(QWidget *widget)
+{
+    Q_D( QToolBox);
+    Q_ASSERT_X(indexOf(widget) >= 0, "QToolBox::setCurrentWidget", "widget not contained in tool box");
+    setCurrentIndex(indexOf(widget));
 }
 
 /*!

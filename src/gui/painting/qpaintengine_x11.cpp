@@ -682,6 +682,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     Q_ASSERT(rects);
     Q_ASSERT(rectCount);
 
+
     if (d->use_path_fallback) {
         for (int i = 0; i < rectCount; ++i) {
             QPainterPath path;
