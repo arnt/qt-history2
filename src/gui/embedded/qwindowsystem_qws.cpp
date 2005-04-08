@@ -515,7 +515,7 @@ void QWSClient::sendEvent(QWSEvent* event)
         //qDebug() << "QWSClient::sendEvent type " << event->type << " socket state " << csocket->state();
         if (csocket->state() == QAbstractSocket::ConnectedState) {
             event->write(csocket);
-            csocket->flush();
+//            csocket->flush(); //### triggers QAbstractSocket bug, and we don't seem to need it
         }
     }
     else
