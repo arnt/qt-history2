@@ -1242,6 +1242,11 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     QLatin1String style(" style=\"");
     html += style;
 
+    if (block.begin().atEnd()) {
+        html += " -qt-paragraph-type:empty;";
+        hasStyle = true;
+    }
+
     if (format.hasProperty(QTextFormat::BlockTopMargin)) {
         html += QLatin1String(" margin-top:");
         html += QString::number(format.topMargin());
@@ -1317,9 +1322,6 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
         if (ch == QTextBeginningOfFrame
             || ch == QTextEndOfFrame)
             return;
-
-        html += "<p style=\"-qt-paragraph-type:empty;\">&nbsp;</p>";
-        return;
     }
 
     // save and later restore, in case we 'change' the default format by
