@@ -2324,8 +2324,8 @@ QTextCharFormat QTextEdit::currentCharFormat() const
     \brief the enabled set of auto formatting features
 
     The value can be any combination of the values in the \c
-    AutoFormattingFlag enum.  The default is \c AutoAll. Choose \c AutoNone
-    to disable all automatic formatting.
+    AutoFormattingFlag enum.  The default is \c AutoNone. Choose \c
+    AutoAll to enable all automatic formatting.
 
     Currently, the only automatic formatting feature provided is \c
     AutoBulletList; future versions of Qt may offer more.
