@@ -35,11 +35,11 @@ public:
     inline QDebug(const QDebug &o):stream(o.stream) { ++stream->ref; }
     inline ~QDebug()
         { if (!--stream->ref) { qt_message_output(stream->type, stream->buffer.toLocal8Bit().data()); delete stream; } }
-    inline QDebug &space() { stream->space = true; stream->ts << ' '; return *this; }
+    inline QDebug &space() { stream->space = true; stream->ts << " "; return *this; }
     inline QDebug &nospace() { stream->space = false; return *this; }
-    inline QDebug &maybeSpace() { if (stream->space) stream->ts << ' '; return *this; }
+    inline QDebug &maybeSpace() { if (stream->space) stream->ts << " "; return *this; }
 
-    inline QDebug &operator<<(QChar t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(QChar t) { stream->ts << "\'" << t << "\'"; return maybeSpace(); }
     inline QDebug &operator<<(bool t) { stream->ts << (t ? "true" : "false"); return maybeSpace(); }
     inline QDebug &operator<<(char t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(signed short t) { stream->ts << t; return maybeSpace(); }
@@ -57,10 +57,10 @@ public:
 #ifdef QT_USE_FIXED_POINT
     inline QDebug &operator<<(QFixedPoint t) { stream->ts << t.toDouble(); return maybeSpace(); }
 #endif
-    inline QDebug &operator<<(const char* t) { stream->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(const QString & t) { stream->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(const QLatin1String &t) { stream->ts << t.latin1(); return maybeSpace(); }
-    inline QDebug &operator<<(const QByteArray & t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(const char* t) { stream->ts  << t; return maybeSpace(); }
+    inline QDebug &operator<<(const QString & t) { stream->ts << "\"" << t  << "\""; return maybeSpace(); }
+    inline QDebug &operator<<(const QLatin1String &t) { stream->ts << "\""  << t.latin1() << "\""; return maybeSpace(); }
+    inline QDebug &operator<<(const QByteArray & t) { stream->ts  << "\"" << t << "\""; return maybeSpace(); }
     inline QDebug &operator<<(const void * t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(QTextStreamFunction f) {
         stream->ts << f;
@@ -74,26 +74,26 @@ public:
 template <class T>
 inline QDebug operator<<(QDebug debug, const QList<T> &list)
 {
-    debug << '(';
+    debug.nospace() << "(";
     for (Q_TYPENAME QList<T>::size_type i = 0; i < list.count(); ++i) {
         if (i)
-            debug << ',';
+            debug << ", ";
         debug << list.at(i);
     }
-    debug << ')';
-    return debug;
+    debug << ")";
+    return debug.space();
 }
 
 template <class aKey, class aT>
-inline QDebug operator<<(QDebug dbg, const QMap<aKey, aT> &map)
+inline QDebug operator<<(QDebug debug, const QMap<aKey, aT> &map)
 {
-    dbg << "QMap(";
+    debug.nospace() << "QMap(";
     for (typename QMap<aKey, aT>::const_iterator it = map.constBegin();
          it != map.constEnd(); ++it) {
-        dbg << "(" << it.key() << "," << it.value() << ")";
+        debug << "(" << it.key() << ", " << it.value() << ")";
     }
-    dbg << ")";
-    return dbg;
+    debug << ")";
+    return debug.space();
 }
 
 inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(QtDebugMsg); }
@@ -121,7 +121,7 @@ inline QNoDebug qDebug() { return QNoDebug(); }
 #define qDebug if(1) ; else qDebug
 
 template<typename T>
-inline QNoDebug operator<<(QNoDebug dbg, const T &) { return dbg; }
+inline QNoDebug operator<<(QNoDebug debug, const T &) { return debug; }
 
 #endif
 
