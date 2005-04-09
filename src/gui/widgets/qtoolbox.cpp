@@ -521,7 +521,6 @@ QWidget * QToolBox::currentWidget() const
  */
 void QToolBox::setCurrentWidget(QWidget *widget)
 {
-    Q_D( QToolBox);
     Q_ASSERT_X(indexOf(widget) >= 0, "QToolBox::setCurrentWidget", "widget not contained in tool box");
     setCurrentIndex(indexOf(widget));
 }
