@@ -223,14 +223,17 @@
     to call QApplication::setLayoutDirection() in your \c main()
     function.
 
-    The actual reverse layout is performed automatically when
-    possible. However, for the sake of flexibility, the translation
-    cannot be performed everywhere. The documentation for each QStyle
-    function states whether the function expects (or returns) logical
-    or screen coordinates. Using logical coordinates provides great
-    flexibility in controlling the look of a widget. Use visualRect()
-    when necessary to translate logical coordinates into screen
-    coordinates for drawing.
+    Here are some things to keep in mind when making a style work well in a
+    right-to-left environment:
+
+    \list
+    \o subControlRect() and subElementRect() return rectangles in screen coordinates
+    \o \c{QStyleOption::direction} indicates in which direction the item should be drawn in
+    \o If a style is not right-to-left aware it will display items as if it were left-to-right
+    \o visualRect(), visualPos(), and visualAlignment() are helpful functions that will
+       translate from logical to screen representations.
+    \o alignedRect() will return a logical rect aligned for the current direction
+    \endlist
 
     \sa QStyleOption, QStylePainter
 */
@@ -1007,7 +1010,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     Returns the rectangle for the SubControl \a subControl in the
     ComplexControl \a control, with the style options specified by \a
-    option in logical coordinates.
+    option in visual coordinates.
 
     The \a option argument is a pointer to a QStyleOptionComplex or one of its
     subclasses. The structure can be cast to the appropriate type based on the
@@ -1034,10 +1037,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     The \a widget argument is optional and can contain additional
     information for the functions.
 
-    Note that \a pos is expressed in screen coordinates. When using
-    subControlRect() to check for hits and misses, use
-    visualRect() to change the logical coordinates into screen
-    coordinates.
+    Note that \a pos is expressed in screen coordinates.
 
     \sa drawComplexControl() ComplexControl SubControl subControlRect() QStyleOptionComplex
 */
@@ -1567,7 +1567,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     translation.
 
     This function is provided to aid style implementors in supporting
-    right-to-left desktops.
+    right-to-left desktops. It typically is used in subControlRect().
 
     \sa QWidget::layoutDirection
 */
