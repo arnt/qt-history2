@@ -257,6 +257,8 @@ void MainWindow::on_actionAboutApplication_triggered()
         return;
     }
     QString text;
+    if (url.startsWith("file:"))
+        url = url.mid(5);
     QFile file(url);
     if(file.exists() && file.open(QFile::ReadOnly))
         text = QString::fromAscii(file.readAll());
