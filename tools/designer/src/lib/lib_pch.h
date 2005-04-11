@@ -15,7 +15,7 @@
 #include "shared_global.h"
 #include <QtCore/qdebug.h>
 #include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 #include <QtCore/QObject>
 #include <QtDesigner/qextensionmanager.h>
 #include <QtDesigner/abstractformwindow.h>
