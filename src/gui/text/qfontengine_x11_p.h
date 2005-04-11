@@ -198,10 +198,10 @@ public:
         short linearAdvance;
         unsigned char width;
         unsigned char height;
-        char x;
-        char y;
-        char advance;
-        char format;
+        signed char x;
+        signed char y;
+        signed char advance;
+        signed char format;
         uchar *data;
     };
     Glyph *loadGlyph(uint glyph, GlyphFormat = Format_None) const;

@@ -838,12 +838,12 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
 #endif
 
 
-    bool large_glyph = (((char)(slot->linearHoriAdvance>>16) != slot->linearHoriAdvance>>16)
+    bool large_glyph = (((signed char)(slot->linearHoriAdvance>>16) != slot->linearHoriAdvance>>16)
                         || ((uchar)(info.width) != info.width)
                         || ((uchar)(info.height) != info.height)
-                        || ((char)(info.x) != info.x)
-                        || ((char)(info.y) != info.y)
-                        || ((char)(info.xOff) != info.xOff));
+                        || ((signed char)(info.x) != info.x)
+                        || ((signed char)(info.y) != info.y)
+                        || ((signed char)(info.xOff) != info.xOff));
 
     if (large_glyph) {
         qDebug("got a large glyph!");
