@@ -912,8 +912,8 @@ QGroupBox *QPrintDialogPrivate::setupPrinterSettings()
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
     colorMode = new QButtonGroup(q);
-    QObject::connect(colorMode, SIGNAL(buttonChecked(QAbstractButton *)),
-                     q, SLOT(colorModeSelected(QAbstractButton *)));
+    QObject::connect(colorMode, SIGNAL(buttonChecked(QAbstractButton*)),
+                     q, SLOT(colorModeSelected(QAbstractButton*)));
 
     printColor = new QRadioButton(q->tr("Print in color if available"), g);
     colorMode->addButton(printColor);
@@ -1078,8 +1078,8 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
     fileName->setEnabled(false);
     browse->setEnabled(false);
 
-    QObject::connect(printerOrFile, SIGNAL(buttonChecked(QAbstractButton *)),
-             q, SLOT(printerOrFileSelected(QAbstractButton *)));
+    QObject::connect(printerOrFile, SIGNAL(buttonChecked(QAbstractButton*)),
+             q, SLOT(printerOrFileSelected(QAbstractButton*)));
     return g;
 }
 
@@ -1093,10 +1093,10 @@ QGroupBox *QPrintDialogPrivate::setupOptions()
     lay->addLayout(tll);
 
     printRange = new QButtonGroup(q);
-    QObject::connect(printRange, SIGNAL(buttonChecked(QAbstractButton *)), q, SLOT(printRangeSelected(QAbstractButton *)));
+    QObject::connect(printRange, SIGNAL(buttonChecked(QAbstractButton*)), q, SLOT(printRangeSelected(QAbstractButton*)));
 
     pageOrder = new QButtonGroup(q);
-    QObject::connect(pageOrder, SIGNAL(buttonChecked(QAbstractButton *)), q, SLOT(pageOrderSelected(QAbstractButton *)));
+    QObject::connect(pageOrder, SIGNAL(buttonChecked(QAbstractButton*)), q, SLOT(pageOrderSelected(QAbstractButton*)));
 
     printAllButton = new QRadioButton(q->tr("Print all"), g);
     printRange->addButton(printAllButton);

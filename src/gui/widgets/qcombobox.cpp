@@ -1213,10 +1213,10 @@ void QComboBox::setModel(QAbstractItemModel *model)
     if (d->model) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-        disconnect(d->model, SIGNAL(rowsInserted(QModelIndex, int, int)),
-                   this, SLOT(rowsInserted(QModelIndex, int, int)));
-        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)),
-                   this, SLOT(rowsAboutToBeRemoved(QModelIndex, int, int)));
+        disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                   this, SLOT(rowsInserted(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                   this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
     }
 
     d->model = model;
@@ -1224,10 +1224,10 @@ void QComboBox::setModel(QAbstractItemModel *model)
     if (d->model) {
         connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-        connect(d->model, SIGNAL(rowsInserted(QModelIndex, int, int)),
-                this, SLOT(rowsInserted(QModelIndex, int, int)));
-        connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)),
-                this, SLOT(rowsAboutToBeRemoved(QModelIndex, int, int)));
+        connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(rowsInserted(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
     }
 
     if (d->container)

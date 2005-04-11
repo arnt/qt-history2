@@ -179,7 +179,7 @@ QTableView::~QTableView()
 void QTableView::setModel(QAbstractItemModel *model)
 {
     if (d->selectionModel && d->model) // support row editing
-        disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+        disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
 
     d->verticalHeader->setModel(model);

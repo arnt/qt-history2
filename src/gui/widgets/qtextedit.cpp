@@ -346,7 +346,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         }
 
         QObject::connect(doc->documentLayout(), SIGNAL(update(QRectF)), q, SLOT(repaintContents(QRectF)));
-        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(const QSizeF &)), q, SLOT(adjustScrollbars()));
+        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
         doc->setDefaultFont(q->font());
@@ -356,7 +356,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         vbar->setSingleStep(20);
 
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(updateCurrentCharFormatAndSelection()));
-        QObject::connect(doc, SIGNAL(cursorPositionChanged(const QTextCursor &)), q, SLOT(emitCursorPosChanged(const QTextCursor &)));
+        QObject::connect(doc, SIGNAL(cursorPositionChanged(QTextCursor)), q, SLOT(emitCursorPosChanged(QTextCursor)));
 
 #if defined(QT3_SUPPORT)
         // compat signals

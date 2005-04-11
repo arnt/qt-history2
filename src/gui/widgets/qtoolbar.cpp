@@ -69,14 +69,14 @@ void QToolBarPrivate::init()
     layout->setSpacing(style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
 
     handle = new QToolBarHandle(q);
-    QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
-                     handle, SLOT(setOrientation(Qt::Orientation)));
+    QObject::connect(q, SIGNAL(orientationChanged(Orientation)),
+                     handle, SLOT(setOrientation(Orientation)));
     layout->addWidget(handle);
     handle->setVisible(movable && (qobject_cast<QMainWindow *>(q->parentWidget()) != 0));
 
     extension = new QToolBarExtension(q);
-    QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
-                     extension, SLOT(setOrientation(Qt::Orientation)));
+    QObject::connect(q, SIGNAL(orientationChanged(Orientation)),
+                     extension, SLOT(setOrientation(Orientation)));
     extension->setFocusPolicy(Qt::NoFocus);
     extension->hide();
 
@@ -136,8 +136,8 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
         item.widget = widgetAction->widget();
     } else if (action->isSeparator()) {
         item.widget = new QToolBarSeparator(q);
-        QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
-                         item.widget, SLOT(setOrientation(Qt::Orientation)));
+        QObject::connect(q, SIGNAL(orientationChanged(Orientation)),
+                         item.widget, SLOT(setOrientation(Orientation)));
     } else {
         QToolButton *button = new QToolButton(q);
         button->setAutoRaise(true);
@@ -145,8 +145,8 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
         button->setIconSize(iconSize);
         QObject::connect(q, SIGNAL(iconSizeChanged(QSize)),
                          button, SLOT(setIconSize(QSize)));
-        QObject::connect(q, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
-                         button, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
+        QObject::connect(q, SIGNAL(toolButtonStyleChanged(ToolButtonStyle)),
+                         button, SLOT(setToolButtonStyle(ToolButtonStyle)));
         button->setDefaultAction(action);
         QObject::connect(button, SIGNAL(triggered(QAction*)), q, SIGNAL(actionTriggered(QAction*)));
         if (action->menu())

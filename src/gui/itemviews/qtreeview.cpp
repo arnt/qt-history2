@@ -124,7 +124,7 @@ void QTreeView::setModel(QAbstractItemModel *model)
 {
     Q_D(QTreeView);
     if (d->selectionModel && d->model) // support row editing
-        disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+        disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
 
     d->viewItems.clear();

@@ -1400,8 +1400,8 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     // Selections
     selections = new QItemSelectionModel(model);
     QObject::connect(selections,
-                     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-                     q, SLOT(updateFileName(const QItemSelection&)));
+                     SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                     q, SLOT(updateFileName(QItemSelection)));
 
 
     QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
@@ -1511,8 +1511,8 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     grid->addWidget(listView, 1, 0, 1, 6);
 
     QObject::connect(listView, SIGNAL(activated(QModelIndex)), q, SLOT(enterDirectory(QModelIndex)));
-    QObject::connect(listView, SIGNAL(customContextMenuRequested(const QPoint&)),
-                     q, SLOT(showContextMenu(const QPoint&)));
+    QObject::connect(listView, SIGNAL(customContextMenuRequested(QPoint)),
+                     q, SLOT(showContextMenu(QPoint)));
 
     QShortcut *shortcut = new QShortcut(listView);
     shortcut->setKey(QKeySequence("Delete"));
@@ -1544,8 +1544,8 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     grid->addWidget(treeView, 1, 0, 1, 6);
 
     QObject::connect(treeView, SIGNAL(activated(QModelIndex)), q, SLOT(enterDirectory(QModelIndex)));
-    QObject::connect(treeView, SIGNAL(customContextMenuRequested(const QPoint&)),
-                     q, SLOT(showContextMenu(const QPoint&)));
+    QObject::connect(treeView, SIGNAL(customContextMenuRequested(QPoint)),
+                     q, SLOT(showContextMenu(QPoint)));
 
     QShortcut *shortcut = new QShortcut(treeView);
     shortcut->setKey(QKeySequence("Delete"));

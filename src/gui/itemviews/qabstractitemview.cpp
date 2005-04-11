@@ -463,16 +463,16 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
     Q_ASSERT(delegate);
 
     if (d->delegate) {
-        disconnect(d->delegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
-                   this, SLOT(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
+        disconnect(d->delegate, SIGNAL(closeEditor(QWidget*,EndEditHint)),
+                   this, SLOT(closeEditor(QWidget*,EndEditHint)));
         disconnect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
     }
 
     d->delegate = delegate;
 
     if (d->delegate) {
-        connect(d->delegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
-                this, SLOT(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
+        connect(d->delegate, SIGNAL(closeEditor(QWidget*,EndEditHint)),
+                this, SLOT(closeEditor(QWidget*,EndEditHint)));
         connect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
     }
 }

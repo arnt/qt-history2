@@ -969,7 +969,7 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
         d->startConnecting(QHostInfo::fromName(hostName));
     } else {
         if (QAbstractEventDispatcher::instance(q->thread()))
-            d->hostLookupId = QHostInfo::lookupHost(hostName, this, SLOT(startConnecting(const QHostInfo &)));
+            d->hostLookupId = QHostInfo::lookupHost(hostName, this, SLOT(startConnecting(QHostInfo)));
     }
 
 #if defined(QABSTRACTSOCKET_DEBUG)

@@ -56,7 +56,7 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
 
     \code
         QHostInfo::lookupHost("www.trolltech.com",
-                              this, SLOT(printResults(const QHostInfo &)));
+                              this, SLOT(printResults(QHostInfo)));
     \endcode
 
 
@@ -109,7 +109,7 @@ static int qt_qhostinfo_newid()
 
     \code
         QHostInfo::lookupHost("www.kde.org",
-                              this, SLOT(lookedUp(const QHostInfo &)));
+                              this, SLOT(lookedUp(QHostInfo)));
     \endcode
 
     The implementation of the slot prints basic information about the
@@ -196,9 +196,9 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
     QHostInfoAgent *agent = ::agent();
 
     QHostInfoResult *result = new QHostInfoResult;
-    QObject::connect(result, SIGNAL(resultsReady(const QHostInfo &)),
+    QObject::connect(result, SIGNAL(resultsReady(QHostInfo)),
                      receiver, member);
-    QObject::connect(result, SIGNAL(resultsReady(const QHostInfo &)),
+    QObject::connect(result, SIGNAL(resultsReady(QHostInfo)),
                      result, SLOT(deleteLater()));
     result->lookupId = ::qt_qhostinfo_newid();
     agent->addHostName(lookup, result);
