@@ -67,6 +67,9 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     }
 #endif
 
+    if (originalPath.isEmpty())
+        return;
+
     int devMinX = 0, devMaxX = 0, devMinY = 0, devMaxY = 0;
 
     qreal strokeOffsetX = 0, strokeOffsetY = 0;
@@ -111,6 +114,9 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 //     qDebug() << " - matrix" << state->matrix;
 //     qDebug() << " - originalPath.bounds" << originalPath.boundingRect();
 //     qDebug() << " - path.bounds" << path.boundingRect();
+
+    if (devWidth <= 0 || devHeight <= 0)
+        return;
 
     QImage image(devWidth, devHeight, QImage::Format_ARGB32_Premultiplied);
     image.fill(0);
