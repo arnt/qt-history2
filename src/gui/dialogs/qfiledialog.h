@@ -47,7 +47,8 @@ public:
         ShowDirsOnly = 0x01,
         DontResolveSymlinks = 0x02,
         DontConfirmOverwrite = 0x04,
-        DontUseSheet = 0x08
+        DontUseSheet = 0x08,
+        DontUseNativeDialog = 0x10
     };
     Q_DECLARE_FLAGS(Options, Option)
 

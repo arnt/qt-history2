@@ -305,11 +305,16 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
 /*!
     \enum QFileDialog::Option
 
-    \value ShowDirsOnly
-    \value DontResolveSymlinks
-    \value DontConfirmOverwrite
+    \value ShowDirsOnly Only show directories in the file dialog. By default both files and 
+    directories are shown.
+    \value DontResolveSymlinks Don't resolve symlinks in the file dialog. By default symlinks
+    are resolved.
+    \value DontConfirmOverwrite Don't ask for confirmation if an existing file is selected. 
+    By default confirmation is requested.
     \value DontUseSheet Don't make the native file dialog a sheet. By default on Mac OS X, the
     native file dialog is made a sheet if it has a parent that can take a sheet.
+    \value DontUseNativeDialog Don't use the native file dialog.  By default on Mac OS X and Windows,
+    the native file dialog is used.
 */
 
 /*!
@@ -1848,16 +1853,15 @@ QString QFileDialogPrivate::initialSelection(const QString &path, bool encode)
   If \a dir includes a file name, the file will be selected. Only files
   that match the given \a filter are shown. The filter selected is set to
   \a selectedFilter. The parameters \a dir, \a selectedFilter, and
-  \a filter may be empty strings. The \a options argument can be used
-  to tell the dialog not to resolve symbolic links
-  (\c{DontResolveSymlinks}), and not to show files (\c{ShowDirsOnly}).
+  \a filter may be empty strings. The \a options argument holds various 
+  options about how to run the dialog, see the QFileDialog::Option enum for 
+  more information on the flags you can pass.
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
 
   Under Windows and Mac OS X, this static function will use the native
-  file dialog and not a QFileDialog, unless the style of the application
-  is set to something other than the native style.
+  file dialog and not a QFileDialog.
 
   Note that on Windows the dialog will spin a blocking modal event loop
   that will not dispatch any QTimers, and if parent is not 0 then it will
@@ -1892,13 +1896,13 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     args.options = options;
 
 #if defined(Q_WS_WIN)
-    if (::qobject_cast<QWindowsStyle*>(qApp->style())) {
+    if (!(args.options & DontUseNativeDialog)) {
         args.directory = QFileDialogPrivate::workingDirectory(dir, false);
         args.selection = QFileDialogPrivate::initialSelection(dir, false);
         return qt_win_get_open_file_name(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)
-    if (::qobject_cast<QMacStyle*>(qApp->style())) {
+    if (!(args.options & DontUseNativeDialog)) {
         QStringList files = qt_mac_get_open_file_names(args, &directory, selectedFilter);
         if (!files.isEmpty())
             return QUnicodeTables::normalize(files.first(), QString::NormalizationForm_C);
@@ -1948,16 +1952,15 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
   dir includes a file name, the file will be selected. Only files that
   match the \a filter are shown. The filter selected is set to
   \a selectedFilter. The parameters \a dir, \a selectedFilter, and
-  \a filter may be empty strings. The \a options argument can be used
-  to tell the dialog not to resolve symbolic links
-  (\c{DontResolveSymlinks}), and not to show files (\c{ShowDirsOnly}).
+  \a filter may be empty strings. The \a options argument holds various 
+  options about how to run the dialog, see the QFileDialog::Option enum for 
+  more information on the flags you can pass.
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
 
   Under Windows and Mac OS X, this static function will use the native
-  file dialog and not a QFileDialog, unless the style of the application
-  is set to something other than the native style.
+  file dialog and not a QFileDialog.
 
   Note that on Windows the dialog will spin a blocking modal event loop
   that will not dispatch any QTimers, and if parent is not 0 then it will
@@ -1994,13 +1997,13 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     args.options = options;
 
 #if defined(Q_WS_WIN)
-    if (::qobject_cast<QWindowsStyle*>(qApp->style())) {
+    if (!(args.options & DontUseNativeDialog)) {
         args.directory = QFileDialogPrivate::workingDirectory(dir, false);
         args.selection = QFileDialogPrivate::initialSelection(dir, false);
         return qt_win_get_save_file_name(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)
-    if (::qobject_cast<QMacStyle*>(qApp->style())) {
+    if (!(args.options & DontUseNativeDialog)) {
         QString result = qt_mac_get_save_file_name(args, &directory, selectedFilter);
         return QUnicodeTables::normalize(result, QString::NormalizationForm_C);
     }
@@ -2048,9 +2051,9 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
   The dialog's working directory is set to \a dir, and the caption is
   set to \a caption. Either of these may be an empty string in which case
   the current directory and a default caption will be used
-  respectively. The \a options argument can be used to tell the dialog
-  not to resolve symbolic links (\c{DontResolveSymlinks}), and not to
-  show files (\c{ShowDirsOnly}).
+  respectively. The \a options argument holds various 
+  options about how to run the dialog, see the QFileDialog::Option enum for 
+  more information on the flags you can pass.
 
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if \c{/usr/tmp} is a symlink to
@@ -2080,12 +2083,12 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     args.options = options;
 
 #if defined(Q_WS_WIN)
-    if (qobject_cast<QWindowsStyle *>(qApp->style()) && (options & ShowDirsOnly)) {
+    if (!(args.options & DontUseNativeDialog) && (options & ShowDirsOnly)) {
         args.directory = QFileDialogPrivate::workingDirectory(dir, false);
         return qt_win_get_existing_directory(args);
     }
 #elif defined(Q_WS_MAC)
-    if (::qobject_cast<QMacStyle*>(qApp->style())) {
+    if (!(args.options & DontUseNativeDialog)) {
         QStringList files = qt_mac_get_open_file_names(args, 0, 0);
         if (!files.isEmpty())
             return QUnicodeTables::normalize(files.first(), QString::NormalizationForm_C);
@@ -2139,8 +2142,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
   specified then a default caption will be used.
 
   Under Windows and Mac OS X, this static function will use the native
-  file dialog and not a QFileDialog, unless the style of the application
-  is set to something other than the native style.
+  file dialog and not a QFileDialog.
 
   Note that on Windows the dialog will spin a blocking modal event loop
   that will not dispatch any QTimers, and if parent is not 0 then it will
@@ -2149,8 +2151,9 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if \c{/usr/tmp} is a symlink to
   \c{/var/tmp}, the file dialog will change to \c{/var/tmp} after
-  entering \c{/usr/tmp}. If \a options includes DontResolveSymlinks,
-  the file dialog will treat symlinks as regular directories.
+  entering \c{/usr/tmp}. The \a options argument holds various 
+  options about how to run the dialog, see the QFileDialog::Option enum for 
+  more information on the flags you can pass.
 
   Note that if you want to iterate over the list of files, you should
   iterate over a copy. For example:
@@ -2185,12 +2188,12 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     args.options = options;
 
 #if defined(Q_WS_WIN)
-    if (::qobject_cast<QWindowsStyle*>(qApp->style())) {
+    if (!(args.options & DontUseNativeDialog)) {
         args.directory = QFileDialogPrivate::workingDirectory(dir, false);
         return qt_win_get_open_file_names(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)
-    if (::qobject_cast<QMacStyle*>(qApp->style())) {
+    if (!(args.options & DontUseNativeDialog)) {
         QStringList result = qt_mac_get_open_file_names(args, &directory, selectedFilter);
         for (int i = 0; i < result.count(); ++i)
             result.replace(i, QUnicodeTables::normalize(result.at(i), QString::NormalizationForm_C));
