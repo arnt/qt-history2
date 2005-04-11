@@ -99,6 +99,14 @@ QPixmap::~QPixmap()
     deref();
 }
 
+/*!
+  \internal
+*/
+int QPixmap::devType() const
+{
+    return QInternal::Pixmap;
+}
+
 QPixmap &QPixmap::operator=(const QPixmap &pixmap)
 {
     if (paintingActive()) {
