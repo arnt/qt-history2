@@ -1941,7 +1941,7 @@ struct QRgbMap {
     QRgb  rgb;
 };
 
-static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
+static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
 {
     Q_ASSERT(src->format == QImage::Format_RGB32 || src->format == QImage::Format_ARGB32
              || src->format == QImage::Format_ARGB32_Premultiplied);
@@ -1950,9 +1950,7 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
     Q_ASSERT(src->height == dst->height);
 
     bool    do_quant = (flags & Qt::DitherMode_Mask) == Qt::PreferDither;
-
     uint alpha_mask = src->format == QImage::Format_RGB32 ? 0xff000000 : 0;
-    bool src_premul = src->format == QImage::Format_ARGB32_Premultiplied;
 
     const int tablesize = 997; // prime
     QRgbMap table[tablesize];
@@ -1966,7 +1964,7 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
         for (int i = 0; i < dst->colortable.size(); ++i) {
             // Find in table...
             QRgb p = ctbl.at(i) | alpha_mask;
-            int hash = (src_premul ? PREMUL(p) : p) % tablesize;
+            int hash = p % tablesize;
             for (;;) {
                 if (table[hash].used()) {
                     if (table[hash].rgb == p) {
@@ -1982,7 +1980,7 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
                     // Insert into table at this unused position
                     dst->colortable[pix] = p;
                     table[hash].pix = pix++;
-                    table[hash].rgb = (src_premul ? PREMUL(p) : p);
+                    table[hash].rgb = p;
                     break;
                 }
             }
@@ -2017,7 +2015,7 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
                             y = src->height;
                         } else {
                             // Insert into table at this unused position
-                            dst->colortable[pix] = src_premul ? INV_PREMUL(p) : p;
+                            dst->colortable[pix] = p;
                             table[hash].pix = pix++;
                             table[hash].rgb = p;
                         }
@@ -2207,6 +2205,20 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
     }
 }
 
+static void convert_ARGB_PM_to_Indexed8(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
+{
+    QImageData *tmp = QImageData::create(QSize(src->width, src->height), QImage::Format_RGB32);
+    convert_ARGB_PM_to_RGB(tmp, src, flags);
+    convert_RGB_to_Indexed8(dst, tmp, flags);
+ }
+
+static void convert_ARGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
+{
+    QImageData *tmp = QImageData::create(QSize(src->width, src->height), QImage::Format_RGB32);
+    mask_alpha_converter(tmp, src, flags);
+    convert_RGB_to_Indexed8(dst, tmp, flags);
+ }
+
 static void convert_Indexed8_to_X32(QImageData *dest, const QImageData *src, Qt::ImageConversionFlags)
 {
     Q_ASSERT(src->format == QImage::Format_Indexed8);
@@ -2346,7 +2358,7 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
     {
         convert_X_to_Mono,
         convert_X_to_Mono,
-        convert_X32_to_Indexed8,
+        convert_RGB_to_Indexed8,
         0,
         mask_alpha_converter,
         mask_alpha_converter
@@ -2355,7 +2367,7 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
     {
         convert_X_to_Mono,
         convert_X_to_Mono,
-        convert_X32_to_Indexed8,
+        convert_ARGB_to_Indexed8,
         mask_alpha_converter,
         0,
         convert_ARGB_to_ARGB_PM
@@ -2364,7 +2376,7 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
     {
         convert_ARGB_PM_to_Mono,
         convert_ARGB_PM_to_Mono,
-        convert_X32_to_Indexed8,
+        convert_ARGB_PM_to_Indexed8,
         convert_ARGB_PM_to_RGB,
         convert_ARGB_PM_to_ARGB,
         0
