@@ -72,7 +72,7 @@
         <widget class="QTreeWidget" name="listContents" >
          <column>
              <property name="text" >
-                 <text>column 1</text>
+                 <string>column 1</string>
              </property>
          </column>
          <property name="geometry" >
@@ -194,7 +194,7 @@
         <widget class="QTreeWidget" name="listBookmarks" >
         <column>
             <property name="text" >
-                <text>column 1</text>
+                <string>column 1</string>
             </property>
         </column>
          <property name="geometry" >
