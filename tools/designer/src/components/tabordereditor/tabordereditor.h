@@ -41,7 +41,7 @@ public slots:
     void widgetRemoved(QWidget*);
     void initTabOrder();
 
-protected:    
+protected:
     virtual void paintEvent(QPaintEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);
@@ -56,7 +56,7 @@ private:
     QPointer<QDesignerFormWindowInterface> m_form_window;
 
     QList<QWidget*> m_tab_order_list;
-    
+
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
     QPixmap m_bg_pixmap;

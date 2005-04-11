@@ -114,6 +114,18 @@ QRect TabOrderEditor::indicatorRect(int index) const
     return r;
 }
 
+static bool isWidgetVisible(QWidget *widget)
+{
+    while (widget && widget->parentWidget()) {
+        if (!widget->isVisibleTo(widget->parentWidget()))
+            return false;
+
+        widget = widget->parentWidget();
+    }
+
+    return true;
+}
+
 void TabOrderEditor::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
@@ -121,9 +133,14 @@ void TabOrderEditor::paintEvent(QPaintEvent *e)
 
     if (m_bg_pixmap.isNull())
         updateBackground();
+
     p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
 
     for (int i = 0; i < m_tab_order_list.size(); ++i) {
+        QWidget *widget = m_tab_order_list.at(i);
+        if (!isWidgetVisible(widget))
+            continue;
+
         QRect r = indicatorRect(i);
 
         QColor c = Qt::blue;
@@ -143,6 +160,10 @@ bool TabOrderEditor::skipWidget(QWidget *w) const
             || w == formWindow()->mainContainer()
             || w->isExplicitlyHidden())
         return true;
+
+    if (!formWindow()->isManaged(w)) {
+        return true;
+    }
 
     QExtensionManager *ext = formWindow()->core()->extensionManager();
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {
