@@ -1602,6 +1602,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WM_SYSCOMMAND: {
 #ifndef Q_OS_TEMP
             bool window_state_change = false;
+            Qt::WindowStates oldstate = Qt::WindowStates(widget->dataPtr()->window_state);
             switch(wParam) {
             case SC_CONTEXTHELP:
 #ifndef QT_NO_WHATSTHIS
@@ -1650,7 +1651,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
 
             if (window_state_change) {
-                QEvent e(QEvent::WindowStateChange);
+                QWindowStateChangeEvent e(oldstate);
                 qt_sendSpontaneousEvent(widget, &e);
             }
 #endif
@@ -1674,6 +1675,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WM_NCLBUTTONDBLCLK:
             if (wParam == HTCAPTION) {
                 bool window_state_changed = false;
+                Qt::WindowStates oldstate = widget->windowState();
                 if (widget->isMaximized()) {
                     window_state_changed = true;
                     widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
@@ -1683,7 +1685,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 }
 
                 if (window_state_changed) {
-                    QEvent e(QEvent::WindowStateChange);
+                    QWindowStateChangeEvent e(oldstate);
                     qt_sendSpontaneousEvent(widget, &e);
                 }
             }

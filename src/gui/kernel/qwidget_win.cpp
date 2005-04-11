@@ -1081,7 +1081,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
 
     data->window_state = newstate;
 
-    QEvent e(QEvent::WindowStateChange);
+    QWindowStateChangeEvent e(oldstate);
     QApplication::sendEvent(this, &e);
 }
 

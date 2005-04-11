@@ -148,7 +148,7 @@
     \value WindowBlocked
     \value WindowDeactivate  Window was deactivated.
     \value WindowIconChange
-    \value WindowStateChange The window's state, i.e. minimized, maximized or full-screen, has changed. See \l{QWidget::windowState()}.
+    \value WindowStateChange The window's state, i.e. minimized, maximized or full-screen, has changed, \l{QWindowStateChangeEvent}. See also \l{QWidget::windowState()}.
     \value WindowTitleChange
     \value WindowUnblocked
     \value ZOrderChange The widget's z-order has changed. This event is never sent to top level windows.

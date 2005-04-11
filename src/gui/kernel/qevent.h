@@ -610,6 +610,18 @@ public:
     QEventPrivate *data() { return d; };
 };
 
+class Q_GUI_EXPORT QWindowStateChangeEvent: public QEvent
+{
+public:
+    QWindowStateChangeEvent(Qt::WindowStates aOldState);
+    ~QWindowStateChangeEvent();
+
+    inline Qt::WindowStates oldState() const { return ostate; }
+
+private:
+    Qt::WindowStates ostate;
+};
+
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QEvent *);
 #endif

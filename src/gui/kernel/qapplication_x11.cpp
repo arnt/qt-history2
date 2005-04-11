@@ -3802,6 +3802,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
     } else if (event->xproperty.atom == ATOM(_NET_WM_STATE)) {
         bool max = false;
         bool full = false;
+        Qt::WindowStates oldState = Qt::WindowStates(this->data->window_state);
 
         if (event->xproperty.state == PropertyNewValue) {
             // using length of 1024 should be safe for all current and
@@ -3847,7 +3848,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
         }
 
         if (send_event) {
-            QEvent e(QEvent::WindowStateChange);
+            QWindowStateChangeEvent e(oldState);
             QApplication::sendSpontaneousEvent(this, &e);
         }
     } else if (event->xproperty.atom == ATOM(WM_STATE)) {
@@ -3897,7 +3898,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     if (!isMinimized()) {
                         // window was minimized
                         this->data->window_state = this->data->window_state | Qt::WindowMinimized;
-                        QEvent e(QEvent::WindowStateChange);
+                        QWindowStateChangeEvent e(Qt::WindowStates(this->data->window_state & ~Qt::WindowMinimized));
                         QApplication::sendSpontaneousEvent(this, &e);
                     }
                     break;
@@ -3906,7 +3907,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     if (isMinimized()) {
                         // window was un-minimized
                         this->data->window_state &= ~Qt::WindowMinimized;
-                        QEvent e(QEvent::WindowStateChange);
+                        QWindowStateChangeEvent e(Qt::WindowStates(this->data->window_state | Qt::WindowMinimized));
                         QApplication::sendSpontaneousEvent(this, &e);
                     }
                     break;

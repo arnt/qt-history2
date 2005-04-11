@@ -2480,3 +2480,29 @@ QClipboardEvent::QClipboardEvent(QEventPrivate *data)
 QClipboardEvent::~QClipboardEvent()
 {
 }
+
+/*!
+    \class QWindowStateChangeEvent
+    \ingroup events
+
+    \brief The QWindowStateChangeEvent provides the window state before the change.
+*/
+
+/*! \fn Qt::WindowStates QWindowStateChangeEvent::oldState() const
+
+    Returns the state of the window before the change.
+*/
+
+/*! \internal
+ */
+QWindowStateChangeEvent::QWindowStateChangeEvent(Qt::WindowStates s)
+    : QEvent(WindowStateChange), ostate(s)
+{
+}
+
+/* \internal
+*/
+QWindowStateChangeEvent::~QWindowStateChangeEvent()
+{
+}
+
