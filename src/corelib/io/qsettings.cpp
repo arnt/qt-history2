@@ -1534,8 +1534,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     When creating a QSettings object, you must pass the domain
     name of your company or organization as well as the name of your
-    application. For example, if your product is called DataMill and
-    you own the software.org Internet domain name, you would
+    application. For example, if your product is called StarRunner and
+    you own the mysoft.org Internet domain name, you would
     construct the QSettings object as follows:
 
     \quotefromfile snippets/settings/settings.cpp
@@ -1592,17 +1592,17 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \section1 QVariant and GUI Types
 
-    Because QVariant is part of the QtCore library, it cannot provide
+    Because QVariant is part of the \l QtCore library, it cannot provide
     conversion functions to data types such as QColor, QImage, and
-    QPixmap, which are part of QtGui. In other words, there is no
+    QPixmap, which are part of \l QtGui. In other words, there is no
     \c QVariant::toColor() function.
 
-    Instead, you must use the qvariant_cast<T>() global function. For
+    Instead, you can use the qvariant_value<T>() global function. For
     example:
 
     \code
-        QSettings settings("software-inc.com", "DataMill");
-        QColor color = qvariant_cast<QColor>(
+        QSettings settings("mysoft.org", "StarRunner");
+        QColor color = qvariant_value<QColor>(
                 settings.value("DataPump/bgcolor"));
     \endcode
 
@@ -1611,7 +1611,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     GUI-related types:
 
     \code
-        QSettings settings("software-inc.com", "DataMill");
+        QSettings settings("mysoft.org", "StarRunner");
         QColor color = palette().background().color();
         settings.setValue("DataPump/bgcolor", color);
     \endcode
@@ -1626,7 +1626,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \list 1
     \o Always refer to the same key using the same case. For example,
        if you refer to a key as "text fonts" in one place in your
-       code, don't refer to it as "Text Fonts" elsewhere.
+       code, don't refer to it as "Text Fonts" somewhere else.
 
     \o Avoid key names that are identical except for the case. For
        example, if you have a key called "MainWindow", don't try to
@@ -1659,44 +1659,44 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \section1 Fallback Mechanism
 
     Let's assume that you have created a QSettings object with
-    the organization domain name "software.org" and the application
-    name "DataMill". When you look up a value, up to four locations
+    the organization domain name "mysoft.org" and the application
+    name "StarRunner". When you look up a value, up to four locations
     are searched in that order:
 
     \list 1
-    \o a user-specific location for the DataMill application
-    \o a user-spefific location for all applications by software.org
-    \o a system-wide location for the DataMill application
-    \o a system-wide location for all applications by software.org
+    \o a user-specific location for the StarRunner application
+    \o a user-spefific location for all applications by mysoft.org
+    \o a system-wide location for the StarRunner application
+    \o a system-wide location for all applications by mysoft.org
     \endlist
 
     On Unix with X11 and on embedded Linux, these locations are the
     following files:
 
     \list 1
-    \o \c{$HOME/.config/software.org/DataMill.conf}
-    \o \c{$HOME/.config/software.org.conf}
-    \o \c{/etc/xdg/software.org/DataMill.conf}
-    \o \c{/etc/xdg/software.org.conf}
+    \o \c{$HOME/.config/mysoft.org/StarRunner.conf}
+    \o \c{$HOME/.config/mysoft.org.conf}
+    \o \c{/etc/xdg/mysoft.org/StarRunner.conf}
+    \o \c{/etc/xdg/mysoft.org.conf}
     \endlist
 
     On Mac OS X versions 10.2 and 10.3, these files are used:
 
     \list 1
-    \o \c{$HOME/Library/Preferences/org.software.DataMill.plist}
-    \o \c{$HOME/Library/Preferences/org.software.plist}
-    \o \c{/Library/Preferences/org.software.DataMill.plist}
-    \o \c{/Library/Preferences/org.software.plist}
+    \o \c{$HOME/Library/Preferences/org.mysoft.StarRunner.plist}
+    \o \c{$HOME/Library/Preferences/org.mysoft.plist}
+    \o \c{/Library/Preferences/org.mysoft.StarRunner.plist}
+    \o \c{/Library/Preferences/org.mysoft.plist}
     \endlist
 
     On Windows, the settings are stored in the following registry
     paths:
 
     \list 1
-    \o \c{HKEY_CURRENT_USER\Software\software.org\DataMill}
-    \o \c{HKEY_CURRENT_USER\Software\software.org}
-    \o \c{HKEY_LOCAL_MACHINE\Software\software.org\DataMill}
-    \o \c{HKEY_LOCAL_MACHINE\Software\software.org}
+    \o \c{HKEY_CURRENT_USER\Software\mysoft.org\StarRunner}
+    \o \c{HKEY_CURRENT_USER\Software\mysoft.org}
+    \o \c{HKEY_LOCAL_MACHINE\Software\mysoft.org\StarRunner}
+    \o \c{HKEY_LOCAL_MACHINE\Software\mysoft.org}
     \endlist
 
     If a key cannot be found in the first location, the search goes
@@ -1777,10 +1777,10 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \printuntil /^\}$/
 
     See \l{Window Geometry} for a discussion on why it is better to
-    call resize() and move() rather than setGeometry() to restore a
-    window's geometry.
+    call QWidget::resize() and QWidget::move() rather than QWidget::setGeometry()
+    to restore a window's geometry.
 
-    The readSettings() and writeSettings() functions need to be
+    The \c readSettings() and \c writeSettings() functions must be
     called from the main window's constructor and close event handler
     as follows:
 
