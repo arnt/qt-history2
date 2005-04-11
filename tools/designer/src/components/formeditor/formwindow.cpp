@@ -1365,8 +1365,6 @@ void FormWindow::setContents(QIODevice *dev)
 
     QDesignerResource r(this);
     QWidget *w = r.load(dev, this);
-    qDebug() << "=======> w.size:" << w->size();
-
     if (w == 0) {
         w = core()->widgetFactory()->createWidget("QWidget", this);
     }
