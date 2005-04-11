@@ -243,22 +243,22 @@ template <typename BiIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
 {
     --end;
-     if(end - start < 1)
+    if (end - start < 1)
         return;
 
-     BiIterator pivot = start + (end - start) / 2;
+    BiIterator pivot = start + (end - start) / 2;
 
-     T pivot_val = *pivot;
-     *pivot = *end;
-     *end = pivot_val;
+    T pivot_val = *pivot;
+    *pivot = *end;
+    *end = pivot_val;
 
-     BiIterator low = start, high = end-1;
+    BiIterator low = start, high = end-1;
 
-     while(low < high ) {
-        while(low < high && lessThan(*low, pivot_val))
+    while (low < high) {
+        while (low < high && lessThan(*low, pivot_val))
             ++low;
 
-        while(high > low && lessThan(pivot_val, *high))
+        while (high > low && lessThan(pivot_val, *high))
             --high;
 
         if(low < high) {
@@ -268,16 +268,16 @@ Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T 
             ++low;
             --high;
         }
-     }
+    }
 
-     if(lessThan(*low, pivot_val))
+    if (lessThan(*low, pivot_val))
         ++low;
 
-     *end = *low;
-     *low = pivot_val;
+    *end = *low;
+    *low = pivot_val;
 
-     qSortHelper(start, low, t, lessThan);
-     qSortHelper(low+1, end+1, t, lessThan);
+    qSortHelper(start, low, t, lessThan);
+    qSortHelper(low + 1, end + 1, t, lessThan);
 }
 
 template <typename BiIterator, typename T>
