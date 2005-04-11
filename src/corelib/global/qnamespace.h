@@ -1232,17 +1232,12 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ItemFlags);
 class Q_CORE_EXPORT QInternal {
 public:
     enum PaintDeviceFlags {
-        UndefinedDevice = 0x00,
+        UnknownDevice = 0x00,
         Widget = 0x01,
         Pixmap = 0x02,
-        Printer = 0x03,
-        Picture = 0x04,
-        System = 0x05,
-        Image = 0x06,
-        DeviceTypeMask = 0x0f,
-        ExternalDevice = 0x10,
-        // used to emulate some of the behavior different between Qt2 and Qt3 (mainly for printing)
-        CompatibilityMode = 0x20
+        Image = 0x03,
+        Printer = 0x04,
+        Picture = 0x05
     };
     enum RelayoutType {
         RelayoutNormal,

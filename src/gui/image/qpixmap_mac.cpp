@@ -49,7 +49,7 @@ static void qt_mac_cgimage_data_free(void *, const void *data, size_t)
   QPixmap member functions
  *****************************************************************************/
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(w, h, 1, true);
 

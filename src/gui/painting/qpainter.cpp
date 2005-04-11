@@ -867,7 +867,7 @@ bool QPainter::begin(QPaintDevice *pd)
             }
             break;
         }
-        case QInternal::ExternalDevice:
+        default:
         {
             d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
             d->state->wh = d->state->vh = pd->metric(QPaintDevice::PdmHeight);

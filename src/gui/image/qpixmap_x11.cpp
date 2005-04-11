@@ -362,7 +362,7 @@ QPixmapData::~QPixmapData()
 */
 
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {                                                // for bitmaps only
     init(0, 0, 0, false);
     if (w <= 0 || h <= 0)                        // create null pixmap

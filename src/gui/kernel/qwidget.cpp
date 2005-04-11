@@ -628,7 +628,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 */
 
 QWidget::QWidget(QWidget *parent, Qt::WFlags f)
-    : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice(QInternal::Widget)
+    : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice()
 {
     d_func()->init(f);
 }
@@ -639,7 +639,7 @@ QWidget::QWidget(QWidget *parent, Qt::WFlags f)
     \obsolete
  */
 QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
-    : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice(QInternal::Widget)
+    : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice()
 {
     d_func()->init(f);
     setObjectName(name);
@@ -649,9 +649,15 @@ QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
 /*! \internal
 */
 QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, Qt::WFlags f)
-    : QObject(dd, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice(QInternal::Widget)
+    : QObject(dd, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice()
 {
     d_func()->init(f);
+}
+
+
+int QWidget::devType() const
+{
+    return QInternal::Widget;
 }
 
 void QWidgetPrivate::init(Qt::WFlags f)

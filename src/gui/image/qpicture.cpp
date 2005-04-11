@@ -100,7 +100,7 @@ const quint16 mfhdr_min = 0; // minor version #
 */
 
 QPicture::QPicture(int formatVersion)
-    : QPaintDevice(QInternal::Picture | QInternal::ExternalDevice),
+    : QPaintDevice(),
       d_ptr(new QPicturePrivate)
 {
     d_ptr->q_ptr = this;
@@ -125,14 +125,14 @@ QPicture::QPicture(int formatVersion)
 */
 
 QPicture::QPicture(const QPicture &pic)
-    : QPaintDevice(QInternal::Picture | QInternal::ExternalDevice), d_ptr(pic.d_ptr)
+    : QPaintDevice(), d_ptr(pic.d_ptr)
 {
     d->ref.ref();
 }
 
 /*! \internal */
 QPicture::QPicture(QPicturePrivate &dptr)
-    : QPaintDevice(QInternal::Picture | QInternal::ExternalDevice),
+    : QPaintDevice(),
       d_ptr(&dptr)
 {
     d_ptr->q_ptr = this;
@@ -147,6 +147,13 @@ QPicture::~QPicture()
         delete d;
 }
 
+/*!
+  \internal
+*/
+int QPicture::devType() const
+{
+    return QInternal::Picture;
+}
 
 /*!
     \fn bool QPicture::isNull() const

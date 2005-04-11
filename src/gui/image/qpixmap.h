@@ -45,6 +45,7 @@ public:
     operator QVariant() const;
 
     bool isNull() const;
+    int devType() const;
 
     int width() const;
     int height() const;

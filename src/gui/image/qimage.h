@@ -78,6 +78,8 @@ public:
     QImage &operator=(const QImage &);
     bool isNull() const;
 
+    int devType() const;
+
     bool operator==(const QImage &) const;
     bool operator!=(const QImage &) const;
     operator QVariant() const;
@@ -234,7 +236,6 @@ public:
     static QT3_SUPPORT Endian systemBitOrder();
 #ifndef QT_NO_IMAGEIO
     inline QT3_SUPPORT_CONSTRUCTOR QImage(const QByteArray &data)
-        : QPaintDevice(QInternal::Image)
         { *this = QImage::fromData(data); }
 #endif
 #endif

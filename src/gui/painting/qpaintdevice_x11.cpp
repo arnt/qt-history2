@@ -72,14 +72,13 @@
     constructor can be invoked only from QPaintDevice subclasses.
 */
 
-QPaintDevice::QPaintDevice(uint devflags)
+QPaintDevice::QPaintDevice()
 {
     if (!qApp) {                                // global constructor
         qFatal("QPaintDevice: Must construct a QApplication before a "
                 "QPaintDevice");
         return;
     }
-    devFlags = devflags;
     painters = 0;
 }
 
@@ -103,20 +102,8 @@ QPaintDevice::~QPaintDevice()
     if the device is a QWidget, \c QInternal::Pixmap if it's a
     QPixmap, \c QInternal::Printer if it's a QPrinter, \c
     QInternal::Picture if it's a QPicture or \c
-    QInternal::UndefinedDevice in other cases (which should never
-    happen).
+    QInternal::UnknownDevice in other cases.
 */
-
-/*!
-    \fn bool QPaintDevice::isExtDev() const
-
-    Returns true if the device is an external paint device; otherwise
-    returns false.
-
-    External paint devices cannot be bitBlt()'ed from. QPicture and
-    QPrinter are external paint devices.
-*/
-
 
 /*!
     \fn bool QPaintDevice::paintingActive() const

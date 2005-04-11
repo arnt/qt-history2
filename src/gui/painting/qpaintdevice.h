@@ -41,8 +41,7 @@ public:
 
     virtual ~QPaintDevice();
 
-    int devType() const;
-    bool isExtDev() const;
+    virtual int devType() const;
     bool paintingActive() const;
     virtual QPaintEngine *paintEngine() const = 0;
 
@@ -69,10 +68,9 @@ public:
     int depth() const { return metric(PdmDepth); }
 
 protected:
-    QPaintDevice(uint devflags);
+    QPaintDevice();
     virtual int metric(PaintDeviceMetric metric) const;
 
-    ushort        devFlags;                        // device flags
     ushort        painters;                        // refcount
 
 private:
@@ -131,10 +129,7 @@ void bitBlt(QPaintDevice *dst, const QPoint &dp,
  *****************************************************************************/
 
 inline int QPaintDevice::devType() const
-{ return devFlags & QInternal::DeviceTypeMask; }
-
-inline bool QPaintDevice::isExtDev() const
-{ return (devFlags & QInternal::ExternalDevice) != 0; }
+{ return QInternal::UnknownDevice; }
 
 inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }

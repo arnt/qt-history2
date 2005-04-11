@@ -450,7 +450,7 @@ static QImage::Format formatFor(int depth, QImage::Endian bitOrder)
 */
 
 QImage::QImage()
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = 0;
 }
@@ -459,7 +459,7 @@ QImage::QImage()
     Constructs an image with \a width, \a height in format \a format.
 */
 QImage::QImage(int width, int height, Format format)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = QImageData::create(QSize(width, height), format, 0);
 }
@@ -468,7 +468,7 @@ QImage::QImage(int width, int height, Format format)
     Constructs an image with \a size in format \a format.
 */
 QImage::QImage(const QSize &size, Format format)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = QImageData::create(size, format, 0);
 }
@@ -487,7 +487,7 @@ QImage::QImage(const QSize &size, Format format)
     \sa setColorTable
 */
 QImage::QImage(uchar* data, int width, int height, Format format)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = 0;
     if (format == Format_Invalid || width <= 0 || height <= 0 || !data)
@@ -532,7 +532,7 @@ QImage::QImage(uchar* data, int width, int height, Format format)
 */
 
 QImage::QImage(const QString &fileName, const char *format)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = 0;
     load(fileName, format);
@@ -567,7 +567,7 @@ QImage::QImage(const QString &fileName, const char *format)
     \sa QString::fromAscii(),     \sa load(), isNull(), QImageReader
 */
 QImage::QImage(const char *fileName, const char *format)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     // ### Qt 5: if you remove the QImage(const QByteArray &) QT3_SUPPORT
     // constructor, remove this constructor as well. The constructor here
@@ -599,7 +599,7 @@ extern bool qt_read_xpm_image_or_array(QIODevice *device, const char * const *so
 */
 
 QImage::QImage(const char * const xpm[])
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = 0;
     if (!qt_read_xpm_image_or_array(0, xpm, *this)) {
@@ -632,7 +632,7 @@ QImage::QImage(const char * const xpm[])
 */
 
 QImage::QImage(const QImage &image)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = image.d;
     if (d)
@@ -651,7 +651,7 @@ QImage::QImage(const QImage &image)
 */
 
 QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = QImageData::create(QSize(w, h), formatFor(depth, bitOrder), numColors);
 }
@@ -666,7 +666,7 @@ QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
     \sa create()
 */
 QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = QImageData::create(size, formatFor(depth, bitOrder), numColors);
 }
@@ -685,7 +685,7 @@ QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
     The endianness is given in \a bitOrder.
 */
 QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int numColors, Endian bitOrder)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = 0;
     Format f = formatFor(depth, bitOrder);
@@ -732,7 +732,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     \warning This constructor is only available on Qt/Embedded.
 */
 QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colortable, int numColors, Endian bitOrder)
-    : QPaintDevice(QInternal::Image)
+    : QPaintDevice()
 {
     d = 0;
     Format f = formatFor(depth, bitOrder);
@@ -788,6 +788,14 @@ QImage &QImage::operator=(const QImage &image)
     if (x && !x->ref.deref())
         delete x;
     return *this;
+}
+
+/*!
+  \internal
+*/
+int QImage::devType() const
+{
+    return QInternal::Image;
 }
 
 /*!

@@ -332,7 +332,7 @@
     Creates a new printer object with the given \a mode.
 */
 QPrinter::QPrinter(PrinterMode mode)
-    : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice),
+    : QPaintDevice(),
       d_ptr(new QPrinterPrivate)
 {
     Q_D(QPrinter);
@@ -357,6 +357,12 @@ QPrinter::~QPrinter()
     delete d->printDialog;
 #endif
     delete d;
+}
+
+
+int QPrinter::devType() const
+{
+    return QInternal::Printer;
 }
 
 /*!

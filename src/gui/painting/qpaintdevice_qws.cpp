@@ -18,14 +18,13 @@
 #include "qapplication.h"
 #include "qwsdisplay_qws.h"
 
-QPaintDevice::QPaintDevice(uint devflags)
+QPaintDevice::QPaintDevice()
 {
     if (!qApp) {                                // global constructor
         qFatal("QPaintDevice: Must construct a QApplication before a "
                 "QPaintDevice");
         return;
     }
-    devFlags = devflags;
     painters = 0;
 }
 

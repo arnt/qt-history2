@@ -21,7 +21,7 @@
 class Q3SvgDevice : public QPaintDevice
 {
 public:
-    Q3SvgDevice() : QPaintDevice(QInternal::ExternalDevice) {}
+    Q3SvgDevice() : QPaintDevice() {}
     bool load(QIODevice *dev) { return svgEngine.load(dev); }
     bool save(const QString &fileName) { return svgEngine.save(fileName); }
     bool save(QIODevice *dev) { return svgEngine.save(dev); }

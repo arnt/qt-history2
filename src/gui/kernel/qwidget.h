@@ -165,6 +165,8 @@ public:
 #endif
     ~QWidget();
 
+    int devType() const;
+
     WId winId() const;
 #ifndef QT_NO_STYLE
     // GUI style setting

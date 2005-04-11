@@ -30,6 +30,7 @@ public:
 
     bool isNull() const;
 
+    int devType() const;
     uint size() const;
     const char* data() const;
     virtual void setData(const char* data, uint size);

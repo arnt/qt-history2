@@ -35,6 +35,8 @@ public:
     explicit QPrinter(PrinterMode mode = ScreenResolution);
    ~QPrinter();
 
+    int devType() const;
+
     enum Orientation { Portrait, Landscape };
 
     enum PageSize    { A4, B5, Letter, Legal, Executive,

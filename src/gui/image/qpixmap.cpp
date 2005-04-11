@@ -58,7 +58,7 @@
 */
 
 QPixmap::QPixmap(int w, int h, int depth, bool bitmap)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(w, h, depth, bitmap);
 }
@@ -71,7 +71,7 @@ QPixmap::QPixmap(int w, int h, int depth, bool bitmap)
 */
 
 QPixmap::QPixmap()
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(0, 0, 0, false);
 }
@@ -92,7 +92,7 @@ QPixmap::QPixmap()
 */
 
 QPixmap::QPixmap(int w, int h, int depth)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(w, h, depth, false);
 }
@@ -104,7 +104,7 @@ QPixmap::QPixmap(int w, int h, int depth)
 */
 
 QPixmap::QPixmap(const QSize &size, int depth)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(size.width(), size.height(), depth, false);
 }
@@ -135,7 +135,7 @@ QPixmap::QPixmap(const QSize &size, int depth)
 */
 
 QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(0, 0, 0, false);
     load(fileName, format, flags);
@@ -147,7 +147,7 @@ QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversio
 */
 
 QPixmap::QPixmap(const QPixmap &pixmap)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     if (pixmap.paintingActive()) {                // make a deep copy
         data = 0;
@@ -155,7 +155,6 @@ QPixmap::QPixmap(const QPixmap &pixmap)
     } else {
         data = pixmap.data;
         data->ref();
-        devFlags = pixmap.devFlags;                // copy QPaintDevice flags
     }
 }
 
@@ -183,7 +182,7 @@ QPixmap::QPixmap(const QPixmap &pixmap)
 */
 
 QPixmap::QPixmap(const char * const xpm[])
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(0, 0, 0, false);
 
@@ -201,6 +200,14 @@ QPixmap::QPixmap(const char * const xpm[])
 QPixmap::~QPixmap()
 {
     deref();
+}
+
+/*!
+  \internal
+*/
+int QPixmap::devType() const
+{
+    return QInternal::Pixmap;
 }
 
 /*!
@@ -242,19 +249,12 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
         qWarning("QPixmap::operator=: Cannot assign to pixmap during painting");
         return *this;
     }
-    pixmap.data->ref();                                // avoid 'x = x'
-    deref();
     if (pixmap.paintingActive()) {                // make a deep copy
-        init(pixmap.width(), pixmap.height(), pixmap.depth(), pixmap.data->bitmap);
-        data->uninit = false;
-        if (!isNull()) {
-            QPainter p(this);
-            p.drawPixmap(0, 0, pixmap);
-        }
-        pixmap.data->deref();
+        *this = pixmap.copy();
     } else {
+        pixmap.data->ref();                                // avoid 'x = x'
+        deref();
         data = pixmap.data;
-        devFlags = pixmap.devFlags;                // copy QPaintDevice flags
     }
     return *this;
 }
@@ -849,7 +849,7 @@ static Qt::ImageConversionFlags colorModeToFlags(QPixmap::ColorMode mode)
 */
 
 QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(0, 0, 0, false);
     load(fileName, format, colorModeToFlags(mode));
@@ -862,7 +862,7 @@ QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
 */
 
 QPixmap::QPixmap(const QImage& image)
-    : QPaintDevice(QInternal::Pixmap)
+    : QPaintDevice()
 {
     init(0, 0, 0, false);
     *this = fromImage(image);
