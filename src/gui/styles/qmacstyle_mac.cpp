@@ -963,7 +963,7 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
             pantherTabStart = TabSelectedInactiveLeft;
         } else {
             // Draw into a pixmap to determine which version we use, Aqua or Graphite.
-            QPixmap tabPix(20, 20, 32);
+            QPixmap tabPix(20, 20);
             QPainter pixPainter(&tabPix);
             qt_mac_draw_tab(&pixPainter, 0, QRect(0, 0, 20, 20), kThemeTabFront, kThemeTabNorth);
             pixPainter.end();
@@ -3255,7 +3255,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                                           wholePane.height(), wholePane.width());
                         break;
                     }
-                    QPixmap pix(pixSize, 32);
+                    QPixmap pix(pixSize);
                     QPainter pixPainter(&pix);
                     qt_mac_set_port(&pixPainter);
                     Rect macRect;
@@ -3322,7 +3322,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 tds = kThemeStatePressed;
                 if (frame && !QPixmapCache::find(pmkey, buffer)) {
                     do_draw = true;
-                    buffer = QPixmap(opt->rect.width(), opt->rect.height(), 32);
+                    buffer = QPixmap(opt->rect.width(), opt->rect.height());
                     buffer.fill(Qt::color0);
                 }
                 if (timerID <= -1) {
@@ -3362,7 +3362,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                                                            btn->rect.height()), &buffer, false,
                                                            off_rct);
                     DrawThemeButton(buff_rct, bkind, &info, 0, 0, 0, 0);
-                    QPixmap buffer_mask(buffer.size(), 32);
+                    QPixmap buffer_mask(buffer.size());
                     buffer_mask.fill(Qt::color0);
                     ThemeButtonDrawInfo mask_info = info;
                     mask_info.state = kThemeStateActive;
@@ -4976,7 +4976,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
             const QRgb fillColor = qRgb(192, 191, 190);
             QImage img;
             {
-                QPixmap pix(opt->rect.size(), 32);
+                QPixmap pix(opt->rect.size());
                 pix.fill(fillColor);
                 QPainter pix_paint(&pix);
                 drawControl(CE_FocusFrame, opt, &pix_paint, w);

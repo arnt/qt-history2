@@ -126,7 +126,10 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     int h = image.height();
 
     // different size or depth, make a new pixmap
-    pixmap = QPixmap(w, h, d == 1 ? 1 : -1);
+    if (d == 1)
+        pixmap = QBitmap(w, h);
+    else
+        pixmap = QPixmap(w, h);
 
     uint *dptr = pixmap.data->pixels, *drow;
     const uint dbpr = pixmap.data->nbytes / h;
@@ -266,7 +269,7 @@ QPixmap QPixmap::alphaChannel() const
 {
     if (!data->has_alpha)
         return QPixmap();
-    QPixmap alpha(width(), height(), 32);
+    QPixmap alpha(width(), height());
     data->macGetAlphaChannel(&alpha);
     return alpha;
 }
@@ -502,7 +505,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         return QPixmap();
 
     //create destination
-    QPixmap pm(w, h, depth());
+    QPixmap pm = depth() == 1 ? QPixmap(QBitmap(w, h)) : QPixmap(w, h);
     memset(pm.data->pixels, 0, pm.data->nbytes);
     const uchar *sptr = (uchar *)data->pixels;
     uchar *dptr = (uchar *)pm.data->pixels;
@@ -549,7 +552,7 @@ void QPixmap::init(int w, int h, Type type)
         return;
     data->w=w;
     data->h=h;
-    data->d = (Type == PixmapType) ? 32 : 1;
+    data->d = (type == PixmapType) ? 32 : 1;
 
     //create the pixels
     data->nbytes = (w*h*4) + (h*4); // ### testing for alignment --Sam
@@ -590,7 +593,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
             w = widget->width() - x;
         if(h == -1)
             h = widget->height() - y;
-        pm = QPixmap(w, h, 32);
+        pm = QPixmap(w, h);
         extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
         const BitMap *windowPort = 0;
         if((widget->windowType() == Qt::Desktop)) {

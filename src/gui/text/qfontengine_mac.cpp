@@ -464,7 +464,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         } else {
             static QPixmap *pixmap = 0;
             if(!pixmap)
-                pixmap = new QPixmap(1, 1, 32);
+                pixmap = new QPixmap(1, 1);
             q_ctx = QMacCGContext(pixmap);
         }
         ctx = static_cast<CGContextRef>(q_ctx);
@@ -509,7 +509,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         Q_ASSERT(!(task & DRAW));
         static QPixmap *pixmap = 0;
         if(!pixmap)
-            pixmap = new QPixmap(1, 1, 32);
+            pixmap = new QPixmap(1, 1);
         QMacSavedPortInfo::setPaintDevice(pixmap);
         q_ctx = QMacCGContext(pixmap);
         ctx = static_cast<CGContextRef>(q_ctx);
@@ -697,7 +697,7 @@ void QFontEngineMac::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
         tags[arr] = kATSUCGContextTag;
         static QPixmap *pixmap = 0;
         if(!pixmap)
-            pixmap = new QPixmap(1, 1, 32);
+            pixmap = new QPixmap(1, 1);
         q_ctx = QMacCGContext(pixmap);
         CGContextRef ctx = static_cast<CGContextRef>(q_ctx);
         valueSizes[arr] = sizeof(ctx);

@@ -459,7 +459,10 @@ void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, co
             image.fill(qRgba(127, 0, 0, 127));
             tile = QPixmap::fromImage(image);
         } else {
-            tile = pixmap.depth() == 1 ? QPixmap(tw, th) : QBitmap(tw, th);
+            if (pixmap.depth() == 1)
+                tile = QBitmap(tw, th);
+            else
+                tile = QPixmap(tw, th);
         }
         qt_fill_tile(&tile, pixmap);
         qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), tile, p.x(), p.y());

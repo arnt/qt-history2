@@ -590,7 +590,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
             d->offy + qRound(r.y() + r.height()));
     if(maskbits) {
         if(d->pdev->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
-            QPixmap tmppix(qRound(r.width()), qRound(r.height()), pm.depth());
+            QPixmap tmppix = pm.depth() == 1 ? QPixmap(QBitmap(qRound(r.width()), qRound(r.height()))) : QPixmap(qRound(r.width()), qRound(r.height()));
             Rect pixr;
             SetRect(&pixr, 0, 0, qRound(r.width()), qRound(r.height()));
             const BitMap *pixbits = GetPortBitMapForCopyBits((GWorldPtr)tmppix.macQDHandle());

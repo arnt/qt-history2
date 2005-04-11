@@ -568,7 +568,7 @@ QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const QString &m
     PictInfo pinfo;
     if(GetPictInfo(pic, &pinfo, 0, 0, 0, 0) == noErr) {
         QPixmap px(pinfo.sourceRect.right - pinfo.sourceRect.left,
-                   pinfo.sourceRect.bottom - pinfo.sourceRect.top, 32);
+                   pinfo.sourceRect.bottom - pinfo.sourceRect.top);
         {
             Rect r; SetRect(&r, 0, 0, px.width(), px.height());
             QMacSavedPortInfo pi(&px);
