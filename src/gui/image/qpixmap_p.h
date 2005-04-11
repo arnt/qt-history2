@@ -34,12 +34,11 @@
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS)
 
 struct QPixmapData { // internal pixmap data
-    QPixmapData() : count(1), bitmap(false) { }
+    QPixmapData() : count(1) { }
     ~QPixmapData(){};
     void ref() { ++count; }
     bool deref() { return !--count; }
     int count;
-    bool bitmap;
     QImage image;
 
     QImage createBitmapImage(int w, int h);
@@ -58,7 +57,6 @@ struct QPixmapData { // internal pixmap data
     int w, h;
     short d;
     uint uninit:1;
-    uint bitmap:1;
     int ser_no;
 #if !defined(Q_WS_X11) && !defined(Q_WS_MAC)
     QBitmap *mask;

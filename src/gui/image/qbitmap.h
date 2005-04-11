@@ -22,29 +22,59 @@ class Q_GUI_EXPORT QBitmap : public QPixmap
 {
 public:
     QBitmap();
-    QBitmap(int w, int h, bool clear = false);
-    explicit QBitmap(const QSize &, bool clear = false);
-    QBitmap(int w, int h, const uchar *bits, bool isXbitmap=false);
-    QBitmap(const QSize &, const uchar *bits, bool isXbitmap=false);
-    QBitmap(const QBitmap &);
     QBitmap(const QPixmap &);
+    QBitmap(int w, int h);
+    explicit QBitmap(const QSize &);
 #ifndef QT_NO_IMAGEIO
     explicit QBitmap(const QString &fileName, const char *format=0);
 #endif
-    QBitmap &operator=(const QBitmap &);
+    ~QBitmap();
+
     QBitmap &operator=(const QPixmap &);
     operator QVariant() const;
 
+    inline void clear() { fill(Qt::color0); }
+
     static QBitmap fromImage(const QImage &image, Qt::ImageConversionFlags flags = Qt::AutoColor);
+    static QBitmap fromData(const QSize &size, const uchar *bits, QSysInfo::Endian endian = QSysInfo::BigEndian);
+
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
     QBitmap transformed(const QMatrix &) const;
 #ifdef QT3_SUPPORT
+    inline QT3_SUPPORT_CONSTRUCTOR QBitmap(int w, int h, bool clear);
+    inline QT3_SUPPORT_CONSTRUCTOR QBitmap(const QSize &, bool clear);
+    inline QT3_SUPPORT_CONSTRUCTOR QBitmap(int w, int h, const uchar *bits, bool isXbitmap=false);
+    inline QT3_SUPPORT_CONSTRUCTOR QBitmap(const QSize &, const uchar *bits, bool isXbitmap=false);
     inline QT3_SUPPORT QBitmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
     QT3_SUPPORT_CONSTRUCTOR QBitmap(const QImage &image) { *this = fromImage(image); }
-    QT3_SUPPORT QBitmap &operator=(const QImage  &image) { *this = fromImage(image); return *this; }
+    QT3_SUPPORT QBitmap &operator=(const QImage &image) { *this = fromImage(image); return *this; }
 #endif
 #endif
 };
 Q_DECLARE_SHARED(QBitmap);
+
+#ifdef QT3_SUPPORT
+inline QBitmap::QBitmap(int w, int h, bool clear)
+    : QPixmap(QSize(w, h), BitmapType)
+{
+    if (clear) this->clear();
+}
+
+inline QBitmap::QBitmap(const QSize &size, bool clear)
+    : QPixmap(size, BitmapType)
+{
+    if (clear) this->clear();
+}
+
+inline QBitmap::QBitmap(int w, int h, const uchar *bits, bool isXbitmap)
+{
+    *this = fromData(QSize(w, h), bits, isXbitmap ? QSysInfo::LittleEndian : QSysInfo::BigEndian);
+}
+
+inline QBitmap::QBitmap(const QSize &size, const uchar *bits, bool isXbitmap)
+{
+    *this = fromData(size, bits, isXbitmap ? QSysInfo::LittleEndian : QSysInfo::BigEndian);
+}
+#endif
 
 #endif // QBITMAP_H

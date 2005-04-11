@@ -1049,8 +1049,8 @@ QPixmap CursorProperty::cursorPixmap(int shape)
     case Qt::SizeAllCursor: return QPixmap(":/trolltech/formeditor/images/cursors/sizeall.png");
     case Qt::BlankCursor:
     {
-        QBitmap cur = QBitmap(25, 25, 1);
-        cur.setMask(cur);
+        QBitmap cur = QBitmap(25, 25);
+        cur.clear();
         return cur;
     }
     case Qt::SplitVCursor: return QPixmap(":/trolltech/formeditor/images/cursors/vsplit.png");

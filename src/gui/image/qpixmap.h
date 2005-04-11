@@ -32,8 +32,8 @@ class Q_GUI_EXPORT QPixmap : public QPaintDevice
 {
 public:
     QPixmap();
-    QPixmap(int w, int h, int depth = -1);
-    QPixmap(const QSize &, int depth = -1);
+    QPixmap(int w, int h);
+    QPixmap(const QSize &);
 #ifndef QT_NO_IMAGEIO
     QPixmap(const QString& fileName, const char *format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
 #endif
@@ -97,7 +97,7 @@ public:
 #ifndef QT_NO_IMAGEIO
     bool load(const QString& fileName, const char *format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
     bool loadFromData(const uchar *buf, uint len, const char* format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
-    bool loadFromData(const QByteArray &data, const char* format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
+    inline bool loadFromData(const QByteArray &data, const char* format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
     bool save(const QString& fileName, const char* format, int quality = -1) const;
     bool save(QIODevice* device, const char* format, int quality = -1) const;
 #endif
@@ -115,7 +115,7 @@ public:
     bool isDetached() const;
     void detach();
 
-    bool isQBitmap() const;
+    inline bool isQBitmap() const { return depth() == 1; }
 
 #if defined(Q_WS_QWS)
     virtual const uchar * qwsScanLine(int) const;
@@ -141,10 +141,11 @@ public:
 
     inline bool operator!() const { return isNull(); }
 
-    Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
-
+protected:
+    int metric(PaintDeviceMetric) const;
 
 #ifdef QT3_SUPPORT
+public:
 #ifndef QT_NO_IMAGEIO
     enum ColorMode { Auto, Color, Mono };
     QT3_SUPPORT_CONSTRUCTOR QPixmap(const QString& fileName, const char *format, ColorMode mode);
@@ -160,7 +161,6 @@ public:
     inline QT3_SUPPORT operator QImage() const { return toImage(); }
     inline QT3_SUPPORT QPixmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
     inline QT3_SUPPORT bool selfMask() const { return false; }
-
 private:
     void resize_helper(const QSize &s);
 public:
@@ -168,22 +168,21 @@ public:
     inline QT3_SUPPORT void resize(int width, int height) { resize_helper(QSize(width, height)); }
 #endif
 
-protected:
-    QPixmap(int w, int h, const uchar *data, bool isXbitmap);
-    int metric(PaintDeviceMetric) const;
-
 private:
     QPixmapData *data;
-private:
+
 #ifndef QT_NO_IMAGEIO
     bool doImageIO(QImageWriter *io, int quality) const;
 #endif
-    QPixmap(int w, int h, int depth, bool);
-    void init(int, int, int, bool);
+    enum Type { PixmapType, BitmapType };
+    QPixmap(const QSize &s, Type);
+
+    void init(int, int, Type = PixmapType);
     void deref();
 #if defined(Q_WS_WIN)
     void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
 #endif
+    Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 #ifdef Q_WS_MAC
     friend CGContextRef qt_mac_cg_context(const QPaintDevice *);
     friend IconRef qt_mac_create_iconref(const QPixmap &);
@@ -206,6 +205,12 @@ Q_DECLARE_SHARED(QPixmap)
 inline QPixmap QPixmap::copy(int x, int y, int width, int height) const
 {
     return copy(QRect(x, y, width, height));
+}
+
+inline bool QPixmap::loadFromData(const QByteArray &buf, const char *format,
+                                  Qt::ImageConversionFlags flags)
+{
+    return loadFromData((const uchar *)buf.constData(), buf.size(), format, flags);
 }
 
 /*****************************************************************************

@@ -48,29 +48,6 @@ static void qt_mac_cgimage_data_free(void *, const void *data, size_t)
 /*****************************************************************************
   QPixmap member functions
  *****************************************************************************/
-QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
-    : QPaintDevice()
-{
-    init(w, h, 1, true);
-
-    uint *dptr = data->pixels, *drow, q;
-    const uint bytesPerRow = data->nbytes / h;
-    for(int yy=0;yy<h;yy++) {
-        drow = (uint *)((char *)dptr + (yy * bytesPerRow));
-        int sy = yy * ((w+7)/8);
-        for(int xx=0;xx<w;xx++) {
-            char one_bit = *(bits + (sy + (xx / 8)));
-            if(!isXbitmap)
-                one_bit = one_bit >> (7 - (xx % 8));
-            else
-                one_bit = one_bit >> (xx % 8);
-            q = 0;
-            if(!(one_bit & 0x01))
-                q = (255 << 16) | (255 << 8) | 255;
-            *(drow + xx) = q;
-        }
-    }
-}
 
 static inline QRgb qt_conv16ToRgb(ushort c) {
     static const int qt_rbits = (565/100);
@@ -548,28 +525,20 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 }
 
 
-void QPixmap::init(int w, int h, int d, bool bitmap)
+void QPixmap::init(int w, int h, Type type)
 {
     if (qApp->type() == QApplication::Tty)
         qWarning("QPixmap: Cannot create a QPixmap when no GUI "
                   "is being used");
 
-    if(d != 32 && d != 1)
-        d = 32; //magic number.. we always use a 32 bit depth for non-bitmaps
 
     data = new QPixmapData;
     memset(data, 0, sizeof(QPixmapData));
     data->count = 1;
     data->uninit = true;
-    data->bitmap = bitmap;
     data->ser_no = ++qt_pixmap_serial;
 
-    int dd = 32; //magic number? 32 seems to be default?
     bool make_null = w == 0 || h == 0;                // create null pixmap
-    if(d == 1)                                // monocrome pixmap
-        data->d = 1;
-    else if(d < 0 || d == dd)                // def depth pixmap
-        data->d = dd;
     if(make_null || w < 0 || h < 0 || data->d == 0) {
         if(!make_null)
             qWarning("Qt: QPixmap: Invalid pixmap parameters");
@@ -580,6 +549,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
         return;
     data->w=w;
     data->h=h;
+    data->d = (Type == PixmapType) ? 32 : 1;
 
     //create the pixels
     data->nbytes = (w*h*4) + (h*4); // ### testing for alignment --Sam

@@ -3122,7 +3122,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         QPixmap source;
         if(sx != 0 || sy != 0 || sw != pm.width() || sh != pm.height()) {
-            source = QPixmap(qRound(sw), qRound(sh), pm.depth());
+            source = pm.depth() == 1 ? QPixmap(qRound(sw), qRound(sh)) : QBitmap(qRound(sw), qRound(sh));
             source.fill(QColor(0, 0, 0, 0));
             QPainter p(&source);
             // ### CompositionMode to Source
@@ -3611,7 +3611,8 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
         p.end();
         if (backgroundMode() == Qt::TransparentMode && pixmap.depth() == 1) {
-            QBitmap mask(pm.width(), pm.height(), true);
+            QBitmap mask(pm.width(), pm.height());
+            mask.clear();
             p.begin(&mask);
             p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
             p.end();

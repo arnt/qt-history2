@@ -52,19 +52,6 @@
 */
 
 /*!
-    \internal
-
-    Private constructor that takes the bitmap flag and a screen.
-*/
-
-QPixmap::QPixmap(int w, int h, int depth, bool bitmap)
-    : QPaintDevice()
-{
-    init(w, h, depth, bitmap);
-}
-
-
-/*!
     Constructs a null pixmap.
 
     \sa isNull()
@@ -73,12 +60,11 @@ QPixmap::QPixmap(int w, int h, int depth, bool bitmap)
 QPixmap::QPixmap()
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
 }
 
 /*!
-    Constructs a pixmap with \a w width, \a h height and \a depth bits
-    per pixel.
+    Constructs a pixmap with \a w width, \a h height.
 
     The contents of the pixmap is uninitialized.
 
@@ -91,22 +77,30 @@ QPixmap::QPixmap()
     \sa isNull()
 */
 
-QPixmap::QPixmap(int w, int h, int depth)
+QPixmap::QPixmap(int w, int h)
     : QPaintDevice()
 {
-    init(w, h, depth, false);
+    init(w, h);
 }
 
 /*!
     \overload
 
-    Constructs a pixmap of size \a size, \a depth bits per pixel.
+    Constructs a pixmap of size \a size.
 */
 
-QPixmap::QPixmap(const QSize &size, int depth)
+QPixmap::QPixmap(const QSize &size)
     : QPaintDevice()
 {
-    init(size.width(), size.height(), depth, false);
+    init(size.width(), size.height());
+}
+
+/*!
+  \internal
+*/
+QPixmap::QPixmap(const QSize &s, Type type)
+{
+    init(s.width(), s.height(), type);
 }
 
 #ifndef QT_NO_IMAGEIO
@@ -137,7 +131,7 @@ QPixmap::QPixmap(const QSize &size, int depth)
 QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
     load(fileName, format, flags);
 }
 #endif //QT_NO_IMAGEIO
@@ -184,7 +178,7 @@ QPixmap::QPixmap(const QPixmap &pixmap)
 QPixmap::QPixmap(const char * const xpm[])
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
 
     QImage image(xpm);
     if (!image.isNull())
@@ -313,10 +307,6 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     Returns true if this is a QBitmap; otherwise returns false.
 */
-bool QPixmap::isQBitmap() const
-{
-    return data->bitmap;
-}
 
 /*!
     \fn bool QPixmap::isNull() const
@@ -410,18 +400,14 @@ void QPixmap::resize_helper(const QSize &s)
 {
     int w = s.width();
     int h = s.height();
-    if (w < 1 || h < 1) {                        // becomes null
-        QPixmap pm(0, 0, 0, data->bitmap);
-        *this = pm;
+    if (w < 1 || h < 1) {
+        *this = QPixmap();
         return;
     }
-    int d;
-    if (data->d > 0)
-        d = data->d;
-    else
-        d = data->bitmap ? 1 : -1;
+
+    int d = data->d;
     // Create new pixmap
-    QPixmap pm(w, h, d, data->bitmap);
+    QPixmap pm(QSize(w, h), d == 1 ? PixmapType : BitmapType);
 #ifdef Q_WS_X11
     pm.x11SetScreen(data->xinfo.screen());
 #endif // Q_WS_X11
@@ -602,14 +588,9 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::I
 }
 
 /*!
+  \fn bool QPixmap::loadFromData(const QByteArray &buf, const char *format, Qt::ImageConversionFlags flags)
     \overload
 */
-
-bool QPixmap::loadFromData(const QByteArray &buf, const char *format,
-                           Qt::ImageConversionFlags flags)
-{
-    return loadFromData((const uchar *)buf.constData(), buf.size(), format, flags);
-}
 
 
 /*!
@@ -851,7 +832,7 @@ static Qt::ImageConversionFlags colorModeToFlags(QPixmap::ColorMode mode)
 QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
     load(fileName, format, colorModeToFlags(mode));
 }
 
@@ -864,7 +845,7 @@ QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
 QPixmap::QPixmap(const QImage& image)
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
     *this = fromImage(image);
 }
 

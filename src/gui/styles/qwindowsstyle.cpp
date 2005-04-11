@@ -2067,8 +2067,10 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 if (!verticalLine) {
                     // make 128*1 and 1*128 bitmaps that can be used for
                     // drawing the right sort of lines.
-                    verticalLine = new QBitmap(1, 129, true);
-                    horizontalLine = new QBitmap(128, 1, true);
+                    verticalLine = new QBitmap(1, 129);
+                    verticalLine->clear();
+                    horizontalLine = new QBitmap(128, 1);
+                    horizontalLine->clear();
                     QPolygon a(64);
                     QPainter p;
                     p.begin(verticalLine);

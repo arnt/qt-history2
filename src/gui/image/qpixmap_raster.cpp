@@ -31,43 +31,36 @@
 #include "qimagewriter.h"
 #include "qdebug.h"
 
-QPixmap::QPixmap(int w, int h, int depth, bool bitmap)
-    : QPaintDevice()
-{
-    init(w, h, depth, bitmap);
-}
-
 QPixmap::QPixmap()
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
 }
 
 QPixmap::QPixmap(const QImage& image)
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
     *this = fromImage(image);
 }
 
-QPixmap::QPixmap(int w, int h, int depth)
+QPixmap::QPixmap(int w, int h)
     : QPaintDevice()
 {
-    init(w, h, depth, false);
+    init(w, h);
 }
 
-QPixmap::QPixmap(const QSize &size, int depth)
+QPixmap::QPixmap(const QSize &size)
     : QPaintDevice()
 {
-    init(size.width(), size.height(), depth, false);
+    init(size.width(), size.height());
 }
 
 #ifndef QT_NO_IMAGEIO
-QPixmap::QPixmap(const QString& fileName, const char *format,
-                 Qt::ImageConversionFlags flags)
+QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
     load(fileName, format, flags);
 }
 #endif //QT_NO_IMAGEIO
@@ -87,7 +80,7 @@ QPixmap::QPixmap(const QPixmap &pixmap)
 QPixmap::QPixmap(const char * const xpm[])
     : QPaintDevice()
 {
-    init(0, 0, 0, false);
+    init(0, 0);
 
     QImage image(xpm);
     if (!image.isNull())
@@ -452,14 +445,14 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
 bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConversionFlags flags )
 {
     QFileInfo info(fileName);
-    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') + QString::number(data->bitmap);
+    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') + QString::number(depth());
 
     if (QPixmapCache::find(key, *this))
             return true;
     QImage image = QImageReader(fileName, format).read();
 
     if (!image.isNull()) {
-        *this = data->bitmap ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
+        *this = depth() == 1 ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
         if (!isNull()) {
             QPixmapCache::insert(key, *this);
             return true;
@@ -476,7 +469,7 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char* format, Qt::I
 
     QImage image = QImageReader(&b, format).read();
     if (!image.isNull())
-        *this = data->bitmap ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
+        *this = depth() == 1 ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
     return !isNull();
 }
 
@@ -517,11 +510,6 @@ void QPixmap::detach()
         *this = copy();
 }
 
-bool QPixmap::isQBitmap() const
-{
-    return depth() == 1;
-}
-
 #ifdef QT3_SUPPORT
 static Qt::ImageConversionFlags colorModeToFlags(QPixmap::ColorMode mode)
 {
@@ -556,18 +544,6 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 }
 #endif // QT3_SUPPORT
 
-QPixmap::QPixmap(int w, int h, const uchar *bits, bool)
-    : QPaintDevice()
-{
-    init(w, h, 1, false);
-
-    // Need to memcpy each line separatly since QImage is 32bit aligned and
-    // this data is only byte aligned...
-    int bytesPerLine = (w + 7) / 8;
-    for (int y=0; y<h; ++y)
-        memcpy(data->image.scanLine(y), bits + bytesPerLine * y, bytesPerLine);
-}
-
 int QPixmap::metric(PaintDeviceMetric metric) const
 {
     return data->image.metric(metric);
@@ -582,15 +558,10 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
     return writer->write(toImage());
 }
 
-void QPixmap::init(int w, int h, int d, bool)
+void QPixmap::init(int w, int h, Type type)
 {
-    if (d <= 0)
-        d = 32;
-
-    Q_ASSERT(d == 1 || d == 32);
-
     data = new QPixmapData;
-    data->image = QImage(w, h, QImage::Format_RGB32);
+    data->image = QImage(w, h, type == Pixmap ? QImage::Format_RGB32 : QImage::Format_MonoLSB);
 }
 
 void QPixmap::deref()

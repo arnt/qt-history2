@@ -179,18 +179,6 @@ static bool qt_create_mitshm_buffer(const QPaintDevice* dev, int w, int h)
 
 extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
 
-static uchar *flip_bits(const uchar *bits, int len)
-{
-    register const uchar *p = bits;
-    const uchar *end = p + len;
-    uchar *newdata = new uchar[len];
-    uchar *b = newdata;
-    const uchar *f = qt_get_bitflip_array();
-    while (p < end)
-        *b++ = f[*p++];
-    return newdata;
-}
-
 // Returns position of highest bit set or -1 if none
 static int highest_bit(uint v)
 {
@@ -270,7 +258,7 @@ static int qt_pixmap_serial = 0;
   \internal
   Initializes the pixmap data.
 */
-void QPixmap::init(int w, int h, int d, bool bitmap)
+void QPixmap::init(int w, int h, Type type)
 {
     if (qApp->type() == QApplication::Tty) {
         qWarning("QPixmap: Cannot create a QPixmap when no GUI "
@@ -281,7 +269,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
     memset(data, 0, sizeof(QPixmapData));
     data->count  = 1;
     data->uninit = true;
-    data->bitmap = bitmap;
     data->ser_no = ++qt_pixmap_serial;
     data->picture = 0;
     data->x11_mask = 0;
@@ -301,10 +288,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
     int dd = ((X11->use_xrender) ? 32 : data->xinfo.depth());
 
     bool make_null = w == 0 || h == 0;                // create null pixmap
-    if (d == 1)                                // monocrome pixmap
-        data->d = 1;
-    else if (d < 0 || d == dd)                // def depth pixmap
-        data->d = dd;
+    data->d = (type == PixmapType) ? dd : 1;
     if (make_null || w < 0 || h < 0 || data->d == 0) {
         data->hd = 0;
         data->picture = 0;
@@ -352,45 +336,6 @@ QPixmapData::~QPixmapData()
         hd = 0;
     }
     delete paintEngine;
-}
-
-/*!
-    Constructs a monochrome pixmap, with width \a w and height \a h,
-    that is initialized with the data in \a bits. The \a isXbitmap
-    indicates whether the data is an X bitmap and defaults to false.
-    This constructor is protected and used by the QBitmap class.
-*/
-
-QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
-    : QPaintDevice()
-{                                                // for bitmaps only
-    init(0, 0, 0, false);
-    if (w <= 0 || h <= 0)                        // create null pixmap
-        return;
-
-    data->uninit = false;
-    data->w = w;
-    data->h = h;
-    data->d = 1;
-    uchar *flipped_bits;
-    if (isXbitmap) {
-        flipped_bits = 0;
-    } else {                                        // not X bitmap -> flip bits
-        flipped_bits = flip_bits(bits, ((w+7)/8)*h);
-        bits = flipped_bits;
-    }
-    data->hd = (Qt::HANDLE)XCreateBitmapFromData(data->xinfo.display(),
-					     RootWindow(data->xinfo.display(), data->xinfo.screen()),
-					     (char *)bits, w, h);
-
-#ifndef QT_NO_XRENDER
-    if (X11->use_xrender)
-        data->picture = (Qt::HANDLE) XRenderCreatePicture(X11->display, data->hd,
-                                                          XRenderFindStandardFormat(X11->display, PictStandardA1), 0, 0);
-#endif // QT_NO_XRENDER
-
-    if (flipped_bits)                                // Avoid purify complaint
-        delete [] flipped_bits;
 }
 
 
@@ -920,9 +865,6 @@ QImage QPixmap::toImage() const
     The \a flags argument is a bitwise-OR of the
     \l{Qt::ImageConversionFlags}. Passing 0 for \a flags sets all the
     default options.
-
-    Note that even though a QPixmap with depth 1 behaves much like a
-    QBitmap, isQBitmap() returns false.
 
     If a pixmap with depth 1 is painted with Qt::color0 and Qt::color1 and
     converted to an image, the pixels painted with Qt::color0 will produce
@@ -1843,11 +1785,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     bool invertible;
     mat = mat.inverted(&invertible);                // invert matrix
 
-    if (h == 0 || w == 0 || !invertible) {        // error, return null pixmap
-        QPixmap pm;
-        pm.data->bitmap = data->bitmap;
-        return pm;
-    }
+    if (h == 0 || w == 0 || !invertible)
+        return QPixmap();
 
     if (mode == Qt::SmoothTransformation) {
         QImage image = toImage();
@@ -1868,11 +1807,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     XImage *xi = XGetImage(data->xinfo.display(), handle(), 0, 0, ws, hs, AllPlanes,
                            depth1 ? XYPixmap : ZPixmap);
 
-    if (!xi) {                                // error, return null pixmap
-        QPixmap pm;
-        pm.data->bitmap = data->bitmap;
-        return pm;
-    }
+    if (!xi)
+        return QPixmap();
 
     sbpl = xi->bytes_per_line;
     sptr = (uchar *)xi->data;
@@ -1946,10 +1882,10 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     qSafeXDestroyImage(xi);
 
     if (depth1) {                                // mono bitmap
-        QPixmap pm(w, h, dptr, BitmapBitOrder(X11->display) != MSBFirst);
-        pm.data->bitmap = data->bitmap;
+        QBitmap bm = QBitmap::fromData(QSize(w, h), dptr,
+                                       BitmapBitOrder(X11->display) == MSBFirst ? QSysInfo::BigEndian : QSysInfo::LittleEndian);
         free(dptr);
-        return pm;
+        return bm;
     } else {                                        // color pixmap
         QPixmap pm(w, h);
         pm.data->uninit = false;

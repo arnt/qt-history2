@@ -1427,19 +1427,6 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     //save
     CGContextSaveGState(d->hd);
 
-    //setup
-    bool asMask = pm.isQBitmap() || pm.depth() == 1;
-    if(asMask) {     //set colour
-        if(d->pdev->devType() == QInternal::Pixmap && static_cast<QPixmap*>(d->pdev)->isQBitmap()) {
-            asMask = false; //if the destination is a bitmap no need for the colour tricks --Sam
-        } else {
-            const QColor &col = d->current.pen.color();
-            CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
-                                     qt_mac_convert_color_to_cg(col.green()),
-                                     qt_mac_convert_color_to_cg(col.blue()),
-                                     qt_mac_convert_color_to_cg(col.alpha()));
-        }
-    }
     //set clip
     QRegion rgn(r.toRect());
     qt_mac_clip_cg(d->hd, rgn, 0, 0);

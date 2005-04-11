@@ -895,7 +895,7 @@ public:
         WordSize = (sizeof(void *)<<3)
     };
 
-    enum {
+    enum Endian {
         BigEndian,
         LittleEndian
 
