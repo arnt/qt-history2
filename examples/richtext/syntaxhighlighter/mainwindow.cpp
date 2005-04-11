@@ -25,15 +25,18 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle(tr("Syntax Highlighter"));
 }
 
-void MainWindow::fileNew()
+void MainWindow::newFile()
 {
     editor->clear();
 }
 
-void MainWindow::fileOpen()
+void MainWindow::openFile(const QString &path)
 {
-    QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open File"), "", "qmake files (*.pro *.prf *.pri)");
+    QString fileName = path;
+
+    if (fileName.isNull())
+        fileName = QFileDialog::getOpenFileName(this,
+            tr("Open File"), "", "qmake files (*.pro *.prf *.pri)");
 
     if (!fileName.isEmpty()) {
         QFile file(fileName);
@@ -78,9 +81,9 @@ void MainWindow::setupFileMenu()
     QMenu *fileMenu = new QMenu(tr("&File"), this);
     menuBar()->addMenu(fileMenu);
 
-    fileMenu->addAction(tr("&New..."), this, SLOT(fileNew()),
+    fileMenu->addAction(tr("&New..."), this, SLOT(newFile()),
                         QKeySequence(tr("Ctrl+N", "File|New")));
-    fileMenu->addAction(tr("&Open..."), this, SLOT(fileOpen()),
+    fileMenu->addAction(tr("&Open..."), this, SLOT(openFile()),
                         QKeySequence(tr("Ctrl+O", "File|Open")));
     fileMenu->addAction(tr("E&xit"), qApp, SLOT(quit()),
                         QKeySequence(tr("Ctrl+Q", "File|Exit")));

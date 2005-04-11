@@ -27,9 +27,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
 
-private slots:
-    void fileNew();
-    void fileOpen();
+public slots:
+    void newFile();
+    void openFile(const QString &path = QString());
 
 private:
     void setupEditor();
