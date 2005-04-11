@@ -160,6 +160,8 @@ public:
     static inline QDir temp() { return QDir(tempPath()); }
     static QString tempPath();
 
+    static void addResourceSearchPath(const QString &path);
+
 #ifndef QT_NO_REGEXP
     bool match(const QStringList &filters, const QString &fileName);
     bool match(const QString &filter, const QString &fileName);

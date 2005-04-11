@@ -20,6 +20,7 @@
 #include <qstring.h>
 #include <qregexp.h>
 #include <qvector.h>
+#include <qresource.h>
 
 #include <stdlib.h>
 
@@ -1780,6 +1781,23 @@ void QDir::refresh() const
 QStringList QDir::nameFiltersFromString(const QString &nameFilter)
 {
     return QDirPrivate::splitFilters(nameFilter);
+}
+
+/*!
+    Adds \a path to the search paths searched in to find resources
+    that are not specified with an absolute path. The default search
+    path is to search only in the root (\c{:/}).
+
+    \sa {The Qt Resource System}
+*/
+
+void QDir::addResourceSearchPath(const QString &path)
+{
+#ifdef QT_BUILD_CORE_LIB
+    QResource::addSearchPath(path);
+#else
+    Q_UNUSED(path)
+#endif
 }
 
 #ifdef QT3_SUPPORT

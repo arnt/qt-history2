@@ -29,12 +29,10 @@ Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
 
 /*!
     \class QResource
-    \reentrant
-
     \brief The QResource class provides access to application resource data.
 
-    \ingroup io
-    \mainclass
+    \reentrant
+    \internal
 
     QResources are created and used internally although they can also
     be used for direct access to the application's current resources.
@@ -330,7 +328,7 @@ void QResource::addSearchPath(const QString &path)
 
 /* ******************** QMetaResource ***************** */
 /*!
-    \class QMetaResource qresource.h
+    \class QMetaResource
     \reentrant
 
     \brief The QMetaResource class is used to create QResource's from supplied data.
