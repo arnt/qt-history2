@@ -1268,10 +1268,12 @@ void FormWindow::raiseWidgets()
     beginCommand(tr("Raise"));
 
     QList<QWidget*> widgets = selectedWidgets();
-    foreach (QWidget *w, widgets) {
+    simplifySelection(&widgets);
+
+    foreach (QWidget *widget, widgets) {
         RaiseWidgetCommand *cmd = new RaiseWidgetCommand(this);
-        cmd->init(w);
-        m_commandHistory->push(cmd);
+        cmd->init(widget);
+        commandHistory()->push(cmd);
     }
 
     endCommand();
@@ -1282,10 +1284,12 @@ void FormWindow::lowerWidgets()
     beginCommand(tr("Lower"));
 
     QList<QWidget*> widgets = selectedWidgets();
-    foreach (QWidget *w, widgets) {
+    simplifySelection(&widgets);
+
+    foreach (QWidget *widget, widgets) {
         LowerWidgetCommand *cmd = new LowerWidgetCommand(this);
-        cmd->init(w);
-        m_commandHistory->push(cmd);
+        cmd->init(widget);
+        commandHistory()->push(cmd);
     }
 
     endCommand();
