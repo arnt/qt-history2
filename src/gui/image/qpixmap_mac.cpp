@@ -542,6 +542,7 @@ void QPixmap::init(int w, int h, Type type)
     data->ser_no = ++qt_pixmap_serial;
 
     bool make_null = w == 0 || h == 0;                // create null pixmap
+    data->d = (type == PixmapType) ? 32 : 1;
     if(make_null || w < 0 || h < 0 || data->d == 0) {
         if(!make_null)
             qWarning("Qt: QPixmap: Invalid pixmap parameters");
@@ -552,7 +553,6 @@ void QPixmap::init(int w, int h, Type type)
         return;
     data->w=w;
     data->h=h;
-    data->d = (type == PixmapType) ? 32 : 1;
 
     //create the pixels
     data->nbytes = (w*h*4) + (h*4); // ### testing for alignment --Sam
