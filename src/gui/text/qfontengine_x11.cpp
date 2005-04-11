@@ -925,7 +925,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
                 uc = QUnicodeTables::mirroredChar(uc);
             redo:
             glyph_t glyph = FT_Get_Char_Index(face, uc);
-                if (!glyph && uc == 0xa0) {
+                if (!glyph && (uc == 0xa0 || uc == 0x9)) {
                     uc = 0x20;
                     goto redo;
                 }
