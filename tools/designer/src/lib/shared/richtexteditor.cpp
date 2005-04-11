@@ -10,6 +10,9 @@
 #include <QtGui/QMoveEvent>
 #include <QtGui/QTextDocument>
 #include <QtGui/QTextBlock>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QPushButton>
 
 #include <QtCore/qdebug.h>
 
@@ -115,8 +118,7 @@ RichTextEditorToolBar::RichTextEditorToolBar(RichTextEditor *editor,
                 this, SLOT(colorInputActivated(const QString&)));
     addWidget(m_color_input);
 
-    connect(editor, SIGNAL(currentCharFormatChanged(const QTextCharFormat&)),
-                this, SLOT(updateActions()));
+    connect(editor, SIGNAL(textChanged()), this, SLOT(updateActions()));
 
     updateActions();
 }
@@ -184,17 +186,13 @@ void RichTextEditorToolBar::updateActions()
 RichTextEditor::RichTextEditor(QWidget *parent)
     : QTextEdit(parent)
 {
-    m_format = Qt::RichText;
-    m_tool_bar = new RichTextEditorToolBar(this, this);
-    m_tool_bar->setWindowFlags(Qt::Tool);
-    m_tool_bar->show();
-    connect(document(), SIGNAL(contentsChanged()),
-                this, SLOT(contentsChanged()));
+    connect(this, SIGNAL(currentCharFormatChanged(const QTextCharFormat&)),
+                this, SIGNAL(textChanged()));
 }
 
-void RichTextEditor::setFormat(Qt::TextFormat format)
+QToolBar *RichTextEditor::createToolBar(QWidget *parent)
 {
-    m_format = format;
+    return new RichTextEditorToolBar(this, parent);
 }
 
 void RichTextEditor::setFontBold(bool b)
@@ -210,15 +208,6 @@ void RichTextEditor::setFontPointSize(double d)
     QTextEdit::setFontPointSize(qreal(d));
 }
 
-void RichTextEditor::moveEvent(QMoveEvent *e)
-{
-    QTextEdit::moveEvent(e);
-    if (m_tool_bar == 0)
-        return;
-    m_tool_bar->move(mapToGlobal(QPoint(0, 0))
-                                + QPoint(0, -m_tool_bar->frameSize().height()*3));
-}
-
 void RichTextEditor::setText(const QString &text)
 {
     setHtml(text);
@@ -228,7 +217,7 @@ void RichTextEditor::setDefaultFont(const QFont &font)
 {
     document()->setDefaultFont(font);
     setFontPointSize(font.pointSize());
-    m_tool_bar->updateActions();
+    emit textChanged();
 }
 
 Qt::TextFormat RichTextEditor::detectFormat() const
@@ -250,20 +239,49 @@ Qt::TextFormat RichTextEditor::detectFormat() const
     return result;
 };
 
-void RichTextEditor::contentsChanged()
+QString RichTextEditor::text(Qt::TextFormat format) const
 {
     bool richtext = true;
 
-    if (m_format == Qt::PlainText)
+    if (format == Qt::PlainText)
         richtext = false;
-    else if (m_format != Qt::RichText)
+    else if (format != Qt::RichText)
         richtext = detectFormat() == Qt::RichText;
 
     if (richtext)
-        emit textChanged(toHtml());
+        return toHtml();
     else
-        emit textChanged(toPlainText());
+        return toPlainText();
+}
 
+RichTextEditorDialog::RichTextEditorDialog(QWidget *parent)
+    : QDialog(parent)
+{
+    setWindowTitle(tr("Edit text"));
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(1);
+    m_editor = new RichTextEditor(this);
+    QToolBar *tool_bar = m_editor->createToolBar(this);
+    layout->addWidget(tool_bar);
+    layout->addWidget(m_editor);
+
+    QHBoxLayout *layout2 = new QHBoxLayout;
+    layout->addLayout(layout2);
+
+    layout2->addStretch();
+    QPushButton *cancel_button = new QPushButton(tr("&Cancel"), this);
+    layout2->addWidget(cancel_button);
+    connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
+    QPushButton *ok_button = new QPushButton(tr("&Ok"), this);
+    layout2->addWidget(ok_button);
+    connect(ok_button, SIGNAL(clicked()), this, SLOT(accept()));
+    ok_button->setDefault(true);
+}
+
+RichTextEditor *RichTextEditorDialog::editor()
+{
+    return m_editor;
 }
 
 #include "richtexteditor.moc"

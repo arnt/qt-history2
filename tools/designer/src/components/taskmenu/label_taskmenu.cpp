@@ -56,26 +56,18 @@ void LabelTaskMenu::editText()
 {
     m_formWindow = QDesignerFormWindowInterface::findFormWindow(m_label);
     if (!m_formWindow.isNull()) {
-        RichTextEditor *editor = new RichTextEditor(m_formWindow);
-        connect(m_formWindow, SIGNAL(selectionChanged()), editor, SLOT(deleteLater()));
-
+        RichTextEditorDialog *dlg = new RichTextEditorDialog(m_formWindow);
         Q_ASSERT(m_label->parentWidget() != 0);
-        editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
+        RichTextEditor *editor = dlg->editor();
 
-        editor->setText(m_label->text());
-        editor->setFormat(m_label->textFormat());
         editor->setDefaultFont(m_label->font());
+        editor->setText(m_label->text());
         editor->selectAll();
-        connect(editor, SIGNAL(textChanged(const QString &)), this,
-                    SLOT(updateText(const QString&)));
 
-        QStyleOption opt;
-        opt.init(m_label);
-        QRect r = opt.rect;
-
-        editor->setGeometry(QRect(m_label->mapTo(m_label->window(), r.topLeft()), r.size()));
-        editor->setFocus();
-        editor->show();
+        if (dlg->exec()) {
+            QString text = editor->text(m_label->textFormat());
+            m_formWindow->cursor()->setWidgetProperty(m_label, QLatin1String("text"), QVariant(text));
+        }
     }
 }
 
