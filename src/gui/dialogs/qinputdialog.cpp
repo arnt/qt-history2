@@ -130,9 +130,8 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     functions can be used in a similar way, for example:
     \code
     bool ok;
-    QString text = QInputDialog::getText(
-            "MyApp 3000", "Enter your name:", QLineEdit::Normal,
-            QString(), &ok, this);
+    QString text = QInputDialog::getText(this,
+            "MyApp 3000", "Enter your name:", QLineEdit::Normal, "", &ok);
     if (ok && !text.isEmpty()) {
         // user entered something and pressed OK
     } else {
@@ -305,7 +304,7 @@ QInputDialog::~QInputDialog()
 
 /*!
     Static convenience function to get a string from the user. \a
-    caption is the text which is displayed in the title bar of the
+    title is the text which is displayed in the title bar of the
     dialog. \a label is the text which is shown to the user (it should
     say what should be entered). \a text is the default text which is
     placed in the line edit. The \a mode is the echo mode the line
@@ -322,8 +321,7 @@ QInputDialog::~QInputDialog()
     \code
     bool ok;
     QString text = QInputDialog::getText(this,
-            "MyApp 3000", "Enter your name:", QLineEdit::Normal,
-            QString(), &ok);
+            "MyApp 3000", "Enter your name:", QLineEdit::Normal, "", &ok);
     if (ok && !text.isEmpty()) {
         // user entered something and pressed OK
     } else {
@@ -332,7 +330,7 @@ QInputDialog::~QInputDialog()
     \endcode
 */
 
-QString QInputDialog::getText(QWidget *parent, const QString &caption, const QString &label,
+QString QInputDialog::getText(QWidget *parent, const QString &title, const QString &label,
                                QLineEdit::EchoMode mode, const QString &text,
                                bool *ok, Qt::WFlags f)
 {
@@ -340,7 +338,7 @@ QString QInputDialog::getText(QWidget *parent, const QString &caption, const QSt
     dlg->setObjectName("qt_inputdlg_gettext");
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setWindowTitle(caption);
+    dlg->setWindowTitle(title);
 #endif
     dlg->lineEdit()->setText(text);
     dlg->lineEdit()->setEchoMode(mode);
@@ -359,7 +357,7 @@ QString QInputDialog::getText(QWidget *parent, const QString &caption, const QSt
 
 /*!
     Static convenience function to get an integer input from the
-    user. \a caption is the text which is displayed in the title bar
+    user. \a title is the text which is displayed in the title bar
     of the dialog.  \a label is the text which is shown to the user
     (it should say what should be entered). \a value is the default
     integer which the spinbox will be set to.  \a minValue and \a
@@ -389,7 +387,7 @@ QString QInputDialog::getText(QWidget *parent, const QString &caption, const QSt
     \endcode
 */
 
-int QInputDialog::getInteger(QWidget *parent, const QString &caption, const QString &label,
+int QInputDialog::getInteger(QWidget *parent, const QString &title, const QString &label,
                              int value, int minValue, int maxValue, int step, bool *ok,
                              Qt::WFlags f)
 {
@@ -397,7 +395,7 @@ int QInputDialog::getInteger(QWidget *parent, const QString &caption, const QStr
     dlg.setObjectName("qt_inputdlg_getint");
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg.setWindowTitle(caption);
+    dlg.setWindowTitle(title);
 #endif
     dlg.spinBox()->setRange(minValue, maxValue);
     dlg.spinBox()->setSingleStep(step);
@@ -411,7 +409,7 @@ int QInputDialog::getInteger(QWidget *parent, const QString &caption, const QStr
 
 /*!
     Static convenience function to get a floating point number from
-    the user. \a caption is the text which is displayed in the title
+    the user. \a title is the text which is displayed in the title
     bar of the dialog. \a label is the text which is shown to the user
     (it should say what should be entered). \a value is the default
     floating point number that the line edit will be set to. \a
@@ -442,14 +440,14 @@ int QInputDialog::getInteger(QWidget *parent, const QString &caption, const QStr
     \endcode
 */
 
-double QInputDialog::getDouble( QWidget *parent, const QString &caption, const QString &label,
+double QInputDialog::getDouble( QWidget *parent, const QString &title, const QString &label,
                                 double value, double minValue, double maxValue,
                                 int decimals, bool *ok, Qt::WFlags f)
 {
     QInputDialog dlg(label, parent, LineEdit, f);
     dlg.setObjectName("qt_inputdlg_getdbl");
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg.setWindowTitle(caption);
+    dlg.setWindowTitle(title);
 #endif
     dlg.lineEdit()->setValidator(new QDoubleValidator(minValue, maxValue, decimals, dlg.lineEdit()));
     dlg.lineEdit()->setText(QString::number(value, 'f', decimals));
@@ -463,7 +461,7 @@ double QInputDialog::getDouble( QWidget *parent, const QString &caption, const Q
 
 /*!
     Static convenience function to let the user select an item from a
-    string list. \a caption is the text which is displayed in the title
+    string list. \a title is the text which is displayed in the title
     bar of the dialog. \a label is the text which is shown to the user (it
     should say what should be entered). \a list is the
     string list which is inserted into the combobox, and \a current is the number
@@ -495,13 +493,13 @@ double QInputDialog::getDouble( QWidget *parent, const QString &caption, const Q
     \endcode
 */
 
-QString QInputDialog::getItem(QWidget *parent, const QString &caption, const QString &label, const QStringList &list,
+QString QInputDialog::getItem(QWidget *parent, const QString &title, const QString &label, const QStringList &list,
                                int current, bool editable, bool *ok, Qt::WFlags f)
 {
     QInputDialog *dlg = new QInputDialog(label, parent, editable ? EditableComboBox : ComboBox, f);
     dlg->setObjectName("qt_inputdlg_getitem");
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setWindowTitle(caption);
+    dlg->setWindowTitle(title);
 #endif
     if (editable) {
         dlg->editableComboBox()->addItems(list);
