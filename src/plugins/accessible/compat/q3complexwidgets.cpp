@@ -191,12 +191,12 @@ int Q3AccessibleTitleBar::navigate(NavDirection direction, int startControl) con
 /*! \reimp */
 int Q3AccessibleTitleBar::childCount() const
 {
-    if (!titleBar()->windowFlags() & Qt::WStyle_SysMenu)
+    if (!(titleBar()->windowFlags() & Qt::WStyle_SysMenu))
         return 0;
     int control = 3;
-    if (!titleBar()->windowFlags() & Qt::WStyle_Minimize)
+    if (!(titleBar()->windowFlags() & Qt::WStyle_Minimize))
         ++control;
-    if (!titleBar()->windowFlags() & Qt::WStyle_Maximize)
+    if (!(titleBar()->windowFlags() & Qt::WStyle_Maximize))
         ++control;
     return control;
 }
