@@ -24,7 +24,7 @@ class Q_GUI_EXPORT QSizePolicy
     Q_GADGET
     Q_ENUMS(Policy)
 private:
-    enum {
+    enum SizePolicyMasks {
         HSize = 4,
         HMask = 0x0f,
         VMask = HMask << HSize
