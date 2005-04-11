@@ -3137,7 +3137,10 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         qreal scaley = h / sh;
         mat = QMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
         mat = QPixmap::trueMatrix(mat, qRound(sw), qRound(sh));
-        QPixmap pmx = source.transformed(mat);
+        QPixmap pmx = source.transformed(mat,
+                                         (d->state->renderHints & SmoothPixmapTransform)
+                                         ? Qt::SmoothTransformation
+                                         : Qt::FastTransformation);
         if (pmx.isNull())                        // xformed into nothing
             return;
         d->state->matrix.map(x, y, &x, &y);        // compute position of pixmap
