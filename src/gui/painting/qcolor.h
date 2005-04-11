@@ -80,6 +80,7 @@ public:
     void setRgbF(qreal r, qreal g, qreal b, qreal a = 1.0);
 
     QRgb rgba() const;
+    void setRgba(QRgb rgba);
 
     QRgb rgb() const;
     void setRgb(QRgb rgb);
