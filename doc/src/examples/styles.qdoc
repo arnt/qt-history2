@@ -86,9 +86,10 @@
 
     The \c midImage variable is initialized to be the same as \c
     buttonImage, but then we use a QPainter and fill it with a 25%
-    opaque black color (a black that has an alpha channel of 63). The
-    result is a somewhat darker image than \c buttonImage. This image
-    will be used for filling buttons that the user is holding down.
+    opaque black color (a black with an \l{QColor::alpha()}{alpha
+    channel} of 63). The result is a somewhat darker image than \c
+    buttonImage. This image will be used for filling buttons that the
+    user is holding down.
 
     \printline palette = QPalette
     \printuntil /^\}/
@@ -303,23 +304,23 @@
 
     We draw the top-left part of the outline by calling
     QPainter::drawPath() with an appropriate
-    \l{QPainter::setClipRegion()}{clip region}. If the layout
-    direction is right-to-left instead of left-to-right, we do some
-    adjustments to the \c x1, \c x2, \c x3, and \c x4 variables to
-    obtain correct results. On right-to-left desktop, the "light"
-    comes from the top-right corner of the screen instead of the
-    top-left corner; raised and sunken widgets must be drawn
+    \l{QPainter::setClipRegion()}{clip region}. If the
+    \l{QStyleOption::direction}{layout direction} is right-to-left
+    instead of left-to-right, we swap the \c x1, \c x2, \c x3, and \c
+    x4 variables to obtain correct results. On right-to-left desktop,
+    the "light" comes from the top-right corner of the screen instead
+    of the top-left corner; raised and sunken widgets must be drawn
     accordingly.
+
+    The diagram below illustrates how 3D effects are drawn according
+    to the layout direction. The area in red on the diagram
+    corresponds to the \c topHalf polygon:
 
     \image styles-3d.png
 
-    The diagram above illustrates how 3D effects are drawn according
-    to the layout direction. The area in red on the diagram
-    corresponds to the \c topHalf polygon.
-
     An easy way to test how a style looks in right-to-left mode is to
-    pass the \c -reverse command-line argument to the application. It
-    works with any Qt application.
+    pass the \c -reverse command-line option to the application. This
+    option is recognized by the QApplication constructor.
 
     \printuntil break;
     \printline default:
@@ -372,7 +373,7 @@
     used to provide a distinct look to an application or family of
     applications.
 
-    \section1 WidgetGallery Class Definition
+    \section1 WidgetGallery Class
 
     For completeness, we will quickly review the \c WidgetGallery
     class, which contains the most common Qt widgets and allows the
@@ -385,7 +386,7 @@
     \skipto };
     \printline };
 
-    \section1 WidgetGallery Class Implementation
+    Here's the \c WidgetGallery constructor:
 
     \quotefromfile widgets/styles/widgetgallery.cpp
     \skipto ::WidgetGallery(
@@ -393,10 +394,9 @@
 
     We start by creating child widgets. The \gui Style combobox is
     initialized with all the styles known to QStyleFactory, in
-    addition to \c NorwegianWood.
-
-    The \c create...() functions are private functions that set up
-    the various parts of the \c WidgetGallery.
+    addition to \c NorwegianWood. The \c create...() functions are
+    private functions that set up the various parts of the \c
+    WidgetGallery.
 
     \printline connect(
     \printuntil bottomRightGroupBox
@@ -455,6 +455,6 @@
 
     In \c createProgressBar(), we create a QProgressBar at the bottom
     of the \c WidgetGallery and connect its
-    \l{QProgressBar::timeout()}{timeout()} signal to the \c
+    \l{QTimer::timeout()}{timeout()} signal to the \c
     advanceProgressBar() slot.
 */
