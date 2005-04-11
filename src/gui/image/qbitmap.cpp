@@ -277,6 +277,16 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
 #if defined (Q_WS_WIN) || defined (Q_WS_QWS)
     QBitmap bm;
     bm.data->image = img;
+
+    // Swap colors to match so that default config draws more correctly.
+    // black bits -> black pen in QPainter
+    if (image.numColors() == 2 && qGray(image.color(0)) < qGray(image.color(1))) {
+        QRgb color0 = image.color(0);
+        QRgb color1 = image.color(1);
+        bm.data->image.setColor(0, color1);
+        bm.data->image.setColor(1, color0);
+        bm.data->image.invertPixels();
+    }
     return bm;
 #else
     return QBitmap(QPixmap::fromImage(img, flags));
