@@ -947,7 +947,7 @@ QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
     }
 }
 
-void QConfFileSettingsPrivate(const QString &key)
+void QConfFileSettingsPrivate::remove(const QString &key)
 {
     if (!writeAccess) {
         setStatus(QSettings::AccessError);
