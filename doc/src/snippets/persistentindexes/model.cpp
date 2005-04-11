@@ -113,15 +113,10 @@ bool StringListModel::setData(const QModelIndex &index,
 
 bool StringListModel::insertRows(int position, int rows, const QModelIndex &parent)
 {
+    emit rowsAboutToBeInserted(QModelIndex(), position, position + rows - 1);
+
     for (int row = 0; row < rows; ++row) {
         stringList.insert(position, "");
-    }
-
-    for (int i = 0; rows > 0, i < persistentIndexesCount(); ++i) {
-        int row = persistentIndexAt(i).row();
-
-        if (row >= position)
-            setPersistentIndex(i, index(row + rows, 0, parent));
     }
 
     emit rowsInserted(QModelIndex(), position, position+rows-1);
@@ -140,16 +135,6 @@ bool StringListModel::removeRows(int position, int rows, const QModelIndex &pare
         stringList.removeAt(position);
     }
 
-    for (int i = 0; rows > 0, i < persistentIndexesCount(); ++i) {
-        int row = persistentIndexAt(i).row();
-
-        if (row >= position) {
-            if (row < (position + rows))
-                setPersistentIndex(i, QModelIndex());
-            else
-                setPersistentIndex(i, index(row - rows, 0, parent));
-        }
-    }
-
+    emit rowsRemoved(QModelIndex(), position, position + rows - 1);
     return true;
 }

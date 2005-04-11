@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     selectionModel = view->selectionModel();
 
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(insertAction, SIGNAL(triggered()), this, SLOT(insertItem()));
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeItem()));
     connect(selectionModel,
