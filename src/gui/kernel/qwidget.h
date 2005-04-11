@@ -555,6 +555,8 @@ protected:
                  bool destroySubWindows = true);
 
     virtual bool focusNextPrevChild(bool next);
+    inline bool focusNextChild() { return focusNextPrevChild(true); }
+    inline bool focusPreviousChild() { return focusNextPrevChild(false); }
 
 protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, Qt::WFlags f);

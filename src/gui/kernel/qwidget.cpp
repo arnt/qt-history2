@@ -388,8 +388,9 @@ void QWidget::resetInputContext()
     \row \i What's this help \i
         setWhatsThis()
 
-    \row \i Internal kernel functions \i
-        focusNextPrevChild(),
+    \row \i Focus functions \i
+        focusNextChild(),
+        focusPreviousChild()
 
     \endtable
 
@@ -1768,7 +1769,7 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
 
     if (!enable && q->window()->focusWidget() == q) {
         bool parentIsEnabled = (!q->parentWidget() || q->parentWidget()->isEnabled());
-        if (!parentIsEnabled || !q->focusNextPrevChild(true))
+        if (!parentIsEnabled || !q->focusNextChild())
             q->clearFocus();
     }
 
@@ -3196,6 +3197,30 @@ void QWidget::clearFocus()
 
 
 /*!
+    \fn bool QWidget::focusNextChild()
+
+    Finds a new widget to give the keyboard focus to, as appropriate
+    for \key Tab, and returns true if it can find a new widget, or
+    false if it can't.
+
+    This is the same as focusNextPrevChild(true).
+
+    \sa focusPreviousChild()
+*/
+
+/*!
+    \fn bool QWidget::focusPreviousChild()
+
+    Finds a new widget to give the keyboard focus to, as appropriate
+    for \key Shift+Tab, and returns true if it can find a new widget,
+    or false if it can't.
+
+    This is the same as focusNextPrevChild(false).
+
+    \sa focusNextChild()
+*/
+
+/*!
     Finds a new widget to give the keyboard focus to, as appropriate
     for Tab and Shift+Tab, and returns true if it can find a new
     widget, or false if it can't.
@@ -3205,14 +3230,16 @@ void QWidget::clearFocus()
 
     Sometimes, you will want to reimplement this function. For
     example, a web browser might reimplement it to move its "current
-    active link" forwards or backwards, and call
-    QWidget::focusNextPrevChild() only when it reaches the last or
+    active link" forward or backward, and call
+    focusNextPrevChild() only when it reaches the last or
     first link on the "page".
 
     Child widgets call focusNextPrevChild() on their parent widgets,
     but only the window that contains the child widgets decides where
     to redirect focus. By reimplementing this function for an object,
     you thus gain control of focus traversal for all child widgets.
+
+    \sa focusNextChild(), focusPreviousChild()
 */
 
 bool QWidget::focusNextPrevChild(bool next)
