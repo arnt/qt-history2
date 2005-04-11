@@ -526,7 +526,7 @@ void QListView::scrollTo(const QModelIndex &index)
         return;
 
     if (area.contains(rect)) {
-        d->viewport->repaint(rect);
+        d->setDirtyRect(rect);
         return;
     }
 
@@ -573,6 +573,18 @@ void QListView::scrollContentsBy(int dx, int dy)
     Q_D(QListView);
 
     dx = isRightToLeft() ? -dx : dx;
+
+    if (state() == DragSelectingState) {
+        if (dx > 0) // right
+            d->elasticBand.moveRight(d->elasticBand.right() + dx);
+        else if (dx < 0) // left
+            d->elasticBand.moveLeft(d->elasticBand.left() - dx);
+        if (dy > 0) // down
+            d->elasticBand.moveBottom(d->elasticBand.bottom() + dy);
+        else if (dy < 0) // up
+            d->elasticBand.moveTop(d->elasticBand.top() - dy);
+    }
+        
     QAbstractItemView::scrollContentsBy(dx, dy);
     d->viewport->scroll(dx, dy);
 
