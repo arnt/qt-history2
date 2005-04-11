@@ -64,6 +64,9 @@ public:
     void setTabToolTip(int index, const QString &tip);
     QString tabToolTip(int index) const;
 
+    void setTabData(int index, const QVariant &data);
+    QVariant tabData(int index) const;
+
     QRect tabRect(int index) const;
 
     int currentIndex() const;

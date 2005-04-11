@@ -58,6 +58,7 @@ public:
         QString text, toolTip;
         QIcon icon;
         QRect rect;
+        QVariant data;
     };
     QList<Tab> tabList;
 
@@ -150,10 +151,11 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     signal when a tab is selected. It can be subclassed to tailor the
     look and feel. Qt also provides a ready-made \l{QTabWidget}.
 
-    Each tab has a tabText(), an optional tabIcon(), and an optional
-    tabToolTip(). The tabs's attributes can be changed with
-    setTabText(), setTabIcon(), and setTabToolTip(). Each tabs can be
-    enabled or disabled individually with setTabEnabled().
+    Each tab has a tabText(), an optional tabIcon(), an optional
+    tabToolTip(), and optional tabData(). The tabs's attributes can be
+    changed with setTabText(), setTabIcon(), setTabToolTip(), and
+    setTabData(). Each tabs can be enabled or disabled individually
+    with setTabEnabled().
 
     Tabs are added using addTab(), or inserted at particular positions
     using insertTab(). The total number of tabs is given by
@@ -652,8 +654,10 @@ QIcon QTabBar::tabIcon(int index) const
 void QTabBar::setTabIcon(int index, const QIcon & icon)
 {
     Q_D(QTabBar);
-    if (QTabBarPrivate::Tab *tab = d->at(index))
+    if (QTabBarPrivate::Tab *tab = d->at(index)) {
         tab->icon = icon;
+        d->refresh();
+    }
 }
 
 
@@ -677,6 +681,28 @@ QString QTabBar::tabToolTip(int index) const
     if (const QTabBarPrivate::Tab *tab = d->at(index))
         return tab->toolTip;
     return QString();
+}
+
+/*!
+    Sets the data of the tab at position \a index to \a data.
+*/
+void QTabBar::setTabData(int index, const QVariant & data)
+{
+    Q_D(QTabBar);
+    if (QTabBarPrivate::Tab *tab = d->at(index))
+        tab->data = data;
+}
+
+/*!
+    Returns the datad of the tab at position \a index, or a null
+    variant if \a index is out of range.
+*/
+QVariant QTabBar::tabData(int index) const
+{
+    Q_D(const QTabBar);
+    if (const QTabBarPrivate::Tab *tab = d->at(index))
+        return tab->data;
+    return QVariant();
 }
 
 /*!
