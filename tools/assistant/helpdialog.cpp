@@ -685,7 +685,7 @@ void HelpDialog::on_buttonRemove_clicked()
     delete ui.listBookmarks->currentItem();
     saveBookmarks();
     if (ui.listBookmarks->topLevelItemCount() != 0) {
-        ui.listBookmarks->setItemSelected(ui.listBookmarks->topLevelItem(0), true);
+        ui.listBookmarks->setCurrentItem(ui.listBookmarks->topLevelItem(0));
     }
     help->updateBookmarkMenu();
 }
