@@ -1690,6 +1690,17 @@ bool QTreeWidget::isSortingEnabled() const
 }
 
 /*!
+  Starts editing the \a item in the given \a column if it is editable.
+*/
+
+void QTreeWidget::editItem(QTreeWidgetItem *item, int column)
+{
+    Q_ASSERT(item);
+    Q_D(QTreeWidget);
+    edit(d->model()->index(item, column));
+}
+
+/*!
   Opens a persistent editor for the \a item in the given \a column.
 */
 

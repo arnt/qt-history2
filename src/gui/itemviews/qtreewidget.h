@@ -186,6 +186,7 @@ public:
     void setSortingEnabled(bool enable);
     bool isSortingEnabled() const;
 
+    void editItem(QTreeWidgetItem *item, int column = 0);
     void openPersistentEditor(QTreeWidgetItem *item, int column = 0);
     void closePersistentEditor(QTreeWidgetItem *item, int column = 0);
 

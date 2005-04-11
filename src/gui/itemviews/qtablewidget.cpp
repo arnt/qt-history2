@@ -1358,6 +1358,17 @@ bool QTableWidget::isSortingEnabled() const
 }
 
 /*!
+  Starts editing the \a item if it is editable.
+*/
+
+void QTableWidget::editItem(QTableWidgetItem *item)
+{
+    Q_ASSERT(item);
+    Q_D(QTableWidget);
+    edit(d->model()->index(item));
+}
+
+/*!
   Opens an editor for the give \a item. The editor remains open after editing.
 
   \sa closePersistentEditor()

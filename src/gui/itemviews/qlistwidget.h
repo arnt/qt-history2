@@ -161,6 +161,7 @@ public:
 
     void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
 
+    void editItem(QListWidgetItem *item);
     void openPersistentEditor(QListWidgetItem *item);
     void closePersistentEditor(QListWidgetItem *item);
 

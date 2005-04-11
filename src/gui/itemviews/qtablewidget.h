@@ -187,6 +187,7 @@ public:
     void setSortingEnabled(bool enable);
     bool isSortingEnabled() const;
 
+    void editItem(QTableWidgetItem *item);
     void openPersistentEditor(QTableWidgetItem *item);
     void closePersistentEditor(QTableWidgetItem *item);
 

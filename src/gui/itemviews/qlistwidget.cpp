@@ -1049,6 +1049,17 @@ void QListWidget::sortItems(Qt::SortOrder order)
 }
 
 /*!
+  Starts editing the \a item if it is editable.
+*/
+
+void QListWidget::editItem(QListWidgetItem *item)
+{
+    Q_ASSERT(item);
+    Q_D(QListWidget);
+    edit(d->model()->index(item));
+}
+
+/*!
   Opens an editor for the given \a item. The editor remains open after editing.
 
   \sa closePersistentEditor()
