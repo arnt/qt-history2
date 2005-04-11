@@ -650,8 +650,6 @@ QSize QWorkspaceTitleBar::sizeHint() const
     \brief The QWorkspace widget provides a workspace window that be
     used in an MDI application.
 
-    \compat
-
     Multiple Document Interface (MDI) applications are typically
     composed of a main window containing a menu bar, a toolbar, and
     a central QWorkspace widget. The workspace itself is used to display
