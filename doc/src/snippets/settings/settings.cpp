@@ -4,13 +4,13 @@
 
 void snippet_ctor1()
 {
-    QSettings settings("software.org", "DataMill");
+    QSettings settings("mysoft.org", "StarRunner");
 }
 
 void snippet_ctor2()
 {
-    QCoreApplication::setOrganizationDomain("software.org");
-    QCoreApplication::setApplicationName("DataMill");
+    QCoreApplication::setOrganizationDomain("mysoft.org");
+    QCoreApplication::setApplicationName("StarRunner");
 
     QSettings settings;
 
@@ -36,15 +36,15 @@ void snippet_ctor2()
 
 void snippet_locations()
 {
-    QSettings obj1("software.org", "DataMill");
-    QSettings obj2("software.org");
-    QSettings obj3(QSettings::SystemScope, "software.org", "DataMill");
-    QSettings obj4(QSettings::SystemScope, "software.org");
+    QSettings obj1("mysoft.org", "StarRunner");
+    QSettings obj2("mysoft.org");
+    QSettings obj3(QSettings::SystemScope, "mysoft.org", "StarRunner");
+    QSettings obj4(QSettings::SystemScope, "mysoft.org");
 
     QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                       "software.org", "DataMill");
+                       "mysoft.org", "StarRunner");
 
-    QSettings settings("datamill.ini", QSettings::IniFormat);
+    QSettings settings("starrunner.ini", QSettings::IniFormat);
 
     QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft",
                        QSettings::NativeFormat);
