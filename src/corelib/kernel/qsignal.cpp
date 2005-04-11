@@ -22,7 +22,7 @@
     \ingroup misc
 
     If you want to send signals from a class that does not inherit
-    QObject, you can create an internal \c{QSignal<T>} object to emit
+    QObject, you can create a QSignal<T> object to emit
     the signal. \c T is the type of the signal's argument, and it can
     be \c void. You must also provide a function that connects the
     signal to an outside object slot.

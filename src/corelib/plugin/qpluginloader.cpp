@@ -22,52 +22,56 @@
 /*!
     \class QPluginLoader
     \reentrant
-    \brief The QPluginLoader class loads a plugin at runtime.
+    \brief The QPluginLoader class loads a plugin at run-time.
 
     \mainclass
     \ingroup plugins
 
+    QPlugingLoader provides a means for accessing a \l{How to Create
+    Qt Plugins}{Qt plugin}. Qt plugins are stored in a shared library
+    (a "DLL") and follow offer a few benefits over plain shared
+    libraries accessed using QLibrary:
+
+    \list
+    \o Plugins offer safety in cases where a plugin is linked against
+       different versions of Qt. (This typically would result in the
+       application crashing when opening such a library with
+       QLibrary.)
+    \o Plugin offers direct access to a root component object
+       (instance()), instead of forcing you to resolve a C function
+       manually.
+    \endlist
+
     An instance of a QPluginLoader object operates on a single shared
-    object file (which we call a "plugin"). A QPluginLoader provides
-    access to the functionality in the plugin in a platform
-    independent way. You can either pass a file name in the
-    constructor, or set it explicitly with setFileName().  If the file
-    cannot be found, QPluginLoader tries the name with different
-    platform-specific file suffixes, like ".so" on Unix, ".dylib" on
-    the Mac, or ".dll" on Windows. This makes it possible to specify
-    shared libraries that are only identified by their basename (i.e.
-    without their suffix), so the same code will work on different
-    operating systems.
+    library file, which we call a plugin. It provides access to the
+    functionality in the plugin in a platform-independent way. To
+    specify which plugin to load, you can either pass a file name in
+    the constructor or set it with setFileName(). If the file cannot
+    be found, QPluginLoader tries the name with different
+    platform-specific file suffixes (e.g., \c .so on Unix, \c .dylib
+    on Mac OS X, \c .dll on Windows).
 
     The most important functions are load() to dynamically load the
     plugin file, isLoaded() to check whether loading was successful,
     and instance() to access the root component in the plugin. The
     instance() function implicitly tries to load the plugin if it has
     not been loaded yet. Multiple instances of QPluginLoader can be
-    used to access the same physical plugin. Once loaded, plugins
-    remain in memory until the application terminates. You can attempt
-    to unload a plugin using unload(), but if other instances of
-    QPluginLoader are using the same library, the call will fail, and
-    unloading will only happen when every instance has called
-    unload().
+    used to access the same physical plugin.
 
-    A plugin is very similar to a shared library, also known as
-    "DLL". In fact, technically speaking it is a shared library. Thus
-    QPluginLoader is very similar to QLibrary. The main differences
-    are that plugins offer safety in cases where a plugin is linked
-    against different versions of Qt (something that would result in
-    the application crashing when opening such a library with
-    QLibrary), and that a plugin offers direct access to a root
-    component object - the plugin's instance() - instead of you having
-    to resolve a C-function manually.
+    Once loaded, plugins remain in memory until the application
+    terminates. You can attempt to unload a plugin using unload(),
+    but if other instances of QPluginLoader are using the same
+    library, the call will fail, and unloading will only happen when
+    every instance has called unload().
+
+    \sa QLibrary, {How to Create Qt Plugins}
 */
-
 
 /*!
     Constructs a plugin loader with the given \a parent.
- */
+*/
 QPluginLoader::QPluginLoader(QObject *parent)
-    :QObject(parent), d(0), did_load(false)
+    : QObject(parent), d(0), did_load(false)
 {
 }
 
@@ -77,12 +81,13 @@ QPluginLoader::QPluginLoader(QObject *parent)
 
     We recommend omitting the file's suffix in \a fileName, since
     QPluginLoader will automatically look for the file with the appropriate
-    suffix in accordance with the platform, e.g. ".so" on Unix,
-    ".dylib" on Mac OS X, and ".dll" on Windows. (See \l{fileName}.)
+    suffix in accordance with the platform, e.g. \c .so on Unix,
+    \c .dylib on Mac OS X, and \c .dll on Windows.
 
- */
+    \sa setFileName()
+*/
 QPluginLoader::QPluginLoader(const QString &fileName, QObject *parent)
-    :QObject(parent), d(0), did_load(false)
+    : QObject(parent), d(0), did_load(false)
 {
     setFileName(fileName);
 }
@@ -101,7 +106,6 @@ QPluginLoader::~QPluginLoader()
         d->release();
 }
 
-
 /*!
     Returns the root component object of the plugin. The plugin is
     loaded if necessary. The function returns 0 if the plugin could
@@ -113,9 +117,11 @@ QPluginLoader::~QPluginLoader()
     
     The instance is not deleted when the QPluginLoader is destroyed.
 
-    The component object is a QObject. Use \l qobject_cast to access
+    The component object is a QObject. Use qobject_cast() to access
     interfaces you are interested in.
- */
+
+    \sa load()
+*/
 QObject *QPluginLoader::instance()
 {
     if (!d)
@@ -220,12 +226,13 @@ bool QPluginLoader::isLoaded() const
 
     \table
     \header \i Platform \i Supported suffixes
-    \row \i Windows     \i dll
-    \row \i Unix/Linux  \i so
-    \row \i HP-UX       \i sl
-    \row \i Mac OS X    \i dylib, bundle, so
-    \endtable.
+    \row \i Windows     \i \c .dll
+    \row \i Unix/Linux  \i \c .so
+    \row \i HP-UX       \i \c .sl
+    \row \i Mac OS X    \i \c .dylib, \c .bundle, \c .so
+    \endtable
 
+    \sa load()
 */
 void QPluginLoader::setFileName(const QString &fileName)
 {
@@ -253,6 +260,9 @@ void Q_CORE_EXPORT qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunctio
     staticInstanceFunctionList()->append(function);
 }
 
+/*!
+    
+*/
 QObjectList QPluginLoader::staticInstances()
 {
     QObjectList instances;
