@@ -2740,7 +2740,7 @@ QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transf
     \sa scale() scaleHeight() transform()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scaledToWidth(int w) const
+QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
 {
     if (!d) {
         qWarning("QImage::scaleWidth: Image is a null image");
@@ -2752,7 +2752,7 @@ QImage QImage::scaledToWidth(int w) const
     QMatrix wm;
     double factor = (double) w / width();
     wm.scale(factor, factor);
-    return transformed(wm);
+    return transformed(wm, mode);
 }
 #endif
 
@@ -2767,7 +2767,7 @@ QImage QImage::scaledToWidth(int w) const
     \sa scale() scaleWidth() transform()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scaledToHeight(int h) const
+QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
 {
     if (!d) {
         qWarning("QImage::scaleHeight: Image is a null image");
@@ -2779,7 +2779,7 @@ QImage QImage::scaledToHeight(int h) const
     QMatrix wm;
     double factor = (double) h / height();
     wm.scale(factor, factor);
-    return transformed(wm);
+    return transformed(wm, mode);
 }
 #endif
 

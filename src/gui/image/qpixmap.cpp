@@ -1050,7 +1050,7 @@ QPixmap QPixmap::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Tran
 
     \sa scale() scaleHeight() transform()
 */
-QPixmap QPixmap::scaledToWidth(int w) const
+QPixmap QPixmap::scaledToWidth(int w, Qt::TransformationMode mode) const
 {
     if (isNull()) {
         qWarning("QPixmap::scaleWidth: Pixmap is a null pixmap");
@@ -1062,7 +1062,7 @@ QPixmap QPixmap::scaledToWidth(int w) const
     QMatrix wm;
     double factor = (double) w / width();
     wm.scale(factor, factor);
-    return transformed(wm);
+    return transformed(wm, mode);
 }
 
 /*!
@@ -1075,7 +1075,7 @@ QPixmap QPixmap::scaledToWidth(int w) const
 
     \sa scale() scaleWidth() transform()
 */
-QPixmap QPixmap::scaledToHeight(int h) const
+QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 {
     if (isNull()) {
         qWarning("QPixmap::scaleHeight: Pixmap is a null pixmap");
@@ -1087,7 +1087,7 @@ QPixmap QPixmap::scaledToHeight(int h) const
     QMatrix wm;
     double factor = (double) h / height();
     wm.scale(factor, factor);
-    return transformed(wm);
+    return transformed(wm, mode);
 }
 
 /*!

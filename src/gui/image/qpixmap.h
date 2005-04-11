@@ -85,8 +85,8 @@ public:
         { return scaled(QSize(w, h), aspectMode, mode); }
     QPixmap scaled(const QSize &s, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
                    Qt::TransformationMode mode = Qt::FastTransformation) const;
-    QPixmap scaledToWidth(int w) const;
-    QPixmap scaledToHeight(int h) const;
+    QPixmap scaledToWidth(int w, Qt::TransformationMode mode = Qt::FastTransformation) const;
+    QPixmap scaledToHeight(int h, Qt::TransformationMode mode = Qt::FastTransformation) const;
     QPixmap transformed(const QMatrix &, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &m, int w, int h);
 #endif
