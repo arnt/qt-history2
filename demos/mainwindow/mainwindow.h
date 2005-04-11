@@ -24,7 +24,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     ToolBar *toolbar;
-    QMenu *dockWindowMenu;
+    QMenu *dockWidgetMenu;
 
 public:
     MainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
@@ -35,7 +35,7 @@ public slots:
 private:
     void setupToolBar();
     void setupMenuBar();
-    void setupDockWindows();
+    void setupDockWidgets();
 };
 
 #endif

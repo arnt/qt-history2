@@ -27,9 +27,9 @@ static const char * const message =
     "<p><b>Qt Main Window Demo</b></p>"
 
     "<p>This is a demonstration of the QMainWindow, QToolBar and "
-    "QDockWindow classes.</p>"
+    "QDockWidget classes.</p>"
 
-    "<p>The tool bar and dock windows can be dragged around and rearranged "
+    "<p>The tool bar and dock widgets can be dragged around and rearranged "
     "using the mouse or via the menu.</p>"
 
     "<p>The tool bar contains three different types of buttons:"
@@ -38,12 +38,12 @@ static const char * const message =
     "<li>Checkable buttons (buttons 6, 7 and 8).</li>"
     "</ul></p>"
 
-    "<p>Each dock window contains a colored frame and a context "
+    "<p>Each dock widget contains a colored frame and a context "
     "(right-click) menu.</p>"
 
 #ifdef Q_WS_MAC
-    "<p>On Mac OS X, the \"Black\" dock window has been created as a "
-    "<em>Drawer</em>, which is a special kind of QDockWindow.</p>"
+    "<p>On Mac OS X, the \"Black\" dock widget has been created as a "
+    "<em>Drawer</em>, which is a special kind of QDockWidget.</p>"
 #endif
     ;
 
@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
 
     setupToolBar();
     setupMenuBar();
-    setupDockWindows();
+    setupDockWidgets();
 
     QTextEdit *center = new QTextEdit(this);
     center->setReadOnly(true);
@@ -84,49 +84,28 @@ void MainWindow::setupMenuBar()
     menu->addAction(tr("&Quit"), this, SLOT(close()));
 
     menuBar()->addMenu(toolbar->menu);
-    dockWindowMenu = menuBar()->addMenu(tr("&Dock windows"));
+    dockWidgetMenu = menuBar()->addMenu(tr("&Dock Widgets"));
 }
 
-void MainWindow::setupDockWindows()
+void MainWindow::setupDockWidgets()
 {
     static const struct Set {
         const char * name;
         uint flags;
         Qt::DockWidgetArea area;
-        uint allowedAreas;
-        uint features;
     } sets [] = {
-        { "Black", Qt::Drawer, Qt::LeftDockWidgetArea,
-          Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea,
-          QDockWidget::DockWidgetClosable },
-
-        { "White", 0, Qt::RightDockWidgetArea,
-          Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea,
-          QDockWidget::AllDockWidgetFeatures },
-
-        { "Red", 0, Qt::TopDockWidgetArea,
-          Qt::AllDockWidgetAreas,
-          QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable },
-        { "Green", 0, Qt::TopDockWidgetArea,
-          Qt::AllDockWidgetAreas,
-          QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable },
-
-        { "Blue", 0, Qt::BottomDockWidgetArea,
-          Qt::AllDockWidgetAreas,
-          QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable },
-        { "Yellow", 0, Qt::BottomDockWidgetArea,
-          Qt::AllDockWidgetAreas,
-          QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable }
+        { "Black", Qt::Drawer, Qt::LeftDockWidgetArea },
+        { "White", 0, Qt::RightDockWidgetArea },
+        { "Red", 0, Qt::TopDockWidgetArea },
+        { "Green", 0, Qt::TopDockWidgetArea },
+        { "Blue", 0, Qt::BottomDockWidgetArea },
+        { "Yellow", 0, Qt::BottomDockWidgetArea }
     };
     const int setCount = sizeof(sets) / sizeof(Set);
 
     for (int i = 0; i < setCount; ++i) {
         ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WFlags(sets[i].flags));
-        swatch->setAllowedAreas(Qt::DockWidgetAreas(sets[i].allowedAreas));
-        swatch->setFeatures(QDockWidget::DockWidgetFeatures(sets[i].features));
-
         addDockWidget(sets[i].area, swatch);
-
-        dockWindowMenu->addMenu(swatch->menu);
+        dockWidgetMenu->addMenu(swatch->menu);
     }
 }

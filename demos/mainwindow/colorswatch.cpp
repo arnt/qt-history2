@@ -23,7 +23,7 @@
 ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags flags)
     : QDockWidget(parent, flags)
 {
-    setObjectName(colorName + QLatin1String(" Dock Window"));
+    setObjectName(colorName + QLatin1String(" Dock Widget"));
     setWindowTitle(objectName());
 
     QFrame *swatch = new QFrame(this);
