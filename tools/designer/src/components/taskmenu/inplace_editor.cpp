@@ -17,6 +17,8 @@
 #include <QtGui/QResizeEvent>
 #include <QtGui/QPushButton>
 #include <QtGui/QToolButton>
+#include <QtGui/QShortcut>
+
 #include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
@@ -24,6 +26,8 @@ InPlaceEditor::InPlaceEditor(QWidget *widget, QDesignerFormWindowInterface *fw)
     : QLineEdit(),
       m_widget(widget)
 {
+    (void) new QShortcut(Qt::Key_Escape, this, SLOT(deleteLater()));
+
     m_noChildEvent = widget->testAttribute(Qt::WA_NoChildEventsForParent);
     setParent(widget->window());
     m_widget->installEventFilter(this);
