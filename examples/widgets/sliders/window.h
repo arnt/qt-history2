@@ -23,7 +23,7 @@ private:
 
     SlidersGroup *horizontalSliders;
     SlidersGroup *verticalSliders;
-    QStackedWidget *pages;
+    QStackedWidget *stackedWidget;
 
     QGroupBox *controlsGroup;
     QLabel *minimumLabel;

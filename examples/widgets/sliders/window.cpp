@@ -8,9 +8,9 @@ Window::Window()
     horizontalSliders = new SlidersGroup(Qt::Horizontal, tr("Horizontal"));
     verticalSliders = new SlidersGroup(Qt::Vertical, tr("Vertical"));
 
-    pages = new QStackedWidget(this);
-    pages->addWidget(horizontalSliders);
-    pages->addWidget(verticalSliders);
+    stackedWidget = new QStackedWidget(this);
+    stackedWidget->addWidget(horizontalSliders);
+    stackedWidget->addWidget(verticalSliders);
 
     createControls(tr("Controls"));
 
@@ -23,7 +23,7 @@ Window::Window()
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(controlsGroup);
-    layout->addWidget(pages);
+    layout->addWidget(stackedWidget);
 
     minimumSpinBox->setValue(0);
     maximumSpinBox->setValue(20);
@@ -62,7 +62,7 @@ void Window::createControls(const QString &title)
     orientationCombo->addItem(tr("Vertical slider-like widgets"));
 
     connect(orientationCombo, SIGNAL(activated(int)),
-            pages, SLOT(setCurrentIndex(int)));
+            stackedWidget, SLOT(setCurrentIndex(int)));
     connect(minimumSpinBox, SIGNAL(valueChanged(int)),
             horizontalSliders, SLOT(setMinimum(int)));
     connect(minimumSpinBox, SIGNAL(valueChanged(int)),
