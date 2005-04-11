@@ -29,8 +29,8 @@ class QSqlQueryPrivate
 public:
     QSqlQueryPrivate(QSqlResult* result);
     ~QSqlQueryPrivate();
-    QSqlResult* sqlResult;
     QAtomic ref;
+    QSqlResult* sqlResult;
 
     Q_GLOBAL_STATIC_WITH_ARGS(QSqlQueryPrivate, nullQueryPrivate, (0))
     Q_GLOBAL_STATIC(QSqlNullDriver, nullDriver)
@@ -48,16 +48,16 @@ QSqlQueryPrivate* QSqlQueryPrivate::shared_null()
 /*!
 \internal
 */
-QSqlQueryPrivate::QSqlQueryPrivate(QSqlResult* result): sqlResult(result)
+QSqlQueryPrivate::QSqlQueryPrivate(QSqlResult* result): ref(1), sqlResult(result)
 {
-    ref = 1;
     if (!sqlResult)
         sqlResult = nullResult();
 }
 
 QSqlQueryPrivate::~QSqlQueryPrivate()
 {
-    if (sqlResult == nullResult())
+    QSqlResult *nr = nullResult();
+    if (!nr || sqlResult == nr)
         return;
     delete sqlResult;
 }
