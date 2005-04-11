@@ -142,9 +142,11 @@ void FormWindow::updateWidgets()
     if (!m_mainContainer)
         return;
 
+#if 0
     m_widgets.clear();
     m_widgets.append(m_mainContainer);
     bfs(m_mainContainer);
+#endif
 }
 
 int FormWindow::widgetDepth(QWidget *w)
@@ -318,8 +320,6 @@ void FormWindow::setMainContainer(QWidget *w)
 
     m_mainContainer->setFocusPolicy(Qt::StrongFocus);
     m_mainContainer->resize(sz);
-
-    updateWidgets();
 
     emit mainContainerChanged(m_mainContainer);
 }
@@ -1135,7 +1135,7 @@ void FormWindow::manageWidget(QWidget *w)
     core()->metaDataBase()->add(w);
 
     m_insertedWidgets.insert(w);
-    updateWidgets();
+    m_widgets.append(w);
 
     setCursorToAll(Qt::ArrowCursor, w);
 
@@ -1159,7 +1159,7 @@ void FormWindow::unmanageWidget(QWidget *w)
     core()->metaDataBase()->remove(w);
 
     m_insertedWidgets.remove(w);
-    updateWidgets();
+    m_widgets.removeAt(m_widgets.indexOf(w));
 
     emit changed();
     emit widgetUnmanaged(w);
