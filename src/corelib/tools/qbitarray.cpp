@@ -433,8 +433,8 @@ QBitArray &QBitArray::operator&=(const QBitArray &other)
     resize(qMax(size(), other.size()));
     uchar *a1 = reinterpret_cast<uchar*>(d.data()) + 1;
     const uchar *a2 = reinterpret_cast<const uchar*>(other.d.constData()) + 1;
-    int n = qMin(d.size(), other.d.size()) - 1;
-    int p = qMax(d.size(), other.d.size()) - 1 - n; // ### - 1 is right?
+    int n = other.d.size() -1 ; 
+    int p = d.size() - 1 - n;
     while (n-- > 0)
         *a1++ &= *a2++;
     while (p-- > 0)
@@ -468,7 +468,7 @@ QBitArray &QBitArray::operator|=(const QBitArray &other)
     resize(qMax(size(), other.size()));
     uchar *a1 = reinterpret_cast<uchar*>(d.data()) + 1;
     const uchar *a2 = reinterpret_cast<const uchar *>(other.d.constData()) + 1;
-    int n = qMin(d.size(), other.d.size()) - 1;
+    int n = other.d.size() - 1;   
     while (n-- > 0)
         *a1++ |= *a2++;
     return *this;
@@ -498,9 +498,9 @@ QBitArray &QBitArray::operator|=(const QBitArray &other)
 QBitArray &QBitArray::operator^=(const QBitArray &other)
 {
     resize(qMax(size(), other.size()));
-    uchar *a1 = reinterpret_cast<uchar*>(d.data());
-    const uchar *a2 = reinterpret_cast<const uchar *>(other.d.constData());
-    int n = qMin(d.size(), other.d.size()) - 1;
+    uchar *a1 = reinterpret_cast<uchar*>(d.data()) + 1;
+    const uchar *a2 = reinterpret_cast<const uchar *>(other.d.constData()) + 1;
+    int n = other.d.size() - 1;
     while (n-- > 0)
         *a1++ ^= *a2++;
     return *this;
