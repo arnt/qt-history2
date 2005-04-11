@@ -2,9 +2,9 @@
 
 #include <QtDesigner/qextensionmanager.h>
 
-#include <QEvent>
-#include <QVBoxLayout>
-
+#include <QtGui/QVBoxLayout>
+#include <QtCore/QEvent>
+#include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
 PromotedWidgetPropertySheet::PromotedWidgetPropertySheet(QDesignerPromotedWidget *promoted,
@@ -85,7 +85,7 @@ QVariant PromotedWidgetPropertySheet::property(int index) const
     } else {
         result = m_sheet->property(index);
     }
-    
+
     return result;
 }
 

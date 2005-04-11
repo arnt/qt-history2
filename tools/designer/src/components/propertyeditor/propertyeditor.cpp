@@ -24,6 +24,7 @@
 #include <QtDesigner/abstractwidgetdatabase.h>
 #include <iconloader.h>
 #include <qdesigner_promotedwidget.h>
+#include <qdesigner_utils.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QMetaObject>

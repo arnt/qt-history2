@@ -23,6 +23,7 @@
 #include <qtundo.h>
 #include <qdesigner_command.h>
 #include <qdesigner_widget.h>
+#include <qdesigner_utils.h>
 #include <qlayout_widget.h>
 
 /*******************************************************************************
@@ -103,7 +104,7 @@ QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
 
     while (w != 0 && !m_formWindow->isManaged(w))
         w = w->parentWidget();
-    
+
     if (state() == Editing) {
         QDesignerLabel *label = qobject_cast<QDesignerLabel*>(w);
         if (label == 0)
@@ -157,7 +158,7 @@ void BuddyEditor::setBackground(QWidget *background)
         QWidget *target = qFindChild<QWidget*>(background, buddy_name);
         if (target == 0)
             continue;
-        
+
         BuddyConnection *con = new BuddyConnection(this);
         con->setEndPoint(EndPoint::Source, label, widgetRect(label).center());
         con->setEndPoint(EndPoint::Target, target, widgetRect(target).center());

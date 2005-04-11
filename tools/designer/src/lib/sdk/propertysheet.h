@@ -15,9 +15,6 @@
 #define PROPERTYSHEET_H
 
 #include <QtDesigner/extension.h>
-#include <QStringList>
-#include <QtCore/QVariant>
-#include <QtCore/QMap>
 
 class QVariant;
 
@@ -50,38 +47,5 @@ public:
     virtual void setChanged(int index, bool changed) = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerPropertySheetExtension, "http://trolltech.com/Qt/IDE/PropertySheet")
-
-class EnumType
-{
-public:
-    QVariant value;
-    QMap<QString, QVariant> items;
-};
-
-Q_DECLARE_METATYPE(EnumType)
-
-class FlagType
-{
-public:
-    QVariant value;
-    QMap<QString, QVariant> items;
-};
-
-Q_DECLARE_METATYPE(FlagType)
-
-namespace Utils
-{
-
-inline int valueOf(const QVariant &value, bool *ok = 0)
-{
-    if (qVariantCanConvert<EnumType>(value))
-        return qVariantValue<EnumType>(value).value.toInt(ok);
-    else if (qVariantCanConvert<FlagType>(value))
-        return qVariantValue<FlagType>(value).value.toInt(ok);
-
-    return value.toInt(ok);
-}
-
-} // namespace Utils
 
 #endif // PROPERTYSHEET_H

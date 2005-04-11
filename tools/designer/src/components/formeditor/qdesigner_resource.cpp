@@ -27,6 +27,7 @@
 #include <spacer_widget.h>
 #include <resourcefile.h>
 #include <qdesigner_promotedwidget.h>
+#include <qdesigner_utils.h>
 
 // sdk
 #include <QtDesigner/container.h>

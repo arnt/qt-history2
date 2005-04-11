@@ -12,12 +12,13 @@
 ****************************************************************************/
 
 #include "qdesigner_propertysheet.h"
+#include "qdesigner_utils.h"
 
 #include <QtCore/QVariant>
-#include <QMetaObject>
-#include <QMetaProperty>
-#include <QImage>
-#include <QPixmap>
+#include <QtCore/QMetaObject>
+#include <QtCore/QMetaProperty>
+#include <QtGui/QImage>
+#include <QtGui/QPixmap>
 #include <QtCore/qdebug.h>
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
@@ -263,7 +264,7 @@ bool QDesignerPropertySheet::reset(int index)
         m_fakeProperties[index] = p.read(m_object);
         return result;
     }
-        
+
     // ### TODO: reset for fake properties.
 
     QMetaProperty p = meta->property(index);

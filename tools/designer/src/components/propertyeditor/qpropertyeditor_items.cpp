@@ -19,6 +19,8 @@
 
 #include <QtDesigner/propertysheet.h>
 
+#include <qdesigner_utils.h>
+
 #include <QtGui/QLineEdit>
 #include <QtGui/QListView>
 #include <QtGui/QComboBox>

@@ -17,7 +17,8 @@
 #include "shared_global.h"
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/default_extensionfactory.h>
-#include <qpair.h>
+#include <QtCore/QVariant>
+#include <QtCore/QPair>
 
 class QT_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension
 {

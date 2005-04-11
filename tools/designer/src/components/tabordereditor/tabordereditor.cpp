@@ -30,6 +30,7 @@
 #include <qtundo.h>
 #include <qdesigner_command.h>
 #include <qdesigner_widget.h>
+#include <qdesigner_utils.h>
 #include <qlayout_widget.h>
 
 #define BG_ALPHA                32

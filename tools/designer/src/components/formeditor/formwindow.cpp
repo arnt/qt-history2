@@ -17,26 +17,26 @@
 #include "formwindowcursor.h"
 #include "formwindowmanager.h"
 #include "tool_widgeteditor.h"
-
 #include "widgetselection.h"
-#include "qdesigner_tabwidget.h"
-#include "qdesigner_toolbox.h"
-#include "qdesigner_stackedbox.h"
-#include "qdesigner_resource.h"
 
 // shared
 #include <qdesigner_promotedwidget.h>
+#include <qdesigner_tabwidget.h>
+#include <qdesigner_toolbox.h>
+#include <qdesigner_stackedbox.h>
+#include "qdesigner_resource.h"
 #include <qdesigner_command.h>
+#include <qdesigner_widget.h>
+#include <qdesigner_utils.h>
 #include <qlayout_widget.h>
 #include <spacer_widget.h>
-#include <qdesigner_widget.h>
 #include <invisible_widget.h>
 #include <layoutinfo.h>
-#include <QtDesigner/layoutdecoration.h>
 #include <connectionedit.h>
-#include <QtDesigner/taskmenu.h>
 
 // sdk
+#include <QtDesigner/layoutdecoration.h>
+#include <QtDesigner/taskmenu.h>
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstractformwindowtool.h>
 #include <QtDesigner/abstractwidgetfactory.h>
