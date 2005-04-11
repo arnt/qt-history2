@@ -167,14 +167,11 @@ static QStyleOptionSpinBox getStyleOption(const Q3SpinWidget *spin)
 void Q3SpinWidget::arrange()
 {
     QStyleOptionSpinBox opt = getStyleOption(this);
-    d->up = QStyle::visualRect(opt.direction, opt.rect,
-                 style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxUp, this));
-    d->down = QStyle::visualRect(opt.direction, opt.rect,
-                 style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxDown, this));
+    d->up = style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxUp, this);
+    d->down = style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxDown, this);
     if (d->ed) {
-        QRect r = QStyle::visualRect(opt.direction, opt.rect,
-                                     style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                             QStyle::SC_SpinBoxEditField, this));
+        QRect r = style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                          QStyle::SC_SpinBoxEditField, this);
         d->ed->setGeometry(r);
     }
 }
@@ -318,9 +315,7 @@ void Q3SpinWidget::paintEvent(QPaintEvent *)
         opt.activeSubControls = QStyle::SC_SpinBoxUp;
     else
         opt.activeSubControls = QStyle::SC_None;
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect,
-                                  style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                          QStyle::SC_SpinBoxFrame, this));
+    opt.rect = style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxFrame, this);
     opt.subControls = QStyle::SC_All;
     style()->drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
 }
