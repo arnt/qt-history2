@@ -56,43 +56,32 @@ extern "C" void Q_CORE_EXPORT qt_startup_hook()
 {
 }
 
-typedef void (*VFPTR)();
-typedef QList<VFPTR> QVFuncList;
-static QVFuncList *postRList = 0;                // list of post routines
+typedef QList<QtCleanUpFunction> QVFuncList;
+Q_GLOBAL_STATIC(QVFuncList, postRList)
 
 void qAddPostRoutine(QtCleanUpFunction p)
 {
-    if (!postRList)
-        postRList = new QVFuncList;
-    postRList->prepend(p);
+    QVFuncList *list = postRList();
+    if (!list)
+        return;
+    list->prepend(p);
 }
 
 void qRemovePostRoutine(QtCleanUpFunction p)
 {
-    if (!postRList) return;
-    QVFuncList::Iterator it = postRList->begin();
-    while (it != postRList->end()) {
-        if (*it == p) {
-            postRList->erase(it);
-            it = postRList->begin();
-        } else {
-            ++it;
-        }
-    }
+    QVFuncList *list = postRList();
+    if (!list)
+        return;
+    list->removeAll(p);
 }
 
 void Q_CORE_EXPORT qt_call_post_routines()
 {
-    if (postRList) {
-        QVFuncList::Iterator it = postRList->begin();
-        while (it != postRList->end()) {        // call post routines
-            (**it)();
-            postRList->erase(it);
-            it = postRList->begin();
-        }
-        delete postRList;
-        postRList = 0;
-    }
+    QVFuncList *list = postRList();
+    if (!list)
+        return;
+    while (!list->isEmpty())
+        (list->takeFirst())();
 }
 
 
