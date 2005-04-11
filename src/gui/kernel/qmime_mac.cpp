@@ -596,7 +596,7 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const QString 
         img.loadFromData((unsigned char*)data.data(),data.size());
         if (img.isNull())
             return ret;
-        px = img;
+        px = QPixmap::fromImage(img);
     }
 #if 1
     OpenCPicParams pic_params;
