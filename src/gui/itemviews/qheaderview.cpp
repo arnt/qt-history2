@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qheaderview.h"
-#include <private/qheaderview_p.h>
 #include <qbitarray.h>
 #include <qdebug.h>
 #include <qevent.h>
@@ -22,6 +21,7 @@
 #include <qstyleoption.h>
 #include <qvector.h>
 #include <qabstractitemdelegate.h>
+#include <private/qheaderview_p.h>
 
 /*!
     \class QHeaderView qheaderview.h
@@ -1123,7 +1123,7 @@ void QHeaderView::currentChanged(const QModelIndex &old, const QModelIndex &curr
         currentRect = QRect(0, sectionViewportPosition(current.row()),
                             d->viewport->width(), sectionSize(current.row()));
     }
-    d->viewport->repaint(oldRect|currentRect);
+    d->setDirtyRect(oldRect|currentRect);
 }
 
 

@@ -505,7 +505,7 @@ void QTreeView::scrollTo(const QModelIndex &index)
         return;
     QRect area = d->viewport->rect();
     if (area.contains(rect)) {
-        d->viewport->repaint(rect);
+        d->setDirtyRect(rect);
         return;
     }
 

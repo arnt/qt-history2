@@ -883,7 +883,7 @@ void QTableView::scrollTo(const QModelIndex &index)
     QRect area = d->viewport->rect();
     QRect rect = visualRect(index);
     if (area.contains(rect)) {
-        d->viewport->update(rect);
+        d->setDirtyRect(rect);
         return;
     }
 
@@ -921,7 +921,7 @@ void QTableView::scrollTo(const QModelIndex &index)
         horizontalScrollBar()->setValue(++c * horizontalSteps + a);
     }
 
-    d->viewport->update(visualRect(index));
+    d->setDirtyRect(visualRect(index));
 }
 
 /*!
