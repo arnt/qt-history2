@@ -16,9 +16,9 @@
 #include "spacer_widget.h"
 
 #include <pluginmanager.h>
-#include <customwidget.h>
-#include <propertysheet.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/customwidget.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <qalgorithms.h>
 #include <QtCore/qdebug.h>
@@ -177,8 +177,8 @@ QList<QVariant> WidgetDataBaseItem::defaultPropertyValues() const
 }
 
 // ----------------------------------------------------------
-WidgetDataBase::WidgetDataBase(AbstractFormEditor *core, QObject *parent)
-    : AbstractWidgetDataBase(parent),
+WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *parent)
+    : QDesignerWidgetDataBaseInterface(parent),
       m_core(core)
 {
 #define DECLARE_LAYOUT(L, C)
@@ -222,7 +222,7 @@ WidgetDataBase::~WidgetDataBase()
 {
 }
 
-AbstractFormEditor *WidgetDataBase::core() const
+QDesignerFormEditorInterface *WidgetDataBase::core() const
 {
     return m_core;
 }
@@ -232,14 +232,14 @@ int WidgetDataBase::indexOfObject(QObject *object, bool /*resolveName*/) const
     bool resolveName = true; // ### resolveName = false is ignored
 
     if (resolveName)
-        return AbstractWidgetDataBase::indexOfClassName(WidgetFactory::classNameOf(object));
+        return QDesignerWidgetDataBaseInterface::indexOfClassName(WidgetFactory::classNameOf(object));
 
-    return AbstractWidgetDataBase::indexOfObject(object, resolveName);
+    return QDesignerWidgetDataBaseInterface::indexOfObject(object, resolveName);
 }
 
-AbstractWidgetDataBaseItem *WidgetDataBase::item(int index) const
+QDesignerWidgetDataBaseItemInterface *WidgetDataBase::item(int index) const
 {
-    return AbstractWidgetDataBase::item(index);
+    return QDesignerWidgetDataBaseInterface::item(index);
 }
 
 void WidgetDataBase::loadPlugins()
@@ -248,9 +248,9 @@ void WidgetDataBase::loadPlugins()
 
     QStringList plugins = pluginManager->registeredPlugins();
 
-    QMutableListIterator<AbstractWidgetDataBaseItem *> it(m_items);
+    QMutableListIterator<QDesignerWidgetDataBaseItemInterface *> it(m_items);
     while (it.hasNext()) {
-        AbstractWidgetDataBaseItem *item = it.next();
+        QDesignerWidgetDataBaseItemInterface *item = it.next();
 
         if (item->isCustom()) {
             it.remove();
@@ -261,7 +261,7 @@ void WidgetDataBase::loadPlugins()
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager->instance(plugin);
 
-        if (ICustomWidget *c = qobject_cast<ICustomWidget*>(o)) {
+        if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
             if (!c->isInitialized())
                 c->initialize(core());
 
@@ -295,7 +295,7 @@ QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
         return result;
     }
 
-    IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), w);
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), w);
     if (sheet == 0) {
         // ### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create property sheet for \"%s\"", name.toLatin1().constData());
         delete w;
@@ -315,7 +315,7 @@ QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
 void WidgetDataBase::grabDefaultPropertyValues()
 {
     for (int i = 0; i < count(); ++i) {
-        AbstractWidgetDataBaseItem *item = this->item(i);
+        QDesignerWidgetDataBaseItemInterface *item = this->item(i);
         QList<QVariant> default_prop_values = defaultPropertyValues(item->name());
         item->setDefaultPropertyValues(default_prop_values);
 

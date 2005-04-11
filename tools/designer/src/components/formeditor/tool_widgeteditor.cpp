@@ -15,8 +15,8 @@
 #include "formwindow.h"
 
 // sdk
-#include <abstractformwindowmanager.h>
-#include <abstractwidgetbox.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractwidgetbox.h>
 #include <layoutinfo.h>
 
 #include <QtGui/qevent.h>
@@ -24,7 +24,7 @@
 #include <QtCore/qdebug.h>
 
 WidgetEditorTool::WidgetEditorTool(FormWindow *formWindow)
-    : AbstractFormWindowTool(formWindow),
+    : QDesignerFormWindowToolInterface(formWindow),
       m_formWindow(formWindow)
 {
     m_action = new QAction(tr("Edit Widgets"), this);
@@ -39,12 +39,12 @@ WidgetEditorTool::~WidgetEditorTool()
 {
 }
 
-AbstractFormEditor *WidgetEditorTool::core() const
+QDesignerFormEditorInterface *WidgetEditorTool::core() const
 {
     return m_formWindow->core();
 }
 
-AbstractFormWindow *WidgetEditorTool::formWindow() const
+QDesignerFormWindowInterface *WidgetEditorTool::formWindow() const
 {
     return m_formWindow;
 }

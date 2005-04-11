@@ -6,7 +6,7 @@
 #include "resourceeditor_global.h"
 #include "ui_resourceeditor.h"
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 class ResourceModel;
 class QPushButton;
 class QToolButton;
@@ -21,9 +21,9 @@ class ResourceEditor : public QDialog, public Ui::ResourceEditor
     Q_OBJECT
 
 public:
-    ResourceEditor(AbstractFormWindow *form, QWidget *parent = 0);
+    ResourceEditor(QDesignerFormWindowInterface *form, QWidget *parent = 0);
 
-    AbstractFormWindow *form() const { return m_form; }
+    QDesignerFormWindowInterface *form() const { return m_form; }
     int qrcCount() const;
     
 public slots:    
@@ -44,7 +44,7 @@ private slots:
     void addView(const QString &file_name);
     
 private:
-    AbstractFormWindow *m_form;
+    QDesignerFormWindowInterface *m_form;
 
     void getCurrentItem(QString &prefix, QString &file);
     QTreeView *currentView() const;

@@ -11,4 +11,4 @@
 **
 ****************************************************************************/
 
-#include "abstractformeditorplugin.h"
+#include <QtDesigner/abstractformeditorplugin.h>

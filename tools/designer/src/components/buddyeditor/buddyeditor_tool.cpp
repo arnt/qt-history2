@@ -14,13 +14,13 @@
 #include "buddyeditor_tool.h"
 #include "buddyeditor.h"
 
-#include <abstractformwindow.h>
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformeditor.h>
 
 #include <QtGui/QAction>
 
-BuddyEditorTool::BuddyEditorTool(AbstractFormWindow *formWindow, QObject *parent)
-    : AbstractFormWindowTool(parent),
+BuddyEditorTool::BuddyEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
+    : QDesignerFormWindowToolInterface(parent),
       m_formWindow(formWindow)
 {
     m_action = new QAction(tr("Edit Buddies"), this);
@@ -30,12 +30,12 @@ BuddyEditorTool::~BuddyEditorTool()
 {
 }
 
-AbstractFormEditor *BuddyEditorTool::core() const
+QDesignerFormEditorInterface *BuddyEditorTool::core() const
 {
     return m_formWindow->core();
 }
 
-AbstractFormWindow *BuddyEditorTool::formWindow() const
+QDesignerFormWindowInterface *BuddyEditorTool::formWindow() const
 {
     return m_formWindow;
 }

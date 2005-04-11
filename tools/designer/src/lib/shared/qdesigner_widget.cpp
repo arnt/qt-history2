@@ -16,11 +16,11 @@
 #include "layout.h"
 #include "invisible_widget.h"
 
-#include <abstractformwindow.h>
-#include <abstractformeditor.h>
-#include <abstractwidgetfactory.h>
-#include <propertysheet.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <QtGui/QBitmap>
 #include <QtGui/QPixmapCache>
@@ -34,7 +34,7 @@
 
 #include <QtCore/qdebug.h>
 
-static void paintGrid(QWidget *widget, AbstractFormWindow *formWindow, QPaintEvent *e, bool needFrame = false)
+static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow, QPaintEvent *e, bool needFrame = false)
 {
     QPainter p(widget);
     p.setClipRect(e->rect());
@@ -42,7 +42,7 @@ static void paintGrid(QWidget *widget, AbstractFormWindow *formWindow, QPaintEve
     p.fillRect(e->rect(), widget->palette().brush(widget->backgroundRole()));
 
     QString grid_name;
-    grid_name.sprintf("AbstractFormWindowGrid_%d_%d", formWindow->grid().x(), formWindow->grid().y());
+    grid_name.sprintf("QDesignerFormWindowInterfaceGrid_%d_%d", formWindow->grid().x(), formWindow->grid().y());
 
     QPixmap grid;
     if (!QPixmapCache::find(grid_name, grid)) {
@@ -72,7 +72,7 @@ static void paintGrid(QWidget *widget, AbstractFormWindow *formWindow, QPaintEve
 
 void QDesignerDialog::paintEvent(QPaintEvent *e)
 {
-    if (!m_formWindow->hasFeature(AbstractFormWindow::GridFeature)
+    if (!m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)
             || m_formWindow->currentTool() != 0) {
         QWidget::paintEvent(e);
         return;
@@ -90,7 +90,7 @@ void QDesignerLabel::updateBuddy()
         QLabel::setBuddy(widget);
 }
 
-QDesignerWidget::QDesignerWidget(AbstractFormWindow* formWindow, QWidget *parent)
+QDesignerWidget::QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow)
 {
     need_frame = true;
@@ -102,7 +102,7 @@ QDesignerWidget::~QDesignerWidget()
 
 void QDesignerWidget::paintEvent(QPaintEvent *e)
 {
-    if (m_formWindow->hasFeature(AbstractFormWindow::GridFeature)
+    if (m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)
         && m_formWindow->currentTool() == 0) {
         paintGrid(this, m_formWindow, e, need_frame);
     } else {

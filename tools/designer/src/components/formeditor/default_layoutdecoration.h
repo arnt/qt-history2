@@ -15,9 +15,9 @@
 #define DEFAULT_LAYOUTDECORATION_H
 
 #include "formeditor_global.h"
-#include <layoutdecoration.h>
+#include <QtDesigner/layoutdecoration.h>
 
-#include <default_extensionfactory.h>
+#include <QtDesigner/default_extensionfactory.h>
 
 #include <QtCore/QPair>
 
@@ -25,10 +25,10 @@ class QLayoutWidget;
 class QLayoutSupport;
 class FormWindow;
 
-class QT_FORMEDITOR_EXPORT QDesignerLayoutDecoration: public QObject, public ILayoutDecoration
+class QT_FORMEDITOR_EXPORT QDesignerLayoutDecoration: public QObject, public QDesignerLayoutDecorationExtension
 {
     Q_OBJECT
-    Q_INTERFACES(ILayoutDecoration)
+    Q_INTERFACES(QDesignerLayoutDecorationExtension)
 public:
     QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent = 0);
     QDesignerLayoutDecoration(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
@@ -58,10 +58,10 @@ private:
     QLayoutSupport *m_layoutSupport;
 };
 
-class QT_FORMEDITOR_EXPORT QDesignerLayoutDecorationFactory: public DefaultExtensionFactory
+class QT_FORMEDITOR_EXPORT QDesignerLayoutDecorationFactory: public QExtensionFactory
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionFactory)
+    Q_INTERFACES(QAbstractExtensionFactory)
 public:
     QDesignerLayoutDecorationFactory(QExtensionManager *parent = 0);
 

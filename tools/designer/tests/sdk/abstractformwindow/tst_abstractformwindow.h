@@ -7,12 +7,12 @@
 //TESTED_CLASS=
 //TESTED_FILES=ide/src/sdk/abstractformwindow.h ide/src/sdk/abstractformwindow.cpp
 
-class tst_AbstractFormWindow: public QTestCase
+class tst_QDesignerFormWindowInterface: public QTestCase
 {
     Q_OBJECT
 public:
-    tst_AbstractFormWindow(int &argc, char *argv[]);
-    virtual ~tst_AbstractFormWindow();
+    tst_QDesignerFormWindowInterface(int &argc, char *argv[]);
+    virtual ~tst_QDesignerFormWindowInterface();
 
 private slots:
     void dirty_data(QTestTable &t);

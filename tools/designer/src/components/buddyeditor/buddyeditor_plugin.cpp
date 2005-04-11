@@ -16,9 +16,9 @@
 #include "buddyeditor_plugin.h"
 #include "buddyeditor_tool.h"
 
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 
 BuddyEditorPlugin::BuddyEditorPlugin()
@@ -35,7 +35,7 @@ bool BuddyEditorPlugin::isInitialized() const
     return m_initialized;
 }
 
-void BuddyEditorPlugin::initialize(AbstractFormEditor *core)
+void BuddyEditorPlugin::initialize(QDesignerFormEditorInterface *core)
 {
     Q_ASSERT(!isInitialized());
 
@@ -48,22 +48,22 @@ void BuddyEditorPlugin::initialize(AbstractFormEditor *core)
     m_core = core;
     m_initialized = true;
 
-    connect(core->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow*)),
-            this, SLOT(addFormWindow(AbstractFormWindow*)));
+    connect(core->formWindowManager(), SIGNAL(formWindowAdded(QDesignerFormWindowInterface*)),
+            this, SLOT(addFormWindow(QDesignerFormWindowInterface*)));
 
-    connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
-            this, SLOT(removeFormWindow(AbstractFormWindow*)));
+    connect(core->formWindowManager(), SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
+            this, SLOT(removeFormWindow(QDesignerFormWindowInterface*)));
 
-    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
-                this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
+    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
+                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
 }
 
-AbstractFormEditor *BuddyEditorPlugin::core() const
+QDesignerFormEditorInterface *BuddyEditorPlugin::core() const
 {
     return m_core;
 }
 
-void BuddyEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
+void BuddyEditorPlugin::addFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_ASSERT(formWindow != 0);
     Q_ASSERT(m_tools.contains(formWindow) == false);
@@ -74,7 +74,7 @@ void BuddyEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
     formWindow->registerTool(tool);
 }
 
-void BuddyEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
+void BuddyEditorPlugin::removeFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_ASSERT(formWindow != 0);
     Q_ASSERT(m_tools.contains(formWindow) == true);
@@ -92,7 +92,7 @@ QAction *BuddyEditorPlugin::action() const
     return m_action;
 }
 
-void BuddyEditorPlugin::activeFormWindowChanged(AbstractFormWindow *formWindow)
+void BuddyEditorPlugin::activeFormWindowChanged(QDesignerFormWindowInterface *formWindow)
 {
     m_action->setEnabled(formWindow != 0);
 }

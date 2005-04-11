@@ -14,23 +14,23 @@
 #ifndef TASKMENU_H
 #define TASKMENU_H
 
-#include <extension.h>
+#include <QtDesigner/extension.h>
 
 class QAction;
 
-class ITaskMenu
+class QDesignerTaskMenuExtension
 {
 public:
-    virtual ~ITaskMenu() {}
+    virtual ~QDesignerTaskMenuExtension() {}
 
     virtual QAction *preferredEditAction() const;
 
     virtual QList<QAction*> taskActions() const = 0;
 };
-Q_DECLARE_EXTENSION_INTERFACE(ITaskMenu, "http://trolltech.com/Qt/IDE/TaskMenu")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerTaskMenuExtension, "http://trolltech.com/Qt/IDE/TaskMenu")
 
 
-inline QAction *ITaskMenu::preferredEditAction() const
+inline QAction *QDesignerTaskMenuExtension::preferredEditAction() const
 { return 0; }
 
 

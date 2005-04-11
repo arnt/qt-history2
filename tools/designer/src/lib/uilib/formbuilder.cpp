@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include "formbuilder.h"
-#include <ui4.h>
+#include <QtDesigner/formbuilder.h>
+#include <QtDesigner/ui4.h>
 
 #include <QtGui/QtGui>
 
-FormBuilder::FormBuilder()
+QFormBuilder::QFormBuilder()
 {
 }
 
-QWidget *FormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
+QWidget *QFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QList<DomAction*> actions = ui_widget->elementAction();
     for (int i=0; i<actions.size(); ++i) {
@@ -29,7 +29,7 @@ QWidget *FormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
         m_actions.insert(actions.at(i)->attributeName(), action);
     }
 
-    if (QWidget *w = AbstractFormBuilder::create(ui_widget, parentWidget)) {
+    if (QWidget *w = QAbstractFormBuilder::create(ui_widget, parentWidget)) {
         //if (QMenu *menu = qobject_cast<QMenu*>(w)) {
             QList<DomActionRef*> refs = ui_widget->elementAddAction();
             for (int i=0; i<refs.size(); ++i) {
@@ -44,7 +44,7 @@ QWidget *FormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 }
 
 
-QWidget *FormBuilder::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
+QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
 {
     QWidget *w = 0;
 
@@ -79,7 +79,7 @@ QWidget *FormBuilder::createWidget(const QString &widgetName, QWidget *parentWid
     return w;
 }
 
-QLayout *FormBuilder::createLayout(const QString &layoutName, QObject *parent, const QString &name)
+QLayout *QFormBuilder::createLayout(const QString &layoutName, QObject *parent, const QString &name)
 {
     QLayout *l = 0;
 
@@ -114,17 +114,17 @@ QLayout *FormBuilder::createLayout(const QString &layoutName, QObject *parent, c
     return l;
 }
 
-bool FormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
+bool QFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
-    return AbstractFormBuilder::addItem(ui_item, item, layout);
+    return QAbstractFormBuilder::addItem(ui_item, item, layout);
 }
 
-bool FormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
+bool QFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    return AbstractFormBuilder::addItem(ui_widget, widget, parentWidget);
+    return QAbstractFormBuilder::addItem(ui_widget, widget, parentWidget);
 }
 
-QWidget *FormBuilder::widgetByName(QWidget *topLevel, const QString &name)
+QWidget *QFormBuilder::widgetByName(QWidget *topLevel, const QString &name)
 {
     Q_ASSERT(topLevel);
     if (topLevel->objectName() == name)
@@ -133,7 +133,7 @@ QWidget *FormBuilder::widgetByName(QWidget *topLevel, const QString &name)
     return qFindChild<QWidget*>(topLevel, name);
 }
 
-void FormBuilder::createConnections(DomConnections *ui_connections, QWidget *widget)
+void QFormBuilder::createConnections(DomConnections *ui_connections, QWidget *widget)
 {
     Q_ASSERT(widget != 0);
 
@@ -156,28 +156,28 @@ void FormBuilder::createConnections(DomConnections *ui_connections, QWidget *wid
     }
 }
 
-QWidget *FormBuilder::create(DomUI *ui, QWidget *parentWidget)
+QWidget *QFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 {
-    return AbstractFormBuilder::create(ui, parentWidget);
+    return QAbstractFormBuilder::create(ui, parentWidget);
 }
 
-QLayout *FormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
+QLayout *QFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
-    return AbstractFormBuilder::create(ui_layout, layout, parentWidget);
+    return QAbstractFormBuilder::create(ui_layout, layout, parentWidget);
 }
 
-QLayoutItem *FormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
+QLayoutItem *QFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
-    return AbstractFormBuilder::create(ui_layoutItem, layout, parentWidget);
+    return QAbstractFormBuilder::create(ui_layoutItem, layout, parentWidget);
 }
 
-QAction *FormBuilder::create(DomAction *ui_action, QObject *parent)
+QAction *QFormBuilder::create(DomAction *ui_action, QObject *parent)
 {
-    return AbstractFormBuilder::create(ui_action, parent);
+    return QAbstractFormBuilder::create(ui_action, parent);
 }
 
-QActionGroup *FormBuilder::create(DomActionGroup *ui_action_group, QObject *parent)
+QActionGroup *QFormBuilder::create(DomActionGroup *ui_action_group, QObject *parent)
 {
-    return AbstractFormBuilder::create(ui_action_group, parent);
+    return QAbstractFormBuilder::create(ui_action_group, parent);
 }
 

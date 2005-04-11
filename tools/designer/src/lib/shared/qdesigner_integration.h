@@ -18,9 +18,9 @@
 
 #include <QtCore/QObject>
 
-class AbstractFormEditor;
-class AbstractFormWindow;
-class AbstractFormWindowManager;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
+class QDesignerFormWindowManagerInterface;
 
 class QVariant;
 class QWidget;
@@ -29,18 +29,18 @@ class QT_SHARED_EXPORT QDesignerIntegration: public QObject
 {
     Q_OBJECT
 public:
-    QDesignerIntegration(AbstractFormEditor *core, QObject *parent = 0);
+    QDesignerIntegration(QDesignerFormEditorInterface *core, QObject *parent = 0);
     virtual ~QDesignerIntegration();
 
-    inline AbstractFormEditor *core() const;
+    inline QDesignerFormEditorInterface *core() const;
 
 signals:
-    void propertyChanged(AbstractFormWindow *formWindow, const QString &name, const QVariant &value);
+    void propertyChanged(QDesignerFormWindowInterface *formWindow, const QString &name, const QVariant &value);
 
 public slots:
     virtual void updateProperty(const QString &name, const QVariant &value);
-    virtual void updateActiveFormWindow(AbstractFormWindow *formWindow);
-    virtual void setupFormWindow(AbstractFormWindow *formWindow);
+    virtual void updateActiveFormWindow(QDesignerFormWindowInterface *formWindow);
+    virtual void setupFormWindow(QDesignerFormWindowInterface *formWindow);
     virtual void updateSelection();
     virtual void updateGeometry();
     virtual void activateWidget(QWidget *widget);
@@ -49,11 +49,11 @@ private:
     void initialize();
 
 private:
-    AbstractFormEditor *m_core;
-    AbstractFormWindowManager *m_formWindowManager;
+    QDesignerFormEditorInterface *m_core;
+    QDesignerFormWindowManagerInterface *m_formWindowManager;
 };
 
-inline AbstractFormEditor *QDesignerIntegration::core() const
+inline QDesignerFormEditorInterface *QDesignerIntegration::core() const
 { return m_core; }
 
 

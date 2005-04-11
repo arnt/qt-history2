@@ -14,13 +14,13 @@
 #include "listwidgeteditor.h"
 #include <findicondialog.h>
 #include <iconloader.h>
-#include <abstracticoncache.h>
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
+#include <QtDesigner/abstracticoncache.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 
-ListWidgetEditor::ListWidgetEditor(AbstractFormWindow *form, QWidget *parent)
+ListWidgetEditor::ListWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent)
     : QDialog(parent)
 {
     ui.setupUi(this);

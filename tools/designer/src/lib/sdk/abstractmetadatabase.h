@@ -14,20 +14,20 @@
 #ifndef ABSTRACTMETADATABASE_H
 #define ABSTRACTMETADATABASE_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
-#include <QObject>
-#include <QList>
+#include <QtCore/QObject>
+#include <QtCore/QList>
 
 class QCursor;
 class QWidget;
 
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 
-class AbstractMetaDataBaseItem
+class QDesignerMetaDataBaseItemInterface
 {
 public:
-    virtual ~AbstractMetaDataBaseItem() {}
+    virtual ~QDesignerMetaDataBaseItemInterface() {}
 
     virtual QString name() const = 0;
     virtual void setName(const QString &name) = 0;
@@ -48,20 +48,20 @@ public:
     virtual void setEnabled(bool b) = 0;
 };
 
-class QT_SDK_EXPORT AbstractMetaDataBase: public QObject
+class QT_SDK_EXPORT QDesignerMetaDataBaseInterface: public QObject
 {
     Q_OBJECT
 public:
-    AbstractMetaDataBase(QObject *parent = 0);
-    virtual ~AbstractMetaDataBase();
+    QDesignerMetaDataBaseInterface(QObject *parent = 0);
+    virtual ~QDesignerMetaDataBaseInterface();
 
-    virtual AbstractMetaDataBaseItem *item(QObject *object) const = 0;
+    virtual QDesignerMetaDataBaseItemInterface *item(QObject *object) const = 0;
     virtual void add(QObject *object) = 0;
     virtual void remove(QObject *object) = 0;
 
     virtual QList<QObject*> objects() const = 0;
 
-    virtual AbstractFormEditor *core() const = 0;
+    virtual QDesignerFormEditorInterface *core() const = 0;
 
 signals:
     void changed();

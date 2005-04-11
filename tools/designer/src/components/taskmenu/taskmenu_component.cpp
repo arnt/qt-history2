@@ -19,12 +19,12 @@
 #include "listwidget_taskmenu.h"
 #include "combobox_taskmenu.h"
 
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformeditor.h>
 
-#include <extension.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/extension.h>
+#include <QtDesigner/qextensionmanager.h>
 
-TaskMenuComponent::TaskMenuComponent(AbstractFormEditor *core, QObject *parent)
+TaskMenuComponent::TaskMenuComponent(QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent),
       m_core(core)
 {
@@ -33,29 +33,29 @@ TaskMenuComponent::TaskMenuComponent(AbstractFormEditor *core, QObject *parent)
     QExtensionManager *mgr = core->extensionManager();
 
     ButtonTaskMenuFactory *button_factory = new ButtonTaskMenuFactory(mgr);
-    mgr->registerExtensions(button_factory, Q_TYPEID(ITaskMenu));
+    mgr->registerExtensions(button_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 
     GroupBoxTaskMenuFactory *groupbox_factory = new GroupBoxTaskMenuFactory(mgr);
-    mgr->registerExtensions(groupbox_factory, Q_TYPEID(ITaskMenu));
+    mgr->registerExtensions(groupbox_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 
     LabelTaskMenuFactory *label_factory = new LabelTaskMenuFactory(mgr);
-    mgr->registerExtensions(label_factory, Q_TYPEID(ITaskMenu));
+    mgr->registerExtensions(label_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 
     LineEditTaskMenuFactory *lineEdit_factory = new LineEditTaskMenuFactory(mgr);
-    mgr->registerExtensions(lineEdit_factory, Q_TYPEID(ITaskMenu));
+    mgr->registerExtensions(lineEdit_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 
     ListWidgetTaskMenuFactory *listWidget_factory = new ListWidgetTaskMenuFactory(mgr);
-    mgr->registerExtensions(listWidget_factory, Q_TYPEID(ITaskMenu));
+    mgr->registerExtensions(listWidget_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 
     ComboBoxTaskMenuFactory *comboBox_factory = new ComboBoxTaskMenuFactory(mgr);
-    mgr->registerExtensions(comboBox_factory, Q_TYPEID(ITaskMenu));
+    mgr->registerExtensions(comboBox_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 }
 
 TaskMenuComponent::~TaskMenuComponent()
 {
 }
 
-AbstractFormEditor *TaskMenuComponent::core() const
+QDesignerFormEditorInterface *TaskMenuComponent::core() const
 {
     return m_core;
 }

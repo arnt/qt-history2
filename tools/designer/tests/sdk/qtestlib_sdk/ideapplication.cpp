@@ -15,7 +15,7 @@ IDEApplication::~IDEApplication()
 {
 }
 
-AbstractFormEditor *IDEApplication::core()
+QDesignerFormEditorInterface *IDEApplication::core()
 {
     return g_formEditor();
 }

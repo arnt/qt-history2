@@ -1,6 +1,6 @@
 #include "qdesigner_promotedwidget.h"
 
-#include <qextensionmanager.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <QEvent>
 #include <QVBoxLayout>
@@ -13,7 +13,7 @@ PromotedWidgetPropertySheet::PromotedWidgetPropertySheet(QDesignerPromotedWidget
 {
     m_promoted = promoted;
     QWidget *child = promoted->child();
-    m_sheet = qt_extension<IPropertySheet*>(extension_manager, child);
+    m_sheet = qt_extension<QDesignerPropertySheetExtension*>(extension_manager, child);
 }
 
 PromotedWidgetPropertySheet::~PromotedWidgetPropertySheet()
@@ -111,14 +111,14 @@ void PromotedWidgetPropertySheet::setChanged(int index, bool changed)
 }
 
 PromotedWidgetPropertySheetFactory::PromotedWidgetPropertySheetFactory(QExtensionManager *parent)
-    : DefaultExtensionFactory(parent)
+    : QExtensionFactory(parent)
 {
 }
 
 QObject *PromotedWidgetPropertySheetFactory::createExtension(QObject *object,
                                             const QString &iid, QObject *parent) const
 {
-    if (iid != Q_TYPEID(IPropertySheet))
+    if (iid != Q_TYPEID(QDesignerPropertySheetExtension))
         return 0;
     QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object);
     if (promoted == 0)
@@ -128,7 +128,7 @@ QObject *PromotedWidgetPropertySheetFactory::createExtension(QObject *object,
                                 parent);
 }
 
-QDesignerPromotedWidget::QDesignerPromotedWidget(AbstractWidgetDataBaseItem *item,
+QDesignerPromotedWidget::QDesignerPromotedWidget(QDesignerWidgetDataBaseItemInterface *item,
                                                     QWidget *child,
                                                     QWidget *parent)
     : QWidget(parent)

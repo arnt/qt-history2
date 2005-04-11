@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "ui4.h"
+#include <QtDesigner/ui4.h>
 #include <QtXml/QDomDocument>
 
 /*******************************************************************************

@@ -14,7 +14,6 @@ INCLUDEPATH += \
     ../components/widgetbox \
     ../components/propertyeditor \
     ../components/taskmenu \
-    ../../../assistant/lib
 
 LIBS += -L../../lib \
     -L../../../../lib \

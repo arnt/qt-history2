@@ -14,12 +14,12 @@
 #include "qdesigner_stackedbox.h"
 #include "abstractformwindow.h"
 
-#include <abstractformeditor.h>
-#include <abstractpropertyeditor.h>
-#include <abstractmetadatabase.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractpropertyeditor.h>
+#include <QtDesigner/abstractmetadatabase.h>
 
-#include <qextensionmanager.h>
-#include <propertysheet.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/propertysheet.h>
 #include <qdesigner_command.h>
 #include <qtundo.h>
 
@@ -71,7 +71,7 @@ void QDesignerStackedWidget::removeCurrentPage()
     if (currentIndex() == -1)
         return;
 
-    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         DeleteStackedWidgetPageCommand *cmd = new DeleteStackedWidgetPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);
@@ -80,7 +80,7 @@ void QDesignerStackedWidget::removeCurrentPage()
 
 void QDesignerStackedWidget::addPage()
 {
-    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         AddStackedWidgetPageCommand *cmd = new AddStackedWidgetPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);
@@ -109,7 +109,7 @@ void QDesignerStackedWidget::prevPage()
         return;
     }
 
-    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         int newIndex = currentIndex() - 1;
         if (newIndex < 0)
             newIndex = count() - 1;
@@ -128,7 +128,7 @@ void QDesignerStackedWidget::nextPage()
         return;
     }
 
-    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         SetPropertyCommand *cmd = new SetPropertyCommand(fw);
         cmd->init(this, "currentIndex", (currentIndex() + 1) % count());
         fw->commandHistory()->push(cmd);

@@ -26,7 +26,7 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QWidget>
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 void QT_SHARED_EXPORT add_to_box_layout(QBoxLayout *box, QWidget *widget);
 void QT_SHARED_EXPORT insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
@@ -36,7 +36,7 @@ class QT_SHARED_EXPORT Layout : public QObject
 {
     Q_OBJECT
 public:
-    Layout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
+    Layout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
     virtual ~Layout();
 
     int margin() const;
@@ -56,7 +56,7 @@ protected:
     QPoint startPoint;
     QMap<QPointer<QWidget>, QRect> geometries;
     QWidget *layoutBase;
-    AbstractFormWindow *formWindow;
+    QDesignerFormWindowInterface *formWindow;
     QRect oldGeometry;
     bool isBreak;
     bool useSplitter;
@@ -70,7 +70,7 @@ protected slots:
 class QT_SHARED_EXPORT HorizontalLayout : public Layout
 {
 public:
-    HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
+    HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
 
     void doLayout();
 
@@ -81,7 +81,7 @@ protected:
 class QT_SHARED_EXPORT VerticalLayout : public Layout
 {
 public:
-    VerticalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
+    VerticalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
 
     void doLayout();
 
@@ -92,7 +92,7 @@ protected:
 class QT_SHARED_EXPORT StackedLayout : public Layout
 {
 public:
-    StackedLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
+    StackedLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
 
     void doLayout();
 
@@ -106,7 +106,7 @@ class Grid;
 class QT_SHARED_EXPORT GridLayout : public Layout
 {
 public:
-    GridLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, const QSize &res);
+    GridLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, const QSize &res);
     ~GridLayout();
 
     void doLayout();

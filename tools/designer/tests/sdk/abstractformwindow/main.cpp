@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    tst_AbstractFormWindow tc(argc, argv);
+    tst_QDesignerFormWindowInterface tc(argc, argv);
 
     IDEApplication app(argc, argv);
     Q_UNUSED(app);

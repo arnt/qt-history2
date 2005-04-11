@@ -25,10 +25,10 @@
 #include <formeditor/formeditor.h>
 #include <taskmenu/taskmenu_component.h>
 
-#include <abstractformwindow.h>
-#include <abstractformeditorplugin.h>
-#include <abstractformwindowmanager.h>
-#include <abstractwidgetbox.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformeditorplugin.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractwidgetbox.h>
 #include <qdesigner_integration.h>
 
 #include <QtGui/QWorkspace>
@@ -188,8 +188,8 @@ void QDesignerWorkbench::initialize()
     connect(modeAction, SIGNAL(triggered()), this, SLOT(switchToWorkspaceMode()));
 
     m_integration = new QDesignerIntegration(core(), this);
-    connect(m_integration, SIGNAL(propertyChanged(AbstractFormWindow*, const QString&, const QVariant& )),
-            this, SLOT(updateWorkbench(AbstractFormWindow*, const QString&, const QVariant& )));
+    connect(m_integration, SIGNAL(propertyChanged(QDesignerFormWindowInterface*, const QString&, const QVariant& )),
+            this, SLOT(updateWorkbench(QDesignerFormWindowInterface*, const QString&, const QVariant& )));
 
     m_taskMenuComponent = new TaskMenuComponent(core(), this);
 
@@ -220,8 +220,8 @@ void QDesignerWorkbench::initialize()
 
     emit initialized();
 
-    connect(m_core->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
-                this, SLOT(updateWindowMenu(AbstractFormWindow *)));
+    connect(m_core->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
+                this, SLOT(updateWindowMenu(QDesignerFormWindowInterface *)));
 }
 
 Qt::WindowFlags QDesignerWorkbench::magicalWindowFlags() const
@@ -477,12 +477,12 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     return formWindow;
 }
 
-AbstractFormWindowManager *QDesignerWorkbench::formWindowManager() const
+QDesignerFormWindowManagerInterface *QDesignerWorkbench::formWindowManager() const
 {
     return m_core->formWindowManager();
 }
 
-AbstractFormEditor *QDesignerWorkbench::core() const
+QDesignerFormEditorInterface *QDesignerWorkbench::core() const
 {
     return m_core;
 }
@@ -533,7 +533,7 @@ void QDesignerWorkbench::activateWorkspaceChildWindow(QWidget *widget)
     }
 }
 
-void QDesignerWorkbench::updateWorkbench(AbstractFormWindow *fw, const QString &name,
+void QDesignerWorkbench::updateWorkbench(QDesignerFormWindowInterface *fw, const QString &name,
                                          const QVariant &value)
 {
     Q_UNUSED(fw);
@@ -585,7 +585,7 @@ void QDesignerWorkbench::initializeCorePlugins()
 {
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
     foreach (QObject *plugin, builtinPlugins) {
-        if (AbstractFormEditorPlugin *formEditorPlugin = qobject_cast<AbstractFormEditorPlugin*>(plugin)) {
+        if (QDesignerFormEditorPluginInterface *formEditorPlugin = qobject_cast<QDesignerFormEditorPluginInterface*>(plugin)) {
             if (!formEditorPlugin->isInitialized())
                 formEditorPlugin->initialize(core());
         }
@@ -610,12 +610,12 @@ bool QDesignerWorkbench::readInForm(const QString &fileName) const
     return m_actionManager->readInForm(fileName);
 }
 
-bool QDesignerWorkbench::writeOutForm(AbstractFormWindow *formWindow, const QString &fileName) const
+bool QDesignerWorkbench::writeOutForm(QDesignerFormWindowInterface *formWindow, const QString &fileName) const
 {
     return m_actionManager->writeOutForm(formWindow, fileName);
 }
 
-bool QDesignerWorkbench::saveForm(AbstractFormWindow *frm)
+bool QDesignerWorkbench::saveForm(QDesignerFormWindowInterface *frm)
 {
     return m_actionManager->saveForm(frm);
 }
@@ -706,7 +706,7 @@ void QDesignerWorkbench::setUIMode(UIMode mode)
         switchToTopLevelMode();
 }
 
-void QDesignerWorkbench::updateWindowMenu(AbstractFormWindow *fw)
+void QDesignerWorkbench::updateWindowMenu(QDesignerFormWindowInterface *fw)
 {
     if (!fw)
         return;

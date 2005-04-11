@@ -151,13 +151,13 @@ void QDesignerContainer::remove(int index)
 }
 
 QDesignerContainerFactory::QDesignerContainerFactory(QExtensionManager *parent)
-    : DefaultExtensionFactory(parent)
+    : QExtensionFactory(parent)
 {
 }
 
 QObject *QDesignerContainerFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid == Q_TYPEID(IContainer)
+    if (iid == Q_TYPEID(QDesignerContainerExtension)
         && (qobject_cast<QDesignerStackedWidget*>(object)
                 || qobject_cast<QDesignerTabWidget*>(object)
                 || qobject_cast<QDesignerToolBox*>(object)

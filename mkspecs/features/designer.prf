@@ -1,12 +1,5 @@
 QT += xml
 
-# Designer SDK
-SDK = $$QT_SOURCE_TREE/tools/designer/src/lib
-INCLUDEPATH += \
-    $$SDK/extension \
-    $$SDK/sdk \
-    $$SDK/uilib
-
 # Include the correct version of the designer library
 CONFIG(debug, debug|release) {
     unix: LIBS += -lQtDesigner_debug

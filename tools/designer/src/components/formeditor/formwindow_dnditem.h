@@ -21,7 +21,7 @@ class FormWindow;
 class FormWindowDnDItem : public QDesignerDnDItem
 {
 public:
-    FormWindowDnDItem(AbstractDnDItem::DropType type, FormWindow *form,
+    FormWindowDnDItem(QDesignerDnDItemInterface::DropType type, FormWindow *form,
                         QWidget *widget, const QPoint &global_mouse_pos);
     virtual DomUI *domUi() const;
 };

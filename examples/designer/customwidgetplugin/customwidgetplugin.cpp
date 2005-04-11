@@ -20,15 +20,15 @@ AnalogClockPlugin::AnalogClockPlugin(QObject *parent)
     initialized = false;
 }
 
-void AnalogClockPlugin::initialize(AbstractFormEditor * /*core*/) 
-{ 
-    if (initialized) 
+void AnalogClockPlugin::initialize(QDesignerFormEditorInterface * /*core*/)
+{
+    if (initialized)
         return;
 
     initialized = true;
 }
 
-bool AnalogClockPlugin::isInitialized() const 
+bool AnalogClockPlugin::isInitialized() const
 {
     return initialized;
 }

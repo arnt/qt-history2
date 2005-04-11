@@ -14,15 +14,15 @@
 #ifndef MEMBERSHEET_H
 #define MEMBERSHEET_H
 
-#include <extension.h>
+#include <QtDesigner/extension.h>
 
 #include <QtCore/QList>
 #include <QtCore/QByteArray>
 
-class IMemberSheet
+class QDesignerMemberSheetExtension
 {
 public:
-    virtual ~IMemberSheet() {}
+    virtual ~QDesignerMemberSheetExtension() {}
 
     virtual int count() const = 0;
 
@@ -43,6 +43,6 @@ public:
     virtual QList<QByteArray> parameterTypes(int index) const = 0;
     virtual QList<QByteArray> parameterNames(int index) const = 0;
 };
-Q_DECLARE_EXTENSION_INTERFACE(IMemberSheet, "http://trolltech.com/Qt/IDE/MemberSheet")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerMemberSheetExtension, "http://trolltech.com/Qt/IDE/MemberSheet")
 
 #endif // MEMBERSHEET_H

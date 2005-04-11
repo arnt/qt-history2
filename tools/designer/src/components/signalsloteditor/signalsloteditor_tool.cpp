@@ -14,15 +14,15 @@
 #include "signalsloteditor_tool.h"
 #include "signalsloteditor.h"
 
-#include <abstractformwindow.h>
-#include <abstractformeditor.h>
-#include <ui4.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/ui4.h>
 
 #include <QtGui/QAction>
 #include <QtCore/qdebug.h>
 
-SignalSlotEditorTool::SignalSlotEditorTool(AbstractFormWindow *formWindow, QObject *parent)
-    : AbstractFormWindowTool(parent),
+SignalSlotEditorTool::SignalSlotEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
+    : QDesignerFormWindowToolInterface(parent),
       m_formWindow(formWindow)
 {
     m_action = new QAction(tr("Edit Signals/Slots"), this);
@@ -32,12 +32,12 @@ SignalSlotEditorTool::~SignalSlotEditorTool()
 {
 }
 
-AbstractFormEditor *SignalSlotEditorTool::core() const
+QDesignerFormEditorInterface *SignalSlotEditorTool::core() const
 {
     return m_formWindow->core();
 }
 
-AbstractFormWindow *SignalSlotEditorTool::formWindow() const
+QDesignerFormWindowInterface *SignalSlotEditorTool::formWindow() const
 {
     return m_formWindow;
 }

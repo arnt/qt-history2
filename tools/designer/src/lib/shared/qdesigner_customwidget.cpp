@@ -14,12 +14,12 @@
 #include <qvariant.h>
 
 #include "qdesigner_customwidget.h"
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformwindow.h>
 
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformeditor.h>
 #include "widgetdatabase.h"
 
-QDesignerCustomWidget::QDesignerCustomWidget(AbstractFormWindow *formWindow, QWidget *parent)
+QDesignerCustomWidget::QDesignerCustomWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent)
     : QDesignerWidget(formWindow, parent),
       m_widgetClassName(QLatin1String("QWidget"))
 {
@@ -29,9 +29,9 @@ QDesignerCustomWidget::~QDesignerCustomWidget()
 {
 }
 
-AbstractWidgetDataBaseItem *QDesignerCustomWidget::widgetItem() const
+QDesignerWidgetDataBaseItemInterface *QDesignerCustomWidget::widgetItem() const
 {
-    AbstractFormEditor *core = formWindow()->core();
+    QDesignerFormEditorInterface *core = formWindow()->core();
     int index = core->widgetDataBase()->indexOfClassName(widgetClassName());
     if (index != -1)
         return core->widgetDataBase()->item(index);
@@ -62,7 +62,7 @@ void QDesignerCustomWidget::createWidgetItem()
 
 bool QDesignerCustomWidget::isCompat() const
 {
-    if (AbstractWidgetDataBaseItem *item = widgetItem())
+    if (QDesignerWidgetDataBaseItemInterface *item = widgetItem())
         return item->isCompat();
 
     return false;
@@ -70,7 +70,7 @@ bool QDesignerCustomWidget::isCompat() const
 
 void QDesignerCustomWidget::setCompat(bool compat)
 {
-    if (AbstractWidgetDataBaseItem *item = widgetItem()) {
+    if (QDesignerWidgetDataBaseItemInterface *item = widgetItem()) {
         item->setCompat(compat);
         update();
     }
@@ -78,7 +78,7 @@ void QDesignerCustomWidget::setCompat(bool compat)
 
 bool QDesignerCustomWidget::isContainer() const
 {
-    if (AbstractWidgetDataBaseItem *item = widgetItem())
+    if (QDesignerWidgetDataBaseItemInterface *item = widgetItem())
         return item->isContainer();
 
     return false;
@@ -86,7 +86,7 @@ bool QDesignerCustomWidget::isContainer() const
 
 void QDesignerCustomWidget::setContainer(bool container)
 {
-    if (AbstractWidgetDataBaseItem *item = widgetItem()) {
+    if (QDesignerWidgetDataBaseItemInterface *item = widgetItem()) {
         item->setContainer(container);
         update();
     }

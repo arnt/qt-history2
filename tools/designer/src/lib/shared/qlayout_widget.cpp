@@ -17,11 +17,11 @@
 #include "layout.h"
 #include "invisible_widget.h"
 
-#include <abstractformwindow.h>
-#include <abstractformeditor.h>
-#include <abstractwidgetfactory.h>
-#include <propertysheet.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <QtGui/QBitmap>
 #include <QtGui/QPixmapCache>
@@ -44,12 +44,12 @@ public:
 };
 
 // ---- QLayoutSupport ----
-QLayoutSupport::QLayoutSupport(AbstractFormWindow *formWindow, QWidget *widget, QObject *parent)
+QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent)
     : QObject(parent),
       m_formWindow(formWindow),
       m_widget(widget),
       m_currentIndex(-1),
-      m_currentInsertMode(ILayoutDecoration::InsertWidgetMode)
+      m_currentInsertMode(QDesignerLayoutDecorationExtension::InsertWidgetMode)
 {
     QPalette p;
     p.setColor(QPalette::Background, Qt::red);
@@ -70,7 +70,7 @@ QLayoutSupport::QLayoutSupport(AbstractFormWindow *formWindow, QWidget *widget, 
     m_indicatorBottom->setPalette(p);
     m_indicatorBottom->hide();
 
-    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(formWindow->core()->extensionManager(), m_widget)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(formWindow->core()->extensionManager(), m_widget)) {
         sheet->setChanged(sheet->indexOf("margin"), true);
         sheet->setChanged(sheet->indexOf("spacing"), true);
     }
@@ -216,7 +216,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
     }
 
     m_currentIndex = index;
-    m_currentInsertMode = ILayoutDecoration::InsertWidgetMode;
+    m_currentInsertMode = QDesignerLayoutDecorationExtension::InsertWidgetMode;
 
     QLayoutItem *item = layout()->itemAt(index);
     QRect g = extendedGeometry(index);
@@ -257,7 +257,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
         m_indicatorBottom->raise();
 
         if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout())) {
-            m_currentInsertMode = ILayoutDecoration::InsertWidgetMode;
+            m_currentInsertMode = QDesignerLayoutDecorationExtension::InsertWidgetMode;
             int row, column, rowspan, colspan;
             gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
             m_currentCell = qMakePair(row, column);
@@ -283,7 +283,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                 int incr = (mx == dx1) ? 0 : +1;
 
                 if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout())) {
-                    m_currentInsertMode = ILayoutDecoration::InsertColumnMode;
+                    m_currentInsertMode = QDesignerLayoutDecorationExtension::InsertColumnMode;
                     int row, column, rowspan, colspan;
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
                     m_currentCell = qMakePair(row, qMax(0, column + incr));
@@ -302,7 +302,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                 int incr = (my == dy1) ? 0 : +1;
 
                 if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout())) {
-                    m_currentInsertMode = ILayoutDecoration::InsertRowMode;
+                    m_currentInsertMode = QDesignerLayoutDecorationExtension::InsertRowMode;
                     int row, column, rowspan, colspan;
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
                     m_currentCell = qMakePair(qMax(0, row + incr), column);
@@ -349,7 +349,7 @@ int QLayoutSupport::indexOf(QWidget *widget) const
     return -1;
 }
 
-AbstractFormEditor *QLayoutSupport::core() const
+QDesignerFormEditorInterface *QLayoutSupport::core() const
 {
     return formWindow()->core();
 }
@@ -403,7 +403,7 @@ QList<QWidget*> QLayoutSupport::widgets(QLayout *layout) const
 
 void QLayoutSupport::insertWidget(QWidget *widget, const QPair<int, int> &cell)
 {
-    AbstractFormEditor *core = formWindow()->core();
+    QDesignerFormEditorInterface *core = formWindow()->core();
     LayoutInfo::Type lt = LayoutInfo::layoutType(core, layout());
     switch (lt) {
         case LayoutInfo::VBox: {
@@ -765,7 +765,7 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
 
     Q_ASSERT(gridLayout == m_widget->layout());
 
-    AbstractFormEditor *core = formWindow()->core();
+    QDesignerFormEditorInterface *core = formWindow()->core();
     LayoutInfo::deleteLayout(core, m_widget);
 
     gridLayout = (QGridLayout*) core->widgetFactory()->createLayout(m_widget, 0, LayoutInfo::Grid);
@@ -781,7 +781,7 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
     }
 }
 
-QLayoutWidget::QLayoutWidget(AbstractFormWindow *formWindow, QWidget *parent)
+QLayoutWidget::QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow),
       m_support(formWindow, this)
 {
@@ -789,7 +789,7 @@ QLayoutWidget::QLayoutWidget(AbstractFormWindow *formWindow, QWidget *parent)
 
 void QLayoutWidget::paintEvent(QPaintEvent*)
 {
-    if (!m_formWindow->hasFeature(AbstractFormWindow::GridFeature))
+    if (!m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature))
         return;
 
     if (m_formWindow->currentTool() != 0)

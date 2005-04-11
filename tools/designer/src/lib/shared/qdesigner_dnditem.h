@@ -17,9 +17,9 @@
 #include <QtCore/QPoint>
 
 #include "shared_global.h"
-#include <abstractdnditem.h>
+#include <QtDesigner/abstractdnditem.h>
 
-class QT_SHARED_EXPORT QDesignerDnDItem: public AbstractDnDItem
+class QT_SHARED_EXPORT QDesignerDnDItem: public QDesignerDnDItemInterface
 {
 public:
     QDesignerDnDItem(DropType type, QWidget *source = 0);

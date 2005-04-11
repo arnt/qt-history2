@@ -14,19 +14,19 @@
 #include "qdesigner_integration.h"
 
 // sdk
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
-#include <abstractformwindowmanager.h>
-#include <abstractpropertyeditor.h>
-#include <abstractwidgetbox.h>
-#include <abstractobjectinspector.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractpropertyeditor.h>
+#include <QtDesigner/abstractwidgetbox.h>
+#include <QtDesigner/abstractobjectinspector.h>
 
 #include <QtCore/QVariant>
 
 #include <QtCore/qdebug.h>
 
-QDesignerIntegration::QDesignerIntegration(AbstractFormEditor *core, QObject *parent)
+QDesignerIntegration::QDesignerIntegration(QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent),
       m_core(core)
 {
@@ -45,18 +45,18 @@ void QDesignerIntegration::initialize()
     connect(core()->propertyEditor(), SIGNAL(propertyChanged(const QString&, const QVariant& )),
             this, SLOT(updateProperty(const QString&, const QVariant& )));
 
-    connect(core()->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow* )),
-            this, SLOT(setupFormWindow(AbstractFormWindow* )));
+    connect(core()->formWindowManager(), SIGNAL(formWindowAdded(QDesignerFormWindowInterface* )),
+            this, SLOT(setupFormWindow(QDesignerFormWindowInterface* )));
 
-    connect(core()->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow* )),
-            this, SLOT(updateActiveFormWindow(AbstractFormWindow* )));
+    connect(core()->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface* )),
+            this, SLOT(updateActiveFormWindow(QDesignerFormWindowInterface* )));
 }
 
 void QDesignerIntegration::updateProperty(const QString &name, const QVariant &value)
 {
-    if (AbstractFormWindow *formWindow = core()->formWindowManager()->activeFormWindow()) {
+    if (QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow()) {
 
-        AbstractFormWindowCursor *cursor = formWindow->cursor();
+        QDesignerFormWindowCursorInterface *cursor = formWindow->cursor();
 
         if (cursor->isWidgetSelected(formWindow->mainContainer())) {
             if (name == QLatin1String("windowTitle")) {
@@ -87,13 +87,13 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
     }
 }
 
-void QDesignerIntegration::updateActiveFormWindow(AbstractFormWindow *formWindow)
+void QDesignerIntegration::updateActiveFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_UNUSED(formWindow);
     updateSelection();
 }
 
-void QDesignerIntegration::setupFormWindow(AbstractFormWindow *formWindow)
+void QDesignerIntegration::setupFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
     connect(formWindow, SIGNAL(activated(QWidget *)), this, SLOT(activateWidget(QWidget *)));
@@ -102,7 +102,7 @@ void QDesignerIntegration::setupFormWindow(AbstractFormWindow *formWindow)
 
 void QDesignerIntegration::updateGeometry()
 {
-    if (AbstractFormWindow *formWindow = core()->formWindowManager()->activeFormWindow()) {
+    if (QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow()) {
         bool blocked = formWindow->blockSignals(true);
         formWindow->topLevelWidget()->resize(formWindow->mainContainer()->size());
         formWindow->blockSignals(blocked);
@@ -111,16 +111,16 @@ void QDesignerIntegration::updateGeometry()
 
 void QDesignerIntegration::updateSelection()
 {
-    AbstractFormWindow *formWindow = core()->formWindowManager()->activeFormWindow();
+    QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
     QWidget *selection = 0;
 
     if (formWindow)
         selection = formWindow->cursor()->selectedWidget(0);
 
-    if (AbstractObjectInspector *objectInspector = core()->objectInspector())
+    if (QDesignerObjectInspectorInterface *objectInspector = core()->objectInspector())
         objectInspector->setFormWindow(formWindow);
 
-    if (AbstractPropertyEditor *propertyEditor = core()->propertyEditor()) {
+    if (QDesignerPropertyEditorInterface *propertyEditor = core()->propertyEditor()) {
         propertyEditor->setObject(selection);
         propertyEditor->setEnabled(formWindow && formWindow->cursor()->selectedWidgetCount() == 1);
     }

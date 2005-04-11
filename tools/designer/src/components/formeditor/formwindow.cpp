@@ -32,20 +32,20 @@
 #include <qdesigner_widget.h>
 #include <invisible_widget.h>
 #include <layoutinfo.h>
-#include <layoutdecoration.h>
+#include <QtDesigner/layoutdecoration.h>
 #include <connectionedit.h>
-#include <taskmenu.h>
+#include <QtDesigner/taskmenu.h>
 
 // sdk
-#include <abstractformeditor.h>
-#include <abstractformwindowtool.h>
-#include <abstractwidgetfactory.h>
-#include <abstractwidgetdatabase.h>
-#include <ui4.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindowtool.h>
+#include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
+#include <QtDesigner/ui4.h>
 
-#include <container.h>
-#include <propertysheet.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>
@@ -74,7 +74,7 @@ DropLine::DropLine(QWidget *parent)
 }
 
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WindowFlags flags)
-    : AbstractFormWindow(parent, flags),
+    : QDesignerFormWindowInterface(parent, flags),
       m_core(core), m_widgetStack(0)
 {
     init();
@@ -105,12 +105,12 @@ FormWindow::~FormWindow()
     qDeleteAll(selections);
 }
 
-AbstractFormEditor *FormWindow::core() const
+QDesignerFormEditorInterface *FormWindow::core() const
 {
     return m_core;
 }
 
-AbstractFormWindowCursor *FormWindow::cursor() const
+QDesignerFormWindowCursorInterface *FormWindow::cursor() const
 {
     return m_cursor;
 }
@@ -122,7 +122,7 @@ bool FormWindow::hasFeature(Feature f) const
 
 void FormWindow::bfs(QWidget *widget)
 {
-    AbstractMetaDataBase *db = core()->metaDataBase();
+    QDesignerMetaDataBaseInterface *db = core()->metaDataBase();
 
     foreach (QObject *o, widget->children()) {
         QWidget *childWidget = qobject_cast<QWidget*>(o);
@@ -207,7 +207,7 @@ void FormWindow::setCursorToAll(const QCursor &c, QWidget *start)
 
 void FormWindow::restoreCursors(QWidget *start, FormWindow *fw)
 {
-    AbstractMetaDataBaseItem *item = core()->metaDataBase()->item(start);
+    QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(start);
     if (fw->isManaged(start))
         start->setCursor(item->cursor());
     else
@@ -299,6 +299,7 @@ void FormWindow::setMainContainer(QWidget *w)
     }
 
     m_mainContainer = w;
+    QSize sz = m_mainContainer->size();
 
     m_mainContainer->setParent(m_widgetStack, 0);
     m_mainContainer->raise();
@@ -310,12 +311,13 @@ void FormWindow::setMainContainer(QWidget *w)
 
     manageWidget(m_mainContainer);
 
-    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), m_mainContainer)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), m_mainContainer)) {
         sheet->setVisible(sheet->indexOf("windowTitle"), true);
         // ### generalize
     }
 
     m_mainContainer->setFocusPolicy(Qt::StrongFocus);
+    m_mainContainer->resize(sz);
 
     updateWidgets();
 
@@ -431,7 +433,7 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseE
 
     QList<QWidget*> sel = checkSelectionsForMove(managedWidget);
 
-    QList<AbstractDnDItem*> item_list;
+    QList<QDesignerDnDItemInterface*> item_list;
     foreach (QWidget *widget, sel) {
         QWidget *container = findTargetContainer(widget);
         if (container && LayoutInfo::layoutType(core(), container) != LayoutInfo::NoLayout) {
@@ -439,10 +441,10 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseE
             selectWidget(widget, true);
         }
         if (e->modifiers() & Qt::ControlModifier) {
-            item_list.append(new FormWindowDnDItem(AbstractDnDItem::CopyDrop, this,
+            item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::CopyDrop, this,
                                                     widget, e->globalPos()));
         } else {
-            item_list.append(new FormWindowDnDItem(AbstractDnDItem::MoveDrop, this,
+            item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::MoveDrop, this,
                                                     widget, e->globalPos()));
             widget->hide();
         }
@@ -949,11 +951,11 @@ bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
             break;
 
         case Qt::Key_Left:
-            cursor()->movePosition(AbstractFormWindowCursor::Prev);
+            cursor()->movePosition(QDesignerFormWindowCursorInterface::Prev);
             break;
 
         case Qt::Key_Right:
-            cursor()->movePosition(AbstractFormWindowCursor::Next);
+            cursor()->movePosition(QDesignerFormWindowCursorInterface::Next);
             break;
     }
 
@@ -1301,7 +1303,7 @@ void FormWindow::finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenu
 {
     e->accept();
 #ifndef VS_CTX_MENU
-    ITaskMenu *taskMenu = qt_extension<ITaskMenu*>(core()->extensionManager(), w);
+    QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w);
     QMenu *menu = createPopupMenu(menuParent);
     if (menu && taskMenu) {
         QList<QAction *> acts = taskMenu->taskActions();
@@ -1363,7 +1365,9 @@ void FormWindow::setContents(QIODevice *dev)
 
     QDesignerResource r(this);
     QWidget *w = r.load(dev, this);
-    if (!w) {
+    qDebug() << "=======> w.size:" << w->size();
+
+    if (w == 0) {
         w = core()->widgetFactory()->createWidget("QWidget", this);
     }
 
@@ -1505,7 +1509,7 @@ void FormWindow::layoutVerticalSplit()
 
 QMenu *FormWindow::createPopupMenu(QWidget *w)
 {
-    AbstractFormWindowManager *manager = core()->formWindowManager();
+    QDesignerFormWindowManagerInterface *manager = core()->formWindowManager();
     bool isFormWindow = qobject_cast<FormWindow*>(w);
 
     QMenu *popup = new QMenu(this);
@@ -1599,7 +1603,7 @@ QPoint FormWindow::mapToForm(const QWidget *w, const QPoint &pos) const
 
 bool FormWindow::canBeBuddy(QWidget *w) const // ### rename me.
 {
-    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), w)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), w)) {
         int index = sheet->indexOf("focusPolicy");
         if (index != -1) {
             bool ok = false;
@@ -1617,9 +1621,9 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
         || const_cast<const QWidget *>(w) == this)
         return 0;
 
-    AbstractWidgetFactory *widgetFactory = core()->widgetFactory();
-    AbstractWidgetDataBase *widgetDataBase = core()->widgetDataBase();
-    AbstractMetaDataBase *metaDataBase = core()->metaDataBase();
+    QDesignerWidgetFactoryInterface *widgetFactory = core()->widgetFactory();
+    QDesignerWidgetDataBaseInterface *widgetDataBase = core()->widgetDataBase();
+    QDesignerMetaDataBaseInterface *metaDataBase = core()->metaDataBase();
 
     QWidget *container = widgetFactory->containerOfWidget(mainContainer()); // default parent for new widget is the formwindow
     if (!isMainContainer(w)) { // press was not on formwindow, check if we can find another parent
@@ -1659,7 +1663,7 @@ void FormWindow::simplifySelection(QList<QWidget*> *sel) const
 
 FormWindow *FormWindow::findFormWindow(QWidget *w)
 {
-    return qobject_cast<FormWindow*>(AbstractFormWindow::findFormWindow(w));
+    return qobject_cast<FormWindow*>(QDesignerFormWindowInterface::findFormWindow(w));
 }
 
 void FormWindow::repaintSelection()
@@ -1737,7 +1741,7 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
     if (container == 0 || core()->metaDataBase()->item(container) == 0)
         return;
 
-    if (ILayoutDecoration *g = qt_extension<ILayoutDecoration*>(core()->extensionManager(), container)) {
+    if (QDesignerLayoutDecorationExtension *g = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), container)) {
         if (mode == Restore) {
             g->adjustIndicator(QPoint(), -1);
         } else {
@@ -1785,12 +1789,12 @@ int FormWindow::toolCount() const
     return m_widgetStack->count();
 }
 
-AbstractFormWindowTool *FormWindow::tool(int index) const
+QDesignerFormWindowToolInterface *FormWindow::tool(int index) const
 {
     return m_widgetStack->tool(index);
 }
 
-void FormWindow::registerTool(AbstractFormWindowTool *tool)
+void FormWindow::registerTool(QDesignerFormWindowToolInterface *tool)
 {
     Q_ASSERT(tool != 0);
 
@@ -1815,7 +1819,7 @@ bool FormWindow::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *ev
     if (m_widgetStack == 0)
         return false;
 
-    AbstractFormWindowTool *tool = m_widgetStack->currentTool();
+    QDesignerFormWindowToolInterface *tool = m_widgetStack->currentTool();
     if (tool == 0)
         return false;
 
@@ -1972,7 +1976,7 @@ void FormWindow::editContents()
     if (sel.count() == 1) {
         QWidget *widget = sel.first();
 
-        if (ITaskMenu *taskMenu = qt_extension<ITaskMenu*>(core()->extensionManager(), widget)) {
+        if (QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), widget)) {
             if (QAction *a = taskMenu->preferredEditAction()) {
                 a->trigger();
             }
@@ -1980,7 +1984,7 @@ void FormWindow::editContents()
     }
 }
 
-void FormWindow::dropWidgets(QList<AbstractDnDItem*> &item_list, QWidget *target,
+void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
                                 const QPoint &global_mouse_pos)
 {
     beginCommand(tr("Drop widget"));
@@ -1995,12 +1999,12 @@ void FormWindow::dropWidgets(QList<AbstractDnDItem*> &item_list, QWidget *target
 
     highlightWidget(target, target->mapFromGlobal(global_mouse_pos), FormWindow::Restore);
 
-    foreach (AbstractDnDItem *item, item_list) {
+    foreach (QDesignerDnDItemInterface *item, item_list) {
         DomUI *dom_ui = item->domUi();
         QRect geometry = item->decoration()->geometry();
         Q_ASSERT(dom_ui != 0);
 
-        if (item->type() == AbstractDnDItem::CopyDrop) {
+        if (item->type() == QDesignerDnDItemInterface::CopyDrop) {
             QWidget *widget = createWidget(dom_ui, geometry, parent);
             selectWidget(widget, true);
         } else {

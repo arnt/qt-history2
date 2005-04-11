@@ -14,12 +14,12 @@
 #include <QtGui/QRegExpValidator>
 #include <QtGui/QMessageBox>
 
-#include <abstractwidgetdatabase.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
 #include "promotetocustomwidgetdialog.h"
 
 #include <QtCore/qdebug.h>
 
-PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(AbstractWidgetDataBase *db,
+PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(QDesignerWidgetDataBaseInterface *db,
                                                         const QString &base_class_name,
                                                         QWidget *parent)
     : QDialog(parent)
@@ -32,7 +32,7 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(AbstractWidgetDataBase 
 
     m_class_name_input->addItem(QString());
     for (int i = 0; i < db->count(); ++i) {
-        AbstractWidgetDataBaseItem *item = db->item(i);
+        QDesignerWidgetDataBaseItemInterface *item = db->item(i);
         if (!item->isPromoted())
             continue;
         if (item->extends() != base_class_name)
@@ -95,7 +95,7 @@ void PromoteToCustomWidgetDialog::accept()
     QString custom_class_name = customClassName();
     QString include_file = includeFile();
 
-    AbstractWidgetDataBaseItem *item = m_db->item(m_db->indexOfClassName(custom_class_name));
+    QDesignerWidgetDataBaseItemInterface *item = m_db->item(m_db->indexOfClassName(custom_class_name));
     if (item != 0) {
         if (!item->isPromoted()) {
             QMessageBox::warning(0, tr("Conflicting class name"),

@@ -15,10 +15,10 @@
 #include "inplace_editor.h"
 #include "listwidgeteditor.h"
 
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>
@@ -54,7 +54,7 @@ QList<QAction*> ListWidgetTaskMenu::taskActions() const
 
 void ListWidgetTaskMenu::editItems()
 {
-    m_formWindow = AbstractFormWindow::findFormWindow(m_listWidget);
+    m_formWindow = QDesignerFormWindowInterface::findFormWindow(m_listWidget);
     if (m_formWindow.isNull())
         return;
 
@@ -73,14 +73,14 @@ void ListWidgetTaskMenu::editItems()
 }
 
 ListWidgetTaskMenuFactory::ListWidgetTaskMenuFactory(QExtensionManager *extensionManager)
-    : DefaultExtensionFactory(extensionManager)
+    : QExtensionFactory(extensionManager)
 {
 }
 
 QObject *ListWidgetTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
     if (QListWidget *button = qobject_cast<QListWidget*>(object)) {
-        if (iid == Q_TYPEID(ITaskMenu)) {
+        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
             return new ListWidgetTaskMenu(button, parent);
         }
     }

@@ -16,17 +16,17 @@
 
 #include <QtCore/QObject>
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
 class QIcon;
 class QPixmap;
 class QString;
 
-class QT_SDK_EXPORT AbstractIconCache : public QObject
+class QT_SDK_EXPORT QDesignerIconCacheInterface : public QObject
 {
     Q_OBJECT
 public:
-    AbstractIconCache(QObject *parent)
+    QDesignerIconCacheInterface(QObject *parent)
         : QObject(parent) {}
 
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath = QString()) = 0;

@@ -14,7 +14,7 @@
 #ifndef LAYOUTDECORATION_H
 #define LAYOUTDECORATION_H
 
-#include <extension.h>
+#include <QtDesigner/extension.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPair>
@@ -25,7 +25,7 @@ class QWidget;
 class QRect;
 class QLayout;
 
-class ILayoutDecoration
+class QDesignerLayoutDecorationExtension
 {
 public:
     enum InsertMode
@@ -35,7 +35,7 @@ public:
         InsertColumnMode
     };
 
-    virtual ~ILayoutDecoration() {}
+    virtual ~QDesignerLayoutDecorationExtension() {}
 
     virtual QList<QWidget*> widgets(QLayout *layout) const = 0;
 
@@ -58,6 +58,6 @@ public:
 
     virtual void adjustIndicator(const QPoint &pos, int index) = 0;
 };
-Q_DECLARE_EXTENSION_INTERFACE(ILayoutDecoration, "http://trolltech.com/Qt/IDE/LayoutDecoration")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerLayoutDecorationExtension, "http://trolltech.com/Qt/IDE/LayoutDecoration")
 
 #endif // LAYOUTDECORATION_H

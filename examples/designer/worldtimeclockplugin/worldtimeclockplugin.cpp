@@ -20,15 +20,15 @@ WorldTimeClockPlugin::WorldTimeClockPlugin(QObject *parent)
     initialized = false;
 }
 
-void WorldTimeClockPlugin::initialize(AbstractFormEditor * /*core*/) 
-{ 
-    if (initialized) 
+void WorldTimeClockPlugin::initialize(QDesignerFormEditorInterface * /*core*/)
+{
+    if (initialized)
         return;
 
     initialized = true;
 }
 
-bool WorldTimeClockPlugin::isInitialized() const 
+bool WorldTimeClockPlugin::isInitialized() const
 {
     return initialized;
 }

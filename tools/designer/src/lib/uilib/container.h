@@ -14,15 +14,15 @@
 #ifndef CONTAINER_H
 #define CONTAINER_H
 
-#include <extension.h>
-#include <QObject>
+#include <QtDesigner/extension.h>
+#include <QtCore/QObject>
 
 class QWidget;
 
-class IContainer
+class QDesignerContainerExtension
 {
 public:
-    virtual ~IContainer() {}
+    virtual ~QDesignerContainerExtension() {}
 
     virtual int count() const = 0;
     virtual QWidget *widget(int index) const = 0;
@@ -34,6 +34,6 @@ public:
     virtual void insertWidget(int index, QWidget *widget) = 0;
     virtual void remove(int index) = 0;
 };
-Q_DECLARE_EXTENSION_INTERFACE(IContainer, "http://trolltech.com/Qt/IDE/Container")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerContainerExtension, "http://trolltech.com/Qt/IDE/Container")
 
 #endif // CONTAINER_H

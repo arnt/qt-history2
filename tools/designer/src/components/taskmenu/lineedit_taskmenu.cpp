@@ -14,10 +14,10 @@
 #include "lineedit_taskmenu.h"
 #include "inplace_editor.h"
 
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>
@@ -53,7 +53,7 @@ QList<QAction*> LineEditTaskMenu::taskActions() const
 
 void LineEditTaskMenu::editText()
 {
-    m_formWindow = AbstractFormWindow::findFormWindow(m_lineEdit);
+    m_formWindow = QDesignerFormWindowInterface::findFormWindow(m_lineEdit);
     if (!m_formWindow.isNull()) {
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_lineEdit->parentWidget() != 0);
@@ -84,14 +84,14 @@ void LineEditTaskMenu::editIcon()
 }
 
 LineEditTaskMenuFactory::LineEditTaskMenuFactory(QExtensionManager *extensionManager)
-    : DefaultExtensionFactory(extensionManager)
+    : QExtensionFactory(extensionManager)
 {
 }
 
 QObject *LineEditTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(object)) {
-        if (iid == Q_TYPEID(ITaskMenu)) {
+        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
             return new LineEditTaskMenu(lineEdit, parent);
         }
     }

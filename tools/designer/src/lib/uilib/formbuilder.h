@@ -16,17 +16,17 @@
 
 #include "uilib_global.h"
 
-#include <abstractformbuilder.h>
+#include <QtDesigner/abstractformbuilder.h>
 #include <QtCore/QMap>
 
 class QAction;
 class QListWidget;
 class QComboBox;
 
-class QT_UILIB_EXPORT FormBuilder: public AbstractFormBuilder
+class QT_UILIB_EXPORT QFormBuilder: public QAbstractFormBuilder
 {
 public:
-    FormBuilder();
+    QFormBuilder();
 
 protected:
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);

@@ -21,7 +21,7 @@ class Spacer;
 class SpacerPropertySheet: public QDesignerPropertySheet
 {
     Q_OBJECT
-    Q_INTERFACES(IPropertySheet)
+    Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
     SpacerPropertySheet(Spacer *object, QObject *parent = 0);
     virtual ~SpacerPropertySheet();
@@ -29,10 +29,10 @@ public:
     virtual void setProperty(int index, const QVariant &value);
 };
 
-class SpacerPropertySheetFactory: public DefaultExtensionFactory
+class SpacerPropertySheetFactory: public QExtensionFactory
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionFactory)
+    Q_INTERFACES(QAbstractExtensionFactory)
 public:
     SpacerPropertySheetFactory(QExtensionManager *parent = 0);
 

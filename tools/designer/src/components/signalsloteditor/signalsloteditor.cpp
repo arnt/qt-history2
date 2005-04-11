@@ -14,11 +14,11 @@
 #include "signalsloteditor.h"
 #include "default_membersheet.h"
 
-#include <abstractformeditor.h>
-#include <abstractmetadatabase.h>
-#include <abstractwidgetdatabase.h>
-#include <qextensionmanager.h>
-#include <ui4.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractmetadatabase.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/ui4.h>
 
 #include <QDialog>
 #include <QListWidget>
@@ -37,7 +37,7 @@ class SignalSlotDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SignalSlotDialog(AbstractFormEditor *core, QWidget *sender, QWidget *receiver, QWidget *parent = 0);
+    SignalSlotDialog(QDesignerFormEditorInterface *core, QWidget *sender, QWidget *receiver, QWidget *parent = 0);
 
     QString signal() const;
     QString slot() const;
@@ -55,31 +55,31 @@ private:
     QListWidget *m_signal_list, *m_slot_list;
     QPushButton *m_ok_button;
     QWidget *m_source, *m_destination;
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     QCheckBox *m_show_all_checkbox;
 };
 
-static QString realObjectName(AbstractFormEditor *core, QWidget *widget)
+static QString realObjectName(QDesignerFormEditorInterface *core, QWidget *widget)
 {
     QString object_name = widget->objectName();
-    AbstractMetaDataBase *mdb = core->metaDataBase();
-    AbstractMetaDataBaseItem *item = mdb->item(widget);
+    QDesignerMetaDataBaseInterface *mdb = core->metaDataBase();
+    QDesignerMetaDataBaseItemInterface *item = mdb->item(widget);
     if (item != 0)
         object_name = item->name();
     return object_name;
 }
 
-static QString realClassName(AbstractFormEditor *core, QWidget *widget)
+static QString realClassName(QDesignerFormEditorInterface *core, QWidget *widget)
 {
     QString class_name = widget->metaObject()->className();
-    AbstractWidgetDataBase *wdb = core->widgetDataBase();
+    QDesignerWidgetDataBaseInterface *wdb = core->widgetDataBase();
     int idx = wdb->indexOfObject(widget);
     if (idx != -1)
         class_name = wdb->item(idx)->name();
     return class_name;
 }
 
-static QString widgetLabel(AbstractFormEditor *core, QWidget *widget)
+static QString widgetLabel(QDesignerFormEditorInterface *core, QWidget *widget)
 {
     return QString("%1 (%2)")
             .arg(realObjectName(core, widget))
@@ -131,7 +131,7 @@ void SignalSlotDialog::populateSlotList(const QString &signal)
 
     QStringList signatures;
 
-    if (IMemberSheet *members = qt_extension<IMemberSheet*>(m_core->extensionManager(), m_destination)) {
+    if (QDesignerMemberSheetExtension *members = qt_extension<QDesignerMemberSheetExtension*>(m_core->extensionManager(), m_destination)) {
         for (int i=0; i<members->count(); ++i) {
             if (!members->isVisible(i))
                 continue;
@@ -175,7 +175,7 @@ void SignalSlotDialog::populateSignalList()
 
     QStringList signatures;
 
-    if (IMemberSheet *members = qt_extension<IMemberSheet*>(m_core->extensionManager(), m_source)) {
+    if (QDesignerMemberSheetExtension *members = qt_extension<QDesignerMemberSheetExtension*>(m_core->extensionManager(), m_source)) {
         for (int i=0; i<members->count(); ++i) {
             if (!members->isVisible(i))
                 continue;
@@ -211,7 +211,7 @@ void SignalSlotDialog::populateSignalList()
 }
 
 // ### use designer
-SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QWidget *destination,
+SignalSlotDialog::SignalSlotDialog(QDesignerFormEditorInterface *core, QWidget *source, QWidget *destination,
                                     QWidget *parent)
     : QDialog(parent)
 {
@@ -431,7 +431,7 @@ QString SignalSlotConnection::receiver() const
 ** SignalSlotEditor
 */
 
-SignalSlotEditor::SignalSlotEditor(AbstractFormWindow *form_window, QWidget *parent)
+SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QWidget *parent)
     : ConnectionEdit(parent, form_window)
 {
     m_form_window = form_window;
@@ -471,11 +471,11 @@ Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destina
     return con;
 }
 
-void SignalSlotEditor::registerExtensions(AbstractFormEditor *core)
+void SignalSlotEditor::registerExtensions(QDesignerFormEditorInterface *core)
 {
     QDesignerMemberSheetFactory *factory
         = new QDesignerMemberSheetFactory(core->extensionManager());
-    core->extensionManager()->registerExtensions(factory, Q_TYPEID(IMemberSheet));
+    core->extensionManager()->registerExtensions(factory, Q_TYPEID(QDesignerMemberSheetExtension));
 }
 
 DomConnections *SignalSlotEditor::toUi() const
@@ -572,7 +572,7 @@ QWidget *SignalSlotEditor::widgetAt(const QPoint &pos) const
         return widget;
     
     for (; widget != 0; widget = widget->parentWidget()) {
-        AbstractMetaDataBaseItem *item = m_form_window->core()->metaDataBase()->item(widget);
+        QDesignerMetaDataBaseItemInterface *item = m_form_window->core()->metaDataBase()->item(widget);
         if (item == 0)
             continue;
         if (skipWidget(widget))

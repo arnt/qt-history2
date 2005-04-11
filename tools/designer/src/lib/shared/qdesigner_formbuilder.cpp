@@ -14,12 +14,12 @@
 #include "qdesigner_formbuilder.h"
 #include "qdesigner_widget.h"
 
-#include <container.h>
-#include <customwidget.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/customwidget.h>
 #include <pluginmanager.h>
-#include <qextensionmanager.h>
-#include <abstractformeditor.h>
-#include <abstracticoncache.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstracticoncache.h>
 #include <resourcefile.h>
 
 #include <QtCore/QBuffer>
@@ -27,7 +27,7 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QWidget>
 
-QDesignerFormBuilder::QDesignerFormBuilder(AbstractFormEditor *core)
+QDesignerFormBuilder::QDesignerFormBuilder(QDesignerFormEditorInterface *core)
     : m_core(core)
 {
     Q_ASSERT(m_core);
@@ -40,7 +40,7 @@ QDesignerFormBuilder::QDesignerFormBuilder(AbstractFormEditor *core)
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager->instance(plugin);
 
-        if (ICustomWidget *c = qobject_cast<ICustomWidget*>(o)) {
+        if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
             if (!c->isInitialized())
                 c->initialize(m_core);
 
@@ -59,7 +59,7 @@ QWidget *QDesignerFormBuilder::createWidgetFromContents(const QString &contents,
 
 QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
 {
-    if (ICustomWidget *c = m_customFactory.value(widgetName)) {
+    if (QDesignerCustomWidgetInterface *c = m_customFactory.value(widgetName)) {
         QWidget *widget = c->createWidget(parentWidget);
         widget->setObjectName(name);
         return widget;
@@ -71,7 +71,7 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
         return label;
     }
 
-    QWidget *widget = FormBuilder::createWidget(widgetName, parentWidget, name);
+    QWidget *widget = QFormBuilder::createWidget(widgetName, parentWidget, name);
     if (!widget) {
         // ### qWarning("failed to create a widget for type %s", widgetName.toLatin1().constData());
         widget = new QWidget(parentWidget);
@@ -83,10 +83,10 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
 
 bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (FormBuilder::addItem(ui_widget, widget, parentWidget))
+    if (QFormBuilder::addItem(ui_widget, widget, parentWidget))
         return true;
 
-    if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), parentWidget)) {
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
         container->addWidget(widget);
         return true;
     }
@@ -96,14 +96,14 @@ bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 
 bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
-    return FormBuilder::addItem(ui_item, item, layout);
+    return QFormBuilder::addItem(ui_item, item, layout);
 }
 
 QString QDesignerFormBuilder::resolveQrcPath(const QString &filePath, const QString &qrcPath) const
 {
     QString icon_path = filePath;
     QString qrc_path = qrcPath;
-    
+
     if (!qrc_path.isEmpty()) {
         qrc_path = QFileInfo(QDir(workingDirectory()), qrcPath).absoluteFilePath();
         ResourceFile rf(qrc_path);

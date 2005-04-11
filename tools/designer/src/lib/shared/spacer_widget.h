@@ -19,7 +19,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QSizePolicy>
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class QT_SHARED_EXPORT Spacer: public QWidget
 {
@@ -55,7 +55,7 @@ protected:
     void updateMask();
 
 private:
-    AbstractFormWindow *m_formWindow;
+    QDesignerFormWindowInterface *m_formWindow;
     Qt::Orientation orient;
     bool interactive;
     QSize sh;

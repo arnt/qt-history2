@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <abstractformwindowtool.h>
+#include <QtDesigner/abstractformwindowtool.h>
 #include "formwindow_widgetstack.h"
 
 #include <QtGui/QWidget>
@@ -36,7 +36,7 @@ int FormWindowWidgetStack::count() const
     return m_tools.count();
 }
 
-AbstractFormWindowTool *FormWindowWidgetStack::currentTool() const
+QDesignerFormWindowToolInterface *FormWindowWidgetStack::currentTool() const
 {
     return tool(m_current_index);
 }
@@ -56,7 +56,7 @@ void FormWindowWidgetStack::setCurrentTool(int index)
 
     m_current_index = index;
 
-    AbstractFormWindowTool *tool = m_tools.at(m_current_index);
+    QDesignerFormWindowToolInterface *tool = m_tools.at(m_current_index);
     tool->activated();
     QWidget *w = tool->editor();
     if (w != 0) {
@@ -70,14 +70,14 @@ void FormWindowWidgetStack::setCurrentTool(int index)
 
 void FormWindowWidgetStack::setSenderAsCurrentTool()
 {
-    AbstractFormWindowTool *tool = 0;
+    QDesignerFormWindowToolInterface *tool = 0;
     QAction *action = qobject_cast<QAction*>(sender());
     if (action == 0) {
         qWarning("FormWindowWidgetStack::setSenderAsCurrentTool(): sender is not a QAction");
         return;
     }
 
-    foreach (AbstractFormWindowTool *t, m_tools) {
+    foreach (QDesignerFormWindowToolInterface *t, m_tools) {
         if (action == t->action()) {
             tool = t;
             break;
@@ -92,7 +92,7 @@ void FormWindowWidgetStack::setSenderAsCurrentTool()
     setCurrentTool(tool);
 }
 
-int FormWindowWidgetStack::indexOf(AbstractFormWindowTool *tool) const
+int FormWindowWidgetStack::indexOf(QDesignerFormWindowToolInterface *tool) const
 {
     for (int i = 0; i < m_tools.size(); ++i) {
         if (m_tools.at(i) == tool)
@@ -102,7 +102,7 @@ int FormWindowWidgetStack::indexOf(AbstractFormWindowTool *tool) const
     return -1;
 }
 
-void FormWindowWidgetStack::setCurrentTool(AbstractFormWindowTool *tool)
+void FormWindowWidgetStack::setCurrentTool(QDesignerFormWindowToolInterface *tool)
 {
     int index = indexOf(tool);
     if (index == -1) {
@@ -113,7 +113,7 @@ void FormWindowWidgetStack::setCurrentTool(AbstractFormWindowTool *tool)
     setCurrentTool(index);
 }
 
-void FormWindowWidgetStack::addTool(AbstractFormWindowTool *tool)
+void FormWindowWidgetStack::addTool(QDesignerFormWindowToolInterface *tool)
 {
     QWidget *w = tool->editor();
     if (w != 0)
@@ -131,11 +131,11 @@ void FormWindowWidgetStack::resizeEvent(QResizeEvent *event)
     QRect r = QRect(0, 0, event->size().width(), event->size().height());
 
     // We always resize the widget tool
-    AbstractFormWindowTool *widget_tool = tool(0);
+    QDesignerFormWindowToolInterface *widget_tool = tool(0);
     if (widget_tool != 0 && widget_tool->editor() != 0)
         widget_tool->editor()->setGeometry(r);
 
-    AbstractFormWindowTool *cur_tool = currentTool();
+    QDesignerFormWindowToolInterface *cur_tool = currentTool();
     if (cur_tool == widget_tool)
         return;
 
@@ -143,7 +143,7 @@ void FormWindowWidgetStack::resizeEvent(QResizeEvent *event)
         cur_tool->editor()->setGeometry(r);
 }
 
-AbstractFormWindowTool *FormWindowWidgetStack::tool(int index) const
+QDesignerFormWindowToolInterface *FormWindowWidgetStack::tool(int index) const
 {
     if (index < 0 || index >= count())
         return 0;

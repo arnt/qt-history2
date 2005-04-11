@@ -13,7 +13,7 @@
 #ifndef UI4_H
 #define UI4_H
 
-#include <QList>
+#include <QtCore/QList>
 #include <QString>
 #include <QStringList>
 class QDomDocument;

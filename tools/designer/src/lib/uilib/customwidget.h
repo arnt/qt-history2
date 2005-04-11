@@ -14,18 +14,18 @@
 #ifndef CUSTOMWIDGET_H
 #define CUSTOMWIDGET_H
 
-#include <extension.h>
-#include <QObject>
-#include <QString>
-#include <QIcon>
+#include <QtDesigner/extension.h>
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtGui/QIcon>
 
 class QWidget;
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 
-class ICustomWidget
+class QDesignerCustomWidgetInterface
 {
 public:
-    virtual ~ICustomWidget() {}
+    virtual ~QDesignerCustomWidgetInterface() {}
 
     virtual QString name() const = 0;
     virtual QString group() const = 0;
@@ -45,7 +45,7 @@ public:
     virtual bool isInitialized() const
     { return false; }
 
-    virtual void initialize(AbstractFormEditor *core)
+    virtual void initialize(QDesignerFormEditorInterface *core)
     { Q_UNUSED(core); }
 
     virtual QString codeTemplate() const
@@ -54,6 +54,6 @@ public:
     virtual QString domXml() const { return QString(); }
 };
 
-Q_DECLARE_EXTENSION_INTERFACE(ICustomWidget, "http://trolltech.com/Qt/IDE/CustomWidget")
+Q_DECLARE_INTERFACE(QDesignerCustomWidgetInterface, "http://trolltech.com/Qt/IDE/CustomWidget")
 
 #endif // CUSTOMWIDGET_H

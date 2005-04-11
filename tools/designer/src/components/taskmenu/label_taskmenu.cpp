@@ -14,10 +14,10 @@
 #include "label_taskmenu.h"
 #include "inplace_editor.h"
 
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 #include <richtexteditor.h>
 
 #include <QtGui/QAction>
@@ -54,7 +54,7 @@ QList<QAction*> LabelTaskMenu::taskActions() const
 
 void LabelTaskMenu::editText()
 {
-    m_formWindow = AbstractFormWindow::findFormWindow(m_label);
+    m_formWindow = QDesignerFormWindowInterface::findFormWindow(m_label);
     if (!m_formWindow.isNull()) {
         RichTextEditor *editor = new RichTextEditor(m_formWindow);
         connect(m_formWindow, SIGNAL(selectionChanged()), editor, SLOT(deleteLater()));
@@ -85,14 +85,14 @@ void LabelTaskMenu::editIcon()
 }
 
 LabelTaskMenuFactory::LabelTaskMenuFactory(QExtensionManager *extensionManager)
-    : DefaultExtensionFactory(extensionManager)
+    : QExtensionFactory(extensionManager)
 {
 }
 
 QObject *LabelTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
     if (QLabel *label = qobject_cast<QLabel*>(object)) {
-        if (iid == Q_TYPEID(ITaskMenu)) {
+        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
             return new LabelTaskMenu(label, parent);
         }
     }

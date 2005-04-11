@@ -15,20 +15,20 @@
 #define DEFAULT_EXTENSIONFACTORY_H
 
 #include "extension_global.h"
-#include "extension.h"
+#include <QtDesigner/extension.h>
 
-#include <QMap>
-#include <QHash>
+#include <QtCore/QMap>
+#include <QtCore/QHash>
 #include <qpair.h>
 
 class QExtensionManager;
 
-class QT_EXTENSION_EXPORT DefaultExtensionFactory : public QObject, public ExtensionFactory
+class QT_EXTENSION_EXPORT QExtensionFactory : public QObject, public QAbstractExtensionFactory
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionFactory)
+    Q_INTERFACES(QAbstractExtensionFactory)
 public:
-    DefaultExtensionFactory(QExtensionManager *parent = 0);
+    QExtensionFactory(QExtensionManager *parent = 0);
 
     virtual QObject *extension(QObject *object, const QString &iid) const;
     QExtensionManager *extensionManager() const;

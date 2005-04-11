@@ -14,10 +14,10 @@
 #include "groupbox_taskmenu.h"
 #include "inplace_editor.h"
 
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>
@@ -56,7 +56,7 @@ QList<QAction*> GroupBoxTaskMenu::taskActions() const
 
 void GroupBoxTaskMenu::editTitle()
 {
-    AbstractFormWindow *fw = formWindow();
+    QDesignerFormWindowInterface *fw = formWindow();
 
     if (fw != 0) {
         connect(fw, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
@@ -90,14 +90,14 @@ void GroupBoxTaskMenu::editIcon()
 }
 
 GroupBoxTaskMenuFactory::GroupBoxTaskMenuFactory(QExtensionManager *extensionManager)
-    : DefaultExtensionFactory(extensionManager)
+    : QExtensionFactory(extensionManager)
 {
 }
 
 QObject *GroupBoxTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
     if (QGroupBox *groupbox = qobject_cast<QGroupBox*>(object)) {
-        if (iid == Q_TYPEID(ITaskMenu)) {
+        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
             return new GroupBoxTaskMenu(groupbox, parent);
         }
     }

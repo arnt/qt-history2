@@ -17,7 +17,7 @@
 #include "paletteeditorbutton.h"
 #include "defs.h"
 
-#include <propertysheet.h>
+#include <QtDesigner/propertysheet.h>
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QListView>

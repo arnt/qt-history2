@@ -21,13 +21,13 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSplitter>
 
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformeditor.h>
 
 #include "preferencedialog.h"
 #include "qdesigner_preferences.h"  // Someday we'll need to load most of these dynamically.
 #include "pluginpreferences.h"
 
-PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
+PreferenceDialog::PreferenceDialog(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDialog(parent)
 {
     m_core = core;

@@ -16,18 +16,18 @@
 
 #include "formeditor_global.h"
 #include "formwindow.h"
-#include <abstractformwindowcursor.h>
+#include <QtDesigner/abstractformwindowcursor.h>
 
-#include <QObject>
+#include <QtCore/QObject>
 
-class QT_FORMEDITOR_EXPORT FormWindowCursor: public QObject, public AbstractFormWindowCursor
+class QT_FORMEDITOR_EXPORT FormWindowCursor: public QObject, public QDesignerFormWindowCursorInterface
 {
     Q_OBJECT
 public:
     FormWindowCursor(FormWindow *fw, QObject *parent = 0);
     virtual ~FormWindowCursor();
 
-    virtual AbstractFormWindow *formWindow() const;
+    virtual QDesignerFormWindowInterface *formWindow() const;
 
     virtual bool movePosition(MoveOperation op, MoveMode mode);
 

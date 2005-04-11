@@ -18,20 +18,20 @@
 #include "qtundo.h"
 #include "layoutinfo.h"
 
-#include <layoutdecoration.h>
+#include <QtDesigner/layoutdecoration.h>
 
 #include <QtCore/QPointer>
 #include <QtCore/QPair>
 
 #include <QtCore/QVariant>
 
-class AbstractFormEditor;
-class AbstractFormWindowManager;
-class AbstractFormWindow;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowManagerInterface;
+class QDesignerFormWindowInterface;
 class Layout;
 
-class IPropertySheet;
-class AbstractMetaDataBaseItem;
+class QDesignerPropertySheetExtension;
+class QDesignerMetaDataBaseItemInterface;
 
 class QToolBox;
 class QTabWidget;
@@ -39,37 +39,37 @@ class QStackedWidget;
 class QDockWidget;
 class QMainWindow;
 
-class QT_SHARED_EXPORT AbstractFormEditorCommand: public QtCommand
+class QT_SHARED_EXPORT QDesignerFormEditorInterfaceCommand: public QtCommand
 {
     Q_OBJECT
 public:
-    AbstractFormEditorCommand(const QString &description, AbstractFormEditor *core);
+    QDesignerFormEditorInterfaceCommand(const QString &description, QDesignerFormEditorInterface *core);
 
-    AbstractFormEditor *core() const;
+    QDesignerFormEditorInterface *core() const;
 
 private:
-    QPointer<AbstractFormEditor> m_core;
+    QPointer<QDesignerFormEditorInterface> m_core;
 };
 
-class QT_SHARED_EXPORT AbstractFormWindowManagerCommand: public QtCommand
+class QT_SHARED_EXPORT QDesignerFormWindowManagerInterfaceCommand: public QtCommand
 {
     Q_OBJECT
 public:
-    AbstractFormWindowManagerCommand(const QString &description, AbstractFormWindowManager *formWindowManager);
+    QDesignerFormWindowManagerInterfaceCommand(const QString &description, QDesignerFormWindowManagerInterface *formWindowManager);
 
-    AbstractFormWindowManager *formWindowManager() const;
+    QDesignerFormWindowManagerInterface *formWindowManager() const;
 
 private:
-    QPointer<AbstractFormWindowManager> m_formWindowManager;
+    QPointer<QDesignerFormWindowManagerInterface> m_formWindowManager;
 };
 
-class QT_SHARED_EXPORT AbstractFormWindowCommand: public QtCommand
+class QT_SHARED_EXPORT QDesignerFormWindowInterfaceCommand: public QtCommand
 {
     Q_OBJECT
 public:
-    AbstractFormWindowCommand(const QString &description, AbstractFormWindow *formWindow);
+    QDesignerFormWindowInterfaceCommand(const QString &description, QDesignerFormWindowInterface *formWindow);
 
-    AbstractFormWindow *formWindow() const;
+    QDesignerFormWindowInterface *formWindow() const;
 
 protected:
     void checkObjectName(QWidget *widget);
@@ -78,14 +78,14 @@ protected:
     bool hasLayout(QWidget *widget) const;
 
 private:
-    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<QDesignerFormWindowInterface> m_formWindow;
 };
 
-class QT_SHARED_EXPORT SetPropertyCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT SetPropertyCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    SetPropertyCommand(AbstractFormWindow *formWindow);
+    SetPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QWidget *widget, const QString &propertyName, const QVariant &newValue);
 
@@ -118,17 +118,17 @@ private:
     int m_index;
     QPointer<QWidget> m_widget;
     QPointer<QWidget> m_parentWidget;
-    IPropertySheet *m_propertySheet;
+    QDesignerPropertySheetExtension *m_propertySheet;
     QVariant m_oldValue;
     QVariant m_newValue;
     bool m_changed;
 };
 
-class QT_SHARED_EXPORT ResetPropertyCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT ResetPropertyCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    ResetPropertyCommand(AbstractFormWindow *formWindow);
+    ResetPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QWidget *widget, const QString &propertyName);
 
@@ -155,16 +155,16 @@ private:
     int m_index;
     QPointer<QWidget> m_widget;
     QPointer<QWidget> m_parentWidget;
-    IPropertySheet *m_propertySheet;
+    QDesignerPropertySheetExtension *m_propertySheet;
     QVariant m_oldValue;
     bool m_changed;
 };
 
-class QT_SHARED_EXPORT InsertWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT InsertWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    InsertWidgetCommand(AbstractFormWindow *formWindow);
+    InsertWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QWidget *widget);
 
@@ -173,15 +173,15 @@ public:
 
 private:
     QPointer<QWidget> m_widget;
-    ILayoutDecoration::InsertMode m_insertMode;
+    QDesignerLayoutDecorationExtension::InsertMode m_insertMode;
     QPair<int, int> m_cell;
 };
 
-class QT_SHARED_EXPORT RaiseWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT RaiseWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    RaiseWidgetCommand(AbstractFormWindow *formWindow);
+    RaiseWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QWidget *widget);
 
@@ -192,11 +192,11 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class QT_SHARED_EXPORT LowerWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT LowerWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    LowerWidgetCommand(AbstractFormWindow *formWindow);
+    LowerWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QWidget *widget);
 
@@ -207,11 +207,11 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class QT_SHARED_EXPORT AdjustWidgetSizeCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT AdjustWidgetSizeCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    AdjustWidgetSizeCommand(AbstractFormWindow *formWindow);
+    AdjustWidgetSizeCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QWidget *widget);
 
@@ -222,11 +222,11 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class QT_SHARED_EXPORT DeleteWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT DeleteWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    DeleteWidgetCommand(AbstractFormWindow *formWindow);
+    DeleteWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QWidget *widget);
 
@@ -241,15 +241,15 @@ private:
     int m_index;
     int m_row, m_col;
     int m_rowspan, m_colspan;
-    AbstractMetaDataBaseItem *m_formItem;
+    QDesignerMetaDataBaseItemInterface *m_formItem;
     int m_tabOrderIndex;
 };
 
-class QT_SHARED_EXPORT ReparentWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT ReparentWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    ReparentWidgetCommand(AbstractFormWindow *formWindow);
+    ReparentWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QWidget *widget, QWidget *parentWidget);
 
@@ -264,11 +264,11 @@ private:
     QPointer<QWidget> m_newParentWidget;
 };
 
-class QT_SHARED_EXPORT TabOrderCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT TabOrderCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    TabOrderCommand(AbstractFormWindow *formWindow);
+    TabOrderCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(const QList<QWidget*> &newTabOrder);
 
@@ -282,16 +282,16 @@ public:
     virtual void undo();
 
 private:
-    AbstractMetaDataBaseItem *m_widgetItem;
+    QDesignerMetaDataBaseItemInterface *m_widgetItem;
     QList<QWidget*> m_oldTabOrder;
     QList<QWidget*> m_newTabOrder;
 };
 
-class QT_SHARED_EXPORT LayoutCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT LayoutCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    LayoutCommand(AbstractFormWindow *formWindow);
+    LayoutCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~LayoutCommand();
 
     inline QList<QWidget*> widgets() const
@@ -310,11 +310,11 @@ private:
     QPointer<Layout> m_layout;
 };
 
-class QT_SHARED_EXPORT BreakLayoutCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT BreakLayoutCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    BreakLayoutCommand(AbstractFormWindow *formWindow);
+    BreakLayoutCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~BreakLayoutCommand();
 
     inline QList<QWidget*> widgets() const
@@ -333,11 +333,11 @@ private:
     int m_spacing;
 };
 
-class QT_SHARED_EXPORT ToolBoxCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT ToolBoxCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    ToolBoxCommand(AbstractFormWindow *formWindow);
+    ToolBoxCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~ToolBoxCommand();
 
     void init(QToolBox *toolBox);
@@ -357,7 +357,7 @@ class QT_SHARED_EXPORT DeleteToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
 public:
-    DeleteToolBoxPageCommand(AbstractFormWindow *formWindow);
+    DeleteToolBoxPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~DeleteToolBoxPageCommand();
 
     void init(QToolBox *toolBox);
@@ -370,7 +370,7 @@ class QT_SHARED_EXPORT AddToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
 public:
-    AddToolBoxPageCommand(AbstractFormWindow *formWindow);
+    AddToolBoxPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~AddToolBoxPageCommand();
 
     void init(QToolBox *toolBox);
@@ -379,11 +379,11 @@ public:
     virtual void undo();
 };
 
-class QT_SHARED_EXPORT TabWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT TabWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    TabWidgetCommand(AbstractFormWindow *formWindow);
+    TabWidgetCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~TabWidgetCommand();
 
     void init(QTabWidget *tabWidget);
@@ -403,7 +403,7 @@ class QT_SHARED_EXPORT DeleteTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
-    DeleteTabPageCommand(AbstractFormWindow *formWindow);
+    DeleteTabPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~DeleteTabPageCommand();
 
     void init(QTabWidget *tabWidget);
@@ -416,7 +416,7 @@ class QT_SHARED_EXPORT AddTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
-    AddTabPageCommand(AbstractFormWindow *formWindow);
+    AddTabPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~AddTabPageCommand();
 
     void init(QTabWidget *tabWidget);
@@ -429,7 +429,7 @@ class QT_SHARED_EXPORT MoveTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
-    MoveTabPageCommand(AbstractFormWindow *formWindow);
+    MoveTabPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~MoveTabPageCommand();
 
     void init(QTabWidget *tabWidget, QWidget *page,
@@ -447,11 +447,11 @@ private:
     QIcon m_icon;
 };
 
-class QT_SHARED_EXPORT StackedWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT StackedWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    StackedWidgetCommand(AbstractFormWindow *formWindow);
+    StackedWidgetCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~StackedWidgetCommand();
 
     void init(QStackedWidget *stackedWidget);
@@ -469,7 +469,7 @@ class QT_SHARED_EXPORT DeleteStackedWidgetPageCommand: public StackedWidgetComma
 {
     Q_OBJECT
 public:
-    DeleteStackedWidgetPageCommand(AbstractFormWindow *formWindow);
+    DeleteStackedWidgetPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~DeleteStackedWidgetPageCommand();
 
     void init(QStackedWidget *stackedWidget);
@@ -482,7 +482,7 @@ class QT_SHARED_EXPORT AddStackedWidgetPageCommand: public StackedWidgetCommand
 {
     Q_OBJECT
 public:
-    AddStackedWidgetPageCommand(AbstractFormWindow *formWindow);
+    AddStackedWidgetPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~AddStackedWidgetPageCommand();
 
     void init(QStackedWidget *stackedWidget);
@@ -491,11 +491,11 @@ public:
     virtual void undo();
 };
 
-class QT_SHARED_EXPORT DockWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT DockWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    DockWidgetCommand(const QString &description, AbstractFormWindow *formWindow);
+    DockWidgetCommand(const QString &description, QDesignerFormWindowInterface *formWindow);
     virtual ~DockWidgetCommand();
 
     void init(QDockWidget *dockWidget);
@@ -508,7 +508,7 @@ class QT_SHARED_EXPORT SetDockWidgetCommand: public DockWidgetCommand
 {
     Q_OBJECT
 public:
-    SetDockWidgetCommand(AbstractFormWindow *formWindow);
+    SetDockWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QDockWidget *dockWidget, QWidget *widget);
 
@@ -520,11 +520,11 @@ private:
     QPointer<QWidget> m_oldWidget;
 };
 
-class QT_SHARED_EXPORT AddDockWidgetCommand: public AbstractFormWindowCommand
+class QT_SHARED_EXPORT AddDockWidgetCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
 public:
-    AddDockWidgetCommand(AbstractFormWindow *formWindow);
+    AddDockWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QMainWindow *mainWindow, QDockWidget *dockWidget);
 

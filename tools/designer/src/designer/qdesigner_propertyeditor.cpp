@@ -18,7 +18,7 @@
 #include <QtGui/QAction>
 #include <propertyeditor/propertyeditor.h>
 
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformeditor.h>
 
 QDesignerPropertyEditor::QDesignerPropertyEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
@@ -51,7 +51,7 @@ QRect QDesignerPropertyEditor::geometryHint() const
 
 void QDesignerPropertyEditor::showEvent(QShowEvent *event)
 {
-    if (AbstractPropertyEditor *e = workbench()->core()->propertyEditor()) {
+    if (QDesignerPropertyEditorInterface *e = workbench()->core()->propertyEditor()) {
         // workaround to update the propertyeditor when it is not visible!
         e->setObject(e->object()); // ### remove me
     }

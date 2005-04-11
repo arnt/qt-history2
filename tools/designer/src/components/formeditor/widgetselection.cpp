@@ -15,13 +15,13 @@
 #include "formwindow.h"
 #include "formwindowmanager.h"
 
-#include <qextensionmanager.h>
-#include <abstractwidgetfactory.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/abstractwidgetfactory.h>
 #include <qdesigner_command.h>
 #include <layout.h>
 #include <layoutinfo.h>
-#include <taskmenu.h>
-#include <layoutdecoration.h>
+#include <QtDesigner/taskmenu.h>
+#include <QtDesigner/layoutdecoration.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QWidget>
@@ -109,9 +109,9 @@ void WidgetHandle::updateCursor()
     }
 }
 
-AbstractFormEditor *WidgetHandle::core() const
+QDesignerFormEditorInterface *WidgetHandle::core() const
 {
-    if (AbstractFormWindow *fw = formWindow)
+    if (QDesignerFormWindowInterface *fw = formWindow)
         return fw->core();
 
     return 0;
@@ -134,7 +134,7 @@ void WidgetHandle::setWidget(QWidget *w)
 void WidgetHandle::paintEvent(QPaintEvent *)
 {
     FormWindow *fw = formWindow;
-    AbstractFormWindowManager *m = fw->core()->formWindowManager();
+    QDesignerFormWindowManagerInterface *m = fw->core()->formWindowManager();
 
     QStylePainter p(this);
     if (type == TaskMenu) {
@@ -354,7 +354,7 @@ void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
         QSize size = widget->parentWidget()->size();
         QGridLayout *grid = static_cast<QGridLayout*>(widget->parentWidget()->layout());
 
-        ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core()->extensionManager(), widget->parentWidget());
+        QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), widget->parentWidget());
         QList<QWidget*> widgets = deco->widgets(grid);
         GridLayout gridLayout(widgets, widget->parentWidget(), formWindow, widget->parentWidget(), QSize(10,10));
 
@@ -364,7 +364,7 @@ void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
         formWindow->selectWidget(widget, true);
 
         // refresh the `deco' extension
-        deco = qt_extension<ILayoutDecoration*>(core()->extensionManager(), widget->parentWidget());
+        deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), widget->parentWidget());
         deco->simplify();
 
         widget->parentWidget()->resize(size);
@@ -430,7 +430,7 @@ WidgetSelection::WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSele
 
 void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 {
-    taskMenu = 0; // ### qt_extension<ITaskMenu*>(core()->extensionManager(), w);
+    taskMenu = 0; // ### qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w);
 
 #ifndef NO_TOPWIDGET
     if (m_topWidget) {
@@ -477,7 +477,7 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 
         Q_ASSERT(index != -1);
 
-        ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core()->extensionManager(), wid->parentWidget());
+        QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), wid->parentWidget());
         Q_ASSERT(deco != 0);
 
         QRect info = deco->itemInfo(index);
@@ -637,7 +637,7 @@ QWidget *WidgetSelection::widget() const
     return wid;
 }
 
-AbstractFormEditor *WidgetSelection::core() const
+QDesignerFormEditorInterface *WidgetSelection::core() const
 {
     if (formWindow)
         return formWindow->core();

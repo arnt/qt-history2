@@ -15,14 +15,14 @@
 #define DEFAULT_PROPERTYSHEET_H
 
 #include "shared_global.h"
-#include <propertysheet.h>
-#include <default_extensionfactory.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/default_extensionfactory.h>
 #include <qpair.h>
 
-class QT_SHARED_EXPORT QDesignerPropertySheet: public QObject, public IPropertySheet
+class QT_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension
 {
     Q_OBJECT
-    Q_INTERFACES(IPropertySheet)
+    Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
     QDesignerPropertySheet(QObject *object, QObject *parent = 0);
     virtual ~QDesignerPropertySheet();
@@ -86,10 +86,10 @@ protected:
     QHash<QString, int> m_addIndex;
 };
 
-class QT_SHARED_EXPORT QDesignerPropertySheetFactory: public DefaultExtensionFactory
+class QT_SHARED_EXPORT QDesignerPropertySheetFactory: public QExtensionFactory
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionFactory)
+    Q_INTERFACES(QAbstractExtensionFactory)
 public:
     QDesignerPropertySheetFactory(QExtensionManager *parent = 0);
 

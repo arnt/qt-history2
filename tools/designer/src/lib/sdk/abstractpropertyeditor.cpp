@@ -13,16 +13,16 @@
 
 #include "abstractpropertyeditor.h"
 
-AbstractPropertyEditor::AbstractPropertyEditor(QWidget *parent, Qt::WindowFlags flags)
+QDesignerPropertyEditorInterface::QDesignerPropertyEditorInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }
 
-AbstractPropertyEditor::~AbstractPropertyEditor()
+QDesignerPropertyEditorInterface::~QDesignerPropertyEditorInterface()
 {
 }
 
-AbstractFormEditor *AbstractPropertyEditor::core() const
+QDesignerFormEditorInterface *QDesignerPropertyEditorInterface::core() const
 {
     return 0;
 }

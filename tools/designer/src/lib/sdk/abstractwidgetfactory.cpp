@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include "abstractwidgetfactory.h"
+#include <QtDesigner/abstractwidgetfactory.h>
 #include "abstractformeditor.h"
 #include "abstractwidgetdatabase.h"
 
-AbstractWidgetFactory::AbstractWidgetFactory(QObject *parent)
+QDesignerWidgetFactoryInterface::QDesignerWidgetFactoryInterface(QObject *parent)
     : QObject(parent)
 {
 }
 
-AbstractWidgetFactory::~AbstractWidgetFactory()
+QDesignerWidgetFactoryInterface::~QDesignerWidgetFactoryInterface()
 {
 }

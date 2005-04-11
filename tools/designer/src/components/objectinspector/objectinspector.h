@@ -15,24 +15,24 @@
 #define OBJECTINSPECTOR_H
 
 #include "objectinspector_global.h"
-#include <abstractobjectinspector.h>
+#include <QtDesigner/abstractobjectinspector.h>
 #include <QPointer>
 
-class AbstractFormEditor;
-class AbstractFormWindow;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
 class ObjectItem;
 class TreeWidget;
 
-class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public AbstractObjectInspector
+class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public QDesignerObjectInspectorInterface
 {
     Q_OBJECT
 public:
-    ObjectInspector(AbstractFormEditor *core, QWidget *parent = 0);
+    ObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent = 0);
     virtual ~ObjectInspector();
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
-    void setFormWindow(AbstractFormWindow *formWindow);
+    void setFormWindow(QDesignerFormWindowInterface *formWindow);
 
 private slots:
     void slotSelectionChanged();
@@ -44,9 +44,9 @@ private:
     static bool sortEntry(const QObject *a, const QObject *b);
 
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     TreeWidget *m_treeWidget;
-    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<QDesignerFormWindowInterface> m_formWindow;
     ObjectItem *m_root;
     bool m_ignoreUpdate;
 };

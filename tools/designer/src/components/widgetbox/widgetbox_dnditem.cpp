@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <ui4.h>
+#include <QtDesigner/ui4.h>
 #include <spacer_widget.h>
 #include <qdesigner_formbuilder.h>
 
@@ -24,7 +24,7 @@
 class WidgetBoxResource : public QDesignerFormBuilder
 {
 public:
-    WidgetBoxResource(AbstractFormEditor *core)
+    WidgetBoxResource(QDesignerFormEditorInterface *core)
         : QDesignerFormBuilder(core) {}
 
     virtual QWidget *createWidget(DomWidget *ui_widget, QWidget *parentWidget)
@@ -104,7 +104,7 @@ static QSize domWidgetSize(DomWidget *dw)
     return QSize();
 }
 
-static QWidget *decorationFromDomWidget(DomWidget *dom_widget, AbstractFormEditor *core)
+static QWidget *decorationFromDomWidget(DomWidget *dom_widget, QDesignerFormEditorInterface *core)
 {
     QWidget *result = new QWidget(0, Qt::ToolTip);
 
@@ -120,7 +120,7 @@ static QWidget *decorationFromDomWidget(DomWidget *dom_widget, AbstractFormEdito
     return result;
 }
 
-WidgetBoxDnDItem::WidgetBoxDnDItem(AbstractFormEditor *core,
+WidgetBoxDnDItem::WidgetBoxDnDItem(QDesignerFormEditorInterface *core,
                                     DomWidget *dom_widget,
                                     const QPoint &global_mouse_pos)
     : QDesignerDnDItem(CopyDrop)

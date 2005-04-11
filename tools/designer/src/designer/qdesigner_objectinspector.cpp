@@ -17,7 +17,7 @@
 
 #include <objectinspector/objectinspector.h>
 
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformeditor.h>
 
 QDesignerObjectInspector::QDesignerObjectInspector(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)

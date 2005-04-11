@@ -17,7 +17,7 @@
 #include "qdesigner_widget.h"
 
 class FormWindow;
-class AbstractWidgetDataBaseItem;
+class QDesignerWidgetDataBaseItemInterface;
 
 class QT_SHARED_EXPORT QDesignerCustomWidget: public QDesignerWidget
 {
@@ -25,10 +25,10 @@ class QT_SHARED_EXPORT QDesignerCustomWidget: public QDesignerWidget
     Q_PROPERTY(bool compat READ isCompat WRITE setCompat STORED false)
     Q_PROPERTY(bool container READ isContainer WRITE setContainer STORED false)
 public:
-    QDesignerCustomWidget(AbstractFormWindow *formWindow, QWidget *parent = 0);
+    QDesignerCustomWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent = 0);
     virtual ~QDesignerCustomWidget();
 
-    AbstractWidgetDataBaseItem *widgetItem() const;
+    QDesignerWidgetDataBaseItemInterface *widgetItem() const;
 
     QString widgetClassName() const;
     void setWidgetClassName(const QString &widgetClassName);

@@ -13,21 +13,21 @@
 
 #include "abstractformeditor.h"
 
-#include <abstractformwindow.h>
-#include <abstractformwindowmanager.h>
-#include <abstractimagecollection.h>
-#include <abstractmetadatabase.h>
-#include <abstractwidgetbox.h>
-#include <abstractwidgetfactory.h>
-#include <abstractpropertyeditor.h>
-#include <abstractwidgetdatabase.h>
-#include <abstractobjectinspector.h>
-#include <qextensionmanager.h>
-#include <abstracticoncache.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractimagecollection.h>
+#include <QtDesigner/abstractmetadatabase.h>
+#include <QtDesigner/abstractwidgetbox.h>
+#include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/abstractpropertyeditor.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
+#include <QtDesigner/abstractobjectinspector.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/abstracticoncache.h>
 
 class PluginManager;
 
-AbstractFormEditor::AbstractFormEditor(QObject *parent)
+QDesignerFormEditorInterface::QDesignerFormEditorInterface(QObject *parent)
     : QObject(parent),
       m_topLevel(0),
       m_widgetBox(0),
@@ -41,77 +41,77 @@ AbstractFormEditor::AbstractFormEditor(QObject *parent)
 {
 }
 
-AbstractFormEditor::~AbstractFormEditor()
+QDesignerFormEditorInterface::~QDesignerFormEditorInterface()
 {
 }
 
-AbstractWidgetBox *AbstractFormEditor::widgetBox() const
+QDesignerWidgetBoxInterface *QDesignerFormEditorInterface::widgetBox() const
 { return m_widgetBox; }
 
-void AbstractFormEditor::setWidgetBox(AbstractWidgetBox *widgetBox)
+void QDesignerFormEditorInterface::setWidgetBox(QDesignerWidgetBoxInterface *widgetBox)
 { m_widgetBox = widgetBox; }
 
-AbstractPropertyEditor *AbstractFormEditor::propertyEditor() const
+QDesignerPropertyEditorInterface *QDesignerFormEditorInterface::propertyEditor() const
 { return m_propertyEditor; }
 
-void AbstractFormEditor::setPropertyEditor(AbstractPropertyEditor *propertyEditor)
+void QDesignerFormEditorInterface::setPropertyEditor(QDesignerPropertyEditorInterface *propertyEditor)
 { m_propertyEditor = propertyEditor; }
 
-QWidget *AbstractFormEditor::topLevel() const
+QWidget *QDesignerFormEditorInterface::topLevel() const
 { return m_topLevel; }
 
-void AbstractFormEditor::setTopLevel(QWidget *topLevel)
+void QDesignerFormEditorInterface::setTopLevel(QWidget *topLevel)
 { m_topLevel = topLevel; }
 
-AbstractFormWindowManager *AbstractFormEditor::formWindowManager() const
+QDesignerFormWindowManagerInterface *QDesignerFormEditorInterface::formWindowManager() const
 { return m_formWindowManager; }
 
-void AbstractFormEditor::setFormManager(AbstractFormWindowManager *formWindowManager)
+void QDesignerFormEditorInterface::setFormManager(QDesignerFormWindowManagerInterface *formWindowManager)
 { m_formWindowManager = formWindowManager; }
 
-QExtensionManager *AbstractFormEditor::extensionManager() const
+QExtensionManager *QDesignerFormEditorInterface::extensionManager() const
 { return m_extensionManager; }
 
-void AbstractFormEditor::setExtensionManager(QExtensionManager *extensionManager)
+void QDesignerFormEditorInterface::setQAbstractExtensionManager(QExtensionManager *extensionManager)
 { m_extensionManager = extensionManager; }
 
-AbstractMetaDataBase *AbstractFormEditor::metaDataBase() const
+QDesignerMetaDataBaseInterface *QDesignerFormEditorInterface::metaDataBase() const
 { return m_metaDataBase; }
 
-void AbstractFormEditor::setMetaDataBase(AbstractMetaDataBase *metaDataBase)
+void QDesignerFormEditorInterface::setMetaDataBase(QDesignerMetaDataBaseInterface *metaDataBase)
 { m_metaDataBase = metaDataBase; }
 
-AbstractWidgetDataBase *AbstractFormEditor::widgetDataBase() const
+QDesignerWidgetDataBaseInterface *QDesignerFormEditorInterface::widgetDataBase() const
 { return m_widgetDataBase; }
 
-void AbstractFormEditor::setWidgetDataBase(AbstractWidgetDataBase *widgetDataBase)
+void QDesignerFormEditorInterface::setWidgetDataBase(QDesignerWidgetDataBaseInterface *widgetDataBase)
 { m_widgetDataBase = widgetDataBase; }
 
-AbstractWidgetFactory *AbstractFormEditor::widgetFactory() const
+QDesignerWidgetFactoryInterface *QDesignerFormEditorInterface::widgetFactory() const
 { return m_widgetFactory; }
 
-void AbstractFormEditor::setWidgetFactory(AbstractWidgetFactory *widgetFactory)
+void QDesignerFormEditorInterface::setWidgetFactory(QDesignerWidgetFactoryInterface *widgetFactory)
 { m_widgetFactory = widgetFactory; }
 
-AbstractObjectInspector *AbstractFormEditor::objectInspector() const
+QDesignerObjectInspectorInterface *QDesignerFormEditorInterface::objectInspector() const
 { return m_objectInspector; }
 
-void AbstractFormEditor::setObjectInspector(AbstractObjectInspector *objectInspector)
+void QDesignerFormEditorInterface::setObjectInspector(QDesignerObjectInspectorInterface *objectInspector)
 { m_objectInspector = objectInspector; }
 
-AbstractIconCache *AbstractFormEditor::iconCache() const
+QDesignerIconCacheInterface *QDesignerFormEditorInterface::iconCache() const
 { return m_iconCache; }
 
-void AbstractFormEditor::setIconCache(AbstractIconCache *cache)
+void QDesignerFormEditorInterface::setIconCache(QDesignerIconCacheInterface *cache)
 { m_iconCache = cache; }
 
-PluginManager *AbstractFormEditor::pluginManager() const
+PluginManager *QDesignerFormEditorInterface::pluginManager() const
 { return m_pluginManager; }
 
-void AbstractFormEditor::setPluginManager(PluginManager *pluginManager)
+void QDesignerFormEditorInterface::setPluginManager(PluginManager *pluginManager)
 { m_pluginManager = pluginManager; }
 
-QString AbstractFormEditor::resourceLocation() const
+QString QDesignerFormEditorInterface::resourceLocation() const
 {
 #ifdef Q_WS_MAC
     return QLatin1String(":/trolltech/formeditor/images/mac");

@@ -25,13 +25,13 @@
 #include <signalsloteditor.h>
 
 #include <pluginmanager.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/qextensionmanager.h>
 #include <qdesigner_taskmenu.h>
 #include <qdesigner_propertysheet.h>
 #include <qdesigner_promotedwidget.h>
 
 FormEditor::FormEditor(QObject *parent)
-    : AbstractFormEditor(parent)
+    : QDesignerFormEditorInterface(parent)
 {
     PluginManager *pluginManager = new PluginManager(this);
     setPluginManager(pluginManager);
@@ -49,16 +49,16 @@ FormEditor::FormEditor(QObject *parent)
     setFormManager(formWindowManager);
 
     QExtensionManager *mgr = new QExtensionManager(this);
-    mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(IPropertySheet));
-    mgr->registerExtensions(new QDesignerContainerFactory(mgr),             Q_TYPEID(IContainer));
-    mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(ILayoutDecoration));
-    mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(IPropertySheet));
-    mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(IPropertySheet));
-    mgr->registerExtensions(new PromotedWidgetPropertySheetFactory(mgr),    Q_TYPEID(IPropertySheet));
+    mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(new QDesignerContainerFactory(mgr),             Q_TYPEID(QDesignerContainerExtension));
+    mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
+    mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(new PromotedWidgetPropertySheetFactory(mgr),    Q_TYPEID(QDesignerPropertySheetExtension));
 
-    mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(ITaskMenu));
+    mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(QDesignerTaskMenuExtension));
 
-    setExtensionManager(mgr);
+    setQAbstractExtensionManager(mgr);
 
     SignalSlotEditor::registerExtensions(this);
 

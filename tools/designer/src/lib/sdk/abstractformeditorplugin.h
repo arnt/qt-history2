@@ -14,24 +14,24 @@
 #ifndef ABSTRACTFORMEDITORPLUGIN_H
 #define ABSTRACTFORMEDITORPLUGIN_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
 #include <QtCore/QObject>
 
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 class QAction;
 
-class QT_SDK_EXPORT AbstractFormEditorPlugin
+class QT_SDK_EXPORT QDesignerFormEditorPluginInterface
 {
 public:
-    virtual ~AbstractFormEditorPlugin() {}
+    virtual ~QDesignerFormEditorPluginInterface() {}
 
     virtual bool isInitialized() const = 0;
-    virtual void initialize(AbstractFormEditor *core) = 0;
+    virtual void initialize(QDesignerFormEditorInterface *core) = 0;
     virtual QAction *action() const = 0;
 
-    virtual AbstractFormEditor *core() const = 0;
+    virtual QDesignerFormEditorInterface *core() const = 0;
 };
-Q_DECLARE_INTERFACE(AbstractFormEditorPlugin, "http://trolltech.com/Qt/IDE/AbstractFormEditorPlugin")
+Q_DECLARE_INTERFACE(QDesignerFormEditorPluginInterface, "http://trolltech.com/Qt/IDE/QDesignerFormEditorPluginInterface")
 
 #endif // ABSTRACTFORMEDITORPLUGIN_H

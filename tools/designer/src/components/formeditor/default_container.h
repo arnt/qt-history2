@@ -14,14 +14,14 @@
 #ifndef DEFAULT_CONTAINER_H
 #define DEFAULT_CONTAINER_H
 
-#include <container.h>
-#include <extension.h>
-#include <default_extensionfactory.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/extension.h>
+#include <QtDesigner/default_extensionfactory.h>
 
-class QDesignerContainer: public QObject, public IContainer
+class QDesignerContainer: public QObject, public QDesignerContainerExtension
 {
     Q_OBJECT
-    Q_INTERFACES(IContainer)
+    Q_INTERFACES(QDesignerContainerExtension)
 public:
     QDesignerContainer(QWidget *widget, QObject *parent = 0);
     virtual ~QDesignerContainer();
@@ -40,7 +40,7 @@ private:
     QWidget *m_widget;
 };
 
-class QDesignerContainerFactory: public DefaultExtensionFactory
+class QDesignerContainerFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:

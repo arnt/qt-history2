@@ -110,13 +110,13 @@ QList<QByteArray> QDesignerMemberSheet::parameterNames(int index) const
 }
 
 QDesignerMemberSheetFactory::QDesignerMemberSheetFactory(QExtensionManager *parent)
-    : DefaultExtensionFactory(parent)
+    : QExtensionFactory(parent)
 {
 }
 
 QObject *QDesignerMemberSheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid == Q_TYPEID(IMemberSheet))
+    if (iid == Q_TYPEID(QDesignerMemberSheetExtension))
         return new QDesignerMemberSheet(object, parent);
 
     return 0;

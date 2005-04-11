@@ -16,16 +16,16 @@
 
 #include "shared_global.h"
 
-#include <abstractformeditor.h>
-#include <abstractwidgetdatabase.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
 
 #include <QString>
 #include <QIcon>
-#include <QVariant>
+#include <QtCore/QVariant>
 
 class QObject;
 
-class QT_SHARED_EXPORT WidgetDataBaseItem: public AbstractWidgetDataBaseItem
+class QT_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBaseItemInterface
 {
 public:
     WidgetDataBaseItem(const QString &name = QString(),
@@ -90,16 +90,16 @@ private:
     QList<QVariant> m_defaultPropertyValues;
 };
 
-class QT_SHARED_EXPORT WidgetDataBase: public AbstractWidgetDataBase
+class QT_SHARED_EXPORT WidgetDataBase: public QDesignerWidgetDataBaseInterface
 {
     Q_OBJECT
 public:
-    WidgetDataBase(AbstractFormEditor *core, QObject *parent = 0);
+    WidgetDataBase(QDesignerFormEditorInterface *core, QObject *parent = 0);
     virtual ~WidgetDataBase();
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
-    virtual AbstractWidgetDataBaseItem *item(int index) const;
+    virtual QDesignerWidgetDataBaseItemInterface *item(int index) const;
     int indexOfObject(QObject *o, bool resolveName = true) const;
 
     void grabDefaultPropertyValues();
@@ -110,7 +110,7 @@ public slots:
 private:
     QList<QVariant> defaultPropertyValues(const QString &name);
 
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
 };
 
 #endif // WIDGETDATABASE_H

@@ -14,13 +14,13 @@
 #ifndef DEFAULT_MEMBERSHEET_H
 #define DEFAULT_MEMBERSHEET_H
 
-#include <membersheet.h>
-#include <default_extensionfactory.h>
+#include <QtDesigner/membersheet.h>
+#include <QtDesigner/default_extensionfactory.h>
 
-class QDesignerMemberSheet: public QObject, public IMemberSheet
+class QDesignerMemberSheet: public QObject, public QDesignerMemberSheetExtension
 {
     Q_OBJECT
-    Q_INTERFACES(IMemberSheet)
+    Q_INTERFACES(QDesignerMemberSheetExtension)
 public:
     QDesignerMemberSheet(QObject *object, QObject *parent = 0);
     virtual ~QDesignerMemberSheet();
@@ -61,10 +61,10 @@ protected:
     QHash<int, Info> m_info;
 };
 
-class QDesignerMemberSheetFactory: public DefaultExtensionFactory
+class QDesignerMemberSheetFactory: public QExtensionFactory
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionFactory)
+    Q_INTERFACES(QAbstractExtensionFactory)
 public:
     QDesignerMemberSheetFactory(QExtensionManager *parent = 0);
 

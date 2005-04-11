@@ -15,20 +15,20 @@
 #define QDESIGNER_TASKMENU_H
 
 #include "shared_global.h"
-#include <taskmenu.h>
+#include <QtDesigner/taskmenu.h>
 
-#include <default_extensionfactory.h>
+#include <QtDesigner/default_extensionfactory.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 
 class QWidget;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
-class QT_SHARED_EXPORT QDesignerTaskMenu: public QObject, public ITaskMenu
+class QT_SHARED_EXPORT QDesignerTaskMenu: public QObject, public QDesignerTaskMenuExtension
 {
     Q_OBJECT
-    Q_INTERFACES(ITaskMenu)
+    Q_INTERFACES(QDesignerTaskMenuExtension)
 public:
     QDesignerTaskMenu(QWidget *widget, QObject *parent);
     virtual ~QDesignerTaskMenu();
@@ -38,7 +38,7 @@ public:
     virtual QList<QAction*> taskActions() const;
 
 protected:
-    AbstractFormWindow *formWindow() const;
+    QDesignerFormWindowInterface *formWindow() const;
 
 private slots:
     void changeObjectName();
@@ -54,7 +54,7 @@ private:
     QAction *m_demoteFromCustomWidgetAction;
 };
 
-class QT_SHARED_EXPORT QDesignerTaskMenuFactory: public DefaultExtensionFactory
+class QT_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:

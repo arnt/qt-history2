@@ -17,9 +17,9 @@
 #include "qdesigner_settings.h"
 
 // sdk
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 // shared
 #include <qtundo.h>
@@ -33,7 +33,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
+QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags),
       m_editor(editor),
       m_workbench(workbench)
@@ -96,7 +96,7 @@ QRect QDesignerFormWindow::geometryHint() const
     return QRect(0, 0, 400, 300);
 }
 
-AbstractFormWindow *QDesignerFormWindow::editor() const
+QDesignerFormWindowInterface *QDesignerFormWindow::editor() const
 {
     return m_editor;
 }

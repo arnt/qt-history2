@@ -14,17 +14,17 @@
 #ifndef ABSTRACTFORMWINDOW_H
 #define ABSTRACTFORMWINDOW_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
-class AbstractFormEditor;
-class AbstractFormWindowCursor;
-class AbstractFormWindowTool;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowCursorInterface;
+class QDesignerFormWindowToolInterface;
 class DomUI;
 class QtUndoStack;
 
-class QT_SDK_EXPORT AbstractFormWindow: public QWidget
+class QT_SDK_EXPORT QDesignerFormWindowInterface: public QWidget
 {
     Q_OBJECT
 public:
@@ -38,21 +38,21 @@ public:
     Q_DECLARE_FLAGS(Feature, FeatureFlag)
 
 public:
-    AbstractFormWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
-    virtual ~AbstractFormWindow();
+    QDesignerFormWindowInterface(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    virtual ~QDesignerFormWindowInterface();
 
     virtual bool hasFeature(Feature f) const = 0;
     virtual Feature features() const = 0;
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
-    virtual AbstractFormWindowCursor *cursor() const = 0;
+    virtual QDesignerFormWindowCursorInterface *cursor() const = 0;
 
     virtual int toolCount() const = 0;
     virtual int currentTool() const = 0;
     virtual void setCurrentTool(int index) = 0;
-    virtual AbstractFormWindowTool *tool(int index) const = 0;
-    virtual void registerTool(AbstractFormWindowTool *tool) = 0;
+    virtual QDesignerFormWindowToolInterface *tool(int index) const = 0;
+    virtual void registerTool(QDesignerFormWindowToolInterface *tool) = 0;
 
     virtual QString fileName() const = 0;
 
@@ -73,7 +73,7 @@ public:
 
     virtual bool isDirty() const = 0;
 
-    static AbstractFormWindow *findFormWindow(QWidget *w);
+    static QDesignerFormWindowInterface *findFormWindow(QWidget *w);
 
     virtual QtUndoStack *commandHistory() const = 0;
     virtual void beginCommand(const QString &description) = 0;

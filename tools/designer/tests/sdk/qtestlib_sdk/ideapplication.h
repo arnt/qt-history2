@@ -24,7 +24,7 @@ public:
     IDEApplication(int &argc, char *argv[]);
     virtual ~IDEApplication();
 
-    static AbstractFormEditor *core();
+    static QDesignerFormEditorInterface *core();
 };
 
 #endif // IDEAPPLICATION_H

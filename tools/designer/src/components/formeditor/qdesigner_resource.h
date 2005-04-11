@@ -16,7 +16,7 @@
 
 #include "formeditor_global.h"
 
-#include <abstractformbuilder.h>
+#include <QtDesigner/abstractformbuilder.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStack>
@@ -24,17 +24,17 @@
 class DomCustomWidgets;
 
 class FormWindow;
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 
 class QDesignerTabWidget;
 class QDesignerStackedWidget;
 class QDesignerToolBox;
 class QLayoutWidget;
 
-class IContainer;
-class AbstractWidgetDataBaseItem;
+class QDesignerContainerExtension;
+class QDesignerWidgetDataBaseItemInterface;
 
-class QT_FORMEDITOR_EXPORT QDesignerResource : public AbstractFormBuilder
+class QT_FORMEDITOR_EXPORT QDesignerResource : public QAbstractFormBuilder
 {
 public:
     QDesignerResource(FormWindow *fw);
@@ -47,12 +47,12 @@ public:
     QList<QWidget*> paste(DomUI *ui, QWidget *parentWidget);
     QList<QWidget*> paste(QIODevice *dev, QWidget *parentWidget);
 
-    inline AbstractFormEditor *core() const
+    inline QDesignerFormEditorInterface *core() const
     { return m_core; }
 
 protected:
-    using AbstractFormBuilder::create;
-    using AbstractFormBuilder::createDom;
+    using QAbstractFormBuilder::create;
+    using QAbstractFormBuilder::createDom;
 
     virtual void saveDom(DomUI *ui, QWidget *widget);
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
@@ -95,7 +95,7 @@ protected:
     DomWidget *saveWidget(QDesignerTabWidget *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerStackedWidget *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget);
-    DomWidget *saveWidget(QWidget *widget, IContainer *container, DomWidget *ui_parentWidget);
+    DomWidget *saveWidget(QWidget *widget, QDesignerContainerExtension *container, DomWidget *ui_parentWidget);
 
     DomCustomWidgets *saveCustomWidgets();
     DomTabStops *saveTabStops();
@@ -111,13 +111,13 @@ protected:
 private:
     FormWindow *m_formWindow;
     bool m_isMainWidget;
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     QHash<QString, QString> m_internal_to_qt;
     QHash<QString, QString> m_qt_to_internal;
     QHash<QString, QString> m_internal_to_qlayout;
     QHash<QString, QString> m_qlayout_to_internal;
     QStack<QLayout*> m_chain;
-    QHash<AbstractWidgetDataBaseItem*, bool> m_usedCustomWidgets;
+    QHash<QDesignerWidgetDataBaseItemInterface*, bool> m_usedCustomWidgets;
     int m_topLevelSpacerCount;
     bool m_copyWidget;
 };

@@ -18,10 +18,10 @@
 #include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu.h>
-#include <default_extensionfactory.h>
+#include <QtDesigner/default_extensionfactory.h>
 
 class QLineEdit;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class ComboBoxTaskMenu: public QDesignerTaskMenu
 {
@@ -39,13 +39,13 @@ private slots:
 
 private:
     QComboBox *m_comboBox;
-    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<QDesignerFormWindowInterface> m_formWindow;
     QPointer<QLineEdit> m_editor;
     mutable QList<QAction*> m_taskActions;
     QAction *m_editItemsAction;
 };
 
-class ComboBoxTaskMenuFactory: public DefaultExtensionFactory
+class ComboBoxTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:

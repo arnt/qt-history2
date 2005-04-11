@@ -14,22 +14,22 @@
 #ifndef TOOL_WIDGETEDITOR_H
 #define TOOL_WIDGETEDITOR_H
 
-#include <abstractformwindowtool.h>
+#include <QtDesigner/abstractformwindowtool.h>
 
 #include <QtGui/qevent.h>
 
 class FormWindow;
 class QAction;
 
-class WidgetEditorTool: public AbstractFormWindowTool
+class WidgetEditorTool: public QDesignerFormWindowToolInterface
 {
     Q_OBJECT
 public:
     WidgetEditorTool(FormWindow *formWindow);
     virtual ~WidgetEditorTool();
 
-    virtual AbstractFormEditor *core() const;
-    virtual AbstractFormWindow *formWindow() const;
+    virtual QDesignerFormEditorInterface *core() const;
+    virtual QDesignerFormWindowInterface *formWindow() const;
     virtual QWidget *editor() const;
     virtual QAction *action() const;
 

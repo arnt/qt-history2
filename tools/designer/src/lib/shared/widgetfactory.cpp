@@ -24,21 +24,21 @@
 #include "layout.h"
 
 // sdk
-#include <propertysheet.h>
-#include <container.h>
-#include <qextensionmanager.h>
-#include <abstractwidgetdatabase.h>
-#include <abstractmetadatabase.h>
-#include <abstractformeditor.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
+#include <QtDesigner/abstractmetadatabase.h>
+#include <QtDesigner/abstractformeditor.h>
 #include <layoutinfo.h>
 #include <spacer_widget.h>
-#include <customwidget.h>
+#include <QtDesigner/customwidget.h>
 
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>
 
-WidgetFactory::WidgetFactory(AbstractFormEditor *core, QObject *parent)
-    : AbstractWidgetFactory(parent),
+WidgetFactory::WidgetFactory(QDesignerFormEditorInterface *core, QObject *parent)
+    : QDesignerWidgetFactoryInterface(parent),
       m_core(core)
 {
 }
@@ -57,7 +57,7 @@ void WidgetFactory::loadPlugins()
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager->instance(plugin);
 
-        if (ICustomWidget *c = qobject_cast<ICustomWidget*>(o)) {
+        if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
             if (!c->isInitialized())
                 c->initialize(core());
 
@@ -71,11 +71,11 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
 
-    AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(parentWidget);
+    QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(parentWidget);
 
     QWidget *w = 0;
 
-    if (ICustomWidget *f = m_customFactory.value(widgetName)) {
+    if (QDesignerCustomWidgetInterface *f = m_customFactory.value(widgetName)) {
         return f->createWidget(parentWidget);
     } else if (widgetName == QLatin1String("Line")) {
         w = new QFrame(parentWidget);
@@ -99,8 +99,8 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         }
     } else if (widgetName == QLatin1String("QWidget")) {
         if (fw && parentWidget &&
-             (qobject_cast<AbstractFormWindow*>(parentWidget) || qt_extension<IContainer*>(m_core->extensionManager(), parentWidget))) {
-             w = new QDesignerWidget(fw, qobject_cast<AbstractFormWindow*>(parentWidget) ? parentWidget : 0);
+             (qobject_cast<QDesignerFormWindowInterface*>(parentWidget) || qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget))) {
+             w = new QDesignerWidget(fw, qobject_cast<QDesignerFormWindowInterface*>(parentWidget) ? parentWidget : 0);
         } else {
             w = new QWidget(parentWidget);
         }
@@ -117,8 +117,8 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 #undef DECLARE_WIDGET
 
     if (fw && !w) {
-        AbstractWidgetDataBase *db = fw->core()->widgetDataBase();
-        AbstractWidgetDataBaseItem *item = db->item(db->indexOfClassName(widgetName));
+        QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
+        QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfClassName(widgetName));
         if (item != 0 && item->isPromoted()) {
             QWidget *child = createWidget(item->extends(), 0);
             if (child != 0) {
@@ -129,7 +129,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
             // qDebug() << "widget" << widgetName << "not found! Created a generic custom widget";
 
             // step 1) create a new entry in widget database
-            AbstractWidgetDataBaseItem *item = new WidgetDataBaseItem(widgetName, tr("%1 Widget").arg(widgetName));
+            QDesignerWidgetDataBaseItemInterface *item = new WidgetDataBaseItem(widgetName, tr("%1 Widget").arg(widgetName));
             item->setCustom(true);
             item->setPromoted(true); // ### ??
             item->setExtends(QLatin1String("QWidget"));
@@ -179,7 +179,7 @@ const char *WidgetFactory::classNameOf(QObject* o)
 
 QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type) const // ### (sizepolicy)
 {
-    AbstractMetaDataBase *metaDataBase = core()->metaDataBase();
+    QDesignerMetaDataBaseInterface *metaDataBase = core()->metaDataBase();
 
     if (!layout)
         widget = containerOfWidget(widget);
@@ -232,7 +232,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type)
         l->setLayoutMargin(0);
     }
 
-    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), l)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), l)) {
         sheet->setChanged(sheet->indexOf("margin"), true);
         sheet->setChanged(sheet->indexOf("spacing"), true);
         sheet->setChanged(sheet->indexOf("alignment"), true);
@@ -255,7 +255,7 @@ QWidget* WidgetFactory::containerOfWidget(QWidget *w) const
     if (!w)
         return w;
 
-    // ### use the IContainer extension
+    // ### use the QDesignerContainerExtension extension
     else if (qobject_cast<QTabWidget*>(w))
         return static_cast<QTabWidget*>(w)->currentWidget();
     else if (qobject_cast<QStackedWidget*>(w))
@@ -287,21 +287,21 @@ QWidget* WidgetFactory::widgetOfContainer(QWidget *w) const
         return w->parentWidget()->parentWidget()->parentWidget();
     while (w) {
         if (core()->widgetDataBase()->isContainer(w) ||
-             w && qobject_cast<AbstractFormWindow*>(w->parentWidget()))
+             w && qobject_cast<QDesignerFormWindowInterface*>(w->parentWidget()))
             return w;
         w = w->parentWidget();
     }
     return w;
 }
 
-AbstractFormEditor *WidgetFactory::core() const
+QDesignerFormEditorInterface *WidgetFactory::core() const
 {
     return m_core;
 }
 
 void WidgetFactory::initialize(QObject *object) const
 {
-    IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), object);
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), object);
 
     if (object->metaObject()->indexOfProperty("focusPolicy") != -1)
         object->setProperty("focusPolicy", Qt::NoFocus);

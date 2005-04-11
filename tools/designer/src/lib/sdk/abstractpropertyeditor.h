@@ -14,23 +14,23 @@
 #ifndef ABSTRACTPROPERTYEDITOR_H
 #define ABSTRACTPROPERTYEDITOR_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 class QString;
 class QVariant;
 
-class QT_SDK_EXPORT AbstractPropertyEditor: public QWidget
+class QT_SDK_EXPORT QDesignerPropertyEditorInterface: public QWidget
 {
     Q_OBJECT
 public:
-    AbstractPropertyEditor(QWidget *parent, Qt::WindowFlags flags = 0);
-    virtual ~AbstractPropertyEditor();
+    QDesignerPropertyEditorInterface(QWidget *parent, Qt::WindowFlags flags = 0);
+    virtual ~QDesignerPropertyEditorInterface();
 
-    virtual AbstractFormEditor *core() const;
-    
+    virtual QDesignerFormEditorInterface *core() const;
+
     virtual bool isReadOnly() const = 0;
     virtual QObject *object() const = 0;
 

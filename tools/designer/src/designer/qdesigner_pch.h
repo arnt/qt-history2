@@ -20,8 +20,8 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QMessageBox>
 #include <QtGui/QVBoxLayout>
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
 
 #include "qdesigner.h"
 #include "qdesigner_formwindow.h"

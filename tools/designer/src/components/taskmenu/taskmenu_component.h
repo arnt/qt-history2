@@ -15,23 +15,23 @@
 #define TASKMENU_COMPONENT_H
 
 #include "taskmenu_global.h"
-#include <taskmenu.h>
+#include <QtDesigner/taskmenu.h>
 
-#include <QObject>
+#include <QtCore/QObject>
 
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 
 class QT_TASKMENU_EXPORT TaskMenuComponent: public QObject
 {
     Q_OBJECT
 public:
-    TaskMenuComponent(AbstractFormEditor *core, QObject *parent = 0);
+    TaskMenuComponent(QDesignerFormEditorInterface *core, QObject *parent = 0);
     virtual ~TaskMenuComponent();
 
-    AbstractFormEditor *core() const;
+    QDesignerFormEditorInterface *core() const;
 
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
 };
 
 #endif // TASKMENU_COMPONENT_H

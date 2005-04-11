@@ -17,8 +17,8 @@
 #include "signalsloteditor_global.h"
 
 #include <connectionedit.h>
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
 
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>
@@ -50,13 +50,13 @@ class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditor : public ConnectionEdit
     Q_OBJECT
 
 public:
-    SignalSlotEditor(AbstractFormWindow *form_window, QWidget *parent);
-    static void registerExtensions(AbstractFormEditor *core);
+    SignalSlotEditor(QDesignerFormWindowInterface *form_window, QWidget *parent);
+    static void registerExtensions(QDesignerFormEditorInterface *core);
 
     DomConnections *toUi() const;
     void fromUi(DomConnections *connections, QWidget *parent);
 
-    AbstractFormWindow *formWindow() const { return m_form_window; }
+    QDesignerFormWindowInterface *formWindow() const { return m_form_window; }
 
     static QWidget *widgetByName(QWidget *topLevel, const QString &name);
 
@@ -67,7 +67,7 @@ private:
     virtual Connection *createConnection(QWidget *source, QWidget *destination);
     virtual void modifyConnection(Connection *con);
 
-    AbstractFormWindow *m_form_window;
+    QDesignerFormWindowInterface *m_form_window;
 };
 
 #endif // SIGNALSLOTEDITOR_H

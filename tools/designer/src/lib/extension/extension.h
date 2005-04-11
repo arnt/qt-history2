@@ -14,65 +14,56 @@
 #ifndef EXTENSION_H
 #define EXTENSION_H
 
-#include <QString>
-#include <QObject>
+#include <QtCore/QString>
+#include <QtCore/QObject>
 
 #define Q_TYPEID(IFace) QLatin1String(IFace##_iid)
 
-class Extensible
+class QAbstractExtensionFactory
 {
 public:
-    virtual ~Extensible() {}
-
-    virtual QObject *extension(const QString &iid) const = 0;
-};
-Q_DECLARE_INTERFACE(Extensible, "http://trolltech.com/Qt/Extensible")
-
-class ExtensionFactory
-{
-public:
-    virtual ~ExtensionFactory() {}
+    virtual ~QAbstractExtensionFactory() {}
 
     virtual QObject *extension(QObject *object, const QString &iid) const = 0;
 };
-Q_DECLARE_INTERFACE(ExtensionFactory, "http://trolltech.com/Qt/ExtensionFactory")
+Q_DECLARE_INTERFACE(QAbstractExtensionFactory, "http://trolltech.com/Qt/QAbstractExtensionFactory")
 
-class ExtensionManager
+class QAbstractExtensionManager
 {
 public:
-    virtual ~ExtensionManager() {}
+    virtual ~QAbstractExtensionManager() {}
 
-    virtual void registerExtensions(ExtensionFactory *factory, const QString &iid) = 0;
-    virtual void unregisterExtensions(ExtensionFactory *factory, const QString &iid) = 0;
+    virtual void registerExtensions(QAbstractExtensionFactory *factory, const QString &iid) = 0;
+    virtual void unregisterExtensions(QAbstractExtensionFactory *factory, const QString &iid) = 0;
 
     virtual QObject *extension(QObject *object, const QString &iid) const = 0;
 };
-Q_DECLARE_INTERFACE(ExtensionManager, "http://trolltech.com/Qt/ExtensionManager")
+Q_DECLARE_INTERFACE(QAbstractExtensionManager, "http://trolltech.com/Qt/QAbstractExtensionManager")
 
 #if defined(Q_CC_MSVC) && (_MSC_VER < 1300)
 
 template <class T>
-inline T qt_extension_helper(ExtensionManager *, QObject *, T)
+inline T qt_extension_helper(QAbstractExtensionManager *, QObject *, T)
 { return 0; }
 
 template <class T>
-inline T qt_extension(ExtensionManager* manager, QObject *object)
+inline T qt_extension(QAbstractExtensionManager* manager, QObject *object)
 { return qt_extension_helper(manager, object, T(0)); }
 
 #define Q_DECLARE_EXTENSION_INTERFACE(IFace, IId) \
 Q_DECLARE_INTERFACE(IFace, IId) \
-template <> inline IFace *qt_extension_helper<IFace *>(ExtensionManager *manager, QObject *object, IFace *) \
+template <> inline IFace *qt_extension_helper<IFace *>(QAbstractExtensionManager *manager, QObject *object, IFace *) \
 { QObject *extension = manager->extension(object, IFace##_iid); return (IFace *)(extension ? extension->qt_metacast(IFace##_iid) : 0); }
 
 #else
 
 template <class T>
-inline T qt_extension(ExtensionManager* manager, QObject *object)
+inline T qt_extension(QAbstractExtensionManager* manager, QObject *object)
 { return 0; }
 
 #define Q_DECLARE_EXTENSION_INTERFACE(IFace, IId) \
 Q_DECLARE_INTERFACE(IFace, IId) \
-template <> inline IFace *qt_extension<IFace *>(ExtensionManager *manager, QObject *object) \
+template <> inline IFace *qt_extension<IFace *>(QAbstractExtensionManager *manager, QObject *object) \
 { QObject *extension = manager->extension(object, IFace##_iid); return (IFace *)(extension ? extension->qt_metacast(IFace##_iid) : 0); }
 
 #endif

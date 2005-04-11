@@ -21,9 +21,9 @@
 #include "qlayout_widget.h"
 #include "spacer_widget.h"
 
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
@@ -64,16 +64,16 @@ QWidget *QDesignerTaskMenu::widget() const
     return m_widget;
 }
 
-AbstractFormWindow *QDesignerTaskMenu::formWindow() const
+QDesignerFormWindowInterface *QDesignerTaskMenu::formWindow() const
 {
-    AbstractFormWindow *result = AbstractFormWindow::findFormWindow(widget());
+    QDesignerFormWindowInterface *result = QDesignerFormWindowInterface::findFormWindow(widget());
     Q_ASSERT(result != 0);
     return result;
 }
 
 QList<QAction*> QDesignerTaskMenu::taskActions() const
 {
-    AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(widget());
+    QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget());
     Q_ASSERT(formWindow);
 
     QList<QAction*> actions;
@@ -106,7 +106,7 @@ void QDesignerTaskMenu::changeObjectName()
 
 void QDesignerTaskMenu::createDockWidget()
 {
-    AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(widget());
+    QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget());
     Q_ASSERT(formWindow != 0);
 
     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(formWindow->mainContainer());
@@ -114,7 +114,7 @@ void QDesignerTaskMenu::createDockWidget()
 
     formWindow->beginCommand(tr("Create Dock Window"));
 
-    AbstractWidgetFactory *widgetFactory = formWindow->core()->widgetFactory();
+    QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
     QDockWidget *dockWidget = (QDockWidget *) widgetFactory->createWidget(QLatin1String("QDockWidget"), formWindow->mainContainer());
     Q_ASSERT(dockWidget);
 
@@ -138,13 +138,13 @@ void QDesignerTaskMenu::createDockWidget()
 }
 
 QDesignerTaskMenuFactory::QDesignerTaskMenuFactory(QExtensionManager *extensionManager)
-    : DefaultExtensionFactory(extensionManager)
+    : QExtensionFactory(extensionManager)
 {
 }
 
 QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid != Q_TYPEID(ITaskMenu))
+    if (iid != Q_TYPEID(QDesignerTaskMenuExtension))
         return 0;
 
     QWidget *widget = qobject_cast<QWidget*>(object);
@@ -160,11 +160,11 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
 
 void QDesignerTaskMenu::promoteToCustomWidget()
 {
-    AbstractFormWindow *fw = formWindow();
-    AbstractFormEditor *core = fw->core();
+    QDesignerFormWindowInterface *fw = formWindow();
+    QDesignerFormEditorInterface *core = fw->core();
     QWidget *wgt = widget();
     QWidget *parent = wgt->parentWidget();
-    AbstractWidgetDataBase *db = core->widgetDataBase();
+    QDesignerWidgetDataBaseInterface *db = core->widgetDataBase();
     WidgetFactory *factory = qobject_cast<WidgetFactory*>(core->widgetFactory());
 
     Q_ASSERT(qobject_cast<QDesignerPromotedWidget*>(wgt) == 0);
@@ -178,7 +178,7 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     QString custom_class_name = dialog.customClassName();
     QString include_file = dialog.includeFile();
 
-    AbstractWidgetDataBaseItem *item = 0;
+    QDesignerWidgetDataBaseItemInterface *item = 0;
     int idx = db->indexOfClassName(custom_class_name);
     if (idx == -1) {
         item = new WidgetDataBaseItem(custom_class_name, tr("Promoted Widgets"));
@@ -213,7 +213,7 @@ void QDesignerTaskMenu::promoteToCustomWidget()
 
 void QDesignerTaskMenu::demoteFromCustomWidget()
 {
-    AbstractFormWindow *fw = formWindow();
+    QDesignerFormWindowInterface *fw = formWindow();
     QWidget *wgt = widget();
     QWidget *parent = wgt->parentWidget();
 

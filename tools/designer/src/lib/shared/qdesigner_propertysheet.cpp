@@ -13,7 +13,7 @@
 
 #include "qdesigner_propertysheet.h"
 
-#include <QVariant>
+#include <QtCore/QVariant>
 #include <QMetaObject>
 #include <QMetaProperty>
 #include <QImage>
@@ -324,13 +324,13 @@ void QDesignerPropertySheet::setAttribute(int index, bool attribute)
 
 
 QDesignerPropertySheetFactory::QDesignerPropertySheetFactory(QExtensionManager *parent)
-    : DefaultExtensionFactory(parent)
+    : QExtensionFactory(parent)
 {
 }
 
 QObject *QDesignerPropertySheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid == Q_TYPEID(IPropertySheet))
+    if (iid == Q_TYPEID(QDesignerPropertySheetExtension))
         return new QDesignerPropertySheet(object, parent);
 
     return 0;

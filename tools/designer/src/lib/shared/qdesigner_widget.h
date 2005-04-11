@@ -17,7 +17,7 @@
 #include "shared_global.h"
 #include "layoutdecoration.h"
 
-#include <abstractmetadatabase.h>
+#include <QtDesigner/abstractmetadatabase.h>
 
 #include <QtCore/QPointer>
 #include <QtCore/QPair>
@@ -28,7 +28,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 class QAction;
 class QLayoutItem;
 class QVBoxLayout;
@@ -39,10 +39,10 @@ class QT_SHARED_EXPORT QDesignerWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QDesignerWidget(AbstractFormWindow* formWindow, QWidget *parent = 0);
+    QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidget *parent = 0);
     virtual ~QDesignerWidget();
 
-    inline AbstractFormWindow* formWindow() const
+    inline QDesignerFormWindowInterface* formWindow() const
     { return m_formWindow; }
 
     void updatePixmap();
@@ -52,7 +52,7 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *e);
 
 private:
-    AbstractFormWindow* m_formWindow;
+    QDesignerFormWindowInterface* m_formWindow;
     uint need_frame : 1;
     QPixmap grid;
 };
@@ -61,14 +61,14 @@ class QT_SHARED_EXPORT QDesignerDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QDesignerDialog(AbstractFormWindow *fw, QWidget *parent)
+    QDesignerDialog(QDesignerFormWindowInterface *fw, QWidget *parent)
         : QDialog(parent), m_formWindow(fw) {}
 
 protected:
     void paintEvent(QPaintEvent *e);
 
 private:
-    AbstractFormWindow *m_formWindow;
+    QDesignerFormWindowInterface *m_formWindow;
 };
 
 class QT_SHARED_EXPORT QDesignerLabel : public QLabel

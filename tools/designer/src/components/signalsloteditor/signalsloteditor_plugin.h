@@ -16,38 +16,38 @@
 
 #include "signalsloteditor_global.h"
 
-#include <abstractformeditorplugin.h>
+#include <QtDesigner/abstractformeditorplugin.h>
 
 #include <QtCore/QPointer>
 #include <QtCore/QHash>
 
 class SignalSlotEditorTool;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
-class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditorPlugin: public QObject, public AbstractFormEditorPlugin
+class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditorPlugin: public QObject, public QDesignerFormEditorPluginInterface
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractFormEditorPlugin)
+    Q_INTERFACES(QDesignerFormEditorPluginInterface)
 public:
     SignalSlotEditorPlugin();
     virtual ~SignalSlotEditorPlugin();
 
     virtual bool isInitialized() const;
-    virtual void initialize(AbstractFormEditor *core);
+    virtual void initialize(QDesignerFormEditorInterface *core);
     virtual QAction *action() const;
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
 public slots:
-    void activeFormWindowChanged(AbstractFormWindow *formWindow);
+    void activeFormWindowChanged(QDesignerFormWindowInterface *formWindow);
 
 private slots:
-    void addFormWindow(AbstractFormWindow *formWindow);
-    void removeFormWindow(AbstractFormWindow *formWindow);
+    void addFormWindow(QDesignerFormWindowInterface *formWindow);
+    void removeFormWindow(QDesignerFormWindowInterface *formWindow);
 
 private:
-    QPointer<AbstractFormEditor> m_core;
-    QHash<AbstractFormWindow*, SignalSlotEditorTool*> m_tools;
+    QPointer<QDesignerFormEditorInterface> m_core;
+    QHash<QDesignerFormWindowInterface*, SignalSlotEditorTool*> m_tools;
     bool m_initialized;
     QAction *m_action;
 };

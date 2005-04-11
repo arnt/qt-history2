@@ -78,47 +78,47 @@ const char * const widget_pushbutton =
 " <pixmapfunction></pixmapfunction>\n"
 "</ui>\n";
 
-tst_AbstractFormWindowManager::tst_AbstractFormWindowManager(int &argc, char *argv[])
+tst_QDesignerFormWindowManagerInterface::tst_QDesignerFormWindowManagerInterface(int &argc, char *argv[])
     : QTestCase(argc, argv)
 {
 }
 
-tst_AbstractFormWindowManager::~tst_AbstractFormWindowManager()
+tst_QDesignerFormWindowManagerInterface::~tst_QDesignerFormWindowManagerInterface()
 {
 }
 
-void tst_AbstractFormWindowManager::createFormWindow()
+void tst_QDesignerFormWindowManagerInterface::createFormWindow()
 {
-    AbstractFormWindowManager *formManager = IDEApplication::core()->formManager();
+    QDesignerFormWindowManagerInterface *formManager = IDEApplication::core()->formManager();
 
     {
-        AbstractFormWindow *formWindow = formManager->createFormWindow(/*parent=*/ 0);
+        QDesignerFormWindowInterface *formWindow = formManager->createFormWindow(/*parent=*/ 0);
         VERIFY(formWindow != 0);
         delete formWindow;
     }
 }
 
-void tst_AbstractFormWindowManager::formWindowCount()
+void tst_QDesignerFormWindowManagerInterface::formWindowCount()
 {
-    AbstractFormWindowManager *formManager = IDEApplication::core()->formManager();
+    QDesignerFormWindowManagerInterface *formManager = IDEApplication::core()->formManager();
 
     VERIFY(formManager->formWindowCount() == 0);
 
     {
-        AbstractFormWindow *formWindow = formManager->createFormWindow(/*parent=*/ 0);
+        QDesignerFormWindowInterface *formWindow = formManager->createFormWindow(/*parent=*/ 0);
         VERIFY(formManager->formWindowCount() == 1);
         delete formWindow;
         VERIFY(formManager->formWindowCount() == 0);
     }
 
     {
-        AbstractFormWindow *formWindow1 = formManager->createFormWindow(/*parent=*/ 0);
+        QDesignerFormWindowInterface *formWindow1 = formManager->createFormWindow(/*parent=*/ 0);
         VERIFY(formManager->formWindowCount() == 1);
 
-        AbstractFormWindow *formWindow2 = formManager->createFormWindow(/*parent=*/ 0);
+        QDesignerFormWindowInterface *formWindow2 = formManager->createFormWindow(/*parent=*/ 0);
         VERIFY(formManager->formWindowCount() == 2);
 
-        AbstractFormWindow *formWindow3 = formManager->createFormWindow(/*parent=*/ 0);
+        QDesignerFormWindowInterface *formWindow3 = formManager->createFormWindow(/*parent=*/ 0);
         VERIFY(formManager->formWindowCount() == 3);
 
         delete formWindow3;
@@ -142,33 +142,33 @@ public:
     int formWindowRemoved_signal_count;
 
 public slots:
-    void formWindowAdded(AbstractFormWindow *)
+    void formWindowAdded(QDesignerFormWindowInterface *)
     { ++formWindowAdded_signal_count; }
 
-    void formWindowRemoved(AbstractFormWindow *)
+    void formWindowRemoved(QDesignerFormWindowInterface *)
     { ++formWindowRemoved_signal_count; }
 };
 
-void tst_AbstractFormWindowManager::formWindowAdded()
+void tst_QDesignerFormWindowManagerInterface::formWindowAdded()
 {
-    AbstractFormWindowManager *formManager = IDEApplication::core()->formManager();
+    QDesignerFormWindowManagerInterface *formManager = IDEApplication::core()->formManager();
 
-    { // test the SIGNAL AbstractFormWindowManager::formWindowAdded()
+    { // test the SIGNAL QDesignerFormWindowManagerInterface::formWindowAdded()
         Helper h;
-        connect(formManager, SIGNAL(formWindowAdded(AbstractFormWindow*)),
-            &h, SLOT(formWindowAdded(AbstractFormWindow*)));
+        connect(formManager, SIGNAL(formWindowAdded(QDesignerFormWindowInterface*)),
+            &h, SLOT(formWindowAdded(QDesignerFormWindowInterface*)));
 
         COMPARE(h.formWindowAdded_signal_count, 0);
 
         {
-            AbstractFormWindow *formWindow = formManager->createFormWindow(/*parent=*/ 0);
+            QDesignerFormWindowInterface *formWindow = formManager->createFormWindow(/*parent=*/ 0);
             COMPARE(h.formWindowAdded_signal_count, 1);
             delete formWindow;
         }
 
         {
-            AbstractFormWindow *formWindow1 = formManager->createFormWindow(/*parent=*/ 0);
-            AbstractFormWindow *formWindow2 = formManager->createFormWindow(/*parent=*/ 0);
+            QDesignerFormWindowInterface *formWindow1 = formManager->createFormWindow(/*parent=*/ 0);
+            QDesignerFormWindowInterface *formWindow2 = formManager->createFormWindow(/*parent=*/ 0);
 
             COMPARE(h.formWindowAdded_signal_count, 3);
 
@@ -178,26 +178,26 @@ void tst_AbstractFormWindowManager::formWindowAdded()
     }
 }
 
-void tst_AbstractFormWindowManager::formWindowRemoved()
+void tst_QDesignerFormWindowManagerInterface::formWindowRemoved()
 {
-    AbstractFormWindowManager *formManager = IDEApplication::core()->formManager();
+    QDesignerFormWindowManagerInterface *formManager = IDEApplication::core()->formManager();
 
-    { // test the SIGNAL AbstractFormWindowManager::formWindowRemoved()
+    { // test the SIGNAL QDesignerFormWindowManagerInterface::formWindowRemoved()
         Helper h;
-        connect(formManager, SIGNAL(formWindowRemoved(AbstractFormWindow*)),
-            &h, SLOT(formWindowRemoved(AbstractFormWindow*)));
+        connect(formManager, SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
+            &h, SLOT(formWindowRemoved(QDesignerFormWindowInterface*)));
 
         COMPARE(h.formWindowRemoved_signal_count, 0);
 
         {
-            AbstractFormWindow *formWindow = formManager->createFormWindow(/*parent=*/ 0);
+            QDesignerFormWindowInterface *formWindow = formManager->createFormWindow(/*parent=*/ 0);
             delete formWindow;
             COMPARE(h.formWindowRemoved_signal_count, 1);
         }
 
         {
-            AbstractFormWindow *formWindow1 = formManager->createFormWindow(/*parent=*/ 0);
-            AbstractFormWindow *formWindow2 = formManager->createFormWindow(/*parent=*/ 0);
+            QDesignerFormWindowInterface *formWindow1 = formManager->createFormWindow(/*parent=*/ 0);
+            QDesignerFormWindowInterface *formWindow2 = formManager->createFormWindow(/*parent=*/ 0);
 
             delete formWindow1;
             delete formWindow2;

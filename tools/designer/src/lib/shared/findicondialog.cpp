@@ -4,11 +4,11 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QHeaderView>
 
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformwindow.h>
 #include <resourcefile.h>
 #include "findicondialog.h"
 
-FindIconDialog::FindIconDialog(AbstractFormWindow *form, QWidget *parent)
+FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *parent)
     : QDialog(parent)
 {
     setupUi(this);

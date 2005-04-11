@@ -16,14 +16,14 @@
 
 #include <QtXml/QDomDocument>
 
-#include <abstractwidgetbox.h>
-#include <abstractformwindowmanager.h>
-#include <abstractdnditem.h>
+#include <QtDesigner/abstractwidgetbox.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractdnditem.h>
 
 #include "widgetbox_global.h"
 
-class AbstractFormEditor;
-class AbstractFormWindow;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
 class QStackedLayout;
 class QDomElement;
 class QEvent;
@@ -35,14 +35,14 @@ class Scratchpad;
 class WidgetBoxTreeView;
 class DomWidget;
 
-class QT_WIDGETBOX_EXPORT WidgetBox : public AbstractWidgetBox
+class QT_WIDGETBOX_EXPORT WidgetBox : public QDesignerWidgetBoxInterface
 {
     Q_OBJECT
 public:
-    WidgetBox(AbstractFormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~WidgetBox();
 
-    AbstractFormEditor *core() const;
+    QDesignerFormEditorInterface *core() const;
 
     virtual int categoryCount() const;
     virtual Category category(int cat_idx) const;
@@ -54,7 +54,7 @@ public:
     virtual void addWidget(int cat_idx, const Widget &wgt);
     virtual void removeWidget(int cat_idx, int wgt_idx);
 
-    void dropWidgets(const QList<AbstractDnDItem*> &item_list, const QPoint &global_mouse_pos);
+    void dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &global_mouse_pos);
 
     virtual void setFileName(const QString &file_name);
     virtual QString fileName() const;
@@ -65,7 +65,7 @@ private slots:
     void handleMousePress(const QString &xml, const QPoint &global_mouse_pos);
 
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     WidgetBoxTreeView *m_view;
 };
 

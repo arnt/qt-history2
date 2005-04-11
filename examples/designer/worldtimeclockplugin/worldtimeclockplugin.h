@@ -11,20 +11,16 @@
 **
 ****************************************************************************/
 
-#include <container.h>
-#include <customwidget.h>
-#include <abstractformeditor.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerCustomWidgetInterface>
 
-#include <qplugin.h>
+#include <QtCore/qplugin.h>
+#include <QtGui/QIcon>
 
-#include <QIcon>
-
-class WorldTimeClockPlugin : public QObject, public ICustomWidget
+class WorldTimeClockPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
-    Q_INTERFACES(ICustomWidget)
-
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
     WorldTimeClockPlugin(QObject *parent = 0);
     bool isContainer() const;
@@ -39,7 +35,7 @@ public:
     QString toolTip() const;
     QString whatsThis() const;
     QWidget *createWidget(QWidget *parent);
-    void initialize(AbstractFormEditor *core);
+    void initialize(QDesignerFormEditorInterface *core);
 
 private:
     bool initialized;

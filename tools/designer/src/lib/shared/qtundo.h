@@ -4,8 +4,8 @@
 #include "shared_global.h"
 
 #include <QAbstractItemModel>
-#include <QMap>
-#include <QList>
+#include <QtCore/QMap>
+#include <QtCore/QList>
 #include <QStringList>
 #include <QListView>
 

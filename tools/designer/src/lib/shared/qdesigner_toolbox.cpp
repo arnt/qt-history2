@@ -81,7 +81,7 @@ void QDesignerToolBox::removeCurrentPage()
     if (currentIndex() == -1 || !widget(currentIndex()))
         return;
 
-    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         DeleteToolBoxPageCommand *cmd = new DeleteToolBoxPageCommand(fw);
         cmd->init(this);
 
@@ -91,7 +91,7 @@ void QDesignerToolBox::removeCurrentPage()
 
 void QDesignerToolBox::addPage()
 {
-    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         AddToolBoxPageCommand *cmd = new AddToolBoxPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);

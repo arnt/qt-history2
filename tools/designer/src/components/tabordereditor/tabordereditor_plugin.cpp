@@ -16,9 +16,9 @@
 #include "tabordereditor_plugin.h"
 #include "tabordereditor_tool.h"
 
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 
 TabOrderEditorPlugin::TabOrderEditorPlugin()
@@ -35,7 +35,7 @@ bool TabOrderEditorPlugin::isInitialized() const
     return m_initialized;
 }
 
-void TabOrderEditorPlugin::initialize(AbstractFormEditor *core)
+void TabOrderEditorPlugin::initialize(QDesignerFormEditorInterface *core)
 {
     Q_ASSERT(!isInitialized());
 
@@ -47,27 +47,27 @@ void TabOrderEditorPlugin::initialize(AbstractFormEditor *core)
     m_core = core;
     m_initialized = true;
 
-    connect(core->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow*)),
-            this, SLOT(addFormWindow(AbstractFormWindow*)));
+    connect(core->formWindowManager(), SIGNAL(formWindowAdded(QDesignerFormWindowInterface*)),
+            this, SLOT(addFormWindow(QDesignerFormWindowInterface*)));
 
-    connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
-            this, SLOT(removeFormWindow(AbstractFormWindow*)));
+    connect(core->formWindowManager(), SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
+            this, SLOT(removeFormWindow(QDesignerFormWindowInterface*)));
 
-    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
-                this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
+    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
+                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
 }
 
-void TabOrderEditorPlugin::activeFormWindowChanged(AbstractFormWindow *formWindow)
+void TabOrderEditorPlugin::activeFormWindowChanged(QDesignerFormWindowInterface *formWindow)
 {
     m_action->setEnabled(formWindow != 0);
 }
 
-AbstractFormEditor *TabOrderEditorPlugin::core() const
+QDesignerFormEditorInterface *TabOrderEditorPlugin::core() const
 {
     return m_core;
 }
 
-void TabOrderEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
+void TabOrderEditorPlugin::addFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_ASSERT(formWindow != 0);
     Q_ASSERT(m_tools.contains(formWindow) == false);
@@ -78,7 +78,7 @@ void TabOrderEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
     formWindow->registerTool(tool);
 }
 
-void TabOrderEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
+void TabOrderEditorPlugin::removeFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_ASSERT(formWindow != 0);
     Q_ASSERT(m_tools.contains(formWindow) == true);

@@ -79,16 +79,16 @@ const char * const widget_pushbutton =
 " <pixmapfunction></pixmapfunction>\n"
 "</ui>\n";
 
-tst_AbstractFormWindow::tst_AbstractFormWindow(int &argc, char *argv[])
+tst_QDesignerFormWindowInterface::tst_QDesignerFormWindowInterface(int &argc, char *argv[])
     : QTestCase(argc, argv)
 {
 }
 
-tst_AbstractFormWindow::~tst_AbstractFormWindow()
+tst_QDesignerFormWindowInterface::~tst_QDesignerFormWindowInterface()
 {
 }
 
-void tst_AbstractFormWindow::dirty_data(QTestTable &t)
+void tst_QDesignerFormWindowInterface::dirty_data(QTestTable &t)
 {
     t.defineElement("bool", "retval1");
     t.defineElement("bool", "retval2");
@@ -100,10 +100,10 @@ void tst_AbstractFormWindow::dirty_data(QTestTable &t)
         << /*retval3=*/ true;
 }
 
-void tst_AbstractFormWindow::dirty()
+void tst_QDesignerFormWindowInterface::dirty()
 {
     // set up
-    AbstractFormWindowManager *formManager = IDEApplication::core()->formManager();
+    QDesignerFormWindowManagerInterface *formManager = IDEApplication::core()->formManager();
 
     QDomDocument doc;
     doc.setContent(QString::fromUtf8(widget_pushbutton));
@@ -115,21 +115,21 @@ void tst_AbstractFormWindow::dirty()
     FETCH(bool, retval3);
 
 
-    { // test the default value of AbstractFormWindow::isDirty()
-        AbstractFormWindow *formWindow = formManager->createFormWindow();
+    { // test the default value of QDesignerFormWindowInterface::isDirty()
+        QDesignerFormWindowInterface *formWindow = formManager->createFormWindow();
         COMPARE(formWindow->isDirty(), retval1);
         delete formWindow;
     }
 
-    { // test the value of AbstractFormWindow::isDirty() after AbstractFormWindow::setContents()
-        AbstractFormWindow *formWindow = formManager->createFormWindow();
+    { // test the value of QDesignerFormWindowInterface::isDirty() after QDesignerFormWindowInterface::setContents()
+        QDesignerFormWindowInterface *formWindow = formManager->createFormWindow();
         formWindow->setContents(QString::fromUtf8(form_simple));
         COMPARE(formWindow->isDirty(), retval2);
         delete formWindow;
     }
 
-    { // test the value of AbstractFormWindow::isDirty() after adding a widget
-        AbstractFormWindow *formWindow = formManager->createFormWindow();
+    { // test the value of QDesignerFormWindowInterface::isDirty() after adding a widget
+        QDesignerFormWindowInterface *formWindow = formManager->createFormWindow();
         formWindow->setContents(QString::fromUtf8(form_simple));
         QWidget *widget = formWindow->createWidget(&ui, QRect(0, 0, 100, 100), formWindow->mainContainer());
         VERIFY(widget != 0);
@@ -138,7 +138,7 @@ void tst_AbstractFormWindow::dirty()
     }
 }
 
-void tst_AbstractFormWindow::mainContainer_data(QTestTable &t)
+void tst_QDesignerFormWindowInterface::mainContainer_data(QTestTable &t)
 {
     t.defineElement("QString", "widgetName");
 
@@ -146,15 +146,15 @@ void tst_AbstractFormWindow::mainContainer_data(QTestTable &t)
         << /*widgetName=*/ QString::fromUtf8("Form");
 }
 
-void tst_AbstractFormWindow::mainContainer()
+void tst_QDesignerFormWindowInterface::mainContainer()
 {
     // set up
-    AbstractFormWindowManager *formManager = IDEApplication::core()->formManager();
+    QDesignerFormWindowManagerInterface *formManager = IDEApplication::core()->formManager();
 
     FETCH(QString, widgetName);
 
-    { // test the value of AbstractFormWindow::isDirty() after AbstractFormWindow::setContents()
-        AbstractFormWindow *formWindow = formManager->createFormWindow();
+    { // test the value of QDesignerFormWindowInterface::isDirty() after QDesignerFormWindowInterface::setContents()
+        QDesignerFormWindowInterface *formWindow = formManager->createFormWindow();
         formWindow->setContents(QString::fromUtf8(form_simple));
         COMPARE(formWindow->mainContainer()->objectName(), widgetName);
         delete formWindow;

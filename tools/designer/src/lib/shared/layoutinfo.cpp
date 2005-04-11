@@ -13,21 +13,21 @@
 
 #include "layoutinfo.h"
 
-#include <abstractformeditor.h>
-#include <container.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/qextensionmanager.h>
 
-#include <QMap>
+#include <QtCore/QMap>
 #include <QLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
 #include <QGroupBox>
 
-LayoutInfo::Type LayoutInfo::layoutType(AbstractFormEditor *core, QWidget *w, QLayout *&layout)
+LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWidget *w, QLayout *&layout)
 {
     layout = 0;
 
-    if (IContainer *container = qt_extension<IContainer*>(core->extensionManager(), w))
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), w))
         w = container->widget(container->currentIndex());
 
     if (qobject_cast<QSplitter*>(w))
@@ -50,7 +50,7 @@ LayoutInfo::Type LayoutInfo::layoutType(AbstractFormEditor *core, QWidget *w, QL
 /*!
   \overload
 */
-LayoutInfo::Type LayoutInfo::layoutType(AbstractFormEditor *core, QLayout *layout)
+LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QLayout *layout)
 {
     Q_UNUSED(core)
 
@@ -66,14 +66,14 @@ LayoutInfo::Type LayoutInfo::layoutType(AbstractFormEditor *core, QLayout *layou
 /*!
   \overload
 */
-LayoutInfo::Type LayoutInfo::layoutType(AbstractFormEditor *core, QWidget *w)
+LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWidget *w)
 {
     QLayout *l = 0;
     return layoutType(core, w, l);
 }
 
 
-QWidget *LayoutInfo::layoutParent(AbstractFormEditor *core, QLayout *layout)
+QWidget *LayoutInfo::layoutParent(QDesignerFormEditorInterface *core, QLayout *layout)
 {
     Q_UNUSED(core)
 
@@ -86,12 +86,12 @@ QWidget *LayoutInfo::layoutParent(AbstractFormEditor *core, QLayout *layout)
     return 0;
 }
 
-void LayoutInfo::deleteLayout(AbstractFormEditor *core, QWidget *widget)
+void LayoutInfo::deleteLayout(QDesignerFormEditorInterface *core, QWidget *widget)
 {
     if (!widget)
         return;
 
-    if (IContainer *container = qt_extension<IContainer*>(core->extensionManager(), widget))
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), widget))
         widget = container->widget(container->currentIndex());
 
     delete widget->layout();

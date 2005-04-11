@@ -20,12 +20,12 @@
 #include <QtGui/qevent.h>
 #include <QtGui/QFontMetrics>
 
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
-#include <abstractmetadatabase.h>
-#include <abstractformeditor.h>
-#include <qextensionmanager.h>
-#include <propertysheet.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractmetadatabase.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/propertysheet.h>
 
 #include <qtundo.h>
 #include <qdesigner_command.h>
@@ -41,7 +41,7 @@ static QRect fixRect(const QRect &r)
     return QRect(r.x(), r.y(), r.width() - 1, r.height() - 1);
 }
 
-TabOrderEditor::TabOrderEditor(AbstractFormWindow *form, QWidget *parent)
+TabOrderEditor::TabOrderEditor(QDesignerFormWindowInterface *form, QWidget *parent)
     : QWidget(parent), m_font_metrics(font())
 {
     m_form_window = form;
@@ -59,7 +59,7 @@ TabOrderEditor::TabOrderEditor(AbstractFormWindow *form, QWidget *parent)
     setAttribute(Qt::WA_MouseTracking, true);
 }
 
-AbstractFormWindow *TabOrderEditor::formWindow() const
+QDesignerFormWindowInterface *TabOrderEditor::formWindow() const
 {
     return m_form_window;
 }
@@ -144,7 +144,7 @@ bool TabOrderEditor::skipWidget(QWidget *w) const
         return true;
 
     QExtensionManager *ext = formWindow()->core()->extensionManager();
-    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(ext, w)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {
         int index = sheet->indexOf("focusPolicy");
         if (index != -1) {
             bool ok = false;
@@ -160,13 +160,13 @@ void TabOrderEditor::initTabOrder()
 {
     m_tab_order_list.clear();
 
-    AbstractFormEditor *core = formWindow()->core();
+    QDesignerFormEditorInterface *core = formWindow()->core();
 
-    if (AbstractMetaDataBaseItem *item = core->metaDataBase()->item(formWindow())) {
+    if (QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(formWindow())) {
         m_tab_order_list = item->tabOrder();
     }
 
-    AbstractFormWindowCursor *cursor = formWindow()->cursor();
+    QDesignerFormWindowCursorInterface *cursor = formWindow()->cursor();
     for (int i = 0; i < cursor->widgetCount(); ++i) {
         QWidget *widget = cursor->widget(i);
         if (skipWidget(widget))

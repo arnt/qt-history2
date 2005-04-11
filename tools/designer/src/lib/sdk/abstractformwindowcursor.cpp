@@ -13,7 +13,7 @@
 
 #include "abstractformwindowcursor.h"
 
-bool AbstractFormWindowCursor::isWidgetSelected(QWidget *widget) const
+bool QDesignerFormWindowCursorInterface::isWidgetSelected(QWidget *widget) const
 {
     for (int index=0; index<selectedWidgetCount(); ++index) {
         if (selectedWidget(index) == widget)

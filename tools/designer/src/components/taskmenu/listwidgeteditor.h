@@ -18,13 +18,13 @@
 
 class QListWidget;
 class QComboBox;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class ListWidgetEditor: public QDialog
 {
     Q_OBJECT
 public:
-    ListWidgetEditor(AbstractFormWindow *form, QWidget *parent);
+    ListWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent);
     virtual ~ListWidgetEditor();
 
     void fillContentsFromListWidget(QListWidget *listWidget);
@@ -46,7 +46,7 @@ private slots:
 
 private:
     Ui::ListWidgetEditor ui;
-    AbstractFormWindow *m_form;
+    QDesignerFormWindowInterface *m_form;
 };
 
 #endif // LISTWIDGETEDITOR_H

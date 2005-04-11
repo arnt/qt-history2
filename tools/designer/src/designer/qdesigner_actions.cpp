@@ -20,16 +20,14 @@
 #include "saveformastemplate.h"
 
 // sdk
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowmanager.h>
-#include <abstractformeditorplugin.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditorplugin.h>
 #include <qdesigner_formbuilder.h>
 #include <qtundo.h>
-#include <qassistantclient.h>
 
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QBuffer>
+#include <QtAssistant/QAssistantClient>
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -39,6 +37,8 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QIcon>
 
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QBuffer>
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 
@@ -51,7 +51,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_core = m_workbench->core();
     Q_ASSERT(m_core != 0);
 
-    AbstractFormWindowManager *formWindowManager = m_core->formWindowManager();
+    QDesignerFormWindowManagerInterface *formWindowManager = m_core->formWindowManager();
     Q_ASSERT(formWindowManager != 0);
 
     QDesignerSettings settings;
@@ -188,15 +188,15 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_editWidgetsAction->setCheckable(true);
     m_editWidgetsAction->setShortcut(tr("F3"));
     m_editWidgetsAction->setIcon(QIcon(m_core->resourceLocation() + QLatin1String("/widgettool.png")));
-    connect(formWindowManager, SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
-                this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
+    connect(formWindowManager, SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
+                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
     connect(m_editWidgetsAction, SIGNAL(triggered()), this, SLOT(editWidgetsSlot()));
     m_toolActions->addAction(m_editWidgetsAction);
     m_editWidgetsAction->setChecked(true);
     m_editWidgetsAction->setEnabled(false);
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
     foreach (QObject *plugin, builtinPlugins) {
-        if (AbstractFormEditorPlugin *formEditorPlugin = qobject_cast<AbstractFormEditorPlugin*>(plugin)) {
+        if (QDesignerFormEditorPluginInterface *formEditorPlugin = qobject_cast<QDesignerFormEditorPluginInterface*>(plugin)) {
             m_toolActions->addAction(formEditorPlugin->action());
             formEditorPlugin->action()->setCheckable(true);
         }
@@ -322,7 +322,7 @@ QActionGroup *QDesignerActions::toolActions() const
 QDesignerWorkbench *QDesignerActions::workbench() const
 { return m_workbench; }
 
-AbstractFormEditor *QDesignerActions::core() const
+QDesignerFormEditorInterface *QDesignerActions::core() const
 { return m_core; }
 
 QActionGroup *QDesignerActions::fileActions() const
@@ -426,9 +426,9 @@ QAction *QDesignerActions::previewFormAction() const
 
 void QDesignerActions::editWidgetsSlot()
 {
-    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
+    QDesignerFormWindowManagerInterface *formWindowManager = core()->formWindowManager();
     for (int i=0; i<formWindowManager->formWindowCount(); ++i) {
-        AbstractFormWindow *formWindow = formWindowManager->formWindow(i);
+        QDesignerFormWindowInterface *formWindow = formWindowManager->formWindow(i);
         formWindow->editWidgets();
     }
 }
@@ -454,7 +454,7 @@ bool QDesignerActions::openForm()
     return false;
 }
 
-bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)
+bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
 {
     QString fileName = fw->fileName().isEmpty() ? QDir::current().absolutePath()
             + QLatin1String("/untitled.ui") : fw->fileName();
@@ -473,11 +473,11 @@ bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)
 
 void QDesignerActions::saveForm()
 {
-    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
         saveForm(fw);
 }
 
-bool QDesignerActions::saveForm(AbstractFormWindow *fw)
+bool QDesignerActions::saveForm(QDesignerFormWindowInterface *fw)
 {
     bool ret;
     if (fw->fileName().isEmpty())
@@ -489,19 +489,19 @@ bool QDesignerActions::saveForm(AbstractFormWindow *fw)
 
 void QDesignerActions::closeForm()
 {
-    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
         fw->parentWidget()->close();
 }
 
 void QDesignerActions::saveFormAs()
 {
-    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
         saveFormAs(fw);
 }
 
 void QDesignerActions::saveFormAsTemplate()
 {
-    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow()) {
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
         SaveFormAsTemplate dlg(fw, fw->window());
         dlg.exec();
     }
@@ -521,7 +521,7 @@ void QDesignerActions::updateUIMode(QAction *act)
 
 void QDesignerActions::previewForm()
 {
-    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow()) {
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
         QDialog *fakeTopLevel = new QDialog(fw);
         QHBoxLayout *layout = new QHBoxLayout(fakeTopLevel);
         layout->setMargin(0);
@@ -570,10 +570,10 @@ void QDesignerActions::fixActionContext()
 bool QDesignerActions::readInForm(const QString &fileName)
 {
     // First make sure that we don't have this one open already.
-    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
+    QDesignerFormWindowManagerInterface *formWindowManager = core()->formWindowManager();
     int totalWindows = formWindowManager->formWindowCount();
     for (int i = 0; i < totalWindows; ++i) {
-        AbstractFormWindow *w = formWindowManager->formWindow(i);
+        QDesignerFormWindowInterface *w = formWindowManager->formWindow(i);
         if (w->fileName() == fileName) {
             w->raise();
             formWindowManager->setActiveFormWindow(w);
@@ -592,7 +592,7 @@ bool QDesignerActions::readInForm(const QString &fileName)
 
 
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-    if (AbstractFormWindow *editor = formWindow->editor()) {
+    if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
         editor->setFileName(fileName);
         editor->setContents(&f);
         Q_ASSERT(editor->mainContainer() != 0);
@@ -604,7 +604,7 @@ bool QDesignerActions::readInForm(const QString &fileName)
     return true;
 }
 
-bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveFile)
+bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QString &saveFile)
 {
     Q_ASSERT(fw && !saveFile.isEmpty());
     QFile f(saveFile);
@@ -669,7 +669,7 @@ void QDesignerActions::shutdown()
         qDesigner->quit();
 }
 
-void QDesignerActions::activeFormWindowChanged(AbstractFormWindow *formWindow)
+void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *formWindow)
 {
     bool enable = formWindow != 0;
 
@@ -750,7 +750,7 @@ void QDesignerActions::addRecentFile(const QString &fileName)
 
 void QDesignerActions::minimizeForm()
 {
-    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
         fw->parentWidget()->showMinimized();
 }
 

@@ -1,7 +1,7 @@
 #ifndef VIEW3D_H
 #define VIEW3D_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 class QScrollBar;
 class QGLWidget;

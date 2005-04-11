@@ -19,16 +19,16 @@
 #include <connectionedit.h>
 #include <QtCore/QPointer>
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditor : public ConnectionEdit
 {
     Q_OBJECT
 
 public:
-    BuddyEditor(AbstractFormWindow *form, QWidget *parent);
+    BuddyEditor(QDesignerFormWindowInterface *form, QWidget *parent);
 
-    AbstractFormWindow *formWindow() const;
+    QDesignerFormWindowInterface *formWindow() const;
     virtual void setBackground(QWidget *background);
 
 protected:
@@ -36,7 +36,7 @@ protected:
     virtual Connection *createConnection(QWidget *source, QWidget *destination);
 
 private:
-    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<QDesignerFormWindowInterface> m_formWindow;
 };
 
 #endif

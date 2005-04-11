@@ -15,43 +15,43 @@
 #define WIDGETFACTORY_H
 
 #include "shared_global.h"
-#include "abstractwidgetfactory.h"
+#include <QtDesigner/abstractwidgetfactory.h>
 
 #include <pluginmanager.h>
 
-#include <QMap>
-#include <QVariant>
-#include <QPointer>
+#include <QtCore/QMap>
+#include <QtCore/QVariant>
+#include <QtCore/QPointer>
 
 class QObject;
 class QWidget;
 class QLayout;
-class AbstractFormEditor;
-class ICustomWidget;
+class QDesignerFormEditorInterface;
+class QDesignerCustomWidgetInterface;
 
-class QT_SHARED_EXPORT WidgetFactory: public AbstractWidgetFactory
+class QT_SHARED_EXPORT WidgetFactory: public QDesignerWidgetFactoryInterface
 {
 public:
-    WidgetFactory(AbstractFormEditor *core, QObject *parent = 0);
+    WidgetFactory(QDesignerFormEditorInterface *core, QObject *parent = 0);
     ~WidgetFactory();
 
     virtual QWidget* containerOfWidget(QWidget *widget) const;
     virtual QWidget* widgetOfContainer(QWidget *widget) const;
-    
+
     virtual QWidget *createWidget(const QString &className, QWidget *parentWidget) const;
     virtual QLayout *createLayout(QWidget *widget, QLayout *layout, int type) const;
     virtual void initialize(QObject *object) const;
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
     static const char* classNameOf(QObject* o);
-    
+
 public slots:
     void loadPlugins();
-    
+
 private:
-    AbstractFormEditor *m_core;
-    QMap<QString, ICustomWidget*> m_customFactory;
+    QDesignerFormEditorInterface *m_core;
+    QMap<QString, QDesignerCustomWidgetInterface*> m_customFactory;
 };
 
 #endif // WIDGETFACTORY_H

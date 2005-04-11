@@ -14,19 +14,19 @@
 #ifndef ABSTRACTWIDGETDATABASE_H
 #define ABSTRACTWIDGETDATABASE_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
-#include <QObject>
-#include <QList>
+#include <QtCore/QObject>
+#include <QtCore/QList>
 
 class QIcon;
 class QString;
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 
-class AbstractWidgetDataBaseItem
+class QDesignerWidgetDataBaseItemInterface
 {
 public:
-    virtual ~AbstractWidgetDataBaseItem() {}
+    virtual ~QDesignerWidgetDataBaseItemInterface() {}
 
     virtual QString name() const = 0;
     virtual void setName(const QString &name) = 0;
@@ -71,24 +71,24 @@ public:
     virtual QList<QVariant> defaultPropertyValues() const = 0;
 };
 
-class QT_SDK_EXPORT AbstractWidgetDataBase: public QObject
+class QT_SDK_EXPORT QDesignerWidgetDataBaseInterface: public QObject
 {
     Q_OBJECT
 public:
-    AbstractWidgetDataBase(QObject *parent = 0);
-    virtual ~AbstractWidgetDataBase();
+    QDesignerWidgetDataBaseInterface(QObject *parent = 0);
+    virtual ~QDesignerWidgetDataBaseInterface();
 
     virtual int count() const;
-    virtual AbstractWidgetDataBaseItem *item(int index) const;
+    virtual QDesignerWidgetDataBaseItemInterface *item(int index) const;
 
-    virtual int indexOf(AbstractWidgetDataBaseItem *item) const;
-    virtual void insert(int index, AbstractWidgetDataBaseItem *item);
-    virtual void append(AbstractWidgetDataBaseItem *item);
+    virtual int indexOf(QDesignerWidgetDataBaseItemInterface *item) const;
+    virtual void insert(int index, QDesignerWidgetDataBaseItemInterface *item);
+    virtual void append(QDesignerWidgetDataBaseItemInterface *item);
 
     virtual int indexOfObject(QObject *object, bool resolveName = true) const;
     virtual int indexOfClassName(const QString &className, bool resolveName = true) const;
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
     bool isContainer(QObject *object, bool resolveName = true) const;
     bool isForm(QObject *object, bool resolveName = true) const;
@@ -98,7 +98,7 @@ signals:
     void changed();
 
 protected:
-    QList<AbstractWidgetDataBaseItem *> m_items;
+    QList<QDesignerWidgetDataBaseItemInterface *> m_items;
 };
 
 #endif // ABSTRACTWIDGETDATABASE_H

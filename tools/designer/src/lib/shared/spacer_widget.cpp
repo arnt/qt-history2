@@ -14,7 +14,7 @@
 #include "spacer_widget.h"
 #include "layoutinfo.h"
 
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformwindow.h>
 
 #include <QLayout>
 #include <QPainter>
@@ -25,7 +25,7 @@ Spacer::Spacer(QWidget *parent)
       orient(Qt::Vertical), interactive(true), sh(20, 40)
 {
     setAttribute(Qt::WA_MouseNoMask);
-    m_formWindow = AbstractFormWindow::findFormWindow(this);
+    m_formWindow = QDesignerFormWindowInterface::findFormWindow(this);
 
     setSizeType(QSizePolicy::Expanding);
 }

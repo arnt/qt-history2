@@ -18,8 +18,8 @@
 
 #include <widgetbox/widgetbox.h>
 
-#include <abstractformeditor.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 #include <QtCore/qdebug.h>
 

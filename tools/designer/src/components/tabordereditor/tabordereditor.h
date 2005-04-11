@@ -24,16 +24,16 @@
 #include <QtGui/QFontMetrics>
 
 class QtUndoStack;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class QT_TABORDEREDITOR_EXPORT TabOrderEditor : public QWidget
 {
     Q_OBJECT
 
 public:
-    TabOrderEditor(AbstractFormWindow *form, QWidget *parent);
+    TabOrderEditor(QDesignerFormWindowInterface *form, QWidget *parent);
 
-    AbstractFormWindow *formWindow() const;
+    QDesignerFormWindowInterface *formWindow() const;
 
 public slots:
     void setBackground(QWidget *background);
@@ -53,7 +53,7 @@ private:
     int widgetIndexAt(const QPoint &pos) const;
     bool skipWidget(QWidget *w) const;
 
-    QPointer<AbstractFormWindow> m_form_window;
+    QPointer<QDesignerFormWindowInterface> m_form_window;
 
     QList<QWidget*> m_tab_order_list;
     

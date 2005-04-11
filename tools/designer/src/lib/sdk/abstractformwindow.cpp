@@ -20,16 +20,16 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QMainWindow>
 
-AbstractFormWindow::AbstractFormWindow(QWidget *parent, Qt::WindowFlags flags)
+QDesignerFormWindowInterface::QDesignerFormWindowInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }
 
-AbstractFormWindow::~AbstractFormWindow()
+QDesignerFormWindowInterface::~QDesignerFormWindowInterface()
 {
 }
 
-AbstractFormEditor *AbstractFormWindow::core() const
+QDesignerFormEditorInterface *QDesignerFormWindowInterface::core() const
 {
     return 0;
 }
@@ -57,10 +57,10 @@ static bool isPassiveInteractor(QWidget *o)
     return false;
 }
 
-AbstractFormWindow *AbstractFormWindow::findFormWindow(QWidget *w)
+QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidget *w)
 {
     while (w) {
-        if (AbstractFormWindow *fw = qobject_cast<AbstractFormWindow*>(w)) {
+        if (QDesignerFormWindowInterface *fw = qobject_cast<QDesignerFormWindowInterface*>(w)) {
             return fw;
         } else if (isPassiveInteractor(w)) {
             break;

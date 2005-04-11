@@ -18,22 +18,22 @@
 
 #include <QtCore/QPointer>
 
-#include <abstractformwindowtool.h>
+#include <QtDesigner/abstractformwindowtool.h>
 
-class AbstractFormEditor;
-class AbstractFormWindow;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
 class SignalSlotEditor;
 class QAction;
 
-class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditorTool: public AbstractFormWindowTool
+class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditorTool: public QDesignerFormWindowToolInterface
 {
     Q_OBJECT
 public:
-    SignalSlotEditorTool(AbstractFormWindow *formWindow, QObject *parent = 0);
+    SignalSlotEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent = 0);
     virtual ~SignalSlotEditorTool();
 
-    virtual AbstractFormEditor *core() const;
-    virtual AbstractFormWindow *formWindow() const;
+    virtual QDesignerFormEditorInterface *core() const;
+    virtual QDesignerFormWindowInterface *formWindow() const;
 
     virtual QWidget *editor() const;
 
@@ -48,7 +48,7 @@ public:
     virtual void loadFromDom(DomUI *ui, QWidget *mainContainer);
     
 private:
-    AbstractFormWindow *m_formWindow;
+    QDesignerFormWindowInterface *m_formWindow;
     mutable QPointer<SignalSlotEditor> m_editor;
     QAction *m_action;
 };

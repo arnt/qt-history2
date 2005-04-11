@@ -1,5 +1,5 @@
 TEMPLATE        = lib
-TARGET                = qassistantclient
+TARGET                = QtAssistantClient
 VERSION                = 1.0
 
 CONFIG                += qt warn_on

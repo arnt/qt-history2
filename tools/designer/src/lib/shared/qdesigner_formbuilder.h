@@ -19,20 +19,20 @@
 #include <formbuilder.h>
 #include <QtCore/QMap>
 
-class AbstractFormEditor;
-class ICustomWidget;
+class QDesignerFormEditorInterface;
+class QDesignerCustomWidgetInterface;
 
-class QT_SHARED_EXPORT QDesignerFormBuilder: public FormBuilder
+class QT_SHARED_EXPORT QDesignerFormBuilder: public QFormBuilder
 {
 public:
-    QDesignerFormBuilder(AbstractFormEditor *core);
+    QDesignerFormBuilder(QDesignerFormEditorInterface *core);
 
     QWidget *createWidgetFromContents(const QString &contents, QWidget *parentWidget = 0);
 
     virtual QWidget *createWidget(DomWidget *ui_widget, QWidget *parentWidget = 0)
-    { return FormBuilder::create(ui_widget, parentWidget); }
+    { return QFormBuilder::create(ui_widget, parentWidget); }
 
-    inline AbstractFormEditor *core() const
+    inline QDesignerFormEditorInterface *core() const
     { return m_core; }
 
 protected:
@@ -45,8 +45,8 @@ protected:
 
 private:
     QString resolveQrcPath(const QString &filePath, const QString &qrcPath) const;
-    AbstractFormEditor *m_core;
-    QMap<QString, ICustomWidget*> m_customFactory;
+    QDesignerFormEditorInterface *m_core;
+    QMap<QString, QDesignerCustomWidgetInterface*> m_customFactory;
 };
 
 #endif // QDESIGNER_FORMBUILDER_H

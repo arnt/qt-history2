@@ -14,14 +14,14 @@
 #ifndef ABSTRACTFORMWINDOWCURSOR_H
 #define ABSTRACTFORMWINDOWCURSOR_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 class QWidget;
 class QVariant;
 class QString;
 
-class QT_SDK_EXPORT AbstractFormWindowCursor
+class QT_SDK_EXPORT QDesignerFormWindowCursorInterface
 {
 public:
     enum MoveOperation
@@ -45,9 +45,9 @@ public:
     };
 
 public:
-    virtual ~AbstractFormWindowCursor() {}
+    virtual ~QDesignerFormWindowCursorInterface() {}
 
-    virtual AbstractFormWindow *formWindow() const = 0;
+    virtual QDesignerFormWindowInterface *formWindow() const = 0;
 
     virtual bool movePosition(MoveOperation op, MoveMode mode = MoveAnchor) = 0;
 
@@ -66,7 +66,7 @@ public:
     virtual void setProperty(const QString &name, const QVariant &value) = 0;
     virtual void setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value) = 0;
     virtual void resetWidgetProperty(QWidget *widget, const QString &name) = 0;
-    
+
     bool isWidgetSelected(QWidget *widget) const;
 };
 

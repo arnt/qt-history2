@@ -18,12 +18,12 @@
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
 class DomUI;
-class AbstractDnDItem;
+class QDesignerDnDItemInterface;
 
-class QT_SDK_EXPORT AbstractWidgetBox : public QWidget
+class QT_SDK_EXPORT QDesignerWidgetBoxInterface : public QWidget
 {
     Q_OBJECT
 public:
@@ -73,8 +73,8 @@ public:
     };
     typedef QList<Category> CategoryList;
 
-    AbstractWidgetBox(QWidget *parent = 0, Qt::WindowFlags flags = 0);
-    virtual ~AbstractWidgetBox();
+    QDesignerWidgetBoxInterface(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    virtual ~QDesignerWidgetBoxInterface();
 
     virtual int categoryCount() const = 0;
     virtual Category category(int cat_idx) const = 0;
@@ -88,7 +88,7 @@ public:
 
     int findOrInsertCategory(const QString &categoryName);
 
-    virtual void dropWidgets(const QList<AbstractDnDItem*> &item_list,
+    virtual void dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list,
                                 const QPoint &global_mouse_pos) = 0;
 
     virtual void setFileName(const QString &file_name) = 0;
@@ -97,6 +97,6 @@ public:
     virtual bool save() = 0;
 };
 
-Q_DECLARE_METATYPE(AbstractWidgetBox::Widget)
+Q_DECLARE_METATYPE(QDesignerWidgetBoxInterface::Widget)
 
 #endif // ABSTRACTWIDGETBOX_H

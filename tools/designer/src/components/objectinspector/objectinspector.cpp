@@ -14,12 +14,12 @@
 #include "objectinspector.h"
 
 // sdk
-#include <container.h>
-#include <qextensionmanager.h>
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
-#include <abstractwidgetdatabase.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
 #include <tree_widget.h>
 #include <qdesigner_promotedwidget.h>
 
@@ -37,8 +37,8 @@
 
 Q_DECLARE_METATYPE(QObject *)
 
-ObjectInspector::ObjectInspector(AbstractFormEditor *core, QWidget *parent)
-    : AbstractObjectInspector(parent),
+ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent)
+    : QDesignerObjectInspectorInterface(parent),
       m_core(core),
       m_ignoreUpdate(false)
 {
@@ -63,7 +63,7 @@ ObjectInspector::~ObjectInspector()
 {
 }
 
-AbstractFormEditor *ObjectInspector::core() const
+QDesignerFormEditorInterface *ObjectInspector::core() const
 {
     return m_core;
 }
@@ -73,7 +73,7 @@ bool ObjectInspector::sortEntry(const QObject *a, const QObject *b)
     return a->objectName() < b->objectName();
 }
 
-void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
+void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 {
     if (m_ignoreUpdate)
         return;
@@ -88,7 +88,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
     if (!fw || !fw->mainContainer())
         return;
 
-    AbstractWidgetDataBase *db = fw->core()->widgetDataBase();
+    QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
 
     m_treeWidget->viewport()->setUpdatesEnabled(false);
 
@@ -113,7 +113,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         item->setText(0, objectName);
 
         QString className;
-        if (AbstractWidgetDataBaseItem *widgetItem = db->item(db->indexOfObject(object, true))) {
+        if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
             className = widgetItem->name();
 
             if (object->isWidgetType() && className == QLatin1String("QLayoutWidget")
@@ -127,7 +127,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
 
         item->setData(0, 1000, qVariantFromValue(object));
 
-        if (IContainer *c = qt_extension<IContainer*>(fw->core()->extensionManager(), object)) {
+        if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(fw->core()->extensionManager(), object)) {
             for (int i=0; i<c->count(); ++i) {
                 QObject *page = c->widget(i);
                 Q_ASSERT(page != 0);
@@ -181,5 +181,5 @@ void ObjectInspector::slotSelectionChanged()
 void ObjectInspector::showEvent(QShowEvent *event)
 {
     m_treeWidget->resizeColumnToContents(0);
-    AbstractObjectInspector::showEvent(event);
+    QDesignerObjectInspectorInterface::showEvent(event);
 }

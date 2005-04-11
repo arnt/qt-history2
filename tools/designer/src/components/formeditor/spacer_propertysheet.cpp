@@ -16,7 +16,7 @@
 #include "formwindow.h"
 #include "spacer_widget.h"
 
-#include <qextensionmanager.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <QLayout>
 #include <QMetaObject>
@@ -47,13 +47,13 @@ void SpacerPropertySheet::setProperty(int index, const QVariant &value)
 
 
 SpacerPropertySheetFactory::SpacerPropertySheetFactory(QExtensionManager *parent)
-    : DefaultExtensionFactory(parent)
+    : QExtensionFactory(parent)
 {
 }
 
 QObject *SpacerPropertySheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid != Q_TYPEID(IPropertySheet))
+    if (iid != Q_TYPEID(QDesignerPropertySheetExtension))
         return 0;
 
     if (Spacer *o = qobject_cast<Spacer*>(object))

@@ -14,13 +14,13 @@
 #include "tabordereditor_tool.h"
 #include "tabordereditor.h"
 
-#include <abstractformwindow.h>
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformeditor.h>
 
 #include <QtGui/QAction>
 
-TabOrderEditorTool::TabOrderEditorTool(AbstractFormWindow *formWindow, QObject *parent)
-    : AbstractFormWindowTool(parent),
+TabOrderEditorTool::TabOrderEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
+    : QDesignerFormWindowToolInterface(parent),
       m_formWindow(formWindow)
 {
     m_action = new QAction(tr("Edit Tab Order"), this);
@@ -30,12 +30,12 @@ TabOrderEditorTool::~TabOrderEditorTool()
 {
 }
 
-AbstractFormEditor *TabOrderEditorTool::core() const
+QDesignerFormEditorInterface *TabOrderEditorTool::core() const
 {
     return m_formWindow->core();
 }
 
-AbstractFormWindow *TabOrderEditorTool::formWindow() const
+QDesignerFormWindowInterface *TabOrderEditorTool::formWindow() const
 {
     return m_formWindow;
 }

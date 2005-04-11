@@ -18,8 +18,8 @@
 #include "formeditor.h"
 
 // sdk
-#include <abstractformwindowmanager.h>
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractformwindow.h>
 
 // Qt
 #include <QtCore/QHash>
@@ -74,7 +74,7 @@ public:
 };
 typedef QList<ActionListElt> ActionList;
 
-class QT_FORMEDITOR_EXPORT FormWindow: public AbstractFormWindow
+class QT_FORMEDITOR_EXPORT FormWindow: public QDesignerFormWindowInterface
 {
     Q_OBJECT
 public:
@@ -88,15 +88,15 @@ public:
     FormWindow(FormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~FormWindow();
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
-    virtual AbstractFormWindowCursor *cursor() const;
+    virtual QDesignerFormWindowCursorInterface *cursor() const;
 
     virtual int toolCount() const;
     virtual int currentTool() const;
     virtual void setCurrentTool(int index);
-    virtual AbstractFormWindowTool *tool(int index) const;
-    virtual void registerTool(AbstractFormWindowTool *tool);
+    virtual QDesignerFormWindowToolInterface *tool(int index) const;
+    virtual void registerTool(QDesignerFormWindowToolInterface *tool);
 
     virtual bool hasFeature(Feature f) const;
     virtual Feature features() const;
@@ -193,7 +193,7 @@ public:
 
     void resizeWidget(QWidget *widget, const QRect &geometry);
 
-    void dropWidgets(QList<AbstractDnDItem*> &item_list, QWidget *target,
+    void dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
                         const QPoint &global_mouse_pos);
 
 signals:

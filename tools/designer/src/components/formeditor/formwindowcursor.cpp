@@ -15,8 +15,8 @@
 #include "formwindow.h"
 
 // sdk
-#include <propertysheet.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/qextensionmanager.h>
 #include <qdesigner_command.h>
 
 #include <QtCore/qdebug.h>
@@ -34,7 +34,7 @@ FormWindowCursor::~FormWindowCursor()
 {
 }
 
-AbstractFormWindow *FormWindowCursor::formWindow() const
+QDesignerFormWindowInterface *FormWindowCursor::formWindow() const
 {
     return m_formWindow;
 }
@@ -153,7 +153,7 @@ void FormWindowCursor::setProperty(const QString &name, const QVariant &value)
 
 void FormWindowCursor::setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value)
 {
-    IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_formWindow->core()->extensionManager(), widget);
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), widget);
     Q_ASSERT(sheet);
 
     SetPropertyCommand *cmd = new SetPropertyCommand(m_formWindow);
@@ -163,7 +163,7 @@ void FormWindowCursor::setWidgetProperty(QWidget *widget, const QString &name, c
 
 void FormWindowCursor::resetWidgetProperty(QWidget *widget, const QString &name)
 {
-    IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_formWindow->core()->extensionManager(), widget);
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), widget);
     Q_ASSERT(sheet);
 
     ResetPropertyCommand *cmd = new ResetPropertyCommand(m_formWindow);

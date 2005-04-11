@@ -29,6 +29,8 @@ my %modules = ( # path to module name map
 	    "QtNetwork" => "$basedir/src/network",
 	    "Qt3Support" => "$basedir/src/qt3support",
 	    "ActiveQt" => "$basedir/extensions/activeqt/container;$basedir/extensions/activeqt/control",
+	    "QtAssistant" => "$basedir/tools/assistant/lib",
+	    "QtDesigner" => "$basedir/tools/designer/src/lib/sdk;$basedir/tools/designer/src/lib/uilib;$basedir/tools/designer/src/lib/extension;",
 	    "QtMotif" => "$basedir/extensions/motif/src",
 	    "QtNsPlugin" => "$basedir/extensions/nsplugin/src",
 );
@@ -211,7 +213,7 @@ sub classNames {
 		push @symbols, "Q" . $1 . "Iterator";
 		push @symbols, "QMutable" . $1 . "Iterator";
             }
-	    
+
 	    foreach (@symbols) {
 		my $symbol = $_;
 		push @ret, $symbol if($symbol =~ /^Q/);
@@ -238,11 +240,11 @@ sub syncHeader {
 
     my $iheader_no_basedir = $iheader;
     $iheader_no_basedir =~ s,^$basedir/?,,;
-    
+
     unless(-e "$header") {
         my $header_dir = dirname($header);
         mkpath $header_dir, 0777;
-    
+
         #write it
         my $iheader_out = fixPaths($iheader, $header_dir);
         open HEADER, ">$header" || die "Could not open $header for writing!\n";
@@ -488,7 +490,7 @@ while ( @ARGV ) {
     } elsif("$arg" eq "-o" || "$arg" eq "-outdir") {
 	$var = "output";
 	$val = shift @ARGV;
-    } elsif("$arg" eq "-showonly" || "$arg" eq "-remove-stale" || "$arg" eq "-windows" || 
+    } elsif("$arg" eq "-showonly" || "$arg" eq "-remove-stale" || "$arg" eq "-windows" ||
 	    "$arg" eq "-relative" || "$arg" eq "-check-includes") {
 	$var = substr($arg, 1);
 	$val = "yes";
@@ -659,7 +661,7 @@ foreach (@modules_to_sync) {
             my $subdir = "$_";
             opendir DIR, "$subdir";
             while(my $t = readdir(DIR)) {
-                push @subdirs, "$subdir/$t" if(-d "$subdir/$t" && !($t eq ".") && 
+                push @subdirs, "$subdir/$t" if(-d "$subdir/$t" && !($t eq ".") &&
 					       !($t eq "..") && !($t eq "arch"));
             }
             closedir DIR;
@@ -706,7 +708,7 @@ foreach (@modules_to_sync) {
 				$header_copies++ if(syncHeader("$out_basedir/include/$lib/$class", $header, 0));
 			    }
 			} else {
-			    @headers = ( "$out_basedir/include/Qt/private/$header", 
+			    @headers = ( "$out_basedir/include/Qt/private/$header",
 					 "$out_basedir/include/$lib/private/$header" );
 			}
 			foreach(@headers) { #sync them
@@ -721,9 +723,9 @@ foreach (@modules_to_sync) {
 			    if($public_header) {
 				my $pri_install_iheader = fixPaths($iheader, $current_dir);
 				foreach(@classes) {
-				    my $class_header = fixPaths("$basedir/include/$lib/$_", 
+				    my $class_header = fixPaths("$basedir/include/$lib/$_",
 								$current_dir) . " ";
-				    $pri_install_classes .= $class_header 
+				    $pri_install_classes .= $class_header
 								unless($pri_install_classes =~ $class_header);
 				}
 				$pri_install_files .= "$pri_install_iheader ";;
@@ -815,7 +817,7 @@ if($check_includes) {
 		my $subdir = "$_";
 		opendir DIR, "$subdir";
 		while(my $t = readdir(DIR)) {
-		    push @subdirs, "$subdir/$t" if(-d "$subdir/$t" && !($t eq ".") && 
+		    push @subdirs, "$subdir/$t" if(-d "$subdir/$t" && !($t eq ".") &&
 						   !($t eq "..") && !($t eq "arch"));
 		}
 		closedir DIR;

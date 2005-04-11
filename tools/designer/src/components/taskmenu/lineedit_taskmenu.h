@@ -18,10 +18,10 @@
 #include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu.h>
-#include <default_extensionfactory.h>
+#include <QtDesigner/default_extensionfactory.h>
 
 class QLineEdit;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class LineEditTaskMenu: public QDesignerTaskMenu
 {
@@ -41,13 +41,13 @@ private slots:
 
 private:
     QLineEdit *m_lineEdit;
-    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<QDesignerFormWindowInterface> m_formWindow;
     QPointer<QLineEdit> m_editor;
     mutable QList<QAction*> m_taskActions;
     QAction *m_editTextAction;
 };
 
-class LineEditTaskMenuFactory: public DefaultExtensionFactory
+class LineEditTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:

@@ -14,25 +14,25 @@
 #ifndef ABSTRACTFORMWINDOWTOOL_H
 #define ABSTRACTFORMWINDOWTOOL_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
 #include <QtCore/QObject>
 
-class AbstractFormEditor;
-class AbstractFormWindow;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
 class QWidget;
 class QAction;
 class DomUI;
 
-class QT_SDK_EXPORT AbstractFormWindowTool: public QObject
+class QT_SDK_EXPORT QDesignerFormWindowToolInterface: public QObject
 {
     Q_OBJECT
 public:
-    AbstractFormWindowTool(QObject *parent = 0);
-    virtual ~AbstractFormWindowTool();
+    QDesignerFormWindowToolInterface(QObject *parent = 0);
+    virtual ~QDesignerFormWindowToolInterface();
 
-    virtual AbstractFormEditor *core() const = 0;
-    virtual AbstractFormWindow *formWindow() const = 0;
+    virtual QDesignerFormEditorInterface *core() const = 0;
+    virtual QDesignerFormWindowInterface *formWindow() const = 0;
     virtual QWidget *editor() const = 0;
 
     virtual QAction *action() const = 0;

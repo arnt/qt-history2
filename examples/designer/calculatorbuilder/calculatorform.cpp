@@ -1,12 +1,12 @@
-#include <QtGui>
-#include <formbuilder.h>
+#include <QtGui/QtGui>
+#include <QtDesigner/QFormBuilder>
 
 #include "calculatorform.h"
 
 CalculatorForm::CalculatorForm(QWidget *parent)
     : QWidget(parent)
 {
-    FormBuilder builder;
+    QFormBuilder builder;
     QFile file(":/forms/calculatorform.ui");
     file.open(QFile::ReadOnly);
     QWidget *formWidget = builder.load(&file, this);

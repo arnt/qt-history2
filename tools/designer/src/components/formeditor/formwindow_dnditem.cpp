@@ -14,7 +14,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
 
-#include <ui4.h>
+#include <QtDesigner/ui4.h>
 #include <qdesigner_resource.h>
 
 #include "formwindow_dnditem.h"
@@ -34,7 +34,7 @@ static DomUI *widgetToDom(QWidget *widget, FormWindow *form)
     return builder.copy(QList<QWidget*>() << widget);
 }
 
-FormWindowDnDItem::FormWindowDnDItem(AbstractDnDItem::DropType type, FormWindow *form,
+FormWindowDnDItem::FormWindowDnDItem(QDesignerDnDItemInterface::DropType type, FormWindow *form,
                                         QWidget *widget, const QPoint &global_mouse_pos)
     : QDesignerDnDItem(type, form)
 {

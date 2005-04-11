@@ -11,22 +11,22 @@
 **
 ****************************************************************************/
 
-#include <container.h>
-#include <customwidget.h>
-#include <abstractformeditor.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/customwidget.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <qplugin.h>
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <QIcon>
 #include <Q3ListView>
 
 
-class Q3ListViewPlugin: public QObject, public ICustomWidget
+class Q3ListViewPlugin: public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
-    Q_INTERFACES(ICustomWidget)
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
     inline Q3ListViewPlugin(QObject *parent = 0)
         : QObject(parent), m_initialized(false) {}
@@ -61,7 +61,7 @@ public:
     virtual bool isInitialized() const 
     { return m_initialized; }
     
-    virtual void initialize(AbstractFormEditor *core) 
+    virtual void initialize(QDesignerFormEditorInterface *core) 
     { 
         Q_UNUSED(core);
         

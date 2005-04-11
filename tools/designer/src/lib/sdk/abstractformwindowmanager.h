@@ -14,23 +14,23 @@
 #ifndef ABSTRACTFORMWINDOWMANAGER_H
 #define ABSTRACTFORMWINDOWMANAGER_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 #include "abstractformwindow.h"
 
-#include <QObject>
+#include <QtCore/QObject>
 
 class QAction;
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 class DomUI;
 class QWidget;
-class AbstractDnDItem;
+class QDesignerDnDItemInterface;
 
-class QT_SDK_EXPORT AbstractFormWindowManager: public QObject
+class QT_SDK_EXPORT QDesignerFormWindowManagerInterface: public QObject
 {
     Q_OBJECT
 public:
-    AbstractFormWindowManager(QObject *parent = 0);
-    virtual ~AbstractFormWindowManager();
+    QDesignerFormWindowManagerInterface(QObject *parent = 0);
+    virtual ~QDesignerFormWindowManagerInterface();
 
     virtual QAction *actionCut() const;
     virtual QAction *actionCopy() const;
@@ -52,26 +52,26 @@ public:
 
     virtual QAction *actionShowResourceEditor()const;
 
-    virtual AbstractFormWindow *activeFormWindow() const;
+    virtual QDesignerFormWindowInterface *activeFormWindow() const;
 
     virtual int formWindowCount() const;
-    virtual AbstractFormWindow *formWindow(int index) const;
+    virtual QDesignerFormWindowInterface *formWindow(int index) const;
 
-    virtual AbstractFormWindow *createFormWindow(QWidget *parentWidget = 0, Qt::WindowFlags flags = 0);
+    virtual QDesignerFormWindowInterface *createFormWindow(QWidget *parentWidget = 0, Qt::WindowFlags flags = 0);
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
-    virtual void dragItems(const QList<AbstractDnDItem*> &item_list) = 0;
+    virtual void dragItems(const QList<QDesignerDnDItemInterface*> &item_list) = 0;
 
 signals:
-    void formWindowAdded(AbstractFormWindow *formWindow);
-    void formWindowRemoved(AbstractFormWindow *formWindow);
-    void activeFormWindowChanged(AbstractFormWindow *formWindow);
+    void formWindowAdded(QDesignerFormWindowInterface *formWindow);
+    void formWindowRemoved(QDesignerFormWindowInterface *formWindow);
+    void activeFormWindowChanged(QDesignerFormWindowInterface *formWindow);
 
 public slots:
-    virtual void addFormWindow(AbstractFormWindow *formWindow);
-    virtual void removeFormWindow(AbstractFormWindow *formWindow);
-    virtual void setActiveFormWindow(AbstractFormWindow *formWindow);
+    virtual void addFormWindow(QDesignerFormWindowInterface *formWindow);
+    virtual void removeFormWindow(QDesignerFormWindowInterface *formWindow);
+    virtual void setActiveFormWindow(QDesignerFormWindowInterface *formWindow);
 };
 
 #endif // ABSTRACTFORMWINDOWMANAGER_H

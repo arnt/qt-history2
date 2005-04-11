@@ -17,12 +17,12 @@
 #include <qdesigner_dnditem.h>
 #include "widgetbox_global.h"
 
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 
 class QT_WIDGETBOX_EXPORT WidgetBoxDnDItem : public QDesignerDnDItem
 {
 public:
-    WidgetBoxDnDItem(AbstractFormEditor *core,
+    WidgetBoxDnDItem(QDesignerFormEditorInterface *core,
                         DomWidget *dom_widget,
                         const QPoint &global_mouse_pos);
 };

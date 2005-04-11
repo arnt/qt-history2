@@ -13,139 +13,139 @@
 
 #include "abstractformwindowmanager.h"
 
-AbstractFormWindowManager::AbstractFormWindowManager(QObject *parent)
+QDesignerFormWindowManagerInterface::QDesignerFormWindowManagerInterface(QObject *parent)
     : QObject(parent)
 {
 }
 
-AbstractFormWindowManager::~AbstractFormWindowManager()
+QDesignerFormWindowManagerInterface::~QDesignerFormWindowManagerInterface()
 {
 }
 
-QAction *AbstractFormWindowManager::actionCut() const
-{
-    return 0;
-}
-
-QAction *AbstractFormWindowManager::actionCopy() const
+QAction *QDesignerFormWindowManagerInterface::actionCut() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionPaste() const
+QAction *QDesignerFormWindowManagerInterface::actionCopy() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionDelete() const
+QAction *QDesignerFormWindowManagerInterface::actionPaste() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionSelectAll() const
+QAction *QDesignerFormWindowManagerInterface::actionDelete() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionLower() const
+QAction *QDesignerFormWindowManagerInterface::actionSelectAll() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionRaise() const
+QAction *QDesignerFormWindowManagerInterface::actionLower() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionHorizontalLayout() const
+QAction *QDesignerFormWindowManagerInterface::actionRaise() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionVerticalLayout() const
+QAction *QDesignerFormWindowManagerInterface::actionHorizontalLayout() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionSplitHorizontal() const
+QAction *QDesignerFormWindowManagerInterface::actionVerticalLayout() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionSplitVertical() const
+QAction *QDesignerFormWindowManagerInterface::actionSplitHorizontal() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionGridLayout() const
+QAction *QDesignerFormWindowManagerInterface::actionSplitVertical() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionBreakLayout() const
+QAction *QDesignerFormWindowManagerInterface::actionGridLayout() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionAdjustSize() const
+QAction *QDesignerFormWindowManagerInterface::actionBreakLayout() const
 {
     return 0;
 }
 
-AbstractFormWindow *AbstractFormWindowManager::activeFormWindow() const
+QAction *QDesignerFormWindowManagerInterface::actionAdjustSize() const
 {
     return 0;
 }
 
-AbstractFormEditor *AbstractFormWindowManager::core() const
+QDesignerFormWindowInterface *QDesignerFormWindowManagerInterface::activeFormWindow() const
 {
     return 0;
 }
 
-void AbstractFormWindowManager::addFormWindow(AbstractFormWindow *formWindow)
+QDesignerFormEditorInterface *QDesignerFormWindowManagerInterface::core() const
+{
+    return 0;
+}
+
+void QDesignerFormWindowManagerInterface::addFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_UNUSED(formWindow);
 }
 
-void AbstractFormWindowManager::removeFormWindow(AbstractFormWindow *formWindow)
+void QDesignerFormWindowManagerInterface::removeFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_UNUSED(formWindow);
 }
 
-void AbstractFormWindowManager::setActiveFormWindow(AbstractFormWindow *formWindow)
+void QDesignerFormWindowManagerInterface::setActiveFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_UNUSED(formWindow);
 }
 
-int AbstractFormWindowManager::formWindowCount() const
+int QDesignerFormWindowManagerInterface::formWindowCount() const
 {
     return 0;
 }
 
-AbstractFormWindow *AbstractFormWindowManager::formWindow(int index) const
+QDesignerFormWindowInterface *QDesignerFormWindowManagerInterface::formWindow(int index) const
 {
     Q_UNUSED(index);
     return 0;
 }
 
-AbstractFormWindow *AbstractFormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WindowFlags flags)
+QDesignerFormWindowInterface *QDesignerFormWindowManagerInterface::createFormWindow(QWidget *parentWidget, Qt::WindowFlags flags)
 {
     Q_UNUSED(parentWidget);
     Q_UNUSED(flags);
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionUndo() const
+QAction *QDesignerFormWindowManagerInterface::actionUndo() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionRedo() const
+QAction *QDesignerFormWindowManagerInterface::actionRedo() const
 {
     return 0;
 }
 
-QAction *AbstractFormWindowManager::actionShowResourceEditor()const
+QAction *QDesignerFormWindowManagerInterface::actionShowResourceEditor()const
 {
     return 0;
 }

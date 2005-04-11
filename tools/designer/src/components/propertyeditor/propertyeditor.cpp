@@ -15,13 +15,13 @@
 #include "findicondialog.h"
 #include "qpropertyeditor_model_p.h"
 
-#include <qextensionmanager.h>
-#include <propertysheet.h>
-#include <container.h>
-#include <abstracticoncache.h>
-#include <abstractformwindowmanager.h>
-#include <abstractformwindowcursor.h>
-#include <abstractwidgetdatabase.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/abstracticoncache.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
 #include <iconloader.h>
 #include <qdesigner_promotedwidget.h>
 
@@ -50,7 +50,7 @@ IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QS
 class IconProperty : public AbstractProperty<QIcon>
 {
 public:
-    IconProperty(AbstractFormEditor *core, const QIcon &value, const QString &name);
+    IconProperty(QDesignerFormEditorInterface *core, const QIcon &value, const QString &name);
 
     void setValue(const QVariant &value);
     QString toString() const;
@@ -60,13 +60,13 @@ public:
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
 };
 
 class PixmapProperty : public AbstractProperty<QPixmap>
 {
 public:
-    PixmapProperty(AbstractFormEditor *core, const QPixmap &pixmap, const QString &name);
+    PixmapProperty(QDesignerFormEditorInterface *core, const QPixmap &pixmap, const QString &name);
 
     void setValue(const QVariant &value);
     QString toString() const;
@@ -76,7 +76,7 @@ public:
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
 };
 
 // This handles editing of pixmap and icon properties
@@ -84,8 +84,8 @@ class GraphicsPropertyEditor : public QWidget
 {
     Q_OBJECT
 public:
-    GraphicsPropertyEditor(AbstractFormEditor *core, const QIcon &pm, QWidget *parent);
-    GraphicsPropertyEditor(AbstractFormEditor *core, const QPixmap &pixmap, QWidget *parent);
+    GraphicsPropertyEditor(QDesignerFormEditorInterface *core, const QIcon &pm, QWidget *parent);
+    GraphicsPropertyEditor(QDesignerFormEditorInterface *core, const QPixmap &pixmap, QWidget *parent);
     ~GraphicsPropertyEditor();
 
     void setIcon(const QIcon &pm);
@@ -110,7 +110,7 @@ private:
     enum Mode { Icon, Pixmap };
     Mode m_mode;
 
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     QComboBox *m_combo;
     QToolButton *m_button;
     QIcon m_icon;
@@ -197,14 +197,14 @@ int GraphicsPropertyEditor::indexOfPixmap(const QPixmap &pixmap)
 
 void GraphicsPropertyEditor::populateCombo()
 {
-    AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
+    QDesignerFormWindowInterface *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0)
         return;
     QStringList qrc_list = form->resourceFiles();
 
     m_combo->clear();
 
-    AbstractIconCache *cache = m_core->iconCache();
+    QDesignerIconCacheInterface *cache = m_core->iconCache();
     if (m_mode == Icon) {
         m_combo->addItem(tr("<no icon>"));
         QList<QIcon> icon_list = cache->iconList();
@@ -232,7 +232,7 @@ void GraphicsPropertyEditor::populateCombo()
     m_combo->blockSignals(blocked);
 }
 
-GraphicsPropertyEditor::GraphicsPropertyEditor(AbstractFormEditor *core, const QIcon &pm,
+GraphicsPropertyEditor::GraphicsPropertyEditor(QDesignerFormEditorInterface *core, const QIcon &pm,
                                                 QWidget *parent)
     : QWidget(parent)
 {
@@ -242,7 +242,7 @@ GraphicsPropertyEditor::GraphicsPropertyEditor(AbstractFormEditor *core, const Q
     setIcon(pm);
 }
 
-GraphicsPropertyEditor::GraphicsPropertyEditor(AbstractFormEditor *core, const QPixmap &pm,
+GraphicsPropertyEditor::GraphicsPropertyEditor(QDesignerFormEditorInterface *core, const QPixmap &pm,
                                                 QWidget *parent)
     : QWidget(parent)
 {
@@ -254,7 +254,7 @@ GraphicsPropertyEditor::GraphicsPropertyEditor(AbstractFormEditor *core, const Q
 
 void GraphicsPropertyEditor::showDialog()
 {
-    AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
+    QDesignerFormWindowInterface *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0)
         return;
 
@@ -328,7 +328,7 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
     emit pixmapChanged(m_pixmap);
 }
 
-IconProperty::IconProperty(AbstractFormEditor *core, const QIcon &value, const QString &name)
+IconProperty::IconProperty(QDesignerFormEditorInterface *core, const QIcon &value, const QString &name)
     : AbstractProperty<QIcon>(value, name)
 {
     m_core = core;
@@ -385,7 +385,7 @@ void IconProperty::updateValue(QWidget *editor)
     }
 }
 
-PixmapProperty::PixmapProperty(AbstractFormEditor *core, const QPixmap &pixmap, const QString &name)
+PixmapProperty::PixmapProperty(QDesignerFormEditorInterface *core, const QPixmap &pixmap, const QString &name)
     : AbstractProperty<QPixmap>(pixmap, name)
 {
     m_core = core;
@@ -447,7 +447,7 @@ void PixmapProperty::updateValue(QWidget *editor)
 void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
 {
     QExtensionManager *m = m_core->extensionManager();
-    m_prop_sheet = qobject_cast<IPropertySheet*>(m->extension(object, Q_TYPEID(IPropertySheet)));
+    m_prop_sheet = qobject_cast<QDesignerPropertySheetExtension*>(m->extension(object, Q_TYPEID(QDesignerPropertySheetExtension)));
     QHash<QString, PropertyCollection*> g;
     for (int i=0; i<m_prop_sheet->count(); ++i) {
         if (!m_prop_sheet->isVisible(i))
@@ -559,9 +559,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
     }
 }
 
-PropertyEditor::PropertyEditor(AbstractFormEditor *core,
+PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
             QWidget *parent, Qt::WindowFlags flags)
-    : AbstractPropertyEditor(parent, flags),
+    : QDesignerPropertyEditorInterface(parent, flags),
       m_core(core),
       m_properties(0)
 {
@@ -591,7 +591,7 @@ void PropertyEditor::setReadOnly(bool readOnly)
     m_editor->setReadOnly(readOnly);
 }
 
-AbstractFormEditor *PropertyEditor::core() const
+QDesignerFormEditorInterface *PropertyEditor::core() const
 {
     return m_core;
 }
@@ -680,7 +680,7 @@ void PropertyEditor::resetProperty(const QString &prop_name)
         return;
     }
 
-    AbstractFormWindow *form = AbstractFormWindow::findFormWindow(w);
+    QDesignerFormWindowInterface *form = QDesignerFormWindowInterface::findFormWindow(w);
     if (form == 0) {
         qWarning("PropertyEditor::resetProperty(): widget does not belong to any form");
         return;

@@ -18,20 +18,20 @@
 #include <QtGui/QMainWindow>
 
 class QDesignerWorkbench;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class QDesignerFormWindow: public QMainWindow
 {
     Q_OBJECT
 public:
-    QDesignerFormWindow(AbstractFormWindow *formWindow, QDesignerWorkbench *workbench,
+    QDesignerFormWindow(QDesignerFormWindowInterface *formWindow, QDesignerWorkbench *workbench,
                         QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
     virtual ~QDesignerFormWindow();
 
     QAction *action() const;
     QDesignerWorkbench *workbench() const;
-    AbstractFormWindow *editor() const;
+    QDesignerFormWindowInterface *editor() const;
 
     virtual QRect geometryHint() const;
 
@@ -44,7 +44,7 @@ protected:
     void closeEvent(QCloseEvent *ev);
 
 private:
-    AbstractFormWindow *m_editor;
+    QDesignerFormWindowInterface *m_editor;
     QPointer<QDesignerWorkbench> m_workbench;
     QAction *m_action;
 };

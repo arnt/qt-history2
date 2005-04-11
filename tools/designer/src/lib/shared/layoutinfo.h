@@ -16,11 +16,11 @@
 
 #include "shared_global.h"
 
-#include <QList>
+#include <QtCore/QList>
 
 class QWidget;
 class QLayout;
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 
 class QT_SHARED_EXPORT LayoutInfo
 {
@@ -34,11 +34,11 @@ public:
         NoLayout
     };
 
-    static void deleteLayout(AbstractFormEditor *core, QWidget *widget);
-    static Type layoutType(AbstractFormEditor *core, QWidget *w, QLayout *&layout);
-    static Type layoutType(AbstractFormEditor *core, QLayout *layout);
-    static Type layoutType(AbstractFormEditor *core, QWidget *w);
-    static QWidget *layoutParent(AbstractFormEditor *core, QLayout *layout);
+    static void deleteLayout(QDesignerFormEditorInterface *core, QWidget *widget);
+    static Type layoutType(QDesignerFormEditorInterface *core, QWidget *w, QLayout *&layout);
+    static Type layoutType(QDesignerFormEditorInterface *core, QLayout *layout);
+    static Type layoutType(QDesignerFormEditorInterface *core, QWidget *w);
+    static QWidget *layoutParent(QDesignerFormEditorInterface *core, QLayout *layout);
 
     class Interval
     {

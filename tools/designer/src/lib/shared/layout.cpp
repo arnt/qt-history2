@@ -17,11 +17,11 @@
 #include "spacer_widget.h"
 #include "layoutdecoration.h"
 
-#include <abstractwidgetdatabase.h>
-#include <abstractformwindow.h>
-#include <abstractwidgetfactory.h>
-#include <abstractformeditor.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <QtCore/qdebug.h>
 #include <QtCore/QVector>
@@ -97,7 +97,7 @@ void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs
   widget is found later by Layout.)
  */
 
-Layout::Layout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter)
+Layout::Layout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter)
     : widgets(wl), m_parentWidget(p), formWindow(fw), isBreak(false), useSplitter(splitter)
 {
     layoutBase = lb;
@@ -167,7 +167,7 @@ void Layout::setup()
     // If we found no list (because no widget did fit at all) or the
     // best list has only one entry and we do not layout a container,
     // we leave here.
-    AbstractWidgetDataBase *widgetDataBase = formWindow->core()->widgetDataBase();
+    QDesignerWidgetDataBaseInterface *widgetDataBase = formWindow->core()->widgetDataBase();
     if (lastList.count() < 2 &&
                         (!layoutBase ||
                           (!widgetDataBase->isContainer(layoutBase, false) &&
@@ -223,8 +223,8 @@ bool Layout::prepareLayout(bool &needMove, bool &needReparent)
     needMove = !layoutBase;
     needReparent = needMove || qobject_cast<QLayoutWidget*>(layoutBase) || qobject_cast<QSplitter*>(layoutBase);
 
-    AbstractWidgetFactory *widgetFactory = formWindow->core()->widgetFactory();
-    AbstractMetaDataBase *metaDataBase = formWindow->core()->metaDataBase();
+    QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
+    QDesignerMetaDataBaseInterface *metaDataBase = formWindow->core()->metaDataBase();
 
     if (!layoutBase) {
         if (!useSplitter) {
@@ -276,7 +276,7 @@ void Layout::undoLayout()
 
     formWindow->selectWidget(layoutBase, false);
 
-    AbstractWidgetFactory *widgetFactory = formWindow->core()->widgetFactory();
+    QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
     QMapIterator<QPointer<QWidget>, QRect> it(geometries);
     while (it.hasNext()) {
         it.next();
@@ -292,8 +292,8 @@ void Layout::undoLayout()
 
         // ### remove widget here
         QWidget *parentWidget = w->parentWidget();
-        AbstractFormEditor *core = formWindow->core();
-        ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
+        QDesignerFormEditorInterface *core = formWindow->core();
+        QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
 
         if (deco)
             deco->removeWidget(w);
@@ -329,7 +329,7 @@ void Layout::breakLayout()
         }
     }
     QPoint layoutBasePos = layoutBase->pos();
-    AbstractWidgetDataBase *widgetDataBase = formWindow->core()->widgetDataBase();
+    QDesignerWidgetDataBaseInterface *widgetDataBase = formWindow->core()->widgetDataBase();
 
     LayoutInfo::deleteLayout(formWindow->core(), layoutBase);
     bool needReparent = qobject_cast<QLayoutWidget*>(layoutBase) ||
@@ -371,7 +371,7 @@ void Layout::breakLayout()
         formWindow->selectWidget(formWindow);
 }
 
-HorizontalLayout::HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter)
+HorizontalLayout::HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter)
     : Layout(wl, p, fw, lb, splitter)
 {
 }
@@ -391,7 +391,7 @@ void HorizontalLayout::doLayout()
     if (!prepareLayout(needMove, needReparent))
         return;
 
-    AbstractWidgetFactory *widgetFactory = formWindow->core()->widgetFactory();
+    QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
     QHBoxLayout *layout = (QHBoxLayout*) widgetFactory->createLayout(layoutBase, 0, LayoutInfo::HBox);
 
     QListIterator<QWidget*> it(widgets);
@@ -418,7 +418,7 @@ void HorizontalLayout::doLayout()
     finishLayout(needMove, layout);
 }
 
-VerticalLayout::VerticalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter)
+VerticalLayout::VerticalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter)
     : Layout(wl, p, fw, lb, splitter)
 {
 }
@@ -438,7 +438,7 @@ void VerticalLayout::doLayout()
     if (!prepareLayout(needMove, needReparent))
         return;
 
-    AbstractWidgetFactory *widgetFactory = formWindow->core()->widgetFactory();
+    QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
     QVBoxLayout *layout = (QVBoxLayout*) widgetFactory->createLayout(layoutBase, 0, LayoutInfo::VBox);
     Q_ASSERT(layout);
 
@@ -795,7 +795,7 @@ bool Grid::locateWidget(QWidget *w, int &row, int &col, int &rowspan, int &colsp
 
 
 
-GridLayout::GridLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, const QSize &res)
+GridLayout::GridLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, const QSize &res)
     : Layout(wl, p, fw, lb), resolution(res)
 {
     grid = 0;
@@ -827,7 +827,7 @@ void GridLayout::doLayout()
     if (!prepareLayout(needMove, needReparent))
         return;
 
-    AbstractWidgetFactory *ff = formWindow->core()->widgetFactory();
+    QDesignerWidgetFactoryInterface *ff = formWindow->core()->widgetFactory();
     QGridLayout *layout = static_cast<QGridLayout*>(ff->createLayout(layoutBase, 0, LayoutInfo::Grid));
 
     if (!grid)

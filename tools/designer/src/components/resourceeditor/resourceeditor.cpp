@@ -19,8 +19,8 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QDrag>
 
-#include <abstractformeditor.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 #include <resourcefile.h>
 #include <iconloader.h>
@@ -118,7 +118,7 @@ QrcView::QrcView(QWidget *parent)
 ** EditableResourceModel
 */
 
-class EditableResourceModel : public AbstractFormBuilderModel
+class EditableResourceModel : public QAbstractFormBuilderModel
 {
 public:
     EditableResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
@@ -202,7 +202,7 @@ ResourceModel *ModelCache::model(const QString &file)
 ** ResourceEditor
 */
 
-ResourceEditor::ResourceEditor(AbstractFormWindow *form, QWidget *parent)
+ResourceEditor::ResourceEditor(QDesignerFormWindowInterface *form, QWidget *parent)
     : QDialog(parent)
 {
     setupUi(this);

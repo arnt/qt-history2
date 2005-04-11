@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "abstractimagecollection.h"
+#include <QtDesigner/abstractimagecollection.h>
 
-AbstractImageCollection::AbstractImageCollection(QObject *parent)
+QDesignerImageCollectionInterface::QDesignerImageCollectionInterface(QObject *parent)
     : QObject(parent)
 {
 }
 
-AbstractImageCollection::~AbstractImageCollection()
+QDesignerImageCollectionInterface::~QDesignerImageCollectionInterface()
 {
 }

@@ -16,23 +16,23 @@
 
 #include "propertyeditor_global.h"
 
-#include <abstractformeditor.h>
-#include <abstractpropertyeditor.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractpropertyeditor.h>
 
 #include <qpropertyeditor.h>
 #include <QtCore/QPointer>
 
 class DomProperty;
-class IPropertySheet;
+class QDesignerPropertySheetExtension;
 
-class QT_PROPERTYEDITOR_EXPORT PropertyEditor: public AbstractPropertyEditor
+class QT_PROPERTYEDITOR_EXPORT PropertyEditor: public QDesignerPropertyEditorInterface
 {
     Q_OBJECT
 public:
-    PropertyEditor(AbstractFormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    PropertyEditor(QDesignerFormEditorInterface *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~PropertyEditor();
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
     virtual bool isReadOnly() const;
     virtual void setReadOnly(bool readOnly);
@@ -56,10 +56,10 @@ private:
             const QString &name);
 
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     QPropertyEditor *m_editor;
     IPropertyGroup *m_properties;
-    IPropertySheet *m_prop_sheet;
+    QDesignerPropertySheetExtension *m_prop_sheet;
     QPointer<QObject> m_object;
 };
 

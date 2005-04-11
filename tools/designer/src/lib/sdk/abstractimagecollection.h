@@ -14,19 +14,19 @@
 #ifndef ABSTRACTIMAGECOLLECTION_H
 #define ABSTRACTIMAGECOLLECTION_H
 
-#include "sdk_global.h"
-#include <QObject>
+#include <QtDesigner/sdk_global.h>
+#include <QtCore/QObject>
 
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 
-class QT_SDK_EXPORT AbstractImageCollection: public QObject
+class QT_SDK_EXPORT QDesignerImageCollectionInterface: public QObject
 {
     Q_OBJECT
 public:
-    AbstractImageCollection(QObject *parent = 0);
-    virtual ~AbstractImageCollection();
+    QDesignerImageCollectionInterface(QObject *parent = 0);
+    virtual ~QDesignerImageCollectionInterface();
 
-    virtual AbstractFormEditor *core() const = 0;
+    virtual QDesignerFormEditorInterface *core() const = 0;
 
     virtual QString fileName() const = 0;
     virtual QString prefix() const = 0;

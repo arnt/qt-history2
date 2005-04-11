@@ -24,7 +24,7 @@
 
 #include "shared_global.h"
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 class QtUndoStack;
 class Connection;
 class ConnectionEdit;
@@ -106,7 +106,7 @@ class QT_SHARED_EXPORT ConnectionEdit : public QWidget, public CETypes
 {
     Q_OBJECT
 public:
-    ConnectionEdit(QWidget *parent, AbstractFormWindow *form);
+    ConnectionEdit(QWidget *parent, QDesignerFormWindowInterface *form);
 
     inline QWidget *background() const { return m_bg_widget; }
 

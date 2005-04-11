@@ -16,11 +16,11 @@
 
 #include "formeditor_global.h"
 
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformeditor.h>
 
-#include <QObject>
+#include <QtCore/QObject>
 
-class QT_FORMEDITOR_EXPORT FormEditor: public AbstractFormEditor
+class QT_FORMEDITOR_EXPORT FormEditor: public QDesignerFormEditorInterface
 {
     Q_OBJECT
 public:

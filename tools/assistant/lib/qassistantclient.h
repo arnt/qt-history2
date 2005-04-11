@@ -14,10 +14,11 @@
 #ifndef QASSISTANTCLIENT_H
 #define QASSISTANTCLIENT_H
 
-#include <qobject.h>
-#include <qstringlist.h>
-#include <qprocess.h>
-#include <qtcpsocket.h>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
+#include <QtCore/QProcess>
+
+#include <QtNetwork/QTcpSocket>
 
 class QAssistantClient : public QObject
 {

@@ -14,8 +14,8 @@
 #include "metadatabase.h"
 
 // sdk
-#include <abstractformeditor.h>
-#include <abstractwidgetfactory.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractwidgetfactory.h>
 
 // Qt
 #include <QtCore/qalgorithms.h>
@@ -94,8 +94,8 @@ void MetaDataBaseItem::setEnabled(bool b)
 }
 
 // -----------------------------------------------------
-MetaDataBase::MetaDataBase(AbstractFormEditor *core, QObject *parent)
-    : AbstractMetaDataBase(parent),
+MetaDataBase::MetaDataBase(QDesignerFormEditorInterface *core, QObject *parent)
+    : QDesignerMetaDataBaseInterface(parent),
       m_core(core)
 {
 }
@@ -105,7 +105,7 @@ MetaDataBase::~MetaDataBase()
     qDeleteAll(m_items);
 }
 
-AbstractMetaDataBaseItem *MetaDataBase::item(QObject *object) const
+QDesignerMetaDataBaseItemInterface *MetaDataBase::item(QObject *object) const
 {
     MetaDataBaseItem *i = m_items.value(object);
     if (i == 0 || !i->enabled())
@@ -153,7 +153,7 @@ QList<QObject*> MetaDataBase::objects() const
     return result;
 }
 
-AbstractFormEditor *MetaDataBase::core() const
+QDesignerFormEditorInterface *MetaDataBase::core() const
 {
     return m_core;
 }

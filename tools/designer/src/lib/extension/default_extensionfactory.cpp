@@ -11,24 +11,24 @@
 **
 ****************************************************************************/
 
-#include "default_extensionfactory.h"
+#include <QtDesigner/default_extensionfactory.h>
 #include "qextensionmanager.h"
 #include <qpointer.h>
 #include <QtCore/qdebug.h>
 
-DefaultExtensionFactory::DefaultExtensionFactory(QExtensionManager *parent)
+QExtensionFactory::QExtensionFactory(QExtensionManager *parent)
     : QObject(parent)
 {
 }
 
-QObject *DefaultExtensionFactory::extension(QObject *object, const QString &iid) const
+QObject *QExtensionFactory::extension(QObject *object, const QString &iid) const
 {
     if (!object)
         return 0;
 
     QPair<QString, QObject*> key = qMakePair(iid, object);
     if (!m_extensions.contains(key)) {
-        if (QObject *ext = createExtension(object, iid, const_cast<DefaultExtensionFactory*>(this))) {
+        if (QObject *ext = createExtension(object, iid, const_cast<QExtensionFactory*>(this))) {
             connect(ext, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
             m_extensions.insert(key, ext);
         }
@@ -42,7 +42,7 @@ QObject *DefaultExtensionFactory::extension(QObject *object, const QString &iid)
     return m_extensions.value(key);
 }
 
-void DefaultExtensionFactory::objectDestroyed(QObject *object)
+void QExtensionFactory::objectDestroyed(QObject *object)
 {
     QMutableMapIterator< QPair<QString,QObject*>, QObject*> it(m_extensions);
     while (it.hasNext()) {
@@ -57,7 +57,7 @@ void DefaultExtensionFactory::objectDestroyed(QObject *object)
     m_extended.remove(object);
 }
 
-QObject *DefaultExtensionFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
+QObject *QExtensionFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
     Q_UNUSED(object);
     Q_UNUSED(iid);
@@ -66,7 +66,7 @@ QObject *DefaultExtensionFactory::createExtension(QObject *object, const QString
     return 0;
 }
 
-QExtensionManager *DefaultExtensionFactory::extensionManager() const
+QExtensionManager *QExtensionFactory::extensionManager() const
 {
     return static_cast<QExtensionManager *>(parent());
 }

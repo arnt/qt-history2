@@ -324,9 +324,9 @@ class WalkWidgetTreeFunction
     virtual void operator () (int depth, QWidget *widget) const = 0;
 };
 
-static bool skipWidget(AbstractFormEditor *core, QWidget *widget)
+static bool skipWidget(QDesignerFormEditorInterface *core, QWidget *widget)
 {
-    AbstractMetaDataBaseItem *item = core->metaDataBase()->item(widget);
+    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
     if (item == 0)
         return true;
     QString name = widget->metaObject()->className();
@@ -336,7 +336,7 @@ static bool skipWidget(AbstractFormEditor *core, QWidget *widget)
     return false;
 }
 
-static void walkWidgetTree(AbstractFormEditor *core, int depth, QWidget *widget, const WalkWidgetTreeFunction &func)
+static void walkWidgetTree(QDesignerFormEditorInterface *core, int depth, QWidget *widget, const WalkWidgetTreeFunction &func)
 {
     if (widget == 0)
         return;
@@ -355,7 +355,7 @@ static void walkWidgetTree(AbstractFormEditor *core, int depth, QWidget *widget,
 }
 
 static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
-                              const QRect &r, const QPoint &offset, AbstractFormEditor *core)
+                              const QRect &r, const QPoint &offset, QDesignerFormEditorInterface *core)
 {
     buf.fill(widget, r.topLeft());
     QPainter::setRedirected(widget, &buf, r.topLeft());
@@ -382,7 +382,7 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
     }
 }
 
-static QPixmap grabWidget(QWidget * widget, AbstractFormEditor *core)
+static QPixmap grabWidget(QWidget * widget, QDesignerFormEditorInterface *core)
 {
     QPixmap res, buf;
 
@@ -406,11 +406,11 @@ static QPixmap grabWidget(QWidget * widget, AbstractFormEditor *core)
 
 class AddTexture : public WalkWidgetTreeFunction
 {
-    inline AddTexture(AbstractFormEditor *core, View3DWidget *w)
+    inline AddTexture(QDesignerFormEditorInterface *core, View3DWidget *w)
         : m_core(core), m_3d_widget(w) {}
     inline virtual void operator ()(int, QWidget *w) const
         { m_3d_widget->addTexture(w, ::grabWidget(w, m_core).toImage()); }
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     View3DWidget *m_3d_widget;
 };
 

@@ -14,18 +14,18 @@
 #ifndef ABSTRACTDNDITEM_H
 #define ABSTRACTDNDITEM_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
 class DomUI;
 class QWidget;
 class QPoint;
 
-struct QT_SDK_EXPORT AbstractDnDItem
+struct QT_SDK_EXPORT QDesignerDnDItemInterface
 {
     enum DropType { MoveDrop, CopyDrop };
 
-    AbstractDnDItem() {}
-    virtual ~AbstractDnDItem() {}
+    QDesignerDnDItemInterface() {}
+    virtual ~QDesignerDnDItemInterface() {}
 
     virtual DomUI *domUi() const = 0;
     virtual QWidget *widget() const = 0;

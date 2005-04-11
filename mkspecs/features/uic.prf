@@ -13,7 +13,12 @@ isEmpty(UI_DIR):UI_DIR = .
 isEmpty(UI_SOURCES_DIR):UI_SOURCES_DIR = $$UI_DIR
 isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
 
-uic.commands = $$QMAKE_UIC -3 $$QMAKE_UIC3 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+uic3 {
+    uic.commands = $$QMAKE_UIC -3 $$QMAKE_UIC3 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+} else {
+    uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+}
+
 uic.depend_command = $$QMAKE_UIC -3 $$QMAKE_UIC3 -d ${QMAKE_FILE_IN}
 uic.output = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
 uic.input = FORMS

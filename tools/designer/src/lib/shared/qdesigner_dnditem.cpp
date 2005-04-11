@@ -18,7 +18,7 @@
 #include <QtGui/QLabel>
 #include <QtCore/qdebug.h>
 
-#include <ui4.h>
+#include <QtDesigner/ui4.h>
 
 QDesignerDnDItem::QDesignerDnDItem(DropType type, QWidget *source)
 {

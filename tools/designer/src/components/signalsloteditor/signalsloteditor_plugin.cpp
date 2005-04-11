@@ -16,9 +16,9 @@
 #include "signalsloteditor_plugin.h"
 #include "signalsloteditor_tool.h"
 
-#include <abstractformeditor.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowmanager.h>
 
 SignalSlotEditorPlugin::SignalSlotEditorPlugin()
     : m_initialized(false), m_action(0)
@@ -34,7 +34,7 @@ bool SignalSlotEditorPlugin::isInitialized() const
     return m_initialized;
 }
 
-void SignalSlotEditorPlugin::initialize(AbstractFormEditor *core)
+void SignalSlotEditorPlugin::initialize(QDesignerFormEditorInterface *core)
 {
     Q_ASSERT(!isInitialized());
 
@@ -48,22 +48,22 @@ void SignalSlotEditorPlugin::initialize(AbstractFormEditor *core)
     m_core = core;
     m_initialized = true;
 
-    connect(core->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow*)),
-            this, SLOT(addFormWindow(AbstractFormWindow*)));
+    connect(core->formWindowManager(), SIGNAL(formWindowAdded(QDesignerFormWindowInterface*)),
+            this, SLOT(addFormWindow(QDesignerFormWindowInterface*)));
 
-    connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
-            this, SLOT(removeFormWindow(AbstractFormWindow*)));
+    connect(core->formWindowManager(), SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
+            this, SLOT(removeFormWindow(QDesignerFormWindowInterface*)));
 
-    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
-                this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
+    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
+                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
 }
 
-AbstractFormEditor *SignalSlotEditorPlugin::core() const
+QDesignerFormEditorInterface *SignalSlotEditorPlugin::core() const
 {
     return m_core;
 }
 
-void SignalSlotEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
+void SignalSlotEditorPlugin::addFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_ASSERT(formWindow != 0);
     Q_ASSERT(m_tools.contains(formWindow) == false);
@@ -74,7 +74,7 @@ void SignalSlotEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
     formWindow->registerTool(tool);
 }
 
-void SignalSlotEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
+void SignalSlotEditorPlugin::removeFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     Q_ASSERT(formWindow != 0);
     Q_ASSERT(m_tools.contains(formWindow) == true);
@@ -92,7 +92,7 @@ QAction *SignalSlotEditorPlugin::action() const
     return m_action;
 }
 
-void SignalSlotEditorPlugin::activeFormWindowChanged(AbstractFormWindow *formWindow)
+void SignalSlotEditorPlugin::activeFormWindowChanged(QDesignerFormWindowInterface *formWindow)
 {
     m_action->setEnabled(formWindow != 0);
 }

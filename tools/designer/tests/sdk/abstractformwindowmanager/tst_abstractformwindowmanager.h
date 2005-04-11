@@ -7,12 +7,12 @@
 //TESTED_CLASS=
 //TESTED_FILES=ide/src/sdk/abstractformwindow.h ide/src/sdk/abstractformwindow.cpp
 
-class tst_AbstractFormWindowManager: public QTestCase
+class tst_QDesignerFormWindowManagerInterface: public QTestCase
 {
     Q_OBJECT
 public:
-    tst_AbstractFormWindowManager(int &argc, char *argv[]);
-    virtual ~tst_AbstractFormWindowManager();
+    tst_QDesignerFormWindowManagerInterface(int &argc, char *argv[]);
+    virtual ~tst_QDesignerFormWindowManagerInterface();
 
 private slots:
     void createFormWindow();

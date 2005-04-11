@@ -21,7 +21,7 @@
 #include <qdesigner_formbuilder.h>
 #include <sheet_delegate.h>
 
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformwindow.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -95,7 +95,7 @@ void NewForm::on_createButton_clicked()
         }
 
         QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-        if (AbstractFormWindow *editor = formWindow->editor()) {
+        if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
             QString formTemplateName = item->data(0, TemplateNameRole).toString();
             QFile f(formTemplateName);
             if (f.open(QFile::ReadOnly)) {

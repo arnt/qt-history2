@@ -17,7 +17,7 @@
 #include "formwindow.h"
 #include "formeditor.h"
 
-#include <qextensionmanager.h>
+#include <QtDesigner/qextensionmanager.h>
 
 #include <QLayout>
 #include <QMetaObject>
@@ -48,21 +48,21 @@ void QLayoutWidgetPropertySheet::setProperty(int index, const QVariant &value)
     QDesignerPropertySheet::setProperty(index, value);
 
     QLayoutWidget *l = static_cast<QLayoutWidget*>(m_object);
-    AbstractFormEditor *core = l->formWindow()->core();
-    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core->extensionManager(), l->layout())) {
+    QDesignerFormEditorInterface *core = l->formWindow()->core();
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), l->layout())) {
         sheet->setChanged(sheet->indexOf(propertyName(index)), true);
     }
 }
 
 
 QLayoutWidgetPropertySheetFactory::QLayoutWidgetPropertySheetFactory(QExtensionManager *parent)
-    : DefaultExtensionFactory(parent)
+    : QExtensionFactory(parent)
 {
 }
 
 QObject *QLayoutWidgetPropertySheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid != Q_TYPEID(IPropertySheet))
+    if (iid != Q_TYPEID(QDesignerPropertySheetExtension))
         return 0;
 
     if (QLayoutWidget *o = qobject_cast<QLayoutWidget*>(object))

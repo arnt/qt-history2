@@ -1,22 +1,22 @@
 #ifndef QDESIGNER_PROMOTED_WIDGET_h
 #define QDESIGNER_PROMOTED_WIDGET_H
 
-#include <QWidget>
-#include <QIcon>
+#include <QtGui/QWidget>
+#include <QtGui/QIcon>
 
 #include "shared_global.h"
-#include "propertysheet.h"
-#include <default_extensionfactory.h>
-#include <abstractformeditor.h>
-#include <abstractwidgetdatabase.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/default_extensionfactory.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
 
 class QDesignerPromotedWidget;
 class QExtensionManager;
 
-class QT_SHARED_EXPORT PromotedWidgetPropertySheet: public QObject, public IPropertySheet
+class QT_SHARED_EXPORT PromotedWidgetPropertySheet: public QObject, public QDesignerPropertySheetExtension
 {
     Q_OBJECT
-    Q_INTERFACES(IPropertySheet)
+    Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
     PromotedWidgetPropertySheet(QDesignerPromotedWidget *promoted, QExtensionManager *extension_manager, QObject *parent);
     virtual ~PromotedWidgetPropertySheet();
@@ -45,13 +45,13 @@ public:
     virtual void setChanged(int index, bool changed);
 private:
     QDesignerPromotedWidget *m_promoted;
-    IPropertySheet *m_sheet;
+    QDesignerPropertySheetExtension *m_sheet;
 };
 
-class QT_SHARED_EXPORT PromotedWidgetPropertySheetFactory: public DefaultExtensionFactory
+class QT_SHARED_EXPORT PromotedWidgetPropertySheetFactory: public QExtensionFactory
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionFactory)
+    Q_INTERFACES(QAbstractExtensionFactory)
 public:
     PromotedWidgetPropertySheetFactory(QExtensionManager *parent = 0);
 
@@ -63,12 +63,12 @@ class QT_SHARED_EXPORT QDesignerPromotedWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QDesignerPromotedWidget(AbstractWidgetDataBaseItem *item,
+    QDesignerPromotedWidget(QDesignerWidgetDataBaseItemInterface *item,
                             QWidget *child, QWidget *parent = 0);
     ~QDesignerPromotedWidget();
 
     QWidget *child() const { return m_child; }
-    AbstractWidgetDataBaseItem *item() const { return m_item; }
+    QDesignerWidgetDataBaseItemInterface *item() const { return m_item; }
     const char *customClassName() { return m_custom_class_name.constData(); }
 
     virtual QSize sizeHint() const;
@@ -78,7 +78,7 @@ protected:
     virtual void childEvent(QChildEvent *e);
 
 private:
-    AbstractWidgetDataBaseItem *m_item;
+    QDesignerWidgetDataBaseItemInterface *m_item;
     QByteArray m_custom_class_name;
     QWidget *m_child;
 };

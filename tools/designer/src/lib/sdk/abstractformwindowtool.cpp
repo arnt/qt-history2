@@ -13,12 +13,12 @@
 
 #include "abstractformwindowtool.h"
 
-AbstractFormWindowTool::AbstractFormWindowTool(QObject *parent)
+QDesignerFormWindowToolInterface::QDesignerFormWindowToolInterface(QObject *parent)
     : QObject(parent)
 {
 }
 
-AbstractFormWindowTool::~AbstractFormWindowTool()
+QDesignerFormWindowToolInterface::~QDesignerFormWindowToolInterface()
 {
 }
 

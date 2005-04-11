@@ -19,10 +19,10 @@
 
 #include <QtCore/QHash>
 
-class ITaskMenu;
+class QDesignerTaskMenuExtension;
 class QMouseEvent;
 class FormWindow;
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 class WidgetSelection;
 class QPaintEvent;
 
@@ -52,7 +52,7 @@ public:
 
     void setEnabled(bool) {}
 
-    AbstractFormEditor *core() const;
+    QDesignerFormEditorInterface *core() const;
 
 protected:
     void paintEvent(QPaintEvent *e);
@@ -90,10 +90,10 @@ public:
 
     QWidget *widget() const;
 
-    ITaskMenu *taskMenuExtension() const
+    QDesignerTaskMenuExtension *taskMenuExtension() const
     { return taskMenu; }
 
-    AbstractFormEditor *core() const;
+    QDesignerFormEditorInterface *core() const;
 
 protected:
     QHash<int, WidgetHandle*> handles;
@@ -101,7 +101,7 @@ protected:
     QWidget *wid;
     FormWindow *formWindow;
     QHash<QWidget *, WidgetSelection *> *selectionDict;
-    ITaskMenu *taskMenu;
+    QDesignerTaskMenuExtension *taskMenu;
 };
 
 #endif // WIDGETHANDLE_H

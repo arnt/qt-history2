@@ -16,39 +16,39 @@
 
 #include "tabordereditor_global.h"
 
-#include <abstractformeditorplugin.h>
+#include <QtDesigner/abstractformeditorplugin.h>
 
 #include <QtCore/QPointer>
 #include <QtCore/QHash>
 
 class TabOrderEditorTool;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 class QAction;
 
-class QT_TABORDEREDITOR_EXPORT TabOrderEditorPlugin: public QObject, public AbstractFormEditorPlugin
+class QT_TABORDEREDITOR_EXPORT TabOrderEditorPlugin: public QObject, public QDesignerFormEditorPluginInterface
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractFormEditorPlugin)
+    Q_INTERFACES(QDesignerFormEditorPluginInterface)
 public:
     TabOrderEditorPlugin();
     virtual ~TabOrderEditorPlugin();
 
     virtual bool isInitialized() const;
-    virtual void initialize(AbstractFormEditor *core);
+    virtual void initialize(QDesignerFormEditorInterface *core);
     QAction *action() const;
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
 public slots:
-    void activeFormWindowChanged(AbstractFormWindow *formWindow);
+    void activeFormWindowChanged(QDesignerFormWindowInterface *formWindow);
     
 private slots:
-    void addFormWindow(AbstractFormWindow *formWindow);
-    void removeFormWindow(AbstractFormWindow *formWindow);
+    void addFormWindow(QDesignerFormWindowInterface *formWindow);
+    void removeFormWindow(QDesignerFormWindowInterface *formWindow);
 
 private:
-    QPointer<AbstractFormEditor> m_core;
-    QHash<AbstractFormWindow*, TabOrderEditorTool*> m_tools;
+    QPointer<QDesignerFormEditorInterface> m_core;
+    QHash<QDesignerFormWindowInterface*, TabOrderEditorTool*> m_tools;
     bool m_initialized;
     QAction *m_action;
 };

@@ -18,10 +18,10 @@
 #include <QPointer>
 
 #include <qdesigner_taskmenu.h>
-#include <default_extensionfactory.h>
+#include <QtDesigner/default_extensionfactory.h>
 
 class QLineEdit;
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class GroupBoxTaskMenu: public QDesignerTaskMenu
 {
@@ -46,7 +46,7 @@ private:
     QAction *m_editTitleAction;
 };
 
-class GroupBoxTaskMenuFactory: public DefaultExtensionFactory
+class GroupBoxTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:

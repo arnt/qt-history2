@@ -16,12 +16,12 @@
 
 #include "shared_global.h"
 
-#include <abstractmetadatabase.h>
+#include <QtDesigner/abstractmetadatabase.h>
 
 #include <QtCore/QHash>
 #include <QtGui/QCursor>
 
-class QT_SHARED_EXPORT MetaDataBaseItem: public AbstractMetaDataBaseItem
+class QT_SHARED_EXPORT MetaDataBaseItem: public QDesignerMetaDataBaseItemInterface
 {
 public:
     MetaDataBaseItem(QObject *object);
@@ -54,16 +54,16 @@ private:
     bool m_enabled;
 };
 
-class QT_SHARED_EXPORT MetaDataBase: public AbstractMetaDataBase
+class QT_SHARED_EXPORT MetaDataBase: public QDesignerMetaDataBaseInterface
 {
     Q_OBJECT
 public:
-    MetaDataBase(AbstractFormEditor *core, QObject *parent = 0);
+    MetaDataBase(QDesignerFormEditorInterface *core, QObject *parent = 0);
     virtual ~MetaDataBase();
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
-    virtual AbstractMetaDataBaseItem *item(QObject *object) const;
+    virtual QDesignerMetaDataBaseItemInterface *item(QObject *object) const;
     virtual void add(QObject *object);
     virtual void remove(QObject *object);
 
@@ -73,7 +73,7 @@ private slots:
     void slotDestroyed(QObject *object);
 
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     typedef QHash<QObject *, MetaDataBaseItem*> ItemMap;
     ItemMap m_items;
 };

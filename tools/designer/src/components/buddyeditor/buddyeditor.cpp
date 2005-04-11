@@ -15,10 +15,10 @@
 
 #include "buddyeditor.h"
 
-#include <abstractformwindow.h>
-#include <qextensionmanager.h>
-#include <propertysheet.h>
-#include <abstractformeditor.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/abstractformeditor.h>
 
 #include <qtundo.h>
 #include <qdesigner_command.h>
@@ -71,13 +71,13 @@ void BuddyConnection::removed()
 ** BuddyEditor
 */
 
-BuddyEditor::BuddyEditor(AbstractFormWindow *form, QWidget *parent)
+BuddyEditor::BuddyEditor(QDesignerFormWindowInterface *form, QWidget *parent)
     : ConnectionEdit(parent, form)
 {
     m_formWindow = form;
 }
 
-static bool canBeBuddy(QWidget *w, AbstractFormWindow *form)
+static bool canBeBuddy(QWidget *w, QDesignerFormWindowInterface *form)
 {
     if (qobject_cast<QLayoutWidget*>(w)
             || w == form->mainContainer()
@@ -85,7 +85,7 @@ static bool canBeBuddy(QWidget *w, AbstractFormWindow *form)
         return false;
 
     QExtensionManager *ext = form->core()->extensionManager();
-    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(ext, w)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {
         int index = sheet->indexOf("focusPolicy");
         if (index != -1) {
             bool ok = false;
@@ -128,14 +128,14 @@ Connection *BuddyEditor::createConnection(QWidget *source, QWidget *destination)
     return con;
 }
 
-AbstractFormWindow *BuddyEditor::formWindow() const
+QDesignerFormWindowInterface *BuddyEditor::formWindow() const
 {
     return m_formWindow;
 }
 
-static QString buddy(QDesignerLabel *label, AbstractFormEditor *core)
+static QString buddy(QDesignerLabel *label, QDesignerFormEditorInterface *core)
 {
-    IPropertySheet *sheet = qt_extension<IPropertySheet*>(core->extensionManager(), label);
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), label);
     if (sheet == 0)
         return QString();
     int prop_idx = sheet->indexOf(QLatin1String("buddy"));

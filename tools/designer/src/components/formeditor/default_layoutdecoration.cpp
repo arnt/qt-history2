@@ -115,20 +115,20 @@ void QDesignerLayoutDecoration::adjustIndicator(const QPoint &pos, int index)
 
 // ---- QDesignerLayoutDecorationFactory ----
 QDesignerLayoutDecorationFactory::QDesignerLayoutDecorationFactory(QExtensionManager *parent)
-    : DefaultExtensionFactory(parent)
+    : QExtensionFactory(parent)
 {
 }
 
 QObject *QDesignerLayoutDecorationFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid != Q_TYPEID(ILayoutDecoration))
+    if (iid != Q_TYPEID(QDesignerLayoutDecorationExtension))
         return 0;
 
     if (QLayoutWidget *widget = qobject_cast<QLayoutWidget*>(object)) {
         return new QDesignerLayoutDecoration(widget, parent);
     } else if (QWidget *widget = qobject_cast<QWidget*>(object)) {
         if (FormWindow *fw = FormWindow::findFormWindow(widget)) {
-            AbstractMetaDataBaseItem *item = fw->core()->metaDataBase()->item(widget->layout());
+            QDesignerMetaDataBaseItemInterface *item = fw->core()->metaDataBase()->item(widget->layout());
             return item ? new QDesignerLayoutDecoration(fw, widget, parent) : 0;
         }
     }

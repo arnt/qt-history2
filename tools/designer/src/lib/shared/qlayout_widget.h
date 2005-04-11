@@ -17,19 +17,19 @@
 #include "shared_global.h"
 #include "layoutdecoration.h"
 
-#include <abstractmetadatabase.h>
+#include <QtDesigner/abstractmetadatabase.h>
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 #include <QtGui/QGridLayout>
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class QT_SHARED_EXPORT QLayoutSupport: public QObject
 {
     Q_OBJECT
 public:
-    QLayoutSupport(AbstractFormWindow *formWindow, QWidget *widget, QObject *parent = 0);
+    QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent = 0);
     virtual ~QLayoutSupport();
 
     inline QWidget *widget() const
@@ -41,15 +41,15 @@ public:
     inline QGridLayout *gridLayout() const
     { return qobject_cast<QGridLayout*>(layout()); }
 
-    inline AbstractFormWindow *formWindow() const
+    inline QDesignerFormWindowInterface *formWindow() const
     { return m_formWindow; }
 
-    AbstractFormEditor *core() const;
+    QDesignerFormEditorInterface *core() const;
 
     inline int currentIndex() const
     { return m_currentIndex; }
 
-    inline ILayoutDecoration::InsertMode currentInsertMode() const
+    inline QDesignerLayoutDecorationExtension::InsertMode currentInsertMode() const
     { return m_currentInsertMode; }
 
     inline QPair<int, int> currentCell() const
@@ -97,14 +97,14 @@ protected:
     void tryRemoveColumn(int column);
 
 private:
-    AbstractFormWindow *m_formWindow;
+    QDesignerFormWindowInterface *m_formWindow;
     QPointer<QWidget> m_widget;
     QPointer<QWidget> m_indicatorLeft;
     QPointer<QWidget> m_indicatorTop;
     QPointer<QWidget> m_indicatorRight;
     QPointer<QWidget> m_indicatorBottom;
     int m_currentIndex;
-    ILayoutDecoration::InsertMode m_currentInsertMode;
+    QDesignerLayoutDecorationExtension::InsertMode m_currentInsertMode;
     QPair<int, int> m_currentCell;
 };
 
@@ -114,7 +114,7 @@ class QT_SHARED_EXPORT QLayoutWidget: public QWidget
     Q_PROPERTY(int margin READ layoutMargin WRITE setLayoutMargin DESIGNABLE true)
     Q_PROPERTY(int spacing READ layoutSpacing WRITE setLayoutSpacing DESIGNABLE true)
 public:
-    QLayoutWidget(AbstractFormWindow *formWindow, QWidget *parent = 0);
+    QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent = 0);
 
     int layoutMargin() const;
     void setLayoutMargin(int layoutMargin);
@@ -122,7 +122,7 @@ public:
     int layoutSpacing() const;
     void setLayoutSpacing(int layoutSpacing);
 
-    inline AbstractFormWindow *formWindow() const
+    inline QDesignerFormWindowInterface *formWindow() const
     { return m_formWindow; }
 
     inline QLayoutSupport *support() const
@@ -165,7 +165,7 @@ protected:
     { m_support.rebuildGridLayout(layout); }
 
 private:
-    AbstractFormWindow *m_formWindow;
+    QDesignerFormWindowInterface *m_formWindow;
     QLayoutSupport m_support;
 };
 

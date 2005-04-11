@@ -21,7 +21,7 @@ class QLayoutWidget;
 class QLayoutWidgetPropertySheet: public QDesignerPropertySheet
 {
     Q_OBJECT
-    Q_INTERFACES(IPropertySheet)
+    Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
     QLayoutWidgetPropertySheet(QLayoutWidget *object, QObject *parent = 0);
     virtual ~QLayoutWidgetPropertySheet();
@@ -29,10 +29,10 @@ public:
     virtual void setProperty(int index, const QVariant &value);
 };
 
-class QLayoutWidgetPropertySheetFactory: public DefaultExtensionFactory
+class QLayoutWidgetPropertySheetFactory: public QExtensionFactory
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionFactory)
+    Q_INTERFACES(QAbstractExtensionFactory)
 public:
     QLayoutWidgetPropertySheetFactory(QExtensionManager *parent = 0);
 

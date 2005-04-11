@@ -20,7 +20,7 @@
 
 #include <QtCore/qdebug.h>
 
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformwindow.h>
 
 #include "connectionedit.h"
 #include "qtundo.h"
@@ -841,7 +841,7 @@ void Connection::checkWidgets()
 ** ConnectionEdit
 */
 
-ConnectionEdit::ConnectionEdit(QWidget *parent, AbstractFormWindow *form)
+ConnectionEdit::ConnectionEdit(QWidget *parent, QDesignerFormWindowInterface *form)
     : QWidget(parent)
 {
     m_bg_widget = 0;

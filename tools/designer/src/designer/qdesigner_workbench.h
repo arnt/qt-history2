@@ -35,9 +35,9 @@ class QToolBar;
 class QWorkspace;
 class QCloseEvent;
 
-class AbstractFormEditor;
-class AbstractFormWindow;
-class AbstractFormWindowManager;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
+class QDesignerFormWindowManagerInterface;
 
 class TaskMenuComponent;
 
@@ -59,7 +59,7 @@ public:
 
     UIMode mode() const;
 
-    AbstractFormEditor *core() const;
+    QDesignerFormEditorInterface *core() const;
 
     QDesignerToolWindow *findToolWindow(QWidget *widget) const;
     QDesignerFormWindow *findFormWindow(QWidget *widget) const;
@@ -82,8 +82,8 @@ public:
     void saveSettings() const;
 
     bool readInForm(const QString &fileName) const;
-    bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName) const;
-    bool saveForm(AbstractFormWindow *fw);
+    bool writeOutForm(QDesignerFormWindowInterface *formWindow, const QString &fileName) const;
+    bool saveForm(QDesignerFormWindowInterface *fw);
     bool handleClose();
 
 signals:
@@ -108,20 +108,20 @@ public slots:
 private slots:
     void initialize();
     void activateWorkspaceChildWindow(QWidget *widget);
-    void updateWorkbench(AbstractFormWindow *formWindow, const QString &name, const QVariant &value);
-    void updateWindowMenu(AbstractFormWindow *fw);
+    void updateWorkbench(QDesignerFormWindowInterface *formWindow, const QString &name, const QVariant &value);
+    void updateWindowMenu(QDesignerFormWindowInterface *fw);
     void formWindowActionTriggered(QAction *a);
 
 private:
     QWidget *magicalParent() const;
     Qt::WindowFlags magicalWindowFlags() const;
-    AbstractFormWindowManager *formWindowManager() const;
+    QDesignerFormWindowManagerInterface *formWindowManager() const;
     void changeBringToFrontVisiblity(bool visible);
     void changeToolBarIconSize(bool big);
 
 
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     QDesignerIntegration *m_integration;
 
     QDesignerActions *m_actionManager;

@@ -14,24 +14,24 @@
 #ifndef ABSTRACTOBJECTINSPECTOR_H
 #define ABSTRACTOBJECTINSPECTOR_H
 
-#include "sdk_global.h"
+#include <QtDesigner/sdk_global.h>
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
-class AbstractFormEditor;
-class AbstractFormWindow;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
 
-class QT_SDK_EXPORT AbstractObjectInspector: public QWidget
+class QT_SDK_EXPORT QDesignerObjectInspectorInterface: public QWidget
 {
     Q_OBJECT
 public:
-    AbstractObjectInspector(QWidget *parent, Qt::WindowFlags flags = 0);
-    virtual ~AbstractObjectInspector();
+    QDesignerObjectInspectorInterface(QWidget *parent, Qt::WindowFlags flags = 0);
+    virtual ~QDesignerObjectInspectorInterface();
 
-    virtual AbstractFormEditor *core() const;
+    virtual QDesignerFormEditorInterface *core() const;
 
 public slots:
-    virtual void setFormWindow(AbstractFormWindow *formWindow) = 0;
+    virtual void setFormWindow(QDesignerFormWindowInterface *formWindow) = 0;
 };
 
 #endif // ABSTRACTOBJECTINSPECTOR_H

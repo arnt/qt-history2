@@ -11,23 +11,23 @@
 **
 ****************************************************************************/
 
-#include <container.h>
-#include <customwidget.h>
-#include <abstractformeditor.h>
-#include <qextensionmanager.h>
-#include <default_extensionfactory.h>
+#include <QtDesigner/container.h>
+#include <QtDesigner/customwidget.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/default_extensionfactory.h>
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <QIcon>
 #include <Q3WidgetStack>
 
 #include <qplugin.h>
 #include <QtCore/qdebug.h>
 
-class Q3WidgetStackContainer: public QObject, public IContainer
+class Q3WidgetStackContainer: public QObject, public QDesignerContainerExtension
 {
     Q_OBJECT
-    Q_INTERFACES(IContainer)
+    Q_INTERFACES(QDesignerContainerExtension)
 public:
     inline Q3WidgetStackContainer(Q3WidgetStack *widget, QObject *parent = 0)
         : QObject(parent), 
@@ -73,17 +73,17 @@ private:
     QList<QWidget*> m_pages;
 };
 
-class Q3WidgetStackContainerFactory: public DefaultExtensionFactory
+class Q3WidgetStackContainerFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
     inline Q3WidgetStackContainerFactory(QExtensionManager *parent = 0)
-        : DefaultExtensionFactory(parent) {}
+        : QExtensionFactory(parent) {}
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const
     {
-        if (iid != Q_TYPEID(IContainer))
+        if (iid != Q_TYPEID(QDesignerContainerExtension))
             return 0;
             
         if (Q3WidgetStack *w = qobject_cast<Q3WidgetStack*>(object))
@@ -93,10 +93,10 @@ protected:
     }
 };
 
-class Q3WidgetStackPlugin: public QObject, public ICustomWidget
+class Q3WidgetStackPlugin: public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
-    Q_INTERFACES(ICustomWidget)
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
     inline Q3WidgetStackPlugin(QObject *parent = 0)
         : QObject(parent), m_initialized(false) {}
@@ -131,7 +131,7 @@ public:
     virtual bool isInitialized() const 
     { return m_initialized; }
     
-    virtual void initialize(AbstractFormEditor *core) 
+    virtual void initialize(QDesignerFormEditorInterface *core) 
     { 
         Q_UNUSED(core);
         
@@ -140,7 +140,7 @@ public:
             
         m_initialized = true;
         QExtensionManager *mgr = core->extensionManager();
-        mgr->registerExtensions(new Q3WidgetStackContainerFactory(mgr), Q_TYPEID(IContainer));
+        mgr->registerExtensions(new Q3WidgetStackContainerFactory(mgr), Q_TYPEID(QDesignerContainerExtension));
     }
     
     virtual QString codeTemplate() const

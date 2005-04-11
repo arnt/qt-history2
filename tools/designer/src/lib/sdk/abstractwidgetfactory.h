@@ -14,21 +14,21 @@
 #ifndef ABSTRACTWIDGETFACTORY_H
 #define ABSTRACTWIDGETFACTORY_H
 
-#include "sdk_global.h"
-#include <QObject>
+#include <QtDesigner/sdk_global.h>
+#include <QtCore/QObject>
 
-class AbstractFormEditor;
+class QDesignerFormEditorInterface;
 class QWidget;
 class QLayout;
 
-class QT_SDK_EXPORT AbstractWidgetFactory: public QObject
+class QT_SDK_EXPORT QDesignerWidgetFactoryInterface: public QObject
 {
     Q_OBJECT
 public:
-    AbstractWidgetFactory(QObject *parent = 0);
-    virtual ~AbstractWidgetFactory();
+    QDesignerWidgetFactoryInterface(QObject *parent = 0);
+    virtual ~QDesignerWidgetFactoryInterface();
 
-    virtual AbstractFormEditor *core() const = 0;
+    virtual QDesignerFormEditorInterface *core() const = 0;
 
     virtual QWidget* containerOfWidget(QWidget *w) const = 0;
     virtual QWidget* widgetOfContainer(QWidget *w) const = 0;

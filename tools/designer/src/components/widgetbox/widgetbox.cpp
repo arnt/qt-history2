@@ -13,14 +13,14 @@
 
 #include "widgetbox.h"
 
-#include <abstractformwindowmanager.h>
-#include <abstractformeditor.h>
-#include <abstractwidgetfactory.h>
-#include <abstractwidgetdatabase.h>
-#include <abstracticoncache.h>
-#include <customwidget.h>
+#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/abstractwidgetdatabase.h>
+#include <QtDesigner/abstracticoncache.h>
+#include <QtDesigner/customwidget.h>
 #include <pluginmanager.h>
-#include <ui4.h>
+#include <QtDesigner/ui4.h>
 #include <sheet_delegate.h>
 #include <iconloader.h>
 
@@ -164,11 +164,11 @@ class WidgetBoxTreeView : public QTreeWidget
     Q_OBJECT
 
 public:
-    typedef AbstractWidgetBox::Widget Widget;
-    typedef AbstractWidgetBox::Category Category;
-    typedef AbstractWidgetBox::CategoryList CategoryList;
+    typedef QDesignerWidgetBoxInterface::Widget Widget;
+    typedef QDesignerWidgetBoxInterface::Category Category;
+    typedef QDesignerWidgetBoxInterface::CategoryList CategoryList;
 
-    WidgetBoxTreeView(AbstractFormEditor *core, QWidget *parent = 0);
+    WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget *parent = 0);
     ~WidgetBoxTreeView();
 
     int categoryCount() const;
@@ -181,7 +181,7 @@ public:
     void addWidget(int cat_idx, const Widget &wgt);
     void removeWidget(int cat_idx, int wgt_idx);
 
-    void dropWidgets(const QList<AbstractDnDItem*> &item_list);
+    void dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list);
 
     void setFileName(const QString &file_name);
     QString fileName() const;
@@ -201,7 +201,7 @@ private slots:
     void updateItemData(QTreeWidgetItem *item);
 
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     QString m_file_name;
 
     CategoryList domToCateogryList(const QDomDocument &doc) const;
@@ -217,7 +217,7 @@ private:
     int indexOfScratchpad();
 };
 
-WidgetBoxTreeView::WidgetBoxTreeView(AbstractFormEditor *core, QWidget *parent)
+WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget *parent)
     : QTreeWidget(parent)
 {
     setItemDelegate(new WidgetBoxItemDelegate(this, this));
@@ -292,7 +292,7 @@ void WidgetBoxTreeView::handleMousePress(QTreeWidgetItem *item)
         return;
     }
 
-    AbstractWidgetBox::Widget wgt = qvariant_cast<AbstractWidgetBox::Widget>(item->data(0, Qt::UserRole));
+    QDesignerWidgetBoxInterface::Widget wgt = qvariant_cast<QDesignerWidgetBoxInterface::Widget>(item->data(0, Qt::UserRole));
     if (wgt.isNull())
         return;
 
@@ -473,9 +473,9 @@ WidgetBoxTreeView::Category WidgetBoxTreeView::loadCustomCategory() const
     Category result(tr("Custom Widgets"), Category::Custom);
 
     PluginManager *pm = m_core->pluginManager();
-    AbstractWidgetDataBase *db = m_core->widgetDataBase();
+    QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
     for (int i = 0; i < db->count(); ++i) {
-        AbstractWidgetDataBaseItem *item = db->item(i);
+        QDesignerWidgetDataBaseItemInterface *item = db->item(i);
         if (!item->isCustom())
             continue;
         QString path = item->pluginPath();
@@ -484,7 +484,7 @@ WidgetBoxTreeView::Category WidgetBoxTreeView::loadCustomCategory() const
         QObject *o = pm->instance(path);
         if (o == 0)
             continue;
-        ICustomWidget *c = qobject_cast<ICustomWidget*>(o);
+        QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o);
         if (c == 0)
             continue;
         QString dom_xml = c->domXml();
@@ -721,11 +721,11 @@ void WidgetBoxTreeView::contextMenuEvent(QContextMenuEvent *e)
     e->accept();
 }
 
-void WidgetBoxTreeView::dropWidgets(const QList<AbstractDnDItem*> &item_list)
+void WidgetBoxTreeView::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list)
 {
     QTreeWidgetItem *last_item = 0;
 
-    foreach (AbstractDnDItem *item, item_list) {
+    foreach (QDesignerDnDItemInterface *item, item_list) {
         QWidget *w = item->widget();
         if (w == 0)
             continue;
@@ -759,8 +759,8 @@ void WidgetBoxTreeView::dropWidgets(const QList<AbstractDnDItem*> &item_list)
 ** WidgetBox
 */
 
-WidgetBox::WidgetBox(AbstractFormEditor *core, QWidget *parent, Qt::WFlags flags)
-    : AbstractWidgetBox(parent, flags), m_core(core)
+WidgetBox::WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WFlags flags)
+    : QDesignerWidgetBoxInterface(parent, flags), m_core(core)
 {
     m_core = core;
 
@@ -778,7 +778,7 @@ WidgetBox::~WidgetBox()
 {
 }
 
-AbstractFormEditor *WidgetBox::core() const
+QDesignerFormEditorInterface *WidgetBox::core() const
 {
     return m_core;
 }
@@ -789,7 +789,7 @@ void WidgetBox::handleMousePress(const QString &xml, const QPoint &global_mouse_
     if (dom_widget == 0)
         return;
     if (QApplication::mouseButtons() == Qt::LeftButton) {
-        QList<AbstractDnDItem*> item_list;
+        QList<QDesignerDnDItemInterface*> item_list;
         item_list.append(new WidgetBoxDnDItem(core(), dom_widget, global_mouse_pos));
         m_core->formWindowManager()->dragItems(item_list);
     }
@@ -800,7 +800,7 @@ int WidgetBox::categoryCount() const
     return m_view->categoryCount();
 }
 
-AbstractWidgetBox::Category WidgetBox::category(int cat_idx) const
+QDesignerWidgetBoxInterface::Category WidgetBox::category(int cat_idx) const
 {
     return m_view->category(cat_idx);
 }
@@ -820,7 +820,7 @@ int WidgetBox::widgetCount(int cat_idx) const
     return m_view->widgetCount(cat_idx);
 }
 
-AbstractWidgetBox::Widget WidgetBox::widget(int cat_idx, int wgt_idx) const
+QDesignerWidgetBoxInterface::Widget WidgetBox::widget(int cat_idx, int wgt_idx) const
 {
     return m_view->widget(cat_idx, wgt_idx);
 }
@@ -835,7 +835,7 @@ void WidgetBox::removeWidget(int cat_idx, int wgt_idx)
     m_view->removeWidget(cat_idx, wgt_idx);
 }
 
-void WidgetBox::dropWidgets(const QList<AbstractDnDItem*> &item_list, const QPoint&)
+void WidgetBox::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint&)
 {
     m_view->dropWidgets(item_list);
 }

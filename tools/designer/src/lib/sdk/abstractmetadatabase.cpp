@@ -16,18 +16,18 @@
 #include "abstractformeditor.h"
 
 // extension
-#include <qextensionmanager.h>
-#include <propertysheet.h>
+#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/propertysheet.h>
 
 // Qt
 #include <QtCore/qdebug.h>
 
-AbstractMetaDataBase::AbstractMetaDataBase(QObject *parent)
+QDesignerMetaDataBaseInterface::QDesignerMetaDataBaseInterface(QObject *parent)
     : QObject(parent)
 {
 }
 
-AbstractMetaDataBase::~AbstractMetaDataBase()
+QDesignerMetaDataBaseInterface::~QDesignerMetaDataBaseInterface()
 {
 }
 

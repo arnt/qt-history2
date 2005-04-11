@@ -1,15 +1,15 @@
 #ifndef ICONCACHE_H
 #define ICONCACHE_H
 
-#include <QMap>
-#include <QVariant>
+#include <QtCore/QMap>
+#include <QtCore/QVariant>
 #include <QString>
 #include <QPair>
 #include <QPixmap>
 #include <QIcon>
 
 #include <resourcefile.h>
-#include <abstracticoncache.h>
+#include <QtDesigner/abstracticoncache.h>
 #include "formeditor_global.h"
 
 /*
@@ -93,12 +93,12 @@ QList<Item> ResourceCache<Item>::itemList() const
     return m_key_to_item.values();
 }
 
-class QT_FORMEDITOR_EXPORT IconCache : public AbstractIconCache
+class QT_FORMEDITOR_EXPORT IconCache : public QDesignerIconCacheInterface
 {
     Q_OBJECT
 public:
     IconCache(QObject *parent)
-        : AbstractIconCache(parent) {}
+        : QDesignerIconCacheInterface(parent) {}
     virtual QIcon nameToIcon(const QString &path, const QString &resourcePath = QString())
         { return m_icon_cache.keyToItem(path, resourcePath); }
     virtual QString iconToFilePath(const QIcon &pm) const

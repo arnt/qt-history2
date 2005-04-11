@@ -18,9 +18,9 @@
 #include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu.h>
-#include <default_extensionfactory.h>
+#include <QtDesigner/default_extensionfactory.h>
 
-class AbstractFormWindow;
+class QDesignerFormWindowInterface;
 
 class LabelTaskMenu: public QDesignerTaskMenu
 {
@@ -39,12 +39,12 @@ private slots:
 
 private:
     QLabel *m_label;
-    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<QDesignerFormWindowInterface> m_formWindow;
     mutable QList<QAction*> m_taskActions;
     QAction *m_editTextAction;
 };
 
-class LabelTaskMenuFactory: public DefaultExtensionFactory
+class LabelTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:

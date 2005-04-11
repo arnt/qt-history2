@@ -19,12 +19,12 @@
 #include "qdesigner_resource.h"
 #include "connectionedit.h"
 
-#include <abstractwidgetfactory.h>
-#include <abstractformeditor.h>
-#include <abstractmetadatabase.h>
-#include <abstractformwindow.h>
-#include <abstractformwindowcursor.h>
-#include <abstractwidgetbox.h>
+#include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/abstractmetadatabase.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/abstractwidgetbox.h>
 #include <qdesigner_promotedwidget.h>
 #include <qdesigner_command.h>
 #include <resourceeditor.h>
@@ -52,8 +52,8 @@ static QString whatsThisFrom(const QString &str)
     return str;
 }
 
-FormWindowManager::FormWindowManager(AbstractFormEditor *core, QObject *parent)
-    : AbstractFormWindowManager(parent),
+FormWindowManager::FormWindowManager(QDesignerFormEditorInterface *core, QObject *parent)
+    : QDesignerFormWindowManagerInterface(parent),
       m_core(core),
       m_activeFormWindow(0)
 {
@@ -75,12 +75,12 @@ FormWindowManager::~FormWindowManager()
     qDeleteAll(m_formWindows);
 }
 
-AbstractFormEditor *FormWindowManager::core() const
+QDesignerFormEditorInterface *FormWindowManager::core() const
 {
     return m_core;
 }
 
-AbstractFormWindow *FormWindowManager::activeFormWindow() const
+QDesignerFormWindowInterface *FormWindowManager::activeFormWindow() const
 {
     return m_activeFormWindow;
 }
@@ -90,7 +90,7 @@ int FormWindowManager::formWindowCount() const
     return m_formWindows.size();
 }
 
-AbstractFormWindow *FormWindowManager::formWindow(int index) const
+QDesignerFormWindowInterface *FormWindowManager::formWindow(int index) const
 {
     return m_formWindows.at(index);
 }
@@ -161,7 +161,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
-void FormWindowManager::addFormWindow(AbstractFormWindow *w)
+void FormWindowManager::addFormWindow(QDesignerFormWindowInterface *w)
 {
     FormWindow *formWindow = qobject_cast<FormWindow*>(w);
     if (!formWindow || m_formWindows.contains(formWindow))
@@ -175,7 +175,7 @@ void FormWindowManager::addFormWindow(AbstractFormWindow *w)
     emit formWindowAdded(formWindow);
 }
 
-void FormWindowManager::removeFormWindow(AbstractFormWindow *w)
+void FormWindowManager::removeFormWindow(QDesignerFormWindowInterface *w)
 {
     FormWindow *formWindow = qobject_cast<FormWindow*>(w);
 
@@ -191,7 +191,7 @@ void FormWindowManager::removeFormWindow(AbstractFormWindow *w)
         setActiveFormWindow(0);
 }
 
-void FormWindowManager::setActiveFormWindow(AbstractFormWindow *w)
+void FormWindowManager::setActiveFormWindow(QDesignerFormWindowInterface *w)
 {
     FormWindow *formWindow = qobject_cast<FormWindow*>(w);
 
@@ -460,7 +460,7 @@ void FormWindowManager::slotActionAdjustSizeActivated()
 
     m_activeFormWindow->beginCommand(tr("Adjust Size"));
 
-    AbstractFormWindowCursor *cursor = m_activeFormWindow->cursor();
+    QDesignerFormWindowCursorInterface *cursor = m_activeFormWindow->cursor();
 
     for (int index = 0; index < cursor->selectedWidgetCount(); ++index) {
         QWidget *widget = cursor->selectedWidget(index);
@@ -641,7 +641,7 @@ void FormWindowManager::layoutContainerGrid()
         m_activeFormWindow->layoutGridContainer(w);
 }
 
-AbstractFormWindow *FormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WindowFlags flags)
+QDesignerFormWindowInterface *FormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WindowFlags flags)
 {
     FormWindow *formWindow = new FormWindow(qobject_cast<FormEditor*>(core()), parentWidget, flags);
     addFormWindow(formWindow);
@@ -660,7 +660,7 @@ QAction *FormWindowManager::actionRedo() const
 
 // DnD stuff
 
-void FormWindowManager::dragItems(const QList<AbstractDnDItem*> &item_list)
+void FormWindowManager::dragItems(const QList<QDesignerDnDItemInterface*> &item_list)
 {
     if (!m_drag_item_list.isEmpty()) {
         qWarning("FormWindowManager::dragItem(): called while already dragging");
@@ -670,7 +670,7 @@ void FormWindowManager::dragItems(const QList<AbstractDnDItem*> &item_list)
     beginDrag(item_list, QCursor::pos());
 }
 
-void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list, const QPoint &globalPos)
+void FormWindowManager::beginDrag(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &globalPos)
 {
     Q_ASSERT(m_drag_item_list.isEmpty());
 
@@ -678,7 +678,7 @@ void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list, cons
 
     setItemsPos(globalPos);
 
-    foreach(AbstractDnDItem *item, m_drag_item_list) {
+    foreach(QDesignerDnDItemInterface *item, m_drag_item_list) {
         QWidget *deco = item->decoration();
         QBitmap bitmap(deco->size());
         QPainter p(&bitmap);
@@ -695,11 +695,11 @@ void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list, cons
     m_core->topLevel()->grabMouse();
 }
 
-static AbstractWidgetBox *widgetBoxAt(const QPoint &global_pos)
+static QDesignerWidgetBoxInterface *widgetBoxAt(const QPoint &global_pos)
 {
     QWidget *w = qApp->widgetAt(global_pos);
     while (w != 0) {
-        AbstractWidgetBox *wb = qobject_cast<AbstractWidgetBox*>(w);
+        QDesignerWidgetBoxInterface *wb = qobject_cast<QDesignerWidgetBoxInterface*>(w);
         if (wb != 0)
             return wb;
         w = w->parentWidget();
@@ -709,7 +709,7 @@ static AbstractWidgetBox *widgetBoxAt(const QPoint &global_pos)
 
 void FormWindowManager::setItemsPos(const QPoint &globalPos)
 {
-    foreach(AbstractDnDItem *item, m_drag_item_list)
+    foreach(QDesignerDnDItemInterface *item, m_drag_item_list)
         item->decoration()->move(globalPos - item->hotSpot());
 
     QWidget *widget_under_mouse = qApp->widgetAt(globalPos);
@@ -721,8 +721,8 @@ void FormWindowManager::setItemsPos(const QPoint &globalPos)
     }
 
     FormWindow *form_under_mouse
-            = qobject_cast<FormWindow*>(AbstractFormWindow::findFormWindow(widget_under_mouse));
-    if (form_under_mouse != 0 && !form_under_mouse->hasFeature(AbstractFormWindow::EditFeature))
+            = qobject_cast<FormWindow*>(QDesignerFormWindowInterface::findFormWindow(widget_under_mouse));
+    if (form_under_mouse != 0 && !form_under_mouse->hasFeature(QDesignerFormWindowInterface::EditFeature))
         form_under_mouse = 0;
     if (form_under_mouse != 0) {
         // widget_under_mouse might be some temporary thing like the dropLine. We need
@@ -763,23 +763,23 @@ void FormWindowManager::endDrag(const QPoint &pos)
 
     Q_ASSERT(!m_drag_item_list.isEmpty());
 
-    foreach (AbstractDnDItem *item, m_drag_item_list)
+    foreach (QDesignerDnDItemInterface *item, m_drag_item_list)
         item->decoration()->hide();
 
     // ugly, but you can't qobject_cast from interfaces
     if (m_last_form_under_mouse != 0 &&
-            m_last_form_under_mouse->hasFeature(AbstractFormWindow::EditFeature)) {
+            m_last_form_under_mouse->hasFeature(QDesignerFormWindowInterface::EditFeature)) {
         m_last_form_under_mouse->dropWidgets(m_drag_item_list, m_last_widget_under_mouse, pos);
     } else if (m_widget_box_under_mouse != 0) {
         m_widget_box_under_mouse->dropWidgets(m_drag_item_list, pos);
     } else {
-        foreach (AbstractDnDItem *item, m_drag_item_list) {
+        foreach (QDesignerDnDItemInterface *item, m_drag_item_list) {
             if (item->widget() != 0)
                 item->widget()->show();
         }
     }
 
-    foreach (AbstractDnDItem *item, m_drag_item_list)
+    foreach (QDesignerDnDItemInterface *item, m_drag_item_list)
         delete item;
 
     m_drag_item_list.clear();
@@ -790,7 +790,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
 
 bool FormWindowManager::isDecoration(QWidget *widget) const
 {
-    foreach (AbstractDnDItem *item, m_drag_item_list) {
+    foreach (QDesignerDnDItemInterface *item, m_drag_item_list) {
         if (item->decoration() == widget)
             return true;
     }

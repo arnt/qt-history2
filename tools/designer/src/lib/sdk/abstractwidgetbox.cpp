@@ -13,16 +13,16 @@
 
 #include "abstractwidgetbox.h"
 
-AbstractWidgetBox::AbstractWidgetBox(QWidget *parent, Qt::WindowFlags flags)
+QDesignerWidgetBoxInterface::QDesignerWidgetBoxInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }
 
-AbstractWidgetBox::~AbstractWidgetBox()
+QDesignerWidgetBoxInterface::~QDesignerWidgetBoxInterface()
 {
 }
 
-int AbstractWidgetBox::findOrInsertCategory(const QString &categoryName)
+int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryName)
 {
     int count = categoryCount();
     for (int index=0; index<count; ++index) {

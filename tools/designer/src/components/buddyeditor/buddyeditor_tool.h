@@ -18,22 +18,22 @@
 
 #include <QtCore/QPointer>
 
-#include <abstractformwindowtool.h>
+#include <QtDesigner/abstractformwindowtool.h>
 
-class AbstractFormEditor;
-class AbstractFormWindow;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
 class BuddyEditor;
 class QAction;
 
-class QT_BUDDYEDITOR_EXPORT BuddyEditorTool: public AbstractFormWindowTool
+class QT_BUDDYEDITOR_EXPORT BuddyEditorTool: public QDesignerFormWindowToolInterface
 {
     Q_OBJECT
 public:
-    BuddyEditorTool(AbstractFormWindow *formWindow, QObject *parent = 0);
+    BuddyEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent = 0);
     virtual ~BuddyEditorTool();
 
-    virtual AbstractFormEditor *core() const;
-    virtual AbstractFormWindow *formWindow() const;
+    virtual QDesignerFormEditorInterface *core() const;
+    virtual QDesignerFormWindowInterface *formWindow() const;
 
     virtual QWidget *editor() const;
     virtual QAction *action() const;
@@ -44,7 +44,7 @@ public:
     virtual bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event);
 
 private:
-    AbstractFormWindow *m_formWindow;
+    QDesignerFormWindowInterface *m_formWindow;
     mutable QPointer<BuddyEditor> m_editor;
     QAction *m_action;
 };

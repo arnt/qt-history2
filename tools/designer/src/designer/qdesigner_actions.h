@@ -22,8 +22,8 @@ class QDesignerWorkbench;
 
 class QAction;
 class QActionGroup;
-class AbstractFormEditor;
-class AbstractFormWindow;
+class QDesignerFormEditorInterface;
+class QDesignerFormWindowInterface;
 class QAssistantClient;
 
 class QDesignerActions: public QObject
@@ -34,11 +34,11 @@ public:
     virtual ~QDesignerActions();
 
     QDesignerWorkbench *workbench() const;
-    AbstractFormEditor *core() const;
+    QDesignerFormEditorInterface *core() const;
 
-    bool saveForm(AbstractFormWindow *fw);
+    bool saveForm(QDesignerFormWindowInterface *fw);
     bool readInForm(const QString &fileName);
-    bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName);
+    bool writeOutForm(QDesignerFormWindowInterface *formWindow, const QString &fileName);
 
     QActionGroup *fileActions() const;
     QActionGroup *recentFilesActions() const;
@@ -110,7 +110,7 @@ public:
     QAction *aboutDesignerAction() const;
 
 public slots:
-    void activeFormWindowChanged(AbstractFormWindow *formWindow);
+    void activeFormWindowChanged(QDesignerFormWindowInterface *formWindow);
     void createForm();
     bool openForm();
 
@@ -136,7 +136,7 @@ private slots:
     void updateUIMode(QAction *act);
 
 private:
-    bool saveFormAs(AbstractFormWindow *fw);
+    bool saveFormAs(QDesignerFormWindowInterface *fw);
     void fixActionContext();
     void updateRecentFileActions();
     void addRecentFile(const QString &fileName);
@@ -145,7 +145,7 @@ private:
 private:
     enum { MaxRecentFiles = 10 };
     QDesignerWorkbench *m_workbench;
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
     QAssistantClient *m_assistantClient;
 
     QActionGroup *m_fileActions;

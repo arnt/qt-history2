@@ -14,17 +14,17 @@
 #ifndef PROPERTYSHEET_H
 #define PROPERTYSHEET_H
 
-#include <extension.h>
+#include <QtDesigner/extension.h>
 #include <QStringList>
-#include <QVariant>
-#include <QMap>
+#include <QtCore/QVariant>
+#include <QtCore/QMap>
 
 class QVariant;
 
-class IPropertySheet
+class QDesignerPropertySheetExtension
 {
 public:
-    virtual ~IPropertySheet() {}
+    virtual ~QDesignerPropertySheetExtension() {}
 
     virtual int count() const = 0;
 
@@ -49,7 +49,7 @@ public:
     virtual bool isChanged(int index) const = 0;
     virtual void setChanged(int index, bool changed) = 0;
 };
-Q_DECLARE_EXTENSION_INTERFACE(IPropertySheet, "http://trolltech.com/Qt/IDE/PropertySheet")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerPropertySheetExtension, "http://trolltech.com/Qt/IDE/PropertySheet")
 
 class EnumType
 {

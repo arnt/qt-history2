@@ -20,7 +20,7 @@
 #include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
-InPlaceEditor::InPlaceEditor(QWidget *widget, AbstractFormWindow *fw)
+InPlaceEditor::InPlaceEditor(QWidget *widget, QDesignerFormWindowInterface *fw)
     : QLineEdit(),
       m_widget(widget)
 {

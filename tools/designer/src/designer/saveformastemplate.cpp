@@ -18,9 +18,9 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-#include <abstractformwindow.h>
+#include <QtDesigner/abstractformwindow.h>
 
-SaveFormAsTemplate::SaveFormAsTemplate(AbstractFormWindow *formWindow, QWidget *parent)
+SaveFormAsTemplate::SaveFormAsTemplate(QDesignerFormWindowInterface *formWindow, QWidget *parent)
     : QDialog(parent, Qt::Sheet),
       m_formWindow(formWindow)
 {

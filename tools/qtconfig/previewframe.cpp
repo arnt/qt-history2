@@ -25,7 +25,7 @@ PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
 
     Workspace * w = new Workspace( this );
     previewWidget = new PreviewWidget;
-    w->addWindow(previewWidget);
+    w->addWindow(previewWidget, Qt::Window);
     previewWidget->move( 10, 10 );
 }
 
