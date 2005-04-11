@@ -2311,11 +2311,8 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
         if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             QStyleOptionSpinBox newSB = *sb;
             if (sb->frame && (sb->subControls & QStyle::SC_SpinBoxFrame)) {
-                QRect lineeditRect = QStyle::visualRect(opt->direction, opt->rect,
-                                                   q->subControlRect(QStyle::CC_SpinBox,
-                                                                     sb,
-                                                                     QStyle::SC_SpinBoxFrame,
-                                                                     widget));
+                QRect lineeditRect = q->subControlRect(QStyle::CC_SpinBox, sb,
+                                                       QStyle::SC_SpinBoxFrame, widget);
 
                 HIThemeFrameDrawInfo fdi;
                 fdi.version = qt_mac_hitheme_version;
@@ -2368,16 +2365,19 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     bdi.adornment = kThemeAdornmentFocus;
                 else
                     bdi.adornment = kThemeAdornmentNone;
-                QRect updown = QStyle::visualRect(opt->direction, opt->rect,
-                                                  q->subControlRect(QStyle::CC_SpinBox, sb,
-                                                                    QStyle::SC_SpinBoxUp,
-                                                                    widget));
-                updown |= QStyle::visualRect(opt->direction, opt->rect,
-                                             q->subControlRect(QStyle::CC_SpinBox, sb,
-                                                               QStyle::SC_SpinBoxDown,
-                                                               widget));
-                HIRect hirect = qt_hirectForQRect(updown, p);
-                HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
+                QRect updown = q->subControlRect(QStyle::CC_SpinBox, sb, QStyle::SC_SpinBoxUp,
+                                                 widget);
+                updown |= q->subControlRect(QStyle::CC_SpinBox, sb, QStyle::SC_SpinBoxDown, widget);
+                HIRect newRect = qt_hirectForQRect(updown);
+                QRect off_rct;
+                HIRect outRect;
+                HIThemeGetButtonBackgroundBounds(&newRect, &bdi, &outRect);
+                off_rct.setRect(int(newRect.origin.x - outRect.origin.x),
+                                int(newRect.origin.y - outRect.origin.y),
+                                int(outRect.size.width - newRect.size.width),
+                                int(outRect.size.height - newRect.size.height));
+                newRect = qt_hirectForQRect(updown, p, false, off_rct);
+                HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             }
         }
         break;
@@ -2858,7 +2858,7 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
         break;
     case QStyle::CC_SpinBox:
         if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
-            const int spinner_w = 14,
+            const int spinner_w = 18,
             y = q->pixelMetric(QStyle::PM_SpinBoxFrameWidth, spin, widget),
             x = spin->rect.width() - spinner_w + y;
             ret.setRect(x, y, spinner_w, spin->rect.height() - y * 2);
@@ -2903,6 +2903,7 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
                 Q_ASSERT(0);
                 break;
             }
+            ret = QStyle::visualRect(spin->direction, spin->rect, ret);
         }
         break;
     default:
@@ -3877,9 +3878,8 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             QStyleOptionSpinBox newSB = *sb;
             if (sb->subControls & QStyle::SC_SpinBoxFrame) {
                 QStyleOptionFrame lineedit;
-                QRect lineeditRect = q->visualRect(sb->direction, sb->rect,
-                                            q->subControlRect(QStyle::CC_SpinBox, sb,
-                                                          QStyle::SC_SpinBoxFrame, widget));
+                QRect lineeditRect = q->subControlRect(QStyle::CC_SpinBox, sb,
+                                                       QStyle::SC_SpinBoxFrame, widget);
                 qt_mac_set_port(p);
                 const Rect *rect = qt_glb_mac_rect(lineeditRect, p, false);
                 DrawThemeEditTextFrame(rect, tds);
@@ -3898,14 +3898,9 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 if (sb->state & QStyle::State_HasFocus
                         && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                     info.adornment |= kThemeAdornmentFocus;
-                QRect updown = q->visualRect(opt->direction, opt->rect,
-                                             q->subControlRect(QStyle::CC_SpinBox, sb,
-                                                                       QStyle::SC_SpinBoxUp,
-                                                                       widget));
-                updown |= q->visualRect(opt->direction, opt->rect,
-                                        q->subControlRect(QStyle::CC_SpinBox, sb,
-                                                                  QStyle::SC_SpinBoxDown,
-                                                                  widget));
+                QRect updown = q->subControlRect(QStyle::CC_SpinBox, sb, QStyle::SC_SpinBoxUp,
+                                                 widget);
+                updown |= q->subControlRect(QStyle::CC_SpinBox, sb, QStyle::SC_SpinBoxDown, widget);
                 if (widget) {
                     QPalette::ColorRole bgRole = widget->backgroundRole();
                     QPixmap pm = sb->palette.brush(bgRole).texture();
@@ -3914,7 +3909,6 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                     else
                         p->fillRect(updown, sb->palette.color(bgRole));
                 }
-                qt_mac_set_port(p);
                 ThemeButtonKind kind = kThemeIncDecButton;
                 switch (qt_aqua_size_constrain(widget)) {
                 case QAquaSizeMini:
@@ -3940,7 +3934,17 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                         && sb->palette.currentColorGroup() == QPalette::Active
                         && tds == kThemeStateInactive)
                     info.state = kThemeStateActive;
-                DrawThemeButton(qt_glb_mac_rect(updown, p), kind, &info, 0, 0, 0, 0);
+                QRect off_rct;
+                Rect macRect, myRect;
+                SetRect(&myRect, updown.x(), updown.y(),
+                        updown.x() + updown.width(), updown.y() + updown.height());
+                GetThemeButtonBackgroundBounds(&myRect, kind, &info, &macRect);
+                off_rct.setRect(myRect.left - macRect.left, myRect.top - macRect.top,
+                                (myRect.left - macRect.left) + (macRect.right - myRect.right),
+                                (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+                qt_mac_set_port(p);
+                DrawThemeButton(qt_glb_mac_rect(updown, p, false, off_rct), kind, &info,
+                                0, 0, 0, 0);
             }
         }
         break;
@@ -4376,7 +4380,7 @@ QRect QMacStylePrivate::AppManSubControlRect(QStyle::ComplexControl cc,
         break;
     case QStyle::CC_SpinBox:
         if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
-            const int spinner_w = 14,
+            const int spinner_w = 18,
             y = q->pixelMetric(QStyle::PM_SpinBoxFrameWidth, spin, widget),
             x = spin->rect.width() - spinner_w + y;
             ret.setRect(x, y, spinner_w, spin->rect.height() - y * 2);
@@ -4418,6 +4422,7 @@ QRect QMacStylePrivate::AppManSubControlRect(QStyle::ComplexControl cc,
                 Q_ASSERT(0);
                 break;
             }
+            ret = QStyle::visualRect(spin->direction, spin->rect, ret);
         }
         break;
     default:
@@ -5567,10 +5572,12 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 ret.setRect(fw, fw,
                             spin->rect.width() - spinner_w - fw * 2 - macSpinBoxSep + 1,
                             spin->rect.height() - fw * 2 + 1);
+                ret = visualRect(spin->direction, spin->rect, ret);
                 break;
             case SC_SpinBoxFrame:
                 ret.setRect(1, 1, spin->rect.width() - spinner_w - macSpinBoxSep - 1,
                             spin->rect.height() - 1);
+                ret = visualRect(spin->direction, spin->rect, ret);
                 break;
             default:
                 ret = QWindowsStyle::subControlRect(cc, spin, sc, w);

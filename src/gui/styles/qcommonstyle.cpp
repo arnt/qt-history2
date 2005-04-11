@@ -1756,8 +1756,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             PrimitiveElement pe;
 
             if (sb->frame && (sb->subControls & SC_SpinBoxFrame)) {
-                QRect r = visualRect(opt->direction, opt->rect,
-                                     subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget));
+                QRect r = subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget);
                 qDrawWinPanel(p, r, sb->palette, true);
             }
 
@@ -1781,8 +1780,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
                                                                        : PE_IndicatorSpinUp);
 
-                copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxUp, widget));
+                copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxUp, widget);
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
                 copy.rect.adjust(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
@@ -1808,8 +1806,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
                                                                        : PE_IndicatorSpinDown);
 
-                copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxDown, widget));
+                copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxDown, widget);
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
                 copy.rect.adjust(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
@@ -2184,9 +2181,7 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
             QRect r;
             uint ctrl = SC_SpinBoxUp;
             while (ctrl <= SC_SpinBoxEditField) {
-                r = visualRect(opt->direction, opt->rect,
-                               subControlRect(cc, spinbox, QStyle::SubControl(ctrl),
-                                                      widget));
+                r = subControlRect(cc, spinbox, QStyle::SubControl(ctrl), widget);
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -2378,6 +2373,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             default:
                 break;
             }
+            ret = visualRect(spinbox->direction, spinbox->rect, ret);
         }
         break;
     case CC_ToolButton:

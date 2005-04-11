@@ -1366,26 +1366,26 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 ftheme.drawBackground();
             }
             if (sub & SC_SpinBoxUp) {
-                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_SpinBox, option, SC_SpinBoxUp, widget));
+                theme.rec = subControlRect(CC_SpinBox, option, SC_SpinBoxUp, widget);
                 partId = SPNP_UP;
                 if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled) || !(flags & State_Enabled))
                     stateId = UPS_DISABLED;
-                else if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & QStyle::State_Sunken))
+                else if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & State_Sunken))
                     stateId = UPS_PRESSED;
-                else if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & QStyle::State_MouseOver))
+                else if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & State_MouseOver))
                     stateId = UPS_HOT;
                 else
                     stateId = UPS_NORMAL;
                 theme.drawBackground(partId, stateId);
             }
             if (sub & SC_SpinBoxDown) {
-                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_SpinBox, option, SC_SpinBoxDown, widget));
+                theme.rec = subControlRect(CC_SpinBox, option, SC_SpinBoxDown, widget);
                 partId = SPNP_DOWN;
                 if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled) || !(flags & State_Enabled))
                     stateId = DNS_DISABLED;
-                else if (sb->activeSubControls == SC_SpinBoxDown && (sb->state & QStyle::State_Sunken))
+                else if (sb->activeSubControls == SC_SpinBoxDown && (sb->state & State_Sunken))
                     stateId = DNS_PRESSED;
-                else if (sb->activeSubControls == SC_SpinBoxDown && (sb->state & QStyle::State_MouseOver))
+                else if (sb->activeSubControls == SC_SpinBoxDown && (sb->state & State_MouseOver))
                     stateId = DNS_HOT;
                 else
                     stateId = DNS_NORMAL;

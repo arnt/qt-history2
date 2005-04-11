@@ -1190,13 +1190,11 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             PrimitiveElement pe;
 
             if (spinbox->frame && (spinbox->subControls & SC_SpinBoxFrame)) {
-                QRect r = visualRect(opt->direction, opt->rect,
-                                     subControlRect(CC_SpinBox, spinbox, SC_SpinBoxFrame, widget));
+                QRect r = subControlRect(CC_SpinBox, spinbox, SC_SpinBoxFrame, widget);
                 qDrawShadePanel(p, r, opt->palette, false, pixelMetric(PM_SpinBoxFrameWidth));
 
                 int fw = pixelMetric(QStyle::PM_DefaultFrameWidth);
-                r = visualRect(opt->direction, opt->rect,
-                               subControlRect(CC_SpinBox, spinbox, SC_SpinBoxEditField, widget)).adjusted(-fw,-fw,fw,fw);
+                r = subControlRect(CC_SpinBox, spinbox, SC_SpinBoxEditField, widget).adjusted(-fw,-fw,fw,fw);
                 QStyleOptionFrame lineOpt;
                 lineOpt.QStyleOption::operator=(*opt);
                 lineOpt.rect = r;
@@ -1226,9 +1224,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 pe = (spinbox->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
                       : PE_IndicatorSpinUp);
 
-                copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, spinbox, SC_SpinBoxUp,
-                                                      widget));
+                copy.rect = subControlRect(CC_SpinBox, spinbox, SC_SpinBoxUp, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -1252,9 +1248,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 pe = (spinbox->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
                       : PE_IndicatorSpinDown);
 
-                copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, spinbox, SC_SpinBoxDown,
-                                                      widget));
+                copy.rect = subControlRect(CC_SpinBox, spinbox, SC_SpinBoxDown, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
         }
@@ -1599,13 +1593,17 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
             const int margin = spinbox->frame ? 4 : 0;
             switch (sc) {
             case SC_SpinBoxUp:
-                return QRect(x, y, bs.width(), bs.height() - 1);
+                return visualRect(spinbox->direction, spinbox->rect,
+                                  QRect(x, y, bs.width(), bs.height() - 1));
             case SC_SpinBoxDown:
-                return QRect(x, y + bs.height() + 1, bs.width(), bs.height() - 1);
+                return visualRect(spinbox->direction, spinbox->rect,
+                                  QRect(x, y + bs.height() + 1, bs.width(), bs.height() - 1));
             case SC_SpinBoxEditField:
-                return QRect(lx + margin, fw + margin, rx - margin, opt->rect.height() - 2*fw - 2 * margin);
+                return visualRect(spinbox->direction, spinbox->rect,
+                                  QRect(lx + margin, fw + margin, rx - margin,
+                                        spinbox->rect.height() - 2*fw - 2 * margin));
             case SC_SpinBoxFrame:
-                return opt->rect;
+                return visualRect(spinbox->direction, spinbox->rect, spinbox->rect);
             default:
                 break;
             }

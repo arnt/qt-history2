@@ -479,10 +479,8 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)
     }
     QStyleOptionSpinBox opt = d->getStyleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
-    d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
-                                            style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                    QStyle::SC_SpinBoxEditField,
-                                                                    this)));
+    d->edit->setGeometry(style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                 QStyle::SC_SpinBoxEditField, this));
     d->edit->setContextMenuPolicy(Qt::NoContextMenu);
 
 
@@ -580,10 +578,8 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 
     QStyleOptionSpinBox opt = d->getStyleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
-    d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
-                                            style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                    QStyle::SC_SpinBoxEditField,
-                                                                    this)));
+    d->edit->setGeometry(style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                 QStyle::SC_SpinBoxEditField, this));
     QWidget::resizeEvent(e);
 }
 
@@ -967,24 +963,8 @@ QStyle::SubControl QAbstractSpinBoxPrivate::newHoverControl(const QPoint &pos)
 
     QStyleOptionSpinBox opt = getStyleOption();
     opt.subControls = QStyle::SC_All;
-    QRect upButtonRect = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxUp, q);
-    QRect downButtonRect = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxDown, q);
-    QRect lineEditRect = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxEditField, q);
-
-    if (upButtonRect.contains(pos)) {
-        hoverRect = upButtonRect;
-        hoverControl = QStyle::SC_SpinBoxUp;
-    } else if (downButtonRect.contains(pos)) {
-        hoverRect = downButtonRect;
-        hoverControl = QStyle::SC_SpinBoxDown;
-    } else if (lineEditRect.contains(pos)) {
-        hoverRect = lineEditRect;
-        hoverControl = QStyle::SC_SpinBoxEditField;
-    } else {
-        hoverRect = QRect();
-        hoverControl = QStyle::SC_None;
-    }
-
+    hoverControl = q->style()->hitTestComplexControl(QStyle::CC_SpinBox, &opt, pos, q);
+    hoverRect = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, hoverControl, q);
     return hoverControl;
 }
 
@@ -1147,12 +1127,8 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
 
     if (q) {
         QStyleOptionSpinBox opt = getStyleOption();
-        q->update(QStyle::visualRect(opt.direction, opt.rect,
-                                     q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                QStyle::SC_SpinBoxUp, q)));
-        q->update(QStyle::visualRect(opt.direction, opt.rect,
-                                     q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                QStyle::SC_SpinBoxDown, q)));
+        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxUp, q));
+        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxDown, q));
     }
 }
 
