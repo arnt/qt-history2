@@ -46,7 +46,6 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         showDropIndicator(false),
         dragEnabled(false),
         autoScroll(true),
-        autoScrollTimer(0),
         autoScrollMargin(16),
         autoScrollInterval(50),
         autoScrollCount(0),
@@ -1297,7 +1296,7 @@ void QAbstractItemView::resizeEvent(QResizeEvent *e)
 */
 void QAbstractItemView::timerEvent(QTimerEvent *e)
 {
-    if (e->timerId() == d->autoScrollTimer) {
+    if (e->timerId() == d->autoScrollTimer.timerId()) {
         doAutoScroll();
     } else if (e->timerId() == d->updateTimer.timerId()) {
         d->updateTimer.stop();
@@ -1873,9 +1872,7 @@ void QAbstractItemView::setState(State state)
 */
 void QAbstractItemView::startAutoScroll()
 {
-    if (d->autoScrollTimer)
-        killTimer(d->autoScrollTimer);
-    d->autoScrollTimer = startTimer(d->autoScrollInterval);
+    d->autoScrollTimer.start(d->autoScrollInterval, this);
     d->autoScrollCount = 0;
 }
 
@@ -1884,8 +1881,7 @@ void QAbstractItemView::startAutoScroll()
 */
 void QAbstractItemView::stopAutoScroll()
 {
-    killTimer(d->autoScrollTimer);
-    d->autoScrollTimer = 0;
+    d->autoScrollTimer.stop();
     d->autoScrollCount = 0;
 }
 

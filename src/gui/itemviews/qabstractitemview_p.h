@@ -143,7 +143,7 @@ public:
     QTime keyboardInputTime;
 
     bool autoScroll;
-    int autoScrollTimer;
+    QBasicTimer autoScrollTimer;
     int autoScrollMargin;
     int autoScrollInterval;
     int autoScrollCount;

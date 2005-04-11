@@ -359,8 +359,8 @@ public:
     QVector<int> segmentStartRows;
 
     // timers
-    int startLayoutTimer;
-    int batchLayoutTimer;
+    QBasicTimer startLayoutTimer;
+    QBasicTimer batchLayoutTimer;
 
     // used when dragging
     QVector<QModelIndex> draggedItems; // indices to the tree.itemVector

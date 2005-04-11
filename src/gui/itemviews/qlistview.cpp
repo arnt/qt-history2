@@ -655,15 +655,14 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
 void QListView::timerEvent(QTimerEvent *e)
 {
     Q_D(QListView);
-    if (e->timerId() == d->startLayoutTimer) {
-        killTimer(d->startLayoutTimer);
-        doItemsLayout(); // showing the scrollbars will trigger a resize event,
-        d->startLayoutTimer = 0; // so let the timer id be non-zero untill after the layout is done
-    } else if (e->timerId() == d->batchLayoutTimer) {
-        if (d->doItemsLayout(100)) {
-            // layout is done
-            killTimer(d->batchLayoutTimer);
-            d->batchLayoutTimer = 0;
+    if (e->timerId() == d->startLayoutTimer.timerId()) {
+        d->startLayoutTimer.stop();
+        setState(ExpandingState); // showing the scrollbars will trigger a resize event,
+        doItemsLayout();          // so we set the state to expanding to avoid
+        setState(NoState);        // triggering another layout
+    } else if (e->timerId() == d->batchLayoutTimer.timerId()) {
+        if (d->doItemsLayout(100)) { // layout is done
+            d->batchLayoutTimer.stop();
             updateGeometries();
             d->viewport->update();
         }
@@ -678,11 +677,11 @@ void QListView::resizeEvent(QResizeEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::resizeEvent(e);
-    if (d->resizeMode == Adjust && d->startLayoutTimer == 0) {
+    if (d->resizeMode == Adjust && state() == NoState) {
         QSize delta = e->size() - e->oldSize();
         if ((d->flow == LeftToRight && delta.width() != 0) ||
             (d->flow == TopToBottom && delta.height() != 0))
-            d->startLayoutTimer = startTimer(100); // wait 1/10 sec before starting the layout
+            d->startLayoutTimer.start(100, this); // wait 1/10 sec before starting the layout
     }
 }
 
@@ -1114,8 +1113,8 @@ void QListView::doItemsLayout()
     if (model() && model()->columnCount(rootIndex()) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
             d->doItemsLayout(model()->rowCount(rootIndex())); // layout everything
-        else if (!d->batchLayoutTimer)
-            d->batchLayoutTimer = startTimer(0); // do a new batch as fast as possible
+        else if (!d->batchLayoutTimer.isActive())
+            d->batchLayoutTimer.start(0, this); // do a new batch as fast as possible
     }
     QAbstractItemView::doItemsLayout();
 }
@@ -1185,8 +1184,6 @@ QListViewPrivate::QListViewPrivate()
       batchStartRow(0),
       batchSavedDeltaSeg(0),
       batchSavedPosition(0),
-      startLayoutTimer(0),
-      batchLayoutTimer(0),
       rubberBand(0),
       column(0)
 {}
