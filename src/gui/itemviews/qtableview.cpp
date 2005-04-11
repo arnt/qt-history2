@@ -440,6 +440,7 @@ void QTableView::paintEvent(QPaintEvent *e)
 */
 QModelIndex QTableView::indexAt(const QPoint &p) const
 {
+    d->executePostedLayout();
     int r = rowAt(p.y());
     int c = columnAt(p.x());
     if (r >= 0 && c >= 0)
@@ -468,15 +469,14 @@ int QTableView::verticalOffset() const
 }
 
 /*!
-    \fn QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+    \fn QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 
     Moves the cursor in accordance with the given \a cursorAction, using the
     information provided by the \a modifiers.
 
     \sa QAbstractItemView::CursorAction
 */
-QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                   Qt::KeyboardModifiers modifiers)
+QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
     Q_UNUSED(modifiers);
 
@@ -863,6 +863,7 @@ QRect QTableView::visualRect(const QModelIndex &index) const
 {
     if (!index.isValid() || index.parent() != rootIndex())
         return QRect();
+    d->executePostedLayout();
     return QRect(columnViewportPosition(index.column()), rowViewportPosition(index.row()),
                  columnWidth(index.column()) - 1, rowHeight(index.row()) - 1);
 }
@@ -873,25 +874,26 @@ QRect QTableView::visualRect(const QModelIndex &index) const
     Makes sure that the given \a item is visible in the table view,
     scrolling if necessary.
 */
-void QTableView::scrollTo(const QModelIndex &index)
+void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     // check if we really need to do anything
-    if (index.parent() != rootIndex())
+    if (index.parent() != rootIndex() || isIndexHidden(index))
         return;
-    if (isIndexHidden(index))
-        return;
+    
     QRect area = d->viewport->rect();
     QRect rect = visualRect(index);
-    if (area.contains(rect)) {
+    if (hint == EnsureVisible && area.contains(rect)) {
         d->setDirtyRect(rect);
         return;
     }
 
     // vertical
     int verticalSteps = verticalStepsPerItem();
-    if (rect.top() < area.top()) { // above
+    bool above = (hint == EnsureVisible && rect.top() < area.top());
+    bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
+    if (hint == PositionAtTop || above) {
         verticalScrollBar()->setValue(index.row() * verticalSteps);
-    } else if (rect.bottom() > area.bottom()) { // below
+    } else if (hint == PositionAtBottom || below) {
         int r = index.row();
         int y = area.height();
         while (y > 0 && r > 0)
@@ -902,13 +904,13 @@ void QTableView::scrollTo(const QModelIndex &index)
     }
 
     // horizontal
+    int horizontalSteps = horizontalStepsPerItem();
     bool leftOf = isRightToLeft()
                   ? rect.right() > area.right()
                   : rect.left() < area.left();
     bool rightOf = isRightToLeft()
                    ? rect.left() < area.left()
                    : rect.right() > area.right();
-    int horizontalSteps = horizontalStepsPerItem();
     if (leftOf) {
         horizontalScrollBar()->setValue(index.column() * horizontalSteps);
     } else if (rightOf) {

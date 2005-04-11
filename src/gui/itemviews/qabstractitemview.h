@@ -38,7 +38,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
-    Q_ENUMS(SelectionMode SelectionBehavior)
+    Q_ENUMS(SelectionMode SelectionBehavior ScrollHint)
     Q_FLAGS(EditTriggers)
 
 public:
@@ -53,6 +53,12 @@ public:
         SelectItems,
         SelectRows,
         SelectColumns
+    };
+
+    enum ScrollHint {
+        EnsureVisible,
+        PositionAtTop,
+        PositionAtBottom
     };
 
     enum EditTrigger {
@@ -118,7 +124,7 @@ public:
     virtual void keyboardSearch(const QString &search);
 
     virtual QRect visualRect(const QModelIndex &index) const = 0;
-    virtual void scrollTo(const QModelIndex &index) = 0;
+    virtual void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible) = 0;
     virtual QModelIndex indexAt(const QPoint &p) const = 0;
 
     QSize sizeHintForIndex(const QModelIndex &index) const;
@@ -174,7 +180,7 @@ protected:
     enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
                         MoveHome, MoveEnd, MovePageUp, MovePageDown,
                         MoveNext, MovePrevious };
-    virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
+    virtual QModelIndex moveCursor(CursorAction cursorAction,
                                    Qt::KeyboardModifiers modifiers) = 0;
 
     virtual int horizontalOffset() const = 0;

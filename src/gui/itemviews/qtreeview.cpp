@@ -496,7 +496,7 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
   Scroll the contents of the tree view until the given model item \a index
   is visible.
 */
-void QTreeView::scrollTo(const QModelIndex &index)
+void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QTreeView);
     // check if we really need to do anything
@@ -504,17 +504,19 @@ void QTreeView::scrollTo(const QModelIndex &index)
     if (rect.isEmpty())
         return;
     QRect area = d->viewport->rect();
-    if (area.contains(rect)) {
+    if (hint == EnsureVisible && area.contains(rect)) {
         d->setDirtyRect(rect);
         return;
     }
 
     // vertical
     int verticalSteps = verticalStepsPerItem();
-    if (rect.top() < area.top()) { // above
+    bool above = (hint == EnsureVisible && rect.top() < area.top());
+    bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
+    if (hint == PositionAtTop || above) {
         int i = d->viewIndex(index);
         verticalScrollBar()->setValue(i * verticalSteps);
-    } else if (rect.bottom() > area.bottom()) { // below
+    } else if (hint == PositionAtBottom || below) {
         int i = d->viewIndex(index);
         if (i < 0) {
             qWarning("scrollTo: item index was illegal: %d", i);
@@ -752,10 +754,10 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
         QAbstractItemView::mousePressEvent(e);
     } else if (model()->hasChildren(d->viewItems.at(i).index)) {
         if (d->viewItems.at(i).expanded) {
-            setState(QAbstractItemView::ExpandingState);
+            setState(ExpandingState);
             d->collapse(i);
         } else {
-            setState(QAbstractItemView::CollapsingState);
+            setState(CollapsingState);
             d->expand(i);
         }
         updateGeometries();
@@ -884,8 +886,7 @@ int QTreeView::verticalOffset() const
 
   \sa QAbstractItemView::CursorAction
 */
-QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                  Qt::KeyboardModifiers modifiers)
+QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
     Q_D(QTreeView);
     Q_UNUSED(modifiers);

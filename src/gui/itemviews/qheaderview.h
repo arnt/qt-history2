@@ -141,12 +141,12 @@ protected:
     void rowsInserted(const QModelIndex &parent, int start, int end);
 
     QRect visualRect(const QModelIndex &index) const;
-    void scrollTo(const QModelIndex &index);
+    void scrollTo(const QModelIndex &index, ScrollHint hint);
 
     QModelIndex indexAt(const QPoint &p) const;
     bool isIndexHidden(const QModelIndex &index) const;
 
-    QModelIndex moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers);
+    QModelIndex moveCursor(CursorAction, Qt::KeyboardModifiers);
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags);
     QRect visualRectForSelection(const QItemSelection &selection) const;
 

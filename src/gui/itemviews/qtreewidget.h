@@ -202,7 +202,7 @@ public:
     void setItemExpanded(const QTreeWidgetItem *item, bool expand);
 
 public slots:
-    void scrollToItem(const QTreeWidgetItem *item);
+    void scrollToItem(const QTreeWidgetItem *item, ScrollHint hint);
     void expandItem(const QTreeWidgetItem *item);
     void collapseItem(const QTreeWidgetItem *item);
     void clear();

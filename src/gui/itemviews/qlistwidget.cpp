@@ -1152,13 +1152,13 @@ void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
-void QListWidget::scrollToItem(const QListWidgetItem *item)
+void QListWidget::scrollToItem(const QListWidgetItem *item, ScrollHint hint)
 {
     Q_ASSERT(item);
     Q_D(QListWidget);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     Q_ASSERT(index.isValid());
-    QListView::scrollTo(index);
+    QListView::scrollTo(index, hint);
 }
 
 /*!

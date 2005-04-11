@@ -1845,13 +1845,13 @@ void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
   Ensures that the \a item is visible, scrolling the view if necessary.
 */
 
-void QTreeWidget::scrollToItem(const QTreeWidgetItem *item)
+void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
 {
     Q_ASSERT(item);
     Q_D(QTreeWidget);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     Q_ASSERT(index.isValid());
-    QTreeView::scrollTo(index);
+    QTreeView::scrollTo(index, hint);
 }
 
 /*!

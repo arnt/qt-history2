@@ -75,7 +75,7 @@ public:
     int modelColumn() const;
 
     QRect visualRect(const QModelIndex &index) const;
-    void scrollTo(const QModelIndex &index);
+    void scrollTo(const QModelIndex &index, ScrollHint hint);
     QModelIndex indexAt(const QPoint &p) const;
 
     void doItemsLayout();
@@ -108,8 +108,7 @@ protected:
 
     int horizontalOffset() const;
     int verticalOffset() const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
-                           Qt::KeyboardModifiers modifiers);
+    QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
     QRect rectForIndex(const QModelIndex &index) const;
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);

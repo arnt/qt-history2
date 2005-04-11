@@ -184,6 +184,15 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
+    \enum QAbstractItemView::ScrollHint
+
+    \value EnsureVisible  Scroll to ensure that the item is visible.
+    \value PositionAtTop  Scroll to position the item at the top of the viewport.
+    \value PositionAtBottom  Scroll to position the item at the bottom of the viewport.
+*/
+
+
+/*!
   \enum QAbstractItemView::EditTrigger
 
   This enum describes actions which will initiate item editing.
@@ -236,10 +245,10 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::scrollTo(const QModelIndex &index) = 0
+    \fn void QAbstractItemView::scrollTo(const QModelIndex &index, ScrollHint hint) = 0
 
     Scrolls the view if necessary to ensure that the item at \a index
-    is visible.
+    is visible. The view will try to position the item according to the given \a hint.
 
     In the base class this is a pure virtual function.
 */

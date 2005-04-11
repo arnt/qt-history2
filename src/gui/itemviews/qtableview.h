@@ -58,7 +58,7 @@ public:
     void setGridStyle(Qt::PenStyle style);
 
     QRect visualRect(const QModelIndex &index) const;
-    void scrollTo(const QModelIndex &index);
+    void scrollTo(const QModelIndex &index, ScrollHint hint);
     QModelIndex indexAt(const QPoint &p) const;
 
 public slots:
@@ -88,8 +88,7 @@ protected:
 
     int horizontalOffset() const;
     int verticalOffset() const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
-                           Qt::KeyboardModifiers modifiers);
+    QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect visualRectForSelection(const QItemSelection &selection) const;

@@ -1521,13 +1521,13 @@ QRect QTableWidget::visualItemRect(const QTableWidgetItem *item) const
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
-void QTableWidget::scrollToItem(const QTableWidgetItem *item)
+void QTableWidget::scrollToItem(const QTableWidgetItem *item, ScrollHint hint)
 {
     Q_ASSERT(item);
     Q_D(QTableWidget);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
     Q_ASSERT(index.isValid());
-    QTableView::scrollTo(index);
+    QTableView::scrollTo(index, hint);
 }
 
 const QTableWidgetItem *QTableWidget::itemPrototype() const

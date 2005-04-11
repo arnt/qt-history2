@@ -1547,7 +1547,7 @@ QRect QHeaderView::visualRect(const QModelIndex &) const
   Empty implementation because the header doesn't show QModelIndex items.
 */
 
-void QHeaderView::scrollTo(const QModelIndex &)
+void QHeaderView::scrollTo(const QModelIndex &, ScrollHint)
 {
     // do nothing - the header only displays sections
 }
@@ -1583,7 +1583,7 @@ bool QHeaderView::isIndexHidden(const QModelIndex &) const
   Empty implementation because the header doesn't show QModelIndex items.
 */
 
-QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers)
+QModelIndex QHeaderView::moveCursor(CursorAction, Qt::KeyboardModifiers)
 {
     return QModelIndex();
 }

@@ -210,7 +210,7 @@ public:
     void setItemPrototype(const QTableWidgetItem *item);
 
 public slots:
-    void scrollToItem(const QTableWidgetItem *item);
+    void scrollToItem(const QTableWidgetItem *item, ScrollHint hint);
     void insertRow(int row);
     void insertColumn(int column);
     void removeRow(int row);

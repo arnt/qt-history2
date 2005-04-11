@@ -217,7 +217,7 @@ QListView::QListView(QWidget *parent)
     Q_D(QListView);
     d->init();
     setViewMode(ListMode);
-    setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionMode(SingleSelection);
 }
 
 /*!
@@ -229,7 +229,7 @@ QListView::QListView(QListViewPrivate &dd, QWidget *parent)
     Q_D(QListView);
     d->init();
     setViewMode(ListMode);
-    setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionMode(SingleSelection);
 }
 
 /*!
@@ -515,26 +515,27 @@ QRect QListView::visualRect(const QModelIndex &index) const
 /*!
   \reimp
 */
-void QListView::scrollTo(const QModelIndex &index)
+void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QListView);
     
-    QRect area = d->viewport->rect();
-    QRect rect = visualRect(index);
-
     if (index.parent() != rootIndex() || index.column() != d->column)
         return;
-
-    if (area.contains(rect)) {
+    
+    QRect area = d->viewport->rect();
+    QRect rect = visualRect(index);
+    if (hint == EnsureVisible && area.contains(rect)) {
         d->setDirtyRect(rect);
         return;
     }
 
     // vertical
     int vy = verticalScrollBar()->value();
-    if (rect.top() < area.top()) // above
+    bool above = (hint == EnsureVisible && rect.top() < area.top());
+    bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
+    if (hint == PositionAtTop || above)
         verticalScrollBar()->setValue(vy + rect.top());
-    else if ((rect.bottom() > area.bottom()) && (rect.top() > area.top())) // below
+    else if (hint == PositionAtBottom || below)
         verticalScrollBar()->setValue(vy + rect.bottom() - viewport()->height());
 
     // horizontal
@@ -639,8 +640,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
     Q_D(QListView);
     QAbstractItemView::mouseMoveEvent(e);
     if (d->viewMode == IconMode
-        && state() == QAbstractItemView::DragSelectingState
-        && d->selectionMode != SingleSelection) {
+        && state() == DragSelectingState && d->selectionMode != SingleSelection) {
         QRect rect(d->pressedPosition, e->pos() + QPoint(horizontalOffset(), verticalOffset()));
         rect = rect.normalize();
         d->setDirtyRect(d->mapToViewport(rect.unite(d->elasticBand)));
@@ -939,8 +939,7 @@ int QListView::verticalOffset() const
 /*!
   \reimp
 */
-QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                  Qt::KeyboardModifiers modifiers)
+QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
     Q_D(QListView);
     Q_UNUSED(modifiers);

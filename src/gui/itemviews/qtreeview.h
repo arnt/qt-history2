@@ -63,7 +63,7 @@ public:
     void setExpanded(const QModelIndex &index, bool expand);
 
     QRect visualRect(const QModelIndex &index) const;
-    void scrollTo(const QModelIndex &index);
+    void scrollTo(const QModelIndex &index, ScrollHint hint);
     QModelIndex indexAt(const QPoint &p) const;
     QModelIndex indexAbove(const QModelIndex &index) const;
     QModelIndex indexBelow(const QModelIndex &index) const;
@@ -97,8 +97,7 @@ protected:
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
 
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
-                           Qt::KeyboardModifiers modifiers);
+    QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
     int horizontalOffset() const;
     int verticalOffset() const;
 

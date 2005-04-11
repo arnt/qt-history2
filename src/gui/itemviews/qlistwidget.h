@@ -174,7 +174,7 @@ public:
     void setItemHidden(const QListWidgetItem *item, bool hide);
 
 public slots:
-    void scrollToItem(const QListWidgetItem *item);
+    void scrollToItem(const QListWidgetItem *item, ScrollHint hint);
     void clear();
 
 signals:
