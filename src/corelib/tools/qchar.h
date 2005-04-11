@@ -174,6 +174,9 @@ public:
     Direction direction() const;
     Joining joining() const;
     bool hasMirrored() const;
+    inline bool isLower() const { return category() == Letter_Lowercase; }
+    inline bool isUpper() const { return category() == Letter_Uppercase; }
+
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT bool mirrored() const { return hasMirrored(); }
 #endif

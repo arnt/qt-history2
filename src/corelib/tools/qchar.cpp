@@ -596,7 +596,7 @@ QChar::Category QChar::category() const
 }
 
 /*!
-    Returns the character's \link Direction direction \endlink.
+    Returns the character's direction.
 */
 QChar::Direction QChar::direction() const
 {
@@ -625,6 +625,24 @@ bool QChar::hasMirrored() const
 {
     return ::mirrored(*this);
 }
+
+/*!
+    \fn bool QChar::isLower() const
+
+    Returns true if the character is a lowercase letter, i.e.
+    category() is Letter_Lowercase.
+
+    \sa isUpper(), toLower(), toUpper()
+*/
+
+/*!
+    \fn bool QChar::isUpper() const
+
+    Returns true if the character is an uppercase letter, i.e.
+    category() is Letter_Uppercase.
+
+    \sa isLower(), toUpper(), toLower()
+*/
 
 /*!
     Returns the mirrored character if this character is a mirrored
