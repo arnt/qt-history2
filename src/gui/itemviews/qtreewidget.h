@@ -219,6 +219,10 @@ signals:
     void currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void itemSelectionChanged();
 
+protected:
+    QModelIndex indexFromItem(QTreeWidgetItem *item, int column = 0) const;
+    QTreeWidgetItem *itemFromIndex(const QModelIndex &index) const;
+
 private:
     void setModel(QAbstractItemModel *model);
 

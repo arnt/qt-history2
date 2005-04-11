@@ -1172,6 +1172,28 @@ void QListWidget::clear()
 }
 
 /*!
+  Returns the QModelIndex assocated with the given \a item.
+*/
+
+QModelIndex QListWidget::indexFromItem(QListWidgetItem *item) const
+{
+    Q_D(const QListWidget);
+    Q_ASSERT(item);
+    return d->model()->index(item);
+}
+
+/*!
+  Returns a pointer to the QListWidgetItem assocated with the given \a index.
+*/
+
+QListWidgetItem *QListWidget::itemFromIndex(const QModelIndex &index) const
+{
+    Q_D(const QListWidget);
+    Q_ASSERT(index.isValid());
+    return d->model()->at(index.row());
+}
+
+/*!
   \internal
 */
 void QListWidget::setModel(QAbstractItemModel *model)

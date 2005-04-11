@@ -1892,6 +1892,28 @@ void QTreeWidget::clear()
 }
 
 /*!
+  Returns the QModelIndex assocated with the given \a item in the given \a column.
+*/
+
+QModelIndex QTreeWidget::indexFromItem(QTreeWidgetItem *item, int column) const
+{
+    Q_D(const QTreeWidget);
+    Q_ASSERT(item);
+    return d->model()->index(item, column);
+}
+
+/*!
+  Returns a pointer to the QTreeWidgetItem assocated with the given \a index.
+*/
+
+QTreeWidgetItem *QTreeWidget::itemFromIndex(const QModelIndex &index) const
+{
+    Q_D(const QTreeWidget);
+    Q_ASSERT(index.isValid());
+    return d->model()->item(index);
+}
+
+/*!
   \reimp
 */
 

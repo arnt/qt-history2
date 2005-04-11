@@ -1590,6 +1590,28 @@ void QTableWidget::clear()
 }
 
 /*!
+  Returns the QModelIndex assocated with the given \a item.
+*/
+
+QModelIndex QTableWidget::indexFromItem(QTableWidgetItem *item) const
+{
+    Q_D(const QTableWidget);
+    Q_ASSERT(item);
+    return d->model()->index(item);
+}
+
+/*!
+  Returns a pointer to the QTableWidgetItem assocated with the given \a index.
+*/
+
+QTableWidgetItem *QTableWidget::itemFromIndex(const QModelIndex &index) const
+{
+    Q_D(const QTableWidget);
+    Q_ASSERT(index.isValid());
+    return d->model()->item(index);
+}
+
+/*!
   \internal
 */
 void QTableWidget::setModel(QAbstractItemModel *model)

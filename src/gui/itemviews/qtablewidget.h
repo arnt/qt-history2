@@ -229,6 +229,10 @@ signals:
     void currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
     void itemSelectionChanged();
 
+protected:
+    QModelIndex indexFromItem(QTableWidgetItem *item) const;
+    QTableWidgetItem *itemFromIndex(const QModelIndex &index) const;
+
 private:
     void setModel(QAbstractItemModel *model);
 

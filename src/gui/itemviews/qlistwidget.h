@@ -191,6 +191,10 @@ signals:
 
     void itemSelectionChanged();
 
+protected:
+    QModelIndex indexFromItem(QListWidgetItem *item) const;
+    QListWidgetItem *itemFromIndex(const QModelIndex &index) const;
+
 private:
     void setModel(QAbstractItemModel *model);
 
