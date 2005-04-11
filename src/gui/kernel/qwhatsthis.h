@@ -16,10 +16,10 @@
 
 #include "QtCore/qobject.h"
 #include "QtGui/qcursor.h"
-#include "QtGui/qaction.h"
 
 #ifndef QT_NO_WHATSTHIS
 
+class QAction;
 #ifdef QT3_SUPPORT
 class QToolButton;
 #endif
@@ -27,30 +27,22 @@ class QToolButton;
 class Q_GUI_EXPORT QWhatsThis
 {
     QWhatsThis();
+
 public:
     static void enterWhatsThisMode();
     static bool inWhatsThisMode();
     static void leaveWhatsThisMode();
 
-    static void showText(const QPoint &pos, const QString& text, QWidget* w = 0);
+    static void showText(const QPoint &pos, const QString &text, QWidget *w = 0);
     static void hideText();
+
+    static QAction *createAction(QObject *parent = 0);
 
 #ifdef QT3_SUPPORT
     static QT3_SUPPORT void add(QWidget *w, const QString &s);
     static QT3_SUPPORT void remove(QWidget *);
-    static QT3_SUPPORT QToolButton * whatsThisButton(QWidget * parent);
+    static QT3_SUPPORT QToolButton *whatsThisButton(QWidget *parent);
 #endif
-};
-
-class QWhatsThisAction: public QAction
-{
-    Q_OBJECT
-
-public:
-    explicit QWhatsThisAction(QObject* parent = 0);
-
-private slots:
-    void actionTriggered();
 };
 
 #endif // QT_NO_WHATSTHIS

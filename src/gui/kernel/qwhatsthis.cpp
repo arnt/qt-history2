@@ -46,51 +46,49 @@
 /*!
     \class QWhatsThis
     \brief The QWhatsThis class provides a simple description of any
-    widget, i.e. answering the question "What's this?".
+    widget, i.e. answering the question "What's This?".
 
     \ingroup helpsystem
     \mainclass
 
-    "What's this?" help is part of an application's online help
+    "What's This?" help is part of an application's online help
     system, and provides users with information about the
-    functionality and usage of a particular widget. "What's this?"
+    functionality and usage of a particular widget. "What's This?"
     help texts are typically longer and more detailed than \link
     QToolTip tooltips\endlink, but generally provide less information
     than that supplied by separate help windows.
 
     QWhatsThis provides a single window with an explanatory text that
-    pops up when the user asks "What's this?". The default way for
+    pops up when the user asks "What's This?". The default way for
     users to ask the question is to move the focus to the relevant
     widget and press Shift+F1. The help text appears immediately; it
     goes away as soon as the user does something else.
     (Note that if there is a shortcut for Shift+F1, this mechanism
     will not work.) Some dialogs provide a "?" button that users can
-    click to enter "What's this?" mode; they then click the relevant
-    widget to pop up the "What's this?" window. It is also possible to
+    click to enter "What's This?" mode; they then click the relevant
+    widget to pop up the "What's This?" window. It is also possible to
     provide a a menu option or toolbar button to switch into "What's
-    this?" mode.
+    This?" mode.
 
-    To add "What's this?" text to a widget or an action, you simply
-    call \l{QWidget::setWhatsThis()} or \l{QAction::setWhatsThis()}.
+    To add "What's This?" text to a widget or an action, you simply
+    call QWidget::setWhatsThis() or QAction::setWhatsThis().
 
     The text can be either rich text or plain text. If you specify a
     rich text formatted string, it will be rendered using the default
-    stylesheet, making it possible to embed images in the
-    displayed text. To be as fast as possible, the default
-    stylesheet uses a simple method to determine whether the
-    text can be rendered as plain text.
-    See QStyleSheet::defaultSheet() and
-    QStyleSheet::mightBeRichText() for details.
+    stylesheet, making it possible to embed images in the displayed
+    text. To be as fast as possible, the default stylesheet uses a
+    simple method to determine whether the text can be rendered as
+    plain text. See Qt::mightBeRichText() for details.
 
     \quotefile snippets/whatsthis/whatsthis.cpp
     \skipto newAct =
     \printuntil setWhatsThis
 
-    An alternative way to enter "What's this?" mode is to use the
-    ready-made QWhatsThisAction, and add it to either a menu or a tool
-    bar. By invoking this context help action (in the picture below
-    the, buton with the arrow and question mark icon) the user
-    switches into "What's this?" mode. If they now click on a widget
+    An alternative way to enter "What's This?" mode is to call
+    createAction(), and add the returned QAction to either a menu or
+    a tool bar. By invoking this context help action (in the picture
+    below, the button with the arrow and question mark icon) the user
+    switches into "What's This?" mode. If they now click on a widget
     the appropriate help text is shown. The mode is left when help is
     given or when the user presses Esc.
 
@@ -99,12 +97,12 @@
     If you are using QMainWindow you can also use the
     QMainWindow::whatsThis() slot to enter the mode from a menu item.
 
-    You can enter "What's this?" mode programmatically with
+    You can enter "What's This?" mode programmatically with
     enterWhatsThisMode(), check the mode with inWhatsThisMode(), and
     return to normal mode with leaveWhatsThisMode().
 
-    If you want to control the "What's this?" behavior of a widget
-    manually see \c Qt::WA_CustomWhatsThis.
+    If you want to control the "What's This?" behavior of a widget
+    manually see Qt::WA_CustomWhatsThis.
 
     It is also possible to show different help texts for different
     regions of a widget, by using a QHelpEvent of type
@@ -121,10 +119,10 @@
     \sa QToolTip
 */
 
-
 class QWhatsThat : public QWidget
 {
     Q_OBJECT
+
 public:
     QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor);
     ~QWhatsThat() ;
@@ -266,13 +264,10 @@ void QWhatsThat::mouseMoveEvent(QMouseEvent* e)
 #endif
 }
 
-
 void QWhatsThat::keyPressEvent(QKeyEvent*)
 {
     close();
 }
-
-
 
 void QWhatsThat::paintEvent(QPaintEvent*)
 {
@@ -284,7 +279,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
         drawShadow = !shadow;
     }
 #elif defined(Q_WS_MAC)
-    drawShadow = false; //never draw it on OS X we get it for free
+    drawShadow = false; // never draw it on OS X we get it for free
 #endif
 
     QRect r = rect();
@@ -467,27 +462,18 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     return true;
 }
 
-/*!
-  \class QWhatsThisAction
+class QWhatsThisAction: public QAction
+{
+    Q_OBJECT
 
-    \brief The QWhatsThisAction class provides a ready-made action to
-    invoke "What's This" context help.
+public:
+    explicit QWhatsThisAction(QObject* parent = 0);
 
-    \ingroup helpsystem
+private slots:
+    void actionTriggered();
+};
 
-    QWhatsThisAction is a convenient way to let users enter "What's
-    this?" mode.  Instantiate a QWhatsThisAction object, and add it to
-    either a menu, a tool bar, or a tool button.
-
-    \sa QWhatsThis QToolBar, QMenu QToolButton
-
-*/
-
-
-/*!
-  Constructs a What's This?- action with a \a parent.
- */
-QWhatsThisAction::QWhatsThisAction(QObject *parent) : QAction(tr("What's this?"), parent)
+QWhatsThisAction::QWhatsThisAction(QObject *parent) : QAction(tr("What's This?"), parent)
 {
     QPixmap p((const char**)button_image);
     setIcon(p);
@@ -505,7 +491,8 @@ void QWhatsThisAction::actionTriggered()
 }
 
 QWhatsThis::QWhatsThis()
-{}
+{
+}
 
 #ifdef QT3_SUPPORT
 /*!
@@ -555,10 +542,12 @@ public slots:
 };
 
 /*!
-    Returns a new What's This QToolButton with the given \a parent. To
-    do this now, create your own QToolButton and a QWhatsThis object
-    and call the QWhatsThis object's showText() function when the
-    QToolButton is invoked.
+    Returns a new "What's This?" QToolButton with the given \a
+    parent. To do this now, create your own QToolButton and a
+    QWhatsThis object and call the QWhatsThis object's showText()
+    function when the QToolButton is invoked.
+
+    Use createAction() instead.
 */
 QToolButton * QWhatsThis::whatsThisButton(QWidget * parent)
 {
@@ -567,12 +556,12 @@ QToolButton * QWhatsThis::whatsThisButton(QWidget * parent)
 #endif
 
 /*!
-    This function switches the user interface into "What's this?"
+    This function switches the user interface into "What's This?"
     mode. The user interface can be switched back into normal mode by
     the user (e.g. by them clicking or pressing Esc), or
     programmatically by calling leaveWhatsThisMode().
 
-    When entering "What's this?" mode, a QEvent of type
+    When entering "What's This?" mode, a QEvent of type
     Qt::EnterWhatsThisMode is sent to all toplevel widgets.
 
     \sa inWhatsThisMode() leaveWhatsThisMode()
@@ -587,7 +576,7 @@ void QWhatsThis::enterWhatsThisMode()
  }
 
 /*!
-    Returns true if the user interface is in "What's this?" mode;
+    Returns true if the user interface is in "What's This?" mode;
     otherwise returns false.
 
     \sa enterWhatsThisMode()
@@ -598,10 +587,10 @@ bool QWhatsThis::inWhatsThisMode()
 }
 
 /*!
-    If the user interface is in "What's this?" mode, this function
+    If the user interface is in "What's This?" mode, this function
     switches back to normal mode; otherwise it does nothing.
 
-    When leaving "What's this?" mode, a QEvent of type
+    When leaving "What's This?" mode, a QEvent of type
     Qt::LeaveWhatsThisMode is sent to all toplevel widgets.
 
     \sa enterWhatsThisMode() inWhatsThisMode()
@@ -691,9 +680,8 @@ void QWhatsThisPrivate::say(QWidget * widget, const QString &text, int x, int y)
     whatsThat->grabKeyboard();
 }
 
-
 /*!
-    Shows \a text as a "What's this?" window, at global position \a
+    Shows \a text as a "What's This?" window, at global position \a
     pos. The optional widget argument, \a w, is used to determine the
     appropriate screen on multi-head systems.
 
@@ -705,15 +693,26 @@ void QWhatsThis::showText(const QPoint &pos, const QString &text, QWidget *w)
     QWhatsThisPrivate::say(w, text, pos.x(), pos.y());
 }
 
-
 /*!
-    If a "What's this?" window is showing, this destroys it.
+    If a "What's This?" window is showing, this destroys it.
 
     \sa showText()
 */
 void QWhatsThis::hideText()
 {
     delete QWhatsThat::instance;
+}
+
+/*
+    Returns a ready-made QAction to invoke "What's This?" context
+    help, with the given \a parent.
+
+    The returned QAction provides a convenient way to let users enter
+    "What's This?" mode.
+*/
+QAction *QWhatsThis::createAction(QObject *parent)
+{
+    return new QWhatsThisAction(parent);
 }
 
 #include "qwhatsthis.moc"
