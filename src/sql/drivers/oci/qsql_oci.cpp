@@ -1115,7 +1115,7 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
     case OCI_SUCCESS:
         break;
     case OCI_SUCCESS_WITH_INFO:
-        qOraWarning("QOCIResult::gotoNext: ", d);
+        qOraWarning("QOCIResult::gotoNext: SuccessWithInfo: ", d);
         r = OCI_SUCCESS; //ignore it
         break;
     case OCI_NO_DATA:
@@ -1134,6 +1134,8 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
         // fall through
     default:
         qOraWarning("QOCIResult::gotoNext: ", d);
+        setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
+                                "Unable to goto next"), QSqlError::StatementError, d));
         break;
     }
     if (r == OCI_SUCCESS) {
