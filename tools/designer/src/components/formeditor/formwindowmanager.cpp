@@ -464,6 +464,9 @@ void FormWindowManager::slotActionAdjustSizeActivated()
     m_activeFormWindow->simplifySelection(&selectedWidgets);
 
     foreach (QWidget *widget, selectedWidgets) {
+        if (LayoutInfo::layoutType(core(), widget->parentWidget()) != LayoutInfo::NoLayout)
+            continue;
+
         AdjustWidgetSizeCommand *cmd = new AdjustWidgetSizeCommand(m_activeFormWindow);
         cmd->init(widget);
         m_activeFormWindow->commandHistory()->push(cmd);
@@ -558,7 +561,7 @@ void FormWindowManager::slotUpdateActions()
         m_actionSplitVertical->setEnabled(unlaidout > 1);
         m_actionGridLayout->setEnabled(unlaidout > 1);
         m_actionBreakLayout->setEnabled(laidout > 0);
-        m_actionAdjustSize->setEnabled(laidout > 0);
+        m_actionAdjustSize->setEnabled(unlaidout > 0);
         m_layoutSelected = unlaidout > 1;
         m_breakLayout = laidout > 0;
     } else if (selectedWidgets == 1) {
