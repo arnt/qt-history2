@@ -238,6 +238,7 @@ Connection::Connection(ConnectionEdit *edit)
     m_edit = edit;
     m_source = 0;
     m_target = 0;
+    m_visible = true;
 
     m_source_pos = QPoint(-1, -1);
     m_target_pos = QPoint(-1, -1);
@@ -248,9 +249,43 @@ Connection::Connection(ConnectionEdit *edit, QWidget *source, QWidget *target)
     m_edit = edit;
     m_source = source;
     m_target = target;
+    m_visible = true;
 
     m_source_pos = QPoint(-1, -1);
     m_target_pos = QPoint(-1, -1);
+}
+
+void Connection::updateVisibility()
+{
+    QWidget *source = widget(EndPoint::Source);
+    QWidget *target = widget(EndPoint::Target);
+
+    QWidget *w = source;
+    while (w && w->parentWidget()) {
+        if (!w->isVisibleTo(w->parentWidget())) {
+            // qDebug() << source << "is not visible to:" << w->parentWidget();
+            m_visible = false;
+            return;
+        }
+        w = w->parentWidget();
+    }
+
+    w = target;
+    while (w && w->parentWidget()) {
+        if (!w->isVisibleTo(w->parentWidget())) {
+            // qDebug() << target << "is not visible to:" << w->parentWidget();
+            m_visible = false;
+            return;
+        }
+        w = w->parentWidget();
+    }
+
+    m_visible = true;
+}
+
+bool Connection::isVisible() const
+{
+    return m_visible;
 }
 
 bool Connection::ground() const
@@ -407,10 +442,10 @@ void Connection::updateKneeList()
         |     |     x      |
         +-----|-----|------+
               +-----+
-              
+
         We find out which edge of the outer rectangle is closest to the target
         point, and make a loop which exits and re-enters through that edge.
-*/        
+*/
         LineDir dir = closestEdge(t, tr);
         switch (dir) {
             case UpDir:
@@ -525,7 +560,7 @@ void Connection::updateKneeList()
                |        |     x  |
                +--------+-x      |
                         +--------+
-                        
+
             The line enters the target rectangle through the closest edge.
 */
             if (sr.topLeft() == r.topLeft()) {
@@ -586,11 +621,11 @@ void Connection::trimLine()
 
     if (!tr.contains(sr) && tr.contains(m_knee_list.at(cnt - 2)))
         m_knee_list.removeLast();
-    
+
     cnt = m_knee_list.size();
     if (cnt < 2)
         return;
-    
+
     if (sr.contains(m_knee_list.at(0)) && !sr.contains(m_knee_list.at(1)))
         m_knee_list[0] = lineEntryPos(m_knee_list.at(1), m_knee_list.at(0), sr);
 
@@ -892,6 +927,11 @@ void ConnectionEdit::updateBackground()
     for (int y = 0; y < m_bg_pixmap.height(); y += 2)
         p.drawLine(0, y, m_bg_pixmap.width(), y); */
 
+
+    foreach(Connection *c, m_con_list) {
+        c->updateVisibility();
+    }
+
     updateLines();
     update();
 }
@@ -945,15 +985,17 @@ void ConnectionEdit::paintConnection(QPainter *p, Connection *con,
                                         WidgetSet *heavy_highlight_set,
                                         WidgetSet *light_highlight_set) const
 {
+    QWidget *source = con->widget(EndPoint::Source);
+    QWidget *target = con->widget(EndPoint::Target);
+
     bool heavy = selected(con) || con == m_tmp_con;
+    WidgetSet *set = heavy ? heavy_highlight_set : light_highlight_set;
     p->setPen(heavy ? m_active_color : m_inactive_color);
     con->paint(p);
 
-    WidgetSet *set = heavy ? heavy_highlight_set : light_highlight_set;
-    QWidget *source = con->widget(EndPoint::Source);
-    QWidget *target = con->widget(EndPoint::Target);
     if (source != 0)
         set->insert(source, source);
+
     if (target != 0 && target != m_bg_widget)
         set->insert(target, target);
 }
@@ -965,12 +1007,18 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
 
     if (m_bg_pixmap.isNull())
         updateBackground();
+
     p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
 
     WidgetSet heavy_highlight_set, light_highlight_set;
 
-    foreach (Connection *con, m_con_list)
+    foreach (Connection *con, m_con_list) {
+        if (!con->isVisible())
+            continue;
+
         paintConnection(&p, con, &heavy_highlight_set, &light_highlight_set);
+    }
+
     if (m_tmp_con != 0)
         paintConnection(&p, m_tmp_con, &heavy_highlight_set, &light_highlight_set);
 
@@ -981,6 +1029,7 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
     p.setPen(c);
     c.setAlpha(BG_ALPHA);
     p.setBrush(c);
+
     foreach (QWidget *w, heavy_highlight_set) {
         p.drawRect(fixRect(widgetRect(w)));
         light_highlight_set.remove(w);
@@ -990,22 +1039,29 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
     p.setPen(c);
     c.setAlpha(BG_ALPHA);
     p.setBrush(c);
+
     foreach (QWidget *w, light_highlight_set)
         p.drawRect(fixRect(widgetRect(w)));
 
     p.setBrush(palette().color(QPalette::Base));
     p.setPen(palette().color(QPalette::Text));
     foreach (Connection *con, m_con_list) {
+        if (!con->isVisible())
+            continue;
+
         paintLabel(&p, EndPoint::Source, con);
         paintLabel(&p, EndPoint::Target, con);
     }
 
     p.setPen(m_active_color);
     p.setBrush(m_active_color);
+
     foreach (Connection *con, m_con_list) {
-        if (!selected(con))
+        if (!selected(con) || !con->isVisible())
             continue;
+
         paintEndPoint(&p, con->endPointPos(EndPoint::Source));
+
         if (con->widget(EndPoint::Target) != 0)
             paintEndPoint(&p, con->endPointPos(EndPoint::Target));
     }

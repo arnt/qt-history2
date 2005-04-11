@@ -63,6 +63,9 @@ public:
     void setEndPoint(EndPoint::Type type, QWidget *w, const QPoint &pos)
         { type == EndPoint::Source ? setSource(w, pos) : setTarget(w, pos); }
 
+    bool isVisible() const;
+    virtual void updateVisibility();
+
     virtual QRegion region() const;
     bool contains(const QPoint &pos) const;
     virtual void paint(QPainter *p) const;
@@ -91,6 +94,7 @@ private:
     QString m_source_label, m_target_label;
     QPixmap m_source_label_pm, m_target_label_pm;
     QRect m_source_rect, m_target_rect;
+    bool m_visible;
 
     void setSource(QWidget *source, const QPoint &pos);
     void setTarget(QWidget *target, const QPoint &pos);
