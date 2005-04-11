@@ -2547,7 +2547,7 @@ void QImage::setPixel(int x, int y, uint index_or_rgb)
     }
 }
 
-
+#ifdef QT3_SUPPORT
 /*!
     Converts the bit order of the image to \a bitOrder and returns the
     converted image. The original image is not changed.
@@ -2582,7 +2582,7 @@ QImage QImage::convertBitOrder(Endian bitOrder) const
     image.d->colortable = d->colortable;
     return image;
 }
-
+#endif
 /*!
     Returns true if all the colors in the image are shades of gray
     (i.e. their red, green and blue components are equal); otherwise
