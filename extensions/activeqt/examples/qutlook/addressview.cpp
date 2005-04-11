@@ -86,7 +86,7 @@ int AddressBookModel::columnCount(const QModelIndex &parent) const
 
 QVariant AddressBookModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role != DisplayRole)
+    if (role != Qt::DisplayRole)
         return QVariant();
 
     switch (section) {
@@ -107,7 +107,7 @@ QVariant AddressBookModel::headerData(int section, Qt::Orientation orientation, 
 
 QVariant AddressBookModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || role != DisplayRole)
+    if (!index.isValid() || role != Qt::DisplayRole)
         return QVariant();
 
     QStringList data;
