@@ -1881,8 +1881,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     QPoint p1(tb->rect.x(), tb->rect.top() + tb->rect.height()/2);
                     QPoint p2(tb->rect.right(), tb->rect.top() + tb->rect.height()/2);
                     QLinearGradient lg(p1, p2);
-                    lg.appendStop(0, left);
-                    lg.appendStop(1, right);
+                    lg.setColorAt(0, left);
+                    lg.setColorAt(1, right);
                     fillBrush = lg;
                 }
 

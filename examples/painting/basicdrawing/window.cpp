@@ -160,8 +160,8 @@ void Window::brushChanged()
 
     if (style == Qt::LinearGradientPattern) {
         QLinearGradient lg(0, 0, 400, 200);
-        lg.appendStop(0, Qt::red);
-        lg.appendStop(1, Qt::green);
+        lg.setColorAt(0, Qt::red);
+        lg.setColorAt(1, Qt::green);
         renderArea->setBrush(lg);
     } else if (style == Qt::TexturePattern) {
         renderArea->setBrush(QBrush(QPixmap(":/images/brick.png")));

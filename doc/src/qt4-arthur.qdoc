@@ -109,9 +109,9 @@
 
     \code
     QLinearGradient gradient(0, 0, 100, 100);
-    gradient.appendStop(0, Qt::red);
-    gradient.appendStop(0.5, Qt::green);
-    gradient.appendStop(1, Qt::blue);
+    gradient.setColorAt(0, Qt::red);
+    gradient.setColorAt(0.5, Qt::green);
+    gradient.setColorAt(1, Qt::blue);
     painter.setBrush(gradient);
     painter.drawRect(0, 0, 100, 100);
     \endcode
@@ -127,9 +127,9 @@
 
     \code
     QRadialGradient gradient(50, 50, 50, 30, 30);
-    gradient.appendStop(0.2, Qt::white);
-    gradient.appendStop(0.8, Qt::green);
-    gradient.appendStop(1, Qt::black);
+    gradient.setColorAt(0.2, Qt::white);
+    gradient.setColorAt(0.8, Qt::green);
+    gradient.setColorAt(1, Qt::black);
     painter.setBrush(gradient);
     painter.drawEllipse(0, 0, 100, 100);
     \endcode
@@ -145,10 +145,10 @@
 
     \code
     QConicalGradient gradient(60, 40, 0);
-    gradient.appendStop(0, Qt::black);
-    gradient.appendStop(0.4, Qt::green);
-    gradient.appendStop(0.6, Qt::white);
-    gradient.appendStop(1, Qt::black);
+    gradient.setColorAt(0, Qt::black);
+    gradient.setColorAt(0.4, Qt::green);
+    gradient.setColorAt(0.6, Qt::white);
+    gradient.setColorAt(1, Qt::black);
     painter.setBrush(gradient);
     painter.drawEllipse(0, 0, 100, 100);
     \endcode
@@ -316,8 +316,8 @@
 
     \code
     QLinearGradient gradient(0, 0, 100, 100);
-    gradient.appendStop(0, Qt::blue);
-    gradient.appendStop(1, Qt::red);
+    gradient.setColorAt(0, Qt::blue);
+    gradient.setColorAt(1, Qt::red);
     painter.setPen(QPen(gradient, 0));
     for (int y=fontSize; y<100; y+=fontSize)
         drawText(0, y, text);

@@ -98,8 +98,8 @@ void DemoWidget::fillBackground(QPainter *p)
         break;
     case Attributes::Gradient: {
         QLinearGradient lg(0, 0, 0, height());
-        lg.appendStop(0, attributes->color);
-        lg.appendStop(1, attributes->secondaryColor);
+        lg.setColorAt(0, attributes->color);
+        lg.setColorAt(1, attributes->secondaryColor);
         p->fillRect(0, 0, width(), height(), QBrush(lg));
         break;
     }

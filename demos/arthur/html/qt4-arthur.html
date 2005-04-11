@@ -69,26 +69,26 @@ body { background: #ffffff; color: black; }</style>
 <p>With Qt 4 it is possible to fill shapes using gradient brushes. A gradient in this case is used to describe the transition from one color at a given point to different color at another point. A gradient can span from one color to another or over a number of colors by specifying multiple colors at positions in the gradient area. Qt 4 supports linear, radial, and conical gradients.</p>
 <p>Linear gradients are specified using two control points. Setting a linear gradient brush is done by creating a QLinearGradient object and setting it as a brush.</p>
 <pre>&nbsp;   QLinearGradient gradient(0, 0, 100, 100);
-    gradient.appendStop(0, Qt::red);
-    gradient.appendStop(0.5, Qt::green);
-    gradient.appendStop(1, Qt::blue);
+    gradient.setColorAt(0, Qt::red);
+    gradient.setColorAt(0.5, Qt::green);
+    gradient.setColorAt(1, Qt::blue);
     painter.setBrush(gradient);
     painter.drawRect(0, 0, 100, 100);</pre>
 <p>The code shown above produces a pattern as show in the following pixmap:</p>
 <center><img src="images/diagonalGradient.png" /></center><p>Radial gradients are specified using a center, a radius, and a focal point. Setting a radial brush is done by creating a QRadialGradient object and setting it as a brush.</p>
 <pre>&nbsp;   QRadialGradient gradient(50, 50, 50, 30, 30);
-    gradient.appendStop(0.2, Qt::white);
-    gradient.appendStop(0.8, Qt::green);
-    gradient.appendStop(1, Qt::black);
+    gradient.setColorAt(0.2, Qt::white);
+    gradient.setColorAt(0.8, Qt::green);
+    gradient.setColorAt(1, Qt::black);
     painter.setBrush(gradient);
     painter.drawEllipse(0, 0, 100, 100);</pre>
 <p>The code shown above produces a pattern as shown in the following pixmap:</p>
 <center><img src="images/radialGradient.png" /></center><p>Concal gradients are specified using a center and a start angle. Setting a conical brush is done by creating a QConicalGradient object and setting it as a brush.</p>
 <pre>&nbsp;   QConicalGradient gradient(60, 40, 0);
-    gradient.appendStop(0, Qt::black);
-    gradient.appendStop(0.4, Qt::green);
-    gradient.appendStop(0.6, Qt::white);
-    gradient.appendStop(1, Qt::black);
+    gradient.setColorAt(0, Qt::black);
+    gradient.setColorAt(0.4, Qt::green);
+    gradient.setColorAt(0.6, Qt::white);
+    gradient.setColorAt(1, Qt::black);
     painter.setBrush(gradient);
     painter.drawEllipse(0, 0, 100, 100);</pre>
 <p>The code shown above produces a pattern as shown in the following pixmap:</p>
@@ -161,8 +161,8 @@ body { background: #ffffff; color: black; }</style>
 <h3>Custom Filled Pens</h3>
 <p>In Qt 4, it is possible to specify how an outline should be filled. It can be a solid color or a QBrush, which makes it possible to specify both texture and gradient fills for both text and outlines.</p>
 <pre>&nbsp;   QLinearGradient gradient(0, 0, 100, 100);
-    gradient.appendStop(0, Qt::blue);
-    gradient.appendStop(1, Qt::red);
+    gradient.setColorAt(0, Qt::blue);
+    gradient.setColorAt(1, Qt::red);
     painter.setPen(QPen(gradient, 0));
     for (int y=fontSize; y&lt;100; y+=fontSize)
         drawText(0, y, text);</pre>

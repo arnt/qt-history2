@@ -776,8 +776,8 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 
     \code
     QLinearGradient grad(QPointF(100, 100), QPointF(200, 200));
-    grad.appendStop(0, Qt::black);
-    grad.appendStop(1, Qt::white);
+    grad.setColorAt(0, Qt::black);
+    grad.setColorAt(1, Qt::white);
     \endcode
 
     A gradient can have an arbitrary number of stop points. The
@@ -786,9 +786,9 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 
     \code
     QRadialGradient grad(QPointF(100, 100), 100);
-    grad.appendStop(0, Qt::red);
-    grad.appendStop(0.5, Qt::blue);
-    grad.appendStop(1, Qt::green);
+    grad.setColorAt(0, Qt::red);
+    grad.setColorAt(0.5, Qt::blue);
+    grad.setColorAt(1, Qt::green);
     \endcode
 
     It is possible to repeat or reflect the gradient outside the area
@@ -854,40 +854,21 @@ QGradient::QGradient()
 */
 
 /*!
-    \overload
-
-    Appends another stop point at the relative position \a pos with
-    color \a color. The position \a pos must be in the range 0 to 1
-    and must be added in increasing order.
+    Sets another stop point at the relative position \a pos with
+    color \a color. The position \a pos must be in the range 0 to 1.
 */
 
-void QGradient::appendStop(qreal pos, const QColor &color)
+void QGradient::setColorAt(qreal pos, const QColor &color)
 {
-    QGradientStop stop;
-    stop.first = pos;
-    stop.second = color;
-    appendStop(stop);
-}
-
-
-/*!
-    Appends the stop point \a stop to the gradient.. The position of \a
-    stop must be in the range 0 to 1 and must be added in increasing
-    order.
-*/
-
-void QGradient::appendStop(const QGradientStop &stop)
-{
-    if (stop.first > 1 || stop.first < 0) {
-        qWarning("QGradient::appendStop(), stop position must be in the range of 0 to 1");
-        return;
-    } else if (!m_stops.isEmpty() && stop.first <= m_stops.last().first) {
-        qWarning("QGradient::appendStop(), stops must be appended in increasing order");
+    if (pos > 1 || pos < 0) {
+        qWarning("QGradient::setColorAt(), colors positions must be specified in the range 0 to 1");
         return;
     }
-    m_stops << stop;
-}
 
+    int index = 0;
+    while (index < m_stops.size() && m_stops.at(index).first < pos) ++index;
+    m_stops.insert(index,  QGradientStop(pos, color));
+}
 
 /*!
     Replaces the current set of stop points with \a stops. The
@@ -898,7 +879,7 @@ void QGradient::setStops(const QGradientStops &stops)
 {
     m_stops.clear();
     for (int i=0; i<stops.size(); ++i)
-        appendStop(stops.at(i));
+        setColorAt(stops.at(i).first, stops.at(i).second);
 }
 
 

@@ -57,8 +57,8 @@ void RotatingGradient::paintEvent(QPaintEvent *)
     // Define the gradient brush. The colors will fade from blue and green to
     // red and blue
     QLinearGradient lg(p1, p2);
-    lg.appendStop(0, QColor(fade, 0, 255-fade, alpha1));
-    lg.appendStop(1, QColor(0, 255-fade, fade, alpha2));
+    lg.setColorAt(0, QColor(fade, 0, 255-fade, alpha1));
+    lg.setColorAt(1, QColor(0, 255-fade, fade, alpha2));
     p.setBrush(lg);
 
     p.drawRect(0, 0, width(), height());

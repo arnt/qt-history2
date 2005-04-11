@@ -26,7 +26,7 @@ class DownloadDelegate : public QItemDelegate
 public:
     DownloadDelegate(QObject *parent);
     ~DownloadDelegate();
-    
+
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -64,8 +64,8 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             double download = model->data(index, Qt::DisplayRole).toDouble();
             int width = qMin(rect.width(), static_cast<int>(rect.width() * download));
             QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
-            gradient.appendStop(0, option.palette.color(cg, QPalette::Light));
-            gradient.appendStop(1, option.palette.color(cg, QPalette::Dark));
+            gradient.setColorAt(0, option.palette.color(cg, QPalette::Light));
+            gradient.setColorAt(1, option.palette.color(cg, QPalette::Dark));
             painter->fillRect(rect.x(), rect.y(), width, rect.height(), gradient);
             painter->fillRect(rect.x() + width, rect.y(), rect.width() - width, rect.height(),
                               option.palette.base());
@@ -101,7 +101,7 @@ QSize DownloadDelegate::sizeHint(const QStyleOptionViewItem &option,
         int rating = index.model()->data(index, Qt::DisplayRole).toInt();
         return QSize(rating * star.width(), star.height()) + QSize(1, 1);
     }
-    
+
     return QItemDelegate::sizeHint(option, index) + QSize(1, 1); // since we draw the grid ourselves
 }
 

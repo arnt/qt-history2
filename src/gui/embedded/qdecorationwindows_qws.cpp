@@ -294,8 +294,8 @@ bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int dec
         QPoint p1(titleRect.x(), titleRect.y() + titleRect.height()/2);
         QPoint p2(titleRect.right(), titleRect.y() + titleRect.height()/2);
         QLinearGradient lg(p1, p2);
-        lg.appendStop(0, fromBrush);
-        lg.appendStop(1, toBrush);
+        lg.setColorAt(0, fromBrush);
+        lg.setColorAt(1, toBrush);
         painter->fillRect(titleRect, lg);
 
         painter->setPen(titlePen);

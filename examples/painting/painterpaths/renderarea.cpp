@@ -63,8 +63,8 @@ void RenderArea::paintEvent(QPaintEvent *)
     painter.setPen(QPen(penColor, penWidth, Qt::SolidLine, Qt::RoundCap,
                         Qt::RoundJoin));
     QLinearGradient lg(0, 0, 0, 100);
-    lg.appendStop(0, fillColor1);
-    lg.appendStop(1, fillColor2);
+    lg.setColorAt(0, fillColor1);
+    lg.setColorAt(1, fillColor2);
     painter.setBrush(lg);
     painter.drawPath(path);
 }

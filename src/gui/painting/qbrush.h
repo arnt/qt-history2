@@ -142,8 +142,7 @@ public:
     inline void setSpread(Spread spread);
     Spread spread() const { return m_spread; }
 
-    void appendStop(qreal pos, const QColor &color);
-    void appendStop(const QGradientStop &stop);
+    void setColorAt(qreal pos, const QColor &color);
 
     void setStops(const QGradientStops &stops);
     QGradientStops stops() const;
