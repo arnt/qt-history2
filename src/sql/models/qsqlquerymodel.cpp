@@ -47,6 +47,8 @@ void QSqlQueryModelPrivate::prefetch(int limit)
         emit q->rowsAboutToBeInserted(QModelIndex(), oldBottom.row(), newBottom.row());
         bottom = newBottom;
         emit q->rowsInserted(QModelIndex(), oldBottom.row(), bottom.row());
+    } else {
+        bottom = newBottom;
     }
 }
 
