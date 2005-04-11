@@ -460,10 +460,10 @@ void FormWindowManager::slotActionAdjustSizeActivated()
 
     m_activeFormWindow->beginCommand(tr("Adjust Size"));
 
-    QDesignerFormWindowCursorInterface *cursor = m_activeFormWindow->cursor();
+    QList<QWidget*> selectedWidgets = m_activeFormWindow->selectedWidgets();
+    m_activeFormWindow->simplifySelection(&selectedWidgets);
 
-    for (int index = 0; index < cursor->selectedWidgetCount(); ++index) {
-        QWidget *widget = cursor->selectedWidget(index);
+    foreach (QWidget *widget, selectedWidgets) {
         AdjustWidgetSizeCommand *cmd = new AdjustWidgetSizeCommand(m_activeFormWindow);
         cmd->init(widget);
         m_activeFormWindow->commandHistory()->push(cmd);
