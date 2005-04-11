@@ -1434,7 +1434,9 @@ QString &QString::replace(const QString &before, const QString &after, Qt::CaseS
         if (bl) {
             const QChar *auc = (const QChar*) after.d->data;
             while ((index = matcher.indexIn(*this, index)) != -1) {
-                memcpy(d->data + index, auc, al * sizeof(QChar));
+                // we need memmove(), not memcpy(), in the rare case where
+                // this == &after, before == after, and cs is Qt::CaseInsensitive
+                memmove(d->data + index, auc, al * sizeof(QChar));
                 index += bl;
             }
         }
@@ -1468,6 +1470,8 @@ QString &QString::replace(const QString &before, const QString &after, Qt::CaseS
             resize(d->size - num*(bl-al));
         }
     } else {
+        const QString copy = after;
+
         // the most complex case. We don't want to lose performance by doing repeated
         // copies and reallocs of the string.
         while (index != -1) {
@@ -1502,7 +1506,7 @@ QString &QString::replace(const QString &before, const QString &after, Qt::CaseS
                 int insertstart = indices[pos] + pos*(al-bl);
                 int moveto = insertstart + al;
                 memmove(d->data + moveto, d->data + movestart, (moveend - movestart)*sizeof(QChar));
-                memcpy(d->data + insertstart, after.unicode(), al*sizeof(QChar));
+                memcpy(d->data + insertstart, copy.unicode(), al*sizeof(QChar));
                 moveend = movestart-bl;
             }
         }
