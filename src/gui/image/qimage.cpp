@@ -708,7 +708,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     d->bytes_per_line = ((w*depth+31)/32)*4;        // bytes per scanline
     d->nbytes = d->bytes_per_line * h;
     if (colortable) {
-        d->colortable.reserve(numColors);
+        d->colortable.resize(numColors);
         for (int i = 0; i < numColors; ++i)
             d->colortable[i] = colortable[i];
     }
