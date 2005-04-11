@@ -947,7 +947,7 @@ QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
     }
 }
 
-void QConfFileSettingsPrivate::remove(const QString &key)
+void QConfFileSettingsPrivate(const QString &key)
 {
     if (!writeAccess) {
         setStatus(QSettings::AccessError);
@@ -2057,6 +2057,9 @@ QSettings::~QSettings()
 
     Entries in fallback locations are not removed.
 
+    If you only want to remove the entries in the current group(),
+    use remove("") instead.
+
     \sa remove(), setFallbacksEnabled()
 */
 void QSettings::clear()
@@ -2505,7 +2508,26 @@ void QSettings::setValue(const QString &key, const QVariant &value)
     \endcode
 
     Be aware that if one of the fallback locations contains a setting
-    with the same key, that setting will be visible after calling remove().
+    with the same key, that setting will be visible after calling
+    remove().
+
+    If \a key is an empty string, all keys in the current group() are
+    removed. For example:
+
+    \code
+        QSettings settings;
+        settings.setValue("ape");
+        settings.setValue("monkey", 1);
+        settings.setValue("monkey/sea", 2);
+        settings.setValue("monkey/doe", 4);
+
+        settings.beginGroup("monkey");
+        settings.remove("");
+        settings.endGroup();
+
+        QStringList keys = settings.allKeys();
+        // keys: ["ape"]
+    \endcode
 
     \sa setValue(), value(), contains()
 */
