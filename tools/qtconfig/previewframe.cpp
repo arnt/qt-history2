@@ -27,9 +27,11 @@ PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
     vbox->setMargin(0);
     Workspace * w = new Workspace( this );
     vbox->addWidget(w);
-    previewWidget = new PreviewWidget;
-    w->addWindow(previewWidget, Qt::Window);
-    previewWidget->move( 10, 10 );
+
+    previewWidget = new PreviewWidget(w);
+    QWidget *frame = w->addWindow(previewWidget, Qt::Window);
+    frame->move(10,10);
+    frame->show();
 }
 
 void PreviewFrame::setPreviewPalette(QPalette pal)
