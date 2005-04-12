@@ -69,6 +69,30 @@ bool Uic::printDependencies()
     DomUI *ui = new DomUI();
     ui->read(root);
 
+    double version = ui->attributeVersion().toDouble();
+    if (version < 4.0) {
+        delete ui;
+
+        if (opt.inputFile.isEmpty()) {
+            fprintf(stderr, "Impossible to convert a file from the stdin\n");
+            return false;
+        }
+        //qWarning("Converting file '%s'", opt.inputFile.latin1());
+        QProcess uic3;
+        uic3.start(option().uic3, QStringList() << QLatin1String("-convert") << opt.inputFile);
+        if (!uic3.waitForFinished()) {
+            fprintf(stderr, "Couldn't start uic3: %s\n", uic3.errorString().toLocal8Bit().data());
+            return false;
+        }
+        QString contents = uic3.readAll();
+        if (!doc.setContent(contents))
+            return false;
+
+        ui = new DomUI();
+        QDomElement root = doc.firstChild().toElement();
+        ui->read(root);
+    }
+
     if (DomIncludes *includes = ui->elementIncludes()) {
         foreach (DomInclude *incl, includes->elementInclude()) {
             QString file = incl->text();
