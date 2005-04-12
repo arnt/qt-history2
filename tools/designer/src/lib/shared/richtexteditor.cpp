@@ -102,8 +102,8 @@ RichTextEditorToolBar::RichTextEditorToolBar(RichTextEditor *editor,
     m_font_size_input->setEditable(false);
     for (int i = 4; i < 30; ++i)
         m_font_size_input->addItem(QString::number(i));
-    connect(m_font_size_input, SIGNAL(activated(const QString&)),
-                this, SLOT(sizeInputActivated(const QString&)));
+    connect(m_font_size_input, SIGNAL(activated(QString)),
+                this, SLOT(sizeInputActivated(QString)));
     addWidget(m_font_size_input);
 
     QStringList color_names = QColor::colorNames();
@@ -114,8 +114,8 @@ RichTextEditorToolBar::RichTextEditorToolBar(RichTextEditor *editor,
     m_color_input = new QComboBox(this);
     foreach (QString color, color_names)
         m_color_input->addItem(iconForColor(color), color);
-    connect(m_color_input, SIGNAL(activated(const QString&)),
-                this, SLOT(colorInputActivated(const QString&)));
+    connect(m_color_input, SIGNAL(activated(QString)),
+                this, SLOT(colorInputActivated(QString)));
     addWidget(m_color_input);
 
     connect(editor, SIGNAL(textChanged()), this, SLOT(updateActions()));
@@ -186,7 +186,7 @@ void RichTextEditorToolBar::updateActions()
 RichTextEditor::RichTextEditor(QWidget *parent)
     : QTextEdit(parent)
 {
-    connect(this, SIGNAL(currentCharFormatChanged(const QTextCharFormat&)),
+    connect(this, SIGNAL(currentCharFormatChanged(QTextCharFormat)),
                 this, SIGNAL(textChanged()));
 }
 

@@ -233,19 +233,19 @@ TrWindow::TrWindow()
     foundWhere = 0;
     foundOffset = 0;
 
-    connect(tv->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-        this, SLOT(showNewScope(const QModelIndex &, const QModelIndex &)));
-    connect(stv, SIGNAL(clicked(const QModelIndex &)),
-        this, SLOT(toggleFinished(const QModelIndex &)));
-    connect(me, SIGNAL(translationChanged(const QString&)),
-        this, SLOT(updateTranslation(const QString&)));
+    connect(tv->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+        this, SLOT(showNewScope(QModelIndex,QModelIndex)));
+    connect(stv, SIGNAL(clicked(QModelIndex)),
+        this, SLOT(toggleFinished(QModelIndex)));
+    connect(me, SIGNAL(translationChanged(QString)),
+        this, SLOT(updateTranslation(QString)));
     connect(me, SIGNAL(finished(bool)), this, SLOT(updateFinished(bool)));
     connect(me, SIGNAL(prevUnfinished()), this, SLOT(prevUnfinished()));
     connect(me, SIGNAL(nextUnfinished()), this, SLOT(nextUnfinished()));
     connect(me, SIGNAL(focusSourceList()), this, SLOT(focusSourceList()));
     connect(me, SIGNAL(focusPhraseList()), this, SLOT(focusPhraseList()));
-    connect(finddlg, SIGNAL(findNext(const QString&, int, bool)),
-        this, SLOT(findNext(const QString&, int, bool)));
+    connect(finddlg, SIGNAL(findNext(QString,int,bool)),
+        this, SLOT(findNext(QString,int,bool)));
 
     connect(tv->header(), SIGNAL(sectionClicked(int)),
         tv, SLOT(clearSelection()));
@@ -1243,12 +1243,12 @@ void TrWindow::setupMenuBar()
     m->addMenu(viewp)->setText(tr("&View"));
     m->addMenu(helpp)->setText(tr("&Help"));
 
-    connect(closePhraseBookp, SIGNAL(triggered(QAction *)),
-        this, SLOT(closePhraseBook(QAction *)));
-    connect(editPhraseBookp, SIGNAL(triggered(QAction *)),
-        this, SLOT(editPhraseBook(QAction *)));
-    connect(printPhraseBookp, SIGNAL(triggered(QAction *)),
-        this, SLOT(printPhraseBook(QAction *)));
+    connect(closePhraseBookp, SIGNAL(triggered(QAction*)),
+        this, SLOT(closePhraseBook(QAction*)));
+    connect(editPhraseBookp, SIGNAL(triggered(QAction*)),
+        this, SLOT(editPhraseBook(QAction*)));
+    connect(printPhraseBookp, SIGNAL(triggered(QAction*)),
+        this, SLOT(printPhraseBook(QAction*)));
 
     // File menu
     openAct = filep->addAction(QIcon(rsrcString + "/fileopen.png"),
@@ -1270,8 +1270,8 @@ void TrWindow::setupMenuBar()
     filep->addMenu(recentFilesMenu)->setText(tr("Re&cently opened files"));
     connect(recentFilesMenu, SIGNAL(aboutToShow()), this,
         SLOT(setupRecentFilesMenu()));
-    connect(recentFilesMenu, SIGNAL(triggered(QAction *)), this,
-        SLOT(recentFileActivated(QAction *)));
+    connect(recentFilesMenu, SIGNAL(triggered(QAction*)), this,
+        SLOT(recentFileActivated(QAction*)));
 
     filep->addSeparator();
 

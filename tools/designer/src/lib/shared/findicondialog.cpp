@@ -13,10 +13,10 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
 {
     setupUi(this);
 
-    connect(m_file_dir_input, SIGNAL(textChanged(const QString&)), this, SLOT(updateBoxes()));
+    connect(m_file_dir_input, SIGNAL(textChanged(QString)), this, SLOT(updateBoxes()));
     connect(m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     connect(m_cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(m_file_image_list, SIGNAL( currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+    connect(m_file_image_list, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
                 this, SLOT(imageFileSelected(QListWidgetItem*)));
     connect(m_file_dir_browse, SIGNAL(clicked()), this, SLOT(browseFileDir()));
     connect(m_specify_file_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
@@ -129,8 +129,8 @@ void FindIconDialog::updateBoxes()
             }
 
             connect(m_resource_tree->selectionModel(),
-                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-                        this, SLOT(resourceSelected(const QModelIndex &)));
+                        SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                        this, SLOT(resourceSelected(QModelIndex)));
         }
     }
 

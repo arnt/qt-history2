@@ -44,8 +44,8 @@ ProjectPorter::ProjectPorter(QString basePath, QStringList includeDirectories)
         preprocessorController =
             new PreprocessorController(*includeFiles, preprocessorCache, defaultDefinitions);
 
-        connect(preprocessorController, SIGNAL(error(QString, QString)),
-                SLOT(error(QString, QString)));
+        connect(preprocessorController, SIGNAL(error(QString,QString)),
+                SLOT(error(QString,QString)));
     }
 }
 

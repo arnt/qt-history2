@@ -42,14 +42,14 @@ void QDesignerIntegration::initialize()
     //
     // integrate the `Form Editor component'
     //
-    connect(core()->propertyEditor(), SIGNAL(propertyChanged(const QString&, const QVariant& )),
-            this, SLOT(updateProperty(const QString&, const QVariant& )));
+    connect(core()->propertyEditor(), SIGNAL(propertyChanged(QString,QVariant)),
+            this, SLOT(updateProperty(QString,QVariant)));
 
-    connect(core()->formWindowManager(), SIGNAL(formWindowAdded(QDesignerFormWindowInterface* )),
-            this, SLOT(setupFormWindow(QDesignerFormWindowInterface* )));
+    connect(core()->formWindowManager(), SIGNAL(formWindowAdded(QDesignerFormWindowInterface*)),
+            this, SLOT(setupFormWindow(QDesignerFormWindowInterface*)));
 
-    connect(core()->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface* )),
-            this, SLOT(updateActiveFormWindow(QDesignerFormWindowInterface* )));
+    connect(core()->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
+            this, SLOT(updateActiveFormWindow(QDesignerFormWindowInterface*)));
 }
 
 void QDesignerIntegration::updateProperty(const QString &name, const QVariant &value)
@@ -96,7 +96,7 @@ void QDesignerIntegration::updateActiveFormWindow(QDesignerFormWindowInterface *
 void QDesignerIntegration::setupFormWindow(QDesignerFormWindowInterface *formWindow)
 {
     connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
-    connect(formWindow, SIGNAL(activated(QWidget *)), this, SLOT(activateWidget(QWidget *)));
+    connect(formWindow, SIGNAL(activated(QWidget*)), this, SLOT(activateWidget(QWidget*)));
     // ### connect(formWindow, SIGNAL(geometryChanged()), this, SLOT(updateGeometry()));
 }
 

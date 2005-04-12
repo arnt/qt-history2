@@ -131,18 +131,18 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
 #endif
 
     socket = new QTcpSocket( this );
-    connect( socket, SIGNAL( connected() ),
-            SLOT( socketConnected() ) );
-    connect( socket, SIGNAL( disconnected() ),
-            SLOT( socketConnectionClosed() ) );
-    connect( socket, SIGNAL( error( QTcpSocket::SocketError ) ),
-             SLOT( socketError( QTcpSocket::SocketError ) ) );
+    connect( socket, SIGNAL(connected()),
+            SLOT(socketConnected()) );
+    connect( socket, SIGNAL(disconnected()),
+            SLOT(socketConnectionClosed()) );
+    connect( socket, SIGNAL(error(SocketError)),
+             SLOT(socketError(SocketError)) );
     opened = false;
     proc = new QProcess( this );
     port = 0;
     pageBuffer = "";
-    connect( proc, SIGNAL( readyReadStandardError() ),
-             this, SLOT( readStdError() ) );
+    connect( proc, SIGNAL(readyReadStandardError()),
+             this, SLOT(readStdError()) );
 }
 
 /*!
@@ -195,10 +195,10 @@ void QAssistantClient::openAssistant()
         }
     }
 
-    connect( proc, SIGNAL( readyReadStandardOutput() ),
-        this, SLOT( readPort() ) );
-    connect( proc, SIGNAL( error(QProcess::ProcessError) ),
-        this, SLOT( procError(QProcess::ProcessError) ) );
+    connect( proc, SIGNAL(readyReadStandardOutput()),
+        this, SLOT(readPort()) );
+    connect( proc, SIGNAL(error(ProcessError)),
+        this, SLOT(procError(ProcessError)) );
 
     proc->start(assistantCommand, args);
 }
@@ -227,8 +227,8 @@ void QAssistantClient::readPort()
         return;
     }
     socket->connectToHost( host, port );
-    disconnect( proc, SIGNAL( readyReadStandardOutput() ),
-                this, SLOT( readPort() ) );
+    disconnect( proc, SIGNAL(readyReadStandardOutput()),
+                this, SLOT(readPort()) );
 }
 
 /*!

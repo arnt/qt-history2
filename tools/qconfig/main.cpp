@@ -259,8 +259,8 @@ Main::Main()
     info->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
     info->setAlignment(AlignTop);
 
-    connect(info, SIGNAL(idClicked(const QString&)),
-	    this, SLOT(selectId(const QString&)));
+    connect(info, SIGNAL(idClicked(QString)),
+	    this, SLOT(selectId(QString)));
 
 #ifdef FIXED_LAYOUT
     horizontal->setStretchFactor(info,2);

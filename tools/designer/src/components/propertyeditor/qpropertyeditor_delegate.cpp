@@ -194,8 +194,8 @@ QWidget *QPropertyEditorDelegate::createEditor(QWidget *parent,
                 = property->createEditor(editor_w_reset, editor_w_reset, SIGNAL(sync()));
             editor_w_reset->setChildEditor(child_editor);
             connect(editor_w_reset, SIGNAL(sync()), this, SLOT(sync()));
-            connect(editor_w_reset, SIGNAL(resetProperty(const QString&)),
-                        model, SIGNAL(resetProperty(const QString&)));
+            connect(editor_w_reset, SIGNAL(resetProperty(QString)),
+                        model, SIGNAL(resetProperty(QString)));
 
             editor = editor_w_reset;
             child_editor->installEventFilter(const_cast<QPropertyEditorDelegate *>(this));

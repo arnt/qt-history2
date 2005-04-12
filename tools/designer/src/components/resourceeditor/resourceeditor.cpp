@@ -211,7 +211,7 @@ ResourceEditor::ResourceEditor(QDesignerFormWindowInterface *form, QWidget *pare
 
     connect(form, SIGNAL(mainContainerChanged(QWidget*)),
             this, SLOT(updateQrcStack()));
-    connect(form, SIGNAL(fileNameChanged(const QString &)),
+    connect(form, SIGNAL(fileNameChanged(QString)),
             this, SLOT(updateQrcPaths()));
     connect(m_qrc_combo, SIGNAL(activated(int)),
             this, SLOT(setCurrentIndex(int)));
@@ -462,7 +462,7 @@ void ResourceEditor::addView(const QString &qrc_file)
     view->setModel(model);
     m_qrc_combo->insertItem(idx, qrcName(qrc_file));
     m_qrc_stack->addWidget(view);
-    connect(view->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+    connect(view->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateUi()));
     connect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
 

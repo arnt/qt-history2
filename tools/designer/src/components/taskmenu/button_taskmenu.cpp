@@ -66,7 +66,7 @@ void ButtonTaskMenu::editText()
         m_editor->selectAll();
         m_editor->setBackgroundRole(m_button->backgroundRole());
         connect(m_editor, SIGNAL(returnPressed()), m_editor, SLOT(deleteLater()));
-        connect(m_editor, SIGNAL(textChanged(const QString &)), this, SLOT(updateText(const QString&)));
+        connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
 
         QStyleOptionButton opt;
         opt.init(m_button);

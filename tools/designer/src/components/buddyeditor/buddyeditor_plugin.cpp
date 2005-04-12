@@ -55,7 +55,7 @@ void BuddyEditorPlugin::initialize(QDesignerFormEditorInterface *core)
             this, SLOT(removeFormWindow(QDesignerFormWindowInterface*)));
 
     connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
-                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
+                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface*)));
 }
 
 QDesignerFormEditorInterface *BuddyEditorPlugin::core() const

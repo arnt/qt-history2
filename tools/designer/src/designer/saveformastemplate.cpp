@@ -36,8 +36,8 @@ SaveFormAsTemplate::SaveFormAsTemplate(QDesignerFormWindowInterface *formWindow,
     ui.categoryCombo->addItems(paths);
     ui.categoryCombo->addItem(tr("Add path..."));
     m_addPathIndex = ui.categoryCombo->count() - 1;
-    connect(ui.templateNameEdit, SIGNAL(textChanged(const QString &)),
-            this, SLOT(updateOKButton(const QString &)));
+    connect(ui.templateNameEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(updateOKButton(QString)));
     connect(ui.categoryCombo, SIGNAL(activated(int)), this, SLOT(checkToAddPath(int)));
 }
 

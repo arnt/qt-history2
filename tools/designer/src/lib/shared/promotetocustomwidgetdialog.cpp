@@ -45,11 +45,11 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(QDesignerWidgetDataBase
     m_base_class_name_label->setText(base_class_name);
     connect(m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     connect(m_cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(m_class_name_input->lineEdit(), SIGNAL(textChanged(const QString&)),
+    connect(m_class_name_input->lineEdit(), SIGNAL(textChanged(QString)),
             this, SLOT(checkInputs()));
-    connect(m_class_name_input, SIGNAL(activated(const QString&)),
-            this, SLOT(setIncludeForClass(const QString&)));
-    connect(m_header_file_input, SIGNAL(textChanged(const QString&)), this, SLOT(checkInputs()));
+    connect(m_class_name_input, SIGNAL(activated(QString)),
+            this, SLOT(setIncludeForClass(QString)));
+    connect(m_header_file_input, SIGNAL(textChanged(QString)), this, SLOT(checkInputs()));
     m_ok_button->setEnabled(false);
     m_automatic_include = true;
 

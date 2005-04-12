@@ -262,7 +262,7 @@ QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, co
         lineEdit->setValidator(new QRegExpValidator(QRegExp("[_a-zA-Z][_a-zA-Z0-9]*"), lineEdit));
     }
 
-    QObject::connect(lineEdit, SIGNAL(textChanged(const QString&)), target, receiver);
+    QObject::connect(lineEdit, SIGNAL(textChanged(QString)), target, receiver);
     return lineEdit;
 }
 
@@ -834,7 +834,7 @@ QString DateTimeProperty::toString() const
 QWidget *DateTimeProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QDateTimeEdit *lineEdit = new QDateTimeEdit(parent);
-    QObject::connect(lineEdit, SIGNAL(dateTimeChanged(const QDateTime&)), target, receiver);
+    QObject::connect(lineEdit, SIGNAL(dateTimeChanged(QDateTime)), target, receiver);
     return lineEdit;
 }
 
@@ -877,7 +877,7 @@ QString DateProperty::toString() const
 QWidget *DateProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QDateEdit *lineEdit = new QDateEdit(parent);
-    QObject::connect(lineEdit, SIGNAL(dateChanged(const QDate&)), target, receiver);
+    QObject::connect(lineEdit, SIGNAL(dateChanged(QDate)), target, receiver);
     return lineEdit;
 }
 
@@ -920,7 +920,7 @@ QString TimeProperty::toString() const
 QWidget *TimeProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QTimeEdit *lineEdit = new QTimeEdit(parent);
-    QObject::connect(lineEdit, SIGNAL(timeChanged(const QTime&)), target, receiver);
+    QObject::connect(lineEdit, SIGNAL(timeChanged(QTime)), target, receiver);
     return lineEdit;
 }
 
@@ -1180,7 +1180,7 @@ QWidget *DoubleProperty::createEditor(QWidget *parent, const QObject *target, co
     lineEdit->setFrame(0);
     lineEdit->setValidator(new QDoubleValidator(lineEdit));
 
-    QObject::connect(lineEdit, SIGNAL(textChanged(const QString&)), target, receiver);
+    QObject::connect(lineEdit, SIGNAL(textChanged(QString)), target, receiver);
     return lineEdit;
 }
 

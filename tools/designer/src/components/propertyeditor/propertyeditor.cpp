@@ -361,7 +361,7 @@ QWidget *IconProperty::createEditor(QWidget *parent, const QObject *target,
 {
     GraphicsPropertyEditor *editor = new GraphicsPropertyEditor(m_core, m_value, parent);
 
-    QObject::connect(editor, SIGNAL(iconChanged(const QIcon&)), target, receiver);
+    QObject::connect(editor, SIGNAL(iconChanged(QIcon)), target, receiver);
 
     return editor;
 }
@@ -417,7 +417,7 @@ QWidget *PixmapProperty::createEditor(QWidget *parent, const QObject *target, co
 {
     GraphicsPropertyEditor *editor = new GraphicsPropertyEditor(m_core, m_value, parent);
 
-    QObject::connect(editor, SIGNAL(pixmapChanged(const QPixmap&)), target, receiver);
+    QObject::connect(editor, SIGNAL(pixmapChanged(QPixmap)), target, receiver);
 
     return editor;
 }
@@ -573,8 +573,8 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
 
     connect(m_editor, SIGNAL(propertyChanged(IProperty*)),
         this, SLOT(firePropertyChanged(IProperty*)));
-    connect(m_editor->editorModel(), SIGNAL(resetProperty(const QString&)),
-                this, SLOT(resetProperty(const QString&)));
+    connect(m_editor->editorModel(), SIGNAL(resetProperty(QString)),
+                this, SLOT(resetProperty(QString)));
 }
 
 PropertyEditor::~PropertyEditor()

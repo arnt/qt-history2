@@ -120,10 +120,10 @@ void MainWindow::setup()
     connect(ui.actionFileExit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
     connect(ui.actionAddBookmark, SIGNAL(triggered()),
              helpDock, SLOT(addBookmark()));
-    connect(helpDock, SIGNAL(showLink(const QString&)),
-             this, SLOT(showLink(const QString&)));
-    connect(helpDock, SIGNAL(showSearchLink(const QString&, const QStringList&)),
-             this, SLOT(showSearchLink(const QString&, const QStringList&)));
+    connect(helpDock, SIGNAL(showLink(QString)),
+             this, SLOT(showLink(QString)));
+    connect(helpDock, SIGNAL(showSearchLink(QString,QStringList)),
+             this, SLOT(showSearchLink(QString,QStringList)));
 
     connect(ui.bookmarkMenu, SIGNAL(triggered(QAction*)),
              this, SLOT(showBookmark(QAction*)));

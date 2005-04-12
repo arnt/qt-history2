@@ -53,8 +53,8 @@ Index::Index( const QString &dp, const QString &hp )
 
     alreadyHaveDocList = false;
     lastWindowClosed = false;
-    connect( qApp, SIGNAL( lastWindowClosed() ),
-             this, SLOT( setLastWinClosed() ) );
+    connect( qApp, SIGNAL(lastWindowClosed()),
+             this, SLOT(setLastWinClosed()) );
 }
 
 Index::Index( const QStringList &dl, const QString &hp )
@@ -64,8 +64,8 @@ Index::Index( const QStringList &dl, const QString &hp )
     docList = dl;
     alreadyHaveDocList = true;
     lastWindowClosed = false;
-    connect( qApp, SIGNAL( lastWindowClosed() ),
-             this, SLOT( setLastWinClosed() ) );
+    connect( qApp, SIGNAL(lastWindowClosed()),
+             this, SLOT(setLastWinClosed()) );
 }
 
 void Index::setLastWinClosed()

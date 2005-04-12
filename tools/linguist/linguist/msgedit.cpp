@@ -544,13 +544,13 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
         this, SIGNAL(copyAvailable(bool)));
     connect(qApp->clipboard(), SIGNAL(dataChanged()),
         this, SLOT(updateCanPaste()));
-    connect(phraseTv, SIGNAL(doubleClicked(const QModelIndex &)),
-        this, SLOT(insertPhraseInTranslation(const QModelIndex &)));
+    connect(phraseTv, SIGNAL(doubleClicked(QModelIndex)),
+        this, SLOT(insertPhraseInTranslation(QModelIndex)));
 
     phraseTv->installEventFilter(this);
 
-    connect(srcTextView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-             parent, SLOT(showNewCurrent(const QModelIndex &, const QModelIndex &)));
+    connect(srcTextView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+             parent, SLOT(showNewCurrent(QModelIndex,QModelIndex)));
 
     // What's this
     this->setWhatsThis(tr("This whole panel allows you to view and edit "

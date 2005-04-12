@@ -977,8 +977,8 @@ QAction *QtUndoStack::createUndoAction(QObject *parent) const
 {
     UndoRedoAction *undo_action = new UndoRedoAction(parent);
     connect(undo_action, SIGNAL(triggered()), this, SLOT(undo()));
-    connect(this, SIGNAL(undoDescriptionChanged(const QString&)),
-                        undo_action, SLOT(setTextSlot(const QString&)));
+    connect(this, SIGNAL(undoDescriptionChanged(QString)),
+                        undo_action, SLOT(setTextSlot(QString)));
     connect(this, SIGNAL(canUndoChanged(bool)),
                         undo_action, SLOT(setEnabled(bool)));
 
@@ -1012,8 +1012,8 @@ QAction *QtUndoStack::createRedoAction(QObject *parent) const
 {
     UndoRedoAction *redo_action = new UndoRedoAction(parent);
     connect(redo_action, SIGNAL(triggered()), this, SLOT(redo()));
-    connect(this, SIGNAL(redoDescriptionChanged(const QString&)),
-                        redo_action, SLOT(setTextSlot(const QString&)));
+    connect(this, SIGNAL(redoDescriptionChanged(QString)),
+                        redo_action, SLOT(setTextSlot(QString)));
     connect(this, SIGNAL(canRedoChanged(bool)),
                         redo_action, SLOT(setEnabled(bool)));
 
@@ -1185,8 +1185,8 @@ QAction *QtUndoManager::createUndoAction(QObject *parent) const
 {
     UndoRedoAction *undo_action = new UndoRedoAction(parent);
     connect(undo_action, SIGNAL(triggered()), this, SLOT(undo()));
-    connect(this, SIGNAL(undoDescriptionChanged(const QString&)),
-                        undo_action, SLOT(setTextSlot(const QString&)));
+    connect(this, SIGNAL(undoDescriptionChanged(QString)),
+                        undo_action, SLOT(setTextSlot(QString)));
     connect(this, SIGNAL(canUndoChanged(bool)),
                         undo_action, SLOT(setEnabled(bool)));
 
@@ -1216,8 +1216,8 @@ QAction *QtUndoManager::createRedoAction(QObject *parent) const
 {
     UndoRedoAction *redo_action = new UndoRedoAction(parent);
     connect(redo_action, SIGNAL(triggered()), this, SLOT(redo()));
-    connect(this, SIGNAL(redoDescriptionChanged(const QString&)),
-                        redo_action, SLOT(setTextSlot(const QString&)));
+    connect(this, SIGNAL(redoDescriptionChanged(QString)),
+                        redo_action, SLOT(setTextSlot(QString)));
     connect(this, SIGNAL(canRedoChanged(bool)),
                         redo_action, SLOT(setEnabled(bool)));
 
@@ -1721,7 +1721,7 @@ QtUndoListView::QtUndoListView(QWidget *parent)
     setModel(m);
     setSelectionMode(SingleSelection);
     setCurrentIndex(m->index(0, 0, QModelIndex()));
-    connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(undoOrRedo()));
+    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(undoOrRedo()));
 }
 
 QtUndoListView::~QtUndoListView()

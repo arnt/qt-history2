@@ -50,7 +50,7 @@ PreferenceDialog::PreferenceDialog(QDesignerFormEditorInterface *core, QWidget *
     QTreeWidgetItem *root = new QTreeWidgetItem(m_treeWidget);
     root->setText(0, tr("Standard Preferences"));
     m_treeWidget->setItemOpen(root, true);
-    connect(m_treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(changePane(QTreeWidgetItem *)));
+    connect(m_treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(changePane(QTreeWidgetItem*)));
     QTreeWidgetItem *item;
     for (int listIndex = 0; listIndex < m_preferences.size(); ++listIndex) {
         iface = m_preferences.at(listIndex);

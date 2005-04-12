@@ -188,8 +188,8 @@ void QDesignerWorkbench::initialize()
     connect(modeAction, SIGNAL(triggered()), this, SLOT(switchToWorkspaceMode()));
 
     m_integration = new QDesignerIntegration(core(), this);
-    connect(m_integration, SIGNAL(propertyChanged(QDesignerFormWindowInterface*, const QString&, const QVariant& )),
-            this, SLOT(updateWorkbench(QDesignerFormWindowInterface*, const QString&, const QVariant& )));
+    connect(m_integration, SIGNAL(propertyChanged(QDesignerFormWindowInterface*,QString,QVariant)),
+            this, SLOT(updateWorkbench(QDesignerFormWindowInterface*,QString,QVariant)));
 
     m_taskMenuComponent = new TaskMenuComponent(core(), this);
 
@@ -221,7 +221,7 @@ void QDesignerWorkbench::initialize()
     emit initialized();
 
     connect(m_core->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
-                this, SLOT(updateWindowMenu(QDesignerFormWindowInterface *)));
+                this, SLOT(updateWindowMenu(QDesignerFormWindowInterface*)));
 }
 
 Qt::WindowFlags QDesignerWorkbench::magicalWindowFlags() const
@@ -338,7 +338,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     m_workspace = new QWorkspace(mw);
     m_workspace->setScrollBarsEnabled(true);
     connect(m_workspace, SIGNAL(windowActivated(QWidget*)),
-            this, SLOT(activateWorkspaceChildWindow(QWidget* )));
+            this, SLOT(activateWorkspaceChildWindow(QWidget*)));
     mw->setCentralWidget(m_workspace);
     m_core->setTopLevel(mw);
     if (m_geometries.isEmpty()) {

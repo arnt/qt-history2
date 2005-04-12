@@ -49,12 +49,12 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
     phraseList->header()->setResizeMode(QHeaderView::Stretch);
     phraseList->header()->setClickable(true);
 
-    connect(sourceLed, SIGNAL(textChanged(const QString&)),
-        this, SLOT(sourceChanged(const QString&)));
-    connect(targetLed, SIGNAL(textChanged(const QString&)),
-        this, SLOT(targetChanged(const QString&)));
-    connect(definitionLed, SIGNAL(textChanged(const QString&)),
-        this, SLOT(definitionChanged(const QString&)));
+    connect(sourceLed, SIGNAL(textChanged(QString)),
+        this, SLOT(sourceChanged(QString)));
+    connect(targetLed, SIGNAL(textChanged(QString)),
+        this, SLOT(targetChanged(QString)));
+    connect(definitionLed, SIGNAL(textChanged(QString)),
+        this, SLOT(definitionChanged(QString)));
     connect(phraseList->selectionModel(), SIGNAL(currentChanged(const QModelIndex &,
         const QModelIndex &)), this, SLOT(selectionChanged()));
     connect(newBut, SIGNAL(clicked()), this, SLOT(newPhrase()));

@@ -189,7 +189,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_editWidgetsAction->setShortcut(tr("F3"));
     m_editWidgetsAction->setIcon(QIcon(m_core->resourceLocation() + QLatin1String("/widgettool.png")));
     connect(formWindowManager, SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
-                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
+                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface*)));
     connect(m_editWidgetsAction, SIGNAL(triggered()), this, SLOT(editWidgetsSlot()));
     m_toolActions->addAction(m_editWidgetsAction);
     m_editWidgetsAction->setChecked(true);
@@ -213,7 +213,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
         m_mdiAction->setChecked(true);
     else
         m_sdiAction->setChecked(true);
-    connect(m_uiMode, SIGNAL(triggered(QAction *)), this, SLOT(updateUIMode(QAction *)));
+    connect(m_uiMode, SIGNAL(triggered(QAction*)), this, SLOT(updateUIMode(QAction*)));
 
 //
 // form actions

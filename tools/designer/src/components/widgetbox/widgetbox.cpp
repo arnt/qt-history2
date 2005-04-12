@@ -228,9 +228,9 @@ WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget
 
     m_core = core;
 
-    connect(this, SIGNAL(itemPressed(QTreeWidgetItem*, int)),
+    connect(this, SIGNAL(itemPressed(QTreeWidgetItem*,int)),
             this, SLOT(handleMousePress(QTreeWidgetItem*)));
-    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
             this, SLOT(updateItemData(QTreeWidgetItem*)));
 
     setEditTriggers(QAbstractItemView::AnyKeyPressed);
@@ -770,8 +770,8 @@ WidgetBox::WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WF
     m_view = new WidgetBoxTreeView(m_core, this);
     l->addWidget(m_view);
 
-    connect(m_view, SIGNAL(pressed(const QString&, const QPoint&)),
-            this, SLOT(handleMousePress(const QString&, const QPoint&)));
+    connect(m_view, SIGNAL(pressed(QString,QPoint)),
+            this, SLOT(handleMousePress(QString,QPoint)));
 }
 
 WidgetBox::~WidgetBox()

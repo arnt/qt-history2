@@ -127,8 +127,8 @@ QByteArray PreprocessorCache::readFile(const QString &filename) const
 
 PreprocessorCache::PreprocessorCache()
 {
-    connect(&m_preprocessor, SIGNAL(error(QString, QString)),
-            this, SIGNAL(error(QString, QString)));
+    connect(&m_preprocessor, SIGNAL(error(QString,QString)),
+            this, SIGNAL(error(QString,QString)));
 }
 
 
@@ -191,8 +191,8 @@ PreprocessorController::PreprocessorController(IncludeFiles includeFiles,
         const QString &, RppTreeEvaluator::IncludeType)));
 
     //connect error handlers
-    connect(&m_preprocessorCache , SIGNAL(error(QString, QString)),
-            this, SIGNAL(error(QString, QString)));
+    connect(&m_preprocessorCache , SIGNAL(error(QString,QString)),
+            this, SIGNAL(error(QString,QString)));
 
 
 }

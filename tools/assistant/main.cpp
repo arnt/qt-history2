@@ -74,8 +74,8 @@ private:
 AssistantSocket::AssistantSocket( int sock, QObject *parent )
     : QTcpSocket( parent )
 {
-    connect( this, SIGNAL( readyRead() ), SLOT( readClient() ) );
-    connect( this, SIGNAL( disconnected() ), SLOT( connectionClosed() ) );
+    connect( this, SIGNAL(readyRead()), SLOT(readClient()) );
+    connect( this, SIGNAL(disconnected()), SLOT(connectionClosed()) );
     setSocketDescriptor( sock );
 }
 
@@ -118,8 +118,8 @@ quint16 AssistantServer::getPort() const
 void AssistantServer::incomingConnection( int socket )
 {
     AssistantSocket *as = new AssistantSocket( socket, this );
-    connect( as, SIGNAL( showLinkRequest( const QString& ) ),
-             this, SIGNAL( showLinkRequest( const QString& ) ) );
+    connect( as, SIGNAL(showLinkRequest(QString)),
+             this, SIGNAL(showLinkRequest(QString)) );
     emit newConnect();
 }
 
@@ -282,8 +282,8 @@ int main( int argc, char ** argv )
         as = new AssistantServer();
         printf("%d\n", as->serverPort() );
         fflush( stdout );
-        as->connect( as, SIGNAL( showLinkRequest( const QString& ) ),
-                     mw, SLOT( showLinkFromClient( const QString& ) ) );
+        as->connect( as, SIGNAL(showLinkRequest(QString)),
+                     mw, SLOT(showLinkFromClient(QString)) );
     }
 
     if ( max )
@@ -296,7 +296,7 @@ int main( int argc, char ** argv )
     } else if ( file.isEmpty() )
         mw->showLinks( links );
 
-    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
+    a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
 
     int appExec = a.exec();
     delete (MainWindow*)mw;

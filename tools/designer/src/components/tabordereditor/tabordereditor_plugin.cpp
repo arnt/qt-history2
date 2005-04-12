@@ -54,7 +54,7 @@ void TabOrderEditorPlugin::initialize(QDesignerFormEditorInterface *core)
             this, SLOT(removeFormWindow(QDesignerFormWindowInterface*)));
 
     connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
-                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
+                this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface*)));
 }
 
 void TabOrderEditorPlugin::activeFormWindowChanged(QDesignerFormWindowInterface *formWindow)

@@ -146,30 +146,30 @@ void HelpDialog::initialize()
 {
     connect(ui.tabWidget, SIGNAL(currentChanged(int)),
              this, SLOT(currentTabChanged(int)));
-    connect(ui.listContents, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
+    connect(ui.listContents, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
              this, SLOT(showTopic(QTreeWidgetItem*)));
-    connect(ui.listContents, SIGNAL(itemActivated(QTreeWidgetItem*, int)),
+    connect(ui.listContents, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
              this, SLOT(showTopic(QTreeWidgetItem*)));
     connect(ui.listContents, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTreeItemMenu(QPoint)));
     connect(ui.editIndex, SIGNAL(returnPressed()), this, SLOT(showTopic()));
-    connect(ui.editIndex, SIGNAL(textChanged(const QString&)), this, SLOT(searchInIndex(const QString&)));
+    connect(ui.editIndex, SIGNAL(textChanged(QString)), this, SLOT(searchInIndex(QString)));
 
-    connect(ui.listIndex, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+    connect(ui.listIndex, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
              this, SLOT(currentIndexChanged(QListWidgetItem*)));
     connect(ui.listIndex, SIGNAL(itemActivated(QListWidgetItem*)),
              this, SLOT(showTopic()));
-    connect(ui.listIndex, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+    connect(ui.listIndex, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
              this, SLOT(currentIndexChanged(QListWidgetItem*)));
     connect(ui.listIndex, SIGNAL(customContextMenuRequested(QPoint)),
              this, SLOT(showListItemMenu(QPoint)));
 
-    connect(ui.listBookmarks, SIGNAL(itemActivated(QTreeWidgetItem*, int)),
+    connect(ui.listBookmarks, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
              this, SLOT(showTopic(QTreeWidgetItem*)));
     connect(ui.listBookmarks, SIGNAL(customContextMenuRequested(QPoint)),
-             this, SLOT(showTreeItemMenu(const QPoint&)));
+             this, SLOT(showTreeItemMenu(QPoint)));
 
     connect(ui.resultBox, SIGNAL(customContextMenuRequested(QPoint)),
-             this, SLOT(showListItemMenu(const QPoint&)));
+             this, SLOT(showListItemMenu(QPoint)));
 
     cacheFilesPath = QDir::homePath() + QLatin1String("/.assistant"); //### Find a better location for the dbs
 

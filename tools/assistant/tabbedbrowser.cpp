@@ -113,14 +113,14 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     //win->setLinkUnderline(tabLinkUnderline);
     //win->setStyleSheet(tabStyleSheet);
     ui.tab->addTab(win, reduceLabelLength(title));
-    connect(win, SIGNAL(highlighted(const QString &)),
-             (const QObject*) (mainWin->statusBar()), SLOT(showMessage(const QString &)));
+    connect(win, SIGNAL(highlighted(QString)),
+             (const QObject*) (mainWin->statusBar()), SLOT(showMessage(QString)));
     connect(win, SIGNAL(chooseWebBrowser()), mainWin, SLOT(showWebBrowserSettings()));
     connect(win, SIGNAL(backwardAvailable(bool)),
              mainWin, SLOT(backwardAvailable(bool)));
     connect(win, SIGNAL(forwardAvailable(bool)),
              mainWin, SLOT(forwardAvailable(bool)));
-    connect(win, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(sourceChanged()));
+    connect(win, SIGNAL(sourceChanged(QUrl)), this, SLOT(sourceChanged()));
 
     ui.tab->cornerWidget(Qt::TopRightCorner)->setEnabled(ui.tab->count() > 1);
     return win;

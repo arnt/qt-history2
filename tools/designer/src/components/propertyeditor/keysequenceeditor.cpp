@@ -38,7 +38,7 @@ KeySequenceEditor::KeySequenceEditor(QWidget *parent)
 
     reset();
 
-    connect(m_lineEdit, SIGNAL(textChanged(const QString&)),
+    connect(m_lineEdit, SIGNAL(textChanged(QString)),
         this, SIGNAL(changed()));
     connect(m_resetButton, SIGNAL(clicked()),
         this, SLOT(reset()));

@@ -239,9 +239,9 @@ MainWindow::MainWindow()
                                               QColorGroup::Button));
     buttonMainColor2->setColor(palette().color(QPalette::Active,
                                                QColorGroup::Background));
-    connect(buttonMainColor, SIGNAL(colorChanged(const QColor&)),
+    connect(buttonMainColor, SIGNAL(colorChanged(QColor)),
                 this, SLOT(buildPalette()));
-    connect(buttonMainColor2, SIGNAL(colorChanged(const QColor&)),
+    connect(buttonMainColor2, SIGNAL(colorChanged(QColor)),
                 this, SLOT(buildPalette()));
 
     QFontDatabase db;
