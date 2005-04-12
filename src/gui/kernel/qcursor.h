@@ -64,6 +64,7 @@ public:
 
     const QBitmap *bitmap() const;
     const QBitmap *mask() const;
+    QPixmap pixmap() const;
     QPoint hotSpot() const;
 
     static QPoint pos();

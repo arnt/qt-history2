@@ -120,7 +120,15 @@ QDataStream &operator<<(QDataStream &s, const QCursor &c)
     s << (qint16)c.shape();                        // write shape id to stream
     if (c.shape() == Qt::BitmapCursor) {                // bitmap cursor
 #if !defined(QT_NO_IMAGEIO)
-        s << *c.bitmap() << *c.mask();
+        bool isPixmap = false;
+        if (s.version() >= 7) {
+            isPixmap = !c.pixmap().isNull();
+            s << isPixmap;
+        }
+        if (isPixmap)
+            s << c.pixmap();
+        else
+            s << *c.bitmap() << *c.mask();
         s << c.hotSpot();
 #else
         qWarning("No Image Cursor I/O");
@@ -144,10 +152,20 @@ QDataStream &operator>>(QDataStream &s, QCursor &c)
     s >> shape;                                        // read shape id from stream
     if (shape == Qt::BitmapCursor) {                // read bitmap cursor
 #if !defined(QT_NO_IMAGEIO)
-        QBitmap bm, bmm;
-        QPoint        hot;
-        s >> bm >> bmm >> hot;
-        c = QCursor(bm, bmm, hot.x(), hot.y());
+        bool isPixmap = false;
+        if (s.version() >= 7)
+            s >> isPixmap;
+        if (isPixmap) {
+            QPixmap pm;
+            QPoint hot;
+            s >> pm >> hot;
+            c = QCursor(pm, hot.x(), hot.y());
+        } else {
+            QBitmap bm, bmm;
+            QPoint hot;
+            s >> bm >> bmm >> hot;
+            c = QCursor(bm, bmm, hot.x(), hot.y());
+        }
 #else
         qWarning("No Image Cursor I/O");
 #endif
@@ -358,6 +376,18 @@ const QBitmap *QCursor::mask() const
     if (!QCursorData::initialized)
         QCursorData::initialize();
     return d->bmm;
+}
+
+/*!
+    Returns the cursor pixmap. This is only valid if the cursor is a
+    pixmap cursor.
+*/
+
+QPixmap QCursor::pixmap() const
+{
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
+    return d->pixmap;
 }
 
 /*!
