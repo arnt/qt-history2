@@ -94,6 +94,12 @@ public:
                                 const QString& sep = ",") const;
     bool                 isNull(int i) const;
     bool                 isNull(const QString& name) const;
+    virtual bool seek(int i, bool relative = false);
+    virtual bool next();
+    inline bool previous() { return prev(); }
+    virtual bool prev();
+    virtual bool first();
+    virtual bool last();
 
 protected:
     virtual bool        exec(const QString & sql);

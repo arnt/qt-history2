@@ -1511,4 +1511,44 @@ void Q3SqlCursor::setValue(int i, const QVariant& val)
     QSqlRecord::setValue(i, val);
 }
 
+/*! \internal */
+bool Q3SqlCursor::seek(int i, bool relative)
+{
+    bool res = QSqlQuery::seek(i, relative);
+    sync();
+    return res;
+}
+
+/*! \internal */
+bool Q3SqlCursor::next()
+{
+    bool res = QSqlQuery::next();
+    sync();
+    return res;
+}
+
+/*! \internal */
+bool Q3SqlCursor::prev()
+{
+    bool res = QSqlQuery::previous();
+    sync();
+    return res;
+}
+
+/*! \internal */
+bool Q3SqlCursor::first()
+{
+    bool res = QSqlQuery::first();
+    sync();
+    return res;
+}
+
+/*! \internal */
+bool Q3SqlCursor::last()
+{
+    bool res = QSqlQuery::last();
+    sync();
+    return res;
+}
+
 #endif
