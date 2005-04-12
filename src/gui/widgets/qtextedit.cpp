@@ -414,7 +414,9 @@ void QTextEditPrivate::startDrag()
     QDrag *drag = new QDrag(q);
     drag->setMimeData(data);
 
-    Qt::DropActions actions = readOnly ? Qt::CopyAction : Qt::MoveAction;
+    Qt::DropActions actions = Qt::CopyAction;
+    if (!readOnly)
+        actions |= Qt::MoveAction;
     Qt::DropAction action = drag->start(actions);
 
     if (action == Qt::MoveAction && drag->target() != q)
