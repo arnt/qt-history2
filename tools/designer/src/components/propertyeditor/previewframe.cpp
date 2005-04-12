@@ -38,14 +38,13 @@ PreviewFrame::PreviewFrame(QWidget *parent)
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
-    PreviewWorkspace *w = new PreviewWorkspace(this);
+    PreviewWorkspace * w = new PreviewWorkspace( this );
     vbox->addWidget(w);
-    w->setBackground(Qt::darkGray);
 
     previewWidget = new PreviewWidget(w);
-    previewWidget->move(10, 10);
-
-    w->addWindow(previewWidget, Qt::Window);
+    QWidget *frame = w->addWindow(previewWidget, Qt::Window);
+    frame->move(10,10);
+    frame->show();
 }
 
 void PreviewFrame::setPreviewPalette(const QPalette &pal)
@@ -56,6 +55,7 @@ void PreviewFrame::setPreviewPalette(const QPalette &pal)
 void PreviewWorkspace::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
+    p.fillRect(rect(), palette().color(backgroundRole()).dark());
     p.setPen(QPen(Qt::white));
     p.drawText(0, height() / 2,  width(), height(), Qt::AlignHCenter,
         tr("The moose in the noose\nate the goose who was loose."));
