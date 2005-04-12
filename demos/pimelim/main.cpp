@@ -1,8 +1,8 @@
 #include <qapplication.h>
 #include <qlistview.h>
-#include <qvboxwidget.h>
 #include <qstackedwidget.h>
 #include <qtoolbar.h>
+#include <qboxlayout.h>
 #include "pimmodel.h"
 #include "pimdelegate.h"
 #include "pimeditor.h"
@@ -46,12 +46,17 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    QVBoxWidget w;
+    QWidget w;
+    QVBoxLayout *vbox = new QVBoxLayout(&w);
+    vbox->setMargin(0);
 
-    QToolBar *bar = new QToolBar(&w);
-    QStackedWidget *stack = new QStackedWidget(&w);
-    
+    QToolBar *bar = new QToolBar;
+    vbox->addWidget(bar);
+    QStackedWidget *stack = new QStackedWidget;
+    vbox->addWidget(stack);
+
     QListView *list = new QListView(stack);
+    stack->addWidget(list);
     PimModel *model = new PimModel(stack);
     PimDelegate *delegate = new PimDelegate(stack);
 
@@ -60,9 +65,11 @@ int main(int argc, char **argv)
     list->setAlternatingRowColors(true);
 
     PimEditor *editor = new PimEditor(stack);
+    stack->addWidget(editor);
     editor->setModel(model);
 
     PimViewer *viewer = new PimViewer(stack);
+    stack->addWidget(viewer);
     viewer->setModel(model);
 
     PimSignalHub *hub = new PimSignalHub(stack);
@@ -85,6 +92,6 @@ int main(int argc, char **argv)
     addData(model);
     w.setWindowIcon(QPixmap(":/images/interview.png"));
     w.show();
-    
+
     return app.exec();
 }

@@ -16,13 +16,13 @@
 
 #include "propertyeditor_global.h"
 
-#include <QHBoxWidget>
+#include <QWidget>
 #include <QKeySequence>
 
 class QLineEdit;
 class QToolButton;
 
-class QT_PROPERTYEDITOR_EXPORT KeySequenceEditor: public QHBoxWidget
+class QT_PROPERTYEDITOR_EXPORT KeySequenceEditor: public QWidget
 {
     Q_OBJECT
 public:

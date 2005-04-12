@@ -10,20 +10,12 @@
 #include <QPushButton>
 
 ArrowPad::ArrowPad(QWidget *parent)
-    : QGridWidget(3, Qt::Horizontal, parent)
+    : QWidget(parent)
 {
-    skip();
-    (void) new QPushButton(tr("&Up"), this);
-    skip();
-    (void) new QPushButton(tr("&Left"), this);
-    skip();
-    (void) new QPushButton(tr("&Right"), this);
-    skip();
-    (void) new QPushButton(tr("&Down"), this);
-    skip();
+    QGridLayout *grid = new QGridLayout(this);
+    grid->addWidget(new QPushButton(tr("&Up")), 0, 1);
+    grid->addWidget(new QPushButton(tr("&Left")), 1, 0);
+    grid->addWidget(new QPushButton(tr("&Right")), 1, 2);
+    grid->addWidget(new QPushButton(tr("&Down")), 2, 1);
 }
 
-void ArrowPad::skip()
-{
-    (void) new QWidget(this);
-}

@@ -21,9 +21,7 @@ HEADERS += \
         widgets/qdockwidgetseparator_p.h \
         widgets/qframe.h \
         widgets/qframe_p.h \
-        widgets/qgridwidget.h \
         widgets/qgroupbox.h \
-        widgets/qhboxwidget.h \
         widgets/qlabel.h \
         widgets/qlcdnumber.h \
         widgets/qlineedit.h \
@@ -57,7 +55,6 @@ HEADERS += \
         widgets/qtoolbox.h \
         widgets/qtoolbutton.h \
         widgets/qvalidator.h \
-        widgets/qvboxwidget.h \
         widgets/qabstractscrollarea.h \
         widgets/qabstractscrollarea_p.h \
         widgets/qwidgetplugin.h \
@@ -81,9 +78,7 @@ SOURCES += \
         widgets/qdockwidgetseparator.cpp \
         widgets/qeffects.cpp \
         widgets/qframe.cpp \
-        widgets/qgridwidget.cpp \
         widgets/qgroupbox.cpp \
-        widgets/qhboxwidget.cpp \
         widgets/qlabel.cpp \
         widgets/qlcdnumber.cpp \
         widgets/qlineedit.cpp \
@@ -115,7 +110,6 @@ SOURCES += \
         widgets/qtoolbox.cpp \
         widgets/qtoolbutton.cpp \
         widgets/qvalidator.cpp \
-        widgets/qvboxwidget.cpp \
         widgets/qabstractscrollarea.cpp \
         widgets/qwidgetplugin.cpp \
         widgets/qwidgetresizehandler.cpp \

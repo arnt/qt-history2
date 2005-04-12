@@ -30,13 +30,16 @@
 #include "previewwidget.h"
 
 PreviewFrame::PreviewFrame(QWidget *parent)
-    : QVBoxWidget(parent)
+    : QFrame(parent)
 {
     setMinimumSize(200, 200);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setLineWidth(1);
 
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
     PreviewWorkspace *w = new PreviewWorkspace(this);
+    vbox->addWidget(w);
     w->setBackground(Qt::darkGray);
 
     previewWidget = new PreviewWidget(w);

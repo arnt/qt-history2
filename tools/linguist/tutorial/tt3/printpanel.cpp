@@ -13,7 +13,7 @@
 #include <QRadioButton>
 
 PrintPanel::PrintPanel(QWidget *parent)
-    : QVBoxWidget(parent)
+    : QWidget(parent)
 {
 /*
     QLabel *lab = new QLabel(tr("<b>TROLL PRINT</b>"), this);
@@ -52,4 +52,8 @@ PrintPanel::PrintPanel(QWidget *parent)
     l->addWidget(but);
 
     but->toggle();
+
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->addWidget(twoSided);
+    vbox->addWidget(colors);
 }

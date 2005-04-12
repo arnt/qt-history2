@@ -33,7 +33,6 @@
 #include "qstyleoption.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
-#include "qvboxwidget.h"
 #include "qdebug.h"
 #include <private/qwidget_p.h>
 #include <private/qwidgetresizehandler_p.h>
@@ -2655,13 +2654,13 @@ void QWorkspaceChild::changeEvent(QEvent *ev)
     if(ev->type() == QEvent::StyleChange) {
         resizeEvent(0);
         if (iconw) {
-            QVBoxWidget *vbox = qobject_cast<QVBoxWidget*>(iconw->parentWidget());
-            Q_ASSERT(vbox);
+            QFrame *frame = qobject_cast<QFrame*>(iconw->parentWidget());
+            Q_ASSERT(frame);
             if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
-                vbox->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-                vbox->resize(196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth());
+                frame->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+                frame->resize(196+2*frame->frameWidth(), 20 + 2*frame->frameWidth());
             } else {
-                vbox->resize(196, 20);
+                frame->resize(196, 20);
             }
         }
     }
@@ -2733,18 +2732,19 @@ QWidget* QWorkspaceChild::iconWidget() const
     if (!iconw) {
         QWorkspaceChild* that = (QWorkspaceChild*) this;
 
-        QVBoxWidget* vbox = new QVBoxWidget(that, Qt::Window);
-        vbox->setObjectName("qt_vbox");
-        QWorkspaceTitleBar *tb = new QWorkspaceTitleBar(windowWidget(), vbox);
+        QFrame* frame = new QFrame(that, Qt::Window);
+        QVBoxLayout *vbox = new QVBoxLayout(frame);
+        QWorkspaceTitleBar *tb = new QWorkspaceTitleBar(windowWidget(), frame);
+        vbox->addWidget(tb);
         tb->setObjectName("_workspacechild_icon_");
         QStyleOptionTitleBar opt = tb->getStyleOption();
         int th = style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, tb);
         int iconSize = style()->pixelMetric(QStyle::PM_MDIMinimizedWidth, 0, this);
         if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
-            vbox->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-            vbox->resize(iconSize+2*vbox->frameWidth(), th+2*vbox->frameWidth());
+            frame->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+            frame->resize(iconSize+2*frame->frameWidth(), th+2*frame->frameWidth());
         } else {
-            vbox->resize(iconSize, th);
+            frame->resize(iconSize, th);
         }
         that->iconw = tb;
         iconw->setActive(isActive());

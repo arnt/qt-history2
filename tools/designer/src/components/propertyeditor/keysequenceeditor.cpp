@@ -18,14 +18,19 @@
 #include <QToolButton>
 #include <QPixmap>
 #include <QIconSet>
+#include <QHBoxLayout>
 
 KeySequenceEditor::KeySequenceEditor(QWidget *parent)
-    : QHBoxWidget(parent),
+    : QWidget(parent),
       mouseEnter(true)
 {
+    QHBoxLayout *hbox = new QHBoxLayout(this);
+    hbox->setMargin(0);
     m_lineEdit = new QLineEdit(this);
+    hbox->addWidget(m_lineEdit);
     m_lineEdit->installEventFilter(this);
     m_resetButton = new QToolButton(this);
+    hbox->addWidget(m_resetButton);
     m_resetButton->setIcon(QPixmap(":/trolltech/formeditor/images/resetproperty.png"));
 
     setFocusProxy(m_lineEdit);

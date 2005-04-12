@@ -30,7 +30,6 @@
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
-#include <QtGui/QHBoxWidget>
 #include <QtGui/QLineEdit>
 #include <QtGui/QToolButton>
 #include <QtGui/QFileDialog>

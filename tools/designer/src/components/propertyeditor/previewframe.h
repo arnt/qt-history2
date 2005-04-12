@@ -27,8 +27,8 @@
 #ifndef PREVIEWFRAME_H
 #define PREVIEWFRAME_H
 
-#include <QtGui/QVBoxWidget>
 #include <QtGui/QWorkspace>
+#include <QtGui/QFrame>
 
 class PreviewWidget;
 
@@ -45,7 +45,7 @@ protected:
     void paintEvent(QPaintEvent *);
 };
 
-class PreviewFrame: public QVBoxWidget
+class PreviewFrame: public QFrame
 {
     Q_OBJECT
 public:

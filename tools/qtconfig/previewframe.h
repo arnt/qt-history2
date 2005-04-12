@@ -16,7 +16,6 @@
 
 #include "previewwidget.h"
 
-#include <qvboxwidget.h>
 #include <qworkspace.h>
 
 class Workspace : public QWorkspace
@@ -31,7 +30,7 @@ protected:
     void paintEvent( QPaintEvent* );
 };
 
-class PreviewFrame : public QVBoxWidget
+class PreviewFrame : public QFrame
 {
     Q_OBJECT
 

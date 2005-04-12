@@ -7,17 +7,15 @@
 #ifndef ARROWPAD_H
 #define ARROWPAD_H
 
-#include <QGridWidget>
+#include <QWidget>
 
-class ArrowPad : public QGridWidget
+class ArrowPad : public QWidget
 {
     Q_OBJECT
 
 public:
     ArrowPad(QWidget *parent = 0);
 
-private:
-    void skip();
 };
 
 #endif

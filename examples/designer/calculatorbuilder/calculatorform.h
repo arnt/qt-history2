@@ -1,7 +1,7 @@
 #ifndef CALCULATORFORM_H
 #define CALCULATORFORM_H
 
-#include <QVBoxWidget>
+#include <QWidget>
 
 class QLabel;
 class QSpinBox;

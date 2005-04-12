@@ -7,9 +7,9 @@
 #ifndef PRINTPANEL_H
 #define PRINTPANEL_H
 
-#include <QVBoxWidget>
+#include <QWidget>
 
-class PrintPanel : public QVBoxWidget
+class PrintPanel : public QWidget
 {
     Q_OBJECT
 

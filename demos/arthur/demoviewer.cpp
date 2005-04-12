@@ -28,7 +28,6 @@
 #include <qsplitter.h>
 #include <qstackedwidget.h>
 #include <qtextedit.h>
-#include <qvboxwidget.h>
 #include <qpixmapcache.h>
 
 #include <qdebug.h>
@@ -121,10 +120,12 @@ DemoViewer::DemoViewer(QWidget *parent)
 
     QSplitter *horSplit = new QSplitter(Qt::Horizontal, this);
 
-    QVBoxWidget *vbox = new QVBoxWidget(horSplit);
+    QWidget *vboxwidget = new QWidget(horSplit);
+    QVBoxLayout *vbox = new QVBoxLayout(vboxwidget);
     vbox->setMargin(6);
     vbox->setSpacing(6);
-    QGroupBox *categories = new QGroupBox("Categories", vbox);
+    QGroupBox *categories = new QGroupBox("Categories", vboxwidget);
+    vbox->addWidget(categories);
     QBoxLayout *glayout = new QBoxLayout(QBoxLayout::TopToBottom, categories);
     listWidget = new QListWidget(categories);
     glayout->addWidget(listWidget);
@@ -132,7 +133,8 @@ DemoViewer::DemoViewer(QWidget *parent)
     layout->addWidget(horSplit);
 
     widgets = new QStackedWidget(horSplit);
-    QGroupBox *opts = new QGroupBox("Options", vbox);
+    QGroupBox *opts = new QGroupBox("Options", vboxwidget);
+    vbox->addWidget(opts);
     QBoxLayout *props = new QBoxLayout(QBoxLayout::TopToBottom, opts);
 
     antialias = new QCheckBox(tr("Antialiasing"), opts);
@@ -151,7 +153,8 @@ DemoViewer::DemoViewer(QWidget *parent)
     props->addWidget(bgMode);
     props->addItem(new QSpacerItem(1, 1));
 
-    viewSourceButton = new QPushButton("View Source", vbox);
+    viewSourceButton = new QPushButton("View Source", vboxwidget);
+    vbox->addWidget(viewSourceButton);
     viewSourceButton->setCheckable(true);
 
     sourceViewer = new QTextEdit;

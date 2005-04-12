@@ -13,17 +13,20 @@
 
 #include "previewframe.h"
 
-#include <qvboxwidget.h>
+#include <qboxlayout.h>
 #include <qpainter.h>
 
 PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
-    : QVBoxWidget( parent, name )
+    : QFrame( parent, name )
 {
     setMinimumSize(200, 200);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setLineWidth(1);
 
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
     Workspace * w = new Workspace( this );
+    vbox->addWidget(w);
     previewWidget = new PreviewWidget;
     w->addWindow(previewWidget, Qt::Window);
     previewWidget->move( 10, 10 );

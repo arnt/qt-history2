@@ -55,7 +55,7 @@
 #include "qtooltip.h"
 #include "q3widgetstack.h"
 #include "q3urloperator.h"
-#include "qvboxwidget.h"
+#include "q3vbox.h"
 
 #ifdef Q_WS_WIN
 #ifdef QT_THREAD_SUPPORT
@@ -1128,7 +1128,7 @@ QFileListBox::QFileListBox(QWidget *parent, Q3FileDialog *dlg)
       firstMousePressEvent(true)
 {
     changeDirTimer = new QTimer(this);
-    QVBoxWidget *box = new QVBoxWidget(viewport(), "qt_vbox");
+    Q3VBox *box = new Q3VBox(viewport(), "qt_vbox");
     box->setFrameStyle(QFrame::Box | QFrame::Plain);
     lined = new QRenameEdit(box);
     lined->setFixedHeight(lined->sizeHint().height());
@@ -1513,7 +1513,7 @@ Q3FileDialogQFileListView::Q3FileDialogQFileListView(QWidget *parent, Q3FileDial
     firstMousePressEvent(true)
 {
     changeDirTimer = new QTimer(this);
-    QVBoxWidget *box = new QVBoxWidget(viewport(), "qt_vbox");
+    Q3VBox *box = new Q3VBox(viewport(), "qt_vbox");
     box->setFrameStyle(QFrame::Box | QFrame::Plain);
     lined = new QRenameEdit(box);
     lined->setFixedHeight(lined->sizeHint().height());
