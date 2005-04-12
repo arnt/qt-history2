@@ -2946,9 +2946,9 @@ QLocale QLocale::system()
 {
     const char *s = 0;
 #ifdef Q_OS_UNIX
-    s = qgetenv("LC_NUMERIC");
+    s = qgetenv("LC_ALL");
     if (s == 0)
-        s = qgetenv("LC_ALL");
+        s = qgetenv("LC_NUMERIC");
     if (s == 0)
 #endif
         s = QLocalePrivate::systemLocaleName();
