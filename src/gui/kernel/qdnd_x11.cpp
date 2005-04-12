@@ -694,6 +694,12 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
         DEBUG("xdnd drop from unexpected source (%08lx not %08lx", l[0], qt_xdnd_dragsource_xid);
         return;
     }
+
+    if (l[2] != 0) {
+        // update the "user time" from the timestamp in the event.
+        X11->userTime = l[2];
+    }
+
     if (manager->object)
         manager->dragPrivate()->target = qt_xdnd_current_widget;
 
@@ -1101,9 +1107,11 @@ void QDragManager::drop()
     drop.format = 32;
     drop.message_type = ATOM(XdndDrop);
     drop.data.l[0] = dragPrivate()->source->winId();
-    drop.data.l[1] = 1 << 24; // flags
-    drop.data.l[2] = 0; // ###
-    drop.data.l[3] = X11->time;
+    drop.data.l[1] = 0; // flags
+    drop.data.l[2] = X11->time;
+    qDebug("sending timestamp via XdndDrop %ld", X11->time);
+
+    drop.data.l[3] = 0;
     drop.data.l[4] = 0;
 
     QWidget * w = QWidget::find(qt_xdnd_current_proxy_target);
