@@ -71,7 +71,7 @@
 
 */
 
-inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e) 
+inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e)
 { Q_Q(QAbstractScrollArea); return q->viewportEvent(e); }
 
 class QAbstractScrollAreaHelper : public QWidget
@@ -622,9 +622,10 @@ void QAbstractScrollAreaPrivate::showOrHideScrollBars()
 QSize QAbstractScrollArea::minimumSizeHint() const
 {
     Q_D(const QAbstractScrollArea);
-    int h = qMax(10, fontMetrics().height());
+    int hsbExt = d->hbar->sizeHint().height();
+    int vsbExt = d->vbar->sizeHint().width();
     int f = 2 * d->frameWidth;
-    return QSize((6 * h) + f, (4 * h) + f);
+    return QSize(3*vsbExt + f, 3*hsbExt + f);
 }
 
 /*!
@@ -633,6 +634,12 @@ QSize QAbstractScrollArea::minimumSizeHint() const
 QSize QAbstractScrollArea::sizeHint() const
 {
     return QSize(256, 192);
+#if 0
+    Q_D(const QAbstractScrollArea);
+    int h = qMax(10, fontMetrics().height());
+    int f = 2 * d->frameWidth;
+    return QSize((6 * h) + f, (4 * h) + f);
+#endif
 }
 
 #define d d_func()
