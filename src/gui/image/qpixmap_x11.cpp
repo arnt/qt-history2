@@ -266,6 +266,7 @@ void QPixmap::init(int w, int h, Type type)
     }
 
     data = new QPixmapData;
+    data->type = type;
     memset(data, 0, sizeof(QPixmapData));
     data->count  = 1;
     data->uninit = true;

@@ -197,6 +197,9 @@ private:
     friend class QCoreGraphicsPaintEngine;
     friend class QWidgetPrivate;
     friend class QRasterPaintEngine;
+#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
+#endif
 };
 
 Q_DECLARE_SHARED(QPixmap)

@@ -562,6 +562,7 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
 void QPixmap::init(int w, int h, Type type)
 {
     data = new QPixmapData;
+    data->type = type;
     data->image = QImage(w, h, type == PixmapType ? QImage::Format_RGB32 : QImage::Format_MonoLSB);
 }
 
@@ -588,7 +589,9 @@ QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
 {
     QImage img;
     s >> img;
-    pixmap = QPixmap::fromImage(img);
+    pixmap = pixmap.data->type == QPixmap::BitmapType
+             ? QBitmap::fromImage(img)
+             : QPixmap::fromImage(img);
     return s;
 }
 

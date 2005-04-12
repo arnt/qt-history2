@@ -40,6 +40,7 @@ struct QPixmapData { // internal pixmap data
     bool deref() { return !--count; }
     int count;
     QImage image;
+    QPixmap::Type type;
 
     QImage createBitmapImage(int w, int h);
 };
@@ -53,6 +54,7 @@ struct QPixmapData { // internal pixmap data
     void ref() { ++count; }
     bool deref() { return !--count; }
     int count;
+    QPixmap::Type type;
 
     int w, h;
     short d;

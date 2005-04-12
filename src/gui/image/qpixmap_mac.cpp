@@ -540,6 +540,7 @@ void QPixmap::init(int w, int h, Type type)
     data->count = 1;
     data->uninit = true;
     data->ser_no = ++qt_pixmap_serial;
+    data->type = type;
 
     bool make_null = w == 0 || h == 0;                // create null pixmap
     data->d = (type == PixmapType) ? 32 : 1;
