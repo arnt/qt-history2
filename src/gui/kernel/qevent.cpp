@@ -996,6 +996,8 @@ QCloseEvent::QCloseEvent()
     : QEvent(Close)
 {}
 
+/*! \internal
+*/
 QCloseEvent::~QCloseEvent()
 {
 }
@@ -2087,14 +2089,23 @@ QDragEnterEvent::QDragEnterEvent(const QPoint& point, Qt::DropActions actions, c
     : QDragMoveEvent(point, actions, data, buttons, modifiers, DragEnter)
 {}
 
+/*! \internal
+*/
 QDragEnterEvent::~QDragEnterEvent()
 {
 }
 
+/*!
+    Constructs a drag response event containing the \a accepted value,
+    indicating whether the drag and drop operation was accepted by the
+    recipient.
+*/
 QDragResponseEvent::QDragResponseEvent(bool accepted)
     : QEvent(DragResponse), a(accepted)
 {}
 
+/*! \internal
+*/
 QDragResponseEvent::~QDragResponseEvent()
 {
 }
@@ -2146,38 +2157,61 @@ QDragLeaveEvent::QDragLeaveEvent()
     : QEvent(DragLeave)
 {}
 
+/*! \internal
+*/
 QDragLeaveEvent::~QDragLeaveEvent()
 {
 }
 
+/*!
+    Constructs a help event with the given \a type corresponding to the
+    widget-relative position specified by \a pos and the global position
+    specified by \a globalPos.
+*/
 QHelpEvent::QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos)
     : QEvent(type), p(pos), gp(globalPos)
 {}
 
+/*! \internal
+*/
 QHelpEvent::~QHelpEvent()
 {
 }
 
+/*!
+    Constructs a status tip event with text specified by \a tip.
+*/
 QStatusTipEvent::QStatusTipEvent(const QString &tip)
     : QEvent(StatusTip), s(tip)
 {}
 
+/*! \internal
+*/
 QStatusTipEvent::~QStatusTipEvent()
 {
 }
 
+/*!
+    Constructs an event containing a URL specified by \a href when a link
+    is clicked in a "What's This?" message.
+*/
 QWhatsThisClickedEvent::QWhatsThisClickedEvent(const QString &href)
     : QEvent(WhatsThisClicked), s(href)
 {}
 
+/*! \internal
+*/
 QWhatsThisClickedEvent::~QWhatsThisClickedEvent()
 {
 }
+
 
 QActionEvent::QActionEvent(int type, QAction *action, QAction *before)
     : QEvent(static_cast<QEvent::Type>(type)), act(action), bef(before)
 {}
 
+/*! \internal
+*/
 QActionEvent::~QActionEvent()
 {
 }
@@ -2208,6 +2242,8 @@ QHideEvent::QHideEvent()
     : QEvent(Hide)
 {}
 
+/*! \internal
+*/
 QHideEvent::~QHideEvent()
 {
 }
@@ -2235,6 +2271,8 @@ QShowEvent::QShowEvent()
     : QEvent(Show)
 {}
 
+/*! \internal
+*/
 QShowEvent::~QShowEvent()
 {
 }
@@ -2274,6 +2312,8 @@ QFileOpenEvent::QFileOpenEvent(const QString &file)
     : QEvent(FileOpen), f(file)
 {}
 
+/*! \internal
+*/
 QFileOpenEvent::~QFileOpenEvent()
 {
 }
@@ -2306,6 +2346,8 @@ QToolBarChangeEvent::QToolBarChangeEvent(bool t)
     : QEvent(ToolBarChange), tog(t)
 {}
 
+/*! \internal
+*/
 QToolBarChangeEvent::~QToolBarChangeEvent()
 {
 }
@@ -2500,7 +2542,7 @@ QWindowStateChangeEvent::QWindowStateChangeEvent(Qt::WindowStates s)
 {
 }
 
-/* \internal
+/*! \internal
 */
 QWindowStateChangeEvent::~QWindowStateChangeEvent()
 {

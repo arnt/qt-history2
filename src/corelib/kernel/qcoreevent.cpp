@@ -138,8 +138,8 @@
     \value ToolBarChange The toolbar button is toggled on Mac.
     \value ToolTip
     \value UpdateRequest The widget should be repainted.
-    \value WhatsThis The widget should reveal What'sThis help
-    \value WhatsThisClicked A link in a widget's What's This help was clicked
+    \value WhatsThis The widget should reveal "What's This?" help.
+    \value WhatsThisClicked A link in a widget's "What's This?" help was clicked.
     \value QueryWhatsThis The widget should accept the event if it has What's This help
     \value EnterWhatsThisMode Send to toplevel widgets when the application enters What's This mode
     \value LeaveWhatsThisMode Send to toplevel widgets when the application leaves What's This mode
@@ -271,6 +271,8 @@ QTimerEvent::QTimerEvent(int timerId)
     : QEvent(Timer), id(timerId)
 {}
 
+/*! \internal
+*/
 QTimerEvent::~QTimerEvent()
 {
 }
@@ -308,6 +310,8 @@ QChildEvent::QChildEvent(Type type, QObject *child)
     : QEvent(type), c(child)
 {}
 
+/*! \internal
+*/
 QChildEvent::~QChildEvent()
 {
 }
@@ -376,6 +380,8 @@ QCustomEvent::QCustomEvent(int type, void *data)
     d = reinterpret_cast<QEventPrivate *>(data);
 }
 
+/*! \internal
+*/
 QCustomEvent::~QCustomEvent()
 {
 }

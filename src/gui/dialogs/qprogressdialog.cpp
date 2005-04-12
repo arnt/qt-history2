@@ -251,10 +251,7 @@ void QProgressDialogPrivate::layout()
   \endlist
 
   The \a parent argument is dialog's parent widget. The widget flags, \a f, are
-  passed to the QDialog::QDialog() constructor. If \a modal is false (the
-  default), you must have an event loop proceeding for any redrawing
-  of the dialog to occur. If \a modal is true, the dialog ensures that
-  events are processed when needed.
+  passed to the QDialog::QDialog() constructor.
 
   \sa setLabelText(), setd->label, setCancelButtonText(), setCancelButton(),
   setMinimum(), setMaximum()
@@ -451,8 +448,6 @@ void QProgressDialog::setBar(QProgressBar *bar)
 /*!
   \property QProgressDialog::wasCanceled
   \brief whether the dialog was canceled
-
-  \sa setProgress()
 */
 
 bool QProgressDialog::wasCanceled() const
@@ -584,7 +579,7 @@ int QProgressDialog::value() const
     this does not cause undesirable re-entrancy in your code. For example,
     don't use a QProgressDialog inside a paintEvent()!
 
-  \sa totalSteps
+  \sa minimum, maximum
 */
 void QProgressDialog::setValue(int progress)
 {

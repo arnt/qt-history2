@@ -273,9 +273,10 @@ int QMetaObject::classInfoOffset() const
 }
 
 /*!
-    Returns the number of slots in this class.
+    Returns the number of members in this class. These include ordinary
+    methods, signals, and slots.
 
-    \sa slot()
+    \sa member()
 */
 int QMetaObject::memberCount() const
 {
@@ -1339,7 +1340,7 @@ int QMetaEnum::keyToValue(const char *key) const
 
     For set types, use valueToKeys().
 
-    \sa valueToKey() isFlag() valueToKeys()
+    \sa isFlag(), valueToKeys()
 */
 const char* QMetaEnum::valueToKey(int value) const
 {
@@ -1358,7 +1359,7 @@ const char* QMetaEnum::valueToKey(int value) const
     \a keys using the OR operator. Note that the strings in \a keys
     must be '|'-separated.
 
-    \sa isFlag(), valueToKey(), keysToValue()
+    \sa isFlag(), valueToKey(), valueToKeys()
 */
 int QMetaEnum::keysToValue(const char *keys) const
 {
@@ -1398,7 +1399,7 @@ int QMetaEnum::keysToValue(const char *keys) const
     Returns a byte array of '|'-separated keys that represents the
     given \a value.
 
-    \sa isFlag(), valueToKey(), valueToKeys()
+    \sa isFlag(), valueToKey(), keysToValue()
 */
 QByteArray QMetaEnum::valueToKeys(int value) const
 {
