@@ -24,9 +24,6 @@
 #endif
 #include <private/qmutexpool_p.h>
 
-#define d d_func()
-#define q q_func()
-
 #include <sys/types.h>
 #include <windows.h>
 #include <direct.h>
@@ -370,6 +367,7 @@ QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 bool
 QFSFileEngine::remove()
 {
+    Q_D(QFSFileEngine);
     QT_WA({
         return ::DeleteFileW((TCHAR*)d->file.utf16()) != 0;
     } , {
@@ -380,6 +378,7 @@ QFSFileEngine::remove()
 bool
 QFSFileEngine::copy(const QString &copyName)
 {
+    Q_D(QFSFileEngine);
     QT_WA({
         return ::CopyFileW((TCHAR*)d->file.utf16(), (TCHAR*)copyName.utf16(), false) != 0;
     } , {
@@ -391,6 +390,7 @@ QFSFileEngine::copy(const QString &copyName)
 bool
 QFSFileEngine::rename(const QString &newName)
 {
+    Q_D(QFSFileEngine);
     QT_WA({
         return ::MoveFileW((TCHAR*)d->file.utf16(), (TCHAR*)newName.utf16()) != 0;
     } , {
@@ -402,6 +402,7 @@ QFSFileEngine::rename(const QString &newName)
 qint64
 QFSFileEngine::size() const
 {
+    Q_D(const QFSFileEngine);
     QT_STATBUF st;
     int ret = 0;
     if(d->fd != -1) {
@@ -507,6 +508,7 @@ QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) const
 QStringList
 QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
+    Q_D(const QFSFileEngine);
     QStringList ret;
 
     bool doDirs     = (filters & QDir::Dirs)!= 0;
@@ -822,8 +824,8 @@ bool QFSFileEnginePrivate::doStat() const
         
         UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
     
-        if (d->fd != -1) {
-            could_stat = (QT_FSTAT(d->fd, &st) != -1);
+        if (fd != -1) {
+            could_stat = (QT_FSTAT(fd, &st) != -1);
         } else {
             QString statName = QDir::convertSeparators(file);
             // Stat on windows doesn't accept d: without \ so append \ it if this is the case.
@@ -906,13 +908,13 @@ QFSFileEnginePrivate::getLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if(SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)d->file.utf16(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)file.utf16(), STGM_READ);
                 if(SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
 
                     if(SUCCEEDED(hres)) {
-                        memcpy(szGotPath, (TCHAR*)d->file.utf16(), (d->file.length()+1)*sizeof(QChar));
+                        memcpy(szGotPath, (TCHAR*)file.utf16(), (file.length()+1)*sizeof(QChar));
                         hres = psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY);
                         ret = QString::fromUtf16((ushort*)szGotPath);
                     }
@@ -944,13 +946,13 @@ QFSFileEnginePrivate::getLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if(SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)d->file.utf16(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)file.utf16(), STGM_READ);
                 if(SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
 
                     if(SUCCEEDED(hres)) {
-                        QByteArray lfn = d->file.toLocal8Bit();
+                        QByteArray lfn = file.toLocal8Bit();
                         memcpy(szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char));
                         hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY);
                         ret = QString::fromLocal8Bit(szGotPath);
@@ -1149,6 +1151,7 @@ QFSFileEnginePrivate::getPermissions() const
 QFileEngine::FileFlags
 QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
 {
+    Q_D(const QFSFileEngine);
     QFileEngine::FileFlags ret = 0;
     if(type & PermsMask) {
         ret |= d->getPermissions();
@@ -1192,6 +1195,7 @@ QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
 QString
 QFSFileEngine::fileName(FileName file) const
 {
+    Q_D(const QFSFileEngine);
     if(file == BaseName) {
         int slash = d->file.lastIndexOf('/');
         if(slash == -1) {
@@ -1291,6 +1295,7 @@ QFSFileEngine::fileName(FileName file) const
 bool
 QFSFileEngine::isRelativePath() const
 {
+    Q_D(const QFSFileEngine);
     return !(d->file.startsWith("/")
         || (d->file.length() >= 2
         && ((d->file.at(0).isLetter() && d->file.at(1) == ':')
@@ -1308,6 +1313,7 @@ QString
 QFSFileEngine::owner(FileOwner own) const
 {
 #if !defined(QT_NO_COMPONENT)
+    Q_D(const QFSFileEngine);
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
@@ -1344,6 +1350,7 @@ QFSFileEngine::owner(FileOwner own) const
 
 bool QFSFileEngine::chmod(uint perms)
 {
+    Q_D(QFSFileEngine);
     bool ret = false;
     int mode = 0;
 
@@ -1365,6 +1372,7 @@ bool QFSFileEngine::chmod(uint perms)
 
 bool QFSFileEngine::setSize(qint64 size)
 {
+    Q_D(QFSFileEngine);
     if (d->fd != -1) {
         // resize open file
         HANDLE fh = (HANDLE)_get_osfhandle(d->fd);
