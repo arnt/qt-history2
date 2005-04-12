@@ -1,6 +1,8 @@
 #ifndef QDESIGNER_PROMOTED_WIDGET_h
 #define QDESIGNER_PROMOTED_WIDGET_H
 
+#include <QtCore/QVariant>
+
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
 
