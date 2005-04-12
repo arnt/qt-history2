@@ -67,6 +67,8 @@ public:
     bool contains(const T &t) const;
     int count(const T &t) const;
 
+    class const_iterator;
+
     class iterator
     {
     public:
@@ -84,6 +86,10 @@ public:
         inline T *operator->() const { return &i->t; }
         inline bool operator==(const iterator &o) const { return i == o.i; }
         inline bool operator!=(const iterator &o) const { return i != o.i; }
+        inline bool operator==(const const_iterator &o) const
+            { return i == reinterpret_cast<const iterator &>(o).i; }
+        inline bool operator!=(const const_iterator &o) const
+            { return i != reinterpret_cast<const iterator &>(o).i; }
         inline iterator operator++() { i = i->n; return *this; }
         inline iterator operator++(int) { Node *n = i; i = i->n; return n; }
         inline iterator operator--() { i = i->p; return *this; }
@@ -159,6 +165,11 @@ public:
     inline void pop_back() { removeLast(); }
     inline bool empty() const { return isEmpty(); }
     typedef int size_type;
+    typedef T value_type;
+    typedef value_type *pointer;
+    typedef const value_type *const_pointer;
+    typedef value_type &reference;
+    typedef const value_type &const_reference;
 
 #ifdef QT3_SUPPORT
     // compatibility

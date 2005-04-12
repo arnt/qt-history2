@@ -1118,7 +1118,9 @@ void **QListData::erase(void **xi)
     \sa operator+()
 */
 
-/*! \fn bool QList::iterator::operator==(const iterator &other) const
+/*!
+    \fn bool QList::iterator::operator==(const iterator &other) const
+    \fn bool QList::iterator::operator==(const const_iterator &other) const
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -1126,7 +1128,9 @@ void **QListData::erase(void **xi)
     \sa operator!=()
 */
 
-/*! \fn bool QList::iterator::operator!=(const iterator &other) const
+/*!
+    \fn bool QList::iterator::operator!=(const iterator &other) const
+    \fn bool QList::iterator::operator!=(const const_iterator &other) const
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.
@@ -1136,6 +1140,7 @@ void **QListData::erase(void **xi)
 
 /*!
     \fn bool QList::iterator::operator<(const iterator& other) const
+    \fn bool QList::iterator::operator<(const const_iterator& other) const
 
     Returns true if the item pointed to by this iterator is less than
     the item pointed to by the \a other iterator.
@@ -1143,6 +1148,7 @@ void **QListData::erase(void **xi)
 
 /*!
     \fn bool QList::iterator::operator<=(const iterator& other) const
+    \fn bool QList::iterator::operator<=(const const_iterator& other) const
 
     Returns true if the item pointed to by this iterator is less than
     or equal to the item pointed to by the \a other iterator.
@@ -1150,6 +1156,7 @@ void **QListData::erase(void **xi)
 
 /*!
     \fn bool QList::iterator::operator>(const iterator& other) const
+    \fn bool QList::iterator::operator>(const const_iterator& other) const
 
     Returns true if the item pointed to by this iterator is greater
     than the item pointed to by the \a other iterator.
@@ -1157,11 +1164,11 @@ void **QListData::erase(void **xi)
 
 /*!
     \fn bool QList::iterator::operator>=(const iterator& other) const
+    \fn bool QList::iterator::operator>=(const const_iterator& other) const
 
     Returns true if the item pointed to by this iterator is greater
     than or equal to the item pointed to by the \a other iterator.
 */
-
 
 /*! \fn QList::iterator QList::iterator::operator++()
 

@@ -156,6 +156,8 @@ public:
     QList<T> values(const Key &key) const;
     int count(const Key &key) const;
 
+    class const_iterator;
+
     class iterator
     {
         QMapData::Node *i;
@@ -179,6 +181,10 @@ public:
         inline T *operator->() const { return &concrete(i)->value; }
         inline bool operator==(const iterator &o) const { return i == o.i; }
         inline bool operator!=(const iterator &o) const { return i != o.i; }
+        inline bool operator==(const const_iterator &o) const
+            { return i == reinterpret_cast<const iterator &>(o).i; }
+        inline bool operator!=(const const_iterator &o) const
+            { return i != reinterpret_cast<const iterator &>(o).i; }
 
         inline iterator &operator++() {
             i = i->forward[0];

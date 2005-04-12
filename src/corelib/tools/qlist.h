@@ -107,6 +107,8 @@ public:
     QBool contains(const T &t) const;
     int count(const T &t) const;
 
+    class const_iterator;
+
     class iterator {
     public:
         Node *i;
@@ -128,6 +130,18 @@ public:
         inline bool operator<=(const iterator& other) const { return i <= other.i; }
         inline bool operator>(const iterator& other) const { return i > other.i; }
         inline bool operator>=(const iterator& other) const { return i >= other.i; }
+        inline bool operator==(const const_iterator &o) const
+            { return i == reinterpret_cast<const iterator &>(o).i; }
+        inline bool operator!=(const const_iterator &o) const
+            { return i != reinterpret_cast<const iterator &>(o).i; }
+        inline bool operator<(const const_iterator& other) const
+            { return i < reinterpret_cast<const iterator &>(other).i; }
+        inline bool operator<=(const const_iterator& other) const
+            { return i <= reinterpret_cast<const iterator &>(other).i; }
+        inline bool operator>(const const_iterator& other) const
+            { return i > reinterpret_cast<const iterator &>(other).i; }
+        inline bool operator>=(const const_iterator& other) const
+            { return i >= reinterpret_cast<const iterator &>(other).i; }
         inline iterator operator++() { ++i; return *this; }
         inline iterator operator++(int) { Node *n = i; ++i; return n; }
         inline iterator operator--() { i--; return *this; }
@@ -212,10 +226,10 @@ public:
     inline bool empty() const { return isEmpty(); }
     typedef int size_type;
     typedef T value_type;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
+    typedef value_type *pointer;
+    typedef const value_type *const_pointer;
+    typedef value_type &reference;
+    typedef const value_type &const_reference;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT iterator remove(iterator pos) { return erase(pos); }

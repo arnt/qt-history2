@@ -686,7 +686,9 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator*()
 */
 
-/*! \fn bool QLinkedList::iterator::operator==(const iterator &other) const
+/*!
+    \fn bool QLinkedList::iterator::operator==(const iterator &other) const
+    \fn bool QLinkedList::iterator::operator==(const const_iterator &other) const
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -694,7 +696,9 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator!=()
 */
 
-/*! \fn bool QLinkedList::iterator::operator!=(const iterator &other) const
+/*!
+    \fn bool QLinkedList::iterator::operator!=(const iterator &other) const
+    \fn bool QLinkedList::iterator::operator!=(const const_iterator &other) const
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.
