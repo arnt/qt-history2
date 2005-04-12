@@ -879,10 +879,19 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
     Q_D(QRasterPaintEngine);
 
     QImage image;
-    if (pixmap.depth() == 1)
-        image = d->colorizeBitmap(pixmap.toImage(), d->pen.color());
-    else
+    if (pixmap.depth() == 1) {
+        if (d->txop <= QPainterPrivate::TxTranslate
+            && !d->opaqueBackground
+            && r.size() == sr.size()) {
+            FillData fill = d->fillForBrush(QBrush(d->pen.color()), 0);
+            d->drawBitmap(r.topLeft() + QPointF(d->matrix.dx(), d->matrix.dy()), pixmap, &fill);
+            return;
+        } else {
+            image = d->colorizeBitmap(pixmap.toImage(), d->pen.color());
+        }
+    } else {
         image = qt_map_to_32bit(pixmap);
+    }
     drawImage(r, image, sr);
 }
 
@@ -1523,6 +1532,72 @@ QPoint QRasterPaintEngine::coordinateOffset() const
     return QPoint(d->deviceRect.x(), d->deviceRect.y());
 }
 
+void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm, FillData *fg)
+{
+    Q_ASSERT(fg);
+    Q_ASSERT(fg->callback);
+
+    QImage image = pm.toImage();
+    Q_ASSERT(image.depth() == 1);
+
+    const int spanCount = 256;
+    QT_FT_Span spans[spanCount];
+    int n = 0;
+
+    // Boundaries
+    int w = pm.width();
+    int h = pm.height();
+    int ymax = qMin(qRound(pos.y() + h), rasterBuffer->height());
+    int ymin = qMax(qRound(pos.y()), 0);
+    int xmax = qMin(qRound(pos.x() + w), rasterBuffer->width());
+    int xmin = qMax(qRound(pos.x()), 0);
+
+    QImage::Format format = image.format();
+    for (int y = ymin; y < ymax; ++y) {
+        uchar *src = image.scanLine(y - pos.y());
+        if (format == QImage::Format_MonoLSB) {
+            for (int x = 0; x < xmax - xmin; ++x) {
+                bool set = src[x >> 3] & (0x1 << (x & 7));
+                if (set) {
+                    QT_FT_Span span = { xmin + x, 1, 255 };
+                    while (x < w-1 && src[(x+1) >> 3] & (0x1 << ((x+1) & 7))) {
+                        ++x;
+                        ++span.len;
+                    }
+
+                    spans[n] = span;
+                    ++n;
+                }
+                if (n == spanCount) {
+                    fg->callback(y, n, spans, fg->data);
+                    n = 0;
+                }
+            }
+        } else {
+            for (int x = 0; x < xmax - xmin; ++x) {
+                bool set = src[x >> 3] & (0x80 >> (x & 7));
+                if (set) {
+                    QT_FT_Span span = { xmin + x, 1, 255 };
+                    while (x < w-1 && src[(x+1) >> 3] & (0x80 >> ((x+1) & 7))) {
+                        ++x;
+                        ++span.len;
+                    }
+
+                    spans[n] = span;
+                    ++n;
+                }
+                if (n == spanCount) {
+                    fg->callback(y, n, spans, fg->data);
+                    n = 0;
+                }
+            }
+        }
+        if (n) {
+            fg->callback(y, n, spans, fg->data);
+            n = 0;
+        }
+    }
+}
 
 /* Sets up potential clipping for this FillData object.
  * Note that the data object must be valid throughout the lifetime of
