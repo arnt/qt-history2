@@ -463,13 +463,20 @@ void FormWindowManager::slotActionAdjustSizeActivated()
     QList<QWidget*> selectedWidgets = m_activeFormWindow->selectedWidgets();
     m_activeFormWindow->simplifySelection(&selectedWidgets);
 
-    foreach (QWidget *widget, selectedWidgets) {
-        if (LayoutInfo::layoutType(core(), widget->parentWidget()) != LayoutInfo::NoLayout)
-            continue;
+    if (selectedWidgets.isEmpty()) {
+        Q_ASSERT(m_activeFormWindow->mainContainer() != 0);
+        selectedWidgets.append(m_activeFormWindow->mainContainer());
+    }
 
-        AdjustWidgetSizeCommand *cmd = new AdjustWidgetSizeCommand(m_activeFormWindow);
-        cmd->init(widget);
-        m_activeFormWindow->commandHistory()->push(cmd);
+    foreach (QWidget *widget, selectedWidgets) {
+        bool unlaidout = LayoutInfo::layoutType(core(), widget->parentWidget()) == LayoutInfo::NoLayout;
+        bool isMainContainer = m_activeFormWindow->isMainContainer(widget);
+
+        if (unlaidout || isMainContainer) {
+            AdjustWidgetSizeCommand *cmd = new AdjustWidgetSizeCommand(m_activeFormWindow);
+            cmd->init(widget);
+            m_activeFormWindow->commandHistory()->push(cmd);
+        }
     }
 
     m_activeFormWindow->endCommand();
@@ -567,9 +574,9 @@ void FormWindowManager::slotUpdateActions()
     } else if (selectedWidgets == 1) {
         QWidget *w = widgets.first();
         bool isContainer = core()->widgetDataBase()->isContainer(w)
-            || w == m_activeFormWindow->mainContainer();
+            || m_activeFormWindow->isMainContainer(w);
 
-        m_actionAdjustSize->setEnabled(!w->parentWidget()
+        m_actionAdjustSize->setEnabled(m_activeFormWindow->isMainContainer(w)
             || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout);
 
         if (isContainer == false) {

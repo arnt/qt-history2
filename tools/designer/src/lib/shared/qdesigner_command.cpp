@@ -1130,7 +1130,16 @@ void AdjustWidgetSizeCommand::init(QWidget *widget)
 
 void AdjustWidgetSizeCommand::redo()
 {
-    m_widget->adjustSize();
+    if (formWindow()->mainContainer() == m_widget && formWindow()->parentWidget()) {
+        formWindow()->parentWidget()->resize(m_widget->sizeHint());
+    } else {
+        m_widget->adjustSize();
+    }
+
+    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
+        if (propertyEditor->object() == m_widget)
+            propertyEditor->setPropertyValue("geometry", m_widget->geometry(), true);
+    }
 }
 
 void AdjustWidgetSizeCommand::undo()
