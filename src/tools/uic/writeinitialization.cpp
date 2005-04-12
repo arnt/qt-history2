@@ -219,7 +219,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             output << option.indent << parentWidget << "->addToolBar(" << varName << ");\n";
         } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QStatusBar"))) {
             output << option.indent << parentWidget << "->setStatusBar(" << varName << ");\n";
-        } else {
+        } else if (className == QLatin1String("QWidget")) {
             output << option.indent << parentWidget << "->setCentralWidget(" << varName << ");\n";
         }
     }

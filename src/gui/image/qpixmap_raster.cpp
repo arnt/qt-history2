@@ -56,6 +56,12 @@ QPixmap::QPixmap(const QSize &size)
     init(size.width(), size.height());
 }
 
+QPixmap::QPixmap(const QSize &size, enum QPixmap::Type type)
+    : QPaintDevice()
+{
+    init(size.width(), size.height(), type);
+}
+
 #ifndef QT_NO_IMAGEIO
 QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
     : QPaintDevice()
@@ -393,14 +399,14 @@ QPixmap QPixmap::scaled(const QSize &size, Qt::AspectRatioMode aspectMode,
     return QPixmap::fromImage(data->image.scaled(size, aspectMode, mode));
 }
 
-QPixmap QPixmap::scaledToWidth(int w) const
+QPixmap QPixmap::scaledToWidth(int w, Qt::TransformationMode mode) const
 {
-    return QPixmap::fromImage(data->image.scaledToWidth(w));
+    return QPixmap::fromImage(data->image.scaledToWidth(w, mode));
 }
 
-QPixmap QPixmap::scaledToHeight(int h) const
+QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 {
-    return QPixmap::fromImage(data->image.scaledToHeight(h));
+    return QPixmap::fromImage(data->image.scaledToHeight(h, mode));
 }
 
 QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode ) const
@@ -471,11 +477,6 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char* format, Qt::I
     if (!image.isNull())
         *this = depth() == 1 ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
     return !isNull();
-}
-
-bool QPixmap::loadFromData(const QByteArray &data, const char* format, Qt::ImageConversionFlags flags )
-{
-    return loadFromData((const uchar *)data.constData(), data.size(), format, flags);
 }
 
 bool QPixmap::save(const QString& fileName, const char* format, int quality ) const
@@ -561,7 +562,7 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
 void QPixmap::init(int w, int h, Type type)
 {
     data = new QPixmapData;
-    data->image = QImage(w, h, type == Pixmap ? QImage::Format_RGB32 : QImage::Format_MonoLSB);
+    data->image = QImage(w, h, type == PixmapType ? QImage::Format_RGB32 : QImage::Format_MonoLSB);
 }
 
 void QPixmap::deref()

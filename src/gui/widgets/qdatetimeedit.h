@@ -117,7 +117,7 @@ private:
     Q_DISABLE_COPY(QDateTimeEdit)
 };
 
-class QTimeEdit : public QDateTimeEdit
+class Q_GUI_EXPORT QTimeEdit : public QDateTimeEdit
 {
     Q_OBJECT
 public:
@@ -125,7 +125,7 @@ public:
     QTimeEdit(const QTime &t, QWidget *parent = 0);
 };
 
-class QDateEdit : public QDateTimeEdit
+class Q_GUI_EXPORT QDateEdit : public QDateTimeEdit
 {
     Q_OBJECT
 public:

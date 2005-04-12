@@ -3,6 +3,9 @@
 #include <qfile.h>
 #include <qmetaobject.h>
 #include <qstring.h>
+#include <qtextstream.h>
+
+#include <qdebug.h>
 
 #include <limits.h>
 #include <stdio.h>
@@ -38,13 +41,13 @@ bool checkSignature(const QString &fileName, QString &line, const char *sig)
     int idx = -1;
     bool found = false;
     while ((idx = line.indexOf(sig, ++idx)) != -1) {
-        const QByteArray sl(signature(line, idx).toAscii());
+        const QByteArray sl(signature(line, idx).toLocal8Bit());
         QByteArray nsl(QMetaObject::normalizedSignature(sl.constData()));
         if (sl != nsl) {
             found = true;
             if (printFilename && !fileList.contains(fileName)) {
                 fileList.prepend(fileName);
-                printf("%s\n", fileName.ascii());
+                printf("%s\n", fileName.toLocal8Bit().constData());
             }
             if (modify)
                 line.replace(sl, nsl);
@@ -57,8 +60,8 @@ bool checkSignature(const QString &fileName, QString &line, const char *sig)
 void writeChanges(const QString &fileName, const QStringList &lines)
 {
     QFile file(fileName);
-    if (!file.open(IO_WriteOnly)) {
-        qDebug("unable to open file '%s' for writing (%s)", fileName.ascii(), file.errorString().ascii());
+    if (!file.open(QIODevice::WriteOnly)) {
+        qDebug("unable to open file '%s' for writing (%s)", fileName.toLocal8Bit().constData(), file.errorString().toLocal8Bit().constData());
         return;
     }
     QTextStream stream(&file);
@@ -70,17 +73,18 @@ void writeChanges(const QString &fileName, const QStringList &lines)
 void check(const QString &fileName)
 {
     QFile file(fileName);
-    if (!file.open(IO_ReadOnly)) {
-        qDebug("unable to open file: '%s' (%s)", fileName.ascii(), file.errorString().ascii());
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug("unable to open file: '%s' (%s)", fileName.toLocal8Bit().constData(), file.errorString().toLocal8Bit().constData());
         return;
     }
     QStringList lines;
     bool found = false;
     while (true) {
-        QString line;
-        if (file.readLine(line, 16384) < 0)
+        QByteArray bline = file.readLine(16384);
+        if (bline.isEmpty())
             break;
-        Q_ASSERT_X(line.endsWith("\n"), "check()", fileName.ascii());
+        QString line = QString::fromLocal8Bit(bline);
+        Q_ASSERT_X(line.endsWith("\n"), "check()", fileName.toLocal8Bit().constData());
         found |= checkSignature(fileName, line, "SLOT");
         found |= checkSignature(fileName, line, "SIGNAL");
         if (modify)
@@ -89,7 +93,7 @@ void check(const QString &fileName)
     file.close();
 
     if (found && modify) {
-        printf("Modifying file: '%s'\n", fileName.ascii());
+        printf("Modifying file: '%s'\n", fileName.toLocal8Bit().constData());
         writeChanges(fileName, lines);
     }
 }
@@ -98,7 +102,7 @@ void traverse(const QString &path)
 {
     QDir dir(path);
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoSymLinks);
-    
+
     const QFileInfoList list = dir.entryInfoList();
     for (int i = 0; i < list.count(); ++i) {
         const QFileInfo fi = list.at(i);
@@ -133,7 +137,7 @@ int main(int argc, char *argv[])
     }
 
     if (path.startsWith("-")) {
-        qWarning("unknown parameter: %s", path.ascii());
+        qWarning("unknown parameter: %s", path.toLocal8Bit().constData());
         return 1;
     }
 
@@ -145,7 +149,7 @@ int main(int argc, char *argv[])
             path.append("/");
         traverse(path);
     } else {
-        qWarning("Don't know what to do with '%s'", path.ascii());
+        qWarning("Don't know what to do with '%s'", path.toLocal8Bit().constData());
         return 1;
     }
 

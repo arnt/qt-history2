@@ -75,7 +75,7 @@ void HelpWindow::setSource(const QUrl &name)
             QT_WA({
                 ShellExecute(winId(), 0, (TCHAR*)name.toString().utf16(), 0, 0, SW_SHOWNORMAL);
             } , {
-                ShellExecuteA(winId(), 0, name.toString().local8Bit(), 0, 0, SW_SHOWNORMAL);
+                ShellExecuteA(winId(), 0, name.toString().toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
             });
 #elif defined(Q_OS_MAC)
             webbrowser = "/usr/bin/open";

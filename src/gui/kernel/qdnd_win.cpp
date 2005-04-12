@@ -221,7 +221,7 @@ void QOleDropSource::createCursors()
             }
 #endif
 
-            QPixmap newCursor(w, h, -1);
+            QPixmap newCursor(w, h);
             if (!pm.isNull()) {
                 newCursor.fill(QColor(0, 0, 0, 0));
                 QPainter p(&newCursor);
@@ -231,7 +231,7 @@ void QOleDropSource::createCursors()
                 newCursor = cpm;
             }
 
-            cursors[actions.at(cnum)] = QCursor(newCursor, pm.isNull() ? 0 : qMax(0,hotSpot.x()), 
+            cursors[actions.at(cnum)] = QCursor(newCursor, pm.isNull() ? 0 : qMax(0,hotSpot.x()),
                                                 pm.isNull() ? 0 : qMax(0,hotSpot.y()));
         }
     }

@@ -1098,7 +1098,7 @@ void qt_draw_tiled_pixmap(HDC hdc, int x, int y, int w, int h,
             tw *= 2;
         while (tw*th < 32678 && th < h/2)
             th *= 2;
-        tile = new QPixmap(tw, th, bg_pixmap->depth());
+        tile = new QPixmap(tw, th);
         qt_fill_tile(tile, *bg_pixmap);
         pm = tile;
     } else {

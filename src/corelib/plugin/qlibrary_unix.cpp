@@ -113,7 +113,6 @@ bool QLibraryPrivate::load_sys()
         if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
             QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
             QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-            qDebug("attemping %s", QFile::encodeName(str).data());
             pHnd = dlopen(QFile::encodeName(str), RTLD_LAZY);
             attempt = str;
         }
