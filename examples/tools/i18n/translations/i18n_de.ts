@@ -59,7 +59,7 @@
     </message>
 </context>
 <context>
-    <name>QAccel</name>
+    <name>QShortcut</name>
     <message>
         <source>Ctrl</source>
         <translation>Strg</translation>

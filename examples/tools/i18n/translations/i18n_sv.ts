@@ -3,19 +3,19 @@
     <name>MainWindow</name>
     <message>
         <source>View</source>
-        <translation>Vis</translation>
+        <translation>Visa</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation>&amp;Fil</translation>
+        <translation>&amp;Arkiv</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation>&amp;Avslutt</translation>
+        <translation>&amp;Avsluta</translation>
     </message>
     <message>
         <source>First</source>
-        <translation>Første</translation>
+        <translation type="unfinished">Första</translation>
     </message>
     <message>
         <source>Third</source>
@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>English</source>
-        <translation>Norsk</translation>
+        <translation>Svenska</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
@@ -35,23 +35,23 @@
     </message>
     <message>
         <source>Oblique</source>
-        <translation>Skjevt</translation>
+        <translation>Skevt</translation>
     </message>
     <message>
         <source>Second</source>
-        <translation>Andre</translation>
+        <translation>Andra</translation>
     </message>
     <message>
         <source>Isometric</source>
-        <translation>Isometrisk</translation>
+        <translation>Isometriskt</translation>
     </message>
     <message>
         <source>Perspective</source>
-        <translation>Perspektiv</translation>
+        <translation>Perspektivt</translation>
     </message>
     <message>
         <source>Internationalization Example</source>
-        <translation>Internasjonaliseringseksempel</translation>
+        <translation>Internationaliseringsexempel</translation>
     </message>
     <message>
         <source>LTR</source>

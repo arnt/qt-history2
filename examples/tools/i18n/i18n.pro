@@ -15,4 +15,5 @@ TRANSLATIONS += translations/i18n_ar.ts \
                 translations/i18n_ko.ts \
                 translations/i18n_no.ts \
                 translations/i18n_ru.ts \
+                translations/i18n_sv.ts \
                 translations/i18n_zh.ts
