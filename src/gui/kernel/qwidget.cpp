@@ -1024,7 +1024,7 @@ bool QWidgetPrivate::isBackgroundInherited() const
 
     // if we have a background role set, or a custom brush for the
     // background role, then the background is not inherited
-    if (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))
+    if (QPalette::ColorRole(bg_role) != QPalette::NoRole || (pal.resolve() & (1<<bg)))
         return false;
 
     if (brush.style() == Qt::SolidPattern) {
@@ -2621,7 +2621,7 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
 QPalette::ColorRole QWidget::foregroundRole() const
 {
     Q_D(const QWidget);
-    if (d->fg_role != QPalette::NoRole)
+    if (QPalette::ColorRole(d->fg_role) != QPalette::NoRole)
         return d->fg_role;
     QPalette::ColorRole role = QPalette::Foreground;
     switch (backgroundRole()) {
