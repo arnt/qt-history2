@@ -589,9 +589,10 @@ QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
 {
     QImage img;
     s >> img;
-    pixmap = pixmap.data->type == QPixmap::BitmapType
-             ? QBitmap::fromImage(img)
-             : QPixmap::fromImage(img);
+    if (pixmap.data->type == QPixmap::BitmapType)
+        pixmap = QBitmap::fromImage(img);
+    else
+        pixmap = QPixmap::fromImage(img);
     return s;
 }
 
