@@ -7,6 +7,7 @@
 #include "archiveextractor.h"
 #include "config.h"
 #include "uncompressor.h"
+#include <stdlib.h>
 
 /*
   ###
