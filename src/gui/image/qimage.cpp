@@ -3540,8 +3540,19 @@ bool QImage::operator==(const QImage & i) const
     if (d->format != Format_RGB32) {
         if (d->colortable != i.d->colortable)
             return false;
-        if (memcmp(bits(), i.bits(), d->nbytes))
-            return false;
+        if (d->format == Format_ARGB32 || d->format == Format_ARGB32_Premultiplied) {
+            if (memcmp(bits(), i.bits(), d->nbytes))
+                return false;
+        } else {
+            int w = width();
+            int h = height();
+            for (int y=0; y<h; ++y) {
+                for (int x=0; x<w; ++x) {
+                    if (pixelIndex(x, y) != i.pixelIndex(x, y))
+                        return false;
+                }
+            }
+        }
     } else {
         //alpha channel undefined, so we must mask it out
         for(int l = 0; l < d->height; l++) {
