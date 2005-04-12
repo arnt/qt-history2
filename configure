@@ -1971,8 +1971,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         else
             CFG_TABLET=yes
         fi
-    else
-        CFG_TABLET=yes
     fi
     # auto-detect XKB support
     if [ "$CFG_XKB" != "no" ]; then
@@ -2684,9 +2682,9 @@ esac
 if [ -x "/usr/bin/perl" ] && [ -x "$relpath/bin/syncqt" ]; then
     SYNCQT_OPTS=
     [ "$Edition" = "troll" ] &&  SYNCQT_OPTS="$SYNCQT_OPTS -check-includes"
-    if [ "$OPT_SHADOW" = "yes" ]; then 
+    if [ "$OPT_SHADOW" = "yes" ]; then
        $outpath/bin/syncqt $SYNCQT_OPTS
-    elif [ "$Edition" = "troll" ]; then 
+    elif [ "$Edition" = "troll" ]; then
        QTDIR=$relpath perl $outpath/bin/syncqt $SYNCQT_OPTS
     fi
 fi
