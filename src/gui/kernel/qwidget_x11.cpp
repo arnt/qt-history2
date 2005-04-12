@@ -1557,6 +1557,8 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         if ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                 && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))) {
+                if ((newstate & Qt::WindowMaximized) && !(oldstate & Qt::WindowFullScreen))
+                    top->normalGeometry = geometry();
                 qt_change_net_wm_state(this, (newstate & Qt::WindowMaximized),
                                        ATOM(_NET_WM_STATE_MAXIMIZED_HORZ),
                                        ATOM(_NET_WM_STATE_MAXIMIZED_VERT));
@@ -1587,6 +1589,8 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
 
         if ((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
+                if (newstate & Qt::WindowFullScreen)
+                    top->normalGeometry = geometry();
                 qt_change_net_wm_state(this, (newstate & Qt::WindowFullScreen),
                                        ATOM(_NET_WM_STATE_FULLSCREEN));
             } else {
