@@ -356,15 +356,15 @@ QPersistentModelIndexManager::QPersistentModelIndexManager(QAbstractItemModel *p
     QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
                      this, SLOT(rowsRemoved(QModelIndex,int,int)));
 
-    QObject::connect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-                     this, SLOT(rowsAboutToBeInserted(QModelIndex,int,int)));
-    QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                     this, SLOT(rowsInserted(QModelIndex,int,int)));
+    QObject::connect(model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
+                     this, SLOT(columnsAboutToBeInserted(QModelIndex,int,int)));
+    QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+                     this, SLOT(columnsInserted(QModelIndex,int,int)));
     
-    QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                     this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
-    QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                     this, SLOT(rowsRemoved(QModelIndex,int,int)));
+    QObject::connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                     this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
+    QObject::connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                     this, SLOT(columnsRemoved(QModelIndex,int,int)));
 
     QObject::connect(model, SIGNAL(reset()), this, SLOT(reset()));
 }
@@ -406,7 +406,7 @@ void QPersistentModelIndexManager::invalidateChildren(const QModelIndex &parent)
 }
 
 void QPersistentModelIndexManager::rowsAboutToBeInserted(const QModelIndex &parent,
-                                                           int first, int last)
+                                                         int first, int last)
 {
     Q_UNUSED(last);
     affected.clear();
@@ -418,9 +418,9 @@ void QPersistentModelIndexManager::rowsAboutToBeInserted(const QModelIndex &pare
 }
 
 void QPersistentModelIndexManager::rowsInserted(const QModelIndex &parent,
-                                                  int first, int last)
+                                                int first, int last)
 {
-    int count = last - first;
+    int count = (last - first) + 1;
     for (int i = 0; i < affected.count(); ++i) {
         int position = affected.at(i);
         QModelIndex old = indexes.at(position)->index;
@@ -447,7 +447,7 @@ void QPersistentModelIndexManager::rowsAboutToBeRemoved(const QModelIndex &paren
 void QPersistentModelIndexManager::rowsRemoved(const QModelIndex &parent,
                                                int first, int last)
 {
-    int count = last - first;
+    int count = (last - first) + 1;
     for (int i = 0; i < affected.count(); ++i) {
         int position = affected.at(i);
         QModelIndex old = indexes.at(position)->index;
@@ -471,7 +471,7 @@ void QPersistentModelIndexManager::columnsAboutToBeInserted(const QModelIndex &p
 void QPersistentModelIndexManager::columnsInserted(const QModelIndex &parent,
                                                    int first, int last)
 {
-    int count = last - first;
+    int count = (last - first) + 1;
     for (int i = 0; i < affected.count(); ++i) {
         int position = affected.at(i);
         QModelIndex old = indexes.at(position)->index;
@@ -498,7 +498,7 @@ void QPersistentModelIndexManager::columnsAboutToBeRemoved(const QModelIndex &pa
 void QPersistentModelIndexManager::columnsRemoved(const QModelIndex &parent,
                                                   int first, int last)
 {
-    int count = last - first;
+    int count = (last - first) + 1;
     for (int i = 0; i < affected.count(); ++i) {
         int position = affected.at(i);
         QModelIndex old = indexes.at(position)->index;
