@@ -174,7 +174,7 @@ int QPixmap::defaultDepth()
 void QPixmap::fill(const QColor &fillColor)
 {
     uint pixel;
-
+    detach();
     if (data->image.depth() == 1) {
         int gray = qGray(fillColor.rgba());
         // Pick the best approximate color in the image's colortable.
@@ -209,7 +209,7 @@ void QPixmap::resize_helper(const QSize &size)
 {
     if (size == data->image.size())
         return;
-
+    detach();
     QImage image;
 
     QImage::Format format = data->image.format();
@@ -453,6 +453,7 @@ bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConvers
     QFileInfo info(fileName);
     QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') + QString::number(depth());
 
+    detach();
     if (QPixmapCache::find(key, *this))
             return true;
     QImage image = QImageReader(fileName, format).read();
@@ -473,6 +474,7 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char* format, Qt::I
     QBuffer b(&a);
     b.open(QIODevice::ReadOnly);
 
+    detach();
     QImage image = QImageReader(&b, format).read();
     if (!image.isNull())
         *this = depth() == 1 ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
@@ -603,6 +605,7 @@ QPaintEngine *QPixmap::paintEngine() const
 
 void QPixmap::setAlphaChannel(const QPixmap &alphaChannel)
 {
+    detach();
     data->image.setAlphaChannel(alphaChannel.toImage());
 }
 
