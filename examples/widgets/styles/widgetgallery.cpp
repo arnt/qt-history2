@@ -138,13 +138,17 @@ void WidgetGallery::createBottomLeftTabWidget()
     bottomLeftTabWidget->setSizePolicy(QSizePolicy::Preferred,
                                        QSizePolicy::Ignored);
 
-    QHBoxWidget *tab1 = new QHBoxWidget;
-    tab1->setMargin(5);
+    QWidget *tab1 = new QWidget;
+    QHBoxLayout *tab1hbox = new QHBoxLayout(tab1);
+    tab1hbox->setMargin(5);
     tableWidget = new QTableWidget(10, 10, tab1);
+    tab1hbox->addWidget(tableWidget);
 
-    QHBoxWidget *tab2 = new QHBoxWidget;
-    tab2->setMargin(5);
+    QWidget *tab2 = new QWidget;
+    QHBoxLayout *tab2hbox = new QHBoxLayout(tab2);
+    tab2hbox->setMargin(5);
     textEdit = new QTextEdit(tab2);
+    tab2hbox->addWidget(textEdit);
     textEdit->setPlainText(tr("Au clair de la lune,\n"
                               "Mon ami Pierrot,\n"
                               "Prête moi ta plume\n"

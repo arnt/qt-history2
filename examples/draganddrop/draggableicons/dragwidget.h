@@ -9,7 +9,7 @@ class QDropEvent;
 class DragWidget : public QFrame
 {
 public:
-    DragWidget(QWidget *parent);
+    DragWidget(QWidget *parent=0);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
