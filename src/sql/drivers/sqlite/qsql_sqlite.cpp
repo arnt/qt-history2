@@ -169,8 +169,18 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
             return true;
         for (i = 0; i < rInf.count(); ++i)
             // todo - handle other types
-            values[i + idx] = QString::fromUtf16(static_cast<const ushort *>(sqlite3_column_text16(stmt, i)));
- //           values[i + idx] = utf8 ? QString::fromUtf8(fvals[i]) : QString::fromAscii(fvals[i]);
+            switch (rInf.field(i).type()) {
+            case QVariant::ByteArray:
+                values[i + idx] = QByteArray(static_cast<const char *>(
+                            sqlite3_column_blob(stmt, i)),
+                            sqlite3_column_bytes(stmt, i));
+                break;
+            default:
+                values[i + idx] = QString::fromUtf16(static_cast<const ushort *>(
+                            sqlite3_column_text16(stmt, i)),
+                            sqlite3_column_bytes16(stmt, i) / sizeof(ushort));
+                break;
+        }
         return true;
     case SQLITE_DONE:
         if (rInf.isEmpty())
@@ -297,15 +307,16 @@ QSQLiteDriver::~QSQLiteDriver()
 bool QSQLiteDriver::hasFeature(DriverFeature f) const
 {
     switch (f) {
+    case BLOB:
     case Transactions:
     case Unicode:
     case LastInsertId:
         return true;
-//    case BLOB:
-//    default:
+    case QuerySize:
+    case PreparedQueries:
+    case NamedPlaceholders:
+    case PositionalPlaceholders:
         return false;
-    default:
-        break;
     }
     return false;
 }
