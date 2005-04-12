@@ -1826,13 +1826,15 @@ void QRasterBuffer::prepare(QImage *image)
         prepareClip(image->width(), image->height());
         m_buffer = (uint *)image->bits();
     } else if (depth == 1) {
-        prepare(image->width(), image->height());
+        int w = image->width();
+        int h = image->height();
+        prepare(w, h);
         uint table[2] = { image->color(0), image->color(1) };
-        for (int y=0; y<image->height(); ++y) {
+        for (int y=0; y<h; ++y) {
             uint *bscan = scanLine(y);
-            // ### use image scanlines directly
-            for (int x=0; x<image->width(); ++x) {
-                bscan[x] = table[image->pixelIndex(x, y)];
+            const uchar *src = image->scanLine(y);
+            for (int x=0; x<w; ++x) {
+                bscan[x] = table[(src[x>>3] >> (x&7)) & 1];
             }
         }
     } else {
@@ -2423,13 +2425,14 @@ void QRasterBuffer::flushTo1BitImage(QImage *target) const
     int w = qMin(m_width, target->width());
     int h = qMin(m_height, target->height());
 
-    // ### Direct scanline access
     for (int y=0; y<h; ++y) {
-        uint *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
-        int y_mod_16 = y & 15;
+        const uint *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
+        uchar *dest = target->scanLine(y);
+        memset(dest, 0, (w+7)/8);
         for (int x=0; x<w; ++x) {
             uint p = sourceLine[x];
-            target->setPixel(x, y, qGray(p) >= int(qt_bayer_matrix[y_mod_16][x&15]) ? 0 : 1);
+            if (qGray(p) < int(qt_bayer_matrix[y&15][x&15]))
+                dest[x>>3] |= 1 << (x&7);
         }
     }
 
