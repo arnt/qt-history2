@@ -3122,15 +3122,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         QPixmap source;
         if(sx != 0 || sy != 0 || sw != pm.width() || sh != pm.height()) {
-            if (pm.depth() == 1)
-                source = QBitmap(qRound(sw), qRound(sh));
-            else
-                source = QPixmap(qRound(sw), qRound(sh));
-            source.fill(QColor(0, 0, 0, 0));
-            QPainter p(&source);
-            // ### CompositionMode to Source
-            p.drawPixmap(QRectF(0, 0, sw, sh), pm, QRectF(sx, sy, sw, sh));
-            p.end();
+            source = pm.copy(sx, sy, sw, sh);
         } else {
             source = pm;
         }
