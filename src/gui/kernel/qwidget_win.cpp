@@ -752,11 +752,11 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
         ii.hbmColor = pm.toWinHBITMAP();
         ii.xHotspot = 0;
         ii.yHotspot = 0;
-        DeleteObject(ii.hbmColor);
         result = CreateIconIndirect(&ii);
 
         if (cache)
             *cache = new QPixmap(pm);;
+        DeleteObject(ii.hbmColor);
         DeleteObject(im);
     }
     return result;
@@ -764,7 +764,6 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
 
 void QWidgetPrivate::setWindowIcon_sys()
 {
-    return;
     if (extra->topextra->iconPixmap)
         // already been set
         return;
