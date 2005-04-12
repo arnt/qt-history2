@@ -66,7 +66,7 @@ Window::Window()
     brushStyleComboBox->addItem(tr("Texture"), Qt::TexturePattern);
     brushStyleComboBox->addItem(tr("Solid"), Qt::SolidPattern);
     brushStyleComboBox->addItem(tr("Horizontal"), Qt::HorPattern);
-    brushStyleComboBox->addItem(tr("Verical"), Qt::VerPattern);
+    brushStyleComboBox->addItem(tr("Vertical"), Qt::VerPattern);
     brushStyleComboBox->addItem(tr("Cross"), Qt::CrossPattern);
     brushStyleComboBox->addItem(tr("Backward Diagonal"), Qt::BDiagPattern);
     brushStyleComboBox->addItem(tr("Forward Diagonal"), Qt::FDiagPattern);
