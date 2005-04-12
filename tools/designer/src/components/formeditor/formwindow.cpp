@@ -1329,15 +1329,17 @@ bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMe
 {
     e->accept();
 
-    if (!isMainContainer(managedWidget)) { // press on a child widget
-        bool selected = isWidgetSelected(managedWidget);
-        if (selected == false) {
-            clearSelection(false);
-        }
+    bool selected = isWidgetSelected(managedWidget);
+    if (selected == false) {
+        clearSelection(false);
 
-        raiseChildSelections(managedWidget); // raise selections and select widget
         selectWidget(managedWidget);
+        raiseChildSelections(managedWidget); // raise selections and select widget
 
+        QMetaObject::invokeMember(core()->formWindowManager(), "slotUpdateActions");
+    }
+
+    if (!isMainContainer(managedWidget)) { // press on a child widget
         // if widget is laid out, find the first non-laid out super-widget
         QWidget *realWidget = managedWidget; // but store the original one
 
