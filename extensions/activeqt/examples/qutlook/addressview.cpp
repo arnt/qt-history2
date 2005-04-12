@@ -79,13 +79,13 @@ QVariant AddressBookModel::headerData(int section, Qt::Orientation orientation, 
 
     switch (section) {
     case 0:
-        return "First Name";
+        return tr("First Name");
     case 1:
-        return "Last Name";
+        return tr("Last Name");
     case 2:
-        return "Address";
+        return tr("Address");
     case 3:
-        return "Email";
+        return tr("Email");
     default:
         break;
     }

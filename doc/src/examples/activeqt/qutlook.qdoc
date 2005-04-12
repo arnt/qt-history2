@@ -8,50 +8,41 @@
   namespace for the type library describing the Outlook Object Model.
 
   \quotefile qutlook/qutlook.pro
-  \printto else
-
-  The project file checks if the the Outlook type library is located in the standard location.
-  If not, then the generated makefile will just print an error message.
-
-  \printuntil }
+  \printuntil else
   \printuntil }
 
-  If the type library could be located, then it is added to the \c TYPELIBS variable, and the
-  use of the \e dumpcpp tool is turned on. The build step will now run the \e dumpcpp tool
-  whenever the type library changes, and will generate a header and a cpp file (in this case, 
-  \c msoutl.h and \c msoutl.cpp) that declare and implement an easy to use Qt-like API to the 
-  Outlook objects.
+  The project file uses the \c dumpcpp tool to add MS Outlook type library to the project.
+  If this fails, then the generated makefile will just print an error message, otherwise
+  the build step will now run the \e dumpcpp tool on the type library, and 
+  generate a header and a cpp file (in this case, \c msoutl.h and \c msoutl.cpp) that 
+  declares and implement an easy to use API to the Outlook objects.
 
   \quotefile qutlook/addressview.h
   \skipto class AddressView
   \printuntil };
 
-  The AddressView class declares a QWidget subclass for the user interface. The QTreeView widget
-  will display the contents of Outlook's Contact folder.
+  The AddressView class is a QWidget subclass for the user interface. The QTreeView widget
+  will display the contents of Outlook's Contact folder as provided by the \c{model}.
 
   \quotefile qutlook/addressview.cpp
   \skipto #include
-  \printto class AddressBookModel
-
-  The implementation includes the required header files (including the \c msoutl.h header generated
-  by the \e dumpcpp tool), and provides a \c qHash implementation for QModelIndex, which allows
-  caching of data in the application (thus reducing the number of calls to Outlook).
-
   \printuntil };
-  The AddressBookModel class implements a QAbstractListModel that communicates directly with Outlook,
-  using a QHash for caching.
+  The AddressBookModel class is a QAbstractListModel subclass that communicates directly with 
+  Outlook, using a QHash for caching.
 
   \printto ::~AddressBookModel
-  The constructor initializes Outlook. For Outlook APIs that return subobjects of type \c IDispatch
-  the return value has to be put into an object of the correct type. The various signals Outlook
-  provides to notify about contents changes are connected to the \c updateOutlook() slot.
+  The constructor initializes Outlook. The various signals Outlook provides to notify about 
+  contents changes are connected to the \c updateOutlook() slot.
 
   \printto ::rowCount(
   The destructor logs off from the session.
 
-  \printto ::data(
+  \printto ::headerData(
   The \c rowCount() implementation returns the number of entries as reported by Outlook. \c columnCount
   and \c headerData are implemented to show four columns in the tree view.
+
+  \printto ::data(
+  The \c headerData() implementation returns hardcoded strings.
 
   \printto ::changeItem(
   The \c data() implementation is the core of the model. If the requested data is in the cache the
@@ -64,7 +55,7 @@
   signal the view of the data change, as Outlook will emit a signal on it's own.
 
   \printto ::update(
-  The \c addItem() slot calls the CreateItem method of the Outlook to create a new contact item,
+  The \c addItem() slot calls the CreateItem method of Outlook to create a new contact item,
   sets the properties of the new item to the values entered by the user and saves the item.
 
   \printto ::AddressView
@@ -73,7 +64,8 @@
 
   \printto ::itemSelected
   \printuntil }
-  The rest of the file implements the user interface.
+  The rest of the file implements the user interface using only Qt APIs, i.e. without communicating
+  with Outlook directly.
 
   \quotefile qutlook/main.cpp
   \skipto #include
