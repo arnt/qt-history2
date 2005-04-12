@@ -201,10 +201,15 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
                                      const QStyleOptionViewItem &,
                                      const QModelIndex &index) const
 {
+    Q_D(const QItemDelegate);
+
     if (!index.isValid())
         return 0;
     QVariant::Type t = index.model()->data(index, Qt::EditRole).type();
-    QWidget *w = QItemEditorFactory::defaultFactory()->createEditor(t, parent);
+    const QItemEditorFactory *factory = d->f;
+    if (factory == 0)
+        factory = QItemEditorFactory::defaultFactory();
+    QWidget *w = factory->createEditor(t, parent);
     if (w) w->installEventFilter(const_cast<QItemDelegate *>(this));
     return w;
 }
