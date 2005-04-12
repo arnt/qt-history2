@@ -14,9 +14,9 @@
 #ifndef FORMBUILDER_H
 #define FORMBUILDER_H
 
-#include "uilib_global.h"
-
+#include <QtDesigner/uilib_global.h>
 #include <QtDesigner/abstractformbuilder.h>
+
 #include <QtCore/QMap>
 
 class QAction;

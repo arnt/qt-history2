@@ -14,7 +14,7 @@
 #ifndef QEXTENSIONMANAGER_H
 #define QEXTENSIONMANAGER_H
 
-#include "extension_global.h"
+#include <QtDesigner/extension_global.h>
 #include <QtDesigner/extension.h>
 #include <QtCore/QHash>
 

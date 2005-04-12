@@ -15,7 +15,7 @@
 #define ABSTRACTFORMWINDOWMANAGER_H
 
 #include <QtDesigner/sdk_global.h>
-#include "abstractformwindow.h"
+#include <QtDesigner/abstractformwindow.h>
 
 #include <QtCore/QObject>
 

@@ -14,12 +14,13 @@
 #define UI4_H
 
 #include <QtCore/QList>
-#include <QString>
-#include <QStringList>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+
 class QDomDocument;
 class QDomElement;
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 #if defined(QT_DESIGNER) && defined(Q_OS_WIN)
 #    ifdef QT_UILIB_LIBRARY
 #        define QT_UI4_EXPORT __declspec(dllexport)

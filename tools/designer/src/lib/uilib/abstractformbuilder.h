@@ -14,7 +14,7 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include "uilib_global.h"
+#include <QtDesigner/uilib_global.h>
 
 #include <QtCore/QList>
 #include <QtCore/QHash>

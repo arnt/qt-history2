@@ -17,7 +17,7 @@
 #include <QtDesigner/sdk_global.h>
 
 #include <QtCore/QObject>
-#include <QPointer>
+#include <QtCore/QPointer>
 
 class QDesignerWidgetBoxInterface;
 class QDesignerPropertyEditorInterface;
