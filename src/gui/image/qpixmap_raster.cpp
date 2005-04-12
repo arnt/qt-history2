@@ -451,7 +451,7 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
 bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConversionFlags flags )
 {
     QFileInfo info(fileName);
-    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') + QString::number(depth());
+    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') + QString::number(data->type);
 
     detach();
     if (QPixmapCache::find(key, *this))
@@ -459,7 +459,10 @@ bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConvers
     QImage image = QImageReader(fileName, format).read();
 
     if (!image.isNull()) {
-        *this = depth() == 1 ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
+        if (data->type == BitmapType)
+            *this = QBitmap::fromImage(image, flags);
+        else
+            *this = fromImage(image, flags);
         if (!isNull()) {
             QPixmapCache::insert(key, *this);
             return true;
@@ -476,8 +479,12 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char* format, Qt::I
 
     detach();
     QImage image = QImageReader(&b, format).read();
-    if (!image.isNull())
-        *this = depth() == 1 ? QBitmap::fromImage(image, flags) : fromImage(image, flags);
+    if (!image.isNull()) {
+        if (data->type == BitmapType)
+            *this = QBitmap::fromImage(image, flags);
+        else
+            *this = fromImage(image, flags);
+    }
     return !isNull();
 }
 
@@ -578,7 +585,10 @@ void QPixmap::deref()
 
 QPixmap QPixmap::copy(const QRect &rect) const
 {
-    return QPixmap::fromImage(toImage().copy(rect));
+    if (data->type == BitmapType)
+        return QBitmap::fromImage(toImage().copy(rect));
+    else
+        return QPixmap::fromImage(toImage().copy(rect));
 }
 
 QDataStream &operator<<(QDataStream &s, const QPixmap &pixmap)
