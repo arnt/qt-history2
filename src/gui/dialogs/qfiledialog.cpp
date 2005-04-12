@@ -469,7 +469,8 @@ QStringList QFileDialog::selectedFiles() const
         }
     }
 
-    QStringList fileNames = d->fileNameEdit->text().split(' ', QString::SkipEmptyParts);
+    QString editText = d->fileNameEdit->text();
+    QStringList fileNames = editText.split("\"", QString::SkipEmptyParts);
     for (int j = 0; j < fileNames.count(); ++j) {
         QString name = d->toInternal(fileNames.at(j));
         QFileInfo info(name);
@@ -1121,14 +1122,19 @@ void QFileDialogPrivate::updateFileName(const QItemSelection &selection)
 
     QString text;
     QModelIndexList indexes = selections->selectedIndexes();
-    if (indexes.count() && indexes.at(0).column() == 0)
-        text.append(model->data(indexes.at(0)).toString());
-    for (int i = 1; i < indexes.count(); ++i) {
-        QModelIndex index = indexes.at(i);
-        if (index.column() == 0) {
-            text.append(" ");
-            text.append(model->data(index).toString());
-        }
+    QList<QModelIndex>::iterator it = indexes.begin();
+    while (it != indexes.end()) { // remove all indexes except column 0
+        if ((*it).column() != 0)
+            it = indexes.erase(it);
+        else
+            ++it;
+    }
+    bool addQuotes = indexes.count() > 1;
+    for (int i = 0; i < indexes.count(); ++i) {
+        QString name = model->data(indexes.at(i)).toString();
+        if (addQuotes) text.append("\"");
+        text.append(name);
+        if (addQuotes) text.append("\" ");
     }
     fileNameEdit->setText(text);
 }
