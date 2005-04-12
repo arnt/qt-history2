@@ -1353,10 +1353,15 @@ void QImage::invertPixels(InvertMode mode)
 
     detach();
     if (depth() != 32) {
-        quint8 *p = d->data;
-        quint8 *end = p + d->nbytes;
-        while (p < end)
-            *p++ ^= 0xff;
+        // number of used bytes pr line
+        int bpl = (d->width + 7) * d->depth / 8;
+        int pad = d->bytes_per_line - bpl;
+        uchar *sl = d->data;
+        for (int y=0; y<d->height; ++y) {
+            for (int x=0; x<bpl; ++x)
+                *sl++ ^= 0xff;
+            sl += pad;
+        }
     } else {
         quint32 *p = (quint32*)d->data;
         quint32 *end = (quint32*)(d->data + d->nbytes);
