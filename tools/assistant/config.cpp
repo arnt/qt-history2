@@ -333,6 +333,8 @@ QPixmap Config::applicationIcon() const
     if (QFile::exists(resName))
         return QPixmap(resName);
 
+    if (name.startsWith("file:"))
+        name = name.mid(5);
     return QPixmap(name);
 }
 
