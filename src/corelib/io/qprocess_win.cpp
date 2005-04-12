@@ -380,18 +380,23 @@ void QProcessPrivate::startProcess()
     qDebug("   pass enviroment : %s", environment.isEmpty() ? "no" : "yes");
 #endif
 
+    DWORD dwCreationFlags = 0;
+    if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based))
+        dwCreationFlags |= CREATE_NO_WINDOW;
+
 #ifdef UNICODE
     if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-	STARTUPINFOW startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
-	                             (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-                                     0, 0, 0,
-                                     STARTF_USESTDHANDLES,
-                                     0, 0, 0,
-                                     writePipe[0], standardReadPipe[1], errorReadPipe[1]
-	};
+        dwCreationFlags |= CREATE_UNICODE_ENVIRONMENT;
+        STARTUPINFOW startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
+	                                 (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                         (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                         0, 0, 0,
+                                         STARTF_USESTDHANDLES,
+                                         0, 0, 0,
+                                         writePipe[0], standardReadPipe[1], errorReadPipe[1]
+        };
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
-                                 0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
+                                 0, 0, TRUE, dwCreationFlags,
                                  environment.isEmpty() ? 0 : envlist.data(),
                                  workingDirectory.isEmpty() ? 0
                                     : (WCHAR*)QDir::convertSeparators(workingDirectory).utf16(),
@@ -400,24 +405,24 @@ void QProcessPrivate::startProcess()
 #endif // UNICODE
     {
 #ifndef Q_OS_TEMP
-	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
-                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-                                     0, 0, 0,
-                                     STARTF_USESTDHANDLES,
-                                     0, 0, 0,
-                                     writePipe[0], standardReadPipe[1], errorReadPipe[1]
-	};
+	    STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
+                                         (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                         (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                         0, 0, 0,
+                                         STARTF_USESTDHANDLES,
+                                         0, 0, 0,
+                                         writePipe[0], standardReadPipe[1], errorReadPipe[1]
+	    };
 
-	success = CreateProcessA(0, args.toLocal8Bit().data(),
-                                 0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
-                                 workingDirectory.isEmpty() ? 0
-                                    : QDir::convertSeparators(workingDirectory).toLocal8Bit().data(),
-                                 &startupInfo, pid);
+	    success = CreateProcessA(0, args.toLocal8Bit().data(),
+                                     0, 0, TRUE, dwCreationFlags, environment.isEmpty() ? 0 : envlist.data(),
+                                     workingDirectory.isEmpty() ? 0
+                                        : QDir::convertSeparators(workingDirectory).toLocal8Bit().data(),
+                                     &startupInfo, pid);
 #endif // Q_OS_TEMP
     }
-
 #ifndef Q_OS_TEMP
+
     CloseHandle(writePipe[0]);
     writePipe[0] = INVALID_Q_PIPE;
     CloseHandle(standardReadPipe[1]);
@@ -717,7 +722,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                    };
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
-                                 0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT, 0, 0,
+                                 0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE, 0, 0,
                                  &startupInfo, &pinfo);
     } else
 #endif // UNICODE
@@ -729,7 +734,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                   };
        success = CreateProcessA(0, args.toLocal8Bit().data(),
-                                0, 0, TRUE, 0, 0, 0,
+                                0, 0, TRUE, CREATE_NEW_CONSOLE, 0, 0,
                                 &startupInfo, &pinfo);
 #endif // Q_OS_TEMP
     }
