@@ -1552,19 +1552,22 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
     int xmax = qMin(qRound(pos.x() + w), rasterBuffer->width());
     int xmin = qMax(qRound(pos.x()), 0);
 
+    int x_offset = xmin - pos.x();
+
     QImage::Format format = image.format();
     for (int y = ymin; y < ymax; ++y) {
         uchar *src = image.scanLine(y - pos.y());
         if (format == QImage::Format_MonoLSB) {
             for (int x = 0; x < xmax - xmin; ++x) {
-                bool set = src[x >> 3] & (0x1 << (x & 7));
+                int src_x = x + x_offset;
+                bool set = src[src_x >> 3] & (0x1 << (src_x & 7));
                 if (set) {
                     QT_FT_Span span = { xmin + x, 1, 255 };
-                    while (x < w-1 && src[(x+1) >> 3] & (0x1 << ((x+1) & 7))) {
-                        ++x;
+                    while (src_x < w-1 && src[(src_x+1) >> 3] & (0x1 << ((src_x+1) & 7))) {
+                        ++src_x;
                         ++span.len;
                     }
-
+                    x += span.len;
                     spans[n] = span;
                     ++n;
                 }
