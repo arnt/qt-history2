@@ -71,7 +71,8 @@ public:
     uint wasDeleted : 1;
     uint ownObjectName : 1;
     uint sendChildEvents : 1;
-    uint unused : 26;
+    uint receiveChildEvents : 1;
+    uint unused : 25;
     int postedEvents;
 #ifdef QT3_SUPPORT
     int postedChildInsertedEvents;

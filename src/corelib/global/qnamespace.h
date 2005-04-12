@@ -289,6 +289,7 @@ public:
         WA_SetPalette = 36,
         WA_SetFont = 37,
         WA_SetCursor = 38,
+        WA_NoChildEventsFromChildren = 39,
         WA_WindowModified = 41,
         WA_Resized = 42,
         WA_Moved = 43,

@@ -242,6 +242,7 @@ QObjectPrivate::QObjectPrivate(int version)
     blockSig = false;                           // not blocking signals
     wasDeleted = false;                         // double-delete catcher
     sendChildEvents = true;                     // if we should send ChildInsert and ChildRemove events to parent
+    receiveChildEvents = true;
     postedEvents = 0;
 #ifdef QT3_SUPPORT
     postedChildInsertedEvents = 0;
@@ -1349,7 +1350,7 @@ void QObjectPrivate::setParent_helper(QObject *o)
     if (o == parent)
         return;
     if (parent && !parent->d_func()->wasDeleted && parent->d_func()->children.removeAll(q)) {
-        if(sendChildEvents) {
+        if(sendChildEvents && parent->d_func()->receiveChildEvents) {
             QChildEvent e(QEvent::ChildRemoved, q);
             QCoreApplication::sendEvent(parent, &e);
         }
@@ -1360,7 +1361,7 @@ void QObjectPrivate::setParent_helper(QObject *o)
         Q_ASSERT_X(thread == parent->d_func()->thread, "QObject::setParent",
                    "New parent must be in the same thread as the previous parent");
         parent->d_func()->children.append(q);
-        if(sendChildEvents) {
+        if(sendChildEvents && parent->d_func()->receiveChildEvents) {
             if (!isWidget) {
                 QChildEvent e(QEvent::ChildAdded, q);
                 QCoreApplication::sendEvent(parent, &e);

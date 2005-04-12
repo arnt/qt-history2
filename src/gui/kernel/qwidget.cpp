@@ -6017,6 +6017,9 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_NoChildEventsForParent:
         d->sendChildEvents = !on;
         break;
+    case Qt::WA_NoChildEventsFromChildren:
+        d->receiveChildEvents = !on;
+        break;
     case Qt::WA_MacMetalStyle:
 #ifdef Q_WS_MAC
         extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp

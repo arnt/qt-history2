@@ -774,6 +774,10 @@
     insertion widgets like splitters and layouts. This is set by a
     widget's author.
 
+    \value WA_NoChildEventsFromChildren Indicates that the widget does
+    not want to receive ChildAdded or ChildRemoved events sent from its
+    children. This is set by a widget's author.
+
     \value WA_MouseTracking Indicates that the widget has mouse tracking
     enabled. See QWidget::mouseTracking.
 
