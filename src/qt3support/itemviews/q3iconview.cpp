@@ -3227,8 +3227,8 @@ void Q3IconView::doAutoScroll()
     blockSignals(true);
     viewport()->setUpdatesEnabled(false);
     bool alreadyIntersected = false;
-    QRect nr = d->rubber->normalize();
-    QRect rubberUnion = nr.unite(oldRubber.normalize());
+    QRect nr = d->rubber->normalized();
+    QRect rubberUnion = nr.unite(oldRubber.normalized());
     Q3IconViewPrivate::ItemContainer *c = d->firstContainer;
     for (; c; c = c->n) {
         if (c->rect.intersects(rubberUnion)) {
@@ -4385,7 +4385,7 @@ void Q3IconView::contentsMousePressEventEx(QMouseEvent *e)
                         r.setHeight(item->y() - d->currentItem->y() + item->height());
                     else
                         r.setHeight(d->currentItem->y() - item->y() + d->currentItem->height());
-                    r = r.normalize();
+                    r = r.normalized();
                     Q3IconViewPrivate::ItemContainer *c = d->firstContainer;
                     bool alreadyIntersected = false;
                     QRect redraw;

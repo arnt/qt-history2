@@ -252,7 +252,7 @@ void QTreeView::setUniformRowHeights(bool uniform)
 
   This property holds whether the user can expand and collapse items
   interactively.
-  
+
 */
 bool QTreeView::itemsExpandable() const
 {
@@ -982,7 +982,7 @@ QRect QTreeView::visualRectForSelection(const QItemSelection &selection) const
     int topPos = d->coordinate(top);
 
     QRect rect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
-    return rect.normalize();
+    return rect.normalized();
 }
 
 /*!
@@ -1010,7 +1010,7 @@ QModelIndexList QTreeView::selectedIndexes() const
 void QTreeView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTreeView);
-    
+
     // guestimate the number of items in the viewport
     int viewCount = d->viewport->height() / d->itemHeight;
     int maxDeltaY = verticalStepsPerItem() * qMin(d->viewItems.count(), viewCount);
@@ -1187,7 +1187,7 @@ void QTreeView::columnResized(int column, int, int)
         rect.setRect(0, 0, x + d->header->sectionSize(column), d->viewport->height());
     else
         rect.setRect(x, 0, d->viewport->width() - x, d->viewport->height());
-    d->viewport->update(rect.normalize());
+    d->viewport->update(rect.normalized());
     updateGeometries();
 }
 

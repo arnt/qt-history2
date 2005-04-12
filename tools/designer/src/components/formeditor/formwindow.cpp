@@ -510,7 +510,7 @@ void FormWindow::continueRectDraw(const QPoint &pos, QWidget *, RectType t)
     QPoint p2 = (t == Insert) ? gridPoint(pos) : pos;
 
     QRect r(rectAnchor, p2);
-    r = r.normalize();
+    r = r.normalized();
 
     if (currRect == r)
         return;

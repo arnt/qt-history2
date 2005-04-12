@@ -711,7 +711,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         xc.green = (B | G << 8) * xc.alpha / 0x10000;
         xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
         for (int i = 0; i < rectCount; ++i) {
-            QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalize();
+            QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalized();
             XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
             if (d->cpen.style() != Qt::NoPen)
                 XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
@@ -721,7 +721,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     {
         if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
             for (int i = 0; i < rectCount; ++i) {
-                QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalize();
+                QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalized();
                 d->setupAdaptedOrigin(r.topLeft());
                 if (d->cbrush.style() != Qt::NoBrush)
                     XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
@@ -732,7 +732,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         } else {
             QVarLengthArray<XRectangle> xrects(rectCount);
             for (int i = 0; i < rectCount; ++i) {
-                QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalize();
+                QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalized();
                 xrects[i].x = short(r.x());
                 xrects[i].y = short(r.y());
                 xrects[i].width = ushort(r.width());

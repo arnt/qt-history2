@@ -539,7 +539,7 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
         resizeSections();
         r = d->viewport->rect();
     }
-    d->viewport->update(r.normalize());
+    d->viewport->update(r.normalized());
     emit sectionResized(logicalIndex, oldSize, size);
 }
 

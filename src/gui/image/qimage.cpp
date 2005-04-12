@@ -2879,7 +2879,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     } else {                                        // rotation or shearing
         QPolygonF a(QRectF(0, 0, ws, hs));
         a = mat.map(a);
-        QRectF r = a.boundingRect().normalize();
+        QRectF r = a.boundingRect().normalized();
         wd = int(r.width() + 0.9999);
         hd = int(r.height() + 0.9999);
         complex_xform = true;

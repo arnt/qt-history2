@@ -256,7 +256,7 @@ void QQuickDrawPaintEngine::drawRects(const QRectF *rects, int rectCount)
         return;
 
     for (int i=0; i<rectCount; ++i) {
-        QRect r = rects[i].toRect().intersect(d->polygonClipper.boundingRect()).normalize();
+        QRect r = rects[i].toRect().intersect(d->polygonClipper.boundingRect()).normalized();
 
         Rect rect;
         SetRect(&rect, qRound(r.x())+d->offx, qRound(r.y())+d->offy,
@@ -327,7 +327,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &in_r)
 {
     Q_ASSERT(isActive());
 
-    QRect r = in_r.toRect().intersect(d->polygonClipper.boundingRect()).normalize();
+    QRect r = in_r.toRect().intersect(d->polygonClipper.boundingRect()).normalized();
 
     setupQDPort();
     if(d->clip.paintable.isEmpty())

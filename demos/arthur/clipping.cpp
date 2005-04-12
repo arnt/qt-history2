@@ -100,7 +100,7 @@ void Clipping::paintEvent(QPaintEvent *)
     // If the mouse is pressed
     if (pressPoint != QPoint(-1, -1)) {
         QRect mouseRect = QRect(pressPoint, currentPoint);
-        region ^= mouseRect.normalize();
+        region ^= mouseRect.normalized();
     }
 
     // Create the region used for clipping.

@@ -607,7 +607,7 @@ QRect QTableView::visualRectForSelection(const QItemSelection &selection) const
     int bottomPos = rowViewportPosition(bottomRow) + rowHeight(bottomRow);
 
     QRect rect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
-    return rect.normalize();
+    return rect.normalized();
 }
 
 
@@ -955,7 +955,7 @@ void QTableView::columnResized(int column, int, int)
         rect.setRect(0, 0, x + columnWidth(column), d->viewport->height());
     else
         rect.setRect(x, 0, d->viewport->width() - x, d->viewport->height());
-    d->viewport->update(rect.normalize());
+    d->viewport->update(rect.normalized());
     updateGeometries();
 }
 

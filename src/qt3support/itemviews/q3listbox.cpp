@@ -2010,10 +2010,10 @@ void Q3ListBox::mouseMoveEvent(QMouseEvent *e)
     }
 
     if (d->rubber) {
-        QRect r = d->rubber->normalize();
+        QRect r = d->rubber->normalized();
         drawRubber();
         d->rubber->setCoords(d->rubber->x(), d->rubber->y(), e->x(), e->y());
-        doRubberSelection(r, d->rubber->normalize());
+        doRubberSelection(r, d->rubber->normalized());
         drawRubber();
         return;
     }
@@ -4116,7 +4116,7 @@ void Q3ListBox::drawRubber()
     QPainter p(viewport());
     // p.setRasterOp(NotROP); // ### fix - use qrubberband instead
     QStyleOptionRubberBand opt;
-    opt.rect = d->rubber->normalize();
+    opt.rect = d->rubber->normalized();
     opt.palette = palette();
     opt.shape = QRubberBand::Rectangle;
     opt.opaque = false;

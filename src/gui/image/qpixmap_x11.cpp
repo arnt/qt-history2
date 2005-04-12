@@ -1774,7 +1774,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     } else {                                        // rotation or shearing
         QPolygonF a(QRectF(0, 0, ws+1, hs+1));
         a = mat.map(a);
-        QRectF r = a.boundingRect().normalize();
+        QRectF r = a.boundingRect().normalized();
         w = int(r.width() + 0.9999);
         h = int(r.height() + 0.9999);
         complex_xform = true;

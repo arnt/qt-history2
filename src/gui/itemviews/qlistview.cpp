@@ -518,7 +518,7 @@ QRect QListView::visualRect(const QModelIndex &index) const
 void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QListView);
-    
+
     if (index.parent() != rootIndex() || index.column() != d->column)
         return;
     
@@ -585,7 +585,7 @@ void QListView::scrollContentsBy(int dx, int dy)
         else if (dy < 0) // up
             d->elasticBand.moveTop(d->elasticBand.top() - dy);
     }
-        
+
     QAbstractItemView::scrollContentsBy(dx, dy);
     d->viewport->scroll(dx, dy);
 
@@ -642,7 +642,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
     if (d->viewMode == IconMode
         && state() == DragSelectingState && d->selectionMode != SingleSelection) {
         QRect rect(d->pressedPosition, e->pos() + QPoint(horizontalOffset(), verticalOffset()));
-        rect = rect.normalize();
+        rect = rect.normalized();
         d->setDirtyRect(d->mapToViewport(rect.unite(d->elasticBand)));
         d->elasticBand = rect;
     }

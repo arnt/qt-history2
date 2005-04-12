@@ -126,7 +126,7 @@
 
     An empty rectangle is not valid. \c{isEmpty() == !isValid()}
 
-    \sa isNull(), isValid(), normalize()
+    \sa isNull(), isValid(), normalized()
 */
 
 /*!
@@ -141,7 +141,7 @@
 
     \c{isValid() == !isEmpty()}
 
-    \sa isNull(), isEmpty(), normalize()
+    \sa isNull(), isEmpty(), normalized()
 */
 
 
@@ -155,7 +155,7 @@
     \sa isValid()
 */
 
-QRect QRect::normalize() const
+QRect QRect::normalized() const
 {
     QRect r;
     if (x2 < x1) {                                // swap bad x values
@@ -175,6 +175,22 @@ QRect QRect::normalize() const
     return r;
 }
 
+
+/*!
+    \fn QRect QRect::normalized() const
+
+    \compat
+
+    Use QRect::normalized instead
+
+    Returns a normalized rectangle, i.e. a rectangle that has a
+    non-negative width and height.
+
+    It swaps left and right if left() \> right(), and swaps top and
+    bottom if top() \> bottom().
+
+    \sa isValid()
+*/
 
 /*!
     \fn int QRect::left() const
@@ -1038,7 +1054,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
     An empty rectangle is not valid. \c{isEmpty() == !isValid()}
 
-    \sa isNull() isValid() normalize()
+    \sa isNull() isValid() normalized()
 */
 
 /*!
@@ -1053,7 +1069,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
     \c{isValid() == !isEmpty()}
 
-    \sa isNull() isEmpty() normalize()
+    \sa isNull() isEmpty() normalized()
 */
 
 
@@ -1067,7 +1083,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     \sa isValid()
 */
 
-QRectF QRectF::normalize() const
+QRectF QRectF::normalized() const
 {
     QRectF r = *this;
     if (r.w < 0) {

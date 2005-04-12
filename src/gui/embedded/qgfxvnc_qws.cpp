@@ -1176,7 +1176,7 @@ void QGfxVNC<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     QWSDisplay::grab(true);
     QRect r;
     r.setCoords(x1+this->xoffs, y1+this->yoffs, x2+this->xoffs, y2+this->yoffs);
-    r.normalize();
+    r = r.normalized();
     qvnc_screen->setDirty(r & this->clipbounds);
     QGfxRaster<depth,type>::drawLine(x1, y1, x2, y2);
     QWSDisplay::ungrab();

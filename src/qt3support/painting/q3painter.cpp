@@ -65,7 +65,7 @@
 */
 QRect Q3Painter::adjustedRectangle(const QRect &r)
 {
-    QRect rect = r.normalize();
+    QRect rect = r.normalized();
     int subtract = d_func()->rectSubtraction();
     if (subtract != 0)
         rect.setSize(QSize(rect.width() - subtract, rect.height() - subtract));

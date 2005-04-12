@@ -169,7 +169,7 @@ QRect QTransformedScreen::mapToDevice(const QRect &r, const QSize &s) const
             break;
     }
 
-    return tr.normalize();
+    return tr.normalized();
 }
 
 QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
@@ -193,7 +193,7 @@ QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
             break;
     }
 
-    return tr.normalize();
+    return tr.normalized();
 }
 
 template<class T>
@@ -431,21 +431,21 @@ QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) cons
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(h - r->y() - 1, r->x(),
                               h - r->bottom() - 1, r->right());
-                trgn |= tr.normalize();
+                trgn |= tr.normalized();
             }
             break;
         case Rot90:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(r->y(), w - r->x() - 1,
                               r->bottom(), w - r->right() - 1);
-                trgn |= tr.normalize();
+                trgn |= tr.normalized();
             }
             break;
         case Rot180:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(w - r->x() - 1, h - r->y() - 1,
                               w - r->right() - 1, h - r->bottom() - 1);
-                trgn |= tr.normalize();
+                trgn |= tr.normalized();
             }
             break;
         default:
@@ -474,21 +474,21 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(r->y(), w - r->x() - 1,
                               r->bottom(), w - r->right() - 1);
-                trgn |= tr.normalize();
+                trgn |= tr.normalized();
             }
             break;
         case Rot90:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(h - r->y() - 1, r->x(),
                               h - r->bottom() - 1, r->right());
-                trgn |= tr.normalize();
+                trgn |= tr.normalized();
             }
             break;
         case Rot180:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(w - r->x() - 1, h - r->y() - 1,
                               w - r->right() - 1, h - r->bottom() - 1);
-                trgn |= tr.normalize();
+                trgn |= tr.normalized();
             }
             break;
         default:
@@ -680,7 +680,7 @@ void QGfxTransformedRaster<depth,type>::fillRect(int x, int y, int w, int h)
     QRect r(x, y, w, h);
     if (this->cbrush.style() == Qt::SolidPattern) {
         r.setCoords(tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1));
-        r = r.normalize();
+        r = r.normalized();
     }
     QT_TRANS_GFX_BASE<depth,type>::fillRect(r.x(), r.y(), r.width(), r.height());
 }
@@ -788,7 +788,7 @@ void QGfxTransformedRaster<depth,type>::blt(int x, int y, int w, int h, int sx, 
         rsy = sy;
     } else {
         r.setCoords(tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1));
-        r = r.normalize();
+        r = r.normalized();
         switch (qt_trans_screen->transformation()) {
         case QTransformedScreen::Rot90:
             rsx = sy;
@@ -820,7 +820,7 @@ void QGfxTransformedRaster<depth,type>::stretchBlt(int x, int y, int w, int h,
         return;
     QRect r;
     r.setCoords(tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1));
-    r = r.normalize();
+    r = r.normalized();
     QSize rs = qt_trans_screen->mapToDevice(QSize(sw, sh));
     QT_TRANS_GFX_BASE<depth,type>::stretchBlt(r.x(), r.y(), r.width(), r.height(),
                                         rs.width(), rs.height());
@@ -835,7 +835,7 @@ void QGfxTransformedRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
     inDraw = true;
     QRect r;
     r.setCoords(tx(rx,ry), ty(rx,ry), tx(rx+w-1,ry+h-1), ty(rx+w-1,ry+h-1));
-    r = r.normalize();
+    r = r.normalized();
 
     QPoint oldBrushOrig = this->brushorig;
     this->brushorig = qt_screen->mapToDevice(this->brushorig, QSize(qt_screen->width(),qt_screen->height()));

@@ -32,18 +32,20 @@ public:
     bool isNull() const;
     bool isEmpty() const;
     bool isValid() const;
-    QRect normalize() const;
 
     int left() const;
     int top() const;
     int right() const;
     int bottom() const;
+    QRect normalized() const;
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT int &rLeft() { return x1; }
     QT3_SUPPORT int &rTop() { return y1; }
     QT3_SUPPORT int &rRight() { return x2; }
     QT3_SUPPORT int &rBottom() { return y2; }
+
+    QT3_SUPPORT QRect normalize() const { return normalized(); }
 #endif
 
     int x() const;
@@ -485,7 +487,7 @@ public:
     bool isNull() const;
     bool isEmpty() const;
     bool isValid() const;
-    QRectF normalize() const;
+    QRectF normalized() const;
 
     inline qreal left() const { return xp; }
     inline qreal top() const { return yp; }

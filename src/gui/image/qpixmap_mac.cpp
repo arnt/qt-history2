@@ -494,7 +494,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     } else { // rotation or shearing
         QPolygon a(QRect(0,0,ws+1,hs+1));
         a = mat.map(a);
-        QRect r = a.boundingRect().normalize();
+        QRect r = a.boundingRect().normalized();
         w = r.width()-1;
         h = r.height()-1;
     }

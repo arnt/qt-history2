@@ -906,7 +906,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
 
     QRect rect(d->pressedPosition - offset, pos);
-    setSelection(rect.normalize(), command);
+    setSelection(rect.normalized(), command);
 
     //emit activated(index);
     emit pressed(index);
@@ -971,7 +971,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     setState(DragSelectingState);
     if (selectionModel())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-    QRect selectionRect = QRect(topLeft, bottomRight).normalize();
+    QRect selectionRect = QRect(topLeft, bottomRight).normalized();
     setSelection(selectionRect, selectionCommand(index, e));
 }
 
@@ -1234,7 +1234,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
                 selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
                 QPoint offset(horizontalOffset(), verticalOffset());
                 QRect rect(d->pressedPosition - offset, visualRect(newCurrent).center());
-                setSelection(rect.normalize(), command);
+                setSelection(rect.normalized(), command);
             } else {
                 selectionModel()->setCurrentIndex(newCurrent, command);
                 QPoint offset(horizontalOffset(), verticalOffset());
