@@ -18,6 +18,7 @@
 #include "qlist.h"
 #include "qlocale.h"
 #include "qlocale_p.h"
+#include "qunicodetables_p.h"
 #ifndef QT_NO_DATASTREAM
 #include <qdatastream.h>
 #endif
@@ -183,7 +184,8 @@ int qstrcmp(const char *str1, const char *str2)
 
     A safe stricmp() function.
 
-    Compares \a str1 and \a str2 ignoring the case of the characters.
+    Compares \a str1 and \a str2 ignoring the case of the
+    characters. The encoding of the strings is assumed to be latin1.
 
     Returns a negative value if \a str1 is less than \a str2, 0 if \a
     str1 is equal to \a str2 or a positive value if \a str1 is greater
@@ -206,7 +208,7 @@ int qstricmp(const char *str1, const char *str2)
     uchar c;
     if (!s1 || !s2)
         return s1 ? 1 : (s2 ? -1 : 0);
-    for (; !(res = (c=tolower(*s1)) - tolower(*s2)); s1++, s2++)
+    for (; !(res = (c = QUnicodeTables::lower(*s1)) - QUnicodeTables::lower(*s2)); s1++, s2++)
         if (!c)                                // strings are equal
             break;
     return res;
@@ -217,7 +219,8 @@ int qstricmp(const char *str1, const char *str2)
     A safe strnicmp() function.
 
     Compares at most \a len bytes of \a str1 and \a str2 ignoring the
-    case of the characters.
+    case of the characters. The encoding of the strings is assumed to
+    be latin1.
 
     Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
     is equal to \a str2 or a positive value if \a str1 is greater than \a
@@ -241,7 +244,7 @@ int qstrnicmp(const char *str1, const char *str2, uint len)
     if (!s1 || !s2)
         return s1 ? 1 : (s2 ? -1 : 0);
     for (; len--; s1++, s2++) {
-        if ((res = (c=tolower(*s1)) - tolower(*s2)))
+        if ((res = (c = QUnicodeTables::lower(*s1)) - QUnicodeTables::lower(*s2)))
             return res;
         if (!c)                                // strings are equal
             break;
@@ -613,7 +616,7 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     occurs in the byte array, use count(). If you want to replace all
     occurrences of a particular value with another, use one of the
     two-parameter replace() overloads.
- 
+
     QByteArrays can be compared using overloaded operators such as
     operator<(), operator<=(), operator==(), operator>=(), and so on.
     The comparison is based exclusively on the numeric values
@@ -1493,16 +1496,16 @@ static inline QByteArray &qbytearray_insert(QByteArray *ba,
                                             int pos, const char *arr, int len)
 {
     Q_ASSERT(pos >= 0);
-    
+
     if (pos < 0 || len <= 0 || arr == 0)
         return *ba;
-    
+
     int oldsize = ba->size();
-    ba->resize(qMax(pos, oldsize) + len);    
-    char *dst = ba->data();    
+    ba->resize(qMax(pos, oldsize) + len);
+    char *dst = ba->data();
     if (pos > oldsize)
         ::memset(dst + oldsize, 0x20, pos - oldsize);
-    else 
+    else
         ::memmove(dst + pos + len, dst + pos,
                   (oldsize - pos) * sizeof(char));
     memcpy(dst + pos, arr, len * sizeof(char));
@@ -1560,7 +1563,7 @@ QByteArray &QByteArray::insert(int i, const QByteArray &ba)
 
 QByteArray &QByteArray::insert(int i, const char *str)
 {
-    return qbytearray_insert(this, i, str, qstrlen(str));    
+    return qbytearray_insert(this, i, str, qstrlen(str));
 }
 
 /*!
@@ -1573,7 +1576,7 @@ QByteArray &QByteArray::insert(int i, const char *str)
 
 QByteArray &QByteArray::insert(int i, char ch)
 {
-    return qbytearray_insert(this, i, &ch, 1);    
+    return qbytearray_insert(this, i, &ch, 1);
 }
 
 /*!
@@ -2362,7 +2365,8 @@ QByteArray QByteArray::mid(int pos, int len) const
 }
 
 /*!
-    Returns a lowercase copy of the byte array.
+    Returns a lowercase copy of the byte array. The bytearray is
+    interpreted as a latin1 encoded string.
 
     Example:
     \code
@@ -2379,7 +2383,7 @@ QByteArray QByteArray::toLower() const
     register uchar *p = reinterpret_cast<uchar *>(s.data());
     if (p) {
         while (*p) {
-            *p = tolower(*p);
+            *p = QUnicodeTables::lower(*p);
             p++;
         }
     }
@@ -2387,7 +2391,8 @@ QByteArray QByteArray::toLower() const
 }
 
 /*!
-    Returns an uppercase copy of the byte array.
+    Returns an uppercase copy of the byte array. The bytearray is
+    interpreted as a latin1 encoded string.
 
     Example:
     \code
@@ -2405,7 +2410,7 @@ QByteArray QByteArray::toUpper() const
     register char *p = s.data();
     if (p) {
         while (*p) {
-            *p = toupper(*p);
+            *p = QUnicodeTables::upper(*p);
             p++;
         }
     }
