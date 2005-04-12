@@ -18,9 +18,6 @@
 #include <private/qprintengine_win_p.h>
 #include <private/qabstractpagesetupdialog_p.h>
 
-#define d d_func()
-#define q q_func()
-
 class QPageSetupDialogPrivate : public QAbstractPageSetupDialogPrivate
 {
 };
@@ -35,6 +32,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 
 int QPageSetupDialog::exec()
 {
+    Q_D(QPageSetupDialog);
     QWin32PrintEngine *engine = static_cast<QWin32PrintEngine*>(d->printer->paintEngine());
     QWin32PrintEnginePrivate *ep = static_cast<QWin32PrintEnginePrivate *>(engine->d_ptr);
 

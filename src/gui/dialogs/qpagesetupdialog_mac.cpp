@@ -16,9 +16,6 @@
 #include <private/qprintengine_mac_p.h>
 #include <private/qabstractpagesetupdialog_p.h>
 
-#define d d_func()
-#define q q_func()
-
 class QPageSetupDialogPrivate : public QAbstractPageSetupDialogPrivate
 {
 };
@@ -30,6 +27,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 
 int QPageSetupDialog::exec()
 {
+    Q_D(QPageSetupDialog);
     QMacPrintEngine *engine = static_cast<QMacPrintEngine *>(d->printer->paintEngine());
     QMacPrintEnginePrivate *ep = static_cast<QMacPrintEnginePrivate *>(engine->d_ptr);
     Boolean ret;
