@@ -11,22 +11,10 @@
 **
 ****************************************************************************/
 
+#include <QtGui>
+
 #include "addressview.h"
-
-#include <qhash.h>
-#include <qfile.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qlineedit.h>
-#include <qpushbutton.h>
-#include <qtreeview.h>
-
 #include "msoutl.h"
-
-uint qHash(const QModelIndex &key)
-{
-    return (key.row()+1) * (key.column()+1) + key.column();
-}
 
 class AddressBookModel : public QAbstractListModel
 {
