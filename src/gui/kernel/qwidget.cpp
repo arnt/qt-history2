@@ -5573,10 +5573,10 @@ void QWidget::setLayout(QLayout *l)
     }
     l->d_func()->topLevel = true;
     d_func()->layout = l;
-    l->invalidate();
     if (l->parent() != this) {
         l->setParent(this);
         l->d_func()->reparentChildWidgets(this);
+        l->invalidate();
     }
 }
 

@@ -1078,9 +1078,11 @@ void QSplitter::addWidget(QWidget *widget)
 void QSplitter::insertWidget(int index, QWidget *widget)
 {
     QBoolBlocker b(d->blockChildAdd);
+    bool needShow = isVisible() &&
+                    !(widget->isExplicitlyHidden()&&widget->testAttribute(Qt::WA_WState_ExplicitShowHide));
     if (widget->parentWidget() != this)
         widget->setParent(this);
-    if (isVisible())
+    if (needShow)
         widget->show();
     d->insertWidget(index, widget);
     d->recalc(isVisible());
@@ -1588,7 +1590,7 @@ QByteArray QSplitter::saveState(int version) const
     QDataStream stream(&data, QIODevice::WriteOnly);
 
     stream << qint32(SplitterMagic);
-    stream << qint32(version);    
+    stream << qint32(version);
     stream << sizes();
     stream << childrenCollapsible();
     stream << qint32(handleWidth());
@@ -1616,7 +1618,7 @@ bool QSplitter::restoreState(const QByteArray &state, int version)
 {
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
-    QList<int> list;    
+    QList<int> list;
     bool b;
     qint32 i;
     qint32 marker;
@@ -1626,7 +1628,7 @@ bool QSplitter::restoreState(const QByteArray &state, int version)
     stream >> v;
     if (marker != SplitterMagic || v != version)
         return false;
-    
+
     stream >> list;
     setSizes(list);
 

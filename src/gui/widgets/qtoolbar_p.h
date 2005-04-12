@@ -47,6 +47,7 @@ public:
         setText(_widget->objectName().isEmpty()
             ? QString::fromLatin1(_widget->metaObject()->className())
                 : _widget->objectName());
+        setVisible(!(widget->isExplicitlyHidden()&&widget->testAttribute(Qt::WA_WState_ExplicitShowHide)));
     }
 
     inline QWidget *widget() const
