@@ -557,14 +557,14 @@ public:
     inline void clearColumnWidthConstraints()
     { clearProperty(TableColumnWidthConstraints); }
 
-    inline int cellSpacing() const
-    { return intProperty(TableCellSpacing); }
-    inline void setCellSpacing(int spacing)
+    inline qreal cellSpacing() const
+    { return doubleProperty(TableCellSpacing); }
+    inline void setCellSpacing(qreal spacing)
     { setProperty(TableCellSpacing, spacing); }
 
-    inline int cellPadding() const
-    { return intProperty(TableCellPadding); }
-    inline void setCellPadding(int padding);
+    inline qreal cellPadding() const
+    { return doubleProperty(TableCellPadding); }
+    inline void setCellPadding(qreal padding);
 
     inline void setAlignment(Qt::Alignment alignment);
     inline Qt::Alignment alignment() const
@@ -578,7 +578,7 @@ inline void QTextTableFormat::setColumns(int acolumns)
     setProperty(TableColumns, acolumns);
 }
 
-inline void QTextTableFormat::setCellPadding(int apadding)
+inline void QTextTableFormat::setCellPadding(qreal apadding)
 { setProperty(TableCellPadding, apadding); }
 
 inline void QTextTableFormat::setAlignment(Qt::Alignment aalignment)
