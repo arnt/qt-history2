@@ -34,7 +34,9 @@ public:
 
 protected:
     bool gotoNext(QSqlCachedResult::ValueCache& row, int idx);
-    bool reset (const QString& query);
+    bool reset(const QString &query);
+    bool prepare(const QString &query);
+    bool exec();
     int size();
     int numRowsAffected();
     QVariant lastInsertId() const;

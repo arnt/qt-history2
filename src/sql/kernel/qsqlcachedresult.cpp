@@ -217,6 +217,12 @@ void QSqlCachedResult::cleanup()
     d->cleanup();
 }
 
+void QSqlCachedResult::clearValues()
+{
+    setAt(QSql::BeforeFirstRow);
+    d->rowCacheEnd = 0;
+}
+
 bool QSqlCachedResult::cacheNext()
 {
     if (!gotoNext(d->cache, d->nextIndex())) {

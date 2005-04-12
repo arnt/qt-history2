@@ -44,6 +44,7 @@ protected:
 
     void init(int colCount);
     void cleanup();
+    void clearValues();
 
     virtual bool gotoNext(ValueCache &values, int index) = 0;
 

@@ -128,8 +128,10 @@ void QSQLiteResultPrivate::initColumns()
                     static_cast<const ushort *>(sqlite3_column_name16(stmt, i)));
 
         int dotIdx = colName.lastIndexOf(QLatin1Char('.'));
-        rInf.append(QSqlField(colName.mid(dotIdx == -1 ? 0 : dotIdx + 1),
-                qSqliteType(sqlite3_column_type(stmt, i))));
+        int stp = sqlite3_column_type(stmt, i);
+        QSqlField fld(colName.mid(dotIdx == -1 ? 0 : dotIdx + 1), qSqliteType(stp));
+        fld.setSqlType(stp);
+        rInf.append(fld);
     }
 }
 
@@ -169,11 +171,20 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
             return true;
         for (i = 0; i < rInf.count(); ++i)
             // todo - handle other types
-            switch (rInf.field(i).type()) {
-            case QVariant::ByteArray:
+            switch (rInf.field(i).typeID()) {
+            case SQLITE_BLOB:
                 values[i + idx] = QByteArray(static_cast<const char *>(
                             sqlite3_column_blob(stmt, i)),
                             sqlite3_column_bytes(stmt, i));
+                break;
+            case SQLITE_INTEGER:
+                values[i + idx] = sqlite3_column_int64(stmt, i);
+                break;
+            case SQLITE_FLOAT:
+                values[i + idx] = sqlite3_column_double(stmt, i);
+                break;
+            case SQLITE_NULL:
+                values[i + idx] = QVariant(QVariant::String);
                 break;
             default:
                 values[i + idx] = QString::fromUtf16(static_cast<const ushort *>(
@@ -214,12 +225,15 @@ QSQLiteResult::~QSQLiteResult()
     delete d;
 }
 
-/*
-   Execute \a query.
-*/
-bool QSQLiteResult::reset (const QString &query)
+bool QSQLiteResult::reset(const QString &query)
 {
-    // this is where we build a query.
+    if (!prepare(query))
+        return false;
+    return exec();
+}
+
+bool QSQLiteResult::prepare(const QString &query)
+{
     if (!driver() || !driver()->isOpen() || driver()->isOpenError())
         return false;
 
@@ -236,9 +250,66 @@ bool QSQLiteResult::reset (const QString &query)
         d->finalize();
         return false;
     }
+    return true;
+}
 
+bool QSQLiteResult::exec()
+{
+    const QVector<QVariant> values = boundValues();
+
+    d->skippedStatus = false;
+    d->skipRow = false;
+    clearValues();
+
+    sqlite3_reset(d->stmt);
+
+    int paramCount = sqlite3_bind_parameter_count(d->stmt);
+    if (paramCount == values.count()) {
+        for (int i = 0; i < paramCount; ++i) {
+            int res = SQLITE_OK;
+            const QVariant value = values.at(i);
+
+            if (value.isNull()) {
+                res = sqlite3_bind_null(d->stmt, i + 1);
+            } else {
+                switch (value.type()) {
+                case QVariant::ByteArray: {
+                    const QByteArray *ba = static_cast<const QByteArray*>(value.constData());
+                    res = sqlite3_bind_blob(d->stmt, i + 1, ba->constData(),
+                                            ba->size(), SQLITE_STATIC);
+                    break; }
+                case QVariant::Int:
+                    res = sqlite3_bind_int(d->stmt, i + 1, value.toInt());
+                    break;
+                case QVariant::Double:
+                    res = sqlite3_bind_double(d->stmt, i + 1, value.toDouble());
+                    break;
+                case QVariant::LongLong:
+                    res = sqlite3_bind_int64(d->stmt, i + 1, value.toLongLong());
+                    break;
+                case QVariant::String: {
+                    // lifetime of string == lifetime of its qvariant
+                    const QString *str = static_cast<const QString*>(value.constData());
+                    res = sqlite3_bind_text16(d->stmt, i + 1, str->utf16(),
+                                              (str->size()) * sizeof(QChar), SQLITE_STATIC);
+                    break; }
+                default: {
+                    QString str = value.toString();
+                    // SQLITE_TRANSIENT makes sure that sqlite buffers the data
+                    res = sqlite3_bind_text16(d->stmt, i + 1, str.utf16(),
+                                              (str.size()) * sizeof(QChar), SQLITE_TRANSIENT);
+                    break; }
+                }
+            }
+            if (res != SQLITE_OK) {
+                setLastError(qMakeError(d->access, QLatin1String("Unable to bind parameters"),
+                            QSqlError::StatementError, res));
+                d->finalize();
+                return false;
+            }
+        }
+    }
     d->skippedStatus = d->fetchNext(cache(), 0, true);
-
     setSelect(!d->rInf.isEmpty());
     setActive(true);
     return true;
@@ -311,11 +382,11 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     case Transactions:
     case Unicode:
     case LastInsertId:
+    case PreparedQueries:
+    case PositionalPlaceholders:
         return true;
     case QuerySize:
-    case PreparedQueries:
     case NamedPlaceholders:
-    case PositionalPlaceholders:
         return false;
     }
     return false;
