@@ -69,19 +69,9 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
 QLayout::QLayout(QWidget *parent)
     : QObject(*new QLayoutPrivate, parent)
 {
-    Q_D(QLayout);
-    if (parent) {
-        if (parent->layout()) {
-            qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                     " layout", QObject::objectName().toLocal8Bit().data(), parent->metaObject()->className(),
-                     parent->objectName().toLocal8Bit().data());
-            parent->layout()->setParent(0);
-        } else {
-            d->topLevel = true;
-            parent->d_func()->layout = this;
-            invalidate();
-        }
-    }
+    if (!parent)
+        return;
+    parent->setLayout(this);
 }
 
 /*!

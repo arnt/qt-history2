@@ -59,6 +59,7 @@
 
 #include "qwidget_p.h"
 #include "qaction_p.h"
+#include "qlayout_p.h"
 
 QWidgetPrivate::QWidgetPrivate(int version) :
         QObjectPrivate(version), extra(0), focus_child(0)
@@ -5542,12 +5543,42 @@ QRegion QWidget::mask() const
 
     If the widget does not have a layout, layout() returns 0.
 
-    \sa  sizePolicy()
+    \sa  setLayout(), sizePolicy()
 */
 QLayout* QWidget::layout() const
 {
     return d_func()->layout;
 }
+
+
+/*!
+    Sets the layout engine for this widget to \a l.
+
+    There can be only one top-level layout for a widget.
+
+    \sa layout()
+*/
+
+void QWidget::setLayout(QLayout *l)
+{
+    if (!l) {
+        qWarning("cannot set layout to 0");
+        return;
+    }
+    if (layout()) {
+        qFatal("QWidget::setLayout() : QLayout \"%s\" added to %s \"%s\", which already has a"
+                 " layout", l->objectName().toLocal8Bit().data(), metaObject()->className(),
+                 objectName().toLocal8Bit().data());
+    }
+    l->d_func()->topLevel = true;
+    d_func()->layout = l;
+    l->invalidate();
+    if (l->parent() != this) {
+        l->setParent(this);
+        l->d_func()->reparentChildWidgets(this);
+    }
+}
+
 #endif
 
 

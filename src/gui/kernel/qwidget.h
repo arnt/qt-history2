@@ -422,6 +422,7 @@ public:
 public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout() const;
+    void setLayout(QLayout *);
 #endif
     void updateGeometry();
 
