@@ -114,7 +114,8 @@ contains(sql-drivers, sqlite) {
         !contains( LIBS, .*sqlite.* ) {
                 INCLUDEPATH +=  ../3rdparty/sqlite
 
-                SOURCES +=      ../3rdparty/sqlite/attach.c \
+                SOURCES +=      ../3rdparty/sqlite/alter.c \
+                                ../3rdparty/sqlite/attach.c \
                                 ../3rdparty/sqlite/auth.c \
                                 ../3rdparty/sqlite/btree.c \
                                 ../3rdparty/sqlite/build.c \
@@ -146,7 +147,6 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/vdbemem.c \
                                 ../3rdparty/sqlite/where.c
                 unix:SOURCES += ../3rdparty/sqlite/os_unix.c
-                mac:SOURCES +=  ../3rdparty/sqlite/os_mac.c
                 win32:SOURCES +=  ../3rdparty/sqlite/os_win.c
         }
 
