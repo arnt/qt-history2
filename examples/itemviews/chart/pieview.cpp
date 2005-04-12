@@ -96,7 +96,7 @@ QRect PieView::itemRect(const QModelIndex &index) const
     return QRect();
 }
 
-void PieView::scrollTo(const QModelIndex &index)
+void PieView::scrollTo(const QModelIndex &index, ScrollHint)
 {
     QRect area = viewport()->rect();
     QRect rect = visualRect(index);

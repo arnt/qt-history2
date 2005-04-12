@@ -63,7 +63,7 @@ public:
     void setExpanded(const QModelIndex &index, bool expand);
 
     QRect visualRect(const QModelIndex &index) const;
-    void scrollTo(const QModelIndex &index, ScrollHint hint);
+    void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
     QModelIndex indexAt(const QPoint &p) const;
     QModelIndex indexAbove(const QModelIndex &index) const;
     QModelIndex indexBelow(const QModelIndex &index) const;

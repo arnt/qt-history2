@@ -30,7 +30,7 @@ public:
     PieView(QWidget *parent = 0);
 
     QRect visualRect(const QModelIndex &index) const;
-    void scrollTo(const QModelIndex &index);
+    void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
     QModelIndex indexAt(const QPoint &point) const;
 
 protected slots:
