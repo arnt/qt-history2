@@ -53,6 +53,10 @@
         <source>Internationalization Example</source>
         <translation>Internationalisierungsbeispiel</translation>
     </message>
+    <message>
+        <source>LTR</source>
+        <translation>LTR</translation>
+    </message>
 </context>
 <context>
     <name>QAccel</name>

@@ -53,5 +53,9 @@
         <source>Third</source>
         <translation>Third</translation>
     </message>
+    <message>
+        <source>LTR</source>
+        <translation>LTR</translation>
+    </message>
 </context>
 </TS>

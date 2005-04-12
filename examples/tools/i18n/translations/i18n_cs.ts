@@ -53,5 +53,9 @@
         <source>Internationalization Example</source>
         <translation>Ukázka lokalizace</translation>
     </message>
+    <message>
+        <source>LTR</source>
+        <translation>LTR</translation>
+    </message>
 </context>
 </TS>

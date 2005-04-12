@@ -53,5 +53,9 @@
         <source>Internationalization Example</source>
         <translation>国际化范例</translation>
     </message>
+    <message>
+        <source>LTR</source>
+        <translation>LTR</translation>
+    </message>
 </context>
 </TS>

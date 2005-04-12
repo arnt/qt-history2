@@ -33,6 +33,9 @@ MainWindow::MainWindow()
 
     setWindowTitle(tr("Language: %1").arg(tr("English")));
     statusBar()->showMessage(tr("Internationalization Example"));
+
+    if (tr("LTR") == "RTL")
+        setLayoutDirection(Qt::RightToLeft);
 }
 
 void MainWindow::createGroupBox()

@@ -53,5 +53,9 @@
         <source>E&amp;xit</source>
         <translation>&amp;Fini</translation>
     </message>
+    <message>
+        <source>LTR</source>
+        <translation>LTR</translation>
+    </message>
 </context>
 </TS>

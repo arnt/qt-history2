@@ -53,5 +53,9 @@
         <source>&amp;File</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>LTR</source>
+        <translation>RTL</translation>
+    </message>
 </context>
 </TS>
