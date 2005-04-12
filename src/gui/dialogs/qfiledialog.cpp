@@ -41,9 +41,6 @@
 #include <qdebug.h>
 #include <private/qfiledialog_p.h>
 
-#define d d_func()
-#define q q_func()
-
 const char *qt_file_dialog_filter_reg_exp =
     "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
@@ -344,7 +341,7 @@ QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags f)
     : QDialog(*new QFileDialogPrivate, parent, f)
 {
     QDir dir = QDir::current();
-    d->setup(dir.absolutePath(), dir.nameFilters());
+    d_func()->setup(dir.absolutePath(), dir.nameFilters());
 }
 
 /*!
@@ -360,6 +357,7 @@ QFileDialog::QFileDialog(QWidget *parent,
                          const QString &filter)
     : QDialog(*new QFileDialogPrivate, parent, 0)
 {
+    Q_D(QFileDialog);
     setWindowTitle(caption);
     QStringList nameFilter = qt_make_filter_list(filter);
     if (nameFilter.isEmpty())
@@ -374,6 +372,7 @@ QFileDialog::QFileDialog(QWidget *parent,
 QFileDialog::QFileDialog(const QFileDialogArgs &args)
     : QDialog(*new QFileDialogPrivate, args.parent, 0)
 {
+    Q_D(QFileDialog);
     d->fileMode = args.mode;
     d->confirmOverwrite = !(args.options & DontConfirmOverwrite);
     setWindowTitle(args.caption);
@@ -405,6 +404,7 @@ QFileDialog::~QFileDialog()
 
 void QFileDialog::setDirectory(const QString &directory)
 {
+    Q_D(QFileDialog);
     QModelIndex index = d->model->index(directory);
     d->setRootIndex(index);
     d->updateButtons(index);
@@ -416,6 +416,7 @@ void QFileDialog::setDirectory(const QString &directory)
 
 QDir QFileDialog::directory() const
 {
+    Q_D(const QFileDialog);
     QDir dir(d->model->filePath(d->rootIndex()));
     dir.setNameFilters(d->model->nameFilters());
     dir.setSorting(d->model->sorting());
@@ -429,6 +430,7 @@ QDir QFileDialog::directory() const
 
 void QFileDialog::selectFile(const QString &filename)
 {
+    Q_D(QFileDialog);
     QModelIndex index;
     QString text = filename;
     if (QFileInfo(filename).isAbsolute()) {
@@ -458,6 +460,7 @@ void QFileDialog::selectFile(const QString &filename)
 
 QStringList QFileDialog::selectedFiles() const
 {
+    Q_D(const QFileDialog);
     QModelIndexList indexes = d->selections->selectedIndexes();
     QStringList files;
     int r = -1;
@@ -511,6 +514,7 @@ QStringList QFileDialog::selectedFiles() const
 
 void QFileDialog::setFilter(const QString &filter)
 {
+    Q_D(QFileDialog);
     d->fileTypeCombo->clear();
     d->fileTypeCombo->addItem(filter);
     d->useFilter(filter);
@@ -532,6 +536,7 @@ void QFileDialog::setFilter(const QString &filter)
 
 void QFileDialog::setFilters(const QStringList &filters)
 {
+    Q_D(QFileDialog);
     d->fileTypeCombo->clear();
     d->fileTypeCombo->addItems(filters);
     d->useFilter(filters.first());
@@ -544,6 +549,7 @@ void QFileDialog::setFilters(const QStringList &filters)
 
 QStringList QFileDialog::filters() const
 {
+    Q_D(const QFileDialog);
     QStringList items;
     for (int i = 0; i < d->fileTypeCombo->count(); ++i)
         items.append(d->fileTypeCombo->itemText(i));
@@ -559,6 +565,7 @@ QStringList QFileDialog::filters() const
 
 void QFileDialog::selectFilter(const QString &filter)
 {
+    Q_D(QFileDialog);
     int i = d->fileTypeCombo->findText(filter);
     if (i >= 0)
         d->fileTypeCombo->setCurrentIndex(i);
@@ -572,15 +579,15 @@ void QFileDialog::selectFilter(const QString &filter)
 
 QString QFileDialog::selectedFilter() const
 {
-    return d->fileTypeCombo->currentText();
+    return d_func()->fileTypeCombo->currentText();
 }
 
 void QFileDialog::setViewMode(ViewMode mode)
 {
     if (mode == Detail)
-        d->showDetails();
+        d_func()->showDetails();
     else
-        d->showList();
+        d_func()->showList();
 }
 
 /*!
@@ -595,11 +602,13 @@ void QFileDialog::setViewMode(ViewMode mode)
 
 QFileDialog::ViewMode QFileDialog::viewMode() const
 {
+    Q_D(const QFileDialog);
     return d->viewMode();
 }
 
 void QFileDialog::setFileMode(FileMode mode)
 {
+    Q_D(QFileDialog);
     d->fileMode = mode;
     // set selection mode and behavior
     QAbstractItemView::SelectionMode selectionMode = d->selectionMode(mode);
@@ -632,11 +641,12 @@ void QFileDialog::setFileMode(FileMode mode)
 
 QFileDialog::FileMode QFileDialog::fileMode() const
 {
-    return d->fileMode;
+    return d_func()->fileMode;
 }
 
 void QFileDialog::setAcceptMode(AcceptMode mode)
 {
+    Q_D(QFileDialog);
     d->acceptMode = mode;
     d->openAction->setText(mode == AcceptOpen ? tr("&Open") : tr("&Save"));
     d->acceptButton->setText(mode == AcceptOpen ? tr("Open") : tr("Save"));
@@ -653,7 +663,7 @@ void QFileDialog::setAcceptMode(AcceptMode mode)
 
 QFileDialog::AcceptMode QFileDialog::acceptMode() const
 {
-    return d->acceptMode;
+    return d_func()->acceptMode;
 }
 
 /*!
@@ -666,12 +676,12 @@ QFileDialog::AcceptMode QFileDialog::acceptMode() const
 
 void QFileDialog::setReadOnly(bool enabled)
 {
-    d->model->setReadOnly(enabled);
+    d_func()->model->setReadOnly(enabled);
 }
 
 bool QFileDialog::isReadOnly() const
 {
-    return d->model->isReadOnly();
+    return d_func()->model->isReadOnly();
 }
 
 /*
@@ -683,12 +693,12 @@ bool QFileDialog::isReadOnly() const
 */
 void QFileDialog::setResolveSymlinks(bool enabled)
 {
-    d->model->setResolveSymlinks(enabled);
+    d_func()->model->setResolveSymlinks(enabled);
 }
 
 bool QFileDialog::resolveSymlinks() const
 {
-    return d->model->resolveSymlinks();
+    return d_func()->model->resolveSymlinks();
 }
 
 /*
@@ -702,12 +712,12 @@ bool QFileDialog::resolveSymlinks() const
 */
 void QFileDialog::setConfirmOverwrite(bool enabled)
 {
-    d->confirmOverwrite = enabled;
+    d_func()->confirmOverwrite = enabled;
 }
 
 bool QFileDialog::confirmOverwrite() const
 {
-    return d->confirmOverwrite;
+    return d_func()->confirmOverwrite;
 }
 
 /*
@@ -719,12 +729,12 @@ bool QFileDialog::confirmOverwrite() const
 */
 void QFileDialog::setDefaultSuffix(const QString &suffix)
 {
-    d->defaultSuffix = suffix;
+    d_func()->defaultSuffix = suffix;
 }
 
 QString QFileDialog::defaultSuffix() const
 {
-    return d->defaultSuffix;
+    return d_func()->defaultSuffix;
 }
 
 /*!
@@ -732,6 +742,7 @@ QString QFileDialog::defaultSuffix() const
 */
 void QFileDialog::setHistory(const QStringList &paths)
 {
+    Q_D(QFileDialog);
     QList<QPersistentModelIndex> history;
     QStringList::const_iterator it = paths.constBegin();
     for (; it != paths.constEnd(); ++it) {
@@ -751,6 +762,7 @@ void QFileDialog::setHistory(const QStringList &paths)
 */
 QStringList QFileDialog::history() const
 {
+    Q_D(const QFileDialog);
     QStringList paths;
     QList<QPersistentModelIndex>::const_iterator it = d->history.constBegin();
     for (; it != d->history.constEnd(); ++it)
@@ -764,6 +776,7 @@ QStringList QFileDialog::history() const
 */
 void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
 {
+    Q_D(QFileDialog);
     d->listView->setItemDelegate(delegate);
     d->treeView->setItemDelegate(delegate);
 }
@@ -774,7 +787,7 @@ void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
 */
 QAbstractItemDelegate *QFileDialog::itemDelegate() const
 {
-    return d->listView->itemDelegate();
+    return d_func()->listView->itemDelegate();
 }
 
 /*!
@@ -783,7 +796,7 @@ QAbstractItemDelegate *QFileDialog::itemDelegate() const
 */
 void QFileDialog::setIconProvider(QFileIconProvider *provider)
 {
-    d->model->setIconProvider(provider);
+    d_func()->model->setIconProvider(provider);
 }
 
 /*!
@@ -791,7 +804,7 @@ void QFileDialog::setIconProvider(QFileIconProvider *provider)
 */
 QFileIconProvider *QFileDialog::iconProvider() const
 {
-    return d->model->iconProvider();
+    return d_func()->model->iconProvider();
 }
 
 /*!
@@ -799,6 +812,7 @@ QFileIconProvider *QFileDialog::iconProvider() const
 */
 void QFileDialog::setLabelText(DialogLabel label, const QString &text)
 {
+    Q_D(QFileDialog);
     switch (label) {
     case LookIn:
         d->lookInLabel->setText(text);
@@ -823,6 +837,7 @@ void QFileDialog::setLabelText(DialogLabel label, const QString &text)
 */
 QString QFileDialog::labelText(DialogLabel label) const
 {
+    Q_D(const QFileDialog);
     switch (label) {
     case LookIn:
         return d->lookInLabel->text();
@@ -851,6 +866,7 @@ void QFileDialog::done(int result)
 */
 void QFileDialog::accept()
 {
+    Q_D(QFileDialog);
     QStringList files = selectedFiles();
     QString fn = d->fileNameEdit->text();
 
@@ -1002,8 +1018,9 @@ void QFileDialogPrivate::navigateToParent()
 
 void QFileDialogPrivate::enterDirectory(const QModelIndex &index)
 {
+    Q_Q(QFileDialog);
     // if it is "My Computer" or a directory, enter it
-    if (!index.isValid() || d->model->isDir(index)) {
+    if (!index.isValid() || model->isDir(index)) {
         history.push_back(rootIndex());
         setRootIndex(index);
         updateButtons(index);        
@@ -1171,7 +1188,7 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
     else // otherwise, do completion from the currently selected file
         first = selections->currentIndex(); // optimization to we don't search from start
     if (!first.isValid())
-        first = model->index(0, 0, d->rootIndex());
+        first = model->index(0, 0, rootIndex());
     QModelIndex result = matchName(info.fileName(), first);
     // did we find a valid autocompletion ?
     if (result.isValid()) {
@@ -1185,8 +1202,8 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
         }
         int start = completed.length();
         int length = text.length() - start; // negative length
-        bool block = d->fileNameEdit->blockSignals(true);
-        fileNameEdit->setText(d->toNative(completed));
+        bool block = fileNameEdit->blockSignals(true);
+        fileNameEdit->setText(toNative(completed));
         fileNameEdit->setSelection(start, length);
         fileNameEdit->blockSignals(block);
     } else { // no matches
@@ -1225,7 +1242,7 @@ void QFileDialogPrivate::autoCompleteDirectory(const QString &text)
     QModelIndex result = matchDir(name, model->index(0, 0, parent));
     // did we find a valid autocompletion ?
     if (result.isValid()) {
-        QString completed = toNative(d->model->filePath(result));
+        QString completed = toNative(model->filePath(result));
         int start = completed.length();
         int length = text.length() - start; // negative length
         bool block = lookInEdit->blockSignals(true);
@@ -1243,6 +1260,7 @@ void QFileDialogPrivate::autoCompleteDirectory(const QString &text)
 
 void QFileDialogPrivate::showContextMenu(const QPoint &pos)
 {
+    Q_Q(QFileDialog);
     QAbstractItemView *view = 0;
     if (q->viewMode() == QFileDialog::Detail)
         view = treeView;
@@ -1390,6 +1408,7 @@ void QFileDialogPrivate::setUnsorted()
 
 void QFileDialogPrivate::setup(const QString &directory, const QStringList &nameFilter)
 {
+    Q_Q(QFileDialog);
     q->setSizeGripEnabled(true);
     QGridLayout *grid = new QGridLayout(q);
     grid->setMargin(11);
@@ -1465,6 +1484,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
 
 void QFileDialogPrivate::setupActions()
 {
+    Q_Q(QFileDialog);
     openAction = new QAction(tr("&Open"), q);
     QObject::connect(openAction, SIGNAL(triggered()), q, SLOT(accept()));
 
@@ -1501,6 +1521,7 @@ void QFileDialogPrivate::setupActions()
 
 void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *grid)
 {
+    Q_Q(QFileDialog);
     listView = new QListView(q);
 
     listView->setModel(model);
@@ -1528,6 +1549,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
 
 void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *grid)
 {
+    Q_Q(QFileDialog);
     treeView = new QTreeView(q);
 
     treeView->setModel(model);
@@ -1561,6 +1583,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
 
 void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayout *grid)
 {
+    Q_Q(QFileDialog);
     QHBoxLayout *box = new QHBoxLayout;
     box->setMargin(3);
     box->setSpacing(3);
@@ -1616,6 +1639,7 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
 void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
 {
     // labels
+    Q_Q(QFileDialog);
     lookInLabel = new QLabel(tr("Look in:"), q);
     grid->addWidget(lookInLabel, 0, 0);
     fileNameLabel = new QLabel(tr("File name:"), q);
@@ -1645,7 +1669,7 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
     QObject::connect(lookInEdit, SIGNAL(returnPressed()), q, SLOT(enterDirectory()));
     lookInCombo->setLineEdit(lookInEdit);
     lookInCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    grid->addWidget(d->lookInCombo, 0, 1, 1, 3);
+    grid->addWidget(lookInCombo, 0, 1, 1, 3);
 
     // filename
     fileNameEdit = new QFileDialogLineEdit(q);
@@ -1670,9 +1694,9 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     newFolderButton->setEnabled(!model->isReadOnly());
     bool block = lookInCombo->blockSignals(true);
     if (index.isValid()) {
-        QString pth = toNative(d->model->filePath(index));
+        QString pth = toNative(model->filePath(index));
         Q_ASSERT(!pth.isEmpty()); // this should be caught by the first if statement
-        QIcon icn = d->model->fileIcon(index);
+        QIcon icn = model->fileIcon(index);
         int i = lookInCombo->findText(pth);
         if (i > -1) {
             lookInCombo->setCurrentIndex(i);
@@ -1741,7 +1765,7 @@ QModelIndex QFileDialogPrivate::matchDir(const QString &text, const QModelIndex 
                                            |QAbstractItemModel::MatchWrap
                                            |QAbstractItemModel::MatchCase);
     for (int i = 0; i < matches.count(); ++i)
-        if (d->model->isDir(matches.at(i)))
+        if (model->isDir(matches.at(i)))
             return matches.at(i);
     return QModelIndex();
 }
