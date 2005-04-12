@@ -2,6 +2,10 @@
 
     \title The QAxContainer Module
 
+    This module is part of the \link activeqt.html ActiveQt
+    framework\endlink. (To make an application into an ActiveX server
+    see the \link qaxserver.html QAxServer module\endlink.)
+
     \tableofcontents
 
     \section1 Introduction
@@ -11,11 +15,8 @@
     controls, and a QObject subclass, QAxObject, that can be used to
     easily access non-visual COM objects. Scripting COM objects embedded
     using these classes is possible through the QAxScript, QAxScriptManager
-    and QAxScriptEngine classes.
-
-    This module is part of the \link activeqt.html ActiveQt
-    framework\endlink. (To make an application into an ActiveX server
-    see the \link qaxserver.html QAxServer module\endlink.)
+    and QAxScriptEngine classes, and a set of \link activeqt-tools.html 
+    tools \endlink make it easy to use embedded COM objects programmatically.
 
     The module consists of six classes
     \list 1
@@ -35,9 +36,8 @@
 
     In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
     enter the \c container subdirectory and run \c qmake to generate the
-    makefile, and use the make tool (\c nmake for VC++, \c make for Borland)
-    to build the library. The library \c qaxcontainer.lib will be linked 
-    into \c QTDIR/lib.
+    makefile, and use your make tool to build the library. 
+    The library \c qaxcontainer.lib will be linked into \c QTDIR/lib.
 
     If you are using a shared configuration of Qt enter the \c plugin subdirectory
     and run \c qmake and your make tool to build a plugin that integrates the
@@ -104,7 +104,7 @@
     ActiveQt it is possible to request the COM interface directly using
     \c QAxBase::queryInterface(). To get a C++ definition of the respective
     interface classes use the \c #import directive with the type library
-    provided with the control.
+    provided with the control; see your compiler manual for details.
 
     \section2 Typical error messages
 

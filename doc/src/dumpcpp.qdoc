@@ -57,7 +57,7 @@
 
     \code
     Outlook::Application *outlook = new Outlook::Application;
-    \encode
+    \endcode
 
     All other classes can only be created by passing an IDispatch interface pointer 
     to the constructor; those classes should however not be created explicitly. 
@@ -98,8 +98,7 @@
     In this case, create the correct wrapper class explicitly:
 
     \code
-    Outlook::NameSpace *session = new Outlook::NameSpace
-(outlook->Session()); 
+    Outlook::NameSpace *session = new Outlook::NameSpace(outlook->Session()); 
     \endcode
 
     You can of course use the IDispatch* returned directly, in which case you have to 

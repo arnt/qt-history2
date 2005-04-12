@@ -2,17 +2,17 @@
 
     \title The QAxServer Module
 
+    This module is part of the \link activeqt.html ActiveQt
+    framework\endlink. (To incorporate ActiveX controls in a Qt
+    application see the \link qaxcontainer.html QAxContainer
+    module\endlink.) 
+
     \tableofcontents
 
     \section1 Introduction
 
     The QAxServer module provides a static library implementing the
     functionality required to turn a standard Qt binary into a COM server. 
-
-    This module is part of the \link activeqt.html ActiveQt
-    framework\endlink. (To incorporate ActiveX controls in a Qt
-    application see the \link qaxcontainer.html QAxContainer
-    module\endlink.) 
 
     The module consists of three classes
     \list
@@ -43,7 +43,7 @@
     file like this:
     \code
     TEMPLATE = app
-    CONFIG  += qt qaxserver
+    CONFIG  += qaxserver
 
     RC_FILE  = qaxserver.rc
     ...
@@ -52,7 +52,7 @@
     To build an in-process server, use a \c .pro file like this:
     \code
     TEMPLATE = lib
-    CONFIG  += qt qaxserver dll
+    CONFIG  += qaxserver dll
 
     DEF_FILE = qaxserver.def
     RC_FILE  = qaxserver.rc
@@ -63,8 +63,8 @@
     framework and can be used from their usual location (specify a
     path in the \c .pro file), or copied into the project directory.
     You can modify these files as long as it includes any file as the
-    type library entry, ie. you can add version information or use a
-    different toolbox icon.
+    type library entry, ie. you can add version information or specify
+    a different toolbox icon.
 
     The \c qaxserver configuration will cause the \c qmake tool to add the 
     required build steps to the build system:
@@ -75,6 +75,9 @@
     \i register the server
     \endlist
 
+    To skip the post-processing step, also set the \c qaxserver_no_postlink
+    configuration.
+
     Additionally you can specify a version number using the \c VERSION
     variable, e.g.
     \code
@@ -84,8 +87,6 @@
     \endcode
     The version number specified will be used as the version of the type
     library and of the server when registering.
-
-    
 
     \section2 Out-of-process vs. In-process
 
@@ -98,16 +99,18 @@
     communication between the COM client and the COM object. If the
     control has a programming error only the server process running
     the control will crash, and the client application will probably
-    continue to run.
+    continue to run. Not all COM clients support executable servers.
 
     An in-process server is usually smaller and has faster startup
     time. The communication between client and server is done directly
     through virtual function calls and does not introduce the overhead
-    required for remote procedure calls. But if the server crashes the
-    client application is likely to crash as well.
+    required for remote procedure calls. However, if the server crashes the
+    client application is likely to crash as well, and not every 
+    functionality is available for in-process servers (i.e. register in
+    the COM's running-object-table).
 
-    Both server types can use Qt either as a shared library, or
-    statically linked into the server binary.
+    Both server types can use Qt either as a shared library, or statically
+    linked into the server binary.
 
     \section1 The QAxServer build system
 
@@ -135,7 +138,7 @@
     The compiler/linker errors listed are based on those issued by the 
     Microsoft Visual C++ 6.0 compiler.
 
-    \section3 Compiler errors
+    \section3 Compilation errors
 
     \section4 "No overloaded function takes 2 parameters"
 
