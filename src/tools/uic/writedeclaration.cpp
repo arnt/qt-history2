@@ -13,6 +13,8 @@
 
 #include "writedeclaration.h"
 #include "writeicondeclaration.h"
+#include "writeinitialization.h"
+#include "writeiconinitialization.h"
 #include "driver.h"
 #include "ui4.h"
 #include "uic.h"
@@ -34,7 +36,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
     QString varName = driver->findOrInsertWidget(node->elementWidget());
     QString widgetClassName = node->elementWidget()->attributeClass();
 
-    output << "class " << className << "\n"
+    output << "class " << option.prefix << className << "\n"
            << "{\n"
            << "public:\n";
 
@@ -50,9 +52,9 @@ void WriteDeclaration::acceptUI(DomUI *node)
 
     TreeWalker::acceptWidget(node->elementWidget());
 
-    output << "\n"
-           << option.indent << "inline void setupUi(" << widgetClassName << " *" << varName << ");\n"
-           << option.indent << "inline void retranslateUi(" << widgetClassName << " *" << varName << ");\n";
+    output << "\n";
+
+    WriteInitialization(uic).acceptUI(node);
 
     if (node->elementImages()) {
         output << "\n"
@@ -64,10 +66,18 @@ void WriteDeclaration::acceptUI(DomUI *node)
         output << option.indent << option.indent << "unknown_ID\n"
             << option.indent << "};\n";
 
-        output << "\n" << option.indent << "static QPixmap icon(IconID id);\n";
+        WriteIconInitialization(uic).acceptUI(node);
     }
 
     output << "};\n\n";
+
+
+    if (option.generateNamespace && !option.prefix.isEmpty()) {
+        output << "namespace Ui\n"
+            << "{\n"
+            << option.indent << "class " << className << ": public " << option.prefix << className << " {};\n"
+            << "} // namespace Ui\n\n";
+    }
 }
 
 void WriteDeclaration::acceptWidget(DomWidget *node)

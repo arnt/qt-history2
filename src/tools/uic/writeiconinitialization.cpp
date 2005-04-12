@@ -33,8 +33,8 @@ void WriteIconInitialization::acceptUI(DomUI *node)
 
     QString className = node->elementClass() + option.postfix;
 
-    output << "inline QPixmap " << className << "::icon(" << className << "::IconID id)\n"
-           << "{\n";
+    output << option.indent << "static QPixmap " << "icon(IconID id)\n"
+           << option.indent << "{\n";
 
     WriteIconData(uic).acceptUI(node);
 
@@ -44,8 +44,8 @@ void WriteIconInitialization::acceptUI(DomUI *node)
 
     output << option.indent << option.indent << "default: return QPixmap();\n";
 
-    output << option.indent << "}\n"
-           << "}\n\n";
+    output << option.indent << "} // switch\n"
+           << option.indent << "} // icon\n\n";
 }
 
 void WriteIconInitialization::acceptImages(DomImages *images)

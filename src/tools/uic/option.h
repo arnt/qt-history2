@@ -28,6 +28,7 @@ struct Option
     QString inputFile;
     QString outputFile;
     QString indent;
+    QString prefix;
     QString postfix;
     QString translateFunction;
     QString uic3;
@@ -38,7 +39,8 @@ struct Option
           generateImplemetation(0),
           generateNamespace(1),
           autoConnection(1),
-          dependencies(0)
+          dependencies(0),
+          prefix(QLatin1String("Ui_"))
     { indent.fill(QLatin1Char(' '), 4); }
 };
 

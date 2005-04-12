@@ -59,8 +59,8 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     QString widgetClassName = node->elementWidget()->attributeClass();
 
-    output << "inline void " << className << "::setupUi(" << widgetClassName << " *" << varName << ")\n"
-           << "{\n";
+    output << option.indent << "void " << "setupUi(" << widgetClassName << " *" << varName << ")\n"
+           << option.indent << "{\n";
 
     QStringList connections = uic->databaseInfo()->connections();
     for (int i=0; i<connections.size(); ++i) {
@@ -104,16 +104,16 @@ void WriteInitialization::acceptUI(DomUI *node)
     if (option.autoConnection)
         output << "\n" << option.indent << "QMetaObject::connectSlotsByName(" << varName << ");\n";
 
-    output << "}\n\n";
+    output << option.indent << "} // setupUi\n\n";
 
     if (m_delayedActionInitialization.isEmpty()) {
         m_delayedInitialization += option.indent + QLatin1String("Q_UNUSED(") + varName + QLatin1String(");\n");
     }
 
-    output << "inline void " << className << "::retranslateUi(" << widgetClassName << " *" << varName << ")\n"
-           << "{\n"
+    output << option.indent << "void " << "retranslateUi(" << widgetClassName << " *" << varName << ")\n"
+           << option.indent << "{\n"
            << m_delayedInitialization
-           << "}\n\n";
+           << option.indent << "} // retranslateUi\n\n";
 
     m_layoutChain.pop();
     m_widgetChain.pop();

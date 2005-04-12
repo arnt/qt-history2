@@ -19,10 +19,8 @@
 // operations
 #include "treewalker.h"
 #include "validator.h"
-#include "writedeclaration.h"
 #include "writeincludes.h"
-#include "writeinitialization.h"
-#include "writeiconinitialization.h"
+#include "writedeclaration.h"
 
 #include <qcoreapplication.h>
 #include <qdebug.h>
@@ -168,16 +166,8 @@ bool Uic::write(DomUI *ui)
     cWidgetsInfo.acceptUI(ui);
     WriteIncludes(this).acceptUI(ui);
 
-    if (opt.generateNamespace)
-        out << "namespace Ui {\n\n";
-
     Validator(this).acceptUI(ui);
     WriteDeclaration(this).acceptUI(ui);
-    WriteInitialization(this).acceptUI(ui);
-    WriteIconInitialization(this).acceptUI(ui);
-
-    if (opt.generateNamespace)
-        out << "}\n\n";
 
     if (opt.headerProtection)
         writeHeaderProtectionEnd();
