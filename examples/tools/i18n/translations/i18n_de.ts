@@ -1,0 +1,64 @@
+<!DOCTYPE TS><TS>
+<context>
+    <name>MainWindow</name>
+    <message>
+        <source>View</source>
+        <translation>Ansicht</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Datei</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation>Be&amp;enden</translation>
+    </message>
+    <message>
+        <source>First</source>
+        <translation>Erstens</translation>
+    </message>
+    <message>
+        <source>Third</source>
+        <translation>Drittens</translation>
+    </message>
+    <message>
+        <source>English</source>
+        <translation>Deutsch</translation>
+    </message>
+    <message>
+        <source>Language: %1</source>
+        <translation>Sprache: %1</translation>
+    </message>
+    <message>
+        <source>Ctrl+Q</source>
+        <translation>Strg+E</translation>
+    </message>
+    <message>
+        <source>Oblique</source>
+        <translation>Schief</translation>
+    </message>
+    <message>
+        <source>Second</source>
+        <translation>Zweitens</translation>
+    </message>
+    <message>
+        <source>Isometric</source>
+        <translation>Isometrisch</translation>
+    </message>
+    <message>
+        <source>Perspective</source>
+        <translation>Perspektivisch</translation>
+    </message>
+    <message>
+        <source>Internationalization Example</source>
+        <translation>Internationalisierungsbeispiel</translation>
+    </message>
+</context>
+<context>
+    <name>QAccel</name>
+    <message>
+        <source>Ctrl</source>
+        <translation>Strg</translation>
+    </message>
+</context>
+</TS>
