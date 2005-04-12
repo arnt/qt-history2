@@ -20,6 +20,7 @@
 #include <QtDesigner/default_extensionfactory.h>
 
 #include <QtCore/QPair>
+#include <QtCore/QRect>
 
 class QLayoutWidget;
 class QLayoutSupport;
