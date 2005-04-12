@@ -1095,15 +1095,19 @@ QAction *QMenu::activeAction() const
 }
 
 /*!
-    Removes all the menu's actions.
+    Removes all the menu's actions. Actions owned by the menu and not
+    shown in any other widget are deleted.
 
     \sa removeAction()
 */
 void QMenu::clear()
 {
     QList<QAction*> acts = actions();
-    for(int i = 0; i < acts.size(); i++)
+    for(int i = 0; i < acts.size(); i++) {
         removeAction(acts[i]);
+        if (acts[i]->parent() == this && acts[i]->d_func()->widgets.isEmpty())
+            delete acts[i];
+    }
 }
 
 /*!
@@ -1885,14 +1889,14 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             }
             QAction *next_action = 0;
             if (clashCount >= 1) {
-                if (clashCount == 1 || !d->currentAction || (currentSelected && !firstAfterCurrent))
+                if (clashCount == 1 || !currentSelected || !firstAfterCurrent)
                     next_action = first;
                 else
                     next_action = firstAfterCurrent;
             }
             if (next_action) {
                 d->setCurrentAction(next_action, 20, true);
-                if (!next_action->menu()) {
+                if (!next_action->menu() && clashCount <= 1) {
                     key_consumed = true;
                     d->activateAction(next_action, QAction::Trigger);
                 }
