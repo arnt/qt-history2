@@ -403,7 +403,11 @@ void HorizontalLayout::doLayout()
             w->move(QPoint(0,0));
         }
 
-        if (!useSplitter) {
+        if (useSplitter) {
+            QSplitter *splitter = qobject_cast<QSplitter*>(layoutBase);
+            Q_ASSERT(splitter != 0);
+            splitter->addWidget(w);
+        } else {
             if (Spacer *spacer = qobject_cast<Spacer*>(w))
                 layout->addWidget(w, 0, spacer->alignment());
             else

@@ -39,6 +39,7 @@ public:
     static Type layoutType(QDesignerFormEditorInterface *core, QLayout *layout);
     static Type layoutType(QDesignerFormEditorInterface *core, QWidget *w);
     static QWidget *layoutParent(QDesignerFormEditorInterface *core, QLayout *layout);
+    static bool isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *widget);
 
     class Interval
     {

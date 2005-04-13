@@ -101,19 +101,27 @@ void LayoutInfo::cells(QLayout *layout, IntervalList *rows, IntervalList *column
 {
     QMap<Interval, int> rowDict;
     QMap<Interval, int> columnDict;
-    
+
     int i = 0;
     while (QLayoutItem *item = layout->itemAt(i)) {
         ++i;
-        
+
         QRect g = item->geometry();
         columnDict.insert(Interval(g.left(), g.right()), 1);
         rowDict.insert(Interval(g.top(), g.bottom()), 1);
     }
-        
+
     if (columns)
         *columns = columnDict.keys();
-    
+
     if (rows)
         *rows = rowDict.keys();
+}
+
+bool LayoutInfo::isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *widget)
+{
+    Q_UNUSED(core);
+
+    return widget->parentWidget() && widget->parentWidget()->layout()
+            && widget->parentWidget()->layout()->indexOf(widget) != -1;
 }

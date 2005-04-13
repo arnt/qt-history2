@@ -250,8 +250,6 @@ private:
 
     QWidget *containerAt(const QPoint &pos, QWidget *notParentOf);
 
-    QList<QWidget*> checkSelectionsForMove(QWidget *w);
-
     void checkPreviewGeometry(QRect &r);
 
     void finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenuEvent *e);

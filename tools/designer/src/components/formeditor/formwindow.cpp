@@ -345,8 +345,8 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
     if (e->buttons() != Qt::LeftButton)
         return true;
 
-    bool inLayout = LayoutInfo::layoutType(m_core, managedWidget->parentWidget()) != LayoutInfo::NoLayout;
-    // ### && w->parentWidget() is managed?
+    bool inLayout = LayoutInfo::layoutType(m_core, managedWidget->parentWidget()) != LayoutInfo::NoLayout
+            && managedWidget->parentWidget()->layout()->indexOf(managedWidget) != -1;
 
     // if the dragged widget is not in a layout, raise it
     if (inLayout == false)
@@ -415,31 +415,25 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseE
 
     bool blocked = blockSelectionChanged(true);
 
-    // if widget is laid out, find the first non-laid out super-widget
-    QWidget *current = managedWidget;
-    while (QWidget *p = current->parentWidget()) {
-        bool managed = isManaged(current);
-        bool parentLaidout = LayoutInfo::layoutType(m_core, p) != LayoutInfo::NoLayout;
+    QList<QWidget*> sel = selectedWidgets();
+    simplifySelection(&sel);
 
-        if (managed == true && parentLaidout == false)
-            break;
+    QSet<QWidget*> widget_set;
 
-        current = p;
+    foreach (QWidget *child, sel) {
+        QWidget *current = child;
+        while (LayoutInfo::isWidgetLaidout(core(), current) == true) {
+            current = current->parentWidget();
+        }
+        widget_set.insert(current);
     }
 
-    selectWidget(current);
+    sel = widget_set.toList();
 
     QDesignerResource builder(this);
 
-    QList<QWidget*> sel = checkSelectionsForMove(managedWidget);
-
     QList<QDesignerDnDItemInterface*> item_list;
     foreach (QWidget *widget, sel) {
-        QWidget *container = findTargetContainer(widget);
-        if (container && LayoutInfo::layoutType(core(), container) != LayoutInfo::NoLayout) {
-            widget = container;
-            selectWidget(widget, true);
-        }
         if (e->modifiers() & Qt::ControlModifier) {
             item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::CopyDrop, this,
                                                     widget, e->globalPos()));
@@ -871,42 +865,6 @@ QWidget *FormWindow::containerAt(const QPoint &pos, QWidget *notParentOf)
         }
     }
     return container;
-}
-
-QList<QWidget*> FormWindow::checkSelectionsForMove(QWidget *w)
-{
-    // if widget is laid out, find the first non-laid out super-widget
-    while ( w->parentWidget() &&
-                ( LayoutInfo::layoutType(m_core, w->parentWidget() ) != LayoutInfo::NoLayout || !isManaged(w) ) )
-        w = w->parentWidget();
-
-    QMap<QWidget *, QPoint> moving;
-
-    QList<QWidget*> l = qFindChildren<QWidget*>(w->parentWidget());
-    if (!l.isEmpty()) {
-        QHashIterator<QWidget *, WidgetSelection *> it(usedSelections);
-        while (it.hasNext()) {
-            it.next();
-
-            WidgetSelection *sel = it.value();
-            if (it.key() == mainContainer())
-                continue;
-
-            if (!l.contains(sel->widget())) {
-                if (LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout)
-                    sel->setWidget(0);
-            } else {
-                if (LayoutInfo::layoutType(m_core, sel->widget()->parentWidget()) == LayoutInfo::NoLayout) {
-                    moving.insert(sel->widget(), sel->widget()->pos());
-                    sel->widget()->raise();
-                    raiseChildSelections(sel->widget());
-                    raiseSelection(sel->widget());
-                }
-            }
-        }
-    }
-
-    return moving.keys();
 }
 
 QList<QWidget*> FormWindow::selectedWidgets() const
