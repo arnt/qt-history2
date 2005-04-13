@@ -992,7 +992,8 @@ bool QODBCResult::prepare(const QString& query)
 #endif
 
     if (r != SQL_SUCCESS) {
-        qSqlWarning(QLatin1String("QODBCResult::prepare: Unable to prepare statement"), d);
+        setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
+                     "Unable to prepare statement"), QSqlError::StatementError, d));
         return false;
     }
     return true;

@@ -556,7 +556,8 @@ bool QDB2Result::prepare(const QString& query)
                     (SQLINTEGER) query.length());
 
     if (r != SQL_SUCCESS) {
-        qSqlWarning(QLatin1String("QDB2Result::prepare: Unable to prepare statement"), d);
+        setLastError(qMakeError(QCoreApplication::translate("QDB2Result",
+                     "Unable to prepare statement"), QSqlError::StatementError, d));
         return false;
     }
     return true;
