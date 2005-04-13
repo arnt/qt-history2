@@ -7,12 +7,12 @@
 
     \image calendar-example.png
 
-    Specifically, the example demonstrates the following techniques:
+    Specifically, the example demonstrates the following:
 
     \list
-      \o Creating a text editor and obtaining its text document
-      \o Insert tables and frames
-      \o Navigate within a table
+      \o Use of a text editor with a text document
+      \o Insertion of tables and frames into a document
+      \o Navigation within a table
       \o Insert text in different styles
     \endlist
 
@@ -28,6 +28,106 @@
     \quotefromfile richtext/calendar/mainwindow.h
     \skipto class MainWindow
     \printuntil /^\};/
+
+    The private \c insertCalendar() function performs most of the work, relying on
+    the \c fontSize and \c selectedDate variables to write useful information to
+    the \c editor.
+
+    \section1 MainWindow Class Implementation
+
+    The \c MainWindow constructor sets up the user interface and initializes
+    variables used to generate a calendar for each month.
+
+    \quotefromfile richtext/calendar/mainwindow.cpp
+    \skipto MainWindow::MainWindow
+    \printuntil centralWidget
+
+    We begin by setting default values for the selected date that will be highlighted
+    in the calendar and the font size to be used. Since we are using a QMainWindow
+    for the user interface, we construct a widget for use as the central widget.
+
+    The user interface will include a line of controls above the generated calendar;
+    we construct a label and a combobox to allow the month to be selected, and a
+    spin box for the year. These widgets are configured to provide a reasonable range
+    of values for the user to try:
+
+    \skipto dateLabel
+    \printuntil yearEdit->setDate
+
+    We use the \c selectedDate object to obtain the current month and year, and we
+    set these in the combobox and spin box:
+
+    The font size is displayed in a spin box which we restrict to a sensible range
+    of values:
+
+    \skipto QLabel *fontSizeLabel
+    \printuntil insertCalendar()
+
+    We construct an editor and use the \c insertCalendar() function to create
+    a calendar for it. Each calendar is displayed in the same text editor; in
+    this example we use a QTextBrowser since we do not allow the calendar to be
+    edited.
+
+    The controls used to set the month, year, and font size will not have any
+    effect on the appearance of the calendar unless we make some signal-slot
+    connections:
+
+    \skipto connect(monthCombo
+    \printuntil setFontSize
+
+    The signals are connected to some simple slots in the \c MainWindow class
+    which we will describe later.
+
+    We create layouts to manage the widgets we constructed:
+
+    \skipto controlsLayout
+    \printuntil setCentralWidget
+
+    Finally, the central widget is set for the window.
+
+    Each calendar is created for the editor by the \c insertCalendar() function
+    which uses the date and font size, defined by the private \a selectedDate
+    and \c fontSize variables, to produce a suitable plan for the specified
+    month and year.
+
+    \skipto insertCalendar(
+    \printuntil removeSelectedText
+
+    We begin by obtaining a \l{QTextCursor}{text cursor} to use with the document
+    used by the editor. The existing contents of the document is deleted by
+    first selecting it then removing it. Alternatively, we could have cleared
+    the text using \l QTextEdit::clear() or \l QTextDocument::clear(), but we
+    will continue to use the cursor.
+
+    The calendar is made up of a table with a gray background color that contains
+    seven columns: one for each day of the week. It is placed in the center of the
+    page with equal space to the left and right of it. All of these properties are
+    set in a QTextTableFormat object:
+
+    \skipto QTextTableFormat
+    \printuntil tableFormat
+
+    Each cell in the table will be padded and spaced to make the text easier to
+    read.
+
+    We want the columns to have equal widths, so we provide a vector containing
+    percentage widths for each of them and set the constraints in the
+    QTextTableFormat:
+
+    \skipto QVector<QTextLength>
+    \printuntil tableFormat
+
+    The constraints used for the column widths are only useful if the table has
+    an appropriate number of columns. With the format for the table defined, we
+    construct a new table with one row and seven columns at the current cursor
+    position:
+
+    \skipto QTextTable
+    \printuntil QTextTable
+
+    We only need one row to start with; more can be added as we need them. Using
+    this approach means that we do not need to perform any date calculations
+    until we add cells to the table.
 
 
 */
