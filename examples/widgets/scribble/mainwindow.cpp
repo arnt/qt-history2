@@ -92,7 +92,7 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
-    saveAsMenu = new QMenu(tr("&Save As..."));
+    saveAsMenu = new QMenu(tr("&Save As"));
     foreach (QAction *action, saveAsActs)
         saveAsMenu->addAction(action);
 
