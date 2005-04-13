@@ -7,18 +7,19 @@ MainWindow::MainWindow()
     selectedDate = QDate::currentDate();
     fontSize = 10;
 
-    QWidget *centralWidget = new QWidget(this);
-    QLabel *dateLabel = new QLabel(tr("Date:"), centralWidget);
-    QComboBox *monthCombo = new QComboBox(centralWidget);
+    QWidget *centralWidget = new QWidget;
+
+    QLabel *dateLabel = new QLabel(tr("Date:"));
+    QComboBox *monthCombo = new QComboBox;
 
     for (int month = 1; month <= 12; ++month)
         monthCombo->addItem(QDate::longMonthName(month));
 
-    monthCombo->setCurrentIndex(selectedDate.month() - 1);
-
     QDateTimeEdit *yearEdit = new QDateTimeEdit(centralWidget);
     yearEdit->setDisplayFormat("yyyy");
     yearEdit->setDateRange(QDate(1753, 1, 1), QDate(8000, 1, 1));
+
+    monthCombo->setCurrentIndex(selectedDate.month() - 1);
     yearEdit->setDate(selectedDate);
 
     QLabel *fontSizeLabel = new QLabel(tr("Font size:"), centralWidget);
@@ -26,7 +27,7 @@ MainWindow::MainWindow()
     fontSizeSpinBox->setRange(1, 64);
     fontSizeSpinBox->setValue(10);
 
-    editor = new QTextBrowser(centralWidget);
+    editor = new QTextBrowser;
     insertCalendar();
 
     connect(monthCombo, SIGNAL(activated(int)), this, SLOT(setMonth(int)));
@@ -43,9 +44,10 @@ MainWindow::MainWindow()
     controlsLayout->addWidget(fontSizeSpinBox);
     controlsLayout->addStretch(1);
 
-    QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
+    QVBoxLayout *centralLayout = new QVBoxLayout;
     centralLayout->addLayout(controlsLayout);
     centralLayout->addWidget(editor, 1);
+    centralWidget->setLayout(centralLayout);
 
     setCentralWidget(centralWidget);
 }

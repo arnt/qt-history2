@@ -4,7 +4,7 @@
 #include <QDate>
 #include <QMainWindow>
 
-class QTextEdit;
+class QTextBrowser;
 
 class MainWindow : public QMainWindow
 {
@@ -23,7 +23,7 @@ private:
 
     int fontSize;
     QDate selectedDate;
-    QTextEdit *editor;
+    QTextBrowser *editor;
 };
 
 #endif
