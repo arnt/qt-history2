@@ -137,7 +137,7 @@ int SourceFiles::hash(const char *file)
 
 SourceFile *SourceFiles::lookupFile(const char *file)
 {
-    int len=0, h = hash(file) % num_nodes;
+    int h = hash(file) % num_nodes;
     for(SourceFileNode *p = nodes[h]; p; p = p->next) {
         if(!strcmp(p->key, file))
             return p->file;

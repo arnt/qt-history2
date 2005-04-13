@@ -2100,17 +2100,11 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                             if(!project->isEmpty(fixedSubDep + ".target")) {
                                 st->depends += project->first(fixedSubDep + ".target");
                             } else {
-                                bool fromFile = false;
                                 QString d = Option::fixPathToLocalOS(subdirs[subDep]);
-                                if(!project->isEmpty(fixedSubDep + ".file")) {
+                                if(!project->isEmpty(fixedSubDep + ".file"))
                                     d = project->first(fixedSubDep + ".file");
-                                    fromFile = true;
-                                } else if(!project->isEmpty(fixedSubDep + ".subdir")) {
+                                else if(!project->isEmpty(fixedSubDep + ".subdir"))
                                     d = project->first(fixedSubDep + ".subdir");
-                                    fromFile = false;
-                                } else {
-                                    fromFile = d.endsWith(Option::pro_ext);
-                                }
                                 st->depends += "sub-" + d.replace('/','_').replace('.', '_');
                             }
                             found = true;

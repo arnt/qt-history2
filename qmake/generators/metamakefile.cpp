@@ -238,12 +238,12 @@ SubdirsMetaMakefileGenerator::init()
             Subdir *sub = new Subdir;
             subs.append(sub);
 
-            bool subPro = false;
+//###             bool subPro = false;
             QFileInfo subdir(subdirs.at(i));
             if(subdir.isDir())
                 subdir = QFileInfo(subdirs.at(i) + "/" + subdir.fileName() + Option::pro_ext);
-            else
-                subPro = true;
+//###             else
+//###                 subPro = true;
 
             //handle sub project
             QMakeProject *sub_proj = new QMakeProject(project->properities());
@@ -266,8 +266,8 @@ SubdirsMetaMakefileGenerator::init()
                 if(!output.isDir())
                     sub->output_file += output.fileName();
             }
-            if(subPro)
-                sub->output_file += "." + subdir.baseName();
+//###             if(subPro)
+//###                 sub->output_file += "." + subdir.baseName();
 #endif
         }
         Option::output_dir = old_output_dir;
