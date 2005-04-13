@@ -860,10 +860,17 @@ bool Q3ImageDrag::decode(const QMimeSource* e, QImage& img)
         return false;
 
     QByteArray payload;
-    QList<QByteArray> fileFormats = QImageReader::supportedImageFormats();
+    QList<QByteArray> fileFormats = QImageReader::supportedImageFormats();    
+
     // PNG is best of all
-    if (fileFormats.removeAll("PNG")) // move to front
-        fileFormats.prepend("PNG");
+    // (this is a rather strange hack, but it works now)
+    for (int i=0; i < fileFormats.count(); i++) {
+        if (fileFormats.at(i).toLower() == "png") {
+            fileFormats.prepend("png");
+            break ;
+        }
+    } // move to front
+
     for (int i = 0; i < fileFormats.count(); ++i) {
         QByteArray type = "image/" + fileFormats.at(i).toLower();
         if (! e->provides(type))
