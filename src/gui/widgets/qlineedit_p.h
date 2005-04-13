@@ -60,7 +60,6 @@ public:
     uint cursorVisible : 1;
     uint separator : 1;
     uint readOnly : 1;
-    uint direction : 1;
     uint dragEnabled : 1;
     uint contextMenuEnabled : 1;
     uint alignment : 5;
@@ -127,9 +126,6 @@ public:
     void redo();
     inline bool isUndoAvailable() const { return !readOnly && undoState; }
     inline bool isRedoAvailable() const { return !readOnly && undoState < (int)history.size(); }
-
-    // bidi
-    inline bool isRightToLeft() const { return (direction == Qt::RightToLeft); }
 
     // selection
     int selstart, selend;

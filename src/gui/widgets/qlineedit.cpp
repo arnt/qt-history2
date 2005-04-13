@@ -1537,7 +1537,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
         case Qt::Key_Right:
         case Qt::Key_Left:
-            if ((d->direction == Qt::RightToLeft) == (e->key() == Qt::Key_Right)) {
+            if ((layoutDirection() == Qt::RightToLeft) == (e->key() == Qt::Key_Right)) {
 #ifndef Q_WS_MAC
                 if (echoMode() == Normal)
                     cursorWordBackward(e->modifiers() & Qt::ShiftModifier);
@@ -1575,7 +1575,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
         case Qt::Key_Left:
         case Qt::Key_Right: {
-            int step =  ((d->direction == Qt::RightToLeft) == (e->key() == Qt::Key_Right)) ? -1 : 1;
+            int step =  ((layoutDirection() == Qt::RightToLeft) == (e->key() == Qt::Key_Right)) ? -1 : 1;
 #ifdef Q_WS_MAC
             if (e->modifiers() & Qt::AltModifier) {
                 if (step < 0)
@@ -1655,7 +1655,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         }
     }
     if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
-        d->direction = (e->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft;
+        setLayoutDirection((e->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft);
         d->updateTextLayout();
         update();
         unknown = false;
@@ -1872,7 +1872,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
     int widthUsed = qRound(line.naturalTextWidth()) + 1 + minRB;
     if ((minLB + widthUsed) <=  lineRect.width()) {
-        Qt::Alignment va = QStyle::visualAlignment(Qt::LayoutDirection(d->direction), QFlag(d->alignment));
+        Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(d->alignment));
         va &= ~(Qt::AlignAbsolute|Qt::AlignVertical_Mask);
         switch (va) {
         case Qt::AlignRight:
@@ -2108,7 +2108,6 @@ void QLineEditPrivate::clipboardChanged()
 void QLineEditPrivate::init(const QString& txt)
 {
     Q_Q(QLineEdit);
-    direction = q->layoutDirection();
 #ifndef QT_NO_CURSOR
     q->setCursor(Qt::IBeamCursor);
 #endif
@@ -2162,7 +2161,7 @@ void QLineEditPrivate::updateTextLayout()
     textLayout.setFont(q->font());
     textLayout.setText(str);
     QTextOption option;
-    option.setTextDirection(Qt::LayoutDirection(direction));
+    option.setTextDirection(q->layoutDirection());
     option.setFlags(QTextOption::IncludeTrailingSpaces);
     textLayout.setTextOption(option);
 
