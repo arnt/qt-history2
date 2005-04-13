@@ -779,7 +779,7 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
 
             int len = x2 - x1;
 
-            if (fillData.callback && len >= 0) {
+            if (fillData.callback && len > 0) {
                 QT_FT_Span span;
                 span.x = x1;
                 span.len = x2 - x1;
