@@ -202,6 +202,7 @@ public:
         CE_ScrollBarLast,
 
         CE_FocusFrame,
+        CE_ComboBoxLabel,
 
         // do not add any values below/greater than this
         CE_CustomBase = 0xf0000000
@@ -532,6 +533,7 @@ public:
         SH_RubberBand_Mask,
         SH_SpinControls_DisableOnBounds,
         SH_Dial_BackgroundRole,
+        SH_ComboBox_LayoutDirection,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT

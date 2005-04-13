@@ -2142,9 +2142,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 else
                     p->fillRect(opt->rect, editBrush);
 
-                QRect ar = visualRect(opt->direction, opt->rect, QCommonStyle::subControlRect(CC_ComboBox, cmb,
-                                                                                              SC_ComboBoxArrow,
-                                                                                              widget));
+                QRect ar = subControlRect(CC_ComboBox, cmb, SC_ComboBoxArrow, widget);
                 if (cmb->activeSubControls == SC_ComboBoxArrow) {
                     p->setPen(cmb->palette.dark().color());
                     p->setBrush(cmb->palette.brush(QPalette::Button));
@@ -2167,10 +2165,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, p, widget);
             }
             if (cmb->subControls & SC_ComboBoxEditField) {
-                QRect re = visualRect(opt->direction, opt->rect,
-                                      QCommonStyle::subControlRect(CC_ComboBox, cmb,
-                                                                   SC_ComboBoxEditField,
-                                                                   widget));
+                QRect re = subControlRect(CC_ComboBox, cmb, SC_ComboBoxEditField, widget);
                 if (cmb->state & State_HasFocus && !cmb->editable)
                     p->fillRect(re.x(), re.y(), re.width(), re.height(),
                                 cmb->palette.brush(QPalette::Highlight));
@@ -2187,8 +2182,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 if (cmb->state & State_HasFocus && !cmb->editable) {
                     QStyleOptionFocusRect focus;
                     focus.QStyleOption::operator=(*cmb);
-                    focus.rect = visualRect(opt->direction, opt->rect,
-                                            subElementRect(SE_ComboBoxFocusRect, cmb, widget));
+                    focus.rect = subElementRect(SE_ComboBoxFocusRect, cmb, widget);
                     focus.state |= State_FocusAtBorder;
                     focus.backgroundColor = cmb->palette.highlight().color();
                     drawPrimitive(PE_FrameFocusRect, &focus, p, widget);

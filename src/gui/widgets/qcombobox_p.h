@@ -128,10 +128,10 @@ private:
     Scroller *bottom;
 };
 
-class MenuDelegate : public QAbstractItemDelegate
+class QComboMenuDelegate : public QAbstractItemDelegate
 {
 public:
-    MenuDelegate(QObject *parent, QComboBox *cmb) : QAbstractItemDelegate(parent), mCombo(cmb), pal(QApplication::palette("QMenu")) {}
+    QComboMenuDelegate(QObject *parent, QComboBox *cmb) : QAbstractItemDelegate(parent), mCombo(cmb), pal(QApplication::palette("QMenu")) {}
 
 protected:
     void paint(QPainter *painter,

@@ -1337,7 +1337,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 if ((cb->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                     QStyleOptionFocusRect focus;
                     focus.QStyleOption::operator=(*opt);
-                    focus.rect = QStyle::visualRect(opt->direction, opt->rect, subElementRect(SE_ComboBoxFocusRect, opt, widget));
+                    focus.rect = subElementRect(SE_ComboBoxFocusRect, opt, widget);
                     focus.backgroundColor = opt->palette.button().color();
                     drawPrimitive(PE_FrameFocusRect, &focus, p, widget);
                 }
@@ -1345,8 +1345,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
             if (opt->subControls & SC_ComboBoxEditField) {
                 if (cb->editable) {
-                    QRect er = QStyle::visualRect(opt->direction, opt->rect,
-                                                  subControlRect(CC_ComboBox, opt, SC_ComboBoxEditField, widget));
+                    QRect er = subControlRect(CC_ComboBox, opt, SC_ComboBoxEditField, widget);
                     er.adjust(-1, -1, 1, 1);
                     qDrawShadePanel(p, er, opt->palette, true, 1,
                                     &opt->palette.brush(QPalette::Base));
@@ -1657,7 +1656,8 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                 QRect cr = opt->rect;
                 cr.adjust(fw, fw, -fw, -fw);
                 get_combo_parameters(cr, ew, awh, ax, ay, sh, dh, sy);
-                return QRect(QPoint(ax, ay), cr.bottomRight()); }
+                return visualRect(cb->direction, cb->rect, QRect(QPoint(ax, ay), cr.bottomRight()));
+            }
 
             case SC_ComboBoxEditField: {
                 int fw = cb->frame ? pixelMetric(PM_ComboBoxFrameWidth, opt, widget) : 0;
@@ -1665,7 +1665,8 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                 rect.adjust(fw, fw, -fw, -fw);
                 int ew = get_combo_extra_width(rect.height(), rect.width());
                 rect.adjust(1, 1, -1-ew, -1);
-                return rect; }
+                return visualRect(cb->direction, cb->rect, rect);
+            }
 
             default:
                 break;

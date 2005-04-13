@@ -1828,7 +1828,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             if (!s.isEmpty()) {
                 int t = s.indexOf('\t');
                 int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::TextHideMnemonic
-                                 | Qt::TextSingleLine;
+                                 | Qt::TextSingleLine | Qt::AlignAbsolute;
                 p->save();
                 if (t >= 0) {
                     p->setFont(qt_app_fonts_hash()->value("QMenuItem", p->font()));
@@ -2825,7 +2825,8 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
         }
         break;
     case QStyle::CC_ComboBox:
-        if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+        if (const QStyleOptionComboBox *combo
+                    = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             // Always figure out the edit field area
             HIRect hirect, outrect;
             HIThemeButtonDrawInfo bdi;
@@ -2844,7 +2845,9 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
             }
             switch (sc) {
             default:
-                ret = q->QWindowsStyle::subControlRect(cc, opt, sc, widget);
+                // I undo the layout that Windows rect has.
+                ret = QStyle::visualRect(combo->direction, combo->rect,
+                                         q->QWindowsStyle::subControlRect(cc, opt, sc, widget));
                 break;
             case QStyle::SC_ComboBoxEditField:
                 // ret = ret; <-- Already done
@@ -5000,7 +5003,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_RubberBand_Mask:
         ret = 0;
         break;
-
+    case SH_ComboBox_LayoutDirection:
+        ret = Qt::LeftToRight;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;
@@ -5398,6 +5403,13 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 p->drawPixmap(pixTL, pixmap);
                 p->drawText(br, btn->text);
             }
+        }
+        break;
+    case CE_ComboBoxLabel:
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            QStyleOptionComboBox comboCopy = *cb;
+            comboCopy.direction = Qt::LeftToRight;
+            QWindowsStyle::drawControl(CE_ComboBoxLabel, &comboCopy, p, w);
         }
         break;
     case CE_TabBarTabLabel:

@@ -687,6 +687,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value CE_CustomBase  Base value for custom ControlElements;
     custom values must be greater than this value
+    \value CE_ComboBoxLabel The label of a non-editable QComboBox
 
     \sa drawControl()
 */
@@ -1448,6 +1449,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
      background role (as QPalette::ColorRole) for a dial widget.
 
      \value SH_ScrollBar_BackgroundMode The backgroundMode() for a scroll bar.
+
+     \value SH_ComboBox_LayoutDirection The layout direction for the combo box.
+     By default it should be the same value as the QStyleOption's
+     \c{direction}.
 
      \omitvalue SH_UnderlineAccelerator
 

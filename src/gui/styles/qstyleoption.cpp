@@ -1398,7 +1398,21 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 /*!
     \property QStyleOptionComboBox::frame
     \brief Indicates whether whether the combo box has a frame.
+*/
 
+/*!
+    \property QStyleOptionComboBox::currentText
+    \brief The text for the current item of the combo box
+*/
+
+/*!
+    \property QStyleOptionComboBox::currentIcon
+    \brief The icon for the current item of the combo box
+*/
+
+/*!
+    \property QStyleOptionComboBox::iconSize
+    \brief The icon size for the current item of the combo box
 */
 
 /*!

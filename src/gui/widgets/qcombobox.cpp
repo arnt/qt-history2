@@ -12,9 +12,8 @@
 ****************************************************************************/
 
 #include "qcombobox.h"
-#include <qpainter.h>
+#include <qstylepainter.h>
 #include <qlineedit.h>
-#include <qstyle.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 #include <qlistview.h>
@@ -48,7 +47,7 @@ QComboBoxPrivate::QComboBoxPrivate()
 {
 }
 
-QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &option,
+QStyleOptionMenuItem QComboMenuDelegate::getStyleOption(const QStyleOptionViewItem &option,
                                                   const QModelIndex &index) const
 {
     QStyleOptionMenuItem menuOption;
@@ -82,8 +81,7 @@ void QComboBoxPrivate::updateArrow(QStyle::StateFlag state)
         return;
     arrowState = state;
     QStyleOptionComboBox opt = getStyleOption();
-    q->update(QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(
-                                     QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow)));
+    q->update(q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow));
 }
 
 /*!
@@ -356,19 +354,14 @@ void QComboBoxPrivateContainer::hideEvent(QHideEvent *)
 
 void QComboBoxPrivateContainer::mousePressEvent(QMouseEvent *e)
 {
-    QRect ignoreRect = combo->rect();
-    if (combo->isEditable()) {
-        QStyleOptionComboBox opt = comboStyleOption();
-        opt.subControls = QStyle::SC_All;
-        opt.activeSubControls = QStyle::SC_ComboBoxArrow;
-        ignoreRect = QStyle::visualRect(opt.direction, opt.rect,
-                                        style()->subControlRect(
-                                            QStyle::CC_ComboBox, &opt,
-                                            QStyle::SC_ComboBoxArrow, combo));
-    }
-    ignoreRect = QRect(combo->mapToGlobal(ignoreRect.topLeft()),
-                       combo->mapToGlobal(ignoreRect.bottomRight()));
-    if (ignoreRect.contains(e->globalPos()))
+
+    QStyleOptionComboBox opt = comboStyleOption();
+    opt.subControls = QStyle::SC_All;
+    opt.activeSubControls = QStyle::SC_ComboBoxArrow;
+    QStyle::SubControl sc = style()->hitTestComplexControl(QStyle::CC_ComboBox, &opt,
+                                                           e->pos(), combo);
+    if ((combo->isEditable() && sc == QStyle::SC_ComboBoxArrow)
+        || (!combo->isEditable() && sc != QStyle::SC_None))
         setAttribute(Qt::WA_NoMouseReplay);
     QFrame::mousePressEvent(e);
 }
@@ -606,7 +599,10 @@ QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
     container->itemView()->setModel(model);
     QStyleOptionComboBox opt = getStyleOption();
     if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q) && !q->isEditable())
-        q->setItemDelegate(new MenuDelegate(container->itemView(), q));
+        q->setItemDelegate(new QComboMenuDelegate(container->itemView(), q));
+    container->setLayoutDirection(Qt::LayoutDirection(
+                                    q->style()->styleHint(QStyle::SH_ComboBox_LayoutDirection,
+                                                          &opt, q)));
     QObject::connect(container, SIGNAL(itemSelected(QModelIndex)),
                      q, SLOT(itemSelected(QModelIndex)));
     QObject::connect(container->itemView()->selectionModel(),
@@ -704,6 +700,12 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
     }
     opt.editable = q->isEditable();
     opt.frame = frame;
+    if (currentIndex.isValid()) {
+        opt.currentText = q->currentText();
+        opt.currentIcon = q->itemIcon(currentIndex.row());
+    }
+    opt.iconSize = q->iconSize();
+
     return opt;
 }
 
@@ -714,9 +716,8 @@ void QComboBoxPrivate::updateLineEditGeometry()
 
     Q_Q(QComboBox);
     QStyleOptionComboBox opt = getStyleOption();
-    QRect editRect = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(
-                                              QStyle::CC_ComboBox, &opt,
-                                              QStyle::SC_ComboBoxEditField, q));
+    QRect editRect = q->style()->subControlRect(QStyle::CC_ComboBox, &opt,
+                                                QStyle::SC_ComboBoxEditField, q);
     if (!q->itemIcon(q->currentIndex()).isNull()) {
         QRect comboRect(editRect);
         editRect.setWidth(editRect.width() - q->iconSize().width() - 4);
@@ -1080,10 +1081,14 @@ void QComboBox::setEditable(bool editable)
             d->viewContainer()->updateScrollers();
             view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         }
-        setLineEdit(new QLineEdit(this));
+        QLineEdit *le = new QLineEdit(this);
+        le->setLayoutDirection(Qt::LayoutDirection(
+                               style()->styleHint(QStyle::SH_ComboBox_LayoutDirection,
+                                                  &opt, this)));
+        setLineEdit(le);
     } else {
         if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
-            setItemDelegate(new MenuDelegate(view(), this));
+            setItemDelegate(new QComboMenuDelegate(view(), this));
             d->viewContainer()->updateScrollers();
             view()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         }
@@ -1322,11 +1327,10 @@ QString QComboBox::itemText(int index) const
 QIcon QComboBox::itemIcon(int index) const
 {
     Q_D(const QComboBox);
-    QStyleOptionComboBox opt = d->getStyleOption();
     QModelIndex item = model()->index(index, d->modelColumn, rootModelIndex());
     return qvariant_cast<QIcon>(model()->data(item, Qt::DecorationRole))
         .pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize),
-                opt.state & QStyle::State_Enabled ? QIcon::Normal : QIcon::Disabled);
+                isEnabled() ? QIcon::Normal : QIcon::Disabled);
 }
 
 /*!
@@ -1695,39 +1699,15 @@ void QComboBox::resizeEvent(QResizeEvent *)
 void QComboBox::paintEvent(QPaintEvent *)
 {
     Q_D(QComboBox);
-    QPainter painter(this);
+    QStylePainter painter(this);
     painter.setPen(palette().color(QPalette::Text));
 
     // draw the combobox frame, focusrect and selected etc.
     QStyleOptionComboBox opt = d->getStyleOption();
-    style()->drawComplexControl(QStyle::CC_ComboBox, &opt, &painter, this);
+    painter.drawComplexControl(QStyle::CC_ComboBox, opt);
 
     // draw the icon and text
-    if (d->currentIndex.isValid()) {
-        QString txt = model()->data(d->currentIndex, Qt::DisplayRole).toString();
-        const QIcon &icon = itemIcon(currentIndex());
-        QRect editRect = QStyle::visualRect(opt.direction, opt.rect, style()->subControlRect(
-                                                 QStyle::CC_ComboBox, &opt,
-                                                 QStyle::SC_ComboBoxEditField, this));
-
-        if (!icon.isNull()) {
-            QRect comboRect(editRect);
-            QRect iconRect(editRect);
-            iconRect.setWidth(iconSize().width() +  4);
-            editRect.setWidth(editRect.width() - iconRect.width());
-            iconRect = QStyle::alignedRect(layoutDirection(), Qt::AlignLeft,
-                                           iconRect.size(), comboRect);
-            editRect = QStyle::alignedRect(layoutDirection(), Qt::AlignRight,
-                                            editRect.size(), comboRect);
-            painter.setClipRect(iconRect);
-            icon.paint(&painter, iconRect);
-        }
-
-        if (!txt.isNull() && !isEditable()) {
-            painter.setClipRect(editRect);
-            painter.drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft|Qt::AlignVCenter, txt);
-        }
-    }
+    painter.drawControl(QStyle::CE_ComboBoxLabel, opt);
 }
 
 /*!

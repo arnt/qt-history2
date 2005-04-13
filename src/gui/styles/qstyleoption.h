@@ -594,6 +594,9 @@ public:
     bool editable;
     QRect popupRect;
     bool frame;
+    QString currentText;
+    QIcon currentIcon;
+    QSize iconSize;
 
     QStyleOptionComboBox();
     QStyleOptionComboBox(const QStyleOptionComboBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
@@ -601,6 +604,9 @@ public:
     QDOC_PROPERTY(bool editable)
     QDOC_PROPERTY(QRect popupRect)
     QDOC_PROPERTY(bool frame)
+    QDOC_PROPERTY(QString currentText)
+    QDOC_PROPERTY(QIcon currentIcon)
+    QDOC_PROPERTY(QSize iconSize)
 
 protected:
     QStyleOptionComboBox(int version);

@@ -1142,6 +1142,28 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         opt->state & State_Sunken, 1,
                         &opt->palette.brush(QPalette::Button));
         break;
+    case CE_ComboBoxLabel:
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, widget);
+            if (!cb->currentIcon.isNull()) {
+                QRect comboRect(editRect);
+                QRect iconRect(editRect);
+                iconRect.setWidth(cb->iconSize.width() +  4);
+                editRect.setWidth(editRect.width() - iconRect.width());
+                iconRect = alignedRect(cb->direction, Qt::AlignLeft, iconRect.size(), comboRect);
+                editRect = alignedRect(cb->direction, Qt::AlignRight, editRect.size(), comboRect);
+                p->setClipRect(iconRect);
+                cb->currentIcon.paint(p, iconRect);
+            }
+
+            if (!cb->currentText.isEmpty() && !cb->editable) {
+                p->setClipRect(editRect);
+                p->drawText(editRect.adjusted(1, 0, -1, 0),
+                            visualAlignment(cb->direction, Qt::AlignLeft | Qt::AlignVCenter),
+                            cb->currentText);
+            }
+        }
+        break;
     default:
         break;
     }
@@ -2208,12 +2230,11 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
         }
         break;
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             QRect r;
             uint ctrl = SC_ComboBoxArrow;  // Start here and go down.
             while (ctrl > 0) {
-                r = visualRect(opt->direction, opt->rect,
-                               subControlRect(cc, cmb, QStyle::SubControl(ctrl), widget));
+                r = subControlRect(cc, cb, QStyle::SubControl(ctrl), widget);
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -2426,6 +2447,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             default:
                 break;
             }
+            ret = visualRect(cb->direction, cb->rect, ret);
         }
         break;
     case CC_TitleBar:
@@ -3034,6 +3056,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 
     case SH_Dial_BackgroundRole:
         ret = QPalette::Background;
+        break;
+
+    case SH_ComboBox_LayoutDirection:
+        ret = opt->direction;
         break;
 
     default:
