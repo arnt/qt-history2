@@ -627,8 +627,9 @@ MenuRef QMenu::macMenu(MenuRef merge) { return d->macMenu(merge); }
 /*****************************************************************************
   QMenuBar bindings
  *****************************************************************************/
-QHash<QWidget *, QMenuBar *> QMenuBarPrivate::QMacMenuBarPrivate::menubars;
-QPointer<QMenuBar> QMenuBarPrivate::QMacMenuBarPrivate::fallback;
+typedef QHash<QWidget *, QMenuBar *> MenuBarHash;
+Q_GLOBAL_STATIC(MenuBarHash, menubars)
+static QMenuBar *fallback = 0;
 
 QMenuBarPrivate::QMacMenuBarPrivate::QMacMenuBarPrivate() : menu(0), apple_menu(0)
 {
@@ -757,11 +758,11 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
     if(qgetenv("QT_MAC_NO_NATIVE_MENUBAR"))
         qt_mac_no_native_menubar = true;
     if(!qt_mac_no_native_menubar) {
-        if(!parent && !QMacMenuBarPrivate::fallback) {
-            QMacMenuBarPrivate::fallback = q;
+        if(!parent && !fallback) {
+            fallback = q;
             mac_menubar = new QMacMenuBarPrivate;
         } else if (parent && parent->isWindow()) {
-            QMacMenuBarPrivate::menubars.insert(q->window(), q);
+            menubars()->insert(q->window(), q);
             mac_menubar = new QMacMenuBarPrivate;
         }
     }
@@ -769,9 +770,11 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 
 void QMenuBarPrivate::macDestroyMenuBar()
 {
+    if (fallback == q)
+        fallback = 0;
     delete mac_menubar;
     QWidget *tlw = q->window();
-    QMacMenuBarPrivate::menubars.remove(tlw);
+    menubars()->remove(tlw);
     mac_menubar = 0;
 }
 
@@ -833,28 +836,28 @@ bool QMenuBar::macUpdateMenuBar()
         }
     }
     if(w) {
-        mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(w);
+        mb = menubars()->value(w);
 #ifndef QT_NO_MAINWINDOW
         QDockWidget *dw = qobject_cast<QDockWidget *>(w);
         if(!mb && dw) {
             QMainWindow *mw = qobject_cast<QMainWindow *>(dw->parentWidget());
-            if (mw && (mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(mw)))
+            if (mw && (mb = menubars()->value(mw)))
                 w = mw;
         }
 #endif
         while(w && !mb)
-            mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value((w = w->parentWidget()));
+            mb = menubars()->value((w = w->parentWidget()));
     }
     if(!w || (!(w->windowType() == Qt::Tool) && !(w->windowType() == Qt::Popup)))
         fall_back_to_empty = true;
     if(!mb)
-        mb = QMenuBarPrivate::QMacMenuBarPrivate::fallback;
+        mb = fallback;
     //now set it
     bool ret = false;
     if(mb) {
         if(MenuRef menu = mb->macMenu()) {
             SetRootMenu(menu);
-            if(mb != QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget()))
+            if(mb != menubars()->value(qApp->activeModalWidget()))
                 qt_mac_set_modal_state(menu, QApplicationPrivate::modalState());
         }
         ret = true;

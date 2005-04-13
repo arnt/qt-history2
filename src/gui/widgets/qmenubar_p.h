@@ -99,8 +99,6 @@ public:
 #ifdef Q_WS_MAC
     //mac menubar binding
     struct QMacMenuBarPrivate {
-        static QPointer<QMenuBar> fallback;
-        static QHash<QWidget *, QMenuBar *> menubars;
         QList<QMacMenuAction*> actionItems;
         MenuRef menu, apple_menu;
         QMacMenuBarPrivate();
