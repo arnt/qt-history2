@@ -16,7 +16,6 @@
 #include <qaction.h>
 #include <qsignal.h>
 #include <private/qaction_p.h>
-#define d d_func()
 
 struct QActionAccessor { QActionPrivate *d_ptr; };
 class QMenuItemEmitter : public QObject
@@ -58,7 +57,7 @@ QMenuItem::QMenuItem() : QAction((QWidget*)0)
 
 void QMenuItem::setId(int id)
 {
-    d->param = d->id = id;
+    d_func()->param = d_func()->id = id;
 }
 
 /*!
@@ -67,7 +66,7 @@ void QMenuItem::setId(int id)
 */
 int QMenuItem::id() const
 {
-    return d->id;
+    return d_func()->id;
 }
 
 /*!
@@ -76,16 +75,16 @@ int QMenuItem::id() const
 */
 QSignalEmitter *QMenuItem::signal() const
 {
-    if(!d->act_signal) {
+    if(!d_func()->act_signal) {
         QMenuItem *that = const_cast<QMenuItem*>(this);
-        that->d->act_signal = new QMenuItemEmitter(that);
+        that->d_func()->act_signal = new QMenuItemEmitter(that);
     }
-    return d->act_signal->signal();
+    return d_func()->act_signal->signal();
 }
 
 void QMenuItem::setSignalValue(int param)
 {
-    d->param = param;
+    d_func()->param = param;
 }
 
 /*!
@@ -94,6 +93,6 @@ void QMenuItem::setSignalValue(int param)
 */
 int QMenuItem::signalValue() const
 {
-    return d->param;
+    return d_func()->param;
 }
 #endif
