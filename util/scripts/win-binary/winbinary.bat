@@ -43,6 +43,7 @@ cd %1\clean
 if "%TMP_QTCONFIG%"=="release" goto ReleaseConfig
 echo - Copying symbols
 xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.pdb %1\clean\bin >> %1\log.txt
+xcopy /Q /I %1\%TMP_BUILDDIR%\src\winmain\*.pdb %1\clean\bin >> %1\log.txt
 goto CopyFiles
 
 :ReleaseConfig
@@ -58,15 +59,37 @@ echo - Removing source dir in clean
 rd /S /Q src
 
 :CopyFiles
-echo - Copying the binaries
+echo - Copying binaries
 del /S /Q bin\*.exe >> %1\log.txt
 xcopy /Q /I %1\%TMP_BUILDDIR%\bin\*.exe %1\clean\bin >> %1\log.txt
 
-echo - Copying the dll's
+echo - Copying dlls
 xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.dll %1\clean\bin >> %1\log.txt
 
-echo - Copying the lib's
+echo - Copying libs
 xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.lib %1\clean\lib >> %1\log.txt
+
+echo - Copying plugins
+cd %1\%TMP_BUILDDIR%\plugins
+xcopy /Q /I /S *.dll %1\clean\plugins\ >> %1\log.txt
+
+echo - Copying demos
+cd %1\%TMP_BUILDDIR%\demos
+xcopy /Q /I /S *.exe %1\clean\demos\ >> %1\log.txt
+
+echo - Copying examples
+cd %1\%TMP_BUILDDIR%\examples
+xcopy /Q /I /S *.exe %1\clean\examples\ >> %1\log.txt
+
+echo - Copying tutorial
+cd %1\%TMP_BUILDDIR%\tutorial
+xcopy /Q /I /S *.exe %1\clean\tutorial\ >> %1\log.txt
+
+echo - Copying .prl files
+cd %1\%TMP_BUILDDIR%\lib
+xcopy /Q /I *.prl %1\clean\lib\ >> %1\log.txt
+
+cd %1\%TMP_BUILDDIR%
 
 echo - Copying additional files
 xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\QtCore\ >> %1\log.txt
@@ -91,10 +114,18 @@ if exist "%TMP_NSISDIR%\Plugins\qtnsisext.dll" del /Q "%TMP_NSISDIR%\Plugins\qtn
 xcopy /Q "%1\qtnsisext\qtnsisext.dll" "%TMP_NSISDIR%\Plugins\" >> %1\log.txt
 if not %errorlevel%==0 goto FAILED
 
-echo - Running makensis
-"%TMP_NSISDIR%\makensis.exe" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2" installscriptwin.nsi >> %1\log.txt
+if "%TMP_QTCONFIG%"=="release" goto ReleaseNSIS
+echo - Running makensis (full)
+"%TMP_NSISDIR%\makensis.exe" /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="%TMP_COMPILER%" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2" installscriptwin.nsi >> %1\log.txt
+if not %errorlevel%==0 goto FAILED
+goto EndNSIS
+
+:ReleaseNSIS
+echo - Running makensis (release)
+"%TMP_NSISDIR%\makensis.exe" /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2" installscriptwin.nsi >> %1\log.txt
 if not %errorlevel%==0 goto FAILED
 
+:EndNSIS
 goto :EOF
 
 
@@ -121,15 +152,46 @@ echo   * Qt (%TMP_QTCONFIG%)
 if "%TMP_QTCONFIG%"=="release" goto ReleaseBuild
 
 nmake sub-src-all >> %1\log.txt 2>&1
-goto BuildTools
+goto BuildAdditional
 
 :ReleaseBuild
 nmake sub-src >> %1\log.txt 2>&1
 
-:BuildTools
+:BuildAdditional
 echo   * Tools (release)
 nmake sub-tools >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
+
+echo   * Demos (release)
+nmake sub-demos >> %1\log.txt 2>&1
+if not %errorlevel%==0 goto FAILED
+
+echo   * Examples (release)
+nmake sub-examples >> %1\log.txt 2>&1
+if not %errorlevel%==0 goto FAILED
+
+echo   * Tutorial (release)
+nmake sub-tutorial >> %1\log.txt 2>&1
+if not %errorlevel%==0 goto FAILED
+
+echo   * ActiveQt (release, no examples)
+cd %QTDIR%\extensions\activeqt\container
+nmake >> %1\log.txt 2>&1
+if not %errorlevel%==0 goto FAILED
+
+cd %QTDIR%\extensions\activeqt\control
+nmake >> %1\log.txt 2>&1
+if not %errorlevel%==0 goto FAILED
+
+cd %QTDIR%\extensions\activeqt\tools
+nmake >> %1\log.txt 2>&1
+if not %errorlevel%==0 goto FAILED
+
+cd %QTDIR%\extensions\activeqt\plugin
+nmake >> %1\log.txt 2>&1
+if not %errorlevel%==0 goto FAILED
+
+cd %QTDIR%
 
 call :ResetEnv
 goto :EOF

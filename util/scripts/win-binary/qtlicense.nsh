@@ -34,8 +34,8 @@ Function CheckQtLicense
   pop $1
   pop $2
   !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 2" "State" "$0"
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 4" "State" "$1"
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 6" "State" "$2"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 3" "State" "$1"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 4" "State" "$2"
 
   !insertmacro MUI_HEADER_TEXT "$(LicenseTitle)" "$(LicenseTitleDescription)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "${TT_QTKEY_INI_FILE}"
@@ -46,8 +46,8 @@ FunctionEnd
 
 Function ValidateKey
   !insertmacro MUI_INSTALLOPTIONS_READ $KEY1 "${TT_QTKEY_INI_FILE}" "Field 2" "State"
-  !insertmacro MUI_INSTALLOPTIONS_READ $KEY2 "${TT_QTKEY_INI_FILE}" "Field 4" "State"
-  !insertmacro MUI_INSTALLOPTIONS_READ $KEY3 "${TT_QTKEY_INI_FILE}" "Field 6" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $KEY2 "${TT_QTKEY_INI_FILE}" "Field 3" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $KEY3 "${TT_QTKEY_INI_FILE}" "Field 4" "State"
   push $1
   IfErrors 0
   qtnsisext::IsValidLicense $KEY1 $KEY2 $KEY3

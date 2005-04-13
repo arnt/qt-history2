@@ -7,15 +7,24 @@
 !include "MUI.nsh"
 !include "qtlicense.nsh"
 !include "qtenv.nsh"
-!include "registeruiext.nsh"
 !include "writeQtConf.nsh"
 
 ; MUI Settings
 !define MUI_ABORTWARNING
-!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\modern-install.ico"
-!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
+!define MUI_ICON "install.ico"
+!define MUI_UNICON "install.ico"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "qt-header.bmp"
+!define MUI_HEADERIMAGE_UNBITMAP "qt-header.bmp"
+!define MUI_HEADERIMAGE_RIGHT
+
+!define MUI_WELCOMEFINISHPAGE_BITMAP "qt-wizard.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "qt-wizard.bmp"
+
+; !define MUI_FINISHPAGE_NOAUTOCLOSE
 
 ; Welcome page
+
 !insertmacro MUI_PAGE_WELCOME
 
 ; License check
@@ -27,9 +36,6 @@
 ; Environment setting page
 !insertmacro TT_QTENV_PAGE_SHOW
 
-; Register ui files
-!insertmacro TT_UI_PAGE_SHOW
-
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 
@@ -39,7 +45,10 @@
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
+!insertmacro MUI_UNPAGE_WELCOME
+!insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
 
 ; Language files
 !insertmacro MUI_LANGUAGE "English"
@@ -83,9 +92,6 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
   
-  #registering ui extension
-  !insertmacro TT_UI_REGISTER
-  
   #setting the environment variables
   !insertmacro TT_QTENV_REGISTER
 
@@ -99,43 +105,53 @@ Section -Post
   
   #setting the qt version for the integration
   WriteRegStr HKCU "SOFTWARE\trolltech.com\Versions\${PRODUCT_VERSION}\" "InstallDir" "$INSTDIR"
+
+  #patching the prl files
+  push $0
+  push $1
+
+  FindFirst $0 $1 "$INSTDIR\lib\*.prl"
+  loop:
+    StrCmp $1 "" done
+    DetailPrint "Patching $1..."
+    
+    push "$INSTDIR\lib\$1"
+    push ${QTBUILDDIR}
+    push $INSTDIR
+    call PatchPath
+    
+    FindNext $0 $1
+    Goto loop
+  done:
+  pop $1
+  pop $0
 SectionEnd
 
 Function .onInit
   !insertmacro TT_LICENSE_PAGE_INIT
   !insertmacro TT_QTENV_PAGE_INIT
-  !insertmacro TT_UI_PAGE_INIT
 FunctionEnd
 
 Function ShowReadMe
   Exec 'notepad.exe "$INSTDIR\README"'
 FunctionEnd
 
-Function un.onUninstSuccess
-  HideWindow
-  MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer."
-FunctionEnd
-
-Function un.onInit
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
-  Abort
-FunctionEnd
-
 Section Uninstall
+  DetailPrint "Removing start menu shortcuts"
   Delete "$SMPROGRAMS\Qt\Uninstall.lnk"
   Delete "$SMPROGRAMS\Qt\Website.lnk"
   Delete "$SMPROGRAMS\Qt\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk"
 
   RMDir "$SMPROGRAMS\Qt"
+  
+  DetailPrint "Removing installation directory"
   RMDir /r "$INSTDIR"
 
-  #unregister ui extensions
-  !insertmacro TT_UI_UNREGISTER
-  
   #removing the environment variables
   !insertmacro TT_QTENV_UNREGISTER
   
   #removing the qt version for the integration
+  DetailPrint "Removing registry entries"
   DeleteRegKey HKCU "SOFTWARE\trolltech.com\Versions\${PRODUCT_VERSION}\"
   
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"

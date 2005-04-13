@@ -3,14 +3,22 @@
 
 !define TT_ENV_INI_FILE "setenvpage.ini"
 
-var SET_ENV_VARS
+!define UI_FILE_INTERNAL_DESC "TrolltechDesignerUI"
+!define UI_FILE_OPEN_DESC "Open with Qt Designer"
+!define DESIGNER_DESC "Qt Designer"
+!define DESIGNER_CMD "bin\designer.exe $\"%1$\""
+!define DESIGNER_CMD_SHORT "designer.exe"
 
-LangString EnvTitle ${LANG_ENGLISH} "Set Environment Variables"
-LangString EnvTitleDescription ${LANG_ENGLISH} "Set the environment variables for Qt."
+var SET_ENV_VARS
+var REGISTER_UI_EXT_STATE
+
+LangString EnvTitle ${LANG_ENGLISH} "Configure Environment"
+LangString EnvTitleDescription ${LANG_ENGLISH} "Configure the environment variables for ${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !macro TT_QTENV_PAGE_INIT
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${TT_ENV_INI_FILE}"
   strcpy $SET_ENV_VARS "0"
+  strcpy $REGISTER_UI_EXT_STATE "0"
 !macroend
 
 !macro TT_QTENV_PAGE_SHOW
@@ -18,34 +26,81 @@ LangString EnvTitleDescription ${LANG_ENGLISH} "Set the environment variables fo
 !macroend
 
 !macro TT_QTENV_UNREGISTER
+  push "$INSTDIR"
   call un.UnRegisterQtEnvVariables
+  call un.UnregisterUIExtension
 !macroend
 
 !macro TT_QTENV_REGISTER
   push "$INSTDIR"
   call RegisterQtEnvVariables
+  call RegisterUIExtension
 !macroend
 
 Function SetEnvPage
   !insertmacro MUI_HEADER_TEXT "$(EnvTitle)" "$(EnvTitleDescription)"
   
-  strcmp $SET_ENV_VARS "1" 0 checkNo
+  strcmp $SET_ENV_VARS "1" 0 envCheckNo
     !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 1" "State" "1"
-    goto showPage
-  checkNo:
+    goto showEnvPage
+  envCheckNo:
     !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 1" "State" "0"
 
-  showPage:
-  !insertmacro MUI_INSTALLOPTIONS_DISPLAY ${TT_ENV_INI_FILE}
+  showEnvPage:
+  
+  strcmp $REGISTER_UI_EXT_STATE "1" 0 uiCheckNo
+    !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 6" "State" "1"
+    goto showUiPage
+  uiCheckNo:
+    !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 6" "State" "0"
+
+  showUiPage:
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "${TT_ENV_INI_FILE}"
 FunctionEnd
 
 Function SetEnvVariables
-  push $0
-  !insertmacro MUI_INSTALLOPTIONS_READ $0 ${TT_ENV_INI_FILE} "Field 1" "State"
-  WriteRegDWORD ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "QtEnvSet" $0
-  push $0
-  pop $SET_ENV_VARS
-  pop $0
+  !insertmacro MUI_INSTALLOPTIONS_READ $SET_ENV_VARS "${TT_ENV_INI_FILE}" "Field 1" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $REGISTER_UI_EXT_STATE "${TT_ENV_INI_FILE}" "Field 6" "State"
+  WriteRegDWORD ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "QtEnvSet" $SET_ENV_VARS
+FunctionEnd
+
+Function RegisterUIExtension
+  strcmp $REGISTER_UI_EXT_STATE "1" 0 end
+    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}" "" ""
+    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}\DefaultIcon" "" "$INSTDIR\${DESIGNER_CMD_SHORT}"
+    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}\shell\${UI_FILE_OPEN_DESC}\command" "" "$INSTDIR\${DESIGNER_CMD}"
+
+    WriteRegStr HKCR "Applications\${DESIGNER_CMD_SHORT}" "" ""
+    WriteRegStr HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\" "FriendlyCache" "${DESIGNER_DESC}"
+    WriteRegStr HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\open\command" "" "$INSTDIR\${DESIGNER_CMD} "
+
+    ; Overwrite it silently...
+    WriteRegStr HKCR ".ui" "" "${UI_FILE_INTERNAL_DESC}"
+  end:
+FunctionEnd
+
+Function un.UnregisterUIExtension
+  push $1
+  ReadRegStr $1 HKCR ".ui" ""
+  strcmp $1 "${UI_FILE_INTERNAL_DESC}" 0 continue
+    ; do not delete this key since a subkey openwithlist
+    ; or open withprogid may exist
+    WriteRegStr HKCR ".ui" "" ""
+  continue:
+  ; be very carefull of what we delete
+  DetailPrint "Unregistering .ui extention"
+  DeleteRegValue HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\open\command" ""
+  DeleteRegKey /ifempty HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\open\command"
+  DeleteRegKey /ifempty HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\open"
+  DeleteRegValue HKCR "Applications\${DESIGNER_CMD_SHORT}\shell" "FriendlyCache"
+  DeleteRegKey /ifempty HKCR "Applications\${DESIGNER_CMD_SHORT}\shell"
+  DeleteRegKey /ifempty HKCR "Applications\${DESIGNER_CMD_SHORT}"
+
+  ; just delete it since nobody else is supposed to use it
+  DeleteRegKey HKCR "${UI_FILE_INTERNAL_DESC}"
+
+  nouiextension:
+  pop $1
 FunctionEnd
 
 #
@@ -115,6 +170,10 @@ FunctionEnd
 #
 Function GetMkSpec
   push $0
+  
+  StrCmp $FORCE_MAKESPEC "VS2003" win32-msvc.net
+  StrCmp $FORCE_MAKESPEC "VS2002" win32-msvc.net
+  StrCmp $FORCE_MAKESPEC "VS60" win32-msvc
 
   ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\8.0" "InstallDir"
   StrCmp $0 "" +1 win32-msvc.net ; found msvc.net 2005
@@ -211,15 +270,22 @@ FunctionEnd
 Function GetVSVarsFile
   push $0
 
+  StrCmp $FORCE_MAKESPEC "VS2003" VS2003
+  StrCmp $FORCE_MAKESPEC "VS2002" VS2002
+  StrCmp $FORCE_MAKESPEC "VS60" VS60
+
   ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\8.0\Setup\VS" "ProductDir"
   StrCmp $0 "" +1 foundVSDir ; found msvc.net 2005
 
+  VS2003:
   ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\7.1\Setup\VS" "ProductDir"
   StrCmp $0 "" +1 foundVSDir ; found msvc.net 2003
 
+  VS2002:
   ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\7.0\Setup\VS" "ProductDir"
   StrCmp $0 "" +1 foundVSDir ; found msvc.net 2002
 
+  VS60:
   ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\6.0\Setup\Microsoft Visual Studio" "ProductDir"
   StrCmp $0 "" +1 foundVCDir ; found msvc 6.0
 
