@@ -222,6 +222,8 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
 QBitmap QBitmap::fromData(const QSize &size, const uchar *bits, QSysInfo::Endian endian)
 {
     QImage image(size, endian == QSysInfo::LittleEndian ? QImage::Format_MonoLSB : QImage::Format_Mono);
+    image.setColor(0, Qt::color0);
+    image.setColor(1, Qt::color1);
 
     // Need to memcpy each line separatly since QImage is 32bit aligned and
     // this data is only byte aligned...
