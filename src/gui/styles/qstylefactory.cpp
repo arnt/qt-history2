@@ -20,9 +20,15 @@
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qcdestyle.h"
+#ifndef QT_NO_STYLE_MOTIFPLUS
 #include "qmotifplusstyle.h"
+#endif
+#ifndef QT_NO_STYLE_PLATINUM
 #include "qplatinumstyle.h"
+#endif
+#ifndef QT_NO_STYLE_SGI
 #include "qsgistyle.h"
+#endif
 #include "qcompactstyle.h"
 #ifndef QT_NO_STYLE_WINDOWSXP
 #include "qwindowsxpstyle.h"
