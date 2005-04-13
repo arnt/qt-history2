@@ -30,7 +30,7 @@
     use the custom widget.
 
     \skipto HEADERS
-    \printuntil TEMPLATE
+    \printuntil customwidgetplugin.cpp
 
     The custom widget is created as a library.
 

@@ -1,0 +1,9 @@
+/*!
+    \example draganddrop/draggableicons
+    \title Draggable Icons Example
+
+    The Draggable Icons example shows how to drag and drop image data between widgets
+    in the same application, and between different applications.
+
+    \image draggableicons-example.png
+*/

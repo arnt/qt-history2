@@ -21,10 +21,8 @@
     necessary information to do this:
 
     \quotefromfile designer/calculatorbuilder/calculatorbuilder.pro
-    \skipto SDK
-    \printuntil /^\}/
-    \printline
-    \printuntil /^\}/
+    \skipto CONFIG
+    \printuntil RESOURCES
 
     All the other necessary files are declared as usual.
 
@@ -50,7 +48,7 @@
     file for it:
 
     \quotefromfile designer/calculatorbuilder/calculatorform.cpp
-    \skipto #include <formbuilder.h>
+    \skipto QFormBuilder
     \printline
 
     The constructor uses a \c FormBuilder object to construct the user

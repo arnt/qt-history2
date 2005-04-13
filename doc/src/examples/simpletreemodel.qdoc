@@ -53,9 +53,9 @@
     The use of a pointer-based tree structure means that, when passing a
     model index to a view, we can use record the address of the
     corresponding item in the index (see QAbstractItemModel::createIndex())
-    and retrieve it later with QModelIndex::data(). This makes writing the
-    model easier and ensures that all model indexes that refer to the same
-    item have the same internal data pointer.
+    and retrieve it later with QModelIndex::internalPointer(). This makes
+    writing the model easier and ensures that all model indexes that refer
+    to the same item have the same internal data pointer.
 
     With the appropriate data structure in place, we can create a tree model
     with a minimal amount of extra code to supply model indexes and data to
@@ -229,8 +229,8 @@
     When supplied with a model index, we first check whether it is valid.
     If it is not, we assume that a top-level item is being referred to;
     otherwise, we obtain the data pointer from the model index with its
-    \l{QModelIndex::data()}{data()} function and use it to reference a
-    \c TreeItem object. Note that all the model indexes
+    \l{QModelIndex::internalPointer()}{internalPointer()} function and use
+    it to reference a \c TreeItem object. Note that all the model indexes
     that we construct will contain a pointer to an existing \c TreeItem,
     so we can guarantee that any valid model indexes that we receive will
     contain a valid data pointer.

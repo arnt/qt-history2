@@ -1,0 +1,33 @@
+/*!
+    \example richtext/calendar
+    \title Calendar Example
+
+    The Calendar example shows how to create rich text content and display it using
+    a rich text editor.
+
+    \image calendar-example.png
+
+    Specifically, the example demonstrates the following techniques:
+
+    \list
+      \o Creating a text editor and obtaining its text document
+      \o Insert tables and frames
+      \o Navigate within a table
+      \o Insert text in different styles
+    \endlist
+
+    The rich text editor used to display the document is used within a main window
+    application.
+
+    \section1 MainWindow Class Definition
+
+    The \c MainWindow class provides a text editor widget and some controls to
+    allow the user to change the month and year shown. The font size used for the
+    text can also be adjusted.
+
+    \quotefromfile richtext/calendar/mainwindow.h
+    \skipto class MainWindow
+    \printuntil /^\};/
+
+
+*/
