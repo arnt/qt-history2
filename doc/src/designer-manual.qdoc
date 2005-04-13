@@ -997,7 +997,7 @@ preview} to test the connections between each label and its buddy.
 \section1 Removing Buddy Connections
 
 Only one buddy widget can be defined for each label. To change the buddy
-used, it is therefore necessary to delete any existing budy connection and
+used, it is therefore necessary to delete any existing buddy connection and
 create a new one.
 
 Connections between labels and their buddy widgets can be deleted in the
