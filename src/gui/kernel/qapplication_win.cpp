@@ -58,8 +58,6 @@ extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
 #endif // QT_NO_ACCESSIBILITY
 
 #include "private/qapplication_p.h"
-#define d d_func()
-#define q q_func()
 
 #include "private/qinternal_p.h"
 
@@ -302,8 +300,8 @@ extern "C" LRESULT CALLBACK QtWndProc(HWND, UINT, WPARAM, LPARAM);
 class QETWidget : public QWidget                // event translator widget
 {
 public:
-    QWExtra    *xtra() { return d->extraData(); }
-    QTLWExtra  *topData() { return d->topData(); }
+    QWExtra    *xtra() { return d_func()->extraData(); }
+    QTLWExtra  *topData() { return d_func()->topData(); }
     QWidgetData *dataPtr() { return data; }
     bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
     void        markFrameStrutDirty()        { data->fstrut_dirty = 1; }
@@ -319,8 +317,8 @@ public:
     bool        translateTabletEvent(const MSG &msg, PACKET *localPacketBuf, int numPackets);
     void        repolishStyle(QStyle &style) { setStyle(&style); }
     void eraseWindowBackground(HDC);
-    inline void showChildren(bool spontaneous) { d->showChildren(spontaneous); }
-    inline void hideChildren(bool spontaneous) { d->hideChildren(spontaneous); }
+    inline void showChildren(bool spontaneous) { d_func()->showChildren(spontaneous); }
+    inline void hideChildren(bool spontaneous) { d_func()->hideChildren(spontaneous); }
 };
 
 static void qt_show_system_menu(QWidget* tlw)
@@ -932,6 +930,7 @@ bool QGuiEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flag
 
 void QApplicationPrivate::createEventDispatcher()
 {
+    Q_Q(QApplication);
     if (q->type() != QApplication::Tty)
         eventDispatcher = new QGuiEventDispatcherWin32(q);
     else
@@ -960,18 +959,18 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 
 void QApplication::setOverrideCursor(const QCursor &cursor)
 {
-    qApp->d->cursor_list.prepend(cursor);
-    SetCursor(qApp->d->cursor_list.first().handle());
+    qApp->d_func()->cursor_list.prepend(cursor);
+    SetCursor(qApp->d_func()->cursor_list.first().handle());
 }
 
 void QApplication::restoreOverrideCursor()
 {
-    if (qApp->d->cursor_list.isEmpty())
+    if (qApp->d_func()->cursor_list.isEmpty())
         return;
-    qApp->d->cursor_list.removeFirst();
+    qApp->d_func()->cursor_list.removeFirst();
 
-    if (!qApp->d->cursor_list.isEmpty()) {
-        SetCursor(qApp->d->cursor_list.first().handle());
+    if (!qApp->d_func()->cursor_list.isEmpty()) {
+        SetCursor(qApp->d_func()->cursor_list.first().handle());
     } else {
         QWidget *w = QWidget::find(curWin);
         if (w)
@@ -1123,7 +1122,7 @@ extern uint qGlobalPostedEventsCount();
 */
 void QApplication::winFocus(QWidget *widget, bool gotFocus)
 {
-    if (d->inPopupMode()) // some delayed focus event to ignore
+    if (d_func()->inPopupMode()) // some delayed focus event to ignore
         return;
     if (gotFocus) {
         setActiveWindow(widget);
@@ -2207,9 +2206,9 @@ void QApplicationPrivate::openPopup(QWidget *popup)
     if (popup->focusWidget()) {
         popup->focusWidget()->setFocus(Qt::PopupFocusReason);
     } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
-        if (QWidget *fw = q->focusWidget()) {
+        if (QWidget *fw = q_func()->focusWidget()) {
             QFocusEvent e(QEvent::FocusOut, Qt::PopupFocusReason);
-            q->sendEvent(fw, &e);
+            q_func()->sendEvent(fw, &e);
         }
     }
 }
@@ -2233,11 +2232,11 @@ void QApplicationPrivate::closePopup(QWidget *popup)
             releaseAutoCapture();
         if (QApplicationPrivate::active_window) {
             if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
-                if (fw != q->focusWidget()) {
+                if (fw != q_func()->focusWidget()) {
                     fw->setFocus(Qt::PopupFocusReason);
                 } else {
                     QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
-                    q->sendEvent(fw, &e);
+                    q_func()->sendEvent(fw, &e);
                 }
             }
         }
@@ -2479,7 +2478,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 trackMouseEventLookup = true;
                 ptrTrackMouseEvent = (PtrTrackMouseEvent)QLibrary::resolve("comctl32", "_TrackMouseEvent");
             }
-            if (ptrTrackMouseEvent && !qApp->d->inPopupMode()) {
+            if (ptrTrackMouseEvent && !qApp->d_func()->inPopupMode()) {
                 // We always have to set the tracking, since
                 // Windows detects more leaves than we do..
                 TRACKMOUSEEVENT tme;
@@ -2501,7 +2500,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 
         pos.rx() = curPos.x;
         pos.ry() = curPos.y;
-        pos = d->mapFromWS(pos);
+        pos = d_func()->mapFromWS(pos);
     } else {
         gpos = msg.pt;
         pos = mapFromGlobal(QPoint(gpos.x, gpos.y));
@@ -2516,7 +2515,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 
     bool res = false;
 
-    if (qApp->d->inPopupMode()) {                        // in popup mode
+    if (qApp->d_func()->inPopupMode()) {                        // in popup mode
         replayPopupMouseEvent = false;
         QWidget* activePopupWidget = qApp->activePopupWidget();
         QWidget *popup = activePopupWidget;
@@ -3337,18 +3336,18 @@ bool QETWidget::translatePaintEvent(const MSG &)
     if (!GetUpdateRect(winId(), 0, false)  // The update bounding rect is invalid
          || (res == ERROR)
          || (res == NULLREGION)) {
-        d->hd = 0;
+        d_func()->hd = 0;
         return false;
     }
 
     PAINTSTRUCT ps;
-    d->hd = BeginPaint(winId(), &ps);
+    d_func()->hd = BeginPaint(winId(), &ps);
 
     // Mapping region from system to qt (32 bit) coordinate system.
     rgn.translate(data->wrect.topLeft());
     repaint(rgn);
 
-    d->hd = 0;
+    d_func()->hd = 0;
     EndPaint(winId(), &ps);
     return true;
 }
@@ -3376,7 +3375,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         if (msg.wParam != SIZE_MINIMIZED)
             data->crect = cr;
         if (isWindow()) {                        // update title/icon text
-            d->createTLExtra();
+            d_func()->createTLExtra();
             // Capture SIZE_MINIMIZED without preceding WM_SYSCOMMAND
             // (like Windows+M)
             if (msg.wParam == SIZE_MINIMIZED && !isMinimized()) {
@@ -3453,7 +3452,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
 
 bool QETWidget::translateCloseEvent(const MSG &)
 {
-    return d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+    return d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
 }
 
 
@@ -3464,7 +3463,7 @@ void QETWidget::eraseWindowBackground(HDC hdc)
 
     const QWidget *w = this;
     QPoint offset;
-    while (w->d->isBackgroundInherited()) {
+    while (w->d_func()->isBackgroundInherited()) {
         offset += w->pos();
         w = w->parentWidget();
     }

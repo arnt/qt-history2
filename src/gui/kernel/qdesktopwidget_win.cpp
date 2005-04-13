@@ -260,8 +260,6 @@ void QDesktopWidgetPrivate::cleanup()
 
 */
 
-#define d d_func()
-
 /*!
     Creates the desktop widget.
 
@@ -305,7 +303,7 @@ bool QDesktopWidget::isVirtualDesktop() const
 */
 int QDesktopWidget::primaryScreen() const
 {
-    return d->primaryScreen;
+    return d_func()->primaryScreen;
 }
 
 /*!
@@ -315,7 +313,7 @@ int QDesktopWidget::primaryScreen() const
 */
 int QDesktopWidget::numScreens() const
 {
-    return d->screenCount;
+    return d_func()->screenCount;
 }
 
 /*!
@@ -350,8 +348,18 @@ QWidget *QDesktopWidget::screen(int /*screen*/)
 
   \sa screenNumber(), screenGeometry()
 */
+
+//
+// MSVC 7.10 warns that d (the result of the expanded Q_D macro) as a local variable that is not referenced.
+// Therefore, we ignore that warning with the following pragmas
+// I've also tried to eliminate the macro, but to no use...
+// We pop it further down
+#pragma warning(push)
+#pragma warning(disable : 4189)
 const QRect QDesktopWidget::availableGeometry(int screen) const
 {
+    Q_D(const QDesktopWidget);
+
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
         if (screen < 0 || screen >= d->screenCount)
             screen = d->primaryScreen;
@@ -388,6 +396,7 @@ const QRect QDesktopWidget::availableGeometry(int screen) const
 */
 const QRect QDesktopWidget::screenGeometry(int screen) const
 {
+    const QDesktopWidgetPrivate *d = d_func();
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
         if (screen < 0 || screen >= d->screenCount)
             screen = d->primaryScreen;
@@ -421,6 +430,7 @@ const QRect QDesktopWidget::screenGeometry(int screen) const
 */
 int QDesktopWidget::screenNumber(const QWidget *widget) const
 {
+    Q_D(const QDesktopWidget);
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
         if (!widget)
             return d->primaryScreen;
@@ -455,6 +465,7 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
 
 int QDesktopWidget::screenNumber(const QPoint &point) const
 {
+    Q_D(const QDesktopWidget);
     int closestScreen = -1;
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
         int shortestDistance = INT_MAX;
@@ -474,6 +485,7 @@ int QDesktopWidget::screenNumber(const QPoint &point) const
 */
 void QDesktopWidget::resizeEvent(QResizeEvent *)
 {
+    Q_D(QDesktopWidget);
     QVector<QRect> oldrects;
     oldrects = *d->rects;
     QVector<QRect> oldworkrects;
@@ -499,6 +511,8 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
     }
 #endif
 }
+
+#pragma warning(pop)
 
 /*! \fn void QDesktopWidget::resized(int screen)
     This signal is emitted when the size of \a screen changes.
