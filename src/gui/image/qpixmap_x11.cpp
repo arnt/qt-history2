@@ -266,8 +266,8 @@ void QPixmap::init(int w, int h, Type type)
     }
 
     data = new QPixmapData;
-    data->type = type;
     memset(data, 0, sizeof(QPixmapData));
+    data->type = type;
     data->count  = 1;
     data->uninit = true;
     data->ser_no = ++qt_pixmap_serial;
@@ -923,70 +923,9 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         }
     }
 
-    if (d == 1) {                                // 1 bit pixmap (bitmap)
-        // make sure image.color(0) == Qt::color0 (white) and image.color(1) == Qt::color1 (black)
-        const QRgb c0 = QColor(Qt::white).rgb();
-        const QRgb c1 = QColor(Qt::black).rgb();
-        if (image.color(0) == c1 && image.color(1) == c0) {
-            image.invertPixels();
-            image.setColor(0, c0);
-            image.setColor(1, c1);
-        }
-
-        char  *bits;
-        uchar *tmp_bits;
-        int    bpl = (w+7)/8;
-        int    ibpl = image.bytesPerLine();
-        if (image.format() == QImage::Format_Mono || bpl != ibpl) {
-            tmp_bits = new uchar[bpl*h];
-            bits = (char *)tmp_bits;
-            uchar *p, *b, *end;
-            int y, count;
-            if (image.format() == QImage::Format_Mono) {
-                const uchar *f = qt_get_bitflip_array();
-                b = tmp_bits;
-                for (y = 0; y < h; y++) {
-                    p = image.scanLine(y);
-                    end = p + bpl;
-                    count = bpl;
-                    while (count > 4) {
-                        *b++ = f[*p++];
-                        *b++ = f[*p++];
-                        *b++ = f[*p++];
-                        *b++ = f[*p++];
-                        count -= 4;
-                    }
-                    while (p < end)
-                        *b++ = f[*p++];
-                }
-            } else {                                // just copy
-                b = tmp_bits;
-                p = image.scanLine(0);
-                for (y = 0; y < h; y++) {
-                    memcpy(b, p, bpl);
-                    b += bpl;
-                    p += ibpl;
-                }
-            }
-        } else {
-            bits = (char *)image.bits();
-            tmp_bits = 0;
-        }
-        pixmap.data->hd = (Qt::HANDLE)XCreateBitmapFromData(pixmap.data->xinfo.display(),
-                                                            RootWindow(pixmap.data->xinfo.display(), pixmap.data->xinfo.screen()),
-                                                            bits, w, h);
-
-#ifndef QT_NO_XRENDER
-        if (X11->use_xrender)
-            pixmap.data->picture = XRenderCreatePicture(X11->display, pixmap.data->hd,
-                                                        XRenderFindStandardFormat(X11->display, PictStandardA1), 0, 0);
-#endif // QT_NO_XRENDER
-
-        if (tmp_bits)                                // Avoid purify complaint
-            delete [] tmp_bits;
-        pixmap.data->w = w;  pixmap.data->h = h;  pixmap.data->d = 1;
-
-        return pixmap;
+    if (d == 1) {
+        QImage im = image.convertToFormat(QImage::Format_RGB32, flags);
+        return fromImage(im);
     }
 
     Display *dpy   = pixmap.data->xinfo.display();

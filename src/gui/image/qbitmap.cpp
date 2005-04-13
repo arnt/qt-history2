@@ -16,6 +16,9 @@
 #include "qimage.h"
 #include "qvariant.h"
 #include <qpainter.h>
+#if defined(Q_WS_X11)
+#include <private/qt_x11_p.h>
+#endif
 
 /*!
     \class QBitmap qbitmap.h
@@ -207,6 +210,74 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
         bm.data->image.setColor(1, color0);
         bm.data->image.invertPixels();
     }
+    return bm;
+#elif defined(Q_WS_X11)
+    extern const uchar *qt_get_bitflip_array(); // defined in qimage.cpp
+    QBitmap bm;
+    // make sure image.color(0) == Qt::color0 (white) and image.color(1) == Qt::color1 (black)
+    const QRgb c0 = QColor(Qt::black).rgb();
+    const QRgb c1 = QColor(Qt::white).rgb();
+    if (img.color(0) == c0 && img.color(1) == c1) {
+        img.invertPixels();
+        img.setColor(0, c1);
+        img.setColor(1, c0);
+    }
+
+    char  *bits;
+    uchar *tmp_bits;
+    int w = img.width();
+    int h = img.height();
+    int    bpl = (w+7)/8;
+    int    ibpl = image.bytesPerLine();
+    if (img.format() == QImage::Format_Mono || bpl != ibpl) {
+        tmp_bits = new uchar[bpl*h];
+        bits = (char *)tmp_bits;
+        uchar *p, *b, *end;
+        int y, count;
+        if (img.format() == QImage::Format_Mono) {
+            const uchar *f = qt_get_bitflip_array();
+            b = tmp_bits;
+            for (y = 0; y < h; y++) {
+                p = img.scanLine(y);
+                end = p + bpl;
+                count = bpl;
+                while (count > 4) {
+                    *b++ = f[*p++];
+                    *b++ = f[*p++];
+                    *b++ = f[*p++];
+                    *b++ = f[*p++];
+                    count -= 4;
+                }
+                while (p < end)
+                    *b++ = f[*p++];
+            }
+        } else {                                // just copy
+            b = tmp_bits;
+            p = img.scanLine(0);
+            for (y = 0; y < h; y++) {
+                memcpy(b, p, bpl);
+                b += bpl;
+                p += ibpl;
+            }
+        }
+    } else {
+        bits = (char *)img.bits();
+        tmp_bits = 0;
+    }
+    bm.data->hd = (Qt::HANDLE)XCreateBitmapFromData(bm.data->xinfo.display(),
+                                                        RootWindow(bm.data->xinfo.display(), bm.data->xinfo.screen()),
+                                                        bits, w, h);
+
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender)
+        bm.data->picture = XRenderCreatePicture(X11->display, bm.data->hd,
+                                                    XRenderFindStandardFormat(X11->display, PictStandardA1), 0, 0);
+#endif // QT_NO_XRENDER
+
+    if (tmp_bits)                                // Avoid purify complaint
+        delete [] tmp_bits;
+    bm.data->w = w;  bm.data->h = h;  bm.data->d = 1;
+
     return bm;
 #else
     return QBitmap(QPixmap::fromImage(img, flags|Qt::MonoOnly));
