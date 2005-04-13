@@ -671,11 +671,11 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
     if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
         const QPalette &pal = q->palette();
-	QPalette::ColorRole bg_role = q->backgroundRole();
-        QBrush bgBrush = pal.brush(bg_role);
+        QPalette::ColorRole bg = q->backgroundRole();
+        QBrush bgBrush = pal.brush(bg);
         //##### put in an isBackgroundSpecified() function ???
         bool hasBackground = (q->isWindow() || q->windowType() == Qt::SubWindow)
-                             || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg_role))) ;
+                             || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg))) ;
 
         if (hasBackground && bgBrush.style() != Qt::NoBrush) {
             QPainter p(q); // We shall use it only once
