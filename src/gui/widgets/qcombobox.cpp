@@ -1495,8 +1495,12 @@ QSize QComboBox::sizeHint() const
     switch (d->sizeAdjustPolicy) {
     case AdjustToContents:
     case AdjustToContentsOnFirstShow:
-        for (int i = 0; i < count(); ++i) {
-            d->sizeHint.setWidth(qMax(d->sizeHint.width(), fm.width(itemText(i))));
+        if (count() == 0) {
+            d->sizeHint.rwidth() = 7 * fm.width(QChar('x'));
+        } else {
+            for (int i = 0; i < count(); ++i) {
+                d->sizeHint.setWidth(qMax(d->sizeHint.width(), fm.width(itemText(i))));
+            }
         }
         break;
     case AdjustToMinimumContentsLength:
