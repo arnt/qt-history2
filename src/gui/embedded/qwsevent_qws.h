@@ -232,9 +232,9 @@ struct QWSQCopMessageEvent : QWSEvent {
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSEvent::setData(d, len, allocateMem);
         char* p = rawDataPtr;
-        channel = QByteArray::fromRawData(p, simpleData.lchannel);
+	channel = QByteArray(p, simpleData.lchannel);
         p += simpleData.lchannel;
-        message = QByteArray::fromRawData(p, simpleData.lmessage);
+        message = QByteArray(p, simpleData.lmessage);
         p += simpleData.lmessage;
         data = QByteArray::fromRawData(p, simpleData.ldata);
     }
