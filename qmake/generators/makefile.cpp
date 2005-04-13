@@ -2039,14 +2039,29 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
 {
     QList<SubTarget*> targets;
     {
-        QStringList subdirs = project->variables()["SUBDIRS"];
+        const QStringList subdirs = project->variables()["SUBDIRS"];
         for(int subdir = 0; subdir < subdirs.size(); ++subdir) {
-            // Required since dir_sep is '\\'.
-            QString file = Option::fixPathToLocalOS(subdirs[subdir]);
+            QString fixedSubdir = subdirs[subdir];
+            fixedSubdir.replace('/','_').replace('.', '_');
+
             SubTarget *st = new SubTarget;
             targets.append(st);
-            st->makefile = "$(MAKEFILE)";
-            if(file.endsWith(Option::pro_ext)) {
+
+            bool fromFile = false;
+            QString file = Option::fixPathToLocalOS(subdirs[subdir]);
+            if(!project->isEmpty(fixedSubdir + ".file")) {
+                if(!project->isEmpty(fixedSubdir + ".subdir"))
+                    warn_msg(WarnLogic, "Cannot assign both file and subdir for subdir %s",
+                             subdirs[subdir].toLatin1().constData());
+                file = project->first(fixedSubdir + ".file");
+                fromFile = true;
+            } else if(!project->isEmpty(fixedSubdir + ".subdir")) {
+                file = project->first(fixedSubdir + ".subdir");
+                fromFile = false;
+            } else {
+                fromFile = file.endsWith(Option::pro_ext);
+            }
+            if(fromFile) {
                 int slsh = file.lastIndexOf(Option::dir_sep);
                 if(slsh != -1) {
                     st->directory = file.left(slsh+1);
@@ -2061,17 +2076,58 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             }
             while(st->directory.right(1) == Option::dir_sep)
                 st->directory = st->directory.left(st->directory.length() - 1);
-            if(!st->profile.isEmpty()) {
-                QString basename = st->directory;
-                int new_slsh = basename.lastIndexOf(Option::dir_sep);
-                if(new_slsh != -1)
-                    basename = basename.mid(new_slsh+1);
-                if(st->profile != basename + Option::pro_ext)
-                    st->makefile += "." + st->profile.left(st->profile.length() - Option::pro_ext.length()); //no need for the .pro
+            if(!project->isEmpty(fixedSubdir + ".makefile")) {
+                st->makefile = project->first(fixedSubdir + ".makefile");
+            } else {
+                st->makefile = "$(MAKEFILE)";
+                if(!st->profile.isEmpty()) {
+                    QString basename = st->directory;
+                    int new_slsh = basename.lastIndexOf(Option::dir_sep);
+                    if(new_slsh != -1)
+                        basename = basename.mid(new_slsh+1);
+                    if(st->profile != basename + Option::pro_ext)
+                        st->makefile += "." + st->profile.left(st->profile.length() - Option::pro_ext.length());
+                }
             }
-            st->target = "sub-" + file;
-            st->target.replace('/', '-');
-            st->target.replace('.', '_');
+            if(!project->isEmpty(fixedSubdir + ".depends")) {
+                const QStringList depends = project->values(fixedSubdir + ".depends");
+                for(int depend = 0; depend < depends.size(); ++depend) {
+                    bool found = false;
+                    for(int subDep = 0; subDep < subdirs.size(); ++subDep) {
+                        if(subdirs[subDep] == depends.at(depend)) {
+                            QString fixedSubDep = subdirs[subDep];
+                            fixedSubDep.replace('/','_').replace('.', '_');
+                            if(!project->isEmpty(fixedSubDep + ".target")) {
+                                st->depends += project->first(fixedSubDep + ".target");
+                            } else {
+                                bool fromFile = false;
+                                QString d = Option::fixPathToLocalOS(subdirs[subDep]);
+                                if(!project->isEmpty(fixedSubDep + ".file")) {
+                                    d = project->first(fixedSubDep + ".file");
+                                    fromFile = true;
+                                } else if(!project->isEmpty(fixedSubDep + ".subdir")) {
+                                    d = project->first(fixedSubDep + ".subdir");
+                                    fromFile = false;
+                                } else {
+                                    fromFile = d.endsWith(Option::pro_ext);
+                                }
+                                st->depends += "sub-" + d.replace('/','_').replace('.', '_');
+                            }
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found)
+                        st->depends += depends.at(depend);
+                }
+            }
+            if(!project->isEmpty(fixedSubdir + ".target")) {
+                st->target = project->first(fixedSubdir + ".target");
+            } else {
+                st->target = "sub-" + file;
+                st->target.replace('/', '-');
+                st->target.replace('.', '_');
+            }
         }
     }
     if(project->isActiveConfig("build_all"))
@@ -2211,6 +2267,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             }
 
             t << subtarget->target << ": " << mkfile;
+            if(!subtarget->depends.isEmpty())
+                t << " " << valList(subtarget->depends);
             if(project->isEmpty("QMAKE_NOFORCE"))
                 t <<  " FORCE";
             t << cdin
