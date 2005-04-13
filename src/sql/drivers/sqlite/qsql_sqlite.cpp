@@ -302,8 +302,8 @@ bool QSQLiteResult::exec()
                 }
             }
             if (res != SQLITE_OK) {
-                setLastError(qMakeError(d->access, QLatin1String("Unable to bind parameters"),
-                            QSqlError::StatementError, res));
+                setLastError(qMakeError(d->access, QCoreApplication::translate("QSQLiteResult",
+                             "Unable to bind parameters"), QSqlError::StatementError, res));
                 d->finalize();
                 return false;
             }
