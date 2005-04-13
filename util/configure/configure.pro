@@ -42,7 +42,7 @@ SOURCES	 = main.cpp configureapp.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearraymatcher.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qchar.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qhash.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qlist.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/tools/qlistdata.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qlocale.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qvector.cpp \
            $$QT_SOURCE_TREE/src/corelib/codecs/qtextcodec.cpp \

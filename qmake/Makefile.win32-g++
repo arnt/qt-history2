@@ -47,7 +47,7 @@ QTOBJS= \
 	qiodevice.o \
 	qinternal.o \
 	qlibraryinfo.o \
-	qlist.o \
+	qlistdata.o \
 	qlocale.o \
 	qmap.o \
 	qregexp.o \
@@ -140,8 +140,8 @@ quuid.o: ..\src\corelib\plugin\quuid.cpp
 qbuffer.o: ..\src\corelib\io\qbuffer.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qbuffer.cpp
 
-qlist.o: ..\src\corelib\tools\qlist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlist.cpp
+qlistdata.o: ..\src\corelib\tools\qlistdata.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlistdata.cpp
 
 qlinkedlist.o: ..\src\corelib\tools\qlinkedlist.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlinkedlist.cpp

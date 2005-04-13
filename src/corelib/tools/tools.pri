@@ -42,7 +42,7 @@ SOURCES += \
 	tools/qhash.cpp \
         tools/qline.cpp \
 	tools/qlinkedlist.cpp \
-	tools/qlist.cpp \
+	tools/qlistdata.cpp \
 	tools/qlocale.cpp \
         tools/qpoint.cpp \
 	tools/qmap.cpp \

@@ -6,7 +6,7 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o  \
 
 #qt code
 QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
-      qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfile.o \
+      qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlistdata.o qfile.o \
       qfsfileengine_unix.o qfsfileengine.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qbufferedfsfileengine.o qtemporaryfile.o \
       qmap.o qunicodetables.o qmetatype.o qsettings.o qvariant.o qvsnprintf.o \
@@ -120,8 +120,8 @@ qunicodetables.o: @SOURCE_PATH@/src/corelib/tools/qunicodetables.cpp
 qbuffer.o: @SOURCE_PATH@/src/corelib/io/qbuffer.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/corelib/io/qbuffer.cpp
 
-qlist.o: @SOURCE_PATH@/src/corelib/tools/qlist.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/corelib/tools/qlist.cpp
+qlistdata.o: @SOURCE_PATH@/src/corelib/tools/qlistdata.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/corelib/tools/qlistdata.cpp
 
 qfile.o: @SOURCE_PATH@/src/corelib/io/qfile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/corelib/io/qfile.cpp

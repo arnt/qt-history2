@@ -48,7 +48,7 @@ bootstrap { #Qt code
         qlibraryinfo.cpp \
         qhash.cpp \
         qiodevice.cpp \
-        qlist.cpp \
+        qlistdata.cpp \
         qlocale.cpp \
         qmap.cpp \
         qmetatype.cpp \
