@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QVBoxLayout *vbox = new QVBoxLayout(mainWidget);
     vbox->addWidget(new DragWidget);
     vbox->addWidget(new DragWidget);
-    mainWidget->setWindowTitle("Simple Icons");
+    mainWidget->setWindowTitle("Draggable Icons");
 
     mainWidget->show();
 
