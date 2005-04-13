@@ -676,6 +676,7 @@ void QPersistentModelIndexManager::reset()
     item model classes.
 
     \ingroup model-view
+    \mainclass
 
     The QAbstractItemModel class defines the standard interface that
     item models must use to be able to interoperate with other
@@ -697,16 +698,24 @@ void QPersistentModelIndexManager::reset()
 
     \img modelindex-no-parent.png
 
-    Every item has an index(), and possibly a sibling() index; child
-    items have a parent() index. hasChildren() is true for items that
-    have children. Each item has a number of data elements associated
-    with them, each with a particular \c Qt::ItemDataRole. Data elements are set
-    individually with setData(), or for all roles with setItemData().
-    Data is retrieved from an item with data() (for a single role), or
-    with itemData() (for every role). Items can be queried with
-    flags() (see {Qt::ItemFlag}) to see if they
-    are selectable, dragable etc.  An item can be searched for using
-    match().
+    Every item of data that can be accessed via a model has an associated
+    model index that is obtained using the index() function. Each index
+    may have a sibling() index; child items have a parent() index.
+
+    Each item has a number of data elements associated with it, and each
+    of these can be retrieved by specifying a role (see \l Qt::ItemDataRole)
+    to the model's data() function. Data for all available roles can be
+    obtained at the same time using the itemData() function.
+
+    Data for each role is set using a particular \l Qt::ItemDataRole.
+    Data for individual roles are set individually with setData(), or they
+    can be set for all roles with setItemData().
+
+    Items can be queried with flags() (see \l Qt::ItemFlag) to see if they
+    can be selected, dragged, or manipulated in other ways.
+
+    If an item has child objects, hasChildren() returns true for the
+    corresponding index.
 
     The model has a rowCount() and a columnCount() for each level of
     the hierarchy. Rows and columns can be inserted and removed with
@@ -717,6 +726,9 @@ void QPersistentModelIndexManager::reset()
     changed; rowsInserted(), columnsInserted(), rowsAboutToBeRemoved(),
     and columnsAboutToBeRemoved() are emitted when the model's dimensions
     are changed.
+
+    The items available through the model can be searched for particular
+    data using the match() function.
 
     If the model is sortable, it can be sorted with sort(). To
     customize sorting and searching, comparison functions can be
@@ -1004,6 +1016,8 @@ bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value
 
     Returns the data stored under the given \a role for the item referred to
     by the \a index.
+
+    \sa Qt::ItemDataRole
 */
 
 /*!
@@ -1353,6 +1367,8 @@ void QAbstractItemModel::revert()
 /*!
   Returns the data for the given \a role and \a section in the header
   with the specified \a orientation.
+
+  \sa Qt::ItemDataRole
 */
 
 QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation, int role) const

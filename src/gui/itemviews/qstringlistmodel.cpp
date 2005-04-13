@@ -19,8 +19,23 @@
 
 /*!
   \class QStringListModel
-  \brief The QStringListModel provides a model for showing strings in a list.
+  \brief The QStringListModel provides a model that supplies strings to views.
 
+  \ingroup model-view
+  \mainclass
+
+  QStringListModel is an editable model that can be used for simple cases
+  where you need to display a number of strings in a view widget, such as
+  QListView or QComboBox.
+
+  The model can be constructed
+
+  \sa QAbstractListModel QAbstractItemModel
+*/
+
+/*!
+  Constructs a string list model containing the specified \a strings with
+  the given \a parent.
 */
 
 QStringListModel::QStringListModel(QObject *parent)
@@ -34,8 +49,10 @@ QStringListModel::QStringListModel(const QStringList &strings, QObject *parent)
 }
 
 /*!
-    Returns the number of items in the string list as the number of rows
-    in the model.
+    Returns the number of rows in the model. This value corresponds to the
+    number of items in the model's internal string list.
+
+    \sa insertRows() removeRows()
 */
 
 int QStringListModel::rowCount(const QModelIndex &parent) const
@@ -44,12 +61,11 @@ int QStringListModel::rowCount(const QModelIndex &parent) const
 }
 
 /*!
-    Returns an appropriate value for the requested data.
+    Returns data from the item with the given \a index for the specified \a role.
+
     If the view requests an invalid index, an invalid variant is returned.
-    If a header is requested then we just return the column or row number,
-    depending on the orientation of the header.
-    Any valid index that corresponds to a string in the list causes that
-    string to be returned.
+
+    \sa setData()
 */
 
 QVariant QStringListModel::data(const QModelIndex &index, int role) const
@@ -64,8 +80,9 @@ QVariant QStringListModel::data(const QModelIndex &index, int role) const
 }
 
 /*!
-    Returns an appropriate value for the item's flags. Valid items are
-    enabled, selectable, and editable.
+    Returns the flags for the item that corresponds to the given \a index.
+
+    Valid items are enabled, selectable, and editable.
 */
 
 Qt::ItemFlags QStringListModel::flags(const QModelIndex &index) const
@@ -74,14 +91,12 @@ Qt::ItemFlags QStringListModel::flags(const QModelIndex &index) const
 }
 
 /*!
-    Changes an item in the string list, but only if the following conditions
-    are met:
-
-    * The index supplied is valid.
-    * The index corresponds to an item to be shown in a view.
-    * The role associated with editing text is specified.
+    Sets the data for the item corresponding to the given \a index in the
+    model to the \a value for the specifed \a role.
 
     The dataChanged() signal is emitted if the item is changed.
+
+    \sa data()
 */
 
 bool QStringListModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -95,7 +110,14 @@ bool QStringListModel::setData(const QModelIndex &index, const QVariant &value, 
 }
 
 /*!
-    Inserts a number of rows into the model at the specified position.
+    Inserts \a count rows into the model beginning at the given \a row.
+
+    The \a parent index of the rows is optional and is only used for
+    consistency with QAbstractItemModel. By default, a null index is
+    specified, indicating that the rows are inserted in the top level of
+    the model.
+
+    \sa QAbstractItemModel::insertRows()
 */
 
 bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
@@ -113,7 +135,14 @@ bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
 }
 
 /*!
-    Removes a number of rows from the model at the specified position.
+    Removes \a count rows from the model beginning at the given \a row.
+
+    The \a parent index of the rows is optional and is only used for
+    consistency with QAbstractItemModel. By default, a null index is
+    specified, indicating that the rows are removed in the top level of
+    the model.
+
+    \sa QAbstractItemModel::removeRows()
 */
 
 bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)

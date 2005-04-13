@@ -129,6 +129,7 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
     implementation of a list, and of an icon view.
 
     \ingroup model-view
+    \mainclass
 
     A QListView presents items stored in a model, either as a simple
     non-hierarchical list, or as a collection of icons. This class is used

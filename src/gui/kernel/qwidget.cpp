@@ -4358,8 +4358,9 @@ QSize QWidget::sizeHint() const
     minimumSizeHint().
 
     \l QLayout will never resize a widget to a size smaller than the
-    minimum size hint unless minimumSize() is set to a smaller size or
-    the size policy is set to \c QSizePolicy::Ignore.
+    minimum size hint unless minimumSize() is set or the size policy is
+    set to \c QSizePolicy::Ignore. If minimumSize() is set, the minimum
+    size hint will be ignored.
 
     \sa QSize::isValid(), resize(), setMinimumSize(), sizePolicy()
 */

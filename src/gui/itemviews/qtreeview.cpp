@@ -30,6 +30,7 @@
     \brief The QTreeView class provides a default model/view implementation of a tree view.
 
     \ingroup model-view
+    \mainclass
 
     A QTreeView implements a tree representation of items from a
     model. This class is used to provide standard hierarchical lists that

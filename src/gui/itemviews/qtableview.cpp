@@ -109,6 +109,7 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     implementation of a table view.
 
     \ingroup model-view
+    \mainclass
 
     A QTableView implements a table view that displays items from a
     model. This class is used to provide standard tables that were
