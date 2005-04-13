@@ -15,6 +15,7 @@
 #include "qcache.h"
 #include "qcleanuphandler.h"
 #include "qobject.h"
+#include "qdebug.h"
 
 /*!
     \class QPixmapCache
@@ -64,20 +65,25 @@
 
 static int cache_limit = 1024;                        // 1024 KB cache limit
 
-class QPMCache : public QObject, public QCache<QString, QPixmap>
+
+class QPMCache : public QObject, public QCache<int, QPixmap>
 {
     Q_OBJECT
 public:
     QPMCache()
         : QObject(0),
-          QCache<QString, QPixmap>(cache_limit * 1024),
+          QCache<int, QPixmap>(cache_limit * 1024),
           id(0), ps(0), t(false) { }
     ~QPMCache() { }
 
     void timerEvent(QTimerEvent *);
-    bool insert(const QString& k, const QPixmap &d, int c);
+    bool insert(const QString& key, const QPixmap &pixmap, int cost);
+    bool remove(const QString &key);
+
+    QPixmap *object(const QString &key) const;
 
 private:
+    QHash<QString, int> serialNumbers;
     int id;
     int ps;
     bool t;
@@ -103,6 +109,16 @@ void QPMCache::timerEvent(QTimerEvent *)
     setMaxCost(mc);
     ps = totalCost();
 
+    QHash<QString,int>::iterator it = serialNumbers.begin();
+    while (it != serialNumbers.end()) {
+        if (!contains(it.value())) {
+            it = serialNumbers.erase(it);
+        }
+        else
+            ++it;
+    }
+
+
     if (!size()) {
         killTimer(id);
         id = 0;
@@ -113,14 +129,35 @@ void QPMCache::timerEvent(QTimerEvent *)
     }
 }
 
-bool QPMCache::insert(const QString& k, const QPixmap &d, int c)
+QPixmap *QPMCache::object(const QString &key) const
 {
-    QCache<QString, QPixmap>::insert(k, new QPixmap(d), c);
-    if (!id) {
-        id = startTimer(30000);
-        t = false;
+    return  QCache<int,QPixmap>::object(serialNumbers.value(key, -1));
+}
+
+
+bool QPMCache::insert(const QString& key, const QPixmap &pixmap, int cost)
+{
+    int serialNumber = pixmap.serialNumber();
+    if (contains(serialNumber)) {
+        serialNumbers.insert(key, serialNumber);
+        return true;
     }
-    return true;
+    bool success = QCache<int, QPixmap>::insert(serialNumber, new QPixmap(pixmap), cost);
+    if (success) {
+        serialNumbers.insert(key, serialNumber);
+        if (!id) {
+            id = startTimer(30000);
+            t = false;
+        }
+    }
+    return success;
+}
+
+bool QPMCache::remove(const QString &key)
+{
+    int serialNumber = serialNumbers.value(key, -1);
+    serialNumbers.remove(key);
+    return QCache<int, QPixmap>::remove(serialNumber);
 }
 
 static QPMCache *pm_cache = 0;
@@ -188,34 +225,6 @@ bool QPixmapCache::find(const QString &key, QPixmap& pm)
 
 
 /*!
-    \obsolete
-    Inserts the pixmap \a pm associated with \a key into the cache.
-    Returns true if successful, or false if the pixmap is too big for the cache.
-
-    \warning \a pm must be allocated on the heap (using \c new).
-
-    If this function returns false, you must delete \a pm yourself.
-
-    If this function returns true, do not use \a pm afterwards or
-    keep references to it because any other insertions into the cache,
-    whether from anywhere in the application or within Qt itself, could cause
-    the pixmap to be discarded from the cache and the pointer to
-    become invalid.
-
-    Due to these dangers, we strongly recommend that you use
-    insert(const QString&, const QPixmap&) instead.
-*/
-
-bool QPixmapCache::insert(const QString &key, QPixmap *pm)
-{
-    if (!pm_cache) {
-        pm_cache = new QPMCache;
-        qpm_cleanup_cache.set(&pm_cache);
-    }
-    return pm_cache->insert(key, *pm, pm->width()*pm->height()*pm->depth() / 8);
-}
-
-/*!
     Inserts a copy of the pixmap \a pm associated with the \a key into
     the cache.
 
@@ -229,16 +238,19 @@ bool QPixmapCache::insert(const QString &key, QPixmap *pm)
     The oldest pixmaps (least recently accessed in the cache) are
     deleted when more space is needed.
 
+    The function returns true if the object was inserted into the
+    cache; otherwise it returns false.
+
     \sa setCacheLimit().
 */
 
-void QPixmapCache::insert(const QString &key, const QPixmap &pm)
+bool QPixmapCache::insert(const QString &key, const QPixmap &pm)
 {
     if (!pm_cache) {
         pm_cache = new QPMCache;
         qpm_cleanup_cache.set(&pm_cache);
     }
-    pm_cache->insert(key, pm, pm.width() * pm.height() * pm.depth() / 8);
+    return pm_cache->insert(key, pm, pm.width() * pm.height() * pm.depth() / 8);
 }
 
 /*!

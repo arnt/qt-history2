@@ -136,7 +136,7 @@
 */
 
 
-/*! \fn void QCache::insert(const Key &key, T *object, int cost = 1)
+/*! \fn bool QCache::insert(const Key &key, T *object, int cost = 1)
 
     Inserts \a object into the cache with key \a key and
     associated cost \a cost. Any object with the same key already in
@@ -145,6 +145,9 @@
     After this call, \a object is owned by the QCache and may be
     deleted at any time. In particular, if \a cost is greater than
     maxCost(), the object will be deleted immediately.
+
+    The function returns true if the object was inserted into the
+    cache; otherwise it returns false.
 
     \sa take(), remove()
 */

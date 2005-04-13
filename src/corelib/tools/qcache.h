@@ -27,6 +27,7 @@ class QCache
     };
     Node *f, *l;
     QHash<Key, Node> hash;
+    QHash<int, Node> serial;
     int mx, total;
     inline void unlink(Node &n) {
         if (n.p) n.p->n = n.n;
@@ -72,7 +73,7 @@ public:
 
     void clear();
 
-    void insert(const Key &key, T *object, int cost = 1);
+    bool insert(const Key &key, T *object, int cost = 1);
     T *object(const Key &key) const;
     inline bool contains(const Key &key) const { return hash.contains(key); }
     T *operator[](const Key &key) const;
@@ -121,12 +122,12 @@ inline T *QCache<Key,T>::take(const Key &key)
  Node &n = hash[key]; T *t = n.t; n.t = 0; unlink(n); return t; }
 
 template <class Key, class T>
-void QCache<Key,T>::insert(const Key &akey, T *aobject, int acost)
+bool QCache<Key,T>::insert(const Key &akey, T *aobject, int acost)
 {
     remove(akey);
     if (acost > mx) {
         delete aobject;
-        return;
+        return false;
     }
     trim(mx - acost);
     Node sn(akey, aobject, acost);
@@ -137,6 +138,7 @@ void QCache<Key,T>::insert(const Key &akey, T *aobject, int acost)
     n->n = f;
     f = n;
     if (!l) l = f;
+    return true;
 }
 
 template <class Key, class T>
