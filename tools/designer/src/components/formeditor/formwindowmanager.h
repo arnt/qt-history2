@@ -110,8 +110,6 @@ private:
     QList<FormWindow*> m_formWindows;
 
     bool m_layoutChilds;
-    bool m_layoutSelected;
-    bool m_breakLayout;
 
     // edit actions
     QAction *m_actionCut;

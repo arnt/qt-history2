@@ -390,7 +390,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
     return true;
 }
 
-bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
+bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
 {
     e->accept();
 
@@ -1432,22 +1432,22 @@ void FormWindow::layoutGridContainer(QWidget *w)
     commandHistory()->push(cmd);
 }
 
-bool FormWindow::hasInsertedChildren(QWidget *w) const
+bool FormWindow::hasInsertedChildren(QWidget *widget) const
 {
-    if (!w)
+    if (widget == 0)
         return false;
-    w = core()->widgetFactory()->containerOfWidget(w);
-    if (!w)
+
+    widget = core()->widgetFactory()->containerOfWidget(widget);
+    if (widget == 0)
         return false;
-    QList<QWidget*> l = qFindChildren<QWidget*>(w);
+
+    QList<QWidget*> l = widgets(widget);
     if (l.isEmpty())
         return false;
 
-    for (int i = 0; i < l.size(); ++i) {
-        QWidget* w = l.at(i);
-        if (w->isVisibleTo(const_cast<FormWindow*>(this)) && isManaged(w)) {
+    foreach (QWidget *child, l) {
+        if (isManaged(child) && child->isVisibleTo(const_cast<FormWindow*>(this)))
             return true;
-        }
     }
 
     return false;

@@ -58,8 +58,6 @@ FormWindowManager::FormWindowManager(QDesignerFormEditorInterface *core, QObject
       m_activeFormWindow(0)
 {
     m_layoutChilds = false;
-    m_layoutSelected = false;
-    m_breakLayout = false;
 
     setupActions();
     qApp->installEventFilter(this);
@@ -387,7 +385,7 @@ void FormWindowManager::slotActionHorizontalLayoutActivated()
 {
     if (m_layoutChilds)
         layoutContainerHorizontal();
-    else if (m_layoutSelected)
+    else
         m_activeFormWindow->layoutHorizontal();
 }
 
@@ -395,7 +393,7 @@ void FormWindowManager::slotActionVerticalLayoutActivated()
 {
     if (m_layoutChilds)
         layoutContainerVertical();
-    else if (m_layoutSelected)
+    else
         m_activeFormWindow->layoutVertical();
 }
 
@@ -403,7 +401,7 @@ void FormWindowManager::slotActionGridLayoutActivated()
 {
     if (m_layoutChilds)
         layoutContainerGrid();
-    else if (m_layoutSelected)
+    else
         m_activeFormWindow->layoutGrid();
 }
 
@@ -411,7 +409,7 @@ void FormWindowManager::slotActionSplitHorizontalActivated()
 {
     if (m_layoutChilds)
         ; // no way to do that
-    else if (m_layoutSelected)
+    else
         m_activeFormWindow->layoutHorizontalSplit();
 }
 
@@ -419,14 +417,12 @@ void FormWindowManager::slotActionSplitVerticalActivated()
 {
     if (m_layoutChilds)
         ; // no way to do that
-    else if (m_layoutSelected)
+    else
         m_activeFormWindow->layoutVerticalSplit();
 }
 
 void FormWindowManager::slotActionBreakLayoutActivated()
 {
-    if (!m_breakLayout)
-        return;
     QWidget *w = m_activeFormWindow->mainContainer();
     if (m_activeFormWindow->currentWidget())
         w = m_activeFormWindow->currentWidget();
@@ -490,132 +486,71 @@ void FormWindowManager::slotActionSelectAllActivated()
 void FormWindowManager::slotUpdateActions()
 {
     m_layoutChilds = false;
-    m_layoutSelected = false;
-    m_breakLayout = false;
 
-    if (!m_activeFormWindow
-            || m_activeFormWindow->currentTool() != 0) { // ### FormWindow::currentTool() doesn't make sense anymore!
-        m_actionCut->setEnabled(false);
-        m_actionCopy->setEnabled(false);
-        m_actionPaste->setEnabled(false);
-        m_actionDelete->setEnabled(false);
-        m_actionSelectAll->setEnabled(false);
-        m_actionAdjustSize->setEnabled(false);
-        m_actionHorizontalLayout->setEnabled(false);
-        m_actionVerticalLayout->setEnabled(false);
-        m_actionSplitHorizontal->setEnabled(false);
-        m_actionSplitVertical->setEnabled(false);
-        m_actionGridLayout->setEnabled(false);
-        m_actionBreakLayout->setEnabled(false);
-        m_actionLower->setEnabled(false);
-        m_actionRaise->setEnabled(false);
-        m_actionAdjustSize->setEnabled(false);
-        m_actionShowResourceEditor->setEnabled(false);
+    int selectedWidgetCount = 0;
+    int laidoutWidgetCount = 0;
+    int unlaidoutWidgetCount = 0;
+    bool pasteAvailable = false;
+    bool layoutAvailable = false;
+    bool breakAvailable = false;
 
-        if (!m_activeFormWindow) {
-            m_actionUndo->setText(tr("Undo"));
-            m_actionUndo->setEnabled(false);
-            m_actionRedo->setText(tr("Redo"));
-            m_actionRedo->setEnabled(false);
-        } else {
-            m_actionUndo->setEnabled(m_activeFormWindow->commandHistory()->canUndo());
-            m_actionUndo->setText(tr("Undo ") + m_activeFormWindow->commandHistory()->undoDescription());
-            m_actionRedo->setEnabled(m_activeFormWindow->commandHistory()->canRedo());
-            m_actionRedo->setText(tr("Redo ") + m_activeFormWindow->commandHistory()->redoDescription());
-        }
-        return;
-    }
+    QList<QWidget*> simplifiedSelection;
+    if (m_activeFormWindow != 0 && m_activeFormWindow->currentTool() == 0) {
+        simplifiedSelection = m_activeFormWindow->selectedWidgets();
+        selectedWidgetCount = simplifiedSelection.count();
+        pasteAvailable = qApp->clipboard()->mimeData() && qApp->clipboard()->mimeData()->hasText();
 
-    QList<QWidget*> widgets = m_activeFormWindow->selectedWidgets();
-    int selectedWidgets = widgets.size();
+        m_activeFormWindow->simplifySelection(&simplifiedSelection);
+        if (simplifiedSelection.isEmpty())
+            simplifiedSelection.append(m_activeFormWindow->mainContainer());
 
-    bool enable = selectedWidgets > 0;
-
-    m_actionCut->setEnabled(enable);
-    m_actionCopy->setEnabled(enable);
-    m_actionPaste->setEnabled(qApp->clipboard()->mimeData() && qApp->clipboard()->mimeData()->hasText());
-    m_actionDelete->setEnabled(enable);
-    m_actionLower->setEnabled(enable);
-    m_actionRaise->setEnabled(enable);
-    m_actionSelectAll->setEnabled(true);
-
-    m_actionShowResourceEditor->setEnabled(true);
-
-    m_actionAdjustSize->setEnabled(false);
-    m_actionSplitHorizontal->setEnabled(false);
-    m_actionSplitVertical->setEnabled(false);
-
-    if (selectedWidgets == 0 && m_activeFormWindow->mainContainer() != 0) {
-        widgets.append(m_activeFormWindow->mainContainer());
-        selectedWidgets = 1;
-    }
-
-    enable = false;
-    if (selectedWidgets > 1) {
-        int unlaidout = 0;
-        int laidout = 0;
-
-        foreach (QWidget *w, widgets) {
-            if (!w->parentWidget() || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout)
-                unlaidout++;
+        foreach (QWidget *widget, simplifiedSelection) {
+            if (LayoutInfo::isWidgetLaidout(m_core, widget))
+                ++laidoutWidgetCount;
             else
-                laidout++;
+                ++unlaidoutWidgetCount;
         }
 
-        m_actionHorizontalLayout->setEnabled(unlaidout > 1);
-        m_actionVerticalLayout->setEnabled(unlaidout > 1);
-        m_actionSplitHorizontal->setEnabled(unlaidout > 1);
-        m_actionSplitVertical->setEnabled(unlaidout > 1);
-        m_actionGridLayout->setEnabled(unlaidout > 1);
-        m_actionBreakLayout->setEnabled(laidout > 0);
-        m_actionAdjustSize->setEnabled(unlaidout > 0);
-        m_layoutSelected = unlaidout > 1;
-        m_breakLayout = laidout > 0;
-    } else if (selectedWidgets == 1) {
-        QWidget *w = widgets.first();
-        bool isContainer = core()->widgetDataBase()->isContainer(w)
-            || m_activeFormWindow->isMainContainer(w);
+        if (simplifiedSelection.count() == 1) {
+            QWidget *widget = simplifiedSelection.first();
+            QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
+            QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
+            Q_ASSERT(item != 0);
 
-        m_actionAdjustSize->setEnabled(m_activeFormWindow->isMainContainer(w)
-            || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout);
+            bool laidOut = widget->layout() != 0; // LayoutInfo::isWidgetLaidout(m_core, widget);
 
-        if (isContainer == false) {
-            m_actionHorizontalLayout->setEnabled(false);
-            m_actionVerticalLayout->setEnabled(false);
-            m_actionGridLayout->setEnabled(false);
-            if (w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
-                m_actionBreakLayout->setEnabled(m_activeFormWindow->widgets(w->parentWidget()).isEmpty() == false);
-                m_breakLayout = true;
-            } else {
-                m_actionBreakLayout->setEnabled(false);
-            }
+            layoutAvailable = (item->isContainer() || m_activeFormWindow->isMainContainer(widget))
+                                && m_activeFormWindow->hasInsertedChildren(widget)
+                                && !laidOut;
+
+            m_layoutChilds = layoutAvailable;
+
+            breakAvailable = laidOut || LayoutInfo::isWidgetLaidout(m_core, widget);
         } else {
-            if (LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
-                m_layoutChilds = m_activeFormWindow->hasInsertedChildren(w);
-
-                m_actionHorizontalLayout->setEnabled(m_layoutChilds);
-                m_actionVerticalLayout->setEnabled(m_layoutChilds);
-                m_actionGridLayout->setEnabled(m_layoutChilds);
-                m_actionBreakLayout->setEnabled(m_layoutChilds);
-
-                if (w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
-                    m_actionBreakLayout->setEnabled(m_activeFormWindow->widgets(w->parentWidget()).isEmpty() == false);
-                    m_breakLayout = true;
-                }
-            } else {
-                m_actionHorizontalLayout->setEnabled(false);
-                m_actionVerticalLayout->setEnabled(false);
-                m_actionGridLayout->setEnabled(false);
-                m_actionBreakLayout->setEnabled(m_activeFormWindow->widgets(w).isEmpty() == false);
-                m_breakLayout = true;
-            }
+            layoutAvailable = unlaidoutWidgetCount > 1;
+            breakAvailable = false;
         }
     }
 
-    m_actionUndo->setEnabled(m_activeFormWindow->commandHistory()->canUndo());
-    m_actionUndo->setText(tr("Undo ") + m_activeFormWindow->commandHistory()->undoDescription());
-    m_actionRedo->setEnabled(m_activeFormWindow->commandHistory()->canRedo());
-    m_actionRedo->setText(tr("Redo ") + m_activeFormWindow->commandHistory()->redoDescription());
+    m_actionCut->setEnabled(selectedWidgetCount > 0);
+    m_actionCopy->setEnabled(selectedWidgetCount > 0);
+    m_actionDelete->setEnabled(selectedWidgetCount > 0);
+    m_actionLower->setEnabled(selectedWidgetCount > 0);
+    m_actionRaise->setEnabled(selectedWidgetCount > 0);
+
+    m_actionPaste->setEnabled(pasteAvailable);
+
+    m_actionSelectAll->setEnabled(m_activeFormWindow != 0);
+
+    m_actionAdjustSize->setEnabled(unlaidoutWidgetCount > 0);
+
+    m_actionHorizontalLayout->setEnabled(layoutAvailable);
+    m_actionVerticalLayout->setEnabled(layoutAvailable);
+    m_actionSplitHorizontal->setEnabled(layoutAvailable);
+    m_actionSplitVertical->setEnabled(layoutAvailable);
+    m_actionGridLayout->setEnabled(layoutAvailable);
+
+    m_actionBreakLayout->setEnabled(breakAvailable);
 }
 
 void FormWindowManager::layoutContainerHorizontal()
