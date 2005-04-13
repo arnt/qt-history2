@@ -6,10 +6,6 @@
         <translation>ファイル(&amp;F)</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
-    </message>
-    <message>
         <source>E&amp;xit</source>
         <translation>終了(&amp;X)</translation>
     </message>

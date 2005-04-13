@@ -3,6 +3,7 @@ HEADERS       = languagechooser.h \
 SOURCES       = languagechooser.cpp \
                 main.cpp \
                 mainwindow.cpp
+RESOURCES    += i18n.qrc
 TRANSLATIONS += translations/i18n_ar.ts \
                 translations/i18n_cs.ts \
                 translations/i18n_de.ts \

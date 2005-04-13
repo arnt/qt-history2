@@ -6,10 +6,6 @@
         <translation>&amp;Αρχείο</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
-    </message>
-    <message>
         <source>E&amp;xit</source>
         <translation>Έ&amp;ξοδος</translation>
     </message>

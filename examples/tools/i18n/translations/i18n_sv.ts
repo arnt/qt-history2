@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>First</source>
-        <translation type="unfinished">Första</translation>
+        <translation>Första</translation>
     </message>
     <message>
         <source>Third</source>
@@ -28,10 +28,6 @@
     <message>
         <source>English</source>
         <translation>Svenska</translation>
-    </message>
-    <message>
-        <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <source>Oblique</source>

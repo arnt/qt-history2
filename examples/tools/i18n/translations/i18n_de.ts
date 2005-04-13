@@ -30,10 +30,6 @@
         <translation>Sprache: %1</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation>Strg+E</translation>
-    </message>
-    <message>
         <source>Oblique</source>
         <translation>Schief</translation>
     </message>
@@ -56,13 +52,6 @@
     <message>
         <source>LTR</source>
         <translation>LTR</translation>
-    </message>
-</context>
-<context>
-    <name>QShortcut</name>
-    <message>
-        <source>Ctrl</source>
-        <translation>Strg</translation>
     </message>
 </context>
 </TS>

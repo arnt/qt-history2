@@ -30,10 +30,6 @@
         <translation>Français</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
-    </message>
-    <message>
         <source>Oblique</source>
         <translation>Oblique</translation>
     </message>

@@ -3,6 +3,10 @@
 #include "languagechooser.h"
 #include "mainwindow.h"
 
+#ifdef Q_WS_MAC
+extern void qt_mac_set_menubar_merge(bool merge);
+#endif
+
 LanguageChooser::LanguageChooser(QWidget *parent)
     : QDialog(parent, Qt::WindowStaysOnTopHint)
 {
@@ -36,6 +40,10 @@ LanguageChooser::LanguageChooser(QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(groupBox);
     mainLayout->addLayout(buttonLayout);
+
+#ifdef Q_WS_MAC
+    qt_mac_set_menubar_merge(false);
+#endif
 
     setWindowTitle("I18N");
 }
@@ -90,9 +98,7 @@ void LanguageChooser::hideAll()
 
 QStringList LanguageChooser::findQmFiles()
 {
-    QDir dir(qApp->applicationDirPath());
-    dir.cd("translations");
-
+    QDir dir(":/translations");
     QStringList fileNames = dir.entryList(QStringList("*.qm"), QDir::Files,
                                           QDir::Name);
     QMutableStringListIterator i(fileNames);

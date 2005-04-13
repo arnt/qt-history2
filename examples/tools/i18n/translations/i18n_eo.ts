@@ -6,10 +6,6 @@
         <translation>&amp;Dosiero</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation>Ctrl+F</translation>
-    </message>
-    <message>
         <source>First</source>
         <translation>Unue</translation>
     </message>

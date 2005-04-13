@@ -6,10 +6,6 @@
         <translation>파일&amp;F</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation>Ctrl+E</translation>
-    </message>
-    <message>
         <source>E&amp;xit</source>
         <translation>종료&amp;X</translation>
     </message>

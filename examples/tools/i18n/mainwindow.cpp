@@ -25,7 +25,6 @@ MainWindow::MainWindow()
     mainLayout->addWidget(listWidget);
 
     exitAction = new QAction(tr("E&xit"), this);
-    exitAction->setShortcut(tr("Ctrl+Q"));
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     fileMenu = menuBar()->addMenu(tr("&File"));

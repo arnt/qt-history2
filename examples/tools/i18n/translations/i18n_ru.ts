@@ -50,10 +50,6 @@
         <translation>Пример интернациноализации</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LTR</source>
         <translation>LTR</translation>
     </message>

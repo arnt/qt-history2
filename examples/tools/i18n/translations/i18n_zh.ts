@@ -30,10 +30,6 @@
         <translation>简体中文</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation type="unfinished">Ctrl+Q</translation>
-    </message>
-    <message>
         <source>Oblique</source>
         <translation>斜投影</translation>
     </message>

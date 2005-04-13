@@ -30,10 +30,6 @@
         <translation>Český</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
-    </message>
-    <message>
         <source>Oblique</source>
         <translation>Nakloněný</translation>
     </message>
