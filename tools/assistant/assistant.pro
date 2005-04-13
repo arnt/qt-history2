@@ -2,7 +2,7 @@ TEMPLATE = app
 LANGUAGE = C++
 TARGET         = assistant
 
-CONFIG        += qt warn_on console
+CONFIG        += qt warn_on
 QT            += xml network
 
 PROJECTNAME        = Assistant
