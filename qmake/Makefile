@@ -81,7 +81,7 @@ QTOBJS= \
 	qiodevice.obj \
 	qinternal.obj \
 	qlibraryinfo.obj \
-	qlist.obj \
+	qlistdata.obj \
 	qlocale.obj \
 	qmap.obj \
 	qregexp.obj \
@@ -126,7 +126,7 @@ clean::
 	-del qiodevice.obj
 	-del qinternal.obj
 	-del qlibraryinfo.obj
-	-del qlist.obj
+	-del qlistdata.obj
 	-del qlocale.obj
 	-del qmap.obj
 	-del qregexp.obj
@@ -246,8 +246,8 @@ quuid.obj: ..\src\corelib\plugin\quuid.cpp
 qbuffer.obj: ..\src\corelib\io\qbuffer.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qbuffer.cpp
 
-qlist.obj: ..\src\corelib\tools\qlist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlist.cpp
+qlistdata.obj: ..\src\corelib\tools\qlistdata.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlistdata.cpp
 
 qlinkedlist.obj: ..\src\corelib\tools\qlinkedlist.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\tools\qlinkedlist.cpp
