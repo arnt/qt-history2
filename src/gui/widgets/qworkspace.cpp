@@ -1930,7 +1930,7 @@ void QWorkspacePrivate::showOperationMenu()
         return;
     Q_ASSERT((active->windowWidget()->windowFlags() & Qt::WindowSystemMenuHint));
     QPoint p;
-    QMenu *popup = active->titlebar->isTool() ? toolPopup : popup;
+    QMenu *popup = active->titlebar->isTool() ? toolPopup : this->popup;
     if (q->isRightToLeft()) {
         p = QPoint(active->windowWidget()->mapToGlobal(QPoint(active->windowWidget()->width(),0)));
         p.rx() -= popup->sizeHint().width();
@@ -2030,7 +2030,7 @@ void QWorkspacePrivate::operationMenuActivated(QAction *action)
 void QWorkspacePrivate::hideChild(QWorkspaceChild *c)
 {
     Q_Q(QWorkspace);
-    
+
     bool updatesEnabled = q->updatesEnabled();
     q->setUpdatesEnabled(false);
     focus.removeAll(c);
