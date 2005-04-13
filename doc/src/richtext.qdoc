@@ -52,7 +52,7 @@ a logical structure to the document and describe how their contents will be
 displayed. Generally, frames and tables are used to group other
 structures while text blocks contain the actual textual information.
 
-New elements are created and inserted into the document
+New elements are created and inserted into the document programmatically
 \l{richtext-cursor.html}{with a \c QTextCursor} or by using an editor
 widget, such as QTextEdit. Elements can be given a particular format when
 they are created; otherwise they take the cursor's current format for the
@@ -84,10 +84,9 @@ how to examine their contents. Document editing is described in
 
 QTextDocument objects contain all the information required to construct
 rich text documents for use with a QTextEdit widget or in a custom editor.
-Although QTextEdit makes it easy to display and edit rich text, and allows
-the underlying document to be edited programmatically, documents can also
-be used independently of any editor widget. Documents can be created
-directly or extracted from an existing editor:
+Although QTextEdit makes it easy to display and edit rich text, documents
+can also be used independently of any editor widget. Documents can be
+created directly or extracted from an existing editor:
 
 \code
 QTextDocument *newDocument = new QTextDocument;
@@ -95,9 +94,9 @@ QTextEdit *editor = new QTextEdit;
 QTextDocument *editorDocument = editor->document();
 \endcode
 
-This flexibility enables applications to handle multiple rich text documents
-without the overhead of multiple editor widgets, or requiring documents
-to be stored in some intermediate format.
+This flexibility enables applications to handle multiple rich text
+documents without the overhead of multiple editor widgets, or requiring
+documents to be stored in some intermediate format.
 
 An empty document contains a root frame which itself contains a single
 empty text block. The \l{richtext-cursor.html}{text cursor interface}
@@ -119,11 +118,14 @@ root frame because it provides access to the entire document structure.
 \section1 Document Elements
 
 Rich text documents usually consist of common elements such as paragraphs,
-frames, tables, lists, and images. These are represented in a QTextDocument
-by the QTextBlock, QTextFrame, QTextTable, QTextList, and QTextImage
-classes. The basic structural building blocks are QTextBlock and
-QTextFrame. Blocks themselves contain fragments of rich text, but these
-do not directly influence the high level structure of a document.
+frames, tables, and lists. These are represented in a QTextDocument
+by the QTextBlock, QTextFrame, QTextTable, and QTextList classes.
+Unlike the other elements in a document, images are represented by
+specially formatted text fragments.
+
+The basic structural building blocks are QTextBlock and QTextFrame.
+Blocks themselves contain fragments of rich text (QTextFragment), but
+these do not directly influence the high level structure of a document.
 
 Elements which can group together other document elements are typically
 subclasses of QTextObject, and fall into two categories: Elements that
@@ -296,6 +298,8 @@ format of the image's text fragment:
 \quotefromfile snippets/textdocument-imageformat/main.cpp
 \skipto if (fragment.isValid())
 \printuntil setCharFormat
+\printuntil }
+\printuntil }
 
 The fragment that represents the image can be found by iterating over
 the fragments in the text block that contains the image.
