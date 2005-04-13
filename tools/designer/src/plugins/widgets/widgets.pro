@@ -3,5 +3,6 @@ CONFIG += ordered
 
 SUBDIRS = \
     q3listview \
-    q3widgetstack
+    q3widgetstack \
+    q3buttongroup
 
