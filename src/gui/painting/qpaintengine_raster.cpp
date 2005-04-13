@@ -761,8 +761,8 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
         && d->txop <= QPainterPrivate::TxTranslate) {
 
         bool hasPen = d->pen.style() != Qt::NoPen;
-        int offset_x = d->matrix.dx();
-        int offset_y = d->matrix.dy();
+        qreal offset_x = d->matrix.dx();
+        qreal offset_y = d->matrix.dy();
 
         QBrush oldBrush = d->brush;
         d->brush = QBrush();
@@ -1552,11 +1552,11 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
     int xmax = qMin(qRound(pos.x() + w), rasterBuffer->width());
     int xmin = qMax(qRound(pos.x()), 0);
 
-    int x_offset = xmin - pos.x();
+    int x_offset = xmin - qRound(pos.x());
 
     QImage::Format format = image.format();
     for (int y = ymin; y < ymax; ++y) {
-        uchar *src = image.scanLine(y - pos.y());
+        uchar *src = image.scanLine(y - qRound(pos.y()));
         if (format == QImage::Format_MonoLSB) {
             for (int x = 0; x < xmax - xmin; ++x) {
                 int src_x = x + x_offset;
