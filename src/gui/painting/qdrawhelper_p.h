@@ -100,31 +100,6 @@ struct ConicalGradientData : public GradientData
 
 inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 
-#if 1
-#define INTERPOLATE_PIXEL_256(p1, x1, p2,  x2)                  \
-    ((qAlpha(p1) * x1 + qAlpha(p2) * x2) >> 8 << 24)  \
-     | ((qRed(p1) * x1 + qRed(p2) * x2) >> 8 << 16)     \
-     | ((qGreen(p1) * x1 + qGreen(p2) * x2) >> 8 << 8) \
-    | ((qBlue(p1) * x1 + qBlue(p2) * x2) >> 8)
-
-#define INTERPOLATE_PIXEL_255(p1, x1, p2,  x2)                  \
-    ((qt_div_255(qAlpha(p1) * x1 + qAlpha(p2) * x2) << 24)  \
-     | (qt_div_255(qRed(p1) * x1 + qRed(p2) * x2)<< 16)     \
-    | (qt_div_255(qGreen(p1) * x1 + qGreen(p2) * x2) << 8) \
-     | qt_div_255(qBlue(p1) * x1 + qBlue(p2) * x2))
-
-#define PREMUL(p)                                       \
-    ((qAlpha(p) << 24)                                  \
-     | (qt_div_255(qRed(p) * qAlpha(p)) << 16)          \
-     | (qt_div_255(qGreen(p) * qAlpha(p))  << 8)        \
-     | qt_div_255(qBlue(p) * qAlpha(p)))
-
-#define BYTE_MUL(src, a)                            \
-    (qt_div_255(qAlpha(src) * a) << 24)   \
-        | (qt_div_255(qRed(src) * a) << 16)     \
-        | (qt_div_255(qGreen(src) * a) << 8)    \
-        | (qt_div_255(qBlue(src) * a))
-#else
 
 #if 1
 inline uint INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b) {
@@ -206,8 +181,6 @@ inline uint PREMUL(uint x) {
     t &= 0x00ff00ff00ff00ff;
     return (uint(t)) | (uint(t >> 24)) | 0xff000000;
 }
-
-#endif
 
 #endif
 
