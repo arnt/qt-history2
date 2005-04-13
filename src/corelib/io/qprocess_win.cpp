@@ -42,7 +42,7 @@ public:
         timer.start();
     }
 
-    int nextSleepTime() 
+    int nextSleepTime()
     {
         if (totalTimeOut == -1)
             return -1;
@@ -50,7 +50,7 @@ public:
         int tmp = nextSleep;
 
         nextSleep = qMin(nextSleep * 2, qMin(SLEEPMAX, timeLeft()));
-        
+
         return tmp;
     }
 
@@ -61,7 +61,7 @@ public:
 
     bool hasTimedOut()
     {
-        return timer.elapsed() >= totalTimeOut; 
+        return timer.elapsed() >= totalTimeOut;
     }
 
     void resetIncrements()
@@ -283,7 +283,7 @@ static QString qt_create_commandline(const QString &program, const QStringList &
             // rather use "foo"\ than "foo\"
             QString endQuote("\"");
             int i = tmp.length();
-            while (i>=0 && tmp.at(i-1) == '\\') {
+            while (i>0 && tmp.at(i-1) == '\\') {
                 --i;
                 endQuote += "\\";
             }
