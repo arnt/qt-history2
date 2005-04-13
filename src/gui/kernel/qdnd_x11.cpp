@@ -1365,14 +1365,23 @@ void QDragManager::updatePixmap()
 
 QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) const
 {
+    QByteArray mime = mimetype.toLatin1();
+    if (type == QVariant::Image && mime == "application/x-qt-image") {
+        mime = "image/png";
+    }
     QByteArray data = X11->motifdnd_active
-                      ? X11->motifdndObtainData(mimetype.toLatin1().data())
-                      : xdndObtainData(mimetype.toLatin1().data());
+                      ? X11->motifdndObtainData(mime)
+                      : xdndObtainData(mime);
     if (type == QVariant::String)
         return QString::fromUtf8(data);
     if (type == QVariant::Url) { // ### handle uri list
         QByteArray d = data.left(data.indexOf('\r'));
         return QUrl::fromEncoded(d);
+    }
+    if (type == QVariant::Image) {
+        QImage img;
+        img.loadFromData(data);
+        return img;
     }
     return data;
 }

@@ -53,7 +53,7 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
 
         if (img.isNull()) // try direct loading
             if (name.isEmpty() || !img.load(name))
-                return pm;
+                return QPixmap(":/trolltech/styles/commonstyle/images/file-16.png");
         pm = QPixmap::fromImage(img);
         doc->addResource(QTextDocument::ImageResource, name, pm);
     }
