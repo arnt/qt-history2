@@ -14,6 +14,7 @@
 #ifndef QFSFILEENGINE_H
 #define QFSFILEENGINE_H
 
+#include <qplatformdefs.h>
 #include "qfileengine.h"
 #include "private/qfileengine_p.h"
 
