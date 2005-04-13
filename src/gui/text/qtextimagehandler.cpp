@@ -34,51 +34,38 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
     const bool hasHeight = format.hasProperty(QTextFormat::ImageHeight);
     const int height = qRound(format.height());
 
-    QTextBrowser *browser = qobject_cast<QTextBrowser *>(doc->parent());
-
     QString name = format.name();
-    if (browser)
-        name = browser->source().resolved(name).toString();
+    const QVariant data = doc->resource(QTextDocument::ImageResource, name);
+    if (data.type() == QVariant::Pixmap || data.type() == QVariant::Image) {
+        pm = qvariant_cast<QPixmap>(data);
+    } else if (data.type() == QVariant::ByteArray) {
+        pm.loadFromData(data.toByteArray());
+    }
 
-    QString key = QString("$qt_rt_%1_%2_%3").arg(name).arg(width).arg(height);
-
-    if (!QPixmapCache::find(key, pm)) {
-        QImage img;
-        const QString name = format.name();
-
-        const QVariant data = doc->loadResource(QTextDocument::ImageResource, name);
-            if (data.type() == QVariant::Pixmap) {
-                pm = qvariant_cast<QPixmap>(data);
-                QPixmapCache::insert(key, pm);
-                return pm;
-            } else if (data.type() == QVariant::Image) {
-                img = qvariant_cast<QImage>(data);
-            } else if (data.type() == QVariant::ByteArray) {
-                img.loadFromData(data.toByteArray());
-            }
-
+    if (pm.isNull()) {
+        QTextBrowser *browser = qobject_cast<QTextBrowser *>(doc->parent());
         QString context;
         if (browser)
             context = browser->source().toString();
-
-        if (img.isNull() && QTextImageHandler::externalLoader)
+        QImage img;
+        if (QTextImageHandler::externalLoader)
             img = QTextImageHandler::externalLoader(name, context);
 
         if (img.isNull()) // try direct loading
             if (name.isEmpty() || !img.load(name))
                 return pm;
-
-        QSize size = img.size();
-        if (hasWidth)
-            size.setWidth(width);
-        if (hasHeight)
-            size.setHeight(height);
-        if (size.isValid() && img.size() != size)
-            img = img.scaled(size);
-
         pm = QPixmap::fromImage(img);
-        QPixmapCache::insert(key, pm);
+        doc->addResource(QTextDocument::ImageResource, name, pm);
     }
+
+    QSize size = pm.size();
+    if (hasWidth)
+        size.setWidth(width);
+    if (hasHeight)
+        size.setHeight(height);
+    if (size.isValid() && pm.size() != size)
+        pm = pm.scaled(size);
+
     return pm;
 }
 

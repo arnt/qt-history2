@@ -146,7 +146,9 @@ public:
 
         UserResource  = 100
     };
-    virtual QVariant loadResource(int type, const QUrl &name);
+
+    QVariant resource(int type, const QUrl &name) const;
+    void addResource(int type, const QUrl &name, const QVariant &resource);
 
     QVector<QTextFormat> allFormats() const;
 
@@ -168,6 +170,7 @@ public slots:
 
 protected:
     virtual QTextObject *createObject(const QTextFormat &f);
+    virtual QVariant loadResource(int type, const QUrl &name);
 
 public:
     QTextDocumentPrivate *docHandle() const;

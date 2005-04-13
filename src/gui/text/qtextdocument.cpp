@@ -906,6 +906,40 @@ void QTextDocument::print(QPrinter *printer) const
     images are referenced indirectly by the name attribute of a QTextImageFormat
     object.
 
+    Resources are cached internally in the document. If a resource can
+    not be found in the cache, loadResource is called to try to load
+    the resource. loadResource should then use addResource to add the
+    resource to the cache.
+*/
+QVariant QTextDocument::resource(int type, const QUrl &name) const
+{
+    Q_D(const QTextDocument);
+    QVariant r = d->resources.value(name);
+    if (!r.isValid())
+        r = const_cast<QTextDocument *>(this)->loadResource(type, name);
+    return r;
+}
+
+/*!
+    Adds the resource \a resource to the resource cache, using \a
+    type and \a name as identifiers.
+*/
+void QTextDocument::addResource(int type, const QUrl &name, const QVariant &resource)
+{
+    Q_UNUSED(type);
+    Q_D(QTextDocument);
+    d->resources.insert(name, resource);
+}
+
+/*!
+    Loads data of the specified \a type from the resource with the
+    given \a name.
+
+    This function is called by the rich text engine to request data that isn't
+    directly stored by QTextDocument, but still associated with it. For example,
+    images are referenced indirectly by the name attribute of a QTextImageFormat
+    object.
+
     When called by Qt, \a type is one of the values of
     QTextDocument::ResourceType.
 
@@ -915,11 +949,14 @@ void QTextDocument::print(QPrinter *printer) const
 */
 QVariant QTextDocument::loadResource(int type, const QUrl &name)
 {
+    QVariant r;
     if (QTextDocument *doc = qobject_cast<QTextDocument *>(parent()))
-        return doc->loadResource(type, name);
+        r = doc->loadResource(type, name);
     else if (QTextEdit *edit = qobject_cast<QTextEdit *>(parent()))
-        return edit->loadResource(type, name);
-    return QVariant();
+        r = edit->loadResource(type, name);
+    if (!r.isNull())
+        addResource(type, name, r);
+    return r;
 }
 
 static QTextFormat formatDifference(const QTextFormat &from, const QTextFormat &to)

@@ -36,6 +36,8 @@
 #include "qtextdocument.h"
 #include "qtextobject.h"
 #include <qmap.h>
+#include <qvariant.h>
+#include <qurl.h>
 
 // #define QT_QMAP_DEBUG
 
@@ -267,6 +269,7 @@ private:
     QList<QTextCursorPrivate*> cursors;
     QList<QTextCursorPrivate*> changedCursors;
     QMap<int, QTextObject *> objects;
+    QMap<QUrl, QVariant> resources;
 
     QTextDocumentConfig docConfig;
 
